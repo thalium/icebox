@@ -1,0 +1,222 @@
+.echotime;
+
+.echo "**************LoadSymbols Test********************"
+.reload 
+.echo "**************LoadSymbols Test********************"
+.echo ""
+
+.echo "**************LoadExtension Test********************"
+.load hbp
+.echo "**************LoadExtension Test********************"
+.echo ""
+
+.echo "**************ReadHardHBP Test********************"
+ba r 1 nt!KiProcessOutSwapListHead;g;bc *;
+.echo "**************ReadHardHBP Test********************"
+.echo ""
+
+.echo "**************WriteHardHBP Test********************"
+ba w 1 nt!KiProcessOutSwapListHead;g;bc *;
+.echo "**************WriteHardHBP Test********************"
+.echo ""
+
+.echo "**************ExecuteHardHBP Test********************"
+ba e 1 nt!KiPageFault;g;bc *;
+.echo "**************ExecuteHardHBP Test********************"
+.echo ""
+
+.echo "**************ReadPageHBP Test********************"
+!hba r v nt!KiProcessOutSwapListHead 10; g;!hbc 4;t;
+.echo "**************ReadPageHBP Test********************"
+.echo ""
+
+.echo "**************WritePageHBP Test********************"
+!hba w v nt!KiProcessOutSwapListHead 10; g; !hbc 4;t;
+.echo "**************WritePageHBP Test********************"
+.echo ""
+
+.echo "**************ExecutePageHBP Test********************"
+!hba e v nt!KiPageFault 1; g; !hbc 4; t;
+.echo "**************ExecutePageHBP Test********************"
+.echo ""
+
+.echo "**************FailedRestoreWin81 RegressTest********************"
+bp nt!KiPageFault; g; !save; !hba e v nt!KeBugCheckEx 1; !hbint 0E 00 1FFFFFFFFFFF1000;g; !restore
+.echo "**************ExecutePageHBPWin81 Test********************"
+.echo ""
+
+.echo "**************PStep(x300) Test********************"
+r @$t0 = 0;
+bp nt!KiPageFault;
+.for(r @$t0 = 0; @$t0 < 300; r @$t0 = @$t0+1) {
+    p;
+    .printf "."
+    .if(@$t0%30==29) {
+        .printf "\n"
+    }
+}
+.if(@$t0%30!=29) {
+    .printf "\n"
+}
+bc *
+.echo "**************PStep(x300) Test********************"
+.echo ""
+
+.echo "**************ConvertPageHBP+SingleStep Test********************"
+!hbc 4;
+!hbc 5;
+!hbc 6;
+bc *;
+bp nt!KiPageFault;
+g;
+t;
+!hba e v nt!KiPageFault 1
+t;
+g
+!hba er v nt!KiPageFault 1
+g
+t;
+!hba erw v nt!KiPageFault 1
+t;
+g
+!hbc 4;
+g
+t;
+!hbc 5;
+t;
+g;
+!hbc 6;
+g;
+t;
+bc*
+.echo "**************ConvertPageHBP+SingleStep Test********************"
+.echo ""
+
+.echo "**************LargePageHBP Test********************"
+!hbc 4
+!hba e v nt 00852000;g;r;!hbc 4;t
+!hba e v nt 00852000;g;r;!hbc 4;t
+!hba e v nt 00852000;g;r;!hbc 4;t
+!hba e v nt 00852000;g;r;!hbc 4;t
+!hba e v nt 00852000;g;r;!hbc 4;t
+!hba e v nt 00852000;g;r;!hbc 4;t
+!hba e v nt 00852000;g;r;!hbc 4;t
+!hba e v nt 00852000;g;r;!hbc 4;t
+.echo "**************LargePageHBP Test********************"
+.echo ""
+
+.echo "**************Save Test********************"
+bp nt!KiPageFault; g; r; !save;
+.echo "**************Save Test********************"
+.echo ""
+
+.echo "**************SaveSaveRestoreRestoreSaveRestore Test********************"
+!save; !save; !restore; !restore; !save; !restore
+.echo "**************SaveSaveRestoreRestoreSaveRestore Test********************"
+.echo ""
+
+.echo "**************SaveCLIBreakpoint RegressTest********************"
+ba e 1 nt!KiPageFault; g; r; !save;
+.echo "**************SaveCLIBreakpoint RegressTest********************"
+.echo ""
+
+.echo "**************ExecuteHardHBP Test********************"
+ba e 1 nt!KiPageFault; g; bc *;
+.echo "**************ExecuteHardHBP Test********************"
+.echo ""
+
+.echo "**************ReadWritePhysicalMemory Test********************"
+!db 0 L1; !eb 0 0; !db 0 L1
+.echo "**************ReadWritePhysicalMemory Test********************"
+.echo ""
+
+.echo "**************SingleStep(100x) Test********************"
+t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;
+t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;t;
+.echo "**************SingleStep(100x) Test********************"
+
+
+.echo "**************SoftHBP Test********************"
+bp nt!KiPageFault; g
+.echo "**************SoftHBP Test********************"
+.echo ""
+
+.echo "**************ClearHBP Test********************"
+bc *; t
+.echo "**************ClearHBP Test********************"
+.echo ""
+
+.echo "**************ExecuteHardHBP Test********************"
+ba e 1 nt!KiPageFault;g
+.echo "**************ExecuteHardHBP Test********************"
+.echo ""
+
+.echo "**************ClearHBP Test********************"
+bc *; t
+.echo "**************ClearHBP Test********************"
+.echo ""
+
+.echo "**************SearchMemory Test********************"
+s-sa nt L400
+.echo "**************SearchMemory Test********************"
+.echo ""
+
+.echo "**************ReadloadExtension Test********************"
+.load hbp; bc *; t
+.echo "**************ReadloadExtension Test********************"
+.echo ""
+
+.echo "**************ReadWriteVirtualMemory Test********************"
+db 0 L1; eb nt A; db nt L1; eb nt 41
+.echo "**************ReadWriteVirtualMemory Test********************"
+.echo ""
+
+.echo "**************InjectInterrupt Test********************"
+bc *; ba e 1 nt!NtAlpcSendWaitReceivePort; g; !hbint 0E 00 01000; !hba e v nt!KeBugCheckEx 1; g; !restore; r
+.echo "**************InjectInterrupt Test********************"
+.echo ""
+
+.echo "**************ReadWriteRegister Test********************"
+bc *; r rip; r rip = 0; ba e 1 nt!KeBugCheckEx; g; !restore; r
+.echo "**************ReadWriteRegister Test********************"
+.echo ""
+
+.echo "**************ReadWriteMSR Test********************"
+bc *;rdmsr c0000082;wrmsr c0000082 0;ba e 1 nt!KeBugCheckEx;g;!restore; r;
+.echo "**************ReadWriteMSR Test********************"
+.echo ""
+
+
+.echo "**************ReadVirtualMemory Test********************"
+ed rip caca; ba e 1 nt!KeBugCheckEx; g;!restore; r
+.echo "**************ReadVirtualMemory Test********************"
+.echo ""
+
+
+.echo "**************Process Test********************"
+!process -1 0
+bc *;ba e 1 nt!KiPageFault;g;bc *;
+!process -1 0
+.echo "**************Process Test********************"
+.echo ""
+
+.echo "**************VisibleDegugRegister Test********************"
+!hbdr
+.echo "**************VisibleDegugRegister Test********************"
+.echo ""
+
+.echo "**************Restore Test********************"
+!restore; r
+.echo "**************Restore Test********************"
+.echo ""
+
+.echo "***************************"
+.echo "***************************"
+.echo "**  ALL TESTS ARE DONE ! **"
+.echo "***************************"
+.echo "***************************"
+.echo "g"
+g
+.echotime;
+
+

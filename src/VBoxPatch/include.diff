@@ -1,0 +1,338 @@
+diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/em.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/em.h
+--- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/em.h    2016-04-18 17:20:23.000000000 +0200
++++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/em.h    2016-04-27 10:26:35.445164900 +0200
+@@ -286,6 +286,11 @@
+ VMMR3_INT_DECL(int)             EMR3NotifySuspend(PVM pVM);
+ VMMR3_INT_DECL(VBOXSTRICTRC)    EMR3HmSingleInstruction(PVM pVM, PVMCPU pVCpu, uint32_t fFlags);
+ 
++/*MYCODE*/
++VMMR3_INT_DECL(void)            EMR3ResetU(PUVM pUVM);
++VMMR3_INT_DECL(int)             EMR3ProcessForcedAction(PVM pVM, PVMCPU pVCpu, int rc);
++/*ENDMYCODE*/
++
+ /** @} */
+ #endif /* IN_RING3 */
+ 
+diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/gmm.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/gmm.h
+--- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/gmm.h    2016-04-18 17:20:23.000000000 +0200
++++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/gmm.h    2016-04-27 10:27:43.539907600 +0200
+@@ -545,6 +545,16 @@
+ GMMR0DECL(int)  GMMR0QueryHypervisorMemoryStatsReq(PVM pVM, PGMMMEMSTATSREQ pReq);
+ GMMR0DECL(int)  GMMR0QueryMemoryStatsReq(PVM pVM, VMCPUID idCpu, PGMMMEMSTATSREQ pReq);
+ 
++/*MYCODE*/
++typedef struct ALLOCPAGEREQ
++{
++    SUPVMMR0REQHDR  Hdr;
++    uint64_t        newPageSize;
++    uint64_t        newPageHCPHys;
++    uint8_t*        newPageR3Ptr;
++} ALLOCPAGEREQ;
++/*ENDMYCODE*/
++
+ /**
+  * Request buffer for GMMR0MapUnmapChunkReq / VMMR0_DO_GMM_MAP_UNMAP_CHUNK.
+  * @see GMMR0MapUnmapChunk
+diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/hm.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/hm.h
+--- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/hm.h    2016-04-18 17:20:24.000000000 +0200
++++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/hm.h    2016-04-27 10:29:11.425234500 +0200
+@@ -150,6 +150,9 @@
+ #ifndef IN_RC
+ VMM_INT_DECL(int)               HMFlushTLB(PVMCPU pVCpu);
+ VMM_INT_DECL(int)               HMFlushTLBOnAllVCpus(PVM pVM);
++/*MYCODE*/
++VMM_INT_DECL(int)               HMFlushTLBOnAllVCpus2(PVM pVM);
++/*ENCODE*/
+ VMM_INT_DECL(int)               HMInvalidatePageOnAllVCpus(PVM pVM, RTGCPTR GCVirt);
+ VMM_INT_DECL(int)               HMInvalidatePhysPage(PVM pVM, RTGCPHYS GCPhys);
+ VMM_INT_DECL(bool)              HMIsNestedPagingActive(PVM pVM);
+@@ -171,6 +174,9 @@
+  * @{
+  */
+ VMMR0_INT_DECL(int)             HMR0Init(void);
++/*MYCODE*/
++VMMR0_INT_DECL(int)             HMR0FlushEPT(PVM pVM, PVMCPU pVCpu);
++/*ENMYCODE*/
+ VMMR0_INT_DECL(int)             HMR0Term(void);
+ VMMR0_INT_DECL(int)             HMR0InitVM(PVM pVM);
+ VMMR0_INT_DECL(int)             HMR0TermVM(PVM pVM);
+diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/mm.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/mm.h
+--- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/mm.h    2016-04-18 17:20:24.000000000 +0200
++++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/mm.h    2016-04-27 10:30:53.787259500 +0200
+@@ -225,6 +225,9 @@
+ 
+ VMMDECL(RTHCPHYS)   MMPage2Phys(PVM pVM, void *pvPage);
+ VMMDECL(void *)     MMPagePhys2Page(PVM pVM, RTHCPHYS HCPhysPage);
++/*MYCODE*/
++VMMDECL(void *)     MMPagePhys2PageU(PUVM pUVM, RTHCPHYS HCPhysPage);
++/*ENDMYCODE*/
+ VMMDECL(int)        MMPagePhys2PageEx(PVM pVM, RTHCPHYS HCPhysPage, void **ppvPage);
+ VMMDECL(int)        MMPagePhys2PageTry(PVM pVM, RTHCPHYS HCPhysPage, void **ppvPage);
+ 
+@@ -292,6 +295,9 @@
+  * @todo retire this group, elimintating or moving MMR3PhysGetRamSize to PGMPhys.
+  * @{ */
+ VMMR3DECL(uint64_t) MMR3PhysGetRamSize(PVM pVM);
++/*MYCODE*/
++VMMR3DECL(uint64_t) MMR3PhysGetRamSizeU(PUVM pUVM);
++/*ENDMYCODE*/
+ /** @} */
+ 
+ 
+diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/pgm.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/pgm.h
+--- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/pgm.h    2016-04-18 17:20:24.000000000 +0200
++++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/pgm.h    2016-04-27 10:40:38.227691400 +0200
+@@ -403,6 +403,21 @@
+ /** The page is an MMIO2. */
+ #define PGM_MK_PG_IS_MMIO2           RT_BIT(1)
+ /** @}*/
++/*MYCODE*/
++VMMDECL(int)        PGMShwGetHCPage(PVMCPU pVCpu, uint64_t GCPhys, uint64_t *HCPhys);
++VMMDECL(int)        PGMShwSetHCPage(PVMCPU pVCpu, uint64_t GCPhys, uint64_t HCPhys);
++VMMDECL(int)        PGMShwSaveRights(PVMCPU pVCpu, uint64_t GCPhys);
++VMMDECL(int)        PGMShwRestoreRights(PVMCPU pVCpu, uint64_t GCPhys);
++VMMDECL(int)        PGMShwPresent(PVMCPU pVCpu, uint64_t GCPhys);
++VMMDECL(int)        PGMShwNoPresent(PVMCPU pVCpu, uint64_t GCPhys);
++VMMDECL(int)        PGMShwWrite(PVMCPU pVCpu, uint64_t GCPhys);
++VMMDECL(int)        PGMShwNoWrite(PVMCPU pVCpu, uint64_t GCPhys);
++VMMDECL(int)        PGMShwExecute(PVMCPU pVCpu, uint64_t GCPhys);
++VMMDECL(int)        PGMShwNoExecute(PVMCPU pVCpu, uint64_t GCPhys);
++VMMDECL(int)        PGMShwInvalidate(PVMCPU pVCpu, uint64_t GCPhys);
++VMMDECL(int)        PGMShwSetBreakable(PVMCPU pVCpu, uint64_t GCPhys, bool Breakable);
++VMMDECL(bool)       PGMShwIsBreakable(PVMCPU pVCpu, uint64_t GCPhys);
++/*ENDMYCODE*/
+ VMMDECL(int)        PGMGstGetPage(PVMCPU pVCpu, RTGCPTR GCPtr, uint64_t *pfFlags, PRTGCPHYS pGCPhys);
+ VMMDECL(bool)       PGMGstIsPagePresent(PVMCPU pVCpu, RTGCPTR GCPtr);
+ VMMDECL(int)        PGMGstSetPage(PVMCPU pVCpu, RTGCPTR GCPtr, size_t cb, uint64_t fFlags);
+@@ -601,6 +616,9 @@
+ VMMDECL(VBOXSTRICTRC) PGMPhysWriteGCPtr(PVMCPU pVCpu, RTGCPTR GCPtrDst, const void *pvSrc, size_t cb, PGMACCESSORIGIN enmOrigin);
+ 
+ VMMDECL(int)        PGMPhysSimpleReadGCPhys(PVM pVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb);
++/*MYCODE*/
++VMMDECL(int)        PGMPhysSimpleReadGCPhys2(PUVM pUVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb);
++/*ENDMYCODE*/
+ VMMDECL(int)        PGMPhysSimpleWriteGCPhys(PVM pVM, RTGCPHYS GCPhysDst, const void *pvSrc, size_t cb);
+ VMMDECL(int)        PGMPhysSimpleReadGCPtr(PVMCPU pVCpu, void *pvDst, RTGCPTR GCPtrSrc, size_t cb);
+ VMMDECL(int)        PGMPhysSimpleWriteGCPtr(PVMCPU pVCpu, RTGCPTR GCPtrDst, const void *pvSrc, size_t cb);
+@@ -656,6 +674,9 @@
+ VMMR0DECL(int)      PGMR0SharedModuleCheck(PVM pVM, PGVM pGVM, VMCPUID idCpu, PGMMSHAREDMODULE pModule, PCRTGCPTR64 paRegionsGCPtrs);
+ VMMR0DECL(int)      PGMR0Trap0eHandlerNestedPaging(PVM pVM, PVMCPU pVCpu, PGMMODE enmShwPagingMode, RTGCUINT uErr, PCPUMCTXCORE pRegFrame, RTGCPHYS pvFault);
+ VMMR0DECL(VBOXSTRICTRC) PGMR0Trap0eHandlerNPMisconfig(PVM pVM, PVMCPU pVCpu, PGMMODE enmShwPagingMode, PCPUMCTXCORE pRegFrame, RTGCPHYS GCPhysFault, uint32_t uErr);
++/*MYCODE*/
++VMMR0DECL(VBOXSTRICTRC) PGMR0PhysSimpleReadGCPhys(PVM pVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb);
++/*ENDMYCODE*/
+ # ifdef VBOX_WITH_2X_4GB_ADDR_SPACE
+ VMMR0DECL(int)      PGMR0DynMapInit(void);
+ VMMR0DECL(void)     PGMR0DynMapTerm(void);
+@@ -686,6 +707,9 @@
+ VMMR3DECL(int)      PGMR3Term(PVM pVM);
+ VMMR3DECL(int)      PGMR3LockCall(PVM pVM);
+ VMMR3DECL(int)      PGMR3ChangeMode(PVM pVM, PVMCPU pVCpu, PGMMODE enmGuestMode);
++/*MYCODE*/
++VMMR3DECL(int)      PGMR3ChangeMode2(PUVM pUVM, PVMCPU pVCpu, PGMMODE enmGuestMode);
++/*ENDMYCODE*/
+ 
+ VMMR3DECL(int)      PGMR3PhysRegisterRam(PVM pVM, RTGCPHYS GCPhys, RTGCPHYS cb, const char *pszDesc);
+ VMMR3DECL(int)      PGMR3PhysChangeMemBalloon(PVM pVM, bool fInflate, unsigned cPages, RTGCPHYS *paPhysPage);
+@@ -787,6 +811,10 @@
+ VMMR3DECL(int)      PGMR3PhysChunkMap(PVM pVM, uint32_t idChunk);
+ VMMR3DECL(void)     PGMR3PhysChunkInvalidateTLB(PVM pVM);
+ VMMR3DECL(int)      PGMR3PhysAllocateHandyPages(PVM pVM);
++/*MYCODE*/
++VMMR3DECL(int)      PGMR3PhysAllocateLargeHandyPage2(PVM pVM);
++VMMR3_INT_DECL(int) PGMR3DbgScanPhysicalU(PUVM pUVM, RTGCPHYS GCPhys, RTGCPHYS cbRange, RTGCPHYS GCPhysAlign, const uint8_t *pabNeedle, size_t cbNeedle, PRTGCPHYS pGCPhysHit);
++/*ENDMYCODE*/
+ VMMR3DECL(int)      PGMR3PhysAllocateLargeHandyPage(PVM pVM, RTGCPHYS GCPhys);
+ 
+ VMMR3DECL(int)      PGMR3CheckIntegrity(PVM pVM);
+diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/vm.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/vm.h
+--- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/vm.h    2016-04-18 17:20:24.000000000 +0200
++++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/vm.h    2017-06-14 18:20:40.092876700 +0200
+@@ -46,6 +46,61 @@
+  * @{
+  */
+ 
++/*MYCODE*/
++typedef struct HardwarePage_t{
++    int            ReferenceCount; //Number of breakpoint using this page
++    uint64_t    PageSize;        //Size of the page
++    uint64_t    HCPhys;            //Host-Context physical address of the page
++    uint8_t*    R3Ptr;            //Ring-3 virtual address of the page
++}HardwarePage_t;
++
++typedef struct GCPhysArea_t{
++    uint64_t    Start;
++    uint64_t    End;
++}GCPhysArea_t;
++
++typedef struct PfnEntrie_t{
++    uint8_t n;
++    struct{
++        bool u1Present;
++        bool u1Write;
++        bool u1Execute;
++        bool u1Breakable;
++    }u;
++}PfnEntrie_t;
++
++typedef struct BreakpointEntrie_t{
++            //Is the breakpoint activated or free
++            bool        breakpointActivated;
++            //Tag the breakpoint to know if the breakpoint changed...
++            uint64_t    breakpointTag;
++            //Kind of breakpoint PAGEHBP, HARDHBP, SOFTHBP
++            uint8_t        breakpointType;
++            //Guest virtual address of the breakpoint or start of the breakpoint
++            uint64_t    breakpointGCPtr;
++            //Guest physical address of the breakpoint or start of the breakpoint
++            uint64_t    breakpointGCPhys;
++            //Lengt of the breakpoint (PAGEHBP only)
++            uint64_t    breakpointLength;
++            //EXECUTE_BP, READ_BP, WRITE_BP
++            uint8_t        breakpointAccessType;
++            //Size of the page where the breakpoint is
++            uint64_t    breakpointPageSize;
++            //Original host physical page
++            uint64_t    breakpointOrigHCPhys;
++            //Original opcode byte
++            uint8_t        breakpointOriginalByte;
++            //Pointer to HardwarePage
++            HardwarePage_t* breakpointHardwarePage;
++            uint64_t        breakpointGCPhysAreaCount;
++            GCPhysArea_t*    breakpointGCPhysAreaTable;
++            //Condition
++            uint64_t    breakpointCr3;
++}BreakpointEntrie_t;
++
++#define MAX_BREAKPOINT_ID 255
++/*ENDMYCODE*/
++
+ /**
+  * The state of a Virtual CPU.
+  *
+@@ -137,6 +192,34 @@
+     /** Profiling samples for use by ad hoc profiling. */
+     STAMPROFILEADV          aStatAdHoc[8];                          /* size: 40*8 = 320 */
+ 
++    /*MYCODE*/
++    union
++    {
++        struct{
++            volatile uint8_t    u8StateBitmap;
++            volatile bool        bSingleStepRequired;
++            volatile bool        bPauseRequired;
++            volatile bool        bDisableInterrupt;
++            volatile bool        bRebootRequired;
++            volatile bool        bSuspendRequired;
++            volatile bool        bRestoreRequired;
++            volatile bool        bPageFaultOverflowGuard;
++
++            volatile bool        bHardHyperBreakPointHitted;
++            volatile bool        bPageHyperBreakPointHitted;
++            volatile bool        bSoftHyperBreakPointHitted;
++            volatile bool        bMsrHyperBreakPointHitted;
++            volatile bool        bCrHyperBreakPointHitted;
++            volatile bool        bInstallDrBreakpointRequired;
++            //Fake Debug registers to keep "legit-guest" values
++            uint64_t            aGuestDr[8];
++            volatile uint64_t   u64TickCount;
++            void*               pCpuShm; 
++        }s;
++        uint8_t             padding[4096];      /* multiple of 4096 */
++    } mystate;
++    /*ENDMYCODE*/
++
+     /** HM part. */
+     union
+     {
+@@ -1005,6 +1088,28 @@
+         uint8_t     padding[1600];      /* multiple of 64 */
+     } vmm;
+ 
++    /*MYCODE*/
++    union{
++        BreakpointEntrie_t  l[MAX_BREAKPOINT_ID+1];
++        uint8_t             padding[4096*32];      /* Must be page aligned ! */
++    }bp;
++
++    union{
++        struct{
++            void                *pFdpShm;
++            uint32_t            u32HardwarePageTableCount;
++            HardwarePage_t      aHardwarePageTable[64];
++            volatile uint8_t    u8StateBitmap;
++            char                PageSpinLockName[256];
++            RTSPINLOCK          PageSpinlock;
++            PfnEntrie_t         *pPfnTableR3;
++            PfnEntrie_t         *pPfnTableR0;
++            RTSPINLOCK          CpuLock;
++        }s;
++        uint8_t     padding[4096];      /* Must be page aligned ! */
++    }mystate;
++    /*ENDMYCODE*/
++
+     /** PGM part. */
+     union
+     {
+diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/vmapi.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/vmapi.h
+--- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/vmapi.h    2016-04-18 17:20:24.000000000 +0200
++++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/vmapi.h    2017-06-14 18:29:51.682624400 +0200
+@@ -475,6 +475,32 @@
+ VMMR3_INT_DECL(void)        VMR3NotifyCpuFFU(PUVMCPU pUVMCpu, uint32_t fFlags);
+ VMMR3DECL(int)              VMR3NotifyCpuDeviceReady(PVM pVM, VMCPUID idCpu);
+ VMMR3_INT_DECL(int)         VMR3WaitHalted(PVM pVM, PVMCPU pVCpu, bool fIgnoreInterrupts);
++/*MYCODE*/
++VMMDECL(uint8_t)            VMR3GetFDPState(PUVM pUVM);
++VMMR3_INT_DECL(int)         VMR3AddExecHardBreakpoint(PUVM pUVM, PVMCPU pVCpu, uint64_t GCPtr, uint8_t BreakpointId);
++VMMR3_INT_DECL(int)         VMR3AddSoftBreakpoint(PUVM pUVM, PVMCPU pVCpu, uint8_t BreakpointAddressType, uint64_t BreakpointAddress, uint64_t BreakpointCr3);
++VMMR3_INT_DECL(int)         VMR3AddPageBreakpoint(PUVM pUVM, PVMCPU pVCpu, uint8_t BreakpointId, uint8_t BreakpointAccessType, uint8_t BreakpointAddressType, uint64_t BreakpointAddress, uint64_t BreakpointLength);
++VMMR3_INT_DECL(int)         VMR3AddMsrBreakpoint(PUVM pUVM, uint8_t BreakpointAccessType, uint64_t BreakpointAddress);
++VMMR3_INT_DECL(int)         VMR3AddCrBreakpoint(PUVM pUVM, uint8_t BreakpointAccessType, uint64_t BreakpointAddress);
++VMMR3_INT_DECL(void)        VMR3ClearBreakpoint(uint8_t BreakpointId);
++VMMR3_INT_DECL(bool)        VMR3IsBreakpoint(uint64_t CurrentRIP);
++VMMDECL(int)                VMR3PhysSimpleReadGCPhysU(PUVM pUVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb);
++VMMDECL(int)                VMR3PhysSimpleWriteGCPhysU(PUVM pUVM, const void *pvBuf, RTGCPHYS GCPhys, size_t cbWrite);
++VMMR3_INT_DECL(int)         VMR3AddExecPageBreakpoint(PUVM pUVM, PVMCPU pVCpu, uint64_t GCPtr, uint64_t Length);
++VMMR3_INT_DECL(bool)        VMR3RemoveBreakpoint(PUVM pUVM, int BreakpointId);
++VMMDECL(int)                VMR3SingleStep(PUVM pUVM, PVMCPU pVCpu);
++VMMDECL(int)                VMR3Break(PUVM pUVM);
++VMMDECL(int)                VMR3Continue(PUVM pUVM);
++VMMDECL(bool)               VMR3GetFDPRunning(PUVM pUVM);
++VMMDECL(void)               VMR3SetFDPRunning(PUVM pUVM, bool newFDPRunning);
++VMMR3DECL(uint32_t)         VMR3GetCPUCount(PUVM pUVM);
++VMMDECL(bool)               VMR3HandleSingleStep(PVM pVM, PVMCPU pVCpu);
++VMMDECL(bool)               VMR3EnterPause(PVM pVM, PVMCPU pVCpu);
++VMMDECL(void)               VMR3SetFDPShm(PUVM pUVM, void *pFdpShm);
++VMMDECL(uint64_t)           VMR3Test(PVMCPU pVCpu);
++VMMDECL(int)                VMR3InjectInterrupt(PVM pVM, PVMCPU pVCpu, uint32_t enmXcpt, uint32_t uErr, uint64_t Cr2);
++VMMDECL(int)                VMR3ClearInterrupt(PUVM pUVM, PVMCPU pVCpu);
++/*ENDMYCODE*/
+ VMMR3_INT_DECL(int)         VMR3WaitU(PUVMCPU pUVMCpu);
+ VMMR3DECL(int)              VMR3WaitForDeviceReady(PVM pVM, VMCPUID idCpu);
+ VMMR3_INT_DECL(int)         VMR3AsyncPdmNotificationWaitU(PUVMCPU pUVCpu);
+diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/vmm.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/vmm.h
+--- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/vmm.h    2016-04-18 17:20:24.000000000 +0200
++++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/vmm.h    2016-04-27 10:43:48.820368800 +0200
+@@ -274,7 +274,11 @@
+ VMM_INT_DECL(int)           VMMPatchHypercall(PVM pVM, void *pvBuf, size_t cbBuf, size_t *pcbWritten);
+ VMM_INT_DECL(void)          VMMHypercallsEnable(PVMCPU pVCpu);
+ VMM_INT_DECL(void)          VMMHypercallsDisable(PVMCPU pVCpu);
+-
++/*MYCODE*/
++VMM_INT_DECL(bool)          VMMMatchBreakpointId(PVM pVM, int BreakpointId, RTGCPHYS GCPhys, uint8_t BreakpointType, int BreakpointAccess);
++VMM_INT_DECL(int)           VMMGetBreakpointId(PVM pVM, RTGCPHYS GCPhys, uint8_t BreakpointType, int BreakpointAccess);
++VMM_INT_DECL(int)           VMMGetBreakpointIdFromPage(PVM pVM, RTGCPHYS GCPhys, uint8_t BreakpointType);
++/*ENDMYCODE*/
+ 
+ #if defined(IN_RING3) || defined(DOXYGEN_RUNNING)
+ /** @defgroup grp_vmm_api_r3    The VMM Host Context Ring 3 API
+@@ -480,6 +484,9 @@
+     VMMR0_DO_TESTS,
+     /** Test the 32->64 bits switcher. */
+     VMMR0_DO_TEST_SWITCHER3264,
++    /*MYCODE*/
++    VMMR0_DO_ALLOC_HCPHYS,
++    /*ENDMYCODE*/
+ 
+     /** The usual 32-bit type blow up. */
+     VMMR0_DO_32BIT_HACK = 0x7fffffff
