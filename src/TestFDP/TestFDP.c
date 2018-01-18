@@ -1774,6 +1774,18 @@ int testFDP(char *pVMName) {
 }
 
 
-void main(int argc, char *argv[]){
-    testFDP(argv[1]);
+void usage(char * binPath){
+    printf("Usage: %s [VM Name]\n", binPath);
+}
+
+int main(int argc, char *argv[]){
+    if (argc != 2){
+        usage(argv[0]);
+        return 2;
+    }
+
+    if (testFDP(argv[1]))
+        return 0;
+    else
+        return 1;
 }

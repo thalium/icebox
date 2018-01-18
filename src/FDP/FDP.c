@@ -370,7 +370,7 @@ FDP_EXPORTED
 bool FDP_ReadVirtualMemory(FDP_SHM* pFDP, uint32_t CpuId, uint8_t* pDstBuffer, uint32_t ReadSize,
                            uint64_t VirtualAddress)
 {
-    if (pFDP == NULL)
+    if (pFDP == NULL || ReadSize <= 0)
     {
         return false;
     }
