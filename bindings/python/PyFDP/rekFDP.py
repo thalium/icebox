@@ -1,10 +1,10 @@
+import urllib
+
 from rekall import addrspace
 from rekall import yaml_utils
-
 from rekall.plugins.addrspaces import amd64
 
-import urllib
-import FDP
+from PyFDP import FDP
 
 
 class PyFDPAddressSpace(amd64.AMD64PagedMemory):

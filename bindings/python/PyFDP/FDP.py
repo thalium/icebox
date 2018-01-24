@@ -2,6 +2,7 @@ from ctypes import *
 import os
 import re
 
+import PyFDP
 
 FDP_REGISTER = [
     {'name':    "FDP_RAX_REGISTER" ,'value': 0x0},
@@ -92,7 +93,7 @@ class FDP(object):
     def __init__(self, Name):
 
         self.pFDP = 0
-        self.fdpdll = ctypes.cdll.LoadLibrary("FDP_x64.dll")
+        self.fdpdll = PyFDP.FDP_DLL_HANDLE
 
         FDP_Register = c_uint32
         FDP_BreakpointType = c_uint16

@@ -1,5 +1,6 @@
-from FDP import *
 import struct
+
+from PyFDP.FDP import FDP
 
 #7_SP1_x64
 
