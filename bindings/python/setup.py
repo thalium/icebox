@@ -7,7 +7,7 @@ from distutils import log
 from distutils.command.build_clib import build_clib
 
 VERSION_MAJOR = 1
-VERSION_MINOR = 0
+VERSION_MINOR = 1
 VERSION_VBOXBIN = "5-0-18-6667"
 VERSION = "{major:d}.{minor:d}".format(
     major = VERSION_MAJOR,
