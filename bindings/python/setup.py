@@ -6,13 +6,12 @@ import setuptools
 from distutils import log
 from distutils.command.build_clib import build_clib
 
-VERSION_MAJOR = 0
-VERSION_MINOR = 1
+VERSION_MAJOR = 1
+VERSION_MINOR = 0
 VERSION_VBOXBIN = "5-0-18-6667"
-VERSION = "{major:d}.{minor:d}.{vbox:s}".format(
+VERSION = "{major:d}.{minor:d}".format(
     major = VERSION_MAJOR,
     minor = VERSION_MINOR,
-    vbox = VERSION_VBOXBIN,
 )
 
 BINDING_DIRECTORY =  os.path.abspath(os.path.dirname(__file__))
@@ -91,13 +90,13 @@ setuptools.setup(
     packages = setuptools.find_packages(),
     name="PyFDP",
     version=VERSION,
-    author='Winbagility',
-    author_email='',
-    description='FDP (Fast Debug Protocol) : KD client for no /DEBUG enabled Windows virtual machines.',
+    description='FDP (Fast Debug Protocol) : KD client for debugging Windows VM without /DEBUG enabled.',
     url='https://winbagility.github.io',
     classifiers=[
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
+        'Operating System :: Microsoft :: Windows',
+        'Topic :: Software Development :: Debuggers',
     ],
     
     requires=[],
