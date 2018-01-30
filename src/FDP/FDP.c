@@ -752,6 +752,24 @@ bool FDP_GetState(FDP_SHM* pFDP, FDP_State* DebuggeeState)
 }
 
 FDP_EXPORTED
+bool FDP_WaitForStateChanged(FDP_SHM *pFDP, FDP_State *DebuggeeState)
+{
+    if (pFDP == NULL)
+    {
+        return false;
+    }
+    while (true)
+    {
+        Sleep(0);
+        if (FDP_GetStateChanged(pFDP) == true)
+        {
+            return FDP_GetState(pFDP, DebuggeeState);
+        }
+    }
+    return true;
+}
+
+FDP_EXPORTED
 bool FDP_Init(FDP_SHM* pFDP)
 {
     if (pFDP == NULL)
