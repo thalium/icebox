@@ -1,20 +1,18 @@
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/Debugger/DBGCTcp.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/Debugger/DBGCTcp.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/Debugger/DBGCTcp.cpp    2016-04-18 17:22:16.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/Debugger/DBGCTcp.cpp    2017-06-14 23:49:34.499830000 +0200
-@@ -30,6 +30,10 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\Debugger/DBGCTcp.cpp"	2017-10-18 09:09:03.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\Debugger/DBGCTcp.cpp"	2018-01-19 17:07:44.532581300 +0100
+@@ -30,6 +30,9 @@
  
  #include <iprt/string.h>
  
 +/*MYCODE*/
 +#include <VBox/vmm/vm.h>
-+/*ENDMYCODE*/
-+
++/*MYCODE*/
  
  /*********************************************************************************************************************************
  *   Structures and Typedefs                                                                                                      *
-@@ -206,15 +210,941 @@
+@@ -205,6 +208,929 @@
+     return rc;
  }
- 
  
 +/*MYCODE*/
 +#include <Windows.h>
@@ -939,13 +937,10 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/Debugger/
 +}
 +/*ENDMYCODE*/
 +
+ 
  /**
   * Spawns a new thread with a TCP based debugging console service.
-  *
-- * @returns VBox status code.
-+ * @returns VBox status.
-  * @param   pUVM        The user mode VM handle.
-  * @param   ppvData     Where to store a pointer to the instance data.
+@@ -215,6 +1141,9 @@
   */
  DBGDECL(int)    DBGCTcpCreate(PUVM pUVM, void **ppvData)
  {
@@ -955,88 +950,67 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/Debugger/
      /*
       * Check what the configuration says.
       */
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/Devices/Network/DevE1000.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/Devices/Network/DevE1000.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/Devices/Network/DevE1000.cpp    2016-04-18 17:23:38.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/Devices/Network/DevE1000.cpp    2016-04-27 11:01:25.710237600 +0200
-@@ -3218,7 +3218,9 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\/Devices/Network/DevE1000.cpp"	2017-10-18 09:11:21.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\/Devices/Network/DevE1000.cpp"	2018-01-19 17:07:40.641938200 +0100
+@@ -3288,14 +3288,16 @@
+     PE1KSTATE pThis = (PE1KSTATE )pvUser;
+     Assert(PDMCritSectIsOwner(&pThis->csTx));
+ 
+-    E1K_INC_ISTAT_CNT(pThis->uStatTxDelayExp);
++    E1K_INC_ISTAT_CNT(pThis->uStatTxDelayExp)
+ #  ifdef E1K_INT_STATS
+     uint64_t u64Elapsed = RTTimeNanoTS() - pThis->u64ArmedAt;
+     if (u64Elapsed > pThis->uStatMaxTxDelay)
          pThis->uStatMaxTxDelay = u64Elapsed;
- #endif
+ #  endif
      int rc = e1kXmitPending(pThis, false /*fOnWorkerThread*/);
 -    AssertMsg(RT_SUCCESS(rc) || rc == VERR_TRY_AGAIN, ("%Rrc\n", rc));
-+    /*MYCODE*/
-+    //AssertMsg(RT_SUCCESS(rc) || rc == VERR_TRY_AGAIN, ("%Rrc\n", rc));
-+    /*ENDMYCODE*/
++	/*MYCODE*/
++	//AssertMsg(RT_SUCCESS(rc) || rc == VERR_TRY_AGAIN, ("%Rrc\n", rc));
++	/*ENDMYCODE*/
  }
- #endif /* E1K_TX_DELAY */
+ # endif /* E1K_TX_DELAY */
  
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/Devices/USB/DevOHCI.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/Devices/USB/DevOHCI.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/Devices/USB/DevOHCI.cpp    2016-04-18 17:24:01.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/Devices/USB/DevOHCI.cpp    2016-04-27 14:46:08.907529500 +0200
-@@ -3960,7 +3960,7 @@
-             else if (tsBeginServicing + (cFramesProcessed + 100) * RT_NS_1MS < tsNow)
-             {
-                 /* If we lag to far behind stop trying to catch up. */
--                LogRelMax(10, ("OHCI#%u: Lagging too far behind, not trying to catch up anymore. Expect glitches with USB devices\n",
-+                LogRel(("OHCI#%u: Lagging too far behind, not trying to catch up anymore. Expect glitches with USB devices\n",
-                                pThis->pDevInsR3->iInstance));
-                 tsBeginServicing = tsNow;
-                 cFramesProcessed = 0;
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/Frontends/VBoxSDL/Framebuffer.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/Frontends/VBoxSDL/Framebuffer.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/Frontends/VBoxSDL/Framebuffer.cpp    2016-04-18 17:24:25.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/Frontends/VBoxSDL/Framebuffer.cpp    2016-04-28 11:30:04.002748600 +0200
-@@ -1096,7 +1096,9 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\Frontends/VBoxSDL/Framebuffer.cpp"	2017-10-18 09:12:20.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\Frontends/VBoxSDL/Framebuffer.cpp"	2018-01-19 17:20:08.860657000 +0100
+@@ -1104,7 +1104,9 @@
  {
      AssertMsg(gSdlNativeThread == RTThreadNativeSelf(), ("Wrong thread! SDL is not threadsafe!\n"));
      LogFlow(("VBoxSDLFB::repaint\n"));
 -    update(0, 0, mScreen->w, mScreen->h, false /* fGuestRelative */);
-+    if(mScreen != NULL){
-+        update(0, 0, mScreen->w, mScreen->h, false /* fGuestRelative */);
-+    }
++	if (mScreen != NULL) {
++	    update(0, 0, mScreen->w, mScreen->h, false /* fGuestRelative */);
++	}
  }
  
  /**
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/include/PGMInternal.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/include/PGMInternal.h
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/include/PGMInternal.h    2016-04-18 17:25:20.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/include/PGMInternal.h    2016-04-27 11:04:11.673440300 +0200
-@@ -97,6 +97,10 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/include/PGMInternal.h"	2017-10-18 09:13:36.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/include/PGMInternal.h"	2018-01-19 17:21:25.820192500 +0100
+@@ -96,6 +96,9 @@
  #if (HC_ARCH_BITS == 64) && !defined(IN_RC)
  # define PGM_WITH_LARGE_PAGES
  #endif
 +/*MYCODE*/
-+//For breakpoint performance
 +#undef PGM_WITH_LARGE_PAGES
-+/*ENDMYCODE*/
++/*ENDMYENCODE*/
  
  /**
   * Enables optimizations for MMIO handlers that exploits X86_TRAP_PF_RSVD and
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMAll/HMAll.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMAll/HMAll.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMAll/HMAll.cpp    2016-04-18 17:25:15.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMAll/HMAll.cpp    2016-04-27 12:57:12.498676000 +0200
-@@ -270,7 +270,20 @@
- 
-     return VINF_SUCCESS;
- }
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/include/PGMInternal.h"	2017-10-18 09:13:36.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/include/PGMInternal.h"	2018-01-19 17:21:25.820192500 +0100
+@@ -96,6 +96,9 @@
+ #if (HC_ARCH_BITS == 64) && !defined(IN_RC)
+ # define PGM_WITH_LARGE_PAGES
+ #endif
 +/*MYCODE*/
-+//Ensure that all CPU are paused !
-+VMM_INT_DECL(int) HMFlushTLBOnAllVCpus2(PVM pVM)
-+{
-+    for (VMCPUID idCpu = 0; idCpu < pVM->cCpus; idCpu++){
-+        PVMCPU pVCpu = &pVM->aCpus[idCpu];
-+        HMFlushTLB(pVCpu);
-+        VMCPU_FF_SET(pVCpu, VMCPU_FF_TLB_FLUSH);
-+        hmPokeCpuForTlbFlush(pVCpu, true /* fAccountFlushStat */);
-+    }
- 
-+    return VINF_SUCCESS;
-+}
-+/*ENDMYCODE*/
- #endif /* !IN_RC */
++#undef PGM_WITH_LARGE_PAGES
++/*ENDMYENCODE*/
  
  /**
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMAll/PGMAll.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMAll/PGMAll.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMAll/PGMAll.cpp    2016-04-18 17:25:16.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMAll/PGMAll.cpp    2016-04-27 11:07:45.011151100 +0200
-@@ -1333,6 +1333,271 @@
+  * Enables optimizations for MMIO handlers that exploits X86_TRAP_PF_RSVD and
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMAll/PGMAll.cpp"	2017-10-18 09:13:30.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMAll/PGMAll.cpp"	2018-01-19 17:25:19.018688000 +0100
+@@ -1335,6 +1335,272 @@
      return VINF_SUCCESS;
  }
  
@@ -1305,13 +1279,21 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMAl
 +}
 +/*ENDMYCODE*/
 +
++
  #endif /* IN_RC */
  
  #ifdef IN_RING0
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMAll/VMMAll.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMAll/VMMAll.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMAll/VMMAll.cpp    2016-04-18 17:25:16.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMAll/VMMAll.cpp    2016-04-27 11:09:25.420557200 +0200
-@@ -464,3 +464,48 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMAll/VMMAll.cpp"	2017-10-18 09:13:30.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMAll/VMMAll.cpp"	2018-01-19 17:35:54.995015900 +0100
+@@ -464,7 +464,6 @@
+ #endif
+ }
+ 
+-
+ /**
+  * Notifies VMM that paravirtualized hypercalls are now disabled.
+  *
+@@ -481,3 +480,48 @@
  #endif
  }
  
@@ -1361,10 +1343,9 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMAl
 +}
 +/*ENDMYCODE*/
 \ No newline at end of file
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0/GVMMR0.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR0/GVMMR0.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0/GVMMR0.cpp    2016-04-18 17:25:16.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR0/GVMMR0.cpp    2016-04-27 11:11:11.575665000 +0200
-@@ -908,6 +908,23 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR0/GVMMR0.cpp"	2017-10-18 09:13:31.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR0/GVMMR0.cpp"	2018-01-19 17:37:13.796511300 +0100
+@@ -921,6 +921,24 @@
                              AssertCompileMemberAlignment(VM, tm, 64);
                              AssertCompileMemberAlignment(VM, aCpus, PAGE_SIZE);
  
@@ -1385,13 +1366,13 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +                            }
 +                            /*ENDMYCODE*/
 +
++
                              rc = RTR0MemObjAllocPage(&pGVM->gvmm.s.VMPagesMemObj, cPages * sizeof(SUPPAGE), false /* fExecutable */);
                              if (RT_SUCCESS(rc))
                              {
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0/HMVMXR0.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR0/HMVMXR0.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0/HMVMXR0.cpp    2016-04-18 17:25:16.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR0/HMVMXR0.cpp    2017-06-14 19:32:30.064359100 +0200
-@@ -39,6 +39,11 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR0/HMVMXR0.cpp"	2017-10-18 09:13:31.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR0/HMVMXR0.cpp"	2018-01-29 14:23:50.732637500 +0100
+@@ -40,6 +40,11 @@
  #include "HMVMXR0.h"
  #include "dtrace/VBoxVMM.h"
  
@@ -1400,20 +1381,22 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +#include <iprt/spinlock.h>
 +/*ENDMYCODE*/
 +
+ #define HMVMX_USE_IEM_EVENT_REFLECTION
  #ifdef DEBUG_ramshankar
  # define HMVMX_ALWAYS_SAVE_GUEST_RFLAGS
- # define HMVMX_ALWAYS_SAVE_FULL_GUEST_STATE
-@@ -51,6 +56,9 @@
- # define HMVMX_ALWAYS_SWAP_EFER
+@@ -54,6 +59,11 @@
  #endif
+ 
  
 +/*MYCODE*/
 +# define HMVMX_ALWAYS_TRAP_ALL_XCPTS
 +/*ENDMYCODE*/
- 
++
++
  /*********************************************************************************************************************************
  *   Defined Constants And Macros                                                                                                 *
-@@ -909,6 +917,11 @@
+ *********************************************************************************************************************************/
+@@ -937,6 +947,11 @@
   */
  static int hmR0VmxStructsAlloc(PVM pVM)
  {
@@ -1425,22 +1408,24 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
      /*
       * Initialize members up-front so we can cleanup properly on allocation failure.
       */
-@@ -3980,8 +3993,10 @@
+@@ -4156,9 +4171,11 @@
      if (pVCpu->hm.s.vmx.u32EntryCtls & VMX_VMCS_CTRL_ENTRY_LOAD_DEBUG)
      {
          /* Validate. Intel spec. 17.2 "Debug Registers", recompiler paranoia checks. */
 -        Assert((pMixedCtx->dr[7] & (X86_DR7_MBZ_MASK | X86_DR7_RAZ_MASK)) == 0);  /* Bits 63:32, 15, 14, 12, 11 are reserved. */
 -        Assert((pMixedCtx->dr[7] & X86_DR7_RA1_MASK) == X86_DR7_RA1_MASK);        /* Bit 10 is reserved (RA1). */
+-    }
 +        /*MYCODE*/
-+        //Assert((pMixedCtx->dr[7] & (X86_DR7_MBZ_MASK | X86_DR7_RAZ_MASK)) == 0);  /* Bits 63:32, 15, 14, 12, 11 are reserved. */
++		//Assert((pMixedCtx->dr[7] & (X86_DR7_MBZ_MASK | X86_DR7_RAZ_MASK)) == 0);  /* Bits 63:32, 15, 14, 12, 11 are reserved. */
 +        //Assert((pMixedCtx->dr[7] & X86_DR7_RA1_MASK) == X86_DR7_RA1_MASK);        /* Bit 10 is reserved (RA1). */
-+        /*ENDMYCODE*/
-     }
++		/*ENDMYCODE*/
++	}
  #endif
  
-@@ -4085,6 +4100,11 @@
- #endif
+     int  rc;
+@@ -4262,6 +4279,11 @@
              fInterceptMovDRx = true;
+         }
  
 +        /*MYCODE*/
 +        //Always intercept MovDRx
@@ -1450,7 +1435,7 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
          /* Update guest DR7. */
          rc = VMXWriteVmcs32(VMX_VMCS_GUEST_DR7, pMixedCtx->dr[7]);
          AssertRCReturn(rc, rc);
-@@ -4092,6 +4112,12 @@
+@@ -4269,6 +4291,12 @@
          pVCpu->hm.s.fUsingHyperDR7 = false;
      }
  
@@ -1463,10 +1448,11 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
      /*
       * Update the processor-based VM-execution controls regarding intercepting MOV DRx instructions.
       */
-@@ -4099,6 +4125,14 @@
+@@ -4276,6 +4304,16 @@
          pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_MOV_DR_EXIT;
      else
          pVCpu->hm.s.vmx.u32ProcCtls &= ~VMX_VMCS_CTRL_PROC_EXEC_MOV_DR_EXIT;
++
 +    /*MYCODE*/
 +    //Always Intercept MovDrx
 +    pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_MOV_DR_EXIT;
@@ -1475,22 +1461,11 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +    pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_CR8_LOAD_EXIT;
 +    pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_CR8_STORE_EXIT;
 +    /*ENDCODE*/
++
      rc = VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
      AssertRCReturn(rc, rc);
  
-@@ -8774,6 +8808,11 @@
-         STAM_PROFILE_ADV_STOP(&pVCpu->hm.s.StatExit2, x);
-         if (rc != VINF_SUCCESS)
-             break;
-+        /*MYCODE*/
-+        if(pVCpu->mystate.s.bPauseRequired){
-+            break;
-+        }
-+        /*ENDMYCODE*/
-         if (cLoops > pVM->hm.s.cMaxResumeLoops)
-         {
-             STAM_COUNTER_INC(&pVCpu->hm.s.StatSwitchMaxResumeLoops);
-@@ -8854,6 +8893,11 @@
+@@ -10489,6 +10527,11 @@
          STAM_PROFILE_ADV_STOP(&pVCpu->hm.s.StatExit2, x);
          if (rcStrict != VINF_SUCCESS)
              break;
@@ -1502,7 +1477,7 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
          if (cLoops > pVM->hm.s.cMaxResumeLoops)
          {
              STAM_COUNTER_INC(&pVCpu->hm.s.StatSwitchMaxResumeLoops);
-@@ -10601,6 +10645,19 @@
+@@ -12358,6 +12401,19 @@
      }
  #endif
  
@@ -1522,7 +1497,7 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
      PVM pVM = pVCpu->CTX_SUFF(pVM);
      rc = EMInterpretRdmsr(pVM, pVCpu, CPUMCTX2CORE(pMixedCtx));
      AssertMsg(rc == VINF_SUCCESS || rc == VERR_EM_INTERPRETER,
-@@ -10636,6 +10693,19 @@
+@@ -12393,6 +12449,20 @@
      AssertRCReturn(rc, rc);
      Log4(("ecx=%#RX32 edx:eax=%#RX32:%#RX32\n", pMixedCtx->ecx, pMixedCtx->edx, pMixedCtx->eax));
  
@@ -1539,23 +1514,26 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +    }
 +    /*ENDMYCODE*/
 +
++
      rc = EMInterpretWrmsr(pVM, pVCpu, CPUMCTX2CORE(pMixedCtx));
      AssertMsg(rc == VINF_SUCCESS || rc == VERR_EM_INTERPRETER, ("hmR0VmxExitWrmsr: failed, invalid error code %Rrc\n", rc));
      STAM_COUNTER_INC(&pVCpu->hm.s.StatExitWrmsr);
-@@ -10794,6 +10864,9 @@
+@@ -12564,6 +12634,9 @@
      PVM pVM                              = pVCpu->CTX_SUFF(pVM);
      VBOXSTRICTRC rcStrict;
-     rc  = hmR0VmxSaveGuestRegsForIemExec(pVCpu, pMixedCtx, false /*fMemory*/, true /*fNeedRsp*/);
+     rc = hmR0VmxSaveGuestRegsForIemExec(pVCpu, pMixedCtx, false /*fMemory*/, true /*fNeedRsp*/);
 +    /*MYCODE*/
 +    bool bBreakpointHitted = false;
 +    /*ENDMYCODE*/
      switch (uAccessType)
      {
          case VMX_EXIT_QUALIFICATION_CRX_ACCESS_WRITE:       /* MOV to CRx */
-@@ -10836,6 +10909,19 @@
+@@ -12606,7 +12679,22 @@
              }
  
              STAM_COUNTER_INC(&pVCpu->hm.s.StatExitCRxWrite[VMX_EXIT_QUALIFICATION_CRX_REGISTER(uExitQualification)]);
+-            break;
++            
 +            /*MYCODE*/
 +            //Looking for a matching breakpoint
 +            for(int iBreakpointId=0; iBreakpointId<MAX_BREAKPOINT_ID; iBreakpointId++){
@@ -1569,26 +1547,31 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +                }
 +            }
 +            /*ENDMYCODE*/
-             break;
++
++			break;
          }
  
-@@ -10892,6 +10978,12 @@
+         case VMX_EXIT_QUALIFICATION_CRX_ACCESS_READ:        /* MOV from CRx */
+@@ -12664,6 +12752,14 @@
  
      HMCPU_CF_SET(pVCpu, rcStrict != VINF_IEM_RAISED_XCPT ? HM_CHANGED_GUEST_RIP | HM_CHANGED_GUEST_RFLAGS : HM_CHANGED_ALL_GUEST);
      STAM_PROFILE_ADV_STOP(&pVCpu->hm.s.StatExitMovCRx, y2);
++
 +    /*MYCODE*/
 +    if(bBreakpointHitted == true){
 +        pVCpu->mystate.s.bCrHyperBreakPointHitted = true;
 +        return VINF_EM_HALT;
 +    }
 +    /*ENDMYCODE*/
-     return VBOXSTRICTRC_TODO(rcStrict);
++
+     NOREF(pVM);
+     return rcStrict;
  }
- 
-@@ -11277,6 +11369,95 @@
+@@ -13066,6 +13162,97 @@
   */
  HMVMX_EXIT_DECL hmR0VmxExitMovDRx(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIENT pVmxTransient)
  {
++
 +    /*MYCODE*/
 +    {
 +        int rc2;
@@ -1636,7 +1619,7 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +        rc2 = VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
 +
 +        //Single Step
-+        hmR0VmxRunGuestCodeStep(pVM2, pVCpu, pMixedCtx);
++        hmR0VmxRunGuestCodeNormal(pVM2, pVCpu, pMixedCtx);
 +        rc2  = hmR0VmxReadExitQualificationVmcs(pVCpu, pVmxTransient);
 +        rc2 |= hmR0VmxSaveGuestSegmentRegs(pVCpu, pMixedCtx);
 +        rc2 |= hmR0VmxSaveGuestDR7(pVCpu, pMixedCtx);
@@ -1678,18 +1661,29 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +    }
 +    /*ENDMYCODE*/
 +
++
      HMVMX_VALIDATE_EXIT_HANDLER_PARAMS();
  
      /* We should -not- get this VM-exit if the guest's debug registers were active. */
-@@ -11467,7 +11648,168 @@
-     PVM pVM = pVCpu->CTX_SUFF(pVM);
-     rc = PGMR0Trap0eHandlerNestedPaging(pVM, pVCpu, PGMMODE_EPT, uErrorCode, CPUMCTX2CORE(pMixedCtx), GCPhys);
+@@ -13222,6 +13409,8 @@
+ {
+     HMVMX_VALIDATE_EXIT_HANDLER_PARAMS();
+     Assert(pVCpu->CTX_SUFF(pVM)->hm.s.fNestedPaging);
++	
++
+ 
+     /* If this VM-exit occurred while delivering an event through the guest IDT, handle it accordingly. */
+     VBOXSTRICTRC rcStrict1 = hmR0VmxCheckExitDueToEventDelivery(pVCpu, pMixedCtx, pVmxTransient);
+@@ -13272,6 +13461,174 @@
+     VBOXSTRICTRC rcStrict2 = PGMR0Trap0eHandlerNestedPaging(pVM, pVCpu, PGMMODE_EPT, uErrorCode, CPUMCTX2CORE(pMixedCtx), GCPhys);
      TRPMResetTrap(pVCpu);
--
+ 
 +    /*MYCODE*/
 +    if(PGMShwIsBreakable(pVCpu, GCPhys) == true){
++#ifdef IN_RING0
++		PHMGLOBALCPUINFO pCpu = hmR0GetCurrentCpu();
++#endif
 +        STAM_COUNTER_INC(&pVCpu->hm.s.StatExitGuestDE);
-+        PHMGLOBALCPUINFO pCpu = HMR0GetCurrentCpu();
 +        if(VMMGetBreakpointIdFromPage(pVM, GCPhys, FDP_PAGEHBP) >= 0){ //FDP_PAGEHBP
 +            HMCPU_CF_SET(pVCpu,  HM_CHANGED_GUEST_RIP
 +                               | HM_CHANGED_GUEST_RSP
@@ -1743,14 +1737,16 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +            PGMShwWrite(pVCpu, GCPhys);
 +            PGMShwExecute(pVCpu, GCPhys);
 +            //Flush TLB
++#ifdef IN_RING0
 +            hmR0VmxFlushTaggedTlb(pVCpu, pCpu); 
++#endif
 +
 +            //Active MTF
 +            pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
 +            int rc3 = VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
 +
 +            //Single Step
-+            hmR0VmxRunGuestCodeStep(pVM, pVCpu, pMixedCtx);
++            hmR0VmxRunGuestCodeNormal(pVM, pVCpu, pMixedCtx);
 +
 +            //Disable MTF
 +            pVCpu->hm.s.vmx.u32ProcCtls &= ~VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
@@ -1821,7 +1817,7 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +                VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
 +
 +                //Single Step
-+                rc = hmR0VmxRunGuestCodeStep(pVM, pVCpu, pMixedCtx);
++                rc = hmR0VmxRunGuestCodeNormal(pVM, pVCpu, pMixedCtx);
 +
 +                //Disable MTF
 +                pVCpu->hm.s.vmx.u32ProcCtls &= ~VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
@@ -1848,10 +1844,12 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +        }
 +    }
 +    /*ENDMYCODE*/
++
++
      /* Same case as PGMR0Trap0eHandlerNPMisconfig(). See comment above, @bugref{6043}. */
-     if (   rc == VINF_SUCCESS
-         || rc == VERR_PAGE_TABLE_NOT_PRESENT
-@@ -11538,6 +11880,56 @@
+     if (   rcStrict2 == VINF_SUCCESS
+         || rcStrict2 == VERR_PAGE_TABLE_NOT_PRESENT
+@@ -13342,6 +13699,57 @@
      int rc = hmR0VmxSaveGuestState(pVCpu, pMixedCtx);
      AssertRCReturn(rc, rc);
  
@@ -1885,7 +1883,7 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +                rc2 = VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
 +
 +                //Single Step
-+                hmR0VmxRunGuestCodeStep(pVM, pVCpu, pMixedCtx);
++                hmR0VmxRunGuestCodeNormal(pVM, pVCpu, pMixedCtx);
 +                rc2  = hmR0VmxReadExitQualificationVmcs(pVCpu, pVmxTransient);
 +                rc2 |= hmR0VmxSaveGuestSegmentRegs(pVCpu, pMixedCtx);
 +                rc2 |= hmR0VmxSaveGuestDR7(pVCpu, pMixedCtx);
@@ -1905,13 +1903,14 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +    /*ENDMYCODE*/
 +
 +
++
      PVM pVM = pVCpu->CTX_SUFF(pVM);
      rc = DBGFRZTrap03Handler(pVM, pVCpu, CPUMCTX2CORE(pMixedCtx));
      if (rc == VINF_EM_RAW_GUEST_TRAP)
-@@ -11576,7 +11968,27 @@
-     uint64_t uDR6 = X86_DR6_INIT_VAL;
+@@ -13403,6 +13811,28 @@
      uDR6         |= (  pVmxTransient->uExitQualification
                       & (X86_DR6_B0 | X86_DR6_B1 | X86_DR6_B2 | X86_DR6_B3 | X86_DR6_BD | X86_DR6_BS));
+ 
 +    /*MYCODE*/
 +    {
 +        //If it is a breakpoint we handle it
@@ -1919,7 +1918,7 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +            //Update DR6 !
 +            VMMRZCallRing3Disable(pVCpu);
 +            HM_DISABLE_PREEMPT();
- 
++
 +            pMixedCtx->dr[6] &= ~X86_DR6_B_MASK;
 +            pMixedCtx->dr[6] |= uDR6;
 +            if (CPUMIsGuestDebugStateActive(pVCpu))
@@ -1933,13 +1932,13 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +        }
 +    }
 +    /*ENDMYCODE*/
++
      rc = DBGFRZTrap01Handler(pVCpu->CTX_SUFF(pVM), pVCpu, CPUMCTX2CORE(pMixedCtx), uDR6, pVCpu->hm.s.fSingleInstruction);
      if (rc == VINF_EM_RAW_GUEST_TRAP)
      {
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0/VMMR0.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR0/VMMR0.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0/VMMR0.cpp    2016-04-18 17:25:17.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR0/VMMR0.cpp    2016-04-27 11:36:08.504548500 +0200
-@@ -54,6 +54,13 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR0/VMMR0.cpp"	2017-10-18 09:13:31.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR0/VMMR0.cpp"	2018-01-19 17:57:01.944988100 +0100
+@@ -56,6 +56,14 @@
  #include <iprt/thread.h>
  #include <iprt/timer.h>
  
@@ -1950,10 +1949,11 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
 +#include <VBox/vmm/pgm.h>
 +/*ENDMYCODE*/
 +
++
  #include "dtrace/VBoxVMM.h"
  
  
-@@ -1880,6 +1887,37 @@
+@@ -1966,6 +1974,37 @@
              VMM_CHECK_SMAP_CHECK2(pVM, RT_NOTHING);
              break;
  #endif
@@ -1991,13 +1991,13 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR0
          default:
              /*
               * We're returning VERR_NOT_SUPPORT here so we've got something else
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/CPUM.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/CPUM.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/CPUM.cpp    2016-04-18 17:25:17.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/CPUM.cpp    2016-04-27 11:36:53.727311000 +0200
-@@ -947,6 +947,11 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/CPUM.cpp"	2017-10-18 09:13:31.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/CPUM.cpp"	2018-01-19 17:58:16.924500500 +0100
+@@ -1141,6 +1141,12 @@
   */
  VMMR3DECL(void) CPUMR3ResetCpu(PVM pVM, PVMCPU pVCpu)
  {
++
 +    /*MYCODE*/
 +    pVCpu->mystate.s.bRestoreRequired = false;
 +    pVCpu->mystate.s.bPauseRequired = false;
@@ -2006,21 +2006,19 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
      /** @todo anything different for VCPU > 0? */
      PCPUMCTX pCtx = &pVCpu->cpum.s.Guest;
  
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/EM.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/EM.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/EM.cpp    2016-04-18 17:25:17.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/EM.cpp    2017-06-15 00:10:19.545762700 +0200
-@@ -70,6 +70,10 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/EM.cpp"	2017-10-18 09:13:32.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/EM.cpp"	2018-01-19 18:01:12.710444300 +0100
+@@ -71,6 +71,9 @@
  #include <iprt/stream.h>
  #include <iprt/thread.h>
  
 +/*MYCODE*/
 +#include <FDP/include/FDP.h>
 +/*ENDMYCODE*/
-+
  
  /*********************************************************************************************************************************
  *   Defined Constants And Macros                                                                                                 *
-@@ -144,6 +148,11 @@
+@@ -147,6 +150,12 @@
          pVM->em.s.fGuruOnTripleFault = true;
      }
  
@@ -2029,22 +2027,24 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
 +    pVM->em.s.fGuruOnTripleFault = false;
 +    /*ENDMYCODE*/
 +
++
      Log(("EMR3Init: fRecompileUser=%RTbool fRecompileSupervisor=%RTbool fRawRing1Enabled=%RTbool fIemExecutesAll=%RTbool fGuruOnTripleFault=%RTbool\n",
           pVM->fRecompileUser, pVM->fRecompileSupervisor, pVM->fRawRing1Enabled, pVM->em.s.fIemExecutesAll, pVM->em.s.fGuruOnTripleFault));
  
-@@ -838,7 +847,10 @@
+@@ -844,8 +853,10 @@
               * Simple events: stepped, breakpoint, stop/assertion.
               */
              case VINF_EM_DBG_STEPPED:
 -                rc = DBGFR3Event(pVM, DBGFEVENT_STEPPED);
-+                /*MYCODE*/
-+                //Avoid annoying messages
+-                break;
++				/*MYCODE*/
 +                //rc = DBGFR3Event(pVM, DBGFEVENT_STEPPED);
-+                /*ENDMYCODE*/
-                 break;
++				/*ENDMYCODE*/
++				break;
  
              case VINF_EM_DBG_BREAKPOINT:
-@@ -2174,6 +2186,28 @@
+                 rc = DBGFR3EventBreakpoint(pVM, DBGFEVENT_BREAKPOINT);
+@@ -2291,6 +2302,29 @@
              else if (fFFDone)
                  fFFDone = false;
  
@@ -2070,11 +2070,12 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
 +            }
 +            /*MYCODE*/
 +
++
              /*
               * Now what to do?
               */
-@@ -2673,6 +2707,21 @@
-     AssertFailed();
+@@ -2805,6 +2839,22 @@
+     /* not reached */
  }
  
 +/*MYCODE*/
@@ -2092,13 +2093,13 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
 +}
 +/*ENDMYCODE*/
 +
++
  /**
   * Notify EM of a state change (used by FTM)
   *
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/EMHM.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/EMHM.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/EMHM.cpp    2016-04-18 17:25:17.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/EMHM.cpp    2016-04-27 12:41:48.639110900 +0200
-@@ -495,6 +495,11 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/EMHM.cpp"	2017-10-18 09:13:32.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/EMHM.cpp"	2018-01-19 18:01:55.201337300 +0100
+@@ -497,6 +497,12 @@
                  break;
              }
          }
@@ -2107,25 +2108,24 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
 +        if(pVCpu->mystate.s.bPauseRequired)
 +            break;
 +        /*ENDMYCODE*/
++
      }
  
      /*
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/MM.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/MM.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/MM.cpp    2016-04-18 17:25:17.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/MM.cpp    2016-04-27 12:42:15.137469300 +0200
-@@ -803,3 +803,7 @@
-     return pVM->mm.s.cbRamBase;
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/MM.cpp"	2017-10-18 09:13:32.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/MM.cpp"	2018-01-19 18:03:19.817113300 +0100
+@@ -855,3 +855,7 @@
  }
+ 
  
 +VMMR3DECL(uint64_t) MMR3PhysGetRamSizeU(PUVM pUVM)
 +{
 +    return pUVM->pVM->mm.s.cbRamBase;
 +}
 \ No newline at end of file
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/PDM.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/PDM.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/PDM.cpp    2016-04-18 17:25:18.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/PDM.cpp    2016-04-27 14:33:33.573618400 +0200
-@@ -1898,7 +1898,7 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/PDM.cpp"	2017-10-18 09:13:32.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/PDM.cpp"	2018-01-19 18:03:55.425031200 +0100
+@@ -2037,7 +2037,7 @@
   */
  VMMR3_INT_DECL(void) PDMR3Resume(PVM pVM)
  {
@@ -2134,9 +2134,8 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
  
      /*
       * Iterate thru the device instances and USB device instances,
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/PGMDbg.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/PGMDbg.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/PGMDbg.cpp    2016-04-18 17:25:18.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/PGMDbg.cpp    2016-04-27 12:42:58.856952600 +0200
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/PGMDbg.cpp"	2017-10-18 09:13:33.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/PGMDbg.cpp"	2018-01-19 18:04:33.195342300 +0100
 @@ -779,6 +779,10 @@
      return VERR_DBGF_MEM_NOT_FOUND;
  }
@@ -2148,13 +2147,13 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
  
  /**
   * Scans (guest) virtual memory for a byte string.
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/TRPM.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/TRPM.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/TRPM.cpp    2016-04-18 17:25:18.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/TRPM.cpp    2016-04-27 12:44:04.240513200 +0200
-@@ -1486,6 +1486,15 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/TRPM.cpp"	2017-10-18 09:13:33.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/TRPM.cpp"	2018-01-19 18:05:13.464665700 +0100
+@@ -1496,6 +1496,17 @@
   */
  VMMR3DECL(int) TRPMR3InjectEvent(PVM pVM, PVMCPU pVCpu, TRPMEVENT enmEvent)
  {
++
 +    /*MYCODE*/
 +    //Avoid interrupt during restore or pause
 +    if(pVCpu->mystate.s.bRestoreRequired
@@ -2164,13 +2163,13 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
 +    }
 +    /*ENDMYCODE*/
 +
-     PCPUMCTX pCtx = CPUMQueryGuestCtxPtr(pVCpu);
++
  #ifdef VBOX_WITH_RAW_MODE
+     PCPUMCTX pCtx = CPUMQueryGuestCtxPtr(pVCpu);
      Assert(!PATMIsPatchGCAddr(pVM, pCtx->eip));
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/VM.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/VM.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/VM.cpp    2016-04-18 17:25:18.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/VM.cpp    2016-05-09 10:27:50.671515800 +0200
-@@ -90,6 +90,11 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/VM.cpp"	2017-10-18 09:13:33.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/VM.cpp"	2018-01-19 18:06:52.902299400 +0100
+@@ -92,6 +92,11 @@
  #include <iprt/thread.h>
  #include <iprt/uuid.h>
  
@@ -2181,11 +2180,12 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
 +/*ENDMYCODE*/
  
  /*********************************************************************************************************************************
- *   Global Variables                                                                                                             *
-@@ -649,6 +654,19 @@
+ *   Internal Functions                                                                                                           *
+@@ -643,6 +648,22 @@
              rc = vmR3ReadBaseConfig(pVM, pUVM, cCpus);
              if (RT_SUCCESS(rc))
              {
++
 +                /*MYCODE*/
 +                //This spinlock is created in Ring-0!
 +                strcpy(pVM->mystate.s.PageSpinLockName, "PAGELOCK_");
@@ -2199,10 +2199,12 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
 +                RTSpinlockCreate(&pVM->mystate.s.CpuLock, RTSPINLOCK_FLAGS_INTERRUPT_UNSAFE, CpuSpinLockName);
 +                /*ENDMYCODE*/
 +
++
++
                  /*
                   * Init the ring-3 components and ring-3 per cpu data, finishing it off
                   * by a relocation round (intermediate context finalization will do this).
-@@ -1467,6 +1485,12 @@
+@@ -1470,6 +1491,14 @@
      VMRESUMEREASON enmReason = (VMRESUMEREASON)(uintptr_t)pvUser;
      LogFlow(("vmR3Resume: pVM=%p pVCpu=%p/#%u enmReason=%d\n", pVM, pVCpu, pVCpu->idCpu, enmReason));
  
@@ -2212,13 +2214,16 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
 +    }
 +    /*ENDMYCODE*/
 +
++
++
      /*
       * The first thread thru here tries to change the state.  We shouldn't be
       * called again if this fails.
-@@ -2389,6 +2413,26 @@
+@@ -2369,6 +2398,28 @@
   */
  VMMR3DECL(int)   VMR3PowerOff(PUVM pUVM)
  {
++
 +    /*MYCODE*/
 +    PVMCPU pVCpu = &pUVM->pVM->aCpus[0];
 +    //Do this only if the vCpu is Paused
@@ -2239,12 +2244,12 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
 +        pFdpShm->pFdpServer->bIsRunning = false;
 +    }
 +    /*ENDMYCODE*/
++
      LogFlow(("VMR3PowerOff: pUVM=%p\n", pUVM));
      UVM_ASSERT_VALID_EXT_RETURN(pUVM, VERR_INVALID_VM_HANDLE);
      PVM pVM = pUVM->pVM;
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/VMEmt.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/VMEmt.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/VMEmt.cpp    2016-04-18 17:25:18.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/VMEmt.cpp    2017-06-15 00:09:34.920004200 +0200
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/VMEmt.cpp"	2017-10-18 09:13:33.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/VMEmt.cpp"	2018-01-19 18:23:08.604229700 +0100
 @@ -42,6 +42,12 @@
  #include <iprt/thread.h>
  #include <iprt/time.h>
@@ -2258,51 +2263,58 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
  
  /*********************************************************************************************************************************
  *   Internal Functions                                                                                                           *
-@@ -340,11 +346,19 @@
+@@ -373,12 +379,24 @@
          if (    VM_FF_IS_PENDING(pVM, VM_FF_EXTERNAL_HALTED_MASK)
              ||  VMCPU_FF_IS_PENDING(pVCpu, fMask))
              break;
++
 +        /*MYCODE*/
 +        if(pVCpu->mystate.s.bPauseRequired == true)
 +            break;
 +        /*ENDMYCODE*/
++
++
          uint64_t u64NanoTS;
          TMTimerPollGIP(pVM, pVCpu, &u64NanoTS);
          if (    VM_FF_IS_PENDING(pVM, VM_FF_EXTERNAL_HALTED_MASK)
              ||  VMCPU_FF_IS_PENDING(pVCpu, fMask))
              break;
+ 
 +        /*MYCODE*/
 +        if(pVCpu->mystate.s.bPauseRequired == true)
 +            break;
 +        /*ENDMYCODE*/
- 
++
          /*
           * Wait for a while. Someone will wake us up or interrupt the call if
-@@ -539,6 +553,10 @@
-         if (    VM_FF_IS_PENDING(pVM, VM_FF_EXTERNAL_HALTED_MASK)
+          * anything needs our attention.
+@@ -722,6 +740,11 @@
              ||  VMCPU_FF_IS_PENDING(pVCpu, fMask))
              break;
+ 
 +        /*MYCODE*/
 +        if(pVCpu->mystate.s.bPauseRequired == true)
 +            break;
 +        /*ENDMYCODE*/
- 
++
          /*
           * Estimate time left to the next event.
-@@ -548,6 +566,10 @@
-         if (    VM_FF_IS_PENDING(pVM, VM_FF_EXTERNAL_HALTED_MASK)
+          */
+@@ -732,6 +755,11 @@
              ||  VMCPU_FF_IS_PENDING(pVCpu, fMask))
              break;
+ 
 +        /*MYCODE*/
 +        if(pVCpu->mystate.s.bPauseRequired == true)
 +            break;
 +        /*ENDMYCODE*/
- 
++
          /*
           * Block if we're not spinning and the interval isn't all that small.
-@@ -1035,14 +1057,929 @@
+          */
+@@ -1069,6 +1097,921 @@
+     g_aHaltMethods[pUVM->vm.s.iHaltMethod].pfnNotifyCpuFF(pUVCpu, fFlags);
  }
- 
  
 +/*MYCODE*/
 +//TODO: include with DBGTcp.cpp
@@ -3219,23 +3231,14 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
 +    return pUVM->pVM->cCpus;
 +}
 +
+ 
  /**
   * Halted VM Wait.
-  * Any external event will unblock the thread.
-  *
-  * @returns VINF_SUCCESS unless a fatal error occurred. In the latter
-  *          case an appropriate status code is returned.
-- * @param   pVM         The cross context VM structure.
-- * @param   pVCpu       The cross context virtual CPU structure.
-+ * @param   pVM         Pointer to the VM.
-+ * @param   pVCpu       Pointer to the VMCPU.
-  * @param   fIgnoreInterrupts   If set the VM_FF_INTERRUPT flags is ignored.
-  * @thread  The emulation thread.
-  * @remarks Made visible for implementing vmsvga sync register.
-@@ -1050,6 +1987,120 @@
+@@ -1085,6 +2028,122 @@
   */
  VMMR3_INT_DECL(int) VMR3WaitHalted(PVM pVM, PVMCPU pVCpu, bool fIgnoreInterrupts)
  {
++
 +    /*MYCODE*/
 +    if(pVCpu->mystate.s.bInstallDrBreakpointRequired){
 +        LogRelDebug(("[WDEBUG] CPU[%d] Entering bInstallDrBreakpointRequired !!\n", pVCpu->idCpu));
@@ -3350,31 +3353,22 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3
 +        return VINF_EM_RESCHEDULE;
 +    }
 +    /*ENDMYCODE*/
++
      LogFlow(("VMR3WaitHalted: fIgnoreInterrupts=%d\n", fIgnoreInterrupts));
  
      /*
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/VMM.cpp C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/VMM.cpp
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\src\/VBox/VMM/VMMR3/VMM.cpp    2016-04-18 17:25:18.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\src\/VBox/VMM/VMMR3/VMM.cpp    2016-04-27 12:56:28.659402500 +0200
-@@ -1356,6 +1356,10 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/VMM.cpp"	2017-10-18 09:13:33.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\src\\vbox\\VMM/VMMR3/VMM.cpp"	2018-01-19 18:18:07.903034900 +0100
+@@ -1404,7 +1404,11 @@
              if (RT_LIKELY(rc == VINF_SUCCESS))
                  rc = pVCpu->vmm.s.iLastGZRc;
  #endif
+-        } while (rc == VINF_EM_RAW_INTERRUPT_HYPER);
 +        /*MYCODE*/
 +        if(pVCpu->mystate.s.bPauseRequired == true)
 +            break;
 +        /*ENDMYCODE*/
-         } while (rc == VINF_EM_RAW_INTERRUPT_HYPER);
++       } while (rc == VINF_EM_RAW_INTERRUPT_HYPER);
  
- #if 0 /* todo triggers too often */
-@@ -2100,6 +2104,10 @@
-             if (RT_LIKELY(rc == VINF_SUCCESS))
-                 rc = pVCpu->vmm.s.iLastGZRc;
- # endif
-+        /*MYCODE*/
-+        if(pVCpu->mystate.s.bPauseRequired == true)
-+            break;
-+        /*ENDMYCODE*/
-         } while (rc == VINF_EM_RAW_INTERRUPT_HYPER);
- 
-         /*
+ #if 0 /** @todo triggers too often */
+         Assert(!VMCPU_FF_IS_SET(pVCpu, VMCPU_FF_TO_R3));
