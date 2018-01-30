@@ -101,6 +101,10 @@ class FDP(object):
         FDP_AddressType = c_uint16
         FDP_State = c_uint8
 
+        self.pRegisterValue = pointer(c_uint64(0))
+        self.pMsrValue = pointer(c_uint64(0))
+        self.pState = pointer(c_uint8(0))
+
         self.fdpdll.FDP_CreateSHM.restype = c_void_p
         self.fdpdll.FDP_CreateSHM.argtypes = [c_char_p]
         self.fdpdll.FDP_OpenSHM.restype = c_void_p
@@ -190,9 +194,8 @@ class FDP(object):
         """ Return the value stored in the specified register
         RegisterId must be a member of FDP.FDP_REGISTER
         """
-        pRegisterValue = pointer(c_uint64(0))
-        if self.fdpdll.FDP_ReadRegister(self.pFDP, CpuId, RegisterId, pRegisterValue) == True:
-            return pRegisterValue[0]
+        if self.fdpdll.FDP_ReadRegister(self.pFDP, CpuId, RegisterId, self.pRegisterValue) == True:
+            return self.pRegisterValue[0]
         return None
 
     def WriteRegister(self, RegisterId, RegisterValue, CpuId=FDP_CPU0):
@@ -205,9 +208,8 @@ class FDP(object):
         """ Return the value stored in the Model-specific register (MSR) indexed by MsrId
         MSR typically don't have an enum Id since there are vendor specific.
         """
-        pMsrValue = pointer(c_uint64(0))
-        if self.fdpdll.FDP_ReadMsr(self.pFDP, CpuId, c_uint64(MsrId), pMsrValue) == True:
-            return pMsrValue[0]
+        if self.fdpdll.FDP_ReadMsr(self.pFDP, CpuId, c_uint64(MsrId), self.pMsrValue) == True:
+            return self.pMsrValue[0]
         return None
 
     def WriteMsr(self, MsrId, MsrValue, CpuId=FDP_CPU0):
@@ -324,9 +326,8 @@ class FDP(object):
         - FDP.FDP_STATE_DEBUGGER_ALERTED : the VM is in a debuggable state
         - FDP.FDP_STATE_HARD_BREAKPOINT_HIT : the execution has hit a hard breakpoint
         """
-        pState = pointer(c_uint8(0))
-        if self.fdpdll.FDP_GetState(self.pFDP, pState) == True:
-            return pState[0]
+        if self.fdpdll.FDP_GetState(self.pFDP, self.pState) == True:
+            return self.pState[0]
         return None
 
     def GetCpuState(self, CpuId=FDP_CPU0):
@@ -337,9 +338,8 @@ class FDP(object):
         - FDP.FDP_STATE_DEBUGGER_ALERTED : the VM is in a debuggable state
         - FDP.FDP_STATE_HARD_BREAKPOINT_HIT : the execution has hit a hard breakpoint
         """
-        pState = pointer(c_uint8(0))
-        if self.fdpdll.FDP_GetCpuState(self.pFDP, CpuId, pState) == True:
-            return pState[0]
+        if self.fdpdll.FDP_GetCpuState(self.pFDP, CpuId, self.pState) == True:
+            return self.pState[0]
         return None
 
     def GetPhysicalMemorySize(self):
