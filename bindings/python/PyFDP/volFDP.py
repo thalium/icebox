@@ -1,6 +1,8 @@
-import volatility.addrspace as addrspace
 import urllib
-import FDP
+
+import volatility.addrspace as addrspace
+
+from PyFDP import FDP
 
 class PyFDPAddressSpace(addrspace.BaseAddressSpace):
     """

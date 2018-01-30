@@ -1,8 +1,8 @@
-from FDP import *
 import struct
 import time
 import sys
-from FDP import *
+
+from PyFDP.FDP import FDP
 
 if __name__ == '__main__':
     fdp = FDP("10_RS1_64")
