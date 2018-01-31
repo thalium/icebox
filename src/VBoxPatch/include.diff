@@ -1,7 +1,6 @@
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/em.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/em.h
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/em.h    2016-04-18 17:20:23.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/em.h    2016-04-27 10:26:35.445164900 +0200
-@@ -286,6 +286,11 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\include\\VBox\\vmm\\em.h"	2017-10-18 09:06:34.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\include\\VBox\\vmm\\em.h"	2017-12-12 23:25:40.134860500 +0100
+@@ -288,6 +288,11 @@
  VMMR3_INT_DECL(int)             EMR3NotifySuspend(PVM pVM);
  VMMR3_INT_DECL(VBOXSTRICTRC)    EMR3HmSingleInstruction(PVM pVM, PVMCPU pVCpu, uint32_t fFlags);
  
@@ -13,12 +12,11 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/e
  /** @} */
  #endif /* IN_RING3 */
  
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/gmm.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/gmm.h
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/gmm.h    2016-04-18 17:20:23.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/gmm.h    2016-04-27 10:27:43.539907600 +0200
-@@ -545,6 +545,16 @@
- GMMR0DECL(int)  GMMR0QueryHypervisorMemoryStatsReq(PVM pVM, PGMMMEMSTATSREQ pReq);
- GMMR0DECL(int)  GMMR0QueryMemoryStatsReq(PVM pVM, VMCPUID idCpu, PGMMMEMSTATSREQ pReq);
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\include\\VBox\\vmm\\gmm.h"	2017-10-18 09:06:34.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\include\\VBox\\vmm\\gmm.h"	2017-11-30 09:58:58.428861900 +0100
+@@ -545,6 +545,17 @@
+ GMMR0DECL(int)  GMMR0QueryHypervisorMemoryStatsReq(PGMMMEMSTATSREQ pReq);
+ GMMR0DECL(int)  GMMR0QueryMemoryStatsReq(PGVM pGVM, PVM pVM, VMCPUID idCpu, PGMMMEMSTATSREQ pReq);
  
 +/*MYCODE*/
 +typedef struct ALLOCPAGEREQ
@@ -30,13 +28,13 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/g
 +} ALLOCPAGEREQ;
 +/*ENDMYCODE*/
 +
++
  /**
   * Request buffer for GMMR0MapUnmapChunkReq / VMMR0_DO_GMM_MAP_UNMAP_CHUNK.
   * @see GMMR0MapUnmapChunk
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/hm.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/hm.h
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/hm.h    2016-04-18 17:20:24.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/hm.h    2016-04-27 10:29:11.425234500 +0200
-@@ -150,6 +150,9 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\include\\VBox\\vmm\\hm.h"	2017-10-18 09:06:34.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\include\\VBox\\vmm\\hm.h"	2017-11-30 10:00:03.828554300 +0100
+@@ -173,6 +173,9 @@
  #ifndef IN_RC
  VMM_INT_DECL(int)               HMFlushTLB(PVMCPU pVCpu);
  VMM_INT_DECL(int)               HMFlushTLBOnAllVCpus(PVM pVM);
@@ -46,46 +44,40 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/h
  VMM_INT_DECL(int)               HMInvalidatePageOnAllVCpus(PVM pVM, RTGCPTR GCVirt);
  VMM_INT_DECL(int)               HMInvalidatePhysPage(PVM pVM, RTGCPHYS GCPhys);
  VMM_INT_DECL(bool)              HMIsNestedPagingActive(PVM pVM);
-@@ -171,6 +174,9 @@
+@@ -194,6 +197,7 @@
   * @{
   */
  VMMR0_INT_DECL(int)             HMR0Init(void);
-+/*MYCODE*/
 +VMMR0_INT_DECL(int)             HMR0FlushEPT(PVM pVM, PVMCPU pVCpu);
-+/*ENMYCODE*/
  VMMR0_INT_DECL(int)             HMR0Term(void);
  VMMR0_INT_DECL(int)             HMR0InitVM(PVM pVM);
  VMMR0_INT_DECL(int)             HMR0TermVM(PVM pVM);
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/mm.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/mm.h
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/mm.h    2016-04-18 17:20:24.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/mm.h    2016-04-27 10:30:53.787259500 +0200
-@@ -225,6 +225,9 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\include\\VBox\\vmm\\mm.h"	2017-10-18 09:06:34.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\include\\VBox\\vmm\\mm.h"	2017-11-30 10:00:45.886928000 +0100
+@@ -228,6 +228,7 @@
  
  VMMDECL(RTHCPHYS)   MMPage2Phys(PVM pVM, void *pvPage);
  VMMDECL(void *)     MMPagePhys2Page(PVM pVM, RTHCPHYS HCPhysPage);
-+/*MYCODE*/
 +VMMDECL(void *)     MMPagePhys2PageU(PUVM pUVM, RTHCPHYS HCPhysPage);
-+/*ENDMYCODE*/
  VMMDECL(int)        MMPagePhys2PageEx(PVM pVM, RTHCPHYS HCPhysPage, void **ppvPage);
  VMMDECL(int)        MMPagePhys2PageTry(PVM pVM, RTHCPHYS HCPhysPage, void **ppvPage);
  
-@@ -292,6 +295,9 @@
+@@ -295,6 +296,7 @@
   * @todo retire this group, elimintating or moving MMR3PhysGetRamSize to PGMPhys.
   * @{ */
  VMMR3DECL(uint64_t) MMR3PhysGetRamSize(PVM pVM);
-+/*MYCODE*/
 +VMMR3DECL(uint64_t) MMR3PhysGetRamSizeU(PUVM pUVM);
-+/*ENDMYCODE*/
- /** @} */
- 
- 
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/pgm.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/pgm.h
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/pgm.h    2016-04-18 17:20:24.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/pgm.h    2016-04-27 10:40:38.227691400 +0200
-@@ -403,6 +403,21 @@
+ VMMR3DECL(uint32_t) MMR3PhysGetRamSizeBelow4GB(PVM pVM);
+ VMMR3DECL(uint64_t) MMR3PhysGetRamSizeAbove4GB(PVM pVM);
+ VMMR3DECL(uint32_t) MMR3PhysGet4GBRamHoleSize(PVM pVM);
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\include\\VBox\\vmm\\pgm.h"	2017-10-18 09:06:34.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\include\\VBox\\vmm\\pgm.h"	2017-11-30 10:02:12.774426500 +0100
+@@ -421,6 +421,24 @@
  /** The page is an MMIO2. */
  #define PGM_MK_PG_IS_MMIO2           RT_BIT(1)
  /** @}*/
++
++
 +/*MYCODE*/
 +VMMDECL(int)        PGMShwGetHCPage(PVMCPU pVCpu, uint64_t GCPhys, uint64_t *HCPhys);
 +VMMDECL(int)        PGMShwSetHCPage(PVMCPU pVCpu, uint64_t GCPhys, uint64_t HCPhys);
@@ -101,40 +93,35 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/p
 +VMMDECL(int)        PGMShwSetBreakable(PVMCPU pVCpu, uint64_t GCPhys, bool Breakable);
 +VMMDECL(bool)       PGMShwIsBreakable(PVMCPU pVCpu, uint64_t GCPhys);
 +/*ENDMYCODE*/
++
  VMMDECL(int)        PGMGstGetPage(PVMCPU pVCpu, RTGCPTR GCPtr, uint64_t *pfFlags, PRTGCPHYS pGCPhys);
  VMMDECL(bool)       PGMGstIsPagePresent(PVMCPU pVCpu, RTGCPTR GCPtr);
  VMMDECL(int)        PGMGstSetPage(PVMCPU pVCpu, RTGCPTR GCPtr, size_t cb, uint64_t fFlags);
-@@ -601,6 +616,9 @@
+@@ -629,6 +647,7 @@
  VMMDECL(VBOXSTRICTRC) PGMPhysWriteGCPtr(PVMCPU pVCpu, RTGCPTR GCPtrDst, const void *pvSrc, size_t cb, PGMACCESSORIGIN enmOrigin);
  
  VMMDECL(int)        PGMPhysSimpleReadGCPhys(PVM pVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb);
-+/*MYCODE*/
 +VMMDECL(int)        PGMPhysSimpleReadGCPhys2(PUVM pUVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb);
-+/*ENDMYCODE*/
  VMMDECL(int)        PGMPhysSimpleWriteGCPhys(PVM pVM, RTGCPHYS GCPhysDst, const void *pvSrc, size_t cb);
  VMMDECL(int)        PGMPhysSimpleReadGCPtr(PVMCPU pVCpu, void *pvDst, RTGCPTR GCPtrSrc, size_t cb);
  VMMDECL(int)        PGMPhysSimpleWriteGCPtr(PVMCPU pVCpu, RTGCPTR GCPtrDst, const void *pvSrc, size_t cb);
-@@ -656,6 +674,9 @@
+@@ -698,6 +717,7 @@
  VMMR0DECL(int)      PGMR0SharedModuleCheck(PVM pVM, PGVM pGVM, VMCPUID idCpu, PGMMSHAREDMODULE pModule, PCRTGCPTR64 paRegionsGCPtrs);
  VMMR0DECL(int)      PGMR0Trap0eHandlerNestedPaging(PVM pVM, PVMCPU pVCpu, PGMMODE enmShwPagingMode, RTGCUINT uErr, PCPUMCTXCORE pRegFrame, RTGCPHYS pvFault);
  VMMR0DECL(VBOXSTRICTRC) PGMR0Trap0eHandlerNPMisconfig(PVM pVM, PVMCPU pVCpu, PGMMODE enmShwPagingMode, PCPUMCTXCORE pRegFrame, RTGCPHYS GCPhysFault, uint32_t uErr);
-+/*MYCODE*/
 +VMMR0DECL(VBOXSTRICTRC) PGMR0PhysSimpleReadGCPhys(PVM pVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb);
-+/*ENDMYCODE*/
  # ifdef VBOX_WITH_2X_4GB_ADDR_SPACE
  VMMR0DECL(int)      PGMR0DynMapInit(void);
  VMMR0DECL(void)     PGMR0DynMapTerm(void);
-@@ -686,6 +707,9 @@
+@@ -728,6 +748,7 @@
  VMMR3DECL(int)      PGMR3Term(PVM pVM);
  VMMR3DECL(int)      PGMR3LockCall(PVM pVM);
  VMMR3DECL(int)      PGMR3ChangeMode(PVM pVM, PVMCPU pVCpu, PGMMODE enmGuestMode);
-+/*MYCODE*/
 +VMMR3DECL(int)      PGMR3ChangeMode2(PUVM pUVM, PVMCPU pVCpu, PGMMODE enmGuestMode);
-+/*ENDMYCODE*/
  
  VMMR3DECL(int)      PGMR3PhysRegisterRam(PVM pVM, RTGCPHYS GCPhys, RTGCPHYS cb, const char *pszDesc);
  VMMR3DECL(int)      PGMR3PhysChangeMemBalloon(PVM pVM, bool fInflate, unsigned cPages, RTGCPHYS *paPhysPage);
-@@ -787,6 +811,10 @@
+@@ -832,6 +853,10 @@
  VMMR3DECL(int)      PGMR3PhysChunkMap(PVM pVM, uint32_t idChunk);
  VMMR3DECL(void)     PGMR3PhysChunkInvalidateTLB(PVM pVM);
  VMMR3DECL(int)      PGMR3PhysAllocateHandyPages(PVM pVM);
@@ -145,10 +132,9 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/p
  VMMR3DECL(int)      PGMR3PhysAllocateLargeHandyPage(PVM pVM, RTGCPHYS GCPhys);
  
  VMMR3DECL(int)      PGMR3CheckIntegrity(PVM pVM);
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/vm.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/vm.h
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/vm.h    2016-04-18 17:20:24.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/vm.h    2017-06-14 18:20:40.092876700 +0200
-@@ -46,6 +46,61 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\include\\VBox\\vmm\\vm.h"	2017-10-18 09:06:35.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\include\\VBox\\vmm\\vm.h"	2017-11-30 10:15:08.556057700 +0100
+@@ -47,6 +47,61 @@
   * @{
   */
  
@@ -210,9 +196,9 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/v
  /**
   * The state of a Virtual CPU.
   *
-@@ -137,6 +192,34 @@
-     /** Profiling samples for use by ad hoc profiling. */
-     STAMPROFILEADV          aStatAdHoc[8];                          /* size: 40*8 = 320 */
+@@ -149,6 +204,34 @@
+         uint8_t             padding[18496];     /* multiple of 64 */
+     } iem;
  
 +    /*MYCODE*/
 +    union
@@ -243,9 +229,9 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/v
 +    /*ENDMYCODE*/
 +
      /** HM part. */
-     union
+     union VMCPUUNIONHM
      {
-@@ -1005,6 +1088,28 @@
+@@ -1110,6 +1193,29 @@
          uint8_t     padding[1600];      /* multiple of 64 */
      } vmm;
  
@@ -271,13 +257,21 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/v
 +    }mystate;
 +    /*ENDMYCODE*/
 +
++
      /** PGM part. */
      union
      {
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/vmapi.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/vmapi.h
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/vmapi.h    2016-04-18 17:20:24.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/vmapi.h    2017-06-14 18:29:51.682624400 +0200
-@@ -475,6 +475,32 @@
+@@ -1119,6 +1225,7 @@
+         uint8_t     padding[4096*2+6080];      /* multiple of 64 */
+     } pgm;
+ 
++
+     /** HM part. */
+     union
+     {
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\include\\VBox\\vmm\\vmapi.h"	2017-10-18 09:06:35.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\include\\VBox\\vmm\\vmapi.h"	2017-11-30 10:06:25.550230300 +0100
+@@ -478,6 +478,32 @@
  VMMR3_INT_DECL(void)        VMR3NotifyCpuFFU(PUVMCPU pUVMCpu, uint32_t fFlags);
  VMMR3DECL(int)              VMR3NotifyCpuDeviceReady(PVM pVM, VMCPUID idCpu);
  VMMR3_INT_DECL(int)         VMR3WaitHalted(PVM pVM, PVMCPU pVCpu, bool fIgnoreInterrupts);
@@ -310,10 +304,9 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/v
  VMMR3_INT_DECL(int)         VMR3WaitU(PUVMCPU pUVMCpu);
  VMMR3DECL(int)              VMR3WaitForDeviceReady(PVM pVM, VMCPUID idCpu);
  VMMR3_INT_DECL(int)         VMR3AsyncPdmNotificationWaitU(PUVMCPU pUVCpu);
-diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/vmm.h C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/vmm.h
---- C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/vmm.h    2016-04-18 17:20:24.000000000 +0200
-+++ C:\Users\vbox\Desktop\VirtualBox-5.0.18\include\VBox\/vmm/vmm.h    2016-04-27 10:43:48.820368800 +0200
-@@ -274,7 +274,11 @@
+--- "C:\\Users\\Windows7\\Downloads\\VirtualBox-5.2.0\\include\\VBox\\vmm\\vmm.h"	2017-10-18 09:06:35.000000000 +0200
++++ "C:\\Users\\Windows7\\build\\src\\VirtualBox-5.2.0\\include\\VBox\\vmm\\vmm.h"	2017-11-30 10:07:14.015912600 +0100
+@@ -288,7 +288,11 @@
  VMM_INT_DECL(int)           VMMPatchHypercall(PVM pVM, void *pvBuf, size_t cbBuf, size_t *pcbWritten);
  VMM_INT_DECL(void)          VMMHypercallsEnable(PVMCPU pVCpu);
  VMM_INT_DECL(void)          VMMHypercallsDisable(PVMCPU pVCpu);
@@ -326,13 +319,12 @@ diff -ruN C:\Users\vbox\Downloads\VirtualBox-5.0.18_ORIGINAL\include\VBox\/vmm/v
  
  #if defined(IN_RING3) || defined(DOXYGEN_RUNNING)
  /** @defgroup grp_vmm_api_r3    The VMM Host Context Ring 3 API
-@@ -480,6 +484,9 @@
-     VMMR0_DO_TESTS,
+@@ -505,6 +509,8 @@
      /** Test the 32->64 bits switcher. */
      VMMR0_DO_TEST_SWITCHER3264,
-+    /*MYCODE*/
-+    VMMR0_DO_ALLOC_HCPHYS,
-+    /*ENDMYCODE*/
  
++    VMMR0_DO_ALLOC_HCPHYS,
++
      /** The usual 32-bit type blow up. */
      VMMR0_DO_32BIT_HACK = 0x7fffffff
+ } VMMR0OPERATION;
