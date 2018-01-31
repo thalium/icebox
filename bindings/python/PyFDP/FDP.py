@@ -364,7 +364,7 @@ class FDP(object):
         """ wait for the VM execution state has change. Useful on when waiting for a breakpoint to hit."""
         if self.fdpdll.FDP_WaitForStateChanged(self.pFDP, self.pState) == True:
             return self.pState[0]
-         return None
+        return None
 
     def InjectInterrupt(self, InterruptionCode, ErrorCode, Cr2Value, CpuId=FDP_CPU0):
         """ Inject an interruption in the VM execution state.
