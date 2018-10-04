@@ -13684,7 +13684,6 @@ static int hmR0VmxExitXcptBP(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIENT pVm
      *        really needed. */
     int rc = hmR0VmxSaveGuestState(pVCpu, pMixedCtx);
     AssertRCReturn(rc, rc);
-
     /*MYCODE*/
     {
         int rc2  = hmR0VmxReadExitIntInfoVmcs(pVmxTransient);
@@ -13709,7 +13708,7 @@ static int hmR0VmxExitXcptBP(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIENT pVm
                 PGMShwExecute(pVCpu, GCPhys);
                 //Invalidate the GPA
                 VMXR0InvalidatePhysPage(pVM, pVCpu, GCPhys);
-
+                
                 //Enable MTF
                 pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
                 rc2 = VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
@@ -13722,7 +13721,7 @@ static int hmR0VmxExitXcptBP(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIENT pVm
 
                 //Disable MTF
                 pVCpu->hm.s.vmx.u32ProcCtls &= ~VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
-
+        
                 //Execute only on ModPage
                 PGMShwSetHCPage(pVCpu, GCPhys, pVM->bp.l[SoftBreakpointId].breakpointHardwarePage->HCPhys);
                 PGMShwNoPresent(pVCpu, GCPhys);
@@ -13733,6 +13732,7 @@ static int hmR0VmxExitXcptBP(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIENT pVm
         }
     }
     /*ENDMYCODE*/
+
 
     PVM pVM = pVCpu->CTX_SUFF(pVM);
     rc = DBGFRZTrap03Handler(pVM, pVCpu, CPUMCTX2CORE(pMixedCtx));

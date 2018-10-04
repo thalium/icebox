@@ -590,6 +590,11 @@ static DECLCALLBACK(int) vmR3HaltMethod1Halt(PUVMCPU pUVCpu, const uint32_t fMas
             ||  VMCPU_FF_IS_PENDING(pVCpu, fMask))
             break;
 
+        /*MYCODE*/
+        if(pVCpu->mystate.s.bPauseRequired == true)
+            break;
+        /*ENDMYCODE*/
+
         /*
          * Estimate time left to the next event.
          */
@@ -598,6 +603,11 @@ static DECLCALLBACK(int) vmR3HaltMethod1Halt(PUVMCPU pUVCpu, const uint32_t fMas
         if (    VM_FF_IS_PENDING(pVM, VM_FF_EXTERNAL_HALTED_MASK)
             ||  VMCPU_FF_IS_PENDING(pVCpu, fMask))
             break;
+
+        /*MYCODE*/
+        if(pVCpu->mystate.s.bPauseRequired == true)
+            break;
+        /*ENDMYCODE*/
 
         /*
          * Block if we're not spinning and the interval isn't all that small.
@@ -739,11 +749,6 @@ static DECLCALLBACK(int) vmR3HaltGlobal1Halt(PUVMCPU pUVCpu, const uint32_t fMas
             ||  VMCPU_FF_IS_PENDING(pVCpu, fMask))
             break;
 
-        /*MYCODE*/
-        if(pVCpu->mystate.s.bPauseRequired == true)
-            break;
-        /*ENDMYCODE*/
-
         /*
          * Estimate time left to the next event.
          */
@@ -753,11 +758,6 @@ static DECLCALLBACK(int) vmR3HaltGlobal1Halt(PUVMCPU pUVCpu, const uint32_t fMas
         if (    VM_FF_IS_PENDING(pVM, VM_FF_EXTERNAL_HALTED_MASK)
             ||  VMCPU_FF_IS_PENDING(pVCpu, fMask))
             break;
-
-        /*MYCODE*/
-        if(pVCpu->mystate.s.bPauseRequired == true)
-            break;
-        /*ENDMYCODE*/
 
         /*
          * Block if we're not spinning and the interval isn't all that small.
@@ -2010,7 +2010,7 @@ VMMR3DECL(uint32_t) VMR3GetCPUCount(PUVM pUVM)
 {
     return pUVM->pVM->cCpus;
 }
-
+/*ENDMYCODE*/
 
 /**
  * Halted VM Wait.

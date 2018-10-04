@@ -3304,9 +3304,7 @@ static DECLCALLBACK(void) e1kTxDelayTimer(PPDMDEVINS pDevIns, PTMTIMER pTimer, v
         pThis->uStatMaxTxDelay = u64Elapsed;
 #  endif
     int rc = e1kXmitPending(pThis, false /*fOnWorkerThread*/);
-    /*MYCODE*/
-    //AssertMsg(RT_SUCCESS(rc) || rc == VERR_TRY_AGAIN, ("%Rrc\n", rc));
-    /*ENDMYCODE*/
+    AssertMsg(RT_SUCCESS(rc) || rc == VERR_TRY_AGAIN, ("%Rrc\n", rc));
 }
 # endif /* E1K_TX_DELAY */
 
