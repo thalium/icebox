@@ -27,8 +27,15 @@ int main(int argc, char* argv[])
     auto& os = core->os();
     LOG(INFO, "get proc");
     const auto pc = os.get_current_proc();
-    LOG(INFO, "current process: %llx", pc);
-    LOG(INFO, "current process: %s\n", os.get_name(pc).data());
+    LOG(INFO, "current process: %llx %s", pc, os.get_name(pc).data());
+
+
+    LOG(INFO, "reading active processes");
+    os.list_procs([&](os::proc_t proc)
+    {
+        LOG(INFO, "proc: %llx %s", proc, os.get_name(proc).data());
+        return WALK_NEXT;
+    });
 
     core->resume();
     return 0;

@@ -13,6 +13,9 @@
 #include <array>
 #include <string>
 
+#include <experimental/filesystem>
+namespace fs = std::experimental::filesystem;
+
 namespace
 {
     struct span_t
@@ -23,6 +26,9 @@ namespace
 
     enum member_offset_e
     {
+        EPROCESS_SeAuditProcessCreationInfo,
+        EPROCESS_ImageFileName,
+        EPROCESS_ActiveProcessLinks,
         EPROCESS_Pcb,
         EPROCESS_Peb,
         KPCR_CurrentPrcb,
@@ -31,6 +37,8 @@ namespace
         KTHREAD_Process,
         PEB_ProcessParameters,
         RTL_USER_PROCESS_PARAMETERS_ImagePathName,
+        SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,
+        OBJECT_NAME_INFORMATION_Name,
         MEMBER_OFFSET_COUNT,
     };
 
@@ -38,23 +46,50 @@ namespace
     {
         member_offset_e e_id;
         const char      struc[32];
-        const char      member[24];
+        const char      member[32];
     };
     const MemberOffset g_member_offsets[] =
     {
-        {EPROCESS_Pcb,                              "_EPROCESS",                    "Pcb"},
-        {EPROCESS_Peb,                              "_EPROCESS",                    "Peb"},
-        {KPCR_CurrentPrcb,                          "_KPCR",                        "CurrentPrcb"},
-        {KPRCB_CurrentThread,                       "_KPRCB",                       "CurrentThread"},
-        {KPROCESS_DirectoryTableBase,               "_KPROCESS",                    "DirectoryTableBase"},
-        {KTHREAD_Process,                           "_KTHREAD",                     "Process"},
-        {PEB_ProcessParameters,                     "_PEB",                         "ProcessParameters"},
-        {RTL_USER_PROCESS_PARAMETERS_ImagePathName, "_RTL_USER_PROCESS_PARAMETERS", "ImagePathName"},
+        {EPROCESS_SeAuditProcessCreationInfo,           "_EPROCESS",                        "SeAuditProcessCreationInfo"},
+        {EPROCESS_ImageFileName,                        "_EPROCESS",                        "ImageFileName"},
+        {EPROCESS_ActiveProcessLinks,                   "_EPROCESS",                        "ActiveProcessLinks"},
+        {EPROCESS_Pcb,                                  "_EPROCESS",                        "Pcb"},
+        {EPROCESS_Peb,                                  "_EPROCESS",                        "Peb"},
+        {KPCR_CurrentPrcb,                              "_KPCR",                            "CurrentPrcb"},
+        {KPRCB_CurrentThread,                           "_KPRCB",                           "CurrentThread"},
+        {KPROCESS_DirectoryTableBase,                   "_KPROCESS",                        "DirectoryTableBase"},
+        {KTHREAD_Process,                               "_KTHREAD",                         "Process"},
+        {PEB_ProcessParameters,                         "_PEB",                             "ProcessParameters"},
+        {RTL_USER_PROCESS_PARAMETERS_ImagePathName,     "_RTL_USER_PROCESS_PARAMETERS",     "ImagePathName"},
+        {SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,  "_SE_AUDIT_PROCESS_CREATION_INFO",  "ImageFileName"},
+        {OBJECT_NAME_INFORMATION_Name,                  "_OBJECT_NAME_INFORMATION",         "Name"},
     };
     static_assert(COUNT_OF(g_member_offsets) == MEMBER_OFFSET_COUNT, "invalid members");
 
-    using Sym       = std::unique_ptr<sym::IModule>;
-    using Offsets   = std::array<uint64_t, MEMBER_OFFSET_COUNT>;
+    enum symbol_offset_e
+    {
+        KiSystemCall64,
+        PsActiveProcessHead,
+        PsInitialSystemProcess,
+        SYMBOL_OFFSET_COUNT,
+    };
+
+    struct SymbolOffset
+    {
+        symbol_offset_e e_id;
+        const char      name[32];
+    };
+    const SymbolOffset g_symbol_offsets[] =
+    {
+        {KiSystemCall64,            "KiSystemCall64"},
+        {PsActiveProcessHead,       "PsActiveProcessHead"},
+        {PsInitialSystemProcess,    "PsInitialSystemProcess"},
+    };
+    static_assert(COUNT_OF(g_symbol_offsets) == SYMBOL_OFFSET_COUNT, "invalid symbols");
+
+    using Sym           = std::unique_ptr<sym::IModule>;
+    using MemberOffsets = std::array<uint64_t, MEMBER_OFFSET_COUNT>;
+    using SymbolOffsets = std::array<uint64_t, SYMBOL_OFFSET_COUNT>;
 
     struct OsNt
         : public os::IHelper
@@ -72,9 +107,10 @@ namespace
         std::string      get_name(os::proc_t proc) override;
 
         // members
-        ICore&  core_;
-        span_t  kernel_;
-        Offsets offsets_;
+        ICore&          core_;
+        span_t          kernel_;
+        MemberOffsets   members_;
+        SymbolOffsets   symbols_;
     };
 }
 
@@ -251,28 +287,37 @@ bool OsNt::setup()
     if(!sym)
         FAIL(false, "unable to read pdb from %s %s", pdb->name.data(), pdb->guid.data());
 
-    const auto KiSystemCall64 = sym->get_offset("KiSystemCall64");
-    if(!KiSystemCall64)
-        FAIL(false, "unable to read KiSystemCall64 offset from PDB");
-
-    if(*lstar != kernel->addr + *KiSystemCall64)
-        FAIL(false, "PDB mismatch lstar: 0x%llx pdb: 0x%llx\n", *lstar, kernel->addr + *KiSystemCall64);
-
     bool fail = false;
+    for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
+    {
+        const auto offset = sym->get_offset(g_symbol_offsets[i].name);
+        if(!offset)
+        {
+            fail = true;
+            LOG(ERROR, "unable to read %s symbol offset from pdb", g_symbol_offsets[i].name);
+            continue;
+        }
+
+        symbols_[i] = *offset;
+    }
     for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
     {
         const auto offset = sym->get_struc_member_offset(g_member_offsets[i].struc, g_member_offsets[i].member);
         if(!offset)
         {
             fail = true;
-            LOG(ERROR, "unable to read %s.%s offset from pdb", g_member_offsets[i].struc, g_member_offsets[i].member);
+            LOG(ERROR, "unable to read %s.%s member offset from pdb", g_member_offsets[i].struc, g_member_offsets[i].member);
             continue;
         }
 
-        offsets_[i] = *offset;
+        members_[i] = *offset;
     }
     if(fail)
         return false;
+
+    const auto KiSystemCall64 = kernel->addr + symbols_[::KiSystemCall64];
+    if(*lstar != KiSystemCall64)
+        FAIL(false, "PDB mismatch lstar: 0x%llx pdb: 0x%llx\n", *lstar, KiSystemCall64);
 
     kernel_ = *kernel;
     return true;
@@ -296,9 +341,13 @@ std::string_view OsNt::name() const
     return "nt";
 }
 
-bool OsNt::list_procs(const on_process_fn& /*on_process*/)
+bool OsNt::list_procs(const on_process_fn& on_process)
 {
-    return false;
+    const auto head = kernel_.addr + symbols_[PsActiveProcessHead];
+    for(auto link = core::read_ptr(core_, head); link != head; link = core::read_ptr(core_, *link))
+        if(on_process(*link - members_[EPROCESS_ActiveProcessLinks]) == WALK_STOP)
+            break;
+    return true;
 }
 
 namespace
@@ -326,24 +375,34 @@ os::proc_t OsNt::get_current_proc()
     if(!gs)
         return 0;
 
-    const auto current_prcb = core::read_ptr(core_, *gs + offsets_[KPCR_CurrentPrcb]);
+    const auto current_prcb = core::read_ptr(core_, *gs + members_[KPCR_CurrentPrcb]);
     if(!current_prcb)
         FAIL(0, "unable to read KPCR.CurrentPrcb");
 
-    const auto current_thread = core::read_ptr(core_, *current_prcb + offsets_[KPRCB_CurrentThread]);
+    const auto current_thread = core::read_ptr(core_, *current_prcb + members_[KPRCB_CurrentThread]);
     if(!current_thread)
         FAIL(0, "unable to read KPRCB.CurrentThread");
 
-    const auto process = core::read_ptr(core_, *current_thread + offsets_[KTHREAD_Process]);
+    const auto process = core::read_ptr(core_, *current_thread + members_[KTHREAD_Process]);
     if(!process)
         FAIL(0, "unable to read KTHREAD.Process");
 
-    return *process - offsets_[EPROCESS_Pcb];
+    return *process - members_[EPROCESS_Pcb];
 }
 
-os::proc_t OsNt::get_proc(const std::string& /*name*/)
+os::proc_t OsNt::get_proc(const std::string& name)
 {
-    return 0;
+    os::proc_t found = 0;
+    list_procs([&](os::proc_t proc)
+    {
+        const auto got = get_name(proc);
+        if(got != name)
+            return WALK_NEXT;
+
+        found = proc;
+        return WALK_STOP;
+    });
+    return found;
 }
 
 namespace
@@ -367,7 +426,7 @@ namespace
 
     std::optional<Context> set_context(OsNt& os, os::proc_t proc)
     {
-        const auto directory_table_base = core::read_ptr(os.core_, proc + os.offsets_[EPROCESS_Pcb] + os.offsets_[KPROCESS_DirectoryTableBase]);
+        const auto directory_table_base = core::read_ptr(os.core_, proc + os.members_[EPROCESS_Pcb] + os.members_[KPROCESS_DirectoryTableBase]);
         if(!directory_table_base)
             FAIL(std::nullopt, "unable to read KPROCESS.DirectoryTableBase");
 
@@ -419,17 +478,24 @@ std::string OsNt::get_name(os::proc_t proc)
     if(!proc)
         return empty;
 
-    const auto context = set_context(*this, proc);
-    if(!context)
-        FAIL(empty, "unable to set process context");
+    // EPROCESS.ImageFileName is 16 bytes, but only 14 are actually used
+    char buffer[14+1];
+    const auto ok = core_.read_mem(buffer, proc + members_[EPROCESS_ImageFileName], sizeof buffer);
+    buffer[sizeof buffer - 1] = 0;
+    if(!ok)
+        return empty;
 
-    const auto peb = core::read_ptr(core_, proc + offsets_[EPROCESS_Peb]);
-    if(!peb)
-        FAIL(empty, "unable to read EPROCESS.Peb");
+    const auto name = std::string{buffer};
+    if(name.size() < sizeof buffer - 1)
+        return name;
 
-    const auto process_parameters = core::read_ptr(core_, *peb + offsets_[PEB_ProcessParameters]);
-    if(!process_parameters)
-        FAIL(empty, "unable to read PEB.ProcessParameters");
+    const auto image_file_name = core::read_ptr(core_, proc + members_[EPROCESS_SeAuditProcessCreationInfo] + members_[SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName]);
+    if(!image_file_name)
+        return name;
 
-    return read_unicode_string(core_, *process_parameters + offsets_[RTL_USER_PROCESS_PARAMETERS_ImagePathName]);
+    const auto path = read_unicode_string(core_, *image_file_name + members_[OBJECT_NAME_INFORMATION_Name]);
+    if(path.empty())
+        return name;
+
+    return fs::path(path).filename().generic_string();
 }
