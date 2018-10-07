@@ -2,118 +2,85 @@
 
 #include <stdint.h>
 
+namespace
+{
+    static constexpr bool is_little_endian = 0x41424344 == 'ABCD';
+}
+
+#ifdef _MSC_VER
+#include <stdlib.h>
+#define bswap16 _byteswap_ushort
+#define bswap32 _byteswap_ulong
+#define bswap64 _byteswap_uint64
+#else
+#include <byteswap.h>
+#define bswap16 __builtin_bswap16
+#define bswap32 __builtin_bswap32
+#define bswap64 __builtin_bswap64
+#endif
+
 static inline uint16_t read_le16(const void* vptr)
 {
-    const uint8_t* ptr = reinterpret_cast<const uint8_t*>(vptr);
-    return (((uint16_t) ptr[0]) << 0)
-         | (((uint16_t) ptr[1]) << 8);
+    const auto value = *reinterpret_cast<const uint16_t*>(vptr);
+    return is_little_endian ? value : bswap16(value);
 }
 
 static inline uint32_t read_le32(const void* vptr)
 {
-    const uint8_t* ptr = reinterpret_cast<const uint8_t*>(vptr);
-    return (((uint32_t) ptr[0]) <<  0)
-         | (((uint32_t) ptr[1]) <<  8)
-         | (((uint32_t) ptr[2]) << 16)
-         | (((uint32_t) ptr[3]) << 24);
+    const auto value = *reinterpret_cast<const uint32_t*>(vptr);
+    return is_little_endian ? value : bswap32(value);
 }
 
 static inline uint64_t read_le64(const void* vptr)
 {
-    const uint8_t* ptr = reinterpret_cast<const uint8_t*>(vptr);
-    return (((uint64_t) ptr[0]) <<  0)
-         | (((uint64_t) ptr[1]) <<  8)
-         | (((uint64_t) ptr[2]) << 16)
-         | (((uint64_t) ptr[3]) << 24)
-         | (((uint64_t) ptr[4]) << 32)
-         | (((uint64_t) ptr[5]) << 40)
-         | (((uint64_t) ptr[6]) << 48)
-         | (((uint64_t) ptr[7]) << 56);
+    const auto value = *reinterpret_cast<const uint64_t*>(vptr);
+    return is_little_endian ? value : bswap64(value);
 }
 
 static inline void write_le16(void* vptr, uint16_t value)
 {
-    uint8_t* ptr = reinterpret_cast<uint8_t*>(vptr);
-    ptr[0] = (value >> 0) & 0xFF;
-    ptr[1] = (value >> 8) & 0xFF;
+    *reinterpret_cast<uint16_t*>(vptr) = is_little_endian ? value : bswap16(value);
 }
 
 static inline void write_le32(void* vptr, uint32_t value)
 {
-    uint8_t* ptr = reinterpret_cast<uint8_t*>(vptr);
-    ptr[0] = (value >>  0) & 0xFF;
-    ptr[1] = (value >>  8) & 0xFF;
-    ptr[2] = (value >> 16) & 0xFF;
-    ptr[3] = (value >> 24) & 0xFF;
+    *reinterpret_cast<uint32_t*>(vptr) = is_little_endian ? value : bswap32(value);
 }
 
 static inline void write_le64(void* vptr, uint64_t value)
 {
-    uint8_t* ptr = reinterpret_cast<uint8_t*>(vptr);
-    ptr[0] = (value >>  0) & 0xFF;
-    ptr[1] = (value >>  8) & 0xFF;
-    ptr[2] = (value >> 16) & 0xFF;
-    ptr[3] = (value >> 24) & 0xFF;
-    ptr[4] = (value >> 32) & 0xFF;
-    ptr[5] = (value >> 40) & 0xFF;
-    ptr[6] = (value >> 48) & 0xFF;
-    ptr[7] = (value >> 56) & 0xFF;
+    *reinterpret_cast<uint64_t*>(vptr) = is_little_endian ? value: bswap64(value);
 }
 
 static inline uint16_t read_be16(const void* vptr)
 {
-    const uint8_t* ptr = reinterpret_cast<const uint8_t*>(vptr);
-    return (((uint16_t) ptr[0]) << 8)
-         | (((uint16_t) ptr[1]) << 0);
+    const auto value = *reinterpret_cast<const uint16_t*>(vptr);
+    return is_little_endian ? bswap16(value) : value;
 }
 
 static inline uint32_t read_be32(const void* vptr)
 {
-    const uint8_t* ptr = reinterpret_cast<const uint8_t*>(vptr);
-    return (((uint32_t) ptr[0]) << 24)
-         | (((uint32_t) ptr[1]) << 16)
-         | (((uint32_t) ptr[2]) <<  8)
-         | (((uint32_t) ptr[3]) <<  0);
+    const auto value = *reinterpret_cast<const uint32_t*>(vptr);
+    return is_little_endian ? bswap32(value) : value;
 }
 
 static inline uint64_t read_be64(const void* vptr)
 {
-    const uint8_t* ptr = reinterpret_cast<const uint8_t*>(vptr);
-    return (((uint64_t) ptr[0]) << 56)
-         | (((uint64_t) ptr[1]) << 48)
-         | (((uint64_t) ptr[2]) << 40)
-         | (((uint64_t) ptr[3]) << 32)
-         | (((uint64_t) ptr[4]) << 24)
-         | (((uint64_t) ptr[5]) << 16)
-         | (((uint64_t) ptr[6]) <<  8)
-         | (((uint64_t) ptr[7]) <<  0);
+    const auto value = *reinterpret_cast<const uint64_t*>(vptr);
+    return is_little_endian ? bswap64(value) : value;
 }
 
 static inline void write_be16(void* vptr, uint16_t value)
 {
-    uint8_t* ptr = reinterpret_cast<uint8_t*>(vptr);
-    ptr[0] = (value >> 8) & 0xFF;
-    ptr[1] = (value >> 0) & 0xFF;
+    *reinterpret_cast<uint16_t*>(vptr) = is_little_endian ? bswap16(value) : value;
 }
 
 static inline void write_be32(void* vptr, uint32_t value)
 {
-    uint8_t* ptr = reinterpret_cast<uint8_t*>(vptr);
-    ptr[0] = (value >> 24) & 0xFF;
-    ptr[1] = (value >> 16) & 0xFF;
-    ptr[2] = (value >>  8) & 0xFF;
-    ptr[3] = (value >>  0) & 0xFF;
+    *reinterpret_cast<uint32_t*>(vptr) = is_little_endian ? bswap32(value) : value;
 }
 
 static inline void write_be64(void* vptr, uint64_t value)
 {
-    uint8_t* ptr = reinterpret_cast<uint8_t*>(vptr);
-    ptr[0] = (value >> 56) & 0xFF;
-    ptr[1] = (value >> 48) & 0xFF;
-    ptr[2] = (value >> 40) & 0xFF;
-    ptr[3] = (value >> 32) & 0xFF;
-    ptr[4] = (value >> 24) & 0xFF;
-    ptr[5] = (value >> 16) & 0xFF;
-    ptr[6] = (value >>  8) & 0xFF;
-    ptr[7] = (value >>  0) & 0xFF;
+    *reinterpret_cast<uint64_t*>(vptr) = is_little_endian ? bswap64(value) : value;
 }
