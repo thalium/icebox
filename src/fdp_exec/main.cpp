@@ -1,7 +1,11 @@
 #include "core.hpp"
+#include "os.hpp"
 
 #define FDP_MODULE "main"
 #include "log.hpp"
+
+#include <thread>
+#include <chrono>
 
 int main(int argc, char* argv[])
 {
@@ -19,5 +23,13 @@ int main(int argc, char* argv[])
     if(!core)
         FAIL(-1, "unable to start core at %s", name.data());
 
+    core->pause();
+    auto& os = core->os();
+    LOG(INFO, "get proc");
+    const auto pc = os.get_current_proc();
+    LOG(INFO, "current process: %llx", pc);
+    LOG(INFO, "current process: %s\n", os.get_name(pc).data());
+
+    core->resume();
     return 0;
 }

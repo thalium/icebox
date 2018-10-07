@@ -58,9 +58,17 @@ target_include_directories(loguru PUBLIC
 )
 
 # fdp_exec
-add_target(fdp_exec apps "${root_dir}/src/fdp_exec" OPTIONS recurse executable)
+set(fdp_exec_dir "${root_dir}/src/fdp_exec")
+add_target(fdp_exec apps ${fdp_exec_dir} OPTIONS recurse executable)
 set_target_output_directory(fdp_exec "")
+target_include_directories(fdp_exec PRIVATE
+    "${fdp_exec_dir}"
+)
+target_compile_definitions(fdp_exec PRIVATE
+    _CRT_SECURE_NO_WARNINGS
+)
 target_link_libraries(fdp_exec PRIVATE
     fdp_static
     loguru
+    dbghelp
 )

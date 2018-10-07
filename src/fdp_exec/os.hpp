@@ -19,10 +19,10 @@ namespace os
         virtual std::string_view name() const = 0;
 
         using on_process_fn = std::function<walk_e(proc_t)>;
-        virtual bool                list_procs(const on_process_fn& on_process) = 0;
-        virtual proc_t              get_current_proc() = 0;
-        virtual proc_t              get_proc(const std::string& name) = 0;
-        virtual std::string_view    get_name(proc_t proc) = 0;
+        virtual bool        list_procs(const on_process_fn& on_process) = 0;
+        virtual proc_t      get_current_proc() = 0;
+        virtual proc_t      get_proc(const std::string& name) = 0;
+        virtual std::string get_name(proc_t proc) = 0;
     };
 
     std::unique_ptr<IHelper> make_nt(ICore& core);

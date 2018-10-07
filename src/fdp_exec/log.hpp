@@ -13,6 +13,6 @@
 } while(0)
 
 #define FAIL(VALUE, FMT, ...) do {\
-    LOG_F(ERROR, FMT, __VA_ARGS__);\
+    LOG(ERROR, FMT, __VA_ARGS__);\
     return (VALUE);\
 } while(0)
