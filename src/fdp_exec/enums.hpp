@@ -25,4 +25,5 @@ enum msr_e
 enum constants_e
 {
     PAGE_SIZE = 0x1000,
+    PAGE_FAULT = 0xE,
 };

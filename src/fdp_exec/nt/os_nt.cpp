@@ -18,6 +18,18 @@ namespace fs = std::experimental::filesystem;
 
 namespace
 {
+    struct nt_proc_t
+    {
+        uint64_t eproc;
+        uint64_t dtb;
+    };
+
+    static inline nt_proc_t nt_proc(const proc_t& proc)
+    {
+        static_assert(sizeof(nt_proc_t) <= sizeof proc, "invalid nt_proc_t size");
+        return {proc.id, proc.ctx};
+    }
+
     struct span_t
     {
         uint64_t    addr;
@@ -26,19 +38,24 @@ namespace
 
     enum member_offset_e
     {
-        EPROCESS_SeAuditProcessCreationInfo,
-        EPROCESS_ImageFileName,
         EPROCESS_ActiveProcessLinks,
+        EPROCESS_ImageFileName,
         EPROCESS_Pcb,
         EPROCESS_Peb,
-        KPCR_CurrentPrcb,
+        EPROCESS_SeAuditProcessCreationInfo,
+        EPROCESS_VadRoot,
+        KPCR_Prcb,
         KPRCB_CurrentThread,
         KPROCESS_DirectoryTableBase,
         KTHREAD_Process,
+        LDR_DATA_TABLE_ENTRY_FullDllName,
+        LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,
+        OBJECT_NAME_INFORMATION_Name,
+        PEB_Ldr,
+        PEB_LDR_DATA_InLoadOrderModuleList,
         PEB_ProcessParameters,
         RTL_USER_PROCESS_PARAMETERS_ImagePathName,
         SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,
-        OBJECT_NAME_INFORMATION_Name,
         MEMBER_OFFSET_COUNT,
     };
 
@@ -50,19 +67,24 @@ namespace
     };
     const MemberOffset g_member_offsets[] =
     {
-        {EPROCESS_SeAuditProcessCreationInfo,           "_EPROCESS",                        "SeAuditProcessCreationInfo"},
-        {EPROCESS_ImageFileName,                        "_EPROCESS",                        "ImageFileName"},
         {EPROCESS_ActiveProcessLinks,                   "_EPROCESS",                        "ActiveProcessLinks"},
+        {EPROCESS_ImageFileName,                        "_EPROCESS",                        "ImageFileName"},
         {EPROCESS_Pcb,                                  "_EPROCESS",                        "Pcb"},
         {EPROCESS_Peb,                                  "_EPROCESS",                        "Peb"},
-        {KPCR_CurrentPrcb,                              "_KPCR",                            "CurrentPrcb"},
+        {EPROCESS_SeAuditProcessCreationInfo,           "_EPROCESS",                        "SeAuditProcessCreationInfo"},
+        {EPROCESS_VadRoot,                              "_EPROCESS",                        "VadRoot"},
+        {KPCR_Prcb,                                     "_KPCR",                            "Prcb"},
         {KPRCB_CurrentThread,                           "_KPRCB",                           "CurrentThread"},
         {KPROCESS_DirectoryTableBase,                   "_KPROCESS",                        "DirectoryTableBase"},
         {KTHREAD_Process,                               "_KTHREAD",                         "Process"},
+        {LDR_DATA_TABLE_ENTRY_FullDllName,              "_LDR_DATA_TABLE_ENTRY",            "FullDllName"},
+        {LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,         "_LDR_DATA_TABLE_ENTRY",            "InLoadOrderLinks"},
+        {OBJECT_NAME_INFORMATION_Name,                  "_OBJECT_NAME_INFORMATION",         "Name"},
+        {PEB_Ldr,                                       "_PEB",                             "Ldr"},
+        {PEB_LDR_DATA_InLoadOrderModuleList,            "_PEB_LDR_DATA",                    "InLoadOrderModuleList"},
         {PEB_ProcessParameters,                         "_PEB",                             "ProcessParameters"},
         {RTL_USER_PROCESS_PARAMETERS_ImagePathName,     "_RTL_USER_PROCESS_PARAMETERS",     "ImagePathName"},
         {SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,  "_SE_AUDIT_PROCESS_CREATION_INFO",  "ImageFileName"},
-        {OBJECT_NAME_INFORMATION_Name,                  "_OBJECT_NAME_INFORMATION",         "Name"},
     };
     static_assert(COUNT_OF(g_member_offsets) == MEMBER_OFFSET_COUNT, "invalid members");
 
@@ -100,11 +122,14 @@ namespace
         bool setup();
 
         // os::IHelper
-        std::string_view name() const override;
-        bool             list_procs(const on_process_fn& on_process) override;
-        os::proc_t       get_current_proc() override;
-        os::proc_t       get_proc(const std::string& name) override;
-        std::string      get_name(os::proc_t proc) override;
+        std::string_view    name() const override;
+        bool                list_procs(const on_proc_fn& on_process) override;
+        opt<proc_t>         get_current_proc() override;
+        opt<proc_t>         get_proc(const std::string& name) override;
+        opt<std::string>    get_proc_name(proc_t proc) override;
+        bool                list_mods(proc_t proc, const on_mod_fn& on_module) override;
+        opt<std::string>    get_mod_name(proc_t proc, mod_t mod) override;
+        bool                has_virtual(proc_t proc) override;
 
         // members
         ICore&          core_;
@@ -341,12 +366,23 @@ std::string_view OsNt::name() const
     return "nt";
 }
 
-bool OsNt::list_procs(const on_process_fn& on_process)
+bool OsNt::list_procs(const on_proc_fn& on_process)
 {
     const auto head = kernel_.addr + symbols_[PsActiveProcessHead];
     for(auto link = core::read_ptr(core_, head); link != head; link = core::read_ptr(core_, *link))
-        if(on_process(*link - members_[EPROCESS_ActiveProcessLinks]) == WALK_STOP)
+    {
+        const auto eproc = *link - members_[EPROCESS_ActiveProcessLinks];
+        const auto dtb = core::read_ptr(core_, eproc + members_[EPROCESS_Pcb] + members_[KPROCESS_DirectoryTableBase]);
+        if(!dtb)
+        {
+            LOG(ERROR, "unable to read KPROCESS.DirectoryTableBase from 0x%llx", eproc);
+            continue;
+        }
+
+        const auto err = on_process({eproc, *dtb});
+        if(err == WALK_STOP)
             break;
+    }
     return true;
 }
 
@@ -369,33 +405,34 @@ namespace
     }
 }
 
-os::proc_t OsNt::get_current_proc()
+opt<proc_t> OsNt::get_current_proc()
 {
     const auto gs = read_gs_base(core_);
     if(!gs)
-        return 0;
+        return std::nullopt;
 
-    const auto current_prcb = core::read_ptr(core_, *gs + members_[KPCR_CurrentPrcb]);
-    if(!current_prcb)
-        FAIL(0, "unable to read KPCR.CurrentPrcb");
-
-    const auto current_thread = core::read_ptr(core_, *current_prcb + members_[KPRCB_CurrentThread]);
+    const auto current_thread = core::read_ptr(core_, *gs + members_[KPCR_Prcb] + members_[KPRCB_CurrentThread]);
     if(!current_thread)
-        FAIL(0, "unable to read KPRCB.CurrentThread");
+        FAIL(std::nullopt, "unable to read KPCR.Prcb.CurrentThread");
 
-    const auto process = core::read_ptr(core_, *current_thread + members_[KTHREAD_Process]);
-    if(!process)
-        FAIL(0, "unable to read KTHREAD.Process");
+    const auto kproc = core::read_ptr(core_, *current_thread + members_[KTHREAD_Process]);
+    if(!kproc)
+        FAIL(std::nullopt, "unable to read KTHREAD.Process");
 
-    return *process - members_[EPROCESS_Pcb];
+    const auto dtb = core::read_ptr(core_, *kproc + members_[KPROCESS_DirectoryTableBase]);
+    if(!dtb)
+        FAIL(std::nullopt, "unable to read KPROCESS.DirectoryTableBase");
+
+    const auto eproc = *kproc - members_[EPROCESS_Pcb];
+    return proc_t{eproc, *dtb};
 }
 
-os::proc_t OsNt::get_proc(const std::string& name)
+opt<proc_t> OsNt::get_proc(const std::string& name)
 {
-    os::proc_t found = 0;
-    list_procs([&](os::proc_t proc)
+    opt<proc_t> found;
+    list_procs([&](proc_t proc)
     {
-        const auto got = get_name(proc);
+        const auto got = get_proc_name(proc);
         if(got != name)
             return WALK_NEXT;
 
@@ -407,95 +444,95 @@ os::proc_t OsNt::get_proc(const std::string& name)
 
 namespace
 {
-    struct Context
-    {
-        Context(OsNt& os, uint64_t value)
-            : core_(os.core_)
-            , value_(value)
-        {
-        }
-
-        ~Context()
-        {
-            core_.write_reg(FDP_CR3_REGISTER, value_);
-        }
-
-        ICore&   core_;
-        uint64_t value_;
-    };
-
-    std::optional<Context> set_context(OsNt& os, os::proc_t proc)
-    {
-        const auto directory_table_base = core::read_ptr(os.core_, proc + os.members_[EPROCESS_Pcb] + os.members_[KPROCESS_DirectoryTableBase]);
-        if(!directory_table_base)
-            FAIL(std::nullopt, "unable to read KPROCESS.DirectoryTableBase");
-
-        const auto backup = os.core_.read_reg(FDP_CR3_REGISTER);
-        if(!backup)
-            return std::nullopt;
-
-        const auto ok = os.core_.write_reg(FDP_CR3_REGISTER, *directory_table_base);
-        if(!ok)
-            return std::nullopt;
-
-        return Context{os, *directory_table_base};
-    }
-
-    std::string read_unicode_string(ICore& core, uint64_t unicode_string)
+    opt<std::string> read_unicode_string(ICore& core, uint64_t unicode_string)
     {
         using UnicodeString = struct
         {
             uint16_t length;
             uint16_t max_length;
+            uint32_t _; // padding
             uint64_t buffer;
         };
         UnicodeString us;
         auto ok = core.read_mem(&us, unicode_string, sizeof us);
         if(!ok)
-            FAIL(std::string{}, "unable to read UNICODE_STRING");
+            FAIL(std::nullopt, "unable to read UNICODE_STRING");
 
         us.length = read_le16(&us.length);
         us.max_length = read_le16(&us.max_length);
         us.buffer = read_le64(&us.buffer);
 
+        if(us.length > us.max_length)
+            FAIL(std::nullopt, "corrupted UNICODE_STRING");
+
         std::wstring wname;
         wname.resize(us.length);
         ok = core.read_mem(wname.data(), us.buffer, us.length);
         if(!ok)
-            FAIL(std::string{}, "uanble to read UNICODE_STRING.buffer");
+            FAIL(std::nullopt, "unable to read UNICODE_STRING.buffer");
 
-        const auto name = utf8::convert(wname);
-        if(!name)
-            return std::string{};
-
-        return *name;
+        return utf8::convert(wname);
     }
 }
 
-std::string OsNt::get_name(os::proc_t proc)
+opt<std::string> OsNt::get_proc_name(proc_t proc)
 {
-    static const std::string empty;
-    if(!proc)
-        return empty;
-
+    const auto p = nt_proc(proc);
     // EPROCESS.ImageFileName is 16 bytes, but only 14 are actually used
     char buffer[14+1];
-    const auto ok = core_.read_mem(buffer, proc + members_[EPROCESS_ImageFileName], sizeof buffer);
+    const auto ok = core_.read_mem(buffer, p.eproc + members_[EPROCESS_ImageFileName], sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
-        return empty;
+        return std::nullopt;
 
     const auto name = std::string{buffer};
     if(name.size() < sizeof buffer - 1)
         return name;
 
-    const auto image_file_name = core::read_ptr(core_, proc + members_[EPROCESS_SeAuditProcessCreationInfo] + members_[SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName]);
+    const auto image_file_name = core::read_ptr(core_, p.eproc + members_[EPROCESS_SeAuditProcessCreationInfo] + members_[SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName]);
     if(!image_file_name)
         return name;
 
     const auto path = read_unicode_string(core_, *image_file_name + members_[OBJECT_NAME_INFORMATION_Name]);
-    if(path.empty())
+    if(!path)
         return name;
 
-    return fs::path(path).filename().generic_string();
+    return fs::path(*path).filename().generic_string();
+}
+
+bool OsNt::list_mods(proc_t proc, const on_mod_fn& on_mod)
+{
+    const auto p = nt_proc(proc);
+    const auto peb = core::read_ptr(core_, p.eproc + members_[EPROCESS_Peb]);
+    if(!peb)
+        FAIL(false, "unable to read EPROCESS.Peb");
+
+    // no PEB on system process
+    if(!*peb)
+        return true;
+
+    const auto ctx = core_.switch_context(proc);
+    const auto ldr = core::read_ptr(core_, *peb + members_[PEB_Ldr]);
+    if(!ldr)
+        FAIL(false, "unable to read PEB.Ldr");
+
+    const auto head = *ldr + members_[PEB_LDR_DATA_InLoadOrderModuleList];
+    for(auto link = core::read_ptr(core_, head); link && link != head; link = core::read_ptr(core_, *link))
+        if(on_mod({*link - members_[LDR_DATA_TABLE_ENTRY_InLoadOrderLinks]}) == WALK_STOP)
+            break;
+
+    return true;
+}
+
+opt<std::string> OsNt::get_mod_name(proc_t proc, mod_t mod)
+{
+    const auto ctx = core_.switch_context(proc);
+    return read_unicode_string(core_, mod + members_[LDR_DATA_TABLE_ENTRY_FullDllName]);
+}
+
+bool OsNt::has_virtual(proc_t proc)
+{
+    const auto p = nt_proc(proc);
+    const auto vad_root = core::read_ptr(core_, p.eproc + members_[EPROCESS_VadRoot]);
+    return vad_root && *vad_root;
 }

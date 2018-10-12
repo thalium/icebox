@@ -6,7 +6,7 @@
 #define NOMINMAX
 #include <windows.h>
 
-std::optional<std::string> utf8::convert(const std::wstring& value)
+opt<std::string> utf8::convert(const std::wstring& value)
 {
     const auto src = value.data();
     const auto src_size = static_cast<int>(value.size());
@@ -22,7 +22,7 @@ std::optional<std::string> utf8::convert(const std::wstring& value)
     return reply;
 }
 
-std::optional<std::wstring> utf8::convert(const std::string& value)
+opt<std::wstring> utf8::convert(const std::string& value)
 {
     const auto src = value.data();
     const auto src_size = static_cast<int>(value.size());
