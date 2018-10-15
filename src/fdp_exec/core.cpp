@@ -59,7 +59,7 @@ namespace impl // we need to specify a namespace name due to an msvc bug on 15.8
         bool setup();
 
         // ICore methods
-        os::IHelper&            os          () override;
+        os::IHandler&           os          () override;
         sym::IHandler&          sym         () override;
         bool                    pause       () override;
         bool                    resume      () override;
@@ -76,7 +76,7 @@ namespace impl // we need to specify a namespace name due to an msvc bug on 15.8
 
         const std::string               name_;
         std::unique_ptr<FDP_SHM>        shm_;
-        std::unique_ptr<os::IHelper>    os_;
+        std::unique_ptr<os::IHandler>   os_;
         std::unique_ptr<sym::IHandler>  sym_;
 
         std::optional<proc_t>           current_;
@@ -115,7 +115,7 @@ bool impl::Core::setup()
         return false;
 
     // register os helpers
-    for(const auto& h : os::helpers)
+    for(const auto& h : os::g_helpers)
     {
         os_ = h.make(*this);
         if(os_)
@@ -127,7 +127,7 @@ bool impl::Core::setup()
     return true;
 }
 
-os::IHelper& impl::Core::os()
+os::IHandler& impl::Core::os()
 {
     return *os_;
 }

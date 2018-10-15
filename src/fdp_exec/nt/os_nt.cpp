@@ -116,15 +116,14 @@ namespace
     using SymbolOffsets = std::array<uint64_t, SYMBOL_OFFSET_COUNT>;
 
     struct OsNt
-        : public os::IHelper
+        : public os::IHandler
     {
         OsNt(ICore& core);
 
         // methods
         bool setup();
 
-        // os::IHelper
-        std::string_view    name() const override;
+        // os::IHandler
         bool                list_procs(const on_proc_fn& on_process) override;
         opt<proc_t>         get_current_proc() override;
         opt<proc_t>         get_proc(const std::string& name) override;
@@ -353,7 +352,7 @@ bool OsNt::setup()
     return true;
 }
 
-std::unique_ptr<os::IHelper> os::make_nt(ICore& core)
+std::unique_ptr<os::IHandler> os::make_nt(ICore& core)
 {
     auto nt = std::make_unique<OsNt>(core);
     if(!nt)
@@ -364,11 +363,6 @@ std::unique_ptr<os::IHelper> os::make_nt(ICore& core)
         return std::nullptr_t();
 
     return nt;
-}
-
-std::string_view OsNt::name() const
-{
-    return os::windows_nt;
 }
 
 bool OsNt::list_procs(const on_proc_fn& on_process)

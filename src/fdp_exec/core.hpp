@@ -13,7 +13,7 @@ struct ICore
 {
     virtual ~ICore() = default;
 
-    virtual os::IHelper&    os() = 0;
+    virtual os::IHandler&   os() = 0;
     virtual sym::IHandler&  sym() = 0;
 
     virtual bool pause() = 0;

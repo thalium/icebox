@@ -10,11 +10,9 @@ struct ICore;
 
 namespace os
 {
-    struct IHelper
+    struct IHandler
     {
-        virtual ~IHelper() = default;
-
-        virtual std::string_view name() const = 0;
+        virtual ~IHandler() = default;
 
         using on_proc_fn = std::function<walk_e(proc_t)>;
         using on_mod_fn = std::function<walk_e(mod_t)>;
@@ -28,15 +26,13 @@ namespace os
         virtual bool                has_virtual(proc_t proc) = 0;
     };
 
-    std::unique_ptr<IHelper> make_nt(ICore& core);
+    std::unique_ptr<IHandler> make_nt(ICore& core);
     static const char windows_nt[] = "windows_nt";
-
-    struct Helper
+    static const struct
     {
-        std::unique_ptr<IHelper>(*make)(ICore& core);
+        std::unique_ptr<IHandler>(*make)(ICore& core);
         const std::string         name;
-    };
-    static const Helper helpers[] =
+    } g_helpers[] =
     {
         {&make_nt, windows_nt},
     };
