@@ -206,34 +206,6 @@ typedef struct VMCPU
         uint8_t             padding[18496];     /* multiple of 64 */
     } iem;
 
-    /*MYCODE*/
-    union
-    {
-        struct{
-            volatile uint8_t    u8StateBitmap;
-            volatile bool        bSingleStepRequired;
-            volatile bool        bPauseRequired;
-            volatile bool        bDisableInterrupt;
-            volatile bool        bRebootRequired;
-            volatile bool        bSuspendRequired;
-            volatile bool        bRestoreRequired;
-            volatile bool        bPageFaultOverflowGuard;
-
-            volatile bool        bHardHyperBreakPointHitted;
-            volatile bool        bPageHyperBreakPointHitted;
-            volatile bool        bSoftHyperBreakPointHitted;
-            volatile bool        bMsrHyperBreakPointHitted;
-            volatile bool        bCrHyperBreakPointHitted;
-            volatile bool        bInstallDrBreakpointRequired;
-            //Fake Debug registers to keep "legit-guest" values
-            uint64_t            aGuestDr[8];
-            volatile uint64_t   u64TickCount;
-            void*               pCpuShm;
-        }s;
-        uint8_t             padding[4096];      /* multiple of 4096 */
-    } mystate;
-    /*ENDMYCODE*/
-
     /** HM part. */
     union VMCPUUNIONHM
     {
@@ -363,6 +335,34 @@ typedef struct VMCPU
 #endif
         uint8_t             padding[4096];      /* multiple of 4096 */
     } cpum;
+
+    /*MYCODE*/
+    union
+    {
+        struct{
+            volatile uint8_t    u8StateBitmap;
+            volatile bool        bSingleStepRequired;
+            volatile bool        bPauseRequired;
+            volatile bool        bDisableInterrupt;
+            volatile bool        bRebootRequired;
+            volatile bool        bSuspendRequired;
+            volatile bool        bRestoreRequired;
+            volatile bool        bPageFaultOverflowGuard;
+
+            volatile bool        bHardHyperBreakPointHitted;
+            volatile bool        bPageHyperBreakPointHitted;
+            volatile bool        bSoftHyperBreakPointHitted;
+            volatile bool        bMsrHyperBreakPointHitted;
+            volatile bool        bCrHyperBreakPointHitted;
+            volatile bool        bInstallDrBreakpointRequired;
+            //Fake Debug registers to keep "legit-guest" values
+            uint64_t            aGuestDr[8];
+            volatile uint64_t   u64TickCount;
+            void*               pCpuShm;
+        }s;
+        uint8_t             padding[4096];      /* multiple of 4096 */
+    } mystate;
+    /*ENDMYCODE*/
 } VMCPU;
 
 
@@ -1195,28 +1195,6 @@ typedef struct VM
         uint8_t     padding[1600];      /* multiple of 64 */
     } vmm;
 
-    /*MYCODE*/
-    union{
-        BreakpointEntrie_t  l[MAX_BREAKPOINT_ID+1];
-        uint8_t             padding[4096*32];      /* Must be page aligned ! */
-    }bp;
-
-    union{
-        struct{
-            void                *pFdpShm;
-            uint32_t            u32HardwarePageTableCount;
-            HardwarePage_t      aHardwarePageTable[64];
-            volatile uint8_t    u8StateBitmap;
-            char                PageSpinLockName[256];
-            RTSPINLOCK          PageSpinlock;
-            PfnEntrie_t         *pPfnTableR3;
-            PfnEntrie_t         *pPfnTableR0;
-            RTSPINLOCK          CpuLock;
-        }s;
-        uint8_t     padding[4096];      /* Must be page aligned ! */
-    }mystate;
-    /*ENDMYCODE*/
-
     /** PGM part. */
     union
     {
@@ -1429,6 +1407,28 @@ typedef struct VM
 #else
     uint8_t         abAlignment2[1886];
 #endif
+
+    /*MYCODE*/
+    union{
+        BreakpointEntrie_t  l[MAX_BREAKPOINT_ID+1];
+        uint8_t             padding[4096*32];      /* Must be page aligned ! */
+    }bp;
+
+    union{
+        struct{
+            void                *pFdpShm;
+            uint32_t            u32HardwarePageTableCount;
+            HardwarePage_t      aHardwarePageTable[64];
+            volatile uint8_t    u8StateBitmap;
+            char                PageSpinLockName[256];
+            RTSPINLOCK          PageSpinlock;
+            PfnEntrie_t         *pPfnTableR3;
+            PfnEntrie_t         *pPfnTableR0;
+            RTSPINLOCK          CpuLock;
+        }s;
+        uint8_t     padding[4096];      /* Must be page aligned ! */
+    }mystate;
+    /*ENDMYCODE*/
 
     /* ---- end small stuff ---- */
 
