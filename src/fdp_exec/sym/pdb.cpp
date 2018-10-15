@@ -18,24 +18,27 @@ namespace
     struct Pdb
         : public sym::IModule
     {
-         Pdb(const fs::path& filename);
+         Pdb(const fs::path& filename, span_t span);
         ~Pdb();
 
         // methods
         bool setup();
 
         // IModule methods
+        span_t                  get_span        () override;
         std::optional<uint64_t> get_symbol      (const std::string& symbol) override;
         std::optional<uint64_t> get_struc_offset(const std::string& struc, const std::string& member) override;
 
         // members
         const fs::path  filename_;
+        const span_t    span_;
         HANDLE          hproc_;
     };
 }
 
-Pdb::Pdb(const fs::path& filename)
+Pdb::Pdb(const fs::path& filename, span_t span)
     : filename_(filename)
+    , span_(span)
     , hproc_(INVALID_HANDLE_VALUE)
 {
 }
@@ -45,9 +48,9 @@ Pdb::~Pdb()
     SymCleanup(hproc_);
 }
 
-std::unique_ptr<sym::IModule> sym::make_pdb(const std::string& module, const std::string& guid)
+std::unique_ptr<sym::IModule> sym::make_pdb(span_t span, const std::string& module, const std::string& guid)
 {
-    auto ptr = std::make_unique<Pdb>(fs::path(getenv("_NT_SYMBOL_PATH")) / module / guid / module);
+    auto ptr = std::make_unique<Pdb>(fs::path(getenv("_NT_SYMBOL_PATH")) / module / guid / module, span);
     const auto ok = ptr->setup();
     if(!ok)
         return std::nullptr_t();
@@ -75,6 +78,11 @@ bool Pdb::setup()
     return true;
 }
 
+span_t Pdb::get_span()
+{
+    return span_;
+}
+
 namespace
 {
     SYMBOL_INFO_PACKAGE make_symbol_info_package()
@@ -94,7 +102,7 @@ std::optional<uint64_t> Pdb::get_symbol(const std::string& symbol)
     if(!ok)
         return std::nullopt;
 
-    return info.si.Address - BASE_ADDRESS;
+    return span_.addr + info.si.Address - BASE_ADDRESS;
 }
 
 namespace

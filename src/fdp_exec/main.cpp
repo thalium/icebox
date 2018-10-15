@@ -25,6 +25,8 @@ int main(int argc, char* argv[])
 
     core->pause();
     auto& os = core->os();
+    auto& sym = core->sym();
+
     LOG(INFO, "get proc");
     const auto pc = os.get_current_proc();
     LOG(INFO, "current process: %llx %s", pc->id, os.get_proc_name(*pc)->data());
@@ -37,15 +39,20 @@ int main(int argc, char* argv[])
         os.list_mods(proc, [&](mod_t mod)
         {
             const auto modname = os.get_mod_name(proc, mod);
-            LOG(INFO, "    module: %llx %s", mod, modname ? modname->data() : "<noname>");
+            const auto span = os.get_mod_span(proc, mod);
+            if(false)
+                LOG(INFO, "    module: %llx %s 0x%llx 0x%llx", mod, modname ? modname->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
             return WALK_NEXT;
         });
         return WALK_NEXT;
     });
 
-    LOG(INFO, "searching wininit.exe");
-    const auto wininit = os.get_proc("wininit.exe");
-    LOG(INFO, "wininit.exe: %llx %s", wininit->id, os.get_proc_name(*wininit)->data());
+    LOG(INFO, "searching notepad.exe");
+    const auto notepad = os.get_proc("notepad.exe");
+    LOG(INFO, "notepad.exe: %llx %s", notepad->id, os.get_proc_name(*notepad)->data());
+
+    const auto write_file = sym.get_symbol("nt", "NtWriteFile");
+    LOG(INFO, "WriteFile = 0x%llx", write_file ? *write_file : 0);
 
     core->resume();
     return 0;

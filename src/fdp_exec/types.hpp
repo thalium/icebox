@@ -14,3 +14,9 @@ using proc_t = struct
 };
 
 using mod_t = uint64_t;
+
+using span_t = struct
+{
+    uint64_t    addr;
+    size_t      size;
+};

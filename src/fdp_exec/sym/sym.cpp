@@ -13,6 +13,7 @@ namespace impl // cannot use anonymous namespace due to visual studio bug
         bool            register_module     (const std::string& name, std::unique_ptr<sym::IModule>& module) override;
         bool            unregister_module   (const std::string& name) override;
         bool            list_modules        (const on_module_fn& on_module) override;
+        sym::IModule*   get_module          (const std::string& name) override;
         opt<uint64_t>   get_symbol          (const std::string& mod, const std::string& symbol) override;
         opt<uint64_t>   get_struc_offset    (const std::string& mod, const std::string& struc, const std::string& member) override;
 
@@ -45,20 +46,29 @@ bool impl::Handler::list_modules(const on_module_fn& on_module)
     return true;
 }
 
+sym::IModule* impl::Handler::get_module(const std::string& name)
+{
+    const auto it = mods_.find(name);
+    if(it == mods_.end())
+        return nullptr;
+
+    return it->second.get();
+}
+
 opt<uint64_t> impl::Handler::get_symbol(const std::string& module, const std::string& symbol)
 {
-    const auto it = mods_.find(module);
-    if(it == mods_.end())
+    const auto mod = get_module(module);
+    if(!mod)
         return std::nullopt;
 
-    return it->second->get_symbol(symbol);
+    return mod->get_symbol(symbol);
 }
 
 opt<uint64_t> impl::Handler::get_struc_offset(const std::string& module, const std::string& struc, const std::string& member)
 {
-    const auto it = mods_.find(module);
-    if(it == mods_.end())
+    const auto mod = get_module(module);
+    if(!mod)
         return std::nullopt;
 
-    return it->second->get_struc_offset(struc, member);
+    return mod->get_struc_offset(struc, member);
 }

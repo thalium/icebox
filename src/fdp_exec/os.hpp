@@ -23,6 +23,7 @@ namespace os
         virtual opt<std::string>    get_proc_name(proc_t proc) = 0;
         virtual bool                list_mods(proc_t proc, const on_mod_fn& on_mod) = 0;
         virtual opt<std::string>    get_mod_name(proc_t proc, mod_t mod) = 0;
+        virtual opt<span_t>         get_mod_span(proc_t proc, mod_t mod) = 0;
         virtual bool                has_virtual(proc_t proc) = 0;
     };
 

@@ -18,24 +18,6 @@ namespace fs = std::experimental::filesystem;
 
 namespace
 {
-    struct nt_proc_t
-    {
-        uint64_t eproc;
-        uint64_t dtb;
-    };
-
-    static inline nt_proc_t nt_proc(const proc_t& proc)
-    {
-        static_assert(sizeof(nt_proc_t) <= sizeof proc, "invalid nt_proc_t size");
-        return {proc.id, proc.ctx};
-    }
-
-    struct span_t
-    {
-        uint64_t    addr;
-        size_t      size;
-    };
-
     enum member_offset_e
     {
         EPROCESS_ActiveProcessLinks,
@@ -48,8 +30,10 @@ namespace
         KPRCB_CurrentThread,
         KPROCESS_DirectoryTableBase,
         KTHREAD_Process,
+        LDR_DATA_TABLE_ENTRY_DllBase,
         LDR_DATA_TABLE_ENTRY_FullDllName,
         LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,
+        LDR_DATA_TABLE_ENTRY_SizeOfImage,
         OBJECT_NAME_INFORMATION_Name,
         PEB_Ldr,
         PEB_LDR_DATA_InLoadOrderModuleList,
@@ -78,8 +62,10 @@ namespace
         {KPRCB_CurrentThread,                           "nt", "_KPRCB",                           "CurrentThread"},
         {KPROCESS_DirectoryTableBase,                   "nt", "_KPROCESS",                        "DirectoryTableBase"},
         {KTHREAD_Process,                               "nt", "_KTHREAD",                         "Process"},
+        {LDR_DATA_TABLE_ENTRY_DllBase,                  "nt", "_LDR_DATA_TABLE_ENTRY",            "DllBase"},
         {LDR_DATA_TABLE_ENTRY_FullDllName,              "nt", "_LDR_DATA_TABLE_ENTRY",            "FullDllName"},
         {LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,         "nt", "_LDR_DATA_TABLE_ENTRY",            "InLoadOrderLinks"},
+        {LDR_DATA_TABLE_ENTRY_SizeOfImage,              "nt", "_LDR_DATA_TABLE_ENTRY",            "SizeOfImage"},
         {OBJECT_NAME_INFORMATION_Name,                  "nt", "_OBJECT_NAME_INFORMATION",         "Name"},
         {PEB_Ldr,                                       "nt", "_PEB",                             "Ldr"},
         {PEB_LDR_DATA_InLoadOrderModuleList,            "nt", "_PEB_LDR_DATA",                    "InLoadOrderModuleList"},
@@ -130,11 +116,11 @@ namespace
         opt<std::string>    get_proc_name(proc_t proc) override;
         bool                list_mods(proc_t proc, const on_mod_fn& on_module) override;
         opt<std::string>    get_mod_name(proc_t proc, mod_t mod) override;
+        opt<span_t>         get_mod_span(proc_t proc, mod_t mod) override;
         bool                has_virtual(proc_t proc) override;
 
         // members
         ICore&          core_;
-        span_t          kernel_;
         MemberOffsets   members_;
         SymbolOffsets   symbols_;
     };
@@ -309,7 +295,7 @@ bool OsNt::setup()
         FAIL(false, "unable to read pdb in kernel module");
 
     LOG(INFO, "kernel: pdb: %s %s", pdb->guid.data(), pdb->name.data());
-    auto sym_pdb = sym::make_pdb(pdb->name.data(), pdb->guid.data());
+    auto sym_pdb = sym::make_pdb(*kernel, pdb->name.data(), pdb->guid.data());
     if(!sym_pdb)
         FAIL(false, "unable to read pdb from %s %s", pdb->name.data(), pdb->guid.data());
 
@@ -319,15 +305,15 @@ bool OsNt::setup()
     bool fail = false;
     for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
     {
-        const auto offset = sym.get_symbol(g_symbol_offsets[i].module, g_symbol_offsets[i].name);
-        if(!offset)
+        const auto addr = sym.get_symbol(g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+        if(!addr)
         {
             fail = true;
             LOG(ERROR, "unable to read %s!%s symbol offset", g_symbol_offsets[i].module, g_symbol_offsets[i].name);
             continue;
         }
 
-        symbols_[i] = *offset;
+        symbols_[i] = *addr;
     }
     for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
     {
@@ -344,11 +330,10 @@ bool OsNt::setup()
     if(fail)
         return false;
 
-    const auto KiSystemCall64 = kernel->addr + symbols_[::KiSystemCall64];
+    const auto KiSystemCall64 = symbols_[::KiSystemCall64];
     if(*lstar != KiSystemCall64)
         FAIL(false, "PDB mismatch lstar: 0x%llx pdb: 0x%llx\n", *lstar, KiSystemCall64);
 
-    kernel_ = *kernel;
     return true;
 }
 
@@ -367,7 +352,7 @@ std::unique_ptr<os::IHandler> os::make_nt(ICore& core)
 
 bool OsNt::list_procs(const on_proc_fn& on_process)
 {
-    const auto head = kernel_.addr + symbols_[PsActiveProcessHead];
+    const auto head = symbols_[PsActiveProcessHead];
     for(auto link = core::read_ptr(core_, head); link != head; link = core::read_ptr(core_, *link))
     {
         const auto eproc = *link - members_[EPROCESS_ActiveProcessLinks];
@@ -476,10 +461,9 @@ namespace
 
 opt<std::string> OsNt::get_proc_name(proc_t proc)
 {
-    const auto p = nt_proc(proc);
     // EPROCESS.ImageFileName is 16 bytes, but only 14 are actually used
     char buffer[14+1];
-    const auto ok = core_.read_mem(buffer, p.eproc + members_[EPROCESS_ImageFileName], sizeof buffer);
+    const auto ok = core_.read_mem(buffer, proc.id + members_[EPROCESS_ImageFileName], sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
         return std::nullopt;
@@ -488,7 +472,7 @@ opt<std::string> OsNt::get_proc_name(proc_t proc)
     if(name.size() < sizeof buffer - 1)
         return name;
 
-    const auto image_file_name = core::read_ptr(core_, p.eproc + members_[EPROCESS_SeAuditProcessCreationInfo] + members_[SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName]);
+    const auto image_file_name = core::read_ptr(core_, proc.id + members_[EPROCESS_SeAuditProcessCreationInfo] + members_[SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName]);
     if(!image_file_name)
         return name;
 
@@ -501,8 +485,7 @@ opt<std::string> OsNt::get_proc_name(proc_t proc)
 
 bool OsNt::list_mods(proc_t proc, const on_mod_fn& on_mod)
 {
-    const auto p = nt_proc(proc);
-    const auto peb = core::read_ptr(core_, p.eproc + members_[EPROCESS_Peb]);
+    const auto peb = core::read_ptr(core_, proc.id + members_[EPROCESS_Peb]);
     if(!peb)
         FAIL(false, "unable to read EPROCESS.Peb");
 
@@ -531,7 +514,20 @@ opt<std::string> OsNt::get_mod_name(proc_t proc, mod_t mod)
 
 bool OsNt::has_virtual(proc_t proc)
 {
-    const auto p = nt_proc(proc);
-    const auto vad_root = core::read_ptr(core_, p.eproc + members_[EPROCESS_VadRoot]);
+    const auto vad_root = core::read_ptr(core_, proc.id + members_[EPROCESS_VadRoot]);
     return vad_root && *vad_root;
+}
+
+opt<span_t> OsNt::get_mod_span(proc_t proc, mod_t mod)
+{
+    const auto ctx = core_.switch_context(proc);
+    const auto base = core::read_ptr(core_, mod + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
+    if(!base)
+        return std::nullopt;
+
+    const auto size = core::read_ptr(core_, mod + members_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
+    if(!size)
+        return std::nullopt;
+
+    return span_t{*base, *size};
 }
