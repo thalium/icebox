@@ -363,7 +363,7 @@ std::unique_ptr<os::IHelper> os::make_nt(ICore& core)
 
 std::string_view OsNt::name() const
 {
-    return "nt";
+    return os::windows_nt;
 }
 
 bool OsNt::list_procs(const on_proc_fn& on_process)

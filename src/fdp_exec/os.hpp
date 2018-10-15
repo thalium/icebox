@@ -29,6 +29,7 @@ namespace os
     };
 
     std::unique_ptr<IHelper> make_nt(ICore& core);
+    static const char windows_nt[] = "windows_nt";
 
     struct Helper
     {
@@ -37,6 +38,6 @@ namespace os
     };
     static const Helper helpers[] =
     {
-        {&make_nt, "windows_nt"},
+        {&make_nt, windows_nt},
     };
 }
