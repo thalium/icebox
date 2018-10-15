@@ -25,8 +25,8 @@ namespace
         bool setup();
 
         // IModule methods
-        std::optional<uint64_t> get_offset(const char* symbol) override;
-        std::optional<uint64_t> get_struc_member_offset(const char* struc, const char* member) override;
+        std::optional<uint64_t> get_symbol      (const std::string& symbol) override;
+        std::optional<uint64_t> get_struc_offset(const std::string& struc, const std::string& member) override;
 
         // members
         const fs::path  filename_;
@@ -45,7 +45,7 @@ Pdb::~Pdb()
     SymCleanup(hproc_);
 }
 
-std::unique_ptr<sym::IModule> sym::make_pdb(const char* module, const char* guid)
+std::unique_ptr<sym::IModule> sym::make_pdb(const std::string& module, const std::string& guid)
 {
     auto ptr = std::make_unique<Pdb>(fs::path(getenv("_NT_SYMBOL_PATH")) / module / guid / module);
     const auto ok = ptr->setup();
@@ -87,10 +87,10 @@ namespace
     }
 }
 
-std::optional<uint64_t> Pdb::get_offset(const char* symbol)
+std::optional<uint64_t> Pdb::get_symbol(const std::string& symbol)
 {
     auto info = make_symbol_info_package();
-    const auto ok = SymFromName(hproc_, symbol, &info.si);
+    const auto ok = SymFromName(hproc_, symbol.data(), &info.si);
     if(!ok)
         return std::nullopt;
 
@@ -106,10 +106,10 @@ namespace
     };
 }
 
-std::optional<uint64_t> Pdb::get_struc_member_offset(const char* struc, const char* member)
+std::optional<uint64_t> Pdb::get_struc_offset(const std::string& struc, const std::string& member)
 {
     auto info = make_symbol_info_package();
-    auto ok = SymGetTypeFromName(hproc_, BASE_ADDRESS, struc, &info.si);
+    auto ok = SymGetTypeFromName(hproc_, BASE_ADDRESS, struc.data(), &info.si);
     if(!ok)
         return std::nullopt;
 
@@ -125,7 +125,7 @@ std::optional<uint64_t> Pdb::get_struc_member_offset(const char* struc, const ch
     if(!ok)
         return std::nullopt;
 
-    const auto wmember = std::wstring(member, &member[strlen(member)]); // ASCII conversion
+    const auto wmember = std::wstring(member.begin(), member.end()); // ASCII conversion
     for(auto i = params.fp.Start; i < params.fp.Count; ++i)
     {
         wchar_t* name = nullptr;

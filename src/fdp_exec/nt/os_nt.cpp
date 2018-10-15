@@ -62,29 +62,30 @@ namespace
     struct MemberOffset
     {
         member_offset_e e_id;
+        const char      module[16];
         const char      struc[32];
         const char      member[32];
     };
     const MemberOffset g_member_offsets[] =
     {
-        {EPROCESS_ActiveProcessLinks,                   "_EPROCESS",                        "ActiveProcessLinks"},
-        {EPROCESS_ImageFileName,                        "_EPROCESS",                        "ImageFileName"},
-        {EPROCESS_Pcb,                                  "_EPROCESS",                        "Pcb"},
-        {EPROCESS_Peb,                                  "_EPROCESS",                        "Peb"},
-        {EPROCESS_SeAuditProcessCreationInfo,           "_EPROCESS",                        "SeAuditProcessCreationInfo"},
-        {EPROCESS_VadRoot,                              "_EPROCESS",                        "VadRoot"},
-        {KPCR_Prcb,                                     "_KPCR",                            "Prcb"},
-        {KPRCB_CurrentThread,                           "_KPRCB",                           "CurrentThread"},
-        {KPROCESS_DirectoryTableBase,                   "_KPROCESS",                        "DirectoryTableBase"},
-        {KTHREAD_Process,                               "_KTHREAD",                         "Process"},
-        {LDR_DATA_TABLE_ENTRY_FullDllName,              "_LDR_DATA_TABLE_ENTRY",            "FullDllName"},
-        {LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,         "_LDR_DATA_TABLE_ENTRY",            "InLoadOrderLinks"},
-        {OBJECT_NAME_INFORMATION_Name,                  "_OBJECT_NAME_INFORMATION",         "Name"},
-        {PEB_Ldr,                                       "_PEB",                             "Ldr"},
-        {PEB_LDR_DATA_InLoadOrderModuleList,            "_PEB_LDR_DATA",                    "InLoadOrderModuleList"},
-        {PEB_ProcessParameters,                         "_PEB",                             "ProcessParameters"},
-        {RTL_USER_PROCESS_PARAMETERS_ImagePathName,     "_RTL_USER_PROCESS_PARAMETERS",     "ImagePathName"},
-        {SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,  "_SE_AUDIT_PROCESS_CREATION_INFO",  "ImageFileName"},
+        {EPROCESS_ActiveProcessLinks,                   "nt", "_EPROCESS",                        "ActiveProcessLinks"},
+        {EPROCESS_ImageFileName,                        "nt", "_EPROCESS",                        "ImageFileName"},
+        {EPROCESS_Pcb,                                  "nt", "_EPROCESS",                        "Pcb"},
+        {EPROCESS_Peb,                                  "nt", "_EPROCESS",                        "Peb"},
+        {EPROCESS_SeAuditProcessCreationInfo,           "nt", "_EPROCESS",                        "SeAuditProcessCreationInfo"},
+        {EPROCESS_VadRoot,                              "nt", "_EPROCESS",                        "VadRoot"},
+        {KPCR_Prcb,                                     "nt", "_KPCR",                            "Prcb"},
+        {KPRCB_CurrentThread,                           "nt", "_KPRCB",                           "CurrentThread"},
+        {KPROCESS_DirectoryTableBase,                   "nt", "_KPROCESS",                        "DirectoryTableBase"},
+        {KTHREAD_Process,                               "nt", "_KTHREAD",                         "Process"},
+        {LDR_DATA_TABLE_ENTRY_FullDllName,              "nt", "_LDR_DATA_TABLE_ENTRY",            "FullDllName"},
+        {LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,         "nt", "_LDR_DATA_TABLE_ENTRY",            "InLoadOrderLinks"},
+        {OBJECT_NAME_INFORMATION_Name,                  "nt", "_OBJECT_NAME_INFORMATION",         "Name"},
+        {PEB_Ldr,                                       "nt", "_PEB",                             "Ldr"},
+        {PEB_LDR_DATA_InLoadOrderModuleList,            "nt", "_PEB_LDR_DATA",                    "InLoadOrderModuleList"},
+        {PEB_ProcessParameters,                         "nt", "_PEB",                             "ProcessParameters"},
+        {RTL_USER_PROCESS_PARAMETERS_ImagePathName,     "nt", "_RTL_USER_PROCESS_PARAMETERS",     "ImagePathName"},
+        {SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,  "nt", "_SE_AUDIT_PROCESS_CREATION_INFO",  "ImageFileName"},
     };
     static_assert(COUNT_OF(g_member_offsets) == MEMBER_OFFSET_COUNT, "invalid members");
 
@@ -99,13 +100,14 @@ namespace
     struct SymbolOffset
     {
         symbol_offset_e e_id;
+        const char      module[16];
         const char      name[32];
     };
     const SymbolOffset g_symbol_offsets[] =
     {
-        {KiSystemCall64,            "KiSystemCall64"},
-        {PsActiveProcessHead,       "PsActiveProcessHead"},
-        {PsInitialSystemProcess,    "PsInitialSystemProcess"},
+        {KiSystemCall64,            "nt", "KiSystemCall64"},
+        {PsActiveProcessHead,       "nt", "PsActiveProcessHead"},
+        {PsInitialSystemProcess,    "nt", "PsInitialSystemProcess"},
     };
     static_assert(COUNT_OF(g_symbol_offsets) == SYMBOL_OFFSET_COUNT, "invalid symbols");
 
@@ -308,18 +310,21 @@ bool OsNt::setup()
         FAIL(false, "unable to read pdb in kernel module");
 
     LOG(INFO, "kernel: pdb: %s %s", pdb->guid.data(), pdb->name.data());
-    auto sym = sym::make_pdb(pdb->name.data(), pdb->guid.data());
-    if(!sym)
+    auto sym_pdb = sym::make_pdb(pdb->name.data(), pdb->guid.data());
+    if(!sym_pdb)
         FAIL(false, "unable to read pdb from %s %s", pdb->name.data(), pdb->guid.data());
+
+    auto& sym = core_.sym();
+    sym.register_module("nt", sym_pdb);
 
     bool fail = false;
     for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
     {
-        const auto offset = sym->get_offset(g_symbol_offsets[i].name);
+        const auto offset = sym.get_symbol(g_symbol_offsets[i].module, g_symbol_offsets[i].name);
         if(!offset)
         {
             fail = true;
-            LOG(ERROR, "unable to read %s symbol offset from pdb", g_symbol_offsets[i].name);
+            LOG(ERROR, "unable to read %s!%s symbol offset", g_symbol_offsets[i].module, g_symbol_offsets[i].name);
             continue;
         }
 
@@ -327,11 +332,11 @@ bool OsNt::setup()
     }
     for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
     {
-        const auto offset = sym->get_struc_member_offset(g_member_offsets[i].struc, g_member_offsets[i].member);
+        const auto offset = sym.get_struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
         if(!offset)
         {
             fail = true;
-            LOG(ERROR, "unable to read %s.%s member offset from pdb", g_member_offsets[i].struc, g_member_offsets[i].member);
+            LOG(ERROR, "unable to read %s!%s.%s member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
             continue;
         }
 

@@ -2,6 +2,7 @@
 
 #include "enums.hpp"
 #include "os.hpp"
+#include "sym.hpp"
 #include "types.hpp"
 
 #include <memory>
@@ -12,7 +13,8 @@ struct ICore
 {
     virtual ~ICore() = default;
 
-    virtual os::IHelper& os() = 0;
+    virtual os::IHelper&    os() = 0;
+    virtual sym::IHandler&  sym() = 0;
 
     virtual bool pause() = 0;
     virtual bool resume() = 0;
