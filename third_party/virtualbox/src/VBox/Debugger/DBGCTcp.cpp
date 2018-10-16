@@ -235,15 +235,16 @@ static DECLCALLBACK(int) dbgcTcpConnection(RTSOCKET Sock, void *pvUser)
 #define DEBUG_FLOW 0
 
 #if DEBUG_LEVEL > 0
-#define Log1(fmt,...) printf(fmt, ##__VA_ARGS__)
+// #define Log1(fmt,...) printf(fmt, ##__VA_ARGS__)
+#define Log1(x) LogRel(x)
 #else
-#define Log1(fmt,...)
+#define Log1(x)
 #endif
 
 #if DEBUG_LEVEL > 2
-#define Log3(fmt,...) printf(fmt, ##__VA_ARGS__)
+#define Log3(x) LogRel(x)
 #else
-#define Log3(fmt,...)
+#define Log3(x)
 #endif
 
 #ifdef DEBUG_FLOW > 0
@@ -277,7 +278,7 @@ bool FDPVBOX_Resume(void *pUserHandle)
 
 bool FDPVBOX_Pause(void *pUserHandle)
 {
-    Log1("PAUSE !\n");
+    Log1(("[DBGC] PAUSE !\n"));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     VMR3Break(myVBOXHandle->pUVM);
     return true;
@@ -300,7 +301,7 @@ bool FDPVBOX_singleStep(void *pUserHandle, uint32_t CpuId)
 
 bool FDPVBOX_getMemorySize(void *pUserHandle, uint64_t* MemorySize)
 {
-    Log1("GET_PHYSICALMEMORYSIZE\n");
+    Log1(("[DBGC] GET_PHYSICALMEMORYSIZE\n"));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     *MemorySize = MMR3PhysGetRamSizeU(myVBOXHandle->pUVM);
     return true;
@@ -308,10 +309,10 @@ bool FDPVBOX_getMemorySize(void *pUserHandle, uint64_t* MemorySize)
 
 bool FDPVBOX_readPhysicalMemory(void *pUserHandle, uint8_t *pDstBuffer, uint64_t PhysicalAddress, uint32_t ReadSize)
 {
-    Log1("READ_PHYSICAL %p %d ... ", PhysicalAddress, ReadSize);
+    Log1(("[DBGC] READ_PHYSICAL %p %d ... ", PhysicalAddress, ReadSize));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     int rc = VMR3PhysSimpleReadGCPhysU(myVBOXHandle->pUVM, pDstBuffer, PhysicalAddress, ReadSize);
-    Log1(" %s\n", RT_SUCCESS(rc) ? "OK" : "KO");
+    Log1(("[DBGC]  %s\n", RT_SUCCESS(rc) ? "OK" : "KO"));
     if(RT_SUCCESS(rc)){
         return true;
     }
@@ -321,7 +322,7 @@ bool FDPVBOX_readPhysicalMemory(void *pUserHandle, uint8_t *pDstBuffer, uint64_t
 
 bool FDPVBOX_writePhysicalMemory(void *pUserHandle, uint8_t *pSrcBuffer, uint64_t PhysicalAddress, uint32_t WriteSize)
 {
-    Log1("WRITE_PHYSICAL %p %d...", PhysicalAddress, WriteSize);
+    Log1(("[DBGC] WRITE_PHYSICAL %p %d...", PhysicalAddress, WriteSize));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
 
     //Check Read access
@@ -330,7 +331,7 @@ bool FDPVBOX_writePhysicalMemory(void *pUserHandle, uint8_t *pSrcBuffer, uint64_
     }
     //Effective Write
     int rc =  VMR3PhysSimpleWriteGCPhysU(myVBOXHandle->pUVM, pSrcBuffer, PhysicalAddress, WriteSize);
-    Log1(" %s\n", RT_SUCCESS(rc) ? "OK" : "KO");
+    Log1(("[DBGC]  %s\n", RT_SUCCESS(rc) ? "OK" : "KO"));
     if(RT_SUCCESS(rc)){
         return true;
     }
@@ -340,14 +341,14 @@ bool FDPVBOX_writePhysicalMemory(void *pUserHandle, uint8_t *pSrcBuffer, uint64_
 
 bool FDPVBOX_writeVirtualMemory(void *pUserHandle, uint32_t CpuId, uint8_t *pSrcBuffer, uint64_t VirtualAddress, uint32_t WriteSize)
 {
-    Log1("writeVirtualMemory %p %d ...", VirtualAddress, WriteSize);
+    Log1(("[DBGC] writeVirtualMemory %p %d ...", VirtualAddress, WriteSize));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     if(CpuId >= VMR3GetCPUCount(myVBOXHandle->pUVM)){
         return false;
     }
     PVMCPU pVCpu = VMMR3GetCpuByIdU(myVBOXHandle->pUVM, CpuId);
     int rc = PGMPhysSimpleWriteGCPtr(pVCpu, VirtualAddress, pSrcBuffer, WriteSize);
-    Log1(" %s\n", RT_SUCCESS(rc) ? "OK" : "KO");
+    Log1(("[DBGC]  %s\n", RT_SUCCESS(rc) ? "OK" : "KO"));
     if(RT_SUCCESS(rc)){
         return true;
     }
@@ -356,7 +357,7 @@ bool FDPVBOX_writeVirtualMemory(void *pUserHandle, uint32_t CpuId, uint8_t *pSrc
 
 bool FDPVBOX_writeMsr(void *pUserHandle, uint32_t CpuId, uint64_t MSRId, uint64_t MSRValue)
 {
-    Log1("WRITE_MSR %p %p\n", MSRId, MSRValue);
+    Log1(("[DBGC] WRITE_MSR %p %p\n", MSRId, MSRValue));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     if(CpuId >= VMR3GetCPUCount(myVBOXHandle->pUVM)){
         return false;
@@ -371,7 +372,7 @@ bool FDPVBOX_writeMsr(void *pUserHandle, uint32_t CpuId, uint64_t MSRId, uint64_
 
 bool FDPVBOX_getState(void *pUserHandle, uint8_t *currentState)
 {
-    Log3("GET_STATE\n");
+    Log3(("[DBGC] GET_STATE\n"));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     *currentState = VMR3GetFDPState(myVBOXHandle->pUVM);
     return true;
@@ -379,7 +380,7 @@ bool FDPVBOX_getState(void *pUserHandle, uint8_t *currentState)
 
 bool FDPVBOX_getCpuState(void *pUserHandle, uint32_t CpuId, uint8_t *pCurrentState)
 {
-    Log1("GET_CPU_STATE\n");
+    Log1(("[DBGC] GET_CPU_STATE\n"));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     if(CpuId >= VMR3GetCPUCount(myVBOXHandle->pUVM)){
         return false;
@@ -406,7 +407,7 @@ bool FDPVBOX_readMsr(void *pUserHandle, uint32_t CpuId, uint64_t MsrId, uint64_t
     PVMCPU pVCpu = VMMR3GetCpuByIdU(myVBOXHandle->pUVM, CpuId);
 
     CPUMQueryGuestMsr(pVCpu, MsrId, pMsrValue);
-    Log1("READ_MSR %p => %p\n", MsrId, *pMsrValue);
+    Log1(("[DBGC] READ_MSR %p => %p\n", MsrId, *pMsrValue));
     return true;
 }
 
@@ -620,7 +621,7 @@ bool FDPVBOX_virtualToPhysical(void *pUserHandle, uint32_t CpuId, uint64_t Virtu
 
 bool FDPVBOX_unsetBreakpoint(void *pUserHandle, uint8_t BreakpointId)
 {
-    Log1("UNSET_BP [%d] ! \n", BreakpointId);
+    Log1(("[DBGC] UNSET_BP [%d] ! \n", BreakpointId));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     int rc = VMR3RemoveBreakpoint(myVBOXHandle->pUVM, BreakpointId);
     if(RT_SUCCESS(rc)){
@@ -631,7 +632,7 @@ bool FDPVBOX_unsetBreakpoint(void *pUserHandle, uint8_t BreakpointId)
 
 bool FDPVBOX_getFxState64(void *pUserHandle, uint32_t CpuId, uint8_t *pDstBuffer, uint32_t *pDstSize)
 {
-    Log1("GET_FXSTATE\n");
+    Log1(("[DBGC] GET_FXSTATE\n"));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     if(CpuId >= VMR3GetCPUCount(myVBOXHandle->pUVM)){
         return false;
@@ -647,7 +648,7 @@ bool FDPVBOX_getFxState64(void *pUserHandle, uint32_t CpuId, uint8_t *pDstBuffer
 
 bool FDPVBOX_setFxState64(void *pUserHandle, uint32_t CpuId, uint8_t *pSrcBuffer, uint32_t uSrcSize)
 {
-    Log1("SET_FXSTATE\n");
+    Log1(("[DBGC] SET_FXSTATE\n"));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     if(CpuId >= VMR3GetCPUCount(myVBOXHandle->pUVM)){
         return false;
@@ -687,7 +688,7 @@ int FDPVBOX_setBreakpoint(
     uint64_t BreakpointLength,
     uint64_t BreakpointCr3)
 {
-    Log1("SET_BREAKPOINT %p\n", BreakpointAddress);
+    Log1(("[DBGC] SET_BREAKPOINT %p\n", BreakpointAddress));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     if(CpuId >= VMR3GetCPUCount(myVBOXHandle->pUVM)){
         return -1;
@@ -699,30 +700,30 @@ int FDPVBOX_setBreakpoint(
         case FDP_SOFTHBP:
         {
             BreakpointId = VMR3AddSoftBreakpoint(myVBOXHandle->pUVM, pVCpu, BreakpointAddressType, BreakpointAddress, BreakpointCr3);
-            Log1("FDP_SOFTHBP[%d] %c %p %p\n", BreakpointId, BreakpointAddressType == 0x1 ? 'v' : 'p', BreakpointAddress, BreakpointCr3);
+            Log1(("[DBGC] FDP_SOFTHBP[%d] %c %p %p\n", BreakpointId, BreakpointAddressType == 0x1 ? 'v' : 'p', BreakpointAddress, BreakpointCr3));
             break;
         }
         case FDP_PAGEHBP:
         {
             BreakpointId = VMR3AddPageBreakpoint(myVBOXHandle->pUVM, pVCpu, -1, BreakpointAccessType, BreakpointAddressType, BreakpointAddress, BreakpointLength);
-            Log1("FDP_PAGEHBP[%d] %02x %p\n", BreakpointId, BreakpointAccessType, BreakpointAddress);
+            Log1(("[DBGC] FDP_PAGEHBP[%d] %02x %p\n", BreakpointId, BreakpointAccessType, BreakpointAddress));
             break;
         }
         case FDP_MSRHBP:
         {
             BreakpointId = VMR3AddMsrBreakpoint(myVBOXHandle->pUVM, BreakpointAccessType, BreakpointAddress);
-            Log1("FDP_MSRHBP[%d] %02x %p\n", BreakpointId, BreakpointAccessType, BreakpointAddress);
+            Log1(("[DBGC] FDP_MSRHBP[%d] %02x %p\n", BreakpointId, BreakpointAccessType, BreakpointAddress));
             break;
         }
         case FDP_CRHBP:
         {
             BreakpointId = VMR3AddCrBreakpoint(myVBOXHandle->pUVM, BreakpointAccessType, BreakpointAddress);
-            Log1("FDP_CRHBP[%d] %02x %p\n", BreakpointId, BreakpointAccessType, BreakpointAddress);
+            Log1(("[DBGC] FDP_CRHBP[%d] %02x %p\n", BreakpointId, BreakpointAccessType, BreakpointAddress));
             break;
         }
         default:
         {
-            Log1("Unknown BreakpointType!\n");
+            Log1(("[DBGC] Unknown BreakpointType!\n"));
             break;
         }
     }
@@ -732,7 +733,7 @@ int FDPVBOX_setBreakpoint(
 
 
 bool FDPVBOX_InjectInterrupt(void *pUserHandle, uint32_t CpuId, uint32_t InterruptionCode, uint32_t ErrorCode, uint64_t Cr2){
-    Log1("InjectInterrupt\n");
+    Log1(("[DBGC] InjectInterrupt\n"));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     PUVM pUVM = myVBOXHandle->pUVM;
 
@@ -744,7 +745,7 @@ bool FDPVBOX_InjectInterrupt(void *pUserHandle, uint32_t CpuId, uint32_t Interru
 
 bool FDPVBOX_Reboot(void *pUserHandle)
 {
-    Log1("REBOOT\n");
+    Log1(("[DBGC] REBOOT\n"));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     PUVM pUVM = myVBOXHandle->pUVM;
 
@@ -864,7 +865,7 @@ static SSMSTRMOPS const g_ftmR3MemoryOps =
 
 bool FDPVBOX_Save(void *pUserHandle)
 {
-    Log1("SAVE\n");
+    Log1(("[DBGC] SAVE\n"));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     PUVM pUVM = myVBOXHandle->pUVM;
 
@@ -951,7 +952,7 @@ bool FDPVBOX_Save(void *pUserHandle)
 
 bool FDPVBOX_Restore(void *pUserHandle)
 {
-    Log1("RESTORE\n");
+    Log1(("[DBGC] RESTORE\n"));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
     PUVM pUVM = myVBOXHandle->pUVM;
     int rc;
