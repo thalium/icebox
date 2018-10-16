@@ -47,6 +47,9 @@
 #include <FDP/include/FDP.h>
 #include <FDP/include/FDP_structs.h>
 #include <iprt/spinlock.h>
+#ifdef __linux
+#include <malloc.h>
+#endif
 /*ENDMYCODE*/
 
 /*********************************************************************************************************************************

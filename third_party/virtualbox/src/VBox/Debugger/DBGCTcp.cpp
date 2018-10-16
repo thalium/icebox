@@ -209,7 +209,6 @@ static DECLCALLBACK(int) dbgcTcpConnection(RTSOCKET Sock, void *pvUser)
 }
 
 /*MYCODE*/
-#include <Windows.h>
 #include <stdio.h>
 #include <FDP/include/FDP.h>
 #include <FDP/include/FDP_structs.h>
@@ -218,6 +217,16 @@ static DECLCALLBACK(int) dbgcTcpConnection(RTSOCKET Sock, void *pvUser)
 #include <VBox/vmm/pgm.h>
 #include <VBox/vmm/mm.h>
 #include <VBox/vmm/cpum.h>
+
+#ifdef  __linux
+#include <pthread.h>
+#define SLEEP(X) (usleep(X*1000))
+
+#elif   _WIN32
+#include <Windows.h>
+
+#define SLEEP(X) (Sleep(X))
+#endif
 
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -753,7 +762,7 @@ bool FDPVBOX_Reboot(void *pUserHandle)
     FDPVBOX_Resume(pUserHandle);
 
     //TODO: Wait for the startup
-    Sleep(100);
+    SLEEP(100);
 
     //Signal that the VM as changed, and what a change...
     myVBOXHandle->pFDPServer->pSharedFDPSHM->stateChanged = true;
@@ -974,7 +983,7 @@ bool FDPVBOX_Restore(void *pUserHandle)
         printf("Restore.VMR3Reset\n");
         VMR3Reset(pUVM);
 
-        Sleep(500);
+        SLEEP(500);
 
         printf("Restore.VMR3Suspend\n");
         rc = VMR3Suspend(pUVM, VMSUSPENDREASON_USER);
@@ -1015,12 +1024,33 @@ bool FDPVBOX_Restore(void *pUserHandle)
 
 void *CreateCPUSHM(PUVM pUVM)
 {
-    HANDLE hMapFile;
     void* pBuf;
 
     char aCpuShmName[512];
     strcpy(aCpuShmName,"CPU_");
     strcat(aCpuShmName, VMR3GetName(pUVM));
+
+
+#ifdef  __linux
+    uint32_t fdSHM;
+
+    /* create the shared memory segment */
+    fdSHM = shm_open(aCpuShmName, O_CREAT | O_RDWR, 0666);
+    if (fdSHM == NULL){
+        return NULL;
+    }
+
+    /* configure the size of the shared memory segment */
+    ftruncate(fdSHM,sizeof(FDP_CPU_CTX));
+
+    /* now map the shared memory segment in the address space of the process */
+    pBuf = mmap(0,sizeof(FDP_CPU_CTX), PROT_READ | PROT_WRITE, MAP_SHARED, fdSHM, 0);
+    if (pBuf == NULL){
+        shm_unlink(aCpuShmName);
+        return NULL;
+    }
+#elif   _WIN32
+    HANDLE hMapFile;
     hMapFile = CreateFileMappingA(INVALID_HANDLE_VALUE,
         NULL,
         PAGE_READWRITE,
@@ -1042,6 +1072,7 @@ void *CreateCPUSHM(PUVM pUVM)
         CloseHandle(hMapFile);
         return NULL;
     }
+#endif
 
     //Clear SHM
     memset((void*)pBuf, 0, sizeof(FDP_CPU_CTX));
@@ -1051,7 +1082,11 @@ void *CreateCPUSHM(PUVM pUVM)
     return pBuf;
 }
 
+#ifdef  __linux
+void *FDPServerThread(void* lpParam)
+#elif   _WIN32
 DWORD WINAPI FDPServerThread(LPVOID lpParam)
+#endif
 {
     PUVM pUVM = (PUVM)lpParam;
     MEMORY_SSM_T MemorySSM;
@@ -1110,7 +1145,7 @@ DWORD WINAPI FDPServerThread(LPVOID lpParam)
 
     if (FDP_SetFDPServer(pFDPServer, &FDPServerInterface) == false){
         printf("Failed to FDP_SerFDPServer\n");
-        return false;
+        return 0;
     }
 
     printf("FDP_SetFDPServer OK\n");
@@ -1121,7 +1156,7 @@ DWORD WINAPI FDPServerThread(LPVOID lpParam)
 
     if (FDP_ServerLoop(pFDPServer) == false){
         printf("Failed to FDP_ServerLoop\n");
-        return false;
+        return 0;
     }
 
     if(pUserHandle != NULL){
@@ -1142,7 +1177,12 @@ DWORD WINAPI FDPServerThread(LPVOID lpParam)
 DBGDECL(int)    DBGCTcpCreate(PUVM pUVM, void **ppvData)
 {
     /*MYCODE*/
+#ifdef  __linux
+    pthread_t pFDPServerThread;
+    pthread_create(&pFDPServerThread, NULL, FDPServerThread, pUVM);
+#elif   _WIN32
     HANDLE hFDPServerThread = CreateThread(NULL, 0, FDPServerThread, pUVM, 0, NULL);
+#endif
     /*ENDMYCODE*/
     /*
      * Check what the configuration says.
