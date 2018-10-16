@@ -6,7 +6,7 @@
 #include <functional>
 #include <memory>
 
-struct ICore;
+namespace core { struct IHandler; }
 
 namespace os
 {
@@ -27,11 +27,11 @@ namespace os
         virtual bool                has_virtual(proc_t proc) = 0;
     };
 
-    std::unique_ptr<IHandler> make_nt(ICore& core);
+    std::unique_ptr<IHandler> make_nt(core::IHandler& core);
     static const char windows_nt[] = "windows_nt";
     static const struct
     {
-        std::unique_ptr<IHandler>(*make)(ICore& core);
+        std::unique_ptr<IHandler>(*make)(core::IHandler& core);
         const std::string         name;
     } g_helpers[] =
     {

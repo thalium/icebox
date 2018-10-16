@@ -1,6 +1,6 @@
 #pragma once
 
-#define UNUSED(x)
+#define UNUSED(x) ((void) (x))
 #define COUNT_OF(X) (sizeof(X)/sizeof*(X))
 
 constexpr bool is_power_of_2(int n)
@@ -33,4 +33,14 @@ template<typename T>
 Defer<T> defer(const T& defer)
 {
     return Defer<T>(defer);
+}
+
+template<typename T, typename U>
+static void erase_if(T& c, const U& pred)
+{
+    for(auto it = c.begin(), end = c.end(); it != end; /**/)
+        if(pred(it->second))
+            it = c.erase(it);
+        else
+            ++it;
 }

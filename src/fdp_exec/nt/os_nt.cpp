@@ -104,7 +104,7 @@ namespace
     struct OsNt
         : public os::IHandler
     {
-        OsNt(ICore& core);
+        OsNt(core::IHandler& core);
 
         // methods
         bool setup();
@@ -120,13 +120,13 @@ namespace
         bool                has_virtual(proc_t proc) override;
 
         // members
-        ICore&          core_;
+        core::IHandler& core_;
         MemberOffsets   members_;
         SymbolOffsets   symbols_;
     };
 }
 
-OsNt::OsNt(ICore& core)
+OsNt::OsNt(core::IHandler& core)
     : core_(core)
 {
 }
@@ -178,7 +178,7 @@ namespace
         return read_le32(&buf[idx]);
     }
 
-    std::optional<span_t> find_kernel(ICore& core, uint64_t lstar)
+    std::optional<span_t> find_kernel(core::IHandler& core, uint64_t lstar)
     {
         uint8_t buf[PAGE_SIZE];
         for(auto ptr = align<PAGE_SIZE>(lstar); ptr < lstar; ptr -= PAGE_SIZE)
@@ -205,7 +205,7 @@ namespace
         return std::nullopt;
     }
 
-    std::vector<uint8_t> read_buffer(ICore& core, span_t span)
+    std::vector<uint8_t> read_buffer(core::IHandler& core, span_t span)
     {
         uint8_t page[PAGE_SIZE];
 
@@ -246,7 +246,7 @@ namespace
         }
     }
 
-    std::optional<PdbCtx> read_pdb(ICore& core, span_t kernel)
+    std::optional<PdbCtx> read_pdb(core::IHandler& core, span_t kernel)
     {
         const auto buf = read_buffer(core, kernel);
 
@@ -337,7 +337,7 @@ bool OsNt::setup()
     return true;
 }
 
-std::unique_ptr<os::IHandler> os::make_nt(ICore& core)
+std::unique_ptr<os::IHandler> os::make_nt(core::IHandler& core)
 {
     auto nt = std::make_unique<OsNt>(core);
     if(!nt)
@@ -372,7 +372,7 @@ bool OsNt::list_procs(const on_proc_fn& on_process)
 
 namespace
 {
-    std::optional<uint64_t> read_gs_base(ICore& core)
+    std::optional<uint64_t> read_gs_base(core::IHandler& core)
     {
         auto gs = core.read_msr(MSR_GS_BASE);
         if(!gs)
@@ -428,7 +428,7 @@ opt<proc_t> OsNt::get_proc(const std::string& name)
 
 namespace
 {
-    opt<std::string> read_unicode_string(ICore& core, uint64_t unicode_string)
+    opt<std::string> read_unicode_string(core::IHandler& core, uint64_t unicode_string)
     {
         using UnicodeString = struct
         {

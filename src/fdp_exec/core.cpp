@@ -10,6 +10,7 @@
 #include "mmu.hpp"
 
 #include <algorithm>
+#include <map>
 #include <thread>
 
 // custom deleters
@@ -18,16 +19,16 @@ namespace std
     template<> struct default_delete<FDP_SHM> { static const bool marker = true; void operator()(FDP_SHM* /*ptr*/) {} }; // FIXME no deleter
 }
 
-struct ICore::Ctx
+struct core::ProcessContextPrivate
 {
-    Ctx(opt<proc_t>& core, proc_t current)
+    ProcessContextPrivate(opt<proc_t>& core, proc_t current)
         : backup_(core)
         , current_(core)
     {
         current_ = current;
     }
 
-    ~Ctx()
+    ~ProcessContextPrivate()
     {
         current_ = backup_;
     }
@@ -49,52 +50,89 @@ namespace
     }
 }
 
+namespace
+{
+    struct Breakpoint
+    {
+        opt<uint64_t> cr3;
+        int           id;
+    };
+
+    struct BreakpointObserver
+    {
+        BreakpointObserver(const core::Task& task, uint64_t phy, proc_t proc, core::filter_e filter)
+            : task(task)
+            , phy(phy)
+            , proc(proc)
+            , filter(filter)
+            , bpid(-1)
+        {
+        }
+
+        core::Task      task;
+        uint64_t        phy;
+        proc_t          proc;
+        core::filter_e  filter;
+        int             bpid;
+
+    };
+
+    using Breakpoints = struct
+    {
+        std::unordered_map<uint64_t, Breakpoint>                        bps_;
+        std::multimap<uint64_t, std::shared_ptr<BreakpointObserver>>    observers_;
+    };
+}
+
 namespace impl // we need to specify a namespace name due to an msvc bug on 15.8.7
 {
     struct Core
-        : public ICore
+        : public core::IHandler
     {
-        Core(const std::string_view& name);
+        Core(const std::string& name);
 
         bool setup();
 
         // ICore methods
-        os::IHandler&           os          () override;
-        sym::IHandler&          sym         () override;
-        bool                    pause       () override;
-        bool                    resume      () override;
-        bool                    wait_break  ();
+        os::IHandler&   os() override;
+        sym::IHandler&  sym() override;
+        bool            pause() override;
+        bool            resume() override;
+        bool            wait() override;
 
-        std::optional<uint64_t> read_msr        (msr_e reg) override;
-        bool                    write_msr       (msr_e reg, uint64_t value) override;
-        std::optional<uint64_t> read_reg        (reg_e reg) override;
-        bool                    write_reg       (reg_e reg, uint64_t value) override;
-        bool                    read_mem        (void* dst, uint64_t src, size_t size) override;
-        bool                    write_mem       (uint64_t dst, const void* src, size_t size) override;
+        core::Breakpoint set_breakpoint(uint64_t ptr, proc_t proc, core::filter_e use, const core::Task& task) override;
 
-        std::shared_ptr<ICore::Ctx> switch_context(proc_t proc) override;
+        opt<uint64_t>   read_msr(msr_e reg) override;
+        bool            write_msr(msr_e reg, uint64_t value) override;
+        opt<uint64_t>   read_reg(reg_e reg) override;
+        bool            write_reg(reg_e reg, uint64_t value) override;
+        bool            read_mem(void* dst, uint64_t src, size_t size) override;
+        bool            write_mem(uint64_t dst, const void* src, size_t size) override;
 
+        core::ProcessContext switch_context(proc_t proc) override;
+
+        // members
         const std::string               name_;
         std::unique_ptr<FDP_SHM>        shm_;
         std::unique_ptr<os::IHandler>   os_;
         std::unique_ptr<sym::IHandler>  sym_;
-
-        std::optional<proc_t>           current_;
-        std::optional<proc_t>           ctx_;
+        opt<proc_t>                     current_;
+        opt<proc_t>                     ctx_;
+        Breakpoints                     breakpoints_;
     };
 }
 
-impl::Core::Core(const std::string_view& name)
+impl::Core::Core(const std::string& name)
     : name_(name)
 {
 }
 
-std::unique_ptr<ICore> make_core(const std::string_view& name)
+std::unique_ptr<core::IHandler> core::make_core(const std::string& name)
 {
     auto core = std::make_unique<impl::Core>(name);
     const auto ok = core->setup();
     if(!ok)
-        return std::nullptr_t();
+        return nullptr;
 
     return core;
 }
@@ -135,48 +173,6 @@ os::IHandler& impl::Core::os()
 sym::IHandler& impl::Core::sym()
 {
     return *sym_;
-}
-
-bool impl::Core::pause()
-{
-    const auto ok = FDP_Pause(&*shm_);
-    if(!ok)
-    {
-        LOG(ERROR, "unable to pause");
-        return false;
-    }
-
-    current_ = os_->get_current_proc();
-    return true;
-}
-
-bool impl::Core::resume()
-{
-    const auto ok = FDP_Resume(&*shm_);
-    if(!ok)
-    {
-        LOG(ERROR, "unable to resume");
-        return false;
-    }
-
-    return true;
-}
-
-bool impl::Core::wait_break()
-{
-    while(true)
-    {
-        //std::this_thread::yield();
-        std::this_thread::sleep_for(std::chrono::milliseconds(20));
-        FDP_State state = FDP_STATE_NULL;
-        auto ok = FDP_GetStateChanged(&*shm_);
-        if(!ok)
-            continue;
-
-        ok = FDP_GetState(&*shm_, &state);
-        if(ok && (state & FDP_STATE_BREAKPOINT_HIT))
-            return true;
-    }
 }
 
 namespace
@@ -246,6 +242,126 @@ namespace
     }
 }
 
+struct core::BreakpointPrivate
+{
+    BreakpointPrivate(impl::Core& core, const std::shared_ptr<BreakpointObserver>& observer)
+        : core_(core)
+        , observer_(observer)
+    {
+    }
+
+    ~BreakpointPrivate()
+    {
+        erase_if(core_.breakpoints_.observers_, [&](auto bp)
+        {
+            return observer_ == bp;
+        });
+        const auto range = core_.breakpoints_.observers_.equal_range(observer_->phy);
+        const auto empty = range.first == range.second;
+        if(!empty)
+            return;
+
+        const auto ok = FDP_UnsetBreakpoint(&*core_.shm_, static_cast<uint8_t>(observer_->bpid));
+        if(!ok)
+            LOG(ERROR, "unable to remove breakpoint %d", observer_->bpid);
+
+        core_.breakpoints_.bps_.erase(observer_->phy);
+    }
+
+    impl::Core&                         core_;
+    std::shared_ptr<BreakpointObserver> observer_;
+};
+
+namespace
+{
+    void set_break_state(impl::Core& core)
+    {
+        core.current_ = core.os_->get_current_proc();
+    }
+
+    void check_breakpoints(impl::Core& core, FDP_State state)
+    {
+        if(!(state & FDP_STATE_BREAKPOINT_HIT))
+            return;
+
+        if(core.breakpoints_.observers_.empty())
+            return;
+
+        const auto rip = core.read_reg(FDP_RIP_REGISTER);
+        if(!rip)
+            return;
+
+        const auto cr3 = core.read_reg(FDP_CR3_REGISTER);
+        if(!cr3)
+            return;
+
+        const auto phy = virtual_to_physical(core, *rip, *cr3);
+        if(!phy)
+            return;
+
+        const auto range = core.breakpoints_.observers_.equal_range(*phy);
+        for(auto it = range.first; it != range.second; ++it)
+        {
+            const auto& bp = *it->second;
+            if(bp.filter == core::FILTER_CR3 && bp.proc.dtb != *cr3)
+                continue;
+
+            bp.task();
+        }
+    }
+}
+
+bool impl::Core::pause()
+{
+    const auto ok = FDP_Pause(&*shm_);
+    if(!ok)
+    {
+        LOG(ERROR, "unable to pause");
+        return false;
+    }
+
+    set_break_state(*this);
+    return true;
+}
+
+bool impl::Core::resume()
+{
+    FDP_State state = FDP_STATE_NULL;
+    auto ok = FDP_GetState(&*shm_, &state);
+    if(ok)
+        if(state & FDP_STATE_BREAKPOINT_HIT)
+            FDP_SingleStep(&*shm_, CPU_ID);
+
+    ok = FDP_Resume(&*shm_);
+    if(!ok)
+    {
+        LOG(ERROR, "unable to resume");
+        return false;
+    }
+
+    return true;
+}
+
+bool impl::Core::wait()
+{
+    while(true)
+    {
+        std::this_thread::yield();
+        auto ok = FDP_GetStateChanged(&*shm_);
+        if(!ok)
+            continue;
+
+        FDP_State state = FDP_STATE_NULL;
+        ok = FDP_GetState(&*shm_, &state);
+        if(!ok)
+            return false;
+
+        set_break_state(*this);
+        check_breakpoints(*this, state);
+        return true;
+    }
+}
+
 namespace
 {
     bool raw_read_virtual(impl::Core& core, uint8_t* dst, uint64_t src, uint32_t size)
@@ -304,7 +420,7 @@ bool impl::Core::read_mem(void* vdst, uint64_t src, size_t size)
     if(!ctx_)
         return raw_read_virtual(*this, dst, src, usize);
 
-    if(current_ && current_->ctx == ctx_->ctx)
+    if(current_ && current_->dtb == ctx_->dtb)
         return raw_read_virtual(*this, dst, src, usize);
 
     uint8_t buffer[PAGE_SIZE];
@@ -313,9 +429,9 @@ bool impl::Core::read_mem(void* vdst, uint64_t src, size_t size)
     size_t skip = src - ptr;
     while(fill < size)
     {
-        auto phy = virtual_to_physical(*this, ptr, ctx_->ctx);
+        auto phy = virtual_to_physical(*this, ptr, ctx_->dtb);
         if(!phy)
-            FAIL(false, "unable to convert virtual address 0x%llx to physical after page fault injection: cr3 = 0x%llx", ptr, ctx_->ctx);
+            FAIL(false, "unable to convert virtual address 0x%llx to physical after page fault injection: dtb = 0x%llx", ptr, ctx_->dtb);
 
         const auto ok = FDP_ReadPhysicalMemory(&*shm_, buffer, sizeof buffer, *phy);
         if(!ok)
@@ -414,7 +530,7 @@ const char* reg_to_str(reg_e reg)
     return "unknown";
 }
 
-std::optional<uint64_t> impl::Core::read_msr(msr_e reg)
+opt<uint64_t> impl::Core::read_msr(msr_e reg)
 {
     uint64_t value = 0;
     const auto ok = FDP_ReadMsr(&*shm_, CPU_ID, reg, &value);
@@ -433,7 +549,7 @@ bool impl::Core::write_msr(msr_e reg, uint64_t value)
     return true;
 }
 
-std::optional<uint64_t> impl::Core::read_reg(reg_e reg)
+opt<uint64_t> impl::Core::read_reg(reg_e reg)
 {
     uint64_t value;
     const auto ok = FDP_ReadRegister(&*shm_, CPU_ID, reg, &value);
@@ -452,7 +568,58 @@ bool impl::Core::write_reg(reg_e reg, uint64_t value)
     return true;
 }
 
-std::shared_ptr<ICore::Ctx> impl::Core::switch_context(const proc_t proc)
+core::ProcessContext impl::Core::switch_context(const proc_t proc)
 {
-    return std::make_shared<ICore::Ctx>(ctx_, proc);
+    return std::make_shared<core::ProcessContextPrivate>(ctx_, proc);
+}
+
+namespace
+{
+    int try_add_breakpoint(impl::Core& core, uint64_t phy, const BreakpointObserver& bp)
+    {
+        auto& bps = core.breakpoints_.bps_;
+        auto cr3 = bp.filter == core::FILTER_CR3 ? std::make_optional(bp.proc.dtb) : std::nullopt;
+        const auto it = bps.find(phy);
+        if(it != bps.end())
+        {
+            // keep using found breakpoint if filtering rules are compatible
+            const auto bp_cr3 = it->second.cr3;
+            if(!bp_cr3 || bp_cr3 == cr3)
+                return it->second.id;
+
+            // filtering rules are too restrictive, remove old breakpoint & add an unfiltered breakpoint
+            const auto ok = FDP_UnsetBreakpoint(&*core.shm_, static_cast<uint8_t>(it->second.id));
+            bps.erase(it);
+            if(!ok)
+                return -1;
+
+            // add new breakpoint without filtering
+            cr3 = std::nullopt;
+        }
+
+        const auto bpid = FDP_SetBreakpoint(&*core.shm_, CPU_ID, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy, 1, cr3 ? *cr3 : FDP_NO_CR3);
+        if(bpid < 0)
+            return -1;
+
+        bps.emplace(phy, Breakpoint{cr3, bpid});
+        return bpid;
+    }
+}
+
+core::Breakpoint impl::Core::set_breakpoint(uint64_t ptr, proc_t proc, core::filter_e filter, const core::Task& task)
+{
+    const auto phy = virtual_to_physical(*this, ptr, proc.dtb);
+    if(!phy)
+        return nullptr;
+
+    const auto bp = std::make_shared<BreakpointObserver>(task, *phy, proc, filter);
+    breakpoints_.observers_.emplace(*phy, bp);
+    const auto bpid = try_add_breakpoint(*this, *phy, *bp);
+
+    // update all observers breakpoint id
+    const auto range = breakpoints_.observers_.equal_range(*phy);
+    for(auto it = range.first; it != range.second; ++it)
+        it->second->bpid = bpid;
+
+    return std::make_shared<core::BreakpointPrivate>(*this, bp);
 }
