@@ -27,7 +27,17 @@
 #include "FDP_enum.h"
 
 
-#define FDP_EXPORTED   __declspec( dllexport ) 
+#ifdef  __linux
+//Linux
+#define FDP_EXPORTED    __attribute__ ((visibility ("default")))
+#define ALIGNED_(x)     __attribute__ ((aligned(x)))
+
+#elif   _WIN32
+#define FDP_EXPORTED    __declspec( dllexport )
+#define ALIGNED_(x)     _declspec(align(X))
+
+#endif
+
 
 #ifndef FDP_EXPORTED
 #define FDP_EXPORTED
@@ -37,17 +47,15 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-
-//#ifndef __cplusplus
+#else
     typedef struct _uint128_t
     {
         uint64_t high;
         uint64_t low;
     } uint128_t;
-//#endif
+#endif
 
-    typedef struct _declspec(align(16)) FDP_XSAVE_FORMAT64_T_
+    typedef struct ALIGNED_(16) FDP_XSAVE_FORMAT64_T_
     {
         uint16_t    ControlWord;
         uint16_t    StatusWord;
@@ -71,7 +79,7 @@ extern "C" {
 #define    FDP_MAX_BREAKPOINT 255
 
 
-    typedef _declspec(align(1)) struct FDP_SHM_ FDP_SHM;
+    typedef ALIGNED_(1) struct FDP_SHM_ FDP_SHM;
 
     typedef struct _FDP_SERVER_INTERFACE_T{
         bool bIsRunning;

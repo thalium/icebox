@@ -24,6 +24,13 @@
 #ifndef FDP_STRUCTS_H__
 #define FDP_STRUCTS_H__
 
+#ifdef  __linux
+//Linux
+#define ALIGNED_(x)     __attribute__ ((aligned(x)))
+#elif   _WIN32
+#define ALIGNED_(x)     _declspec(align(X))
+#endif
+
 //#include <stdint.h>
 //#include <stdbool.h>
 
@@ -121,7 +128,7 @@ typedef struct _FDP_SetBreakpoint_req
 #define FDP_1M    1024*1024
 #define FDP_MAX_DATA_SIZE   10*FDP_1M
 
-typedef _declspec(align(1)) struct FDP_SHM_CANAL_
+typedef ALIGNED_(1) struct FDP_SHM_CANAL_
 {
     volatile bool lock; //Per channel lock
     volatile bool bDataPresent; //is data present
@@ -130,7 +137,7 @@ typedef _declspec(align(1)) struct FDP_SHM_CANAL_
     volatile uint8_t data[FDP_MAX_DATA_SIZE];
 } FDP_SHM_CANAL;
 
-typedef _declspec(align(1)) struct FDP_SHM_SHARED_
+typedef ALIGNED_(1) struct FDP_SHM_SHARED_
 {
     volatile bool lock; //General lock for the whole FDP_SHM_SHARED
     volatile bool stateChangedLock;
@@ -139,7 +146,7 @@ typedef _declspec(align(1)) struct FDP_SHM_SHARED_
     FDP_SHM_CANAL ServerToClient;
 } FDP_SHM_SHARED;
 
-typedef _declspec(align(1)) struct FDP_SHM_
+typedef ALIGNED_(1) struct FDP_SHM_
 {
     FDP_SHM_SHARED *pSharedFDPSHM;              //Shared part of the FDP SHM
     uint8_t InputBuffer[FDP_MAX_DATA_SIZE];     //Used as temporary input buffer

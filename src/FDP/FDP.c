@@ -21,42 +21,69 @@
     OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
     SOFTWARE.
 */
-#include <Windows.h>
-#include <intrin.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <string.h>
 #ifndef __cplusplus
-#include <stdbool.h>
+    #include <stdbool.h>
 #endif
 
-#include "FDP.h"
-#include "FDP_structs.h"
+#include "include/FDP.h"
+#include "include/FDP_structs.h"
+
+#ifdef  __linux
+//Linux
+#include <time.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <pthread.h>
+#include <sys/shm.h>
+#include <sys/stat.h>
+#include <sys/mman.h>
+
+#define SLEEP(X) (usleep(X*1000))
+
+#elif   _WIN32
+#include <Windows.h>
+#include <intrin.h>
+
+#define SLEEP(X) (Sleep(X))
+#endif
 
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 
 #define FDP_POWER_SAVE 1
 
-__inline void ttas_spinlock_lock(volatile bool* lock)
+__inline static void ttas_spinlock_lock(volatile bool* lock)
 {
     uint16_t test_counter = 0;
+
     while (true)
     {
+#ifdef  __linux
+        if (__sync_lock_test_and_set(lock, 1) == 0)
+        {
+            test_counter = 0;
+            return;
+        }
+#elif   _WIN32
         if (*lock == 0)
         {
             test_counter = 0;
             if (_InterlockedCompareExchange8((volatile char*)lock, 1, 0) == 0)
             {
-                //MemoryBarrier();
                 return;
             }
         }
+#endif
         else
         {
             if ((test_counter & 0xFFFF) == 0xFFFF)
             {
 #if FDP_POWER_SAVE == 1
-                Sleep(10);
+                SLEEP(10);
 #endif
             }
             else
@@ -67,10 +94,14 @@ __inline void ttas_spinlock_lock(volatile bool* lock)
     }
 }
 
-__inline void ttas_spinlock_unlock(volatile bool* lock)
+__inline static void ttas_spinlock_unlock(volatile bool* lock)
 {
+#ifdef  __linux
+    __sync_lock_release(lock);
+#elif   _WIN32
     *lock = 0;
-    //MemoryBarrier();
+#endif
+
     return;
 }
 
@@ -140,7 +171,7 @@ static uint32_t ReadFDPDataWithStatus(FDP_SHM_CANAL* pFDPCanal, uint8_t* buffer,
         if ((readTry & 0xFFFFFF) == 0xFFFFFF)
         {
 #if FDP_POWER_SAVE == 1
-            Sleep(10);
+            SLEEP(10);
 #endif
         }
         else
@@ -161,6 +192,29 @@ __inline static uint32_t ReadFDPData(FDP_SHM_CANAL* pFDPCanal, uint8_t* buffer)
 FDP_EXPORTED
 FDP_SHM* FDP_CreateSHM(char* shmName)
 {
+    void* pBuf;
+
+#ifdef  __linux
+    uint32_t fdSHM;
+
+    /* create the shared memory segment */
+    fdSHM = shm_open(shmName, O_CREAT | O_RDWR, 0666);
+    if (fdSHM == NULL)
+    {
+        return NULL;
+    }
+
+    /* configure the size of the shared memory segment */
+    ftruncate(fdSHM,FDP_SHM_SHARED_SIZE);
+
+    /* now map the shared memory segment in the address space of the process */
+    pBuf = mmap(0,FDP_SHM_SHARED_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fdSHM, 0);
+    if (pBuf == NULL)
+    {
+        shm_unlink(shmName);
+        return NULL;
+    }
+#elif   _WIN32
     HANDLE hMapFile;
     void* pBuf;
     hMapFile = CreateFileMappingA(INVALID_HANDLE_VALUE,
@@ -183,6 +237,8 @@ FDP_SHM* FDP_CreateSHM(char* shmName)
         CloseHandle(hMapFile);
         return NULL;
     }
+#endif
+
     //Clear SHM
     memset(pBuf, 0, FDP_SHM_SHARED_SIZE);
     FDP_SHM* pFDPSHM = (FDP_SHM*)malloc(sizeof(FDP_SHM));
@@ -194,8 +250,26 @@ FDP_SHM* FDP_CreateSHM(char* shmName)
 
 void* OpenShm(const char* pShmName, size_t szShmSize)
 {
-    HANDLE hMapFile;
     void* pBuf;
+
+#ifdef  __linux
+    uint32_t fdSHM;
+
+    /* open the shared memory segment */
+    fdSHM = shm_open(pShmName, O_RDWR, 0666);
+    if (fdSHM == NULL)
+    {
+        return NULL;
+    }
+
+    /* now map the shared memory segment in the address space of the process */
+    pBuf = mmap(0, szShmSize, PROT_READ | PROT_WRITE, MAP_SHARED, fdSHM, 0);
+    if (pBuf == MAP_FAILED) {
+        shm_unlink(pShmName);
+        return NULL;
+    }
+#elif   _WIN32
+    HANDLE hMapFile;
     hMapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS,
                                 FALSE,
                                 pShmName);
@@ -215,6 +289,8 @@ void* OpenShm(const char* pShmName, size_t szShmSize)
         CloseHandle(hMapFile);
         return NULL;
     }
+#endif
+
     return pBuf;
 }
 
@@ -227,8 +303,8 @@ FDP_EXPORTED FDP_SHM* FDP_OpenSHM(const char* pShmName)
     }
     //TODO : !
     char aCpuShmName[512];
-    strcpy_s(aCpuShmName, sizeof(aCpuShmName), "CPU_");
-    strcat_s(aCpuShmName, sizeof(aCpuShmName), pShmName);
+    strncpy(aCpuShmName, "CPU_", sizeof(aCpuShmName) - 1);
+    strncat(aCpuShmName, pShmName, sizeof(aCpuShmName) - strlen(aCpuShmName) - 1);
     
     void* pCpuShm = OpenShm(aCpuShmName, sizeof(FDP_CPU_CTX));
     if (pCpuShm == NULL)
@@ -243,7 +319,7 @@ FDP_EXPORTED FDP_SHM* FDP_OpenSHM(const char* pShmName)
         return NULL;
     }
     pFDPSHM->pSharedFDPSHM = (FDP_SHM_SHARED*)pSharedFDPSHM;
-    pFDPSHM->pCpuShm = pCpuShm;
+    pFDPSHM->pCpuShm = (FDP_CPU_CTX*)pCpuShm;
     return pFDPSHM;
 }
 
@@ -760,7 +836,7 @@ bool FDP_WaitForStateChanged(FDP_SHM *pFDP, FDP_State *DebuggeeState)
     }
     while (true)
     {
-        Sleep(0);
+        SLEEP(0);
         if (FDP_GetStateChanged(pFDP) == true)
         {
             return FDP_GetState(pFDP, DebuggeeState);
@@ -1364,7 +1440,11 @@ bool FDP_DummyGetCpuCount(void* pUserHandle, uint32_t* pCpuCount)
 }
 
 
+#ifdef  __linux
+void * FDP_UnitTestClient(void *lpParameter)
+#elif   _WIN32
 DWORD WINAPI FDP_UnitTestClient(_In_ LPVOID lpParameter)
+#endif
 {
     FDP_SHM* pFDPClient = (FDP_SHM*)lpParameter;
     //Waiting for FDPServer star
@@ -1401,7 +1481,18 @@ bool FDP_ClientServerTest()
         printf("Failed to FDP_SerFDPServer\n");
         return false;
     }
+
     //Create a fake Client...
+#ifdef  __linux
+    int rc;
+    void *ret;
+    pthread_t threadServer;
+    if(pthread_create(&threadServer, NULL, FDP_UnitTestClient, pFDPServer)){
+         printf("Failed create thread\n");
+         return false;
+    }
+
+#elif   _WIN32
     HANDLE hThreadServer = INVALID_HANDLE_VALUE;
     hThreadServer = CreateThread(NULL, 0, FDP_UnitTestClient, pFDPServer, 0, 0);
     if (hThreadServer == INVALID_HANDLE_VALUE)
@@ -1409,6 +1500,8 @@ bool FDP_ClientServerTest()
         printf("Failed to CreateThread\n");
         return false;
     }
+#endif
+
     if (FDP_ServerLoop(pFDPServer) == false)
     {
         printf("Failed to FDP_ServerLoop\n");
@@ -1417,6 +1510,10 @@ bool FDP_ClientServerTest()
     //Clean:
     //Closing server
     FDPServerInterface.bIsRunning = false;
+#ifdef  __linux
+    pthread_join(threadServer, &ret);
+#elif   _WIN32
     WaitForSingleObject(hThreadServer, INFINITE);
+#endif
     return true;
 }
