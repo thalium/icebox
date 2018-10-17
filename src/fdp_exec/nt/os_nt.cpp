@@ -133,7 +133,7 @@ OsNt::OsNt(core::IHandler& core)
 
 namespace
 {
-    std::optional<size_t> validate_pe_header(const uint8_t (&buf)[PAGE_SIZE])
+    opt<size_t> validate_pe_header(const uint8_t (&buf)[PAGE_SIZE])
     {
         static const auto e_lfanew_offset = 0x3C;
         int idx = e_lfanew_offset;
@@ -178,7 +178,7 @@ namespace
         return read_le32(&buf[idx]);
     }
 
-    std::optional<span_t> find_kernel(core::IHandler& core, uint64_t lstar)
+    opt<span_t> find_kernel(core::IHandler& core, uint64_t lstar)
     {
         uint8_t buf[PAGE_SIZE];
         for(auto ptr = utils::align<PAGE_SIZE>(lstar); ptr < lstar; ptr -= PAGE_SIZE)
@@ -222,7 +222,7 @@ namespace
         }
     }
 
-    std::optional<PdbCtx> read_pdb(core::IHandler& core, span_t kernel)
+    opt<PdbCtx> read_pdb(core::IHandler& core, span_t kernel)
     {
         std::vector<uint8_t> buffer(kernel.size);
         const auto ok = core.read(&buffer[0], kernel.addr, kernel.size);
@@ -351,7 +351,7 @@ bool OsNt::list_procs(const on_proc_fn& on_process)
 
 namespace
 {
-    std::optional<uint64_t> read_gs_base(core::IHandler& core)
+    opt<uint64_t> read_gs_base(core::IHandler& core)
     {
         auto gs = core.read_msr(MSR_GS_BASE);
         if(!gs)

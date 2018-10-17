@@ -6,7 +6,7 @@
 
 // uint helpers
 template<typename T, T(*read)(const void*)>
-std::optional<T> read_mem(core::IHandler& core, uint64_t ptr)
+opt<T> read_mem(core::IHandler& core, uint64_t ptr)
 {
     T value;
     const auto ok = core.read(&value, ptr, sizeof value);
