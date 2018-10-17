@@ -619,7 +619,7 @@ bool FDPVBOX_virtualToPhysical(void *pUserHandle, uint32_t CpuId, uint64_t Virtu
     return true;
 }
 
-bool FDPVBOX_unsetBreakpoint(void *pUserHandle, uint8_t BreakpointId)
+bool FDPVBOX_unsetBreakpoint(void *pUserHandle, int BreakpointId)
 {
     Log1(("[DBGC] UNSET_BP [%d] ! \n", BreakpointId));
     FDPVBOX_USERHANDLE_T* myVBOXHandle = (FDPVBOX_USERHANDLE_T*)pUserHandle;
@@ -681,7 +681,7 @@ int FDPVBOX_setBreakpoint(
     void *pUserHandle,
     uint32_t CpuId,
     FDP_BreakpointType BreakpointType,
-    uint8_t BreakpointId,
+    int BreakpointId,
     FDP_Access BreakpointAccessType,
     FDP_AddressType BreakpointAddressType,
     uint64_t BreakpointAddress,

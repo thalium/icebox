@@ -480,12 +480,12 @@ VMMR3DECL(int)              VMR3NotifyCpuDeviceReady(PVM pVM, VMCPUID idCpu);
 VMMR3_INT_DECL(int)         VMR3WaitHalted(PVM pVM, PVMCPU pVCpu, bool fIgnoreInterrupts);
 /*MYCODE*/
 VMMDECL(uint8_t)            VMR3GetFDPState(PUVM pUVM);
-VMMR3_INT_DECL(int)         VMR3AddExecHardBreakpoint(PUVM pUVM, PVMCPU pVCpu, uint64_t GCPtr, uint8_t BreakpointId);
+VMMR3_INT_DECL(int)         VMR3AddExecHardBreakpoint(PUVM pUVM, PVMCPU pVCpu, uint64_t GCPtr, int BreakpointId);
 VMMR3_INT_DECL(int)         VMR3AddSoftBreakpoint(PUVM pUVM, PVMCPU pVCpu, uint8_t BreakpointAddressType, uint64_t BreakpointAddress, uint64_t BreakpointCr3);
-VMMR3_INT_DECL(int)         VMR3AddPageBreakpoint(PUVM pUVM, PVMCPU pVCpu, uint8_t BreakpointId, uint8_t BreakpointAccessType, uint8_t BreakpointAddressType, uint64_t BreakpointAddress, uint64_t BreakpointLength);
+VMMR3_INT_DECL(int)         VMR3AddPageBreakpoint(PUVM pUVM, PVMCPU pVCpu, int BreakpointId, uint8_t BreakpointAccessType, uint8_t BreakpointAddressType, uint64_t BreakpointAddress, uint64_t BreakpointLength);
 VMMR3_INT_DECL(int)         VMR3AddMsrBreakpoint(PUVM pUVM, uint8_t BreakpointAccessType, uint64_t BreakpointAddress);
 VMMR3_INT_DECL(int)         VMR3AddCrBreakpoint(PUVM pUVM, uint8_t BreakpointAccessType, uint64_t BreakpointAddress);
-VMMR3_INT_DECL(void)        VMR3ClearBreakpoint(uint8_t BreakpointId);
+VMMR3_INT_DECL(void)        VMR3ClearBreakpoint(int BreakpointId);
 VMMR3_INT_DECL(bool)        VMR3IsBreakpoint(uint64_t CurrentRIP);
 VMMDECL(int)                VMR3PhysSimpleReadGCPhysU(PUVM pUVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb);
 VMMDECL(int)                VMR3PhysSimpleWriteGCPhysU(PUVM pUVM, const void *pvBuf, RTGCPHYS GCPhys, size_t cbWrite);

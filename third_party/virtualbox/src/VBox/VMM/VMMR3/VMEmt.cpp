@@ -1194,7 +1194,7 @@ VMMR3_INT_DECL(int)    VMR3RestoreAllOriginalPage(PUVM pUVM, bool bIsRead, bool 
     PVM pVM = pUVM->pVM;
     PVMCPU pVCpu = &pVM->aCpus[0];
     BreakpointEntrie_t *pTempBreakpointEntrie = NULL;
-    for(uint8_t BreakpointId=4*pVM->cCpus; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
+    for(int BreakpointId=4*pVM->cCpus; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
         pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
         //Check if Breakpoint is Activated and if it is a SoftWareBreakpoint
         if(pTempBreakpointEntrie->breakpointActivated == true &&
@@ -1552,7 +1552,7 @@ bool IsOneCPURunning(PUVM pUVM)
 
 
 
-VMMR3_INT_DECL(int)    VMR3AddPageBreakpoint(PUVM pUVM, PVMCPU pVCpu, uint8_t BreakpointId, uint8_t BreakpointAccessType, uint8_t BreakpointAddressType, uint64_t BreakpointAddress, uint64_t BreakpointLength)
+VMMR3_INT_DECL(int)    VMR3AddPageBreakpoint(PUVM pUVM, PVMCPU pVCpu, int BreakpointId, uint8_t BreakpointAccessType, uint8_t BreakpointAddressType, uint64_t BreakpointAddress, uint64_t BreakpointLength)
 { //TODO: Move it to VMMAll !
     if(IsOneCPURunning(pUVM) == true){
         //NO WAY !!!!!!
@@ -2041,7 +2041,7 @@ VMMR3_INT_DECL(int) VMR3WaitHalted(PVM pVM, PVMCPU pVCpu, bool fIgnoreInterrupts
 
         //Remove all breakpoint
         int BreakpointId = 0;
-        for(int BreakpointId = (0+(pVCpu->idCpu*4)); BreakpointId<(int)(4+(pVCpu->idCpu*4)); BreakpointId++){
+        for(BreakpointId = (0+(pVCpu->idCpu*4)); BreakpointId<(int)(4+(pVCpu->idCpu*4)); BreakpointId++){
             VMR3RemoveBreakpoint(pVM->pUVM, BreakpointId);
         }
 
@@ -2060,7 +2060,7 @@ VMMR3_INT_DECL(int) VMR3WaitHalted(PVM pVM, PVMCPU pVCpu, bool fIgnoreInterrupts
                 uint8_t TEMP_DRX_TYPE = (pVCpu->mystate.s.aGuestDr[7] & (0x3 << (16+i*4))) >> (16+i*4);
                 int DRX_TYPE = GetDrType(TEMP_DRX_TYPE);
 
-                int BreakpointId = -1;
+                BreakpointId = -1;
                 if(DRX_TYPE > 0){
                     BreakpointId = VMR3AddPageBreakpoint(pVM->pUVM, pVCpu, i+(pVCpu->idCpu*4), DRX_TYPE, FDP_VIRTUAL_ADDRESS, pVCpu->mystate.s.aGuestDr[i], DRX_LENGTH);
                 }
