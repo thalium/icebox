@@ -2,7 +2,7 @@
 
 #include <unordered_map>
 
-namespace impl // cannot use anonymous namespace due to visual studio bug
+namespace
 {
     using Modules = std::unordered_map<std::string, std::unique_ptr<sym::IModule>>;
 
@@ -23,22 +23,22 @@ namespace impl // cannot use anonymous namespace due to visual studio bug
 
 std::unique_ptr<sym::IHandler> sym::make_sym()
 {
-    return std::make_unique<impl::Handler>();
+    return std::make_unique<Handler>();
 }
 
-bool impl::Handler::register_module(const std::string& name, std::unique_ptr<sym::IModule>& module)
+bool Handler::register_module(const std::string& name, std::unique_ptr<sym::IModule>& module)
 {
     const auto ret = mods_.emplace(name, std::move(module));
     return ret.second;
 }
 
-bool impl::Handler::unregister_module(const std::string& name)
+bool Handler::unregister_module(const std::string& name)
 {
     const auto ret = mods_.erase(name);
     return !!ret;
 }
 
-bool impl::Handler::list_modules(const on_module_fn& on_module)
+bool Handler::list_modules(const on_module_fn& on_module)
 {
     for(const auto& m : mods_)
         if(on_module(*m.second) == WALK_STOP)
@@ -46,7 +46,7 @@ bool impl::Handler::list_modules(const on_module_fn& on_module)
     return true;
 }
 
-sym::IModule* impl::Handler::get_module(const std::string& name)
+sym::IModule* Handler::get_module(const std::string& name)
 {
     const auto it = mods_.find(name);
     if(it == mods_.end())
@@ -55,7 +55,7 @@ sym::IModule* impl::Handler::get_module(const std::string& name)
     return it->second.get();
 }
 
-opt<uint64_t> impl::Handler::get_symbol(const std::string& module, const std::string& symbol)
+opt<uint64_t> Handler::get_symbol(const std::string& module, const std::string& symbol)
 {
     const auto mod = get_module(module);
     if(!mod)
@@ -64,7 +64,7 @@ opt<uint64_t> impl::Handler::get_symbol(const std::string& module, const std::st
     return mod->get_symbol(symbol);
 }
 
-opt<uint64_t> impl::Handler::get_struc_offset(const std::string& module, const std::string& struc, const std::string& member)
+opt<uint64_t> Handler::get_struc_offset(const std::string& module, const std::string& struc, const std::string& member)
 {
     const auto mod = get_module(module);
     if(!mod)
