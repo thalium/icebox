@@ -1,5 +1,6 @@
 # generated with cmake
 set(_fdp_exec_files
+    "../src/fdp_exec/bench.hpp"
     "../src/fdp_exec/core.hpp"
     "../src/fdp_exec/core/core.cpp"
     "../src/fdp_exec/core/memory.cpp"
