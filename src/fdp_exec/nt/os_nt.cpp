@@ -205,30 +205,6 @@ namespace
         return std::nullopt;
     }
 
-    std::vector<uint8_t> read_buffer(core::IHandler& core, span_t span)
-    {
-        uint8_t page[PAGE_SIZE];
-
-        std::vector<uint8_t> buffer;
-        buffer.reserve(span.size);
-        for(size_t i = 0; i < span.size; i += sizeof page)
-        {
-            const auto chunk = std::min<size_t>(PAGE_SIZE, std::max<int64_t>(0, span.size - i));
-            const auto ok = core.read(page, span.addr + i, chunk);
-            if(!ok)
-            {
-                buffer.clear();
-                return buffer;
-            }
-
-            const auto old = buffer.size();
-            buffer.resize(old + sizeof page);
-            memcpy(&buffer[old], page, sizeof page);
-        }
-
-        return buffer;
-    }
-
     struct PdbCtx
     {
         std::string guid;
@@ -248,15 +224,18 @@ namespace
 
     std::optional<PdbCtx> read_pdb(core::IHandler& core, span_t kernel)
     {
-        const auto buf = read_buffer(core, kernel);
+        std::vector<uint8_t> buffer(kernel.size);
+        const auto ok = core.read(&buffer[0], kernel.addr, kernel.size);
+        if(!ok)
+            FAIL(std::nullopt, "unable to read kernel module");
 
         std::vector<uint8_t> magic = { 'R', 'S', 'D', 'S' };
-        const auto it = std::search(buf.begin(), buf.end(), std::boyer_moore_horspool_searcher(magic.begin(), magic.end()));
-        if(it == buf.end())
+        const auto it = std::search(buffer.begin(), buffer.end(), std::boyer_moore_horspool_searcher(magic.begin(), magic.end()));
+        if(it == buffer.end())
             FAIL(std::nullopt, "unable to find RSDS pattern into kernel module");
 
         const auto rsds = &*it;
-        const auto size = std::distance(it, buf.end());
+        const auto size = std::distance(it, buffer.end());
         if(size < 4 /*magic*/ + 16 /*guid*/ + 4 /*age*/ + 2 /*name*/)
             FAIL(std::nullopt, "kernel module is too small for pdb header");
 
@@ -275,7 +254,8 @@ namespace
 
         uint32_t age = read_le32(&rsds[4 + 16]);
         const auto name = &rsds[4 + 16 + 4];
-        return PdbCtx{std::string{strguid, sizeof strguid} + std::to_string(age), {name, end}};
+        const auto strname = std::string{reinterpret_cast<const char*>(name), reinterpret_cast<const char*>(end)};
+        return PdbCtx{std::string{strguid, sizeof strguid} + std::to_string(age), strname};
     }
 }
 
