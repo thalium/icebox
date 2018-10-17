@@ -14,6 +14,8 @@ namespace
 {
     static const int BASE_ADDRESS = 0x80000000;
 
+    using Symbols = std::unordered_map<std::string, pdb::PDBGlobalVariable>;
+
     struct Pdb
         : public sym::IModule
     {
@@ -23,14 +25,15 @@ namespace
         bool setup();
 
         // IModule methods
-        span_t                  get_span        () override;
-        std::optional<uint64_t> get_symbol      (const std::string& symbol) override;
-        std::optional<uint64_t> get_struc_offset(const std::string& struc, const std::string& member) override;
+        span_t          get_span        () override;
+        opt<uint64_t>   get_symbol      (const std::string& symbol) override;
+        opt<uint64_t>   get_struc_offset(const std::string& struc, const std::string& member) override;
 
         // members
         const fs::path  filename_;
         const span_t    span_;
         pdb::PDBFile    pdb_;
+        Symbols         symbols_;
     };
 }
 
@@ -73,6 +76,8 @@ bool Pdb::setup()
         FAIL(false, "unable to open pdb %s: %s", filename_.generic_string().data(), to_string(err));
 
     pdb_.initialize(BASE_ADDRESS);
+    for(const auto& it : *pdb_.get_global_variables())
+        symbols_.emplace(it.second.name, it.second);
     return true;
 }
 
@@ -81,20 +86,18 @@ span_t Pdb::get_span()
     return span_;
 }
 
-std::optional<uint64_t> Pdb::get_symbol(const std::string& symbol)
+opt<uint64_t> Pdb::get_symbol(const std::string& symbol)
 {
-    const auto globals = pdb_.get_global_variables();
-    for(const auto& it : *globals)
-        if(symbol == it.second.name)
-            return span_.addr + it.second.address - BASE_ADDRESS;
+    const auto it = symbols_.find(symbol);
+    if(it == symbols_.end())
+        return std::nullopt;
 
-    return std::nullopt;
+    return span_.addr + it->second.address - BASE_ADDRESS;
 }
 
-std::optional<uint64_t> Pdb::get_struc_offset(const std::string& struc, const std::string& member)
+opt<uint64_t> Pdb::get_struc_offset(const std::string& struc, const std::string& member)
 {
-    const auto& types = pdb_.get_types_container();
-    const auto type = types->get_type_by_name(const_cast<char*>(struc.data()));
+    const auto type = pdb_.get_types_container()->get_type_by_name(const_cast<char*>(struc.data()));
     if(!type)
         return std::nullopt;
 
