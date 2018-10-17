@@ -59,6 +59,7 @@ namespace
 
         // sym::IHandler
         bool            register_module     (const std::string& name, std::unique_ptr<sym::IModule>& module) override;
+        bool            register_module     (const std::string& name, span_t module, const void* data) override;
         bool            unregister_module   (const std::string& name) override;
         bool            list_modules        (const on_module_fn& on_module) override;
         sym::IModule*   get_module          (const std::string& name) override;
@@ -199,6 +200,11 @@ core::Breakpoint Core::set_breakpoint(uint64_t ptr, proc_t proc, core::filter_e 
 bool Core::register_module(const std::string& name, std::unique_ptr<sym::IModule>& module)
 {
     return sym_->register_module(name, module);
+}
+
+bool Core::register_module(const std::string& name, span_t module, const void* data)
+{
+    return sym_->register_module(name, module, data);
 }
 
 bool Core::unregister_module(const std::string& name)

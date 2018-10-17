@@ -11,6 +11,7 @@ namespace
     {
         // IHandler methods
         bool            register_module     (const std::string& name, std::unique_ptr<sym::IModule>& module) override;
+        bool            register_module     (const std::string& name, span_t module, const void* data) override;
         bool            unregister_module   (const std::string& name) override;
         bool            list_modules        (const on_module_fn& on_module) override;
         sym::IModule*   get_module          (const std::string& name) override;
@@ -30,6 +31,32 @@ bool Handler::register_module(const std::string& name, std::unique_ptr<sym::IMod
 {
     const auto ret = mods_.emplace(name, std::move(module));
     return ret.second;
+}
+
+namespace
+{
+    static const char pdb[] = "pdb";
+    static const struct
+    {
+        std::unique_ptr<sym::IModule>(*make)(span_t, const void*);
+        const std::string name;
+    } g_helpers[] =
+    {
+        {&sym::make_pdb, pdb},
+    };
+}
+
+bool Handler::register_module(const std::string& name, span_t module, const void* data)
+{
+    for(const auto& h : g_helpers)
+    {
+        auto mod = h.make(module, data);
+        if(!mod)
+            continue;
+
+        return register_module(name, mod);
+    }
+    return false;
 }
 
 bool Handler::unregister_module(const std::string& name)

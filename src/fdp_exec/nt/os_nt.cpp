@@ -3,17 +3,12 @@
 #define FDP_MODULE "os_nt"
 #include "log.hpp"
 #include "core.hpp"
-#include "endian.hpp"
 #include "utils.hpp"
-#include "sym.hpp"
 #include "utf8.hpp"
 #include "core_helpers.hpp"
 #include "pe.hpp"
 
-#include <algorithm>
 #include <array>
-#include <string>
-
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 
@@ -152,59 +147,6 @@ namespace
 
         return std::nullopt;
     }
-
-    struct PdbCtx
-    {
-        std::string guid;
-        std::string name;
-    };
-
-    void binhex(char* dst, const void* vsrc, size_t size)
-    {
-        static const char hexchars_upper[] = "0123456789ABCDEF";
-        const uint8_t* src = static_cast<const uint8_t*>(vsrc);
-        for (size_t i = 0; i < size; ++i)
-        {
-            dst[i * 2 + 0] = hexchars_upper[src[i] >> 4];
-            dst[i * 2 + 1] = hexchars_upper[src[i] & 0x0F];
-        }
-    }
-
-    opt<PdbCtx> read_pdb(core::IHandler& core, span_t kernel)
-    {
-        std::vector<uint8_t> buffer(kernel.size);
-        const auto ok = core.read(&buffer[0], kernel.addr, kernel.size);
-        if(!ok)
-            FAIL(std::nullopt, "unable to read kernel module");
-
-        std::vector<uint8_t> magic = { 'R', 'S', 'D', 'S' };
-        const auto it = std::search(buffer.begin(), buffer.end(), std::boyer_moore_horspool_searcher(magic.begin(), magic.end()));
-        if(it == buffer.end())
-            FAIL(std::nullopt, "unable to find RSDS pattern into kernel module");
-
-        const auto rsds = &*it;
-        const auto size = std::distance(it, buffer.end());
-        if(size < 4 /*magic*/ + 16 /*guid*/ + 4 /*age*/ + 2 /*name*/)
-            FAIL(std::nullopt, "kernel module is too small for pdb header");
-
-        const auto end = reinterpret_cast<const uint8_t*>(memchr(&rsds[4 + 16 + 4], 0x00, size));
-        if(!end)
-            FAIL(std::nullopt, "missing null-terminating byte on PDB header module name");
-
-        uint8_t guid[16];
-        write_be32(&guid[0], read_le32(&rsds[4 + 0]));  // Data1
-        write_be16(&guid[4], read_le16(&rsds[4 + 4]));  // Data2
-        write_be16(&guid[6], read_le16(&rsds[4 + 6 ])); // Data3
-        memcpy(&guid[8], &rsds[4 + 8], 8);              // Data4
-
-        char strguid[sizeof guid * 2];
-        binhex(strguid, &guid, sizeof guid);
-
-        uint32_t age = read_le32(&rsds[4 + 16]);
-        const auto name = &rsds[4 + 16 + 4];
-        const auto strname = std::string{reinterpret_cast<const char*>(name), reinterpret_cast<const char*>(end)};
-        return PdbCtx{std::string{strguid, sizeof strguid} + std::to_string(age), strname};
-    }
 }
 
 bool OsNt::setup()
@@ -218,16 +160,14 @@ bool OsNt::setup()
         FAIL(false, "unable to find kernel");
 
     LOG(INFO, "kernel: 0x%016llx - 0x%016llx (%lld 0x%llx)", kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
-    const auto pdb = read_pdb(core_, *kernel);
-    if(!pdb)
-        FAIL(false, "unable to read pdb in kernel module");
+    std::vector<uint8_t> buffer(kernel->size);
+    auto ok = core_.read(&buffer[0], kernel->addr, kernel->size);
+    if(!ok)
+        FAIL(false, "unable to read kernel module");
 
-    LOG(INFO, "kernel: pdb: %s %s", pdb->guid.data(), pdb->name.data());
-    auto sym = sym::make_pdb(*kernel, pdb->name.data(), pdb->guid.data());
-    if(!sym)
-        FAIL(false, "unable to read pdb from %s %s", pdb->name.data(), pdb->guid.data());
-
-    core_.register_module("nt", sym);
+    ok = core_.register_module("nt", *kernel, &buffer[0]);
+    if(!ok)
+        FAIL(false, "unable to load symbols from kernel module");
 
     bool fail = false;
     for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
