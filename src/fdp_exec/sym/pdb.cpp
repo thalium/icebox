@@ -4,22 +4,20 @@
 #include "log.hpp"
 #include "utils.hpp"
 
-#define NOMINMAX
-#include <windows.h>
-#include <dbghelp.h>
-
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 
+#include "pdbparser.hpp"
+namespace pdb = retdec::pdbparser;
+
 namespace
 {
-    static const uint64_t BASE_ADDRESS = 0x80000000;
+    static const int BASE_ADDRESS = 0x80000000;
 
     struct Pdb
         : public sym::IModule
     {
          Pdb(const fs::path& filename, span_t span);
-        ~Pdb();
 
         // methods
         bool setup();
@@ -32,20 +30,14 @@ namespace
         // members
         const fs::path  filename_;
         const span_t    span_;
-        HANDLE          hproc_;
+        pdb::PDBFile    pdb_;
     };
 }
 
 Pdb::Pdb(const fs::path& filename, span_t span)
     : filename_(filename)
     , span_(span)
-    , hproc_(INVALID_HANDLE_VALUE)
 {
-}
-
-Pdb::~Pdb()
-{
-    SymCleanup(hproc_);
 }
 
 std::unique_ptr<sym::IModule> sym::make_pdb(span_t span, const std::string& module, const std::string& guid)
@@ -58,23 +50,29 @@ std::unique_ptr<sym::IModule> sym::make_pdb(span_t span, const std::string& modu
     return ptr;
 }
 
+namespace
+{
+    char* to_string(pdb::PDBFileState x)
+    {
+        switch(x)
+        {
+            case pdb::PDB_STATE_OK:                  return "ok";
+            case pdb::PDB_STATE_ALREADY_LOADED:      return "already_loaded";
+            case pdb::PDB_STATE_ERR_FILE_OPEN:       return "err_file_open";
+            case pdb::PDB_STATE_INVALID_FILE:        return "invalid_file";
+            case pdb::PDB_STATE_UNSUPPORTED_VERSION: return "unsupported_version";
+        }
+        return "<invalid>";
+    }
+}
+
 bool Pdb::setup()
 {
-    const auto hproc = GetCurrentProcess();
-    const auto ok = SymInitialize(hproc, nullptr, false);
-    if(!ok)
-        FAIL(false, "unable to initialize library");
+    const auto err = pdb_.load_pdb_file(filename_.generic_string().data());
+    if(err != pdb::PDB_STATE_OK)
+        FAIL(false, "unable to open pdb %s: %s", filename_.generic_string().data(), to_string(err));
 
-    hproc_ = hproc;
-    std::error_code ec;
-    const auto size = fs::file_size(filename_, ec); // FIXME need ?
-    if(ec)
-        FAIL(false, "unable to read size from %s: %s", filename_.generic_string().data(), ec.message().data());
-
-    const auto addr = SymLoadModuleEx(hproc_, nullptr, filename_.generic_string().data(), nullptr, BASE_ADDRESS, static_cast<DWORD>(size), nullptr, 0);
-    if(!addr)
-        FAIL(false, "unable to load module %s", filename_.generic_string().data());
-
+    pdb_.initialize(BASE_ADDRESS);
     return true;
 }
 
@@ -83,75 +81,31 @@ span_t Pdb::get_span()
     return span_;
 }
 
-namespace
-{
-    SYMBOL_INFO_PACKAGE make_symbol_info_package()
-    {
-        SYMBOL_INFO_PACKAGE info;
-        memset(&info, 0, sizeof info);
-        info.si.SizeOfStruct = sizeof info.si;
-        info.si.MaxNameLen = sizeof info.name - 1;
-        return info;
-    }
-}
-
 std::optional<uint64_t> Pdb::get_symbol(const std::string& symbol)
 {
-    auto info = make_symbol_info_package();
-    const auto ok = SymFromName(hproc_, symbol.data(), &info.si);
-    if(!ok)
-        return std::nullopt;
+    const auto globals = pdb_.get_global_variables();
+    for(const auto& it : *globals)
+        if(symbol == it.second.name)
+            return span_.addr + it.second.address - BASE_ADDRESS;
 
-    return span_.addr + info.si.Address - BASE_ADDRESS;
-}
-
-namespace
-{
-    struct TI_FINDCHILDREN_PARAMS_PACKAGE
-    {
-        TI_FINDCHILDREN_PARAMS fp;
-        ULONG                  child[256];
-    };
+    return std::nullopt;
 }
 
 std::optional<uint64_t> Pdb::get_struc_offset(const std::string& struc, const std::string& member)
 {
-    auto info = make_symbol_info_package();
-    auto ok = SymGetTypeFromName(hproc_, BASE_ADDRESS, struc.data(), &info.si);
-    if(!ok)
+    const auto& types = pdb_.get_types_container();
+    const auto type = types->get_type_by_name(const_cast<char*>(struc.data()));
+    if(!type)
         return std::nullopt;
 
-    DWORD count = 0;
-    ok = SymGetTypeInfo(hproc_, BASE_ADDRESS, info.si.TypeIndex, TI_GET_CHILDRENCOUNT, &count);
-    if(!ok)
+    if(type->type_class != pdb::PDBTYPE_STRUCT)
         return std::nullopt;
 
-    TI_FINDCHILDREN_PARAMS_PACKAGE params;
-    memset(&params, 0, sizeof params);
-    params.fp.Count = count;
-    ok = SymGetTypeInfo(hproc_, BASE_ADDRESS, info.si.TypeIndex, TI_FINDCHILDREN, &params.fp);
-    if(!ok)
-        return std::nullopt;
+    auto stype = reinterpret_cast<pdb::PDBTypeStruct*>(type);
 
-    const auto wmember = std::wstring(member.begin(), member.end()); // ASCII conversion
-    for(auto i = params.fp.Start; i < params.fp.Count; ++i)
-    {
-        wchar_t* name = nullptr;
-        ok = SymGetTypeInfo(hproc_, BASE_ADDRESS, params.fp.ChildId[i], TI_GET_SYMNAME, &name);
-        if(!ok)
-            continue;
+    for(const auto& m : stype->struct_members)
+        if(member == m->name)
+            return m->offset;
 
-        const auto is_same = wmember == name;
-        LocalFree(name);
-        if(!is_same)
-            continue;
-
-        DWORD offset = 0;
-        ok = SymGetTypeInfo(hproc_, BASE_ADDRESS, params.fp.ChildId[i], TI_GET_OFFSET, &offset);
-        if(!ok)
-            return std::nullopt;
-
-        return offset;
-    }
     return std::nullopt;
 }

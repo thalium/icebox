@@ -57,6 +57,13 @@ target_include_directories(loguru PUBLIC
     "${loguru_dir}"
 )
 
+# pdbparser
+set(retdec_dir "${root_dir}/deps/retdec-3.2")
+add_target(pdbparser deps "${retdec_dir}/src/pdbparser" "${retdec_dir}/include/retdec/pdbparser" OPTIONS external)
+target_include_directories(pdbparser PUBLIC
+    "${retdec_dir}/include"
+)
+
 # fdp_exec
 set(fdp_exec_dir "${root_dir}/src/fdp_exec")
 add_target(fdp_exec apps ${fdp_exec_dir} OPTIONS recurse executable)
@@ -70,5 +77,5 @@ target_compile_definitions(fdp_exec PRIVATE
 target_link_libraries(fdp_exec PRIVATE
     fdp_static
     loguru
-    dbghelp
+    pdbparser
 )

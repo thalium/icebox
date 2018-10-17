@@ -16,6 +16,7 @@ set(_fdp_exec_files
     "../src/fdp_exec/os.hpp"
     "../src/fdp_exec/sym.hpp"
     "../src/fdp_exec/sym/pdb.cpp"
+    "../src/fdp_exec/sym/pdbparser.hpp"
     "../src/fdp_exec/sym/sym.cpp"
     "../src/fdp_exec/types.hpp"
     "../src/fdp_exec/utf8.cpp"
