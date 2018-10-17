@@ -161,11 +161,12 @@ namespace
         if(!cr3)
             return;
 
-        const auto phy = s.core_.virtual_to_physical(*rip, *cr3);
-        if(!phy)
+        uint64_t phy;
+        const auto ok = FDP_VirtualToPhysical(&s.shm_, 0, *rip, &phy);
+        if(!ok)
             return;
 
-        const auto range = s.breakpoints_.observers_.equal_range(*phy);
+        const auto range = s.breakpoints_.observers_.equal_range(phy);
         for(auto it = range.first; it != range.second; ++it)
         {
             const auto& bp = *it->second;
