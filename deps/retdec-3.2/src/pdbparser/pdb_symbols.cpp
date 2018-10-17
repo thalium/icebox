@@ -285,6 +285,20 @@ void PDBSymbols::parse_symbols(void)
 			        };
 			global_variables[new_var.address] = new_var;
 		}
+        if (symbol->type == S_PUB32)
+        {
+            PUBSYM32 * sym = reinterpret_cast<PUBSYM32 *>(symbol);
+			PDBGlobalVariable new_var =
+			{reinterpret_cast<char *>(sym->name),  // Name
+			        get_virtual_address(sym->seg, sym->off),  // Address
+			        sym->off,  // Offset
+			        sym->seg,  // Section
+			        -1,  // Module index
+			        -1,  // Type index
+			        nullptr,  // Type definition
+                    };
+			global_variables[new_var.address] = new_var;
+        }
 		position += symbol->size + 2;
 	}
 
