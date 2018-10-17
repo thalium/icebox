@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
 
     LOG(INFO, "get proc");
     const auto pc = core->get_current_proc();
-    LOG(INFO, "current p->rocess: %llx dtb: %llx %s", pc->id, pc->dtb, core->get_proc_name(*pc)->data());
+    LOG(INFO, "current process: %llx dtb: %llx %s", pc->id, pc->dtb, core->get_proc_name(*pc)->data());
 
     LOG(INFO, "processes:");
     core->list_procs([&](proc_t proc)
