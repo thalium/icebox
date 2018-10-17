@@ -8,6 +8,7 @@
 #include "sym.hpp"
 #include "utf8.hpp"
 #include "core_helpers.hpp"
+#include "pe.hpp"
 
 #include <algorithm>
 #include <array>
@@ -133,51 +134,6 @@ OsNt::OsNt(core::IHandler& core)
 
 namespace
 {
-    opt<size_t> validate_pe_header(const uint8_t (&buf)[PAGE_SIZE])
-    {
-        static const auto e_lfanew_offset = 0x3C;
-        int idx = e_lfanew_offset;
-        if(idx + 4 > sizeof buf)
-            return std::nullopt;
-
-        const auto e_lfanew = read_le32(&buf[idx]);
-        idx = e_lfanew;
-
-        static const uint32_t image_nt_signature = 'PE' << 16;
-        if(idx + sizeof image_nt_signature > sizeof buf)
-            return std::nullopt;
-
-        const auto signature = read_be32(&buf[idx]);
-        if(signature != image_nt_signature)
-            return std::nullopt;
-
-        static const uint16_t image_file_machine_amd64 = 0x8664;
-        idx += sizeof signature;
-        if(idx + sizeof image_file_machine_amd64 > sizeof buf)
-            return std::nullopt;
-
-        const auto machine = read_le16(&buf[idx]);
-        if(machine != image_file_machine_amd64)
-            return std::nullopt;
-
-        static const int image_file_header_size = 20;
-        static const uint16_t image_nt_optional_hdr64_magic = 0x20B;
-        idx += image_file_header_size;
-        if(idx + sizeof image_nt_optional_hdr64_magic > sizeof buf)
-            return std::nullopt;
-
-        const auto magic = read_le16(&buf[idx]);
-        if(magic != image_nt_optional_hdr64_magic)
-            return std::nullopt;
-
-        static const auto size_of_image_offset = 14 * 4;
-        idx += size_of_image_offset;
-        if(idx + 4 > sizeof buf)
-            return std::nullopt;
-
-        return read_le32(&buf[idx]);
-    }
-
     opt<span_t> find_kernel(core::IHandler& core, uint64_t lstar)
     {
         uint8_t buf[PAGE_SIZE];
@@ -187,17 +143,9 @@ namespace
             if(!ok)
                 return std::nullopt;
 
-            const auto e_magic = read_be16(buf);
-            static const auto image_dos_signature = 'MZ';
-            if(e_magic != image_dos_signature)
-                continue;
-
-            const auto size = validate_pe_header(buf);
+            const auto size = pe::read_image_size(buf, sizeof buf);
             if(!size)
-            {
-                LOG(ERROR, "invalid PE header at 0x%llx", ptr);
                 continue;
-            }
 
             return span_t{ptr, *size};
         }
