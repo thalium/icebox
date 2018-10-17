@@ -731,7 +731,7 @@ bool FDP_WriteRegister(FDP_SHM* pFDP, uint32_t CpuId, FDP_Register RegisterId, u
 
 
 FDP_EXPORTED
-bool FDP_UnsetBreakpoint(FDP_SHM* pFDP, uint8_t BreakpointId)
+bool FDP_UnsetBreakpoint(FDP_SHM* pFDP, int BreakpointId)
 {
     if (pFDP == NULL)
     {
@@ -757,7 +757,7 @@ int FDP_SetBreakpoint(
     FDP_SHM*             pFDP,
     uint32_t            CpuId,
     FDP_BreakpointType  BreakpointType,
-    uint8_t             BreakpointId,
+    int                 BreakpointId,
     FDP_Access          BreakpointAccessType,
     FDP_AddressType     BreakpointAddressType,
     uint64_t            BreakpointAddress,

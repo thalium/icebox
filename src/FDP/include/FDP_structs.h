@@ -112,13 +112,13 @@ enum
 typedef struct _FDP_UnsetBreakpoint_req
 {
     uint8_t cmdType;
-    uint8_t breakPointId;
+    int breakPointId;
 } FDP_UnsetBreakpoint_req;
 
 typedef struct _FDP_SetBreakpoint_req
 {
     uint8_t cmdType;
-    uint8_t breakPointId;
+    int breakPointId;
     uint64_t breakAddress;
 } FDP_SetBreakpoint_req;
 
@@ -273,7 +273,7 @@ typedef struct FDP_GET_CPU_STATE_PKT_REQ_
 typedef struct FDP_UNSET_BREAKPOINT_PKT_REQ
 {
     uint8_t Type;
-    uint8_t BreakpointId;
+    int BreakpointId;
 } FDP_CLEAR_BREAKPOINT_PKT_REQ;
 
 /*typedef struct FDP_SWITCH_CPU_PKT_REQ_
@@ -287,7 +287,7 @@ typedef struct FDP_SET_BREAKPOINT_PKT_REQ_
     uint8_t Type;
     uint32_t CpuId;
     FDP_BreakpointType BreakpointType;
-    uint8_t BreakpointId;
+    int BreakpointId;
     FDP_Access BreakpointAccessType;
     FDP_AddressType BreakpointAddressType;
     uint64_t BreakpointAddress;

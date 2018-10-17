@@ -101,12 +101,12 @@ extern "C" {
         bool(*pfnReadMsr)                (void*, uint32_t, uint64_t, uint64_t*);
         bool(*pfnGetCpuCount)            (void*, uint32_t*);
         bool(*pfnGetCpuState)            (void*, uint32_t, uint8_t*);
-        bool(*pfnUnsetBreakpoint)        (void*, uint8_t);
+        bool(*pfnUnsetBreakpoint)        (void*, int);
         bool(*pfnVirtualToPhysical)        (void*, uint32_t, uint64_t, uint64_t*);
         bool(*pfnGetFxState64)            (void*, uint32_t, uint8_t*, uint32_t*);
         bool(*pfnSetFxState64)            (void*, uint32_t, uint8_t*, uint32_t);
         bool(*pfnReadVirtualMemory)        (void*, uint32_t, uint64_t, uint32_t, uint8_t*);
-        int(*pfnSetBreakpoint)            (void *, uint32_t, FDP_BreakpointType, uint8_t, FDP_Access, FDP_AddressType, uint64_t, uint64_t, uint64_t);
+        int(*pfnSetBreakpoint)            (void *, uint32_t, FDP_BreakpointType, int, FDP_Access, FDP_AddressType, uint64_t, uint64_t, uint64_t);
         bool(*pfnSave)                    (void*);
         bool(*pfnRestore)                (void*);
         bool(*pfnReboot)                (void*);
@@ -129,8 +129,8 @@ FDP_EXPORTED    bool        FDP_ReadRegister(FDP_SHM *pShm, uint32_t CpuId, FDP_
 FDP_EXPORTED    bool        FDP_WriteRegister(FDP_SHM *pShm, uint32_t CpuId, FDP_Register RegisterId, uint64_t RegisterValue);
 FDP_EXPORTED    bool        FDP_ReadMsr(FDP_SHM *pShm, uint32_t CpuId, uint64_t MsrId, uint64_t *pMsrValue);
 FDP_EXPORTED    bool        FDP_WriteMsr(FDP_SHM *pShm, uint32_t CpuId, uint64_t MsrId, uint64_t MsrValue);
-FDP_EXPORTED    int         FDP_SetBreakpoint(FDP_SHM *pShm, uint32_t CpuId, FDP_BreakpointType BreakpointType, uint8_t BreakpointId, FDP_Access BreakpointAccessType, FDP_AddressType BreakpointAddressType, uint64_t BreakpointAddress, uint64_t BreakpointLength, uint64_t BreakpointCr3);
-FDP_EXPORTED    bool        FDP_UnsetBreakpoint(FDP_SHM *pShm, uint8_t BreakpointId);
+FDP_EXPORTED    int         FDP_SetBreakpoint(FDP_SHM *pShm, uint32_t CpuId, FDP_BreakpointType BreakpointType, int BreakpointId, FDP_Access BreakpointAccessType, FDP_AddressType BreakpointAddressType, uint64_t BreakpointAddress, uint64_t BreakpointLength, uint64_t BreakpointCr3);
+FDP_EXPORTED    bool        FDP_UnsetBreakpoint(FDP_SHM *pShm, int BreakpointId);
 FDP_EXPORTED    bool        FDP_VirtualToPhysical(FDP_SHM *pShm, uint32_t CpuId, uint64_t VirtualAddress, uint64_t *pPhysicalAddress);
 FDP_EXPORTED    bool        FDP_GetState(FDP_SHM *pShm, FDP_State *pState);
 FDP_EXPORTED    bool        FDP_GetFxState64(FDP_SHM *pShm, uint32_t CpuId, FDP_XSAVE_FORMAT64_T *pFxState64);
