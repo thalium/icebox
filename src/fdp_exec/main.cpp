@@ -7,13 +7,6 @@
 #include <thread>
 #include <chrono>
 
-void print_state(core::IHandler& core)
-{
-    const auto rip = core.read_reg(FDP_RIP_REGISTER);
-    const auto cr3 = core.read_reg(FDP_CR3_REGISTER);
-    LOG(INFO, "rip: 0x%llx cr3: 0x%llx", rip ? *rip : 0, cr3 ? *cr3 : 0);
-}
-
 int main(int argc, char* argv[])
 {
     loguru::g_preamble_uptime = false;
@@ -32,22 +25,20 @@ int main(int argc, char* argv[])
 
     core->resume();
     core->pause();
-    auto& os = core->os();
-    auto& sym = core->sym();
 
     LOG(INFO, "get proc");
-    const auto pc = os.get_current_proc();
-    LOG(INFO, "current process: %llx %s", pc->id, os.get_proc_name(*pc)->data());
+    const auto pc = core->get_current_proc();
+    LOG(INFO, "current p->rocess: %llx dtb: %llx %s", pc->id, pc->dtb, core->get_proc_name(*pc)->data());
 
     LOG(INFO, "processes:");
-    os.list_procs([&](proc_t proc)
+    core->list_procs([&](proc_t proc)
     {
-        const auto procname = os.get_proc_name(proc);
+        const auto procname = core->get_proc_name(proc);
         LOG(INFO, "proc: %llx %s", proc.id, procname ? procname->data() : "<noname>");
-        os.list_mods(proc, [&](mod_t mod)
+        core->list_mods(proc, [&](mod_t mod)
         {
-            const auto modname = os.get_mod_name(proc, mod);
-            const auto span = os.get_mod_span(proc, mod);
+            const auto modname = core->get_mod_name(proc, mod);
+            const auto span = core->get_mod_span(proc, mod);
             if(false)
                 LOG(INFO, "    module: %llx %s 0x%llx 0x%llx", mod, modname ? modname->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
             return WALK_NEXT;
@@ -56,28 +47,26 @@ int main(int argc, char* argv[])
     });
 
     LOG(INFO, "searching notepad.exe");
-    const auto notepad = os.get_proc("notepad.exe");
-    LOG(INFO, "notepad.exe: %llx %s", notepad->id, os.get_proc_name(*notepad)->data());
+    const auto notepad = core->get_proc("notepad.exe");
+    LOG(INFO, "notepad.exe: %llx %s", notepad->id, core->get_proc_name(*notepad)->data());
 
-    const auto write_file = sym.get_symbol("nt", "NtWriteFile");
+    const auto write_file = core->get_symbol("nt", "NtWriteFile");
     LOG(INFO, "WriteFile = 0x%llx", write_file ? *write_file : 0);
-    if(!write_file)
-        return -1;
-
+    if(write_file)
     {
-        const auto bpa = core->set_breakpoint(*write_file, *notepad, core::FILTER_CR3, [&]
+        const auto bp = core->set_breakpoint(*write_file, *notepad, core::FILTER_CR3, [&]
         {
-            print_state(*core);
+            const auto rip = core->read_reg(FDP_RIP_REGISTER);
+            const auto cr3 = core->read_reg(FDP_CR3_REGISTER);
+            LOG(INFO, "rip: 0x%llx cr3: 0x%llx", rip ? *rip : 0, cr3 ? *cr3 : 0);
         });
-
-        for(auto i = 0; i < 4; ++i)
+        for(auto i = 0; i < 2; ++i)
         {
             core->resume();
             core->wait();
         }
     }
+
     core->resume();
-
-
     return 0;
 }

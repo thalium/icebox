@@ -9,7 +9,7 @@ template<typename T, T(*read)(const void*)>
 std::optional<T> read_mem(core::IHandler& core, uint64_t ptr)
 {
     T value;
-    const auto ok = core.read_mem(&value, ptr, sizeof value);
+    const auto ok = core.read(&value, ptr, sizeof value);
     if(!ok)
         FAIL(std::nullopt, "unable to read %zd bits at 0x%llx", 8 * sizeof value, ptr);
 

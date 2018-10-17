@@ -181,9 +181,9 @@ namespace
     std::optional<span_t> find_kernel(core::IHandler& core, uint64_t lstar)
     {
         uint8_t buf[PAGE_SIZE];
-        for(auto ptr = align<PAGE_SIZE>(lstar); ptr < lstar; ptr -= PAGE_SIZE)
+        for(auto ptr = utils::align<PAGE_SIZE>(lstar); ptr < lstar; ptr -= PAGE_SIZE)
         {
-            auto ok = core.read_mem(buf, ptr, sizeof buf);
+            auto ok = core.read(buf, ptr, sizeof buf);
             if(!ok)
                 return std::nullopt;
 
@@ -214,7 +214,7 @@ namespace
         for(size_t i = 0; i < span.size; i += sizeof page)
         {
             const auto chunk = std::min<size_t>(PAGE_SIZE, std::max<int64_t>(0, span.size - i));
-            const auto ok = core.read_mem(page, span.addr + i, chunk);
+            const auto ok = core.read(page, span.addr + i, chunk);
             if(!ok)
             {
                 buffer.clear();
@@ -295,17 +295,16 @@ bool OsNt::setup()
         FAIL(false, "unable to read pdb in kernel module");
 
     LOG(INFO, "kernel: pdb: %s %s", pdb->guid.data(), pdb->name.data());
-    auto sym_pdb = sym::make_pdb(*kernel, pdb->name.data(), pdb->guid.data());
-    if(!sym_pdb)
+    auto sym = sym::make_pdb(*kernel, pdb->name.data(), pdb->guid.data());
+    if(!sym)
         FAIL(false, "unable to read pdb from %s %s", pdb->name.data(), pdb->guid.data());
 
-    auto& sym = core_.sym();
-    sym.register_module("nt", sym_pdb);
+    core_.register_module("nt", sym);
 
     bool fail = false;
     for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
     {
-        const auto addr = sym.get_symbol(g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+        const auto addr = core_.get_symbol(g_symbol_offsets[i].module, g_symbol_offsets[i].name);
         if(!addr)
         {
             fail = true;
@@ -317,7 +316,7 @@ bool OsNt::setup()
     }
     for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
     {
-        const auto offset = sym.get_struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+        const auto offset = core_.get_struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
         if(!offset)
         {
             fail = true;
@@ -341,11 +340,11 @@ std::unique_ptr<os::IHandler> os::make_nt(core::IHandler& core)
 {
     auto nt = std::make_unique<OsNt>(core);
     if(!nt)
-        return std::nullptr_t();
+        return nullptr;
 
     const auto ok = nt->setup();
     if(!ok)
-        return std::nullptr_t();
+        return nullptr;
 
     return nt;
 }
@@ -438,7 +437,7 @@ namespace
             uint64_t buffer;
         };
         UnicodeString us;
-        auto ok = core.read_mem(&us, unicode_string, sizeof us);
+        auto ok = core.read(&us, unicode_string, sizeof us);
         if(!ok)
             FAIL(std::nullopt, "unable to read UNICODE_STRING");
 
@@ -451,7 +450,7 @@ namespace
 
         std::wstring wname;
         wname.resize(us.length);
-        ok = core.read_mem(wname.data(), us.buffer, us.length);
+        ok = core.read(wname.data(), us.buffer, us.length);
         if(!ok)
             FAIL(std::nullopt, "unable to read UNICODE_STRING.buffer");
 
@@ -463,7 +462,7 @@ opt<std::string> OsNt::get_proc_name(proc_t proc)
 {
     // EPROCESS.ImageFileName is 16 bytes, but only 14 are actually used
     char buffer[14+1];
-    const auto ok = core_.read_mem(buffer, proc.id + members_[EPROCESS_ImageFileName], sizeof buffer);
+    const auto ok = core_.read(buffer, proc.id + members_[EPROCESS_ImageFileName], sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
         return std::nullopt;
@@ -493,7 +492,7 @@ bool OsNt::list_mods(proc_t proc, const on_mod_fn& on_mod)
     if(!*peb)
         return true;
 
-    const auto ctx = core_.switch_context(proc);
+    const auto ctx = core_.switch_process(proc);
     const auto ldr = core::read_ptr(core_, *peb + members_[PEB_Ldr]);
     if(!ldr)
         FAIL(false, "unable to read PEB.Ldr");
@@ -508,7 +507,7 @@ bool OsNt::list_mods(proc_t proc, const on_mod_fn& on_mod)
 
 opt<std::string> OsNt::get_mod_name(proc_t proc, mod_t mod)
 {
-    const auto ctx = core_.switch_context(proc);
+    const auto ctx = core_.switch_process(proc);
     return read_unicode_string(core_, mod + members_[LDR_DATA_TABLE_ENTRY_FullDllName]);
 }
 
@@ -520,7 +519,7 @@ bool OsNt::has_virtual(proc_t proc)
 
 opt<span_t> OsNt::get_mod_span(proc_t proc, mod_t mod)
 {
-    const auto ctx = core_.switch_context(proc);
+    const auto ctx = core_.switch_process(proc);
     const auto base = core::read_ptr(core_, mod + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
     if(!base)
         return std::nullopt;
