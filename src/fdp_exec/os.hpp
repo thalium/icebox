@@ -28,13 +28,4 @@ namespace os
     };
 
     std::unique_ptr<IModule> make_nt(core::Core& core);
-    static const char windows_nt[] = "windows_nt";
-    static const struct
-    {
-        std::unique_ptr<IModule>(*make)(core::Core& core);
-        const std::string         name;
-    } g_helpers[] =
-    {
-        {&make_nt, windows_nt},
-    };
 }

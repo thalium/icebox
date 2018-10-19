@@ -47,6 +47,18 @@ core::Core::~Core()
 {
 }
 
+namespace
+{
+    static const struct
+    {
+        std::unique_ptr<os::IModule>(*make)(core::Core& core);
+        const char name[32];
+    } g_os_modules[] =
+    {
+        {&os::make_nt, "windows_nt"},
+    };
+}
+
 bool core::setup(Core& core, const std::string& name)
 {
     core.d_ = std::make_unique<core::Core::Data>(name);
@@ -64,7 +76,7 @@ bool core::setup(Core& core, const std::string& name)
     core::setup(core.state, *ptr_shm, core);
 
     // register os helpers
-    for(const auto& h : os::g_helpers)
+    for(const auto& h : g_os_modules)
     {
         core.os = h.make(core);
         if(core.os)
