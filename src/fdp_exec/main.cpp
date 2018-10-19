@@ -33,7 +33,7 @@ int main(int argc, char* argv[])
     {
         const auto name = core.os->driver_name(drv);
         const auto span = core.os->driver_span(drv);
-        LOG(INFO, "    driver: %llx %s 0x%llx 0x%llx", drv, name ? name->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
+        LOG(INFO, "    driver: %llx %s 0x%llx 0x%llx", drv.id, name ? name->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
         return WALK_NEXT;
     });
 
@@ -51,7 +51,7 @@ int main(int argc, char* argv[])
             const auto modname = core.os->mod_name(proc, mod);
             const auto span = core.os->mod_span(proc, mod);
             if(false)
-                LOG(INFO, "    module: %llx %s 0x%llx 0x%llx", mod, modname ? modname->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
+                LOG(INFO, "    module: %llx %s 0x%llx 0x%llx", mod.id, modname ? modname->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
             return WALK_NEXT;
         });
         return WALK_NEXT;

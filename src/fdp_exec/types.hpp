@@ -7,17 +7,23 @@
 template<typename T>
 using opt = std::optional<T>;
 
-using proc_t = struct
+struct proc_t
 {
     uint64_t id;
     uint64_t dtb;
 };
 
-using mod_t = uint64_t;
+struct mod_t
+{
+    uint64_t id;
+};
 
-using driver_t = uint64_t;
+struct driver_t
+{
+    uint64_t id;
+};
 
-using span_t = struct
+struct span_t
 {
     uint64_t addr;
     size_t   size;

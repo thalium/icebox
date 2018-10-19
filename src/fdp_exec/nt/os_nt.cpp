@@ -383,7 +383,7 @@ bool OsNt::mod_list(proc_t proc, const on_mod_fn& on_mod)
 opt<std::string> OsNt::mod_name(proc_t proc, mod_t mod)
 {
     const auto ctx = core_.mem.switch_process(proc);
-    return read_unicode_string(core_, mod + members_[LDR_DATA_TABLE_ENTRY_FullDllName]);
+    return read_unicode_string(core_, mod.id + members_[LDR_DATA_TABLE_ENTRY_FullDllName]);
 }
 
 bool OsNt::proc_is_valid(proc_t proc)
@@ -395,11 +395,11 @@ bool OsNt::proc_is_valid(proc_t proc)
 opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
 {
     const auto ctx = core_.mem.switch_process(proc);
-    const auto base = core::read_ptr(core_, mod + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
+    const auto base = core::read_ptr(core_, mod.id + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
     if(!base)
         return std::nullopt;
 
-    const auto size = core::read_ptr(core_, mod + members_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
+    const auto size = core::read_ptr(core_, mod.id + members_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
     if(!size)
         return std::nullopt;
 
@@ -432,16 +432,16 @@ opt<driver_t> OsNt::driver_find(const std::string& name)
 
 opt<std::string> OsNt::driver_name(driver_t drv)
 {
-    return read_unicode_string(core_, drv + members_[LDR_DATA_TABLE_ENTRY_FullDllName]);
+    return read_unicode_string(core_, drv.id + members_[LDR_DATA_TABLE_ENTRY_FullDllName]);
 }
 
 opt<span_t> OsNt::driver_span(driver_t drv)
 {
-    const auto base = core::read_ptr(core_, drv + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
+    const auto base = core::read_ptr(core_, drv.id + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
     if(!base)
         return std::nullopt;
 
-    const auto size = core::read_ptr(core_, drv + members_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
+    const auto size = core::read_ptr(core_, drv.id + members_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
     if(!size)
         return std::nullopt;
 
