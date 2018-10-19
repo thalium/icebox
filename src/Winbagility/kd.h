@@ -159,10 +159,10 @@ typedef struct _declspec(align(16)) XSAVE_FORMAT64_
     uint16_t    Reserved3;
     uint32_t    MxCsr;
     uint32_t    MxCsr_Mask;
-    uint128_t   FloatRegisters[8];
+    _uint128_t   FloatRegisters[8];
 
 #if defined(_WIN64)
-    uint128_t   XmmRegisters[16];
+    _uint128_t   XmmRegisters[16];
     uint8_t     Reserved4[96];
 #else
     uint128_t   XmmRegisters[8];
@@ -240,7 +240,7 @@ typedef struct DECLSPEC_ALIGN(16) _DBGKD_GET_REGISTER64{
     //
     // Vector registers.
     //
-    uint128_t VectorRegister[26];
+    _uint128_t VectorRegister[26];
     uint64_t VectorControl;
     //
     // Special debug control registers.
@@ -384,7 +384,7 @@ typedef struct DECLSPEC_ALIGN(16) _CONTEXT64_T_{
     //
     // Vector registers.
     //
-    uint128_t VectorRegister[26];
+    _uint128_t VectorRegister[26];
     uint64_t VectorControl;
     //
     // Special debug control registers.
@@ -479,7 +479,7 @@ typedef struct _DBGKM_EXCEPTION64
     UINT32 FirstChance;
 } DBGKM_EXCEPTION64, *PDBGKM_EXCEPTION64;
 
-#define DBGKD_MAXSTREAM 16 
+#define DBGKD_MAXSTREAM 16
 typedef struct _AMD64_DBGKD_CONTROL_REPORT
 {
     ULONG64 Dr6;

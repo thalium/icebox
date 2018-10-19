@@ -214,9 +214,8 @@ FDP_SHM* FDP_CreateSHM(char* shmName)
         shm_unlink(shmName);
         return NULL;
     }
-#elif   _WIN32
+#elif   _MSC_VER
     HANDLE hMapFile;
-    void* pBuf;
     hMapFile = CreateFileMappingA(INVALID_HANDLE_VALUE,
                                   NULL,
                                   PAGE_READWRITE,
@@ -305,7 +304,7 @@ FDP_EXPORTED FDP_SHM* FDP_OpenSHM(const char* pShmName)
     char aCpuShmName[512];
     strncpy(aCpuShmName, "CPU_", sizeof(aCpuShmName) - 1);
     strncat(aCpuShmName, pShmName, sizeof(aCpuShmName) - strlen(aCpuShmName) - 1);
-    
+
     void* pCpuShm = OpenShm(aCpuShmName, sizeof(FDP_CPU_CTX));
     if (pCpuShm == NULL)
     {

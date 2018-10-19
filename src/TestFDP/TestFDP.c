@@ -27,9 +27,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "utils.h"
-#include "FDP.h"
-
 #ifdef  __linux
 //Linux
 #include <time.h>
@@ -37,14 +34,19 @@
 #include <pthread.h>
 #include <string.h>
 
-#define SLEEP(X) (usleep(X*1000))
-#define THREAD_EXIT(X) (pthread_exit(&X))
+#define SLEEP(X) do { usleep(X*1000); while(0)
+#define THREAD_EXIT(X) do { pthread_exit(&(X)); } while(0)
+
 #elif   _WIN32
 #include <Windows.h>
+#include <time.h>
 
-#define SLEEP(X) (Sleep(X))
-#define THREAD_EXIT(X) (TerminateThread(X, 0))
+#define SLEEP(X) do { Sleep(X); } while(0)
+#define THREAD_EXIT(X) do { TerminateThread((X), 0); } while(0)
 #endif
+
+#include "utils.h"
+#include "FDP.h"
 
 int iTimerDelay = 2;
 bool TimerGo = false;
@@ -1261,9 +1263,9 @@ bool testSaveRestore(FDP_SHM* pFDP)
 
     for (int i = 0; i < 10; i++){
         //Random Sleep
-        srand(time(NULL));
+        srand((unsigned int)time(NULL));
         SLEEP(rand()%3000);
-    
+
 
         if (FDP_Restore(pFDP) == false){
             printf("Failed to FDP_Restore !\n");
@@ -1297,7 +1299,7 @@ bool testSaveRestore(FDP_SHM* pFDP)
                 break;
             }
         }
-        
+
     }
 
     if (FDP_Resume(pFDP) == false){
@@ -1404,7 +1406,7 @@ uint64_t BreakOnKiSystemCall64(FDP_SHM *pFDP){
         return false;
     }
 
-    //TODO: 
+    //TODO:
     while (true){
         if (FDP_GetStateChanged(pFDP) == true){
             FDP_State state;

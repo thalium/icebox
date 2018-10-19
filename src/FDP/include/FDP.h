@@ -31,15 +31,12 @@ extern "C" {
 #include "FDP_enum.h"
 
 
-#ifdef  __linux
-//Linux
-#define FDP_EXPORTED    __attribute__ ((visibility ("default")))
-#define ALIGNED_(x)     __attribute__ ((aligned(x)))
-
-#elif   _WIN32
+#ifdef _MSC_VER
 #define FDP_EXPORTED    __declspec( dllexport )
-#define ALIGNED_(x)     _declspec(align(X))
-
+#define ALIGNED_(X)     _declspec(align(X))
+#else
+#define FDP_EXPORTED    __attribute__ ((visibility ("default")))
+#define ALIGNED_(X)     __attribute__ ((aligned(X)))
 #endif
 
 

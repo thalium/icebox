@@ -69,7 +69,7 @@ int          roundup16(int value);
 void         dumpHexData(char *tmp, int len);
 void         printHexData(char *tmp, int len);
 
-#ifdef _WIN32
+#ifdef _MSC_VER
 //todo: NamedPipe utilities file
 bool        CreateConnectNamedPipe(HANDLE* hPipe, char* pipeName);
 bool        OpenNamedPipe(HANDLE* hPipe, char* pipeName);
@@ -88,7 +88,7 @@ DWORD       Put64Pipe(HANDLE hPipe, uint64_t data);
 
 //TODO: ...
 __inline uint64_t LeftShift(uint64_t value, uint64_t count)
-{ 
+{
     for (int i = 0; i < count; i++){
         value = value << 1;
     }

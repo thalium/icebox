@@ -24,11 +24,10 @@
 #ifndef FDP_STRUCTS_H__
 #define FDP_STRUCTS_H__
 
-#ifdef  __linux
-//Linux
-#define ALIGNED_(x)     __attribute__ ((aligned(x)))
-#elif   _WIN32
-#define ALIGNED_(x)     _declspec(align(X))
+#ifdef _MSC_VER
+#define ALIGNED_(X)     _declspec(align(X))
+#else
+#define ALIGNED_(X)     __attribute__ ((aligned(X)))
 #endif
 
 //#include <stdint.h>
