@@ -1,12 +1,13 @@
-#define PRIVATE_CORE__
-#include "private.hpp"
+#include "memory.hpp"
 
+#define PRIVATE_CORE__
 #define FDP_MODULE "mem"
 #include "log.hpp"
 #include "utils.hpp"
 #include "mmu.hpp"
 #include "endian.hpp"
 #include "core.hpp"
+#include "private.hpp"
 
 #include <FDP.h>
 #include <algorithm>
@@ -55,9 +56,9 @@ struct core::ProcessContextPrivate
     opt<proc_t>  backup_;
 };
 
-void core::Memory::update(const core::BreakState& state)
+void core::Memory::update(proc_t current)
 {
-    d_->current = state.proc;
+    d_->current = current;
 }
 
 core::ProcessContext core::Memory::switch_process(proc_t proc)

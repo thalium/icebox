@@ -4,6 +4,7 @@
 #define FDP_MODULE "core"
 #include "log.hpp"
 #include "private.hpp"
+#include "os.hpp"
 
 #include <FDP.h>
 

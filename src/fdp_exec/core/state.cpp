@@ -1,10 +1,12 @@
-#define PRIVATE_CORE__
-#include "private.hpp"
+#include "state.hpp"
 
+#define PRIVATE_CORE__
 #define FDP_MODULE "state"
 #include "log.hpp"
 #include "utils.hpp"
 #include "core.hpp"
+#include "private.hpp"
+#include "os.hpp"
 
 #include <FDP.h>
 
@@ -81,7 +83,7 @@ namespace
         if(!current)
             FAIL(false, "unable to get current process & update break state");
 
-        d.core.mem.update({*current});
+        d.core.mem.update(*current);
         return true;
     }
 }
@@ -187,6 +189,7 @@ bool core::State::wait()
         if(!ok)
             continue;
 
+        update_break_state(*d_);
         FDP_State state = FDP_STATE_NULL;
         ok = FDP_GetState(&shm, &state);
         if(!ok)
