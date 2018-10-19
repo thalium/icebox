@@ -133,7 +133,7 @@ namespace
         uint8_t buf[PAGE_SIZE];
         for(auto ptr = utils::align<PAGE_SIZE>(lstar); ptr < lstar; ptr -= PAGE_SIZE)
         {
-            auto ok = core.read(buf, ptr, sizeof buf);
+            auto ok = core.mem.virtual_read(buf, ptr, sizeof buf);
             if(!ok)
                 return std::nullopt;
 
@@ -160,7 +160,7 @@ bool OsNt::setup()
 
     LOG(INFO, "kernel: 0x%016llx - 0x%016llx (%lld 0x%llx)", kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
     std::vector<uint8_t> buffer(kernel->size);
-    auto ok = core_.read(&buffer[0], kernel->addr, kernel->size);
+    auto ok = core_.mem.virtual_read(&buffer[0], kernel->addr, kernel->size);
     if(!ok)
         FAIL(false, "unable to read kernel module");
 
@@ -304,7 +304,7 @@ namespace
             uint64_t buffer;
         };
         UnicodeString us;
-        auto ok = core.read(&us, unicode_string, sizeof us);
+        auto ok = core.mem.virtual_read(&us, unicode_string, sizeof us);
         if(!ok)
             FAIL(std::nullopt, "unable to read UNICODE_STRING");
 
@@ -316,7 +316,7 @@ namespace
             FAIL(std::nullopt, "corrupted UNICODE_STRING");
 
         std::vector<uint8_t> buffer(us.length);
-        ok = core.read(&buffer[0], us.buffer, us.length);
+        ok = core.mem.virtual_read(&buffer[0], us.buffer, us.length);
         if(!ok)
             FAIL(std::nullopt, "unable to read UNICODE_STRING.buffer");
 
@@ -329,7 +329,7 @@ opt<std::string> OsNt::get_proc_name(proc_t proc)
 {
     // EPROCESS.ImageFileName is 16 bytes, but only 14 are actually used
     char buffer[14+1];
-    const auto ok = core_.read(buffer, proc.id + members_[EPROCESS_ImageFileName], sizeof buffer);
+    const auto ok = core_.mem.virtual_read(buffer, proc.id + members_[EPROCESS_ImageFileName], sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
         return std::nullopt;
@@ -359,7 +359,7 @@ bool OsNt::list_mods(proc_t proc, const on_mod_fn& on_mod)
     if(!*peb)
         return true;
 
-    const auto ctx = core_.switch_process(proc);
+    const auto ctx = core_.mem.switch_process(proc);
     const auto ldr = core::read_ptr(core_, *peb + members_[PEB_Ldr]);
     if(!ldr)
         FAIL(false, "unable to read PEB.Ldr");
@@ -374,7 +374,7 @@ bool OsNt::list_mods(proc_t proc, const on_mod_fn& on_mod)
 
 opt<std::string> OsNt::get_mod_name(proc_t proc, mod_t mod)
 {
-    const auto ctx = core_.switch_process(proc);
+    const auto ctx = core_.mem.switch_process(proc);
     return read_unicode_string(core_, mod + members_[LDR_DATA_TABLE_ENTRY_FullDllName]);
 }
 
@@ -386,7 +386,7 @@ bool OsNt::has_virtual(proc_t proc)
 
 opt<span_t> OsNt::get_mod_span(proc_t proc, mod_t mod)
 {
-    const auto ctx = core_.switch_process(proc);
+    const auto ctx = core_.mem.switch_process(proc);
     const auto base = core::read_ptr(core_, mod + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
     if(!base)
         return std::nullopt;

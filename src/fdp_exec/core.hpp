@@ -30,14 +30,18 @@ namespace core
     // private break state
     struct BreakState;
 
-    struct IMemory
+    struct Memory
     {
-        virtual ~IMemory() = default;
+         Memory();
+        ~Memory();
 
-        virtual void            update              (const BreakState& state) = 0;
-        virtual opt<uint64_t>   virtual_to_physical (uint64_t ptr, uint64_t dtb) = 0;
-        virtual ProcessContext  switch_process      (proc_t proc) = 0;
-        virtual bool            read                (void* dst, uint64_t src, size_t size) = 0;
+        void            update              (const BreakState& state);
+        opt<uint64_t>   virtual_to_physical (uint64_t ptr, uint64_t dtb);
+        ProcessContext  switch_process      (proc_t proc);
+        bool            virtual_read        (void* dst, uint64_t src, size_t size);
+
+        struct Data;
+        std::unique_ptr<Data> d_;
     };
 
     // auto-managed breakpoint object
@@ -61,13 +65,13 @@ namespace core
     };
 
     struct IHandler
-        : public IMemory
-        , public IState
+        : public IState
         , public os::IHandler
     {
         virtual ~IHandler() = default;
 
         Registers       regs;
+        Memory          mem;
         sym::Symbols    sym;
     };
     std::unique_ptr<IHandler> make_core(const std::string& name);

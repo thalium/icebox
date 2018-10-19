@@ -38,12 +38,6 @@ namespace
 
         bool setup();
 
-        // core::IMemory
-        void                    update              (const core::BreakState& state) override;
-        opt<uint64_t>           virtual_to_physical (uint64_t ptr, uint64_t dtb) override;
-        core::ProcessContext    switch_process      (proc_t proc) override;
-        bool                    read                (void* dst, uint64_t src, size_t size) override;
-
         // core::IState
         bool                pause           () override;
         bool                resume          () override;
@@ -63,7 +57,6 @@ namespace
         // members
         const std::string                   name_;
         std::unique_ptr<FDP_SHM>            shm_;
-        std::unique_ptr<core::IMemory>      mem_;
         std::unique_ptr<core::IState>       state_;
         std::unique_ptr<os::IHandler>       os_;
     };
@@ -91,10 +84,7 @@ bool Core::setup()
         FAIL(false, "unable to init shm");
 
     core::setup(regs, *ptr_shm);
-
-    mem_ = core::make_memory(*ptr_shm);
-    if(!mem_)
-        FAIL(false, "unable to init memory module");
+    core::setup(mem, *ptr_shm);
 
     state_ = core::make_state(*ptr_shm, *this);
     if(!state_)
@@ -111,26 +101,6 @@ bool Core::setup()
         return false;
 
     return true;
-}
-
-void Core::update(const core::BreakState& state)
-{
-    mem_->update(state);
-}
-
-opt<uint64_t> Core::virtual_to_physical(uint64_t ptr, uint64_t dtb)
-{
-    return mem_->virtual_to_physical(ptr, dtb);
-}
-
-core::ProcessContext Core::switch_process(proc_t proc)
-{
-    return mem_->switch_process(proc);
-}
-
-bool Core::read(void* dst, uint64_t src, size_t size)
-{
-    return mem_->read(dst, src, size);
 }
 
 bool Core::pause()

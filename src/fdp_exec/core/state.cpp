@@ -83,7 +83,7 @@ namespace
         if(!current)
             FAIL(false, "unable to get current process & update break state");
 
-        s.core_.update({*current});
+        s.core_.mem.update({*current});
         return true;
     }
 }
@@ -232,7 +232,7 @@ namespace
 
 core::Breakpoint Stater::set_breakpoint(uint64_t ptr, proc_t proc, core::filter_e filter, const core::Task& task)
 {
-    const auto phy = core_.virtual_to_physical(ptr, proc.dtb);
+    const auto phy = core_.mem.virtual_to_physical(ptr, proc.dtb);
     if(!phy)
         return nullptr;
 
