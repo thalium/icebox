@@ -23,8 +23,8 @@ int main(int argc, char* argv[])
     if(!core)
         FAIL(-1, "unable to start core at %s", name.data());
 
-    core->resume();
-    core->pause();
+    core->state.resume();
+    core->state.pause();
 
     LOG(INFO, "get proc");
     const auto pc = core->get_current_proc();
@@ -54,7 +54,7 @@ int main(int argc, char* argv[])
     LOG(INFO, "WriteFile = 0x%llx", write_file ? *write_file : 0);
     if(write_file)
     {
-        const auto bp = core->set_breakpoint(*write_file, *notepad, core::FILTER_CR3, [&]
+        const auto bp = core->state.set_breakpoint(*write_file, *notepad, core::FILTER_CR3, [&]
         {
             const auto rip = core->regs.read(FDP_RIP_REGISTER);
             const auto cr3 = core->regs.read(FDP_CR3_REGISTER);
@@ -62,11 +62,11 @@ int main(int argc, char* argv[])
         });
         for(auto i = 0; i < 2; ++i)
         {
-            core->resume();
-            core->wait();
+            core->state.resume();
+            core->state.wait();
         }
     }
 
-    core->resume();
+    core->state.resume();
     return 0;
 }

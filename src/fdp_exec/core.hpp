@@ -54,24 +54,28 @@ namespace core
     // whether to filter breakpoint on cr3
     enum filter_e { FILTER_CR3, ANY_CR3 };
 
-    struct IState
+    struct State
     {
-        virtual ~IState() = default;
+         State();
+        ~State();
 
-        virtual bool        pause           () = 0;
-        virtual bool        resume          () = 0;
-        virtual bool        wait            () = 0;
-        virtual Breakpoint  set_breakpoint  (uint64_t ptr, proc_t proc, filter_e filter, const Task& task) = 0;
+        bool        pause           ();
+        bool        resume          ();
+        bool        wait            ();
+        Breakpoint  set_breakpoint  (uint64_t ptr, proc_t proc, filter_e filter, const Task& task);
+
+        struct Data;
+        std::unique_ptr<Data> d_;
     };
 
     struct IHandler
-        : public IState
-        , public os::IHandler
+        : public os::IHandler
     {
         virtual ~IHandler() = default;
 
         Registers       regs;
         Memory          mem;
+        State           state;
         sym::Symbols    sym;
     };
     std::unique_ptr<IHandler> make_core(const std::string& name);

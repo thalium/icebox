@@ -38,12 +38,6 @@ namespace
 
         bool setup();
 
-        // core::IState
-        bool                pause           () override;
-        bool                resume          () override;
-        bool                wait            () override;
-        core::Breakpoint    set_breakpoint  (uint64_t ptr, proc_t proc, core::filter_e filter, const core::Task& task) override;
-
         // os::IHandler
         bool                list_procs      (const on_proc_fn& on_proc) override;
         opt<proc_t>         get_current_proc() override;
@@ -55,10 +49,9 @@ namespace
         bool                has_virtual     (proc_t proc) override;
 
         // members
-        const std::string                   name_;
-        std::unique_ptr<FDP_SHM>            shm_;
-        std::unique_ptr<core::IState>       state_;
-        std::unique_ptr<os::IHandler>       os_;
+        const std::string               name_;
+        std::unique_ptr<FDP_SHM>        shm_;
+        std::unique_ptr<os::IHandler>   os_;
     };
 }
 
@@ -85,10 +78,7 @@ bool Core::setup()
 
     core::setup(regs, *ptr_shm);
     core::setup(mem, *ptr_shm);
-
-    state_ = core::make_state(*ptr_shm, *this);
-    if(!state_)
-        FAIL(false, "unable to init state module");
+    core::setup(state, *ptr_shm, *this);
 
     // register os helpers
     for(const auto& h : os::g_helpers)
@@ -101,26 +91,6 @@ bool Core::setup()
         return false;
 
     return true;
-}
-
-bool Core::pause()
-{
-    return state_->pause();
-}
-
-bool Core::resume()
-{
-    return state_->resume();
-}
-
-bool Core::wait()
-{
-    return state_->wait();
-}
-
-core::Breakpoint Core::set_breakpoint(uint64_t ptr, proc_t proc, core::filter_e filter, const core::Task& task)
-{
-    return state_->set_breakpoint(ptr, proc, filter, task);
 }
 
 bool Core::list_procs(const on_proc_fn& on_proc)
