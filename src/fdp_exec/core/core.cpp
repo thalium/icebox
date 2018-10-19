@@ -57,15 +57,6 @@ namespace
         bool                wait            () override;
         core::Breakpoint    set_breakpoint  (uint64_t ptr, proc_t proc, core::filter_e filter, const core::Task& task) override;
 
-        // sym::IHandler
-        bool            register_module     (const std::string& name, std::unique_ptr<sym::IModule>& module) override;
-        bool            register_module     (const std::string& name, span_t module, const void* data) override;
-        bool            unregister_module   (const std::string& name) override;
-        bool            list_modules        (const on_module_fn& on_module) override;
-        sym::IModule*   get_module          (const std::string& name) override;
-        opt<uint64_t>   get_symbol          (const std::string& module, const std::string& symbol) override;
-        opt<uint64_t>   get_struc_offset    (const std::string& module, const std::string& struc, const std::string& member) override;
-
         // os::IHandler
         bool                list_procs      (const on_proc_fn& on_proc) override;
         opt<proc_t>         get_current_proc() override;
@@ -83,7 +74,6 @@ namespace
         std::unique_ptr<core::IMemory>      mem_;
         std::unique_ptr<core::IState>       state_;
         std::unique_ptr<os::IHandler>       os_;
-        std::unique_ptr<sym::IHandler>      sym_;
     };
 }
 
@@ -119,10 +109,6 @@ bool Core::setup()
     state_ = core::make_state(*ptr_shm, *this);
     if(!state_)
         FAIL(false, "unable to init state module");
-
-    sym_ = sym::make_sym();
-    if(!sym_)
-        FAIL(false, "unable to init sym module");
 
     // register os helpers
     for(const auto& h : os::g_helpers)
@@ -195,41 +181,6 @@ bool Core::wait()
 core::Breakpoint Core::set_breakpoint(uint64_t ptr, proc_t proc, core::filter_e filter, const core::Task& task)
 {
     return state_->set_breakpoint(ptr, proc, filter, task);
-}
-
-bool Core::register_module(const std::string& name, std::unique_ptr<sym::IModule>& module)
-{
-    return sym_->register_module(name, module);
-}
-
-bool Core::register_module(const std::string& name, span_t module, const void* data)
-{
-    return sym_->register_module(name, module, data);
-}
-
-bool Core::unregister_module(const std::string& name)
-{
-    return sym_->unregister_module(name);
-}
-
-bool Core::list_modules(const on_module_fn& on_module)
-{
-    return sym_->list_modules(on_module);
-}
-
-sym::IModule* Core::get_module(const std::string& name)
-{
-    return sym_->get_module(name);
-}
-
-opt<uint64_t> Core::get_symbol(const std::string& module, const std::string& symbol)
-{
-    return sym_->get_symbol(module, symbol);
-}
-
-opt<uint64_t> Core::get_struc_offset(const std::string& module, const std::string& struc, const std::string& member)
-{
-    return sym_->get_struc_offset(module, struc, member);
 }
 
 bool Core::list_procs(const on_proc_fn& on_proc)

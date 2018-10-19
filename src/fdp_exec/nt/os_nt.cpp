@@ -93,7 +93,6 @@ namespace
     };
     static_assert(COUNT_OF(g_symbol_offsets) == SYMBOL_OFFSET_COUNT, "invalid symbols");
 
-    using Sym           = std::unique_ptr<sym::IModule>;
     using MemberOffsets = std::array<uint64_t, MEMBER_OFFSET_COUNT>;
     using SymbolOffsets = std::array<uint64_t, SYMBOL_OFFSET_COUNT>;
 
@@ -165,14 +164,14 @@ bool OsNt::setup()
     if(!ok)
         FAIL(false, "unable to read kernel module");
 
-    ok = core_.register_module("nt", *kernel, &buffer[0]);
+    ok = core_.sym.insert("nt", *kernel, &buffer[0]);
     if(!ok)
         FAIL(false, "unable to load symbols from kernel module");
 
     bool fail = false;
     for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
     {
-        const auto addr = core_.get_symbol(g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+        const auto addr = core_.sym.symbol(g_symbol_offsets[i].module, g_symbol_offsets[i].name);
         if(!addr)
         {
             fail = true;
@@ -184,7 +183,7 @@ bool OsNt::setup()
     }
     for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
     {
-        const auto offset = core_.get_struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+        const auto offset = core_.sym.struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
         if(!offset)
         {
             fail = true;

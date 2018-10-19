@@ -60,10 +60,11 @@ namespace core
         : public IRegisters
         , public IMemory
         , public IState
-        , public sym::IHandler
         , public os::IHandler
     {
         virtual ~IHandler() = default;
+
+        sym::Symbols sym;
     };
     std::unique_ptr<IHandler> make_core(const std::string& name);
 }

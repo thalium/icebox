@@ -4,32 +4,29 @@
 
 namespace
 {
-    using Modules = std::unordered_map<std::string, std::unique_ptr<sym::IModule>>;
+    using Modules = std::unordered_map<std::string, std::unique_ptr<sym::IMod>>;
+}
 
-    struct Handler
-        : public sym::IHandler
+namespace sym
+{
+    struct Symbols::Data
     {
-        // IHandler methods
-        bool            register_module     (const std::string& name, std::unique_ptr<sym::IModule>& module) override;
-        bool            register_module     (const std::string& name, span_t module, const void* data) override;
-        bool            unregister_module   (const std::string& name) override;
-        bool            list_modules        (const on_module_fn& on_module) override;
-        sym::IModule*   get_module          (const std::string& name) override;
-        opt<uint64_t>   get_symbol          (const std::string& mod, const std::string& symbol) override;
-        opt<uint64_t>   get_struc_offset    (const std::string& mod, const std::string& struc, const std::string& member) override;
-
         Modules mods_;
     };
 }
 
-std::unique_ptr<sym::IHandler> sym::make_sym()
+sym::Symbols::Symbols()
+    : d_(std::make_unique<Data>())
 {
-    return std::make_unique<Handler>();
 }
 
-bool Handler::register_module(const std::string& name, std::unique_ptr<sym::IModule>& module)
+sym::Symbols::~Symbols()
 {
-    const auto ret = mods_.emplace(name, std::move(module));
+}
+
+bool sym::Symbols::insert(const std::string& name, std::unique_ptr<sym::IMod>& module)
+{
+    const auto ret = d_->mods_.emplace(name, std::move(module));
     return ret.second;
 }
 
@@ -38,7 +35,7 @@ namespace
     static const char pdb[] = "pdb";
     static const struct
     {
-        std::unique_ptr<sym::IModule>(*make)(span_t, const void*);
+        std::unique_ptr<sym::IMod>(*make)(span_t, const void*);
         const std::string name;
     } g_helpers[] =
     {
@@ -46,7 +43,7 @@ namespace
     };
 }
 
-bool Handler::register_module(const std::string& name, span_t module, const void* data)
+bool sym::Symbols::insert(const std::string& name, span_t module, const void* data)
 {
     for(const auto& h : g_helpers)
     {
@@ -54,48 +51,48 @@ bool Handler::register_module(const std::string& name, span_t module, const void
         if(!mod)
             continue;
 
-        return register_module(name, mod);
+        return insert(name, mod);
     }
     return false;
 }
 
-bool Handler::unregister_module(const std::string& name)
+bool sym::Symbols::remove(const std::string& name)
 {
-    const auto ret = mods_.erase(name);
+    const auto ret = d_->mods_.erase(name);
     return !!ret;
 }
 
-bool Handler::list_modules(const on_module_fn& on_module)
+bool sym::Symbols::list(const on_module_fn& on_module)
 {
-    for(const auto& m : mods_)
+    for(const auto& m : d_->mods_)
         if(on_module(*m.second) == WALK_STOP)
             break;
     return true;
 }
 
-sym::IModule* Handler::get_module(const std::string& name)
+sym::IMod* sym::Symbols::find(const std::string& name)
 {
-    const auto it = mods_.find(name);
-    if(it == mods_.end())
+    const auto it = d_->mods_.find(name);
+    if(it == d_->mods_.end())
         return nullptr;
 
     return it->second.get();
 }
 
-opt<uint64_t> Handler::get_symbol(const std::string& module, const std::string& symbol)
+opt<uint64_t> sym::Symbols::symbol(const std::string& module, const std::string& symbol)
 {
-    const auto mod = get_module(module);
+    const auto mod = find(module);
     if(!mod)
         return std::nullopt;
 
-    return mod->get_symbol(symbol);
+    return mod->symbol(symbol);
 }
 
-opt<uint64_t> Handler::get_struc_offset(const std::string& module, const std::string& struc, const std::string& member)
+opt<uint64_t> sym::Symbols::struc_offset(const std::string& module, const std::string& struc, const std::string& member)
 {
-    const auto mod = get_module(module);
+    const auto mod = find(module);
     if(!mod)
         return std::nullopt;
 
-    return mod->get_struc_offset(struc, member);
+    return mod->struc_offset(struc, member);
 }

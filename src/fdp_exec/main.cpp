@@ -50,7 +50,7 @@ int main(int argc, char* argv[])
     const auto notepad = core->get_proc("notepad.exe");
     LOG(INFO, "notepad.exe: %llx %s", notepad->id, core->get_proc_name(*notepad)->data());
 
-    const auto write_file = core->get_symbol("nt", "NtWriteFile");
+    const auto write_file = core->sym.symbol("nt", "NtWriteFile");
     LOG(INFO, "WriteFile = 0x%llx", write_file ? *write_file : 0);
     if(write_file)
     {

@@ -18,7 +18,7 @@ namespace
     using Symbols = std::unordered_map<std::string, pdb::PDBGlobalVariable>;
 
     struct Pdb
-        : public sym::IModule
+        : public sym::IMod
     {
          Pdb(const fs::path& filename, span_t span);
 
@@ -26,9 +26,9 @@ namespace
         bool setup();
 
         // IModule methods
-        span_t          get_span        () override;
-        opt<uint64_t>   get_symbol      (const std::string& symbol) override;
-        opt<uint64_t>   get_struc_offset(const std::string& struc, const std::string& member) override;
+        span_t          span        () override;
+        opt<uint64_t>   symbol      (const std::string& symbol) override;
+        opt<uint64_t>   struc_offset(const std::string& struc, const std::string& member) override;
 
         // members
         const fs::path  filename_;
@@ -44,7 +44,7 @@ Pdb::Pdb(const fs::path& filename, span_t span)
 {
 }
 
-std::unique_ptr<sym::IModule> sym::make_pdb(span_t span, const std::string& module, const std::string& guid)
+std::unique_ptr<sym::IMod> sym::make_pdb(span_t span, const std::string& module, const std::string& guid)
 {
     auto ptr = std::make_unique<Pdb>(fs::path(getenv("_NT_SYMBOL_PATH")) / module / guid / module, span);
     const auto ok = ptr->setup();
@@ -84,12 +84,12 @@ bool Pdb::setup()
     return true;
 }
 
-span_t Pdb::get_span()
+span_t Pdb::span()
 {
     return span_;
 }
 
-opt<uint64_t> Pdb::get_symbol(const std::string& symbol)
+opt<uint64_t> Pdb::symbol(const std::string& symbol)
 {
     const auto it = symbols_.find(symbol);
     if(it == symbols_.end())
@@ -98,7 +98,7 @@ opt<uint64_t> Pdb::get_symbol(const std::string& symbol)
     return span_.addr + it->second.address - BASE_ADDRESS;
 }
 
-opt<uint64_t> Pdb::get_struc_offset(const std::string& struc, const std::string& member)
+opt<uint64_t> Pdb::struc_offset(const std::string& struc, const std::string& member)
 {
     const auto type = pdb_.get_types_container()->get_type_by_name(const_cast<char*>(struc.data()));
     if(!type)
@@ -167,7 +167,7 @@ namespace
     }
 }
 
-std::unique_ptr<sym::IModule> sym::make_pdb(span_t span, const void* data)
+std::unique_ptr<sym::IMod> sym::make_pdb(span_t span, const void* data)
 {
     const auto pdb = read_pdb(data, span.size);
     if(!pdb)
