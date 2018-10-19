@@ -73,6 +73,7 @@ target_include_directories(fdp_exec PRIVATE
 )
 target_compile_definitions(fdp_exec PRIVATE
     _CRT_SECURE_NO_WARNINGS
+    _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 )
 target_link_libraries(fdp_exec PRIVATE
     fdp_static

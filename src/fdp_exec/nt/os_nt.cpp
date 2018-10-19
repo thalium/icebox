@@ -316,13 +316,13 @@ namespace
         if(us.length > us.max_length)
             FAIL(std::nullopt, "corrupted UNICODE_STRING");
 
-        std::wstring wname;
-        wname.resize(us.length);
-        ok = core.read(wname.data(), us.buffer, us.length);
+        std::vector<uint8_t> buffer(us.length);
+        ok = core.read(&buffer[0], us.buffer, us.length);
         if(!ok)
             FAIL(std::nullopt, "unable to read UNICODE_STRING.buffer");
 
-        return utf8::convert(wname);
+        const auto p = &buffer[0];
+        return utf8::convert(p, &p[us.length]);
     }
 }
 
