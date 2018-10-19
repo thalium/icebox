@@ -64,19 +64,29 @@ namespace core
         bool        wait            ();
         Breakpoint  set_breakpoint  (uint64_t ptr, proc_t proc, filter_e filter, const Task& task);
 
+        // private data
         struct Data;
         std::unique_ptr<Data> d_;
     };
 
-    struct IHandler
-        : public os::IHandler
+    struct Core
     {
-        virtual ~IHandler() = default;
+         Core();
+        ~Core();
 
-        Registers       regs;
-        Memory          mem;
-        State           state;
-        sym::Symbols    sym;
+        // members
+        Registers                       regs;
+        Memory                          mem;
+        State                           state;
+        sym::Symbols                    sym;
+        std::unique_ptr<os::IHandler>   os;
+
+        // private data
+        struct Data;
+        std::unique_ptr<Data> d_;
+
+
     };
-    std::unique_ptr<IHandler> make_core(const std::string& name);
+
+    bool setup(Core& core, const std::string& name);
 }

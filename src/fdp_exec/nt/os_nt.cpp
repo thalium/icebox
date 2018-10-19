@@ -99,7 +99,7 @@ namespace
     struct OsNt
         : public os::IHandler
     {
-        OsNt(core::IHandler& core);
+        OsNt(core::Core& core);
 
         // methods
         bool setup();
@@ -115,20 +115,20 @@ namespace
         bool                has_virtual(proc_t proc) override;
 
         // members
-        core::IHandler& core_;
+        core::Core&     core_;
         MemberOffsets   members_;
         SymbolOffsets   symbols_;
     };
 }
 
-OsNt::OsNt(core::IHandler& core)
+OsNt::OsNt(core::Core& core)
     : core_(core)
 {
 }
 
 namespace
 {
-    opt<span_t> find_kernel(core::IHandler& core, uint64_t lstar)
+    opt<span_t> find_kernel(core::Core& core, uint64_t lstar)
     {
         uint8_t buf[PAGE_SIZE];
         for(auto ptr = utils::align<PAGE_SIZE>(lstar); ptr < lstar; ptr -= PAGE_SIZE)
@@ -203,7 +203,7 @@ bool OsNt::setup()
     return true;
 }
 
-std::unique_ptr<os::IHandler> os::make_nt(core::IHandler& core)
+std::unique_ptr<os::IHandler> os::make_nt(core::Core& core)
 {
     auto nt = std::make_unique<OsNt>(core);
     if(!nt)
@@ -238,7 +238,7 @@ bool OsNt::list_procs(const on_proc_fn& on_process)
 
 namespace
 {
-    opt<uint64_t> read_gs_base(core::IHandler& core)
+    opt<uint64_t> read_gs_base(core::Core& core)
     {
         auto gs = core.regs.read(MSR_GS_BASE);
         if(!gs)
@@ -294,7 +294,7 @@ opt<proc_t> OsNt::get_proc(const std::string& name)
 
 namespace
 {
-    opt<std::string> read_unicode_string(core::IHandler& core, uint64_t unicode_string)
+    opt<std::string> read_unicode_string(core::Core& core, uint64_t unicode_string)
     {
         using UnicodeString = struct
         {

@@ -6,13 +6,11 @@
 
 #include "types.hpp"
 
-#include <memory>
-
 typedef struct FDP_SHM_ FDP_SHM;
 namespace core { struct Registers; }
 namespace core { struct Memory; }
 namespace core { struct State; }
-namespace core { struct IHandler; }
+namespace core { struct Core; }
 
 namespace core
 {
@@ -23,5 +21,5 @@ namespace core
 
     void setup(Registers& regs, FDP_SHM& shm);
     void setup(Memory& mem, FDP_SHM& shm);
-    void setup(State& mem, FDP_SHM& shm, IHandler& handler);
+    void setup(State& mem, FDP_SHM& shm, Core& core);
 }

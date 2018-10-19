@@ -49,15 +49,15 @@ namespace
 
 struct core::State::Data
 {
-    Data(FDP_SHM& shm, core::IHandler& core)
+    Data(FDP_SHM& shm, Core& core)
         : shm(shm)
         , core(core)
     {
     }
 
-    FDP_SHM&        shm;
-    core::IHandler& core;
-    Breakpoints     breakpoints;
+    FDP_SHM&    shm;
+    Core&       core;
+    Breakpoints breakpoints;
 };
 
 core::State::State()
@@ -68,20 +68,20 @@ core::State::~State()
 {
 }
 
-void core::setup(State& mem, FDP_SHM& shm, IHandler& handler)
+void core::setup(State& mem, FDP_SHM& shm, Core& core)
 {
-    mem.d_ = std::make_unique<core::State::Data>(shm, handler);
+    mem.d_ = std::make_unique<core::State::Data>(shm, core);
 }
 
 namespace
 {
-    bool update_break_state(core::State& s)
+    bool update_break_state(core::State::Data& d)
     {
-        const auto current = s.d_->core.get_current_proc();
+        const auto current = d.core.os->get_current_proc();
         if(!current)
             FAIL(false, "unable to get current process & update break state");
 
-        s.d_->core.mem.update({*current});
+        d.core.mem.update({*current});
         return true;
     }
 }
@@ -92,7 +92,7 @@ bool core::State::pause()
     if(!ok)
         FAIL(false, "unable to pause");
 
-    const auto updated = update_break_state(*this);
+    const auto updated = update_break_state(*d_);
     return updated;
 }
 
