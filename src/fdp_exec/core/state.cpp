@@ -62,6 +62,8 @@ struct core::State::Data
     Breakpoints breakpoints;
 };
 
+using StateData = core::State::Data;
+
 core::State::State()
 {
 }
@@ -77,7 +79,7 @@ void core::setup(State& mem, FDP_SHM& shm, Core& core)
 
 namespace
 {
-    bool update_break_state(core::State::Data& d)
+    bool update_break_state(StateData& d)
     {
         const auto current = d.core.os->proc_current();
         if(!current)
@@ -86,67 +88,94 @@ namespace
         d.core.mem.update(*current);
         return true;
     }
+
+    bool is_paused(FDP_State state)
+    {
+        return state & (FDP_STATE_BREAKPOINT_HIT | FDP_STATE_HARD_BREAKPOINT_HIT);
+    }
+
+    bool try_pause(StateData& d)
+    {
+        FDP_State state = FDP_STATE_NULL;
+        const auto ok = FDP_GetState(&d.shm, &state);
+        if(!ok)
+            return false;
+
+        if(is_paused(state))
+            return true;
+
+        const auto paused = FDP_Pause(&d.shm);
+        if(!ok)
+            FAIL(false, "unable to pause");
+
+        const auto updated = update_break_state(d);
+        return updated;
+    }
+
+    bool try_resume(StateData& d)
+    {
+        FDP_State state = FDP_STATE_NULL;
+        const auto ok = FDP_GetState(&d.shm, &state);
+        if(!ok)
+            return false;
+
+        if(!is_paused(state))
+            return true;
+
+        if(state & FDP_STATE_BREAKPOINT_HIT)
+            FDP_SingleStep(&d.shm, 0);
+
+        const auto resumed = FDP_Resume(&d.shm);
+        if(!resumed)
+            FAIL(false, "unable to resume");
+
+        return true;
+    }
 }
 
 bool core::State::pause()
 {
-    const auto ok = FDP_Pause(&d_->shm);
-    if(!ok)
-        FAIL(false, "unable to pause");
-
-    const auto updated = update_break_state(*d_);
-    return updated;
+    return try_pause(*d_);
 }
 
 bool core::State::resume()
 {
-    auto& shm = d_->shm;
-    FDP_State state = FDP_STATE_NULL;
-    auto ok = FDP_GetState(&shm, &state);
-    if(ok)
-        if(state & FDP_STATE_BREAKPOINT_HIT)
-            FDP_SingleStep(&shm, 0);
-
-    ok = FDP_Resume(&shm);
-    if(!ok)
-        FAIL(false, "unable to resume");
-
-    return true;
+    return try_resume(*d_);
 }
 
 struct core::BreakpointPrivate
 {
-    BreakpointPrivate(core::State::Data& core, const Observer& observer)
-        : core_(core)
+    BreakpointPrivate(StateData& data, const Observer& observer)
+        : data_(data)
         , observer_(observer)
     {
     }
 
     ~BreakpointPrivate()
     {
-        utils::erase_if(core_.breakpoints.observers_, [&](auto bp)
+        utils::erase_if(data_.breakpoints.observers_, [&](auto bp)
         {
             return observer_ == bp;
         });
-        const auto range = core_.breakpoints.observers_.equal_range(observer_->phy);
+        const auto range = data_.breakpoints.observers_.equal_range(observer_->phy);
         const auto empty = range.first == range.second;
         if(!empty)
             return;
 
-        const auto ok = FDP_UnsetBreakpoint(&core_.shm, static_cast<uint8_t>(observer_->bpid));
+        const auto ok = FDP_UnsetBreakpoint(&data_.shm, observer_->bpid);
         if(!ok)
             LOG(ERROR, "unable to remove breakpoint %d", observer_->bpid);
 
-        core_.breakpoints.targets_.erase(observer_->phy);
+        data_.breakpoints.targets_.erase(observer_->phy);
     }
 
-    core::State::Data&  core_;
-    Observer            observer_;
+    StateData&  data_;
+    Observer    observer_;
 };
 
 namespace
 {
-    void check_breakpoints(core::State::Data& d, FDP_State state)
+    void check_breakpoints(StateData& d, FDP_State state)
     {
         if(!(state & FDP_STATE_BREAKPOINT_HIT))
             return;
@@ -202,7 +231,7 @@ bool core::State::wait()
 
 namespace
 {
-    int try_add_breakpoint(core::State::Data& d, uint64_t phy, const BreakpointObserver& bp)
+    int try_add_breakpoint(StateData& d, uint64_t phy, const BreakpointObserver& bp)
     {
         auto& targets = d.breakpoints.targets_;
         auto dtb = bp.filter == core::FILTER_CR3 ? std::make_optional(bp.proc.dtb) : std::nullopt;
@@ -215,7 +244,7 @@ namespace
                 return it->second.id;
 
             // filtering rules are too restrictive, remove old breakpoint & add an unfiltered breakpoint
-            const auto ok = FDP_UnsetBreakpoint(&d.shm, static_cast<uint8_t>(it->second.id));
+            const auto ok = FDP_UnsetBreakpoint(&d.shm, it->second.id);
             targets.erase(it);
             if(!ok)
                 return -1;
@@ -231,22 +260,27 @@ namespace
         targets.emplace(phy, Breakpoint{dtb, bpid});
         return bpid;
     }
+
+    core::Breakpoint set_breakpoint(StateData& d, uint64_t ptr, proc_t proc, core::filter_e filter, const core::Task& task)
+    {
+        const auto phy = d.core.mem.virtual_to_physical(ptr, proc.dtb);
+        if(!phy)
+            return nullptr;
+
+        const auto bp = std::make_shared<BreakpointObserver>(task, *phy, proc, filter);
+        d.breakpoints.observers_.emplace(*phy, bp);
+        const auto bpid = try_add_breakpoint(d, *phy, *bp);
+
+        // update all observers breakpoint id
+        const auto range = d.breakpoints.observers_.equal_range(*phy);
+        for(auto it = range.first; it != range.second; ++it)
+            it->second->bpid = bpid;
+
+        return std::make_shared<core::BreakpointPrivate>(d, bp);
+    }
 }
 
 core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, core::filter_e filter, const core::Task& task)
 {
-    const auto phy = d_->core.mem.virtual_to_physical(ptr, proc.dtb);
-    if(!phy)
-        return nullptr;
-
-    const auto bp = std::make_shared<BreakpointObserver>(task, *phy, proc, filter);
-    d_->breakpoints.observers_.emplace(*phy, bp);
-    const auto bpid = try_add_breakpoint(*d_, *phy, *bp);
-
-    // update all observers breakpoint id
-    const auto range = d_->breakpoints.observers_.equal_range(*phy);
-    for(auto it = range.first; it != range.second; ++it)
-        it->second->bpid = bpid;
-
-    return std::make_shared<core::BreakpointPrivate>(*d_, bp);
+    return ::set_breakpoint(*d_, ptr, proc, filter, task);
 }

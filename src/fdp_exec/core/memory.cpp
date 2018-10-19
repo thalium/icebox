@@ -25,6 +25,8 @@ struct core::Memory::Data
     opt<proc_t> context;
 };
 
+using MemData = core::Memory::Data;
+
 core::Memory::Memory()
 {
 }
@@ -72,83 +74,87 @@ namespace
     {
         return ~(~uint64_t(0) << bits);
     }
+
+    opt<uint64_t> virtual_to_physical(MemData& m, uint64_t ptr, uint64_t dtb)
+    {
+        const virt_t virt = {read_le64(&ptr)};
+        const auto pml4e_base = dtb & (mask(40) << 12);
+        const auto pml4e_ptr = pml4e_base + virt.u.f.pml4 * 8;
+        entry_t pml4e = {0};
+        auto ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pml4e), sizeof pml4e, pml4e_ptr);
+        if(!ok)
+            return std::nullopt;
+
+        if(!pml4e.u.f.can_read)
+            return std::nullopt;
+
+        const auto pdpe_ptr = pml4e.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pdp * 8;
+        entry_t pdpe = {0};
+        ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pdpe), sizeof pdpe, pdpe_ptr);
+        if(!ok)
+            return std::nullopt;
+
+        if(!pdpe.u.f.can_read)
+            return std::nullopt;
+
+        // 1g page
+        if(pdpe.u.f.large_page)
+        {
+            const auto offset = ptr & mask(30);
+            const auto phy = (pdpe.u.value & (mask(22) << 30)) + offset;
+            return phy;
+        }
+
+        const auto pde_ptr = pdpe.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pd * 8;
+        entry_t pde = {0};
+        ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pde), sizeof pde, pde_ptr);
+        if(!ok)
+            return std::nullopt;
+
+        if(!pde.u.f.can_read)
+            return std::nullopt;
+
+        // 2mb page
+        if(pde.u.f.large_page)
+        {
+            const auto offset = ptr & mask(21);
+            const auto phy = (pde.u.value & (mask(31) << 21)) + offset;
+            return phy;
+        }
+
+        const auto pte_ptr = pde.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pt * 8;
+        entry_t pte = {0};
+        ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pte), sizeof pte, pte_ptr);
+        if(!ok)
+            return std::nullopt;
+
+        // FIXME ignore can_read flag?
+        const auto phy = pte.u.f.page_frame_number * PAGE_SIZE + virt.u.f.offset;
+        return phy;
+    }
 }
 
 opt<uint64_t> core::Memory::virtual_to_physical(uint64_t ptr, uint64_t dtb)
 {
-    auto shm = &d_->shm;
-    const virt_t virt = {read_le64(&ptr)};
-    const auto pml4e_base = dtb & (mask(40) << 12);
-    const auto pml4e_ptr = pml4e_base + virt.u.f.pml4 * 8;
-    entry_t pml4e = {0};
-    auto ok = FDP_ReadPhysicalMemory(shm, reinterpret_cast<uint8_t*>(&pml4e), sizeof pml4e, pml4e_ptr);
-    if(!ok)
-        return std::nullopt;
-
-    if(!pml4e.u.f.can_read)
-        return std::nullopt;
-
-    const auto pdpe_ptr = pml4e.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pdp * 8;
-    entry_t pdpe = {0};
-    ok = FDP_ReadPhysicalMemory(shm, reinterpret_cast<uint8_t*>(&pdpe), sizeof pdpe, pdpe_ptr);
-    if(!ok)
-        return std::nullopt;
-
-    if(!pdpe.u.f.can_read)
-        return std::nullopt;
-
-    // 1g page
-    if(pdpe.u.f.large_page)
-    {
-        const auto offset = ptr & mask(30);
-        const auto phy = (pdpe.u.value & (mask(22) << 30)) + offset;
-        return phy;
-    }
-
-    const auto pde_ptr = pdpe.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pd * 8;
-    entry_t pde = {0};
-    ok = FDP_ReadPhysicalMemory(shm, reinterpret_cast<uint8_t*>(&pde), sizeof pde, pde_ptr);
-    if(!ok)
-        return std::nullopt;
-
-    if(!pde.u.f.can_read)
-        return std::nullopt;
-
-    // 2mb page
-    if(pde.u.f.large_page)
-    {
-        const auto offset = ptr & mask(21);
-        const auto phy = (pde.u.value & (mask(31) << 21)) + offset;
-        return phy;
-    }
-
-    const auto pte_ptr = pde.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pt * 8;
-    entry_t pte = {0};
-    ok = FDP_ReadPhysicalMemory(shm, reinterpret_cast<uint8_t*>(&pte), sizeof pte, pte_ptr);
-    if(!ok)
-        return std::nullopt;
-
-    // FIXME ignore can_read flag?
-    const auto phy = pte.u.f.page_frame_number * PAGE_SIZE + virt.u.f.offset;
-    return phy;
+    return ::virtual_to_physical(*d_, ptr, dtb);
 }
+
 
 namespace
 {
-    bool read_virtual(core::Memory& mem, uint8_t* dst, uint64_t src, uint32_t size)
+    bool read_virtual(MemData& m, uint8_t* dst, uint64_t src, uint32_t size)
     {
-        const auto ok = FDP_ReadVirtualMemory(&mem.d_->shm, 0, dst, size, src);
+        const auto ok = FDP_ReadVirtualMemory(&m.shm, 0, dst, size, src);
         if(!ok)
             FAIL(false, "unable to read mem 0x%llx-0x%llx (%u 0x%x bytes)", src, src + size, size, size);
 
         return true;
     }
 
-    bool try_read_mem(core::Memory& mem, uint8_t* dst, uint64_t src, uint32_t size)
+    bool try_read_mem(MemData& m, uint8_t* dst, uint64_t src, uint32_t size)
     {
-        auto& d = *mem.d_;
-        if(!d.context || d.current.dtb == d.context->dtb)
-            return read_virtual(mem, dst, src, size);
+        if(!m.context || m.current.dtb == m.context->dtb)
+            return read_virtual(m, dst, src, size);
 
         uint8_t buffer[PAGE_SIZE];
         size_t fill = 0;
@@ -156,11 +162,11 @@ namespace
         size_t skip = src - ptr;
         while(fill < size)
         {
-            auto phy = mem.virtual_to_physical(ptr, d.context->dtb);
+            auto phy = virtual_to_physical(m, ptr, m.context->dtb);
             if(!phy)
-                FAIL(false, "unable to convert virtual address 0x%llx to physical after page fault injection: dtb = 0x%llx", ptr, d.context->dtb);
+                FAIL(false, "unable to convert virtual address 0x%llx to physical after page fault injection: dtb = 0x%llx", ptr, m.context->dtb);
 
-            const auto ok = FDP_ReadPhysicalMemory(&d.shm, buffer, sizeof buffer, *phy);
+            const auto ok = FDP_ReadPhysicalMemory(&m.shm, buffer, sizeof buffer, *phy);
             if(!ok)
                 FAIL(false, "unable to read phy mem 0x%llx-0x%llx virtual 0x%llx-0x%llx (%zd 0x%zx bytes)",
                      *phy, *phy + sizeof buffer, ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
@@ -181,7 +187,7 @@ bool core::Memory::virtual_read(void* vdst, uint64_t src, size_t size)
     const auto dst = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
     if(size < PAGE_SIZE)
-        return try_read_mem(*this, dst, src, usize);
+        return try_read_mem(*d_, dst, src, usize);
 
     // FIXME check if we can read bigger than PAGE_SIZE at once
     uint8_t buffer[PAGE_SIZE];
@@ -189,7 +195,7 @@ bool core::Memory::virtual_read(void* vdst, uint64_t src, size_t size)
     while(read < usize)
     {
         const auto chunk = std::min<uint32_t>(sizeof buffer, usize - read);
-        const auto ok = try_read_mem(*this, &dst[read], src + read, chunk);
+        const auto ok = try_read_mem(*d_, &dst[read], src + read, chunk);
         if(!ok)
             return false;
 
