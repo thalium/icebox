@@ -4,7 +4,7 @@
 
 namespace
 {
-    static constexpr bool is_little_endian = 0x41424344 == 'ABCD';
+    static constexpr bool is_little_endian = true;
 }
 
 #ifdef _MSC_VER
