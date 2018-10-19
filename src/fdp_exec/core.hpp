@@ -8,7 +8,7 @@
 
 #include <memory>
 
-namespace os { struct IHandler; }
+namespace os { struct IModule; }
 
 namespace core
 {
@@ -22,7 +22,7 @@ namespace core
         Memory                          mem;
         State                           state;
         sym::Symbols                    sym;
-        std::unique_ptr<os::IHandler>   os;
+        std::unique_ptr<os::IModule>    os;
 
         // private data
         struct Data;

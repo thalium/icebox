@@ -97,22 +97,22 @@ namespace
     using SymbolOffsets = std::array<uint64_t, SYMBOL_OFFSET_COUNT>;
 
     struct OsNt
-        : public os::IHandler
+        : public os::IModule
     {
         OsNt(core::Core& core);
 
         // methods
         bool setup();
 
-        // os::IHandler
-        bool                list_procs(const on_proc_fn& on_process) override;
-        opt<proc_t>         get_current_proc() override;
-        opt<proc_t>         get_proc(const std::string& name) override;
-        opt<std::string>    get_proc_name(proc_t proc) override;
-        bool                list_mods(proc_t proc, const on_mod_fn& on_module) override;
-        opt<std::string>    get_mod_name(proc_t proc, mod_t mod) override;
-        opt<span_t>         get_mod_span(proc_t proc, mod_t mod) override;
-        bool                has_virtual(proc_t proc) override;
+        // os::IModule
+        bool                proc_list       (const on_proc_fn& on_process) override;
+        opt<proc_t>         proc_current    () override;
+        opt<proc_t>         proc_find       (const std::string& name) override;
+        opt<std::string>    proc_name       (proc_t proc) override;
+        bool                proc_is_valid   (proc_t proc) override;
+        bool                mod_list        (proc_t proc, const on_mod_fn& on_module) override;
+        opt<std::string>    mod_name        (proc_t proc, mod_t mod) override;
+        opt<span_t>         mod_span        (proc_t proc, mod_t mod) override;
 
         // members
         core::Core&     core_;
@@ -203,7 +203,7 @@ bool OsNt::setup()
     return true;
 }
 
-std::unique_ptr<os::IHandler> os::make_nt(core::Core& core)
+std::unique_ptr<os::IModule> os::make_nt(core::Core& core)
 {
     auto nt = std::make_unique<OsNt>(core);
     if(!nt)
@@ -216,7 +216,7 @@ std::unique_ptr<os::IHandler> os::make_nt(core::Core& core)
     return nt;
 }
 
-bool OsNt::list_procs(const on_proc_fn& on_process)
+bool OsNt::proc_list(const on_proc_fn& on_process)
 {
     const auto head = symbols_[PsActiveProcessHead];
     for(auto link = core::read_ptr(core_, head); link != head; link = core::read_ptr(core_, *link))
@@ -255,7 +255,7 @@ namespace
     }
 }
 
-opt<proc_t> OsNt::get_current_proc()
+opt<proc_t> OsNt::proc_current()
 {
     const auto gs = read_gs_base(core_);
     if(!gs)
@@ -277,12 +277,12 @@ opt<proc_t> OsNt::get_current_proc()
     return proc_t{eproc, *dtb};
 }
 
-opt<proc_t> OsNt::get_proc(const std::string& name)
+opt<proc_t> OsNt::proc_find(const std::string& name)
 {
     opt<proc_t> found;
-    list_procs([&](proc_t proc)
+    proc_list([&](proc_t proc)
     {
-        const auto got = get_proc_name(proc);
+        const auto got = proc_name(proc);
         if(got != name)
             return WALK_NEXT;
 
@@ -325,7 +325,7 @@ namespace
     }
 }
 
-opt<std::string> OsNt::get_proc_name(proc_t proc)
+opt<std::string> OsNt::proc_name(proc_t proc)
 {
     // EPROCESS.ImageFileName is 16 bytes, but only 14 are actually used
     char buffer[14+1];
@@ -349,7 +349,7 @@ opt<std::string> OsNt::get_proc_name(proc_t proc)
     return fs::path(*path).filename().generic_string();
 }
 
-bool OsNt::list_mods(proc_t proc, const on_mod_fn& on_mod)
+bool OsNt::mod_list(proc_t proc, const on_mod_fn& on_mod)
 {
     const auto peb = core::read_ptr(core_, proc.id + members_[EPROCESS_Peb]);
     if(!peb)
@@ -372,19 +372,19 @@ bool OsNt::list_mods(proc_t proc, const on_mod_fn& on_mod)
     return true;
 }
 
-opt<std::string> OsNt::get_mod_name(proc_t proc, mod_t mod)
+opt<std::string> OsNt::mod_name(proc_t proc, mod_t mod)
 {
     const auto ctx = core_.mem.switch_process(proc);
     return read_unicode_string(core_, mod + members_[LDR_DATA_TABLE_ENTRY_FullDllName]);
 }
 
-bool OsNt::has_virtual(proc_t proc)
+bool OsNt::proc_is_valid(proc_t proc)
 {
     const auto vad_root = core::read_ptr(core_, proc.id + members_[EPROCESS_VadRoot]);
     return vad_root && *vad_root;
 }
 
-opt<span_t> OsNt::get_mod_span(proc_t proc, mod_t mod)
+opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
 {
     const auto ctx = core_.mem.switch_process(proc);
     const auto base = core::read_ptr(core_, mod + members_[LDR_DATA_TABLE_ENTRY_DllBase]);

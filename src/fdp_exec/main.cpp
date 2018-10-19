@@ -29,18 +29,18 @@ int main(int argc, char* argv[])
     core.state.pause();
 
     LOG(INFO, "get proc");
-    const auto pc = core.os->get_current_proc();
-    LOG(INFO, "current process: %llx dtb: %llx %s", pc->id, pc->dtb, core.os->get_proc_name(*pc)->data());
+    const auto pc = core.os->proc_current();
+    LOG(INFO, "current process: %llx dtb: %llx %s", pc->id, pc->dtb, core.os->proc_name(*pc)->data());
 
     LOG(INFO, "processes:");
-    core.os->list_procs([&](proc_t proc)
+    core.os->proc_list([&](proc_t proc)
     {
-        const auto procname = core.os->get_proc_name(proc);
+        const auto procname = core.os->proc_name(proc);
         LOG(INFO, "proc: %llx %s", proc.id, procname ? procname->data() : "<noname>");
-        core.os->list_mods(proc, [&](mod_t mod)
+        core.os->mod_list(proc, [&](mod_t mod)
         {
-            const auto modname = core.os->get_mod_name(proc, mod);
-            const auto span = core.os->get_mod_span(proc, mod);
+            const auto modname = core.os->mod_name(proc, mod);
+            const auto span = core.os->mod_span(proc, mod);
             if(false)
                 LOG(INFO, "    module: %llx %s 0x%llx 0x%llx", mod, modname ? modname->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
             return WALK_NEXT;
@@ -49,8 +49,8 @@ int main(int argc, char* argv[])
     });
 
     LOG(INFO, "searching notepad.exe");
-    const auto notepad = core.os->get_proc("notepad.exe");
-    LOG(INFO, "notepad.exe: %llx %s", notepad->id, core.os->get_proc_name(*notepad)->data());
+    const auto notepad = core.os->proc_find("notepad.exe");
+    LOG(INFO, "notepad.exe: %llx %s", notepad->id, core.os->proc_name(*notepad)->data());
 
     const auto write_file = core.sym.symbol("nt", "NtWriteFile");
     LOG(INFO, "WriteFile = 0x%llx", write_file ? *write_file : 0);

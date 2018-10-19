@@ -79,7 +79,7 @@ namespace
 {
     bool update_break_state(core::State::Data& d)
     {
-        const auto current = d.core.os->get_current_proc();
+        const auto current = d.core.os->proc_current();
         if(!current)
             FAIL(false, "unable to get current process & update break state");
 
