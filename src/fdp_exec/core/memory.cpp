@@ -3,7 +3,7 @@
 #define PRIVATE_CORE__
 #define FDP_MODULE "mem"
 #include "log.hpp"
-#include "utils.hpp"
+#include "utils/utils.hpp"
 #include "mmu.hpp"
 #include "endian.hpp"
 #include "core.hpp"

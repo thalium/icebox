@@ -3,10 +3,10 @@
 #define FDP_MODULE "os_nt"
 #include "log.hpp"
 #include "core.hpp"
-#include "utils.hpp"
-#include "utf8.hpp"
 #include "core_helpers.hpp"
-#include "pe.hpp"
+#include "utils/utils.hpp"
+#include "utils/utf8.hpp"
+#include "utils/pe.hpp"
 
 #include <array>
 #include <experimental/filesystem>
