@@ -76,6 +76,7 @@ namespace
         KiSystemCall64,
         PsActiveProcessHead,
         PsInitialSystemProcess,
+        PsLoadedModuleList,
         SYMBOL_OFFSET_COUNT,
     };
 
@@ -90,6 +91,7 @@ namespace
         {KiSystemCall64,            "nt", "KiSystemCall64"},
         {PsActiveProcessHead,       "nt", "PsActiveProcessHead"},
         {PsInitialSystemProcess,    "nt", "PsInitialSystemProcess"},
+        {PsLoadedModuleList,        "nt", "PsLoadedModuleList"},
     };
     static_assert(COUNT_OF(g_symbol_offsets) == SYMBOL_OFFSET_COUNT, "invalid symbols");
 
@@ -110,9 +112,15 @@ namespace
         opt<proc_t>         proc_find       (const std::string& name) override;
         opt<std::string>    proc_name       (proc_t proc) override;
         bool                proc_is_valid   (proc_t proc) override;
+
         bool                mod_list        (proc_t proc, const on_mod_fn& on_module) override;
         opt<std::string>    mod_name        (proc_t proc, mod_t mod) override;
         opt<span_t>         mod_span        (proc_t proc, mod_t mod) override;
+
+        bool                driver_list     (const on_driver_fn& on_driver) override;
+        opt<driver_t>       driver_find     (const std::string& name) override;
+        opt<std::string>    driver_name     (driver_t drv) override;
+        opt<span_t>         driver_span     (driver_t drv) override;
 
         // members
         core::Core&     core_;
@@ -392,6 +400,48 @@ opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
         return std::nullopt;
 
     const auto size = core::read_ptr(core_, mod + members_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
+    if(!size)
+        return std::nullopt;
+
+    return span_t{*base, *size};
+}
+
+bool OsNt::driver_list(const on_driver_fn& on_driver)
+{
+    const auto head = symbols_[PsLoadedModuleList];
+    for(auto link = core::read_ptr(core_, head); link != head; link = core::read_ptr(core_, *link))
+        if(on_driver({*link - members_[LDR_DATA_TABLE_ENTRY_InLoadOrderLinks]}) == WALK_STOP)
+            break;
+    return true;
+}
+
+opt<driver_t> OsNt::driver_find(const std::string& name)
+{
+    opt<driver_t> found;
+    driver_list([&](driver_t driver)
+    {
+        const auto got = driver_name(driver);
+        if(got != name)
+            return WALK_NEXT;
+
+        found = driver;
+        return WALK_STOP;
+    });
+    return found;
+}
+
+opt<std::string> OsNt::driver_name(driver_t drv)
+{
+    return read_unicode_string(core_, drv + members_[LDR_DATA_TABLE_ENTRY_FullDllName]);
+}
+
+opt<span_t> OsNt::driver_span(driver_t drv)
+{
+    const auto base = core::read_ptr(core_, drv + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
+    if(!base)
+        return std::nullopt;
+
+    const auto size = core::read_ptr(core_, drv + members_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
     if(!size)
         return std::nullopt;
 

@@ -28,6 +28,15 @@ int main(int argc, char* argv[])
     core.state.resume();
     core.state.pause();
 
+    LOG(INFO, "drivers:");
+    core.os->driver_list([&](driver_t drv)
+    {
+        const auto name = core.os->driver_name(drv);
+        const auto span = core.os->driver_span(drv);
+        LOG(INFO, "    driver: %llx %s 0x%llx 0x%llx", drv, name ? name->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
+        return WALK_NEXT;
+    });
+
     LOG(INFO, "get proc");
     const auto pc = core.os->proc_current();
     LOG(INFO, "current process: %llx dtb: %llx %s", pc->id, pc->dtb, core.os->proc_name(*pc)->data());
