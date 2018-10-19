@@ -146,7 +146,7 @@ typedef ALIGNED_(1) struct FDP_SHM_SHARED_
     FDP_SHM_CANAL ServerToClient;
 } FDP_SHM_SHARED;
 
-typedef ALIGNED_(1) struct FDP_SHM_
+ALIGNED_(1) struct FDP_SHM_
 {
     FDP_SHM_SHARED *pSharedFDPSHM;              //Shared part of the FDP SHM
     uint8_t InputBuffer[FDP_MAX_DATA_SIZE];     //Used as temporary input buffer
@@ -154,7 +154,7 @@ typedef ALIGNED_(1) struct FDP_SHM_
 
     FDP_SERVER_INTERFACE_T    *pFdpServer;
     FDP_CPU_CTX                *pCpuShm;
-} FDP_SHM;
+};
 
 #define FDP_SHM_SHARED_SIZE sizeof(FDP_SHM_SHARED)
 

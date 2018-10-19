@@ -24,6 +24,10 @@
 #ifndef __FDP_H__
 #define __FDP_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "FDP_enum.h"
 
 
@@ -45,15 +49,11 @@
 
 #define FDP_NO_CR3 0
 
-#ifdef __cplusplus
-extern "C" {
-#else
-    typedef struct _uint128_t
+    typedef struct _uint128_t_
     {
         uint64_t high;
         uint64_t low;
-    } uint128_t;
-#endif
+    } _uint128_t;
 
     typedef struct ALIGNED_(16) FDP_XSAVE_FORMAT64_T_
     {
@@ -70,16 +70,16 @@ extern "C" {
         uint16_t    Reserved3;
         uint32_t    MxCsr;
         uint32_t    MxCsr_Mask;
-        uint128_t   FloatRegisters[8];
+        _uint128_t   FloatRegisters[8];
 
-        uint128_t   XmmRegisters[16];
+        _uint128_t   XmmRegisters[16];
         uint8_t     Reserved4[96];
     } FDP_XSAVE_FORMAT64_T;
 
 #define    FDP_MAX_BREAKPOINT 255
 
 
-    typedef ALIGNED_(1) struct FDP_SHM_ FDP_SHM;
+    typedef struct FDP_SHM_ FDP_SHM;
 
     typedef struct _FDP_SERVER_INTERFACE_T{
         bool bIsRunning;
