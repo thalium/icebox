@@ -9,14 +9,18 @@
 
 namespace core
 {
-    struct IRegisters
+    struct Registers
     {
-        virtual ~IRegisters() = default;
+         Registers();
+        ~Registers();
 
-        virtual opt<uint64_t>   read_reg    (reg_e reg) = 0;
-        virtual bool            write_reg   (reg_e reg, uint64_t value) = 0;
-        virtual opt<uint64_t>   read_msr    (msr_e reg) = 0;
-        virtual bool            write_msr   (msr_e reg, uint64_t value) = 0;
+        opt<uint64_t>   read    (reg_e reg);
+        bool            write   (reg_e reg, uint64_t value);
+        opt<uint64_t>   read    (msr_e reg);
+        bool            write   (msr_e reg, uint64_t value);
+
+        struct Data;
+        std::unique_ptr<Data> d_;
     };
 
     // auto-managed process object
@@ -57,14 +61,14 @@ namespace core
     };
 
     struct IHandler
-        : public IRegisters
-        , public IMemory
+        : public IMemory
         , public IState
         , public os::IHandler
     {
         virtual ~IHandler() = default;
 
-        sym::Symbols sym;
+        Registers       regs;
+        sym::Symbols    sym;
     };
     std::unique_ptr<IHandler> make_core(const std::string& name);
 }

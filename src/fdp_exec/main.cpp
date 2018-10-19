@@ -56,8 +56,8 @@ int main(int argc, char* argv[])
     {
         const auto bp = core->set_breakpoint(*write_file, *notepad, core::FILTER_CR3, [&]
         {
-            const auto rip = core->read_reg(FDP_RIP_REGISTER);
-            const auto cr3 = core->read_reg(FDP_CR3_REGISTER);
+            const auto rip = core->regs.read(FDP_RIP_REGISTER);
+            const auto cr3 = core->regs.read(FDP_CR3_REGISTER);
             LOG(INFO, "rip: 0x%llx cr3: 0x%llx", rip ? *rip : 0, cr3 ? *cr3 : 0);
         });
         for(auto i = 0; i < 2; ++i)

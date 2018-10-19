@@ -7,13 +7,10 @@ namespace
     using Modules = std::unordered_map<std::string, std::unique_ptr<sym::IMod>>;
 }
 
-namespace sym
+struct sym::Symbols::Data
 {
-    struct Symbols::Data
-    {
-        Modules mods_;
-    };
-}
+    Modules mods_;
+};
 
 sym::Symbols::Symbols()
     : d_(std::make_unique<Data>())

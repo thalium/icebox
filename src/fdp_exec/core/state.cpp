@@ -153,11 +153,11 @@ namespace
         if(s.breakpoints_.observers_.empty())
             return;
 
-        const auto rip = s.core_.read_reg(FDP_RIP_REGISTER);
+        const auto rip = s.core_.regs.read(FDP_RIP_REGISTER);
         if(!rip)
             return;
 
-        const auto cr3 = s.core_.read_reg(FDP_CR3_REGISTER);
+        const auto cr3 = s.core_.regs.read(FDP_CR3_REGISTER);
         if(!cr3)
             return;
 

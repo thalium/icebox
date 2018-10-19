@@ -150,7 +150,7 @@ namespace
 
 bool OsNt::setup()
 {
-    const auto lstar = core_.read_msr(MSR_LSTAR);
+    const auto lstar = core_.regs.read(MSR_LSTAR);
     if(!lstar)
         return false;
 
@@ -240,14 +240,14 @@ namespace
 {
     opt<uint64_t> read_gs_base(core::IHandler& core)
     {
-        auto gs = core.read_msr(MSR_GS_BASE);
+        auto gs = core.regs.read(MSR_GS_BASE);
         if(!gs)
             return std::nullopt;
 
         if(*gs & 0xFFF0000000000000)
             return gs;
 
-        gs = core.read_msr(MSR_KERNEL_GS_BASE);
+        gs = core.regs.read(MSR_KERNEL_GS_BASE);
         if(!gs)
             return std::nullopt;
 

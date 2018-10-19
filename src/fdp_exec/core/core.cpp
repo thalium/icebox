@@ -13,7 +13,6 @@ namespace std
     template<> struct default_delete<FDP_SHM> { static const bool marker = true; void operator()(FDP_SHM* /*ptr*/) {} }; // FIXME no deleter
 }
 
-
 namespace
 {
     static const int CPU_ID = 0;
@@ -38,12 +37,6 @@ namespace
         }
 
         bool setup();
-
-        // core::IRegisters
-        opt<uint64_t>   read_reg    (reg_e reg) override;
-        bool            write_reg   (reg_e reg, uint64_t value) override;
-        opt<uint64_t>   read_msr    (msr_e reg) override;
-        bool            write_msr   (msr_e reg, uint64_t value) override;
 
         // core::IMemory
         void                    update              (const core::BreakState& state) override;
@@ -70,7 +63,6 @@ namespace
         // members
         const std::string                   name_;
         std::unique_ptr<FDP_SHM>            shm_;
-        std::unique_ptr<core::IRegisters>   regs_;
         std::unique_ptr<core::IMemory>      mem_;
         std::unique_ptr<core::IState>       state_;
         std::unique_ptr<os::IHandler>       os_;
@@ -98,9 +90,7 @@ bool Core::setup()
     if(!ok)
         FAIL(false, "unable to init shm");
 
-    regs_ = core::make_registers(*ptr_shm);
-    if(!regs_)
-        FAIL(false, "unable to init register module");
+    core::setup(regs, *ptr_shm);
 
     mem_ = core::make_memory(*ptr_shm);
     if(!mem_)
@@ -121,26 +111,6 @@ bool Core::setup()
         return false;
 
     return true;
-}
-
-opt<uint64_t> Core::read_reg(reg_e reg)
-{
-    return regs_->read_reg(reg);
-}
-
-bool Core::write_reg(reg_e reg, uint64_t value)
-{
-    return regs_->write_reg(reg, value);
-}
-
-opt<uint64_t> Core::read_msr(msr_e reg)
-{
-    return regs_->read_msr(reg);
-}
-
-bool Core::write_msr(msr_e reg, uint64_t value)
-{
-    return regs_->write_msr(reg, value);
 }
 
 void Core::update(const core::BreakState& state)
