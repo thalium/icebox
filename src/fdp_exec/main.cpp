@@ -37,9 +37,11 @@ int main(int argc, char* argv[])
         return WALK_NEXT;
     });
 
-    LOG(INFO, "get proc");
     const auto pc = core.os->proc_current();
     LOG(INFO, "current process: %llx dtb: %llx %s", pc->id, pc->dtb, core.os->proc_name(*pc)->data());
+
+    const auto tc = core.os->thread_current();
+    LOG(INFO, "current thread: %llx", tc->id);
 
     LOG(INFO, "processes:");
     core.os->proc_list([&](proc_t proc)
@@ -52,6 +54,12 @@ int main(int argc, char* argv[])
             const auto span = core.os->mod_span(proc, mod);
             if(false)
                 LOG(INFO, "    module: %llx %s 0x%llx 0x%llx", mod.id, modname ? modname->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
+            return WALK_NEXT;
+        });
+        core.os->thread_list(proc, [&](thread_t thread)
+        {
+            const auto rip = core.os->thread_pc(proc, thread);
+            LOG(INFO, "    thread: %llx rip: %llx", thread.id, rip ? *rip : 0);
             return WALK_NEXT;
         });
         return WALK_NEXT;
