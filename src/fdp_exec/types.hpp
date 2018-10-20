@@ -13,6 +13,11 @@ struct proc_t
     uint64_t dtb;
 };
 
+struct thread_t
+{
+    uint64_t id;
+};
+
 struct mod_t
 {
     uint64_t id;

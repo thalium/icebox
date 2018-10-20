@@ -21,11 +21,16 @@ namespace
         EPROCESS_Pcb,
         EPROCESS_Peb,
         EPROCESS_SeAuditProcessCreationInfo,
+        EPROCESS_ThreadListHead,
         EPROCESS_VadRoot,
+        ETHREAD_Tcb,
+        ETHREAD_ThreadListEntry,
         KPCR_Prcb,
         KPRCB_CurrentThread,
         KPROCESS_DirectoryTableBase,
         KTHREAD_Process,
+        KTHREAD_TrapFrame,
+        KTRAP_FRAME_Rip,
         LDR_DATA_TABLE_ENTRY_DllBase,
         LDR_DATA_TABLE_ENTRY_FullDllName,
         LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,
@@ -53,11 +58,16 @@ namespace
         {EPROCESS_Pcb,                                  "nt", "_EPROCESS",                        "Pcb"},
         {EPROCESS_Peb,                                  "nt", "_EPROCESS",                        "Peb"},
         {EPROCESS_SeAuditProcessCreationInfo,           "nt", "_EPROCESS",                        "SeAuditProcessCreationInfo"},
+        {EPROCESS_ThreadListHead,                       "nt", "_EPROCESS",                        "ThreadListHead"},
         {EPROCESS_VadRoot,                              "nt", "_EPROCESS",                        "VadRoot"},
+        {ETHREAD_Tcb,                                   "nt", "_ETHREAD",                         "Tcb"},
+        {ETHREAD_ThreadListEntry,                       "nt", "_ETHREAD",                         "ThreadListEntry"},
         {KPCR_Prcb,                                     "nt", "_KPCR",                            "Prcb"},
         {KPRCB_CurrentThread,                           "nt", "_KPRCB",                           "CurrentThread"},
         {KPROCESS_DirectoryTableBase,                   "nt", "_KPROCESS",                        "DirectoryTableBase"},
         {KTHREAD_Process,                               "nt", "_KTHREAD",                         "Process"},
+        {KTHREAD_TrapFrame,                             "nt", "_KTHREAD",                         "TrapFrame"},
+        {KTRAP_FRAME_Rip,                               "nt", "_KTRAP_FRAME",                     "Rip"},
         {LDR_DATA_TABLE_ENTRY_DllBase,                  "nt", "_LDR_DATA_TABLE_ENTRY",            "DllBase"},
         {LDR_DATA_TABLE_ENTRY_FullDllName,              "nt", "_LDR_DATA_TABLE_ENTRY",            "FullDllName"},
         {LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,         "nt", "_LDR_DATA_TABLE_ENTRY",            "InLoadOrderLinks"},
@@ -112,6 +122,11 @@ namespace
         opt<proc_t>         proc_find       (const std::string& name) override;
         opt<std::string>    proc_name       (proc_t proc) override;
         bool                proc_is_valid   (proc_t proc) override;
+
+        bool                thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
+        opt<thread_t>       thread_current  () override;
+        opt<proc_t>         thread_proc     (thread_t thread) override;
+        opt<uint64_t>       thread_pc       (proc_t proc, thread_t thread) override;
 
         bool                mod_list        (proc_t proc, const on_mod_fn& on_module) override;
         opt<std::string>    mod_name        (proc_t proc, mod_t mod) override;
@@ -265,24 +280,11 @@ namespace
 
 opt<proc_t> OsNt::proc_current()
 {
-    const auto gs = read_gs_base(core_);
-    if(!gs)
-        return std::nullopt;
+    const auto current = thread_current();
+    if(!current)
+        FAIL(std::nullopt, "unable to get current thread");
 
-    const auto current_thread = core::read_ptr(core_, *gs + members_[KPCR_Prcb] + members_[KPRCB_CurrentThread]);
-    if(!current_thread)
-        FAIL(std::nullopt, "unable to read KPCR.Prcb.CurrentThread");
-
-    const auto kproc = core::read_ptr(core_, *current_thread + members_[KTHREAD_Process]);
-    if(!kproc)
-        FAIL(std::nullopt, "unable to read KTHREAD.Process");
-
-    const auto dtb = core::read_ptr(core_, *kproc + members_[KPROCESS_DirectoryTableBase]);
-    if(!dtb)
-        FAIL(std::nullopt, "unable to read KPROCESS.DirectoryTableBase");
-
-    const auto eproc = *kproc - members_[EPROCESS_Pcb];
-    return proc_t{eproc, *dtb};
+    return thread_proc(*current);
 }
 
 opt<proc_t> OsNt::proc_find(const std::string& name)
@@ -446,4 +448,58 @@ opt<span_t> OsNt::driver_span(driver_t drv)
         return std::nullopt;
 
     return span_t{*base, *size};
+}
+
+bool OsNt::thread_list(proc_t proc, const on_thread_fn& on_thread)
+{
+    const auto head = proc.id + members_[EPROCESS_ThreadListHead];
+    for(auto link = core::read_ptr(core_, head); link && link != head; link = core::read_ptr(core_, *link))
+        if(on_thread({*link - members_[ETHREAD_ThreadListEntry]}) == WALK_STOP)
+            break;
+
+    return true;
+}
+
+opt<thread_t> OsNt::thread_current()
+{
+    const auto gs = read_gs_base(core_);
+    if(!gs)
+        return std::nullopt;
+
+    const auto current_thread = core::read_ptr(core_, *gs + members_[KPCR_Prcb] + members_[KPRCB_CurrentThread]);
+    if(!current_thread)
+        FAIL(std::nullopt, "unable to read KPCR.Prcb.CurrentThread");
+
+    return thread_t{*current_thread};
+}
+
+opt<proc_t> OsNt::thread_proc(thread_t thread)
+{
+    const auto kproc = core::read_ptr(core_, thread.id + members_[KTHREAD_Process]);
+    if(!kproc)
+        FAIL(std::nullopt, "unable to read KTHREAD.Process");
+
+    const auto dtb = core::read_ptr(core_, *kproc + members_[KPROCESS_DirectoryTableBase]);
+    if(!dtb)
+        FAIL(std::nullopt, "unable to read KPROCESS.DirectoryTableBase");
+
+    const auto eproc = *kproc - members_[EPROCESS_Pcb];
+    return proc_t{eproc, *dtb};
+}
+
+opt<uint64_t> OsNt::thread_pc(proc_t proc, thread_t thread)
+{
+    const auto ktrap_frame = core::read_ptr(core_, thread.id + members_[ETHREAD_Tcb] + members_[KTHREAD_TrapFrame]);
+    if(!ktrap_frame)
+        FAIL(std::nullopt, "unable to read KTHREAD.TrapFrame");
+
+    if(!*ktrap_frame)
+        return std::nullopt;
+
+    const auto ctx = core_.mem.switch_process(proc);
+    const auto rip = core::read_ptr(core_, *ktrap_frame + members_[KTRAP_FRAME_Rip]);
+    if(!rip)
+        FAIL(std::nullopt, "unable to read KTRAP_FRAME.Rip");
+
+    return *rip;
 }
