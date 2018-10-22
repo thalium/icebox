@@ -71,6 +71,9 @@ bool core::setup(Core& core, const std::string& name)
     if(!ok)
         FAIL(false, "unable to init shm");
 
+    for(int i = 0; i < FDP_MAX_BREAKPOINT; ++i)
+        FDP_UnsetBreakpoint(ptr_shm, i);
+
     core::setup(core.regs, *ptr_shm);
     core::setup(core.mem, *ptr_shm);
     core::setup(core.state, *ptr_shm, core);
