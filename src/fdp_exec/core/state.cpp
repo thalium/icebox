@@ -89,11 +89,6 @@ namespace
         return true;
     }
 
-    bool is_paused(FDP_State state)
-    {
-        return state & (FDP_STATE_BREAKPOINT_HIT | FDP_STATE_HARD_BREAKPOINT_HIT);
-    }
-
     bool try_pause(StateData& d)
     {
         FDP_State state = FDP_STATE_NULL;
@@ -101,7 +96,7 @@ namespace
         if(!ok)
             return false;
 
-        if(is_paused(state))
+        if(state & FDP_STATE_PAUSED)
             return true;
 
         const auto paused = FDP_Pause(&d.shm);
@@ -119,11 +114,12 @@ namespace
         if(!ok)
             return false;
 
-        if(!is_paused(state))
+        if(!(state & FDP_STATE_PAUSED))
             return true;
 
-        if(state & FDP_STATE_BREAKPOINT_HIT)
-            FDP_SingleStep(&d.shm, 0);
+        if(false)
+            if(state & FDP_STATE_BREAKPOINT_HIT)
+                FDP_SingleStep(&d.shm, 0);
 
         const auto resumed = FDP_Resume(&d.shm);
         if(!resumed)
@@ -203,7 +199,8 @@ namespace
             if(bp.filter == core::FILTER_CR3 && bp.proc.dtb != *cr3)
                 continue;
 
-            bp.task();
+            if(bp.task)
+                bp.task();
         }
     }
 }
@@ -283,4 +280,9 @@ namespace
 core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, core::filter_e filter, const core::Task& task)
 {
     return ::set_breakpoint(*d_, ptr, proc, filter, task);
+}
+
+core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, filter_e filter)
+{
+    return ::set_breakpoint(*d_, ptr, proc, filter, {});
 }

@@ -6,6 +6,9 @@
 
 #include <thread>
 #include <chrono>
+#include <filesystem>
+
+namespace fs = std::experimental::filesystem;
 
 int main(int argc, char* argv[])
 {
@@ -48,43 +51,43 @@ int main(int argc, char* argv[])
     {
         const auto procname = core.os->proc_name(proc);
         LOG(INFO, "proc: %llx %s", proc.id, procname ? procname->data() : "<noname>");
-        core.os->mod_list(proc, [&](mod_t mod)
-        {
-            const auto modname = core.os->mod_name(proc, mod);
-            const auto span = core.os->mod_span(proc, mod);
-            if(false)
-                LOG(INFO, "    module: %llx %s 0x%llx 0x%llx", mod.id, modname ? modname->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
-            return WALK_NEXT;
-        });
-        core.os->thread_list(proc, [&](thread_t thread)
-        {
-            const auto rip = core.os->thread_pc(proc, thread);
-            LOG(INFO, "    thread: %llx rip: %llx", thread.id, rip ? *rip : 0);
-            return WALK_NEXT;
-        });
         return WALK_NEXT;
     });
 
     LOG(INFO, "searching notepad.exe");
     const auto notepad = core.os->proc_find("notepad.exe");
-    LOG(INFO, "notepad.exe: %llx %s", notepad->id, core.os->proc_name(*notepad)->data());
+    LOG(INFO, "notepad.exe: %" PRIx64 " dtb: %" PRIx64 " %s", notepad->id, notepad->dtb, core.os->proc_name(*notepad)->data());
 
-    const auto write_file = core.sym.symbol("nt", "NtWriteFile");
-    LOG(INFO, "WriteFile = 0x%llx", write_file ? *write_file : 0);
-    if(write_file)
+    const auto WriteFile = core.sym.symbol("nt", "NtWriteFile");
+    LOG(INFO, "WriteFile = 0x%llx", WriteFile ? *WriteFile : 0);
+
+    // load all modules
     {
-        const auto bp = core.state.set_breakpoint(*write_file, *notepad, core::FILTER_CR3, [&]
-        {
-            const auto rip = core.regs.read(FDP_RIP_REGISTER);
-            const auto cr3 = core.regs.read(FDP_CR3_REGISTER);
-            LOG(INFO, "rip: 0x%llx cr3: 0x%llx", rip ? *rip : 0, cr3 ? *cr3 : 0);
-        });
-        for(auto i = 0; i < 2; ++i)
-        {
-            core.state.resume();
-            core.state.wait();
-        }
+        const auto bp = core.state.set_breakpoint(*WriteFile, *notepad, core::FILTER_CR3);
+        core.state.resume();
+        core.state.wait();
     }
+    std::vector<uint8_t> buffer;
+    core.os->mod_list(*notepad, [&](mod_t mod)
+    {
+        const auto name = core.os->mod_name(*notepad, mod);
+        const auto span = core.os->mod_span(*notepad, mod);
+        if(!name || !span)
+            return WALK_NEXT;
+
+        LOG(INFO, "    %s 0x%" PRIx64 " 0x%zx", name->data(), span->addr, span->size);
+        buffer.resize(span->size);
+        auto ok = core.mem.virtual_read(&buffer[0], span->addr, span->size);
+        if(!ok)
+            return WALK_NEXT;
+
+        const auto fname = fs::path(*name).filename();
+        ok = core.sym.insert(fname.generic_string().data(), *span, &buffer[0]);
+        if(!ok)
+            return WALK_NEXT;
+
+        return WALK_NEXT;
+    });
 
     core.state.resume();
     return 0;

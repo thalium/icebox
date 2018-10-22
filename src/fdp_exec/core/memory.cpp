@@ -14,13 +14,15 @@
 
 struct core::Memory::Data
 {
-    Data(FDP_SHM& shm)
+    Data(FDP_SHM& shm, Core& core)
         : shm(shm)
+        , core(core)
     {
     }
 
     // members
     FDP_SHM&    shm;
+    Core&       core;
     proc_t      current;
     opt<proc_t> context;
 };
@@ -35,9 +37,9 @@ core::Memory::~Memory()
 {
 }
 
-void core::setup(Memory& mem, FDP_SHM& shm)
+void core::setup(Memory& mem, FDP_SHM& shm, Core& core)
 {
-    mem.d_ = std::make_unique<core::Memory::Data>(shm);
+    mem.d_ = std::make_unique<core::Memory::Data>(shm, core);
 }
 
 struct core::ProcessContextPrivate
@@ -128,7 +130,9 @@ namespace
         if(!ok)
             return std::nullopt;
 
-        // FIXME ignore can_read flag?
+        if(!pte.u.f.can_read)
+            return std::nullopt;
+
         const auto phy = pte.u.f.page_frame_number * PAGE_SIZE + virt.u.f.offset;
         return phy;
     }
@@ -144,11 +148,28 @@ namespace
 {
     bool read_virtual(MemData& m, uint8_t* dst, uint64_t src, uint32_t size)
     {
-        const auto ok = FDP_ReadVirtualMemory(&m.shm, 0, dst, size, src);
-        if(!ok)
-            FAIL(false, "unable to read mem 0x%llx-0x%llx (%u 0x%x bytes)", src, src + size, size, size);
+        auto ok = FDP_ReadVirtualMemory(&m.shm, 0, dst, size, src);
+        if(ok)
+            return true;
 
-        return true;
+        const auto rip = m.core.regs.read(FDP_RIP_REGISTER);
+        if(!rip)
+            FAIL(false, "unable to read rip for page fault injection");
+
+        ok = FDP_InjectInterrupt(&m.shm, 0, PAGE_FAULT, 0, src);
+        if(!ok)
+            FAIL(false, "unable to inject page fault at %" PRIx64, src);
+
+        auto bp = m.core.state.set_breakpoint(*rip, m.current, core::FILTER_CR3);
+        m.core.state.resume();
+        m.core.state.wait();
+        bp.reset();
+
+        ok = FDP_ReadVirtualMemory(&m.shm, 0, dst, size, src);
+        if(!ok)
+            FAIL(false, "unable to read mem %" PRIx64 "-%" PRIx64 " after page fault injection", src, src + size);
+
+        return ok;
     }
 
     bool try_read_mem(MemData& m, uint8_t* dst, uint64_t src, uint32_t size)

@@ -75,7 +75,7 @@ bool core::setup(Core& core, const std::string& name)
         FDP_UnsetBreakpoint(ptr_shm, i);
 
     core::setup(core.regs, *ptr_shm);
-    core::setup(core.mem, *ptr_shm);
+    core::setup(core.mem, *ptr_shm, core);
     core::setup(core.state, *ptr_shm, core);
 
     // register os helpers

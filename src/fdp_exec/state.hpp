@@ -25,6 +25,7 @@ namespace core
         bool        pause           ();
         bool        resume          ();
         bool        wait            ();
+        Breakpoint  set_breakpoint  (uint64_t ptr, proc_t proc, filter_e filter);
         Breakpoint  set_breakpoint  (uint64_t ptr, proc_t proc, filter_e filter, const Task& task);
 
         // private data
