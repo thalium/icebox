@@ -16,6 +16,7 @@ namespace
     static const int BASE_ADDRESS = 0x80000000;
 
     using Symbols = std::unordered_map<std::string, pdb::PDBGlobalVariable>;
+    using SymbolsByOffset = std::map<uint64_t, pdb::PDBGlobalVariable>;
 
     struct Pdb
         : public sym::IMod
@@ -26,15 +27,17 @@ namespace
         bool setup();
 
         // IModule methods
-        span_t          span        () override;
-        opt<uint64_t>   symbol      (const std::string& symbol) override;
-        opt<uint64_t>   struc_offset(const std::string& struc, const std::string& member) override;
+        span_t              span        () override;
+        opt<uint64_t>       symbol      (const std::string& symbol) override;
+        opt<uint64_t>       struc_offset(const std::string& struc, const std::string& member) override;
+        opt<sym::ModCursor> symbol      (uint64_t addr) override;
 
         // members
         const fs::path  filename_;
         const span_t    span_;
         pdb::PDBFile    pdb_;
         Symbols         symbols_;
+        SymbolsByOffset symbols_by_offset;
     };
 }
 
@@ -70,6 +73,14 @@ namespace
     }
 }
 
+namespace
+{
+    uint64_t get_offset(Pdb& pdb, const pdb::PDBGlobalVariable& var)
+    {
+        return pdb.span_.addr + var.address - BASE_ADDRESS;
+    }
+}
+
 bool Pdb::setup()
 {
     const auto err = pdb_.load_pdb_file(filename_.generic_string().data());
@@ -80,7 +91,10 @@ bool Pdb::setup()
     const auto globals = pdb_.get_global_variables();
     symbols_.reserve(globals->size());
     for(const auto& it : *globals)
+    {
         symbols_.emplace(it.second.name, it.second);
+        symbols_by_offset.emplace(get_offset(*this, it.second), it.second);
+    }
     return true;
 }
 
@@ -95,7 +109,7 @@ opt<uint64_t> Pdb::symbol(const std::string& symbol)
     if(it == symbols_.end())
         return std::nullopt;
 
-    return span_.addr + it->second.address - BASE_ADDRESS;
+    return get_offset(*this, it->second);
 }
 
 opt<uint64_t> Pdb::struc_offset(const std::string& struc, const std::string& member)
@@ -114,6 +128,34 @@ opt<uint64_t> Pdb::struc_offset(const std::string& struc, const std::string& mem
             return m->offset;
 
     return std::nullopt;
+}
+
+namespace
+{
+    template<typename T>
+    opt<sym::ModCursor> make_cursor(Pdb& p, const T& it, const T& end, uint64_t addr)
+    {
+        if(it == end)
+            return std::nullopt;
+
+        return sym::ModCursor{it->second.name, addr - get_offset(p, it->second)};
+    }
+}
+
+opt<sym::ModCursor> Pdb::symbol(uint64_t addr)
+{
+    // lower bound returns first item greater or equal
+    auto it = symbols_by_offset.lower_bound(addr);
+    const auto end = symbols_by_offset.end();
+    if(it == end)
+        return make_cursor(*this, symbols_by_offset.rbegin(), symbols_by_offset.rend(), addr);
+
+    // equal
+    if(it->first == addr)
+        return make_cursor(*this, it, end, addr);
+
+    // stricly greater, go to previous item
+    return make_cursor(*this, --it, end, addr);
 }
 
 namespace

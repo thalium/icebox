@@ -12,6 +12,8 @@ struct sym::Symbols::Data
     Modules mods_;
 };
 
+using SymData = sym::Symbols::Data;
+
 sym::Symbols::Symbols()
     : d_(std::make_unique<Data>())
 {
@@ -92,4 +94,38 @@ opt<uint64_t> sym::Symbols::struc_offset(const std::string& module, const std::s
         return std::nullopt;
 
     return mod->struc_offset(struc, member);
+}
+
+namespace
+{
+    struct ModPair
+    {
+        std::string name;
+        sym::IMod&  mod;
+    };
+
+    opt<ModPair> find(SymData& s, uint64_t addr)
+    {
+        for(const auto& m : s.mods_)
+        {
+            const auto span = m.second->span();
+            if(span.addr <= addr && addr < span.addr + span.size)
+                return ModPair{m.first, *m.second};
+        }
+
+        return std::nullopt;
+    }
+}
+
+opt<sym::Cursor> sym::Symbols::find(uint64_t addr)
+{
+    auto p = ::find(*d_, addr);
+    if(!p)
+        return std::nullopt;
+
+    const auto cur = p->mod.symbol(addr);
+    if(!cur)
+        return std::nullopt;
+
+    return Cursor{p->name.data(), cur->symbol, cur->offset};
 }
