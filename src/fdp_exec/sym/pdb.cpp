@@ -2,9 +2,10 @@
 
 #define FDP_MODULE "pdb"
 #include "log.hpp"
-#include "utils/utils.hpp"
 #include "endian.hpp"
+#include "utils/utils.hpp"
 
+#include <cctype>
 #include <experimental/filesystem>
 namespace fs = std::experimental::filesystem;
 
@@ -177,35 +178,53 @@ namespace
         }
     }
 
+    opt<std::string> read_pdb_name(const uint8_t* ptr, const uint8_t* end)
+    {
+        for(auto it = ptr; it != end; ++it)
+            if(!std::isprint(*it))
+                return std::nullopt;
+
+        return std::string{ptr, end};
+    }
+
+    static const uint8_t    rsds_magic[]    = {'R', 'S', 'D', 'S'};
+    static const auto       rsds_pattern    = std::boyer_moore_horspool_searcher(std::begin(rsds_magic), std::end(rsds_magic));
+
     opt<PdbCtx> read_pdb(const void* vsrc, size_t src_size)
     {
-        const auto src = reinterpret_cast<const uint8_t*>(vsrc);
-        std::vector<uint8_t> magic = {'R', 'S', 'D', 'S'};
-        const auto rsds = std::search(&src[0], &src[src_size], std::boyer_moore_horspool_searcher(magic.begin(), magic.end()));
-        if(!rsds)
-            FAIL(std::nullopt, "unable to find RSDS pattern into kernel module");
+        const uint8_t* src = reinterpret_cast<const uint8_t*>(vsrc);
+        const auto end = &src[src_size];
+        while(true)
+        {
+            const auto rsds = std::search(&src[0], &src[src_size], rsds_pattern);
+            if(!rsds)
+                FAIL(std::nullopt, "unable to find RSDS pattern into kernel module");
 
-        const auto size = std::distance(rsds, &src[src_size]);
-        if(size < 4 /*magic*/ + 16 /*guid*/ + 4 /*age*/ + 2 /*name*/)
-            FAIL(std::nullopt, "kernel module is too small for pdb header");
+            const auto size = std::distance(rsds, &src[src_size]);
+            if(size < 4 /*magic*/ + 16 /*guid*/ + 4 /*age*/ + 2 /*name*/)
+                FAIL(std::nullopt, "kernel module is too small for pdb header");
 
-        const auto end = reinterpret_cast<const uint8_t*>(memchr(&rsds[4 + 16 + 4], 0x00, size));
-        if(!end)
-            FAIL(std::nullopt, "missing null-terminating byte on PDB header module name");
+            const auto name_end = reinterpret_cast<const uint8_t*>(memchr(&rsds[4 + 16 + 4], 0x00, size));
+            if(!name_end)
+                FAIL(std::nullopt, "missing null-terminating byte on PDB header module name");
 
-        uint8_t guid[16];
-        write_be32(&guid[0], read_le32(&rsds[4 + 0])); // Data1
-        write_be16(&guid[4], read_le16(&rsds[4 + 4])); // Data2
-        write_be16(&guid[6], read_le16(&rsds[4 + 6])); // Data3
-        memcpy(&guid[8], &rsds[4 + 8], 8);             // Data4
+            uint8_t guid[16];
+            write_be32(&guid[0], read_le32(&rsds[4 + 0])); // Data1
+            write_be16(&guid[4], read_le16(&rsds[4 + 4])); // Data2
+            write_be16(&guid[6], read_le16(&rsds[4 + 6])); // Data3
+            memcpy(&guid[8], &rsds[4 + 8], 8);             // Data4
 
-        char strguid[sizeof guid * 2];
-        binhex(strguid, &guid, sizeof guid);
+            char strguid[sizeof guid * 2];
+            binhex(strguid, &guid, sizeof guid);
 
-        uint32_t age = read_le32(&rsds[4 + 16]);
-        const auto name = &rsds[4 + 16 + 4];
-        const auto strname = std::string{reinterpret_cast<const char*>(name), reinterpret_cast<const char*>(end)};
-        return PdbCtx{std::string{strguid, sizeof strguid} +std::to_string(age), strname};
+            uint32_t age = read_le32(&rsds[4 + 16]);
+            const auto name = read_pdb_name(&rsds[4 + 16 + 4], name_end);
+            if(name)
+                return PdbCtx{std::string{strguid, sizeof strguid} +std::to_string(age), *name};
+
+            src = rsds + 1;
+            src_size = end - src;
+        }
     }
 }
 
