@@ -27,22 +27,19 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifdef  __linux
-//Linux
+#ifdef  _MSC_VER
+#include <Windows.h>
+
+#define SLEEP(X) do { Sleep(X); } while(0)
+#define THREAD_EXIT(X) do { TerminateThread((X), 0); } while(0)
+#else
 #include <time.h>
 #include <unistd.h>
 #include <pthread.h>
 #include <string.h>
 
-#define SLEEP(X) do { usleep(X*1000); while(0)
+#define SLEEP(X) do { usleep(X*1000); } while(0)
 #define THREAD_EXIT(X) do { pthread_exit(&(X)); } while(0)
-
-#elif   _WIN32
-#include <Windows.h>
-#include <time.h>
-
-#define SLEEP(X) do { Sleep(X); } while(0)
-#define THREAD_EXIT(X) do { TerminateThread((X), 0); } while(0)
 #endif
 
 #include "utils.h"
@@ -62,10 +59,10 @@ int TimerGetDelay()
     return iTimerDelay;
 }
 
-#ifdef  __linux
-void * TimerRoutine(void *lpParam)
-#elif   _WIN32
+#ifdef  _MSC_VER
 DWORD WINAPI TimerRoutine(LPVOID lpParam)
+#else
+void * TimerRoutine(void *lpParam)
 #endif
 {
     while (true){
@@ -1092,10 +1089,10 @@ bool testDebugRegisters(FDP_SHM* pFDP){
 
 bool threadRunning;
 
-#ifdef  __linux
-void * testStateThread(void *lpParam)
-#elif   _WIN32
+#ifdef  _MSC_VER
 DWORD WINAPI testStateThread(LPVOID lpParam)
+#else
+void * testStateThread(void *lpParam)
 #endif
 {
     FDP_SHM* pFDP = (FDP_SHM*)lpParam;
@@ -1106,10 +1103,10 @@ DWORD WINAPI testStateThread(LPVOID lpParam)
     return 0;
 }
 
-#ifdef  __linux
-void * testReadRegisterThread(void *lpParam)
-#elif   _WIN32
+#ifdef  _MSC_VER
 DWORD WINAPI testReadRegisterThread(LPVOID lpParam)
+#else
+void * testReadRegisterThread(void *lpParam)
 #endif
 {
     FDP_SHM* pFDP = (FDP_SHM*)lpParam;
@@ -1120,10 +1117,10 @@ DWORD WINAPI testReadRegisterThread(LPVOID lpParam)
     return 0;
 }
 
-#ifdef  __linux
-void * testReadMemoryThread(void *lpParam)
-#elif   _WIN32
+#ifdef  _MSC_VER
 DWORD WINAPI testReadMemoryThread(LPVOID lpParam)
+#else
+void * testReadMemoryThread(void *lpParam)
 #endif
 {
     FDP_SHM* pFDP = (FDP_SHM*)lpParam;
@@ -1140,7 +1137,11 @@ bool testMultiThread(FDP_SHM* pFDP)
 
     threadRunning = true;
 
-#ifdef  __linux
+#ifdef  _MSC_VER
+    HANDLE thread1 = CreateThread(NULL, 0, testStateThread, pFDP, 0, NULL);
+    HANDLE thread2 = CreateThread(NULL, 0, testReadRegisterThread, pFDP, 0, NULL);
+    HANDLE thread3 = CreateThread(NULL, 0, testReadMemoryThread, pFDP, 0, NULL);
+#else
     pthread_t thread1;
     pthread_t thread2;
     pthread_t thread3;
@@ -1148,10 +1149,6 @@ bool testMultiThread(FDP_SHM* pFDP)
     pthread_create(&thread1, NULL, testStateThread, pFDP);
     pthread_create(&thread2, NULL, testReadRegisterThread, pFDP);
     pthread_create(&thread3, NULL, testReadMemoryThread, pFDP);
-#elif   _WIN32
-    HANDLE thread1 = CreateThread(NULL, 0, testStateThread, pFDP, 0, NULL);
-    HANDLE thread2 = CreateThread(NULL, 0, testReadRegisterThread, pFDP, 0, NULL);
-    HANDLE thread3 = CreateThread(NULL, 0, testReadMemoryThread, pFDP, 0, NULL);
 #endif
 
     SLEEP(2000);
@@ -1727,12 +1724,11 @@ int testFDP(char *pVMName) {
     FDP_SHM* pFDP = FDP_OpenSHM(pVMName);
     if (pFDP) {
         //Start Timer Thread
-#ifdef  __linux
+#ifdef  _MSC_VER
+        CreateThread(NULL, 0, TimerRoutine, NULL, 0, NULL);
+#else
         pthread_t timerthread;
         pthread_create(&timerthread, NULL, TimerRoutine, NULL);
-
-#elif   _WIN32
-        CreateThread(NULL, 0, TimerRoutine, NULL, 0, NULL);
 
 #endif
 

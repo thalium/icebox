@@ -32,8 +32,14 @@
 #include "include/FDP.h"
 #include "include/FDP_structs.h"
 
-#ifdef  __linux
-//Linux
+
+#ifdef _MSC_VER
+#include <Windows.h>
+#include <intrin.h>
+
+#define SLEEP Sleep
+
+#else
 #include <time.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -42,13 +48,11 @@
 #include <sys/stat.h>
 #include <sys/mman.h>
 
-#define SLEEP(X) (usleep(X*1000))
+#define SLEEP(X) \
+	do { \
+		usleep(X*1000); \
+	} while (0)
 
-#elif   _WIN32
-#include <Windows.h>
-#include <intrin.h>
-
-#define SLEEP(X) (Sleep(X))
 #endif
 
 
@@ -62,13 +66,7 @@ __inline static void ttas_spinlock_lock(volatile bool* lock)
 
     while (true)
     {
-#ifdef  __linux
-        if (__sync_lock_test_and_set(lock, 1) == 0)
-        {
-            test_counter = 0;
-            return;
-        }
-#elif   _WIN32
+#ifdef _MSC_VER
         if (*lock == 0)
         {
             test_counter = 0;
@@ -76,6 +74,12 @@ __inline static void ttas_spinlock_lock(volatile bool* lock)
             {
                 return;
             }
+        }
+#else
+        if (__sync_lock_test_and_set(lock, 1) == 0)
+        {
+            test_counter = 0;
+            return;
         }
 #endif
         else
@@ -96,10 +100,10 @@ __inline static void ttas_spinlock_lock(volatile bool* lock)
 
 __inline static void ttas_spinlock_unlock(volatile bool* lock)
 {
-#ifdef  __linux
-    __sync_lock_release(lock);
-#elif   _WIN32
+#ifdef _MSC_VER
     *lock = 0;
+#else
+    __sync_lock_release(lock);
 #endif
 
     return;
@@ -194,27 +198,7 @@ FDP_SHM* FDP_CreateSHM(char* shmName)
 {
     void* pBuf;
 
-#ifdef  __linux
-    uint32_t fdSHM;
-
-    /* create the shared memory segment */
-    fdSHM = shm_open(shmName, O_CREAT | O_RDWR, 0666);
-    if (fdSHM == NULL)
-    {
-        return NULL;
-    }
-
-    /* configure the size of the shared memory segment */
-    ftruncate(fdSHM,FDP_SHM_SHARED_SIZE);
-
-    /* now map the shared memory segment in the address space of the process */
-    pBuf = mmap(0,FDP_SHM_SHARED_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fdSHM, 0);
-    if (pBuf == NULL)
-    {
-        shm_unlink(shmName);
-        return NULL;
-    }
-#elif   _MSC_VER
+#ifdef _MSC_VER
     HANDLE hMapFile;
     hMapFile = CreateFileMappingA(INVALID_HANDLE_VALUE,
                                   NULL,
@@ -236,6 +220,26 @@ FDP_SHM* FDP_CreateSHM(char* shmName)
         CloseHandle(hMapFile);
         return NULL;
     }
+#else
+    uint32_t fdSHM;
+
+    /* create the shared memory segment */
+    fdSHM = shm_open(shmName, O_CREAT | O_RDWR, 0666);
+    if (fdSHM == NULL)
+    {
+        return NULL;
+    }
+
+    /* configure the size of the shared memory segment */
+    ftruncate(fdSHM,FDP_SHM_SHARED_SIZE);
+
+    /* now map the shared memory segment in the address space of the process */
+    pBuf = mmap(0,FDP_SHM_SHARED_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fdSHM, 0);
+    if (pBuf == NULL)
+    {
+        shm_unlink(shmName);
+        return NULL;
+    }
 #endif
 
     //Clear SHM
@@ -251,23 +255,7 @@ void* OpenShm(const char* pShmName, size_t szShmSize)
 {
     void* pBuf;
 
-#ifdef  __linux
-    uint32_t fdSHM;
-
-    /* open the shared memory segment */
-    fdSHM = shm_open(pShmName, O_RDWR, 0666);
-    if (fdSHM == NULL)
-    {
-        return NULL;
-    }
-
-    /* now map the shared memory segment in the address space of the process */
-    pBuf = mmap(0, szShmSize, PROT_READ | PROT_WRITE, MAP_SHARED, fdSHM, 0);
-    if (pBuf == MAP_FAILED) {
-        shm_unlink(pShmName);
-        return NULL;
-    }
-#elif   _WIN32
+#ifdef  _MSC_VER
     HANDLE hMapFile;
     hMapFile = OpenFileMappingA(FILE_MAP_ALL_ACCESS,
                                 FALSE,
@@ -286,6 +274,22 @@ void* OpenShm(const char* pShmName, size_t szShmSize)
     {
         //printf("Failed to MapFileOfFile... %d\n", GetLastError());
         CloseHandle(hMapFile);
+        return NULL;
+    }
+#else
+    uint32_t fdSHM;
+
+    /* open the shared memory segment */
+    fdSHM = shm_open(pShmName, O_RDWR, 0666);
+    if (fdSHM == NULL)
+    {
+        return NULL;
+    }
+
+    /* now map the shared memory segment in the address space of the process */
+    pBuf = mmap(0, szShmSize, PROT_READ | PROT_WRITE, MAP_SHARED, fdSHM, 0);
+    if (pBuf == MAP_FAILED) {
+        shm_unlink(pShmName);
         return NULL;
     }
 #endif
@@ -1439,10 +1443,10 @@ bool FDP_DummyGetCpuCount(void* pUserHandle, uint32_t* pCpuCount)
 }
 
 
-#ifdef  __linux
-void * FDP_UnitTestClient(void *lpParameter)
-#elif   _WIN32
+#ifdef  _MSC_VER
 DWORD WINAPI FDP_UnitTestClient(_In_ LPVOID lpParameter)
+#else
+void * FDP_UnitTestClient(void *lpParameter)
 #endif
 {
     FDP_SHM* pFDPClient = (FDP_SHM*)lpParameter;
@@ -1482,22 +1486,21 @@ bool FDP_ClientServerTest()
     }
 
     //Create a fake Client...
-#ifdef  __linux
-    int rc;
-    void *ret;
-    pthread_t threadServer;
-    if(pthread_create(&threadServer, NULL, FDP_UnitTestClient, pFDPServer)){
-         printf("Failed create thread\n");
-         return false;
-    }
-
-#elif   _WIN32
+#ifdef  _MSC_VER
     HANDLE hThreadServer = INVALID_HANDLE_VALUE;
     hThreadServer = CreateThread(NULL, 0, FDP_UnitTestClient, pFDPServer, 0, 0);
     if (hThreadServer == INVALID_HANDLE_VALUE)
     {
         printf("Failed to CreateThread\n");
         return false;
+    }
+#else
+    int rc;
+    void *ret;
+    pthread_t threadServer;
+    if(pthread_create(&threadServer, NULL, FDP_UnitTestClient, pFDPServer)){
+         printf("Failed create thread\n");
+         return false;
     }
 #endif
 
@@ -1509,10 +1512,10 @@ bool FDP_ClientServerTest()
     //Clean:
     //Closing server
     FDPServerInterface.bIsRunning = false;
-#ifdef  __linux
-    pthread_join(threadServer, &ret);
-#elif   _WIN32
+#ifdef  _MSC_VER
     WaitForSingleObject(hThreadServer, INFINITE);
+#else
+    pthread_join(threadServer, &ret);
 #endif
     return true;
 }
