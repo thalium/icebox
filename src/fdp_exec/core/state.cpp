@@ -12,6 +12,7 @@
 
 #include <map>
 #include <thread>
+#include <unordered_set>
 
 namespace
 {
@@ -60,6 +61,7 @@ struct core::State::Data
     FDP_SHM&    shm;
     Core&       core;
     Breakpoints breakpoints;
+    proc_t      current;
 };
 
 using StateData = core::State::Data;
@@ -86,6 +88,7 @@ namespace
         if(!current)
             FAIL(false, "unable to get current process & update break state");
 
+        d.current = *current;
         d.core.mem.update(*current);
         return true;
     }
@@ -108,6 +111,11 @@ namespace
         return updated;
     }
 
+    bool try_single_step(StateData& d)
+    {
+        return FDP_SingleStep(&d.shm, 0);
+    }
+
     bool try_resume(StateData& d)
     {
         FDP_State state = FDP_STATE_NULL;
@@ -117,10 +125,6 @@ namespace
 
         if(!(state & FDP_STATE_PAUSED))
             return true;
-
-        if(false)
-            if(state & FDP_STATE_BREAKPOINT_HIT)
-                FDP_SingleStep(&d.shm, 0);
 
         const auto resumed = FDP_Resume(&d.shm);
         if(!resumed)
@@ -204,27 +208,31 @@ namespace
                 bp.task();
         }
     }
+
+    bool try_wait(StateData& d)
+    {
+        while(true)
+        {
+            std::this_thread::yield();
+            auto ok = FDP_GetStateChanged(&d.shm);
+            if(!ok)
+                continue;
+
+            update_break_state(d);
+            FDP_State state = FDP_STATE_NULL;
+            ok = FDP_GetState(&d.shm, &state);
+            if(!ok)
+                return false;
+
+            check_breakpoints(d, state);
+            return true;
+        }
+    }
 }
 
 bool core::State::wait()
 {
-    auto& shm = d_->shm;
-    while(true)
-    {
-        std::this_thread::yield();
-        auto ok = FDP_GetStateChanged(&shm);
-        if(!ok)
-            continue;
-
-        update_break_state(*d_);
-        FDP_State state = FDP_STATE_NULL;
-        ok = FDP_GetState(&shm, &state);
-        if(!ok)
-            return false;
-
-        check_breakpoints(*d_, state);
-        return true;
-    }
+    return try_wait(*d_);
 }
 
 namespace
@@ -286,4 +294,72 @@ core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, core::fi
 core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, filter_e filter)
 {
     return ::set_breakpoint(*d_, ptr, proc, filter, {});
+}
+
+namespace
+{
+    bool try_proc_join(StateData& d, proc_t proc, core::join_e join)
+    {
+        // set breakpoint on CR3 changes
+        const auto bpid = FDP_SetBreakpoint(&d.shm, 0, FDP_CRHBP, 0, FDP_WRITE_BP, FDP_VIRTUAL_ADDRESS, 3, 1, FDP_NO_CR3);
+        if(bpid < 0)
+            return false;
+
+        std::vector<core::Breakpoint> thread_rips;
+        const auto set_thread_rips = [&]
+        {
+            std::unordered_set<uint64_t> rips;
+            thread_rips.clear();
+            d.core.os->thread_list(proc, [&](thread_t thread)
+            {
+                const auto rip = d.core.os->thread_pc(proc, thread);
+                if(!rip)
+                    return WALK_NEXT;
+
+                const auto inserted = rips.emplace(*rip).second;
+                if(!inserted)
+                    return WALK_NEXT;
+
+                auto bp = ::set_breakpoint(d, *rip, proc, core::FILTER_CR3, {});
+                if(!bp)
+                    return WALK_NEXT;
+
+                thread_rips.emplace_back(bp);
+                return WALK_NEXT;
+            });
+        };
+
+        set_thread_rips();
+        bool found = false;
+        while(true)
+        {
+            if(!try_resume(d))
+                break;
+
+            if(!try_wait(d))
+                break;
+
+            const auto same_proc = proc.id == d.current.id && proc.dtb == d.current.dtb;
+            if(!same_proc)
+                continue;
+
+            found = join == core::JOIN_ANY_MODE;
+            if(found)
+                break;
+
+            const auto cs = d.core.regs.read(FDP_CS_REGISTER);
+            found = cs && !!(*cs & 3);
+            if(found)
+                break;
+
+            set_thread_rips();
+        }
+        FDP_UnsetBreakpoint(&d.shm, bpid);
+        return found;
+    }
+}
+
+bool core::State::proc_join(proc_t proc, join_e join)
+{
+    return try_proc_join(*d_, proc, join);
 }
