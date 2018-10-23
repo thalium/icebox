@@ -1,5 +1,7 @@
 #include "sym.hpp"
 
+#include "utils/hex.hpp"
+
 #include <unordered_map>
 
 namespace
@@ -96,6 +98,15 @@ opt<uint64_t> sym::Symbols::struc_offset(const std::string& module, const std::s
     return mod->struc_offset(struc, member);
 }
 
+opt<size_t> sym::Symbols::struc_size(const std::string& module, const std::string& struc)
+{
+    const auto mod = find(module);
+    if(!mod)
+        return std::nullopt;
+
+    return mod->struc_size(struc);
+}
+
 namespace
 {
     struct ModPair
@@ -128,4 +139,11 @@ opt<sym::Cursor> sym::Symbols::find(uint64_t addr)
         return std::nullopt;
 
     return Cursor{p->name.data(), cur->symbol, cur->offset};
+}
+
+std::string sym::to_string(const sym::Cursor& cursor)
+{
+    char dst[2 + 8 * 2 + 1];
+    const char* offset = hex::convert<hex::RemovePadding | hex::HexaPrefix>(dst, cursor.offset);
+    return cursor.module + '!' + cursor.symbol + '+' + offset;
 }

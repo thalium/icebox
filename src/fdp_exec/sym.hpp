@@ -19,10 +19,11 @@ namespace sym
     {
         virtual ~IMod() = default;
 
-        virtual span_t          span          () = 0;
-        virtual opt<uint64_t>   symbol        (const std::string& symbol) = 0;
-        virtual opt<uint64_t>   struc_offset  (const std::string& struc, const std::string& member) = 0;
-        virtual opt<ModCursor>  symbol        (uint64_t addr) = 0;
+        virtual span_t          span        () = 0;
+        virtual opt<uint64_t>   symbol      (const std::string& symbol) = 0;
+        virtual opt<uint64_t>   struc_offset(const std::string& struc, const std::string& member) = 0;
+        virtual opt<size_t>     struc_size  (const std::string& struc) = 0;
+        virtual opt<ModCursor>  symbol      (uint64_t addr) = 0;
     };
 
     std::unique_ptr<IMod>   make_pdb(span_t span, const std::string& module, const std::string& guid);
@@ -34,6 +35,8 @@ namespace sym
         std::string symbol;
         uint64_t    offset;
     };
+
+    std::string to_string(const Cursor& cursor);
 
     struct Symbols
     {
@@ -49,6 +52,7 @@ namespace sym
         IMod*               find        (const std::string& name);
         opt<uint64_t>       symbol      (const std::string& module, const std::string& symbol);
         opt<uint64_t>       struc_offset(const std::string& module, const std::string& struc, const std::string& member);
+        opt<size_t>         struc_size  (const std::string& module, const std::string& struc);
         opt<Cursor>         find        (uint64_t addr);
 
         struct Data;

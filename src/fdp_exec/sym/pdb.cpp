@@ -4,6 +4,7 @@
 #include "log.hpp"
 #include "endian.hpp"
 #include "utils/utils.hpp"
+#include "utils/hex.hpp"
 
 #include <cctype>
 #include <experimental/filesystem>
@@ -31,6 +32,7 @@ namespace
         span_t              span        () override;
         opt<uint64_t>       symbol      (const std::string& symbol) override;
         opt<uint64_t>       struc_offset(const std::string& struc, const std::string& member) override;
+        opt<size_t>         struc_size  (const std::string& struc) override;
         opt<sym::ModCursor> symbol      (uint64_t addr) override;
 
         // members
@@ -113,22 +115,42 @@ opt<uint64_t> Pdb::symbol(const std::string& symbol)
     return get_offset(*this, it->second);
 }
 
+
+namespace
+{
+    const pdb::PDBTypeStruct* get_struc(Pdb& p, const std::string& struc)
+    {
+        const auto type = p.pdb_.get_types_container()->get_type_by_name(const_cast<char*>(struc.data()));
+        if(!type)
+            return nullptr;
+
+        if(type->type_class != pdb::PDBTYPE_STRUCT)
+            return nullptr;
+
+        return reinterpret_cast<const pdb::PDBTypeStruct*>(type);
+    }
+}
+
 opt<uint64_t> Pdb::struc_offset(const std::string& struc, const std::string& member)
 {
-    const auto type = pdb_.get_types_container()->get_type_by_name(const_cast<char*>(struc.data()));
-    if(!type)
+    const auto stype = get_struc(*this, struc);
+    if(!stype)
         return std::nullopt;
-
-    if(type->type_class != pdb::PDBTYPE_STRUCT)
-        return std::nullopt;
-
-    auto stype = reinterpret_cast<pdb::PDBTypeStruct*>(type);
 
     for(const auto& m : stype->struct_members)
         if(member == m->name)
             return m->offset;
 
     return std::nullopt;
+}
+
+opt<size_t> Pdb::struc_size(const std::string& struc)
+{
+    const auto stype = get_struc(*this, struc);
+    if(!stype)
+        return std::nullopt;
+
+    return stype->size_bytes;
 }
 
 namespace
@@ -167,17 +189,6 @@ namespace
         std::string name;
     };
 
-    void binhex(char* dst, const void* vsrc, size_t size)
-    {
-        static const char hexchars_upper[] = "0123456789ABCDEF";
-        const uint8_t* src = static_cast<const uint8_t*>(vsrc);
-        for(size_t i = 0; i < size; ++i)
-        {
-            dst[i * 2 + 0] = hexchars_upper[src[i] >> 4];
-            dst[i * 2 + 1] = hexchars_upper[src[i] & 0x0F];
-        }
-    }
-
     opt<std::string> read_pdb_name(const uint8_t* ptr, const uint8_t* end)
     {
         for(auto it = ptr; it != end; ++it)
@@ -215,7 +226,7 @@ namespace
             memcpy(&guid[8], &rsds[4 + 8], 8);             // Data4
 
             char strguid[sizeof guid * 2];
-            binhex(strguid, &guid, sizeof guid);
+            hex::convert(strguid, hex::chars_upper, guid, sizeof guid);
 
             uint32_t age = read_le32(&rsds[4 + 16]);
             const auto name = read_pdb_name(&rsds[4 + 16 + 4], name_end);
