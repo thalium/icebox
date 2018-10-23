@@ -54,38 +54,47 @@ int main(int argc, char* argv[])
         return WALK_NEXT;
     });
 
-    LOG(INFO, "searching notepad.exe");
-    const auto notepad = core.os->proc_find("notepad.exe");
-    LOG(INFO, "notepad.exe: %" PRIx64 " dtb: %" PRIx64 " %s", notepad->id, notepad->dtb, core.os->proc_name(*notepad)->data());
+    const char proc_target[] = "explorer.exe";
+    LOG(INFO, "searching %s", proc_target);
+    const auto target = core.os->proc_find(proc_target);
+    if(!target)
+        return 0;
 
-    const auto WriteFile = core.sym.symbol("nt", "NtWriteFile");
-    LOG(INFO, "WriteFile = 0x%llx", WriteFile ? *WriteFile : 0);
+    LOG(INFO, "%s: %" PRIx64 " dtb: %" PRIx64 " %s", proc_target, target->id, target->dtb, core.os->proc_name(*target)->data());
+    const auto join = core.state.proc_join(*target, core::JOIN_USER_MODE);
+    if(!join)
+        return 0;
 
-    // load all modules
-    {
-        const auto bp = core.state.set_breakpoint(*WriteFile, *notepad, core::FILTER_CR3);
-        core.state.resume();
-        core.state.wait();
-    }
     std::vector<uint8_t> buffer;
-    core.os->mod_list(*notepad, [&](mod_t mod)
+    core.os->mod_list(*target, [&](mod_t mod)
     {
-        const auto name = core.os->mod_name(*notepad, mod);
-        const auto span = core.os->mod_span(*notepad, mod);
+        const auto name = core.os->mod_name(*target, mod);
+        const auto span = core.os->mod_span(*target, mod);
         if(!name || !span)
             return WALK_NEXT;
 
-        LOG(INFO, "    %s 0x%" PRIx64 " 0x%zx", name->data(), span->addr, span->size);
+        LOG(INFO, "module %s: 0x%" PRIx64 " 0x%zx", name->data(), span->addr, span->size);
         buffer.resize(span->size);
         auto ok = core.mem.virtual_read(&buffer[0], span->addr, span->size);
         if(!ok)
             return WALK_NEXT;
 
-        const auto fname = fs::path(*name).filename();
+        const auto fname = fs::path(*name).filename().replace_extension("");
         ok = core.sym.insert(fname.generic_string().data(), *span, &buffer[0]);
         if(!ok)
             return WALK_NEXT;
 
+        return WALK_NEXT;
+    });
+
+    core.os->thread_list(*target, [&](thread_t thread)
+    {
+        const auto rip = core.os->thread_pc(*target, thread);
+        if(!rip)
+            return WALK_NEXT;
+
+        const auto name = core.sym.find(*rip);
+        LOG(INFO, "thread: 0x%" PRIx64 "%s", *rip, name ? (" " + name->module + "!" + name->symbol + "+" + std::to_string(name->offset)).data() : "");
         return WALK_NEXT;
     });
 
