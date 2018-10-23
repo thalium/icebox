@@ -81,6 +81,7 @@ namespace
 {
     bool update_break_state(StateData& d)
     {
+        d.core.os->debug_print();
         const auto current = d.core.os->proc_current();
         if(!current)
             FAIL(false, "unable to get current process & update break state");

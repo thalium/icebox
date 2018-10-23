@@ -7,6 +7,7 @@
 #include "utils/utils.hpp"
 #include "utils/utf8.hpp"
 #include "utils/pe.hpp"
+#include "utils/hex.hpp"
 
 #include <array>
 #include <experimental/filesystem>
@@ -25,6 +26,7 @@ namespace
         EPROCESS_VadRoot,
         ETHREAD_Tcb,
         ETHREAD_ThreadListEntry,
+        KPCR_Irql,
         KPCR_Prcb,
         KPRCB_CurrentThread,
         KPROCESS_DirectoryTableBase,
@@ -62,6 +64,7 @@ namespace
         {EPROCESS_VadRoot,                              "nt", "_EPROCESS",                        "VadRoot"},
         {ETHREAD_Tcb,                                   "nt", "_ETHREAD",                         "Tcb"},
         {ETHREAD_ThreadListEntry,                       "nt", "_ETHREAD",                         "ThreadListEntry"},
+        {KPCR_Irql,                                     "nt", "_KPCR",                            "Irql"},
         {KPCR_Prcb,                                     "nt", "_KPCR",                            "Prcb"},
         {KPRCB_CurrentThread,                           "nt", "_KPRCB",                           "CurrentThread"},
         {KPROCESS_DirectoryTableBase,                   "nt", "_KPROCESS",                        "DirectoryTableBase"},
@@ -137,10 +140,13 @@ namespace
         opt<std::string>    driver_name     (driver_t drv) override;
         opt<span_t>         driver_span     (driver_t drv) override;
 
+        void                debug_print     () override;
+
         // members
         core::Core&     core_;
         MemberOffsets   members_;
         SymbolOffsets   symbols_;
+        std::string     last_dump_;
     };
 }
 
@@ -462,11 +468,11 @@ bool OsNt::thread_list(proc_t proc, const on_thread_fn& on_thread)
 
 opt<thread_t> OsNt::thread_current()
 {
-    const auto gs = read_gs_base(core_);
-    if(!gs)
+    const auto kpcr = read_gs_base(core_);
+    if(!kpcr)
         return std::nullopt;
 
-    const auto current_thread = core::read_ptr(core_, *gs + members_[KPCR_Prcb] + members_[KPRCB_CurrentThread]);
+    const auto current_thread = core::read_ptr(core_, *kpcr + members_[KPCR_Prcb] + members_[KPRCB_CurrentThread]);
     if(!current_thread)
         FAIL(std::nullopt, "unable to read KPCR.Prcb.CurrentThread");
 
@@ -489,6 +495,8 @@ opt<proc_t> OsNt::thread_proc(thread_t thread)
 
 opt<uint64_t> OsNt::thread_pc(proc_t proc, thread_t thread)
 {
+    UNUSED(proc);
+
     const auto ktrap_frame = core::read_ptr(core_, thread.id + members_[ETHREAD_Tcb] + members_[KTHREAD_TrapFrame]);
     if(!ktrap_frame)
         FAIL(std::nullopt, "unable to read KTHREAD.TrapFrame");
@@ -496,10 +504,59 @@ opt<uint64_t> OsNt::thread_pc(proc_t proc, thread_t thread)
     if(!*ktrap_frame)
         return std::nullopt;
 
-    const auto ctx = core_.mem.switch_process(proc);
     const auto rip = core::read_ptr(core_, *ktrap_frame + members_[KTRAP_FRAME_Rip]);
-    if(!rip)
-        FAIL(std::nullopt, "unable to read KTRAP_FRAME.Rip");
+    return rip; // rip can be null
+}
 
-    return *rip;
+namespace
+{
+    const char* irql_to_text(uint8_t value)
+    {
+        switch(value)
+        {
+            case 0: return "passive";
+            case 1: return "apc";
+            case 2: return "dispatch";
+        }
+        return "?";
+    }
+
+    bool is_user_mode(uint64_t cs)
+    {
+        return !!(cs & 3);
+    }
+
+    std::string to_hex(uint64_t x)
+    {
+        char buf[sizeof x * 2 + 1];
+        return hex::convert<hex::LowerCase>(buf, x);
+    }
+}
+
+void OsNt::debug_print()
+{
+#ifdef _DEBUG
+    const auto kpcr = read_gs_base(core_);
+    if(!kpcr)
+        return;
+
+    const auto irql = core::read_byte(core_, *kpcr + members_[KPCR_Irql]);
+    const auto cs = core_.regs.read(FDP_CS_REGISTER);
+    const auto rip = core_.regs.read(FDP_RIP_REGISTER);
+    const auto ripcur = core_.sym.find(*rip);
+    const auto ripsym = ripcur ? sym::to_string(*ripcur) : "";
+    const auto thread = thread_current();
+    const auto proc = thread_proc(*thread);
+    const auto name = proc_name(*proc);
+    const auto dump = "rip: " + to_hex(rip ? *rip : 0)
+                    + ' ' + irql_to_text(irql ? *irql : -1)
+                    + ' ' + (cs ? is_user_mode(*cs) ? "user" : "kernel" : "?")
+                    + (name ? " " + *name : "")
+                    + (ripsym.empty() ? "" : " " + ripsym)
+                    + " p:" + to_hex(proc ? proc->id : 0)
+                    + " t:" + to_hex(thread ? thread->id : 0);
+    if(dump != last_dump_)
+        LOG(INFO, "%s", dump.data());
+    last_dump_ = dump;
+#endif
 }

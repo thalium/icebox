@@ -38,6 +38,8 @@ namespace os
         virtual opt<driver_t>       driver_find     (const std::string& name) = 0;
         virtual opt<std::string>    driver_name     (driver_t drv) = 0;
         virtual opt<span_t>         driver_span     (driver_t drv) = 0;
+
+        virtual void                debug_print     () = 0;
     };
 
     std::unique_ptr<IModule> make_nt(core::Core& core);
