@@ -3,7 +3,7 @@
 #define FDP_MODULE "os_nt"
 #include "log.hpp"
 #include "core.hpp"
-#include "core_helpers.hpp"
+#include "core/helpers.hpp"
 #include "utils/utils.hpp"
 #include "utils/utf8.hpp"
 #include "utils/pe.hpp"

@@ -19,6 +19,12 @@ namespace
 #define bswap64 __builtin_bswap64
 #endif
 
+static inline uint8_t read_8(const void* vptr)
+{
+    const auto value = *reinterpret_cast<const uint8_t*>(vptr);
+    return value;
+}
+
 static inline uint16_t read_le16(const void* vptr)
 {
     const auto value = *reinterpret_cast<const uint16_t*>(vptr);
