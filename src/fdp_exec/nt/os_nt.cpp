@@ -535,7 +535,7 @@ namespace
 
 void OsNt::debug_print()
 {
-#ifdef _DEBUG
+#ifdef USE_DEBUG_PRINT
     const auto kpcr = read_gs_base(core_);
     if(!kpcr)
         return;
