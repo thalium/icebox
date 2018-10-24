@@ -66,6 +66,13 @@ int main(int argc, char* argv[])
         return 0;
 
     std::vector<uint8_t> buffer;
+    size_t modcount = 0;
+    core.os->mod_list(*target, [&](mod_t)
+    {
+        ++modcount;
+        return WALK_NEXT;
+    });
+    size_t modi = 0;
     core.os->mod_list(*target, [&](mod_t mod)
     {
         const auto name = core.os->mod_name(*target, mod);
@@ -73,7 +80,8 @@ int main(int argc, char* argv[])
         if(!name || !span)
             return WALK_NEXT;
 
-        LOG(INFO, "module %s: 0x%" PRIx64 " 0x%zx", name->data(), span->addr, span->size);
+        LOG(INFO, "module[%03zd/%03zd] %s: 0x%" PRIx64 " 0x%zx", modi, modcount, name->data(), span->addr, span->size);
+        ++modi;
         buffer.resize(span->size);
         auto ok = core.mem.virtual_read(&buffer[0], span->addr, span->size);
         if(!ok)
@@ -94,7 +102,7 @@ int main(int argc, char* argv[])
             return WALK_NEXT;
 
         const auto name = core.sym.find(*rip);
-        LOG(INFO, "thread: 0x%" PRIx64 "%s", *rip, name ? (" " + name->module + "!" + name->symbol + "+" + std::to_string(name->offset)).data() : "");
+        LOG(INFO, "thread: %" PRIx64 " 0x%" PRIx64 "%s", thread.id, *rip, name ? (" " + name->module + "!" + name->symbol + "+" + std::to_string(name->offset)).data() : "");
         return WALK_NEXT;
     });
 
