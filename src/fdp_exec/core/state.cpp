@@ -126,6 +126,10 @@ namespace
         if(!(state & FDP_STATE_PAUSED))
             return true;
 
+        if(state & (FDP_STATE_BREAKPOINT_HIT | FDP_STATE_HARD_BREAKPOINT_HIT))
+            if(!try_single_step(d))
+                return false;
+
         const auto resumed = FDP_Resume(&d.shm);
         if(!resumed)
             FAIL(false, "unable to resume");
