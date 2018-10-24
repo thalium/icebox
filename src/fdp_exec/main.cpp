@@ -99,12 +99,13 @@ namespace
                     return;
 
                 const auto proc = core.os->proc_current();
+                const auto pid = core.os->proc_id(*proc);
                 const auto thread = core.os->thread_current();
+                const auto tid = core.os->thread_id(*proc, *thread);
                 const auto procname = proc ? core.os->proc_name(*proc) : std::nullopt;
                 const auto sym = core.sym.find(*rip);
-                LOG(INFO, "BREAK! rip: %" PRIx64 " %s proc: %" PRIx64 " %s thread: %" PRIx64,
-                    *rip, sym ? sym::to_string(*sym).data() : "", proc ? proc->id : 0, procname ? procname->data() : "",
-                    thread ? thread->id : 0);
+                LOG(INFO, "BREAK! rip: %" PRIx64 " %s %s pid:%" PRId64 " tid:%" PRId64,
+                    *rip, sym ? sym::to_string(*sym).data() : "", procname ? procname->data() : "", pid, tid);
             });
             for(size_t i = 0; i < 16; ++i)
             {
