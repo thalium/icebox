@@ -17,13 +17,16 @@ namespace
 {
     enum member_offset_e
     {
+        CLIENT_ID_UniqueThread,
         EPROCESS_ActiveProcessLinks,
         EPROCESS_ImageFileName,
         EPROCESS_Pcb,
         EPROCESS_Peb,
         EPROCESS_SeAuditProcessCreationInfo,
         EPROCESS_ThreadListHead,
+        EPROCESS_UniqueProcessId,
         EPROCESS_VadRoot,
+        ETHREAD_Cid,
         ETHREAD_Tcb,
         ETHREAD_ThreadListEntry,
         KPCR_Irql,
@@ -55,13 +58,16 @@ namespace
     };
     const MemberOffset g_member_offsets[] =
     {
+        {CLIENT_ID_UniqueThread,                        "nt", "_CLIENT_ID",                       "UniqueThread"},
         {EPROCESS_ActiveProcessLinks,                   "nt", "_EPROCESS",                        "ActiveProcessLinks"},
         {EPROCESS_ImageFileName,                        "nt", "_EPROCESS",                        "ImageFileName"},
         {EPROCESS_Pcb,                                  "nt", "_EPROCESS",                        "Pcb"},
         {EPROCESS_Peb,                                  "nt", "_EPROCESS",                        "Peb"},
         {EPROCESS_SeAuditProcessCreationInfo,           "nt", "_EPROCESS",                        "SeAuditProcessCreationInfo"},
         {EPROCESS_ThreadListHead,                       "nt", "_EPROCESS",                        "ThreadListHead"},
+        {EPROCESS_UniqueProcessId,                      "nt", "_EPROCESS",                        "UniqueProcessId"},
         {EPROCESS_VadRoot,                              "nt", "_EPROCESS",                        "VadRoot"},
+        {ETHREAD_Cid,                                   "nt", "_ETHREAD",                         "Cid"},
         {ETHREAD_Tcb,                                   "nt", "_ETHREAD",                         "Tcb"},
         {ETHREAD_ThreadListEntry,                       "nt", "_ETHREAD",                         "ThreadListEntry"},
         {KPCR_Irql,                                     "nt", "_KPCR",                            "Irql"},
@@ -123,13 +129,16 @@ namespace
         bool                proc_list       (const on_proc_fn& on_process) override;
         opt<proc_t>         proc_current    () override;
         opt<proc_t>         proc_find       (const std::string& name) override;
+        opt<proc_t>         proc_find       (uint64_t pid) override;
         opt<std::string>    proc_name       (proc_t proc) override;
         bool                proc_is_valid   (proc_t proc) override;
+        uint64_t            proc_id         (proc_t proc) override;
 
         bool                thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
         opt<thread_t>       thread_current  () override;
         opt<proc_t>         thread_proc     (thread_t thread) override;
         opt<uint64_t>       thread_pc       (proc_t proc, thread_t thread) override;
+        uint64_t            thread_id       (proc_t proc, thread_t thread) override;
 
         bool                mod_list        (proc_t proc, const on_mod_fn& on_module) override;
         opt<std::string>    mod_name        (proc_t proc, mod_t mod) override;
@@ -308,6 +317,21 @@ opt<proc_t> OsNt::proc_find(const std::string& name)
     return found;
 }
 
+opt<proc_t> OsNt::proc_find(uint64_t pid)
+{
+    opt<proc_t> found;
+    proc_list([&](proc_t proc)
+    {
+        const auto got = proc_id(proc);
+        if(got != pid)
+            return WALK_NEXT;
+
+        found = proc;
+        return WALK_STOP;
+    });
+    return found;
+}
+
 namespace
 {
     opt<std::string> read_unicode_string(core::Core& core, uint64_t unicode_string)
@@ -363,6 +387,15 @@ opt<std::string> OsNt::proc_name(proc_t proc)
         return name;
 
     return fs::path(*path).filename().generic_string();
+}
+
+uint64_t OsNt::proc_id(proc_t proc)
+{
+    const auto pid = core::read_ptr(core_, proc.id + members_[EPROCESS_UniqueProcessId]);
+    if(!pid)
+        return 0;
+
+    return *pid;
 }
 
 bool OsNt::mod_list(proc_t proc, const on_mod_fn& on_mod)
@@ -506,6 +539,17 @@ opt<uint64_t> OsNt::thread_pc(proc_t proc, thread_t thread)
 
     const auto rip = core::read_ptr(core_, *ktrap_frame + members_[KTRAP_FRAME_Rip]);
     return rip; // rip can be null
+}
+
+uint64_t OsNt::thread_id(proc_t proc, thread_t thread)
+{
+    UNUSED(proc);
+
+    const auto tid = core::read_ptr(core_, thread.id + members_[ETHREAD_Cid] + members_[CLIENT_ID_UniqueThread]);
+    if(!tid)
+        return 0;
+
+    return *tid;
 }
 
 namespace
