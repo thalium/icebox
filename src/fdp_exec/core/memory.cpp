@@ -8,6 +8,7 @@
 #include "endian.hpp"
 #include "core.hpp"
 #include "private.hpp"
+#include "core/helpers.hpp"
 
 #include <FDP.h>
 #include <algorithm>
@@ -18,6 +19,7 @@ struct core::Memory::Data
         : shm(shm)
         , core(core)
     {
+        memset(&current, 0, sizeof current);
     }
 
     // members
@@ -146,36 +148,117 @@ opt<uint64_t> core::Memory::virtual_to_physical(uint64_t ptr, uint64_t dtb)
 
 namespace
 {
-    bool read_virtual(MemData& m, uint8_t* dst, uint64_t src, uint32_t size)
+    bool is_user_mode(MemData& m)
     {
-        auto ok = FDP_ReadVirtualMemory(&m.shm, 0, dst, size, src);
-        if(ok)
+        const auto cs = m.core.regs.read(FDP_CS_REGISTER);
+        if(!cs)
+            return false;
+
+        return !!(*cs & 3);
+    }
+
+    bool is_kernel_page(uint64_t ptr)
+    {
+        return !!(ptr & 0xFFF0000000000000);
+    }
+
+    struct Cr3Swap
+    {
+        Cr3Swap(MemData& m, proc_t want)
+            : m_(m)
+            , current_(m.current)
+            , want_(want)
+        {
+        }
+
+        bool setup()
+        {
+            if(want_.dtb == current_.dtb)
+                return true;
+
+            const auto ok = m_.core.regs.write(FDP_CR3_REGISTER, want_.dtb);
+            if(!ok)
+                LOG(ERROR, "unable to set CR3 to %" PRIx64 " for context swap", want_.dtb);
+            return ok;
+        }
+
+        ~Cr3Swap()
+        {
+            if(want_.dtb == current_.dtb)
+                return;
+
+            const auto ok = m_.core.regs.write(FDP_CR3_REGISTER, current_.dtb);
+            if(!ok)
+                LOG(ERROR, "unable to restore CR3 to %" PRIx64 " from %" PRIx64, current_.dtb, want_.dtb);
+        }
+
+        MemData&    m_;
+        proc_t      current_;
+        proc_t      want_;
+    };
+
+    opt<Cr3Swap> swap_context(MemData& m, proc_t want)
+    {
+        Cr3Swap swap(m, want);
+        const auto ok = swap.setup();
+        if(!ok)
+            return std::nullopt;
+
+        return swap;
+    }
+
+    bool read_virtual_from_proc(MemData& m, uint8_t* dst, uint64_t src, uint32_t size, proc_t proc)
+    {
+        const auto swap = swap_context(m, proc);
+        if(!swap)
+            return false;
+
+        return FDP_ReadVirtualMemory(&m.shm, 0, dst, size, src);
+    }
+
+    bool try_read_virtual_page(MemData& m, uint8_t* dst, uint64_t src, uint32_t size, proc_t proc, bool user_mode)
+    {
+        const auto read = read_virtual_from_proc(m, dst, src, size, proc);
+        if(read)
             return true;
 
         const auto rip = m.core.regs.read(FDP_RIP_REGISTER);
         if(!rip)
-            FAIL(false, "unable to read rip for page fault injection");
+            FAIL(false, "unable to read current RIP");
 
-        ok = FDP_InjectInterrupt(&m.shm, 0, PAGE_FAULT, 0, src);
-        if(!ok)
-            FAIL(false, "unable to inject page fault at %" PRIx64, src);
+        const auto swap = swap_context(m, proc);
+        if(!swap)
+            FAIL(false, "unable to swap context");
 
-        auto bp = m.core.state.set_breakpoint(*rip, m.current, core::FILTER_CR3);
-        m.core.state.resume();
-        m.core.state.wait();
-        bp.reset();
+        const auto code = user_mode ? 1 << 2 : 0;
+        const auto injected = FDP_InjectInterrupt(&m.shm, 0, PAGE_FAULT, code, src);
+        if(!injected)
+            FAIL(false, "unable to inject page fault");
 
-        ok = FDP_ReadVirtualMemory(&m.shm, 0, dst, size, src);
-        if(!ok)
-            FAIL(false, "unable to read mem %" PRIx64 "-%" PRIx64 " after page fault injection", src, src + size);
+        const auto bp = m.core.state.set_breakpoint(*rip, proc, core::FILTER_CR3);
+        while(true)
+        {
+            m.core.state.resume();
+            m.core.state.wait();
+            const auto cur = m.core.regs.read(FDP_RIP_REGISTER);
+            if(cur == rip)
+                break;
+        }
 
+        const auto ok = FDP_ReadVirtualMemory(&m.shm, 0, dst, size, src);
         return ok;
     }
 
-    bool try_read_mem(MemData& m, uint8_t* dst, uint64_t src, uint32_t size)
+    bool try_read_virtual_only(MemData& d, uint8_t* dst, uint64_t src, uint32_t size)
     {
-        if(!m.context || m.current.dtb == m.context->dtb)
-            return read_virtual(m, dst, src, size);
+        const auto proc = d.context ? *d.context : d.current;
+        const auto full = read_virtual_from_proc(d, dst, src, size, proc);
+        if(full)
+            return true;
+
+        const auto user_mode = is_user_mode(d);
+        if(!user_mode || is_kernel_page(src))
+            return false;
 
         uint8_t buffer[PAGE_SIZE];
         size_t fill = 0;
@@ -183,14 +266,9 @@ namespace
         size_t skip = src - ptr;
         while(fill < size)
         {
-            auto phy = virtual_to_physical(m, ptr, m.context->dtb);
-            if(!phy)
-                FAIL(false, "unable to convert virtual address 0x%llx to physical after page fault injection: dtb = 0x%llx", ptr, m.context->dtb);
-
-            const auto ok = FDP_ReadPhysicalMemory(&m.shm, buffer, sizeof buffer, *phy);
+            const auto ok = try_read_virtual_page(d, buffer, ptr, sizeof buffer, proc, user_mode);
             if(!ok)
-                FAIL(false, "unable to read phy mem 0x%llx-0x%llx virtual 0x%llx-0x%llx (%zd 0x%zx bytes)",
-                     *phy, *phy + sizeof buffer, ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
+                FAIL(false, "unable to read virtual mem 0x%llx-0x%llx (%zd 0x%zx bytes)", ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
 
             const auto chunk = std::min(size - fill, sizeof buffer - skip);
             memcpy(&dst[fill], &buffer[skip], chunk);
@@ -207,20 +285,5 @@ bool core::Memory::virtual_read(void* vdst, uint64_t src, size_t size)
 {
     const auto dst = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
-    if(size < PAGE_SIZE)
-        return try_read_mem(*d_, dst, src, usize);
-
-    // FIXME check if we can read bigger than PAGE_SIZE at once
-    uint8_t buffer[PAGE_SIZE];
-    uint32_t read = 0;
-    while(read < usize)
-    {
-        const auto chunk = std::min<uint32_t>(sizeof buffer, usize - read);
-        const auto ok = try_read_mem(*d_, &dst[read], src + read, chunk);
-        if(!ok)
-            return false;
-
-        read += chunk;
-    }
-    return true;
+    return try_read_virtual_only(*d_, dst, src, usize);
 }
