@@ -19,5 +19,5 @@ fi
 echo OUT=$OUT
 
 mkdir -p "$OUT"
-cd "$OUT" 
-cmake ../../build -DCMAKE_BUILD_TYPE="${CONFIG}" 
+cd "$OUT"
+cmake ../../build -DCMAKE_BUILD_TYPE="${CONFIG}"
