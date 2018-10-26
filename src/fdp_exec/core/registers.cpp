@@ -109,7 +109,7 @@ opt<uint64_t> core::Registers::read(reg_e reg)
     uint64_t value;
     const auto ok = FDP_ReadRegister(&d_->shm_, 0, reg, &value);
     if(!ok)
-        FAIL(std::nullopt, "unable to read reg %s 0x%x", reg_to_str(reg), reg);
+        FAIL(exp::nullopt, "unable to read reg %s 0x%x", reg_to_str(reg), reg);
 
     return value;
 }
@@ -118,7 +118,7 @@ bool core::Registers::write(reg_e reg, uint64_t value)
 {
     const auto ok = FDP_WriteRegister(&d_->shm_, 0, reg, value);
     if(!ok)
-        FAIL(false, "unable to write 0x%llx to reg %s 0x%x", value, reg_to_str(reg), reg);
+        FAIL(false, "unable to write 0x%" PRIx64 " to reg %s 0x%x", value, reg_to_str(reg), reg);
 
     return true;
 }
@@ -128,7 +128,7 @@ opt<uint64_t> core::Registers::read(msr_e reg)
     uint64_t value = 0;
     const auto ok = FDP_ReadMsr(&d_->shm_, 0, reg, &value);
     if(!ok)
-        FAIL(std::nullopt, "unable to read msr %s 0x%x", msr_to_str(reg), reg);
+        FAIL(exp::nullopt, "unable to read msr %s 0x%x", msr_to_str(reg), reg);
 
     return value;
 }
@@ -137,7 +137,7 @@ bool core::Registers::write(msr_e reg, uint64_t value)
 {
     const auto ok = FDP_WriteMsr(&d_->shm_, 0, reg, value);
     if(!ok)
-        FAIL(false, "unable to write 0x%llx to msr %s 0x%x", value, msr_to_str(reg), reg);
+        FAIL(false, "unable to write 0x%" PRIx64 " to msr %s 0x%x", value, msr_to_str(reg), reg);
 
     return true;
 }

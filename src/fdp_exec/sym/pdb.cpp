@@ -62,7 +62,7 @@ std::unique_ptr<sym::IMod> sym::make_pdb(span_t span, const std::string& module,
 
 namespace
 {
-    char* to_string(pdb::PDBFileState x)
+    const char* to_string(pdb::PDBFileState x)
     {
         switch(x)
         {
@@ -110,7 +110,7 @@ opt<uint64_t> Pdb::symbol(const std::string& symbol)
 {
     const auto it = symbols_.find(symbol);
     if(it == symbols_.end())
-        return std::nullopt;
+        return exp::nullopt;
 
     return get_offset(*this, it->second);
 }
@@ -135,20 +135,20 @@ opt<uint64_t> Pdb::struc_offset(const std::string& struc, const std::string& mem
 {
     const auto stype = get_struc(*this, struc);
     if(!stype)
-        return std::nullopt;
+        return exp::nullopt;
 
     for(const auto& m : stype->struct_members)
         if(member == m->name)
             return m->offset;
 
-    return std::nullopt;
+    return exp::nullopt;
 }
 
 opt<size_t> Pdb::struc_size(const std::string& struc)
 {
     const auto stype = get_struc(*this, struc);
     if(!stype)
-        return std::nullopt;
+        return exp::nullopt;
 
     return stype->size_bytes;
 }
@@ -159,7 +159,7 @@ namespace
     opt<sym::ModCursor> make_cursor(Pdb& p, const T& it, const T& end, uint64_t addr)
     {
         if(it == end)
-            return std::nullopt;
+            return exp::nullopt;
 
         return sym::ModCursor{it->second.name, addr - get_offset(p, it->second)};
     }
@@ -193,13 +193,13 @@ namespace
     {
         for(auto it = ptr; it != end; ++it)
             if(!std::isprint(*it))
-                return std::nullopt;
+                return exp::nullopt;
 
         return std::string{ptr, end};
     }
 
     static const uint8_t    rsds_magic[]    = {'R', 'S', 'D', 'S'};
-    static const auto       rsds_pattern    = std::boyer_moore_horspool_searcher(std::begin(rsds_magic), std::end(rsds_magic));
+    static const auto       rsds_pattern    = boyer_moore_horspool_searcher(std::begin(rsds_magic), std::end(rsds_magic));
 
     opt<PdbCtx> read_pdb(const void* vsrc, size_t src_size)
     {
@@ -207,17 +207,17 @@ namespace
         const auto end = &src[src_size];
         while(true)
         {
-            const auto rsds = std::search(&src[0], &src[src_size], rsds_pattern);
+            const auto rsds = search(&src[0], &src[src_size], rsds_pattern);
             if(!rsds)
-                FAIL(std::nullopt, "unable to find RSDS pattern into kernel module");
+                FAIL(exp::nullopt, "unable to find RSDS pattern into kernel module");
 
             const auto size = std::distance(rsds, &src[src_size]);
             if(size < 4 /*magic*/ + 16 /*guid*/ + 4 /*age*/ + 2 /*name*/)
-                FAIL(std::nullopt, "kernel module is too small for pdb header");
+                FAIL(exp::nullopt, "kernel module is too small for pdb header");
 
             const auto name_end = reinterpret_cast<const uint8_t*>(memchr(&rsds[4 + 16 + 4], 0x00, size));
             if(!name_end)
-                FAIL(std::nullopt, "missing null-terminating byte on PDB header module name");
+                FAIL(exp::nullopt, "missing null-terminating byte on PDB header module name");
 
             uint8_t guid[16];
             write_be32(&guid[0], read_le32(&rsds[4 + 0])); // Data1

@@ -11,6 +11,7 @@
 #include <FDP.h>
 
 #include <map>
+#include <unordered_map>
 #include <thread>
 #include <unordered_set>
 
@@ -103,7 +104,7 @@ namespace
         if(state & FDP_STATE_PAUSED)
             return true;
 
-        const auto paused = FDP_Pause(&d.shm);
+        FDP_Pause(&d.shm);
         if(!ok)
             FAIL(false, "unable to pause");
 
@@ -244,7 +245,7 @@ namespace
     int try_add_breakpoint(StateData& d, uint64_t phy, const BreakpointObserver& bp)
     {
         auto& targets = d.breakpoints.targets_;
-        auto dtb = bp.filter == core::FILTER_CR3 ? std::make_optional(bp.proc.dtb) : std::nullopt;
+        auto dtb = bp.filter == core::FILTER_CR3 ? exp::make_optional(bp.proc.dtb) : exp::nullopt;
         const auto it = targets.find(phy);
         if(it != targets.end())
         {
@@ -260,7 +261,7 @@ namespace
                 return -1;
 
             // add new breakpoint without filtering
-            dtb = std::nullopt;
+            dtb = exp::nullopt;
         }
 
         const auto bpid = FDP_SetBreakpoint(&d.shm, 0, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy, 1, dtb ? *dtb : FDP_NO_CR3);

@@ -31,6 +31,11 @@ target_link_libraries(test_fdp PRIVATE
 target_include_directories(test_fdp PRIVATE
     "${root_dir}/src/Winbagility"
 )
+if(NOT WIN32)
+target_link_libraries(test_fdp PRIVATE
+    rt
+)
+endif()
 
 # loguru
 set(loguru_dir "${root_dir}/deps/loguru-2.0.0")

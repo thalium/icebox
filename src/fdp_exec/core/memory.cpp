@@ -12,6 +12,7 @@
 
 #include <FDP.h>
 #include <algorithm>
+#include <string.h>
 
 struct core::Memory::Data
 {
@@ -87,19 +88,19 @@ namespace
         entry_t pml4e = {0};
         auto ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pml4e), sizeof pml4e, pml4e_ptr);
         if(!ok)
-            return std::nullopt;
+            return exp::nullopt;
 
         if(!pml4e.u.f.can_read)
-            return std::nullopt;
+            return exp::nullopt;
 
         const auto pdpe_ptr = pml4e.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pdp * 8;
         entry_t pdpe = {0};
         ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pdpe), sizeof pdpe, pdpe_ptr);
         if(!ok)
-            return std::nullopt;
+            return exp::nullopt;
 
         if(!pdpe.u.f.can_read)
-            return std::nullopt;
+            return exp::nullopt;
 
         // 1g page
         if(pdpe.u.f.large_page)
@@ -113,10 +114,10 @@ namespace
         entry_t pde = {0};
         ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pde), sizeof pde, pde_ptr);
         if(!ok)
-            return std::nullopt;
+            return exp::nullopt;
 
         if(!pde.u.f.can_read)
-            return std::nullopt;
+            return exp::nullopt;
 
         // 2mb page
         if(pde.u.f.large_page)
@@ -130,10 +131,10 @@ namespace
         entry_t pte = {0};
         ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pte), sizeof pte, pte_ptr);
         if(!ok)
-            return std::nullopt;
+            return exp::nullopt;
 
         if(!pte.u.f.can_read)
-            return std::nullopt;
+            return exp::nullopt;
 
         const auto phy = pte.u.f.page_frame_number * PAGE_SIZE + virt.u.f.offset;
         return phy;
@@ -202,7 +203,7 @@ namespace
         Cr3Swap swap(m, want);
         const auto ok = swap.setup();
         if(!ok)
-            return std::nullopt;
+            return exp::nullopt;
 
         return swap;
     }
@@ -268,7 +269,7 @@ namespace
         {
             const auto ok = try_read_virtual_page(d, buffer, ptr, sizeof buffer, proc, user_mode);
             if(!ok)
-                FAIL(false, "unable to read virtual mem 0x%llx-0x%llx (%zd 0x%zx bytes)", ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
+                FAIL(false, "unable to read virtual mem 0x%" PRIx64 "-0x%" PRIx64 " (%zd 0x%zx bytes)", ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
 
             const auto chunk = std::min(size - fill, sizeof buffer - skip);
             memcpy(&dst[fill], &buffer[skip], chunk);

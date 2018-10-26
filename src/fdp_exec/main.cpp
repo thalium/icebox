@@ -6,7 +6,7 @@
 
 #include <thread>
 #include <chrono>
-#include <filesystem>
+#include <experimental/filesystem>
 
 namespace fs = std::experimental::filesystem;
 
@@ -19,21 +19,21 @@ namespace
         {
             const auto name = core.os->driver_name(drv);
             const auto span = core.os->driver_span(drv);
-            LOG(INFO, "    driver: %llx %s 0x%llx 0x%llx", drv.id, name ? name->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
+            LOG(INFO, "    driver: %" PRIx64 " %s 0x%" PRIx64 " 0x%" PRIx64 "", drv.id, name ? name->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
             return WALK_NEXT;
         });
 
         const auto pc = core.os->proc_current();
-        LOG(INFO, "current process: %llx dtb: %llx %s", pc->id, pc->dtb, core.os->proc_name(*pc)->data());
+        LOG(INFO, "current process: %" PRIx64 " dtb: %" PRIx64 " %s", pc->id, pc->dtb, core.os->proc_name(*pc)->data());
 
         const auto tc = core.os->thread_current();
-        LOG(INFO, "current thread: %llx", tc->id);
+        LOG(INFO, "current thread: %" PRIx64 "", tc->id);
 
         LOG(INFO, "processes:");
         core.os->proc_list([&](proc_t proc)
         {
             const auto procname = core.os->proc_name(proc);
-            LOG(INFO, "proc: %llx %s", proc.id, procname ? procname->data() : "<noname>");
+            LOG(INFO, "proc: %" PRIx64 " %s", proc.id, procname ? procname->data() : "<noname>");
             return WALK_NEXT;
         });
 
@@ -102,7 +102,7 @@ namespace
                 const auto pid = core.os->proc_id(*proc);
                 const auto thread = core.os->thread_current();
                 const auto tid = core.os->thread_id(*proc, *thread);
-                const auto procname = proc ? core.os->proc_name(*proc) : std::nullopt;
+                const auto procname = proc ? core.os->proc_name(*proc) : exp::nullopt;
                 const auto sym = core.sym.find(*rip);
                 LOG(INFO, "BREAK! rip: %" PRIx64 " %s %s pid:%" PRId64 " tid:%" PRId64,
                     *rip, sym ? sym::to_string(*sym).data() : "", procname ? procname->data() : "", pid, tid);

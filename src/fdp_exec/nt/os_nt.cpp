@@ -173,7 +173,7 @@ namespace
         {
             auto ok = core.mem.virtual_read(buf, ptr, sizeof buf);
             if(!ok)
-                return std::nullopt;
+                return exp::nullopt;
 
             const auto size = pe::read_image_size(buf, sizeof buf);
             if(!size)
@@ -182,7 +182,7 @@ namespace
             return span_t{ptr, *size};
         }
 
-        return std::nullopt;
+        return exp::nullopt;
     }
 }
 
@@ -196,7 +196,7 @@ bool OsNt::setup()
     if(!kernel)
         FAIL(false, "unable to find kernel");
 
-    LOG(INFO, "kernel: 0x%016llx - 0x%016llx (%lld 0x%llx)", kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
+    LOG(INFO, "kernel: 0x%016" PRIx64 " - 0x%016" PRIx64 " (%" PRIx64 " 0x%" PRIx64 ")", kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
     std::vector<uint8_t> buffer(kernel->size);
     auto ok = core_.mem.virtual_read(&buffer[0], kernel->addr, kernel->size);
     if(!ok)
@@ -236,7 +236,7 @@ bool OsNt::setup()
 
     const auto KiSystemCall64 = symbols_[::KiSystemCall64];
     if(*lstar != KiSystemCall64)
-        FAIL(false, "PDB mismatch lstar: 0x%llx pdb: 0x%llx\n", *lstar, KiSystemCall64);
+        FAIL(false, "PDB mismatch lstar: 0x%" PRIx64 " pdb: 0x%" PRIx64 "\n", *lstar, KiSystemCall64);
 
     return true;
 }
@@ -263,7 +263,7 @@ bool OsNt::proc_list(const on_proc_fn& on_process)
         const auto dtb = core::read_ptr(core_, eproc + members_[EPROCESS_Pcb] + members_[KPROCESS_DirectoryTableBase]);
         if(!dtb)
         {
-            LOG(ERROR, "unable to read KPROCESS.DirectoryTableBase from 0x%llx", eproc);
+            LOG(ERROR, "unable to read KPROCESS.DirectoryTableBase from 0x%" PRIx64 "", eproc);
             continue;
         }
 
@@ -280,14 +280,14 @@ namespace
     {
         auto gs = core.regs.read(MSR_GS_BASE);
         if(!gs)
-            return std::nullopt;
+            return exp::nullopt;
 
         if(*gs & 0xFFF0000000000000)
             return gs;
 
         gs = core.regs.read(MSR_KERNEL_GS_BASE);
         if(!gs)
-            return std::nullopt;
+            return exp::nullopt;
 
         return gs;
     }
@@ -297,7 +297,7 @@ opt<proc_t> OsNt::proc_current()
 {
     const auto current = thread_current();
     if(!current)
-        FAIL(std::nullopt, "unable to get current thread");
+        FAIL(exp::nullopt, "unable to get current thread");
 
     return thread_proc(*current);
 }
@@ -346,19 +346,19 @@ namespace
         UnicodeString us;
         auto ok = core.mem.virtual_read(&us, unicode_string, sizeof us);
         if(!ok)
-            FAIL(std::nullopt, "unable to read UNICODE_STRING");
+            FAIL(exp::nullopt, "unable to read UNICODE_STRING");
 
         us.length = read_le16(&us.length);
         us.max_length = read_le16(&us.max_length);
         us.buffer = read_le64(&us.buffer);
 
         if(us.length > us.max_length)
-            FAIL(std::nullopt, "corrupted UNICODE_STRING");
+            FAIL(exp::nullopt, "corrupted UNICODE_STRING");
 
         std::vector<uint8_t> buffer(us.length);
         ok = core.mem.virtual_read(&buffer[0], us.buffer, us.length);
         if(!ok)
-            FAIL(std::nullopt, "unable to read UNICODE_STRING.buffer");
+            FAIL(exp::nullopt, "unable to read UNICODE_STRING.buffer");
 
         const auto p = &buffer[0];
         return utf8::convert(p, &p[us.length]);
@@ -372,7 +372,7 @@ opt<std::string> OsNt::proc_name(proc_t proc)
     const auto ok = core_.mem.virtual_read(buffer, proc.id + members_[EPROCESS_ImageFileName], sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
-        return std::nullopt;
+        return exp::nullopt;
 
     const auto name = std::string{buffer};
     if(name.size() < sizeof buffer - 1)
@@ -438,11 +438,11 @@ opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
     const auto ctx = core_.mem.switch_process(proc);
     const auto base = core::read_ptr(core_, mod.id + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
     if(!base)
-        return std::nullopt;
+        return exp::nullopt;
 
     const auto size = core::read_ptr(core_, mod.id + members_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
     if(!size)
-        return std::nullopt;
+        return exp::nullopt;
 
     return span_t{*base, *size};
 }
@@ -480,11 +480,11 @@ opt<span_t> OsNt::driver_span(driver_t drv)
 {
     const auto base = core::read_ptr(core_, drv.id + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
     if(!base)
-        return std::nullopt;
+        return exp::nullopt;
 
     const auto size = core::read_ptr(core_, drv.id + members_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
     if(!size)
-        return std::nullopt;
+        return exp::nullopt;
 
     return span_t{*base, *size};
 }
@@ -503,11 +503,11 @@ opt<thread_t> OsNt::thread_current()
 {
     const auto kpcr = read_gs_base(core_);
     if(!kpcr)
-        return std::nullopt;
+        return exp::nullopt;
 
     const auto current_thread = core::read_ptr(core_, *kpcr + members_[KPCR_Prcb] + members_[KPRCB_CurrentThread]);
     if(!current_thread)
-        FAIL(std::nullopt, "unable to read KPCR.Prcb.CurrentThread");
+        FAIL(exp::nullopt, "unable to read KPCR.Prcb.CurrentThread");
 
     return thread_t{*current_thread};
 }
@@ -516,11 +516,11 @@ opt<proc_t> OsNt::thread_proc(thread_t thread)
 {
     const auto kproc = core::read_ptr(core_, thread.id + members_[KTHREAD_Process]);
     if(!kproc)
-        FAIL(std::nullopt, "unable to read KTHREAD.Process");
+        FAIL(exp::nullopt, "unable to read KTHREAD.Process");
 
     const auto dtb = core::read_ptr(core_, *kproc + members_[KPROCESS_DirectoryTableBase]);
     if(!dtb)
-        FAIL(std::nullopt, "unable to read KPROCESS.DirectoryTableBase");
+        FAIL(exp::nullopt, "unable to read KPROCESS.DirectoryTableBase");
 
     const auto eproc = *kproc - members_[EPROCESS_Pcb];
     return proc_t{eproc, *dtb};
@@ -532,10 +532,10 @@ opt<uint64_t> OsNt::thread_pc(proc_t proc, thread_t thread)
 
     const auto ktrap_frame = core::read_ptr(core_, thread.id + members_[ETHREAD_Tcb] + members_[KTHREAD_TrapFrame]);
     if(!ktrap_frame)
-        FAIL(std::nullopt, "unable to read KTHREAD.TrapFrame");
+        FAIL(exp::nullopt, "unable to read KTHREAD.TrapFrame");
 
     if(!*ktrap_frame)
-        return std::nullopt;
+        return exp::nullopt;
 
     const auto rip = core::read_ptr(core_, *ktrap_frame + members_[KTRAP_FRAME_Rip]);
     return rip; // rip can be null
@@ -579,7 +579,10 @@ namespace
 
 void OsNt::debug_print()
 {
-#ifdef USE_DEBUG_PRINT
+#ifndef USE_DEBUG_PRINT
+    if(true)
+        return;
+#endif
     const auto kpcr = read_gs_base(core_);
     if(!kpcr)
         return;
@@ -602,5 +605,4 @@ void OsNt::debug_print()
     if(dump != last_dump_)
         LOG(INFO, "%s", dump.data());
     last_dump_ = dump;
-#endif
 }

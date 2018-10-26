@@ -6,7 +6,10 @@
 #include "private.hpp"
 #include "os.hpp"
 
+extern "C"
+{
 #include <FDP.h>
+}
 
 // custom deleters
 namespace std

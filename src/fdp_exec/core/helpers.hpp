@@ -11,7 +11,7 @@ opt<T> read_mem(core::Core& core, uint64_t ptr)
     T value;
     const auto ok = core.mem.virtual_read(&value, ptr, sizeof value);
     if(!ok)
-        FAIL(std::nullopt, "unable to read %zd bits at 0x%llx", 8 * sizeof value, ptr);
+        FAIL(exp::nullopt, "unable to read %zd bits at 0x%" PRIx64 "", 8 * sizeof value, ptr);
 
     return read(&value);
 }
