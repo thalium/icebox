@@ -143,6 +143,7 @@ namespace
         bool                mod_list        (proc_t proc, const on_mod_fn& on_module) override;
         opt<std::string>    mod_name        (proc_t proc, mod_t mod) override;
         opt<span_t>         mod_span        (proc_t proc, mod_t mod) override;
+        opt<mod_t>          mod_find        (proc_t proc, uint64_t addr) override;
 
         bool                driver_list     (const on_driver_fn& on_driver) override;
         opt<driver_t>       driver_find     (const std::string& name) override;
@@ -425,6 +426,25 @@ opt<std::string> OsNt::mod_name(proc_t proc, mod_t mod)
 {
     const auto ctx = core_.mem.switch_process(proc);
     return read_unicode_string(core_, mod.id + members_[LDR_DATA_TABLE_ENTRY_FullDllName]);
+}
+
+opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
+{
+    opt<mod_t> found = exp::nullopt;
+    const auto ctx = core_.mem.switch_process(proc);
+    mod_list(proc, [&](mod_t mod)
+    {
+        const auto span = core_.os->mod_span(proc, mod);
+        if(!span)
+            return WALK_NEXT;
+
+        if(!(span->addr <= addr && addr <= span->addr + span->size))
+            return WALK_NEXT;
+
+        found = mod;
+        return WALK_STOP;
+    });
+    return found;
 }
 
 bool OsNt::proc_is_valid(proc_t proc)

@@ -36,6 +36,7 @@ namespace os
         virtual bool                mod_list        (proc_t proc, const on_mod_fn& on_mod) = 0;
         virtual opt<std::string>    mod_name        (proc_t proc, mod_t mod) = 0;
         virtual opt<span_t>         mod_span        (proc_t proc, mod_t mod) = 0;
+        virtual opt<mod_t>          mod_find        (proc_t proc, uint64_t addr) = 0;
 
         virtual bool                driver_list     (const on_driver_fn& on_driver) = 0;
         virtual opt<driver_t>       driver_find     (const std::string& name) = 0;
