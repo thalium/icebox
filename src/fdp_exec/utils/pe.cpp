@@ -3,6 +3,55 @@
 #define FDP_MODULE "pe"
 #include "log.hpp"
 #include "endian.hpp"
+#include "core/helpers.hpp"
+#include "utils/utils.hpp"
+
+
+namespace
+{
+
+    enum member_offset_e
+    {
+        IMAGE_NT_HEADERS64_FileHeader,
+        IMAGE_NT_HEADERS64_OptionalHeader,
+        IMAGE_FILE_HEADER_SizeOfOptionalHeader,
+        IMAGE_FILE_HEADER_NumberOfSections,
+        IMAGE_OPTIONAL_HEADER_DataDirectory,
+        IMAGE_OPTIONAL_HEADER_NumberOfRvaAndSizes,
+        IMAGE_DATA_DIRECTORY_VirtualAddress,
+        IMAGE_DATA_DIRECTORY_Size,
+        IMAGE_SECTION_HEADER_Name,
+        IMAGE_SECTION_HEADER_Misc,
+        IMAGE_SECTION_HEADER_VirtualAddress,
+        MEMBER_OFFSET_COUNT,
+    };
+    struct MemberOffset
+    {
+        member_offset_e e_id;
+        const char      module[16];
+        const char      struc[32];
+        const char      member[32];
+    };
+    const MemberOffset g_member_offsets[] =
+    {
+        {IMAGE_NT_HEADERS64_FileHeader,                         "nt", "_IMAGE_NT_HEADERS64",                          "FileHeader"},
+        {IMAGE_NT_HEADERS64_OptionalHeader,                     "nt", "_IMAGE_NT_HEADERS64",                          "OptionalHeader"},
+        {IMAGE_FILE_HEADER_SizeOfOptionalHeader,                "nt", "_IMAGE_FILE_HEADER",                           "SizeOfOptionalHeader"},
+        {IMAGE_FILE_HEADER_NumberOfSections,                    "nt", "_IMAGE_FILE_HEADER",                           "NumberOfSections"},
+        {IMAGE_OPTIONAL_HEADER_DataDirectory,                   "nt", "_IMAGE_OPTIONAL_HEADER64",                     "DataDirectory"},
+        {IMAGE_OPTIONAL_HEADER_NumberOfRvaAndSizes,             "nt", "_IMAGE_OPTIONAL_HEADER64",                     "NumberOfRvaAndSizes"},
+        {IMAGE_DATA_DIRECTORY_VirtualAddress,                   "nt", "_IMAGE_DATA_DIRECTORY",                        "VirtualAddress"},
+        {IMAGE_DATA_DIRECTORY_Size,                             "nt", "_IMAGE_DATA_DIRECTORY",                        "Size"},
+        {IMAGE_SECTION_HEADER_Name,                             "nt", "_IMAGE_SECTION_HEADER",                        "Name"},
+        {IMAGE_SECTION_HEADER_Misc,                             "nt", "_IMAGE_SECTION_HEADER",                        "Misc"},
+        {IMAGE_SECTION_HEADER_VirtualAddress,                   "nt", "_IMAGE_SECTION_HEADER",                        "VirtualAddress"},
+    };
+    static_assert(COUNT_OF(g_member_offsets) == MEMBER_OFFSET_COUNT, "invalid members");
+
+    using MemberOffsets = std::array<uint64_t, MEMBER_OFFSET_COUNT>;
+
+    MemberOffsets   members_;
+}
 
 opt<size_t> pe::read_image_size(const void* vsrc, size_t size)
 {
@@ -54,4 +103,231 @@ opt<size_t> pe::read_image_size(const void* vsrc, size_t size)
         return exp::nullopt;
 
     return read_le32(&src[idx]);
+}
+
+opt<span_t> pe::get_directory_entry(core::Core& core, const span_t span, const pe_directory_entries_e directory_entry_id)
+{
+
+    // SHOULD ME MOVED
+    bool fail = false;
+    for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
+    {
+        const auto offset = core.sym.struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+        if(!offset)
+        {
+            fail = true;
+            LOG(ERROR, "unable to read %s!%s.%s member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+            continue;
+        }
+        members_[i] = *offset;
+    }
+
+    if(fail)
+        return exp::nullopt;
+    // END - SHOULD ME MOVED
+
+    static const auto e_lfanew_offset = 0x3C;
+    const auto e_lfanew = core::read_le32(core, span.addr+e_lfanew_offset);
+    if(!e_lfanew)
+        FAIL(exp::nullopt, "unable to read e_lfanew");
+
+    const auto image_nt_header = span.addr+*e_lfanew;   //IMAGE_NT_HEADER
+    const auto image_optional_header = image_nt_header + members_[IMAGE_NT_HEADERS64_OptionalHeader];
+
+    const auto size_image_data_directory = 0x08;
+    const auto data_directory = image_optional_header + members_[IMAGE_OPTIONAL_HEADER_DataDirectory]
+                                + size_image_data_directory*directory_entry_id;
+    const auto data_directory_virtual_address = core::read_le32(core, data_directory + members_[IMAGE_DATA_DIRECTORY_VirtualAddress]);
+    if(!data_directory_virtual_address)
+        FAIL(exp::nullopt, "unable to read DataDirectory.VirtualAddress");
+
+    const auto data_directory_size = core::read_le32(core, data_directory + members_[IMAGE_DATA_DIRECTORY_Size]);
+    if(!data_directory_size)
+        FAIL(exp::nullopt, "unable to read DataDirectory.Size");
+
+    // LOG(INFO, "exception_dir addr %" PRIx64 " section size %" PRIx32, span.addr + *data_directory_virtual_address, *data_directory_size);
+
+    return span_t{span.addr + *data_directory_virtual_address, *data_directory_size};
+}
+
+opt<std::map<uint32_t, pe::FunctionEntry>> pe::parse_exception_dir(core::Core& core, void* vsrc, const uint64_t mod_base_addr, const span_t exception_dir)
+{
+    const auto src = reinterpret_cast<const uint8_t*>(vsrc);
+
+    std::map<uint32_t, FunctionEntry> function_table;
+    std::map<uint32_t, FunctionEntry> orphan_function_entries;
+
+    for (size_t i=0; i<exception_dir.size; i=i+sizeof(RuntimeFunction)){
+
+        const auto start_address = read_le32(&src[i+offsetof(RuntimeFunction, start_address)]);
+        const auto end_address = read_le32(&src[i+offsetof(RuntimeFunction, end_address)]);
+        const auto unwind_info_ptr = read_le32(&src[i+offsetof(RuntimeFunction, unwind_info)]);
+
+        UnwindInfo unwind_info;
+        const auto to_read = mod_base_addr + unwind_info_ptr;
+
+        auto ok = core.mem.virtual_read(unwind_info, to_read, sizeof unwind_info);
+        if(!ok)
+            FAIL(exp::nullopt, "unable to read unwind info");
+
+        const bool chained_flag = unwind_info[0] & UNWIND_CHAINED_FLAG_MASK;
+        const auto prolog_size = unwind_info[1];
+        const auto nbr_of_unwind_code = unwind_info[2];
+
+        //Deal with frame register
+        const auto frame_register = unwind_info[3] & 0x0F;           // register used as frame pointer
+        const uint8_t frame_reg_offset = 8*(unwind_info[3] >> 4);    // offset of frame register
+        if (frame_reg_offset != 0 && frame_register != UWINFO_RBP)
+            LOG(ERROR, "WARNING : the used framed register is not rbp (code %d), this case is never used and not implemented", frame_register);
+
+        const auto SIZE_UC = 2;
+
+        const auto r = chained_flag ? sizeof(RuntimeFunction) : 0;
+        const auto unwind_codes_size = nbr_of_unwind_code*SIZE_UC + r;
+        if(unwind_codes_size == 0){
+            std::vector<UnwindCode> unwind_codes;
+            FunctionEntry function_entry = {start_address, end_address, prolog_size, 0, 0, 0, 0, unwind_codes};
+            function_table.emplace(start_address, function_entry);
+            continue;
+        }
+
+        uint8_t buffer[unwind_codes_size];
+        core.mem.virtual_read(buffer, mod_base_addr + unwind_info_ptr + sizeof(UnwindInfo), unwind_codes_size);
+        if(!ok)
+            FAIL(exp::nullopt, "unable to read unwind codes");
+
+        size_t register_size = 0x08;            //TODO Defined this somewhere else
+
+        std::vector<UnwindCode>     unwind_codes;
+        int stack_frame_size = 0;
+        int prev_frame_reg = 0;
+        size_t idx = 0;
+        while(idx < unwind_codes_size - r)
+        {
+            UnwindCode unwind_code = {buffer[idx], buffer[idx+1], 0};
+
+            const auto unwind_operation = unwind_code.unwind_op_and_info & 0x0F;
+            const auto unwind_code_info = unwind_code.unwind_op_and_info >> 4;
+
+            switch(unwind_operation){
+                case UWOP_PUSH_NONVOL :
+                    if (unwind_code_info == UWINFO_RBP)
+                        prev_frame_reg = stack_frame_size;
+
+                    stack_frame_size += register_size;
+                    break;
+                case UWOP_ALLOC_LARGE :
+                    if (unwind_code_info == 0){
+                        const auto extra_info = read_le16(&buffer[idx+2]);
+                        stack_frame_size += extra_info * 8;
+                        idx += 2;
+                    } else if (unwind_code_info == 1){
+                        const auto extra_info = read_le32(&buffer[idx+2]);
+                        stack_frame_size += extra_info;
+                        idx += 4;
+                    }
+                    break;
+                case UWOP_ALLOC_SMALL :
+                    stack_frame_size += unwind_code_info*8 + 8;
+                    break;
+                case UWOP_SET_FPREG :
+                    break;
+                case UWOP_SAVE_NONVOL :
+                    if (unwind_code_info == UWINFO_RBP)
+                        prev_frame_reg = 8*read_le16(&buffer[idx+2]);
+
+                    idx += 2;
+                    break;
+                case UWOP_SAVE_NONVOL_FAR :
+                    if (unwind_code_info == UWINFO_RBP)
+                        prev_frame_reg = read_le32(&buffer[idx+2]);
+
+                    idx += 4;
+                    break;
+                case UWOP_SAVE_XMM128 :
+                    idx += 2;
+                    break;
+                case UWOP_SAVE_XMM128_FAR :
+                    idx += 4;
+                    break;
+                case UWOP_PUSH_MACHFRAME :
+                    break;
+            }
+
+            unwind_codes.push_back({buffer[idx], buffer[idx+1],stack_frame_size});
+
+            idx += 2;
+        }
+
+        // Deal with the runtime func at the end
+        uint32_t mother_start_addr = 0;
+        if (chained_flag != 0){
+            mother_start_addr = read_le32(&buffer[idx+offsetof(RuntimeFunction, start_address)]);
+
+            const auto mother_function_entry = pe::lookup_function_entry(mother_start_addr, function_table);
+            if (!mother_function_entry){
+                orphan_function_entries.emplace(start_address, FunctionEntry{start_address, end_address, prolog_size,
+                                                                stack_frame_size, prev_frame_reg, frame_reg_offset, mother_start_addr, unwind_codes});
+                continue;
+            }
+            stack_frame_size += mother_function_entry->stack_frame_size;
+        }
+
+        FunctionEntry function_entry = {start_address, end_address, prolog_size, stack_frame_size, prev_frame_reg,
+                                        frame_reg_offset, mother_start_addr,  unwind_codes};
+
+        if(false){
+            LOG(INFO, "Function entry : start %" PRIx32 " end %" PRIx32 " prolog size %" PRIx8 " number of codes %" PRIx8  " unwind info pointer %" PRIx32
+                    " stack frame size %x", start_address, end_address, prolog_size, nbr_of_unwind_code, unwind_info_ptr, stack_frame_size);
+        }
+
+        function_table.emplace(start_address, function_entry);
+    }
+
+    if (orphan_function_entries.size() == 0)
+        return function_table;
+
+    for (auto orphan_fe : orphan_function_entries){
+        const auto mother_start_addr = orphan_fe.second.mother_start_addr;
+        auto function_entry = orphan_fe.second;
+
+        const auto mother_function_entry = pe::lookup_function_entry(mother_start_addr, function_table);
+        if (!mother_function_entry)
+            continue;   //Should never happend
+
+        function_entry.stack_frame_size += mother_function_entry->stack_frame_size;
+        function_table.emplace(function_entry.start_address, function_entry);
+    }
+
+    return function_table;
+}
+
+namespace{
+    template<typename T>
+    const pe::FunctionEntry* check_previous_exist(const T& it, const T& end, const uint64_t addr)
+    {
+        if(it == end)
+            return nullptr;
+
+        if(addr > it->second.end_address)
+            return nullptr;
+
+        return &(it->second);
+    }
+}
+
+const pe::FunctionEntry* pe::lookup_function_entry(const uint64_t addr, std::map<uint32_t, pe::FunctionEntry> function_table)
+{
+    // lower bound returns first item greater or equal
+    auto it = function_table.lower_bound(addr);
+    const auto end = function_table.end();
+    if(it == end)
+        return check_previous_exist(function_table.rbegin(), function_table.rend(), addr);
+
+    // equal
+    if(it->first == addr)
+        return check_previous_exist(it, end, addr);
+
+    // stricly greater, go to previous item
+    return check_previous_exist(--it, end, addr);
 }
