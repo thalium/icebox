@@ -1,4 +1,5 @@
 #include "core.hpp"
+#include "callstack.hpp"
 
 #define FDP_MODULE "main"
 #include "log.hpp"
@@ -111,6 +112,39 @@ namespace
             {
                 core.state.resume();
                 core.state.wait();
+            }
+        }
+
+        const auto callstack = callstack::make_callstack_nt(core);
+
+        // test callstack
+        {
+            const auto n_trigger_bp = 3;
+            const auto cs_depth = 40;
+
+            const auto pdb_name = "C:\\Windows\\SYSTEM32\\ntdll";
+            const auto func_name = "RtlAllocateHeap";
+            const auto func_addr = core.sym.symbol(pdb_name, func_name);
+            LOG(INFO, "%s = 0x%" PRIx64, func_name, func_addr ? *func_addr : 0);
+            const auto bp = core.state.set_breakpoint(*func_addr, *target, core::FILTER_CR3);
+
+            for (size_t i = 0; i < n_trigger_bp; ++i){
+                core.state.resume();
+                core.state.wait();
+                const auto rip = core.regs.read(FDP_RIP_REGISTER);
+                const auto rsp = core.regs.read(FDP_RSP_REGISTER);
+                const auto rbp = core.regs.read(FDP_RBP_REGISTER);
+                int k = 0;
+                callstack->get_callstack(*target, *rip, *rsp, *rbp, [&](sym::Cursor mc)
+                {
+                    k++;
+                    LOG(INFO, "%" PRId32 " - %s", k, sym::to_string(mc).data());
+                    if (k>=cs_depth){
+                        return WALK_STOP;
+                    }
+                    return WALK_NEXT;
+                });
+                LOG(INFO, "");
             }
         }
 
