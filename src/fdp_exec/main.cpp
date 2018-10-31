@@ -157,6 +157,44 @@ namespace
             }
         }
 
+        {
+            const auto pdb_name = "C:\\Windows\\SYSTEM32\\ntdll";
+            const auto mystring = "Nt";
+            const auto nt_symbols = core.sym.symbols_that_contains(pdb_name, mystring);
+            if (!nt_symbols)
+                FAIL(false, "Found no symbols that contains Nt");
+
+            if (false){
+                LOG(INFO, "SYMBOLS");
+                for (auto s : *nt_symbols)
+                    LOG(INFO, "Symbol %" PRIx64 " - %s", s.second, s.first.data());
+                LOG(INFO, "END SYMBOLS %" PRIx64, nt_symbols->size());
+            }
+
+            std::vector<core::Breakpoint> my_bps;
+            my_bps.resize(nt_symbols->size());
+
+            std::unordered_map<uint64_t, std::string> bps;
+            for (auto s : *nt_symbols){
+                if (s.first.find("Nt") != 0 || s.first.find("Ntdll") != std::string::npos)
+                    continue;
+
+                my_bps.push_back(core.state.set_breakpoint(s.second, *target, core::FILTER_CR3));
+                bps.emplace(s.second, s.first);
+            }
+            LOG(INFO, "Number of breakpoints %d", my_bps.size());
+            for(size_t i = 0; i < 600; ++i)
+            {
+                core.state.resume();
+                core.state.wait();
+
+                const auto rip = core.regs.read(FDP_RIP_REGISTER);
+                const auto it = bps.find(*rip);
+                if (it != bps.end())
+                    LOG(INFO, "%" PRIu64 " - Bp %" PRIx64 " - %s", i, it->first, it->second.data());
+            }
+        }
+
         return true;
     }
 }
