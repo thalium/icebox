@@ -6,11 +6,9 @@
 #include "core/helpers.hpp"
 #include "utils/utils.hpp"
 
-
 namespace
 {
-
-    enum member_offset_e
+    enum member_pe_offset_e
     {
         IMAGE_NT_HEADERS64_FileHeader,
         IMAGE_NT_HEADERS64_OptionalHeader,
@@ -26,16 +24,16 @@ namespace
         IMAGE_SECTION_HEADER_Name,
         IMAGE_SECTION_HEADER_Misc,
         IMAGE_SECTION_HEADER_VirtualAddress,
-        MEMBER_OFFSET_COUNT,
+        MEMBER_PE_OFFSET_COUNT,
     };
-    struct MemberOffset
+    struct MemberPeOffset
     {
-        member_offset_e e_id;
+        member_pe_offset_e e_id;
         const char      module[16];
         const char      struc[32];
         const char      member[32];
     };
-    const MemberOffset g_member_offsets[] =
+    const MemberPeOffset g_member_pe_offsets[] =
     {
         {IMAGE_NT_HEADERS64_FileHeader,                         "nt", "_IMAGE_NT_HEADERS64",                          "FileHeader"},
         {IMAGE_NT_HEADERS64_OptionalHeader,                     "nt", "_IMAGE_NT_HEADERS64",                          "OptionalHeader"},
@@ -52,11 +50,47 @@ namespace
         {IMAGE_SECTION_HEADER_Misc,                             "nt", "_IMAGE_SECTION_HEADER",                        "Misc"},
         {IMAGE_SECTION_HEADER_VirtualAddress,                   "nt", "_IMAGE_SECTION_HEADER",                        "VirtualAddress"},
     };
-    static_assert(COUNT_OF(g_member_offsets) == MEMBER_OFFSET_COUNT, "invalid members");
+    static_assert(COUNT_OF(g_member_pe_offsets) == MEMBER_PE_OFFSET_COUNT, "invalid members");
 
-    using MemberOffsets = std::array<uint64_t, MEMBER_OFFSET_COUNT>;
+    using MemberPeOffsets = std::array<uint64_t, MEMBER_PE_OFFSET_COUNT>;
 
-    MemberOffsets   members_;
+    enum unwind_op_codes_e
+    {
+        UWOP_PUSH_NONVOL,                         // info : register number
+        UWOP_ALLOC_LARGE,                         // no info, alloc size in next 2 slots
+        UWOP_ALLOC_SMALL,                         // info : size of allocation / 8 - 1
+        UWOP_SET_FPREG,                           // no info, FP = RSP + UNWIND_INFO.FPRegOffset*16
+        UWOP_SAVE_NONVOL,                         // info : register number, offset in next slot
+        UWOP_SAVE_NONVOL_FAR,                     // info : register number, offset in next 2 slots
+        UWOP_SAVE_XMM128,                         // info : XMM reg number, offset in next slot
+        UWOP_SAVE_XMM128_FAR,                     // info : XMM reg number, offset in next 2 slots
+        UWOP_PUSH_MACHFRAME,                      // info : 0: no error-code, 1: error-code
+    };
+
+    enum register_numbers_e
+    {
+        UWINFO_RAX,
+        UWINFO_RCX,
+        UWINFO_RDX,
+        UWINFO_RBX,
+        UWINFO_RSP,
+        UWINFO_RBP,
+        UWINFO_RSI,
+        UWINFO_RDI,
+    };
+
+    const int UNWIND_VERSION_MASK       = 0b0111;
+    const int UNWIND_CHAINED_FLAG_MASK  = 0b00100000;
+
+    typedef uint8_t UnwindInfo[4];
+
+    struct RuntimeFunction
+    {
+        uint32_t    start_address;
+        uint32_t    end_address;
+        uint32_t    unwind_info;
+    };
+
 }
 
 opt<size_t> pe::read_image_size(const void* vsrc, size_t size)
@@ -111,43 +145,59 @@ opt<size_t> pe::read_image_size(const void* vsrc, size_t size)
     return read_le32(&src[idx]);
 }
 
-opt<span_t> pe::get_directory_entry(core::Core& core, const span_t span, const pe_directory_entries_e directory_entry_id)
+struct pe::Pe::Data
 {
+    MemberPeOffsets members_pe_;
+};
 
-    // SHOULD ME MOVED
+pe::Pe::Pe()
+    : d_(std::make_unique<Data>())
+{
+}
+
+pe::Pe::~Pe()
+{
+}
+
+bool pe::Pe::setup(core::Core& core)
+{
     bool fail = false;
-    for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
+    for(size_t i = 0; i < MEMBER_PE_OFFSET_COUNT; ++i)
     {
-        const auto offset = core.sym.struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+        const auto offset = core.sym.struc_offset(g_member_pe_offsets[i].module, g_member_pe_offsets[i].struc, g_member_pe_offsets[i].member);
         if(!offset)
         {
             fail = true;
-            LOG(ERROR, "unable to read %s!%s.%s member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+            LOG(ERROR, "unable to read %s!%s.%s member offset", g_member_pe_offsets[i].module, g_member_pe_offsets[i].struc, g_member_pe_offsets[i].member);
             continue;
         }
-        members_[i] = *offset;
+        d_->members_pe_[i] = *offset;
     }
 
     if(fail)
-        return exp::nullopt;
-    // END - SHOULD ME MOVED
+        return false;
 
+    return true;
+}
+
+opt<span_t> pe::Pe::get_directory_entry(core::Core& core, const span_t span, const pe_directory_entries_e directory_entry_id)
+{
     static const auto e_lfanew_offset = 0x3C;
     const auto e_lfanew = core::read_le32(core, span.addr+e_lfanew_offset);
     if(!e_lfanew)
         FAIL(exp::nullopt, "unable to read e_lfanew");
 
     const auto image_nt_header = span.addr+*e_lfanew;   //IMAGE_NT_HEADER
-    const auto image_optional_header = image_nt_header + members_[IMAGE_NT_HEADERS64_OptionalHeader];
+    const auto image_optional_header = image_nt_header + d_->members_pe_[IMAGE_NT_HEADERS64_OptionalHeader];
 
     const auto size_image_data_directory = 0x08;
-    const auto data_directory = image_optional_header + members_[IMAGE_OPTIONAL_HEADER_DataDirectory]
+    const auto data_directory = image_optional_header + d_->members_pe_[IMAGE_OPTIONAL_HEADER_DataDirectory]
                                 + size_image_data_directory*directory_entry_id;
-    const auto data_directory_virtual_address = core::read_le32(core, data_directory + members_[IMAGE_DATA_DIRECTORY_VirtualAddress]);
+    const auto data_directory_virtual_address = core::read_le32(core, data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_VirtualAddress]);
     if(!data_directory_virtual_address)
         FAIL(exp::nullopt, "unable to read DataDirectory.VirtualAddress");
 
-    const auto data_directory_size = core::read_le32(core, data_directory + members_[IMAGE_DATA_DIRECTORY_Size]);
+    const auto data_directory_size = core::read_le32(core, data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_Size]);
     if(!data_directory_size)
         FAIL(exp::nullopt, "unable to read DataDirectory.Size");
 
@@ -156,7 +206,7 @@ opt<span_t> pe::get_directory_entry(core::Core& core, const span_t span, const p
     return span_t{span.addr + *data_directory_virtual_address, *data_directory_size};
 }
 
-opt<span_t> pe::parse_debug_dir(void* vsrc, const uint64_t mod_base_addr, const span_t debug_dir)
+opt<span_t> pe::Pe::parse_debug_dir(void* vsrc, const uint64_t mod_base_addr, const span_t debug_dir)
 {
     const auto src = reinterpret_cast<const uint8_t*>(vsrc);
 
@@ -164,17 +214,17 @@ opt<span_t> pe::parse_debug_dir(void* vsrc, const uint64_t mod_base_addr, const 
     if (debug_dir.size<sizeof_IMAGE_DEBUG_DIRECTORY)
         FAIL(exp::nullopt, "Debug directory to small");
 
-    const auto type = read_le32(&src[members_[IMAGE_DEBUG_DIRECTORY_Type]]);
+    const auto type = read_le32(&src[d_->members_pe_[IMAGE_DEBUG_DIRECTORY_Type]]);
     if (type != 2)
         FAIL(exp::nullopt, "Unknown IMAGE_DEBUG_TYPE, should be IMAGE_DEBUG_TYPE_CODEVIEW (=2), it's the one for pdb");
 
-    const auto size_rawdata = read_le32(&src[members_[IMAGE_DEBUG_DIRECTORY_SizeOfData]]);
-    const auto addr_rawdata = read_le32(&src[members_[IMAGE_DEBUG_DIRECTORY_AddressOfRawData]]);
+    const auto size_rawdata = read_le32(&src[d_->members_pe_[IMAGE_DEBUG_DIRECTORY_SizeOfData]]);
+    const auto addr_rawdata = read_le32(&src[d_->members_pe_[IMAGE_DEBUG_DIRECTORY_AddressOfRawData]]);
 
     return span_t{mod_base_addr + addr_rawdata, size_rawdata};
 }
 
-opt<std::map<uint32_t, pe::FunctionEntry>> pe::parse_exception_dir(core::Core& core, void* vsrc, const uint64_t mod_base_addr, const span_t exception_dir)
+opt<std::map<uint32_t, pe::FunctionEntry>> pe::Pe::parse_exception_dir(core::Core& core, void* vsrc, const uint64_t mod_base_addr, const span_t exception_dir)
 {
     const auto src = reinterpret_cast<const uint8_t*>(vsrc);
 
@@ -288,7 +338,7 @@ opt<std::map<uint32_t, pe::FunctionEntry>> pe::parse_exception_dir(core::Core& c
         if (chained_flag != 0){
             mother_start_addr = read_le32(&buffer[idx+offsetof(RuntimeFunction, start_address)]);
 
-            const auto mother_function_entry = pe::lookup_function_entry(mother_start_addr, function_table);
+            const auto mother_function_entry = lookup_function_entry(mother_start_addr, function_table);
             if (!mother_function_entry){
                 orphan_function_entries.emplace(start_address, FunctionEntry{start_address, end_address, prolog_size,
                                                                 stack_frame_size, prev_frame_reg, frame_reg_offset, mother_start_addr, unwind_codes});
@@ -315,7 +365,7 @@ opt<std::map<uint32_t, pe::FunctionEntry>> pe::parse_exception_dir(core::Core& c
         const auto mother_start_addr = orphan_fe.second.mother_start_addr;
         auto function_entry = orphan_fe.second;
 
-        const auto mother_function_entry = pe::lookup_function_entry(mother_start_addr, function_table);
+        const auto mother_function_entry = lookup_function_entry(mother_start_addr, function_table);
         if (!mother_function_entry)
             continue;   //Should never happend
 
@@ -340,7 +390,7 @@ namespace{
     }
 }
 
-const pe::FunctionEntry* pe::lookup_function_entry(const uint64_t addr, std::map<uint32_t, pe::FunctionEntry> function_table)
+const pe::FunctionEntry* pe::Pe::lookup_function_entry(const uint64_t addr, std::map<uint32_t, pe::FunctionEntry> function_table)
 {
     // lower bound returns first item greater or equal
     auto it = function_table.lower_bound(addr);

@@ -1,7 +1,6 @@
 #include "callstack.hpp"
 
 #define FDP_MODULE "callstack_nt"
-#include "utils/pe.hpp"
 #include "core/helpers.hpp"
 #include "log.hpp"
 #include "os.hpp"
@@ -19,7 +18,7 @@ namespace
     struct CallstackNt
         : public callstack::ICallstack
     {
-        CallstackNt(core::Core& core);
+        CallstackNt(core::Core& core, pe::Pe& pe);
 
         // methods
         bool setup();
@@ -33,6 +32,7 @@ namespace
 
         // members
         core::Core&     core_;
+        pe::Pe&         pe_;
 
         // private data
         struct Data;
@@ -52,14 +52,14 @@ struct CallstackNt::Data
     ExceptionDirs exception_dirs_;
 };
 
-CallstackNt::CallstackNt(core::Core& core)
-    : core_(core), d_(std::make_unique<Data>())
+CallstackNt::CallstackNt(core::Core& core, pe::Pe& pe)
+    : core_(core), pe_(pe), d_(std::make_unique<Data>())
 {
 }
 
-std::unique_ptr<callstack::ICallstack> callstack::make_callstack_nt(core::Core& core)
+std::unique_ptr<callstack::ICallstack> callstack::make_callstack_nt(core::Core& core, pe::Pe& pe)
 {
-    auto cs_nt = std::make_unique<CallstackNt>(core);
+    auto cs_nt = std::make_unique<CallstackNt>(core, pe);
     if(!cs_nt)
         return nullptr;
 
@@ -158,7 +158,7 @@ opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
 
 opt<pe::FunctionTable> CallstackNt::insert(const std::string& name, span_t span)
 {
-    const auto exception_dir = pe::get_directory_entry(core_, span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
+    const auto exception_dir = pe_.get_directory_entry(core_, span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
 
     std::vector<uint8_t> buffer_excep;
     buffer_excep.resize(exception_dir->size);
@@ -166,7 +166,7 @@ opt<pe::FunctionTable> CallstackNt::insert(const std::string& name, span_t span)
     if (!ok)
         FAIL(exp::nullopt, "unable to read exception dir of %s", name.c_str());
 
-    const auto function_table = pe::parse_exception_dir(core_, &buffer_excep[0], span.addr, *exception_dir);
+    const auto function_table = pe_.parse_exception_dir(core_, &buffer_excep[0], span.addr, *exception_dir);
 
     const auto ret = d_->exception_dirs_.emplace(name, *function_table);
     if(!ret.second)
@@ -203,13 +203,13 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
 
         //Load PDB
         if (false){
-            const auto debug_dir = pe::get_directory_entry(core_, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
+            const auto debug_dir = pe_.get_directory_entry(core_, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
             buffer_mod.resize(debug_dir->size);
             auto ok = core_.mem.virtual_read(&buffer_mod[0], debug_dir->addr, debug_dir->size);
             if(!ok)
                 return WALK_NEXT;
 
-            const auto codeview = pe::parse_debug_dir(&buffer_mod[0], span->addr, *debug_dir);
+            const auto codeview = pe_.parse_debug_dir(&buffer_mod[0], span->addr, *debug_dir);
             buffer_mod.resize(codeview->size);
             ok = core_.mem.virtual_read(&buffer_mod[0], codeview->addr, codeview->size);
             if (!ok)
@@ -221,7 +221,7 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
         }
 
         // Get function table of the module
-        const auto exception_dir = pe::get_directory_entry(core_, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
+        const auto exception_dir = pe_.get_directory_entry(core_, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
 
         std::vector<uint8_t> buffer_excep;
         buffer_excep.resize(exception_dir->size);
@@ -234,7 +234,7 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
             FAIL(false, "unable to get function table of %s", modname->c_str());
 
         const auto off_in_mod = ctx.rip-span->addr;
-        const auto function_entry = pe::lookup_function_entry(off_in_mod, *function_table);
+        const auto function_entry = pe_.lookup_function_entry(off_in_mod, *function_table);
         if (!function_entry)
             FAIL(false, "No matching function entry");
 
@@ -258,7 +258,7 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
             }
         }
 
-        const auto return_addr = core::read_ptr(core_, caller_addr_on_stack); // +8?
+        const auto return_addr = core::read_ptr(core_, caller_addr_on_stack);
 
         if(false){
             LOG(INFO, "Chosen chosen %" PRIx64 " start address %" PRIx32 " end %" PRIx32, off_in_mod, function_entry->start_address, function_entry->end_address);

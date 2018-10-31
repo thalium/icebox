@@ -14,7 +14,7 @@ namespace fs = std::experimental::filesystem;
 
 namespace
 {
-    bool test_core(core::Core& core)
+    bool test_core(core::Core& core, pe::Pe& pe)
     {
         LOG(INFO, "drivers:");
         core.os->driver_list([&](driver_t drv)
@@ -68,13 +68,13 @@ namespace
             LOG(INFO, "module[%03zd/%03zd] %s: 0x%" PRIx64 " 0x%zx", modi, modcount, name->data(), span->addr, span->size);
             ++modi;
 
-            const auto debug_dir = pe::get_directory_entry(core, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
+            const auto debug_dir = pe.get_directory_entry(core, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
             buffer.resize(debug_dir->size);
             auto ok = core.mem.virtual_read(&buffer[0], debug_dir->addr, debug_dir->size);
             if(!ok)
                 return WALK_NEXT;
 
-            const auto codeview = pe::parse_debug_dir(&buffer[0], span->addr, *debug_dir);
+            const auto codeview = pe.parse_debug_dir(&buffer[0], span->addr, *debug_dir);
             buffer.resize(codeview->size);
             ok = core.mem.virtual_read(&buffer[0], codeview->addr, codeview->size);
             if (!ok)
@@ -124,7 +124,7 @@ namespace
             }
         }
 
-        const auto callstack = callstack::make_callstack_nt(core);
+        const auto callstack = callstack::make_callstack_nt(core, pe);
 
         // test callstack
         {
@@ -174,13 +174,18 @@ int main(int argc, char* argv[])
     LOG(INFO, "starting on %s", name.data());
 
     core::Core core;
-    const auto ok = core::setup(core, name);
+    auto ok = core::setup(core, name);
     if(!ok)
         FAIL(-1, "unable to start core at %s", name.data());
 
-    core.state.resume();
+    pe::Pe pe;
+    ok = pe.setup(core);
+    if(!ok)
+        FAIL(-1, "unable retreive PE format informations from pdb");
+
+    //core.state.resume();
     core.state.pause();
-    const auto valid = test_core(core);
+    const auto valid = test_core(core, pe);
     core.state.resume();
     return !valid;
 }
