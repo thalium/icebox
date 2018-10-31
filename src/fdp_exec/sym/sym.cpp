@@ -89,6 +89,15 @@ opt<uint64_t> sym::Symbols::symbol(const std::string& module, const std::string&
     return mod->symbol(symbol);
 }
 
+opt<std::unordered_map<std::string, uint64_t>> sym::Symbols::symbols_that_contains(const std::string& module, const std::string& s)
+{
+    const auto mod = find(module);
+    if(!mod)
+        return exp::nullopt;
+
+    return mod->symbols_that_contains(s);
+}
+
 opt<uint64_t> sym::Symbols::struc_offset(const std::string& module, const std::string& struc, const std::string& member)
 {
     const auto mod = find(module);
