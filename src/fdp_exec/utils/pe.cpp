@@ -20,6 +20,9 @@ namespace
         IMAGE_OPTIONAL_HEADER_NumberOfRvaAndSizes,
         IMAGE_DATA_DIRECTORY_VirtualAddress,
         IMAGE_DATA_DIRECTORY_Size,
+        IMAGE_DEBUG_DIRECTORY_Type,
+        IMAGE_DEBUG_DIRECTORY_SizeOfData,
+        IMAGE_DEBUG_DIRECTORY_AddressOfRawData,
         IMAGE_SECTION_HEADER_Name,
         IMAGE_SECTION_HEADER_Misc,
         IMAGE_SECTION_HEADER_VirtualAddress,
@@ -42,6 +45,9 @@ namespace
         {IMAGE_OPTIONAL_HEADER_NumberOfRvaAndSizes,             "nt", "_IMAGE_OPTIONAL_HEADER64",                     "NumberOfRvaAndSizes"},
         {IMAGE_DATA_DIRECTORY_VirtualAddress,                   "nt", "_IMAGE_DATA_DIRECTORY",                        "VirtualAddress"},
         {IMAGE_DATA_DIRECTORY_Size,                             "nt", "_IMAGE_DATA_DIRECTORY",                        "Size"},
+        {IMAGE_DEBUG_DIRECTORY_Type,                            "nt", "_IMAGE_DEBUG_DIRECTORY",                       "Type"},
+        {IMAGE_DEBUG_DIRECTORY_SizeOfData,                      "nt", "_IMAGE_DEBUG_DIRECTORY",                       "SizeOfData"},
+        {IMAGE_DEBUG_DIRECTORY_AddressOfRawData,                "nt", "_IMAGE_DEBUG_DIRECTORY",                       "AddressOfRawData"},
         {IMAGE_SECTION_HEADER_Name,                             "nt", "_IMAGE_SECTION_HEADER",                        "Name"},
         {IMAGE_SECTION_HEADER_Misc,                             "nt", "_IMAGE_SECTION_HEADER",                        "Misc"},
         {IMAGE_SECTION_HEADER_VirtualAddress,                   "nt", "_IMAGE_SECTION_HEADER",                        "VirtualAddress"},
@@ -148,6 +154,24 @@ opt<span_t> pe::get_directory_entry(core::Core& core, const span_t span, const p
     // LOG(INFO, "exception_dir addr %" PRIx64 " section size %" PRIx32, span.addr + *data_directory_virtual_address, *data_directory_size);
 
     return span_t{span.addr + *data_directory_virtual_address, *data_directory_size};
+}
+
+opt<span_t> pe::parse_debug_dir(void* vsrc, const uint64_t mod_base_addr, const span_t debug_dir)
+{
+    const auto src = reinterpret_cast<const uint8_t*>(vsrc);
+
+    const auto sizeof_IMAGE_DEBUG_DIRECTORY = 0x1C;
+    if (debug_dir.size<sizeof_IMAGE_DEBUG_DIRECTORY)
+        FAIL(exp::nullopt, "Debug directory to small");
+
+    const auto type = read_le32(&src[members_[IMAGE_DEBUG_DIRECTORY_Type]]);
+    if (type != 2)
+        FAIL(exp::nullopt, "Unknown IMAGE_DEBUG_TYPE, should be IMAGE_DEBUG_TYPE_CODEVIEW (=2), it's the one for pdb");
+
+    const auto size_rawdata = read_le32(&src[members_[IMAGE_DEBUG_DIRECTORY_SizeOfData]]);
+    const auto addr_rawdata = read_le32(&src[members_[IMAGE_DEBUG_DIRECTORY_AddressOfRawData]]);
+
+    return span_t{mod_base_addr + addr_rawdata, size_rawdata};
 }
 
 opt<std::map<uint32_t, pe::FunctionEntry>> pe::parse_exception_dir(core::Core& core, void* vsrc, const uint64_t mod_base_addr, const span_t exception_dir)

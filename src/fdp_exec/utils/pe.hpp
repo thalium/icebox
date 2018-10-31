@@ -86,9 +86,10 @@ namespace pe
 
     // TODO Create a setup function
 
-    opt<size_t> read_image_size(const void* src, size_t size);
-    opt<span_t> get_directory_entry(core::Core& core, const span_t span, const pe_directory_entries_e directory_entry_id);
-    opt<FunctionTable> parse_exception_dir(core::Core& core, void* vsrc, const uint64_t mod_base_addr, const span_t exception_dir);
+    opt<size_t>          read_image_size      (const void* src, size_t size);
+    opt<span_t>          get_directory_entry  (core::Core& core, const span_t span, const pe_directory_entries_e directory_entry_id);
+    opt<FunctionTable>   parse_exception_dir  (core::Core& core, void* vsrc, const uint64_t mod_base_addr, const span_t exception_dir);
+    opt<span_t>          parse_debug_dir      (void* vsrc, const uint64_t mod_base_addr, const span_t debug_dir);
     const FunctionEntry* lookup_function_entry(const uint64_t addr, FunctionTable function_table);
 
 }

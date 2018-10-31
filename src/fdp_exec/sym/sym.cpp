@@ -36,7 +36,7 @@ namespace
     static const char pdb[] = "pdb";
     static const struct
     {
-        std::unique_ptr<sym::IMod>(*make)(span_t, const void*);
+        std::unique_ptr<sym::IMod>(*make)(span_t, const void*, const size_t);
         const std::string name;
     } g_helpers[] =
     {
@@ -44,11 +44,11 @@ namespace
     };
 }
 
-bool sym::Symbols::insert(const std::string& name, span_t module, const void* data)
+bool sym::Symbols::insert(const std::string& name, span_t module, const void* data, const size_t data_size)
 {
     for(const auto& h : g_helpers)
     {
-        auto mod = h.make(module, data);
+        auto mod = h.make(module, data, data_size);
         if(!mod)
             continue;
 

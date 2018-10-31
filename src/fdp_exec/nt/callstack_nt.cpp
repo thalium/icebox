@@ -203,14 +203,21 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
 
         //Load PDB
         if (false){
-            buffer_mod.resize(span->size);
-            auto ok = core_.mem.virtual_read(&buffer_mod[0], span->addr, span->size);
+            const auto debug_dir = pe::get_directory_entry(core_, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
+            buffer_mod.resize(debug_dir->size);
+            auto ok = core_.mem.virtual_read(&buffer_mod[0], debug_dir->addr, debug_dir->size);
             if(!ok)
                 return WALK_NEXT;
 
+            const auto codeview = pe::parse_debug_dir(&buffer_mod[0], span->addr, *debug_dir);
+            buffer_mod.resize(codeview->size);
+            ok = core_.mem.virtual_read(&buffer_mod[0], codeview->addr, codeview->size);
+            if (!ok)
+                FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
+
             std::replace( modname->begin(), modname->end(), '\\', '/');
             const auto fname = fs::path(modname->substr(3)).filename().replace_extension("");
-            ok = core_.sym.insert(fname.generic_string().data(), *span, &buffer_mod[0]);
+            ok = core_.sym.insert(fname.generic_string().data(), *span, &buffer_mod[0], buffer_mod.size());
         }
 
         // Get function table of the module

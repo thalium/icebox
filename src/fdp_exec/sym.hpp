@@ -38,7 +38,7 @@ namespace sym
     };
 
     std::unique_ptr<IMod>   make_pdb(span_t span, const std::string& module, const std::string& guid);
-    std::unique_ptr<IMod>   make_pdb(span_t span, const void* data);
+    std::unique_ptr<IMod>   make_pdb(span_t span, const void* data, const size_t data_size);
 
     struct Cursor
     {
@@ -57,7 +57,7 @@ namespace sym
         using on_module_fn = std::function<walk_e(const IMod& module)>;
 
         bool                insert      (const std::string& name, std::unique_ptr<IMod>& module);
-        bool                insert      (const std::string& name, span_t module, const void* data);
+        bool                insert      (const std::string& name, span_t module, const void* data, const size_t data_size);
         bool                remove      (const std::string& name);
         bool                list        (const on_module_fn& on_module);
         IMod*               find        (const std::string& name);

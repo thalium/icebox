@@ -239,9 +239,9 @@ namespace
     }
 }
 
-std::unique_ptr<sym::IMod> sym::make_pdb(span_t span, const void* data)
+std::unique_ptr<sym::IMod> sym::make_pdb(span_t span, const void* data, const size_t data_size)
 {
-    const auto pdb = read_pdb(data, span.size);
+    const auto pdb = read_pdb(data, data_size);
     if(!pdb)
         return nullptr;
 

@@ -203,7 +203,7 @@ bool OsNt::setup()
     if(!ok)
         FAIL(false, "unable to read kernel module");
 
-    ok = core_.sym.insert("nt", *kernel, &buffer[0]);
+    ok = core_.sym.insert("nt", *kernel, &buffer[0], buffer.size());
     if(!ok)
         FAIL(false, "unable to load symbols from kernel module");
 
