@@ -3,7 +3,7 @@
 #include <codecvt>
 #include <locale>
 
-opt<std::string> utf8::convert(const void* vptr, const void* vend)
+std::string utf8::convert(const void* vptr, const void* vend)
 {
 #define U16_STRING_TYPE char16_t
 #ifdef _MSC_VER

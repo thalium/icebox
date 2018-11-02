@@ -6,5 +6,5 @@
 
 namespace utf8
 {
-    opt<std::string> convert(const void* ptr, const void* end);
+    std::string convert(const void* ptr, const void* end);
 }
