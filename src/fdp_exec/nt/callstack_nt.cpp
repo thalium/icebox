@@ -2,16 +2,14 @@
 
 #define FDP_MODULE "callstack_nt"
 #include "core/helpers.hpp"
+#include "utils/sanitizer.hpp"
 #include "log.hpp"
 #include "os.hpp"
 
 #include <algorithm>
-#include <experimental/filesystem>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-namespace fs = std::experimental::filesystem;
 
 namespace
 {
@@ -215,9 +213,7 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
             if (!ok)
                 FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
 
-            std::replace( modname->begin(), modname->end(), '\\', '/');
-            const auto fname = fs::path(modname->substr(3)).filename().replace_extension("");
-            ok = core_.sym.insert(fname.generic_string().data(), *span, &buffer_mod[0], buffer_mod.size());
+            ok = core_.sym.insert(sanitizer::sanitize_filename(*modname).data(), *span, &buffer_mod[0], buffer_mod.size());
         }
 
         // Get function table of the module

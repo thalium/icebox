@@ -5,12 +5,10 @@
 #include "log.hpp"
 #include "os.hpp"
 #include "utils/pe.hpp"
+#include "utils/sanitizer.hpp"
 
 #include <thread>
 #include <chrono>
-#include <experimental/filesystem>
-
-namespace fs = std::experimental::filesystem;
 
 namespace
 {
@@ -80,8 +78,7 @@ namespace
             if (!ok)
                 FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
 
-            const auto fname = fs::path(*name).filename().replace_extension("");
-            ok = core.sym.insert(fname.generic_string().data(), *span, &buffer[0], buffer.size());
+            ok = core.sym.insert(sanitizer::sanitize_filename(*name).data(), *span, &buffer[0], buffer.size());
             if(!ok)
                 return WALK_NEXT;
 
@@ -131,7 +128,7 @@ namespace
             const auto n_trigger_bp = 3;
             const auto cs_depth = 40;
 
-            const auto pdb_name = "C:\\Windows\\SYSTEM32\\ntdll";
+            const auto pdb_name = "ntdll";
             const auto func_name = "RtlAllocateHeap";
             const auto func_addr = core.sym.symbol(pdb_name, func_name);
             LOG(INFO, "%s = 0x%" PRIx64, func_name, func_addr ? *func_addr : 0);
@@ -158,8 +155,11 @@ namespace
         }
 
         {
-            const auto pdb_name = "C:\\Windows\\SYSTEM32\\ntdll";
+            const auto pdb_name = "ntdll";
             const auto my_imod = core.sym.find(pdb_name);
+            if (!my_imod)
+                FAIL(false, "Unable to find pdb of %s", pdb_name);
+
             std::map<std::string, uint64_t> nt_symbols;
 
             my_imod->sym_list([&](std::string name, uint64_t offset)
