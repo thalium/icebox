@@ -31,10 +31,10 @@ namespace
         // IModule methods
         span_t              span        () override;
         opt<uint64_t>       symbol      (const std::string& symbol) override;
-        opt<std::unordered_map<std::string, uint64_t>> symbols_that_contains(const std::string& s) override;
         opt<uint64_t>       struc_offset(const std::string& struc, const std::string& member) override;
         opt<size_t>         struc_size  (const std::string& struc) override;
         opt<sym::ModCursor> symbol      (uint64_t addr) override;
+        bool                sym_list    (const sym::on_sym_fn& on_sym) override;
 
         // members
         const fs::path  filename_;
@@ -116,19 +116,13 @@ opt<uint64_t> Pdb::symbol(const std::string& symbol)
     return get_offset(*this, it->second);
 }
 
-opt<std::unordered_map<std::string, uint64_t>> Pdb::symbols_that_contains(const std::string& s)
+bool Pdb::sym_list(const sym::on_sym_fn& on_sym)
 {
-    std::unordered_map<std::string, uint64_t> found;
-    for(auto symbol : symbols_)
-    {
-        size_t i = symbol.first.find(s);
-        if (i!=std::string::npos)
-            found.emplace(symbol.first, get_offset(*this, symbol.second));
+    for(auto symbol : symbols_){
+        if(on_sym(symbol.first, get_offset(*this, symbol.second)) == WALK_STOP)
+            break;
     }
-    if (found.size() == 0)
-        return exp::nullopt;
-
-    return found;
+    return true;
 }
 
 

@@ -159,30 +159,39 @@ namespace
 
         {
             const auto pdb_name = "C:\\Windows\\SYSTEM32\\ntdll";
-            const auto mystring = "Nt";
-            const auto nt_symbols = core.sym.symbols_that_contains(pdb_name, mystring);
-            if (!nt_symbols)
+            const auto my_imod = core.sym.find(pdb_name);
+            std::map<std::string, uint64_t> nt_symbols;
+
+            my_imod->sym_list([&](std::string name, uint64_t offset)
+            {
+                if (name.find("Nt") != 0 || name.find("Ntdll") != std::string::npos)
+                    return WALK_NEXT;
+
+                nt_symbols.emplace(name, offset);
+                LOG(INFO, "FOUND %s - %" PRIx64, name.data(), offset);
+                return WALK_NEXT;
+            });
+
+            if (nt_symbols.size() == 0)
                 FAIL(false, "Found no symbols that contains Nt");
 
             if (false){
                 LOG(INFO, "SYMBOLS");
-                for (auto s : *nt_symbols)
+                for (auto s : nt_symbols)
                     LOG(INFO, "Symbol %" PRIx64 " - %s", s.second, s.first.data());
-                LOG(INFO, "END SYMBOLS %" PRIx64, nt_symbols->size());
+                LOG(INFO, "END SYMBOLS %" PRIx64, nt_symbols.size());
             }
 
             std::vector<core::Breakpoint> my_bps;
-            my_bps.resize(nt_symbols->size());
-
+            my_bps.resize(nt_symbols.size());
             std::unordered_map<uint64_t, std::string> bps;
-            for (auto s : *nt_symbols){
-                if (s.first.find("Nt") != 0 || s.first.find("Ntdll") != std::string::npos)
-                    continue;
 
+            for (auto s : nt_symbols){
                 my_bps.push_back(core.state.set_breakpoint(s.second, *target, core::FILTER_CR3));
                 bps.emplace(s.second, s.first);
             }
-            LOG(INFO, "Number of breakpoints %d", my_bps.size());
+
+            LOG(INFO, "Number of breakpoints %" PRIx64, my_bps.size());
             for(size_t i = 0; i < 600; ++i)
             {
                 core.state.resume();

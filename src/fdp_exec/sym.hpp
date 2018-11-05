@@ -26,7 +26,7 @@ namespace sym
         uint64_t    offset;
     };
 
-    using SymbolOffsetMap =  std::unordered_map<std::string, uint64_t>;
+    using on_sym_fn       = std::function<walk_e(std::string, uint64_t)>;
 
     struct IMod
     {
@@ -34,10 +34,10 @@ namespace sym
 
         virtual span_t               span                 () = 0;
         virtual opt<uint64_t>        symbol               (const std::string& symbol) = 0;
-        virtual opt<SymbolOffsetMap> symbols_that_contains(const std::string& s) = 0;
         virtual opt<uint64_t>        struc_offset         (const std::string& struc, const std::string& member) = 0;
         virtual opt<size_t>          struc_size           (const std::string& struc) = 0;
         virtual opt<ModCursor>       symbol               (uint64_t addr) = 0;
+        virtual bool                 sym_list             (const on_sym_fn& on_sym) = 0;
     };
 
     std::unique_ptr<IMod>   make_pdb(span_t span, const std::string& module, const std::string& guid);
@@ -65,7 +65,6 @@ namespace sym
         bool                 list                 (const on_module_fn& on_module);
         IMod*                find                 (const std::string& name);
         opt<uint64_t>        symbol               (const std::string& module, const std::string& symbol);
-        opt<SymbolOffsetMap> symbols_that_contains(const std::string& module, const std::string& s);
         opt<uint64_t>        struc_offset         (const std::string& module, const std::string& struc, const std::string& member);
         opt<size_t>          struc_size           (const std::string& module, const std::string& struc);
         opt<Cursor>          find                 (uint64_t addr);
