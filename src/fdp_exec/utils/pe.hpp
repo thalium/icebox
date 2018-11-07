@@ -11,7 +11,7 @@ namespace pe
     {
         uint8_t    code_offset;
         uint8_t    unwind_op_and_info;
-        int        stack_size_used;
+        uint32_t   stack_size_used;
     };
 
     struct FunctionEntry
@@ -19,7 +19,7 @@ namespace pe
         uint32_t    start_address;
         uint32_t    end_address;
         uint8_t     prolog_size;
-        int         stack_frame_size;
+        uint32_t    stack_frame_size;
         int         prev_frame_reg;
         uint8_t     frame_reg_offset;
         uint32_t    mother_start_addr;

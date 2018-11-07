@@ -6,6 +6,8 @@
 #include "core/helpers.hpp"
 #include "utils/utils.hpp"
 
+#include <array>
+
 namespace
 {
     enum member_pe_offset_e
@@ -213,15 +215,16 @@ opt<std::map<uint32_t, pe::FunctionEntry>> pe::Pe::parse_exception_dir(core::Cor
             continue;
         }
 
-        uint8_t buffer[unwind_codes_size];
-        core.mem.virtual_read(buffer, mod_base_addr + unwind_info_ptr + sizeof(UnwindInfo), unwind_codes_size);
+        std::vector<uint8_t> buffer;
+        buffer.resize(unwind_codes_size);
+        core.mem.virtual_read(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof(UnwindInfo), unwind_codes_size);
         if(!ok)
             FAIL(exp::nullopt, "unable to read unwind codes");
 
-        size_t register_size = 0x08;            //TODO Defined this somewhere else
+        uint32_t register_size = 0x08;            //TODO Defined this somewhere else
 
         std::vector<UnwindCode>     unwind_codes;
-        int stack_frame_size = 0;
+        uint32_t stack_frame_size = 0;
         int prev_frame_reg = 0;
         size_t idx = 0;
         while(idx < unwind_codes_size - r)
