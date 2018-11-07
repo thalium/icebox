@@ -245,7 +245,7 @@ namespace
     int try_add_breakpoint(StateData& d, uint64_t phy, const BreakpointObserver& bp)
     {
         auto& targets = d.breakpoints.targets_;
-        auto dtb = bp.filter == core::FILTER_CR3 ? exp::make_optional(bp.proc.dtb) : exp::nullopt;
+        auto dtb = bp.filter == core::FILTER_CR3 ? ext::make_optional(bp.proc.dtb) : ext::nullopt;
         const auto it = targets.find(phy);
         if(it != targets.end())
         {
@@ -261,7 +261,7 @@ namespace
                 return -1;
 
             // add new breakpoint without filtering
-            dtb = exp::nullopt;
+            dtb = ext::nullopt;
         }
 
         const auto bpid = FDP_SetBreakpoint(&d.shm, 0, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy, 1, dtb ? *dtb : FDP_NO_CR3);

@@ -109,7 +109,7 @@ namespace
                 const auto pid = core.os->proc_id(*proc);
                 const auto thread = core.os->thread_current();
                 const auto tid = core.os->thread_id(*proc, *thread);
-                const auto procname = proc ? core.os->proc_name(*proc) : exp::nullopt;
+                const auto procname = proc ? core.os->proc_name(*proc) : ext::nullopt;
                 const auto sym = core.sym.find(*rip);
                 LOG(INFO, "BREAK! rip: %" PRIx64 " %s %s pid:%" PRId64 " tid:%" PRId64,
                     *rip, sym ? sym::to_string(*sym).data() : "", procname ? procname->data() : "", pid, tid);

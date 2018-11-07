@@ -84,7 +84,7 @@ opt<uint64_t> sym::Symbols::symbol(const std::string& module, const std::string&
 {
     const auto mod = find(module);
     if(!mod)
-        return exp::nullopt;
+        return ext::nullopt;
 
     return mod->symbol(symbol);
 }
@@ -93,7 +93,7 @@ opt<uint64_t> sym::Symbols::struc_offset(const std::string& module, const std::s
 {
     const auto mod = find(module);
     if(!mod)
-        return exp::nullopt;
+        return ext::nullopt;
 
     return mod->struc_offset(struc, member);
 }
@@ -102,7 +102,7 @@ opt<size_t> sym::Symbols::struc_size(const std::string& module, const std::strin
 {
     const auto mod = find(module);
     if(!mod)
-        return exp::nullopt;
+        return ext::nullopt;
 
     return mod->struc_size(struc);
 }
@@ -124,7 +124,7 @@ namespace
                 return ModPair{m.first, *m.second};
         }
 
-        return exp::nullopt;
+        return ext::nullopt;
     }
 }
 
@@ -132,11 +132,11 @@ opt<sym::Cursor> sym::Symbols::find(uint64_t addr)
 {
     auto p = ::find(*d_, addr);
     if(!p)
-        return exp::nullopt;
+        return ext::nullopt;
 
     const auto cur = p->mod.symbol(addr);
     if(!cur)
-        return exp::nullopt;
+        return ext::nullopt;
 
     return Cursor{p->name.data(), cur->symbol, cur->offset};
 }

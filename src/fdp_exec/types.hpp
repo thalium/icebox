@@ -4,11 +4,17 @@
 #include <stdint.h>
 #include <inttypes.h>
 
+#ifdef _MSC_VER
+#include <optional>
+template<typename T>
+using opt = std::optional<T>;
+namespace ext = std;
+#else
 #include <experimental/optional>
-
 template<typename T>
 using opt = std::experimental::optional<T>;
-namespace exp = std::experimental;
+namespace ext = std::experimental;
+#endif
 
 struct proc_t
 {

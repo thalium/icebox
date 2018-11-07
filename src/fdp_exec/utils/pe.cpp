@@ -135,7 +135,7 @@ opt<span_t> pe::Pe::get_directory_entry(core::Core& core, const span_t span, con
     static const auto e_lfanew_offset = 0x3C;
     const auto e_lfanew = core::read_le32(core, span.addr+e_lfanew_offset);
     if(!e_lfanew)
-        FAIL(exp::nullopt, "unable to read e_lfanew");
+        FAIL(ext::nullopt, "unable to read e_lfanew");
 
     const auto image_nt_header = span.addr+*e_lfanew;   //IMAGE_NT_HEADER
     const auto image_optional_header = image_nt_header + d_->members_pe_[IMAGE_NT_HEADERS64_OptionalHeader];
@@ -145,11 +145,11 @@ opt<span_t> pe::Pe::get_directory_entry(core::Core& core, const span_t span, con
                                 + size_image_data_directory*directory_entry_id;
     const auto data_directory_virtual_address = core::read_le32(core, data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_VirtualAddress]);
     if(!data_directory_virtual_address)
-        FAIL(exp::nullopt, "unable to read DataDirectory.VirtualAddress");
+        FAIL(ext::nullopt, "unable to read DataDirectory.VirtualAddress");
 
     const auto data_directory_size = core::read_le32(core, data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_Size]);
     if(!data_directory_size)
-        FAIL(exp::nullopt, "unable to read DataDirectory.Size");
+        FAIL(ext::nullopt, "unable to read DataDirectory.Size");
 
     // LOG(INFO, "exception_dir addr %" PRIx64 " section size %" PRIx32, span.addr + *data_directory_virtual_address, *data_directory_size);
 
@@ -162,11 +162,11 @@ opt<span_t> pe::Pe::parse_debug_dir(void* vsrc, const uint64_t mod_base_addr, co
 
     const auto sizeof_IMAGE_DEBUG_DIRECTORY = 0x1C;
     if (debug_dir.size<sizeof_IMAGE_DEBUG_DIRECTORY)
-        FAIL(exp::nullopt, "Debug directory to small");
+        FAIL(ext::nullopt, "Debug directory to small");
 
     const auto type = read_le32(&src[d_->members_pe_[IMAGE_DEBUG_DIRECTORY_Type]]);
     if (type != 2)
-        FAIL(exp::nullopt, "Unknown IMAGE_DEBUG_TYPE, should be IMAGE_DEBUG_TYPE_CODEVIEW (=2), it's the one for pdb");
+        FAIL(ext::nullopt, "Unknown IMAGE_DEBUG_TYPE, should be IMAGE_DEBUG_TYPE_CODEVIEW (=2), it's the one for pdb");
 
     const auto size_rawdata = read_le32(&src[d_->members_pe_[IMAGE_DEBUG_DIRECTORY_SizeOfData]]);
     const auto addr_rawdata = read_le32(&src[d_->members_pe_[IMAGE_DEBUG_DIRECTORY_AddressOfRawData]]);
@@ -192,7 +192,7 @@ opt<std::map<uint32_t, pe::FunctionEntry>> pe::Pe::parse_exception_dir(core::Cor
 
         auto ok = core.mem.virtual_read(unwind_info, to_read, sizeof unwind_info);
         if(!ok)
-            FAIL(exp::nullopt, "unable to read unwind info");
+            FAIL(ext::nullopt, "unable to read unwind info");
 
         const bool chained_flag = unwind_info[0] & UNWIND_CHAINED_FLAG_MASK;
         const auto prolog_size = unwind_info[1];
@@ -219,7 +219,7 @@ opt<std::map<uint32_t, pe::FunctionEntry>> pe::Pe::parse_exception_dir(core::Cor
         buffer.resize(unwind_codes_size);
         core.mem.virtual_read(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof(UnwindInfo), unwind_codes_size);
         if(!ok)
-            FAIL(exp::nullopt, "unable to read unwind codes");
+            FAIL(ext::nullopt, "unable to read unwind codes");
 
         uint32_t register_size = 0x08;            //TODO Defined this somewhere else
 
@@ -364,47 +364,47 @@ opt<size_t> pe::read_image_size(const void* vsrc, size_t size)
     const auto e_magic = read_be16(&src[0]);
     static const auto image_dos_signature = 0x4D5A;     //MZ
     if(e_magic != image_dos_signature)
-        return exp::nullopt;
+        return ext::nullopt;
 
     static const auto e_lfanew_offset = 0x3C;
     size_t idx = e_lfanew_offset;
     if(idx + 4 > size)
-        return exp::nullopt;
+        return ext::nullopt;
 
     const auto e_lfanew = read_le32(&src[idx]);
     idx = e_lfanew;
 
     static const uint32_t image_nt_signature = 0X5045 << 16;    //PE
     if(idx + sizeof image_nt_signature > size)
-        return exp::nullopt;
+        return ext::nullopt;
 
     const auto signature = read_be32(&src[idx]);
     if(signature != image_nt_signature)
-        return exp::nullopt;
+        return ext::nullopt;
 
     static const uint16_t image_file_machine_amd64 = 0x8664;
     idx += sizeof signature;
     if(idx + sizeof image_file_machine_amd64 > size)
-        return exp::nullopt;
+        return ext::nullopt;
 
     const auto machine = read_le16(&src[idx]);
     if(machine != image_file_machine_amd64)
-        return exp::nullopt;
+        return ext::nullopt;
 
     static const int image_file_header_size = 20;
     static const uint16_t image_nt_optional_hdr64_magic = 0x20B;
     idx += image_file_header_size;
     if(idx + sizeof image_nt_optional_hdr64_magic > size)
-        return exp::nullopt;
+        return ext::nullopt;
 
     const auto magic = read_le16(&src[idx]);
     if(magic != image_nt_optional_hdr64_magic)
-        return exp::nullopt;
+        return ext::nullopt;
 
     static const auto size_of_image_offset = 14 * 4;
     idx += size_of_image_offset;
     if(idx + 4 > size)
-        return exp::nullopt;
+        return ext::nullopt;
 
     return read_le32(&src[idx]);
 }
