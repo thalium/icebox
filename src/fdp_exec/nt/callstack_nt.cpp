@@ -263,7 +263,7 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
 
         auto mycursor = core_.sym.find(ctx.rip);
         if(!mycursor)
-            mycursor = sym::Cursor{modname ? modname->data() : "<noname>", "<nosymbol>", off_in_mod};
+            mycursor = sym::Cursor{modname ? sanitizer::sanitize_filename(*modname).data() : "<noname>", "<nosymbol>", off_in_mod};
 
         ctx.rip = *return_addr;
         ctx.rsp = caller_addr_on_stack + 8;

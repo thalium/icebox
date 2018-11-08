@@ -7,11 +7,18 @@
 #include "utils/pe.hpp"
 #include "utils/sanitizer.hpp"
 
+#include "utils/json.hpp"
+#include <fstream>
+
+#include "monitor/syscall_mon.hpp"
+
 #include <thread>
 #include <chrono>
 
 namespace
 {
+    using json = nlohmann::json;
+
     bool test_core(core::Core& core, pe::Pe& pe)
     {
         LOG(INFO, "drivers:");
@@ -155,53 +162,77 @@ namespace
         }
 
         {
-            const auto pdb_name = "ntdll";
-            const auto my_imod = core.sym.find(pdb_name);
-            if (!my_imod)
-                FAIL(false, "Unable to find pdb of %s", pdb_name);
+            json output;
+            size_t ii = 0;
 
-            std::map<std::string, uint64_t> nt_symbols;
-
-            my_imod->sym_list([&](std::string name, uint64_t offset)
+            syscall_mon::SyscallMonitor syscall_monitor(core);
+            syscall_monitor.setup(*target);
+            syscall_monitor.register_NtWriteFile([&](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine, nt::PVOID ApcContext,
+                                                     nt::PIO_STATUS_BLOCK IoStatusBlock, nt::PVOID Buffer, nt::ULONG Length,
+                                                     nt::PLARGE_INTEGER ByteOffsetm, nt::PULONG Key)
             {
-                if (name.find("Nt") != 0 || name.find("Ntdll") != std::string::npos)
-                    return WALK_NEXT;
+                std::vector<uint8_t> buf;
+                buf.resize(Length);
+                auto ok = core.mem.virtual_read(&buf[0], Buffer, Length);
+                if(!ok)
+                    return 1;
 
-                nt_symbols.emplace(name, offset);
-                LOG(INFO, "FOUND %s - %" PRIx64, name.data(), offset);
-                return WALK_NEXT;
+                char* dst = reinterpret_cast<char*>(&buf[0]);
+                dst[Length-1] = '\0';
+                LOG(INFO, "NTWRITEFILE");
+                LOG(INFO, "PARAMS : %" PRIx64 " - %" PRIx64 " - %"  PRIx64 " - %" PRIx64 " - %"  PRIx64 " - %" PRIx64 " - %" PRIx64,
+                        FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, ByteOffsetm, Key);
+                LOG(INFO, "Write : %s", dst);
+                output[ii]["output"] = dst;
+                ii++;
+                return 0;
             });
 
-            if (nt_symbols.size() == 0)
-                FAIL(false, "Found no symbols that contains Nt");
+            const auto cs_depth = 40;
 
-            if (false){
-                LOG(INFO, "SYMBOLS");
-                for (auto s : nt_symbols)
-                    LOG(INFO, "Symbol %" PRIx64 " - %s", s.second, s.first.data());
-                LOG(INFO, "END SYMBOLS %" PRIx64, nt_symbols.size());
-            }
-
-            std::vector<core::Breakpoint> my_bps;
-            my_bps.resize(nt_symbols.size());
-            std::unordered_map<uint64_t, std::string> bps;
-
-            for (auto s : nt_symbols){
-                my_bps.push_back(core.state.set_breakpoint(s.second, *target, core::FILTER_CR3));
-                bps.emplace(s.second, s.first);
-            }
-
-            LOG(INFO, "Number of breakpoints %" PRIx64, my_bps.size());
-            for(size_t i = 0; i < 600; ++i)
+            for(size_t i = 0; i < 3; ++i)
             {
                 core.state.resume();
                 core.state.wait();
 
+                //Get callstack
+                std::vector<std::string> cs;
                 const auto rip = core.regs.read(FDP_RIP_REGISTER);
-                const auto it = bps.find(*rip);
-                if (it != bps.end())
-                    LOG(INFO, "%" PRIu64 " - Bp %" PRIx64 " - %s", i, it->first, it->second.data());
+                const auto rsp = core.regs.read(FDP_RSP_REGISTER);
+                const auto rbp = core.regs.read(FDP_RBP_REGISTER);
+                int k = 0;
+                callstack->get_callstack(*target, *rip, *rsp, *rbp, [&](sym::Cursor mc)
+                {
+                    k++;
+                    LOG(INFO, "%" PRId32 " - %s", k, sym::to_string(mc).data());
+                    cs.push_back(sym::to_string(mc).data());
+                    if (k>=cs_depth){
+                        return WALK_STOP;
+                    }
+                    return WALK_NEXT;
+                });
+
+                output[i]["callstack"] = cs;
+
+                //Get params
+                // std::vector<uint64_t> scparams;
+                // syscall_monitor.generic_handler(*rip, [&](const std::vector<arg_t>& params)
+                // {
+
+                //     for(size_t j = 0; j<params.size(); j++)
+                //     {
+                //         LOG(INFO, "%" PRId64 " - %" PRIx64, j, params[j].val);
+                //         scparams.push_back(params[j].val);
+                //     }
+                // });
+                // output[i]["params"] = scparams;
+
             }
+            std::ofstream outfile;
+            outfile.open("output.json");
+            outfile << output.dump().data();
+            outfile << std::endl;
+            outfile.close();
         }
 
         return true;
