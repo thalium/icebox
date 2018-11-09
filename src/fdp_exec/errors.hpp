@@ -8,6 +8,8 @@ enum class err_e
 
     cannot_read,
     cannot_write,
+    invalid_input,
+    input_too_small,
 };
 
 template<typename T>

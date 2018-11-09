@@ -63,5 +63,5 @@ namespace pe
         std::unique_ptr<Data> d_;
     };
 
-    opt<size_t>          read_image_size      (const void* src, size_t size);
+    return_t<size_t> read_image_size(const void* src, size_t size);
 }
