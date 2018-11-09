@@ -284,13 +284,13 @@ namespace
             return {};
 
         if(*gs & 0xFFF0000000000000)
-            return gs;
+            return *gs;
 
         gs = core.regs.read(MSR_KERNEL_GS_BASE);
         if(!gs)
             return {};
 
-        return gs;
+        return *gs;
     }
 }
 

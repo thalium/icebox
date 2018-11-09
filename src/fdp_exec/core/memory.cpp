@@ -180,7 +180,8 @@ namespace
             const auto ok = m_.core.regs.write(FDP_CR3_REGISTER, want_.dtb);
             if(!ok)
                 LOG(ERROR, "unable to set CR3 to %" PRIx64 " for context swap", want_.dtb);
-            return ok;
+
+            return true;
         }
 
         ~Cr3Swap()

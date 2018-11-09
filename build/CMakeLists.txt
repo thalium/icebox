@@ -61,6 +61,7 @@ set_target_output_directory(fdp_exec "")
 
 target_include_directories(fdp_exec PRIVATE
     "${fdp_exec_dir}"
+    "${root_dir}/deps/expected-lite/include"
 )
 target_compile_definitions(fdp_exec PRIVATE
     _CRT_SECURE_NO_WARNINGS
