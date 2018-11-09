@@ -42,3 +42,8 @@ struct span_t
     uint64_t addr;
     size_t   size;
 };
+
+struct arg_t
+{
+    uint64_t val;
+};

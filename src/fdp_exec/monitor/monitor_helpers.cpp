@@ -8,18 +8,24 @@ namespace
     static const int pointer_size = 0x8;
 }
 
-opt<uint64_t> monitor_helpers::get_param_by_index(core::Core& core, int index)
+opt<arg_t> monitor_helpers::get_param_by_index(core::Core& core, int index)
 {
     //TODO Deal with x86
-
+    arg_t arg;
+    opt<uint64_t> res;
     switch(index)
     {
-        case 0: return core.regs.read(FDP_RCX_REGISTER);
-        case 1: return core.regs.read(FDP_RDX_REGISTER);
-        case 2: return core.regs.read(FDP_R8_REGISTER);
-        case 3: return core.regs.read(FDP_R9_REGISTER);
-        default: return monitor_helpers::get_stack_by_index(core, index + 1);
+        case 0: res = core.regs.read(FDP_RCX_REGISTER); break;
+        case 1: res = core.regs.read(FDP_RDX_REGISTER); break;
+        case 2: res = core.regs.read(FDP_R8_REGISTER);  break;
+        case 3: res = core.regs.read(FDP_R9_REGISTER);  break;
+        default: res = monitor_helpers::get_stack_by_index(core, index + 1);
     }
+    if (!res)
+        return ext::nullopt;
+
+    arg.val = *res;
+    return arg;
 }
 
 opt<uint64_t> monitor_helpers::get_stack_by_index(core::Core& core, int index)

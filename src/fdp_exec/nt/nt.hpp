@@ -147,5 +147,10 @@ namespace nt
     using WORKERFACTORYINFOCLASS               = uint64_t;
 
     template<typename T>
-    const T cast_to(const void * src) {return *(static_cast<const T*>(src));};
+    T cast_to(const arg_t& src)
+    {
+        T value;
+        memcpy(&value, &src.val, sizeof value);
+        return value;
+    };
 }
