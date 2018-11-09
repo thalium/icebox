@@ -88,19 +88,19 @@ namespace
         entry_t pml4e = {0};
         auto ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pml4e), sizeof pml4e, pml4e_ptr);
         if(!ok)
-            return ext::nullopt;
+            return {};
 
         if(!pml4e.u.f.can_read)
-            return ext::nullopt;
+            return {};
 
         const auto pdpe_ptr = pml4e.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pdp * 8;
         entry_t pdpe = {0};
         ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pdpe), sizeof pdpe, pdpe_ptr);
         if(!ok)
-            return ext::nullopt;
+            return {};
 
         if(!pdpe.u.f.can_read)
-            return ext::nullopt;
+            return {};
 
         // 1g page
         if(pdpe.u.f.large_page)
@@ -114,10 +114,10 @@ namespace
         entry_t pde = {0};
         ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pde), sizeof pde, pde_ptr);
         if(!ok)
-            return ext::nullopt;
+            return {};
 
         if(!pde.u.f.can_read)
-            return ext::nullopt;
+            return {};
 
         // 2mb page
         if(pde.u.f.large_page)
@@ -131,10 +131,10 @@ namespace
         entry_t pte = {0};
         ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pte), sizeof pte, pte_ptr);
         if(!ok)
-            return ext::nullopt;
+            return {};
 
         if(!pte.u.f.can_read)
-            return ext::nullopt;
+            return {};
 
         const auto phy = pte.u.f.page_frame_number * PAGE_SIZE + virt.u.f.offset;
         return phy;
@@ -203,7 +203,7 @@ namespace
         Cr3Swap swap(m, want);
         const auto ok = swap.setup();
         if(!ok)
-            return ext::nullopt;
+            return {};
 
         return swap;
     }

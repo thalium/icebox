@@ -95,7 +95,7 @@ namespace {
             }
         }
 
-        return ext::nullopt;
+        return {};
     }
 
 }
@@ -104,7 +104,7 @@ namespace{
     opt<mod_t> find_prev(const uint64_t addr, std::map<uint64_t, mod_t> mod_map)
     {
         if (mod_map.size() == 0)
-            return ext::nullopt;
+            return {};
 
         // lower bound returns first item greater or equal
         auto it = mod_map.lower_bound(addr);
@@ -118,7 +118,7 @@ namespace{
 
         // stricly greater, go to previous item
         if(it == mod_map.begin())
-            return ext::nullopt;
+            return {};
 
         return (--it)->second;
     }
@@ -146,7 +146,7 @@ opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
     //Insert mod
     mod = core_.os->mod_find(proc, addr);
     if(!mod)
-        return ext::nullopt;
+        return {};
 
     const auto span = core_.os->mod_span(proc, *mod);
     it->second.emplace(span->addr, *mod);
@@ -162,13 +162,13 @@ opt<pe::FunctionTable> CallstackNt::insert(const std::string& name, span_t span)
     buffer_excep.resize(exception_dir->size);
     auto ok = core_.mem.virtual_read(&buffer_excep[0], exception_dir->addr, exception_dir->size);
     if (!ok)
-        FAIL(ext::nullopt, "unable to read exception dir of %s", name.c_str());
+        FAIL({}, "unable to read exception dir of %s", name.c_str());
 
     const auto function_table = pe_.parse_exception_dir(core_, &buffer_excep[0], span.addr, *exception_dir);
 
     const auto ret = d_->exception_dirs_.emplace(name, *function_table);
     if(!ret.second)
-        return ext::nullopt;
+        return {};
 
     return function_table;
 }

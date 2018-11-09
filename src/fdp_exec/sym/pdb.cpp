@@ -111,7 +111,7 @@ opt<uint64_t> Pdb::symbol(const std::string& symbol)
 {
     const auto it = symbols_.find(symbol);
     if(it == symbols_.end())
-        return ext::nullopt;
+        return {};
 
     return get_offset(*this, it->second);
 }
@@ -145,20 +145,20 @@ opt<uint64_t> Pdb::struc_offset(const std::string& struc, const std::string& mem
 {
     const auto stype = get_struc(*this, struc);
     if(!stype)
-        return ext::nullopt;
+        return {};
 
     for(const auto& m : stype->struct_members)
         if(member == m->name)
             return m->offset;
 
-    return ext::nullopt;
+    return {};
 }
 
 opt<size_t> Pdb::struc_size(const std::string& struc)
 {
     const auto stype = get_struc(*this, struc);
     if(!stype)
-        return ext::nullopt;
+        return {};
 
     return stype->size_bytes;
 }
@@ -169,7 +169,7 @@ namespace
     opt<sym::ModCursor> make_cursor(Pdb& p, const T& it, const T& end, uint64_t addr)
     {
         if(it == end)
-            return ext::nullopt;
+            return {};
 
         return sym::ModCursor{it->second.name, addr - get_offset(p, it->second)};
     }
@@ -203,7 +203,7 @@ namespace
     {
         for(auto it = ptr; it != end; ++it)
             if(!std::isprint(*it))
-                return ext::nullopt;
+                return {};
 
         return std::string{ptr, end};
     }
@@ -219,15 +219,15 @@ namespace
         {
             const auto rsds = search(&src[0], &src[src_size], rsds_pattern);
             if(!rsds)
-                FAIL(ext::nullopt, "unable to find RSDS pattern into kernel module");
+                FAIL({}, "unable to find RSDS pattern into kernel module");
 
             const auto size = std::distance(rsds, &src[src_size]);
             if(size < 4 /*magic*/ + 16 /*guid*/ + 4 /*age*/ + 2 /*name*/)
-                FAIL(ext::nullopt, "kernel module is too small for pdb header");
+                FAIL({}, "kernel module is too small for pdb header");
 
             const auto name_end = reinterpret_cast<const uint8_t*>(memchr(&rsds[4 + 16 + 4], 0x00, size));
             if(!name_end)
-                FAIL(ext::nullopt, "missing null-terminating byte on PDB header module name");
+                FAIL({}, "missing null-terminating byte on PDB header module name");
 
             uint8_t guid[16];
             write_be32(&guid[0], read_le32(&rsds[4 + 0])); // Data1

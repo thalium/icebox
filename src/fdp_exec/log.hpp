@@ -14,5 +14,5 @@
 
 #define FAIL(VALUE, FMT, ...) do {\
     LOG(ERROR, FMT, ## __VA_ARGS__);\
-    return (VALUE);\
+    return VALUE;\
 } while(0)

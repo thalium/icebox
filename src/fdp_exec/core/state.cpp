@@ -261,7 +261,7 @@ namespace
                 return -1;
 
             // add new breakpoint without filtering
-            dtb = ext::nullopt;
+            dtb = {};
         }
 
         const auto bpid = FDP_SetBreakpoint(&d.shm, 0, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy, 1, dtb ? *dtb : FDP_NO_CR3);
