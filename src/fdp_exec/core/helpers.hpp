@@ -18,7 +18,7 @@ opt<T> read_mem(core::Core& core, uint64_t ptr)
 
 namespace core
 {
-    static inline auto read_byte(Core& core, uint64_t ptr) { return read_mem<uint8_t, &::read_8>(core, ptr); }
+    static inline auto read_byte(Core& core, uint64_t ptr) { return read_mem<uint8_t, &::read_byte>(core, ptr); }
     static inline auto read_le16(Core& core, uint64_t ptr) { return read_mem<uint16_t, &::read_le16>(core, ptr); }
     static inline auto read_le32(Core& core, uint64_t ptr) { return read_mem<uint32_t, &::read_le32>(core, ptr); }
     static inline auto read_le64(Core& core, uint64_t ptr) { return read_mem<uint64_t, &::read_le64>(core, ptr); }
