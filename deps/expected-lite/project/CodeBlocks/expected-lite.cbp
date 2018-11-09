@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Expected Lite" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Release">
+				<Option output="bin/Release/optional3" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+		</Compiler>
+		<Unit filename="../../.gitattributes" />
+		<Unit filename="../../.gitignore" />
+		<Unit filename="../../.travis.yml" />
+		<Unit filename="../../CHANGES.txt" />
+		<Unit filename="../../CMakeLists.txt" />
+		<Unit filename="../../LICENSE.txt" />
+		<Unit filename="../../Notes.md" />
+		<Unit filename="../../README.md" />
+		<Unit filename="../../appveyor.yml" />
+		<Unit filename="../../conanfile.py" />
+		<Unit filename="../../example/01-basic.cpp" />
+		<Unit filename="../../example/02-required.cpp" />
+		<Unit filename="../../example/CMakeLists.txt" />
+		<Unit filename="../../include/nonstd/expected.hpp" />
+		<Unit filename="../../include/nonstd/expected_cpp03.hpp" />
+		<Unit filename="../../script/update-version.py" />
+		<Unit filename="../../test/CMakeLists.txt" />
+		<Unit filename="../../test/expected-main.t.cpp" />
+		<Unit filename="../../test/expected-main.t.hpp" />
+		<Unit filename="../../test/expected.t.cpp" />
+		<Unit filename="../../test/expected_cpp03.t.cpp" />
+		<Unit filename="../../test/lest.hpp" />
+		<Unit filename="../../test/odr.cpp" />
+		<Unit filename="../../test/t-odr.bat" />
+		<Unit filename="../../test/t.bat" />
+		<Unit filename="../../test/tc.bat" />
+		<Unit filename="../../test/tg-all.bat" />
+		<Unit filename="../../test/tg.bat" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

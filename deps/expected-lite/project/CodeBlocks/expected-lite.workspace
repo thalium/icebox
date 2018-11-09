@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="Workspace">
+		<Project filename="expected.cbp" />
+		<Project filename="../../optional-lite/project/optional.cbp" />
+		<Project filename="../../expected-spike/codeblocks.cbp" />
+		<Project filename="../../../GitHub-Pre/IsoCpp/gsl-lite/project/gsl-lite.cbp" />
+	</Workspace>
+</CodeBlocks_workspace_file>
