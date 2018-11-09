@@ -75,7 +75,7 @@ core::ProcessContext core::Memory::switch_process(proc_t proc)
 
 namespace
 {
-    uint64_t mask(int bits)
+    constexpr uint64_t mask(int bits)
     {
         return ~(~uint64_t(0) << bits);
     }
