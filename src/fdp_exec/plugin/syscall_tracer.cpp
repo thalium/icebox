@@ -6,9 +6,9 @@
 
 #include "utils/sanitizer.hpp"
 #include "utils/json.hpp"
+#include "utils/file_helper.hpp"
 
 #include <unordered_map>
-#include <fstream>
 
 namespace
 {
@@ -92,17 +92,6 @@ syscall_tracer::SyscallPlugin::SyscallPlugin(core::Core& core, pe::Pe& pe)
 
 syscall_tracer::SyscallPlugin::~SyscallPlugin()
 {
-    std::vector<bp_trigger_info_t> frames = d_->bp_trigger_infos;
-    core_.state.pause();
-    const json output = create_calltree(core_, d_->target, d_->callsteps, frames, d_->args);
-    core_.state.resume();
-
-    //Dump output
-    std::ofstream outfile;
-    outfile.open("output.json");
-    outfile << output.dump().data();
-    outfile << std::endl;
-    outfile.close();
 }
 
 bool syscall_tracer::SyscallPlugin::setup(proc_t target)
@@ -132,7 +121,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
         d_->args[d_->trigger_nbr]["FileHandle"] = FileHandle;
         d_->args[d_->trigger_nbr]["Buffer"]     = dst;
 
-        get_callstack();
+        private_get_callstack();
         d_->trigger_nbr++;
         return 0;
     });
@@ -144,7 +133,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
 
         d_->args[d_->trigger_nbr]["Handle"] = paramHandle;
 
-        get_callstack();
+        private_get_callstack();
         d_->trigger_nbr++;
         return 0;
     });
@@ -152,7 +141,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
     return true;
 }
 
-bool syscall_tracer::SyscallPlugin::get_callstack()
+bool syscall_tracer::SyscallPlugin::private_get_callstack()
 {
     const auto cs_depth = 10;
 
@@ -173,5 +162,18 @@ bool syscall_tracer::SyscallPlugin::get_callstack()
     });
 
     d_->bp_trigger_infos.push_back(bp_trigger_info_t{idx, cs_size, d_->trigger_nbr});
+    return true;
+}
+
+bool syscall_tracer::SyscallPlugin::produce_output(std::string file_name)
+{
+    std::vector<bp_trigger_info_t> frames = d_->bp_trigger_infos;
+    core_.state.pause();
+    const json output = create_calltree(core_, d_->target, d_->callsteps, frames, d_->args);
+    core_.state.resume();
+
+    //Dump output
+    file_helper::write_file(file_name, output.dump());
+
     return true;
 }

@@ -16,7 +16,8 @@ namespace syscall_tracer
         ~SyscallPlugin();
 
         bool setup(proc_t target);
-        bool get_callstack();
+        bool private_get_callstack();
+        bool produce_output(std::string file_name);
 
         struct Data;
         std::unique_ptr<Data> d_;

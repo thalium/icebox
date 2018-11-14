@@ -68,6 +68,7 @@ namespace
             LOG(INFO, "module[%03zd/%03zd] %s: 0x%" PRIx64 " 0x%zx", modi, modcount, name->data(), span->addr, span->size);
             ++modi;
 
+
             const auto debug_dir = pe.get_directory_entry(core, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
             buffer.resize(debug_dir->size);
             auto ok = core.mem.virtual_read(&buffer[0], debug_dir->addr, debug_dir->size);
@@ -83,6 +84,7 @@ namespace
             ok = core.sym.insert(sanitizer::sanitize_filename(*name).data(), *span, &buffer[0], buffer.size());
             if(!ok)
                 return WALK_NEXT;
+
 
             return WALK_NEXT;
         });
@@ -174,6 +176,8 @@ namespace
                 core.state.resume();
                 core.state.wait();
             }
+
+            syscall_plugin.produce_output("output.json");
         }
 
         return true;
