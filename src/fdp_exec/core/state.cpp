@@ -181,8 +181,13 @@ struct core::BreakpointPrivate
 
 namespace
 {
-    void check_breakpoints(StateData& d, FDP_State state)
+    void check_breakpoints(StateData& d)
     {
+        FDP_State state = FDP_STATE_NULL;
+        const auto has_state = FDP_GetState(&d.shm, &state);
+        if(!has_state)
+            return;
+
         if(!(state & FDP_STATE_BREAKPOINT_HIT))
             return;
 
@@ -214,7 +219,9 @@ namespace
         }
     }
 
-    bool try_wait(StateData& d)
+    enum check_e { CHECK_BREAKPOINTS, SKIP_BREAKPOINTS };
+
+    bool try_wait(StateData& d, check_e check)
     {
         while(true)
         {
@@ -224,12 +231,8 @@ namespace
                 continue;
 
             update_break_state(d);
-            FDP_State state = FDP_STATE_NULL;
-            ok = FDP_GetState(&d.shm, &state);
-            if(!ok)
-                return false;
-
-            check_breakpoints(d, state);
+            if(check == CHECK_BREAKPOINTS)
+                check_breakpoints(d);
             return true;
         }
     }
@@ -237,7 +240,7 @@ namespace
 
 bool core::State::wait()
 {
-    return try_wait(*d_);
+    return try_wait(*d_, CHECK_BREAKPOINTS);
 }
 
 namespace
@@ -303,6 +306,19 @@ core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, filter_e
 
 namespace
 {
+    bool is_proc_join(const StateData& d, proc_t proc, core::join_e join)
+    {
+        const auto same_proc = proc.id == d.current.id && proc.dtb == d.current.dtb;
+        if(!same_proc)
+            return false;
+
+        if(join == core::JOIN_ANY_MODE)
+            return true;
+
+        const auto cs = d.core.regs.read(FDP_CS_REGISTER);
+        return cs && !!(*cs & 3);
+    }
+
     bool try_proc_join(StateData& d, proc_t proc, core::join_e join)
     {
         // set breakpoint on CR3 changes
@@ -341,24 +357,16 @@ namespace
             if(!try_resume(d))
                 break;
 
-            if(!try_wait(d))
+            if(!try_wait(d, SKIP_BREAKPOINTS))
                 break;
 
-            const auto same_proc = proc.id == d.current.id && proc.dtb == d.current.dtb;
-            if(!same_proc)
-                continue;
-
-            found = join == core::JOIN_ANY_MODE;
+            found |= is_proc_join(d, proc, join);
             if(found)
                 break;
 
-            const auto cs = d.core.regs.read(FDP_CS_REGISTER);
-            found = cs && !!(*cs & 3);
-            if(found)
-                break;
-
-            set_thread_rips();
+            check_breakpoints(d);
         }
+        set_thread_rips();
         FDP_UnsetBreakpoint(&d.shm, bpid);
         return found;
     }
