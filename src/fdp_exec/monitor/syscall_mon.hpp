@@ -21,7 +21,9 @@ namespace syscall_mon
         opt<std::string> find                (uint64_t addr);
         bool             get_raw_args        (size_t nargs, const on_param_fn& on_param);
         void             register_NtWriteFile(const on_NtWriteFile& on_ntwritefile);
+        void             register_NtClose    (const on_NtClose& on_ntclose);
         void             On_NtWriteFile      ();
+        void             On_NtClose          ();
 
         struct Data;
         std::unique_ptr<Data> d_;

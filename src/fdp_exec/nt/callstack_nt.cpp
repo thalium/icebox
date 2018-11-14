@@ -261,15 +261,12 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
             LOG(INFO, "Offset of current func %" PRIx64 ", Caller address on stack %" PRIx64 " so %" PRIx64, off_in_mod, caller_addr_on_stack, *return_addr);
         }
 
-        auto mycursor = core_.sym.find(ctx.rip);
-        if(!mycursor)
-            mycursor = sym::Cursor{modname ? sanitizer::sanitize_filename(*modname).data() : "<noname>", "<nosymbol>", off_in_mod};
+        if(on_callstep(callstack::callstep_t{*mc, ctx.rip}) == WALK_STOP)
+            return true;
 
         ctx.rip = *return_addr;
         ctx.rsp = caller_addr_on_stack + 8;
 
-        if(on_callstep(*mycursor) == WALK_STOP)
-            return true;
 
         i++;
     }

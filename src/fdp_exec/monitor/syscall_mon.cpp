@@ -20,6 +20,7 @@ namespace
     static const OnSyscall syscalls[] =
     {
         {"NtWriteFile", &syscall_mon::SyscallMonitor::On_NtWriteFile},
+        {"NtClose", &syscall_mon::SyscallMonitor::On_NtClose}
     };
 }
 
@@ -29,10 +30,12 @@ struct syscall_mon::SyscallMonitor::Data
     std::unordered_map<uint64_t, std::string> bps_names;
 
     std::vector<on_NtWriteFile> NtWriteFile_observers;
+    std::vector<on_NtClose> NtClose_observers;
 };
 
 syscall_mon::SyscallMonitor::SyscallMonitor(core::Core& core)
-    : d_(std::make_unique<Data>()), core_(core)
+    : d_(std::make_unique<Data>())
+    , core_(core)
 {
 }
 
@@ -110,5 +113,25 @@ void syscall_mon::SyscallMonitor::On_NtWriteFile()
     for(const auto it : d_->NtWriteFile_observers)
     {
         it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffsetm, Key);
+    }
+}
+
+void syscall_mon::SyscallMonitor::register_NtClose(const on_NtClose& on_ntclose)
+{
+    d_->NtClose_observers.push_back(on_ntclose);
+}
+
+void syscall_mon::SyscallMonitor::On_NtClose()
+{
+    const auto nargs = 1;   //GET THIS FROM GENERATED CODE ?
+
+    std::vector<arg_t> args;
+    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    const auto paramHandle    = nt::cast_to<nt::HANDLE> (args[0]);
+
+    for(const auto it : d_->NtClose_observers)
+    {
+        it(paramHandle);
     }
 }
