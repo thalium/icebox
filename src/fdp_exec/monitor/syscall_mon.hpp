@@ -3,13 +3,15 @@
 #include "types.hpp"
 #include "core.hpp"
 
-#include "syscalls.hpp"
+#include "syscall_macros.gen.hpp"
 
 #include <functional>
 #include <vector>
 
 namespace syscall_mon
 {
+    DECLARE_CALLBACK_PROTOS
+
     struct SyscallMonitor
     {
          SyscallMonitor(core::Core& core);

@@ -1,0 +1,16 @@
+{
+	"NtWriteFile": ["NTSTATUS", [
+		["FileHandle", "HANDLE"],
+                ["Event", "HANDLE"],
+                ["ApcRoutine", "PIO_APC_ROUTINE"],
+                ["ApcContext", "PVOID"],
+                ["IoStatusBlock", "PIO_STATUS_BLOCK"],
+                ["Buffer", "PVOID"],
+                ["Length", "ULONG"],
+                ["ByteOffset", "PLARGE_INTEGER"],
+                ["Key", "PULONG"]
+	]],
+	"NtClose": ["NTSTATUS", [
+		["Handle", "HANDLE"]
+	]]
+}
