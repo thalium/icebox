@@ -25,6 +25,6 @@ namespace syscall_tracer
         core::Core&                            core_;
         pe::Pe&                                pe_;
         syscall_mon::SyscallMonitor            syscall_monitor_;
-        std::unique_ptr<callstack::ICallstack> callstack_;
+        std::shared_ptr<callstack::ICallstack> callstack_;
     };
 }

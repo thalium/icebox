@@ -25,5 +25,5 @@ namespace callstack
                                               const on_callstep_fn& on_callstep) = 0;
     };
 
-    std::unique_ptr<ICallstack> make_callstack_nt (core::Core& core, pe::Pe& pe);
+    std::shared_ptr<ICallstack> make_callstack_nt (core::Core& core, pe::Pe& pe);
 }

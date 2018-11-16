@@ -47,7 +47,8 @@ bool syscall_mon::SyscallMonitor::setup(proc_t proc)
     for(const auto& s : syscalls)
     {
         const auto syscall_addr = core_.sym.symbol(syscall_dll, s.name);
-        if (!syscall_addr){
+        if (!syscall_addr)
+        {
             // FAIL(false, "Unable to find symbol %s", s.name);
             LOG(ERROR, "Unable to find symbol %s", s.name);
             continue;

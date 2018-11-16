@@ -20,8 +20,8 @@ namespace
 
         // methods
         bool setup();
-        opt<pe::FunctionTable> get_mod_functiontable(const std::string& name, span_t module);
-        opt<pe::FunctionTable> insert(const std::string& name, span_t module);
+        opt<pe::FunctionTable> get_mod_functiontable(const std::string& name, const span_t module);
+        opt<pe::FunctionTable> insert(const std::string& name, const span_t module);
         opt<mod_t>             find_mod(proc_t proc, uint64_t addr);
 
         // os::IModule
@@ -55,9 +55,9 @@ CallstackNt::CallstackNt(core::Core& core, pe::Pe& pe)
 {
 }
 
-std::unique_ptr<callstack::ICallstack> callstack::make_callstack_nt(core::Core& core, pe::Pe& pe)
+std::shared_ptr<callstack::ICallstack> callstack::make_callstack_nt(core::Core& core, pe::Pe& pe)
 {
-    auto cs_nt = std::make_unique<CallstackNt>(core, pe);
+    auto cs_nt = std::make_shared<CallstackNt>(core, pe);
     if(!cs_nt)
         return nullptr;
 
@@ -68,7 +68,8 @@ std::unique_ptr<callstack::ICallstack> callstack::make_callstack_nt(core::Core& 
     return cs_nt;
 }
 
-bool CallstackNt::setup(){
+bool CallstackNt::setup()
+{
     return true;
 }
 
@@ -80,7 +81,7 @@ namespace {
         uint64_t rbp;
     };
 
-    opt<uint64_t> get_stack_frame_size(const uint64_t off_in_mod, const pe::FunctionEntry function_entry)
+    opt<uint64_t> get_stack_frame_size(const uint64_t off_in_mod, const pe::FunctionEntry& function_entry)
     {
         const auto off_in_prolog = off_in_mod - function_entry.start_address;
         if (off_in_prolog == 0)
@@ -101,9 +102,9 @@ namespace {
 }
 
 namespace{
-    opt<mod_t> find_prev(const uint64_t addr, std::map<uint64_t, mod_t> mod_map)
+    opt<mod_t> find_prev(const uint64_t addr, std::map<uint64_t, mod_t>& mod_map)
     {
-        if (mod_map.size() == 0)
+        if (mod_map.empty())
             return {};
 
         // lower bound returns first item greater or equal
@@ -137,7 +138,8 @@ opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
     mod_map = it->second;
 
     auto mod = find_prev(addr, mod_map);
-    if (mod){
+    if (mod)
+    {
         const auto span = core_.os->mod_span(proc, *mod);
         if (addr <= (span->addr + span->size))
             return mod;
@@ -154,7 +156,7 @@ opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
     return mod;
 }
 
-opt<pe::FunctionTable> CallstackNt::insert(const std::string& name, span_t span)
+opt<pe::FunctionTable> CallstackNt::insert(const std::string& name, const span_t span)
 {
     const auto exception_dir = pe_.get_directory_entry(core_, span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
 
@@ -173,7 +175,7 @@ opt<pe::FunctionTable> CallstackNt::insert(const std::string& name, span_t span)
     return function_table;
 }
 
-opt<pe::FunctionTable> CallstackNt::get_mod_functiontable(const std::string& name, span_t span)
+opt<pe::FunctionTable> CallstackNt::get_mod_functiontable(const std::string& name, const span_t span)
 {
     const auto it = d_->exception_dirs_.find(name);
     if(it != d_->exception_dirs_.end())
@@ -185,12 +187,11 @@ opt<pe::FunctionTable> CallstackNt::get_mod_functiontable(const std::string& nam
 bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64_t rbp, const on_callstep_fn& on_callstep)
 {
     const auto proc_ctx = core_.mem.switch_process(proc);
-
     CurrentContext ctx = {rip, rsp, rbp};
 
     int i = 0;
     std::vector<uint8_t> buffer_mod;
-    int max_cs_depth = 50;
+    int max_cs_depth = 150;
     while(i<max_cs_depth){
         //Get module from address
         const auto mc = find_mod(proc, ctx.rip);
@@ -200,7 +201,8 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
         const auto span     = core_.os->mod_span(proc, *mc);
 
         //Load PDB
-        if (false){
+        if(false)
+        {
             const auto debug_dir = pe_.get_directory_entry(core_, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
             buffer_mod.resize(debug_dir->size);
             auto ok = core_.mem.virtual_read(&buffer_mod[0], debug_dir->addr, debug_dir->size);
@@ -247,26 +249,25 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
         const auto caller_addr_on_stack = ctx.rsp + *stack_frame_size;
 
         // print stack
-        if(false){
-            const auto print_d = 25;
-            for (int k = 0; k < print_d*8; k += 8){
-                LOG(INFO, "%" PRIx64 " - %" PRIx64, ctx.rsp+k,*core::read_ptr(core_, ctx.rsp+k));
-            }
+#ifdef USE_DEBUG_PRINT
+        const auto print_d = 25;
+        for (int k = 0; k < print_d*8; k += 8){
+            LOG(INFO, "%" PRIx64 " - %" PRIx64, ctx.rsp+k,*core::read_ptr(core_, ctx.rsp+k));
         }
+#endif
 
         const auto return_addr = core::read_ptr(core_, caller_addr_on_stack);
 
-        if(false){
-            LOG(INFO, "Chosen chosen %" PRIx64 " start address %" PRIx32 " end %" PRIx32, off_in_mod, function_entry->start_address, function_entry->end_address);
-            LOG(INFO, "Offset of current func %" PRIx64 ", Caller address on stack %" PRIx64 " so %" PRIx64, off_in_mod, caller_addr_on_stack, *return_addr);
-        }
+#ifdef USE_DEBUG_PRINT
+        LOG(INFO, "Chosen chosen %" PRIx64 " start address %" PRIx32 " end %" PRIx32, off_in_mod, function_entry->start_address, function_entry->end_address);
+        LOG(INFO, "Offset of current func %" PRIx64 ", Caller address on stack %" PRIx64 " so %" PRIx64, off_in_mod, caller_addr_on_stack, *return_addr);
+#endif
 
         if(on_callstep(callstack::callstep_t{*mc, ctx.rip}) == WALK_STOP)
             return true;
 
         ctx.rip = *return_addr;
         ctx.rsp = caller_addr_on_stack + 8;
-
 
         i++;
     }

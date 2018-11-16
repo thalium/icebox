@@ -55,9 +55,9 @@ namespace pe
         bool setup(core::Core& core);
 
         opt<span_t>          get_directory_entry  (core::Core& core, const span_t span, const pe_directory_entries_e directory_entry_id);
-        opt<FunctionTable>   parse_exception_dir  (core::Core& core, void* src, const uint64_t mod_base_addr, const span_t exception_dir);
-        opt<span_t>          parse_debug_dir      (void* src, const uint64_t mod_base_addr, const span_t debug_dir);
-        const FunctionEntry* lookup_function_entry(const uint64_t addr, FunctionTable function_table);
+        opt<FunctionTable>   parse_exception_dir  (core::Core& core, const void* src, uint64_t mod_base_addr, span_t exception_dir);
+        opt<span_t>          parse_debug_dir      (const void* src, uint64_t mod_base_addr, span_t debug_dir);
+        const FunctionEntry* lookup_function_entry(uint64_t addr, const FunctionTable function_table);
 
         struct Data;
         std::unique_ptr<Data> d_;

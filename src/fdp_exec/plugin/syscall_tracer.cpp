@@ -98,8 +98,15 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
 {
     d_->target = target;
     d_->trigger_nbr = 0;
+
     callstack_ = callstack::make_callstack_nt(core_, pe_);
-    syscall_monitor_.setup(d_->target);
+    if(!callstack_)
+        FAIL(false, "Unable to create callstack object");
+
+    const auto ok = syscall_monitor_.setup(d_->target);
+    if(!ok)
+        FAIL(false, "Unable to setup syscall_monitor");
+
 
     // Register NtWriteFile observer
     syscall_monitor_.register_NtWriteFile([&](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine, nt::PVOID ApcContext,
@@ -133,7 +140,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
 
         d_->args[d_->trigger_nbr]["Handle"] = paramHandle;
 
-        private_get_callstack();
+        //private_get_callstack();
         d_->trigger_nbr++;
         return 0;
     });
@@ -168,9 +175,7 @@ bool syscall_tracer::SyscallPlugin::private_get_callstack()
 bool syscall_tracer::SyscallPlugin::produce_output(std::string file_name)
 {
     std::vector<bp_trigger_info_t> frames = d_->bp_trigger_infos;
-    core_.state.pause();
     const json output = create_calltree(core_, d_->target, d_->callsteps, frames, d_->args);
-    core_.state.resume();
 
     //Dump output
     file_helper::write_file(file_name, output.dump());

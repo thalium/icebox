@@ -131,13 +131,12 @@ namespace
             const auto callstack = callstack::make_callstack_nt(core, pe);
             const auto n_trigger_bp = 3;
             const auto cs_depth = 40;
-
             const auto pdb_name = "ntdll";
             const auto func_name = "RtlAllocateHeap";
             const auto func_addr = core.sym.symbol(pdb_name, func_name);
             LOG(INFO, "%s = 0x%" PRIx64, func_name, func_addr ? *func_addr : 0);
-            const auto bp = core.state.set_breakpoint(*func_addr, *target, core::FILTER_CR3);
 
+            const auto bp = core.state.set_breakpoint(*func_addr, *target, core::FILTER_CR3);
             for (size_t i = 0; i < n_trigger_bp; ++i){
                 core.state.resume();
                 core.state.wait();
@@ -168,9 +167,9 @@ namespace
             syscall_tracer::SyscallPlugin syscall_plugin(core, pe);
             syscall_plugin.setup(*target);
 
-            LOG(INFO, "Everything is set up ! Please trigger some syscall");
+            LOG(INFO, "Everything is set up ! Please trigger some syscalls");
 
-            const auto n = 6;
+            const auto n = 100;
             for(size_t i = 0; i < n; ++i)
             {
                 core.state.resume();

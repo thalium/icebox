@@ -156,7 +156,7 @@ opt<span_t> pe::Pe::get_directory_entry(core::Core& core, const span_t span, con
     return span_t{span.addr + *data_directory_virtual_address, *data_directory_size};
 }
 
-opt<span_t> pe::Pe::parse_debug_dir(void* vsrc, const uint64_t mod_base_addr, const span_t debug_dir)
+opt<span_t> pe::Pe::parse_debug_dir(const void* vsrc, uint64_t mod_base_addr, span_t debug_dir)
 {
     const auto src = reinterpret_cast<const uint8_t*>(vsrc);
 
@@ -174,7 +174,7 @@ opt<span_t> pe::Pe::parse_debug_dir(void* vsrc, const uint64_t mod_base_addr, co
     return span_t{mod_base_addr + addr_rawdata, size_rawdata};
 }
 
-opt<std::map<uint32_t, pe::FunctionEntry>> pe::Pe::parse_exception_dir(core::Core& core, void* vsrc, const uint64_t mod_base_addr, const span_t exception_dir)
+opt<std::map<uint32_t, pe::FunctionEntry>> pe::Pe::parse_exception_dir(core::Core& core, const void* vsrc, uint64_t mod_base_addr, span_t exception_dir)
 {
     const auto src = reinterpret_cast<const uint8_t*>(vsrc);
 
@@ -301,15 +301,15 @@ opt<std::map<uint32_t, pe::FunctionEntry>> pe::Pe::parse_exception_dir(core::Cor
         FunctionEntry function_entry = {start_address, end_address, prolog_size, stack_frame_size, prev_frame_reg,
                                         frame_reg_offset, mother_start_addr,  unwind_codes};
 
-        if(false){
-            LOG(INFO, "Function entry : start %" PRIx32 " end %" PRIx32 " prolog size %" PRIx8 " number of codes %" PRIx8  " unwind info pointer %" PRIx32
-                    " stack frame size %x", start_address, end_address, prolog_size, nbr_of_unwind_code, unwind_info_ptr, stack_frame_size);
-        }
-
         function_table.emplace(start_address, function_entry);
+
+#ifdef USE_DEBUG_PRINT
+        LOG(INFO, "Function entry : start %" PRIx32 " end %" PRIx32 " prolog size %" PRIx8 " number of codes %" PRIx8  " unwind info pointer %" PRIx32
+                " stack frame size %x", start_address, end_address, prolog_size, nbr_of_unwind_code, unwind_info_ptr, stack_frame_size);
+#endif
     }
 
-    if (orphan_function_entries.size() == 0)
+    if (orphan_function_entries.empty())
         return function_table;
 
     for (auto orphan_fe : orphan_function_entries){
@@ -341,7 +341,7 @@ namespace{
     }
 }
 
-const pe::FunctionEntry* pe::Pe::lookup_function_entry(const uint64_t addr, std::map<uint32_t, pe::FunctionEntry> function_table)
+const pe::FunctionEntry* pe::Pe::lookup_function_entry(uint64_t addr, const std::map<uint32_t, pe::FunctionEntry> function_table)
 {
     // lower bound returns first item greater or equal
     auto it = function_table.lower_bound(addr);
