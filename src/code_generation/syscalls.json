@@ -1,16 +1,2356 @@
 {
-	"NtWriteFile": ["NTSTATUS", [
-		["FileHandle", "HANDLE"],
-                ["Event", "HANDLE"],
-                ["ApcRoutine", "PIO_APC_ROUTINE"],
-                ["ApcContext", "PVOID"],
-                ["IoStatusBlock", "PIO_STATUS_BLOCK"],
-                ["Buffer", "PVOID"],
-                ["Length", "ULONG"],
-                ["ByteOffset", "PLARGE_INTEGER"],
-                ["Key", "PULONG"]
-	]],
-	"NtClose": ["NTSTATUS", [
-		["Handle", "HANDLE"]
-	]]
-}
+        "NtAcceptConnectPort" : ["NTSTATUS",[
+            ["PortHandle","PHANDLE"],
+            ["PortContext","PVOID"],
+            ["ConnectionRequest","PPORT_MESSAGE"],
+            ["AcceptConnection","BOOLEAN"],
+            ["ServerView","PPORT_VIEW"],
+            ["ClientView","PREMOTE_PORT_VIEW"]
+        ]],
+        "NtAccessCheckAndAuditAlarm" : ["NTSTATUS",[
+            ["SubsystemName","PUNICODE_STRING"],
+            ["HandleId","PVOID"],
+            ["ObjectTypeName","PUNICODE_STRING"],
+            ["ObjectName","PUNICODE_STRING"],
+            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["GenericMapping","PGENERIC_MAPPING"],
+            ["ObjectCreation","BOOLEAN"],
+            ["GrantedAccess","PACCESS_MASK"],
+            ["AccessStatus","PNTSTATUS"],
+            ["GenerateOnClose","PBOOLEAN"]
+        ]],
+        "NtAccessCheckByTypeAndAuditAlarm" : ["NTSTATUS",[
+            ["SubsystemName","PUNICODE_STRING"],
+            ["HandleId","PVOID"],
+            ["ObjectTypeName","PUNICODE_STRING"],
+            ["ObjectName","PUNICODE_STRING"],
+            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
+            ["PrincipalSelfSid","PSID"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["AuditType","AUDIT_EVENT_TYPE"],
+            ["Flags","ULONG"],
+            ["ObjectTypeList","POBJECT_TYPE_LIST"],
+            ["ObjectTypeListLength","ULONG"],
+            ["GenericMapping","PGENERIC_MAPPING"],
+            ["ObjectCreation","BOOLEAN"],
+            ["GrantedAccess","PACCESS_MASK"],
+            ["AccessStatus","PNTSTATUS"],
+            ["GenerateOnClose","PBOOLEAN"]
+        ]],
+        "NtAccessCheckByType" : ["NTSTATUS",[
+            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
+            ["PrincipalSelfSid","PSID"],
+            ["ClientToken","HANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectTypeList","POBJECT_TYPE_LIST"],
+            ["ObjectTypeListLength","ULONG"],
+            ["GenericMapping","PGENERIC_MAPPING"],
+            ["PrivilegeSet","PPRIVILEGE_SET"],
+            ["PrivilegeSetLength","PULONG"],
+            ["GrantedAccess","PACCESS_MASK"],
+            ["AccessStatus","PNTSTATUS"]
+        ]],
+        "NtAccessCheckByTypeResultListAndAuditAlarmByHandle" : ["NTSTATUS",[
+            ["SubsystemName","PUNICODE_STRING"],
+            ["HandleId","PVOID"],
+            ["ClientToken","HANDLE"],
+            ["ObjectTypeName","PUNICODE_STRING"],
+            ["ObjectName","PUNICODE_STRING"],
+            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
+            ["PrincipalSelfSid","PSID"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["AuditType","AUDIT_EVENT_TYPE"],
+            ["Flags","ULONG"],
+            ["ObjectTypeList","POBJECT_TYPE_LIST"],
+            ["ObjectTypeListLength","ULONG"],
+            ["GenericMapping","PGENERIC_MAPPING"],
+            ["ObjectCreation","BOOLEAN"],
+            ["GrantedAccess","PACCESS_MASK"],
+            ["AccessStatus","PNTSTATUS"],
+            ["GenerateOnClose","PBOOLEAN"]
+        ]],
+        "NtAccessCheckByTypeResultListAndAuditAlarm" : ["NTSTATUS",[
+            ["SubsystemName","PUNICODE_STRING"],
+            ["HandleId","PVOID"],
+            ["ObjectTypeName","PUNICODE_STRING"],
+            ["ObjectName","PUNICODE_STRING"],
+            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
+            ["PrincipalSelfSid","PSID"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["AuditType","AUDIT_EVENT_TYPE"],
+            ["Flags","ULONG"],
+            ["ObjectTypeList","POBJECT_TYPE_LIST"],
+            ["ObjectTypeListLength","ULONG"],
+            ["GenericMapping","PGENERIC_MAPPING"],
+            ["ObjectCreation","BOOLEAN"],
+            ["GrantedAccess","PACCESS_MASK"],
+            ["AccessStatus","PNTSTATUS"],
+            ["GenerateOnClose","PBOOLEAN"]
+        ]],
+        "NtAccessCheckByTypeResultList" : ["NTSTATUS",[
+            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
+            ["PrincipalSelfSid","PSID"],
+            ["ClientToken","HANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectTypeList","POBJECT_TYPE_LIST"],
+            ["ObjectTypeListLength","ULONG"],
+            ["GenericMapping","PGENERIC_MAPPING"],
+            ["PrivilegeSet","PPRIVILEGE_SET"],
+            ["PrivilegeSetLength","PULONG"],
+            ["GrantedAccess","PACCESS_MASK"],
+            ["AccessStatus","PNTSTATUS"]
+        ]],
+        "NtAccessCheck" : ["NTSTATUS",[
+            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
+            ["ClientToken","HANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["GenericMapping","PGENERIC_MAPPING"],
+            ["PrivilegeSet","PPRIVILEGE_SET"],
+            ["PrivilegeSetLength","PULONG"],
+            ["GrantedAccess","PACCESS_MASK"],
+            ["AccessStatus","PNTSTATUS"]
+        ]],
+        "NtAddAtom" : ["NTSTATUS",[
+            ["AtomName","PWSTR"],
+            ["Length","ULONG"],
+            ["Atom","PRTL_ATOM"]
+        ]],
+        "NtAddBootEntry" : ["NTSTATUS",[
+            ["BootEntry","PBOOT_ENTRY"],
+            ["Id","PULONG"]
+        ]],
+        "NtAddDriverEntry" : ["NTSTATUS",[
+            ["DriverEntry","PEFI_DRIVER_ENTRY"],
+            ["Id","PULONG"]
+        ]],
+        "NtAdjustGroupsToken" : ["NTSTATUS",[
+            ["TokenHandle","HANDLE"],
+            ["ResetToDefault","BOOLEAN"],
+            ["NewState","PTOKEN_GROUPS"],
+            ["BufferLength","ULONG"],
+            ["PreviousState","PTOKEN_GROUPS"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtAdjustPrivilegesToken" : ["NTSTATUS",[
+            ["TokenHandle","HANDLE"],
+            ["DisableAllPrivileges","BOOLEAN"],
+            ["NewState","PTOKEN_PRIVILEGES"],
+            ["BufferLength","ULONG"],
+            ["PreviousState","PTOKEN_PRIVILEGES"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtAlertResumeThread" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"],
+            ["PreviousSuspendCount","PULONG"]
+        ]],
+        "NtAlertThread" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"]
+        ]],
+        "NtAllocateLocallyUniqueId" : ["NTSTATUS",[
+            ["Luid","PLUID"]
+        ]],
+        "NtAllocateReserveObject" : ["NTSTATUS",[
+            ["MemoryReserveHandle","PHANDLE"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["Type","MEMORY_RESERVE_TYPE"]
+        ]],
+        "NtAllocateUserPhysicalPages" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["NumberOfPages","PULONG_PTR"],
+            ["UserPfnArra","PULONG_PTR"]
+        ]],
+        "NtAllocateUuids" : ["NTSTATUS", [
+            ["Time","PULARGE_INTEGER"],
+            ["Range","PULONG"],
+            ["Sequence","PULONG"],
+            ["Seed","PCHAR"]
+        ]],
+        "NtAllocateVirtualMemory" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["STARBaseAddress","PVOID"],
+            ["ZeroBits","ULONG_PTR"],
+            ["RegionSize","PSIZE_T"],
+            ["AllocationType","ULONG"],
+            ["Protect","ULONG"]
+        ]],
+        "NtAlpcAcceptConnectPort" : ["NTSTATUS",[
+            ["PortHandle","PHANDLE"],
+            ["ConnectionPortHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["PortAttributes","PALPC_PORT_ATTRIBUTES"],
+            ["PortContext","PVOID"],
+            ["ConnectionRequest","PPORT_MESSAGE"],
+            ["ConnectionMessageAttributes","PALPC_MESSAGE_ATTRIBUTES"],
+            ["AcceptConnection","BOOLEAN"]
+        ]],
+        "NtAlpcCancelMessage" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["MessageContext","PALPC_CONTEXT_ATTR"]
+        ]],
+        "NtAlpcConnectPort" : ["NTSTATUS",[
+            ["PortHandle","PHANDLE"],
+            ["PortName","PUNICODE_STRING"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["PortAttributes","PALPC_PORT_ATTRIBUTES"],
+            ["Flags","ULONG"],
+            ["RequiredServerSid","PSID"],
+            ["ConnectionMessage","PPORT_MESSAGE"],
+            ["BufferLength","PULONG"],
+            ["OutMessageAttributes","PALPC_MESSAGE_ATTRIBUTES"],
+            ["InMessageAttributes","PALPC_MESSAGE_ATTRIBUTES"],
+            ["Timeout","PLARGE_INTEGER"]
+        ]],
+        "NtAlpcCreatePort" : ["NTSTATUS",[
+            ["PortHandle","PHANDLE"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["PortAttributes","PALPC_PORT_ATTRIBUTES"]
+        ]],
+        "NtAlpcCreatePortSection" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["SectionHandle","HANDLE"],
+            ["SectionSize","SIZE_T"],
+            ["AlpcSectionHandle","PALPC_HANDLE"],
+            ["ActualSectionSize","PSIZE_T"]
+        ]],
+        "NtAlpcCreateResourceReserve" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["MessageSize","SIZE_T"],
+            ["ResourceId","PALPC_HANDLE"]
+        ]],
+        "NtAlpcCreateSectionView" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["ViewAttributes","PALPC_DATA_VIEW_ATTR"]
+        ]],
+        "NtAlpcCreateSecurityContext" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["SecurityAttribute","PALPC_SECURITY_ATTR"]
+        ]],
+        "NtAlpcDeletePortSection" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["SectionHandle","ALPC_HANDLE"]
+        ]],
+        "NtAlpcDeleteResourceReserve" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["ResourceId","ALPC_HANDLE"]
+        ]],
+        "NtAlpcDeleteSectionView" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["ViewBase","PVOID"]
+        ]],
+        "NtAlpcDeleteSecurityContext" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["ContextHandle","ALPC_HANDLE"]
+        ]],
+        "NtAlpcDisconnectPort" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Flags","ULONG"]
+        ]],
+        "NtAlpcImpersonateClientOfPort" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["PortMessage","PPORT_MESSAGE"],
+            ["Reserved","PVOID"]
+        ]],
+        "NtAlpcOpenSenderProcess" : ["NTSTATUS",[
+            ["ProcessHandle","PHANDLE"],
+            ["PortHandle","HANDLE"],
+            ["PortMessage","PPORT_MESSAGE"],
+            ["Flags","ULONG"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtAlpcOpenSenderThread" : ["NTSTATUS",[
+            ["ThreadHandle","PHANDLE"],
+            ["PortHandle","HANDLE"],
+            ["PortMessage","PPORT_MESSAGE"],
+            ["Flags","ULONG"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtAlpcQueryInformation" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["PortInformationClass","ALPC_PORT_INFORMATION_CLASS"],
+            ["PortInformation","PVOID"],
+            ["Length","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtAlpcQueryInformationMessage" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["PortMessage","PPORT_MESSAGE"],
+            ["MessageInformationClass","ALPC_MESSAGE_INFORMATION_CLASS"],
+            ["MessageInformation","PVOID"],
+            ["Length","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtAlpcRevokeSecurityContext" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["ContextHandle","ALPC_HANDLE"]
+        ]],
+        "NtAlpcSendWaitReceivePort" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["SendMessage","PPORT_MESSAGE"],
+            ["SendMessageAttributes","PALPC_MESSAGE_ATTRIBUTES"],
+            ["ReceiveMessage","PPORT_MESSAGE"],
+            ["BufferLength","PULONG"],
+            ["ReceiveMessageAttributes","PALPC_MESSAGE_ATTRIBUTES"],
+            ["Timeout","PLARGE_INTEGER"]
+        ]],
+        "NtAlpcSetInformation" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["PortInformationClass","ALPC_PORT_INFORMATION_CLASS"],
+            ["PortInformation","PVOID"],
+            ["Length","ULONG"]
+        ]],
+        "NtApphelpCacheControl" : ["NTSTATUS",[
+            ["type","APPHELPCOMMAND"],
+            ["buf","PVOID"]
+        ]],
+        "NtAreMappedFilesTheSame" : ["NTSTATUS",[
+            ["File1MappedAsAnImage","PVOID"],
+            ["File2MappedAsFile","PVOID"]
+        ]],
+        "NtAssignProcessToJobObject" : ["NTSTATUS",[
+            ["JobHandle","HANDLE"],
+            ["ProcessHandle","HANDLE"]
+        ]],
+        "NtCallbackReturn" : ["NTSTATUS",[
+            ["OutputBuffer","PVOID"],
+            ["OutputLength","ULONG"],
+            ["Status","NTSTATUS"]
+        ]],
+        "NtCancelIoFileEx" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["IoRequestToCancel","PIO_STATUS_BLOCK"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"]
+        ]],
+        "NtCancelIoFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"]
+        ]],
+        "NtCancelSynchronousIoFile" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"],
+            ["IoRequestToCancel","PIO_STATUS_BLOCK"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"]
+        ]],
+        "NtCancelTimer" : ["NTSTATUS",[
+            ["TimerHandle","HANDLE"],
+            ["CurrentState","PBOOLEAN"]
+        ]],
+        "NtClearEvent" : ["NTSTATUS",[
+            ["EventHandle","HANDLE"]
+        ]],
+        "NtClose" : ["NTSTATUS",[
+            ["Handle","HANDLE"]
+        ]],
+        "NtCloseObjectAuditAlarm" : ["NTSTATUS",[
+            ["SubsystemName","PUNICODE_STRING"],
+            ["HandleId","PVOID"],
+            ["GenerateOnClose","BOOLEAN"]
+        ]],
+        "NtCommitComplete" : ["NTSTATUS",[
+            ["EnlistmentHandle","HANDLE"],
+            ["TmVirtualClock","PLARGE_INTEGER"]
+        ]],
+        "NtCommitEnlistment" : ["NTSTATUS",[
+            ["EnlistmentHandle","HANDLE"],
+            ["TmVirtualClock","PLARGE_INTEGER"]
+        ]],
+        "NtCommitTransaction" : ["NTSTATUS",[
+            ["TransactionHandle","HANDLE"],
+            ["Wait","BOOLEAN"]
+        ]],
+        "NtCompactKeys" : ["NTSTATUS",[
+            ["Count","ULONG"],
+            ["KeyArray","HANDLE"]
+        ]],
+        "NtCompareTokens" : ["NTSTATUS",[
+            ["FirstTokenHandle","HANDLE"],
+            ["SecondTokenHandle","HANDLE"],
+            ["Equal","PBOOLEAN"]
+        ]],
+        "NtCompleteConnectPort" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"]
+        ]],
+        "NtCompressKey" : ["NTSTATUS",[
+            ["Key","HANDLE"]
+        ]],
+        "NtConnectPort" : ["NTSTATUS",[
+            ["PortHandle","PHANDLE"],
+            ["PortName","PUNICODE_STRING"],
+            ["SecurityQos","PSECURITY_QUALITY_OF_SERVICE"],
+            ["ClientView","PPORT_VIEW"],
+            ["ServerView","PREMOTE_PORT_VIEW"],
+            ["MaxMessageLength","PULONG"],
+            ["ConnectionInformation","PVOID"],
+            ["ConnectionInformationLength","PULONG"]
+        ]],
+        "NtContinue" : ["NTSTATUS",[
+            ["ContextRecord","PCONTEXT"],
+            ["TestAlert","BOOLEAN"]
+        ]],
+        "NtCreateDebugObject" : ["NTSTATUS",[
+            ["DebugObjectHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["Flags","ULONG"]
+        ]],
+        "NtCreateDirectoryObject" : ["NTSTATUS",[
+            ["DirectoryHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtCreateEnlistment" : ["NTSTATUS",[
+            ["EnlistmentHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ResourceManagerHandle","HANDLE"],
+            ["TransactionHandle","HANDLE"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["CreateOptions","ULONG"],
+            ["NotificationMask","NOTIFICATION_MASK"],
+            ["EnlistmentKey","PVOID"]
+        ]],
+        "NtCreateEvent" : ["NTSTATUS",[
+            ["EventHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["EventType","EVENT_TYPE"],
+            ["InitialState","BOOLEAN"]
+        ]],
+        "NtCreateEventPair" : ["NTSTATUS",[
+            ["EventPairHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtCreateFile" : ["NTSTATUS",[
+            ["FileHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["AllocationSize","PLARGE_INTEGER"],
+            ["FileAttributes","ULONG"],
+            ["ShareAccess","ULONG"],
+            ["CreateDisposition","ULONG"],
+            ["CreateOptions","ULONG"],
+            ["EaBuffer","PVOID"],
+            ["EaLength","ULONG"]
+        ]],
+        "NtCreateIoCompletion" : ["NTSTATUS",[
+            ["IoCompletionHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["Count","ULONG"]
+        ]],
+        "NtCreateJobObject" : ["NTSTATUS",[
+            ["JobHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtCreateJobSet" : ["NTSTATUS",[
+            ["NumJob","ULONG"],
+            ["UserJobSet","PJOB_SET_ARRAY"],
+            ["Flags","ULONG"]
+        ]],
+        "NtCreateKeyedEvent" : ["NTSTATUS",[
+            ["KeyedEventHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["Flags","ULONG"]
+        ]],
+        "NtCreateKey" : ["NTSTATUS",[
+            ["KeyHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["TitleIndex","ULONG"],
+            ["Class","PUNICODE_STRING"],
+            ["CreateOptions","ULONG"],
+            ["Disposition","PULONG"]
+        ]],
+        "NtCreateKeyTransacted" : ["NTSTATUS",[
+            ["KeyHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["TitleIndex","ULONG"],
+            ["Class","PUNICODE_STRING"],
+            ["CreateOptions","ULONG"],
+            ["TransactionHandle","HANDLE"],
+            ["Disposition","PULONG"]
+        ]],
+        "NtCreateMailslotFile" : ["NTSTATUS",[
+            ["FileHandle","PHANDLE"],
+            ["DesiredAccess","ULONG"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["CreateOptions","ULONG"],
+            ["MailslotQuota","ULONG"],
+            ["MaximumMessageSize","ULONG"],
+            ["ReadTimeout","PLARGE_INTEGER"]
+        ]],
+        "NtCreateMutant" : ["NTSTATUS",[
+            ["MutantHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["InitialOwner","BOOLEAN"]
+        ]],
+        "NtCreateNamedPipeFile" : ["NTSTATUS",[
+            ["FileHandle","PHANDLE"],
+            ["DesiredAccess","ULONG"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["ShareAccess","ULONG"],
+            ["CreateDisposition","ULONG"],
+            ["CreateOptions","ULONG"],
+            ["NamedPipeType","ULONG"],
+            ["ReadMode","ULONG"],
+            ["CompletionMode","ULONG"],
+            ["MaximumInstances","ULONG"],
+            ["InboundQuota","ULONG"],
+            ["OutboundQuota","ULONG"],
+            ["DefaultTimeout","PLARGE_INTEGER"]
+        ]],
+        "NtCreatePagingFile" : ["NTSTATUS",[
+            ["PageFileName","PUNICODE_STRING"],
+            ["MinimumSize","PLARGE_INTEGER"],
+            ["MaximumSize","PLARGE_INTEGER"],
+            ["Priority","ULONG"]
+        ]],
+        "NtCreatePort" : ["NTSTATUS",[
+            ["PortHandle","PHANDLE"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["MaxConnectionInfoLength","ULONG"],
+            ["MaxMessageLength","ULONG"],
+            ["MaxPoolUsage","ULONG"]
+        ]],
+        "NtCreatePrivateNamespace" : ["NTSTATUS",[
+            ["NamespaceHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["BoundaryDescriptor","PVOID"]
+        ]],
+        "NtCreateProcessEx" : ["NTSTATUS",[
+            ["ProcessHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["ParentProcess","HANDLE"],
+            ["Flags","ULONG"],
+            ["SectionHandle","HANDLE"],
+            ["DebugPort","HANDLE"],
+            ["ExceptionPort","HANDLE"],
+            ["JobMemberLevel","ULONG"]
+        ]],
+        "NtCreateProcess" : ["NTSTATUS",[
+            ["ProcessHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["ParentProcess","HANDLE"],
+            ["InheritObjectTable","BOOLEAN"],
+            ["SectionHandle","HANDLE"],
+            ["DebugPort","HANDLE"],
+            ["ExceptionPort","HANDLE"]
+        ]],
+        "NtCreateProfileEx" : ["NTSTATUS",[
+            ["ProfileHandle","PHANDLE"],
+            ["Process","HANDLE"],
+            ["ProfileBase","PVOID"],
+            ["ProfileSize","SIZE_T"],
+            ["BucketSize","ULONG"],
+            ["Buffer","PULONG"],
+            ["BufferSize","ULONG"],
+            ["ProfileSource","KPROFILE_SOURCE"],
+            ["GroupAffinityCount","ULONG"],
+            ["GroupAffinity","PGROUP_AFFINITY"]
+        ]],
+        "NtCreateProfile" : ["NTSTATUS",[
+            ["ProfileHandle","PHANDLE"],
+            ["Process","HANDLE"],
+            ["RangeBase","PVOID"],
+            ["RangeSize","SIZE_T"],
+            ["BucketSize","ULONG"],
+            ["Buffer","PULONG"],
+            ["BufferSize","ULONG"],
+            ["ProfileSource","KPROFILE_SOURCE"],
+            ["Affinity","KAFFINITY"]
+        ]],
+        "NtCreateResourceManager" : ["NTSTATUS",[
+            ["ResourceManagerHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["TmHandle","HANDLE"],
+            ["RmGuid","LPGUID"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["CreateOptions","ULONG"],
+            ["Description","PUNICODE_STRING"]
+        ]],
+        "NtCreateSection" : ["NTSTATUS",[
+            ["SectionHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["MaximumSize","PLARGE_INTEGER"],
+            ["SectionPageProtection","ULONG"],
+            ["AllocationAttributes","ULONG"],
+            ["FileHandle","HANDLE"]
+        ]],
+        "NtCreateSemaphore" : ["NTSTATUS",[
+            ["SemaphoreHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["InitialCount","LONG"],
+            ["MaximumCount","LONG"]
+        ]],
+        "NtCreateSymbolicLinkObject" : ["NTSTATUS",[
+            ["LinkHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["LinkTarget","PUNICODE_STRING"]
+        ]],
+        "NtCreateThreadEx" : ["NTSTATUS",[
+            ["ThreadHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["ProcessHandle","HANDLE"],
+            ["StartRoutine","PVOID"],
+            ["Argument","PVOID"],
+            ["CreateFlags","ULONG"],
+            ["ZeroBits","ULONG_PTR"],
+            ["StackSize","SIZE_T"],
+            ["MaximumStackSize","SIZE_T"],
+            ["AttributeList","PPS_ATTRIBUTE_LIST"]
+        ]],
+        "NtCreateThread" : ["NTSTATUS",[
+            ["ThreadHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["ProcessHandle","HANDLE"],
+            ["ClientId","PCLIENT_ID"],
+            ["ThreadContext","PCONTEXT"],
+            ["InitialTeb","PINITIAL_TEB"],
+            ["CreateSuspended","BOOLEAN"]
+        ]],
+        "NtCreateTimer" : ["NTSTATUS",[
+            ["TimerHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["TimerType","TIMER_TYPE"]
+        ]],
+        "NtCreateToken" : ["NTSTATUS",[
+            ["TokenHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["TokenType","TOKEN_TYPE"],
+            ["AuthenticationId","PLUID"],
+            ["ExpirationTime","PLARGE_INTEGER"],
+            ["User","PTOKEN_USER"],
+            ["Groups","PTOKEN_GROUPS"],
+            ["Privileges","PTOKEN_PRIVILEGES"],
+            ["Owner","PTOKEN_OWNER"],
+            ["PrimaryGroup","PTOKEN_PRIMARY_GROUP"],
+            ["DefaultDacl","PTOKEN_DEFAULT_DACL"],
+            ["TokenSource","PTOKEN_SOURCE"]
+        ]],
+        "NtCreateTransactionManager" : ["NTSTATUS",[
+            ["TmHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["LogFileName","PUNICODE_STRING"],
+            ["CreateOptions","ULONG"],
+            ["CommitStrength","ULONG"]
+        ]],
+        "NtCreateTransaction" : ["NTSTATUS",[
+            ["TransactionHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["Uow","LPGUID"],
+            ["TmHandle","HANDLE"],
+            ["CreateOptions","ULONG"],
+            ["IsolationLevel","ULONG"],
+            ["IsolationFlags","ULONG"],
+            ["Timeout","PLARGE_INTEGER"],
+            ["Description","PUNICODE_STRING"]
+        ]],
+        "NtCreateUserProcess" : ["NTSTATUS",[
+            ["ProcessHandle","PHANDLE"],
+            ["ThreadHandle","PHANDLE"],
+            ["ProcessDesiredAccess","ACCESS_MASK"],
+            ["ThreadDesiredAccess","ACCESS_MASK"],
+            ["ProcessObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["ThreadObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["ProcessFlags","ULONG"],
+            ["ThreadFlags","ULONG"],
+            ["ProcessParameters","PRTL_USER_PROCESS_PARAMETERS"],
+            ["CreateInfo","PPROCESS_CREATE_INFO"],
+            ["AttributeList","PPROCESS_ATTRIBUTE_LIST"]
+        ]],
+        "NtCreateWaitablePort" : ["NTSTATUS",[
+            ["PortHandle","PHANDLE"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["MaxConnectionInfoLength","ULONG"],
+            ["MaxMessageLength","ULONG"],
+            ["MaxPoolUsage","ULONG"]
+        ]],
+        "NtCreateWorkerFactory" : ["NTSTATUS",[
+            ["WorkerFactoryHandleReturn","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["CompletionPortHandle","HANDLE"],
+            ["WorkerProcessHandle","HANDLE"],
+            ["StartRoutine","PVOID"],
+            ["StartParameter","PVOID"],
+            ["MaxThreadCount","ULONG"],
+            ["StackReserve","SIZE_T"],
+            ["StackCommit","SIZE_T"]
+        ]],
+        "NtDebugActiveProcess" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["DebugObjectHandle","HANDLE"]
+        ]],
+        "NtDebugContinue" : ["NTSTATUS",[
+            ["DebugObjectHandle","HANDLE"],
+            ["ClientId","PCLIENT_ID"],
+            ["ContinueStatus","NTSTATUS"]
+        ]],
+        "NtDelayExecution" : ["NTSTATUS",[
+            ["Alertable","BOOLEAN"],
+            ["DelayInterval","PLARGE_INTEGER"]
+        ]],
+        "NtDeleteAtom" : ["NTSTATUS",[
+            ["Atom","RTL_ATOM"]
+        ]],
+        "NtDeleteBootEntry" : ["NTSTATUS",[
+            ["Id","ULONG"]
+        ]],
+        "NtDeleteDriverEntry" : ["NTSTATUS",[
+            ["Id","ULONG"]
+        ]],
+        "NtDeleteFile" : ["NTSTATUS",[
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtDeleteKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"]
+        ]],
+        "NtDeleteObjectAuditAlarm" : ["NTSTATUS",[
+            ["SubsystemName","PUNICODE_STRING"],
+            ["HandleId","PVOID"],
+            ["GenerateOnClose","BOOLEAN"]
+        ]],
+        "NtDeletePrivateNamespace" : ["NTSTATUS",[
+            ["NamespaceHandle","HANDLE"]
+        ]],
+        "NtDeleteValueKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"],
+            ["ValueName","PUNICODE_STRING"]
+        ]],
+        "NtDeviceIoControlFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["Event","HANDLE"],
+            ["ApcRoutine","PIO_APC_ROUTINE"],
+            ["ApcContext","PVOID"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["IoControlCode","ULONG"],
+            ["InputBuffer","PVOID"],
+            ["InputBufferLength","ULONG"],
+            ["OutputBuffer","PVOID"],
+            ["OutputBufferLength","ULONG"]
+        ]],
+        "NtDisplayString" : ["NTSTATUS",[
+            ["String","PUNICODE_STRING"]
+        ]],
+        "NtDrawText" : ["NTSTATUS",[
+            ["Text","PUNICODE_STRING"]
+        ]],
+        "NtDuplicateObject" : ["NTSTATUS",[
+            ["SourceProcessHandle","HANDLE"],
+            ["SourceHandle","HANDLE"],
+            ["TargetProcessHandle","HANDLE"],
+            ["TargetHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["HandleAttributes","ULONG"],
+            ["Options","ULONG"]
+        ]],
+        "NtDuplicateToken" : ["NTSTATUS",[
+            ["ExistingTokenHandle","HANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["EffectiveOnly","BOOLEAN"],
+            ["TokenType","TOKEN_TYPE"],
+            ["NewTokenHandle","PHANDLE"]
+        ]],
+        "NtEnumerateBootEntries" : ["NTSTATUS",[
+            ["Buffer","PVOID"],
+            ["BufferLength","PULONG"]
+        ]],
+        "NtEnumerateDriverEntries" : ["NTSTATUS",[
+            ["Buffer","PVOID"],
+            ["BufferLength","PULONG"]
+        ]],
+        "NtEnumerateKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"],
+            ["Index","ULONG"],
+            ["KeyInformationClass","KEY_INFORMATION_CLASS"],
+            ["KeyInformation","PVOID"],
+            ["Length","ULONG"],
+            ["ResultLength","PULONG"]
+        ]],
+        "NtEnumerateSystemEnvironmentValuesEx" : ["NTSTATUS",[
+            ["InformationClass","ULONG"],
+            ["Buffer","PVOID"],
+            ["BufferLength","PULONG"]
+        ]],
+        "NtEnumerateTransactionObject" : ["NTSTATUS",[
+            ["RootObjectHandle","HANDLE"],
+            ["QueryType","KTMOBJECT_TYPE"],
+            ["ObjectCursor","PKTMOBJECT_CURSOR"],
+            ["ObjectCursorLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtEnumerateValueKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"],
+            ["Index","ULONG"],
+            ["KeyValueInformationClass","KEY_VALUE_INFORMATION_CLASS"],
+            ["KeyValueInformation","PVOID"],
+            ["Length","ULONG"],
+            ["ResultLength","PULONG"]
+        ]],
+        "NtExtendSection" : ["NTSTATUS",[
+            ["SectionHandle","HANDLE"],
+            ["NewSectionSize","PLARGE_INTEGER"]
+        ]],
+        "NtFilterToken" : ["NTSTATUS",[
+            ["ExistingTokenHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["SidsToDisable","PTOKEN_GROUPS"],
+            ["PrivilegesToDelete","PTOKEN_PRIVILEGES"],
+            ["RestrictedSids","PTOKEN_GROUPS"],
+            ["NewTokenHandle","PHANDLE"]
+        ]],
+        "NtFindAtom" : ["NTSTATUS",[
+            ["AtomName","PWSTR"],
+            ["Length","ULONG"],
+            ["Atom","PRTL_ATOM"]
+        ]],
+        "NtFlushBuffersFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"]
+        ]],
+        "NtFlushInstallUILanguage" : ["NTSTATUS",[
+            ["InstallUILanguage","LANGID"],
+            ["SetComittedFlag","ULONG"]
+        ]],
+        "NtFlushInstructionCache" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["BaseAddress","PVOID"],
+            ["Length","SIZE_T"]
+        ]],
+        "NtFlushKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"]
+        ]],
+        "NtFlushVirtualMemory" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["STARBaseAddress","PVOID"],
+            ["RegionSize","PSIZE_T"],
+            ["IoStatus","PIO_STATUS_BLOCK"]
+        ]],
+        "NtFreeUserPhysicalPages" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["NumberOfPages","PULONG_PTR"],
+            ["UserPfnArra","PULONG_PTR"]
+        ]],
+        "NtFreeVirtualMemory" : ["NTSTATUS", [
+            ["ProcessHandle","HANDLE"],
+            ["STARBaseAddress","PVOID"],
+            ["RegionSize","PSIZE_T"],
+            ["FreeType","ULONG"]
+        ]],
+        "NtFreezeRegistry" : ["NTSTATUS",[
+            ["TimeOutInSeconds","ULONG"]
+        ]],
+        "NtFreezeTransactions" : ["NTSTATUS",[
+            ["FreezeTimeout","PLARGE_INTEGER"],
+            ["ThawTimeout","PLARGE_INTEGER"]
+        ]],
+        "NtFsControlFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["Event","HANDLE"],
+            ["ApcRoutine","PIO_APC_ROUTINE"],
+            ["ApcContext","PVOID"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["IoControlCode","ULONG"],
+            ["InputBuffer","PVOID"],
+            ["InputBufferLength","ULONG"],
+            ["OutputBuffer","PVOID"],
+            ["OutputBufferLength","ULONG"]
+        ]],
+        "NtGetContextThread" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"],
+            ["ThreadContext","PCONTEXT"]
+        ]],
+        "NtGetDevicePowerState" : ["NTSTATUS",[
+            ["Device","HANDLE"],
+            ["STARState","DEVICE_POWER_STATE"]
+        ]],
+        "NtGetMUIRegistryInfo" : ["NTSTATUS",[
+            ["Flags","ULONG"],
+            ["DataSize","PULONG"],
+            ["Data","PVOID"]
+        ]],
+        "NtGetNextProcess" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["HandleAttributes","ULONG"],
+            ["Flags","ULONG"],
+            ["NewProcessHandle","PHANDLE"]
+        ]],
+        "NtGetNextThread" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["ThreadHandle","HANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["HandleAttributes","ULONG"],
+            ["Flags","ULONG"],
+            ["NewThreadHandle","PHANDLE"]
+        ]],
+        "NtGetNlsSectionPtr" : ["NTSTATUS",[
+            ["SectionType","ULONG"],
+            ["SectionData","ULONG"],
+            ["ContextData","PVOID"],
+            ["STARSectionPointer","PVOID"],
+            ["SectionSize","PULONG"]
+        ]],
+        "NtGetNotificationResourceManager" : ["NTSTATUS",[
+            ["ResourceManagerHandle","HANDLE"],
+            ["TransactionNotification","PTRANSACTION_NOTIFICATION"],
+            ["NotificationLength","ULONG"],
+            ["Timeout","PLARGE_INTEGER"],
+            ["ReturnLength","PULONG"],
+            ["Asynchronous","ULONG"],
+            ["AsynchronousContext","ULONG_PTR"]
+        ]],
+        "NtGetPlugPlayEvent" : ["NTSTATUS",[
+            ["EventHandle","HANDLE"],
+            ["Context","PVOID"],
+            ["EventBlock","PPLUGPLAY_EVENT_BLOCK"],
+            ["EventBufferSize","ULONG"]
+        ]],
+        "NtGetWriteWatch" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["BaseAddress","PVOID"],
+            ["RegionSize","SIZE_T"],
+            ["STARUserAddressArray","PVOID"],
+            ["EntriesInUserAddressArray","PULONG_PTR"],
+            ["Granularity","PULONG"]
+        ]],
+        "NtImpersonateAnonymousToken" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"]
+        ]],
+        "NtImpersonateClientOfPort" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Message","PPORT_MESSAGE"]
+        ]],
+        "NtImpersonateThread" : ["NTSTATUS",[
+            ["ServerThreadHandle","HANDLE"],
+            ["ClientThreadHandle","HANDLE"],
+            ["SecurityQos","PSECURITY_QUALITY_OF_SERVICE"]
+        ]],
+        "NtInitializeNlsFiles" : ["NTSTATUS",[
+            ["STARBaseAddress","PVOID"],
+            ["DefaultLocaleId","PLCID"],
+            ["DefaultCasingTableSize","PLARGE_INTEGER"]
+        ]],
+        "NtInitializeRegistry" : ["NTSTATUS",[
+            ["BootCondition","USHORT"]
+        ]],
+        "NtInitiatePowerAction" : ["NTSTATUS",[
+            ["SystemAction","POWER_ACTION"],
+            ["MinSystemState","SYSTEM_POWER_STATE"],
+            ["Flags","ULONG"],
+            ["Asynchronous","BOOLEAN"]
+        ]],
+        "NtIsProcessInJob" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["JobHandle","HANDLE"]
+        ]],
+        "NtListenPort" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["ConnectionRequest","PPORT_MESSAGE"]
+        ]],
+        "NtLoadDriver" : ["NTSTATUS",[
+            ["DriverServiceName","PUNICODE_STRING"]
+        ]],
+        "NtLoadKey2" : ["NTSTATUS",[
+            ["TargetKey","POBJECT_ATTRIBUTES"],
+            ["SourceFile","POBJECT_ATTRIBUTES"],
+            ["Flags","ULONG"]
+        ]],
+        "NtLoadKeyEx" : ["NTSTATUS",[
+            ["TargetKey","POBJECT_ATTRIBUTES"],
+            ["SourceFile","POBJECT_ATTRIBUTES"],
+            ["Flags","ULONG"],
+            ["TrustClassKey","HANDLE"]
+        ]],
+        "NtLoadKey" : ["NTSTATUS",[
+            ["TargetKey","POBJECT_ATTRIBUTES"],
+            ["SourceFile","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtLockFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["Event","HANDLE"],
+            ["ApcRoutine","PIO_APC_ROUTINE"],
+            ["ApcContext","PVOID"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["ByteOffset","PLARGE_INTEGER"],
+            ["Length","PLARGE_INTEGER"],
+            ["Key","ULONG"],
+            ["FailImmediately","BOOLEAN"],
+            ["ExclusiveLock","BOOLEAN"]
+        ]],
+        "NtLockProductActivationKeys" : ["NTSTATUS",[
+            ["STARpPrivateVer","ULONG"],
+            ["STARpSafeMode","ULONG"]
+        ]],
+        "NtLockRegistryKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"]
+        ]],
+        "NtLockVirtualMemory" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["STARBaseAddress","PVOID"],
+            ["RegionSize","PSIZE_T"],
+            ["MapType","ULONG"]
+        ]],
+        "NtMakePermanentObject" : ["NTSTATUS",[
+            ["Handle","HANDLE"]
+        ]],
+        "NtMakeTemporaryObject" : ["NTSTATUS",[
+            ["Handle","HANDLE"]
+        ]],
+        "NtMapCMFModule" : ["NTSTATUS",[
+            ["What","ULONG"],
+            ["Index","ULONG"],
+            ["CacheIndexOut","PULONG"],
+            ["CacheFlagsOut","PULONG"],
+            ["ViewSizeOut","PULONG"],
+            ["STARBaseAddress","PVOID"]
+        ]],
+        "NtMapUserPhysicalPages" : ["NTSTATUS",[
+            ["VirtualAddress","PVOID"],
+            ["NumberOfPages","ULONG_PTR"],
+            ["UserPfnArra","PULONG_PTR"]
+        ]],
+        "NtMapUserPhysicalPagesScatter" : ["NTSTATUS", [
+            ["STARVirtualAddresses","PVOID"],
+            ["NumberOfPages","ULONG_PTR"],
+            ["UserPfnArray","PULONG_PTR"]
+        ]],
+        "NtMapViewOfSection" : ["NTSTATUS",[
+            ["SectionHandle","HANDLE"],
+            ["ProcessHandle","HANDLE"],
+            ["STARBaseAddress","PVOID"],
+            ["ZeroBits","ULONG_PTR"],
+            ["CommitSize","SIZE_T"],
+            ["SectionOffset","PLARGE_INTEGER"],
+            ["ViewSize","PSIZE_T"],
+            ["InheritDisposition","SECTION_INHERIT"],
+            ["AllocationType","ULONG"],
+            ["Win32Protect","WIN32_PROTECTION_MASK"]
+        ]],
+        "NtModifyBootEntry" : ["NTSTATUS",[
+            ["BootEntry","PBOOT_ENTRY"]
+        ]],
+        "NtModifyDriverEntry" : ["NTSTATUS",[
+            ["DriverEntry","PEFI_DRIVER_ENTRY"]
+        ]],
+        "NtNotifyChangeDirectoryFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["Event","HANDLE"],
+            ["ApcRoutine","PIO_APC_ROUTINE"],
+            ["ApcContext","PVOID"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["Buffer","PVOID"],
+            ["Length","ULONG"],
+            ["CompletionFilter","ULONG"],
+            ["WatchTree","BOOLEAN"]
+        ]],
+        "NtNotifyChangeKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"],
+            ["Event","HANDLE"],
+            ["ApcRoutine","PIO_APC_ROUTINE"],
+            ["ApcContext","PVOID"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["CompletionFilter","ULONG"],
+            ["WatchTree","BOOLEAN"],
+            ["Buffer","PVOID"],
+            ["BufferSize","ULONG"],
+            ["Asynchronous","BOOLEAN"]
+        ]],
+        "NtNotifyChangeMultipleKeys" : ["NTSTATUS",[
+            ["MasterKeyHandle","HANDLE"],
+            ["Count","ULONG"],
+            ["SlaveObjects","OBJECT_ATTRIBUTES"],
+            ["Event","HANDLE"],
+            ["ApcRoutine","PIO_APC_ROUTINE"],
+            ["ApcContext","PVOID"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["CompletionFilter","ULONG"],
+            ["WatchTree","BOOLEAN"],
+            ["Buffer","PVOID"],
+            ["BufferSize","ULONG"],
+            ["Asynchronous","BOOLEAN"]
+        ]],
+        "NtNotifyChangeSession" : ["NTSTATUS",[
+            ["Session","HANDLE"],
+            ["IoStateSequence","ULONG"],
+            ["Reserved","PVOID"],
+            ["Action","ULONG"],
+            ["IoState","IO_SESSION_STATE"],
+            ["IoState2","IO_SESSION_STATE"],
+            ["Buffer","PVOID"],
+            ["BufferSize","ULONG"]
+        ]],
+        "NtOpenDirectoryObject" : ["NTSTATUS",[
+            ["DirectoryHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenEnlistment" : ["NTSTATUS",[
+            ["EnlistmentHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ResourceManagerHandle","HANDLE"],
+            ["EnlistmentGuid","LPGUID"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenEvent" : ["NTSTATUS",[
+            ["EventHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenEventPair" : ["NTSTATUS",[
+            ["EventPairHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenFile" : ["NTSTATUS",[
+            ["FileHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["ShareAccess","ULONG"],
+            ["OpenOptions","ULONG"]
+        ]],
+        "NtOpenIoCompletion" : ["NTSTATUS",[
+            ["IoCompletionHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenJobObject" : ["NTSTATUS",[
+            ["JobHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenKeyedEvent" : ["NTSTATUS",[
+            ["KeyedEventHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenKeyEx" : ["NTSTATUS",[
+            ["KeyHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["OpenOptions","ULONG"]
+        ]],
+        "NtOpenKey" : ["NTSTATUS",[
+            ["KeyHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenKeyTransactedEx" : ["NTSTATUS",[
+            ["KeyHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["OpenOptions","ULONG"],
+            ["TransactionHandle","HANDLE"]
+        ]],
+        "NtOpenKeyTransacted" : ["NTSTATUS",[
+            ["KeyHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["TransactionHandle","HANDLE"]
+        ]],
+        "NtOpenMutant" : ["NTSTATUS",[
+            ["MutantHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenObjectAuditAlarm" : ["NTSTATUS",[
+            ["SubsystemName","PUNICODE_STRING"],
+            ["HandleId","PVOID"],
+            ["ObjectTypeName","PUNICODE_STRING"],
+            ["ObjectName","PUNICODE_STRING"],
+            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
+            ["ClientToken","HANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["GrantedAccess","ACCESS_MASK"],
+            ["Privileges","PPRIVILEGE_SET"],
+            ["ObjectCreation","BOOLEAN"],
+            ["AccessGranted","BOOLEAN"],
+            ["GenerateOnClose","PBOOLEAN"]
+        ]],
+        "NtOpenPrivateNamespace" : ["NTSTATUS",[
+            ["NamespaceHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["BoundaryDescriptor","PVOID"]
+        ]],
+        "NtOpenProcess" : ["NTSTATUS",[
+            ["ProcessHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["ClientId","PCLIENT_ID"]
+        ]],
+        "NtOpenProcessTokenEx" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["HandleAttributes","ULONG"],
+            ["TokenHandle","PHANDLE"]
+        ]],
+        "NtOpenProcessToken" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["TokenHandle","PHANDLE"]
+        ]],
+        "NtOpenResourceManager" : ["NTSTATUS",[
+            ["ResourceManagerHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["TmHandle","HANDLE"],
+            ["ResourceManagerGuid","LPGUID"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenSection" : ["NTSTATUS",[
+            ["SectionHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenSemaphore" : ["NTSTATUS",[
+            ["SemaphoreHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenSession" : ["NTSTATUS",[
+            ["SessionHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenSymbolicLinkObject" : ["NTSTATUS",[
+            ["LinkHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenThread" : ["NTSTATUS",[
+            ["ThreadHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["ClientId","PCLIENT_ID"]
+        ]],
+        "NtOpenThreadTokenEx" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["OpenAsSelf","BOOLEAN"],
+            ["HandleAttributes","ULONG"],
+            ["TokenHandle","PHANDLE"]
+        ]],
+        "NtOpenThreadToken" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["OpenAsSelf","BOOLEAN"],
+            ["TokenHandle","PHANDLE"]
+        ]],
+        "NtOpenTimer" : ["NTSTATUS",[
+            ["TimerHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtOpenTransactionManager" : ["NTSTATUS",[
+            ["TmHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["LogFileName","PUNICODE_STRING"],
+            ["TmIdentity","LPGUID"],
+            ["OpenOptions","ULONG"]
+        ]],
+        "NtOpenTransaction" : ["NTSTATUS",[
+            ["TransactionHandle","PHANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["Uow","LPGUID"],
+            ["TmHandle","HANDLE"]
+        ]],
+        "NtPlugPlayControl" : ["NTSTATUS",[
+            ["PnPControlClass","PLUGPLAY_CONTROL_CLASS"],
+            ["PnPControlData","PVOID"],
+            ["PnPControlDataLength","ULONG"]
+        ]],
+        "NtPowerInformation" : ["NTSTATUS",[
+            ["InformationLevel","POWER_INFORMATION_LEVEL"],
+            ["InputBuffer","PVOID"],
+            ["InputBufferLength","ULONG"],
+            ["OutputBuffer","PVOID"],
+            ["OutputBufferLength","ULONG"]
+        ]],
+        "NtPrepareComplete" : ["NTSTATUS",[
+            ["EnlistmentHandle","HANDLE"],
+            ["TmVirtualClock","PLARGE_INTEGER"]
+        ]],
+        "NtPrepareEnlistment" : ["NTSTATUS",[
+            ["EnlistmentHandle","HANDLE"],
+            ["TmVirtualClock","PLARGE_INTEGER"]
+        ]],
+        "NtPrePrepareComplete" : ["NTSTATUS",[
+            ["EnlistmentHandle","HANDLE"],
+            ["TmVirtualClock","PLARGE_INTEGER"]
+        ]],
+        "NtPrePrepareEnlistment" : ["NTSTATUS",[
+            ["EnlistmentHandle","HANDLE"],
+            ["TmVirtualClock","PLARGE_INTEGER"]
+        ]],
+        "NtPrivilegeCheck" : ["NTSTATUS",[
+            ["ClientToken","HANDLE"],
+            ["RequiredPrivileges","PPRIVILEGE_SET"],
+            ["Result","PBOOLEAN"]
+        ]],
+        "NtPrivilegedServiceAuditAlarm" : ["NTSTATUS",[
+            ["SubsystemName","PUNICODE_STRING"],
+            ["ServiceName","PUNICODE_STRING"],
+            ["ClientToken","HANDLE"],
+            ["Privileges","PPRIVILEGE_SET"],
+            ["AccessGranted","BOOLEAN"]
+        ]],
+        "NtPrivilegeObjectAuditAlarm" : ["NTSTATUS",[
+            ["SubsystemName","PUNICODE_STRING"],
+            ["HandleId","PVOID"],
+            ["ClientToken","HANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["Privileges","PPRIVILEGE_SET"],
+            ["AccessGranted","BOOLEAN"]
+        ]],
+        "NtPropagationComplete" : ["NTSTATUS",[
+            ["ResourceManagerHandle","HANDLE"],
+            ["RequestCookie","ULONG"],
+            ["BufferLength","ULONG"],
+            ["Buffer","PVOID"]
+        ]],
+        "NtPropagationFailed" : ["NTSTATUS",[
+            ["ResourceManagerHandle","HANDLE"],
+            ["RequestCookie","ULONG"],
+            ["PropStatus","NTSTATUS"]
+        ]],
+        "NtProtectVirtualMemory" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["STARBaseAddress","PVOID"],
+            ["RegionSize","PSIZE_T"],
+            ["NewProtectWin32","WIN32_PROTECTION_MASK"],
+            ["OldProtect","PULONG"]
+        ]],
+        "NtPulseEvent" : ["NTSTATUS",[
+            ["EventHandle","HANDLE"],
+            ["PreviousState","PLONG"]
+        ]],
+        "NtQueryAttributesFile" : ["NTSTATUS",[
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["FileInformation","PFILE_BASIC_INFORMATION"]
+        ]],
+        "NtQueryBootEntryOrder" : ["NTSTATUS",[
+            ["Ids","PULONG"],
+            ["Count","PULONG"]
+        ]],
+        "NtQueryBootOptions" : ["NTSTATUS",[
+            ["BootOptions","PBOOT_OPTIONS"],
+            ["BootOptionsLength","PULONG"]
+        ]],
+        "NtQueryDebugFilterState" : ["NTSTATUS",[
+            ["ComponentId","ULONG"],
+            ["Level","ULONG"]
+        ]],
+        "NtQueryDefaultLocale" : ["NTSTATUS",[
+            ["UserProfile","BOOLEAN"],
+            ["DefaultLocaleId","PLCID"]
+        ]],
+        "NtQueryDefaultUILanguage" : ["NTSTATUS",[
+            ["STARDefaultUILanguageId","LANGID"]
+        ]],
+        "NtQueryDirectoryFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["Event","HANDLE"],
+            ["ApcRoutine","PIO_APC_ROUTINE"],
+            ["ApcContext","PVOID"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["FileInformation","PVOID"],
+            ["Length","ULONG"],
+            ["FileInformationClass","FILE_INFORMATION_CLASS"],
+            ["ReturnSingleEntry","BOOLEAN"],
+            ["FileName","PUNICODE_STRING"],
+            ["RestartScan","BOOLEAN"]
+        ]],
+        "NtQueryDirectoryObject" : ["NTSTATUS",[
+            ["DirectoryHandle","HANDLE"],
+            ["Buffer","PVOID"],
+            ["Length","ULONG"],
+            ["ReturnSingleEntry","BOOLEAN"],
+            ["RestartScan","BOOLEAN"],
+            ["Context","PULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryDriverEntryOrder" : ["NTSTATUS",[
+            ["Ids","PULONG"],
+            ["Count","PULONG"]
+        ]],
+        "NtQueryEaFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["Buffer","PVOID"],
+            ["Length","ULONG"],
+            ["ReturnSingleEntry","BOOLEAN"],
+            ["EaList","PVOID"],
+            ["EaListLength","ULONG"],
+            ["EaIndex","PULONG"],
+            ["RestartScan","BOOLEAN"]
+        ]],
+        "NtQueryEvent" : ["NTSTATUS",[
+            ["EventHandle","HANDLE"],
+            ["EventInformationClass","EVENT_INFORMATION_CLASS"],
+            ["EventInformation","PVOID"],
+            ["EventInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryFullAttributesFile" : ["NTSTATUS",[
+            ["ObjectAttributes","POBJECT_ATTRIBUTES"],
+            ["FileInformation","PFILE_NETWORK_OPEN_INFORMATION"]
+        ]],
+        "NtQueryInformationAtom" : ["NTSTATUS",[
+            ["Atom","RTL_ATOM"],
+            ["InformationClass","ATOM_INFORMATION_CLASS"],
+            ["AtomInformation","PVOID"],
+            ["AtomInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryInformationEnlistment" : ["NTSTATUS",[
+            ["EnlistmentHandle","HANDLE"],
+            ["EnlistmentInformationClass","ENLISTMENT_INFORMATION_CLASS"],
+            ["EnlistmentInformation","PVOID"],
+            ["EnlistmentInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryInformationFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["FileInformation","PVOID"],
+            ["Length","ULONG"],
+            ["FileInformationClass","FILE_INFORMATION_CLASS"]
+        ]],
+        "NtQueryInformationJobObject" : ["NTSTATUS",[
+            ["JobHandle","HANDLE"],
+            ["JobObjectInformationClass","JOBOBJECTINFOCLASS"],
+            ["JobObjectInformation","PVOID"],
+            ["JobObjectInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryInformationPort" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["PortInformationClass","PORT_INFORMATION_CLASS"],
+            ["PortInformation","PVOID"],
+            ["Length","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryInformationProcess" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["ProcessInformationClass","PROCESSINFOCLASS"],
+            ["ProcessInformation","PVOID"],
+            ["ProcessInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryInformationResourceManager" : ["NTSTATUS",[
+            ["ResourceManagerHandle","HANDLE"],
+            ["ResourceManagerInformationClass","RESOURCEMANAGER_INFORMATION_CLASS"],
+            ["ResourceManagerInformation","PVOID"],
+            ["ResourceManagerInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryInformationThread" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"],
+            ["ThreadInformationClass","THREADINFOCLASS"],
+            ["ThreadInformation","PVOID"],
+            ["ThreadInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryInformationToken" : ["NTSTATUS",[
+            ["TokenHandle","HANDLE"],
+            ["TokenInformationClass","TOKEN_INFORMATION_CLASS"],
+            ["TokenInformation","PVOID"],
+            ["TokenInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryInformationTransaction" : ["NTSTATUS",[
+            ["TransactionHandle","HANDLE"],
+            ["TransactionInformationClass","TRANSACTION_INFORMATION_CLASS"],
+            ["TransactionInformation","PVOID"],
+            ["TransactionInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryInformationTransactionManager" : ["NTSTATUS",[
+            ["TransactionManagerHandle","HANDLE"],
+            ["TransactionManagerInformationClass","TRANSACTIONMANAGER_INFORMATION_CLASS"],
+            ["TransactionManagerInformation","PVOID"],
+            ["TransactionManagerInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryInformationWorkerFactory" : ["NTSTATUS",[
+            ["WorkerFactoryHandle","HANDLE"],
+            ["WorkerFactoryInformationClass","WORKERFACTORYINFOCLASS"],
+            ["WorkerFactoryInformation","PVOID"],
+            ["WorkerFactoryInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryInstallUILanguage" : ["NTSTATUS",[
+            ["STARInstallUILanguageId","LANGID"]
+        ]],
+        "NtQueryIntervalProfile" : ["NTSTATUS",[
+            ["ProfileSource","KPROFILE_SOURCE"],
+            ["Interval","PULONG"]
+        ]],
+        "NtQueryIoCompletion" : ["NTSTATUS",[
+            ["IoCompletionHandle","HANDLE"],
+            ["IoCompletionInformationClass","IO_COMPLETION_INFORMATION_CLASS"],
+            ["IoCompletionInformation","PVOID"],
+            ["IoCompletionInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"],
+            ["KeyInformationClass","KEY_INFORMATION_CLASS"],
+            ["KeyInformation","PVOID"],
+            ["Length","ULONG"],
+            ["ResultLength","PULONG"]
+        ]],
+        "NtQueryLicenseValue" : ["NTSTATUS",[
+            ["Name","PUNICODE_STRING"],
+            ["Type","PULONG"],
+            ["Buffer","PVOID"],
+            ["Length","ULONG"],
+            ["ReturnedLength","PULONG"]
+        ]],
+        "NtQueryMultipleValueKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"],
+            ["ValueEntries","PKEY_VALUE_ENTRY"],
+            ["EntryCount","ULONG"],
+            ["ValueBuffer","PVOID"],
+            ["BufferLength","PULONG"],
+            ["RequiredBufferLength","PULONG"]
+        ]],
+        "NtQueryMutant" : ["NTSTATUS",[
+            ["MutantHandle","HANDLE"],
+            ["MutantInformationClass","MUTANT_INFORMATION_CLASS"],
+            ["MutantInformation","PVOID"],
+            ["MutantInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryObject" : ["NTSTATUS",[
+            ["Handle","HANDLE"],
+            ["ObjectInformationClass","OBJECT_INFORMATION_CLASS"],
+            ["ObjectInformation","PVOID"],
+            ["ObjectInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryOpenSubKeysEx" : ["NTSTATUS",[
+            ["TargetKey","POBJECT_ATTRIBUTES"],
+            ["BufferLength","ULONG"],
+            ["Buffer","PVOID"],
+            ["RequiredSize","PULONG"]
+        ]],
+        "NtQueryOpenSubKeys" : ["NTSTATUS",[
+            ["TargetKey","POBJECT_ATTRIBUTES"],
+            ["HandleCount","PULONG"]
+        ]],
+        "NtQueryPerformanceCounter" : ["NTSTATUS",[
+            ["PerformanceCounter","PLARGE_INTEGER"],
+            ["PerformanceFrequency","PLARGE_INTEGER"]
+        ]],
+        "NtQueryQuotaInformationFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["Buffer","PVOID"],
+            ["Length","ULONG"],
+            ["ReturnSingleEntry","BOOLEAN"],
+            ["SidList","PVOID"],
+            ["SidListLength","ULONG"],
+            ["StartSid","PULONG"],
+            ["RestartScan","BOOLEAN"]
+        ]],
+        "NtQuerySection" : ["NTSTATUS",[
+            ["SectionHandle","HANDLE"],
+            ["SectionInformationClass","SECTION_INFORMATION_CLASS"],
+            ["SectionInformation","PVOID"],
+            ["SectionInformationLength","SIZE_T"],
+            ["ReturnLength","PSIZE_T"]
+        ]],
+        "NtQuerySecurityAttributesToken" : ["NTSTATUS",[
+            ["TokenHandle","HANDLE"],
+            ["Attributes","PUNICODE_STRING"],
+            ["NumberOfAttributes","ULONG"],
+            ["Buffer","PVOID"],
+            ["Length","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQuerySecurityObject" : ["NTSTATUS",[
+            ["Handle","HANDLE"],
+            ["SecurityInformation","SECURITY_INFORMATION"],
+            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
+            ["Length","ULONG"],
+            ["LengthNeeded","PULONG"]
+        ]],
+        "NtQuerySemaphore" : ["NTSTATUS",[
+            ["SemaphoreHandle","HANDLE"],
+            ["SemaphoreInformationClass","SEMAPHORE_INFORMATION_CLASS"],
+            ["SemaphoreInformation","PVOID"],
+            ["SemaphoreInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQuerySymbolicLinkObject" : ["NTSTATUS",[
+            ["LinkHandle","HANDLE"],
+            ["LinkTarget","PUNICODE_STRING"],
+            ["ReturnedLength","PULONG"]
+        ]],
+        "NtQuerySystemEnvironmentValueEx" : ["NTSTATUS",[
+            ["VariableName","PUNICODE_STRING"],
+            ["VendorGuid","LPGUID"],
+            ["Value","PVOID"],
+            ["ValueLength","PULONG"],
+            ["Attributes","PULONG"]
+        ]],
+        "NtQuerySystemEnvironmentValue" : ["NTSTATUS",[
+            ["VariableName","PUNICODE_STRING"],
+            ["VariableValue","PWSTR"],
+            ["ValueLength","USHORT"],
+            ["ReturnLength","PUSHORT"]
+        ]],
+        "NtQuerySystemInformationEx" : ["NTSTATUS",[
+            ["SystemInformationClass","SYSTEM_INFORMATION_CLASS"],
+            ["QueryInformation","PVOID"],
+            ["QueryInformationLength","ULONG"],
+            ["SystemInformation","PVOID"],
+            ["SystemInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQuerySystemInformation" : ["NTSTATUS",[
+            ["SystemInformationClass","SYSTEM_INFORMATION_CLASS"],
+            ["SystemInformation","PVOID"],
+            ["SystemInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQuerySystemTime" : ["NTSTATUS",[
+            ["SystemTime","PLARGE_INTEGER"]
+        ]],
+        "NtQueryTimer" : ["NTSTATUS",[
+            ["TimerHandle","HANDLE"],
+            ["TimerInformationClass","TIMER_INFORMATION_CLASS"],
+            ["TimerInformation","PVOID"],
+            ["TimerInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtQueryTimerResolution" : ["NTSTATUS",[
+            ["MaximumTime","PULONG"],
+            ["MinimumTime","PULONG"],
+            ["CurrentTime","PULONG"]
+        ]],
+        "NtQueryValueKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"],
+            ["ValueName","PUNICODE_STRING"],
+            ["KeyValueInformationClass","KEY_VALUE_INFORMATION_CLASS"],
+            ["KeyValueInformation","PVOID"],
+            ["Length","ULONG"],
+            ["ResultLength","PULONG"]
+        ]],
+        "NtQueryVirtualMemory" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["BaseAddress","PVOID"],
+            ["MemoryInformationClass","MEMORY_INFORMATION_CLASS"],
+            ["MemoryInformation","PVOID"],
+            ["MemoryInformationLength","SIZE_T"],
+            ["ReturnLength","PSIZE_T"]
+        ]],
+        "NtQueryVolumeInformationFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["FsInformation","PVOID"],
+            ["Length","ULONG"],
+            ["FsInformationClass","FS_INFORMATION_CLASS"]
+        ]],
+        "NtQueueApcThreadEx" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"],
+            ["UserApcReserveHandle","HANDLE"],
+            ["ApcRoutine","PPS_APC_ROUTINE"],
+            ["ApcArgument1","PVOID"],
+            ["ApcArgument2","PVOID"],
+            ["ApcArgument3","PVOID"]
+        ]],
+        "NtQueueApcThread" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"],
+            ["ApcRoutine","PPS_APC_ROUTINE"],
+            ["ApcArgument1","PVOID"],
+            ["ApcArgument2","PVOID"],
+            ["ApcArgument3","PVOID"]
+        ]],
+        "NtRaiseException" : ["NTSTATUS",[
+            ["ExceptionRecord","PEXCEPTION_RECORD"],
+            ["ContextRecord","PCONTEXT"],
+            ["FirstChance","BOOLEAN"]
+        ]],
+        "NtRaiseHardError" : ["NTSTATUS",[
+            ["ErrorStatus","NTSTATUS"],
+            ["NumberOfParameters","ULONG"],
+            ["UnicodeStringParameterMask","ULONG"],
+            ["Parameters","PULONG_PTR"],
+            ["ValidResponseOptions","ULONG"],
+            ["Response","PULONG"]
+        ]],
+        "NtReadFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["Event","HANDLE"],
+            ["ApcRoutine","PIO_APC_ROUTINE"],
+            ["ApcContext","PVOID"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["Buffer","PVOID"],
+            ["Length","ULONG"],
+            ["ByteOffset","PLARGE_INTEGER"],
+            ["Key","PULONG"]
+        ]],
+        "NtReadFileScatter" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["Event","HANDLE"],
+            ["ApcRoutine","PIO_APC_ROUTINE"],
+            ["ApcContext","PVOID"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["SegmentArray","PFILE_SEGMENT_ELEMENT"],
+            ["Length","ULONG"],
+            ["ByteOffset","PLARGE_INTEGER"],
+            ["Key","PULONG"]
+        ]],
+        "NtReadOnlyEnlistment" : ["NTSTATUS",[
+            ["EnlistmentHandle","HANDLE"],
+            ["TmVirtualClock","PLARGE_INTEGER"]
+        ]],
+        "NtReadRequestData" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Message","PPORT_MESSAGE"],
+            ["DataEntryIndex","ULONG"],
+            ["Buffer","PVOID"],
+            ["BufferSize","SIZE_T"],
+            ["NumberOfBytesRead","PSIZE_T"]
+        ]],
+        "NtReadVirtualMemory" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["BaseAddress","PVOID"],
+            ["Buffer","PVOID"],
+            ["BufferSize","SIZE_T"],
+            ["NumberOfBytesRead","PSIZE_T"]
+        ]],
+        "NtRecoverEnlistment" : ["NTSTATUS",[
+            ["EnlistmentHandle","HANDLE"],
+            ["EnlistmentKey","PVOID"]
+        ]],
+        "NtRecoverResourceManager" : ["NTSTATUS",[
+            ["ResourceManagerHandle","HANDLE"]
+        ]],
+        "NtRecoverTransactionManager" : ["NTSTATUS",[
+            ["TransactionManagerHandle","HANDLE"]
+        ]],
+        "NtRegisterProtocolAddressInformation" : ["NTSTATUS",[
+            ["ResourceManager","HANDLE"],
+            ["ProtocolId","PCRM_PROTOCOL_ID"],
+            ["ProtocolInformationSize","ULONG"],
+            ["ProtocolInformation","PVOID"],
+            ["CreateOptions","ULONG"]
+        ]],
+        "NtRegisterThreadTerminatePort" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"]
+        ]],
+        "NtReleaseKeyedEvent" : ["NTSTATUS",[
+            ["KeyedEventHandle","HANDLE"],
+            ["KeyValue","PVOID"],
+            ["Alertable","BOOLEAN"],
+            ["Timeout","PLARGE_INTEGER"]
+        ]],
+        "NtReleaseMutant" : ["NTSTATUS",[
+            ["MutantHandle","HANDLE"],
+            ["PreviousCount","PLONG"]
+        ]],
+        "NtReleaseSemaphore" : ["NTSTATUS",[
+            ["SemaphoreHandle","HANDLE"],
+            ["ReleaseCount","LONG"],
+            ["PreviousCount","PLONG"]
+        ]],
+        "NtReleaseWorkerFactoryWorker" : ["NTSTATUS",[
+            ["WorkerFactoryHandle","HANDLE"]
+        ]],
+        "NtRemoveIoCompletionEx" : ["NTSTATUS",[
+            ["IoCompletionHandle","HANDLE"],
+            ["IoCompletionInformation","PFILE_IO_COMPLETION_INFORMATION"],
+            ["Count","ULONG"],
+            ["NumEntriesRemoved","PULONG"],
+            ["Timeout","PLARGE_INTEGER"],
+            ["Alertable","BOOLEAN"]
+        ]],
+        "NtRemoveIoCompletion" : ["NTSTATUS",[
+            ["IoCompletionHandle","HANDLE"],
+            ["STARKeyContext","PVOID"],
+            ["STARApcContext","PVOID"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["Timeout","PLARGE_INTEGER"]
+        ]],
+        "NtRemoveProcessDebug" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["DebugObjectHandle","HANDLE"]
+        ]],
+        "NtRenameKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"],
+            ["NewName","PUNICODE_STRING"]
+        ]],
+        "NtRenameTransactionManager" : ["NTSTATUS",[
+            ["LogFileName","PUNICODE_STRING"],
+            ["ExistingTransactionManagerGuid","LPGUID"]
+        ]],
+        "NtReplaceKey" : ["NTSTATUS",[
+            ["NewFile","POBJECT_ATTRIBUTES"],
+            ["TargetHandle","HANDLE"],
+            ["OldFile","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtReplacePartitionUnit" : ["NTSTATUS",[
+            ["TargetInstancePath","PUNICODE_STRING"],
+            ["SpareInstancePath","PUNICODE_STRING"],
+            ["Flags","ULONG"]
+        ]],
+        "NtReplyPort" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["ReplyMessage","PPORT_MESSAGE"]
+        ]],
+        "NtReplyWaitReceivePortEx" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["STARPortContext","PVOID"],
+            ["ReplyMessage","PPORT_MESSAGE"],
+            ["ReceiveMessage","PPORT_MESSAGE"],
+            ["Timeout","PLARGE_INTEGER"]
+        ]],
+        "NtReplyWaitReceivePort" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["STARPortContext","PVOID"],
+            ["ReplyMessage","PPORT_MESSAGE"],
+            ["ReceiveMessage","PPORT_MESSAGE"]
+        ]],
+        "NtReplyWaitReplyPort" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["ReplyMessage","PPORT_MESSAGE"]
+        ]],
+        "NtRequestPort" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["RequestMessage","PPORT_MESSAGE"]
+        ]],
+        "NtRequestWaitReplyPort" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["RequestMessage","PPORT_MESSAGE"],
+            ["ReplyMessage","PPORT_MESSAGE"]
+        ]],
+        "NtResetEvent" : ["NTSTATUS",[
+            ["EventHandle","HANDLE"],
+            ["PreviousState","PLONG"]
+        ]],
+        "NtResetWriteWatch" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["BaseAddress","PVOID"],
+            ["RegionSize","SIZE_T"]
+        ]],
+        "NtRestoreKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"],
+            ["FileHandle","HANDLE"],
+            ["Flags","ULONG"]
+        ]],
+        "NtResumeProcess" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"]
+        ]],
+        "NtResumeThread" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"],
+            ["PreviousSuspendCount","PULONG"]
+        ]],
+        "NtRollbackComplete" : ["NTSTATUS",[
+            ["EnlistmentHandle","HANDLE"],
+            ["TmVirtualClock","PLARGE_INTEGER"]
+        ]],
+        "NtRollbackEnlistment" : ["NTSTATUS",[
+            ["EnlistmentHandle","HANDLE"],
+            ["TmVirtualClock","PLARGE_INTEGER"]
+        ]],
+        "NtRollbackTransaction" : ["NTSTATUS",[
+            ["TransactionHandle","HANDLE"],
+            ["Wait","BOOLEAN"]
+        ]],
+        "NtRollforwardTransactionManager" : ["NTSTATUS",[
+            ["TransactionManagerHandle","HANDLE"],
+            ["TmVirtualClock","PLARGE_INTEGER"]
+        ]],
+        "NtSaveKeyEx" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"],
+            ["FileHandle","HANDLE"],
+            ["Format","ULONG"]
+        ]],
+        "NtSaveKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"],
+            ["FileHandle","HANDLE"]
+        ]],
+        "NtSaveMergedKeys" : ["NTSTATUS",[
+            ["HighPrecedenceKeyHandle","HANDLE"],
+            ["LowPrecedenceKeyHandle","HANDLE"],
+            ["FileHandle","HANDLE"]
+        ]],
+        "NtSecureConnectPort" : ["NTSTATUS",[
+            ["PortHandle","PHANDLE"],
+            ["PortName","PUNICODE_STRING"],
+            ["SecurityQos","PSECURITY_QUALITY_OF_SERVICE"],
+            ["ClientView","PPORT_VIEW"],
+            ["RequiredServerSid","PSID"],
+            ["ServerView","PREMOTE_PORT_VIEW"],
+            ["MaxMessageLength","PULONG"],
+            ["ConnectionInformation","PVOID"],
+            ["ConnectionInformationLength","PULONG"]
+        ]],
+        "NtSetBootEntryOrder" : ["NTSTATUS",[
+            ["Ids","PULONG"],
+            ["Count","ULONG"]
+        ]],
+        "NtSetBootOptions" : ["NTSTATUS",[
+            ["BootOptions","PBOOT_OPTIONS"],
+            ["FieldsToChange","ULONG"]
+        ]],
+        "NtSetContextThread" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"],
+            ["ThreadContext","PCONTEXT"]
+        ]],
+        "NtSetDebugFilterState" : ["NTSTATUS",[
+            ["ComponentId","ULONG"],
+            ["Level","ULONG"],
+            ["State","BOOLEAN"]
+        ]],
+        "NtSetDefaultHardErrorPort" : ["NTSTATUS",[
+            ["DefaultHardErrorPort","HANDLE"]
+        ]],
+        "NtSetDefaultLocale" : ["NTSTATUS",[
+            ["UserProfile","BOOLEAN"],
+            ["DefaultLocaleId","LCID"]
+        ]],
+        "NtSetDefaultUILanguage" : ["NTSTATUS",[
+            ["DefaultUILanguageId","LANGID"]
+        ]],
+        "NtSetDriverEntryOrder" : ["NTSTATUS",[
+            ["Ids","PULONG"],
+            ["Count","ULONG"]
+        ]],
+        "NtSetEaFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["Buffer","PVOID"],
+            ["Length","ULONG"]
+        ]],
+        "NtSetEventBoostPriority" : ["NTSTATUS",[
+            ["EventHandle","HANDLE"]
+        ]],
+        "NtSetEvent" : ["NTSTATUS",[
+            ["EventHandle","HANDLE"],
+            ["PreviousState","PLONG"]
+        ]],
+        "NtSetHighEventPair" : ["NTSTATUS",[
+            ["EventPairHandle","HANDLE"]
+        ]],
+        "NtSetHighWaitLowEventPair" : ["NTSTATUS",[
+            ["EventPairHandle","HANDLE"]
+        ]],
+        "NtSetInformationDebugObject" : ["NTSTATUS",[
+            ["DebugObjectHandle","HANDLE"],
+            ["DebugObjectInformationClass","DEBUGOBJECTINFOCLASS"],
+            ["DebugInformation","PVOID"],
+            ["DebugInformationLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtSetInformationEnlistment" : ["NTSTATUS",[
+            ["EnlistmentHandle","HANDLE"],
+            ["EnlistmentInformationClass","ENLISTMENT_INFORMATION_CLASS"],
+            ["EnlistmentInformation","PVOID"],
+            ["EnlistmentInformationLength","ULONG"]
+        ]],
+        "NtSetInformationFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["FileInformation","PVOID"],
+            ["Length","ULONG"],
+            ["FileInformationClass","FILE_INFORMATION_CLASS"]
+        ]],
+        "NtSetInformationJobObject" : ["NTSTATUS",[
+            ["JobHandle","HANDLE"],
+            ["JobObjectInformationClass","JOBOBJECTINFOCLASS"],
+            ["JobObjectInformation","PVOID"],
+            ["JobObjectInformationLength","ULONG"]
+        ]],
+        "NtSetInformationKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"],
+            ["KeySetInformationClass","KEY_SET_INFORMATION_CLASS"],
+            ["KeySetInformation","PVOID"],
+            ["KeySetInformationLength","ULONG"]
+        ]],
+        "NtSetInformationObject" : ["NTSTATUS",[
+            ["Handle","HANDLE"],
+            ["ObjectInformationClass","OBJECT_INFORMATION_CLASS"],
+            ["ObjectInformation","PVOID"],
+            ["ObjectInformationLength","ULONG"]
+        ]],
+        "NtSetInformationProcess" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["ProcessInformationClass","PROCESSINFOCLASS"],
+            ["ProcessInformation","PVOID"],
+            ["ProcessInformationLength","ULONG"]
+        ]],
+        "NtSetInformationResourceManager" : ["NTSTATUS",[
+            ["ResourceManagerHandle","HANDLE"],
+            ["ResourceManagerInformationClass","RESOURCEMANAGER_INFORMATION_CLASS"],
+            ["ResourceManagerInformation","PVOID"],
+            ["ResourceManagerInformationLength","ULONG"]
+        ]],
+        "NtSetInformationThread" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"],
+            ["ThreadInformationClass","THREADINFOCLASS"],
+            ["ThreadInformation","PVOID"],
+            ["ThreadInformationLength","ULONG"]
+        ]],
+        "NtSetInformationToken" : ["NTSTATUS",[
+            ["TokenHandle","HANDLE"],
+            ["TokenInformationClass","TOKEN_INFORMATION_CLASS"],
+            ["TokenInformation","PVOID"],
+            ["TokenInformationLength","ULONG"]
+        ]],
+        "NtSetInformationTransaction" : ["NTSTATUS",[
+            ["TransactionHandle","HANDLE"],
+            ["TransactionInformationClass","TRANSACTION_INFORMATION_CLASS"],
+            ["TransactionInformation","PVOID"],
+            ["TransactionInformationLength","ULONG"]
+        ]],
+        "NtSetInformationTransactionManager" : ["NTSTATUS",[
+            ["TmHandle","HANDLE"],
+            ["TransactionManagerInformationClass","TRANSACTIONMANAGER_INFORMATION_CLASS"],
+            ["TransactionManagerInformation","PVOID"],
+            ["TransactionManagerInformationLength","ULONG"]
+        ]],
+        "NtSetInformationWorkerFactory" : ["NTSTATUS",[
+            ["WorkerFactoryHandle","HANDLE"],
+            ["WorkerFactoryInformationClass","WORKERFACTORYINFOCLASS"],
+            ["WorkerFactoryInformation","PVOID"],
+            ["WorkerFactoryInformationLength","ULONG"]
+        ]],
+        "NtSetIntervalProfile" : ["NTSTATUS",[
+            ["Interval","ULONG"],
+            ["Source","KPROFILE_SOURCE"]
+        ]],
+        "NtSetIoCompletionEx" : ["NTSTATUS",[
+            ["IoCompletionHandle","HANDLE"],
+            ["IoCompletionReserveHandle","HANDLE"],
+            ["KeyContext","PVOID"],
+            ["ApcContext","PVOID"],
+            ["IoStatus","NTSTATUS"],
+            ["IoStatusInformation","ULONG_PTR"]
+        ]],
+        "NtSetIoCompletion" : ["NTSTATUS",[
+            ["IoCompletionHandle","HANDLE"],
+            ["KeyContext","PVOID"],
+            ["ApcContext","PVOID"],
+            ["IoStatus","NTSTATUS"],
+            ["IoStatusInformation","ULONG_PTR"]
+        ]],
+        "NtSetLdtEntries" : ["NTSTATUS",[
+            ["Selector0","ULONG"],
+            ["Entry0Low","ULONG"],
+            ["Entry0Hi","ULONG"],
+            ["Selector1","ULONG"],
+            ["Entry1Low","ULONG"],
+            ["Entry1Hi","ULONG"]
+        ]],
+        "NtSetLowEventPair" : ["NTSTATUS",[
+            ["EventPairHandle","HANDLE"]
+        ]],
+        "NtSetLowWaitHighEventPair" : ["NTSTATUS",[
+            ["EventPairHandle","HANDLE"]
+        ]],
+        "NtSetQuotaInformationFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["Buffer","PVOID"],
+            ["Length","ULONG"]
+        ]],
+        "NtSetSecurityObject" : ["NTSTATUS",[
+            ["Handle","HANDLE"],
+            ["SecurityInformation","SECURITY_INFORMATION"],
+            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"]
+        ]],
+        "NtSetSystemEnvironmentValueEx" : ["NTSTATUS",[
+            ["VariableName","PUNICODE_STRING"],
+            ["VendorGuid","LPGUID"],
+            ["Value","PVOID"],
+            ["ValueLength","ULONG"],
+            ["Attributes","ULONG"]
+        ]],
+        "NtSetSystemEnvironmentValue" : ["NTSTATUS",[
+            ["VariableName","PUNICODE_STRING"],
+            ["VariableValue","PUNICODE_STRING"]
+        ]],
+        "NtSetSystemInformation" : ["NTSTATUS",[
+            ["SystemInformationClass","SYSTEM_INFORMATION_CLASS"],
+            ["SystemInformation","PVOID"],
+            ["SystemInformationLength","ULONG"]
+        ]],
+        "NtSetSystemPowerState" : ["NTSTATUS",[
+            ["SystemAction","POWER_ACTION"],
+            ["MinSystemState","SYSTEM_POWER_STATE"],
+            ["Flags","ULONG"]
+        ]],
+        "NtSetSystemTime" : ["NTSTATUS",[
+            ["SystemTime","PLARGE_INTEGER"],
+            ["PreviousTime","PLARGE_INTEGER"]
+        ]],
+        "NtSetThreadExecutionState" : ["NTSTATUS",[
+            ["esFlags","EXECUTION_STATE"],
+            ["STARPreviousFlags","EXECUTION_STATE"]
+        ]],
+        "NtSetTimerEx" : ["NTSTATUS",[
+            ["TimerHandle","HANDLE"],
+            ["TimerSetInformationClass","TIMER_SET_INFORMATION_CLASS"],
+            ["TimerSetInformation","PVOID"],
+            ["TimerSetInformationLength","ULONG"]
+        ]],
+        "NtSetTimer" : ["NTSTATUS",[
+            ["TimerHandle","HANDLE"],
+            ["DueTime","PLARGE_INTEGER"],
+            ["TimerApcRoutine","PTIMER_APC_ROUTINE"],
+            ["TimerContext","PVOID"],
+            ["WakeTimer","BOOLEAN"],
+            ["Period","LONG"],
+            ["PreviousState","PBOOLEAN"]
+        ]],
+        "NtSetTimerResolution" : ["NTSTATUS",[
+            ["DesiredTime","ULONG"],
+            ["SetResolution","BOOLEAN"],
+            ["ActualTime","PULONG"]
+        ]],
+        "NtSetUuidSeed" : ["NTSTATUS",[
+            ["Seed","PCHAR"]
+        ]],
+        "NtSetValueKey" : ["NTSTATUS",[
+            ["KeyHandle","HANDLE"],
+            ["ValueName","PUNICODE_STRING"],
+            ["TitleIndex","ULONG"],
+            ["Type","ULONG"],
+            ["Data","PVOID"],
+            ["DataSize","ULONG"]
+        ]],
+        "NtSetVolumeInformationFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["FsInformation","PVOID"],
+            ["Length","ULONG"],
+            ["FsInformationClass","FS_INFORMATION_CLASS"]
+        ]],
+        "NtShutdownSystem" : ["NTSTATUS",[
+            ["Action","SHUTDOWN_ACTION"]
+        ]],
+        "NtShutdownWorkerFactory" : ["NTSTATUS",[
+            ["WorkerFactoryHandle","HANDLE"],
+            ["STARPendingWorkerCount","LONG"]
+        ]],
+        "NtSignalAndWaitForSingleObject" : ["NTSTATUS",[
+            ["SignalHandle","HANDLE"],
+            ["WaitHandle","HANDLE"],
+            ["Alertable","BOOLEAN"],
+            ["Timeout","PLARGE_INTEGER"]
+        ]],
+        "NtSinglePhaseReject" : ["NTSTATUS",[
+            ["EnlistmentHandle","HANDLE"],
+            ["TmVirtualClock","PLARGE_INTEGER"]
+        ]],
+        "NtStartProfile" : ["NTSTATUS",[
+            ["ProfileHandle","HANDLE"]
+        ]],
+        "NtStopProfile" : ["NTSTATUS",[
+            ["ProfileHandle","HANDLE"]
+        ]],
+        "NtSuspendProcess" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"]
+        ]],
+        "NtSuspendThread" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"],
+            ["PreviousSuspendCount","PULONG"]
+        ]],
+        "NtSystemDebugControl" : ["NTSTATUS",[
+            ["Command","SYSDBG_COMMAND"],
+            ["InputBuffer","PVOID"],
+            ["InputBufferLength","ULONG"],
+            ["OutputBuffer","PVOID"],
+            ["OutputBufferLength","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtTerminateJobObject" : ["NTSTATUS",[
+            ["JobHandle","HANDLE"],
+            ["ExitStatus","NTSTATUS"]
+        ]],
+        "NtTerminateProcess" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["ExitStatus","NTSTATUS"]
+        ]],
+        "NtTerminateThread" : ["NTSTATUS",[
+            ["ThreadHandle","HANDLE"],
+            ["ExitStatus","NTSTATUS"]
+        ]],
+        "NtTraceControl" : ["NTSTATUS",[
+            ["FunctionCode","ULONG"],
+            ["InBuffer","PVOID"],
+            ["InBufferLen","ULONG"],
+            ["OutBuffer","PVOID"],
+            ["OutBufferLen","ULONG"],
+            ["ReturnLength","PULONG"]
+        ]],
+        "NtTraceEvent" : ["NTSTATUS",[
+            ["TraceHandle","HANDLE"],
+            ["Flags","ULONG"],
+            ["FieldSize","ULONG"],
+            ["Fields","PVOID"]
+        ]],
+        "NtTranslateFilePath" : ["NTSTATUS",[
+            ["InputFilePath","PFILE_PATH"],
+            ["OutputType","ULONG"],
+            ["OutputFilePath","PFILE_PATH"],
+            ["OutputFilePathLength","PULONG"]
+        ]],
+        "NtUnloadDriver" : ["NTSTATUS",[
+            ["DriverServiceName","PUNICODE_STRING"]
+        ]],
+        "NtUnloadKey2" : ["NTSTATUS",[
+            ["TargetKey","POBJECT_ATTRIBUTES"],
+            ["Flags","ULONG"]
+        ]],
+        "NtUnloadKeyEx" : ["NTSTATUS",[
+            ["TargetKey","POBJECT_ATTRIBUTES"],
+            ["Event","HANDLE"]
+        ]],
+        "NtUnloadKey" : ["NTSTATUS",[
+            ["TargetKey","POBJECT_ATTRIBUTES"]
+        ]],
+        "NtUnlockFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["ByteOffset","PLARGE_INTEGER"],
+            ["Length","PLARGE_INTEGER"],
+            ["Key","ULONG"]
+        ]],
+        "NtUnlockVirtualMemory" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["STARBaseAddress","PVOID"],
+            ["RegionSize","PSIZE_T"],
+            ["MapType","ULONG"]
+        ]],
+        "NtUnmapViewOfSection" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["BaseAddress","PVOID"]
+        ]],
+        "NtVdmControl" : ["NTSTATUS",[
+            ["Service","VDMSERVICECLASS"],
+            ["ServiceData","PVOID"]
+        ]],
+        "NtWaitForDebugEvent" : ["NTSTATUS",[
+            ["DebugObjectHandle","HANDLE"],
+            ["Alertable","BOOLEAN"],
+            ["Timeout","PLARGE_INTEGER"],
+            ["WaitStateChange","PDBGUI_WAIT_STATE_CHANGE"]
+        ]],
+        "NtWaitForKeyedEvent" : ["NTSTATUS",[
+            ["KeyedEventHandle","HANDLE"],
+            ["KeyValue","PVOID"],
+            ["Alertable","BOOLEAN"],
+            ["Timeout","PLARGE_INTEGER"]
+        ]],
+        "NtWaitForMultipleObjects32" : ["NTSTATUS",[
+            ["Count","ULONG"],
+            ["Handles","LONG"],
+            ["WaitType","WAIT_TYPE"],
+            ["Alertable","BOOLEAN"],
+            ["Timeout","PLARGE_INTEGER"]
+        ]],
+        "NtWaitForMultipleObjects" : ["NTSTATUS",[
+            ["Count","ULONG"],
+            ["Handles","HANDLE"],
+            ["WaitType","WAIT_TYPE"],
+            ["Alertable","BOOLEAN"],
+            ["Timeout","PLARGE_INTEGER"]
+        ]],
+        "NtWaitForSingleObject" : ["NTSTATUS",[
+            ["Handle","HANDLE"],
+            ["Alertable","BOOLEAN"],
+            ["Timeout","PLARGE_INTEGER"]
+        ]],
+        "NtWaitForWorkViaWorkerFactory" : ["NTSTATUS",[
+            ["WorkerFactoryHandle","HANDLE"],
+            ["MiniPacket","PFILE_IO_COMPLETION_INFORMATION"]
+        ]],
+        "NtWaitHighEventPair" : ["NTSTATUS",[
+            ["EventPairHandle","HANDLE"]
+        ]],
+        "NtWaitLowEventPair" : ["NTSTATUS",[
+            ["EventPairHandle","HANDLE"]
+        ]],
+        "NtWorkerFactoryWorkerReady" : ["NTSTATUS",[
+            ["WorkerFactoryHandle","HANDLE"]
+        ]],
+        "NtWriteFileGather" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["Event","HANDLE"],
+            ["ApcRoutine","PIO_APC_ROUTINE"],
+            ["ApcContext","PVOID"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["SegmentArray","PFILE_SEGMENT_ELEMENT"],
+            ["Length","ULONG"],
+            ["ByteOffset","PLARGE_INTEGER"],
+            ["Key","PULONG"]
+        ]],
+        "NtWriteFile" : ["NTSTATUS",[
+            ["FileHandle","HANDLE"],
+            ["Event","HANDLE"],
+            ["ApcRoutine","PIO_APC_ROUTINE"],
+            ["ApcContext","PVOID"],
+            ["IoStatusBlock","PIO_STATUS_BLOCK"],
+            ["Buffer","PVOID"],
+            ["Length","ULONG"],
+            ["ByteOffset","PLARGE_INTEGER"],
+            ["Key","PULONG"]
+        ]],
+        "NtWriteRequestData" : ["NTSTATUS",[
+            ["PortHandle","HANDLE"],
+            ["Message","PPORT_MESSAGE"],
+            ["DataEntryIndex","ULONG"],
+            ["Buffer","PVOID"],
+            ["BufferSize","SIZE_T"],
+            ["NumberOfBytesWritten","PSIZE_T"]
+        ]],
+        "NtWriteVirtualMemory" : ["NTSTATUS",[
+            ["ProcessHandle","HANDLE"],
+            ["BaseAddress","PVOID"],
+            ["Buffer","PVOID"],
+            ["BufferSize","SIZE_T"],
+            ["NumberOfBytesWritten","PSIZE_T"]
+        ]]
+    }

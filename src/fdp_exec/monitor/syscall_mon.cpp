@@ -13,7 +13,7 @@ namespace
 
     struct OnSyscall
     {
-        char name[32];
+        char name[64];
         void (syscall_mon::SyscallMonitor::*on_syscall)();
     };
 
@@ -26,7 +26,6 @@ namespace
 struct syscall_mon::SyscallMonitor::Data
 {
     std::vector<core::Breakpoint> bps;
-    std::unordered_map<uint64_t, std::string> bps_names;
 
     DECLARE_OBSERVERS
 };
@@ -48,8 +47,11 @@ bool syscall_mon::SyscallMonitor::setup(proc_t proc)
     for(const auto& s : syscalls)
     {
         const auto syscall_addr = core_.sym.symbol(syscall_dll, s.name);
-        if (!syscall_addr)
-            FAIL(false, "Unable to find symbol %s", s.name);
+        if (!syscall_addr){
+            // FAIL(false, "Unable to find symbol %s", s.name);
+            LOG(ERROR, "Unable to find symbol %s", s.name);
+            continue;
+        }
 
         const auto b = core_.state.set_breakpoint(*syscall_addr, proc, core::FILTER_CR3, [&]()
         {
@@ -57,20 +59,9 @@ bool syscall_mon::SyscallMonitor::setup(proc_t proc)
         });
 
         d_->bps.push_back(b);
-        d_->bps_names.emplace(*syscall_addr, s.name);
     }
 
-    LOG(INFO, "Number of breakpoints %" PRIx64, d_->bps_names.size());
     return true;
-}
-
-opt<std::string> syscall_mon::SyscallMonitor::find(uint64_t addr)
-{
-    const auto it = d_->bps_names.find(addr);
-    if (it == d_->bps_names.end())
-        return ext::nullopt;
-
-    return it->second;
 }
 
 bool syscall_mon::SyscallMonitor::get_raw_args(size_t nargs, const on_param_fn& on_param)
@@ -85,4 +76,4 @@ bool syscall_mon::SyscallMonitor::get_raw_args(size_t nargs, const on_param_fn& 
     return true;
 }
 
-#include "syscall_mon.gen.hpp"
+#include "syscall_mon_private.gen.hpp"

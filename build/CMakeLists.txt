@@ -54,6 +54,19 @@ target_include_directories(pdbparser PUBLIC
     "${retdec_dir}/include"
 )
 
+# syscall code generator
+find_package(PythonInterp 3.6 REQUIRED)
+set(path_dir_gen_files "${root_dir}/src/fdp_exec/monitor")
+set(gen_scripts_dir    "${root_dir}/src/code_generation")
+add_custom_command(
+    COMMAND ${PYTHON_EXECUTABLE} "${gen_scripts_dir}/SyscallCodeGenerator.py" -o "${path_dir_gen_files}" -i "${gen_scripts_dir}"
+    OUTPUT
+        "${path_dir_gen_files}/syscall_mon_private.gen.hpp"
+        "${path_dir_gen_files}/syscall_mon_public.gen.hpp"
+    DEPENDS "${gen_scripts_dir}/SyscallCodeGenerator.py" "${gen_scripts_dir}/syscalls.json"
+    COMMENT "Generating syscall_mon.gen.hpp"
+)
+
 # fdp_exec
 set(fdp_exec_dir "${root_dir}/src/fdp_exec")
 add_target(fdp_exec apps ${fdp_exec_dir} OPTIONS recurse executable)
