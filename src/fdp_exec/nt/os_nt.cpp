@@ -558,7 +558,10 @@ opt<uint64_t> OsNt::thread_pc(proc_t proc, thread_t thread)
         return {};
 
     const auto rip = core::read_ptr(core_, *ktrap_frame + members_[KTRAP_FRAME_Rip]);
-    return rip; // rip can be null
+    if(!rip)
+        return {};
+
+    return *rip; // rip can be null
 }
 
 uint64_t OsNt::thread_id(proc_t proc, thread_t thread)

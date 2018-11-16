@@ -15,13 +15,13 @@ enum class err_e
 template<typename T>
 using return_t = nonstd::expected<T, err_e>;
 using status_t = return_t<void>;
-using error_t  = nonstd::unexpected_type<err_e>;
+using error_unexp_t  = nonstd::unexpected_type<err_e>;
 
 namespace err
 {
-    constexpr error_t make(err_e err)
+    constexpr error_unexp_t make(err_e err)
     {
-        return error_t{err};
+        return error_unexp_t{err};
     }
 
     static const status_t ok;

@@ -6,12 +6,13 @@
 
 // uint helpers
 template<typename T, T(*read)(const void*)>
-opt<T> read_mem(core::Core& core, uint64_t ptr)
+return_t<T> read_mem(core::Core& core, uint64_t ptr)
 {
     T value;
     const auto ok = core.mem.virtual_read(&value, ptr, sizeof value);
     if(!ok)
-        FAIL({}, "unable to read %zd bits at 0x%" PRIx64 "", 8 * sizeof value, ptr);
+        return {};
+        //FAIL({}, "unable to read %zd bits at 0x%" PRIx64 "", 8 * sizeof value, ptr);
 
     return read(&value);
 }

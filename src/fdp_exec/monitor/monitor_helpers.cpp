@@ -8,11 +8,11 @@ namespace
     static const int pointer_size = 0x8;
 }
 
-opt<arg_t> monitor_helpers::get_param_by_index(core::Core& core, int index)
+return_t<arg_t> monitor_helpers::get_param_by_index(core::Core& core, int index)
 {
     //TODO Deal with x86
     arg_t arg;
-    opt<uint64_t> res;
+    return_t<uint64_t> res;
     switch(index)
     {
         case 0: res = core.regs.read(FDP_RCX_REGISTER); break;
@@ -22,20 +22,20 @@ opt<arg_t> monitor_helpers::get_param_by_index(core::Core& core, int index)
         default: res = monitor_helpers::get_stack_by_index(core, index + 1);
     }
     if (!res)
-        return ext::nullopt;
+        return {};
 
     arg.val = *res;
     return arg;
 }
 
-opt<uint64_t> monitor_helpers::get_stack_by_index(core::Core& core, int index)
+return_t<uint64_t> monitor_helpers::get_stack_by_index(core::Core& core, int index)
 {
 
     const auto rsp = core.regs.read(FDP_RSP_REGISTER);
     return core::read_ptr(core, *rsp+ index*pointer_size);
 }
 
-opt<uint64_t> monitor_helpers::get_return_value(core::Core& core, proc_t proc)
+return_t<uint64_t> monitor_helpers::get_return_value(core::Core& core, proc_t proc)
 {
     const auto rsp = core.regs.read(FDP_RSP_REGISTER);
     const auto return_addr = core::read_ptr(core, *rsp+pointer_size);
