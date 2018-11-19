@@ -174,62 +174,16 @@ opt<span_t> pe::Pe::parse_debug_dir(const void* vsrc, uint64_t mod_base_addr, sp
     return span_t{mod_base_addr + addr_rawdata, size_rawdata};
 }
 
-opt<std::map<uint32_t, pe::FunctionEntry>> pe::Pe::parse_exception_dir(core::Core& core, const void* vsrc, uint64_t mod_base_addr, span_t exception_dir)
+namespace
 {
-    const auto src = reinterpret_cast<const uint8_t*>(vsrc);
-
-    std::map<uint32_t, FunctionEntry> function_table;
-    std::map<uint32_t, FunctionEntry> orphan_function_entries;
-
-    for (size_t i=0; i<exception_dir.size; i=i+sizeof(RuntimeFunction)){
-
-        const auto start_address = read_le32(&src[i+offsetof(RuntimeFunction, start_address)]);
-        const auto end_address = read_le32(&src[i+offsetof(RuntimeFunction, end_address)]);
-        const auto unwind_info_ptr = read_le32(&src[i+offsetof(RuntimeFunction, unwind_info)]);
-
-        UnwindInfo unwind_info;
-        const auto to_read = mod_base_addr + unwind_info_ptr;
-
-        auto ok = core.mem.virtual_read(unwind_info, to_read, sizeof unwind_info);
-        if(!ok)
-            FAIL({}, "unable to read unwind info");
-
-        const bool chained_flag = unwind_info[0] & UNWIND_CHAINED_FLAG_MASK;
-        const auto prolog_size = unwind_info[1];
-        const auto nbr_of_unwind_code = unwind_info[2];
-
-        //Deal with frame register
-        const auto frame_register = unwind_info[3] & 0x0F;           // register used as frame pointer
-        const uint8_t frame_reg_offset = 8*(unwind_info[3] >> 4);    // offset of frame register
-        if (frame_reg_offset != 0 && frame_register != UWINFO_RBP)
-            LOG(ERROR, "WARNING : the used framed register is not rbp (code %d), this case is never used and not implemented", frame_register);
-
-        const auto SIZE_UC = 2;
-
-        const auto r = chained_flag ? sizeof(RuntimeFunction) : 0;
-        const auto unwind_codes_size = nbr_of_unwind_code*SIZE_UC + r;
-        if(unwind_codes_size == 0){
-            std::vector<UnwindCode> unwind_codes;
-            FunctionEntry function_entry = {start_address, end_address, prolog_size, 0, 0, 0, 0, unwind_codes};
-            function_table.emplace(start_address, function_entry);
-            continue;
-        }
-
-        std::vector<uint8_t> buffer;
-        buffer.resize(unwind_codes_size);
-        core.mem.virtual_read(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof(UnwindInfo), unwind_codes_size);
-        if(!ok)
-            FAIL({}, "unable to read unwind codes");
-
+    void get_unwind_codes(std::vector<pe::UnwindCode>& unwind_codes, const std::vector<uint8_t>& buffer, uint32_t unwind_codes_size, uint32_t chained_info_size, uint32_t& stack_frame_size, uint32_t& prev_frame_reg)
+    {
         uint32_t register_size = 0x08;            //TODO Defined this somewhere else
 
-        std::vector<UnwindCode>     unwind_codes;
-        uint32_t stack_frame_size = 0;
-        int prev_frame_reg = 0;
         size_t idx = 0;
-        while(idx < unwind_codes_size - r)
+        while(idx < unwind_codes_size - chained_info_size)
         {
-            UnwindCode unwind_code = {buffer[idx], buffer[idx+1], 0};
+            pe::UnwindCode unwind_code = {buffer[idx], buffer[idx+1], 0};
 
             const auto unwind_operation = unwind_code.unwind_op_and_info & 0x0F;
             const auto unwind_code_info = unwind_code.unwind_op_and_info >> 4;
@@ -283,11 +237,66 @@ opt<std::map<uint32_t, pe::FunctionEntry>> pe::Pe::parse_exception_dir(core::Cor
 
             idx += 2;
         }
+    }
+}
+
+opt<std::map<uint32_t, pe::FunctionEntry>> pe::Pe::parse_exception_dir(core::Core& core, const void* vsrc, uint64_t mod_base_addr, span_t exception_dir)
+{
+    const auto src = reinterpret_cast<const uint8_t*>(vsrc);
+
+    std::map<uint32_t, FunctionEntry> function_table;
+    std::map<uint32_t, FunctionEntry> orphan_function_entries;
+
+    for (size_t i=0; i<exception_dir.size; i=i+sizeof(RuntimeFunction)){
+
+        const auto start_address = read_le32(&src[i+offsetof(RuntimeFunction, start_address)]);
+        const auto end_address = read_le32(&src[i+offsetof(RuntimeFunction, end_address)]);
+        const auto unwind_info_ptr = read_le32(&src[i+offsetof(RuntimeFunction, unwind_info)]);
+
+        UnwindInfo unwind_info;
+        const auto to_read = mod_base_addr + unwind_info_ptr;
+
+        auto ok = core.mem.virtual_read(unwind_info, to_read, sizeof unwind_info);
+        if(!ok)
+            FAIL({}, "unable to read unwind info");
+
+        const bool chained_flag = unwind_info[0] & UNWIND_CHAINED_FLAG_MASK;
+        const auto prolog_size = unwind_info[1];
+        const auto nbr_of_unwind_code = unwind_info[2];
+
+        //Deal with frame register
+        const auto frame_register = unwind_info[3] & 0x0F;           // register used as frame pointer
+        const uint8_t frame_reg_offset = 8*(unwind_info[3] >> 4);    // offset of frame register
+        if (frame_reg_offset != 0 && frame_register != UWINFO_RBP)
+            LOG(ERROR, "WARNING : the used framed register is not rbp (code %d), this case is never used and not implemented", frame_register);
+
+        const auto SIZE_UC = 2;
+
+        const auto chained_info_size = chained_flag ? sizeof(RuntimeFunction) : 0;
+        const auto unwind_codes_size = nbr_of_unwind_code*SIZE_UC + chained_info_size;
+        if(unwind_codes_size == 0){
+            std::vector<UnwindCode> unwind_codes;
+            FunctionEntry function_entry = {start_address, end_address, prolog_size, 0, 0, 0, 0, unwind_codes};
+            function_table.emplace(start_address, function_entry);
+            continue;
+        }
+
+        std::vector<uint8_t> buffer;
+        buffer.resize(unwind_codes_size);
+        core.mem.virtual_read(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof(UnwindInfo), unwind_codes_size);
+        if(!ok)
+            FAIL({}, "unable to read unwind codes");
+
+        std::vector<UnwindCode> unwind_codes;
+        uint32_t stack_frame_size = 0;
+        uint32_t prev_frame_reg = 0;
+        get_unwind_codes(unwind_codes, buffer, unwind_codes_size, chained_info_size, stack_frame_size, prev_frame_reg);
 
         // Deal with the runtime func at the end
         uint32_t mother_start_addr = 0;
-        if (chained_flag != 0){
-            mother_start_addr = read_le32(&buffer[idx+offsetof(RuntimeFunction, start_address)]);
+        if (chained_flag != 0)
+        {
+            mother_start_addr = read_le32(&buffer[unwind_codes_size-chained_info_size+offsetof(RuntimeFunction, start_address)]);
 
             const auto mother_function_entry = lookup_function_entry(mother_start_addr, function_table);
             if (!mother_function_entry){
