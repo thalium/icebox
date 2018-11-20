@@ -59,6 +59,7 @@ namespace
     } g_os_modules[] =
     {
         {&os::make_nt, "windows_nt"},
+        {&os::make_linux, "linux_nt"},
     };
 }
 
@@ -80,7 +81,6 @@ bool core::setup(Core& core, const std::string& name)
     core::setup(core.regs, *ptr_shm);
     core::setup(core.mem, *ptr_shm, core);
     core::setup(core.state, *ptr_shm, core);
-
     // register os helpers
     for(const auto& h : g_os_modules)
     {

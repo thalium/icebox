@@ -47,4 +47,5 @@ namespace os
     };
 
     std::unique_ptr<IModule> make_nt(core::Core& core);
+    std::unique_ptr<IModule> make_linux(core::Core& core);
 }
