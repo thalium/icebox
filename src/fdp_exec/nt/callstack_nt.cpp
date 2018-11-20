@@ -13,6 +13,69 @@
 
 namespace
 {
+    struct unwind_code_t
+    {
+        uint32_t   stack_size_used;
+        uint8_t    code_offset;
+        uint8_t    unwind_op_and_info;
+    };
+
+    struct function_entry_t
+    {
+        uint32_t    start_address;
+        uint32_t    end_address;
+        uint32_t    stack_frame_size;
+        uint32_t    prev_frame_reg;
+        uint32_t    mother_start_addr;
+        uint8_t     prolog_size;
+        uint8_t     frame_reg_offset;
+        size_t      unwind_codes_idx;
+        int         unwind_codes_nb;
+    };
+
+    struct FunctionTable
+    {
+        std::vector<function_entry_t>  function_entries;
+        std::vector<unwind_code_t>     unwinds;
+    };
+
+    enum unwind_op_codes_e
+    {
+        UWOP_PUSH_NONVOL,                         // info : register number
+        UWOP_ALLOC_LARGE,                         // no info, alloc size in next 2 slots
+        UWOP_ALLOC_SMALL,                         // info : size of allocation / 8 - 1
+        UWOP_SET_FPREG,                           // no info, FP = RSP + UNWIND_INFO.FPRegOffset*16
+        UWOP_SAVE_NONVOL,                         // info : register number, offset in next slot
+        UWOP_SAVE_NONVOL_FAR,                     // info : register number, offset in next 2 slots
+        UWOP_SAVE_XMM128,                         // info : XMM reg number, offset in next slot
+        UWOP_SAVE_XMM128_FAR,                     // info : XMM reg number, offset in next 2 slots
+        UWOP_PUSH_MACHFRAME,                      // info : 0: no error-code, 1: error-code
+    };
+
+    enum register_numbers_e
+    {
+        UWINFO_RAX,
+        UWINFO_RCX,
+        UWINFO_RDX,
+        UWINFO_RBX,
+        UWINFO_RSP,
+        UWINFO_RBP,
+        UWINFO_RSI,
+        UWINFO_RDI,
+    };
+
+    const int UNWIND_VERSION_MASK       = 0b0111;
+    const int UNWIND_CHAINED_FLAG_MASK  = 0b00100000;
+
+    typedef uint8_t UnwindInfo[4];
+
+    struct RuntimeFunction
+    {
+        uint32_t    start_address;
+        uint32_t    end_address;
+        uint32_t    unwind_info;
+    };
+
     struct CallstackNt
         : public callstack::ICallstack
     {
@@ -20,9 +83,12 @@ namespace
 
         // methods
         bool setup();
-        opt<pe::FunctionTable> get_mod_functiontable(const std::string& name, const span_t module);
-        opt<pe::FunctionTable> insert(const std::string& name, const span_t module);
+        opt<FunctionTable>     get_mod_functiontable(const std::string& name, const span_t module);
+        opt<FunctionTable>     insert(const std::string& name, const span_t module);
         opt<mod_t>             find_mod(proc_t proc, uint64_t addr);
+
+        opt<FunctionTable>      parse_exception_dir  (core::Core& core, const void* src, uint64_t mod_base_addr, span_t exception_dir);
+        const function_entry_t* lookup_function_entry(uint32_t offset_in_mod, const std::vector<function_entry_t>& function_entries);
 
         // os::IModule
         bool    get_callstack        (proc_t proc, uint64_t rip, uint64_t rsp, uint64_t rbp,
@@ -41,7 +107,7 @@ namespace
 namespace
 {
     using ModsByProc    = std::unordered_map<uint64_t, std::map<uint64_t, mod_t>>;
-    using ExceptionDirs = std::unordered_map<std::string, pe::FunctionTable>;
+    using ExceptionDirs = std::unordered_map<std::string, FunctionTable>;
 }
 
 struct CallstackNt::Data
@@ -81,7 +147,12 @@ namespace {
         uint64_t rbp;
     };
 
-    opt<uint64_t> get_stack_frame_size(const uint64_t off_in_mod, const pe::FunctionEntry& function_entry)
+    bool compare_function_entries(function_entry_t a, function_entry_t b)
+    {
+        return a.start_address<b.start_address;
+    }
+
+    opt<uint64_t> get_stack_frame_size(const uint64_t off_in_mod, const FunctionTable& function_table, const function_entry_t& function_entry)
     {
         const auto off_in_prolog = off_in_mod - function_entry.start_address;
         if (off_in_prolog == 0)
@@ -90,18 +161,17 @@ namespace {
         if (off_in_prolog > function_entry.prolog_size)
             return function_entry.stack_frame_size;
 
-        for (auto it : function_entry.unwind_codes){
-            if (off_in_prolog > it.code_offset){
-                return function_entry.stack_frame_size - it.stack_size_used;
+        const auto idx = function_entry.unwind_codes_idx;
+        const auto nb  = function_entry.unwind_codes_nb;
+        for (auto it = function_table.unwinds.begin()+idx; it < function_table.unwinds.begin()+idx+nb; ++it){
+            if (off_in_prolog > it->code_offset){
+                return function_entry.stack_frame_size - it->stack_size_used;
             }
         }
 
         return {};
     }
 
-}
-
-namespace{
     opt<mod_t> find_prev(const uint64_t addr, std::map<uint64_t, mod_t>& mod_map)
     {
         if (mod_map.empty())
@@ -156,9 +226,11 @@ opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
     return mod;
 }
 
-opt<pe::FunctionTable> CallstackNt::insert(const std::string& name, const span_t span)
+opt<FunctionTable> CallstackNt::insert(const std::string& name, const span_t span)
 {
     const auto exception_dir = pe_.get_directory_entry(core_, span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
+    if (!exception_dir)
+        FAIL({}, "Unable to get span of exception_dir");
 
     std::vector<uint8_t> buffer_excep;
     buffer_excep.resize(exception_dir->size);
@@ -166,7 +238,7 @@ opt<pe::FunctionTable> CallstackNt::insert(const std::string& name, const span_t
     if (!ok)
         FAIL({}, "unable to read exception dir of %s", name.c_str());
 
-    const auto function_table = pe_.parse_exception_dir(core_, &buffer_excep[0], span.addr, *exception_dir);
+    const auto function_table = parse_exception_dir(core_, &buffer_excep[0], span.addr, *exception_dir);
 
     const auto ret = d_->exception_dirs_.emplace(name, *function_table);
     if(!ret.second)
@@ -175,7 +247,7 @@ opt<pe::FunctionTable> CallstackNt::insert(const std::string& name, const span_t
     return function_table;
 }
 
-opt<pe::FunctionTable> CallstackNt::get_mod_functiontable(const std::string& name, const span_t span)
+opt<FunctionTable> CallstackNt::get_mod_functiontable(const std::string& name, const span_t span)
 {
     const auto it = d_->exception_dirs_.find(name);
     if(it != d_->exception_dirs_.end())
@@ -197,7 +269,7 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
         const auto mc = find_mod(proc, ctx.rip);
         if(!mc)
             FAIL(false, "Unable to find module");
-        auto modname  = core_.os->mod_name(proc, *mc);
+        const auto modname  = core_.os->mod_name(proc, *mc);
         const auto span     = core_.os->mod_span(proc, *mc);
 
         //Load PDB
@@ -219,24 +291,16 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
         }
 
         // Get function table of the module
-        const auto exception_dir = pe_.get_directory_entry(core_, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
-
-        std::vector<uint8_t> buffer_excep;
-        buffer_excep.resize(exception_dir->size);
-        auto ok = core_.mem.virtual_read(&buffer_excep[0], exception_dir->addr, exception_dir->size);
-        if (!ok)
-            FAIL(false, "unable to read exception dir of %s", modname ? modname->data() : "<noname>");
-
         const auto function_table = get_mod_functiontable(*modname, *span);
         if (!function_table)
             FAIL(false, "unable to get function table of %s", modname->c_str());
 
-        const auto off_in_mod = ctx.rip-span->addr;
-        const auto function_entry = pe_.lookup_function_entry(off_in_mod, *function_table);
+        const auto off_in_mod = (ctx.rip-span->addr) & 0xffffffff;
+        const auto function_entry = lookup_function_entry(off_in_mod, function_table->function_entries);
         if (!function_entry)
             FAIL(false, "No matching function entry");
 
-        const auto stack_frame_size = get_stack_frame_size(off_in_mod, *function_entry);
+        const auto stack_frame_size = get_stack_frame_size(off_in_mod, *function_table, *function_entry);
         if (!stack_frame_size)
             FAIL(false, "Can't calculate stack frame size");
 
@@ -273,4 +337,196 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
     }
 
     return true;
+}
+
+namespace
+{
+    void get_unwind_codes(std::vector<unwind_code_t>& unwind_codes, function_entry_t& function_entry, const std::vector<uint8_t>& buffer, uint32_t unwind_codes_size, uint32_t chained_info_size)
+    {
+        uint32_t register_size = 0x08;            //TODO Defined this somewhere else
+
+        size_t idx = 0;
+        while(idx < unwind_codes_size - chained_info_size)
+        {
+            const auto unwind_operation = buffer[idx+1] & 0x0F;
+            const auto unwind_code_info = buffer[idx+1] >> 4;
+
+            switch(unwind_operation){
+                case UWOP_PUSH_NONVOL :
+                    if (unwind_code_info == UWINFO_RBP)
+                        function_entry.prev_frame_reg = function_entry.stack_frame_size;
+
+                    function_entry.stack_frame_size += register_size;
+                    break;
+                case UWOP_ALLOC_LARGE :
+                    if (unwind_code_info == 0){
+                        const auto extra_info = read_le16(&buffer[idx+2]);
+                        function_entry.stack_frame_size += extra_info * 8;
+                        idx += 2;
+                    } else if (unwind_code_info == 1){
+                        const auto extra_info = read_le32(&buffer[idx+2]);
+                        function_entry.stack_frame_size += extra_info;
+                        idx += 4;
+                    }
+                    break;
+                case UWOP_ALLOC_SMALL :
+                    function_entry.stack_frame_size += unwind_code_info*8 + 8;
+                    break;
+                case UWOP_SET_FPREG :
+                    break;
+                case UWOP_SAVE_NONVOL :
+                    if (unwind_code_info == UWINFO_RBP)
+                        function_entry.prev_frame_reg = 8*read_le16(&buffer[idx+2]);
+
+                    idx += 2;
+                    break;
+                case UWOP_SAVE_NONVOL_FAR :
+                    if (unwind_code_info == UWINFO_RBP)
+                        function_entry.prev_frame_reg = read_le32(&buffer[idx+2]);
+
+                    idx += 4;
+                    break;
+                case UWOP_SAVE_XMM128 :
+                    idx += 2;
+                    break;
+                case UWOP_SAVE_XMM128_FAR :
+                    idx += 4;
+                    break;
+                case UWOP_PUSH_MACHFRAME :
+                    break;
+            }
+
+            unwind_codes.push_back({function_entry.stack_frame_size, buffer[idx], buffer[idx+1]});
+
+            idx += 2;
+        }
+    }
+
+    opt<function_entry_t> lookup_mother_function_entry(uint32_t mother_start_addr, const std::vector<function_entry_t>& function_entries)
+    {
+        for (const auto& fe : function_entries)
+        {
+            if(mother_start_addr == fe.start_address)
+                return fe;
+        }
+        return ext::nullopt;
+    }
+}
+
+opt<FunctionTable> CallstackNt::parse_exception_dir(core::Core& core, const void* vsrc, uint64_t mod_base_addr, span_t exception_dir)
+{
+    const auto src = reinterpret_cast<const uint8_t*>(vsrc);
+
+    FunctionTable function_table;
+    std::vector<function_entry_t> orphan_function_entries;
+
+    for (size_t i=0; i<exception_dir.size; i=i+sizeof(RuntimeFunction)){
+
+        function_entry_t function_entry = {0,0,0,0,0,0,0,0,0};
+        function_entry.start_address = read_le32(&src[i+offsetof(RuntimeFunction, start_address)]);
+        function_entry.end_address = read_le32(&src[i+offsetof(RuntimeFunction, end_address)]);
+        const auto unwind_info_ptr = read_le32(&src[i+offsetof(RuntimeFunction, unwind_info)]);
+
+        UnwindInfo unwind_info;
+        const auto to_read = mod_base_addr + unwind_info_ptr;
+
+        auto ok = core.mem.virtual_read(unwind_info, to_read, sizeof unwind_info);
+        if(!ok)
+            FAIL({}, "unable to read unwind info");
+
+        const bool chained_flag        = unwind_info[0] & UNWIND_CHAINED_FLAG_MASK;
+        function_entry.prolog_size     = unwind_info[1];
+        function_entry.unwind_codes_nb = unwind_info[2];
+
+        //Deal with frame register
+        const auto frame_register = unwind_info[3] & 0x0F;            // register used as frame pointer
+        function_entry.frame_reg_offset = 8*(unwind_info[3] >> 4);    // offset of frame register
+        if (function_entry.frame_reg_offset != 0 && frame_register != UWINFO_RBP)
+            LOG(ERROR, "WARNING : the used framed register is not rbp (code %d), this case is never used and not implemented", frame_register);
+
+        const auto SIZE_UC = 2;
+
+        const auto chained_info_size = chained_flag ? sizeof(RuntimeFunction) : 0;
+        const auto unwind_codes_size = function_entry.unwind_codes_nb*SIZE_UC + chained_info_size;
+        if(unwind_codes_size == 0){
+            function_entry.stack_frame_size = 0;
+            function_table.function_entries.push_back(function_entry);
+            continue;
+        }
+
+        std::vector<uint8_t> buffer;
+        buffer.resize(unwind_codes_size);
+        core.mem.virtual_read(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof(UnwindInfo), unwind_codes_size);
+        if(!ok)
+            FAIL({}, "unable to read unwind codes");
+
+        function_entry.unwind_codes_idx = function_table.unwinds.size();
+        get_unwind_codes(function_table.unwinds, function_entry, buffer, unwind_codes_size, chained_info_size);
+
+        // Deal with the runtime func at the end
+        uint32_t mother_start_addr = 0;
+        if (chained_flag != 0)
+        {
+            mother_start_addr = read_le32(&buffer[unwind_codes_size-chained_info_size+offsetof(RuntimeFunction, start_address)]);
+
+            const auto mother_function_entry = lookup_mother_function_entry(mother_start_addr, function_table.function_entries);
+            if (!mother_function_entry)
+            {
+                function_entry.mother_start_addr = mother_start_addr;
+                orphan_function_entries.push_back(function_entry);
+                continue;
+            }
+            function_entry.stack_frame_size += mother_function_entry->stack_frame_size;
+        }
+
+        function_table.function_entries.push_back(function_entry);
+
+#ifdef USE_DEBUG_PRINT
+        LOG(INFO, "Function entry : start %" PRIx32 " end %" PRIx32 " prolog size %" PRIx8 " number of codes %" PRIx8  " unwind info pointer %" PRIx32
+                " stack frame size %x", function_entry.start_address, function_entry.end_address, function_entry.prolog_size, function_entry.unwind_codes_nb,
+                 unwind_info_ptr, function_entry.stack_frame_size);
+#endif
+    }
+
+    for (auto& orphan_fe : orphan_function_entries){
+        const auto mother_function_entry = lookup_mother_function_entry(orphan_fe.mother_start_addr, function_table.function_entries);
+        if (!mother_function_entry)
+            continue;   //Should never happend
+
+        orphan_fe.stack_frame_size += mother_function_entry->stack_frame_size;
+        function_table.function_entries.push_back(orphan_fe);
+    }
+
+    sort(function_table.function_entries.begin(), function_table.function_entries.end(), compare_function_entries);
+    return function_table;
+}
+
+namespace{
+    template<typename T>
+    const function_entry_t* check_previous_exist(const T& it, const T& end, const uint32_t offset_in_mod)
+    {
+        if(it == end)
+            return nullptr;
+
+        if(offset_in_mod > it->end_address)
+            return nullptr;
+
+        return &(*it);
+    }
+}
+
+const function_entry_t* CallstackNt::lookup_function_entry(uint32_t offset_in_mod, const std::vector<function_entry_t>& function_entries)
+{
+    // lower bound returns first item greater or equal
+    auto it = lower_bound(function_entries.begin(), function_entries.end(), function_entry_t{offset_in_mod,0,0,0,0,0,0,0,0}, compare_function_entries);
+    const auto end = function_entries.end();
+    if(it == end)
+        return check_previous_exist(function_entries.rbegin(), function_entries.rend(), offset_in_mod);
+
+    // equal
+    if(it->start_address == offset_in_mod)
+        return check_previous_exist(it, end, offset_in_mod);
+
+    // stricly greater, go to previous item
+    return check_previous_exist(--it, end, offset_in_mod);
 }

@@ -7,27 +7,6 @@
 
 namespace pe
 {
-    struct UnwindCode
-    {
-        uint8_t    code_offset;
-        uint8_t    unwind_op_and_info;
-        uint32_t   stack_size_used;
-    };
-
-    struct FunctionEntry
-    {
-        uint32_t    start_address;
-        uint32_t    end_address;
-        uint8_t     prolog_size;
-        uint32_t    stack_frame_size;
-        uint32_t    prev_frame_reg;
-        uint8_t     frame_reg_offset;
-        uint32_t    mother_start_addr;
-        std::vector<UnwindCode> unwind_codes;
-    };
-
-    using FunctionTable = std::map<uint32_t, FunctionEntry>;
-
     enum pe_directory_entries_e
     {
         IMAGE_DIRECTORY_ENTRY_EXPORT,             // Export Directory
@@ -55,9 +34,7 @@ namespace pe
         bool setup(core::Core& core);
 
         opt<span_t>          get_directory_entry  (core::Core& core, const span_t span, const pe_directory_entries_e directory_entry_id);
-        opt<FunctionTable>   parse_exception_dir  (core::Core& core, const void* src, uint64_t mod_base_addr, span_t exception_dir);
         opt<span_t>          parse_debug_dir      (const void* src, uint64_t mod_base_addr, span_t debug_dir);
-        const FunctionEntry* lookup_function_entry(uint64_t addr, const FunctionTable function_table);
 
         struct Data;
         std::unique_ptr<Data> d_;
