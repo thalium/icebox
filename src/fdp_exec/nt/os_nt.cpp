@@ -26,6 +26,7 @@ namespace
         EPROCESS_ThreadListHead,
         EPROCESS_UniqueProcessId,
         EPROCESS_VadRoot,
+        EPROCESS_Wow64Process,
         ETHREAD_Cid,
         ETHREAD_Tcb,
         ETHREAD_ThreadListEntry,
@@ -67,6 +68,7 @@ namespace
         {EPROCESS_ThreadListHead,                       "nt", "_EPROCESS",                        "ThreadListHead"},
         {EPROCESS_UniqueProcessId,                      "nt", "_EPROCESS",                        "UniqueProcessId"},
         {EPROCESS_VadRoot,                              "nt", "_EPROCESS",                        "VadRoot"},
+        {EPROCESS_Wow64Process,                         "nt", "_EPROCESS",                        "Wow64Process"},
         {ETHREAD_Cid,                                   "nt", "_ETHREAD",                         "Cid"},
         {ETHREAD_Tcb,                                   "nt", "_ETHREAD",                         "Tcb"},
         {ETHREAD_ThreadListEntry,                       "nt", "_ETHREAD",                         "ThreadListEntry"},
@@ -133,6 +135,7 @@ namespace
         opt<std::string>    proc_name       (proc_t proc) override;
         bool                proc_is_valid   (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
+        opt<bool>           proc_is_wow64      (proc_t proc) override;
 
         bool                thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
         opt<thread_t>       thread_current  () override;
@@ -397,6 +400,14 @@ uint64_t OsNt::proc_id(proc_t proc)
         return 0;
 
     return *pid;
+}
+
+opt<bool> OsNt::proc_is_wow64(proc_t proc){
+    const auto isx64 = core::read_ptr(core_, proc.id + members_[EPROCESS_Wow64Process]);
+    if(!isx64)
+        return ext::nullopt;
+
+    return !!(*isx64);
 }
 
 bool OsNt::mod_list(proc_t proc, const on_mod_fn& on_mod)

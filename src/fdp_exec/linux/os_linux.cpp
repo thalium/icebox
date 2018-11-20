@@ -41,6 +41,7 @@ namespace
         opt<std::string>    proc_name       (proc_t proc) override;
         bool                proc_is_valid   (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
+        opt<bool>           proc_is_wow64   (proc_t proc) override;
 
         bool                thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
         opt<thread_t>       thread_current  () override;
@@ -183,6 +184,11 @@ bool OsLinux::proc_is_valid(proc_t proc)
 {
     UNUSED(proc);
     return true;
+}
+
+opt<bool> OsLinux::proc_is_wow64(proc_t proc){
+    UNUSED(proc);
+    return {};
 }
 
 bool OsLinux::thread_list(proc_t proc, const on_thread_fn& on_thread)

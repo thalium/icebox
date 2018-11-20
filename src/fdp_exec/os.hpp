@@ -26,6 +26,7 @@ namespace os
         virtual opt<std::string>    proc_name       (proc_t proc) = 0;
         virtual bool                proc_is_valid   (proc_t proc) = 0;
         virtual uint64_t            proc_id         (proc_t proc) = 0;
+        virtual opt<bool>           proc_is_wow64   (proc_t proc) = 0;
 
         virtual bool                thread_list     (proc_t proc, const on_thread_fn& on_thread) = 0;
         virtual opt<thread_t>       thread_current  () = 0;
