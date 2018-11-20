@@ -117,7 +117,7 @@ bool OsLinux::proc_list(const on_proc_fn& on_process)
 
 opt<proc_t> OsLinux::proc_current()
 {
-    return ext::nullopt;
+    return {};
 }
 
 opt<proc_t> OsLinux::proc_find(const std::string& name)
@@ -177,104 +177,99 @@ uint64_t OsLinux::proc_id(proc_t proc)
 }
 
 // DON'T USE THESE FUNCTIONS UNTIL YOU REWRITE THEM
+#define UNUSED(x) (void)(x)
+
 bool OsLinux::proc_is_valid(proc_t proc)
 {
-    if (proc.id < 1){}
-
+    UNUSED(proc);
     return true;
 }
 
 bool OsLinux::thread_list(proc_t proc, const on_thread_fn& on_thread)
 {
-    if (proc.id < 1){}
+    UNUSED(proc);
     thread_t dummy_thread = {0};
     on_thread(dummy_thread);
-
     return true;
 }
 
 opt<thread_t> OsLinux::thread_current()
 {
-    return ext::nullopt;
+    return {};
 }
 
 opt<proc_t> OsLinux::thread_proc(thread_t thread)
 {
-    if (thread.id < 1){}
-
-    return ext::nullopt;
+    UNUSED(thread);
+    return {};
 }
 
 opt<uint64_t> OsLinux::thread_pc(proc_t proc, thread_t thread)
 {
-    if (proc.id < 1 || thread.id < 1){}
-
-    return ext::nullopt;
+    UNUSED(proc);
+    UNUSED(thread);
+    return {};
 }
 
 uint64_t OsLinux::thread_id(proc_t proc, thread_t thread)
 {
-    if (proc.id < 1 || thread.id < 1){}
-
+    UNUSED(proc);
+    UNUSED(thread);
     return 0;
 }
 
 bool OsLinux::mod_list(proc_t proc, const on_mod_fn& on_module)
 {
-    if (proc.id < 1){}
+    UNUSED(proc);
     mod_t dummy_mod = {0};
     on_module(dummy_mod);
-
     return true;
 }
 
 opt<std::string> OsLinux::mod_name(proc_t proc, mod_t mod)
 {
-    if (proc.id < 1 || mod.id < 1){}
-
-    return ext::nullopt;
+    UNUSED(proc);
+    UNUSED(mod);
+    return {};
 }
 
 opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
 {
-    if (proc.id < 1 || mod.id < 1){}
-
-    return ext::nullopt;
+    UNUSED(proc);
+    UNUSED(mod);
+    return {};
 }
 
 opt<mod_t> OsLinux::mod_find(proc_t proc, uint64_t addr)
 {
-    if (proc.id < 1 || addr < 1){}
-
-    return ext::nullopt;
+    UNUSED(proc);
+    UNUSED(addr);
+    return {};
 }
 
 bool OsLinux::driver_list(const on_driver_fn& on_driver)
 {
     driver_t dummy_driver = {0};
     on_driver(dummy_driver);
-
     return true;
 }
 
 opt<driver_t> OsLinux::driver_find(const std::string& name)
 {
-    if (name.size() < 1) {}
-    return ext::nullopt;
+    UNUSED(name);
+    return {};
 }
 
 opt<std::string> OsLinux::driver_name(driver_t drv)
 {
-    if (drv.id < 1){}
-
-    return ext::nullopt;
+    UNUSED(drv);
+    return {};
 }
 
 opt<span_t> OsLinux::driver_span(driver_t drv)
 {
-    if (drv.id < 1){}
-
-    return ext::nullopt;
+    UNUSED(drv);
+    return {};
 }
 
 void OsLinux::debug_print()
