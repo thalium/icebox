@@ -146,10 +146,9 @@ namespace
                 int k = 0;
                 callstack->get_callstack(*target, *rip, *rsp, *rbp, [&](callstack::callstep_t callstep)
                 {
-                    auto cursor = core.sym.find(callstep.current_addr);
+                    auto cursor = core.sym.find(callstep.addr);
                     if (!cursor)
-                        cursor = sym::Cursor{sanitizer::sanitize_filename(*(core.os->mod_name(*target, callstep.mod))), "<nosymbol>",
-                                                                    callstep.current_addr - core.os->mod_span(*target, callstep.mod)->addr};
+                        cursor = sym::Cursor{"NoMod", "nosymbol", callstep.addr};
 
                     LOG(INFO, "%" PRId32 " - %s", k, sym::to_string(*cursor).data());
                     k++;

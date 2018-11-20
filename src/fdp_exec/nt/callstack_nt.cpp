@@ -327,7 +327,7 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
         LOG(INFO, "Offset of current func %" PRIx64 ", Caller address on stack %" PRIx64 " so %" PRIx64, off_in_mod, caller_addr_on_stack, *return_addr);
 #endif
 
-        if(on_callstep(callstack::callstep_t{*mc, ctx.rip}) == WALK_STOP)
+        if(on_callstep(callstack::callstep_t{ctx.rip}) == WALK_STOP)
             return true;
 
         ctx.rip = *return_addr;

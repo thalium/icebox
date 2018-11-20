@@ -52,7 +52,7 @@ namespace
                 continue;
             }
 
-            uint64_t addr = callsteps[info.cs_frame.idx + info.cs_frame.size - 1].current_addr;
+            uint64_t addr = callsteps[info.cs_frame.idx + info.cs_frame.size - 1].addr;
 
             if(intermediate_tree.find(addr) == intermediate_tree.end())
                 intermediate_tree[addr] = std::vector<bp_trigger_info_t>();
@@ -66,9 +66,8 @@ namespace
         {
             auto cursor = core.sym.find(it.first);
             if (!cursor)
-                cursor = sym::Cursor{sanitizer::sanitize_filename(""), "<nosymbol>", it.first};
-                // cursor = sym::Cursor{sanitizer::sanitize_filename(*(core.os->mod_name(target, callsteps[it.first].mod))), "<nosymbol>",
-                //                                                     callsteps[it.first].current_addr - core.os->mod_span(target, callsteps[it.first].mod)->addr};
+                cursor = sym::Cursor{"NoMod", "nosymbol>", it.first};
+
             calltree[sym::to_string(*cursor).data()] = create_calltree(core, target, callsteps, it.second, args);
         }
 
@@ -160,6 +159,15 @@ bool syscall_tracer::SyscallPlugin::private_get_callstack()
     callstack_->get_callstack(d_->target, *rip, *rsp, *rbp, [&](callstack::callstep_t cstep)
     {
         d_->callsteps.push_back(cstep);
+
+        if(true)
+        {
+            auto cursor = core_.sym.find(cstep.addr);
+            if (!cursor)
+                cursor = sym::Cursor{"NoMod", "<nosymbol>", cstep.addr};
+
+            LOG(INFO, "%" PRId64 " - %s", cs_size, sym::to_string(*cursor).data());
+        }
 
         cs_size++;
         if (cs_size<cs_depth)

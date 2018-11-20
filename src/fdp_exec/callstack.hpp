@@ -11,8 +11,7 @@ namespace callstack
 {
     struct callstep_t
     {
-        mod_t       mod;
-        uint64_t    current_addr;
+        uint64_t    addr;
     };
 
     struct ICallstack
