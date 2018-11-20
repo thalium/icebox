@@ -85,7 +85,7 @@ syscall_tracer::SyscallPlugin::SyscallPlugin(core::Core& core, pe::Pe& pe)
     : d_(std::make_unique<Data>())
     , core_(core)
     , pe_(pe)
-    , syscall_monitor_(core)
+    , generic_monitor_(core)
 {
 }
 
@@ -102,13 +102,13 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
     if(!callstack_)
         FAIL(false, "Unable to create callstack object");
 
-    const auto ok = syscall_monitor_.setup(d_->target);
+    const auto ok = generic_monitor_.setup(d_->target);
     if(!ok)
         FAIL(false, "Unable to setup syscall_monitor");
 
 
     // Register NtWriteFile observer
-    syscall_monitor_.register_NtWriteFile([&](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine, nt::PVOID ApcContext,
+    generic_monitor_.register_NtWriteFile([&](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine, nt::PVOID ApcContext,
                                                 nt::PIO_STATUS_BLOCK IoStatusBlock, nt::PVOID Buffer, nt::ULONG Length,
                                                 nt::PLARGE_INTEGER ByteOffsetm, nt::PULONG Key)
     {
@@ -133,14 +133,26 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
     });
 
     // Register NtClose observer
-    syscall_monitor_.register_NtClose([&](nt::HANDLE paramHandle)
+    generic_monitor_.register_NtClose([&](nt::HANDLE paramHandle)
     {
         LOG(INFO, "NtClose : %" PRIx64, paramHandle);
 
         d_->args[d_->trigger_nbr]["Handle"] = paramHandle;
 
-        //private_get_callstack();
+        private_get_callstack();
         d_->trigger_nbr++;
+        return 0;
+    });
+
+    // Register NtDeviceIoControlFile observer
+    generic_monitor_.register_NtDeviceIoControlFile([&](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine,
+                                                        nt::PVOID ApcContext, nt::PIO_STATUS_BLOCK IoStatusBlock, nt::ULONG IoControlCode,
+                                                        nt::PVOID InputBuffer, nt::ULONG InputBufferLength, nt::PVOID OutputBuffer,
+                                                        nt::ULONG OutputBufferLength)
+    {
+        LOG(INFO, " NtDeviceIoControlFile : %" PRIx64 " - %" PRIx64 " - %"  PRIx64 " - %" PRIx64 " - %"  PRIx64 " - %" PRIx64 " - %"  PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64,
+            FileHandle,Event,ApcRoutine,ApcContext,IoStatusBlock,IoControlCode,InputBuffer,InputBufferLength,OutputBuffer,OutputBufferLength);
+
         return 0;
     });
 
@@ -149,7 +161,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
 
 bool syscall_tracer::SyscallPlugin::private_get_callstack()
 {
-    const auto cs_depth = 10;
+    const auto cs_depth = 70;
 
     uint64_t idx = d_->callsteps.size();
     uint64_t cs_size = 0;
@@ -160,7 +172,7 @@ bool syscall_tracer::SyscallPlugin::private_get_callstack()
     {
         d_->callsteps.push_back(cstep);
 
-        if(true)
+        if(false)
         {
             auto cursor = core_.sym.find(cstep.addr);
             if (!cursor)

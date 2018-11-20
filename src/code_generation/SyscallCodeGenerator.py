@@ -5,14 +5,14 @@ import argparse
 
 # Strings for syscall_mon.gen.hpp
 register_function = """
-void syscall_mon::SyscallMonitor::register_{function_name}(const on_{function_name}_fn& on_{function_name_lc})
+void monitor::GenericMonitor::register_{function_name}(const on_{function_name}_fn& on_{function_name_lc})
 {{
     d_->observers_{function_name}.push_back(on_{function_name_lc});
 }}
 """
 
 onevent_function = """
-void syscall_mon::SyscallMonitor::on_{function_name}()
+void monitor::GenericMonitor::on_{function_name}()
 {{
     LOG(INFO, "Break on {function_name}");
     const auto nargs = {nbr_args};
@@ -32,25 +32,25 @@ retreive_arg = """const auto {name: <16}= nt::cast_to{type: <25}(args[{idx}]);""
 
 #Strings for syscall_macros.gen.hpp
 handlers_macro = """
-#define DECLARE_HANDLERS\\
+#define DECLARE_SYSCALLS_HANDLERS\\
     {handlers}
 """
-handler = "{{\"{function_name}\", &syscall_mon::SyscallMonitor::on_{function_name}}},"
+handler = "{{\"{function_name}\", &monitor::GenericMonitor::on_{function_name}}},"
 
 observers_macro = """
-#define DECLARE_OBSERVERS\\
+#define DECLARE_SYSCALLS_OBSERVERS\\
     {observers}
 """
 observer = "std::vector<on_{function_name}_fn> observers_{function_name};"
 
 onevent_callback_macro = """
-#define DECLARE_CALLBACK_PROTOS\\
+#define DECLARE_SYSCALLS_CALLBACK_PROTOS\\
     {onevent_callback_protos}
 """
 onevent_callback_proto = "using on_{function_name}_fn = std::function<{return_type}({args_types})>;"
 
 functions_protos_macro = """
-#define DECLARE_FUNCTIONS_PROTOS\\
+#define DECLARE_SYSCALLS_FUNCTIONS_PROTOS\\
     {functions_protos}
 """
 function_proto = "void on_{function_name: <38}();\\\n    void register_{function_name: <32}(const on_{function_name}_fn& on_{function_name_lc});"
@@ -69,7 +69,7 @@ if __name__ == '__main__':
 
     #Open output files
     syscall_mon_private_gen = open(script_args.output_dir+'/'+syscall_mon_private_gen_name, "w")
-    syscall_mon_private_gen.write("#pragma once\n\n#include \"syscall_mon.hpp\"\n\n")
+    syscall_mon_private_gen.write("#pragma once\n\n#include \"generic_mon.hpp\"\n\n")
 
     syscall_mon_public_gen  = open(script_args.output_dir+'/'+syscall_mon_public_gen_name, "w")
     syscall_mon_public_gen.write("#pragma once\n\n#include \"nt/nt.hpp\"\n\n")
