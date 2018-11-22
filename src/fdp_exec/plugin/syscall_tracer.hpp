@@ -4,6 +4,7 @@
 #include "utils/pe.hpp"
 
 #include "callstack.hpp"
+#include "nt/objects_nt.hpp"
 #include "monitor/generic_mon.hpp"
 
 #include <memory>
@@ -26,5 +27,6 @@ namespace syscall_tracer
         pe::Pe&                                pe_;
         monitor::GenericMonitor                generic_monitor_;
         std::shared_ptr<callstack::ICallstack> callstack_;
+        std::shared_ptr<nt::ObjectNt>           objects_nt_;
     };
 }

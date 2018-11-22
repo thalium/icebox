@@ -107,6 +107,10 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
         FAIL(false, "Unable to setup syscall_monitor");
 
 
+    objects_nt_ = nt::make_objectnt(core_);
+    if(!objects_nt_)
+        FAIL(false, "Unable to create ObjectNt object");
+
     // Register NtWriteFile observer
     generic_monitor_.register_NtWriteFile([&](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine, nt::PVOID ApcContext,
                                                 nt::PIO_STATUS_BLOCK IoStatusBlock, nt::PVOID Buffer, nt::ULONG Length,
@@ -124,7 +128,16 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
         char* dst = reinterpret_cast<char*>(&buf[0]);
         dst[Length-1] = '\0';
 
-        d_->args[d_->trigger_nbr]["FileHandle"] = FileHandle;
+        const auto obj = objects_nt_->get_object_ref(d_->target, FileHandle);
+        const auto obj_typename = objects_nt_->obj_typename(*obj);
+        const auto obj_filename = objects_nt_->fileobj_filename(*obj);
+
+        const auto device_obj = objects_nt_->fileobj_deviceobject(*obj);
+        const auto driver_obj = objects_nt_->deviceobj_driverobject(*device_obj);
+        const auto driver_name = objects_nt_->driverobj_drivername(*driver_obj);
+        LOG(INFO, " File handle; %" PRIx64 ", typename : %s, filename : %s, driver_name : %s", FileHandle, obj_typename->data(), obj_filename->data(), driver_name->data());
+
+        d_->args[d_->trigger_nbr]["FileName"]   = obj_filename->data();
         d_->args[d_->trigger_nbr]["Buffer"]     = dst;
 
         private_get_callstack();
