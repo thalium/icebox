@@ -14,7 +14,8 @@ void monitor::GenericMonitor::on_NtAcceptConnectPort()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto PortContext     = nt::cast_to<nt::PVOID>              (args[1]);
@@ -40,7 +41,8 @@ void monitor::GenericMonitor::on_NtAccessCheckAndAuditAlarm()
     const auto nargs = 11;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto HandleId        = nt::cast_to<nt::PVOID>              (args[1]);
@@ -71,7 +73,8 @@ void monitor::GenericMonitor::on_NtAccessCheckByTypeAndAuditAlarm()
     const auto nargs = 16;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto HandleId        = nt::cast_to<nt::PVOID>              (args[1]);
@@ -107,7 +110,8 @@ void monitor::GenericMonitor::on_NtAccessCheckByType()
     const auto nargs = 11;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SecurityDescriptor= nt::cast_to<nt::PSECURITY_DESCRIPTOR>(args[0]);
     const auto PrincipalSelfSid= nt::cast_to<nt::PSID>               (args[1]);
@@ -138,7 +142,8 @@ void monitor::GenericMonitor::on_NtAccessCheckByTypeResultListAndAuditAlarmByHan
     const auto nargs = 17;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto HandleId        = nt::cast_to<nt::PVOID>              (args[1]);
@@ -175,7 +180,8 @@ void monitor::GenericMonitor::on_NtAccessCheckByTypeResultListAndAuditAlarm()
     const auto nargs = 16;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto HandleId        = nt::cast_to<nt::PVOID>              (args[1]);
@@ -211,7 +217,8 @@ void monitor::GenericMonitor::on_NtAccessCheckByTypeResultList()
     const auto nargs = 11;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SecurityDescriptor= nt::cast_to<nt::PSECURITY_DESCRIPTOR>(args[0]);
     const auto PrincipalSelfSid= nt::cast_to<nt::PSID>               (args[1]);
@@ -242,7 +249,8 @@ void monitor::GenericMonitor::on_NtAccessCheck()
     const auto nargs = 8;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SecurityDescriptor= nt::cast_to<nt::PSECURITY_DESCRIPTOR>(args[0]);
     const auto ClientToken     = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -270,7 +278,8 @@ void monitor::GenericMonitor::on_NtAddAtom()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto AtomName        = nt::cast_to<nt::PWSTR>              (args[0]);
     const auto Length          = nt::cast_to<nt::ULONG>              (args[1]);
@@ -293,7 +302,8 @@ void monitor::GenericMonitor::on_NtAddBootEntry()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto BootEntry       = nt::cast_to<nt::PBOOT_ENTRY>        (args[0]);
     const auto Id              = nt::cast_to<nt::PULONG>             (args[1]);
@@ -315,7 +325,8 @@ void monitor::GenericMonitor::on_NtAddDriverEntry()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DriverEntry     = nt::cast_to<nt::PEFI_DRIVER_ENTRY>  (args[0]);
     const auto Id              = nt::cast_to<nt::PULONG>             (args[1]);
@@ -337,7 +348,8 @@ void monitor::GenericMonitor::on_NtAdjustGroupsToken()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TokenHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ResetToDefault  = nt::cast_to<nt::BOOLEAN>            (args[1]);
@@ -363,7 +375,8 @@ void monitor::GenericMonitor::on_NtAdjustPrivilegesToken()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TokenHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto DisableAllPrivileges= nt::cast_to<nt::BOOLEAN>            (args[1]);
@@ -389,7 +402,8 @@ void monitor::GenericMonitor::on_NtAlertResumeThread()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PreviousSuspendCount= nt::cast_to<nt::PULONG>             (args[1]);
@@ -411,7 +425,8 @@ void monitor::GenericMonitor::on_NtAlertThread()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -432,7 +447,8 @@ void monitor::GenericMonitor::on_NtAllocateLocallyUniqueId()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Luid            = nt::cast_to<nt::PLUID>              (args[0]);
 
@@ -453,7 +469,8 @@ void monitor::GenericMonitor::on_NtAllocateReserveObject()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto MemoryReserveHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[1]);
@@ -476,7 +493,8 @@ void monitor::GenericMonitor::on_NtAllocateUserPhysicalPages()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto NumberOfPages   = nt::cast_to<nt::PULONG_PTR>         (args[1]);
@@ -499,7 +517,8 @@ void monitor::GenericMonitor::on_NtAllocateUuids()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Time            = nt::cast_to<nt::PULARGE_INTEGER>    (args[0]);
     const auto Range           = nt::cast_to<nt::PULONG>             (args[1]);
@@ -523,7 +542,8 @@ void monitor::GenericMonitor::on_NtAllocateVirtualMemory()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto STARBaseAddress = nt::cast_to<nt::PVOID>              (args[1]);
@@ -549,7 +569,8 @@ void monitor::GenericMonitor::on_NtAlpcAcceptConnectPort()
     const auto nargs = 9;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto ConnectionPortHandle= nt::cast_to<nt::HANDLE>             (args[1]);
@@ -578,7 +599,8 @@ void monitor::GenericMonitor::on_NtAlpcCancelMessage()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -601,7 +623,8 @@ void monitor::GenericMonitor::on_NtAlpcConnectPort()
     const auto nargs = 11;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto PortName        = nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
@@ -632,7 +655,8 @@ void monitor::GenericMonitor::on_NtAlpcCreatePort()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[1]);
@@ -655,7 +679,8 @@ void monitor::GenericMonitor::on_NtAlpcCreatePortSection()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -681,7 +706,8 @@ void monitor::GenericMonitor::on_NtAlpcCreateResourceReserve()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -705,7 +731,8 @@ void monitor::GenericMonitor::on_NtAlpcCreateSectionView()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -728,7 +755,8 @@ void monitor::GenericMonitor::on_NtAlpcCreateSecurityContext()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -751,7 +779,8 @@ void monitor::GenericMonitor::on_NtAlpcDeletePortSection()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -774,7 +803,8 @@ void monitor::GenericMonitor::on_NtAlpcDeleteResourceReserve()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -797,7 +827,8 @@ void monitor::GenericMonitor::on_NtAlpcDeleteSectionView()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -820,7 +851,8 @@ void monitor::GenericMonitor::on_NtAlpcDeleteSecurityContext()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -843,7 +875,8 @@ void monitor::GenericMonitor::on_NtAlpcDisconnectPort()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -865,7 +898,8 @@ void monitor::GenericMonitor::on_NtAlpcImpersonateClientOfPort()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PortMessage     = nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
@@ -888,7 +922,8 @@ void monitor::GenericMonitor::on_NtAlpcOpenSenderProcess()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -914,7 +949,8 @@ void monitor::GenericMonitor::on_NtAlpcOpenSenderThread()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -940,7 +976,8 @@ void monitor::GenericMonitor::on_NtAlpcQueryInformation()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PortInformationClass= nt::cast_to<nt::ALPC_PORT_INFORMATION_CLASS>(args[1]);
@@ -965,7 +1002,8 @@ void monitor::GenericMonitor::on_NtAlpcQueryInformationMessage()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PortMessage     = nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
@@ -991,7 +1029,8 @@ void monitor::GenericMonitor::on_NtAlpcRevokeSecurityContext()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -1014,7 +1053,8 @@ void monitor::GenericMonitor::on_NtAlpcSendWaitReceivePort()
     const auto nargs = 8;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -1042,7 +1082,8 @@ void monitor::GenericMonitor::on_NtAlpcSetInformation()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PortInformationClass= nt::cast_to<nt::ALPC_PORT_INFORMATION_CLASS>(args[1]);
@@ -1066,7 +1107,8 @@ void monitor::GenericMonitor::on_NtApphelpCacheControl()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto type            = nt::cast_to<nt::APPHELPCOMMAND>     (args[0]);
     const auto buf             = nt::cast_to<nt::PVOID>              (args[1]);
@@ -1088,7 +1130,8 @@ void monitor::GenericMonitor::on_NtAreMappedFilesTheSame()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto File1MappedAsAnImage= nt::cast_to<nt::PVOID>              (args[0]);
     const auto File2MappedAsFile= nt::cast_to<nt::PVOID>              (args[1]);
@@ -1110,7 +1153,8 @@ void monitor::GenericMonitor::on_NtAssignProcessToJobObject()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto JobHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -1132,7 +1176,8 @@ void monitor::GenericMonitor::on_NtCallbackReturn()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto OutputBuffer    = nt::cast_to<nt::PVOID>              (args[0]);
     const auto OutputLength    = nt::cast_to<nt::ULONG>              (args[1]);
@@ -1155,7 +1200,8 @@ void monitor::GenericMonitor::on_NtCancelIoFileEx()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoRequestToCancel= nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
@@ -1178,7 +1224,8 @@ void monitor::GenericMonitor::on_NtCancelIoFile()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
@@ -1200,7 +1247,8 @@ void monitor::GenericMonitor::on_NtCancelSynchronousIoFile()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoRequestToCancel= nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
@@ -1223,7 +1271,8 @@ void monitor::GenericMonitor::on_NtCancelTimer()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TimerHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto CurrentState    = nt::cast_to<nt::PBOOLEAN>           (args[1]);
@@ -1245,7 +1294,8 @@ void monitor::GenericMonitor::on_NtClearEvent()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -1266,7 +1316,8 @@ void monitor::GenericMonitor::on_NtClose()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -1287,7 +1338,8 @@ void monitor::GenericMonitor::on_NtCloseObjectAuditAlarm()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto HandleId        = nt::cast_to<nt::PVOID>              (args[1]);
@@ -1310,7 +1362,8 @@ void monitor::GenericMonitor::on_NtCommitComplete()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -1332,7 +1385,8 @@ void monitor::GenericMonitor::on_NtCommitEnlistment()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -1354,7 +1408,8 @@ void monitor::GenericMonitor::on_NtCommitTransaction()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Wait            = nt::cast_to<nt::BOOLEAN>            (args[1]);
@@ -1376,7 +1431,8 @@ void monitor::GenericMonitor::on_NtCompactKeys()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Count           = nt::cast_to<nt::ULONG>              (args[0]);
     const auto KeyArray        = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -1398,7 +1454,8 @@ void monitor::GenericMonitor::on_NtCompareTokens()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FirstTokenHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto SecondTokenHandle= nt::cast_to<nt::HANDLE>             (args[1]);
@@ -1421,7 +1478,8 @@ void monitor::GenericMonitor::on_NtCompleteConnectPort()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -1442,7 +1500,8 @@ void monitor::GenericMonitor::on_NtCompressKey()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Key             = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -1463,7 +1522,8 @@ void monitor::GenericMonitor::on_NtConnectPort()
     const auto nargs = 8;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto PortName        = nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
@@ -1491,7 +1551,8 @@ void monitor::GenericMonitor::on_NtContinue()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ContextRecord   = nt::cast_to<nt::PCONTEXT>           (args[0]);
     const auto TestAlert       = nt::cast_to<nt::BOOLEAN>            (args[1]);
@@ -1513,7 +1574,8 @@ void monitor::GenericMonitor::on_NtCreateDebugObject()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DebugObjectHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -1537,7 +1599,8 @@ void monitor::GenericMonitor::on_NtCreateDirectoryObject()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DirectoryHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -1560,7 +1623,8 @@ void monitor::GenericMonitor::on_NtCreateEnlistment()
     const auto nargs = 8;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -1588,7 +1652,8 @@ void monitor::GenericMonitor::on_NtCreateEvent()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -1613,7 +1678,8 @@ void monitor::GenericMonitor::on_NtCreateEventPair()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -1636,7 +1702,8 @@ void monitor::GenericMonitor::on_NtCreateFile()
     const auto nargs = 11;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -1667,7 +1734,8 @@ void monitor::GenericMonitor::on_NtCreateIoCompletion()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto IoCompletionHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -1691,7 +1759,8 @@ void monitor::GenericMonitor::on_NtCreateJobObject()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto JobHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -1714,7 +1783,8 @@ void monitor::GenericMonitor::on_NtCreateJobSet()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto NumJob          = nt::cast_to<nt::ULONG>              (args[0]);
     const auto UserJobSet      = nt::cast_to<nt::PJOB_SET_ARRAY>     (args[1]);
@@ -1737,7 +1807,8 @@ void monitor::GenericMonitor::on_NtCreateKeyedEvent()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyedEventHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -1761,7 +1832,8 @@ void monitor::GenericMonitor::on_NtCreateKey()
     const auto nargs = 7;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -1788,7 +1860,8 @@ void monitor::GenericMonitor::on_NtCreateKeyTransacted()
     const auto nargs = 8;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -1816,7 +1889,8 @@ void monitor::GenericMonitor::on_NtCreateMailslotFile()
     const auto nargs = 8;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ULONG>              (args[1]);
@@ -1844,7 +1918,8 @@ void monitor::GenericMonitor::on_NtCreateMutant()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto MutantHandle    = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -1868,7 +1943,8 @@ void monitor::GenericMonitor::on_NtCreateNamedPipeFile()
     const auto nargs = 14;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ULONG>              (args[1]);
@@ -1902,7 +1978,8 @@ void monitor::GenericMonitor::on_NtCreatePagingFile()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PageFileName    = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto MinimumSize     = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -1926,7 +2003,8 @@ void monitor::GenericMonitor::on_NtCreatePort()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[1]);
@@ -1951,7 +2029,8 @@ void monitor::GenericMonitor::on_NtCreatePrivateNamespace()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto NamespaceHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -1975,7 +2054,8 @@ void monitor::GenericMonitor::on_NtCreateProcessEx()
     const auto nargs = 9;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -2004,7 +2084,8 @@ void monitor::GenericMonitor::on_NtCreateProcess()
     const auto nargs = 8;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -2032,7 +2113,8 @@ void monitor::GenericMonitor::on_NtCreateProfileEx()
     const auto nargs = 10;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProfileHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto Process         = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -2062,7 +2144,8 @@ void monitor::GenericMonitor::on_NtCreateProfile()
     const auto nargs = 9;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProfileHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto Process         = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -2091,7 +2174,8 @@ void monitor::GenericMonitor::on_NtCreateResourceManager()
     const auto nargs = 7;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -2118,7 +2202,8 @@ void monitor::GenericMonitor::on_NtCreateSection()
     const auto nargs = 7;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SectionHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -2145,7 +2230,8 @@ void monitor::GenericMonitor::on_NtCreateSemaphore()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SemaphoreHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -2170,7 +2256,8 @@ void monitor::GenericMonitor::on_NtCreateSymbolicLinkObject()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto LinkHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -2194,7 +2281,8 @@ void monitor::GenericMonitor::on_NtCreateThreadEx()
     const auto nargs = 11;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -2225,7 +2313,8 @@ void monitor::GenericMonitor::on_NtCreateThread()
     const auto nargs = 8;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -2253,7 +2342,8 @@ void monitor::GenericMonitor::on_NtCreateTimer()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TimerHandle     = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -2277,7 +2367,8 @@ void monitor::GenericMonitor::on_NtCreateToken()
     const auto nargs = 13;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TokenHandle     = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -2310,7 +2401,8 @@ void monitor::GenericMonitor::on_NtCreateTransactionManager()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TmHandle        = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -2336,7 +2428,8 @@ void monitor::GenericMonitor::on_NtCreateTransaction()
     const auto nargs = 10;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -2366,7 +2459,8 @@ void monitor::GenericMonitor::on_NtCreateUserProcess()
     const auto nargs = 11;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto ThreadHandle    = nt::cast_to<nt::PHANDLE>            (args[1]);
@@ -2397,7 +2491,8 @@ void monitor::GenericMonitor::on_NtCreateWaitablePort()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[1]);
@@ -2422,7 +2517,8 @@ void monitor::GenericMonitor::on_NtCreateWorkerFactory()
     const auto nargs = 10;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto WorkerFactoryHandleReturn= nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -2452,7 +2548,8 @@ void monitor::GenericMonitor::on_NtDebugActiveProcess()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto DebugObjectHandle= nt::cast_to<nt::HANDLE>             (args[1]);
@@ -2474,7 +2571,8 @@ void monitor::GenericMonitor::on_NtDebugContinue()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DebugObjectHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ClientId        = nt::cast_to<nt::PCLIENT_ID>         (args[1]);
@@ -2497,7 +2595,8 @@ void monitor::GenericMonitor::on_NtDelayExecution()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Alertable       = nt::cast_to<nt::BOOLEAN>            (args[0]);
     const auto DelayInterval   = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -2519,7 +2618,8 @@ void monitor::GenericMonitor::on_NtDeleteAtom()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Atom            = nt::cast_to<nt::RTL_ATOM>           (args[0]);
 
@@ -2540,7 +2640,8 @@ void monitor::GenericMonitor::on_NtDeleteBootEntry()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Id              = nt::cast_to<nt::ULONG>              (args[0]);
 
@@ -2561,7 +2662,8 @@ void monitor::GenericMonitor::on_NtDeleteDriverEntry()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Id              = nt::cast_to<nt::ULONG>              (args[0]);
 
@@ -2582,7 +2684,8 @@ void monitor::GenericMonitor::on_NtDeleteFile()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
 
@@ -2603,7 +2706,8 @@ void monitor::GenericMonitor::on_NtDeleteKey()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -2624,7 +2728,8 @@ void monitor::GenericMonitor::on_NtDeleteObjectAuditAlarm()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto HandleId        = nt::cast_to<nt::PVOID>              (args[1]);
@@ -2647,7 +2752,8 @@ void monitor::GenericMonitor::on_NtDeletePrivateNamespace()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto NamespaceHandle = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -2668,7 +2774,8 @@ void monitor::GenericMonitor::on_NtDeleteValueKey()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ValueName       = nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
@@ -2690,7 +2797,8 @@ void monitor::GenericMonitor::on_NtDeviceIoControlFile()
     const auto nargs = 10;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Event           = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -2720,7 +2828,8 @@ void monitor::GenericMonitor::on_NtDisplayString()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto String          = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
 
@@ -2741,7 +2850,8 @@ void monitor::GenericMonitor::on_NtDrawText()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Text            = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
 
@@ -2762,7 +2872,8 @@ void monitor::GenericMonitor::on_NtDuplicateObject()
     const auto nargs = 7;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SourceProcessHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto SourceHandle    = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -2789,7 +2900,8 @@ void monitor::GenericMonitor::on_NtDuplicateToken()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ExistingTokenHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -2815,7 +2927,8 @@ void monitor::GenericMonitor::on_NtEnumerateBootEntries()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Buffer          = nt::cast_to<nt::PVOID>              (args[0]);
     const auto BufferLength    = nt::cast_to<nt::PULONG>             (args[1]);
@@ -2837,7 +2950,8 @@ void monitor::GenericMonitor::on_NtEnumerateDriverEntries()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Buffer          = nt::cast_to<nt::PVOID>              (args[0]);
     const auto BufferLength    = nt::cast_to<nt::PULONG>             (args[1]);
@@ -2859,7 +2973,8 @@ void monitor::GenericMonitor::on_NtEnumerateKey()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Index           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -2885,7 +3000,8 @@ void monitor::GenericMonitor::on_NtEnumerateSystemEnvironmentValuesEx()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto InformationClass= nt::cast_to<nt::ULONG>              (args[0]);
     const auto Buffer          = nt::cast_to<nt::PVOID>              (args[1]);
@@ -2908,7 +3024,8 @@ void monitor::GenericMonitor::on_NtEnumerateTransactionObject()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto RootObjectHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto QueryType       = nt::cast_to<nt::KTMOBJECT_TYPE>     (args[1]);
@@ -2933,7 +3050,8 @@ void monitor::GenericMonitor::on_NtEnumerateValueKey()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Index           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -2959,7 +3077,8 @@ void monitor::GenericMonitor::on_NtExtendSection()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SectionHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto NewSectionSize  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -2981,7 +3100,8 @@ void monitor::GenericMonitor::on_NtFilterToken()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ExistingTokenHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -3007,7 +3127,8 @@ void monitor::GenericMonitor::on_NtFindAtom()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto AtomName        = nt::cast_to<nt::PWSTR>              (args[0]);
     const auto Length          = nt::cast_to<nt::ULONG>              (args[1]);
@@ -3030,7 +3151,8 @@ void monitor::GenericMonitor::on_NtFlushBuffersFile()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
@@ -3052,7 +3174,8 @@ void monitor::GenericMonitor::on_NtFlushInstallUILanguage()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto InstallUILanguage= nt::cast_to<nt::LANGID>             (args[0]);
     const auto SetComittedFlag = nt::cast_to<nt::ULONG>              (args[1]);
@@ -3074,7 +3197,8 @@ void monitor::GenericMonitor::on_NtFlushInstructionCache()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto BaseAddress     = nt::cast_to<nt::PVOID>              (args[1]);
@@ -3097,7 +3221,8 @@ void monitor::GenericMonitor::on_NtFlushKey()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -3118,7 +3243,8 @@ void monitor::GenericMonitor::on_NtFlushVirtualMemory()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto STARBaseAddress = nt::cast_to<nt::PVOID>              (args[1]);
@@ -3142,7 +3268,8 @@ void monitor::GenericMonitor::on_NtFreeUserPhysicalPages()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto NumberOfPages   = nt::cast_to<nt::PULONG_PTR>         (args[1]);
@@ -3165,7 +3292,8 @@ void monitor::GenericMonitor::on_NtFreeVirtualMemory()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto STARBaseAddress = nt::cast_to<nt::PVOID>              (args[1]);
@@ -3189,7 +3317,8 @@ void monitor::GenericMonitor::on_NtFreezeRegistry()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TimeOutInSeconds= nt::cast_to<nt::ULONG>              (args[0]);
 
@@ -3210,7 +3339,8 @@ void monitor::GenericMonitor::on_NtFreezeTransactions()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FreezeTimeout   = nt::cast_to<nt::PLARGE_INTEGER>     (args[0]);
     const auto ThawTimeout     = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -3232,7 +3362,8 @@ void monitor::GenericMonitor::on_NtFsControlFile()
     const auto nargs = 10;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Event           = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -3262,7 +3393,8 @@ void monitor::GenericMonitor::on_NtGetContextThread()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ThreadContext   = nt::cast_to<nt::PCONTEXT>           (args[1]);
@@ -3284,7 +3416,8 @@ void monitor::GenericMonitor::on_NtGetDevicePowerState()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Device          = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto STARState       = nt::cast_to<nt::DEVICE_POWER_STATE> (args[1]);
@@ -3306,7 +3439,8 @@ void monitor::GenericMonitor::on_NtGetMUIRegistryInfo()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[0]);
     const auto DataSize        = nt::cast_to<nt::PULONG>             (args[1]);
@@ -3329,7 +3463,8 @@ void monitor::GenericMonitor::on_NtGetNextProcess()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -3354,7 +3489,8 @@ void monitor::GenericMonitor::on_NtGetNextThread()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -3380,7 +3516,8 @@ void monitor::GenericMonitor::on_NtGetNlsSectionPtr()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SectionType     = nt::cast_to<nt::ULONG>              (args[0]);
     const auto SectionData     = nt::cast_to<nt::ULONG>              (args[1]);
@@ -3405,7 +3542,8 @@ void monitor::GenericMonitor::on_NtGetNotificationResourceManager()
     const auto nargs = 7;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TransactionNotification= nt::cast_to<nt::PTRANSACTION_NOTIFICATION>(args[1]);
@@ -3432,7 +3570,8 @@ void monitor::GenericMonitor::on_NtGetPlugPlayEvent()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Context         = nt::cast_to<nt::PVOID>              (args[1]);
@@ -3456,7 +3595,8 @@ void monitor::GenericMonitor::on_NtGetWriteWatch()
     const auto nargs = 7;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -3483,7 +3623,8 @@ void monitor::GenericMonitor::on_NtImpersonateAnonymousToken()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -3504,7 +3645,8 @@ void monitor::GenericMonitor::on_NtImpersonateClientOfPort()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Message         = nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
@@ -3526,7 +3668,8 @@ void monitor::GenericMonitor::on_NtImpersonateThread()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ServerThreadHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ClientThreadHandle= nt::cast_to<nt::HANDLE>             (args[1]);
@@ -3549,7 +3692,8 @@ void monitor::GenericMonitor::on_NtInitializeNlsFiles()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto STARBaseAddress = nt::cast_to<nt::PVOID>              (args[0]);
     const auto DefaultLocaleId = nt::cast_to<nt::PLCID>              (args[1]);
@@ -3572,7 +3716,8 @@ void monitor::GenericMonitor::on_NtInitializeRegistry()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto BootCondition   = nt::cast_to<nt::USHORT>             (args[0]);
 
@@ -3593,7 +3738,8 @@ void monitor::GenericMonitor::on_NtInitiatePowerAction()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SystemAction    = nt::cast_to<nt::POWER_ACTION>       (args[0]);
     const auto MinSystemState  = nt::cast_to<nt::SYSTEM_POWER_STATE> (args[1]);
@@ -3617,7 +3763,8 @@ void monitor::GenericMonitor::on_NtIsProcessInJob()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto JobHandle       = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -3639,7 +3786,8 @@ void monitor::GenericMonitor::on_NtListenPort()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ConnectionRequest= nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
@@ -3661,7 +3809,8 @@ void monitor::GenericMonitor::on_NtLoadDriver()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DriverServiceName= nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
 
@@ -3682,7 +3831,8 @@ void monitor::GenericMonitor::on_NtLoadKey2()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto SourceFile      = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[1]);
@@ -3705,7 +3855,8 @@ void monitor::GenericMonitor::on_NtLoadKeyEx()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto SourceFile      = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[1]);
@@ -3729,7 +3880,8 @@ void monitor::GenericMonitor::on_NtLoadKey()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto SourceFile      = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[1]);
@@ -3751,7 +3903,8 @@ void monitor::GenericMonitor::on_NtLockFile()
     const auto nargs = 10;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Event           = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -3781,7 +3934,8 @@ void monitor::GenericMonitor::on_NtLockProductActivationKeys()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto STARpPrivateVer = nt::cast_to<nt::ULONG>              (args[0]);
     const auto STARpSafeMode   = nt::cast_to<nt::ULONG>              (args[1]);
@@ -3803,7 +3957,8 @@ void monitor::GenericMonitor::on_NtLockRegistryKey()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -3824,7 +3979,8 @@ void monitor::GenericMonitor::on_NtLockVirtualMemory()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto STARBaseAddress = nt::cast_to<nt::PVOID>              (args[1]);
@@ -3848,7 +4004,8 @@ void monitor::GenericMonitor::on_NtMakePermanentObject()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -3869,7 +4026,8 @@ void monitor::GenericMonitor::on_NtMakeTemporaryObject()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -3890,7 +4048,8 @@ void monitor::GenericMonitor::on_NtMapCMFModule()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto What            = nt::cast_to<nt::ULONG>              (args[0]);
     const auto Index           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -3916,7 +4075,8 @@ void monitor::GenericMonitor::on_NtMapUserPhysicalPages()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto VirtualAddress  = nt::cast_to<nt::PVOID>              (args[0]);
     const auto NumberOfPages   = nt::cast_to<nt::ULONG_PTR>          (args[1]);
@@ -3939,7 +4099,8 @@ void monitor::GenericMonitor::on_NtMapUserPhysicalPagesScatter()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto STARVirtualAddresses= nt::cast_to<nt::PVOID>              (args[0]);
     const auto NumberOfPages   = nt::cast_to<nt::ULONG_PTR>          (args[1]);
@@ -3962,7 +4123,8 @@ void monitor::GenericMonitor::on_NtMapViewOfSection()
     const auto nargs = 10;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SectionHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -3992,7 +4154,8 @@ void monitor::GenericMonitor::on_NtModifyBootEntry()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto BootEntry       = nt::cast_to<nt::PBOOT_ENTRY>        (args[0]);
 
@@ -4013,7 +4176,8 @@ void monitor::GenericMonitor::on_NtModifyDriverEntry()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DriverEntry     = nt::cast_to<nt::PEFI_DRIVER_ENTRY>  (args[0]);
 
@@ -4034,7 +4198,8 @@ void monitor::GenericMonitor::on_NtNotifyChangeDirectoryFile()
     const auto nargs = 9;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Event           = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -4063,7 +4228,8 @@ void monitor::GenericMonitor::on_NtNotifyChangeKey()
     const auto nargs = 10;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Event           = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -4093,7 +4259,8 @@ void monitor::GenericMonitor::on_NtNotifyChangeMultipleKeys()
     const auto nargs = 12;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto MasterKeyHandle = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Count           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -4125,7 +4292,8 @@ void monitor::GenericMonitor::on_NtNotifyChangeSession()
     const auto nargs = 8;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Session         = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoStateSequence = nt::cast_to<nt::ULONG>              (args[1]);
@@ -4153,7 +4321,8 @@ void monitor::GenericMonitor::on_NtOpenDirectoryObject()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DirectoryHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4176,7 +4345,8 @@ void monitor::GenericMonitor::on_NtOpenEnlistment()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4201,7 +4371,8 @@ void monitor::GenericMonitor::on_NtOpenEvent()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4224,7 +4395,8 @@ void monitor::GenericMonitor::on_NtOpenEventPair()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4247,7 +4419,8 @@ void monitor::GenericMonitor::on_NtOpenFile()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4273,7 +4446,8 @@ void monitor::GenericMonitor::on_NtOpenIoCompletion()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto IoCompletionHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4296,7 +4470,8 @@ void monitor::GenericMonitor::on_NtOpenJobObject()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto JobHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4319,7 +4494,8 @@ void monitor::GenericMonitor::on_NtOpenKeyedEvent()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyedEventHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4342,7 +4518,8 @@ void monitor::GenericMonitor::on_NtOpenKeyEx()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4366,7 +4543,8 @@ void monitor::GenericMonitor::on_NtOpenKey()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4389,7 +4567,8 @@ void monitor::GenericMonitor::on_NtOpenKeyTransactedEx()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4414,7 +4593,8 @@ void monitor::GenericMonitor::on_NtOpenKeyTransacted()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4438,7 +4618,8 @@ void monitor::GenericMonitor::on_NtOpenMutant()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto MutantHandle    = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4461,7 +4642,8 @@ void monitor::GenericMonitor::on_NtOpenObjectAuditAlarm()
     const auto nargs = 12;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto HandleId        = nt::cast_to<nt::PVOID>              (args[1]);
@@ -4493,7 +4675,8 @@ void monitor::GenericMonitor::on_NtOpenPrivateNamespace()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto NamespaceHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4517,7 +4700,8 @@ void monitor::GenericMonitor::on_NtOpenProcess()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4541,7 +4725,8 @@ void monitor::GenericMonitor::on_NtOpenProcessTokenEx()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4565,7 +4750,8 @@ void monitor::GenericMonitor::on_NtOpenProcessToken()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4588,7 +4774,8 @@ void monitor::GenericMonitor::on_NtOpenResourceManager()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4613,7 +4800,8 @@ void monitor::GenericMonitor::on_NtOpenSection()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SectionHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4636,7 +4824,8 @@ void monitor::GenericMonitor::on_NtOpenSemaphore()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SemaphoreHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4659,7 +4848,8 @@ void monitor::GenericMonitor::on_NtOpenSession()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SessionHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4682,7 +4872,8 @@ void monitor::GenericMonitor::on_NtOpenSymbolicLinkObject()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto LinkHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4705,7 +4896,8 @@ void monitor::GenericMonitor::on_NtOpenThread()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4729,7 +4921,8 @@ void monitor::GenericMonitor::on_NtOpenThreadTokenEx()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4754,7 +4947,8 @@ void monitor::GenericMonitor::on_NtOpenThreadToken()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4778,7 +4972,8 @@ void monitor::GenericMonitor::on_NtOpenTimer()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TimerHandle     = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4801,7 +4996,8 @@ void monitor::GenericMonitor::on_NtOpenTransactionManager()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TmHandle        = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4827,7 +5023,8 @@ void monitor::GenericMonitor::on_NtOpenTransaction()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto DesiredAccess   = nt::cast_to<nt::ACCESS_MASK>        (args[1]);
@@ -4852,7 +5049,8 @@ void monitor::GenericMonitor::on_NtPlugPlayControl()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PnPControlClass = nt::cast_to<nt::PLUGPLAY_CONTROL_CLASS>(args[0]);
     const auto PnPControlData  = nt::cast_to<nt::PVOID>              (args[1]);
@@ -4875,7 +5073,8 @@ void monitor::GenericMonitor::on_NtPowerInformation()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto InformationLevel= nt::cast_to<nt::POWER_INFORMATION_LEVEL>(args[0]);
     const auto InputBuffer     = nt::cast_to<nt::PVOID>              (args[1]);
@@ -4900,7 +5099,8 @@ void monitor::GenericMonitor::on_NtPrepareComplete()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -4922,7 +5122,8 @@ void monitor::GenericMonitor::on_NtPrepareEnlistment()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -4944,7 +5145,8 @@ void monitor::GenericMonitor::on_NtPrePrepareComplete()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -4966,7 +5168,8 @@ void monitor::GenericMonitor::on_NtPrePrepareEnlistment()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -4988,7 +5191,8 @@ void monitor::GenericMonitor::on_NtPrivilegeCheck()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ClientToken     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto RequiredPrivileges= nt::cast_to<nt::PPRIVILEGE_SET>     (args[1]);
@@ -5011,7 +5215,8 @@ void monitor::GenericMonitor::on_NtPrivilegedServiceAuditAlarm()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto ServiceName     = nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
@@ -5036,7 +5241,8 @@ void monitor::GenericMonitor::on_NtPrivilegeObjectAuditAlarm()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto HandleId        = nt::cast_to<nt::PVOID>              (args[1]);
@@ -5062,7 +5268,8 @@ void monitor::GenericMonitor::on_NtPropagationComplete()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto RequestCookie   = nt::cast_to<nt::ULONG>              (args[1]);
@@ -5086,7 +5293,8 @@ void monitor::GenericMonitor::on_NtPropagationFailed()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto RequestCookie   = nt::cast_to<nt::ULONG>              (args[1]);
@@ -5109,7 +5317,8 @@ void monitor::GenericMonitor::on_NtProtectVirtualMemory()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto STARBaseAddress = nt::cast_to<nt::PVOID>              (args[1]);
@@ -5134,7 +5343,8 @@ void monitor::GenericMonitor::on_NtPulseEvent()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PreviousState   = nt::cast_to<nt::PLONG>              (args[1]);
@@ -5156,7 +5366,8 @@ void monitor::GenericMonitor::on_NtQueryAttributesFile()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto FileInformation = nt::cast_to<nt::PFILE_BASIC_INFORMATION>(args[1]);
@@ -5178,7 +5389,8 @@ void monitor::GenericMonitor::on_NtQueryBootEntryOrder()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Ids             = nt::cast_to<nt::PULONG>             (args[0]);
     const auto Count           = nt::cast_to<nt::PULONG>             (args[1]);
@@ -5200,7 +5412,8 @@ void monitor::GenericMonitor::on_NtQueryBootOptions()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto BootOptions     = nt::cast_to<nt::PBOOT_OPTIONS>      (args[0]);
     const auto BootOptionsLength= nt::cast_to<nt::PULONG>             (args[1]);
@@ -5222,7 +5435,8 @@ void monitor::GenericMonitor::on_NtQueryDebugFilterState()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ComponentId     = nt::cast_to<nt::ULONG>              (args[0]);
     const auto Level           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -5244,7 +5458,8 @@ void monitor::GenericMonitor::on_NtQueryDefaultLocale()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto UserProfile     = nt::cast_to<nt::BOOLEAN>            (args[0]);
     const auto DefaultLocaleId = nt::cast_to<nt::PLCID>              (args[1]);
@@ -5266,7 +5481,8 @@ void monitor::GenericMonitor::on_NtQueryDefaultUILanguage()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto STARDefaultUILanguageId= nt::cast_to<nt::LANGID>             (args[0]);
 
@@ -5287,7 +5503,8 @@ void monitor::GenericMonitor::on_NtQueryDirectoryFile()
     const auto nargs = 11;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Event           = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -5318,7 +5535,8 @@ void monitor::GenericMonitor::on_NtQueryDirectoryObject()
     const auto nargs = 7;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DirectoryHandle = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Buffer          = nt::cast_to<nt::PVOID>              (args[1]);
@@ -5345,7 +5563,8 @@ void monitor::GenericMonitor::on_NtQueryDriverEntryOrder()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Ids             = nt::cast_to<nt::PULONG>             (args[0]);
     const auto Count           = nt::cast_to<nt::PULONG>             (args[1]);
@@ -5367,7 +5586,8 @@ void monitor::GenericMonitor::on_NtQueryEaFile()
     const auto nargs = 9;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
@@ -5396,7 +5616,8 @@ void monitor::GenericMonitor::on_NtQueryEvent()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto EventInformationClass= nt::cast_to<nt::EVENT_INFORMATION_CLASS>(args[1]);
@@ -5421,7 +5642,8 @@ void monitor::GenericMonitor::on_NtQueryFullAttributesFile()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto FileInformation = nt::cast_to<nt::PFILE_NETWORK_OPEN_INFORMATION>(args[1]);
@@ -5443,7 +5665,8 @@ void monitor::GenericMonitor::on_NtQueryInformationAtom()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Atom            = nt::cast_to<nt::RTL_ATOM>           (args[0]);
     const auto InformationClass= nt::cast_to<nt::ATOM_INFORMATION_CLASS>(args[1]);
@@ -5468,7 +5691,8 @@ void monitor::GenericMonitor::on_NtQueryInformationEnlistment()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto EnlistmentInformationClass= nt::cast_to<nt::ENLISTMENT_INFORMATION_CLASS>(args[1]);
@@ -5493,7 +5717,8 @@ void monitor::GenericMonitor::on_NtQueryInformationFile()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
@@ -5518,7 +5743,8 @@ void monitor::GenericMonitor::on_NtQueryInformationJobObject()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto JobHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto JobObjectInformationClass= nt::cast_to<nt::JOBOBJECTINFOCLASS> (args[1]);
@@ -5543,7 +5769,8 @@ void monitor::GenericMonitor::on_NtQueryInformationPort()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PortInformationClass= nt::cast_to<nt::PORT_INFORMATION_CLASS>(args[1]);
@@ -5568,7 +5795,8 @@ void monitor::GenericMonitor::on_NtQueryInformationProcess()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ProcessInformationClass= nt::cast_to<nt::PROCESSINFOCLASS>   (args[1]);
@@ -5593,7 +5821,8 @@ void monitor::GenericMonitor::on_NtQueryInformationResourceManager()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ResourceManagerInformationClass= nt::cast_to<nt::RESOURCEMANAGER_INFORMATION_CLASS>(args[1]);
@@ -5618,7 +5847,8 @@ void monitor::GenericMonitor::on_NtQueryInformationThread()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ThreadInformationClass= nt::cast_to<nt::THREADINFOCLASS>    (args[1]);
@@ -5643,7 +5873,8 @@ void monitor::GenericMonitor::on_NtQueryInformationToken()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TokenHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TokenInformationClass= nt::cast_to<nt::TOKEN_INFORMATION_CLASS>(args[1]);
@@ -5668,7 +5899,8 @@ void monitor::GenericMonitor::on_NtQueryInformationTransaction()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TransactionInformationClass= nt::cast_to<nt::TRANSACTION_INFORMATION_CLASS>(args[1]);
@@ -5693,7 +5925,8 @@ void monitor::GenericMonitor::on_NtQueryInformationTransactionManager()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TransactionManagerInformationClass= nt::cast_to<nt::TRANSACTIONMANAGER_INFORMATION_CLASS>(args[1]);
@@ -5718,7 +5951,8 @@ void monitor::GenericMonitor::on_NtQueryInformationWorkerFactory()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto WorkerFactoryHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto WorkerFactoryInformationClass= nt::cast_to<nt::WORKERFACTORYINFOCLASS>(args[1]);
@@ -5743,7 +5977,8 @@ void monitor::GenericMonitor::on_NtQueryInstallUILanguage()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto STARInstallUILanguageId= nt::cast_to<nt::LANGID>             (args[0]);
 
@@ -5764,7 +5999,8 @@ void monitor::GenericMonitor::on_NtQueryIntervalProfile()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProfileSource   = nt::cast_to<nt::KPROFILE_SOURCE>    (args[0]);
     const auto Interval        = nt::cast_to<nt::PULONG>             (args[1]);
@@ -5786,7 +6022,8 @@ void monitor::GenericMonitor::on_NtQueryIoCompletion()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto IoCompletionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoCompletionInformationClass= nt::cast_to<nt::IO_COMPLETION_INFORMATION_CLASS>(args[1]);
@@ -5811,7 +6048,8 @@ void monitor::GenericMonitor::on_NtQueryKey()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto KeyInformationClass= nt::cast_to<nt::KEY_INFORMATION_CLASS>(args[1]);
@@ -5836,7 +6074,8 @@ void monitor::GenericMonitor::on_NtQueryLicenseValue()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Name            = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto Type            = nt::cast_to<nt::PULONG>             (args[1]);
@@ -5861,7 +6100,8 @@ void monitor::GenericMonitor::on_NtQueryMultipleValueKey()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ValueEntries    = nt::cast_to<nt::PKEY_VALUE_ENTRY>   (args[1]);
@@ -5887,7 +6127,8 @@ void monitor::GenericMonitor::on_NtQueryMutant()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto MutantHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto MutantInformationClass= nt::cast_to<nt::MUTANT_INFORMATION_CLASS>(args[1]);
@@ -5912,7 +6153,8 @@ void monitor::GenericMonitor::on_NtQueryObject()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ObjectInformationClass= nt::cast_to<nt::OBJECT_INFORMATION_CLASS>(args[1]);
@@ -5937,7 +6179,8 @@ void monitor::GenericMonitor::on_NtQueryOpenSubKeysEx()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto BufferLength    = nt::cast_to<nt::ULONG>              (args[1]);
@@ -5961,7 +6204,8 @@ void monitor::GenericMonitor::on_NtQueryOpenSubKeys()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto HandleCount     = nt::cast_to<nt::PULONG>             (args[1]);
@@ -5983,7 +6227,8 @@ void monitor::GenericMonitor::on_NtQueryPerformanceCounter()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PerformanceCounter= nt::cast_to<nt::PLARGE_INTEGER>     (args[0]);
     const auto PerformanceFrequency= nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -6005,7 +6250,8 @@ void monitor::GenericMonitor::on_NtQueryQuotaInformationFile()
     const auto nargs = 9;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
@@ -6034,7 +6280,8 @@ void monitor::GenericMonitor::on_NtQuerySection()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SectionHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto SectionInformationClass= nt::cast_to<nt::SECTION_INFORMATION_CLASS>(args[1]);
@@ -6059,7 +6306,8 @@ void monitor::GenericMonitor::on_NtQuerySecurityAttributesToken()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TokenHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Attributes      = nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
@@ -6085,7 +6333,8 @@ void monitor::GenericMonitor::on_NtQuerySecurityObject()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto SecurityInformation= nt::cast_to<nt::SECURITY_INFORMATION>(args[1]);
@@ -6110,7 +6359,8 @@ void monitor::GenericMonitor::on_NtQuerySemaphore()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SemaphoreHandle = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto SemaphoreInformationClass= nt::cast_to<nt::SEMAPHORE_INFORMATION_CLASS>(args[1]);
@@ -6135,7 +6385,8 @@ void monitor::GenericMonitor::on_NtQuerySymbolicLinkObject()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto LinkHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto LinkTarget      = nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
@@ -6158,7 +6409,8 @@ void monitor::GenericMonitor::on_NtQuerySystemEnvironmentValueEx()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto VariableName    = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto VendorGuid      = nt::cast_to<nt::LPGUID>             (args[1]);
@@ -6183,7 +6435,8 @@ void monitor::GenericMonitor::on_NtQuerySystemEnvironmentValue()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto VariableName    = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto VariableValue   = nt::cast_to<nt::PWSTR>              (args[1]);
@@ -6207,7 +6460,8 @@ void monitor::GenericMonitor::on_NtQuerySystemInformationEx()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SystemInformationClass= nt::cast_to<nt::SYSTEM_INFORMATION_CLASS>(args[0]);
     const auto QueryInformation= nt::cast_to<nt::PVOID>              (args[1]);
@@ -6233,7 +6487,8 @@ void monitor::GenericMonitor::on_NtQuerySystemInformation()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SystemInformationClass= nt::cast_to<nt::SYSTEM_INFORMATION_CLASS>(args[0]);
     const auto SystemInformation= nt::cast_to<nt::PVOID>              (args[1]);
@@ -6257,7 +6512,8 @@ void monitor::GenericMonitor::on_NtQuerySystemTime()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SystemTime      = nt::cast_to<nt::PLARGE_INTEGER>     (args[0]);
 
@@ -6278,7 +6534,8 @@ void monitor::GenericMonitor::on_NtQueryTimer()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TimerHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TimerInformationClass= nt::cast_to<nt::TIMER_INFORMATION_CLASS>(args[1]);
@@ -6303,7 +6560,8 @@ void monitor::GenericMonitor::on_NtQueryTimerResolution()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto MaximumTime     = nt::cast_to<nt::PULONG>             (args[0]);
     const auto MinimumTime     = nt::cast_to<nt::PULONG>             (args[1]);
@@ -6326,7 +6584,8 @@ void monitor::GenericMonitor::on_NtQueryValueKey()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ValueName       = nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
@@ -6352,7 +6611,8 @@ void monitor::GenericMonitor::on_NtQueryVirtualMemory()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto BaseAddress     = nt::cast_to<nt::PVOID>              (args[1]);
@@ -6378,7 +6638,8 @@ void monitor::GenericMonitor::on_NtQueryVolumeInformationFile()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
@@ -6403,7 +6664,8 @@ void monitor::GenericMonitor::on_NtQueueApcThreadEx()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto UserApcReserveHandle= nt::cast_to<nt::HANDLE>             (args[1]);
@@ -6429,7 +6691,8 @@ void monitor::GenericMonitor::on_NtQueueApcThread()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ApcRoutine      = nt::cast_to<nt::PPS_APC_ROUTINE>    (args[1]);
@@ -6454,7 +6717,8 @@ void monitor::GenericMonitor::on_NtRaiseException()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ExceptionRecord = nt::cast_to<nt::PEXCEPTION_RECORD>  (args[0]);
     const auto ContextRecord   = nt::cast_to<nt::PCONTEXT>           (args[1]);
@@ -6477,7 +6741,8 @@ void monitor::GenericMonitor::on_NtRaiseHardError()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ErrorStatus     = nt::cast_to<nt::NTSTATUS>           (args[0]);
     const auto NumberOfParameters= nt::cast_to<nt::ULONG>              (args[1]);
@@ -6503,7 +6768,8 @@ void monitor::GenericMonitor::on_NtReadFile()
     const auto nargs = 9;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Event           = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -6532,7 +6798,8 @@ void monitor::GenericMonitor::on_NtReadFileScatter()
     const auto nargs = 9;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Event           = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -6561,7 +6828,8 @@ void monitor::GenericMonitor::on_NtReadOnlyEnlistment()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -6583,7 +6851,8 @@ void monitor::GenericMonitor::on_NtReadRequestData()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Message         = nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
@@ -6609,7 +6878,8 @@ void monitor::GenericMonitor::on_NtReadVirtualMemory()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto BaseAddress     = nt::cast_to<nt::PVOID>              (args[1]);
@@ -6634,7 +6904,8 @@ void monitor::GenericMonitor::on_NtRecoverEnlistment()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto EnlistmentKey   = nt::cast_to<nt::PVOID>              (args[1]);
@@ -6656,7 +6927,8 @@ void monitor::GenericMonitor::on_NtRecoverResourceManager()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -6677,7 +6949,8 @@ void monitor::GenericMonitor::on_NtRecoverTransactionManager()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -6698,7 +6971,8 @@ void monitor::GenericMonitor::on_NtRegisterProtocolAddressInformation()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManager = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ProtocolId      = nt::cast_to<nt::PCRM_PROTOCOL_ID>   (args[1]);
@@ -6723,7 +6997,8 @@ void monitor::GenericMonitor::on_NtRegisterThreadTerminatePort()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -6744,7 +7019,8 @@ void monitor::GenericMonitor::on_NtReleaseKeyedEvent()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyedEventHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto KeyValue        = nt::cast_to<nt::PVOID>              (args[1]);
@@ -6768,7 +7044,8 @@ void monitor::GenericMonitor::on_NtReleaseMutant()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto MutantHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PreviousCount   = nt::cast_to<nt::PLONG>              (args[1]);
@@ -6790,7 +7067,8 @@ void monitor::GenericMonitor::on_NtReleaseSemaphore()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SemaphoreHandle = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ReleaseCount    = nt::cast_to<nt::LONG>               (args[1]);
@@ -6813,7 +7091,8 @@ void monitor::GenericMonitor::on_NtReleaseWorkerFactoryWorker()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto WorkerFactoryHandle= nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -6834,7 +7113,8 @@ void monitor::GenericMonitor::on_NtRemoveIoCompletionEx()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto IoCompletionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoCompletionInformation= nt::cast_to<nt::PFILE_IO_COMPLETION_INFORMATION>(args[1]);
@@ -6860,7 +7140,8 @@ void monitor::GenericMonitor::on_NtRemoveIoCompletion()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto IoCompletionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto STARKeyContext  = nt::cast_to<nt::PVOID>              (args[1]);
@@ -6885,7 +7166,8 @@ void monitor::GenericMonitor::on_NtRemoveProcessDebug()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto DebugObjectHandle= nt::cast_to<nt::HANDLE>             (args[1]);
@@ -6907,7 +7189,8 @@ void monitor::GenericMonitor::on_NtRenameKey()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto NewName         = nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
@@ -6929,7 +7212,8 @@ void monitor::GenericMonitor::on_NtRenameTransactionManager()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto LogFileName     = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto ExistingTransactionManagerGuid= nt::cast_to<nt::LPGUID>             (args[1]);
@@ -6951,7 +7235,8 @@ void monitor::GenericMonitor::on_NtReplaceKey()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto NewFile         = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto TargetHandle    = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -6974,7 +7259,8 @@ void monitor::GenericMonitor::on_NtReplacePartitionUnit()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetInstancePath= nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto SpareInstancePath= nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
@@ -6997,7 +7283,8 @@ void monitor::GenericMonitor::on_NtReplyPort()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ReplyMessage    = nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
@@ -7019,7 +7306,8 @@ void monitor::GenericMonitor::on_NtReplyWaitReceivePortEx()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto STARPortContext = nt::cast_to<nt::PVOID>              (args[1]);
@@ -7044,7 +7332,8 @@ void monitor::GenericMonitor::on_NtReplyWaitReceivePort()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto STARPortContext = nt::cast_to<nt::PVOID>              (args[1]);
@@ -7068,7 +7357,8 @@ void monitor::GenericMonitor::on_NtReplyWaitReplyPort()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ReplyMessage    = nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
@@ -7090,7 +7380,8 @@ void monitor::GenericMonitor::on_NtRequestPort()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto RequestMessage  = nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
@@ -7112,7 +7403,8 @@ void monitor::GenericMonitor::on_NtRequestWaitReplyPort()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto RequestMessage  = nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
@@ -7135,7 +7427,8 @@ void monitor::GenericMonitor::on_NtResetEvent()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PreviousState   = nt::cast_to<nt::PLONG>              (args[1]);
@@ -7157,7 +7450,8 @@ void monitor::GenericMonitor::on_NtResetWriteWatch()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto BaseAddress     = nt::cast_to<nt::PVOID>              (args[1]);
@@ -7180,7 +7474,8 @@ void monitor::GenericMonitor::on_NtRestoreKey()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -7203,7 +7498,8 @@ void monitor::GenericMonitor::on_NtResumeProcess()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -7224,7 +7520,8 @@ void monitor::GenericMonitor::on_NtResumeThread()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PreviousSuspendCount= nt::cast_to<nt::PULONG>             (args[1]);
@@ -7246,7 +7543,8 @@ void monitor::GenericMonitor::on_NtRollbackComplete()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -7268,7 +7566,8 @@ void monitor::GenericMonitor::on_NtRollbackEnlistment()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -7290,7 +7589,8 @@ void monitor::GenericMonitor::on_NtRollbackTransaction()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Wait            = nt::cast_to<nt::BOOLEAN>            (args[1]);
@@ -7312,7 +7612,8 @@ void monitor::GenericMonitor::on_NtRollforwardTransactionManager()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -7334,7 +7635,8 @@ void monitor::GenericMonitor::on_NtSaveKeyEx()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -7357,7 +7659,8 @@ void monitor::GenericMonitor::on_NtSaveKey()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -7379,7 +7682,8 @@ void monitor::GenericMonitor::on_NtSaveMergedKeys()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto HighPrecedenceKeyHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto LowPrecedenceKeyHandle= nt::cast_to<nt::HANDLE>             (args[1]);
@@ -7402,7 +7706,8 @@ void monitor::GenericMonitor::on_NtSecureConnectPort()
     const auto nargs = 9;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
     const auto PortName        = nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
@@ -7431,7 +7736,8 @@ void monitor::GenericMonitor::on_NtSetBootEntryOrder()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Ids             = nt::cast_to<nt::PULONG>             (args[0]);
     const auto Count           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -7453,7 +7759,8 @@ void monitor::GenericMonitor::on_NtSetBootOptions()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto BootOptions     = nt::cast_to<nt::PBOOT_OPTIONS>      (args[0]);
     const auto FieldsToChange  = nt::cast_to<nt::ULONG>              (args[1]);
@@ -7475,7 +7782,8 @@ void monitor::GenericMonitor::on_NtSetContextThread()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ThreadContext   = nt::cast_to<nt::PCONTEXT>           (args[1]);
@@ -7497,7 +7805,8 @@ void monitor::GenericMonitor::on_NtSetDebugFilterState()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ComponentId     = nt::cast_to<nt::ULONG>              (args[0]);
     const auto Level           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -7520,7 +7829,8 @@ void monitor::GenericMonitor::on_NtSetDefaultHardErrorPort()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DefaultHardErrorPort= nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -7541,7 +7851,8 @@ void monitor::GenericMonitor::on_NtSetDefaultLocale()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto UserProfile     = nt::cast_to<nt::BOOLEAN>            (args[0]);
     const auto DefaultLocaleId = nt::cast_to<nt::LCID>               (args[1]);
@@ -7563,7 +7874,8 @@ void monitor::GenericMonitor::on_NtSetDefaultUILanguage()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DefaultUILanguageId= nt::cast_to<nt::LANGID>             (args[0]);
 
@@ -7584,7 +7896,8 @@ void monitor::GenericMonitor::on_NtSetDriverEntryOrder()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Ids             = nt::cast_to<nt::PULONG>             (args[0]);
     const auto Count           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -7606,7 +7919,8 @@ void monitor::GenericMonitor::on_NtSetEaFile()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
@@ -7630,7 +7944,8 @@ void monitor::GenericMonitor::on_NtSetEventBoostPriority()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -7651,7 +7966,8 @@ void monitor::GenericMonitor::on_NtSetEvent()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PreviousState   = nt::cast_to<nt::PLONG>              (args[1]);
@@ -7673,7 +7989,8 @@ void monitor::GenericMonitor::on_NtSetHighEventPair()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -7694,7 +8011,8 @@ void monitor::GenericMonitor::on_NtSetHighWaitLowEventPair()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -7715,7 +8033,8 @@ void monitor::GenericMonitor::on_NtSetInformationDebugObject()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DebugObjectHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto DebugObjectInformationClass= nt::cast_to<nt::DEBUGOBJECTINFOCLASS>(args[1]);
@@ -7740,7 +8059,8 @@ void monitor::GenericMonitor::on_NtSetInformationEnlistment()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto EnlistmentInformationClass= nt::cast_to<nt::ENLISTMENT_INFORMATION_CLASS>(args[1]);
@@ -7764,7 +8084,8 @@ void monitor::GenericMonitor::on_NtSetInformationFile()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
@@ -7789,7 +8110,8 @@ void monitor::GenericMonitor::on_NtSetInformationJobObject()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto JobHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto JobObjectInformationClass= nt::cast_to<nt::JOBOBJECTINFOCLASS> (args[1]);
@@ -7813,7 +8135,8 @@ void monitor::GenericMonitor::on_NtSetInformationKey()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto KeySetInformationClass= nt::cast_to<nt::KEY_SET_INFORMATION_CLASS>(args[1]);
@@ -7837,7 +8160,8 @@ void monitor::GenericMonitor::on_NtSetInformationObject()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ObjectInformationClass= nt::cast_to<nt::OBJECT_INFORMATION_CLASS>(args[1]);
@@ -7861,7 +8185,8 @@ void monitor::GenericMonitor::on_NtSetInformationProcess()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ProcessInformationClass= nt::cast_to<nt::PROCESSINFOCLASS>   (args[1]);
@@ -7885,7 +8210,8 @@ void monitor::GenericMonitor::on_NtSetInformationResourceManager()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ResourceManagerInformationClass= nt::cast_to<nt::RESOURCEMANAGER_INFORMATION_CLASS>(args[1]);
@@ -7909,7 +8235,8 @@ void monitor::GenericMonitor::on_NtSetInformationThread()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ThreadInformationClass= nt::cast_to<nt::THREADINFOCLASS>    (args[1]);
@@ -7933,7 +8260,8 @@ void monitor::GenericMonitor::on_NtSetInformationToken()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TokenHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TokenInformationClass= nt::cast_to<nt::TOKEN_INFORMATION_CLASS>(args[1]);
@@ -7957,7 +8285,8 @@ void monitor::GenericMonitor::on_NtSetInformationTransaction()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TransactionInformationClass= nt::cast_to<nt::TRANSACTION_INFORMATION_CLASS>(args[1]);
@@ -7981,7 +8310,8 @@ void monitor::GenericMonitor::on_NtSetInformationTransactionManager()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TmHandle        = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TransactionManagerInformationClass= nt::cast_to<nt::TRANSACTIONMANAGER_INFORMATION_CLASS>(args[1]);
@@ -8005,7 +8335,8 @@ void monitor::GenericMonitor::on_NtSetInformationWorkerFactory()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto WorkerFactoryHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto WorkerFactoryInformationClass= nt::cast_to<nt::WORKERFACTORYINFOCLASS>(args[1]);
@@ -8029,7 +8360,8 @@ void monitor::GenericMonitor::on_NtSetIntervalProfile()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Interval        = nt::cast_to<nt::ULONG>              (args[0]);
     const auto Source          = nt::cast_to<nt::KPROFILE_SOURCE>    (args[1]);
@@ -8051,7 +8383,8 @@ void monitor::GenericMonitor::on_NtSetIoCompletionEx()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto IoCompletionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoCompletionReserveHandle= nt::cast_to<nt::HANDLE>             (args[1]);
@@ -8077,7 +8410,8 @@ void monitor::GenericMonitor::on_NtSetIoCompletion()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto IoCompletionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto KeyContext      = nt::cast_to<nt::PVOID>              (args[1]);
@@ -8102,7 +8436,8 @@ void monitor::GenericMonitor::on_NtSetLdtEntries()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Selector0       = nt::cast_to<nt::ULONG>              (args[0]);
     const auto Entry0Low       = nt::cast_to<nt::ULONG>              (args[1]);
@@ -8128,7 +8463,8 @@ void monitor::GenericMonitor::on_NtSetLowEventPair()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -8149,7 +8485,8 @@ void monitor::GenericMonitor::on_NtSetLowWaitHighEventPair()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -8170,7 +8507,8 @@ void monitor::GenericMonitor::on_NtSetQuotaInformationFile()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
@@ -8194,7 +8532,8 @@ void monitor::GenericMonitor::on_NtSetSecurityObject()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto SecurityInformation= nt::cast_to<nt::SECURITY_INFORMATION>(args[1]);
@@ -8217,7 +8556,8 @@ void monitor::GenericMonitor::on_NtSetSystemEnvironmentValueEx()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto VariableName    = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto VendorGuid      = nt::cast_to<nt::LPGUID>             (args[1]);
@@ -8242,7 +8582,8 @@ void monitor::GenericMonitor::on_NtSetSystemEnvironmentValue()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto VariableName    = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto VariableValue   = nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
@@ -8264,7 +8605,8 @@ void monitor::GenericMonitor::on_NtSetSystemInformation()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SystemInformationClass= nt::cast_to<nt::SYSTEM_INFORMATION_CLASS>(args[0]);
     const auto SystemInformation= nt::cast_to<nt::PVOID>              (args[1]);
@@ -8287,7 +8629,8 @@ void monitor::GenericMonitor::on_NtSetSystemPowerState()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SystemAction    = nt::cast_to<nt::POWER_ACTION>       (args[0]);
     const auto MinSystemState  = nt::cast_to<nt::SYSTEM_POWER_STATE> (args[1]);
@@ -8310,7 +8653,8 @@ void monitor::GenericMonitor::on_NtSetSystemTime()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SystemTime      = nt::cast_to<nt::PLARGE_INTEGER>     (args[0]);
     const auto PreviousTime    = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -8332,7 +8676,8 @@ void monitor::GenericMonitor::on_NtSetThreadExecutionState()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto esFlags         = nt::cast_to<nt::EXECUTION_STATE>    (args[0]);
     const auto STARPreviousFlags= nt::cast_to<nt::EXECUTION_STATE>    (args[1]);
@@ -8354,7 +8699,8 @@ void monitor::GenericMonitor::on_NtSetTimerEx()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TimerHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TimerSetInformationClass= nt::cast_to<nt::TIMER_SET_INFORMATION_CLASS>(args[1]);
@@ -8378,7 +8724,8 @@ void monitor::GenericMonitor::on_NtSetTimer()
     const auto nargs = 7;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TimerHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto DueTime         = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -8405,7 +8752,8 @@ void monitor::GenericMonitor::on_NtSetTimerResolution()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DesiredTime     = nt::cast_to<nt::ULONG>              (args[0]);
     const auto SetResolution   = nt::cast_to<nt::BOOLEAN>            (args[1]);
@@ -8428,7 +8776,8 @@ void monitor::GenericMonitor::on_NtSetUuidSeed()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Seed            = nt::cast_to<nt::PCHAR>              (args[0]);
 
@@ -8449,7 +8798,8 @@ void monitor::GenericMonitor::on_NtSetValueKey()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ValueName       = nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
@@ -8475,7 +8825,8 @@ void monitor::GenericMonitor::on_NtSetVolumeInformationFile()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
@@ -8500,7 +8851,8 @@ void monitor::GenericMonitor::on_NtShutdownSystem()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Action          = nt::cast_to<nt::SHUTDOWN_ACTION>    (args[0]);
 
@@ -8521,7 +8873,8 @@ void monitor::GenericMonitor::on_NtShutdownWorkerFactory()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto WorkerFactoryHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto STARPendingWorkerCount= nt::cast_to<nt::LONG>               (args[1]);
@@ -8543,7 +8896,8 @@ void monitor::GenericMonitor::on_NtSignalAndWaitForSingleObject()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SignalHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto WaitHandle      = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -8567,7 +8921,8 @@ void monitor::GenericMonitor::on_NtSinglePhaseReject()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
@@ -8589,7 +8944,8 @@ void monitor::GenericMonitor::on_NtStartProfile()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProfileHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -8610,7 +8966,8 @@ void monitor::GenericMonitor::on_NtStopProfile()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProfileHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -8631,7 +8988,8 @@ void monitor::GenericMonitor::on_NtSuspendProcess()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -8652,7 +9010,8 @@ void monitor::GenericMonitor::on_NtSuspendThread()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PreviousSuspendCount= nt::cast_to<nt::PULONG>             (args[1]);
@@ -8674,7 +9033,8 @@ void monitor::GenericMonitor::on_NtSystemDebugControl()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Command         = nt::cast_to<nt::SYSDBG_COMMAND>     (args[0]);
     const auto InputBuffer     = nt::cast_to<nt::PVOID>              (args[1]);
@@ -8700,7 +9060,8 @@ void monitor::GenericMonitor::on_NtTerminateJobObject()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto JobHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ExitStatus      = nt::cast_to<nt::NTSTATUS>           (args[1]);
@@ -8722,7 +9083,8 @@ void monitor::GenericMonitor::on_NtTerminateProcess()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ExitStatus      = nt::cast_to<nt::NTSTATUS>           (args[1]);
@@ -8744,7 +9106,8 @@ void monitor::GenericMonitor::on_NtTerminateThread()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ExitStatus      = nt::cast_to<nt::NTSTATUS>           (args[1]);
@@ -8766,7 +9129,8 @@ void monitor::GenericMonitor::on_NtTraceControl()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FunctionCode    = nt::cast_to<nt::ULONG>              (args[0]);
     const auto InBuffer        = nt::cast_to<nt::PVOID>              (args[1]);
@@ -8792,7 +9156,8 @@ void monitor::GenericMonitor::on_NtTraceEvent()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TraceHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -8816,7 +9181,8 @@ void monitor::GenericMonitor::on_NtTranslateFilePath()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto InputFilePath   = nt::cast_to<nt::PFILE_PATH>         (args[0]);
     const auto OutputType      = nt::cast_to<nt::ULONG>              (args[1]);
@@ -8840,7 +9206,8 @@ void monitor::GenericMonitor::on_NtUnloadDriver()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DriverServiceName= nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
 
@@ -8861,7 +9228,8 @@ void monitor::GenericMonitor::on_NtUnloadKey2()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
@@ -8883,7 +9251,8 @@ void monitor::GenericMonitor::on_NtUnloadKeyEx()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto Event           = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -8905,7 +9274,8 @@ void monitor::GenericMonitor::on_NtUnloadKey()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
 
@@ -8926,7 +9296,8 @@ void monitor::GenericMonitor::on_NtUnlockFile()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
@@ -8951,7 +9322,8 @@ void monitor::GenericMonitor::on_NtUnlockVirtualMemory()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto STARBaseAddress = nt::cast_to<nt::PVOID>              (args[1]);
@@ -8975,7 +9347,8 @@ void monitor::GenericMonitor::on_NtUnmapViewOfSection()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto BaseAddress     = nt::cast_to<nt::PVOID>              (args[1]);
@@ -8997,7 +9370,8 @@ void monitor::GenericMonitor::on_NtVdmControl()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Service         = nt::cast_to<nt::VDMSERVICECLASS>    (args[0]);
     const auto ServiceData     = nt::cast_to<nt::PVOID>              (args[1]);
@@ -9019,7 +9393,8 @@ void monitor::GenericMonitor::on_NtWaitForDebugEvent()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DebugObjectHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Alertable       = nt::cast_to<nt::BOOLEAN>            (args[1]);
@@ -9043,7 +9418,8 @@ void monitor::GenericMonitor::on_NtWaitForKeyedEvent()
     const auto nargs = 4;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyedEventHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto KeyValue        = nt::cast_to<nt::PVOID>              (args[1]);
@@ -9067,7 +9443,8 @@ void monitor::GenericMonitor::on_NtWaitForMultipleObjects32()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Count           = nt::cast_to<nt::ULONG>              (args[0]);
     const auto Handles         = nt::cast_to<nt::LONG>               (args[1]);
@@ -9092,7 +9469,8 @@ void monitor::GenericMonitor::on_NtWaitForMultipleObjects()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Count           = nt::cast_to<nt::ULONG>              (args[0]);
     const auto Handles         = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -9117,7 +9495,8 @@ void monitor::GenericMonitor::on_NtWaitForSingleObject()
     const auto nargs = 3;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Alertable       = nt::cast_to<nt::BOOLEAN>            (args[1]);
@@ -9140,7 +9519,8 @@ void monitor::GenericMonitor::on_NtWaitForWorkViaWorkerFactory()
     const auto nargs = 2;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto WorkerFactoryHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto MiniPacket      = nt::cast_to<nt::PFILE_IO_COMPLETION_INFORMATION>(args[1]);
@@ -9162,7 +9542,8 @@ void monitor::GenericMonitor::on_NtWaitHighEventPair()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -9183,7 +9564,8 @@ void monitor::GenericMonitor::on_NtWaitLowEventPair()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -9204,7 +9586,8 @@ void monitor::GenericMonitor::on_NtWorkerFactoryWorkerReady()
     const auto nargs = 1;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto WorkerFactoryHandle= nt::cast_to<nt::HANDLE>             (args[0]);
 
@@ -9225,7 +9608,8 @@ void monitor::GenericMonitor::on_NtWriteFileGather()
     const auto nargs = 9;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Event           = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -9254,7 +9638,8 @@ void monitor::GenericMonitor::on_NtWriteFile()
     const auto nargs = 9;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Event           = nt::cast_to<nt::HANDLE>             (args[1]);
@@ -9283,7 +9668,8 @@ void monitor::GenericMonitor::on_NtWriteRequestData()
     const auto nargs = 6;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Message         = nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
@@ -9309,7 +9695,8 @@ void monitor::GenericMonitor::on_NtWriteVirtualMemory()
     const auto nargs = 5;
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto BaseAddress     = nt::cast_to<nt::PVOID>              (args[1]);
@@ -9320,5 +9707,313 @@ void monitor::GenericMonitor::on_NtWriteVirtualMemory()
     for(const auto& it : d_->observers_NtWriteVirtualMemory)
     {
         it(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesWritten);
+    }
+}
+
+void monitor::GenericMonitor::register_NtDisableLastKnownGood(const on_NtDisableLastKnownGood_fn& on_ntdisablelastknowngood)
+{
+    d_->observers_NtDisableLastKnownGood.push_back(on_ntdisablelastknowngood);
+}
+
+void monitor::GenericMonitor::on_NtDisableLastKnownGood()
+{
+    LOG(INFO, "Break on NtDisableLastKnownGood");
+    const auto nargs = 0;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    
+
+    for(const auto& it : d_->observers_NtDisableLastKnownGood)
+    {
+        it();
+    }
+}
+
+void monitor::GenericMonitor::register_NtEnableLastKnownGood(const on_NtEnableLastKnownGood_fn& on_ntenablelastknowngood)
+{
+    d_->observers_NtEnableLastKnownGood.push_back(on_ntenablelastknowngood);
+}
+
+void monitor::GenericMonitor::on_NtEnableLastKnownGood()
+{
+    LOG(INFO, "Break on NtEnableLastKnownGood");
+    const auto nargs = 0;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    
+
+    for(const auto& it : d_->observers_NtEnableLastKnownGood)
+    {
+        it();
+    }
+}
+
+void monitor::GenericMonitor::register_NtFlushProcessWriteBuffers(const on_NtFlushProcessWriteBuffers_fn& on_ntflushprocesswritebuffers)
+{
+    d_->observers_NtFlushProcessWriteBuffers.push_back(on_ntflushprocesswritebuffers);
+}
+
+void monitor::GenericMonitor::on_NtFlushProcessWriteBuffers()
+{
+    LOG(INFO, "Break on NtFlushProcessWriteBuffers");
+    const auto nargs = 0;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    
+
+    for(const auto& it : d_->observers_NtFlushProcessWriteBuffers)
+    {
+        it();
+    }
+}
+
+void monitor::GenericMonitor::register_NtFlushWriteBuffer(const on_NtFlushWriteBuffer_fn& on_ntflushwritebuffer)
+{
+    d_->observers_NtFlushWriteBuffer.push_back(on_ntflushwritebuffer);
+}
+
+void monitor::GenericMonitor::on_NtFlushWriteBuffer()
+{
+    LOG(INFO, "Break on NtFlushWriteBuffer");
+    const auto nargs = 0;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    
+
+    for(const auto& it : d_->observers_NtFlushWriteBuffer)
+    {
+        it();
+    }
+}
+
+void monitor::GenericMonitor::register_NtGetCurrentProcessorNumber(const on_NtGetCurrentProcessorNumber_fn& on_ntgetcurrentprocessornumber)
+{
+    d_->observers_NtGetCurrentProcessorNumber.push_back(on_ntgetcurrentprocessornumber);
+}
+
+void monitor::GenericMonitor::on_NtGetCurrentProcessorNumber()
+{
+    LOG(INFO, "Break on NtGetCurrentProcessorNumber");
+    const auto nargs = 0;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    
+
+    for(const auto& it : d_->observers_NtGetCurrentProcessorNumber)
+    {
+        it();
+    }
+}
+
+void monitor::GenericMonitor::register_NtIsSystemResumeAutomatic(const on_NtIsSystemResumeAutomatic_fn& on_ntissystemresumeautomatic)
+{
+    d_->observers_NtIsSystemResumeAutomatic.push_back(on_ntissystemresumeautomatic);
+}
+
+void monitor::GenericMonitor::on_NtIsSystemResumeAutomatic()
+{
+    LOG(INFO, "Break on NtIsSystemResumeAutomatic");
+    const auto nargs = 0;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    
+
+    for(const auto& it : d_->observers_NtIsSystemResumeAutomatic)
+    {
+        it();
+    }
+}
+
+void monitor::GenericMonitor::register_NtIsUILanguageComitted(const on_NtIsUILanguageComitted_fn& on_ntisuilanguagecomitted)
+{
+    d_->observers_NtIsUILanguageComitted.push_back(on_ntisuilanguagecomitted);
+}
+
+void monitor::GenericMonitor::on_NtIsUILanguageComitted()
+{
+    LOG(INFO, "Break on NtIsUILanguageComitted");
+    const auto nargs = 0;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    
+
+    for(const auto& it : d_->observers_NtIsUILanguageComitted)
+    {
+        it();
+    }
+}
+
+void monitor::GenericMonitor::register_NtQueryPortInformationProcess(const on_NtQueryPortInformationProcess_fn& on_ntqueryportinformationprocess)
+{
+    d_->observers_NtQueryPortInformationProcess.push_back(on_ntqueryportinformationprocess);
+}
+
+void monitor::GenericMonitor::on_NtQueryPortInformationProcess()
+{
+    LOG(INFO, "Break on NtQueryPortInformationProcess");
+    const auto nargs = 0;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    
+
+    for(const auto& it : d_->observers_NtQueryPortInformationProcess)
+    {
+        it();
+    }
+}
+
+void monitor::GenericMonitor::register_NtSerializeBoot(const on_NtSerializeBoot_fn& on_ntserializeboot)
+{
+    d_->observers_NtSerializeBoot.push_back(on_ntserializeboot);
+}
+
+void monitor::GenericMonitor::on_NtSerializeBoot()
+{
+    LOG(INFO, "Break on NtSerializeBoot");
+    const auto nargs = 0;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    
+
+    for(const auto& it : d_->observers_NtSerializeBoot)
+    {
+        it();
+    }
+}
+
+void monitor::GenericMonitor::register_NtTestAlert(const on_NtTestAlert_fn& on_nttestalert)
+{
+    d_->observers_NtTestAlert.push_back(on_nttestalert);
+}
+
+void monitor::GenericMonitor::on_NtTestAlert()
+{
+    LOG(INFO, "Break on NtTestAlert");
+    const auto nargs = 0;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    
+
+    for(const auto& it : d_->observers_NtTestAlert)
+    {
+        it();
+    }
+}
+
+void monitor::GenericMonitor::register_NtThawRegistry(const on_NtThawRegistry_fn& on_ntthawregistry)
+{
+    d_->observers_NtThawRegistry.push_back(on_ntthawregistry);
+}
+
+void monitor::GenericMonitor::on_NtThawRegistry()
+{
+    LOG(INFO, "Break on NtThawRegistry");
+    const auto nargs = 0;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    
+
+    for(const auto& it : d_->observers_NtThawRegistry)
+    {
+        it();
+    }
+}
+
+void monitor::GenericMonitor::register_NtThawTransactions(const on_NtThawTransactions_fn& on_ntthawtransactions)
+{
+    d_->observers_NtThawTransactions.push_back(on_ntthawtransactions);
+}
+
+void monitor::GenericMonitor::on_NtThawTransactions()
+{
+    LOG(INFO, "Break on NtThawTransactions");
+    const auto nargs = 0;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    
+
+    for(const auto& it : d_->observers_NtThawTransactions)
+    {
+        it();
+    }
+}
+
+void monitor::GenericMonitor::register_NtUmsThreadYield(const on_NtUmsThreadYield_fn& on_ntumsthreadyield)
+{
+    d_->observers_NtUmsThreadYield.push_back(on_ntumsthreadyield);
+}
+
+void monitor::GenericMonitor::on_NtUmsThreadYield()
+{
+    LOG(INFO, "Break on NtUmsThreadYield");
+    const auto nargs = 0;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    
+
+    for(const auto& it : d_->observers_NtUmsThreadYield)
+    {
+        it();
+    }
+}
+
+void monitor::GenericMonitor::register_NtYieldExecution(const on_NtYieldExecution_fn& on_ntyieldexecution)
+{
+    d_->observers_NtYieldExecution.push_back(on_ntyieldexecution);
+}
+
+void monitor::GenericMonitor::on_NtYieldExecution()
+{
+    LOG(INFO, "Break on NtYieldExecution");
+    const auto nargs = 0;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    
+
+    for(const auto& it : d_->observers_NtYieldExecution)
+    {
+        it();
     }
 }

@@ -18,7 +18,8 @@ void monitor::GenericMonitor::on_{function_name}()
     const auto nargs = {nbr_args};
 
     std::vector<arg_t> args;
-    get_raw_args(nargs, [&](arg_t arg) {{ args.push_back(arg); return WALK_NEXT; }});
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) {{ args.push_back(arg); return WALK_NEXT; }});
 
     {retreive_args}
 

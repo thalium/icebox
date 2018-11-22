@@ -390,7 +390,21 @@
     using on_NtWriteFileGather_fn = std::function<nt::NTSTATUS(nt::HANDLE, nt::HANDLE, nt::PIO_APC_ROUTINE, nt::PVOID, nt::PIO_STATUS_BLOCK, nt::PFILE_SEGMENT_ELEMENT, nt::ULONG, nt::PLARGE_INTEGER, nt::PULONG)>;\
     using on_NtWriteFile_fn = std::function<nt::NTSTATUS(nt::HANDLE, nt::HANDLE, nt::PIO_APC_ROUTINE, nt::PVOID, nt::PIO_STATUS_BLOCK, nt::PVOID, nt::ULONG, nt::PLARGE_INTEGER, nt::PULONG)>;\
     using on_NtWriteRequestData_fn = std::function<nt::NTSTATUS(nt::HANDLE, nt::PPORT_MESSAGE, nt::ULONG, nt::PVOID, nt::SIZE_T, nt::PSIZE_T)>;\
-    using on_NtWriteVirtualMemory_fn = std::function<nt::NTSTATUS(nt::HANDLE, nt::PVOID, nt::PVOID, nt::SIZE_T, nt::PSIZE_T)>;
+    using on_NtWriteVirtualMemory_fn = std::function<nt::NTSTATUS(nt::HANDLE, nt::PVOID, nt::PVOID, nt::SIZE_T, nt::PSIZE_T)>;\
+    using on_NtDisableLastKnownGood_fn = std::function<nt::NTSTATUS()>;\
+    using on_NtEnableLastKnownGood_fn = std::function<nt::NTSTATUS()>;\
+    using on_NtFlushProcessWriteBuffers_fn = std::function<nt::VOID()>;\
+    using on_NtFlushWriteBuffer_fn = std::function<nt::NTSTATUS()>;\
+    using on_NtGetCurrentProcessorNumber_fn = std::function<nt::ULONG()>;\
+    using on_NtIsSystemResumeAutomatic_fn = std::function<nt::BOOLEAN()>;\
+    using on_NtIsUILanguageComitted_fn = std::function<nt::NTSTATUS()>;\
+    using on_NtQueryPortInformationProcess_fn = std::function<nt::NTSTATUS()>;\
+    using on_NtSerializeBoot_fn = std::function<nt::NTSTATUS()>;\
+    using on_NtTestAlert_fn = std::function<nt::NTSTATUS()>;\
+    using on_NtThawRegistry_fn = std::function<nt::NTSTATUS()>;\
+    using on_NtThawTransactions_fn = std::function<nt::NTSTATUS()>;\
+    using on_NtUmsThreadYield_fn = std::function<nt::NTSTATUS()>;\
+    using on_NtYieldExecution_fn = std::function<nt::NTSTATUS()>;
 
 #define DECLARE_SYSCALLS_FUNCTIONS_PROTOS\
     void on_NtAcceptConnectPort                   ();\
@@ -1166,7 +1180,35 @@
     void on_NtWriteRequestData                    ();\
     void register_NtWriteRequestData              (const on_NtWriteRequestData_fn& on_ntwriterequestdata);\
     void on_NtWriteVirtualMemory                  ();\
-    void register_NtWriteVirtualMemory            (const on_NtWriteVirtualMemory_fn& on_ntwritevirtualmemory);
+    void register_NtWriteVirtualMemory            (const on_NtWriteVirtualMemory_fn& on_ntwritevirtualmemory);\
+    void on_NtDisableLastKnownGood                ();\
+    void register_NtDisableLastKnownGood          (const on_NtDisableLastKnownGood_fn& on_ntdisablelastknowngood);\
+    void on_NtEnableLastKnownGood                 ();\
+    void register_NtEnableLastKnownGood           (const on_NtEnableLastKnownGood_fn& on_ntenablelastknowngood);\
+    void on_NtFlushProcessWriteBuffers            ();\
+    void register_NtFlushProcessWriteBuffers      (const on_NtFlushProcessWriteBuffers_fn& on_ntflushprocesswritebuffers);\
+    void on_NtFlushWriteBuffer                    ();\
+    void register_NtFlushWriteBuffer              (const on_NtFlushWriteBuffer_fn& on_ntflushwritebuffer);\
+    void on_NtGetCurrentProcessorNumber           ();\
+    void register_NtGetCurrentProcessorNumber     (const on_NtGetCurrentProcessorNumber_fn& on_ntgetcurrentprocessornumber);\
+    void on_NtIsSystemResumeAutomatic             ();\
+    void register_NtIsSystemResumeAutomatic       (const on_NtIsSystemResumeAutomatic_fn& on_ntissystemresumeautomatic);\
+    void on_NtIsUILanguageComitted                ();\
+    void register_NtIsUILanguageComitted          (const on_NtIsUILanguageComitted_fn& on_ntisuilanguagecomitted);\
+    void on_NtQueryPortInformationProcess         ();\
+    void register_NtQueryPortInformationProcess   (const on_NtQueryPortInformationProcess_fn& on_ntqueryportinformationprocess);\
+    void on_NtSerializeBoot                       ();\
+    void register_NtSerializeBoot                 (const on_NtSerializeBoot_fn& on_ntserializeboot);\
+    void on_NtTestAlert                           ();\
+    void register_NtTestAlert                     (const on_NtTestAlert_fn& on_nttestalert);\
+    void on_NtThawRegistry                        ();\
+    void register_NtThawRegistry                  (const on_NtThawRegistry_fn& on_ntthawregistry);\
+    void on_NtThawTransactions                    ();\
+    void register_NtThawTransactions              (const on_NtThawTransactions_fn& on_ntthawtransactions);\
+    void on_NtUmsThreadYield                      ();\
+    void register_NtUmsThreadYield                (const on_NtUmsThreadYield_fn& on_ntumsthreadyield);\
+    void on_NtYieldExecution                      ();\
+    void register_NtYieldExecution                (const on_NtYieldExecution_fn& on_ntyieldexecution);
 
 #define DECLARE_SYSCALLS_OBSERVERS\
     std::vector<on_NtAcceptConnectPort_fn> observers_NtAcceptConnectPort;\
@@ -1555,7 +1597,21 @@
     std::vector<on_NtWriteFileGather_fn> observers_NtWriteFileGather;\
     std::vector<on_NtWriteFile_fn> observers_NtWriteFile;\
     std::vector<on_NtWriteRequestData_fn> observers_NtWriteRequestData;\
-    std::vector<on_NtWriteVirtualMemory_fn> observers_NtWriteVirtualMemory;
+    std::vector<on_NtWriteVirtualMemory_fn> observers_NtWriteVirtualMemory;\
+    std::vector<on_NtDisableLastKnownGood_fn> observers_NtDisableLastKnownGood;\
+    std::vector<on_NtEnableLastKnownGood_fn> observers_NtEnableLastKnownGood;\
+    std::vector<on_NtFlushProcessWriteBuffers_fn> observers_NtFlushProcessWriteBuffers;\
+    std::vector<on_NtFlushWriteBuffer_fn> observers_NtFlushWriteBuffer;\
+    std::vector<on_NtGetCurrentProcessorNumber_fn> observers_NtGetCurrentProcessorNumber;\
+    std::vector<on_NtIsSystemResumeAutomatic_fn> observers_NtIsSystemResumeAutomatic;\
+    std::vector<on_NtIsUILanguageComitted_fn> observers_NtIsUILanguageComitted;\
+    std::vector<on_NtQueryPortInformationProcess_fn> observers_NtQueryPortInformationProcess;\
+    std::vector<on_NtSerializeBoot_fn> observers_NtSerializeBoot;\
+    std::vector<on_NtTestAlert_fn> observers_NtTestAlert;\
+    std::vector<on_NtThawRegistry_fn> observers_NtThawRegistry;\
+    std::vector<on_NtThawTransactions_fn> observers_NtThawTransactions;\
+    std::vector<on_NtUmsThreadYield_fn> observers_NtUmsThreadYield;\
+    std::vector<on_NtYieldExecution_fn> observers_NtYieldExecution;
 
 #define DECLARE_SYSCALLS_HANDLERS\
     {"NtAcceptConnectPort", &monitor::GenericMonitor::on_NtAcceptConnectPort},\
@@ -1944,4 +2000,18 @@
     {"NtWriteFileGather", &monitor::GenericMonitor::on_NtWriteFileGather},\
     {"NtWriteFile", &monitor::GenericMonitor::on_NtWriteFile},\
     {"NtWriteRequestData", &monitor::GenericMonitor::on_NtWriteRequestData},\
-    {"NtWriteVirtualMemory", &monitor::GenericMonitor::on_NtWriteVirtualMemory},
+    {"NtWriteVirtualMemory", &monitor::GenericMonitor::on_NtWriteVirtualMemory},\
+    {"NtDisableLastKnownGood", &monitor::GenericMonitor::on_NtDisableLastKnownGood},\
+    {"NtEnableLastKnownGood", &monitor::GenericMonitor::on_NtEnableLastKnownGood},\
+    {"NtFlushProcessWriteBuffers", &monitor::GenericMonitor::on_NtFlushProcessWriteBuffers},\
+    {"NtFlushWriteBuffer", &monitor::GenericMonitor::on_NtFlushWriteBuffer},\
+    {"NtGetCurrentProcessorNumber", &monitor::GenericMonitor::on_NtGetCurrentProcessorNumber},\
+    {"NtIsSystemResumeAutomatic", &monitor::GenericMonitor::on_NtIsSystemResumeAutomatic},\
+    {"NtIsUILanguageComitted", &monitor::GenericMonitor::on_NtIsUILanguageComitted},\
+    {"NtQueryPortInformationProcess", &monitor::GenericMonitor::on_NtQueryPortInformationProcess},\
+    {"NtSerializeBoot", &monitor::GenericMonitor::on_NtSerializeBoot},\
+    {"NtTestAlert", &monitor::GenericMonitor::on_NtTestAlert},\
+    {"NtThawRegistry", &monitor::GenericMonitor::on_NtThawRegistry},\
+    {"NtThawTransactions", &monitor::GenericMonitor::on_NtThawTransactions},\
+    {"NtUmsThreadYield", &monitor::GenericMonitor::on_NtUmsThreadYield},\
+    {"NtYieldExecution", &monitor::GenericMonitor::on_NtYieldExecution},

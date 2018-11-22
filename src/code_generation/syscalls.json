@@ -2352,5 +2352,19 @@
             ["Buffer","PVOID"],
             ["BufferSize","SIZE_T"],
             ["NumberOfBytesWritten","PSIZE_T"]
-        ]]
+        ]],
+        "NtDisableLastKnownGood": ["NTSTATUS", []],
+        "NtEnableLastKnownGood": ["NTSTATUS", []],
+        "NtFlushProcessWriteBuffers": ["VOID", []],
+        "NtFlushWriteBuffer": ["NTSTATUS", []],
+        "NtGetCurrentProcessorNumber": ["ULONG", []],
+        "NtIsSystemResumeAutomatic": ["BOOLEAN", []],
+        "NtIsUILanguageComitted": ["NTSTATUS", []],
+        "NtQueryPortInformationProcess": ["NTSTATUS", []],
+        "NtSerializeBoot": ["NTSTATUS", []],
+        "NtTestAlert": ["NTSTATUS", []],
+        "NtThawRegistry": ["NTSTATUS", []],
+        "NtThawTransactions": ["NTSTATUS", []],
+        "NtUmsThreadYield": ["NTSTATUS", []],
+        "NtYieldExecution": ["NTSTATUS", []]
     }
