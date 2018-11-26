@@ -237,16 +237,7 @@ namespace
         if(!injected)
             FAIL(false, "unable to inject page fault");
 
-        const auto bp = m.core.state.set_breakpoint(*rip, proc, core::FILTER_CR3);
-        while(true)
-        {
-            m.core.state.resume();
-            m.core.state.wait();
-            const auto cur = m.core.regs.read(FDP_RIP_REGISTER);
-            if(cur == rip)
-                break;
-        }
-
+        core::run_exclusive_breakpoint(m.core.state, m.core.regs, *rip, proc, core::FILTER_CR3);
         const auto ok = FDP_ReadVirtualMemory(&m.shm, 0, dst, size, src);
         return ok;
     }

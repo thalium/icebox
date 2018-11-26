@@ -304,6 +304,22 @@ core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, filter_e
     return ::set_breakpoint(*d_, ptr, proc, filter, {});
 }
 
+void core::run_exclusive_breakpoint(State& state, Registers& regs, uint64_t ptr, proc_t proc, core::filter_e filter)
+{
+    const auto bp = state.set_breakpoint(ptr, proc, filter);
+    while(true)
+    {
+        state.resume();
+        try_wait(*state.d_, SKIP_BREAKPOINTS);
+
+        const auto cur = regs.read(FDP_RIP_REGISTER);
+        if(*cur == ptr)
+            break;
+
+        check_breakpoints(*state.d_);
+    }
+}
+
 namespace
 {
     bool is_proc_join(const StateData& d, proc_t proc, core::join_e join)
