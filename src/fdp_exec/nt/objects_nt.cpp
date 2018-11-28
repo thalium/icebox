@@ -7,6 +7,8 @@
 #include "utils/utf8.hpp"
 #include "utils/utils.hpp"
 
+#include <array>
+
 namespace
 {
     enum member_obj_offset_e
