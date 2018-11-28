@@ -1,21 +1,24 @@
-#   Copyright (C) 2017 The YaCo Authors
+# Copyright 2018 Benoît Amiaux
 #
-#   This program is free software: you can redistribute it and/or modify
-#   it under the terms of the GNU General Public License as published by
-#   the Free Software Foundation, either version 3 of the License, or
-#   (at your option) any later version.
+# This code is licensed under the MIT License.
 #
-#   This program is distributed in the hope that it will be useful,
-#   but WITHOUT ANY WARRANTY; without even the implied warranty of
-#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#   GNU General Public License for more details.
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files(the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions :
 #
-#   You should have received a copy of the GNU General Public License
-#   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-# common cmake functions
-
-set(re_sep "[\\\\/]")
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
 
 # remove spurious spaces from input property
 # which prevent unecessary rebuilds
@@ -140,7 +143,6 @@ function(get_files output)
             "${it}/*.fbs"
             "${it}/*.h"
             "${it}/*.hpp"
-            "${it}/*.i"
             "${it}/*.in"
             "${it}/*.py"
             "${it}/*.rc"
@@ -376,6 +378,7 @@ endfunction()
 # - flatbuffers     auto-configure *.fbs flatbuffer specs
 # - win32           build windows executable instead of console
 # - external        disable warnings on external projects
+# - unity           enable unity build on target
 function(make_target target group)
     message("-- Configuring ${group}/${target}")
 
@@ -390,6 +393,7 @@ function(make_target target group)
     has_item(has_flatbuffers "flatbuffers" ${options})
     has_item(has_git_version "git_version" ${options})
     has_item(is_win32 "win32" ${options})
+    has_item(is_unity "unity" ${options})
 
     # sort files
     list(SORT files)
@@ -411,12 +415,29 @@ function(make_target target group)
         filter_out(files ".+[.]fbs$")
     endif()
 
-    # remove swig generated files
-    filter_out(files ".+[.]i$")
-
     # add generated git version headers
     if(has_git_version)
         setup_git(${target} files includes)
+    endif()
+
+    if(is_unity)
+        set(unity)
+        set(unity_ext "c")
+        foreach(it ${files})
+            if(NOT "${it}" MATCHES "[.](c|cc|cpp|cxx)$")
+                continue()
+            endif()
+            set_source_files_properties(${it} PROPERTIES HEADER_FILE_ONLY ON)
+            if("${it}" MATCHES "[.](cc|cpp|cxx)$")
+                set(unity_ext "cpp")
+            endif()
+            set(unity "${unity}#include \"${it}\"\n")
+        endforeach()
+        set(prefix "${CMAKE_CURRENT_BINARY_DIR}/${target}.${unity_ext}")
+        file(WRITE "${prefix}.in" ${unity})
+        configure_file("${prefix}.in" "${prefix}" COPYONLY)
+        list(APPEND files ${prefix})
+        source_group(TREE "${CMAKE_CURRENT_BINARY_DIR}" PREFIX cmake FILES "${prefix}")
     endif()
 
     # add the target
@@ -457,52 +478,32 @@ function(add_target target group)
     make_target(${target} ${group} ${files} OPTIONS ${options})
 endfunction()
 
-function(split_swig_files itarget deps)
-    set(itarget_)
-    set(deps_)
+function(add_clang_format_target target)
+    find_program(CLANG_FORMAT "clang-format" REQUIRED)
+    find_package(PythonInterp REQUIRED)
+    set(files)
     foreach(it ${ARGN})
-        if(${it} MATCHES "[.]i$")
-            list(APPEND itarget_ ${it})
-        else()
-            list(APPEND deps_ ${it})
-        endif()
+        get_target_property(files_ ${it} SOURCES)
+        foreach(f ${files_})
+            get_source_file_property(generated ${f} GENERATED)
+            if(NOT "${generated}" STREQUAL "NOTFOUND")
+                continue()
+            endif()
+            if(NOT "${f}" MATCHES "[.](h|hh|hpp|c|cc|cpp)$")
+                continue()
+            endif()
+            get_filename_component(f ${f} ABSOLUTE)
+            list(APPEND files ${f})
+            get_filename_component(filename ${f} NAME)
+        endforeach()
     endforeach()
-    set(${itarget} ${itarget_} PARENT_SCOPE)
-    set(${deps} ${deps_} PARENT_SCOPE)
-endfunction()
-
-function(add_swig_module target group)
-    split_args(right_args "INCLUDES" includes ${ARGN})
-    split_args(files "DEPS" deps ${right_args})
-    split_swig_files(itarget others ${files})
-    get_filename_component(outname ${itarget} NAME_WE)
-    set(outi   "${CMAKE_CURRENT_BINARY_DIR}/${outname}.i")
-    set(outpy  "${CMAKE_CURRENT_BINARY_DIR}/${outname}.py")
-    set(outcpp "${CMAKE_CURRENT_BINARY_DIR}/${outname}PYTHON_wrap.cxx")
-    set_property(SOURCE ${outi} PROPERTY CPLUSPLUS ON)
-    source_group(autogen FILES ${outpy} ${outcpp} ${outi})
-    # foreach input file create a custom command
-    # which depend on every dependency and work-around
-    # broken dependency handling from swig_add_module
-    # we also create a dummy copy of input file &
-    # ensure make clean doesn't clean original file
-    add_custom_command(
-        OUTPUT  "${outi}"
-        COMMAND ${CMAKE_COMMAND} -E copy "${itarget}" "${outi}"
-        DEPENDS ${itarget} ${deps}
-        COMMENT "${outname}.i"
+    add_custom_target(${target}
+        COMMAND ${PYTHON_EXECUTABLE}
+        "${root_dir}/build/format.py"
+        ${CLANG_FORMAT}
+        ${files}
     )
-    get_directory_property(backup_includes INCLUDE_DIRECTORIES)
-    list(APPEND includes "${SWIG_DIR}/python" "${SWIG_DIR}")
-    set_directory_properties(PROPERTIES INCLUDE_DIRECTORIES "${includes}")
-    message("-- Configuring ${group}/_${target}")
-    if(${CMAKE_VERSION} VERSION_LESS "3.8.0")
-        swig_add_module(${target} python ${outi} ${others})
-    else()
-        swig_add_library(${target} LANGUAGE python SOURCES ${outi} ${others})
-    endif()
-    set_directory_properties(PROPERTIES INCLUDE_DIRECTORIES "${backup_includes}")
-    set_target_properties(_${target} PROPERTIES FOLDER ${group})
+    set_target_properties(${target} PROPERTIES FOLDER _cmake)
 endfunction()
 
 # set_target_output_directory <target> <suffix>
@@ -780,7 +781,3 @@ endif()
 # enable visual studio folders
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "_cmake")
-
-if("${OS}" STREQUAL "linux")
-    set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-endif()

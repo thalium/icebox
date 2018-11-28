@@ -1,0 +1,20 @@
+---
+Language: Cpp
+
+AlignEscapedNewlines:               Left
+AllowShortCaseLabelsOnASingleLine:  true
+BreakBeforeBinaryOperators:         NonAssignment
+BreakBeforeBraces:                  Allman
+BreakConstructorInitializers:       BeforeComma
+BreakInheritanceList:               BeforeComma
+ColumnLimit:                        0
+FixNamespaceComments:               true
+IncludeBlocks:                      Preserve
+IndentCaseLabels:                   true
+IndentPPDirectives:                 AfterHash
+IndentWidth:                        4
+NamespaceIndentation:               All
+PointerAlignment:                   Left
+SpaceAfterCStyleCast:               true
+SpaceBeforeParens:                  Never
+UseTab:                             Never
