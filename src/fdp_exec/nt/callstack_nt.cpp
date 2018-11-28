@@ -298,7 +298,7 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
         if (!function_table)
             FAIL(false, "unable to get function table of %s", modname->c_str());
 
-        const auto off_in_mod = (ctx.rip-span->addr) & 0xffffffff;
+        const auto off_in_mod = static_cast<uint32_t>(ctx.rip - span->addr);
         const auto function_entry = lookup_function_entry(off_in_mod, function_table->function_entries);
         if (!function_entry)
             FAIL(false, "No matching function entry");
@@ -344,7 +344,7 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
 
 namespace
 {
-    void get_unwind_codes(std::vector<unwind_code_t>& unwind_codes, function_entry_t& function_entry, const std::vector<uint8_t>& buffer, uint32_t unwind_codes_size, uint32_t chained_info_size)
+    void get_unwind_codes(std::vector<unwind_code_t>& unwind_codes, function_entry_t& function_entry, const std::vector<uint8_t>& buffer, size_t unwind_codes_size, size_t chained_info_size)
     {
         uint32_t register_size = 0x08;            //TODO Defined this somewhere else
 
