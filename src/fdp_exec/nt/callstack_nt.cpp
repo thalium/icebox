@@ -47,6 +47,8 @@ namespace
         UWOP_SET_FPREG,                           // no info, FP = RSP + UNWIND_INFO.FPRegOffset*16
         UWOP_SAVE_NONVOL,                         // info : register number, offset in next slot
         UWOP_SAVE_NONVOL_FAR,                     // info : register number, offset in next 2 slots
+        RESERVED1,
+        RESERVED2,
         UWOP_SAVE_XMM128,                         // info : XMM reg number, offset in next slot
         UWOP_SAVE_XMM128_FAR,                     // info : XMM reg number, offset in next 2 slots
         UWOP_PUSH_MACHFRAME,                      // info : 0: no error-code, 1: error-code
@@ -265,6 +267,7 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
     std::vector<uint8_t> buffer_mod;
     int max_cs_depth = 150;
     while(i<max_cs_depth){
+
         //Get module from address
         const auto mc = find_mod(proc, ctx.rip);
         if(!mc)
@@ -308,17 +311,17 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
             ctx.rsp = ctx.rbp - function_entry->frame_reg_offset;
 
         if (function_entry->prev_frame_reg != 0)
-            ctx.rbp = *(core::read_ptr(core_, ctx.rsp-function_entry->prev_frame_reg));
+            ctx.rbp = *(core::read_ptr(core_, ctx.rsp+function_entry->prev_frame_reg));
 
-        const auto caller_addr_on_stack = ctx.rsp + *stack_frame_size;
 
         // print stack
 #ifdef USE_DEBUG_PRINT
         const auto print_d = 25;
-        for (int k = 0; k < print_d*8; k += 8){
-            LOG(INFO, "%" PRIx64 " - %" PRIx64, ctx.rsp+k,*core::read_ptr(core_, ctx.rsp+k));
+        for (int k = -3*8; k < print_d*8; k += 8){
+            LOG(INFO, "%" PRIx64 " - %" PRIx64, ctx.rsp+*stack_frame_size+k,*core::read_ptr(core_, ctx.rsp+*stack_frame_size+k));
         }
 #endif
+        const auto caller_addr_on_stack = ctx.rsp + *stack_frame_size;
 
         const auto return_addr = core::read_ptr(core_, caller_addr_on_stack);
 
@@ -394,6 +397,8 @@ namespace
                     break;
                 case UWOP_PUSH_MACHFRAME :
                     break;
+                default:
+                    break;
             }
 
             unwind_codes.push_back({function_entry.stack_frame_size, buffer[idx], buffer[idx+1]});
@@ -440,7 +445,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(core::Core& core, const void
 
         //Deal with frame register
         const auto frame_register = unwind_info[3] & 0x0F;            // register used as frame pointer
-        function_entry.frame_reg_offset = 8*(unwind_info[3] >> 4);    // offset of frame register
+        function_entry.frame_reg_offset = 16*(unwind_info[3] >> 4);   // offset of frame register
         if (function_entry.frame_reg_offset != 0 && frame_register != UWINFO_RBP)
             LOG(ERROR, "WARNING : the used framed register is not rbp (code %d), this case is never used and not implemented", frame_register);
 
@@ -483,8 +488,8 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(core::Core& core, const void
 
 #ifdef USE_DEBUG_PRINT
         LOG(INFO, "Function entry : start %" PRIx32 " end %" PRIx32 " prolog size %" PRIx8 " number of codes %" PRIx8  " unwind info pointer %" PRIx32
-                " stack frame size %x", function_entry.start_address, function_entry.end_address, function_entry.prolog_size, function_entry.unwind_codes_nb,
-                 unwind_info_ptr, function_entry.stack_frame_size);
+                " stack frame size %x, previous frame reg %" PRIx32, function_entry.start_address, function_entry.end_address, function_entry.prolog_size, function_entry.unwind_codes_nb,
+                 unwind_info_ptr, function_entry.stack_frame_size, function_entry.prev_frame_reg);
 #endif
     }
 
