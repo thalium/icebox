@@ -9,7 +9,7 @@ namespace
     static const int pointer_size = 0x8;
 }
 
-return_t<arg_t> monitor::get_arg_by_index(core::Core& core, int index)
+return_t<arg_t> monitor::get_arg_by_index(core::Core& core, size_t index)
 {
     //TODO Deal with x86
     arg_t arg;
@@ -29,7 +29,7 @@ return_t<arg_t> monitor::get_arg_by_index(core::Core& core, int index)
     return arg;
 }
 
-status_t monitor::set_arg_by_index(core::Core& core, int index, uint64_t value)
+status_t monitor::set_arg_by_index(core::Core& core, size_t index, uint64_t value)
 {
     //TODO Deal with x86
     status_t res;
@@ -44,7 +44,7 @@ status_t monitor::set_arg_by_index(core::Core& core, int index, uint64_t value)
     return res;
 }
 
-return_t<uint64_t> monitor::get_stack_by_index(core::Core& core, int index)
+return_t<uint64_t> monitor::get_stack_by_index(core::Core& core, size_t index)
 {
 
     const auto rsp = core.regs.read(FDP_RSP_REGISTER);
@@ -52,7 +52,7 @@ return_t<uint64_t> monitor::get_stack_by_index(core::Core& core, int index)
 }
 
 #define UNUSED(x) (void)(x)
-status_t monitor::set_stack_by_index(core::Core& core, int index, uint64_t value)
+status_t monitor::set_stack_by_index(core::Core& core, size_t index, uint64_t value)
 {
     UNUSED(core);
     UNUSED(index);
