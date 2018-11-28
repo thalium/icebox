@@ -3,14 +3,14 @@
 #define FDP_MODULE "pdb"
 #include "log.hpp"
 
-#define UNUSED(x) (void)(x)
+#define UNUSED(x) (void) (x)
 
 namespace
 {
     struct EmptyMod
         : public sym::IMod
     {
-         EmptyMod(span_t span);
+        EmptyMod(span_t span);
 
         // IModule methods
         span_t              span        () override;
@@ -21,7 +21,7 @@ namespace
         bool                sym_list    (const sym::on_sym_fn& on_sym) override;
 
         // members
-        const span_t    span_;
+        const span_t span_;
     };
 }
 
@@ -69,8 +69,8 @@ opt<size_t> EmptyMod::struc_size(const std::string& struc)
 
 opt<sym::ModCursor> EmptyMod::symbol(uint64_t addr)
 {
-    if (span_.addr <= addr && addr < span_.addr + span_.size)
-        return sym::ModCursor{"nosymbol", addr-span_.addr};
+    if(span_.addr <= addr && addr < span_.addr + span_.size)
+        return sym::ModCursor{"nosymbol", addr - span_.addr};
 
     return ext::nullopt;
 }

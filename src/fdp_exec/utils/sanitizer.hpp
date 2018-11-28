@@ -5,4 +5,4 @@
 namespace sanitizer
 {
     std::string sanitize_filename(std::string);
-} // sanitizer
+} // namespace sanitizer

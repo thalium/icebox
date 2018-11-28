@@ -116,3 +116,7 @@ if(WIN32)
         fdp
     )
 endif (WIN32)
+
+add_clang_format_target(fmt
+    fdp_exec
+)

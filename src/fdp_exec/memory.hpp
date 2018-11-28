@@ -26,4 +26,4 @@ namespace core
         struct Data;
         std::unique_ptr<Data> d_;
     };
-}
+} // namespace core

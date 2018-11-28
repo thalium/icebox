@@ -2,8 +2,8 @@
 
 #include "types.hpp"
 
-#include <memory>
 #include <functional>
+#include <memory>
 
 namespace core
 {
@@ -15,9 +15,17 @@ namespace core
     using Task = std::function<void(void)>;
 
     // whether to filter breakpoint on cr3
-    enum filter_e { FILTER_CR3, ANY_CR3 };
+    enum filter_e
+    {
+        FILTER_CR3,
+        ANY_CR3
+    };
 
-    enum join_e { JOIN_ANY_MODE, JOIN_USER_MODE };
+    enum join_e
+    {
+        JOIN_ANY_MODE,
+        JOIN_USER_MODE
+    };
 
     struct State
     {
@@ -35,4 +43,4 @@ namespace core
         struct Data;
         std::unique_ptr<Data> d_;
     };
-}
+} // namespace core

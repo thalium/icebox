@@ -1,8 +1,8 @@
 #pragma once
 
+#include "enums.hpp"
 #include "errors.hpp"
 #include "types.hpp"
-#include "enums.hpp"
 
 #include <memory>
 
@@ -21,4 +21,4 @@ namespace core
         struct Data;
         std::unique_ptr<Data> d_;
     };
-}
+} // namespace core

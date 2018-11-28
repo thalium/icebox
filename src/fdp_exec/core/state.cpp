@@ -2,17 +2,17 @@
 
 #define PRIVATE_CORE__
 #define FDP_MODULE "state"
-#include "log.hpp"
-#include "utils/utils.hpp"
 #include "core.hpp"
-#include "private.hpp"
+#include "log.hpp"
 #include "os.hpp"
+#include "private.hpp"
+#include "utils/utils.hpp"
 
 #include <FDP.h>
 
 #include <map>
-#include <unordered_map>
 #include <thread>
+#include <unordered_map>
 #include <unordered_set>
 
 namespace
@@ -34,20 +34,19 @@ namespace
         {
         }
 
-        core::Task      task;
-        uint64_t        phy;
-        proc_t          proc;
-        core::filter_e  filter;
-        int             bpid;
-
+        core::Task     task;
+        uint64_t       phy;
+        proc_t         proc;
+        core::filter_e filter;
+        int            bpid;
     };
 
     using Observer = std::shared_ptr<BreakpointObserver>;
 
     using Breakpoints = struct
     {
-        std::unordered_map<uint64_t, Breakpoint>    targets_;
-        std::multimap<uint64_t, Observer>           observers_;
+        std::unordered_map<uint64_t, Breakpoint> targets_;
+        std::multimap<uint64_t, Observer>        observers_;
     };
 }
 
@@ -175,8 +174,8 @@ struct core::BreakpointPrivate
         data_.breakpoints.targets_.erase(observer_->phy);
     }
 
-    StateData&  data_;
-    Observer    observer_;
+    StateData& data_;
+    Observer   observer_;
 };
 
 namespace
@@ -219,7 +218,11 @@ namespace
         }
     }
 
-    enum check_e { CHECK_BREAKPOINTS, SKIP_BREAKPOINTS };
+    enum check_e
+    {
+        CHECK_BREAKPOINTS,
+        SKIP_BREAKPOINTS
+    };
 
     bool try_wait(StateData& d, check_e check)
     {
@@ -248,7 +251,7 @@ namespace
     int try_add_breakpoint(StateData& d, uint64_t phy, const BreakpointObserver& bp)
     {
         auto& targets = d.breakpoints.targets_;
-        auto dtb = bp.filter == core::FILTER_CR3 ? ext::make_optional(bp.proc.dtb) : ext::nullopt;
+        auto dtb      = bp.filter == core::FILTER_CR3 ? ext::make_optional(bp.proc.dtb) : ext::nullopt;
         const auto it = targets.find(phy);
         if(it != targets.end())
         {

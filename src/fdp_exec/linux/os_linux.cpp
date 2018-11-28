@@ -1,9 +1,9 @@
 #include "os.hpp"
 
 #define FDP_MODULE "os_linux"
-#include "log.hpp"
 #include "core.hpp"
 #include "core/helpers.hpp"
+#include "log.hpp"
 
 namespace
 {
@@ -17,12 +17,12 @@ namespace
     };
 
     static const os_offsets linux_4_15_0_39_offsets =
-    {
-        0xa50,
-        0x7a8,
-        0x7f8,
-        0x8a8,
-        0x50,
+        {
+            0xa50,
+            0x7a8,
+            0x7f8,
+            0x8a8,
+            0x50,
     };
 
     struct OsLinux
@@ -43,28 +43,28 @@ namespace
         uint64_t            proc_id         (proc_t proc) override;
         opt<bool>           proc_is_wow64   (proc_t proc) override;
 
-        bool                thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
-        opt<thread_t>       thread_current  () override;
-        opt<proc_t>         thread_proc     (thread_t thread) override;
-        opt<uint64_t>       thread_pc       (proc_t proc, thread_t thread) override;
-        uint64_t            thread_id       (proc_t proc, thread_t thread) override;
+        bool            thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
+        opt<thread_t>   thread_current  () override;
+        opt<proc_t>     thread_proc     (thread_t thread) override;
+        opt<uint64_t>   thread_pc       (proc_t proc, thread_t thread) override;
+        uint64_t        thread_id       (proc_t proc, thread_t thread) override;
 
-        bool                mod_list        (proc_t proc, const on_mod_fn& on_module) override;
-        opt<std::string>    mod_name        (proc_t proc, mod_t mod) override;
-        opt<span_t>         mod_span        (proc_t proc, mod_t mod) override;
-        opt<mod_t>          mod_find        (proc_t proc, uint64_t addr) override;
+        bool                mod_list(proc_t proc, const on_mod_fn& on_module) override;
+        opt<std::string>    mod_name(proc_t proc, mod_t mod) override;
+        opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
+        opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
 
-        bool                driver_list     (const on_driver_fn& on_driver) override;
-        opt<driver_t>       driver_find     (const std::string& name) override;
-        opt<std::string>    driver_name     (driver_t drv) override;
-        opt<span_t>         driver_span     (driver_t drv) override;
+        bool                driver_list (const on_driver_fn& on_driver) override;
+        opt<driver_t>       driver_find (const std::string& name) override;
+        opt<std::string>    driver_name (driver_t drv) override;
+        opt<span_t>         driver_span (driver_t drv) override;
 
-        void                debug_print     () override;
+        void debug_print() override;
 
         // members
-        core::Core&     core_;
-        os_offsets      members_;
-        uint64_t        init_task_addr_;
+        core::Core& core_;
+        os_offsets  members_;
+        uint64_t    init_task_addr_;
     };
 }
 
@@ -75,7 +75,7 @@ OsLinux::OsLinux(core::Core& core)
 
 bool OsLinux::setup()
 {
-    members_        = linux_4_15_0_39_offsets;
+    members_ = linux_4_15_0_39_offsets;
 
     //Get this from System.map and deal with KASLR (look at pyrebox)
     init_task_addr_ = 0xffffffff9e612480;
@@ -98,11 +98,11 @@ std::unique_ptr<os::IModule> os::make_linux(core::Core& core)
 
 bool OsLinux::proc_list(const on_proc_fn& on_process)
 {
-    const auto head = init_task_addr_+members_.tasks;
+    const auto head = init_task_addr_ + members_.tasks;
     for(auto link = core::read_ptr(core_, head); link != head; link = core::read_ptr(core_, *link))
     {
         const auto task_struc = *link - members_.tasks;
-        const auto pgd = core::read_ptr(core_, task_struc + members_.pgd);
+        const auto pgd        = core::read_ptr(core_, task_struc + members_.pgd);
         if(!pgd)
         {
             LOG(ERROR, "unable to read task_struct.mm_struct.pgd from 0x%" PRIx64 "", task_struc);
@@ -153,7 +153,7 @@ opt<proc_t> OsLinux::proc_find(uint64_t pid)
 
 opt<std::string> OsLinux::proc_name(proc_t proc)
 {
-    char buffer[14+1];
+    char buffer[14 + 1];
     const auto ok = core_.mem.virtual_read(buffer, proc.id + members_.name, sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
@@ -166,7 +166,6 @@ opt<std::string> OsLinux::proc_name(proc_t proc)
     return name;
 }
 
-
 uint64_t OsLinux::proc_id(proc_t proc)
 {
     //pid is a uin32_t on linux
@@ -178,7 +177,7 @@ uint64_t OsLinux::proc_id(proc_t proc)
 }
 
 // DON'T USE THESE FUNCTIONS UNTIL YOU REWRITE THEM
-#define UNUSED(x) (void)(x)
+#define UNUSED(x) (void) (x)
 
 bool OsLinux::proc_is_valid(proc_t proc)
 {
@@ -186,7 +185,8 @@ bool OsLinux::proc_is_valid(proc_t proc)
     return true;
 }
 
-opt<bool> OsLinux::proc_is_wow64(proc_t proc){
+opt<bool> OsLinux::proc_is_wow64(proc_t proc)
+{
     UNUSED(proc);
     return {};
 }

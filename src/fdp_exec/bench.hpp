@@ -17,7 +17,7 @@ namespace bench
 
         ~Log()
         {
-            const auto end = std::chrono::high_resolution_clock::now();
+            const auto end      = std::chrono::high_resolution_clock::now();
             const auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count();
             LOG(INFO, "%s: %zd ms", name.data(), duration);
         }
@@ -25,4 +25,4 @@ namespace bench
         const timestamp_t begin;
         const std::string name;
     };
-}
+} // namespace bench

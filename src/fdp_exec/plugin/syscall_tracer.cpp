@@ -4,9 +4,9 @@
 #include "log.hpp"
 #include "os.hpp"
 
-#include "utils/sanitizer.hpp"
-#include "utils/json.hpp"
 #include "utils/file_helper.hpp"
+#include "utils/json.hpp"
+#include "utils/sanitizer.hpp"
 
 #include <unordered_map>
 
@@ -40,14 +40,15 @@ namespace
 {
     json create_calltree(core::Core& core, proc_t target, const std::vector<callstack::callstep_t>& callsteps, std::vector<bp_trigger_info_t>& bp_trigger_infos, json& args)
     {
-        json calltree;
+        json                                                         calltree;
         std::unordered_map<uint64_t, std::vector<bp_trigger_info_t>> intermediate_tree;
         std::vector<bp_trigger_info_t>                               end_nodes;
 
         // Prepare nodes
-        for (auto& info : bp_trigger_infos)
+        for(auto& info : bp_trigger_infos)
         {
-            if(info.cs_frame.size == 0){
+            if(info.cs_frame.size == 0)
+            {
                 end_nodes.push_back(info);
                 continue;
             }
@@ -62,10 +63,10 @@ namespace
         }
 
         // Call function recursively to create subtrees
-        for (auto& it : intermediate_tree)
+        for(auto& it : intermediate_tree)
         {
             auto cursor = core.sym.find(it.first);
-            if (!cursor)
+            if(!cursor)
                 cursor = sym::Cursor{"NoMod", "nosymbol>", it.first};
 
             calltree[sym::to_string(*cursor).data()] = create_calltree(core, target, callsteps, it.second, args);
@@ -73,7 +74,7 @@ namespace
 
         // Place args (contained in a json that was made by the observer) on end nodes
         int j = 0;
-        for (const auto& end_node : end_nodes)
+        for(const auto& end_node : end_nodes)
             calltree["Args"][j++] = args[end_node.args_idx];
 
         return calltree;
@@ -95,7 +96,7 @@ syscall_tracer::SyscallPlugin::~SyscallPlugin()
 
 bool syscall_tracer::SyscallPlugin::setup(proc_t target)
 {
-    d_->target = target;
+    d_->target      = target;
     d_->trigger_nbr = 0;
 
     callstack_ = callstack::make_callstack_nt(core_, pe_);
@@ -108,11 +109,11 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
 
     // Register NtWriteFile observer
     generic_monitor_.register_NtWriteFile(target, [&](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine, nt::PVOID ApcContext,
-                                                nt::PIO_STATUS_BLOCK IoStatusBlock, nt::PVOID Buffer, nt::ULONG Length,
-                                                nt::PLARGE_INTEGER ByteOffsetm, nt::PULONG Key)
+                                                      nt::PIO_STATUS_BLOCK IoStatusBlock, nt::PVOID Buffer, nt::ULONG Length,
+                                                      nt::PLARGE_INTEGER ByteOffsetm, nt::PULONG Key)
     {
-        LOG(INFO, "NtWriteFile : %" PRIx64 " - %" PRIx64 " - %"  PRIx64 " - %" PRIx64 " - %"  PRIx64 " - %" PRIx64 " - %"  PRIx64 " - %" PRIx64 " - %" PRIx64,
-                FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffsetm, Key);
+        LOG(INFO, "NtWriteFile : %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64,
+            FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffsetm, Key);
 
         std::vector<uint8_t> buf;
         buf.resize(Length);
@@ -121,19 +122,19 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
             return 1;
 
         char* dst = reinterpret_cast<char*>(&buf[0]);
-        dst[Length-1] = '\0';
+        dst[Length - 1] = '\0';
 
-        const auto obj = objects_nt_->get_object_ref(d_->target, FileHandle);
+        const auto obj          = objects_nt_->get_object_ref(d_->target, FileHandle);
         const auto obj_typename = objects_nt_->obj_typename(*obj);
         const auto obj_filename = objects_nt_->fileobj_filename(*obj);
 
-        const auto device_obj = objects_nt_->fileobj_deviceobject(*obj);
-        const auto driver_obj = objects_nt_->deviceobj_driverobject(*device_obj);
+        const auto device_obj  = objects_nt_->fileobj_deviceobject(*obj);
+        const auto driver_obj  = objects_nt_->deviceobj_driverobject(*device_obj);
         const auto driver_name = objects_nt_->driverobj_drivername(*driver_obj);
         LOG(INFO, " File handle; %" PRIx64 ", typename : %s, filename : %s, driver_name : %s", FileHandle, obj_typename->data(), obj_filename->data(), driver_name->data());
 
-        d_->args[d_->trigger_nbr]["FileName"]   = obj_filename->data();
-        d_->args[d_->trigger_nbr]["Buffer"]     = dst;
+        d_->args[d_->trigger_nbr]["FileName"] = obj_filename->data();
+        d_->args[d_->trigger_nbr]["Buffer"]   = dst;
 
         private_get_callstack();
         d_->trigger_nbr++;
@@ -154,12 +155,12 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
 
     // Register NtDeviceIoControlFile observer
     generic_monitor_.register_NtDeviceIoControlFile(target, [&](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine,
-                                                        nt::PVOID ApcContext, nt::PIO_STATUS_BLOCK IoStatusBlock, nt::ULONG IoControlCode,
-                                                        nt::PVOID InputBuffer, nt::ULONG InputBufferLength, nt::PVOID OutputBuffer,
-                                                        nt::ULONG OutputBufferLength)
+                                                                nt::PVOID ApcContext, nt::PIO_STATUS_BLOCK IoStatusBlock, nt::ULONG IoControlCode,
+                                                                nt::PVOID InputBuffer, nt::ULONG InputBufferLength, nt::PVOID OutputBuffer,
+                                                                nt::ULONG OutputBufferLength)
     {
-        LOG(INFO, " NtDeviceIoControlFile : %" PRIx64 " - %" PRIx64 " - %"  PRIx64 " - %" PRIx64 " - %"  PRIx64 " - %" PRIx64 " - %"  PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64,
-            FileHandle,Event,ApcRoutine,ApcContext,IoStatusBlock,IoControlCode,InputBuffer,InputBufferLength,OutputBuffer,OutputBufferLength);
+        LOG(INFO, " NtDeviceIoControlFile : %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64,
+            FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
 
         return 0;
     });
@@ -183,14 +184,14 @@ bool syscall_tracer::SyscallPlugin::private_get_callstack()
         if(false)
         {
             auto cursor = core_.sym.find(cstep.addr);
-            if (!cursor)
+            if(!cursor)
                 cursor = sym::Cursor{"NoMod", "<nosymbol>", cstep.addr};
 
             LOG(INFO, "%" PRId64 " - %s", cs_size, sym::to_string(*cursor).data());
         }
 
         cs_size++;
-        if (cs_size<cs_depth)
+        if(cs_size < cs_depth)
             return WALK_NEXT;
 
         return WALK_STOP;

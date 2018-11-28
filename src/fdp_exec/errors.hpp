@@ -12,10 +12,10 @@ enum class err_e
     input_too_small,
 };
 
-template<typename T>
-using return_t = nonstd::expected<T, err_e>;
-using status_t = return_t<void>;
-using error_unexp_t  = nonstd::unexpected_type<err_e>;
+template <typename T>
+using return_t      = nonstd::expected<T, err_e>;
+using status_t      = return_t<void>;
+using error_unexp_t = nonstd::unexpected_type<err_e>;
 
 namespace err
 {
@@ -25,4 +25,4 @@ namespace err
     }
 
     static const status_t ok;
-}
+} // namespace err

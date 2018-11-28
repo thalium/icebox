@@ -33,16 +33,16 @@ bool sym::Symbols::insert(const std::string& name, std::unique_ptr<sym::IMod>& m
 
 namespace
 {
-    static const char pdb[]   = "pdb";
+    static const char pdb[] = "pdb";
     static const char empty[] = "empty";
     static const struct
     {
-        std::unique_ptr<sym::IMod>(*make)(span_t, const void*, const size_t);
+        std::unique_ptr<sym::IMod> (*make)(span_t, const void*, const size_t);
         const std::string name;
     } g_helpers[] =
     {
-        {&sym::make_pdb, pdb},
-        {&sym::make_empty, empty},
+            {&sym::make_pdb, pdb},
+            {&sym::make_empty, empty},
     };
 }
 

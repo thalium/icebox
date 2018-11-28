@@ -2,8 +2,8 @@
 
 #define PRIVATE_CORE__
 #define FDP_MODULE "reg"
-#include "log.hpp"
 #include "core.hpp"
+#include "log.hpp"
 #include "private.hpp"
 
 #include <FDP.h>

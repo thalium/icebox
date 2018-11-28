@@ -2,13 +2,13 @@
 
 #define PRIVATE_CORE__
 #define FDP_MODULE "mem"
-#include "log.hpp"
-#include "utils/utils.hpp"
-#include "mmu.hpp"
-#include "endian.hpp"
 #include "core.hpp"
-#include "private.hpp"
 #include "core/helpers.hpp"
+#include "endian.hpp"
+#include "log.hpp"
+#include "mmu.hpp"
+#include "private.hpp"
+#include "utils/utils.hpp"
 
 #include <FDP.h>
 #include <algorithm>
@@ -84,7 +84,7 @@ namespace
     {
         const virt_t virt = {read_le64(&ptr)};
         const auto pml4e_base = dtb & (mask(40) << 12);
-        const auto pml4e_ptr = pml4e_base + virt.u.f.pml4 * 8;
+        const auto pml4e_ptr  = pml4e_base + virt.u.f.pml4 * 8;
         entry_t pml4e = {0};
         auto ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pml4e), sizeof pml4e, pml4e_ptr);
         if(!ok)
@@ -106,7 +106,7 @@ namespace
         if(pdpe.u.f.large_page)
         {
             const auto offset = ptr & mask(30);
-            const auto phy = (pdpe.u.value & (mask(22) << 30)) + offset;
+            const auto phy    = (pdpe.u.value & (mask(22) << 30)) + offset;
             return phy;
         }
 
@@ -123,7 +123,7 @@ namespace
         if(pde.u.f.large_page)
         {
             const auto offset = ptr & mask(21);
-            const auto phy = (pde.u.value & (mask(31) << 21)) + offset;
+            const auto phy    = (pde.u.value & (mask(31) << 21)) + offset;
             return phy;
         }
 
@@ -145,7 +145,6 @@ opt<uint64_t> core::Memory::virtual_to_physical(uint64_t ptr, uint64_t dtb)
 {
     return ::virtual_to_physical(*d_, ptr, dtb);
 }
-
 
 namespace
 {
@@ -194,9 +193,9 @@ namespace
                 LOG(ERROR, "unable to restore CR3 to %" PRIx64 " from %" PRIx64, current_.dtb, want_.dtb);
         }
 
-        MemData&    m_;
-        proc_t      current_;
-        proc_t      want_;
+        MemData& m_;
+        proc_t   current_;
+        proc_t   want_;
     };
 
     opt<Cr3Swap> swap_context(MemData& m, proc_t want)
@@ -232,7 +231,7 @@ namespace
         if(!swap)
             FAIL(false, "unable to swap context");
 
-        const auto code = user_mode ? 1 << 2 : 0;
+        const auto code     = user_mode ? 1 << 2 : 0;
         const auto injected = FDP_InjectInterrupt(&m.shm, 0, PAGE_FAULT, code, src);
         if(!injected)
             FAIL(false, "unable to inject page fault");
@@ -276,7 +275,7 @@ namespace
 
 bool core::Memory::virtual_read(void* vdst, uint64_t src, size_t size)
 {
-    const auto dst = reinterpret_cast<uint8_t*>(vdst);
+    const auto dst   = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
     return try_read_virtual_only(*d_, dst, src, usize);
 }

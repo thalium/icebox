@@ -1,8 +1,8 @@
 #pragma once
 
-#include "state.hpp"
 #include "memory.hpp"
 #include "registers.hpp"
+#include "state.hpp"
 #include "sym.hpp"
 #include "types.hpp"
 
@@ -18,11 +18,11 @@ namespace core
         ~Core();
 
         // members
-        Registers                       regs;
-        Memory                          mem;
-        State                           state;
-        sym::Symbols                    sym;
-        std::unique_ptr<os::IModule>    os;
+        Registers                    regs;
+        Memory                       mem;
+        State                        state;
+        sym::Symbols                 sym;
+        std::unique_ptr<os::IModule> os;
 
         // private data
         struct Data;
@@ -30,4 +30,4 @@ namespace core
     };
 
     bool setup(Core& core, const std::string& name);
-}
+} // namespace core

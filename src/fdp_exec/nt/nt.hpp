@@ -146,11 +146,11 @@ namespace nt
     using WINAPI                               = uint64_t;
     using WORKERFACTORYINFOCLASS               = uint64_t;
 
-    template<typename T>
+    template <typename T>
     T cast_to(const arg_t& src)
     {
         T value;
         memcpy(&value, &src.val, sizeof value);
         return value;
     };
-}
+} // namespace nt

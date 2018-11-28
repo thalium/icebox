@@ -1,5 +1,5 @@
-#include "core.hpp"
 #include "callstack.hpp"
+#include "core.hpp"
 
 #define FDP_MODULE "main"
 #include "log.hpp"
@@ -9,8 +9,8 @@
 
 #include "plugin/syscall_tracer.hpp"
 
-#include <thread>
 #include <chrono>
+#include <thread>
 
 namespace
 {
@@ -68,7 +68,6 @@ namespace
             LOG(INFO, "module[%03zd/%03zd] %s: 0x%" PRIx64 " 0x%zx", modi, modcount, name->data(), span->addr, span->size);
             ++modi;
 
-
             const auto debug_dir = pe.get_directory_entry(core, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
             buffer.resize(debug_dir->size);
             auto ok = core.mem.virtual_read(&buffer[0], debug_dir->addr, debug_dir->size);
@@ -78,13 +77,12 @@ namespace
             const auto codeview = pe.parse_debug_dir(&buffer[0], span->addr, *debug_dir);
             buffer.resize(codeview->size);
             ok = core.mem.virtual_read(&buffer[0], codeview->addr, codeview->size);
-            if (!ok)
+            if(!ok)
                 FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
 
             ok = core.sym.insert(sanitizer::sanitize_filename(*name).data(), *span, &buffer[0], buffer.size());
             if(!ok)
                 return WALK_NEXT;
-
 
             return WALK_NEXT;
         });
@@ -103,18 +101,18 @@ namespace
         // check breakpoints
         {
             const auto ptr = core.sym.symbol("nt", "SwapContext");
-            const auto bp = core.state.set_breakpoint(*ptr, *target, core::ANY_CR3, [&]
+            const auto bp  = core.state.set_breakpoint(*ptr, *target, core::ANY_CR3, [&]
             {
                 const auto rip = core.regs.read(FDP_RIP_REGISTER);
                 if(!rip)
                     return;
 
-                const auto proc = core.os->proc_current();
-                const auto pid = core.os->proc_id(*proc);
-                const auto thread = core.os->thread_current();
-                const auto tid = core.os->thread_id(*proc, *thread);
+                const auto proc     = core.os->proc_current();
+                const auto pid      = core.os->proc_id(*proc);
+                const auto thread   = core.os->thread_current();
+                const auto tid      = core.os->thread_id(*proc, *thread);
                 const auto procname = proc ? core.os->proc_name(*proc) : ext::nullopt;
-                const auto sym = core.sym.find(*rip);
+                const auto sym      = core.sym.find(*rip);
                 LOG(INFO, "BREAK! rip: %" PRIx64 " %s %s pid:%" PRId64 " tid:%" PRId64,
                     *rip, sym ? sym::to_string(*sym).data() : "", procname ? procname->data() : "", pid, tid);
             });
@@ -125,19 +123,19 @@ namespace
             }
         }
 
-
         // test callstack
         {
-            const auto callstack = callstack::make_callstack_nt(core, pe);
+            const auto callstack    = callstack::make_callstack_nt(core, pe);
             const auto n_trigger_bp = 3;
-            const auto cs_depth = 40;
-            const auto pdb_name = "ntdll";
-            const auto func_name = "RtlAllocateHeap";
-            const auto func_addr = core.sym.symbol(pdb_name, func_name);
+            const auto cs_depth     = 40;
+            const auto pdb_name     = "ntdll";
+            const auto func_name    = "RtlAllocateHeap";
+            const auto func_addr    = core.sym.symbol(pdb_name, func_name);
             LOG(INFO, "%s = 0x%" PRIx64, func_name, func_addr ? *func_addr : 0);
 
             const auto bp = core.state.set_breakpoint(*func_addr, *target, core::FILTER_CR3);
-            for (size_t i = 0; i < n_trigger_bp; ++i){
+            for(size_t i = 0; i < n_trigger_bp; ++i)
+            {
                 core.state.resume();
                 core.state.wait();
                 const auto rip = core.regs.read(FDP_RIP_REGISTER);
@@ -147,12 +145,13 @@ namespace
                 callstack->get_callstack(*target, *rip, *rsp, *rbp, [&](callstack::callstep_t callstep)
                 {
                     auto cursor = core.sym.find(callstep.addr);
-                    if (!cursor)
+                    if(!cursor)
                         cursor = sym::Cursor{"NoMod", "nosymbol", callstep.addr};
 
                     LOG(INFO, "%" PRId32 " - %s", k, sym::to_string(*cursor).data());
                     k++;
-                    if (k>=cs_depth){
+                    if(k >= cs_depth)
+                    {
                         return WALK_STOP;
                     }
                     return WALK_NEXT;
@@ -185,9 +184,9 @@ namespace
 int main(int argc, char* argv[])
 {
     loguru::g_preamble_uptime = false;
-    loguru::g_preamble_date = false;
+    loguru::g_preamble_date   = false;
     loguru::g_preamble_thread = false;
-    loguru::g_preamble_file = false;
+    loguru::g_preamble_file   = false;
     loguru::init(argc, argv);
     if(argc != 2)
         FAIL(-1, "usage: fdp_exec <name>");

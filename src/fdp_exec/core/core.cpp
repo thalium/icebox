@@ -3,8 +3,8 @@
 #define PRIVATE_CORE__
 #define FDP_MODULE "core"
 #include "log.hpp"
-#include "private.hpp"
 #include "os.hpp"
+#include "private.hpp"
 
 extern "C"
 {
@@ -14,14 +14,19 @@ extern "C"
 // custom deleters
 namespace std
 {
-    template<> struct default_delete<FDP_SHM> { static const bool marker = true; void operator()(FDP_SHM* /*ptr*/) {} }; // FIXME no deleter
-}
+    template <>
+    struct default_delete<FDP_SHM>
+    {
+        static const bool marker = true;
+        void operator()(FDP_SHM* /*ptr*/) {}
+    }; // FIXME no deleter
+} // namespace std
 
 namespace
 {
     static const int CPU_ID = 0;
 
-    template<typename T>
+    template <typename T>
     std::unique_ptr<T> make_unique(T* ptr)
     {
         // check whether we correctly defined a custom deleter
@@ -38,8 +43,8 @@ struct core::Core::Data
     }
 
     // members
-    const std::string           name_;
-    std::unique_ptr<FDP_SHM>    shm_;
+    const std::string        name_;
+    std::unique_ptr<FDP_SHM> shm_;
 };
 
 core::Core::Core()
@@ -54,24 +59,24 @@ namespace
 {
     static const struct
     {
-        std::unique_ptr<os::IModule>(*make)(core::Core& core);
+        std::unique_ptr<os::IModule> (*make)(core::Core& core);
         const char name[32];
     } g_os_modules[] =
     {
-        {&os::make_nt, "windows_nt"},
-        {&os::make_linux, "linux_nt"},
+            {&os::make_nt, "windows_nt"},
+            {&os::make_linux, "linux_nt"},
     };
 }
 
 bool core::setup(Core& core, const std::string& name)
 {
-    core.d_ = std::make_unique<core::Core::Data>(name);
+    core.d_      = std::make_unique<core::Core::Data>(name);
     auto ptr_shm = FDP_OpenSHM(name.data());
     if(!ptr_shm)
         FAIL(false, "unable to open shm");
 
     core.d_->shm_ = make_unique(ptr_shm);
-    auto ok = FDP_Init(ptr_shm);
+    auto ok       = FDP_Init(ptr_shm);
     if(!ok)
         FAIL(false, "unable to init shm");
 

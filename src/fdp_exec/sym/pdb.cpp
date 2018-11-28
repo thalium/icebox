@@ -1,10 +1,10 @@
 #include "sym.hpp"
 
 #define FDP_MODULE "pdb"
-#include "log.hpp"
 #include "endian.hpp"
-#include "utils/utils.hpp"
+#include "log.hpp"
 #include "utils/hex.hpp"
+#include "utils/utils.hpp"
 
 #include <cctype>
 #include <experimental/filesystem>
@@ -17,13 +17,13 @@ namespace
 {
     static const int BASE_ADDRESS = 0x80000000;
 
-    using Symbols = std::unordered_map<std::string, pdb::PDBGlobalVariable>;
+    using Symbols         = std::unordered_map<std::string, pdb::PDBGlobalVariable>;
     using SymbolsByOffset = std::map<uint64_t, pdb::PDBGlobalVariable>;
 
     struct Pdb
         : public sym::IMod
     {
-         Pdb(const fs::path& filename, span_t span);
+        Pdb(const fs::path& filename, span_t span);
 
         // methods
         bool setup();
@@ -53,7 +53,7 @@ Pdb::Pdb(const fs::path& filename, span_t span)
 
 std::unique_ptr<sym::IMod> sym::make_pdb(span_t span, const std::string& module, const std::string& guid)
 {
-    auto ptr = std::make_unique<Pdb>(fs::path(getenv("_NT_SYMBOL_PATH")) / module / guid / module, span);
+    auto ptr      = std::make_unique<Pdb>(fs::path(getenv("_NT_SYMBOL_PATH")) / module / guid / module, span);
     const auto ok = ptr->setup();
     if(!ok)
         return std::nullptr_t();
@@ -67,11 +67,11 @@ namespace
     {
         switch(x)
         {
-            case pdb::PDB_STATE_OK:                  return "ok";
-            case pdb::PDB_STATE_ALREADY_LOADED:      return "already_loaded";
-            case pdb::PDB_STATE_ERR_FILE_OPEN:       return "err_file_open";
-            case pdb::PDB_STATE_INVALID_FILE:        return "invalid_file";
-            case pdb::PDB_STATE_UNSUPPORTED_VERSION: return "unsupported_version";
+            case pdb::PDB_STATE_OK:                     return "ok";
+            case pdb::PDB_STATE_ALREADY_LOADED:         return "already_loaded";
+            case pdb::PDB_STATE_ERR_FILE_OPEN:          return "err_file_open";
+            case pdb::PDB_STATE_INVALID_FILE:           return "invalid_file";
+            case pdb::PDB_STATE_UNSUPPORTED_VERSION:    return "unsupported_version";
         }
         return "<invalid>";
     }
@@ -118,13 +118,13 @@ opt<uint64_t> Pdb::symbol(const std::string& symbol)
 
 bool Pdb::sym_list(const sym::on_sym_fn& on_sym)
 {
-    for(auto symbol : symbols_){
+    for(auto symbol : symbols_)
+    {
         if(on_sym(symbol.first, get_offset(*this, symbol.second)) == WALK_STOP)
             break;
     }
     return true;
 }
-
 
 namespace
 {
@@ -165,7 +165,7 @@ opt<size_t> Pdb::struc_size(const std::string& struc)
 
 namespace
 {
-    template<typename T>
+    template <typename T>
     opt<sym::ModCursor> make_cursor(Pdb& p, const T& it, const T& end, uint64_t addr)
     {
         if(it == end)
@@ -178,7 +178,7 @@ namespace
 opt<sym::ModCursor> Pdb::symbol(uint64_t addr)
 {
     // lower bound returns first item greater or equal
-    auto it = symbols_by_offset.lower_bound(addr);
+    auto it        = symbols_by_offset.lower_bound(addr);
     const auto end = symbols_by_offset.end();
     if(it == end)
         return make_cursor(*this, symbols_by_offset.rbegin(), symbols_by_offset.rend(), addr);
@@ -208,8 +208,8 @@ namespace
         return std::string{ptr, end};
     }
 
-    static const uint8_t    rsds_magic[]    = {'R', 'S', 'D', 'S'};
-    static const auto       rsds_pattern    = boyer_moore_horspool_searcher(std::begin(rsds_magic), std::end(rsds_magic));
+    static const uint8_t rsds_magic[] = {'R', 'S', 'D', 'S'};
+    static const auto rsds_pattern = boyer_moore_horspool_searcher(std::begin(rsds_magic), std::end(rsds_magic));
 
     opt<PdbCtx> read_pdb(const void* vsrc, size_t src_size)
     {
@@ -241,9 +241,9 @@ namespace
             uint32_t age = read_le32(&rsds[4 + 16]);
             const auto name = read_pdb_name(&rsds[4 + 16 + 4], name_end);
             if(name)
-                return PdbCtx{std::string{strguid, sizeof strguid} +std::to_string(age), *name};
+                return PdbCtx{std::string{strguid, sizeof strguid} + std::to_string(age), *name};
 
-            src = rsds + 1;
+            src      = rsds + 1;
             src_size = end - src;
         }
     }

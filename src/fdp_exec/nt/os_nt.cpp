@@ -1,13 +1,13 @@
 #include "os.hpp"
 
 #define FDP_MODULE "os_nt"
-#include "log.hpp"
 #include "core.hpp"
 #include "core/helpers.hpp"
-#include "utils/utils.hpp"
-#include "utils/utf8.hpp"
-#include "utils/pe.hpp"
+#include "log.hpp"
 #include "utils/hex.hpp"
+#include "utils/pe.hpp"
+#include "utils/utf8.hpp"
+#include "utils/utils.hpp"
 
 #include <array>
 #include <experimental/filesystem>
@@ -57,6 +57,7 @@ namespace
         const char      struc[32];
         const char      member[32];
     };
+    // clang-format off
     const MemberOffset g_member_offsets[] =
     {
         {CLIENT_ID_UniqueThread,                        "nt", "_CLIENT_ID",                       "UniqueThread"},
@@ -90,6 +91,7 @@ namespace
         {RTL_USER_PROCESS_PARAMETERS_ImagePathName,     "nt", "_RTL_USER_PROCESS_PARAMETERS",     "ImagePathName"},
         {SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,  "nt", "_SE_AUDIT_PROCESS_CREATION_INFO",  "ImageFileName"},
     };
+    // clang-format on
     static_assert(COUNT_OF(g_member_offsets) == MEMBER_OFFSET_COUNT, "invalid members");
 
     enum symbol_offset_e
@@ -107,6 +109,7 @@ namespace
         const char      module[16];
         const char      name[32];
     };
+    // clang-format off
     const SymbolOffset g_symbol_offsets[] =
     {
         {KiSystemCall64,            "nt", "KiSystemCall64"},
@@ -114,6 +117,7 @@ namespace
         {PsInitialSystemProcess,    "nt", "PsInitialSystemProcess"},
         {PsLoadedModuleList,        "nt", "PsLoadedModuleList"},
     };
+    // clang-format on
     static_assert(COUNT_OF(g_symbol_offsets) == SYMBOL_OFFSET_COUNT, "invalid symbols");
 
     using MemberOffsets = std::array<uint64_t, MEMBER_OFFSET_COUNT>;
@@ -135,31 +139,31 @@ namespace
         opt<std::string>    proc_name       (proc_t proc) override;
         bool                proc_is_valid   (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
-        opt<bool>           proc_is_wow64      (proc_t proc) override;
+        opt<bool>           proc_is_wow64   (proc_t proc) override;
 
-        bool                thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
-        opt<thread_t>       thread_current  () override;
-        opt<proc_t>         thread_proc     (thread_t thread) override;
-        opt<uint64_t>       thread_pc       (proc_t proc, thread_t thread) override;
-        uint64_t            thread_id       (proc_t proc, thread_t thread) override;
+        bool            thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
+        opt<thread_t>   thread_current  () override;
+        opt<proc_t>     thread_proc     (thread_t thread) override;
+        opt<uint64_t>   thread_pc       (proc_t proc, thread_t thread) override;
+        uint64_t        thread_id       (proc_t proc, thread_t thread) override;
 
-        bool                mod_list        (proc_t proc, const on_mod_fn& on_module) override;
-        opt<std::string>    mod_name        (proc_t proc, mod_t mod) override;
-        opt<span_t>         mod_span        (proc_t proc, mod_t mod) override;
-        opt<mod_t>          mod_find        (proc_t proc, uint64_t addr) override;
+        bool                mod_list(proc_t proc, const on_mod_fn& on_module) override;
+        opt<std::string>    mod_name(proc_t proc, mod_t mod) override;
+        opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
+        opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
 
-        bool                driver_list     (const on_driver_fn& on_driver) override;
-        opt<driver_t>       driver_find     (const std::string& name) override;
-        opt<std::string>    driver_name     (driver_t drv) override;
-        opt<span_t>         driver_span     (driver_t drv) override;
+        bool                driver_list (const on_driver_fn& on_driver) override;
+        opt<driver_t>       driver_find (const std::string& name) override;
+        opt<std::string>    driver_name (driver_t drv) override;
+        opt<span_t>         driver_span (driver_t drv) override;
 
-        void                debug_print     () override;
+        void debug_print() override;
 
         // members
-        core::Core&     core_;
-        MemberOffsets   members_;
-        SymbolOffsets   symbols_;
-        std::string     last_dump_;
+        core::Core&   core_;
+        MemberOffsets members_;
+        SymbolOffsets symbols_;
+        std::string   last_dump_;
     };
 }
 
@@ -264,7 +268,7 @@ bool OsNt::proc_list(const on_proc_fn& on_process)
     for(auto link = core::read_ptr(core_, head); link != head; link = core::read_ptr(core_, *link))
     {
         const auto eproc = *link - members_[EPROCESS_ActiveProcessLinks];
-        const auto dtb = core::read_ptr(core_, eproc + members_[EPROCESS_Pcb] + members_[KPROCESS_DirectoryTableBase]);
+        const auto dtb   = core::read_ptr(core_, eproc + members_[EPROCESS_Pcb] + members_[KPROCESS_DirectoryTableBase]);
         if(!dtb)
         {
             LOG(ERROR, "unable to read KPROCESS.DirectoryTableBase from 0x%" PRIx64 "", eproc);
@@ -352,9 +356,9 @@ namespace
         if(!ok)
             FAIL({}, "unable to read UNICODE_STRING");
 
-        us.length = read_le16(&us.length);
+        us.length     = read_le16(&us.length);
         us.max_length = read_le16(&us.max_length);
-        us.buffer = read_le64(&us.buffer);
+        us.buffer     = read_le64(&us.buffer);
 
         if(us.length > us.max_length)
             FAIL({}, "corrupted UNICODE_STRING");
@@ -372,7 +376,7 @@ namespace
 opt<std::string> OsNt::proc_name(proc_t proc)
 {
     // EPROCESS.ImageFileName is 16 bytes, but only 14 are actually used
-    char buffer[14+1];
+    char buffer[14 + 1];
     const auto ok = core_.mem.virtual_read(buffer, proc.id + members_[EPROCESS_ImageFileName], sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
@@ -402,7 +406,8 @@ uint64_t OsNt::proc_id(proc_t proc)
     return *pid;
 }
 
-opt<bool> OsNt::proc_is_wow64(proc_t proc){
+opt<bool> OsNt::proc_is_wow64(proc_t proc)
+{
     const auto isx64 = core::read_ptr(core_, proc.id + members_[EPROCESS_Wow64Process]);
     if(!isx64)
         return ext::nullopt;
@@ -466,7 +471,7 @@ bool OsNt::proc_is_valid(proc_t proc)
 
 opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
 {
-    const auto ctx = core_.mem.switch_process(proc);
+    const auto ctx  = core_.mem.switch_process(proc);
     const auto base = core::read_ptr(core_, mod.id + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
     if(!base)
         return {};
@@ -621,21 +626,21 @@ void OsNt::debug_print()
     if(!kpcr)
         return;
 
-    const auto irql = core::read_byte(core_, *kpcr + members_[KPCR_Irql]);
-    const auto cs = core_.regs.read(FDP_CS_REGISTER);
-    const auto rip = core_.regs.read(FDP_RIP_REGISTER);
+    const auto irql   = core::read_byte(core_, *kpcr + members_[KPCR_Irql]);
+    const auto cs     = core_.regs.read(FDP_CS_REGISTER);
+    const auto rip    = core_.regs.read(FDP_RIP_REGISTER);
     const auto ripcur = core_.sym.find(*rip);
     const auto ripsym = ripcur ? sym::to_string(*ripcur) : "";
     const auto thread = thread_current();
-    const auto proc = thread_proc(*thread);
-    const auto name = proc_name(*proc);
-    const auto dump = "rip: " + to_hex(rip ? *rip : 0)
-                    + ' ' + irql_to_text(irql ? *irql : -1)
-                    + ' ' + (cs ? is_user_mode(*cs) ? "user" : "kernel" : "?")
-                    + (name ? " " + *name : "")
-                    + (ripsym.empty() ? "" : " " + ripsym)
-                    + " p:" + to_hex(proc ? proc->id : 0)
-                    + " t:" + to_hex(thread ? thread->id : 0);
+    const auto proc   = thread_proc(*thread);
+    const auto name   = proc_name(*proc);
+    const auto dump   = "rip: " + to_hex(rip ? *rip : 0)
+                      + ' ' + irql_to_text(irql ? *irql : -1)
+                      + ' ' + (cs ? is_user_mode(*cs) ? "user" : "kernel" : "?")
+                      + (name ? " " + *name : "")
+                      + (ripsym.empty() ? "" : " " + ripsym)
+                      + " p:" + to_hex(proc ? proc->id : 0)
+                      + " t:" + to_hex(thread ? thread->id : 0);
     if(dump != last_dump_)
         LOG(INFO, "%s", dump.data());
     last_dump_ = dump;
