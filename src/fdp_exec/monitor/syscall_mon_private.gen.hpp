@@ -3,14 +3,19 @@
 #include "generic_mon.hpp"
 
 
-void monitor::GenericMonitor::register_NtAcceptConnectPort(const on_NtAcceptConnectPort_fn& on_ntacceptconnectport)
+bool monitor::GenericMonitor::register_NtAcceptConnectPort(proc_t proc, const on_NtAcceptConnectPort_fn& on_ntacceptconnectport)
 {
+    const auto ok = setup_func(proc, "NtAcceptConnectPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAcceptConnectPort.push_back(on_ntacceptconnectport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAcceptConnectPort()
 {
-    LOG(INFO, "Break on NtAcceptConnectPort");
+    //LOG(INFO, "Break on NtAcceptConnectPort");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -30,14 +35,19 @@ void monitor::GenericMonitor::on_NtAcceptConnectPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtAccessCheckAndAuditAlarm(const on_NtAccessCheckAndAuditAlarm_fn& on_ntaccesscheckandauditalarm)
+bool monitor::GenericMonitor::register_NtAccessCheckAndAuditAlarm(proc_t proc, const on_NtAccessCheckAndAuditAlarm_fn& on_ntaccesscheckandauditalarm)
 {
+    const auto ok = setup_func(proc, "NtAccessCheckAndAuditAlarm");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAccessCheckAndAuditAlarm.push_back(on_ntaccesscheckandauditalarm);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAccessCheckAndAuditAlarm()
 {
-    LOG(INFO, "Break on NtAccessCheckAndAuditAlarm");
+    //LOG(INFO, "Break on NtAccessCheckAndAuditAlarm");
     const auto nargs = 11;
 
     std::vector<arg_t> args;
@@ -62,14 +72,19 @@ void monitor::GenericMonitor::on_NtAccessCheckAndAuditAlarm()
     }
 }
 
-void monitor::GenericMonitor::register_NtAccessCheckByTypeAndAuditAlarm(const on_NtAccessCheckByTypeAndAuditAlarm_fn& on_ntaccesscheckbytypeandauditalarm)
+bool monitor::GenericMonitor::register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeAndAuditAlarm_fn& on_ntaccesscheckbytypeandauditalarm)
 {
+    const auto ok = setup_func(proc, "NtAccessCheckByTypeAndAuditAlarm");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAccessCheckByTypeAndAuditAlarm.push_back(on_ntaccesscheckbytypeandauditalarm);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAccessCheckByTypeAndAuditAlarm()
 {
-    LOG(INFO, "Break on NtAccessCheckByTypeAndAuditAlarm");
+    //LOG(INFO, "Break on NtAccessCheckByTypeAndAuditAlarm");
     const auto nargs = 16;
 
     std::vector<arg_t> args;
@@ -99,14 +114,19 @@ void monitor::GenericMonitor::on_NtAccessCheckByTypeAndAuditAlarm()
     }
 }
 
-void monitor::GenericMonitor::register_NtAccessCheckByType(const on_NtAccessCheckByType_fn& on_ntaccesscheckbytype)
+bool monitor::GenericMonitor::register_NtAccessCheckByType(proc_t proc, const on_NtAccessCheckByType_fn& on_ntaccesscheckbytype)
 {
+    const auto ok = setup_func(proc, "NtAccessCheckByType");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAccessCheckByType.push_back(on_ntaccesscheckbytype);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAccessCheckByType()
 {
-    LOG(INFO, "Break on NtAccessCheckByType");
+    //LOG(INFO, "Break on NtAccessCheckByType");
     const auto nargs = 11;
 
     std::vector<arg_t> args;
@@ -131,14 +151,19 @@ void monitor::GenericMonitor::on_NtAccessCheckByType()
     }
 }
 
-void monitor::GenericMonitor::register_NtAccessCheckByTypeResultListAndAuditAlarmByHandle(const on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_ntaccesscheckbytyperesultlistandauditalarmbyhandle)
+bool monitor::GenericMonitor::register_NtAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_ntaccesscheckbytyperesultlistandauditalarmbyhandle)
 {
+    const auto ok = setup_func(proc, "NtAccessCheckByTypeResultListAndAuditAlarmByHandle");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAccessCheckByTypeResultListAndAuditAlarmByHandle.push_back(on_ntaccesscheckbytyperesultlistandauditalarmbyhandle);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle()
 {
-    LOG(INFO, "Break on NtAccessCheckByTypeResultListAndAuditAlarmByHandle");
+    //LOG(INFO, "Break on NtAccessCheckByTypeResultListAndAuditAlarmByHandle");
     const auto nargs = 17;
 
     std::vector<arg_t> args;
@@ -169,14 +194,19 @@ void monitor::GenericMonitor::on_NtAccessCheckByTypeResultListAndAuditAlarmByHan
     }
 }
 
-void monitor::GenericMonitor::register_NtAccessCheckByTypeResultListAndAuditAlarm(const on_NtAccessCheckByTypeResultListAndAuditAlarm_fn& on_ntaccesscheckbytyperesultlistandauditalarm)
+bool monitor::GenericMonitor::register_NtAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarm_fn& on_ntaccesscheckbytyperesultlistandauditalarm)
 {
+    const auto ok = setup_func(proc, "NtAccessCheckByTypeResultListAndAuditAlarm");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAccessCheckByTypeResultListAndAuditAlarm.push_back(on_ntaccesscheckbytyperesultlistandauditalarm);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAccessCheckByTypeResultListAndAuditAlarm()
 {
-    LOG(INFO, "Break on NtAccessCheckByTypeResultListAndAuditAlarm");
+    //LOG(INFO, "Break on NtAccessCheckByTypeResultListAndAuditAlarm");
     const auto nargs = 16;
 
     std::vector<arg_t> args;
@@ -206,14 +236,19 @@ void monitor::GenericMonitor::on_NtAccessCheckByTypeResultListAndAuditAlarm()
     }
 }
 
-void monitor::GenericMonitor::register_NtAccessCheckByTypeResultList(const on_NtAccessCheckByTypeResultList_fn& on_ntaccesscheckbytyperesultlist)
+bool monitor::GenericMonitor::register_NtAccessCheckByTypeResultList(proc_t proc, const on_NtAccessCheckByTypeResultList_fn& on_ntaccesscheckbytyperesultlist)
 {
+    const auto ok = setup_func(proc, "NtAccessCheckByTypeResultList");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAccessCheckByTypeResultList.push_back(on_ntaccesscheckbytyperesultlist);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAccessCheckByTypeResultList()
 {
-    LOG(INFO, "Break on NtAccessCheckByTypeResultList");
+    //LOG(INFO, "Break on NtAccessCheckByTypeResultList");
     const auto nargs = 11;
 
     std::vector<arg_t> args;
@@ -238,14 +273,19 @@ void monitor::GenericMonitor::on_NtAccessCheckByTypeResultList()
     }
 }
 
-void monitor::GenericMonitor::register_NtAccessCheck(const on_NtAccessCheck_fn& on_ntaccesscheck)
+bool monitor::GenericMonitor::register_NtAccessCheck(proc_t proc, const on_NtAccessCheck_fn& on_ntaccesscheck)
 {
+    const auto ok = setup_func(proc, "NtAccessCheck");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAccessCheck.push_back(on_ntaccesscheck);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAccessCheck()
 {
-    LOG(INFO, "Break on NtAccessCheck");
+    //LOG(INFO, "Break on NtAccessCheck");
     const auto nargs = 8;
 
     std::vector<arg_t> args;
@@ -267,14 +307,19 @@ void monitor::GenericMonitor::on_NtAccessCheck()
     }
 }
 
-void monitor::GenericMonitor::register_NtAddAtom(const on_NtAddAtom_fn& on_ntaddatom)
+bool monitor::GenericMonitor::register_NtAddAtom(proc_t proc, const on_NtAddAtom_fn& on_ntaddatom)
 {
+    const auto ok = setup_func(proc, "NtAddAtom");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAddAtom.push_back(on_ntaddatom);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAddAtom()
 {
-    LOG(INFO, "Break on NtAddAtom");
+    //LOG(INFO, "Break on NtAddAtom");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -291,14 +336,19 @@ void monitor::GenericMonitor::on_NtAddAtom()
     }
 }
 
-void monitor::GenericMonitor::register_NtAddBootEntry(const on_NtAddBootEntry_fn& on_ntaddbootentry)
+bool monitor::GenericMonitor::register_NtAddBootEntry(proc_t proc, const on_NtAddBootEntry_fn& on_ntaddbootentry)
 {
+    const auto ok = setup_func(proc, "NtAddBootEntry");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAddBootEntry.push_back(on_ntaddbootentry);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAddBootEntry()
 {
-    LOG(INFO, "Break on NtAddBootEntry");
+    //LOG(INFO, "Break on NtAddBootEntry");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -314,14 +364,19 @@ void monitor::GenericMonitor::on_NtAddBootEntry()
     }
 }
 
-void monitor::GenericMonitor::register_NtAddDriverEntry(const on_NtAddDriverEntry_fn& on_ntadddriverentry)
+bool monitor::GenericMonitor::register_NtAddDriverEntry(proc_t proc, const on_NtAddDriverEntry_fn& on_ntadddriverentry)
 {
+    const auto ok = setup_func(proc, "NtAddDriverEntry");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAddDriverEntry.push_back(on_ntadddriverentry);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAddDriverEntry()
 {
-    LOG(INFO, "Break on NtAddDriverEntry");
+    //LOG(INFO, "Break on NtAddDriverEntry");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -337,14 +392,19 @@ void monitor::GenericMonitor::on_NtAddDriverEntry()
     }
 }
 
-void monitor::GenericMonitor::register_NtAdjustGroupsToken(const on_NtAdjustGroupsToken_fn& on_ntadjustgroupstoken)
+bool monitor::GenericMonitor::register_NtAdjustGroupsToken(proc_t proc, const on_NtAdjustGroupsToken_fn& on_ntadjustgroupstoken)
 {
+    const auto ok = setup_func(proc, "NtAdjustGroupsToken");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAdjustGroupsToken.push_back(on_ntadjustgroupstoken);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAdjustGroupsToken()
 {
-    LOG(INFO, "Break on NtAdjustGroupsToken");
+    //LOG(INFO, "Break on NtAdjustGroupsToken");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -364,14 +424,19 @@ void monitor::GenericMonitor::on_NtAdjustGroupsToken()
     }
 }
 
-void monitor::GenericMonitor::register_NtAdjustPrivilegesToken(const on_NtAdjustPrivilegesToken_fn& on_ntadjustprivilegestoken)
+bool monitor::GenericMonitor::register_NtAdjustPrivilegesToken(proc_t proc, const on_NtAdjustPrivilegesToken_fn& on_ntadjustprivilegestoken)
 {
+    const auto ok = setup_func(proc, "NtAdjustPrivilegesToken");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAdjustPrivilegesToken.push_back(on_ntadjustprivilegestoken);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAdjustPrivilegesToken()
 {
-    LOG(INFO, "Break on NtAdjustPrivilegesToken");
+    //LOG(INFO, "Break on NtAdjustPrivilegesToken");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -391,14 +456,19 @@ void monitor::GenericMonitor::on_NtAdjustPrivilegesToken()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlertResumeThread(const on_NtAlertResumeThread_fn& on_ntalertresumethread)
+bool monitor::GenericMonitor::register_NtAlertResumeThread(proc_t proc, const on_NtAlertResumeThread_fn& on_ntalertresumethread)
 {
+    const auto ok = setup_func(proc, "NtAlertResumeThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlertResumeThread.push_back(on_ntalertresumethread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlertResumeThread()
 {
-    LOG(INFO, "Break on NtAlertResumeThread");
+    //LOG(INFO, "Break on NtAlertResumeThread");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -414,14 +484,19 @@ void monitor::GenericMonitor::on_NtAlertResumeThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlertThread(const on_NtAlertThread_fn& on_ntalertthread)
+bool monitor::GenericMonitor::register_NtAlertThread(proc_t proc, const on_NtAlertThread_fn& on_ntalertthread)
 {
+    const auto ok = setup_func(proc, "NtAlertThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlertThread.push_back(on_ntalertthread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlertThread()
 {
-    LOG(INFO, "Break on NtAlertThread");
+    //LOG(INFO, "Break on NtAlertThread");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -436,14 +511,19 @@ void monitor::GenericMonitor::on_NtAlertThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtAllocateLocallyUniqueId(const on_NtAllocateLocallyUniqueId_fn& on_ntallocatelocallyuniqueid)
+bool monitor::GenericMonitor::register_NtAllocateLocallyUniqueId(proc_t proc, const on_NtAllocateLocallyUniqueId_fn& on_ntallocatelocallyuniqueid)
 {
+    const auto ok = setup_func(proc, "NtAllocateLocallyUniqueId");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAllocateLocallyUniqueId.push_back(on_ntallocatelocallyuniqueid);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAllocateLocallyUniqueId()
 {
-    LOG(INFO, "Break on NtAllocateLocallyUniqueId");
+    //LOG(INFO, "Break on NtAllocateLocallyUniqueId");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -458,14 +538,19 @@ void monitor::GenericMonitor::on_NtAllocateLocallyUniqueId()
     }
 }
 
-void monitor::GenericMonitor::register_NtAllocateReserveObject(const on_NtAllocateReserveObject_fn& on_ntallocatereserveobject)
+bool monitor::GenericMonitor::register_NtAllocateReserveObject(proc_t proc, const on_NtAllocateReserveObject_fn& on_ntallocatereserveobject)
 {
+    const auto ok = setup_func(proc, "NtAllocateReserveObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAllocateReserveObject.push_back(on_ntallocatereserveobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAllocateReserveObject()
 {
-    LOG(INFO, "Break on NtAllocateReserveObject");
+    //LOG(INFO, "Break on NtAllocateReserveObject");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -482,14 +567,19 @@ void monitor::GenericMonitor::on_NtAllocateReserveObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtAllocateUserPhysicalPages(const on_NtAllocateUserPhysicalPages_fn& on_ntallocateuserphysicalpages)
+bool monitor::GenericMonitor::register_NtAllocateUserPhysicalPages(proc_t proc, const on_NtAllocateUserPhysicalPages_fn& on_ntallocateuserphysicalpages)
 {
+    const auto ok = setup_func(proc, "NtAllocateUserPhysicalPages");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAllocateUserPhysicalPages.push_back(on_ntallocateuserphysicalpages);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAllocateUserPhysicalPages()
 {
-    LOG(INFO, "Break on NtAllocateUserPhysicalPages");
+    //LOG(INFO, "Break on NtAllocateUserPhysicalPages");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -506,14 +596,19 @@ void monitor::GenericMonitor::on_NtAllocateUserPhysicalPages()
     }
 }
 
-void monitor::GenericMonitor::register_NtAllocateUuids(const on_NtAllocateUuids_fn& on_ntallocateuuids)
+bool monitor::GenericMonitor::register_NtAllocateUuids(proc_t proc, const on_NtAllocateUuids_fn& on_ntallocateuuids)
 {
+    const auto ok = setup_func(proc, "NtAllocateUuids");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAllocateUuids.push_back(on_ntallocateuuids);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAllocateUuids()
 {
-    LOG(INFO, "Break on NtAllocateUuids");
+    //LOG(INFO, "Break on NtAllocateUuids");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -531,14 +626,19 @@ void monitor::GenericMonitor::on_NtAllocateUuids()
     }
 }
 
-void monitor::GenericMonitor::register_NtAllocateVirtualMemory(const on_NtAllocateVirtualMemory_fn& on_ntallocatevirtualmemory)
+bool monitor::GenericMonitor::register_NtAllocateVirtualMemory(proc_t proc, const on_NtAllocateVirtualMemory_fn& on_ntallocatevirtualmemory)
 {
+    const auto ok = setup_func(proc, "NtAllocateVirtualMemory");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAllocateVirtualMemory.push_back(on_ntallocatevirtualmemory);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAllocateVirtualMemory()
 {
-    LOG(INFO, "Break on NtAllocateVirtualMemory");
+    //LOG(INFO, "Break on NtAllocateVirtualMemory");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -558,14 +658,19 @@ void monitor::GenericMonitor::on_NtAllocateVirtualMemory()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcAcceptConnectPort(const on_NtAlpcAcceptConnectPort_fn& on_ntalpcacceptconnectport)
+bool monitor::GenericMonitor::register_NtAlpcAcceptConnectPort(proc_t proc, const on_NtAlpcAcceptConnectPort_fn& on_ntalpcacceptconnectport)
 {
+    const auto ok = setup_func(proc, "NtAlpcAcceptConnectPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcAcceptConnectPort.push_back(on_ntalpcacceptconnectport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcAcceptConnectPort()
 {
-    LOG(INFO, "Break on NtAlpcAcceptConnectPort");
+    //LOG(INFO, "Break on NtAlpcAcceptConnectPort");
     const auto nargs = 9;
 
     std::vector<arg_t> args;
@@ -588,14 +693,19 @@ void monitor::GenericMonitor::on_NtAlpcAcceptConnectPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcCancelMessage(const on_NtAlpcCancelMessage_fn& on_ntalpccancelmessage)
+bool monitor::GenericMonitor::register_NtAlpcCancelMessage(proc_t proc, const on_NtAlpcCancelMessage_fn& on_ntalpccancelmessage)
 {
+    const auto ok = setup_func(proc, "NtAlpcCancelMessage");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcCancelMessage.push_back(on_ntalpccancelmessage);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcCancelMessage()
 {
-    LOG(INFO, "Break on NtAlpcCancelMessage");
+    //LOG(INFO, "Break on NtAlpcCancelMessage");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -612,14 +722,19 @@ void monitor::GenericMonitor::on_NtAlpcCancelMessage()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcConnectPort(const on_NtAlpcConnectPort_fn& on_ntalpcconnectport)
+bool monitor::GenericMonitor::register_NtAlpcConnectPort(proc_t proc, const on_NtAlpcConnectPort_fn& on_ntalpcconnectport)
 {
+    const auto ok = setup_func(proc, "NtAlpcConnectPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcConnectPort.push_back(on_ntalpcconnectport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcConnectPort()
 {
-    LOG(INFO, "Break on NtAlpcConnectPort");
+    //LOG(INFO, "Break on NtAlpcConnectPort");
     const auto nargs = 11;
 
     std::vector<arg_t> args;
@@ -644,14 +759,19 @@ void monitor::GenericMonitor::on_NtAlpcConnectPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcCreatePort(const on_NtAlpcCreatePort_fn& on_ntalpccreateport)
+bool monitor::GenericMonitor::register_NtAlpcCreatePort(proc_t proc, const on_NtAlpcCreatePort_fn& on_ntalpccreateport)
 {
+    const auto ok = setup_func(proc, "NtAlpcCreatePort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcCreatePort.push_back(on_ntalpccreateport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcCreatePort()
 {
-    LOG(INFO, "Break on NtAlpcCreatePort");
+    //LOG(INFO, "Break on NtAlpcCreatePort");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -668,14 +788,19 @@ void monitor::GenericMonitor::on_NtAlpcCreatePort()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcCreatePortSection(const on_NtAlpcCreatePortSection_fn& on_ntalpccreateportsection)
+bool monitor::GenericMonitor::register_NtAlpcCreatePortSection(proc_t proc, const on_NtAlpcCreatePortSection_fn& on_ntalpccreateportsection)
 {
+    const auto ok = setup_func(proc, "NtAlpcCreatePortSection");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcCreatePortSection.push_back(on_ntalpccreateportsection);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcCreatePortSection()
 {
-    LOG(INFO, "Break on NtAlpcCreatePortSection");
+    //LOG(INFO, "Break on NtAlpcCreatePortSection");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -695,14 +820,19 @@ void monitor::GenericMonitor::on_NtAlpcCreatePortSection()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcCreateResourceReserve(const on_NtAlpcCreateResourceReserve_fn& on_ntalpccreateresourcereserve)
+bool monitor::GenericMonitor::register_NtAlpcCreateResourceReserve(proc_t proc, const on_NtAlpcCreateResourceReserve_fn& on_ntalpccreateresourcereserve)
 {
+    const auto ok = setup_func(proc, "NtAlpcCreateResourceReserve");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcCreateResourceReserve.push_back(on_ntalpccreateresourcereserve);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcCreateResourceReserve()
 {
-    LOG(INFO, "Break on NtAlpcCreateResourceReserve");
+    //LOG(INFO, "Break on NtAlpcCreateResourceReserve");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -720,14 +850,19 @@ void monitor::GenericMonitor::on_NtAlpcCreateResourceReserve()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcCreateSectionView(const on_NtAlpcCreateSectionView_fn& on_ntalpccreatesectionview)
+bool monitor::GenericMonitor::register_NtAlpcCreateSectionView(proc_t proc, const on_NtAlpcCreateSectionView_fn& on_ntalpccreatesectionview)
 {
+    const auto ok = setup_func(proc, "NtAlpcCreateSectionView");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcCreateSectionView.push_back(on_ntalpccreatesectionview);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcCreateSectionView()
 {
-    LOG(INFO, "Break on NtAlpcCreateSectionView");
+    //LOG(INFO, "Break on NtAlpcCreateSectionView");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -744,14 +879,19 @@ void monitor::GenericMonitor::on_NtAlpcCreateSectionView()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcCreateSecurityContext(const on_NtAlpcCreateSecurityContext_fn& on_ntalpccreatesecuritycontext)
+bool monitor::GenericMonitor::register_NtAlpcCreateSecurityContext(proc_t proc, const on_NtAlpcCreateSecurityContext_fn& on_ntalpccreatesecuritycontext)
 {
+    const auto ok = setup_func(proc, "NtAlpcCreateSecurityContext");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcCreateSecurityContext.push_back(on_ntalpccreatesecuritycontext);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcCreateSecurityContext()
 {
-    LOG(INFO, "Break on NtAlpcCreateSecurityContext");
+    //LOG(INFO, "Break on NtAlpcCreateSecurityContext");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -768,14 +908,19 @@ void monitor::GenericMonitor::on_NtAlpcCreateSecurityContext()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcDeletePortSection(const on_NtAlpcDeletePortSection_fn& on_ntalpcdeleteportsection)
+bool monitor::GenericMonitor::register_NtAlpcDeletePortSection(proc_t proc, const on_NtAlpcDeletePortSection_fn& on_ntalpcdeleteportsection)
 {
+    const auto ok = setup_func(proc, "NtAlpcDeletePortSection");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcDeletePortSection.push_back(on_ntalpcdeleteportsection);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcDeletePortSection()
 {
-    LOG(INFO, "Break on NtAlpcDeletePortSection");
+    //LOG(INFO, "Break on NtAlpcDeletePortSection");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -792,14 +937,19 @@ void monitor::GenericMonitor::on_NtAlpcDeletePortSection()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcDeleteResourceReserve(const on_NtAlpcDeleteResourceReserve_fn& on_ntalpcdeleteresourcereserve)
+bool monitor::GenericMonitor::register_NtAlpcDeleteResourceReserve(proc_t proc, const on_NtAlpcDeleteResourceReserve_fn& on_ntalpcdeleteresourcereserve)
 {
+    const auto ok = setup_func(proc, "NtAlpcDeleteResourceReserve");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcDeleteResourceReserve.push_back(on_ntalpcdeleteresourcereserve);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcDeleteResourceReserve()
 {
-    LOG(INFO, "Break on NtAlpcDeleteResourceReserve");
+    //LOG(INFO, "Break on NtAlpcDeleteResourceReserve");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -816,14 +966,19 @@ void monitor::GenericMonitor::on_NtAlpcDeleteResourceReserve()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcDeleteSectionView(const on_NtAlpcDeleteSectionView_fn& on_ntalpcdeletesectionview)
+bool monitor::GenericMonitor::register_NtAlpcDeleteSectionView(proc_t proc, const on_NtAlpcDeleteSectionView_fn& on_ntalpcdeletesectionview)
 {
+    const auto ok = setup_func(proc, "NtAlpcDeleteSectionView");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcDeleteSectionView.push_back(on_ntalpcdeletesectionview);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcDeleteSectionView()
 {
-    LOG(INFO, "Break on NtAlpcDeleteSectionView");
+    //LOG(INFO, "Break on NtAlpcDeleteSectionView");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -840,14 +995,19 @@ void monitor::GenericMonitor::on_NtAlpcDeleteSectionView()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcDeleteSecurityContext(const on_NtAlpcDeleteSecurityContext_fn& on_ntalpcdeletesecuritycontext)
+bool monitor::GenericMonitor::register_NtAlpcDeleteSecurityContext(proc_t proc, const on_NtAlpcDeleteSecurityContext_fn& on_ntalpcdeletesecuritycontext)
 {
+    const auto ok = setup_func(proc, "NtAlpcDeleteSecurityContext");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcDeleteSecurityContext.push_back(on_ntalpcdeletesecuritycontext);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcDeleteSecurityContext()
 {
-    LOG(INFO, "Break on NtAlpcDeleteSecurityContext");
+    //LOG(INFO, "Break on NtAlpcDeleteSecurityContext");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -864,14 +1024,19 @@ void monitor::GenericMonitor::on_NtAlpcDeleteSecurityContext()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcDisconnectPort(const on_NtAlpcDisconnectPort_fn& on_ntalpcdisconnectport)
+bool monitor::GenericMonitor::register_NtAlpcDisconnectPort(proc_t proc, const on_NtAlpcDisconnectPort_fn& on_ntalpcdisconnectport)
 {
+    const auto ok = setup_func(proc, "NtAlpcDisconnectPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcDisconnectPort.push_back(on_ntalpcdisconnectport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcDisconnectPort()
 {
-    LOG(INFO, "Break on NtAlpcDisconnectPort");
+    //LOG(INFO, "Break on NtAlpcDisconnectPort");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -887,14 +1052,19 @@ void monitor::GenericMonitor::on_NtAlpcDisconnectPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcImpersonateClientOfPort(const on_NtAlpcImpersonateClientOfPort_fn& on_ntalpcimpersonateclientofport)
+bool monitor::GenericMonitor::register_NtAlpcImpersonateClientOfPort(proc_t proc, const on_NtAlpcImpersonateClientOfPort_fn& on_ntalpcimpersonateclientofport)
 {
+    const auto ok = setup_func(proc, "NtAlpcImpersonateClientOfPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcImpersonateClientOfPort.push_back(on_ntalpcimpersonateclientofport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcImpersonateClientOfPort()
 {
-    LOG(INFO, "Break on NtAlpcImpersonateClientOfPort");
+    //LOG(INFO, "Break on NtAlpcImpersonateClientOfPort");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -911,14 +1081,19 @@ void monitor::GenericMonitor::on_NtAlpcImpersonateClientOfPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcOpenSenderProcess(const on_NtAlpcOpenSenderProcess_fn& on_ntalpcopensenderprocess)
+bool monitor::GenericMonitor::register_NtAlpcOpenSenderProcess(proc_t proc, const on_NtAlpcOpenSenderProcess_fn& on_ntalpcopensenderprocess)
 {
+    const auto ok = setup_func(proc, "NtAlpcOpenSenderProcess");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcOpenSenderProcess.push_back(on_ntalpcopensenderprocess);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcOpenSenderProcess()
 {
-    LOG(INFO, "Break on NtAlpcOpenSenderProcess");
+    //LOG(INFO, "Break on NtAlpcOpenSenderProcess");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -938,14 +1113,19 @@ void monitor::GenericMonitor::on_NtAlpcOpenSenderProcess()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcOpenSenderThread(const on_NtAlpcOpenSenderThread_fn& on_ntalpcopensenderthread)
+bool monitor::GenericMonitor::register_NtAlpcOpenSenderThread(proc_t proc, const on_NtAlpcOpenSenderThread_fn& on_ntalpcopensenderthread)
 {
+    const auto ok = setup_func(proc, "NtAlpcOpenSenderThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcOpenSenderThread.push_back(on_ntalpcopensenderthread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcOpenSenderThread()
 {
-    LOG(INFO, "Break on NtAlpcOpenSenderThread");
+    //LOG(INFO, "Break on NtAlpcOpenSenderThread");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -965,14 +1145,19 @@ void monitor::GenericMonitor::on_NtAlpcOpenSenderThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcQueryInformation(const on_NtAlpcQueryInformation_fn& on_ntalpcqueryinformation)
+bool monitor::GenericMonitor::register_NtAlpcQueryInformation(proc_t proc, const on_NtAlpcQueryInformation_fn& on_ntalpcqueryinformation)
 {
+    const auto ok = setup_func(proc, "NtAlpcQueryInformation");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcQueryInformation.push_back(on_ntalpcqueryinformation);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcQueryInformation()
 {
-    LOG(INFO, "Break on NtAlpcQueryInformation");
+    //LOG(INFO, "Break on NtAlpcQueryInformation");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -991,14 +1176,19 @@ void monitor::GenericMonitor::on_NtAlpcQueryInformation()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcQueryInformationMessage(const on_NtAlpcQueryInformationMessage_fn& on_ntalpcqueryinformationmessage)
+bool monitor::GenericMonitor::register_NtAlpcQueryInformationMessage(proc_t proc, const on_NtAlpcQueryInformationMessage_fn& on_ntalpcqueryinformationmessage)
 {
+    const auto ok = setup_func(proc, "NtAlpcQueryInformationMessage");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcQueryInformationMessage.push_back(on_ntalpcqueryinformationmessage);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcQueryInformationMessage()
 {
-    LOG(INFO, "Break on NtAlpcQueryInformationMessage");
+    //LOG(INFO, "Break on NtAlpcQueryInformationMessage");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -1018,14 +1208,19 @@ void monitor::GenericMonitor::on_NtAlpcQueryInformationMessage()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcRevokeSecurityContext(const on_NtAlpcRevokeSecurityContext_fn& on_ntalpcrevokesecuritycontext)
+bool monitor::GenericMonitor::register_NtAlpcRevokeSecurityContext(proc_t proc, const on_NtAlpcRevokeSecurityContext_fn& on_ntalpcrevokesecuritycontext)
 {
+    const auto ok = setup_func(proc, "NtAlpcRevokeSecurityContext");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcRevokeSecurityContext.push_back(on_ntalpcrevokesecuritycontext);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcRevokeSecurityContext()
 {
-    LOG(INFO, "Break on NtAlpcRevokeSecurityContext");
+    //LOG(INFO, "Break on NtAlpcRevokeSecurityContext");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -1042,14 +1237,19 @@ void monitor::GenericMonitor::on_NtAlpcRevokeSecurityContext()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcSendWaitReceivePort(const on_NtAlpcSendWaitReceivePort_fn& on_ntalpcsendwaitreceiveport)
+bool monitor::GenericMonitor::register_NtAlpcSendWaitReceivePort(proc_t proc, const on_NtAlpcSendWaitReceivePort_fn& on_ntalpcsendwaitreceiveport)
 {
+    const auto ok = setup_func(proc, "NtAlpcSendWaitReceivePort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcSendWaitReceivePort.push_back(on_ntalpcsendwaitreceiveport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcSendWaitReceivePort()
 {
-    LOG(INFO, "Break on NtAlpcSendWaitReceivePort");
+    //LOG(INFO, "Break on NtAlpcSendWaitReceivePort");
     const auto nargs = 8;
 
     std::vector<arg_t> args;
@@ -1071,14 +1271,19 @@ void monitor::GenericMonitor::on_NtAlpcSendWaitReceivePort()
     }
 }
 
-void monitor::GenericMonitor::register_NtAlpcSetInformation(const on_NtAlpcSetInformation_fn& on_ntalpcsetinformation)
+bool monitor::GenericMonitor::register_NtAlpcSetInformation(proc_t proc, const on_NtAlpcSetInformation_fn& on_ntalpcsetinformation)
 {
+    const auto ok = setup_func(proc, "NtAlpcSetInformation");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAlpcSetInformation.push_back(on_ntalpcsetinformation);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAlpcSetInformation()
 {
-    LOG(INFO, "Break on NtAlpcSetInformation");
+    //LOG(INFO, "Break on NtAlpcSetInformation");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -1096,14 +1301,19 @@ void monitor::GenericMonitor::on_NtAlpcSetInformation()
     }
 }
 
-void monitor::GenericMonitor::register_NtApphelpCacheControl(const on_NtApphelpCacheControl_fn& on_ntapphelpcachecontrol)
+bool monitor::GenericMonitor::register_NtApphelpCacheControl(proc_t proc, const on_NtApphelpCacheControl_fn& on_ntapphelpcachecontrol)
 {
+    const auto ok = setup_func(proc, "NtApphelpCacheControl");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtApphelpCacheControl.push_back(on_ntapphelpcachecontrol);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtApphelpCacheControl()
 {
-    LOG(INFO, "Break on NtApphelpCacheControl");
+    //LOG(INFO, "Break on NtApphelpCacheControl");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -1119,14 +1329,19 @@ void monitor::GenericMonitor::on_NtApphelpCacheControl()
     }
 }
 
-void monitor::GenericMonitor::register_NtAreMappedFilesTheSame(const on_NtAreMappedFilesTheSame_fn& on_ntaremappedfilesthesame)
+bool monitor::GenericMonitor::register_NtAreMappedFilesTheSame(proc_t proc, const on_NtAreMappedFilesTheSame_fn& on_ntaremappedfilesthesame)
 {
+    const auto ok = setup_func(proc, "NtAreMappedFilesTheSame");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAreMappedFilesTheSame.push_back(on_ntaremappedfilesthesame);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAreMappedFilesTheSame()
 {
-    LOG(INFO, "Break on NtAreMappedFilesTheSame");
+    //LOG(INFO, "Break on NtAreMappedFilesTheSame");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -1142,14 +1357,19 @@ void monitor::GenericMonitor::on_NtAreMappedFilesTheSame()
     }
 }
 
-void monitor::GenericMonitor::register_NtAssignProcessToJobObject(const on_NtAssignProcessToJobObject_fn& on_ntassignprocesstojobobject)
+bool monitor::GenericMonitor::register_NtAssignProcessToJobObject(proc_t proc, const on_NtAssignProcessToJobObject_fn& on_ntassignprocesstojobobject)
 {
+    const auto ok = setup_func(proc, "NtAssignProcessToJobObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtAssignProcessToJobObject.push_back(on_ntassignprocesstojobobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtAssignProcessToJobObject()
 {
-    LOG(INFO, "Break on NtAssignProcessToJobObject");
+    //LOG(INFO, "Break on NtAssignProcessToJobObject");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -1165,14 +1385,19 @@ void monitor::GenericMonitor::on_NtAssignProcessToJobObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtCallbackReturn(const on_NtCallbackReturn_fn& on_ntcallbackreturn)
+bool monitor::GenericMonitor::register_NtCallbackReturn(proc_t proc, const on_NtCallbackReturn_fn& on_ntcallbackreturn)
 {
+    const auto ok = setup_func(proc, "NtCallbackReturn");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCallbackReturn.push_back(on_ntcallbackreturn);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCallbackReturn()
 {
-    LOG(INFO, "Break on NtCallbackReturn");
+    //LOG(INFO, "Break on NtCallbackReturn");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -1189,14 +1414,19 @@ void monitor::GenericMonitor::on_NtCallbackReturn()
     }
 }
 
-void monitor::GenericMonitor::register_NtCancelIoFileEx(const on_NtCancelIoFileEx_fn& on_ntcanceliofileex)
+bool monitor::GenericMonitor::register_NtCancelIoFileEx(proc_t proc, const on_NtCancelIoFileEx_fn& on_ntcanceliofileex)
 {
+    const auto ok = setup_func(proc, "NtCancelIoFileEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCancelIoFileEx.push_back(on_ntcanceliofileex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCancelIoFileEx()
 {
-    LOG(INFO, "Break on NtCancelIoFileEx");
+    //LOG(INFO, "Break on NtCancelIoFileEx");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -1213,14 +1443,19 @@ void monitor::GenericMonitor::on_NtCancelIoFileEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtCancelIoFile(const on_NtCancelIoFile_fn& on_ntcanceliofile)
+bool monitor::GenericMonitor::register_NtCancelIoFile(proc_t proc, const on_NtCancelIoFile_fn& on_ntcanceliofile)
 {
+    const auto ok = setup_func(proc, "NtCancelIoFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCancelIoFile.push_back(on_ntcanceliofile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCancelIoFile()
 {
-    LOG(INFO, "Break on NtCancelIoFile");
+    //LOG(INFO, "Break on NtCancelIoFile");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -1236,14 +1471,19 @@ void monitor::GenericMonitor::on_NtCancelIoFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtCancelSynchronousIoFile(const on_NtCancelSynchronousIoFile_fn& on_ntcancelsynchronousiofile)
+bool monitor::GenericMonitor::register_NtCancelSynchronousIoFile(proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_ntcancelsynchronousiofile)
 {
+    const auto ok = setup_func(proc, "NtCancelSynchronousIoFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCancelSynchronousIoFile.push_back(on_ntcancelsynchronousiofile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCancelSynchronousIoFile()
 {
-    LOG(INFO, "Break on NtCancelSynchronousIoFile");
+    //LOG(INFO, "Break on NtCancelSynchronousIoFile");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -1260,14 +1500,19 @@ void monitor::GenericMonitor::on_NtCancelSynchronousIoFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtCancelTimer(const on_NtCancelTimer_fn& on_ntcanceltimer)
+bool monitor::GenericMonitor::register_NtCancelTimer(proc_t proc, const on_NtCancelTimer_fn& on_ntcanceltimer)
 {
+    const auto ok = setup_func(proc, "NtCancelTimer");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCancelTimer.push_back(on_ntcanceltimer);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCancelTimer()
 {
-    LOG(INFO, "Break on NtCancelTimer");
+    //LOG(INFO, "Break on NtCancelTimer");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -1283,14 +1528,19 @@ void monitor::GenericMonitor::on_NtCancelTimer()
     }
 }
 
-void monitor::GenericMonitor::register_NtClearEvent(const on_NtClearEvent_fn& on_ntclearevent)
+bool monitor::GenericMonitor::register_NtClearEvent(proc_t proc, const on_NtClearEvent_fn& on_ntclearevent)
 {
+    const auto ok = setup_func(proc, "NtClearEvent");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtClearEvent.push_back(on_ntclearevent);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtClearEvent()
 {
-    LOG(INFO, "Break on NtClearEvent");
+    //LOG(INFO, "Break on NtClearEvent");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -1305,14 +1555,19 @@ void monitor::GenericMonitor::on_NtClearEvent()
     }
 }
 
-void monitor::GenericMonitor::register_NtClose(const on_NtClose_fn& on_ntclose)
+bool monitor::GenericMonitor::register_NtClose(proc_t proc, const on_NtClose_fn& on_ntclose)
 {
+    const auto ok = setup_func(proc, "NtClose");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtClose.push_back(on_ntclose);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtClose()
 {
-    LOG(INFO, "Break on NtClose");
+    //LOG(INFO, "Break on NtClose");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -1327,14 +1582,19 @@ void monitor::GenericMonitor::on_NtClose()
     }
 }
 
-void monitor::GenericMonitor::register_NtCloseObjectAuditAlarm(const on_NtCloseObjectAuditAlarm_fn& on_ntcloseobjectauditalarm)
+bool monitor::GenericMonitor::register_NtCloseObjectAuditAlarm(proc_t proc, const on_NtCloseObjectAuditAlarm_fn& on_ntcloseobjectauditalarm)
 {
+    const auto ok = setup_func(proc, "NtCloseObjectAuditAlarm");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCloseObjectAuditAlarm.push_back(on_ntcloseobjectauditalarm);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCloseObjectAuditAlarm()
 {
-    LOG(INFO, "Break on NtCloseObjectAuditAlarm");
+    //LOG(INFO, "Break on NtCloseObjectAuditAlarm");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -1351,14 +1611,19 @@ void monitor::GenericMonitor::on_NtCloseObjectAuditAlarm()
     }
 }
 
-void monitor::GenericMonitor::register_NtCommitComplete(const on_NtCommitComplete_fn& on_ntcommitcomplete)
+bool monitor::GenericMonitor::register_NtCommitComplete(proc_t proc, const on_NtCommitComplete_fn& on_ntcommitcomplete)
 {
+    const auto ok = setup_func(proc, "NtCommitComplete");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCommitComplete.push_back(on_ntcommitcomplete);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCommitComplete()
 {
-    LOG(INFO, "Break on NtCommitComplete");
+    //LOG(INFO, "Break on NtCommitComplete");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -1374,14 +1639,19 @@ void monitor::GenericMonitor::on_NtCommitComplete()
     }
 }
 
-void monitor::GenericMonitor::register_NtCommitEnlistment(const on_NtCommitEnlistment_fn& on_ntcommitenlistment)
+bool monitor::GenericMonitor::register_NtCommitEnlistment(proc_t proc, const on_NtCommitEnlistment_fn& on_ntcommitenlistment)
 {
+    const auto ok = setup_func(proc, "NtCommitEnlistment");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCommitEnlistment.push_back(on_ntcommitenlistment);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCommitEnlistment()
 {
-    LOG(INFO, "Break on NtCommitEnlistment");
+    //LOG(INFO, "Break on NtCommitEnlistment");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -1397,14 +1667,19 @@ void monitor::GenericMonitor::on_NtCommitEnlistment()
     }
 }
 
-void monitor::GenericMonitor::register_NtCommitTransaction(const on_NtCommitTransaction_fn& on_ntcommittransaction)
+bool monitor::GenericMonitor::register_NtCommitTransaction(proc_t proc, const on_NtCommitTransaction_fn& on_ntcommittransaction)
 {
+    const auto ok = setup_func(proc, "NtCommitTransaction");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCommitTransaction.push_back(on_ntcommittransaction);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCommitTransaction()
 {
-    LOG(INFO, "Break on NtCommitTransaction");
+    //LOG(INFO, "Break on NtCommitTransaction");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -1420,14 +1695,19 @@ void monitor::GenericMonitor::on_NtCommitTransaction()
     }
 }
 
-void monitor::GenericMonitor::register_NtCompactKeys(const on_NtCompactKeys_fn& on_ntcompactkeys)
+bool monitor::GenericMonitor::register_NtCompactKeys(proc_t proc, const on_NtCompactKeys_fn& on_ntcompactkeys)
 {
+    const auto ok = setup_func(proc, "NtCompactKeys");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCompactKeys.push_back(on_ntcompactkeys);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCompactKeys()
 {
-    LOG(INFO, "Break on NtCompactKeys");
+    //LOG(INFO, "Break on NtCompactKeys");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -1443,14 +1723,19 @@ void monitor::GenericMonitor::on_NtCompactKeys()
     }
 }
 
-void monitor::GenericMonitor::register_NtCompareTokens(const on_NtCompareTokens_fn& on_ntcomparetokens)
+bool monitor::GenericMonitor::register_NtCompareTokens(proc_t proc, const on_NtCompareTokens_fn& on_ntcomparetokens)
 {
+    const auto ok = setup_func(proc, "NtCompareTokens");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCompareTokens.push_back(on_ntcomparetokens);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCompareTokens()
 {
-    LOG(INFO, "Break on NtCompareTokens");
+    //LOG(INFO, "Break on NtCompareTokens");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -1467,14 +1752,19 @@ void monitor::GenericMonitor::on_NtCompareTokens()
     }
 }
 
-void monitor::GenericMonitor::register_NtCompleteConnectPort(const on_NtCompleteConnectPort_fn& on_ntcompleteconnectport)
+bool monitor::GenericMonitor::register_NtCompleteConnectPort(proc_t proc, const on_NtCompleteConnectPort_fn& on_ntcompleteconnectport)
 {
+    const auto ok = setup_func(proc, "NtCompleteConnectPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCompleteConnectPort.push_back(on_ntcompleteconnectport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCompleteConnectPort()
 {
-    LOG(INFO, "Break on NtCompleteConnectPort");
+    //LOG(INFO, "Break on NtCompleteConnectPort");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -1489,14 +1779,19 @@ void monitor::GenericMonitor::on_NtCompleteConnectPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtCompressKey(const on_NtCompressKey_fn& on_ntcompresskey)
+bool monitor::GenericMonitor::register_NtCompressKey(proc_t proc, const on_NtCompressKey_fn& on_ntcompresskey)
 {
+    const auto ok = setup_func(proc, "NtCompressKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCompressKey.push_back(on_ntcompresskey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCompressKey()
 {
-    LOG(INFO, "Break on NtCompressKey");
+    //LOG(INFO, "Break on NtCompressKey");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -1511,14 +1806,19 @@ void monitor::GenericMonitor::on_NtCompressKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtConnectPort(const on_NtConnectPort_fn& on_ntconnectport)
+bool monitor::GenericMonitor::register_NtConnectPort(proc_t proc, const on_NtConnectPort_fn& on_ntconnectport)
 {
+    const auto ok = setup_func(proc, "NtConnectPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtConnectPort.push_back(on_ntconnectport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtConnectPort()
 {
-    LOG(INFO, "Break on NtConnectPort");
+    //LOG(INFO, "Break on NtConnectPort");
     const auto nargs = 8;
 
     std::vector<arg_t> args;
@@ -1540,14 +1840,19 @@ void monitor::GenericMonitor::on_NtConnectPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtContinue(const on_NtContinue_fn& on_ntcontinue)
+bool monitor::GenericMonitor::register_NtContinue(proc_t proc, const on_NtContinue_fn& on_ntcontinue)
 {
+    const auto ok = setup_func(proc, "NtContinue");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtContinue.push_back(on_ntcontinue);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtContinue()
 {
-    LOG(INFO, "Break on NtContinue");
+    //LOG(INFO, "Break on NtContinue");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -1563,14 +1868,19 @@ void monitor::GenericMonitor::on_NtContinue()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateDebugObject(const on_NtCreateDebugObject_fn& on_ntcreatedebugobject)
+bool monitor::GenericMonitor::register_NtCreateDebugObject(proc_t proc, const on_NtCreateDebugObject_fn& on_ntcreatedebugobject)
 {
+    const auto ok = setup_func(proc, "NtCreateDebugObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateDebugObject.push_back(on_ntcreatedebugobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateDebugObject()
 {
-    LOG(INFO, "Break on NtCreateDebugObject");
+    //LOG(INFO, "Break on NtCreateDebugObject");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -1588,14 +1898,19 @@ void monitor::GenericMonitor::on_NtCreateDebugObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateDirectoryObject(const on_NtCreateDirectoryObject_fn& on_ntcreatedirectoryobject)
+bool monitor::GenericMonitor::register_NtCreateDirectoryObject(proc_t proc, const on_NtCreateDirectoryObject_fn& on_ntcreatedirectoryobject)
 {
+    const auto ok = setup_func(proc, "NtCreateDirectoryObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateDirectoryObject.push_back(on_ntcreatedirectoryobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateDirectoryObject()
 {
-    LOG(INFO, "Break on NtCreateDirectoryObject");
+    //LOG(INFO, "Break on NtCreateDirectoryObject");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -1612,14 +1927,19 @@ void monitor::GenericMonitor::on_NtCreateDirectoryObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateEnlistment(const on_NtCreateEnlistment_fn& on_ntcreateenlistment)
+bool monitor::GenericMonitor::register_NtCreateEnlistment(proc_t proc, const on_NtCreateEnlistment_fn& on_ntcreateenlistment)
 {
+    const auto ok = setup_func(proc, "NtCreateEnlistment");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateEnlistment.push_back(on_ntcreateenlistment);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateEnlistment()
 {
-    LOG(INFO, "Break on NtCreateEnlistment");
+    //LOG(INFO, "Break on NtCreateEnlistment");
     const auto nargs = 8;
 
     std::vector<arg_t> args;
@@ -1641,14 +1961,19 @@ void monitor::GenericMonitor::on_NtCreateEnlistment()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateEvent(const on_NtCreateEvent_fn& on_ntcreateevent)
+bool monitor::GenericMonitor::register_NtCreateEvent(proc_t proc, const on_NtCreateEvent_fn& on_ntcreateevent)
 {
+    const auto ok = setup_func(proc, "NtCreateEvent");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateEvent.push_back(on_ntcreateevent);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateEvent()
 {
-    LOG(INFO, "Break on NtCreateEvent");
+    //LOG(INFO, "Break on NtCreateEvent");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -1667,14 +1992,19 @@ void monitor::GenericMonitor::on_NtCreateEvent()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateEventPair(const on_NtCreateEventPair_fn& on_ntcreateeventpair)
+bool monitor::GenericMonitor::register_NtCreateEventPair(proc_t proc, const on_NtCreateEventPair_fn& on_ntcreateeventpair)
 {
+    const auto ok = setup_func(proc, "NtCreateEventPair");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateEventPair.push_back(on_ntcreateeventpair);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateEventPair()
 {
-    LOG(INFO, "Break on NtCreateEventPair");
+    //LOG(INFO, "Break on NtCreateEventPair");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -1691,14 +2021,19 @@ void monitor::GenericMonitor::on_NtCreateEventPair()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateFile(const on_NtCreateFile_fn& on_ntcreatefile)
+bool monitor::GenericMonitor::register_NtCreateFile(proc_t proc, const on_NtCreateFile_fn& on_ntcreatefile)
 {
+    const auto ok = setup_func(proc, "NtCreateFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateFile.push_back(on_ntcreatefile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateFile()
 {
-    LOG(INFO, "Break on NtCreateFile");
+    //LOG(INFO, "Break on NtCreateFile");
     const auto nargs = 11;
 
     std::vector<arg_t> args;
@@ -1723,14 +2058,19 @@ void monitor::GenericMonitor::on_NtCreateFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateIoCompletion(const on_NtCreateIoCompletion_fn& on_ntcreateiocompletion)
+bool monitor::GenericMonitor::register_NtCreateIoCompletion(proc_t proc, const on_NtCreateIoCompletion_fn& on_ntcreateiocompletion)
 {
+    const auto ok = setup_func(proc, "NtCreateIoCompletion");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateIoCompletion.push_back(on_ntcreateiocompletion);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateIoCompletion()
 {
-    LOG(INFO, "Break on NtCreateIoCompletion");
+    //LOG(INFO, "Break on NtCreateIoCompletion");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -1748,14 +2088,19 @@ void monitor::GenericMonitor::on_NtCreateIoCompletion()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateJobObject(const on_NtCreateJobObject_fn& on_ntcreatejobobject)
+bool monitor::GenericMonitor::register_NtCreateJobObject(proc_t proc, const on_NtCreateJobObject_fn& on_ntcreatejobobject)
 {
+    const auto ok = setup_func(proc, "NtCreateJobObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateJobObject.push_back(on_ntcreatejobobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateJobObject()
 {
-    LOG(INFO, "Break on NtCreateJobObject");
+    //LOG(INFO, "Break on NtCreateJobObject");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -1772,14 +2117,19 @@ void monitor::GenericMonitor::on_NtCreateJobObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateJobSet(const on_NtCreateJobSet_fn& on_ntcreatejobset)
+bool monitor::GenericMonitor::register_NtCreateJobSet(proc_t proc, const on_NtCreateJobSet_fn& on_ntcreatejobset)
 {
+    const auto ok = setup_func(proc, "NtCreateJobSet");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateJobSet.push_back(on_ntcreatejobset);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateJobSet()
 {
-    LOG(INFO, "Break on NtCreateJobSet");
+    //LOG(INFO, "Break on NtCreateJobSet");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -1796,14 +2146,19 @@ void monitor::GenericMonitor::on_NtCreateJobSet()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateKeyedEvent(const on_NtCreateKeyedEvent_fn& on_ntcreatekeyedevent)
+bool monitor::GenericMonitor::register_NtCreateKeyedEvent(proc_t proc, const on_NtCreateKeyedEvent_fn& on_ntcreatekeyedevent)
 {
+    const auto ok = setup_func(proc, "NtCreateKeyedEvent");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateKeyedEvent.push_back(on_ntcreatekeyedevent);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateKeyedEvent()
 {
-    LOG(INFO, "Break on NtCreateKeyedEvent");
+    //LOG(INFO, "Break on NtCreateKeyedEvent");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -1821,14 +2176,19 @@ void monitor::GenericMonitor::on_NtCreateKeyedEvent()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateKey(const on_NtCreateKey_fn& on_ntcreatekey)
+bool monitor::GenericMonitor::register_NtCreateKey(proc_t proc, const on_NtCreateKey_fn& on_ntcreatekey)
 {
+    const auto ok = setup_func(proc, "NtCreateKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateKey.push_back(on_ntcreatekey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateKey()
 {
-    LOG(INFO, "Break on NtCreateKey");
+    //LOG(INFO, "Break on NtCreateKey");
     const auto nargs = 7;
 
     std::vector<arg_t> args;
@@ -1849,14 +2209,19 @@ void monitor::GenericMonitor::on_NtCreateKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateKeyTransacted(const on_NtCreateKeyTransacted_fn& on_ntcreatekeytransacted)
+bool monitor::GenericMonitor::register_NtCreateKeyTransacted(proc_t proc, const on_NtCreateKeyTransacted_fn& on_ntcreatekeytransacted)
 {
+    const auto ok = setup_func(proc, "NtCreateKeyTransacted");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateKeyTransacted.push_back(on_ntcreatekeytransacted);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateKeyTransacted()
 {
-    LOG(INFO, "Break on NtCreateKeyTransacted");
+    //LOG(INFO, "Break on NtCreateKeyTransacted");
     const auto nargs = 8;
 
     std::vector<arg_t> args;
@@ -1878,14 +2243,19 @@ void monitor::GenericMonitor::on_NtCreateKeyTransacted()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateMailslotFile(const on_NtCreateMailslotFile_fn& on_ntcreatemailslotfile)
+bool monitor::GenericMonitor::register_NtCreateMailslotFile(proc_t proc, const on_NtCreateMailslotFile_fn& on_ntcreatemailslotfile)
 {
+    const auto ok = setup_func(proc, "NtCreateMailslotFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateMailslotFile.push_back(on_ntcreatemailslotfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateMailslotFile()
 {
-    LOG(INFO, "Break on NtCreateMailslotFile");
+    //LOG(INFO, "Break on NtCreateMailslotFile");
     const auto nargs = 8;
 
     std::vector<arg_t> args;
@@ -1907,14 +2277,19 @@ void monitor::GenericMonitor::on_NtCreateMailslotFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateMutant(const on_NtCreateMutant_fn& on_ntcreatemutant)
+bool monitor::GenericMonitor::register_NtCreateMutant(proc_t proc, const on_NtCreateMutant_fn& on_ntcreatemutant)
 {
+    const auto ok = setup_func(proc, "NtCreateMutant");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateMutant.push_back(on_ntcreatemutant);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateMutant()
 {
-    LOG(INFO, "Break on NtCreateMutant");
+    //LOG(INFO, "Break on NtCreateMutant");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -1932,14 +2307,19 @@ void monitor::GenericMonitor::on_NtCreateMutant()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateNamedPipeFile(const on_NtCreateNamedPipeFile_fn& on_ntcreatenamedpipefile)
+bool monitor::GenericMonitor::register_NtCreateNamedPipeFile(proc_t proc, const on_NtCreateNamedPipeFile_fn& on_ntcreatenamedpipefile)
 {
+    const auto ok = setup_func(proc, "NtCreateNamedPipeFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateNamedPipeFile.push_back(on_ntcreatenamedpipefile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateNamedPipeFile()
 {
-    LOG(INFO, "Break on NtCreateNamedPipeFile");
+    //LOG(INFO, "Break on NtCreateNamedPipeFile");
     const auto nargs = 14;
 
     std::vector<arg_t> args;
@@ -1967,14 +2347,19 @@ void monitor::GenericMonitor::on_NtCreateNamedPipeFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreatePagingFile(const on_NtCreatePagingFile_fn& on_ntcreatepagingfile)
+bool monitor::GenericMonitor::register_NtCreatePagingFile(proc_t proc, const on_NtCreatePagingFile_fn& on_ntcreatepagingfile)
 {
+    const auto ok = setup_func(proc, "NtCreatePagingFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreatePagingFile.push_back(on_ntcreatepagingfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreatePagingFile()
 {
-    LOG(INFO, "Break on NtCreatePagingFile");
+    //LOG(INFO, "Break on NtCreatePagingFile");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -1992,14 +2377,19 @@ void monitor::GenericMonitor::on_NtCreatePagingFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreatePort(const on_NtCreatePort_fn& on_ntcreateport)
+bool monitor::GenericMonitor::register_NtCreatePort(proc_t proc, const on_NtCreatePort_fn& on_ntcreateport)
 {
+    const auto ok = setup_func(proc, "NtCreatePort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreatePort.push_back(on_ntcreateport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreatePort()
 {
-    LOG(INFO, "Break on NtCreatePort");
+    //LOG(INFO, "Break on NtCreatePort");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -2018,14 +2408,19 @@ void monitor::GenericMonitor::on_NtCreatePort()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreatePrivateNamespace(const on_NtCreatePrivateNamespace_fn& on_ntcreateprivatenamespace)
+bool monitor::GenericMonitor::register_NtCreatePrivateNamespace(proc_t proc, const on_NtCreatePrivateNamespace_fn& on_ntcreateprivatenamespace)
 {
+    const auto ok = setup_func(proc, "NtCreatePrivateNamespace");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreatePrivateNamespace.push_back(on_ntcreateprivatenamespace);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreatePrivateNamespace()
 {
-    LOG(INFO, "Break on NtCreatePrivateNamespace");
+    //LOG(INFO, "Break on NtCreatePrivateNamespace");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -2043,14 +2438,19 @@ void monitor::GenericMonitor::on_NtCreatePrivateNamespace()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateProcessEx(const on_NtCreateProcessEx_fn& on_ntcreateprocessex)
+bool monitor::GenericMonitor::register_NtCreateProcessEx(proc_t proc, const on_NtCreateProcessEx_fn& on_ntcreateprocessex)
 {
+    const auto ok = setup_func(proc, "NtCreateProcessEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateProcessEx.push_back(on_ntcreateprocessex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateProcessEx()
 {
-    LOG(INFO, "Break on NtCreateProcessEx");
+    //LOG(INFO, "Break on NtCreateProcessEx");
     const auto nargs = 9;
 
     std::vector<arg_t> args;
@@ -2073,14 +2473,19 @@ void monitor::GenericMonitor::on_NtCreateProcessEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateProcess(const on_NtCreateProcess_fn& on_ntcreateprocess)
+bool monitor::GenericMonitor::register_NtCreateProcess(proc_t proc, const on_NtCreateProcess_fn& on_ntcreateprocess)
 {
+    const auto ok = setup_func(proc, "NtCreateProcess");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateProcess.push_back(on_ntcreateprocess);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateProcess()
 {
-    LOG(INFO, "Break on NtCreateProcess");
+    //LOG(INFO, "Break on NtCreateProcess");
     const auto nargs = 8;
 
     std::vector<arg_t> args;
@@ -2102,14 +2507,19 @@ void monitor::GenericMonitor::on_NtCreateProcess()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateProfileEx(const on_NtCreateProfileEx_fn& on_ntcreateprofileex)
+bool monitor::GenericMonitor::register_NtCreateProfileEx(proc_t proc, const on_NtCreateProfileEx_fn& on_ntcreateprofileex)
 {
+    const auto ok = setup_func(proc, "NtCreateProfileEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateProfileEx.push_back(on_ntcreateprofileex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateProfileEx()
 {
-    LOG(INFO, "Break on NtCreateProfileEx");
+    //LOG(INFO, "Break on NtCreateProfileEx");
     const auto nargs = 10;
 
     std::vector<arg_t> args;
@@ -2133,14 +2543,19 @@ void monitor::GenericMonitor::on_NtCreateProfileEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateProfile(const on_NtCreateProfile_fn& on_ntcreateprofile)
+bool monitor::GenericMonitor::register_NtCreateProfile(proc_t proc, const on_NtCreateProfile_fn& on_ntcreateprofile)
 {
+    const auto ok = setup_func(proc, "NtCreateProfile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateProfile.push_back(on_ntcreateprofile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateProfile()
 {
-    LOG(INFO, "Break on NtCreateProfile");
+    //LOG(INFO, "Break on NtCreateProfile");
     const auto nargs = 9;
 
     std::vector<arg_t> args;
@@ -2163,14 +2578,19 @@ void monitor::GenericMonitor::on_NtCreateProfile()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateResourceManager(const on_NtCreateResourceManager_fn& on_ntcreateresourcemanager)
+bool monitor::GenericMonitor::register_NtCreateResourceManager(proc_t proc, const on_NtCreateResourceManager_fn& on_ntcreateresourcemanager)
 {
+    const auto ok = setup_func(proc, "NtCreateResourceManager");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateResourceManager.push_back(on_ntcreateresourcemanager);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateResourceManager()
 {
-    LOG(INFO, "Break on NtCreateResourceManager");
+    //LOG(INFO, "Break on NtCreateResourceManager");
     const auto nargs = 7;
 
     std::vector<arg_t> args;
@@ -2191,14 +2611,19 @@ void monitor::GenericMonitor::on_NtCreateResourceManager()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateSection(const on_NtCreateSection_fn& on_ntcreatesection)
+bool monitor::GenericMonitor::register_NtCreateSection(proc_t proc, const on_NtCreateSection_fn& on_ntcreatesection)
 {
+    const auto ok = setup_func(proc, "NtCreateSection");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateSection.push_back(on_ntcreatesection);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateSection()
 {
-    LOG(INFO, "Break on NtCreateSection");
+    //LOG(INFO, "Break on NtCreateSection");
     const auto nargs = 7;
 
     std::vector<arg_t> args;
@@ -2219,14 +2644,19 @@ void monitor::GenericMonitor::on_NtCreateSection()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateSemaphore(const on_NtCreateSemaphore_fn& on_ntcreatesemaphore)
+bool monitor::GenericMonitor::register_NtCreateSemaphore(proc_t proc, const on_NtCreateSemaphore_fn& on_ntcreatesemaphore)
 {
+    const auto ok = setup_func(proc, "NtCreateSemaphore");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateSemaphore.push_back(on_ntcreatesemaphore);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateSemaphore()
 {
-    LOG(INFO, "Break on NtCreateSemaphore");
+    //LOG(INFO, "Break on NtCreateSemaphore");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -2245,14 +2675,19 @@ void monitor::GenericMonitor::on_NtCreateSemaphore()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateSymbolicLinkObject(const on_NtCreateSymbolicLinkObject_fn& on_ntcreatesymboliclinkobject)
+bool monitor::GenericMonitor::register_NtCreateSymbolicLinkObject(proc_t proc, const on_NtCreateSymbolicLinkObject_fn& on_ntcreatesymboliclinkobject)
 {
+    const auto ok = setup_func(proc, "NtCreateSymbolicLinkObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateSymbolicLinkObject.push_back(on_ntcreatesymboliclinkobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateSymbolicLinkObject()
 {
-    LOG(INFO, "Break on NtCreateSymbolicLinkObject");
+    //LOG(INFO, "Break on NtCreateSymbolicLinkObject");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -2270,14 +2705,19 @@ void monitor::GenericMonitor::on_NtCreateSymbolicLinkObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateThreadEx(const on_NtCreateThreadEx_fn& on_ntcreatethreadex)
+bool monitor::GenericMonitor::register_NtCreateThreadEx(proc_t proc, const on_NtCreateThreadEx_fn& on_ntcreatethreadex)
 {
+    const auto ok = setup_func(proc, "NtCreateThreadEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateThreadEx.push_back(on_ntcreatethreadex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateThreadEx()
 {
-    LOG(INFO, "Break on NtCreateThreadEx");
+    //LOG(INFO, "Break on NtCreateThreadEx");
     const auto nargs = 11;
 
     std::vector<arg_t> args;
@@ -2302,14 +2742,19 @@ void monitor::GenericMonitor::on_NtCreateThreadEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateThread(const on_NtCreateThread_fn& on_ntcreatethread)
+bool monitor::GenericMonitor::register_NtCreateThread(proc_t proc, const on_NtCreateThread_fn& on_ntcreatethread)
 {
+    const auto ok = setup_func(proc, "NtCreateThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateThread.push_back(on_ntcreatethread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateThread()
 {
-    LOG(INFO, "Break on NtCreateThread");
+    //LOG(INFO, "Break on NtCreateThread");
     const auto nargs = 8;
 
     std::vector<arg_t> args;
@@ -2331,14 +2776,19 @@ void monitor::GenericMonitor::on_NtCreateThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateTimer(const on_NtCreateTimer_fn& on_ntcreatetimer)
+bool monitor::GenericMonitor::register_NtCreateTimer(proc_t proc, const on_NtCreateTimer_fn& on_ntcreatetimer)
 {
+    const auto ok = setup_func(proc, "NtCreateTimer");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateTimer.push_back(on_ntcreatetimer);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateTimer()
 {
-    LOG(INFO, "Break on NtCreateTimer");
+    //LOG(INFO, "Break on NtCreateTimer");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -2356,14 +2806,19 @@ void monitor::GenericMonitor::on_NtCreateTimer()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateToken(const on_NtCreateToken_fn& on_ntcreatetoken)
+bool monitor::GenericMonitor::register_NtCreateToken(proc_t proc, const on_NtCreateToken_fn& on_ntcreatetoken)
 {
+    const auto ok = setup_func(proc, "NtCreateToken");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateToken.push_back(on_ntcreatetoken);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateToken()
 {
-    LOG(INFO, "Break on NtCreateToken");
+    //LOG(INFO, "Break on NtCreateToken");
     const auto nargs = 13;
 
     std::vector<arg_t> args;
@@ -2390,14 +2845,19 @@ void monitor::GenericMonitor::on_NtCreateToken()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateTransactionManager(const on_NtCreateTransactionManager_fn& on_ntcreatetransactionmanager)
+bool monitor::GenericMonitor::register_NtCreateTransactionManager(proc_t proc, const on_NtCreateTransactionManager_fn& on_ntcreatetransactionmanager)
 {
+    const auto ok = setup_func(proc, "NtCreateTransactionManager");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateTransactionManager.push_back(on_ntcreatetransactionmanager);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateTransactionManager()
 {
-    LOG(INFO, "Break on NtCreateTransactionManager");
+    //LOG(INFO, "Break on NtCreateTransactionManager");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -2417,14 +2877,19 @@ void monitor::GenericMonitor::on_NtCreateTransactionManager()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateTransaction(const on_NtCreateTransaction_fn& on_ntcreatetransaction)
+bool monitor::GenericMonitor::register_NtCreateTransaction(proc_t proc, const on_NtCreateTransaction_fn& on_ntcreatetransaction)
 {
+    const auto ok = setup_func(proc, "NtCreateTransaction");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateTransaction.push_back(on_ntcreatetransaction);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateTransaction()
 {
-    LOG(INFO, "Break on NtCreateTransaction");
+    //LOG(INFO, "Break on NtCreateTransaction");
     const auto nargs = 10;
 
     std::vector<arg_t> args;
@@ -2448,14 +2913,19 @@ void monitor::GenericMonitor::on_NtCreateTransaction()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateUserProcess(const on_NtCreateUserProcess_fn& on_ntcreateuserprocess)
+bool monitor::GenericMonitor::register_NtCreateUserProcess(proc_t proc, const on_NtCreateUserProcess_fn& on_ntcreateuserprocess)
 {
+    const auto ok = setup_func(proc, "NtCreateUserProcess");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateUserProcess.push_back(on_ntcreateuserprocess);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateUserProcess()
 {
-    LOG(INFO, "Break on NtCreateUserProcess");
+    //LOG(INFO, "Break on NtCreateUserProcess");
     const auto nargs = 11;
 
     std::vector<arg_t> args;
@@ -2480,14 +2950,19 @@ void monitor::GenericMonitor::on_NtCreateUserProcess()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateWaitablePort(const on_NtCreateWaitablePort_fn& on_ntcreatewaitableport)
+bool monitor::GenericMonitor::register_NtCreateWaitablePort(proc_t proc, const on_NtCreateWaitablePort_fn& on_ntcreatewaitableport)
 {
+    const auto ok = setup_func(proc, "NtCreateWaitablePort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateWaitablePort.push_back(on_ntcreatewaitableport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateWaitablePort()
 {
-    LOG(INFO, "Break on NtCreateWaitablePort");
+    //LOG(INFO, "Break on NtCreateWaitablePort");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -2506,14 +2981,19 @@ void monitor::GenericMonitor::on_NtCreateWaitablePort()
     }
 }
 
-void monitor::GenericMonitor::register_NtCreateWorkerFactory(const on_NtCreateWorkerFactory_fn& on_ntcreateworkerfactory)
+bool monitor::GenericMonitor::register_NtCreateWorkerFactory(proc_t proc, const on_NtCreateWorkerFactory_fn& on_ntcreateworkerfactory)
 {
+    const auto ok = setup_func(proc, "NtCreateWorkerFactory");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtCreateWorkerFactory.push_back(on_ntcreateworkerfactory);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtCreateWorkerFactory()
 {
-    LOG(INFO, "Break on NtCreateWorkerFactory");
+    //LOG(INFO, "Break on NtCreateWorkerFactory");
     const auto nargs = 10;
 
     std::vector<arg_t> args;
@@ -2537,14 +3017,19 @@ void monitor::GenericMonitor::on_NtCreateWorkerFactory()
     }
 }
 
-void monitor::GenericMonitor::register_NtDebugActiveProcess(const on_NtDebugActiveProcess_fn& on_ntdebugactiveprocess)
+bool monitor::GenericMonitor::register_NtDebugActiveProcess(proc_t proc, const on_NtDebugActiveProcess_fn& on_ntdebugactiveprocess)
 {
+    const auto ok = setup_func(proc, "NtDebugActiveProcess");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDebugActiveProcess.push_back(on_ntdebugactiveprocess);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDebugActiveProcess()
 {
-    LOG(INFO, "Break on NtDebugActiveProcess");
+    //LOG(INFO, "Break on NtDebugActiveProcess");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -2560,14 +3045,19 @@ void monitor::GenericMonitor::on_NtDebugActiveProcess()
     }
 }
 
-void monitor::GenericMonitor::register_NtDebugContinue(const on_NtDebugContinue_fn& on_ntdebugcontinue)
+bool monitor::GenericMonitor::register_NtDebugContinue(proc_t proc, const on_NtDebugContinue_fn& on_ntdebugcontinue)
 {
+    const auto ok = setup_func(proc, "NtDebugContinue");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDebugContinue.push_back(on_ntdebugcontinue);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDebugContinue()
 {
-    LOG(INFO, "Break on NtDebugContinue");
+    //LOG(INFO, "Break on NtDebugContinue");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -2584,14 +3074,19 @@ void monitor::GenericMonitor::on_NtDebugContinue()
     }
 }
 
-void monitor::GenericMonitor::register_NtDelayExecution(const on_NtDelayExecution_fn& on_ntdelayexecution)
+bool monitor::GenericMonitor::register_NtDelayExecution(proc_t proc, const on_NtDelayExecution_fn& on_ntdelayexecution)
 {
+    const auto ok = setup_func(proc, "NtDelayExecution");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDelayExecution.push_back(on_ntdelayexecution);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDelayExecution()
 {
-    LOG(INFO, "Break on NtDelayExecution");
+    //LOG(INFO, "Break on NtDelayExecution");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -2607,14 +3102,19 @@ void monitor::GenericMonitor::on_NtDelayExecution()
     }
 }
 
-void monitor::GenericMonitor::register_NtDeleteAtom(const on_NtDeleteAtom_fn& on_ntdeleteatom)
+bool monitor::GenericMonitor::register_NtDeleteAtom(proc_t proc, const on_NtDeleteAtom_fn& on_ntdeleteatom)
 {
+    const auto ok = setup_func(proc, "NtDeleteAtom");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDeleteAtom.push_back(on_ntdeleteatom);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDeleteAtom()
 {
-    LOG(INFO, "Break on NtDeleteAtom");
+    //LOG(INFO, "Break on NtDeleteAtom");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -2629,14 +3129,19 @@ void monitor::GenericMonitor::on_NtDeleteAtom()
     }
 }
 
-void monitor::GenericMonitor::register_NtDeleteBootEntry(const on_NtDeleteBootEntry_fn& on_ntdeletebootentry)
+bool monitor::GenericMonitor::register_NtDeleteBootEntry(proc_t proc, const on_NtDeleteBootEntry_fn& on_ntdeletebootentry)
 {
+    const auto ok = setup_func(proc, "NtDeleteBootEntry");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDeleteBootEntry.push_back(on_ntdeletebootentry);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDeleteBootEntry()
 {
-    LOG(INFO, "Break on NtDeleteBootEntry");
+    //LOG(INFO, "Break on NtDeleteBootEntry");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -2651,14 +3156,19 @@ void monitor::GenericMonitor::on_NtDeleteBootEntry()
     }
 }
 
-void monitor::GenericMonitor::register_NtDeleteDriverEntry(const on_NtDeleteDriverEntry_fn& on_ntdeletedriverentry)
+bool monitor::GenericMonitor::register_NtDeleteDriverEntry(proc_t proc, const on_NtDeleteDriverEntry_fn& on_ntdeletedriverentry)
 {
+    const auto ok = setup_func(proc, "NtDeleteDriverEntry");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDeleteDriverEntry.push_back(on_ntdeletedriverentry);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDeleteDriverEntry()
 {
-    LOG(INFO, "Break on NtDeleteDriverEntry");
+    //LOG(INFO, "Break on NtDeleteDriverEntry");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -2673,14 +3183,19 @@ void monitor::GenericMonitor::on_NtDeleteDriverEntry()
     }
 }
 
-void monitor::GenericMonitor::register_NtDeleteFile(const on_NtDeleteFile_fn& on_ntdeletefile)
+bool monitor::GenericMonitor::register_NtDeleteFile(proc_t proc, const on_NtDeleteFile_fn& on_ntdeletefile)
 {
+    const auto ok = setup_func(proc, "NtDeleteFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDeleteFile.push_back(on_ntdeletefile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDeleteFile()
 {
-    LOG(INFO, "Break on NtDeleteFile");
+    //LOG(INFO, "Break on NtDeleteFile");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -2695,14 +3210,19 @@ void monitor::GenericMonitor::on_NtDeleteFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtDeleteKey(const on_NtDeleteKey_fn& on_ntdeletekey)
+bool monitor::GenericMonitor::register_NtDeleteKey(proc_t proc, const on_NtDeleteKey_fn& on_ntdeletekey)
 {
+    const auto ok = setup_func(proc, "NtDeleteKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDeleteKey.push_back(on_ntdeletekey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDeleteKey()
 {
-    LOG(INFO, "Break on NtDeleteKey");
+    //LOG(INFO, "Break on NtDeleteKey");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -2717,14 +3237,19 @@ void monitor::GenericMonitor::on_NtDeleteKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtDeleteObjectAuditAlarm(const on_NtDeleteObjectAuditAlarm_fn& on_ntdeleteobjectauditalarm)
+bool monitor::GenericMonitor::register_NtDeleteObjectAuditAlarm(proc_t proc, const on_NtDeleteObjectAuditAlarm_fn& on_ntdeleteobjectauditalarm)
 {
+    const auto ok = setup_func(proc, "NtDeleteObjectAuditAlarm");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDeleteObjectAuditAlarm.push_back(on_ntdeleteobjectauditalarm);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDeleteObjectAuditAlarm()
 {
-    LOG(INFO, "Break on NtDeleteObjectAuditAlarm");
+    //LOG(INFO, "Break on NtDeleteObjectAuditAlarm");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -2741,14 +3266,19 @@ void monitor::GenericMonitor::on_NtDeleteObjectAuditAlarm()
     }
 }
 
-void monitor::GenericMonitor::register_NtDeletePrivateNamespace(const on_NtDeletePrivateNamespace_fn& on_ntdeleteprivatenamespace)
+bool monitor::GenericMonitor::register_NtDeletePrivateNamespace(proc_t proc, const on_NtDeletePrivateNamespace_fn& on_ntdeleteprivatenamespace)
 {
+    const auto ok = setup_func(proc, "NtDeletePrivateNamespace");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDeletePrivateNamespace.push_back(on_ntdeleteprivatenamespace);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDeletePrivateNamespace()
 {
-    LOG(INFO, "Break on NtDeletePrivateNamespace");
+    //LOG(INFO, "Break on NtDeletePrivateNamespace");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -2763,14 +3293,19 @@ void monitor::GenericMonitor::on_NtDeletePrivateNamespace()
     }
 }
 
-void monitor::GenericMonitor::register_NtDeleteValueKey(const on_NtDeleteValueKey_fn& on_ntdeletevaluekey)
+bool monitor::GenericMonitor::register_NtDeleteValueKey(proc_t proc, const on_NtDeleteValueKey_fn& on_ntdeletevaluekey)
 {
+    const auto ok = setup_func(proc, "NtDeleteValueKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDeleteValueKey.push_back(on_ntdeletevaluekey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDeleteValueKey()
 {
-    LOG(INFO, "Break on NtDeleteValueKey");
+    //LOG(INFO, "Break on NtDeleteValueKey");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -2786,14 +3321,19 @@ void monitor::GenericMonitor::on_NtDeleteValueKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtDeviceIoControlFile(const on_NtDeviceIoControlFile_fn& on_ntdeviceiocontrolfile)
+bool monitor::GenericMonitor::register_NtDeviceIoControlFile(proc_t proc, const on_NtDeviceIoControlFile_fn& on_ntdeviceiocontrolfile)
 {
+    const auto ok = setup_func(proc, "NtDeviceIoControlFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDeviceIoControlFile.push_back(on_ntdeviceiocontrolfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDeviceIoControlFile()
 {
-    LOG(INFO, "Break on NtDeviceIoControlFile");
+    //LOG(INFO, "Break on NtDeviceIoControlFile");
     const auto nargs = 10;
 
     std::vector<arg_t> args;
@@ -2817,14 +3357,19 @@ void monitor::GenericMonitor::on_NtDeviceIoControlFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtDisplayString(const on_NtDisplayString_fn& on_ntdisplaystring)
+bool monitor::GenericMonitor::register_NtDisplayString(proc_t proc, const on_NtDisplayString_fn& on_ntdisplaystring)
 {
+    const auto ok = setup_func(proc, "NtDisplayString");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDisplayString.push_back(on_ntdisplaystring);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDisplayString()
 {
-    LOG(INFO, "Break on NtDisplayString");
+    //LOG(INFO, "Break on NtDisplayString");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -2839,14 +3384,19 @@ void monitor::GenericMonitor::on_NtDisplayString()
     }
 }
 
-void monitor::GenericMonitor::register_NtDrawText(const on_NtDrawText_fn& on_ntdrawtext)
+bool monitor::GenericMonitor::register_NtDrawText(proc_t proc, const on_NtDrawText_fn& on_ntdrawtext)
 {
+    const auto ok = setup_func(proc, "NtDrawText");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDrawText.push_back(on_ntdrawtext);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDrawText()
 {
-    LOG(INFO, "Break on NtDrawText");
+    //LOG(INFO, "Break on NtDrawText");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -2861,14 +3411,19 @@ void monitor::GenericMonitor::on_NtDrawText()
     }
 }
 
-void monitor::GenericMonitor::register_NtDuplicateObject(const on_NtDuplicateObject_fn& on_ntduplicateobject)
+bool monitor::GenericMonitor::register_NtDuplicateObject(proc_t proc, const on_NtDuplicateObject_fn& on_ntduplicateobject)
 {
+    const auto ok = setup_func(proc, "NtDuplicateObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDuplicateObject.push_back(on_ntduplicateobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDuplicateObject()
 {
-    LOG(INFO, "Break on NtDuplicateObject");
+    //LOG(INFO, "Break on NtDuplicateObject");
     const auto nargs = 7;
 
     std::vector<arg_t> args;
@@ -2889,14 +3444,19 @@ void monitor::GenericMonitor::on_NtDuplicateObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtDuplicateToken(const on_NtDuplicateToken_fn& on_ntduplicatetoken)
+bool monitor::GenericMonitor::register_NtDuplicateToken(proc_t proc, const on_NtDuplicateToken_fn& on_ntduplicatetoken)
 {
+    const auto ok = setup_func(proc, "NtDuplicateToken");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDuplicateToken.push_back(on_ntduplicatetoken);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDuplicateToken()
 {
-    LOG(INFO, "Break on NtDuplicateToken");
+    //LOG(INFO, "Break on NtDuplicateToken");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -2916,14 +3476,19 @@ void monitor::GenericMonitor::on_NtDuplicateToken()
     }
 }
 
-void monitor::GenericMonitor::register_NtEnumerateBootEntries(const on_NtEnumerateBootEntries_fn& on_ntenumeratebootentries)
+bool monitor::GenericMonitor::register_NtEnumerateBootEntries(proc_t proc, const on_NtEnumerateBootEntries_fn& on_ntenumeratebootentries)
 {
+    const auto ok = setup_func(proc, "NtEnumerateBootEntries");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtEnumerateBootEntries.push_back(on_ntenumeratebootentries);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtEnumerateBootEntries()
 {
-    LOG(INFO, "Break on NtEnumerateBootEntries");
+    //LOG(INFO, "Break on NtEnumerateBootEntries");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -2939,14 +3504,19 @@ void monitor::GenericMonitor::on_NtEnumerateBootEntries()
     }
 }
 
-void monitor::GenericMonitor::register_NtEnumerateDriverEntries(const on_NtEnumerateDriverEntries_fn& on_ntenumeratedriverentries)
+bool monitor::GenericMonitor::register_NtEnumerateDriverEntries(proc_t proc, const on_NtEnumerateDriverEntries_fn& on_ntenumeratedriverentries)
 {
+    const auto ok = setup_func(proc, "NtEnumerateDriverEntries");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtEnumerateDriverEntries.push_back(on_ntenumeratedriverentries);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtEnumerateDriverEntries()
 {
-    LOG(INFO, "Break on NtEnumerateDriverEntries");
+    //LOG(INFO, "Break on NtEnumerateDriverEntries");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -2962,14 +3532,19 @@ void monitor::GenericMonitor::on_NtEnumerateDriverEntries()
     }
 }
 
-void monitor::GenericMonitor::register_NtEnumerateKey(const on_NtEnumerateKey_fn& on_ntenumeratekey)
+bool monitor::GenericMonitor::register_NtEnumerateKey(proc_t proc, const on_NtEnumerateKey_fn& on_ntenumeratekey)
 {
+    const auto ok = setup_func(proc, "NtEnumerateKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtEnumerateKey.push_back(on_ntenumeratekey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtEnumerateKey()
 {
-    LOG(INFO, "Break on NtEnumerateKey");
+    //LOG(INFO, "Break on NtEnumerateKey");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -2989,14 +3564,19 @@ void monitor::GenericMonitor::on_NtEnumerateKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtEnumerateSystemEnvironmentValuesEx(const on_NtEnumerateSystemEnvironmentValuesEx_fn& on_ntenumeratesystemenvironmentvaluesex)
+bool monitor::GenericMonitor::register_NtEnumerateSystemEnvironmentValuesEx(proc_t proc, const on_NtEnumerateSystemEnvironmentValuesEx_fn& on_ntenumeratesystemenvironmentvaluesex)
 {
+    const auto ok = setup_func(proc, "NtEnumerateSystemEnvironmentValuesEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtEnumerateSystemEnvironmentValuesEx.push_back(on_ntenumeratesystemenvironmentvaluesex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtEnumerateSystemEnvironmentValuesEx()
 {
-    LOG(INFO, "Break on NtEnumerateSystemEnvironmentValuesEx");
+    //LOG(INFO, "Break on NtEnumerateSystemEnvironmentValuesEx");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -3013,14 +3593,19 @@ void monitor::GenericMonitor::on_NtEnumerateSystemEnvironmentValuesEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtEnumerateTransactionObject(const on_NtEnumerateTransactionObject_fn& on_ntenumeratetransactionobject)
+bool monitor::GenericMonitor::register_NtEnumerateTransactionObject(proc_t proc, const on_NtEnumerateTransactionObject_fn& on_ntenumeratetransactionobject)
 {
+    const auto ok = setup_func(proc, "NtEnumerateTransactionObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtEnumerateTransactionObject.push_back(on_ntenumeratetransactionobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtEnumerateTransactionObject()
 {
-    LOG(INFO, "Break on NtEnumerateTransactionObject");
+    //LOG(INFO, "Break on NtEnumerateTransactionObject");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -3039,14 +3624,19 @@ void monitor::GenericMonitor::on_NtEnumerateTransactionObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtEnumerateValueKey(const on_NtEnumerateValueKey_fn& on_ntenumeratevaluekey)
+bool monitor::GenericMonitor::register_NtEnumerateValueKey(proc_t proc, const on_NtEnumerateValueKey_fn& on_ntenumeratevaluekey)
 {
+    const auto ok = setup_func(proc, "NtEnumerateValueKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtEnumerateValueKey.push_back(on_ntenumeratevaluekey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtEnumerateValueKey()
 {
-    LOG(INFO, "Break on NtEnumerateValueKey");
+    //LOG(INFO, "Break on NtEnumerateValueKey");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -3066,14 +3656,19 @@ void monitor::GenericMonitor::on_NtEnumerateValueKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtExtendSection(const on_NtExtendSection_fn& on_ntextendsection)
+bool monitor::GenericMonitor::register_NtExtendSection(proc_t proc, const on_NtExtendSection_fn& on_ntextendsection)
 {
+    const auto ok = setup_func(proc, "NtExtendSection");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtExtendSection.push_back(on_ntextendsection);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtExtendSection()
 {
-    LOG(INFO, "Break on NtExtendSection");
+    //LOG(INFO, "Break on NtExtendSection");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -3089,14 +3684,19 @@ void monitor::GenericMonitor::on_NtExtendSection()
     }
 }
 
-void monitor::GenericMonitor::register_NtFilterToken(const on_NtFilterToken_fn& on_ntfiltertoken)
+bool monitor::GenericMonitor::register_NtFilterToken(proc_t proc, const on_NtFilterToken_fn& on_ntfiltertoken)
 {
+    const auto ok = setup_func(proc, "NtFilterToken");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtFilterToken.push_back(on_ntfiltertoken);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtFilterToken()
 {
-    LOG(INFO, "Break on NtFilterToken");
+    //LOG(INFO, "Break on NtFilterToken");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -3116,14 +3716,19 @@ void monitor::GenericMonitor::on_NtFilterToken()
     }
 }
 
-void monitor::GenericMonitor::register_NtFindAtom(const on_NtFindAtom_fn& on_ntfindatom)
+bool monitor::GenericMonitor::register_NtFindAtom(proc_t proc, const on_NtFindAtom_fn& on_ntfindatom)
 {
+    const auto ok = setup_func(proc, "NtFindAtom");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtFindAtom.push_back(on_ntfindatom);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtFindAtom()
 {
-    LOG(INFO, "Break on NtFindAtom");
+    //LOG(INFO, "Break on NtFindAtom");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -3140,14 +3745,19 @@ void monitor::GenericMonitor::on_NtFindAtom()
     }
 }
 
-void monitor::GenericMonitor::register_NtFlushBuffersFile(const on_NtFlushBuffersFile_fn& on_ntflushbuffersfile)
+bool monitor::GenericMonitor::register_NtFlushBuffersFile(proc_t proc, const on_NtFlushBuffersFile_fn& on_ntflushbuffersfile)
 {
+    const auto ok = setup_func(proc, "NtFlushBuffersFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtFlushBuffersFile.push_back(on_ntflushbuffersfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtFlushBuffersFile()
 {
-    LOG(INFO, "Break on NtFlushBuffersFile");
+    //LOG(INFO, "Break on NtFlushBuffersFile");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -3163,14 +3773,19 @@ void monitor::GenericMonitor::on_NtFlushBuffersFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtFlushInstallUILanguage(const on_NtFlushInstallUILanguage_fn& on_ntflushinstalluilanguage)
+bool monitor::GenericMonitor::register_NtFlushInstallUILanguage(proc_t proc, const on_NtFlushInstallUILanguage_fn& on_ntflushinstalluilanguage)
 {
+    const auto ok = setup_func(proc, "NtFlushInstallUILanguage");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtFlushInstallUILanguage.push_back(on_ntflushinstalluilanguage);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtFlushInstallUILanguage()
 {
-    LOG(INFO, "Break on NtFlushInstallUILanguage");
+    //LOG(INFO, "Break on NtFlushInstallUILanguage");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -3186,14 +3801,19 @@ void monitor::GenericMonitor::on_NtFlushInstallUILanguage()
     }
 }
 
-void monitor::GenericMonitor::register_NtFlushInstructionCache(const on_NtFlushInstructionCache_fn& on_ntflushinstructioncache)
+bool monitor::GenericMonitor::register_NtFlushInstructionCache(proc_t proc, const on_NtFlushInstructionCache_fn& on_ntflushinstructioncache)
 {
+    const auto ok = setup_func(proc, "NtFlushInstructionCache");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtFlushInstructionCache.push_back(on_ntflushinstructioncache);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtFlushInstructionCache()
 {
-    LOG(INFO, "Break on NtFlushInstructionCache");
+    //LOG(INFO, "Break on NtFlushInstructionCache");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -3210,14 +3830,19 @@ void monitor::GenericMonitor::on_NtFlushInstructionCache()
     }
 }
 
-void monitor::GenericMonitor::register_NtFlushKey(const on_NtFlushKey_fn& on_ntflushkey)
+bool monitor::GenericMonitor::register_NtFlushKey(proc_t proc, const on_NtFlushKey_fn& on_ntflushkey)
 {
+    const auto ok = setup_func(proc, "NtFlushKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtFlushKey.push_back(on_ntflushkey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtFlushKey()
 {
-    LOG(INFO, "Break on NtFlushKey");
+    //LOG(INFO, "Break on NtFlushKey");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -3232,14 +3857,19 @@ void monitor::GenericMonitor::on_NtFlushKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtFlushVirtualMemory(const on_NtFlushVirtualMemory_fn& on_ntflushvirtualmemory)
+bool monitor::GenericMonitor::register_NtFlushVirtualMemory(proc_t proc, const on_NtFlushVirtualMemory_fn& on_ntflushvirtualmemory)
 {
+    const auto ok = setup_func(proc, "NtFlushVirtualMemory");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtFlushVirtualMemory.push_back(on_ntflushvirtualmemory);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtFlushVirtualMemory()
 {
-    LOG(INFO, "Break on NtFlushVirtualMemory");
+    //LOG(INFO, "Break on NtFlushVirtualMemory");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -3257,14 +3887,19 @@ void monitor::GenericMonitor::on_NtFlushVirtualMemory()
     }
 }
 
-void monitor::GenericMonitor::register_NtFreeUserPhysicalPages(const on_NtFreeUserPhysicalPages_fn& on_ntfreeuserphysicalpages)
+bool monitor::GenericMonitor::register_NtFreeUserPhysicalPages(proc_t proc, const on_NtFreeUserPhysicalPages_fn& on_ntfreeuserphysicalpages)
 {
+    const auto ok = setup_func(proc, "NtFreeUserPhysicalPages");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtFreeUserPhysicalPages.push_back(on_ntfreeuserphysicalpages);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtFreeUserPhysicalPages()
 {
-    LOG(INFO, "Break on NtFreeUserPhysicalPages");
+    //LOG(INFO, "Break on NtFreeUserPhysicalPages");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -3281,14 +3916,19 @@ void monitor::GenericMonitor::on_NtFreeUserPhysicalPages()
     }
 }
 
-void monitor::GenericMonitor::register_NtFreeVirtualMemory(const on_NtFreeVirtualMemory_fn& on_ntfreevirtualmemory)
+bool monitor::GenericMonitor::register_NtFreeVirtualMemory(proc_t proc, const on_NtFreeVirtualMemory_fn& on_ntfreevirtualmemory)
 {
+    const auto ok = setup_func(proc, "NtFreeVirtualMemory");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtFreeVirtualMemory.push_back(on_ntfreevirtualmemory);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtFreeVirtualMemory()
 {
-    LOG(INFO, "Break on NtFreeVirtualMemory");
+    //LOG(INFO, "Break on NtFreeVirtualMemory");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -3306,14 +3946,19 @@ void monitor::GenericMonitor::on_NtFreeVirtualMemory()
     }
 }
 
-void monitor::GenericMonitor::register_NtFreezeRegistry(const on_NtFreezeRegistry_fn& on_ntfreezeregistry)
+bool monitor::GenericMonitor::register_NtFreezeRegistry(proc_t proc, const on_NtFreezeRegistry_fn& on_ntfreezeregistry)
 {
+    const auto ok = setup_func(proc, "NtFreezeRegistry");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtFreezeRegistry.push_back(on_ntfreezeregistry);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtFreezeRegistry()
 {
-    LOG(INFO, "Break on NtFreezeRegistry");
+    //LOG(INFO, "Break on NtFreezeRegistry");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -3328,14 +3973,19 @@ void monitor::GenericMonitor::on_NtFreezeRegistry()
     }
 }
 
-void monitor::GenericMonitor::register_NtFreezeTransactions(const on_NtFreezeTransactions_fn& on_ntfreezetransactions)
+bool monitor::GenericMonitor::register_NtFreezeTransactions(proc_t proc, const on_NtFreezeTransactions_fn& on_ntfreezetransactions)
 {
+    const auto ok = setup_func(proc, "NtFreezeTransactions");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtFreezeTransactions.push_back(on_ntfreezetransactions);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtFreezeTransactions()
 {
-    LOG(INFO, "Break on NtFreezeTransactions");
+    //LOG(INFO, "Break on NtFreezeTransactions");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -3351,14 +4001,19 @@ void monitor::GenericMonitor::on_NtFreezeTransactions()
     }
 }
 
-void monitor::GenericMonitor::register_NtFsControlFile(const on_NtFsControlFile_fn& on_ntfscontrolfile)
+bool monitor::GenericMonitor::register_NtFsControlFile(proc_t proc, const on_NtFsControlFile_fn& on_ntfscontrolfile)
 {
+    const auto ok = setup_func(proc, "NtFsControlFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtFsControlFile.push_back(on_ntfscontrolfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtFsControlFile()
 {
-    LOG(INFO, "Break on NtFsControlFile");
+    //LOG(INFO, "Break on NtFsControlFile");
     const auto nargs = 10;
 
     std::vector<arg_t> args;
@@ -3382,14 +4037,19 @@ void monitor::GenericMonitor::on_NtFsControlFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtGetContextThread(const on_NtGetContextThread_fn& on_ntgetcontextthread)
+bool monitor::GenericMonitor::register_NtGetContextThread(proc_t proc, const on_NtGetContextThread_fn& on_ntgetcontextthread)
 {
+    const auto ok = setup_func(proc, "NtGetContextThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtGetContextThread.push_back(on_ntgetcontextthread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtGetContextThread()
 {
-    LOG(INFO, "Break on NtGetContextThread");
+    //LOG(INFO, "Break on NtGetContextThread");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -3405,14 +4065,19 @@ void monitor::GenericMonitor::on_NtGetContextThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtGetDevicePowerState(const on_NtGetDevicePowerState_fn& on_ntgetdevicepowerstate)
+bool monitor::GenericMonitor::register_NtGetDevicePowerState(proc_t proc, const on_NtGetDevicePowerState_fn& on_ntgetdevicepowerstate)
 {
+    const auto ok = setup_func(proc, "NtGetDevicePowerState");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtGetDevicePowerState.push_back(on_ntgetdevicepowerstate);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtGetDevicePowerState()
 {
-    LOG(INFO, "Break on NtGetDevicePowerState");
+    //LOG(INFO, "Break on NtGetDevicePowerState");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -3428,14 +4093,19 @@ void monitor::GenericMonitor::on_NtGetDevicePowerState()
     }
 }
 
-void monitor::GenericMonitor::register_NtGetMUIRegistryInfo(const on_NtGetMUIRegistryInfo_fn& on_ntgetmuiregistryinfo)
+bool monitor::GenericMonitor::register_NtGetMUIRegistryInfo(proc_t proc, const on_NtGetMUIRegistryInfo_fn& on_ntgetmuiregistryinfo)
 {
+    const auto ok = setup_func(proc, "NtGetMUIRegistryInfo");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtGetMUIRegistryInfo.push_back(on_ntgetmuiregistryinfo);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtGetMUIRegistryInfo()
 {
-    LOG(INFO, "Break on NtGetMUIRegistryInfo");
+    //LOG(INFO, "Break on NtGetMUIRegistryInfo");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -3452,14 +4122,19 @@ void monitor::GenericMonitor::on_NtGetMUIRegistryInfo()
     }
 }
 
-void monitor::GenericMonitor::register_NtGetNextProcess(const on_NtGetNextProcess_fn& on_ntgetnextprocess)
+bool monitor::GenericMonitor::register_NtGetNextProcess(proc_t proc, const on_NtGetNextProcess_fn& on_ntgetnextprocess)
 {
+    const auto ok = setup_func(proc, "NtGetNextProcess");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtGetNextProcess.push_back(on_ntgetnextprocess);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtGetNextProcess()
 {
-    LOG(INFO, "Break on NtGetNextProcess");
+    //LOG(INFO, "Break on NtGetNextProcess");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -3478,14 +4153,19 @@ void monitor::GenericMonitor::on_NtGetNextProcess()
     }
 }
 
-void monitor::GenericMonitor::register_NtGetNextThread(const on_NtGetNextThread_fn& on_ntgetnextthread)
+bool monitor::GenericMonitor::register_NtGetNextThread(proc_t proc, const on_NtGetNextThread_fn& on_ntgetnextthread)
 {
+    const auto ok = setup_func(proc, "NtGetNextThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtGetNextThread.push_back(on_ntgetnextthread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtGetNextThread()
 {
-    LOG(INFO, "Break on NtGetNextThread");
+    //LOG(INFO, "Break on NtGetNextThread");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -3505,14 +4185,19 @@ void monitor::GenericMonitor::on_NtGetNextThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtGetNlsSectionPtr(const on_NtGetNlsSectionPtr_fn& on_ntgetnlssectionptr)
+bool monitor::GenericMonitor::register_NtGetNlsSectionPtr(proc_t proc, const on_NtGetNlsSectionPtr_fn& on_ntgetnlssectionptr)
 {
+    const auto ok = setup_func(proc, "NtGetNlsSectionPtr");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtGetNlsSectionPtr.push_back(on_ntgetnlssectionptr);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtGetNlsSectionPtr()
 {
-    LOG(INFO, "Break on NtGetNlsSectionPtr");
+    //LOG(INFO, "Break on NtGetNlsSectionPtr");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -3531,14 +4216,19 @@ void monitor::GenericMonitor::on_NtGetNlsSectionPtr()
     }
 }
 
-void monitor::GenericMonitor::register_NtGetNotificationResourceManager(const on_NtGetNotificationResourceManager_fn& on_ntgetnotificationresourcemanager)
+bool monitor::GenericMonitor::register_NtGetNotificationResourceManager(proc_t proc, const on_NtGetNotificationResourceManager_fn& on_ntgetnotificationresourcemanager)
 {
+    const auto ok = setup_func(proc, "NtGetNotificationResourceManager");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtGetNotificationResourceManager.push_back(on_ntgetnotificationresourcemanager);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtGetNotificationResourceManager()
 {
-    LOG(INFO, "Break on NtGetNotificationResourceManager");
+    //LOG(INFO, "Break on NtGetNotificationResourceManager");
     const auto nargs = 7;
 
     std::vector<arg_t> args;
@@ -3559,14 +4249,19 @@ void monitor::GenericMonitor::on_NtGetNotificationResourceManager()
     }
 }
 
-void monitor::GenericMonitor::register_NtGetPlugPlayEvent(const on_NtGetPlugPlayEvent_fn& on_ntgetplugplayevent)
+bool monitor::GenericMonitor::register_NtGetPlugPlayEvent(proc_t proc, const on_NtGetPlugPlayEvent_fn& on_ntgetplugplayevent)
 {
+    const auto ok = setup_func(proc, "NtGetPlugPlayEvent");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtGetPlugPlayEvent.push_back(on_ntgetplugplayevent);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtGetPlugPlayEvent()
 {
-    LOG(INFO, "Break on NtGetPlugPlayEvent");
+    //LOG(INFO, "Break on NtGetPlugPlayEvent");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -3584,14 +4279,19 @@ void monitor::GenericMonitor::on_NtGetPlugPlayEvent()
     }
 }
 
-void monitor::GenericMonitor::register_NtGetWriteWatch(const on_NtGetWriteWatch_fn& on_ntgetwritewatch)
+bool monitor::GenericMonitor::register_NtGetWriteWatch(proc_t proc, const on_NtGetWriteWatch_fn& on_ntgetwritewatch)
 {
+    const auto ok = setup_func(proc, "NtGetWriteWatch");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtGetWriteWatch.push_back(on_ntgetwritewatch);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtGetWriteWatch()
 {
-    LOG(INFO, "Break on NtGetWriteWatch");
+    //LOG(INFO, "Break on NtGetWriteWatch");
     const auto nargs = 7;
 
     std::vector<arg_t> args;
@@ -3612,14 +4312,19 @@ void monitor::GenericMonitor::on_NtGetWriteWatch()
     }
 }
 
-void monitor::GenericMonitor::register_NtImpersonateAnonymousToken(const on_NtImpersonateAnonymousToken_fn& on_ntimpersonateanonymoustoken)
+bool monitor::GenericMonitor::register_NtImpersonateAnonymousToken(proc_t proc, const on_NtImpersonateAnonymousToken_fn& on_ntimpersonateanonymoustoken)
 {
+    const auto ok = setup_func(proc, "NtImpersonateAnonymousToken");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtImpersonateAnonymousToken.push_back(on_ntimpersonateanonymoustoken);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtImpersonateAnonymousToken()
 {
-    LOG(INFO, "Break on NtImpersonateAnonymousToken");
+    //LOG(INFO, "Break on NtImpersonateAnonymousToken");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -3634,14 +4339,19 @@ void monitor::GenericMonitor::on_NtImpersonateAnonymousToken()
     }
 }
 
-void monitor::GenericMonitor::register_NtImpersonateClientOfPort(const on_NtImpersonateClientOfPort_fn& on_ntimpersonateclientofport)
+bool monitor::GenericMonitor::register_NtImpersonateClientOfPort(proc_t proc, const on_NtImpersonateClientOfPort_fn& on_ntimpersonateclientofport)
 {
+    const auto ok = setup_func(proc, "NtImpersonateClientOfPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtImpersonateClientOfPort.push_back(on_ntimpersonateclientofport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtImpersonateClientOfPort()
 {
-    LOG(INFO, "Break on NtImpersonateClientOfPort");
+    //LOG(INFO, "Break on NtImpersonateClientOfPort");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -3657,14 +4367,19 @@ void monitor::GenericMonitor::on_NtImpersonateClientOfPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtImpersonateThread(const on_NtImpersonateThread_fn& on_ntimpersonatethread)
+bool monitor::GenericMonitor::register_NtImpersonateThread(proc_t proc, const on_NtImpersonateThread_fn& on_ntimpersonatethread)
 {
+    const auto ok = setup_func(proc, "NtImpersonateThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtImpersonateThread.push_back(on_ntimpersonatethread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtImpersonateThread()
 {
-    LOG(INFO, "Break on NtImpersonateThread");
+    //LOG(INFO, "Break on NtImpersonateThread");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -3681,14 +4396,19 @@ void monitor::GenericMonitor::on_NtImpersonateThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtInitializeNlsFiles(const on_NtInitializeNlsFiles_fn& on_ntinitializenlsfiles)
+bool monitor::GenericMonitor::register_NtInitializeNlsFiles(proc_t proc, const on_NtInitializeNlsFiles_fn& on_ntinitializenlsfiles)
 {
+    const auto ok = setup_func(proc, "NtInitializeNlsFiles");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtInitializeNlsFiles.push_back(on_ntinitializenlsfiles);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtInitializeNlsFiles()
 {
-    LOG(INFO, "Break on NtInitializeNlsFiles");
+    //LOG(INFO, "Break on NtInitializeNlsFiles");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -3705,14 +4425,19 @@ void monitor::GenericMonitor::on_NtInitializeNlsFiles()
     }
 }
 
-void monitor::GenericMonitor::register_NtInitializeRegistry(const on_NtInitializeRegistry_fn& on_ntinitializeregistry)
+bool monitor::GenericMonitor::register_NtInitializeRegistry(proc_t proc, const on_NtInitializeRegistry_fn& on_ntinitializeregistry)
 {
+    const auto ok = setup_func(proc, "NtInitializeRegistry");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtInitializeRegistry.push_back(on_ntinitializeregistry);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtInitializeRegistry()
 {
-    LOG(INFO, "Break on NtInitializeRegistry");
+    //LOG(INFO, "Break on NtInitializeRegistry");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -3727,14 +4452,19 @@ void monitor::GenericMonitor::on_NtInitializeRegistry()
     }
 }
 
-void monitor::GenericMonitor::register_NtInitiatePowerAction(const on_NtInitiatePowerAction_fn& on_ntinitiatepoweraction)
+bool monitor::GenericMonitor::register_NtInitiatePowerAction(proc_t proc, const on_NtInitiatePowerAction_fn& on_ntinitiatepoweraction)
 {
+    const auto ok = setup_func(proc, "NtInitiatePowerAction");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtInitiatePowerAction.push_back(on_ntinitiatepoweraction);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtInitiatePowerAction()
 {
-    LOG(INFO, "Break on NtInitiatePowerAction");
+    //LOG(INFO, "Break on NtInitiatePowerAction");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -3752,14 +4482,19 @@ void monitor::GenericMonitor::on_NtInitiatePowerAction()
     }
 }
 
-void monitor::GenericMonitor::register_NtIsProcessInJob(const on_NtIsProcessInJob_fn& on_ntisprocessinjob)
+bool monitor::GenericMonitor::register_NtIsProcessInJob(proc_t proc, const on_NtIsProcessInJob_fn& on_ntisprocessinjob)
 {
+    const auto ok = setup_func(proc, "NtIsProcessInJob");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtIsProcessInJob.push_back(on_ntisprocessinjob);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtIsProcessInJob()
 {
-    LOG(INFO, "Break on NtIsProcessInJob");
+    //LOG(INFO, "Break on NtIsProcessInJob");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -3775,14 +4510,19 @@ void monitor::GenericMonitor::on_NtIsProcessInJob()
     }
 }
 
-void monitor::GenericMonitor::register_NtListenPort(const on_NtListenPort_fn& on_ntlistenport)
+bool monitor::GenericMonitor::register_NtListenPort(proc_t proc, const on_NtListenPort_fn& on_ntlistenport)
 {
+    const auto ok = setup_func(proc, "NtListenPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtListenPort.push_back(on_ntlistenport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtListenPort()
 {
-    LOG(INFO, "Break on NtListenPort");
+    //LOG(INFO, "Break on NtListenPort");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -3798,14 +4538,19 @@ void monitor::GenericMonitor::on_NtListenPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtLoadDriver(const on_NtLoadDriver_fn& on_ntloaddriver)
+bool monitor::GenericMonitor::register_NtLoadDriver(proc_t proc, const on_NtLoadDriver_fn& on_ntloaddriver)
 {
+    const auto ok = setup_func(proc, "NtLoadDriver");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtLoadDriver.push_back(on_ntloaddriver);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtLoadDriver()
 {
-    LOG(INFO, "Break on NtLoadDriver");
+    //LOG(INFO, "Break on NtLoadDriver");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -3820,14 +4565,19 @@ void monitor::GenericMonitor::on_NtLoadDriver()
     }
 }
 
-void monitor::GenericMonitor::register_NtLoadKey2(const on_NtLoadKey2_fn& on_ntloadkey2)
+bool monitor::GenericMonitor::register_NtLoadKey2(proc_t proc, const on_NtLoadKey2_fn& on_ntloadkey2)
 {
+    const auto ok = setup_func(proc, "NtLoadKey2");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtLoadKey2.push_back(on_ntloadkey2);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtLoadKey2()
 {
-    LOG(INFO, "Break on NtLoadKey2");
+    //LOG(INFO, "Break on NtLoadKey2");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -3844,14 +4594,19 @@ void monitor::GenericMonitor::on_NtLoadKey2()
     }
 }
 
-void monitor::GenericMonitor::register_NtLoadKeyEx(const on_NtLoadKeyEx_fn& on_ntloadkeyex)
+bool monitor::GenericMonitor::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_fn& on_ntloadkeyex)
 {
+    const auto ok = setup_func(proc, "NtLoadKeyEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtLoadKeyEx.push_back(on_ntloadkeyex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtLoadKeyEx()
 {
-    LOG(INFO, "Break on NtLoadKeyEx");
+    //LOG(INFO, "Break on NtLoadKeyEx");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -3869,14 +4624,19 @@ void monitor::GenericMonitor::on_NtLoadKeyEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtLoadKey(const on_NtLoadKey_fn& on_ntloadkey)
+bool monitor::GenericMonitor::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn& on_ntloadkey)
 {
+    const auto ok = setup_func(proc, "NtLoadKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtLoadKey.push_back(on_ntloadkey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtLoadKey()
 {
-    LOG(INFO, "Break on NtLoadKey");
+    //LOG(INFO, "Break on NtLoadKey");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -3892,14 +4652,19 @@ void monitor::GenericMonitor::on_NtLoadKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtLockFile(const on_NtLockFile_fn& on_ntlockfile)
+bool monitor::GenericMonitor::register_NtLockFile(proc_t proc, const on_NtLockFile_fn& on_ntlockfile)
 {
+    const auto ok = setup_func(proc, "NtLockFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtLockFile.push_back(on_ntlockfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtLockFile()
 {
-    LOG(INFO, "Break on NtLockFile");
+    //LOG(INFO, "Break on NtLockFile");
     const auto nargs = 10;
 
     std::vector<arg_t> args;
@@ -3923,14 +4688,19 @@ void monitor::GenericMonitor::on_NtLockFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtLockProductActivationKeys(const on_NtLockProductActivationKeys_fn& on_ntlockproductactivationkeys)
+bool monitor::GenericMonitor::register_NtLockProductActivationKeys(proc_t proc, const on_NtLockProductActivationKeys_fn& on_ntlockproductactivationkeys)
 {
+    const auto ok = setup_func(proc, "NtLockProductActivationKeys");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtLockProductActivationKeys.push_back(on_ntlockproductactivationkeys);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtLockProductActivationKeys()
 {
-    LOG(INFO, "Break on NtLockProductActivationKeys");
+    //LOG(INFO, "Break on NtLockProductActivationKeys");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -3946,14 +4716,19 @@ void monitor::GenericMonitor::on_NtLockProductActivationKeys()
     }
 }
 
-void monitor::GenericMonitor::register_NtLockRegistryKey(const on_NtLockRegistryKey_fn& on_ntlockregistrykey)
+bool monitor::GenericMonitor::register_NtLockRegistryKey(proc_t proc, const on_NtLockRegistryKey_fn& on_ntlockregistrykey)
 {
+    const auto ok = setup_func(proc, "NtLockRegistryKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtLockRegistryKey.push_back(on_ntlockregistrykey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtLockRegistryKey()
 {
-    LOG(INFO, "Break on NtLockRegistryKey");
+    //LOG(INFO, "Break on NtLockRegistryKey");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -3968,14 +4743,19 @@ void monitor::GenericMonitor::on_NtLockRegistryKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtLockVirtualMemory(const on_NtLockVirtualMemory_fn& on_ntlockvirtualmemory)
+bool monitor::GenericMonitor::register_NtLockVirtualMemory(proc_t proc, const on_NtLockVirtualMemory_fn& on_ntlockvirtualmemory)
 {
+    const auto ok = setup_func(proc, "NtLockVirtualMemory");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtLockVirtualMemory.push_back(on_ntlockvirtualmemory);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtLockVirtualMemory()
 {
-    LOG(INFO, "Break on NtLockVirtualMemory");
+    //LOG(INFO, "Break on NtLockVirtualMemory");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -3993,14 +4773,19 @@ void monitor::GenericMonitor::on_NtLockVirtualMemory()
     }
 }
 
-void monitor::GenericMonitor::register_NtMakePermanentObject(const on_NtMakePermanentObject_fn& on_ntmakepermanentobject)
+bool monitor::GenericMonitor::register_NtMakePermanentObject(proc_t proc, const on_NtMakePermanentObject_fn& on_ntmakepermanentobject)
 {
+    const auto ok = setup_func(proc, "NtMakePermanentObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtMakePermanentObject.push_back(on_ntmakepermanentobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtMakePermanentObject()
 {
-    LOG(INFO, "Break on NtMakePermanentObject");
+    //LOG(INFO, "Break on NtMakePermanentObject");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -4015,14 +4800,19 @@ void monitor::GenericMonitor::on_NtMakePermanentObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtMakeTemporaryObject(const on_NtMakeTemporaryObject_fn& on_ntmaketemporaryobject)
+bool monitor::GenericMonitor::register_NtMakeTemporaryObject(proc_t proc, const on_NtMakeTemporaryObject_fn& on_ntmaketemporaryobject)
 {
+    const auto ok = setup_func(proc, "NtMakeTemporaryObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtMakeTemporaryObject.push_back(on_ntmaketemporaryobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtMakeTemporaryObject()
 {
-    LOG(INFO, "Break on NtMakeTemporaryObject");
+    //LOG(INFO, "Break on NtMakeTemporaryObject");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -4037,14 +4827,19 @@ void monitor::GenericMonitor::on_NtMakeTemporaryObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtMapCMFModule(const on_NtMapCMFModule_fn& on_ntmapcmfmodule)
+bool monitor::GenericMonitor::register_NtMapCMFModule(proc_t proc, const on_NtMapCMFModule_fn& on_ntmapcmfmodule)
 {
+    const auto ok = setup_func(proc, "NtMapCMFModule");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtMapCMFModule.push_back(on_ntmapcmfmodule);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtMapCMFModule()
 {
-    LOG(INFO, "Break on NtMapCMFModule");
+    //LOG(INFO, "Break on NtMapCMFModule");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -4064,14 +4859,19 @@ void monitor::GenericMonitor::on_NtMapCMFModule()
     }
 }
 
-void monitor::GenericMonitor::register_NtMapUserPhysicalPages(const on_NtMapUserPhysicalPages_fn& on_ntmapuserphysicalpages)
+bool monitor::GenericMonitor::register_NtMapUserPhysicalPages(proc_t proc, const on_NtMapUserPhysicalPages_fn& on_ntmapuserphysicalpages)
 {
+    const auto ok = setup_func(proc, "NtMapUserPhysicalPages");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtMapUserPhysicalPages.push_back(on_ntmapuserphysicalpages);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtMapUserPhysicalPages()
 {
-    LOG(INFO, "Break on NtMapUserPhysicalPages");
+    //LOG(INFO, "Break on NtMapUserPhysicalPages");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4088,14 +4888,19 @@ void monitor::GenericMonitor::on_NtMapUserPhysicalPages()
     }
 }
 
-void monitor::GenericMonitor::register_NtMapUserPhysicalPagesScatter(const on_NtMapUserPhysicalPagesScatter_fn& on_ntmapuserphysicalpagesscatter)
+bool monitor::GenericMonitor::register_NtMapUserPhysicalPagesScatter(proc_t proc, const on_NtMapUserPhysicalPagesScatter_fn& on_ntmapuserphysicalpagesscatter)
 {
+    const auto ok = setup_func(proc, "NtMapUserPhysicalPagesScatter");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtMapUserPhysicalPagesScatter.push_back(on_ntmapuserphysicalpagesscatter);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtMapUserPhysicalPagesScatter()
 {
-    LOG(INFO, "Break on NtMapUserPhysicalPagesScatter");
+    //LOG(INFO, "Break on NtMapUserPhysicalPagesScatter");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4112,14 +4917,19 @@ void monitor::GenericMonitor::on_NtMapUserPhysicalPagesScatter()
     }
 }
 
-void monitor::GenericMonitor::register_NtMapViewOfSection(const on_NtMapViewOfSection_fn& on_ntmapviewofsection)
+bool monitor::GenericMonitor::register_NtMapViewOfSection(proc_t proc, const on_NtMapViewOfSection_fn& on_ntmapviewofsection)
 {
+    const auto ok = setup_func(proc, "NtMapViewOfSection");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtMapViewOfSection.push_back(on_ntmapviewofsection);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtMapViewOfSection()
 {
-    LOG(INFO, "Break on NtMapViewOfSection");
+    //LOG(INFO, "Break on NtMapViewOfSection");
     const auto nargs = 10;
 
     std::vector<arg_t> args;
@@ -4143,14 +4953,19 @@ void monitor::GenericMonitor::on_NtMapViewOfSection()
     }
 }
 
-void monitor::GenericMonitor::register_NtModifyBootEntry(const on_NtModifyBootEntry_fn& on_ntmodifybootentry)
+bool monitor::GenericMonitor::register_NtModifyBootEntry(proc_t proc, const on_NtModifyBootEntry_fn& on_ntmodifybootentry)
 {
+    const auto ok = setup_func(proc, "NtModifyBootEntry");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtModifyBootEntry.push_back(on_ntmodifybootentry);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtModifyBootEntry()
 {
-    LOG(INFO, "Break on NtModifyBootEntry");
+    //LOG(INFO, "Break on NtModifyBootEntry");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -4165,14 +4980,19 @@ void monitor::GenericMonitor::on_NtModifyBootEntry()
     }
 }
 
-void monitor::GenericMonitor::register_NtModifyDriverEntry(const on_NtModifyDriverEntry_fn& on_ntmodifydriverentry)
+bool monitor::GenericMonitor::register_NtModifyDriverEntry(proc_t proc, const on_NtModifyDriverEntry_fn& on_ntmodifydriverentry)
 {
+    const auto ok = setup_func(proc, "NtModifyDriverEntry");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtModifyDriverEntry.push_back(on_ntmodifydriverentry);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtModifyDriverEntry()
 {
-    LOG(INFO, "Break on NtModifyDriverEntry");
+    //LOG(INFO, "Break on NtModifyDriverEntry");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -4187,14 +5007,19 @@ void monitor::GenericMonitor::on_NtModifyDriverEntry()
     }
 }
 
-void monitor::GenericMonitor::register_NtNotifyChangeDirectoryFile(const on_NtNotifyChangeDirectoryFile_fn& on_ntnotifychangedirectoryfile)
+bool monitor::GenericMonitor::register_NtNotifyChangeDirectoryFile(proc_t proc, const on_NtNotifyChangeDirectoryFile_fn& on_ntnotifychangedirectoryfile)
 {
+    const auto ok = setup_func(proc, "NtNotifyChangeDirectoryFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtNotifyChangeDirectoryFile.push_back(on_ntnotifychangedirectoryfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtNotifyChangeDirectoryFile()
 {
-    LOG(INFO, "Break on NtNotifyChangeDirectoryFile");
+    //LOG(INFO, "Break on NtNotifyChangeDirectoryFile");
     const auto nargs = 9;
 
     std::vector<arg_t> args;
@@ -4217,14 +5042,19 @@ void monitor::GenericMonitor::on_NtNotifyChangeDirectoryFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtNotifyChangeKey(const on_NtNotifyChangeKey_fn& on_ntnotifychangekey)
+bool monitor::GenericMonitor::register_NtNotifyChangeKey(proc_t proc, const on_NtNotifyChangeKey_fn& on_ntnotifychangekey)
 {
+    const auto ok = setup_func(proc, "NtNotifyChangeKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtNotifyChangeKey.push_back(on_ntnotifychangekey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtNotifyChangeKey()
 {
-    LOG(INFO, "Break on NtNotifyChangeKey");
+    //LOG(INFO, "Break on NtNotifyChangeKey");
     const auto nargs = 10;
 
     std::vector<arg_t> args;
@@ -4248,14 +5078,19 @@ void monitor::GenericMonitor::on_NtNotifyChangeKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtNotifyChangeMultipleKeys(const on_NtNotifyChangeMultipleKeys_fn& on_ntnotifychangemultiplekeys)
+bool monitor::GenericMonitor::register_NtNotifyChangeMultipleKeys(proc_t proc, const on_NtNotifyChangeMultipleKeys_fn& on_ntnotifychangemultiplekeys)
 {
+    const auto ok = setup_func(proc, "NtNotifyChangeMultipleKeys");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtNotifyChangeMultipleKeys.push_back(on_ntnotifychangemultiplekeys);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtNotifyChangeMultipleKeys()
 {
-    LOG(INFO, "Break on NtNotifyChangeMultipleKeys");
+    //LOG(INFO, "Break on NtNotifyChangeMultipleKeys");
     const auto nargs = 12;
 
     std::vector<arg_t> args;
@@ -4281,14 +5116,19 @@ void monitor::GenericMonitor::on_NtNotifyChangeMultipleKeys()
     }
 }
 
-void monitor::GenericMonitor::register_NtNotifyChangeSession(const on_NtNotifyChangeSession_fn& on_ntnotifychangesession)
+bool monitor::GenericMonitor::register_NtNotifyChangeSession(proc_t proc, const on_NtNotifyChangeSession_fn& on_ntnotifychangesession)
 {
+    const auto ok = setup_func(proc, "NtNotifyChangeSession");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtNotifyChangeSession.push_back(on_ntnotifychangesession);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtNotifyChangeSession()
 {
-    LOG(INFO, "Break on NtNotifyChangeSession");
+    //LOG(INFO, "Break on NtNotifyChangeSession");
     const auto nargs = 8;
 
     std::vector<arg_t> args;
@@ -4310,14 +5150,19 @@ void monitor::GenericMonitor::on_NtNotifyChangeSession()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenDirectoryObject(const on_NtOpenDirectoryObject_fn& on_ntopendirectoryobject)
+bool monitor::GenericMonitor::register_NtOpenDirectoryObject(proc_t proc, const on_NtOpenDirectoryObject_fn& on_ntopendirectoryobject)
 {
+    const auto ok = setup_func(proc, "NtOpenDirectoryObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenDirectoryObject.push_back(on_ntopendirectoryobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenDirectoryObject()
 {
-    LOG(INFO, "Break on NtOpenDirectoryObject");
+    //LOG(INFO, "Break on NtOpenDirectoryObject");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4334,14 +5179,19 @@ void monitor::GenericMonitor::on_NtOpenDirectoryObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenEnlistment(const on_NtOpenEnlistment_fn& on_ntopenenlistment)
+bool monitor::GenericMonitor::register_NtOpenEnlistment(proc_t proc, const on_NtOpenEnlistment_fn& on_ntopenenlistment)
 {
+    const auto ok = setup_func(proc, "NtOpenEnlistment");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenEnlistment.push_back(on_ntopenenlistment);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenEnlistment()
 {
-    LOG(INFO, "Break on NtOpenEnlistment");
+    //LOG(INFO, "Break on NtOpenEnlistment");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -4360,14 +5210,19 @@ void monitor::GenericMonitor::on_NtOpenEnlistment()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenEvent(const on_NtOpenEvent_fn& on_ntopenevent)
+bool monitor::GenericMonitor::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent_fn& on_ntopenevent)
 {
+    const auto ok = setup_func(proc, "NtOpenEvent");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenEvent.push_back(on_ntopenevent);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenEvent()
 {
-    LOG(INFO, "Break on NtOpenEvent");
+    //LOG(INFO, "Break on NtOpenEvent");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4384,14 +5239,19 @@ void monitor::GenericMonitor::on_NtOpenEvent()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenEventPair(const on_NtOpenEventPair_fn& on_ntopeneventpair)
+bool monitor::GenericMonitor::register_NtOpenEventPair(proc_t proc, const on_NtOpenEventPair_fn& on_ntopeneventpair)
 {
+    const auto ok = setup_func(proc, "NtOpenEventPair");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenEventPair.push_back(on_ntopeneventpair);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenEventPair()
 {
-    LOG(INFO, "Break on NtOpenEventPair");
+    //LOG(INFO, "Break on NtOpenEventPair");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4408,14 +5268,19 @@ void monitor::GenericMonitor::on_NtOpenEventPair()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenFile(const on_NtOpenFile_fn& on_ntopenfile)
+bool monitor::GenericMonitor::register_NtOpenFile(proc_t proc, const on_NtOpenFile_fn& on_ntopenfile)
 {
+    const auto ok = setup_func(proc, "NtOpenFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenFile.push_back(on_ntopenfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenFile()
 {
-    LOG(INFO, "Break on NtOpenFile");
+    //LOG(INFO, "Break on NtOpenFile");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -4435,14 +5300,19 @@ void monitor::GenericMonitor::on_NtOpenFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenIoCompletion(const on_NtOpenIoCompletion_fn& on_ntopeniocompletion)
+bool monitor::GenericMonitor::register_NtOpenIoCompletion(proc_t proc, const on_NtOpenIoCompletion_fn& on_ntopeniocompletion)
 {
+    const auto ok = setup_func(proc, "NtOpenIoCompletion");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenIoCompletion.push_back(on_ntopeniocompletion);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenIoCompletion()
 {
-    LOG(INFO, "Break on NtOpenIoCompletion");
+    //LOG(INFO, "Break on NtOpenIoCompletion");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4459,14 +5329,19 @@ void monitor::GenericMonitor::on_NtOpenIoCompletion()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenJobObject(const on_NtOpenJobObject_fn& on_ntopenjobobject)
+bool monitor::GenericMonitor::register_NtOpenJobObject(proc_t proc, const on_NtOpenJobObject_fn& on_ntopenjobobject)
 {
+    const auto ok = setup_func(proc, "NtOpenJobObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenJobObject.push_back(on_ntopenjobobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenJobObject()
 {
-    LOG(INFO, "Break on NtOpenJobObject");
+    //LOG(INFO, "Break on NtOpenJobObject");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4483,14 +5358,19 @@ void monitor::GenericMonitor::on_NtOpenJobObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenKeyedEvent(const on_NtOpenKeyedEvent_fn& on_ntopenkeyedevent)
+bool monitor::GenericMonitor::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpenKeyedEvent_fn& on_ntopenkeyedevent)
 {
+    const auto ok = setup_func(proc, "NtOpenKeyedEvent");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenKeyedEvent.push_back(on_ntopenkeyedevent);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenKeyedEvent()
 {
-    LOG(INFO, "Break on NtOpenKeyedEvent");
+    //LOG(INFO, "Break on NtOpenKeyedEvent");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4507,14 +5387,19 @@ void monitor::GenericMonitor::on_NtOpenKeyedEvent()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenKeyEx(const on_NtOpenKeyEx_fn& on_ntopenkeyex)
+bool monitor::GenericMonitor::register_NtOpenKeyEx(proc_t proc, const on_NtOpenKeyEx_fn& on_ntopenkeyex)
 {
+    const auto ok = setup_func(proc, "NtOpenKeyEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenKeyEx.push_back(on_ntopenkeyex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenKeyEx()
 {
-    LOG(INFO, "Break on NtOpenKeyEx");
+    //LOG(INFO, "Break on NtOpenKeyEx");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -4532,14 +5417,19 @@ void monitor::GenericMonitor::on_NtOpenKeyEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenKey(const on_NtOpenKey_fn& on_ntopenkey)
+bool monitor::GenericMonitor::register_NtOpenKey(proc_t proc, const on_NtOpenKey_fn& on_ntopenkey)
 {
+    const auto ok = setup_func(proc, "NtOpenKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenKey.push_back(on_ntopenkey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenKey()
 {
-    LOG(INFO, "Break on NtOpenKey");
+    //LOG(INFO, "Break on NtOpenKey");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4556,14 +5446,19 @@ void monitor::GenericMonitor::on_NtOpenKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenKeyTransactedEx(const on_NtOpenKeyTransactedEx_fn& on_ntopenkeytransactedex)
+bool monitor::GenericMonitor::register_NtOpenKeyTransactedEx(proc_t proc, const on_NtOpenKeyTransactedEx_fn& on_ntopenkeytransactedex)
 {
+    const auto ok = setup_func(proc, "NtOpenKeyTransactedEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenKeyTransactedEx.push_back(on_ntopenkeytransactedex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenKeyTransactedEx()
 {
-    LOG(INFO, "Break on NtOpenKeyTransactedEx");
+    //LOG(INFO, "Break on NtOpenKeyTransactedEx");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -4582,14 +5477,19 @@ void monitor::GenericMonitor::on_NtOpenKeyTransactedEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenKeyTransacted(const on_NtOpenKeyTransacted_fn& on_ntopenkeytransacted)
+bool monitor::GenericMonitor::register_NtOpenKeyTransacted(proc_t proc, const on_NtOpenKeyTransacted_fn& on_ntopenkeytransacted)
 {
+    const auto ok = setup_func(proc, "NtOpenKeyTransacted");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenKeyTransacted.push_back(on_ntopenkeytransacted);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenKeyTransacted()
 {
-    LOG(INFO, "Break on NtOpenKeyTransacted");
+    //LOG(INFO, "Break on NtOpenKeyTransacted");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -4607,14 +5507,19 @@ void monitor::GenericMonitor::on_NtOpenKeyTransacted()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenMutant(const on_NtOpenMutant_fn& on_ntopenmutant)
+bool monitor::GenericMonitor::register_NtOpenMutant(proc_t proc, const on_NtOpenMutant_fn& on_ntopenmutant)
 {
+    const auto ok = setup_func(proc, "NtOpenMutant");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenMutant.push_back(on_ntopenmutant);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenMutant()
 {
-    LOG(INFO, "Break on NtOpenMutant");
+    //LOG(INFO, "Break on NtOpenMutant");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4631,14 +5536,19 @@ void monitor::GenericMonitor::on_NtOpenMutant()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenObjectAuditAlarm(const on_NtOpenObjectAuditAlarm_fn& on_ntopenobjectauditalarm)
+bool monitor::GenericMonitor::register_NtOpenObjectAuditAlarm(proc_t proc, const on_NtOpenObjectAuditAlarm_fn& on_ntopenobjectauditalarm)
 {
+    const auto ok = setup_func(proc, "NtOpenObjectAuditAlarm");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenObjectAuditAlarm.push_back(on_ntopenobjectauditalarm);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenObjectAuditAlarm()
 {
-    LOG(INFO, "Break on NtOpenObjectAuditAlarm");
+    //LOG(INFO, "Break on NtOpenObjectAuditAlarm");
     const auto nargs = 12;
 
     std::vector<arg_t> args;
@@ -4664,14 +5574,19 @@ void monitor::GenericMonitor::on_NtOpenObjectAuditAlarm()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenPrivateNamespace(const on_NtOpenPrivateNamespace_fn& on_ntopenprivatenamespace)
+bool monitor::GenericMonitor::register_NtOpenPrivateNamespace(proc_t proc, const on_NtOpenPrivateNamespace_fn& on_ntopenprivatenamespace)
 {
+    const auto ok = setup_func(proc, "NtOpenPrivateNamespace");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenPrivateNamespace.push_back(on_ntopenprivatenamespace);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenPrivateNamespace()
 {
-    LOG(INFO, "Break on NtOpenPrivateNamespace");
+    //LOG(INFO, "Break on NtOpenPrivateNamespace");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -4689,14 +5604,19 @@ void monitor::GenericMonitor::on_NtOpenPrivateNamespace()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenProcess(const on_NtOpenProcess_fn& on_ntopenprocess)
+bool monitor::GenericMonitor::register_NtOpenProcess(proc_t proc, const on_NtOpenProcess_fn& on_ntopenprocess)
 {
+    const auto ok = setup_func(proc, "NtOpenProcess");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenProcess.push_back(on_ntopenprocess);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenProcess()
 {
-    LOG(INFO, "Break on NtOpenProcess");
+    //LOG(INFO, "Break on NtOpenProcess");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -4714,14 +5634,19 @@ void monitor::GenericMonitor::on_NtOpenProcess()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenProcessTokenEx(const on_NtOpenProcessTokenEx_fn& on_ntopenprocesstokenex)
+bool monitor::GenericMonitor::register_NtOpenProcessTokenEx(proc_t proc, const on_NtOpenProcessTokenEx_fn& on_ntopenprocesstokenex)
 {
+    const auto ok = setup_func(proc, "NtOpenProcessTokenEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenProcessTokenEx.push_back(on_ntopenprocesstokenex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenProcessTokenEx()
 {
-    LOG(INFO, "Break on NtOpenProcessTokenEx");
+    //LOG(INFO, "Break on NtOpenProcessTokenEx");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -4739,14 +5664,19 @@ void monitor::GenericMonitor::on_NtOpenProcessTokenEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenProcessToken(const on_NtOpenProcessToken_fn& on_ntopenprocesstoken)
+bool monitor::GenericMonitor::register_NtOpenProcessToken(proc_t proc, const on_NtOpenProcessToken_fn& on_ntopenprocesstoken)
 {
+    const auto ok = setup_func(proc, "NtOpenProcessToken");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenProcessToken.push_back(on_ntopenprocesstoken);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenProcessToken()
 {
-    LOG(INFO, "Break on NtOpenProcessToken");
+    //LOG(INFO, "Break on NtOpenProcessToken");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4763,14 +5693,19 @@ void monitor::GenericMonitor::on_NtOpenProcessToken()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenResourceManager(const on_NtOpenResourceManager_fn& on_ntopenresourcemanager)
+bool monitor::GenericMonitor::register_NtOpenResourceManager(proc_t proc, const on_NtOpenResourceManager_fn& on_ntopenresourcemanager)
 {
+    const auto ok = setup_func(proc, "NtOpenResourceManager");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenResourceManager.push_back(on_ntopenresourcemanager);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenResourceManager()
 {
-    LOG(INFO, "Break on NtOpenResourceManager");
+    //LOG(INFO, "Break on NtOpenResourceManager");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -4789,14 +5724,19 @@ void monitor::GenericMonitor::on_NtOpenResourceManager()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenSection(const on_NtOpenSection_fn& on_ntopensection)
+bool monitor::GenericMonitor::register_NtOpenSection(proc_t proc, const on_NtOpenSection_fn& on_ntopensection)
 {
+    const auto ok = setup_func(proc, "NtOpenSection");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenSection.push_back(on_ntopensection);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenSection()
 {
-    LOG(INFO, "Break on NtOpenSection");
+    //LOG(INFO, "Break on NtOpenSection");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4813,14 +5753,19 @@ void monitor::GenericMonitor::on_NtOpenSection()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenSemaphore(const on_NtOpenSemaphore_fn& on_ntopensemaphore)
+bool monitor::GenericMonitor::register_NtOpenSemaphore(proc_t proc, const on_NtOpenSemaphore_fn& on_ntopensemaphore)
 {
+    const auto ok = setup_func(proc, "NtOpenSemaphore");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenSemaphore.push_back(on_ntopensemaphore);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenSemaphore()
 {
-    LOG(INFO, "Break on NtOpenSemaphore");
+    //LOG(INFO, "Break on NtOpenSemaphore");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4837,14 +5782,19 @@ void monitor::GenericMonitor::on_NtOpenSemaphore()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenSession(const on_NtOpenSession_fn& on_ntopensession)
+bool monitor::GenericMonitor::register_NtOpenSession(proc_t proc, const on_NtOpenSession_fn& on_ntopensession)
 {
+    const auto ok = setup_func(proc, "NtOpenSession");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenSession.push_back(on_ntopensession);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenSession()
 {
-    LOG(INFO, "Break on NtOpenSession");
+    //LOG(INFO, "Break on NtOpenSession");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4861,14 +5811,19 @@ void monitor::GenericMonitor::on_NtOpenSession()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenSymbolicLinkObject(const on_NtOpenSymbolicLinkObject_fn& on_ntopensymboliclinkobject)
+bool monitor::GenericMonitor::register_NtOpenSymbolicLinkObject(proc_t proc, const on_NtOpenSymbolicLinkObject_fn& on_ntopensymboliclinkobject)
 {
+    const auto ok = setup_func(proc, "NtOpenSymbolicLinkObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenSymbolicLinkObject.push_back(on_ntopensymboliclinkobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenSymbolicLinkObject()
 {
-    LOG(INFO, "Break on NtOpenSymbolicLinkObject");
+    //LOG(INFO, "Break on NtOpenSymbolicLinkObject");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4885,14 +5840,19 @@ void monitor::GenericMonitor::on_NtOpenSymbolicLinkObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenThread(const on_NtOpenThread_fn& on_ntopenthread)
+bool monitor::GenericMonitor::register_NtOpenThread(proc_t proc, const on_NtOpenThread_fn& on_ntopenthread)
 {
+    const auto ok = setup_func(proc, "NtOpenThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenThread.push_back(on_ntopenthread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenThread()
 {
-    LOG(INFO, "Break on NtOpenThread");
+    //LOG(INFO, "Break on NtOpenThread");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -4910,14 +5870,19 @@ void monitor::GenericMonitor::on_NtOpenThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenThreadTokenEx(const on_NtOpenThreadTokenEx_fn& on_ntopenthreadtokenex)
+bool monitor::GenericMonitor::register_NtOpenThreadTokenEx(proc_t proc, const on_NtOpenThreadTokenEx_fn& on_ntopenthreadtokenex)
 {
+    const auto ok = setup_func(proc, "NtOpenThreadTokenEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenThreadTokenEx.push_back(on_ntopenthreadtokenex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenThreadTokenEx()
 {
-    LOG(INFO, "Break on NtOpenThreadTokenEx");
+    //LOG(INFO, "Break on NtOpenThreadTokenEx");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -4936,14 +5901,19 @@ void monitor::GenericMonitor::on_NtOpenThreadTokenEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenThreadToken(const on_NtOpenThreadToken_fn& on_ntopenthreadtoken)
+bool monitor::GenericMonitor::register_NtOpenThreadToken(proc_t proc, const on_NtOpenThreadToken_fn& on_ntopenthreadtoken)
 {
+    const auto ok = setup_func(proc, "NtOpenThreadToken");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenThreadToken.push_back(on_ntopenthreadtoken);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenThreadToken()
 {
-    LOG(INFO, "Break on NtOpenThreadToken");
+    //LOG(INFO, "Break on NtOpenThreadToken");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -4961,14 +5931,19 @@ void monitor::GenericMonitor::on_NtOpenThreadToken()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenTimer(const on_NtOpenTimer_fn& on_ntopentimer)
+bool monitor::GenericMonitor::register_NtOpenTimer(proc_t proc, const on_NtOpenTimer_fn& on_ntopentimer)
 {
+    const auto ok = setup_func(proc, "NtOpenTimer");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenTimer.push_back(on_ntopentimer);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenTimer()
 {
-    LOG(INFO, "Break on NtOpenTimer");
+    //LOG(INFO, "Break on NtOpenTimer");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -4985,14 +5960,19 @@ void monitor::GenericMonitor::on_NtOpenTimer()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenTransactionManager(const on_NtOpenTransactionManager_fn& on_ntopentransactionmanager)
+bool monitor::GenericMonitor::register_NtOpenTransactionManager(proc_t proc, const on_NtOpenTransactionManager_fn& on_ntopentransactionmanager)
 {
+    const auto ok = setup_func(proc, "NtOpenTransactionManager");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenTransactionManager.push_back(on_ntopentransactionmanager);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenTransactionManager()
 {
-    LOG(INFO, "Break on NtOpenTransactionManager");
+    //LOG(INFO, "Break on NtOpenTransactionManager");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -5012,14 +5992,19 @@ void monitor::GenericMonitor::on_NtOpenTransactionManager()
     }
 }
 
-void monitor::GenericMonitor::register_NtOpenTransaction(const on_NtOpenTransaction_fn& on_ntopentransaction)
+bool monitor::GenericMonitor::register_NtOpenTransaction(proc_t proc, const on_NtOpenTransaction_fn& on_ntopentransaction)
 {
+    const auto ok = setup_func(proc, "NtOpenTransaction");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtOpenTransaction.push_back(on_ntopentransaction);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtOpenTransaction()
 {
-    LOG(INFO, "Break on NtOpenTransaction");
+    //LOG(INFO, "Break on NtOpenTransaction");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5038,14 +6023,19 @@ void monitor::GenericMonitor::on_NtOpenTransaction()
     }
 }
 
-void monitor::GenericMonitor::register_NtPlugPlayControl(const on_NtPlugPlayControl_fn& on_ntplugplaycontrol)
+bool monitor::GenericMonitor::register_NtPlugPlayControl(proc_t proc, const on_NtPlugPlayControl_fn& on_ntplugplaycontrol)
 {
+    const auto ok = setup_func(proc, "NtPlugPlayControl");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtPlugPlayControl.push_back(on_ntplugplaycontrol);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtPlugPlayControl()
 {
-    LOG(INFO, "Break on NtPlugPlayControl");
+    //LOG(INFO, "Break on NtPlugPlayControl");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -5062,14 +6052,19 @@ void monitor::GenericMonitor::on_NtPlugPlayControl()
     }
 }
 
-void monitor::GenericMonitor::register_NtPowerInformation(const on_NtPowerInformation_fn& on_ntpowerinformation)
+bool monitor::GenericMonitor::register_NtPowerInformation(proc_t proc, const on_NtPowerInformation_fn& on_ntpowerinformation)
 {
+    const auto ok = setup_func(proc, "NtPowerInformation");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtPowerInformation.push_back(on_ntpowerinformation);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtPowerInformation()
 {
-    LOG(INFO, "Break on NtPowerInformation");
+    //LOG(INFO, "Break on NtPowerInformation");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5088,14 +6083,19 @@ void monitor::GenericMonitor::on_NtPowerInformation()
     }
 }
 
-void monitor::GenericMonitor::register_NtPrepareComplete(const on_NtPrepareComplete_fn& on_ntpreparecomplete)
+bool monitor::GenericMonitor::register_NtPrepareComplete(proc_t proc, const on_NtPrepareComplete_fn& on_ntpreparecomplete)
 {
+    const auto ok = setup_func(proc, "NtPrepareComplete");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtPrepareComplete.push_back(on_ntpreparecomplete);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtPrepareComplete()
 {
-    LOG(INFO, "Break on NtPrepareComplete");
+    //LOG(INFO, "Break on NtPrepareComplete");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -5111,14 +6111,19 @@ void monitor::GenericMonitor::on_NtPrepareComplete()
     }
 }
 
-void monitor::GenericMonitor::register_NtPrepareEnlistment(const on_NtPrepareEnlistment_fn& on_ntprepareenlistment)
+bool monitor::GenericMonitor::register_NtPrepareEnlistment(proc_t proc, const on_NtPrepareEnlistment_fn& on_ntprepareenlistment)
 {
+    const auto ok = setup_func(proc, "NtPrepareEnlistment");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtPrepareEnlistment.push_back(on_ntprepareenlistment);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtPrepareEnlistment()
 {
-    LOG(INFO, "Break on NtPrepareEnlistment");
+    //LOG(INFO, "Break on NtPrepareEnlistment");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -5134,14 +6139,19 @@ void monitor::GenericMonitor::on_NtPrepareEnlistment()
     }
 }
 
-void monitor::GenericMonitor::register_NtPrePrepareComplete(const on_NtPrePrepareComplete_fn& on_ntprepreparecomplete)
+bool monitor::GenericMonitor::register_NtPrePrepareComplete(proc_t proc, const on_NtPrePrepareComplete_fn& on_ntprepreparecomplete)
 {
+    const auto ok = setup_func(proc, "NtPrePrepareComplete");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtPrePrepareComplete.push_back(on_ntprepreparecomplete);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtPrePrepareComplete()
 {
-    LOG(INFO, "Break on NtPrePrepareComplete");
+    //LOG(INFO, "Break on NtPrePrepareComplete");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -5157,14 +6167,19 @@ void monitor::GenericMonitor::on_NtPrePrepareComplete()
     }
 }
 
-void monitor::GenericMonitor::register_NtPrePrepareEnlistment(const on_NtPrePrepareEnlistment_fn& on_ntpreprepareenlistment)
+bool monitor::GenericMonitor::register_NtPrePrepareEnlistment(proc_t proc, const on_NtPrePrepareEnlistment_fn& on_ntpreprepareenlistment)
 {
+    const auto ok = setup_func(proc, "NtPrePrepareEnlistment");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtPrePrepareEnlistment.push_back(on_ntpreprepareenlistment);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtPrePrepareEnlistment()
 {
-    LOG(INFO, "Break on NtPrePrepareEnlistment");
+    //LOG(INFO, "Break on NtPrePrepareEnlistment");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -5180,14 +6195,19 @@ void monitor::GenericMonitor::on_NtPrePrepareEnlistment()
     }
 }
 
-void monitor::GenericMonitor::register_NtPrivilegeCheck(const on_NtPrivilegeCheck_fn& on_ntprivilegecheck)
+bool monitor::GenericMonitor::register_NtPrivilegeCheck(proc_t proc, const on_NtPrivilegeCheck_fn& on_ntprivilegecheck)
 {
+    const auto ok = setup_func(proc, "NtPrivilegeCheck");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtPrivilegeCheck.push_back(on_ntprivilegecheck);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtPrivilegeCheck()
 {
-    LOG(INFO, "Break on NtPrivilegeCheck");
+    //LOG(INFO, "Break on NtPrivilegeCheck");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -5204,14 +6224,19 @@ void monitor::GenericMonitor::on_NtPrivilegeCheck()
     }
 }
 
-void monitor::GenericMonitor::register_NtPrivilegedServiceAuditAlarm(const on_NtPrivilegedServiceAuditAlarm_fn& on_ntprivilegedserviceauditalarm)
+bool monitor::GenericMonitor::register_NtPrivilegedServiceAuditAlarm(proc_t proc, const on_NtPrivilegedServiceAuditAlarm_fn& on_ntprivilegedserviceauditalarm)
 {
+    const auto ok = setup_func(proc, "NtPrivilegedServiceAuditAlarm");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtPrivilegedServiceAuditAlarm.push_back(on_ntprivilegedserviceauditalarm);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtPrivilegedServiceAuditAlarm()
 {
-    LOG(INFO, "Break on NtPrivilegedServiceAuditAlarm");
+    //LOG(INFO, "Break on NtPrivilegedServiceAuditAlarm");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5230,14 +6255,19 @@ void monitor::GenericMonitor::on_NtPrivilegedServiceAuditAlarm()
     }
 }
 
-void monitor::GenericMonitor::register_NtPrivilegeObjectAuditAlarm(const on_NtPrivilegeObjectAuditAlarm_fn& on_ntprivilegeobjectauditalarm)
+bool monitor::GenericMonitor::register_NtPrivilegeObjectAuditAlarm(proc_t proc, const on_NtPrivilegeObjectAuditAlarm_fn& on_ntprivilegeobjectauditalarm)
 {
+    const auto ok = setup_func(proc, "NtPrivilegeObjectAuditAlarm");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtPrivilegeObjectAuditAlarm.push_back(on_ntprivilegeobjectauditalarm);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtPrivilegeObjectAuditAlarm()
 {
-    LOG(INFO, "Break on NtPrivilegeObjectAuditAlarm");
+    //LOG(INFO, "Break on NtPrivilegeObjectAuditAlarm");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -5257,14 +6287,19 @@ void monitor::GenericMonitor::on_NtPrivilegeObjectAuditAlarm()
     }
 }
 
-void monitor::GenericMonitor::register_NtPropagationComplete(const on_NtPropagationComplete_fn& on_ntpropagationcomplete)
+bool monitor::GenericMonitor::register_NtPropagationComplete(proc_t proc, const on_NtPropagationComplete_fn& on_ntpropagationcomplete)
 {
+    const auto ok = setup_func(proc, "NtPropagationComplete");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtPropagationComplete.push_back(on_ntpropagationcomplete);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtPropagationComplete()
 {
-    LOG(INFO, "Break on NtPropagationComplete");
+    //LOG(INFO, "Break on NtPropagationComplete");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -5282,14 +6317,19 @@ void monitor::GenericMonitor::on_NtPropagationComplete()
     }
 }
 
-void monitor::GenericMonitor::register_NtPropagationFailed(const on_NtPropagationFailed_fn& on_ntpropagationfailed)
+bool monitor::GenericMonitor::register_NtPropagationFailed(proc_t proc, const on_NtPropagationFailed_fn& on_ntpropagationfailed)
 {
+    const auto ok = setup_func(proc, "NtPropagationFailed");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtPropagationFailed.push_back(on_ntpropagationfailed);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtPropagationFailed()
 {
-    LOG(INFO, "Break on NtPropagationFailed");
+    //LOG(INFO, "Break on NtPropagationFailed");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -5306,14 +6346,19 @@ void monitor::GenericMonitor::on_NtPropagationFailed()
     }
 }
 
-void monitor::GenericMonitor::register_NtProtectVirtualMemory(const on_NtProtectVirtualMemory_fn& on_ntprotectvirtualmemory)
+bool monitor::GenericMonitor::register_NtProtectVirtualMemory(proc_t proc, const on_NtProtectVirtualMemory_fn& on_ntprotectvirtualmemory)
 {
+    const auto ok = setup_func(proc, "NtProtectVirtualMemory");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtProtectVirtualMemory.push_back(on_ntprotectvirtualmemory);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtProtectVirtualMemory()
 {
-    LOG(INFO, "Break on NtProtectVirtualMemory");
+    //LOG(INFO, "Break on NtProtectVirtualMemory");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5332,14 +6377,19 @@ void monitor::GenericMonitor::on_NtProtectVirtualMemory()
     }
 }
 
-void monitor::GenericMonitor::register_NtPulseEvent(const on_NtPulseEvent_fn& on_ntpulseevent)
+bool monitor::GenericMonitor::register_NtPulseEvent(proc_t proc, const on_NtPulseEvent_fn& on_ntpulseevent)
 {
+    const auto ok = setup_func(proc, "NtPulseEvent");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtPulseEvent.push_back(on_ntpulseevent);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtPulseEvent()
 {
-    LOG(INFO, "Break on NtPulseEvent");
+    //LOG(INFO, "Break on NtPulseEvent");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -5355,14 +6405,19 @@ void monitor::GenericMonitor::on_NtPulseEvent()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryAttributesFile(const on_NtQueryAttributesFile_fn& on_ntqueryattributesfile)
+bool monitor::GenericMonitor::register_NtQueryAttributesFile(proc_t proc, const on_NtQueryAttributesFile_fn& on_ntqueryattributesfile)
 {
+    const auto ok = setup_func(proc, "NtQueryAttributesFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryAttributesFile.push_back(on_ntqueryattributesfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryAttributesFile()
 {
-    LOG(INFO, "Break on NtQueryAttributesFile");
+    //LOG(INFO, "Break on NtQueryAttributesFile");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -5378,14 +6433,19 @@ void monitor::GenericMonitor::on_NtQueryAttributesFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryBootEntryOrder(const on_NtQueryBootEntryOrder_fn& on_ntquerybootentryorder)
+bool monitor::GenericMonitor::register_NtQueryBootEntryOrder(proc_t proc, const on_NtQueryBootEntryOrder_fn& on_ntquerybootentryorder)
 {
+    const auto ok = setup_func(proc, "NtQueryBootEntryOrder");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryBootEntryOrder.push_back(on_ntquerybootentryorder);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryBootEntryOrder()
 {
-    LOG(INFO, "Break on NtQueryBootEntryOrder");
+    //LOG(INFO, "Break on NtQueryBootEntryOrder");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -5401,14 +6461,19 @@ void monitor::GenericMonitor::on_NtQueryBootEntryOrder()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryBootOptions(const on_NtQueryBootOptions_fn& on_ntquerybootoptions)
+bool monitor::GenericMonitor::register_NtQueryBootOptions(proc_t proc, const on_NtQueryBootOptions_fn& on_ntquerybootoptions)
 {
+    const auto ok = setup_func(proc, "NtQueryBootOptions");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryBootOptions.push_back(on_ntquerybootoptions);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryBootOptions()
 {
-    LOG(INFO, "Break on NtQueryBootOptions");
+    //LOG(INFO, "Break on NtQueryBootOptions");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -5424,14 +6489,19 @@ void monitor::GenericMonitor::on_NtQueryBootOptions()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryDebugFilterState(const on_NtQueryDebugFilterState_fn& on_ntquerydebugfilterstate)
+bool monitor::GenericMonitor::register_NtQueryDebugFilterState(proc_t proc, const on_NtQueryDebugFilterState_fn& on_ntquerydebugfilterstate)
 {
+    const auto ok = setup_func(proc, "NtQueryDebugFilterState");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryDebugFilterState.push_back(on_ntquerydebugfilterstate);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryDebugFilterState()
 {
-    LOG(INFO, "Break on NtQueryDebugFilterState");
+    //LOG(INFO, "Break on NtQueryDebugFilterState");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -5447,14 +6517,19 @@ void monitor::GenericMonitor::on_NtQueryDebugFilterState()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryDefaultLocale(const on_NtQueryDefaultLocale_fn& on_ntquerydefaultlocale)
+bool monitor::GenericMonitor::register_NtQueryDefaultLocale(proc_t proc, const on_NtQueryDefaultLocale_fn& on_ntquerydefaultlocale)
 {
+    const auto ok = setup_func(proc, "NtQueryDefaultLocale");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryDefaultLocale.push_back(on_ntquerydefaultlocale);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryDefaultLocale()
 {
-    LOG(INFO, "Break on NtQueryDefaultLocale");
+    //LOG(INFO, "Break on NtQueryDefaultLocale");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -5470,14 +6545,19 @@ void monitor::GenericMonitor::on_NtQueryDefaultLocale()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryDefaultUILanguage(const on_NtQueryDefaultUILanguage_fn& on_ntquerydefaultuilanguage)
+bool monitor::GenericMonitor::register_NtQueryDefaultUILanguage(proc_t proc, const on_NtQueryDefaultUILanguage_fn& on_ntquerydefaultuilanguage)
 {
+    const auto ok = setup_func(proc, "NtQueryDefaultUILanguage");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryDefaultUILanguage.push_back(on_ntquerydefaultuilanguage);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryDefaultUILanguage()
 {
-    LOG(INFO, "Break on NtQueryDefaultUILanguage");
+    //LOG(INFO, "Break on NtQueryDefaultUILanguage");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -5492,14 +6572,19 @@ void monitor::GenericMonitor::on_NtQueryDefaultUILanguage()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryDirectoryFile(const on_NtQueryDirectoryFile_fn& on_ntquerydirectoryfile)
+bool monitor::GenericMonitor::register_NtQueryDirectoryFile(proc_t proc, const on_NtQueryDirectoryFile_fn& on_ntquerydirectoryfile)
 {
+    const auto ok = setup_func(proc, "NtQueryDirectoryFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryDirectoryFile.push_back(on_ntquerydirectoryfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryDirectoryFile()
 {
-    LOG(INFO, "Break on NtQueryDirectoryFile");
+    //LOG(INFO, "Break on NtQueryDirectoryFile");
     const auto nargs = 11;
 
     std::vector<arg_t> args;
@@ -5524,14 +6609,19 @@ void monitor::GenericMonitor::on_NtQueryDirectoryFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryDirectoryObject(const on_NtQueryDirectoryObject_fn& on_ntquerydirectoryobject)
+bool monitor::GenericMonitor::register_NtQueryDirectoryObject(proc_t proc, const on_NtQueryDirectoryObject_fn& on_ntquerydirectoryobject)
 {
+    const auto ok = setup_func(proc, "NtQueryDirectoryObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryDirectoryObject.push_back(on_ntquerydirectoryobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryDirectoryObject()
 {
-    LOG(INFO, "Break on NtQueryDirectoryObject");
+    //LOG(INFO, "Break on NtQueryDirectoryObject");
     const auto nargs = 7;
 
     std::vector<arg_t> args;
@@ -5552,14 +6642,19 @@ void monitor::GenericMonitor::on_NtQueryDirectoryObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryDriverEntryOrder(const on_NtQueryDriverEntryOrder_fn& on_ntquerydriverentryorder)
+bool monitor::GenericMonitor::register_NtQueryDriverEntryOrder(proc_t proc, const on_NtQueryDriverEntryOrder_fn& on_ntquerydriverentryorder)
 {
+    const auto ok = setup_func(proc, "NtQueryDriverEntryOrder");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryDriverEntryOrder.push_back(on_ntquerydriverentryorder);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryDriverEntryOrder()
 {
-    LOG(INFO, "Break on NtQueryDriverEntryOrder");
+    //LOG(INFO, "Break on NtQueryDriverEntryOrder");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -5575,14 +6670,19 @@ void monitor::GenericMonitor::on_NtQueryDriverEntryOrder()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryEaFile(const on_NtQueryEaFile_fn& on_ntqueryeafile)
+bool monitor::GenericMonitor::register_NtQueryEaFile(proc_t proc, const on_NtQueryEaFile_fn& on_ntqueryeafile)
 {
+    const auto ok = setup_func(proc, "NtQueryEaFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryEaFile.push_back(on_ntqueryeafile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryEaFile()
 {
-    LOG(INFO, "Break on NtQueryEaFile");
+    //LOG(INFO, "Break on NtQueryEaFile");
     const auto nargs = 9;
 
     std::vector<arg_t> args;
@@ -5605,14 +6705,19 @@ void monitor::GenericMonitor::on_NtQueryEaFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryEvent(const on_NtQueryEvent_fn& on_ntqueryevent)
+bool monitor::GenericMonitor::register_NtQueryEvent(proc_t proc, const on_NtQueryEvent_fn& on_ntqueryevent)
 {
+    const auto ok = setup_func(proc, "NtQueryEvent");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryEvent.push_back(on_ntqueryevent);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryEvent()
 {
-    LOG(INFO, "Break on NtQueryEvent");
+    //LOG(INFO, "Break on NtQueryEvent");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5631,14 +6736,19 @@ void monitor::GenericMonitor::on_NtQueryEvent()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryFullAttributesFile(const on_NtQueryFullAttributesFile_fn& on_ntqueryfullattributesfile)
+bool monitor::GenericMonitor::register_NtQueryFullAttributesFile(proc_t proc, const on_NtQueryFullAttributesFile_fn& on_ntqueryfullattributesfile)
 {
+    const auto ok = setup_func(proc, "NtQueryFullAttributesFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryFullAttributesFile.push_back(on_ntqueryfullattributesfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryFullAttributesFile()
 {
-    LOG(INFO, "Break on NtQueryFullAttributesFile");
+    //LOG(INFO, "Break on NtQueryFullAttributesFile");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -5654,14 +6764,19 @@ void monitor::GenericMonitor::on_NtQueryFullAttributesFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryInformationAtom(const on_NtQueryInformationAtom_fn& on_ntqueryinformationatom)
+bool monitor::GenericMonitor::register_NtQueryInformationAtom(proc_t proc, const on_NtQueryInformationAtom_fn& on_ntqueryinformationatom)
 {
+    const auto ok = setup_func(proc, "NtQueryInformationAtom");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryInformationAtom.push_back(on_ntqueryinformationatom);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryInformationAtom()
 {
-    LOG(INFO, "Break on NtQueryInformationAtom");
+    //LOG(INFO, "Break on NtQueryInformationAtom");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5680,14 +6795,19 @@ void monitor::GenericMonitor::on_NtQueryInformationAtom()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryInformationEnlistment(const on_NtQueryInformationEnlistment_fn& on_ntqueryinformationenlistment)
+bool monitor::GenericMonitor::register_NtQueryInformationEnlistment(proc_t proc, const on_NtQueryInformationEnlistment_fn& on_ntqueryinformationenlistment)
 {
+    const auto ok = setup_func(proc, "NtQueryInformationEnlistment");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryInformationEnlistment.push_back(on_ntqueryinformationenlistment);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryInformationEnlistment()
 {
-    LOG(INFO, "Break on NtQueryInformationEnlistment");
+    //LOG(INFO, "Break on NtQueryInformationEnlistment");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5706,14 +6826,19 @@ void monitor::GenericMonitor::on_NtQueryInformationEnlistment()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryInformationFile(const on_NtQueryInformationFile_fn& on_ntqueryinformationfile)
+bool monitor::GenericMonitor::register_NtQueryInformationFile(proc_t proc, const on_NtQueryInformationFile_fn& on_ntqueryinformationfile)
 {
+    const auto ok = setup_func(proc, "NtQueryInformationFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryInformationFile.push_back(on_ntqueryinformationfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryInformationFile()
 {
-    LOG(INFO, "Break on NtQueryInformationFile");
+    //LOG(INFO, "Break on NtQueryInformationFile");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5732,14 +6857,19 @@ void monitor::GenericMonitor::on_NtQueryInformationFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryInformationJobObject(const on_NtQueryInformationJobObject_fn& on_ntqueryinformationjobobject)
+bool monitor::GenericMonitor::register_NtQueryInformationJobObject(proc_t proc, const on_NtQueryInformationJobObject_fn& on_ntqueryinformationjobobject)
 {
+    const auto ok = setup_func(proc, "NtQueryInformationJobObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryInformationJobObject.push_back(on_ntqueryinformationjobobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryInformationJobObject()
 {
-    LOG(INFO, "Break on NtQueryInformationJobObject");
+    //LOG(INFO, "Break on NtQueryInformationJobObject");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5758,14 +6888,19 @@ void monitor::GenericMonitor::on_NtQueryInformationJobObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryInformationPort(const on_NtQueryInformationPort_fn& on_ntqueryinformationport)
+bool monitor::GenericMonitor::register_NtQueryInformationPort(proc_t proc, const on_NtQueryInformationPort_fn& on_ntqueryinformationport)
 {
+    const auto ok = setup_func(proc, "NtQueryInformationPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryInformationPort.push_back(on_ntqueryinformationport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryInformationPort()
 {
-    LOG(INFO, "Break on NtQueryInformationPort");
+    //LOG(INFO, "Break on NtQueryInformationPort");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5784,14 +6919,19 @@ void monitor::GenericMonitor::on_NtQueryInformationPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryInformationProcess(const on_NtQueryInformationProcess_fn& on_ntqueryinformationprocess)
+bool monitor::GenericMonitor::register_NtQueryInformationProcess(proc_t proc, const on_NtQueryInformationProcess_fn& on_ntqueryinformationprocess)
 {
+    const auto ok = setup_func(proc, "NtQueryInformationProcess");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryInformationProcess.push_back(on_ntqueryinformationprocess);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryInformationProcess()
 {
-    LOG(INFO, "Break on NtQueryInformationProcess");
+    //LOG(INFO, "Break on NtQueryInformationProcess");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5810,14 +6950,19 @@ void monitor::GenericMonitor::on_NtQueryInformationProcess()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryInformationResourceManager(const on_NtQueryInformationResourceManager_fn& on_ntqueryinformationresourcemanager)
+bool monitor::GenericMonitor::register_NtQueryInformationResourceManager(proc_t proc, const on_NtQueryInformationResourceManager_fn& on_ntqueryinformationresourcemanager)
 {
+    const auto ok = setup_func(proc, "NtQueryInformationResourceManager");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryInformationResourceManager.push_back(on_ntqueryinformationresourcemanager);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryInformationResourceManager()
 {
-    LOG(INFO, "Break on NtQueryInformationResourceManager");
+    //LOG(INFO, "Break on NtQueryInformationResourceManager");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5836,14 +6981,19 @@ void monitor::GenericMonitor::on_NtQueryInformationResourceManager()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryInformationThread(const on_NtQueryInformationThread_fn& on_ntqueryinformationthread)
+bool monitor::GenericMonitor::register_NtQueryInformationThread(proc_t proc, const on_NtQueryInformationThread_fn& on_ntqueryinformationthread)
 {
+    const auto ok = setup_func(proc, "NtQueryInformationThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryInformationThread.push_back(on_ntqueryinformationthread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryInformationThread()
 {
-    LOG(INFO, "Break on NtQueryInformationThread");
+    //LOG(INFO, "Break on NtQueryInformationThread");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5862,14 +7012,19 @@ void monitor::GenericMonitor::on_NtQueryInformationThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryInformationToken(const on_NtQueryInformationToken_fn& on_ntqueryinformationtoken)
+bool monitor::GenericMonitor::register_NtQueryInformationToken(proc_t proc, const on_NtQueryInformationToken_fn& on_ntqueryinformationtoken)
 {
+    const auto ok = setup_func(proc, "NtQueryInformationToken");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryInformationToken.push_back(on_ntqueryinformationtoken);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryInformationToken()
 {
-    LOG(INFO, "Break on NtQueryInformationToken");
+    //LOG(INFO, "Break on NtQueryInformationToken");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5888,14 +7043,19 @@ void monitor::GenericMonitor::on_NtQueryInformationToken()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryInformationTransaction(const on_NtQueryInformationTransaction_fn& on_ntqueryinformationtransaction)
+bool monitor::GenericMonitor::register_NtQueryInformationTransaction(proc_t proc, const on_NtQueryInformationTransaction_fn& on_ntqueryinformationtransaction)
 {
+    const auto ok = setup_func(proc, "NtQueryInformationTransaction");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryInformationTransaction.push_back(on_ntqueryinformationtransaction);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryInformationTransaction()
 {
-    LOG(INFO, "Break on NtQueryInformationTransaction");
+    //LOG(INFO, "Break on NtQueryInformationTransaction");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5914,14 +7074,19 @@ void monitor::GenericMonitor::on_NtQueryInformationTransaction()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryInformationTransactionManager(const on_NtQueryInformationTransactionManager_fn& on_ntqueryinformationtransactionmanager)
+bool monitor::GenericMonitor::register_NtQueryInformationTransactionManager(proc_t proc, const on_NtQueryInformationTransactionManager_fn& on_ntqueryinformationtransactionmanager)
 {
+    const auto ok = setup_func(proc, "NtQueryInformationTransactionManager");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryInformationTransactionManager.push_back(on_ntqueryinformationtransactionmanager);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryInformationTransactionManager()
 {
-    LOG(INFO, "Break on NtQueryInformationTransactionManager");
+    //LOG(INFO, "Break on NtQueryInformationTransactionManager");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5940,14 +7105,19 @@ void monitor::GenericMonitor::on_NtQueryInformationTransactionManager()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryInformationWorkerFactory(const on_NtQueryInformationWorkerFactory_fn& on_ntqueryinformationworkerfactory)
+bool monitor::GenericMonitor::register_NtQueryInformationWorkerFactory(proc_t proc, const on_NtQueryInformationWorkerFactory_fn& on_ntqueryinformationworkerfactory)
 {
+    const auto ok = setup_func(proc, "NtQueryInformationWorkerFactory");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryInformationWorkerFactory.push_back(on_ntqueryinformationworkerfactory);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryInformationWorkerFactory()
 {
-    LOG(INFO, "Break on NtQueryInformationWorkerFactory");
+    //LOG(INFO, "Break on NtQueryInformationWorkerFactory");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -5966,14 +7136,19 @@ void monitor::GenericMonitor::on_NtQueryInformationWorkerFactory()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryInstallUILanguage(const on_NtQueryInstallUILanguage_fn& on_ntqueryinstalluilanguage)
+bool monitor::GenericMonitor::register_NtQueryInstallUILanguage(proc_t proc, const on_NtQueryInstallUILanguage_fn& on_ntqueryinstalluilanguage)
 {
+    const auto ok = setup_func(proc, "NtQueryInstallUILanguage");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryInstallUILanguage.push_back(on_ntqueryinstalluilanguage);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryInstallUILanguage()
 {
-    LOG(INFO, "Break on NtQueryInstallUILanguage");
+    //LOG(INFO, "Break on NtQueryInstallUILanguage");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -5988,14 +7163,19 @@ void monitor::GenericMonitor::on_NtQueryInstallUILanguage()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryIntervalProfile(const on_NtQueryIntervalProfile_fn& on_ntqueryintervalprofile)
+bool monitor::GenericMonitor::register_NtQueryIntervalProfile(proc_t proc, const on_NtQueryIntervalProfile_fn& on_ntqueryintervalprofile)
 {
+    const auto ok = setup_func(proc, "NtQueryIntervalProfile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryIntervalProfile.push_back(on_ntqueryintervalprofile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryIntervalProfile()
 {
-    LOG(INFO, "Break on NtQueryIntervalProfile");
+    //LOG(INFO, "Break on NtQueryIntervalProfile");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -6011,14 +7191,19 @@ void monitor::GenericMonitor::on_NtQueryIntervalProfile()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryIoCompletion(const on_NtQueryIoCompletion_fn& on_ntqueryiocompletion)
+bool monitor::GenericMonitor::register_NtQueryIoCompletion(proc_t proc, const on_NtQueryIoCompletion_fn& on_ntqueryiocompletion)
 {
+    const auto ok = setup_func(proc, "NtQueryIoCompletion");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryIoCompletion.push_back(on_ntqueryiocompletion);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryIoCompletion()
 {
-    LOG(INFO, "Break on NtQueryIoCompletion");
+    //LOG(INFO, "Break on NtQueryIoCompletion");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -6037,14 +7222,19 @@ void monitor::GenericMonitor::on_NtQueryIoCompletion()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryKey(const on_NtQueryKey_fn& on_ntquerykey)
+bool monitor::GenericMonitor::register_NtQueryKey(proc_t proc, const on_NtQueryKey_fn& on_ntquerykey)
 {
+    const auto ok = setup_func(proc, "NtQueryKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryKey.push_back(on_ntquerykey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryKey()
 {
-    LOG(INFO, "Break on NtQueryKey");
+    //LOG(INFO, "Break on NtQueryKey");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -6063,14 +7253,19 @@ void monitor::GenericMonitor::on_NtQueryKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryLicenseValue(const on_NtQueryLicenseValue_fn& on_ntquerylicensevalue)
+bool monitor::GenericMonitor::register_NtQueryLicenseValue(proc_t proc, const on_NtQueryLicenseValue_fn& on_ntquerylicensevalue)
 {
+    const auto ok = setup_func(proc, "NtQueryLicenseValue");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryLicenseValue.push_back(on_ntquerylicensevalue);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryLicenseValue()
 {
-    LOG(INFO, "Break on NtQueryLicenseValue");
+    //LOG(INFO, "Break on NtQueryLicenseValue");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -6089,14 +7284,19 @@ void monitor::GenericMonitor::on_NtQueryLicenseValue()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryMultipleValueKey(const on_NtQueryMultipleValueKey_fn& on_ntquerymultiplevaluekey)
+bool monitor::GenericMonitor::register_NtQueryMultipleValueKey(proc_t proc, const on_NtQueryMultipleValueKey_fn& on_ntquerymultiplevaluekey)
 {
+    const auto ok = setup_func(proc, "NtQueryMultipleValueKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryMultipleValueKey.push_back(on_ntquerymultiplevaluekey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryMultipleValueKey()
 {
-    LOG(INFO, "Break on NtQueryMultipleValueKey");
+    //LOG(INFO, "Break on NtQueryMultipleValueKey");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -6116,14 +7316,19 @@ void monitor::GenericMonitor::on_NtQueryMultipleValueKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryMutant(const on_NtQueryMutant_fn& on_ntquerymutant)
+bool monitor::GenericMonitor::register_NtQueryMutant(proc_t proc, const on_NtQueryMutant_fn& on_ntquerymutant)
 {
+    const auto ok = setup_func(proc, "NtQueryMutant");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryMutant.push_back(on_ntquerymutant);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryMutant()
 {
-    LOG(INFO, "Break on NtQueryMutant");
+    //LOG(INFO, "Break on NtQueryMutant");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -6142,14 +7347,19 @@ void monitor::GenericMonitor::on_NtQueryMutant()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryObject(const on_NtQueryObject_fn& on_ntqueryobject)
+bool monitor::GenericMonitor::register_NtQueryObject(proc_t proc, const on_NtQueryObject_fn& on_ntqueryobject)
 {
+    const auto ok = setup_func(proc, "NtQueryObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryObject.push_back(on_ntqueryobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryObject()
 {
-    LOG(INFO, "Break on NtQueryObject");
+    //LOG(INFO, "Break on NtQueryObject");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -6168,14 +7378,19 @@ void monitor::GenericMonitor::on_NtQueryObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryOpenSubKeysEx(const on_NtQueryOpenSubKeysEx_fn& on_ntqueryopensubkeysex)
+bool monitor::GenericMonitor::register_NtQueryOpenSubKeysEx(proc_t proc, const on_NtQueryOpenSubKeysEx_fn& on_ntqueryopensubkeysex)
 {
+    const auto ok = setup_func(proc, "NtQueryOpenSubKeysEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryOpenSubKeysEx.push_back(on_ntqueryopensubkeysex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryOpenSubKeysEx()
 {
-    LOG(INFO, "Break on NtQueryOpenSubKeysEx");
+    //LOG(INFO, "Break on NtQueryOpenSubKeysEx");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -6193,14 +7408,19 @@ void monitor::GenericMonitor::on_NtQueryOpenSubKeysEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryOpenSubKeys(const on_NtQueryOpenSubKeys_fn& on_ntqueryopensubkeys)
+bool monitor::GenericMonitor::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQueryOpenSubKeys_fn& on_ntqueryopensubkeys)
 {
+    const auto ok = setup_func(proc, "NtQueryOpenSubKeys");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryOpenSubKeys.push_back(on_ntqueryopensubkeys);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryOpenSubKeys()
 {
-    LOG(INFO, "Break on NtQueryOpenSubKeys");
+    //LOG(INFO, "Break on NtQueryOpenSubKeys");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -6216,14 +7436,19 @@ void monitor::GenericMonitor::on_NtQueryOpenSubKeys()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryPerformanceCounter(const on_NtQueryPerformanceCounter_fn& on_ntqueryperformancecounter)
+bool monitor::GenericMonitor::register_NtQueryPerformanceCounter(proc_t proc, const on_NtQueryPerformanceCounter_fn& on_ntqueryperformancecounter)
 {
+    const auto ok = setup_func(proc, "NtQueryPerformanceCounter");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryPerformanceCounter.push_back(on_ntqueryperformancecounter);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryPerformanceCounter()
 {
-    LOG(INFO, "Break on NtQueryPerformanceCounter");
+    //LOG(INFO, "Break on NtQueryPerformanceCounter");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -6239,14 +7464,19 @@ void monitor::GenericMonitor::on_NtQueryPerformanceCounter()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryQuotaInformationFile(const on_NtQueryQuotaInformationFile_fn& on_ntqueryquotainformationfile)
+bool monitor::GenericMonitor::register_NtQueryQuotaInformationFile(proc_t proc, const on_NtQueryQuotaInformationFile_fn& on_ntqueryquotainformationfile)
 {
+    const auto ok = setup_func(proc, "NtQueryQuotaInformationFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryQuotaInformationFile.push_back(on_ntqueryquotainformationfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryQuotaInformationFile()
 {
-    LOG(INFO, "Break on NtQueryQuotaInformationFile");
+    //LOG(INFO, "Break on NtQueryQuotaInformationFile");
     const auto nargs = 9;
 
     std::vector<arg_t> args;
@@ -6269,14 +7499,19 @@ void monitor::GenericMonitor::on_NtQueryQuotaInformationFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtQuerySection(const on_NtQuerySection_fn& on_ntquerysection)
+bool monitor::GenericMonitor::register_NtQuerySection(proc_t proc, const on_NtQuerySection_fn& on_ntquerysection)
 {
+    const auto ok = setup_func(proc, "NtQuerySection");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQuerySection.push_back(on_ntquerysection);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQuerySection()
 {
-    LOG(INFO, "Break on NtQuerySection");
+    //LOG(INFO, "Break on NtQuerySection");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -6295,14 +7530,19 @@ void monitor::GenericMonitor::on_NtQuerySection()
     }
 }
 
-void monitor::GenericMonitor::register_NtQuerySecurityAttributesToken(const on_NtQuerySecurityAttributesToken_fn& on_ntquerysecurityattributestoken)
+bool monitor::GenericMonitor::register_NtQuerySecurityAttributesToken(proc_t proc, const on_NtQuerySecurityAttributesToken_fn& on_ntquerysecurityattributestoken)
 {
+    const auto ok = setup_func(proc, "NtQuerySecurityAttributesToken");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQuerySecurityAttributesToken.push_back(on_ntquerysecurityattributestoken);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQuerySecurityAttributesToken()
 {
-    LOG(INFO, "Break on NtQuerySecurityAttributesToken");
+    //LOG(INFO, "Break on NtQuerySecurityAttributesToken");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -6322,14 +7562,19 @@ void monitor::GenericMonitor::on_NtQuerySecurityAttributesToken()
     }
 }
 
-void monitor::GenericMonitor::register_NtQuerySecurityObject(const on_NtQuerySecurityObject_fn& on_ntquerysecurityobject)
+bool monitor::GenericMonitor::register_NtQuerySecurityObject(proc_t proc, const on_NtQuerySecurityObject_fn& on_ntquerysecurityobject)
 {
+    const auto ok = setup_func(proc, "NtQuerySecurityObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQuerySecurityObject.push_back(on_ntquerysecurityobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQuerySecurityObject()
 {
-    LOG(INFO, "Break on NtQuerySecurityObject");
+    //LOG(INFO, "Break on NtQuerySecurityObject");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -6348,14 +7593,19 @@ void monitor::GenericMonitor::on_NtQuerySecurityObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtQuerySemaphore(const on_NtQuerySemaphore_fn& on_ntquerysemaphore)
+bool monitor::GenericMonitor::register_NtQuerySemaphore(proc_t proc, const on_NtQuerySemaphore_fn& on_ntquerysemaphore)
 {
+    const auto ok = setup_func(proc, "NtQuerySemaphore");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQuerySemaphore.push_back(on_ntquerysemaphore);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQuerySemaphore()
 {
-    LOG(INFO, "Break on NtQuerySemaphore");
+    //LOG(INFO, "Break on NtQuerySemaphore");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -6374,14 +7624,19 @@ void monitor::GenericMonitor::on_NtQuerySemaphore()
     }
 }
 
-void monitor::GenericMonitor::register_NtQuerySymbolicLinkObject(const on_NtQuerySymbolicLinkObject_fn& on_ntquerysymboliclinkobject)
+bool monitor::GenericMonitor::register_NtQuerySymbolicLinkObject(proc_t proc, const on_NtQuerySymbolicLinkObject_fn& on_ntquerysymboliclinkobject)
 {
+    const auto ok = setup_func(proc, "NtQuerySymbolicLinkObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQuerySymbolicLinkObject.push_back(on_ntquerysymboliclinkobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQuerySymbolicLinkObject()
 {
-    LOG(INFO, "Break on NtQuerySymbolicLinkObject");
+    //LOG(INFO, "Break on NtQuerySymbolicLinkObject");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -6398,14 +7653,19 @@ void monitor::GenericMonitor::on_NtQuerySymbolicLinkObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtQuerySystemEnvironmentValueEx(const on_NtQuerySystemEnvironmentValueEx_fn& on_ntquerysystemenvironmentvalueex)
+bool monitor::GenericMonitor::register_NtQuerySystemEnvironmentValueEx(proc_t proc, const on_NtQuerySystemEnvironmentValueEx_fn& on_ntquerysystemenvironmentvalueex)
 {
+    const auto ok = setup_func(proc, "NtQuerySystemEnvironmentValueEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQuerySystemEnvironmentValueEx.push_back(on_ntquerysystemenvironmentvalueex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQuerySystemEnvironmentValueEx()
 {
-    LOG(INFO, "Break on NtQuerySystemEnvironmentValueEx");
+    //LOG(INFO, "Break on NtQuerySystemEnvironmentValueEx");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -6424,14 +7684,19 @@ void monitor::GenericMonitor::on_NtQuerySystemEnvironmentValueEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtQuerySystemEnvironmentValue(const on_NtQuerySystemEnvironmentValue_fn& on_ntquerysystemenvironmentvalue)
+bool monitor::GenericMonitor::register_NtQuerySystemEnvironmentValue(proc_t proc, const on_NtQuerySystemEnvironmentValue_fn& on_ntquerysystemenvironmentvalue)
 {
+    const auto ok = setup_func(proc, "NtQuerySystemEnvironmentValue");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQuerySystemEnvironmentValue.push_back(on_ntquerysystemenvironmentvalue);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQuerySystemEnvironmentValue()
 {
-    LOG(INFO, "Break on NtQuerySystemEnvironmentValue");
+    //LOG(INFO, "Break on NtQuerySystemEnvironmentValue");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -6449,14 +7714,19 @@ void monitor::GenericMonitor::on_NtQuerySystemEnvironmentValue()
     }
 }
 
-void monitor::GenericMonitor::register_NtQuerySystemInformationEx(const on_NtQuerySystemInformationEx_fn& on_ntquerysysteminformationex)
+bool monitor::GenericMonitor::register_NtQuerySystemInformationEx(proc_t proc, const on_NtQuerySystemInformationEx_fn& on_ntquerysysteminformationex)
 {
+    const auto ok = setup_func(proc, "NtQuerySystemInformationEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQuerySystemInformationEx.push_back(on_ntquerysysteminformationex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQuerySystemInformationEx()
 {
-    LOG(INFO, "Break on NtQuerySystemInformationEx");
+    //LOG(INFO, "Break on NtQuerySystemInformationEx");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -6476,14 +7746,19 @@ void monitor::GenericMonitor::on_NtQuerySystemInformationEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtQuerySystemInformation(const on_NtQuerySystemInformation_fn& on_ntquerysysteminformation)
+bool monitor::GenericMonitor::register_NtQuerySystemInformation(proc_t proc, const on_NtQuerySystemInformation_fn& on_ntquerysysteminformation)
 {
+    const auto ok = setup_func(proc, "NtQuerySystemInformation");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQuerySystemInformation.push_back(on_ntquerysysteminformation);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQuerySystemInformation()
 {
-    LOG(INFO, "Break on NtQuerySystemInformation");
+    //LOG(INFO, "Break on NtQuerySystemInformation");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -6501,14 +7776,19 @@ void monitor::GenericMonitor::on_NtQuerySystemInformation()
     }
 }
 
-void monitor::GenericMonitor::register_NtQuerySystemTime(const on_NtQuerySystemTime_fn& on_ntquerysystemtime)
+bool monitor::GenericMonitor::register_NtQuerySystemTime(proc_t proc, const on_NtQuerySystemTime_fn& on_ntquerysystemtime)
 {
+    const auto ok = setup_func(proc, "NtQuerySystemTime");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQuerySystemTime.push_back(on_ntquerysystemtime);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQuerySystemTime()
 {
-    LOG(INFO, "Break on NtQuerySystemTime");
+    //LOG(INFO, "Break on NtQuerySystemTime");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -6523,14 +7803,19 @@ void monitor::GenericMonitor::on_NtQuerySystemTime()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryTimer(const on_NtQueryTimer_fn& on_ntquerytimer)
+bool monitor::GenericMonitor::register_NtQueryTimer(proc_t proc, const on_NtQueryTimer_fn& on_ntquerytimer)
 {
+    const auto ok = setup_func(proc, "NtQueryTimer");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryTimer.push_back(on_ntquerytimer);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryTimer()
 {
-    LOG(INFO, "Break on NtQueryTimer");
+    //LOG(INFO, "Break on NtQueryTimer");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -6549,14 +7834,19 @@ void monitor::GenericMonitor::on_NtQueryTimer()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryTimerResolution(const on_NtQueryTimerResolution_fn& on_ntquerytimerresolution)
+bool monitor::GenericMonitor::register_NtQueryTimerResolution(proc_t proc, const on_NtQueryTimerResolution_fn& on_ntquerytimerresolution)
 {
+    const auto ok = setup_func(proc, "NtQueryTimerResolution");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryTimerResolution.push_back(on_ntquerytimerresolution);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryTimerResolution()
 {
-    LOG(INFO, "Break on NtQueryTimerResolution");
+    //LOG(INFO, "Break on NtQueryTimerResolution");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -6573,14 +7863,19 @@ void monitor::GenericMonitor::on_NtQueryTimerResolution()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryValueKey(const on_NtQueryValueKey_fn& on_ntqueryvaluekey)
+bool monitor::GenericMonitor::register_NtQueryValueKey(proc_t proc, const on_NtQueryValueKey_fn& on_ntqueryvaluekey)
 {
+    const auto ok = setup_func(proc, "NtQueryValueKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryValueKey.push_back(on_ntqueryvaluekey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryValueKey()
 {
-    LOG(INFO, "Break on NtQueryValueKey");
+    //LOG(INFO, "Break on NtQueryValueKey");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -6600,14 +7895,19 @@ void monitor::GenericMonitor::on_NtQueryValueKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryVirtualMemory(const on_NtQueryVirtualMemory_fn& on_ntqueryvirtualmemory)
+bool monitor::GenericMonitor::register_NtQueryVirtualMemory(proc_t proc, const on_NtQueryVirtualMemory_fn& on_ntqueryvirtualmemory)
 {
+    const auto ok = setup_func(proc, "NtQueryVirtualMemory");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryVirtualMemory.push_back(on_ntqueryvirtualmemory);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryVirtualMemory()
 {
-    LOG(INFO, "Break on NtQueryVirtualMemory");
+    //LOG(INFO, "Break on NtQueryVirtualMemory");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -6627,14 +7927,19 @@ void monitor::GenericMonitor::on_NtQueryVirtualMemory()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryVolumeInformationFile(const on_NtQueryVolumeInformationFile_fn& on_ntqueryvolumeinformationfile)
+bool monitor::GenericMonitor::register_NtQueryVolumeInformationFile(proc_t proc, const on_NtQueryVolumeInformationFile_fn& on_ntqueryvolumeinformationfile)
 {
+    const auto ok = setup_func(proc, "NtQueryVolumeInformationFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryVolumeInformationFile.push_back(on_ntqueryvolumeinformationfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryVolumeInformationFile()
 {
-    LOG(INFO, "Break on NtQueryVolumeInformationFile");
+    //LOG(INFO, "Break on NtQueryVolumeInformationFile");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -6653,14 +7958,19 @@ void monitor::GenericMonitor::on_NtQueryVolumeInformationFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueueApcThreadEx(const on_NtQueueApcThreadEx_fn& on_ntqueueapcthreadex)
+bool monitor::GenericMonitor::register_NtQueueApcThreadEx(proc_t proc, const on_NtQueueApcThreadEx_fn& on_ntqueueapcthreadex)
 {
+    const auto ok = setup_func(proc, "NtQueueApcThreadEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueueApcThreadEx.push_back(on_ntqueueapcthreadex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueueApcThreadEx()
 {
-    LOG(INFO, "Break on NtQueueApcThreadEx");
+    //LOG(INFO, "Break on NtQueueApcThreadEx");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -6680,14 +7990,19 @@ void monitor::GenericMonitor::on_NtQueueApcThreadEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueueApcThread(const on_NtQueueApcThread_fn& on_ntqueueapcthread)
+bool monitor::GenericMonitor::register_NtQueueApcThread(proc_t proc, const on_NtQueueApcThread_fn& on_ntqueueapcthread)
 {
+    const auto ok = setup_func(proc, "NtQueueApcThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueueApcThread.push_back(on_ntqueueapcthread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueueApcThread()
 {
-    LOG(INFO, "Break on NtQueueApcThread");
+    //LOG(INFO, "Break on NtQueueApcThread");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -6706,14 +8021,19 @@ void monitor::GenericMonitor::on_NtQueueApcThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtRaiseException(const on_NtRaiseException_fn& on_ntraiseexception)
+bool monitor::GenericMonitor::register_NtRaiseException(proc_t proc, const on_NtRaiseException_fn& on_ntraiseexception)
 {
+    const auto ok = setup_func(proc, "NtRaiseException");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRaiseException.push_back(on_ntraiseexception);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRaiseException()
 {
-    LOG(INFO, "Break on NtRaiseException");
+    //LOG(INFO, "Break on NtRaiseException");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -6730,14 +8050,19 @@ void monitor::GenericMonitor::on_NtRaiseException()
     }
 }
 
-void monitor::GenericMonitor::register_NtRaiseHardError(const on_NtRaiseHardError_fn& on_ntraiseharderror)
+bool monitor::GenericMonitor::register_NtRaiseHardError(proc_t proc, const on_NtRaiseHardError_fn& on_ntraiseharderror)
 {
+    const auto ok = setup_func(proc, "NtRaiseHardError");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRaiseHardError.push_back(on_ntraiseharderror);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRaiseHardError()
 {
-    LOG(INFO, "Break on NtRaiseHardError");
+    //LOG(INFO, "Break on NtRaiseHardError");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -6757,14 +8082,19 @@ void monitor::GenericMonitor::on_NtRaiseHardError()
     }
 }
 
-void monitor::GenericMonitor::register_NtReadFile(const on_NtReadFile_fn& on_ntreadfile)
+bool monitor::GenericMonitor::register_NtReadFile(proc_t proc, const on_NtReadFile_fn& on_ntreadfile)
 {
+    const auto ok = setup_func(proc, "NtReadFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReadFile.push_back(on_ntreadfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReadFile()
 {
-    LOG(INFO, "Break on NtReadFile");
+    //LOG(INFO, "Break on NtReadFile");
     const auto nargs = 9;
 
     std::vector<arg_t> args;
@@ -6787,14 +8117,19 @@ void monitor::GenericMonitor::on_NtReadFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtReadFileScatter(const on_NtReadFileScatter_fn& on_ntreadfilescatter)
+bool monitor::GenericMonitor::register_NtReadFileScatter(proc_t proc, const on_NtReadFileScatter_fn& on_ntreadfilescatter)
 {
+    const auto ok = setup_func(proc, "NtReadFileScatter");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReadFileScatter.push_back(on_ntreadfilescatter);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReadFileScatter()
 {
-    LOG(INFO, "Break on NtReadFileScatter");
+    //LOG(INFO, "Break on NtReadFileScatter");
     const auto nargs = 9;
 
     std::vector<arg_t> args;
@@ -6817,14 +8152,19 @@ void monitor::GenericMonitor::on_NtReadFileScatter()
     }
 }
 
-void monitor::GenericMonitor::register_NtReadOnlyEnlistment(const on_NtReadOnlyEnlistment_fn& on_ntreadonlyenlistment)
+bool monitor::GenericMonitor::register_NtReadOnlyEnlistment(proc_t proc, const on_NtReadOnlyEnlistment_fn& on_ntreadonlyenlistment)
 {
+    const auto ok = setup_func(proc, "NtReadOnlyEnlistment");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReadOnlyEnlistment.push_back(on_ntreadonlyenlistment);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReadOnlyEnlistment()
 {
-    LOG(INFO, "Break on NtReadOnlyEnlistment");
+    //LOG(INFO, "Break on NtReadOnlyEnlistment");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -6840,14 +8180,19 @@ void monitor::GenericMonitor::on_NtReadOnlyEnlistment()
     }
 }
 
-void monitor::GenericMonitor::register_NtReadRequestData(const on_NtReadRequestData_fn& on_ntreadrequestdata)
+bool monitor::GenericMonitor::register_NtReadRequestData(proc_t proc, const on_NtReadRequestData_fn& on_ntreadrequestdata)
 {
+    const auto ok = setup_func(proc, "NtReadRequestData");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReadRequestData.push_back(on_ntreadrequestdata);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReadRequestData()
 {
-    LOG(INFO, "Break on NtReadRequestData");
+    //LOG(INFO, "Break on NtReadRequestData");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -6867,14 +8212,19 @@ void monitor::GenericMonitor::on_NtReadRequestData()
     }
 }
 
-void monitor::GenericMonitor::register_NtReadVirtualMemory(const on_NtReadVirtualMemory_fn& on_ntreadvirtualmemory)
+bool monitor::GenericMonitor::register_NtReadVirtualMemory(proc_t proc, const on_NtReadVirtualMemory_fn& on_ntreadvirtualmemory)
 {
+    const auto ok = setup_func(proc, "NtReadVirtualMemory");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReadVirtualMemory.push_back(on_ntreadvirtualmemory);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReadVirtualMemory()
 {
-    LOG(INFO, "Break on NtReadVirtualMemory");
+    //LOG(INFO, "Break on NtReadVirtualMemory");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -6893,14 +8243,19 @@ void monitor::GenericMonitor::on_NtReadVirtualMemory()
     }
 }
 
-void monitor::GenericMonitor::register_NtRecoverEnlistment(const on_NtRecoverEnlistment_fn& on_ntrecoverenlistment)
+bool monitor::GenericMonitor::register_NtRecoverEnlistment(proc_t proc, const on_NtRecoverEnlistment_fn& on_ntrecoverenlistment)
 {
+    const auto ok = setup_func(proc, "NtRecoverEnlistment");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRecoverEnlistment.push_back(on_ntrecoverenlistment);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRecoverEnlistment()
 {
-    LOG(INFO, "Break on NtRecoverEnlistment");
+    //LOG(INFO, "Break on NtRecoverEnlistment");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -6916,14 +8271,19 @@ void monitor::GenericMonitor::on_NtRecoverEnlistment()
     }
 }
 
-void monitor::GenericMonitor::register_NtRecoverResourceManager(const on_NtRecoverResourceManager_fn& on_ntrecoverresourcemanager)
+bool monitor::GenericMonitor::register_NtRecoverResourceManager(proc_t proc, const on_NtRecoverResourceManager_fn& on_ntrecoverresourcemanager)
 {
+    const auto ok = setup_func(proc, "NtRecoverResourceManager");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRecoverResourceManager.push_back(on_ntrecoverresourcemanager);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRecoverResourceManager()
 {
-    LOG(INFO, "Break on NtRecoverResourceManager");
+    //LOG(INFO, "Break on NtRecoverResourceManager");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -6938,14 +8298,19 @@ void monitor::GenericMonitor::on_NtRecoverResourceManager()
     }
 }
 
-void monitor::GenericMonitor::register_NtRecoverTransactionManager(const on_NtRecoverTransactionManager_fn& on_ntrecovertransactionmanager)
+bool monitor::GenericMonitor::register_NtRecoverTransactionManager(proc_t proc, const on_NtRecoverTransactionManager_fn& on_ntrecovertransactionmanager)
 {
+    const auto ok = setup_func(proc, "NtRecoverTransactionManager");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRecoverTransactionManager.push_back(on_ntrecovertransactionmanager);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRecoverTransactionManager()
 {
-    LOG(INFO, "Break on NtRecoverTransactionManager");
+    //LOG(INFO, "Break on NtRecoverTransactionManager");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -6960,14 +8325,19 @@ void monitor::GenericMonitor::on_NtRecoverTransactionManager()
     }
 }
 
-void monitor::GenericMonitor::register_NtRegisterProtocolAddressInformation(const on_NtRegisterProtocolAddressInformation_fn& on_ntregisterprotocoladdressinformation)
+bool monitor::GenericMonitor::register_NtRegisterProtocolAddressInformation(proc_t proc, const on_NtRegisterProtocolAddressInformation_fn& on_ntregisterprotocoladdressinformation)
 {
+    const auto ok = setup_func(proc, "NtRegisterProtocolAddressInformation");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRegisterProtocolAddressInformation.push_back(on_ntregisterprotocoladdressinformation);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRegisterProtocolAddressInformation()
 {
-    LOG(INFO, "Break on NtRegisterProtocolAddressInformation");
+    //LOG(INFO, "Break on NtRegisterProtocolAddressInformation");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -6986,14 +8356,19 @@ void monitor::GenericMonitor::on_NtRegisterProtocolAddressInformation()
     }
 }
 
-void monitor::GenericMonitor::register_NtRegisterThreadTerminatePort(const on_NtRegisterThreadTerminatePort_fn& on_ntregisterthreadterminateport)
+bool monitor::GenericMonitor::register_NtRegisterThreadTerminatePort(proc_t proc, const on_NtRegisterThreadTerminatePort_fn& on_ntregisterthreadterminateport)
 {
+    const auto ok = setup_func(proc, "NtRegisterThreadTerminatePort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRegisterThreadTerminatePort.push_back(on_ntregisterthreadterminateport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRegisterThreadTerminatePort()
 {
-    LOG(INFO, "Break on NtRegisterThreadTerminatePort");
+    //LOG(INFO, "Break on NtRegisterThreadTerminatePort");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -7008,14 +8383,19 @@ void monitor::GenericMonitor::on_NtRegisterThreadTerminatePort()
     }
 }
 
-void monitor::GenericMonitor::register_NtReleaseKeyedEvent(const on_NtReleaseKeyedEvent_fn& on_ntreleasekeyedevent)
+bool monitor::GenericMonitor::register_NtReleaseKeyedEvent(proc_t proc, const on_NtReleaseKeyedEvent_fn& on_ntreleasekeyedevent)
 {
+    const auto ok = setup_func(proc, "NtReleaseKeyedEvent");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReleaseKeyedEvent.push_back(on_ntreleasekeyedevent);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReleaseKeyedEvent()
 {
-    LOG(INFO, "Break on NtReleaseKeyedEvent");
+    //LOG(INFO, "Break on NtReleaseKeyedEvent");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -7033,14 +8413,19 @@ void monitor::GenericMonitor::on_NtReleaseKeyedEvent()
     }
 }
 
-void monitor::GenericMonitor::register_NtReleaseMutant(const on_NtReleaseMutant_fn& on_ntreleasemutant)
+bool monitor::GenericMonitor::register_NtReleaseMutant(proc_t proc, const on_NtReleaseMutant_fn& on_ntreleasemutant)
 {
+    const auto ok = setup_func(proc, "NtReleaseMutant");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReleaseMutant.push_back(on_ntreleasemutant);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReleaseMutant()
 {
-    LOG(INFO, "Break on NtReleaseMutant");
+    //LOG(INFO, "Break on NtReleaseMutant");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7056,14 +8441,19 @@ void monitor::GenericMonitor::on_NtReleaseMutant()
     }
 }
 
-void monitor::GenericMonitor::register_NtReleaseSemaphore(const on_NtReleaseSemaphore_fn& on_ntreleasesemaphore)
+bool monitor::GenericMonitor::register_NtReleaseSemaphore(proc_t proc, const on_NtReleaseSemaphore_fn& on_ntreleasesemaphore)
 {
+    const auto ok = setup_func(proc, "NtReleaseSemaphore");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReleaseSemaphore.push_back(on_ntreleasesemaphore);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReleaseSemaphore()
 {
-    LOG(INFO, "Break on NtReleaseSemaphore");
+    //LOG(INFO, "Break on NtReleaseSemaphore");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -7080,14 +8470,19 @@ void monitor::GenericMonitor::on_NtReleaseSemaphore()
     }
 }
 
-void monitor::GenericMonitor::register_NtReleaseWorkerFactoryWorker(const on_NtReleaseWorkerFactoryWorker_fn& on_ntreleaseworkerfactoryworker)
+bool monitor::GenericMonitor::register_NtReleaseWorkerFactoryWorker(proc_t proc, const on_NtReleaseWorkerFactoryWorker_fn& on_ntreleaseworkerfactoryworker)
 {
+    const auto ok = setup_func(proc, "NtReleaseWorkerFactoryWorker");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReleaseWorkerFactoryWorker.push_back(on_ntreleaseworkerfactoryworker);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReleaseWorkerFactoryWorker()
 {
-    LOG(INFO, "Break on NtReleaseWorkerFactoryWorker");
+    //LOG(INFO, "Break on NtReleaseWorkerFactoryWorker");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -7102,14 +8497,19 @@ void monitor::GenericMonitor::on_NtReleaseWorkerFactoryWorker()
     }
 }
 
-void monitor::GenericMonitor::register_NtRemoveIoCompletionEx(const on_NtRemoveIoCompletionEx_fn& on_ntremoveiocompletionex)
+bool monitor::GenericMonitor::register_NtRemoveIoCompletionEx(proc_t proc, const on_NtRemoveIoCompletionEx_fn& on_ntremoveiocompletionex)
 {
+    const auto ok = setup_func(proc, "NtRemoveIoCompletionEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRemoveIoCompletionEx.push_back(on_ntremoveiocompletionex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRemoveIoCompletionEx()
 {
-    LOG(INFO, "Break on NtRemoveIoCompletionEx");
+    //LOG(INFO, "Break on NtRemoveIoCompletionEx");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -7129,14 +8529,19 @@ void monitor::GenericMonitor::on_NtRemoveIoCompletionEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtRemoveIoCompletion(const on_NtRemoveIoCompletion_fn& on_ntremoveiocompletion)
+bool monitor::GenericMonitor::register_NtRemoveIoCompletion(proc_t proc, const on_NtRemoveIoCompletion_fn& on_ntremoveiocompletion)
 {
+    const auto ok = setup_func(proc, "NtRemoveIoCompletion");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRemoveIoCompletion.push_back(on_ntremoveiocompletion);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRemoveIoCompletion()
 {
-    LOG(INFO, "Break on NtRemoveIoCompletion");
+    //LOG(INFO, "Break on NtRemoveIoCompletion");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -7155,14 +8560,19 @@ void monitor::GenericMonitor::on_NtRemoveIoCompletion()
     }
 }
 
-void monitor::GenericMonitor::register_NtRemoveProcessDebug(const on_NtRemoveProcessDebug_fn& on_ntremoveprocessdebug)
+bool monitor::GenericMonitor::register_NtRemoveProcessDebug(proc_t proc, const on_NtRemoveProcessDebug_fn& on_ntremoveprocessdebug)
 {
+    const auto ok = setup_func(proc, "NtRemoveProcessDebug");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRemoveProcessDebug.push_back(on_ntremoveprocessdebug);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRemoveProcessDebug()
 {
-    LOG(INFO, "Break on NtRemoveProcessDebug");
+    //LOG(INFO, "Break on NtRemoveProcessDebug");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7178,14 +8588,19 @@ void monitor::GenericMonitor::on_NtRemoveProcessDebug()
     }
 }
 
-void monitor::GenericMonitor::register_NtRenameKey(const on_NtRenameKey_fn& on_ntrenamekey)
+bool monitor::GenericMonitor::register_NtRenameKey(proc_t proc, const on_NtRenameKey_fn& on_ntrenamekey)
 {
+    const auto ok = setup_func(proc, "NtRenameKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRenameKey.push_back(on_ntrenamekey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRenameKey()
 {
-    LOG(INFO, "Break on NtRenameKey");
+    //LOG(INFO, "Break on NtRenameKey");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7201,14 +8616,19 @@ void monitor::GenericMonitor::on_NtRenameKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtRenameTransactionManager(const on_NtRenameTransactionManager_fn& on_ntrenametransactionmanager)
+bool monitor::GenericMonitor::register_NtRenameTransactionManager(proc_t proc, const on_NtRenameTransactionManager_fn& on_ntrenametransactionmanager)
 {
+    const auto ok = setup_func(proc, "NtRenameTransactionManager");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRenameTransactionManager.push_back(on_ntrenametransactionmanager);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRenameTransactionManager()
 {
-    LOG(INFO, "Break on NtRenameTransactionManager");
+    //LOG(INFO, "Break on NtRenameTransactionManager");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7224,14 +8644,19 @@ void monitor::GenericMonitor::on_NtRenameTransactionManager()
     }
 }
 
-void monitor::GenericMonitor::register_NtReplaceKey(const on_NtReplaceKey_fn& on_ntreplacekey)
+bool monitor::GenericMonitor::register_NtReplaceKey(proc_t proc, const on_NtReplaceKey_fn& on_ntreplacekey)
 {
+    const auto ok = setup_func(proc, "NtReplaceKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReplaceKey.push_back(on_ntreplacekey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReplaceKey()
 {
-    LOG(INFO, "Break on NtReplaceKey");
+    //LOG(INFO, "Break on NtReplaceKey");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -7248,14 +8673,19 @@ void monitor::GenericMonitor::on_NtReplaceKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtReplacePartitionUnit(const on_NtReplacePartitionUnit_fn& on_ntreplacepartitionunit)
+bool monitor::GenericMonitor::register_NtReplacePartitionUnit(proc_t proc, const on_NtReplacePartitionUnit_fn& on_ntreplacepartitionunit)
 {
+    const auto ok = setup_func(proc, "NtReplacePartitionUnit");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReplacePartitionUnit.push_back(on_ntreplacepartitionunit);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReplacePartitionUnit()
 {
-    LOG(INFO, "Break on NtReplacePartitionUnit");
+    //LOG(INFO, "Break on NtReplacePartitionUnit");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -7272,14 +8702,19 @@ void monitor::GenericMonitor::on_NtReplacePartitionUnit()
     }
 }
 
-void monitor::GenericMonitor::register_NtReplyPort(const on_NtReplyPort_fn& on_ntreplyport)
+bool monitor::GenericMonitor::register_NtReplyPort(proc_t proc, const on_NtReplyPort_fn& on_ntreplyport)
 {
+    const auto ok = setup_func(proc, "NtReplyPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReplyPort.push_back(on_ntreplyport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReplyPort()
 {
-    LOG(INFO, "Break on NtReplyPort");
+    //LOG(INFO, "Break on NtReplyPort");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7295,14 +8730,19 @@ void monitor::GenericMonitor::on_NtReplyPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtReplyWaitReceivePortEx(const on_NtReplyWaitReceivePortEx_fn& on_ntreplywaitreceiveportex)
+bool monitor::GenericMonitor::register_NtReplyWaitReceivePortEx(proc_t proc, const on_NtReplyWaitReceivePortEx_fn& on_ntreplywaitreceiveportex)
 {
+    const auto ok = setup_func(proc, "NtReplyWaitReceivePortEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReplyWaitReceivePortEx.push_back(on_ntreplywaitreceiveportex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReplyWaitReceivePortEx()
 {
-    LOG(INFO, "Break on NtReplyWaitReceivePortEx");
+    //LOG(INFO, "Break on NtReplyWaitReceivePortEx");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -7321,14 +8761,19 @@ void monitor::GenericMonitor::on_NtReplyWaitReceivePortEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtReplyWaitReceivePort(const on_NtReplyWaitReceivePort_fn& on_ntreplywaitreceiveport)
+bool monitor::GenericMonitor::register_NtReplyWaitReceivePort(proc_t proc, const on_NtReplyWaitReceivePort_fn& on_ntreplywaitreceiveport)
 {
+    const auto ok = setup_func(proc, "NtReplyWaitReceivePort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReplyWaitReceivePort.push_back(on_ntreplywaitreceiveport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReplyWaitReceivePort()
 {
-    LOG(INFO, "Break on NtReplyWaitReceivePort");
+    //LOG(INFO, "Break on NtReplyWaitReceivePort");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -7346,14 +8791,19 @@ void monitor::GenericMonitor::on_NtReplyWaitReceivePort()
     }
 }
 
-void monitor::GenericMonitor::register_NtReplyWaitReplyPort(const on_NtReplyWaitReplyPort_fn& on_ntreplywaitreplyport)
+bool monitor::GenericMonitor::register_NtReplyWaitReplyPort(proc_t proc, const on_NtReplyWaitReplyPort_fn& on_ntreplywaitreplyport)
 {
+    const auto ok = setup_func(proc, "NtReplyWaitReplyPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtReplyWaitReplyPort.push_back(on_ntreplywaitreplyport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtReplyWaitReplyPort()
 {
-    LOG(INFO, "Break on NtReplyWaitReplyPort");
+    //LOG(INFO, "Break on NtReplyWaitReplyPort");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7369,14 +8819,19 @@ void monitor::GenericMonitor::on_NtReplyWaitReplyPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtRequestPort(const on_NtRequestPort_fn& on_ntrequestport)
+bool monitor::GenericMonitor::register_NtRequestPort(proc_t proc, const on_NtRequestPort_fn& on_ntrequestport)
 {
+    const auto ok = setup_func(proc, "NtRequestPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRequestPort.push_back(on_ntrequestport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRequestPort()
 {
-    LOG(INFO, "Break on NtRequestPort");
+    //LOG(INFO, "Break on NtRequestPort");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7392,14 +8847,19 @@ void monitor::GenericMonitor::on_NtRequestPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtRequestWaitReplyPort(const on_NtRequestWaitReplyPort_fn& on_ntrequestwaitreplyport)
+bool monitor::GenericMonitor::register_NtRequestWaitReplyPort(proc_t proc, const on_NtRequestWaitReplyPort_fn& on_ntrequestwaitreplyport)
 {
+    const auto ok = setup_func(proc, "NtRequestWaitReplyPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRequestWaitReplyPort.push_back(on_ntrequestwaitreplyport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRequestWaitReplyPort()
 {
-    LOG(INFO, "Break on NtRequestWaitReplyPort");
+    //LOG(INFO, "Break on NtRequestWaitReplyPort");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -7416,14 +8876,19 @@ void monitor::GenericMonitor::on_NtRequestWaitReplyPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtResetEvent(const on_NtResetEvent_fn& on_ntresetevent)
+bool monitor::GenericMonitor::register_NtResetEvent(proc_t proc, const on_NtResetEvent_fn& on_ntresetevent)
 {
+    const auto ok = setup_func(proc, "NtResetEvent");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtResetEvent.push_back(on_ntresetevent);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtResetEvent()
 {
-    LOG(INFO, "Break on NtResetEvent");
+    //LOG(INFO, "Break on NtResetEvent");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7439,14 +8904,19 @@ void monitor::GenericMonitor::on_NtResetEvent()
     }
 }
 
-void monitor::GenericMonitor::register_NtResetWriteWatch(const on_NtResetWriteWatch_fn& on_ntresetwritewatch)
+bool monitor::GenericMonitor::register_NtResetWriteWatch(proc_t proc, const on_NtResetWriteWatch_fn& on_ntresetwritewatch)
 {
+    const auto ok = setup_func(proc, "NtResetWriteWatch");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtResetWriteWatch.push_back(on_ntresetwritewatch);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtResetWriteWatch()
 {
-    LOG(INFO, "Break on NtResetWriteWatch");
+    //LOG(INFO, "Break on NtResetWriteWatch");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -7463,14 +8933,19 @@ void monitor::GenericMonitor::on_NtResetWriteWatch()
     }
 }
 
-void monitor::GenericMonitor::register_NtRestoreKey(const on_NtRestoreKey_fn& on_ntrestorekey)
+bool monitor::GenericMonitor::register_NtRestoreKey(proc_t proc, const on_NtRestoreKey_fn& on_ntrestorekey)
 {
+    const auto ok = setup_func(proc, "NtRestoreKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRestoreKey.push_back(on_ntrestorekey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRestoreKey()
 {
-    LOG(INFO, "Break on NtRestoreKey");
+    //LOG(INFO, "Break on NtRestoreKey");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -7487,14 +8962,19 @@ void monitor::GenericMonitor::on_NtRestoreKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtResumeProcess(const on_NtResumeProcess_fn& on_ntresumeprocess)
+bool monitor::GenericMonitor::register_NtResumeProcess(proc_t proc, const on_NtResumeProcess_fn& on_ntresumeprocess)
 {
+    const auto ok = setup_func(proc, "NtResumeProcess");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtResumeProcess.push_back(on_ntresumeprocess);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtResumeProcess()
 {
-    LOG(INFO, "Break on NtResumeProcess");
+    //LOG(INFO, "Break on NtResumeProcess");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -7509,14 +8989,19 @@ void monitor::GenericMonitor::on_NtResumeProcess()
     }
 }
 
-void monitor::GenericMonitor::register_NtResumeThread(const on_NtResumeThread_fn& on_ntresumethread)
+bool monitor::GenericMonitor::register_NtResumeThread(proc_t proc, const on_NtResumeThread_fn& on_ntresumethread)
 {
+    const auto ok = setup_func(proc, "NtResumeThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtResumeThread.push_back(on_ntresumethread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtResumeThread()
 {
-    LOG(INFO, "Break on NtResumeThread");
+    //LOG(INFO, "Break on NtResumeThread");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7532,14 +9017,19 @@ void monitor::GenericMonitor::on_NtResumeThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtRollbackComplete(const on_NtRollbackComplete_fn& on_ntrollbackcomplete)
+bool monitor::GenericMonitor::register_NtRollbackComplete(proc_t proc, const on_NtRollbackComplete_fn& on_ntrollbackcomplete)
 {
+    const auto ok = setup_func(proc, "NtRollbackComplete");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRollbackComplete.push_back(on_ntrollbackcomplete);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRollbackComplete()
 {
-    LOG(INFO, "Break on NtRollbackComplete");
+    //LOG(INFO, "Break on NtRollbackComplete");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7555,14 +9045,19 @@ void monitor::GenericMonitor::on_NtRollbackComplete()
     }
 }
 
-void monitor::GenericMonitor::register_NtRollbackEnlistment(const on_NtRollbackEnlistment_fn& on_ntrollbackenlistment)
+bool monitor::GenericMonitor::register_NtRollbackEnlistment(proc_t proc, const on_NtRollbackEnlistment_fn& on_ntrollbackenlistment)
 {
+    const auto ok = setup_func(proc, "NtRollbackEnlistment");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRollbackEnlistment.push_back(on_ntrollbackenlistment);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRollbackEnlistment()
 {
-    LOG(INFO, "Break on NtRollbackEnlistment");
+    //LOG(INFO, "Break on NtRollbackEnlistment");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7578,14 +9073,19 @@ void monitor::GenericMonitor::on_NtRollbackEnlistment()
     }
 }
 
-void monitor::GenericMonitor::register_NtRollbackTransaction(const on_NtRollbackTransaction_fn& on_ntrollbacktransaction)
+bool monitor::GenericMonitor::register_NtRollbackTransaction(proc_t proc, const on_NtRollbackTransaction_fn& on_ntrollbacktransaction)
 {
+    const auto ok = setup_func(proc, "NtRollbackTransaction");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRollbackTransaction.push_back(on_ntrollbacktransaction);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRollbackTransaction()
 {
-    LOG(INFO, "Break on NtRollbackTransaction");
+    //LOG(INFO, "Break on NtRollbackTransaction");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7601,14 +9101,19 @@ void monitor::GenericMonitor::on_NtRollbackTransaction()
     }
 }
 
-void monitor::GenericMonitor::register_NtRollforwardTransactionManager(const on_NtRollforwardTransactionManager_fn& on_ntrollforwardtransactionmanager)
+bool monitor::GenericMonitor::register_NtRollforwardTransactionManager(proc_t proc, const on_NtRollforwardTransactionManager_fn& on_ntrollforwardtransactionmanager)
 {
+    const auto ok = setup_func(proc, "NtRollforwardTransactionManager");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtRollforwardTransactionManager.push_back(on_ntrollforwardtransactionmanager);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtRollforwardTransactionManager()
 {
-    LOG(INFO, "Break on NtRollforwardTransactionManager");
+    //LOG(INFO, "Break on NtRollforwardTransactionManager");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7624,14 +9129,19 @@ void monitor::GenericMonitor::on_NtRollforwardTransactionManager()
     }
 }
 
-void monitor::GenericMonitor::register_NtSaveKeyEx(const on_NtSaveKeyEx_fn& on_ntsavekeyex)
+bool monitor::GenericMonitor::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx_fn& on_ntsavekeyex)
 {
+    const auto ok = setup_func(proc, "NtSaveKeyEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSaveKeyEx.push_back(on_ntsavekeyex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSaveKeyEx()
 {
-    LOG(INFO, "Break on NtSaveKeyEx");
+    //LOG(INFO, "Break on NtSaveKeyEx");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -7648,14 +9158,19 @@ void monitor::GenericMonitor::on_NtSaveKeyEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtSaveKey(const on_NtSaveKey_fn& on_ntsavekey)
+bool monitor::GenericMonitor::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn& on_ntsavekey)
 {
+    const auto ok = setup_func(proc, "NtSaveKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSaveKey.push_back(on_ntsavekey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSaveKey()
 {
-    LOG(INFO, "Break on NtSaveKey");
+    //LOG(INFO, "Break on NtSaveKey");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7671,14 +9186,19 @@ void monitor::GenericMonitor::on_NtSaveKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtSaveMergedKeys(const on_NtSaveMergedKeys_fn& on_ntsavemergedkeys)
+bool monitor::GenericMonitor::register_NtSaveMergedKeys(proc_t proc, const on_NtSaveMergedKeys_fn& on_ntsavemergedkeys)
 {
+    const auto ok = setup_func(proc, "NtSaveMergedKeys");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSaveMergedKeys.push_back(on_ntsavemergedkeys);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSaveMergedKeys()
 {
-    LOG(INFO, "Break on NtSaveMergedKeys");
+    //LOG(INFO, "Break on NtSaveMergedKeys");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -7695,14 +9215,19 @@ void monitor::GenericMonitor::on_NtSaveMergedKeys()
     }
 }
 
-void monitor::GenericMonitor::register_NtSecureConnectPort(const on_NtSecureConnectPort_fn& on_ntsecureconnectport)
+bool monitor::GenericMonitor::register_NtSecureConnectPort(proc_t proc, const on_NtSecureConnectPort_fn& on_ntsecureconnectport)
 {
+    const auto ok = setup_func(proc, "NtSecureConnectPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSecureConnectPort.push_back(on_ntsecureconnectport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSecureConnectPort()
 {
-    LOG(INFO, "Break on NtSecureConnectPort");
+    //LOG(INFO, "Break on NtSecureConnectPort");
     const auto nargs = 9;
 
     std::vector<arg_t> args;
@@ -7725,14 +9250,19 @@ void monitor::GenericMonitor::on_NtSecureConnectPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetBootEntryOrder(const on_NtSetBootEntryOrder_fn& on_ntsetbootentryorder)
+bool monitor::GenericMonitor::register_NtSetBootEntryOrder(proc_t proc, const on_NtSetBootEntryOrder_fn& on_ntsetbootentryorder)
 {
+    const auto ok = setup_func(proc, "NtSetBootEntryOrder");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetBootEntryOrder.push_back(on_ntsetbootentryorder);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetBootEntryOrder()
 {
-    LOG(INFO, "Break on NtSetBootEntryOrder");
+    //LOG(INFO, "Break on NtSetBootEntryOrder");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7748,14 +9278,19 @@ void monitor::GenericMonitor::on_NtSetBootEntryOrder()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetBootOptions(const on_NtSetBootOptions_fn& on_ntsetbootoptions)
+bool monitor::GenericMonitor::register_NtSetBootOptions(proc_t proc, const on_NtSetBootOptions_fn& on_ntsetbootoptions)
 {
+    const auto ok = setup_func(proc, "NtSetBootOptions");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetBootOptions.push_back(on_ntsetbootoptions);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetBootOptions()
 {
-    LOG(INFO, "Break on NtSetBootOptions");
+    //LOG(INFO, "Break on NtSetBootOptions");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7771,14 +9306,19 @@ void monitor::GenericMonitor::on_NtSetBootOptions()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetContextThread(const on_NtSetContextThread_fn& on_ntsetcontextthread)
+bool monitor::GenericMonitor::register_NtSetContextThread(proc_t proc, const on_NtSetContextThread_fn& on_ntsetcontextthread)
 {
+    const auto ok = setup_func(proc, "NtSetContextThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetContextThread.push_back(on_ntsetcontextthread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetContextThread()
 {
-    LOG(INFO, "Break on NtSetContextThread");
+    //LOG(INFO, "Break on NtSetContextThread");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7794,14 +9334,19 @@ void monitor::GenericMonitor::on_NtSetContextThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetDebugFilterState(const on_NtSetDebugFilterState_fn& on_ntsetdebugfilterstate)
+bool monitor::GenericMonitor::register_NtSetDebugFilterState(proc_t proc, const on_NtSetDebugFilterState_fn& on_ntsetdebugfilterstate)
 {
+    const auto ok = setup_func(proc, "NtSetDebugFilterState");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetDebugFilterState.push_back(on_ntsetdebugfilterstate);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetDebugFilterState()
 {
-    LOG(INFO, "Break on NtSetDebugFilterState");
+    //LOG(INFO, "Break on NtSetDebugFilterState");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -7818,14 +9363,19 @@ void monitor::GenericMonitor::on_NtSetDebugFilterState()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetDefaultHardErrorPort(const on_NtSetDefaultHardErrorPort_fn& on_ntsetdefaultharderrorport)
+bool monitor::GenericMonitor::register_NtSetDefaultHardErrorPort(proc_t proc, const on_NtSetDefaultHardErrorPort_fn& on_ntsetdefaultharderrorport)
 {
+    const auto ok = setup_func(proc, "NtSetDefaultHardErrorPort");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetDefaultHardErrorPort.push_back(on_ntsetdefaultharderrorport);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetDefaultHardErrorPort()
 {
-    LOG(INFO, "Break on NtSetDefaultHardErrorPort");
+    //LOG(INFO, "Break on NtSetDefaultHardErrorPort");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -7840,14 +9390,19 @@ void monitor::GenericMonitor::on_NtSetDefaultHardErrorPort()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetDefaultLocale(const on_NtSetDefaultLocale_fn& on_ntsetdefaultlocale)
+bool monitor::GenericMonitor::register_NtSetDefaultLocale(proc_t proc, const on_NtSetDefaultLocale_fn& on_ntsetdefaultlocale)
 {
+    const auto ok = setup_func(proc, "NtSetDefaultLocale");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetDefaultLocale.push_back(on_ntsetdefaultlocale);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetDefaultLocale()
 {
-    LOG(INFO, "Break on NtSetDefaultLocale");
+    //LOG(INFO, "Break on NtSetDefaultLocale");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7863,14 +9418,19 @@ void monitor::GenericMonitor::on_NtSetDefaultLocale()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetDefaultUILanguage(const on_NtSetDefaultUILanguage_fn& on_ntsetdefaultuilanguage)
+bool monitor::GenericMonitor::register_NtSetDefaultUILanguage(proc_t proc, const on_NtSetDefaultUILanguage_fn& on_ntsetdefaultuilanguage)
 {
+    const auto ok = setup_func(proc, "NtSetDefaultUILanguage");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetDefaultUILanguage.push_back(on_ntsetdefaultuilanguage);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetDefaultUILanguage()
 {
-    LOG(INFO, "Break on NtSetDefaultUILanguage");
+    //LOG(INFO, "Break on NtSetDefaultUILanguage");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -7885,14 +9445,19 @@ void monitor::GenericMonitor::on_NtSetDefaultUILanguage()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetDriverEntryOrder(const on_NtSetDriverEntryOrder_fn& on_ntsetdriverentryorder)
+bool monitor::GenericMonitor::register_NtSetDriverEntryOrder(proc_t proc, const on_NtSetDriverEntryOrder_fn& on_ntsetdriverentryorder)
 {
+    const auto ok = setup_func(proc, "NtSetDriverEntryOrder");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetDriverEntryOrder.push_back(on_ntsetdriverentryorder);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetDriverEntryOrder()
 {
-    LOG(INFO, "Break on NtSetDriverEntryOrder");
+    //LOG(INFO, "Break on NtSetDriverEntryOrder");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7908,14 +9473,19 @@ void monitor::GenericMonitor::on_NtSetDriverEntryOrder()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetEaFile(const on_NtSetEaFile_fn& on_ntseteafile)
+bool monitor::GenericMonitor::register_NtSetEaFile(proc_t proc, const on_NtSetEaFile_fn& on_ntseteafile)
 {
+    const auto ok = setup_func(proc, "NtSetEaFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetEaFile.push_back(on_ntseteafile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetEaFile()
 {
-    LOG(INFO, "Break on NtSetEaFile");
+    //LOG(INFO, "Break on NtSetEaFile");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -7933,14 +9503,19 @@ void monitor::GenericMonitor::on_NtSetEaFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetEventBoostPriority(const on_NtSetEventBoostPriority_fn& on_ntseteventboostpriority)
+bool monitor::GenericMonitor::register_NtSetEventBoostPriority(proc_t proc, const on_NtSetEventBoostPriority_fn& on_ntseteventboostpriority)
 {
+    const auto ok = setup_func(proc, "NtSetEventBoostPriority");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetEventBoostPriority.push_back(on_ntseteventboostpriority);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetEventBoostPriority()
 {
-    LOG(INFO, "Break on NtSetEventBoostPriority");
+    //LOG(INFO, "Break on NtSetEventBoostPriority");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -7955,14 +9530,19 @@ void monitor::GenericMonitor::on_NtSetEventBoostPriority()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetEvent(const on_NtSetEvent_fn& on_ntsetevent)
+bool monitor::GenericMonitor::register_NtSetEvent(proc_t proc, const on_NtSetEvent_fn& on_ntsetevent)
 {
+    const auto ok = setup_func(proc, "NtSetEvent");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetEvent.push_back(on_ntsetevent);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetEvent()
 {
-    LOG(INFO, "Break on NtSetEvent");
+    //LOG(INFO, "Break on NtSetEvent");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -7978,14 +9558,19 @@ void monitor::GenericMonitor::on_NtSetEvent()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetHighEventPair(const on_NtSetHighEventPair_fn& on_ntsethigheventpair)
+bool monitor::GenericMonitor::register_NtSetHighEventPair(proc_t proc, const on_NtSetHighEventPair_fn& on_ntsethigheventpair)
 {
+    const auto ok = setup_func(proc, "NtSetHighEventPair");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetHighEventPair.push_back(on_ntsethigheventpair);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetHighEventPair()
 {
-    LOG(INFO, "Break on NtSetHighEventPair");
+    //LOG(INFO, "Break on NtSetHighEventPair");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -8000,14 +9585,19 @@ void monitor::GenericMonitor::on_NtSetHighEventPair()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetHighWaitLowEventPair(const on_NtSetHighWaitLowEventPair_fn& on_ntsethighwaitloweventpair)
+bool monitor::GenericMonitor::register_NtSetHighWaitLowEventPair(proc_t proc, const on_NtSetHighWaitLowEventPair_fn& on_ntsethighwaitloweventpair)
 {
+    const auto ok = setup_func(proc, "NtSetHighWaitLowEventPair");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetHighWaitLowEventPair.push_back(on_ntsethighwaitloweventpair);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetHighWaitLowEventPair()
 {
-    LOG(INFO, "Break on NtSetHighWaitLowEventPair");
+    //LOG(INFO, "Break on NtSetHighWaitLowEventPair");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -8022,14 +9612,19 @@ void monitor::GenericMonitor::on_NtSetHighWaitLowEventPair()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetInformationDebugObject(const on_NtSetInformationDebugObject_fn& on_ntsetinformationdebugobject)
+bool monitor::GenericMonitor::register_NtSetInformationDebugObject(proc_t proc, const on_NtSetInformationDebugObject_fn& on_ntsetinformationdebugobject)
 {
+    const auto ok = setup_func(proc, "NtSetInformationDebugObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetInformationDebugObject.push_back(on_ntsetinformationdebugobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetInformationDebugObject()
 {
-    LOG(INFO, "Break on NtSetInformationDebugObject");
+    //LOG(INFO, "Break on NtSetInformationDebugObject");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -8048,14 +9643,19 @@ void monitor::GenericMonitor::on_NtSetInformationDebugObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetInformationEnlistment(const on_NtSetInformationEnlistment_fn& on_ntsetinformationenlistment)
+bool monitor::GenericMonitor::register_NtSetInformationEnlistment(proc_t proc, const on_NtSetInformationEnlistment_fn& on_ntsetinformationenlistment)
 {
+    const auto ok = setup_func(proc, "NtSetInformationEnlistment");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetInformationEnlistment.push_back(on_ntsetinformationenlistment);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetInformationEnlistment()
 {
-    LOG(INFO, "Break on NtSetInformationEnlistment");
+    //LOG(INFO, "Break on NtSetInformationEnlistment");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -8073,14 +9673,19 @@ void monitor::GenericMonitor::on_NtSetInformationEnlistment()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetInformationFile(const on_NtSetInformationFile_fn& on_ntsetinformationfile)
+bool monitor::GenericMonitor::register_NtSetInformationFile(proc_t proc, const on_NtSetInformationFile_fn& on_ntsetinformationfile)
 {
+    const auto ok = setup_func(proc, "NtSetInformationFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetInformationFile.push_back(on_ntsetinformationfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetInformationFile()
 {
-    LOG(INFO, "Break on NtSetInformationFile");
+    //LOG(INFO, "Break on NtSetInformationFile");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -8099,14 +9704,19 @@ void monitor::GenericMonitor::on_NtSetInformationFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetInformationJobObject(const on_NtSetInformationJobObject_fn& on_ntsetinformationjobobject)
+bool monitor::GenericMonitor::register_NtSetInformationJobObject(proc_t proc, const on_NtSetInformationJobObject_fn& on_ntsetinformationjobobject)
 {
+    const auto ok = setup_func(proc, "NtSetInformationJobObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetInformationJobObject.push_back(on_ntsetinformationjobobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetInformationJobObject()
 {
-    LOG(INFO, "Break on NtSetInformationJobObject");
+    //LOG(INFO, "Break on NtSetInformationJobObject");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -8124,14 +9734,19 @@ void monitor::GenericMonitor::on_NtSetInformationJobObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetInformationKey(const on_NtSetInformationKey_fn& on_ntsetinformationkey)
+bool monitor::GenericMonitor::register_NtSetInformationKey(proc_t proc, const on_NtSetInformationKey_fn& on_ntsetinformationkey)
 {
+    const auto ok = setup_func(proc, "NtSetInformationKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetInformationKey.push_back(on_ntsetinformationkey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetInformationKey()
 {
-    LOG(INFO, "Break on NtSetInformationKey");
+    //LOG(INFO, "Break on NtSetInformationKey");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -8149,14 +9764,19 @@ void monitor::GenericMonitor::on_NtSetInformationKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetInformationObject(const on_NtSetInformationObject_fn& on_ntsetinformationobject)
+bool monitor::GenericMonitor::register_NtSetInformationObject(proc_t proc, const on_NtSetInformationObject_fn& on_ntsetinformationobject)
 {
+    const auto ok = setup_func(proc, "NtSetInformationObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetInformationObject.push_back(on_ntsetinformationobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetInformationObject()
 {
-    LOG(INFO, "Break on NtSetInformationObject");
+    //LOG(INFO, "Break on NtSetInformationObject");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -8174,14 +9794,19 @@ void monitor::GenericMonitor::on_NtSetInformationObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetInformationProcess(const on_NtSetInformationProcess_fn& on_ntsetinformationprocess)
+bool monitor::GenericMonitor::register_NtSetInformationProcess(proc_t proc, const on_NtSetInformationProcess_fn& on_ntsetinformationprocess)
 {
+    const auto ok = setup_func(proc, "NtSetInformationProcess");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetInformationProcess.push_back(on_ntsetinformationprocess);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetInformationProcess()
 {
-    LOG(INFO, "Break on NtSetInformationProcess");
+    //LOG(INFO, "Break on NtSetInformationProcess");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -8199,14 +9824,19 @@ void monitor::GenericMonitor::on_NtSetInformationProcess()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetInformationResourceManager(const on_NtSetInformationResourceManager_fn& on_ntsetinformationresourcemanager)
+bool monitor::GenericMonitor::register_NtSetInformationResourceManager(proc_t proc, const on_NtSetInformationResourceManager_fn& on_ntsetinformationresourcemanager)
 {
+    const auto ok = setup_func(proc, "NtSetInformationResourceManager");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetInformationResourceManager.push_back(on_ntsetinformationresourcemanager);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetInformationResourceManager()
 {
-    LOG(INFO, "Break on NtSetInformationResourceManager");
+    //LOG(INFO, "Break on NtSetInformationResourceManager");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -8224,14 +9854,19 @@ void monitor::GenericMonitor::on_NtSetInformationResourceManager()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetInformationThread(const on_NtSetInformationThread_fn& on_ntsetinformationthread)
+bool monitor::GenericMonitor::register_NtSetInformationThread(proc_t proc, const on_NtSetInformationThread_fn& on_ntsetinformationthread)
 {
+    const auto ok = setup_func(proc, "NtSetInformationThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetInformationThread.push_back(on_ntsetinformationthread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetInformationThread()
 {
-    LOG(INFO, "Break on NtSetInformationThread");
+    //LOG(INFO, "Break on NtSetInformationThread");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -8249,14 +9884,19 @@ void monitor::GenericMonitor::on_NtSetInformationThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetInformationToken(const on_NtSetInformationToken_fn& on_ntsetinformationtoken)
+bool monitor::GenericMonitor::register_NtSetInformationToken(proc_t proc, const on_NtSetInformationToken_fn& on_ntsetinformationtoken)
 {
+    const auto ok = setup_func(proc, "NtSetInformationToken");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetInformationToken.push_back(on_ntsetinformationtoken);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetInformationToken()
 {
-    LOG(INFO, "Break on NtSetInformationToken");
+    //LOG(INFO, "Break on NtSetInformationToken");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -8274,14 +9914,19 @@ void monitor::GenericMonitor::on_NtSetInformationToken()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetInformationTransaction(const on_NtSetInformationTransaction_fn& on_ntsetinformationtransaction)
+bool monitor::GenericMonitor::register_NtSetInformationTransaction(proc_t proc, const on_NtSetInformationTransaction_fn& on_ntsetinformationtransaction)
 {
+    const auto ok = setup_func(proc, "NtSetInformationTransaction");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetInformationTransaction.push_back(on_ntsetinformationtransaction);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetInformationTransaction()
 {
-    LOG(INFO, "Break on NtSetInformationTransaction");
+    //LOG(INFO, "Break on NtSetInformationTransaction");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -8299,14 +9944,19 @@ void monitor::GenericMonitor::on_NtSetInformationTransaction()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetInformationTransactionManager(const on_NtSetInformationTransactionManager_fn& on_ntsetinformationtransactionmanager)
+bool monitor::GenericMonitor::register_NtSetInformationTransactionManager(proc_t proc, const on_NtSetInformationTransactionManager_fn& on_ntsetinformationtransactionmanager)
 {
+    const auto ok = setup_func(proc, "NtSetInformationTransactionManager");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetInformationTransactionManager.push_back(on_ntsetinformationtransactionmanager);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetInformationTransactionManager()
 {
-    LOG(INFO, "Break on NtSetInformationTransactionManager");
+    //LOG(INFO, "Break on NtSetInformationTransactionManager");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -8324,14 +9974,19 @@ void monitor::GenericMonitor::on_NtSetInformationTransactionManager()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetInformationWorkerFactory(const on_NtSetInformationWorkerFactory_fn& on_ntsetinformationworkerfactory)
+bool monitor::GenericMonitor::register_NtSetInformationWorkerFactory(proc_t proc, const on_NtSetInformationWorkerFactory_fn& on_ntsetinformationworkerfactory)
 {
+    const auto ok = setup_func(proc, "NtSetInformationWorkerFactory");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetInformationWorkerFactory.push_back(on_ntsetinformationworkerfactory);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetInformationWorkerFactory()
 {
-    LOG(INFO, "Break on NtSetInformationWorkerFactory");
+    //LOG(INFO, "Break on NtSetInformationWorkerFactory");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -8349,14 +10004,19 @@ void monitor::GenericMonitor::on_NtSetInformationWorkerFactory()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetIntervalProfile(const on_NtSetIntervalProfile_fn& on_ntsetintervalprofile)
+bool monitor::GenericMonitor::register_NtSetIntervalProfile(proc_t proc, const on_NtSetIntervalProfile_fn& on_ntsetintervalprofile)
 {
+    const auto ok = setup_func(proc, "NtSetIntervalProfile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetIntervalProfile.push_back(on_ntsetintervalprofile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetIntervalProfile()
 {
-    LOG(INFO, "Break on NtSetIntervalProfile");
+    //LOG(INFO, "Break on NtSetIntervalProfile");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -8372,14 +10032,19 @@ void monitor::GenericMonitor::on_NtSetIntervalProfile()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetIoCompletionEx(const on_NtSetIoCompletionEx_fn& on_ntsetiocompletionex)
+bool monitor::GenericMonitor::register_NtSetIoCompletionEx(proc_t proc, const on_NtSetIoCompletionEx_fn& on_ntsetiocompletionex)
 {
+    const auto ok = setup_func(proc, "NtSetIoCompletionEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetIoCompletionEx.push_back(on_ntsetiocompletionex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetIoCompletionEx()
 {
-    LOG(INFO, "Break on NtSetIoCompletionEx");
+    //LOG(INFO, "Break on NtSetIoCompletionEx");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -8399,14 +10064,19 @@ void monitor::GenericMonitor::on_NtSetIoCompletionEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetIoCompletion(const on_NtSetIoCompletion_fn& on_ntsetiocompletion)
+bool monitor::GenericMonitor::register_NtSetIoCompletion(proc_t proc, const on_NtSetIoCompletion_fn& on_ntsetiocompletion)
 {
+    const auto ok = setup_func(proc, "NtSetIoCompletion");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetIoCompletion.push_back(on_ntsetiocompletion);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetIoCompletion()
 {
-    LOG(INFO, "Break on NtSetIoCompletion");
+    //LOG(INFO, "Break on NtSetIoCompletion");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -8425,14 +10095,19 @@ void monitor::GenericMonitor::on_NtSetIoCompletion()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetLdtEntries(const on_NtSetLdtEntries_fn& on_ntsetldtentries)
+bool monitor::GenericMonitor::register_NtSetLdtEntries(proc_t proc, const on_NtSetLdtEntries_fn& on_ntsetldtentries)
 {
+    const auto ok = setup_func(proc, "NtSetLdtEntries");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetLdtEntries.push_back(on_ntsetldtentries);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetLdtEntries()
 {
-    LOG(INFO, "Break on NtSetLdtEntries");
+    //LOG(INFO, "Break on NtSetLdtEntries");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -8452,14 +10127,19 @@ void monitor::GenericMonitor::on_NtSetLdtEntries()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetLowEventPair(const on_NtSetLowEventPair_fn& on_ntsetloweventpair)
+bool monitor::GenericMonitor::register_NtSetLowEventPair(proc_t proc, const on_NtSetLowEventPair_fn& on_ntsetloweventpair)
 {
+    const auto ok = setup_func(proc, "NtSetLowEventPair");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetLowEventPair.push_back(on_ntsetloweventpair);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetLowEventPair()
 {
-    LOG(INFO, "Break on NtSetLowEventPair");
+    //LOG(INFO, "Break on NtSetLowEventPair");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -8474,14 +10154,19 @@ void monitor::GenericMonitor::on_NtSetLowEventPair()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetLowWaitHighEventPair(const on_NtSetLowWaitHighEventPair_fn& on_ntsetlowwaithigheventpair)
+bool monitor::GenericMonitor::register_NtSetLowWaitHighEventPair(proc_t proc, const on_NtSetLowWaitHighEventPair_fn& on_ntsetlowwaithigheventpair)
 {
+    const auto ok = setup_func(proc, "NtSetLowWaitHighEventPair");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetLowWaitHighEventPair.push_back(on_ntsetlowwaithigheventpair);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetLowWaitHighEventPair()
 {
-    LOG(INFO, "Break on NtSetLowWaitHighEventPair");
+    //LOG(INFO, "Break on NtSetLowWaitHighEventPair");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -8496,14 +10181,19 @@ void monitor::GenericMonitor::on_NtSetLowWaitHighEventPair()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetQuotaInformationFile(const on_NtSetQuotaInformationFile_fn& on_ntsetquotainformationfile)
+bool monitor::GenericMonitor::register_NtSetQuotaInformationFile(proc_t proc, const on_NtSetQuotaInformationFile_fn& on_ntsetquotainformationfile)
 {
+    const auto ok = setup_func(proc, "NtSetQuotaInformationFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetQuotaInformationFile.push_back(on_ntsetquotainformationfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetQuotaInformationFile()
 {
-    LOG(INFO, "Break on NtSetQuotaInformationFile");
+    //LOG(INFO, "Break on NtSetQuotaInformationFile");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -8521,14 +10211,19 @@ void monitor::GenericMonitor::on_NtSetQuotaInformationFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetSecurityObject(const on_NtSetSecurityObject_fn& on_ntsetsecurityobject)
+bool monitor::GenericMonitor::register_NtSetSecurityObject(proc_t proc, const on_NtSetSecurityObject_fn& on_ntsetsecurityobject)
 {
+    const auto ok = setup_func(proc, "NtSetSecurityObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetSecurityObject.push_back(on_ntsetsecurityobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetSecurityObject()
 {
-    LOG(INFO, "Break on NtSetSecurityObject");
+    //LOG(INFO, "Break on NtSetSecurityObject");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -8545,14 +10240,19 @@ void monitor::GenericMonitor::on_NtSetSecurityObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetSystemEnvironmentValueEx(const on_NtSetSystemEnvironmentValueEx_fn& on_ntsetsystemenvironmentvalueex)
+bool monitor::GenericMonitor::register_NtSetSystemEnvironmentValueEx(proc_t proc, const on_NtSetSystemEnvironmentValueEx_fn& on_ntsetsystemenvironmentvalueex)
 {
+    const auto ok = setup_func(proc, "NtSetSystemEnvironmentValueEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetSystemEnvironmentValueEx.push_back(on_ntsetsystemenvironmentvalueex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetSystemEnvironmentValueEx()
 {
-    LOG(INFO, "Break on NtSetSystemEnvironmentValueEx");
+    //LOG(INFO, "Break on NtSetSystemEnvironmentValueEx");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -8571,14 +10271,19 @@ void monitor::GenericMonitor::on_NtSetSystemEnvironmentValueEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetSystemEnvironmentValue(const on_NtSetSystemEnvironmentValue_fn& on_ntsetsystemenvironmentvalue)
+bool monitor::GenericMonitor::register_NtSetSystemEnvironmentValue(proc_t proc, const on_NtSetSystemEnvironmentValue_fn& on_ntsetsystemenvironmentvalue)
 {
+    const auto ok = setup_func(proc, "NtSetSystemEnvironmentValue");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetSystemEnvironmentValue.push_back(on_ntsetsystemenvironmentvalue);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetSystemEnvironmentValue()
 {
-    LOG(INFO, "Break on NtSetSystemEnvironmentValue");
+    //LOG(INFO, "Break on NtSetSystemEnvironmentValue");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -8594,14 +10299,19 @@ void monitor::GenericMonitor::on_NtSetSystemEnvironmentValue()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetSystemInformation(const on_NtSetSystemInformation_fn& on_ntsetsysteminformation)
+bool monitor::GenericMonitor::register_NtSetSystemInformation(proc_t proc, const on_NtSetSystemInformation_fn& on_ntsetsysteminformation)
 {
+    const auto ok = setup_func(proc, "NtSetSystemInformation");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetSystemInformation.push_back(on_ntsetsysteminformation);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetSystemInformation()
 {
-    LOG(INFO, "Break on NtSetSystemInformation");
+    //LOG(INFO, "Break on NtSetSystemInformation");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -8618,14 +10328,19 @@ void monitor::GenericMonitor::on_NtSetSystemInformation()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetSystemPowerState(const on_NtSetSystemPowerState_fn& on_ntsetsystempowerstate)
+bool monitor::GenericMonitor::register_NtSetSystemPowerState(proc_t proc, const on_NtSetSystemPowerState_fn& on_ntsetsystempowerstate)
 {
+    const auto ok = setup_func(proc, "NtSetSystemPowerState");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetSystemPowerState.push_back(on_ntsetsystempowerstate);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetSystemPowerState()
 {
-    LOG(INFO, "Break on NtSetSystemPowerState");
+    //LOG(INFO, "Break on NtSetSystemPowerState");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -8642,14 +10357,19 @@ void monitor::GenericMonitor::on_NtSetSystemPowerState()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetSystemTime(const on_NtSetSystemTime_fn& on_ntsetsystemtime)
+bool monitor::GenericMonitor::register_NtSetSystemTime(proc_t proc, const on_NtSetSystemTime_fn& on_ntsetsystemtime)
 {
+    const auto ok = setup_func(proc, "NtSetSystemTime");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetSystemTime.push_back(on_ntsetsystemtime);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetSystemTime()
 {
-    LOG(INFO, "Break on NtSetSystemTime");
+    //LOG(INFO, "Break on NtSetSystemTime");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -8665,14 +10385,19 @@ void monitor::GenericMonitor::on_NtSetSystemTime()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetThreadExecutionState(const on_NtSetThreadExecutionState_fn& on_ntsetthreadexecutionstate)
+bool monitor::GenericMonitor::register_NtSetThreadExecutionState(proc_t proc, const on_NtSetThreadExecutionState_fn& on_ntsetthreadexecutionstate)
 {
+    const auto ok = setup_func(proc, "NtSetThreadExecutionState");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetThreadExecutionState.push_back(on_ntsetthreadexecutionstate);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetThreadExecutionState()
 {
-    LOG(INFO, "Break on NtSetThreadExecutionState");
+    //LOG(INFO, "Break on NtSetThreadExecutionState");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -8688,14 +10413,19 @@ void monitor::GenericMonitor::on_NtSetThreadExecutionState()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetTimerEx(const on_NtSetTimerEx_fn& on_ntsettimerex)
+bool monitor::GenericMonitor::register_NtSetTimerEx(proc_t proc, const on_NtSetTimerEx_fn& on_ntsettimerex)
 {
+    const auto ok = setup_func(proc, "NtSetTimerEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetTimerEx.push_back(on_ntsettimerex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetTimerEx()
 {
-    LOG(INFO, "Break on NtSetTimerEx");
+    //LOG(INFO, "Break on NtSetTimerEx");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -8713,14 +10443,19 @@ void monitor::GenericMonitor::on_NtSetTimerEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetTimer(const on_NtSetTimer_fn& on_ntsettimer)
+bool monitor::GenericMonitor::register_NtSetTimer(proc_t proc, const on_NtSetTimer_fn& on_ntsettimer)
 {
+    const auto ok = setup_func(proc, "NtSetTimer");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetTimer.push_back(on_ntsettimer);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetTimer()
 {
-    LOG(INFO, "Break on NtSetTimer");
+    //LOG(INFO, "Break on NtSetTimer");
     const auto nargs = 7;
 
     std::vector<arg_t> args;
@@ -8741,14 +10476,19 @@ void monitor::GenericMonitor::on_NtSetTimer()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetTimerResolution(const on_NtSetTimerResolution_fn& on_ntsettimerresolution)
+bool monitor::GenericMonitor::register_NtSetTimerResolution(proc_t proc, const on_NtSetTimerResolution_fn& on_ntsettimerresolution)
 {
+    const auto ok = setup_func(proc, "NtSetTimerResolution");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetTimerResolution.push_back(on_ntsettimerresolution);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetTimerResolution()
 {
-    LOG(INFO, "Break on NtSetTimerResolution");
+    //LOG(INFO, "Break on NtSetTimerResolution");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -8765,14 +10505,19 @@ void monitor::GenericMonitor::on_NtSetTimerResolution()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetUuidSeed(const on_NtSetUuidSeed_fn& on_ntsetuuidseed)
+bool monitor::GenericMonitor::register_NtSetUuidSeed(proc_t proc, const on_NtSetUuidSeed_fn& on_ntsetuuidseed)
 {
+    const auto ok = setup_func(proc, "NtSetUuidSeed");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetUuidSeed.push_back(on_ntsetuuidseed);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetUuidSeed()
 {
-    LOG(INFO, "Break on NtSetUuidSeed");
+    //LOG(INFO, "Break on NtSetUuidSeed");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -8787,14 +10532,19 @@ void monitor::GenericMonitor::on_NtSetUuidSeed()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetValueKey(const on_NtSetValueKey_fn& on_ntsetvaluekey)
+bool monitor::GenericMonitor::register_NtSetValueKey(proc_t proc, const on_NtSetValueKey_fn& on_ntsetvaluekey)
 {
+    const auto ok = setup_func(proc, "NtSetValueKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetValueKey.push_back(on_ntsetvaluekey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetValueKey()
 {
-    LOG(INFO, "Break on NtSetValueKey");
+    //LOG(INFO, "Break on NtSetValueKey");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -8814,14 +10564,19 @@ void monitor::GenericMonitor::on_NtSetValueKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtSetVolumeInformationFile(const on_NtSetVolumeInformationFile_fn& on_ntsetvolumeinformationfile)
+bool monitor::GenericMonitor::register_NtSetVolumeInformationFile(proc_t proc, const on_NtSetVolumeInformationFile_fn& on_ntsetvolumeinformationfile)
 {
+    const auto ok = setup_func(proc, "NtSetVolumeInformationFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSetVolumeInformationFile.push_back(on_ntsetvolumeinformationfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSetVolumeInformationFile()
 {
-    LOG(INFO, "Break on NtSetVolumeInformationFile");
+    //LOG(INFO, "Break on NtSetVolumeInformationFile");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -8840,14 +10595,19 @@ void monitor::GenericMonitor::on_NtSetVolumeInformationFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtShutdownSystem(const on_NtShutdownSystem_fn& on_ntshutdownsystem)
+bool monitor::GenericMonitor::register_NtShutdownSystem(proc_t proc, const on_NtShutdownSystem_fn& on_ntshutdownsystem)
 {
+    const auto ok = setup_func(proc, "NtShutdownSystem");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtShutdownSystem.push_back(on_ntshutdownsystem);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtShutdownSystem()
 {
-    LOG(INFO, "Break on NtShutdownSystem");
+    //LOG(INFO, "Break on NtShutdownSystem");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -8862,14 +10622,19 @@ void monitor::GenericMonitor::on_NtShutdownSystem()
     }
 }
 
-void monitor::GenericMonitor::register_NtShutdownWorkerFactory(const on_NtShutdownWorkerFactory_fn& on_ntshutdownworkerfactory)
+bool monitor::GenericMonitor::register_NtShutdownWorkerFactory(proc_t proc, const on_NtShutdownWorkerFactory_fn& on_ntshutdownworkerfactory)
 {
+    const auto ok = setup_func(proc, "NtShutdownWorkerFactory");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtShutdownWorkerFactory.push_back(on_ntshutdownworkerfactory);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtShutdownWorkerFactory()
 {
-    LOG(INFO, "Break on NtShutdownWorkerFactory");
+    //LOG(INFO, "Break on NtShutdownWorkerFactory");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -8885,14 +10650,19 @@ void monitor::GenericMonitor::on_NtShutdownWorkerFactory()
     }
 }
 
-void monitor::GenericMonitor::register_NtSignalAndWaitForSingleObject(const on_NtSignalAndWaitForSingleObject_fn& on_ntsignalandwaitforsingleobject)
+bool monitor::GenericMonitor::register_NtSignalAndWaitForSingleObject(proc_t proc, const on_NtSignalAndWaitForSingleObject_fn& on_ntsignalandwaitforsingleobject)
 {
+    const auto ok = setup_func(proc, "NtSignalAndWaitForSingleObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSignalAndWaitForSingleObject.push_back(on_ntsignalandwaitforsingleobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSignalAndWaitForSingleObject()
 {
-    LOG(INFO, "Break on NtSignalAndWaitForSingleObject");
+    //LOG(INFO, "Break on NtSignalAndWaitForSingleObject");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -8910,14 +10680,19 @@ void monitor::GenericMonitor::on_NtSignalAndWaitForSingleObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtSinglePhaseReject(const on_NtSinglePhaseReject_fn& on_ntsinglephasereject)
+bool monitor::GenericMonitor::register_NtSinglePhaseReject(proc_t proc, const on_NtSinglePhaseReject_fn& on_ntsinglephasereject)
 {
+    const auto ok = setup_func(proc, "NtSinglePhaseReject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSinglePhaseReject.push_back(on_ntsinglephasereject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSinglePhaseReject()
 {
-    LOG(INFO, "Break on NtSinglePhaseReject");
+    //LOG(INFO, "Break on NtSinglePhaseReject");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -8933,14 +10708,19 @@ void monitor::GenericMonitor::on_NtSinglePhaseReject()
     }
 }
 
-void monitor::GenericMonitor::register_NtStartProfile(const on_NtStartProfile_fn& on_ntstartprofile)
+bool monitor::GenericMonitor::register_NtStartProfile(proc_t proc, const on_NtStartProfile_fn& on_ntstartprofile)
 {
+    const auto ok = setup_func(proc, "NtStartProfile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtStartProfile.push_back(on_ntstartprofile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtStartProfile()
 {
-    LOG(INFO, "Break on NtStartProfile");
+    //LOG(INFO, "Break on NtStartProfile");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -8955,14 +10735,19 @@ void monitor::GenericMonitor::on_NtStartProfile()
     }
 }
 
-void monitor::GenericMonitor::register_NtStopProfile(const on_NtStopProfile_fn& on_ntstopprofile)
+bool monitor::GenericMonitor::register_NtStopProfile(proc_t proc, const on_NtStopProfile_fn& on_ntstopprofile)
 {
+    const auto ok = setup_func(proc, "NtStopProfile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtStopProfile.push_back(on_ntstopprofile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtStopProfile()
 {
-    LOG(INFO, "Break on NtStopProfile");
+    //LOG(INFO, "Break on NtStopProfile");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -8977,14 +10762,19 @@ void monitor::GenericMonitor::on_NtStopProfile()
     }
 }
 
-void monitor::GenericMonitor::register_NtSuspendProcess(const on_NtSuspendProcess_fn& on_ntsuspendprocess)
+bool monitor::GenericMonitor::register_NtSuspendProcess(proc_t proc, const on_NtSuspendProcess_fn& on_ntsuspendprocess)
 {
+    const auto ok = setup_func(proc, "NtSuspendProcess");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSuspendProcess.push_back(on_ntsuspendprocess);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSuspendProcess()
 {
-    LOG(INFO, "Break on NtSuspendProcess");
+    //LOG(INFO, "Break on NtSuspendProcess");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -8999,14 +10789,19 @@ void monitor::GenericMonitor::on_NtSuspendProcess()
     }
 }
 
-void monitor::GenericMonitor::register_NtSuspendThread(const on_NtSuspendThread_fn& on_ntsuspendthread)
+bool monitor::GenericMonitor::register_NtSuspendThread(proc_t proc, const on_NtSuspendThread_fn& on_ntsuspendthread)
 {
+    const auto ok = setup_func(proc, "NtSuspendThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSuspendThread.push_back(on_ntsuspendthread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSuspendThread()
 {
-    LOG(INFO, "Break on NtSuspendThread");
+    //LOG(INFO, "Break on NtSuspendThread");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -9022,14 +10817,19 @@ void monitor::GenericMonitor::on_NtSuspendThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtSystemDebugControl(const on_NtSystemDebugControl_fn& on_ntsystemdebugcontrol)
+bool monitor::GenericMonitor::register_NtSystemDebugControl(proc_t proc, const on_NtSystemDebugControl_fn& on_ntsystemdebugcontrol)
 {
+    const auto ok = setup_func(proc, "NtSystemDebugControl");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSystemDebugControl.push_back(on_ntsystemdebugcontrol);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSystemDebugControl()
 {
-    LOG(INFO, "Break on NtSystemDebugControl");
+    //LOG(INFO, "Break on NtSystemDebugControl");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -9049,14 +10849,19 @@ void monitor::GenericMonitor::on_NtSystemDebugControl()
     }
 }
 
-void monitor::GenericMonitor::register_NtTerminateJobObject(const on_NtTerminateJobObject_fn& on_ntterminatejobobject)
+bool monitor::GenericMonitor::register_NtTerminateJobObject(proc_t proc, const on_NtTerminateJobObject_fn& on_ntterminatejobobject)
 {
+    const auto ok = setup_func(proc, "NtTerminateJobObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtTerminateJobObject.push_back(on_ntterminatejobobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtTerminateJobObject()
 {
-    LOG(INFO, "Break on NtTerminateJobObject");
+    //LOG(INFO, "Break on NtTerminateJobObject");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -9072,14 +10877,19 @@ void monitor::GenericMonitor::on_NtTerminateJobObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtTerminateProcess(const on_NtTerminateProcess_fn& on_ntterminateprocess)
+bool monitor::GenericMonitor::register_NtTerminateProcess(proc_t proc, const on_NtTerminateProcess_fn& on_ntterminateprocess)
 {
+    const auto ok = setup_func(proc, "NtTerminateProcess");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtTerminateProcess.push_back(on_ntterminateprocess);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtTerminateProcess()
 {
-    LOG(INFO, "Break on NtTerminateProcess");
+    //LOG(INFO, "Break on NtTerminateProcess");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -9095,14 +10905,19 @@ void monitor::GenericMonitor::on_NtTerminateProcess()
     }
 }
 
-void monitor::GenericMonitor::register_NtTerminateThread(const on_NtTerminateThread_fn& on_ntterminatethread)
+bool monitor::GenericMonitor::register_NtTerminateThread(proc_t proc, const on_NtTerminateThread_fn& on_ntterminatethread)
 {
+    const auto ok = setup_func(proc, "NtTerminateThread");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtTerminateThread.push_back(on_ntterminatethread);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtTerminateThread()
 {
-    LOG(INFO, "Break on NtTerminateThread");
+    //LOG(INFO, "Break on NtTerminateThread");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -9118,14 +10933,19 @@ void monitor::GenericMonitor::on_NtTerminateThread()
     }
 }
 
-void monitor::GenericMonitor::register_NtTraceControl(const on_NtTraceControl_fn& on_nttracecontrol)
+bool monitor::GenericMonitor::register_NtTraceControl(proc_t proc, const on_NtTraceControl_fn& on_nttracecontrol)
 {
+    const auto ok = setup_func(proc, "NtTraceControl");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtTraceControl.push_back(on_nttracecontrol);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtTraceControl()
 {
-    LOG(INFO, "Break on NtTraceControl");
+    //LOG(INFO, "Break on NtTraceControl");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -9145,14 +10965,19 @@ void monitor::GenericMonitor::on_NtTraceControl()
     }
 }
 
-void monitor::GenericMonitor::register_NtTraceEvent(const on_NtTraceEvent_fn& on_nttraceevent)
+bool monitor::GenericMonitor::register_NtTraceEvent(proc_t proc, const on_NtTraceEvent_fn& on_nttraceevent)
 {
+    const auto ok = setup_func(proc, "NtTraceEvent");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtTraceEvent.push_back(on_nttraceevent);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtTraceEvent()
 {
-    LOG(INFO, "Break on NtTraceEvent");
+    //LOG(INFO, "Break on NtTraceEvent");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -9170,14 +10995,19 @@ void monitor::GenericMonitor::on_NtTraceEvent()
     }
 }
 
-void monitor::GenericMonitor::register_NtTranslateFilePath(const on_NtTranslateFilePath_fn& on_nttranslatefilepath)
+bool monitor::GenericMonitor::register_NtTranslateFilePath(proc_t proc, const on_NtTranslateFilePath_fn& on_nttranslatefilepath)
 {
+    const auto ok = setup_func(proc, "NtTranslateFilePath");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtTranslateFilePath.push_back(on_nttranslatefilepath);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtTranslateFilePath()
 {
-    LOG(INFO, "Break on NtTranslateFilePath");
+    //LOG(INFO, "Break on NtTranslateFilePath");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -9195,14 +11025,19 @@ void monitor::GenericMonitor::on_NtTranslateFilePath()
     }
 }
 
-void monitor::GenericMonitor::register_NtUnloadDriver(const on_NtUnloadDriver_fn& on_ntunloaddriver)
+bool monitor::GenericMonitor::register_NtUnloadDriver(proc_t proc, const on_NtUnloadDriver_fn& on_ntunloaddriver)
 {
+    const auto ok = setup_func(proc, "NtUnloadDriver");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtUnloadDriver.push_back(on_ntunloaddriver);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtUnloadDriver()
 {
-    LOG(INFO, "Break on NtUnloadDriver");
+    //LOG(INFO, "Break on NtUnloadDriver");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -9217,14 +11052,19 @@ void monitor::GenericMonitor::on_NtUnloadDriver()
     }
 }
 
-void monitor::GenericMonitor::register_NtUnloadKey2(const on_NtUnloadKey2_fn& on_ntunloadkey2)
+bool monitor::GenericMonitor::register_NtUnloadKey2(proc_t proc, const on_NtUnloadKey2_fn& on_ntunloadkey2)
 {
+    const auto ok = setup_func(proc, "NtUnloadKey2");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtUnloadKey2.push_back(on_ntunloadkey2);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtUnloadKey2()
 {
-    LOG(INFO, "Break on NtUnloadKey2");
+    //LOG(INFO, "Break on NtUnloadKey2");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -9240,14 +11080,19 @@ void monitor::GenericMonitor::on_NtUnloadKey2()
     }
 }
 
-void monitor::GenericMonitor::register_NtUnloadKeyEx(const on_NtUnloadKeyEx_fn& on_ntunloadkeyex)
+bool monitor::GenericMonitor::register_NtUnloadKeyEx(proc_t proc, const on_NtUnloadKeyEx_fn& on_ntunloadkeyex)
 {
+    const auto ok = setup_func(proc, "NtUnloadKeyEx");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtUnloadKeyEx.push_back(on_ntunloadkeyex);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtUnloadKeyEx()
 {
-    LOG(INFO, "Break on NtUnloadKeyEx");
+    //LOG(INFO, "Break on NtUnloadKeyEx");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -9263,14 +11108,19 @@ void monitor::GenericMonitor::on_NtUnloadKeyEx()
     }
 }
 
-void monitor::GenericMonitor::register_NtUnloadKey(const on_NtUnloadKey_fn& on_ntunloadkey)
+bool monitor::GenericMonitor::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey_fn& on_ntunloadkey)
 {
+    const auto ok = setup_func(proc, "NtUnloadKey");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtUnloadKey.push_back(on_ntunloadkey);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtUnloadKey()
 {
-    LOG(INFO, "Break on NtUnloadKey");
+    //LOG(INFO, "Break on NtUnloadKey");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -9285,14 +11135,19 @@ void monitor::GenericMonitor::on_NtUnloadKey()
     }
 }
 
-void monitor::GenericMonitor::register_NtUnlockFile(const on_NtUnlockFile_fn& on_ntunlockfile)
+bool monitor::GenericMonitor::register_NtUnlockFile(proc_t proc, const on_NtUnlockFile_fn& on_ntunlockfile)
 {
+    const auto ok = setup_func(proc, "NtUnlockFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtUnlockFile.push_back(on_ntunlockfile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtUnlockFile()
 {
-    LOG(INFO, "Break on NtUnlockFile");
+    //LOG(INFO, "Break on NtUnlockFile");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -9311,14 +11166,19 @@ void monitor::GenericMonitor::on_NtUnlockFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtUnlockVirtualMemory(const on_NtUnlockVirtualMemory_fn& on_ntunlockvirtualmemory)
+bool monitor::GenericMonitor::register_NtUnlockVirtualMemory(proc_t proc, const on_NtUnlockVirtualMemory_fn& on_ntunlockvirtualmemory)
 {
+    const auto ok = setup_func(proc, "NtUnlockVirtualMemory");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtUnlockVirtualMemory.push_back(on_ntunlockvirtualmemory);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtUnlockVirtualMemory()
 {
-    LOG(INFO, "Break on NtUnlockVirtualMemory");
+    //LOG(INFO, "Break on NtUnlockVirtualMemory");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -9336,14 +11196,19 @@ void monitor::GenericMonitor::on_NtUnlockVirtualMemory()
     }
 }
 
-void monitor::GenericMonitor::register_NtUnmapViewOfSection(const on_NtUnmapViewOfSection_fn& on_ntunmapviewofsection)
+bool monitor::GenericMonitor::register_NtUnmapViewOfSection(proc_t proc, const on_NtUnmapViewOfSection_fn& on_ntunmapviewofsection)
 {
+    const auto ok = setup_func(proc, "NtUnmapViewOfSection");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtUnmapViewOfSection.push_back(on_ntunmapviewofsection);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtUnmapViewOfSection()
 {
-    LOG(INFO, "Break on NtUnmapViewOfSection");
+    //LOG(INFO, "Break on NtUnmapViewOfSection");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -9359,14 +11224,19 @@ void monitor::GenericMonitor::on_NtUnmapViewOfSection()
     }
 }
 
-void monitor::GenericMonitor::register_NtVdmControl(const on_NtVdmControl_fn& on_ntvdmcontrol)
+bool monitor::GenericMonitor::register_NtVdmControl(proc_t proc, const on_NtVdmControl_fn& on_ntvdmcontrol)
 {
+    const auto ok = setup_func(proc, "NtVdmControl");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtVdmControl.push_back(on_ntvdmcontrol);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtVdmControl()
 {
-    LOG(INFO, "Break on NtVdmControl");
+    //LOG(INFO, "Break on NtVdmControl");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -9382,14 +11252,19 @@ void monitor::GenericMonitor::on_NtVdmControl()
     }
 }
 
-void monitor::GenericMonitor::register_NtWaitForDebugEvent(const on_NtWaitForDebugEvent_fn& on_ntwaitfordebugevent)
+bool monitor::GenericMonitor::register_NtWaitForDebugEvent(proc_t proc, const on_NtWaitForDebugEvent_fn& on_ntwaitfordebugevent)
 {
+    const auto ok = setup_func(proc, "NtWaitForDebugEvent");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtWaitForDebugEvent.push_back(on_ntwaitfordebugevent);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtWaitForDebugEvent()
 {
-    LOG(INFO, "Break on NtWaitForDebugEvent");
+    //LOG(INFO, "Break on NtWaitForDebugEvent");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -9407,14 +11282,19 @@ void monitor::GenericMonitor::on_NtWaitForDebugEvent()
     }
 }
 
-void monitor::GenericMonitor::register_NtWaitForKeyedEvent(const on_NtWaitForKeyedEvent_fn& on_ntwaitforkeyedevent)
+bool monitor::GenericMonitor::register_NtWaitForKeyedEvent(proc_t proc, const on_NtWaitForKeyedEvent_fn& on_ntwaitforkeyedevent)
 {
+    const auto ok = setup_func(proc, "NtWaitForKeyedEvent");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtWaitForKeyedEvent.push_back(on_ntwaitforkeyedevent);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtWaitForKeyedEvent()
 {
-    LOG(INFO, "Break on NtWaitForKeyedEvent");
+    //LOG(INFO, "Break on NtWaitForKeyedEvent");
     const auto nargs = 4;
 
     std::vector<arg_t> args;
@@ -9432,14 +11312,19 @@ void monitor::GenericMonitor::on_NtWaitForKeyedEvent()
     }
 }
 
-void monitor::GenericMonitor::register_NtWaitForMultipleObjects32(const on_NtWaitForMultipleObjects32_fn& on_ntwaitformultipleobjects32)
+bool monitor::GenericMonitor::register_NtWaitForMultipleObjects32(proc_t proc, const on_NtWaitForMultipleObjects32_fn& on_ntwaitformultipleobjects32)
 {
+    const auto ok = setup_func(proc, "NtWaitForMultipleObjects32");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtWaitForMultipleObjects32.push_back(on_ntwaitformultipleobjects32);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtWaitForMultipleObjects32()
 {
-    LOG(INFO, "Break on NtWaitForMultipleObjects32");
+    //LOG(INFO, "Break on NtWaitForMultipleObjects32");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -9458,14 +11343,19 @@ void monitor::GenericMonitor::on_NtWaitForMultipleObjects32()
     }
 }
 
-void monitor::GenericMonitor::register_NtWaitForMultipleObjects(const on_NtWaitForMultipleObjects_fn& on_ntwaitformultipleobjects)
+bool monitor::GenericMonitor::register_NtWaitForMultipleObjects(proc_t proc, const on_NtWaitForMultipleObjects_fn& on_ntwaitformultipleobjects)
 {
+    const auto ok = setup_func(proc, "NtWaitForMultipleObjects");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtWaitForMultipleObjects.push_back(on_ntwaitformultipleobjects);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtWaitForMultipleObjects()
 {
-    LOG(INFO, "Break on NtWaitForMultipleObjects");
+    //LOG(INFO, "Break on NtWaitForMultipleObjects");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -9484,14 +11374,19 @@ void monitor::GenericMonitor::on_NtWaitForMultipleObjects()
     }
 }
 
-void monitor::GenericMonitor::register_NtWaitForSingleObject(const on_NtWaitForSingleObject_fn& on_ntwaitforsingleobject)
+bool monitor::GenericMonitor::register_NtWaitForSingleObject(proc_t proc, const on_NtWaitForSingleObject_fn& on_ntwaitforsingleobject)
 {
+    const auto ok = setup_func(proc, "NtWaitForSingleObject");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtWaitForSingleObject.push_back(on_ntwaitforsingleobject);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtWaitForSingleObject()
 {
-    LOG(INFO, "Break on NtWaitForSingleObject");
+    //LOG(INFO, "Break on NtWaitForSingleObject");
     const auto nargs = 3;
 
     std::vector<arg_t> args;
@@ -9508,14 +11403,19 @@ void monitor::GenericMonitor::on_NtWaitForSingleObject()
     }
 }
 
-void monitor::GenericMonitor::register_NtWaitForWorkViaWorkerFactory(const on_NtWaitForWorkViaWorkerFactory_fn& on_ntwaitforworkviaworkerfactory)
+bool monitor::GenericMonitor::register_NtWaitForWorkViaWorkerFactory(proc_t proc, const on_NtWaitForWorkViaWorkerFactory_fn& on_ntwaitforworkviaworkerfactory)
 {
+    const auto ok = setup_func(proc, "NtWaitForWorkViaWorkerFactory");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtWaitForWorkViaWorkerFactory.push_back(on_ntwaitforworkviaworkerfactory);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtWaitForWorkViaWorkerFactory()
 {
-    LOG(INFO, "Break on NtWaitForWorkViaWorkerFactory");
+    //LOG(INFO, "Break on NtWaitForWorkViaWorkerFactory");
     const auto nargs = 2;
 
     std::vector<arg_t> args;
@@ -9531,14 +11431,19 @@ void monitor::GenericMonitor::on_NtWaitForWorkViaWorkerFactory()
     }
 }
 
-void monitor::GenericMonitor::register_NtWaitHighEventPair(const on_NtWaitHighEventPair_fn& on_ntwaithigheventpair)
+bool monitor::GenericMonitor::register_NtWaitHighEventPair(proc_t proc, const on_NtWaitHighEventPair_fn& on_ntwaithigheventpair)
 {
+    const auto ok = setup_func(proc, "NtWaitHighEventPair");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtWaitHighEventPair.push_back(on_ntwaithigheventpair);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtWaitHighEventPair()
 {
-    LOG(INFO, "Break on NtWaitHighEventPair");
+    //LOG(INFO, "Break on NtWaitHighEventPair");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -9553,14 +11458,19 @@ void monitor::GenericMonitor::on_NtWaitHighEventPair()
     }
 }
 
-void monitor::GenericMonitor::register_NtWaitLowEventPair(const on_NtWaitLowEventPair_fn& on_ntwaitloweventpair)
+bool monitor::GenericMonitor::register_NtWaitLowEventPair(proc_t proc, const on_NtWaitLowEventPair_fn& on_ntwaitloweventpair)
 {
+    const auto ok = setup_func(proc, "NtWaitLowEventPair");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtWaitLowEventPair.push_back(on_ntwaitloweventpair);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtWaitLowEventPair()
 {
-    LOG(INFO, "Break on NtWaitLowEventPair");
+    //LOG(INFO, "Break on NtWaitLowEventPair");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -9575,14 +11485,19 @@ void monitor::GenericMonitor::on_NtWaitLowEventPair()
     }
 }
 
-void monitor::GenericMonitor::register_NtWorkerFactoryWorkerReady(const on_NtWorkerFactoryWorkerReady_fn& on_ntworkerfactoryworkerready)
+bool monitor::GenericMonitor::register_NtWorkerFactoryWorkerReady(proc_t proc, const on_NtWorkerFactoryWorkerReady_fn& on_ntworkerfactoryworkerready)
 {
+    const auto ok = setup_func(proc, "NtWorkerFactoryWorkerReady");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtWorkerFactoryWorkerReady.push_back(on_ntworkerfactoryworkerready);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtWorkerFactoryWorkerReady()
 {
-    LOG(INFO, "Break on NtWorkerFactoryWorkerReady");
+    //LOG(INFO, "Break on NtWorkerFactoryWorkerReady");
     const auto nargs = 1;
 
     std::vector<arg_t> args;
@@ -9597,14 +11512,19 @@ void monitor::GenericMonitor::on_NtWorkerFactoryWorkerReady()
     }
 }
 
-void monitor::GenericMonitor::register_NtWriteFileGather(const on_NtWriteFileGather_fn& on_ntwritefilegather)
+bool monitor::GenericMonitor::register_NtWriteFileGather(proc_t proc, const on_NtWriteFileGather_fn& on_ntwritefilegather)
 {
+    const auto ok = setup_func(proc, "NtWriteFileGather");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtWriteFileGather.push_back(on_ntwritefilegather);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtWriteFileGather()
 {
-    LOG(INFO, "Break on NtWriteFileGather");
+    //LOG(INFO, "Break on NtWriteFileGather");
     const auto nargs = 9;
 
     std::vector<arg_t> args;
@@ -9627,14 +11547,19 @@ void monitor::GenericMonitor::on_NtWriteFileGather()
     }
 }
 
-void monitor::GenericMonitor::register_NtWriteFile(const on_NtWriteFile_fn& on_ntwritefile)
+bool monitor::GenericMonitor::register_NtWriteFile(proc_t proc, const on_NtWriteFile_fn& on_ntwritefile)
 {
+    const auto ok = setup_func(proc, "NtWriteFile");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtWriteFile.push_back(on_ntwritefile);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtWriteFile()
 {
-    LOG(INFO, "Break on NtWriteFile");
+    //LOG(INFO, "Break on NtWriteFile");
     const auto nargs = 9;
 
     std::vector<arg_t> args;
@@ -9657,14 +11582,19 @@ void monitor::GenericMonitor::on_NtWriteFile()
     }
 }
 
-void monitor::GenericMonitor::register_NtWriteRequestData(const on_NtWriteRequestData_fn& on_ntwriterequestdata)
+bool monitor::GenericMonitor::register_NtWriteRequestData(proc_t proc, const on_NtWriteRequestData_fn& on_ntwriterequestdata)
 {
+    const auto ok = setup_func(proc, "NtWriteRequestData");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtWriteRequestData.push_back(on_ntwriterequestdata);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtWriteRequestData()
 {
-    LOG(INFO, "Break on NtWriteRequestData");
+    //LOG(INFO, "Break on NtWriteRequestData");
     const auto nargs = 6;
 
     std::vector<arg_t> args;
@@ -9684,14 +11614,19 @@ void monitor::GenericMonitor::on_NtWriteRequestData()
     }
 }
 
-void monitor::GenericMonitor::register_NtWriteVirtualMemory(const on_NtWriteVirtualMemory_fn& on_ntwritevirtualmemory)
+bool monitor::GenericMonitor::register_NtWriteVirtualMemory(proc_t proc, const on_NtWriteVirtualMemory_fn& on_ntwritevirtualmemory)
 {
+    const auto ok = setup_func(proc, "NtWriteVirtualMemory");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtWriteVirtualMemory.push_back(on_ntwritevirtualmemory);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtWriteVirtualMemory()
 {
-    LOG(INFO, "Break on NtWriteVirtualMemory");
+    //LOG(INFO, "Break on NtWriteVirtualMemory");
     const auto nargs = 5;
 
     std::vector<arg_t> args;
@@ -9710,14 +11645,19 @@ void monitor::GenericMonitor::on_NtWriteVirtualMemory()
     }
 }
 
-void monitor::GenericMonitor::register_NtDisableLastKnownGood(const on_NtDisableLastKnownGood_fn& on_ntdisablelastknowngood)
+bool monitor::GenericMonitor::register_NtDisableLastKnownGood(proc_t proc, const on_NtDisableLastKnownGood_fn& on_ntdisablelastknowngood)
 {
+    const auto ok = setup_func(proc, "NtDisableLastKnownGood");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtDisableLastKnownGood.push_back(on_ntdisablelastknowngood);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtDisableLastKnownGood()
 {
-    LOG(INFO, "Break on NtDisableLastKnownGood");
+    //LOG(INFO, "Break on NtDisableLastKnownGood");
     const auto nargs = 0;
 
     std::vector<arg_t> args;
@@ -9732,14 +11672,19 @@ void monitor::GenericMonitor::on_NtDisableLastKnownGood()
     }
 }
 
-void monitor::GenericMonitor::register_NtEnableLastKnownGood(const on_NtEnableLastKnownGood_fn& on_ntenablelastknowngood)
+bool monitor::GenericMonitor::register_NtEnableLastKnownGood(proc_t proc, const on_NtEnableLastKnownGood_fn& on_ntenablelastknowngood)
 {
+    const auto ok = setup_func(proc, "NtEnableLastKnownGood");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtEnableLastKnownGood.push_back(on_ntenablelastknowngood);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtEnableLastKnownGood()
 {
-    LOG(INFO, "Break on NtEnableLastKnownGood");
+    //LOG(INFO, "Break on NtEnableLastKnownGood");
     const auto nargs = 0;
 
     std::vector<arg_t> args;
@@ -9754,14 +11699,19 @@ void monitor::GenericMonitor::on_NtEnableLastKnownGood()
     }
 }
 
-void monitor::GenericMonitor::register_NtFlushProcessWriteBuffers(const on_NtFlushProcessWriteBuffers_fn& on_ntflushprocesswritebuffers)
+bool monitor::GenericMonitor::register_NtFlushProcessWriteBuffers(proc_t proc, const on_NtFlushProcessWriteBuffers_fn& on_ntflushprocesswritebuffers)
 {
+    const auto ok = setup_func(proc, "NtFlushProcessWriteBuffers");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtFlushProcessWriteBuffers.push_back(on_ntflushprocesswritebuffers);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtFlushProcessWriteBuffers()
 {
-    LOG(INFO, "Break on NtFlushProcessWriteBuffers");
+    //LOG(INFO, "Break on NtFlushProcessWriteBuffers");
     const auto nargs = 0;
 
     std::vector<arg_t> args;
@@ -9776,14 +11726,19 @@ void monitor::GenericMonitor::on_NtFlushProcessWriteBuffers()
     }
 }
 
-void monitor::GenericMonitor::register_NtFlushWriteBuffer(const on_NtFlushWriteBuffer_fn& on_ntflushwritebuffer)
+bool monitor::GenericMonitor::register_NtFlushWriteBuffer(proc_t proc, const on_NtFlushWriteBuffer_fn& on_ntflushwritebuffer)
 {
+    const auto ok = setup_func(proc, "NtFlushWriteBuffer");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtFlushWriteBuffer.push_back(on_ntflushwritebuffer);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtFlushWriteBuffer()
 {
-    LOG(INFO, "Break on NtFlushWriteBuffer");
+    //LOG(INFO, "Break on NtFlushWriteBuffer");
     const auto nargs = 0;
 
     std::vector<arg_t> args;
@@ -9798,14 +11753,19 @@ void monitor::GenericMonitor::on_NtFlushWriteBuffer()
     }
 }
 
-void monitor::GenericMonitor::register_NtGetCurrentProcessorNumber(const on_NtGetCurrentProcessorNumber_fn& on_ntgetcurrentprocessornumber)
+bool monitor::GenericMonitor::register_NtGetCurrentProcessorNumber(proc_t proc, const on_NtGetCurrentProcessorNumber_fn& on_ntgetcurrentprocessornumber)
 {
+    const auto ok = setup_func(proc, "NtGetCurrentProcessorNumber");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtGetCurrentProcessorNumber.push_back(on_ntgetcurrentprocessornumber);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtGetCurrentProcessorNumber()
 {
-    LOG(INFO, "Break on NtGetCurrentProcessorNumber");
+    //LOG(INFO, "Break on NtGetCurrentProcessorNumber");
     const auto nargs = 0;
 
     std::vector<arg_t> args;
@@ -9820,14 +11780,19 @@ void monitor::GenericMonitor::on_NtGetCurrentProcessorNumber()
     }
 }
 
-void monitor::GenericMonitor::register_NtIsSystemResumeAutomatic(const on_NtIsSystemResumeAutomatic_fn& on_ntissystemresumeautomatic)
+bool monitor::GenericMonitor::register_NtIsSystemResumeAutomatic(proc_t proc, const on_NtIsSystemResumeAutomatic_fn& on_ntissystemresumeautomatic)
 {
+    const auto ok = setup_func(proc, "NtIsSystemResumeAutomatic");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtIsSystemResumeAutomatic.push_back(on_ntissystemresumeautomatic);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtIsSystemResumeAutomatic()
 {
-    LOG(INFO, "Break on NtIsSystemResumeAutomatic");
+    //LOG(INFO, "Break on NtIsSystemResumeAutomatic");
     const auto nargs = 0;
 
     std::vector<arg_t> args;
@@ -9842,14 +11807,19 @@ void monitor::GenericMonitor::on_NtIsSystemResumeAutomatic()
     }
 }
 
-void monitor::GenericMonitor::register_NtIsUILanguageComitted(const on_NtIsUILanguageComitted_fn& on_ntisuilanguagecomitted)
+bool monitor::GenericMonitor::register_NtIsUILanguageComitted(proc_t proc, const on_NtIsUILanguageComitted_fn& on_ntisuilanguagecomitted)
 {
+    const auto ok = setup_func(proc, "NtIsUILanguageComitted");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtIsUILanguageComitted.push_back(on_ntisuilanguagecomitted);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtIsUILanguageComitted()
 {
-    LOG(INFO, "Break on NtIsUILanguageComitted");
+    //LOG(INFO, "Break on NtIsUILanguageComitted");
     const auto nargs = 0;
 
     std::vector<arg_t> args;
@@ -9864,14 +11834,19 @@ void monitor::GenericMonitor::on_NtIsUILanguageComitted()
     }
 }
 
-void monitor::GenericMonitor::register_NtQueryPortInformationProcess(const on_NtQueryPortInformationProcess_fn& on_ntqueryportinformationprocess)
+bool monitor::GenericMonitor::register_NtQueryPortInformationProcess(proc_t proc, const on_NtQueryPortInformationProcess_fn& on_ntqueryportinformationprocess)
 {
+    const auto ok = setup_func(proc, "NtQueryPortInformationProcess");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtQueryPortInformationProcess.push_back(on_ntqueryportinformationprocess);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtQueryPortInformationProcess()
 {
-    LOG(INFO, "Break on NtQueryPortInformationProcess");
+    //LOG(INFO, "Break on NtQueryPortInformationProcess");
     const auto nargs = 0;
 
     std::vector<arg_t> args;
@@ -9886,14 +11861,19 @@ void monitor::GenericMonitor::on_NtQueryPortInformationProcess()
     }
 }
 
-void monitor::GenericMonitor::register_NtSerializeBoot(const on_NtSerializeBoot_fn& on_ntserializeboot)
+bool monitor::GenericMonitor::register_NtSerializeBoot(proc_t proc, const on_NtSerializeBoot_fn& on_ntserializeboot)
 {
+    const auto ok = setup_func(proc, "NtSerializeBoot");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtSerializeBoot.push_back(on_ntserializeboot);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtSerializeBoot()
 {
-    LOG(INFO, "Break on NtSerializeBoot");
+    //LOG(INFO, "Break on NtSerializeBoot");
     const auto nargs = 0;
 
     std::vector<arg_t> args;
@@ -9908,14 +11888,19 @@ void monitor::GenericMonitor::on_NtSerializeBoot()
     }
 }
 
-void monitor::GenericMonitor::register_NtTestAlert(const on_NtTestAlert_fn& on_nttestalert)
+bool monitor::GenericMonitor::register_NtTestAlert(proc_t proc, const on_NtTestAlert_fn& on_nttestalert)
 {
+    const auto ok = setup_func(proc, "NtTestAlert");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtTestAlert.push_back(on_nttestalert);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtTestAlert()
 {
-    LOG(INFO, "Break on NtTestAlert");
+    //LOG(INFO, "Break on NtTestAlert");
     const auto nargs = 0;
 
     std::vector<arg_t> args;
@@ -9930,14 +11915,19 @@ void monitor::GenericMonitor::on_NtTestAlert()
     }
 }
 
-void monitor::GenericMonitor::register_NtThawRegistry(const on_NtThawRegistry_fn& on_ntthawregistry)
+bool monitor::GenericMonitor::register_NtThawRegistry(proc_t proc, const on_NtThawRegistry_fn& on_ntthawregistry)
 {
+    const auto ok = setup_func(proc, "NtThawRegistry");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtThawRegistry.push_back(on_ntthawregistry);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtThawRegistry()
 {
-    LOG(INFO, "Break on NtThawRegistry");
+    //LOG(INFO, "Break on NtThawRegistry");
     const auto nargs = 0;
 
     std::vector<arg_t> args;
@@ -9952,14 +11942,19 @@ void monitor::GenericMonitor::on_NtThawRegistry()
     }
 }
 
-void monitor::GenericMonitor::register_NtThawTransactions(const on_NtThawTransactions_fn& on_ntthawtransactions)
+bool monitor::GenericMonitor::register_NtThawTransactions(proc_t proc, const on_NtThawTransactions_fn& on_ntthawtransactions)
 {
+    const auto ok = setup_func(proc, "NtThawTransactions");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtThawTransactions.push_back(on_ntthawtransactions);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtThawTransactions()
 {
-    LOG(INFO, "Break on NtThawTransactions");
+    //LOG(INFO, "Break on NtThawTransactions");
     const auto nargs = 0;
 
     std::vector<arg_t> args;
@@ -9974,14 +11969,19 @@ void monitor::GenericMonitor::on_NtThawTransactions()
     }
 }
 
-void monitor::GenericMonitor::register_NtUmsThreadYield(const on_NtUmsThreadYield_fn& on_ntumsthreadyield)
+bool monitor::GenericMonitor::register_NtUmsThreadYield(proc_t proc, const on_NtUmsThreadYield_fn& on_ntumsthreadyield)
 {
+    const auto ok = setup_func(proc, "NtUmsThreadYield");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtUmsThreadYield.push_back(on_ntumsthreadyield);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtUmsThreadYield()
 {
-    LOG(INFO, "Break on NtUmsThreadYield");
+    //LOG(INFO, "Break on NtUmsThreadYield");
     const auto nargs = 0;
 
     std::vector<arg_t> args;
@@ -9996,14 +11996,19 @@ void monitor::GenericMonitor::on_NtUmsThreadYield()
     }
 }
 
-void monitor::GenericMonitor::register_NtYieldExecution(const on_NtYieldExecution_fn& on_ntyieldexecution)
+bool monitor::GenericMonitor::register_NtYieldExecution(proc_t proc, const on_NtYieldExecution_fn& on_ntyieldexecution)
 {
+    const auto ok = setup_func(proc, "NtYieldExecution");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_NtYieldExecution.push_back(on_ntyieldexecution);
+    return true;
 }
 
 void monitor::GenericMonitor::on_NtYieldExecution()
 {
-    LOG(INFO, "Break on NtYieldExecution");
+    //LOG(INFO, "Break on NtYieldExecution");
     const auto nargs = 0;
 
     std::vector<arg_t> args;
@@ -10015,5 +12020,182 @@ void monitor::GenericMonitor::on_NtYieldExecution()
     for(const auto& it : d_->observers_NtYieldExecution)
     {
         it();
+    }
+}
+
+bool monitor::GenericMonitor::register_RtlpAllocateHeapInternal(proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_rtlpallocateheapinternal)
+{
+    const auto ok = setup_func(proc, "RtlpAllocateHeapInternal");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
+    d_->observers_RtlpAllocateHeapInternal.push_back(on_rtlpallocateheapinternal);
+    return true;
+}
+
+void monitor::GenericMonitor::on_RtlpAllocateHeapInternal()
+{
+    //LOG(INFO, "Break on RtlpAllocateHeapInternal");
+    const auto nargs = 2;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    const auto HeapHandle      = nt::cast_to<nt::PVOID>              (args[0]);
+    const auto Size            = nt::cast_to<nt::SIZE_T>             (args[1]);
+
+    for(const auto& it : d_->observers_RtlpAllocateHeapInternal)
+    {
+        it(HeapHandle, Size);
+    }
+}
+
+bool monitor::GenericMonitor::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& on_rtlfreeheap)
+{
+    const auto ok = setup_func(proc, "RtlFreeHeap");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
+    d_->observers_RtlFreeHeap.push_back(on_rtlfreeheap);
+    return true;
+}
+
+void monitor::GenericMonitor::on_RtlFreeHeap()
+{
+    //LOG(INFO, "Break on RtlFreeHeap");
+    const auto nargs = 3;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    const auto HeapHandle      = nt::cast_to<nt::PVOID>              (args[0]);
+    const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
+    const auto BaseAddress     = nt::cast_to<nt::PVOID>              (args[2]);
+
+    for(const auto& it : d_->observers_RtlFreeHeap)
+    {
+        it(HeapHandle, Flags, BaseAddress);
+    }
+}
+
+bool monitor::GenericMonitor::register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_rtlpreallocateheapinternal)
+{
+    const auto ok = setup_func(proc, "RtlpReAllocateHeapInternal");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
+    d_->observers_RtlpReAllocateHeapInternal.push_back(on_rtlpreallocateheapinternal);
+    return true;
+}
+
+void monitor::GenericMonitor::on_RtlpReAllocateHeapInternal()
+{
+    //LOG(INFO, "Break on RtlpReAllocateHeapInternal");
+    const auto nargs = 4;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    const auto HeapHandle      = nt::cast_to<nt::PVOID>              (args[0]);
+    const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
+    const auto BaseAddress     = nt::cast_to<nt::PVOID>              (args[2]);
+    const auto Size            = nt::cast_to<nt::ULONG>              (args[3]);
+
+    for(const auto& it : d_->observers_RtlpReAllocateHeapInternal)
+    {
+        it(HeapHandle, Flags, BaseAddress, Size);
+    }
+}
+
+bool monitor::GenericMonitor::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn& on_rtlsizeheap)
+{
+    const auto ok = setup_func(proc, "RtlSizeHeap");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
+    d_->observers_RtlSizeHeap.push_back(on_rtlsizeheap);
+    return true;
+}
+
+void monitor::GenericMonitor::on_RtlSizeHeap()
+{
+    //LOG(INFO, "Break on RtlSizeHeap");
+    const auto nargs = 3;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    const auto HeapHandle      = nt::cast_to<nt::PVOID>              (args[0]);
+    const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
+    const auto BaseAddress     = nt::cast_to<nt::PVOID>              (args[2]);
+
+    for(const auto& it : d_->observers_RtlSizeHeap)
+    {
+        it(HeapHandle, Flags, BaseAddress);
+    }
+}
+
+bool monitor::GenericMonitor::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUserValueHeap_fn& on_rtlsetuservalueheap)
+{
+    const auto ok = setup_func(proc, "RtlSetUserValueHeap");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
+    d_->observers_RtlSetUserValueHeap.push_back(on_rtlsetuservalueheap);
+    return true;
+}
+
+void monitor::GenericMonitor::on_RtlSetUserValueHeap()
+{
+    //LOG(INFO, "Break on RtlSetUserValueHeap");
+    const auto nargs = 4;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    const auto HeapHandle      = nt::cast_to<nt::PVOID>              (args[0]);
+    const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
+    const auto BaseAddress     = nt::cast_to<nt::PVOID>              (args[2]);
+    const auto UserValue       = nt::cast_to<nt::PVOID>              (args[3]);
+
+    for(const auto& it : d_->observers_RtlSetUserValueHeap)
+    {
+        it(HeapHandle, Flags, BaseAddress, UserValue);
+    }
+}
+
+bool monitor::GenericMonitor::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfoHeap_fn& on_rtlgetuserinfoheap)
+{
+    const auto ok = setup_func(proc, "RtlGetUserInfoHeap");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
+    d_->observers_RtlGetUserInfoHeap.push_back(on_rtlgetuserinfoheap);
+    return true;
+}
+
+void monitor::GenericMonitor::on_RtlGetUserInfoHeap()
+{
+    //LOG(INFO, "Break on RtlGetUserInfoHeap");
+    const auto nargs = 5;
+
+    std::vector<arg_t> args;
+    if(nargs > 0)
+        get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
+
+    const auto HeapHandle      = nt::cast_to<nt::PVOID>              (args[0]);
+    const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
+    const auto BaseAddress     = nt::cast_to<nt::PVOID>              (args[2]);
+    const auto UserValue       = nt::cast_to<nt::PVOID>              (args[3]);
+    const auto UserFlags       = nt::cast_to<nt::PULONG>             (args[4]);
+
+    for(const auto& it : d_->observers_RtlGetUserInfoHeap)
+    {
+        it(HeapHandle, Flags, BaseAddress, UserValue, UserFlags);
     }
 }

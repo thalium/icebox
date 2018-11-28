@@ -5,16 +5,21 @@ import argparse
 
 # Strings for syscall_mon.gen.hpp
 register_function = """
-void monitor::GenericMonitor::register_{function_name}(const on_{function_name}_fn& on_{function_name_lc})
+bool monitor::GenericMonitor::register_{function_name}(proc_t proc, const on_{function_name}_fn& on_{function_name_lc})
 {{
+    const auto ok = setup_func(proc, "{function_name}");
+    if (!ok)
+        FAIL(false, "Unable to setup bp");
+
     d_->observers_{function_name}.push_back(on_{function_name_lc});
+    return true;
 }}
 """
 
 onevent_function = """
 void monitor::GenericMonitor::on_{function_name}()
 {{
-    LOG(INFO, "Break on {function_name}");
+    //LOG(INFO, "Break on {function_name}");
     const auto nargs = {nbr_args};
 
     std::vector<arg_t> args;
@@ -54,7 +59,7 @@ functions_protos_macro = """
 #define DECLARE_SYSCALLS_FUNCTIONS_PROTOS\\
     {functions_protos}
 """
-function_proto = "void on_{function_name: <38}();\\\n    void register_{function_name: <32}(const on_{function_name}_fn& on_{function_name_lc});"
+function_proto = "void on_{function_name: <38}();\\\n    bool register_{function_name: <32}(proc_t proc, const on_{function_name}_fn& on_{function_name_lc});"
 
 if __name__ == '__main__':
 

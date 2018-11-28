@@ -102,17 +102,12 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
     if(!callstack_)
         FAIL(false, "Unable to create callstack object");
 
-    const auto ok = generic_monitor_.setup(d_->target);
-    if(!ok)
-        FAIL(false, "Unable to setup syscall_monitor");
-
-
     objects_nt_ = nt::make_objectnt(core_);
     if(!objects_nt_)
         FAIL(false, "Unable to create ObjectNt object");
 
     // Register NtWriteFile observer
-    generic_monitor_.register_NtWriteFile([&](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine, nt::PVOID ApcContext,
+    generic_monitor_.register_NtWriteFile(target, [&](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine, nt::PVOID ApcContext,
                                                 nt::PIO_STATUS_BLOCK IoStatusBlock, nt::PVOID Buffer, nt::ULONG Length,
                                                 nt::PLARGE_INTEGER ByteOffsetm, nt::PULONG Key)
     {
@@ -146,7 +141,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
     });
 
     // Register NtClose observer
-    generic_monitor_.register_NtClose([&](nt::HANDLE paramHandle)
+    generic_monitor_.register_NtClose(target, [&](nt::HANDLE paramHandle)
     {
         LOG(INFO, "NtClose : %" PRIx64, paramHandle);
 
@@ -158,7 +153,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
     });
 
     // Register NtDeviceIoControlFile observer
-    generic_monitor_.register_NtDeviceIoControlFile([&](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine,
+    generic_monitor_.register_NtDeviceIoControlFile(target, [&](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine,
                                                         nt::PVOID ApcContext, nt::PIO_STATUS_BLOCK IoStatusBlock, nt::ULONG IoControlCode,
                                                         nt::PVOID InputBuffer, nt::ULONG InputBufferLength, nt::PVOID OutputBuffer,
                                                         nt::ULONG OutputBufferLength)

@@ -17,10 +17,12 @@ namespace monitor
          GenericMonitor(core::Core& core);
         ~GenericMonitor();
 
-        using on_param_fn = std::function<walk_e(arg_t)>;
+        using on_function_generic_fn = std::function<void()>;
+        using on_arg_fn = std::function<walk_e(arg_t)>;
 
-        bool             setup               (proc_t proc);
-        bool             get_raw_args        (size_t nargs, const on_param_fn& on_param);
+        bool             setup_all           (proc_t proc, on_function_generic_fn& on_function_generic);
+        bool             setup_func          (proc_t proc, std::string fname);
+        bool             get_raw_args        (size_t nargs, const on_arg_fn& on_arg);
 
         DECLARE_SYSCALLS_FUNCTIONS_PROTOS
 
