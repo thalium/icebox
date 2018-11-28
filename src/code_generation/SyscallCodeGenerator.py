@@ -20,18 +20,16 @@ onevent_function = """
 void monitor::GenericMonitor::on_{function_name}()
 {{
     //LOG(INFO, "Break on {function_name}");
-    const auto nargs = {nbr_args};
+    constexpr int nargs = {nbr_args};
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) {{ args.push_back(arg); return WALK_NEXT; }});
 
     {retreive_args}
 
     for(const auto& it : d_->observers_{function_name})
-    {{
         it({args});
-    }}
 }}
 """
 retreive_arg = """const auto {name: <16}= nt::cast_to{type: <25}(args[{idx}]);"""

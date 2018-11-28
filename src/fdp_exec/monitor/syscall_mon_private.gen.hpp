@@ -16,10 +16,10 @@ bool monitor::GenericMonitor::register_NtAcceptConnectPort(proc_t proc, const on
 void monitor::GenericMonitor::on_NtAcceptConnectPort()
 {
     //LOG(INFO, "Break on NtAcceptConnectPort");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -30,9 +30,7 @@ void monitor::GenericMonitor::on_NtAcceptConnectPort()
     const auto ClientView      = nt::cast_to<nt::PREMOTE_PORT_VIEW>  (args[5]);
 
     for(const auto& it : d_->observers_NtAcceptConnectPort)
-    {
         it(PortHandle, PortContext, ConnectionRequest, AcceptConnection, ServerView, ClientView);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAccessCheckAndAuditAlarm(proc_t proc, const on_NtAccessCheckAndAuditAlarm_fn& on_ntaccesscheckandauditalarm)
@@ -48,10 +46,10 @@ bool monitor::GenericMonitor::register_NtAccessCheckAndAuditAlarm(proc_t proc, c
 void monitor::GenericMonitor::on_NtAccessCheckAndAuditAlarm()
 {
     //LOG(INFO, "Break on NtAccessCheckAndAuditAlarm");
-    const auto nargs = 11;
+    constexpr int nargs = 11;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -67,9 +65,7 @@ void monitor::GenericMonitor::on_NtAccessCheckAndAuditAlarm()
     const auto GenerateOnClose = nt::cast_to<nt::PBOOLEAN>           (args[10]);
 
     for(const auto& it : d_->observers_NtAccessCheckAndAuditAlarm)
-    {
         it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, DesiredAccess, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeAndAuditAlarm_fn& on_ntaccesscheckbytypeandauditalarm)
@@ -85,10 +81,10 @@ bool monitor::GenericMonitor::register_NtAccessCheckByTypeAndAuditAlarm(proc_t p
 void monitor::GenericMonitor::on_NtAccessCheckByTypeAndAuditAlarm()
 {
     //LOG(INFO, "Break on NtAccessCheckByTypeAndAuditAlarm");
-    const auto nargs = 16;
+    constexpr int nargs = 16;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -109,9 +105,7 @@ void monitor::GenericMonitor::on_NtAccessCheckByTypeAndAuditAlarm()
     const auto GenerateOnClose = nt::cast_to<nt::PBOOLEAN>           (args[15]);
 
     for(const auto& it : d_->observers_NtAccessCheckByTypeAndAuditAlarm)
-    {
         it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAccessCheckByType(proc_t proc, const on_NtAccessCheckByType_fn& on_ntaccesscheckbytype)
@@ -127,10 +121,10 @@ bool monitor::GenericMonitor::register_NtAccessCheckByType(proc_t proc, const on
 void monitor::GenericMonitor::on_NtAccessCheckByType()
 {
     //LOG(INFO, "Break on NtAccessCheckByType");
-    const auto nargs = 11;
+    constexpr int nargs = 11;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SecurityDescriptor= nt::cast_to<nt::PSECURITY_DESCRIPTOR>(args[0]);
@@ -146,9 +140,7 @@ void monitor::GenericMonitor::on_NtAccessCheckByType()
     const auto AccessStatus    = nt::cast_to<nt::PNTSTATUS>          (args[10]);
 
     for(const auto& it : d_->observers_NtAccessCheckByType)
-    {
         it(SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_ntaccesscheckbytyperesultlistandauditalarmbyhandle)
@@ -164,10 +156,10 @@ bool monitor::GenericMonitor::register_NtAccessCheckByTypeResultListAndAuditAlar
 void monitor::GenericMonitor::on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle()
 {
     //LOG(INFO, "Break on NtAccessCheckByTypeResultListAndAuditAlarmByHandle");
-    const auto nargs = 17;
+    constexpr int nargs = 17;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -189,9 +181,7 @@ void monitor::GenericMonitor::on_NtAccessCheckByTypeResultListAndAuditAlarmByHan
     const auto GenerateOnClose = nt::cast_to<nt::PBOOLEAN>           (args[16]);
 
     for(const auto& it : d_->observers_NtAccessCheckByTypeResultListAndAuditAlarmByHandle)
-    {
         it(SubsystemName, HandleId, ClientToken, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarm_fn& on_ntaccesscheckbytyperesultlistandauditalarm)
@@ -207,10 +197,10 @@ bool monitor::GenericMonitor::register_NtAccessCheckByTypeResultListAndAuditAlar
 void monitor::GenericMonitor::on_NtAccessCheckByTypeResultListAndAuditAlarm()
 {
     //LOG(INFO, "Break on NtAccessCheckByTypeResultListAndAuditAlarm");
-    const auto nargs = 16;
+    constexpr int nargs = 16;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -231,9 +221,7 @@ void monitor::GenericMonitor::on_NtAccessCheckByTypeResultListAndAuditAlarm()
     const auto GenerateOnClose = nt::cast_to<nt::PBOOLEAN>           (args[15]);
 
     for(const auto& it : d_->observers_NtAccessCheckByTypeResultListAndAuditAlarm)
-    {
         it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAccessCheckByTypeResultList(proc_t proc, const on_NtAccessCheckByTypeResultList_fn& on_ntaccesscheckbytyperesultlist)
@@ -249,10 +237,10 @@ bool monitor::GenericMonitor::register_NtAccessCheckByTypeResultList(proc_t proc
 void monitor::GenericMonitor::on_NtAccessCheckByTypeResultList()
 {
     //LOG(INFO, "Break on NtAccessCheckByTypeResultList");
-    const auto nargs = 11;
+    constexpr int nargs = 11;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SecurityDescriptor= nt::cast_to<nt::PSECURITY_DESCRIPTOR>(args[0]);
@@ -268,9 +256,7 @@ void monitor::GenericMonitor::on_NtAccessCheckByTypeResultList()
     const auto AccessStatus    = nt::cast_to<nt::PNTSTATUS>          (args[10]);
 
     for(const auto& it : d_->observers_NtAccessCheckByTypeResultList)
-    {
         it(SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAccessCheck(proc_t proc, const on_NtAccessCheck_fn& on_ntaccesscheck)
@@ -286,10 +272,10 @@ bool monitor::GenericMonitor::register_NtAccessCheck(proc_t proc, const on_NtAcc
 void monitor::GenericMonitor::on_NtAccessCheck()
 {
     //LOG(INFO, "Break on NtAccessCheck");
-    const auto nargs = 8;
+    constexpr int nargs = 8;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SecurityDescriptor= nt::cast_to<nt::PSECURITY_DESCRIPTOR>(args[0]);
@@ -302,9 +288,7 @@ void monitor::GenericMonitor::on_NtAccessCheck()
     const auto AccessStatus    = nt::cast_to<nt::PNTSTATUS>          (args[7]);
 
     for(const auto& it : d_->observers_NtAccessCheck)
-    {
         it(SecurityDescriptor, ClientToken, DesiredAccess, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAddAtom(proc_t proc, const on_NtAddAtom_fn& on_ntaddatom)
@@ -320,10 +304,10 @@ bool monitor::GenericMonitor::register_NtAddAtom(proc_t proc, const on_NtAddAtom
 void monitor::GenericMonitor::on_NtAddAtom()
 {
     //LOG(INFO, "Break on NtAddAtom");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto AtomName        = nt::cast_to<nt::PWSTR>              (args[0]);
@@ -331,9 +315,7 @@ void monitor::GenericMonitor::on_NtAddAtom()
     const auto Atom            = nt::cast_to<nt::PRTL_ATOM>          (args[2]);
 
     for(const auto& it : d_->observers_NtAddAtom)
-    {
         it(AtomName, Length, Atom);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAddBootEntry(proc_t proc, const on_NtAddBootEntry_fn& on_ntaddbootentry)
@@ -349,19 +331,17 @@ bool monitor::GenericMonitor::register_NtAddBootEntry(proc_t proc, const on_NtAd
 void monitor::GenericMonitor::on_NtAddBootEntry()
 {
     //LOG(INFO, "Break on NtAddBootEntry");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto BootEntry       = nt::cast_to<nt::PBOOT_ENTRY>        (args[0]);
     const auto Id              = nt::cast_to<nt::PULONG>             (args[1]);
 
     for(const auto& it : d_->observers_NtAddBootEntry)
-    {
         it(BootEntry, Id);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAddDriverEntry(proc_t proc, const on_NtAddDriverEntry_fn& on_ntadddriverentry)
@@ -377,19 +357,17 @@ bool monitor::GenericMonitor::register_NtAddDriverEntry(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtAddDriverEntry()
 {
     //LOG(INFO, "Break on NtAddDriverEntry");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DriverEntry     = nt::cast_to<nt::PEFI_DRIVER_ENTRY>  (args[0]);
     const auto Id              = nt::cast_to<nt::PULONG>             (args[1]);
 
     for(const auto& it : d_->observers_NtAddDriverEntry)
-    {
         it(DriverEntry, Id);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAdjustGroupsToken(proc_t proc, const on_NtAdjustGroupsToken_fn& on_ntadjustgroupstoken)
@@ -405,10 +383,10 @@ bool monitor::GenericMonitor::register_NtAdjustGroupsToken(proc_t proc, const on
 void monitor::GenericMonitor::on_NtAdjustGroupsToken()
 {
     //LOG(INFO, "Break on NtAdjustGroupsToken");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TokenHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -419,9 +397,7 @@ void monitor::GenericMonitor::on_NtAdjustGroupsToken()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[5]);
 
     for(const auto& it : d_->observers_NtAdjustGroupsToken)
-    {
         it(TokenHandle, ResetToDefault, NewState, BufferLength, PreviousState, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAdjustPrivilegesToken(proc_t proc, const on_NtAdjustPrivilegesToken_fn& on_ntadjustprivilegestoken)
@@ -437,10 +413,10 @@ bool monitor::GenericMonitor::register_NtAdjustPrivilegesToken(proc_t proc, cons
 void monitor::GenericMonitor::on_NtAdjustPrivilegesToken()
 {
     //LOG(INFO, "Break on NtAdjustPrivilegesToken");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TokenHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -451,9 +427,7 @@ void monitor::GenericMonitor::on_NtAdjustPrivilegesToken()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[5]);
 
     for(const auto& it : d_->observers_NtAdjustPrivilegesToken)
-    {
         it(TokenHandle, DisableAllPrivileges, NewState, BufferLength, PreviousState, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlertResumeThread(proc_t proc, const on_NtAlertResumeThread_fn& on_ntalertresumethread)
@@ -469,19 +443,17 @@ bool monitor::GenericMonitor::register_NtAlertResumeThread(proc_t proc, const on
 void monitor::GenericMonitor::on_NtAlertResumeThread()
 {
     //LOG(INFO, "Break on NtAlertResumeThread");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PreviousSuspendCount= nt::cast_to<nt::PULONG>             (args[1]);
 
     for(const auto& it : d_->observers_NtAlertResumeThread)
-    {
         it(ThreadHandle, PreviousSuspendCount);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlertThread(proc_t proc, const on_NtAlertThread_fn& on_ntalertthread)
@@ -497,18 +469,16 @@ bool monitor::GenericMonitor::register_NtAlertThread(proc_t proc, const on_NtAle
 void monitor::GenericMonitor::on_NtAlertThread()
 {
     //LOG(INFO, "Break on NtAlertThread");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtAlertThread)
-    {
         it(ThreadHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAllocateLocallyUniqueId(proc_t proc, const on_NtAllocateLocallyUniqueId_fn& on_ntallocatelocallyuniqueid)
@@ -524,18 +494,16 @@ bool monitor::GenericMonitor::register_NtAllocateLocallyUniqueId(proc_t proc, co
 void monitor::GenericMonitor::on_NtAllocateLocallyUniqueId()
 {
     //LOG(INFO, "Break on NtAllocateLocallyUniqueId");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Luid            = nt::cast_to<nt::PLUID>              (args[0]);
 
     for(const auto& it : d_->observers_NtAllocateLocallyUniqueId)
-    {
         it(Luid);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAllocateReserveObject(proc_t proc, const on_NtAllocateReserveObject_fn& on_ntallocatereserveobject)
@@ -551,10 +519,10 @@ bool monitor::GenericMonitor::register_NtAllocateReserveObject(proc_t proc, cons
 void monitor::GenericMonitor::on_NtAllocateReserveObject()
 {
     //LOG(INFO, "Break on NtAllocateReserveObject");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto MemoryReserveHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -562,9 +530,7 @@ void monitor::GenericMonitor::on_NtAllocateReserveObject()
     const auto Type            = nt::cast_to<nt::MEMORY_RESERVE_TYPE>(args[2]);
 
     for(const auto& it : d_->observers_NtAllocateReserveObject)
-    {
         it(MemoryReserveHandle, ObjectAttributes, Type);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAllocateUserPhysicalPages(proc_t proc, const on_NtAllocateUserPhysicalPages_fn& on_ntallocateuserphysicalpages)
@@ -580,10 +546,10 @@ bool monitor::GenericMonitor::register_NtAllocateUserPhysicalPages(proc_t proc, 
 void monitor::GenericMonitor::on_NtAllocateUserPhysicalPages()
 {
     //LOG(INFO, "Break on NtAllocateUserPhysicalPages");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -591,9 +557,7 @@ void monitor::GenericMonitor::on_NtAllocateUserPhysicalPages()
     const auto UserPfnArra     = nt::cast_to<nt::PULONG_PTR>         (args[2]);
 
     for(const auto& it : d_->observers_NtAllocateUserPhysicalPages)
-    {
         it(ProcessHandle, NumberOfPages, UserPfnArra);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAllocateUuids(proc_t proc, const on_NtAllocateUuids_fn& on_ntallocateuuids)
@@ -609,10 +573,10 @@ bool monitor::GenericMonitor::register_NtAllocateUuids(proc_t proc, const on_NtA
 void monitor::GenericMonitor::on_NtAllocateUuids()
 {
     //LOG(INFO, "Break on NtAllocateUuids");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Time            = nt::cast_to<nt::PULARGE_INTEGER>    (args[0]);
@@ -621,9 +585,7 @@ void monitor::GenericMonitor::on_NtAllocateUuids()
     const auto Seed            = nt::cast_to<nt::PCHAR>              (args[3]);
 
     for(const auto& it : d_->observers_NtAllocateUuids)
-    {
         it(Time, Range, Sequence, Seed);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAllocateVirtualMemory(proc_t proc, const on_NtAllocateVirtualMemory_fn& on_ntallocatevirtualmemory)
@@ -639,10 +601,10 @@ bool monitor::GenericMonitor::register_NtAllocateVirtualMemory(proc_t proc, cons
 void monitor::GenericMonitor::on_NtAllocateVirtualMemory()
 {
     //LOG(INFO, "Break on NtAllocateVirtualMemory");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -653,9 +615,7 @@ void monitor::GenericMonitor::on_NtAllocateVirtualMemory()
     const auto Protect         = nt::cast_to<nt::ULONG>              (args[5]);
 
     for(const auto& it : d_->observers_NtAllocateVirtualMemory)
-    {
         it(ProcessHandle, STARBaseAddress, ZeroBits, RegionSize, AllocationType, Protect);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcAcceptConnectPort(proc_t proc, const on_NtAlpcAcceptConnectPort_fn& on_ntalpcacceptconnectport)
@@ -671,10 +631,10 @@ bool monitor::GenericMonitor::register_NtAlpcAcceptConnectPort(proc_t proc, cons
 void monitor::GenericMonitor::on_NtAlpcAcceptConnectPort()
 {
     //LOG(INFO, "Break on NtAlpcAcceptConnectPort");
-    const auto nargs = 9;
+    constexpr int nargs = 9;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -688,9 +648,7 @@ void monitor::GenericMonitor::on_NtAlpcAcceptConnectPort()
     const auto AcceptConnection= nt::cast_to<nt::BOOLEAN>            (args[8]);
 
     for(const auto& it : d_->observers_NtAlpcAcceptConnectPort)
-    {
         it(PortHandle, ConnectionPortHandle, Flags, ObjectAttributes, PortAttributes, PortContext, ConnectionRequest, ConnectionMessageAttributes, AcceptConnection);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcCancelMessage(proc_t proc, const on_NtAlpcCancelMessage_fn& on_ntalpccancelmessage)
@@ -706,10 +664,10 @@ bool monitor::GenericMonitor::register_NtAlpcCancelMessage(proc_t proc, const on
 void monitor::GenericMonitor::on_NtAlpcCancelMessage()
 {
     //LOG(INFO, "Break on NtAlpcCancelMessage");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -717,9 +675,7 @@ void monitor::GenericMonitor::on_NtAlpcCancelMessage()
     const auto MessageContext  = nt::cast_to<nt::PALPC_CONTEXT_ATTR> (args[2]);
 
     for(const auto& it : d_->observers_NtAlpcCancelMessage)
-    {
         it(PortHandle, Flags, MessageContext);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcConnectPort(proc_t proc, const on_NtAlpcConnectPort_fn& on_ntalpcconnectport)
@@ -735,10 +691,10 @@ bool monitor::GenericMonitor::register_NtAlpcConnectPort(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtAlpcConnectPort()
 {
     //LOG(INFO, "Break on NtAlpcConnectPort");
-    const auto nargs = 11;
+    constexpr int nargs = 11;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -754,9 +710,7 @@ void monitor::GenericMonitor::on_NtAlpcConnectPort()
     const auto Timeout         = nt::cast_to<nt::PLARGE_INTEGER>     (args[10]);
 
     for(const auto& it : d_->observers_NtAlpcConnectPort)
-    {
         it(PortHandle, PortName, ObjectAttributes, PortAttributes, Flags, RequiredServerSid, ConnectionMessage, BufferLength, OutMessageAttributes, InMessageAttributes, Timeout);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcCreatePort(proc_t proc, const on_NtAlpcCreatePort_fn& on_ntalpccreateport)
@@ -772,10 +726,10 @@ bool monitor::GenericMonitor::register_NtAlpcCreatePort(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtAlpcCreatePort()
 {
     //LOG(INFO, "Break on NtAlpcCreatePort");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -783,9 +737,7 @@ void monitor::GenericMonitor::on_NtAlpcCreatePort()
     const auto PortAttributes  = nt::cast_to<nt::PALPC_PORT_ATTRIBUTES>(args[2]);
 
     for(const auto& it : d_->observers_NtAlpcCreatePort)
-    {
         it(PortHandle, ObjectAttributes, PortAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcCreatePortSection(proc_t proc, const on_NtAlpcCreatePortSection_fn& on_ntalpccreateportsection)
@@ -801,10 +753,10 @@ bool monitor::GenericMonitor::register_NtAlpcCreatePortSection(proc_t proc, cons
 void monitor::GenericMonitor::on_NtAlpcCreatePortSection()
 {
     //LOG(INFO, "Break on NtAlpcCreatePortSection");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -815,9 +767,7 @@ void monitor::GenericMonitor::on_NtAlpcCreatePortSection()
     const auto ActualSectionSize= nt::cast_to<nt::PSIZE_T>            (args[5]);
 
     for(const auto& it : d_->observers_NtAlpcCreatePortSection)
-    {
         it(PortHandle, Flags, SectionHandle, SectionSize, AlpcSectionHandle, ActualSectionSize);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcCreateResourceReserve(proc_t proc, const on_NtAlpcCreateResourceReserve_fn& on_ntalpccreateresourcereserve)
@@ -833,10 +783,10 @@ bool monitor::GenericMonitor::register_NtAlpcCreateResourceReserve(proc_t proc, 
 void monitor::GenericMonitor::on_NtAlpcCreateResourceReserve()
 {
     //LOG(INFO, "Break on NtAlpcCreateResourceReserve");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -845,9 +795,7 @@ void monitor::GenericMonitor::on_NtAlpcCreateResourceReserve()
     const auto ResourceId      = nt::cast_to<nt::PALPC_HANDLE>       (args[3]);
 
     for(const auto& it : d_->observers_NtAlpcCreateResourceReserve)
-    {
         it(PortHandle, Flags, MessageSize, ResourceId);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcCreateSectionView(proc_t proc, const on_NtAlpcCreateSectionView_fn& on_ntalpccreatesectionview)
@@ -863,10 +811,10 @@ bool monitor::GenericMonitor::register_NtAlpcCreateSectionView(proc_t proc, cons
 void monitor::GenericMonitor::on_NtAlpcCreateSectionView()
 {
     //LOG(INFO, "Break on NtAlpcCreateSectionView");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -874,9 +822,7 @@ void monitor::GenericMonitor::on_NtAlpcCreateSectionView()
     const auto ViewAttributes  = nt::cast_to<nt::PALPC_DATA_VIEW_ATTR>(args[2]);
 
     for(const auto& it : d_->observers_NtAlpcCreateSectionView)
-    {
         it(PortHandle, Flags, ViewAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcCreateSecurityContext(proc_t proc, const on_NtAlpcCreateSecurityContext_fn& on_ntalpccreatesecuritycontext)
@@ -892,10 +838,10 @@ bool monitor::GenericMonitor::register_NtAlpcCreateSecurityContext(proc_t proc, 
 void monitor::GenericMonitor::on_NtAlpcCreateSecurityContext()
 {
     //LOG(INFO, "Break on NtAlpcCreateSecurityContext");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -903,9 +849,7 @@ void monitor::GenericMonitor::on_NtAlpcCreateSecurityContext()
     const auto SecurityAttribute= nt::cast_to<nt::PALPC_SECURITY_ATTR>(args[2]);
 
     for(const auto& it : d_->observers_NtAlpcCreateSecurityContext)
-    {
         it(PortHandle, Flags, SecurityAttribute);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcDeletePortSection(proc_t proc, const on_NtAlpcDeletePortSection_fn& on_ntalpcdeleteportsection)
@@ -921,10 +865,10 @@ bool monitor::GenericMonitor::register_NtAlpcDeletePortSection(proc_t proc, cons
 void monitor::GenericMonitor::on_NtAlpcDeletePortSection()
 {
     //LOG(INFO, "Break on NtAlpcDeletePortSection");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -932,9 +876,7 @@ void monitor::GenericMonitor::on_NtAlpcDeletePortSection()
     const auto SectionHandle   = nt::cast_to<nt::ALPC_HANDLE>        (args[2]);
 
     for(const auto& it : d_->observers_NtAlpcDeletePortSection)
-    {
         it(PortHandle, Flags, SectionHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcDeleteResourceReserve(proc_t proc, const on_NtAlpcDeleteResourceReserve_fn& on_ntalpcdeleteresourcereserve)
@@ -950,10 +892,10 @@ bool monitor::GenericMonitor::register_NtAlpcDeleteResourceReserve(proc_t proc, 
 void monitor::GenericMonitor::on_NtAlpcDeleteResourceReserve()
 {
     //LOG(INFO, "Break on NtAlpcDeleteResourceReserve");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -961,9 +903,7 @@ void monitor::GenericMonitor::on_NtAlpcDeleteResourceReserve()
     const auto ResourceId      = nt::cast_to<nt::ALPC_HANDLE>        (args[2]);
 
     for(const auto& it : d_->observers_NtAlpcDeleteResourceReserve)
-    {
         it(PortHandle, Flags, ResourceId);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcDeleteSectionView(proc_t proc, const on_NtAlpcDeleteSectionView_fn& on_ntalpcdeletesectionview)
@@ -979,10 +919,10 @@ bool monitor::GenericMonitor::register_NtAlpcDeleteSectionView(proc_t proc, cons
 void monitor::GenericMonitor::on_NtAlpcDeleteSectionView()
 {
     //LOG(INFO, "Break on NtAlpcDeleteSectionView");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -990,9 +930,7 @@ void monitor::GenericMonitor::on_NtAlpcDeleteSectionView()
     const auto ViewBase        = nt::cast_to<nt::PVOID>              (args[2]);
 
     for(const auto& it : d_->observers_NtAlpcDeleteSectionView)
-    {
         it(PortHandle, Flags, ViewBase);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcDeleteSecurityContext(proc_t proc, const on_NtAlpcDeleteSecurityContext_fn& on_ntalpcdeletesecuritycontext)
@@ -1008,10 +946,10 @@ bool monitor::GenericMonitor::register_NtAlpcDeleteSecurityContext(proc_t proc, 
 void monitor::GenericMonitor::on_NtAlpcDeleteSecurityContext()
 {
     //LOG(INFO, "Break on NtAlpcDeleteSecurityContext");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -1019,9 +957,7 @@ void monitor::GenericMonitor::on_NtAlpcDeleteSecurityContext()
     const auto ContextHandle   = nt::cast_to<nt::ALPC_HANDLE>        (args[2]);
 
     for(const auto& it : d_->observers_NtAlpcDeleteSecurityContext)
-    {
         it(PortHandle, Flags, ContextHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcDisconnectPort(proc_t proc, const on_NtAlpcDisconnectPort_fn& on_ntalpcdisconnectport)
@@ -1037,19 +973,17 @@ bool monitor::GenericMonitor::register_NtAlpcDisconnectPort(proc_t proc, const o
 void monitor::GenericMonitor::on_NtAlpcDisconnectPort()
 {
     //LOG(INFO, "Break on NtAlpcDisconnectPort");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
 
     for(const auto& it : d_->observers_NtAlpcDisconnectPort)
-    {
         it(PortHandle, Flags);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcImpersonateClientOfPort(proc_t proc, const on_NtAlpcImpersonateClientOfPort_fn& on_ntalpcimpersonateclientofport)
@@ -1065,10 +999,10 @@ bool monitor::GenericMonitor::register_NtAlpcImpersonateClientOfPort(proc_t proc
 void monitor::GenericMonitor::on_NtAlpcImpersonateClientOfPort()
 {
     //LOG(INFO, "Break on NtAlpcImpersonateClientOfPort");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -1076,9 +1010,7 @@ void monitor::GenericMonitor::on_NtAlpcImpersonateClientOfPort()
     const auto Reserved        = nt::cast_to<nt::PVOID>              (args[2]);
 
     for(const auto& it : d_->observers_NtAlpcImpersonateClientOfPort)
-    {
         it(PortHandle, PortMessage, Reserved);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcOpenSenderProcess(proc_t proc, const on_NtAlpcOpenSenderProcess_fn& on_ntalpcopensenderprocess)
@@ -1094,10 +1026,10 @@ bool monitor::GenericMonitor::register_NtAlpcOpenSenderProcess(proc_t proc, cons
 void monitor::GenericMonitor::on_NtAlpcOpenSenderProcess()
 {
     //LOG(INFO, "Break on NtAlpcOpenSenderProcess");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -1108,9 +1040,7 @@ void monitor::GenericMonitor::on_NtAlpcOpenSenderProcess()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[5]);
 
     for(const auto& it : d_->observers_NtAlpcOpenSenderProcess)
-    {
         it(ProcessHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcOpenSenderThread(proc_t proc, const on_NtAlpcOpenSenderThread_fn& on_ntalpcopensenderthread)
@@ -1126,10 +1056,10 @@ bool monitor::GenericMonitor::register_NtAlpcOpenSenderThread(proc_t proc, const
 void monitor::GenericMonitor::on_NtAlpcOpenSenderThread()
 {
     //LOG(INFO, "Break on NtAlpcOpenSenderThread");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -1140,9 +1070,7 @@ void monitor::GenericMonitor::on_NtAlpcOpenSenderThread()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[5]);
 
     for(const auto& it : d_->observers_NtAlpcOpenSenderThread)
-    {
         it(ThreadHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcQueryInformation(proc_t proc, const on_NtAlpcQueryInformation_fn& on_ntalpcqueryinformation)
@@ -1158,10 +1086,10 @@ bool monitor::GenericMonitor::register_NtAlpcQueryInformation(proc_t proc, const
 void monitor::GenericMonitor::on_NtAlpcQueryInformation()
 {
     //LOG(INFO, "Break on NtAlpcQueryInformation");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -1171,9 +1099,7 @@ void monitor::GenericMonitor::on_NtAlpcQueryInformation()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtAlpcQueryInformation)
-    {
         it(PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcQueryInformationMessage(proc_t proc, const on_NtAlpcQueryInformationMessage_fn& on_ntalpcqueryinformationmessage)
@@ -1189,10 +1115,10 @@ bool monitor::GenericMonitor::register_NtAlpcQueryInformationMessage(proc_t proc
 void monitor::GenericMonitor::on_NtAlpcQueryInformationMessage()
 {
     //LOG(INFO, "Break on NtAlpcQueryInformationMessage");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -1203,9 +1129,7 @@ void monitor::GenericMonitor::on_NtAlpcQueryInformationMessage()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[5]);
 
     for(const auto& it : d_->observers_NtAlpcQueryInformationMessage)
-    {
         it(PortHandle, PortMessage, MessageInformationClass, MessageInformation, Length, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcRevokeSecurityContext(proc_t proc, const on_NtAlpcRevokeSecurityContext_fn& on_ntalpcrevokesecuritycontext)
@@ -1221,10 +1145,10 @@ bool monitor::GenericMonitor::register_NtAlpcRevokeSecurityContext(proc_t proc, 
 void monitor::GenericMonitor::on_NtAlpcRevokeSecurityContext()
 {
     //LOG(INFO, "Break on NtAlpcRevokeSecurityContext");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -1232,9 +1156,7 @@ void monitor::GenericMonitor::on_NtAlpcRevokeSecurityContext()
     const auto ContextHandle   = nt::cast_to<nt::ALPC_HANDLE>        (args[2]);
 
     for(const auto& it : d_->observers_NtAlpcRevokeSecurityContext)
-    {
         it(PortHandle, Flags, ContextHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcSendWaitReceivePort(proc_t proc, const on_NtAlpcSendWaitReceivePort_fn& on_ntalpcsendwaitreceiveport)
@@ -1250,10 +1172,10 @@ bool monitor::GenericMonitor::register_NtAlpcSendWaitReceivePort(proc_t proc, co
 void monitor::GenericMonitor::on_NtAlpcSendWaitReceivePort()
 {
     //LOG(INFO, "Break on NtAlpcSendWaitReceivePort");
-    const auto nargs = 8;
+    constexpr int nargs = 8;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -1266,9 +1188,7 @@ void monitor::GenericMonitor::on_NtAlpcSendWaitReceivePort()
     const auto Timeout         = nt::cast_to<nt::PLARGE_INTEGER>     (args[7]);
 
     for(const auto& it : d_->observers_NtAlpcSendWaitReceivePort)
-    {
         it(PortHandle, Flags, SendMessage, SendMessageAttributes, ReceiveMessage, BufferLength, ReceiveMessageAttributes, Timeout);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAlpcSetInformation(proc_t proc, const on_NtAlpcSetInformation_fn& on_ntalpcsetinformation)
@@ -1284,10 +1204,10 @@ bool monitor::GenericMonitor::register_NtAlpcSetInformation(proc_t proc, const o
 void monitor::GenericMonitor::on_NtAlpcSetInformation()
 {
     //LOG(INFO, "Break on NtAlpcSetInformation");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -1296,9 +1216,7 @@ void monitor::GenericMonitor::on_NtAlpcSetInformation()
     const auto Length          = nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtAlpcSetInformation)
-    {
         it(PortHandle, PortInformationClass, PortInformation, Length);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtApphelpCacheControl(proc_t proc, const on_NtApphelpCacheControl_fn& on_ntapphelpcachecontrol)
@@ -1314,19 +1232,17 @@ bool monitor::GenericMonitor::register_NtApphelpCacheControl(proc_t proc, const 
 void monitor::GenericMonitor::on_NtApphelpCacheControl()
 {
     //LOG(INFO, "Break on NtApphelpCacheControl");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto type            = nt::cast_to<nt::APPHELPCOMMAND>     (args[0]);
     const auto buf             = nt::cast_to<nt::PVOID>              (args[1]);
 
     for(const auto& it : d_->observers_NtApphelpCacheControl)
-    {
         it(type, buf);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAreMappedFilesTheSame(proc_t proc, const on_NtAreMappedFilesTheSame_fn& on_ntaremappedfilesthesame)
@@ -1342,19 +1258,17 @@ bool monitor::GenericMonitor::register_NtAreMappedFilesTheSame(proc_t proc, cons
 void monitor::GenericMonitor::on_NtAreMappedFilesTheSame()
 {
     //LOG(INFO, "Break on NtAreMappedFilesTheSame");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto File1MappedAsAnImage= nt::cast_to<nt::PVOID>              (args[0]);
     const auto File2MappedAsFile= nt::cast_to<nt::PVOID>              (args[1]);
 
     for(const auto& it : d_->observers_NtAreMappedFilesTheSame)
-    {
         it(File1MappedAsAnImage, File2MappedAsFile);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtAssignProcessToJobObject(proc_t proc, const on_NtAssignProcessToJobObject_fn& on_ntassignprocesstojobobject)
@@ -1370,19 +1284,17 @@ bool monitor::GenericMonitor::register_NtAssignProcessToJobObject(proc_t proc, c
 void monitor::GenericMonitor::on_NtAssignProcessToJobObject()
 {
     //LOG(INFO, "Break on NtAssignProcessToJobObject");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto JobHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[1]);
 
     for(const auto& it : d_->observers_NtAssignProcessToJobObject)
-    {
         it(JobHandle, ProcessHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCallbackReturn(proc_t proc, const on_NtCallbackReturn_fn& on_ntcallbackreturn)
@@ -1398,10 +1310,10 @@ bool monitor::GenericMonitor::register_NtCallbackReturn(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtCallbackReturn()
 {
     //LOG(INFO, "Break on NtCallbackReturn");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto OutputBuffer    = nt::cast_to<nt::PVOID>              (args[0]);
@@ -1409,9 +1321,7 @@ void monitor::GenericMonitor::on_NtCallbackReturn()
     const auto Status          = nt::cast_to<nt::NTSTATUS>           (args[2]);
 
     for(const auto& it : d_->observers_NtCallbackReturn)
-    {
         it(OutputBuffer, OutputLength, Status);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCancelIoFileEx(proc_t proc, const on_NtCancelIoFileEx_fn& on_ntcanceliofileex)
@@ -1427,10 +1337,10 @@ bool monitor::GenericMonitor::register_NtCancelIoFileEx(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtCancelIoFileEx()
 {
     //LOG(INFO, "Break on NtCancelIoFileEx");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -1438,9 +1348,7 @@ void monitor::GenericMonitor::on_NtCancelIoFileEx()
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[2]);
 
     for(const auto& it : d_->observers_NtCancelIoFileEx)
-    {
         it(FileHandle, IoRequestToCancel, IoStatusBlock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCancelIoFile(proc_t proc, const on_NtCancelIoFile_fn& on_ntcanceliofile)
@@ -1456,19 +1364,17 @@ bool monitor::GenericMonitor::register_NtCancelIoFile(proc_t proc, const on_NtCa
 void monitor::GenericMonitor::on_NtCancelIoFile()
 {
     //LOG(INFO, "Break on NtCancelIoFile");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
 
     for(const auto& it : d_->observers_NtCancelIoFile)
-    {
         it(FileHandle, IoStatusBlock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCancelSynchronousIoFile(proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_ntcancelsynchronousiofile)
@@ -1484,10 +1390,10 @@ bool monitor::GenericMonitor::register_NtCancelSynchronousIoFile(proc_t proc, co
 void monitor::GenericMonitor::on_NtCancelSynchronousIoFile()
 {
     //LOG(INFO, "Break on NtCancelSynchronousIoFile");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -1495,9 +1401,7 @@ void monitor::GenericMonitor::on_NtCancelSynchronousIoFile()
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[2]);
 
     for(const auto& it : d_->observers_NtCancelSynchronousIoFile)
-    {
         it(ThreadHandle, IoRequestToCancel, IoStatusBlock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCancelTimer(proc_t proc, const on_NtCancelTimer_fn& on_ntcanceltimer)
@@ -1513,19 +1417,17 @@ bool monitor::GenericMonitor::register_NtCancelTimer(proc_t proc, const on_NtCan
 void monitor::GenericMonitor::on_NtCancelTimer()
 {
     //LOG(INFO, "Break on NtCancelTimer");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TimerHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto CurrentState    = nt::cast_to<nt::PBOOLEAN>           (args[1]);
 
     for(const auto& it : d_->observers_NtCancelTimer)
-    {
         it(TimerHandle, CurrentState);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtClearEvent(proc_t proc, const on_NtClearEvent_fn& on_ntclearevent)
@@ -1541,18 +1443,16 @@ bool monitor::GenericMonitor::register_NtClearEvent(proc_t proc, const on_NtClea
 void monitor::GenericMonitor::on_NtClearEvent()
 {
     //LOG(INFO, "Break on NtClearEvent");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtClearEvent)
-    {
         it(EventHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtClose(proc_t proc, const on_NtClose_fn& on_ntclose)
@@ -1568,18 +1468,16 @@ bool monitor::GenericMonitor::register_NtClose(proc_t proc, const on_NtClose_fn&
 void monitor::GenericMonitor::on_NtClose()
 {
     //LOG(INFO, "Break on NtClose");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtClose)
-    {
         it(Handle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCloseObjectAuditAlarm(proc_t proc, const on_NtCloseObjectAuditAlarm_fn& on_ntcloseobjectauditalarm)
@@ -1595,10 +1493,10 @@ bool monitor::GenericMonitor::register_NtCloseObjectAuditAlarm(proc_t proc, cons
 void monitor::GenericMonitor::on_NtCloseObjectAuditAlarm()
 {
     //LOG(INFO, "Break on NtCloseObjectAuditAlarm");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -1606,9 +1504,7 @@ void monitor::GenericMonitor::on_NtCloseObjectAuditAlarm()
     const auto GenerateOnClose = nt::cast_to<nt::BOOLEAN>            (args[2]);
 
     for(const auto& it : d_->observers_NtCloseObjectAuditAlarm)
-    {
         it(SubsystemName, HandleId, GenerateOnClose);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCommitComplete(proc_t proc, const on_NtCommitComplete_fn& on_ntcommitcomplete)
@@ -1624,19 +1520,17 @@ bool monitor::GenericMonitor::register_NtCommitComplete(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtCommitComplete()
 {
     //LOG(INFO, "Break on NtCommitComplete");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtCommitComplete)
-    {
         it(EnlistmentHandle, TmVirtualClock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCommitEnlistment(proc_t proc, const on_NtCommitEnlistment_fn& on_ntcommitenlistment)
@@ -1652,19 +1546,17 @@ bool monitor::GenericMonitor::register_NtCommitEnlistment(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtCommitEnlistment()
 {
     //LOG(INFO, "Break on NtCommitEnlistment");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtCommitEnlistment)
-    {
         it(EnlistmentHandle, TmVirtualClock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCommitTransaction(proc_t proc, const on_NtCommitTransaction_fn& on_ntcommittransaction)
@@ -1680,19 +1572,17 @@ bool monitor::GenericMonitor::register_NtCommitTransaction(proc_t proc, const on
 void monitor::GenericMonitor::on_NtCommitTransaction()
 {
     //LOG(INFO, "Break on NtCommitTransaction");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Wait            = nt::cast_to<nt::BOOLEAN>            (args[1]);
 
     for(const auto& it : d_->observers_NtCommitTransaction)
-    {
         it(TransactionHandle, Wait);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCompactKeys(proc_t proc, const on_NtCompactKeys_fn& on_ntcompactkeys)
@@ -1708,19 +1598,17 @@ bool monitor::GenericMonitor::register_NtCompactKeys(proc_t proc, const on_NtCom
 void monitor::GenericMonitor::on_NtCompactKeys()
 {
     //LOG(INFO, "Break on NtCompactKeys");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Count           = nt::cast_to<nt::ULONG>              (args[0]);
     const auto KeyArray        = nt::cast_to<nt::HANDLE>             (args[1]);
 
     for(const auto& it : d_->observers_NtCompactKeys)
-    {
         it(Count, KeyArray);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCompareTokens(proc_t proc, const on_NtCompareTokens_fn& on_ntcomparetokens)
@@ -1736,10 +1624,10 @@ bool monitor::GenericMonitor::register_NtCompareTokens(proc_t proc, const on_NtC
 void monitor::GenericMonitor::on_NtCompareTokens()
 {
     //LOG(INFO, "Break on NtCompareTokens");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FirstTokenHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -1747,9 +1635,7 @@ void monitor::GenericMonitor::on_NtCompareTokens()
     const auto Equal           = nt::cast_to<nt::PBOOLEAN>           (args[2]);
 
     for(const auto& it : d_->observers_NtCompareTokens)
-    {
         it(FirstTokenHandle, SecondTokenHandle, Equal);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCompleteConnectPort(proc_t proc, const on_NtCompleteConnectPort_fn& on_ntcompleteconnectport)
@@ -1765,18 +1651,16 @@ bool monitor::GenericMonitor::register_NtCompleteConnectPort(proc_t proc, const 
 void monitor::GenericMonitor::on_NtCompleteConnectPort()
 {
     //LOG(INFO, "Break on NtCompleteConnectPort");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtCompleteConnectPort)
-    {
         it(PortHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCompressKey(proc_t proc, const on_NtCompressKey_fn& on_ntcompresskey)
@@ -1792,18 +1676,16 @@ bool monitor::GenericMonitor::register_NtCompressKey(proc_t proc, const on_NtCom
 void monitor::GenericMonitor::on_NtCompressKey()
 {
     //LOG(INFO, "Break on NtCompressKey");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Key             = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtCompressKey)
-    {
         it(Key);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtConnectPort(proc_t proc, const on_NtConnectPort_fn& on_ntconnectport)
@@ -1819,10 +1701,10 @@ bool monitor::GenericMonitor::register_NtConnectPort(proc_t proc, const on_NtCon
 void monitor::GenericMonitor::on_NtConnectPort()
 {
     //LOG(INFO, "Break on NtConnectPort");
-    const auto nargs = 8;
+    constexpr int nargs = 8;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -1835,9 +1717,7 @@ void monitor::GenericMonitor::on_NtConnectPort()
     const auto ConnectionInformationLength= nt::cast_to<nt::PULONG>             (args[7]);
 
     for(const auto& it : d_->observers_NtConnectPort)
-    {
         it(PortHandle, PortName, SecurityQos, ClientView, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtContinue(proc_t proc, const on_NtContinue_fn& on_ntcontinue)
@@ -1853,19 +1733,17 @@ bool monitor::GenericMonitor::register_NtContinue(proc_t proc, const on_NtContin
 void monitor::GenericMonitor::on_NtContinue()
 {
     //LOG(INFO, "Break on NtContinue");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ContextRecord   = nt::cast_to<nt::PCONTEXT>           (args[0]);
     const auto TestAlert       = nt::cast_to<nt::BOOLEAN>            (args[1]);
 
     for(const auto& it : d_->observers_NtContinue)
-    {
         it(ContextRecord, TestAlert);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateDebugObject(proc_t proc, const on_NtCreateDebugObject_fn& on_ntcreatedebugobject)
@@ -1881,10 +1759,10 @@ bool monitor::GenericMonitor::register_NtCreateDebugObject(proc_t proc, const on
 void monitor::GenericMonitor::on_NtCreateDebugObject()
 {
     //LOG(INFO, "Break on NtCreateDebugObject");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DebugObjectHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -1893,9 +1771,7 @@ void monitor::GenericMonitor::on_NtCreateDebugObject()
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtCreateDebugObject)
-    {
         it(DebugObjectHandle, DesiredAccess, ObjectAttributes, Flags);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateDirectoryObject(proc_t proc, const on_NtCreateDirectoryObject_fn& on_ntcreatedirectoryobject)
@@ -1911,10 +1787,10 @@ bool monitor::GenericMonitor::register_NtCreateDirectoryObject(proc_t proc, cons
 void monitor::GenericMonitor::on_NtCreateDirectoryObject()
 {
     //LOG(INFO, "Break on NtCreateDirectoryObject");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DirectoryHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -1922,9 +1798,7 @@ void monitor::GenericMonitor::on_NtCreateDirectoryObject()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtCreateDirectoryObject)
-    {
         it(DirectoryHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateEnlistment(proc_t proc, const on_NtCreateEnlistment_fn& on_ntcreateenlistment)
@@ -1940,10 +1814,10 @@ bool monitor::GenericMonitor::register_NtCreateEnlistment(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtCreateEnlistment()
 {
     //LOG(INFO, "Break on NtCreateEnlistment");
-    const auto nargs = 8;
+    constexpr int nargs = 8;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -1956,9 +1830,7 @@ void monitor::GenericMonitor::on_NtCreateEnlistment()
     const auto EnlistmentKey   = nt::cast_to<nt::PVOID>              (args[7]);
 
     for(const auto& it : d_->observers_NtCreateEnlistment)
-    {
         it(EnlistmentHandle, DesiredAccess, ResourceManagerHandle, TransactionHandle, ObjectAttributes, CreateOptions, NotificationMask, EnlistmentKey);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateEvent(proc_t proc, const on_NtCreateEvent_fn& on_ntcreateevent)
@@ -1974,10 +1846,10 @@ bool monitor::GenericMonitor::register_NtCreateEvent(proc_t proc, const on_NtCre
 void monitor::GenericMonitor::on_NtCreateEvent()
 {
     //LOG(INFO, "Break on NtCreateEvent");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -1987,9 +1859,7 @@ void monitor::GenericMonitor::on_NtCreateEvent()
     const auto InitialState    = nt::cast_to<nt::BOOLEAN>            (args[4]);
 
     for(const auto& it : d_->observers_NtCreateEvent)
-    {
         it(EventHandle, DesiredAccess, ObjectAttributes, EventType, InitialState);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateEventPair(proc_t proc, const on_NtCreateEventPair_fn& on_ntcreateeventpair)
@@ -2005,10 +1875,10 @@ bool monitor::GenericMonitor::register_NtCreateEventPair(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtCreateEventPair()
 {
     //LOG(INFO, "Break on NtCreateEventPair");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2016,9 +1886,7 @@ void monitor::GenericMonitor::on_NtCreateEventPair()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtCreateEventPair)
-    {
         it(EventPairHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateFile(proc_t proc, const on_NtCreateFile_fn& on_ntcreatefile)
@@ -2034,10 +1902,10 @@ bool monitor::GenericMonitor::register_NtCreateFile(proc_t proc, const on_NtCrea
 void monitor::GenericMonitor::on_NtCreateFile()
 {
     //LOG(INFO, "Break on NtCreateFile");
-    const auto nargs = 11;
+    constexpr int nargs = 11;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2053,9 +1921,7 @@ void monitor::GenericMonitor::on_NtCreateFile()
     const auto EaLength        = nt::cast_to<nt::ULONG>              (args[10]);
 
     for(const auto& it : d_->observers_NtCreateFile)
-    {
         it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions, EaBuffer, EaLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateIoCompletion(proc_t proc, const on_NtCreateIoCompletion_fn& on_ntcreateiocompletion)
@@ -2071,10 +1937,10 @@ bool monitor::GenericMonitor::register_NtCreateIoCompletion(proc_t proc, const o
 void monitor::GenericMonitor::on_NtCreateIoCompletion()
 {
     //LOG(INFO, "Break on NtCreateIoCompletion");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto IoCompletionHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2083,9 +1949,7 @@ void monitor::GenericMonitor::on_NtCreateIoCompletion()
     const auto Count           = nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtCreateIoCompletion)
-    {
         it(IoCompletionHandle, DesiredAccess, ObjectAttributes, Count);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateJobObject(proc_t proc, const on_NtCreateJobObject_fn& on_ntcreatejobobject)
@@ -2101,10 +1965,10 @@ bool monitor::GenericMonitor::register_NtCreateJobObject(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtCreateJobObject()
 {
     //LOG(INFO, "Break on NtCreateJobObject");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto JobHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2112,9 +1976,7 @@ void monitor::GenericMonitor::on_NtCreateJobObject()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtCreateJobObject)
-    {
         it(JobHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateJobSet(proc_t proc, const on_NtCreateJobSet_fn& on_ntcreatejobset)
@@ -2130,10 +1992,10 @@ bool monitor::GenericMonitor::register_NtCreateJobSet(proc_t proc, const on_NtCr
 void monitor::GenericMonitor::on_NtCreateJobSet()
 {
     //LOG(INFO, "Break on NtCreateJobSet");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto NumJob          = nt::cast_to<nt::ULONG>              (args[0]);
@@ -2141,9 +2003,7 @@ void monitor::GenericMonitor::on_NtCreateJobSet()
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[2]);
 
     for(const auto& it : d_->observers_NtCreateJobSet)
-    {
         it(NumJob, UserJobSet, Flags);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateKeyedEvent(proc_t proc, const on_NtCreateKeyedEvent_fn& on_ntcreatekeyedevent)
@@ -2159,10 +2019,10 @@ bool monitor::GenericMonitor::register_NtCreateKeyedEvent(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtCreateKeyedEvent()
 {
     //LOG(INFO, "Break on NtCreateKeyedEvent");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyedEventHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2171,9 +2031,7 @@ void monitor::GenericMonitor::on_NtCreateKeyedEvent()
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtCreateKeyedEvent)
-    {
         it(KeyedEventHandle, DesiredAccess, ObjectAttributes, Flags);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateKey(proc_t proc, const on_NtCreateKey_fn& on_ntcreatekey)
@@ -2189,10 +2047,10 @@ bool monitor::GenericMonitor::register_NtCreateKey(proc_t proc, const on_NtCreat
 void monitor::GenericMonitor::on_NtCreateKey()
 {
     //LOG(INFO, "Break on NtCreateKey");
-    const auto nargs = 7;
+    constexpr int nargs = 7;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2204,9 +2062,7 @@ void monitor::GenericMonitor::on_NtCreateKey()
     const auto Disposition     = nt::cast_to<nt::PULONG>             (args[6]);
 
     for(const auto& it : d_->observers_NtCreateKey)
-    {
         it(KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, Disposition);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateKeyTransacted(proc_t proc, const on_NtCreateKeyTransacted_fn& on_ntcreatekeytransacted)
@@ -2222,10 +2078,10 @@ bool monitor::GenericMonitor::register_NtCreateKeyTransacted(proc_t proc, const 
 void monitor::GenericMonitor::on_NtCreateKeyTransacted()
 {
     //LOG(INFO, "Break on NtCreateKeyTransacted");
-    const auto nargs = 8;
+    constexpr int nargs = 8;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2238,9 +2094,7 @@ void monitor::GenericMonitor::on_NtCreateKeyTransacted()
     const auto Disposition     = nt::cast_to<nt::PULONG>             (args[7]);
 
     for(const auto& it : d_->observers_NtCreateKeyTransacted)
-    {
         it(KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, TransactionHandle, Disposition);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateMailslotFile(proc_t proc, const on_NtCreateMailslotFile_fn& on_ntcreatemailslotfile)
@@ -2256,10 +2110,10 @@ bool monitor::GenericMonitor::register_NtCreateMailslotFile(proc_t proc, const o
 void monitor::GenericMonitor::on_NtCreateMailslotFile()
 {
     //LOG(INFO, "Break on NtCreateMailslotFile");
-    const auto nargs = 8;
+    constexpr int nargs = 8;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2272,9 +2126,7 @@ void monitor::GenericMonitor::on_NtCreateMailslotFile()
     const auto ReadTimeout     = nt::cast_to<nt::PLARGE_INTEGER>     (args[7]);
 
     for(const auto& it : d_->observers_NtCreateMailslotFile)
-    {
         it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, CreateOptions, MailslotQuota, MaximumMessageSize, ReadTimeout);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateMutant(proc_t proc, const on_NtCreateMutant_fn& on_ntcreatemutant)
@@ -2290,10 +2142,10 @@ bool monitor::GenericMonitor::register_NtCreateMutant(proc_t proc, const on_NtCr
 void monitor::GenericMonitor::on_NtCreateMutant()
 {
     //LOG(INFO, "Break on NtCreateMutant");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto MutantHandle    = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2302,9 +2154,7 @@ void monitor::GenericMonitor::on_NtCreateMutant()
     const auto InitialOwner    = nt::cast_to<nt::BOOLEAN>            (args[3]);
 
     for(const auto& it : d_->observers_NtCreateMutant)
-    {
         it(MutantHandle, DesiredAccess, ObjectAttributes, InitialOwner);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateNamedPipeFile(proc_t proc, const on_NtCreateNamedPipeFile_fn& on_ntcreatenamedpipefile)
@@ -2320,10 +2170,10 @@ bool monitor::GenericMonitor::register_NtCreateNamedPipeFile(proc_t proc, const 
 void monitor::GenericMonitor::on_NtCreateNamedPipeFile()
 {
     //LOG(INFO, "Break on NtCreateNamedPipeFile");
-    const auto nargs = 14;
+    constexpr int nargs = 14;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2342,9 +2192,7 @@ void monitor::GenericMonitor::on_NtCreateNamedPipeFile()
     const auto DefaultTimeout  = nt::cast_to<nt::PLARGE_INTEGER>     (args[13]);
 
     for(const auto& it : d_->observers_NtCreateNamedPipeFile)
-    {
         it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, CreateDisposition, CreateOptions, NamedPipeType, ReadMode, CompletionMode, MaximumInstances, InboundQuota, OutboundQuota, DefaultTimeout);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreatePagingFile(proc_t proc, const on_NtCreatePagingFile_fn& on_ntcreatepagingfile)
@@ -2360,10 +2208,10 @@ bool monitor::GenericMonitor::register_NtCreatePagingFile(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtCreatePagingFile()
 {
     //LOG(INFO, "Break on NtCreatePagingFile");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PageFileName    = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -2372,9 +2220,7 @@ void monitor::GenericMonitor::on_NtCreatePagingFile()
     const auto Priority        = nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtCreatePagingFile)
-    {
         it(PageFileName, MinimumSize, MaximumSize, Priority);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreatePort(proc_t proc, const on_NtCreatePort_fn& on_ntcreateport)
@@ -2390,10 +2236,10 @@ bool monitor::GenericMonitor::register_NtCreatePort(proc_t proc, const on_NtCrea
 void monitor::GenericMonitor::on_NtCreatePort()
 {
     //LOG(INFO, "Break on NtCreatePort");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2403,9 +2249,7 @@ void monitor::GenericMonitor::on_NtCreatePort()
     const auto MaxPoolUsage    = nt::cast_to<nt::ULONG>              (args[4]);
 
     for(const auto& it : d_->observers_NtCreatePort)
-    {
         it(PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreatePrivateNamespace(proc_t proc, const on_NtCreatePrivateNamespace_fn& on_ntcreateprivatenamespace)
@@ -2421,10 +2265,10 @@ bool monitor::GenericMonitor::register_NtCreatePrivateNamespace(proc_t proc, con
 void monitor::GenericMonitor::on_NtCreatePrivateNamespace()
 {
     //LOG(INFO, "Break on NtCreatePrivateNamespace");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto NamespaceHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2433,9 +2277,7 @@ void monitor::GenericMonitor::on_NtCreatePrivateNamespace()
     const auto BoundaryDescriptor= nt::cast_to<nt::PVOID>              (args[3]);
 
     for(const auto& it : d_->observers_NtCreatePrivateNamespace)
-    {
         it(NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateProcessEx(proc_t proc, const on_NtCreateProcessEx_fn& on_ntcreateprocessex)
@@ -2451,10 +2293,10 @@ bool monitor::GenericMonitor::register_NtCreateProcessEx(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtCreateProcessEx()
 {
     //LOG(INFO, "Break on NtCreateProcessEx");
-    const auto nargs = 9;
+    constexpr int nargs = 9;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2468,9 +2310,7 @@ void monitor::GenericMonitor::on_NtCreateProcessEx()
     const auto JobMemberLevel  = nt::cast_to<nt::ULONG>              (args[8]);
 
     for(const auto& it : d_->observers_NtCreateProcessEx)
-    {
         it(ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, Flags, SectionHandle, DebugPort, ExceptionPort, JobMemberLevel);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateProcess(proc_t proc, const on_NtCreateProcess_fn& on_ntcreateprocess)
@@ -2486,10 +2326,10 @@ bool monitor::GenericMonitor::register_NtCreateProcess(proc_t proc, const on_NtC
 void monitor::GenericMonitor::on_NtCreateProcess()
 {
     //LOG(INFO, "Break on NtCreateProcess");
-    const auto nargs = 8;
+    constexpr int nargs = 8;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2502,9 +2342,7 @@ void monitor::GenericMonitor::on_NtCreateProcess()
     const auto ExceptionPort   = nt::cast_to<nt::HANDLE>             (args[7]);
 
     for(const auto& it : d_->observers_NtCreateProcess)
-    {
         it(ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, InheritObjectTable, SectionHandle, DebugPort, ExceptionPort);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateProfileEx(proc_t proc, const on_NtCreateProfileEx_fn& on_ntcreateprofileex)
@@ -2520,10 +2358,10 @@ bool monitor::GenericMonitor::register_NtCreateProfileEx(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtCreateProfileEx()
 {
     //LOG(INFO, "Break on NtCreateProfileEx");
-    const auto nargs = 10;
+    constexpr int nargs = 10;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProfileHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2538,9 +2376,7 @@ void monitor::GenericMonitor::on_NtCreateProfileEx()
     const auto GroupAffinity   = nt::cast_to<nt::PGROUP_AFFINITY>    (args[9]);
 
     for(const auto& it : d_->observers_NtCreateProfileEx)
-    {
         it(ProfileHandle, Process, ProfileBase, ProfileSize, BucketSize, Buffer, BufferSize, ProfileSource, GroupAffinityCount, GroupAffinity);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateProfile(proc_t proc, const on_NtCreateProfile_fn& on_ntcreateprofile)
@@ -2556,10 +2392,10 @@ bool monitor::GenericMonitor::register_NtCreateProfile(proc_t proc, const on_NtC
 void monitor::GenericMonitor::on_NtCreateProfile()
 {
     //LOG(INFO, "Break on NtCreateProfile");
-    const auto nargs = 9;
+    constexpr int nargs = 9;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProfileHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2573,9 +2409,7 @@ void monitor::GenericMonitor::on_NtCreateProfile()
     const auto Affinity        = nt::cast_to<nt::KAFFINITY>          (args[8]);
 
     for(const auto& it : d_->observers_NtCreateProfile)
-    {
         it(ProfileHandle, Process, RangeBase, RangeSize, BucketSize, Buffer, BufferSize, ProfileSource, Affinity);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateResourceManager(proc_t proc, const on_NtCreateResourceManager_fn& on_ntcreateresourcemanager)
@@ -2591,10 +2425,10 @@ bool monitor::GenericMonitor::register_NtCreateResourceManager(proc_t proc, cons
 void monitor::GenericMonitor::on_NtCreateResourceManager()
 {
     //LOG(INFO, "Break on NtCreateResourceManager");
-    const auto nargs = 7;
+    constexpr int nargs = 7;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2606,9 +2440,7 @@ void monitor::GenericMonitor::on_NtCreateResourceManager()
     const auto Description     = nt::cast_to<nt::PUNICODE_STRING>    (args[6]);
 
     for(const auto& it : d_->observers_NtCreateResourceManager)
-    {
         it(ResourceManagerHandle, DesiredAccess, TmHandle, RmGuid, ObjectAttributes, CreateOptions, Description);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateSection(proc_t proc, const on_NtCreateSection_fn& on_ntcreatesection)
@@ -2624,10 +2456,10 @@ bool monitor::GenericMonitor::register_NtCreateSection(proc_t proc, const on_NtC
 void monitor::GenericMonitor::on_NtCreateSection()
 {
     //LOG(INFO, "Break on NtCreateSection");
-    const auto nargs = 7;
+    constexpr int nargs = 7;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SectionHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2639,9 +2471,7 @@ void monitor::GenericMonitor::on_NtCreateSection()
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[6]);
 
     for(const auto& it : d_->observers_NtCreateSection)
-    {
         it(SectionHandle, DesiredAccess, ObjectAttributes, MaximumSize, SectionPageProtection, AllocationAttributes, FileHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateSemaphore(proc_t proc, const on_NtCreateSemaphore_fn& on_ntcreatesemaphore)
@@ -2657,10 +2487,10 @@ bool monitor::GenericMonitor::register_NtCreateSemaphore(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtCreateSemaphore()
 {
     //LOG(INFO, "Break on NtCreateSemaphore");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SemaphoreHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2670,9 +2500,7 @@ void monitor::GenericMonitor::on_NtCreateSemaphore()
     const auto MaximumCount    = nt::cast_to<nt::LONG>               (args[4]);
 
     for(const auto& it : d_->observers_NtCreateSemaphore)
-    {
         it(SemaphoreHandle, DesiredAccess, ObjectAttributes, InitialCount, MaximumCount);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateSymbolicLinkObject(proc_t proc, const on_NtCreateSymbolicLinkObject_fn& on_ntcreatesymboliclinkobject)
@@ -2688,10 +2516,10 @@ bool monitor::GenericMonitor::register_NtCreateSymbolicLinkObject(proc_t proc, c
 void monitor::GenericMonitor::on_NtCreateSymbolicLinkObject()
 {
     //LOG(INFO, "Break on NtCreateSymbolicLinkObject");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto LinkHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2700,9 +2528,7 @@ void monitor::GenericMonitor::on_NtCreateSymbolicLinkObject()
     const auto LinkTarget      = nt::cast_to<nt::PUNICODE_STRING>    (args[3]);
 
     for(const auto& it : d_->observers_NtCreateSymbolicLinkObject)
-    {
         it(LinkHandle, DesiredAccess, ObjectAttributes, LinkTarget);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateThreadEx(proc_t proc, const on_NtCreateThreadEx_fn& on_ntcreatethreadex)
@@ -2718,10 +2544,10 @@ bool monitor::GenericMonitor::register_NtCreateThreadEx(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtCreateThreadEx()
 {
     //LOG(INFO, "Break on NtCreateThreadEx");
-    const auto nargs = 11;
+    constexpr int nargs = 11;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2737,9 +2563,7 @@ void monitor::GenericMonitor::on_NtCreateThreadEx()
     const auto AttributeList   = nt::cast_to<nt::PPS_ATTRIBUTE_LIST> (args[10]);
 
     for(const auto& it : d_->observers_NtCreateThreadEx)
-    {
         it(ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, StartRoutine, Argument, CreateFlags, ZeroBits, StackSize, MaximumStackSize, AttributeList);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateThread(proc_t proc, const on_NtCreateThread_fn& on_ntcreatethread)
@@ -2755,10 +2579,10 @@ bool monitor::GenericMonitor::register_NtCreateThread(proc_t proc, const on_NtCr
 void monitor::GenericMonitor::on_NtCreateThread()
 {
     //LOG(INFO, "Break on NtCreateThread");
-    const auto nargs = 8;
+    constexpr int nargs = 8;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2771,9 +2595,7 @@ void monitor::GenericMonitor::on_NtCreateThread()
     const auto CreateSuspended = nt::cast_to<nt::BOOLEAN>            (args[7]);
 
     for(const auto& it : d_->observers_NtCreateThread)
-    {
         it(ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, ClientId, ThreadContext, InitialTeb, CreateSuspended);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateTimer(proc_t proc, const on_NtCreateTimer_fn& on_ntcreatetimer)
@@ -2789,10 +2611,10 @@ bool monitor::GenericMonitor::register_NtCreateTimer(proc_t proc, const on_NtCre
 void monitor::GenericMonitor::on_NtCreateTimer()
 {
     //LOG(INFO, "Break on NtCreateTimer");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TimerHandle     = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2801,9 +2623,7 @@ void monitor::GenericMonitor::on_NtCreateTimer()
     const auto TimerType       = nt::cast_to<nt::TIMER_TYPE>         (args[3]);
 
     for(const auto& it : d_->observers_NtCreateTimer)
-    {
         it(TimerHandle, DesiredAccess, ObjectAttributes, TimerType);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateToken(proc_t proc, const on_NtCreateToken_fn& on_ntcreatetoken)
@@ -2819,10 +2639,10 @@ bool monitor::GenericMonitor::register_NtCreateToken(proc_t proc, const on_NtCre
 void monitor::GenericMonitor::on_NtCreateToken()
 {
     //LOG(INFO, "Break on NtCreateToken");
-    const auto nargs = 13;
+    constexpr int nargs = 13;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TokenHandle     = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2840,9 +2660,7 @@ void monitor::GenericMonitor::on_NtCreateToken()
     const auto TokenSource     = nt::cast_to<nt::PTOKEN_SOURCE>      (args[12]);
 
     for(const auto& it : d_->observers_NtCreateToken)
-    {
         it(TokenHandle, DesiredAccess, ObjectAttributes, TokenType, AuthenticationId, ExpirationTime, User, Groups, Privileges, Owner, PrimaryGroup, DefaultDacl, TokenSource);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateTransactionManager(proc_t proc, const on_NtCreateTransactionManager_fn& on_ntcreatetransactionmanager)
@@ -2858,10 +2676,10 @@ bool monitor::GenericMonitor::register_NtCreateTransactionManager(proc_t proc, c
 void monitor::GenericMonitor::on_NtCreateTransactionManager()
 {
     //LOG(INFO, "Break on NtCreateTransactionManager");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TmHandle        = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2872,9 +2690,7 @@ void monitor::GenericMonitor::on_NtCreateTransactionManager()
     const auto CommitStrength  = nt::cast_to<nt::ULONG>              (args[5]);
 
     for(const auto& it : d_->observers_NtCreateTransactionManager)
-    {
         it(TmHandle, DesiredAccess, ObjectAttributes, LogFileName, CreateOptions, CommitStrength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateTransaction(proc_t proc, const on_NtCreateTransaction_fn& on_ntcreatetransaction)
@@ -2890,10 +2706,10 @@ bool monitor::GenericMonitor::register_NtCreateTransaction(proc_t proc, const on
 void monitor::GenericMonitor::on_NtCreateTransaction()
 {
     //LOG(INFO, "Break on NtCreateTransaction");
-    const auto nargs = 10;
+    constexpr int nargs = 10;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2908,9 +2724,7 @@ void monitor::GenericMonitor::on_NtCreateTransaction()
     const auto Description     = nt::cast_to<nt::PUNICODE_STRING>    (args[9]);
 
     for(const auto& it : d_->observers_NtCreateTransaction)
-    {
         it(TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle, CreateOptions, IsolationLevel, IsolationFlags, Timeout, Description);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateUserProcess(proc_t proc, const on_NtCreateUserProcess_fn& on_ntcreateuserprocess)
@@ -2926,10 +2740,10 @@ bool monitor::GenericMonitor::register_NtCreateUserProcess(proc_t proc, const on
 void monitor::GenericMonitor::on_NtCreateUserProcess()
 {
     //LOG(INFO, "Break on NtCreateUserProcess");
-    const auto nargs = 11;
+    constexpr int nargs = 11;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2945,9 +2759,7 @@ void monitor::GenericMonitor::on_NtCreateUserProcess()
     const auto AttributeList   = nt::cast_to<nt::PPROCESS_ATTRIBUTE_LIST>(args[10]);
 
     for(const auto& it : d_->observers_NtCreateUserProcess)
-    {
         it(ProcessHandle, ThreadHandle, ProcessDesiredAccess, ThreadDesiredAccess, ProcessObjectAttributes, ThreadObjectAttributes, ProcessFlags, ThreadFlags, ProcessParameters, CreateInfo, AttributeList);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateWaitablePort(proc_t proc, const on_NtCreateWaitablePort_fn& on_ntcreatewaitableport)
@@ -2963,10 +2775,10 @@ bool monitor::GenericMonitor::register_NtCreateWaitablePort(proc_t proc, const o
 void monitor::GenericMonitor::on_NtCreateWaitablePort()
 {
     //LOG(INFO, "Break on NtCreateWaitablePort");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -2976,9 +2788,7 @@ void monitor::GenericMonitor::on_NtCreateWaitablePort()
     const auto MaxPoolUsage    = nt::cast_to<nt::ULONG>              (args[4]);
 
     for(const auto& it : d_->observers_NtCreateWaitablePort)
-    {
         it(PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtCreateWorkerFactory(proc_t proc, const on_NtCreateWorkerFactory_fn& on_ntcreateworkerfactory)
@@ -2994,10 +2804,10 @@ bool monitor::GenericMonitor::register_NtCreateWorkerFactory(proc_t proc, const 
 void monitor::GenericMonitor::on_NtCreateWorkerFactory()
 {
     //LOG(INFO, "Break on NtCreateWorkerFactory");
-    const auto nargs = 10;
+    constexpr int nargs = 10;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto WorkerFactoryHandleReturn= nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -3012,9 +2822,7 @@ void monitor::GenericMonitor::on_NtCreateWorkerFactory()
     const auto StackCommit     = nt::cast_to<nt::SIZE_T>             (args[9]);
 
     for(const auto& it : d_->observers_NtCreateWorkerFactory)
-    {
         it(WorkerFactoryHandleReturn, DesiredAccess, ObjectAttributes, CompletionPortHandle, WorkerProcessHandle, StartRoutine, StartParameter, MaxThreadCount, StackReserve, StackCommit);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDebugActiveProcess(proc_t proc, const on_NtDebugActiveProcess_fn& on_ntdebugactiveprocess)
@@ -3030,19 +2838,17 @@ bool monitor::GenericMonitor::register_NtDebugActiveProcess(proc_t proc, const o
 void monitor::GenericMonitor::on_NtDebugActiveProcess()
 {
     //LOG(INFO, "Break on NtDebugActiveProcess");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto DebugObjectHandle= nt::cast_to<nt::HANDLE>             (args[1]);
 
     for(const auto& it : d_->observers_NtDebugActiveProcess)
-    {
         it(ProcessHandle, DebugObjectHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDebugContinue(proc_t proc, const on_NtDebugContinue_fn& on_ntdebugcontinue)
@@ -3058,10 +2864,10 @@ bool monitor::GenericMonitor::register_NtDebugContinue(proc_t proc, const on_NtD
 void monitor::GenericMonitor::on_NtDebugContinue()
 {
     //LOG(INFO, "Break on NtDebugContinue");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DebugObjectHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -3069,9 +2875,7 @@ void monitor::GenericMonitor::on_NtDebugContinue()
     const auto ContinueStatus  = nt::cast_to<nt::NTSTATUS>           (args[2]);
 
     for(const auto& it : d_->observers_NtDebugContinue)
-    {
         it(DebugObjectHandle, ClientId, ContinueStatus);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDelayExecution(proc_t proc, const on_NtDelayExecution_fn& on_ntdelayexecution)
@@ -3087,19 +2891,17 @@ bool monitor::GenericMonitor::register_NtDelayExecution(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtDelayExecution()
 {
     //LOG(INFO, "Break on NtDelayExecution");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Alertable       = nt::cast_to<nt::BOOLEAN>            (args[0]);
     const auto DelayInterval   = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtDelayExecution)
-    {
         it(Alertable, DelayInterval);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDeleteAtom(proc_t proc, const on_NtDeleteAtom_fn& on_ntdeleteatom)
@@ -3115,18 +2917,16 @@ bool monitor::GenericMonitor::register_NtDeleteAtom(proc_t proc, const on_NtDele
 void monitor::GenericMonitor::on_NtDeleteAtom()
 {
     //LOG(INFO, "Break on NtDeleteAtom");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Atom            = nt::cast_to<nt::RTL_ATOM>           (args[0]);
 
     for(const auto& it : d_->observers_NtDeleteAtom)
-    {
         it(Atom);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDeleteBootEntry(proc_t proc, const on_NtDeleteBootEntry_fn& on_ntdeletebootentry)
@@ -3142,18 +2942,16 @@ bool monitor::GenericMonitor::register_NtDeleteBootEntry(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtDeleteBootEntry()
 {
     //LOG(INFO, "Break on NtDeleteBootEntry");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Id              = nt::cast_to<nt::ULONG>              (args[0]);
 
     for(const auto& it : d_->observers_NtDeleteBootEntry)
-    {
         it(Id);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDeleteDriverEntry(proc_t proc, const on_NtDeleteDriverEntry_fn& on_ntdeletedriverentry)
@@ -3169,18 +2967,16 @@ bool monitor::GenericMonitor::register_NtDeleteDriverEntry(proc_t proc, const on
 void monitor::GenericMonitor::on_NtDeleteDriverEntry()
 {
     //LOG(INFO, "Break on NtDeleteDriverEntry");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Id              = nt::cast_to<nt::ULONG>              (args[0]);
 
     for(const auto& it : d_->observers_NtDeleteDriverEntry)
-    {
         it(Id);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDeleteFile(proc_t proc, const on_NtDeleteFile_fn& on_ntdeletefile)
@@ -3196,18 +2992,16 @@ bool monitor::GenericMonitor::register_NtDeleteFile(proc_t proc, const on_NtDele
 void monitor::GenericMonitor::on_NtDeleteFile()
 {
     //LOG(INFO, "Break on NtDeleteFile");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
 
     for(const auto& it : d_->observers_NtDeleteFile)
-    {
         it(ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDeleteKey(proc_t proc, const on_NtDeleteKey_fn& on_ntdeletekey)
@@ -3223,18 +3017,16 @@ bool monitor::GenericMonitor::register_NtDeleteKey(proc_t proc, const on_NtDelet
 void monitor::GenericMonitor::on_NtDeleteKey()
 {
     //LOG(INFO, "Break on NtDeleteKey");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtDeleteKey)
-    {
         it(KeyHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDeleteObjectAuditAlarm(proc_t proc, const on_NtDeleteObjectAuditAlarm_fn& on_ntdeleteobjectauditalarm)
@@ -3250,10 +3042,10 @@ bool monitor::GenericMonitor::register_NtDeleteObjectAuditAlarm(proc_t proc, con
 void monitor::GenericMonitor::on_NtDeleteObjectAuditAlarm()
 {
     //LOG(INFO, "Break on NtDeleteObjectAuditAlarm");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -3261,9 +3053,7 @@ void monitor::GenericMonitor::on_NtDeleteObjectAuditAlarm()
     const auto GenerateOnClose = nt::cast_to<nt::BOOLEAN>            (args[2]);
 
     for(const auto& it : d_->observers_NtDeleteObjectAuditAlarm)
-    {
         it(SubsystemName, HandleId, GenerateOnClose);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDeletePrivateNamespace(proc_t proc, const on_NtDeletePrivateNamespace_fn& on_ntdeleteprivatenamespace)
@@ -3279,18 +3069,16 @@ bool monitor::GenericMonitor::register_NtDeletePrivateNamespace(proc_t proc, con
 void monitor::GenericMonitor::on_NtDeletePrivateNamespace()
 {
     //LOG(INFO, "Break on NtDeletePrivateNamespace");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto NamespaceHandle = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtDeletePrivateNamespace)
-    {
         it(NamespaceHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDeleteValueKey(proc_t proc, const on_NtDeleteValueKey_fn& on_ntdeletevaluekey)
@@ -3306,19 +3094,17 @@ bool monitor::GenericMonitor::register_NtDeleteValueKey(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtDeleteValueKey()
 {
     //LOG(INFO, "Break on NtDeleteValueKey");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ValueName       = nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
 
     for(const auto& it : d_->observers_NtDeleteValueKey)
-    {
         it(KeyHandle, ValueName);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDeviceIoControlFile(proc_t proc, const on_NtDeviceIoControlFile_fn& on_ntdeviceiocontrolfile)
@@ -3334,10 +3120,10 @@ bool monitor::GenericMonitor::register_NtDeviceIoControlFile(proc_t proc, const 
 void monitor::GenericMonitor::on_NtDeviceIoControlFile()
 {
     //LOG(INFO, "Break on NtDeviceIoControlFile");
-    const auto nargs = 10;
+    constexpr int nargs = 10;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -3352,9 +3138,7 @@ void monitor::GenericMonitor::on_NtDeviceIoControlFile()
     const auto OutputBufferLength= nt::cast_to<nt::ULONG>              (args[9]);
 
     for(const auto& it : d_->observers_NtDeviceIoControlFile)
-    {
         it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDisplayString(proc_t proc, const on_NtDisplayString_fn& on_ntdisplaystring)
@@ -3370,18 +3154,16 @@ bool monitor::GenericMonitor::register_NtDisplayString(proc_t proc, const on_NtD
 void monitor::GenericMonitor::on_NtDisplayString()
 {
     //LOG(INFO, "Break on NtDisplayString");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto String          = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
 
     for(const auto& it : d_->observers_NtDisplayString)
-    {
         it(String);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDrawText(proc_t proc, const on_NtDrawText_fn& on_ntdrawtext)
@@ -3397,18 +3179,16 @@ bool monitor::GenericMonitor::register_NtDrawText(proc_t proc, const on_NtDrawTe
 void monitor::GenericMonitor::on_NtDrawText()
 {
     //LOG(INFO, "Break on NtDrawText");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Text            = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
 
     for(const auto& it : d_->observers_NtDrawText)
-    {
         it(Text);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDuplicateObject(proc_t proc, const on_NtDuplicateObject_fn& on_ntduplicateobject)
@@ -3424,10 +3204,10 @@ bool monitor::GenericMonitor::register_NtDuplicateObject(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtDuplicateObject()
 {
     //LOG(INFO, "Break on NtDuplicateObject");
-    const auto nargs = 7;
+    constexpr int nargs = 7;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SourceProcessHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -3439,9 +3219,7 @@ void monitor::GenericMonitor::on_NtDuplicateObject()
     const auto Options         = nt::cast_to<nt::ULONG>              (args[6]);
 
     for(const auto& it : d_->observers_NtDuplicateObject)
-    {
         it(SourceProcessHandle, SourceHandle, TargetProcessHandle, TargetHandle, DesiredAccess, HandleAttributes, Options);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDuplicateToken(proc_t proc, const on_NtDuplicateToken_fn& on_ntduplicatetoken)
@@ -3457,10 +3235,10 @@ bool monitor::GenericMonitor::register_NtDuplicateToken(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtDuplicateToken()
 {
     //LOG(INFO, "Break on NtDuplicateToken");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ExistingTokenHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -3471,9 +3249,7 @@ void monitor::GenericMonitor::on_NtDuplicateToken()
     const auto NewTokenHandle  = nt::cast_to<nt::PHANDLE>            (args[5]);
 
     for(const auto& it : d_->observers_NtDuplicateToken)
-    {
         it(ExistingTokenHandle, DesiredAccess, ObjectAttributes, EffectiveOnly, TokenType, NewTokenHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtEnumerateBootEntries(proc_t proc, const on_NtEnumerateBootEntries_fn& on_ntenumeratebootentries)
@@ -3489,19 +3265,17 @@ bool monitor::GenericMonitor::register_NtEnumerateBootEntries(proc_t proc, const
 void monitor::GenericMonitor::on_NtEnumerateBootEntries()
 {
     //LOG(INFO, "Break on NtEnumerateBootEntries");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Buffer          = nt::cast_to<nt::PVOID>              (args[0]);
     const auto BufferLength    = nt::cast_to<nt::PULONG>             (args[1]);
 
     for(const auto& it : d_->observers_NtEnumerateBootEntries)
-    {
         it(Buffer, BufferLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtEnumerateDriverEntries(proc_t proc, const on_NtEnumerateDriverEntries_fn& on_ntenumeratedriverentries)
@@ -3517,19 +3291,17 @@ bool monitor::GenericMonitor::register_NtEnumerateDriverEntries(proc_t proc, con
 void monitor::GenericMonitor::on_NtEnumerateDriverEntries()
 {
     //LOG(INFO, "Break on NtEnumerateDriverEntries");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Buffer          = nt::cast_to<nt::PVOID>              (args[0]);
     const auto BufferLength    = nt::cast_to<nt::PULONG>             (args[1]);
 
     for(const auto& it : d_->observers_NtEnumerateDriverEntries)
-    {
         it(Buffer, BufferLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtEnumerateKey(proc_t proc, const on_NtEnumerateKey_fn& on_ntenumeratekey)
@@ -3545,10 +3317,10 @@ bool monitor::GenericMonitor::register_NtEnumerateKey(proc_t proc, const on_NtEn
 void monitor::GenericMonitor::on_NtEnumerateKey()
 {
     //LOG(INFO, "Break on NtEnumerateKey");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -3559,9 +3331,7 @@ void monitor::GenericMonitor::on_NtEnumerateKey()
     const auto ResultLength    = nt::cast_to<nt::PULONG>             (args[5]);
 
     for(const auto& it : d_->observers_NtEnumerateKey)
-    {
         it(KeyHandle, Index, KeyInformationClass, KeyInformation, Length, ResultLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtEnumerateSystemEnvironmentValuesEx(proc_t proc, const on_NtEnumerateSystemEnvironmentValuesEx_fn& on_ntenumeratesystemenvironmentvaluesex)
@@ -3577,10 +3347,10 @@ bool monitor::GenericMonitor::register_NtEnumerateSystemEnvironmentValuesEx(proc
 void monitor::GenericMonitor::on_NtEnumerateSystemEnvironmentValuesEx()
 {
     //LOG(INFO, "Break on NtEnumerateSystemEnvironmentValuesEx");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto InformationClass= nt::cast_to<nt::ULONG>              (args[0]);
@@ -3588,9 +3358,7 @@ void monitor::GenericMonitor::on_NtEnumerateSystemEnvironmentValuesEx()
     const auto BufferLength    = nt::cast_to<nt::PULONG>             (args[2]);
 
     for(const auto& it : d_->observers_NtEnumerateSystemEnvironmentValuesEx)
-    {
         it(InformationClass, Buffer, BufferLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtEnumerateTransactionObject(proc_t proc, const on_NtEnumerateTransactionObject_fn& on_ntenumeratetransactionobject)
@@ -3606,10 +3374,10 @@ bool monitor::GenericMonitor::register_NtEnumerateTransactionObject(proc_t proc,
 void monitor::GenericMonitor::on_NtEnumerateTransactionObject()
 {
     //LOG(INFO, "Break on NtEnumerateTransactionObject");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto RootObjectHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -3619,9 +3387,7 @@ void monitor::GenericMonitor::on_NtEnumerateTransactionObject()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtEnumerateTransactionObject)
-    {
         it(RootObjectHandle, QueryType, ObjectCursor, ObjectCursorLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtEnumerateValueKey(proc_t proc, const on_NtEnumerateValueKey_fn& on_ntenumeratevaluekey)
@@ -3637,10 +3403,10 @@ bool monitor::GenericMonitor::register_NtEnumerateValueKey(proc_t proc, const on
 void monitor::GenericMonitor::on_NtEnumerateValueKey()
 {
     //LOG(INFO, "Break on NtEnumerateValueKey");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -3651,9 +3417,7 @@ void monitor::GenericMonitor::on_NtEnumerateValueKey()
     const auto ResultLength    = nt::cast_to<nt::PULONG>             (args[5]);
 
     for(const auto& it : d_->observers_NtEnumerateValueKey)
-    {
         it(KeyHandle, Index, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtExtendSection(proc_t proc, const on_NtExtendSection_fn& on_ntextendsection)
@@ -3669,19 +3433,17 @@ bool monitor::GenericMonitor::register_NtExtendSection(proc_t proc, const on_NtE
 void monitor::GenericMonitor::on_NtExtendSection()
 {
     //LOG(INFO, "Break on NtExtendSection");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SectionHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto NewSectionSize  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtExtendSection)
-    {
         it(SectionHandle, NewSectionSize);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtFilterToken(proc_t proc, const on_NtFilterToken_fn& on_ntfiltertoken)
@@ -3697,10 +3459,10 @@ bool monitor::GenericMonitor::register_NtFilterToken(proc_t proc, const on_NtFil
 void monitor::GenericMonitor::on_NtFilterToken()
 {
     //LOG(INFO, "Break on NtFilterToken");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ExistingTokenHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -3711,9 +3473,7 @@ void monitor::GenericMonitor::on_NtFilterToken()
     const auto NewTokenHandle  = nt::cast_to<nt::PHANDLE>            (args[5]);
 
     for(const auto& it : d_->observers_NtFilterToken)
-    {
         it(ExistingTokenHandle, Flags, SidsToDisable, PrivilegesToDelete, RestrictedSids, NewTokenHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtFindAtom(proc_t proc, const on_NtFindAtom_fn& on_ntfindatom)
@@ -3729,10 +3489,10 @@ bool monitor::GenericMonitor::register_NtFindAtom(proc_t proc, const on_NtFindAt
 void monitor::GenericMonitor::on_NtFindAtom()
 {
     //LOG(INFO, "Break on NtFindAtom");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto AtomName        = nt::cast_to<nt::PWSTR>              (args[0]);
@@ -3740,9 +3500,7 @@ void monitor::GenericMonitor::on_NtFindAtom()
     const auto Atom            = nt::cast_to<nt::PRTL_ATOM>          (args[2]);
 
     for(const auto& it : d_->observers_NtFindAtom)
-    {
         it(AtomName, Length, Atom);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtFlushBuffersFile(proc_t proc, const on_NtFlushBuffersFile_fn& on_ntflushbuffersfile)
@@ -3758,19 +3516,17 @@ bool monitor::GenericMonitor::register_NtFlushBuffersFile(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtFlushBuffersFile()
 {
     //LOG(INFO, "Break on NtFlushBuffersFile");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto IoStatusBlock   = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[1]);
 
     for(const auto& it : d_->observers_NtFlushBuffersFile)
-    {
         it(FileHandle, IoStatusBlock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtFlushInstallUILanguage(proc_t proc, const on_NtFlushInstallUILanguage_fn& on_ntflushinstalluilanguage)
@@ -3786,19 +3542,17 @@ bool monitor::GenericMonitor::register_NtFlushInstallUILanguage(proc_t proc, con
 void monitor::GenericMonitor::on_NtFlushInstallUILanguage()
 {
     //LOG(INFO, "Break on NtFlushInstallUILanguage");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto InstallUILanguage= nt::cast_to<nt::LANGID>             (args[0]);
     const auto SetComittedFlag = nt::cast_to<nt::ULONG>              (args[1]);
 
     for(const auto& it : d_->observers_NtFlushInstallUILanguage)
-    {
         it(InstallUILanguage, SetComittedFlag);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtFlushInstructionCache(proc_t proc, const on_NtFlushInstructionCache_fn& on_ntflushinstructioncache)
@@ -3814,10 +3568,10 @@ bool monitor::GenericMonitor::register_NtFlushInstructionCache(proc_t proc, cons
 void monitor::GenericMonitor::on_NtFlushInstructionCache()
 {
     //LOG(INFO, "Break on NtFlushInstructionCache");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -3825,9 +3579,7 @@ void monitor::GenericMonitor::on_NtFlushInstructionCache()
     const auto Length          = nt::cast_to<nt::SIZE_T>             (args[2]);
 
     for(const auto& it : d_->observers_NtFlushInstructionCache)
-    {
         it(ProcessHandle, BaseAddress, Length);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtFlushKey(proc_t proc, const on_NtFlushKey_fn& on_ntflushkey)
@@ -3843,18 +3595,16 @@ bool monitor::GenericMonitor::register_NtFlushKey(proc_t proc, const on_NtFlushK
 void monitor::GenericMonitor::on_NtFlushKey()
 {
     //LOG(INFO, "Break on NtFlushKey");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtFlushKey)
-    {
         it(KeyHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtFlushVirtualMemory(proc_t proc, const on_NtFlushVirtualMemory_fn& on_ntflushvirtualmemory)
@@ -3870,10 +3620,10 @@ bool monitor::GenericMonitor::register_NtFlushVirtualMemory(proc_t proc, const o
 void monitor::GenericMonitor::on_NtFlushVirtualMemory()
 {
     //LOG(INFO, "Break on NtFlushVirtualMemory");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -3882,9 +3632,7 @@ void monitor::GenericMonitor::on_NtFlushVirtualMemory()
     const auto IoStatus        = nt::cast_to<nt::PIO_STATUS_BLOCK>   (args[3]);
 
     for(const auto& it : d_->observers_NtFlushVirtualMemory)
-    {
         it(ProcessHandle, STARBaseAddress, RegionSize, IoStatus);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtFreeUserPhysicalPages(proc_t proc, const on_NtFreeUserPhysicalPages_fn& on_ntfreeuserphysicalpages)
@@ -3900,10 +3648,10 @@ bool monitor::GenericMonitor::register_NtFreeUserPhysicalPages(proc_t proc, cons
 void monitor::GenericMonitor::on_NtFreeUserPhysicalPages()
 {
     //LOG(INFO, "Break on NtFreeUserPhysicalPages");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -3911,9 +3659,7 @@ void monitor::GenericMonitor::on_NtFreeUserPhysicalPages()
     const auto UserPfnArra     = nt::cast_to<nt::PULONG_PTR>         (args[2]);
 
     for(const auto& it : d_->observers_NtFreeUserPhysicalPages)
-    {
         it(ProcessHandle, NumberOfPages, UserPfnArra);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtFreeVirtualMemory(proc_t proc, const on_NtFreeVirtualMemory_fn& on_ntfreevirtualmemory)
@@ -3929,10 +3675,10 @@ bool monitor::GenericMonitor::register_NtFreeVirtualMemory(proc_t proc, const on
 void monitor::GenericMonitor::on_NtFreeVirtualMemory()
 {
     //LOG(INFO, "Break on NtFreeVirtualMemory");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -3941,9 +3687,7 @@ void monitor::GenericMonitor::on_NtFreeVirtualMemory()
     const auto FreeType        = nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtFreeVirtualMemory)
-    {
         it(ProcessHandle, STARBaseAddress, RegionSize, FreeType);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtFreezeRegistry(proc_t proc, const on_NtFreezeRegistry_fn& on_ntfreezeregistry)
@@ -3959,18 +3703,16 @@ bool monitor::GenericMonitor::register_NtFreezeRegistry(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtFreezeRegistry()
 {
     //LOG(INFO, "Break on NtFreezeRegistry");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TimeOutInSeconds= nt::cast_to<nt::ULONG>              (args[0]);
 
     for(const auto& it : d_->observers_NtFreezeRegistry)
-    {
         it(TimeOutInSeconds);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtFreezeTransactions(proc_t proc, const on_NtFreezeTransactions_fn& on_ntfreezetransactions)
@@ -3986,19 +3728,17 @@ bool monitor::GenericMonitor::register_NtFreezeTransactions(proc_t proc, const o
 void monitor::GenericMonitor::on_NtFreezeTransactions()
 {
     //LOG(INFO, "Break on NtFreezeTransactions");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FreezeTimeout   = nt::cast_to<nt::PLARGE_INTEGER>     (args[0]);
     const auto ThawTimeout     = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtFreezeTransactions)
-    {
         it(FreezeTimeout, ThawTimeout);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtFsControlFile(proc_t proc, const on_NtFsControlFile_fn& on_ntfscontrolfile)
@@ -4014,10 +3754,10 @@ bool monitor::GenericMonitor::register_NtFsControlFile(proc_t proc, const on_NtF
 void monitor::GenericMonitor::on_NtFsControlFile()
 {
     //LOG(INFO, "Break on NtFsControlFile");
-    const auto nargs = 10;
+    constexpr int nargs = 10;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -4032,9 +3772,7 @@ void monitor::GenericMonitor::on_NtFsControlFile()
     const auto OutputBufferLength= nt::cast_to<nt::ULONG>              (args[9]);
 
     for(const auto& it : d_->observers_NtFsControlFile)
-    {
         it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtGetContextThread(proc_t proc, const on_NtGetContextThread_fn& on_ntgetcontextthread)
@@ -4050,19 +3788,17 @@ bool monitor::GenericMonitor::register_NtGetContextThread(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtGetContextThread()
 {
     //LOG(INFO, "Break on NtGetContextThread");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ThreadContext   = nt::cast_to<nt::PCONTEXT>           (args[1]);
 
     for(const auto& it : d_->observers_NtGetContextThread)
-    {
         it(ThreadHandle, ThreadContext);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtGetDevicePowerState(proc_t proc, const on_NtGetDevicePowerState_fn& on_ntgetdevicepowerstate)
@@ -4078,19 +3814,17 @@ bool monitor::GenericMonitor::register_NtGetDevicePowerState(proc_t proc, const 
 void monitor::GenericMonitor::on_NtGetDevicePowerState()
 {
     //LOG(INFO, "Break on NtGetDevicePowerState");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Device          = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto STARState       = nt::cast_to<nt::DEVICE_POWER_STATE> (args[1]);
 
     for(const auto& it : d_->observers_NtGetDevicePowerState)
-    {
         it(Device, STARState);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtGetMUIRegistryInfo(proc_t proc, const on_NtGetMUIRegistryInfo_fn& on_ntgetmuiregistryinfo)
@@ -4106,10 +3840,10 @@ bool monitor::GenericMonitor::register_NtGetMUIRegistryInfo(proc_t proc, const o
 void monitor::GenericMonitor::on_NtGetMUIRegistryInfo()
 {
     //LOG(INFO, "Break on NtGetMUIRegistryInfo");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[0]);
@@ -4117,9 +3851,7 @@ void monitor::GenericMonitor::on_NtGetMUIRegistryInfo()
     const auto Data            = nt::cast_to<nt::PVOID>              (args[2]);
 
     for(const auto& it : d_->observers_NtGetMUIRegistryInfo)
-    {
         it(Flags, DataSize, Data);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtGetNextProcess(proc_t proc, const on_NtGetNextProcess_fn& on_ntgetnextprocess)
@@ -4135,10 +3867,10 @@ bool monitor::GenericMonitor::register_NtGetNextProcess(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtGetNextProcess()
 {
     //LOG(INFO, "Break on NtGetNextProcess");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -4148,9 +3880,7 @@ void monitor::GenericMonitor::on_NtGetNextProcess()
     const auto NewProcessHandle= nt::cast_to<nt::PHANDLE>            (args[4]);
 
     for(const auto& it : d_->observers_NtGetNextProcess)
-    {
         it(ProcessHandle, DesiredAccess, HandleAttributes, Flags, NewProcessHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtGetNextThread(proc_t proc, const on_NtGetNextThread_fn& on_ntgetnextthread)
@@ -4166,10 +3896,10 @@ bool monitor::GenericMonitor::register_NtGetNextThread(proc_t proc, const on_NtG
 void monitor::GenericMonitor::on_NtGetNextThread()
 {
     //LOG(INFO, "Break on NtGetNextThread");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -4180,9 +3910,7 @@ void monitor::GenericMonitor::on_NtGetNextThread()
     const auto NewThreadHandle = nt::cast_to<nt::PHANDLE>            (args[5]);
 
     for(const auto& it : d_->observers_NtGetNextThread)
-    {
         it(ProcessHandle, ThreadHandle, DesiredAccess, HandleAttributes, Flags, NewThreadHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtGetNlsSectionPtr(proc_t proc, const on_NtGetNlsSectionPtr_fn& on_ntgetnlssectionptr)
@@ -4198,10 +3926,10 @@ bool monitor::GenericMonitor::register_NtGetNlsSectionPtr(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtGetNlsSectionPtr()
 {
     //LOG(INFO, "Break on NtGetNlsSectionPtr");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SectionType     = nt::cast_to<nt::ULONG>              (args[0]);
@@ -4211,9 +3939,7 @@ void monitor::GenericMonitor::on_NtGetNlsSectionPtr()
     const auto SectionSize     = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtGetNlsSectionPtr)
-    {
         it(SectionType, SectionData, ContextData, STARSectionPointer, SectionSize);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtGetNotificationResourceManager(proc_t proc, const on_NtGetNotificationResourceManager_fn& on_ntgetnotificationresourcemanager)
@@ -4229,10 +3955,10 @@ bool monitor::GenericMonitor::register_NtGetNotificationResourceManager(proc_t p
 void monitor::GenericMonitor::on_NtGetNotificationResourceManager()
 {
     //LOG(INFO, "Break on NtGetNotificationResourceManager");
-    const auto nargs = 7;
+    constexpr int nargs = 7;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -4244,9 +3970,7 @@ void monitor::GenericMonitor::on_NtGetNotificationResourceManager()
     const auto AsynchronousContext= nt::cast_to<nt::ULONG_PTR>          (args[6]);
 
     for(const auto& it : d_->observers_NtGetNotificationResourceManager)
-    {
         it(ResourceManagerHandle, TransactionNotification, NotificationLength, Timeout, ReturnLength, Asynchronous, AsynchronousContext);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtGetPlugPlayEvent(proc_t proc, const on_NtGetPlugPlayEvent_fn& on_ntgetplugplayevent)
@@ -4262,10 +3986,10 @@ bool monitor::GenericMonitor::register_NtGetPlugPlayEvent(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtGetPlugPlayEvent()
 {
     //LOG(INFO, "Break on NtGetPlugPlayEvent");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -4274,9 +3998,7 @@ void monitor::GenericMonitor::on_NtGetPlugPlayEvent()
     const auto EventBufferSize = nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtGetPlugPlayEvent)
-    {
         it(EventHandle, Context, EventBlock, EventBufferSize);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtGetWriteWatch(proc_t proc, const on_NtGetWriteWatch_fn& on_ntgetwritewatch)
@@ -4292,10 +4014,10 @@ bool monitor::GenericMonitor::register_NtGetWriteWatch(proc_t proc, const on_NtG
 void monitor::GenericMonitor::on_NtGetWriteWatch()
 {
     //LOG(INFO, "Break on NtGetWriteWatch");
-    const auto nargs = 7;
+    constexpr int nargs = 7;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -4307,9 +4029,7 @@ void monitor::GenericMonitor::on_NtGetWriteWatch()
     const auto Granularity     = nt::cast_to<nt::PULONG>             (args[6]);
 
     for(const auto& it : d_->observers_NtGetWriteWatch)
-    {
         it(ProcessHandle, Flags, BaseAddress, RegionSize, STARUserAddressArray, EntriesInUserAddressArray, Granularity);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtImpersonateAnonymousToken(proc_t proc, const on_NtImpersonateAnonymousToken_fn& on_ntimpersonateanonymoustoken)
@@ -4325,18 +4045,16 @@ bool monitor::GenericMonitor::register_NtImpersonateAnonymousToken(proc_t proc, 
 void monitor::GenericMonitor::on_NtImpersonateAnonymousToken()
 {
     //LOG(INFO, "Break on NtImpersonateAnonymousToken");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtImpersonateAnonymousToken)
-    {
         it(ThreadHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtImpersonateClientOfPort(proc_t proc, const on_NtImpersonateClientOfPort_fn& on_ntimpersonateclientofport)
@@ -4352,19 +4070,17 @@ bool monitor::GenericMonitor::register_NtImpersonateClientOfPort(proc_t proc, co
 void monitor::GenericMonitor::on_NtImpersonateClientOfPort()
 {
     //LOG(INFO, "Break on NtImpersonateClientOfPort");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Message         = nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
 
     for(const auto& it : d_->observers_NtImpersonateClientOfPort)
-    {
         it(PortHandle, Message);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtImpersonateThread(proc_t proc, const on_NtImpersonateThread_fn& on_ntimpersonatethread)
@@ -4380,10 +4096,10 @@ bool monitor::GenericMonitor::register_NtImpersonateThread(proc_t proc, const on
 void monitor::GenericMonitor::on_NtImpersonateThread()
 {
     //LOG(INFO, "Break on NtImpersonateThread");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ServerThreadHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -4391,9 +4107,7 @@ void monitor::GenericMonitor::on_NtImpersonateThread()
     const auto SecurityQos     = nt::cast_to<nt::PSECURITY_QUALITY_OF_SERVICE>(args[2]);
 
     for(const auto& it : d_->observers_NtImpersonateThread)
-    {
         it(ServerThreadHandle, ClientThreadHandle, SecurityQos);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtInitializeNlsFiles(proc_t proc, const on_NtInitializeNlsFiles_fn& on_ntinitializenlsfiles)
@@ -4409,10 +4123,10 @@ bool monitor::GenericMonitor::register_NtInitializeNlsFiles(proc_t proc, const o
 void monitor::GenericMonitor::on_NtInitializeNlsFiles()
 {
     //LOG(INFO, "Break on NtInitializeNlsFiles");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto STARBaseAddress = nt::cast_to<nt::PVOID>              (args[0]);
@@ -4420,9 +4134,7 @@ void monitor::GenericMonitor::on_NtInitializeNlsFiles()
     const auto DefaultCasingTableSize= nt::cast_to<nt::PLARGE_INTEGER>     (args[2]);
 
     for(const auto& it : d_->observers_NtInitializeNlsFiles)
-    {
         it(STARBaseAddress, DefaultLocaleId, DefaultCasingTableSize);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtInitializeRegistry(proc_t proc, const on_NtInitializeRegistry_fn& on_ntinitializeregistry)
@@ -4438,18 +4150,16 @@ bool monitor::GenericMonitor::register_NtInitializeRegistry(proc_t proc, const o
 void monitor::GenericMonitor::on_NtInitializeRegistry()
 {
     //LOG(INFO, "Break on NtInitializeRegistry");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto BootCondition   = nt::cast_to<nt::USHORT>             (args[0]);
 
     for(const auto& it : d_->observers_NtInitializeRegistry)
-    {
         it(BootCondition);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtInitiatePowerAction(proc_t proc, const on_NtInitiatePowerAction_fn& on_ntinitiatepoweraction)
@@ -4465,10 +4175,10 @@ bool monitor::GenericMonitor::register_NtInitiatePowerAction(proc_t proc, const 
 void monitor::GenericMonitor::on_NtInitiatePowerAction()
 {
     //LOG(INFO, "Break on NtInitiatePowerAction");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SystemAction    = nt::cast_to<nt::POWER_ACTION>       (args[0]);
@@ -4477,9 +4187,7 @@ void monitor::GenericMonitor::on_NtInitiatePowerAction()
     const auto Asynchronous    = nt::cast_to<nt::BOOLEAN>            (args[3]);
 
     for(const auto& it : d_->observers_NtInitiatePowerAction)
-    {
         it(SystemAction, MinSystemState, Flags, Asynchronous);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtIsProcessInJob(proc_t proc, const on_NtIsProcessInJob_fn& on_ntisprocessinjob)
@@ -4495,19 +4203,17 @@ bool monitor::GenericMonitor::register_NtIsProcessInJob(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtIsProcessInJob()
 {
     //LOG(INFO, "Break on NtIsProcessInJob");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto JobHandle       = nt::cast_to<nt::HANDLE>             (args[1]);
 
     for(const auto& it : d_->observers_NtIsProcessInJob)
-    {
         it(ProcessHandle, JobHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtListenPort(proc_t proc, const on_NtListenPort_fn& on_ntlistenport)
@@ -4523,19 +4229,17 @@ bool monitor::GenericMonitor::register_NtListenPort(proc_t proc, const on_NtList
 void monitor::GenericMonitor::on_NtListenPort()
 {
     //LOG(INFO, "Break on NtListenPort");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ConnectionRequest= nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
 
     for(const auto& it : d_->observers_NtListenPort)
-    {
         it(PortHandle, ConnectionRequest);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtLoadDriver(proc_t proc, const on_NtLoadDriver_fn& on_ntloaddriver)
@@ -4551,18 +4255,16 @@ bool monitor::GenericMonitor::register_NtLoadDriver(proc_t proc, const on_NtLoad
 void monitor::GenericMonitor::on_NtLoadDriver()
 {
     //LOG(INFO, "Break on NtLoadDriver");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DriverServiceName= nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
 
     for(const auto& it : d_->observers_NtLoadDriver)
-    {
         it(DriverServiceName);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtLoadKey2(proc_t proc, const on_NtLoadKey2_fn& on_ntloadkey2)
@@ -4578,10 +4280,10 @@ bool monitor::GenericMonitor::register_NtLoadKey2(proc_t proc, const on_NtLoadKe
 void monitor::GenericMonitor::on_NtLoadKey2()
 {
     //LOG(INFO, "Break on NtLoadKey2");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
@@ -4589,9 +4291,7 @@ void monitor::GenericMonitor::on_NtLoadKey2()
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[2]);
 
     for(const auto& it : d_->observers_NtLoadKey2)
-    {
         it(TargetKey, SourceFile, Flags);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_fn& on_ntloadkeyex)
@@ -4607,10 +4307,10 @@ bool monitor::GenericMonitor::register_NtLoadKeyEx(proc_t proc, const on_NtLoadK
 void monitor::GenericMonitor::on_NtLoadKeyEx()
 {
     //LOG(INFO, "Break on NtLoadKeyEx");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
@@ -4619,9 +4319,7 @@ void monitor::GenericMonitor::on_NtLoadKeyEx()
     const auto TrustClassKey   = nt::cast_to<nt::HANDLE>             (args[3]);
 
     for(const auto& it : d_->observers_NtLoadKeyEx)
-    {
         it(TargetKey, SourceFile, Flags, TrustClassKey);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn& on_ntloadkey)
@@ -4637,19 +4335,17 @@ bool monitor::GenericMonitor::register_NtLoadKey(proc_t proc, const on_NtLoadKey
 void monitor::GenericMonitor::on_NtLoadKey()
 {
     //LOG(INFO, "Break on NtLoadKey");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto SourceFile      = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[1]);
 
     for(const auto& it : d_->observers_NtLoadKey)
-    {
         it(TargetKey, SourceFile);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtLockFile(proc_t proc, const on_NtLockFile_fn& on_ntlockfile)
@@ -4665,10 +4361,10 @@ bool monitor::GenericMonitor::register_NtLockFile(proc_t proc, const on_NtLockFi
 void monitor::GenericMonitor::on_NtLockFile()
 {
     //LOG(INFO, "Break on NtLockFile");
-    const auto nargs = 10;
+    constexpr int nargs = 10;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -4683,9 +4379,7 @@ void monitor::GenericMonitor::on_NtLockFile()
     const auto ExclusiveLock   = nt::cast_to<nt::BOOLEAN>            (args[9]);
 
     for(const auto& it : d_->observers_NtLockFile)
-    {
         it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, ByteOffset, Length, Key, FailImmediately, ExclusiveLock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtLockProductActivationKeys(proc_t proc, const on_NtLockProductActivationKeys_fn& on_ntlockproductactivationkeys)
@@ -4701,19 +4395,17 @@ bool monitor::GenericMonitor::register_NtLockProductActivationKeys(proc_t proc, 
 void monitor::GenericMonitor::on_NtLockProductActivationKeys()
 {
     //LOG(INFO, "Break on NtLockProductActivationKeys");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto STARpPrivateVer = nt::cast_to<nt::ULONG>              (args[0]);
     const auto STARpSafeMode   = nt::cast_to<nt::ULONG>              (args[1]);
 
     for(const auto& it : d_->observers_NtLockProductActivationKeys)
-    {
         it(STARpPrivateVer, STARpSafeMode);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtLockRegistryKey(proc_t proc, const on_NtLockRegistryKey_fn& on_ntlockregistrykey)
@@ -4729,18 +4421,16 @@ bool monitor::GenericMonitor::register_NtLockRegistryKey(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtLockRegistryKey()
 {
     //LOG(INFO, "Break on NtLockRegistryKey");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtLockRegistryKey)
-    {
         it(KeyHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtLockVirtualMemory(proc_t proc, const on_NtLockVirtualMemory_fn& on_ntlockvirtualmemory)
@@ -4756,10 +4446,10 @@ bool monitor::GenericMonitor::register_NtLockVirtualMemory(proc_t proc, const on
 void monitor::GenericMonitor::on_NtLockVirtualMemory()
 {
     //LOG(INFO, "Break on NtLockVirtualMemory");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -4768,9 +4458,7 @@ void monitor::GenericMonitor::on_NtLockVirtualMemory()
     const auto MapType         = nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtLockVirtualMemory)
-    {
         it(ProcessHandle, STARBaseAddress, RegionSize, MapType);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtMakePermanentObject(proc_t proc, const on_NtMakePermanentObject_fn& on_ntmakepermanentobject)
@@ -4786,18 +4474,16 @@ bool monitor::GenericMonitor::register_NtMakePermanentObject(proc_t proc, const 
 void monitor::GenericMonitor::on_NtMakePermanentObject()
 {
     //LOG(INFO, "Break on NtMakePermanentObject");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtMakePermanentObject)
-    {
         it(Handle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtMakeTemporaryObject(proc_t proc, const on_NtMakeTemporaryObject_fn& on_ntmaketemporaryobject)
@@ -4813,18 +4499,16 @@ bool monitor::GenericMonitor::register_NtMakeTemporaryObject(proc_t proc, const 
 void monitor::GenericMonitor::on_NtMakeTemporaryObject()
 {
     //LOG(INFO, "Break on NtMakeTemporaryObject");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtMakeTemporaryObject)
-    {
         it(Handle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtMapCMFModule(proc_t proc, const on_NtMapCMFModule_fn& on_ntmapcmfmodule)
@@ -4840,10 +4524,10 @@ bool monitor::GenericMonitor::register_NtMapCMFModule(proc_t proc, const on_NtMa
 void monitor::GenericMonitor::on_NtMapCMFModule()
 {
     //LOG(INFO, "Break on NtMapCMFModule");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto What            = nt::cast_to<nt::ULONG>              (args[0]);
@@ -4854,9 +4538,7 @@ void monitor::GenericMonitor::on_NtMapCMFModule()
     const auto STARBaseAddress = nt::cast_to<nt::PVOID>              (args[5]);
 
     for(const auto& it : d_->observers_NtMapCMFModule)
-    {
         it(What, Index, CacheIndexOut, CacheFlagsOut, ViewSizeOut, STARBaseAddress);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtMapUserPhysicalPages(proc_t proc, const on_NtMapUserPhysicalPages_fn& on_ntmapuserphysicalpages)
@@ -4872,10 +4554,10 @@ bool monitor::GenericMonitor::register_NtMapUserPhysicalPages(proc_t proc, const
 void monitor::GenericMonitor::on_NtMapUserPhysicalPages()
 {
     //LOG(INFO, "Break on NtMapUserPhysicalPages");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto VirtualAddress  = nt::cast_to<nt::PVOID>              (args[0]);
@@ -4883,9 +4565,7 @@ void monitor::GenericMonitor::on_NtMapUserPhysicalPages()
     const auto UserPfnArra     = nt::cast_to<nt::PULONG_PTR>         (args[2]);
 
     for(const auto& it : d_->observers_NtMapUserPhysicalPages)
-    {
         it(VirtualAddress, NumberOfPages, UserPfnArra);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtMapUserPhysicalPagesScatter(proc_t proc, const on_NtMapUserPhysicalPagesScatter_fn& on_ntmapuserphysicalpagesscatter)
@@ -4901,10 +4581,10 @@ bool monitor::GenericMonitor::register_NtMapUserPhysicalPagesScatter(proc_t proc
 void monitor::GenericMonitor::on_NtMapUserPhysicalPagesScatter()
 {
     //LOG(INFO, "Break on NtMapUserPhysicalPagesScatter");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto STARVirtualAddresses= nt::cast_to<nt::PVOID>              (args[0]);
@@ -4912,9 +4592,7 @@ void monitor::GenericMonitor::on_NtMapUserPhysicalPagesScatter()
     const auto UserPfnArray    = nt::cast_to<nt::PULONG_PTR>         (args[2]);
 
     for(const auto& it : d_->observers_NtMapUserPhysicalPagesScatter)
-    {
         it(STARVirtualAddresses, NumberOfPages, UserPfnArray);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtMapViewOfSection(proc_t proc, const on_NtMapViewOfSection_fn& on_ntmapviewofsection)
@@ -4930,10 +4608,10 @@ bool monitor::GenericMonitor::register_NtMapViewOfSection(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtMapViewOfSection()
 {
     //LOG(INFO, "Break on NtMapViewOfSection");
-    const auto nargs = 10;
+    constexpr int nargs = 10;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SectionHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -4948,9 +4626,7 @@ void monitor::GenericMonitor::on_NtMapViewOfSection()
     const auto Win32Protect    = nt::cast_to<nt::WIN32_PROTECTION_MASK>(args[9]);
 
     for(const auto& it : d_->observers_NtMapViewOfSection)
-    {
         it(SectionHandle, ProcessHandle, STARBaseAddress, ZeroBits, CommitSize, SectionOffset, ViewSize, InheritDisposition, AllocationType, Win32Protect);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtModifyBootEntry(proc_t proc, const on_NtModifyBootEntry_fn& on_ntmodifybootentry)
@@ -4966,18 +4642,16 @@ bool monitor::GenericMonitor::register_NtModifyBootEntry(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtModifyBootEntry()
 {
     //LOG(INFO, "Break on NtModifyBootEntry");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto BootEntry       = nt::cast_to<nt::PBOOT_ENTRY>        (args[0]);
 
     for(const auto& it : d_->observers_NtModifyBootEntry)
-    {
         it(BootEntry);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtModifyDriverEntry(proc_t proc, const on_NtModifyDriverEntry_fn& on_ntmodifydriverentry)
@@ -4993,18 +4667,16 @@ bool monitor::GenericMonitor::register_NtModifyDriverEntry(proc_t proc, const on
 void monitor::GenericMonitor::on_NtModifyDriverEntry()
 {
     //LOG(INFO, "Break on NtModifyDriverEntry");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DriverEntry     = nt::cast_to<nt::PEFI_DRIVER_ENTRY>  (args[0]);
 
     for(const auto& it : d_->observers_NtModifyDriverEntry)
-    {
         it(DriverEntry);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtNotifyChangeDirectoryFile(proc_t proc, const on_NtNotifyChangeDirectoryFile_fn& on_ntnotifychangedirectoryfile)
@@ -5020,10 +4692,10 @@ bool monitor::GenericMonitor::register_NtNotifyChangeDirectoryFile(proc_t proc, 
 void monitor::GenericMonitor::on_NtNotifyChangeDirectoryFile()
 {
     //LOG(INFO, "Break on NtNotifyChangeDirectoryFile");
-    const auto nargs = 9;
+    constexpr int nargs = 9;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -5037,9 +4709,7 @@ void monitor::GenericMonitor::on_NtNotifyChangeDirectoryFile()
     const auto WatchTree       = nt::cast_to<nt::BOOLEAN>            (args[8]);
 
     for(const auto& it : d_->observers_NtNotifyChangeDirectoryFile)
-    {
         it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, CompletionFilter, WatchTree);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtNotifyChangeKey(proc_t proc, const on_NtNotifyChangeKey_fn& on_ntnotifychangekey)
@@ -5055,10 +4725,10 @@ bool monitor::GenericMonitor::register_NtNotifyChangeKey(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtNotifyChangeKey()
 {
     //LOG(INFO, "Break on NtNotifyChangeKey");
-    const auto nargs = 10;
+    constexpr int nargs = 10;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -5073,9 +4743,7 @@ void monitor::GenericMonitor::on_NtNotifyChangeKey()
     const auto Asynchronous    = nt::cast_to<nt::BOOLEAN>            (args[9]);
 
     for(const auto& it : d_->observers_NtNotifyChangeKey)
-    {
         it(KeyHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtNotifyChangeMultipleKeys(proc_t proc, const on_NtNotifyChangeMultipleKeys_fn& on_ntnotifychangemultiplekeys)
@@ -5091,10 +4759,10 @@ bool monitor::GenericMonitor::register_NtNotifyChangeMultipleKeys(proc_t proc, c
 void monitor::GenericMonitor::on_NtNotifyChangeMultipleKeys()
 {
     //LOG(INFO, "Break on NtNotifyChangeMultipleKeys");
-    const auto nargs = 12;
+    constexpr int nargs = 12;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto MasterKeyHandle = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -5111,9 +4779,7 @@ void monitor::GenericMonitor::on_NtNotifyChangeMultipleKeys()
     const auto Asynchronous    = nt::cast_to<nt::BOOLEAN>            (args[11]);
 
     for(const auto& it : d_->observers_NtNotifyChangeMultipleKeys)
-    {
         it(MasterKeyHandle, Count, SlaveObjects, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtNotifyChangeSession(proc_t proc, const on_NtNotifyChangeSession_fn& on_ntnotifychangesession)
@@ -5129,10 +4795,10 @@ bool monitor::GenericMonitor::register_NtNotifyChangeSession(proc_t proc, const 
 void monitor::GenericMonitor::on_NtNotifyChangeSession()
 {
     //LOG(INFO, "Break on NtNotifyChangeSession");
-    const auto nargs = 8;
+    constexpr int nargs = 8;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Session         = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -5145,9 +4811,7 @@ void monitor::GenericMonitor::on_NtNotifyChangeSession()
     const auto BufferSize      = nt::cast_to<nt::ULONG>              (args[7]);
 
     for(const auto& it : d_->observers_NtNotifyChangeSession)
-    {
         it(Session, IoStateSequence, Reserved, Action, IoState, IoState2, Buffer, BufferSize);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenDirectoryObject(proc_t proc, const on_NtOpenDirectoryObject_fn& on_ntopendirectoryobject)
@@ -5163,10 +4827,10 @@ bool monitor::GenericMonitor::register_NtOpenDirectoryObject(proc_t proc, const 
 void monitor::GenericMonitor::on_NtOpenDirectoryObject()
 {
     //LOG(INFO, "Break on NtOpenDirectoryObject");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DirectoryHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5174,9 +4838,7 @@ void monitor::GenericMonitor::on_NtOpenDirectoryObject()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtOpenDirectoryObject)
-    {
         it(DirectoryHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenEnlistment(proc_t proc, const on_NtOpenEnlistment_fn& on_ntopenenlistment)
@@ -5192,10 +4854,10 @@ bool monitor::GenericMonitor::register_NtOpenEnlistment(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtOpenEnlistment()
 {
     //LOG(INFO, "Break on NtOpenEnlistment");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5205,9 +4867,7 @@ void monitor::GenericMonitor::on_NtOpenEnlistment()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[4]);
 
     for(const auto& it : d_->observers_NtOpenEnlistment)
-    {
         it(EnlistmentHandle, DesiredAccess, ResourceManagerHandle, EnlistmentGuid, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent_fn& on_ntopenevent)
@@ -5223,10 +4883,10 @@ bool monitor::GenericMonitor::register_NtOpenEvent(proc_t proc, const on_NtOpenE
 void monitor::GenericMonitor::on_NtOpenEvent()
 {
     //LOG(INFO, "Break on NtOpenEvent");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5234,9 +4894,7 @@ void monitor::GenericMonitor::on_NtOpenEvent()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtOpenEvent)
-    {
         it(EventHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenEventPair(proc_t proc, const on_NtOpenEventPair_fn& on_ntopeneventpair)
@@ -5252,10 +4910,10 @@ bool monitor::GenericMonitor::register_NtOpenEventPair(proc_t proc, const on_NtO
 void monitor::GenericMonitor::on_NtOpenEventPair()
 {
     //LOG(INFO, "Break on NtOpenEventPair");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5263,9 +4921,7 @@ void monitor::GenericMonitor::on_NtOpenEventPair()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtOpenEventPair)
-    {
         it(EventPairHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenFile(proc_t proc, const on_NtOpenFile_fn& on_ntopenfile)
@@ -5281,10 +4937,10 @@ bool monitor::GenericMonitor::register_NtOpenFile(proc_t proc, const on_NtOpenFi
 void monitor::GenericMonitor::on_NtOpenFile()
 {
     //LOG(INFO, "Break on NtOpenFile");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5295,9 +4951,7 @@ void monitor::GenericMonitor::on_NtOpenFile()
     const auto OpenOptions     = nt::cast_to<nt::ULONG>              (args[5]);
 
     for(const auto& it : d_->observers_NtOpenFile)
-    {
         it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, OpenOptions);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenIoCompletion(proc_t proc, const on_NtOpenIoCompletion_fn& on_ntopeniocompletion)
@@ -5313,10 +4967,10 @@ bool monitor::GenericMonitor::register_NtOpenIoCompletion(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtOpenIoCompletion()
 {
     //LOG(INFO, "Break on NtOpenIoCompletion");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto IoCompletionHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5324,9 +4978,7 @@ void monitor::GenericMonitor::on_NtOpenIoCompletion()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtOpenIoCompletion)
-    {
         it(IoCompletionHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenJobObject(proc_t proc, const on_NtOpenJobObject_fn& on_ntopenjobobject)
@@ -5342,10 +4994,10 @@ bool monitor::GenericMonitor::register_NtOpenJobObject(proc_t proc, const on_NtO
 void monitor::GenericMonitor::on_NtOpenJobObject()
 {
     //LOG(INFO, "Break on NtOpenJobObject");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto JobHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5353,9 +5005,7 @@ void monitor::GenericMonitor::on_NtOpenJobObject()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtOpenJobObject)
-    {
         it(JobHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpenKeyedEvent_fn& on_ntopenkeyedevent)
@@ -5371,10 +5021,10 @@ bool monitor::GenericMonitor::register_NtOpenKeyedEvent(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtOpenKeyedEvent()
 {
     //LOG(INFO, "Break on NtOpenKeyedEvent");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyedEventHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5382,9 +5032,7 @@ void monitor::GenericMonitor::on_NtOpenKeyedEvent()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtOpenKeyedEvent)
-    {
         it(KeyedEventHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenKeyEx(proc_t proc, const on_NtOpenKeyEx_fn& on_ntopenkeyex)
@@ -5400,10 +5048,10 @@ bool monitor::GenericMonitor::register_NtOpenKeyEx(proc_t proc, const on_NtOpenK
 void monitor::GenericMonitor::on_NtOpenKeyEx()
 {
     //LOG(INFO, "Break on NtOpenKeyEx");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5412,9 +5060,7 @@ void monitor::GenericMonitor::on_NtOpenKeyEx()
     const auto OpenOptions     = nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtOpenKeyEx)
-    {
         it(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenKey(proc_t proc, const on_NtOpenKey_fn& on_ntopenkey)
@@ -5430,10 +5076,10 @@ bool monitor::GenericMonitor::register_NtOpenKey(proc_t proc, const on_NtOpenKey
 void monitor::GenericMonitor::on_NtOpenKey()
 {
     //LOG(INFO, "Break on NtOpenKey");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5441,9 +5087,7 @@ void monitor::GenericMonitor::on_NtOpenKey()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtOpenKey)
-    {
         it(KeyHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenKeyTransactedEx(proc_t proc, const on_NtOpenKeyTransactedEx_fn& on_ntopenkeytransactedex)
@@ -5459,10 +5103,10 @@ bool monitor::GenericMonitor::register_NtOpenKeyTransactedEx(proc_t proc, const 
 void monitor::GenericMonitor::on_NtOpenKeyTransactedEx()
 {
     //LOG(INFO, "Break on NtOpenKeyTransactedEx");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5472,9 +5116,7 @@ void monitor::GenericMonitor::on_NtOpenKeyTransactedEx()
     const auto TransactionHandle= nt::cast_to<nt::HANDLE>             (args[4]);
 
     for(const auto& it : d_->observers_NtOpenKeyTransactedEx)
-    {
         it(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions, TransactionHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenKeyTransacted(proc_t proc, const on_NtOpenKeyTransacted_fn& on_ntopenkeytransacted)
@@ -5490,10 +5132,10 @@ bool monitor::GenericMonitor::register_NtOpenKeyTransacted(proc_t proc, const on
 void monitor::GenericMonitor::on_NtOpenKeyTransacted()
 {
     //LOG(INFO, "Break on NtOpenKeyTransacted");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5502,9 +5144,7 @@ void monitor::GenericMonitor::on_NtOpenKeyTransacted()
     const auto TransactionHandle= nt::cast_to<nt::HANDLE>             (args[3]);
 
     for(const auto& it : d_->observers_NtOpenKeyTransacted)
-    {
         it(KeyHandle, DesiredAccess, ObjectAttributes, TransactionHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenMutant(proc_t proc, const on_NtOpenMutant_fn& on_ntopenmutant)
@@ -5520,10 +5160,10 @@ bool monitor::GenericMonitor::register_NtOpenMutant(proc_t proc, const on_NtOpen
 void monitor::GenericMonitor::on_NtOpenMutant()
 {
     //LOG(INFO, "Break on NtOpenMutant");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto MutantHandle    = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5531,9 +5171,7 @@ void monitor::GenericMonitor::on_NtOpenMutant()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtOpenMutant)
-    {
         it(MutantHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenObjectAuditAlarm(proc_t proc, const on_NtOpenObjectAuditAlarm_fn& on_ntopenobjectauditalarm)
@@ -5549,10 +5187,10 @@ bool monitor::GenericMonitor::register_NtOpenObjectAuditAlarm(proc_t proc, const
 void monitor::GenericMonitor::on_NtOpenObjectAuditAlarm()
 {
     //LOG(INFO, "Break on NtOpenObjectAuditAlarm");
-    const auto nargs = 12;
+    constexpr int nargs = 12;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -5569,9 +5207,7 @@ void monitor::GenericMonitor::on_NtOpenObjectAuditAlarm()
     const auto GenerateOnClose = nt::cast_to<nt::PBOOLEAN>           (args[11]);
 
     for(const auto& it : d_->observers_NtOpenObjectAuditAlarm)
-    {
         it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, ClientToken, DesiredAccess, GrantedAccess, Privileges, ObjectCreation, AccessGranted, GenerateOnClose);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenPrivateNamespace(proc_t proc, const on_NtOpenPrivateNamespace_fn& on_ntopenprivatenamespace)
@@ -5587,10 +5223,10 @@ bool monitor::GenericMonitor::register_NtOpenPrivateNamespace(proc_t proc, const
 void monitor::GenericMonitor::on_NtOpenPrivateNamespace()
 {
     //LOG(INFO, "Break on NtOpenPrivateNamespace");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto NamespaceHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5599,9 +5235,7 @@ void monitor::GenericMonitor::on_NtOpenPrivateNamespace()
     const auto BoundaryDescriptor= nt::cast_to<nt::PVOID>              (args[3]);
 
     for(const auto& it : d_->observers_NtOpenPrivateNamespace)
-    {
         it(NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenProcess(proc_t proc, const on_NtOpenProcess_fn& on_ntopenprocess)
@@ -5617,10 +5251,10 @@ bool monitor::GenericMonitor::register_NtOpenProcess(proc_t proc, const on_NtOpe
 void monitor::GenericMonitor::on_NtOpenProcess()
 {
     //LOG(INFO, "Break on NtOpenProcess");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5629,9 +5263,7 @@ void monitor::GenericMonitor::on_NtOpenProcess()
     const auto ClientId        = nt::cast_to<nt::PCLIENT_ID>         (args[3]);
 
     for(const auto& it : d_->observers_NtOpenProcess)
-    {
         it(ProcessHandle, DesiredAccess, ObjectAttributes, ClientId);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenProcessTokenEx(proc_t proc, const on_NtOpenProcessTokenEx_fn& on_ntopenprocesstokenex)
@@ -5647,10 +5279,10 @@ bool monitor::GenericMonitor::register_NtOpenProcessTokenEx(proc_t proc, const o
 void monitor::GenericMonitor::on_NtOpenProcessTokenEx()
 {
     //LOG(INFO, "Break on NtOpenProcessTokenEx");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -5659,9 +5291,7 @@ void monitor::GenericMonitor::on_NtOpenProcessTokenEx()
     const auto TokenHandle     = nt::cast_to<nt::PHANDLE>            (args[3]);
 
     for(const auto& it : d_->observers_NtOpenProcessTokenEx)
-    {
         it(ProcessHandle, DesiredAccess, HandleAttributes, TokenHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenProcessToken(proc_t proc, const on_NtOpenProcessToken_fn& on_ntopenprocesstoken)
@@ -5677,10 +5307,10 @@ bool monitor::GenericMonitor::register_NtOpenProcessToken(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtOpenProcessToken()
 {
     //LOG(INFO, "Break on NtOpenProcessToken");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -5688,9 +5318,7 @@ void monitor::GenericMonitor::on_NtOpenProcessToken()
     const auto TokenHandle     = nt::cast_to<nt::PHANDLE>            (args[2]);
 
     for(const auto& it : d_->observers_NtOpenProcessToken)
-    {
         it(ProcessHandle, DesiredAccess, TokenHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenResourceManager(proc_t proc, const on_NtOpenResourceManager_fn& on_ntopenresourcemanager)
@@ -5706,10 +5334,10 @@ bool monitor::GenericMonitor::register_NtOpenResourceManager(proc_t proc, const 
 void monitor::GenericMonitor::on_NtOpenResourceManager()
 {
     //LOG(INFO, "Break on NtOpenResourceManager");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5719,9 +5347,7 @@ void monitor::GenericMonitor::on_NtOpenResourceManager()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[4]);
 
     for(const auto& it : d_->observers_NtOpenResourceManager)
-    {
         it(ResourceManagerHandle, DesiredAccess, TmHandle, ResourceManagerGuid, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenSection(proc_t proc, const on_NtOpenSection_fn& on_ntopensection)
@@ -5737,10 +5363,10 @@ bool monitor::GenericMonitor::register_NtOpenSection(proc_t proc, const on_NtOpe
 void monitor::GenericMonitor::on_NtOpenSection()
 {
     //LOG(INFO, "Break on NtOpenSection");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SectionHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5748,9 +5374,7 @@ void monitor::GenericMonitor::on_NtOpenSection()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtOpenSection)
-    {
         it(SectionHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenSemaphore(proc_t proc, const on_NtOpenSemaphore_fn& on_ntopensemaphore)
@@ -5766,10 +5390,10 @@ bool monitor::GenericMonitor::register_NtOpenSemaphore(proc_t proc, const on_NtO
 void monitor::GenericMonitor::on_NtOpenSemaphore()
 {
     //LOG(INFO, "Break on NtOpenSemaphore");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SemaphoreHandle = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5777,9 +5401,7 @@ void monitor::GenericMonitor::on_NtOpenSemaphore()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtOpenSemaphore)
-    {
         it(SemaphoreHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenSession(proc_t proc, const on_NtOpenSession_fn& on_ntopensession)
@@ -5795,10 +5417,10 @@ bool monitor::GenericMonitor::register_NtOpenSession(proc_t proc, const on_NtOpe
 void monitor::GenericMonitor::on_NtOpenSession()
 {
     //LOG(INFO, "Break on NtOpenSession");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SessionHandle   = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5806,9 +5428,7 @@ void monitor::GenericMonitor::on_NtOpenSession()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtOpenSession)
-    {
         it(SessionHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenSymbolicLinkObject(proc_t proc, const on_NtOpenSymbolicLinkObject_fn& on_ntopensymboliclinkobject)
@@ -5824,10 +5444,10 @@ bool monitor::GenericMonitor::register_NtOpenSymbolicLinkObject(proc_t proc, con
 void monitor::GenericMonitor::on_NtOpenSymbolicLinkObject()
 {
     //LOG(INFO, "Break on NtOpenSymbolicLinkObject");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto LinkHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5835,9 +5455,7 @@ void monitor::GenericMonitor::on_NtOpenSymbolicLinkObject()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtOpenSymbolicLinkObject)
-    {
         it(LinkHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenThread(proc_t proc, const on_NtOpenThread_fn& on_ntopenthread)
@@ -5853,10 +5471,10 @@ bool monitor::GenericMonitor::register_NtOpenThread(proc_t proc, const on_NtOpen
 void monitor::GenericMonitor::on_NtOpenThread()
 {
     //LOG(INFO, "Break on NtOpenThread");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5865,9 +5483,7 @@ void monitor::GenericMonitor::on_NtOpenThread()
     const auto ClientId        = nt::cast_to<nt::PCLIENT_ID>         (args[3]);
 
     for(const auto& it : d_->observers_NtOpenThread)
-    {
         it(ThreadHandle, DesiredAccess, ObjectAttributes, ClientId);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenThreadTokenEx(proc_t proc, const on_NtOpenThreadTokenEx_fn& on_ntopenthreadtokenex)
@@ -5883,10 +5499,10 @@ bool monitor::GenericMonitor::register_NtOpenThreadTokenEx(proc_t proc, const on
 void monitor::GenericMonitor::on_NtOpenThreadTokenEx()
 {
     //LOG(INFO, "Break on NtOpenThreadTokenEx");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -5896,9 +5512,7 @@ void monitor::GenericMonitor::on_NtOpenThreadTokenEx()
     const auto TokenHandle     = nt::cast_to<nt::PHANDLE>            (args[4]);
 
     for(const auto& it : d_->observers_NtOpenThreadTokenEx)
-    {
         it(ThreadHandle, DesiredAccess, OpenAsSelf, HandleAttributes, TokenHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenThreadToken(proc_t proc, const on_NtOpenThreadToken_fn& on_ntopenthreadtoken)
@@ -5914,10 +5528,10 @@ bool monitor::GenericMonitor::register_NtOpenThreadToken(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtOpenThreadToken()
 {
     //LOG(INFO, "Break on NtOpenThreadToken");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -5926,9 +5540,7 @@ void monitor::GenericMonitor::on_NtOpenThreadToken()
     const auto TokenHandle     = nt::cast_to<nt::PHANDLE>            (args[3]);
 
     for(const auto& it : d_->observers_NtOpenThreadToken)
-    {
         it(ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenTimer(proc_t proc, const on_NtOpenTimer_fn& on_ntopentimer)
@@ -5944,10 +5556,10 @@ bool monitor::GenericMonitor::register_NtOpenTimer(proc_t proc, const on_NtOpenT
 void monitor::GenericMonitor::on_NtOpenTimer()
 {
     //LOG(INFO, "Break on NtOpenTimer");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TimerHandle     = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5955,9 +5567,7 @@ void monitor::GenericMonitor::on_NtOpenTimer()
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtOpenTimer)
-    {
         it(TimerHandle, DesiredAccess, ObjectAttributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenTransactionManager(proc_t proc, const on_NtOpenTransactionManager_fn& on_ntopentransactionmanager)
@@ -5973,10 +5583,10 @@ bool monitor::GenericMonitor::register_NtOpenTransactionManager(proc_t proc, con
 void monitor::GenericMonitor::on_NtOpenTransactionManager()
 {
     //LOG(INFO, "Break on NtOpenTransactionManager");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TmHandle        = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -5987,9 +5597,7 @@ void monitor::GenericMonitor::on_NtOpenTransactionManager()
     const auto OpenOptions     = nt::cast_to<nt::ULONG>              (args[5]);
 
     for(const auto& it : d_->observers_NtOpenTransactionManager)
-    {
         it(TmHandle, DesiredAccess, ObjectAttributes, LogFileName, TmIdentity, OpenOptions);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtOpenTransaction(proc_t proc, const on_NtOpenTransaction_fn& on_ntopentransaction)
@@ -6005,10 +5613,10 @@ bool monitor::GenericMonitor::register_NtOpenTransaction(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtOpenTransaction()
 {
     //LOG(INFO, "Break on NtOpenTransaction");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionHandle= nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -6018,9 +5626,7 @@ void monitor::GenericMonitor::on_NtOpenTransaction()
     const auto TmHandle        = nt::cast_to<nt::HANDLE>             (args[4]);
 
     for(const auto& it : d_->observers_NtOpenTransaction)
-    {
         it(TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtPlugPlayControl(proc_t proc, const on_NtPlugPlayControl_fn& on_ntplugplaycontrol)
@@ -6036,10 +5642,10 @@ bool monitor::GenericMonitor::register_NtPlugPlayControl(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtPlugPlayControl()
 {
     //LOG(INFO, "Break on NtPlugPlayControl");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PnPControlClass = nt::cast_to<nt::PLUGPLAY_CONTROL_CLASS>(args[0]);
@@ -6047,9 +5653,7 @@ void monitor::GenericMonitor::on_NtPlugPlayControl()
     const auto PnPControlDataLength= nt::cast_to<nt::ULONG>              (args[2]);
 
     for(const auto& it : d_->observers_NtPlugPlayControl)
-    {
         it(PnPControlClass, PnPControlData, PnPControlDataLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtPowerInformation(proc_t proc, const on_NtPowerInformation_fn& on_ntpowerinformation)
@@ -6065,10 +5669,10 @@ bool monitor::GenericMonitor::register_NtPowerInformation(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtPowerInformation()
 {
     //LOG(INFO, "Break on NtPowerInformation");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto InformationLevel= nt::cast_to<nt::POWER_INFORMATION_LEVEL>(args[0]);
@@ -6078,9 +5682,7 @@ void monitor::GenericMonitor::on_NtPowerInformation()
     const auto OutputBufferLength= nt::cast_to<nt::ULONG>              (args[4]);
 
     for(const auto& it : d_->observers_NtPowerInformation)
-    {
         it(InformationLevel, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtPrepareComplete(proc_t proc, const on_NtPrepareComplete_fn& on_ntpreparecomplete)
@@ -6096,19 +5698,17 @@ bool monitor::GenericMonitor::register_NtPrepareComplete(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtPrepareComplete()
 {
     //LOG(INFO, "Break on NtPrepareComplete");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtPrepareComplete)
-    {
         it(EnlistmentHandle, TmVirtualClock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtPrepareEnlistment(proc_t proc, const on_NtPrepareEnlistment_fn& on_ntprepareenlistment)
@@ -6124,19 +5724,17 @@ bool monitor::GenericMonitor::register_NtPrepareEnlistment(proc_t proc, const on
 void monitor::GenericMonitor::on_NtPrepareEnlistment()
 {
     //LOG(INFO, "Break on NtPrepareEnlistment");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtPrepareEnlistment)
-    {
         it(EnlistmentHandle, TmVirtualClock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtPrePrepareComplete(proc_t proc, const on_NtPrePrepareComplete_fn& on_ntprepreparecomplete)
@@ -6152,19 +5750,17 @@ bool monitor::GenericMonitor::register_NtPrePrepareComplete(proc_t proc, const o
 void monitor::GenericMonitor::on_NtPrePrepareComplete()
 {
     //LOG(INFO, "Break on NtPrePrepareComplete");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtPrePrepareComplete)
-    {
         it(EnlistmentHandle, TmVirtualClock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtPrePrepareEnlistment(proc_t proc, const on_NtPrePrepareEnlistment_fn& on_ntpreprepareenlistment)
@@ -6180,19 +5776,17 @@ bool monitor::GenericMonitor::register_NtPrePrepareEnlistment(proc_t proc, const
 void monitor::GenericMonitor::on_NtPrePrepareEnlistment()
 {
     //LOG(INFO, "Break on NtPrePrepareEnlistment");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtPrePrepareEnlistment)
-    {
         it(EnlistmentHandle, TmVirtualClock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtPrivilegeCheck(proc_t proc, const on_NtPrivilegeCheck_fn& on_ntprivilegecheck)
@@ -6208,10 +5802,10 @@ bool monitor::GenericMonitor::register_NtPrivilegeCheck(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtPrivilegeCheck()
 {
     //LOG(INFO, "Break on NtPrivilegeCheck");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ClientToken     = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -6219,9 +5813,7 @@ void monitor::GenericMonitor::on_NtPrivilegeCheck()
     const auto Result          = nt::cast_to<nt::PBOOLEAN>           (args[2]);
 
     for(const auto& it : d_->observers_NtPrivilegeCheck)
-    {
         it(ClientToken, RequiredPrivileges, Result);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtPrivilegedServiceAuditAlarm(proc_t proc, const on_NtPrivilegedServiceAuditAlarm_fn& on_ntprivilegedserviceauditalarm)
@@ -6237,10 +5829,10 @@ bool monitor::GenericMonitor::register_NtPrivilegedServiceAuditAlarm(proc_t proc
 void monitor::GenericMonitor::on_NtPrivilegedServiceAuditAlarm()
 {
     //LOG(INFO, "Break on NtPrivilegedServiceAuditAlarm");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -6250,9 +5842,7 @@ void monitor::GenericMonitor::on_NtPrivilegedServiceAuditAlarm()
     const auto AccessGranted   = nt::cast_to<nt::BOOLEAN>            (args[4]);
 
     for(const auto& it : d_->observers_NtPrivilegedServiceAuditAlarm)
-    {
         it(SubsystemName, ServiceName, ClientToken, Privileges, AccessGranted);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtPrivilegeObjectAuditAlarm(proc_t proc, const on_NtPrivilegeObjectAuditAlarm_fn& on_ntprivilegeobjectauditalarm)
@@ -6268,10 +5858,10 @@ bool monitor::GenericMonitor::register_NtPrivilegeObjectAuditAlarm(proc_t proc, 
 void monitor::GenericMonitor::on_NtPrivilegeObjectAuditAlarm()
 {
     //LOG(INFO, "Break on NtPrivilegeObjectAuditAlarm");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SubsystemName   = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -6282,9 +5872,7 @@ void monitor::GenericMonitor::on_NtPrivilegeObjectAuditAlarm()
     const auto AccessGranted   = nt::cast_to<nt::BOOLEAN>            (args[5]);
 
     for(const auto& it : d_->observers_NtPrivilegeObjectAuditAlarm)
-    {
         it(SubsystemName, HandleId, ClientToken, DesiredAccess, Privileges, AccessGranted);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtPropagationComplete(proc_t proc, const on_NtPropagationComplete_fn& on_ntpropagationcomplete)
@@ -6300,10 +5888,10 @@ bool monitor::GenericMonitor::register_NtPropagationComplete(proc_t proc, const 
 void monitor::GenericMonitor::on_NtPropagationComplete()
 {
     //LOG(INFO, "Break on NtPropagationComplete");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -6312,9 +5900,7 @@ void monitor::GenericMonitor::on_NtPropagationComplete()
     const auto Buffer          = nt::cast_to<nt::PVOID>              (args[3]);
 
     for(const auto& it : d_->observers_NtPropagationComplete)
-    {
         it(ResourceManagerHandle, RequestCookie, BufferLength, Buffer);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtPropagationFailed(proc_t proc, const on_NtPropagationFailed_fn& on_ntpropagationfailed)
@@ -6330,10 +5916,10 @@ bool monitor::GenericMonitor::register_NtPropagationFailed(proc_t proc, const on
 void monitor::GenericMonitor::on_NtPropagationFailed()
 {
     //LOG(INFO, "Break on NtPropagationFailed");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -6341,9 +5927,7 @@ void monitor::GenericMonitor::on_NtPropagationFailed()
     const auto PropStatus      = nt::cast_to<nt::NTSTATUS>           (args[2]);
 
     for(const auto& it : d_->observers_NtPropagationFailed)
-    {
         it(ResourceManagerHandle, RequestCookie, PropStatus);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtProtectVirtualMemory(proc_t proc, const on_NtProtectVirtualMemory_fn& on_ntprotectvirtualmemory)
@@ -6359,10 +5943,10 @@ bool monitor::GenericMonitor::register_NtProtectVirtualMemory(proc_t proc, const
 void monitor::GenericMonitor::on_NtProtectVirtualMemory()
 {
     //LOG(INFO, "Break on NtProtectVirtualMemory");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -6372,9 +5956,7 @@ void monitor::GenericMonitor::on_NtProtectVirtualMemory()
     const auto OldProtect      = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtProtectVirtualMemory)
-    {
         it(ProcessHandle, STARBaseAddress, RegionSize, NewProtectWin32, OldProtect);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtPulseEvent(proc_t proc, const on_NtPulseEvent_fn& on_ntpulseevent)
@@ -6390,19 +5972,17 @@ bool monitor::GenericMonitor::register_NtPulseEvent(proc_t proc, const on_NtPuls
 void monitor::GenericMonitor::on_NtPulseEvent()
 {
     //LOG(INFO, "Break on NtPulseEvent");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PreviousState   = nt::cast_to<nt::PLONG>              (args[1]);
 
     for(const auto& it : d_->observers_NtPulseEvent)
-    {
         it(EventHandle, PreviousState);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryAttributesFile(proc_t proc, const on_NtQueryAttributesFile_fn& on_ntqueryattributesfile)
@@ -6418,19 +5998,17 @@ bool monitor::GenericMonitor::register_NtQueryAttributesFile(proc_t proc, const 
 void monitor::GenericMonitor::on_NtQueryAttributesFile()
 {
     //LOG(INFO, "Break on NtQueryAttributesFile");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto FileInformation = nt::cast_to<nt::PFILE_BASIC_INFORMATION>(args[1]);
 
     for(const auto& it : d_->observers_NtQueryAttributesFile)
-    {
         it(ObjectAttributes, FileInformation);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryBootEntryOrder(proc_t proc, const on_NtQueryBootEntryOrder_fn& on_ntquerybootentryorder)
@@ -6446,19 +6024,17 @@ bool monitor::GenericMonitor::register_NtQueryBootEntryOrder(proc_t proc, const 
 void monitor::GenericMonitor::on_NtQueryBootEntryOrder()
 {
     //LOG(INFO, "Break on NtQueryBootEntryOrder");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Ids             = nt::cast_to<nt::PULONG>             (args[0]);
     const auto Count           = nt::cast_to<nt::PULONG>             (args[1]);
 
     for(const auto& it : d_->observers_NtQueryBootEntryOrder)
-    {
         it(Ids, Count);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryBootOptions(proc_t proc, const on_NtQueryBootOptions_fn& on_ntquerybootoptions)
@@ -6474,19 +6050,17 @@ bool monitor::GenericMonitor::register_NtQueryBootOptions(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtQueryBootOptions()
 {
     //LOG(INFO, "Break on NtQueryBootOptions");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto BootOptions     = nt::cast_to<nt::PBOOT_OPTIONS>      (args[0]);
     const auto BootOptionsLength= nt::cast_to<nt::PULONG>             (args[1]);
 
     for(const auto& it : d_->observers_NtQueryBootOptions)
-    {
         it(BootOptions, BootOptionsLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryDebugFilterState(proc_t proc, const on_NtQueryDebugFilterState_fn& on_ntquerydebugfilterstate)
@@ -6502,19 +6076,17 @@ bool monitor::GenericMonitor::register_NtQueryDebugFilterState(proc_t proc, cons
 void monitor::GenericMonitor::on_NtQueryDebugFilterState()
 {
     //LOG(INFO, "Break on NtQueryDebugFilterState");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ComponentId     = nt::cast_to<nt::ULONG>              (args[0]);
     const auto Level           = nt::cast_to<nt::ULONG>              (args[1]);
 
     for(const auto& it : d_->observers_NtQueryDebugFilterState)
-    {
         it(ComponentId, Level);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryDefaultLocale(proc_t proc, const on_NtQueryDefaultLocale_fn& on_ntquerydefaultlocale)
@@ -6530,19 +6102,17 @@ bool monitor::GenericMonitor::register_NtQueryDefaultLocale(proc_t proc, const o
 void monitor::GenericMonitor::on_NtQueryDefaultLocale()
 {
     //LOG(INFO, "Break on NtQueryDefaultLocale");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto UserProfile     = nt::cast_to<nt::BOOLEAN>            (args[0]);
     const auto DefaultLocaleId = nt::cast_to<nt::PLCID>              (args[1]);
 
     for(const auto& it : d_->observers_NtQueryDefaultLocale)
-    {
         it(UserProfile, DefaultLocaleId);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryDefaultUILanguage(proc_t proc, const on_NtQueryDefaultUILanguage_fn& on_ntquerydefaultuilanguage)
@@ -6558,18 +6128,16 @@ bool monitor::GenericMonitor::register_NtQueryDefaultUILanguage(proc_t proc, con
 void monitor::GenericMonitor::on_NtQueryDefaultUILanguage()
 {
     //LOG(INFO, "Break on NtQueryDefaultUILanguage");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto STARDefaultUILanguageId= nt::cast_to<nt::LANGID>             (args[0]);
 
     for(const auto& it : d_->observers_NtQueryDefaultUILanguage)
-    {
         it(STARDefaultUILanguageId);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryDirectoryFile(proc_t proc, const on_NtQueryDirectoryFile_fn& on_ntquerydirectoryfile)
@@ -6585,10 +6153,10 @@ bool monitor::GenericMonitor::register_NtQueryDirectoryFile(proc_t proc, const o
 void monitor::GenericMonitor::on_NtQueryDirectoryFile()
 {
     //LOG(INFO, "Break on NtQueryDirectoryFile");
-    const auto nargs = 11;
+    constexpr int nargs = 11;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -6604,9 +6172,7 @@ void monitor::GenericMonitor::on_NtQueryDirectoryFile()
     const auto RestartScan     = nt::cast_to<nt::BOOLEAN>            (args[10]);
 
     for(const auto& it : d_->observers_NtQueryDirectoryFile)
-    {
         it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryDirectoryObject(proc_t proc, const on_NtQueryDirectoryObject_fn& on_ntquerydirectoryobject)
@@ -6622,10 +6188,10 @@ bool monitor::GenericMonitor::register_NtQueryDirectoryObject(proc_t proc, const
 void monitor::GenericMonitor::on_NtQueryDirectoryObject()
 {
     //LOG(INFO, "Break on NtQueryDirectoryObject");
-    const auto nargs = 7;
+    constexpr int nargs = 7;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DirectoryHandle = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -6637,9 +6203,7 @@ void monitor::GenericMonitor::on_NtQueryDirectoryObject()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[6]);
 
     for(const auto& it : d_->observers_NtQueryDirectoryObject)
-    {
         it(DirectoryHandle, Buffer, Length, ReturnSingleEntry, RestartScan, Context, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryDriverEntryOrder(proc_t proc, const on_NtQueryDriverEntryOrder_fn& on_ntquerydriverentryorder)
@@ -6655,19 +6219,17 @@ bool monitor::GenericMonitor::register_NtQueryDriverEntryOrder(proc_t proc, cons
 void monitor::GenericMonitor::on_NtQueryDriverEntryOrder()
 {
     //LOG(INFO, "Break on NtQueryDriverEntryOrder");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Ids             = nt::cast_to<nt::PULONG>             (args[0]);
     const auto Count           = nt::cast_to<nt::PULONG>             (args[1]);
 
     for(const auto& it : d_->observers_NtQueryDriverEntryOrder)
-    {
         it(Ids, Count);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryEaFile(proc_t proc, const on_NtQueryEaFile_fn& on_ntqueryeafile)
@@ -6683,10 +6245,10 @@ bool monitor::GenericMonitor::register_NtQueryEaFile(proc_t proc, const on_NtQue
 void monitor::GenericMonitor::on_NtQueryEaFile()
 {
     //LOG(INFO, "Break on NtQueryEaFile");
-    const auto nargs = 9;
+    constexpr int nargs = 9;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -6700,9 +6262,7 @@ void monitor::GenericMonitor::on_NtQueryEaFile()
     const auto RestartScan     = nt::cast_to<nt::BOOLEAN>            (args[8]);
 
     for(const auto& it : d_->observers_NtQueryEaFile)
-    {
         it(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, EaList, EaListLength, EaIndex, RestartScan);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryEvent(proc_t proc, const on_NtQueryEvent_fn& on_ntqueryevent)
@@ -6718,10 +6278,10 @@ bool monitor::GenericMonitor::register_NtQueryEvent(proc_t proc, const on_NtQuer
 void monitor::GenericMonitor::on_NtQueryEvent()
 {
     //LOG(INFO, "Break on NtQueryEvent");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -6731,9 +6291,7 @@ void monitor::GenericMonitor::on_NtQueryEvent()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryEvent)
-    {
         it(EventHandle, EventInformationClass, EventInformation, EventInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryFullAttributesFile(proc_t proc, const on_NtQueryFullAttributesFile_fn& on_ntqueryfullattributesfile)
@@ -6749,19 +6307,17 @@ bool monitor::GenericMonitor::register_NtQueryFullAttributesFile(proc_t proc, co
 void monitor::GenericMonitor::on_NtQueryFullAttributesFile()
 {
     //LOG(INFO, "Break on NtQueryFullAttributesFile");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ObjectAttributes= nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto FileInformation = nt::cast_to<nt::PFILE_NETWORK_OPEN_INFORMATION>(args[1]);
 
     for(const auto& it : d_->observers_NtQueryFullAttributesFile)
-    {
         it(ObjectAttributes, FileInformation);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryInformationAtom(proc_t proc, const on_NtQueryInformationAtom_fn& on_ntqueryinformationatom)
@@ -6777,10 +6333,10 @@ bool monitor::GenericMonitor::register_NtQueryInformationAtom(proc_t proc, const
 void monitor::GenericMonitor::on_NtQueryInformationAtom()
 {
     //LOG(INFO, "Break on NtQueryInformationAtom");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Atom            = nt::cast_to<nt::RTL_ATOM>           (args[0]);
@@ -6790,9 +6346,7 @@ void monitor::GenericMonitor::on_NtQueryInformationAtom()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryInformationAtom)
-    {
         it(Atom, InformationClass, AtomInformation, AtomInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryInformationEnlistment(proc_t proc, const on_NtQueryInformationEnlistment_fn& on_ntqueryinformationenlistment)
@@ -6808,10 +6362,10 @@ bool monitor::GenericMonitor::register_NtQueryInformationEnlistment(proc_t proc,
 void monitor::GenericMonitor::on_NtQueryInformationEnlistment()
 {
     //LOG(INFO, "Break on NtQueryInformationEnlistment");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -6821,9 +6375,7 @@ void monitor::GenericMonitor::on_NtQueryInformationEnlistment()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryInformationEnlistment)
-    {
         it(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryInformationFile(proc_t proc, const on_NtQueryInformationFile_fn& on_ntqueryinformationfile)
@@ -6839,10 +6391,10 @@ bool monitor::GenericMonitor::register_NtQueryInformationFile(proc_t proc, const
 void monitor::GenericMonitor::on_NtQueryInformationFile()
 {
     //LOG(INFO, "Break on NtQueryInformationFile");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -6852,9 +6404,7 @@ void monitor::GenericMonitor::on_NtQueryInformationFile()
     const auto FileInformationClass= nt::cast_to<nt::FILE_INFORMATION_CLASS>(args[4]);
 
     for(const auto& it : d_->observers_NtQueryInformationFile)
-    {
         it(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryInformationJobObject(proc_t proc, const on_NtQueryInformationJobObject_fn& on_ntqueryinformationjobobject)
@@ -6870,10 +6420,10 @@ bool monitor::GenericMonitor::register_NtQueryInformationJobObject(proc_t proc, 
 void monitor::GenericMonitor::on_NtQueryInformationJobObject()
 {
     //LOG(INFO, "Break on NtQueryInformationJobObject");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto JobHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -6883,9 +6433,7 @@ void monitor::GenericMonitor::on_NtQueryInformationJobObject()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryInformationJobObject)
-    {
         it(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryInformationPort(proc_t proc, const on_NtQueryInformationPort_fn& on_ntqueryinformationport)
@@ -6901,10 +6449,10 @@ bool monitor::GenericMonitor::register_NtQueryInformationPort(proc_t proc, const
 void monitor::GenericMonitor::on_NtQueryInformationPort()
 {
     //LOG(INFO, "Break on NtQueryInformationPort");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -6914,9 +6462,7 @@ void monitor::GenericMonitor::on_NtQueryInformationPort()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryInformationPort)
-    {
         it(PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryInformationProcess(proc_t proc, const on_NtQueryInformationProcess_fn& on_ntqueryinformationprocess)
@@ -6932,10 +6478,10 @@ bool monitor::GenericMonitor::register_NtQueryInformationProcess(proc_t proc, co
 void monitor::GenericMonitor::on_NtQueryInformationProcess()
 {
     //LOG(INFO, "Break on NtQueryInformationProcess");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -6945,9 +6491,7 @@ void monitor::GenericMonitor::on_NtQueryInformationProcess()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryInformationProcess)
-    {
         it(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryInformationResourceManager(proc_t proc, const on_NtQueryInformationResourceManager_fn& on_ntqueryinformationresourcemanager)
@@ -6963,10 +6507,10 @@ bool monitor::GenericMonitor::register_NtQueryInformationResourceManager(proc_t 
 void monitor::GenericMonitor::on_NtQueryInformationResourceManager()
 {
     //LOG(INFO, "Break on NtQueryInformationResourceManager");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -6976,9 +6520,7 @@ void monitor::GenericMonitor::on_NtQueryInformationResourceManager()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryInformationResourceManager)
-    {
         it(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryInformationThread(proc_t proc, const on_NtQueryInformationThread_fn& on_ntqueryinformationthread)
@@ -6994,10 +6536,10 @@ bool monitor::GenericMonitor::register_NtQueryInformationThread(proc_t proc, con
 void monitor::GenericMonitor::on_NtQueryInformationThread()
 {
     //LOG(INFO, "Break on NtQueryInformationThread");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7007,9 +6549,7 @@ void monitor::GenericMonitor::on_NtQueryInformationThread()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryInformationThread)
-    {
         it(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryInformationToken(proc_t proc, const on_NtQueryInformationToken_fn& on_ntqueryinformationtoken)
@@ -7025,10 +6565,10 @@ bool monitor::GenericMonitor::register_NtQueryInformationToken(proc_t proc, cons
 void monitor::GenericMonitor::on_NtQueryInformationToken()
 {
     //LOG(INFO, "Break on NtQueryInformationToken");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TokenHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7038,9 +6578,7 @@ void monitor::GenericMonitor::on_NtQueryInformationToken()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryInformationToken)
-    {
         it(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryInformationTransaction(proc_t proc, const on_NtQueryInformationTransaction_fn& on_ntqueryinformationtransaction)
@@ -7056,10 +6594,10 @@ bool monitor::GenericMonitor::register_NtQueryInformationTransaction(proc_t proc
 void monitor::GenericMonitor::on_NtQueryInformationTransaction()
 {
     //LOG(INFO, "Break on NtQueryInformationTransaction");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7069,9 +6607,7 @@ void monitor::GenericMonitor::on_NtQueryInformationTransaction()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryInformationTransaction)
-    {
         it(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryInformationTransactionManager(proc_t proc, const on_NtQueryInformationTransactionManager_fn& on_ntqueryinformationtransactionmanager)
@@ -7087,10 +6623,10 @@ bool monitor::GenericMonitor::register_NtQueryInformationTransactionManager(proc
 void monitor::GenericMonitor::on_NtQueryInformationTransactionManager()
 {
     //LOG(INFO, "Break on NtQueryInformationTransactionManager");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7100,9 +6636,7 @@ void monitor::GenericMonitor::on_NtQueryInformationTransactionManager()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryInformationTransactionManager)
-    {
         it(TransactionManagerHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryInformationWorkerFactory(proc_t proc, const on_NtQueryInformationWorkerFactory_fn& on_ntqueryinformationworkerfactory)
@@ -7118,10 +6652,10 @@ bool monitor::GenericMonitor::register_NtQueryInformationWorkerFactory(proc_t pr
 void monitor::GenericMonitor::on_NtQueryInformationWorkerFactory()
 {
     //LOG(INFO, "Break on NtQueryInformationWorkerFactory");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto WorkerFactoryHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7131,9 +6665,7 @@ void monitor::GenericMonitor::on_NtQueryInformationWorkerFactory()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryInformationWorkerFactory)
-    {
         it(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryInstallUILanguage(proc_t proc, const on_NtQueryInstallUILanguage_fn& on_ntqueryinstalluilanguage)
@@ -7149,18 +6681,16 @@ bool monitor::GenericMonitor::register_NtQueryInstallUILanguage(proc_t proc, con
 void monitor::GenericMonitor::on_NtQueryInstallUILanguage()
 {
     //LOG(INFO, "Break on NtQueryInstallUILanguage");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto STARInstallUILanguageId= nt::cast_to<nt::LANGID>             (args[0]);
 
     for(const auto& it : d_->observers_NtQueryInstallUILanguage)
-    {
         it(STARInstallUILanguageId);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryIntervalProfile(proc_t proc, const on_NtQueryIntervalProfile_fn& on_ntqueryintervalprofile)
@@ -7176,19 +6706,17 @@ bool monitor::GenericMonitor::register_NtQueryIntervalProfile(proc_t proc, const
 void monitor::GenericMonitor::on_NtQueryIntervalProfile()
 {
     //LOG(INFO, "Break on NtQueryIntervalProfile");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProfileSource   = nt::cast_to<nt::KPROFILE_SOURCE>    (args[0]);
     const auto Interval        = nt::cast_to<nt::PULONG>             (args[1]);
 
     for(const auto& it : d_->observers_NtQueryIntervalProfile)
-    {
         it(ProfileSource, Interval);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryIoCompletion(proc_t proc, const on_NtQueryIoCompletion_fn& on_ntqueryiocompletion)
@@ -7204,10 +6732,10 @@ bool monitor::GenericMonitor::register_NtQueryIoCompletion(proc_t proc, const on
 void monitor::GenericMonitor::on_NtQueryIoCompletion()
 {
     //LOG(INFO, "Break on NtQueryIoCompletion");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto IoCompletionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7217,9 +6745,7 @@ void monitor::GenericMonitor::on_NtQueryIoCompletion()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryIoCompletion)
-    {
         it(IoCompletionHandle, IoCompletionInformationClass, IoCompletionInformation, IoCompletionInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryKey(proc_t proc, const on_NtQueryKey_fn& on_ntquerykey)
@@ -7235,10 +6761,10 @@ bool monitor::GenericMonitor::register_NtQueryKey(proc_t proc, const on_NtQueryK
 void monitor::GenericMonitor::on_NtQueryKey()
 {
     //LOG(INFO, "Break on NtQueryKey");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7248,9 +6774,7 @@ void monitor::GenericMonitor::on_NtQueryKey()
     const auto ResultLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryKey)
-    {
         it(KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryLicenseValue(proc_t proc, const on_NtQueryLicenseValue_fn& on_ntquerylicensevalue)
@@ -7266,10 +6790,10 @@ bool monitor::GenericMonitor::register_NtQueryLicenseValue(proc_t proc, const on
 void monitor::GenericMonitor::on_NtQueryLicenseValue()
 {
     //LOG(INFO, "Break on NtQueryLicenseValue");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Name            = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -7279,9 +6803,7 @@ void monitor::GenericMonitor::on_NtQueryLicenseValue()
     const auto ReturnedLength  = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryLicenseValue)
-    {
         it(Name, Type, Buffer, Length, ReturnedLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryMultipleValueKey(proc_t proc, const on_NtQueryMultipleValueKey_fn& on_ntquerymultiplevaluekey)
@@ -7297,10 +6819,10 @@ bool monitor::GenericMonitor::register_NtQueryMultipleValueKey(proc_t proc, cons
 void monitor::GenericMonitor::on_NtQueryMultipleValueKey()
 {
     //LOG(INFO, "Break on NtQueryMultipleValueKey");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7311,9 +6833,7 @@ void monitor::GenericMonitor::on_NtQueryMultipleValueKey()
     const auto RequiredBufferLength= nt::cast_to<nt::PULONG>             (args[5]);
 
     for(const auto& it : d_->observers_NtQueryMultipleValueKey)
-    {
         it(KeyHandle, ValueEntries, EntryCount, ValueBuffer, BufferLength, RequiredBufferLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryMutant(proc_t proc, const on_NtQueryMutant_fn& on_ntquerymutant)
@@ -7329,10 +6849,10 @@ bool monitor::GenericMonitor::register_NtQueryMutant(proc_t proc, const on_NtQue
 void monitor::GenericMonitor::on_NtQueryMutant()
 {
     //LOG(INFO, "Break on NtQueryMutant");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto MutantHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7342,9 +6862,7 @@ void monitor::GenericMonitor::on_NtQueryMutant()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryMutant)
-    {
         it(MutantHandle, MutantInformationClass, MutantInformation, MutantInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryObject(proc_t proc, const on_NtQueryObject_fn& on_ntqueryobject)
@@ -7360,10 +6878,10 @@ bool monitor::GenericMonitor::register_NtQueryObject(proc_t proc, const on_NtQue
 void monitor::GenericMonitor::on_NtQueryObject()
 {
     //LOG(INFO, "Break on NtQueryObject");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7373,9 +6891,7 @@ void monitor::GenericMonitor::on_NtQueryObject()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryObject)
-    {
         it(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryOpenSubKeysEx(proc_t proc, const on_NtQueryOpenSubKeysEx_fn& on_ntqueryopensubkeysex)
@@ -7391,10 +6907,10 @@ bool monitor::GenericMonitor::register_NtQueryOpenSubKeysEx(proc_t proc, const o
 void monitor::GenericMonitor::on_NtQueryOpenSubKeysEx()
 {
     //LOG(INFO, "Break on NtQueryOpenSubKeysEx");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
@@ -7403,9 +6919,7 @@ void monitor::GenericMonitor::on_NtQueryOpenSubKeysEx()
     const auto RequiredSize    = nt::cast_to<nt::PULONG>             (args[3]);
 
     for(const auto& it : d_->observers_NtQueryOpenSubKeysEx)
-    {
         it(TargetKey, BufferLength, Buffer, RequiredSize);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQueryOpenSubKeys_fn& on_ntqueryopensubkeys)
@@ -7421,19 +6935,17 @@ bool monitor::GenericMonitor::register_NtQueryOpenSubKeys(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtQueryOpenSubKeys()
 {
     //LOG(INFO, "Break on NtQueryOpenSubKeys");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto HandleCount     = nt::cast_to<nt::PULONG>             (args[1]);
 
     for(const auto& it : d_->observers_NtQueryOpenSubKeys)
-    {
         it(TargetKey, HandleCount);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryPerformanceCounter(proc_t proc, const on_NtQueryPerformanceCounter_fn& on_ntqueryperformancecounter)
@@ -7449,19 +6961,17 @@ bool monitor::GenericMonitor::register_NtQueryPerformanceCounter(proc_t proc, co
 void monitor::GenericMonitor::on_NtQueryPerformanceCounter()
 {
     //LOG(INFO, "Break on NtQueryPerformanceCounter");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PerformanceCounter= nt::cast_to<nt::PLARGE_INTEGER>     (args[0]);
     const auto PerformanceFrequency= nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtQueryPerformanceCounter)
-    {
         it(PerformanceCounter, PerformanceFrequency);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryQuotaInformationFile(proc_t proc, const on_NtQueryQuotaInformationFile_fn& on_ntqueryquotainformationfile)
@@ -7477,10 +6987,10 @@ bool monitor::GenericMonitor::register_NtQueryQuotaInformationFile(proc_t proc, 
 void monitor::GenericMonitor::on_NtQueryQuotaInformationFile()
 {
     //LOG(INFO, "Break on NtQueryQuotaInformationFile");
-    const auto nargs = 9;
+    constexpr int nargs = 9;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7494,9 +7004,7 @@ void monitor::GenericMonitor::on_NtQueryQuotaInformationFile()
     const auto RestartScan     = nt::cast_to<nt::BOOLEAN>            (args[8]);
 
     for(const auto& it : d_->observers_NtQueryQuotaInformationFile)
-    {
         it(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, SidList, SidListLength, StartSid, RestartScan);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQuerySection(proc_t proc, const on_NtQuerySection_fn& on_ntquerysection)
@@ -7512,10 +7020,10 @@ bool monitor::GenericMonitor::register_NtQuerySection(proc_t proc, const on_NtQu
 void monitor::GenericMonitor::on_NtQuerySection()
 {
     //LOG(INFO, "Break on NtQuerySection");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SectionHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7525,9 +7033,7 @@ void monitor::GenericMonitor::on_NtQuerySection()
     const auto ReturnLength    = nt::cast_to<nt::PSIZE_T>            (args[4]);
 
     for(const auto& it : d_->observers_NtQuerySection)
-    {
         it(SectionHandle, SectionInformationClass, SectionInformation, SectionInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQuerySecurityAttributesToken(proc_t proc, const on_NtQuerySecurityAttributesToken_fn& on_ntquerysecurityattributestoken)
@@ -7543,10 +7049,10 @@ bool monitor::GenericMonitor::register_NtQuerySecurityAttributesToken(proc_t pro
 void monitor::GenericMonitor::on_NtQuerySecurityAttributesToken()
 {
     //LOG(INFO, "Break on NtQuerySecurityAttributesToken");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TokenHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7557,9 +7063,7 @@ void monitor::GenericMonitor::on_NtQuerySecurityAttributesToken()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[5]);
 
     for(const auto& it : d_->observers_NtQuerySecurityAttributesToken)
-    {
         it(TokenHandle, Attributes, NumberOfAttributes, Buffer, Length, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQuerySecurityObject(proc_t proc, const on_NtQuerySecurityObject_fn& on_ntquerysecurityobject)
@@ -7575,10 +7079,10 @@ bool monitor::GenericMonitor::register_NtQuerySecurityObject(proc_t proc, const 
 void monitor::GenericMonitor::on_NtQuerySecurityObject()
 {
     //LOG(INFO, "Break on NtQuerySecurityObject");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7588,9 +7092,7 @@ void monitor::GenericMonitor::on_NtQuerySecurityObject()
     const auto LengthNeeded    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQuerySecurityObject)
-    {
         it(Handle, SecurityInformation, SecurityDescriptor, Length, LengthNeeded);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQuerySemaphore(proc_t proc, const on_NtQuerySemaphore_fn& on_ntquerysemaphore)
@@ -7606,10 +7108,10 @@ bool monitor::GenericMonitor::register_NtQuerySemaphore(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtQuerySemaphore()
 {
     //LOG(INFO, "Break on NtQuerySemaphore");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SemaphoreHandle = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7619,9 +7121,7 @@ void monitor::GenericMonitor::on_NtQuerySemaphore()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQuerySemaphore)
-    {
         it(SemaphoreHandle, SemaphoreInformationClass, SemaphoreInformation, SemaphoreInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQuerySymbolicLinkObject(proc_t proc, const on_NtQuerySymbolicLinkObject_fn& on_ntquerysymboliclinkobject)
@@ -7637,10 +7137,10 @@ bool monitor::GenericMonitor::register_NtQuerySymbolicLinkObject(proc_t proc, co
 void monitor::GenericMonitor::on_NtQuerySymbolicLinkObject()
 {
     //LOG(INFO, "Break on NtQuerySymbolicLinkObject");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto LinkHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7648,9 +7148,7 @@ void monitor::GenericMonitor::on_NtQuerySymbolicLinkObject()
     const auto ReturnedLength  = nt::cast_to<nt::PULONG>             (args[2]);
 
     for(const auto& it : d_->observers_NtQuerySymbolicLinkObject)
-    {
         it(LinkHandle, LinkTarget, ReturnedLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQuerySystemEnvironmentValueEx(proc_t proc, const on_NtQuerySystemEnvironmentValueEx_fn& on_ntquerysystemenvironmentvalueex)
@@ -7666,10 +7164,10 @@ bool monitor::GenericMonitor::register_NtQuerySystemEnvironmentValueEx(proc_t pr
 void monitor::GenericMonitor::on_NtQuerySystemEnvironmentValueEx()
 {
     //LOG(INFO, "Break on NtQuerySystemEnvironmentValueEx");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto VariableName    = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -7679,9 +7177,7 @@ void monitor::GenericMonitor::on_NtQuerySystemEnvironmentValueEx()
     const auto Attributes      = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQuerySystemEnvironmentValueEx)
-    {
         it(VariableName, VendorGuid, Value, ValueLength, Attributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQuerySystemEnvironmentValue(proc_t proc, const on_NtQuerySystemEnvironmentValue_fn& on_ntquerysystemenvironmentvalue)
@@ -7697,10 +7193,10 @@ bool monitor::GenericMonitor::register_NtQuerySystemEnvironmentValue(proc_t proc
 void monitor::GenericMonitor::on_NtQuerySystemEnvironmentValue()
 {
     //LOG(INFO, "Break on NtQuerySystemEnvironmentValue");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto VariableName    = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -7709,9 +7205,7 @@ void monitor::GenericMonitor::on_NtQuerySystemEnvironmentValue()
     const auto ReturnLength    = nt::cast_to<nt::PUSHORT>            (args[3]);
 
     for(const auto& it : d_->observers_NtQuerySystemEnvironmentValue)
-    {
         it(VariableName, VariableValue, ValueLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQuerySystemInformationEx(proc_t proc, const on_NtQuerySystemInformationEx_fn& on_ntquerysysteminformationex)
@@ -7727,10 +7221,10 @@ bool monitor::GenericMonitor::register_NtQuerySystemInformationEx(proc_t proc, c
 void monitor::GenericMonitor::on_NtQuerySystemInformationEx()
 {
     //LOG(INFO, "Break on NtQuerySystemInformationEx");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SystemInformationClass= nt::cast_to<nt::SYSTEM_INFORMATION_CLASS>(args[0]);
@@ -7741,9 +7235,7 @@ void monitor::GenericMonitor::on_NtQuerySystemInformationEx()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[5]);
 
     for(const auto& it : d_->observers_NtQuerySystemInformationEx)
-    {
         it(SystemInformationClass, QueryInformation, QueryInformationLength, SystemInformation, SystemInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQuerySystemInformation(proc_t proc, const on_NtQuerySystemInformation_fn& on_ntquerysysteminformation)
@@ -7759,10 +7251,10 @@ bool monitor::GenericMonitor::register_NtQuerySystemInformation(proc_t proc, con
 void monitor::GenericMonitor::on_NtQuerySystemInformation()
 {
     //LOG(INFO, "Break on NtQuerySystemInformation");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SystemInformationClass= nt::cast_to<nt::SYSTEM_INFORMATION_CLASS>(args[0]);
@@ -7771,9 +7263,7 @@ void monitor::GenericMonitor::on_NtQuerySystemInformation()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[3]);
 
     for(const auto& it : d_->observers_NtQuerySystemInformation)
-    {
         it(SystemInformationClass, SystemInformation, SystemInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQuerySystemTime(proc_t proc, const on_NtQuerySystemTime_fn& on_ntquerysystemtime)
@@ -7789,18 +7279,16 @@ bool monitor::GenericMonitor::register_NtQuerySystemTime(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtQuerySystemTime()
 {
     //LOG(INFO, "Break on NtQuerySystemTime");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SystemTime      = nt::cast_to<nt::PLARGE_INTEGER>     (args[0]);
 
     for(const auto& it : d_->observers_NtQuerySystemTime)
-    {
         it(SystemTime);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryTimer(proc_t proc, const on_NtQueryTimer_fn& on_ntquerytimer)
@@ -7816,10 +7304,10 @@ bool monitor::GenericMonitor::register_NtQueryTimer(proc_t proc, const on_NtQuer
 void monitor::GenericMonitor::on_NtQueryTimer()
 {
     //LOG(INFO, "Break on NtQueryTimer");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TimerHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7829,9 +7317,7 @@ void monitor::GenericMonitor::on_NtQueryTimer()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtQueryTimer)
-    {
         it(TimerHandle, TimerInformationClass, TimerInformation, TimerInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryTimerResolution(proc_t proc, const on_NtQueryTimerResolution_fn& on_ntquerytimerresolution)
@@ -7847,10 +7333,10 @@ bool monitor::GenericMonitor::register_NtQueryTimerResolution(proc_t proc, const
 void monitor::GenericMonitor::on_NtQueryTimerResolution()
 {
     //LOG(INFO, "Break on NtQueryTimerResolution");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto MaximumTime     = nt::cast_to<nt::PULONG>             (args[0]);
@@ -7858,9 +7344,7 @@ void monitor::GenericMonitor::on_NtQueryTimerResolution()
     const auto CurrentTime     = nt::cast_to<nt::PULONG>             (args[2]);
 
     for(const auto& it : d_->observers_NtQueryTimerResolution)
-    {
         it(MaximumTime, MinimumTime, CurrentTime);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryValueKey(proc_t proc, const on_NtQueryValueKey_fn& on_ntqueryvaluekey)
@@ -7876,10 +7360,10 @@ bool monitor::GenericMonitor::register_NtQueryValueKey(proc_t proc, const on_NtQ
 void monitor::GenericMonitor::on_NtQueryValueKey()
 {
     //LOG(INFO, "Break on NtQueryValueKey");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7890,9 +7374,7 @@ void monitor::GenericMonitor::on_NtQueryValueKey()
     const auto ResultLength    = nt::cast_to<nt::PULONG>             (args[5]);
 
     for(const auto& it : d_->observers_NtQueryValueKey)
-    {
         it(KeyHandle, ValueName, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryVirtualMemory(proc_t proc, const on_NtQueryVirtualMemory_fn& on_ntqueryvirtualmemory)
@@ -7908,10 +7390,10 @@ bool monitor::GenericMonitor::register_NtQueryVirtualMemory(proc_t proc, const o
 void monitor::GenericMonitor::on_NtQueryVirtualMemory()
 {
     //LOG(INFO, "Break on NtQueryVirtualMemory");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7922,9 +7404,7 @@ void monitor::GenericMonitor::on_NtQueryVirtualMemory()
     const auto ReturnLength    = nt::cast_to<nt::PSIZE_T>            (args[5]);
 
     for(const auto& it : d_->observers_NtQueryVirtualMemory)
-    {
         it(ProcessHandle, BaseAddress, MemoryInformationClass, MemoryInformation, MemoryInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryVolumeInformationFile(proc_t proc, const on_NtQueryVolumeInformationFile_fn& on_ntqueryvolumeinformationfile)
@@ -7940,10 +7420,10 @@ bool monitor::GenericMonitor::register_NtQueryVolumeInformationFile(proc_t proc,
 void monitor::GenericMonitor::on_NtQueryVolumeInformationFile()
 {
     //LOG(INFO, "Break on NtQueryVolumeInformationFile");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7953,9 +7433,7 @@ void monitor::GenericMonitor::on_NtQueryVolumeInformationFile()
     const auto FsInformationClass= nt::cast_to<nt::FS_INFORMATION_CLASS>(args[4]);
 
     for(const auto& it : d_->observers_NtQueryVolumeInformationFile)
-    {
         it(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueueApcThreadEx(proc_t proc, const on_NtQueueApcThreadEx_fn& on_ntqueueapcthreadex)
@@ -7971,10 +7449,10 @@ bool monitor::GenericMonitor::register_NtQueueApcThreadEx(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtQueueApcThreadEx()
 {
     //LOG(INFO, "Break on NtQueueApcThreadEx");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -7985,9 +7463,7 @@ void monitor::GenericMonitor::on_NtQueueApcThreadEx()
     const auto ApcArgument3    = nt::cast_to<nt::PVOID>              (args[5]);
 
     for(const auto& it : d_->observers_NtQueueApcThreadEx)
-    {
         it(ThreadHandle, UserApcReserveHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueueApcThread(proc_t proc, const on_NtQueueApcThread_fn& on_ntqueueapcthread)
@@ -8003,10 +7479,10 @@ bool monitor::GenericMonitor::register_NtQueueApcThread(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtQueueApcThread()
 {
     //LOG(INFO, "Break on NtQueueApcThread");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8016,9 +7492,7 @@ void monitor::GenericMonitor::on_NtQueueApcThread()
     const auto ApcArgument3    = nt::cast_to<nt::PVOID>              (args[4]);
 
     for(const auto& it : d_->observers_NtQueueApcThread)
-    {
         it(ThreadHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRaiseException(proc_t proc, const on_NtRaiseException_fn& on_ntraiseexception)
@@ -8034,10 +7508,10 @@ bool monitor::GenericMonitor::register_NtRaiseException(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtRaiseException()
 {
     //LOG(INFO, "Break on NtRaiseException");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ExceptionRecord = nt::cast_to<nt::PEXCEPTION_RECORD>  (args[0]);
@@ -8045,9 +7519,7 @@ void monitor::GenericMonitor::on_NtRaiseException()
     const auto FirstChance     = nt::cast_to<nt::BOOLEAN>            (args[2]);
 
     for(const auto& it : d_->observers_NtRaiseException)
-    {
         it(ExceptionRecord, ContextRecord, FirstChance);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRaiseHardError(proc_t proc, const on_NtRaiseHardError_fn& on_ntraiseharderror)
@@ -8063,10 +7535,10 @@ bool monitor::GenericMonitor::register_NtRaiseHardError(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtRaiseHardError()
 {
     //LOG(INFO, "Break on NtRaiseHardError");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ErrorStatus     = nt::cast_to<nt::NTSTATUS>           (args[0]);
@@ -8077,9 +7549,7 @@ void monitor::GenericMonitor::on_NtRaiseHardError()
     const auto Response        = nt::cast_to<nt::PULONG>             (args[5]);
 
     for(const auto& it : d_->observers_NtRaiseHardError)
-    {
         it(ErrorStatus, NumberOfParameters, UnicodeStringParameterMask, Parameters, ValidResponseOptions, Response);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReadFile(proc_t proc, const on_NtReadFile_fn& on_ntreadfile)
@@ -8095,10 +7565,10 @@ bool monitor::GenericMonitor::register_NtReadFile(proc_t proc, const on_NtReadFi
 void monitor::GenericMonitor::on_NtReadFile()
 {
     //LOG(INFO, "Break on NtReadFile");
-    const auto nargs = 9;
+    constexpr int nargs = 9;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8112,9 +7582,7 @@ void monitor::GenericMonitor::on_NtReadFile()
     const auto Key             = nt::cast_to<nt::PULONG>             (args[8]);
 
     for(const auto& it : d_->observers_NtReadFile)
-    {
         it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReadFileScatter(proc_t proc, const on_NtReadFileScatter_fn& on_ntreadfilescatter)
@@ -8130,10 +7598,10 @@ bool monitor::GenericMonitor::register_NtReadFileScatter(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtReadFileScatter()
 {
     //LOG(INFO, "Break on NtReadFileScatter");
-    const auto nargs = 9;
+    constexpr int nargs = 9;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8147,9 +7615,7 @@ void monitor::GenericMonitor::on_NtReadFileScatter()
     const auto Key             = nt::cast_to<nt::PULONG>             (args[8]);
 
     for(const auto& it : d_->observers_NtReadFileScatter)
-    {
         it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReadOnlyEnlistment(proc_t proc, const on_NtReadOnlyEnlistment_fn& on_ntreadonlyenlistment)
@@ -8165,19 +7631,17 @@ bool monitor::GenericMonitor::register_NtReadOnlyEnlistment(proc_t proc, const o
 void monitor::GenericMonitor::on_NtReadOnlyEnlistment()
 {
     //LOG(INFO, "Break on NtReadOnlyEnlistment");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtReadOnlyEnlistment)
-    {
         it(EnlistmentHandle, TmVirtualClock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReadRequestData(proc_t proc, const on_NtReadRequestData_fn& on_ntreadrequestdata)
@@ -8193,10 +7657,10 @@ bool monitor::GenericMonitor::register_NtReadRequestData(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtReadRequestData()
 {
     //LOG(INFO, "Break on NtReadRequestData");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8207,9 +7671,7 @@ void monitor::GenericMonitor::on_NtReadRequestData()
     const auto NumberOfBytesRead= nt::cast_to<nt::PSIZE_T>            (args[5]);
 
     for(const auto& it : d_->observers_NtReadRequestData)
-    {
         it(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesRead);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReadVirtualMemory(proc_t proc, const on_NtReadVirtualMemory_fn& on_ntreadvirtualmemory)
@@ -8225,10 +7687,10 @@ bool monitor::GenericMonitor::register_NtReadVirtualMemory(proc_t proc, const on
 void monitor::GenericMonitor::on_NtReadVirtualMemory()
 {
     //LOG(INFO, "Break on NtReadVirtualMemory");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8238,9 +7700,7 @@ void monitor::GenericMonitor::on_NtReadVirtualMemory()
     const auto NumberOfBytesRead= nt::cast_to<nt::PSIZE_T>            (args[4]);
 
     for(const auto& it : d_->observers_NtReadVirtualMemory)
-    {
         it(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesRead);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRecoverEnlistment(proc_t proc, const on_NtRecoverEnlistment_fn& on_ntrecoverenlistment)
@@ -8256,19 +7716,17 @@ bool monitor::GenericMonitor::register_NtRecoverEnlistment(proc_t proc, const on
 void monitor::GenericMonitor::on_NtRecoverEnlistment()
 {
     //LOG(INFO, "Break on NtRecoverEnlistment");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto EnlistmentKey   = nt::cast_to<nt::PVOID>              (args[1]);
 
     for(const auto& it : d_->observers_NtRecoverEnlistment)
-    {
         it(EnlistmentHandle, EnlistmentKey);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRecoverResourceManager(proc_t proc, const on_NtRecoverResourceManager_fn& on_ntrecoverresourcemanager)
@@ -8284,18 +7742,16 @@ bool monitor::GenericMonitor::register_NtRecoverResourceManager(proc_t proc, con
 void monitor::GenericMonitor::on_NtRecoverResourceManager()
 {
     //LOG(INFO, "Break on NtRecoverResourceManager");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtRecoverResourceManager)
-    {
         it(ResourceManagerHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRecoverTransactionManager(proc_t proc, const on_NtRecoverTransactionManager_fn& on_ntrecovertransactionmanager)
@@ -8311,18 +7767,16 @@ bool monitor::GenericMonitor::register_NtRecoverTransactionManager(proc_t proc, 
 void monitor::GenericMonitor::on_NtRecoverTransactionManager()
 {
     //LOG(INFO, "Break on NtRecoverTransactionManager");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtRecoverTransactionManager)
-    {
         it(TransactionManagerHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRegisterProtocolAddressInformation(proc_t proc, const on_NtRegisterProtocolAddressInformation_fn& on_ntregisterprotocoladdressinformation)
@@ -8338,10 +7792,10 @@ bool monitor::GenericMonitor::register_NtRegisterProtocolAddressInformation(proc
 void monitor::GenericMonitor::on_NtRegisterProtocolAddressInformation()
 {
     //LOG(INFO, "Break on NtRegisterProtocolAddressInformation");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManager = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8351,9 +7805,7 @@ void monitor::GenericMonitor::on_NtRegisterProtocolAddressInformation()
     const auto CreateOptions   = nt::cast_to<nt::ULONG>              (args[4]);
 
     for(const auto& it : d_->observers_NtRegisterProtocolAddressInformation)
-    {
         it(ResourceManager, ProtocolId, ProtocolInformationSize, ProtocolInformation, CreateOptions);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRegisterThreadTerminatePort(proc_t proc, const on_NtRegisterThreadTerminatePort_fn& on_ntregisterthreadterminateport)
@@ -8369,18 +7821,16 @@ bool monitor::GenericMonitor::register_NtRegisterThreadTerminatePort(proc_t proc
 void monitor::GenericMonitor::on_NtRegisterThreadTerminatePort()
 {
     //LOG(INFO, "Break on NtRegisterThreadTerminatePort");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtRegisterThreadTerminatePort)
-    {
         it(PortHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReleaseKeyedEvent(proc_t proc, const on_NtReleaseKeyedEvent_fn& on_ntreleasekeyedevent)
@@ -8396,10 +7846,10 @@ bool monitor::GenericMonitor::register_NtReleaseKeyedEvent(proc_t proc, const on
 void monitor::GenericMonitor::on_NtReleaseKeyedEvent()
 {
     //LOG(INFO, "Break on NtReleaseKeyedEvent");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyedEventHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8408,9 +7858,7 @@ void monitor::GenericMonitor::on_NtReleaseKeyedEvent()
     const auto Timeout         = nt::cast_to<nt::PLARGE_INTEGER>     (args[3]);
 
     for(const auto& it : d_->observers_NtReleaseKeyedEvent)
-    {
         it(KeyedEventHandle, KeyValue, Alertable, Timeout);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReleaseMutant(proc_t proc, const on_NtReleaseMutant_fn& on_ntreleasemutant)
@@ -8426,19 +7874,17 @@ bool monitor::GenericMonitor::register_NtReleaseMutant(proc_t proc, const on_NtR
 void monitor::GenericMonitor::on_NtReleaseMutant()
 {
     //LOG(INFO, "Break on NtReleaseMutant");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto MutantHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PreviousCount   = nt::cast_to<nt::PLONG>              (args[1]);
 
     for(const auto& it : d_->observers_NtReleaseMutant)
-    {
         it(MutantHandle, PreviousCount);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReleaseSemaphore(proc_t proc, const on_NtReleaseSemaphore_fn& on_ntreleasesemaphore)
@@ -8454,10 +7900,10 @@ bool monitor::GenericMonitor::register_NtReleaseSemaphore(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtReleaseSemaphore()
 {
     //LOG(INFO, "Break on NtReleaseSemaphore");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SemaphoreHandle = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8465,9 +7911,7 @@ void monitor::GenericMonitor::on_NtReleaseSemaphore()
     const auto PreviousCount   = nt::cast_to<nt::PLONG>              (args[2]);
 
     for(const auto& it : d_->observers_NtReleaseSemaphore)
-    {
         it(SemaphoreHandle, ReleaseCount, PreviousCount);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReleaseWorkerFactoryWorker(proc_t proc, const on_NtReleaseWorkerFactoryWorker_fn& on_ntreleaseworkerfactoryworker)
@@ -8483,18 +7927,16 @@ bool monitor::GenericMonitor::register_NtReleaseWorkerFactoryWorker(proc_t proc,
 void monitor::GenericMonitor::on_NtReleaseWorkerFactoryWorker()
 {
     //LOG(INFO, "Break on NtReleaseWorkerFactoryWorker");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto WorkerFactoryHandle= nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtReleaseWorkerFactoryWorker)
-    {
         it(WorkerFactoryHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRemoveIoCompletionEx(proc_t proc, const on_NtRemoveIoCompletionEx_fn& on_ntremoveiocompletionex)
@@ -8510,10 +7952,10 @@ bool monitor::GenericMonitor::register_NtRemoveIoCompletionEx(proc_t proc, const
 void monitor::GenericMonitor::on_NtRemoveIoCompletionEx()
 {
     //LOG(INFO, "Break on NtRemoveIoCompletionEx");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto IoCompletionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8524,9 +7966,7 @@ void monitor::GenericMonitor::on_NtRemoveIoCompletionEx()
     const auto Alertable       = nt::cast_to<nt::BOOLEAN>            (args[5]);
 
     for(const auto& it : d_->observers_NtRemoveIoCompletionEx)
-    {
         it(IoCompletionHandle, IoCompletionInformation, Count, NumEntriesRemoved, Timeout, Alertable);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRemoveIoCompletion(proc_t proc, const on_NtRemoveIoCompletion_fn& on_ntremoveiocompletion)
@@ -8542,10 +7982,10 @@ bool monitor::GenericMonitor::register_NtRemoveIoCompletion(proc_t proc, const o
 void monitor::GenericMonitor::on_NtRemoveIoCompletion()
 {
     //LOG(INFO, "Break on NtRemoveIoCompletion");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto IoCompletionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8555,9 +7995,7 @@ void monitor::GenericMonitor::on_NtRemoveIoCompletion()
     const auto Timeout         = nt::cast_to<nt::PLARGE_INTEGER>     (args[4]);
 
     for(const auto& it : d_->observers_NtRemoveIoCompletion)
-    {
         it(IoCompletionHandle, STARKeyContext, STARApcContext, IoStatusBlock, Timeout);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRemoveProcessDebug(proc_t proc, const on_NtRemoveProcessDebug_fn& on_ntremoveprocessdebug)
@@ -8573,19 +8011,17 @@ bool monitor::GenericMonitor::register_NtRemoveProcessDebug(proc_t proc, const o
 void monitor::GenericMonitor::on_NtRemoveProcessDebug()
 {
     //LOG(INFO, "Break on NtRemoveProcessDebug");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto DebugObjectHandle= nt::cast_to<nt::HANDLE>             (args[1]);
 
     for(const auto& it : d_->observers_NtRemoveProcessDebug)
-    {
         it(ProcessHandle, DebugObjectHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRenameKey(proc_t proc, const on_NtRenameKey_fn& on_ntrenamekey)
@@ -8601,19 +8037,17 @@ bool monitor::GenericMonitor::register_NtRenameKey(proc_t proc, const on_NtRenam
 void monitor::GenericMonitor::on_NtRenameKey()
 {
     //LOG(INFO, "Break on NtRenameKey");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto NewName         = nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
 
     for(const auto& it : d_->observers_NtRenameKey)
-    {
         it(KeyHandle, NewName);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRenameTransactionManager(proc_t proc, const on_NtRenameTransactionManager_fn& on_ntrenametransactionmanager)
@@ -8629,19 +8063,17 @@ bool monitor::GenericMonitor::register_NtRenameTransactionManager(proc_t proc, c
 void monitor::GenericMonitor::on_NtRenameTransactionManager()
 {
     //LOG(INFO, "Break on NtRenameTransactionManager");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto LogFileName     = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto ExistingTransactionManagerGuid= nt::cast_to<nt::LPGUID>             (args[1]);
 
     for(const auto& it : d_->observers_NtRenameTransactionManager)
-    {
         it(LogFileName, ExistingTransactionManagerGuid);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReplaceKey(proc_t proc, const on_NtReplaceKey_fn& on_ntreplacekey)
@@ -8657,10 +8089,10 @@ bool monitor::GenericMonitor::register_NtReplaceKey(proc_t proc, const on_NtRepl
 void monitor::GenericMonitor::on_NtReplaceKey()
 {
     //LOG(INFO, "Break on NtReplaceKey");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto NewFile         = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
@@ -8668,9 +8100,7 @@ void monitor::GenericMonitor::on_NtReplaceKey()
     const auto OldFile         = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[2]);
 
     for(const auto& it : d_->observers_NtReplaceKey)
-    {
         it(NewFile, TargetHandle, OldFile);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReplacePartitionUnit(proc_t proc, const on_NtReplacePartitionUnit_fn& on_ntreplacepartitionunit)
@@ -8686,10 +8116,10 @@ bool monitor::GenericMonitor::register_NtReplacePartitionUnit(proc_t proc, const
 void monitor::GenericMonitor::on_NtReplacePartitionUnit()
 {
     //LOG(INFO, "Break on NtReplacePartitionUnit");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetInstancePath= nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -8697,9 +8127,7 @@ void monitor::GenericMonitor::on_NtReplacePartitionUnit()
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[2]);
 
     for(const auto& it : d_->observers_NtReplacePartitionUnit)
-    {
         it(TargetInstancePath, SpareInstancePath, Flags);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReplyPort(proc_t proc, const on_NtReplyPort_fn& on_ntreplyport)
@@ -8715,19 +8143,17 @@ bool monitor::GenericMonitor::register_NtReplyPort(proc_t proc, const on_NtReply
 void monitor::GenericMonitor::on_NtReplyPort()
 {
     //LOG(INFO, "Break on NtReplyPort");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ReplyMessage    = nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
 
     for(const auto& it : d_->observers_NtReplyPort)
-    {
         it(PortHandle, ReplyMessage);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReplyWaitReceivePortEx(proc_t proc, const on_NtReplyWaitReceivePortEx_fn& on_ntreplywaitreceiveportex)
@@ -8743,10 +8169,10 @@ bool monitor::GenericMonitor::register_NtReplyWaitReceivePortEx(proc_t proc, con
 void monitor::GenericMonitor::on_NtReplyWaitReceivePortEx()
 {
     //LOG(INFO, "Break on NtReplyWaitReceivePortEx");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8756,9 +8182,7 @@ void monitor::GenericMonitor::on_NtReplyWaitReceivePortEx()
     const auto Timeout         = nt::cast_to<nt::PLARGE_INTEGER>     (args[4]);
 
     for(const auto& it : d_->observers_NtReplyWaitReceivePortEx)
-    {
         it(PortHandle, STARPortContext, ReplyMessage, ReceiveMessage, Timeout);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReplyWaitReceivePort(proc_t proc, const on_NtReplyWaitReceivePort_fn& on_ntreplywaitreceiveport)
@@ -8774,10 +8198,10 @@ bool monitor::GenericMonitor::register_NtReplyWaitReceivePort(proc_t proc, const
 void monitor::GenericMonitor::on_NtReplyWaitReceivePort()
 {
     //LOG(INFO, "Break on NtReplyWaitReceivePort");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8786,9 +8210,7 @@ void monitor::GenericMonitor::on_NtReplyWaitReceivePort()
     const auto ReceiveMessage  = nt::cast_to<nt::PPORT_MESSAGE>      (args[3]);
 
     for(const auto& it : d_->observers_NtReplyWaitReceivePort)
-    {
         it(PortHandle, STARPortContext, ReplyMessage, ReceiveMessage);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtReplyWaitReplyPort(proc_t proc, const on_NtReplyWaitReplyPort_fn& on_ntreplywaitreplyport)
@@ -8804,19 +8226,17 @@ bool monitor::GenericMonitor::register_NtReplyWaitReplyPort(proc_t proc, const o
 void monitor::GenericMonitor::on_NtReplyWaitReplyPort()
 {
     //LOG(INFO, "Break on NtReplyWaitReplyPort");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ReplyMessage    = nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
 
     for(const auto& it : d_->observers_NtReplyWaitReplyPort)
-    {
         it(PortHandle, ReplyMessage);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRequestPort(proc_t proc, const on_NtRequestPort_fn& on_ntrequestport)
@@ -8832,19 +8252,17 @@ bool monitor::GenericMonitor::register_NtRequestPort(proc_t proc, const on_NtReq
 void monitor::GenericMonitor::on_NtRequestPort()
 {
     //LOG(INFO, "Break on NtRequestPort");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto RequestMessage  = nt::cast_to<nt::PPORT_MESSAGE>      (args[1]);
 
     for(const auto& it : d_->observers_NtRequestPort)
-    {
         it(PortHandle, RequestMessage);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRequestWaitReplyPort(proc_t proc, const on_NtRequestWaitReplyPort_fn& on_ntrequestwaitreplyport)
@@ -8860,10 +8278,10 @@ bool monitor::GenericMonitor::register_NtRequestWaitReplyPort(proc_t proc, const
 void monitor::GenericMonitor::on_NtRequestWaitReplyPort()
 {
     //LOG(INFO, "Break on NtRequestWaitReplyPort");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8871,9 +8289,7 @@ void monitor::GenericMonitor::on_NtRequestWaitReplyPort()
     const auto ReplyMessage    = nt::cast_to<nt::PPORT_MESSAGE>      (args[2]);
 
     for(const auto& it : d_->observers_NtRequestWaitReplyPort)
-    {
         it(PortHandle, RequestMessage, ReplyMessage);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtResetEvent(proc_t proc, const on_NtResetEvent_fn& on_ntresetevent)
@@ -8889,19 +8305,17 @@ bool monitor::GenericMonitor::register_NtResetEvent(proc_t proc, const on_NtRese
 void monitor::GenericMonitor::on_NtResetEvent()
 {
     //LOG(INFO, "Break on NtResetEvent");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PreviousState   = nt::cast_to<nt::PLONG>              (args[1]);
 
     for(const auto& it : d_->observers_NtResetEvent)
-    {
         it(EventHandle, PreviousState);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtResetWriteWatch(proc_t proc, const on_NtResetWriteWatch_fn& on_ntresetwritewatch)
@@ -8917,10 +8331,10 @@ bool monitor::GenericMonitor::register_NtResetWriteWatch(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtResetWriteWatch()
 {
     //LOG(INFO, "Break on NtResetWriteWatch");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8928,9 +8342,7 @@ void monitor::GenericMonitor::on_NtResetWriteWatch()
     const auto RegionSize      = nt::cast_to<nt::SIZE_T>             (args[2]);
 
     for(const auto& it : d_->observers_NtResetWriteWatch)
-    {
         it(ProcessHandle, BaseAddress, RegionSize);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRestoreKey(proc_t proc, const on_NtRestoreKey_fn& on_ntrestorekey)
@@ -8946,10 +8358,10 @@ bool monitor::GenericMonitor::register_NtRestoreKey(proc_t proc, const on_NtRest
 void monitor::GenericMonitor::on_NtRestoreKey()
 {
     //LOG(INFO, "Break on NtRestoreKey");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -8957,9 +8369,7 @@ void monitor::GenericMonitor::on_NtRestoreKey()
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[2]);
 
     for(const auto& it : d_->observers_NtRestoreKey)
-    {
         it(KeyHandle, FileHandle, Flags);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtResumeProcess(proc_t proc, const on_NtResumeProcess_fn& on_ntresumeprocess)
@@ -8975,18 +8385,16 @@ bool monitor::GenericMonitor::register_NtResumeProcess(proc_t proc, const on_NtR
 void monitor::GenericMonitor::on_NtResumeProcess()
 {
     //LOG(INFO, "Break on NtResumeProcess");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtResumeProcess)
-    {
         it(ProcessHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtResumeThread(proc_t proc, const on_NtResumeThread_fn& on_ntresumethread)
@@ -9002,19 +8410,17 @@ bool monitor::GenericMonitor::register_NtResumeThread(proc_t proc, const on_NtRe
 void monitor::GenericMonitor::on_NtResumeThread()
 {
     //LOG(INFO, "Break on NtResumeThread");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PreviousSuspendCount= nt::cast_to<nt::PULONG>             (args[1]);
 
     for(const auto& it : d_->observers_NtResumeThread)
-    {
         it(ThreadHandle, PreviousSuspendCount);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRollbackComplete(proc_t proc, const on_NtRollbackComplete_fn& on_ntrollbackcomplete)
@@ -9030,19 +8436,17 @@ bool monitor::GenericMonitor::register_NtRollbackComplete(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtRollbackComplete()
 {
     //LOG(INFO, "Break on NtRollbackComplete");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtRollbackComplete)
-    {
         it(EnlistmentHandle, TmVirtualClock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRollbackEnlistment(proc_t proc, const on_NtRollbackEnlistment_fn& on_ntrollbackenlistment)
@@ -9058,19 +8462,17 @@ bool monitor::GenericMonitor::register_NtRollbackEnlistment(proc_t proc, const o
 void monitor::GenericMonitor::on_NtRollbackEnlistment()
 {
     //LOG(INFO, "Break on NtRollbackEnlistment");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtRollbackEnlistment)
-    {
         it(EnlistmentHandle, TmVirtualClock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRollbackTransaction(proc_t proc, const on_NtRollbackTransaction_fn& on_ntrollbacktransaction)
@@ -9086,19 +8488,17 @@ bool monitor::GenericMonitor::register_NtRollbackTransaction(proc_t proc, const 
 void monitor::GenericMonitor::on_NtRollbackTransaction()
 {
     //LOG(INFO, "Break on NtRollbackTransaction");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto Wait            = nt::cast_to<nt::BOOLEAN>            (args[1]);
 
     for(const auto& it : d_->observers_NtRollbackTransaction)
-    {
         it(TransactionHandle, Wait);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtRollforwardTransactionManager(proc_t proc, const on_NtRollforwardTransactionManager_fn& on_ntrollforwardtransactionmanager)
@@ -9114,19 +8514,17 @@ bool monitor::GenericMonitor::register_NtRollforwardTransactionManager(proc_t pr
 void monitor::GenericMonitor::on_NtRollforwardTransactionManager()
 {
     //LOG(INFO, "Break on NtRollforwardTransactionManager");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtRollforwardTransactionManager)
-    {
         it(TransactionManagerHandle, TmVirtualClock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx_fn& on_ntsavekeyex)
@@ -9142,10 +8540,10 @@ bool monitor::GenericMonitor::register_NtSaveKeyEx(proc_t proc, const on_NtSaveK
 void monitor::GenericMonitor::on_NtSaveKeyEx()
 {
     //LOG(INFO, "Break on NtSaveKeyEx");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9153,9 +8551,7 @@ void monitor::GenericMonitor::on_NtSaveKeyEx()
     const auto Format          = nt::cast_to<nt::ULONG>              (args[2]);
 
     for(const auto& it : d_->observers_NtSaveKeyEx)
-    {
         it(KeyHandle, FileHandle, Format);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn& on_ntsavekey)
@@ -9171,19 +8567,17 @@ bool monitor::GenericMonitor::register_NtSaveKey(proc_t proc, const on_NtSaveKey
 void monitor::GenericMonitor::on_NtSaveKey()
 {
     //LOG(INFO, "Break on NtSaveKey");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[1]);
 
     for(const auto& it : d_->observers_NtSaveKey)
-    {
         it(KeyHandle, FileHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSaveMergedKeys(proc_t proc, const on_NtSaveMergedKeys_fn& on_ntsavemergedkeys)
@@ -9199,10 +8593,10 @@ bool monitor::GenericMonitor::register_NtSaveMergedKeys(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtSaveMergedKeys()
 {
     //LOG(INFO, "Break on NtSaveMergedKeys");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto HighPrecedenceKeyHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9210,9 +8604,7 @@ void monitor::GenericMonitor::on_NtSaveMergedKeys()
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[2]);
 
     for(const auto& it : d_->observers_NtSaveMergedKeys)
-    {
         it(HighPrecedenceKeyHandle, LowPrecedenceKeyHandle, FileHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSecureConnectPort(proc_t proc, const on_NtSecureConnectPort_fn& on_ntsecureconnectport)
@@ -9228,10 +8620,10 @@ bool monitor::GenericMonitor::register_NtSecureConnectPort(proc_t proc, const on
 void monitor::GenericMonitor::on_NtSecureConnectPort()
 {
     //LOG(INFO, "Break on NtSecureConnectPort");
-    const auto nargs = 9;
+    constexpr int nargs = 9;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::PHANDLE>            (args[0]);
@@ -9245,9 +8637,7 @@ void monitor::GenericMonitor::on_NtSecureConnectPort()
     const auto ConnectionInformationLength= nt::cast_to<nt::PULONG>             (args[8]);
 
     for(const auto& it : d_->observers_NtSecureConnectPort)
-    {
         it(PortHandle, PortName, SecurityQos, ClientView, RequiredServerSid, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetBootEntryOrder(proc_t proc, const on_NtSetBootEntryOrder_fn& on_ntsetbootentryorder)
@@ -9263,19 +8653,17 @@ bool monitor::GenericMonitor::register_NtSetBootEntryOrder(proc_t proc, const on
 void monitor::GenericMonitor::on_NtSetBootEntryOrder()
 {
     //LOG(INFO, "Break on NtSetBootEntryOrder");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Ids             = nt::cast_to<nt::PULONG>             (args[0]);
     const auto Count           = nt::cast_to<nt::ULONG>              (args[1]);
 
     for(const auto& it : d_->observers_NtSetBootEntryOrder)
-    {
         it(Ids, Count);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetBootOptions(proc_t proc, const on_NtSetBootOptions_fn& on_ntsetbootoptions)
@@ -9291,19 +8679,17 @@ bool monitor::GenericMonitor::register_NtSetBootOptions(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtSetBootOptions()
 {
     //LOG(INFO, "Break on NtSetBootOptions");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto BootOptions     = nt::cast_to<nt::PBOOT_OPTIONS>      (args[0]);
     const auto FieldsToChange  = nt::cast_to<nt::ULONG>              (args[1]);
 
     for(const auto& it : d_->observers_NtSetBootOptions)
-    {
         it(BootOptions, FieldsToChange);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetContextThread(proc_t proc, const on_NtSetContextThread_fn& on_ntsetcontextthread)
@@ -9319,19 +8705,17 @@ bool monitor::GenericMonitor::register_NtSetContextThread(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtSetContextThread()
 {
     //LOG(INFO, "Break on NtSetContextThread");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ThreadContext   = nt::cast_to<nt::PCONTEXT>           (args[1]);
 
     for(const auto& it : d_->observers_NtSetContextThread)
-    {
         it(ThreadHandle, ThreadContext);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetDebugFilterState(proc_t proc, const on_NtSetDebugFilterState_fn& on_ntsetdebugfilterstate)
@@ -9347,10 +8731,10 @@ bool monitor::GenericMonitor::register_NtSetDebugFilterState(proc_t proc, const 
 void monitor::GenericMonitor::on_NtSetDebugFilterState()
 {
     //LOG(INFO, "Break on NtSetDebugFilterState");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ComponentId     = nt::cast_to<nt::ULONG>              (args[0]);
@@ -9358,9 +8742,7 @@ void monitor::GenericMonitor::on_NtSetDebugFilterState()
     const auto State           = nt::cast_to<nt::BOOLEAN>            (args[2]);
 
     for(const auto& it : d_->observers_NtSetDebugFilterState)
-    {
         it(ComponentId, Level, State);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetDefaultHardErrorPort(proc_t proc, const on_NtSetDefaultHardErrorPort_fn& on_ntsetdefaultharderrorport)
@@ -9376,18 +8758,16 @@ bool monitor::GenericMonitor::register_NtSetDefaultHardErrorPort(proc_t proc, co
 void monitor::GenericMonitor::on_NtSetDefaultHardErrorPort()
 {
     //LOG(INFO, "Break on NtSetDefaultHardErrorPort");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DefaultHardErrorPort= nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtSetDefaultHardErrorPort)
-    {
         it(DefaultHardErrorPort);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetDefaultLocale(proc_t proc, const on_NtSetDefaultLocale_fn& on_ntsetdefaultlocale)
@@ -9403,19 +8783,17 @@ bool monitor::GenericMonitor::register_NtSetDefaultLocale(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtSetDefaultLocale()
 {
     //LOG(INFO, "Break on NtSetDefaultLocale");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto UserProfile     = nt::cast_to<nt::BOOLEAN>            (args[0]);
     const auto DefaultLocaleId = nt::cast_to<nt::LCID>               (args[1]);
 
     for(const auto& it : d_->observers_NtSetDefaultLocale)
-    {
         it(UserProfile, DefaultLocaleId);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetDefaultUILanguage(proc_t proc, const on_NtSetDefaultUILanguage_fn& on_ntsetdefaultuilanguage)
@@ -9431,18 +8809,16 @@ bool monitor::GenericMonitor::register_NtSetDefaultUILanguage(proc_t proc, const
 void monitor::GenericMonitor::on_NtSetDefaultUILanguage()
 {
     //LOG(INFO, "Break on NtSetDefaultUILanguage");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DefaultUILanguageId= nt::cast_to<nt::LANGID>             (args[0]);
 
     for(const auto& it : d_->observers_NtSetDefaultUILanguage)
-    {
         it(DefaultUILanguageId);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetDriverEntryOrder(proc_t proc, const on_NtSetDriverEntryOrder_fn& on_ntsetdriverentryorder)
@@ -9458,19 +8834,17 @@ bool monitor::GenericMonitor::register_NtSetDriverEntryOrder(proc_t proc, const 
 void monitor::GenericMonitor::on_NtSetDriverEntryOrder()
 {
     //LOG(INFO, "Break on NtSetDriverEntryOrder");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Ids             = nt::cast_to<nt::PULONG>             (args[0]);
     const auto Count           = nt::cast_to<nt::ULONG>              (args[1]);
 
     for(const auto& it : d_->observers_NtSetDriverEntryOrder)
-    {
         it(Ids, Count);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetEaFile(proc_t proc, const on_NtSetEaFile_fn& on_ntseteafile)
@@ -9486,10 +8860,10 @@ bool monitor::GenericMonitor::register_NtSetEaFile(proc_t proc, const on_NtSetEa
 void monitor::GenericMonitor::on_NtSetEaFile()
 {
     //LOG(INFO, "Break on NtSetEaFile");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9498,9 +8872,7 @@ void monitor::GenericMonitor::on_NtSetEaFile()
     const auto Length          = nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtSetEaFile)
-    {
         it(FileHandle, IoStatusBlock, Buffer, Length);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetEventBoostPriority(proc_t proc, const on_NtSetEventBoostPriority_fn& on_ntseteventboostpriority)
@@ -9516,18 +8888,16 @@ bool monitor::GenericMonitor::register_NtSetEventBoostPriority(proc_t proc, cons
 void monitor::GenericMonitor::on_NtSetEventBoostPriority()
 {
     //LOG(INFO, "Break on NtSetEventBoostPriority");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtSetEventBoostPriority)
-    {
         it(EventHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetEvent(proc_t proc, const on_NtSetEvent_fn& on_ntsetevent)
@@ -9543,19 +8913,17 @@ bool monitor::GenericMonitor::register_NtSetEvent(proc_t proc, const on_NtSetEve
 void monitor::GenericMonitor::on_NtSetEvent()
 {
     //LOG(INFO, "Break on NtSetEvent");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PreviousState   = nt::cast_to<nt::PLONG>              (args[1]);
 
     for(const auto& it : d_->observers_NtSetEvent)
-    {
         it(EventHandle, PreviousState);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetHighEventPair(proc_t proc, const on_NtSetHighEventPair_fn& on_ntsethigheventpair)
@@ -9571,18 +8939,16 @@ bool monitor::GenericMonitor::register_NtSetHighEventPair(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtSetHighEventPair()
 {
     //LOG(INFO, "Break on NtSetHighEventPair");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtSetHighEventPair)
-    {
         it(EventPairHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetHighWaitLowEventPair(proc_t proc, const on_NtSetHighWaitLowEventPair_fn& on_ntsethighwaitloweventpair)
@@ -9598,18 +8964,16 @@ bool monitor::GenericMonitor::register_NtSetHighWaitLowEventPair(proc_t proc, co
 void monitor::GenericMonitor::on_NtSetHighWaitLowEventPair()
 {
     //LOG(INFO, "Break on NtSetHighWaitLowEventPair");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtSetHighWaitLowEventPair)
-    {
         it(EventPairHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetInformationDebugObject(proc_t proc, const on_NtSetInformationDebugObject_fn& on_ntsetinformationdebugobject)
@@ -9625,10 +8989,10 @@ bool monitor::GenericMonitor::register_NtSetInformationDebugObject(proc_t proc, 
 void monitor::GenericMonitor::on_NtSetInformationDebugObject()
 {
     //LOG(INFO, "Break on NtSetInformationDebugObject");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DebugObjectHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9638,9 +9002,7 @@ void monitor::GenericMonitor::on_NtSetInformationDebugObject()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_NtSetInformationDebugObject)
-    {
         it(DebugObjectHandle, DebugObjectInformationClass, DebugInformation, DebugInformationLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetInformationEnlistment(proc_t proc, const on_NtSetInformationEnlistment_fn& on_ntsetinformationenlistment)
@@ -9656,10 +9018,10 @@ bool monitor::GenericMonitor::register_NtSetInformationEnlistment(proc_t proc, c
 void monitor::GenericMonitor::on_NtSetInformationEnlistment()
 {
     //LOG(INFO, "Break on NtSetInformationEnlistment");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9668,9 +9030,7 @@ void monitor::GenericMonitor::on_NtSetInformationEnlistment()
     const auto EnlistmentInformationLength= nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtSetInformationEnlistment)
-    {
         it(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetInformationFile(proc_t proc, const on_NtSetInformationFile_fn& on_ntsetinformationfile)
@@ -9686,10 +9046,10 @@ bool monitor::GenericMonitor::register_NtSetInformationFile(proc_t proc, const o
 void monitor::GenericMonitor::on_NtSetInformationFile()
 {
     //LOG(INFO, "Break on NtSetInformationFile");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9699,9 +9059,7 @@ void monitor::GenericMonitor::on_NtSetInformationFile()
     const auto FileInformationClass= nt::cast_to<nt::FILE_INFORMATION_CLASS>(args[4]);
 
     for(const auto& it : d_->observers_NtSetInformationFile)
-    {
         it(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetInformationJobObject(proc_t proc, const on_NtSetInformationJobObject_fn& on_ntsetinformationjobobject)
@@ -9717,10 +9075,10 @@ bool monitor::GenericMonitor::register_NtSetInformationJobObject(proc_t proc, co
 void monitor::GenericMonitor::on_NtSetInformationJobObject()
 {
     //LOG(INFO, "Break on NtSetInformationJobObject");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto JobHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9729,9 +9087,7 @@ void monitor::GenericMonitor::on_NtSetInformationJobObject()
     const auto JobObjectInformationLength= nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtSetInformationJobObject)
-    {
         it(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetInformationKey(proc_t proc, const on_NtSetInformationKey_fn& on_ntsetinformationkey)
@@ -9747,10 +9103,10 @@ bool monitor::GenericMonitor::register_NtSetInformationKey(proc_t proc, const on
 void monitor::GenericMonitor::on_NtSetInformationKey()
 {
     //LOG(INFO, "Break on NtSetInformationKey");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9759,9 +9115,7 @@ void monitor::GenericMonitor::on_NtSetInformationKey()
     const auto KeySetInformationLength= nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtSetInformationKey)
-    {
         it(KeyHandle, KeySetInformationClass, KeySetInformation, KeySetInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetInformationObject(proc_t proc, const on_NtSetInformationObject_fn& on_ntsetinformationobject)
@@ -9777,10 +9131,10 @@ bool monitor::GenericMonitor::register_NtSetInformationObject(proc_t proc, const
 void monitor::GenericMonitor::on_NtSetInformationObject()
 {
     //LOG(INFO, "Break on NtSetInformationObject");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9789,9 +9143,7 @@ void monitor::GenericMonitor::on_NtSetInformationObject()
     const auto ObjectInformationLength= nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtSetInformationObject)
-    {
         it(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetInformationProcess(proc_t proc, const on_NtSetInformationProcess_fn& on_ntsetinformationprocess)
@@ -9807,10 +9159,10 @@ bool monitor::GenericMonitor::register_NtSetInformationProcess(proc_t proc, cons
 void monitor::GenericMonitor::on_NtSetInformationProcess()
 {
     //LOG(INFO, "Break on NtSetInformationProcess");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9819,9 +9171,7 @@ void monitor::GenericMonitor::on_NtSetInformationProcess()
     const auto ProcessInformationLength= nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtSetInformationProcess)
-    {
         it(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetInformationResourceManager(proc_t proc, const on_NtSetInformationResourceManager_fn& on_ntsetinformationresourcemanager)
@@ -9837,10 +9187,10 @@ bool monitor::GenericMonitor::register_NtSetInformationResourceManager(proc_t pr
 void monitor::GenericMonitor::on_NtSetInformationResourceManager()
 {
     //LOG(INFO, "Break on NtSetInformationResourceManager");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ResourceManagerHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9849,9 +9199,7 @@ void monitor::GenericMonitor::on_NtSetInformationResourceManager()
     const auto ResourceManagerInformationLength= nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtSetInformationResourceManager)
-    {
         it(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetInformationThread(proc_t proc, const on_NtSetInformationThread_fn& on_ntsetinformationthread)
@@ -9867,10 +9215,10 @@ bool monitor::GenericMonitor::register_NtSetInformationThread(proc_t proc, const
 void monitor::GenericMonitor::on_NtSetInformationThread()
 {
     //LOG(INFO, "Break on NtSetInformationThread");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9879,9 +9227,7 @@ void monitor::GenericMonitor::on_NtSetInformationThread()
     const auto ThreadInformationLength= nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtSetInformationThread)
-    {
         it(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetInformationToken(proc_t proc, const on_NtSetInformationToken_fn& on_ntsetinformationtoken)
@@ -9897,10 +9243,10 @@ bool monitor::GenericMonitor::register_NtSetInformationToken(proc_t proc, const 
 void monitor::GenericMonitor::on_NtSetInformationToken()
 {
     //LOG(INFO, "Break on NtSetInformationToken");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TokenHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9909,9 +9255,7 @@ void monitor::GenericMonitor::on_NtSetInformationToken()
     const auto TokenInformationLength= nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtSetInformationToken)
-    {
         it(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetInformationTransaction(proc_t proc, const on_NtSetInformationTransaction_fn& on_ntsetinformationtransaction)
@@ -9927,10 +9271,10 @@ bool monitor::GenericMonitor::register_NtSetInformationTransaction(proc_t proc, 
 void monitor::GenericMonitor::on_NtSetInformationTransaction()
 {
     //LOG(INFO, "Break on NtSetInformationTransaction");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TransactionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9939,9 +9283,7 @@ void monitor::GenericMonitor::on_NtSetInformationTransaction()
     const auto TransactionInformationLength= nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtSetInformationTransaction)
-    {
         it(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetInformationTransactionManager(proc_t proc, const on_NtSetInformationTransactionManager_fn& on_ntsetinformationtransactionmanager)
@@ -9957,10 +9299,10 @@ bool monitor::GenericMonitor::register_NtSetInformationTransactionManager(proc_t
 void monitor::GenericMonitor::on_NtSetInformationTransactionManager()
 {
     //LOG(INFO, "Break on NtSetInformationTransactionManager");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TmHandle        = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9969,9 +9311,7 @@ void monitor::GenericMonitor::on_NtSetInformationTransactionManager()
     const auto TransactionManagerInformationLength= nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtSetInformationTransactionManager)
-    {
         it(TmHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetInformationWorkerFactory(proc_t proc, const on_NtSetInformationWorkerFactory_fn& on_ntsetinformationworkerfactory)
@@ -9987,10 +9327,10 @@ bool monitor::GenericMonitor::register_NtSetInformationWorkerFactory(proc_t proc
 void monitor::GenericMonitor::on_NtSetInformationWorkerFactory()
 {
     //LOG(INFO, "Break on NtSetInformationWorkerFactory");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto WorkerFactoryHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -9999,9 +9339,7 @@ void monitor::GenericMonitor::on_NtSetInformationWorkerFactory()
     const auto WorkerFactoryInformationLength= nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtSetInformationWorkerFactory)
-    {
         it(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetIntervalProfile(proc_t proc, const on_NtSetIntervalProfile_fn& on_ntsetintervalprofile)
@@ -10017,19 +9355,17 @@ bool monitor::GenericMonitor::register_NtSetIntervalProfile(proc_t proc, const o
 void monitor::GenericMonitor::on_NtSetIntervalProfile()
 {
     //LOG(INFO, "Break on NtSetIntervalProfile");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Interval        = nt::cast_to<nt::ULONG>              (args[0]);
     const auto Source          = nt::cast_to<nt::KPROFILE_SOURCE>    (args[1]);
 
     for(const auto& it : d_->observers_NtSetIntervalProfile)
-    {
         it(Interval, Source);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetIoCompletionEx(proc_t proc, const on_NtSetIoCompletionEx_fn& on_ntsetiocompletionex)
@@ -10045,10 +9381,10 @@ bool monitor::GenericMonitor::register_NtSetIoCompletionEx(proc_t proc, const on
 void monitor::GenericMonitor::on_NtSetIoCompletionEx()
 {
     //LOG(INFO, "Break on NtSetIoCompletionEx");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto IoCompletionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -10059,9 +9395,7 @@ void monitor::GenericMonitor::on_NtSetIoCompletionEx()
     const auto IoStatusInformation= nt::cast_to<nt::ULONG_PTR>          (args[5]);
 
     for(const auto& it : d_->observers_NtSetIoCompletionEx)
-    {
         it(IoCompletionHandle, IoCompletionReserveHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetIoCompletion(proc_t proc, const on_NtSetIoCompletion_fn& on_ntsetiocompletion)
@@ -10077,10 +9411,10 @@ bool monitor::GenericMonitor::register_NtSetIoCompletion(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtSetIoCompletion()
 {
     //LOG(INFO, "Break on NtSetIoCompletion");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto IoCompletionHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -10090,9 +9424,7 @@ void monitor::GenericMonitor::on_NtSetIoCompletion()
     const auto IoStatusInformation= nt::cast_to<nt::ULONG_PTR>          (args[4]);
 
     for(const auto& it : d_->observers_NtSetIoCompletion)
-    {
         it(IoCompletionHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetLdtEntries(proc_t proc, const on_NtSetLdtEntries_fn& on_ntsetldtentries)
@@ -10108,10 +9440,10 @@ bool monitor::GenericMonitor::register_NtSetLdtEntries(proc_t proc, const on_NtS
 void monitor::GenericMonitor::on_NtSetLdtEntries()
 {
     //LOG(INFO, "Break on NtSetLdtEntries");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Selector0       = nt::cast_to<nt::ULONG>              (args[0]);
@@ -10122,9 +9454,7 @@ void monitor::GenericMonitor::on_NtSetLdtEntries()
     const auto Entry1Hi        = nt::cast_to<nt::ULONG>              (args[5]);
 
     for(const auto& it : d_->observers_NtSetLdtEntries)
-    {
         it(Selector0, Entry0Low, Entry0Hi, Selector1, Entry1Low, Entry1Hi);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetLowEventPair(proc_t proc, const on_NtSetLowEventPair_fn& on_ntsetloweventpair)
@@ -10140,18 +9470,16 @@ bool monitor::GenericMonitor::register_NtSetLowEventPair(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtSetLowEventPair()
 {
     //LOG(INFO, "Break on NtSetLowEventPair");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtSetLowEventPair)
-    {
         it(EventPairHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetLowWaitHighEventPair(proc_t proc, const on_NtSetLowWaitHighEventPair_fn& on_ntsetlowwaithigheventpair)
@@ -10167,18 +9495,16 @@ bool monitor::GenericMonitor::register_NtSetLowWaitHighEventPair(proc_t proc, co
 void monitor::GenericMonitor::on_NtSetLowWaitHighEventPair()
 {
     //LOG(INFO, "Break on NtSetLowWaitHighEventPair");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtSetLowWaitHighEventPair)
-    {
         it(EventPairHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetQuotaInformationFile(proc_t proc, const on_NtSetQuotaInformationFile_fn& on_ntsetquotainformationfile)
@@ -10194,10 +9520,10 @@ bool monitor::GenericMonitor::register_NtSetQuotaInformationFile(proc_t proc, co
 void monitor::GenericMonitor::on_NtSetQuotaInformationFile()
 {
     //LOG(INFO, "Break on NtSetQuotaInformationFile");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -10206,9 +9532,7 @@ void monitor::GenericMonitor::on_NtSetQuotaInformationFile()
     const auto Length          = nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtSetQuotaInformationFile)
-    {
         it(FileHandle, IoStatusBlock, Buffer, Length);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetSecurityObject(proc_t proc, const on_NtSetSecurityObject_fn& on_ntsetsecurityobject)
@@ -10224,10 +9548,10 @@ bool monitor::GenericMonitor::register_NtSetSecurityObject(proc_t proc, const on
 void monitor::GenericMonitor::on_NtSetSecurityObject()
 {
     //LOG(INFO, "Break on NtSetSecurityObject");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -10235,9 +9559,7 @@ void monitor::GenericMonitor::on_NtSetSecurityObject()
     const auto SecurityDescriptor= nt::cast_to<nt::PSECURITY_DESCRIPTOR>(args[2]);
 
     for(const auto& it : d_->observers_NtSetSecurityObject)
-    {
         it(Handle, SecurityInformation, SecurityDescriptor);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetSystemEnvironmentValueEx(proc_t proc, const on_NtSetSystemEnvironmentValueEx_fn& on_ntsetsystemenvironmentvalueex)
@@ -10253,10 +9575,10 @@ bool monitor::GenericMonitor::register_NtSetSystemEnvironmentValueEx(proc_t proc
 void monitor::GenericMonitor::on_NtSetSystemEnvironmentValueEx()
 {
     //LOG(INFO, "Break on NtSetSystemEnvironmentValueEx");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto VariableName    = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
@@ -10266,9 +9588,7 @@ void monitor::GenericMonitor::on_NtSetSystemEnvironmentValueEx()
     const auto Attributes      = nt::cast_to<nt::ULONG>              (args[4]);
 
     for(const auto& it : d_->observers_NtSetSystemEnvironmentValueEx)
-    {
         it(VariableName, VendorGuid, Value, ValueLength, Attributes);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetSystemEnvironmentValue(proc_t proc, const on_NtSetSystemEnvironmentValue_fn& on_ntsetsystemenvironmentvalue)
@@ -10284,19 +9604,17 @@ bool monitor::GenericMonitor::register_NtSetSystemEnvironmentValue(proc_t proc, 
 void monitor::GenericMonitor::on_NtSetSystemEnvironmentValue()
 {
     //LOG(INFO, "Break on NtSetSystemEnvironmentValue");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto VariableName    = nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
     const auto VariableValue   = nt::cast_to<nt::PUNICODE_STRING>    (args[1]);
 
     for(const auto& it : d_->observers_NtSetSystemEnvironmentValue)
-    {
         it(VariableName, VariableValue);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetSystemInformation(proc_t proc, const on_NtSetSystemInformation_fn& on_ntsetsysteminformation)
@@ -10312,10 +9630,10 @@ bool monitor::GenericMonitor::register_NtSetSystemInformation(proc_t proc, const
 void monitor::GenericMonitor::on_NtSetSystemInformation()
 {
     //LOG(INFO, "Break on NtSetSystemInformation");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SystemInformationClass= nt::cast_to<nt::SYSTEM_INFORMATION_CLASS>(args[0]);
@@ -10323,9 +9641,7 @@ void monitor::GenericMonitor::on_NtSetSystemInformation()
     const auto SystemInformationLength= nt::cast_to<nt::ULONG>              (args[2]);
 
     for(const auto& it : d_->observers_NtSetSystemInformation)
-    {
         it(SystemInformationClass, SystemInformation, SystemInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetSystemPowerState(proc_t proc, const on_NtSetSystemPowerState_fn& on_ntsetsystempowerstate)
@@ -10341,10 +9657,10 @@ bool monitor::GenericMonitor::register_NtSetSystemPowerState(proc_t proc, const 
 void monitor::GenericMonitor::on_NtSetSystemPowerState()
 {
     //LOG(INFO, "Break on NtSetSystemPowerState");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SystemAction    = nt::cast_to<nt::POWER_ACTION>       (args[0]);
@@ -10352,9 +9668,7 @@ void monitor::GenericMonitor::on_NtSetSystemPowerState()
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[2]);
 
     for(const auto& it : d_->observers_NtSetSystemPowerState)
-    {
         it(SystemAction, MinSystemState, Flags);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetSystemTime(proc_t proc, const on_NtSetSystemTime_fn& on_ntsetsystemtime)
@@ -10370,19 +9684,17 @@ bool monitor::GenericMonitor::register_NtSetSystemTime(proc_t proc, const on_NtS
 void monitor::GenericMonitor::on_NtSetSystemTime()
 {
     //LOG(INFO, "Break on NtSetSystemTime");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SystemTime      = nt::cast_to<nt::PLARGE_INTEGER>     (args[0]);
     const auto PreviousTime    = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtSetSystemTime)
-    {
         it(SystemTime, PreviousTime);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetThreadExecutionState(proc_t proc, const on_NtSetThreadExecutionState_fn& on_ntsetthreadexecutionstate)
@@ -10398,19 +9710,17 @@ bool monitor::GenericMonitor::register_NtSetThreadExecutionState(proc_t proc, co
 void monitor::GenericMonitor::on_NtSetThreadExecutionState()
 {
     //LOG(INFO, "Break on NtSetThreadExecutionState");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto esFlags         = nt::cast_to<nt::EXECUTION_STATE>    (args[0]);
     const auto STARPreviousFlags= nt::cast_to<nt::EXECUTION_STATE>    (args[1]);
 
     for(const auto& it : d_->observers_NtSetThreadExecutionState)
-    {
         it(esFlags, STARPreviousFlags);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetTimerEx(proc_t proc, const on_NtSetTimerEx_fn& on_ntsettimerex)
@@ -10426,10 +9736,10 @@ bool monitor::GenericMonitor::register_NtSetTimerEx(proc_t proc, const on_NtSetT
 void monitor::GenericMonitor::on_NtSetTimerEx()
 {
     //LOG(INFO, "Break on NtSetTimerEx");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TimerHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -10438,9 +9748,7 @@ void monitor::GenericMonitor::on_NtSetTimerEx()
     const auto TimerSetInformationLength= nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtSetTimerEx)
-    {
         it(TimerHandle, TimerSetInformationClass, TimerSetInformation, TimerSetInformationLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetTimer(proc_t proc, const on_NtSetTimer_fn& on_ntsettimer)
@@ -10456,10 +9764,10 @@ bool monitor::GenericMonitor::register_NtSetTimer(proc_t proc, const on_NtSetTim
 void monitor::GenericMonitor::on_NtSetTimer()
 {
     //LOG(INFO, "Break on NtSetTimer");
-    const auto nargs = 7;
+    constexpr int nargs = 7;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TimerHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -10471,9 +9779,7 @@ void monitor::GenericMonitor::on_NtSetTimer()
     const auto PreviousState   = nt::cast_to<nt::PBOOLEAN>           (args[6]);
 
     for(const auto& it : d_->observers_NtSetTimer)
-    {
         it(TimerHandle, DueTime, TimerApcRoutine, TimerContext, WakeTimer, Period, PreviousState);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetTimerResolution(proc_t proc, const on_NtSetTimerResolution_fn& on_ntsettimerresolution)
@@ -10489,10 +9795,10 @@ bool monitor::GenericMonitor::register_NtSetTimerResolution(proc_t proc, const o
 void monitor::GenericMonitor::on_NtSetTimerResolution()
 {
     //LOG(INFO, "Break on NtSetTimerResolution");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DesiredTime     = nt::cast_to<nt::ULONG>              (args[0]);
@@ -10500,9 +9806,7 @@ void monitor::GenericMonitor::on_NtSetTimerResolution()
     const auto ActualTime      = nt::cast_to<nt::PULONG>             (args[2]);
 
     for(const auto& it : d_->observers_NtSetTimerResolution)
-    {
         it(DesiredTime, SetResolution, ActualTime);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetUuidSeed(proc_t proc, const on_NtSetUuidSeed_fn& on_ntsetuuidseed)
@@ -10518,18 +9822,16 @@ bool monitor::GenericMonitor::register_NtSetUuidSeed(proc_t proc, const on_NtSet
 void monitor::GenericMonitor::on_NtSetUuidSeed()
 {
     //LOG(INFO, "Break on NtSetUuidSeed");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Seed            = nt::cast_to<nt::PCHAR>              (args[0]);
 
     for(const auto& it : d_->observers_NtSetUuidSeed)
-    {
         it(Seed);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetValueKey(proc_t proc, const on_NtSetValueKey_fn& on_ntsetvaluekey)
@@ -10545,10 +9847,10 @@ bool monitor::GenericMonitor::register_NtSetValueKey(proc_t proc, const on_NtSet
 void monitor::GenericMonitor::on_NtSetValueKey()
 {
     //LOG(INFO, "Break on NtSetValueKey");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -10559,9 +9861,7 @@ void monitor::GenericMonitor::on_NtSetValueKey()
     const auto DataSize        = nt::cast_to<nt::ULONG>              (args[5]);
 
     for(const auto& it : d_->observers_NtSetValueKey)
-    {
         it(KeyHandle, ValueName, TitleIndex, Type, Data, DataSize);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSetVolumeInformationFile(proc_t proc, const on_NtSetVolumeInformationFile_fn& on_ntsetvolumeinformationfile)
@@ -10577,10 +9877,10 @@ bool monitor::GenericMonitor::register_NtSetVolumeInformationFile(proc_t proc, c
 void monitor::GenericMonitor::on_NtSetVolumeInformationFile()
 {
     //LOG(INFO, "Break on NtSetVolumeInformationFile");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -10590,9 +9890,7 @@ void monitor::GenericMonitor::on_NtSetVolumeInformationFile()
     const auto FsInformationClass= nt::cast_to<nt::FS_INFORMATION_CLASS>(args[4]);
 
     for(const auto& it : d_->observers_NtSetVolumeInformationFile)
-    {
         it(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtShutdownSystem(proc_t proc, const on_NtShutdownSystem_fn& on_ntshutdownsystem)
@@ -10608,18 +9906,16 @@ bool monitor::GenericMonitor::register_NtShutdownSystem(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtShutdownSystem()
 {
     //LOG(INFO, "Break on NtShutdownSystem");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Action          = nt::cast_to<nt::SHUTDOWN_ACTION>    (args[0]);
 
     for(const auto& it : d_->observers_NtShutdownSystem)
-    {
         it(Action);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtShutdownWorkerFactory(proc_t proc, const on_NtShutdownWorkerFactory_fn& on_ntshutdownworkerfactory)
@@ -10635,19 +9931,17 @@ bool monitor::GenericMonitor::register_NtShutdownWorkerFactory(proc_t proc, cons
 void monitor::GenericMonitor::on_NtShutdownWorkerFactory()
 {
     //LOG(INFO, "Break on NtShutdownWorkerFactory");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto WorkerFactoryHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto STARPendingWorkerCount= nt::cast_to<nt::LONG>               (args[1]);
 
     for(const auto& it : d_->observers_NtShutdownWorkerFactory)
-    {
         it(WorkerFactoryHandle, STARPendingWorkerCount);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSignalAndWaitForSingleObject(proc_t proc, const on_NtSignalAndWaitForSingleObject_fn& on_ntsignalandwaitforsingleobject)
@@ -10663,10 +9957,10 @@ bool monitor::GenericMonitor::register_NtSignalAndWaitForSingleObject(proc_t pro
 void monitor::GenericMonitor::on_NtSignalAndWaitForSingleObject()
 {
     //LOG(INFO, "Break on NtSignalAndWaitForSingleObject");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto SignalHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -10675,9 +9969,7 @@ void monitor::GenericMonitor::on_NtSignalAndWaitForSingleObject()
     const auto Timeout         = nt::cast_to<nt::PLARGE_INTEGER>     (args[3]);
 
     for(const auto& it : d_->observers_NtSignalAndWaitForSingleObject)
-    {
         it(SignalHandle, WaitHandle, Alertable, Timeout);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSinglePhaseReject(proc_t proc, const on_NtSinglePhaseReject_fn& on_ntsinglephasereject)
@@ -10693,19 +9985,17 @@ bool monitor::GenericMonitor::register_NtSinglePhaseReject(proc_t proc, const on
 void monitor::GenericMonitor::on_NtSinglePhaseReject()
 {
     //LOG(INFO, "Break on NtSinglePhaseReject");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EnlistmentHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto TmVirtualClock  = nt::cast_to<nt::PLARGE_INTEGER>     (args[1]);
 
     for(const auto& it : d_->observers_NtSinglePhaseReject)
-    {
         it(EnlistmentHandle, TmVirtualClock);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtStartProfile(proc_t proc, const on_NtStartProfile_fn& on_ntstartprofile)
@@ -10721,18 +10011,16 @@ bool monitor::GenericMonitor::register_NtStartProfile(proc_t proc, const on_NtSt
 void monitor::GenericMonitor::on_NtStartProfile()
 {
     //LOG(INFO, "Break on NtStartProfile");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProfileHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtStartProfile)
-    {
         it(ProfileHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtStopProfile(proc_t proc, const on_NtStopProfile_fn& on_ntstopprofile)
@@ -10748,18 +10036,16 @@ bool monitor::GenericMonitor::register_NtStopProfile(proc_t proc, const on_NtSto
 void monitor::GenericMonitor::on_NtStopProfile()
 {
     //LOG(INFO, "Break on NtStopProfile");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProfileHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtStopProfile)
-    {
         it(ProfileHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSuspendProcess(proc_t proc, const on_NtSuspendProcess_fn& on_ntsuspendprocess)
@@ -10775,18 +10061,16 @@ bool monitor::GenericMonitor::register_NtSuspendProcess(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtSuspendProcess()
 {
     //LOG(INFO, "Break on NtSuspendProcess");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtSuspendProcess)
-    {
         it(ProcessHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSuspendThread(proc_t proc, const on_NtSuspendThread_fn& on_ntsuspendthread)
@@ -10802,19 +10086,17 @@ bool monitor::GenericMonitor::register_NtSuspendThread(proc_t proc, const on_NtS
 void monitor::GenericMonitor::on_NtSuspendThread()
 {
     //LOG(INFO, "Break on NtSuspendThread");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto PreviousSuspendCount= nt::cast_to<nt::PULONG>             (args[1]);
 
     for(const auto& it : d_->observers_NtSuspendThread)
-    {
         it(ThreadHandle, PreviousSuspendCount);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSystemDebugControl(proc_t proc, const on_NtSystemDebugControl_fn& on_ntsystemdebugcontrol)
@@ -10830,10 +10112,10 @@ bool monitor::GenericMonitor::register_NtSystemDebugControl(proc_t proc, const o
 void monitor::GenericMonitor::on_NtSystemDebugControl()
 {
     //LOG(INFO, "Break on NtSystemDebugControl");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Command         = nt::cast_to<nt::SYSDBG_COMMAND>     (args[0]);
@@ -10844,9 +10126,7 @@ void monitor::GenericMonitor::on_NtSystemDebugControl()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[5]);
 
     for(const auto& it : d_->observers_NtSystemDebugControl)
-    {
         it(Command, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtTerminateJobObject(proc_t proc, const on_NtTerminateJobObject_fn& on_ntterminatejobobject)
@@ -10862,19 +10142,17 @@ bool monitor::GenericMonitor::register_NtTerminateJobObject(proc_t proc, const o
 void monitor::GenericMonitor::on_NtTerminateJobObject()
 {
     //LOG(INFO, "Break on NtTerminateJobObject");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto JobHandle       = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ExitStatus      = nt::cast_to<nt::NTSTATUS>           (args[1]);
 
     for(const auto& it : d_->observers_NtTerminateJobObject)
-    {
         it(JobHandle, ExitStatus);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtTerminateProcess(proc_t proc, const on_NtTerminateProcess_fn& on_ntterminateprocess)
@@ -10890,19 +10168,17 @@ bool monitor::GenericMonitor::register_NtTerminateProcess(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtTerminateProcess()
 {
     //LOG(INFO, "Break on NtTerminateProcess");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ExitStatus      = nt::cast_to<nt::NTSTATUS>           (args[1]);
 
     for(const auto& it : d_->observers_NtTerminateProcess)
-    {
         it(ProcessHandle, ExitStatus);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtTerminateThread(proc_t proc, const on_NtTerminateThread_fn& on_ntterminatethread)
@@ -10918,19 +10194,17 @@ bool monitor::GenericMonitor::register_NtTerminateThread(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtTerminateThread()
 {
     //LOG(INFO, "Break on NtTerminateThread");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ThreadHandle    = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto ExitStatus      = nt::cast_to<nt::NTSTATUS>           (args[1]);
 
     for(const auto& it : d_->observers_NtTerminateThread)
-    {
         it(ThreadHandle, ExitStatus);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtTraceControl(proc_t proc, const on_NtTraceControl_fn& on_nttracecontrol)
@@ -10946,10 +10220,10 @@ bool monitor::GenericMonitor::register_NtTraceControl(proc_t proc, const on_NtTr
 void monitor::GenericMonitor::on_NtTraceControl()
 {
     //LOG(INFO, "Break on NtTraceControl");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FunctionCode    = nt::cast_to<nt::ULONG>              (args[0]);
@@ -10960,9 +10234,7 @@ void monitor::GenericMonitor::on_NtTraceControl()
     const auto ReturnLength    = nt::cast_to<nt::PULONG>             (args[5]);
 
     for(const auto& it : d_->observers_NtTraceControl)
-    {
         it(FunctionCode, InBuffer, InBufferLen, OutBuffer, OutBufferLen, ReturnLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtTraceEvent(proc_t proc, const on_NtTraceEvent_fn& on_nttraceevent)
@@ -10978,10 +10250,10 @@ bool monitor::GenericMonitor::register_NtTraceEvent(proc_t proc, const on_NtTrac
 void monitor::GenericMonitor::on_NtTraceEvent()
 {
     //LOG(INFO, "Break on NtTraceEvent");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TraceHandle     = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -10990,9 +10262,7 @@ void monitor::GenericMonitor::on_NtTraceEvent()
     const auto Fields          = nt::cast_to<nt::PVOID>              (args[3]);
 
     for(const auto& it : d_->observers_NtTraceEvent)
-    {
         it(TraceHandle, Flags, FieldSize, Fields);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtTranslateFilePath(proc_t proc, const on_NtTranslateFilePath_fn& on_nttranslatefilepath)
@@ -11008,10 +10278,10 @@ bool monitor::GenericMonitor::register_NtTranslateFilePath(proc_t proc, const on
 void monitor::GenericMonitor::on_NtTranslateFilePath()
 {
     //LOG(INFO, "Break on NtTranslateFilePath");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto InputFilePath   = nt::cast_to<nt::PFILE_PATH>         (args[0]);
@@ -11020,9 +10290,7 @@ void monitor::GenericMonitor::on_NtTranslateFilePath()
     const auto OutputFilePathLength= nt::cast_to<nt::PULONG>             (args[3]);
 
     for(const auto& it : d_->observers_NtTranslateFilePath)
-    {
         it(InputFilePath, OutputType, OutputFilePath, OutputFilePathLength);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtUnloadDriver(proc_t proc, const on_NtUnloadDriver_fn& on_ntunloaddriver)
@@ -11038,18 +10306,16 @@ bool monitor::GenericMonitor::register_NtUnloadDriver(proc_t proc, const on_NtUn
 void monitor::GenericMonitor::on_NtUnloadDriver()
 {
     //LOG(INFO, "Break on NtUnloadDriver");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DriverServiceName= nt::cast_to<nt::PUNICODE_STRING>    (args[0]);
 
     for(const auto& it : d_->observers_NtUnloadDriver)
-    {
         it(DriverServiceName);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtUnloadKey2(proc_t proc, const on_NtUnloadKey2_fn& on_ntunloadkey2)
@@ -11065,19 +10331,17 @@ bool monitor::GenericMonitor::register_NtUnloadKey2(proc_t proc, const on_NtUnlo
 void monitor::GenericMonitor::on_NtUnloadKey2()
 {
     //LOG(INFO, "Break on NtUnloadKey2");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto Flags           = nt::cast_to<nt::ULONG>              (args[1]);
 
     for(const auto& it : d_->observers_NtUnloadKey2)
-    {
         it(TargetKey, Flags);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtUnloadKeyEx(proc_t proc, const on_NtUnloadKeyEx_fn& on_ntunloadkeyex)
@@ -11093,19 +10357,17 @@ bool monitor::GenericMonitor::register_NtUnloadKeyEx(proc_t proc, const on_NtUnl
 void monitor::GenericMonitor::on_NtUnloadKeyEx()
 {
     //LOG(INFO, "Break on NtUnloadKeyEx");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
     const auto Event           = nt::cast_to<nt::HANDLE>             (args[1]);
 
     for(const auto& it : d_->observers_NtUnloadKeyEx)
-    {
         it(TargetKey, Event);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey_fn& on_ntunloadkey)
@@ -11121,18 +10383,16 @@ bool monitor::GenericMonitor::register_NtUnloadKey(proc_t proc, const on_NtUnloa
 void monitor::GenericMonitor::on_NtUnloadKey()
 {
     //LOG(INFO, "Break on NtUnloadKey");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto TargetKey       = nt::cast_to<nt::POBJECT_ATTRIBUTES> (args[0]);
 
     for(const auto& it : d_->observers_NtUnloadKey)
-    {
         it(TargetKey);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtUnlockFile(proc_t proc, const on_NtUnlockFile_fn& on_ntunlockfile)
@@ -11148,10 +10408,10 @@ bool monitor::GenericMonitor::register_NtUnlockFile(proc_t proc, const on_NtUnlo
 void monitor::GenericMonitor::on_NtUnlockFile()
 {
     //LOG(INFO, "Break on NtUnlockFile");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -11161,9 +10421,7 @@ void monitor::GenericMonitor::on_NtUnlockFile()
     const auto Key             = nt::cast_to<nt::ULONG>              (args[4]);
 
     for(const auto& it : d_->observers_NtUnlockFile)
-    {
         it(FileHandle, IoStatusBlock, ByteOffset, Length, Key);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtUnlockVirtualMemory(proc_t proc, const on_NtUnlockVirtualMemory_fn& on_ntunlockvirtualmemory)
@@ -11179,10 +10437,10 @@ bool monitor::GenericMonitor::register_NtUnlockVirtualMemory(proc_t proc, const 
 void monitor::GenericMonitor::on_NtUnlockVirtualMemory()
 {
     //LOG(INFO, "Break on NtUnlockVirtualMemory");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -11191,9 +10449,7 @@ void monitor::GenericMonitor::on_NtUnlockVirtualMemory()
     const auto MapType         = nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_NtUnlockVirtualMemory)
-    {
         it(ProcessHandle, STARBaseAddress, RegionSize, MapType);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtUnmapViewOfSection(proc_t proc, const on_NtUnmapViewOfSection_fn& on_ntunmapviewofsection)
@@ -11209,19 +10465,17 @@ bool monitor::GenericMonitor::register_NtUnmapViewOfSection(proc_t proc, const o
 void monitor::GenericMonitor::on_NtUnmapViewOfSection()
 {
     //LOG(INFO, "Break on NtUnmapViewOfSection");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
     const auto BaseAddress     = nt::cast_to<nt::PVOID>              (args[1]);
 
     for(const auto& it : d_->observers_NtUnmapViewOfSection)
-    {
         it(ProcessHandle, BaseAddress);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtVdmControl(proc_t proc, const on_NtVdmControl_fn& on_ntvdmcontrol)
@@ -11237,19 +10491,17 @@ bool monitor::GenericMonitor::register_NtVdmControl(proc_t proc, const on_NtVdmC
 void monitor::GenericMonitor::on_NtVdmControl()
 {
     //LOG(INFO, "Break on NtVdmControl");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Service         = nt::cast_to<nt::VDMSERVICECLASS>    (args[0]);
     const auto ServiceData     = nt::cast_to<nt::PVOID>              (args[1]);
 
     for(const auto& it : d_->observers_NtVdmControl)
-    {
         it(Service, ServiceData);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtWaitForDebugEvent(proc_t proc, const on_NtWaitForDebugEvent_fn& on_ntwaitfordebugevent)
@@ -11265,10 +10517,10 @@ bool monitor::GenericMonitor::register_NtWaitForDebugEvent(proc_t proc, const on
 void monitor::GenericMonitor::on_NtWaitForDebugEvent()
 {
     //LOG(INFO, "Break on NtWaitForDebugEvent");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto DebugObjectHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -11277,9 +10529,7 @@ void monitor::GenericMonitor::on_NtWaitForDebugEvent()
     const auto WaitStateChange = nt::cast_to<nt::PDBGUI_WAIT_STATE_CHANGE>(args[3]);
 
     for(const auto& it : d_->observers_NtWaitForDebugEvent)
-    {
         it(DebugObjectHandle, Alertable, Timeout, WaitStateChange);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtWaitForKeyedEvent(proc_t proc, const on_NtWaitForKeyedEvent_fn& on_ntwaitforkeyedevent)
@@ -11295,10 +10545,10 @@ bool monitor::GenericMonitor::register_NtWaitForKeyedEvent(proc_t proc, const on
 void monitor::GenericMonitor::on_NtWaitForKeyedEvent()
 {
     //LOG(INFO, "Break on NtWaitForKeyedEvent");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto KeyedEventHandle= nt::cast_to<nt::HANDLE>             (args[0]);
@@ -11307,9 +10557,7 @@ void monitor::GenericMonitor::on_NtWaitForKeyedEvent()
     const auto Timeout         = nt::cast_to<nt::PLARGE_INTEGER>     (args[3]);
 
     for(const auto& it : d_->observers_NtWaitForKeyedEvent)
-    {
         it(KeyedEventHandle, KeyValue, Alertable, Timeout);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtWaitForMultipleObjects32(proc_t proc, const on_NtWaitForMultipleObjects32_fn& on_ntwaitformultipleobjects32)
@@ -11325,10 +10573,10 @@ bool monitor::GenericMonitor::register_NtWaitForMultipleObjects32(proc_t proc, c
 void monitor::GenericMonitor::on_NtWaitForMultipleObjects32()
 {
     //LOG(INFO, "Break on NtWaitForMultipleObjects32");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Count           = nt::cast_to<nt::ULONG>              (args[0]);
@@ -11338,9 +10586,7 @@ void monitor::GenericMonitor::on_NtWaitForMultipleObjects32()
     const auto Timeout         = nt::cast_to<nt::PLARGE_INTEGER>     (args[4]);
 
     for(const auto& it : d_->observers_NtWaitForMultipleObjects32)
-    {
         it(Count, Handles, WaitType, Alertable, Timeout);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtWaitForMultipleObjects(proc_t proc, const on_NtWaitForMultipleObjects_fn& on_ntwaitformultipleobjects)
@@ -11356,10 +10602,10 @@ bool monitor::GenericMonitor::register_NtWaitForMultipleObjects(proc_t proc, con
 void monitor::GenericMonitor::on_NtWaitForMultipleObjects()
 {
     //LOG(INFO, "Break on NtWaitForMultipleObjects");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Count           = nt::cast_to<nt::ULONG>              (args[0]);
@@ -11369,9 +10615,7 @@ void monitor::GenericMonitor::on_NtWaitForMultipleObjects()
     const auto Timeout         = nt::cast_to<nt::PLARGE_INTEGER>     (args[4]);
 
     for(const auto& it : d_->observers_NtWaitForMultipleObjects)
-    {
         it(Count, Handles, WaitType, Alertable, Timeout);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtWaitForSingleObject(proc_t proc, const on_NtWaitForSingleObject_fn& on_ntwaitforsingleobject)
@@ -11387,10 +10631,10 @@ bool monitor::GenericMonitor::register_NtWaitForSingleObject(proc_t proc, const 
 void monitor::GenericMonitor::on_NtWaitForSingleObject()
 {
     //LOG(INFO, "Break on NtWaitForSingleObject");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto Handle          = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -11398,9 +10642,7 @@ void monitor::GenericMonitor::on_NtWaitForSingleObject()
     const auto Timeout         = nt::cast_to<nt::PLARGE_INTEGER>     (args[2]);
 
     for(const auto& it : d_->observers_NtWaitForSingleObject)
-    {
         it(Handle, Alertable, Timeout);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtWaitForWorkViaWorkerFactory(proc_t proc, const on_NtWaitForWorkViaWorkerFactory_fn& on_ntwaitforworkviaworkerfactory)
@@ -11416,19 +10658,17 @@ bool monitor::GenericMonitor::register_NtWaitForWorkViaWorkerFactory(proc_t proc
 void monitor::GenericMonitor::on_NtWaitForWorkViaWorkerFactory()
 {
     //LOG(INFO, "Break on NtWaitForWorkViaWorkerFactory");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto WorkerFactoryHandle= nt::cast_to<nt::HANDLE>             (args[0]);
     const auto MiniPacket      = nt::cast_to<nt::PFILE_IO_COMPLETION_INFORMATION>(args[1]);
 
     for(const auto& it : d_->observers_NtWaitForWorkViaWorkerFactory)
-    {
         it(WorkerFactoryHandle, MiniPacket);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtWaitHighEventPair(proc_t proc, const on_NtWaitHighEventPair_fn& on_ntwaithigheventpair)
@@ -11444,18 +10684,16 @@ bool monitor::GenericMonitor::register_NtWaitHighEventPair(proc_t proc, const on
 void monitor::GenericMonitor::on_NtWaitHighEventPair()
 {
     //LOG(INFO, "Break on NtWaitHighEventPair");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtWaitHighEventPair)
-    {
         it(EventPairHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtWaitLowEventPair(proc_t proc, const on_NtWaitLowEventPair_fn& on_ntwaitloweventpair)
@@ -11471,18 +10709,16 @@ bool monitor::GenericMonitor::register_NtWaitLowEventPair(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtWaitLowEventPair()
 {
     //LOG(INFO, "Break on NtWaitLowEventPair");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto EventPairHandle = nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtWaitLowEventPair)
-    {
         it(EventPairHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtWorkerFactoryWorkerReady(proc_t proc, const on_NtWorkerFactoryWorkerReady_fn& on_ntworkerfactoryworkerready)
@@ -11498,18 +10734,16 @@ bool monitor::GenericMonitor::register_NtWorkerFactoryWorkerReady(proc_t proc, c
 void monitor::GenericMonitor::on_NtWorkerFactoryWorkerReady()
 {
     //LOG(INFO, "Break on NtWorkerFactoryWorkerReady");
-    const auto nargs = 1;
+    constexpr int nargs = 1;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto WorkerFactoryHandle= nt::cast_to<nt::HANDLE>             (args[0]);
 
     for(const auto& it : d_->observers_NtWorkerFactoryWorkerReady)
-    {
         it(WorkerFactoryHandle);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtWriteFileGather(proc_t proc, const on_NtWriteFileGather_fn& on_ntwritefilegather)
@@ -11525,10 +10759,10 @@ bool monitor::GenericMonitor::register_NtWriteFileGather(proc_t proc, const on_N
 void monitor::GenericMonitor::on_NtWriteFileGather()
 {
     //LOG(INFO, "Break on NtWriteFileGather");
-    const auto nargs = 9;
+    constexpr int nargs = 9;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -11542,9 +10776,7 @@ void monitor::GenericMonitor::on_NtWriteFileGather()
     const auto Key             = nt::cast_to<nt::PULONG>             (args[8]);
 
     for(const auto& it : d_->observers_NtWriteFileGather)
-    {
         it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtWriteFile(proc_t proc, const on_NtWriteFile_fn& on_ntwritefile)
@@ -11560,10 +10792,10 @@ bool monitor::GenericMonitor::register_NtWriteFile(proc_t proc, const on_NtWrite
 void monitor::GenericMonitor::on_NtWriteFile()
 {
     //LOG(INFO, "Break on NtWriteFile");
-    const auto nargs = 9;
+    constexpr int nargs = 9;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto FileHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -11577,9 +10809,7 @@ void monitor::GenericMonitor::on_NtWriteFile()
     const auto Key             = nt::cast_to<nt::PULONG>             (args[8]);
 
     for(const auto& it : d_->observers_NtWriteFile)
-    {
         it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtWriteRequestData(proc_t proc, const on_NtWriteRequestData_fn& on_ntwriterequestdata)
@@ -11595,10 +10825,10 @@ bool monitor::GenericMonitor::register_NtWriteRequestData(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtWriteRequestData()
 {
     //LOG(INFO, "Break on NtWriteRequestData");
-    const auto nargs = 6;
+    constexpr int nargs = 6;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto PortHandle      = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -11609,9 +10839,7 @@ void monitor::GenericMonitor::on_NtWriteRequestData()
     const auto NumberOfBytesWritten= nt::cast_to<nt::PSIZE_T>            (args[5]);
 
     for(const auto& it : d_->observers_NtWriteRequestData)
-    {
         it(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesWritten);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtWriteVirtualMemory(proc_t proc, const on_NtWriteVirtualMemory_fn& on_ntwritevirtualmemory)
@@ -11627,10 +10855,10 @@ bool monitor::GenericMonitor::register_NtWriteVirtualMemory(proc_t proc, const o
 void monitor::GenericMonitor::on_NtWriteVirtualMemory()
 {
     //LOG(INFO, "Break on NtWriteVirtualMemory");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto ProcessHandle   = nt::cast_to<nt::HANDLE>             (args[0]);
@@ -11640,9 +10868,7 @@ void monitor::GenericMonitor::on_NtWriteVirtualMemory()
     const auto NumberOfBytesWritten= nt::cast_to<nt::PSIZE_T>            (args[4]);
 
     for(const auto& it : d_->observers_NtWriteVirtualMemory)
-    {
         it(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesWritten);
-    }
 }
 
 bool monitor::GenericMonitor::register_NtDisableLastKnownGood(proc_t proc, const on_NtDisableLastKnownGood_fn& on_ntdisablelastknowngood)
@@ -11658,18 +10884,16 @@ bool monitor::GenericMonitor::register_NtDisableLastKnownGood(proc_t proc, const
 void monitor::GenericMonitor::on_NtDisableLastKnownGood()
 {
     //LOG(INFO, "Break on NtDisableLastKnownGood");
-    const auto nargs = 0;
+    constexpr int nargs = 0;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     
 
     for(const auto& it : d_->observers_NtDisableLastKnownGood)
-    {
         it();
-    }
 }
 
 bool monitor::GenericMonitor::register_NtEnableLastKnownGood(proc_t proc, const on_NtEnableLastKnownGood_fn& on_ntenablelastknowngood)
@@ -11685,18 +10909,16 @@ bool monitor::GenericMonitor::register_NtEnableLastKnownGood(proc_t proc, const 
 void monitor::GenericMonitor::on_NtEnableLastKnownGood()
 {
     //LOG(INFO, "Break on NtEnableLastKnownGood");
-    const auto nargs = 0;
+    constexpr int nargs = 0;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     
 
     for(const auto& it : d_->observers_NtEnableLastKnownGood)
-    {
         it();
-    }
 }
 
 bool monitor::GenericMonitor::register_NtFlushProcessWriteBuffers(proc_t proc, const on_NtFlushProcessWriteBuffers_fn& on_ntflushprocesswritebuffers)
@@ -11712,18 +10934,16 @@ bool monitor::GenericMonitor::register_NtFlushProcessWriteBuffers(proc_t proc, c
 void monitor::GenericMonitor::on_NtFlushProcessWriteBuffers()
 {
     //LOG(INFO, "Break on NtFlushProcessWriteBuffers");
-    const auto nargs = 0;
+    constexpr int nargs = 0;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     
 
     for(const auto& it : d_->observers_NtFlushProcessWriteBuffers)
-    {
         it();
-    }
 }
 
 bool monitor::GenericMonitor::register_NtFlushWriteBuffer(proc_t proc, const on_NtFlushWriteBuffer_fn& on_ntflushwritebuffer)
@@ -11739,18 +10959,16 @@ bool monitor::GenericMonitor::register_NtFlushWriteBuffer(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtFlushWriteBuffer()
 {
     //LOG(INFO, "Break on NtFlushWriteBuffer");
-    const auto nargs = 0;
+    constexpr int nargs = 0;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     
 
     for(const auto& it : d_->observers_NtFlushWriteBuffer)
-    {
         it();
-    }
 }
 
 bool monitor::GenericMonitor::register_NtGetCurrentProcessorNumber(proc_t proc, const on_NtGetCurrentProcessorNumber_fn& on_ntgetcurrentprocessornumber)
@@ -11766,18 +10984,16 @@ bool monitor::GenericMonitor::register_NtGetCurrentProcessorNumber(proc_t proc, 
 void monitor::GenericMonitor::on_NtGetCurrentProcessorNumber()
 {
     //LOG(INFO, "Break on NtGetCurrentProcessorNumber");
-    const auto nargs = 0;
+    constexpr int nargs = 0;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     
 
     for(const auto& it : d_->observers_NtGetCurrentProcessorNumber)
-    {
         it();
-    }
 }
 
 bool monitor::GenericMonitor::register_NtIsSystemResumeAutomatic(proc_t proc, const on_NtIsSystemResumeAutomatic_fn& on_ntissystemresumeautomatic)
@@ -11793,18 +11009,16 @@ bool monitor::GenericMonitor::register_NtIsSystemResumeAutomatic(proc_t proc, co
 void monitor::GenericMonitor::on_NtIsSystemResumeAutomatic()
 {
     //LOG(INFO, "Break on NtIsSystemResumeAutomatic");
-    const auto nargs = 0;
+    constexpr int nargs = 0;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     
 
     for(const auto& it : d_->observers_NtIsSystemResumeAutomatic)
-    {
         it();
-    }
 }
 
 bool monitor::GenericMonitor::register_NtIsUILanguageComitted(proc_t proc, const on_NtIsUILanguageComitted_fn& on_ntisuilanguagecomitted)
@@ -11820,18 +11034,16 @@ bool monitor::GenericMonitor::register_NtIsUILanguageComitted(proc_t proc, const
 void monitor::GenericMonitor::on_NtIsUILanguageComitted()
 {
     //LOG(INFO, "Break on NtIsUILanguageComitted");
-    const auto nargs = 0;
+    constexpr int nargs = 0;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     
 
     for(const auto& it : d_->observers_NtIsUILanguageComitted)
-    {
         it();
-    }
 }
 
 bool monitor::GenericMonitor::register_NtQueryPortInformationProcess(proc_t proc, const on_NtQueryPortInformationProcess_fn& on_ntqueryportinformationprocess)
@@ -11847,18 +11059,16 @@ bool monitor::GenericMonitor::register_NtQueryPortInformationProcess(proc_t proc
 void monitor::GenericMonitor::on_NtQueryPortInformationProcess()
 {
     //LOG(INFO, "Break on NtQueryPortInformationProcess");
-    const auto nargs = 0;
+    constexpr int nargs = 0;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     
 
     for(const auto& it : d_->observers_NtQueryPortInformationProcess)
-    {
         it();
-    }
 }
 
 bool monitor::GenericMonitor::register_NtSerializeBoot(proc_t proc, const on_NtSerializeBoot_fn& on_ntserializeboot)
@@ -11874,18 +11084,16 @@ bool monitor::GenericMonitor::register_NtSerializeBoot(proc_t proc, const on_NtS
 void monitor::GenericMonitor::on_NtSerializeBoot()
 {
     //LOG(INFO, "Break on NtSerializeBoot");
-    const auto nargs = 0;
+    constexpr int nargs = 0;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     
 
     for(const auto& it : d_->observers_NtSerializeBoot)
-    {
         it();
-    }
 }
 
 bool monitor::GenericMonitor::register_NtTestAlert(proc_t proc, const on_NtTestAlert_fn& on_nttestalert)
@@ -11901,18 +11109,16 @@ bool monitor::GenericMonitor::register_NtTestAlert(proc_t proc, const on_NtTestA
 void monitor::GenericMonitor::on_NtTestAlert()
 {
     //LOG(INFO, "Break on NtTestAlert");
-    const auto nargs = 0;
+    constexpr int nargs = 0;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     
 
     for(const auto& it : d_->observers_NtTestAlert)
-    {
         it();
-    }
 }
 
 bool monitor::GenericMonitor::register_NtThawRegistry(proc_t proc, const on_NtThawRegistry_fn& on_ntthawregistry)
@@ -11928,18 +11134,16 @@ bool monitor::GenericMonitor::register_NtThawRegistry(proc_t proc, const on_NtTh
 void monitor::GenericMonitor::on_NtThawRegistry()
 {
     //LOG(INFO, "Break on NtThawRegistry");
-    const auto nargs = 0;
+    constexpr int nargs = 0;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     
 
     for(const auto& it : d_->observers_NtThawRegistry)
-    {
         it();
-    }
 }
 
 bool monitor::GenericMonitor::register_NtThawTransactions(proc_t proc, const on_NtThawTransactions_fn& on_ntthawtransactions)
@@ -11955,18 +11159,16 @@ bool monitor::GenericMonitor::register_NtThawTransactions(proc_t proc, const on_
 void monitor::GenericMonitor::on_NtThawTransactions()
 {
     //LOG(INFO, "Break on NtThawTransactions");
-    const auto nargs = 0;
+    constexpr int nargs = 0;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     
 
     for(const auto& it : d_->observers_NtThawTransactions)
-    {
         it();
-    }
 }
 
 bool monitor::GenericMonitor::register_NtUmsThreadYield(proc_t proc, const on_NtUmsThreadYield_fn& on_ntumsthreadyield)
@@ -11982,18 +11184,16 @@ bool monitor::GenericMonitor::register_NtUmsThreadYield(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtUmsThreadYield()
 {
     //LOG(INFO, "Break on NtUmsThreadYield");
-    const auto nargs = 0;
+    constexpr int nargs = 0;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     
 
     for(const auto& it : d_->observers_NtUmsThreadYield)
-    {
         it();
-    }
 }
 
 bool monitor::GenericMonitor::register_NtYieldExecution(proc_t proc, const on_NtYieldExecution_fn& on_ntyieldexecution)
@@ -12009,18 +11209,16 @@ bool monitor::GenericMonitor::register_NtYieldExecution(proc_t proc, const on_Nt
 void monitor::GenericMonitor::on_NtYieldExecution()
 {
     //LOG(INFO, "Break on NtYieldExecution");
-    const auto nargs = 0;
+    constexpr int nargs = 0;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     
 
     for(const auto& it : d_->observers_NtYieldExecution)
-    {
         it();
-    }
 }
 
 bool monitor::GenericMonitor::register_RtlpAllocateHeapInternal(proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_rtlpallocateheapinternal)
@@ -12036,19 +11234,17 @@ bool monitor::GenericMonitor::register_RtlpAllocateHeapInternal(proc_t proc, con
 void monitor::GenericMonitor::on_RtlpAllocateHeapInternal()
 {
     //LOG(INFO, "Break on RtlpAllocateHeapInternal");
-    const auto nargs = 2;
+    constexpr int nargs = 2;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto HeapHandle      = nt::cast_to<nt::PVOID>              (args[0]);
     const auto Size            = nt::cast_to<nt::SIZE_T>             (args[1]);
 
     for(const auto& it : d_->observers_RtlpAllocateHeapInternal)
-    {
         it(HeapHandle, Size);
-    }
 }
 
 bool monitor::GenericMonitor::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& on_rtlfreeheap)
@@ -12064,10 +11260,10 @@ bool monitor::GenericMonitor::register_RtlFreeHeap(proc_t proc, const on_RtlFree
 void monitor::GenericMonitor::on_RtlFreeHeap()
 {
     //LOG(INFO, "Break on RtlFreeHeap");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto HeapHandle      = nt::cast_to<nt::PVOID>              (args[0]);
@@ -12075,9 +11271,7 @@ void monitor::GenericMonitor::on_RtlFreeHeap()
     const auto BaseAddress     = nt::cast_to<nt::PVOID>              (args[2]);
 
     for(const auto& it : d_->observers_RtlFreeHeap)
-    {
         it(HeapHandle, Flags, BaseAddress);
-    }
 }
 
 bool monitor::GenericMonitor::register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_rtlpreallocateheapinternal)
@@ -12093,10 +11287,10 @@ bool monitor::GenericMonitor::register_RtlpReAllocateHeapInternal(proc_t proc, c
 void monitor::GenericMonitor::on_RtlpReAllocateHeapInternal()
 {
     //LOG(INFO, "Break on RtlpReAllocateHeapInternal");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto HeapHandle      = nt::cast_to<nt::PVOID>              (args[0]);
@@ -12105,9 +11299,7 @@ void monitor::GenericMonitor::on_RtlpReAllocateHeapInternal()
     const auto Size            = nt::cast_to<nt::ULONG>              (args[3]);
 
     for(const auto& it : d_->observers_RtlpReAllocateHeapInternal)
-    {
         it(HeapHandle, Flags, BaseAddress, Size);
-    }
 }
 
 bool monitor::GenericMonitor::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn& on_rtlsizeheap)
@@ -12123,10 +11315,10 @@ bool monitor::GenericMonitor::register_RtlSizeHeap(proc_t proc, const on_RtlSize
 void monitor::GenericMonitor::on_RtlSizeHeap()
 {
     //LOG(INFO, "Break on RtlSizeHeap");
-    const auto nargs = 3;
+    constexpr int nargs = 3;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto HeapHandle      = nt::cast_to<nt::PVOID>              (args[0]);
@@ -12134,9 +11326,7 @@ void monitor::GenericMonitor::on_RtlSizeHeap()
     const auto BaseAddress     = nt::cast_to<nt::PVOID>              (args[2]);
 
     for(const auto& it : d_->observers_RtlSizeHeap)
-    {
         it(HeapHandle, Flags, BaseAddress);
-    }
 }
 
 bool monitor::GenericMonitor::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUserValueHeap_fn& on_rtlsetuservalueheap)
@@ -12152,10 +11342,10 @@ bool monitor::GenericMonitor::register_RtlSetUserValueHeap(proc_t proc, const on
 void monitor::GenericMonitor::on_RtlSetUserValueHeap()
 {
     //LOG(INFO, "Break on RtlSetUserValueHeap");
-    const auto nargs = 4;
+    constexpr int nargs = 4;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto HeapHandle      = nt::cast_to<nt::PVOID>              (args[0]);
@@ -12164,9 +11354,7 @@ void monitor::GenericMonitor::on_RtlSetUserValueHeap()
     const auto UserValue       = nt::cast_to<nt::PVOID>              (args[3]);
 
     for(const auto& it : d_->observers_RtlSetUserValueHeap)
-    {
         it(HeapHandle, Flags, BaseAddress, UserValue);
-    }
 }
 
 bool monitor::GenericMonitor::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfoHeap_fn& on_rtlgetuserinfoheap)
@@ -12182,10 +11370,10 @@ bool monitor::GenericMonitor::register_RtlGetUserInfoHeap(proc_t proc, const on_
 void monitor::GenericMonitor::on_RtlGetUserInfoHeap()
 {
     //LOG(INFO, "Break on RtlGetUserInfoHeap");
-    const auto nargs = 5;
+    constexpr int nargs = 5;
 
     std::vector<arg_t> args;
-    if(nargs > 0)
+    if constexpr(nargs > 0)
         get_raw_args(nargs, [&](arg_t arg) { args.push_back(arg); return WALK_NEXT; });
 
     const auto HeapHandle      = nt::cast_to<nt::PVOID>              (args[0]);
@@ -12195,7 +11383,5 @@ void monitor::GenericMonitor::on_RtlGetUserInfoHeap()
     const auto UserFlags       = nt::cast_to<nt::PULONG>             (args[4]);
 
     for(const auto& it : d_->observers_RtlGetUserInfoHeap)
-    {
         it(HeapHandle, Flags, BaseAddress, UserValue, UserFlags);
-    }
 }
