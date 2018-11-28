@@ -311,8 +311,8 @@ bool CallstackNt::get_callstack (proc_t proc, uint64_t rip, uint64_t rsp, uint64
             ctx.rsp = ctx.rbp - function_entry->frame_reg_offset;
 
         if (function_entry->prev_frame_reg != 0)
-            ctx.rbp = *(core::read_ptr(core_, ctx.rsp+function_entry->prev_frame_reg));
-
+            if(const auto rbp_ = core::read_ptr(core_, ctx.rsp + function_entry->prev_frame_reg))
+                ctx.rbp = *rbp_;
 
         // print stack
 #ifdef USE_DEBUG_PRINT

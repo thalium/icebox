@@ -71,10 +71,12 @@ return_t<uint64_t> monitor::get_return_value(core::Core& core, proc_t proc)
         const auto bp = core.state.set_breakpoint(*return_addr, proc, core::FILTER_CR3);
 
         //Should we set a callback ?
+        return_t<uint64_t> rip;
         do {
             core.state.resume();
             core.state.wait();
-        } while(*return_addr != *(core.regs.read(FDP_RIP_REGISTER)) || thread_curr->id != (core.os->thread_current())->id);
+            rip = core.regs.read(FDP_RIP_REGISTER);
+        } while(*return_addr != *rip || thread_curr->id != (core.os->thread_current())->id);
 
     }
     return core.regs.read(FDP_RAX_REGISTER);
