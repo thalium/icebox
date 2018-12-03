@@ -6,14 +6,11 @@
 
 #include "utils/file.hpp"
 #include "utils/json.hpp"
-#include "utils/sanitizer.hpp"
 
 #include <unordered_map>
 
 namespace
 {
-    using json = nlohmann::json;
-
     struct callstack_frame_t
     {
         uint64_t idx;
@@ -25,27 +22,58 @@ namespace
         callstack_frame_t cs_frame;
         uint64_t          args_idx;
     };
+
+    using json        = nlohmann::json;
+    using Callsteps   = std::vector<callstack::callstep_t>;
+    using Triggers    = std::vector<bp_trigger_info_t>;
+    using SyscallData = syscall_tracer::SyscallPlugin::Data;
 }
 
 struct syscall_tracer::SyscallPlugin::Data
 {
-    proc_t                             target;
-    uint64_t                           trigger_nbr;
-    std::vector<callstack::callstep_t> callsteps;
-    std::vector<bp_trigger_info_t>     bp_trigger_infos;
-    json                               args;
+    Data(core::Core& core, pe::Pe& pe);
+
+    core::Core&                            core_;
+    pe::Pe&                                pe_;
+    monitor::GenericMonitor                monitor_;
+    std::shared_ptr<callstack::ICallstack> callstack_;
+    std::shared_ptr<nt::ObjectNt>          objects_;
+    Callsteps                              callsteps_;
+    Triggers                               triggers_;
+    json                                   args_;
+    proc_t                                 target_;
+    uint64_t                               nb_triggers_;
 };
+
+syscall_tracer::SyscallPlugin::Data::Data(core::Core& core, pe::Pe& pe)
+    : core_(core)
+    , pe_(pe)
+    , monitor_(core)
+    , target_()
+    , nb_triggers_()
+{
+}
+
+syscall_tracer::SyscallPlugin::SyscallPlugin(core::Core& core, pe::Pe& pe)
+    : d_(std::make_unique<Data>(core, pe))
+{
+}
+
+syscall_tracer::SyscallPlugin::~SyscallPlugin()
+{
+}
 
 namespace
 {
-    json create_calltree(core::Core& core, proc_t target, const std::vector<callstack::callstep_t>& callsteps, std::vector<bp_trigger_info_t>& bp_trigger_infos, json& args)
+    json create_calltree(core::Core& core, Triggers& triggers, json& args, proc_t target, const Callsteps& callsteps)
     {
-        json                                                         calltree;
-        std::unordered_map<uint64_t, std::vector<bp_trigger_info_t>> intermediate_tree;
-        std::vector<bp_trigger_info_t>                               end_nodes;
+        using TriggersHash = std::unordered_map<uint64_t, Triggers>;
+        json         calltree;
+        Triggers     end_nodes;
+        TriggersHash intermediate_tree;
 
         // Prepare nodes
-        for(auto& info : bp_trigger_infos)
+        for(auto& info : triggers)
         {
             if(info.cs_frame.size == 0)
             {
@@ -53,10 +81,9 @@ namespace
                 continue;
             }
 
-            uint64_t addr = callsteps[info.cs_frame.idx + info.cs_frame.size - 1].addr;
-
+            const auto addr = callsteps[info.cs_frame.idx + info.cs_frame.size - 1].addr;
             if(intermediate_tree.find(addr) == intermediate_tree.end())
-                intermediate_tree[addr] = std::vector<bp_trigger_info_t>();
+                intermediate_tree[addr] = {};
 
             info.cs_frame.size--;
             intermediate_tree[addr].push_back(info);
@@ -69,143 +96,118 @@ namespace
             if(!cursor)
                 cursor = sym::Cursor{"NoMod", "nosymbol>", it.first};
 
-            calltree[sym::to_string(*cursor).data()] = create_calltree(core, target, callsteps, it.second, args);
+            calltree[sym::to_string(*cursor).data()] = create_calltree(core, it.second, args, target, callsteps);
         }
 
         // Place args (contained in a json that was made by the observer) on end nodes
-        int j = 0;
+        size_t i = 0;
         for(const auto& end_node : end_nodes)
-            calltree["Args"][j++] = args[end_node.args_idx];
+            calltree["Args"][i++] = args[end_node.args_idx];
 
         return calltree;
     }
 
-}
+    bool private_get_callstack(SyscallData& d)
+    {
+        constexpr size_t cs_max_depth = 70;
 
-syscall_tracer::SyscallPlugin::SyscallPlugin(core::Core& core, pe::Pe& pe)
-    : d_(std::make_unique<Data>())
-    , core_(core)
-    , pe_(pe)
-    , generic_monitor_(core)
-{
-}
+        const auto idx = d.callsteps_.size();
+        size_t cs_size = 0;
+        const auto rip = d.core_.regs.read(FDP_RIP_REGISTER);
+        const auto rsp = d.core_.regs.read(FDP_RSP_REGISTER);
+        const auto rbp = d.core_.regs.read(FDP_RBP_REGISTER);
+        d.callstack_->get_callstack(d.target_, *rip, *rsp, *rbp, [&](callstack::callstep_t cstep)
+        {
+            d.callsteps_.push_back(cstep);
 
-syscall_tracer::SyscallPlugin::~SyscallPlugin()
-{
+            if(false)
+            {
+                auto cursor = d.core_.sym.find(cstep.addr);
+                if(!cursor)
+                    cursor = sym::Cursor{"NoMod", "<nosymbol>", cstep.addr};
+
+                LOG(INFO, "%" PRId64 " - %s", cs_size, sym::to_string(*cursor).data());
+            }
+
+            cs_size++;
+            if(cs_size < cs_max_depth)
+                return WALK_NEXT;
+
+            return WALK_STOP;
+        });
+
+        d.triggers_.push_back(bp_trigger_info_t{idx, cs_size, d.nb_triggers_});
+        return true;
+    }
 }
 
 bool syscall_tracer::SyscallPlugin::setup(proc_t target)
 {
-    d_->target      = target;
-    d_->trigger_nbr = 0;
+    d_->target_      = target;
+    d_->nb_triggers_ = 0;
 
-    callstack_ = callstack::make_callstack_nt(core_, pe_);
-    if(!callstack_)
+    d_->callstack_ = callstack::make_callstack_nt(d_->core_, d_->pe_);
+    if(!d_->callstack_)
         FAIL(false, "Unable to create callstack object");
 
-    objects_nt_ = nt::make_objectnt(core_);
-    if(!objects_nt_)
+    d_->objects_ = nt::make_objectnt(d_->core_);
+    if(!d_->objects_)
         FAIL(false, "Unable to create ObjectNt object");
 
-    // Register NtWriteFile observer
-    generic_monitor_.register_NtWriteFile(target, [&](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine, nt::PVOID ApcContext,
-                                                      nt::PIO_STATUS_BLOCK IoStatusBlock, nt::PVOID Buffer, nt::ULONG Length,
-                                                      nt::PLARGE_INTEGER ByteOffsetm, nt::PULONG Key)
+    d_->monitor_.register_NtWriteFile(target, [=](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine, nt::PVOID ApcContext,
+                                                  nt::PIO_STATUS_BLOCK IoStatusBlock, nt::PVOID Buffer, nt::ULONG Length,
+                                                  nt::PLARGE_INTEGER ByteOffsetm, nt::PULONG Key)
     {
         LOG(INFO, "NtWriteFile : %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64,
             FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffsetm, Key);
 
-        std::vector<uint8_t> buf;
-        buf.resize(Length);
-        auto ok = core_.mem.virtual_read(&buf[0], Buffer, Length);
+        std::vector<char> buf(Length);
+        auto ok = d_->core_.mem.virtual_read(&buf[0], Buffer, Length);
+        buf[Length - 1] = 0;
         if(!ok)
             return 1;
 
-        char* dst = reinterpret_cast<char*>(&buf[0]);
-        dst[Length - 1] = '\0';
-
-        const auto obj          = objects_nt_->get_object_ref(d_->target, FileHandle);
-        const auto obj_typename = objects_nt_->obj_typename(*obj);
-        const auto obj_filename = objects_nt_->fileobj_filename(*obj);
-
-        const auto device_obj  = objects_nt_->fileobj_deviceobject(*obj);
-        const auto driver_obj  = objects_nt_->deviceobj_driverobject(*device_obj);
-        const auto driver_name = objects_nt_->driverobj_drivername(*driver_obj);
+        const auto obj          = d_->objects_->get_object_ref(d_->target_, FileHandle);
+        const auto obj_typename = d_->objects_->obj_typename(*obj);
+        const auto obj_filename = d_->objects_->fileobj_filename(*obj);
+        const auto device_obj   = d_->objects_->fileobj_deviceobject(*obj);
+        const auto driver_obj   = d_->objects_->deviceobj_driverobject(*device_obj);
+        const auto driver_name  = d_->objects_->driverobj_drivername(*driver_obj);
         LOG(INFO, " File handle; %" PRIx64 ", typename : %s, filename : %s, driver_name : %s", FileHandle, obj_typename->data(), obj_filename->data(), driver_name->data());
 
-        d_->args[d_->trigger_nbr]["FileName"] = obj_filename->data();
-        d_->args[d_->trigger_nbr]["Buffer"]   = dst;
-
-        private_get_callstack();
-        d_->trigger_nbr++;
+        d_->args_[d_->nb_triggers_]["FileName"] = obj_filename->data();
+        d_->args_[d_->nb_triggers_]["Buffer"]   = buf;
+        private_get_callstack(*d_);
+        d_->nb_triggers_++;
         return 0;
     });
 
-    // Register NtClose observer
-    generic_monitor_.register_NtClose(target, [&](nt::HANDLE paramHandle)
+    d_->monitor_.register_NtClose(target, [=](nt::HANDLE paramHandle)
     {
         LOG(INFO, "NtClose : %" PRIx64, paramHandle);
-
-        d_->args[d_->trigger_nbr]["Handle"] = paramHandle;
-
-        private_get_callstack();
-        d_->trigger_nbr++;
+        d_->args_[d_->nb_triggers_]["Handle"] = paramHandle;
+        private_get_callstack(*d_);
+        d_->nb_triggers_++;
         return 0;
     });
 
-    // Register NtDeviceIoControlFile observer
-    generic_monitor_.register_NtDeviceIoControlFile(target, [&](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine,
-                                                                nt::PVOID ApcContext, nt::PIO_STATUS_BLOCK IoStatusBlock, nt::ULONG IoControlCode,
-                                                                nt::PVOID InputBuffer, nt::ULONG InputBufferLength, nt::PVOID OutputBuffer,
-                                                                nt::ULONG OutputBufferLength)
+    d_->monitor_.register_NtDeviceIoControlFile(target, [=](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine,
+                                                            nt::PVOID ApcContext, nt::PIO_STATUS_BLOCK IoStatusBlock, nt::ULONG IoControlCode,
+                                                            nt::PVOID InputBuffer, nt::ULONG InputBufferLength, nt::PVOID OutputBuffer,
+                                                            nt::ULONG OutputBufferLength)
     {
         LOG(INFO, " NtDeviceIoControlFile : %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64,
             FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
-
         return 0;
     });
 
     return true;
 }
 
-bool syscall_tracer::SyscallPlugin::private_get_callstack()
+bool syscall_tracer::SyscallPlugin::generate(const fs::path& file_name)
 {
-    const auto cs_depth = 70;
-
-    uint64_t idx = d_->callsteps.size();
-    uint64_t cs_size = 0;
-    const auto rip = core_.regs.read(FDP_RIP_REGISTER);
-    const auto rsp = core_.regs.read(FDP_RSP_REGISTER);
-    const auto rbp = core_.regs.read(FDP_RBP_REGISTER);
-    callstack_->get_callstack(d_->target, *rip, *rsp, *rbp, [&](callstack::callstep_t cstep)
-    {
-        d_->callsteps.push_back(cstep);
-
-        if(false)
-        {
-            auto cursor = core_.sym.find(cstep.addr);
-            if(!cursor)
-                cursor = sym::Cursor{"NoMod", "<nosymbol>", cstep.addr};
-
-            LOG(INFO, "%" PRId64 " - %s", cs_size, sym::to_string(*cursor).data());
-        }
-
-        cs_size++;
-        if(cs_size < cs_depth)
-            return WALK_NEXT;
-
-        return WALK_STOP;
-    });
-
-    d_->bp_trigger_infos.push_back(bp_trigger_info_t{idx, cs_size, d_->trigger_nbr});
-    return true;
-}
-
-bool syscall_tracer::SyscallPlugin::produce_output(std::string file_name)
-{
-    std::vector<bp_trigger_info_t> frames = d_->bp_trigger_infos;
-    const json output = create_calltree(core_, d_->target, d_->callsteps, frames, d_->args);
-    const auto dump = output.dump();
-    file::write(file_name, dump.data(), dump.size());
-    return true;
+    const auto output = create_calltree(d_->core_, d_->triggers_, d_->args_, d_->target_, d_->callsteps_);
+    const auto dump   = output.dump();
+    const auto ok     = file::write(file_name, dump.data(), dump.size());
+    return !!ok;
 }

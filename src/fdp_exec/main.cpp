@@ -174,7 +174,7 @@ namespace
                 core.state.wait();
             }
 
-            syscall_plugin.produce_output("output.json");
+            syscall_plugin.generate("output.json");
         }
 
         return true;

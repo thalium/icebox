@@ -16,17 +16,10 @@ namespace syscall_tracer
          SyscallPlugin(core::Core& core, pe::Pe& pe);
         ~SyscallPlugin();
 
-        bool    setup                   (proc_t target);
-        bool    private_get_callstack   ();
-        bool    produce_output          (std::string file_name);
+        bool    setup   (proc_t target);
+        bool    generate(const fs::path& file_name);
 
         struct Data;
         std::unique_ptr<Data> d_;
-
-        core::Core&                            core_;
-        pe::Pe&                                pe_;
-        monitor::GenericMonitor                generic_monitor_;
-        std::shared_ptr<callstack::ICallstack> callstack_;
-        std::shared_ptr<nt::ObjectNt>          objects_nt_;
     };
 } // namespace syscall_tracer
