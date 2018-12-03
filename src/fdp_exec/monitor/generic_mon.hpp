@@ -10,7 +10,7 @@
 
 namespace monitor
 {
-    DECLARE_SYSCALLS_CALLBACK_PROTOS
+    DECLARE_SYSCALLS_CALLBACK_PROTOS;
 
     struct GenericMonitor
     {
@@ -23,7 +23,7 @@ namespace monitor
         bool    setup_all   (proc_t proc, on_function_generic_fn& on_function_generic);
         bool    setup_func  (proc_t proc, std::string fname);
 
-        DECLARE_SYSCALLS_FUNCTIONS_PROTOS
+        DECLARE_SYSCALLS_FUNCTIONS_PROTOS;
 
         struct Data;
         std::unique_ptr<Data> d_;

@@ -7,7 +7,7 @@ bool monitor::GenericMonitor::register_NtAcceptConnectPort(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtAcceptConnectPort");
     if(!ok)
-        FAIL(false, "Unable to register NtAcceptConnectPort");
+        FAIL(false, "unable to register NtAcceptConnectPort");
 
     d_->observers_NtAcceptConnectPort.push_back(on_func);
     return true;
@@ -33,7 +33,7 @@ bool monitor::GenericMonitor::register_NtAccessCheckAndAuditAlarm(proc_t proc, c
 {
     const auto ok = setup_func(proc, "NtAccessCheckAndAuditAlarm");
     if(!ok)
-        FAIL(false, "Unable to register NtAccessCheckAndAuditAlarm");
+        FAIL(false, "unable to register NtAccessCheckAndAuditAlarm");
 
     d_->observers_NtAccessCheckAndAuditAlarm.push_back(on_func);
     return true;
@@ -64,7 +64,7 @@ bool monitor::GenericMonitor::register_NtAccessCheckByTypeAndAuditAlarm(proc_t p
 {
     const auto ok = setup_func(proc, "NtAccessCheckByTypeAndAuditAlarm");
     if(!ok)
-        FAIL(false, "Unable to register NtAccessCheckByTypeAndAuditAlarm");
+        FAIL(false, "unable to register NtAccessCheckByTypeAndAuditAlarm");
 
     d_->observers_NtAccessCheckByTypeAndAuditAlarm.push_back(on_func);
     return true;
@@ -100,7 +100,7 @@ bool monitor::GenericMonitor::register_NtAccessCheckByType(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtAccessCheckByType");
     if(!ok)
-        FAIL(false, "Unable to register NtAccessCheckByType");
+        FAIL(false, "unable to register NtAccessCheckByType");
 
     d_->observers_NtAccessCheckByType.push_back(on_func);
     return true;
@@ -131,7 +131,7 @@ bool monitor::GenericMonitor::register_NtAccessCheckByTypeResultListAndAuditAlar
 {
     const auto ok = setup_func(proc, "NtAccessCheckByTypeResultListAndAuditAlarmByHandle");
     if(!ok)
-        FAIL(false, "Unable to register NtAccessCheckByTypeResultListAndAuditAlarmByHandle");
+        FAIL(false, "unable to register NtAccessCheckByTypeResultListAndAuditAlarmByHandle");
 
     d_->observers_NtAccessCheckByTypeResultListAndAuditAlarmByHandle.push_back(on_func);
     return true;
@@ -168,7 +168,7 @@ bool monitor::GenericMonitor::register_NtAccessCheckByTypeResultListAndAuditAlar
 {
     const auto ok = setup_func(proc, "NtAccessCheckByTypeResultListAndAuditAlarm");
     if(!ok)
-        FAIL(false, "Unable to register NtAccessCheckByTypeResultListAndAuditAlarm");
+        FAIL(false, "unable to register NtAccessCheckByTypeResultListAndAuditAlarm");
 
     d_->observers_NtAccessCheckByTypeResultListAndAuditAlarm.push_back(on_func);
     return true;
@@ -204,7 +204,7 @@ bool monitor::GenericMonitor::register_NtAccessCheckByTypeResultList(proc_t proc
 {
     const auto ok = setup_func(proc, "NtAccessCheckByTypeResultList");
     if(!ok)
-        FAIL(false, "Unable to register NtAccessCheckByTypeResultList");
+        FAIL(false, "unable to register NtAccessCheckByTypeResultList");
 
     d_->observers_NtAccessCheckByTypeResultList.push_back(on_func);
     return true;
@@ -235,7 +235,7 @@ bool monitor::GenericMonitor::register_NtAccessCheck(proc_t proc, const on_NtAcc
 {
     const auto ok = setup_func(proc, "NtAccessCheck");
     if(!ok)
-        FAIL(false, "Unable to register NtAccessCheck");
+        FAIL(false, "unable to register NtAccessCheck");
 
     d_->observers_NtAccessCheck.push_back(on_func);
     return true;
@@ -263,7 +263,7 @@ bool monitor::GenericMonitor::register_NtAddAtom(proc_t proc, const on_NtAddAtom
 {
     const auto ok = setup_func(proc, "NtAddAtom");
     if(!ok)
-        FAIL(false, "Unable to register NtAddAtom");
+        FAIL(false, "unable to register NtAddAtom");
 
     d_->observers_NtAddAtom.push_back(on_func);
     return true;
@@ -286,7 +286,7 @@ bool monitor::GenericMonitor::register_NtAddBootEntry(proc_t proc, const on_NtAd
 {
     const auto ok = setup_func(proc, "NtAddBootEntry");
     if(!ok)
-        FAIL(false, "Unable to register NtAddBootEntry");
+        FAIL(false, "unable to register NtAddBootEntry");
 
     d_->observers_NtAddBootEntry.push_back(on_func);
     return true;
@@ -308,7 +308,7 @@ bool monitor::GenericMonitor::register_NtAddDriverEntry(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtAddDriverEntry");
     if(!ok)
-        FAIL(false, "Unable to register NtAddDriverEntry");
+        FAIL(false, "unable to register NtAddDriverEntry");
 
     d_->observers_NtAddDriverEntry.push_back(on_func);
     return true;
@@ -330,7 +330,7 @@ bool monitor::GenericMonitor::register_NtAdjustGroupsToken(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtAdjustGroupsToken");
     if(!ok)
-        FAIL(false, "Unable to register NtAdjustGroupsToken");
+        FAIL(false, "unable to register NtAdjustGroupsToken");
 
     d_->observers_NtAdjustGroupsToken.push_back(on_func);
     return true;
@@ -356,7 +356,7 @@ bool monitor::GenericMonitor::register_NtAdjustPrivilegesToken(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtAdjustPrivilegesToken");
     if(!ok)
-        FAIL(false, "Unable to register NtAdjustPrivilegesToken");
+        FAIL(false, "unable to register NtAdjustPrivilegesToken");
 
     d_->observers_NtAdjustPrivilegesToken.push_back(on_func);
     return true;
@@ -382,7 +382,7 @@ bool monitor::GenericMonitor::register_NtAlertResumeThread(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtAlertResumeThread");
     if(!ok)
-        FAIL(false, "Unable to register NtAlertResumeThread");
+        FAIL(false, "unable to register NtAlertResumeThread");
 
     d_->observers_NtAlertResumeThread.push_back(on_func);
     return true;
@@ -404,7 +404,7 @@ bool monitor::GenericMonitor::register_NtAlertThread(proc_t proc, const on_NtAle
 {
     const auto ok = setup_func(proc, "NtAlertThread");
     if(!ok)
-        FAIL(false, "Unable to register NtAlertThread");
+        FAIL(false, "unable to register NtAlertThread");
 
     d_->observers_NtAlertThread.push_back(on_func);
     return true;
@@ -425,7 +425,7 @@ bool monitor::GenericMonitor::register_NtAllocateLocallyUniqueId(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtAllocateLocallyUniqueId");
     if(!ok)
-        FAIL(false, "Unable to register NtAllocateLocallyUniqueId");
+        FAIL(false, "unable to register NtAllocateLocallyUniqueId");
 
     d_->observers_NtAllocateLocallyUniqueId.push_back(on_func);
     return true;
@@ -446,7 +446,7 @@ bool monitor::GenericMonitor::register_NtAllocateReserveObject(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtAllocateReserveObject");
     if(!ok)
-        FAIL(false, "Unable to register NtAllocateReserveObject");
+        FAIL(false, "unable to register NtAllocateReserveObject");
 
     d_->observers_NtAllocateReserveObject.push_back(on_func);
     return true;
@@ -469,7 +469,7 @@ bool monitor::GenericMonitor::register_NtAllocateUserPhysicalPages(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtAllocateUserPhysicalPages");
     if(!ok)
-        FAIL(false, "Unable to register NtAllocateUserPhysicalPages");
+        FAIL(false, "unable to register NtAllocateUserPhysicalPages");
 
     d_->observers_NtAllocateUserPhysicalPages.push_back(on_func);
     return true;
@@ -492,7 +492,7 @@ bool monitor::GenericMonitor::register_NtAllocateUuids(proc_t proc, const on_NtA
 {
     const auto ok = setup_func(proc, "NtAllocateUuids");
     if(!ok)
-        FAIL(false, "Unable to register NtAllocateUuids");
+        FAIL(false, "unable to register NtAllocateUuids");
 
     d_->observers_NtAllocateUuids.push_back(on_func);
     return true;
@@ -516,7 +516,7 @@ bool monitor::GenericMonitor::register_NtAllocateVirtualMemory(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtAllocateVirtualMemory");
     if(!ok)
-        FAIL(false, "Unable to register NtAllocateVirtualMemory");
+        FAIL(false, "unable to register NtAllocateVirtualMemory");
 
     d_->observers_NtAllocateVirtualMemory.push_back(on_func);
     return true;
@@ -542,7 +542,7 @@ bool monitor::GenericMonitor::register_NtAlpcAcceptConnectPort(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtAlpcAcceptConnectPort");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcAcceptConnectPort");
+        FAIL(false, "unable to register NtAlpcAcceptConnectPort");
 
     d_->observers_NtAlpcAcceptConnectPort.push_back(on_func);
     return true;
@@ -571,7 +571,7 @@ bool monitor::GenericMonitor::register_NtAlpcCancelMessage(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtAlpcCancelMessage");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcCancelMessage");
+        FAIL(false, "unable to register NtAlpcCancelMessage");
 
     d_->observers_NtAlpcCancelMessage.push_back(on_func);
     return true;
@@ -594,7 +594,7 @@ bool monitor::GenericMonitor::register_NtAlpcConnectPort(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtAlpcConnectPort");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcConnectPort");
+        FAIL(false, "unable to register NtAlpcConnectPort");
 
     d_->observers_NtAlpcConnectPort.push_back(on_func);
     return true;
@@ -625,7 +625,7 @@ bool monitor::GenericMonitor::register_NtAlpcCreatePort(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtAlpcCreatePort");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcCreatePort");
+        FAIL(false, "unable to register NtAlpcCreatePort");
 
     d_->observers_NtAlpcCreatePort.push_back(on_func);
     return true;
@@ -648,7 +648,7 @@ bool monitor::GenericMonitor::register_NtAlpcCreatePortSection(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtAlpcCreatePortSection");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcCreatePortSection");
+        FAIL(false, "unable to register NtAlpcCreatePortSection");
 
     d_->observers_NtAlpcCreatePortSection.push_back(on_func);
     return true;
@@ -674,7 +674,7 @@ bool monitor::GenericMonitor::register_NtAlpcCreateResourceReserve(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtAlpcCreateResourceReserve");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcCreateResourceReserve");
+        FAIL(false, "unable to register NtAlpcCreateResourceReserve");
 
     d_->observers_NtAlpcCreateResourceReserve.push_back(on_func);
     return true;
@@ -698,7 +698,7 @@ bool monitor::GenericMonitor::register_NtAlpcCreateSectionView(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtAlpcCreateSectionView");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcCreateSectionView");
+        FAIL(false, "unable to register NtAlpcCreateSectionView");
 
     d_->observers_NtAlpcCreateSectionView.push_back(on_func);
     return true;
@@ -721,7 +721,7 @@ bool monitor::GenericMonitor::register_NtAlpcCreateSecurityContext(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtAlpcCreateSecurityContext");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcCreateSecurityContext");
+        FAIL(false, "unable to register NtAlpcCreateSecurityContext");
 
     d_->observers_NtAlpcCreateSecurityContext.push_back(on_func);
     return true;
@@ -744,7 +744,7 @@ bool monitor::GenericMonitor::register_NtAlpcDeletePortSection(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtAlpcDeletePortSection");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcDeletePortSection");
+        FAIL(false, "unable to register NtAlpcDeletePortSection");
 
     d_->observers_NtAlpcDeletePortSection.push_back(on_func);
     return true;
@@ -767,7 +767,7 @@ bool monitor::GenericMonitor::register_NtAlpcDeleteResourceReserve(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtAlpcDeleteResourceReserve");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcDeleteResourceReserve");
+        FAIL(false, "unable to register NtAlpcDeleteResourceReserve");
 
     d_->observers_NtAlpcDeleteResourceReserve.push_back(on_func);
     return true;
@@ -790,7 +790,7 @@ bool monitor::GenericMonitor::register_NtAlpcDeleteSectionView(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtAlpcDeleteSectionView");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcDeleteSectionView");
+        FAIL(false, "unable to register NtAlpcDeleteSectionView");
 
     d_->observers_NtAlpcDeleteSectionView.push_back(on_func);
     return true;
@@ -813,7 +813,7 @@ bool monitor::GenericMonitor::register_NtAlpcDeleteSecurityContext(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtAlpcDeleteSecurityContext");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcDeleteSecurityContext");
+        FAIL(false, "unable to register NtAlpcDeleteSecurityContext");
 
     d_->observers_NtAlpcDeleteSecurityContext.push_back(on_func);
     return true;
@@ -836,7 +836,7 @@ bool monitor::GenericMonitor::register_NtAlpcDisconnectPort(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtAlpcDisconnectPort");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcDisconnectPort");
+        FAIL(false, "unable to register NtAlpcDisconnectPort");
 
     d_->observers_NtAlpcDisconnectPort.push_back(on_func);
     return true;
@@ -858,7 +858,7 @@ bool monitor::GenericMonitor::register_NtAlpcImpersonateClientOfPort(proc_t proc
 {
     const auto ok = setup_func(proc, "NtAlpcImpersonateClientOfPort");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcImpersonateClientOfPort");
+        FAIL(false, "unable to register NtAlpcImpersonateClientOfPort");
 
     d_->observers_NtAlpcImpersonateClientOfPort.push_back(on_func);
     return true;
@@ -881,7 +881,7 @@ bool monitor::GenericMonitor::register_NtAlpcOpenSenderProcess(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtAlpcOpenSenderProcess");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcOpenSenderProcess");
+        FAIL(false, "unable to register NtAlpcOpenSenderProcess");
 
     d_->observers_NtAlpcOpenSenderProcess.push_back(on_func);
     return true;
@@ -907,7 +907,7 @@ bool monitor::GenericMonitor::register_NtAlpcOpenSenderThread(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtAlpcOpenSenderThread");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcOpenSenderThread");
+        FAIL(false, "unable to register NtAlpcOpenSenderThread");
 
     d_->observers_NtAlpcOpenSenderThread.push_back(on_func);
     return true;
@@ -933,7 +933,7 @@ bool monitor::GenericMonitor::register_NtAlpcQueryInformation(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtAlpcQueryInformation");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcQueryInformation");
+        FAIL(false, "unable to register NtAlpcQueryInformation");
 
     d_->observers_NtAlpcQueryInformation.push_back(on_func);
     return true;
@@ -958,7 +958,7 @@ bool monitor::GenericMonitor::register_NtAlpcQueryInformationMessage(proc_t proc
 {
     const auto ok = setup_func(proc, "NtAlpcQueryInformationMessage");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcQueryInformationMessage");
+        FAIL(false, "unable to register NtAlpcQueryInformationMessage");
 
     d_->observers_NtAlpcQueryInformationMessage.push_back(on_func);
     return true;
@@ -984,7 +984,7 @@ bool monitor::GenericMonitor::register_NtAlpcRevokeSecurityContext(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtAlpcRevokeSecurityContext");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcRevokeSecurityContext");
+        FAIL(false, "unable to register NtAlpcRevokeSecurityContext");
 
     d_->observers_NtAlpcRevokeSecurityContext.push_back(on_func);
     return true;
@@ -1007,7 +1007,7 @@ bool monitor::GenericMonitor::register_NtAlpcSendWaitReceivePort(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtAlpcSendWaitReceivePort");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcSendWaitReceivePort");
+        FAIL(false, "unable to register NtAlpcSendWaitReceivePort");
 
     d_->observers_NtAlpcSendWaitReceivePort.push_back(on_func);
     return true;
@@ -1035,7 +1035,7 @@ bool monitor::GenericMonitor::register_NtAlpcSetInformation(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtAlpcSetInformation");
     if(!ok)
-        FAIL(false, "Unable to register NtAlpcSetInformation");
+        FAIL(false, "unable to register NtAlpcSetInformation");
 
     d_->observers_NtAlpcSetInformation.push_back(on_func);
     return true;
@@ -1059,7 +1059,7 @@ bool monitor::GenericMonitor::register_NtApphelpCacheControl(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtApphelpCacheControl");
     if(!ok)
-        FAIL(false, "Unable to register NtApphelpCacheControl");
+        FAIL(false, "unable to register NtApphelpCacheControl");
 
     d_->observers_NtApphelpCacheControl.push_back(on_func);
     return true;
@@ -1081,7 +1081,7 @@ bool monitor::GenericMonitor::register_NtAreMappedFilesTheSame(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtAreMappedFilesTheSame");
     if(!ok)
-        FAIL(false, "Unable to register NtAreMappedFilesTheSame");
+        FAIL(false, "unable to register NtAreMappedFilesTheSame");
 
     d_->observers_NtAreMappedFilesTheSame.push_back(on_func);
     return true;
@@ -1103,7 +1103,7 @@ bool monitor::GenericMonitor::register_NtAssignProcessToJobObject(proc_t proc, c
 {
     const auto ok = setup_func(proc, "NtAssignProcessToJobObject");
     if(!ok)
-        FAIL(false, "Unable to register NtAssignProcessToJobObject");
+        FAIL(false, "unable to register NtAssignProcessToJobObject");
 
     d_->observers_NtAssignProcessToJobObject.push_back(on_func);
     return true;
@@ -1125,7 +1125,7 @@ bool monitor::GenericMonitor::register_NtCallbackReturn(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtCallbackReturn");
     if(!ok)
-        FAIL(false, "Unable to register NtCallbackReturn");
+        FAIL(false, "unable to register NtCallbackReturn");
 
     d_->observers_NtCallbackReturn.push_back(on_func);
     return true;
@@ -1148,7 +1148,7 @@ bool monitor::GenericMonitor::register_NtCancelIoFileEx(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtCancelIoFileEx");
     if(!ok)
-        FAIL(false, "Unable to register NtCancelIoFileEx");
+        FAIL(false, "unable to register NtCancelIoFileEx");
 
     d_->observers_NtCancelIoFileEx.push_back(on_func);
     return true;
@@ -1171,7 +1171,7 @@ bool monitor::GenericMonitor::register_NtCancelIoFile(proc_t proc, const on_NtCa
 {
     const auto ok = setup_func(proc, "NtCancelIoFile");
     if(!ok)
-        FAIL(false, "Unable to register NtCancelIoFile");
+        FAIL(false, "unable to register NtCancelIoFile");
 
     d_->observers_NtCancelIoFile.push_back(on_func);
     return true;
@@ -1193,7 +1193,7 @@ bool monitor::GenericMonitor::register_NtCancelSynchronousIoFile(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtCancelSynchronousIoFile");
     if(!ok)
-        FAIL(false, "Unable to register NtCancelSynchronousIoFile");
+        FAIL(false, "unable to register NtCancelSynchronousIoFile");
 
     d_->observers_NtCancelSynchronousIoFile.push_back(on_func);
     return true;
@@ -1216,7 +1216,7 @@ bool monitor::GenericMonitor::register_NtCancelTimer(proc_t proc, const on_NtCan
 {
     const auto ok = setup_func(proc, "NtCancelTimer");
     if(!ok)
-        FAIL(false, "Unable to register NtCancelTimer");
+        FAIL(false, "unable to register NtCancelTimer");
 
     d_->observers_NtCancelTimer.push_back(on_func);
     return true;
@@ -1238,7 +1238,7 @@ bool monitor::GenericMonitor::register_NtClearEvent(proc_t proc, const on_NtClea
 {
     const auto ok = setup_func(proc, "NtClearEvent");
     if(!ok)
-        FAIL(false, "Unable to register NtClearEvent");
+        FAIL(false, "unable to register NtClearEvent");
 
     d_->observers_NtClearEvent.push_back(on_func);
     return true;
@@ -1259,7 +1259,7 @@ bool monitor::GenericMonitor::register_NtClose(proc_t proc, const on_NtClose_fn&
 {
     const auto ok = setup_func(proc, "NtClose");
     if(!ok)
-        FAIL(false, "Unable to register NtClose");
+        FAIL(false, "unable to register NtClose");
 
     d_->observers_NtClose.push_back(on_func);
     return true;
@@ -1280,7 +1280,7 @@ bool monitor::GenericMonitor::register_NtCloseObjectAuditAlarm(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtCloseObjectAuditAlarm");
     if(!ok)
-        FAIL(false, "Unable to register NtCloseObjectAuditAlarm");
+        FAIL(false, "unable to register NtCloseObjectAuditAlarm");
 
     d_->observers_NtCloseObjectAuditAlarm.push_back(on_func);
     return true;
@@ -1303,7 +1303,7 @@ bool monitor::GenericMonitor::register_NtCommitComplete(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtCommitComplete");
     if(!ok)
-        FAIL(false, "Unable to register NtCommitComplete");
+        FAIL(false, "unable to register NtCommitComplete");
 
     d_->observers_NtCommitComplete.push_back(on_func);
     return true;
@@ -1325,7 +1325,7 @@ bool monitor::GenericMonitor::register_NtCommitEnlistment(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtCommitEnlistment");
     if(!ok)
-        FAIL(false, "Unable to register NtCommitEnlistment");
+        FAIL(false, "unable to register NtCommitEnlistment");
 
     d_->observers_NtCommitEnlistment.push_back(on_func);
     return true;
@@ -1347,7 +1347,7 @@ bool monitor::GenericMonitor::register_NtCommitTransaction(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtCommitTransaction");
     if(!ok)
-        FAIL(false, "Unable to register NtCommitTransaction");
+        FAIL(false, "unable to register NtCommitTransaction");
 
     d_->observers_NtCommitTransaction.push_back(on_func);
     return true;
@@ -1369,7 +1369,7 @@ bool monitor::GenericMonitor::register_NtCompactKeys(proc_t proc, const on_NtCom
 {
     const auto ok = setup_func(proc, "NtCompactKeys");
     if(!ok)
-        FAIL(false, "Unable to register NtCompactKeys");
+        FAIL(false, "unable to register NtCompactKeys");
 
     d_->observers_NtCompactKeys.push_back(on_func);
     return true;
@@ -1391,7 +1391,7 @@ bool monitor::GenericMonitor::register_NtCompareTokens(proc_t proc, const on_NtC
 {
     const auto ok = setup_func(proc, "NtCompareTokens");
     if(!ok)
-        FAIL(false, "Unable to register NtCompareTokens");
+        FAIL(false, "unable to register NtCompareTokens");
 
     d_->observers_NtCompareTokens.push_back(on_func);
     return true;
@@ -1414,7 +1414,7 @@ bool monitor::GenericMonitor::register_NtCompleteConnectPort(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtCompleteConnectPort");
     if(!ok)
-        FAIL(false, "Unable to register NtCompleteConnectPort");
+        FAIL(false, "unable to register NtCompleteConnectPort");
 
     d_->observers_NtCompleteConnectPort.push_back(on_func);
     return true;
@@ -1435,7 +1435,7 @@ bool monitor::GenericMonitor::register_NtCompressKey(proc_t proc, const on_NtCom
 {
     const auto ok = setup_func(proc, "NtCompressKey");
     if(!ok)
-        FAIL(false, "Unable to register NtCompressKey");
+        FAIL(false, "unable to register NtCompressKey");
 
     d_->observers_NtCompressKey.push_back(on_func);
     return true;
@@ -1456,7 +1456,7 @@ bool monitor::GenericMonitor::register_NtConnectPort(proc_t proc, const on_NtCon
 {
     const auto ok = setup_func(proc, "NtConnectPort");
     if(!ok)
-        FAIL(false, "Unable to register NtConnectPort");
+        FAIL(false, "unable to register NtConnectPort");
 
     d_->observers_NtConnectPort.push_back(on_func);
     return true;
@@ -1484,7 +1484,7 @@ bool monitor::GenericMonitor::register_NtContinue(proc_t proc, const on_NtContin
 {
     const auto ok = setup_func(proc, "NtContinue");
     if(!ok)
-        FAIL(false, "Unable to register NtContinue");
+        FAIL(false, "unable to register NtContinue");
 
     d_->observers_NtContinue.push_back(on_func);
     return true;
@@ -1506,7 +1506,7 @@ bool monitor::GenericMonitor::register_NtCreateDebugObject(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtCreateDebugObject");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateDebugObject");
+        FAIL(false, "unable to register NtCreateDebugObject");
 
     d_->observers_NtCreateDebugObject.push_back(on_func);
     return true;
@@ -1530,7 +1530,7 @@ bool monitor::GenericMonitor::register_NtCreateDirectoryObject(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtCreateDirectoryObject");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateDirectoryObject");
+        FAIL(false, "unable to register NtCreateDirectoryObject");
 
     d_->observers_NtCreateDirectoryObject.push_back(on_func);
     return true;
@@ -1553,7 +1553,7 @@ bool monitor::GenericMonitor::register_NtCreateEnlistment(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtCreateEnlistment");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateEnlistment");
+        FAIL(false, "unable to register NtCreateEnlistment");
 
     d_->observers_NtCreateEnlistment.push_back(on_func);
     return true;
@@ -1581,7 +1581,7 @@ bool monitor::GenericMonitor::register_NtCreateEvent(proc_t proc, const on_NtCre
 {
     const auto ok = setup_func(proc, "NtCreateEvent");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateEvent");
+        FAIL(false, "unable to register NtCreateEvent");
 
     d_->observers_NtCreateEvent.push_back(on_func);
     return true;
@@ -1606,7 +1606,7 @@ bool monitor::GenericMonitor::register_NtCreateEventPair(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtCreateEventPair");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateEventPair");
+        FAIL(false, "unable to register NtCreateEventPair");
 
     d_->observers_NtCreateEventPair.push_back(on_func);
     return true;
@@ -1629,7 +1629,7 @@ bool monitor::GenericMonitor::register_NtCreateFile(proc_t proc, const on_NtCrea
 {
     const auto ok = setup_func(proc, "NtCreateFile");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateFile");
+        FAIL(false, "unable to register NtCreateFile");
 
     d_->observers_NtCreateFile.push_back(on_func);
     return true;
@@ -1660,7 +1660,7 @@ bool monitor::GenericMonitor::register_NtCreateIoCompletion(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtCreateIoCompletion");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateIoCompletion");
+        FAIL(false, "unable to register NtCreateIoCompletion");
 
     d_->observers_NtCreateIoCompletion.push_back(on_func);
     return true;
@@ -1684,7 +1684,7 @@ bool monitor::GenericMonitor::register_NtCreateJobObject(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtCreateJobObject");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateJobObject");
+        FAIL(false, "unable to register NtCreateJobObject");
 
     d_->observers_NtCreateJobObject.push_back(on_func);
     return true;
@@ -1707,7 +1707,7 @@ bool monitor::GenericMonitor::register_NtCreateJobSet(proc_t proc, const on_NtCr
 {
     const auto ok = setup_func(proc, "NtCreateJobSet");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateJobSet");
+        FAIL(false, "unable to register NtCreateJobSet");
 
     d_->observers_NtCreateJobSet.push_back(on_func);
     return true;
@@ -1730,7 +1730,7 @@ bool monitor::GenericMonitor::register_NtCreateKeyedEvent(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtCreateKeyedEvent");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateKeyedEvent");
+        FAIL(false, "unable to register NtCreateKeyedEvent");
 
     d_->observers_NtCreateKeyedEvent.push_back(on_func);
     return true;
@@ -1754,7 +1754,7 @@ bool monitor::GenericMonitor::register_NtCreateKey(proc_t proc, const on_NtCreat
 {
     const auto ok = setup_func(proc, "NtCreateKey");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateKey");
+        FAIL(false, "unable to register NtCreateKey");
 
     d_->observers_NtCreateKey.push_back(on_func);
     return true;
@@ -1781,7 +1781,7 @@ bool monitor::GenericMonitor::register_NtCreateKeyTransacted(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtCreateKeyTransacted");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateKeyTransacted");
+        FAIL(false, "unable to register NtCreateKeyTransacted");
 
     d_->observers_NtCreateKeyTransacted.push_back(on_func);
     return true;
@@ -1809,7 +1809,7 @@ bool monitor::GenericMonitor::register_NtCreateMailslotFile(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtCreateMailslotFile");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateMailslotFile");
+        FAIL(false, "unable to register NtCreateMailslotFile");
 
     d_->observers_NtCreateMailslotFile.push_back(on_func);
     return true;
@@ -1837,7 +1837,7 @@ bool monitor::GenericMonitor::register_NtCreateMutant(proc_t proc, const on_NtCr
 {
     const auto ok = setup_func(proc, "NtCreateMutant");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateMutant");
+        FAIL(false, "unable to register NtCreateMutant");
 
     d_->observers_NtCreateMutant.push_back(on_func);
     return true;
@@ -1861,7 +1861,7 @@ bool monitor::GenericMonitor::register_NtCreateNamedPipeFile(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtCreateNamedPipeFile");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateNamedPipeFile");
+        FAIL(false, "unable to register NtCreateNamedPipeFile");
 
     d_->observers_NtCreateNamedPipeFile.push_back(on_func);
     return true;
@@ -1895,7 +1895,7 @@ bool monitor::GenericMonitor::register_NtCreatePagingFile(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtCreatePagingFile");
     if(!ok)
-        FAIL(false, "Unable to register NtCreatePagingFile");
+        FAIL(false, "unable to register NtCreatePagingFile");
 
     d_->observers_NtCreatePagingFile.push_back(on_func);
     return true;
@@ -1919,7 +1919,7 @@ bool monitor::GenericMonitor::register_NtCreatePort(proc_t proc, const on_NtCrea
 {
     const auto ok = setup_func(proc, "NtCreatePort");
     if(!ok)
-        FAIL(false, "Unable to register NtCreatePort");
+        FAIL(false, "unable to register NtCreatePort");
 
     d_->observers_NtCreatePort.push_back(on_func);
     return true;
@@ -1944,7 +1944,7 @@ bool monitor::GenericMonitor::register_NtCreatePrivateNamespace(proc_t proc, con
 {
     const auto ok = setup_func(proc, "NtCreatePrivateNamespace");
     if(!ok)
-        FAIL(false, "Unable to register NtCreatePrivateNamespace");
+        FAIL(false, "unable to register NtCreatePrivateNamespace");
 
     d_->observers_NtCreatePrivateNamespace.push_back(on_func);
     return true;
@@ -1968,7 +1968,7 @@ bool monitor::GenericMonitor::register_NtCreateProcessEx(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtCreateProcessEx");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateProcessEx");
+        FAIL(false, "unable to register NtCreateProcessEx");
 
     d_->observers_NtCreateProcessEx.push_back(on_func);
     return true;
@@ -1997,7 +1997,7 @@ bool monitor::GenericMonitor::register_NtCreateProcess(proc_t proc, const on_NtC
 {
     const auto ok = setup_func(proc, "NtCreateProcess");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateProcess");
+        FAIL(false, "unable to register NtCreateProcess");
 
     d_->observers_NtCreateProcess.push_back(on_func);
     return true;
@@ -2025,7 +2025,7 @@ bool monitor::GenericMonitor::register_NtCreateProfileEx(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtCreateProfileEx");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateProfileEx");
+        FAIL(false, "unable to register NtCreateProfileEx");
 
     d_->observers_NtCreateProfileEx.push_back(on_func);
     return true;
@@ -2055,7 +2055,7 @@ bool monitor::GenericMonitor::register_NtCreateProfile(proc_t proc, const on_NtC
 {
     const auto ok = setup_func(proc, "NtCreateProfile");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateProfile");
+        FAIL(false, "unable to register NtCreateProfile");
 
     d_->observers_NtCreateProfile.push_back(on_func);
     return true;
@@ -2084,7 +2084,7 @@ bool monitor::GenericMonitor::register_NtCreateResourceManager(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtCreateResourceManager");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateResourceManager");
+        FAIL(false, "unable to register NtCreateResourceManager");
 
     d_->observers_NtCreateResourceManager.push_back(on_func);
     return true;
@@ -2111,7 +2111,7 @@ bool monitor::GenericMonitor::register_NtCreateSection(proc_t proc, const on_NtC
 {
     const auto ok = setup_func(proc, "NtCreateSection");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateSection");
+        FAIL(false, "unable to register NtCreateSection");
 
     d_->observers_NtCreateSection.push_back(on_func);
     return true;
@@ -2138,7 +2138,7 @@ bool monitor::GenericMonitor::register_NtCreateSemaphore(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtCreateSemaphore");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateSemaphore");
+        FAIL(false, "unable to register NtCreateSemaphore");
 
     d_->observers_NtCreateSemaphore.push_back(on_func);
     return true;
@@ -2163,7 +2163,7 @@ bool monitor::GenericMonitor::register_NtCreateSymbolicLinkObject(proc_t proc, c
 {
     const auto ok = setup_func(proc, "NtCreateSymbolicLinkObject");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateSymbolicLinkObject");
+        FAIL(false, "unable to register NtCreateSymbolicLinkObject");
 
     d_->observers_NtCreateSymbolicLinkObject.push_back(on_func);
     return true;
@@ -2187,7 +2187,7 @@ bool monitor::GenericMonitor::register_NtCreateThreadEx(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtCreateThreadEx");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateThreadEx");
+        FAIL(false, "unable to register NtCreateThreadEx");
 
     d_->observers_NtCreateThreadEx.push_back(on_func);
     return true;
@@ -2218,7 +2218,7 @@ bool monitor::GenericMonitor::register_NtCreateThread(proc_t proc, const on_NtCr
 {
     const auto ok = setup_func(proc, "NtCreateThread");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateThread");
+        FAIL(false, "unable to register NtCreateThread");
 
     d_->observers_NtCreateThread.push_back(on_func);
     return true;
@@ -2246,7 +2246,7 @@ bool monitor::GenericMonitor::register_NtCreateTimer(proc_t proc, const on_NtCre
 {
     const auto ok = setup_func(proc, "NtCreateTimer");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateTimer");
+        FAIL(false, "unable to register NtCreateTimer");
 
     d_->observers_NtCreateTimer.push_back(on_func);
     return true;
@@ -2270,7 +2270,7 @@ bool monitor::GenericMonitor::register_NtCreateToken(proc_t proc, const on_NtCre
 {
     const auto ok = setup_func(proc, "NtCreateToken");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateToken");
+        FAIL(false, "unable to register NtCreateToken");
 
     d_->observers_NtCreateToken.push_back(on_func);
     return true;
@@ -2303,7 +2303,7 @@ bool monitor::GenericMonitor::register_NtCreateTransactionManager(proc_t proc, c
 {
     const auto ok = setup_func(proc, "NtCreateTransactionManager");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateTransactionManager");
+        FAIL(false, "unable to register NtCreateTransactionManager");
 
     d_->observers_NtCreateTransactionManager.push_back(on_func);
     return true;
@@ -2329,7 +2329,7 @@ bool monitor::GenericMonitor::register_NtCreateTransaction(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtCreateTransaction");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateTransaction");
+        FAIL(false, "unable to register NtCreateTransaction");
 
     d_->observers_NtCreateTransaction.push_back(on_func);
     return true;
@@ -2359,7 +2359,7 @@ bool monitor::GenericMonitor::register_NtCreateUserProcess(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtCreateUserProcess");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateUserProcess");
+        FAIL(false, "unable to register NtCreateUserProcess");
 
     d_->observers_NtCreateUserProcess.push_back(on_func);
     return true;
@@ -2390,7 +2390,7 @@ bool monitor::GenericMonitor::register_NtCreateWaitablePort(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtCreateWaitablePort");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateWaitablePort");
+        FAIL(false, "unable to register NtCreateWaitablePort");
 
     d_->observers_NtCreateWaitablePort.push_back(on_func);
     return true;
@@ -2415,7 +2415,7 @@ bool monitor::GenericMonitor::register_NtCreateWorkerFactory(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtCreateWorkerFactory");
     if(!ok)
-        FAIL(false, "Unable to register NtCreateWorkerFactory");
+        FAIL(false, "unable to register NtCreateWorkerFactory");
 
     d_->observers_NtCreateWorkerFactory.push_back(on_func);
     return true;
@@ -2445,7 +2445,7 @@ bool monitor::GenericMonitor::register_NtDebugActiveProcess(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtDebugActiveProcess");
     if(!ok)
-        FAIL(false, "Unable to register NtDebugActiveProcess");
+        FAIL(false, "unable to register NtDebugActiveProcess");
 
     d_->observers_NtDebugActiveProcess.push_back(on_func);
     return true;
@@ -2467,7 +2467,7 @@ bool monitor::GenericMonitor::register_NtDebugContinue(proc_t proc, const on_NtD
 {
     const auto ok = setup_func(proc, "NtDebugContinue");
     if(!ok)
-        FAIL(false, "Unable to register NtDebugContinue");
+        FAIL(false, "unable to register NtDebugContinue");
 
     d_->observers_NtDebugContinue.push_back(on_func);
     return true;
@@ -2490,7 +2490,7 @@ bool monitor::GenericMonitor::register_NtDelayExecution(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtDelayExecution");
     if(!ok)
-        FAIL(false, "Unable to register NtDelayExecution");
+        FAIL(false, "unable to register NtDelayExecution");
 
     d_->observers_NtDelayExecution.push_back(on_func);
     return true;
@@ -2512,7 +2512,7 @@ bool monitor::GenericMonitor::register_NtDeleteAtom(proc_t proc, const on_NtDele
 {
     const auto ok = setup_func(proc, "NtDeleteAtom");
     if(!ok)
-        FAIL(false, "Unable to register NtDeleteAtom");
+        FAIL(false, "unable to register NtDeleteAtom");
 
     d_->observers_NtDeleteAtom.push_back(on_func);
     return true;
@@ -2533,7 +2533,7 @@ bool monitor::GenericMonitor::register_NtDeleteBootEntry(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtDeleteBootEntry");
     if(!ok)
-        FAIL(false, "Unable to register NtDeleteBootEntry");
+        FAIL(false, "unable to register NtDeleteBootEntry");
 
     d_->observers_NtDeleteBootEntry.push_back(on_func);
     return true;
@@ -2554,7 +2554,7 @@ bool monitor::GenericMonitor::register_NtDeleteDriverEntry(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtDeleteDriverEntry");
     if(!ok)
-        FAIL(false, "Unable to register NtDeleteDriverEntry");
+        FAIL(false, "unable to register NtDeleteDriverEntry");
 
     d_->observers_NtDeleteDriverEntry.push_back(on_func);
     return true;
@@ -2575,7 +2575,7 @@ bool monitor::GenericMonitor::register_NtDeleteFile(proc_t proc, const on_NtDele
 {
     const auto ok = setup_func(proc, "NtDeleteFile");
     if(!ok)
-        FAIL(false, "Unable to register NtDeleteFile");
+        FAIL(false, "unable to register NtDeleteFile");
 
     d_->observers_NtDeleteFile.push_back(on_func);
     return true;
@@ -2596,7 +2596,7 @@ bool monitor::GenericMonitor::register_NtDeleteKey(proc_t proc, const on_NtDelet
 {
     const auto ok = setup_func(proc, "NtDeleteKey");
     if(!ok)
-        FAIL(false, "Unable to register NtDeleteKey");
+        FAIL(false, "unable to register NtDeleteKey");
 
     d_->observers_NtDeleteKey.push_back(on_func);
     return true;
@@ -2617,7 +2617,7 @@ bool monitor::GenericMonitor::register_NtDeleteObjectAuditAlarm(proc_t proc, con
 {
     const auto ok = setup_func(proc, "NtDeleteObjectAuditAlarm");
     if(!ok)
-        FAIL(false, "Unable to register NtDeleteObjectAuditAlarm");
+        FAIL(false, "unable to register NtDeleteObjectAuditAlarm");
 
     d_->observers_NtDeleteObjectAuditAlarm.push_back(on_func);
     return true;
@@ -2640,7 +2640,7 @@ bool monitor::GenericMonitor::register_NtDeletePrivateNamespace(proc_t proc, con
 {
     const auto ok = setup_func(proc, "NtDeletePrivateNamespace");
     if(!ok)
-        FAIL(false, "Unable to register NtDeletePrivateNamespace");
+        FAIL(false, "unable to register NtDeletePrivateNamespace");
 
     d_->observers_NtDeletePrivateNamespace.push_back(on_func);
     return true;
@@ -2661,7 +2661,7 @@ bool monitor::GenericMonitor::register_NtDeleteValueKey(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtDeleteValueKey");
     if(!ok)
-        FAIL(false, "Unable to register NtDeleteValueKey");
+        FAIL(false, "unable to register NtDeleteValueKey");
 
     d_->observers_NtDeleteValueKey.push_back(on_func);
     return true;
@@ -2683,7 +2683,7 @@ bool monitor::GenericMonitor::register_NtDeviceIoControlFile(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtDeviceIoControlFile");
     if(!ok)
-        FAIL(false, "Unable to register NtDeviceIoControlFile");
+        FAIL(false, "unable to register NtDeviceIoControlFile");
 
     d_->observers_NtDeviceIoControlFile.push_back(on_func);
     return true;
@@ -2713,7 +2713,7 @@ bool monitor::GenericMonitor::register_NtDisplayString(proc_t proc, const on_NtD
 {
     const auto ok = setup_func(proc, "NtDisplayString");
     if(!ok)
-        FAIL(false, "Unable to register NtDisplayString");
+        FAIL(false, "unable to register NtDisplayString");
 
     d_->observers_NtDisplayString.push_back(on_func);
     return true;
@@ -2734,7 +2734,7 @@ bool monitor::GenericMonitor::register_NtDrawText(proc_t proc, const on_NtDrawTe
 {
     const auto ok = setup_func(proc, "NtDrawText");
     if(!ok)
-        FAIL(false, "Unable to register NtDrawText");
+        FAIL(false, "unable to register NtDrawText");
 
     d_->observers_NtDrawText.push_back(on_func);
     return true;
@@ -2755,7 +2755,7 @@ bool monitor::GenericMonitor::register_NtDuplicateObject(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtDuplicateObject");
     if(!ok)
-        FAIL(false, "Unable to register NtDuplicateObject");
+        FAIL(false, "unable to register NtDuplicateObject");
 
     d_->observers_NtDuplicateObject.push_back(on_func);
     return true;
@@ -2782,7 +2782,7 @@ bool monitor::GenericMonitor::register_NtDuplicateToken(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtDuplicateToken");
     if(!ok)
-        FAIL(false, "Unable to register NtDuplicateToken");
+        FAIL(false, "unable to register NtDuplicateToken");
 
     d_->observers_NtDuplicateToken.push_back(on_func);
     return true;
@@ -2808,7 +2808,7 @@ bool monitor::GenericMonitor::register_NtEnumerateBootEntries(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtEnumerateBootEntries");
     if(!ok)
-        FAIL(false, "Unable to register NtEnumerateBootEntries");
+        FAIL(false, "unable to register NtEnumerateBootEntries");
 
     d_->observers_NtEnumerateBootEntries.push_back(on_func);
     return true;
@@ -2830,7 +2830,7 @@ bool monitor::GenericMonitor::register_NtEnumerateDriverEntries(proc_t proc, con
 {
     const auto ok = setup_func(proc, "NtEnumerateDriverEntries");
     if(!ok)
-        FAIL(false, "Unable to register NtEnumerateDriverEntries");
+        FAIL(false, "unable to register NtEnumerateDriverEntries");
 
     d_->observers_NtEnumerateDriverEntries.push_back(on_func);
     return true;
@@ -2852,7 +2852,7 @@ bool monitor::GenericMonitor::register_NtEnumerateKey(proc_t proc, const on_NtEn
 {
     const auto ok = setup_func(proc, "NtEnumerateKey");
     if(!ok)
-        FAIL(false, "Unable to register NtEnumerateKey");
+        FAIL(false, "unable to register NtEnumerateKey");
 
     d_->observers_NtEnumerateKey.push_back(on_func);
     return true;
@@ -2878,7 +2878,7 @@ bool monitor::GenericMonitor::register_NtEnumerateSystemEnvironmentValuesEx(proc
 {
     const auto ok = setup_func(proc, "NtEnumerateSystemEnvironmentValuesEx");
     if(!ok)
-        FAIL(false, "Unable to register NtEnumerateSystemEnvironmentValuesEx");
+        FAIL(false, "unable to register NtEnumerateSystemEnvironmentValuesEx");
 
     d_->observers_NtEnumerateSystemEnvironmentValuesEx.push_back(on_func);
     return true;
@@ -2901,7 +2901,7 @@ bool monitor::GenericMonitor::register_NtEnumerateTransactionObject(proc_t proc,
 {
     const auto ok = setup_func(proc, "NtEnumerateTransactionObject");
     if(!ok)
-        FAIL(false, "Unable to register NtEnumerateTransactionObject");
+        FAIL(false, "unable to register NtEnumerateTransactionObject");
 
     d_->observers_NtEnumerateTransactionObject.push_back(on_func);
     return true;
@@ -2926,7 +2926,7 @@ bool monitor::GenericMonitor::register_NtEnumerateValueKey(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtEnumerateValueKey");
     if(!ok)
-        FAIL(false, "Unable to register NtEnumerateValueKey");
+        FAIL(false, "unable to register NtEnumerateValueKey");
 
     d_->observers_NtEnumerateValueKey.push_back(on_func);
     return true;
@@ -2952,7 +2952,7 @@ bool monitor::GenericMonitor::register_NtExtendSection(proc_t proc, const on_NtE
 {
     const auto ok = setup_func(proc, "NtExtendSection");
     if(!ok)
-        FAIL(false, "Unable to register NtExtendSection");
+        FAIL(false, "unable to register NtExtendSection");
 
     d_->observers_NtExtendSection.push_back(on_func);
     return true;
@@ -2974,7 +2974,7 @@ bool monitor::GenericMonitor::register_NtFilterToken(proc_t proc, const on_NtFil
 {
     const auto ok = setup_func(proc, "NtFilterToken");
     if(!ok)
-        FAIL(false, "Unable to register NtFilterToken");
+        FAIL(false, "unable to register NtFilterToken");
 
     d_->observers_NtFilterToken.push_back(on_func);
     return true;
@@ -3000,7 +3000,7 @@ bool monitor::GenericMonitor::register_NtFindAtom(proc_t proc, const on_NtFindAt
 {
     const auto ok = setup_func(proc, "NtFindAtom");
     if(!ok)
-        FAIL(false, "Unable to register NtFindAtom");
+        FAIL(false, "unable to register NtFindAtom");
 
     d_->observers_NtFindAtom.push_back(on_func);
     return true;
@@ -3023,7 +3023,7 @@ bool monitor::GenericMonitor::register_NtFlushBuffersFile(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtFlushBuffersFile");
     if(!ok)
-        FAIL(false, "Unable to register NtFlushBuffersFile");
+        FAIL(false, "unable to register NtFlushBuffersFile");
 
     d_->observers_NtFlushBuffersFile.push_back(on_func);
     return true;
@@ -3045,7 +3045,7 @@ bool monitor::GenericMonitor::register_NtFlushInstallUILanguage(proc_t proc, con
 {
     const auto ok = setup_func(proc, "NtFlushInstallUILanguage");
     if(!ok)
-        FAIL(false, "Unable to register NtFlushInstallUILanguage");
+        FAIL(false, "unable to register NtFlushInstallUILanguage");
 
     d_->observers_NtFlushInstallUILanguage.push_back(on_func);
     return true;
@@ -3067,7 +3067,7 @@ bool monitor::GenericMonitor::register_NtFlushInstructionCache(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtFlushInstructionCache");
     if(!ok)
-        FAIL(false, "Unable to register NtFlushInstructionCache");
+        FAIL(false, "unable to register NtFlushInstructionCache");
 
     d_->observers_NtFlushInstructionCache.push_back(on_func);
     return true;
@@ -3090,7 +3090,7 @@ bool monitor::GenericMonitor::register_NtFlushKey(proc_t proc, const on_NtFlushK
 {
     const auto ok = setup_func(proc, "NtFlushKey");
     if(!ok)
-        FAIL(false, "Unable to register NtFlushKey");
+        FAIL(false, "unable to register NtFlushKey");
 
     d_->observers_NtFlushKey.push_back(on_func);
     return true;
@@ -3111,7 +3111,7 @@ bool monitor::GenericMonitor::register_NtFlushVirtualMemory(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtFlushVirtualMemory");
     if(!ok)
-        FAIL(false, "Unable to register NtFlushVirtualMemory");
+        FAIL(false, "unable to register NtFlushVirtualMemory");
 
     d_->observers_NtFlushVirtualMemory.push_back(on_func);
     return true;
@@ -3135,7 +3135,7 @@ bool monitor::GenericMonitor::register_NtFreeUserPhysicalPages(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtFreeUserPhysicalPages");
     if(!ok)
-        FAIL(false, "Unable to register NtFreeUserPhysicalPages");
+        FAIL(false, "unable to register NtFreeUserPhysicalPages");
 
     d_->observers_NtFreeUserPhysicalPages.push_back(on_func);
     return true;
@@ -3158,7 +3158,7 @@ bool monitor::GenericMonitor::register_NtFreeVirtualMemory(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtFreeVirtualMemory");
     if(!ok)
-        FAIL(false, "Unable to register NtFreeVirtualMemory");
+        FAIL(false, "unable to register NtFreeVirtualMemory");
 
     d_->observers_NtFreeVirtualMemory.push_back(on_func);
     return true;
@@ -3182,7 +3182,7 @@ bool monitor::GenericMonitor::register_NtFreezeRegistry(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtFreezeRegistry");
     if(!ok)
-        FAIL(false, "Unable to register NtFreezeRegistry");
+        FAIL(false, "unable to register NtFreezeRegistry");
 
     d_->observers_NtFreezeRegistry.push_back(on_func);
     return true;
@@ -3203,7 +3203,7 @@ bool monitor::GenericMonitor::register_NtFreezeTransactions(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtFreezeTransactions");
     if(!ok)
-        FAIL(false, "Unable to register NtFreezeTransactions");
+        FAIL(false, "unable to register NtFreezeTransactions");
 
     d_->observers_NtFreezeTransactions.push_back(on_func);
     return true;
@@ -3225,7 +3225,7 @@ bool monitor::GenericMonitor::register_NtFsControlFile(proc_t proc, const on_NtF
 {
     const auto ok = setup_func(proc, "NtFsControlFile");
     if(!ok)
-        FAIL(false, "Unable to register NtFsControlFile");
+        FAIL(false, "unable to register NtFsControlFile");
 
     d_->observers_NtFsControlFile.push_back(on_func);
     return true;
@@ -3255,7 +3255,7 @@ bool monitor::GenericMonitor::register_NtGetContextThread(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtGetContextThread");
     if(!ok)
-        FAIL(false, "Unable to register NtGetContextThread");
+        FAIL(false, "unable to register NtGetContextThread");
 
     d_->observers_NtGetContextThread.push_back(on_func);
     return true;
@@ -3277,7 +3277,7 @@ bool monitor::GenericMonitor::register_NtGetDevicePowerState(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtGetDevicePowerState");
     if(!ok)
-        FAIL(false, "Unable to register NtGetDevicePowerState");
+        FAIL(false, "unable to register NtGetDevicePowerState");
 
     d_->observers_NtGetDevicePowerState.push_back(on_func);
     return true;
@@ -3299,7 +3299,7 @@ bool monitor::GenericMonitor::register_NtGetMUIRegistryInfo(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtGetMUIRegistryInfo");
     if(!ok)
-        FAIL(false, "Unable to register NtGetMUIRegistryInfo");
+        FAIL(false, "unable to register NtGetMUIRegistryInfo");
 
     d_->observers_NtGetMUIRegistryInfo.push_back(on_func);
     return true;
@@ -3322,7 +3322,7 @@ bool monitor::GenericMonitor::register_NtGetNextProcess(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtGetNextProcess");
     if(!ok)
-        FAIL(false, "Unable to register NtGetNextProcess");
+        FAIL(false, "unable to register NtGetNextProcess");
 
     d_->observers_NtGetNextProcess.push_back(on_func);
     return true;
@@ -3347,7 +3347,7 @@ bool monitor::GenericMonitor::register_NtGetNextThread(proc_t proc, const on_NtG
 {
     const auto ok = setup_func(proc, "NtGetNextThread");
     if(!ok)
-        FAIL(false, "Unable to register NtGetNextThread");
+        FAIL(false, "unable to register NtGetNextThread");
 
     d_->observers_NtGetNextThread.push_back(on_func);
     return true;
@@ -3373,7 +3373,7 @@ bool monitor::GenericMonitor::register_NtGetNlsSectionPtr(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtGetNlsSectionPtr");
     if(!ok)
-        FAIL(false, "Unable to register NtGetNlsSectionPtr");
+        FAIL(false, "unable to register NtGetNlsSectionPtr");
 
     d_->observers_NtGetNlsSectionPtr.push_back(on_func);
     return true;
@@ -3398,7 +3398,7 @@ bool monitor::GenericMonitor::register_NtGetNotificationResourceManager(proc_t p
 {
     const auto ok = setup_func(proc, "NtGetNotificationResourceManager");
     if(!ok)
-        FAIL(false, "Unable to register NtGetNotificationResourceManager");
+        FAIL(false, "unable to register NtGetNotificationResourceManager");
 
     d_->observers_NtGetNotificationResourceManager.push_back(on_func);
     return true;
@@ -3425,7 +3425,7 @@ bool monitor::GenericMonitor::register_NtGetPlugPlayEvent(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtGetPlugPlayEvent");
     if(!ok)
-        FAIL(false, "Unable to register NtGetPlugPlayEvent");
+        FAIL(false, "unable to register NtGetPlugPlayEvent");
 
     d_->observers_NtGetPlugPlayEvent.push_back(on_func);
     return true;
@@ -3449,7 +3449,7 @@ bool monitor::GenericMonitor::register_NtGetWriteWatch(proc_t proc, const on_NtG
 {
     const auto ok = setup_func(proc, "NtGetWriteWatch");
     if(!ok)
-        FAIL(false, "Unable to register NtGetWriteWatch");
+        FAIL(false, "unable to register NtGetWriteWatch");
 
     d_->observers_NtGetWriteWatch.push_back(on_func);
     return true;
@@ -3476,7 +3476,7 @@ bool monitor::GenericMonitor::register_NtImpersonateAnonymousToken(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtImpersonateAnonymousToken");
     if(!ok)
-        FAIL(false, "Unable to register NtImpersonateAnonymousToken");
+        FAIL(false, "unable to register NtImpersonateAnonymousToken");
 
     d_->observers_NtImpersonateAnonymousToken.push_back(on_func);
     return true;
@@ -3497,7 +3497,7 @@ bool monitor::GenericMonitor::register_NtImpersonateClientOfPort(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtImpersonateClientOfPort");
     if(!ok)
-        FAIL(false, "Unable to register NtImpersonateClientOfPort");
+        FAIL(false, "unable to register NtImpersonateClientOfPort");
 
     d_->observers_NtImpersonateClientOfPort.push_back(on_func);
     return true;
@@ -3519,7 +3519,7 @@ bool monitor::GenericMonitor::register_NtImpersonateThread(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtImpersonateThread");
     if(!ok)
-        FAIL(false, "Unable to register NtImpersonateThread");
+        FAIL(false, "unable to register NtImpersonateThread");
 
     d_->observers_NtImpersonateThread.push_back(on_func);
     return true;
@@ -3542,7 +3542,7 @@ bool monitor::GenericMonitor::register_NtInitializeNlsFiles(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtInitializeNlsFiles");
     if(!ok)
-        FAIL(false, "Unable to register NtInitializeNlsFiles");
+        FAIL(false, "unable to register NtInitializeNlsFiles");
 
     d_->observers_NtInitializeNlsFiles.push_back(on_func);
     return true;
@@ -3565,7 +3565,7 @@ bool monitor::GenericMonitor::register_NtInitializeRegistry(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtInitializeRegistry");
     if(!ok)
-        FAIL(false, "Unable to register NtInitializeRegistry");
+        FAIL(false, "unable to register NtInitializeRegistry");
 
     d_->observers_NtInitializeRegistry.push_back(on_func);
     return true;
@@ -3586,7 +3586,7 @@ bool monitor::GenericMonitor::register_NtInitiatePowerAction(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtInitiatePowerAction");
     if(!ok)
-        FAIL(false, "Unable to register NtInitiatePowerAction");
+        FAIL(false, "unable to register NtInitiatePowerAction");
 
     d_->observers_NtInitiatePowerAction.push_back(on_func);
     return true;
@@ -3610,7 +3610,7 @@ bool monitor::GenericMonitor::register_NtIsProcessInJob(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtIsProcessInJob");
     if(!ok)
-        FAIL(false, "Unable to register NtIsProcessInJob");
+        FAIL(false, "unable to register NtIsProcessInJob");
 
     d_->observers_NtIsProcessInJob.push_back(on_func);
     return true;
@@ -3632,7 +3632,7 @@ bool monitor::GenericMonitor::register_NtListenPort(proc_t proc, const on_NtList
 {
     const auto ok = setup_func(proc, "NtListenPort");
     if(!ok)
-        FAIL(false, "Unable to register NtListenPort");
+        FAIL(false, "unable to register NtListenPort");
 
     d_->observers_NtListenPort.push_back(on_func);
     return true;
@@ -3654,7 +3654,7 @@ bool monitor::GenericMonitor::register_NtLoadDriver(proc_t proc, const on_NtLoad
 {
     const auto ok = setup_func(proc, "NtLoadDriver");
     if(!ok)
-        FAIL(false, "Unable to register NtLoadDriver");
+        FAIL(false, "unable to register NtLoadDriver");
 
     d_->observers_NtLoadDriver.push_back(on_func);
     return true;
@@ -3675,7 +3675,7 @@ bool monitor::GenericMonitor::register_NtLoadKey2(proc_t proc, const on_NtLoadKe
 {
     const auto ok = setup_func(proc, "NtLoadKey2");
     if(!ok)
-        FAIL(false, "Unable to register NtLoadKey2");
+        FAIL(false, "unable to register NtLoadKey2");
 
     d_->observers_NtLoadKey2.push_back(on_func);
     return true;
@@ -3698,7 +3698,7 @@ bool monitor::GenericMonitor::register_NtLoadKeyEx(proc_t proc, const on_NtLoadK
 {
     const auto ok = setup_func(proc, "NtLoadKeyEx");
     if(!ok)
-        FAIL(false, "Unable to register NtLoadKeyEx");
+        FAIL(false, "unable to register NtLoadKeyEx");
 
     d_->observers_NtLoadKeyEx.push_back(on_func);
     return true;
@@ -3722,7 +3722,7 @@ bool monitor::GenericMonitor::register_NtLoadKey(proc_t proc, const on_NtLoadKey
 {
     const auto ok = setup_func(proc, "NtLoadKey");
     if(!ok)
-        FAIL(false, "Unable to register NtLoadKey");
+        FAIL(false, "unable to register NtLoadKey");
 
     d_->observers_NtLoadKey.push_back(on_func);
     return true;
@@ -3744,7 +3744,7 @@ bool monitor::GenericMonitor::register_NtLockFile(proc_t proc, const on_NtLockFi
 {
     const auto ok = setup_func(proc, "NtLockFile");
     if(!ok)
-        FAIL(false, "Unable to register NtLockFile");
+        FAIL(false, "unable to register NtLockFile");
 
     d_->observers_NtLockFile.push_back(on_func);
     return true;
@@ -3774,7 +3774,7 @@ bool monitor::GenericMonitor::register_NtLockProductActivationKeys(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtLockProductActivationKeys");
     if(!ok)
-        FAIL(false, "Unable to register NtLockProductActivationKeys");
+        FAIL(false, "unable to register NtLockProductActivationKeys");
 
     d_->observers_NtLockProductActivationKeys.push_back(on_func);
     return true;
@@ -3796,7 +3796,7 @@ bool monitor::GenericMonitor::register_NtLockRegistryKey(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtLockRegistryKey");
     if(!ok)
-        FAIL(false, "Unable to register NtLockRegistryKey");
+        FAIL(false, "unable to register NtLockRegistryKey");
 
     d_->observers_NtLockRegistryKey.push_back(on_func);
     return true;
@@ -3817,7 +3817,7 @@ bool monitor::GenericMonitor::register_NtLockVirtualMemory(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtLockVirtualMemory");
     if(!ok)
-        FAIL(false, "Unable to register NtLockVirtualMemory");
+        FAIL(false, "unable to register NtLockVirtualMemory");
 
     d_->observers_NtLockVirtualMemory.push_back(on_func);
     return true;
@@ -3841,7 +3841,7 @@ bool monitor::GenericMonitor::register_NtMakePermanentObject(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtMakePermanentObject");
     if(!ok)
-        FAIL(false, "Unable to register NtMakePermanentObject");
+        FAIL(false, "unable to register NtMakePermanentObject");
 
     d_->observers_NtMakePermanentObject.push_back(on_func);
     return true;
@@ -3862,7 +3862,7 @@ bool monitor::GenericMonitor::register_NtMakeTemporaryObject(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtMakeTemporaryObject");
     if(!ok)
-        FAIL(false, "Unable to register NtMakeTemporaryObject");
+        FAIL(false, "unable to register NtMakeTemporaryObject");
 
     d_->observers_NtMakeTemporaryObject.push_back(on_func);
     return true;
@@ -3883,7 +3883,7 @@ bool monitor::GenericMonitor::register_NtMapCMFModule(proc_t proc, const on_NtMa
 {
     const auto ok = setup_func(proc, "NtMapCMFModule");
     if(!ok)
-        FAIL(false, "Unable to register NtMapCMFModule");
+        FAIL(false, "unable to register NtMapCMFModule");
 
     d_->observers_NtMapCMFModule.push_back(on_func);
     return true;
@@ -3909,7 +3909,7 @@ bool monitor::GenericMonitor::register_NtMapUserPhysicalPages(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtMapUserPhysicalPages");
     if(!ok)
-        FAIL(false, "Unable to register NtMapUserPhysicalPages");
+        FAIL(false, "unable to register NtMapUserPhysicalPages");
 
     d_->observers_NtMapUserPhysicalPages.push_back(on_func);
     return true;
@@ -3932,7 +3932,7 @@ bool monitor::GenericMonitor::register_NtMapUserPhysicalPagesScatter(proc_t proc
 {
     const auto ok = setup_func(proc, "NtMapUserPhysicalPagesScatter");
     if(!ok)
-        FAIL(false, "Unable to register NtMapUserPhysicalPagesScatter");
+        FAIL(false, "unable to register NtMapUserPhysicalPagesScatter");
 
     d_->observers_NtMapUserPhysicalPagesScatter.push_back(on_func);
     return true;
@@ -3955,7 +3955,7 @@ bool monitor::GenericMonitor::register_NtMapViewOfSection(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtMapViewOfSection");
     if(!ok)
-        FAIL(false, "Unable to register NtMapViewOfSection");
+        FAIL(false, "unable to register NtMapViewOfSection");
 
     d_->observers_NtMapViewOfSection.push_back(on_func);
     return true;
@@ -3985,7 +3985,7 @@ bool monitor::GenericMonitor::register_NtModifyBootEntry(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtModifyBootEntry");
     if(!ok)
-        FAIL(false, "Unable to register NtModifyBootEntry");
+        FAIL(false, "unable to register NtModifyBootEntry");
 
     d_->observers_NtModifyBootEntry.push_back(on_func);
     return true;
@@ -4006,7 +4006,7 @@ bool monitor::GenericMonitor::register_NtModifyDriverEntry(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtModifyDriverEntry");
     if(!ok)
-        FAIL(false, "Unable to register NtModifyDriverEntry");
+        FAIL(false, "unable to register NtModifyDriverEntry");
 
     d_->observers_NtModifyDriverEntry.push_back(on_func);
     return true;
@@ -4027,7 +4027,7 @@ bool monitor::GenericMonitor::register_NtNotifyChangeDirectoryFile(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtNotifyChangeDirectoryFile");
     if(!ok)
-        FAIL(false, "Unable to register NtNotifyChangeDirectoryFile");
+        FAIL(false, "unable to register NtNotifyChangeDirectoryFile");
 
     d_->observers_NtNotifyChangeDirectoryFile.push_back(on_func);
     return true;
@@ -4056,7 +4056,7 @@ bool monitor::GenericMonitor::register_NtNotifyChangeKey(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtNotifyChangeKey");
     if(!ok)
-        FAIL(false, "Unable to register NtNotifyChangeKey");
+        FAIL(false, "unable to register NtNotifyChangeKey");
 
     d_->observers_NtNotifyChangeKey.push_back(on_func);
     return true;
@@ -4086,7 +4086,7 @@ bool monitor::GenericMonitor::register_NtNotifyChangeMultipleKeys(proc_t proc, c
 {
     const auto ok = setup_func(proc, "NtNotifyChangeMultipleKeys");
     if(!ok)
-        FAIL(false, "Unable to register NtNotifyChangeMultipleKeys");
+        FAIL(false, "unable to register NtNotifyChangeMultipleKeys");
 
     d_->observers_NtNotifyChangeMultipleKeys.push_back(on_func);
     return true;
@@ -4118,7 +4118,7 @@ bool monitor::GenericMonitor::register_NtNotifyChangeSession(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtNotifyChangeSession");
     if(!ok)
-        FAIL(false, "Unable to register NtNotifyChangeSession");
+        FAIL(false, "unable to register NtNotifyChangeSession");
 
     d_->observers_NtNotifyChangeSession.push_back(on_func);
     return true;
@@ -4146,7 +4146,7 @@ bool monitor::GenericMonitor::register_NtOpenDirectoryObject(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtOpenDirectoryObject");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenDirectoryObject");
+        FAIL(false, "unable to register NtOpenDirectoryObject");
 
     d_->observers_NtOpenDirectoryObject.push_back(on_func);
     return true;
@@ -4169,7 +4169,7 @@ bool monitor::GenericMonitor::register_NtOpenEnlistment(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtOpenEnlistment");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenEnlistment");
+        FAIL(false, "unable to register NtOpenEnlistment");
 
     d_->observers_NtOpenEnlistment.push_back(on_func);
     return true;
@@ -4194,7 +4194,7 @@ bool monitor::GenericMonitor::register_NtOpenEvent(proc_t proc, const on_NtOpenE
 {
     const auto ok = setup_func(proc, "NtOpenEvent");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenEvent");
+        FAIL(false, "unable to register NtOpenEvent");
 
     d_->observers_NtOpenEvent.push_back(on_func);
     return true;
@@ -4217,7 +4217,7 @@ bool monitor::GenericMonitor::register_NtOpenEventPair(proc_t proc, const on_NtO
 {
     const auto ok = setup_func(proc, "NtOpenEventPair");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenEventPair");
+        FAIL(false, "unable to register NtOpenEventPair");
 
     d_->observers_NtOpenEventPair.push_back(on_func);
     return true;
@@ -4240,7 +4240,7 @@ bool monitor::GenericMonitor::register_NtOpenFile(proc_t proc, const on_NtOpenFi
 {
     const auto ok = setup_func(proc, "NtOpenFile");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenFile");
+        FAIL(false, "unable to register NtOpenFile");
 
     d_->observers_NtOpenFile.push_back(on_func);
     return true;
@@ -4266,7 +4266,7 @@ bool monitor::GenericMonitor::register_NtOpenIoCompletion(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtOpenIoCompletion");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenIoCompletion");
+        FAIL(false, "unable to register NtOpenIoCompletion");
 
     d_->observers_NtOpenIoCompletion.push_back(on_func);
     return true;
@@ -4289,7 +4289,7 @@ bool monitor::GenericMonitor::register_NtOpenJobObject(proc_t proc, const on_NtO
 {
     const auto ok = setup_func(proc, "NtOpenJobObject");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenJobObject");
+        FAIL(false, "unable to register NtOpenJobObject");
 
     d_->observers_NtOpenJobObject.push_back(on_func);
     return true;
@@ -4312,7 +4312,7 @@ bool monitor::GenericMonitor::register_NtOpenKeyedEvent(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtOpenKeyedEvent");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenKeyedEvent");
+        FAIL(false, "unable to register NtOpenKeyedEvent");
 
     d_->observers_NtOpenKeyedEvent.push_back(on_func);
     return true;
@@ -4335,7 +4335,7 @@ bool monitor::GenericMonitor::register_NtOpenKeyEx(proc_t proc, const on_NtOpenK
 {
     const auto ok = setup_func(proc, "NtOpenKeyEx");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenKeyEx");
+        FAIL(false, "unable to register NtOpenKeyEx");
 
     d_->observers_NtOpenKeyEx.push_back(on_func);
     return true;
@@ -4359,7 +4359,7 @@ bool monitor::GenericMonitor::register_NtOpenKey(proc_t proc, const on_NtOpenKey
 {
     const auto ok = setup_func(proc, "NtOpenKey");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenKey");
+        FAIL(false, "unable to register NtOpenKey");
 
     d_->observers_NtOpenKey.push_back(on_func);
     return true;
@@ -4382,7 +4382,7 @@ bool monitor::GenericMonitor::register_NtOpenKeyTransactedEx(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtOpenKeyTransactedEx");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenKeyTransactedEx");
+        FAIL(false, "unable to register NtOpenKeyTransactedEx");
 
     d_->observers_NtOpenKeyTransactedEx.push_back(on_func);
     return true;
@@ -4407,7 +4407,7 @@ bool monitor::GenericMonitor::register_NtOpenKeyTransacted(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtOpenKeyTransacted");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenKeyTransacted");
+        FAIL(false, "unable to register NtOpenKeyTransacted");
 
     d_->observers_NtOpenKeyTransacted.push_back(on_func);
     return true;
@@ -4431,7 +4431,7 @@ bool monitor::GenericMonitor::register_NtOpenMutant(proc_t proc, const on_NtOpen
 {
     const auto ok = setup_func(proc, "NtOpenMutant");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenMutant");
+        FAIL(false, "unable to register NtOpenMutant");
 
     d_->observers_NtOpenMutant.push_back(on_func);
     return true;
@@ -4454,7 +4454,7 @@ bool monitor::GenericMonitor::register_NtOpenObjectAuditAlarm(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtOpenObjectAuditAlarm");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenObjectAuditAlarm");
+        FAIL(false, "unable to register NtOpenObjectAuditAlarm");
 
     d_->observers_NtOpenObjectAuditAlarm.push_back(on_func);
     return true;
@@ -4486,7 +4486,7 @@ bool monitor::GenericMonitor::register_NtOpenPrivateNamespace(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtOpenPrivateNamespace");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenPrivateNamespace");
+        FAIL(false, "unable to register NtOpenPrivateNamespace");
 
     d_->observers_NtOpenPrivateNamespace.push_back(on_func);
     return true;
@@ -4510,7 +4510,7 @@ bool monitor::GenericMonitor::register_NtOpenProcess(proc_t proc, const on_NtOpe
 {
     const auto ok = setup_func(proc, "NtOpenProcess");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenProcess");
+        FAIL(false, "unable to register NtOpenProcess");
 
     d_->observers_NtOpenProcess.push_back(on_func);
     return true;
@@ -4534,7 +4534,7 @@ bool monitor::GenericMonitor::register_NtOpenProcessTokenEx(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtOpenProcessTokenEx");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenProcessTokenEx");
+        FAIL(false, "unable to register NtOpenProcessTokenEx");
 
     d_->observers_NtOpenProcessTokenEx.push_back(on_func);
     return true;
@@ -4558,7 +4558,7 @@ bool monitor::GenericMonitor::register_NtOpenProcessToken(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtOpenProcessToken");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenProcessToken");
+        FAIL(false, "unable to register NtOpenProcessToken");
 
     d_->observers_NtOpenProcessToken.push_back(on_func);
     return true;
@@ -4581,7 +4581,7 @@ bool monitor::GenericMonitor::register_NtOpenResourceManager(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtOpenResourceManager");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenResourceManager");
+        FAIL(false, "unable to register NtOpenResourceManager");
 
     d_->observers_NtOpenResourceManager.push_back(on_func);
     return true;
@@ -4606,7 +4606,7 @@ bool monitor::GenericMonitor::register_NtOpenSection(proc_t proc, const on_NtOpe
 {
     const auto ok = setup_func(proc, "NtOpenSection");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenSection");
+        FAIL(false, "unable to register NtOpenSection");
 
     d_->observers_NtOpenSection.push_back(on_func);
     return true;
@@ -4629,7 +4629,7 @@ bool monitor::GenericMonitor::register_NtOpenSemaphore(proc_t proc, const on_NtO
 {
     const auto ok = setup_func(proc, "NtOpenSemaphore");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenSemaphore");
+        FAIL(false, "unable to register NtOpenSemaphore");
 
     d_->observers_NtOpenSemaphore.push_back(on_func);
     return true;
@@ -4652,7 +4652,7 @@ bool monitor::GenericMonitor::register_NtOpenSession(proc_t proc, const on_NtOpe
 {
     const auto ok = setup_func(proc, "NtOpenSession");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenSession");
+        FAIL(false, "unable to register NtOpenSession");
 
     d_->observers_NtOpenSession.push_back(on_func);
     return true;
@@ -4675,7 +4675,7 @@ bool monitor::GenericMonitor::register_NtOpenSymbolicLinkObject(proc_t proc, con
 {
     const auto ok = setup_func(proc, "NtOpenSymbolicLinkObject");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenSymbolicLinkObject");
+        FAIL(false, "unable to register NtOpenSymbolicLinkObject");
 
     d_->observers_NtOpenSymbolicLinkObject.push_back(on_func);
     return true;
@@ -4698,7 +4698,7 @@ bool monitor::GenericMonitor::register_NtOpenThread(proc_t proc, const on_NtOpen
 {
     const auto ok = setup_func(proc, "NtOpenThread");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenThread");
+        FAIL(false, "unable to register NtOpenThread");
 
     d_->observers_NtOpenThread.push_back(on_func);
     return true;
@@ -4722,7 +4722,7 @@ bool monitor::GenericMonitor::register_NtOpenThreadTokenEx(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtOpenThreadTokenEx");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenThreadTokenEx");
+        FAIL(false, "unable to register NtOpenThreadTokenEx");
 
     d_->observers_NtOpenThreadTokenEx.push_back(on_func);
     return true;
@@ -4747,7 +4747,7 @@ bool monitor::GenericMonitor::register_NtOpenThreadToken(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtOpenThreadToken");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenThreadToken");
+        FAIL(false, "unable to register NtOpenThreadToken");
 
     d_->observers_NtOpenThreadToken.push_back(on_func);
     return true;
@@ -4771,7 +4771,7 @@ bool monitor::GenericMonitor::register_NtOpenTimer(proc_t proc, const on_NtOpenT
 {
     const auto ok = setup_func(proc, "NtOpenTimer");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenTimer");
+        FAIL(false, "unable to register NtOpenTimer");
 
     d_->observers_NtOpenTimer.push_back(on_func);
     return true;
@@ -4794,7 +4794,7 @@ bool monitor::GenericMonitor::register_NtOpenTransactionManager(proc_t proc, con
 {
     const auto ok = setup_func(proc, "NtOpenTransactionManager");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenTransactionManager");
+        FAIL(false, "unable to register NtOpenTransactionManager");
 
     d_->observers_NtOpenTransactionManager.push_back(on_func);
     return true;
@@ -4820,7 +4820,7 @@ bool monitor::GenericMonitor::register_NtOpenTransaction(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtOpenTransaction");
     if(!ok)
-        FAIL(false, "Unable to register NtOpenTransaction");
+        FAIL(false, "unable to register NtOpenTransaction");
 
     d_->observers_NtOpenTransaction.push_back(on_func);
     return true;
@@ -4845,7 +4845,7 @@ bool monitor::GenericMonitor::register_NtPlugPlayControl(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtPlugPlayControl");
     if(!ok)
-        FAIL(false, "Unable to register NtPlugPlayControl");
+        FAIL(false, "unable to register NtPlugPlayControl");
 
     d_->observers_NtPlugPlayControl.push_back(on_func);
     return true;
@@ -4868,7 +4868,7 @@ bool monitor::GenericMonitor::register_NtPowerInformation(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtPowerInformation");
     if(!ok)
-        FAIL(false, "Unable to register NtPowerInformation");
+        FAIL(false, "unable to register NtPowerInformation");
 
     d_->observers_NtPowerInformation.push_back(on_func);
     return true;
@@ -4893,7 +4893,7 @@ bool monitor::GenericMonitor::register_NtPrepareComplete(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtPrepareComplete");
     if(!ok)
-        FAIL(false, "Unable to register NtPrepareComplete");
+        FAIL(false, "unable to register NtPrepareComplete");
 
     d_->observers_NtPrepareComplete.push_back(on_func);
     return true;
@@ -4915,7 +4915,7 @@ bool monitor::GenericMonitor::register_NtPrepareEnlistment(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtPrepareEnlistment");
     if(!ok)
-        FAIL(false, "Unable to register NtPrepareEnlistment");
+        FAIL(false, "unable to register NtPrepareEnlistment");
 
     d_->observers_NtPrepareEnlistment.push_back(on_func);
     return true;
@@ -4937,7 +4937,7 @@ bool monitor::GenericMonitor::register_NtPrePrepareComplete(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtPrePrepareComplete");
     if(!ok)
-        FAIL(false, "Unable to register NtPrePrepareComplete");
+        FAIL(false, "unable to register NtPrePrepareComplete");
 
     d_->observers_NtPrePrepareComplete.push_back(on_func);
     return true;
@@ -4959,7 +4959,7 @@ bool monitor::GenericMonitor::register_NtPrePrepareEnlistment(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtPrePrepareEnlistment");
     if(!ok)
-        FAIL(false, "Unable to register NtPrePrepareEnlistment");
+        FAIL(false, "unable to register NtPrePrepareEnlistment");
 
     d_->observers_NtPrePrepareEnlistment.push_back(on_func);
     return true;
@@ -4981,7 +4981,7 @@ bool monitor::GenericMonitor::register_NtPrivilegeCheck(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtPrivilegeCheck");
     if(!ok)
-        FAIL(false, "Unable to register NtPrivilegeCheck");
+        FAIL(false, "unable to register NtPrivilegeCheck");
 
     d_->observers_NtPrivilegeCheck.push_back(on_func);
     return true;
@@ -5004,7 +5004,7 @@ bool monitor::GenericMonitor::register_NtPrivilegedServiceAuditAlarm(proc_t proc
 {
     const auto ok = setup_func(proc, "NtPrivilegedServiceAuditAlarm");
     if(!ok)
-        FAIL(false, "Unable to register NtPrivilegedServiceAuditAlarm");
+        FAIL(false, "unable to register NtPrivilegedServiceAuditAlarm");
 
     d_->observers_NtPrivilegedServiceAuditAlarm.push_back(on_func);
     return true;
@@ -5029,7 +5029,7 @@ bool monitor::GenericMonitor::register_NtPrivilegeObjectAuditAlarm(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtPrivilegeObjectAuditAlarm");
     if(!ok)
-        FAIL(false, "Unable to register NtPrivilegeObjectAuditAlarm");
+        FAIL(false, "unable to register NtPrivilegeObjectAuditAlarm");
 
     d_->observers_NtPrivilegeObjectAuditAlarm.push_back(on_func);
     return true;
@@ -5055,7 +5055,7 @@ bool monitor::GenericMonitor::register_NtPropagationComplete(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtPropagationComplete");
     if(!ok)
-        FAIL(false, "Unable to register NtPropagationComplete");
+        FAIL(false, "unable to register NtPropagationComplete");
 
     d_->observers_NtPropagationComplete.push_back(on_func);
     return true;
@@ -5079,7 +5079,7 @@ bool monitor::GenericMonitor::register_NtPropagationFailed(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtPropagationFailed");
     if(!ok)
-        FAIL(false, "Unable to register NtPropagationFailed");
+        FAIL(false, "unable to register NtPropagationFailed");
 
     d_->observers_NtPropagationFailed.push_back(on_func);
     return true;
@@ -5102,7 +5102,7 @@ bool monitor::GenericMonitor::register_NtProtectVirtualMemory(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtProtectVirtualMemory");
     if(!ok)
-        FAIL(false, "Unable to register NtProtectVirtualMemory");
+        FAIL(false, "unable to register NtProtectVirtualMemory");
 
     d_->observers_NtProtectVirtualMemory.push_back(on_func);
     return true;
@@ -5127,7 +5127,7 @@ bool monitor::GenericMonitor::register_NtPulseEvent(proc_t proc, const on_NtPuls
 {
     const auto ok = setup_func(proc, "NtPulseEvent");
     if(!ok)
-        FAIL(false, "Unable to register NtPulseEvent");
+        FAIL(false, "unable to register NtPulseEvent");
 
     d_->observers_NtPulseEvent.push_back(on_func);
     return true;
@@ -5149,7 +5149,7 @@ bool monitor::GenericMonitor::register_NtQueryAttributesFile(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtQueryAttributesFile");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryAttributesFile");
+        FAIL(false, "unable to register NtQueryAttributesFile");
 
     d_->observers_NtQueryAttributesFile.push_back(on_func);
     return true;
@@ -5171,7 +5171,7 @@ bool monitor::GenericMonitor::register_NtQueryBootEntryOrder(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtQueryBootEntryOrder");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryBootEntryOrder");
+        FAIL(false, "unable to register NtQueryBootEntryOrder");
 
     d_->observers_NtQueryBootEntryOrder.push_back(on_func);
     return true;
@@ -5193,7 +5193,7 @@ bool monitor::GenericMonitor::register_NtQueryBootOptions(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtQueryBootOptions");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryBootOptions");
+        FAIL(false, "unable to register NtQueryBootOptions");
 
     d_->observers_NtQueryBootOptions.push_back(on_func);
     return true;
@@ -5215,7 +5215,7 @@ bool monitor::GenericMonitor::register_NtQueryDebugFilterState(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtQueryDebugFilterState");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryDebugFilterState");
+        FAIL(false, "unable to register NtQueryDebugFilterState");
 
     d_->observers_NtQueryDebugFilterState.push_back(on_func);
     return true;
@@ -5237,7 +5237,7 @@ bool monitor::GenericMonitor::register_NtQueryDefaultLocale(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtQueryDefaultLocale");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryDefaultLocale");
+        FAIL(false, "unable to register NtQueryDefaultLocale");
 
     d_->observers_NtQueryDefaultLocale.push_back(on_func);
     return true;
@@ -5259,7 +5259,7 @@ bool monitor::GenericMonitor::register_NtQueryDefaultUILanguage(proc_t proc, con
 {
     const auto ok = setup_func(proc, "NtQueryDefaultUILanguage");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryDefaultUILanguage");
+        FAIL(false, "unable to register NtQueryDefaultUILanguage");
 
     d_->observers_NtQueryDefaultUILanguage.push_back(on_func);
     return true;
@@ -5280,7 +5280,7 @@ bool monitor::GenericMonitor::register_NtQueryDirectoryFile(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtQueryDirectoryFile");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryDirectoryFile");
+        FAIL(false, "unable to register NtQueryDirectoryFile");
 
     d_->observers_NtQueryDirectoryFile.push_back(on_func);
     return true;
@@ -5311,7 +5311,7 @@ bool monitor::GenericMonitor::register_NtQueryDirectoryObject(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtQueryDirectoryObject");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryDirectoryObject");
+        FAIL(false, "unable to register NtQueryDirectoryObject");
 
     d_->observers_NtQueryDirectoryObject.push_back(on_func);
     return true;
@@ -5338,7 +5338,7 @@ bool monitor::GenericMonitor::register_NtQueryDriverEntryOrder(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtQueryDriverEntryOrder");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryDriverEntryOrder");
+        FAIL(false, "unable to register NtQueryDriverEntryOrder");
 
     d_->observers_NtQueryDriverEntryOrder.push_back(on_func);
     return true;
@@ -5360,7 +5360,7 @@ bool monitor::GenericMonitor::register_NtQueryEaFile(proc_t proc, const on_NtQue
 {
     const auto ok = setup_func(proc, "NtQueryEaFile");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryEaFile");
+        FAIL(false, "unable to register NtQueryEaFile");
 
     d_->observers_NtQueryEaFile.push_back(on_func);
     return true;
@@ -5389,7 +5389,7 @@ bool monitor::GenericMonitor::register_NtQueryEvent(proc_t proc, const on_NtQuer
 {
     const auto ok = setup_func(proc, "NtQueryEvent");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryEvent");
+        FAIL(false, "unable to register NtQueryEvent");
 
     d_->observers_NtQueryEvent.push_back(on_func);
     return true;
@@ -5414,7 +5414,7 @@ bool monitor::GenericMonitor::register_NtQueryFullAttributesFile(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtQueryFullAttributesFile");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryFullAttributesFile");
+        FAIL(false, "unable to register NtQueryFullAttributesFile");
 
     d_->observers_NtQueryFullAttributesFile.push_back(on_func);
     return true;
@@ -5436,7 +5436,7 @@ bool monitor::GenericMonitor::register_NtQueryInformationAtom(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtQueryInformationAtom");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryInformationAtom");
+        FAIL(false, "unable to register NtQueryInformationAtom");
 
     d_->observers_NtQueryInformationAtom.push_back(on_func);
     return true;
@@ -5461,7 +5461,7 @@ bool monitor::GenericMonitor::register_NtQueryInformationEnlistment(proc_t proc,
 {
     const auto ok = setup_func(proc, "NtQueryInformationEnlistment");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryInformationEnlistment");
+        FAIL(false, "unable to register NtQueryInformationEnlistment");
 
     d_->observers_NtQueryInformationEnlistment.push_back(on_func);
     return true;
@@ -5486,7 +5486,7 @@ bool monitor::GenericMonitor::register_NtQueryInformationFile(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtQueryInformationFile");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryInformationFile");
+        FAIL(false, "unable to register NtQueryInformationFile");
 
     d_->observers_NtQueryInformationFile.push_back(on_func);
     return true;
@@ -5511,7 +5511,7 @@ bool monitor::GenericMonitor::register_NtQueryInformationJobObject(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtQueryInformationJobObject");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryInformationJobObject");
+        FAIL(false, "unable to register NtQueryInformationJobObject");
 
     d_->observers_NtQueryInformationJobObject.push_back(on_func);
     return true;
@@ -5536,7 +5536,7 @@ bool monitor::GenericMonitor::register_NtQueryInformationPort(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtQueryInformationPort");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryInformationPort");
+        FAIL(false, "unable to register NtQueryInformationPort");
 
     d_->observers_NtQueryInformationPort.push_back(on_func);
     return true;
@@ -5561,7 +5561,7 @@ bool monitor::GenericMonitor::register_NtQueryInformationProcess(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtQueryInformationProcess");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryInformationProcess");
+        FAIL(false, "unable to register NtQueryInformationProcess");
 
     d_->observers_NtQueryInformationProcess.push_back(on_func);
     return true;
@@ -5586,7 +5586,7 @@ bool monitor::GenericMonitor::register_NtQueryInformationResourceManager(proc_t 
 {
     const auto ok = setup_func(proc, "NtQueryInformationResourceManager");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryInformationResourceManager");
+        FAIL(false, "unable to register NtQueryInformationResourceManager");
 
     d_->observers_NtQueryInformationResourceManager.push_back(on_func);
     return true;
@@ -5611,7 +5611,7 @@ bool monitor::GenericMonitor::register_NtQueryInformationThread(proc_t proc, con
 {
     const auto ok = setup_func(proc, "NtQueryInformationThread");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryInformationThread");
+        FAIL(false, "unable to register NtQueryInformationThread");
 
     d_->observers_NtQueryInformationThread.push_back(on_func);
     return true;
@@ -5636,7 +5636,7 @@ bool monitor::GenericMonitor::register_NtQueryInformationToken(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtQueryInformationToken");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryInformationToken");
+        FAIL(false, "unable to register NtQueryInformationToken");
 
     d_->observers_NtQueryInformationToken.push_back(on_func);
     return true;
@@ -5661,7 +5661,7 @@ bool monitor::GenericMonitor::register_NtQueryInformationTransaction(proc_t proc
 {
     const auto ok = setup_func(proc, "NtQueryInformationTransaction");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryInformationTransaction");
+        FAIL(false, "unable to register NtQueryInformationTransaction");
 
     d_->observers_NtQueryInformationTransaction.push_back(on_func);
     return true;
@@ -5686,7 +5686,7 @@ bool monitor::GenericMonitor::register_NtQueryInformationTransactionManager(proc
 {
     const auto ok = setup_func(proc, "NtQueryInformationTransactionManager");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryInformationTransactionManager");
+        FAIL(false, "unable to register NtQueryInformationTransactionManager");
 
     d_->observers_NtQueryInformationTransactionManager.push_back(on_func);
     return true;
@@ -5711,7 +5711,7 @@ bool monitor::GenericMonitor::register_NtQueryInformationWorkerFactory(proc_t pr
 {
     const auto ok = setup_func(proc, "NtQueryInformationWorkerFactory");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryInformationWorkerFactory");
+        FAIL(false, "unable to register NtQueryInformationWorkerFactory");
 
     d_->observers_NtQueryInformationWorkerFactory.push_back(on_func);
     return true;
@@ -5736,7 +5736,7 @@ bool monitor::GenericMonitor::register_NtQueryInstallUILanguage(proc_t proc, con
 {
     const auto ok = setup_func(proc, "NtQueryInstallUILanguage");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryInstallUILanguage");
+        FAIL(false, "unable to register NtQueryInstallUILanguage");
 
     d_->observers_NtQueryInstallUILanguage.push_back(on_func);
     return true;
@@ -5757,7 +5757,7 @@ bool monitor::GenericMonitor::register_NtQueryIntervalProfile(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtQueryIntervalProfile");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryIntervalProfile");
+        FAIL(false, "unable to register NtQueryIntervalProfile");
 
     d_->observers_NtQueryIntervalProfile.push_back(on_func);
     return true;
@@ -5779,7 +5779,7 @@ bool monitor::GenericMonitor::register_NtQueryIoCompletion(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtQueryIoCompletion");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryIoCompletion");
+        FAIL(false, "unable to register NtQueryIoCompletion");
 
     d_->observers_NtQueryIoCompletion.push_back(on_func);
     return true;
@@ -5804,7 +5804,7 @@ bool monitor::GenericMonitor::register_NtQueryKey(proc_t proc, const on_NtQueryK
 {
     const auto ok = setup_func(proc, "NtQueryKey");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryKey");
+        FAIL(false, "unable to register NtQueryKey");
 
     d_->observers_NtQueryKey.push_back(on_func);
     return true;
@@ -5829,7 +5829,7 @@ bool monitor::GenericMonitor::register_NtQueryLicenseValue(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtQueryLicenseValue");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryLicenseValue");
+        FAIL(false, "unable to register NtQueryLicenseValue");
 
     d_->observers_NtQueryLicenseValue.push_back(on_func);
     return true;
@@ -5854,7 +5854,7 @@ bool monitor::GenericMonitor::register_NtQueryMultipleValueKey(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtQueryMultipleValueKey");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryMultipleValueKey");
+        FAIL(false, "unable to register NtQueryMultipleValueKey");
 
     d_->observers_NtQueryMultipleValueKey.push_back(on_func);
     return true;
@@ -5880,7 +5880,7 @@ bool monitor::GenericMonitor::register_NtQueryMutant(proc_t proc, const on_NtQue
 {
     const auto ok = setup_func(proc, "NtQueryMutant");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryMutant");
+        FAIL(false, "unable to register NtQueryMutant");
 
     d_->observers_NtQueryMutant.push_back(on_func);
     return true;
@@ -5905,7 +5905,7 @@ bool monitor::GenericMonitor::register_NtQueryObject(proc_t proc, const on_NtQue
 {
     const auto ok = setup_func(proc, "NtQueryObject");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryObject");
+        FAIL(false, "unable to register NtQueryObject");
 
     d_->observers_NtQueryObject.push_back(on_func);
     return true;
@@ -5930,7 +5930,7 @@ bool monitor::GenericMonitor::register_NtQueryOpenSubKeysEx(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtQueryOpenSubKeysEx");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryOpenSubKeysEx");
+        FAIL(false, "unable to register NtQueryOpenSubKeysEx");
 
     d_->observers_NtQueryOpenSubKeysEx.push_back(on_func);
     return true;
@@ -5954,7 +5954,7 @@ bool monitor::GenericMonitor::register_NtQueryOpenSubKeys(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtQueryOpenSubKeys");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryOpenSubKeys");
+        FAIL(false, "unable to register NtQueryOpenSubKeys");
 
     d_->observers_NtQueryOpenSubKeys.push_back(on_func);
     return true;
@@ -5976,7 +5976,7 @@ bool monitor::GenericMonitor::register_NtQueryPerformanceCounter(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtQueryPerformanceCounter");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryPerformanceCounter");
+        FAIL(false, "unable to register NtQueryPerformanceCounter");
 
     d_->observers_NtQueryPerformanceCounter.push_back(on_func);
     return true;
@@ -5998,7 +5998,7 @@ bool monitor::GenericMonitor::register_NtQueryQuotaInformationFile(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtQueryQuotaInformationFile");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryQuotaInformationFile");
+        FAIL(false, "unable to register NtQueryQuotaInformationFile");
 
     d_->observers_NtQueryQuotaInformationFile.push_back(on_func);
     return true;
@@ -6027,7 +6027,7 @@ bool monitor::GenericMonitor::register_NtQuerySection(proc_t proc, const on_NtQu
 {
     const auto ok = setup_func(proc, "NtQuerySection");
     if(!ok)
-        FAIL(false, "Unable to register NtQuerySection");
+        FAIL(false, "unable to register NtQuerySection");
 
     d_->observers_NtQuerySection.push_back(on_func);
     return true;
@@ -6052,7 +6052,7 @@ bool monitor::GenericMonitor::register_NtQuerySecurityAttributesToken(proc_t pro
 {
     const auto ok = setup_func(proc, "NtQuerySecurityAttributesToken");
     if(!ok)
-        FAIL(false, "Unable to register NtQuerySecurityAttributesToken");
+        FAIL(false, "unable to register NtQuerySecurityAttributesToken");
 
     d_->observers_NtQuerySecurityAttributesToken.push_back(on_func);
     return true;
@@ -6078,7 +6078,7 @@ bool monitor::GenericMonitor::register_NtQuerySecurityObject(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtQuerySecurityObject");
     if(!ok)
-        FAIL(false, "Unable to register NtQuerySecurityObject");
+        FAIL(false, "unable to register NtQuerySecurityObject");
 
     d_->observers_NtQuerySecurityObject.push_back(on_func);
     return true;
@@ -6103,7 +6103,7 @@ bool monitor::GenericMonitor::register_NtQuerySemaphore(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtQuerySemaphore");
     if(!ok)
-        FAIL(false, "Unable to register NtQuerySemaphore");
+        FAIL(false, "unable to register NtQuerySemaphore");
 
     d_->observers_NtQuerySemaphore.push_back(on_func);
     return true;
@@ -6128,7 +6128,7 @@ bool monitor::GenericMonitor::register_NtQuerySymbolicLinkObject(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtQuerySymbolicLinkObject");
     if(!ok)
-        FAIL(false, "Unable to register NtQuerySymbolicLinkObject");
+        FAIL(false, "unable to register NtQuerySymbolicLinkObject");
 
     d_->observers_NtQuerySymbolicLinkObject.push_back(on_func);
     return true;
@@ -6151,7 +6151,7 @@ bool monitor::GenericMonitor::register_NtQuerySystemEnvironmentValueEx(proc_t pr
 {
     const auto ok = setup_func(proc, "NtQuerySystemEnvironmentValueEx");
     if(!ok)
-        FAIL(false, "Unable to register NtQuerySystemEnvironmentValueEx");
+        FAIL(false, "unable to register NtQuerySystemEnvironmentValueEx");
 
     d_->observers_NtQuerySystemEnvironmentValueEx.push_back(on_func);
     return true;
@@ -6176,7 +6176,7 @@ bool monitor::GenericMonitor::register_NtQuerySystemEnvironmentValue(proc_t proc
 {
     const auto ok = setup_func(proc, "NtQuerySystemEnvironmentValue");
     if(!ok)
-        FAIL(false, "Unable to register NtQuerySystemEnvironmentValue");
+        FAIL(false, "unable to register NtQuerySystemEnvironmentValue");
 
     d_->observers_NtQuerySystemEnvironmentValue.push_back(on_func);
     return true;
@@ -6200,7 +6200,7 @@ bool monitor::GenericMonitor::register_NtQuerySystemInformationEx(proc_t proc, c
 {
     const auto ok = setup_func(proc, "NtQuerySystemInformationEx");
     if(!ok)
-        FAIL(false, "Unable to register NtQuerySystemInformationEx");
+        FAIL(false, "unable to register NtQuerySystemInformationEx");
 
     d_->observers_NtQuerySystemInformationEx.push_back(on_func);
     return true;
@@ -6226,7 +6226,7 @@ bool monitor::GenericMonitor::register_NtQuerySystemInformation(proc_t proc, con
 {
     const auto ok = setup_func(proc, "NtQuerySystemInformation");
     if(!ok)
-        FAIL(false, "Unable to register NtQuerySystemInformation");
+        FAIL(false, "unable to register NtQuerySystemInformation");
 
     d_->observers_NtQuerySystemInformation.push_back(on_func);
     return true;
@@ -6250,7 +6250,7 @@ bool monitor::GenericMonitor::register_NtQuerySystemTime(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtQuerySystemTime");
     if(!ok)
-        FAIL(false, "Unable to register NtQuerySystemTime");
+        FAIL(false, "unable to register NtQuerySystemTime");
 
     d_->observers_NtQuerySystemTime.push_back(on_func);
     return true;
@@ -6271,7 +6271,7 @@ bool monitor::GenericMonitor::register_NtQueryTimer(proc_t proc, const on_NtQuer
 {
     const auto ok = setup_func(proc, "NtQueryTimer");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryTimer");
+        FAIL(false, "unable to register NtQueryTimer");
 
     d_->observers_NtQueryTimer.push_back(on_func);
     return true;
@@ -6296,7 +6296,7 @@ bool monitor::GenericMonitor::register_NtQueryTimerResolution(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtQueryTimerResolution");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryTimerResolution");
+        FAIL(false, "unable to register NtQueryTimerResolution");
 
     d_->observers_NtQueryTimerResolution.push_back(on_func);
     return true;
@@ -6319,7 +6319,7 @@ bool monitor::GenericMonitor::register_NtQueryValueKey(proc_t proc, const on_NtQ
 {
     const auto ok = setup_func(proc, "NtQueryValueKey");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryValueKey");
+        FAIL(false, "unable to register NtQueryValueKey");
 
     d_->observers_NtQueryValueKey.push_back(on_func);
     return true;
@@ -6345,7 +6345,7 @@ bool monitor::GenericMonitor::register_NtQueryVirtualMemory(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtQueryVirtualMemory");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryVirtualMemory");
+        FAIL(false, "unable to register NtQueryVirtualMemory");
 
     d_->observers_NtQueryVirtualMemory.push_back(on_func);
     return true;
@@ -6371,7 +6371,7 @@ bool monitor::GenericMonitor::register_NtQueryVolumeInformationFile(proc_t proc,
 {
     const auto ok = setup_func(proc, "NtQueryVolumeInformationFile");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryVolumeInformationFile");
+        FAIL(false, "unable to register NtQueryVolumeInformationFile");
 
     d_->observers_NtQueryVolumeInformationFile.push_back(on_func);
     return true;
@@ -6396,7 +6396,7 @@ bool monitor::GenericMonitor::register_NtQueueApcThreadEx(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtQueueApcThreadEx");
     if(!ok)
-        FAIL(false, "Unable to register NtQueueApcThreadEx");
+        FAIL(false, "unable to register NtQueueApcThreadEx");
 
     d_->observers_NtQueueApcThreadEx.push_back(on_func);
     return true;
@@ -6422,7 +6422,7 @@ bool monitor::GenericMonitor::register_NtQueueApcThread(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtQueueApcThread");
     if(!ok)
-        FAIL(false, "Unable to register NtQueueApcThread");
+        FAIL(false, "unable to register NtQueueApcThread");
 
     d_->observers_NtQueueApcThread.push_back(on_func);
     return true;
@@ -6447,7 +6447,7 @@ bool monitor::GenericMonitor::register_NtRaiseException(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtRaiseException");
     if(!ok)
-        FAIL(false, "Unable to register NtRaiseException");
+        FAIL(false, "unable to register NtRaiseException");
 
     d_->observers_NtRaiseException.push_back(on_func);
     return true;
@@ -6470,7 +6470,7 @@ bool monitor::GenericMonitor::register_NtRaiseHardError(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtRaiseHardError");
     if(!ok)
-        FAIL(false, "Unable to register NtRaiseHardError");
+        FAIL(false, "unable to register NtRaiseHardError");
 
     d_->observers_NtRaiseHardError.push_back(on_func);
     return true;
@@ -6496,7 +6496,7 @@ bool monitor::GenericMonitor::register_NtReadFile(proc_t proc, const on_NtReadFi
 {
     const auto ok = setup_func(proc, "NtReadFile");
     if(!ok)
-        FAIL(false, "Unable to register NtReadFile");
+        FAIL(false, "unable to register NtReadFile");
 
     d_->observers_NtReadFile.push_back(on_func);
     return true;
@@ -6525,7 +6525,7 @@ bool monitor::GenericMonitor::register_NtReadFileScatter(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtReadFileScatter");
     if(!ok)
-        FAIL(false, "Unable to register NtReadFileScatter");
+        FAIL(false, "unable to register NtReadFileScatter");
 
     d_->observers_NtReadFileScatter.push_back(on_func);
     return true;
@@ -6554,7 +6554,7 @@ bool monitor::GenericMonitor::register_NtReadOnlyEnlistment(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtReadOnlyEnlistment");
     if(!ok)
-        FAIL(false, "Unable to register NtReadOnlyEnlistment");
+        FAIL(false, "unable to register NtReadOnlyEnlistment");
 
     d_->observers_NtReadOnlyEnlistment.push_back(on_func);
     return true;
@@ -6576,7 +6576,7 @@ bool monitor::GenericMonitor::register_NtReadRequestData(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtReadRequestData");
     if(!ok)
-        FAIL(false, "Unable to register NtReadRequestData");
+        FAIL(false, "unable to register NtReadRequestData");
 
     d_->observers_NtReadRequestData.push_back(on_func);
     return true;
@@ -6602,7 +6602,7 @@ bool monitor::GenericMonitor::register_NtReadVirtualMemory(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtReadVirtualMemory");
     if(!ok)
-        FAIL(false, "Unable to register NtReadVirtualMemory");
+        FAIL(false, "unable to register NtReadVirtualMemory");
 
     d_->observers_NtReadVirtualMemory.push_back(on_func);
     return true;
@@ -6627,7 +6627,7 @@ bool monitor::GenericMonitor::register_NtRecoverEnlistment(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtRecoverEnlistment");
     if(!ok)
-        FAIL(false, "Unable to register NtRecoverEnlistment");
+        FAIL(false, "unable to register NtRecoverEnlistment");
 
     d_->observers_NtRecoverEnlistment.push_back(on_func);
     return true;
@@ -6649,7 +6649,7 @@ bool monitor::GenericMonitor::register_NtRecoverResourceManager(proc_t proc, con
 {
     const auto ok = setup_func(proc, "NtRecoverResourceManager");
     if(!ok)
-        FAIL(false, "Unable to register NtRecoverResourceManager");
+        FAIL(false, "unable to register NtRecoverResourceManager");
 
     d_->observers_NtRecoverResourceManager.push_back(on_func);
     return true;
@@ -6670,7 +6670,7 @@ bool monitor::GenericMonitor::register_NtRecoverTransactionManager(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtRecoverTransactionManager");
     if(!ok)
-        FAIL(false, "Unable to register NtRecoverTransactionManager");
+        FAIL(false, "unable to register NtRecoverTransactionManager");
 
     d_->observers_NtRecoverTransactionManager.push_back(on_func);
     return true;
@@ -6691,7 +6691,7 @@ bool monitor::GenericMonitor::register_NtRegisterProtocolAddressInformation(proc
 {
     const auto ok = setup_func(proc, "NtRegisterProtocolAddressInformation");
     if(!ok)
-        FAIL(false, "Unable to register NtRegisterProtocolAddressInformation");
+        FAIL(false, "unable to register NtRegisterProtocolAddressInformation");
 
     d_->observers_NtRegisterProtocolAddressInformation.push_back(on_func);
     return true;
@@ -6716,7 +6716,7 @@ bool monitor::GenericMonitor::register_NtRegisterThreadTerminatePort(proc_t proc
 {
     const auto ok = setup_func(proc, "NtRegisterThreadTerminatePort");
     if(!ok)
-        FAIL(false, "Unable to register NtRegisterThreadTerminatePort");
+        FAIL(false, "unable to register NtRegisterThreadTerminatePort");
 
     d_->observers_NtRegisterThreadTerminatePort.push_back(on_func);
     return true;
@@ -6737,7 +6737,7 @@ bool monitor::GenericMonitor::register_NtReleaseKeyedEvent(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtReleaseKeyedEvent");
     if(!ok)
-        FAIL(false, "Unable to register NtReleaseKeyedEvent");
+        FAIL(false, "unable to register NtReleaseKeyedEvent");
 
     d_->observers_NtReleaseKeyedEvent.push_back(on_func);
     return true;
@@ -6761,7 +6761,7 @@ bool monitor::GenericMonitor::register_NtReleaseMutant(proc_t proc, const on_NtR
 {
     const auto ok = setup_func(proc, "NtReleaseMutant");
     if(!ok)
-        FAIL(false, "Unable to register NtReleaseMutant");
+        FAIL(false, "unable to register NtReleaseMutant");
 
     d_->observers_NtReleaseMutant.push_back(on_func);
     return true;
@@ -6783,7 +6783,7 @@ bool monitor::GenericMonitor::register_NtReleaseSemaphore(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtReleaseSemaphore");
     if(!ok)
-        FAIL(false, "Unable to register NtReleaseSemaphore");
+        FAIL(false, "unable to register NtReleaseSemaphore");
 
     d_->observers_NtReleaseSemaphore.push_back(on_func);
     return true;
@@ -6806,7 +6806,7 @@ bool monitor::GenericMonitor::register_NtReleaseWorkerFactoryWorker(proc_t proc,
 {
     const auto ok = setup_func(proc, "NtReleaseWorkerFactoryWorker");
     if(!ok)
-        FAIL(false, "Unable to register NtReleaseWorkerFactoryWorker");
+        FAIL(false, "unable to register NtReleaseWorkerFactoryWorker");
 
     d_->observers_NtReleaseWorkerFactoryWorker.push_back(on_func);
     return true;
@@ -6827,7 +6827,7 @@ bool monitor::GenericMonitor::register_NtRemoveIoCompletionEx(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtRemoveIoCompletionEx");
     if(!ok)
-        FAIL(false, "Unable to register NtRemoveIoCompletionEx");
+        FAIL(false, "unable to register NtRemoveIoCompletionEx");
 
     d_->observers_NtRemoveIoCompletionEx.push_back(on_func);
     return true;
@@ -6853,7 +6853,7 @@ bool monitor::GenericMonitor::register_NtRemoveIoCompletion(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtRemoveIoCompletion");
     if(!ok)
-        FAIL(false, "Unable to register NtRemoveIoCompletion");
+        FAIL(false, "unable to register NtRemoveIoCompletion");
 
     d_->observers_NtRemoveIoCompletion.push_back(on_func);
     return true;
@@ -6878,7 +6878,7 @@ bool monitor::GenericMonitor::register_NtRemoveProcessDebug(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtRemoveProcessDebug");
     if(!ok)
-        FAIL(false, "Unable to register NtRemoveProcessDebug");
+        FAIL(false, "unable to register NtRemoveProcessDebug");
 
     d_->observers_NtRemoveProcessDebug.push_back(on_func);
     return true;
@@ -6900,7 +6900,7 @@ bool monitor::GenericMonitor::register_NtRenameKey(proc_t proc, const on_NtRenam
 {
     const auto ok = setup_func(proc, "NtRenameKey");
     if(!ok)
-        FAIL(false, "Unable to register NtRenameKey");
+        FAIL(false, "unable to register NtRenameKey");
 
     d_->observers_NtRenameKey.push_back(on_func);
     return true;
@@ -6922,7 +6922,7 @@ bool monitor::GenericMonitor::register_NtRenameTransactionManager(proc_t proc, c
 {
     const auto ok = setup_func(proc, "NtRenameTransactionManager");
     if(!ok)
-        FAIL(false, "Unable to register NtRenameTransactionManager");
+        FAIL(false, "unable to register NtRenameTransactionManager");
 
     d_->observers_NtRenameTransactionManager.push_back(on_func);
     return true;
@@ -6944,7 +6944,7 @@ bool monitor::GenericMonitor::register_NtReplaceKey(proc_t proc, const on_NtRepl
 {
     const auto ok = setup_func(proc, "NtReplaceKey");
     if(!ok)
-        FAIL(false, "Unable to register NtReplaceKey");
+        FAIL(false, "unable to register NtReplaceKey");
 
     d_->observers_NtReplaceKey.push_back(on_func);
     return true;
@@ -6967,7 +6967,7 @@ bool monitor::GenericMonitor::register_NtReplacePartitionUnit(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtReplacePartitionUnit");
     if(!ok)
-        FAIL(false, "Unable to register NtReplacePartitionUnit");
+        FAIL(false, "unable to register NtReplacePartitionUnit");
 
     d_->observers_NtReplacePartitionUnit.push_back(on_func);
     return true;
@@ -6990,7 +6990,7 @@ bool monitor::GenericMonitor::register_NtReplyPort(proc_t proc, const on_NtReply
 {
     const auto ok = setup_func(proc, "NtReplyPort");
     if(!ok)
-        FAIL(false, "Unable to register NtReplyPort");
+        FAIL(false, "unable to register NtReplyPort");
 
     d_->observers_NtReplyPort.push_back(on_func);
     return true;
@@ -7012,7 +7012,7 @@ bool monitor::GenericMonitor::register_NtReplyWaitReceivePortEx(proc_t proc, con
 {
     const auto ok = setup_func(proc, "NtReplyWaitReceivePortEx");
     if(!ok)
-        FAIL(false, "Unable to register NtReplyWaitReceivePortEx");
+        FAIL(false, "unable to register NtReplyWaitReceivePortEx");
 
     d_->observers_NtReplyWaitReceivePortEx.push_back(on_func);
     return true;
@@ -7037,7 +7037,7 @@ bool monitor::GenericMonitor::register_NtReplyWaitReceivePort(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtReplyWaitReceivePort");
     if(!ok)
-        FAIL(false, "Unable to register NtReplyWaitReceivePort");
+        FAIL(false, "unable to register NtReplyWaitReceivePort");
 
     d_->observers_NtReplyWaitReceivePort.push_back(on_func);
     return true;
@@ -7061,7 +7061,7 @@ bool monitor::GenericMonitor::register_NtReplyWaitReplyPort(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtReplyWaitReplyPort");
     if(!ok)
-        FAIL(false, "Unable to register NtReplyWaitReplyPort");
+        FAIL(false, "unable to register NtReplyWaitReplyPort");
 
     d_->observers_NtReplyWaitReplyPort.push_back(on_func);
     return true;
@@ -7083,7 +7083,7 @@ bool monitor::GenericMonitor::register_NtRequestPort(proc_t proc, const on_NtReq
 {
     const auto ok = setup_func(proc, "NtRequestPort");
     if(!ok)
-        FAIL(false, "Unable to register NtRequestPort");
+        FAIL(false, "unable to register NtRequestPort");
 
     d_->observers_NtRequestPort.push_back(on_func);
     return true;
@@ -7105,7 +7105,7 @@ bool monitor::GenericMonitor::register_NtRequestWaitReplyPort(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtRequestWaitReplyPort");
     if(!ok)
-        FAIL(false, "Unable to register NtRequestWaitReplyPort");
+        FAIL(false, "unable to register NtRequestWaitReplyPort");
 
     d_->observers_NtRequestWaitReplyPort.push_back(on_func);
     return true;
@@ -7128,7 +7128,7 @@ bool monitor::GenericMonitor::register_NtResetEvent(proc_t proc, const on_NtRese
 {
     const auto ok = setup_func(proc, "NtResetEvent");
     if(!ok)
-        FAIL(false, "Unable to register NtResetEvent");
+        FAIL(false, "unable to register NtResetEvent");
 
     d_->observers_NtResetEvent.push_back(on_func);
     return true;
@@ -7150,7 +7150,7 @@ bool monitor::GenericMonitor::register_NtResetWriteWatch(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtResetWriteWatch");
     if(!ok)
-        FAIL(false, "Unable to register NtResetWriteWatch");
+        FAIL(false, "unable to register NtResetWriteWatch");
 
     d_->observers_NtResetWriteWatch.push_back(on_func);
     return true;
@@ -7173,7 +7173,7 @@ bool monitor::GenericMonitor::register_NtRestoreKey(proc_t proc, const on_NtRest
 {
     const auto ok = setup_func(proc, "NtRestoreKey");
     if(!ok)
-        FAIL(false, "Unable to register NtRestoreKey");
+        FAIL(false, "unable to register NtRestoreKey");
 
     d_->observers_NtRestoreKey.push_back(on_func);
     return true;
@@ -7196,7 +7196,7 @@ bool monitor::GenericMonitor::register_NtResumeProcess(proc_t proc, const on_NtR
 {
     const auto ok = setup_func(proc, "NtResumeProcess");
     if(!ok)
-        FAIL(false, "Unable to register NtResumeProcess");
+        FAIL(false, "unable to register NtResumeProcess");
 
     d_->observers_NtResumeProcess.push_back(on_func);
     return true;
@@ -7217,7 +7217,7 @@ bool monitor::GenericMonitor::register_NtResumeThread(proc_t proc, const on_NtRe
 {
     const auto ok = setup_func(proc, "NtResumeThread");
     if(!ok)
-        FAIL(false, "Unable to register NtResumeThread");
+        FAIL(false, "unable to register NtResumeThread");
 
     d_->observers_NtResumeThread.push_back(on_func);
     return true;
@@ -7239,7 +7239,7 @@ bool monitor::GenericMonitor::register_NtRollbackComplete(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtRollbackComplete");
     if(!ok)
-        FAIL(false, "Unable to register NtRollbackComplete");
+        FAIL(false, "unable to register NtRollbackComplete");
 
     d_->observers_NtRollbackComplete.push_back(on_func);
     return true;
@@ -7261,7 +7261,7 @@ bool monitor::GenericMonitor::register_NtRollbackEnlistment(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtRollbackEnlistment");
     if(!ok)
-        FAIL(false, "Unable to register NtRollbackEnlistment");
+        FAIL(false, "unable to register NtRollbackEnlistment");
 
     d_->observers_NtRollbackEnlistment.push_back(on_func);
     return true;
@@ -7283,7 +7283,7 @@ bool monitor::GenericMonitor::register_NtRollbackTransaction(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtRollbackTransaction");
     if(!ok)
-        FAIL(false, "Unable to register NtRollbackTransaction");
+        FAIL(false, "unable to register NtRollbackTransaction");
 
     d_->observers_NtRollbackTransaction.push_back(on_func);
     return true;
@@ -7305,7 +7305,7 @@ bool monitor::GenericMonitor::register_NtRollforwardTransactionManager(proc_t pr
 {
     const auto ok = setup_func(proc, "NtRollforwardTransactionManager");
     if(!ok)
-        FAIL(false, "Unable to register NtRollforwardTransactionManager");
+        FAIL(false, "unable to register NtRollforwardTransactionManager");
 
     d_->observers_NtRollforwardTransactionManager.push_back(on_func);
     return true;
@@ -7327,7 +7327,7 @@ bool monitor::GenericMonitor::register_NtSaveKeyEx(proc_t proc, const on_NtSaveK
 {
     const auto ok = setup_func(proc, "NtSaveKeyEx");
     if(!ok)
-        FAIL(false, "Unable to register NtSaveKeyEx");
+        FAIL(false, "unable to register NtSaveKeyEx");
 
     d_->observers_NtSaveKeyEx.push_back(on_func);
     return true;
@@ -7350,7 +7350,7 @@ bool monitor::GenericMonitor::register_NtSaveKey(proc_t proc, const on_NtSaveKey
 {
     const auto ok = setup_func(proc, "NtSaveKey");
     if(!ok)
-        FAIL(false, "Unable to register NtSaveKey");
+        FAIL(false, "unable to register NtSaveKey");
 
     d_->observers_NtSaveKey.push_back(on_func);
     return true;
@@ -7372,7 +7372,7 @@ bool monitor::GenericMonitor::register_NtSaveMergedKeys(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtSaveMergedKeys");
     if(!ok)
-        FAIL(false, "Unable to register NtSaveMergedKeys");
+        FAIL(false, "unable to register NtSaveMergedKeys");
 
     d_->observers_NtSaveMergedKeys.push_back(on_func);
     return true;
@@ -7395,7 +7395,7 @@ bool monitor::GenericMonitor::register_NtSecureConnectPort(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtSecureConnectPort");
     if(!ok)
-        FAIL(false, "Unable to register NtSecureConnectPort");
+        FAIL(false, "unable to register NtSecureConnectPort");
 
     d_->observers_NtSecureConnectPort.push_back(on_func);
     return true;
@@ -7424,7 +7424,7 @@ bool monitor::GenericMonitor::register_NtSetBootEntryOrder(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtSetBootEntryOrder");
     if(!ok)
-        FAIL(false, "Unable to register NtSetBootEntryOrder");
+        FAIL(false, "unable to register NtSetBootEntryOrder");
 
     d_->observers_NtSetBootEntryOrder.push_back(on_func);
     return true;
@@ -7446,7 +7446,7 @@ bool monitor::GenericMonitor::register_NtSetBootOptions(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtSetBootOptions");
     if(!ok)
-        FAIL(false, "Unable to register NtSetBootOptions");
+        FAIL(false, "unable to register NtSetBootOptions");
 
     d_->observers_NtSetBootOptions.push_back(on_func);
     return true;
@@ -7468,7 +7468,7 @@ bool monitor::GenericMonitor::register_NtSetContextThread(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtSetContextThread");
     if(!ok)
-        FAIL(false, "Unable to register NtSetContextThread");
+        FAIL(false, "unable to register NtSetContextThread");
 
     d_->observers_NtSetContextThread.push_back(on_func);
     return true;
@@ -7490,7 +7490,7 @@ bool monitor::GenericMonitor::register_NtSetDebugFilterState(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtSetDebugFilterState");
     if(!ok)
-        FAIL(false, "Unable to register NtSetDebugFilterState");
+        FAIL(false, "unable to register NtSetDebugFilterState");
 
     d_->observers_NtSetDebugFilterState.push_back(on_func);
     return true;
@@ -7513,7 +7513,7 @@ bool monitor::GenericMonitor::register_NtSetDefaultHardErrorPort(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtSetDefaultHardErrorPort");
     if(!ok)
-        FAIL(false, "Unable to register NtSetDefaultHardErrorPort");
+        FAIL(false, "unable to register NtSetDefaultHardErrorPort");
 
     d_->observers_NtSetDefaultHardErrorPort.push_back(on_func);
     return true;
@@ -7534,7 +7534,7 @@ bool monitor::GenericMonitor::register_NtSetDefaultLocale(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtSetDefaultLocale");
     if(!ok)
-        FAIL(false, "Unable to register NtSetDefaultLocale");
+        FAIL(false, "unable to register NtSetDefaultLocale");
 
     d_->observers_NtSetDefaultLocale.push_back(on_func);
     return true;
@@ -7556,7 +7556,7 @@ bool monitor::GenericMonitor::register_NtSetDefaultUILanguage(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtSetDefaultUILanguage");
     if(!ok)
-        FAIL(false, "Unable to register NtSetDefaultUILanguage");
+        FAIL(false, "unable to register NtSetDefaultUILanguage");
 
     d_->observers_NtSetDefaultUILanguage.push_back(on_func);
     return true;
@@ -7577,7 +7577,7 @@ bool monitor::GenericMonitor::register_NtSetDriverEntryOrder(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtSetDriverEntryOrder");
     if(!ok)
-        FAIL(false, "Unable to register NtSetDriverEntryOrder");
+        FAIL(false, "unable to register NtSetDriverEntryOrder");
 
     d_->observers_NtSetDriverEntryOrder.push_back(on_func);
     return true;
@@ -7599,7 +7599,7 @@ bool monitor::GenericMonitor::register_NtSetEaFile(proc_t proc, const on_NtSetEa
 {
     const auto ok = setup_func(proc, "NtSetEaFile");
     if(!ok)
-        FAIL(false, "Unable to register NtSetEaFile");
+        FAIL(false, "unable to register NtSetEaFile");
 
     d_->observers_NtSetEaFile.push_back(on_func);
     return true;
@@ -7623,7 +7623,7 @@ bool monitor::GenericMonitor::register_NtSetEventBoostPriority(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtSetEventBoostPriority");
     if(!ok)
-        FAIL(false, "Unable to register NtSetEventBoostPriority");
+        FAIL(false, "unable to register NtSetEventBoostPriority");
 
     d_->observers_NtSetEventBoostPriority.push_back(on_func);
     return true;
@@ -7644,7 +7644,7 @@ bool monitor::GenericMonitor::register_NtSetEvent(proc_t proc, const on_NtSetEve
 {
     const auto ok = setup_func(proc, "NtSetEvent");
     if(!ok)
-        FAIL(false, "Unable to register NtSetEvent");
+        FAIL(false, "unable to register NtSetEvent");
 
     d_->observers_NtSetEvent.push_back(on_func);
     return true;
@@ -7666,7 +7666,7 @@ bool monitor::GenericMonitor::register_NtSetHighEventPair(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtSetHighEventPair");
     if(!ok)
-        FAIL(false, "Unable to register NtSetHighEventPair");
+        FAIL(false, "unable to register NtSetHighEventPair");
 
     d_->observers_NtSetHighEventPair.push_back(on_func);
     return true;
@@ -7687,7 +7687,7 @@ bool monitor::GenericMonitor::register_NtSetHighWaitLowEventPair(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtSetHighWaitLowEventPair");
     if(!ok)
-        FAIL(false, "Unable to register NtSetHighWaitLowEventPair");
+        FAIL(false, "unable to register NtSetHighWaitLowEventPair");
 
     d_->observers_NtSetHighWaitLowEventPair.push_back(on_func);
     return true;
@@ -7708,7 +7708,7 @@ bool monitor::GenericMonitor::register_NtSetInformationDebugObject(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtSetInformationDebugObject");
     if(!ok)
-        FAIL(false, "Unable to register NtSetInformationDebugObject");
+        FAIL(false, "unable to register NtSetInformationDebugObject");
 
     d_->observers_NtSetInformationDebugObject.push_back(on_func);
     return true;
@@ -7733,7 +7733,7 @@ bool monitor::GenericMonitor::register_NtSetInformationEnlistment(proc_t proc, c
 {
     const auto ok = setup_func(proc, "NtSetInformationEnlistment");
     if(!ok)
-        FAIL(false, "Unable to register NtSetInformationEnlistment");
+        FAIL(false, "unable to register NtSetInformationEnlistment");
 
     d_->observers_NtSetInformationEnlistment.push_back(on_func);
     return true;
@@ -7757,7 +7757,7 @@ bool monitor::GenericMonitor::register_NtSetInformationFile(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtSetInformationFile");
     if(!ok)
-        FAIL(false, "Unable to register NtSetInformationFile");
+        FAIL(false, "unable to register NtSetInformationFile");
 
     d_->observers_NtSetInformationFile.push_back(on_func);
     return true;
@@ -7782,7 +7782,7 @@ bool monitor::GenericMonitor::register_NtSetInformationJobObject(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtSetInformationJobObject");
     if(!ok)
-        FAIL(false, "Unable to register NtSetInformationJobObject");
+        FAIL(false, "unable to register NtSetInformationJobObject");
 
     d_->observers_NtSetInformationJobObject.push_back(on_func);
     return true;
@@ -7806,7 +7806,7 @@ bool monitor::GenericMonitor::register_NtSetInformationKey(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtSetInformationKey");
     if(!ok)
-        FAIL(false, "Unable to register NtSetInformationKey");
+        FAIL(false, "unable to register NtSetInformationKey");
 
     d_->observers_NtSetInformationKey.push_back(on_func);
     return true;
@@ -7830,7 +7830,7 @@ bool monitor::GenericMonitor::register_NtSetInformationObject(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtSetInformationObject");
     if(!ok)
-        FAIL(false, "Unable to register NtSetInformationObject");
+        FAIL(false, "unable to register NtSetInformationObject");
 
     d_->observers_NtSetInformationObject.push_back(on_func);
     return true;
@@ -7854,7 +7854,7 @@ bool monitor::GenericMonitor::register_NtSetInformationProcess(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtSetInformationProcess");
     if(!ok)
-        FAIL(false, "Unable to register NtSetInformationProcess");
+        FAIL(false, "unable to register NtSetInformationProcess");
 
     d_->observers_NtSetInformationProcess.push_back(on_func);
     return true;
@@ -7878,7 +7878,7 @@ bool monitor::GenericMonitor::register_NtSetInformationResourceManager(proc_t pr
 {
     const auto ok = setup_func(proc, "NtSetInformationResourceManager");
     if(!ok)
-        FAIL(false, "Unable to register NtSetInformationResourceManager");
+        FAIL(false, "unable to register NtSetInformationResourceManager");
 
     d_->observers_NtSetInformationResourceManager.push_back(on_func);
     return true;
@@ -7902,7 +7902,7 @@ bool monitor::GenericMonitor::register_NtSetInformationThread(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtSetInformationThread");
     if(!ok)
-        FAIL(false, "Unable to register NtSetInformationThread");
+        FAIL(false, "unable to register NtSetInformationThread");
 
     d_->observers_NtSetInformationThread.push_back(on_func);
     return true;
@@ -7926,7 +7926,7 @@ bool monitor::GenericMonitor::register_NtSetInformationToken(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtSetInformationToken");
     if(!ok)
-        FAIL(false, "Unable to register NtSetInformationToken");
+        FAIL(false, "unable to register NtSetInformationToken");
 
     d_->observers_NtSetInformationToken.push_back(on_func);
     return true;
@@ -7950,7 +7950,7 @@ bool monitor::GenericMonitor::register_NtSetInformationTransaction(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtSetInformationTransaction");
     if(!ok)
-        FAIL(false, "Unable to register NtSetInformationTransaction");
+        FAIL(false, "unable to register NtSetInformationTransaction");
 
     d_->observers_NtSetInformationTransaction.push_back(on_func);
     return true;
@@ -7974,7 +7974,7 @@ bool monitor::GenericMonitor::register_NtSetInformationTransactionManager(proc_t
 {
     const auto ok = setup_func(proc, "NtSetInformationTransactionManager");
     if(!ok)
-        FAIL(false, "Unable to register NtSetInformationTransactionManager");
+        FAIL(false, "unable to register NtSetInformationTransactionManager");
 
     d_->observers_NtSetInformationTransactionManager.push_back(on_func);
     return true;
@@ -7998,7 +7998,7 @@ bool monitor::GenericMonitor::register_NtSetInformationWorkerFactory(proc_t proc
 {
     const auto ok = setup_func(proc, "NtSetInformationWorkerFactory");
     if(!ok)
-        FAIL(false, "Unable to register NtSetInformationWorkerFactory");
+        FAIL(false, "unable to register NtSetInformationWorkerFactory");
 
     d_->observers_NtSetInformationWorkerFactory.push_back(on_func);
     return true;
@@ -8022,7 +8022,7 @@ bool monitor::GenericMonitor::register_NtSetIntervalProfile(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtSetIntervalProfile");
     if(!ok)
-        FAIL(false, "Unable to register NtSetIntervalProfile");
+        FAIL(false, "unable to register NtSetIntervalProfile");
 
     d_->observers_NtSetIntervalProfile.push_back(on_func);
     return true;
@@ -8044,7 +8044,7 @@ bool monitor::GenericMonitor::register_NtSetIoCompletionEx(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtSetIoCompletionEx");
     if(!ok)
-        FAIL(false, "Unable to register NtSetIoCompletionEx");
+        FAIL(false, "unable to register NtSetIoCompletionEx");
 
     d_->observers_NtSetIoCompletionEx.push_back(on_func);
     return true;
@@ -8070,7 +8070,7 @@ bool monitor::GenericMonitor::register_NtSetIoCompletion(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtSetIoCompletion");
     if(!ok)
-        FAIL(false, "Unable to register NtSetIoCompletion");
+        FAIL(false, "unable to register NtSetIoCompletion");
 
     d_->observers_NtSetIoCompletion.push_back(on_func);
     return true;
@@ -8095,7 +8095,7 @@ bool monitor::GenericMonitor::register_NtSetLdtEntries(proc_t proc, const on_NtS
 {
     const auto ok = setup_func(proc, "NtSetLdtEntries");
     if(!ok)
-        FAIL(false, "Unable to register NtSetLdtEntries");
+        FAIL(false, "unable to register NtSetLdtEntries");
 
     d_->observers_NtSetLdtEntries.push_back(on_func);
     return true;
@@ -8121,7 +8121,7 @@ bool monitor::GenericMonitor::register_NtSetLowEventPair(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtSetLowEventPair");
     if(!ok)
-        FAIL(false, "Unable to register NtSetLowEventPair");
+        FAIL(false, "unable to register NtSetLowEventPair");
 
     d_->observers_NtSetLowEventPair.push_back(on_func);
     return true;
@@ -8142,7 +8142,7 @@ bool monitor::GenericMonitor::register_NtSetLowWaitHighEventPair(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtSetLowWaitHighEventPair");
     if(!ok)
-        FAIL(false, "Unable to register NtSetLowWaitHighEventPair");
+        FAIL(false, "unable to register NtSetLowWaitHighEventPair");
 
     d_->observers_NtSetLowWaitHighEventPair.push_back(on_func);
     return true;
@@ -8163,7 +8163,7 @@ bool monitor::GenericMonitor::register_NtSetQuotaInformationFile(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtSetQuotaInformationFile");
     if(!ok)
-        FAIL(false, "Unable to register NtSetQuotaInformationFile");
+        FAIL(false, "unable to register NtSetQuotaInformationFile");
 
     d_->observers_NtSetQuotaInformationFile.push_back(on_func);
     return true;
@@ -8187,7 +8187,7 @@ bool monitor::GenericMonitor::register_NtSetSecurityObject(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtSetSecurityObject");
     if(!ok)
-        FAIL(false, "Unable to register NtSetSecurityObject");
+        FAIL(false, "unable to register NtSetSecurityObject");
 
     d_->observers_NtSetSecurityObject.push_back(on_func);
     return true;
@@ -8210,7 +8210,7 @@ bool monitor::GenericMonitor::register_NtSetSystemEnvironmentValueEx(proc_t proc
 {
     const auto ok = setup_func(proc, "NtSetSystemEnvironmentValueEx");
     if(!ok)
-        FAIL(false, "Unable to register NtSetSystemEnvironmentValueEx");
+        FAIL(false, "unable to register NtSetSystemEnvironmentValueEx");
 
     d_->observers_NtSetSystemEnvironmentValueEx.push_back(on_func);
     return true;
@@ -8235,7 +8235,7 @@ bool monitor::GenericMonitor::register_NtSetSystemEnvironmentValue(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtSetSystemEnvironmentValue");
     if(!ok)
-        FAIL(false, "Unable to register NtSetSystemEnvironmentValue");
+        FAIL(false, "unable to register NtSetSystemEnvironmentValue");
 
     d_->observers_NtSetSystemEnvironmentValue.push_back(on_func);
     return true;
@@ -8257,7 +8257,7 @@ bool monitor::GenericMonitor::register_NtSetSystemInformation(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtSetSystemInformation");
     if(!ok)
-        FAIL(false, "Unable to register NtSetSystemInformation");
+        FAIL(false, "unable to register NtSetSystemInformation");
 
     d_->observers_NtSetSystemInformation.push_back(on_func);
     return true;
@@ -8280,7 +8280,7 @@ bool monitor::GenericMonitor::register_NtSetSystemPowerState(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtSetSystemPowerState");
     if(!ok)
-        FAIL(false, "Unable to register NtSetSystemPowerState");
+        FAIL(false, "unable to register NtSetSystemPowerState");
 
     d_->observers_NtSetSystemPowerState.push_back(on_func);
     return true;
@@ -8303,7 +8303,7 @@ bool monitor::GenericMonitor::register_NtSetSystemTime(proc_t proc, const on_NtS
 {
     const auto ok = setup_func(proc, "NtSetSystemTime");
     if(!ok)
-        FAIL(false, "Unable to register NtSetSystemTime");
+        FAIL(false, "unable to register NtSetSystemTime");
 
     d_->observers_NtSetSystemTime.push_back(on_func);
     return true;
@@ -8325,7 +8325,7 @@ bool monitor::GenericMonitor::register_NtSetThreadExecutionState(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtSetThreadExecutionState");
     if(!ok)
-        FAIL(false, "Unable to register NtSetThreadExecutionState");
+        FAIL(false, "unable to register NtSetThreadExecutionState");
 
     d_->observers_NtSetThreadExecutionState.push_back(on_func);
     return true;
@@ -8347,7 +8347,7 @@ bool monitor::GenericMonitor::register_NtSetTimerEx(proc_t proc, const on_NtSetT
 {
     const auto ok = setup_func(proc, "NtSetTimerEx");
     if(!ok)
-        FAIL(false, "Unable to register NtSetTimerEx");
+        FAIL(false, "unable to register NtSetTimerEx");
 
     d_->observers_NtSetTimerEx.push_back(on_func);
     return true;
@@ -8371,7 +8371,7 @@ bool monitor::GenericMonitor::register_NtSetTimer(proc_t proc, const on_NtSetTim
 {
     const auto ok = setup_func(proc, "NtSetTimer");
     if(!ok)
-        FAIL(false, "Unable to register NtSetTimer");
+        FAIL(false, "unable to register NtSetTimer");
 
     d_->observers_NtSetTimer.push_back(on_func);
     return true;
@@ -8398,7 +8398,7 @@ bool monitor::GenericMonitor::register_NtSetTimerResolution(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtSetTimerResolution");
     if(!ok)
-        FAIL(false, "Unable to register NtSetTimerResolution");
+        FAIL(false, "unable to register NtSetTimerResolution");
 
     d_->observers_NtSetTimerResolution.push_back(on_func);
     return true;
@@ -8421,7 +8421,7 @@ bool monitor::GenericMonitor::register_NtSetUuidSeed(proc_t proc, const on_NtSet
 {
     const auto ok = setup_func(proc, "NtSetUuidSeed");
     if(!ok)
-        FAIL(false, "Unable to register NtSetUuidSeed");
+        FAIL(false, "unable to register NtSetUuidSeed");
 
     d_->observers_NtSetUuidSeed.push_back(on_func);
     return true;
@@ -8442,7 +8442,7 @@ bool monitor::GenericMonitor::register_NtSetValueKey(proc_t proc, const on_NtSet
 {
     const auto ok = setup_func(proc, "NtSetValueKey");
     if(!ok)
-        FAIL(false, "Unable to register NtSetValueKey");
+        FAIL(false, "unable to register NtSetValueKey");
 
     d_->observers_NtSetValueKey.push_back(on_func);
     return true;
@@ -8468,7 +8468,7 @@ bool monitor::GenericMonitor::register_NtSetVolumeInformationFile(proc_t proc, c
 {
     const auto ok = setup_func(proc, "NtSetVolumeInformationFile");
     if(!ok)
-        FAIL(false, "Unable to register NtSetVolumeInformationFile");
+        FAIL(false, "unable to register NtSetVolumeInformationFile");
 
     d_->observers_NtSetVolumeInformationFile.push_back(on_func);
     return true;
@@ -8493,7 +8493,7 @@ bool monitor::GenericMonitor::register_NtShutdownSystem(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtShutdownSystem");
     if(!ok)
-        FAIL(false, "Unable to register NtShutdownSystem");
+        FAIL(false, "unable to register NtShutdownSystem");
 
     d_->observers_NtShutdownSystem.push_back(on_func);
     return true;
@@ -8514,7 +8514,7 @@ bool monitor::GenericMonitor::register_NtShutdownWorkerFactory(proc_t proc, cons
 {
     const auto ok = setup_func(proc, "NtShutdownWorkerFactory");
     if(!ok)
-        FAIL(false, "Unable to register NtShutdownWorkerFactory");
+        FAIL(false, "unable to register NtShutdownWorkerFactory");
 
     d_->observers_NtShutdownWorkerFactory.push_back(on_func);
     return true;
@@ -8536,7 +8536,7 @@ bool monitor::GenericMonitor::register_NtSignalAndWaitForSingleObject(proc_t pro
 {
     const auto ok = setup_func(proc, "NtSignalAndWaitForSingleObject");
     if(!ok)
-        FAIL(false, "Unable to register NtSignalAndWaitForSingleObject");
+        FAIL(false, "unable to register NtSignalAndWaitForSingleObject");
 
     d_->observers_NtSignalAndWaitForSingleObject.push_back(on_func);
     return true;
@@ -8560,7 +8560,7 @@ bool monitor::GenericMonitor::register_NtSinglePhaseReject(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtSinglePhaseReject");
     if(!ok)
-        FAIL(false, "Unable to register NtSinglePhaseReject");
+        FAIL(false, "unable to register NtSinglePhaseReject");
 
     d_->observers_NtSinglePhaseReject.push_back(on_func);
     return true;
@@ -8582,7 +8582,7 @@ bool monitor::GenericMonitor::register_NtStartProfile(proc_t proc, const on_NtSt
 {
     const auto ok = setup_func(proc, "NtStartProfile");
     if(!ok)
-        FAIL(false, "Unable to register NtStartProfile");
+        FAIL(false, "unable to register NtStartProfile");
 
     d_->observers_NtStartProfile.push_back(on_func);
     return true;
@@ -8603,7 +8603,7 @@ bool monitor::GenericMonitor::register_NtStopProfile(proc_t proc, const on_NtSto
 {
     const auto ok = setup_func(proc, "NtStopProfile");
     if(!ok)
-        FAIL(false, "Unable to register NtStopProfile");
+        FAIL(false, "unable to register NtStopProfile");
 
     d_->observers_NtStopProfile.push_back(on_func);
     return true;
@@ -8624,7 +8624,7 @@ bool monitor::GenericMonitor::register_NtSuspendProcess(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtSuspendProcess");
     if(!ok)
-        FAIL(false, "Unable to register NtSuspendProcess");
+        FAIL(false, "unable to register NtSuspendProcess");
 
     d_->observers_NtSuspendProcess.push_back(on_func);
     return true;
@@ -8645,7 +8645,7 @@ bool monitor::GenericMonitor::register_NtSuspendThread(proc_t proc, const on_NtS
 {
     const auto ok = setup_func(proc, "NtSuspendThread");
     if(!ok)
-        FAIL(false, "Unable to register NtSuspendThread");
+        FAIL(false, "unable to register NtSuspendThread");
 
     d_->observers_NtSuspendThread.push_back(on_func);
     return true;
@@ -8667,7 +8667,7 @@ bool monitor::GenericMonitor::register_NtSystemDebugControl(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtSystemDebugControl");
     if(!ok)
-        FAIL(false, "Unable to register NtSystemDebugControl");
+        FAIL(false, "unable to register NtSystemDebugControl");
 
     d_->observers_NtSystemDebugControl.push_back(on_func);
     return true;
@@ -8693,7 +8693,7 @@ bool monitor::GenericMonitor::register_NtTerminateJobObject(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtTerminateJobObject");
     if(!ok)
-        FAIL(false, "Unable to register NtTerminateJobObject");
+        FAIL(false, "unable to register NtTerminateJobObject");
 
     d_->observers_NtTerminateJobObject.push_back(on_func);
     return true;
@@ -8715,7 +8715,7 @@ bool monitor::GenericMonitor::register_NtTerminateProcess(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtTerminateProcess");
     if(!ok)
-        FAIL(false, "Unable to register NtTerminateProcess");
+        FAIL(false, "unable to register NtTerminateProcess");
 
     d_->observers_NtTerminateProcess.push_back(on_func);
     return true;
@@ -8737,7 +8737,7 @@ bool monitor::GenericMonitor::register_NtTerminateThread(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtTerminateThread");
     if(!ok)
-        FAIL(false, "Unable to register NtTerminateThread");
+        FAIL(false, "unable to register NtTerminateThread");
 
     d_->observers_NtTerminateThread.push_back(on_func);
     return true;
@@ -8759,7 +8759,7 @@ bool monitor::GenericMonitor::register_NtTraceControl(proc_t proc, const on_NtTr
 {
     const auto ok = setup_func(proc, "NtTraceControl");
     if(!ok)
-        FAIL(false, "Unable to register NtTraceControl");
+        FAIL(false, "unable to register NtTraceControl");
 
     d_->observers_NtTraceControl.push_back(on_func);
     return true;
@@ -8785,7 +8785,7 @@ bool monitor::GenericMonitor::register_NtTraceEvent(proc_t proc, const on_NtTrac
 {
     const auto ok = setup_func(proc, "NtTraceEvent");
     if(!ok)
-        FAIL(false, "Unable to register NtTraceEvent");
+        FAIL(false, "unable to register NtTraceEvent");
 
     d_->observers_NtTraceEvent.push_back(on_func);
     return true;
@@ -8809,7 +8809,7 @@ bool monitor::GenericMonitor::register_NtTranslateFilePath(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtTranslateFilePath");
     if(!ok)
-        FAIL(false, "Unable to register NtTranslateFilePath");
+        FAIL(false, "unable to register NtTranslateFilePath");
 
     d_->observers_NtTranslateFilePath.push_back(on_func);
     return true;
@@ -8833,7 +8833,7 @@ bool monitor::GenericMonitor::register_NtUnloadDriver(proc_t proc, const on_NtUn
 {
     const auto ok = setup_func(proc, "NtUnloadDriver");
     if(!ok)
-        FAIL(false, "Unable to register NtUnloadDriver");
+        FAIL(false, "unable to register NtUnloadDriver");
 
     d_->observers_NtUnloadDriver.push_back(on_func);
     return true;
@@ -8854,7 +8854,7 @@ bool monitor::GenericMonitor::register_NtUnloadKey2(proc_t proc, const on_NtUnlo
 {
     const auto ok = setup_func(proc, "NtUnloadKey2");
     if(!ok)
-        FAIL(false, "Unable to register NtUnloadKey2");
+        FAIL(false, "unable to register NtUnloadKey2");
 
     d_->observers_NtUnloadKey2.push_back(on_func);
     return true;
@@ -8876,7 +8876,7 @@ bool monitor::GenericMonitor::register_NtUnloadKeyEx(proc_t proc, const on_NtUnl
 {
     const auto ok = setup_func(proc, "NtUnloadKeyEx");
     if(!ok)
-        FAIL(false, "Unable to register NtUnloadKeyEx");
+        FAIL(false, "unable to register NtUnloadKeyEx");
 
     d_->observers_NtUnloadKeyEx.push_back(on_func);
     return true;
@@ -8898,7 +8898,7 @@ bool monitor::GenericMonitor::register_NtUnloadKey(proc_t proc, const on_NtUnloa
 {
     const auto ok = setup_func(proc, "NtUnloadKey");
     if(!ok)
-        FAIL(false, "Unable to register NtUnloadKey");
+        FAIL(false, "unable to register NtUnloadKey");
 
     d_->observers_NtUnloadKey.push_back(on_func);
     return true;
@@ -8919,7 +8919,7 @@ bool monitor::GenericMonitor::register_NtUnlockFile(proc_t proc, const on_NtUnlo
 {
     const auto ok = setup_func(proc, "NtUnlockFile");
     if(!ok)
-        FAIL(false, "Unable to register NtUnlockFile");
+        FAIL(false, "unable to register NtUnlockFile");
 
     d_->observers_NtUnlockFile.push_back(on_func);
     return true;
@@ -8944,7 +8944,7 @@ bool monitor::GenericMonitor::register_NtUnlockVirtualMemory(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtUnlockVirtualMemory");
     if(!ok)
-        FAIL(false, "Unable to register NtUnlockVirtualMemory");
+        FAIL(false, "unable to register NtUnlockVirtualMemory");
 
     d_->observers_NtUnlockVirtualMemory.push_back(on_func);
     return true;
@@ -8968,7 +8968,7 @@ bool monitor::GenericMonitor::register_NtUnmapViewOfSection(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtUnmapViewOfSection");
     if(!ok)
-        FAIL(false, "Unable to register NtUnmapViewOfSection");
+        FAIL(false, "unable to register NtUnmapViewOfSection");
 
     d_->observers_NtUnmapViewOfSection.push_back(on_func);
     return true;
@@ -8990,7 +8990,7 @@ bool monitor::GenericMonitor::register_NtVdmControl(proc_t proc, const on_NtVdmC
 {
     const auto ok = setup_func(proc, "NtVdmControl");
     if(!ok)
-        FAIL(false, "Unable to register NtVdmControl");
+        FAIL(false, "unable to register NtVdmControl");
 
     d_->observers_NtVdmControl.push_back(on_func);
     return true;
@@ -9012,7 +9012,7 @@ bool monitor::GenericMonitor::register_NtWaitForDebugEvent(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtWaitForDebugEvent");
     if(!ok)
-        FAIL(false, "Unable to register NtWaitForDebugEvent");
+        FAIL(false, "unable to register NtWaitForDebugEvent");
 
     d_->observers_NtWaitForDebugEvent.push_back(on_func);
     return true;
@@ -9036,7 +9036,7 @@ bool monitor::GenericMonitor::register_NtWaitForKeyedEvent(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtWaitForKeyedEvent");
     if(!ok)
-        FAIL(false, "Unable to register NtWaitForKeyedEvent");
+        FAIL(false, "unable to register NtWaitForKeyedEvent");
 
     d_->observers_NtWaitForKeyedEvent.push_back(on_func);
     return true;
@@ -9060,7 +9060,7 @@ bool monitor::GenericMonitor::register_NtWaitForMultipleObjects32(proc_t proc, c
 {
     const auto ok = setup_func(proc, "NtWaitForMultipleObjects32");
     if(!ok)
-        FAIL(false, "Unable to register NtWaitForMultipleObjects32");
+        FAIL(false, "unable to register NtWaitForMultipleObjects32");
 
     d_->observers_NtWaitForMultipleObjects32.push_back(on_func);
     return true;
@@ -9085,7 +9085,7 @@ bool monitor::GenericMonitor::register_NtWaitForMultipleObjects(proc_t proc, con
 {
     const auto ok = setup_func(proc, "NtWaitForMultipleObjects");
     if(!ok)
-        FAIL(false, "Unable to register NtWaitForMultipleObjects");
+        FAIL(false, "unable to register NtWaitForMultipleObjects");
 
     d_->observers_NtWaitForMultipleObjects.push_back(on_func);
     return true;
@@ -9110,7 +9110,7 @@ bool monitor::GenericMonitor::register_NtWaitForSingleObject(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtWaitForSingleObject");
     if(!ok)
-        FAIL(false, "Unable to register NtWaitForSingleObject");
+        FAIL(false, "unable to register NtWaitForSingleObject");
 
     d_->observers_NtWaitForSingleObject.push_back(on_func);
     return true;
@@ -9133,7 +9133,7 @@ bool monitor::GenericMonitor::register_NtWaitForWorkViaWorkerFactory(proc_t proc
 {
     const auto ok = setup_func(proc, "NtWaitForWorkViaWorkerFactory");
     if(!ok)
-        FAIL(false, "Unable to register NtWaitForWorkViaWorkerFactory");
+        FAIL(false, "unable to register NtWaitForWorkViaWorkerFactory");
 
     d_->observers_NtWaitForWorkViaWorkerFactory.push_back(on_func);
     return true;
@@ -9155,7 +9155,7 @@ bool monitor::GenericMonitor::register_NtWaitHighEventPair(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "NtWaitHighEventPair");
     if(!ok)
-        FAIL(false, "Unable to register NtWaitHighEventPair");
+        FAIL(false, "unable to register NtWaitHighEventPair");
 
     d_->observers_NtWaitHighEventPair.push_back(on_func);
     return true;
@@ -9176,7 +9176,7 @@ bool monitor::GenericMonitor::register_NtWaitLowEventPair(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtWaitLowEventPair");
     if(!ok)
-        FAIL(false, "Unable to register NtWaitLowEventPair");
+        FAIL(false, "unable to register NtWaitLowEventPair");
 
     d_->observers_NtWaitLowEventPair.push_back(on_func);
     return true;
@@ -9197,7 +9197,7 @@ bool monitor::GenericMonitor::register_NtWorkerFactoryWorkerReady(proc_t proc, c
 {
     const auto ok = setup_func(proc, "NtWorkerFactoryWorkerReady");
     if(!ok)
-        FAIL(false, "Unable to register NtWorkerFactoryWorkerReady");
+        FAIL(false, "unable to register NtWorkerFactoryWorkerReady");
 
     d_->observers_NtWorkerFactoryWorkerReady.push_back(on_func);
     return true;
@@ -9218,7 +9218,7 @@ bool monitor::GenericMonitor::register_NtWriteFileGather(proc_t proc, const on_N
 {
     const auto ok = setup_func(proc, "NtWriteFileGather");
     if(!ok)
-        FAIL(false, "Unable to register NtWriteFileGather");
+        FAIL(false, "unable to register NtWriteFileGather");
 
     d_->observers_NtWriteFileGather.push_back(on_func);
     return true;
@@ -9247,7 +9247,7 @@ bool monitor::GenericMonitor::register_NtWriteFile(proc_t proc, const on_NtWrite
 {
     const auto ok = setup_func(proc, "NtWriteFile");
     if(!ok)
-        FAIL(false, "Unable to register NtWriteFile");
+        FAIL(false, "unable to register NtWriteFile");
 
     d_->observers_NtWriteFile.push_back(on_func);
     return true;
@@ -9276,7 +9276,7 @@ bool monitor::GenericMonitor::register_NtWriteRequestData(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtWriteRequestData");
     if(!ok)
-        FAIL(false, "Unable to register NtWriteRequestData");
+        FAIL(false, "unable to register NtWriteRequestData");
 
     d_->observers_NtWriteRequestData.push_back(on_func);
     return true;
@@ -9302,7 +9302,7 @@ bool monitor::GenericMonitor::register_NtWriteVirtualMemory(proc_t proc, const o
 {
     const auto ok = setup_func(proc, "NtWriteVirtualMemory");
     if(!ok)
-        FAIL(false, "Unable to register NtWriteVirtualMemory");
+        FAIL(false, "unable to register NtWriteVirtualMemory");
 
     d_->observers_NtWriteVirtualMemory.push_back(on_func);
     return true;
@@ -9327,7 +9327,7 @@ bool monitor::GenericMonitor::register_NtDisableLastKnownGood(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtDisableLastKnownGood");
     if(!ok)
-        FAIL(false, "Unable to register NtDisableLastKnownGood");
+        FAIL(false, "unable to register NtDisableLastKnownGood");
 
     d_->observers_NtDisableLastKnownGood.push_back(on_func);
     return true;
@@ -9338,8 +9338,6 @@ void monitor::GenericMonitor::on_NtDisableLastKnownGood()
     if(false)
         LOG(INFO, "break on NtDisableLastKnownGood");
 
-    
-
     for(const auto& it : d_->observers_NtDisableLastKnownGood)
         it();
 }
@@ -9348,7 +9346,7 @@ bool monitor::GenericMonitor::register_NtEnableLastKnownGood(proc_t proc, const 
 {
     const auto ok = setup_func(proc, "NtEnableLastKnownGood");
     if(!ok)
-        FAIL(false, "Unable to register NtEnableLastKnownGood");
+        FAIL(false, "unable to register NtEnableLastKnownGood");
 
     d_->observers_NtEnableLastKnownGood.push_back(on_func);
     return true;
@@ -9359,8 +9357,6 @@ void monitor::GenericMonitor::on_NtEnableLastKnownGood()
     if(false)
         LOG(INFO, "break on NtEnableLastKnownGood");
 
-    
-
     for(const auto& it : d_->observers_NtEnableLastKnownGood)
         it();
 }
@@ -9369,7 +9365,7 @@ bool monitor::GenericMonitor::register_NtFlushProcessWriteBuffers(proc_t proc, c
 {
     const auto ok = setup_func(proc, "NtFlushProcessWriteBuffers");
     if(!ok)
-        FAIL(false, "Unable to register NtFlushProcessWriteBuffers");
+        FAIL(false, "unable to register NtFlushProcessWriteBuffers");
 
     d_->observers_NtFlushProcessWriteBuffers.push_back(on_func);
     return true;
@@ -9380,8 +9376,6 @@ void monitor::GenericMonitor::on_NtFlushProcessWriteBuffers()
     if(false)
         LOG(INFO, "break on NtFlushProcessWriteBuffers");
 
-    
-
     for(const auto& it : d_->observers_NtFlushProcessWriteBuffers)
         it();
 }
@@ -9390,7 +9384,7 @@ bool monitor::GenericMonitor::register_NtFlushWriteBuffer(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtFlushWriteBuffer");
     if(!ok)
-        FAIL(false, "Unable to register NtFlushWriteBuffer");
+        FAIL(false, "unable to register NtFlushWriteBuffer");
 
     d_->observers_NtFlushWriteBuffer.push_back(on_func);
     return true;
@@ -9401,8 +9395,6 @@ void monitor::GenericMonitor::on_NtFlushWriteBuffer()
     if(false)
         LOG(INFO, "break on NtFlushWriteBuffer");
 
-    
-
     for(const auto& it : d_->observers_NtFlushWriteBuffer)
         it();
 }
@@ -9411,7 +9403,7 @@ bool monitor::GenericMonitor::register_NtGetCurrentProcessorNumber(proc_t proc, 
 {
     const auto ok = setup_func(proc, "NtGetCurrentProcessorNumber");
     if(!ok)
-        FAIL(false, "Unable to register NtGetCurrentProcessorNumber");
+        FAIL(false, "unable to register NtGetCurrentProcessorNumber");
 
     d_->observers_NtGetCurrentProcessorNumber.push_back(on_func);
     return true;
@@ -9422,8 +9414,6 @@ void monitor::GenericMonitor::on_NtGetCurrentProcessorNumber()
     if(false)
         LOG(INFO, "break on NtGetCurrentProcessorNumber");
 
-    
-
     for(const auto& it : d_->observers_NtGetCurrentProcessorNumber)
         it();
 }
@@ -9432,7 +9422,7 @@ bool monitor::GenericMonitor::register_NtIsSystemResumeAutomatic(proc_t proc, co
 {
     const auto ok = setup_func(proc, "NtIsSystemResumeAutomatic");
     if(!ok)
-        FAIL(false, "Unable to register NtIsSystemResumeAutomatic");
+        FAIL(false, "unable to register NtIsSystemResumeAutomatic");
 
     d_->observers_NtIsSystemResumeAutomatic.push_back(on_func);
     return true;
@@ -9443,8 +9433,6 @@ void monitor::GenericMonitor::on_NtIsSystemResumeAutomatic()
     if(false)
         LOG(INFO, "break on NtIsSystemResumeAutomatic");
 
-    
-
     for(const auto& it : d_->observers_NtIsSystemResumeAutomatic)
         it();
 }
@@ -9453,7 +9441,7 @@ bool monitor::GenericMonitor::register_NtIsUILanguageComitted(proc_t proc, const
 {
     const auto ok = setup_func(proc, "NtIsUILanguageComitted");
     if(!ok)
-        FAIL(false, "Unable to register NtIsUILanguageComitted");
+        FAIL(false, "unable to register NtIsUILanguageComitted");
 
     d_->observers_NtIsUILanguageComitted.push_back(on_func);
     return true;
@@ -9464,8 +9452,6 @@ void monitor::GenericMonitor::on_NtIsUILanguageComitted()
     if(false)
         LOG(INFO, "break on NtIsUILanguageComitted");
 
-    
-
     for(const auto& it : d_->observers_NtIsUILanguageComitted)
         it();
 }
@@ -9474,7 +9460,7 @@ bool monitor::GenericMonitor::register_NtQueryPortInformationProcess(proc_t proc
 {
     const auto ok = setup_func(proc, "NtQueryPortInformationProcess");
     if(!ok)
-        FAIL(false, "Unable to register NtQueryPortInformationProcess");
+        FAIL(false, "unable to register NtQueryPortInformationProcess");
 
     d_->observers_NtQueryPortInformationProcess.push_back(on_func);
     return true;
@@ -9485,8 +9471,6 @@ void monitor::GenericMonitor::on_NtQueryPortInformationProcess()
     if(false)
         LOG(INFO, "break on NtQueryPortInformationProcess");
 
-    
-
     for(const auto& it : d_->observers_NtQueryPortInformationProcess)
         it();
 }
@@ -9495,7 +9479,7 @@ bool monitor::GenericMonitor::register_NtSerializeBoot(proc_t proc, const on_NtS
 {
     const auto ok = setup_func(proc, "NtSerializeBoot");
     if(!ok)
-        FAIL(false, "Unable to register NtSerializeBoot");
+        FAIL(false, "unable to register NtSerializeBoot");
 
     d_->observers_NtSerializeBoot.push_back(on_func);
     return true;
@@ -9506,8 +9490,6 @@ void monitor::GenericMonitor::on_NtSerializeBoot()
     if(false)
         LOG(INFO, "break on NtSerializeBoot");
 
-    
-
     for(const auto& it : d_->observers_NtSerializeBoot)
         it();
 }
@@ -9516,7 +9498,7 @@ bool monitor::GenericMonitor::register_NtTestAlert(proc_t proc, const on_NtTestA
 {
     const auto ok = setup_func(proc, "NtTestAlert");
     if(!ok)
-        FAIL(false, "Unable to register NtTestAlert");
+        FAIL(false, "unable to register NtTestAlert");
 
     d_->observers_NtTestAlert.push_back(on_func);
     return true;
@@ -9527,8 +9509,6 @@ void monitor::GenericMonitor::on_NtTestAlert()
     if(false)
         LOG(INFO, "break on NtTestAlert");
 
-    
-
     for(const auto& it : d_->observers_NtTestAlert)
         it();
 }
@@ -9537,7 +9517,7 @@ bool monitor::GenericMonitor::register_NtThawRegistry(proc_t proc, const on_NtTh
 {
     const auto ok = setup_func(proc, "NtThawRegistry");
     if(!ok)
-        FAIL(false, "Unable to register NtThawRegistry");
+        FAIL(false, "unable to register NtThawRegistry");
 
     d_->observers_NtThawRegistry.push_back(on_func);
     return true;
@@ -9548,8 +9528,6 @@ void monitor::GenericMonitor::on_NtThawRegistry()
     if(false)
         LOG(INFO, "break on NtThawRegistry");
 
-    
-
     for(const auto& it : d_->observers_NtThawRegistry)
         it();
 }
@@ -9558,7 +9536,7 @@ bool monitor::GenericMonitor::register_NtThawTransactions(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "NtThawTransactions");
     if(!ok)
-        FAIL(false, "Unable to register NtThawTransactions");
+        FAIL(false, "unable to register NtThawTransactions");
 
     d_->observers_NtThawTransactions.push_back(on_func);
     return true;
@@ -9569,8 +9547,6 @@ void monitor::GenericMonitor::on_NtThawTransactions()
     if(false)
         LOG(INFO, "break on NtThawTransactions");
 
-    
-
     for(const auto& it : d_->observers_NtThawTransactions)
         it();
 }
@@ -9579,7 +9555,7 @@ bool monitor::GenericMonitor::register_NtUmsThreadYield(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtUmsThreadYield");
     if(!ok)
-        FAIL(false, "Unable to register NtUmsThreadYield");
+        FAIL(false, "unable to register NtUmsThreadYield");
 
     d_->observers_NtUmsThreadYield.push_back(on_func);
     return true;
@@ -9590,8 +9566,6 @@ void monitor::GenericMonitor::on_NtUmsThreadYield()
     if(false)
         LOG(INFO, "break on NtUmsThreadYield");
 
-    
-
     for(const auto& it : d_->observers_NtUmsThreadYield)
         it();
 }
@@ -9600,7 +9574,7 @@ bool monitor::GenericMonitor::register_NtYieldExecution(proc_t proc, const on_Nt
 {
     const auto ok = setup_func(proc, "NtYieldExecution");
     if(!ok)
-        FAIL(false, "Unable to register NtYieldExecution");
+        FAIL(false, "unable to register NtYieldExecution");
 
     d_->observers_NtYieldExecution.push_back(on_func);
     return true;
@@ -9611,8 +9585,6 @@ void monitor::GenericMonitor::on_NtYieldExecution()
     if(false)
         LOG(INFO, "break on NtYieldExecution");
 
-    
-
     for(const auto& it : d_->observers_NtYieldExecution)
         it();
 }
@@ -9621,7 +9593,7 @@ bool monitor::GenericMonitor::register_RtlpAllocateHeapInternal(proc_t proc, con
 {
     const auto ok = setup_func(proc, "RtlpAllocateHeapInternal");
     if(!ok)
-        FAIL(false, "Unable to register RtlpAllocateHeapInternal");
+        FAIL(false, "unable to register RtlpAllocateHeapInternal");
 
     d_->observers_RtlpAllocateHeapInternal.push_back(on_func);
     return true;
@@ -9643,7 +9615,7 @@ bool monitor::GenericMonitor::register_RtlFreeHeap(proc_t proc, const on_RtlFree
 {
     const auto ok = setup_func(proc, "RtlFreeHeap");
     if(!ok)
-        FAIL(false, "Unable to register RtlFreeHeap");
+        FAIL(false, "unable to register RtlFreeHeap");
 
     d_->observers_RtlFreeHeap.push_back(on_func);
     return true;
@@ -9666,7 +9638,7 @@ bool monitor::GenericMonitor::register_RtlpReAllocateHeapInternal(proc_t proc, c
 {
     const auto ok = setup_func(proc, "RtlpReAllocateHeapInternal");
     if(!ok)
-        FAIL(false, "Unable to register RtlpReAllocateHeapInternal");
+        FAIL(false, "unable to register RtlpReAllocateHeapInternal");
 
     d_->observers_RtlpReAllocateHeapInternal.push_back(on_func);
     return true;
@@ -9690,7 +9662,7 @@ bool monitor::GenericMonitor::register_RtlSizeHeap(proc_t proc, const on_RtlSize
 {
     const auto ok = setup_func(proc, "RtlSizeHeap");
     if(!ok)
-        FAIL(false, "Unable to register RtlSizeHeap");
+        FAIL(false, "unable to register RtlSizeHeap");
 
     d_->observers_RtlSizeHeap.push_back(on_func);
     return true;
@@ -9713,7 +9685,7 @@ bool monitor::GenericMonitor::register_RtlSetUserValueHeap(proc_t proc, const on
 {
     const auto ok = setup_func(proc, "RtlSetUserValueHeap");
     if(!ok)
-        FAIL(false, "Unable to register RtlSetUserValueHeap");
+        FAIL(false, "unable to register RtlSetUserValueHeap");
 
     d_->observers_RtlSetUserValueHeap.push_back(on_func);
     return true;
@@ -9737,7 +9709,7 @@ bool monitor::GenericMonitor::register_RtlGetUserInfoHeap(proc_t proc, const on_
 {
     const auto ok = setup_func(proc, "RtlGetUserInfoHeap");
     if(!ok)
-        FAIL(false, "Unable to register RtlGetUserInfoHeap");
+        FAIL(false, "unable to register RtlGetUserInfoHeap");
 
     d_->observers_RtlGetUserInfoHeap.push_back(on_func);
     return true;

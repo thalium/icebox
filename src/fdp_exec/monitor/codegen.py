@@ -4,104 +4,95 @@ import argparse
 import json
 import os
 
-# Strings for syscall_mon.gen.hpp
-register_function = """
+def generate_definitions(json_data):
+    definitions = ""
+    for target, (return_type, (args)) in json_data.items():
+        # print prologue
+        definitions += """
 bool monitor::GenericMonitor::register_{target}(proc_t proc, const on_{target}_fn& on_func)
 {{
     const auto ok = setup_func(proc, "{target}");
     if(!ok)
-        FAIL(false, "Unable to register {target}");
+        FAIL(false, "unable to register {target}");
 
     d_->observers_{target}.push_back(on_func);
     return true;
 }}
-"""
 
-onevent_function = """
 void monitor::GenericMonitor::on_{target}()
 {{
     if(false)
         LOG(INFO, "break on {target}");
+""".format(target=target)
 
-    {retrieve_args}
+        # print args
+        pad = 0
+        for name, typeof in args:
+            pad = max(pad, len(name))
+        idx = 0
+        lines = []
+        names = []
+        for name, typeof in args:
+            definitions += "\n    const auto %s = arg<nt::%s>(core_, %d);" % (name.ljust(pad), typeof, idx)
+            idx += 1
+            names.append(name)
+        if idx > 0:
+            definitions += "\n"
 
+        # print epilogue
+        definitions += """
     for(const auto& it : d_->observers_{target})
         it({args});
 }}
-"""
-retrieve_arg = "const auto {name} = arg<{type}>(core_, {idx});"
+""".format(target=target, args=", ".join(names))
+    return definitions
 
-#Strings for syscall_macros.gen.hpp
-handlers_macro = """
-#define DECLARE_SYSCALLS_HANDLERS\\
-    {handlers}
-"""
-handler = "{{\"{target}\", &monitor::GenericMonitor::on_{target}}},"
-
-observers_macro = """
-#define DECLARE_SYSCALLS_OBSERVERS\\
-    {observers}
-"""
-observer = "std::vector<on_{target}_fn> observers_{target};"
-
-onevent_callback_macro = """
+def generate_callbacks(json_data, pad):
+    data = """
 #define DECLARE_SYSCALLS_CALLBACK_PROTOS\\
-    {onevent_callback_protos}
 """
-onevent_callback_proto = "using on_{target}_fn = std::function<{return_type}({arg_types})>;"
+    pad += len("on__fn")
+    lines = []
+    for target, (return_type, args) in json_data.items():
+        types = [typeof for _, typeof in args]
+        if len(types):
+            types[0] = "nt::" + types[0]
+        name = "on_%s_fn" % target
+        lines.append("    using %s = std::function<nt::%s(%s)>;" % (name.ljust(pad), return_type, ", nt::".join(types)))
+    return data + "\\\n".join(lines) + "\n"
 
-functions_protos_macro = """
+def generate_prototypes(json_data, pad):
+    data = """
 #define DECLARE_SYSCALLS_FUNCTIONS_PROTOS\\
-    {functions_protos}
 """
-function_proto = "void on_{target: <38}();\\\n    bool register_{target: <32}(proc_t proc, const on_{target}_fn& on_func);"
+    lines = []
+    lines_ = []
+    for target, _ in json_data.items():
+        on = ("on_%s" % target).ljust(pad + len("on_"))
+        reg = ("register_%s" % target).ljust(pad + len("register_"))
+        lines.append("    void %s();" % on)
+        lines_.append("    bool %s(proc_t proc, const on_%s_fn& on_func);" % (reg, target))
+    return data + "\\\n".join(lines) + "\\\n" + "\\\n".join(lines_) + "\n"
 
-def generate_model(json_data):
-    callbacks  = ""
-    handlers   = ""
-    observers  = ""
-    prototypes = ""
-    privates   = ""
+def generate_observers(json_data, pad):
+    data = """
+#define DECLARE_SYSCALLS_OBSERVERS\\
+"""
+    lines = []
+    for target, _ in json_data.items():
+        on = ("on_%s_fn>" % target).ljust(pad + len("on__fn>"))
+        lines.append("    std::vector<%s observers_%s;" % (on, target))
+    return data + "\\\n".join(lines) + "\n"
 
-    first = True
-    for key, value in json_data.items():
-        args = value[1]
-        data = {}
-        data["target"]           = key
-        data["return_type"]      = "nt::" + value[0]
-        data["args"]             = ""
-        data["arg_types"]        = ""
-        data["retrieve_args"]    = ""
-        pad = 0
-        for idx, arg in enumerate(args):
-            pad = max(pad, len(arg[0]))
-        for idx, arg in enumerate(args):
-            if idx > 0:
-                data["args"]          += ", "
-                data["arg_types"]     += ", "
-                data["retrieve_args"] += "\n    "
-            data["args"]          += arg[0]
-            data["arg_types"]     += "nt::" + arg[1]
-            data["retrieve_args"] += retrieve_arg.format(name=arg[0].ljust(pad), type="nt::%s" % arg[1], idx=idx)
-
-        # write in <name>_private.gen.hpp
-        privates += register_function.format(**data)
-        privates += onevent_function.format(**data)
-
-        if not first:
-            callbacks  += "\\\n    "
-            handlers   += "\\\n    "
-            observers  += "\\\n    "
-            prototypes += "\\\n    "
-        first = False
-
-        # fill variables that will go in macros
-        callbacks  += onevent_callback_proto.format(**data)
-        handlers   += handler.format(**data)
-        observers  += observer.format(**data)
-        prototypes += function_proto.format(**data)
-
-    return callbacks, handlers, observers, prototypes, privates
+def generate_handlers(json_data, pad):
+    data = """
+#define DECLARE_SYSCALLS_HANDLERS\\
+"""
+    lines = []
+    for target, _ in json_data.items():
+        name = ("%s\"," % target).ljust(pad + len("\","))
+        lines.append("    {\"%s &monitor::GenericMonitor::on_%s}," % (name, target))
+    return data + "\\\n".join(lines) + "\n"
 
 def read_file(filename):
     with open(filename, "rb") as fh:
@@ -122,14 +113,17 @@ if __name__ == '__main__':
     public  = os.path.join(filedir, filename.replace(".json", "_public.gen.hpp"))
 
     json_data = json.loads(read_file(args.input))
-    callbacks, handlers, observers, prototypes, privates = generate_model(json_data)
 
     write_file(private,
         "#pragma once\n\n#include \"generic_mon.hpp\"\n\n"
-        + privates)
+        + generate_definitions(json_data))
+
+    pad = 0
+    for target, (rettype, args) in json_data.items():
+        pad = max(pad, len(target))
     write_file(public,
         "#pragma once\n\n#include \"nt/nt.hpp\"\n\n"
-        + onevent_callback_macro.format(onevent_callback_protos=callbacks)
-        + functions_protos_macro.format(functions_protos=prototypes)
-        + observers_macro.format(observers=observers)
-        + handlers_macro.format(handlers=handlers))
+        + generate_callbacks(json_data, pad)
+        + generate_prototypes(json_data, pad)
+        + generate_observers(json_data, pad)
+        + generate_handlers(json_data, pad))
