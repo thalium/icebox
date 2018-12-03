@@ -144,6 +144,7 @@ function(get_files output)
             "${it}/*.h"
             "${it}/*.hpp"
             "${it}/*.in"
+            "${it}/*.json"
             "${it}/*.py"
             "${it}/*.rc"
         )

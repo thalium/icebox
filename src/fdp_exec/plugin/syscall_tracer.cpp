@@ -4,10 +4,12 @@
 #include "log.hpp"
 #include "os.hpp"
 
+#include "callstack.hpp"
+#include "monitor/syscalls.gen.hpp"
+#include "nt/objects_nt.hpp"
 #include "utils/file.hpp"
 #include "utils/json.hpp"
-
-#include <unordered_map>
+#include "utils/pe.hpp"
 
 namespace
 {
@@ -35,7 +37,7 @@ struct syscall_tracer::SyscallPlugin::Data
 
     core::Core&                            core_;
     pe::Pe&                                pe_;
-    monitor::GenericMonitor                monitor_;
+    monitor::syscalls                      syscalls_;
     std::shared_ptr<callstack::ICallstack> callstack_;
     std::shared_ptr<nt::ObjectNt>          objects_;
     Callsteps                              callsteps_;
@@ -48,7 +50,7 @@ struct syscall_tracer::SyscallPlugin::Data
 syscall_tracer::SyscallPlugin::Data::Data(core::Core& core, pe::Pe& pe)
     : core_(core)
     , pe_(pe)
-    , monitor_(core)
+    , syscalls_(core, "ntdll")
     , target_()
     , nb_triggers_()
 {
@@ -154,9 +156,9 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
     if(!d_->objects_)
         FAIL(false, "Unable to create ObjectNt object");
 
-    d_->monitor_.register_NtWriteFile(target, [=](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine, nt::PVOID ApcContext,
-                                                  nt::PIO_STATUS_BLOCK IoStatusBlock, nt::PVOID Buffer, nt::ULONG Length,
-                                                  nt::PLARGE_INTEGER ByteOffsetm, nt::PULONG Key)
+    d_->syscalls_.register_NtWriteFile(target, [=](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine, nt::PVOID ApcContext,
+                                                   nt::PIO_STATUS_BLOCK IoStatusBlock, nt::PVOID Buffer, nt::ULONG Length,
+                                                   nt::PLARGE_INTEGER ByteOffsetm, nt::PULONG Key)
     {
         LOG(INFO, "NtWriteFile : %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64,
             FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffsetm, Key);
@@ -182,7 +184,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
         return 0;
     });
 
-    d_->monitor_.register_NtClose(target, [=](nt::HANDLE paramHandle)
+    d_->syscalls_.register_NtClose(target, [=](nt::HANDLE paramHandle)
     {
         LOG(INFO, "NtClose : %" PRIx64, paramHandle);
         d_->args_[d_->nb_triggers_]["Handle"] = paramHandle;
@@ -191,10 +193,10 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
         return 0;
     });
 
-    d_->monitor_.register_NtDeviceIoControlFile(target, [=](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine,
-                                                            nt::PVOID ApcContext, nt::PIO_STATUS_BLOCK IoStatusBlock, nt::ULONG IoControlCode,
-                                                            nt::PVOID InputBuffer, nt::ULONG InputBufferLength, nt::PVOID OutputBuffer,
-                                                            nt::ULONG OutputBufferLength)
+    d_->syscalls_.register_NtDeviceIoControlFile(target, [=](nt::HANDLE FileHandle, nt::HANDLE Event, nt::PIO_APC_ROUTINE ApcRoutine,
+                                                             nt::PVOID ApcContext, nt::PIO_STATUS_BLOCK IoStatusBlock, nt::ULONG IoControlCode,
+                                                             nt::PVOID InputBuffer, nt::ULONG InputBufferLength, nt::PVOID OutputBuffer,
+                                                             nt::ULONG OutputBufferLength)
     {
         LOG(INFO, " NtDeviceIoControlFile : %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64,
             FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);

@@ -56,23 +56,23 @@ target_include_directories(pdbparser PUBLIC
 
 # tracer code generator
 set(monitor_dir "${root_dir}/src/fdp_exec/monitor")
-function(add_tracer input_file)
+function(add_tracer namespace input_file)
     find_package(PythonInterp 3.6 REQUIRED)
     get_filename_component(directory ${input_file} DIRECTORY)
     get_filename_component(filename ${input_file} NAME_WE)
     add_custom_command(
         COMMAND ${PYTHON_EXECUTABLE}
-            "${monitor_dir}/codegen.py" -i "${input_file}"
+            "${monitor_dir}/codegen.py" -n ${namespace} -i "${input_file}"
         OUTPUT
-            "${directory}/${filename}_private.gen.hpp"
-            "${directory}/${filename}_public.gen.hpp"
+            "${directory}/${filename}.gen.hpp"
+            "${directory}/${filename}.gen.cpp"
         DEPENDS
             "${monitor_dir}/codegen.py"
             ${input_file}
-        COMMENT "${filename}_private.gen.hpp ${filename}_public.gen.hpp"
+        COMMENT "generating ${filename}.gen.cpp"
     )
 endfunction()
-add_tracer("${monitor_dir}/syscalls.json")
+add_tracer("nt" "${monitor_dir}/syscalls.json")
 
 # fdp_exec
 set(fdp_exec_dir "${root_dir}/src/fdp_exec")

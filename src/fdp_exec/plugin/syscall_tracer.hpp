@@ -1,13 +1,11 @@
 #pragma once
 
-#include "core.hpp"
-#include "utils/pe.hpp"
-
-#include "callstack.hpp"
-#include "monitor/generic_mon.hpp"
-#include "nt/objects_nt.hpp"
+#include "types.hpp"
 
 #include <memory>
+
+namespace core { struct Core; }
+namespace pe { struct Pe; }
 
 namespace syscall_tracer
 {
