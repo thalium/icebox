@@ -204,7 +204,7 @@ int main(int argc, char* argv[])
     if(!ok)
         FAIL(-1, "unable retreive PE format informations from pdb");
 
-    //core.state.resume();
+    // core.state.resume();
     core.state.pause();
     const auto valid = test_core(core, pe);
     core.state.resume();

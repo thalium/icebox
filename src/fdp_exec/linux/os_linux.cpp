@@ -77,7 +77,7 @@ bool OsLinux::setup()
 {
     members_ = linux_4_15_0_39_offsets;
 
-    //Get this from System.map and deal with KASLR (look at pyrebox)
+    // Get this from System.map and deal with KASLR (look at pyrebox)
     init_task_addr_ = 0xffffffff9e612480;
 
     return true;
@@ -168,7 +168,7 @@ opt<std::string> OsLinux::proc_name(proc_t proc)
 
 uint64_t OsLinux::proc_id(proc_t proc)
 {
-    //pid is a uin32_t on linux
+    // pid is a uin32_t on linux
     const auto pid = core::read_le32(core_, proc.id + members_.pid);
     if(!pid)
         return 0;

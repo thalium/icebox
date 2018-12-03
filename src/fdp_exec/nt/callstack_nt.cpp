@@ -268,7 +268,7 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const cal
     size_t max_cs_depth = 150;
     for(size_t i = 0; i < max_cs_depth; ++i)
     {
-        //Get module from address
+        // Get module from address
         const auto mod = find_mod(proc, ctx.rip);
         if(!mod)
             FAIL(false, "Unable to find module");
@@ -276,7 +276,7 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const cal
         const auto modname = core_.os->mod_name(proc, *mod);
         const auto span    = core_.os->mod_span(proc, *mod);
 
-        //Load PDB
+        // Load PDB
         if(false)
         {
             const auto debug_dir = pe_.get_directory_entry(core_, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
@@ -343,7 +343,7 @@ namespace
 {
     void get_unwind_codes(Unwinds& unwind_codes, function_entry_t& function_entry, const std::vector<uint8_t>& buffer, size_t unwind_codes_size, size_t chained_info_size)
     {
-        uint32_t register_size = 0x08; //TODO Defined this somewhere else
+        uint32_t register_size = 0x08; // TODO Defined this somewhere else
 
         size_t idx = 0;
         while(idx < unwind_codes_size - chained_info_size)
@@ -446,7 +446,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(core::Core& core, const void
         function_entry.prolog_size     = unwind_info[1];
         function_entry.unwind_codes_nb = unwind_info[2];
 
-        //Deal with frame register
+        // Deal with frame register
         const auto frame_register       = unwind_info[3] & 0x0F;      // register used as frame pointer
         function_entry.frame_reg_offset = 16 * (unwind_info[3] >> 4); // offset of frame register
         if(function_entry.frame_reg_offset != 0 && frame_register != UWINFO_RBP)
@@ -498,7 +498,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(core::Core& core, const void
     {
         const auto mother_function_entry = lookup_mother_function_entry(orphan_fe.mother_start_addr, function_table.function_entries);
         if(!mother_function_entry)
-            continue; //Should never happend
+            continue; // Should never happend
 
         orphan_fe.stack_frame_size += mother_function_entry->stack_frame_size;
         function_table.function_entries.push_back(orphan_fe);

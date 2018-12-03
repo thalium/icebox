@@ -41,7 +41,7 @@ monitor::GenericMonitor::~GenericMonitor()
 
 bool monitor::GenericMonitor::setup_all(proc_t proc, on_function_generic_fn& on_function_generic)
 {
-    //TODO Load pdb to be sure that it is loaded ?
+    // TODO Load pdb to be sure that it is loaded ?
 
     for(const auto& f : functions)
     {

@@ -19,7 +19,7 @@ namespace
 
 return_t<arg_t> monitor::get_arg_by_index(core::Core& core, size_t index)
 {
-    //TODO Deal with x86
+    // TODO Deal with x86
     switch(index)
     {
         case 0:     return to_arg  (core.regs.read(FDP_RCX_REGISTER));
@@ -32,7 +32,7 @@ return_t<arg_t> monitor::get_arg_by_index(core::Core& core, size_t index)
 
 status_t monitor::set_arg_by_index(core::Core& core, size_t index, uint64_t value)
 {
-    //TODO Deal with x86
+    // TODO Deal with x86
     switch(index)
     {
         case 0:     return core.regs.write(FDP_RCX_REGISTER, value);
@@ -65,7 +65,7 @@ return_t<uint64_t> monitor::get_return_value(core::Core& core, proc_t proc)
     {
         const auto bp = core.state.set_breakpoint(*return_addr, proc, core::FILTER_CR3);
 
-        //Should we set a callback ?
+        // Should we set a callback ?
         return_t<uint64_t> rip;
         do
         {

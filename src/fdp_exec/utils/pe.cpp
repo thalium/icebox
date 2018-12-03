@@ -101,7 +101,7 @@ opt<span_t> pe::Pe::get_directory_entry(core::Core& core, const span_t span, con
     if(!e_lfanew)
         FAIL({}, "unable to read e_lfanew");
 
-    const auto image_nt_header       = span.addr + *e_lfanew; //IMAGE_NT_HEADER
+    const auto image_nt_header       = span.addr + *e_lfanew; // IMAGE_NT_HEADER
     const auto image_optional_header = image_nt_header + d_->members_pe_[IMAGE_NT_HEADERS64_OptionalHeader];
 
     const auto size_image_data_directory = 0x08;
@@ -143,7 +143,7 @@ return_t<size_t> pe::read_image_size(const void* vsrc, size_t size)
     const auto src = reinterpret_cast<const uint8_t*>(vsrc);
 
     const auto e_magic = read_be16(&src[0]);
-    static const auto image_dos_signature = 0x4D5A; //MZ
+    static const auto image_dos_signature = 0x4D5A; // MZ
     if(e_magic != image_dos_signature)
         return err::make(err_e::invalid_input);
 
@@ -155,7 +155,7 @@ return_t<size_t> pe::read_image_size(const void* vsrc, size_t size)
     const auto e_lfanew = read_le32(&src[idx]);
     idx                 = e_lfanew;
 
-    static const uint32_t image_nt_signature = 0X5045 << 16; //PE
+    static const uint32_t image_nt_signature = 0X5045 << 16; // PE
     if(idx + sizeof image_nt_signature > size)
         return err::make(err_e::input_too_small);
 
