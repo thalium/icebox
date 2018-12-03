@@ -3,7 +3,7 @@
 #define FDP_MODULE "syscalls"
 #include "core/helpers.hpp"
 #include "log.hpp"
-#include "monitor_helpers.hpp"
+#include "monitor.hpp"
 
 struct monitor::syscalls::Data
 {

@@ -142,7 +142,7 @@ def generate_impl(json_data, filename, namespace, pad):
 #define FDP_MODULE "{filename}"
 #include "core/helpers.hpp"
 #include "log.hpp"
-#include "monitor_helpers.hpp"
+#include "monitor.hpp"
 
 struct monitor::{filename}::Data
 {{
