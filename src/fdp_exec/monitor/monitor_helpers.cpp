@@ -7,41 +7,40 @@
 namespace
 {
     static const int pointer_size = 0x8;
+
+    return_t<arg_t> to_arg(const return_t<uint64_t>& arg)
+    {
+        if(!arg)
+            return {};
+
+        return arg_t{*arg};
+    }
 }
 
 return_t<arg_t> monitor::get_arg_by_index(core::Core& core, size_t index)
 {
     //TODO Deal with x86
-    arg_t              arg;
-    return_t<uint64_t> res;
     switch(index)
     {
-        case 0:     res = core.regs.read(FDP_RCX_REGISTER); break;
-        case 1:     res = core.regs.read(FDP_RDX_REGISTER); break;
-        case 2:     res = core.regs.read(FDP_R8_REGISTER); break;
-        case 3:     res = core.regs.read(FDP_R9_REGISTER); break;
-        default:    res = monitor::get_stack_by_index(core, index + 1);
+        case 0:     return to_arg  (core.regs.read(FDP_RCX_REGISTER));
+        case 1:     return to_arg  (core.regs.read(FDP_RDX_REGISTER));
+        case 2:     return to_arg  (core.regs.read(FDP_R8_REGISTER));
+        case 3:     return to_arg  (core.regs.read(FDP_R9_REGISTER));
+        default:    return to_arg  (monitor::get_stack_by_index(core, index + 1));
     }
-    if(!res)
-        return {};
-
-    arg.val = *res;
-    return arg;
 }
 
 status_t monitor::set_arg_by_index(core::Core& core, size_t index, uint64_t value)
 {
     //TODO Deal with x86
-    status_t res;
     switch(index)
     {
-        case 0:     res = core.regs.write(FDP_RCX_REGISTER, value); break;
-        case 1:     res = core.regs.write(FDP_RDX_REGISTER, value); break;
-        case 2:     res = core.regs.write(FDP_R8_REGISTER, value); break;
-        case 3:     res = core.regs.write(FDP_R9_REGISTER, value); break;
-        default:    res = monitor::set_stack_by_index(core, index + 1, value);
+        case 0:     return core.regs.write(FDP_RCX_REGISTER, value);
+        case 1:     return core.regs.write(FDP_RDX_REGISTER, value);
+        case 2:     return core.regs.write(FDP_R8_REGISTER, value);
+        case 3:     return core.regs.write(FDP_R9_REGISTER, value);
+        default:    return monitor::set_stack_by_index(core, index + 1, value);
     }
-    return res;
 }
 
 return_t<uint64_t> monitor::get_stack_by_index(core::Core& core, size_t index)
