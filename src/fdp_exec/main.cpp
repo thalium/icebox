@@ -142,7 +142,7 @@ namespace
                 const auto rsp = core.regs.read(FDP_RSP_REGISTER);
                 const auto rbp = core.regs.read(FDP_RBP_REGISTER);
                 int k = 0;
-                callstack->get_callstack(*target, *rip, *rsp, *rbp, [&](callstack::callstep_t callstep)
+                callstack->get_callstack(*target, {*rip, *rsp, *rbp}, [&](callstack::callstep_t callstep)
                 {
                     auto cursor = core.sym.find(callstep.addr);
                     if(!cursor)
