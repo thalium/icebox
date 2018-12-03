@@ -112,9 +112,9 @@ namespace
                 const auto thread   = core.os->thread_current();
                 const auto tid      = core.os->thread_id(*proc, *thread);
                 const auto procname = proc ? core.os->proc_name(*proc) : ext::nullopt;
-                const auto sym      = core.sym.find(*rip);
+                const auto sym      = core.sym.find(rip);
                 LOG(INFO, "BREAK! rip: %" PRIx64 " %s %s pid:%" PRId64 " tid:%" PRId64,
-                    *rip, sym ? sym::to_string(*sym).data() : "", procname ? procname->data() : "", pid, tid);
+                    rip, sym ? sym::to_string(*sym).data() : "", procname ? procname->data() : "", pid, tid);
             });
             for(size_t i = 0; i < 16; ++i)
             {
@@ -142,7 +142,7 @@ namespace
                 const auto rsp = core.regs.read(FDP_RSP_REGISTER);
                 const auto rbp = core.regs.read(FDP_RBP_REGISTER);
                 int k = 0;
-                callstack->get_callstack(*target, {*rip, *rsp, *rbp}, [&](callstack::callstep_t callstep)
+                callstack->get_callstack(*target, {rip, rsp, rbp}, [&](callstack::callstep_t callstep)
                 {
                     auto cursor = core.sym.find(callstep.addr);
                     if(!cursor)

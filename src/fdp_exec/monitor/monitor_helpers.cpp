@@ -45,9 +45,8 @@ status_t monitor::set_arg_by_index(core::Core& core, size_t index, uint64_t valu
 
 return_t<uint64_t> monitor::get_stack_by_index(core::Core& core, size_t index)
 {
-
     const auto rsp = core.regs.read(FDP_RSP_REGISTER);
-    return core::read_ptr(core, *rsp + index * pointer_size);
+    return core::read_ptr(core, rsp + index * pointer_size);
 }
 
 status_t monitor::set_stack_by_index(core::Core& /*core*/, size_t /*index*/, uint64_t /*value*/)
@@ -59,21 +58,20 @@ status_t monitor::set_stack_by_index(core::Core& /*core*/, size_t /*index*/, uin
 return_t<uint64_t> monitor::get_return_value(core::Core& core, proc_t proc)
 {
     const auto rsp         = core.regs.read(FDP_RSP_REGISTER);
-    const auto return_addr = core::read_ptr(core, *rsp);
+    const auto return_addr = core::read_ptr(core, rsp);
     const auto thread_curr = core.os->thread_current();
 
-    {
-        const auto bp = core.state.set_breakpoint(*return_addr, proc, core::FILTER_CR3);
+    const auto bp = core.state.set_breakpoint(*return_addr, proc, core::FILTER_CR3);
 
-        // Should we set a callback ?
-        return_t<uint64_t> rip;
-        do
-        {
-            core.state.resume();
-            core.state.wait();
-            rip = core.regs.read(FDP_RIP_REGISTER);
-        } while(*return_addr != *rip || thread_curr->id != (core.os->thread_current())->id);
-    }
+    // Should we set a callback ?
+    return_t<uint64_t> rip;
+    do
+    {
+        core.state.resume();
+        core.state.wait();
+        rip = core.regs.read(FDP_RIP_REGISTER);
+    } while(*return_addr != rip || thread_curr->id != core.os->thread_current()->id);
+
     return core.regs.read(FDP_RAX_REGISTER);
 }
 

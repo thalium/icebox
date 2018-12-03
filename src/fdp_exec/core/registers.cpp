@@ -104,12 +104,12 @@ namespace
     }
 }
 
-return_t<uint64_t> core::Registers::read(reg_e reg)
+uint64_t core::Registers::read(reg_e reg)
 {
     uint64_t value;
     const auto ok = FDP_ReadRegister(&d_->shm_, 0, reg, &value);
     if(!ok)
-        return err::make(err_e::cannot_read);
+        return 0;
 
     return value;
 }
@@ -123,12 +123,12 @@ status_t core::Registers::write(reg_e reg, uint64_t value)
     return err::ok;
 }
 
-return_t<uint64_t> core::Registers::read(msr_e reg)
+uint64_t core::Registers::read(msr_e reg)
 {
     uint64_t value = 0;
     const auto ok = FDP_ReadMsr(&d_->shm_, 0, reg, &value);
     if(!ok)
-        return err::make(err_e::cannot_read);
+        return 0;
 
     return value;
 }

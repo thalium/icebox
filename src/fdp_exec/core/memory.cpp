@@ -151,10 +151,7 @@ namespace
     bool is_user_mode(MemData& m)
     {
         const auto cs = m.core.regs.read(FDP_CS_REGISTER);
-        if(!cs)
-            return false;
-
-        return !!(*cs & 3);
+        return !!(cs & 3);
     }
 
     bool is_kernel_page(uint64_t ptr)
@@ -223,10 +220,7 @@ namespace
         if(read)
             return true;
 
-        const auto rip = m.core.regs.read(FDP_RIP_REGISTER);
-        if(!rip)
-            FAIL(false, "unable to read current RIP");
-
+        const auto rip  = m.core.regs.read(FDP_RIP_REGISTER);
         const auto swap = swap_context(m, proc);
         if(!swap)
             FAIL(false, "unable to swap context");
@@ -236,7 +230,7 @@ namespace
         if(!injected)
             FAIL(false, "unable to inject page fault");
 
-        core::run_exclusive_breakpoint(m.core.state, m.core.regs, *rip, proc, core::FILTER_CR3);
+        core::run_exclusive_breakpoint(m.core.state, m.core.regs, rip, proc, core::FILTER_CR3);
         const auto ok = FDP_ReadVirtualMemory(&m.shm, 0, dst, size, src);
         return ok;
     }

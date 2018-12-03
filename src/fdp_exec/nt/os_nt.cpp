@@ -194,11 +194,8 @@ namespace
 
 bool OsNt::setup()
 {
-    const auto lstar = core_.regs.read(MSR_LSTAR);
-    if(!lstar)
-        return false;
-
-    const auto kernel = find_kernel(core_, *lstar);
+    const auto lstar  = core_.regs.read(MSR_LSTAR);
+    const auto kernel = find_kernel(core_, lstar);
     if(!kernel)
         FAIL(false, "unable to find kernel");
 
@@ -241,8 +238,8 @@ bool OsNt::setup()
         return false;
 
     const auto KiSystemCall64 = symbols_[::KiSystemCall64];
-    if(*lstar != KiSystemCall64)
-        FAIL(false, "PDB mismatch lstar: 0x%" PRIx64 " pdb: 0x%" PRIx64 "\n", *lstar, KiSystemCall64);
+    if(lstar != KiSystemCall64)
+        FAIL(false, "PDB mismatch lstar: 0x%" PRIx64 " pdb: 0x%" PRIx64 "\n", lstar, KiSystemCall64);
 
     return true;
 }
@@ -285,17 +282,10 @@ namespace
     opt<uint64_t> read_gs_base(core::Core& core)
     {
         auto gs = core.regs.read(MSR_GS_BASE);
-        if(!gs)
-            return {};
+        if(gs & 0xFFF0000000000000)
+            return gs;
 
-        if(*gs & 0xFFF0000000000000)
-            return *gs;
-
-        gs = core.regs.read(MSR_KERNEL_GS_BASE);
-        if(!gs)
-            return {};
-
-        return *gs;
+        return core.regs.read(MSR_KERNEL_GS_BASE);
     }
 }
 
@@ -623,14 +613,14 @@ void OsNt::debug_print()
     const auto irql   = core::read_byte(core_, *kpcr + members_[KPCR_Irql]);
     const auto cs     = core_.regs.read(FDP_CS_REGISTER);
     const auto rip    = core_.regs.read(FDP_RIP_REGISTER);
-    const auto ripcur = core_.sym.find(*rip);
+    const auto ripcur = core_.sym.find(rip);
     const auto ripsym = ripcur ? sym::to_string(*ripcur) : "";
     const auto thread = thread_current();
     const auto proc   = thread_proc(*thread);
     const auto name   = proc_name(*proc);
-    const auto dump   = "rip: " + to_hex(rip ? *rip : 0)
+    const auto dump   = "rip: " + to_hex(rip)
                       + ' ' + irql_to_text(irql ? *irql : -1)
-                      + ' ' + (cs ? is_user_mode(*cs) ? "user" : "kernel" : "?")
+                      + ' ' + (is_user_mode(cs) ? "user" : "kernel")
                       + (name ? " " + *name : "")
                       + (ripsym.empty() ? "" : " " + ripsym)
                       + " p:" + to_hex(proc ? proc->id : 0)

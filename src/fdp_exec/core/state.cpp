@@ -194,23 +194,17 @@ namespace
             return;
 
         const auto rip = d.core.regs.read(FDP_RIP_REGISTER);
-        if(!rip)
-            return;
-
-        const auto cr3 = d.core.regs.read(FDP_CR3_REGISTER);
-        if(!cr3)
-            return;
-
         uint64_t phy = 0;
-        const auto ok = FDP_VirtualToPhysical(&d.shm, 0, *rip, &phy);
+        const auto ok = FDP_VirtualToPhysical(&d.shm, 0, rip, &phy);
         if(!ok)
             return;
 
+        const auto cr3   = d.core.regs.read(FDP_CR3_REGISTER);
         const auto range = d.breakpoints.observers_.equal_range(phy);
         for(auto it = range.first; it != range.second; ++it)
         {
             const auto& bp = *it->second;
-            if(bp.filter == core::FILTER_CR3 && bp.proc.dtb != *cr3)
+            if(bp.filter == core::FILTER_CR3 && bp.proc.dtb != cr3)
                 continue;
 
             if(bp.task)
@@ -316,7 +310,7 @@ void core::run_exclusive_breakpoint(State& state, Registers& regs, uint64_t ptr,
         try_wait(*state.d_, SKIP_BREAKPOINTS);
 
         const auto cur = regs.read(FDP_RIP_REGISTER);
-        if(*cur == ptr)
+        if(cur == ptr)
             break;
 
         check_breakpoints(*state.d_);
@@ -335,7 +329,7 @@ namespace
             return true;
 
         const auto cs = d.core.regs.read(FDP_CS_REGISTER);
-        return cs && !!(*cs & 3);
+        return !!(cs & 3);
     }
 
     bool try_proc_join(StateData& d, proc_t proc, core::join_e join)
