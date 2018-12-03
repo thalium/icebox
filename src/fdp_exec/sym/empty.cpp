@@ -64,5 +64,5 @@ opt<sym::ModCursor> EmptyMod::symbol(uint64_t addr)
     if(span_.addr <= addr && addr < span_.addr + span_.size)
         return sym::ModCursor{"nosymbol", addr - span_.addr};
 
-    return ext::nullopt;
+    return {};
 }

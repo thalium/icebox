@@ -419,11 +419,10 @@ namespace
     opt<function_entry_t> lookup_mother_function_entry(uint32_t mother_start_addr, const std::vector<function_entry_t>& function_entries)
     {
         for(const auto& fe : function_entries)
-        {
             if(mother_start_addr == fe.start_address)
                 return fe;
-        }
-        return ext::nullopt;
+
+        return {};
     }
 }
 

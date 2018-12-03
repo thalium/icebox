@@ -410,7 +410,7 @@ opt<bool> OsNt::proc_is_wow64(proc_t proc)
 {
     const auto isx64 = core::read_ptr(core_, proc.id + members_[EPROCESS_Wow64Process]);
     if(!isx64)
-        return ext::nullopt;
+        return {};
 
     return !!(*isx64);
 }
