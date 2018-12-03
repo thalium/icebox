@@ -4,15 +4,19 @@
 #include <stdint.h>
 
 #ifdef _MSC_VER
+#    include <filesystem>
 #    include <optional>
 template <typename T>
 using opt = std::optional<T>;
 namespace ext = std;
+namespace fs = std::filesystem;
 #else
+#    include <experimental/filesystem>
 #    include <experimental/optional>
 template <typename T>
 using opt = std::experimental::optional<T>;
 namespace ext = std::experimental;
+namespace fs = std::experimental::filesystem;
 #endif
 
 struct proc_t

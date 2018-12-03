@@ -10,6 +10,7 @@ enum class err_e
     cannot_write,
     invalid_input,
     input_too_small,
+    cannot_open,
 };
 
 template <typename T>

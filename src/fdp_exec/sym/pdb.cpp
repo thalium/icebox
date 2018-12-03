@@ -7,8 +7,6 @@
 #include "utils/utils.hpp"
 
 #include <cctype>
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
 
 #include "pdbparser.hpp"
 namespace pdb = retdec::pdbparser;

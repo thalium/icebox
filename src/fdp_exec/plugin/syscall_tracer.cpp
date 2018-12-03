@@ -4,7 +4,7 @@
 #include "log.hpp"
 #include "os.hpp"
 
-#include "utils/file_helper.hpp"
+#include "utils/file.hpp"
 #include "utils/json.hpp"
 #include "utils/sanitizer.hpp"
 
@@ -205,9 +205,7 @@ bool syscall_tracer::SyscallPlugin::produce_output(std::string file_name)
 {
     std::vector<bp_trigger_info_t> frames = d_->bp_trigger_infos;
     const json output = create_calltree(core_, d_->target, d_->callsteps, frames, d_->args);
-
-    //Dump output
-    file_helper::write_file(file_name, output.dump());
-
+    const auto dump = output.dump();
+    file::write(file_name, dump.data(), dump.size());
     return true;
 }

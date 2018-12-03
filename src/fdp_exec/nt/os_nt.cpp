@@ -10,8 +10,6 @@
 #include "utils/utils.hpp"
 
 #include <array>
-#include <experimental/filesystem>
-namespace fs = std::experimental::filesystem;
 
 namespace
 {
