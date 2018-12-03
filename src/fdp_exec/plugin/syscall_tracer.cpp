@@ -8,8 +8,9 @@
 #include "monitor/syscalls.gen.hpp"
 #include "nt/objects_nt.hpp"
 #include "utils/file.hpp"
-#include "utils/json.hpp"
 #include "utils/pe.hpp"
+
+#include <nlohmann/json.hpp>
 
 namespace
 {
