@@ -82,7 +82,7 @@ def main():
     ]
     fields = [
         # align case ...: return ...;
-        (4, r" +case .+:", " +", r".+;"),
+        (4, r" +(?:case .+|default):", " +", r".+;"),
         # align member ... : bitfield;
         (4, r" +.+[^ ]", " +", r": \d+;"),
         # align #define MACRO(...) ...
