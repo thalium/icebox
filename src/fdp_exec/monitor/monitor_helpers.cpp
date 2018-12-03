@@ -16,11 +16,11 @@ return_t<arg_t> monitor::get_arg_by_index(core::Core& core, size_t index)
     return_t<uint64_t> res;
     switch(index)
     {
-        case 0: res = core.regs.read(FDP_RCX_REGISTER); break;
-        case 1: res = core.regs.read(FDP_RDX_REGISTER); break;
-        case 2: res = core.regs.read(FDP_R8_REGISTER); break;
-        case 3: res = core.regs.read(FDP_R9_REGISTER); break;
-        default: res = monitor::get_stack_by_index(core, index + 1);
+        case 0:     res = core.regs.read(FDP_RCX_REGISTER); break;
+        case 1:     res = core.regs.read(FDP_RDX_REGISTER); break;
+        case 2:     res = core.regs.read(FDP_R8_REGISTER); break;
+        case 3:     res = core.regs.read(FDP_R9_REGISTER); break;
+        default:    res = monitor::get_stack_by_index(core, index + 1);
     }
     if(!res)
         return {};
@@ -35,11 +35,11 @@ status_t monitor::set_arg_by_index(core::Core& core, size_t index, uint64_t valu
     status_t res;
     switch(index)
     {
-        case 0: res = core.regs.write(FDP_RCX_REGISTER, value); break;
-        case 1: res = core.regs.write(FDP_RDX_REGISTER, value); break;
-        case 2: res = core.regs.write(FDP_R8_REGISTER, value); break;
-        case 3: res = core.regs.write(FDP_R9_REGISTER, value); break;
-        default: res = monitor::set_stack_by_index(core, index + 1, value);
+        case 0:     res = core.regs.write(FDP_RCX_REGISTER, value); break;
+        case 1:     res = core.regs.write(FDP_RDX_REGISTER, value); break;
+        case 2:     res = core.regs.write(FDP_R8_REGISTER, value); break;
+        case 3:     res = core.regs.write(FDP_R9_REGISTER, value); break;
+        default:    res = monitor::set_stack_by_index(core, index + 1, value);
     }
     return res;
 }
