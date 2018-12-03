@@ -61,7 +61,7 @@ bool monitor::GenericMonitor::setup_all(proc_t proc, on_function_generic_fn& on_
     return true;
 }
 
-bool monitor::GenericMonitor::setup_func(proc_t proc, std::string fname)
+bool monitor::GenericMonitor::setup_func(proc_t proc, const std::string& fname)
 {
     for(const auto& f : functions)
     {
