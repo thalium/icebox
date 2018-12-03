@@ -414,819 +414,819 @@
 
 #define DECLARE_SYSCALLS_FUNCTIONS_PROTOS\
     void on_NtAcceptConnectPort                   ();\
-    bool register_NtAcceptConnectPort             (proc_t proc, const on_NtAcceptConnectPort_fn& on_ntacceptconnectport);\
+    bool register_NtAcceptConnectPort             (proc_t proc, const on_NtAcceptConnectPort_fn& on_func);\
     void on_NtAccessCheckAndAuditAlarm            ();\
-    bool register_NtAccessCheckAndAuditAlarm      (proc_t proc, const on_NtAccessCheckAndAuditAlarm_fn& on_ntaccesscheckandauditalarm);\
+    bool register_NtAccessCheckAndAuditAlarm      (proc_t proc, const on_NtAccessCheckAndAuditAlarm_fn& on_func);\
     void on_NtAccessCheckByTypeAndAuditAlarm      ();\
-    bool register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeAndAuditAlarm_fn& on_ntaccesscheckbytypeandauditalarm);\
+    bool register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeAndAuditAlarm_fn& on_func);\
     void on_NtAccessCheckByType                   ();\
-    bool register_NtAccessCheckByType             (proc_t proc, const on_NtAccessCheckByType_fn& on_ntaccesscheckbytype);\
+    bool register_NtAccessCheckByType             (proc_t proc, const on_NtAccessCheckByType_fn& on_func);\
     void on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle();\
-    bool register_NtAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_ntaccesscheckbytyperesultlistandauditalarmbyhandle);\
+    bool register_NtAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_func);\
     void on_NtAccessCheckByTypeResultListAndAuditAlarm();\
-    bool register_NtAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarm_fn& on_ntaccesscheckbytyperesultlistandauditalarm);\
+    bool register_NtAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarm_fn& on_func);\
     void on_NtAccessCheckByTypeResultList         ();\
-    bool register_NtAccessCheckByTypeResultList   (proc_t proc, const on_NtAccessCheckByTypeResultList_fn& on_ntaccesscheckbytyperesultlist);\
+    bool register_NtAccessCheckByTypeResultList   (proc_t proc, const on_NtAccessCheckByTypeResultList_fn& on_func);\
     void on_NtAccessCheck                         ();\
-    bool register_NtAccessCheck                   (proc_t proc, const on_NtAccessCheck_fn& on_ntaccesscheck);\
+    bool register_NtAccessCheck                   (proc_t proc, const on_NtAccessCheck_fn& on_func);\
     void on_NtAddAtom                             ();\
-    bool register_NtAddAtom                       (proc_t proc, const on_NtAddAtom_fn& on_ntaddatom);\
+    bool register_NtAddAtom                       (proc_t proc, const on_NtAddAtom_fn& on_func);\
     void on_NtAddBootEntry                        ();\
-    bool register_NtAddBootEntry                  (proc_t proc, const on_NtAddBootEntry_fn& on_ntaddbootentry);\
+    bool register_NtAddBootEntry                  (proc_t proc, const on_NtAddBootEntry_fn& on_func);\
     void on_NtAddDriverEntry                      ();\
-    bool register_NtAddDriverEntry                (proc_t proc, const on_NtAddDriverEntry_fn& on_ntadddriverentry);\
+    bool register_NtAddDriverEntry                (proc_t proc, const on_NtAddDriverEntry_fn& on_func);\
     void on_NtAdjustGroupsToken                   ();\
-    bool register_NtAdjustGroupsToken             (proc_t proc, const on_NtAdjustGroupsToken_fn& on_ntadjustgroupstoken);\
+    bool register_NtAdjustGroupsToken             (proc_t proc, const on_NtAdjustGroupsToken_fn& on_func);\
     void on_NtAdjustPrivilegesToken               ();\
-    bool register_NtAdjustPrivilegesToken         (proc_t proc, const on_NtAdjustPrivilegesToken_fn& on_ntadjustprivilegestoken);\
+    bool register_NtAdjustPrivilegesToken         (proc_t proc, const on_NtAdjustPrivilegesToken_fn& on_func);\
     void on_NtAlertResumeThread                   ();\
-    bool register_NtAlertResumeThread             (proc_t proc, const on_NtAlertResumeThread_fn& on_ntalertresumethread);\
+    bool register_NtAlertResumeThread             (proc_t proc, const on_NtAlertResumeThread_fn& on_func);\
     void on_NtAlertThread                         ();\
-    bool register_NtAlertThread                   (proc_t proc, const on_NtAlertThread_fn& on_ntalertthread);\
+    bool register_NtAlertThread                   (proc_t proc, const on_NtAlertThread_fn& on_func);\
     void on_NtAllocateLocallyUniqueId             ();\
-    bool register_NtAllocateLocallyUniqueId       (proc_t proc, const on_NtAllocateLocallyUniqueId_fn& on_ntallocatelocallyuniqueid);\
+    bool register_NtAllocateLocallyUniqueId       (proc_t proc, const on_NtAllocateLocallyUniqueId_fn& on_func);\
     void on_NtAllocateReserveObject               ();\
-    bool register_NtAllocateReserveObject         (proc_t proc, const on_NtAllocateReserveObject_fn& on_ntallocatereserveobject);\
+    bool register_NtAllocateReserveObject         (proc_t proc, const on_NtAllocateReserveObject_fn& on_func);\
     void on_NtAllocateUserPhysicalPages           ();\
-    bool register_NtAllocateUserPhysicalPages     (proc_t proc, const on_NtAllocateUserPhysicalPages_fn& on_ntallocateuserphysicalpages);\
+    bool register_NtAllocateUserPhysicalPages     (proc_t proc, const on_NtAllocateUserPhysicalPages_fn& on_func);\
     void on_NtAllocateUuids                       ();\
-    bool register_NtAllocateUuids                 (proc_t proc, const on_NtAllocateUuids_fn& on_ntallocateuuids);\
+    bool register_NtAllocateUuids                 (proc_t proc, const on_NtAllocateUuids_fn& on_func);\
     void on_NtAllocateVirtualMemory               ();\
-    bool register_NtAllocateVirtualMemory         (proc_t proc, const on_NtAllocateVirtualMemory_fn& on_ntallocatevirtualmemory);\
+    bool register_NtAllocateVirtualMemory         (proc_t proc, const on_NtAllocateVirtualMemory_fn& on_func);\
     void on_NtAlpcAcceptConnectPort               ();\
-    bool register_NtAlpcAcceptConnectPort         (proc_t proc, const on_NtAlpcAcceptConnectPort_fn& on_ntalpcacceptconnectport);\
+    bool register_NtAlpcAcceptConnectPort         (proc_t proc, const on_NtAlpcAcceptConnectPort_fn& on_func);\
     void on_NtAlpcCancelMessage                   ();\
-    bool register_NtAlpcCancelMessage             (proc_t proc, const on_NtAlpcCancelMessage_fn& on_ntalpccancelmessage);\
+    bool register_NtAlpcCancelMessage             (proc_t proc, const on_NtAlpcCancelMessage_fn& on_func);\
     void on_NtAlpcConnectPort                     ();\
-    bool register_NtAlpcConnectPort               (proc_t proc, const on_NtAlpcConnectPort_fn& on_ntalpcconnectport);\
+    bool register_NtAlpcConnectPort               (proc_t proc, const on_NtAlpcConnectPort_fn& on_func);\
     void on_NtAlpcCreatePort                      ();\
-    bool register_NtAlpcCreatePort                (proc_t proc, const on_NtAlpcCreatePort_fn& on_ntalpccreateport);\
+    bool register_NtAlpcCreatePort                (proc_t proc, const on_NtAlpcCreatePort_fn& on_func);\
     void on_NtAlpcCreatePortSection               ();\
-    bool register_NtAlpcCreatePortSection         (proc_t proc, const on_NtAlpcCreatePortSection_fn& on_ntalpccreateportsection);\
+    bool register_NtAlpcCreatePortSection         (proc_t proc, const on_NtAlpcCreatePortSection_fn& on_func);\
     void on_NtAlpcCreateResourceReserve           ();\
-    bool register_NtAlpcCreateResourceReserve     (proc_t proc, const on_NtAlpcCreateResourceReserve_fn& on_ntalpccreateresourcereserve);\
+    bool register_NtAlpcCreateResourceReserve     (proc_t proc, const on_NtAlpcCreateResourceReserve_fn& on_func);\
     void on_NtAlpcCreateSectionView               ();\
-    bool register_NtAlpcCreateSectionView         (proc_t proc, const on_NtAlpcCreateSectionView_fn& on_ntalpccreatesectionview);\
+    bool register_NtAlpcCreateSectionView         (proc_t proc, const on_NtAlpcCreateSectionView_fn& on_func);\
     void on_NtAlpcCreateSecurityContext           ();\
-    bool register_NtAlpcCreateSecurityContext     (proc_t proc, const on_NtAlpcCreateSecurityContext_fn& on_ntalpccreatesecuritycontext);\
+    bool register_NtAlpcCreateSecurityContext     (proc_t proc, const on_NtAlpcCreateSecurityContext_fn& on_func);\
     void on_NtAlpcDeletePortSection               ();\
-    bool register_NtAlpcDeletePortSection         (proc_t proc, const on_NtAlpcDeletePortSection_fn& on_ntalpcdeleteportsection);\
+    bool register_NtAlpcDeletePortSection         (proc_t proc, const on_NtAlpcDeletePortSection_fn& on_func);\
     void on_NtAlpcDeleteResourceReserve           ();\
-    bool register_NtAlpcDeleteResourceReserve     (proc_t proc, const on_NtAlpcDeleteResourceReserve_fn& on_ntalpcdeleteresourcereserve);\
+    bool register_NtAlpcDeleteResourceReserve     (proc_t proc, const on_NtAlpcDeleteResourceReserve_fn& on_func);\
     void on_NtAlpcDeleteSectionView               ();\
-    bool register_NtAlpcDeleteSectionView         (proc_t proc, const on_NtAlpcDeleteSectionView_fn& on_ntalpcdeletesectionview);\
+    bool register_NtAlpcDeleteSectionView         (proc_t proc, const on_NtAlpcDeleteSectionView_fn& on_func);\
     void on_NtAlpcDeleteSecurityContext           ();\
-    bool register_NtAlpcDeleteSecurityContext     (proc_t proc, const on_NtAlpcDeleteSecurityContext_fn& on_ntalpcdeletesecuritycontext);\
+    bool register_NtAlpcDeleteSecurityContext     (proc_t proc, const on_NtAlpcDeleteSecurityContext_fn& on_func);\
     void on_NtAlpcDisconnectPort                  ();\
-    bool register_NtAlpcDisconnectPort            (proc_t proc, const on_NtAlpcDisconnectPort_fn& on_ntalpcdisconnectport);\
+    bool register_NtAlpcDisconnectPort            (proc_t proc, const on_NtAlpcDisconnectPort_fn& on_func);\
     void on_NtAlpcImpersonateClientOfPort         ();\
-    bool register_NtAlpcImpersonateClientOfPort   (proc_t proc, const on_NtAlpcImpersonateClientOfPort_fn& on_ntalpcimpersonateclientofport);\
+    bool register_NtAlpcImpersonateClientOfPort   (proc_t proc, const on_NtAlpcImpersonateClientOfPort_fn& on_func);\
     void on_NtAlpcOpenSenderProcess               ();\
-    bool register_NtAlpcOpenSenderProcess         (proc_t proc, const on_NtAlpcOpenSenderProcess_fn& on_ntalpcopensenderprocess);\
+    bool register_NtAlpcOpenSenderProcess         (proc_t proc, const on_NtAlpcOpenSenderProcess_fn& on_func);\
     void on_NtAlpcOpenSenderThread                ();\
-    bool register_NtAlpcOpenSenderThread          (proc_t proc, const on_NtAlpcOpenSenderThread_fn& on_ntalpcopensenderthread);\
+    bool register_NtAlpcOpenSenderThread          (proc_t proc, const on_NtAlpcOpenSenderThread_fn& on_func);\
     void on_NtAlpcQueryInformation                ();\
-    bool register_NtAlpcQueryInformation          (proc_t proc, const on_NtAlpcQueryInformation_fn& on_ntalpcqueryinformation);\
+    bool register_NtAlpcQueryInformation          (proc_t proc, const on_NtAlpcQueryInformation_fn& on_func);\
     void on_NtAlpcQueryInformationMessage         ();\
-    bool register_NtAlpcQueryInformationMessage   (proc_t proc, const on_NtAlpcQueryInformationMessage_fn& on_ntalpcqueryinformationmessage);\
+    bool register_NtAlpcQueryInformationMessage   (proc_t proc, const on_NtAlpcQueryInformationMessage_fn& on_func);\
     void on_NtAlpcRevokeSecurityContext           ();\
-    bool register_NtAlpcRevokeSecurityContext     (proc_t proc, const on_NtAlpcRevokeSecurityContext_fn& on_ntalpcrevokesecuritycontext);\
+    bool register_NtAlpcRevokeSecurityContext     (proc_t proc, const on_NtAlpcRevokeSecurityContext_fn& on_func);\
     void on_NtAlpcSendWaitReceivePort             ();\
-    bool register_NtAlpcSendWaitReceivePort       (proc_t proc, const on_NtAlpcSendWaitReceivePort_fn& on_ntalpcsendwaitreceiveport);\
+    bool register_NtAlpcSendWaitReceivePort       (proc_t proc, const on_NtAlpcSendWaitReceivePort_fn& on_func);\
     void on_NtAlpcSetInformation                  ();\
-    bool register_NtAlpcSetInformation            (proc_t proc, const on_NtAlpcSetInformation_fn& on_ntalpcsetinformation);\
+    bool register_NtAlpcSetInformation            (proc_t proc, const on_NtAlpcSetInformation_fn& on_func);\
     void on_NtApphelpCacheControl                 ();\
-    bool register_NtApphelpCacheControl           (proc_t proc, const on_NtApphelpCacheControl_fn& on_ntapphelpcachecontrol);\
+    bool register_NtApphelpCacheControl           (proc_t proc, const on_NtApphelpCacheControl_fn& on_func);\
     void on_NtAreMappedFilesTheSame               ();\
-    bool register_NtAreMappedFilesTheSame         (proc_t proc, const on_NtAreMappedFilesTheSame_fn& on_ntaremappedfilesthesame);\
+    bool register_NtAreMappedFilesTheSame         (proc_t proc, const on_NtAreMappedFilesTheSame_fn& on_func);\
     void on_NtAssignProcessToJobObject            ();\
-    bool register_NtAssignProcessToJobObject      (proc_t proc, const on_NtAssignProcessToJobObject_fn& on_ntassignprocesstojobobject);\
+    bool register_NtAssignProcessToJobObject      (proc_t proc, const on_NtAssignProcessToJobObject_fn& on_func);\
     void on_NtCallbackReturn                      ();\
-    bool register_NtCallbackReturn                (proc_t proc, const on_NtCallbackReturn_fn& on_ntcallbackreturn);\
+    bool register_NtCallbackReturn                (proc_t proc, const on_NtCallbackReturn_fn& on_func);\
     void on_NtCancelIoFileEx                      ();\
-    bool register_NtCancelIoFileEx                (proc_t proc, const on_NtCancelIoFileEx_fn& on_ntcanceliofileex);\
+    bool register_NtCancelIoFileEx                (proc_t proc, const on_NtCancelIoFileEx_fn& on_func);\
     void on_NtCancelIoFile                        ();\
-    bool register_NtCancelIoFile                  (proc_t proc, const on_NtCancelIoFile_fn& on_ntcanceliofile);\
+    bool register_NtCancelIoFile                  (proc_t proc, const on_NtCancelIoFile_fn& on_func);\
     void on_NtCancelSynchronousIoFile             ();\
-    bool register_NtCancelSynchronousIoFile       (proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_ntcancelsynchronousiofile);\
+    bool register_NtCancelSynchronousIoFile       (proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_func);\
     void on_NtCancelTimer                         ();\
-    bool register_NtCancelTimer                   (proc_t proc, const on_NtCancelTimer_fn& on_ntcanceltimer);\
+    bool register_NtCancelTimer                   (proc_t proc, const on_NtCancelTimer_fn& on_func);\
     void on_NtClearEvent                          ();\
-    bool register_NtClearEvent                    (proc_t proc, const on_NtClearEvent_fn& on_ntclearevent);\
+    bool register_NtClearEvent                    (proc_t proc, const on_NtClearEvent_fn& on_func);\
     void on_NtClose                               ();\
-    bool register_NtClose                         (proc_t proc, const on_NtClose_fn& on_ntclose);\
+    bool register_NtClose                         (proc_t proc, const on_NtClose_fn& on_func);\
     void on_NtCloseObjectAuditAlarm               ();\
-    bool register_NtCloseObjectAuditAlarm         (proc_t proc, const on_NtCloseObjectAuditAlarm_fn& on_ntcloseobjectauditalarm);\
+    bool register_NtCloseObjectAuditAlarm         (proc_t proc, const on_NtCloseObjectAuditAlarm_fn& on_func);\
     void on_NtCommitComplete                      ();\
-    bool register_NtCommitComplete                (proc_t proc, const on_NtCommitComplete_fn& on_ntcommitcomplete);\
+    bool register_NtCommitComplete                (proc_t proc, const on_NtCommitComplete_fn& on_func);\
     void on_NtCommitEnlistment                    ();\
-    bool register_NtCommitEnlistment              (proc_t proc, const on_NtCommitEnlistment_fn& on_ntcommitenlistment);\
+    bool register_NtCommitEnlistment              (proc_t proc, const on_NtCommitEnlistment_fn& on_func);\
     void on_NtCommitTransaction                   ();\
-    bool register_NtCommitTransaction             (proc_t proc, const on_NtCommitTransaction_fn& on_ntcommittransaction);\
+    bool register_NtCommitTransaction             (proc_t proc, const on_NtCommitTransaction_fn& on_func);\
     void on_NtCompactKeys                         ();\
-    bool register_NtCompactKeys                   (proc_t proc, const on_NtCompactKeys_fn& on_ntcompactkeys);\
+    bool register_NtCompactKeys                   (proc_t proc, const on_NtCompactKeys_fn& on_func);\
     void on_NtCompareTokens                       ();\
-    bool register_NtCompareTokens                 (proc_t proc, const on_NtCompareTokens_fn& on_ntcomparetokens);\
+    bool register_NtCompareTokens                 (proc_t proc, const on_NtCompareTokens_fn& on_func);\
     void on_NtCompleteConnectPort                 ();\
-    bool register_NtCompleteConnectPort           (proc_t proc, const on_NtCompleteConnectPort_fn& on_ntcompleteconnectport);\
+    bool register_NtCompleteConnectPort           (proc_t proc, const on_NtCompleteConnectPort_fn& on_func);\
     void on_NtCompressKey                         ();\
-    bool register_NtCompressKey                   (proc_t proc, const on_NtCompressKey_fn& on_ntcompresskey);\
+    bool register_NtCompressKey                   (proc_t proc, const on_NtCompressKey_fn& on_func);\
     void on_NtConnectPort                         ();\
-    bool register_NtConnectPort                   (proc_t proc, const on_NtConnectPort_fn& on_ntconnectport);\
+    bool register_NtConnectPort                   (proc_t proc, const on_NtConnectPort_fn& on_func);\
     void on_NtContinue                            ();\
-    bool register_NtContinue                      (proc_t proc, const on_NtContinue_fn& on_ntcontinue);\
+    bool register_NtContinue                      (proc_t proc, const on_NtContinue_fn& on_func);\
     void on_NtCreateDebugObject                   ();\
-    bool register_NtCreateDebugObject             (proc_t proc, const on_NtCreateDebugObject_fn& on_ntcreatedebugobject);\
+    bool register_NtCreateDebugObject             (proc_t proc, const on_NtCreateDebugObject_fn& on_func);\
     void on_NtCreateDirectoryObject               ();\
-    bool register_NtCreateDirectoryObject         (proc_t proc, const on_NtCreateDirectoryObject_fn& on_ntcreatedirectoryobject);\
+    bool register_NtCreateDirectoryObject         (proc_t proc, const on_NtCreateDirectoryObject_fn& on_func);\
     void on_NtCreateEnlistment                    ();\
-    bool register_NtCreateEnlistment              (proc_t proc, const on_NtCreateEnlistment_fn& on_ntcreateenlistment);\
+    bool register_NtCreateEnlistment              (proc_t proc, const on_NtCreateEnlistment_fn& on_func);\
     void on_NtCreateEvent                         ();\
-    bool register_NtCreateEvent                   (proc_t proc, const on_NtCreateEvent_fn& on_ntcreateevent);\
+    bool register_NtCreateEvent                   (proc_t proc, const on_NtCreateEvent_fn& on_func);\
     void on_NtCreateEventPair                     ();\
-    bool register_NtCreateEventPair               (proc_t proc, const on_NtCreateEventPair_fn& on_ntcreateeventpair);\
+    bool register_NtCreateEventPair               (proc_t proc, const on_NtCreateEventPair_fn& on_func);\
     void on_NtCreateFile                          ();\
-    bool register_NtCreateFile                    (proc_t proc, const on_NtCreateFile_fn& on_ntcreatefile);\
+    bool register_NtCreateFile                    (proc_t proc, const on_NtCreateFile_fn& on_func);\
     void on_NtCreateIoCompletion                  ();\
-    bool register_NtCreateIoCompletion            (proc_t proc, const on_NtCreateIoCompletion_fn& on_ntcreateiocompletion);\
+    bool register_NtCreateIoCompletion            (proc_t proc, const on_NtCreateIoCompletion_fn& on_func);\
     void on_NtCreateJobObject                     ();\
-    bool register_NtCreateJobObject               (proc_t proc, const on_NtCreateJobObject_fn& on_ntcreatejobobject);\
+    bool register_NtCreateJobObject               (proc_t proc, const on_NtCreateJobObject_fn& on_func);\
     void on_NtCreateJobSet                        ();\
-    bool register_NtCreateJobSet                  (proc_t proc, const on_NtCreateJobSet_fn& on_ntcreatejobset);\
+    bool register_NtCreateJobSet                  (proc_t proc, const on_NtCreateJobSet_fn& on_func);\
     void on_NtCreateKeyedEvent                    ();\
-    bool register_NtCreateKeyedEvent              (proc_t proc, const on_NtCreateKeyedEvent_fn& on_ntcreatekeyedevent);\
+    bool register_NtCreateKeyedEvent              (proc_t proc, const on_NtCreateKeyedEvent_fn& on_func);\
     void on_NtCreateKey                           ();\
-    bool register_NtCreateKey                     (proc_t proc, const on_NtCreateKey_fn& on_ntcreatekey);\
+    bool register_NtCreateKey                     (proc_t proc, const on_NtCreateKey_fn& on_func);\
     void on_NtCreateKeyTransacted                 ();\
-    bool register_NtCreateKeyTransacted           (proc_t proc, const on_NtCreateKeyTransacted_fn& on_ntcreatekeytransacted);\
+    bool register_NtCreateKeyTransacted           (proc_t proc, const on_NtCreateKeyTransacted_fn& on_func);\
     void on_NtCreateMailslotFile                  ();\
-    bool register_NtCreateMailslotFile            (proc_t proc, const on_NtCreateMailslotFile_fn& on_ntcreatemailslotfile);\
+    bool register_NtCreateMailslotFile            (proc_t proc, const on_NtCreateMailslotFile_fn& on_func);\
     void on_NtCreateMutant                        ();\
-    bool register_NtCreateMutant                  (proc_t proc, const on_NtCreateMutant_fn& on_ntcreatemutant);\
+    bool register_NtCreateMutant                  (proc_t proc, const on_NtCreateMutant_fn& on_func);\
     void on_NtCreateNamedPipeFile                 ();\
-    bool register_NtCreateNamedPipeFile           (proc_t proc, const on_NtCreateNamedPipeFile_fn& on_ntcreatenamedpipefile);\
+    bool register_NtCreateNamedPipeFile           (proc_t proc, const on_NtCreateNamedPipeFile_fn& on_func);\
     void on_NtCreatePagingFile                    ();\
-    bool register_NtCreatePagingFile              (proc_t proc, const on_NtCreatePagingFile_fn& on_ntcreatepagingfile);\
+    bool register_NtCreatePagingFile              (proc_t proc, const on_NtCreatePagingFile_fn& on_func);\
     void on_NtCreatePort                          ();\
-    bool register_NtCreatePort                    (proc_t proc, const on_NtCreatePort_fn& on_ntcreateport);\
+    bool register_NtCreatePort                    (proc_t proc, const on_NtCreatePort_fn& on_func);\
     void on_NtCreatePrivateNamespace              ();\
-    bool register_NtCreatePrivateNamespace        (proc_t proc, const on_NtCreatePrivateNamespace_fn& on_ntcreateprivatenamespace);\
+    bool register_NtCreatePrivateNamespace        (proc_t proc, const on_NtCreatePrivateNamespace_fn& on_func);\
     void on_NtCreateProcessEx                     ();\
-    bool register_NtCreateProcessEx               (proc_t proc, const on_NtCreateProcessEx_fn& on_ntcreateprocessex);\
+    bool register_NtCreateProcessEx               (proc_t proc, const on_NtCreateProcessEx_fn& on_func);\
     void on_NtCreateProcess                       ();\
-    bool register_NtCreateProcess                 (proc_t proc, const on_NtCreateProcess_fn& on_ntcreateprocess);\
+    bool register_NtCreateProcess                 (proc_t proc, const on_NtCreateProcess_fn& on_func);\
     void on_NtCreateProfileEx                     ();\
-    bool register_NtCreateProfileEx               (proc_t proc, const on_NtCreateProfileEx_fn& on_ntcreateprofileex);\
+    bool register_NtCreateProfileEx               (proc_t proc, const on_NtCreateProfileEx_fn& on_func);\
     void on_NtCreateProfile                       ();\
-    bool register_NtCreateProfile                 (proc_t proc, const on_NtCreateProfile_fn& on_ntcreateprofile);\
+    bool register_NtCreateProfile                 (proc_t proc, const on_NtCreateProfile_fn& on_func);\
     void on_NtCreateResourceManager               ();\
-    bool register_NtCreateResourceManager         (proc_t proc, const on_NtCreateResourceManager_fn& on_ntcreateresourcemanager);\
+    bool register_NtCreateResourceManager         (proc_t proc, const on_NtCreateResourceManager_fn& on_func);\
     void on_NtCreateSection                       ();\
-    bool register_NtCreateSection                 (proc_t proc, const on_NtCreateSection_fn& on_ntcreatesection);\
+    bool register_NtCreateSection                 (proc_t proc, const on_NtCreateSection_fn& on_func);\
     void on_NtCreateSemaphore                     ();\
-    bool register_NtCreateSemaphore               (proc_t proc, const on_NtCreateSemaphore_fn& on_ntcreatesemaphore);\
+    bool register_NtCreateSemaphore               (proc_t proc, const on_NtCreateSemaphore_fn& on_func);\
     void on_NtCreateSymbolicLinkObject            ();\
-    bool register_NtCreateSymbolicLinkObject      (proc_t proc, const on_NtCreateSymbolicLinkObject_fn& on_ntcreatesymboliclinkobject);\
+    bool register_NtCreateSymbolicLinkObject      (proc_t proc, const on_NtCreateSymbolicLinkObject_fn& on_func);\
     void on_NtCreateThreadEx                      ();\
-    bool register_NtCreateThreadEx                (proc_t proc, const on_NtCreateThreadEx_fn& on_ntcreatethreadex);\
+    bool register_NtCreateThreadEx                (proc_t proc, const on_NtCreateThreadEx_fn& on_func);\
     void on_NtCreateThread                        ();\
-    bool register_NtCreateThread                  (proc_t proc, const on_NtCreateThread_fn& on_ntcreatethread);\
+    bool register_NtCreateThread                  (proc_t proc, const on_NtCreateThread_fn& on_func);\
     void on_NtCreateTimer                         ();\
-    bool register_NtCreateTimer                   (proc_t proc, const on_NtCreateTimer_fn& on_ntcreatetimer);\
+    bool register_NtCreateTimer                   (proc_t proc, const on_NtCreateTimer_fn& on_func);\
     void on_NtCreateToken                         ();\
-    bool register_NtCreateToken                   (proc_t proc, const on_NtCreateToken_fn& on_ntcreatetoken);\
+    bool register_NtCreateToken                   (proc_t proc, const on_NtCreateToken_fn& on_func);\
     void on_NtCreateTransactionManager            ();\
-    bool register_NtCreateTransactionManager      (proc_t proc, const on_NtCreateTransactionManager_fn& on_ntcreatetransactionmanager);\
+    bool register_NtCreateTransactionManager      (proc_t proc, const on_NtCreateTransactionManager_fn& on_func);\
     void on_NtCreateTransaction                   ();\
-    bool register_NtCreateTransaction             (proc_t proc, const on_NtCreateTransaction_fn& on_ntcreatetransaction);\
+    bool register_NtCreateTransaction             (proc_t proc, const on_NtCreateTransaction_fn& on_func);\
     void on_NtCreateUserProcess                   ();\
-    bool register_NtCreateUserProcess             (proc_t proc, const on_NtCreateUserProcess_fn& on_ntcreateuserprocess);\
+    bool register_NtCreateUserProcess             (proc_t proc, const on_NtCreateUserProcess_fn& on_func);\
     void on_NtCreateWaitablePort                  ();\
-    bool register_NtCreateWaitablePort            (proc_t proc, const on_NtCreateWaitablePort_fn& on_ntcreatewaitableport);\
+    bool register_NtCreateWaitablePort            (proc_t proc, const on_NtCreateWaitablePort_fn& on_func);\
     void on_NtCreateWorkerFactory                 ();\
-    bool register_NtCreateWorkerFactory           (proc_t proc, const on_NtCreateWorkerFactory_fn& on_ntcreateworkerfactory);\
+    bool register_NtCreateWorkerFactory           (proc_t proc, const on_NtCreateWorkerFactory_fn& on_func);\
     void on_NtDebugActiveProcess                  ();\
-    bool register_NtDebugActiveProcess            (proc_t proc, const on_NtDebugActiveProcess_fn& on_ntdebugactiveprocess);\
+    bool register_NtDebugActiveProcess            (proc_t proc, const on_NtDebugActiveProcess_fn& on_func);\
     void on_NtDebugContinue                       ();\
-    bool register_NtDebugContinue                 (proc_t proc, const on_NtDebugContinue_fn& on_ntdebugcontinue);\
+    bool register_NtDebugContinue                 (proc_t proc, const on_NtDebugContinue_fn& on_func);\
     void on_NtDelayExecution                      ();\
-    bool register_NtDelayExecution                (proc_t proc, const on_NtDelayExecution_fn& on_ntdelayexecution);\
+    bool register_NtDelayExecution                (proc_t proc, const on_NtDelayExecution_fn& on_func);\
     void on_NtDeleteAtom                          ();\
-    bool register_NtDeleteAtom                    (proc_t proc, const on_NtDeleteAtom_fn& on_ntdeleteatom);\
+    bool register_NtDeleteAtom                    (proc_t proc, const on_NtDeleteAtom_fn& on_func);\
     void on_NtDeleteBootEntry                     ();\
-    bool register_NtDeleteBootEntry               (proc_t proc, const on_NtDeleteBootEntry_fn& on_ntdeletebootentry);\
+    bool register_NtDeleteBootEntry               (proc_t proc, const on_NtDeleteBootEntry_fn& on_func);\
     void on_NtDeleteDriverEntry                   ();\
-    bool register_NtDeleteDriverEntry             (proc_t proc, const on_NtDeleteDriverEntry_fn& on_ntdeletedriverentry);\
+    bool register_NtDeleteDriverEntry             (proc_t proc, const on_NtDeleteDriverEntry_fn& on_func);\
     void on_NtDeleteFile                          ();\
-    bool register_NtDeleteFile                    (proc_t proc, const on_NtDeleteFile_fn& on_ntdeletefile);\
+    bool register_NtDeleteFile                    (proc_t proc, const on_NtDeleteFile_fn& on_func);\
     void on_NtDeleteKey                           ();\
-    bool register_NtDeleteKey                     (proc_t proc, const on_NtDeleteKey_fn& on_ntdeletekey);\
+    bool register_NtDeleteKey                     (proc_t proc, const on_NtDeleteKey_fn& on_func);\
     void on_NtDeleteObjectAuditAlarm              ();\
-    bool register_NtDeleteObjectAuditAlarm        (proc_t proc, const on_NtDeleteObjectAuditAlarm_fn& on_ntdeleteobjectauditalarm);\
+    bool register_NtDeleteObjectAuditAlarm        (proc_t proc, const on_NtDeleteObjectAuditAlarm_fn& on_func);\
     void on_NtDeletePrivateNamespace              ();\
-    bool register_NtDeletePrivateNamespace        (proc_t proc, const on_NtDeletePrivateNamespace_fn& on_ntdeleteprivatenamespace);\
+    bool register_NtDeletePrivateNamespace        (proc_t proc, const on_NtDeletePrivateNamespace_fn& on_func);\
     void on_NtDeleteValueKey                      ();\
-    bool register_NtDeleteValueKey                (proc_t proc, const on_NtDeleteValueKey_fn& on_ntdeletevaluekey);\
+    bool register_NtDeleteValueKey                (proc_t proc, const on_NtDeleteValueKey_fn& on_func);\
     void on_NtDeviceIoControlFile                 ();\
-    bool register_NtDeviceIoControlFile           (proc_t proc, const on_NtDeviceIoControlFile_fn& on_ntdeviceiocontrolfile);\
+    bool register_NtDeviceIoControlFile           (proc_t proc, const on_NtDeviceIoControlFile_fn& on_func);\
     void on_NtDisplayString                       ();\
-    bool register_NtDisplayString                 (proc_t proc, const on_NtDisplayString_fn& on_ntdisplaystring);\
+    bool register_NtDisplayString                 (proc_t proc, const on_NtDisplayString_fn& on_func);\
     void on_NtDrawText                            ();\
-    bool register_NtDrawText                      (proc_t proc, const on_NtDrawText_fn& on_ntdrawtext);\
+    bool register_NtDrawText                      (proc_t proc, const on_NtDrawText_fn& on_func);\
     void on_NtDuplicateObject                     ();\
-    bool register_NtDuplicateObject               (proc_t proc, const on_NtDuplicateObject_fn& on_ntduplicateobject);\
+    bool register_NtDuplicateObject               (proc_t proc, const on_NtDuplicateObject_fn& on_func);\
     void on_NtDuplicateToken                      ();\
-    bool register_NtDuplicateToken                (proc_t proc, const on_NtDuplicateToken_fn& on_ntduplicatetoken);\
+    bool register_NtDuplicateToken                (proc_t proc, const on_NtDuplicateToken_fn& on_func);\
     void on_NtEnumerateBootEntries                ();\
-    bool register_NtEnumerateBootEntries          (proc_t proc, const on_NtEnumerateBootEntries_fn& on_ntenumeratebootentries);\
+    bool register_NtEnumerateBootEntries          (proc_t proc, const on_NtEnumerateBootEntries_fn& on_func);\
     void on_NtEnumerateDriverEntries              ();\
-    bool register_NtEnumerateDriverEntries        (proc_t proc, const on_NtEnumerateDriverEntries_fn& on_ntenumeratedriverentries);\
+    bool register_NtEnumerateDriverEntries        (proc_t proc, const on_NtEnumerateDriverEntries_fn& on_func);\
     void on_NtEnumerateKey                        ();\
-    bool register_NtEnumerateKey                  (proc_t proc, const on_NtEnumerateKey_fn& on_ntenumeratekey);\
+    bool register_NtEnumerateKey                  (proc_t proc, const on_NtEnumerateKey_fn& on_func);\
     void on_NtEnumerateSystemEnvironmentValuesEx  ();\
-    bool register_NtEnumerateSystemEnvironmentValuesEx(proc_t proc, const on_NtEnumerateSystemEnvironmentValuesEx_fn& on_ntenumeratesystemenvironmentvaluesex);\
+    bool register_NtEnumerateSystemEnvironmentValuesEx(proc_t proc, const on_NtEnumerateSystemEnvironmentValuesEx_fn& on_func);\
     void on_NtEnumerateTransactionObject          ();\
-    bool register_NtEnumerateTransactionObject    (proc_t proc, const on_NtEnumerateTransactionObject_fn& on_ntenumeratetransactionobject);\
+    bool register_NtEnumerateTransactionObject    (proc_t proc, const on_NtEnumerateTransactionObject_fn& on_func);\
     void on_NtEnumerateValueKey                   ();\
-    bool register_NtEnumerateValueKey             (proc_t proc, const on_NtEnumerateValueKey_fn& on_ntenumeratevaluekey);\
+    bool register_NtEnumerateValueKey             (proc_t proc, const on_NtEnumerateValueKey_fn& on_func);\
     void on_NtExtendSection                       ();\
-    bool register_NtExtendSection                 (proc_t proc, const on_NtExtendSection_fn& on_ntextendsection);\
+    bool register_NtExtendSection                 (proc_t proc, const on_NtExtendSection_fn& on_func);\
     void on_NtFilterToken                         ();\
-    bool register_NtFilterToken                   (proc_t proc, const on_NtFilterToken_fn& on_ntfiltertoken);\
+    bool register_NtFilterToken                   (proc_t proc, const on_NtFilterToken_fn& on_func);\
     void on_NtFindAtom                            ();\
-    bool register_NtFindAtom                      (proc_t proc, const on_NtFindAtom_fn& on_ntfindatom);\
+    bool register_NtFindAtom                      (proc_t proc, const on_NtFindAtom_fn& on_func);\
     void on_NtFlushBuffersFile                    ();\
-    bool register_NtFlushBuffersFile              (proc_t proc, const on_NtFlushBuffersFile_fn& on_ntflushbuffersfile);\
+    bool register_NtFlushBuffersFile              (proc_t proc, const on_NtFlushBuffersFile_fn& on_func);\
     void on_NtFlushInstallUILanguage              ();\
-    bool register_NtFlushInstallUILanguage        (proc_t proc, const on_NtFlushInstallUILanguage_fn& on_ntflushinstalluilanguage);\
+    bool register_NtFlushInstallUILanguage        (proc_t proc, const on_NtFlushInstallUILanguage_fn& on_func);\
     void on_NtFlushInstructionCache               ();\
-    bool register_NtFlushInstructionCache         (proc_t proc, const on_NtFlushInstructionCache_fn& on_ntflushinstructioncache);\
+    bool register_NtFlushInstructionCache         (proc_t proc, const on_NtFlushInstructionCache_fn& on_func);\
     void on_NtFlushKey                            ();\
-    bool register_NtFlushKey                      (proc_t proc, const on_NtFlushKey_fn& on_ntflushkey);\
+    bool register_NtFlushKey                      (proc_t proc, const on_NtFlushKey_fn& on_func);\
     void on_NtFlushVirtualMemory                  ();\
-    bool register_NtFlushVirtualMemory            (proc_t proc, const on_NtFlushVirtualMemory_fn& on_ntflushvirtualmemory);\
+    bool register_NtFlushVirtualMemory            (proc_t proc, const on_NtFlushVirtualMemory_fn& on_func);\
     void on_NtFreeUserPhysicalPages               ();\
-    bool register_NtFreeUserPhysicalPages         (proc_t proc, const on_NtFreeUserPhysicalPages_fn& on_ntfreeuserphysicalpages);\
+    bool register_NtFreeUserPhysicalPages         (proc_t proc, const on_NtFreeUserPhysicalPages_fn& on_func);\
     void on_NtFreeVirtualMemory                   ();\
-    bool register_NtFreeVirtualMemory             (proc_t proc, const on_NtFreeVirtualMemory_fn& on_ntfreevirtualmemory);\
+    bool register_NtFreeVirtualMemory             (proc_t proc, const on_NtFreeVirtualMemory_fn& on_func);\
     void on_NtFreezeRegistry                      ();\
-    bool register_NtFreezeRegistry                (proc_t proc, const on_NtFreezeRegistry_fn& on_ntfreezeregistry);\
+    bool register_NtFreezeRegistry                (proc_t proc, const on_NtFreezeRegistry_fn& on_func);\
     void on_NtFreezeTransactions                  ();\
-    bool register_NtFreezeTransactions            (proc_t proc, const on_NtFreezeTransactions_fn& on_ntfreezetransactions);\
+    bool register_NtFreezeTransactions            (proc_t proc, const on_NtFreezeTransactions_fn& on_func);\
     void on_NtFsControlFile                       ();\
-    bool register_NtFsControlFile                 (proc_t proc, const on_NtFsControlFile_fn& on_ntfscontrolfile);\
+    bool register_NtFsControlFile                 (proc_t proc, const on_NtFsControlFile_fn& on_func);\
     void on_NtGetContextThread                    ();\
-    bool register_NtGetContextThread              (proc_t proc, const on_NtGetContextThread_fn& on_ntgetcontextthread);\
+    bool register_NtGetContextThread              (proc_t proc, const on_NtGetContextThread_fn& on_func);\
     void on_NtGetDevicePowerState                 ();\
-    bool register_NtGetDevicePowerState           (proc_t proc, const on_NtGetDevicePowerState_fn& on_ntgetdevicepowerstate);\
+    bool register_NtGetDevicePowerState           (proc_t proc, const on_NtGetDevicePowerState_fn& on_func);\
     void on_NtGetMUIRegistryInfo                  ();\
-    bool register_NtGetMUIRegistryInfo            (proc_t proc, const on_NtGetMUIRegistryInfo_fn& on_ntgetmuiregistryinfo);\
+    bool register_NtGetMUIRegistryInfo            (proc_t proc, const on_NtGetMUIRegistryInfo_fn& on_func);\
     void on_NtGetNextProcess                      ();\
-    bool register_NtGetNextProcess                (proc_t proc, const on_NtGetNextProcess_fn& on_ntgetnextprocess);\
+    bool register_NtGetNextProcess                (proc_t proc, const on_NtGetNextProcess_fn& on_func);\
     void on_NtGetNextThread                       ();\
-    bool register_NtGetNextThread                 (proc_t proc, const on_NtGetNextThread_fn& on_ntgetnextthread);\
+    bool register_NtGetNextThread                 (proc_t proc, const on_NtGetNextThread_fn& on_func);\
     void on_NtGetNlsSectionPtr                    ();\
-    bool register_NtGetNlsSectionPtr              (proc_t proc, const on_NtGetNlsSectionPtr_fn& on_ntgetnlssectionptr);\
+    bool register_NtGetNlsSectionPtr              (proc_t proc, const on_NtGetNlsSectionPtr_fn& on_func);\
     void on_NtGetNotificationResourceManager      ();\
-    bool register_NtGetNotificationResourceManager(proc_t proc, const on_NtGetNotificationResourceManager_fn& on_ntgetnotificationresourcemanager);\
+    bool register_NtGetNotificationResourceManager(proc_t proc, const on_NtGetNotificationResourceManager_fn& on_func);\
     void on_NtGetPlugPlayEvent                    ();\
-    bool register_NtGetPlugPlayEvent              (proc_t proc, const on_NtGetPlugPlayEvent_fn& on_ntgetplugplayevent);\
+    bool register_NtGetPlugPlayEvent              (proc_t proc, const on_NtGetPlugPlayEvent_fn& on_func);\
     void on_NtGetWriteWatch                       ();\
-    bool register_NtGetWriteWatch                 (proc_t proc, const on_NtGetWriteWatch_fn& on_ntgetwritewatch);\
+    bool register_NtGetWriteWatch                 (proc_t proc, const on_NtGetWriteWatch_fn& on_func);\
     void on_NtImpersonateAnonymousToken           ();\
-    bool register_NtImpersonateAnonymousToken     (proc_t proc, const on_NtImpersonateAnonymousToken_fn& on_ntimpersonateanonymoustoken);\
+    bool register_NtImpersonateAnonymousToken     (proc_t proc, const on_NtImpersonateAnonymousToken_fn& on_func);\
     void on_NtImpersonateClientOfPort             ();\
-    bool register_NtImpersonateClientOfPort       (proc_t proc, const on_NtImpersonateClientOfPort_fn& on_ntimpersonateclientofport);\
+    bool register_NtImpersonateClientOfPort       (proc_t proc, const on_NtImpersonateClientOfPort_fn& on_func);\
     void on_NtImpersonateThread                   ();\
-    bool register_NtImpersonateThread             (proc_t proc, const on_NtImpersonateThread_fn& on_ntimpersonatethread);\
+    bool register_NtImpersonateThread             (proc_t proc, const on_NtImpersonateThread_fn& on_func);\
     void on_NtInitializeNlsFiles                  ();\
-    bool register_NtInitializeNlsFiles            (proc_t proc, const on_NtInitializeNlsFiles_fn& on_ntinitializenlsfiles);\
+    bool register_NtInitializeNlsFiles            (proc_t proc, const on_NtInitializeNlsFiles_fn& on_func);\
     void on_NtInitializeRegistry                  ();\
-    bool register_NtInitializeRegistry            (proc_t proc, const on_NtInitializeRegistry_fn& on_ntinitializeregistry);\
+    bool register_NtInitializeRegistry            (proc_t proc, const on_NtInitializeRegistry_fn& on_func);\
     void on_NtInitiatePowerAction                 ();\
-    bool register_NtInitiatePowerAction           (proc_t proc, const on_NtInitiatePowerAction_fn& on_ntinitiatepoweraction);\
+    bool register_NtInitiatePowerAction           (proc_t proc, const on_NtInitiatePowerAction_fn& on_func);\
     void on_NtIsProcessInJob                      ();\
-    bool register_NtIsProcessInJob                (proc_t proc, const on_NtIsProcessInJob_fn& on_ntisprocessinjob);\
+    bool register_NtIsProcessInJob                (proc_t proc, const on_NtIsProcessInJob_fn& on_func);\
     void on_NtListenPort                          ();\
-    bool register_NtListenPort                    (proc_t proc, const on_NtListenPort_fn& on_ntlistenport);\
+    bool register_NtListenPort                    (proc_t proc, const on_NtListenPort_fn& on_func);\
     void on_NtLoadDriver                          ();\
-    bool register_NtLoadDriver                    (proc_t proc, const on_NtLoadDriver_fn& on_ntloaddriver);\
+    bool register_NtLoadDriver                    (proc_t proc, const on_NtLoadDriver_fn& on_func);\
     void on_NtLoadKey2                            ();\
-    bool register_NtLoadKey2                      (proc_t proc, const on_NtLoadKey2_fn& on_ntloadkey2);\
+    bool register_NtLoadKey2                      (proc_t proc, const on_NtLoadKey2_fn& on_func);\
     void on_NtLoadKeyEx                           ();\
-    bool register_NtLoadKeyEx                     (proc_t proc, const on_NtLoadKeyEx_fn& on_ntloadkeyex);\
+    bool register_NtLoadKeyEx                     (proc_t proc, const on_NtLoadKeyEx_fn& on_func);\
     void on_NtLoadKey                             ();\
-    bool register_NtLoadKey                       (proc_t proc, const on_NtLoadKey_fn& on_ntloadkey);\
+    bool register_NtLoadKey                       (proc_t proc, const on_NtLoadKey_fn& on_func);\
     void on_NtLockFile                            ();\
-    bool register_NtLockFile                      (proc_t proc, const on_NtLockFile_fn& on_ntlockfile);\
+    bool register_NtLockFile                      (proc_t proc, const on_NtLockFile_fn& on_func);\
     void on_NtLockProductActivationKeys           ();\
-    bool register_NtLockProductActivationKeys     (proc_t proc, const on_NtLockProductActivationKeys_fn& on_ntlockproductactivationkeys);\
+    bool register_NtLockProductActivationKeys     (proc_t proc, const on_NtLockProductActivationKeys_fn& on_func);\
     void on_NtLockRegistryKey                     ();\
-    bool register_NtLockRegistryKey               (proc_t proc, const on_NtLockRegistryKey_fn& on_ntlockregistrykey);\
+    bool register_NtLockRegistryKey               (proc_t proc, const on_NtLockRegistryKey_fn& on_func);\
     void on_NtLockVirtualMemory                   ();\
-    bool register_NtLockVirtualMemory             (proc_t proc, const on_NtLockVirtualMemory_fn& on_ntlockvirtualmemory);\
+    bool register_NtLockVirtualMemory             (proc_t proc, const on_NtLockVirtualMemory_fn& on_func);\
     void on_NtMakePermanentObject                 ();\
-    bool register_NtMakePermanentObject           (proc_t proc, const on_NtMakePermanentObject_fn& on_ntmakepermanentobject);\
+    bool register_NtMakePermanentObject           (proc_t proc, const on_NtMakePermanentObject_fn& on_func);\
     void on_NtMakeTemporaryObject                 ();\
-    bool register_NtMakeTemporaryObject           (proc_t proc, const on_NtMakeTemporaryObject_fn& on_ntmaketemporaryobject);\
+    bool register_NtMakeTemporaryObject           (proc_t proc, const on_NtMakeTemporaryObject_fn& on_func);\
     void on_NtMapCMFModule                        ();\
-    bool register_NtMapCMFModule                  (proc_t proc, const on_NtMapCMFModule_fn& on_ntmapcmfmodule);\
+    bool register_NtMapCMFModule                  (proc_t proc, const on_NtMapCMFModule_fn& on_func);\
     void on_NtMapUserPhysicalPages                ();\
-    bool register_NtMapUserPhysicalPages          (proc_t proc, const on_NtMapUserPhysicalPages_fn& on_ntmapuserphysicalpages);\
+    bool register_NtMapUserPhysicalPages          (proc_t proc, const on_NtMapUserPhysicalPages_fn& on_func);\
     void on_NtMapUserPhysicalPagesScatter         ();\
-    bool register_NtMapUserPhysicalPagesScatter   (proc_t proc, const on_NtMapUserPhysicalPagesScatter_fn& on_ntmapuserphysicalpagesscatter);\
+    bool register_NtMapUserPhysicalPagesScatter   (proc_t proc, const on_NtMapUserPhysicalPagesScatter_fn& on_func);\
     void on_NtMapViewOfSection                    ();\
-    bool register_NtMapViewOfSection              (proc_t proc, const on_NtMapViewOfSection_fn& on_ntmapviewofsection);\
+    bool register_NtMapViewOfSection              (proc_t proc, const on_NtMapViewOfSection_fn& on_func);\
     void on_NtModifyBootEntry                     ();\
-    bool register_NtModifyBootEntry               (proc_t proc, const on_NtModifyBootEntry_fn& on_ntmodifybootentry);\
+    bool register_NtModifyBootEntry               (proc_t proc, const on_NtModifyBootEntry_fn& on_func);\
     void on_NtModifyDriverEntry                   ();\
-    bool register_NtModifyDriverEntry             (proc_t proc, const on_NtModifyDriverEntry_fn& on_ntmodifydriverentry);\
+    bool register_NtModifyDriverEntry             (proc_t proc, const on_NtModifyDriverEntry_fn& on_func);\
     void on_NtNotifyChangeDirectoryFile           ();\
-    bool register_NtNotifyChangeDirectoryFile     (proc_t proc, const on_NtNotifyChangeDirectoryFile_fn& on_ntnotifychangedirectoryfile);\
+    bool register_NtNotifyChangeDirectoryFile     (proc_t proc, const on_NtNotifyChangeDirectoryFile_fn& on_func);\
     void on_NtNotifyChangeKey                     ();\
-    bool register_NtNotifyChangeKey               (proc_t proc, const on_NtNotifyChangeKey_fn& on_ntnotifychangekey);\
+    bool register_NtNotifyChangeKey               (proc_t proc, const on_NtNotifyChangeKey_fn& on_func);\
     void on_NtNotifyChangeMultipleKeys            ();\
-    bool register_NtNotifyChangeMultipleKeys      (proc_t proc, const on_NtNotifyChangeMultipleKeys_fn& on_ntnotifychangemultiplekeys);\
+    bool register_NtNotifyChangeMultipleKeys      (proc_t proc, const on_NtNotifyChangeMultipleKeys_fn& on_func);\
     void on_NtNotifyChangeSession                 ();\
-    bool register_NtNotifyChangeSession           (proc_t proc, const on_NtNotifyChangeSession_fn& on_ntnotifychangesession);\
+    bool register_NtNotifyChangeSession           (proc_t proc, const on_NtNotifyChangeSession_fn& on_func);\
     void on_NtOpenDirectoryObject                 ();\
-    bool register_NtOpenDirectoryObject           (proc_t proc, const on_NtOpenDirectoryObject_fn& on_ntopendirectoryobject);\
+    bool register_NtOpenDirectoryObject           (proc_t proc, const on_NtOpenDirectoryObject_fn& on_func);\
     void on_NtOpenEnlistment                      ();\
-    bool register_NtOpenEnlistment                (proc_t proc, const on_NtOpenEnlistment_fn& on_ntopenenlistment);\
+    bool register_NtOpenEnlistment                (proc_t proc, const on_NtOpenEnlistment_fn& on_func);\
     void on_NtOpenEvent                           ();\
-    bool register_NtOpenEvent                     (proc_t proc, const on_NtOpenEvent_fn& on_ntopenevent);\
+    bool register_NtOpenEvent                     (proc_t proc, const on_NtOpenEvent_fn& on_func);\
     void on_NtOpenEventPair                       ();\
-    bool register_NtOpenEventPair                 (proc_t proc, const on_NtOpenEventPair_fn& on_ntopeneventpair);\
+    bool register_NtOpenEventPair                 (proc_t proc, const on_NtOpenEventPair_fn& on_func);\
     void on_NtOpenFile                            ();\
-    bool register_NtOpenFile                      (proc_t proc, const on_NtOpenFile_fn& on_ntopenfile);\
+    bool register_NtOpenFile                      (proc_t proc, const on_NtOpenFile_fn& on_func);\
     void on_NtOpenIoCompletion                    ();\
-    bool register_NtOpenIoCompletion              (proc_t proc, const on_NtOpenIoCompletion_fn& on_ntopeniocompletion);\
+    bool register_NtOpenIoCompletion              (proc_t proc, const on_NtOpenIoCompletion_fn& on_func);\
     void on_NtOpenJobObject                       ();\
-    bool register_NtOpenJobObject                 (proc_t proc, const on_NtOpenJobObject_fn& on_ntopenjobobject);\
+    bool register_NtOpenJobObject                 (proc_t proc, const on_NtOpenJobObject_fn& on_func);\
     void on_NtOpenKeyedEvent                      ();\
-    bool register_NtOpenKeyedEvent                (proc_t proc, const on_NtOpenKeyedEvent_fn& on_ntopenkeyedevent);\
+    bool register_NtOpenKeyedEvent                (proc_t proc, const on_NtOpenKeyedEvent_fn& on_func);\
     void on_NtOpenKeyEx                           ();\
-    bool register_NtOpenKeyEx                     (proc_t proc, const on_NtOpenKeyEx_fn& on_ntopenkeyex);\
+    bool register_NtOpenKeyEx                     (proc_t proc, const on_NtOpenKeyEx_fn& on_func);\
     void on_NtOpenKey                             ();\
-    bool register_NtOpenKey                       (proc_t proc, const on_NtOpenKey_fn& on_ntopenkey);\
+    bool register_NtOpenKey                       (proc_t proc, const on_NtOpenKey_fn& on_func);\
     void on_NtOpenKeyTransactedEx                 ();\
-    bool register_NtOpenKeyTransactedEx           (proc_t proc, const on_NtOpenKeyTransactedEx_fn& on_ntopenkeytransactedex);\
+    bool register_NtOpenKeyTransactedEx           (proc_t proc, const on_NtOpenKeyTransactedEx_fn& on_func);\
     void on_NtOpenKeyTransacted                   ();\
-    bool register_NtOpenKeyTransacted             (proc_t proc, const on_NtOpenKeyTransacted_fn& on_ntopenkeytransacted);\
+    bool register_NtOpenKeyTransacted             (proc_t proc, const on_NtOpenKeyTransacted_fn& on_func);\
     void on_NtOpenMutant                          ();\
-    bool register_NtOpenMutant                    (proc_t proc, const on_NtOpenMutant_fn& on_ntopenmutant);\
+    bool register_NtOpenMutant                    (proc_t proc, const on_NtOpenMutant_fn& on_func);\
     void on_NtOpenObjectAuditAlarm                ();\
-    bool register_NtOpenObjectAuditAlarm          (proc_t proc, const on_NtOpenObjectAuditAlarm_fn& on_ntopenobjectauditalarm);\
+    bool register_NtOpenObjectAuditAlarm          (proc_t proc, const on_NtOpenObjectAuditAlarm_fn& on_func);\
     void on_NtOpenPrivateNamespace                ();\
-    bool register_NtOpenPrivateNamespace          (proc_t proc, const on_NtOpenPrivateNamespace_fn& on_ntopenprivatenamespace);\
+    bool register_NtOpenPrivateNamespace          (proc_t proc, const on_NtOpenPrivateNamespace_fn& on_func);\
     void on_NtOpenProcess                         ();\
-    bool register_NtOpenProcess                   (proc_t proc, const on_NtOpenProcess_fn& on_ntopenprocess);\
+    bool register_NtOpenProcess                   (proc_t proc, const on_NtOpenProcess_fn& on_func);\
     void on_NtOpenProcessTokenEx                  ();\
-    bool register_NtOpenProcessTokenEx            (proc_t proc, const on_NtOpenProcessTokenEx_fn& on_ntopenprocesstokenex);\
+    bool register_NtOpenProcessTokenEx            (proc_t proc, const on_NtOpenProcessTokenEx_fn& on_func);\
     void on_NtOpenProcessToken                    ();\
-    bool register_NtOpenProcessToken              (proc_t proc, const on_NtOpenProcessToken_fn& on_ntopenprocesstoken);\
+    bool register_NtOpenProcessToken              (proc_t proc, const on_NtOpenProcessToken_fn& on_func);\
     void on_NtOpenResourceManager                 ();\
-    bool register_NtOpenResourceManager           (proc_t proc, const on_NtOpenResourceManager_fn& on_ntopenresourcemanager);\
+    bool register_NtOpenResourceManager           (proc_t proc, const on_NtOpenResourceManager_fn& on_func);\
     void on_NtOpenSection                         ();\
-    bool register_NtOpenSection                   (proc_t proc, const on_NtOpenSection_fn& on_ntopensection);\
+    bool register_NtOpenSection                   (proc_t proc, const on_NtOpenSection_fn& on_func);\
     void on_NtOpenSemaphore                       ();\
-    bool register_NtOpenSemaphore                 (proc_t proc, const on_NtOpenSemaphore_fn& on_ntopensemaphore);\
+    bool register_NtOpenSemaphore                 (proc_t proc, const on_NtOpenSemaphore_fn& on_func);\
     void on_NtOpenSession                         ();\
-    bool register_NtOpenSession                   (proc_t proc, const on_NtOpenSession_fn& on_ntopensession);\
+    bool register_NtOpenSession                   (proc_t proc, const on_NtOpenSession_fn& on_func);\
     void on_NtOpenSymbolicLinkObject              ();\
-    bool register_NtOpenSymbolicLinkObject        (proc_t proc, const on_NtOpenSymbolicLinkObject_fn& on_ntopensymboliclinkobject);\
+    bool register_NtOpenSymbolicLinkObject        (proc_t proc, const on_NtOpenSymbolicLinkObject_fn& on_func);\
     void on_NtOpenThread                          ();\
-    bool register_NtOpenThread                    (proc_t proc, const on_NtOpenThread_fn& on_ntopenthread);\
+    bool register_NtOpenThread                    (proc_t proc, const on_NtOpenThread_fn& on_func);\
     void on_NtOpenThreadTokenEx                   ();\
-    bool register_NtOpenThreadTokenEx             (proc_t proc, const on_NtOpenThreadTokenEx_fn& on_ntopenthreadtokenex);\
+    bool register_NtOpenThreadTokenEx             (proc_t proc, const on_NtOpenThreadTokenEx_fn& on_func);\
     void on_NtOpenThreadToken                     ();\
-    bool register_NtOpenThreadToken               (proc_t proc, const on_NtOpenThreadToken_fn& on_ntopenthreadtoken);\
+    bool register_NtOpenThreadToken               (proc_t proc, const on_NtOpenThreadToken_fn& on_func);\
     void on_NtOpenTimer                           ();\
-    bool register_NtOpenTimer                     (proc_t proc, const on_NtOpenTimer_fn& on_ntopentimer);\
+    bool register_NtOpenTimer                     (proc_t proc, const on_NtOpenTimer_fn& on_func);\
     void on_NtOpenTransactionManager              ();\
-    bool register_NtOpenTransactionManager        (proc_t proc, const on_NtOpenTransactionManager_fn& on_ntopentransactionmanager);\
+    bool register_NtOpenTransactionManager        (proc_t proc, const on_NtOpenTransactionManager_fn& on_func);\
     void on_NtOpenTransaction                     ();\
-    bool register_NtOpenTransaction               (proc_t proc, const on_NtOpenTransaction_fn& on_ntopentransaction);\
+    bool register_NtOpenTransaction               (proc_t proc, const on_NtOpenTransaction_fn& on_func);\
     void on_NtPlugPlayControl                     ();\
-    bool register_NtPlugPlayControl               (proc_t proc, const on_NtPlugPlayControl_fn& on_ntplugplaycontrol);\
+    bool register_NtPlugPlayControl               (proc_t proc, const on_NtPlugPlayControl_fn& on_func);\
     void on_NtPowerInformation                    ();\
-    bool register_NtPowerInformation              (proc_t proc, const on_NtPowerInformation_fn& on_ntpowerinformation);\
+    bool register_NtPowerInformation              (proc_t proc, const on_NtPowerInformation_fn& on_func);\
     void on_NtPrepareComplete                     ();\
-    bool register_NtPrepareComplete               (proc_t proc, const on_NtPrepareComplete_fn& on_ntpreparecomplete);\
+    bool register_NtPrepareComplete               (proc_t proc, const on_NtPrepareComplete_fn& on_func);\
     void on_NtPrepareEnlistment                   ();\
-    bool register_NtPrepareEnlistment             (proc_t proc, const on_NtPrepareEnlistment_fn& on_ntprepareenlistment);\
+    bool register_NtPrepareEnlistment             (proc_t proc, const on_NtPrepareEnlistment_fn& on_func);\
     void on_NtPrePrepareComplete                  ();\
-    bool register_NtPrePrepareComplete            (proc_t proc, const on_NtPrePrepareComplete_fn& on_ntprepreparecomplete);\
+    bool register_NtPrePrepareComplete            (proc_t proc, const on_NtPrePrepareComplete_fn& on_func);\
     void on_NtPrePrepareEnlistment                ();\
-    bool register_NtPrePrepareEnlistment          (proc_t proc, const on_NtPrePrepareEnlistment_fn& on_ntpreprepareenlistment);\
+    bool register_NtPrePrepareEnlistment          (proc_t proc, const on_NtPrePrepareEnlistment_fn& on_func);\
     void on_NtPrivilegeCheck                      ();\
-    bool register_NtPrivilegeCheck                (proc_t proc, const on_NtPrivilegeCheck_fn& on_ntprivilegecheck);\
+    bool register_NtPrivilegeCheck                (proc_t proc, const on_NtPrivilegeCheck_fn& on_func);\
     void on_NtPrivilegedServiceAuditAlarm         ();\
-    bool register_NtPrivilegedServiceAuditAlarm   (proc_t proc, const on_NtPrivilegedServiceAuditAlarm_fn& on_ntprivilegedserviceauditalarm);\
+    bool register_NtPrivilegedServiceAuditAlarm   (proc_t proc, const on_NtPrivilegedServiceAuditAlarm_fn& on_func);\
     void on_NtPrivilegeObjectAuditAlarm           ();\
-    bool register_NtPrivilegeObjectAuditAlarm     (proc_t proc, const on_NtPrivilegeObjectAuditAlarm_fn& on_ntprivilegeobjectauditalarm);\
+    bool register_NtPrivilegeObjectAuditAlarm     (proc_t proc, const on_NtPrivilegeObjectAuditAlarm_fn& on_func);\
     void on_NtPropagationComplete                 ();\
-    bool register_NtPropagationComplete           (proc_t proc, const on_NtPropagationComplete_fn& on_ntpropagationcomplete);\
+    bool register_NtPropagationComplete           (proc_t proc, const on_NtPropagationComplete_fn& on_func);\
     void on_NtPropagationFailed                   ();\
-    bool register_NtPropagationFailed             (proc_t proc, const on_NtPropagationFailed_fn& on_ntpropagationfailed);\
+    bool register_NtPropagationFailed             (proc_t proc, const on_NtPropagationFailed_fn& on_func);\
     void on_NtProtectVirtualMemory                ();\
-    bool register_NtProtectVirtualMemory          (proc_t proc, const on_NtProtectVirtualMemory_fn& on_ntprotectvirtualmemory);\
+    bool register_NtProtectVirtualMemory          (proc_t proc, const on_NtProtectVirtualMemory_fn& on_func);\
     void on_NtPulseEvent                          ();\
-    bool register_NtPulseEvent                    (proc_t proc, const on_NtPulseEvent_fn& on_ntpulseevent);\
+    bool register_NtPulseEvent                    (proc_t proc, const on_NtPulseEvent_fn& on_func);\
     void on_NtQueryAttributesFile                 ();\
-    bool register_NtQueryAttributesFile           (proc_t proc, const on_NtQueryAttributesFile_fn& on_ntqueryattributesfile);\
+    bool register_NtQueryAttributesFile           (proc_t proc, const on_NtQueryAttributesFile_fn& on_func);\
     void on_NtQueryBootEntryOrder                 ();\
-    bool register_NtQueryBootEntryOrder           (proc_t proc, const on_NtQueryBootEntryOrder_fn& on_ntquerybootentryorder);\
+    bool register_NtQueryBootEntryOrder           (proc_t proc, const on_NtQueryBootEntryOrder_fn& on_func);\
     void on_NtQueryBootOptions                    ();\
-    bool register_NtQueryBootOptions              (proc_t proc, const on_NtQueryBootOptions_fn& on_ntquerybootoptions);\
+    bool register_NtQueryBootOptions              (proc_t proc, const on_NtQueryBootOptions_fn& on_func);\
     void on_NtQueryDebugFilterState               ();\
-    bool register_NtQueryDebugFilterState         (proc_t proc, const on_NtQueryDebugFilterState_fn& on_ntquerydebugfilterstate);\
+    bool register_NtQueryDebugFilterState         (proc_t proc, const on_NtQueryDebugFilterState_fn& on_func);\
     void on_NtQueryDefaultLocale                  ();\
-    bool register_NtQueryDefaultLocale            (proc_t proc, const on_NtQueryDefaultLocale_fn& on_ntquerydefaultlocale);\
+    bool register_NtQueryDefaultLocale            (proc_t proc, const on_NtQueryDefaultLocale_fn& on_func);\
     void on_NtQueryDefaultUILanguage              ();\
-    bool register_NtQueryDefaultUILanguage        (proc_t proc, const on_NtQueryDefaultUILanguage_fn& on_ntquerydefaultuilanguage);\
+    bool register_NtQueryDefaultUILanguage        (proc_t proc, const on_NtQueryDefaultUILanguage_fn& on_func);\
     void on_NtQueryDirectoryFile                  ();\
-    bool register_NtQueryDirectoryFile            (proc_t proc, const on_NtQueryDirectoryFile_fn& on_ntquerydirectoryfile);\
+    bool register_NtQueryDirectoryFile            (proc_t proc, const on_NtQueryDirectoryFile_fn& on_func);\
     void on_NtQueryDirectoryObject                ();\
-    bool register_NtQueryDirectoryObject          (proc_t proc, const on_NtQueryDirectoryObject_fn& on_ntquerydirectoryobject);\
+    bool register_NtQueryDirectoryObject          (proc_t proc, const on_NtQueryDirectoryObject_fn& on_func);\
     void on_NtQueryDriverEntryOrder               ();\
-    bool register_NtQueryDriverEntryOrder         (proc_t proc, const on_NtQueryDriverEntryOrder_fn& on_ntquerydriverentryorder);\
+    bool register_NtQueryDriverEntryOrder         (proc_t proc, const on_NtQueryDriverEntryOrder_fn& on_func);\
     void on_NtQueryEaFile                         ();\
-    bool register_NtQueryEaFile                   (proc_t proc, const on_NtQueryEaFile_fn& on_ntqueryeafile);\
+    bool register_NtQueryEaFile                   (proc_t proc, const on_NtQueryEaFile_fn& on_func);\
     void on_NtQueryEvent                          ();\
-    bool register_NtQueryEvent                    (proc_t proc, const on_NtQueryEvent_fn& on_ntqueryevent);\
+    bool register_NtQueryEvent                    (proc_t proc, const on_NtQueryEvent_fn& on_func);\
     void on_NtQueryFullAttributesFile             ();\
-    bool register_NtQueryFullAttributesFile       (proc_t proc, const on_NtQueryFullAttributesFile_fn& on_ntqueryfullattributesfile);\
+    bool register_NtQueryFullAttributesFile       (proc_t proc, const on_NtQueryFullAttributesFile_fn& on_func);\
     void on_NtQueryInformationAtom                ();\
-    bool register_NtQueryInformationAtom          (proc_t proc, const on_NtQueryInformationAtom_fn& on_ntqueryinformationatom);\
+    bool register_NtQueryInformationAtom          (proc_t proc, const on_NtQueryInformationAtom_fn& on_func);\
     void on_NtQueryInformationEnlistment          ();\
-    bool register_NtQueryInformationEnlistment    (proc_t proc, const on_NtQueryInformationEnlistment_fn& on_ntqueryinformationenlistment);\
+    bool register_NtQueryInformationEnlistment    (proc_t proc, const on_NtQueryInformationEnlistment_fn& on_func);\
     void on_NtQueryInformationFile                ();\
-    bool register_NtQueryInformationFile          (proc_t proc, const on_NtQueryInformationFile_fn& on_ntqueryinformationfile);\
+    bool register_NtQueryInformationFile          (proc_t proc, const on_NtQueryInformationFile_fn& on_func);\
     void on_NtQueryInformationJobObject           ();\
-    bool register_NtQueryInformationJobObject     (proc_t proc, const on_NtQueryInformationJobObject_fn& on_ntqueryinformationjobobject);\
+    bool register_NtQueryInformationJobObject     (proc_t proc, const on_NtQueryInformationJobObject_fn& on_func);\
     void on_NtQueryInformationPort                ();\
-    bool register_NtQueryInformationPort          (proc_t proc, const on_NtQueryInformationPort_fn& on_ntqueryinformationport);\
+    bool register_NtQueryInformationPort          (proc_t proc, const on_NtQueryInformationPort_fn& on_func);\
     void on_NtQueryInformationProcess             ();\
-    bool register_NtQueryInformationProcess       (proc_t proc, const on_NtQueryInformationProcess_fn& on_ntqueryinformationprocess);\
+    bool register_NtQueryInformationProcess       (proc_t proc, const on_NtQueryInformationProcess_fn& on_func);\
     void on_NtQueryInformationResourceManager     ();\
-    bool register_NtQueryInformationResourceManager(proc_t proc, const on_NtQueryInformationResourceManager_fn& on_ntqueryinformationresourcemanager);\
+    bool register_NtQueryInformationResourceManager(proc_t proc, const on_NtQueryInformationResourceManager_fn& on_func);\
     void on_NtQueryInformationThread              ();\
-    bool register_NtQueryInformationThread        (proc_t proc, const on_NtQueryInformationThread_fn& on_ntqueryinformationthread);\
+    bool register_NtQueryInformationThread        (proc_t proc, const on_NtQueryInformationThread_fn& on_func);\
     void on_NtQueryInformationToken               ();\
-    bool register_NtQueryInformationToken         (proc_t proc, const on_NtQueryInformationToken_fn& on_ntqueryinformationtoken);\
+    bool register_NtQueryInformationToken         (proc_t proc, const on_NtQueryInformationToken_fn& on_func);\
     void on_NtQueryInformationTransaction         ();\
-    bool register_NtQueryInformationTransaction   (proc_t proc, const on_NtQueryInformationTransaction_fn& on_ntqueryinformationtransaction);\
+    bool register_NtQueryInformationTransaction   (proc_t proc, const on_NtQueryInformationTransaction_fn& on_func);\
     void on_NtQueryInformationTransactionManager  ();\
-    bool register_NtQueryInformationTransactionManager(proc_t proc, const on_NtQueryInformationTransactionManager_fn& on_ntqueryinformationtransactionmanager);\
+    bool register_NtQueryInformationTransactionManager(proc_t proc, const on_NtQueryInformationTransactionManager_fn& on_func);\
     void on_NtQueryInformationWorkerFactory       ();\
-    bool register_NtQueryInformationWorkerFactory (proc_t proc, const on_NtQueryInformationWorkerFactory_fn& on_ntqueryinformationworkerfactory);\
+    bool register_NtQueryInformationWorkerFactory (proc_t proc, const on_NtQueryInformationWorkerFactory_fn& on_func);\
     void on_NtQueryInstallUILanguage              ();\
-    bool register_NtQueryInstallUILanguage        (proc_t proc, const on_NtQueryInstallUILanguage_fn& on_ntqueryinstalluilanguage);\
+    bool register_NtQueryInstallUILanguage        (proc_t proc, const on_NtQueryInstallUILanguage_fn& on_func);\
     void on_NtQueryIntervalProfile                ();\
-    bool register_NtQueryIntervalProfile          (proc_t proc, const on_NtQueryIntervalProfile_fn& on_ntqueryintervalprofile);\
+    bool register_NtQueryIntervalProfile          (proc_t proc, const on_NtQueryIntervalProfile_fn& on_func);\
     void on_NtQueryIoCompletion                   ();\
-    bool register_NtQueryIoCompletion             (proc_t proc, const on_NtQueryIoCompletion_fn& on_ntqueryiocompletion);\
+    bool register_NtQueryIoCompletion             (proc_t proc, const on_NtQueryIoCompletion_fn& on_func);\
     void on_NtQueryKey                            ();\
-    bool register_NtQueryKey                      (proc_t proc, const on_NtQueryKey_fn& on_ntquerykey);\
+    bool register_NtQueryKey                      (proc_t proc, const on_NtQueryKey_fn& on_func);\
     void on_NtQueryLicenseValue                   ();\
-    bool register_NtQueryLicenseValue             (proc_t proc, const on_NtQueryLicenseValue_fn& on_ntquerylicensevalue);\
+    bool register_NtQueryLicenseValue             (proc_t proc, const on_NtQueryLicenseValue_fn& on_func);\
     void on_NtQueryMultipleValueKey               ();\
-    bool register_NtQueryMultipleValueKey         (proc_t proc, const on_NtQueryMultipleValueKey_fn& on_ntquerymultiplevaluekey);\
+    bool register_NtQueryMultipleValueKey         (proc_t proc, const on_NtQueryMultipleValueKey_fn& on_func);\
     void on_NtQueryMutant                         ();\
-    bool register_NtQueryMutant                   (proc_t proc, const on_NtQueryMutant_fn& on_ntquerymutant);\
+    bool register_NtQueryMutant                   (proc_t proc, const on_NtQueryMutant_fn& on_func);\
     void on_NtQueryObject                         ();\
-    bool register_NtQueryObject                   (proc_t proc, const on_NtQueryObject_fn& on_ntqueryobject);\
+    bool register_NtQueryObject                   (proc_t proc, const on_NtQueryObject_fn& on_func);\
     void on_NtQueryOpenSubKeysEx                  ();\
-    bool register_NtQueryOpenSubKeysEx            (proc_t proc, const on_NtQueryOpenSubKeysEx_fn& on_ntqueryopensubkeysex);\
+    bool register_NtQueryOpenSubKeysEx            (proc_t proc, const on_NtQueryOpenSubKeysEx_fn& on_func);\
     void on_NtQueryOpenSubKeys                    ();\
-    bool register_NtQueryOpenSubKeys              (proc_t proc, const on_NtQueryOpenSubKeys_fn& on_ntqueryopensubkeys);\
+    bool register_NtQueryOpenSubKeys              (proc_t proc, const on_NtQueryOpenSubKeys_fn& on_func);\
     void on_NtQueryPerformanceCounter             ();\
-    bool register_NtQueryPerformanceCounter       (proc_t proc, const on_NtQueryPerformanceCounter_fn& on_ntqueryperformancecounter);\
+    bool register_NtQueryPerformanceCounter       (proc_t proc, const on_NtQueryPerformanceCounter_fn& on_func);\
     void on_NtQueryQuotaInformationFile           ();\
-    bool register_NtQueryQuotaInformationFile     (proc_t proc, const on_NtQueryQuotaInformationFile_fn& on_ntqueryquotainformationfile);\
+    bool register_NtQueryQuotaInformationFile     (proc_t proc, const on_NtQueryQuotaInformationFile_fn& on_func);\
     void on_NtQuerySection                        ();\
-    bool register_NtQuerySection                  (proc_t proc, const on_NtQuerySection_fn& on_ntquerysection);\
+    bool register_NtQuerySection                  (proc_t proc, const on_NtQuerySection_fn& on_func);\
     void on_NtQuerySecurityAttributesToken        ();\
-    bool register_NtQuerySecurityAttributesToken  (proc_t proc, const on_NtQuerySecurityAttributesToken_fn& on_ntquerysecurityattributestoken);\
+    bool register_NtQuerySecurityAttributesToken  (proc_t proc, const on_NtQuerySecurityAttributesToken_fn& on_func);\
     void on_NtQuerySecurityObject                 ();\
-    bool register_NtQuerySecurityObject           (proc_t proc, const on_NtQuerySecurityObject_fn& on_ntquerysecurityobject);\
+    bool register_NtQuerySecurityObject           (proc_t proc, const on_NtQuerySecurityObject_fn& on_func);\
     void on_NtQuerySemaphore                      ();\
-    bool register_NtQuerySemaphore                (proc_t proc, const on_NtQuerySemaphore_fn& on_ntquerysemaphore);\
+    bool register_NtQuerySemaphore                (proc_t proc, const on_NtQuerySemaphore_fn& on_func);\
     void on_NtQuerySymbolicLinkObject             ();\
-    bool register_NtQuerySymbolicLinkObject       (proc_t proc, const on_NtQuerySymbolicLinkObject_fn& on_ntquerysymboliclinkobject);\
+    bool register_NtQuerySymbolicLinkObject       (proc_t proc, const on_NtQuerySymbolicLinkObject_fn& on_func);\
     void on_NtQuerySystemEnvironmentValueEx       ();\
-    bool register_NtQuerySystemEnvironmentValueEx (proc_t proc, const on_NtQuerySystemEnvironmentValueEx_fn& on_ntquerysystemenvironmentvalueex);\
+    bool register_NtQuerySystemEnvironmentValueEx (proc_t proc, const on_NtQuerySystemEnvironmentValueEx_fn& on_func);\
     void on_NtQuerySystemEnvironmentValue         ();\
-    bool register_NtQuerySystemEnvironmentValue   (proc_t proc, const on_NtQuerySystemEnvironmentValue_fn& on_ntquerysystemenvironmentvalue);\
+    bool register_NtQuerySystemEnvironmentValue   (proc_t proc, const on_NtQuerySystemEnvironmentValue_fn& on_func);\
     void on_NtQuerySystemInformationEx            ();\
-    bool register_NtQuerySystemInformationEx      (proc_t proc, const on_NtQuerySystemInformationEx_fn& on_ntquerysysteminformationex);\
+    bool register_NtQuerySystemInformationEx      (proc_t proc, const on_NtQuerySystemInformationEx_fn& on_func);\
     void on_NtQuerySystemInformation              ();\
-    bool register_NtQuerySystemInformation        (proc_t proc, const on_NtQuerySystemInformation_fn& on_ntquerysysteminformation);\
+    bool register_NtQuerySystemInformation        (proc_t proc, const on_NtQuerySystemInformation_fn& on_func);\
     void on_NtQuerySystemTime                     ();\
-    bool register_NtQuerySystemTime               (proc_t proc, const on_NtQuerySystemTime_fn& on_ntquerysystemtime);\
+    bool register_NtQuerySystemTime               (proc_t proc, const on_NtQuerySystemTime_fn& on_func);\
     void on_NtQueryTimer                          ();\
-    bool register_NtQueryTimer                    (proc_t proc, const on_NtQueryTimer_fn& on_ntquerytimer);\
+    bool register_NtQueryTimer                    (proc_t proc, const on_NtQueryTimer_fn& on_func);\
     void on_NtQueryTimerResolution                ();\
-    bool register_NtQueryTimerResolution          (proc_t proc, const on_NtQueryTimerResolution_fn& on_ntquerytimerresolution);\
+    bool register_NtQueryTimerResolution          (proc_t proc, const on_NtQueryTimerResolution_fn& on_func);\
     void on_NtQueryValueKey                       ();\
-    bool register_NtQueryValueKey                 (proc_t proc, const on_NtQueryValueKey_fn& on_ntqueryvaluekey);\
+    bool register_NtQueryValueKey                 (proc_t proc, const on_NtQueryValueKey_fn& on_func);\
     void on_NtQueryVirtualMemory                  ();\
-    bool register_NtQueryVirtualMemory            (proc_t proc, const on_NtQueryVirtualMemory_fn& on_ntqueryvirtualmemory);\
+    bool register_NtQueryVirtualMemory            (proc_t proc, const on_NtQueryVirtualMemory_fn& on_func);\
     void on_NtQueryVolumeInformationFile          ();\
-    bool register_NtQueryVolumeInformationFile    (proc_t proc, const on_NtQueryVolumeInformationFile_fn& on_ntqueryvolumeinformationfile);\
+    bool register_NtQueryVolumeInformationFile    (proc_t proc, const on_NtQueryVolumeInformationFile_fn& on_func);\
     void on_NtQueueApcThreadEx                    ();\
-    bool register_NtQueueApcThreadEx              (proc_t proc, const on_NtQueueApcThreadEx_fn& on_ntqueueapcthreadex);\
+    bool register_NtQueueApcThreadEx              (proc_t proc, const on_NtQueueApcThreadEx_fn& on_func);\
     void on_NtQueueApcThread                      ();\
-    bool register_NtQueueApcThread                (proc_t proc, const on_NtQueueApcThread_fn& on_ntqueueapcthread);\
+    bool register_NtQueueApcThread                (proc_t proc, const on_NtQueueApcThread_fn& on_func);\
     void on_NtRaiseException                      ();\
-    bool register_NtRaiseException                (proc_t proc, const on_NtRaiseException_fn& on_ntraiseexception);\
+    bool register_NtRaiseException                (proc_t proc, const on_NtRaiseException_fn& on_func);\
     void on_NtRaiseHardError                      ();\
-    bool register_NtRaiseHardError                (proc_t proc, const on_NtRaiseHardError_fn& on_ntraiseharderror);\
+    bool register_NtRaiseHardError                (proc_t proc, const on_NtRaiseHardError_fn& on_func);\
     void on_NtReadFile                            ();\
-    bool register_NtReadFile                      (proc_t proc, const on_NtReadFile_fn& on_ntreadfile);\
+    bool register_NtReadFile                      (proc_t proc, const on_NtReadFile_fn& on_func);\
     void on_NtReadFileScatter                     ();\
-    bool register_NtReadFileScatter               (proc_t proc, const on_NtReadFileScatter_fn& on_ntreadfilescatter);\
+    bool register_NtReadFileScatter               (proc_t proc, const on_NtReadFileScatter_fn& on_func);\
     void on_NtReadOnlyEnlistment                  ();\
-    bool register_NtReadOnlyEnlistment            (proc_t proc, const on_NtReadOnlyEnlistment_fn& on_ntreadonlyenlistment);\
+    bool register_NtReadOnlyEnlistment            (proc_t proc, const on_NtReadOnlyEnlistment_fn& on_func);\
     void on_NtReadRequestData                     ();\
-    bool register_NtReadRequestData               (proc_t proc, const on_NtReadRequestData_fn& on_ntreadrequestdata);\
+    bool register_NtReadRequestData               (proc_t proc, const on_NtReadRequestData_fn& on_func);\
     void on_NtReadVirtualMemory                   ();\
-    bool register_NtReadVirtualMemory             (proc_t proc, const on_NtReadVirtualMemory_fn& on_ntreadvirtualmemory);\
+    bool register_NtReadVirtualMemory             (proc_t proc, const on_NtReadVirtualMemory_fn& on_func);\
     void on_NtRecoverEnlistment                   ();\
-    bool register_NtRecoverEnlistment             (proc_t proc, const on_NtRecoverEnlistment_fn& on_ntrecoverenlistment);\
+    bool register_NtRecoverEnlistment             (proc_t proc, const on_NtRecoverEnlistment_fn& on_func);\
     void on_NtRecoverResourceManager              ();\
-    bool register_NtRecoverResourceManager        (proc_t proc, const on_NtRecoverResourceManager_fn& on_ntrecoverresourcemanager);\
+    bool register_NtRecoverResourceManager        (proc_t proc, const on_NtRecoverResourceManager_fn& on_func);\
     void on_NtRecoverTransactionManager           ();\
-    bool register_NtRecoverTransactionManager     (proc_t proc, const on_NtRecoverTransactionManager_fn& on_ntrecovertransactionmanager);\
+    bool register_NtRecoverTransactionManager     (proc_t proc, const on_NtRecoverTransactionManager_fn& on_func);\
     void on_NtRegisterProtocolAddressInformation  ();\
-    bool register_NtRegisterProtocolAddressInformation(proc_t proc, const on_NtRegisterProtocolAddressInformation_fn& on_ntregisterprotocoladdressinformation);\
+    bool register_NtRegisterProtocolAddressInformation(proc_t proc, const on_NtRegisterProtocolAddressInformation_fn& on_func);\
     void on_NtRegisterThreadTerminatePort         ();\
-    bool register_NtRegisterThreadTerminatePort   (proc_t proc, const on_NtRegisterThreadTerminatePort_fn& on_ntregisterthreadterminateport);\
+    bool register_NtRegisterThreadTerminatePort   (proc_t proc, const on_NtRegisterThreadTerminatePort_fn& on_func);\
     void on_NtReleaseKeyedEvent                   ();\
-    bool register_NtReleaseKeyedEvent             (proc_t proc, const on_NtReleaseKeyedEvent_fn& on_ntreleasekeyedevent);\
+    bool register_NtReleaseKeyedEvent             (proc_t proc, const on_NtReleaseKeyedEvent_fn& on_func);\
     void on_NtReleaseMutant                       ();\
-    bool register_NtReleaseMutant                 (proc_t proc, const on_NtReleaseMutant_fn& on_ntreleasemutant);\
+    bool register_NtReleaseMutant                 (proc_t proc, const on_NtReleaseMutant_fn& on_func);\
     void on_NtReleaseSemaphore                    ();\
-    bool register_NtReleaseSemaphore              (proc_t proc, const on_NtReleaseSemaphore_fn& on_ntreleasesemaphore);\
+    bool register_NtReleaseSemaphore              (proc_t proc, const on_NtReleaseSemaphore_fn& on_func);\
     void on_NtReleaseWorkerFactoryWorker          ();\
-    bool register_NtReleaseWorkerFactoryWorker    (proc_t proc, const on_NtReleaseWorkerFactoryWorker_fn& on_ntreleaseworkerfactoryworker);\
+    bool register_NtReleaseWorkerFactoryWorker    (proc_t proc, const on_NtReleaseWorkerFactoryWorker_fn& on_func);\
     void on_NtRemoveIoCompletionEx                ();\
-    bool register_NtRemoveIoCompletionEx          (proc_t proc, const on_NtRemoveIoCompletionEx_fn& on_ntremoveiocompletionex);\
+    bool register_NtRemoveIoCompletionEx          (proc_t proc, const on_NtRemoveIoCompletionEx_fn& on_func);\
     void on_NtRemoveIoCompletion                  ();\
-    bool register_NtRemoveIoCompletion            (proc_t proc, const on_NtRemoveIoCompletion_fn& on_ntremoveiocompletion);\
+    bool register_NtRemoveIoCompletion            (proc_t proc, const on_NtRemoveIoCompletion_fn& on_func);\
     void on_NtRemoveProcessDebug                  ();\
-    bool register_NtRemoveProcessDebug            (proc_t proc, const on_NtRemoveProcessDebug_fn& on_ntremoveprocessdebug);\
+    bool register_NtRemoveProcessDebug            (proc_t proc, const on_NtRemoveProcessDebug_fn& on_func);\
     void on_NtRenameKey                           ();\
-    bool register_NtRenameKey                     (proc_t proc, const on_NtRenameKey_fn& on_ntrenamekey);\
+    bool register_NtRenameKey                     (proc_t proc, const on_NtRenameKey_fn& on_func);\
     void on_NtRenameTransactionManager            ();\
-    bool register_NtRenameTransactionManager      (proc_t proc, const on_NtRenameTransactionManager_fn& on_ntrenametransactionmanager);\
+    bool register_NtRenameTransactionManager      (proc_t proc, const on_NtRenameTransactionManager_fn& on_func);\
     void on_NtReplaceKey                          ();\
-    bool register_NtReplaceKey                    (proc_t proc, const on_NtReplaceKey_fn& on_ntreplacekey);\
+    bool register_NtReplaceKey                    (proc_t proc, const on_NtReplaceKey_fn& on_func);\
     void on_NtReplacePartitionUnit                ();\
-    bool register_NtReplacePartitionUnit          (proc_t proc, const on_NtReplacePartitionUnit_fn& on_ntreplacepartitionunit);\
+    bool register_NtReplacePartitionUnit          (proc_t proc, const on_NtReplacePartitionUnit_fn& on_func);\
     void on_NtReplyPort                           ();\
-    bool register_NtReplyPort                     (proc_t proc, const on_NtReplyPort_fn& on_ntreplyport);\
+    bool register_NtReplyPort                     (proc_t proc, const on_NtReplyPort_fn& on_func);\
     void on_NtReplyWaitReceivePortEx              ();\
-    bool register_NtReplyWaitReceivePortEx        (proc_t proc, const on_NtReplyWaitReceivePortEx_fn& on_ntreplywaitreceiveportex);\
+    bool register_NtReplyWaitReceivePortEx        (proc_t proc, const on_NtReplyWaitReceivePortEx_fn& on_func);\
     void on_NtReplyWaitReceivePort                ();\
-    bool register_NtReplyWaitReceivePort          (proc_t proc, const on_NtReplyWaitReceivePort_fn& on_ntreplywaitreceiveport);\
+    bool register_NtReplyWaitReceivePort          (proc_t proc, const on_NtReplyWaitReceivePort_fn& on_func);\
     void on_NtReplyWaitReplyPort                  ();\
-    bool register_NtReplyWaitReplyPort            (proc_t proc, const on_NtReplyWaitReplyPort_fn& on_ntreplywaitreplyport);\
+    bool register_NtReplyWaitReplyPort            (proc_t proc, const on_NtReplyWaitReplyPort_fn& on_func);\
     void on_NtRequestPort                         ();\
-    bool register_NtRequestPort                   (proc_t proc, const on_NtRequestPort_fn& on_ntrequestport);\
+    bool register_NtRequestPort                   (proc_t proc, const on_NtRequestPort_fn& on_func);\
     void on_NtRequestWaitReplyPort                ();\
-    bool register_NtRequestWaitReplyPort          (proc_t proc, const on_NtRequestWaitReplyPort_fn& on_ntrequestwaitreplyport);\
+    bool register_NtRequestWaitReplyPort          (proc_t proc, const on_NtRequestWaitReplyPort_fn& on_func);\
     void on_NtResetEvent                          ();\
-    bool register_NtResetEvent                    (proc_t proc, const on_NtResetEvent_fn& on_ntresetevent);\
+    bool register_NtResetEvent                    (proc_t proc, const on_NtResetEvent_fn& on_func);\
     void on_NtResetWriteWatch                     ();\
-    bool register_NtResetWriteWatch               (proc_t proc, const on_NtResetWriteWatch_fn& on_ntresetwritewatch);\
+    bool register_NtResetWriteWatch               (proc_t proc, const on_NtResetWriteWatch_fn& on_func);\
     void on_NtRestoreKey                          ();\
-    bool register_NtRestoreKey                    (proc_t proc, const on_NtRestoreKey_fn& on_ntrestorekey);\
+    bool register_NtRestoreKey                    (proc_t proc, const on_NtRestoreKey_fn& on_func);\
     void on_NtResumeProcess                       ();\
-    bool register_NtResumeProcess                 (proc_t proc, const on_NtResumeProcess_fn& on_ntresumeprocess);\
+    bool register_NtResumeProcess                 (proc_t proc, const on_NtResumeProcess_fn& on_func);\
     void on_NtResumeThread                        ();\
-    bool register_NtResumeThread                  (proc_t proc, const on_NtResumeThread_fn& on_ntresumethread);\
+    bool register_NtResumeThread                  (proc_t proc, const on_NtResumeThread_fn& on_func);\
     void on_NtRollbackComplete                    ();\
-    bool register_NtRollbackComplete              (proc_t proc, const on_NtRollbackComplete_fn& on_ntrollbackcomplete);\
+    bool register_NtRollbackComplete              (proc_t proc, const on_NtRollbackComplete_fn& on_func);\
     void on_NtRollbackEnlistment                  ();\
-    bool register_NtRollbackEnlistment            (proc_t proc, const on_NtRollbackEnlistment_fn& on_ntrollbackenlistment);\
+    bool register_NtRollbackEnlistment            (proc_t proc, const on_NtRollbackEnlistment_fn& on_func);\
     void on_NtRollbackTransaction                 ();\
-    bool register_NtRollbackTransaction           (proc_t proc, const on_NtRollbackTransaction_fn& on_ntrollbacktransaction);\
+    bool register_NtRollbackTransaction           (proc_t proc, const on_NtRollbackTransaction_fn& on_func);\
     void on_NtRollforwardTransactionManager       ();\
-    bool register_NtRollforwardTransactionManager (proc_t proc, const on_NtRollforwardTransactionManager_fn& on_ntrollforwardtransactionmanager);\
+    bool register_NtRollforwardTransactionManager (proc_t proc, const on_NtRollforwardTransactionManager_fn& on_func);\
     void on_NtSaveKeyEx                           ();\
-    bool register_NtSaveKeyEx                     (proc_t proc, const on_NtSaveKeyEx_fn& on_ntsavekeyex);\
+    bool register_NtSaveKeyEx                     (proc_t proc, const on_NtSaveKeyEx_fn& on_func);\
     void on_NtSaveKey                             ();\
-    bool register_NtSaveKey                       (proc_t proc, const on_NtSaveKey_fn& on_ntsavekey);\
+    bool register_NtSaveKey                       (proc_t proc, const on_NtSaveKey_fn& on_func);\
     void on_NtSaveMergedKeys                      ();\
-    bool register_NtSaveMergedKeys                (proc_t proc, const on_NtSaveMergedKeys_fn& on_ntsavemergedkeys);\
+    bool register_NtSaveMergedKeys                (proc_t proc, const on_NtSaveMergedKeys_fn& on_func);\
     void on_NtSecureConnectPort                   ();\
-    bool register_NtSecureConnectPort             (proc_t proc, const on_NtSecureConnectPort_fn& on_ntsecureconnectport);\
+    bool register_NtSecureConnectPort             (proc_t proc, const on_NtSecureConnectPort_fn& on_func);\
     void on_NtSetBootEntryOrder                   ();\
-    bool register_NtSetBootEntryOrder             (proc_t proc, const on_NtSetBootEntryOrder_fn& on_ntsetbootentryorder);\
+    bool register_NtSetBootEntryOrder             (proc_t proc, const on_NtSetBootEntryOrder_fn& on_func);\
     void on_NtSetBootOptions                      ();\
-    bool register_NtSetBootOptions                (proc_t proc, const on_NtSetBootOptions_fn& on_ntsetbootoptions);\
+    bool register_NtSetBootOptions                (proc_t proc, const on_NtSetBootOptions_fn& on_func);\
     void on_NtSetContextThread                    ();\
-    bool register_NtSetContextThread              (proc_t proc, const on_NtSetContextThread_fn& on_ntsetcontextthread);\
+    bool register_NtSetContextThread              (proc_t proc, const on_NtSetContextThread_fn& on_func);\
     void on_NtSetDebugFilterState                 ();\
-    bool register_NtSetDebugFilterState           (proc_t proc, const on_NtSetDebugFilterState_fn& on_ntsetdebugfilterstate);\
+    bool register_NtSetDebugFilterState           (proc_t proc, const on_NtSetDebugFilterState_fn& on_func);\
     void on_NtSetDefaultHardErrorPort             ();\
-    bool register_NtSetDefaultHardErrorPort       (proc_t proc, const on_NtSetDefaultHardErrorPort_fn& on_ntsetdefaultharderrorport);\
+    bool register_NtSetDefaultHardErrorPort       (proc_t proc, const on_NtSetDefaultHardErrorPort_fn& on_func);\
     void on_NtSetDefaultLocale                    ();\
-    bool register_NtSetDefaultLocale              (proc_t proc, const on_NtSetDefaultLocale_fn& on_ntsetdefaultlocale);\
+    bool register_NtSetDefaultLocale              (proc_t proc, const on_NtSetDefaultLocale_fn& on_func);\
     void on_NtSetDefaultUILanguage                ();\
-    bool register_NtSetDefaultUILanguage          (proc_t proc, const on_NtSetDefaultUILanguage_fn& on_ntsetdefaultuilanguage);\
+    bool register_NtSetDefaultUILanguage          (proc_t proc, const on_NtSetDefaultUILanguage_fn& on_func);\
     void on_NtSetDriverEntryOrder                 ();\
-    bool register_NtSetDriverEntryOrder           (proc_t proc, const on_NtSetDriverEntryOrder_fn& on_ntsetdriverentryorder);\
+    bool register_NtSetDriverEntryOrder           (proc_t proc, const on_NtSetDriverEntryOrder_fn& on_func);\
     void on_NtSetEaFile                           ();\
-    bool register_NtSetEaFile                     (proc_t proc, const on_NtSetEaFile_fn& on_ntseteafile);\
+    bool register_NtSetEaFile                     (proc_t proc, const on_NtSetEaFile_fn& on_func);\
     void on_NtSetEventBoostPriority               ();\
-    bool register_NtSetEventBoostPriority         (proc_t proc, const on_NtSetEventBoostPriority_fn& on_ntseteventboostpriority);\
+    bool register_NtSetEventBoostPriority         (proc_t proc, const on_NtSetEventBoostPriority_fn& on_func);\
     void on_NtSetEvent                            ();\
-    bool register_NtSetEvent                      (proc_t proc, const on_NtSetEvent_fn& on_ntsetevent);\
+    bool register_NtSetEvent                      (proc_t proc, const on_NtSetEvent_fn& on_func);\
     void on_NtSetHighEventPair                    ();\
-    bool register_NtSetHighEventPair              (proc_t proc, const on_NtSetHighEventPair_fn& on_ntsethigheventpair);\
+    bool register_NtSetHighEventPair              (proc_t proc, const on_NtSetHighEventPair_fn& on_func);\
     void on_NtSetHighWaitLowEventPair             ();\
-    bool register_NtSetHighWaitLowEventPair       (proc_t proc, const on_NtSetHighWaitLowEventPair_fn& on_ntsethighwaitloweventpair);\
+    bool register_NtSetHighWaitLowEventPair       (proc_t proc, const on_NtSetHighWaitLowEventPair_fn& on_func);\
     void on_NtSetInformationDebugObject           ();\
-    bool register_NtSetInformationDebugObject     (proc_t proc, const on_NtSetInformationDebugObject_fn& on_ntsetinformationdebugobject);\
+    bool register_NtSetInformationDebugObject     (proc_t proc, const on_NtSetInformationDebugObject_fn& on_func);\
     void on_NtSetInformationEnlistment            ();\
-    bool register_NtSetInformationEnlistment      (proc_t proc, const on_NtSetInformationEnlistment_fn& on_ntsetinformationenlistment);\
+    bool register_NtSetInformationEnlistment      (proc_t proc, const on_NtSetInformationEnlistment_fn& on_func);\
     void on_NtSetInformationFile                  ();\
-    bool register_NtSetInformationFile            (proc_t proc, const on_NtSetInformationFile_fn& on_ntsetinformationfile);\
+    bool register_NtSetInformationFile            (proc_t proc, const on_NtSetInformationFile_fn& on_func);\
     void on_NtSetInformationJobObject             ();\
-    bool register_NtSetInformationJobObject       (proc_t proc, const on_NtSetInformationJobObject_fn& on_ntsetinformationjobobject);\
+    bool register_NtSetInformationJobObject       (proc_t proc, const on_NtSetInformationJobObject_fn& on_func);\
     void on_NtSetInformationKey                   ();\
-    bool register_NtSetInformationKey             (proc_t proc, const on_NtSetInformationKey_fn& on_ntsetinformationkey);\
+    bool register_NtSetInformationKey             (proc_t proc, const on_NtSetInformationKey_fn& on_func);\
     void on_NtSetInformationObject                ();\
-    bool register_NtSetInformationObject          (proc_t proc, const on_NtSetInformationObject_fn& on_ntsetinformationobject);\
+    bool register_NtSetInformationObject          (proc_t proc, const on_NtSetInformationObject_fn& on_func);\
     void on_NtSetInformationProcess               ();\
-    bool register_NtSetInformationProcess         (proc_t proc, const on_NtSetInformationProcess_fn& on_ntsetinformationprocess);\
+    bool register_NtSetInformationProcess         (proc_t proc, const on_NtSetInformationProcess_fn& on_func);\
     void on_NtSetInformationResourceManager       ();\
-    bool register_NtSetInformationResourceManager (proc_t proc, const on_NtSetInformationResourceManager_fn& on_ntsetinformationresourcemanager);\
+    bool register_NtSetInformationResourceManager (proc_t proc, const on_NtSetInformationResourceManager_fn& on_func);\
     void on_NtSetInformationThread                ();\
-    bool register_NtSetInformationThread          (proc_t proc, const on_NtSetInformationThread_fn& on_ntsetinformationthread);\
+    bool register_NtSetInformationThread          (proc_t proc, const on_NtSetInformationThread_fn& on_func);\
     void on_NtSetInformationToken                 ();\
-    bool register_NtSetInformationToken           (proc_t proc, const on_NtSetInformationToken_fn& on_ntsetinformationtoken);\
+    bool register_NtSetInformationToken           (proc_t proc, const on_NtSetInformationToken_fn& on_func);\
     void on_NtSetInformationTransaction           ();\
-    bool register_NtSetInformationTransaction     (proc_t proc, const on_NtSetInformationTransaction_fn& on_ntsetinformationtransaction);\
+    bool register_NtSetInformationTransaction     (proc_t proc, const on_NtSetInformationTransaction_fn& on_func);\
     void on_NtSetInformationTransactionManager    ();\
-    bool register_NtSetInformationTransactionManager(proc_t proc, const on_NtSetInformationTransactionManager_fn& on_ntsetinformationtransactionmanager);\
+    bool register_NtSetInformationTransactionManager(proc_t proc, const on_NtSetInformationTransactionManager_fn& on_func);\
     void on_NtSetInformationWorkerFactory         ();\
-    bool register_NtSetInformationWorkerFactory   (proc_t proc, const on_NtSetInformationWorkerFactory_fn& on_ntsetinformationworkerfactory);\
+    bool register_NtSetInformationWorkerFactory   (proc_t proc, const on_NtSetInformationWorkerFactory_fn& on_func);\
     void on_NtSetIntervalProfile                  ();\
-    bool register_NtSetIntervalProfile            (proc_t proc, const on_NtSetIntervalProfile_fn& on_ntsetintervalprofile);\
+    bool register_NtSetIntervalProfile            (proc_t proc, const on_NtSetIntervalProfile_fn& on_func);\
     void on_NtSetIoCompletionEx                   ();\
-    bool register_NtSetIoCompletionEx             (proc_t proc, const on_NtSetIoCompletionEx_fn& on_ntsetiocompletionex);\
+    bool register_NtSetIoCompletionEx             (proc_t proc, const on_NtSetIoCompletionEx_fn& on_func);\
     void on_NtSetIoCompletion                     ();\
-    bool register_NtSetIoCompletion               (proc_t proc, const on_NtSetIoCompletion_fn& on_ntsetiocompletion);\
+    bool register_NtSetIoCompletion               (proc_t proc, const on_NtSetIoCompletion_fn& on_func);\
     void on_NtSetLdtEntries                       ();\
-    bool register_NtSetLdtEntries                 (proc_t proc, const on_NtSetLdtEntries_fn& on_ntsetldtentries);\
+    bool register_NtSetLdtEntries                 (proc_t proc, const on_NtSetLdtEntries_fn& on_func);\
     void on_NtSetLowEventPair                     ();\
-    bool register_NtSetLowEventPair               (proc_t proc, const on_NtSetLowEventPair_fn& on_ntsetloweventpair);\
+    bool register_NtSetLowEventPair               (proc_t proc, const on_NtSetLowEventPair_fn& on_func);\
     void on_NtSetLowWaitHighEventPair             ();\
-    bool register_NtSetLowWaitHighEventPair       (proc_t proc, const on_NtSetLowWaitHighEventPair_fn& on_ntsetlowwaithigheventpair);\
+    bool register_NtSetLowWaitHighEventPair       (proc_t proc, const on_NtSetLowWaitHighEventPair_fn& on_func);\
     void on_NtSetQuotaInformationFile             ();\
-    bool register_NtSetQuotaInformationFile       (proc_t proc, const on_NtSetQuotaInformationFile_fn& on_ntsetquotainformationfile);\
+    bool register_NtSetQuotaInformationFile       (proc_t proc, const on_NtSetQuotaInformationFile_fn& on_func);\
     void on_NtSetSecurityObject                   ();\
-    bool register_NtSetSecurityObject             (proc_t proc, const on_NtSetSecurityObject_fn& on_ntsetsecurityobject);\
+    bool register_NtSetSecurityObject             (proc_t proc, const on_NtSetSecurityObject_fn& on_func);\
     void on_NtSetSystemEnvironmentValueEx         ();\
-    bool register_NtSetSystemEnvironmentValueEx   (proc_t proc, const on_NtSetSystemEnvironmentValueEx_fn& on_ntsetsystemenvironmentvalueex);\
+    bool register_NtSetSystemEnvironmentValueEx   (proc_t proc, const on_NtSetSystemEnvironmentValueEx_fn& on_func);\
     void on_NtSetSystemEnvironmentValue           ();\
-    bool register_NtSetSystemEnvironmentValue     (proc_t proc, const on_NtSetSystemEnvironmentValue_fn& on_ntsetsystemenvironmentvalue);\
+    bool register_NtSetSystemEnvironmentValue     (proc_t proc, const on_NtSetSystemEnvironmentValue_fn& on_func);\
     void on_NtSetSystemInformation                ();\
-    bool register_NtSetSystemInformation          (proc_t proc, const on_NtSetSystemInformation_fn& on_ntsetsysteminformation);\
+    bool register_NtSetSystemInformation          (proc_t proc, const on_NtSetSystemInformation_fn& on_func);\
     void on_NtSetSystemPowerState                 ();\
-    bool register_NtSetSystemPowerState           (proc_t proc, const on_NtSetSystemPowerState_fn& on_ntsetsystempowerstate);\
+    bool register_NtSetSystemPowerState           (proc_t proc, const on_NtSetSystemPowerState_fn& on_func);\
     void on_NtSetSystemTime                       ();\
-    bool register_NtSetSystemTime                 (proc_t proc, const on_NtSetSystemTime_fn& on_ntsetsystemtime);\
+    bool register_NtSetSystemTime                 (proc_t proc, const on_NtSetSystemTime_fn& on_func);\
     void on_NtSetThreadExecutionState             ();\
-    bool register_NtSetThreadExecutionState       (proc_t proc, const on_NtSetThreadExecutionState_fn& on_ntsetthreadexecutionstate);\
+    bool register_NtSetThreadExecutionState       (proc_t proc, const on_NtSetThreadExecutionState_fn& on_func);\
     void on_NtSetTimerEx                          ();\
-    bool register_NtSetTimerEx                    (proc_t proc, const on_NtSetTimerEx_fn& on_ntsettimerex);\
+    bool register_NtSetTimerEx                    (proc_t proc, const on_NtSetTimerEx_fn& on_func);\
     void on_NtSetTimer                            ();\
-    bool register_NtSetTimer                      (proc_t proc, const on_NtSetTimer_fn& on_ntsettimer);\
+    bool register_NtSetTimer                      (proc_t proc, const on_NtSetTimer_fn& on_func);\
     void on_NtSetTimerResolution                  ();\
-    bool register_NtSetTimerResolution            (proc_t proc, const on_NtSetTimerResolution_fn& on_ntsettimerresolution);\
+    bool register_NtSetTimerResolution            (proc_t proc, const on_NtSetTimerResolution_fn& on_func);\
     void on_NtSetUuidSeed                         ();\
-    bool register_NtSetUuidSeed                   (proc_t proc, const on_NtSetUuidSeed_fn& on_ntsetuuidseed);\
+    bool register_NtSetUuidSeed                   (proc_t proc, const on_NtSetUuidSeed_fn& on_func);\
     void on_NtSetValueKey                         ();\
-    bool register_NtSetValueKey                   (proc_t proc, const on_NtSetValueKey_fn& on_ntsetvaluekey);\
+    bool register_NtSetValueKey                   (proc_t proc, const on_NtSetValueKey_fn& on_func);\
     void on_NtSetVolumeInformationFile            ();\
-    bool register_NtSetVolumeInformationFile      (proc_t proc, const on_NtSetVolumeInformationFile_fn& on_ntsetvolumeinformationfile);\
+    bool register_NtSetVolumeInformationFile      (proc_t proc, const on_NtSetVolumeInformationFile_fn& on_func);\
     void on_NtShutdownSystem                      ();\
-    bool register_NtShutdownSystem                (proc_t proc, const on_NtShutdownSystem_fn& on_ntshutdownsystem);\
+    bool register_NtShutdownSystem                (proc_t proc, const on_NtShutdownSystem_fn& on_func);\
     void on_NtShutdownWorkerFactory               ();\
-    bool register_NtShutdownWorkerFactory         (proc_t proc, const on_NtShutdownWorkerFactory_fn& on_ntshutdownworkerfactory);\
+    bool register_NtShutdownWorkerFactory         (proc_t proc, const on_NtShutdownWorkerFactory_fn& on_func);\
     void on_NtSignalAndWaitForSingleObject        ();\
-    bool register_NtSignalAndWaitForSingleObject  (proc_t proc, const on_NtSignalAndWaitForSingleObject_fn& on_ntsignalandwaitforsingleobject);\
+    bool register_NtSignalAndWaitForSingleObject  (proc_t proc, const on_NtSignalAndWaitForSingleObject_fn& on_func);\
     void on_NtSinglePhaseReject                   ();\
-    bool register_NtSinglePhaseReject             (proc_t proc, const on_NtSinglePhaseReject_fn& on_ntsinglephasereject);\
+    bool register_NtSinglePhaseReject             (proc_t proc, const on_NtSinglePhaseReject_fn& on_func);\
     void on_NtStartProfile                        ();\
-    bool register_NtStartProfile                  (proc_t proc, const on_NtStartProfile_fn& on_ntstartprofile);\
+    bool register_NtStartProfile                  (proc_t proc, const on_NtStartProfile_fn& on_func);\
     void on_NtStopProfile                         ();\
-    bool register_NtStopProfile                   (proc_t proc, const on_NtStopProfile_fn& on_ntstopprofile);\
+    bool register_NtStopProfile                   (proc_t proc, const on_NtStopProfile_fn& on_func);\
     void on_NtSuspendProcess                      ();\
-    bool register_NtSuspendProcess                (proc_t proc, const on_NtSuspendProcess_fn& on_ntsuspendprocess);\
+    bool register_NtSuspendProcess                (proc_t proc, const on_NtSuspendProcess_fn& on_func);\
     void on_NtSuspendThread                       ();\
-    bool register_NtSuspendThread                 (proc_t proc, const on_NtSuspendThread_fn& on_ntsuspendthread);\
+    bool register_NtSuspendThread                 (proc_t proc, const on_NtSuspendThread_fn& on_func);\
     void on_NtSystemDebugControl                  ();\
-    bool register_NtSystemDebugControl            (proc_t proc, const on_NtSystemDebugControl_fn& on_ntsystemdebugcontrol);\
+    bool register_NtSystemDebugControl            (proc_t proc, const on_NtSystemDebugControl_fn& on_func);\
     void on_NtTerminateJobObject                  ();\
-    bool register_NtTerminateJobObject            (proc_t proc, const on_NtTerminateJobObject_fn& on_ntterminatejobobject);\
+    bool register_NtTerminateJobObject            (proc_t proc, const on_NtTerminateJobObject_fn& on_func);\
     void on_NtTerminateProcess                    ();\
-    bool register_NtTerminateProcess              (proc_t proc, const on_NtTerminateProcess_fn& on_ntterminateprocess);\
+    bool register_NtTerminateProcess              (proc_t proc, const on_NtTerminateProcess_fn& on_func);\
     void on_NtTerminateThread                     ();\
-    bool register_NtTerminateThread               (proc_t proc, const on_NtTerminateThread_fn& on_ntterminatethread);\
+    bool register_NtTerminateThread               (proc_t proc, const on_NtTerminateThread_fn& on_func);\
     void on_NtTraceControl                        ();\
-    bool register_NtTraceControl                  (proc_t proc, const on_NtTraceControl_fn& on_nttracecontrol);\
+    bool register_NtTraceControl                  (proc_t proc, const on_NtTraceControl_fn& on_func);\
     void on_NtTraceEvent                          ();\
-    bool register_NtTraceEvent                    (proc_t proc, const on_NtTraceEvent_fn& on_nttraceevent);\
+    bool register_NtTraceEvent                    (proc_t proc, const on_NtTraceEvent_fn& on_func);\
     void on_NtTranslateFilePath                   ();\
-    bool register_NtTranslateFilePath             (proc_t proc, const on_NtTranslateFilePath_fn& on_nttranslatefilepath);\
+    bool register_NtTranslateFilePath             (proc_t proc, const on_NtTranslateFilePath_fn& on_func);\
     void on_NtUnloadDriver                        ();\
-    bool register_NtUnloadDriver                  (proc_t proc, const on_NtUnloadDriver_fn& on_ntunloaddriver);\
+    bool register_NtUnloadDriver                  (proc_t proc, const on_NtUnloadDriver_fn& on_func);\
     void on_NtUnloadKey2                          ();\
-    bool register_NtUnloadKey2                    (proc_t proc, const on_NtUnloadKey2_fn& on_ntunloadkey2);\
+    bool register_NtUnloadKey2                    (proc_t proc, const on_NtUnloadKey2_fn& on_func);\
     void on_NtUnloadKeyEx                         ();\
-    bool register_NtUnloadKeyEx                   (proc_t proc, const on_NtUnloadKeyEx_fn& on_ntunloadkeyex);\
+    bool register_NtUnloadKeyEx                   (proc_t proc, const on_NtUnloadKeyEx_fn& on_func);\
     void on_NtUnloadKey                           ();\
-    bool register_NtUnloadKey                     (proc_t proc, const on_NtUnloadKey_fn& on_ntunloadkey);\
+    bool register_NtUnloadKey                     (proc_t proc, const on_NtUnloadKey_fn& on_func);\
     void on_NtUnlockFile                          ();\
-    bool register_NtUnlockFile                    (proc_t proc, const on_NtUnlockFile_fn& on_ntunlockfile);\
+    bool register_NtUnlockFile                    (proc_t proc, const on_NtUnlockFile_fn& on_func);\
     void on_NtUnlockVirtualMemory                 ();\
-    bool register_NtUnlockVirtualMemory           (proc_t proc, const on_NtUnlockVirtualMemory_fn& on_ntunlockvirtualmemory);\
+    bool register_NtUnlockVirtualMemory           (proc_t proc, const on_NtUnlockVirtualMemory_fn& on_func);\
     void on_NtUnmapViewOfSection                  ();\
-    bool register_NtUnmapViewOfSection            (proc_t proc, const on_NtUnmapViewOfSection_fn& on_ntunmapviewofsection);\
+    bool register_NtUnmapViewOfSection            (proc_t proc, const on_NtUnmapViewOfSection_fn& on_func);\
     void on_NtVdmControl                          ();\
-    bool register_NtVdmControl                    (proc_t proc, const on_NtVdmControl_fn& on_ntvdmcontrol);\
+    bool register_NtVdmControl                    (proc_t proc, const on_NtVdmControl_fn& on_func);\
     void on_NtWaitForDebugEvent                   ();\
-    bool register_NtWaitForDebugEvent             (proc_t proc, const on_NtWaitForDebugEvent_fn& on_ntwaitfordebugevent);\
+    bool register_NtWaitForDebugEvent             (proc_t proc, const on_NtWaitForDebugEvent_fn& on_func);\
     void on_NtWaitForKeyedEvent                   ();\
-    bool register_NtWaitForKeyedEvent             (proc_t proc, const on_NtWaitForKeyedEvent_fn& on_ntwaitforkeyedevent);\
+    bool register_NtWaitForKeyedEvent             (proc_t proc, const on_NtWaitForKeyedEvent_fn& on_func);\
     void on_NtWaitForMultipleObjects32            ();\
-    bool register_NtWaitForMultipleObjects32      (proc_t proc, const on_NtWaitForMultipleObjects32_fn& on_ntwaitformultipleobjects32);\
+    bool register_NtWaitForMultipleObjects32      (proc_t proc, const on_NtWaitForMultipleObjects32_fn& on_func);\
     void on_NtWaitForMultipleObjects              ();\
-    bool register_NtWaitForMultipleObjects        (proc_t proc, const on_NtWaitForMultipleObjects_fn& on_ntwaitformultipleobjects);\
+    bool register_NtWaitForMultipleObjects        (proc_t proc, const on_NtWaitForMultipleObjects_fn& on_func);\
     void on_NtWaitForSingleObject                 ();\
-    bool register_NtWaitForSingleObject           (proc_t proc, const on_NtWaitForSingleObject_fn& on_ntwaitforsingleobject);\
+    bool register_NtWaitForSingleObject           (proc_t proc, const on_NtWaitForSingleObject_fn& on_func);\
     void on_NtWaitForWorkViaWorkerFactory         ();\
-    bool register_NtWaitForWorkViaWorkerFactory   (proc_t proc, const on_NtWaitForWorkViaWorkerFactory_fn& on_ntwaitforworkviaworkerfactory);\
+    bool register_NtWaitForWorkViaWorkerFactory   (proc_t proc, const on_NtWaitForWorkViaWorkerFactory_fn& on_func);\
     void on_NtWaitHighEventPair                   ();\
-    bool register_NtWaitHighEventPair             (proc_t proc, const on_NtWaitHighEventPair_fn& on_ntwaithigheventpair);\
+    bool register_NtWaitHighEventPair             (proc_t proc, const on_NtWaitHighEventPair_fn& on_func);\
     void on_NtWaitLowEventPair                    ();\
-    bool register_NtWaitLowEventPair              (proc_t proc, const on_NtWaitLowEventPair_fn& on_ntwaitloweventpair);\
+    bool register_NtWaitLowEventPair              (proc_t proc, const on_NtWaitLowEventPair_fn& on_func);\
     void on_NtWorkerFactoryWorkerReady            ();\
-    bool register_NtWorkerFactoryWorkerReady      (proc_t proc, const on_NtWorkerFactoryWorkerReady_fn& on_ntworkerfactoryworkerready);\
+    bool register_NtWorkerFactoryWorkerReady      (proc_t proc, const on_NtWorkerFactoryWorkerReady_fn& on_func);\
     void on_NtWriteFileGather                     ();\
-    bool register_NtWriteFileGather               (proc_t proc, const on_NtWriteFileGather_fn& on_ntwritefilegather);\
+    bool register_NtWriteFileGather               (proc_t proc, const on_NtWriteFileGather_fn& on_func);\
     void on_NtWriteFile                           ();\
-    bool register_NtWriteFile                     (proc_t proc, const on_NtWriteFile_fn& on_ntwritefile);\
+    bool register_NtWriteFile                     (proc_t proc, const on_NtWriteFile_fn& on_func);\
     void on_NtWriteRequestData                    ();\
-    bool register_NtWriteRequestData              (proc_t proc, const on_NtWriteRequestData_fn& on_ntwriterequestdata);\
+    bool register_NtWriteRequestData              (proc_t proc, const on_NtWriteRequestData_fn& on_func);\
     void on_NtWriteVirtualMemory                  ();\
-    bool register_NtWriteVirtualMemory            (proc_t proc, const on_NtWriteVirtualMemory_fn& on_ntwritevirtualmemory);\
+    bool register_NtWriteVirtualMemory            (proc_t proc, const on_NtWriteVirtualMemory_fn& on_func);\
     void on_NtDisableLastKnownGood                ();\
-    bool register_NtDisableLastKnownGood          (proc_t proc, const on_NtDisableLastKnownGood_fn& on_ntdisablelastknowngood);\
+    bool register_NtDisableLastKnownGood          (proc_t proc, const on_NtDisableLastKnownGood_fn& on_func);\
     void on_NtEnableLastKnownGood                 ();\
-    bool register_NtEnableLastKnownGood           (proc_t proc, const on_NtEnableLastKnownGood_fn& on_ntenablelastknowngood);\
+    bool register_NtEnableLastKnownGood           (proc_t proc, const on_NtEnableLastKnownGood_fn& on_func);\
     void on_NtFlushProcessWriteBuffers            ();\
-    bool register_NtFlushProcessWriteBuffers      (proc_t proc, const on_NtFlushProcessWriteBuffers_fn& on_ntflushprocesswritebuffers);\
+    bool register_NtFlushProcessWriteBuffers      (proc_t proc, const on_NtFlushProcessWriteBuffers_fn& on_func);\
     void on_NtFlushWriteBuffer                    ();\
-    bool register_NtFlushWriteBuffer              (proc_t proc, const on_NtFlushWriteBuffer_fn& on_ntflushwritebuffer);\
+    bool register_NtFlushWriteBuffer              (proc_t proc, const on_NtFlushWriteBuffer_fn& on_func);\
     void on_NtGetCurrentProcessorNumber           ();\
-    bool register_NtGetCurrentProcessorNumber     (proc_t proc, const on_NtGetCurrentProcessorNumber_fn& on_ntgetcurrentprocessornumber);\
+    bool register_NtGetCurrentProcessorNumber     (proc_t proc, const on_NtGetCurrentProcessorNumber_fn& on_func);\
     void on_NtIsSystemResumeAutomatic             ();\
-    bool register_NtIsSystemResumeAutomatic       (proc_t proc, const on_NtIsSystemResumeAutomatic_fn& on_ntissystemresumeautomatic);\
+    bool register_NtIsSystemResumeAutomatic       (proc_t proc, const on_NtIsSystemResumeAutomatic_fn& on_func);\
     void on_NtIsUILanguageComitted                ();\
-    bool register_NtIsUILanguageComitted          (proc_t proc, const on_NtIsUILanguageComitted_fn& on_ntisuilanguagecomitted);\
+    bool register_NtIsUILanguageComitted          (proc_t proc, const on_NtIsUILanguageComitted_fn& on_func);\
     void on_NtQueryPortInformationProcess         ();\
-    bool register_NtQueryPortInformationProcess   (proc_t proc, const on_NtQueryPortInformationProcess_fn& on_ntqueryportinformationprocess);\
+    bool register_NtQueryPortInformationProcess   (proc_t proc, const on_NtQueryPortInformationProcess_fn& on_func);\
     void on_NtSerializeBoot                       ();\
-    bool register_NtSerializeBoot                 (proc_t proc, const on_NtSerializeBoot_fn& on_ntserializeboot);\
+    bool register_NtSerializeBoot                 (proc_t proc, const on_NtSerializeBoot_fn& on_func);\
     void on_NtTestAlert                           ();\
-    bool register_NtTestAlert                     (proc_t proc, const on_NtTestAlert_fn& on_nttestalert);\
+    bool register_NtTestAlert                     (proc_t proc, const on_NtTestAlert_fn& on_func);\
     void on_NtThawRegistry                        ();\
-    bool register_NtThawRegistry                  (proc_t proc, const on_NtThawRegistry_fn& on_ntthawregistry);\
+    bool register_NtThawRegistry                  (proc_t proc, const on_NtThawRegistry_fn& on_func);\
     void on_NtThawTransactions                    ();\
-    bool register_NtThawTransactions              (proc_t proc, const on_NtThawTransactions_fn& on_ntthawtransactions);\
+    bool register_NtThawTransactions              (proc_t proc, const on_NtThawTransactions_fn& on_func);\
     void on_NtUmsThreadYield                      ();\
-    bool register_NtUmsThreadYield                (proc_t proc, const on_NtUmsThreadYield_fn& on_ntumsthreadyield);\
+    bool register_NtUmsThreadYield                (proc_t proc, const on_NtUmsThreadYield_fn& on_func);\
     void on_NtYieldExecution                      ();\
-    bool register_NtYieldExecution                (proc_t proc, const on_NtYieldExecution_fn& on_ntyieldexecution);\
+    bool register_NtYieldExecution                (proc_t proc, const on_NtYieldExecution_fn& on_func);\
     void on_RtlpAllocateHeapInternal              ();\
-    bool register_RtlpAllocateHeapInternal        (proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_rtlpallocateheapinternal);\
+    bool register_RtlpAllocateHeapInternal        (proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func);\
     void on_RtlFreeHeap                           ();\
-    bool register_RtlFreeHeap                     (proc_t proc, const on_RtlFreeHeap_fn& on_rtlfreeheap);\
+    bool register_RtlFreeHeap                     (proc_t proc, const on_RtlFreeHeap_fn& on_func);\
     void on_RtlpReAllocateHeapInternal            ();\
-    bool register_RtlpReAllocateHeapInternal      (proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_rtlpreallocateheapinternal);\
+    bool register_RtlpReAllocateHeapInternal      (proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func);\
     void on_RtlSizeHeap                           ();\
-    bool register_RtlSizeHeap                     (proc_t proc, const on_RtlSizeHeap_fn& on_rtlsizeheap);\
+    bool register_RtlSizeHeap                     (proc_t proc, const on_RtlSizeHeap_fn& on_func);\
     void on_RtlSetUserValueHeap                   ();\
-    bool register_RtlSetUserValueHeap             (proc_t proc, const on_RtlSetUserValueHeap_fn& on_rtlsetuservalueheap);\
+    bool register_RtlSetUserValueHeap             (proc_t proc, const on_RtlSetUserValueHeap_fn& on_func);\
     void on_RtlGetUserInfoHeap                    ();\
-    bool register_RtlGetUserInfoHeap              (proc_t proc, const on_RtlGetUserInfoHeap_fn& on_rtlgetuserinfoheap);
+    bool register_RtlGetUserInfoHeap              (proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func);
 
 #define DECLARE_SYSCALLS_OBSERVERS\
     std::vector<on_NtAcceptConnectPort_fn> observers_NtAcceptConnectPort;\

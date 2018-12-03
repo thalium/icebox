@@ -22,13 +22,11 @@ namespace monitor
 
         bool    setup_all   (proc_t proc, on_function_generic_fn& on_function_generic);
         bool    setup_func  (proc_t proc, std::string fname);
-        bool    get_raw_args(size_t nargs, const on_arg_fn& on_arg);
 
         DECLARE_SYSCALLS_FUNCTIONS_PROTOS
 
         struct Data;
         std::unique_ptr<Data> d_;
-
-        core::Core& core_;
+        core::Core&           core_;
     };
 } // namespace monitor

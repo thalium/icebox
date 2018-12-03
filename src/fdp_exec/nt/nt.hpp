@@ -147,9 +147,10 @@ namespace nt
     using WORKERFACTORYINFOCLASS               = uint64_t;
 
     template <typename T>
-    T cast_to(const arg_t& src)
+    constexpr T cast_to(arg_t src)
     {
-        T value;
+        T value = 0;
+        static_assert(sizeof value == sizeof src.val, "invalid size");
         memcpy(&value, &src.val, sizeof value);
         return value;
     };

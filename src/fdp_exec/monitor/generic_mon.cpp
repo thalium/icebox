@@ -19,9 +19,7 @@ namespace
         void (monitor::GenericMonitor::*on_function)();
     };
 
-    static const OnFunction functions[] =
-    {
-            DECLARE_SYSCALLS_HANDLERS};
+    static const OnFunction functions[] = {DECLARE_SYSCALLS_HANDLERS};
 }
 
 struct monitor::GenericMonitor::Data
@@ -85,16 +83,17 @@ bool monitor::GenericMonitor::setup_func(proc_t proc, std::string fname)
     return false;
 }
 
-bool monitor::GenericMonitor::get_raw_args(size_t nargs, const on_arg_fn& on_arg)
+namespace
 {
-    for(size_t j = 0; j < nargs; j++)
+    template <typename T>
+    T arg(core::Core& core, size_t i)
     {
-        const auto arg = monitor::get_arg_by_index(core_, j);
-        if(on_arg(*arg) == WALK_STOP)
-            break;
-    }
+        const auto arg = monitor::get_arg_by_index(core, i);
+        if(!arg)
+            return {};
 
-    return true;
+        return nt::cast_to<T>(*arg);
+    }
 }
 
 #include "syscalls_private.gen.hpp"
