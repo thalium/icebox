@@ -109,6 +109,8 @@ def main():
         (r"struct +([a-zA-Z_][a-zA-Z0-9_]+;)", r"struct \1"),
         # remove whitespaces after return
         (r"return +", r"return "),
+        # enforce space after comment
+        (r"//([^ ])", r"// \1"),
         # remove trailing whitespace
         (r"[ \t\r]+\n", r"\n"),
     ]
