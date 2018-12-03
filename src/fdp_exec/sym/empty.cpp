@@ -3,8 +3,6 @@
 #define FDP_MODULE "pdb"
 #include "log.hpp"
 
-#define UNUSED(x) (void) (x)
-
 namespace
 {
     struct EmptyMod
@@ -30,10 +28,8 @@ EmptyMod::EmptyMod(span_t span)
 {
 }
 
-std::unique_ptr<sym::IMod> sym::make_empty(span_t span, const void* data, const size_t data_size)
+std::unique_ptr<sym::IMod> sym::make_empty(span_t span, const void* /*data*/, const size_t /*data_size*/)
 {
-    UNUSED(data);
-    UNUSED(data_size);
     return std::make_unique<EmptyMod>(span);
 }
 
@@ -42,9 +38,8 @@ span_t EmptyMod::span()
     return span_;
 }
 
-opt<uint64_t> EmptyMod::symbol(const std::string& symbol)
+opt<uint64_t> EmptyMod::symbol(const std::string& /*symbol*/)
 {
-    UNUSED(symbol);
     return {};
 }
 
@@ -54,16 +49,13 @@ bool EmptyMod::sym_list(const sym::on_sym_fn& on_sym)
     return false;
 }
 
-opt<uint64_t> EmptyMod::struc_offset(const std::string& struc, const std::string& member)
+opt<uint64_t> EmptyMod::struc_offset(const std::string& /*struc*/, const std::string& /*member*/)
 {
-    UNUSED(struc);
-    UNUSED(member);
     return {};
 }
 
-opt<size_t> EmptyMod::struc_size(const std::string& struc)
+opt<size_t> EmptyMod::struc_size(const std::string& /*struc*/)
 {
-    UNUSED(struc);
     return {};
 }
 

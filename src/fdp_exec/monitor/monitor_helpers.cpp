@@ -50,12 +50,8 @@ return_t<uint64_t> monitor::get_stack_by_index(core::Core& core, size_t index)
     return core::read_ptr(core, *rsp + index * pointer_size);
 }
 
-#define UNUSED(x) (void) (x)
-status_t monitor::set_stack_by_index(core::Core& core, size_t index, uint64_t value)
+status_t monitor::set_stack_by_index(core::Core& /*core*/, size_t /*index*/, uint64_t /*value*/)
 {
-    UNUSED(core);
-    UNUSED(index);
-    UNUSED(value);
     LOG(ERROR, "NOT IMPLEMENTED");
     return err::make(err_e::cannot_write);
 }

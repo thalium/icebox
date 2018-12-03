@@ -562,10 +562,8 @@ opt<proc_t> OsNt::thread_proc(thread_t thread)
     return proc_t{eproc, *dtb};
 }
 
-opt<uint64_t> OsNt::thread_pc(proc_t proc, thread_t thread)
+opt<uint64_t> OsNt::thread_pc(proc_t /*proc*/, thread_t thread)
 {
-    UNUSED(proc);
-
     const auto ktrap_frame = core::read_ptr(core_, thread.id + members_[ETHREAD_Tcb] + members_[KTHREAD_TrapFrame]);
     if(!ktrap_frame)
         FAIL({}, "unable to read KTHREAD.TrapFrame");
@@ -580,10 +578,8 @@ opt<uint64_t> OsNt::thread_pc(proc_t proc, thread_t thread)
     return *rip; // rip can be null
 }
 
-uint64_t OsNt::thread_id(proc_t proc, thread_t thread)
+uint64_t OsNt::thread_id(proc_t /*proc*/, thread_t thread)
 {
-    UNUSED(proc);
-
     const auto tid = core::read_ptr(core_, thread.id + members_[ETHREAD_Cid] + members_[CLIENT_ID_UniqueThread]);
     if(!tid)
         return 0;

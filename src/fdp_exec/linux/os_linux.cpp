@@ -177,23 +177,18 @@ uint64_t OsLinux::proc_id(proc_t proc)
 }
 
 // DON'T USE THESE FUNCTIONS UNTIL YOU REWRITE THEM
-#define UNUSED(x) (void) (x)
-
-bool OsLinux::proc_is_valid(proc_t proc)
+bool OsLinux::proc_is_valid(proc_t /*proc*/)
 {
-    UNUSED(proc);
     return true;
 }
 
-opt<bool> OsLinux::proc_is_wow64(proc_t proc)
+opt<bool> OsLinux::proc_is_wow64(proc_t /*proc*/)
 {
-    UNUSED(proc);
     return {};
 }
 
-bool OsLinux::thread_list(proc_t proc, const on_thread_fn& on_thread)
+bool OsLinux::thread_list(proc_t /*proc*/, const on_thread_fn& on_thread)
 {
-    UNUSED(proc);
     thread_t dummy_thread = {0};
     on_thread(dummy_thread);
     return true;
@@ -204,52 +199,40 @@ opt<thread_t> OsLinux::thread_current()
     return {};
 }
 
-opt<proc_t> OsLinux::thread_proc(thread_t thread)
+opt<proc_t> OsLinux::thread_proc(thread_t /*thread*/)
 {
-    UNUSED(thread);
     return {};
 }
 
-opt<uint64_t> OsLinux::thread_pc(proc_t proc, thread_t thread)
+opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t /*thread*/)
 {
-    UNUSED(proc);
-    UNUSED(thread);
     return {};
 }
 
-uint64_t OsLinux::thread_id(proc_t proc, thread_t thread)
+uint64_t OsLinux::thread_id(proc_t /*proc*/, thread_t /*thread*/)
 {
-    UNUSED(proc);
-    UNUSED(thread);
     return 0;
 }
 
-bool OsLinux::mod_list(proc_t proc, const on_mod_fn& on_module)
+bool OsLinux::mod_list(proc_t /*proc*/, const on_mod_fn& on_module)
 {
-    UNUSED(proc);
     mod_t dummy_mod = {0};
     on_module(dummy_mod);
     return true;
 }
 
-opt<std::string> OsLinux::mod_name(proc_t proc, mod_t mod)
+opt<std::string> OsLinux::mod_name(proc_t /*proc*/, mod_t /*mod*/)
 {
-    UNUSED(proc);
-    UNUSED(mod);
     return {};
 }
 
-opt<span_t> OsLinux::mod_span(proc_t proc, mod_t mod)
+opt<span_t> OsLinux::mod_span(proc_t /*proc*/, mod_t /*mod*/)
 {
-    UNUSED(proc);
-    UNUSED(mod);
     return {};
 }
 
-opt<mod_t> OsLinux::mod_find(proc_t proc, uint64_t addr)
+opt<mod_t> OsLinux::mod_find(proc_t /*proc*/, uint64_t /*addr*/)
 {
-    UNUSED(proc);
-    UNUSED(addr);
     return {};
 }
 
@@ -260,21 +243,18 @@ bool OsLinux::driver_list(const on_driver_fn& on_driver)
     return true;
 }
 
-opt<driver_t> OsLinux::driver_find(const std::string& name)
+opt<driver_t> OsLinux::driver_find(const std::string& /*name*/)
 {
-    UNUSED(name);
     return {};
 }
 
-opt<std::string> OsLinux::driver_name(driver_t drv)
+opt<std::string> OsLinux::driver_name(driver_t /*drv*/)
 {
-    UNUSED(drv);
     return {};
 }
 
-opt<span_t> OsLinux::driver_span(driver_t drv)
+opt<span_t> OsLinux::driver_span(driver_t /*drv*/)
 {
-    UNUSED(drv);
     return {};
 }
 
