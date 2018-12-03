@@ -51,10 +51,14 @@ Pdb::Pdb(const fs::path& filename, span_t span)
 
 std::unique_ptr<sym::IMod> sym::make_pdb(span_t span, const std::string& module, const std::string& guid)
 {
-    auto ptr      = std::make_unique<Pdb>(fs::path(getenv("_NT_SYMBOL_PATH")) / module / guid / module, span);
+    const auto path = getenv("_NT_SYMBOL_PATH");
+    if(!path)
+        return nullptr;
+
+    auto ptr      = std::make_unique<Pdb>(fs::path(path) / module / guid / module, span);
     const auto ok = ptr->setup();
     if(!ok)
-        return std::nullptr_t();
+        return nullptr;
 
     return ptr;
 }
