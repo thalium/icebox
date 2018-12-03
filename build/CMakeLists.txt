@@ -54,18 +54,25 @@ target_include_directories(pdbparser PUBLIC
     "${retdec_dir}/include"
 )
 
-# syscall code generator
-find_package(PythonInterp 3.6 REQUIRED)
-set(path_dir_gen_files "${root_dir}/src/fdp_exec/monitor")
-set(gen_scripts_dir    "${root_dir}/src/code_generation")
-add_custom_command(
-    COMMAND ${PYTHON_EXECUTABLE} "${gen_scripts_dir}/SyscallCodeGenerator.py" -o "${path_dir_gen_files}" -i "${gen_scripts_dir}"
-    OUTPUT
-        "${path_dir_gen_files}/syscall_mon_private.gen.hpp"
-        "${path_dir_gen_files}/syscall_mon_public.gen.hpp"
-    DEPENDS "${gen_scripts_dir}/SyscallCodeGenerator.py" "${gen_scripts_dir}/syscalls.json"
-    COMMENT "Generating syscall_mon.gen.hpp"
-)
+# tracer code generator
+set(monitor_dir "${root_dir}/src/fdp_exec/monitor")
+function(add_tracer input_file)
+    find_package(PythonInterp 3.6 REQUIRED)
+    get_filename_component(directory ${input_file} DIRECTORY)
+    get_filename_component(filename ${input_file} NAME_WE)
+    add_custom_command(
+        COMMAND ${PYTHON_EXECUTABLE}
+            "${monitor_dir}/codegen.py" -i "${input_file}"
+        OUTPUT
+            "${directory}/${filename}_private.gen.hpp"
+            "${directory}/${filename}_public.gen.hpp"
+        DEPENDS
+            "${monitor_dir}/codegen.py"
+            ${input_file}
+        COMMENT "${filename}_private.gen.hpp ${filename}_public.gen.hpp"
+    )
+endfunction()
+add_tracer("${monitor_dir}/syscalls.json")
 
 # fdp_exec
 set(fdp_exec_dir "${root_dir}/src/fdp_exec")

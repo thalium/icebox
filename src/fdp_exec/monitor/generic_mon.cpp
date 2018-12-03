@@ -97,4 +97,4 @@ bool monitor::GenericMonitor::get_raw_args(size_t nargs, const on_arg_fn& on_arg
     return true;
 }
 
-#include "syscall_mon_private.gen.hpp"
+#include "syscalls_private.gen.hpp"

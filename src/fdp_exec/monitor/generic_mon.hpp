@@ -3,7 +3,7 @@
 #include "core.hpp"
 #include "types.hpp"
 
-#include "syscall_mon_public.gen.hpp"
+#include "syscalls_public.gen.hpp"
 
 #include <functional>
 #include <vector>
