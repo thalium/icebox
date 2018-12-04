@@ -14,11 +14,12 @@ namespace core
     // generic functor object
     using Task = std::function<void(void)>;
 
-    // whether to filter breakpoint on cr3
+    // whether to filter breakpoint on proc or thread
     enum filter_e
     {
-        FILTER_CR3,
-        ANY_CR3
+        FILTER_THREAD,
+        FILTER_PROC,
+        ANY
     };
 
     enum join_e
@@ -37,6 +38,8 @@ namespace core
         bool        wait            ();
         Breakpoint  set_breakpoint  (uint64_t ptr, proc_t proc, filter_e filter);
         Breakpoint  set_breakpoint  (uint64_t ptr, proc_t proc, filter_e filter, const Task& task);
+        Breakpoint  set_breakpoint  (uint64_t ptr, proc_t proc, thread_t thread, filter_e filter);
+        Breakpoint  set_breakpoint  (uint64_t ptr, proc_t proc, thread_t thread, filter_e filter, const Task& task);
         bool        proc_join       (proc_t proc, join_e join);
 
         // private data

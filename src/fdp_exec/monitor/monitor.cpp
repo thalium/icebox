@@ -61,7 +61,7 @@ return_t<uint64_t> monitor::get_return_value(core::Core& core, proc_t proc)
     const auto return_addr = core::read_ptr(core, rsp);
     const auto thread_curr = core.os->thread_current();
 
-    const auto bp = core.state.set_breakpoint(*return_addr, proc, core::FILTER_CR3);
+    const auto bp = core.state.set_breakpoint(*return_addr, proc, core::FILTER_PROC);
 
     // Should we set a callback ?
     return_t<uint64_t> rip;

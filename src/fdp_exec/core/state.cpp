@@ -25,10 +25,11 @@ namespace
 
     struct BreakpointObserver
     {
-        BreakpointObserver(const core::Task& task, uint64_t phy, proc_t proc, core::filter_e filter)
+        BreakpointObserver(const core::Task& task, uint64_t phy, proc_t proc, thread_t thread, core::filter_e filter)
             : task(task)
             , phy(phy)
             , proc(proc)
+            , thread(thread)
             , filter(filter)
             , bpid(-1)
         {
@@ -37,9 +38,12 @@ namespace
         core::Task     task;
         uint64_t       phy;
         proc_t         proc;
+        thread_t       thread;
         core::filter_e filter;
         int            bpid;
     };
+
+    static const auto NO_THREAD = thread_t{0};
 
     using Observer = std::shared_ptr<BreakpointObserver>;
 
@@ -194,6 +198,10 @@ namespace
             return;
 
         const auto rip = d.core.regs.read(FDP_RIP_REGISTER);
+        const auto thread = d.core.os->thread_current();
+        if(!thread)
+            return;
+
         uint64_t phy = 0;
         const auto ok = FDP_VirtualToPhysical(&d.shm, 0, rip, &phy);
         if(!ok)
@@ -204,11 +212,16 @@ namespace
         for(auto it = range.first; it != range.second; ++it)
         {
             const auto& bp = *it->second;
-            if(bp.filter == core::FILTER_CR3 && bp.proc.dtb != cr3)
+            if((bp.filter == core::FILTER_PROC || bp.filter == core::FILTER_THREAD) && bp.proc.dtb != cr3)
                 continue;
+
+            if(bp.filter == core::FILTER_THREAD && bp.thread.id != thread->id){
+                continue;
+            }
 
             if(bp.task)
                 bp.task();
+
         }
     }
 
@@ -245,7 +258,7 @@ namespace
     int try_add_breakpoint(StateData& d, uint64_t phy, const BreakpointObserver& bp)
     {
         auto& targets = d.breakpoints.targets_;
-        auto dtb      = bp.filter == core::FILTER_CR3 ? ext::make_optional(bp.proc.dtb) : ext::nullopt;
+        auto dtb      = (bp.filter == core::FILTER_PROC || bp.filter == core::FILTER_THREAD) ? ext::make_optional(bp.proc.dtb) : ext::nullopt;
         const auto it = targets.find(phy);
         if(it != targets.end())
         {
@@ -272,13 +285,13 @@ namespace
         return bpid;
     }
 
-    core::Breakpoint set_breakpoint(StateData& d, uint64_t ptr, proc_t proc, core::filter_e filter, const core::Task& task)
+    core::Breakpoint set_breakpoint(StateData& d, uint64_t ptr, proc_t proc, thread_t thread, core::filter_e filter, const core::Task& task)
     {
         const auto phy = d.core.mem.virtual_to_physical(ptr, proc.dtb);
         if(!phy)
             return nullptr;
 
-        const auto bp = std::make_shared<BreakpointObserver>(task, *phy, proc, filter);
+        const auto bp = std::make_shared<BreakpointObserver>(task, *phy, proc, thread, filter);
         d.breakpoints.observers_.emplace(*phy, bp);
         const auto bpid = try_add_breakpoint(d, *phy, *bp);
 
@@ -291,14 +304,24 @@ namespace
     }
 }
 
+core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, thread_t thread, core::filter_e filter, const core::Task& task)
+{
+    return ::set_breakpoint(*d_, ptr, proc, thread, filter, task);
+}
+
+core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, thread_t thread, core::filter_e filter)
+{
+    return ::set_breakpoint(*d_, ptr, proc, thread, filter, {});
+}
+
 core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, core::filter_e filter, const core::Task& task)
 {
-    return ::set_breakpoint(*d_, ptr, proc, filter, task);
+    return ::set_breakpoint(*d_, ptr, proc, NO_THREAD, filter, task);
 }
 
 core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, filter_e filter)
 {
-    return ::set_breakpoint(*d_, ptr, proc, filter, {});
+    return ::set_breakpoint(*d_, ptr, proc, NO_THREAD, filter, {});
 }
 
 void core::run_exclusive_breakpoint(State& state, Registers& regs, uint64_t ptr, proc_t proc, core::filter_e filter)
@@ -354,7 +377,7 @@ namespace
                 if(!inserted)
                     return WALK_NEXT;
 
-                auto bp = ::set_breakpoint(d, *rip, proc, core::FILTER_CR3, {});
+                auto bp = ::set_breakpoint(d, *rip, proc, NO_THREAD, core::FILTER_PROC, {});
                 if(!bp)
                     return WALK_NEXT;
 
