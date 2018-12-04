@@ -1,0 +1,35 @@
+{
+    "RtlpAllocateHeapInternal" : ["PVOID",[
+    ["HeapHandle", "PVOID"],
+    ["Size", "SIZE_T"]
+    ]],
+    "RtlFreeHeap" : ["BOOLEAN",[
+        ["HeapHandle", "PVOID"],
+        ["Flags", "ULONG"],
+        ["BaseAddress", "PVOID"]
+    ]],
+    "RtlpReAllocateHeapInternal" : ["PVOID", [
+        ["HeapHandle", "PVOID"],
+        ["Flags", "ULONG"],
+        ["BaseAddress", "PVOID"],
+        ["Size", "ULONG"]
+    ]],
+    "RtlSizeHeap" : ["SIZE_T",[
+        ["HeapHandle", "PVOID"],
+        ["Flags", "ULONG"],
+        ["BaseAddress", "PVOID"]
+    ]],
+    "RtlSetUserValueHeap" : ["BOOLEAN",[
+        ["HeapHandle", "PVOID"],
+        ["Flags", "ULONG"],
+        ["BaseAddress", "PVOID"],
+        ["UserValue", "PVOID"]
+    ]],
+    "RtlGetUserInfoHeap" : ["BOOLEAN",[
+        ["HeapHandle", "PVOID"],
+        ["Flags", "ULONG"],
+        ["BaseAddress", "PVOID"],
+        ["UserValue", "PVOID"],
+        ["UserFlags", "PULONG"]
+    ]]
+}

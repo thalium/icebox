@@ -73,6 +73,7 @@ function(add_tracer namespace input_file)
     )
 endfunction()
 add_tracer("nt" "${monitor_dir}/syscalls.json")
+add_tracer("nt" "${monitor_dir}/heaps.json")
 
 # fdp_exec
 set(fdp_exec_dir "${root_dir}/src/fdp_exec")
