@@ -147,7 +147,7 @@ bool plugin::FdpSan::setup(proc_t target)
         if(!return_addr)
             return 0;
 
-        const auto bp = d_->core_.state.set_breakpoint(*return_addr, d_->target_, *thread_curr, core::FILTER_THREAD, [=]()
+        const auto bp = d_->core_.state.set_breakpoint(*return_addr, *thread_curr, [=]()
         {
             d_->threads_allocating.erase(thread_curr->id);
 
@@ -247,7 +247,7 @@ bool plugin::FdpSan::setup(proc_t target)
             return 0;
 
         const auto heap_data = heap_data_t{HeapHandle, 0, Size, thread_curr->id};
-        const auto bp        = d_->core_.state.set_breakpoint(*return_addr, d_->target_, *thread_curr, core::FILTER_THREAD, [=]()
+        const auto bp        = d_->core_.state.set_breakpoint(*return_addr, *thread_curr, [=]()
         {
             const auto rip = d_->core_.regs.read(FDP_RIP_REGISTER);
             if(!rip)
@@ -384,7 +384,7 @@ bool plugin::FdpSan::setup(proc_t target)
         if(!return_addr)
             return 0;
 
-        const auto bp = d_->core_.state.set_breakpoint(*return_addr, d_->target_, *thread_curr, core::FILTER_THREAD, [=]()
+        const auto bp = d_->core_.state.set_breakpoint(*return_addr, *thread_curr, [=]()
         {
             const auto rip = d_->core_.regs.read(FDP_RIP_REGISTER);
             if(!rip)

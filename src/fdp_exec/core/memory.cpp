@@ -230,7 +230,7 @@ namespace
         if(!injected)
             FAIL(false, "unable to inject page fault");
 
-        core::run_exclusive_breakpoint(m.core.state, m.core.regs, rip, proc, core::FILTER_PROC);
+        m.core.state.run_to(proc, rip);
         const auto ok = FDP_ReadVirtualMemory(&m.shm, 0, dst, size, src);
         return ok;
     }

@@ -25,25 +25,21 @@ namespace
 
     struct BreakpointObserver
     {
-        BreakpointObserver(const core::Task& task, uint64_t phy, proc_t proc, thread_t thread, core::filter_e filter)
+        BreakpointObserver(const core::Task& task, uint64_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread)
             : task(task)
             , phy(phy)
             , proc(proc)
             , thread(thread)
-            , filter(filter)
             , bpid(-1)
         {
         }
 
-        core::Task     task;
-        uint64_t       phy;
-        proc_t         proc;
-        thread_t       thread;
-        core::filter_e filter;
-        int            bpid;
+        core::Task    task;
+        uint64_t      phy;
+        opt<proc_t>   proc;
+        opt<thread_t> thread;
+        int           bpid;
     };
-
-    static const auto NO_THREAD = thread_t{0};
 
     using Observer = std::shared_ptr<BreakpointObserver>;
 
@@ -207,18 +203,16 @@ namespace
         if(!ok)
             return;
 
-        const auto cr3   = d.core.regs.read(FDP_CR3_REGISTER);
+        const auto dtb   = d.core.regs.read(FDP_CR3_REGISTER);
         const auto range = d.breakpoints.observers_.equal_range(phy);
         for(auto it = range.first; it != range.second; ++it)
         {
             const auto& bp = *it->second;
-            if((bp.filter == core::FILTER_PROC || bp.filter == core::FILTER_THREAD) && bp.proc.dtb != cr3)
+            if(bp.proc && bp.proc->dtb != dtb)
                 continue;
 
-            if(bp.filter == core::FILTER_THREAD && bp.thread.id != thread->id)
-            {
+            if(bp.thread && bp.thread->id != thread->id)
                 continue;
-            }
 
             if(bp.task)
                 bp.task();
@@ -255,10 +249,25 @@ bool core::State::wait()
 
 namespace
 {
+    opt<uint64_t> get_dtb_filter(StateData& d, const BreakpointObserver& bp)
+    {
+        if(bp.proc)
+            return bp.proc->dtb;
+
+        if(!bp.thread)
+            return {};
+
+        const auto proc = d.core.os->thread_proc(*bp.thread);
+        if(!proc)
+            return {};
+
+        return proc->dtb;
+    }
+
     int try_add_breakpoint(StateData& d, uint64_t phy, const BreakpointObserver& bp)
     {
         auto& targets = d.breakpoints.targets_;
-        auto dtb      = (bp.filter == core::FILTER_PROC || bp.filter == core::FILTER_THREAD) ? ext::make_optional(bp.proc.dtb) : ext::nullopt;
+        auto dtb      = get_dtb_filter(d, bp);
         const auto it = targets.find(phy);
         if(it != targets.end())
         {
@@ -285,13 +294,14 @@ namespace
         return bpid;
     }
 
-    core::Breakpoint set_breakpoint(StateData& d, uint64_t ptr, proc_t proc, thread_t thread, core::filter_e filter, const core::Task& task)
+    core::Breakpoint set_breakpoint(StateData& d, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const core::Task& task)
     {
-        const auto phy = d.core.mem.virtual_to_physical(ptr, proc.dtb);
+        const auto dtb = proc ? proc->dtb : d.core.regs.read(FDP_CR3_REGISTER);
+        const auto phy = d.core.mem.virtual_to_physical(ptr, dtb);
         if(!phy)
             return nullptr;
 
-        const auto bp = std::make_shared<BreakpointObserver>(task, *phy, proc, thread, filter);
+        const auto bp = std::make_shared<BreakpointObserver>(task, *phy, proc, thread);
         d.breakpoints.observers_.emplace(*phy, bp);
         const auto bpid = try_add_breakpoint(d, *phy, *bp);
 
@@ -304,40 +314,43 @@ namespace
     }
 }
 
-core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, thread_t thread, core::filter_e filter, const core::Task& task)
+core::Breakpoint core::State::set_breakpoint(uint64_t ptr, const core::Task& task)
 {
-    return ::set_breakpoint(*d_, ptr, proc, thread, filter, task);
+    return ::set_breakpoint(*d_, ptr, {}, {}, task);
 }
 
-core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, thread_t thread, core::filter_e filter)
+core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, const core::Task& task)
 {
-    return ::set_breakpoint(*d_, ptr, proc, thread, filter, {});
+    return ::set_breakpoint(*d_, ptr, proc, {}, task);
 }
 
-core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, core::filter_e filter, const core::Task& task)
+core::Breakpoint core::State::set_breakpoint(uint64_t ptr, thread_t thread, const core::Task& task)
 {
-    return ::set_breakpoint(*d_, ptr, proc, NO_THREAD, filter, task);
+    return ::set_breakpoint(*d_, ptr, {}, thread, task);
 }
 
-core::Breakpoint core::State::set_breakpoint(uint64_t ptr, proc_t proc, filter_e filter)
+namespace
 {
-    return ::set_breakpoint(*d_, ptr, proc, NO_THREAD, filter, {});
-}
-
-void core::run_exclusive_breakpoint(State& state, Registers& regs, uint64_t ptr, proc_t proc, core::filter_e filter)
-{
-    const auto bp = state.set_breakpoint(ptr, proc, filter);
-    while(true)
+    static void run_to(StateData& d, proc_t proc, uint64_t ptr)
     {
-        state.resume();
-        try_wait(*state.d_, SKIP_BREAKPOINTS);
+        const auto bp = ::set_breakpoint(d, ptr, proc, {}, {});
+        while(true)
+        {
+            try_resume(d);
+            try_wait(d, SKIP_BREAKPOINTS);
 
-        const auto cur = regs.read(FDP_RIP_REGISTER);
-        if(cur == ptr)
-            break;
+            const auto cur = d.core.regs.read(FDP_RIP_REGISTER);
+            if(cur == ptr)
+                break;
 
-        check_breakpoints(*state.d_);
+            check_breakpoints(d);
+        }
     }
+}
+
+void core::State::run_to(proc_t proc, uint64_t ptr)
+{
+    ::run_to(*d_, proc, ptr);
 }
 
 namespace
@@ -377,7 +390,7 @@ namespace
                 if(!inserted)
                     return WALK_NEXT;
 
-                auto bp = ::set_breakpoint(d, *rip, proc, NO_THREAD, core::FILTER_PROC, {});
+                auto bp = ::set_breakpoint(d, *rip, proc, {}, {});
                 if(!bp)
                     return WALK_NEXT;
 

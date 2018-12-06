@@ -181,7 +181,7 @@ namespace
         if(!addr)
             FAIL(nullptr, "unable to find symbole %s!%s", d.module.data(), name);
 
-        return d.core.state.set_breakpoint(*addr, proc, core::FILTER_PROC, on_call);
+        return d.core.state.set_breakpoint(*addr, proc, on_call);
     }}
 
     static bool register_callback_with(Data& d, proc_t proc, const char* name, void (*callback)(Data&))
