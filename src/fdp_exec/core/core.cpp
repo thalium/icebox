@@ -80,6 +80,19 @@ bool core::setup(Core& core, const std::string& name)
     if(!ok)
         FAIL(false, "unable to init shm");
 
+    FDP_State state;
+    memset(&state, 0, sizeof state);
+    ok = FDP_GetState(ptr_shm, &state);
+    if(!ok)
+        FAIL(false, "unable to get initial fdp state");
+
+    if(!(state & FDP_STATE_PAUSED))
+    {
+        ok = FDP_Pause(ptr_shm);
+        if(!ok)
+            FAIL(false, "unable to pause fdp");
+    }
+
     for(int i = 0; i < FDP_MAX_BREAKPOINT; ++i)
         FDP_UnsetBreakpoint(ptr_shm, i);
 
