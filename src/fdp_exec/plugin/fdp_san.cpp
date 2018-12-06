@@ -312,6 +312,7 @@ bool plugin::FdpSan::setup(proc_t target)
             return false;
 
         heap_data_t heap_data;
+        memset(&heap_data, 0, sizeof heap_data);
         bool found = false;
         int i = -1;
         for(const auto& it_v : it->second)
