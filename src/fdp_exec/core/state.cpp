@@ -197,7 +197,7 @@ namespace
         if(d.breakpoints.observers_.empty())
             return;
 
-        const auto rip = d.core.regs.read(FDP_RIP_REGISTER);
+        const auto rip    = d.core.regs.read(FDP_RIP_REGISTER);
         const auto thread = d.core.os->thread_current();
         if(!thread)
             return;
@@ -215,13 +215,13 @@ namespace
             if((bp.filter == core::FILTER_PROC || bp.filter == core::FILTER_THREAD) && bp.proc.dtb != cr3)
                 continue;
 
-            if(bp.filter == core::FILTER_THREAD && bp.thread.id != thread->id){
+            if(bp.filter == core::FILTER_THREAD && bp.thread.id != thread->id)
+            {
                 continue;
             }
 
             if(bp.task)
                 bp.task();
-
         }
     }
 

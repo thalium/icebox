@@ -9,9 +9,9 @@
 #include "os.hpp"
 #include "utils/utils.hpp"
 
+#include <map>
 #include <unordered_map>
 #include <unordered_set>
-#include <map>
 
 namespace
 {
@@ -30,12 +30,12 @@ namespace
         uint64_t   thread_id;
     };
 
-    using HeapCtx = std::multimap<uint64_t, heap_ctx_t>;
-    using HeapData = std::unordered_map<nt::PVOID, std::vector<heap_data_t>>;
+    using HeapCtx    = std::multimap<uint64_t, heap_ctx_t>;
+    using HeapData   = std::unordered_map<nt::PVOID, std::vector<heap_data_t>>;
     using FdpSanData = plugin::FdpSan::Data;
 
     static const uint64_t add_size = 0x20;
-    static const uint64_t half_add_size = add_size/2;
+    static const uint64_t half_add_size = add_size / 2;
 }
 
 struct plugin::FdpSan::Data
@@ -84,15 +84,14 @@ namespace
         const auto rbp = d.core_.regs.read(FDP_RBP_REGISTER);
         d.callstack_->get_callstack(d.target_, {rip, rsp, rbp}, [&](callstack::callstep_t cstep)
         {
-
             auto cursor = d.core_.sym.find(cstep.addr);
-            if (!cursor)
+            if(!cursor)
                 cursor = sym::Cursor{"NoMod", "<nosymbol>", cstep.addr};
 
             LOG(INFO, "% 3" PRId64 " - %" PRIx64 "- %s", cs_size, cstep.addr, sym::to_string(*cursor).data());
 
             cs_size++;
-            if (cs_size<cs_depth)
+            if(cs_size < cs_depth)
                 return WALK_NEXT;
 
             return WALK_STOP;
@@ -105,7 +104,7 @@ bool plugin::FdpSan::setup(proc_t target)
     d_->target_ = target;
 
     d_->threads_rellocating = std::unordered_set<uint64_t>({});
-    d_->threads_allocating =  std::unordered_set<uint64_t>({});
+    d_->threads_allocating  = std::unordered_set<uint64_t>({});
 
     d_->callstack_ = callstack::make_callstack_nt(d_->core_, d_->pe_);
     if(!d_->callstack_)
@@ -136,11 +135,11 @@ bool plugin::FdpSan::setup(proc_t target)
 
         auto heap_data = heap_data_t{HeapHandle, 0, Size, thread_curr->id};
 
-        const auto ok = monitor::set_arg_by_index(d_->core_, 1, Size+add_size);
+        const auto ok = monitor::set_arg_by_index(d_->core_, 1, Size + add_size);
         if(!ok)
             return 0;
 
-        const auto rsp         = d_->core_.regs.read(FDP_RSP_REGISTER);
+        const auto rsp = d_->core_.regs.read(FDP_RSP_REGISTER);
         if(!rsp)
             return 0;
 
@@ -156,7 +155,7 @@ bool plugin::FdpSan::setup(proc_t target)
             if(!rip)
                 return;
 
-            auto saved_it = d_->heap_ctxs.end();
+            auto saved_it    = d_->heap_ctxs.end();
             const auto range = d_->heap_ctxs.equal_range(rip);
             for(auto it = range.first; it != range.second; ++it)
             {
@@ -167,26 +166,26 @@ bool plugin::FdpSan::setup(proc_t target)
                 break;
             }
 
-            if (saved_it == d_->heap_ctxs.end())
+            if(saved_it == d_->heap_ctxs.end())
                 return;
 
             const auto ret = d_->core_.regs.read(FDP_RAX_REGISTER);
             if(!ret)
                 return;
 
-            const auto ok_ = monitor::set_return_value(d_->core_, ret+half_add_size);
+            const auto ok_ = monitor::set_return_value(d_->core_, ret + half_add_size);
             if(!ok_)
                 return;
 
-            auto it = this->d_->heap_datas.find(ret+half_add_size);
+            auto it = this->d_->heap_datas.find(ret + half_add_size);
             if(it == d_->heap_datas.end())
-                it = (d_->heap_datas.emplace(ret+half_add_size, std::vector<heap_data_t>())).first;
+                it = (d_->heap_datas.emplace(ret + half_add_size, std::vector<heap_data_t>())).first;
 
             auto hd = heap_data;
-            hd.addr = ret+half_add_size;
+            hd.addr = ret + half_add_size;
             it->second.push_back(hd);
 
-            LOG(INFO, "RtlAllocateHeap handle %" PRIx64 ", size : %" PRIx64 " at addr %" PRIx64 ", thread %" PRIx64, HeapHandle, Size, ret+half_add_size, thread_curr->id);
+            LOG(INFO, "RtlAllocateHeap handle %" PRIx64 ", size : %" PRIx64 " at addr %" PRIx64 ", thread %" PRIx64, HeapHandle, Size, ret + half_add_size, thread_curr->id);
             d_->heap_ctxs.erase(saved_it);
         });
 
@@ -217,7 +216,7 @@ bool plugin::FdpSan::setup(proc_t target)
         int i = -1;
         if(it != d_->heap_datas.end())
         {
-            for (const auto& it_v : it->second)
+            for(const auto& it_v : it->second)
             {
                 i++;
                 if(it_v.heap_handle != HeapHandle && it_v.thread_id != thread_curr->id)
@@ -229,17 +228,17 @@ bool plugin::FdpSan::setup(proc_t target)
         }
 
         if(!b)
-            if(!monitor::set_arg_by_index(d_->core_, 2, BaseAddress-half_add_size))
+            if(!monitor::set_arg_by_index(d_->core_, 2, BaseAddress - half_add_size))
                 return 0;
 
         if(i != -1)
             it->second.erase(it->second.begin() + i);
 
-        const auto ok = monitor::set_arg_by_index(d_->core_, 3, Size+add_size);
+        const auto ok = monitor::set_arg_by_index(d_->core_, 3, Size + add_size);
         if(!ok)
             return 0;
 
-        const auto rsp         = d_->core_.regs.read(FDP_RSP_REGISTER);
+        const auto rsp = d_->core_.regs.read(FDP_RSP_REGISTER);
         if(!rsp)
             return 0;
 
@@ -248,13 +247,13 @@ bool plugin::FdpSan::setup(proc_t target)
             return 0;
 
         const auto heap_data = heap_data_t{HeapHandle, 0, Size, thread_curr->id};
-        const auto bp = d_->core_.state.set_breakpoint(*return_addr, d_->target_, *thread_curr, core::FILTER_THREAD, [=]()
+        const auto bp        = d_->core_.state.set_breakpoint(*return_addr, d_->target_, *thread_curr, core::FILTER_THREAD, [=]()
         {
             const auto rip = d_->core_.regs.read(FDP_RIP_REGISTER);
             if(!rip)
                 return;
 
-            auto saved_it = d_->heap_ctxs.end();
+            auto saved_it    = d_->heap_ctxs.end();
             const auto range = d_->heap_ctxs.equal_range(rip);
             for(auto it = range.first; it != range.second; ++it)
             {
@@ -265,26 +264,26 @@ bool plugin::FdpSan::setup(proc_t target)
                 break;
             }
 
-            if (saved_it == d_->heap_ctxs.end())
+            if(saved_it == d_->heap_ctxs.end())
                 return;
 
             const auto ret = d_->core_.regs.read(FDP_RAX_REGISTER);
             if(!ret)
                 return;
 
-            const auto ok_ = monitor::set_return_value(d_->core_, ret+half_add_size);
+            const auto ok_ = monitor::set_return_value(d_->core_, ret + half_add_size);
             if(!ok_)
                 return;
 
-            auto it_ = d_->heap_datas.find(ret+half_add_size);
+            auto it_ = d_->heap_datas.find(ret + half_add_size);
             if(it_ == d_->heap_datas.end())
-                it_ = (d_->heap_datas.emplace(ret+half_add_size, std::vector<heap_data_t>())).first;
+                it_ = (d_->heap_datas.emplace(ret + half_add_size, std::vector<heap_data_t>())).first;
 
             auto hd = heap_data;
-            hd.addr = ret+half_add_size;
+            hd.addr = ret + half_add_size;
             it_->second.push_back(hd);
 
-            LOG(INFO, "RtlReAllocateHeap handleheap %" PRIx64 ", memory pointer %" PRIx64", size : %" PRIx64 " at addr %" PRIx64, HeapHandle, BaseAddress, Size, ret+half_add_size);
+            LOG(INFO, "RtlReAllocateHeap handleheap %" PRIx64 ", memory pointer %" PRIx64 ", size : %" PRIx64 " at addr %" PRIx64, HeapHandle, BaseAddress, Size, ret + half_add_size);
             d_->threads_rellocating.erase(thread_curr->id);
             d_->heap_ctxs.erase(saved_it);
         });
@@ -315,25 +314,25 @@ bool plugin::FdpSan::setup(proc_t target)
         heap_data_t heap_data;
         bool found = false;
         int i = -1;
-        for (const auto& it_v : it->second)
+        for(const auto& it_v : it->second)
         {
             i++;
             if(it_v.heap_handle != HeapHandle && it_v.thread_id != thread_curr->id)
                 continue;
 
             heap_data = it_v;
-            found = true;
+            found     = true;
             break;
         }
 
         if(!found)
             return false;
 
-        const auto ok = monitor::set_arg_by_index(d_->core_, 2, BaseAddress-half_add_size);
+        const auto ok = monitor::set_arg_by_index(d_->core_, 2, BaseAddress - half_add_size);
         if(!ok)
             return false;
 
-        LOG(INFO, "RtlFreeHeap handleheap %" PRIx64 ", size : %" PRIx64" at addr %" PRIx64 ", thread %" PRIx64, HeapHandle, heap_data.size, BaseAddress, thread_curr->id);
+        LOG(INFO, "RtlFreeHeap handleheap %" PRIx64 ", size : %" PRIx64 " at addr %" PRIx64 ", thread %" PRIx64, HeapHandle, heap_data.size, BaseAddress, thread_curr->id);
         it->second.erase(it->second.begin() + i);
 
         return true;
@@ -341,7 +340,6 @@ bool plugin::FdpSan::setup(proc_t target)
 
     d_->heaps_.register_RtlSizeHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress)
     {
-
         UNUSED(Flags);
 
         LOG(INFO, "RtlSizeHeap");
@@ -361,7 +359,7 @@ bool plugin::FdpSan::setup(proc_t target)
             return 0;
 
         bool found = false;
-        for (const auto& it_v : it->second)
+        for(const auto& it_v : it->second)
         {
             if(it_v.heap_handle != HeapHandle && it_v.thread_id != thread_curr->id)
                 continue;
@@ -373,11 +371,11 @@ bool plugin::FdpSan::setup(proc_t target)
         if(!found)
             return 0;
 
-        const auto ok = monitor::set_arg_by_index(d_->core_, 2, BaseAddress-half_add_size);
+        const auto ok = monitor::set_arg_by_index(d_->core_, 2, BaseAddress - half_add_size);
         if(!ok)
             return 0;
 
-        const auto rsp         = d_->core_.regs.read(FDP_RSP_REGISTER);
+        const auto rsp = d_->core_.regs.read(FDP_RSP_REGISTER);
         if(!rsp)
             return 0;
 
@@ -391,7 +389,7 @@ bool plugin::FdpSan::setup(proc_t target)
             if(!rip)
                 return;
 
-            auto saved_it = d_->heap_ctxs.end();
+            auto saved_it    = d_->heap_ctxs.end();
             const auto range = d_->heap_ctxs.equal_range(rip);
             for(auto it = range.first; it != range.second; ++it)
             {
@@ -402,18 +400,18 @@ bool plugin::FdpSan::setup(proc_t target)
                 break;
             }
 
-            if (saved_it == d_->heap_ctxs.end())
+            if(saved_it == d_->heap_ctxs.end())
                 return;
 
             const auto ret = d_->core_.regs.read(FDP_RAX_REGISTER);
             if(!ret)
                 return;
 
-            const auto ok_ = monitor::set_return_value(d_->core_, ret-add_size);
+            const auto ok_ = monitor::set_return_value(d_->core_, ret - add_size);
             if(!ok_)
                 return;
 
-            LOG(INFO, "RtlSizeHeap at addr %" PRIx64 " - returning %" PRIx64, BaseAddress, ret-add_size);
+            LOG(INFO, "RtlSizeHeap at addr %" PRIx64 " - returning %" PRIx64, BaseAddress, ret - add_size);
             d_->heap_ctxs.erase(saved_it);
         });
 
@@ -438,7 +436,7 @@ bool plugin::FdpSan::setup(proc_t target)
             return 0;
 
         bool found = false;
-        for (const auto& it_v : it->second)
+        for(const auto& it_v : it->second)
         {
             if(it_v.heap_handle != HeapHandle && it_v.thread_id != thread_curr->id)
                 continue;
@@ -450,7 +448,7 @@ bool plugin::FdpSan::setup(proc_t target)
         if(!found)
             return 0;
 
-        const auto ok = monitor::set_arg_by_index(d_->core_, 2, BaseAddress-half_add_size);
+        const auto ok = monitor::set_arg_by_index(d_->core_, 2, BaseAddress - half_add_size);
         if(!ok)
             return 0;
 
@@ -476,7 +474,7 @@ bool plugin::FdpSan::setup(proc_t target)
             return 0;
 
         bool found = false;
-        for (const auto& it_v : it->second)
+        for(const auto& it_v : it->second)
         {
             if(it_v.heap_handle != HeapHandle && it_v.thread_id != thread_curr->id)
                 continue;
@@ -488,7 +486,7 @@ bool plugin::FdpSan::setup(proc_t target)
         if(!found)
             return 0;
 
-        const auto ok = monitor::set_arg_by_index(d_->core_, 2, BaseAddress-half_add_size);
+        const auto ok = monitor::set_arg_by_index(d_->core_, 2, BaseAddress - half_add_size);
         if(!ok)
             return 0;
 

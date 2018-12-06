@@ -1,7 +1,7 @@
 #pragma once
 
-#include "types.hpp"
 #include "core.hpp"
+#include "types.hpp"
 #include "utils/pe.hpp"
 
 #include "callstack.hpp"
@@ -21,4 +21,4 @@ namespace plugin
         struct Data;
         std::unique_ptr<Data> d_;
     };
-}
+} // namespace plugin
