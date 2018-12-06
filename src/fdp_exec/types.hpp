@@ -19,10 +19,15 @@ namespace ext = std::experimental;
 namespace fs = std::experimental::filesystem;
 #endif
 
+struct dtb_t
+{
+    uint64_t value;
+};
+
 struct proc_t
 {
     uint64_t id;
-    uint64_t dtb;
+    dtb_t    dtb;
 };
 
 struct thread_t

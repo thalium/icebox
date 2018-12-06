@@ -15,12 +15,22 @@
 #include <unordered_map>
 #include <unordered_set>
 
+bool operator==(dtb_t a, dtb_t b)
+{
+    return a.value == b.value;
+}
+
+bool operator!=(dtb_t a, dtb_t b)
+{
+    return !(a == b);
+}
+
 namespace
 {
     struct Breakpoint
     {
-        opt<uint64_t> dtb;
-        int           id;
+        opt<dtb_t> dtb;
+        int        id;
     };
 
     struct BreakpointObserver
@@ -89,7 +99,6 @@ namespace
             FAIL(false, "unable to get current process & update break state");
 
         d.current = *current;
-        d.core.mem.update(*current);
         return true;
     }
 
@@ -203,7 +212,7 @@ namespace
         if(!ok)
             return;
 
-        const auto dtb   = d.core.regs.read(FDP_CR3_REGISTER);
+        const auto dtb   = dtb_t{d.core.regs.read(FDP_CR3_REGISTER)};
         const auto range = d.breakpoints.observers_.equal_range(phy);
         for(auto it = range.first; it != range.second; ++it)
         {
@@ -249,7 +258,7 @@ bool core::State::wait()
 
 namespace
 {
-    opt<uint64_t> get_dtb_filter(StateData& d, const BreakpointObserver& bp)
+    opt<dtb_t> get_dtb_filter(StateData& d, const BreakpointObserver& bp)
     {
         if(bp.proc)
             return bp.proc->dtb;
@@ -286,7 +295,7 @@ namespace
             dtb = {};
         }
 
-        const auto bpid = FDP_SetBreakpoint(&d.shm, 0, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy, 1, dtb ? *dtb : FDP_NO_CR3);
+        const auto bpid = FDP_SetBreakpoint(&d.shm, 0, FDP_SOFTHBP, 0, FDP_EXECUTE_BP, FDP_PHYSICAL_ADDRESS, phy, 1, dtb ? dtb->value : FDP_NO_CR3);
         if(bpid < 0)
             return -1;
 
@@ -296,7 +305,7 @@ namespace
 
     core::Breakpoint set_breakpoint(StateData& d, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const core::Task& task)
     {
-        const auto dtb = proc ? proc->dtb : d.core.regs.read(FDP_CR3_REGISTER);
+        const auto dtb = proc ? proc->dtb : dtb_t{d.core.regs.read(FDP_CR3_REGISTER)};
         const auto phy = d.core.mem.virtual_to_physical(ptr, dtb);
         if(!phy)
             return nullptr;

@@ -98,11 +98,12 @@ std::unique_ptr<os::IModule> os::make_linux(core::Core& core)
 
 bool OsLinux::proc_list(const on_proc_fn& on_process)
 {
+    const auto proc = core_.os->proc_current();
     const auto head = init_task_addr_ + members_.tasks;
-    for(auto link = core::read_ptr(core_, head); link != head; link = core::read_ptr(core_, *link))
+    for(auto link = core::read_ptr(core_, proc->dtb, head); link != head; link = core::read_ptr(core_, proc->dtb, *link))
     {
         const auto task_struc = *link - members_.tasks;
-        const auto pgd        = core::read_ptr(core_, task_struc + members_.pgd);
+        const auto pgd        = core::read_ptr(core_, proc->dtb, task_struc + members_.pgd);
         if(!pgd)
         {
             LOG(ERROR, "unable to read task_struct.mm_struct.pgd from 0x%" PRIx64 "", task_struc);
@@ -154,7 +155,7 @@ opt<proc_t> OsLinux::proc_find(uint64_t pid)
 opt<std::string> OsLinux::proc_name(proc_t proc)
 {
     char buffer[14 + 1];
-    const auto ok = core_.mem.virtual_read(buffer, proc.id + members_.name, sizeof buffer);
+    const auto ok = core_.mem.read_virtual(buffer, proc.dtb, proc.id + members_.name, sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
         return {};
@@ -169,7 +170,7 @@ opt<std::string> OsLinux::proc_name(proc_t proc)
 uint64_t OsLinux::proc_id(proc_t proc)
 {
     // pid is a uin32_t on linux
-    const auto pid = core::read_le32(core_, proc.id + members_.pid);
+    const auto pid = core::read_le32(core_, proc.dtb, proc.id + members_.pid);
     if(!pid)
         return 0;
 

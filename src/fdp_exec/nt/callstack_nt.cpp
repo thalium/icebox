@@ -112,12 +112,11 @@ namespace
         bool get_callstack(proc_t proc, callstack::context_t context, const callstack::on_callstep_fn& on_callstep) override;
 
         // methods
-        bool                setup                   ();
-        opt<FunctionTable>  get_mod_functiontable   (const std::string& name, const span_t module);
-        opt<FunctionTable>  insert                  (const std::string& name, const span_t module);
-        opt<mod_t>          find_mod                (proc_t proc, uint64_t addr);
-
-        opt<FunctionTable>      parse_exception_dir     (core::Core& core, const void* src, uint64_t mod_base_addr, span_t exception_dir);
+        bool                    setup                   ();
+        opt<FunctionTable>      get_mod_functiontable   (proc_t proc, const std::string& name, const span_t module);
+        opt<FunctionTable>      insert                  (proc_t proc, const std::string& name, const span_t module);
+        opt<mod_t>              find_mod                (proc_t proc, uint64_t addr);
+        opt<FunctionTable>      parse_exception_dir     (proc_t proc, const void* src, uint64_t mod_base_addr, span_t exception_dir);
         const function_entry_t* lookup_function_entry   (uint32_t offset_in_mod, const FunctionEntries& function_entries);
 
         // members
@@ -232,18 +231,18 @@ opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
     return mod;
 }
 
-opt<FunctionTable> CallstackNt::insert(const std::string& name, const span_t span)
+opt<FunctionTable> CallstackNt::insert(proc_t proc, const std::string& name, const span_t span)
 {
-    const auto exception_dir = pe_.get_directory_entry(core_, span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
+    const auto exception_dir = pe_.get_directory_entry(core_, proc.dtb, span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
     if(!exception_dir)
         FAIL({}, "Unable to get span of exception_dir");
 
     std::vector<uint8_t> buffer(exception_dir->size);
-    auto ok = core_.mem.virtual_read(&buffer[0], exception_dir->addr, exception_dir->size);
+    auto ok = core_.mem.read_virtual(&buffer[0], exception_dir->addr, exception_dir->size);
     if(!ok)
         FAIL({}, "unable to read exception dir of %s", name.c_str());
 
-    const auto function_table = parse_exception_dir(core_, &buffer[0], span.addr, *exception_dir);
+    const auto function_table = parse_exception_dir(proc, &buffer[0], span.addr, *exception_dir);
     const auto ret            = exception_dirs_.emplace(name, *function_table);
     if(!ret.second)
         return {};
@@ -251,19 +250,17 @@ opt<FunctionTable> CallstackNt::insert(const std::string& name, const span_t spa
     return function_table;
 }
 
-opt<FunctionTable> CallstackNt::get_mod_functiontable(const std::string& name, const span_t span)
+opt<FunctionTable> CallstackNt::get_mod_functiontable(proc_t proc, const std::string& name, const span_t span)
 {
     const auto it = exception_dirs_.find(name);
     if(it != exception_dirs_.end())
         return it->second;
 
-    return insert(name, span);
+    return insert(proc, name, span);
 }
 
 bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const callstack::on_callstep_fn& on_callstep)
 {
-    const auto proc_ctx = core_.mem.switch_process(proc);
-
     std::vector<uint8_t> buffer;
     size_t max_cs_depth = 150;
     for(size_t i = 0; i < max_cs_depth; ++i)
@@ -279,15 +276,15 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const cal
         // Load PDB
         if(false)
         {
-            const auto debug_dir = pe_.get_directory_entry(core_, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
+            const auto debug_dir = pe_.get_directory_entry(core_, proc.dtb, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
             buffer.resize(debug_dir->size);
-            auto ok = core_.mem.virtual_read(&buffer[0], debug_dir->addr, debug_dir->size);
+            auto ok = core_.mem.read_virtual(&buffer[0], proc.dtb, debug_dir->addr, debug_dir->size);
             if(!ok)
                 return WALK_NEXT;
 
             const auto codeview = pe_.parse_debug_dir(&buffer[0], span->addr, *debug_dir);
             buffer.resize(codeview->size);
-            ok = core_.mem.virtual_read(&buffer[0], codeview->addr, codeview->size);
+            ok = core_.mem.read_virtual(&buffer[0], proc.dtb, codeview->addr, codeview->size);
             if(!ok)
                 FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
 
@@ -295,7 +292,7 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const cal
         }
 
         // Get function table of the module
-        const auto function_table = get_mod_functiontable(*modname, *span);
+        const auto function_table = get_mod_functiontable(proc, *modname, *span);
         if(!function_table)
             FAIL(false, "unable to get function table of %s", modname->c_str());
 
@@ -312,11 +309,11 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const cal
             ctx.rsp = ctx.rbp - function_entry->frame_reg_offset;
 
         if(function_entry->prev_frame_reg != 0)
-            if(const auto rbp_ = core::read_ptr(core_, ctx.rsp + function_entry->prev_frame_reg))
+            if(const auto rbp_ = core::read_ptr(core_, proc.dtb, ctx.rsp + function_entry->prev_frame_reg))
                 ctx.rbp = *rbp_;
 
         const auto caller_addr_on_stack = ctx.rsp + *stack_frame_size;
-        const auto return_addr          = core::read_ptr(core_, caller_addr_on_stack);
+        const auto return_addr          = core::read_ptr(core_, proc.dtb, caller_addr_on_stack);
 
 #ifdef USE_DEBUG_PRINT
         // print stack
@@ -420,7 +417,7 @@ namespace
     }
 }
 
-opt<FunctionTable> CallstackNt::parse_exception_dir(core::Core& core, const void* vsrc, uint64_t mod_base_addr, span_t exception_dir)
+opt<FunctionTable> CallstackNt::parse_exception_dir(proc_t proc, const void* vsrc, uint64_t mod_base_addr, span_t exception_dir)
 {
     const auto src = reinterpret_cast<const uint8_t*>(vsrc);
 
@@ -438,7 +435,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(core::Core& core, const void
 
         UnwindInfo unwind_info;
         const auto to_read = mod_base_addr + unwind_info_ptr;
-        auto ok            = core.mem.virtual_read(unwind_info, to_read, sizeof unwind_info);
+        auto ok            = core_.mem.read_virtual(unwind_info, proc.dtb, to_read, sizeof unwind_info);
         if(!ok)
             FAIL({}, "unable to read unwind info");
 
@@ -462,8 +459,8 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(core::Core& core, const void
             continue;
         }
 
-        std::vector<uint8_t>                                                buffer  (unwind_codes_size);
-        core.mem.virtual_read(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof  (UnwindInfo), unwind_codes_size);
+        std::vector<uint8_t> buffer(unwind_codes_size);
+        core_.mem.read_virtual(&buffer[0], proc.dtb, mod_base_addr + unwind_info_ptr + sizeof unwind_info, unwind_codes_size);
         if(!ok)
             FAIL({}, "unable to read unwind codes");
 

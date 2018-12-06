@@ -3,7 +3,6 @@
 #define PRIVATE_CORE__
 #define FDP_MODULE "mem"
 #include "core.hpp"
-#include "core/helpers.hpp"
 #include "endian.hpp"
 #include "log.hpp"
 #include "mmu.hpp"
@@ -11,8 +10,6 @@
 #include "utils/utils.hpp"
 
 #include <FDP.h>
-#include <algorithm>
-#include <string.h>
 
 struct core::Memory::Data
 {
@@ -20,14 +17,11 @@ struct core::Memory::Data
         : shm(shm)
         , core(core)
     {
-        memset(&current, 0, sizeof current);
     }
 
     // members
-    FDP_SHM&    shm;
-    Core&       core;
-    proc_t      current;
-    opt<proc_t> context;
+    FDP_SHM& shm;
+    Core&    core;
 };
 
 using MemData = core::Memory::Data;
@@ -45,34 +39,6 @@ void core::setup(Memory& mem, FDP_SHM& shm, Core& core)
     mem.d_ = std::make_unique<core::Memory::Data>(shm, core);
 }
 
-struct core::ProcessContextPrivate
-{
-    ProcessContextPrivate(opt<proc_t>& target, proc_t proc)
-        : target_(target) // save reference first
-        , backup_(target)
-    {
-        target_ = proc; // then update it
-    }
-
-    ~ProcessContextPrivate()
-    {
-        target_ = backup_; // restore previous value
-    }
-
-    opt<proc_t>& target_;
-    opt<proc_t>  backup_;
-};
-
-void core::Memory::update(proc_t current)
-{
-    d_->current = current;
-}
-
-core::ProcessContext core::Memory::switch_process(proc_t proc)
-{
-    return std::make_shared<core::ProcessContextPrivate>(d_->context, proc);
-}
-
 namespace
 {
     constexpr uint64_t mask(int bits)
@@ -80,10 +46,10 @@ namespace
         return ~(~uint64_t(0) << bits);
     }
 
-    opt<uint64_t> virtual_to_physical(MemData& m, uint64_t ptr, uint64_t dtb)
+    opt<uint64_t> virtual_to_physical(MemData& m, uint64_t ptr, dtb_t dtb)
     {
         const virt_t virt = {read_le64(&ptr)};
-        const auto pml4e_base = dtb & (mask(40) << 12);
+        const auto pml4e_base = dtb.value & (mask(40) << 12);
         const auto pml4e_ptr  = pml4e_base + virt.u.f.pml4 * 8;
         entry_t pml4e = {0};
         auto ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pml4e), sizeof pml4e, pml4e_ptr);
@@ -141,7 +107,7 @@ namespace
     }
 }
 
-opt<uint64_t> core::Memory::virtual_to_physical(uint64_t ptr, uint64_t dtb)
+opt<uint64_t> core::Memory::virtual_to_physical(uint64_t ptr, dtb_t dtb)
 {
     return ::virtual_to_physical(*d_, ptr, dtb);
 }
@@ -159,102 +125,18 @@ namespace
         return !!(ptr & 0xFFF0000000000000);
     }
 
-    struct Cr3Swap
+    template <typename T>
+    bool read_pages(const char* where, uint8_t* dst, uint64_t src, size_t size, const T& operand)
     {
-        Cr3Swap(MemData& m, proc_t want)
-            : m_(m)
-            , current_(m.current)
-            , want_(want)
-        {
-        }
-
-        bool setup()
-        {
-            if(want_.dtb == current_.dtb)
-                return true;
-
-            const auto ok = m_.core.regs.write(FDP_CR3_REGISTER, want_.dtb);
-            if(!ok)
-                LOG(ERROR, "unable to set CR3 to %" PRIx64 " for context swap", want_.dtb);
-
-            return true;
-        }
-
-        ~Cr3Swap()
-        {
-            if(want_.dtb == current_.dtb)
-                return;
-
-            const auto ok = m_.core.regs.write(FDP_CR3_REGISTER, current_.dtb);
-            if(!ok)
-                LOG(ERROR, "unable to restore CR3 to %" PRIx64 " from %" PRIx64, current_.dtb, want_.dtb);
-        }
-
-        MemData& m_;
-        proc_t   current_;
-        proc_t   want_;
-    };
-
-    opt<Cr3Swap> swap_context(MemData& m, proc_t want)
-    {
-        Cr3Swap swap(m, want);
-        const auto ok = swap.setup();
-        if(!ok)
-            return {};
-
-        return swap;
-    }
-
-    bool read_virtual_from_proc(MemData& m, uint8_t* dst, uint64_t src, uint32_t size, proc_t proc)
-    {
-        const auto swap = swap_context(m, proc);
-        if(!swap)
-            return false;
-
-        return FDP_ReadVirtualMemory(&m.shm, 0, dst, size, src);
-    }
-
-    bool try_read_virtual_page(MemData& m, uint8_t* dst, uint64_t src, uint32_t size, proc_t proc, bool user_mode)
-    {
-        const auto read = read_virtual_from_proc(m, dst, src, size, proc);
-        if(read)
-            return true;
-
-        const auto rip  = m.core.regs.read(FDP_RIP_REGISTER);
-        const auto swap = swap_context(m, proc);
-        if(!swap)
-            FAIL(false, "unable to swap context");
-
-        const auto code     = user_mode ? 1 << 2 : 0;
-        const auto injected = FDP_InjectInterrupt(&m.shm, 0, PAGE_FAULT, code, src);
-        if(!injected)
-            FAIL(false, "unable to inject page fault");
-
-        m.core.state.run_to(proc, rip);
-        const auto ok = FDP_ReadVirtualMemory(&m.shm, 0, dst, size, src);
-        return ok;
-    }
-
-    bool try_read_virtual_only(MemData& d, uint8_t* dst, uint64_t src, uint32_t size)
-    {
-        const auto proc = d.context ? *d.context : d.current;
-        const auto full = read_virtual_from_proc(d, dst, src, size, proc);
-        if(full)
-            return true;
-
-        const auto user_mode = is_user_mode(d);
-        if(!user_mode || is_kernel_page(src))
-            return false;
-
         uint8_t buffer[PAGE_SIZE];
         size_t fill = 0;
         auto ptr = utils::align<PAGE_SIZE>(src);
         size_t skip = src - ptr;
         while(fill < size)
         {
-            const auto ok = try_read_virtual_page(d, buffer, ptr, sizeof buffer, proc, user_mode);
+            const auto ok = operand(buffer, ptr, sizeof buffer);
             if(!ok)
-                FAIL(false, "unable to read virtual mem 0x%" PRIx64 "-0x%" PRIx64 " (%zd 0x%zx bytes)", ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
+                FAIL(false, "unable to read %s mem 0x%" PRIx64 "-0x%" PRIx64 " (%zd 0x%zx bytes)", where, ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
 
             const auto chunk = std::min(size - fill, sizeof buffer - skip);
             memcpy(&dst[fill], &buffer[skip], chunk);
@@ -262,14 +144,72 @@ namespace
             skip = 0;
             ptr += sizeof buffer;
         }
-
         return true;
+    }
+
+    bool inject_page_fault(MemData& d, dtb_t dtb, uint64_t src, bool user_mode)
+    {
+        const auto rip      = d.core.regs.read(FDP_RIP_REGISTER);
+        const auto code     = user_mode ? 1 << 2 : 0;
+        const auto injected = FDP_InjectInterrupt(&d.shm, 0, PAGE_FAULT, code, src);
+        if(!injected)
+            FAIL(false, "unable to inject page fault");
+
+        d.core.state.run_to({0, dtb.value}, rip);
+        return true;
+    }
+
+    bool read_virtual(MemData& d, uint8_t* dst, dtb_t dtb, uint64_t src, uint32_t size)
+    {
+        const auto full = FDP_ReadVirtualMemory(&d.shm, 0, dst, size, src);
+        if(full)
+            return true;
+
+        const auto user_mode = is_user_mode(d);
+        if(!user_mode || is_kernel_page(src))
+            return false;
+
+        return read_pages("virtual", dst, src, size, [&](uint8_t* pgdst, uint64_t pgsrc, uint32_t pgsize)
+        {
+            const auto ok = inject_page_fault(d, dtb, pgsrc, user_mode);
+            if(!ok)
+                return false;
+
+            return FDP_ReadVirtualMemory(&d.shm, 0, pgdst, pgsize, pgsrc);
+        });
+    }
+
+    bool read_physical(MemData& d, uint8_t* dst, uint64_t src, size_t size)
+    {
+        return read_pages("physical", dst, src, size, [&](uint8_t* pgdst, uint64_t pgsrc, uint32_t pgsize)
+        {
+            return FDP_ReadPhysicalMemory(&d.shm, pgdst, pgsize, pgsrc);
+        });
     }
 }
 
-bool core::Memory::virtual_read(void* vdst, uint64_t src, size_t size)
+bool core::Memory::read_virtual(void* vdst, uint64_t src, size_t size)
 {
     const auto dst   = reinterpret_cast<uint8_t*>(vdst);
     const auto usize = static_cast<uint32_t>(size);
-    return try_read_virtual_only(*d_, dst, src, usize);
+    const auto dtb   = dtb_t{d_->core.regs.read(FDP_CR3_REGISTER)};
+    return ::read_virtual(*d_, dst, dtb, src, usize);
+}
+
+bool core::Memory::read_virtual(void* vdst, dtb_t dtb, uint64_t src, size_t size)
+{
+    const auto dst    = reinterpret_cast<uint8_t*>(vdst);
+    const auto usize  = static_cast<uint32_t>(size);
+    const auto backup = d_->core.regs.read(FDP_CR3_REGISTER);
+    d_->core.regs.write(FDP_CR3_REGISTER, dtb.value);
+    const auto ok = ::read_virtual(*d_, dst, dtb, src, usize);
+    d_->core.regs.write(FDP_CR3_REGISTER, backup);
+    return ok;
+}
+
+bool core::Memory::read_physical(void* vdst, uint64_t src, size_t size)
+{
+    const auto dst   = reinterpret_cast<uint8_t*>(vdst);
+    const auto usize = static_cast<uint32_t>(size);
+    return ::read_physical(*d_, dst, src, size);
 }

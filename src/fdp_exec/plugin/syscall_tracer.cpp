@@ -165,7 +165,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
             FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffsetm, Key);
 
         std::vector<char> buf(Length);
-        auto ok = d_->core_.mem.virtual_read(&buf[0], Buffer, Length);
+        auto ok = d_->core_.mem.read_virtual(&buf[0], Buffer, Length);
         buf[Length - 1] = 0;
         if(!ok)
             return 1;

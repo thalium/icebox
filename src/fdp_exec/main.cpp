@@ -26,7 +26,7 @@ namespace
         });
 
         const auto pc = core.os->proc_current();
-        LOG(INFO, "current process: %" PRIx64 " dtb: %" PRIx64 " %s", pc->id, pc->dtb, core.os->proc_name(*pc)->data());
+        LOG(INFO, "current process: %" PRIx64 " dtb: %" PRIx64 " %s", pc->id, pc->dtb.value, core.os->proc_name(*pc)->data());
 
         const auto tc = core.os->thread_current();
         LOG(INFO, "current thread: %" PRIx64 "", tc->id);
@@ -45,7 +45,7 @@ namespace
         if(!target)
             return false;
 
-        LOG(INFO, "%s: %" PRIx64 " dtb: %" PRIx64 " %s", proc_target, target->id, target->dtb, core.os->proc_name(*target)->data());
+        LOG(INFO, "%s: %" PRIx64 " dtb: %" PRIx64 " %s", proc_target, target->id, target->dtb.value, core.os->proc_name(*target)->data());
         const auto join = core.state.proc_join(*target, core::JOIN_USER_MODE);
         if(!join)
             return false;
@@ -68,15 +68,15 @@ namespace
             LOG(INFO, "module[%03zd/%03zd] %s: 0x%" PRIx64 " 0x%zx", modi, modcount, name->data(), span->addr, span->size);
             ++modi;
 
-            const auto debug_dir = pe.get_directory_entry(core, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
+            const auto debug_dir = pe.get_directory_entry(core, target->dtb, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
             buffer.resize(debug_dir->size);
-            auto ok = core.mem.virtual_read(&buffer[0], debug_dir->addr, debug_dir->size);
+            auto ok = core.mem.read_virtual(&buffer[0], target->dtb, debug_dir->addr, debug_dir->size);
             if(!ok)
                 return WALK_NEXT;
 
             const auto codeview = pe.parse_debug_dir(&buffer[0], span->addr, *debug_dir);
             buffer.resize(codeview->size);
-            ok = core.mem.virtual_read(&buffer[0], codeview->addr, codeview->size);
+            ok = core.mem.read_virtual(&buffer[0], target->dtb, codeview->addr, codeview->size);
             if(!ok)
                 FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
 

@@ -94,24 +94,23 @@ bool pe::Pe::setup(core::Core& core)
     return true;
 }
 
-opt<span_t> pe::Pe::get_directory_entry(core::Core& core, const span_t span, const pe_directory_entries_e directory_entry_id)
+opt<span_t> pe::Pe::get_directory_entry(core::Core& core, dtb_t dtb, const span_t span, const pe_directory_entries_e directory_entry_id)
 {
     static const auto e_lfanew_offset = 0x3C;
-    const auto e_lfanew = core::read_le32(core, span.addr + e_lfanew_offset);
+    const auto e_lfanew = core::read_le32(core, dtb, span.addr + e_lfanew_offset);
     if(!e_lfanew)
         FAIL({}, "unable to read e_lfanew");
 
     const auto image_nt_header       = span.addr + *e_lfanew; // IMAGE_NT_HEADER
     const auto image_optional_header = image_nt_header + d_->members_pe_[IMAGE_NT_HEADERS64_OptionalHeader];
 
-    const auto size_image_data_directory = 0x08;
-    const auto data_directory            = image_optional_header + d_->members_pe_[IMAGE_OPTIONAL_HEADER_DataDirectory]
-                                + size_image_data_directory * directory_entry_id;
-    const auto data_directory_virtual_address = core::read_le32(core, data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_VirtualAddress]);
+    const auto size_image_data_directory      = 0x08;
+    const auto data_directory                 = image_optional_header + d_->members_pe_[IMAGE_OPTIONAL_HEADER_DataDirectory] + size_image_data_directory * directory_entry_id;
+    const auto data_directory_virtual_address = core::read_le32(core, dtb, data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_VirtualAddress]);
     if(!data_directory_virtual_address)
         FAIL({}, "unable to read DataDirectory.VirtualAddress");
 
-    const auto data_directory_size = core::read_le32(core, data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_Size]);
+    const auto data_directory_size = core::read_le32(core, dtb, data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_Size]);
     if(!data_directory_size)
         FAIL({}, "unable to read DataDirectory.Size");
 
