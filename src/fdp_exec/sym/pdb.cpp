@@ -11,6 +11,10 @@
 #include "pdbparser.hpp"
 namespace pdb = retdec::pdbparser;
 
+#ifdef _MSC_VER
+#    define stricmp _stricmp
+#endif
+
 namespace
 {
     static const int BASE_ADDRESS = 0x80000000;
@@ -150,7 +154,7 @@ opt<uint64_t> Pdb::struc_offset(const std::string& struc, const std::string& mem
         return {};
 
     for(const auto& m : stype->struct_members)
-        if(member == m->name)
+        if(!stricmp(member.data(), m->name))
             return m->offset;
 
     return {};
