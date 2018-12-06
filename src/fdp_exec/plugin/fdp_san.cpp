@@ -103,8 +103,8 @@ bool plugin::FdpSan::setup(proc_t target)
 {
     d_->target_ = target;
 
-    d_->threads_rellocating = std::unordered_set<uint64_t>({});
-    d_->threads_allocating  = std::unordered_set<uint64_t>({});
+    d_->threads_rellocating.clear();
+    d_->threads_allocating.clear();
 
     d_->callstack_ = callstack::make_callstack_nt(d_->core_, d_->pe_);
     if(!d_->callstack_)
