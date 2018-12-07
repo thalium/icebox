@@ -42,6 +42,9 @@ namespace
         bool                proc_is_valid   (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
         opt<bool>           proc_is_wow64   (proc_t proc) override;
+        void                proc_join       (proc_t proc, os::join_e join) override;
+        opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
+        opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
 
         bool            thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
         opt<thread_t>   thread_current  () override;
@@ -184,6 +187,20 @@ bool OsLinux::proc_is_valid(proc_t /*proc*/)
 }
 
 opt<bool> OsLinux::proc_is_wow64(proc_t /*proc*/)
+{
+    return {};
+}
+
+void OsLinux::proc_join(proc_t /*proc*/, os::join_e /*join*/)
+{
+}
+
+opt<phy_t> OsLinux::proc_resolve(proc_t /*proc*/, uint64_t /*ptr*/)
+{
+    return {};
+}
+
+opt<proc_t> OsLinux::proc_select(proc_t /*proc*/, uint64_t /*ptr*/)
 {
     return {};
 }

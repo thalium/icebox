@@ -97,7 +97,7 @@ namespace
         {
             auto cursor = core.sym.find(it.first);
             if(!cursor)
-                cursor = sym::Cursor{"NoMod", "nosymbol>", it.first};
+                cursor = sym::Cursor{"_", "_>", it.first};
 
             calltree[sym::to_string(*cursor).data()] = create_calltree(core, it.second, args, target, callsteps);
         }
@@ -127,7 +127,7 @@ namespace
             {
                 auto cursor = d.core_.sym.find(cstep.addr);
                 if(!cursor)
-                    cursor = sym::Cursor{"NoMod", "<nosymbol>", cstep.addr};
+                    cursor = sym::Cursor{"_", "_", cstep.addr};
 
                 LOG(INFO, "%" PRId64 " - %s", cs_size, sym::to_string(*cursor).data());
             }
@@ -161,7 +161,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
                                                    nt::PIO_STATUS_BLOCK IoStatusBlock, nt::PVOID Buffer, nt::ULONG Length,
                                                    nt::PLARGE_INTEGER ByteOffsetm, nt::PULONG Key)
     {
-        LOG(INFO, "NtWriteFile : %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64,
+        LOG(INFO, "NtWriteFile : %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx32 " - %" PRIx64 " - %" PRIx64,
             FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffsetm, Key);
 
         std::vector<char> buf(Length);
@@ -199,7 +199,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
                                                              nt::PVOID InputBuffer, nt::ULONG InputBufferLength, nt::PVOID OutputBuffer,
                                                              nt::ULONG OutputBufferLength)
     {
-        LOG(INFO, " NtDeviceIoControlFile : %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64,
+        LOG(INFO, " NtDeviceIoControlFile : %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx32 " - %" PRIx64 " - %" PRIx32 " - %" PRIx64 " - %" PRIx32,
             FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
         return 0;
     });

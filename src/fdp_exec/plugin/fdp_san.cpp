@@ -86,7 +86,7 @@ namespace
         {
             auto cursor = d.core_.sym.find(cstep.addr);
             if(!cursor)
-                cursor = sym::Cursor{"NoMod", "<nosymbol>", cstep.addr};
+                cursor = sym::Cursor{"_", "_", cstep.addr};
 
             LOG(INFO, "% 3" PRId64 " - %" PRIx64 "- %s", cs_size, cstep.addr, sym::to_string(*cursor).data());
 

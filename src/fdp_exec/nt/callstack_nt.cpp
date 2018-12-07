@@ -238,7 +238,7 @@ opt<FunctionTable> CallstackNt::insert(proc_t proc, const std::string& name, con
         FAIL({}, "Unable to get span of exception_dir");
 
     std::vector<uint8_t> buffer(exception_dir->size);
-    auto ok = core_.mem.read_virtual(&buffer[0], exception_dir->addr, exception_dir->size);
+    auto ok = core_.mem.read_virtual(&buffer[0], proc.dtb, exception_dir->addr, exception_dir->size);
     if(!ok)
         FAIL({}, "unable to read exception dir of %s", name.c_str());
 

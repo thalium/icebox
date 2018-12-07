@@ -46,10 +46,10 @@ namespace
         return ~(~uint64_t(0) << bits);
     }
 
-    opt<uint64_t> virtual_to_physical(MemData& m, uint64_t ptr, dtb_t dtb)
+    opt<phy_t> slow_virtual_to_physical(MemData& m, uint64_t ptr, dtb_t dtb)
     {
         const virt_t virt = {read_le64(&ptr)};
-        const auto pml4e_base = dtb.value & (mask(40) << 12);
+        const auto pml4e_base = dtb.val & (mask(40) << 12);
         const auto pml4e_ptr  = pml4e_base + virt.u.f.pml4 * 8;
         entry_t pml4e = {0};
         auto ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pml4e), sizeof pml4e, pml4e_ptr);
@@ -73,7 +73,7 @@ namespace
         {
             const auto offset = ptr & mask(30);
             const auto phy    = (pdpe.u.value & (mask(22) << 30)) + offset;
-            return phy;
+            return phy_t{phy};
         }
 
         const auto pde_ptr = pdpe.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pd * 8;
@@ -90,7 +90,7 @@ namespace
         {
             const auto offset = ptr & mask(21);
             const auto phy    = (pde.u.value & (mask(31) << 21)) + offset;
-            return phy;
+            return phy_t{phy};
         }
 
         const auto pte_ptr = pde.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pt * 8;
@@ -103,13 +103,33 @@ namespace
             return {};
 
         const auto phy = pte.u.f.page_frame_number * PAGE_SIZE + virt.u.f.offset;
+        return phy_t{phy};
+    }
+
+    opt<phy_t> fast_virtual_to_physical(MemData& d, uint64_t ptr, dtb_t dtb)
+    {
+        const auto backup = d.core.regs.read(FDP_CR3_REGISTER);
+        d.core.regs.write(FDP_CR3_REGISTER, dtb.val);
+        phy_t phy;
+        const auto ok = FDP_VirtualToPhysical(&d.shm, 0, ptr, &phy.val);
+        d.core.regs.write(FDP_CR3_REGISTER, backup);
+        if(!ok)
+            return {};
+
         return phy;
     }
 }
 
-opt<uint64_t> core::Memory::virtual_to_physical(uint64_t ptr, dtb_t dtb)
+opt<phy_t> core::Memory::virtual_to_physical(uint64_t ptr, dtb_t dtb)
 {
-    return ::virtual_to_physical(*d_, ptr, dtb);
+    const auto ret = fast_virtual_to_physical(*d_, ptr, dtb);
+    if(!ret)
+        return {};
+
+    if(ret->val)
+        return ret;
+
+    return slow_virtual_to_physical(*d_, ptr, dtb);
 }
 
 namespace
@@ -155,7 +175,7 @@ namespace
         if(!injected)
             FAIL(false, "unable to inject page fault");
 
-        d.core.state.run_to({0, dtb.value}, rip);
+        d.core.state.run_to(dtb, rip);
         return true;
     }
 
@@ -201,7 +221,7 @@ bool core::Memory::read_virtual(void* vdst, dtb_t dtb, uint64_t src, size_t size
     const auto dst    = reinterpret_cast<uint8_t*>(vdst);
     const auto usize  = static_cast<uint32_t>(size);
     const auto backup = d_->core.regs.read(FDP_CR3_REGISTER);
-    d_->core.regs.write(FDP_CR3_REGISTER, dtb.value);
+    d_->core.regs.write(FDP_CR3_REGISTER, dtb.val);
     const auto ok = ::read_virtual(*d_, dst, dtb, src, usize);
     d_->core.regs.write(FDP_CR3_REGISTER, backup);
     return ok;

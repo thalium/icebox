@@ -10,6 +10,12 @@ namespace core { struct Core; }
 
 namespace os
 {
+    enum join_e
+    {
+        JOIN_ANY_MODE,
+        JOIN_USER_MODE
+    };
+
     struct IModule
     {
         virtual ~IModule() = default;
@@ -27,6 +33,9 @@ namespace os
         virtual bool                proc_is_valid   (proc_t proc) = 0;
         virtual uint64_t            proc_id         (proc_t proc) = 0;
         virtual opt<bool>           proc_is_wow64   (proc_t proc) = 0;
+        virtual void                proc_join       (proc_t proc, join_e join) = 0;
+        virtual opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) = 0;
+        virtual opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) = 0;
 
         virtual bool            thread_list     (proc_t proc, const on_thread_fn& on_thread) = 0;
         virtual opt<thread_t>   thread_current  () = 0;

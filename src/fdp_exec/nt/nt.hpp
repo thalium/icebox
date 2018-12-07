@@ -32,7 +32,7 @@ namespace nt
     using KTMOBJECT_TYPE                       = uint64_t;
     using LANGID                               = uint64_t;
     using LCID                                 = uint64_t;
-    using LONG                                 = uint64_t;
+    using LONG                                 = uint32_t;
     using LPGUID                               = uint64_t;
     using MEMORY_INFORMATION_CLASS             = uint64_t;
     using MEMORY_RESERVE_TYPE                  = uint64_t;
@@ -136,9 +136,9 @@ namespace nt
     using TOKEN_TYPE                           = uint64_t;
     using TRANSACTIONMANAGER_INFORMATION_CLASS = uint64_t;
     using TRANSACTION_INFORMATION_CLASS        = uint64_t;
-    using ULONG                                = uint64_t;
+    using ULONG                                = uint32_t;
     using ULONG_PTR                            = uint64_t;
-    using USHORT                               = uint64_t;
+    using USHORT                               = uint16_t;
     using VDMSERVICECLASS                      = uint64_t;
     using VOID                                 = uint64_t;
     using WAIT_TYPE                            = uint64_t;
@@ -150,7 +150,7 @@ namespace nt
     constexpr T cast_to(arg_t src)
     {
         T value = 0;
-        static_assert(sizeof value == sizeof src.val, "invalid size");
+        static_assert(sizeof value <= sizeof src.val, "invalid size");
         memcpy(&value, &src.val, sizeof value);
         return value;
     };

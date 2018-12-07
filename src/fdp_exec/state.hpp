@@ -14,12 +14,6 @@ namespace core
     // generic functor object
     using Task = std::function<void(void)>;
 
-    enum join_e
-    {
-        JOIN_ANY_MODE,
-        JOIN_USER_MODE
-    };
-
     struct State
     {
          State();
@@ -31,8 +25,9 @@ namespace core
         Breakpoint  set_breakpoint  (uint64_t ptr, const Task& task);
         Breakpoint  set_breakpoint  (uint64_t ptr, proc_t proc, const Task& task);
         Breakpoint  set_breakpoint  (uint64_t ptr, thread_t thread, const Task& task);
-        bool        proc_join       (proc_t proc, join_e join);
+        void        run_to          (proc_t proc);
         void        run_to          (proc_t proc, uint64_t ptr);
+        void        run_to          (dtb_t dtb, uint64_t ptr);
 
         // private data
         struct Data;

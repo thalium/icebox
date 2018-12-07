@@ -26,7 +26,7 @@ namespace
         });
 
         const auto pc = core.os->proc_current();
-        LOG(INFO, "current process: %" PRIx64 " dtb: %" PRIx64 " %s", pc->id, pc->dtb.value, core.os->proc_name(*pc)->data());
+        LOG(INFO, "current process: %" PRIx64 " dtb: %" PRIx64 " %s", pc->id, pc->dtb.val, core.os->proc_name(*pc)->data());
 
         const auto tc = core.os->thread_current();
         LOG(INFO, "current thread: %" PRIx64 "", tc->id);
@@ -45,10 +45,9 @@ namespace
         if(!target)
             return false;
 
-        LOG(INFO, "%s: %" PRIx64 " dtb: %" PRIx64 " %s", proc_target, target->id, target->dtb.value, core.os->proc_name(*target)->data());
-        const auto join = core.state.proc_join(*target, core::JOIN_USER_MODE);
-        if(!join)
-            return false;
+        LOG(INFO, "%s: %" PRIx64 " dtb: %" PRIx64 " %s", proc_target, target->id, target->dtb.val, core.os->proc_name(*target)->data());
+        core.os->proc_join(*target, os::JOIN_ANY_MODE);
+        core.os->proc_join(*target, os::JOIN_USER_MODE);
 
         std::vector<uint8_t> buffer;
         size_t modcount = 0;
@@ -124,41 +123,43 @@ namespace
         }
 
         // test callstack
+        do
         {
-            const auto callstack    = callstack::make_callstack_nt(core, pe);
-            const auto n_trigger_bp = 3;
-            const auto cs_depth     = 40;
-            const auto pdb_name     = "ntdll";
-            const auto func_name    = "RtlAllocateHeap";
-            const auto func_addr    = core.sym.symbol(pdb_name, func_name);
+            const auto callstack = callstack::make_callstack_nt(core, pe);
+            const auto cs_depth  = 40;
+            const auto pdb_name  = "ntdll";
+            const auto func_name = "RtlAllocateHeap";
+            const auto func_addr = core.sym.symbol(pdb_name, func_name);
             LOG(INFO, "%s = 0x%" PRIx64, func_name, func_addr ? *func_addr : 0);
 
-            const auto bp = core.state.set_breakpoint(*func_addr, *target, {});
-            for(size_t i = 0; i < n_trigger_bp; ++i)
+            const auto bp = core.state.set_breakpoint(*func_addr, *target, [&]
             {
-                core.state.resume();
-                core.state.wait();
                 const auto rip = core.regs.read(FDP_RIP_REGISTER);
                 const auto rsp = core.regs.read(FDP_RSP_REGISTER);
                 const auto rbp = core.regs.read(FDP_RBP_REGISTER);
+
                 int k = 0;
                 callstack->get_callstack(*target, {rip, rsp, rbp}, [&](callstack::callstep_t callstep)
                 {
                     auto cursor = core.sym.find(callstep.addr);
                     if(!cursor)
-                        cursor = sym::Cursor{"NoMod", "nosymbol", callstep.addr};
+                        cursor = sym::Cursor{"_", "_", callstep.addr};
 
-                    LOG(INFO, "%" PRId32 " - %s", k, sym::to_string(*cursor).data());
+                    LOG(INFO, "%3" PRId32 " - %s", k, sym::to_string(*cursor).data());
                     k++;
                     if(k >= cs_depth)
-                    {
                         return WALK_STOP;
-                    }
+
                     return WALK_NEXT;
                 });
                 LOG(INFO, "");
+            });
+            for(size_t i = 0; i < 3; ++i)
+            {
+                core.state.resume();
+                core.state.wait();
             }
-        }
+        } while(0);
 
         // test syscall plugin
         {

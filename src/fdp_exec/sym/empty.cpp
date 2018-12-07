@@ -45,7 +45,7 @@ opt<uint64_t> EmptyMod::symbol(const std::string& /*symbol*/)
 
 bool EmptyMod::sym_list(const sym::on_sym_fn& on_sym)
 {
-    on_sym("nosymbol", span_.addr);
+    on_sym("_", span_.addr);
     return false;
 }
 
@@ -62,7 +62,7 @@ opt<size_t> EmptyMod::struc_size(const std::string& /*struc*/)
 opt<sym::ModCursor> EmptyMod::symbol(uint64_t addr)
 {
     if(span_.addr <= addr && addr < span_.addr + span_.size)
-        return sym::ModCursor{"nosymbol", addr - span_.addr};
+        return sym::ModCursor{"_", addr - span_.addr};
 
     return {};
 }

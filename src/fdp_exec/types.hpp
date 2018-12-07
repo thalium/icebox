@@ -21,7 +21,12 @@ namespace fs = std::experimental::filesystem;
 
 struct dtb_t
 {
-    uint64_t value;
+    uint64_t val;
+};
+
+struct phy_t
+{
+    uint64_t val;
 };
 
 struct proc_t

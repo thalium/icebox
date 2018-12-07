@@ -33,6 +33,7 @@ namespace
         KPRCB_CurrentThread,
         KPRCB_KernelDirectoryTableBase,
         KPROCESS_DirectoryTableBase,
+        KPROCESS_UserDirectoryTableBase,
         KTHREAD_Process,
         KTHREAD_TrapFrame,
         KTRAP_FRAME_Rip,
@@ -77,6 +78,7 @@ namespace
         {KPRCB_CurrentThread,                           "nt", "_KPRCB",                           "CurrentThread"},
         {KPRCB_KernelDirectoryTableBase,                "nt", "_KPRCB",                           "KernelDirectoryTableBase"},
         {KPROCESS_DirectoryTableBase,                   "nt", "_KPROCESS",                        "DirectoryTableBase"},
+        {KPROCESS_UserDirectoryTableBase,               "nt", "_KPROCESS",                        "UserDirectoryTableBase"},
         {KTHREAD_Process,                               "nt", "_KTHREAD",                         "Process"},
         {KTHREAD_TrapFrame,                             "nt", "_KTHREAD",                         "TrapFrame"},
         {KTRAP_FRAME_Rip,                               "nt", "_KTRAP_FRAME",                     "Rip"},
@@ -96,6 +98,7 @@ namespace
 
     enum symbol_offset_e
     {
+        KiKernelSysretExit,
         KiSystemCall64,
         PsActiveProcessHead,
         PsInitialSystemProcess,
@@ -112,6 +115,7 @@ namespace
     // clang-format off
     const SymbolOffset g_symbol_offsets[] =
     {
+        {KiKernelSysretExit,        "nt", "KiKernelSysretExit"},
         {KiSystemCall64,            "nt", "KiSystemCall64"},
         {PsActiveProcessHead,       "nt", "PsActiveProcessHead"},
         {PsInitialSystemProcess,    "nt", "PsInitialSystemProcess"},
@@ -140,6 +144,9 @@ namespace
         bool                proc_is_valid   (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
         opt<bool>           proc_is_wow64   (proc_t proc) override;
+        void                proc_join       (proc_t proc, os::join_e join) override;
+        opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
+        opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
 
         bool            thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
         opt<thread_t>   thread_current  () override;
@@ -254,7 +261,8 @@ bool OsNt::setup()
     if(!kdtb)
         FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
 
-    kdtb_.value = *kdtb;
+    kdtb_ = dtb_t{*kdtb};
+    LOG(WARNING, "kernel: kpcr: %llx kdtb: %llx", kpcr_, kdtb_.val);
     return true;
 }
 
@@ -277,7 +285,7 @@ bool OsNt::proc_list(const on_proc_fn& on_process)
     for(auto link = core::read_ptr(core_, kdtb_, head); link != head; link = core::read_ptr(core_, kdtb_, *link))
     {
         const auto eproc = *link - members_[EPROCESS_ActiveProcessLinks];
-        const auto dtb   = core::read_ptr(core_, kdtb_, eproc + members_[EPROCESS_Pcb] + members_[KPROCESS_DirectoryTableBase]);
+        const auto dtb   = core::read_ptr(core_, kdtb_, eproc + members_[EPROCESS_Pcb] + members_[KPROCESS_UserDirectoryTableBase]);
         if(!dtb)
         {
             LOG(ERROR, "unable to read KPROCESS.DirectoryTableBase from 0x%" PRIx64 "", eproc);
@@ -289,18 +297,6 @@ bool OsNt::proc_list(const on_proc_fn& on_process)
             break;
     }
     return true;
-}
-
-namespace
-{
-    opt<uint64_t> read_gs_base(core::Core& core)
-    {
-        auto gs = core.regs.read(MSR_GS_BASE);
-        if(gs & 0xFFF0000000000000)
-            return gs;
-
-        return core.regs.read(MSR_KERNEL_GS_BASE);
-    }
 }
 
 opt<proc_t> OsNt::proc_current()
@@ -548,12 +544,12 @@ opt<proc_t> OsNt::thread_proc(thread_t thread)
     if(!kproc)
         FAIL({}, "unable to read KTHREAD.Process");
 
-    const auto dtb = core::read_ptr(core_, kdtb_, *kproc + members_[KPROCESS_DirectoryTableBase]);
+    const auto dtb = core::read_ptr(core_, kdtb_, *kproc + members_[KPROCESS_UserDirectoryTableBase]);
     if(!dtb)
         FAIL({}, "unable to read KPROCESS.DirectoryTableBase");
 
     const auto eproc = *kproc - members_[EPROCESS_Pcb];
-    return proc_t{eproc, {*dtb}};
+    return proc_t{eproc, dtb_t{*dtb}};
 }
 
 opt<uint64_t> OsNt::thread_pc(proc_t /*proc*/, thread_t thread)
@@ -583,6 +579,51 @@ uint64_t OsNt::thread_id(proc_t /*proc*/, thread_t thread)
 
 namespace
 {
+    void proc_join_kernel(OsNt& os, proc_t proc)
+    {
+        os.core_.state.run_to(proc);
+    }
+
+    void proc_join_user(OsNt& os, proc_t proc)
+    {
+        const auto sysexit = os.symbols_[KiKernelSysretExit];
+        os.core_.state.run_to(proc, sysexit);
+        const auto rip = os.core_.regs.read(FDP_RCX_REGISTER);
+        os.core_.state.run_to(proc, rip);
+    }
+}
+
+void OsNt::proc_join(proc_t proc, os::join_e join)
+{
+    if(join == os::JOIN_ANY_MODE)
+        return proc_join_kernel(*this, proc);
+
+    return proc_join_user(*this, proc);
+}
+
+opt<phy_t> OsNt::proc_resolve(proc_t proc, uint64_t ptr)
+{
+    const auto phy = core_.mem.virtual_to_physical(ptr, proc.dtb);
+    if(phy)
+        return phy;
+
+    return core_.mem.virtual_to_physical(ptr, kdtb_);
+}
+
+opt<proc_t> OsNt::proc_select(proc_t proc, uint64_t ptr)
+{
+    if(!(ptr & 0xFFF0000000000000))
+        return proc;
+
+    const auto kdtb = core::read_ptr(core_, kdtb_, proc.id + members_[EPROCESS_Pcb] + members_[KPROCESS_DirectoryTableBase]);
+    if(!kdtb)
+        return {};
+
+    return proc_t{proc.id, dtb_t{*kdtb}};
+}
+
+namespace
+{
     const char* irql_to_text(uint8_t value)
     {
         switch(value)
@@ -602,26 +643,26 @@ namespace
     std::string to_hex(uint64_t x)
     {
         char buf[sizeof x * 2 + 1];
-        return hex::convert<hex::LowerCase>(buf, x);
+        return hex::convert<hex::LowerCase | hex::RemovePadding>(buf, x);
     }
 }
 
 void OsNt::debug_print()
 {
-#ifndef USE_DEBUG_PRINT
     if(true)
         return;
-#endif
-
     const auto irql   = core::read_byte(core_, kdtb_, kpcr_ + members_[KPCR_Irql]);
     const auto cs     = core_.regs.read(FDP_CS_REGISTER);
     const auto rip    = core_.regs.read(FDP_RIP_REGISTER);
+    const auto cr3    = core_.regs.read(FDP_CR3_REGISTER);
     const auto ripcur = core_.sym.find(rip);
     const auto ripsym = ripcur ? sym::to_string(*ripcur) : "";
     const auto thread = thread_current();
     const auto proc   = thread_proc(*thread);
     const auto name   = proc_name(*proc);
     const auto dump   = "rip: " + to_hex(rip)
+                      + " cr3:" + to_hex(cr3)
+                      + " dtb:" + to_hex(proc ? proc->dtb.val : 0)
                       + ' ' + irql_to_text(irql ? *irql : -1)
                       + ' ' + (is_user_mode(cs) ? "user" : "kernel")
                       + (name ? " " + *name : "")
