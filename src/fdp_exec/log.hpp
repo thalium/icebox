@@ -1,5 +1,6 @@
 #pragma once
 
+#include <fmt/format.h>
 #include <loguru.hpp>
 
 #ifndef FDP_MODULE
@@ -9,12 +10,7 @@
 #define LOG(INFO, FMT, ...)                               \
     do                                                    \
     {                                                     \
-        LOG_F(INFO, FDP_MODULE ": " FMT, ##__VA_ARGS__);  \
-        /* we want compile-time check of log arguments */ \
-        if(false)                                         \
-        {                                                 \
-            printf(FDP_MODULE FMT, ##__VA_ARGS__);        \
-        }                                                 \
+        LOG_F(INFO, "%s", fmt::format(FMT_STRING(FDP_MODULE ": " FMT), ##__VA_ARGS__).data()); \
     } while(0)
 
 #define FAIL(VALUE, FMT, ...)           \

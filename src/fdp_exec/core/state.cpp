@@ -211,7 +211,7 @@ struct core::BreakpointPrivate
 
         const auto ok = FDP_UnsetBreakpoint(&data_.shm, observer_->bpid);
         if(!ok)
-            LOG(ERROR, "unable to remove breakpoint %d", observer_->bpid);
+            LOG(ERROR, "unable to remove breakpoint {}", observer_->bpid);
 
         data_.breakpoints.targets_.erase(observer_->phy);
     }

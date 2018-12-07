@@ -88,7 +88,7 @@ namespace
             if(!cursor)
                 cursor = sym::Cursor{"_", "_", cstep.addr};
 
-            LOG(INFO, "% 3" PRId64 " - %" PRIx64 "- %s", cs_size, cstep.addr, sym::to_string(*cursor).data());
+            LOG(INFO, "{:>3} - {:#x}- {}", cs_size, cstep.addr, sym::to_string(*cursor).data());
 
             cs_size++;
             if(cs_size < cs_depth)
@@ -116,7 +116,7 @@ bool plugin::FdpSan::setup(proc_t target)
         if(!thread_curr)
             return 0;
 
-        LOG(INFO, "ALLOC %" PRIx64 ", thread %" PRIx64, Size, thread_curr->id);
+        LOG(INFO, "ALLOC {:#x}, thread {:#x}", Size, thread_curr->id);
 
         if(false)
         {
@@ -185,7 +185,7 @@ bool plugin::FdpSan::setup(proc_t target)
             hd.addr = ret + half_add_size;
             it->second.push_back(hd);
 
-            LOG(INFO, "RtlAllocateHeap handle %" PRIx64 ", size : %" PRIx64 " at addr %" PRIx64 ", thread %" PRIx64, HeapHandle, Size, ret + half_add_size, thread_curr->id);
+            LOG(INFO, "RtlAllocateHeap handle {:#x}, size : {:#x} at addr {:#x}, thread {:#x}", HeapHandle, Size, ret + half_add_size, thread_curr->id);
             d_->heap_ctxs.erase(saved_it);
         });
 
@@ -197,7 +197,7 @@ bool plugin::FdpSan::setup(proc_t target)
     {
         UNUSED(Flags);
 
-        LOG(INFO, "RtlReallocate %" PRIx64, BaseAddress);
+        LOG(INFO, "RtlReallocate {:#x}", BaseAddress);
 
         if(false)
         {
@@ -283,7 +283,7 @@ bool plugin::FdpSan::setup(proc_t target)
             hd.addr = ret + half_add_size;
             it_->second.push_back(hd);
 
-            LOG(INFO, "RtlReAllocateHeap handleheap %" PRIx64 ", memory pointer %" PRIx64 ", size : %" PRIx64 " at addr %" PRIx64, HeapHandle, BaseAddress, Size, ret + half_add_size);
+            LOG(INFO, "RtlReAllocateHeap handleheap {:#x}, memory pointer {:#x}, size : {:#x} at addr {:#x}", HeapHandle, BaseAddress, Size, ret + half_add_size);
             d_->threads_rellocating.erase(thread_curr->id);
             d_->heap_ctxs.erase(saved_it);
         });
@@ -295,7 +295,7 @@ bool plugin::FdpSan::setup(proc_t target)
     d_->heaps_.register_RtlFreeHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress)
     {
         UNUSED(Flags);
-        LOG(INFO, "FREE %" PRIx64, BaseAddress);
+        LOG(INFO, "FREE {:#x}", BaseAddress);
 
         if(false)
         {
@@ -333,7 +333,7 @@ bool plugin::FdpSan::setup(proc_t target)
         if(!ok)
             return false;
 
-        LOG(INFO, "RtlFreeHeap handleheap %" PRIx64 ", size : %" PRIx64 " at addr %" PRIx64 ", thread %" PRIx64, HeapHandle, heap_data.size, BaseAddress, thread_curr->id);
+        LOG(INFO, "RtlFreeHeap handleheap {:#x}, size : {:#x} at addr {:#x}, thread {:#x}", HeapHandle, heap_data.size, BaseAddress, thread_curr->id);
         it->second.erase(it->second.begin() + i);
 
         return true;
@@ -412,7 +412,7 @@ bool plugin::FdpSan::setup(proc_t target)
             if(!ok_)
                 return;
 
-            LOG(INFO, "RtlSizeHeap at addr %" PRIx64 " - returning %" PRIx64, BaseAddress, ret - add_size);
+            LOG(INFO, "RtlSizeHeap at addr {:#x} - returning {:#x}", BaseAddress, ret - add_size);
             d_->heap_ctxs.erase(saved_it);
         });
 
@@ -453,7 +453,7 @@ bool plugin::FdpSan::setup(proc_t target)
         if(!ok)
             return 0;
 
-        LOG(INFO, "RtlSetUserValueHeap at addr %" PRIx64, BaseAddress);
+        LOG(INFO, "RtlSetUserValueHeap at addr {:#x}", BaseAddress);
         return 0;
     });
 
@@ -491,7 +491,7 @@ bool plugin::FdpSan::setup(proc_t target)
         if(!ok)
             return 0;
 
-        LOG(INFO, "RtlGetUserInfoHeap at addr %" PRIx64, BaseAddress);
+        LOG(INFO, "RtlGetUserInfoHeap at addr {:#x}", BaseAddress);
         return 0;
     });
 

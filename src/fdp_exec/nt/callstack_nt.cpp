@@ -240,7 +240,7 @@ opt<FunctionTable> CallstackNt::insert(proc_t proc, const std::string& name, con
     std::vector<uint8_t> buffer(exception_dir->size);
     auto ok = core_.mem.read_virtual(&buffer[0], proc.dtb, exception_dir->addr, exception_dir->size);
     if(!ok)
-        FAIL({}, "unable to read exception dir of %s", name.c_str());
+        FAIL({}, "unable to read exception dir of {}", name.c_str());
 
     const auto function_table = parse_exception_dir(proc, &buffer[0], span.addr, *exception_dir);
     const auto ret            = exception_dirs_.emplace(name, *function_table);
@@ -294,7 +294,7 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const cal
         // Get function table of the module
         const auto function_table = get_mod_functiontable(proc, *modname, *span);
         if(!function_table)
-            FAIL(false, "unable to get function table of %s", modname->c_str());
+            FAIL(false, "unable to get function table of {}", modname->c_str());
 
         const auto off_in_mod     = static_cast<uint32_t>(ctx.rip - span->addr);
         const auto function_entry = lookup_function_entry(off_in_mod, function_table->function_entries);
@@ -320,10 +320,10 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const cal
         const auto print_d = 25;
         for(int k = -3 * 8; k < print_d * 8; k += 8)
         {
-            LOG(INFO, "%" PRIx64 " - %" PRIx64, ctx.rsp + *stack_frame_size + k, *core::read_ptr(core_, ctx.rsp + *stack_frame_size + k));
+            LOG(INFO, "{:#x} - {:#x}", ctx.rsp + *stack_frame_size + k, *core::read_ptr(core_, ctx.rsp + *stack_frame_size + k));
         }
-        LOG(INFO, "Chosen chosen %" PRIx64 " start address %" PRIx32 " end %" PRIx32, off_in_mod, function_entry->start_address, function_entry->end_address);
-        LOG(INFO, "Offset of current func %" PRIx64 ", Caller address on stack %" PRIx64 " so %" PRIx64, off_in_mod, caller_addr_on_stack, *return_addr);
+        LOG(INFO, "Chosen chosen {:#x} start address {:#x} end {:#x}", off_in_mod, function_entry->start_address, function_entry->end_address);
+        LOG(INFO, "Offset of current func {:#x}, Caller address on stack {:#x} so {:#x}", off_in_mod, caller_addr_on_stack, *return_addr);
 #endif
 
         if(on_callstep(callstack::callstep_t{ctx.rip}) == WALK_STOP)
@@ -447,7 +447,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(proc_t proc, const void* vsr
         const auto frame_register       = unwind_info[3] & 0x0F;      // register used as frame pointer
         function_entry.frame_reg_offset = 16 * (unwind_info[3] >> 4); // offset of frame register
         if(function_entry.frame_reg_offset != 0 && frame_register != UWINFO_RBP)
-            LOG(ERROR, "WARNING : the used framed register is not rbp (code %d), this case is never used and not implemented", frame_register);
+            LOG(ERROR, "WARNING : the used framed register is not rbp (code {}), this case is never used and not implemented", frame_register);
 
         const auto SIZE_UC           = 2;
         const auto chained_info_size = chained_flag ? sizeof(RuntimeFunction) : 0;
@@ -486,7 +486,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(proc_t proc, const void* vsr
         function_table.function_entries.push_back(function_entry);
 
 #ifdef USE_DEBUG_PRINT
-        LOG(INFO, "Function entry : start %" PRIx32 " end %" PRIx32 " prolog size %" PRIx8 " number of codes %" PRIx8 " unwind info pointer %" PRIx32 " stack frame size %x, previous frame reg %" PRIx32, function_entry.start_address, function_entry.end_address, function_entry.prolog_size, function_entry.unwind_codes_nb,
+        LOG(INFO, "Function entry : start {:#x} end {:#x} prolog size {:#x} number of codes {:#x} unwind info pointer {:#x} stack frame size {:#x}, previous frame reg {:#x}", function_entry.start_address, function_entry.end_address, function_entry.prolog_size, function_entry.unwind_codes_nb,
             unwind_info_ptr, function_entry.stack_frame_size, function_entry.prev_frame_reg);
 #endif
     }

@@ -213,7 +213,7 @@ bool OsNt::setup()
     if(!kernel)
         FAIL(false, "unable to find kernel");
 
-    LOG(INFO, "kernel: 0x%016" PRIx64 " - 0x%016" PRIx64 " (%" PRIx64 " 0x%" PRIx64 ")", kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
+    LOG(INFO, "kernel: {:#x} - {:#x} ({} {:#x})", kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
     std::vector<uint8_t> buffer(kernel->size);
     auto ok = core_.mem.read_virtual(&buffer[0], dtb, kernel->addr, kernel->size);
     if(!ok)
@@ -230,7 +230,7 @@ bool OsNt::setup()
         if(!addr)
         {
             fail = true;
-            LOG(ERROR, "unable to read %s!%s symbol offset", g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+            LOG(ERROR, "unable to read {}!{} symbol offset", g_symbol_offsets[i].module, g_symbol_offsets[i].name);
             continue;
         }
 
@@ -242,7 +242,7 @@ bool OsNt::setup()
         if(!offset)
         {
             fail = true;
-            LOG(ERROR, "unable to read %s!%s.%s member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+            LOG(ERROR, "unable to read {}!{}.{} member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
             continue;
         }
 
@@ -262,7 +262,7 @@ bool OsNt::setup()
         FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
 
     gkdtb_ = dtb_t{*kdtb};
-    LOG(WARNING, "kernel: kpcr: %llx kdtb: %llx", kpcr_, gkdtb_.val);
+    LOG(WARNING, "kernel: kpcr: {:#x} kdtb: {:#x}", kpcr_, gkdtb_.val);
     return true;
 }
 
@@ -288,7 +288,7 @@ bool OsNt::proc_list(const on_proc_fn& on_process)
         const auto dtb   = core::read_ptr(core_, gkdtb_, eproc + members_[EPROCESS_Pcb] + members_[KPROCESS_UserDirectoryTableBase]);
         if(!dtb)
         {
-            LOG(ERROR, "unable to read KPROCESS.DirectoryTableBase from 0x%" PRIx64 "", eproc);
+            LOG(ERROR, "unable to read KPROCESS.DirectoryTableBase from {:#x}", eproc);
             continue;
         }
 
@@ -670,6 +670,6 @@ void OsNt::debug_print()
                       + " p:" + to_hex(proc ? proc->id : 0)
                       + " t:" + to_hex(thread ? thread->id : 0);
     if(dump != last_dump_)
-        LOG(INFO, "%s", dump.data());
+        LOG(INFO, "{}", dump.data());
     last_dump_ = dump;
 }

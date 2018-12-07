@@ -21,31 +21,31 @@ namespace
         {
             const auto name = core.os->driver_name(drv);
             const auto span = core.os->driver_span(drv);
-            LOG(INFO, "    driver: %" PRIx64 " %s 0x%" PRIx64 " 0x%" PRIx64 "", drv.id, name ? name->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
+            LOG(INFO, "    driver: {:#x} {} {:#x} {:#x}", drv.id, name ? name->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
             return WALK_NEXT;
         });
 
         const auto pc = core.os->proc_current();
-        LOG(INFO, "current process: %" PRIx64 " dtb: %" PRIx64 " %s", pc->id, pc->dtb.val, core.os->proc_name(*pc)->data());
+        LOG(INFO, "current process: {:#x} dtb: {:#x} {}", pc->id, pc->dtb.val, core.os->proc_name(*pc)->data());
 
         const auto tc = core.os->thread_current();
-        LOG(INFO, "current thread: %" PRIx64 "", tc->id);
+        LOG(INFO, "current thread: {:#x}", tc->id);
 
         LOG(INFO, "processes:");
         core.os->proc_list([&](proc_t proc)
         {
             const auto procname = core.os->proc_name(proc);
-            LOG(INFO, "proc: %" PRIx64 " %s", proc.id, procname ? procname->data() : "<noname>");
+            LOG(INFO, "proc: {:#x} {}", proc.id, procname ? procname->data() : "<noname>");
             return WALK_NEXT;
         });
 
         const char proc_target[] = "notepad.exe";
-        LOG(INFO, "searching %s", proc_target);
+        LOG(INFO, "searching {}", proc_target);
         const auto target = core.os->proc_find(proc_target);
         if(!target)
             return false;
 
-        LOG(INFO, "%s: %" PRIx64 " dtb: %" PRIx64 " %s", proc_target, target->id, target->dtb.val, core.os->proc_name(*target)->data());
+        LOG(INFO, "{}: {:#x} dtb: {:#x} {}", proc_target, target->id, target->dtb.val, core.os->proc_name(*target)->data());
         core.os->proc_join(*target, os::JOIN_ANY_MODE);
         core.os->proc_join(*target, os::JOIN_USER_MODE);
 
@@ -64,7 +64,7 @@ namespace
             if(!name || !span)
                 return WALK_NEXT;
 
-            LOG(INFO, "module[%03zd/%03zd] %s: 0x%" PRIx64 " 0x%zx", modi, modcount, name->data(), span->addr, span->size);
+            LOG(INFO, "module[{:>2}/{:<2}] {}: {:#x} {:#x}", modi, modcount, name->data(), span->addr, span->size);
             ++modi;
 
             const auto debug_dir = pe.get_directory_entry(core, target->dtb, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
@@ -93,7 +93,7 @@ namespace
                 return WALK_NEXT;
 
             const auto name = core.sym.find(*rip);
-            LOG(INFO, "thread: %" PRIx64 " 0x%" PRIx64 "%s", thread.id, *rip, name ? (" " + name->module + "!" + name->symbol + "+" + std::to_string(name->offset)).data() : "");
+            LOG(INFO, "thread: {:#x} {:#x}{}", thread.id, *rip, name ? (" " + name->module + "!" + name->symbol + "+" + std::to_string(name->offset)).data() : "");
             return WALK_NEXT;
         });
 
@@ -112,7 +112,7 @@ namespace
                 const auto tid      = core.os->thread_id(*proc, *thread);
                 const auto procname = proc ? core.os->proc_name(*proc) : ext::nullopt;
                 const auto sym      = core.sym.find(rip);
-                LOG(INFO, "BREAK! rip: %" PRIx64 " %s %s pid:%" PRId64 " tid:%" PRId64,
+                LOG(INFO, "BREAK! rip: {:#x} {} {} pid:{} tid:{}",
                     rip, sym ? sym::to_string(*sym).data() : "", procname ? procname->data() : "", pid, tid);
             });
             for(size_t i = 0; i < 16; ++i)
@@ -130,7 +130,7 @@ namespace
             const auto pdb_name  = "ntdll";
             const auto func_name = "RtlAllocateHeap";
             const auto func_addr = core.sym.symbol(pdb_name, func_name);
-            LOG(INFO, "%s = 0x%" PRIx64, func_name, func_addr ? *func_addr : 0);
+            LOG(INFO, "{} = {:#x}", func_name, func_addr ? *func_addr : 0);
 
             const auto bp = core.state.set_breakpoint(*func_addr, *target, [&]
             {
@@ -145,7 +145,7 @@ namespace
                     if(!cursor)
                         cursor = sym::Cursor{"_", "_", callstep.addr};
 
-                    LOG(INFO, "%3" PRId32 " - %s", k, sym::to_string(*cursor).data());
+                    LOG(INFO, "{:>2} - {}", k, sym::to_string(*cursor).data());
                     k++;
                     if(k >= cs_depth)
                         return WALK_STOP;
@@ -193,17 +193,17 @@ int main(int argc, char* argv[])
         FAIL(-1, "usage: fdp_exec <name>");
 
     const auto name = std::string{argv[1]};
-    LOG(INFO, "starting on %s", name.data());
+    LOG(INFO, "starting on {}", name.data());
 
     core::Core core;
     auto ok = core::setup(core, name);
     if(!ok)
-        FAIL(-1, "unable to start core at %s", name.data());
+        FAIL(-1, "unable to start core at {}", name.data());
 
     pe::Pe pe;
     ok = pe.setup(core);
     if(!ok)
-        FAIL(-1, "unable retreive PE format informations from pdb");
+        FAIL(-1, "unable to retrieve PE format informations from pdb");
 
     // core.state.resume();
     core.state.pause();

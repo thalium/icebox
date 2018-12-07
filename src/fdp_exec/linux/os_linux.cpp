@@ -109,7 +109,7 @@ bool OsLinux::proc_list(const on_proc_fn& on_process)
         const auto pgd        = core::read_ptr(core_, proc->dtb, task_struc + members_.pgd);
         if(!pgd)
         {
-            LOG(ERROR, "unable to read task_struct.mm_struct.pgd from 0x%" PRIx64 "", task_struc);
+            LOG(ERROR, "unable to read task_struct.mm_struct.pgd from {:#x}", task_struc);
             continue;
         }
 

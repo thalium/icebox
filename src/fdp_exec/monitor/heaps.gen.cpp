@@ -45,7 +45,7 @@ namespace
     {
         const auto addr = d.core.sym.symbol(d.module, name);
         if(!addr)
-            FAIL(nullptr, "unable to find symbole %s!%s", d.module.data(), name);
+            FAIL(nullptr, "unable to find symbole {}!{}", d.module.data(), name);
 
         return d.core.state.set_breakpoint(*addr, proc, on_call);
     }

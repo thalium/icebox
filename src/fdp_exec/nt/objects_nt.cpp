@@ -106,7 +106,7 @@ bool nt::ObjectNt::setup()
         if(!addr)
         {
             fail = true;
-            LOG(INFO, "unable to read %s!%s symbol offset", g_symbol_obj_offsets[i].module, g_symbol_obj_offsets[i].name);
+            LOG(INFO, "unable to read {}!{} symbol offset", g_symbol_obj_offsets[i].module, g_symbol_obj_offsets[i].name);
             continue;
         }
 
@@ -118,7 +118,7 @@ bool nt::ObjectNt::setup()
         if(!offset)
         {
             fail = true;
-            LOG(INFO, "unable to read %s!%s.%s member offset", g_member_obj_offsets[i].module, g_member_obj_offsets[i].struc, g_member_obj_offsets[i].member);
+            LOG(INFO, "unable to read {}!{}.{} member offset", g_member_obj_offsets[i].module, g_member_obj_offsets[i].struc, g_member_obj_offsets[i].member);
             continue;
         }
         d_->members_obj_[i] = *offset;

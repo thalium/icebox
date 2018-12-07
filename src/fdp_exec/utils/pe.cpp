@@ -82,7 +82,7 @@ bool pe::Pe::setup(core::Core& core)
         if(!offset)
         {
             fail = true;
-            LOG(ERROR, "unable to read %s!%s.%s member offset", g_member_pe_offsets[i].module, g_member_pe_offsets[i].struc, g_member_pe_offsets[i].member);
+            LOG(ERROR, "unable to read {}!{}.{} member offset", g_member_pe_offsets[i].module, g_member_pe_offsets[i].struc, g_member_pe_offsets[i].member);
             continue;
         }
         d_->members_pe_[i] = *offset;
@@ -114,7 +114,7 @@ opt<span_t> pe::Pe::get_directory_entry(core::Core& core, dtb_t dtb, const span_
     if(!data_directory_size)
         FAIL({}, "unable to read DataDirectory.Size");
 
-    // LOG(INFO, "exception_dir addr %" PRIx64 " section size %" PRIx32, span.addr + *data_directory_virtual_address, *data_directory_size);
+    // LOG(INFO, "exception_dir addr {:#x} section size {:#x}", span.addr + *data_directory_virtual_address, *data_directory_size);
 
     return span_t{span.addr + *data_directory_virtual_address, *data_directory_size};
 }

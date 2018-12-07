@@ -129,7 +129,7 @@ namespace
                 if(!cursor)
                     cursor = sym::Cursor{"_", "_", cstep.addr};
 
-                LOG(INFO, "%" PRId64 " - %s", cs_size, sym::to_string(*cursor).data());
+                LOG(INFO, "{} - {}", cs_size, sym::to_string(*cursor).data());
             }
 
             cs_size++;
@@ -161,7 +161,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
                                                    nt::PIO_STATUS_BLOCK IoStatusBlock, nt::PVOID Buffer, nt::ULONG Length,
                                                    nt::PLARGE_INTEGER ByteOffsetm, nt::PULONG Key)
     {
-        LOG(INFO, "NtWriteFile : %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx32 " - %" PRIx64 " - %" PRIx64,
+        LOG(INFO, "NtWriteFile : {:#x} - {:#x} - {:#x} - {:#x} - {:#x} - {:#x} - {:#x} - {:#x} - {:#x}",
             FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffsetm, Key);
 
         std::vector<char> buf(Length);
@@ -176,7 +176,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
         const auto device_obj   = d_->objects_->fileobj_deviceobject(*obj);
         const auto driver_obj   = d_->objects_->deviceobj_driverobject(*device_obj);
         const auto driver_name  = d_->objects_->driverobj_drivername(*driver_obj);
-        LOG(INFO, " File handle; %" PRIx64 ", typename : %s, filename : %s, driver_name : %s", FileHandle, obj_typename->data(), obj_filename->data(), driver_name->data());
+        LOG(INFO, " File handle; {:#x}, typename : {}, filename : {}, driver_name : {}", FileHandle, obj_typename->data(), obj_filename->data(), driver_name->data());
 
         d_->args_[d_->nb_triggers_]["FileName"] = obj_filename->data();
         d_->args_[d_->nb_triggers_]["Buffer"]   = buf;
@@ -187,7 +187,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
 
     d_->syscalls_.register_NtClose(target, [=](nt::HANDLE paramHandle)
     {
-        LOG(INFO, "NtClose : %" PRIx64, paramHandle);
+        LOG(INFO, "NtClose : {:#x}", paramHandle);
         d_->args_[d_->nb_triggers_]["Handle"] = paramHandle;
         private_get_callstack(*d_);
         d_->nb_triggers_++;
@@ -199,7 +199,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
                                                              nt::PVOID InputBuffer, nt::ULONG InputBufferLength, nt::PVOID OutputBuffer,
                                                              nt::ULONG OutputBufferLength)
     {
-        LOG(INFO, " NtDeviceIoControlFile : %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx64 " - %" PRIx32 " - %" PRIx64 " - %" PRIx32 " - %" PRIx64 " - %" PRIx32,
+        LOG(INFO, " NtDeviceIoControlFile : {:#x} - {:#x} - {:#x} - {:#x} - {:#x} - {:#x} - {:#x} - {:#x} - {:#x} - {:#x}",
             FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
         return 0;
     });
