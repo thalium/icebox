@@ -172,14 +172,14 @@ namespace
         SymbolOffsets symbols_;
         std::string   last_dump_;
         uint64_t      kpcr_;
-        dtb_t         kdtb_;
+        dtb_t         gkdtb_;
     };
 }
 
 OsNt::OsNt(core::Core& core)
     : core_(core)
     , kpcr_(0)
-    , kdtb_({0})
+    , gkdtb_({0})
 {
 }
 
@@ -261,8 +261,8 @@ bool OsNt::setup()
     if(!kdtb)
         FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
 
-    kdtb_ = dtb_t{*kdtb};
-    LOG(WARNING, "kernel: kpcr: %llx kdtb: %llx", kpcr_, kdtb_.val);
+    gkdtb_ = dtb_t{*kdtb};
+    LOG(WARNING, "kernel: kpcr: %llx kdtb: %llx", kpcr_, gkdtb_.val);
     return true;
 }
 
@@ -282,10 +282,10 @@ std::unique_ptr<os::IModule> os::make_nt(core::Core& core)
 bool OsNt::proc_list(const on_proc_fn& on_process)
 {
     const auto head = symbols_[PsActiveProcessHead];
-    for(auto link = core::read_ptr(core_, kdtb_, head); link != head; link = core::read_ptr(core_, kdtb_, *link))
+    for(auto link = core::read_ptr(core_, gkdtb_, head); link != head; link = core::read_ptr(core_, gkdtb_, *link))
     {
         const auto eproc = *link - members_[EPROCESS_ActiveProcessLinks];
-        const auto dtb   = core::read_ptr(core_, kdtb_, eproc + members_[EPROCESS_Pcb] + members_[KPROCESS_UserDirectoryTableBase]);
+        const auto dtb   = core::read_ptr(core_, gkdtb_, eproc + members_[EPROCESS_Pcb] + members_[KPROCESS_UserDirectoryTableBase]);
         if(!dtb)
         {
             LOG(ERROR, "unable to read KPROCESS.DirectoryTableBase from 0x%" PRIx64 "", eproc);
@@ -375,7 +375,7 @@ opt<std::string> OsNt::proc_name(proc_t proc)
 {
     // EPROCESS.ImageFileName is 16 bytes, but only 14 are actually used
     char buffer[14 + 1];
-    const auto ok = core_.mem.read_virtual(buffer, kdtb_, proc.id + members_[EPROCESS_ImageFileName], sizeof buffer);
+    const auto ok = core_.mem.read_virtual(buffer, gkdtb_, proc.id + members_[EPROCESS_ImageFileName], sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
         return {};
@@ -384,11 +384,11 @@ opt<std::string> OsNt::proc_name(proc_t proc)
     if(name.size() < sizeof buffer - 1)
         return name;
 
-    const auto image_file_name = core::read_ptr(core_, kdtb_, proc.id + members_[EPROCESS_SeAuditProcessCreationInfo] + members_[SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName]);
+    const auto image_file_name = core::read_ptr(core_, gkdtb_, proc.id + members_[EPROCESS_SeAuditProcessCreationInfo] + members_[SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName]);
     if(!image_file_name)
         return name;
 
-    const auto path = read_unicode_string(core_, kdtb_, *image_file_name + members_[OBJECT_NAME_INFORMATION_Name]);
+    const auto path = read_unicode_string(core_, gkdtb_, *image_file_name + members_[OBJECT_NAME_INFORMATION_Name]);
     if(!path)
         return name;
 
@@ -397,7 +397,7 @@ opt<std::string> OsNt::proc_name(proc_t proc)
 
 uint64_t OsNt::proc_id(proc_t proc)
 {
-    const auto pid = core::read_ptr(core_, kdtb_, proc.id + members_[EPROCESS_UniqueProcessId]);
+    const auto pid = core::read_ptr(core_, gkdtb_, proc.id + members_[EPROCESS_UniqueProcessId]);
     if(!pid)
         return 0;
 
@@ -406,7 +406,7 @@ uint64_t OsNt::proc_id(proc_t proc)
 
 opt<bool> OsNt::proc_is_wow64(proc_t proc)
 {
-    const auto isx64 = core::read_ptr(core_, kdtb_, proc.id + members_[EPROCESS_Wow64Process]);
+    const auto isx64 = core::read_ptr(core_, gkdtb_, proc.id + members_[EPROCESS_Wow64Process]);
     if(!isx64)
         return {};
 
@@ -415,7 +415,7 @@ opt<bool> OsNt::proc_is_wow64(proc_t proc)
 
 bool OsNt::mod_list(proc_t proc, const on_mod_fn& on_mod)
 {
-    const auto peb = core::read_ptr(core_, kdtb_, proc.id + members_[EPROCESS_Peb]);
+    const auto peb = core::read_ptr(core_, gkdtb_, proc.id + members_[EPROCESS_Peb]);
     if(!peb)
         FAIL(false, "unable to read EPROCESS.Peb");
 
@@ -460,7 +460,7 @@ opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
 
 bool OsNt::proc_is_valid(proc_t proc)
 {
-    const auto vad_root = core::read_ptr(core_, kdtb_, proc.id + members_[EPROCESS_VadRoot]);
+    const auto vad_root = core::read_ptr(core_, gkdtb_, proc.id + members_[EPROCESS_VadRoot]);
     return vad_root && *vad_root;
 }
 
@@ -480,7 +480,7 @@ opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
 bool OsNt::driver_list(const on_driver_fn& on_driver)
 {
     const auto head = symbols_[PsLoadedModuleList];
-    for(auto link = core::read_ptr(core_, kdtb_, head); link != head; link = core::read_ptr(core_, kdtb_, *link))
+    for(auto link = core::read_ptr(core_, gkdtb_, head); link != head; link = core::read_ptr(core_, gkdtb_, *link))
         if(on_driver({*link - members_[LDR_DATA_TABLE_ENTRY_InLoadOrderLinks]}) == WALK_STOP)
             break;
     return true;
@@ -503,16 +503,16 @@ opt<driver_t> OsNt::driver_find(const std::string& name)
 
 opt<std::string> OsNt::driver_name(driver_t drv)
 {
-    return read_unicode_string(core_, kdtb_, drv.id + members_[LDR_DATA_TABLE_ENTRY_FullDllName]);
+    return read_unicode_string(core_, gkdtb_, drv.id + members_[LDR_DATA_TABLE_ENTRY_FullDllName]);
 }
 
 opt<span_t> OsNt::driver_span(driver_t drv)
 {
-    const auto base = core::read_ptr(core_, kdtb_, drv.id + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
+    const auto base = core::read_ptr(core_, gkdtb_, drv.id + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
     if(!base)
         return {};
 
-    const auto size = core::read_ptr(core_, kdtb_, drv.id + members_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
+    const auto size = core::read_ptr(core_, gkdtb_, drv.id + members_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
     if(!size)
         return {};
 
@@ -522,7 +522,7 @@ opt<span_t> OsNt::driver_span(driver_t drv)
 bool OsNt::thread_list(proc_t proc, const on_thread_fn& on_thread)
 {
     const auto head = proc.id + members_[EPROCESS_ThreadListHead];
-    for(auto link = core::read_ptr(core_, kdtb_, head); link && link != head; link = core::read_ptr(core_, kdtb_, *link))
+    for(auto link = core::read_ptr(core_, gkdtb_, head); link && link != head; link = core::read_ptr(core_, gkdtb_, *link))
         if(on_thread({*link - members_[ETHREAD_ThreadListEntry]}) == WALK_STOP)
             break;
 
@@ -531,7 +531,7 @@ bool OsNt::thread_list(proc_t proc, const on_thread_fn& on_thread)
 
 opt<thread_t> OsNt::thread_current()
 {
-    const auto thread = core::read_ptr(core_, kdtb_, kpcr_ + members_[KPCR_Prcb] + members_[KPRCB_CurrentThread]);
+    const auto thread = core::read_ptr(core_, gkdtb_, kpcr_ + members_[KPCR_Prcb] + members_[KPRCB_CurrentThread]);
     if(!thread)
         FAIL({}, "unable to read KPCR.Prcb.CurrentThread");
 
@@ -540,11 +540,11 @@ opt<thread_t> OsNt::thread_current()
 
 opt<proc_t> OsNt::thread_proc(thread_t thread)
 {
-    const auto kproc = core::read_ptr(core_, kdtb_, thread.id + members_[KTHREAD_Process]);
+    const auto kproc = core::read_ptr(core_, gkdtb_, thread.id + members_[KTHREAD_Process]);
     if(!kproc)
         FAIL({}, "unable to read KTHREAD.Process");
 
-    const auto dtb = core::read_ptr(core_, kdtb_, *kproc + members_[KPROCESS_UserDirectoryTableBase]);
+    const auto dtb = core::read_ptr(core_, gkdtb_, *kproc + members_[KPROCESS_UserDirectoryTableBase]);
     if(!dtb)
         FAIL({}, "unable to read KPROCESS.DirectoryTableBase");
 
@@ -554,14 +554,14 @@ opt<proc_t> OsNt::thread_proc(thread_t thread)
 
 opt<uint64_t> OsNt::thread_pc(proc_t /*proc*/, thread_t thread)
 {
-    const auto ktrap_frame = core::read_ptr(core_, kdtb_, thread.id + members_[ETHREAD_Tcb] + members_[KTHREAD_TrapFrame]);
+    const auto ktrap_frame = core::read_ptr(core_, gkdtb_, thread.id + members_[ETHREAD_Tcb] + members_[KTHREAD_TrapFrame]);
     if(!ktrap_frame)
         FAIL({}, "unable to read KTHREAD.TrapFrame");
 
     if(!*ktrap_frame)
         return {};
 
-    const auto rip = core::read_ptr(core_, kdtb_, *ktrap_frame + members_[KTRAP_FRAME_Rip]);
+    const auto rip = core::read_ptr(core_, gkdtb_, *ktrap_frame + members_[KTRAP_FRAME_Rip]);
     if(!rip)
         return {};
 
@@ -570,7 +570,7 @@ opt<uint64_t> OsNt::thread_pc(proc_t /*proc*/, thread_t thread)
 
 uint64_t OsNt::thread_id(proc_t /*proc*/, thread_t thread)
 {
-    const auto tid = core::read_ptr(core_, kdtb_, thread.id + members_[ETHREAD_Cid] + members_[CLIENT_ID_UniqueThread]);
+    const auto tid = core::read_ptr(core_, gkdtb_, thread.id + members_[ETHREAD_Cid] + members_[CLIENT_ID_UniqueThread]);
     if(!tid)
         return 0;
 
@@ -607,7 +607,7 @@ opt<phy_t> OsNt::proc_resolve(proc_t proc, uint64_t ptr)
     if(phy)
         return phy;
 
-    return core_.mem.virtual_to_physical(ptr, kdtb_);
+    return core_.mem.virtual_to_physical(ptr, gkdtb_);
 }
 
 opt<proc_t> OsNt::proc_select(proc_t proc, uint64_t ptr)
@@ -615,7 +615,7 @@ opt<proc_t> OsNt::proc_select(proc_t proc, uint64_t ptr)
     if(!(ptr & 0xFFF0000000000000))
         return proc;
 
-    const auto kdtb = core::read_ptr(core_, kdtb_, proc.id + members_[EPROCESS_Pcb] + members_[KPROCESS_DirectoryTableBase]);
+    const auto kdtb = core::read_ptr(core_, gkdtb_, proc.id + members_[EPROCESS_Pcb] + members_[KPROCESS_DirectoryTableBase]);
     if(!kdtb)
         return {};
 
@@ -651,7 +651,7 @@ void OsNt::debug_print()
 {
     if(true)
         return;
-    const auto irql   = core::read_byte(core_, kdtb_, kpcr_ + members_[KPCR_Irql]);
+    const auto irql   = core::read_byte(core_, gkdtb_, kpcr_ + members_[KPCR_Irql]);
     const auto cs     = core_.regs.read(FDP_CS_REGISTER);
     const auto rip    = core_.regs.read(FDP_RIP_REGISTER);
     const auto cr3    = core_.regs.read(FDP_CR3_REGISTER);
