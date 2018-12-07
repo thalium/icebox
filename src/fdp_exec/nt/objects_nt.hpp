@@ -28,8 +28,6 @@ namespace nt
 
         struct Data;
         std::unique_ptr<Data> d_;
-
-        core::Core& core_;
     };
 
     std::shared_ptr<nt::ObjectNt> make_objectnt(core::Core& core);

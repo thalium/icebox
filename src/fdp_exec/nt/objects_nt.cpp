@@ -12,7 +12,7 @@
 
 namespace
 {
-    enum member_obj_offset_e
+    enum member_offset_e
     {
         EPROCESS_ObjectTable,
         HANDLE_TABLE_TableCode,
@@ -25,17 +25,17 @@ namespace
         FILE_OBJECT_DeviceObject,
         DEVICE_OBJECT_DriverObject,
         DRIVER_OBJECT_DriverName,
-        MEMBER_OBJ_OFFSET_COUNT,
+        MEMBER_OFFSET_COUNT,
     };
-    struct MemberObjOffset
+    struct MemberOffset
     {
-        member_obj_offset_e e_id;
-        const char          module[16];
-        const char          struc[32];
-        const char          member[32];
+        member_offset_e e_id;
+        const char      module[16];
+        const char      struc[32];
+        const char      member[32];
     };
     // clang-format off
-    const MemberObjOffset g_member_obj_offsets[] =
+    const MemberOffset g_member_offsets[] =
     {
         {EPROCESS_ObjectTable,                         "nt", "_EPROCESS",                          "ObjectTable"},
         {HANDLE_TABLE_TableCode,                       "nt", "_HANDLE_TABLE",                      "TableCode"},
@@ -50,45 +50,52 @@ namespace
         {DRIVER_OBJECT_DriverName,                     "nt", "_DRIVER_OBJECT",                     "DriverName"},
     };
     // clang-format on
-    static_assert(COUNT_OF(g_member_obj_offsets) == MEMBER_OBJ_OFFSET_COUNT, "invalid members");
+    static_assert(COUNT_OF(g_member_offsets) == MEMBER_OFFSET_COUNT, "invalid members");
 
-    enum symbol_obj_offset_e
+    enum symbol_offset_e
     {
         ObpKernelHandleTable,
         ObTypeIndexTable,
         ObHeaderCookie,
-        SYMBOL_OBJ_OFFSET_COUNT,
+        SYMBOL_OFFSET_COUNT,
     };
 
-    struct SymbolObjOffset
+    struct SymbolOffset
     {
-        symbol_obj_offset_e e_id;
-        const char          module[16];
-        const char          name[32];
+        symbol_offset_e e_id;
+        const char      module[16];
+        const char      name[32];
     };
     // clang-format off
-    const SymbolObjOffset g_symbol_obj_offsets[] =
+    const SymbolOffset g_symbol_offsets[] =
     {
         {ObpKernelHandleTable,            "nt", "ObpKernelHandleTable"},
         {ObTypeIndexTable,                "nt", "ObTypeIndexTable"},
         {ObHeaderCookie,                  "nt", "ObHeaderCookie"},
     };
     // clang-format on
-    static_assert(COUNT_OF(g_symbol_obj_offsets) == SYMBOL_OBJ_OFFSET_COUNT, "invalid symbols");
+    static_assert(COUNT_OF(g_symbol_offsets) == SYMBOL_OFFSET_COUNT, "invalid symbols");
 
-    using MemberObjOffsets = std::array<uint64_t, MEMBER_OBJ_OFFSET_COUNT>;
-    using SymbolObjOffsets = std::array<uint64_t, SYMBOL_OBJ_OFFSET_COUNT>;
+    using MemberOffsets = std::array<uint64_t, MEMBER_OFFSET_COUNT>;
+    using SymbolOffsets = std::array<uint64_t, SYMBOL_OFFSET_COUNT>;
 }
 
 struct nt::ObjectNt::Data
 {
-    MemberObjOffsets members_obj_;
-    SymbolObjOffsets symbols_obj_;
+    Data(core::Core& core)
+        : core_(core)
+    {
+    }
+
+    core::Core&   core_;
+    MemberOffsets members_;
+    SymbolOffsets symbols_;
 };
 
+using Data = nt::ObjectNt::Data;
+
 nt::ObjectNt::ObjectNt(core::Core& core)
-    : d_(std::make_unique<Data>())
-    , core_(core)
+    : d_(std::make_unique<Data>(core))
 {
 }
 
@@ -96,36 +103,41 @@ nt::ObjectNt::~ObjectNt()
 {
 }
 
+namespace
+{
+    bool setup(Data& d)
+    {
+        bool fail = false;
+        for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
+        {
+            const auto addr = d.core_.sym.symbol(g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+            if(!addr)
+            {
+                fail = true;
+                LOG(INFO, "unable to read {}!{} symbol offset", g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+                continue;
+            }
+
+            d.symbols_[i] = *addr;
+        }
+        for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
+        {
+            const auto offset = d.core_.sym.struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+            if(!offset)
+            {
+                fail = true;
+                LOG(INFO, "unable to read {}!{}.{} member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+                continue;
+            }
+            d.members_[i] = *offset;
+        }
+        return !fail;
+    }
+}
+
 bool nt::ObjectNt::setup()
 {
-    bool fail = false;
-    for(size_t i = 0; i < SYMBOL_OBJ_OFFSET_COUNT; ++i)
-    {
-        const auto addr = core_.sym.symbol(g_symbol_obj_offsets[i].module, g_symbol_obj_offsets[i].name);
-        if(!addr)
-        {
-            fail = true;
-            LOG(INFO, "unable to read {}!{} symbol offset", g_symbol_obj_offsets[i].module, g_symbol_obj_offsets[i].name);
-            continue;
-        }
-
-        d_->symbols_obj_[i] = *addr;
-    }
-    for(size_t i = 0; i < MEMBER_OBJ_OFFSET_COUNT; ++i)
-    {
-        const auto offset = core_.sym.struc_offset(g_member_obj_offsets[i].module, g_member_obj_offsets[i].struc, g_member_obj_offsets[i].member);
-        if(!offset)
-        {
-            fail = true;
-            LOG(INFO, "unable to read {}!{}.{} member offset", g_member_obj_offsets[i].module, g_member_obj_offsets[i].struc, g_member_obj_offsets[i].member);
-            continue;
-        }
-        d_->members_obj_[i] = *offset;
-    }
-    if(fail)
-        return false;
-
-    return true;
+    return ::setup(*d_);
 }
 
 std::shared_ptr<nt::ObjectNt> nt::make_objectnt(core::Core& core)
@@ -144,8 +156,8 @@ std::shared_ptr<nt::ObjectNt> nt::make_objectnt(core::Core& core)
 opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
 {
     // Is kernel handle
-    const auto reader            = reader::make(core_, proc);
-    const auto handle_table_addr = (handle & 0x80000000) ? d_->symbols_obj_[ObpKernelHandleTable] : proc.id + d_->members_obj_[EPROCESS_ObjectTable];
+    const auto reader            = reader::make(d_->core_, proc);
+    const auto handle_table_addr = (handle & 0x80000000) ? d_->symbols_[ObpKernelHandleTable] : proc.id + d_->members_[EPROCESS_ObjectTable];
     if(handle & 0x80000000)
         handle = (((handle << 32) >> 32) & ~0xffffffff80000000);
 
@@ -153,7 +165,7 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
     if(!handle_table)
         FAIL({}, "Unable to read handle table");
 
-    auto handle_table_code = reader.read(*handle_table + d_->members_obj_[HANDLE_TABLE_TableCode]);
+    auto handle_table_code = reader.read(*handle_table + d_->members_[HANDLE_TABLE_TableCode]);
     if(!handle_table_code)
         FAIL({}, "Unable to read handle table code");
 
@@ -204,7 +216,7 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
     uint64_t p = 0xffff;
     const uint64_t obj_header = (((*handle_table_entry >> 16) | (p << 48)) >> 4) << 4;
 
-    const auto obj_body = obj_header + d_->members_obj_[OBJECT_HEADER_Body];
+    const auto obj_body = obj_header + d_->members_[OBJECT_HEADER_Body];
     return obj_t{obj_body};
 }
 
@@ -244,36 +256,36 @@ namespace
 opt<std::string> nt::ObjectNt::obj_typename(proc_t proc, nt::obj_t obj)
 {
     const auto POINTER_SIZE     = 8;
-    const auto reader           = reader::make(core_, proc);
-    const auto obj_header       = obj.id - d_->members_obj_[OBJECT_HEADER_Body];
-    const auto encoded_type_idx = reader.byte(obj_header + d_->members_obj_[OBJECT_HEADER_TypeIndex]);
+    const auto reader           = reader::make(d_->core_, proc);
+    const auto obj_header       = obj.id - d_->members_[OBJECT_HEADER_Body];
+    const auto encoded_type_idx = reader.byte(obj_header + d_->members_[OBJECT_HEADER_TypeIndex]);
     if(!encoded_type_idx)
         FAIL({}, "Unable to read encoded type index");
 
-    const auto header_cookie = reader.byte(d_->symbols_obj_[ObHeaderCookie]);
+    const auto header_cookie = reader.byte(d_->symbols_[ObHeaderCookie]);
     if(!header_cookie)
         FAIL({}, "Unable to read ObHeaderCookie");
 
     const uint8_t obj_addr_cookie = ((obj_header >> 8) & 0xff);
     const auto type_idx = *encoded_type_idx ^ *header_cookie ^ obj_addr_cookie;
 
-    const auto obj_type = reader.read(d_->symbols_obj_[ObTypeIndexTable] + type_idx * POINTER_SIZE);
+    const auto obj_type = reader.read(d_->symbols_[ObTypeIndexTable] + type_idx * POINTER_SIZE);
     if(!obj_type)
         FAIL({}, "Unable to read object type");
 
-    return read_unicode_string(reader, *obj_type + d_->members_obj_[OBJECT_TYPE_Name]);
+    return read_unicode_string(reader, *obj_type + d_->members_[OBJECT_TYPE_Name]);
 }
 
 opt<std::string> nt::ObjectNt::fileobj_filename(proc_t proc, nt::obj_t obj)
 {
-    const auto reader = reader::make(core_, proc);
-    return read_unicode_string(reader, obj.id + d_->members_obj_[FILE_OBJECT_FileName]);
+    const auto reader = reader::make(d_->core_, proc);
+    return read_unicode_string(reader, obj.id + d_->members_[FILE_OBJECT_FileName]);
 }
 
 opt<nt::obj_t> nt::ObjectNt::fileobj_deviceobject(proc_t proc, nt::obj_t obj)
 {
-    const auto reader     = reader::make(core_, proc);
-    const auto device_obj = reader.read(obj.id + d_->members_obj_[FILE_OBJECT_DeviceObject]);
+    const auto reader     = reader::make(d_->core_, proc);
+    const auto device_obj = reader.read(obj.id + d_->members_[FILE_OBJECT_DeviceObject]);
     if(!device_obj)
         return {};
 
@@ -282,8 +294,8 @@ opt<nt::obj_t> nt::ObjectNt::fileobj_deviceobject(proc_t proc, nt::obj_t obj)
 
 opt<nt::obj_t> nt::ObjectNt::deviceobj_driverobject(proc_t proc, nt::obj_t obj)
 {
-    const auto reader     = reader::make(core_, proc);
-    const auto driver_obj = reader.read(obj.id + d_->members_obj_[DEVICE_OBJECT_DriverObject]);
+    const auto reader     = reader::make(d_->core_, proc);
+    const auto driver_obj = reader.read(obj.id + d_->members_[DEVICE_OBJECT_DriverObject]);
     if(!driver_obj)
         return {};
 
@@ -292,6 +304,6 @@ opt<nt::obj_t> nt::ObjectNt::deviceobj_driverobject(proc_t proc, nt::obj_t obj)
 
 opt<std::string> nt::ObjectNt::driverobj_drivername(proc_t proc, nt::obj_t obj)
 {
-    const auto reader = reader::make(core_, proc);
-    return read_unicode_string(reader, obj.id + d_->members_obj_[DRIVER_OBJECT_DriverName]);
+    const auto reader = reader::make(d_->core_, proc);
+    return read_unicode_string(reader, obj.id + d_->members_[DRIVER_OBJECT_DriverName]);
 }
