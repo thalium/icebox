@@ -8,6 +8,18 @@
 
 #include <cctype>
 
+#ifdef _MSC_VER
+#    include <algorithm>
+#    include <functional>
+#    define search                          std::search
+#    define boyer_moore_horspool_searcher   std::boyer_moore_horspool_searcher
+#else
+#    include <experimental/algorithm>
+#    include <experimental/functional>
+#    define search                          std::experimental::search
+#    define boyer_moore_horspool_searcher   std::experimental::make_boyer_moore_horspool_searcher
+#endif
+
 #include "pdbparser.hpp"
 namespace pdb = retdec::pdbparser;
 
