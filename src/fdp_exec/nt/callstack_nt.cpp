@@ -1,9 +1,10 @@
 #include "callstack.hpp"
 
 #define FDP_MODULE "callstack_nt"
-#include "core/helpers.hpp"
+#include "endian.hpp"
 #include "log.hpp"
 #include "os.hpp"
+#include "reader.hpp"
 #include "utils/sanitizer.hpp"
 
 #include <algorithm>
@@ -233,12 +234,13 @@ opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
 
 opt<FunctionTable> CallstackNt::insert(proc_t proc, const std::string& name, const span_t span)
 {
-    const auto exception_dir = pe_.get_directory_entry(core_, proc.dtb, span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
+    const auto reader        = reader::make(core_, proc);
+    const auto exception_dir = pe_.get_directory_entry(reader, span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
     if(!exception_dir)
         FAIL({}, "Unable to get span of exception_dir");
 
     std::vector<uint8_t> buffer(exception_dir->size);
-    auto ok = core_.mem.read_virtual(&buffer[0], proc.dtb, exception_dir->addr, exception_dir->size);
+    auto ok = reader.read(&buffer[0], exception_dir->addr, exception_dir->size);
     if(!ok)
         FAIL({}, "unable to read exception dir of {}", name.c_str());
 
@@ -262,7 +264,8 @@ opt<FunctionTable> CallstackNt::get_mod_functiontable(proc_t proc, const std::st
 bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const callstack::on_callstep_fn& on_callstep)
 {
     std::vector<uint8_t> buffer;
-    size_t max_cs_depth = 150;
+    const auto max_cs_depth = size_t(150);
+    const auto reader       = reader::make(core_, proc);
     for(size_t i = 0; i < max_cs_depth; ++i)
     {
         // Get module from address
@@ -276,19 +279,19 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const cal
         // Load PDB
         if(false)
         {
-            const auto debug_dir = pe_.get_directory_entry(core_, proc.dtb, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
+            const auto debug_dir = pe_.get_directory_entry(reader, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
             buffer.resize(debug_dir->size);
-            auto ok = core_.mem.read_virtual(&buffer[0], proc.dtb, debug_dir->addr, debug_dir->size);
+            auto ok = reader.read(&buffer[0], debug_dir->addr, debug_dir->size);
             if(!ok)
                 return WALK_NEXT;
 
             const auto codeview = pe_.parse_debug_dir(&buffer[0], span->addr, *debug_dir);
             buffer.resize(codeview->size);
-            ok = core_.mem.read_virtual(&buffer[0], proc.dtb, codeview->addr, codeview->size);
+            ok = reader.read(&buffer[0], codeview->addr, codeview->size);
             if(!ok)
                 FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
 
-            ok = core_.sym.insert(sanitizer::sanitize_filename(*modname).data(), *span, &buffer[0], buffer.size());
+            const auto inserted = core_.sym.insert(sanitizer::sanitize_filename(*modname).data(), *span, &buffer[0], buffer.size());
         }
 
         // Get function table of the module
@@ -309,11 +312,11 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const cal
             ctx.rsp = ctx.rbp - function_entry->frame_reg_offset;
 
         if(function_entry->prev_frame_reg != 0)
-            if(const auto rbp_ = core::read_ptr(core_, proc.dtb, ctx.rsp + function_entry->prev_frame_reg))
+            if(const auto rbp_ = reader.read(ctx.rsp + function_entry->prev_frame_reg))
                 ctx.rbp = *rbp_;
 
         const auto caller_addr_on_stack = ctx.rsp + *stack_frame_size;
-        const auto return_addr          = core::read_ptr(core_, proc.dtb, caller_addr_on_stack);
+        const auto return_addr          = reader.read(caller_addr_on_stack);
 
 #ifdef USE_DEBUG_PRINT
         // print stack
@@ -424,6 +427,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(proc_t proc, const void* vsr
     FunctionTable   function_table;
     FunctionEntries orphan_function_entries;
 
+    const auto reader = reader::make(core_, proc);
     for(size_t i = 0; i < exception_dir.size; i = i + sizeof(RuntimeFunction))
     {
 
@@ -435,7 +439,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(proc_t proc, const void* vsr
 
         UnwindInfo unwind_info;
         const auto to_read = mod_base_addr + unwind_info_ptr;
-        auto ok            = core_.mem.read_virtual(unwind_info, proc.dtb, to_read, sizeof unwind_info);
+        auto ok            = reader.read(unwind_info, to_read, sizeof unwind_info);
         if(!ok)
             FAIL({}, "unable to read unwind info");
 
@@ -460,7 +464,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(proc_t proc, const void* vsr
         }
 
         std::vector<uint8_t> buffer(unwind_codes_size);
-        core_.mem.read_virtual(&buffer[0], proc.dtb, mod_base_addr + unwind_info_ptr + sizeof unwind_info, unwind_codes_size);
+        reader.read(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof unwind_info, unwind_codes_size);
         if(!ok)
             FAIL({}, "unable to read unwind codes");
 

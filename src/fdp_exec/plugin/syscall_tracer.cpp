@@ -7,6 +7,7 @@
 #include "callstack.hpp"
 #include "monitor/syscalls.gen.hpp"
 #include "nt/objects_nt.hpp"
+#include "reader.hpp"
 #include "utils/file.hpp"
 #include "utils/pe.hpp"
 
@@ -162,17 +163,19 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
                                                    nt::PLARGE_INTEGER /*ByteOffsetm*/, nt::PULONG /*Key*/)
     {
         std::vector<char> buf(Length);
-        auto ok = d_->core_.mem.read_virtual(&buf[0], Buffer, Length);
-        buf[Length - 1] = 0;
+        const auto proc   = d_->target_;
+        const auto reader = reader::make(d_->core_, proc);
+        const auto ok     = reader.read(&buf[0], Buffer, Length);
         if(!ok)
             return 1;
 
-        const auto obj          = d_->objects_->get_object_ref(d_->target_, FileHandle);
-        const auto obj_typename = d_->objects_->obj_typename(*obj);
-        const auto obj_filename = d_->objects_->fileobj_filename(*obj);
-        const auto device_obj   = d_->objects_->fileobj_deviceobject(*obj);
-        const auto driver_obj   = d_->objects_->deviceobj_driverobject(*device_obj);
-        const auto driver_name  = d_->objects_->driverobj_drivername(*driver_obj);
+        buf[Length - 1] = 0;
+        const auto obj          = d_->objects_->get_object_ref(proc, FileHandle);
+        const auto obj_typename = d_->objects_->obj_typename(proc, *obj);
+        const auto obj_filename = d_->objects_->fileobj_filename(proc, *obj);
+        const auto device_obj   = d_->objects_->fileobj_deviceobject(proc, *obj);
+        const auto driver_obj   = d_->objects_->deviceobj_driverobject(proc, *device_obj);
+        const auto driver_name  = d_->objects_->driverobj_drivername(proc, *driver_obj);
         LOG(INFO, " File handle; {:#x}, typename : {}, filename : {}, driver_name : {}", FileHandle, obj_typename->data(), obj_filename->data(), driver_name->data());
 
         d_->args_[d_->nb_triggers_]["FileName"] = obj_filename->data();

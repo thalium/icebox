@@ -3,7 +3,8 @@
 #define FDP_MODULE "objects_nt"
 #include "log.hpp"
 
-#include "core/helpers.hpp"
+#include "endian.hpp"
+#include "reader.hpp"
 #include "utils/utf8.hpp"
 #include "utils/utils.hpp"
 
@@ -83,8 +84,6 @@ struct nt::ObjectNt::Data
 {
     MemberObjOffsets members_obj_;
     SymbolObjOffsets symbols_obj_;
-    uint64_t         kpcr_;
-    dtb_t            kdtb_;
 };
 
 nt::ObjectNt::ObjectNt(core::Core& core)
@@ -126,19 +125,6 @@ bool nt::ObjectNt::setup()
     if(fail)
         return false;
 
-    d_->kpcr_ = core_.regs.read(MSR_GS_BASE);
-    if(!(d_->kpcr_ & 0xFFF0000000000000))
-        d_->kpcr_ = core_.regs.read(MSR_KERNEL_GS_BASE);
-    if(!(d_->kpcr_ & 0xFFF0000000000000))
-        FAIL(false, "unable to read KPCR");
-
-    const auto dtb  = core_.regs.read(FDP_CR3_REGISTER);
-    const auto kdtb = core::read_ptr(core_, {dtb}, d_->kpcr_ + d_->members_obj_[KPCR_Prcb] + d_->members_obj_[KPRCB_KernelDirectoryTableBase]);
-    if(!kdtb)
-        FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
-
-    d_->kdtb_ = dtb_t{*kdtb};
-
     return true;
 }
 
@@ -158,15 +144,16 @@ std::shared_ptr<nt::ObjectNt> nt::make_objectnt(core::Core& core)
 opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
 {
     // Is kernel handle
+    const auto reader            = reader::make(core_, proc);
     const auto handle_table_addr = (handle & 0x80000000) ? d_->symbols_obj_[ObpKernelHandleTable] : proc.id + d_->members_obj_[EPROCESS_ObjectTable];
     if(handle & 0x80000000)
         handle = (((handle << 32) >> 32) & ~0xffffffff80000000);
 
-    const auto handle_table = core::read_ptr(core_, d_->kdtb_, handle_table_addr);
+    const auto handle_table = reader.read(handle_table_addr);
     if(!handle_table)
         FAIL({}, "Unable to read handle table");
 
-    auto handle_table_code = core::read_ptr(core_, d_->kdtb_, *handle_table + d_->members_obj_[HANDLE_TABLE_TableCode]);
+    auto handle_table_code = reader.read(*handle_table + d_->members_obj_[HANDLE_TABLE_TableCode]);
     if(!handle_table_code)
         FAIL({}, "Unable to read handle table code");
 
@@ -190,7 +177,7 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
             handle -= i;
             j = handle / ((PAGE_SIZE / HANDLE_TABLE_ENTRY_SIZE) * HANDLE_VALUE_INC) / POINTER_SIZE;
 
-            handle_table_code = core::read_ptr(core_, d_->kdtb_, *handle_table_code + j);
+            handle_table_code = reader.read(*handle_table_code + j);
             break;
 
         case 2:
@@ -201,15 +188,15 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
             k -= j;
             k /= (PAGE_SIZE / POINTER_SIZE);
 
-            handle_table_code = core::read_ptr(core_, d_->kdtb_, *handle_table_code + k);
-            handle_table_code = core::read_ptr(core_, d_->kdtb_, *handle_table_code + j);
+            handle_table_code = reader.read(*handle_table_code + k);
+            handle_table_code = reader.read(*handle_table_code + j);
             break;
 
         default:
             FAIL({}, "Unknown table level");
     }
 
-    const auto handle_table_entry = core::read_ptr(core_, d_->kdtb_, *handle_table_code + handle * (HANDLE_TABLE_ENTRY_SIZE / HANDLE_VALUE_INC));
+    const auto handle_table_entry = reader.read(*handle_table_code + handle * (HANDLE_TABLE_ENTRY_SIZE / HANDLE_VALUE_INC));
     if(!handle_table_entry)
         FAIL({}, "Unable to read table entry");
 
@@ -223,7 +210,7 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
 
 namespace
 {
-    opt<std::string> read_unicode_string(core::Core& core, dtb_t dtb, uint64_t unicode_string)
+    opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
     {
         using UnicodeString = struct
         {
@@ -233,7 +220,7 @@ namespace
             uint64_t buffer;
         };
         UnicodeString us;
-        auto ok = core.mem.read_virtual(&us, dtb, unicode_string, sizeof us);
+        auto ok = reader.read(&us, unicode_string, sizeof us);
         if(!ok)
             FAIL({}, "unable to read UNICODE_STRING");
 
@@ -245,7 +232,7 @@ namespace
             FAIL({}, "corrupted UNICODE_STRING");
 
         std::vector<uint8_t> buffer(us.length);
-        ok = core.mem.read_virtual(&buffer[0], dtb, us.buffer, us.length);
+        ok = reader.read(&buffer[0], us.buffer, us.length);
         if(!ok)
             FAIL({}, "unable to read UNICODE_STRING.buffer");
 
@@ -254,53 +241,57 @@ namespace
     }
 }
 
-opt<std::string> nt::ObjectNt::obj_typename(nt::obj_t obj)
+opt<std::string> nt::ObjectNt::obj_typename(proc_t proc, nt::obj_t obj)
 {
-    const auto POINTER_SIZE = 8;
-
+    const auto POINTER_SIZE     = 8;
+    const auto reader           = reader::make(core_, proc);
     const auto obj_header       = obj.id - d_->members_obj_[OBJECT_HEADER_Body];
-    const auto encoded_type_idx = core::read_byte(core_, d_->kdtb_, obj_header + d_->members_obj_[OBJECT_HEADER_TypeIndex]);
+    const auto encoded_type_idx = reader.byte(obj_header + d_->members_obj_[OBJECT_HEADER_TypeIndex]);
     if(!encoded_type_idx)
         FAIL({}, "Unable to read encoded type index");
 
-    const auto header_cookie = core::read_byte(core_, d_->kdtb_, d_->symbols_obj_[ObHeaderCookie]);
+    const auto header_cookie = reader.byte(d_->symbols_obj_[ObHeaderCookie]);
     if(!header_cookie)
         FAIL({}, "Unable to read ObHeaderCookie");
 
     const uint8_t obj_addr_cookie = ((obj_header >> 8) & 0xff);
     const auto type_idx = *encoded_type_idx ^ *header_cookie ^ obj_addr_cookie;
 
-    const auto obj_type = core::read_ptr(core_, d_->kdtb_, d_->symbols_obj_[ObTypeIndexTable] + type_idx * POINTER_SIZE);
+    const auto obj_type = reader.read(d_->symbols_obj_[ObTypeIndexTable] + type_idx * POINTER_SIZE);
     if(!obj_type)
         FAIL({}, "Unable to read object type");
 
-    return read_unicode_string(core_, d_->kdtb_, *obj_type + d_->members_obj_[OBJECT_TYPE_Name]);
+    return read_unicode_string(reader, *obj_type + d_->members_obj_[OBJECT_TYPE_Name]);
 }
 
-opt<std::string> nt::ObjectNt::fileobj_filename(nt::obj_t obj)
+opt<std::string> nt::ObjectNt::fileobj_filename(proc_t proc, nt::obj_t obj)
 {
-    return read_unicode_string(core_, d_->kdtb_, obj.id + d_->members_obj_[FILE_OBJECT_FileName]);
+    const auto reader = reader::make(core_, proc);
+    return read_unicode_string(reader, obj.id + d_->members_obj_[FILE_OBJECT_FileName]);
 }
 
-opt<nt::obj_t> nt::ObjectNt::fileobj_deviceobject(nt::obj_t obj)
+opt<nt::obj_t> nt::ObjectNt::fileobj_deviceobject(proc_t proc, nt::obj_t obj)
 {
-    const auto device_obj = core::read_ptr(core_, d_->kdtb_, obj.id + d_->members_obj_[FILE_OBJECT_DeviceObject]);
+    const auto reader     = reader::make(core_, proc);
+    const auto device_obj = reader.read(obj.id + d_->members_obj_[FILE_OBJECT_DeviceObject]);
     if(!device_obj)
         return {};
 
     return obj_t{*device_obj};
 }
 
-opt<nt::obj_t> nt::ObjectNt::deviceobj_driverobject(nt::obj_t obj)
+opt<nt::obj_t> nt::ObjectNt::deviceobj_driverobject(proc_t proc, nt::obj_t obj)
 {
-    const auto driver_obj = core::read_ptr(core_, d_->kdtb_, obj.id + d_->members_obj_[DEVICE_OBJECT_DriverObject]);
+    const auto reader     = reader::make(core_, proc);
+    const auto driver_obj = reader.read(obj.id + d_->members_obj_[DEVICE_OBJECT_DriverObject]);
     if(!driver_obj)
         return {};
 
     return obj_t{*driver_obj};
 }
 
-opt<std::string> nt::ObjectNt::driverobj_drivername(nt::obj_t obj)
+opt<std::string> nt::ObjectNt::driverobj_drivername(proc_t proc, nt::obj_t obj)
 {
-    return read_unicode_string(core_, d_->kdtb_, obj.id + d_->members_obj_[DRIVER_OBJECT_DriverName]);
+    const auto reader = reader::make(core_, proc);
+    return read_unicode_string(reader, obj.id + d_->members_obj_[DRIVER_OBJECT_DriverName]);
 }

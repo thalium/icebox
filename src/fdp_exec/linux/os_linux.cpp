@@ -2,8 +2,8 @@
 
 #define FDP_MODULE "os_linux"
 #include "core.hpp"
-#include "core/helpers.hpp"
 #include "log.hpp"
+#include "reader.hpp"
 
 namespace
 {
@@ -34,6 +34,9 @@ namespace
         bool setup();
 
         // os::IModule
+        bool    is_kernel   (uint64_t ptr) override;
+        bool    reader_setup(reader::Reader& reader, proc_t proc) override;
+
         bool                proc_list       (const on_proc_fn& on_process) override;
         opt<proc_t>         proc_current    () override;
         opt<proc_t>         proc_find       (const std::string& name) override;
@@ -102,11 +105,15 @@ std::unique_ptr<os::IModule> os::make_linux(core::Core& core)
 bool OsLinux::proc_list(const on_proc_fn& on_process)
 {
     const auto proc = core_.os->proc_current();
-    const auto head = init_task_addr_ + members_.tasks;
-    for(auto link = core::read_ptr(core_, proc->dtb, head); link != head; link = core::read_ptr(core_, proc->dtb, *link))
+    if(!proc)
+        return false;
+
+    const auto head   = init_task_addr_ + members_.tasks;
+    const auto reader = reader::make(core_, *proc);
+    for(auto link = reader.read(head); link != head; link = reader.read(*link))
     {
         const auto task_struc = *link - members_.tasks;
-        const auto pgd        = core::read_ptr(core_, proc->dtb, task_struc + members_.pgd);
+        const auto pgd        = reader.read(task_struc + members_.pgd);
         if(!pgd)
         {
             LOG(ERROR, "unable to read task_struct.mm_struct.pgd from {:#x}", task_struc);
@@ -158,7 +165,8 @@ opt<proc_t> OsLinux::proc_find(uint64_t pid)
 opt<std::string> OsLinux::proc_name(proc_t proc)
 {
     char buffer[14 + 1];
-    const auto ok = core_.mem.read_virtual(buffer, proc.dtb, proc.id + members_.name, sizeof buffer);
+    const auto reader = reader::make(core_, proc);
+    const auto ok     = reader.read(buffer, proc.id + members_.name, sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
         return {};
@@ -173,7 +181,8 @@ opt<std::string> OsLinux::proc_name(proc_t proc)
 uint64_t OsLinux::proc_id(proc_t proc)
 {
     // pid is a uin32_t on linux
-    const auto pid = core::read_le32(core_, proc.dtb, proc.id + members_.pid);
+    const auto reader = reader::make(core_, proc);
+    const auto pid    = reader.le32(proc.id + members_.pid);
     if(!pid)
         return 0;
 
@@ -184,6 +193,11 @@ uint64_t OsLinux::proc_id(proc_t proc)
 bool OsLinux::proc_is_valid(proc_t /*proc*/)
 {
     return true;
+}
+
+bool OsLinux::is_kernel(uint64_t /*ptr*/)
+{
+    return false;
 }
 
 opt<bool> OsLinux::proc_is_wow64(proc_t /*proc*/)
@@ -200,9 +214,16 @@ opt<phy_t> OsLinux::proc_resolve(proc_t /*proc*/, uint64_t /*ptr*/)
     return {};
 }
 
-opt<proc_t> OsLinux::proc_select(proc_t /*proc*/, uint64_t /*ptr*/)
+opt<proc_t> OsLinux::proc_select(proc_t proc, uint64_t /*ptr*/)
 {
-    return {};
+    return proc;
+}
+
+bool OsLinux::reader_setup(reader::Reader& reader, proc_t proc)
+{
+    reader.udtb_ = proc.dtb;
+    reader.kdtb_ = proc.dtb;
+    return true;
 }
 
 bool OsLinux::thread_list(proc_t /*proc*/, const on_thread_fn& on_thread)

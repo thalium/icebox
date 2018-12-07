@@ -142,7 +142,6 @@ def generate_impl(json_data, filename, namespace, pad):
     return """#include "{filename}.gen.hpp"
 
 #define FDP_MODULE "{filename}"
-#include "core/helpers.hpp"
 #include "log.hpp"
 #include "monitor.hpp"
 

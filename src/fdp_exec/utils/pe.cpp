@@ -1,9 +1,9 @@
 #include "pe.hpp"
 
 #define FDP_MODULE "pe"
-#include "core/helpers.hpp"
 #include "endian.hpp"
 #include "log.hpp"
+#include "reader.hpp"
 #include "utils/utils.hpp"
 
 #include <array>
@@ -94,10 +94,10 @@ bool pe::Pe::setup(core::Core& core)
     return true;
 }
 
-opt<span_t> pe::Pe::get_directory_entry(core::Core& core, dtb_t dtb, const span_t span, const pe_directory_entries_e directory_entry_id)
+opt<span_t> pe::Pe::get_directory_entry(const reader::Reader& reader, const span_t span, const pe_directory_entries_e directory_entry_id)
 {
     static const auto e_lfanew_offset = 0x3C;
-    const auto e_lfanew = core::read_le32(core, dtb, span.addr + e_lfanew_offset);
+    const auto e_lfanew = reader.le32(span.addr + e_lfanew_offset);
     if(!e_lfanew)
         FAIL({}, "unable to read e_lfanew");
 
@@ -106,11 +106,11 @@ opt<span_t> pe::Pe::get_directory_entry(core::Core& core, dtb_t dtb, const span_
 
     const auto size_image_data_directory      = 0x08;
     const auto data_directory                 = image_optional_header + d_->members_pe_[IMAGE_OPTIONAL_HEADER_DataDirectory] + size_image_data_directory * directory_entry_id;
-    const auto data_directory_virtual_address = core::read_le32(core, dtb, data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_VirtualAddress]);
+    const auto data_directory_virtual_address = reader.le32(data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_VirtualAddress]);
     if(!data_directory_virtual_address)
         FAIL({}, "unable to read DataDirectory.VirtualAddress");
 
-    const auto data_directory_size = core::read_le32(core, dtb, data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_Size]);
+    const auto data_directory_size = reader.le32(data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_Size]);
     if(!data_directory_size)
         FAIL({}, "unable to read DataDirectory.Size");
 

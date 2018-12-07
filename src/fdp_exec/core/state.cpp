@@ -6,6 +6,7 @@
 #include "log.hpp"
 #include "os.hpp"
 #include "private.hpp"
+#include "reader.hpp"
 #include "utils/utils.hpp"
 
 #include <FDP.h>

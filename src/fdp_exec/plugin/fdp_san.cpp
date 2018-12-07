@@ -3,10 +3,10 @@
 #define FDP_MODULE "fdp_san"
 #include "log.hpp"
 
-#include "core/helpers.hpp"
 #include "monitor/heaps.gen.hpp"
 #include "nt/nt.hpp"
 #include "os.hpp"
+#include "reader.hpp"
 #include "utils/utils.hpp"
 
 #include <map>
@@ -110,6 +110,7 @@ bool plugin::FdpSan::setup(proc_t target)
     if(!d_->callstack_)
         FAIL(false, "Unable to create callstack object");
 
+    const auto reader = reader::make(d_->core_, target);
     d_->heaps_.register_RtlpAllocateHeapInternal(d_->target_, [&](nt::PVOID HeapHandle, nt::SIZE_T Size)
     {
         const auto thread_curr = d_->core_.os->thread_current();
@@ -143,7 +144,7 @@ bool plugin::FdpSan::setup(proc_t target)
         if(!rsp)
             return 0;
 
-        const auto return_addr = core::read_ptr(d_->core_, rsp);
+        const auto return_addr = reader.read(rsp);
         if(!return_addr)
             return 0;
 
@@ -242,7 +243,7 @@ bool plugin::FdpSan::setup(proc_t target)
         if(!rsp)
             return 0;
 
-        const auto return_addr = core::read_ptr(d_->core_, rsp);
+        const auto return_addr = reader.read(rsp);
         if(!return_addr)
             return 0;
 
@@ -380,7 +381,7 @@ bool plugin::FdpSan::setup(proc_t target)
         if(!rsp)
             return 0;
 
-        const auto return_addr = core::read_ptr(d_->core_, rsp);
+        const auto return_addr = reader.read(rsp);
         if(!return_addr)
             return 0;
 

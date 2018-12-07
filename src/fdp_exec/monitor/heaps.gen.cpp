@@ -1,7 +1,6 @@
 #include "heaps.gen.hpp"
 
 #define FDP_MODULE "heaps"
-#include "core/helpers.hpp"
 #include "log.hpp"
 #include "monitor.hpp"
 

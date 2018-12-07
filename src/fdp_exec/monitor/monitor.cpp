@@ -1,8 +1,9 @@
 #include "monitor.hpp"
 
 #define FDP_MODULE "monitor"
-#include "core/helpers.hpp"
+#include "log.hpp"
 #include "os.hpp"
+#include "reader.hpp"
 
 namespace
 {
@@ -45,8 +46,9 @@ status_t monitor::set_arg_by_index(core::Core& core, size_t index, uint64_t valu
 
 return_t<uint64_t> monitor::get_stack_by_index(core::Core& core, size_t index)
 {
-    const auto rsp = core.regs.read(FDP_RSP_REGISTER);
-    return core::read_ptr(core, rsp + index * pointer_size);
+    const auto rsp    = core.regs.read(FDP_RSP_REGISTER);
+    const auto reader = reader::make(core);
+    return reader.read(rsp + index * pointer_size);
 }
 
 status_t monitor::set_stack_by_index(core::Core& /*core*/, size_t /*index*/, uint64_t /*value*/)
@@ -57,8 +59,9 @@ status_t monitor::set_stack_by_index(core::Core& /*core*/, size_t /*index*/, uin
 
 return_t<uint64_t> monitor::get_return_value(core::Core& core, proc_t proc)
 {
+    const auto reader      = reader::make(core, proc);
     const auto rsp         = core.regs.read(FDP_RSP_REGISTER);
-    const auto return_addr = core::read_ptr(core, rsp);
+    const auto return_addr = reader.read(rsp);
     const auto thread_curr = core.os->thread_current();
 
     const auto bp = core.state.set_breakpoint(*return_addr, proc, {});

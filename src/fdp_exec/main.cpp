@@ -4,6 +4,7 @@
 #define FDP_MODULE "main"
 #include "log.hpp"
 #include "os.hpp"
+#include "reader.hpp"
 #include "utils/pe.hpp"
 #include "utils/sanitizer.hpp"
 
@@ -50,6 +51,7 @@ namespace
         core.os->proc_join(*target, os::JOIN_USER_MODE);
 
         std::vector<uint8_t> buffer;
+        const auto reader = reader::make(core, *target);
         size_t modcount = 0;
         core.os->mod_list(*target, [&](mod_t)
         {
@@ -67,20 +69,20 @@ namespace
             LOG(INFO, "module[{:>2}/{:<2}] {}: {:#x} {:#x}", modi, modcount, name->data(), span->addr, span->size);
             ++modi;
 
-            const auto debug_dir = pe.get_directory_entry(core, target->dtb, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
+            const auto debug_dir = pe.get_directory_entry(reader, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
             buffer.resize(debug_dir->size);
-            auto ok = core.mem.read_virtual(&buffer[0], target->dtb, debug_dir->addr, debug_dir->size);
+            auto ok = reader.read(&buffer[0], debug_dir->addr, debug_dir->size);
             if(!ok)
                 return WALK_NEXT;
 
             const auto codeview = pe.parse_debug_dir(&buffer[0], span->addr, *debug_dir);
             buffer.resize(codeview->size);
-            ok = core.mem.read_virtual(&buffer[0], target->dtb, codeview->addr, codeview->size);
+            ok = reader.read(&buffer[0], codeview->addr, codeview->size);
             if(!ok)
                 FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
 
-            ok = core.sym.insert(sanitizer::sanitize_filename(*name).data(), *span, &buffer[0], buffer.size());
-            if(!ok)
+            const auto inserted = core.sym.insert(sanitizer::sanitize_filename(*name).data(), *span, &buffer[0], buffer.size());
+            if(!inserted)
                 return WALK_NEXT;
 
             return WALK_NEXT;

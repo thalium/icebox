@@ -7,6 +7,7 @@
 #include <memory>
 
 namespace core { struct Core; }
+namespace reader { struct Reader; }
 
 namespace os
 {
@@ -24,6 +25,9 @@ namespace os
         using on_thread_fn = std::function<walk_e(thread_t)>;
         using on_mod_fn    = std::function<walk_e(mod_t)>;
         using on_driver_fn = std::function<walk_e(driver_t)>;
+
+        virtual bool    is_kernel   (uint64_t ptr) = 0;
+        virtual bool    reader_setup(reader::Reader& reader, proc_t proc) = 0;
 
         virtual bool                proc_list       (const on_proc_fn& on_proc) = 0;
         virtual opt<proc_t>         proc_current    () = 0;
