@@ -1,8 +1,8 @@
 #pragma once
 
-#include "core.hpp"
 #include "types.hpp"
 
+namespace core { struct Core; }
 namespace reader { struct Reader; }
 
 namespace pe
@@ -40,5 +40,5 @@ namespace pe
         std::unique_ptr<Data> d_;
     };
 
-    return_t<size_t> read_image_size(const void* src, size_t size);
+    opt<size_t> read_image_size(const void* src, size_t size);
 } // namespace pe

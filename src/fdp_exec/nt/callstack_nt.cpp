@@ -1,10 +1,12 @@
 #include "callstack.hpp"
 
 #define FDP_MODULE "callstack_nt"
+#include "core.hpp"
 #include "endian.hpp"
 #include "log.hpp"
 #include "os.hpp"
 #include "reader.hpp"
+#include "utils/pe.hpp"
 #include "utils/sanitizer.hpp"
 
 #include <algorithm>

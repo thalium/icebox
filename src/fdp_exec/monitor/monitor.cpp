@@ -1,6 +1,7 @@
 #include "monitor.hpp"
 
 #define FDP_MODULE "monitor"
+#include "core.hpp"
 #include "log.hpp"
 #include "os.hpp"
 #include "reader.hpp"
@@ -9,7 +10,7 @@ namespace
 {
     static const int pointer_size = 0x8;
 
-    return_t<arg_t> to_arg(const return_t<uint64_t>& arg)
+    opt<arg_t> to_arg(const opt<uint64_t>& arg)
     {
         if(!arg)
             return {};
@@ -18,7 +19,7 @@ namespace
     }
 }
 
-return_t<arg_t> monitor::get_arg_by_index(core::Core& core, size_t index)
+opt<arg_t> monitor::get_arg_by_index(core::Core& core, size_t index)
 {
     // TODO Deal with x86
     switch(index)
@@ -31,7 +32,7 @@ return_t<arg_t> monitor::get_arg_by_index(core::Core& core, size_t index)
     }
 }
 
-status_t monitor::set_arg_by_index(core::Core& core, size_t index, uint64_t value)
+bool monitor::set_arg_by_index(core::Core& core, size_t index, uint64_t value)
 {
     // TODO Deal with x86
     switch(index)
@@ -44,20 +45,20 @@ status_t monitor::set_arg_by_index(core::Core& core, size_t index, uint64_t valu
     }
 }
 
-return_t<uint64_t> monitor::get_stack_by_index(core::Core& core, size_t index)
+opt<uint64_t> monitor::get_stack_by_index(core::Core& core, size_t index)
 {
     const auto rsp    = core.regs.read(FDP_RSP_REGISTER);
     const auto reader = reader::make(core);
     return reader.read(rsp + index * pointer_size);
 }
 
-status_t monitor::set_stack_by_index(core::Core& /*core*/, size_t /*index*/, uint64_t /*value*/)
+bool monitor::set_stack_by_index(core::Core& /*core*/, size_t /*index*/, uint64_t /*value*/)
 {
     LOG(ERROR, "NOT IMPLEMENTED");
-    return err::make(err_e::cannot_write);
+    return false;
 }
 
-return_t<uint64_t> monitor::get_return_value(core::Core& core, proc_t proc)
+opt<uint64_t> monitor::get_return_value(core::Core& core, proc_t proc)
 {
     const auto reader      = reader::make(core, proc);
     const auto rsp         = core.regs.read(FDP_RSP_REGISTER);
@@ -67,7 +68,7 @@ return_t<uint64_t> monitor::get_return_value(core::Core& core, proc_t proc)
     const auto bp = core.state.set_breakpoint(*return_addr, proc, {});
 
     // Should we set a callback ?
-    return_t<uint64_t> rip;
+    uint64_t rip;
     do
     {
         core.state.resume();
@@ -78,7 +79,7 @@ return_t<uint64_t> monitor::get_return_value(core::Core& core, proc_t proc)
     return core.regs.read(FDP_RAX_REGISTER);
 }
 
-status_t monitor::set_return_value(core::Core& core, uint64_t value)
+bool monitor::set_return_value(core::Core& core, uint64_t value)
 {
     return core.regs.write(FDP_RAX_REGISTER, value);
 }

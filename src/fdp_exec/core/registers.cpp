@@ -41,13 +41,10 @@ uint64_t core::Registers::read(reg_e reg)
     return value;
 }
 
-status_t core::Registers::write(reg_e reg, uint64_t value)
+bool core::Registers::write(reg_e reg, uint64_t value)
 {
     const auto ok = FDP_WriteRegister(&d_->shm_, 0, reg, value);
-    if(!ok)
-        return err::make(err_e::cannot_write);
-
-    return err::ok;
+    return ok;
 }
 
 uint64_t core::Registers::read(msr_e reg)
@@ -60,11 +57,8 @@ uint64_t core::Registers::read(msr_e reg)
     return value;
 }
 
-status_t core::Registers::write(msr_e reg, uint64_t value)
+bool core::Registers::write(msr_e reg, uint64_t value)
 {
     const auto ok = FDP_WriteMsr(&d_->shm_, 0, reg, value);
-    if(!ok)
-        return err::make(err_e::cannot_write);
-
-    return err::ok;
+    return ok;
 }

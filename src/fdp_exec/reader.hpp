@@ -1,6 +1,5 @@
 #pragma once
 
-#include "errors.hpp"
 #include "types.hpp"
 
 namespace core
@@ -14,16 +13,16 @@ namespace reader
     {
         ~Reader() = default;
 
-        return_t<uint8_t>   byte    (uint64_t ptr) const;
-        return_t<uint16_t>  le16    (uint64_t ptr) const;
-        return_t<uint32_t>  le32    (uint64_t ptr) const;
-        return_t<uint64_t>  le64    (uint64_t ptr) const;
-        return_t<uint16_t>  be16    (uint64_t ptr) const;
-        return_t<uint32_t>  be32    (uint64_t ptr) const;
-        return_t<uint64_t>  be64    (uint64_t ptr) const;
-        return_t<uint64_t>  read    (uint64_t ptr) const;
-        status_t            read    (void* dst, uint64_t ptr, size_t size) const;
-        return_t<phy_t>     physical(uint64_t ptr) const;
+        opt<uint8_t>    byte    (uint64_t ptr) const;
+        opt<uint16_t>   le16    (uint64_t ptr) const;
+        opt<uint32_t>   le32    (uint64_t ptr) const;
+        opt<uint64_t>   le64    (uint64_t ptr) const;
+        opt<uint16_t>   be16    (uint64_t ptr) const;
+        opt<uint32_t>   be32    (uint64_t ptr) const;
+        opt<uint64_t>   be64    (uint64_t ptr) const;
+        opt<uint64_t>   read    (uint64_t ptr) const;
+        bool            read    (void* dst, uint64_t ptr, size_t size) const;
+        opt<phy_t>      physical(uint64_t ptr) const;
 
         core::Core& core_;
         dtb_t       udtb_;

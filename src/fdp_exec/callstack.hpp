@@ -1,11 +1,12 @@
 #pragma once
 
-#include "core.hpp"
 #include "enums.hpp"
 #include "types.hpp"
-#include "utils/pe.hpp"
 
 #include <functional>
+
+namespace core { struct Core; }
+namespace pe { struct Pe; }
 
 namespace callstack
 {
