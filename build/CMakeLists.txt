@@ -37,6 +37,13 @@ target_link_libraries(test_fdp PRIVATE
 )
 endif()
 
+# fmtlib
+set(fmt_dir "${root_dir}/deps/fmt")
+add_target(fmtlib deps "${fmt_dir}/src" "${fmt_dir}/include" OPTIONS recurse external)
+target_include_directories(fmtlib PUBLIC
+    "${fmt_dir}/include"
+)
+
 # loguru
 set(loguru_dir "${root_dir}/deps/loguru-2.0.0")
 add_target(loguru deps "${loguru_dir}" OPTIONS external)
@@ -45,6 +52,9 @@ target_compile_definitions(loguru PRIVATE
 )
 target_include_directories(loguru PUBLIC
     "${loguru_dir}"
+)
+target_link_libraries(loguru PUBLIC
+    fmtlib
 )
 
 # pdbparser
