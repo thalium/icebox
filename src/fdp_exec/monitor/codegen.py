@@ -85,10 +85,7 @@ def generate_dispatchers(json_data, filename):
         # print prologue
         dispatchers += """
     static void on_{target}(monitor::{filename}::Data& d)
-    {{
-        if(false)
-            LOG(INFO, "break on {target}");
-""".format(filename=filename, target=target)
+    {{""".format(filename=filename, target=target)
 
         # print args
         pad = 0
@@ -97,19 +94,24 @@ def generate_dispatchers(json_data, filename):
         idx = 0
         lines = []
         names = []
+        formats = []
         for name, typeof in args:
             dispatchers += "\n        const auto %s = arg<nt::%s>(d.core, %d);" % (name.ljust(pad), typeof, idx)
             idx += 1
             names.append(name)
+            formats.append("%s:{:#x}" % name)
         if idx > 0:
             dispatchers += "\n"
 
         # print epilogue
         dispatchers += """
+        if constexpr(g_debug)
+            LOG(INFO, "{target}({fmtargs})", {logargs});
+
         for(const auto& it : d.observers_{target})
             it({args});
     }}
-""".format(target=target, args=", ".join(names))
+""".format(target=target, args=", ".join(names), fmtargs=", ".join(formats), logargs=", ".join(names))
     return dispatchers
 
 def generate_definitions(json_data, filename):
@@ -143,6 +145,11 @@ def generate_impl(json_data, filename, namespace, pad):
 #include "core/helpers.hpp"
 #include "log.hpp"
 #include "monitor.hpp"
+
+namespace
+{{
+	constexpr bool g_debug = true;
+}}
 
 struct monitor::{filename}::Data
 {{

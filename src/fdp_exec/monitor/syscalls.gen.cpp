@@ -5,6 +5,11 @@
 #include "log.hpp"
 #include "monitor.hpp"
 
+namespace
+{
+	constexpr bool g_debug = true;
+}
+
 struct monitor::syscalls::Data
 {
     Data(core::Core& core, const std::string& module);
@@ -477,9 +482,6 @@ namespace
 
     static void on_NtAcceptConnectPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAcceptConnectPort");
-
         const auto PortHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto PortContext       = arg<nt::PVOID>(d.core, 1);
         const auto ConnectionRequest = arg<nt::PPORT_MESSAGE>(d.core, 2);
@@ -487,15 +489,15 @@ namespace
         const auto ServerView        = arg<nt::PPORT_VIEW>(d.core, 4);
         const auto ClientView        = arg<nt::PREMOTE_PORT_VIEW>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAcceptConnectPort(PortHandle:{:#x}, PortContext:{:#x}, ConnectionRequest:{:#x}, AcceptConnection:{:#x}, ServerView:{:#x}, ClientView:{:#x})", PortHandle, PortContext, ConnectionRequest, AcceptConnection, ServerView, ClientView);
+
         for(const auto& it : d.observers_NtAcceptConnectPort)
             it(PortHandle, PortContext, ConnectionRequest, AcceptConnection, ServerView, ClientView);
     }
 
     static void on_NtAccessCheckAndAuditAlarm(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAccessCheckAndAuditAlarm");
-
         const auto SubsystemName      = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId           = arg<nt::PVOID>(d.core, 1);
         const auto ObjectTypeName     = arg<nt::PUNICODE_STRING>(d.core, 2);
@@ -508,15 +510,15 @@ namespace
         const auto AccessStatus       = arg<nt::PNTSTATUS>(d.core, 9);
         const auto GenerateOnClose    = arg<nt::PBOOLEAN>(d.core, 10);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAccessCheckAndAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, DesiredAccess:{:#x}, GenericMapping:{:#x}, ObjectCreation:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, DesiredAccess, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
+
         for(const auto& it : d.observers_NtAccessCheckAndAuditAlarm)
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, DesiredAccess, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
     static void on_NtAccessCheckByTypeAndAuditAlarm(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAccessCheckByTypeAndAuditAlarm");
-
         const auto SubsystemName        = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId             = arg<nt::PVOID>(d.core, 1);
         const auto ObjectTypeName       = arg<nt::PUNICODE_STRING>(d.core, 2);
@@ -534,15 +536,15 @@ namespace
         const auto AccessStatus         = arg<nt::PNTSTATUS>(d.core, 14);
         const auto GenerateOnClose      = arg<nt::PBOOLEAN>(d.core, 15);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAccessCheckByTypeAndAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, DesiredAccess:{:#x}, AuditType:{:#x}, Flags:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, ObjectCreation:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
+
         for(const auto& it : d.observers_NtAccessCheckByTypeAndAuditAlarm)
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
     static void on_NtAccessCheckByType(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAccessCheckByType");
-
         const auto SecurityDescriptor   = arg<nt::PSECURITY_DESCRIPTOR>(d.core, 0);
         const auto PrincipalSelfSid     = arg<nt::PSID>(d.core, 1);
         const auto ClientToken          = arg<nt::HANDLE>(d.core, 2);
@@ -555,15 +557,15 @@ namespace
         const auto GrantedAccess        = arg<nt::PACCESS_MASK>(d.core, 9);
         const auto AccessStatus         = arg<nt::PNTSTATUS>(d.core, 10);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAccessCheckByType(SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, PrivilegeSet:{:#x}, PrivilegeSetLength:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x})", SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
+
         for(const auto& it : d.observers_NtAccessCheckByType)
             it(SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
     }
 
     static void on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAccessCheckByTypeResultListAndAuditAlarmByHandle");
-
         const auto SubsystemName        = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId             = arg<nt::PVOID>(d.core, 1);
         const auto ClientToken          = arg<nt::HANDLE>(d.core, 2);
@@ -582,15 +584,15 @@ namespace
         const auto AccessStatus         = arg<nt::PNTSTATUS>(d.core, 15);
         const auto GenerateOnClose      = arg<nt::PBOOLEAN>(d.core, 16);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAccessCheckByTypeResultListAndAuditAlarmByHandle(SubsystemName:{:#x}, HandleId:{:#x}, ClientToken:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, DesiredAccess:{:#x}, AuditType:{:#x}, Flags:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, ObjectCreation:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ClientToken, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
+
         for(const auto& it : d.observers_NtAccessCheckByTypeResultListAndAuditAlarmByHandle)
             it(SubsystemName, HandleId, ClientToken, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
     static void on_NtAccessCheckByTypeResultListAndAuditAlarm(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAccessCheckByTypeResultListAndAuditAlarm");
-
         const auto SubsystemName        = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId             = arg<nt::PVOID>(d.core, 1);
         const auto ObjectTypeName       = arg<nt::PUNICODE_STRING>(d.core, 2);
@@ -608,15 +610,15 @@ namespace
         const auto AccessStatus         = arg<nt::PNTSTATUS>(d.core, 14);
         const auto GenerateOnClose      = arg<nt::PBOOLEAN>(d.core, 15);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAccessCheckByTypeResultListAndAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, DesiredAccess:{:#x}, AuditType:{:#x}, Flags:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, ObjectCreation:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
+
         for(const auto& it : d.observers_NtAccessCheckByTypeResultListAndAuditAlarm)
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
     static void on_NtAccessCheckByTypeResultList(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAccessCheckByTypeResultList");
-
         const auto SecurityDescriptor   = arg<nt::PSECURITY_DESCRIPTOR>(d.core, 0);
         const auto PrincipalSelfSid     = arg<nt::PSID>(d.core, 1);
         const auto ClientToken          = arg<nt::HANDLE>(d.core, 2);
@@ -629,15 +631,15 @@ namespace
         const auto GrantedAccess        = arg<nt::PACCESS_MASK>(d.core, 9);
         const auto AccessStatus         = arg<nt::PNTSTATUS>(d.core, 10);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAccessCheckByTypeResultList(SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, PrivilegeSet:{:#x}, PrivilegeSetLength:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x})", SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
+
         for(const auto& it : d.observers_NtAccessCheckByTypeResultList)
             it(SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
     }
 
     static void on_NtAccessCheck(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAccessCheck");
-
         const auto SecurityDescriptor = arg<nt::PSECURITY_DESCRIPTOR>(d.core, 0);
         const auto ClientToken        = arg<nt::HANDLE>(d.core, 1);
         const auto DesiredAccess      = arg<nt::ACCESS_MASK>(d.core, 2);
@@ -647,18 +649,21 @@ namespace
         const auto GrantedAccess      = arg<nt::PACCESS_MASK>(d.core, 6);
         const auto AccessStatus       = arg<nt::PNTSTATUS>(d.core, 7);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAccessCheck(SecurityDescriptor:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, GenericMapping:{:#x}, PrivilegeSet:{:#x}, PrivilegeSetLength:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x})", SecurityDescriptor, ClientToken, DesiredAccess, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
+
         for(const auto& it : d.observers_NtAccessCheck)
             it(SecurityDescriptor, ClientToken, DesiredAccess, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
     }
 
     static void on_NtAddAtom(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAddAtom");
-
         const auto AtomName = arg<nt::PWSTR>(d.core, 0);
         const auto Length   = arg<nt::ULONG>(d.core, 1);
         const auto Atom     = arg<nt::PRTL_ATOM>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAddAtom(AtomName:{:#x}, Length:{:#x}, Atom:{:#x})", AtomName, Length, Atom);
 
         for(const auto& it : d.observers_NtAddAtom)
             it(AtomName, Length, Atom);
@@ -666,11 +671,11 @@ namespace
 
     static void on_NtAddBootEntry(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAddBootEntry");
-
         const auto BootEntry = arg<nt::PBOOT_ENTRY>(d.core, 0);
         const auto Id        = arg<nt::PULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAddBootEntry(BootEntry:{:#x}, Id:{:#x})", BootEntry, Id);
 
         for(const auto& it : d.observers_NtAddBootEntry)
             it(BootEntry, Id);
@@ -678,11 +683,11 @@ namespace
 
     static void on_NtAddDriverEntry(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAddDriverEntry");
-
         const auto DriverEntry = arg<nt::PEFI_DRIVER_ENTRY>(d.core, 0);
         const auto Id          = arg<nt::PULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAddDriverEntry(DriverEntry:{:#x}, Id:{:#x})", DriverEntry, Id);
 
         for(const auto& it : d.observers_NtAddDriverEntry)
             it(DriverEntry, Id);
@@ -690,9 +695,6 @@ namespace
 
     static void on_NtAdjustGroupsToken(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAdjustGroupsToken");
-
         const auto TokenHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto ResetToDefault = arg<nt::BOOLEAN>(d.core, 1);
         const auto NewState       = arg<nt::PTOKEN_GROUPS>(d.core, 2);
@@ -700,15 +702,15 @@ namespace
         const auto PreviousState  = arg<nt::PTOKEN_GROUPS>(d.core, 4);
         const auto ReturnLength   = arg<nt::PULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAdjustGroupsToken(TokenHandle:{:#x}, ResetToDefault:{:#x}, NewState:{:#x}, BufferLength:{:#x}, PreviousState:{:#x}, ReturnLength:{:#x})", TokenHandle, ResetToDefault, NewState, BufferLength, PreviousState, ReturnLength);
+
         for(const auto& it : d.observers_NtAdjustGroupsToken)
             it(TokenHandle, ResetToDefault, NewState, BufferLength, PreviousState, ReturnLength);
     }
 
     static void on_NtAdjustPrivilegesToken(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAdjustPrivilegesToken");
-
         const auto TokenHandle          = arg<nt::HANDLE>(d.core, 0);
         const auto DisableAllPrivileges = arg<nt::BOOLEAN>(d.core, 1);
         const auto NewState             = arg<nt::PTOKEN_PRIVILEGES>(d.core, 2);
@@ -716,17 +718,20 @@ namespace
         const auto PreviousState        = arg<nt::PTOKEN_PRIVILEGES>(d.core, 4);
         const auto ReturnLength         = arg<nt::PULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAdjustPrivilegesToken(TokenHandle:{:#x}, DisableAllPrivileges:{:#x}, NewState:{:#x}, BufferLength:{:#x}, PreviousState:{:#x}, ReturnLength:{:#x})", TokenHandle, DisableAllPrivileges, NewState, BufferLength, PreviousState, ReturnLength);
+
         for(const auto& it : d.observers_NtAdjustPrivilegesToken)
             it(TokenHandle, DisableAllPrivileges, NewState, BufferLength, PreviousState, ReturnLength);
     }
 
     static void on_NtAlertResumeThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlertResumeThread");
-
         const auto ThreadHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto PreviousSuspendCount = arg<nt::PULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlertResumeThread(ThreadHandle:{:#x}, PreviousSuspendCount:{:#x})", ThreadHandle, PreviousSuspendCount);
 
         for(const auto& it : d.observers_NtAlertResumeThread)
             it(ThreadHandle, PreviousSuspendCount);
@@ -734,10 +739,10 @@ namespace
 
     static void on_NtAlertThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlertThread");
-
         const auto ThreadHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlertThread(ThreadHandle:{:#x})", ThreadHandle);
 
         for(const auto& it : d.observers_NtAlertThread)
             it(ThreadHandle);
@@ -745,10 +750,10 @@ namespace
 
     static void on_NtAllocateLocallyUniqueId(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAllocateLocallyUniqueId");
-
         const auto Luid = arg<nt::PLUID>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAllocateLocallyUniqueId(Luid:{:#x})", Luid);
 
         for(const auto& it : d.observers_NtAllocateLocallyUniqueId)
             it(Luid);
@@ -756,12 +761,12 @@ namespace
 
     static void on_NtAllocateReserveObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAllocateReserveObject");
-
         const auto MemoryReserveHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto ObjectAttributes    = arg<nt::POBJECT_ATTRIBUTES>(d.core, 1);
         const auto Type                = arg<nt::MEMORY_RESERVE_TYPE>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAllocateReserveObject(MemoryReserveHandle:{:#x}, ObjectAttributes:{:#x}, Type:{:#x})", MemoryReserveHandle, ObjectAttributes, Type);
 
         for(const auto& it : d.observers_NtAllocateReserveObject)
             it(MemoryReserveHandle, ObjectAttributes, Type);
@@ -769,12 +774,12 @@ namespace
 
     static void on_NtAllocateUserPhysicalPages(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAllocateUserPhysicalPages");
-
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto NumberOfPages = arg<nt::PULONG_PTR>(d.core, 1);
         const auto UserPfnArra   = arg<nt::PULONG_PTR>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAllocateUserPhysicalPages(ProcessHandle:{:#x}, NumberOfPages:{:#x}, UserPfnArra:{:#x})", ProcessHandle, NumberOfPages, UserPfnArra);
 
         for(const auto& it : d.observers_NtAllocateUserPhysicalPages)
             it(ProcessHandle, NumberOfPages, UserPfnArra);
@@ -782,13 +787,13 @@ namespace
 
     static void on_NtAllocateUuids(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAllocateUuids");
-
         const auto Time     = arg<nt::PULARGE_INTEGER>(d.core, 0);
         const auto Range    = arg<nt::PULONG>(d.core, 1);
         const auto Sequence = arg<nt::PULONG>(d.core, 2);
         const auto Seed     = arg<nt::PCHAR>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAllocateUuids(Time:{:#x}, Range:{:#x}, Sequence:{:#x}, Seed:{:#x})", Time, Range, Sequence, Seed);
 
         for(const auto& it : d.observers_NtAllocateUuids)
             it(Time, Range, Sequence, Seed);
@@ -796,9 +801,6 @@ namespace
 
     static void on_NtAllocateVirtualMemory(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAllocateVirtualMemory");
-
         const auto ProcessHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt::PVOID>(d.core, 1);
         const auto ZeroBits        = arg<nt::ULONG_PTR>(d.core, 2);
@@ -806,15 +808,15 @@ namespace
         const auto AllocationType  = arg<nt::ULONG>(d.core, 4);
         const auto Protect         = arg<nt::ULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAllocateVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, ZeroBits:{:#x}, RegionSize:{:#x}, AllocationType:{:#x}, Protect:{:#x})", ProcessHandle, STARBaseAddress, ZeroBits, RegionSize, AllocationType, Protect);
+
         for(const auto& it : d.observers_NtAllocateVirtualMemory)
             it(ProcessHandle, STARBaseAddress, ZeroBits, RegionSize, AllocationType, Protect);
     }
 
     static void on_NtAlpcAcceptConnectPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcAcceptConnectPort");
-
         const auto PortHandle                  = arg<nt::PHANDLE>(d.core, 0);
         const auto ConnectionPortHandle        = arg<nt::HANDLE>(d.core, 1);
         const auto Flags                       = arg<nt::ULONG>(d.core, 2);
@@ -825,18 +827,21 @@ namespace
         const auto ConnectionMessageAttributes = arg<nt::PALPC_MESSAGE_ATTRIBUTES>(d.core, 7);
         const auto AcceptConnection            = arg<nt::BOOLEAN>(d.core, 8);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcAcceptConnectPort(PortHandle:{:#x}, ConnectionPortHandle:{:#x}, Flags:{:#x}, ObjectAttributes:{:#x}, PortAttributes:{:#x}, PortContext:{:#x}, ConnectionRequest:{:#x}, ConnectionMessageAttributes:{:#x}, AcceptConnection:{:#x})", PortHandle, ConnectionPortHandle, Flags, ObjectAttributes, PortAttributes, PortContext, ConnectionRequest, ConnectionMessageAttributes, AcceptConnection);
+
         for(const auto& it : d.observers_NtAlpcAcceptConnectPort)
             it(PortHandle, ConnectionPortHandle, Flags, ObjectAttributes, PortAttributes, PortContext, ConnectionRequest, ConnectionMessageAttributes, AcceptConnection);
     }
 
     static void on_NtAlpcCancelMessage(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcCancelMessage");
-
         const auto PortHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto Flags          = arg<nt::ULONG>(d.core, 1);
         const auto MessageContext = arg<nt::PALPC_CONTEXT_ATTR>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcCancelMessage(PortHandle:{:#x}, Flags:{:#x}, MessageContext:{:#x})", PortHandle, Flags, MessageContext);
 
         for(const auto& it : d.observers_NtAlpcCancelMessage)
             it(PortHandle, Flags, MessageContext);
@@ -844,9 +849,6 @@ namespace
 
     static void on_NtAlpcConnectPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcConnectPort");
-
         const auto PortHandle           = arg<nt::PHANDLE>(d.core, 0);
         const auto PortName             = arg<nt::PUNICODE_STRING>(d.core, 1);
         const auto ObjectAttributes     = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -859,18 +861,21 @@ namespace
         const auto InMessageAttributes  = arg<nt::PALPC_MESSAGE_ATTRIBUTES>(d.core, 9);
         const auto Timeout              = arg<nt::PLARGE_INTEGER>(d.core, 10);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcConnectPort(PortHandle:{:#x}, PortName:{:#x}, ObjectAttributes:{:#x}, PortAttributes:{:#x}, Flags:{:#x}, RequiredServerSid:{:#x}, ConnectionMessage:{:#x}, BufferLength:{:#x}, OutMessageAttributes:{:#x}, InMessageAttributes:{:#x}, Timeout:{:#x})", PortHandle, PortName, ObjectAttributes, PortAttributes, Flags, RequiredServerSid, ConnectionMessage, BufferLength, OutMessageAttributes, InMessageAttributes, Timeout);
+
         for(const auto& it : d.observers_NtAlpcConnectPort)
             it(PortHandle, PortName, ObjectAttributes, PortAttributes, Flags, RequiredServerSid, ConnectionMessage, BufferLength, OutMessageAttributes, InMessageAttributes, Timeout);
     }
 
     static void on_NtAlpcCreatePort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcCreatePort");
-
         const auto PortHandle       = arg<nt::PHANDLE>(d.core, 0);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 1);
         const auto PortAttributes   = arg<nt::PALPC_PORT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcCreatePort(PortHandle:{:#x}, ObjectAttributes:{:#x}, PortAttributes:{:#x})", PortHandle, ObjectAttributes, PortAttributes);
 
         for(const auto& it : d.observers_NtAlpcCreatePort)
             it(PortHandle, ObjectAttributes, PortAttributes);
@@ -878,9 +883,6 @@ namespace
 
     static void on_NtAlpcCreatePortSection(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcCreatePortSection");
-
         const auto PortHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto Flags             = arg<nt::ULONG>(d.core, 1);
         const auto SectionHandle     = arg<nt::HANDLE>(d.core, 2);
@@ -888,19 +890,22 @@ namespace
         const auto AlpcSectionHandle = arg<nt::PALPC_HANDLE>(d.core, 4);
         const auto ActualSectionSize = arg<nt::PSIZE_T>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcCreatePortSection(PortHandle:{:#x}, Flags:{:#x}, SectionHandle:{:#x}, SectionSize:{:#x}, AlpcSectionHandle:{:#x}, ActualSectionSize:{:#x})", PortHandle, Flags, SectionHandle, SectionSize, AlpcSectionHandle, ActualSectionSize);
+
         for(const auto& it : d.observers_NtAlpcCreatePortSection)
             it(PortHandle, Flags, SectionHandle, SectionSize, AlpcSectionHandle, ActualSectionSize);
     }
 
     static void on_NtAlpcCreateResourceReserve(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcCreateResourceReserve");
-
         const auto PortHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
         const auto MessageSize = arg<nt::SIZE_T>(d.core, 2);
         const auto ResourceId  = arg<nt::PALPC_HANDLE>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcCreateResourceReserve(PortHandle:{:#x}, Flags:{:#x}, MessageSize:{:#x}, ResourceId:{:#x})", PortHandle, Flags, MessageSize, ResourceId);
 
         for(const auto& it : d.observers_NtAlpcCreateResourceReserve)
             it(PortHandle, Flags, MessageSize, ResourceId);
@@ -908,12 +913,12 @@ namespace
 
     static void on_NtAlpcCreateSectionView(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcCreateSectionView");
-
         const auto PortHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto Flags          = arg<nt::ULONG>(d.core, 1);
         const auto ViewAttributes = arg<nt::PALPC_DATA_VIEW_ATTR>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcCreateSectionView(PortHandle:{:#x}, Flags:{:#x}, ViewAttributes:{:#x})", PortHandle, Flags, ViewAttributes);
 
         for(const auto& it : d.observers_NtAlpcCreateSectionView)
             it(PortHandle, Flags, ViewAttributes);
@@ -921,12 +926,12 @@ namespace
 
     static void on_NtAlpcCreateSecurityContext(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcCreateSecurityContext");
-
         const auto PortHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto Flags             = arg<nt::ULONG>(d.core, 1);
         const auto SecurityAttribute = arg<nt::PALPC_SECURITY_ATTR>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcCreateSecurityContext(PortHandle:{:#x}, Flags:{:#x}, SecurityAttribute:{:#x})", PortHandle, Flags, SecurityAttribute);
 
         for(const auto& it : d.observers_NtAlpcCreateSecurityContext)
             it(PortHandle, Flags, SecurityAttribute);
@@ -934,12 +939,12 @@ namespace
 
     static void on_NtAlpcDeletePortSection(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcDeletePortSection");
-
         const auto PortHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto Flags         = arg<nt::ULONG>(d.core, 1);
         const auto SectionHandle = arg<nt::ALPC_HANDLE>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcDeletePortSection(PortHandle:{:#x}, Flags:{:#x}, SectionHandle:{:#x})", PortHandle, Flags, SectionHandle);
 
         for(const auto& it : d.observers_NtAlpcDeletePortSection)
             it(PortHandle, Flags, SectionHandle);
@@ -947,12 +952,12 @@ namespace
 
     static void on_NtAlpcDeleteResourceReserve(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcDeleteResourceReserve");
-
         const auto PortHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Flags      = arg<nt::ULONG>(d.core, 1);
         const auto ResourceId = arg<nt::ALPC_HANDLE>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcDeleteResourceReserve(PortHandle:{:#x}, Flags:{:#x}, ResourceId:{:#x})", PortHandle, Flags, ResourceId);
 
         for(const auto& it : d.observers_NtAlpcDeleteResourceReserve)
             it(PortHandle, Flags, ResourceId);
@@ -960,12 +965,12 @@ namespace
 
     static void on_NtAlpcDeleteSectionView(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcDeleteSectionView");
-
         const auto PortHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Flags      = arg<nt::ULONG>(d.core, 1);
         const auto ViewBase   = arg<nt::PVOID>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcDeleteSectionView(PortHandle:{:#x}, Flags:{:#x}, ViewBase:{:#x})", PortHandle, Flags, ViewBase);
 
         for(const auto& it : d.observers_NtAlpcDeleteSectionView)
             it(PortHandle, Flags, ViewBase);
@@ -973,12 +978,12 @@ namespace
 
     static void on_NtAlpcDeleteSecurityContext(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcDeleteSecurityContext");
-
         const auto PortHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto Flags         = arg<nt::ULONG>(d.core, 1);
         const auto ContextHandle = arg<nt::ALPC_HANDLE>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcDeleteSecurityContext(PortHandle:{:#x}, Flags:{:#x}, ContextHandle:{:#x})", PortHandle, Flags, ContextHandle);
 
         for(const auto& it : d.observers_NtAlpcDeleteSecurityContext)
             it(PortHandle, Flags, ContextHandle);
@@ -986,11 +991,11 @@ namespace
 
     static void on_NtAlpcDisconnectPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcDisconnectPort");
-
         const auto PortHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Flags      = arg<nt::ULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcDisconnectPort(PortHandle:{:#x}, Flags:{:#x})", PortHandle, Flags);
 
         for(const auto& it : d.observers_NtAlpcDisconnectPort)
             it(PortHandle, Flags);
@@ -998,12 +1003,12 @@ namespace
 
     static void on_NtAlpcImpersonateClientOfPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcImpersonateClientOfPort");
-
         const auto PortHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto PortMessage = arg<nt::PPORT_MESSAGE>(d.core, 1);
         const auto Reserved    = arg<nt::PVOID>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcImpersonateClientOfPort(PortHandle:{:#x}, PortMessage:{:#x}, Reserved:{:#x})", PortHandle, PortMessage, Reserved);
 
         for(const auto& it : d.observers_NtAlpcImpersonateClientOfPort)
             it(PortHandle, PortMessage, Reserved);
@@ -1011,9 +1016,6 @@ namespace
 
     static void on_NtAlpcOpenSenderProcess(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcOpenSenderProcess");
-
         const auto ProcessHandle    = arg<nt::PHANDLE>(d.core, 0);
         const auto PortHandle       = arg<nt::HANDLE>(d.core, 1);
         const auto PortMessage      = arg<nt::PPORT_MESSAGE>(d.core, 2);
@@ -1021,15 +1023,15 @@ namespace
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 4);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcOpenSenderProcess(ProcessHandle:{:#x}, PortHandle:{:#x}, PortMessage:{:#x}, Flags:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", ProcessHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes);
+
         for(const auto& it : d.observers_NtAlpcOpenSenderProcess)
             it(ProcessHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes);
     }
 
     static void on_NtAlpcOpenSenderThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcOpenSenderThread");
-
         const auto ThreadHandle     = arg<nt::PHANDLE>(d.core, 0);
         const auto PortHandle       = arg<nt::HANDLE>(d.core, 1);
         const auto PortMessage      = arg<nt::PPORT_MESSAGE>(d.core, 2);
@@ -1037,20 +1039,23 @@ namespace
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 4);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcOpenSenderThread(ThreadHandle:{:#x}, PortHandle:{:#x}, PortMessage:{:#x}, Flags:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", ThreadHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes);
+
         for(const auto& it : d.observers_NtAlpcOpenSenderThread)
             it(ThreadHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes);
     }
 
     static void on_NtAlpcQueryInformation(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcQueryInformation");
-
         const auto PortHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto PortInformationClass = arg<nt::ALPC_PORT_INFORMATION_CLASS>(d.core, 1);
         const auto PortInformation      = arg<nt::PVOID>(d.core, 2);
         const auto Length               = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength         = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcQueryInformation(PortHandle:{:#x}, PortInformationClass:{:#x}, PortInformation:{:#x}, Length:{:#x}, ReturnLength:{:#x})", PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
 
         for(const auto& it : d.observers_NtAlpcQueryInformation)
             it(PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
@@ -1058,9 +1063,6 @@ namespace
 
     static void on_NtAlpcQueryInformationMessage(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcQueryInformationMessage");
-
         const auto PortHandle              = arg<nt::HANDLE>(d.core, 0);
         const auto PortMessage             = arg<nt::PPORT_MESSAGE>(d.core, 1);
         const auto MessageInformationClass = arg<nt::ALPC_MESSAGE_INFORMATION_CLASS>(d.core, 2);
@@ -1068,18 +1070,21 @@ namespace
         const auto Length                  = arg<nt::ULONG>(d.core, 4);
         const auto ReturnLength            = arg<nt::PULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcQueryInformationMessage(PortHandle:{:#x}, PortMessage:{:#x}, MessageInformationClass:{:#x}, MessageInformation:{:#x}, Length:{:#x}, ReturnLength:{:#x})", PortHandle, PortMessage, MessageInformationClass, MessageInformation, Length, ReturnLength);
+
         for(const auto& it : d.observers_NtAlpcQueryInformationMessage)
             it(PortHandle, PortMessage, MessageInformationClass, MessageInformation, Length, ReturnLength);
     }
 
     static void on_NtAlpcRevokeSecurityContext(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcRevokeSecurityContext");
-
         const auto PortHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto Flags         = arg<nt::ULONG>(d.core, 1);
         const auto ContextHandle = arg<nt::ALPC_HANDLE>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcRevokeSecurityContext(PortHandle:{:#x}, Flags:{:#x}, ContextHandle:{:#x})", PortHandle, Flags, ContextHandle);
 
         for(const auto& it : d.observers_NtAlpcRevokeSecurityContext)
             it(PortHandle, Flags, ContextHandle);
@@ -1087,9 +1092,6 @@ namespace
 
     static void on_NtAlpcSendWaitReceivePort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcSendWaitReceivePort");
-
         const auto PortHandle               = arg<nt::HANDLE>(d.core, 0);
         const auto Flags                    = arg<nt::ULONG>(d.core, 1);
         const auto SendMessage              = arg<nt::PPORT_MESSAGE>(d.core, 2);
@@ -1099,19 +1101,22 @@ namespace
         const auto ReceiveMessageAttributes = arg<nt::PALPC_MESSAGE_ATTRIBUTES>(d.core, 6);
         const auto Timeout                  = arg<nt::PLARGE_INTEGER>(d.core, 7);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcSendWaitReceivePort(PortHandle:{:#x}, Flags:{:#x}, SendMessage:{:#x}, SendMessageAttributes:{:#x}, ReceiveMessage:{:#x}, BufferLength:{:#x}, ReceiveMessageAttributes:{:#x}, Timeout:{:#x})", PortHandle, Flags, SendMessage, SendMessageAttributes, ReceiveMessage, BufferLength, ReceiveMessageAttributes, Timeout);
+
         for(const auto& it : d.observers_NtAlpcSendWaitReceivePort)
             it(PortHandle, Flags, SendMessage, SendMessageAttributes, ReceiveMessage, BufferLength, ReceiveMessageAttributes, Timeout);
     }
 
     static void on_NtAlpcSetInformation(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAlpcSetInformation");
-
         const auto PortHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto PortInformationClass = arg<nt::ALPC_PORT_INFORMATION_CLASS>(d.core, 1);
         const auto PortInformation      = arg<nt::PVOID>(d.core, 2);
         const auto Length               = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAlpcSetInformation(PortHandle:{:#x}, PortInformationClass:{:#x}, PortInformation:{:#x}, Length:{:#x})", PortHandle, PortInformationClass, PortInformation, Length);
 
         for(const auto& it : d.observers_NtAlpcSetInformation)
             it(PortHandle, PortInformationClass, PortInformation, Length);
@@ -1119,11 +1124,11 @@ namespace
 
     static void on_NtApphelpCacheControl(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtApphelpCacheControl");
-
         const auto type = arg<nt::APPHELPCOMMAND>(d.core, 0);
         const auto buf  = arg<nt::PVOID>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtApphelpCacheControl(type:{:#x}, buf:{:#x})", type, buf);
 
         for(const auto& it : d.observers_NtApphelpCacheControl)
             it(type, buf);
@@ -1131,11 +1136,11 @@ namespace
 
     static void on_NtAreMappedFilesTheSame(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAreMappedFilesTheSame");
-
         const auto File1MappedAsAnImage = arg<nt::PVOID>(d.core, 0);
         const auto File2MappedAsFile    = arg<nt::PVOID>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAreMappedFilesTheSame(File1MappedAsAnImage:{:#x}, File2MappedAsFile:{:#x})", File1MappedAsAnImage, File2MappedAsFile);
 
         for(const auto& it : d.observers_NtAreMappedFilesTheSame)
             it(File1MappedAsAnImage, File2MappedAsFile);
@@ -1143,11 +1148,11 @@ namespace
 
     static void on_NtAssignProcessToJobObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtAssignProcessToJobObject");
-
         const auto JobHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtAssignProcessToJobObject(JobHandle:{:#x}, ProcessHandle:{:#x})", JobHandle, ProcessHandle);
 
         for(const auto& it : d.observers_NtAssignProcessToJobObject)
             it(JobHandle, ProcessHandle);
@@ -1155,12 +1160,12 @@ namespace
 
     static void on_NtCallbackReturn(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCallbackReturn");
-
         const auto OutputBuffer = arg<nt::PVOID>(d.core, 0);
         const auto OutputLength = arg<nt::ULONG>(d.core, 1);
         const auto Status       = arg<nt::NTSTATUS>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCallbackReturn(OutputBuffer:{:#x}, OutputLength:{:#x}, Status:{:#x})", OutputBuffer, OutputLength, Status);
 
         for(const auto& it : d.observers_NtCallbackReturn)
             it(OutputBuffer, OutputLength, Status);
@@ -1168,12 +1173,12 @@ namespace
 
     static void on_NtCancelIoFileEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCancelIoFileEx");
-
         const auto FileHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto IoRequestToCancel = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
         const auto IoStatusBlock     = arg<nt::PIO_STATUS_BLOCK>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCancelIoFileEx(FileHandle:{:#x}, IoRequestToCancel:{:#x}, IoStatusBlock:{:#x})", FileHandle, IoRequestToCancel, IoStatusBlock);
 
         for(const auto& it : d.observers_NtCancelIoFileEx)
             it(FileHandle, IoRequestToCancel, IoStatusBlock);
@@ -1181,11 +1186,11 @@ namespace
 
     static void on_NtCancelIoFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCancelIoFile");
-
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCancelIoFile(FileHandle:{:#x}, IoStatusBlock:{:#x})", FileHandle, IoStatusBlock);
 
         for(const auto& it : d.observers_NtCancelIoFile)
             it(FileHandle, IoStatusBlock);
@@ -1193,12 +1198,12 @@ namespace
 
     static void on_NtCancelSynchronousIoFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCancelSynchronousIoFile");
-
         const auto ThreadHandle      = arg<nt::HANDLE>(d.core, 0);
         const auto IoRequestToCancel = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
         const auto IoStatusBlock     = arg<nt::PIO_STATUS_BLOCK>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCancelSynchronousIoFile(ThreadHandle:{:#x}, IoRequestToCancel:{:#x}, IoStatusBlock:{:#x})", ThreadHandle, IoRequestToCancel, IoStatusBlock);
 
         for(const auto& it : d.observers_NtCancelSynchronousIoFile)
             it(ThreadHandle, IoRequestToCancel, IoStatusBlock);
@@ -1206,11 +1211,11 @@ namespace
 
     static void on_NtCancelTimer(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCancelTimer");
-
         const auto TimerHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto CurrentState = arg<nt::PBOOLEAN>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCancelTimer(TimerHandle:{:#x}, CurrentState:{:#x})", TimerHandle, CurrentState);
 
         for(const auto& it : d.observers_NtCancelTimer)
             it(TimerHandle, CurrentState);
@@ -1218,10 +1223,10 @@ namespace
 
     static void on_NtClearEvent(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtClearEvent");
-
         const auto EventHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtClearEvent(EventHandle:{:#x})", EventHandle);
 
         for(const auto& it : d.observers_NtClearEvent)
             it(EventHandle);
@@ -1229,10 +1234,10 @@ namespace
 
     static void on_NtClose(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtClose");
-
         const auto Handle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtClose(Handle:{:#x})", Handle);
 
         for(const auto& it : d.observers_NtClose)
             it(Handle);
@@ -1240,12 +1245,12 @@ namespace
 
     static void on_NtCloseObjectAuditAlarm(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCloseObjectAuditAlarm");
-
         const auto SubsystemName   = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId        = arg<nt::PVOID>(d.core, 1);
         const auto GenerateOnClose = arg<nt::BOOLEAN>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCloseObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, GenerateOnClose);
 
         for(const auto& it : d.observers_NtCloseObjectAuditAlarm)
             it(SubsystemName, HandleId, GenerateOnClose);
@@ -1253,11 +1258,11 @@ namespace
 
     static void on_NtCommitComplete(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCommitComplete");
-
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCommitComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock);
 
         for(const auto& it : d.observers_NtCommitComplete)
             it(EnlistmentHandle, TmVirtualClock);
@@ -1265,11 +1270,11 @@ namespace
 
     static void on_NtCommitEnlistment(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCommitEnlistment");
-
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCommitEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock);
 
         for(const auto& it : d.observers_NtCommitEnlistment)
             it(EnlistmentHandle, TmVirtualClock);
@@ -1277,11 +1282,11 @@ namespace
 
     static void on_NtCommitTransaction(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCommitTransaction");
-
         const auto TransactionHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Wait              = arg<nt::BOOLEAN>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCommitTransaction(TransactionHandle:{:#x}, Wait:{:#x})", TransactionHandle, Wait);
 
         for(const auto& it : d.observers_NtCommitTransaction)
             it(TransactionHandle, Wait);
@@ -1289,11 +1294,11 @@ namespace
 
     static void on_NtCompactKeys(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCompactKeys");
-
         const auto Count    = arg<nt::ULONG>(d.core, 0);
         const auto KeyArray = arg<nt::HANDLE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCompactKeys(Count:{:#x}, KeyArray:{:#x})", Count, KeyArray);
 
         for(const auto& it : d.observers_NtCompactKeys)
             it(Count, KeyArray);
@@ -1301,12 +1306,12 @@ namespace
 
     static void on_NtCompareTokens(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCompareTokens");
-
         const auto FirstTokenHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto SecondTokenHandle = arg<nt::HANDLE>(d.core, 1);
         const auto Equal             = arg<nt::PBOOLEAN>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCompareTokens(FirstTokenHandle:{:#x}, SecondTokenHandle:{:#x}, Equal:{:#x})", FirstTokenHandle, SecondTokenHandle, Equal);
 
         for(const auto& it : d.observers_NtCompareTokens)
             it(FirstTokenHandle, SecondTokenHandle, Equal);
@@ -1314,10 +1319,10 @@ namespace
 
     static void on_NtCompleteConnectPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCompleteConnectPort");
-
         const auto PortHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCompleteConnectPort(PortHandle:{:#x})", PortHandle);
 
         for(const auto& it : d.observers_NtCompleteConnectPort)
             it(PortHandle);
@@ -1325,10 +1330,10 @@ namespace
 
     static void on_NtCompressKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCompressKey");
-
         const auto Key = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCompressKey(Key:{:#x})", Key);
 
         for(const auto& it : d.observers_NtCompressKey)
             it(Key);
@@ -1336,9 +1341,6 @@ namespace
 
     static void on_NtConnectPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtConnectPort");
-
         const auto PortHandle                  = arg<nt::PHANDLE>(d.core, 0);
         const auto PortName                    = arg<nt::PUNICODE_STRING>(d.core, 1);
         const auto SecurityQos                 = arg<nt::PSECURITY_QUALITY_OF_SERVICE>(d.core, 2);
@@ -1348,17 +1350,20 @@ namespace
         const auto ConnectionInformation       = arg<nt::PVOID>(d.core, 6);
         const auto ConnectionInformationLength = arg<nt::PULONG>(d.core, 7);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtConnectPort(PortHandle:{:#x}, PortName:{:#x}, SecurityQos:{:#x}, ClientView:{:#x}, ServerView:{:#x}, MaxMessageLength:{:#x}, ConnectionInformation:{:#x}, ConnectionInformationLength:{:#x})", PortHandle, PortName, SecurityQos, ClientView, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
+
         for(const auto& it : d.observers_NtConnectPort)
             it(PortHandle, PortName, SecurityQos, ClientView, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
     }
 
     static void on_NtContinue(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtContinue");
-
         const auto ContextRecord = arg<nt::PCONTEXT>(d.core, 0);
         const auto TestAlert     = arg<nt::BOOLEAN>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtContinue(ContextRecord:{:#x}, TestAlert:{:#x})", ContextRecord, TestAlert);
 
         for(const auto& it : d.observers_NtContinue)
             it(ContextRecord, TestAlert);
@@ -1366,13 +1371,13 @@ namespace
 
     static void on_NtCreateDebugObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateDebugObject");
-
         const auto DebugObjectHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes  = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto Flags             = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateDebugObject(DebugObjectHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Flags:{:#x})", DebugObjectHandle, DesiredAccess, ObjectAttributes, Flags);
 
         for(const auto& it : d.observers_NtCreateDebugObject)
             it(DebugObjectHandle, DesiredAccess, ObjectAttributes, Flags);
@@ -1380,12 +1385,12 @@ namespace
 
     static void on_NtCreateDirectoryObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateDirectoryObject");
-
         const auto DirectoryHandle  = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateDirectoryObject(DirectoryHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", DirectoryHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtCreateDirectoryObject)
             it(DirectoryHandle, DesiredAccess, ObjectAttributes);
@@ -1393,9 +1398,6 @@ namespace
 
     static void on_NtCreateEnlistment(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateEnlistment");
-
         const auto EnlistmentHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ResourceManagerHandle = arg<nt::HANDLE>(d.core, 2);
@@ -1405,20 +1407,23 @@ namespace
         const auto NotificationMask      = arg<nt::NOTIFICATION_MASK>(d.core, 6);
         const auto EnlistmentKey         = arg<nt::PVOID>(d.core, 7);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateEnlistment(EnlistmentHandle:{:#x}, DesiredAccess:{:#x}, ResourceManagerHandle:{:#x}, TransactionHandle:{:#x}, ObjectAttributes:{:#x}, CreateOptions:{:#x}, NotificationMask:{:#x}, EnlistmentKey:{:#x})", EnlistmentHandle, DesiredAccess, ResourceManagerHandle, TransactionHandle, ObjectAttributes, CreateOptions, NotificationMask, EnlistmentKey);
+
         for(const auto& it : d.observers_NtCreateEnlistment)
             it(EnlistmentHandle, DesiredAccess, ResourceManagerHandle, TransactionHandle, ObjectAttributes, CreateOptions, NotificationMask, EnlistmentKey);
     }
 
     static void on_NtCreateEvent(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateEvent");
-
         const auto EventHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto EventType        = arg<nt::EVENT_TYPE>(d.core, 3);
         const auto InitialState     = arg<nt::BOOLEAN>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateEvent(EventHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, EventType:{:#x}, InitialState:{:#x})", EventHandle, DesiredAccess, ObjectAttributes, EventType, InitialState);
 
         for(const auto& it : d.observers_NtCreateEvent)
             it(EventHandle, DesiredAccess, ObjectAttributes, EventType, InitialState);
@@ -1426,12 +1431,12 @@ namespace
 
     static void on_NtCreateEventPair(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateEventPair");
-
         const auto EventPairHandle  = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateEventPair(EventPairHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", EventPairHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtCreateEventPair)
             it(EventPairHandle, DesiredAccess, ObjectAttributes);
@@ -1439,9 +1444,6 @@ namespace
 
     static void on_NtCreateFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateFile");
-
         const auto FileHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes  = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -1454,19 +1456,22 @@ namespace
         const auto EaBuffer          = arg<nt::PVOID>(d.core, 9);
         const auto EaLength          = arg<nt::ULONG>(d.core, 10);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateFile(FileHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, IoStatusBlock:{:#x}, AllocationSize:{:#x}, FileAttributes:{:#x}, ShareAccess:{:#x}, CreateDisposition:{:#x}, CreateOptions:{:#x}, EaBuffer:{:#x}, EaLength:{:#x})", FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions, EaBuffer, EaLength);
+
         for(const auto& it : d.observers_NtCreateFile)
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions, EaBuffer, EaLength);
     }
 
     static void on_NtCreateIoCompletion(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateIoCompletion");
-
         const auto IoCompletionHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes   = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto Count              = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateIoCompletion(IoCompletionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Count:{:#x})", IoCompletionHandle, DesiredAccess, ObjectAttributes, Count);
 
         for(const auto& it : d.observers_NtCreateIoCompletion)
             it(IoCompletionHandle, DesiredAccess, ObjectAttributes, Count);
@@ -1474,12 +1479,12 @@ namespace
 
     static void on_NtCreateJobObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateJobObject");
-
         const auto JobHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateJobObject(JobHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", JobHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtCreateJobObject)
             it(JobHandle, DesiredAccess, ObjectAttributes);
@@ -1487,12 +1492,12 @@ namespace
 
     static void on_NtCreateJobSet(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateJobSet");
-
         const auto NumJob     = arg<nt::ULONG>(d.core, 0);
         const auto UserJobSet = arg<nt::PJOB_SET_ARRAY>(d.core, 1);
         const auto Flags      = arg<nt::ULONG>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateJobSet(NumJob:{:#x}, UserJobSet:{:#x}, Flags:{:#x})", NumJob, UserJobSet, Flags);
 
         for(const auto& it : d.observers_NtCreateJobSet)
             it(NumJob, UserJobSet, Flags);
@@ -1500,13 +1505,13 @@ namespace
 
     static void on_NtCreateKeyedEvent(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateKeyedEvent");
-
         const auto KeyedEventHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto Flags            = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateKeyedEvent(KeyedEventHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Flags:{:#x})", KeyedEventHandle, DesiredAccess, ObjectAttributes, Flags);
 
         for(const auto& it : d.observers_NtCreateKeyedEvent)
             it(KeyedEventHandle, DesiredAccess, ObjectAttributes, Flags);
@@ -1514,9 +1519,6 @@ namespace
 
     static void on_NtCreateKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateKey");
-
         const auto KeyHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -1525,15 +1527,15 @@ namespace
         const auto CreateOptions    = arg<nt::ULONG>(d.core, 5);
         const auto Disposition      = arg<nt::PULONG>(d.core, 6);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateKey(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TitleIndex:{:#x}, Class:{:#x}, CreateOptions:{:#x}, Disposition:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, Disposition);
+
         for(const auto& it : d.observers_NtCreateKey)
             it(KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, Disposition);
     }
 
     static void on_NtCreateKeyTransacted(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateKeyTransacted");
-
         const auto KeyHandle         = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes  = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -1543,15 +1545,15 @@ namespace
         const auto TransactionHandle = arg<nt::HANDLE>(d.core, 6);
         const auto Disposition       = arg<nt::PULONG>(d.core, 7);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateKeyTransacted(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TitleIndex:{:#x}, Class:{:#x}, CreateOptions:{:#x}, TransactionHandle:{:#x}, Disposition:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, TransactionHandle, Disposition);
+
         for(const auto& it : d.observers_NtCreateKeyTransacted)
             it(KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, TransactionHandle, Disposition);
     }
 
     static void on_NtCreateMailslotFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateMailslotFile");
-
         const auto FileHandle         = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt::ULONG>(d.core, 1);
         const auto ObjectAttributes   = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -1561,19 +1563,22 @@ namespace
         const auto MaximumMessageSize = arg<nt::ULONG>(d.core, 6);
         const auto ReadTimeout        = arg<nt::PLARGE_INTEGER>(d.core, 7);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateMailslotFile(FileHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, IoStatusBlock:{:#x}, CreateOptions:{:#x}, MailslotQuota:{:#x}, MaximumMessageSize:{:#x}, ReadTimeout:{:#x})", FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, CreateOptions, MailslotQuota, MaximumMessageSize, ReadTimeout);
+
         for(const auto& it : d.observers_NtCreateMailslotFile)
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, CreateOptions, MailslotQuota, MaximumMessageSize, ReadTimeout);
     }
 
     static void on_NtCreateMutant(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateMutant");
-
         const auto MutantHandle     = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto InitialOwner     = arg<nt::BOOLEAN>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateMutant(MutantHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, InitialOwner:{:#x})", MutantHandle, DesiredAccess, ObjectAttributes, InitialOwner);
 
         for(const auto& it : d.observers_NtCreateMutant)
             it(MutantHandle, DesiredAccess, ObjectAttributes, InitialOwner);
@@ -1581,9 +1586,6 @@ namespace
 
     static void on_NtCreateNamedPipeFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateNamedPipeFile");
-
         const auto FileHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ULONG>(d.core, 1);
         const auto ObjectAttributes  = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -1599,19 +1601,22 @@ namespace
         const auto OutboundQuota     = arg<nt::ULONG>(d.core, 12);
         const auto DefaultTimeout    = arg<nt::PLARGE_INTEGER>(d.core, 13);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateNamedPipeFile(FileHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, IoStatusBlock:{:#x}, ShareAccess:{:#x}, CreateDisposition:{:#x}, CreateOptions:{:#x}, NamedPipeType:{:#x}, ReadMode:{:#x}, CompletionMode:{:#x}, MaximumInstances:{:#x}, InboundQuota:{:#x}, OutboundQuota:{:#x}, DefaultTimeout:{:#x})", FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, CreateDisposition, CreateOptions, NamedPipeType, ReadMode, CompletionMode, MaximumInstances, InboundQuota, OutboundQuota, DefaultTimeout);
+
         for(const auto& it : d.observers_NtCreateNamedPipeFile)
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, CreateDisposition, CreateOptions, NamedPipeType, ReadMode, CompletionMode, MaximumInstances, InboundQuota, OutboundQuota, DefaultTimeout);
     }
 
     static void on_NtCreatePagingFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreatePagingFile");
-
         const auto PageFileName = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto MinimumSize  = arg<nt::PLARGE_INTEGER>(d.core, 1);
         const auto MaximumSize  = arg<nt::PLARGE_INTEGER>(d.core, 2);
         const auto Priority     = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreatePagingFile(PageFileName:{:#x}, MinimumSize:{:#x}, MaximumSize:{:#x}, Priority:{:#x})", PageFileName, MinimumSize, MaximumSize, Priority);
 
         for(const auto& it : d.observers_NtCreatePagingFile)
             it(PageFileName, MinimumSize, MaximumSize, Priority);
@@ -1619,14 +1624,14 @@ namespace
 
     static void on_NtCreatePort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreatePort");
-
         const auto PortHandle              = arg<nt::PHANDLE>(d.core, 0);
         const auto ObjectAttributes        = arg<nt::POBJECT_ATTRIBUTES>(d.core, 1);
         const auto MaxConnectionInfoLength = arg<nt::ULONG>(d.core, 2);
         const auto MaxMessageLength        = arg<nt::ULONG>(d.core, 3);
         const auto MaxPoolUsage            = arg<nt::ULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreatePort(PortHandle:{:#x}, ObjectAttributes:{:#x}, MaxConnectionInfoLength:{:#x}, MaxMessageLength:{:#x}, MaxPoolUsage:{:#x})", PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage);
 
         for(const auto& it : d.observers_NtCreatePort)
             it(PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage);
@@ -1634,13 +1639,13 @@ namespace
 
     static void on_NtCreatePrivateNamespace(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreatePrivateNamespace");
-
         const auto NamespaceHandle    = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes   = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto BoundaryDescriptor = arg<nt::PVOID>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreatePrivateNamespace(NamespaceHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, BoundaryDescriptor:{:#x})", NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
 
         for(const auto& it : d.observers_NtCreatePrivateNamespace)
             it(NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
@@ -1648,9 +1653,6 @@ namespace
 
     static void on_NtCreateProcessEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateProcessEx");
-
         const auto ProcessHandle    = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -1661,15 +1663,15 @@ namespace
         const auto ExceptionPort    = arg<nt::HANDLE>(d.core, 7);
         const auto JobMemberLevel   = arg<nt::ULONG>(d.core, 8);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateProcessEx(ProcessHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ParentProcess:{:#x}, Flags:{:#x}, SectionHandle:{:#x}, DebugPort:{:#x}, ExceptionPort:{:#x}, JobMemberLevel:{:#x})", ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, Flags, SectionHandle, DebugPort, ExceptionPort, JobMemberLevel);
+
         for(const auto& it : d.observers_NtCreateProcessEx)
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, Flags, SectionHandle, DebugPort, ExceptionPort, JobMemberLevel);
     }
 
     static void on_NtCreateProcess(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateProcess");
-
         const auto ProcessHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes   = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -1679,15 +1681,15 @@ namespace
         const auto DebugPort          = arg<nt::HANDLE>(d.core, 6);
         const auto ExceptionPort      = arg<nt::HANDLE>(d.core, 7);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateProcess(ProcessHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ParentProcess:{:#x}, InheritObjectTable:{:#x}, SectionHandle:{:#x}, DebugPort:{:#x}, ExceptionPort:{:#x})", ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, InheritObjectTable, SectionHandle, DebugPort, ExceptionPort);
+
         for(const auto& it : d.observers_NtCreateProcess)
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, InheritObjectTable, SectionHandle, DebugPort, ExceptionPort);
     }
 
     static void on_NtCreateProfileEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateProfileEx");
-
         const auto ProfileHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto Process            = arg<nt::HANDLE>(d.core, 1);
         const auto ProfileBase        = arg<nt::PVOID>(d.core, 2);
@@ -1699,15 +1701,15 @@ namespace
         const auto GroupAffinityCount = arg<nt::ULONG>(d.core, 8);
         const auto GroupAffinity      = arg<nt::PGROUP_AFFINITY>(d.core, 9);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateProfileEx(ProfileHandle:{:#x}, Process:{:#x}, ProfileBase:{:#x}, ProfileSize:{:#x}, BucketSize:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, ProfileSource:{:#x}, GroupAffinityCount:{:#x}, GroupAffinity:{:#x})", ProfileHandle, Process, ProfileBase, ProfileSize, BucketSize, Buffer, BufferSize, ProfileSource, GroupAffinityCount, GroupAffinity);
+
         for(const auto& it : d.observers_NtCreateProfileEx)
             it(ProfileHandle, Process, ProfileBase, ProfileSize, BucketSize, Buffer, BufferSize, ProfileSource, GroupAffinityCount, GroupAffinity);
     }
 
     static void on_NtCreateProfile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateProfile");
-
         const auto ProfileHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto Process       = arg<nt::HANDLE>(d.core, 1);
         const auto RangeBase     = arg<nt::PVOID>(d.core, 2);
@@ -1718,15 +1720,15 @@ namespace
         const auto ProfileSource = arg<nt::KPROFILE_SOURCE>(d.core, 7);
         const auto Affinity      = arg<nt::KAFFINITY>(d.core, 8);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateProfile(ProfileHandle:{:#x}, Process:{:#x}, RangeBase:{:#x}, RangeSize:{:#x}, BucketSize:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, ProfileSource:{:#x}, Affinity:{:#x})", ProfileHandle, Process, RangeBase, RangeSize, BucketSize, Buffer, BufferSize, ProfileSource, Affinity);
+
         for(const auto& it : d.observers_NtCreateProfile)
             it(ProfileHandle, Process, RangeBase, RangeSize, BucketSize, Buffer, BufferSize, ProfileSource, Affinity);
     }
 
     static void on_NtCreateResourceManager(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateResourceManager");
-
         const auto ResourceManagerHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto TmHandle              = arg<nt::HANDLE>(d.core, 2);
@@ -1735,15 +1737,15 @@ namespace
         const auto CreateOptions         = arg<nt::ULONG>(d.core, 5);
         const auto Description           = arg<nt::PUNICODE_STRING>(d.core, 6);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateResourceManager(ResourceManagerHandle:{:#x}, DesiredAccess:{:#x}, TmHandle:{:#x}, RmGuid:{:#x}, ObjectAttributes:{:#x}, CreateOptions:{:#x}, Description:{:#x})", ResourceManagerHandle, DesiredAccess, TmHandle, RmGuid, ObjectAttributes, CreateOptions, Description);
+
         for(const auto& it : d.observers_NtCreateResourceManager)
             it(ResourceManagerHandle, DesiredAccess, TmHandle, RmGuid, ObjectAttributes, CreateOptions, Description);
     }
 
     static void on_NtCreateSection(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateSection");
-
         const auto SectionHandle         = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes      = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -1752,20 +1754,23 @@ namespace
         const auto AllocationAttributes  = arg<nt::ULONG>(d.core, 5);
         const auto FileHandle            = arg<nt::HANDLE>(d.core, 6);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateSection(SectionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, MaximumSize:{:#x}, SectionPageProtection:{:#x}, AllocationAttributes:{:#x}, FileHandle:{:#x})", SectionHandle, DesiredAccess, ObjectAttributes, MaximumSize, SectionPageProtection, AllocationAttributes, FileHandle);
+
         for(const auto& it : d.observers_NtCreateSection)
             it(SectionHandle, DesiredAccess, ObjectAttributes, MaximumSize, SectionPageProtection, AllocationAttributes, FileHandle);
     }
 
     static void on_NtCreateSemaphore(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateSemaphore");
-
         const auto SemaphoreHandle  = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto InitialCount     = arg<nt::LONG>(d.core, 3);
         const auto MaximumCount     = arg<nt::LONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateSemaphore(SemaphoreHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, InitialCount:{:#x}, MaximumCount:{:#x})", SemaphoreHandle, DesiredAccess, ObjectAttributes, InitialCount, MaximumCount);
 
         for(const auto& it : d.observers_NtCreateSemaphore)
             it(SemaphoreHandle, DesiredAccess, ObjectAttributes, InitialCount, MaximumCount);
@@ -1773,13 +1778,13 @@ namespace
 
     static void on_NtCreateSymbolicLinkObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateSymbolicLinkObject");
-
         const auto LinkHandle       = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto LinkTarget       = arg<nt::PUNICODE_STRING>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateSymbolicLinkObject(LinkHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, LinkTarget:{:#x})", LinkHandle, DesiredAccess, ObjectAttributes, LinkTarget);
 
         for(const auto& it : d.observers_NtCreateSymbolicLinkObject)
             it(LinkHandle, DesiredAccess, ObjectAttributes, LinkTarget);
@@ -1787,9 +1792,6 @@ namespace
 
     static void on_NtCreateThreadEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateThreadEx");
-
         const auto ThreadHandle     = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -1802,15 +1804,15 @@ namespace
         const auto MaximumStackSize = arg<nt::SIZE_T>(d.core, 9);
         const auto AttributeList    = arg<nt::PPS_ATTRIBUTE_LIST>(d.core, 10);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateThreadEx(ThreadHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ProcessHandle:{:#x}, StartRoutine:{:#x}, Argument:{:#x}, CreateFlags:{:#x}, ZeroBits:{:#x}, StackSize:{:#x}, MaximumStackSize:{:#x}, AttributeList:{:#x})", ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, StartRoutine, Argument, CreateFlags, ZeroBits, StackSize, MaximumStackSize, AttributeList);
+
         for(const auto& it : d.observers_NtCreateThreadEx)
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, StartRoutine, Argument, CreateFlags, ZeroBits, StackSize, MaximumStackSize, AttributeList);
     }
 
     static void on_NtCreateThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateThread");
-
         const auto ThreadHandle     = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -1820,19 +1822,22 @@ namespace
         const auto InitialTeb       = arg<nt::PINITIAL_TEB>(d.core, 6);
         const auto CreateSuspended  = arg<nt::BOOLEAN>(d.core, 7);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateThread(ThreadHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ProcessHandle:{:#x}, ClientId:{:#x}, ThreadContext:{:#x}, InitialTeb:{:#x}, CreateSuspended:{:#x})", ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, ClientId, ThreadContext, InitialTeb, CreateSuspended);
+
         for(const auto& it : d.observers_NtCreateThread)
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, ClientId, ThreadContext, InitialTeb, CreateSuspended);
     }
 
     static void on_NtCreateTimer(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateTimer");
-
         const auto TimerHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto TimerType        = arg<nt::TIMER_TYPE>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateTimer(TimerHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TimerType:{:#x})", TimerHandle, DesiredAccess, ObjectAttributes, TimerType);
 
         for(const auto& it : d.observers_NtCreateTimer)
             it(TimerHandle, DesiredAccess, ObjectAttributes, TimerType);
@@ -1840,9 +1845,6 @@ namespace
 
     static void on_NtCreateToken(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateToken");
-
         const auto TokenHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -1857,15 +1859,15 @@ namespace
         const auto DefaultDacl      = arg<nt::PTOKEN_DEFAULT_DACL>(d.core, 11);
         const auto TokenSource      = arg<nt::PTOKEN_SOURCE>(d.core, 12);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateToken(TokenHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TokenType:{:#x}, AuthenticationId:{:#x}, ExpirationTime:{:#x}, User:{:#x}, Groups:{:#x}, Privileges:{:#x}, Owner:{:#x}, PrimaryGroup:{:#x}, DefaultDacl:{:#x}, TokenSource:{:#x})", TokenHandle, DesiredAccess, ObjectAttributes, TokenType, AuthenticationId, ExpirationTime, User, Groups, Privileges, Owner, PrimaryGroup, DefaultDacl, TokenSource);
+
         for(const auto& it : d.observers_NtCreateToken)
             it(TokenHandle, DesiredAccess, ObjectAttributes, TokenType, AuthenticationId, ExpirationTime, User, Groups, Privileges, Owner, PrimaryGroup, DefaultDacl, TokenSource);
     }
 
     static void on_NtCreateTransactionManager(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateTransactionManager");
-
         const auto TmHandle         = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -1873,15 +1875,15 @@ namespace
         const auto CreateOptions    = arg<nt::ULONG>(d.core, 4);
         const auto CommitStrength   = arg<nt::ULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateTransactionManager(TmHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, LogFileName:{:#x}, CreateOptions:{:#x}, CommitStrength:{:#x})", TmHandle, DesiredAccess, ObjectAttributes, LogFileName, CreateOptions, CommitStrength);
+
         for(const auto& it : d.observers_NtCreateTransactionManager)
             it(TmHandle, DesiredAccess, ObjectAttributes, LogFileName, CreateOptions, CommitStrength);
     }
 
     static void on_NtCreateTransaction(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateTransaction");
-
         const auto TransactionHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes  = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -1893,15 +1895,15 @@ namespace
         const auto Timeout           = arg<nt::PLARGE_INTEGER>(d.core, 8);
         const auto Description       = arg<nt::PUNICODE_STRING>(d.core, 9);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateTransaction(TransactionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Uow:{:#x}, TmHandle:{:#x}, CreateOptions:{:#x}, IsolationLevel:{:#x}, IsolationFlags:{:#x}, Timeout:{:#x}, Description:{:#x})", TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle, CreateOptions, IsolationLevel, IsolationFlags, Timeout, Description);
+
         for(const auto& it : d.observers_NtCreateTransaction)
             it(TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle, CreateOptions, IsolationLevel, IsolationFlags, Timeout, Description);
     }
 
     static void on_NtCreateUserProcess(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateUserProcess");
-
         const auto ProcessHandle           = arg<nt::PHANDLE>(d.core, 0);
         const auto ThreadHandle            = arg<nt::PHANDLE>(d.core, 1);
         const auto ProcessDesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 2);
@@ -1914,20 +1916,23 @@ namespace
         const auto CreateInfo              = arg<nt::PPROCESS_CREATE_INFO>(d.core, 9);
         const auto AttributeList           = arg<nt::PPROCESS_ATTRIBUTE_LIST>(d.core, 10);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateUserProcess(ProcessHandle:{:#x}, ThreadHandle:{:#x}, ProcessDesiredAccess:{:#x}, ThreadDesiredAccess:{:#x}, ProcessObjectAttributes:{:#x}, ThreadObjectAttributes:{:#x}, ProcessFlags:{:#x}, ThreadFlags:{:#x}, ProcessParameters:{:#x}, CreateInfo:{:#x}, AttributeList:{:#x})", ProcessHandle, ThreadHandle, ProcessDesiredAccess, ThreadDesiredAccess, ProcessObjectAttributes, ThreadObjectAttributes, ProcessFlags, ThreadFlags, ProcessParameters, CreateInfo, AttributeList);
+
         for(const auto& it : d.observers_NtCreateUserProcess)
             it(ProcessHandle, ThreadHandle, ProcessDesiredAccess, ThreadDesiredAccess, ProcessObjectAttributes, ThreadObjectAttributes, ProcessFlags, ThreadFlags, ProcessParameters, CreateInfo, AttributeList);
     }
 
     static void on_NtCreateWaitablePort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateWaitablePort");
-
         const auto PortHandle              = arg<nt::PHANDLE>(d.core, 0);
         const auto ObjectAttributes        = arg<nt::POBJECT_ATTRIBUTES>(d.core, 1);
         const auto MaxConnectionInfoLength = arg<nt::ULONG>(d.core, 2);
         const auto MaxMessageLength        = arg<nt::ULONG>(d.core, 3);
         const auto MaxPoolUsage            = arg<nt::ULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateWaitablePort(PortHandle:{:#x}, ObjectAttributes:{:#x}, MaxConnectionInfoLength:{:#x}, MaxMessageLength:{:#x}, MaxPoolUsage:{:#x})", PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage);
 
         for(const auto& it : d.observers_NtCreateWaitablePort)
             it(PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage);
@@ -1935,9 +1940,6 @@ namespace
 
     static void on_NtCreateWorkerFactory(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtCreateWorkerFactory");
-
         const auto WorkerFactoryHandleReturn = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess             = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes          = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -1949,17 +1951,20 @@ namespace
         const auto StackReserve              = arg<nt::SIZE_T>(d.core, 8);
         const auto StackCommit               = arg<nt::SIZE_T>(d.core, 9);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtCreateWorkerFactory(WorkerFactoryHandleReturn:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, CompletionPortHandle:{:#x}, WorkerProcessHandle:{:#x}, StartRoutine:{:#x}, StartParameter:{:#x}, MaxThreadCount:{:#x}, StackReserve:{:#x}, StackCommit:{:#x})", WorkerFactoryHandleReturn, DesiredAccess, ObjectAttributes, CompletionPortHandle, WorkerProcessHandle, StartRoutine, StartParameter, MaxThreadCount, StackReserve, StackCommit);
+
         for(const auto& it : d.observers_NtCreateWorkerFactory)
             it(WorkerFactoryHandleReturn, DesiredAccess, ObjectAttributes, CompletionPortHandle, WorkerProcessHandle, StartRoutine, StartParameter, MaxThreadCount, StackReserve, StackCommit);
     }
 
     static void on_NtDebugActiveProcess(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDebugActiveProcess");
-
         const auto ProcessHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto DebugObjectHandle = arg<nt::HANDLE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtDebugActiveProcess(ProcessHandle:{:#x}, DebugObjectHandle:{:#x})", ProcessHandle, DebugObjectHandle);
 
         for(const auto& it : d.observers_NtDebugActiveProcess)
             it(ProcessHandle, DebugObjectHandle);
@@ -1967,12 +1972,12 @@ namespace
 
     static void on_NtDebugContinue(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDebugContinue");
-
         const auto DebugObjectHandle = arg<nt::HANDLE>(d.core, 0);
         const auto ClientId          = arg<nt::PCLIENT_ID>(d.core, 1);
         const auto ContinueStatus    = arg<nt::NTSTATUS>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtDebugContinue(DebugObjectHandle:{:#x}, ClientId:{:#x}, ContinueStatus:{:#x})", DebugObjectHandle, ClientId, ContinueStatus);
 
         for(const auto& it : d.observers_NtDebugContinue)
             it(DebugObjectHandle, ClientId, ContinueStatus);
@@ -1980,11 +1985,11 @@ namespace
 
     static void on_NtDelayExecution(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDelayExecution");
-
         const auto Alertable     = arg<nt::BOOLEAN>(d.core, 0);
         const auto DelayInterval = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtDelayExecution(Alertable:{:#x}, DelayInterval:{:#x})", Alertable, DelayInterval);
 
         for(const auto& it : d.observers_NtDelayExecution)
             it(Alertable, DelayInterval);
@@ -1992,10 +1997,10 @@ namespace
 
     static void on_NtDeleteAtom(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDeleteAtom");
-
         const auto Atom = arg<nt::RTL_ATOM>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtDeleteAtom(Atom:{:#x})", Atom);
 
         for(const auto& it : d.observers_NtDeleteAtom)
             it(Atom);
@@ -2003,10 +2008,10 @@ namespace
 
     static void on_NtDeleteBootEntry(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDeleteBootEntry");
-
         const auto Id = arg<nt::ULONG>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtDeleteBootEntry(Id:{:#x})", Id);
 
         for(const auto& it : d.observers_NtDeleteBootEntry)
             it(Id);
@@ -2014,10 +2019,10 @@ namespace
 
     static void on_NtDeleteDriverEntry(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDeleteDriverEntry");
-
         const auto Id = arg<nt::ULONG>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtDeleteDriverEntry(Id:{:#x})", Id);
 
         for(const auto& it : d.observers_NtDeleteDriverEntry)
             it(Id);
@@ -2025,10 +2030,10 @@ namespace
 
     static void on_NtDeleteFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDeleteFile");
-
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtDeleteFile(ObjectAttributes:{:#x})", ObjectAttributes);
 
         for(const auto& it : d.observers_NtDeleteFile)
             it(ObjectAttributes);
@@ -2036,10 +2041,10 @@ namespace
 
     static void on_NtDeleteKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDeleteKey");
-
         const auto KeyHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtDeleteKey(KeyHandle:{:#x})", KeyHandle);
 
         for(const auto& it : d.observers_NtDeleteKey)
             it(KeyHandle);
@@ -2047,12 +2052,12 @@ namespace
 
     static void on_NtDeleteObjectAuditAlarm(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDeleteObjectAuditAlarm");
-
         const auto SubsystemName   = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId        = arg<nt::PVOID>(d.core, 1);
         const auto GenerateOnClose = arg<nt::BOOLEAN>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtDeleteObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, GenerateOnClose);
 
         for(const auto& it : d.observers_NtDeleteObjectAuditAlarm)
             it(SubsystemName, HandleId, GenerateOnClose);
@@ -2060,10 +2065,10 @@ namespace
 
     static void on_NtDeletePrivateNamespace(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDeletePrivateNamespace");
-
         const auto NamespaceHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtDeletePrivateNamespace(NamespaceHandle:{:#x})", NamespaceHandle);
 
         for(const auto& it : d.observers_NtDeletePrivateNamespace)
             it(NamespaceHandle);
@@ -2071,11 +2076,11 @@ namespace
 
     static void on_NtDeleteValueKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDeleteValueKey");
-
         const auto KeyHandle = arg<nt::HANDLE>(d.core, 0);
         const auto ValueName = arg<nt::PUNICODE_STRING>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtDeleteValueKey(KeyHandle:{:#x}, ValueName:{:#x})", KeyHandle, ValueName);
 
         for(const auto& it : d.observers_NtDeleteValueKey)
             it(KeyHandle, ValueName);
@@ -2083,9 +2088,6 @@ namespace
 
     static void on_NtDeviceIoControlFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDeviceIoControlFile");
-
         const auto FileHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto Event              = arg<nt::HANDLE>(d.core, 1);
         const auto ApcRoutine         = arg<nt::PIO_APC_ROUTINE>(d.core, 2);
@@ -2097,16 +2099,19 @@ namespace
         const auto OutputBuffer       = arg<nt::PVOID>(d.core, 8);
         const auto OutputBufferLength = arg<nt::ULONG>(d.core, 9);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtDeviceIoControlFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, IoControlCode:{:#x}, InputBuffer:{:#x}, InputBufferLength:{:#x}, OutputBuffer:{:#x}, OutputBufferLength:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
+
         for(const auto& it : d.observers_NtDeviceIoControlFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
     }
 
     static void on_NtDisplayString(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDisplayString");
-
         const auto String = arg<nt::PUNICODE_STRING>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtDisplayString(String:{:#x})", String);
 
         for(const auto& it : d.observers_NtDisplayString)
             it(String);
@@ -2114,10 +2119,10 @@ namespace
 
     static void on_NtDrawText(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDrawText");
-
         const auto Text = arg<nt::PUNICODE_STRING>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtDrawText(Text:{:#x})", Text);
 
         for(const auto& it : d.observers_NtDrawText)
             it(Text);
@@ -2125,9 +2130,6 @@ namespace
 
     static void on_NtDuplicateObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDuplicateObject");
-
         const auto SourceProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto SourceHandle        = arg<nt::HANDLE>(d.core, 1);
         const auto TargetProcessHandle = arg<nt::HANDLE>(d.core, 2);
@@ -2136,15 +2138,15 @@ namespace
         const auto HandleAttributes    = arg<nt::ULONG>(d.core, 5);
         const auto Options             = arg<nt::ULONG>(d.core, 6);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtDuplicateObject(SourceProcessHandle:{:#x}, SourceHandle:{:#x}, TargetProcessHandle:{:#x}, TargetHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, Options:{:#x})", SourceProcessHandle, SourceHandle, TargetProcessHandle, TargetHandle, DesiredAccess, HandleAttributes, Options);
+
         for(const auto& it : d.observers_NtDuplicateObject)
             it(SourceProcessHandle, SourceHandle, TargetProcessHandle, TargetHandle, DesiredAccess, HandleAttributes, Options);
     }
 
     static void on_NtDuplicateToken(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDuplicateToken");
-
         const auto ExistingTokenHandle = arg<nt::HANDLE>(d.core, 0);
         const auto DesiredAccess       = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes    = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -2152,17 +2154,20 @@ namespace
         const auto TokenType           = arg<nt::TOKEN_TYPE>(d.core, 4);
         const auto NewTokenHandle      = arg<nt::PHANDLE>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtDuplicateToken(ExistingTokenHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, EffectiveOnly:{:#x}, TokenType:{:#x}, NewTokenHandle:{:#x})", ExistingTokenHandle, DesiredAccess, ObjectAttributes, EffectiveOnly, TokenType, NewTokenHandle);
+
         for(const auto& it : d.observers_NtDuplicateToken)
             it(ExistingTokenHandle, DesiredAccess, ObjectAttributes, EffectiveOnly, TokenType, NewTokenHandle);
     }
 
     static void on_NtEnumerateBootEntries(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtEnumerateBootEntries");
-
         const auto Buffer       = arg<nt::PVOID>(d.core, 0);
         const auto BufferLength = arg<nt::PULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtEnumerateBootEntries(Buffer:{:#x}, BufferLength:{:#x})", Buffer, BufferLength);
 
         for(const auto& it : d.observers_NtEnumerateBootEntries)
             it(Buffer, BufferLength);
@@ -2170,11 +2175,11 @@ namespace
 
     static void on_NtEnumerateDriverEntries(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtEnumerateDriverEntries");
-
         const auto Buffer       = arg<nt::PVOID>(d.core, 0);
         const auto BufferLength = arg<nt::PULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtEnumerateDriverEntries(Buffer:{:#x}, BufferLength:{:#x})", Buffer, BufferLength);
 
         for(const auto& it : d.observers_NtEnumerateDriverEntries)
             it(Buffer, BufferLength);
@@ -2182,9 +2187,6 @@ namespace
 
     static void on_NtEnumerateKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtEnumerateKey");
-
         const auto KeyHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto Index               = arg<nt::ULONG>(d.core, 1);
         const auto KeyInformationClass = arg<nt::KEY_INFORMATION_CLASS>(d.core, 2);
@@ -2192,18 +2194,21 @@ namespace
         const auto Length              = arg<nt::ULONG>(d.core, 4);
         const auto ResultLength        = arg<nt::PULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtEnumerateKey(KeyHandle:{:#x}, Index:{:#x}, KeyInformationClass:{:#x}, KeyInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, Index, KeyInformationClass, KeyInformation, Length, ResultLength);
+
         for(const auto& it : d.observers_NtEnumerateKey)
             it(KeyHandle, Index, KeyInformationClass, KeyInformation, Length, ResultLength);
     }
 
     static void on_NtEnumerateSystemEnvironmentValuesEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtEnumerateSystemEnvironmentValuesEx");
-
         const auto InformationClass = arg<nt::ULONG>(d.core, 0);
         const auto Buffer           = arg<nt::PVOID>(d.core, 1);
         const auto BufferLength     = arg<nt::PULONG>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtEnumerateSystemEnvironmentValuesEx(InformationClass:{:#x}, Buffer:{:#x}, BufferLength:{:#x})", InformationClass, Buffer, BufferLength);
 
         for(const auto& it : d.observers_NtEnumerateSystemEnvironmentValuesEx)
             it(InformationClass, Buffer, BufferLength);
@@ -2211,14 +2216,14 @@ namespace
 
     static void on_NtEnumerateTransactionObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtEnumerateTransactionObject");
-
         const auto RootObjectHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto QueryType          = arg<nt::KTMOBJECT_TYPE>(d.core, 1);
         const auto ObjectCursor       = arg<nt::PKTMOBJECT_CURSOR>(d.core, 2);
         const auto ObjectCursorLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength       = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtEnumerateTransactionObject(RootObjectHandle:{:#x}, QueryType:{:#x}, ObjectCursor:{:#x}, ObjectCursorLength:{:#x}, ReturnLength:{:#x})", RootObjectHandle, QueryType, ObjectCursor, ObjectCursorLength, ReturnLength);
 
         for(const auto& it : d.observers_NtEnumerateTransactionObject)
             it(RootObjectHandle, QueryType, ObjectCursor, ObjectCursorLength, ReturnLength);
@@ -2226,9 +2231,6 @@ namespace
 
     static void on_NtEnumerateValueKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtEnumerateValueKey");
-
         const auto KeyHandle                = arg<nt::HANDLE>(d.core, 0);
         const auto Index                    = arg<nt::ULONG>(d.core, 1);
         const auto KeyValueInformationClass = arg<nt::KEY_VALUE_INFORMATION_CLASS>(d.core, 2);
@@ -2236,17 +2238,20 @@ namespace
         const auto Length                   = arg<nt::ULONG>(d.core, 4);
         const auto ResultLength             = arg<nt::PULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtEnumerateValueKey(KeyHandle:{:#x}, Index:{:#x}, KeyValueInformationClass:{:#x}, KeyValueInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, Index, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
+
         for(const auto& it : d.observers_NtEnumerateValueKey)
             it(KeyHandle, Index, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
     }
 
     static void on_NtExtendSection(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtExtendSection");
-
         const auto SectionHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto NewSectionSize = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtExtendSection(SectionHandle:{:#x}, NewSectionSize:{:#x})", SectionHandle, NewSectionSize);
 
         for(const auto& it : d.observers_NtExtendSection)
             it(SectionHandle, NewSectionSize);
@@ -2254,9 +2259,6 @@ namespace
 
     static void on_NtFilterToken(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtFilterToken");
-
         const auto ExistingTokenHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Flags               = arg<nt::ULONG>(d.core, 1);
         const auto SidsToDisable       = arg<nt::PTOKEN_GROUPS>(d.core, 2);
@@ -2264,18 +2266,21 @@ namespace
         const auto RestrictedSids      = arg<nt::PTOKEN_GROUPS>(d.core, 4);
         const auto NewTokenHandle      = arg<nt::PHANDLE>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtFilterToken(ExistingTokenHandle:{:#x}, Flags:{:#x}, SidsToDisable:{:#x}, PrivilegesToDelete:{:#x}, RestrictedSids:{:#x}, NewTokenHandle:{:#x})", ExistingTokenHandle, Flags, SidsToDisable, PrivilegesToDelete, RestrictedSids, NewTokenHandle);
+
         for(const auto& it : d.observers_NtFilterToken)
             it(ExistingTokenHandle, Flags, SidsToDisable, PrivilegesToDelete, RestrictedSids, NewTokenHandle);
     }
 
     static void on_NtFindAtom(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtFindAtom");
-
         const auto AtomName = arg<nt::PWSTR>(d.core, 0);
         const auto Length   = arg<nt::ULONG>(d.core, 1);
         const auto Atom     = arg<nt::PRTL_ATOM>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtFindAtom(AtomName:{:#x}, Length:{:#x}, Atom:{:#x})", AtomName, Length, Atom);
 
         for(const auto& it : d.observers_NtFindAtom)
             it(AtomName, Length, Atom);
@@ -2283,11 +2288,11 @@ namespace
 
     static void on_NtFlushBuffersFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtFlushBuffersFile");
-
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtFlushBuffersFile(FileHandle:{:#x}, IoStatusBlock:{:#x})", FileHandle, IoStatusBlock);
 
         for(const auto& it : d.observers_NtFlushBuffersFile)
             it(FileHandle, IoStatusBlock);
@@ -2295,11 +2300,11 @@ namespace
 
     static void on_NtFlushInstallUILanguage(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtFlushInstallUILanguage");
-
         const auto InstallUILanguage = arg<nt::LANGID>(d.core, 0);
         const auto SetComittedFlag   = arg<nt::ULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtFlushInstallUILanguage(InstallUILanguage:{:#x}, SetComittedFlag:{:#x})", InstallUILanguage, SetComittedFlag);
 
         for(const auto& it : d.observers_NtFlushInstallUILanguage)
             it(InstallUILanguage, SetComittedFlag);
@@ -2307,12 +2312,12 @@ namespace
 
     static void on_NtFlushInstructionCache(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtFlushInstructionCache");
-
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto BaseAddress   = arg<nt::PVOID>(d.core, 1);
         const auto Length        = arg<nt::SIZE_T>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtFlushInstructionCache(ProcessHandle:{:#x}, BaseAddress:{:#x}, Length:{:#x})", ProcessHandle, BaseAddress, Length);
 
         for(const auto& it : d.observers_NtFlushInstructionCache)
             it(ProcessHandle, BaseAddress, Length);
@@ -2320,10 +2325,10 @@ namespace
 
     static void on_NtFlushKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtFlushKey");
-
         const auto KeyHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtFlushKey(KeyHandle:{:#x})", KeyHandle);
 
         for(const auto& it : d.observers_NtFlushKey)
             it(KeyHandle);
@@ -2331,13 +2336,13 @@ namespace
 
     static void on_NtFlushVirtualMemory(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtFlushVirtualMemory");
-
         const auto ProcessHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt::PVOID>(d.core, 1);
         const auto RegionSize      = arg<nt::PSIZE_T>(d.core, 2);
         const auto IoStatus        = arg<nt::PIO_STATUS_BLOCK>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtFlushVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, IoStatus:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, IoStatus);
 
         for(const auto& it : d.observers_NtFlushVirtualMemory)
             it(ProcessHandle, STARBaseAddress, RegionSize, IoStatus);
@@ -2345,12 +2350,12 @@ namespace
 
     static void on_NtFreeUserPhysicalPages(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtFreeUserPhysicalPages");
-
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto NumberOfPages = arg<nt::PULONG_PTR>(d.core, 1);
         const auto UserPfnArra   = arg<nt::PULONG_PTR>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtFreeUserPhysicalPages(ProcessHandle:{:#x}, NumberOfPages:{:#x}, UserPfnArra:{:#x})", ProcessHandle, NumberOfPages, UserPfnArra);
 
         for(const auto& it : d.observers_NtFreeUserPhysicalPages)
             it(ProcessHandle, NumberOfPages, UserPfnArra);
@@ -2358,13 +2363,13 @@ namespace
 
     static void on_NtFreeVirtualMemory(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtFreeVirtualMemory");
-
         const auto ProcessHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt::PVOID>(d.core, 1);
         const auto RegionSize      = arg<nt::PSIZE_T>(d.core, 2);
         const auto FreeType        = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtFreeVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, FreeType:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, FreeType);
 
         for(const auto& it : d.observers_NtFreeVirtualMemory)
             it(ProcessHandle, STARBaseAddress, RegionSize, FreeType);
@@ -2372,10 +2377,10 @@ namespace
 
     static void on_NtFreezeRegistry(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtFreezeRegistry");
-
         const auto TimeOutInSeconds = arg<nt::ULONG>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtFreezeRegistry(TimeOutInSeconds:{:#x})", TimeOutInSeconds);
 
         for(const auto& it : d.observers_NtFreezeRegistry)
             it(TimeOutInSeconds);
@@ -2383,11 +2388,11 @@ namespace
 
     static void on_NtFreezeTransactions(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtFreezeTransactions");
-
         const auto FreezeTimeout = arg<nt::PLARGE_INTEGER>(d.core, 0);
         const auto ThawTimeout   = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtFreezeTransactions(FreezeTimeout:{:#x}, ThawTimeout:{:#x})", FreezeTimeout, ThawTimeout);
 
         for(const auto& it : d.observers_NtFreezeTransactions)
             it(FreezeTimeout, ThawTimeout);
@@ -2395,9 +2400,6 @@ namespace
 
     static void on_NtFsControlFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtFsControlFile");
-
         const auto FileHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto Event              = arg<nt::HANDLE>(d.core, 1);
         const auto ApcRoutine         = arg<nt::PIO_APC_ROUTINE>(d.core, 2);
@@ -2409,17 +2411,20 @@ namespace
         const auto OutputBuffer       = arg<nt::PVOID>(d.core, 8);
         const auto OutputBufferLength = arg<nt::ULONG>(d.core, 9);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtFsControlFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, IoControlCode:{:#x}, InputBuffer:{:#x}, InputBufferLength:{:#x}, OutputBuffer:{:#x}, OutputBufferLength:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
+
         for(const auto& it : d.observers_NtFsControlFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
     }
 
     static void on_NtGetContextThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtGetContextThread");
-
         const auto ThreadHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto ThreadContext = arg<nt::PCONTEXT>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtGetContextThread(ThreadHandle:{:#x}, ThreadContext:{:#x})", ThreadHandle, ThreadContext);
 
         for(const auto& it : d.observers_NtGetContextThread)
             it(ThreadHandle, ThreadContext);
@@ -2427,11 +2432,11 @@ namespace
 
     static void on_NtGetDevicePowerState(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtGetDevicePowerState");
-
         const auto Device    = arg<nt::HANDLE>(d.core, 0);
         const auto STARState = arg<nt::DEVICE_POWER_STATE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtGetDevicePowerState(Device:{:#x}, STARState:{:#x})", Device, STARState);
 
         for(const auto& it : d.observers_NtGetDevicePowerState)
             it(Device, STARState);
@@ -2439,12 +2444,12 @@ namespace
 
     static void on_NtGetMUIRegistryInfo(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtGetMUIRegistryInfo");
-
         const auto Flags    = arg<nt::ULONG>(d.core, 0);
         const auto DataSize = arg<nt::PULONG>(d.core, 1);
         const auto Data     = arg<nt::PVOID>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtGetMUIRegistryInfo(Flags:{:#x}, DataSize:{:#x}, Data:{:#x})", Flags, DataSize, Data);
 
         for(const auto& it : d.observers_NtGetMUIRegistryInfo)
             it(Flags, DataSize, Data);
@@ -2452,14 +2457,14 @@ namespace
 
     static void on_NtGetNextProcess(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtGetNextProcess");
-
         const auto ProcessHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto HandleAttributes = arg<nt::ULONG>(d.core, 2);
         const auto Flags            = arg<nt::ULONG>(d.core, 3);
         const auto NewProcessHandle = arg<nt::PHANDLE>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtGetNextProcess(ProcessHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, Flags:{:#x}, NewProcessHandle:{:#x})", ProcessHandle, DesiredAccess, HandleAttributes, Flags, NewProcessHandle);
 
         for(const auto& it : d.observers_NtGetNextProcess)
             it(ProcessHandle, DesiredAccess, HandleAttributes, Flags, NewProcessHandle);
@@ -2467,9 +2472,6 @@ namespace
 
     static void on_NtGetNextThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtGetNextThread");
-
         const auto ProcessHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto ThreadHandle     = arg<nt::HANDLE>(d.core, 1);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 2);
@@ -2477,20 +2479,23 @@ namespace
         const auto Flags            = arg<nt::ULONG>(d.core, 4);
         const auto NewThreadHandle  = arg<nt::PHANDLE>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtGetNextThread(ProcessHandle:{:#x}, ThreadHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, Flags:{:#x}, NewThreadHandle:{:#x})", ProcessHandle, ThreadHandle, DesiredAccess, HandleAttributes, Flags, NewThreadHandle);
+
         for(const auto& it : d.observers_NtGetNextThread)
             it(ProcessHandle, ThreadHandle, DesiredAccess, HandleAttributes, Flags, NewThreadHandle);
     }
 
     static void on_NtGetNlsSectionPtr(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtGetNlsSectionPtr");
-
         const auto SectionType        = arg<nt::ULONG>(d.core, 0);
         const auto SectionData        = arg<nt::ULONG>(d.core, 1);
         const auto ContextData        = arg<nt::PVOID>(d.core, 2);
         const auto STARSectionPointer = arg<nt::PVOID>(d.core, 3);
         const auto SectionSize        = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtGetNlsSectionPtr(SectionType:{:#x}, SectionData:{:#x}, ContextData:{:#x}, STARSectionPointer:{:#x}, SectionSize:{:#x})", SectionType, SectionData, ContextData, STARSectionPointer, SectionSize);
 
         for(const auto& it : d.observers_NtGetNlsSectionPtr)
             it(SectionType, SectionData, ContextData, STARSectionPointer, SectionSize);
@@ -2498,9 +2503,6 @@ namespace
 
     static void on_NtGetNotificationResourceManager(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtGetNotificationResourceManager");
-
         const auto ResourceManagerHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto TransactionNotification = arg<nt::PTRANSACTION_NOTIFICATION>(d.core, 1);
         const auto NotificationLength      = arg<nt::ULONG>(d.core, 2);
@@ -2509,19 +2511,22 @@ namespace
         const auto Asynchronous            = arg<nt::ULONG>(d.core, 5);
         const auto AsynchronousContext     = arg<nt::ULONG_PTR>(d.core, 6);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtGetNotificationResourceManager(ResourceManagerHandle:{:#x}, TransactionNotification:{:#x}, NotificationLength:{:#x}, Timeout:{:#x}, ReturnLength:{:#x}, Asynchronous:{:#x}, AsynchronousContext:{:#x})", ResourceManagerHandle, TransactionNotification, NotificationLength, Timeout, ReturnLength, Asynchronous, AsynchronousContext);
+
         for(const auto& it : d.observers_NtGetNotificationResourceManager)
             it(ResourceManagerHandle, TransactionNotification, NotificationLength, Timeout, ReturnLength, Asynchronous, AsynchronousContext);
     }
 
     static void on_NtGetPlugPlayEvent(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtGetPlugPlayEvent");
-
         const auto EventHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto Context         = arg<nt::PVOID>(d.core, 1);
         const auto EventBlock      = arg<nt::PPLUGPLAY_EVENT_BLOCK>(d.core, 2);
         const auto EventBufferSize = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtGetPlugPlayEvent(EventHandle:{:#x}, Context:{:#x}, EventBlock:{:#x}, EventBufferSize:{:#x})", EventHandle, Context, EventBlock, EventBufferSize);
 
         for(const auto& it : d.observers_NtGetPlugPlayEvent)
             it(EventHandle, Context, EventBlock, EventBufferSize);
@@ -2529,9 +2534,6 @@ namespace
 
     static void on_NtGetWriteWatch(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtGetWriteWatch");
-
         const auto ProcessHandle             = arg<nt::HANDLE>(d.core, 0);
         const auto Flags                     = arg<nt::ULONG>(d.core, 1);
         const auto BaseAddress               = arg<nt::PVOID>(d.core, 2);
@@ -2540,16 +2542,19 @@ namespace
         const auto EntriesInUserAddressArray = arg<nt::PULONG_PTR>(d.core, 5);
         const auto Granularity               = arg<nt::PULONG>(d.core, 6);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtGetWriteWatch(ProcessHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, RegionSize:{:#x}, STARUserAddressArray:{:#x}, EntriesInUserAddressArray:{:#x}, Granularity:{:#x})", ProcessHandle, Flags, BaseAddress, RegionSize, STARUserAddressArray, EntriesInUserAddressArray, Granularity);
+
         for(const auto& it : d.observers_NtGetWriteWatch)
             it(ProcessHandle, Flags, BaseAddress, RegionSize, STARUserAddressArray, EntriesInUserAddressArray, Granularity);
     }
 
     static void on_NtImpersonateAnonymousToken(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtImpersonateAnonymousToken");
-
         const auto ThreadHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtImpersonateAnonymousToken(ThreadHandle:{:#x})", ThreadHandle);
 
         for(const auto& it : d.observers_NtImpersonateAnonymousToken)
             it(ThreadHandle);
@@ -2557,11 +2562,11 @@ namespace
 
     static void on_NtImpersonateClientOfPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtImpersonateClientOfPort");
-
         const auto PortHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Message    = arg<nt::PPORT_MESSAGE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtImpersonateClientOfPort(PortHandle:{:#x}, Message:{:#x})", PortHandle, Message);
 
         for(const auto& it : d.observers_NtImpersonateClientOfPort)
             it(PortHandle, Message);
@@ -2569,12 +2574,12 @@ namespace
 
     static void on_NtImpersonateThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtImpersonateThread");
-
         const auto ServerThreadHandle = arg<nt::HANDLE>(d.core, 0);
         const auto ClientThreadHandle = arg<nt::HANDLE>(d.core, 1);
         const auto SecurityQos        = arg<nt::PSECURITY_QUALITY_OF_SERVICE>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtImpersonateThread(ServerThreadHandle:{:#x}, ClientThreadHandle:{:#x}, SecurityQos:{:#x})", ServerThreadHandle, ClientThreadHandle, SecurityQos);
 
         for(const auto& it : d.observers_NtImpersonateThread)
             it(ServerThreadHandle, ClientThreadHandle, SecurityQos);
@@ -2582,12 +2587,12 @@ namespace
 
     static void on_NtInitializeNlsFiles(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtInitializeNlsFiles");
-
         const auto STARBaseAddress        = arg<nt::PVOID>(d.core, 0);
         const auto DefaultLocaleId        = arg<nt::PLCID>(d.core, 1);
         const auto DefaultCasingTableSize = arg<nt::PLARGE_INTEGER>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtInitializeNlsFiles(STARBaseAddress:{:#x}, DefaultLocaleId:{:#x}, DefaultCasingTableSize:{:#x})", STARBaseAddress, DefaultLocaleId, DefaultCasingTableSize);
 
         for(const auto& it : d.observers_NtInitializeNlsFiles)
             it(STARBaseAddress, DefaultLocaleId, DefaultCasingTableSize);
@@ -2595,10 +2600,10 @@ namespace
 
     static void on_NtInitializeRegistry(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtInitializeRegistry");
-
         const auto BootCondition = arg<nt::USHORT>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtInitializeRegistry(BootCondition:{:#x})", BootCondition);
 
         for(const auto& it : d.observers_NtInitializeRegistry)
             it(BootCondition);
@@ -2606,13 +2611,13 @@ namespace
 
     static void on_NtInitiatePowerAction(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtInitiatePowerAction");
-
         const auto SystemAction   = arg<nt::POWER_ACTION>(d.core, 0);
         const auto MinSystemState = arg<nt::SYSTEM_POWER_STATE>(d.core, 1);
         const auto Flags          = arg<nt::ULONG>(d.core, 2);
         const auto Asynchronous   = arg<nt::BOOLEAN>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtInitiatePowerAction(SystemAction:{:#x}, MinSystemState:{:#x}, Flags:{:#x}, Asynchronous:{:#x})", SystemAction, MinSystemState, Flags, Asynchronous);
 
         for(const auto& it : d.observers_NtInitiatePowerAction)
             it(SystemAction, MinSystemState, Flags, Asynchronous);
@@ -2620,11 +2625,11 @@ namespace
 
     static void on_NtIsProcessInJob(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtIsProcessInJob");
-
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto JobHandle     = arg<nt::HANDLE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtIsProcessInJob(ProcessHandle:{:#x}, JobHandle:{:#x})", ProcessHandle, JobHandle);
 
         for(const auto& it : d.observers_NtIsProcessInJob)
             it(ProcessHandle, JobHandle);
@@ -2632,11 +2637,11 @@ namespace
 
     static void on_NtListenPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtListenPort");
-
         const auto PortHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto ConnectionRequest = arg<nt::PPORT_MESSAGE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtListenPort(PortHandle:{:#x}, ConnectionRequest:{:#x})", PortHandle, ConnectionRequest);
 
         for(const auto& it : d.observers_NtListenPort)
             it(PortHandle, ConnectionRequest);
@@ -2644,10 +2649,10 @@ namespace
 
     static void on_NtLoadDriver(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtLoadDriver");
-
         const auto DriverServiceName = arg<nt::PUNICODE_STRING>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtLoadDriver(DriverServiceName:{:#x})", DriverServiceName);
 
         for(const auto& it : d.observers_NtLoadDriver)
             it(DriverServiceName);
@@ -2655,12 +2660,12 @@ namespace
 
     static void on_NtLoadKey2(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtLoadKey2");
-
         const auto TargetKey  = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto SourceFile = arg<nt::POBJECT_ATTRIBUTES>(d.core, 1);
         const auto Flags      = arg<nt::ULONG>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtLoadKey2(TargetKey:{:#x}, SourceFile:{:#x}, Flags:{:#x})", TargetKey, SourceFile, Flags);
 
         for(const auto& it : d.observers_NtLoadKey2)
             it(TargetKey, SourceFile, Flags);
@@ -2668,13 +2673,13 @@ namespace
 
     static void on_NtLoadKeyEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtLoadKeyEx");
-
         const auto TargetKey     = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto SourceFile    = arg<nt::POBJECT_ATTRIBUTES>(d.core, 1);
         const auto Flags         = arg<nt::ULONG>(d.core, 2);
         const auto TrustClassKey = arg<nt::HANDLE>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtLoadKeyEx(TargetKey:{:#x}, SourceFile:{:#x}, Flags:{:#x}, TrustClassKey:{:#x})", TargetKey, SourceFile, Flags, TrustClassKey);
 
         for(const auto& it : d.observers_NtLoadKeyEx)
             it(TargetKey, SourceFile, Flags, TrustClassKey);
@@ -2682,11 +2687,11 @@ namespace
 
     static void on_NtLoadKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtLoadKey");
-
         const auto TargetKey  = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto SourceFile = arg<nt::POBJECT_ATTRIBUTES>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtLoadKey(TargetKey:{:#x}, SourceFile:{:#x})", TargetKey, SourceFile);
 
         for(const auto& it : d.observers_NtLoadKey)
             it(TargetKey, SourceFile);
@@ -2694,9 +2699,6 @@ namespace
 
     static void on_NtLockFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtLockFile");
-
         const auto FileHandle      = arg<nt::HANDLE>(d.core, 0);
         const auto Event           = arg<nt::HANDLE>(d.core, 1);
         const auto ApcRoutine      = arg<nt::PIO_APC_ROUTINE>(d.core, 2);
@@ -2708,17 +2710,20 @@ namespace
         const auto FailImmediately = arg<nt::BOOLEAN>(d.core, 8);
         const auto ExclusiveLock   = arg<nt::BOOLEAN>(d.core, 9);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtLockFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, ByteOffset:{:#x}, Length:{:#x}, Key:{:#x}, FailImmediately:{:#x}, ExclusiveLock:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, ByteOffset, Length, Key, FailImmediately, ExclusiveLock);
+
         for(const auto& it : d.observers_NtLockFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, ByteOffset, Length, Key, FailImmediately, ExclusiveLock);
     }
 
     static void on_NtLockProductActivationKeys(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtLockProductActivationKeys");
-
         const auto STARpPrivateVer = arg<nt::ULONG>(d.core, 0);
         const auto STARpSafeMode   = arg<nt::ULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtLockProductActivationKeys(STARpPrivateVer:{:#x}, STARpSafeMode:{:#x})", STARpPrivateVer, STARpSafeMode);
 
         for(const auto& it : d.observers_NtLockProductActivationKeys)
             it(STARpPrivateVer, STARpSafeMode);
@@ -2726,10 +2731,10 @@ namespace
 
     static void on_NtLockRegistryKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtLockRegistryKey");
-
         const auto KeyHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtLockRegistryKey(KeyHandle:{:#x})", KeyHandle);
 
         for(const auto& it : d.observers_NtLockRegistryKey)
             it(KeyHandle);
@@ -2737,13 +2742,13 @@ namespace
 
     static void on_NtLockVirtualMemory(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtLockVirtualMemory");
-
         const auto ProcessHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt::PVOID>(d.core, 1);
         const auto RegionSize      = arg<nt::PSIZE_T>(d.core, 2);
         const auto MapType         = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtLockVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, MapType:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, MapType);
 
         for(const auto& it : d.observers_NtLockVirtualMemory)
             it(ProcessHandle, STARBaseAddress, RegionSize, MapType);
@@ -2751,10 +2756,10 @@ namespace
 
     static void on_NtMakePermanentObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtMakePermanentObject");
-
         const auto Handle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtMakePermanentObject(Handle:{:#x})", Handle);
 
         for(const auto& it : d.observers_NtMakePermanentObject)
             it(Handle);
@@ -2762,10 +2767,10 @@ namespace
 
     static void on_NtMakeTemporaryObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtMakeTemporaryObject");
-
         const auto Handle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtMakeTemporaryObject(Handle:{:#x})", Handle);
 
         for(const auto& it : d.observers_NtMakeTemporaryObject)
             it(Handle);
@@ -2773,9 +2778,6 @@ namespace
 
     static void on_NtMapCMFModule(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtMapCMFModule");
-
         const auto What            = arg<nt::ULONG>(d.core, 0);
         const auto Index           = arg<nt::ULONG>(d.core, 1);
         const auto CacheIndexOut   = arg<nt::PULONG>(d.core, 2);
@@ -2783,18 +2785,21 @@ namespace
         const auto ViewSizeOut     = arg<nt::PULONG>(d.core, 4);
         const auto STARBaseAddress = arg<nt::PVOID>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtMapCMFModule(What:{:#x}, Index:{:#x}, CacheIndexOut:{:#x}, CacheFlagsOut:{:#x}, ViewSizeOut:{:#x}, STARBaseAddress:{:#x})", What, Index, CacheIndexOut, CacheFlagsOut, ViewSizeOut, STARBaseAddress);
+
         for(const auto& it : d.observers_NtMapCMFModule)
             it(What, Index, CacheIndexOut, CacheFlagsOut, ViewSizeOut, STARBaseAddress);
     }
 
     static void on_NtMapUserPhysicalPages(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtMapUserPhysicalPages");
-
         const auto VirtualAddress = arg<nt::PVOID>(d.core, 0);
         const auto NumberOfPages  = arg<nt::ULONG_PTR>(d.core, 1);
         const auto UserPfnArra    = arg<nt::PULONG_PTR>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtMapUserPhysicalPages(VirtualAddress:{:#x}, NumberOfPages:{:#x}, UserPfnArra:{:#x})", VirtualAddress, NumberOfPages, UserPfnArra);
 
         for(const auto& it : d.observers_NtMapUserPhysicalPages)
             it(VirtualAddress, NumberOfPages, UserPfnArra);
@@ -2802,12 +2807,12 @@ namespace
 
     static void on_NtMapUserPhysicalPagesScatter(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtMapUserPhysicalPagesScatter");
-
         const auto STARVirtualAddresses = arg<nt::PVOID>(d.core, 0);
         const auto NumberOfPages        = arg<nt::ULONG_PTR>(d.core, 1);
         const auto UserPfnArray         = arg<nt::PULONG_PTR>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtMapUserPhysicalPagesScatter(STARVirtualAddresses:{:#x}, NumberOfPages:{:#x}, UserPfnArray:{:#x})", STARVirtualAddresses, NumberOfPages, UserPfnArray);
 
         for(const auto& it : d.observers_NtMapUserPhysicalPagesScatter)
             it(STARVirtualAddresses, NumberOfPages, UserPfnArray);
@@ -2815,9 +2820,6 @@ namespace
 
     static void on_NtMapViewOfSection(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtMapViewOfSection");
-
         const auto SectionHandle      = arg<nt::HANDLE>(d.core, 0);
         const auto ProcessHandle      = arg<nt::HANDLE>(d.core, 1);
         const auto STARBaseAddress    = arg<nt::PVOID>(d.core, 2);
@@ -2829,16 +2831,19 @@ namespace
         const auto AllocationType     = arg<nt::ULONG>(d.core, 8);
         const auto Win32Protect       = arg<nt::WIN32_PROTECTION_MASK>(d.core, 9);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtMapViewOfSection(SectionHandle:{:#x}, ProcessHandle:{:#x}, STARBaseAddress:{:#x}, ZeroBits:{:#x}, CommitSize:{:#x}, SectionOffset:{:#x}, ViewSize:{:#x}, InheritDisposition:{:#x}, AllocationType:{:#x}, Win32Protect:{:#x})", SectionHandle, ProcessHandle, STARBaseAddress, ZeroBits, CommitSize, SectionOffset, ViewSize, InheritDisposition, AllocationType, Win32Protect);
+
         for(const auto& it : d.observers_NtMapViewOfSection)
             it(SectionHandle, ProcessHandle, STARBaseAddress, ZeroBits, CommitSize, SectionOffset, ViewSize, InheritDisposition, AllocationType, Win32Protect);
     }
 
     static void on_NtModifyBootEntry(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtModifyBootEntry");
-
         const auto BootEntry = arg<nt::PBOOT_ENTRY>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtModifyBootEntry(BootEntry:{:#x})", BootEntry);
 
         for(const auto& it : d.observers_NtModifyBootEntry)
             it(BootEntry);
@@ -2846,10 +2851,10 @@ namespace
 
     static void on_NtModifyDriverEntry(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtModifyDriverEntry");
-
         const auto DriverEntry = arg<nt::PEFI_DRIVER_ENTRY>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtModifyDriverEntry(DriverEntry:{:#x})", DriverEntry);
 
         for(const auto& it : d.observers_NtModifyDriverEntry)
             it(DriverEntry);
@@ -2857,9 +2862,6 @@ namespace
 
     static void on_NtNotifyChangeDirectoryFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtNotifyChangeDirectoryFile");
-
         const auto FileHandle       = arg<nt::HANDLE>(d.core, 0);
         const auto Event            = arg<nt::HANDLE>(d.core, 1);
         const auto ApcRoutine       = arg<nt::PIO_APC_ROUTINE>(d.core, 2);
@@ -2870,15 +2872,15 @@ namespace
         const auto CompletionFilter = arg<nt::ULONG>(d.core, 7);
         const auto WatchTree        = arg<nt::BOOLEAN>(d.core, 8);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtNotifyChangeDirectoryFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, CompletionFilter:{:#x}, WatchTree:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, CompletionFilter, WatchTree);
+
         for(const auto& it : d.observers_NtNotifyChangeDirectoryFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, CompletionFilter, WatchTree);
     }
 
     static void on_NtNotifyChangeKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtNotifyChangeKey");
-
         const auto KeyHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto Event            = arg<nt::HANDLE>(d.core, 1);
         const auto ApcRoutine       = arg<nt::PIO_APC_ROUTINE>(d.core, 2);
@@ -2890,15 +2892,15 @@ namespace
         const auto BufferSize       = arg<nt::ULONG>(d.core, 8);
         const auto Asynchronous     = arg<nt::BOOLEAN>(d.core, 9);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtNotifyChangeKey(KeyHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, CompletionFilter:{:#x}, WatchTree:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, Asynchronous:{:#x})", KeyHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
+
         for(const auto& it : d.observers_NtNotifyChangeKey)
             it(KeyHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
     }
 
     static void on_NtNotifyChangeMultipleKeys(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtNotifyChangeMultipleKeys");
-
         const auto MasterKeyHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto Count            = arg<nt::ULONG>(d.core, 1);
         const auto SlaveObjects     = arg<nt::OBJECT_ATTRIBUTES>(d.core, 2);
@@ -2912,15 +2914,15 @@ namespace
         const auto BufferSize       = arg<nt::ULONG>(d.core, 10);
         const auto Asynchronous     = arg<nt::BOOLEAN>(d.core, 11);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtNotifyChangeMultipleKeys(MasterKeyHandle:{:#x}, Count:{:#x}, SlaveObjects:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, CompletionFilter:{:#x}, WatchTree:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, Asynchronous:{:#x})", MasterKeyHandle, Count, SlaveObjects, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
+
         for(const auto& it : d.observers_NtNotifyChangeMultipleKeys)
             it(MasterKeyHandle, Count, SlaveObjects, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
     }
 
     static void on_NtNotifyChangeSession(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtNotifyChangeSession");
-
         const auto Session         = arg<nt::HANDLE>(d.core, 0);
         const auto IoStateSequence = arg<nt::ULONG>(d.core, 1);
         const auto Reserved        = arg<nt::PVOID>(d.core, 2);
@@ -2930,18 +2932,21 @@ namespace
         const auto Buffer          = arg<nt::PVOID>(d.core, 6);
         const auto BufferSize      = arg<nt::ULONG>(d.core, 7);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtNotifyChangeSession(Session:{:#x}, IoStateSequence:{:#x}, Reserved:{:#x}, Action:{:#x}, IoState:{:#x}, IoState2:{:#x}, Buffer:{:#x}, BufferSize:{:#x})", Session, IoStateSequence, Reserved, Action, IoState, IoState2, Buffer, BufferSize);
+
         for(const auto& it : d.observers_NtNotifyChangeSession)
             it(Session, IoStateSequence, Reserved, Action, IoState, IoState2, Buffer, BufferSize);
     }
 
     static void on_NtOpenDirectoryObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenDirectoryObject");
-
         const auto DirectoryHandle  = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenDirectoryObject(DirectoryHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", DirectoryHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenDirectoryObject)
             it(DirectoryHandle, DesiredAccess, ObjectAttributes);
@@ -2949,14 +2954,14 @@ namespace
 
     static void on_NtOpenEnlistment(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenEnlistment");
-
         const auto EnlistmentHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ResourceManagerHandle = arg<nt::HANDLE>(d.core, 2);
         const auto EnlistmentGuid        = arg<nt::LPGUID>(d.core, 3);
         const auto ObjectAttributes      = arg<nt::POBJECT_ATTRIBUTES>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenEnlistment(EnlistmentHandle:{:#x}, DesiredAccess:{:#x}, ResourceManagerHandle:{:#x}, EnlistmentGuid:{:#x}, ObjectAttributes:{:#x})", EnlistmentHandle, DesiredAccess, ResourceManagerHandle, EnlistmentGuid, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenEnlistment)
             it(EnlistmentHandle, DesiredAccess, ResourceManagerHandle, EnlistmentGuid, ObjectAttributes);
@@ -2964,12 +2969,12 @@ namespace
 
     static void on_NtOpenEvent(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenEvent");
-
         const auto EventHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenEvent(EventHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", EventHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenEvent)
             it(EventHandle, DesiredAccess, ObjectAttributes);
@@ -2977,12 +2982,12 @@ namespace
 
     static void on_NtOpenEventPair(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenEventPair");
-
         const auto EventPairHandle  = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenEventPair(EventPairHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", EventPairHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenEventPair)
             it(EventPairHandle, DesiredAccess, ObjectAttributes);
@@ -2990,9 +2995,6 @@ namespace
 
     static void on_NtOpenFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenFile");
-
         const auto FileHandle       = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -3000,18 +3002,21 @@ namespace
         const auto ShareAccess      = arg<nt::ULONG>(d.core, 4);
         const auto OpenOptions      = arg<nt::ULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenFile(FileHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, IoStatusBlock:{:#x}, ShareAccess:{:#x}, OpenOptions:{:#x})", FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, OpenOptions);
+
         for(const auto& it : d.observers_NtOpenFile)
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, OpenOptions);
     }
 
     static void on_NtOpenIoCompletion(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenIoCompletion");
-
         const auto IoCompletionHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes   = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenIoCompletion(IoCompletionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", IoCompletionHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenIoCompletion)
             it(IoCompletionHandle, DesiredAccess, ObjectAttributes);
@@ -3019,12 +3024,12 @@ namespace
 
     static void on_NtOpenJobObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenJobObject");
-
         const auto JobHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenJobObject(JobHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", JobHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenJobObject)
             it(JobHandle, DesiredAccess, ObjectAttributes);
@@ -3032,12 +3037,12 @@ namespace
 
     static void on_NtOpenKeyedEvent(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenKeyedEvent");
-
         const auto KeyedEventHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenKeyedEvent(KeyedEventHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", KeyedEventHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenKeyedEvent)
             it(KeyedEventHandle, DesiredAccess, ObjectAttributes);
@@ -3045,13 +3050,13 @@ namespace
 
     static void on_NtOpenKeyEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenKeyEx");
-
         const auto KeyHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto OpenOptions      = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenKeyEx(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, OpenOptions:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions);
 
         for(const auto& it : d.observers_NtOpenKeyEx)
             it(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions);
@@ -3059,12 +3064,12 @@ namespace
 
     static void on_NtOpenKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenKey");
-
         const auto KeyHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenKey(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenKey)
             it(KeyHandle, DesiredAccess, ObjectAttributes);
@@ -3072,14 +3077,14 @@ namespace
 
     static void on_NtOpenKeyTransactedEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenKeyTransactedEx");
-
         const auto KeyHandle         = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes  = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto OpenOptions       = arg<nt::ULONG>(d.core, 3);
         const auto TransactionHandle = arg<nt::HANDLE>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenKeyTransactedEx(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, OpenOptions:{:#x}, TransactionHandle:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions, TransactionHandle);
 
         for(const auto& it : d.observers_NtOpenKeyTransactedEx)
             it(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions, TransactionHandle);
@@ -3087,13 +3092,13 @@ namespace
 
     static void on_NtOpenKeyTransacted(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenKeyTransacted");
-
         const auto KeyHandle         = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes  = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto TransactionHandle = arg<nt::HANDLE>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenKeyTransacted(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TransactionHandle:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, TransactionHandle);
 
         for(const auto& it : d.observers_NtOpenKeyTransacted)
             it(KeyHandle, DesiredAccess, ObjectAttributes, TransactionHandle);
@@ -3101,12 +3106,12 @@ namespace
 
     static void on_NtOpenMutant(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenMutant");
-
         const auto MutantHandle     = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenMutant(MutantHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", MutantHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenMutant)
             it(MutantHandle, DesiredAccess, ObjectAttributes);
@@ -3114,9 +3119,6 @@ namespace
 
     static void on_NtOpenObjectAuditAlarm(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenObjectAuditAlarm");
-
         const auto SubsystemName      = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId           = arg<nt::PVOID>(d.core, 1);
         const auto ObjectTypeName     = arg<nt::PUNICODE_STRING>(d.core, 2);
@@ -3130,19 +3132,22 @@ namespace
         const auto AccessGranted      = arg<nt::BOOLEAN>(d.core, 10);
         const auto GenerateOnClose    = arg<nt::PBOOLEAN>(d.core, 11);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, GrantedAccess:{:#x}, Privileges:{:#x}, ObjectCreation:{:#x}, AccessGranted:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, ClientToken, DesiredAccess, GrantedAccess, Privileges, ObjectCreation, AccessGranted, GenerateOnClose);
+
         for(const auto& it : d.observers_NtOpenObjectAuditAlarm)
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, ClientToken, DesiredAccess, GrantedAccess, Privileges, ObjectCreation, AccessGranted, GenerateOnClose);
     }
 
     static void on_NtOpenPrivateNamespace(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenPrivateNamespace");
-
         const auto NamespaceHandle    = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes   = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto BoundaryDescriptor = arg<nt::PVOID>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenPrivateNamespace(NamespaceHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, BoundaryDescriptor:{:#x})", NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
 
         for(const auto& it : d.observers_NtOpenPrivateNamespace)
             it(NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
@@ -3150,13 +3155,13 @@ namespace
 
     static void on_NtOpenProcess(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenProcess");
-
         const auto ProcessHandle    = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto ClientId         = arg<nt::PCLIENT_ID>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenProcess(ProcessHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ClientId:{:#x})", ProcessHandle, DesiredAccess, ObjectAttributes, ClientId);
 
         for(const auto& it : d.observers_NtOpenProcess)
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ClientId);
@@ -3164,13 +3169,13 @@ namespace
 
     static void on_NtOpenProcessTokenEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenProcessTokenEx");
-
         const auto ProcessHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto HandleAttributes = arg<nt::ULONG>(d.core, 2);
         const auto TokenHandle      = arg<nt::PHANDLE>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenProcessTokenEx(ProcessHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, TokenHandle:{:#x})", ProcessHandle, DesiredAccess, HandleAttributes, TokenHandle);
 
         for(const auto& it : d.observers_NtOpenProcessTokenEx)
             it(ProcessHandle, DesiredAccess, HandleAttributes, TokenHandle);
@@ -3178,12 +3183,12 @@ namespace
 
     static void on_NtOpenProcessToken(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenProcessToken");
-
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto DesiredAccess = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto TokenHandle   = arg<nt::PHANDLE>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenProcessToken(ProcessHandle:{:#x}, DesiredAccess:{:#x}, TokenHandle:{:#x})", ProcessHandle, DesiredAccess, TokenHandle);
 
         for(const auto& it : d.observers_NtOpenProcessToken)
             it(ProcessHandle, DesiredAccess, TokenHandle);
@@ -3191,14 +3196,14 @@ namespace
 
     static void on_NtOpenResourceManager(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenResourceManager");
-
         const auto ResourceManagerHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto TmHandle              = arg<nt::HANDLE>(d.core, 2);
         const auto ResourceManagerGuid   = arg<nt::LPGUID>(d.core, 3);
         const auto ObjectAttributes      = arg<nt::POBJECT_ATTRIBUTES>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenResourceManager(ResourceManagerHandle:{:#x}, DesiredAccess:{:#x}, TmHandle:{:#x}, ResourceManagerGuid:{:#x}, ObjectAttributes:{:#x})", ResourceManagerHandle, DesiredAccess, TmHandle, ResourceManagerGuid, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenResourceManager)
             it(ResourceManagerHandle, DesiredAccess, TmHandle, ResourceManagerGuid, ObjectAttributes);
@@ -3206,12 +3211,12 @@ namespace
 
     static void on_NtOpenSection(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenSection");
-
         const auto SectionHandle    = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenSection(SectionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", SectionHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenSection)
             it(SectionHandle, DesiredAccess, ObjectAttributes);
@@ -3219,12 +3224,12 @@ namespace
 
     static void on_NtOpenSemaphore(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenSemaphore");
-
         const auto SemaphoreHandle  = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenSemaphore(SemaphoreHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", SemaphoreHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenSemaphore)
             it(SemaphoreHandle, DesiredAccess, ObjectAttributes);
@@ -3232,12 +3237,12 @@ namespace
 
     static void on_NtOpenSession(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenSession");
-
         const auto SessionHandle    = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenSession(SessionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", SessionHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenSession)
             it(SessionHandle, DesiredAccess, ObjectAttributes);
@@ -3245,12 +3250,12 @@ namespace
 
     static void on_NtOpenSymbolicLinkObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenSymbolicLinkObject");
-
         const auto LinkHandle       = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenSymbolicLinkObject(LinkHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", LinkHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenSymbolicLinkObject)
             it(LinkHandle, DesiredAccess, ObjectAttributes);
@@ -3258,13 +3263,13 @@ namespace
 
     static void on_NtOpenThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenThread");
-
         const auto ThreadHandle     = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto ClientId         = arg<nt::PCLIENT_ID>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenThread(ThreadHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ClientId:{:#x})", ThreadHandle, DesiredAccess, ObjectAttributes, ClientId);
 
         for(const auto& it : d.observers_NtOpenThread)
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ClientId);
@@ -3272,14 +3277,14 @@ namespace
 
     static void on_NtOpenThreadTokenEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenThreadTokenEx");
-
         const auto ThreadHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto OpenAsSelf       = arg<nt::BOOLEAN>(d.core, 2);
         const auto HandleAttributes = arg<nt::ULONG>(d.core, 3);
         const auto TokenHandle      = arg<nt::PHANDLE>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenThreadTokenEx(ThreadHandle:{:#x}, DesiredAccess:{:#x}, OpenAsSelf:{:#x}, HandleAttributes:{:#x}, TokenHandle:{:#x})", ThreadHandle, DesiredAccess, OpenAsSelf, HandleAttributes, TokenHandle);
 
         for(const auto& it : d.observers_NtOpenThreadTokenEx)
             it(ThreadHandle, DesiredAccess, OpenAsSelf, HandleAttributes, TokenHandle);
@@ -3287,13 +3292,13 @@ namespace
 
     static void on_NtOpenThreadToken(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenThreadToken");
-
         const auto ThreadHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto DesiredAccess = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto OpenAsSelf    = arg<nt::BOOLEAN>(d.core, 2);
         const auto TokenHandle   = arg<nt::PHANDLE>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenThreadToken(ThreadHandle:{:#x}, DesiredAccess:{:#x}, OpenAsSelf:{:#x}, TokenHandle:{:#x})", ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
 
         for(const auto& it : d.observers_NtOpenThreadToken)
             it(ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
@@ -3301,12 +3306,12 @@ namespace
 
     static void on_NtOpenTimer(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenTimer");
-
         const auto TimerHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenTimer(TimerHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", TimerHandle, DesiredAccess, ObjectAttributes);
 
         for(const auto& it : d.observers_NtOpenTimer)
             it(TimerHandle, DesiredAccess, ObjectAttributes);
@@ -3314,9 +3319,6 @@ namespace
 
     static void on_NtOpenTransactionManager(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenTransactionManager");
-
         const auto TmHandle         = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
@@ -3324,20 +3326,23 @@ namespace
         const auto TmIdentity       = arg<nt::LPGUID>(d.core, 4);
         const auto OpenOptions      = arg<nt::ULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenTransactionManager(TmHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, LogFileName:{:#x}, TmIdentity:{:#x}, OpenOptions:{:#x})", TmHandle, DesiredAccess, ObjectAttributes, LogFileName, TmIdentity, OpenOptions);
+
         for(const auto& it : d.observers_NtOpenTransactionManager)
             it(TmHandle, DesiredAccess, ObjectAttributes, LogFileName, TmIdentity, OpenOptions);
     }
 
     static void on_NtOpenTransaction(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtOpenTransaction");
-
         const auto TransactionHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes  = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto Uow               = arg<nt::LPGUID>(d.core, 3);
         const auto TmHandle          = arg<nt::HANDLE>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtOpenTransaction(TransactionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Uow:{:#x}, TmHandle:{:#x})", TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle);
 
         for(const auto& it : d.observers_NtOpenTransaction)
             it(TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle);
@@ -3345,12 +3350,12 @@ namespace
 
     static void on_NtPlugPlayControl(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtPlugPlayControl");
-
         const auto PnPControlClass      = arg<nt::PLUGPLAY_CONTROL_CLASS>(d.core, 0);
         const auto PnPControlData       = arg<nt::PVOID>(d.core, 1);
         const auto PnPControlDataLength = arg<nt::ULONG>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtPlugPlayControl(PnPControlClass:{:#x}, PnPControlData:{:#x}, PnPControlDataLength:{:#x})", PnPControlClass, PnPControlData, PnPControlDataLength);
 
         for(const auto& it : d.observers_NtPlugPlayControl)
             it(PnPControlClass, PnPControlData, PnPControlDataLength);
@@ -3358,14 +3363,14 @@ namespace
 
     static void on_NtPowerInformation(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtPowerInformation");
-
         const auto InformationLevel   = arg<nt::POWER_INFORMATION_LEVEL>(d.core, 0);
         const auto InputBuffer        = arg<nt::PVOID>(d.core, 1);
         const auto InputBufferLength  = arg<nt::ULONG>(d.core, 2);
         const auto OutputBuffer       = arg<nt::PVOID>(d.core, 3);
         const auto OutputBufferLength = arg<nt::ULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtPowerInformation(InformationLevel:{:#x}, InputBuffer:{:#x}, InputBufferLength:{:#x}, OutputBuffer:{:#x}, OutputBufferLength:{:#x})", InformationLevel, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
 
         for(const auto& it : d.observers_NtPowerInformation)
             it(InformationLevel, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
@@ -3373,11 +3378,11 @@ namespace
 
     static void on_NtPrepareComplete(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtPrepareComplete");
-
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtPrepareComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock);
 
         for(const auto& it : d.observers_NtPrepareComplete)
             it(EnlistmentHandle, TmVirtualClock);
@@ -3385,11 +3390,11 @@ namespace
 
     static void on_NtPrepareEnlistment(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtPrepareEnlistment");
-
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtPrepareEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock);
 
         for(const auto& it : d.observers_NtPrepareEnlistment)
             it(EnlistmentHandle, TmVirtualClock);
@@ -3397,11 +3402,11 @@ namespace
 
     static void on_NtPrePrepareComplete(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtPrePrepareComplete");
-
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtPrePrepareComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock);
 
         for(const auto& it : d.observers_NtPrePrepareComplete)
             it(EnlistmentHandle, TmVirtualClock);
@@ -3409,11 +3414,11 @@ namespace
 
     static void on_NtPrePrepareEnlistment(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtPrePrepareEnlistment");
-
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtPrePrepareEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock);
 
         for(const auto& it : d.observers_NtPrePrepareEnlistment)
             it(EnlistmentHandle, TmVirtualClock);
@@ -3421,12 +3426,12 @@ namespace
 
     static void on_NtPrivilegeCheck(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtPrivilegeCheck");
-
         const auto ClientToken        = arg<nt::HANDLE>(d.core, 0);
         const auto RequiredPrivileges = arg<nt::PPRIVILEGE_SET>(d.core, 1);
         const auto Result             = arg<nt::PBOOLEAN>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtPrivilegeCheck(ClientToken:{:#x}, RequiredPrivileges:{:#x}, Result:{:#x})", ClientToken, RequiredPrivileges, Result);
 
         for(const auto& it : d.observers_NtPrivilegeCheck)
             it(ClientToken, RequiredPrivileges, Result);
@@ -3434,14 +3439,14 @@ namespace
 
     static void on_NtPrivilegedServiceAuditAlarm(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtPrivilegedServiceAuditAlarm");
-
         const auto SubsystemName = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto ServiceName   = arg<nt::PUNICODE_STRING>(d.core, 1);
         const auto ClientToken   = arg<nt::HANDLE>(d.core, 2);
         const auto Privileges    = arg<nt::PPRIVILEGE_SET>(d.core, 3);
         const auto AccessGranted = arg<nt::BOOLEAN>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtPrivilegedServiceAuditAlarm(SubsystemName:{:#x}, ServiceName:{:#x}, ClientToken:{:#x}, Privileges:{:#x}, AccessGranted:{:#x})", SubsystemName, ServiceName, ClientToken, Privileges, AccessGranted);
 
         for(const auto& it : d.observers_NtPrivilegedServiceAuditAlarm)
             it(SubsystemName, ServiceName, ClientToken, Privileges, AccessGranted);
@@ -3449,9 +3454,6 @@ namespace
 
     static void on_NtPrivilegeObjectAuditAlarm(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtPrivilegeObjectAuditAlarm");
-
         const auto SubsystemName = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId      = arg<nt::PVOID>(d.core, 1);
         const auto ClientToken   = arg<nt::HANDLE>(d.core, 2);
@@ -3459,19 +3461,22 @@ namespace
         const auto Privileges    = arg<nt::PPRIVILEGE_SET>(d.core, 4);
         const auto AccessGranted = arg<nt::BOOLEAN>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtPrivilegeObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, Privileges:{:#x}, AccessGranted:{:#x})", SubsystemName, HandleId, ClientToken, DesiredAccess, Privileges, AccessGranted);
+
         for(const auto& it : d.observers_NtPrivilegeObjectAuditAlarm)
             it(SubsystemName, HandleId, ClientToken, DesiredAccess, Privileges, AccessGranted);
     }
 
     static void on_NtPropagationComplete(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtPropagationComplete");
-
         const auto ResourceManagerHandle = arg<nt::HANDLE>(d.core, 0);
         const auto RequestCookie         = arg<nt::ULONG>(d.core, 1);
         const auto BufferLength          = arg<nt::ULONG>(d.core, 2);
         const auto Buffer                = arg<nt::PVOID>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtPropagationComplete(ResourceManagerHandle:{:#x}, RequestCookie:{:#x}, BufferLength:{:#x}, Buffer:{:#x})", ResourceManagerHandle, RequestCookie, BufferLength, Buffer);
 
         for(const auto& it : d.observers_NtPropagationComplete)
             it(ResourceManagerHandle, RequestCookie, BufferLength, Buffer);
@@ -3479,12 +3484,12 @@ namespace
 
     static void on_NtPropagationFailed(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtPropagationFailed");
-
         const auto ResourceManagerHandle = arg<nt::HANDLE>(d.core, 0);
         const auto RequestCookie         = arg<nt::ULONG>(d.core, 1);
         const auto PropStatus            = arg<nt::NTSTATUS>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtPropagationFailed(ResourceManagerHandle:{:#x}, RequestCookie:{:#x}, PropStatus:{:#x})", ResourceManagerHandle, RequestCookie, PropStatus);
 
         for(const auto& it : d.observers_NtPropagationFailed)
             it(ResourceManagerHandle, RequestCookie, PropStatus);
@@ -3492,14 +3497,14 @@ namespace
 
     static void on_NtProtectVirtualMemory(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtProtectVirtualMemory");
-
         const auto ProcessHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt::PVOID>(d.core, 1);
         const auto RegionSize      = arg<nt::PSIZE_T>(d.core, 2);
         const auto NewProtectWin32 = arg<nt::WIN32_PROTECTION_MASK>(d.core, 3);
         const auto OldProtect      = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtProtectVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, NewProtectWin32:{:#x}, OldProtect:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, NewProtectWin32, OldProtect);
 
         for(const auto& it : d.observers_NtProtectVirtualMemory)
             it(ProcessHandle, STARBaseAddress, RegionSize, NewProtectWin32, OldProtect);
@@ -3507,11 +3512,11 @@ namespace
 
     static void on_NtPulseEvent(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtPulseEvent");
-
         const auto EventHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto PreviousState = arg<nt::PLONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtPulseEvent(EventHandle:{:#x}, PreviousState:{:#x})", EventHandle, PreviousState);
 
         for(const auto& it : d.observers_NtPulseEvent)
             it(EventHandle, PreviousState);
@@ -3519,11 +3524,11 @@ namespace
 
     static void on_NtQueryAttributesFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryAttributesFile");
-
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto FileInformation  = arg<nt::PFILE_BASIC_INFORMATION>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryAttributesFile(ObjectAttributes:{:#x}, FileInformation:{:#x})", ObjectAttributes, FileInformation);
 
         for(const auto& it : d.observers_NtQueryAttributesFile)
             it(ObjectAttributes, FileInformation);
@@ -3531,11 +3536,11 @@ namespace
 
     static void on_NtQueryBootEntryOrder(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryBootEntryOrder");
-
         const auto Ids   = arg<nt::PULONG>(d.core, 0);
         const auto Count = arg<nt::PULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryBootEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count);
 
         for(const auto& it : d.observers_NtQueryBootEntryOrder)
             it(Ids, Count);
@@ -3543,11 +3548,11 @@ namespace
 
     static void on_NtQueryBootOptions(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryBootOptions");
-
         const auto BootOptions       = arg<nt::PBOOT_OPTIONS>(d.core, 0);
         const auto BootOptionsLength = arg<nt::PULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryBootOptions(BootOptions:{:#x}, BootOptionsLength:{:#x})", BootOptions, BootOptionsLength);
 
         for(const auto& it : d.observers_NtQueryBootOptions)
             it(BootOptions, BootOptionsLength);
@@ -3555,11 +3560,11 @@ namespace
 
     static void on_NtQueryDebugFilterState(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryDebugFilterState");
-
         const auto ComponentId = arg<nt::ULONG>(d.core, 0);
         const auto Level       = arg<nt::ULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryDebugFilterState(ComponentId:{:#x}, Level:{:#x})", ComponentId, Level);
 
         for(const auto& it : d.observers_NtQueryDebugFilterState)
             it(ComponentId, Level);
@@ -3567,11 +3572,11 @@ namespace
 
     static void on_NtQueryDefaultLocale(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryDefaultLocale");
-
         const auto UserProfile     = arg<nt::BOOLEAN>(d.core, 0);
         const auto DefaultLocaleId = arg<nt::PLCID>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryDefaultLocale(UserProfile:{:#x}, DefaultLocaleId:{:#x})", UserProfile, DefaultLocaleId);
 
         for(const auto& it : d.observers_NtQueryDefaultLocale)
             it(UserProfile, DefaultLocaleId);
@@ -3579,10 +3584,10 @@ namespace
 
     static void on_NtQueryDefaultUILanguage(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryDefaultUILanguage");
-
         const auto STARDefaultUILanguageId = arg<nt::LANGID>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryDefaultUILanguage(STARDefaultUILanguageId:{:#x})", STARDefaultUILanguageId);
 
         for(const auto& it : d.observers_NtQueryDefaultUILanguage)
             it(STARDefaultUILanguageId);
@@ -3590,9 +3595,6 @@ namespace
 
     static void on_NtQueryDirectoryFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryDirectoryFile");
-
         const auto FileHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto Event                = arg<nt::HANDLE>(d.core, 1);
         const auto ApcRoutine           = arg<nt::PIO_APC_ROUTINE>(d.core, 2);
@@ -3605,15 +3607,15 @@ namespace
         const auto FileName             = arg<nt::PUNICODE_STRING>(d.core, 9);
         const auto RestartScan          = arg<nt::BOOLEAN>(d.core, 10);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryDirectoryFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x}, ReturnSingleEntry:{:#x}, FileName:{:#x}, RestartScan:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan);
+
         for(const auto& it : d.observers_NtQueryDirectoryFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan);
     }
 
     static void on_NtQueryDirectoryObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryDirectoryObject");
-
         const auto DirectoryHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto Buffer            = arg<nt::PVOID>(d.core, 1);
         const auto Length            = arg<nt::ULONG>(d.core, 2);
@@ -3622,17 +3624,20 @@ namespace
         const auto Context           = arg<nt::PULONG>(d.core, 5);
         const auto ReturnLength      = arg<nt::PULONG>(d.core, 6);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryDirectoryObject(DirectoryHandle:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, RestartScan:{:#x}, Context:{:#x}, ReturnLength:{:#x})", DirectoryHandle, Buffer, Length, ReturnSingleEntry, RestartScan, Context, ReturnLength);
+
         for(const auto& it : d.observers_NtQueryDirectoryObject)
             it(DirectoryHandle, Buffer, Length, ReturnSingleEntry, RestartScan, Context, ReturnLength);
     }
 
     static void on_NtQueryDriverEntryOrder(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryDriverEntryOrder");
-
         const auto Ids   = arg<nt::PULONG>(d.core, 0);
         const auto Count = arg<nt::PULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryDriverEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count);
 
         for(const auto& it : d.observers_NtQueryDriverEntryOrder)
             it(Ids, Count);
@@ -3640,9 +3645,6 @@ namespace
 
     static void on_NtQueryEaFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryEaFile");
-
         const auto FileHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock     = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
         const auto Buffer            = arg<nt::PVOID>(d.core, 2);
@@ -3653,20 +3655,23 @@ namespace
         const auto EaIndex           = arg<nt::PULONG>(d.core, 7);
         const auto RestartScan       = arg<nt::BOOLEAN>(d.core, 8);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryEaFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, EaList:{:#x}, EaListLength:{:#x}, EaIndex:{:#x}, RestartScan:{:#x})", FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, EaList, EaListLength, EaIndex, RestartScan);
+
         for(const auto& it : d.observers_NtQueryEaFile)
             it(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, EaList, EaListLength, EaIndex, RestartScan);
     }
 
     static void on_NtQueryEvent(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryEvent");
-
         const auto EventHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto EventInformationClass  = arg<nt::EVENT_INFORMATION_CLASS>(d.core, 1);
         const auto EventInformation       = arg<nt::PVOID>(d.core, 2);
         const auto EventInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength           = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryEvent(EventHandle:{:#x}, EventInformationClass:{:#x}, EventInformation:{:#x}, EventInformationLength:{:#x}, ReturnLength:{:#x})", EventHandle, EventInformationClass, EventInformation, EventInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryEvent)
             it(EventHandle, EventInformationClass, EventInformation, EventInformationLength, ReturnLength);
@@ -3674,11 +3679,11 @@ namespace
 
     static void on_NtQueryFullAttributesFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryFullAttributesFile");
-
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto FileInformation  = arg<nt::PFILE_NETWORK_OPEN_INFORMATION>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryFullAttributesFile(ObjectAttributes:{:#x}, FileInformation:{:#x})", ObjectAttributes, FileInformation);
 
         for(const auto& it : d.observers_NtQueryFullAttributesFile)
             it(ObjectAttributes, FileInformation);
@@ -3686,14 +3691,14 @@ namespace
 
     static void on_NtQueryInformationAtom(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryInformationAtom");
-
         const auto Atom                  = arg<nt::RTL_ATOM>(d.core, 0);
         const auto InformationClass      = arg<nt::ATOM_INFORMATION_CLASS>(d.core, 1);
         const auto AtomInformation       = arg<nt::PVOID>(d.core, 2);
         const auto AtomInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength          = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryInformationAtom(Atom:{:#x}, InformationClass:{:#x}, AtomInformation:{:#x}, AtomInformationLength:{:#x}, ReturnLength:{:#x})", Atom, InformationClass, AtomInformation, AtomInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryInformationAtom)
             it(Atom, InformationClass, AtomInformation, AtomInformationLength, ReturnLength);
@@ -3701,14 +3706,14 @@ namespace
 
     static void on_NtQueryInformationEnlistment(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryInformationEnlistment");
-
         const auto EnlistmentHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto EnlistmentInformationClass  = arg<nt::ENLISTMENT_INFORMATION_CLASS>(d.core, 1);
         const auto EnlistmentInformation       = arg<nt::PVOID>(d.core, 2);
         const auto EnlistmentInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength                = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryInformationEnlistment(EnlistmentHandle:{:#x}, EnlistmentInformationClass:{:#x}, EnlistmentInformation:{:#x}, EnlistmentInformationLength:{:#x}, ReturnLength:{:#x})", EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryInformationEnlistment)
             it(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength, ReturnLength);
@@ -3716,14 +3721,14 @@ namespace
 
     static void on_NtQueryInformationFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryInformationFile");
-
         const auto FileHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock        = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
         const auto FileInformation      = arg<nt::PVOID>(d.core, 2);
         const auto Length               = arg<nt::ULONG>(d.core, 3);
         const auto FileInformationClass = arg<nt::FILE_INFORMATION_CLASS>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x})", FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
 
         for(const auto& it : d.observers_NtQueryInformationFile)
             it(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
@@ -3731,14 +3736,14 @@ namespace
 
     static void on_NtQueryInformationJobObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryInformationJobObject");
-
         const auto JobHandle                  = arg<nt::HANDLE>(d.core, 0);
         const auto JobObjectInformationClass  = arg<nt::JOBOBJECTINFOCLASS>(d.core, 1);
         const auto JobObjectInformation       = arg<nt::PVOID>(d.core, 2);
         const auto JobObjectInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength               = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryInformationJobObject(JobHandle:{:#x}, JobObjectInformationClass:{:#x}, JobObjectInformation:{:#x}, JobObjectInformationLength:{:#x}, ReturnLength:{:#x})", JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryInformationJobObject)
             it(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength, ReturnLength);
@@ -3746,14 +3751,14 @@ namespace
 
     static void on_NtQueryInformationPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryInformationPort");
-
         const auto PortHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto PortInformationClass = arg<nt::PORT_INFORMATION_CLASS>(d.core, 1);
         const auto PortInformation      = arg<nt::PVOID>(d.core, 2);
         const auto Length               = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength         = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryInformationPort(PortHandle:{:#x}, PortInformationClass:{:#x}, PortInformation:{:#x}, Length:{:#x}, ReturnLength:{:#x})", PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryInformationPort)
             it(PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
@@ -3761,14 +3766,14 @@ namespace
 
     static void on_NtQueryInformationProcess(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryInformationProcess");
-
         const auto ProcessHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto ProcessInformationClass  = arg<nt::PROCESSINFOCLASS>(d.core, 1);
         const auto ProcessInformation       = arg<nt::PVOID>(d.core, 2);
         const auto ProcessInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength             = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryInformationProcess(ProcessHandle:{:#x}, ProcessInformationClass:{:#x}, ProcessInformation:{:#x}, ProcessInformationLength:{:#x}, ReturnLength:{:#x})", ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryInformationProcess)
             it(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength);
@@ -3776,14 +3781,14 @@ namespace
 
     static void on_NtQueryInformationResourceManager(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryInformationResourceManager");
-
         const auto ResourceManagerHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto ResourceManagerInformationClass  = arg<nt::RESOURCEMANAGER_INFORMATION_CLASS>(d.core, 1);
         const auto ResourceManagerInformation       = arg<nt::PVOID>(d.core, 2);
         const auto ResourceManagerInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength                     = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryInformationResourceManager(ResourceManagerHandle:{:#x}, ResourceManagerInformationClass:{:#x}, ResourceManagerInformation:{:#x}, ResourceManagerInformationLength:{:#x}, ReturnLength:{:#x})", ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryInformationResourceManager)
             it(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength, ReturnLength);
@@ -3791,14 +3796,14 @@ namespace
 
     static void on_NtQueryInformationThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryInformationThread");
-
         const auto ThreadHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto ThreadInformationClass  = arg<nt::THREADINFOCLASS>(d.core, 1);
         const auto ThreadInformation       = arg<nt::PVOID>(d.core, 2);
         const auto ThreadInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength            = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryInformationThread(ThreadHandle:{:#x}, ThreadInformationClass:{:#x}, ThreadInformation:{:#x}, ThreadInformationLength:{:#x}, ReturnLength:{:#x})", ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryInformationThread)
             it(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength, ReturnLength);
@@ -3806,14 +3811,14 @@ namespace
 
     static void on_NtQueryInformationToken(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryInformationToken");
-
         const auto TokenHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto TokenInformationClass  = arg<nt::TOKEN_INFORMATION_CLASS>(d.core, 1);
         const auto TokenInformation       = arg<nt::PVOID>(d.core, 2);
         const auto TokenInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength           = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryInformationToken(TokenHandle:{:#x}, TokenInformationClass:{:#x}, TokenInformation:{:#x}, TokenInformationLength:{:#x}, ReturnLength:{:#x})", TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryInformationToken)
             it(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength, ReturnLength);
@@ -3821,14 +3826,14 @@ namespace
 
     static void on_NtQueryInformationTransaction(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryInformationTransaction");
-
         const auto TransactionHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto TransactionInformationClass  = arg<nt::TRANSACTION_INFORMATION_CLASS>(d.core, 1);
         const auto TransactionInformation       = arg<nt::PVOID>(d.core, 2);
         const auto TransactionInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength                 = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryInformationTransaction(TransactionHandle:{:#x}, TransactionInformationClass:{:#x}, TransactionInformation:{:#x}, TransactionInformationLength:{:#x}, ReturnLength:{:#x})", TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryInformationTransaction)
             it(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength, ReturnLength);
@@ -3836,14 +3841,14 @@ namespace
 
     static void on_NtQueryInformationTransactionManager(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryInformationTransactionManager");
-
         const auto TransactionManagerHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto TransactionManagerInformationClass  = arg<nt::TRANSACTIONMANAGER_INFORMATION_CLASS>(d.core, 1);
         const auto TransactionManagerInformation       = arg<nt::PVOID>(d.core, 2);
         const auto TransactionManagerInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength                        = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryInformationTransactionManager(TransactionManagerHandle:{:#x}, TransactionManagerInformationClass:{:#x}, TransactionManagerInformation:{:#x}, TransactionManagerInformationLength:{:#x}, ReturnLength:{:#x})", TransactionManagerHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryInformationTransactionManager)
             it(TransactionManagerHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength, ReturnLength);
@@ -3851,14 +3856,14 @@ namespace
 
     static void on_NtQueryInformationWorkerFactory(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryInformationWorkerFactory");
-
         const auto WorkerFactoryHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto WorkerFactoryInformationClass  = arg<nt::WORKERFACTORYINFOCLASS>(d.core, 1);
         const auto WorkerFactoryInformation       = arg<nt::PVOID>(d.core, 2);
         const auto WorkerFactoryInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength                   = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryInformationWorkerFactory(WorkerFactoryHandle:{:#x}, WorkerFactoryInformationClass:{:#x}, WorkerFactoryInformation:{:#x}, WorkerFactoryInformationLength:{:#x}, ReturnLength:{:#x})", WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryInformationWorkerFactory)
             it(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength, ReturnLength);
@@ -3866,10 +3871,10 @@ namespace
 
     static void on_NtQueryInstallUILanguage(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryInstallUILanguage");
-
         const auto STARInstallUILanguageId = arg<nt::LANGID>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryInstallUILanguage(STARInstallUILanguageId:{:#x})", STARInstallUILanguageId);
 
         for(const auto& it : d.observers_NtQueryInstallUILanguage)
             it(STARInstallUILanguageId);
@@ -3877,11 +3882,11 @@ namespace
 
     static void on_NtQueryIntervalProfile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryIntervalProfile");
-
         const auto ProfileSource = arg<nt::KPROFILE_SOURCE>(d.core, 0);
         const auto Interval      = arg<nt::PULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryIntervalProfile(ProfileSource:{:#x}, Interval:{:#x})", ProfileSource, Interval);
 
         for(const auto& it : d.observers_NtQueryIntervalProfile)
             it(ProfileSource, Interval);
@@ -3889,14 +3894,14 @@ namespace
 
     static void on_NtQueryIoCompletion(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryIoCompletion");
-
         const auto IoCompletionHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto IoCompletionInformationClass  = arg<nt::IO_COMPLETION_INFORMATION_CLASS>(d.core, 1);
         const auto IoCompletionInformation       = arg<nt::PVOID>(d.core, 2);
         const auto IoCompletionInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength                  = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryIoCompletion(IoCompletionHandle:{:#x}, IoCompletionInformationClass:{:#x}, IoCompletionInformation:{:#x}, IoCompletionInformationLength:{:#x}, ReturnLength:{:#x})", IoCompletionHandle, IoCompletionInformationClass, IoCompletionInformation, IoCompletionInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryIoCompletion)
             it(IoCompletionHandle, IoCompletionInformationClass, IoCompletionInformation, IoCompletionInformationLength, ReturnLength);
@@ -3904,14 +3909,14 @@ namespace
 
     static void on_NtQueryKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryKey");
-
         const auto KeyHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto KeyInformationClass = arg<nt::KEY_INFORMATION_CLASS>(d.core, 1);
         const auto KeyInformation      = arg<nt::PVOID>(d.core, 2);
         const auto Length              = arg<nt::ULONG>(d.core, 3);
         const auto ResultLength        = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryKey(KeyHandle:{:#x}, KeyInformationClass:{:#x}, KeyInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength);
 
         for(const auto& it : d.observers_NtQueryKey)
             it(KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength);
@@ -3919,14 +3924,14 @@ namespace
 
     static void on_NtQueryLicenseValue(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryLicenseValue");
-
         const auto Name           = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto Type           = arg<nt::PULONG>(d.core, 1);
         const auto Buffer         = arg<nt::PVOID>(d.core, 2);
         const auto Length         = arg<nt::ULONG>(d.core, 3);
         const auto ReturnedLength = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryLicenseValue(Name:{:#x}, Type:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnedLength:{:#x})", Name, Type, Buffer, Length, ReturnedLength);
 
         for(const auto& it : d.observers_NtQueryLicenseValue)
             it(Name, Type, Buffer, Length, ReturnedLength);
@@ -3934,9 +3939,6 @@ namespace
 
     static void on_NtQueryMultipleValueKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryMultipleValueKey");
-
         const auto KeyHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto ValueEntries         = arg<nt::PKEY_VALUE_ENTRY>(d.core, 1);
         const auto EntryCount           = arg<nt::ULONG>(d.core, 2);
@@ -3944,20 +3946,23 @@ namespace
         const auto BufferLength         = arg<nt::PULONG>(d.core, 4);
         const auto RequiredBufferLength = arg<nt::PULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryMultipleValueKey(KeyHandle:{:#x}, ValueEntries:{:#x}, EntryCount:{:#x}, ValueBuffer:{:#x}, BufferLength:{:#x}, RequiredBufferLength:{:#x})", KeyHandle, ValueEntries, EntryCount, ValueBuffer, BufferLength, RequiredBufferLength);
+
         for(const auto& it : d.observers_NtQueryMultipleValueKey)
             it(KeyHandle, ValueEntries, EntryCount, ValueBuffer, BufferLength, RequiredBufferLength);
     }
 
     static void on_NtQueryMutant(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryMutant");
-
         const auto MutantHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto MutantInformationClass  = arg<nt::MUTANT_INFORMATION_CLASS>(d.core, 1);
         const auto MutantInformation       = arg<nt::PVOID>(d.core, 2);
         const auto MutantInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength            = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryMutant(MutantHandle:{:#x}, MutantInformationClass:{:#x}, MutantInformation:{:#x}, MutantInformationLength:{:#x}, ReturnLength:{:#x})", MutantHandle, MutantInformationClass, MutantInformation, MutantInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryMutant)
             it(MutantHandle, MutantInformationClass, MutantInformation, MutantInformationLength, ReturnLength);
@@ -3965,14 +3970,14 @@ namespace
 
     static void on_NtQueryObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryObject");
-
         const auto Handle                  = arg<nt::HANDLE>(d.core, 0);
         const auto ObjectInformationClass  = arg<nt::OBJECT_INFORMATION_CLASS>(d.core, 1);
         const auto ObjectInformation       = arg<nt::PVOID>(d.core, 2);
         const auto ObjectInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength            = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryObject(Handle:{:#x}, ObjectInformationClass:{:#x}, ObjectInformation:{:#x}, ObjectInformationLength:{:#x}, ReturnLength:{:#x})", Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryObject)
             it(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength, ReturnLength);
@@ -3980,13 +3985,13 @@ namespace
 
     static void on_NtQueryOpenSubKeysEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryOpenSubKeysEx");
-
         const auto TargetKey    = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto BufferLength = arg<nt::ULONG>(d.core, 1);
         const auto Buffer       = arg<nt::PVOID>(d.core, 2);
         const auto RequiredSize = arg<nt::PULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryOpenSubKeysEx(TargetKey:{:#x}, BufferLength:{:#x}, Buffer:{:#x}, RequiredSize:{:#x})", TargetKey, BufferLength, Buffer, RequiredSize);
 
         for(const auto& it : d.observers_NtQueryOpenSubKeysEx)
             it(TargetKey, BufferLength, Buffer, RequiredSize);
@@ -3994,11 +3999,11 @@ namespace
 
     static void on_NtQueryOpenSubKeys(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryOpenSubKeys");
-
         const auto TargetKey   = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto HandleCount = arg<nt::PULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryOpenSubKeys(TargetKey:{:#x}, HandleCount:{:#x})", TargetKey, HandleCount);
 
         for(const auto& it : d.observers_NtQueryOpenSubKeys)
             it(TargetKey, HandleCount);
@@ -4006,11 +4011,11 @@ namespace
 
     static void on_NtQueryPerformanceCounter(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryPerformanceCounter");
-
         const auto PerformanceCounter   = arg<nt::PLARGE_INTEGER>(d.core, 0);
         const auto PerformanceFrequency = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryPerformanceCounter(PerformanceCounter:{:#x}, PerformanceFrequency:{:#x})", PerformanceCounter, PerformanceFrequency);
 
         for(const auto& it : d.observers_NtQueryPerformanceCounter)
             it(PerformanceCounter, PerformanceFrequency);
@@ -4018,9 +4023,6 @@ namespace
 
     static void on_NtQueryQuotaInformationFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryQuotaInformationFile");
-
         const auto FileHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock     = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
         const auto Buffer            = arg<nt::PVOID>(d.core, 2);
@@ -4031,20 +4033,23 @@ namespace
         const auto StartSid          = arg<nt::PULONG>(d.core, 7);
         const auto RestartScan       = arg<nt::BOOLEAN>(d.core, 8);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryQuotaInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, SidList:{:#x}, SidListLength:{:#x}, StartSid:{:#x}, RestartScan:{:#x})", FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, SidList, SidListLength, StartSid, RestartScan);
+
         for(const auto& it : d.observers_NtQueryQuotaInformationFile)
             it(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, SidList, SidListLength, StartSid, RestartScan);
     }
 
     static void on_NtQuerySection(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQuerySection");
-
         const auto SectionHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto SectionInformationClass  = arg<nt::SECTION_INFORMATION_CLASS>(d.core, 1);
         const auto SectionInformation       = arg<nt::PVOID>(d.core, 2);
         const auto SectionInformationLength = arg<nt::SIZE_T>(d.core, 3);
         const auto ReturnLength             = arg<nt::PSIZE_T>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQuerySection(SectionHandle:{:#x}, SectionInformationClass:{:#x}, SectionInformation:{:#x}, SectionInformationLength:{:#x}, ReturnLength:{:#x})", SectionHandle, SectionInformationClass, SectionInformation, SectionInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQuerySection)
             it(SectionHandle, SectionInformationClass, SectionInformation, SectionInformationLength, ReturnLength);
@@ -4052,9 +4057,6 @@ namespace
 
     static void on_NtQuerySecurityAttributesToken(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQuerySecurityAttributesToken");
-
         const auto TokenHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto Attributes         = arg<nt::PUNICODE_STRING>(d.core, 1);
         const auto NumberOfAttributes = arg<nt::ULONG>(d.core, 2);
@@ -4062,20 +4064,23 @@ namespace
         const auto Length             = arg<nt::ULONG>(d.core, 4);
         const auto ReturnLength       = arg<nt::PULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtQuerySecurityAttributesToken(TokenHandle:{:#x}, Attributes:{:#x}, NumberOfAttributes:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnLength:{:#x})", TokenHandle, Attributes, NumberOfAttributes, Buffer, Length, ReturnLength);
+
         for(const auto& it : d.observers_NtQuerySecurityAttributesToken)
             it(TokenHandle, Attributes, NumberOfAttributes, Buffer, Length, ReturnLength);
     }
 
     static void on_NtQuerySecurityObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQuerySecurityObject");
-
         const auto Handle              = arg<nt::HANDLE>(d.core, 0);
         const auto SecurityInformation = arg<nt::SECURITY_INFORMATION>(d.core, 1);
         const auto SecurityDescriptor  = arg<nt::PSECURITY_DESCRIPTOR>(d.core, 2);
         const auto Length              = arg<nt::ULONG>(d.core, 3);
         const auto LengthNeeded        = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQuerySecurityObject(Handle:{:#x}, SecurityInformation:{:#x}, SecurityDescriptor:{:#x}, Length:{:#x}, LengthNeeded:{:#x})", Handle, SecurityInformation, SecurityDescriptor, Length, LengthNeeded);
 
         for(const auto& it : d.observers_NtQuerySecurityObject)
             it(Handle, SecurityInformation, SecurityDescriptor, Length, LengthNeeded);
@@ -4083,14 +4088,14 @@ namespace
 
     static void on_NtQuerySemaphore(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQuerySemaphore");
-
         const auto SemaphoreHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto SemaphoreInformationClass  = arg<nt::SEMAPHORE_INFORMATION_CLASS>(d.core, 1);
         const auto SemaphoreInformation       = arg<nt::PVOID>(d.core, 2);
         const auto SemaphoreInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength               = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQuerySemaphore(SemaphoreHandle:{:#x}, SemaphoreInformationClass:{:#x}, SemaphoreInformation:{:#x}, SemaphoreInformationLength:{:#x}, ReturnLength:{:#x})", SemaphoreHandle, SemaphoreInformationClass, SemaphoreInformation, SemaphoreInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQuerySemaphore)
             it(SemaphoreHandle, SemaphoreInformationClass, SemaphoreInformation, SemaphoreInformationLength, ReturnLength);
@@ -4098,12 +4103,12 @@ namespace
 
     static void on_NtQuerySymbolicLinkObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQuerySymbolicLinkObject");
-
         const auto LinkHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto LinkTarget     = arg<nt::PUNICODE_STRING>(d.core, 1);
         const auto ReturnedLength = arg<nt::PULONG>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQuerySymbolicLinkObject(LinkHandle:{:#x}, LinkTarget:{:#x}, ReturnedLength:{:#x})", LinkHandle, LinkTarget, ReturnedLength);
 
         for(const auto& it : d.observers_NtQuerySymbolicLinkObject)
             it(LinkHandle, LinkTarget, ReturnedLength);
@@ -4111,14 +4116,14 @@ namespace
 
     static void on_NtQuerySystemEnvironmentValueEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQuerySystemEnvironmentValueEx");
-
         const auto VariableName = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto VendorGuid   = arg<nt::LPGUID>(d.core, 1);
         const auto Value        = arg<nt::PVOID>(d.core, 2);
         const auto ValueLength  = arg<nt::PULONG>(d.core, 3);
         const auto Attributes   = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQuerySystemEnvironmentValueEx(VariableName:{:#x}, VendorGuid:{:#x}, Value:{:#x}, ValueLength:{:#x}, Attributes:{:#x})", VariableName, VendorGuid, Value, ValueLength, Attributes);
 
         for(const auto& it : d.observers_NtQuerySystemEnvironmentValueEx)
             it(VariableName, VendorGuid, Value, ValueLength, Attributes);
@@ -4126,13 +4131,13 @@ namespace
 
     static void on_NtQuerySystemEnvironmentValue(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQuerySystemEnvironmentValue");
-
         const auto VariableName  = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto VariableValue = arg<nt::PWSTR>(d.core, 1);
         const auto ValueLength   = arg<nt::USHORT>(d.core, 2);
         const auto ReturnLength  = arg<nt::PUSHORT>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQuerySystemEnvironmentValue(VariableName:{:#x}, VariableValue:{:#x}, ValueLength:{:#x}, ReturnLength:{:#x})", VariableName, VariableValue, ValueLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQuerySystemEnvironmentValue)
             it(VariableName, VariableValue, ValueLength, ReturnLength);
@@ -4140,9 +4145,6 @@ namespace
 
     static void on_NtQuerySystemInformationEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQuerySystemInformationEx");
-
         const auto SystemInformationClass  = arg<nt::SYSTEM_INFORMATION_CLASS>(d.core, 0);
         const auto QueryInformation        = arg<nt::PVOID>(d.core, 1);
         const auto QueryInformationLength  = arg<nt::ULONG>(d.core, 2);
@@ -4150,19 +4152,22 @@ namespace
         const auto SystemInformationLength = arg<nt::ULONG>(d.core, 4);
         const auto ReturnLength            = arg<nt::PULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtQuerySystemInformationEx(SystemInformationClass:{:#x}, QueryInformation:{:#x}, QueryInformationLength:{:#x}, SystemInformation:{:#x}, SystemInformationLength:{:#x}, ReturnLength:{:#x})", SystemInformationClass, QueryInformation, QueryInformationLength, SystemInformation, SystemInformationLength, ReturnLength);
+
         for(const auto& it : d.observers_NtQuerySystemInformationEx)
             it(SystemInformationClass, QueryInformation, QueryInformationLength, SystemInformation, SystemInformationLength, ReturnLength);
     }
 
     static void on_NtQuerySystemInformation(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQuerySystemInformation");
-
         const auto SystemInformationClass  = arg<nt::SYSTEM_INFORMATION_CLASS>(d.core, 0);
         const auto SystemInformation       = arg<nt::PVOID>(d.core, 1);
         const auto SystemInformationLength = arg<nt::ULONG>(d.core, 2);
         const auto ReturnLength            = arg<nt::PULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQuerySystemInformation(SystemInformationClass:{:#x}, SystemInformation:{:#x}, SystemInformationLength:{:#x}, ReturnLength:{:#x})", SystemInformationClass, SystemInformation, SystemInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQuerySystemInformation)
             it(SystemInformationClass, SystemInformation, SystemInformationLength, ReturnLength);
@@ -4170,10 +4175,10 @@ namespace
 
     static void on_NtQuerySystemTime(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQuerySystemTime");
-
         const auto SystemTime = arg<nt::PLARGE_INTEGER>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQuerySystemTime(SystemTime:{:#x})", SystemTime);
 
         for(const auto& it : d.observers_NtQuerySystemTime)
             it(SystemTime);
@@ -4181,14 +4186,14 @@ namespace
 
     static void on_NtQueryTimer(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryTimer");
-
         const auto TimerHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto TimerInformationClass  = arg<nt::TIMER_INFORMATION_CLASS>(d.core, 1);
         const auto TimerInformation       = arg<nt::PVOID>(d.core, 2);
         const auto TimerInformationLength = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength           = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryTimer(TimerHandle:{:#x}, TimerInformationClass:{:#x}, TimerInformation:{:#x}, TimerInformationLength:{:#x}, ReturnLength:{:#x})", TimerHandle, TimerInformationClass, TimerInformation, TimerInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtQueryTimer)
             it(TimerHandle, TimerInformationClass, TimerInformation, TimerInformationLength, ReturnLength);
@@ -4196,12 +4201,12 @@ namespace
 
     static void on_NtQueryTimerResolution(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryTimerResolution");
-
         const auto MaximumTime = arg<nt::PULONG>(d.core, 0);
         const auto MinimumTime = arg<nt::PULONG>(d.core, 1);
         const auto CurrentTime = arg<nt::PULONG>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryTimerResolution(MaximumTime:{:#x}, MinimumTime:{:#x}, CurrentTime:{:#x})", MaximumTime, MinimumTime, CurrentTime);
 
         for(const auto& it : d.observers_NtQueryTimerResolution)
             it(MaximumTime, MinimumTime, CurrentTime);
@@ -4209,9 +4214,6 @@ namespace
 
     static void on_NtQueryValueKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryValueKey");
-
         const auto KeyHandle                = arg<nt::HANDLE>(d.core, 0);
         const auto ValueName                = arg<nt::PUNICODE_STRING>(d.core, 1);
         const auto KeyValueInformationClass = arg<nt::KEY_VALUE_INFORMATION_CLASS>(d.core, 2);
@@ -4219,15 +4221,15 @@ namespace
         const auto Length                   = arg<nt::ULONG>(d.core, 4);
         const auto ResultLength             = arg<nt::PULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryValueKey(KeyHandle:{:#x}, ValueName:{:#x}, KeyValueInformationClass:{:#x}, KeyValueInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, ValueName, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
+
         for(const auto& it : d.observers_NtQueryValueKey)
             it(KeyHandle, ValueName, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
     }
 
     static void on_NtQueryVirtualMemory(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryVirtualMemory");
-
         const auto ProcessHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto BaseAddress             = arg<nt::PVOID>(d.core, 1);
         const auto MemoryInformationClass  = arg<nt::MEMORY_INFORMATION_CLASS>(d.core, 2);
@@ -4235,20 +4237,23 @@ namespace
         const auto MemoryInformationLength = arg<nt::SIZE_T>(d.core, 4);
         const auto ReturnLength            = arg<nt::PSIZE_T>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryVirtualMemory(ProcessHandle:{:#x}, BaseAddress:{:#x}, MemoryInformationClass:{:#x}, MemoryInformation:{:#x}, MemoryInformationLength:{:#x}, ReturnLength:{:#x})", ProcessHandle, BaseAddress, MemoryInformationClass, MemoryInformation, MemoryInformationLength, ReturnLength);
+
         for(const auto& it : d.observers_NtQueryVirtualMemory)
             it(ProcessHandle, BaseAddress, MemoryInformationClass, MemoryInformation, MemoryInformationLength, ReturnLength);
     }
 
     static void on_NtQueryVolumeInformationFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryVolumeInformationFile");
-
         const auto FileHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock      = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
         const auto FsInformation      = arg<nt::PVOID>(d.core, 2);
         const auto Length             = arg<nt::ULONG>(d.core, 3);
         const auto FsInformationClass = arg<nt::FS_INFORMATION_CLASS>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryVolumeInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FsInformation:{:#x}, Length:{:#x}, FsInformationClass:{:#x})", FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
 
         for(const auto& it : d.observers_NtQueryVolumeInformationFile)
             it(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
@@ -4256,9 +4261,6 @@ namespace
 
     static void on_NtQueueApcThreadEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueueApcThreadEx");
-
         const auto ThreadHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto UserApcReserveHandle = arg<nt::HANDLE>(d.core, 1);
         const auto ApcRoutine           = arg<nt::PPS_APC_ROUTINE>(d.core, 2);
@@ -4266,20 +4268,23 @@ namespace
         const auto ApcArgument2         = arg<nt::PVOID>(d.core, 4);
         const auto ApcArgument3         = arg<nt::PVOID>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueueApcThreadEx(ThreadHandle:{:#x}, UserApcReserveHandle:{:#x}, ApcRoutine:{:#x}, ApcArgument1:{:#x}, ApcArgument2:{:#x}, ApcArgument3:{:#x})", ThreadHandle, UserApcReserveHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
+
         for(const auto& it : d.observers_NtQueueApcThreadEx)
             it(ThreadHandle, UserApcReserveHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
     }
 
     static void on_NtQueueApcThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueueApcThread");
-
         const auto ThreadHandle = arg<nt::HANDLE>(d.core, 0);
         const auto ApcRoutine   = arg<nt::PPS_APC_ROUTINE>(d.core, 1);
         const auto ApcArgument1 = arg<nt::PVOID>(d.core, 2);
         const auto ApcArgument2 = arg<nt::PVOID>(d.core, 3);
         const auto ApcArgument3 = arg<nt::PVOID>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueueApcThread(ThreadHandle:{:#x}, ApcRoutine:{:#x}, ApcArgument1:{:#x}, ApcArgument2:{:#x}, ApcArgument3:{:#x})", ThreadHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
 
         for(const auto& it : d.observers_NtQueueApcThread)
             it(ThreadHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
@@ -4287,12 +4292,12 @@ namespace
 
     static void on_NtRaiseException(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRaiseException");
-
         const auto ExceptionRecord = arg<nt::PEXCEPTION_RECORD>(d.core, 0);
         const auto ContextRecord   = arg<nt::PCONTEXT>(d.core, 1);
         const auto FirstChance     = arg<nt::BOOLEAN>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRaiseException(ExceptionRecord:{:#x}, ContextRecord:{:#x}, FirstChance:{:#x})", ExceptionRecord, ContextRecord, FirstChance);
 
         for(const auto& it : d.observers_NtRaiseException)
             it(ExceptionRecord, ContextRecord, FirstChance);
@@ -4300,9 +4305,6 @@ namespace
 
     static void on_NtRaiseHardError(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRaiseHardError");
-
         const auto ErrorStatus                = arg<nt::NTSTATUS>(d.core, 0);
         const auto NumberOfParameters         = arg<nt::ULONG>(d.core, 1);
         const auto UnicodeStringParameterMask = arg<nt::ULONG>(d.core, 2);
@@ -4310,15 +4312,15 @@ namespace
         const auto ValidResponseOptions       = arg<nt::ULONG>(d.core, 4);
         const auto Response                   = arg<nt::PULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtRaiseHardError(ErrorStatus:{:#x}, NumberOfParameters:{:#x}, UnicodeStringParameterMask:{:#x}, Parameters:{:#x}, ValidResponseOptions:{:#x}, Response:{:#x})", ErrorStatus, NumberOfParameters, UnicodeStringParameterMask, Parameters, ValidResponseOptions, Response);
+
         for(const auto& it : d.observers_NtRaiseHardError)
             it(ErrorStatus, NumberOfParameters, UnicodeStringParameterMask, Parameters, ValidResponseOptions, Response);
     }
 
     static void on_NtReadFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReadFile");
-
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto Event         = arg<nt::HANDLE>(d.core, 1);
         const auto ApcRoutine    = arg<nt::PIO_APC_ROUTINE>(d.core, 2);
@@ -4329,15 +4331,15 @@ namespace
         const auto ByteOffset    = arg<nt::PLARGE_INTEGER>(d.core, 7);
         const auto Key           = arg<nt::PULONG>(d.core, 8);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtReadFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ByteOffset:{:#x}, Key:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
+
         for(const auto& it : d.observers_NtReadFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
     }
 
     static void on_NtReadFileScatter(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReadFileScatter");
-
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto Event         = arg<nt::HANDLE>(d.core, 1);
         const auto ApcRoutine    = arg<nt::PIO_APC_ROUTINE>(d.core, 2);
@@ -4348,17 +4350,20 @@ namespace
         const auto ByteOffset    = arg<nt::PLARGE_INTEGER>(d.core, 7);
         const auto Key           = arg<nt::PULONG>(d.core, 8);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtReadFileScatter(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, SegmentArray:{:#x}, Length:{:#x}, ByteOffset:{:#x}, Key:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
+
         for(const auto& it : d.observers_NtReadFileScatter)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
     }
 
     static void on_NtReadOnlyEnlistment(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReadOnlyEnlistment");
-
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtReadOnlyEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock);
 
         for(const auto& it : d.observers_NtReadOnlyEnlistment)
             it(EnlistmentHandle, TmVirtualClock);
@@ -4366,9 +4371,6 @@ namespace
 
     static void on_NtReadRequestData(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReadRequestData");
-
         const auto PortHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto Message           = arg<nt::PPORT_MESSAGE>(d.core, 1);
         const auto DataEntryIndex    = arg<nt::ULONG>(d.core, 2);
@@ -4376,20 +4378,23 @@ namespace
         const auto BufferSize        = arg<nt::SIZE_T>(d.core, 4);
         const auto NumberOfBytesRead = arg<nt::PSIZE_T>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtReadRequestData(PortHandle:{:#x}, Message:{:#x}, DataEntryIndex:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, NumberOfBytesRead:{:#x})", PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesRead);
+
         for(const auto& it : d.observers_NtReadRequestData)
             it(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesRead);
     }
 
     static void on_NtReadVirtualMemory(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReadVirtualMemory");
-
         const auto ProcessHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto BaseAddress       = arg<nt::PVOID>(d.core, 1);
         const auto Buffer            = arg<nt::PVOID>(d.core, 2);
         const auto BufferSize        = arg<nt::SIZE_T>(d.core, 3);
         const auto NumberOfBytesRead = arg<nt::PSIZE_T>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtReadVirtualMemory(ProcessHandle:{:#x}, BaseAddress:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, NumberOfBytesRead:{:#x})", ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesRead);
 
         for(const auto& it : d.observers_NtReadVirtualMemory)
             it(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesRead);
@@ -4397,11 +4402,11 @@ namespace
 
     static void on_NtRecoverEnlistment(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRecoverEnlistment");
-
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto EnlistmentKey    = arg<nt::PVOID>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRecoverEnlistment(EnlistmentHandle:{:#x}, EnlistmentKey:{:#x})", EnlistmentHandle, EnlistmentKey);
 
         for(const auto& it : d.observers_NtRecoverEnlistment)
             it(EnlistmentHandle, EnlistmentKey);
@@ -4409,10 +4414,10 @@ namespace
 
     static void on_NtRecoverResourceManager(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRecoverResourceManager");
-
         const auto ResourceManagerHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRecoverResourceManager(ResourceManagerHandle:{:#x})", ResourceManagerHandle);
 
         for(const auto& it : d.observers_NtRecoverResourceManager)
             it(ResourceManagerHandle);
@@ -4420,10 +4425,10 @@ namespace
 
     static void on_NtRecoverTransactionManager(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRecoverTransactionManager");
-
         const auto TransactionManagerHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRecoverTransactionManager(TransactionManagerHandle:{:#x})", TransactionManagerHandle);
 
         for(const auto& it : d.observers_NtRecoverTransactionManager)
             it(TransactionManagerHandle);
@@ -4431,14 +4436,14 @@ namespace
 
     static void on_NtRegisterProtocolAddressInformation(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRegisterProtocolAddressInformation");
-
         const auto ResourceManager         = arg<nt::HANDLE>(d.core, 0);
         const auto ProtocolId              = arg<nt::PCRM_PROTOCOL_ID>(d.core, 1);
         const auto ProtocolInformationSize = arg<nt::ULONG>(d.core, 2);
         const auto ProtocolInformation     = arg<nt::PVOID>(d.core, 3);
         const auto CreateOptions           = arg<nt::ULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRegisterProtocolAddressInformation(ResourceManager:{:#x}, ProtocolId:{:#x}, ProtocolInformationSize:{:#x}, ProtocolInformation:{:#x}, CreateOptions:{:#x})", ResourceManager, ProtocolId, ProtocolInformationSize, ProtocolInformation, CreateOptions);
 
         for(const auto& it : d.observers_NtRegisterProtocolAddressInformation)
             it(ResourceManager, ProtocolId, ProtocolInformationSize, ProtocolInformation, CreateOptions);
@@ -4446,10 +4451,10 @@ namespace
 
     static void on_NtRegisterThreadTerminatePort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRegisterThreadTerminatePort");
-
         const auto PortHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRegisterThreadTerminatePort(PortHandle:{:#x})", PortHandle);
 
         for(const auto& it : d.observers_NtRegisterThreadTerminatePort)
             it(PortHandle);
@@ -4457,13 +4462,13 @@ namespace
 
     static void on_NtReleaseKeyedEvent(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReleaseKeyedEvent");
-
         const auto KeyedEventHandle = arg<nt::HANDLE>(d.core, 0);
         const auto KeyValue         = arg<nt::PVOID>(d.core, 1);
         const auto Alertable        = arg<nt::BOOLEAN>(d.core, 2);
         const auto Timeout          = arg<nt::PLARGE_INTEGER>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtReleaseKeyedEvent(KeyedEventHandle:{:#x}, KeyValue:{:#x}, Alertable:{:#x}, Timeout:{:#x})", KeyedEventHandle, KeyValue, Alertable, Timeout);
 
         for(const auto& it : d.observers_NtReleaseKeyedEvent)
             it(KeyedEventHandle, KeyValue, Alertable, Timeout);
@@ -4471,11 +4476,11 @@ namespace
 
     static void on_NtReleaseMutant(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReleaseMutant");
-
         const auto MutantHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto PreviousCount = arg<nt::PLONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtReleaseMutant(MutantHandle:{:#x}, PreviousCount:{:#x})", MutantHandle, PreviousCount);
 
         for(const auto& it : d.observers_NtReleaseMutant)
             it(MutantHandle, PreviousCount);
@@ -4483,12 +4488,12 @@ namespace
 
     static void on_NtReleaseSemaphore(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReleaseSemaphore");
-
         const auto SemaphoreHandle = arg<nt::HANDLE>(d.core, 0);
         const auto ReleaseCount    = arg<nt::LONG>(d.core, 1);
         const auto PreviousCount   = arg<nt::PLONG>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtReleaseSemaphore(SemaphoreHandle:{:#x}, ReleaseCount:{:#x}, PreviousCount:{:#x})", SemaphoreHandle, ReleaseCount, PreviousCount);
 
         for(const auto& it : d.observers_NtReleaseSemaphore)
             it(SemaphoreHandle, ReleaseCount, PreviousCount);
@@ -4496,10 +4501,10 @@ namespace
 
     static void on_NtReleaseWorkerFactoryWorker(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReleaseWorkerFactoryWorker");
-
         const auto WorkerFactoryHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtReleaseWorkerFactoryWorker(WorkerFactoryHandle:{:#x})", WorkerFactoryHandle);
 
         for(const auto& it : d.observers_NtReleaseWorkerFactoryWorker)
             it(WorkerFactoryHandle);
@@ -4507,9 +4512,6 @@ namespace
 
     static void on_NtRemoveIoCompletionEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRemoveIoCompletionEx");
-
         const auto IoCompletionHandle      = arg<nt::HANDLE>(d.core, 0);
         const auto IoCompletionInformation = arg<nt::PFILE_IO_COMPLETION_INFORMATION>(d.core, 1);
         const auto Count                   = arg<nt::ULONG>(d.core, 2);
@@ -4517,20 +4519,23 @@ namespace
         const auto Timeout                 = arg<nt::PLARGE_INTEGER>(d.core, 4);
         const auto Alertable               = arg<nt::BOOLEAN>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtRemoveIoCompletionEx(IoCompletionHandle:{:#x}, IoCompletionInformation:{:#x}, Count:{:#x}, NumEntriesRemoved:{:#x}, Timeout:{:#x}, Alertable:{:#x})", IoCompletionHandle, IoCompletionInformation, Count, NumEntriesRemoved, Timeout, Alertable);
+
         for(const auto& it : d.observers_NtRemoveIoCompletionEx)
             it(IoCompletionHandle, IoCompletionInformation, Count, NumEntriesRemoved, Timeout, Alertable);
     }
 
     static void on_NtRemoveIoCompletion(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRemoveIoCompletion");
-
         const auto IoCompletionHandle = arg<nt::HANDLE>(d.core, 0);
         const auto STARKeyContext     = arg<nt::PVOID>(d.core, 1);
         const auto STARApcContext     = arg<nt::PVOID>(d.core, 2);
         const auto IoStatusBlock      = arg<nt::PIO_STATUS_BLOCK>(d.core, 3);
         const auto Timeout            = arg<nt::PLARGE_INTEGER>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRemoveIoCompletion(IoCompletionHandle:{:#x}, STARKeyContext:{:#x}, STARApcContext:{:#x}, IoStatusBlock:{:#x}, Timeout:{:#x})", IoCompletionHandle, STARKeyContext, STARApcContext, IoStatusBlock, Timeout);
 
         for(const auto& it : d.observers_NtRemoveIoCompletion)
             it(IoCompletionHandle, STARKeyContext, STARApcContext, IoStatusBlock, Timeout);
@@ -4538,11 +4543,11 @@ namespace
 
     static void on_NtRemoveProcessDebug(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRemoveProcessDebug");
-
         const auto ProcessHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto DebugObjectHandle = arg<nt::HANDLE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRemoveProcessDebug(ProcessHandle:{:#x}, DebugObjectHandle:{:#x})", ProcessHandle, DebugObjectHandle);
 
         for(const auto& it : d.observers_NtRemoveProcessDebug)
             it(ProcessHandle, DebugObjectHandle);
@@ -4550,11 +4555,11 @@ namespace
 
     static void on_NtRenameKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRenameKey");
-
         const auto KeyHandle = arg<nt::HANDLE>(d.core, 0);
         const auto NewName   = arg<nt::PUNICODE_STRING>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRenameKey(KeyHandle:{:#x}, NewName:{:#x})", KeyHandle, NewName);
 
         for(const auto& it : d.observers_NtRenameKey)
             it(KeyHandle, NewName);
@@ -4562,11 +4567,11 @@ namespace
 
     static void on_NtRenameTransactionManager(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRenameTransactionManager");
-
         const auto LogFileName                    = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto ExistingTransactionManagerGuid = arg<nt::LPGUID>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRenameTransactionManager(LogFileName:{:#x}, ExistingTransactionManagerGuid:{:#x})", LogFileName, ExistingTransactionManagerGuid);
 
         for(const auto& it : d.observers_NtRenameTransactionManager)
             it(LogFileName, ExistingTransactionManagerGuid);
@@ -4574,12 +4579,12 @@ namespace
 
     static void on_NtReplaceKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReplaceKey");
-
         const auto NewFile      = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto TargetHandle = arg<nt::HANDLE>(d.core, 1);
         const auto OldFile      = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtReplaceKey(NewFile:{:#x}, TargetHandle:{:#x}, OldFile:{:#x})", NewFile, TargetHandle, OldFile);
 
         for(const auto& it : d.observers_NtReplaceKey)
             it(NewFile, TargetHandle, OldFile);
@@ -4587,12 +4592,12 @@ namespace
 
     static void on_NtReplacePartitionUnit(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReplacePartitionUnit");
-
         const auto TargetInstancePath = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto SpareInstancePath  = arg<nt::PUNICODE_STRING>(d.core, 1);
         const auto Flags              = arg<nt::ULONG>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtReplacePartitionUnit(TargetInstancePath:{:#x}, SpareInstancePath:{:#x}, Flags:{:#x})", TargetInstancePath, SpareInstancePath, Flags);
 
         for(const auto& it : d.observers_NtReplacePartitionUnit)
             it(TargetInstancePath, SpareInstancePath, Flags);
@@ -4600,11 +4605,11 @@ namespace
 
     static void on_NtReplyPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReplyPort");
-
         const auto PortHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto ReplyMessage = arg<nt::PPORT_MESSAGE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtReplyPort(PortHandle:{:#x}, ReplyMessage:{:#x})", PortHandle, ReplyMessage);
 
         for(const auto& it : d.observers_NtReplyPort)
             it(PortHandle, ReplyMessage);
@@ -4612,14 +4617,14 @@ namespace
 
     static void on_NtReplyWaitReceivePortEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReplyWaitReceivePortEx");
-
         const auto PortHandle      = arg<nt::HANDLE>(d.core, 0);
         const auto STARPortContext = arg<nt::PVOID>(d.core, 1);
         const auto ReplyMessage    = arg<nt::PPORT_MESSAGE>(d.core, 2);
         const auto ReceiveMessage  = arg<nt::PPORT_MESSAGE>(d.core, 3);
         const auto Timeout         = arg<nt::PLARGE_INTEGER>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtReplyWaitReceivePortEx(PortHandle:{:#x}, STARPortContext:{:#x}, ReplyMessage:{:#x}, ReceiveMessage:{:#x}, Timeout:{:#x})", PortHandle, STARPortContext, ReplyMessage, ReceiveMessage, Timeout);
 
         for(const auto& it : d.observers_NtReplyWaitReceivePortEx)
             it(PortHandle, STARPortContext, ReplyMessage, ReceiveMessage, Timeout);
@@ -4627,13 +4632,13 @@ namespace
 
     static void on_NtReplyWaitReceivePort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReplyWaitReceivePort");
-
         const auto PortHandle      = arg<nt::HANDLE>(d.core, 0);
         const auto STARPortContext = arg<nt::PVOID>(d.core, 1);
         const auto ReplyMessage    = arg<nt::PPORT_MESSAGE>(d.core, 2);
         const auto ReceiveMessage  = arg<nt::PPORT_MESSAGE>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtReplyWaitReceivePort(PortHandle:{:#x}, STARPortContext:{:#x}, ReplyMessage:{:#x}, ReceiveMessage:{:#x})", PortHandle, STARPortContext, ReplyMessage, ReceiveMessage);
 
         for(const auto& it : d.observers_NtReplyWaitReceivePort)
             it(PortHandle, STARPortContext, ReplyMessage, ReceiveMessage);
@@ -4641,11 +4646,11 @@ namespace
 
     static void on_NtReplyWaitReplyPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtReplyWaitReplyPort");
-
         const auto PortHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto ReplyMessage = arg<nt::PPORT_MESSAGE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtReplyWaitReplyPort(PortHandle:{:#x}, ReplyMessage:{:#x})", PortHandle, ReplyMessage);
 
         for(const auto& it : d.observers_NtReplyWaitReplyPort)
             it(PortHandle, ReplyMessage);
@@ -4653,11 +4658,11 @@ namespace
 
     static void on_NtRequestPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRequestPort");
-
         const auto PortHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto RequestMessage = arg<nt::PPORT_MESSAGE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRequestPort(PortHandle:{:#x}, RequestMessage:{:#x})", PortHandle, RequestMessage);
 
         for(const auto& it : d.observers_NtRequestPort)
             it(PortHandle, RequestMessage);
@@ -4665,12 +4670,12 @@ namespace
 
     static void on_NtRequestWaitReplyPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRequestWaitReplyPort");
-
         const auto PortHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto RequestMessage = arg<nt::PPORT_MESSAGE>(d.core, 1);
         const auto ReplyMessage   = arg<nt::PPORT_MESSAGE>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRequestWaitReplyPort(PortHandle:{:#x}, RequestMessage:{:#x}, ReplyMessage:{:#x})", PortHandle, RequestMessage, ReplyMessage);
 
         for(const auto& it : d.observers_NtRequestWaitReplyPort)
             it(PortHandle, RequestMessage, ReplyMessage);
@@ -4678,11 +4683,11 @@ namespace
 
     static void on_NtResetEvent(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtResetEvent");
-
         const auto EventHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto PreviousState = arg<nt::PLONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtResetEvent(EventHandle:{:#x}, PreviousState:{:#x})", EventHandle, PreviousState);
 
         for(const auto& it : d.observers_NtResetEvent)
             it(EventHandle, PreviousState);
@@ -4690,12 +4695,12 @@ namespace
 
     static void on_NtResetWriteWatch(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtResetWriteWatch");
-
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto BaseAddress   = arg<nt::PVOID>(d.core, 1);
         const auto RegionSize    = arg<nt::SIZE_T>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtResetWriteWatch(ProcessHandle:{:#x}, BaseAddress:{:#x}, RegionSize:{:#x})", ProcessHandle, BaseAddress, RegionSize);
 
         for(const auto& it : d.observers_NtResetWriteWatch)
             it(ProcessHandle, BaseAddress, RegionSize);
@@ -4703,12 +4708,12 @@ namespace
 
     static void on_NtRestoreKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRestoreKey");
-
         const auto KeyHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto FileHandle = arg<nt::HANDLE>(d.core, 1);
         const auto Flags      = arg<nt::ULONG>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRestoreKey(KeyHandle:{:#x}, FileHandle:{:#x}, Flags:{:#x})", KeyHandle, FileHandle, Flags);
 
         for(const auto& it : d.observers_NtRestoreKey)
             it(KeyHandle, FileHandle, Flags);
@@ -4716,10 +4721,10 @@ namespace
 
     static void on_NtResumeProcess(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtResumeProcess");
-
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtResumeProcess(ProcessHandle:{:#x})", ProcessHandle);
 
         for(const auto& it : d.observers_NtResumeProcess)
             it(ProcessHandle);
@@ -4727,11 +4732,11 @@ namespace
 
     static void on_NtResumeThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtResumeThread");
-
         const auto ThreadHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto PreviousSuspendCount = arg<nt::PULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtResumeThread(ThreadHandle:{:#x}, PreviousSuspendCount:{:#x})", ThreadHandle, PreviousSuspendCount);
 
         for(const auto& it : d.observers_NtResumeThread)
             it(ThreadHandle, PreviousSuspendCount);
@@ -4739,11 +4744,11 @@ namespace
 
     static void on_NtRollbackComplete(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRollbackComplete");
-
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRollbackComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock);
 
         for(const auto& it : d.observers_NtRollbackComplete)
             it(EnlistmentHandle, TmVirtualClock);
@@ -4751,11 +4756,11 @@ namespace
 
     static void on_NtRollbackEnlistment(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRollbackEnlistment");
-
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRollbackEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock);
 
         for(const auto& it : d.observers_NtRollbackEnlistment)
             it(EnlistmentHandle, TmVirtualClock);
@@ -4763,11 +4768,11 @@ namespace
 
     static void on_NtRollbackTransaction(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRollbackTransaction");
-
         const auto TransactionHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Wait              = arg<nt::BOOLEAN>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRollbackTransaction(TransactionHandle:{:#x}, Wait:{:#x})", TransactionHandle, Wait);
 
         for(const auto& it : d.observers_NtRollbackTransaction)
             it(TransactionHandle, Wait);
@@ -4775,11 +4780,11 @@ namespace
 
     static void on_NtRollforwardTransactionManager(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtRollforwardTransactionManager");
-
         const auto TransactionManagerHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock           = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtRollforwardTransactionManager(TransactionManagerHandle:{:#x}, TmVirtualClock:{:#x})", TransactionManagerHandle, TmVirtualClock);
 
         for(const auto& it : d.observers_NtRollforwardTransactionManager)
             it(TransactionManagerHandle, TmVirtualClock);
@@ -4787,12 +4792,12 @@ namespace
 
     static void on_NtSaveKeyEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSaveKeyEx");
-
         const auto KeyHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto FileHandle = arg<nt::HANDLE>(d.core, 1);
         const auto Format     = arg<nt::ULONG>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSaveKeyEx(KeyHandle:{:#x}, FileHandle:{:#x}, Format:{:#x})", KeyHandle, FileHandle, Format);
 
         for(const auto& it : d.observers_NtSaveKeyEx)
             it(KeyHandle, FileHandle, Format);
@@ -4800,11 +4805,11 @@ namespace
 
     static void on_NtSaveKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSaveKey");
-
         const auto KeyHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto FileHandle = arg<nt::HANDLE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSaveKey(KeyHandle:{:#x}, FileHandle:{:#x})", KeyHandle, FileHandle);
 
         for(const auto& it : d.observers_NtSaveKey)
             it(KeyHandle, FileHandle);
@@ -4812,12 +4817,12 @@ namespace
 
     static void on_NtSaveMergedKeys(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSaveMergedKeys");
-
         const auto HighPrecedenceKeyHandle = arg<nt::HANDLE>(d.core, 0);
         const auto LowPrecedenceKeyHandle  = arg<nt::HANDLE>(d.core, 1);
         const auto FileHandle              = arg<nt::HANDLE>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSaveMergedKeys(HighPrecedenceKeyHandle:{:#x}, LowPrecedenceKeyHandle:{:#x}, FileHandle:{:#x})", HighPrecedenceKeyHandle, LowPrecedenceKeyHandle, FileHandle);
 
         for(const auto& it : d.observers_NtSaveMergedKeys)
             it(HighPrecedenceKeyHandle, LowPrecedenceKeyHandle, FileHandle);
@@ -4825,9 +4830,6 @@ namespace
 
     static void on_NtSecureConnectPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSecureConnectPort");
-
         const auto PortHandle                  = arg<nt::PHANDLE>(d.core, 0);
         const auto PortName                    = arg<nt::PUNICODE_STRING>(d.core, 1);
         const auto SecurityQos                 = arg<nt::PSECURITY_QUALITY_OF_SERVICE>(d.core, 2);
@@ -4838,17 +4840,20 @@ namespace
         const auto ConnectionInformation       = arg<nt::PVOID>(d.core, 7);
         const auto ConnectionInformationLength = arg<nt::PULONG>(d.core, 8);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtSecureConnectPort(PortHandle:{:#x}, PortName:{:#x}, SecurityQos:{:#x}, ClientView:{:#x}, RequiredServerSid:{:#x}, ServerView:{:#x}, MaxMessageLength:{:#x}, ConnectionInformation:{:#x}, ConnectionInformationLength:{:#x})", PortHandle, PortName, SecurityQos, ClientView, RequiredServerSid, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
+
         for(const auto& it : d.observers_NtSecureConnectPort)
             it(PortHandle, PortName, SecurityQos, ClientView, RequiredServerSid, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
     }
 
     static void on_NtSetBootEntryOrder(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetBootEntryOrder");
-
         const auto Ids   = arg<nt::PULONG>(d.core, 0);
         const auto Count = arg<nt::ULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetBootEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count);
 
         for(const auto& it : d.observers_NtSetBootEntryOrder)
             it(Ids, Count);
@@ -4856,11 +4861,11 @@ namespace
 
     static void on_NtSetBootOptions(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetBootOptions");
-
         const auto BootOptions    = arg<nt::PBOOT_OPTIONS>(d.core, 0);
         const auto FieldsToChange = arg<nt::ULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetBootOptions(BootOptions:{:#x}, FieldsToChange:{:#x})", BootOptions, FieldsToChange);
 
         for(const auto& it : d.observers_NtSetBootOptions)
             it(BootOptions, FieldsToChange);
@@ -4868,11 +4873,11 @@ namespace
 
     static void on_NtSetContextThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetContextThread");
-
         const auto ThreadHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto ThreadContext = arg<nt::PCONTEXT>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetContextThread(ThreadHandle:{:#x}, ThreadContext:{:#x})", ThreadHandle, ThreadContext);
 
         for(const auto& it : d.observers_NtSetContextThread)
             it(ThreadHandle, ThreadContext);
@@ -4880,12 +4885,12 @@ namespace
 
     static void on_NtSetDebugFilterState(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetDebugFilterState");
-
         const auto ComponentId = arg<nt::ULONG>(d.core, 0);
         const auto Level       = arg<nt::ULONG>(d.core, 1);
         const auto State       = arg<nt::BOOLEAN>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetDebugFilterState(ComponentId:{:#x}, Level:{:#x}, State:{:#x})", ComponentId, Level, State);
 
         for(const auto& it : d.observers_NtSetDebugFilterState)
             it(ComponentId, Level, State);
@@ -4893,10 +4898,10 @@ namespace
 
     static void on_NtSetDefaultHardErrorPort(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetDefaultHardErrorPort");
-
         const auto DefaultHardErrorPort = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetDefaultHardErrorPort(DefaultHardErrorPort:{:#x})", DefaultHardErrorPort);
 
         for(const auto& it : d.observers_NtSetDefaultHardErrorPort)
             it(DefaultHardErrorPort);
@@ -4904,11 +4909,11 @@ namespace
 
     static void on_NtSetDefaultLocale(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetDefaultLocale");
-
         const auto UserProfile     = arg<nt::BOOLEAN>(d.core, 0);
         const auto DefaultLocaleId = arg<nt::LCID>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetDefaultLocale(UserProfile:{:#x}, DefaultLocaleId:{:#x})", UserProfile, DefaultLocaleId);
 
         for(const auto& it : d.observers_NtSetDefaultLocale)
             it(UserProfile, DefaultLocaleId);
@@ -4916,10 +4921,10 @@ namespace
 
     static void on_NtSetDefaultUILanguage(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetDefaultUILanguage");
-
         const auto DefaultUILanguageId = arg<nt::LANGID>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetDefaultUILanguage(DefaultUILanguageId:{:#x})", DefaultUILanguageId);
 
         for(const auto& it : d.observers_NtSetDefaultUILanguage)
             it(DefaultUILanguageId);
@@ -4927,11 +4932,11 @@ namespace
 
     static void on_NtSetDriverEntryOrder(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetDriverEntryOrder");
-
         const auto Ids   = arg<nt::PULONG>(d.core, 0);
         const auto Count = arg<nt::ULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetDriverEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count);
 
         for(const auto& it : d.observers_NtSetDriverEntryOrder)
             it(Ids, Count);
@@ -4939,13 +4944,13 @@ namespace
 
     static void on_NtSetEaFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetEaFile");
-
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
         const auto Buffer        = arg<nt::PVOID>(d.core, 2);
         const auto Length        = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetEaFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x})", FileHandle, IoStatusBlock, Buffer, Length);
 
         for(const auto& it : d.observers_NtSetEaFile)
             it(FileHandle, IoStatusBlock, Buffer, Length);
@@ -4953,10 +4958,10 @@ namespace
 
     static void on_NtSetEventBoostPriority(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetEventBoostPriority");
-
         const auto EventHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetEventBoostPriority(EventHandle:{:#x})", EventHandle);
 
         for(const auto& it : d.observers_NtSetEventBoostPriority)
             it(EventHandle);
@@ -4964,11 +4969,11 @@ namespace
 
     static void on_NtSetEvent(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetEvent");
-
         const auto EventHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto PreviousState = arg<nt::PLONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetEvent(EventHandle:{:#x}, PreviousState:{:#x})", EventHandle, PreviousState);
 
         for(const auto& it : d.observers_NtSetEvent)
             it(EventHandle, PreviousState);
@@ -4976,10 +4981,10 @@ namespace
 
     static void on_NtSetHighEventPair(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetHighEventPair");
-
         const auto EventPairHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetHighEventPair(EventPairHandle:{:#x})", EventPairHandle);
 
         for(const auto& it : d.observers_NtSetHighEventPair)
             it(EventPairHandle);
@@ -4987,10 +4992,10 @@ namespace
 
     static void on_NtSetHighWaitLowEventPair(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetHighWaitLowEventPair");
-
         const auto EventPairHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetHighWaitLowEventPair(EventPairHandle:{:#x})", EventPairHandle);
 
         for(const auto& it : d.observers_NtSetHighWaitLowEventPair)
             it(EventPairHandle);
@@ -4998,14 +5003,14 @@ namespace
 
     static void on_NtSetInformationDebugObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetInformationDebugObject");
-
         const auto DebugObjectHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto DebugObjectInformationClass = arg<nt::DEBUGOBJECTINFOCLASS>(d.core, 1);
         const auto DebugInformation            = arg<nt::PVOID>(d.core, 2);
         const auto DebugInformationLength      = arg<nt::ULONG>(d.core, 3);
         const auto ReturnLength                = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetInformationDebugObject(DebugObjectHandle:{:#x}, DebugObjectInformationClass:{:#x}, DebugInformation:{:#x}, DebugInformationLength:{:#x}, ReturnLength:{:#x})", DebugObjectHandle, DebugObjectInformationClass, DebugInformation, DebugInformationLength, ReturnLength);
 
         for(const auto& it : d.observers_NtSetInformationDebugObject)
             it(DebugObjectHandle, DebugObjectInformationClass, DebugInformation, DebugInformationLength, ReturnLength);
@@ -5013,13 +5018,13 @@ namespace
 
     static void on_NtSetInformationEnlistment(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetInformationEnlistment");
-
         const auto EnlistmentHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto EnlistmentInformationClass  = arg<nt::ENLISTMENT_INFORMATION_CLASS>(d.core, 1);
         const auto EnlistmentInformation       = arg<nt::PVOID>(d.core, 2);
         const auto EnlistmentInformationLength = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetInformationEnlistment(EnlistmentHandle:{:#x}, EnlistmentInformationClass:{:#x}, EnlistmentInformation:{:#x}, EnlistmentInformationLength:{:#x})", EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength);
 
         for(const auto& it : d.observers_NtSetInformationEnlistment)
             it(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength);
@@ -5027,14 +5032,14 @@ namespace
 
     static void on_NtSetInformationFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetInformationFile");
-
         const auto FileHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock        = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
         const auto FileInformation      = arg<nt::PVOID>(d.core, 2);
         const auto Length               = arg<nt::ULONG>(d.core, 3);
         const auto FileInformationClass = arg<nt::FILE_INFORMATION_CLASS>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x})", FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
 
         for(const auto& it : d.observers_NtSetInformationFile)
             it(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
@@ -5042,13 +5047,13 @@ namespace
 
     static void on_NtSetInformationJobObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetInformationJobObject");
-
         const auto JobHandle                  = arg<nt::HANDLE>(d.core, 0);
         const auto JobObjectInformationClass  = arg<nt::JOBOBJECTINFOCLASS>(d.core, 1);
         const auto JobObjectInformation       = arg<nt::PVOID>(d.core, 2);
         const auto JobObjectInformationLength = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetInformationJobObject(JobHandle:{:#x}, JobObjectInformationClass:{:#x}, JobObjectInformation:{:#x}, JobObjectInformationLength:{:#x})", JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength);
 
         for(const auto& it : d.observers_NtSetInformationJobObject)
             it(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength);
@@ -5056,13 +5061,13 @@ namespace
 
     static void on_NtSetInformationKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetInformationKey");
-
         const auto KeyHandle               = arg<nt::HANDLE>(d.core, 0);
         const auto KeySetInformationClass  = arg<nt::KEY_SET_INFORMATION_CLASS>(d.core, 1);
         const auto KeySetInformation       = arg<nt::PVOID>(d.core, 2);
         const auto KeySetInformationLength = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetInformationKey(KeyHandle:{:#x}, KeySetInformationClass:{:#x}, KeySetInformation:{:#x}, KeySetInformationLength:{:#x})", KeyHandle, KeySetInformationClass, KeySetInformation, KeySetInformationLength);
 
         for(const auto& it : d.observers_NtSetInformationKey)
             it(KeyHandle, KeySetInformationClass, KeySetInformation, KeySetInformationLength);
@@ -5070,13 +5075,13 @@ namespace
 
     static void on_NtSetInformationObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetInformationObject");
-
         const auto Handle                  = arg<nt::HANDLE>(d.core, 0);
         const auto ObjectInformationClass  = arg<nt::OBJECT_INFORMATION_CLASS>(d.core, 1);
         const auto ObjectInformation       = arg<nt::PVOID>(d.core, 2);
         const auto ObjectInformationLength = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetInformationObject(Handle:{:#x}, ObjectInformationClass:{:#x}, ObjectInformation:{:#x}, ObjectInformationLength:{:#x})", Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength);
 
         for(const auto& it : d.observers_NtSetInformationObject)
             it(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength);
@@ -5084,13 +5089,13 @@ namespace
 
     static void on_NtSetInformationProcess(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetInformationProcess");
-
         const auto ProcessHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto ProcessInformationClass  = arg<nt::PROCESSINFOCLASS>(d.core, 1);
         const auto ProcessInformation       = arg<nt::PVOID>(d.core, 2);
         const auto ProcessInformationLength = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetInformationProcess(ProcessHandle:{:#x}, ProcessInformationClass:{:#x}, ProcessInformation:{:#x}, ProcessInformationLength:{:#x})", ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength);
 
         for(const auto& it : d.observers_NtSetInformationProcess)
             it(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength);
@@ -5098,13 +5103,13 @@ namespace
 
     static void on_NtSetInformationResourceManager(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetInformationResourceManager");
-
         const auto ResourceManagerHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto ResourceManagerInformationClass  = arg<nt::RESOURCEMANAGER_INFORMATION_CLASS>(d.core, 1);
         const auto ResourceManagerInformation       = arg<nt::PVOID>(d.core, 2);
         const auto ResourceManagerInformationLength = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetInformationResourceManager(ResourceManagerHandle:{:#x}, ResourceManagerInformationClass:{:#x}, ResourceManagerInformation:{:#x}, ResourceManagerInformationLength:{:#x})", ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength);
 
         for(const auto& it : d.observers_NtSetInformationResourceManager)
             it(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength);
@@ -5112,13 +5117,13 @@ namespace
 
     static void on_NtSetInformationThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetInformationThread");
-
         const auto ThreadHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto ThreadInformationClass  = arg<nt::THREADINFOCLASS>(d.core, 1);
         const auto ThreadInformation       = arg<nt::PVOID>(d.core, 2);
         const auto ThreadInformationLength = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetInformationThread(ThreadHandle:{:#x}, ThreadInformationClass:{:#x}, ThreadInformation:{:#x}, ThreadInformationLength:{:#x})", ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength);
 
         for(const auto& it : d.observers_NtSetInformationThread)
             it(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength);
@@ -5126,13 +5131,13 @@ namespace
 
     static void on_NtSetInformationToken(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetInformationToken");
-
         const auto TokenHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto TokenInformationClass  = arg<nt::TOKEN_INFORMATION_CLASS>(d.core, 1);
         const auto TokenInformation       = arg<nt::PVOID>(d.core, 2);
         const auto TokenInformationLength = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetInformationToken(TokenHandle:{:#x}, TokenInformationClass:{:#x}, TokenInformation:{:#x}, TokenInformationLength:{:#x})", TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength);
 
         for(const auto& it : d.observers_NtSetInformationToken)
             it(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength);
@@ -5140,13 +5145,13 @@ namespace
 
     static void on_NtSetInformationTransaction(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetInformationTransaction");
-
         const auto TransactionHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto TransactionInformationClass  = arg<nt::TRANSACTION_INFORMATION_CLASS>(d.core, 1);
         const auto TransactionInformation       = arg<nt::PVOID>(d.core, 2);
         const auto TransactionInformationLength = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetInformationTransaction(TransactionHandle:{:#x}, TransactionInformationClass:{:#x}, TransactionInformation:{:#x}, TransactionInformationLength:{:#x})", TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength);
 
         for(const auto& it : d.observers_NtSetInformationTransaction)
             it(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength);
@@ -5154,13 +5159,13 @@ namespace
 
     static void on_NtSetInformationTransactionManager(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetInformationTransactionManager");
-
         const auto TmHandle                            = arg<nt::HANDLE>(d.core, 0);
         const auto TransactionManagerInformationClass  = arg<nt::TRANSACTIONMANAGER_INFORMATION_CLASS>(d.core, 1);
         const auto TransactionManagerInformation       = arg<nt::PVOID>(d.core, 2);
         const auto TransactionManagerInformationLength = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetInformationTransactionManager(TmHandle:{:#x}, TransactionManagerInformationClass:{:#x}, TransactionManagerInformation:{:#x}, TransactionManagerInformationLength:{:#x})", TmHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength);
 
         for(const auto& it : d.observers_NtSetInformationTransactionManager)
             it(TmHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength);
@@ -5168,13 +5173,13 @@ namespace
 
     static void on_NtSetInformationWorkerFactory(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetInformationWorkerFactory");
-
         const auto WorkerFactoryHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto WorkerFactoryInformationClass  = arg<nt::WORKERFACTORYINFOCLASS>(d.core, 1);
         const auto WorkerFactoryInformation       = arg<nt::PVOID>(d.core, 2);
         const auto WorkerFactoryInformationLength = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetInformationWorkerFactory(WorkerFactoryHandle:{:#x}, WorkerFactoryInformationClass:{:#x}, WorkerFactoryInformation:{:#x}, WorkerFactoryInformationLength:{:#x})", WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength);
 
         for(const auto& it : d.observers_NtSetInformationWorkerFactory)
             it(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength);
@@ -5182,11 +5187,11 @@ namespace
 
     static void on_NtSetIntervalProfile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetIntervalProfile");
-
         const auto Interval = arg<nt::ULONG>(d.core, 0);
         const auto Source   = arg<nt::KPROFILE_SOURCE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetIntervalProfile(Interval:{:#x}, Source:{:#x})", Interval, Source);
 
         for(const auto& it : d.observers_NtSetIntervalProfile)
             it(Interval, Source);
@@ -5194,9 +5199,6 @@ namespace
 
     static void on_NtSetIoCompletionEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetIoCompletionEx");
-
         const auto IoCompletionHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto IoCompletionReserveHandle = arg<nt::HANDLE>(d.core, 1);
         const auto KeyContext                = arg<nt::PVOID>(d.core, 2);
@@ -5204,20 +5206,23 @@ namespace
         const auto IoStatus                  = arg<nt::NTSTATUS>(d.core, 4);
         const auto IoStatusInformation       = arg<nt::ULONG_PTR>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetIoCompletionEx(IoCompletionHandle:{:#x}, IoCompletionReserveHandle:{:#x}, KeyContext:{:#x}, ApcContext:{:#x}, IoStatus:{:#x}, IoStatusInformation:{:#x})", IoCompletionHandle, IoCompletionReserveHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
+
         for(const auto& it : d.observers_NtSetIoCompletionEx)
             it(IoCompletionHandle, IoCompletionReserveHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
     }
 
     static void on_NtSetIoCompletion(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetIoCompletion");
-
         const auto IoCompletionHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto KeyContext          = arg<nt::PVOID>(d.core, 1);
         const auto ApcContext          = arg<nt::PVOID>(d.core, 2);
         const auto IoStatus            = arg<nt::NTSTATUS>(d.core, 3);
         const auto IoStatusInformation = arg<nt::ULONG_PTR>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetIoCompletion(IoCompletionHandle:{:#x}, KeyContext:{:#x}, ApcContext:{:#x}, IoStatus:{:#x}, IoStatusInformation:{:#x})", IoCompletionHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
 
         for(const auto& it : d.observers_NtSetIoCompletion)
             it(IoCompletionHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
@@ -5225,9 +5230,6 @@ namespace
 
     static void on_NtSetLdtEntries(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetLdtEntries");
-
         const auto Selector0 = arg<nt::ULONG>(d.core, 0);
         const auto Entry0Low = arg<nt::ULONG>(d.core, 1);
         const auto Entry0Hi  = arg<nt::ULONG>(d.core, 2);
@@ -5235,16 +5237,19 @@ namespace
         const auto Entry1Low = arg<nt::ULONG>(d.core, 4);
         const auto Entry1Hi  = arg<nt::ULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetLdtEntries(Selector0:{:#x}, Entry0Low:{:#x}, Entry0Hi:{:#x}, Selector1:{:#x}, Entry1Low:{:#x}, Entry1Hi:{:#x})", Selector0, Entry0Low, Entry0Hi, Selector1, Entry1Low, Entry1Hi);
+
         for(const auto& it : d.observers_NtSetLdtEntries)
             it(Selector0, Entry0Low, Entry0Hi, Selector1, Entry1Low, Entry1Hi);
     }
 
     static void on_NtSetLowEventPair(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetLowEventPair");
-
         const auto EventPairHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetLowEventPair(EventPairHandle:{:#x})", EventPairHandle);
 
         for(const auto& it : d.observers_NtSetLowEventPair)
             it(EventPairHandle);
@@ -5252,10 +5257,10 @@ namespace
 
     static void on_NtSetLowWaitHighEventPair(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetLowWaitHighEventPair");
-
         const auto EventPairHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetLowWaitHighEventPair(EventPairHandle:{:#x})", EventPairHandle);
 
         for(const auto& it : d.observers_NtSetLowWaitHighEventPair)
             it(EventPairHandle);
@@ -5263,13 +5268,13 @@ namespace
 
     static void on_NtSetQuotaInformationFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetQuotaInformationFile");
-
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
         const auto Buffer        = arg<nt::PVOID>(d.core, 2);
         const auto Length        = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetQuotaInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x})", FileHandle, IoStatusBlock, Buffer, Length);
 
         for(const auto& it : d.observers_NtSetQuotaInformationFile)
             it(FileHandle, IoStatusBlock, Buffer, Length);
@@ -5277,12 +5282,12 @@ namespace
 
     static void on_NtSetSecurityObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetSecurityObject");
-
         const auto Handle              = arg<nt::HANDLE>(d.core, 0);
         const auto SecurityInformation = arg<nt::SECURITY_INFORMATION>(d.core, 1);
         const auto SecurityDescriptor  = arg<nt::PSECURITY_DESCRIPTOR>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetSecurityObject(Handle:{:#x}, SecurityInformation:{:#x}, SecurityDescriptor:{:#x})", Handle, SecurityInformation, SecurityDescriptor);
 
         for(const auto& it : d.observers_NtSetSecurityObject)
             it(Handle, SecurityInformation, SecurityDescriptor);
@@ -5290,14 +5295,14 @@ namespace
 
     static void on_NtSetSystemEnvironmentValueEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetSystemEnvironmentValueEx");
-
         const auto VariableName = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto VendorGuid   = arg<nt::LPGUID>(d.core, 1);
         const auto Value        = arg<nt::PVOID>(d.core, 2);
         const auto ValueLength  = arg<nt::ULONG>(d.core, 3);
         const auto Attributes   = arg<nt::ULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetSystemEnvironmentValueEx(VariableName:{:#x}, VendorGuid:{:#x}, Value:{:#x}, ValueLength:{:#x}, Attributes:{:#x})", VariableName, VendorGuid, Value, ValueLength, Attributes);
 
         for(const auto& it : d.observers_NtSetSystemEnvironmentValueEx)
             it(VariableName, VendorGuid, Value, ValueLength, Attributes);
@@ -5305,11 +5310,11 @@ namespace
 
     static void on_NtSetSystemEnvironmentValue(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetSystemEnvironmentValue");
-
         const auto VariableName  = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto VariableValue = arg<nt::PUNICODE_STRING>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetSystemEnvironmentValue(VariableName:{:#x}, VariableValue:{:#x})", VariableName, VariableValue);
 
         for(const auto& it : d.observers_NtSetSystemEnvironmentValue)
             it(VariableName, VariableValue);
@@ -5317,12 +5322,12 @@ namespace
 
     static void on_NtSetSystemInformation(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetSystemInformation");
-
         const auto SystemInformationClass  = arg<nt::SYSTEM_INFORMATION_CLASS>(d.core, 0);
         const auto SystemInformation       = arg<nt::PVOID>(d.core, 1);
         const auto SystemInformationLength = arg<nt::ULONG>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetSystemInformation(SystemInformationClass:{:#x}, SystemInformation:{:#x}, SystemInformationLength:{:#x})", SystemInformationClass, SystemInformation, SystemInformationLength);
 
         for(const auto& it : d.observers_NtSetSystemInformation)
             it(SystemInformationClass, SystemInformation, SystemInformationLength);
@@ -5330,12 +5335,12 @@ namespace
 
     static void on_NtSetSystemPowerState(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetSystemPowerState");
-
         const auto SystemAction   = arg<nt::POWER_ACTION>(d.core, 0);
         const auto MinSystemState = arg<nt::SYSTEM_POWER_STATE>(d.core, 1);
         const auto Flags          = arg<nt::ULONG>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetSystemPowerState(SystemAction:{:#x}, MinSystemState:{:#x}, Flags:{:#x})", SystemAction, MinSystemState, Flags);
 
         for(const auto& it : d.observers_NtSetSystemPowerState)
             it(SystemAction, MinSystemState, Flags);
@@ -5343,11 +5348,11 @@ namespace
 
     static void on_NtSetSystemTime(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetSystemTime");
-
         const auto SystemTime   = arg<nt::PLARGE_INTEGER>(d.core, 0);
         const auto PreviousTime = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetSystemTime(SystemTime:{:#x}, PreviousTime:{:#x})", SystemTime, PreviousTime);
 
         for(const auto& it : d.observers_NtSetSystemTime)
             it(SystemTime, PreviousTime);
@@ -5355,11 +5360,11 @@ namespace
 
     static void on_NtSetThreadExecutionState(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetThreadExecutionState");
-
         const auto esFlags           = arg<nt::EXECUTION_STATE>(d.core, 0);
         const auto STARPreviousFlags = arg<nt::EXECUTION_STATE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetThreadExecutionState(esFlags:{:#x}, STARPreviousFlags:{:#x})", esFlags, STARPreviousFlags);
 
         for(const auto& it : d.observers_NtSetThreadExecutionState)
             it(esFlags, STARPreviousFlags);
@@ -5367,13 +5372,13 @@ namespace
 
     static void on_NtSetTimerEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetTimerEx");
-
         const auto TimerHandle               = arg<nt::HANDLE>(d.core, 0);
         const auto TimerSetInformationClass  = arg<nt::TIMER_SET_INFORMATION_CLASS>(d.core, 1);
         const auto TimerSetInformation       = arg<nt::PVOID>(d.core, 2);
         const auto TimerSetInformationLength = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetTimerEx(TimerHandle:{:#x}, TimerSetInformationClass:{:#x}, TimerSetInformation:{:#x}, TimerSetInformationLength:{:#x})", TimerHandle, TimerSetInformationClass, TimerSetInformation, TimerSetInformationLength);
 
         for(const auto& it : d.observers_NtSetTimerEx)
             it(TimerHandle, TimerSetInformationClass, TimerSetInformation, TimerSetInformationLength);
@@ -5381,9 +5386,6 @@ namespace
 
     static void on_NtSetTimer(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetTimer");
-
         const auto TimerHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto DueTime         = arg<nt::PLARGE_INTEGER>(d.core, 1);
         const auto TimerApcRoutine = arg<nt::PTIMER_APC_ROUTINE>(d.core, 2);
@@ -5392,18 +5394,21 @@ namespace
         const auto Period          = arg<nt::LONG>(d.core, 5);
         const auto PreviousState   = arg<nt::PBOOLEAN>(d.core, 6);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetTimer(TimerHandle:{:#x}, DueTime:{:#x}, TimerApcRoutine:{:#x}, TimerContext:{:#x}, WakeTimer:{:#x}, Period:{:#x}, PreviousState:{:#x})", TimerHandle, DueTime, TimerApcRoutine, TimerContext, WakeTimer, Period, PreviousState);
+
         for(const auto& it : d.observers_NtSetTimer)
             it(TimerHandle, DueTime, TimerApcRoutine, TimerContext, WakeTimer, Period, PreviousState);
     }
 
     static void on_NtSetTimerResolution(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetTimerResolution");
-
         const auto DesiredTime   = arg<nt::ULONG>(d.core, 0);
         const auto SetResolution = arg<nt::BOOLEAN>(d.core, 1);
         const auto ActualTime    = arg<nt::PULONG>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetTimerResolution(DesiredTime:{:#x}, SetResolution:{:#x}, ActualTime:{:#x})", DesiredTime, SetResolution, ActualTime);
 
         for(const auto& it : d.observers_NtSetTimerResolution)
             it(DesiredTime, SetResolution, ActualTime);
@@ -5411,10 +5416,10 @@ namespace
 
     static void on_NtSetUuidSeed(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetUuidSeed");
-
         const auto Seed = arg<nt::PCHAR>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetUuidSeed(Seed:{:#x})", Seed);
 
         for(const auto& it : d.observers_NtSetUuidSeed)
             it(Seed);
@@ -5422,9 +5427,6 @@ namespace
 
     static void on_NtSetValueKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetValueKey");
-
         const auto KeyHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto ValueName  = arg<nt::PUNICODE_STRING>(d.core, 1);
         const auto TitleIndex = arg<nt::ULONG>(d.core, 2);
@@ -5432,20 +5434,23 @@ namespace
         const auto Data       = arg<nt::PVOID>(d.core, 4);
         const auto DataSize   = arg<nt::ULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetValueKey(KeyHandle:{:#x}, ValueName:{:#x}, TitleIndex:{:#x}, Type:{:#x}, Data:{:#x}, DataSize:{:#x})", KeyHandle, ValueName, TitleIndex, Type, Data, DataSize);
+
         for(const auto& it : d.observers_NtSetValueKey)
             it(KeyHandle, ValueName, TitleIndex, Type, Data, DataSize);
     }
 
     static void on_NtSetVolumeInformationFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSetVolumeInformationFile");
-
         const auto FileHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock      = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
         const auto FsInformation      = arg<nt::PVOID>(d.core, 2);
         const auto Length             = arg<nt::ULONG>(d.core, 3);
         const auto FsInformationClass = arg<nt::FS_INFORMATION_CLASS>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSetVolumeInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FsInformation:{:#x}, Length:{:#x}, FsInformationClass:{:#x})", FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
 
         for(const auto& it : d.observers_NtSetVolumeInformationFile)
             it(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
@@ -5453,10 +5458,10 @@ namespace
 
     static void on_NtShutdownSystem(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtShutdownSystem");
-
         const auto Action = arg<nt::SHUTDOWN_ACTION>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtShutdownSystem(Action:{:#x})", Action);
 
         for(const auto& it : d.observers_NtShutdownSystem)
             it(Action);
@@ -5464,11 +5469,11 @@ namespace
 
     static void on_NtShutdownWorkerFactory(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtShutdownWorkerFactory");
-
         const auto WorkerFactoryHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto STARPendingWorkerCount = arg<nt::LONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtShutdownWorkerFactory(WorkerFactoryHandle:{:#x}, STARPendingWorkerCount:{:#x})", WorkerFactoryHandle, STARPendingWorkerCount);
 
         for(const auto& it : d.observers_NtShutdownWorkerFactory)
             it(WorkerFactoryHandle, STARPendingWorkerCount);
@@ -5476,13 +5481,13 @@ namespace
 
     static void on_NtSignalAndWaitForSingleObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSignalAndWaitForSingleObject");
-
         const auto SignalHandle = arg<nt::HANDLE>(d.core, 0);
         const auto WaitHandle   = arg<nt::HANDLE>(d.core, 1);
         const auto Alertable    = arg<nt::BOOLEAN>(d.core, 2);
         const auto Timeout      = arg<nt::PLARGE_INTEGER>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSignalAndWaitForSingleObject(SignalHandle:{:#x}, WaitHandle:{:#x}, Alertable:{:#x}, Timeout:{:#x})", SignalHandle, WaitHandle, Alertable, Timeout);
 
         for(const auto& it : d.observers_NtSignalAndWaitForSingleObject)
             it(SignalHandle, WaitHandle, Alertable, Timeout);
@@ -5490,11 +5495,11 @@ namespace
 
     static void on_NtSinglePhaseReject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSinglePhaseReject");
-
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSinglePhaseReject(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock);
 
         for(const auto& it : d.observers_NtSinglePhaseReject)
             it(EnlistmentHandle, TmVirtualClock);
@@ -5502,10 +5507,10 @@ namespace
 
     static void on_NtStartProfile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtStartProfile");
-
         const auto ProfileHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtStartProfile(ProfileHandle:{:#x})", ProfileHandle);
 
         for(const auto& it : d.observers_NtStartProfile)
             it(ProfileHandle);
@@ -5513,10 +5518,10 @@ namespace
 
     static void on_NtStopProfile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtStopProfile");
-
         const auto ProfileHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtStopProfile(ProfileHandle:{:#x})", ProfileHandle);
 
         for(const auto& it : d.observers_NtStopProfile)
             it(ProfileHandle);
@@ -5524,10 +5529,10 @@ namespace
 
     static void on_NtSuspendProcess(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSuspendProcess");
-
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSuspendProcess(ProcessHandle:{:#x})", ProcessHandle);
 
         for(const auto& it : d.observers_NtSuspendProcess)
             it(ProcessHandle);
@@ -5535,11 +5540,11 @@ namespace
 
     static void on_NtSuspendThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSuspendThread");
-
         const auto ThreadHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto PreviousSuspendCount = arg<nt::PULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtSuspendThread(ThreadHandle:{:#x}, PreviousSuspendCount:{:#x})", ThreadHandle, PreviousSuspendCount);
 
         for(const auto& it : d.observers_NtSuspendThread)
             it(ThreadHandle, PreviousSuspendCount);
@@ -5547,9 +5552,6 @@ namespace
 
     static void on_NtSystemDebugControl(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSystemDebugControl");
-
         const auto Command            = arg<nt::SYSDBG_COMMAND>(d.core, 0);
         const auto InputBuffer        = arg<nt::PVOID>(d.core, 1);
         const auto InputBufferLength  = arg<nt::ULONG>(d.core, 2);
@@ -5557,17 +5559,20 @@ namespace
         const auto OutputBufferLength = arg<nt::ULONG>(d.core, 4);
         const auto ReturnLength       = arg<nt::PULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtSystemDebugControl(Command:{:#x}, InputBuffer:{:#x}, InputBufferLength:{:#x}, OutputBuffer:{:#x}, OutputBufferLength:{:#x}, ReturnLength:{:#x})", Command, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength, ReturnLength);
+
         for(const auto& it : d.observers_NtSystemDebugControl)
             it(Command, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength, ReturnLength);
     }
 
     static void on_NtTerminateJobObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtTerminateJobObject");
-
         const auto JobHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto ExitStatus = arg<nt::NTSTATUS>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtTerminateJobObject(JobHandle:{:#x}, ExitStatus:{:#x})", JobHandle, ExitStatus);
 
         for(const auto& it : d.observers_NtTerminateJobObject)
             it(JobHandle, ExitStatus);
@@ -5575,11 +5580,11 @@ namespace
 
     static void on_NtTerminateProcess(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtTerminateProcess");
-
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto ExitStatus    = arg<nt::NTSTATUS>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtTerminateProcess(ProcessHandle:{:#x}, ExitStatus:{:#x})", ProcessHandle, ExitStatus);
 
         for(const auto& it : d.observers_NtTerminateProcess)
             it(ProcessHandle, ExitStatus);
@@ -5587,11 +5592,11 @@ namespace
 
     static void on_NtTerminateThread(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtTerminateThread");
-
         const auto ThreadHandle = arg<nt::HANDLE>(d.core, 0);
         const auto ExitStatus   = arg<nt::NTSTATUS>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtTerminateThread(ThreadHandle:{:#x}, ExitStatus:{:#x})", ThreadHandle, ExitStatus);
 
         for(const auto& it : d.observers_NtTerminateThread)
             it(ThreadHandle, ExitStatus);
@@ -5599,9 +5604,6 @@ namespace
 
     static void on_NtTraceControl(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtTraceControl");
-
         const auto FunctionCode = arg<nt::ULONG>(d.core, 0);
         const auto InBuffer     = arg<nt::PVOID>(d.core, 1);
         const auto InBufferLen  = arg<nt::ULONG>(d.core, 2);
@@ -5609,19 +5611,22 @@ namespace
         const auto OutBufferLen = arg<nt::ULONG>(d.core, 4);
         const auto ReturnLength = arg<nt::PULONG>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtTraceControl(FunctionCode:{:#x}, InBuffer:{:#x}, InBufferLen:{:#x}, OutBuffer:{:#x}, OutBufferLen:{:#x}, ReturnLength:{:#x})", FunctionCode, InBuffer, InBufferLen, OutBuffer, OutBufferLen, ReturnLength);
+
         for(const auto& it : d.observers_NtTraceControl)
             it(FunctionCode, InBuffer, InBufferLen, OutBuffer, OutBufferLen, ReturnLength);
     }
 
     static void on_NtTraceEvent(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtTraceEvent");
-
         const auto TraceHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
         const auto FieldSize   = arg<nt::ULONG>(d.core, 2);
         const auto Fields      = arg<nt::PVOID>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtTraceEvent(TraceHandle:{:#x}, Flags:{:#x}, FieldSize:{:#x}, Fields:{:#x})", TraceHandle, Flags, FieldSize, Fields);
 
         for(const auto& it : d.observers_NtTraceEvent)
             it(TraceHandle, Flags, FieldSize, Fields);
@@ -5629,13 +5634,13 @@ namespace
 
     static void on_NtTranslateFilePath(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtTranslateFilePath");
-
         const auto InputFilePath        = arg<nt::PFILE_PATH>(d.core, 0);
         const auto OutputType           = arg<nt::ULONG>(d.core, 1);
         const auto OutputFilePath       = arg<nt::PFILE_PATH>(d.core, 2);
         const auto OutputFilePathLength = arg<nt::PULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtTranslateFilePath(InputFilePath:{:#x}, OutputType:{:#x}, OutputFilePath:{:#x}, OutputFilePathLength:{:#x})", InputFilePath, OutputType, OutputFilePath, OutputFilePathLength);
 
         for(const auto& it : d.observers_NtTranslateFilePath)
             it(InputFilePath, OutputType, OutputFilePath, OutputFilePathLength);
@@ -5643,10 +5648,10 @@ namespace
 
     static void on_NtUnloadDriver(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtUnloadDriver");
-
         const auto DriverServiceName = arg<nt::PUNICODE_STRING>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtUnloadDriver(DriverServiceName:{:#x})", DriverServiceName);
 
         for(const auto& it : d.observers_NtUnloadDriver)
             it(DriverServiceName);
@@ -5654,11 +5659,11 @@ namespace
 
     static void on_NtUnloadKey2(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtUnloadKey2");
-
         const auto TargetKey = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto Flags     = arg<nt::ULONG>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtUnloadKey2(TargetKey:{:#x}, Flags:{:#x})", TargetKey, Flags);
 
         for(const auto& it : d.observers_NtUnloadKey2)
             it(TargetKey, Flags);
@@ -5666,11 +5671,11 @@ namespace
 
     static void on_NtUnloadKeyEx(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtUnloadKeyEx");
-
         const auto TargetKey = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto Event     = arg<nt::HANDLE>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtUnloadKeyEx(TargetKey:{:#x}, Event:{:#x})", TargetKey, Event);
 
         for(const auto& it : d.observers_NtUnloadKeyEx)
             it(TargetKey, Event);
@@ -5678,10 +5683,10 @@ namespace
 
     static void on_NtUnloadKey(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtUnloadKey");
-
         const auto TargetKey = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtUnloadKey(TargetKey:{:#x})", TargetKey);
 
         for(const auto& it : d.observers_NtUnloadKey)
             it(TargetKey);
@@ -5689,14 +5694,14 @@ namespace
 
     static void on_NtUnlockFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtUnlockFile");
-
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
         const auto ByteOffset    = arg<nt::PLARGE_INTEGER>(d.core, 2);
         const auto Length        = arg<nt::PLARGE_INTEGER>(d.core, 3);
         const auto Key           = arg<nt::ULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtUnlockFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, ByteOffset:{:#x}, Length:{:#x}, Key:{:#x})", FileHandle, IoStatusBlock, ByteOffset, Length, Key);
 
         for(const auto& it : d.observers_NtUnlockFile)
             it(FileHandle, IoStatusBlock, ByteOffset, Length, Key);
@@ -5704,13 +5709,13 @@ namespace
 
     static void on_NtUnlockVirtualMemory(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtUnlockVirtualMemory");
-
         const auto ProcessHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt::PVOID>(d.core, 1);
         const auto RegionSize      = arg<nt::PSIZE_T>(d.core, 2);
         const auto MapType         = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtUnlockVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, MapType:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, MapType);
 
         for(const auto& it : d.observers_NtUnlockVirtualMemory)
             it(ProcessHandle, STARBaseAddress, RegionSize, MapType);
@@ -5718,11 +5723,11 @@ namespace
 
     static void on_NtUnmapViewOfSection(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtUnmapViewOfSection");
-
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto BaseAddress   = arg<nt::PVOID>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtUnmapViewOfSection(ProcessHandle:{:#x}, BaseAddress:{:#x})", ProcessHandle, BaseAddress);
 
         for(const auto& it : d.observers_NtUnmapViewOfSection)
             it(ProcessHandle, BaseAddress);
@@ -5730,11 +5735,11 @@ namespace
 
     static void on_NtVdmControl(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtVdmControl");
-
         const auto Service     = arg<nt::VDMSERVICECLASS>(d.core, 0);
         const auto ServiceData = arg<nt::PVOID>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtVdmControl(Service:{:#x}, ServiceData:{:#x})", Service, ServiceData);
 
         for(const auto& it : d.observers_NtVdmControl)
             it(Service, ServiceData);
@@ -5742,13 +5747,13 @@ namespace
 
     static void on_NtWaitForDebugEvent(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtWaitForDebugEvent");
-
         const auto DebugObjectHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Alertable         = arg<nt::BOOLEAN>(d.core, 1);
         const auto Timeout           = arg<nt::PLARGE_INTEGER>(d.core, 2);
         const auto WaitStateChange   = arg<nt::PDBGUI_WAIT_STATE_CHANGE>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtWaitForDebugEvent(DebugObjectHandle:{:#x}, Alertable:{:#x}, Timeout:{:#x}, WaitStateChange:{:#x})", DebugObjectHandle, Alertable, Timeout, WaitStateChange);
 
         for(const auto& it : d.observers_NtWaitForDebugEvent)
             it(DebugObjectHandle, Alertable, Timeout, WaitStateChange);
@@ -5756,13 +5761,13 @@ namespace
 
     static void on_NtWaitForKeyedEvent(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtWaitForKeyedEvent");
-
         const auto KeyedEventHandle = arg<nt::HANDLE>(d.core, 0);
         const auto KeyValue         = arg<nt::PVOID>(d.core, 1);
         const auto Alertable        = arg<nt::BOOLEAN>(d.core, 2);
         const auto Timeout          = arg<nt::PLARGE_INTEGER>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtWaitForKeyedEvent(KeyedEventHandle:{:#x}, KeyValue:{:#x}, Alertable:{:#x}, Timeout:{:#x})", KeyedEventHandle, KeyValue, Alertable, Timeout);
 
         for(const auto& it : d.observers_NtWaitForKeyedEvent)
             it(KeyedEventHandle, KeyValue, Alertable, Timeout);
@@ -5770,14 +5775,14 @@ namespace
 
     static void on_NtWaitForMultipleObjects32(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtWaitForMultipleObjects32");
-
         const auto Count     = arg<nt::ULONG>(d.core, 0);
         const auto Handles   = arg<nt::LONG>(d.core, 1);
         const auto WaitType  = arg<nt::WAIT_TYPE>(d.core, 2);
         const auto Alertable = arg<nt::BOOLEAN>(d.core, 3);
         const auto Timeout   = arg<nt::PLARGE_INTEGER>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtWaitForMultipleObjects32(Count:{:#x}, Handles:{:#x}, WaitType:{:#x}, Alertable:{:#x}, Timeout:{:#x})", Count, Handles, WaitType, Alertable, Timeout);
 
         for(const auto& it : d.observers_NtWaitForMultipleObjects32)
             it(Count, Handles, WaitType, Alertable, Timeout);
@@ -5785,14 +5790,14 @@ namespace
 
     static void on_NtWaitForMultipleObjects(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtWaitForMultipleObjects");
-
         const auto Count     = arg<nt::ULONG>(d.core, 0);
         const auto Handles   = arg<nt::HANDLE>(d.core, 1);
         const auto WaitType  = arg<nt::WAIT_TYPE>(d.core, 2);
         const auto Alertable = arg<nt::BOOLEAN>(d.core, 3);
         const auto Timeout   = arg<nt::PLARGE_INTEGER>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtWaitForMultipleObjects(Count:{:#x}, Handles:{:#x}, WaitType:{:#x}, Alertable:{:#x}, Timeout:{:#x})", Count, Handles, WaitType, Alertable, Timeout);
 
         for(const auto& it : d.observers_NtWaitForMultipleObjects)
             it(Count, Handles, WaitType, Alertable, Timeout);
@@ -5800,12 +5805,12 @@ namespace
 
     static void on_NtWaitForSingleObject(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtWaitForSingleObject");
-
         const auto Handle    = arg<nt::HANDLE>(d.core, 0);
         const auto Alertable = arg<nt::BOOLEAN>(d.core, 1);
         const auto Timeout   = arg<nt::PLARGE_INTEGER>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtWaitForSingleObject(Handle:{:#x}, Alertable:{:#x}, Timeout:{:#x})", Handle, Alertable, Timeout);
 
         for(const auto& it : d.observers_NtWaitForSingleObject)
             it(Handle, Alertable, Timeout);
@@ -5813,11 +5818,11 @@ namespace
 
     static void on_NtWaitForWorkViaWorkerFactory(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtWaitForWorkViaWorkerFactory");
-
         const auto WorkerFactoryHandle = arg<nt::HANDLE>(d.core, 0);
         const auto MiniPacket          = arg<nt::PFILE_IO_COMPLETION_INFORMATION>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtWaitForWorkViaWorkerFactory(WorkerFactoryHandle:{:#x}, MiniPacket:{:#x})", WorkerFactoryHandle, MiniPacket);
 
         for(const auto& it : d.observers_NtWaitForWorkViaWorkerFactory)
             it(WorkerFactoryHandle, MiniPacket);
@@ -5825,10 +5830,10 @@ namespace
 
     static void on_NtWaitHighEventPair(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtWaitHighEventPair");
-
         const auto EventPairHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtWaitHighEventPair(EventPairHandle:{:#x})", EventPairHandle);
 
         for(const auto& it : d.observers_NtWaitHighEventPair)
             it(EventPairHandle);
@@ -5836,10 +5841,10 @@ namespace
 
     static void on_NtWaitLowEventPair(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtWaitLowEventPair");
-
         const auto EventPairHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtWaitLowEventPair(EventPairHandle:{:#x})", EventPairHandle);
 
         for(const auto& it : d.observers_NtWaitLowEventPair)
             it(EventPairHandle);
@@ -5847,10 +5852,10 @@ namespace
 
     static void on_NtWorkerFactoryWorkerReady(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtWorkerFactoryWorkerReady");
-
         const auto WorkerFactoryHandle = arg<nt::HANDLE>(d.core, 0);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtWorkerFactoryWorkerReady(WorkerFactoryHandle:{:#x})", WorkerFactoryHandle);
 
         for(const auto& it : d.observers_NtWorkerFactoryWorkerReady)
             it(WorkerFactoryHandle);
@@ -5858,9 +5863,6 @@ namespace
 
     static void on_NtWriteFileGather(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtWriteFileGather");
-
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto Event         = arg<nt::HANDLE>(d.core, 1);
         const auto ApcRoutine    = arg<nt::PIO_APC_ROUTINE>(d.core, 2);
@@ -5871,15 +5873,15 @@ namespace
         const auto ByteOffset    = arg<nt::PLARGE_INTEGER>(d.core, 7);
         const auto Key           = arg<nt::PULONG>(d.core, 8);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtWriteFileGather(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, SegmentArray:{:#x}, Length:{:#x}, ByteOffset:{:#x}, Key:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
+
         for(const auto& it : d.observers_NtWriteFileGather)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
     }
 
     static void on_NtWriteFile(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtWriteFile");
-
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto Event         = arg<nt::HANDLE>(d.core, 1);
         const auto ApcRoutine    = arg<nt::PIO_APC_ROUTINE>(d.core, 2);
@@ -5890,15 +5892,15 @@ namespace
         const auto ByteOffset    = arg<nt::PLARGE_INTEGER>(d.core, 7);
         const auto Key           = arg<nt::PULONG>(d.core, 8);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtWriteFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ByteOffset:{:#x}, Key:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
+
         for(const auto& it : d.observers_NtWriteFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
     }
 
     static void on_NtWriteRequestData(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtWriteRequestData");
-
         const auto PortHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto Message              = arg<nt::PPORT_MESSAGE>(d.core, 1);
         const auto DataEntryIndex       = arg<nt::ULONG>(d.core, 2);
@@ -5906,20 +5908,23 @@ namespace
         const auto BufferSize           = arg<nt::SIZE_T>(d.core, 4);
         const auto NumberOfBytesWritten = arg<nt::PSIZE_T>(d.core, 5);
 
+        if constexpr(g_debug)
+            LOG(INFO, "NtWriteRequestData(PortHandle:{:#x}, Message:{:#x}, DataEntryIndex:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, NumberOfBytesWritten:{:#x})", PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesWritten);
+
         for(const auto& it : d.observers_NtWriteRequestData)
             it(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesWritten);
     }
 
     static void on_NtWriteVirtualMemory(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtWriteVirtualMemory");
-
         const auto ProcessHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto BaseAddress          = arg<nt::PVOID>(d.core, 1);
         const auto Buffer               = arg<nt::PVOID>(d.core, 2);
         const auto BufferSize           = arg<nt::SIZE_T>(d.core, 3);
         const auto NumberOfBytesWritten = arg<nt::PSIZE_T>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "NtWriteVirtualMemory(ProcessHandle:{:#x}, BaseAddress:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, NumberOfBytesWritten:{:#x})", ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesWritten);
 
         for(const auto& it : d.observers_NtWriteVirtualMemory)
             it(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesWritten);
@@ -5927,8 +5932,8 @@ namespace
 
     static void on_NtDisableLastKnownGood(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtDisableLastKnownGood");
+        if constexpr(g_debug)
+            LOG(INFO, "NtDisableLastKnownGood()", );
 
         for(const auto& it : d.observers_NtDisableLastKnownGood)
             it();
@@ -5936,8 +5941,8 @@ namespace
 
     static void on_NtEnableLastKnownGood(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtEnableLastKnownGood");
+        if constexpr(g_debug)
+            LOG(INFO, "NtEnableLastKnownGood()", );
 
         for(const auto& it : d.observers_NtEnableLastKnownGood)
             it();
@@ -5945,8 +5950,8 @@ namespace
 
     static void on_NtFlushProcessWriteBuffers(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtFlushProcessWriteBuffers");
+        if constexpr(g_debug)
+            LOG(INFO, "NtFlushProcessWriteBuffers()", );
 
         for(const auto& it : d.observers_NtFlushProcessWriteBuffers)
             it();
@@ -5954,8 +5959,8 @@ namespace
 
     static void on_NtFlushWriteBuffer(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtFlushWriteBuffer");
+        if constexpr(g_debug)
+            LOG(INFO, "NtFlushWriteBuffer()", );
 
         for(const auto& it : d.observers_NtFlushWriteBuffer)
             it();
@@ -5963,8 +5968,8 @@ namespace
 
     static void on_NtGetCurrentProcessorNumber(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtGetCurrentProcessorNumber");
+        if constexpr(g_debug)
+            LOG(INFO, "NtGetCurrentProcessorNumber()", );
 
         for(const auto& it : d.observers_NtGetCurrentProcessorNumber)
             it();
@@ -5972,8 +5977,8 @@ namespace
 
     static void on_NtIsSystemResumeAutomatic(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtIsSystemResumeAutomatic");
+        if constexpr(g_debug)
+            LOG(INFO, "NtIsSystemResumeAutomatic()", );
 
         for(const auto& it : d.observers_NtIsSystemResumeAutomatic)
             it();
@@ -5981,8 +5986,8 @@ namespace
 
     static void on_NtIsUILanguageComitted(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtIsUILanguageComitted");
+        if constexpr(g_debug)
+            LOG(INFO, "NtIsUILanguageComitted()", );
 
         for(const auto& it : d.observers_NtIsUILanguageComitted)
             it();
@@ -5990,8 +5995,8 @@ namespace
 
     static void on_NtQueryPortInformationProcess(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtQueryPortInformationProcess");
+        if constexpr(g_debug)
+            LOG(INFO, "NtQueryPortInformationProcess()", );
 
         for(const auto& it : d.observers_NtQueryPortInformationProcess)
             it();
@@ -5999,8 +6004,8 @@ namespace
 
     static void on_NtSerializeBoot(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtSerializeBoot");
+        if constexpr(g_debug)
+            LOG(INFO, "NtSerializeBoot()", );
 
         for(const auto& it : d.observers_NtSerializeBoot)
             it();
@@ -6008,8 +6013,8 @@ namespace
 
     static void on_NtTestAlert(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtTestAlert");
+        if constexpr(g_debug)
+            LOG(INFO, "NtTestAlert()", );
 
         for(const auto& it : d.observers_NtTestAlert)
             it();
@@ -6017,8 +6022,8 @@ namespace
 
     static void on_NtThawRegistry(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtThawRegistry");
+        if constexpr(g_debug)
+            LOG(INFO, "NtThawRegistry()", );
 
         for(const auto& it : d.observers_NtThawRegistry)
             it();
@@ -6026,8 +6031,8 @@ namespace
 
     static void on_NtThawTransactions(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtThawTransactions");
+        if constexpr(g_debug)
+            LOG(INFO, "NtThawTransactions()", );
 
         for(const auto& it : d.observers_NtThawTransactions)
             it();
@@ -6035,8 +6040,8 @@ namespace
 
     static void on_NtUmsThreadYield(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtUmsThreadYield");
+        if constexpr(g_debug)
+            LOG(INFO, "NtUmsThreadYield()", );
 
         for(const auto& it : d.observers_NtUmsThreadYield)
             it();
@@ -6044,8 +6049,8 @@ namespace
 
     static void on_NtYieldExecution(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on NtYieldExecution");
+        if constexpr(g_debug)
+            LOG(INFO, "NtYieldExecution()", );
 
         for(const auto& it : d.observers_NtYieldExecution)
             it();
@@ -6053,11 +6058,11 @@ namespace
 
     static void on_RtlpAllocateHeapInternal(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on RtlpAllocateHeapInternal");
-
         const auto HeapHandle = arg<nt::PVOID>(d.core, 0);
         const auto Size       = arg<nt::SIZE_T>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "RtlpAllocateHeapInternal(HeapHandle:{:#x}, Size:{:#x})", HeapHandle, Size);
 
         for(const auto& it : d.observers_RtlpAllocateHeapInternal)
             it(HeapHandle, Size);
@@ -6065,12 +6070,12 @@ namespace
 
     static void on_RtlFreeHeap(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on RtlFreeHeap");
-
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
         const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "RtlFreeHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x})", HeapHandle, Flags, BaseAddress);
 
         for(const auto& it : d.observers_RtlFreeHeap)
             it(HeapHandle, Flags, BaseAddress);
@@ -6078,13 +6083,13 @@ namespace
 
     static void on_RtlpReAllocateHeapInternal(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on RtlpReAllocateHeapInternal");
-
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
         const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
         const auto Size        = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "RtlpReAllocateHeapInternal(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, Size:{:#x})", HeapHandle, Flags, BaseAddress, Size);
 
         for(const auto& it : d.observers_RtlpReAllocateHeapInternal)
             it(HeapHandle, Flags, BaseAddress, Size);
@@ -6092,12 +6097,12 @@ namespace
 
     static void on_RtlSizeHeap(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on RtlSizeHeap");
-
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
         const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "RtlSizeHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x})", HeapHandle, Flags, BaseAddress);
 
         for(const auto& it : d.observers_RtlSizeHeap)
             it(HeapHandle, Flags, BaseAddress);
@@ -6105,13 +6110,13 @@ namespace
 
     static void on_RtlSetUserValueHeap(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on RtlSetUserValueHeap");
-
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
         const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
         const auto UserValue   = arg<nt::PVOID>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "RtlSetUserValueHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, UserValue:{:#x})", HeapHandle, Flags, BaseAddress, UserValue);
 
         for(const auto& it : d.observers_RtlSetUserValueHeap)
             it(HeapHandle, Flags, BaseAddress, UserValue);
@@ -6119,14 +6124,14 @@ namespace
 
     static void on_RtlGetUserInfoHeap(monitor::syscalls::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on RtlGetUserInfoHeap");
-
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
         const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
         const auto UserValue   = arg<nt::PVOID>(d.core, 3);
         const auto UserFlags   = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "RtlGetUserInfoHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, UserValue:{:#x}, UserFlags:{:#x})", HeapHandle, Flags, BaseAddress, UserValue, UserFlags);
 
         for(const auto& it : d.observers_RtlGetUserInfoHeap)
             it(HeapHandle, Flags, BaseAddress, UserValue, UserFlags);

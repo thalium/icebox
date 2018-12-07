@@ -5,6 +5,11 @@
 #include "log.hpp"
 #include "monitor.hpp"
 
+namespace
+{
+	constexpr bool g_debug = true;
+}
+
 struct monitor::heaps::Data
 {
     Data(core::Core& core, const std::string& module);
@@ -76,11 +81,11 @@ namespace
 
     static void on_RtlpAllocateHeapInternal(monitor::heaps::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on RtlpAllocateHeapInternal");
-
         const auto HeapHandle = arg<nt::PVOID>(d.core, 0);
         const auto Size       = arg<nt::SIZE_T>(d.core, 1);
+
+        if constexpr(g_debug)
+            LOG(INFO, "RtlpAllocateHeapInternal(HeapHandle:{:#x}, Size:{:#x})", HeapHandle, Size);
 
         for(const auto& it : d.observers_RtlpAllocateHeapInternal)
             it(HeapHandle, Size);
@@ -88,12 +93,12 @@ namespace
 
     static void on_RtlFreeHeap(monitor::heaps::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on RtlFreeHeap");
-
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
         const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "RtlFreeHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x})", HeapHandle, Flags, BaseAddress);
 
         for(const auto& it : d.observers_RtlFreeHeap)
             it(HeapHandle, Flags, BaseAddress);
@@ -101,13 +106,13 @@ namespace
 
     static void on_RtlpReAllocateHeapInternal(monitor::heaps::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on RtlpReAllocateHeapInternal");
-
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
         const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
         const auto Size        = arg<nt::ULONG>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "RtlpReAllocateHeapInternal(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, Size:{:#x})", HeapHandle, Flags, BaseAddress, Size);
 
         for(const auto& it : d.observers_RtlpReAllocateHeapInternal)
             it(HeapHandle, Flags, BaseAddress, Size);
@@ -115,12 +120,12 @@ namespace
 
     static void on_RtlSizeHeap(monitor::heaps::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on RtlSizeHeap");
-
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
         const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
+
+        if constexpr(g_debug)
+            LOG(INFO, "RtlSizeHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x})", HeapHandle, Flags, BaseAddress);
 
         for(const auto& it : d.observers_RtlSizeHeap)
             it(HeapHandle, Flags, BaseAddress);
@@ -128,13 +133,13 @@ namespace
 
     static void on_RtlSetUserValueHeap(monitor::heaps::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on RtlSetUserValueHeap");
-
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
         const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
         const auto UserValue   = arg<nt::PVOID>(d.core, 3);
+
+        if constexpr(g_debug)
+            LOG(INFO, "RtlSetUserValueHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, UserValue:{:#x})", HeapHandle, Flags, BaseAddress, UserValue);
 
         for(const auto& it : d.observers_RtlSetUserValueHeap)
             it(HeapHandle, Flags, BaseAddress, UserValue);
@@ -142,14 +147,14 @@ namespace
 
     static void on_RtlGetUserInfoHeap(monitor::heaps::Data& d)
     {
-        if(false)
-            LOG(INFO, "break on RtlGetUserInfoHeap");
-
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
         const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
         const auto UserValue   = arg<nt::PVOID>(d.core, 3);
         const auto UserFlags   = arg<nt::PULONG>(d.core, 4);
+
+        if constexpr(g_debug)
+            LOG(INFO, "RtlGetUserInfoHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, UserValue:{:#x}, UserFlags:{:#x})", HeapHandle, Flags, BaseAddress, UserValue, UserFlags);
 
         for(const auto& it : d.observers_RtlGetUserInfoHeap)
             it(HeapHandle, Flags, BaseAddress, UserValue, UserFlags);
