@@ -7,9 +7,9 @@
 #    error "missing FDP_MODULE define"
 #endif
 
-#define LOG(INFO, FMT, ...)                               \
-    do                                                    \
-    {                                                     \
+#define LOG(INFO, FMT, ...)                                                                    \
+    do                                                                                         \
+    {                                                                                          \
         LOG_F(INFO, "%s", fmt::format(FMT_STRING(FDP_MODULE ": " FMT), ##__VA_ARGS__).data()); \
     } while(0)
 

@@ -418,7 +418,7 @@ void core::State::run_to(proc_t proc, uint64_t ptr)
 
 void core::State::run_to(dtb_t dtb, uint64_t ptr)
 {
-    auto& d = *d_;
+    auto& d       = *d_;
     const auto bp = ::set_breakpoint(d, ptr, {}, {}, {});
     run_until(d, [&]
     {
