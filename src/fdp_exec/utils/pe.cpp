@@ -95,7 +95,7 @@ bool pe::Pe::setup(core::Core& core)
     return true;
 }
 
-opt<span_t> pe::Pe::get_directory_entry(const reader::Reader& reader, const span_t span, const pe_directory_entries_e directory_entry_id)
+opt<span_t> pe::Pe::get_directory_entry(const reader::Reader& reader, const span_t span, const image_directory_entry_e id)
 {
     static const auto e_lfanew_offset = 0x3C;
     const auto e_lfanew = reader.le32(span.addr + e_lfanew_offset);
@@ -106,7 +106,7 @@ opt<span_t> pe::Pe::get_directory_entry(const reader::Reader& reader, const span
     const auto image_optional_header = image_nt_header + d_->members_pe_[IMAGE_NT_HEADERS64_OptionalHeader];
 
     const auto size_image_data_directory      = 0x08;
-    const auto data_directory                 = image_optional_header + d_->members_pe_[IMAGE_OPTIONAL_HEADER_DataDirectory] + size_image_data_directory * directory_entry_id;
+    const auto data_directory                 = image_optional_header + d_->members_pe_[IMAGE_OPTIONAL_HEADER_DataDirectory] + size_image_data_directory * id;
     const auto data_directory_virtual_address = reader.le32(data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_VirtualAddress]);
     if(!data_directory_virtual_address)
         FAIL({}, "unable to read DataDirectory.VirtualAddress");

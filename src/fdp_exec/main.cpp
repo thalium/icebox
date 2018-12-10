@@ -69,7 +69,7 @@ namespace
             LOG(INFO, "module[{:>2}/{:<2}] {}: {:#x} {:#x}", modi, modcount, name->data(), span->addr, span->size);
             ++modi;
 
-            const auto debug_dir = pe.get_directory_entry(reader, *span, pe::pe_directory_entries_e::IMAGE_DIRECTORY_ENTRY_DEBUG);
+            const auto debug_dir = pe.get_directory_entry(reader, *span, pe::IMAGE_DIRECTORY_ENTRY_DEBUG);
             buffer.resize(debug_dir->size);
             auto ok = reader.read(&buffer[0], debug_dir->addr, debug_dir->size);
             if(!ok)

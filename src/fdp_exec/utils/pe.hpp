@@ -7,7 +7,7 @@ namespace reader { struct Reader; }
 
 namespace pe
 {
-    enum pe_directory_entries_e
+    enum image_directory_entry_e
     {
         IMAGE_DIRECTORY_ENTRY_EXPORT,         // Export Directory
         IMAGE_DIRECTORY_ENTRY_IMPORT,         // Import Directory
@@ -33,7 +33,7 @@ namespace pe
 
         bool setup(core::Core& core);
 
-        opt<span_t> get_directory_entry (const reader::Reader& core, const span_t span, const pe_directory_entries_e directory_entry_id);
+        opt<span_t> get_directory_entry (const reader::Reader& core, const span_t span, const image_directory_entry_e id);
         opt<span_t> parse_debug_dir     (const void* src, uint64_t mod_base_addr, span_t debug_dir);
 
         struct Data;
