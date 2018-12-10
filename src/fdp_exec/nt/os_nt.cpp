@@ -13,6 +13,12 @@
 
 namespace
 {
+    enum class cat_e
+    {
+        REQUIRED,
+        OPTIONAL,
+    };
+
     enum member_offset_e
     {
         CLIENT_ID_UniqueThread,
@@ -52,6 +58,7 @@ namespace
 
     struct MemberOffset
     {
+        cat_e           e_cat;
         member_offset_e e_id;
         const char      module[16];
         const char      struc[32];
@@ -60,38 +67,38 @@ namespace
     // clang-format off
     const MemberOffset g_member_offsets[] =
     {
-        {CLIENT_ID_UniqueThread,                        "nt", "_CLIENT_ID",                       "UniqueThread"},
-        {EPROCESS_ActiveProcessLinks,                   "nt", "_EPROCESS",                        "ActiveProcessLinks"},
-        {EPROCESS_ImageFileName,                        "nt", "_EPROCESS",                        "ImageFileName"},
-        {EPROCESS_Pcb,                                  "nt", "_EPROCESS",                        "Pcb"},
-        {EPROCESS_Peb,                                  "nt", "_EPROCESS",                        "Peb"},
-        {EPROCESS_SeAuditProcessCreationInfo,           "nt", "_EPROCESS",                        "SeAuditProcessCreationInfo"},
-        {EPROCESS_ThreadListHead,                       "nt", "_EPROCESS",                        "ThreadListHead"},
-        {EPROCESS_UniqueProcessId,                      "nt", "_EPROCESS",                        "UniqueProcessId"},
-        {EPROCESS_VadRoot,                              "nt", "_EPROCESS",                        "VadRoot"},
-        {EPROCESS_Wow64Process,                         "nt", "_EPROCESS",                        "Wow64Process"},
-        {ETHREAD_Cid,                                   "nt", "_ETHREAD",                         "Cid"},
-        {ETHREAD_Tcb,                                   "nt", "_ETHREAD",                         "Tcb"},
-        {ETHREAD_ThreadListEntry,                       "nt", "_ETHREAD",                         "ThreadListEntry"},
-        {KPCR_Irql,                                     "nt", "_KPCR",                            "Irql"},
-        {KPCR_Prcb,                                     "nt", "_KPCR",                            "Prcb"},
-        {KPRCB_CurrentThread,                           "nt", "_KPRCB",                           "CurrentThread"},
-        {KPRCB_KernelDirectoryTableBase,                "nt", "_KPRCB",                           "KernelDirectoryTableBase"},
-        {KPROCESS_DirectoryTableBase,                   "nt", "_KPROCESS",                        "DirectoryTableBase"},
-        {KPROCESS_UserDirectoryTableBase,               "nt", "_KPROCESS",                        "UserDirectoryTableBase"},
-        {KTHREAD_Process,                               "nt", "_KTHREAD",                         "Process"},
-        {KTHREAD_TrapFrame,                             "nt", "_KTHREAD",                         "TrapFrame"},
-        {KTRAP_FRAME_Rip,                               "nt", "_KTRAP_FRAME",                     "Rip"},
-        {LDR_DATA_TABLE_ENTRY_DllBase,                  "nt", "_LDR_DATA_TABLE_ENTRY",            "DllBase"},
-        {LDR_DATA_TABLE_ENTRY_FullDllName,              "nt", "_LDR_DATA_TABLE_ENTRY",            "FullDllName"},
-        {LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,         "nt", "_LDR_DATA_TABLE_ENTRY",            "InLoadOrderLinks"},
-        {LDR_DATA_TABLE_ENTRY_SizeOfImage,              "nt", "_LDR_DATA_TABLE_ENTRY",            "SizeOfImage"},
-        {OBJECT_NAME_INFORMATION_Name,                  "nt", "_OBJECT_NAME_INFORMATION",         "Name"},
-        {PEB_Ldr,                                       "nt", "_PEB",                             "Ldr"},
-        {PEB_LDR_DATA_InLoadOrderModuleList,            "nt", "_PEB_LDR_DATA",                    "InLoadOrderModuleList"},
-        {PEB_ProcessParameters,                         "nt", "_PEB",                             "ProcessParameters"},
-        {RTL_USER_PROCESS_PARAMETERS_ImagePathName,     "nt", "_RTL_USER_PROCESS_PARAMETERS",     "ImagePathName"},
-        {SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,  "nt", "_SE_AUDIT_PROCESS_CREATION_INFO",  "ImageFileName"},
+        {cat_e::REQUIRED, CLIENT_ID_UniqueThread,                        "nt", "_CLIENT_ID",                       "UniqueThread"},
+        {cat_e::REQUIRED, EPROCESS_ActiveProcessLinks,                   "nt", "_EPROCESS",                        "ActiveProcessLinks"},
+        {cat_e::REQUIRED, EPROCESS_ImageFileName,                        "nt", "_EPROCESS",                        "ImageFileName"},
+        {cat_e::REQUIRED, EPROCESS_Pcb,                                  "nt", "_EPROCESS",                        "Pcb"},
+        {cat_e::REQUIRED, EPROCESS_Peb,                                  "nt", "_EPROCESS",                        "Peb"},
+        {cat_e::REQUIRED, EPROCESS_SeAuditProcessCreationInfo,           "nt", "_EPROCESS",                        "SeAuditProcessCreationInfo"},
+        {cat_e::REQUIRED, EPROCESS_ThreadListHead,                       "nt", "_EPROCESS",                        "ThreadListHead"},
+        {cat_e::REQUIRED, EPROCESS_UniqueProcessId,                      "nt", "_EPROCESS",                        "UniqueProcessId"},
+        {cat_e::REQUIRED, EPROCESS_VadRoot,                              "nt", "_EPROCESS",                        "VadRoot"},
+        {cat_e::REQUIRED, EPROCESS_Wow64Process,                         "nt", "_EPROCESS",                        "Wow64Process"},
+        {cat_e::REQUIRED, ETHREAD_Cid,                                   "nt", "_ETHREAD",                         "Cid"},
+        {cat_e::REQUIRED, ETHREAD_Tcb,                                   "nt", "_ETHREAD",                         "Tcb"},
+        {cat_e::REQUIRED, ETHREAD_ThreadListEntry,                       "nt", "_ETHREAD",                         "ThreadListEntry"},
+        {cat_e::REQUIRED, KPCR_Irql,                                     "nt", "_KPCR",                            "Irql"},
+        {cat_e::REQUIRED, KPCR_Prcb,                                     "nt", "_KPCR",                            "Prcb"},
+        {cat_e::REQUIRED, KPRCB_CurrentThread,                           "nt", "_KPRCB",                           "CurrentThread"},
+        {cat_e::OPTIONAL, KPRCB_KernelDirectoryTableBase,                "nt", "_KPRCB",                           "KernelDirectoryTableBase"},
+        {cat_e::REQUIRED, KPROCESS_DirectoryTableBase,                   "nt", "_KPROCESS",                        "DirectoryTableBase"},
+        {cat_e::OPTIONAL, KPROCESS_UserDirectoryTableBase,               "nt", "_KPROCESS",                        "UserDirectoryTableBase"},
+        {cat_e::REQUIRED, KTHREAD_Process,                               "nt", "_KTHREAD",                         "Process"},
+        {cat_e::REQUIRED, KTHREAD_TrapFrame,                             "nt", "_KTHREAD",                         "TrapFrame"},
+        {cat_e::REQUIRED, KTRAP_FRAME_Rip,                               "nt", "_KTRAP_FRAME",                     "Rip"},
+        {cat_e::REQUIRED, LDR_DATA_TABLE_ENTRY_DllBase,                  "nt", "_LDR_DATA_TABLE_ENTRY",            "DllBase"},
+        {cat_e::REQUIRED, LDR_DATA_TABLE_ENTRY_FullDllName,              "nt", "_LDR_DATA_TABLE_ENTRY",            "FullDllName"},
+        {cat_e::REQUIRED, LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,         "nt", "_LDR_DATA_TABLE_ENTRY",            "InLoadOrderLinks"},
+        {cat_e::REQUIRED, LDR_DATA_TABLE_ENTRY_SizeOfImage,              "nt", "_LDR_DATA_TABLE_ENTRY",            "SizeOfImage"},
+        {cat_e::REQUIRED, OBJECT_NAME_INFORMATION_Name,                  "nt", "_OBJECT_NAME_INFORMATION",         "Name"},
+        {cat_e::REQUIRED, PEB_Ldr,                                       "nt", "_PEB",                             "Ldr"},
+        {cat_e::REQUIRED, PEB_LDR_DATA_InLoadOrderModuleList,            "nt", "_PEB_LDR_DATA",                    "InLoadOrderModuleList"},
+        {cat_e::REQUIRED, PEB_ProcessParameters,                         "nt", "_PEB",                             "ProcessParameters"},
+        {cat_e::REQUIRED, RTL_USER_PROCESS_PARAMETERS_ImagePathName,     "nt", "_RTL_USER_PROCESS_PARAMETERS",     "ImagePathName"},
+        {cat_e::REQUIRED, SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,  "nt", "_SE_AUDIT_PROCESS_CREATION_INFO",  "ImageFileName"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_member_offsets) == MEMBER_OFFSET_COUNT, "invalid members");
@@ -108,6 +115,7 @@ namespace
 
     struct SymbolOffset
     {
+        cat_e           e_cat;
         symbol_offset_e e_id;
         const char      module[16];
         const char      name[32];
@@ -115,11 +123,11 @@ namespace
     // clang-format off
     const SymbolOffset g_symbol_offsets[] =
     {
-        {KiKernelSysretExit,        "nt", "KiKernelSysretExit"},
-        {KiSystemCall64,            "nt", "KiSystemCall64"},
-        {PsActiveProcessHead,       "nt", "PsActiveProcessHead"},
-        {PsInitialSystemProcess,    "nt", "PsInitialSystemProcess"},
-        {PsLoadedModuleList,        "nt", "PsLoadedModuleList"},
+        {cat_e::OPTIONAL, KiKernelSysretExit,        "nt", "KiKernelSysretExit"},
+        {cat_e::REQUIRED, KiSystemCall64,            "nt", "KiSystemCall64"},
+        {cat_e::REQUIRED, PsActiveProcessHead,       "nt", "PsActiveProcessHead"},
+        {cat_e::REQUIRED, PsInitialSystemProcess,    "nt", "PsInitialSystemProcess"},
+        {cat_e::REQUIRED, PsLoadedModuleList,        "nt", "PsLoadedModuleList"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbol_offsets) == SYMBOL_OFFSET_COUNT, "invalid symbols");
@@ -225,25 +233,35 @@ bool OsNt::setup()
         FAIL(false, "unable to load symbols from kernel module");
 
     bool fail = false;
+    memset(&symbols_[0], 0, sizeof symbols_);
     for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
     {
         const auto addr = core_.sym.symbol(g_symbol_offsets[i].module, g_symbol_offsets[i].name);
         if(!addr)
         {
-            fail = true;
-            LOG(ERROR, "unable to read {}!{} symbol offset", g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+            fail |= g_symbol_offsets[i].e_cat == cat_e::REQUIRED;
+            if(g_symbol_offsets[i].e_cat == cat_e::REQUIRED)
+                LOG(ERROR, "unable to read {}!{} symbol offset", g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+            else
+                LOG(WARNING, "unable to read {}!{} symbol offset", g_symbol_offsets[i].module, g_symbol_offsets[i].name);
             continue;
         }
 
         symbols_[i] = *addr;
+
     }
+
+    memset(&members_[0], 0, sizeof members_);
     for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
     {
         const auto offset = core_.sym.struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
         if(!offset)
         {
-            fail = true;
-            LOG(ERROR, "unable to read {}!{}.{} member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+            fail |= g_member_offsets[i].e_cat == cat_e::REQUIRED;
+            if(g_member_offsets[i].e_cat == cat_e::REQUIRED)
+                LOG(ERROR, "unable to read {}!{}.{} member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+            else
+                LOG(WARNING, "unable to read {}!{}.{} member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
             continue;
         }
 
@@ -258,10 +276,22 @@ bool OsNt::setup()
     if(!(kpcr_ & 0xFFF0000000000000))
         FAIL(false, "unable to read KPCR");
 
-    dtb_t gdtb;
-    ok = core_.mem.read_virtual(&gdtb, kpcr_ + members_[KPCR_Prcb] + members_[KPRCB_KernelDirectoryTableBase], sizeof gdtb);
-    if(!ok)
-        FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
+    dtb_t gdtb = dtb_t{core_.regs.read(FDP_CR3_REGISTER)};
+    if(members_[KPRCB_KernelDirectoryTableBase])
+    {
+        ok = core_.mem.read_virtual(&gdtb, kpcr_ + members_[KPCR_Prcb] + members_[KPRCB_KernelDirectoryTableBase], sizeof gdtb);
+        if(!ok)
+            FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
+    }
+
+    // cr3 is same in user & kernel mode
+    if(!members_[KPROCESS_UserDirectoryTableBase])
+        members_[KPROCESS_UserDirectoryTableBase] = members_[KPROCESS_DirectoryTableBase];
+
+    // if KiKernelSysretExit doesn't exist, KiSystemCall in lstar should work
+    // and contain user rip in rcx
+    if(!symbols_[KiKernelSysretExit])
+        symbols_[KiKernelSysretExit] = lstar;
 
     reader_.kdtb_ = gdtb;
     LOG(WARNING, "kernel: kpcr: {:#x} kdtb: {:#x}", kpcr_, gdtb.val);
