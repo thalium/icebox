@@ -11,7 +11,7 @@
 
 namespace
 {
-    enum member_pe_offset_e
+    enum member_offset_e
     {
         IMAGE_NT_HEADERS64_FileHeader,
         IMAGE_NT_HEADERS64_OptionalHeader,
@@ -27,17 +27,17 @@ namespace
         IMAGE_SECTION_HEADER_Name,
         IMAGE_SECTION_HEADER_Misc,
         IMAGE_SECTION_HEADER_VirtualAddress,
-        MEMBER_PE_OFFSET_COUNT,
+        MEMBER_OFFSET_COUNT,
     };
-    struct MemberPeOffset
+    struct MemberOffset
     {
-        member_pe_offset_e e_id;
+        member_offset_e e_id;
         const char         module[16];
         const char         struc[32];
         const char         member[32];
     };
     // clang-format off
-    const MemberPeOffset g_member_pe_offsets[] =
+    const MemberOffset g_member_offsets[] =
     {
         {IMAGE_NT_HEADERS64_FileHeader,                         "nt", "_IMAGE_NT_HEADERS64",                          "FileHeader"},
         {IMAGE_NT_HEADERS64_OptionalHeader,                     "nt", "_IMAGE_NT_HEADERS64",                          "OptionalHeader"},
@@ -55,14 +55,14 @@ namespace
         {IMAGE_SECTION_HEADER_VirtualAddress,                   "nt", "_IMAGE_SECTION_HEADER",                        "VirtualAddress"},
     };
     // clang-format on
-    static_assert(COUNT_OF(g_member_pe_offsets) == MEMBER_PE_OFFSET_COUNT, "invalid members");
+    static_assert(COUNT_OF(g_member_offsets) == MEMBER_OFFSET_COUNT, "invalid members");
 
-    using MemberPeOffsets = std::array<uint64_t, MEMBER_PE_OFFSET_COUNT>;
+    using MemberOffsets = std::array<uint64_t, MEMBER_OFFSET_COUNT>;
 }
 
 struct pe::Pe::Data
 {
-    MemberPeOffsets members_pe_;
+    MemberOffsets members_;
 };
 
 pe::Pe::Pe()
@@ -77,22 +77,18 @@ pe::Pe::~Pe()
 bool pe::Pe::setup(core::Core& core)
 {
     bool fail = false;
-    for(size_t i = 0; i < MEMBER_PE_OFFSET_COUNT; ++i)
+    for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
     {
-        const auto offset = core.sym.struc_offset(g_member_pe_offsets[i].module, g_member_pe_offsets[i].struc, g_member_pe_offsets[i].member);
+        const auto offset = core.sym.struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
         if(!offset)
         {
             fail = true;
-            LOG(ERROR, "unable to read {}!{}.{} member offset", g_member_pe_offsets[i].module, g_member_pe_offsets[i].struc, g_member_pe_offsets[i].member);
+            LOG(ERROR, "unable to read {}!{}.{} member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
             continue;
         }
-        d_->members_pe_[i] = *offset;
+        d_->members_[i] = *offset;
     }
-
-    if(fail)
-        return false;
-
-    return true;
+    return !fail;
 }
 
 opt<span_t> pe::Pe::get_directory_entry(const reader::Reader& reader, const span_t span, const image_directory_entry_e id)
@@ -103,15 +99,15 @@ opt<span_t> pe::Pe::get_directory_entry(const reader::Reader& reader, const span
         FAIL({}, "unable to read e_lfanew");
 
     const auto image_nt_header       = span.addr + *e_lfanew; // IMAGE_NT_HEADER
-    const auto image_optional_header = image_nt_header + d_->members_pe_[IMAGE_NT_HEADERS64_OptionalHeader];
+    const auto image_optional_header = image_nt_header + d_->members_[IMAGE_NT_HEADERS64_OptionalHeader];
 
     const auto size_image_data_directory      = 0x08;
-    const auto data_directory                 = image_optional_header + d_->members_pe_[IMAGE_OPTIONAL_HEADER_DataDirectory] + size_image_data_directory * id;
-    const auto data_directory_virtual_address = reader.le32(data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_VirtualAddress]);
+    const auto data_directory                 = image_optional_header + d_->members_[IMAGE_OPTIONAL_HEADER_DataDirectory] + size_image_data_directory * id;
+    const auto data_directory_virtual_address = reader.le32(data_directory + d_->members_[IMAGE_DATA_DIRECTORY_VirtualAddress]);
     if(!data_directory_virtual_address)
         FAIL({}, "unable to read DataDirectory.VirtualAddress");
 
-    const auto data_directory_size = reader.le32(data_directory + d_->members_pe_[IMAGE_DATA_DIRECTORY_Size]);
+    const auto data_directory_size = reader.le32(data_directory + d_->members_[IMAGE_DATA_DIRECTORY_Size]);
     if(!data_directory_size)
         FAIL({}, "unable to read DataDirectory.Size");
 
@@ -128,12 +124,12 @@ opt<span_t> pe::Pe::parse_debug_dir(const void* vsrc, uint64_t mod_base_addr, sp
     if(debug_dir.size < sizeof_IMAGE_DEBUG_DIRECTORY)
         FAIL({}, "Debug directory to small");
 
-    const auto type = read_le32(&src[d_->members_pe_[IMAGE_DEBUG_DIRECTORY_Type]]);
+    const auto type = read_le32(&src[d_->members_[IMAGE_DEBUG_DIRECTORY_Type]]);
     if(type != 2)
         FAIL({}, "Unknown IMAGE_DEBUG_TYPE, should be IMAGE_DEBUG_TYPE_CODEVIEW (=2), it's the one for pdb");
 
-    const auto size_rawdata = read_le32(&src[d_->members_pe_[IMAGE_DEBUG_DIRECTORY_SizeOfData]]);
-    const auto addr_rawdata = read_le32(&src[d_->members_pe_[IMAGE_DEBUG_DIRECTORY_AddressOfRawData]]);
+    const auto size_rawdata = read_le32(&src[d_->members_[IMAGE_DEBUG_DIRECTORY_SizeOfData]]);
+    const auto addr_rawdata = read_le32(&src[d_->members_[IMAGE_DEBUG_DIRECTORY_AddressOfRawData]]);
 
     return span_t{mod_base_addr + addr_rawdata, size_rawdata};
 }
