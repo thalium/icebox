@@ -288,11 +288,6 @@ bool OsNt::setup()
     if(!members_[KPROCESS_UserDirectoryTableBase])
         members_[KPROCESS_UserDirectoryTableBase] = members_[KPROCESS_DirectoryTableBase];
 
-    // if KiKernelSysretExit doesn't exist, KiSystemCall in lstar should work
-    // and contain user rip in rcx
-    if(!symbols_[KiKernelSysretExit])
-        symbols_[KiKernelSysretExit] = lstar;
-
     reader_.kdtb_ = gdtb;
     LOG(WARNING, "kernel: kpcr: {:#x} kdtb: {:#x}", kpcr_, gdtb.val);
     return true;
@@ -621,8 +616,9 @@ namespace
 
     void proc_join_user(OsNt& os, proc_t proc)
     {
-        const auto sysexit = os.symbols_[KiKernelSysretExit];
-        os.core_.state.run_to(proc, sysexit);
+        // if KiKernelSysretExit doesn't exist, KiSystemCall* in lstar has user return address in rcx
+        const auto where = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : os.core_.regs.read(MSR_LSTAR);
+        os.core_.state.run_to(proc, where);
         const auto rip = os.core_.regs.read(FDP_RCX_REGISTER);
         os.core_.state.run_to(proc, rip);
     }
