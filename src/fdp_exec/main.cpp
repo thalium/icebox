@@ -69,15 +69,12 @@ namespace
             LOG(INFO, "module[{:>2}/{:<2}] {}: {:#x} {:#x}", modi, modcount, name->data(), span->addr, span->size);
             ++modi;
 
-            const auto debug_dir = pe.get_directory_entry(reader, *span, pe::IMAGE_DIRECTORY_ENTRY_DEBUG);
-            buffer.resize(debug_dir->size);
-            auto ok = reader.read(&buffer[0], debug_dir->addr, debug_dir->size);
-            if(!ok)
+            const auto debug = pe.find_debug_codeview(reader, *span);
+            if(!debug)
                 return WALK_NEXT;
 
-            const auto codeview = pe.parse_debug_dir(&buffer[0], span->addr, *debug_dir);
-            buffer.resize(codeview->size);
-            ok = reader.read(&buffer[0], codeview->addr, codeview->size);
+            buffer.resize(debug->size);
+            const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
             if(!ok)
                 FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
 

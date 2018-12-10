@@ -33,8 +33,8 @@ namespace pe
 
         bool setup(core::Core& core);
 
-        opt<span_t> get_directory_entry (const reader::Reader& core, const span_t span, const image_directory_entry_e id);
-        opt<span_t> parse_debug_dir     (const void* src, uint64_t mod_base_addr, span_t debug_dir);
+        opt<span_t> find_image_directory(const reader::Reader& core, span_t module, image_directory_entry_e id);
+        opt<span_t> find_debug_codeview (const reader::Reader& core, span_t module);
 
         struct Data;
         std::unique_ptr<Data> d_;

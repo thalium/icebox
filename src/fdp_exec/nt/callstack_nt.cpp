@@ -237,7 +237,7 @@ opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
 opt<FunctionTable> CallstackNt::insert(proc_t proc, const std::string& name, const span_t span)
 {
     const auto reader        = reader::make(core_, proc);
-    const auto exception_dir = pe_.get_directory_entry(reader, span, pe::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
+    const auto exception_dir = pe_.find_image_directory(reader, span, pe::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
     if(!exception_dir)
         FAIL({}, "Unable to get span of exception_dir");
 
@@ -281,15 +281,12 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const cal
         // Load PDB
         if(false)
         {
-            const auto debug_dir = pe_.get_directory_entry(reader, *span, pe::IMAGE_DIRECTORY_ENTRY_DEBUG);
-            buffer.resize(debug_dir->size);
-            auto ok = reader.read(&buffer[0], debug_dir->addr, debug_dir->size);
-            if(!ok)
+            const auto debug = pe_.find_debug_codeview(reader, *span);
+            if(!debug)
                 return WALK_NEXT;
 
-            const auto codeview = pe_.parse_debug_dir(&buffer[0], span->addr, *debug_dir);
-            buffer.resize(codeview->size);
-            ok = reader.read(&buffer[0], codeview->addr, codeview->size);
+            buffer.resize(debug->size);
+            const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
             if(!ok)
                 FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
 

@@ -62,6 +62,7 @@ namespace
     enum struc_size_e
     {
         IMAGE_DATA_DIRECTORY,
+        IMAGE_DEBUG_DIRECTORY,
         STRUC_SIZE_COUNT,
     };
     struct StrucSize
@@ -73,7 +74,8 @@ namespace
     // clang-format off
     const StrucSize g_struc_sizes[] =
     {
-        {IMAGE_DATA_DIRECTORY, "nt", "_IMAGE_DATA_DIRECTORY"},
+        {IMAGE_DATA_DIRECTORY,  "nt",   "_IMAGE_DATA_DIRECTORY"},
+        {IMAGE_DEBUG_DIRECTORY, "nt",   "_IMAGE_DEBUG_DIRECTORY"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_struc_sizes) == STRUC_SIZE_COUNT, "invalid struc sizes");
@@ -125,7 +127,7 @@ bool pe::Pe::setup(core::Core& core)
     return !fail;
 }
 
-opt<span_t> pe::Pe::get_directory_entry(const reader::Reader& reader, const span_t span, const image_directory_entry_e id)
+opt<span_t> pe::Pe::find_image_directory(const reader::Reader& reader, const span_t span, const image_directory_entry_e id)
 {
     const auto e_lfanew = reader.le32(span.addr + d_->members_[IMAGE_DOS_HEADER_e_lfanew]);
     if(!e_lfanew)
@@ -148,22 +150,25 @@ opt<span_t> pe::Pe::get_directory_entry(const reader::Reader& reader, const span
     return span_t{span.addr + *data_directory_virtual_address, *data_directory_size};
 }
 
-opt<span_t> pe::Pe::parse_debug_dir(const void* vsrc, uint64_t mod_base_addr, span_t debug_dir)
+opt<span_t> pe::Pe::find_debug_codeview(const reader::Reader& reader, span_t module)
 {
-    const auto src = reinterpret_cast<const uint8_t*>(vsrc);
+    const auto directory = find_image_directory(reader, module, pe::IMAGE_DIRECTORY_ENTRY_DEBUG);
+    if(!directory)
+        return {};
 
-    const auto sizeof_IMAGE_DEBUG_DIRECTORY = 0x1C;
-    if(debug_dir.size < sizeof_IMAGE_DEBUG_DIRECTORY)
-        FAIL({}, "Debug directory to small");
+    const auto type = reader.le32(directory->addr + d_->members_[IMAGE_DEBUG_DIRECTORY_Type]);
+    if(!type)
+        return {};
 
-    const auto type = read_le32(&src[d_->members_[IMAGE_DEBUG_DIRECTORY_Type]]);
-    if(type != 2)
-        FAIL({}, "Unknown IMAGE_DEBUG_TYPE, should be IMAGE_DEBUG_TYPE_CODEVIEW (=2), it's the one for pdb");
+    if(*type != 2)
+        FAIL({}, "invalid IMAGE_DEBUG_TYPE, want IMAGE_DEBUG_TYPE_CODEVIEW = 2, got {}", *type);
 
-    const auto size_rawdata = read_le32(&src[d_->members_[IMAGE_DEBUG_DIRECTORY_SizeOfData]]);
-    const auto addr_rawdata = read_le32(&src[d_->members_[IMAGE_DEBUG_DIRECTORY_AddressOfRawData]]);
+    const auto addr = reader.le32(directory->addr + d_->members_[IMAGE_DEBUG_DIRECTORY_AddressOfRawData]);
+    const auto size = reader.le32(directory->addr + d_->members_[IMAGE_DEBUG_DIRECTORY_SizeOfData]);
+    if(!addr || !size)
+        return {};
 
-    return span_t{mod_base_addr + addr_rawdata, size_rawdata};
+    return span_t{module.addr + *addr, *size};
 }
 
 opt<size_t> pe::read_image_size(const void* vsrc, size_t size)
