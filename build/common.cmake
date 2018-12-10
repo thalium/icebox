@@ -365,6 +365,31 @@ function(setup_target target)
     endif()
 endfunction()
 
+function(setup_clang_format target)
+    find_program(CLANG_FORMAT "clang-format" REQUIRED)
+    find_package(PythonInterp REQUIRED)
+    get_target_property(files_ ${target} SOURCES)
+    set(files)
+    foreach(f ${files_})
+        get_source_file_property(generated ${f} GENERATED)
+        if(NOT "${generated}" STREQUAL "NOTFOUND")
+            continue()
+        endif()
+        if(NOT "${f}" MATCHES "[.](h|hh|hpp|c|cc|cpp)$")
+            continue()
+        endif()
+        get_filename_component(f ${f} ABSOLUTE)
+        list(APPEND files ${f})
+    endforeach()
+    add_custom_command(TARGET ${target}
+        PRE_BUILD COMMAND
+        ${PYTHON_EXECUTABLE}
+        "${root_dir}/build/format.py"
+        ${CLANG_FORMAT}
+        ${files}
+    )
+endfunction()
+
 # make_target <target> <group> <files...> [INCLUDES <includes...>] [OPTIONS <options...>]
 # add a new target and apply options
 # targets are static libraries by default
@@ -380,6 +405,7 @@ endfunction()
 # - win32           build windows executable instead of console
 # - external        disable warnings on external projects
 # - unity           enable unity build on target
+# - fmt             enable clang-format on target
 function(make_target target group)
     message("-- Configuring ${group}/${target}")
 
@@ -395,6 +421,7 @@ function(make_target target group)
     has_item(has_git_version "git_version" ${options})
     has_item(is_win32 "win32" ${options})
     has_item(is_unity "unity" ${options})
+    has_item(is_fmt "fmt" ${options})
 
     # sort files
     list(SORT files)
@@ -462,6 +489,11 @@ function(make_target target group)
     # setup compiler dependent options
     setup_target(${target} ${options})
 
+    # optional clang_format
+    if(is_fmt)
+        setup_clang_format(${target})
+    endif()
+
     # add all additional include directories
     add_target_includes(${target} includes)
 
@@ -477,34 +509,6 @@ function(add_target target group)
     get_files(files ${ARGN})
     split_args(args "OPTIONS" options ${ARGN})
     make_target(${target} ${group} ${files} OPTIONS ${options})
-endfunction()
-
-function(add_clang_format_target target)
-    find_program(CLANG_FORMAT "clang-format" REQUIRED)
-    find_package(PythonInterp REQUIRED)
-    set(files)
-    foreach(it ${ARGN})
-        get_target_property(files_ ${it} SOURCES)
-        foreach(f ${files_})
-            get_source_file_property(generated ${f} GENERATED)
-            if(NOT "${generated}" STREQUAL "NOTFOUND")
-                continue()
-            endif()
-            if(NOT "${f}" MATCHES "[.](h|hh|hpp|c|cc|cpp)$")
-                continue()
-            endif()
-            get_filename_component(f ${f} ABSOLUTE)
-            list(APPEND files ${f})
-            get_filename_component(filename ${f} NAME)
-        endforeach()
-    endforeach()
-    add_custom_target(${target}
-        COMMAND ${PYTHON_EXECUTABLE}
-        "${root_dir}/build/format.py"
-        ${CLANG_FORMAT}
-        ${files}
-    )
-    set_target_properties(${target} PROPERTIES FOLDER _cmake)
 endfunction()
 
 # set_target_output_directory <target> <suffix>

@@ -87,7 +87,7 @@ add_tracer("nt" "${monitor_dir}/heaps.json")
 
 # fdp_exec
 set(fdp_exec_dir "${root_dir}/src/fdp_exec")
-add_target(fdp_exec apps ${fdp_exec_dir} OPTIONS recurse executable)
+add_target(fdp_exec apps ${fdp_exec_dir} OPTIONS fmt recurse executable)
 set_target_output_directory(fdp_exec "")
 
 target_include_directories(fdp_exec PRIVATE
@@ -133,8 +133,4 @@ if(WIN32)
     target_link_libraries(hbp PRIVATE
         fdp
     )
-endif (WIN32)
-
-add_clang_format_target(fmt
-    fdp_exec
-)
+endif()

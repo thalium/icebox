@@ -17,7 +17,12 @@ def write_file(filename, data):
         fd.write(data.encode("utf-8"))
     finally:
         fd.close()
-    shutil.move(fd.name, filename)
+    for x in range(0, 4):
+        try:
+            shutil.move(fd.name, filename)
+            return
+        except:
+            pass
 
 def compile_fields(fields):
     reply = []
