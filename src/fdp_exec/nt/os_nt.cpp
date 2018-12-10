@@ -5,6 +5,7 @@
 #include "log.hpp"
 #include "reader.hpp"
 #include "utils/hex.hpp"
+#include "utils/path.hpp"
 #include "utils/pe.hpp"
 #include "utils/utf8.hpp"
 #include "utils/utils.hpp"
@@ -423,7 +424,7 @@ opt<std::string> OsNt::proc_name(proc_t proc)
     if(!path)
         return name;
 
-    return fs::path(*path).filename().generic_string();
+    return path::filename(*path).generic_string();
 }
 
 uint64_t OsNt::proc_id(proc_t proc)

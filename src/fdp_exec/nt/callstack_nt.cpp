@@ -6,8 +6,8 @@
 #include "log.hpp"
 #include "os.hpp"
 #include "reader.hpp"
+#include "utils/path.hpp"
 #include "utils/pe.hpp"
-#include "utils/sanitizer.hpp"
 
 #include <algorithm>
 #include <map>
@@ -290,7 +290,8 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const cal
             if(!ok)
                 FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
 
-            const auto inserted = core_.sym.insert(sanitizer::sanitize_filename(*modname).data(), *span, &buffer[0], buffer.size());
+            const auto filename = path::filename(*modname).replace_extension("").generic_string();
+            const auto inserted = core_.sym.insert(filename.data(), *span, &buffer[0], buffer.size());
         }
 
         // Get function table of the module

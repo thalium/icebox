@@ -5,8 +5,8 @@
 #include "log.hpp"
 #include "os.hpp"
 #include "reader.hpp"
+#include "utils/path.hpp"
 #include "utils/pe.hpp"
-#include "utils/sanitizer.hpp"
 
 #include "plugin/syscall_tracer.hpp"
 
@@ -20,9 +20,10 @@ namespace
         LOG(INFO, "drivers:");
         core.os->driver_list([&](driver_t drv)
         {
-            const auto name = core.os->driver_name(drv);
-            const auto span = core.os->driver_span(drv);
-            LOG(INFO, "    driver: {:#x} {} {:#x} {:#x}", drv.id, name ? name->data() : "<noname>", span ? span->addr : 0, span ? span->size : 0);
+            const auto name     = core.os->driver_name(drv);
+            const auto span     = core.os->driver_span(drv);
+            const auto filename = name ? path::filename(*name).generic_string() : "_";
+            LOG(INFO, "    driver: {:#x} {} {:#x} {:#x}", drv.id, filename.data(), span ? span->addr : 0, span ? span->size : 0);
             return WALK_NEXT;
         });
 
@@ -78,7 +79,8 @@ namespace
             if(!ok)
                 FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
 
-            const auto inserted = core.sym.insert(sanitizer::sanitize_filename(*name).data(), *span, &buffer[0], buffer.size());
+            const auto filename = path::filename(*name).replace_extension("").generic_string();
+            const auto inserted = core.sym.insert(filename.data(), *span, &buffer[0], buffer.size());
             if(!inserted)
                 return WALK_NEXT;
 
