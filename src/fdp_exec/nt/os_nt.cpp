@@ -248,7 +248,6 @@ bool OsNt::setup()
         }
 
         symbols_[i] = *addr;
-
     }
 
     memset(&members_[0], 0, sizeof members_);

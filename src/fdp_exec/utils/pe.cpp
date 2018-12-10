@@ -13,6 +13,7 @@ namespace
 {
     enum member_offset_e
     {
+        IMAGE_DOS_HEADER_e_lfanew,
         IMAGE_NT_HEADERS64_FileHeader,
         IMAGE_NT_HEADERS64_OptionalHeader,
         IMAGE_FILE_HEADER_SizeOfOptionalHeader,
@@ -32,13 +33,14 @@ namespace
     struct MemberOffset
     {
         member_offset_e e_id;
-        const char         module[16];
-        const char         struc[32];
-        const char         member[32];
+        const char      module[16];
+        const char      struc[32];
+        const char      member[32];
     };
     // clang-format off
     const MemberOffset g_member_offsets[] =
     {
+        {IMAGE_DOS_HEADER_e_lfanew,                             "nt", "_IMAGE_DOS_HEADER",                            "e_lfanew"},
         {IMAGE_NT_HEADERS64_FileHeader,                         "nt", "_IMAGE_NT_HEADERS64",                          "FileHeader"},
         {IMAGE_NT_HEADERS64_OptionalHeader,                     "nt", "_IMAGE_NT_HEADERS64",                          "OptionalHeader"},
         {IMAGE_FILE_HEADER_SizeOfOptionalHeader,                "nt", "_IMAGE_FILE_HEADER",                           "SizeOfOptionalHeader"},
@@ -57,12 +59,33 @@ namespace
     // clang-format on
     static_assert(COUNT_OF(g_member_offsets) == MEMBER_OFFSET_COUNT, "invalid members");
 
+    enum struc_size_e
+    {
+        IMAGE_DATA_DIRECTORY,
+        STRUC_SIZE_COUNT,
+    };
+    struct StrucSize
+    {
+        struc_size_e e_id;
+        const char   module[16];
+        const char   struc[32];
+    };
+    // clang-format off
+    const StrucSize g_struc_sizes[] =
+    {
+        {IMAGE_DATA_DIRECTORY, "nt", "_IMAGE_DATA_DIRECTORY"},
+    };
+    // clang-format on
+    static_assert(COUNT_OF(g_struc_sizes) == STRUC_SIZE_COUNT, "invalid struc sizes");
+
     using MemberOffsets = std::array<uint64_t, MEMBER_OFFSET_COUNT>;
+    using StrucSizes    = std::array<uint64_t, STRUC_SIZE_COUNT>;
 }
 
 struct pe::Pe::Data
 {
     MemberOffsets members_;
+    StrucSizes    sizes_;
 };
 
 pe::Pe::Pe()
@@ -88,20 +111,30 @@ bool pe::Pe::setup(core::Core& core)
         }
         d_->members_[i] = *offset;
     }
+    for(size_t i = 0; i < STRUC_SIZE_COUNT; ++i)
+    {
+        const auto offset = core.sym.struc_size(g_struc_sizes[i].module, g_struc_sizes[i].struc);
+        if(!offset)
+        {
+            fail = true;
+            LOG(ERROR, "unable to read {}!{} struc size", g_struc_sizes[i].module, g_struc_sizes[i].struc);
+            continue;
+        }
+        d_->sizes_[i] = *offset;
+    }
     return !fail;
 }
 
 opt<span_t> pe::Pe::get_directory_entry(const reader::Reader& reader, const span_t span, const image_directory_entry_e id)
 {
-    static const auto e_lfanew_offset = 0x3C;
-    const auto e_lfanew = reader.le32(span.addr + e_lfanew_offset);
+    const auto e_lfanew = reader.le32(span.addr + d_->members_[IMAGE_DOS_HEADER_e_lfanew]);
     if(!e_lfanew)
         FAIL({}, "unable to read e_lfanew");
 
-    const auto image_nt_header       = span.addr + *e_lfanew; // IMAGE_NT_HEADER
+    const auto image_nt_header       = span.addr + *e_lfanew;
     const auto image_optional_header = image_nt_header + d_->members_[IMAGE_NT_HEADERS64_OptionalHeader];
 
-    const auto size_image_data_directory      = 0x08;
+    const auto size_image_data_directory      = d_->sizes_[IMAGE_DATA_DIRECTORY];
     const auto data_directory                 = image_optional_header + d_->members_[IMAGE_OPTIONAL_HEADER_DataDirectory] + size_image_data_directory * id;
     const auto data_directory_virtual_address = reader.le32(data_directory + d_->members_[IMAGE_DATA_DIRECTORY_VirtualAddress]);
     if(!data_directory_virtual_address)
@@ -112,7 +145,6 @@ opt<span_t> pe::Pe::get_directory_entry(const reader::Reader& reader, const span
         FAIL({}, "unable to read DataDirectory.Size");
 
     // LOG(INFO, "exception_dir addr {:#x} section size {:#x}", span.addr + *data_directory_virtual_address, *data_directory_size);
-
     return span_t{span.addr + *data_directory_virtual_address, *data_directory_size};
 }
 
