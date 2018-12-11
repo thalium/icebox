@@ -738,6 +738,8 @@ endfunction()
 if(MSVC)
     # enable parallel compilation
     set_cx_flags("" "/MP" "/MP")
+    # enable bigobj
+    set_cx_flags("" "/bigobj" "/bigobj")
     # disable runtime checks (and add them back per target)
     set_cx_flags(DEBUG "/RTC1" " ")
     # disable broken incremental compilations on release
