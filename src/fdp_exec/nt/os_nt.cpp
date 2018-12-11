@@ -641,9 +641,14 @@ opt<phy_t> OsNt::proc_resolve(proc_t proc, uint64_t ptr)
     return core_.mem.virtual_to_physical(ptr, reader_.kdtb_);
 }
 
+bool OsNt::is_kernel(uint64_t ptr)
+{
+    return !!(ptr & 0xFFF0000000000000);
+}
+
 opt<proc_t> OsNt::proc_select(proc_t proc, uint64_t ptr)
 {
-    if(!(ptr & 0xFFF0000000000000))
+    if(!is_kernel(ptr))
         return proc;
 
     const auto kdtb = reader_.read(proc.id + members_[EPROCESS_Pcb] + members_[KPROCESS_DirectoryTableBase]);
@@ -651,11 +656,6 @@ opt<proc_t> OsNt::proc_select(proc_t proc, uint64_t ptr)
         return {};
 
     return proc_t{proc.id, dtb_t{*kdtb}};
-}
-
-bool OsNt::is_kernel(uint64_t ptr)
-{
-    return !!(ptr & 0xFFF0000000000000);
 }
 
 bool OsNt::reader_setup(reader::Reader& reader, proc_t proc)
