@@ -2902,7 +2902,7 @@ namespace
     {
         const auto MasterKeyHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto Count            = arg<nt::ULONG>(d.core, 1);
-        const auto SlaveObjects     = arg<nt::OBJECT_ATTRIBUTES>(d.core, 2);
+        const auto SlaveObjects     = arg<nt::POBJECT_ATTRIBUTES>(d.core, 2);
         const auto Event            = arg<nt::HANDLE>(d.core, 3);
         const auto ApcRoutine       = arg<nt::PIO_APC_ROUTINE>(d.core, 4);
         const auto ApcContext       = arg<nt::PVOID>(d.core, 5);

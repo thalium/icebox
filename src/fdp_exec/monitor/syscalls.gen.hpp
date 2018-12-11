@@ -175,7 +175,7 @@ namespace monitor
     using on_NtModifyDriverEntry_fn                                = std::function<nt::NTSTATUS(nt::PEFI_DRIVER_ENTRY)>;
     using on_NtNotifyChangeDirectoryFile_fn                        = std::function<nt::NTSTATUS(nt::HANDLE, nt::HANDLE, nt::PIO_APC_ROUTINE, nt::PVOID, nt::PIO_STATUS_BLOCK, nt::PVOID, nt::ULONG, nt::ULONG, nt::BOOLEAN)>;
     using on_NtNotifyChangeKey_fn                                  = std::function<nt::NTSTATUS(nt::HANDLE, nt::HANDLE, nt::PIO_APC_ROUTINE, nt::PVOID, nt::PIO_STATUS_BLOCK, nt::ULONG, nt::BOOLEAN, nt::PVOID, nt::ULONG, nt::BOOLEAN)>;
-    using on_NtNotifyChangeMultipleKeys_fn                         = std::function<nt::NTSTATUS(nt::HANDLE, nt::ULONG, nt::OBJECT_ATTRIBUTES, nt::HANDLE, nt::PIO_APC_ROUTINE, nt::PVOID, nt::PIO_STATUS_BLOCK, nt::ULONG, nt::BOOLEAN, nt::PVOID, nt::ULONG, nt::BOOLEAN)>;
+    using on_NtNotifyChangeMultipleKeys_fn                         = std::function<nt::NTSTATUS(nt::HANDLE, nt::ULONG, nt::POBJECT_ATTRIBUTES, nt::HANDLE, nt::PIO_APC_ROUTINE, nt::PVOID, nt::PIO_STATUS_BLOCK, nt::ULONG, nt::BOOLEAN, nt::PVOID, nt::ULONG, nt::BOOLEAN)>;
     using on_NtNotifyChangeSession_fn                              = std::function<nt::NTSTATUS(nt::HANDLE, nt::ULONG, nt::PVOID, nt::ULONG, nt::IO_SESSION_STATE, nt::IO_SESSION_STATE, nt::PVOID, nt::ULONG)>;
     using on_NtOpenDirectoryObject_fn                              = std::function<nt::NTSTATUS(nt::PHANDLE, nt::ACCESS_MASK, nt::POBJECT_ATTRIBUTES)>;
     using on_NtOpenEnlistment_fn                                   = std::function<nt::NTSTATUS(nt::PHANDLE, nt::ACCESS_MASK, nt::HANDLE, nt::LPGUID, nt::POBJECT_ATTRIBUTES)>;

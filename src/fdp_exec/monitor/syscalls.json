@@ -1093,7 +1093,7 @@
         "NtNotifyChangeMultipleKeys" : ["NTSTATUS",[
             ["MasterKeyHandle","HANDLE"],
             ["Count","ULONG"],
-            ["SlaveObjects","OBJECT_ATTRIBUTES"],
+            ["SlaveObjects","POBJECT_ATTRIBUTES"],
             ["Event","HANDLE"],
             ["ApcRoutine","PIO_APC_ROUTINE"],
             ["ApcContext","PVOID"],
