@@ -3,6 +3,7 @@
 #define FDP_MODULE "pdb"
 #include "endian.hpp"
 #include "log.hpp"
+#include "utils/fnview.hpp"
 #include "utils/hex.hpp"
 #include "utils/utils.hpp"
 

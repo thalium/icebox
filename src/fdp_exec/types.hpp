@@ -60,3 +60,9 @@ struct arg_t
 {
     uint64_t val;
 };
+
+namespace fn
+{
+    template <typename T>
+    struct view;
+}

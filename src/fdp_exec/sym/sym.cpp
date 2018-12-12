@@ -1,5 +1,6 @@
 #include "sym.hpp"
 
+#include "utils/fnview.hpp"
 #include "utils/hex.hpp"
 
 #include <unordered_map>

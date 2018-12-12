@@ -7,6 +7,7 @@
 #include "nt/nt.hpp"
 #include "os.hpp"
 #include "reader.hpp"
+#include "utils/fnview.hpp"
 #include "utils/utils.hpp"
 
 #include <map>

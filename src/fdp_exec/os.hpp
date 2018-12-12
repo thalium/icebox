@@ -3,7 +3,6 @@
 #include "enums.hpp"
 #include "types.hpp"
 
-#include <functional>
 #include <memory>
 
 namespace core { struct Core; }
@@ -21,10 +20,10 @@ namespace os
     {
         virtual ~IModule() = default;
 
-        using on_proc_fn   = std::function<walk_e(proc_t)>;
-        using on_thread_fn = std::function<walk_e(thread_t)>;
-        using on_mod_fn    = std::function<walk_e(mod_t)>;
-        using on_driver_fn = std::function<walk_e(driver_t)>;
+        using on_proc_fn   = fn::view<walk_e(proc_t)>;
+        using on_thread_fn = fn::view<walk_e(thread_t)>;
+        using on_mod_fn    = fn::view<walk_e(mod_t)>;
+        using on_driver_fn = fn::view<walk_e(driver_t)>;
 
         virtual bool    is_kernel   (uint64_t ptr) = 0;
         virtual bool    reader_setup(reader::Reader& reader, proc_t proc) = 0;

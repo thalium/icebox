@@ -2,6 +2,7 @@
 
 #define FDP_MODULE "pdb"
 #include "log.hpp"
+#include "utils/fnview.hpp"
 
 namespace
 {

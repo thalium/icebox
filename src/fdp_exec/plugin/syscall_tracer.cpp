@@ -9,6 +9,7 @@
 #include "nt/objects_nt.hpp"
 #include "reader.hpp"
 #include "utils/file.hpp"
+#include "utils/fnview.hpp"
 #include "utils/pe.hpp"
 
 #include <nlohmann/json.hpp>

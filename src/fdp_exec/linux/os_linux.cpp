@@ -4,6 +4,7 @@
 #include "core.hpp"
 #include "log.hpp"
 #include "reader.hpp"
+#include "utils/fnview.hpp"
 
 namespace
 {
