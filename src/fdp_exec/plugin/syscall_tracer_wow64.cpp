@@ -5,7 +5,7 @@
 #include "os.hpp"
 
 #include "callstack.hpp"
-#include "monitor/syscalls.gen.hpp"
+#include "monitor/syscallswow64.gen.hpp"
 #include "nt/objects_nt.hpp"
 #include "reader.hpp"
 #include "utils/file.hpp"
@@ -31,18 +31,17 @@ namespace
     using json        = nlohmann::json;
     using Callsteps   = std::vector<callstack::callstep_t>;
     using Triggers    = std::vector<bp_trigger_info_t>;
-    using SyscallData = syscall_tracer::SyscallPlugin::Data;
+    using SyscallData = syscall_tracer::SyscallPluginWow64::Data;
 }
 
-struct syscall_tracer::SyscallPlugin::Data
+struct syscall_tracer::SyscallPluginWow64::Data
 {
     Data(core::Core& core, pe::Pe& pe);
 
     core::Core&                            core_;
     pe::Pe&                                pe_;
-    monitor::syscalls                      syscalls_;
+    monitor::syscallswow64                 syscalls_;
     std::shared_ptr<callstack::ICallstack> callstack_;
-    std::shared_ptr<nt::ObjectNt>          objects_;
     Callsteps                              callsteps_;
     Triggers                               triggers_;
     json                                   args_;
@@ -50,21 +49,21 @@ struct syscall_tracer::SyscallPlugin::Data
     uint64_t                               nb_triggers_;
 };
 
-syscall_tracer::SyscallPlugin::Data::Data(core::Core& core, pe::Pe& pe)
+syscall_tracer::SyscallPluginWow64::Data::Data(core::Core& core, pe::Pe& pe)
     : core_(core)
     , pe_(pe)
-    , syscalls_(core, "ntdll")
+    , syscalls_(core, "wntdll")
     , target_()
     , nb_triggers_()
 {
 }
 
-syscall_tracer::SyscallPlugin::SyscallPlugin(core::Core& core, pe::Pe& pe)
+syscall_tracer::SyscallPluginWow64::SyscallPluginWow64(core::Core& core, pe::Pe& pe)
     : d_(std::make_unique<Data>(core, pe))
 {
 }
 
-syscall_tracer::SyscallPlugin::~SyscallPlugin()
+syscall_tracer::SyscallPluginWow64::~SyscallPluginWow64()
 {
 }
 
@@ -146,7 +145,7 @@ namespace
     }
 }
 
-bool syscall_tracer::SyscallPlugin::setup(proc_t target)
+bool syscall_tracer::SyscallPluginWow64::setup(proc_t target)
 {
     d_->target_      = target;
     d_->nb_triggers_ = 0;
@@ -155,57 +154,17 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
     if(!d_->callstack_)
         FAIL(false, "Unable to create callstack object");
 
-    d_->objects_ = nt::make_objectnt(d_->core_);
-    if(!d_->objects_)
-        FAIL(false, "Unable to create ObjectNt object");
-
-    d_->syscalls_.register_NtWriteFile(target, [=](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/, nt::PVOID /*ApcContext*/,
-                                                   nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::PVOID Buffer, nt::ULONG Length,
-                                                   nt::PLARGE_INTEGER /*ByteOffsetm*/, nt::PULONG /*Key*/)
+    d_->syscalls_.register_all(target, [=]()
     {
-        std::vector<char> buf(Length);
-        const auto proc   = d_->target_;
-        const auto reader = reader::make(d_->core_, proc);
-        const auto ok     = reader.read(&buf[0], Buffer, Length);
-        if(!ok)
-            return 1;
-
-        buf[Length - 1] = 0;
-        const auto obj          = d_->objects_->get_object_ref(proc, FileHandle);
-        const auto obj_typename = d_->objects_->obj_typename(proc, *obj);
-        const auto obj_filename = d_->objects_->fileobj_filename(proc, *obj);
-        const auto device_obj   = d_->objects_->fileobj_deviceobject(proc, *obj);
-        const auto driver_obj   = d_->objects_->deviceobj_driverobject(proc, *device_obj);
-        const auto driver_name  = d_->objects_->driverobj_drivername(proc, *driver_obj);
-        LOG(INFO, " File handle; {:#x}, typename : {}, filename : {}, driver_name : {}", FileHandle, obj_typename->data(), obj_filename->data(), driver_name->data());
-
-        d_->args_[d_->nb_triggers_]["FileName"] = obj_filename->data();
-        d_->args_[d_->nb_triggers_]["Buffer"]   = buf;
         private_get_callstack(*d_);
         d_->nb_triggers_++;
-        return 0;
-    });
-
-    d_->syscalls_.register_NtClose(target, [=](nt::HANDLE paramHandle)
-    {
-        d_->args_[d_->nb_triggers_]["Handle"] = paramHandle;
-        private_get_callstack(*d_);
-        d_->nb_triggers_++;
-        return 0;
-    });
-
-    d_->syscalls_.register_NtDeviceIoControlFile(target, [=](nt::HANDLE /*FileHandle*/, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,
-                                                             nt::PVOID /*ApcContext*/, nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::ULONG /*IoControlCode*/,
-                                                             nt::PVOID /*InputBuffer*/, nt::ULONG /*InputBufferLength*/, nt::PVOID /*OutputBuffer*/,
-                                                             nt::ULONG /*OutputBufferLength*/)
-    {
         return 0;
     });
 
     return true;
 }
 
-bool syscall_tracer::SyscallPlugin::generate(const fs::path& file_name)
+bool syscall_tracer::SyscallPluginWow64::generate(const fs::path& file_name)
 {
     const auto output = create_calltree(d_->core_, d_->triggers_, d_->args_, d_->target_, d_->callsteps_);
     const auto dump   = output.dump();

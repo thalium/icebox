@@ -274,7 +274,7 @@ bool CallstackNt::get_callstack64(proc_t proc, callstack::context_t ctx, const c
     const auto max_cs_depth = size_t(150);
     const auto reader       = reader::make(core_, proc);
 
-    const auto stack_bounds = core_.os->get_stack_bounds(proc);
+    const auto stack_bounds = core_.os->stack_curr_bounds(proc);
     if(!stack_bounds)
         return false;
 
@@ -363,7 +363,7 @@ bool CallstackNt::get_callstack32(proc_t proc, callstack::context_t ctx, const c
     const auto max_cs_depth = size_t(150);
     const auto reader       = reader::make(core_, proc);
 
-    const auto stack_bounds = core_.os->get_stack_bounds(proc);
+    const auto stack_bounds = core_.os->stack_curr_bounds(proc);
     if(!stack_bounds)
         return false;
 

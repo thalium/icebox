@@ -8,8 +8,6 @@
 
 namespace
 {
-    static const int pointer_size = 0x8;
-
     opt<arg_t> to_arg(const opt<uint64_t>& arg)
     {
         if(!arg)
@@ -17,39 +15,86 @@ namespace
 
         return arg_t{*arg};
     }
+
+    opt<uint64_t> get_stack_by_index64(core::Core& core, size_t index)
+    {
+        const auto rsp    = core.regs.read(FDP_RSP_REGISTER);
+        const auto reader = reader::make(core);
+        return reader.read(rsp + index * sizeof(uint64_t));
+    }
+
+    opt<uint64_t> get_stack_by_index32(core::Core& core, size_t index)
+    {
+        const auto esp    = core.regs.read(FDP_RSP_REGISTER);
+        const auto reader = reader::make(core);
+        const auto val = reader.le32(esp + index * sizeof(uint32_t));
+        if(!val)
+            return {};
+
+        return *val & 0x00000000ffffffff;
+    }
+
+    opt<arg_t> get_arg_by_index64(core::Core& core, size_t index)
+    {
+        static const int pointer_size = 0x8;
+        switch(index)
+        {
+            case 0:     return to_arg  (core.regs.read(FDP_RCX_REGISTER));
+            case 1:     return to_arg  (core.regs.read(FDP_RDX_REGISTER));
+            case 2:     return to_arg  (core.regs.read(FDP_R8_REGISTER));
+            case 3:     return to_arg  (core.regs.read(FDP_R9_REGISTER));
+            default:    return to_arg  (get_stack_by_index64(core, index + 1));
+        }
+    }
+
+    opt<arg_t> get_arg_by_index32(core::Core& core, size_t index)
+    {
+        static const int pointer_size = 0x4;
+        return to_arg (get_stack_by_index32(core, index + 1));
+    }
+
+    bool set_arg_by_index64(core::Core& core, size_t index, uint64_t value)
+    {
+        static const int pointer_size = 0x8;
+        switch(index)
+        {
+            case 0:     return core.regs.write(FDP_RCX_REGISTER, value);
+            case 1:     return core.regs.write(FDP_RDX_REGISTER, value);
+            case 2:     return core.regs.write(FDP_R8_REGISTER, value);
+            case 3:     return core.regs.write(FDP_R9_REGISTER, value);
+            default:    return monitor::set_stack_by_index(core, index + 1, value);
+        }
+    }
+
+    bool set_arg_by_index32(core::Core& core, size_t index, uint64_t value)
+    {
+        // TODO : cast value to uint32_t !!
+        return monitor::set_stack_by_index(core, index + 1, value);
+    }
 }
 
 opt<arg_t> monitor::get_arg_by_index(core::Core& core, size_t index)
 {
-    // TODO Deal with x86
-    switch(index)
-    {
-        case 0:     return to_arg  (core.regs.read(FDP_RCX_REGISTER));
-        case 1:     return to_arg  (core.regs.read(FDP_RDX_REGISTER));
-        case 2:     return to_arg  (core.regs.read(FDP_R8_REGISTER));
-        case 3:     return to_arg  (core.regs.read(FDP_R9_REGISTER));
-        default:    return to_arg  (monitor::get_stack_by_index(core, index + 1));
-    }
+    if(core.os->proc_ctx_is_x64())
+        return get_arg_by_index64(core, index);
+
+    return get_arg_by_index32(core, index);
 }
 
 bool monitor::set_arg_by_index(core::Core& core, size_t index, uint64_t value)
 {
-    // TODO Deal with x86
-    switch(index)
-    {
-        case 0:     return core.regs.write(FDP_RCX_REGISTER, value);
-        case 1:     return core.regs.write(FDP_RDX_REGISTER, value);
-        case 2:     return core.regs.write(FDP_R8_REGISTER, value);
-        case 3:     return core.regs.write(FDP_R9_REGISTER, value);
-        default:    return monitor::set_stack_by_index(core, index + 1, value);
-    }
+    if(core.os->proc_ctx_is_x64())
+        return set_arg_by_index64(core, index, value);
+
+    return set_arg_by_index32(core, index, value);
 }
 
 opt<uint64_t> monitor::get_stack_by_index(core::Core& core, size_t index)
 {
-    const auto rsp    = core.regs.read(FDP_RSP_REGISTER);
-    const auto reader = reader::make(core);
-    return reader.read(rsp + index * pointer_size);
+    if(core.os->proc_ctx_is_x64())
+        return get_stack_by_index64(core, index);
+
+    return get_stack_by_index32(core, index);
 }
 
 bool monitor::set_stack_by_index(core::Core& /*core*/, size_t /*index*/, uint64_t /*value*/)

@@ -13,7 +13,8 @@ def generate_usings(json_data, namespace, pad):
         if len(types):
             types[0] = namespace + "::" + types[0]
         name = "on_%s_fn" % target
-        lines.append("    using %s = std::function<%s::%s(%s)>;" % (name.ljust(pad), namespace, return_type, ", nt::".join(types)))
+        args_list = ", %s::" % namespace
+        lines.append("    using %s = std::function<%s::%s(%s)>;" % (name.ljust(pad), namespace, return_type, args_list.join(types)))
     return data + "\n".join(lines)
 
 def generate_registers(json_data, pad):
@@ -30,7 +31,7 @@ def generate_header(json_data, filename, namespace, pad):
 #include "core.hpp"
 #include "types.hpp"
 
-#include "{namespace}/{namespace}.hpp"
+#include "nt/{namespace}.hpp"
 
 #include <functional>
 
@@ -79,7 +80,7 @@ def generate_observers(json_data, pad):
         lines.append("    std::vector<%s observers_%s;" % (on, target))
     return data + "\n".join(lines)
 
-def generate_dispatchers(json_data, filename):
+def generate_dispatchers(json_data, filename, namespace):
     dispatchers = ""
     for target, (return_type, (args)) in json_data.items():
         # print prologue
@@ -96,7 +97,7 @@ def generate_dispatchers(json_data, filename):
         names = []
         formats = []
         for name, typeof in args:
-            dispatchers += "\n        const auto %s = arg<nt::%s>(d.core, %d);" % (name.ljust(pad), typeof, idx)
+            dispatchers += "\n        const auto %s = arg<%s::%s>(d.core, %d);" % (name.ljust(pad), namespace, typeof, idx)
             idx += 1
             names.append(name)
             formats.append("%s:{:#x}" % name)
@@ -114,31 +115,33 @@ def generate_dispatchers(json_data, filename):
 """.format(target=target, args=", ".join(names), fmtargs=", ".join(formats), logargs=", ".join(names))
     return dispatchers
 
-def generate_definitions(json_data, filename):
+def generate_definitions(json_data, filename, wow64):
     definitions = ""
     for target, (return_type, (args)) in json_data.items():
+        symbol_name = target if not wow64 else "_{target}@{size}".format(target=target, size=len(args)*4)
         # print prologue
         definitions += """
 bool monitor::{filename}::register_{target}(proc_t proc, const on_{target}_fn& on_func)
 {{
     if(d_->observers_{target}.empty())
-        if(!register_callback_with(*d_, proc, "{target}", &on_{target}))
+        if(!register_callback_with(*d_, proc, "{symbol_name}", &on_{target}))
             return false;
 
     d_->observers_{target}.push_back(on_func);
     return true;
 }}
-""".format(filename=filename, target=target)
+""".format(filename=filename, target=target, symbol_name=symbol_name)
     return definitions
 
-def generate_names(json_data):
+def generate_names(json_data, wow64):
     data = ""
     lines = []
-    for target, _ in json_data.items():
-        lines.append("      \"%s\"," % target)
+    for target, (return_type, (args)) in json_data.items():
+        elem = "      \"{target}\",".format(target=target) if not wow64 else "      \"_{target}@{size}\",".format(target=target, size=len(args)*4)
+        lines.append(elem)
     return data + "\n".join(lines)
 
-def generate_impl(json_data, filename, namespace, pad):
+def generate_impl(json_data, filename, namespace, pad, wow64):
     return """#include "{filename}.gen.hpp"
 
 #define FDP_MODULE "{filename}"
@@ -243,9 +246,9 @@ bool monitor::{filename}::register_all(proc_t proc, const monitor::{filename}::o
 """.format(filename=filename, namespace=namespace,
         enumerates=generate_enumerates(json_data),
         observers=generate_observers(json_data, pad),
-        dispatchers=generate_dispatchers(json_data, filename),
-        definitions=generate_definitions(json_data, filename),
-        names=generate_names(json_data))
+        dispatchers=generate_dispatchers(json_data, filename, namespace),
+        definitions=generate_definitions(json_data, filename, wow64),
+        names=generate_names(json_data, wow64))
 
 def read_file(filename):
     with open(filename, "rb") as fh:
@@ -259,6 +262,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='auto-generate tracer code')
     parser.add_argument('-i', '--input', type=os.path.abspath, help='input json', required=True)
     parser.add_argument('-n', '--namespace', type=str, help='input namespace', required=True)
+    parser.add_argument('-w', '--wow64', action='store_true', help='generate wow64 verion')
     opts = parser.parse_args()
 
     filename = os.path.basename(opts.input)
@@ -270,7 +274,8 @@ if __name__ == '__main__':
         pad = max(pad, len(target))
 
     filename = filename.replace(".json", "")
+
     header = os.path.join(filedir, filename + ".gen.hpp")
     write_file(header, generate_header(json_data, filename, opts.namespace, pad))
     implementation = os.path.join(filedir, filename + ".gen.cpp")
-    write_file(implementation, generate_impl(json_data, filename, opts.namespace, pad))
+    write_file(implementation, generate_impl(json_data, filename, opts.namespace, pad, opts.wow64))

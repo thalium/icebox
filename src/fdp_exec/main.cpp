@@ -16,6 +16,24 @@
 
 namespace
 {
+    template<typename T>
+    void test_tracer(core::Core& core, pe::Pe& pe, proc_t target)
+    {
+        T syscall_plugin(core, pe);
+        syscall_plugin.setup(target);
+
+        LOG(INFO, "Everything is set up ! Please trigger some syscalls");
+
+        const auto n = 100;
+        for(size_t i = 0; i < n; ++i)
+        {
+            core.state.resume();
+            core.state.wait();
+        }
+
+        syscall_plugin.generate("output.json");
+    }
+
     bool test_core(core::Core& core, pe::Pe& pe)
     {
         LOG(INFO, "drivers:");
@@ -211,19 +229,10 @@ namespace
 
         // test syscall plugin
         {
-            syscall_tracer::SyscallPlugin syscall_plugin(core, pe);
-            syscall_plugin.setup(*target);
-
-            LOG(INFO, "Everything is set up ! Please trigger some syscalls");
-
-            const auto n = 100;
-            for(size_t i = 0; i < n; ++i)
-            {
-                core.state.resume();
-                core.state.wait();
-            }
-
-            syscall_plugin.generate("output.json");
+            if(core.os->proc_is_wow64(*target))
+                test_tracer<syscall_tracer::SyscallPluginWow64>(core, pe, *target);
+            else
+                test_tracer<syscall_tracer::SyscallPlugin>(core, pe, *target);
         }
 
         return true;

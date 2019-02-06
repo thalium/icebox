@@ -72,7 +72,7 @@ function(add_tracer namespace input_file)
     get_filename_component(filename ${input_file} NAME_WE)
     add_custom_command(
         COMMAND ${PYTHON_EXECUTABLE}
-            "${monitor_dir}/codegen.py" -n ${namespace} -i "${input_file}"
+            "${monitor_dir}/codegen.py" -n ${namespace} -i "${input_file}" ${ARGV2}
         OUTPUT
             "${directory}/${filename}.gen.hpp"
             "${directory}/${filename}.gen.cpp"
@@ -83,6 +83,7 @@ function(add_tracer namespace input_file)
     )
 endfunction()
 add_tracer("nt" "${monitor_dir}/syscalls.json")
+add_tracer("wntdll" "${monitor_dir}/syscallswow64.json" "-w")
 add_tracer("nt" "${monitor_dir}/heaps.json")
 
 # fdp_exec
