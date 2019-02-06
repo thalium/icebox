@@ -10,7 +10,7 @@ get_filename_component(bin_dir      ${root_dir}/bin/fdp_${ARCH}    ABSOLUTE)
 
 # fdp
 function(add_fdp target options)
-    add_target(${target} libs "${root_dir}/src/FDP" OPTIONS recurse warnings ${options})
+    add_target(${target} libs "${root_dir}/src/FDP" OPTIONS recurse warnings fmt ${options})
     set_target_output_directory(${target} "")
     target_include_directories(${target} PUBLIC "${root_dir}/src/FDP/include")
     target_compile_definitions(${target} PRIVATE _CRT_SECURE_NO_WARNINGS)

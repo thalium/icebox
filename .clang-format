@@ -1,6 +1,7 @@
 ---
 Language: Cpp
 
+AlignConsecutiveAssignments:        true
 AlignEscapedNewlines:               Left
 AllowShortCaseLabelsOnASingleLine:  true
 BreakBeforeBinaryOperators:         NonAssignment

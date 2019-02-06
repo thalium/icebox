@@ -381,12 +381,13 @@ function(setup_clang_format target)
         get_filename_component(f ${f} ABSOLUTE)
         list(APPEND files ${f})
     endforeach()
-    add_custom_command(TARGET ${target}
-        PRE_BUILD COMMAND
-        ${PYTHON_EXECUTABLE}
-        "${root_dir}/build/format.py"
-        ${CLANG_FORMAT}
-        ${files}
+    add_custom_target(${target}_fmt
+        COMMAND
+            ${PYTHON_EXECUTABLE}
+            "${root_dir}/build/format.py"
+            ${target}
+            ${CLANG_FORMAT}
+            ${files}
     )
 endfunction()
 

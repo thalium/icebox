@@ -17,7 +17,7 @@ def write_file(filename, data):
         fd.write(data.encode("utf-8"))
     finally:
         fd.close()
-    for x in range(0, 4):
+    for _ in range(0, 4):
         try:
             shutil.move(fd.name, filename)
             return
@@ -87,7 +87,7 @@ def main():
     ]
     fields = [
         # align case ...: return ...;
-        (4, r" +(?:case .+|default):", " +", r".+;"),
+        (4, r" +(?:case .+|default):", " +", r"[^ ].+;"),
         # align member ... : bitfield;
         (4, r" +.+[^ ]", " +", r": \d+;"),
         # align #define MACRO(...) ...
@@ -95,11 +95,11 @@ def main():
         # align members (or try to...)
         (0, r" *[a-zA-Z_][a-zA-Z0-9_:<>*&, ]*", " +", r"[a-zA-Z_][a-zA-Z0-9_[\]]*(?:\[\d+\])?;"),
         # align ... = ...
-        (0, r" *\b(?:using |(?:const )?auto[&*]? )?[^\n ]+", " +", r"= .+?"),
+        (0, r" *\b(?:using )?[^\n ]+", " +", r"= .+?"),
         # align method names
-        (4, r" *\b[^\n=]*?[^\n=, ]", " +", r"(?:\b\w+|\(\*\w+\)) *\([^\n=]*\)(?: *const)?(?: override| = 0)?;"),
+        (4, r" *\b[^\n=]*?[^\n=, +]", " +", r"(?:\b\w+|\(\*\w+\)) *\([^\n={}]*\)(?: *const)?(?: override| = 0)?;"),
         # align method parameters
-        (4, r" *\b[^\n=]*?[^\n=, ] +(?:\b\w+|\(\*\w+\))", " *", r"\([^\n=]*\)(?: *const)?(?: override| = 0)?;"),
+        (4, r" *\b[^\n=]*?[^\n=, ] +(?:\b\w+|\(\*\w+\))", " *", r"\([^\n={}]*\)(?: *const)?(?: override| = 0)?;"),
     ]
     post_patterns = [
         # align constructor with destructor
@@ -130,7 +130,7 @@ def main():
         return int(round(arg * 1000))
 
     # store last modified times
-    files = sys.argv[2:]
+    files = sys.argv[3:]
     targets = []
     for filename in files:
         data = read_file(filename)
@@ -140,7 +140,8 @@ def main():
         targets.append((filename, data, (atime, mtime)))
 
     # call clang on all files which *WILL* modify them
-    clang = os.path.abspath(sys.argv[1])
+    target = sys.argv[1]
+    clang = os.path.abspath(sys.argv[2])
     subprocess.check_output([clang, "-i", "-style=file"] + files)
 
     for filename, data, modified in targets:
@@ -156,8 +157,8 @@ def main():
         if value == data:
             os.utime(filename, modified)
         else:
-            print("fmt: %s" % os.path.basename(filename))
-    print("fmt: %d files %dms" % (len(files), round_time(total)))
+            print("fmt: %s/%s" % (target, os.path.basename(filename)))
+    print("fmt: %s %d files %dms" % (target, len(files), round_time(total)))
 
 if __name__ == "__main__":
     main()
