@@ -18,6 +18,7 @@ enum walk_e
 enum msr_e
 {
     MSR_LSTAR          = 0xC0000082,
+    MSR_FS_BASE        = 0xC0000100,
     MSR_GS_BASE        = 0xC0000101,
     MSR_KERNEL_GS_BASE = 0xC0000102,
 };

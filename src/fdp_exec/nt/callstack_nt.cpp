@@ -115,6 +115,9 @@ namespace
         // callstack::ICallstack
         bool get_callstack(proc_t proc, callstack::context_t context, const callstack::on_callstep_fn& on_callstep) override;
 
+        bool get_callstack64(proc_t proc, callstack::context_t context, const callstack::on_callstep_fn& on_callstep);
+        bool get_callstack32(proc_t proc, callstack::context_t context, const callstack::on_callstep_fn& on_callstep);
+
         // methods
         bool                    setup                   ();
         opt<FunctionTable>      get_mod_functiontable   (proc_t proc, const std::string& name, const span_t module);
@@ -264,17 +267,23 @@ opt<FunctionTable> CallstackNt::get_mod_functiontable(proc_t proc, const std::st
     return insert(proc, name, span);
 }
 
-bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const callstack::on_callstep_fn& on_callstep)
+bool CallstackNt::get_callstack64(proc_t proc, callstack::context_t ctx, const callstack::on_callstep_fn& on_callstep)
 {
+    static const auto reg_size = 8;
     std::vector<uint8_t> buffer;
     const auto max_cs_depth = size_t(150);
     const auto reader       = reader::make(core_, proc);
+
+    const auto stack_bounds = core_.os->get_stack_bounds(proc);
+    if(!stack_bounds)
+        return false;
+
     for(size_t i = 0; i < max_cs_depth; ++i)
     {
         // Get module from address
         const auto mod = find_mod(proc, ctx.rip);
         if(!mod)
-            FAIL(false, "Unable to find module");
+            return false;
 
         const auto modname = core_.os->mod_name(proc, *mod);
         const auto span    = core_.os->mod_span(proc, *mod);
@@ -317,12 +326,19 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const cal
                 ctx.rbp = *rbp_;
 
         const auto caller_addr_on_stack = ctx.rsp + *stack_frame_size;
+
+        //Check if caller's address on stack is consistent, if not we suppose that the end of the callstack has been reached
+        if(stack_bounds->addr > caller_addr_on_stack || stack_bounds->addr+stack_bounds->size < caller_addr_on_stack)
+            return true;
+
         const auto return_addr          = reader.read(caller_addr_on_stack);
+        if(!return_addr)
+            FAIL(false, "Unable to read return address at {:#x}", caller_addr_on_stack);
 
 #ifdef USE_DEBUG_PRINT
         // print stack
         const auto print_d = 25;
-        for(int k = -3 * 8; k < print_d * 8; k += 8)
+        for(int k = -3 * reg_size; k < print_d * reg_size; k += reg_size)
         {
             LOG(INFO, "{:#x} - {:#x}", ctx.rsp + *stack_frame_size + k, *core::read_ptr(core_, ctx.rsp + *stack_frame_size + k));
         }
@@ -334,18 +350,58 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const cal
             return true;
 
         ctx.rip = *return_addr;
-        ctx.rsp = caller_addr_on_stack + 8;
+        ctx.rsp = caller_addr_on_stack + reg_size;
     }
 
     return true;
+}
+
+bool CallstackNt::get_callstack32(proc_t proc, callstack::context_t ctx, const callstack::on_callstep_fn& on_callstep)
+{
+    static const auto reg_size = 4;
+    std::vector<uint8_t> buffer;
+    const auto max_cs_depth = size_t(150);
+    const auto reader       = reader::make(core_, proc);
+
+    const auto stack_bounds = core_.os->get_stack_bounds(proc);
+    if(!stack_bounds)
+        return false;
+
+    for(size_t i = 0; i < max_cs_depth; ++i)
+    {
+        if(stack_bounds->addr > ctx.rbp || stack_bounds->addr+stack_bounds->size < ctx.rbp)
+            return true;
+
+        const auto caller_addr_on_stack = reader.le32(ctx.rbp);
+        if(!caller_addr_on_stack)
+            FAIL(false, "Unable to read caller address on stack at %lx", ctx.rbp);
+
+        const auto return_addr          = reader.le32(ctx.rbp + reg_size);
+        if(!return_addr)
+            FAIL(false, "Unable to read return address at {}", ctx.rbp + reg_size);
+
+        if(on_callstep(callstack::callstep_t{ctx.rip}) == WALK_STOP)
+            return true;
+
+        ctx.rip = *return_addr;
+        ctx.rbp = *caller_addr_on_stack;
+    }
+    return true;
+}
+
+bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const callstack::on_callstep_fn& on_callstep)
+{
+    if(ctx.is_x64 == true)
+        return get_callstack64(proc, ctx, on_callstep);
+
+    return get_callstack32(proc, ctx, on_callstep);
 }
 
 namespace
 {
     void get_unwind_codes(Unwinds& unwind_codes, function_entry_t& function_entry, const std::vector<uint8_t>& buffer, size_t unwind_codes_size, size_t chained_info_size)
     {
-        uint32_t register_size = 0x08; // TODO Defined this somewhere else
-
+        static const auto reg_size = 0x08; // TODO Defined this somewhere else
         size_t idx = 0;
         while(idx < unwind_codes_size - chained_info_size)
         {
@@ -356,7 +412,7 @@ namespace
                 case UWOP_PUSH_NONVOL:
                     if(unwind_code_info == UWINFO_RBP)
                         function_entry.prev_frame_reg = function_entry.stack_frame_size;
-                    function_entry.stack_frame_size += register_size;
+                    function_entry.stack_frame_size += reg_size;
                     break;
 
                 case UWOP_ALLOC_LARGE:

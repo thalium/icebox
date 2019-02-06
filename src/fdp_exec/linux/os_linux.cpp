@@ -37,6 +37,7 @@ namespace
         // os::IModule
         bool    is_kernel   (uint64_t ptr) override;
         bool    reader_setup(reader::Reader& reader, proc_t proc) override;
+        bool    setup_wow64(proc_t proc) override;
 
         bool                proc_list       (const on_proc_fn& on_process) override;
         opt<proc_t>         proc_current    () override;
@@ -46,9 +47,12 @@ namespace
         bool                proc_is_valid   (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
         opt<bool>           proc_is_wow64   (proc_t proc) override;
+        bool                proc_ctx_is_x64 () override;
         void                proc_join       (proc_t proc, os::join_e join) override;
         opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
+
+        opt<span_t>     stack_curr_bounds(proc_t proc) override;
 
         bool            thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
         opt<thread_t>   thread_current  () override;
@@ -57,8 +61,11 @@ namespace
         uint64_t        thread_id       (proc_t proc, thread_t thread) override;
 
         bool                mod_list(proc_t proc, const on_mod_fn& on_module) override;
+        bool                mod_list32(proc_t proc, const on_mod_fn& on_module) override;
         opt<std::string>    mod_name(proc_t proc, mod_t mod) override;
+        opt<std::string>    mod_name32(proc_t proc, mod_t mod) override;
         opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
+        opt<span_t>         mod_span32(proc_t proc, mod_t mod) override;
         opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
 
         bool                driver_list (const on_driver_fn& on_driver) override;
@@ -101,6 +108,15 @@ std::unique_ptr<os::IModule> os::make_linux(core::Core& core)
         return nullptr;
 
     return oslinux;
+}
+
+bool    OsLinux::setup_wow64(proc_t /*proc*/)
+{
+    return true;
+}
+opt<span_t>     OsLinux::stack_curr_bounds(proc_t /*proc*/)
+{
+    return {};
 }
 
 bool OsLinux::proc_list(const on_proc_fn& on_process)
@@ -206,6 +222,11 @@ opt<bool> OsLinux::proc_is_wow64(proc_t /*proc*/)
     return {};
 }
 
+bool OsLinux::proc_ctx_is_x64()
+{
+    return {};
+}
+
 void OsLinux::proc_join(proc_t /*proc*/, os::join_e /*join*/)
 {
 }
@@ -261,12 +282,27 @@ bool OsLinux::mod_list(proc_t /*proc*/, const on_mod_fn& on_module)
     return true;
 }
 
+bool OsLinux::mod_list32(proc_t /*proc*/, const on_mod_fn& /*on_module*/)
+{
+    return true;
+}
+
 opt<std::string> OsLinux::mod_name(proc_t /*proc*/, mod_t /*mod*/)
 {
     return {};
 }
 
+opt<std::string> OsLinux::mod_name32(proc_t /*proc*/, mod_t /*mod*/)
+{
+    return {};
+}
+
 opt<span_t> OsLinux::mod_span(proc_t /*proc*/, mod_t /*mod*/)
+{
+    return {};
+}
+
+opt<span_t> OsLinux::mod_span32(proc_t /*proc*/, mod_t /*mod*/)
 {
     return {};
 }

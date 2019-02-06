@@ -83,7 +83,7 @@ namespace
         const auto rip = d.core_.regs.read(FDP_RIP_REGISTER);
         const auto rsp = d.core_.regs.read(FDP_RSP_REGISTER);
         const auto rbp = d.core_.regs.read(FDP_RBP_REGISTER);
-        d.callstack_->get_callstack(d.target_, {rip, rsp, rbp}, [&](callstack::callstep_t cstep)
+        d.callstack_->get_callstack(d.target_, {rip, rsp, rbp, d.core_.os->proc_ctx_is_x64()}, [&](callstack::callstep_t cstep)
         {
             auto cursor = d.core_.sym.find(cstep.addr);
             if(!cursor)

@@ -76,6 +76,14 @@ opt<uint64_t> reader::Reader::read(uint64_t ptr) const
         return read_mem<uint64_t, ::read_be64>(*this, ptr);
 }
 
+opt<uint32_t> reader::Reader::read32(uint64_t ptr) const
+{
+    if constexpr(is_little_endian)
+        return read_mem<uint32_t, ::read_le32>(*this, ptr);
+    else
+        return read_mem<uint32_t, ::read_be32>(*this, ptr);
+}
+
 bool reader::Reader::read(void* dst, uint64_t ptr, size_t size) const
 {
     const auto dtb = core_.os->is_kernel(ptr) ? kdtb_ : udtb_;
