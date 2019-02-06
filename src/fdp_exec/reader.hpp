@@ -21,7 +21,6 @@ namespace reader
         opt<uint32_t>   be32    (uint64_t ptr) const;
         opt<uint64_t>   be64    (uint64_t ptr) const;
         opt<uint64_t>   read    (uint64_t ptr) const;
-        opt<uint32_t>   read32  (uint64_t ptr) const;
         bool            read    (void* dst, uint64_t ptr, size_t size) const;
         opt<phy_t>      physical(uint64_t ptr) const;
 

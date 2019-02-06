@@ -507,13 +507,13 @@ bool OsNt::setup_wow64(proc_t proc)
     if(!*peb32)
         return true;
 
-    const auto ldr32 = reader.read32(*peb32 + members_[PEB32_Ldr]);
+    const auto ldr32 = reader.le32(*peb32 + members_[PEB32_Ldr]);
     if(!ldr32)
         FAIL(false, "unable to read PEB32.Ldr");
 
     bool found = false;
     const auto head = *ldr32 + offsetof(peb_ldr_data32_t, InLoadOrderModuleList);
-    for(auto link = reader.read32(head); link && link != head; link = reader.read32(*link))
+    for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
     {
         const mod_t mod = {*link - offsetof(ldr_data_table_entry_t, InLoadOrderLinks)};
         const auto name = read_unicode_string32(reader, mod.id + offsetof(ldr_data_table_entry_t, FullDllName));
@@ -524,8 +524,8 @@ bool OsNt::setup_wow64(proc_t proc)
             continue;
 
         found = true;
-        const auto base = reader.read32(mod.id + offsetof(ldr_data_table_entry_t, DllBase));
-        const auto size = reader.read32(mod.id + offsetof(ldr_data_table_entry_t, SizeOfImage));
+        const auto base = reader.le32(mod.id + offsetof(ldr_data_table_entry_t, DllBase));
+        const auto size = reader.le32(mod.id + offsetof(ldr_data_table_entry_t, SizeOfImage));
         if(!base || !size)
             FAIL(false, "Unable to read wntdll's span");
 
@@ -648,12 +648,12 @@ bool OsNt::mod_list32(proc_t proc, const on_mod_fn& on_mod)
     if(!*peb32)
         return true;
 
-    const auto ldr32 = reader.read32(*peb32 + members_[PEB32_Ldr]);
+    const auto ldr32 = reader.le32(*peb32 + members_[PEB32_Ldr]);
     if(!ldr32)
         FAIL(false, "unable to read PEB32.Ldr");
 
     const auto head = *ldr32 + members_[PEB_LDR_DATA32_InLoadOrderModuleList];
-    for(auto link = reader.read32(head); link && link != head; link = reader.read32(*link))
+    for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
         if(on_mod({*link - members_[LDR_DATA_TABLE_ENTRY32_InLoadOrderLinks]}) == WALK_STOP)
             break;
 
@@ -698,8 +698,8 @@ opt<span_t> OsNt::stack_curr_bounds(proc_t proc)
         const auto teb = core_.regs.read(MSR_FS_BASE);
         const auto nt_tib = teb + members_[TEB32_NtTib];
 
-        const auto stack_base = reader.read32(nt_tib + members_[NT_TIB32_StackBase]);
-        const auto stack_limit = reader.read32(nt_tib + members_[NT_TIB32_StackLimit]);
+        const auto stack_base = reader.le32(nt_tib + members_[NT_TIB32_StackBase]);
+        const auto stack_limit = reader.le32(nt_tib + members_[NT_TIB32_StackLimit]);
         if(!stack_base || !stack_limit)
             FAIL({}, "Unable to stack bounds");
 
@@ -740,11 +740,11 @@ opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
 opt<span_t> OsNt::mod_span32(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    const auto base   = reader.read32(mod.id +  members_[LDR_DATA_TABLE_ENTRY32_DllBase]);
+    const auto base   = reader.le32(mod.id +  members_[LDR_DATA_TABLE_ENTRY32_DllBase]);
     if(!base)
         return {};
 
-    const auto size = reader.read32(mod.id + members_[LDR_DATA_TABLE_ENTRY32_SizeOfImage]);
+    const auto size = reader.le32(mod.id + members_[LDR_DATA_TABLE_ENTRY32_SizeOfImage]);
     if(!size)
         return {};
 
