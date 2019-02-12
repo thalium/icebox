@@ -50,7 +50,7 @@ bool core::Registers::write(reg_e reg, uint64_t value)
 uint64_t core::Registers::read(msr_e reg)
 {
     uint64_t value = 0;
-    const auto ok = FDP_ReadMsr(&d_->shm_, 0, reg, &value);
+    const auto ok  = FDP_ReadMsr(&d_->shm_, 0, reg, &value);
     if(!ok)
         return 0;
 

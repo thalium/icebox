@@ -7,16 +7,16 @@
 #    include <filesystem>
 #    include <optional>
 template <typename T>
-using opt = std::optional<T>;
+using opt     = std::optional<T>;
 namespace ext = std;
-namespace fs = std::filesystem;
+namespace fs  = std::filesystem;
 #else
 #    include <experimental/filesystem>
 #    include <experimental/optional>
 template <typename T>
-using opt = std::experimental::optional<T>;
+using opt     = std::experimental::optional<T>;
 namespace ext = std::experimental;
-namespace fs = std::experimental::filesystem;
+namespace fs  = std::experimental::filesystem;
 #endif
 
 struct dtb_t

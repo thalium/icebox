@@ -152,4 +152,4 @@ namespace wntdll
         memcpy(&value, &src.val, sizeof value);
         return value;
     };
-} // namespace nt
+} // namespace wntdll

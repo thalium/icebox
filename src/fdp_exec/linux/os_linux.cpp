@@ -37,7 +37,7 @@ namespace
         // os::IModule
         bool    is_kernel   (uint64_t ptr) override;
         bool    reader_setup(reader::Reader& reader, proc_t proc) override;
-        bool    setup_wow64(proc_t proc) override;
+        bool    setup_wow64 (proc_t proc) override;
 
         bool                proc_list       (const on_proc_fn& on_process) override;
         opt<proc_t>         proc_current    () override;
@@ -52,7 +52,7 @@ namespace
         opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
 
-        opt<span_t>     stack_curr_bounds(proc_t proc) override;
+        opt<span_t> stack_curr_bounds(proc_t proc) override;
 
         bool            thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
         opt<thread_t>   thread_current  () override;
@@ -60,13 +60,13 @@ namespace
         opt<uint64_t>   thread_pc       (proc_t proc, thread_t thread) override;
         uint64_t        thread_id       (proc_t proc, thread_t thread) override;
 
-        bool                mod_list(proc_t proc, const on_mod_fn& on_module) override;
-        bool                mod_list32(proc_t proc, const on_mod_fn& on_module) override;
-        opt<std::string>    mod_name(proc_t proc, mod_t mod) override;
-        opt<std::string>    mod_name32(proc_t proc, mod_t mod) override;
-        opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
-        opt<span_t>         mod_span32(proc_t proc, mod_t mod) override;
-        opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
+        bool                mod_list    (proc_t proc, const on_mod_fn& on_module) override;
+        bool                mod_list32  (proc_t proc, const on_mod_fn& on_module) override;
+        opt<std::string>    mod_name    (proc_t proc, mod_t mod) override;
+        opt<std::string>    mod_name32  (proc_t proc, mod_t mod) override;
+        opt<span_t>         mod_span    (proc_t proc, mod_t mod) override;
+        opt<span_t>         mod_span32  (proc_t proc, mod_t mod) override;
+        opt<mod_t>          mod_find    (proc_t proc, uint64_t addr) override;
 
         bool                driver_list (const on_driver_fn& on_driver) override;
         opt<driver_t>       driver_find (const std::string& name) override;
@@ -110,11 +110,11 @@ std::unique_ptr<os::IModule> os::make_linux(core::Core& core)
     return oslinux;
 }
 
-bool    OsLinux::setup_wow64(proc_t /*proc*/)
+bool OsLinux::setup_wow64(proc_t /*proc*/)
 {
     return true;
 }
-opt<span_t>     OsLinux::stack_curr_bounds(proc_t /*proc*/)
+opt<span_t> OsLinux::stack_curr_bounds(proc_t /*proc*/)
 {
     return {};
 }
@@ -182,8 +182,8 @@ opt<proc_t> OsLinux::proc_find(uint64_t pid)
 opt<std::string> OsLinux::proc_name(proc_t proc)
 {
     char buffer[14 + 1];
-    const auto reader = reader::make(core_, proc);
-    const auto ok     = reader.read(buffer, proc.id + members_.name, sizeof buffer);
+    const auto reader         = reader::make(core_, proc);
+    const auto ok             = reader.read(buffer, proc.id + members_.name, sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
         return {};

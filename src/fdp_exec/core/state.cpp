@@ -139,7 +139,7 @@ namespace
     bool try_pause(StateData& d)
     {
         FDP_State state = FDP_STATE_NULL;
-        const auto ok = FDP_GetState(&d.shm, &state);
+        const auto ok   = FDP_GetState(&d.shm, &state);
         if(!ok)
             return false;
 
@@ -162,7 +162,7 @@ namespace
     bool try_resume(StateData& d)
     {
         FDP_State state = FDP_STATE_NULL;
-        const auto ok = FDP_GetState(&d.shm, &state);
+        const auto ok   = FDP_GetState(&d.shm, &state);
         if(!ok)
             return false;
 
@@ -225,7 +225,7 @@ namespace
 {
     void check_breakpoints(StateData& d)
     {
-        FDP_State state = FDP_STATE_NULL;
+        FDP_State state      = FDP_STATE_NULL;
         const auto has_state = FDP_GetState(&d.shm, &state);
         if(!has_state)
             return;

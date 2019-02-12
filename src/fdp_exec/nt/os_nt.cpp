@@ -173,7 +173,7 @@ namespace
         // os::IModule
         bool    is_kernel   (uint64_t ptr) override;
         bool    reader_setup(reader::Reader& reader, proc_t proc) override;
-        bool    setup_wow64(proc_t proc) override;
+        bool    setup_wow64 (proc_t proc) override;
 
         bool                proc_list       (const on_proc_fn& on_process) override;
         opt<proc_t>         proc_current    () override;
@@ -188,7 +188,7 @@ namespace
         opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
 
-        opt<span_t>     stack_curr_bounds(proc_t proc) override;
+        opt<span_t> stack_curr_bounds(proc_t proc) override;
 
         bool            thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
         opt<thread_t>   thread_current  () override;
@@ -196,13 +196,13 @@ namespace
         opt<uint64_t>   thread_pc       (proc_t proc, thread_t thread) override;
         uint64_t        thread_id       (proc_t proc, thread_t thread) override;
 
-        bool                mod_list(proc_t proc, const on_mod_fn& on_module) override;
-        bool                mod_list32(proc_t proc, const on_mod_fn& on_module) override;
-        opt<std::string>    mod_name(proc_t proc, mod_t mod) override;
-        opt<std::string>    mod_name32(proc_t proc, mod_t mod) override;
-        opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
-        opt<span_t>         mod_span32(proc_t proc, mod_t mod) override;
-        opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
+        bool                mod_list    (proc_t proc, const on_mod_fn& on_module) override;
+        bool                mod_list32  (proc_t proc, const on_mod_fn& on_module) override;
+        opt<std::string>    mod_name    (proc_t proc, mod_t mod) override;
+        opt<std::string>    mod_name32  (proc_t proc, mod_t mod) override;
+        opt<span_t>         mod_span    (proc_t proc, mod_t mod) override;
+        opt<span_t>         mod_span32  (proc_t proc, mod_t mod) override;
+        opt<mod_t>          mod_find    (proc_t proc, uint64_t addr) override;
 
         bool                driver_list (const on_driver_fn& on_driver) override;
         opt<driver_t>       driver_find (const std::string& name) override;
@@ -293,7 +293,7 @@ bool OsNt::setup()
             fail |= g_member_offsets[i].e_cat == cat_e::REQUIRED;
             if(g_member_offsets[i].e_cat == cat_e::REQUIRED)
                 LOG(ERROR, "unable to read {}!{}.{} member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
-            else if (g_member_offsets[i].e_cat == cat_e::OPTIONAL)
+            else if(g_member_offsets[i].e_cat == cat_e::OPTIONAL)
                 LOG(WARNING, "unable to read {}!{}.{} member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
             continue;
         }
@@ -463,7 +463,7 @@ namespace
 bool OsNt::setup_wow64(proc_t proc)
 {
 
-#pragma pack(push, 4)       // Remove uint64_t alignment
+#pragma pack(push, 4) // Remove uint64_t alignment
     struct list_entry32_t
     {
         uint32_t flink;
@@ -472,17 +472,17 @@ bool OsNt::setup_wow64(proc_t proc)
 
     struct peb_ldr_data32_t
     {
-        uint32_t        Length;
-        uint8_t         Initialized;
-        uint8_t         Padding_0[3];
-        uint32_t        SsHandle;
-        list_entry32_t  InLoadOrderModuleList;
-        list_entry32_t  InMemoryOrderModuleList;
-        list_entry32_t  InInitializationOrderModuleList;
-        uint32_t        EntryInProgress;
-        uint8_t         ShutdownInProgress;
-        uint8_t         Padding_1[3];
-        uint32_t        ShutdownThreadId;
+        uint32_t       Length;
+        uint8_t        Initialized;
+        uint8_t        Padding_0[3];
+        uint32_t       SsHandle;
+        list_entry32_t InLoadOrderModuleList;
+        list_entry32_t InMemoryOrderModuleList;
+        list_entry32_t InInitializationOrderModuleList;
+        uint32_t       EntryInProgress;
+        uint8_t        ShutdownInProgress;
+        uint8_t        Padding_1[3];
+        uint32_t       ShutdownThreadId;
     };
 
     struct ldr_data_table_entry_t
@@ -499,7 +499,7 @@ bool OsNt::setup_wow64(proc_t proc)
 #pragma pack(pop)
 
     const auto reader = reader::make(core_, proc);
-    const auto peb32 = reader.read(proc.id + members_[EPROCESS_Wow64Process]);
+    const auto peb32  = reader.read(proc.id + members_[EPROCESS_Wow64Process]);
     if(!peb32)
         FAIL(false, "unable to read EPROCESS.Peb32");
 
@@ -511,7 +511,7 @@ bool OsNt::setup_wow64(proc_t proc)
     if(!ldr32)
         FAIL(false, "unable to read PEB32.Ldr");
 
-    bool found = false;
+    bool found      = false;
     const auto head = *ldr32 + offsetof(peb_ldr_data32_t, InLoadOrderModuleList);
     for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
     {
@@ -523,7 +523,7 @@ bool OsNt::setup_wow64(proc_t proc)
         if(name->find("ntdll") == std::string::npos)
             continue;
 
-        found = true;
+        found           = true;
         const auto base = reader.le32(mod.id + offsetof(ldr_data_table_entry_t, DllBase));
         const auto size = reader.le32(mod.id + offsetof(ldr_data_table_entry_t, SizeOfImage));
         if(!base || !size)
@@ -567,7 +567,7 @@ opt<std::string> OsNt::proc_name(proc_t proc)
 {
     // EPROCESS.ImageFileName is 16 bytes, but only 14 are actually used
     char buffer[14 + 1];
-    const auto ok = reader_.read(buffer, proc.id + members_[EPROCESS_ImageFileName], sizeof buffer);
+    const auto ok             = reader_.read(buffer, proc.id + members_[EPROCESS_ImageFileName], sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
         return {};
@@ -610,7 +610,7 @@ bool OsNt::proc_ctx_is_x64()
     const auto segcs = core_.regs.read(FDP_CS_REGISTER);
 
     static const uint64_t WOW64_CS32 = 0x23;
-    const auto context_is_64 = segcs != WOW64_CS32 ? true : false;
+    const auto context_is_64         = segcs != WOW64_CS32 ? true : false;
     return context_is_64;
 }
 
@@ -640,7 +640,7 @@ bool OsNt::mod_list(proc_t proc, const on_mod_fn& on_mod)
 bool OsNt::mod_list32(proc_t proc, const on_mod_fn& on_mod)
 {
     const auto reader = reader::make(core_, proc);
-    const auto peb32 = reader.read(proc.id + members_[EPROCESS_Wow64Process]);
+    const auto peb32  = reader.read(proc.id + members_[EPROCESS_Wow64Process]);
     if(!peb32)
         FAIL(false, "unable to read EPROCESS.Peb32");
 
@@ -695,10 +695,10 @@ opt<span_t> OsNt::stack_curr_bounds(proc_t proc)
     const auto reader = reader::make(core_, proc);
     if(!proc_ctx_is_x64())
     {
-        const auto teb = core_.regs.read(MSR_FS_BASE);
+        const auto teb    = core_.regs.read(MSR_FS_BASE);
         const auto nt_tib = teb + members_[TEB32_NtTib];
 
-        const auto stack_base = reader.le32(nt_tib + members_[NT_TIB32_StackBase]);
+        const auto stack_base  = reader.le32(nt_tib + members_[NT_TIB32_StackBase]);
         const auto stack_limit = reader.le32(nt_tib + members_[NT_TIB32_StackLimit]);
         if(!stack_base || !stack_limit)
             FAIL({}, "Unable to stack bounds");
@@ -706,10 +706,10 @@ opt<span_t> OsNt::stack_curr_bounds(proc_t proc)
         return span_t{*stack_limit, *stack_base - *stack_limit};
     }
 
-    const auto teb = core_.regs.read(MSR_GS_BASE);
+    const auto teb    = core_.regs.read(MSR_GS_BASE);
     const auto nt_tib = teb + members_[TEB_NtTib];
 
-    const auto stack_base = reader.read(nt_tib + members_[NT_TIB_StackBase]);
+    const auto stack_base  = reader.read(nt_tib + members_[NT_TIB_StackBase]);
     const auto stack_limit = reader.read(nt_tib + members_[NT_TIB_StackLimit]);
     if(!stack_base || !stack_limit)
         FAIL({}, "Unable to stack bounds");
@@ -740,7 +740,7 @@ opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
 opt<span_t> OsNt::mod_span32(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    const auto base   = reader.le32(mod.id +  members_[LDR_DATA_TABLE_ENTRY32_DllBase]);
+    const auto base   = reader.le32(mod.id + members_[LDR_DATA_TABLE_ENTRY32_DllBase]);
     if(!base)
         return {};
 

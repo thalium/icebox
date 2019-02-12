@@ -48,11 +48,11 @@ namespace
 
     opt<phy_t> slow_virtual_to_physical(MemData& m, uint64_t ptr, dtb_t dtb)
     {
-        const virt_t virt = {read_le64(&ptr)};
+        const virt_t virt     = {read_le64(&ptr)};
         const auto pml4e_base = dtb.val & (mask(40) << 12);
         const auto pml4e_ptr  = pml4e_base + virt.u.f.pml4 * 8;
-        entry_t pml4e = {0};
-        auto ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pml4e), sizeof pml4e, pml4e_ptr);
+        entry_t pml4e         = {0};
+        auto ok               = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pml4e), sizeof pml4e, pml4e_ptr);
         if(!ok)
             return {};
 
@@ -60,8 +60,8 @@ namespace
             return {};
 
         const auto pdpe_ptr = pml4e.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pdp * 8;
-        entry_t pdpe = {0};
-        ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pdpe), sizeof pdpe, pdpe_ptr);
+        entry_t pdpe        = {0};
+        ok                  = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pdpe), sizeof pdpe, pdpe_ptr);
         if(!ok)
             return {};
 
@@ -77,8 +77,8 @@ namespace
         }
 
         const auto pde_ptr = pdpe.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pd * 8;
-        entry_t pde = {0};
-        ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pde), sizeof pde, pde_ptr);
+        entry_t pde        = {0};
+        ok                 = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pde), sizeof pde, pde_ptr);
         if(!ok)
             return {};
 
@@ -94,8 +94,8 @@ namespace
         }
 
         const auto pte_ptr = pde.u.f.page_frame_number * PAGE_SIZE + virt.u.f.pt * 8;
-        entry_t pte = {0};
-        ok = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pte), sizeof pte, pte_ptr);
+        entry_t pte        = {0};
+        ok                 = FDP_ReadPhysicalMemory(&m.shm, reinterpret_cast<uint8_t*>(&pte), sizeof pte, pte_ptr);
         if(!ok)
             return {};
 
@@ -150,7 +150,7 @@ namespace
     {
         uint8_t buffer[PAGE_SIZE];
         size_t fill = 0;
-        auto ptr = utils::align<PAGE_SIZE>(src);
+        auto ptr    = utils::align<PAGE_SIZE>(src);
         size_t skip = src - ptr;
         while(fill < size)
         {

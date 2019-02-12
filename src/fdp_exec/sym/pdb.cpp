@@ -228,12 +228,12 @@ namespace
     }
 
     static const uint8_t rsds_magic[] = {'R', 'S', 'D', 'S'};
-    static const auto rsds_pattern = boyer_moore_horspool_searcher(std::begin(rsds_magic), std::end(rsds_magic));
+    static const auto rsds_pattern    = boyer_moore_horspool_searcher(std::begin(rsds_magic), std::end(rsds_magic));
 
     opt<PdbCtx> read_pdb(const void* vsrc, size_t src_size)
     {
         const uint8_t* src = reinterpret_cast<const uint8_t*>(vsrc);
-        const auto end = &src[src_size];
+        const auto end     = &src[src_size];
         while(true)
         {
             const auto rsds = search(&src[0], &src[src_size], rsds_pattern);
@@ -257,7 +257,7 @@ namespace
             char strguid[sizeof guid * 2];
             hex::convert(strguid, hex::chars_upper, guid, sizeof guid);
 
-            uint32_t age = read_le32(&rsds[4 + 16]);
+            uint32_t age    = read_le32(&rsds[4 + 16]);
             const auto name = read_pdb_name(&rsds[4 + 16 + 4], name_end);
             if(name)
                 return PdbCtx{std::string{strguid, sizeof strguid} + std::to_string(age), *name};

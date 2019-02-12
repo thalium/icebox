@@ -16,7 +16,7 @@
 
 namespace
 {
-    template<typename T>
+    template <typename T>
     void test_tracer(core::Core& core, pe::Pe& pe, proc_t target)
     {
         T syscall_plugin(core, pe);
@@ -81,7 +81,7 @@ namespace
 
         std::vector<uint8_t> buffer;
         const auto reader = reader::make(core, *target);
-        size_t modcount = 0;
+        size_t modcount   = 0;
         core.os->mod_list(*target, [&](mod_t)
         {
             ++modcount;
@@ -114,7 +114,6 @@ namespace
 
             return WALK_NEXT;
         });
-
 
         if(core.os->proc_is_wow64(*target))
         {
@@ -204,7 +203,7 @@ namespace
                 const auto rip = core.regs.read(FDP_RIP_REGISTER);
                 const auto rsp = core.regs.read(FDP_RSP_REGISTER);
                 const auto rbp = core.regs.read(FDP_RBP_REGISTER);
-                int k = 0;
+                int k          = 0;
                 callstack->get_callstack(*target, {rip, rsp, rbp, core.os->proc_ctx_is_x64()}, [&](callstack::callstep_t callstep)
                 {
                     auto cursor = core.sym.find(callstep.addr);

@@ -168,11 +168,10 @@ opt<bool> pe::Pe::is_pe64(const reader::Reader& reader, const uint64_t image_fil
         FAIL({}, "unable to read IMAGE_FILE_HEADER.Machine");
 
     static const uint16_t image_file_machine_amd64 = 0x8664;
-    const auto is_pe64 = *machine == image_file_machine_amd64 ? true : false;
+    const auto is_pe64                             = *machine == image_file_machine_amd64 ? true : false;
 
     return is_pe64;
 }
-
 
 opt<span_t> pe::Pe::find_image_directory(const reader::Reader& reader, const span_t span, const image_directory_entry_e id)
 {
@@ -229,13 +228,13 @@ opt<size_t> pe::read_image_size(const void* vsrc, size_t size)
 {
     const auto src = reinterpret_cast<const uint8_t*>(vsrc);
 
-    const auto e_magic = read_be16(&src[0]);
+    const auto e_magic                    = read_be16(&src[0]);
     static const auto image_dos_signature = 0x4D5A; // MZ
     if(e_magic != image_dos_signature)
         return {};
 
     static const auto e_lfanew_offset = 0x3C;
-    size_t idx = e_lfanew_offset;
+    size_t idx                        = e_lfanew_offset;
     if(idx + 4 > size)
         return {};
 
@@ -259,7 +258,7 @@ opt<size_t> pe::read_image_size(const void* vsrc, size_t size)
     if(machine != image_file_machine_amd64)
         return {};
 
-    static const int image_file_header_size = 20;
+    static const int image_file_header_size             = 20;
     static const uint16_t image_nt_optional_hdr64_magic = 0x20B;
     idx += image_file_header_size;
     if(idx + sizeof image_nt_optional_hdr64_magic > size)

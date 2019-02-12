@@ -211,7 +211,7 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
         FAIL({}, "Unable to read table entry");
 
     // TODO deal with theses shifts on x32
-    uint64_t p = 0xffff;
+    uint64_t p                = 0xffff;
     const uint64_t obj_header = (((*handle_table_entry >> 16) | (p << 48)) >> 4) << 4;
 
     const auto obj_body = obj_header + d_->members_[OBJECT_HEADER_Body];
@@ -265,7 +265,7 @@ opt<std::string> nt::ObjectNt::obj_typename(proc_t proc, nt::obj_t obj)
         FAIL({}, "Unable to read ObHeaderCookie");
 
     const uint8_t obj_addr_cookie = ((obj_header >> 8) & 0xff);
-    const auto type_idx = *encoded_type_idx ^ *header_cookie ^ obj_addr_cookie;
+    const auto type_idx           = *encoded_type_idx ^ *header_cookie ^ obj_addr_cookie;
 
     const auto obj_type = reader.read(d_->symbols_[ObTypeIndexTable] + type_idx * POINTER_SIZE);
     if(!obj_type)

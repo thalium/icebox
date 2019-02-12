@@ -27,7 +27,7 @@ namespace os
 
         virtual bool    is_kernel   (uint64_t ptr) = 0;
         virtual bool    reader_setup(reader::Reader& reader, proc_t proc) = 0;
-        virtual bool    setup_wow64(proc_t proc) = 0;
+        virtual bool    setup_wow64 (proc_t proc) = 0;
 
         virtual bool                proc_list       (const on_proc_fn& on_proc) = 0;
         virtual opt<proc_t>         proc_current    () = 0;
@@ -48,15 +48,15 @@ namespace os
         virtual opt<uint64_t>   thread_pc       (proc_t proc, thread_t thread) = 0;
         virtual uint64_t        thread_id       (proc_t proc, thread_t thread) = 0;
 
-        virtual opt<span_t>     stack_curr_bounds(proc_t proc) = 0;
+        virtual opt<span_t> stack_curr_bounds(proc_t proc) = 0;
 
-        virtual bool                mod_list(proc_t proc, const on_mod_fn& on_mod) = 0;
-        virtual bool                mod_list32(proc_t proc, const on_mod_fn& on_mod) = 0;
-        virtual opt<std::string>    mod_name(proc_t proc, mod_t mod) = 0;
-        virtual opt<std::string>    mod_name32(proc_t proc, mod_t mod) = 0;
-        virtual opt<span_t>         mod_span(proc_t proc, mod_t mod) = 0;
-        virtual opt<span_t>         mod_span32(proc_t proc, mod_t mod) = 0;
-        virtual opt<mod_t>          mod_find(proc_t proc, uint64_t addr) = 0;
+        virtual bool                mod_list    (proc_t proc, const on_mod_fn& on_mod) = 0;
+        virtual bool                mod_list32  (proc_t proc, const on_mod_fn& on_mod) = 0;
+        virtual opt<std::string>    mod_name    (proc_t proc, mod_t mod) = 0;
+        virtual opt<std::string>    mod_name32  (proc_t proc, mod_t mod) = 0;
+        virtual opt<span_t>         mod_span    (proc_t proc, mod_t mod) = 0;
+        virtual opt<span_t>         mod_span32  (proc_t proc, mod_t mod) = 0;
+        virtual opt<mod_t>          mod_find    (proc_t proc, uint64_t addr) = 0;
 
         virtual bool                driver_list (const on_driver_fn& on_driver) = 0;
         virtual opt<driver_t>       driver_find (const std::string& name) = 0;

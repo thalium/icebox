@@ -115,8 +115,8 @@ namespace
         // callstack::ICallstack
         bool get_callstack(proc_t proc, callstack::context_t context, const callstack::on_callstep_fn& on_callstep) override;
 
-        bool get_callstack64(proc_t proc, callstack::context_t context, const callstack::on_callstep_fn& on_callstep);
-        bool get_callstack32(proc_t proc, callstack::context_t context, const callstack::on_callstep_fn& on_callstep);
+        bool    get_callstack64 (proc_t proc, callstack::context_t context, const callstack::on_callstep_fn& on_callstep);
+        bool    get_callstack32 (proc_t proc, callstack::context_t context, const callstack::on_callstep_fn& on_callstep);
 
         // methods
         bool                    setup                   ();
@@ -327,11 +327,11 @@ bool CallstackNt::get_callstack64(proc_t proc, callstack::context_t ctx, const c
 
         const auto caller_addr_on_stack = ctx.rsp + *stack_frame_size;
 
-        //Check if caller's address on stack is consistent, if not we suppose that the end of the callstack has been reached
-        if(stack_bounds->addr > caller_addr_on_stack || stack_bounds->addr+stack_bounds->size < caller_addr_on_stack)
+        // Check if caller's address on stack is consistent, if not we suppose that the end of the callstack has been reached
+        if(stack_bounds->addr > caller_addr_on_stack || stack_bounds->addr + stack_bounds->size < caller_addr_on_stack)
             return true;
 
-        const auto return_addr          = reader.read(caller_addr_on_stack);
+        const auto return_addr = reader.read(caller_addr_on_stack);
         if(!return_addr)
             FAIL(false, "Unable to read return address at {:#x}", caller_addr_on_stack);
 
@@ -369,14 +369,14 @@ bool CallstackNt::get_callstack32(proc_t proc, callstack::context_t ctx, const c
 
     for(size_t i = 0; i < max_cs_depth; ++i)
     {
-        if(stack_bounds->addr > ctx.rbp || stack_bounds->addr+stack_bounds->size < ctx.rbp)
+        if(stack_bounds->addr > ctx.rbp || stack_bounds->addr + stack_bounds->size < ctx.rbp)
             return true;
 
         const auto caller_addr_on_stack = reader.le32(ctx.rbp);
         if(!caller_addr_on_stack)
             FAIL(false, "Unable to read caller address on stack at %lx", ctx.rbp);
 
-        const auto return_addr          = reader.le32(ctx.rbp + reg_size);
+        const auto return_addr = reader.le32(ctx.rbp + reg_size);
         if(!return_addr)
             FAIL(false, "Unable to read return address at {}", ctx.rbp + reg_size);
 
@@ -402,7 +402,7 @@ namespace
     void get_unwind_codes(Unwinds& unwind_codes, function_entry_t& function_entry, const std::vector<uint8_t>& buffer, size_t unwind_codes_size, size_t chained_info_size)
     {
         static const auto reg_size = 0x08; // TODO Defined this somewhere else
-        size_t idx = 0;
+        size_t idx                 = 0;
         while(idx < unwind_codes_size - chained_info_size)
         {
             const auto unwind_operation = buffer[idx + 1] & 0xF;
@@ -500,7 +500,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(proc_t proc, const void* vsr
         if(!ok)
             FAIL({}, "unable to read unwind info");
 
-        const bool chained_flag = unwind_info[0] & UNWIND_CHAINED_FLAG_MASK;
+        const bool chained_flag        = unwind_info[0] & UNWIND_CHAINED_FLAG_MASK;
         function_entry.prolog_size     = unwind_info[1];
         function_entry.unwind_codes_nb = unwind_info[2];
 

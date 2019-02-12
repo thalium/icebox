@@ -46,7 +46,7 @@ bool sym::Symbols::insert(const std::string& name, std::unique_ptr<sym::IMod>& m
 
 namespace
 {
-    static const char pdb[] = "pdb";
+    static const char pdb[]   = "pdb";
     static const char empty[] = "empty";
     static const struct
     {

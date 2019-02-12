@@ -170,7 +170,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
         if(!ok)
             return 1;
 
-        buf[Length - 1] = 0;
+        buf[Length - 1]         = 0;
         const auto obj          = d_->objects_->get_object_ref(proc, FileHandle);
         const auto obj_typename = d_->objects_->obj_typename(proc, *obj);
         const auto obj_filename = d_->objects_->fileobj_filename(proc, *obj);

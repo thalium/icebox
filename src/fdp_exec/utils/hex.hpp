@@ -35,7 +35,7 @@ namespace hex
         const auto prefix    = flags & HexaPrefix ? 2 : 0;
         convert(&dst[prefix], hexchars, src, size);
         dst[prefix + size * 2] = 0;
-        size_t skip = 0;
+        size_t skip            = 0;
         // we need at least one 0
         if constexpr(!!(flags & RemovePadding))
             while(skip + 1 < size * 2 && dst[prefix + skip] == '0')

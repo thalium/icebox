@@ -35,7 +35,7 @@ namespace
     using HeapData   = std::unordered_map<nt::PVOID, std::vector<heap_data_t>>;
     using FdpSanData = plugin::FdpSan::Data;
 
-    static const uint64_t add_size = 0x20;
+    static const uint64_t add_size      = 0x20;
     static const uint64_t half_add_size = add_size / 2;
 }
 
@@ -77,7 +77,7 @@ namespace
 {
     void get_callstack(FdpSanData& d)
     {
-        uint64_t cs_size = 0;
+        uint64_t cs_size  = 0;
         uint64_t cs_depth = 15;
 
         const auto rip = d.core_.regs.read(FDP_RIP_REGISTER);
@@ -214,8 +214,8 @@ bool plugin::FdpSan::setup(proc_t target)
 
         // Check if the address was previously changed by FdpSan
         auto it = d_->heap_datas.find(BaseAddress);
-        bool b = true;
-        int i = -1;
+        bool b  = true;
+        int i   = -1;
         if(it != d_->heap_datas.end())
         {
             for(const auto& it_v : it->second)
@@ -316,7 +316,7 @@ bool plugin::FdpSan::setup(proc_t target)
         heap_data_t heap_data;
         memset(&heap_data, 0, sizeof heap_data);
         bool found = false;
-        int i = -1;
+        int i      = -1;
         for(const auto& it_v : it->second)
         {
             i++;
