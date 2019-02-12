@@ -25,53 +25,52 @@
 #define FDP_STRUCTS_H__
 
 #ifdef _MSC_VER
-#define ALIGNED_(X)     _declspec(align(X))
+#    define ALIGNED_(X) _declspec(align(X))
 #else
-#define ALIGNED_(X)     __attribute__ ((aligned(X)))
+#    define ALIGNED_(X) __attribute__((aligned(X)))
 #endif
 
-//#include <stdint.h>
-//#include <stdbool.h>
+// #include <stdint.h>
+// #include <stdbool.h>
 
 #pragma pack(push, 1)
 typedef struct FDP_CPU_CTX_
 {
-    uint64_t        rip;
+    uint64_t rip;
 
-    uint64_t        rax;
-    uint64_t        rcx;
-    uint64_t        rdx;
-    uint64_t        rbx;
+    uint64_t rax;
+    uint64_t rcx;
+    uint64_t rdx;
+    uint64_t rbx;
 
-    uint64_t        rsp;
-    uint64_t        rbp;
-    uint64_t        rsi;
-    uint64_t        rdi;
-    uint64_t        r8;
-    uint64_t        r9;
-    uint64_t        r10;
-    uint64_t        r11;
-    uint64_t        r12;
-    uint64_t        r13;
-    uint64_t        r14;
-    uint64_t        r15;
+    uint64_t rsp;
+    uint64_t rbp;
+    uint64_t rsi;
+    uint64_t rdi;
+    uint64_t r8;
+    uint64_t r9;
+    uint64_t r10;
+    uint64_t r11;
+    uint64_t r12;
+    uint64_t r13;
+    uint64_t r14;
+    uint64_t r15;
 
-    uint64_t        es;
-    uint64_t        cs;
-    uint64_t        ss;
-    uint64_t        ds;
-    uint64_t        fs;
-    uint64_t        gs;
+    uint64_t es;
+    uint64_t cs;
+    uint64_t ss;
+    uint64_t ds;
+    uint64_t fs;
+    uint64_t gs;
 
-    uint64_t        rflags;
+    uint64_t rflags;
 
-    uint64_t        cr0;
-    uint64_t        cr2;
-    uint64_t        cr3;
-    uint64_t        cr4;
-}FDP_CPU_CTX;
+    uint64_t cr0;
+    uint64_t cr2;
+    uint64_t cr3;
+    uint64_t cr4;
+} FDP_CPU_CTX;
 #pragma pack(pop)
-
 
 enum
 {
@@ -111,52 +110,52 @@ enum
 typedef struct _FDP_UnsetBreakpoint_req
 {
     uint8_t cmdType;
-    int breakPointId;
+    int     breakPointId;
 } FDP_UnsetBreakpoint_req;
 
 typedef struct _FDP_SetBreakpoint_req
 {
     uint8_t cmdType;
-    int breakPointId;
+    int     breakPointId;
     uint64_t breakAddress;
 } FDP_SetBreakpoint_req;
 
 #pragma pack(push, 1)
-#pragma warning( disable : 4200 )
+#pragma warning(disable : 4200)
 
-#define FDP_1M    1024*1024
-#define FDP_MAX_DATA_SIZE   10*FDP_1M
+#define FDP_1M              1024 * 1024
+#define FDP_MAX_DATA_SIZE   10 * FDP_1M
 
 typedef ALIGNED_(1) struct FDP_SHM_CANAL_
 {
-    volatile bool lock; //Per channel lock
-    volatile bool bDataPresent; //is data present
-    volatile bool bStatus;
+    volatile bool     lock;         // Per channel lock
+    volatile bool     bDataPresent; // is data present
+    volatile bool     bStatus;
     volatile uint32_t dataSize;
-    volatile uint8_t data[FDP_MAX_DATA_SIZE];
+    volatile uint8_t  data[FDP_MAX_DATA_SIZE];
 } FDP_SHM_CANAL;
 
 typedef ALIGNED_(1) struct FDP_SHM_SHARED_
 {
-    volatile bool lock; //General lock for the whole FDP_SHM_SHARED
+    volatile bool lock; // General lock for the whole FDP_SHM_SHARED
     volatile bool stateChangedLock;
     volatile bool stateChanged;
     FDP_SHM_CANAL ClientToServer;
     FDP_SHM_CANAL ServerToClient;
 } FDP_SHM_SHARED;
 
-ALIGNED_(1) struct FDP_SHM_
+ALIGNED_(1)
+struct FDP_SHM_
 {
-    FDP_SHM_SHARED *pSharedFDPSHM;              //Shared part of the FDP SHM
-    uint8_t InputBuffer[FDP_MAX_DATA_SIZE];     //Used as temporary input buffer
-    uint8_t OutputBuffer[FDP_MAX_DATA_SIZE];    //Used as temporary output buffer
+    FDP_SHM_SHARED* pSharedFDPSHM;                   // Shared part of the FDP SHM
+    uint8_t         InputBuffer[FDP_MAX_DATA_SIZE];  // Used as temporary input buffer
+    uint8_t         OutputBuffer[FDP_MAX_DATA_SIZE]; // Used as temporary output buffer
 
-    FDP_SERVER_INTERFACE_T    *pFdpServer;
-    FDP_CPU_CTX                *pCpuShm;
+    FDP_SERVER_INTERFACE_T* pFdpServer;
+    FDP_CPU_CTX*            pCpuShm;
 };
 
 #define FDP_SHM_SHARED_SIZE sizeof(FDP_SHM_SHARED)
-
 
 typedef struct FDP_SIMPLE_PKT_REQ_
 {
@@ -165,7 +164,7 @@ typedef struct FDP_SIMPLE_PKT_REQ_
 
 typedef struct FDP_READ_PHYSICAL_MEMORY_PKT_REQ_
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint32_t CpuId;
     uint64_t PhysicalAddress;
     uint32_t ReadSize;
@@ -173,7 +172,7 @@ typedef struct FDP_READ_PHYSICAL_MEMORY_PKT_REQ_
 
 typedef struct FDP_READ_VIRTUAL_MEMORY_PKT_REQ_
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint32_t CpuId;
     uint64_t VirtualAddress;
     uint32_t ReadSize;
@@ -181,56 +180,56 @@ typedef struct FDP_READ_VIRTUAL_MEMORY_PKT_REQ_
 
 typedef struct FDP_WRITE_PHYSICAL_MEMORY_PKT_REQ_
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint64_t PhysicalAddress;
     uint32_t WriteSize;
-    uint8_t Data[];
+    uint8_t  Data[];
 } FDP_WRITE_PHYSICAL_MEMORY_PKT_REQ;
 
 typedef struct FDP_WRITE_VIRTUAL_MEMORY_PKT_REQ_
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint32_t CpuId;
     uint64_t VirtualAddress;
     uint32_t WriteSize;
-    uint8_t Data[];
+    uint8_t  Data[];
 } FDP_WRITE_VIRTUAL_MEMORY_PKT_REQ;
 
 typedef struct FDP_SEARCH_PHYSICAL_MEMORY_PKT_REQ_
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint32_t CpuId;
     uint32_t PatternSize;
     uint64_t StartOffset;
-    uint8_t PatternData[];
+    uint8_t  PatternData[];
 } FDP_SEARCH_PHYSICAL_MEMORY_PKT_REQ;
 
 typedef struct FDP_SEARCH_VIRTUAL_MEMORY_PKT_REQ_
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint32_t CpuId;
     uint32_t PatternSize;
     uint64_t StartOffset;
-    uint8_t PatternData[];
+    uint8_t  PatternData[];
 } FDP_SEARCH_VIRTUAL_MEMORY_PKT_REQ;
 
 typedef struct FDP_READ_REGISTER_PKT_REQ_
 {
-    uint8_t Type;
-    uint32_t CpuId;
+    uint8_t      Type;
+    uint32_t     CpuId;
     FDP_Register RegisterId;
 } FDP_READ_REGISTER_PKT_REQ;
 
 typedef struct FDP_READ_MSR_PKT_REQ_
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint32_t CpuId;
     uint64_t MsrId;
 } FDP_READ_MSR_PKT_REQ;
 
 typedef struct FDP_WRITE_MSR_PKT_REQ_
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint32_t CpuId;
     uint64_t MsrId;
     uint64_t MsrValue;
@@ -238,52 +237,52 @@ typedef struct FDP_WRITE_MSR_PKT_REQ_
 
 typedef struct FDP_WRITE_REGISTER_PKT_REQ_
 {
-    uint8_t Type;
-    uint32_t CpuId;
+    uint8_t      Type;
+    uint32_t     CpuId;
     FDP_Register RegisterId;
     uint64_t RegisterValue;
 } FDP_WRITE_REGISTER_PKT_REQ;
 
 typedef struct FDP_VIRTUAL_PHYSICAL_PKT_REQ
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint32_t CpuId;
     uint64_t VirtualAddress;
 } FDP_VIRTUAL_PHYSICAL_PKT_REQ;
 
 typedef struct FDP_GET_STATE_PKT_REQ_
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint32_t CpuId;
 } FDP_GET_STATE_PKT_REQ;
 
 typedef struct FDP_SINGLE_STEP_PKT_REQ_
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint32_t CpuId;
 } FDP_SINGLE_STEP_PKT_REQ;
 
 typedef struct FDP_GET_CPU_STATE_PKT_REQ_
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint32_t CpuId;
 } FDP_GET_CPU_STATE_PKT_REQ;
 
 typedef struct FDP_UNSET_BREAKPOINT_PKT_REQ
 {
     uint8_t Type;
-    int BreakpointId;
+    int     BreakpointId;
 } FDP_CLEAR_BREAKPOINT_PKT_REQ;
 
 /*typedef struct FDP_SWITCH_CPU_PKT_REQ_
 {
-uint8_t Type;
+uint8_t  Type;
 uint32_t CPUIndex;
 } FDP_SWITCH_CPU_PKT_REQ;*/
 
 typedef struct FDP_SET_BREAKPOINT_PKT_REQ_
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint32_t CpuId;
     FDP_BreakpointType BreakpointType;
     int BreakpointId;
@@ -296,7 +295,7 @@ typedef struct FDP_SET_BREAKPOINT_PKT_REQ_
 
 typedef struct FDP_INJECT_INTERRUPT_PKT_REQ_
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint32_t CpuId;
     uint32_t InterruptionCode;
     uint32_t ErrorCode;
@@ -305,10 +304,10 @@ typedef struct FDP_INJECT_INTERRUPT_PKT_REQ_
 
 typedef struct FDP_SET_FX_STATE_REQ_
 {
-    uint8_t Type;
+    uint8_t  Type;
     uint32_t CpuId;
     FDP_XSAVE_FORMAT64_T FxState64;
-}FDP_SET_FX_STATE_REQ;
+} FDP_SET_FX_STATE_REQ;
 #pragma pack(pop)
 
 #endif

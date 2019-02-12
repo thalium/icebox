@@ -10,7 +10,7 @@ get_filename_component(bin_dir      ${root_dir}/bin/fdp_${ARCH}    ABSOLUTE)
 
 # fdp
 function(add_fdp target options)
-    add_target(${target} libs "${root_dir}/src/FDP" OPTIONS recurse warnings ${options})
+    add_target(${target} libs "${root_dir}/src/FDP" OPTIONS fmt recurse warnings ${options})
     set_target_output_directory(${target} "")
     target_include_directories(${target} PUBLIC "${root_dir}/src/FDP/include")
     target_compile_definitions(${target} PRIVATE _CRT_SECURE_NO_WARNINGS)
@@ -21,6 +21,10 @@ function(add_fdp target options)
 endfunction()
 add_fdp(fdp_static "")
 add_fdp(fdp shared)
+
+# fix fmt dependencies
+add_dependencies(fdp_static_fmt fdp_fmt)
+add_dependencies(fdp fdp_static_fmt)
 
 # test_fdp
 add_target(test_fdp tests "${root_dir}/src/TestFDP" OPTIONS executable warnings)

@@ -36,39 +36,39 @@ enum FDP_BreakpointType_
 };
 typedef uint16_t FDP_BreakpointType;
 
-
 enum FDP_AddressType_
 {
-    FDP_WRONG_ADDRESS = 0x0,
-    FDP_VIRTUAL_ADDRESS = 0x01,
+    FDP_WRONG_ADDRESS    = 0x0,
+    FDP_VIRTUAL_ADDRESS  = 0x01,
     FDP_PHYSICAL_ADDRESS = 0x02,
-    FDP_ADRESSTYPE_HACK = 0xFFFF
+    FDP_ADRESSTYPE_HACK  = 0xFFFF
 };
 typedef uint16_t FDP_AddressType;
 
 enum FDP_Access_
 {
-    FDP_WRONG_BP = 0x0,
-    FDP_EXECUTE_BP = 0x01,
-    FDP_WRITE_BP = 0x02,
-    FDP_READ_BP = 0x04,
+    FDP_WRONG_BP             = 0x0,
+    FDP_EXECUTE_BP           = 0x01,
+    FDP_WRITE_BP             = 0x02,
+    FDP_READ_BP              = 0x04,
     FDP_INSTRUCTION_FETCH_BP = 0x08,
-    FDBP_ACCESS_HACK = 0xFFFF,
+    FDBP_ACCESS_HACK         = 0xFFFF,
 };
 typedef uint16_t FDP_Access;
 
 enum FDP_State_
 {
-    FDP_STATE_NULL = 0x0,
-    FDP_STATE_PAUSED = 0x1,
-    FDP_STATE_BREAKPOINT_HIT = 0x2,
-    FDP_STATE_DEBUGGER_ALERTED = 0x4,
+    FDP_STATE_NULL                = 0x0,
+    FDP_STATE_PAUSED              = 0x1,
+    FDP_STATE_BREAKPOINT_HIT      = 0x2,
+    FDP_STATE_DEBUGGER_ALERTED    = 0x4,
     FDP_STATE_HARD_BREAKPOINT_HIT = 0x8,
-    FDP_STATE_HACK = 0xFFFF
+    FDP_STATE_HACK                = 0xFFFF
 };
 typedef uint16_t FDP_State;
 
-enum FDP_Register_ {
+enum FDP_Register_
+{
     FDP_RAX_REGISTER = 0x0,
     FDP_RBX_REGISTER,
     FDP_RCX_REGISTER,
