@@ -6,14 +6,26 @@ variables:
   APT_INSTALL: apt-get install -qq -y
   DISABLE_CLANG_FORMAT: "true"
 
-build:
+build:gcc:
   stage: build
   tags:
     - ubuntu
     - docker
   script:
-    - $APT_UPDATE && $APT_INSTALL cmake python3 build-essential ninja-build > /dev/null
+    - $APT_UPDATE && $APT_INSTALL cmake python3 gcc-8 g++-8 ninja-build > /dev/null
     - cd build
-    - TARGET=Ninja ./configure.sh
+    - CC=/usr/bin/gcc-8 CXX=/usr/bin/g++-8 TARGET=Ninja ./configure.sh
+    - cd ../out/x64
+    - ninja
+
+build:clang:
+  stage: build
+  tags:
+    - ubuntu
+    - docker
+  script:
+    - $APT_UPDATE && $APT_INSTALL cmake python3 clang-7 clang-tidy-7 ninja-build > /dev/null
+    - cd build
+    - CC=/usr/bin/clang-7 CXX=/usr/bin/clang++-7 TARGET=Ninja ./configure.sh
     - cd ../out/x64
     - ninja
