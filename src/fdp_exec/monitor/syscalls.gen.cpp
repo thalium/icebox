@@ -5932,7 +5932,7 @@ namespace
     static void on_NtDisableLastKnownGood(monitor::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            LOG(INFO, "NtDisableLastKnownGood()", );
+            LOG(INFO, "NtDisableLastKnownGood()");
 
         for(const auto& it : d.observers_NtDisableLastKnownGood)
             it();
@@ -5941,7 +5941,7 @@ namespace
     static void on_NtEnableLastKnownGood(monitor::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            LOG(INFO, "NtEnableLastKnownGood()", );
+            LOG(INFO, "NtEnableLastKnownGood()");
 
         for(const auto& it : d.observers_NtEnableLastKnownGood)
             it();
@@ -5950,7 +5950,7 @@ namespace
     static void on_NtFlushProcessWriteBuffers(monitor::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            LOG(INFO, "NtFlushProcessWriteBuffers()", );
+            LOG(INFO, "NtFlushProcessWriteBuffers()");
 
         for(const auto& it : d.observers_NtFlushProcessWriteBuffers)
             it();
@@ -5959,7 +5959,7 @@ namespace
     static void on_NtFlushWriteBuffer(monitor::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            LOG(INFO, "NtFlushWriteBuffer()", );
+            LOG(INFO, "NtFlushWriteBuffer()");
 
         for(const auto& it : d.observers_NtFlushWriteBuffer)
             it();
@@ -5968,7 +5968,7 @@ namespace
     static void on_NtGetCurrentProcessorNumber(monitor::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            LOG(INFO, "NtGetCurrentProcessorNumber()", );
+            LOG(INFO, "NtGetCurrentProcessorNumber()");
 
         for(const auto& it : d.observers_NtGetCurrentProcessorNumber)
             it();
@@ -5977,7 +5977,7 @@ namespace
     static void on_NtIsSystemResumeAutomatic(monitor::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            LOG(INFO, "NtIsSystemResumeAutomatic()", );
+            LOG(INFO, "NtIsSystemResumeAutomatic()");
 
         for(const auto& it : d.observers_NtIsSystemResumeAutomatic)
             it();
@@ -5986,7 +5986,7 @@ namespace
     static void on_NtIsUILanguageComitted(monitor::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            LOG(INFO, "NtIsUILanguageComitted()", );
+            LOG(INFO, "NtIsUILanguageComitted()");
 
         for(const auto& it : d.observers_NtIsUILanguageComitted)
             it();
@@ -5995,7 +5995,7 @@ namespace
     static void on_NtQueryPortInformationProcess(monitor::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            LOG(INFO, "NtQueryPortInformationProcess()", );
+            LOG(INFO, "NtQueryPortInformationProcess()");
 
         for(const auto& it : d.observers_NtQueryPortInformationProcess)
             it();
@@ -6004,7 +6004,7 @@ namespace
     static void on_NtSerializeBoot(monitor::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            LOG(INFO, "NtSerializeBoot()", );
+            LOG(INFO, "NtSerializeBoot()");
 
         for(const auto& it : d.observers_NtSerializeBoot)
             it();
@@ -6013,7 +6013,7 @@ namespace
     static void on_NtTestAlert(monitor::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            LOG(INFO, "NtTestAlert()", );
+            LOG(INFO, "NtTestAlert()");
 
         for(const auto& it : d.observers_NtTestAlert)
             it();
@@ -6022,7 +6022,7 @@ namespace
     static void on_NtThawRegistry(monitor::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            LOG(INFO, "NtThawRegistry()", );
+            LOG(INFO, "NtThawRegistry()");
 
         for(const auto& it : d.observers_NtThawRegistry)
             it();
@@ -6031,7 +6031,7 @@ namespace
     static void on_NtThawTransactions(monitor::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            LOG(INFO, "NtThawTransactions()", );
+            LOG(INFO, "NtThawTransactions()");
 
         for(const auto& it : d.observers_NtThawTransactions)
             it();
@@ -6040,7 +6040,7 @@ namespace
     static void on_NtUmsThreadYield(monitor::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            LOG(INFO, "NtUmsThreadYield()", );
+            LOG(INFO, "NtUmsThreadYield()");
 
         for(const auto& it : d.observers_NtUmsThreadYield)
             it();
@@ -6049,7 +6049,7 @@ namespace
     static void on_NtYieldExecution(monitor::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            LOG(INFO, "NtYieldExecution()", );
+            LOG(INFO, "NtYieldExecution()");
 
         for(const auto& it : d.observers_NtYieldExecution)
             it();
