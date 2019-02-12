@@ -291,10 +291,10 @@ void PDBSymbols::parse_symbols(void)
 			PDBGlobalVariable new_var =
 			{reinterpret_cast<char *>(sym->name),  // Name
 			        get_virtual_address(sym->seg, sym->off),  // Address
-			        sym->off,  // Offset
+			        static_cast<int>(sym->off),  // Offset
 			        sym->seg,  // Section
 			        -1,  // Module index
-			        -1,  // Type index
+			        ~0U,  // Type index
 			        nullptr,  // Type definition
                     };
 			global_variables[new_var.address] = new_var;
