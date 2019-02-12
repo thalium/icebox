@@ -309,7 +309,7 @@ bool OsNt::setup()
     if(!(kpcr_ & 0xFFF0000000000000))
         FAIL(false, "unable to read KPCR");
 
-    dtb_t gdtb = dtb_t{core_.regs.read(FDP_CR3_REGISTER)};
+    auto gdtb = dtb_t{core_.regs.read(FDP_CR3_REGISTER)};
     if(members_[KPRCB_KernelDirectoryTableBase])
     {
         ok = core_.mem.read_virtual(&gdtb, kpcr_ + members_[KPCR_Prcb] + members_[KPRCB_KernelDirectoryTableBase], sizeof gdtb);
@@ -352,7 +352,7 @@ bool OsNt::proc_list(const on_proc_fn& on_process)
             continue;
         }
 
-        const auto err = on_process({eproc, *dtb});
+        const auto err = on_process({eproc, {*dtb}});
         if(err == WALK_STOP)
             break;
     }

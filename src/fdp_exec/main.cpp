@@ -189,7 +189,6 @@ namespace
         }
 
         // test callstack
-        do
         {
             const auto callstack = callstack::make_callstack_nt(core, pe);
             const auto cs_depth  = 40;
@@ -224,7 +223,7 @@ namespace
                 core.state.resume();
                 core.state.wait();
             }
-        } while(0);
+        }
 
         // test syscall plugin
         {

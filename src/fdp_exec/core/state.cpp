@@ -46,11 +46,11 @@ namespace
 
     struct BreakpointObserver
     {
-        BreakpointObserver(const core::Task& task, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread)
-            : task(task)
+        BreakpointObserver(core::Task task, phy_t phy, opt<proc_t> proc, opt<thread_t> thread)
+            : task(std::move(task))
             , phy(phy)
-            , proc(proc)
-            , thread(thread)
+            , proc(std::move(proc))
+            , thread(std::move(thread))
             , bpid(-1)
         {
         }
@@ -96,13 +96,8 @@ struct core::State::Data
 
 using StateData = core::State::Data;
 
-core::State::State()
-{
-}
-
-core::State::~State()
-{
-}
+core::State::State()  = default;
+core::State::~State() = default;
 
 void core::setup(State& mem, FDP_SHM& shm, Core& core)
 {
@@ -194,9 +189,9 @@ bool core::State::resume()
 
 struct core::BreakpointPrivate
 {
-    BreakpointPrivate(StateData& data, const Observer& observer)
+    BreakpointPrivate(StateData& data, Observer observer)
         : data_(data)
-        , observer_(observer)
+        , observer_(std::move(observer))
     {
     }
 

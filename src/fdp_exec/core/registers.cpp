@@ -18,13 +18,8 @@ struct core::Registers::Data
     FDP_SHM& shm_;
 };
 
-core::Registers::Registers()
-{
-}
-
-core::Registers::~Registers()
-{
-}
+core::Registers::Registers()  = default;
+core::Registers::~Registers() = default;
 
 void core::setup(Registers& regs, FDP_SHM& shm)
 {

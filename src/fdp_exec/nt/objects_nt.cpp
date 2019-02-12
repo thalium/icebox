@@ -97,9 +97,7 @@ nt::ObjectNt::ObjectNt(core::Core& core)
 {
 }
 
-nt::ObjectNt::~ObjectNt()
-{
-}
+nt::ObjectNt::~ObjectNt() = default;
 
 namespace
 {
@@ -179,7 +177,6 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
     switch(handle_table_level)
     {
         case 0:
-            i = handle;
             break;
 
         case 1:

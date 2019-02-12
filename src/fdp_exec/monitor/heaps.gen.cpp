@@ -11,7 +11,7 @@ namespace
 
 struct monitor::heaps::Data
 {
-    Data(core::Core& core, const std::string& module);
+    Data(core::Core& core, std::string module);
 
     using Breakpoints = std::vector<core::Breakpoint>;
     core::Core& core;
@@ -26,20 +26,18 @@ struct monitor::heaps::Data
     std::vector<on_RtlGetUserInfoHeap_fn>         observers_RtlGetUserInfoHeap;
 };
 
-monitor::heaps::Data::Data(core::Core& core, const std::string& module)
+monitor::heaps::Data::Data(core::Core& core, std::string module)
     : core(core)
-    , module(module)
+    , module(std::move(module))
 {
 }
 
-monitor::heaps::heaps(core::Core& core, const std::string& module)
-    : d_(std::make_unique<Data>(core, module))
+monitor::heaps::heaps(core::Core& core, std::string module)
+    : d_(std::make_unique<Data>(core, std::move(module)))
 {
 }
 
-monitor::heaps::~heaps()
-{
-}
+monitor::heaps::~heaps() = default;
 
 namespace
 {

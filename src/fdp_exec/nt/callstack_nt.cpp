@@ -92,10 +92,9 @@ namespace
         UWINFO_RDI,
     };
 
-    const auto UNWIND_VERSION_MASK      = 0b0111;
     const auto UNWIND_CHAINED_FLAG_MASK = 0b00100000;
 
-    typedef uint8_t UnwindInfo[4];
+    using UnwindInfo = uint8_t[4];
 
     struct RuntimeFunction
     {

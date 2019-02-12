@@ -24,8 +24,6 @@ namespace std
 
 namespace
 {
-    static const int CPU_ID = 0;
-
     template <typename T>
     std::unique_ptr<T> make_unique(T* ptr)
     {
@@ -37,8 +35,8 @@ namespace
 
 struct core::Core::Data
 {
-    Data(const std::string& name)
-        : name_(name)
+    Data(std::string name)
+        : name_(std::move(name))
     {
     }
 
@@ -47,13 +45,8 @@ struct core::Core::Data
     std::unique_ptr<FDP_SHM> shm_;
 };
 
-core::Core::Core()
-{
-}
-
-core::Core::~Core()
-{
-}
+core::Core::Core()  = default;
+core::Core::~Core() = default;
 
 namespace
 {

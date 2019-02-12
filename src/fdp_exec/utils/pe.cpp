@@ -105,9 +105,7 @@ pe::Pe::Pe()
 {
 }
 
-pe::Pe::~Pe()
-{
-}
+pe::Pe::~Pe() = default;
 
 bool pe::Pe::setup(core::Core& core)
 {

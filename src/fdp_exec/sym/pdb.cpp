@@ -40,7 +40,7 @@ namespace
     struct Pdb
         : public sym::IMod
     {
-        Pdb(const fs::path& filename, span_t span);
+        Pdb(fs::path filename, span_t span);
 
         // methods
         bool setup();
@@ -62,8 +62,8 @@ namespace
     };
 }
 
-Pdb::Pdb(const fs::path& filename, span_t span)
-    : filename_(filename)
+Pdb::Pdb(fs::path filename, span_t span)
+    : filename_(std::move(filename))
     , span_(span)
 {
 }
@@ -139,11 +139,10 @@ opt<uint64_t> Pdb::symbol(const std::string& symbol)
 
 bool Pdb::sym_list(const sym::on_sym_fn& on_sym)
 {
-    for(auto symbol : symbols_)
-    {
+    for(const auto& symbol : symbols_)
         if(on_sym(symbol.first, get_offset(*this, symbol.second)) == WALK_STOP)
             break;
-    }
+
     return true;
 }
 
@@ -234,8 +233,8 @@ namespace
 
     opt<PdbCtx> read_pdb(const void* vsrc, size_t src_size)
     {
-        const uint8_t* src = reinterpret_cast<const uint8_t*>(vsrc);
-        const auto end     = &src[src_size];
+        auto src       = reinterpret_cast<const uint8_t*>(vsrc);
+        const auto end = &src[src_size];
         while(true)
         {
             const auto rsds = search(&src[0], &src[src_size], rsds_pattern);

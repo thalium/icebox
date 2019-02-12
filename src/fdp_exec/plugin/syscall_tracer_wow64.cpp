@@ -63,9 +63,7 @@ syscall_tracer::SyscallPluginWow64::SyscallPluginWow64(core::Core& core, pe::Pe&
 {
 }
 
-syscall_tracer::SyscallPluginWow64::~SyscallPluginWow64()
-{
-}
+syscall_tracer::SyscallPluginWow64::~SyscallPluginWow64() = default;
 
 namespace
 {
@@ -140,7 +138,7 @@ namespace
             return WALK_STOP;
         });
 
-        d.triggers_.push_back(bp_trigger_info_t{idx, cs_size, d.nb_triggers_});
+        d.triggers_.push_back(bp_trigger_info_t{{idx, cs_size}, d.nb_triggers_});
         return true;
     }
 }

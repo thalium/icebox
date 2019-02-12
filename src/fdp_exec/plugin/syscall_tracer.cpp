@@ -64,9 +64,7 @@ syscall_tracer::SyscallPlugin::SyscallPlugin(core::Core& core, pe::Pe& pe)
 {
 }
 
-syscall_tracer::SyscallPlugin::~SyscallPlugin()
-{
-}
+syscall_tracer::SyscallPlugin::~SyscallPlugin() = default;
 
 namespace
 {
@@ -141,7 +139,7 @@ namespace
             return WALK_STOP;
         });
 
-        d.triggers_.push_back(bp_trigger_info_t{idx, cs_size, d.nb_triggers_});
+        d.triggers_.push_back(bp_trigger_info_t{{idx, cs_size}, d.nb_triggers_});
         return true;
     }
 }

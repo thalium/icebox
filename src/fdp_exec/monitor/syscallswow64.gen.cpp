@@ -11,7 +11,7 @@ namespace
 
 struct monitor::syscallswow64::Data
 {
-    Data(core::Core& core, const std::string& module);
+    Data(core::Core& core, std::string module);
 
     using Breakpoints = std::vector<core::Breakpoint>;
     core::Core& core;
@@ -421,20 +421,18 @@ struct monitor::syscallswow64::Data
     std::vector<on_NtYieldExecution_fn>                                   observers_NtYieldExecution;
 };
 
-monitor::syscallswow64::Data::Data(core::Core& core, const std::string& module)
+monitor::syscallswow64::Data::Data(core::Core& core, std::string module)
     : core(core)
-    , module(module)
+    , module(std::move(module))
 {
 }
 
-monitor::syscallswow64::syscallswow64(core::Core& core, const std::string& module)
-    : d_(std::make_unique<Data>(core, module))
+monitor::syscallswow64::syscallswow64(core::Core& core, std::string module)
+    : d_(std::make_unique<Data>(core, std::move(module)))
 {
 }
 
-monitor::syscallswow64::~syscallswow64()
-{
-}
+monitor::syscallswow64::~syscallswow64() = default;
 
 namespace
 {

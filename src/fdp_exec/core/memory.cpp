@@ -26,13 +26,8 @@ struct core::Memory::Data
 
 using MemData = core::Memory::Data;
 
-core::Memory::Memory()
-{
-}
-
-core::Memory::~Memory()
-{
-}
+core::Memory::Memory()  = default;
+core::Memory::~Memory() = default;
 
 void core::setup(Memory& mem, FDP_SHM& shm, Core& core)
 {

@@ -413,7 +413,7 @@ namespace monitor
 
     struct syscallswow64
     {
-         syscallswow64(core::Core& core, const std::string& module);
+         syscallswow64(core::Core& core, std::string module);
         ~syscallswow64();
 
         // register generic callback with process filtering

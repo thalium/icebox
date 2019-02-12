@@ -128,7 +128,7 @@ typedef struct _FDP_SetBreakpoint_req
 #define FDP_1M              1024 * 1024
 #define FDP_MAX_DATA_SIZE   10 * FDP_1M
 
-typedef ALIGNED_(1) struct FDP_SHM_CANAL_
+typedef struct ALIGNED_(1) FDP_SHM_CANAL_
 {
     volatile bool     lock;         // Per channel lock
     volatile bool     bDataPresent; // is data present
@@ -137,7 +137,7 @@ typedef ALIGNED_(1) struct FDP_SHM_CANAL_
     volatile uint8_t  data[FDP_MAX_DATA_SIZE];
 } FDP_SHM_CANAL;
 
-typedef ALIGNED_(1) struct FDP_SHM_SHARED_
+typedef struct ALIGNED_(1) FDP_SHM_SHARED_
 {
     volatile bool lock; // General lock for the whole FDP_SHM_SHARED
     volatile bool stateChangedLock;
@@ -146,8 +146,7 @@ typedef ALIGNED_(1) struct FDP_SHM_SHARED_
     FDP_SHM_CANAL ServerToClient;
 } FDP_SHM_SHARED;
 
-ALIGNED_(1)
-struct FDP_SHM_
+struct ALIGNED_(1) FDP_SHM_
 {
     FDP_SHM_SHARED* pSharedFDPSHM;                   // Shared part of the FDP SHM
     uint8_t         InputBuffer[FDP_MAX_DATA_SIZE];  // Used as temporary input buffer

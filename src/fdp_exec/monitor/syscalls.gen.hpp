@@ -419,7 +419,7 @@ namespace monitor
 
     struct syscalls
     {
-         syscalls(core::Core& core, const std::string& module);
+         syscalls(core::Core& core, std::string module);
         ~syscalls();
 
         // register generic callback with process filtering

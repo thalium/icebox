@@ -18,7 +18,7 @@ namespace monitor
 
     struct heaps
     {
-         heaps(core::Core& core, const std::string& module);
+         heaps(core::Core& core, std::string module);
         ~heaps();
 
         // register generic callback with process filtering

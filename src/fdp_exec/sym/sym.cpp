@@ -34,9 +34,7 @@ sym::Symbols::Symbols()
 {
 }
 
-sym::Symbols::~Symbols()
-{
-}
+sym::Symbols::~Symbols() = default;
 
 bool sym::Symbols::insert(const std::string& name, std::unique_ptr<sym::IMod>& module)
 {

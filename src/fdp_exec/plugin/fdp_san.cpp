@@ -69,9 +69,7 @@ plugin::FdpSan::FdpSan(core::Core& core, pe::Pe& pe)
 {
 }
 
-plugin::FdpSan::~FdpSan()
-{
-}
+plugin::FdpSan::~FdpSan() = default;
 
 namespace
 {

@@ -41,7 +41,7 @@ namespace monitor
 
     struct {filename}
     {{
-         {filename}(core::Core& core, const std::string& module);
+         {filename}(core::Core& core, std::string module);
         ~{filename}();
 
         // register generic callback with process filtering
@@ -156,7 +156,7 @@ namespace
 
 struct monitor::{filename}::Data
 {{
-    Data(core::Core& core, const std::string& module);
+    Data(core::Core& core, std::string module);
 
     using Breakpoints = std::vector<core::Breakpoint>;
     core::Core& core;
@@ -166,20 +166,18 @@ struct monitor::{filename}::Data
 {observers}
 }};
 
-monitor::{filename}::Data::Data(core::Core& core, const std::string& module)
+monitor::{filename}::Data::Data(core::Core& core, std::string module)
     : core(core)
-    , module(module)
+    , module(std::move(module))
 {{
 }}
 
-monitor::{filename}::{filename}(core::Core& core, const std::string& module)
-    : d_(std::make_unique<Data>(core, module))
+monitor::{filename}::{filename}(core::Core& core, std::string module)
+    : d_(std::make_unique<Data>(core, std::move(module)))
 {{
 }}
 
-monitor::{filename}::~{filename}()
-{{
-}}
+monitor::{filename}::~{filename}() = default;
 
 namespace
 {{

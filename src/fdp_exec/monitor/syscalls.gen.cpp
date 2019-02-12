@@ -11,7 +11,7 @@ namespace
 
 struct monitor::syscalls::Data
 {
-    Data(core::Core& core, const std::string& module);
+    Data(core::Core& core, std::string module);
 
     using Breakpoints = std::vector<core::Breakpoint>;
     core::Core& core;
@@ -427,20 +427,18 @@ struct monitor::syscalls::Data
     std::vector<on_RtlGetUserInfoHeap_fn>                                 observers_RtlGetUserInfoHeap;
 };
 
-monitor::syscalls::Data::Data(core::Core& core, const std::string& module)
+monitor::syscalls::Data::Data(core::Core& core, std::string module)
     : core(core)
-    , module(module)
+    , module(std::move(module))
 {
 }
 
-monitor::syscalls::syscalls(core::Core& core, const std::string& module)
-    : d_(std::make_unique<Data>(core, module))
+monitor::syscalls::syscalls(core::Core& core, std::string module)
+    : d_(std::make_unique<Data>(core, std::move(module)))
 {
 }
 
-monitor::syscalls::~syscalls()
-{
-}
+monitor::syscalls::~syscalls() = default;
 
 namespace
 {

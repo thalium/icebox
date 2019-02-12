@@ -137,7 +137,7 @@ bool OsLinux::proc_list(const on_proc_fn& on_process)
             continue;
         }
 
-        const auto err = on_process({task_struc, *pgd});
+        const auto err = on_process({task_struc, {*pgd}});
         if(err == WALK_STOP)
             break;
     }
