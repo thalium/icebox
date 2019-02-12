@@ -1,0 +1,19 @@
+stages:
+  - build
+
+variables:
+  APT_UPDATE: apt-get update -qq -y
+  APT_INSTALL: apt-get install -qq -y
+  DISABLE_CLANG_FORMAT: "true"
+
+build:
+  stage: build
+  tags:
+    - ubuntu
+    - docker
+  script:
+    - $APT_UPDATE && $APT_INSTALL cmake python3 build-essential ninja-build > /dev/null
+    - cd build
+    - TARGET=Ninja ./configure.sh
+    - cd ../out/x64
+    - ninja

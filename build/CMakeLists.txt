@@ -8,6 +8,12 @@ get_filename_component(root_dir     ${CMAKE_CURRENT_SOURCE_DIR}/.. ABSOLUTE)
 get_filename_component(bin_d_dir    ${root_dir}/bin/fdp_d_${ARCH}  ABSOLUTE)
 get_filename_component(bin_dir      ${root_dir}/bin/fdp_${ARCH}    ABSOLUTE)
 
+if(NOT MSVC)
+    add_compile_options(
+        -Wno-unused-local-typedefs
+    )
+endif()
+
 # fdp
 function(add_fdp target options)
     add_target(${target} libs "${root_dir}/src/FDP" OPTIONS fmt recurse warnings ${options})
@@ -23,8 +29,10 @@ add_fdp(fdp_static "")
 add_fdp(fdp shared)
 
 # fix fmt dependencies
-add_dependencies(fdp_static_fmt fdp_fmt)
-add_dependencies(fdp fdp_static_fmt)
+if(NOT "$ENV{DISABLE_CLANG_FORMAT}" STREQUAL "true")
+    add_dependencies(fdp_static_fmt fdp_fmt)
+    add_dependencies(fdp fdp_static_fmt)
+endif()
 
 # test_fdp
 add_target(test_fdp tests "${root_dir}/src/TestFDP" OPTIONS executable warnings)
@@ -71,7 +79,7 @@ target_include_directories(pdbparser PUBLIC
 # tracer code generator
 set(monitor_dir "${root_dir}/src/fdp_exec/monitor")
 function(add_tracer namespace input_file)
-    find_package(PythonInterp 3.6 REQUIRED)
+    find_package(PythonInterp 3.6 QUIET REQUIRED)
     get_filename_component(directory ${input_file} DIRECTORY)
     get_filename_component(filename ${input_file} NAME_WE)
     add_custom_command(
