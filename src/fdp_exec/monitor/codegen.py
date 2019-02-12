@@ -105,14 +105,15 @@ def generate_dispatchers(json_data, filename, namespace):
             dispatchers += "\n"
 
         # print epilogue
+        logargs = ", " if len(names) else ""
         dispatchers += """
         if constexpr(g_debug)
-            LOG(INFO, "{target}({fmtargs})", {logargs});
+            LOG(INFO, "{target}({fmtargs})"{logargs});
 
         for(const auto& it : d.observers_{target})
             it({args});
     }}
-""".format(target=target, args=", ".join(names), fmtargs=", ".join(formats), logargs=", ".join(names))
+""".format(target=target, args=", ".join(names), fmtargs=", ".join(formats), logargs=logargs + ", ".join(names))
     return dispatchers
 
 def generate_definitions(json_data, filename, wow64):
