@@ -97,9 +97,9 @@ def main():
         # align ... = ...
         (0, r" *\b(?:using )?[^\n ]+", " +", r"= .+?"),
         # align method names
-        (4, r" *\b[^\n=]*?[^\n=, +]", " +", r"(?:\b\w+|\(\*\w+\)) *\([^\n={}]*\)(?: *const)?(?: override| = 0)?;"),
+        (4, r" *\b[^\n=]*?[^\n=, +]", " +", r"(?:\b\w+|\(\*\w+\)) *\([^\n={}]*\)(?: *const)?(?: override| += 0)?;"),
         # align method parameters
-        (4, r" *\b[^\n=]*?[^\n=, ] +(?:\b\w+|\(\*\w+\))", " *", r"\([^\n={}]*\)(?: *const)?(?: override| = 0)?;"),
+        (4, r" *\b[^\n=]*?[^\n=, ] +(?:\b\w+|\(\*\w+\))", " *", r"\([^\n={}]*\)(?: *const)?(?: override| += 0)?;"),
     ]
     post_patterns = [
         # align constructor with destructor
@@ -118,6 +118,8 @@ def main():
         (r"//([^ ])", r"// \1"),
         # remove trailing whitespace
         (r"[ \t\r]+\n", r"\n"),
+        # remove = 0 misalignment
+        (r"\) += 0;", r") = 0;"),
     ]
     for i, (p, t) in enumerate(pre_patterns):
         pre_patterns[i] = re.compile(p), t
