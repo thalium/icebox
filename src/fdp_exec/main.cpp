@@ -70,7 +70,11 @@ namespace
         core.os->proc_join(*target, os::JOIN_ANY_MODE);
         core.os->proc_join(*target, os::JOIN_USER_MODE);
 
-        if(core.os->proc_is_wow64(*target))
+        const auto is_wow64 = core.os->proc_is_wow64(*target);
+        if(!is_wow64)
+            FAIL(false, "unable to check if proc is wow64");
+
+        if(*is_wow64)
         {
             if(!core.os->setup_wow64(*target))
                 return false;
@@ -115,7 +119,7 @@ namespace
             return WALK_NEXT;
         });
 
-        if(core.os->proc_is_wow64(*target))
+        if(*is_wow64)
         {
             modcount = 0;
             core.os->mod_list32(*target, [&](mod_t)
@@ -227,7 +231,7 @@ namespace
 
         // test syscall plugin
         {
-            if(core.os->proc_is_wow64(*target))
+            if(*is_wow64)
                 test_tracer<syscall_tracer::SyscallPluginWow64>(core, pe, *target);
             else
                 test_tracer<syscall_tracer::SyscallPlugin>(core, pe, *target);
