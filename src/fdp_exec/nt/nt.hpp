@@ -2,6 +2,8 @@
 
 #include "types.hpp"
 
+#include <string.h>
+
 namespace nt
 {
     using ACCESS_MASK                          = uint32_t;

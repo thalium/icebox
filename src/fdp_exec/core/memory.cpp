@@ -229,7 +229,6 @@ bool core::Memory::read_virtual(void* vdst, dtb_t dtb, uint64_t src, size_t size
 
 bool core::Memory::read_physical(void* vdst, uint64_t src, size_t size)
 {
-    const auto dst   = reinterpret_cast<uint8_t*>(vdst);
-    const auto usize = static_cast<uint32_t>(size);
+    const auto dst = reinterpret_cast<uint8_t*>(vdst);
     return ::read_physical(*d_, dst, src, size);
 }

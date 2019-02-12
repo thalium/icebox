@@ -33,6 +33,7 @@ bool operator<(phy_t a, phy_t b) { return a.val < b.val; }
 bool operator==(dtb_t a, dtb_t b) { return a.val == b.val; }
 bool operator==(proc_t a, proc_t b) { return a.id == b.id; }
 bool operator!=(proc_t a, proc_t b) { return a.id != b.id; }
+bool operator==(thread_t a, thread_t b) { return a.id == b.id; }
 bool operator!=(thread_t a, thread_t b) { return a.id != b.id; }
 
 namespace

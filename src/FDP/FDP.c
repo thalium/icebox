@@ -222,13 +222,17 @@ FDP_SHM* FDP_CreateSHM(char* shmName)
 
     /* create the shared memory segment */
     fdSHM = shm_open(shmName, O_CREAT | O_RDWR, 0666);
-    if(fdSHM == NULL)
+    if(!fdSHM)
     {
         return NULL;
     }
 
     /* configure the size of the shared memory segment */
-    ftruncate(fdSHM, FDP_SHM_SHARED_SIZE);
+    if(ftruncate(fdSHM, FDP_SHM_SHARED_SIZE))
+    {
+        shm_unlink(shmName);
+        return NULL;
+    }
 
     /* now map the shared memory segment in the address space of the process */
     pBuf = mmap(0, FDP_SHM_SHARED_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fdSHM, 0);
@@ -277,7 +281,7 @@ void* OpenShm(const char* pShmName, size_t szShmSize)
 
     /* open the shared memory segment */
     fdSHM = shm_open(pShmName, O_RDWR, 0666);
-    if(fdSHM == NULL)
+    if(!fdSHM)
     {
         return NULL;
     }
@@ -330,14 +334,13 @@ bool FDP_Pause(FDP_SHM* pFDP)
     {
         return false;
     }
-    bool bReturnValue        = false;
-    uint32_t InputBufferSize = 0;
+    bool bReturnValue = false;
     FDP_SIMPLE_PKT_REQ TempPkt;
     TempPkt.Type = FDPCMD_PAUSE_VM;
     LockSHM(pFDP->pSharedFDPSHM);
     {
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, (uint8_t*) &TempPkt, sizeof(TempPkt));
-        InputBufferSize = ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
+        ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
     }
     UnlockSHM(pFDP->pSharedFDPSHM);
     return bReturnValue;
@@ -350,14 +353,13 @@ bool FDP_Resume(FDP_SHM* pFDP)
     {
         return false;
     }
-    bool bReturnValue        = false;
-    uint32_t InputBufferSize = 0;
+    bool bReturnValue = false;
     FDP_SIMPLE_PKT_REQ TempPkt;
     TempPkt.Type = FDPCMD_RESUME_VM;
     LockSHM(pFDP->pSharedFDPSHM);
     {
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, (uint8_t*) &TempPkt, sizeof(TempPkt));
-        InputBufferSize = ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
+        ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
     }
     UnlockSHM(pFDP->pSharedFDPSHM);
     return bReturnValue;
@@ -370,14 +372,13 @@ bool FDP_Reboot(FDP_SHM* pFDP)
     {
         return false;
     }
-    bool bReturnValue        = false;
-    uint32_t InputBufferSize = 0;
+    bool bReturnValue = false;
     FDP_SIMPLE_PKT_REQ TempPkt;
     TempPkt.Type = FDPCMD_REBOOT;
     LockSHM(pFDP->pSharedFDPSHM);
     {
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, (uint8_t*) &TempPkt, sizeof(TempPkt));
-        InputBufferSize = ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
+        ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
     }
     UnlockSHM(pFDP->pSharedFDPSHM);
     return bReturnValue;
@@ -385,8 +386,7 @@ bool FDP_Reboot(FDP_SHM* pFDP)
 
 bool FDP_ReadPhysicalMemoryInternal(FDP_SHM* pFDP, uint8_t* pDstBuffer, uint32_t ReadSize, uint64_t PhysicalAddress)
 {
-    uint64_t ReceivedSize = 0;
-    bool bReturnCode      = false;
+    bool bReturnCode = false;
     FDP_READ_PHYSICAL_MEMORY_PKT_REQ tmpPkt;
     tmpPkt.Type            = FDPCMD_READ_PHYSICAL;
     tmpPkt.PhysicalAddress = PhysicalAddress;
@@ -394,7 +394,7 @@ bool FDP_ReadPhysicalMemoryInternal(FDP_SHM* pFDP, uint8_t* pDstBuffer, uint32_t
     LockSHM(pFDP->pSharedFDPSHM);
     {
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, (uint8_t*) &tmpPkt, sizeof(FDP_READ_PHYSICAL_MEMORY_PKT_REQ));
-        ReceivedSize = ReadFDPDataWithStatus(&pFDP->pSharedFDPSHM->ServerToClient, pDstBuffer, &bReturnCode);
+        ReadFDPDataWithStatus(&pFDP->pSharedFDPSHM->ServerToClient, pDstBuffer, &bReturnCode);
     }
     UnlockSHM(pFDP->pSharedFDPSHM);
     return bReturnCode;
@@ -425,8 +425,7 @@ bool FDP_ReadPhysicalMemory(FDP_SHM* pFDP, uint8_t* pDstBuffer, uint32_t ReadSiz
 bool FDP_ReadVirtualMemoryInternal(FDP_SHM* pFDP, uint32_t CpuId, uint8_t* pDstBuffer, uint32_t ReadSize,
                                    uint64_t VirtualAddress)
 {
-    uint32_t ReceivedSize = 0;
-    bool bReturnCode      = false;
+    bool bReturnCode = false;
     FDP_READ_VIRTUAL_MEMORY_PKT_REQ tmpPkt;
     tmpPkt.Type           = FDPCMD_READ_VIRTUAL;
     tmpPkt.CpuId          = CpuId;
@@ -435,7 +434,7 @@ bool FDP_ReadVirtualMemoryInternal(FDP_SHM* pFDP, uint32_t CpuId, uint8_t* pDstB
     LockSHM(pFDP->pSharedFDPSHM);
     {
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, (uint8_t*) &tmpPkt, sizeof(FDP_READ_PHYSICAL_MEMORY_PKT_REQ));
-        ReceivedSize = ReadFDPDataWithStatus(&pFDP->pSharedFDPSHM->ServerToClient, pDstBuffer, &bReturnCode);
+        ReadFDPDataWithStatus(&pFDP->pSharedFDPSHM->ServerToClient, pDstBuffer, &bReturnCode);
     }
     UnlockSHM(pFDP->pSharedFDPSHM);
     return bReturnCode;
@@ -471,8 +470,7 @@ bool FDP_WritePhysicalMemory(FDP_SHM* pFDP, uint8_t* pSrcBuffer, uint32_t WriteS
     {
         return false;
     }
-    uint32_t InputBufferSize = 0;
-    bool bReturnValue        = false;
+    bool bReturnValue = false;
     LockSHM(pFDP->pSharedFDPSHM);
     {
         FDP_WRITE_PHYSICAL_MEMORY_PKT_REQ* TempPkt = (FDP_WRITE_PHYSICAL_MEMORY_PKT_REQ*) pFDP->OutputBuffer;
@@ -484,7 +482,7 @@ bool FDP_WritePhysicalMemory(FDP_SHM* pFDP, uint8_t* pSrcBuffer, uint32_t WriteS
             memcpy(TempPkt->Data, pSrcBuffer, WriteSize);
             WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, (uint8_t*) TempPkt,
                          sizeof(FDP_READ_PHYSICAL_MEMORY_PKT_REQ) + WriteSize);
-            InputBufferSize = ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
+            ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
         }
     }
     UnlockSHM(pFDP->pSharedFDPSHM);
@@ -499,8 +497,7 @@ bool FDP_WriteVirtualMemory(FDP_SHM* pFDP, uint32_t CpuId, uint8_t* pSrcBuffer, 
     {
         return false;
     }
-    bool bReturnValue        = false;
-    uint32_t InputBufferSize = 0;
+    bool bReturnValue = false;
     LockSHM(pFDP->pSharedFDPSHM);
     {
         FDP_WRITE_VIRTUAL_MEMORY_PKT_REQ* TempPkt = (FDP_WRITE_VIRTUAL_MEMORY_PKT_REQ*) pFDP->OutputBuffer;
@@ -513,7 +510,7 @@ bool FDP_WriteVirtualMemory(FDP_SHM* pFDP, uint32_t CpuId, uint8_t* pSrcBuffer, 
             memcpy(TempPkt->Data, pSrcBuffer, WriteSize);
             WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, pFDP->OutputBuffer,
                          sizeof(FDP_WRITE_VIRTUAL_MEMORY_PKT_REQ) + WriteSize);
-            InputBufferSize = ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
+            ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
         }
     }
     UnlockSHM(pFDP->pSharedFDPSHM);
@@ -688,8 +685,7 @@ bool FDP_WriteMsr(FDP_SHM* pFDP, uint32_t CpuId, uint64_t MsrId, uint64_t MsrVal
     {
         return false;
     }
-    bool bReturnValue        = false;
-    uint32_t InputBufferSize = 0;
+    bool bReturnValue = false;
     FDP_WRITE_MSR_PKT_REQ TempPkt;
     TempPkt.Type     = FDPCMD_WRITE_MSR;
     TempPkt.CpuId    = CpuId;
@@ -698,7 +694,7 @@ bool FDP_WriteMsr(FDP_SHM* pFDP, uint32_t CpuId, uint64_t MsrId, uint64_t MsrVal
     LockSHM(pFDP->pSharedFDPSHM);
     {
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, (uint8_t*) &TempPkt, sizeof(FDP_WRITE_MSR_PKT_REQ));
-        InputBufferSize = ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
+        ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
     }
     UnlockSHM(pFDP->pSharedFDPSHM);
     return bReturnValue;
@@ -711,8 +707,7 @@ bool FDP_WriteRegister(FDP_SHM* pFDP, uint32_t CpuId, FDP_Register RegisterId, u
     {
         return false;
     }
-    uint32_t InputBufferSize = 0;
-    bool bReturnValue        = false;
+    bool bReturnValue = false;
     FDP_WRITE_REGISTER_PKT_REQ TempPkt;
     TempPkt.Type          = FDPCMD_WRITE_REGISTER;
     TempPkt.CpuId         = CpuId;
@@ -721,7 +716,7 @@ bool FDP_WriteRegister(FDP_SHM* pFDP, uint32_t CpuId, FDP_Register RegisterId, u
     LockSHM(pFDP->pSharedFDPSHM);
     {
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, (uint8_t*) &TempPkt, sizeof(FDP_WRITE_REGISTER_PKT_REQ));
-        InputBufferSize = ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
+        ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
     }
     UnlockSHM(pFDP->pSharedFDPSHM);
     return bReturnValue;
@@ -734,15 +729,14 @@ bool FDP_UnsetBreakpoint(FDP_SHM* pFDP, int BreakpointId)
     {
         return false;
     }
-    uint32_t InputBufferSize = 0;
-    bool bReturnValue        = false;
+    bool bReturnValue = false;
     FDP_CLEAR_BREAKPOINT_PKT_REQ TempPkt;
     TempPkt.Type         = FDPCMD_UNSET_BP;
     TempPkt.BreakpointId = BreakpointId;
     LockSHM(pFDP->pSharedFDPSHM);
     {
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, (uint8_t*) &TempPkt, sizeof(FDP_CLEAR_BREAKPOINT_PKT_REQ));
-        InputBufferSize = ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
+        ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
     }
     UnlockSHM(pFDP->pSharedFDPSHM);
     return bReturnValue;
@@ -764,7 +758,6 @@ int FDP_SetBreakpoint(
     {
         return false;
     }
-    uint32_t InputBufferSize = 0;
     int                        iReturnedBreakpointId;
     FDP_SET_BREAKPOINT_PKT_REQ TempPkt;
     TempPkt.Type                  = FDPCMD_SET_BP;
@@ -779,7 +772,7 @@ int FDP_SetBreakpoint(
     LockSHM(pFDP->pSharedFDPSHM);
     {
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, (uint8_t*) &TempPkt, sizeof(FDP_SET_BREAKPOINT_PKT_REQ));
-        InputBufferSize = ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &iReturnedBreakpointId);
+        ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &iReturnedBreakpointId);
     }
     UnlockSHM(pFDP->pSharedFDPSHM);
     return iReturnedBreakpointId;
@@ -860,15 +853,14 @@ bool FDP_SingleStep(FDP_SHM* pFDP, uint32_t CpuId)
     {
         return false;
     }
-    bool bReturnValue        = false;
-    uint32_t InputBufferSize = 0;
+    bool bReturnValue = false;
     FDP_SINGLE_STEP_PKT_REQ TempPkt;
     TempPkt.Type  = FDPCMD_SINGLE_STEP;
     TempPkt.CpuId = CpuId;
     LockSHM(pFDP->pSharedFDPSHM);
     {
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, (uint8_t*) &TempPkt, sizeof(FDP_SINGLE_STEP_PKT_REQ));
-        InputBufferSize = ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
+        ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue);
     }
     UnlockSHM(pFDP->pSharedFDPSHM);
     return bReturnValue;
@@ -939,14 +931,13 @@ bool FDP_GetPhysicalMemorySize(FDP_SHM* pFDP, uint64_t* PhysicalMemorySize)
     {
         return false;
     }
-    bool bReturnValue        = true;
-    uint32_t InputBufferSize = 0;
+    bool bReturnValue = true;
     FDP_SIMPLE_PKT_REQ TempPkt;
     TempPkt.Type = FDPCMD_GET_MEMORYSIZE;
     LockSHM(pFDP->pSharedFDPSHM);
     {
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, (uint8_t*) &TempPkt, sizeof(TempPkt));
-        InputBufferSize = ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) PhysicalMemorySize);
+        ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) PhysicalMemorySize);
     }
     UnlockSHM(pFDP->pSharedFDPSHM);
     // TODO return bool !
@@ -960,14 +951,13 @@ bool FDP_GetCpuCount(FDP_SHM* pFDP, uint32_t* CPUCount)
     {
         return false;
     }
-    bool bReturnValue        = true;
-    uint32_t InputBufferSize = 0;
+    bool bReturnValue = true;
     FDP_SIMPLE_PKT_REQ TempPkt;
     TempPkt.Type = FDPCMD_GET_CPU_COUNT;
     LockSHM(pFDP->pSharedFDPSHM);
     {
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, (uint8_t*) &TempPkt, sizeof(TempPkt));
-        InputBufferSize = ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) CPUCount);
+        ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) CPUCount);
     }
     UnlockSHM(pFDP->pSharedFDPSHM);
     return bReturnValue;
@@ -1343,7 +1333,7 @@ bool FDP_ServerLoop(FDP_SHM* pFDP)
             case FDPCMD_WRITE_VIRTUAL:
             {
                 FDP_WRITE_VIRTUAL_MEMORY_PKT_REQ* TempPkt = (FDP_WRITE_VIRTUAL_MEMORY_PKT_REQ*) pFDP->InputBuffer;
-                pFDP->OutputBuffer[0] = pFDP->OutputBuffer[0] = pFDP->pFdpServer->pfnWriteVirtualMemory(
+                pFDP->OutputBuffer[0]                     = pFDP->pFdpServer->pfnWriteVirtualMemory(
                     pFDP->pFdpServer->pUserHandle,
                     TempPkt->CpuId,
                     TempPkt->Data,
@@ -1355,7 +1345,7 @@ bool FDP_ServerLoop(FDP_SHM* pFDP)
             case FDPCMD_INJECT_INTERRUPT:
             {
                 FDP_INJECT_INTERRUPT_PKT_REQ* TempPkt = (FDP_INJECT_INTERRUPT_PKT_REQ*) pFDP->InputBuffer;
-                pFDP->OutputBuffer[0] = pFDP->OutputBuffer[0] = pFDP->pFdpServer->pfnInjectInterrupt(
+                pFDP->OutputBuffer[0]                 = pFDP->pFdpServer->pfnInjectInterrupt(
                     pFDP->pFdpServer->pUserHandle,
                     TempPkt->CpuId,
                     TempPkt->InterruptionCode,
@@ -1480,7 +1470,6 @@ bool FDP_ClientServerTest()
         return false;
     }
 #else
-    int       rc;
     void*     ret;
     pthread_t threadServer;
     if(pthread_create(&threadServer, NULL, FDP_UnitTestClient, pFDPServer))

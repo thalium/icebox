@@ -36,7 +36,6 @@ namespace
 
     opt<arg_t> get_arg_by_index64(core::Core& core, size_t index)
     {
-        static const int pointer_size = 0x8;
         switch(index)
         {
             case 0:     return to_arg  (core.regs.read(FDP_RCX_REGISTER));
@@ -49,13 +48,11 @@ namespace
 
     opt<arg_t> get_arg_by_index32(core::Core& core, size_t index)
     {
-        static const int pointer_size = 0x4;
         return to_arg(get_stack_by_index32(core, index + 1));
     }
 
     bool set_arg_by_index64(core::Core& core, size_t index, uint64_t value)
     {
-        static const int pointer_size = 0x8;
         switch(index)
         {
             case 0:     return core.regs.write(FDP_RCX_REGISTER, value);

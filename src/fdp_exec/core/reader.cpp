@@ -21,9 +21,8 @@ namespace
 
 reader::Reader reader::make(core::Core& core)
 {
-    reader::Reader reader{core};
-    reader.udtb_.val = reader.kdtb_.val = core.regs.read(FDP_CR3_REGISTER);
-    return reader;
+    const auto cr3 = core.regs.read(FDP_CR3_REGISTER);
+    return {core, {cr3}, {cr3}};
 }
 
 reader::Reader reader::make(core::Core& core, proc_t proc)

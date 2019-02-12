@@ -26,6 +26,8 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <stdbool.h>
+#include <time.h>
+#include <inttypes.h>
 
 #ifdef  _MSC_VER
 #include <Windows.h>
@@ -147,7 +149,7 @@ bool testReadWriteRegister(FDP_SHM* pFDP){
     }
 
     if (modRAXValue != TEST_REGISTER_VALUE){
-        printf("RegisterValue doesn't match %llx != %llx!\n", modRAXValue, TEST_REGISTER_VALUE);
+        printf("RegisterValue doesn't match %" PRIx64 "x != %" PRIx64 "!\n", modRAXValue, TEST_REGISTER_VALUE);
         return false;
     }
 
@@ -503,7 +505,6 @@ bool testPhysicalSyscallBP(FDP_SHM* pFDP, FDP_BreakpointType BreakpointType){
             if (state & FDP_STATE_BREAKPOINT_HIT
                 && !(state & FDP_STATE_DEBUGGER_ALERTED)){
                 i++;
-                uint8_t state = 0;
                 if (FDP_UnsetBreakpoint(pFDP, breakpointId) == false){
                     printf("Failed to remove page breakpoint !\n");
                     return false;
@@ -897,6 +898,12 @@ bool testMultiCpu(FDP_SHM* pFDP)
     return true;
 }
 
+static void wait_input()
+{
+    char line[256];
+    char* rpy = fgets(line, (int) sizeof line, stdin);
+    (void) rpy;
+}
 
 
 
@@ -905,61 +912,61 @@ bool testState(FDP_SHM* pFDP)
     printf("%s ...", __FUNCTION__);
     if (FDP_Resume(pFDP) == false){
         printf("Failed to resume!\n");
-        system("pause");
+        wait_input();;
         return false;
     }
     if (FDP_Pause(pFDP) == false){
         printf("Failed to pause !\n");
-        system("pause");
+        wait_input();
         return false;
     }
 
     FDP_State state;
     if (FDP_GetState(pFDP, &state) == false){
         printf("Failed to get state !\n");
-        system("pause");
+        wait_input();
         return false;
     }
 
     if (!(state & FDP_STATE_PAUSED)){
         printf("1. State !=  STATE_PAUSED (state %02x)!\n", state);
-        system("pause");
+        wait_input();
         return false;
     }
 
     if (FDP_Pause(pFDP) == false){
         printf("Failed to pause !\n");
-        system("pause");
+        wait_input();
         return false;
     }
 
     if (FDP_Resume(pFDP) == false){
         printf("Failed to pause !\n");
-        system("pause");
+        wait_input();
         return false;
     }
 
     if (FDP_Resume(pFDP) == false){
         printf("Failed to pause !\n");
-        system("pause");
+        wait_input();
         return false;
     }
 
     if (FDP_Pause(pFDP) == false){
         printf("Failed to pause !\n");
-        system("pause");
+        wait_input();
         return false;
     }
 
     if (FDP_GetState(pFDP, &state) == false){
         printf("Failed to get state !\n");
-        system("pause");
+        wait_input();
         return false;
     }
 
     if (!(state & FDP_STATE_PAUSED)){
         printf("3. State !=  STATE_PAUSED (state %02x)!\n", state);
-        system("pause");
+        wait_input();
         return false;
     }
 
@@ -1238,7 +1245,7 @@ bool testSaveRestore(FDP_SHM* pFDP)
 
     if (FDP_Pause(pFDP) == false){
         printf("Failed to pause !\n");
-        system("pause");
+        wait_input();
         return false;
     }
 
@@ -1313,7 +1320,7 @@ bool testReadAllPhysicalMemory(FDP_SHM* pFDP)
     printf("%s ...", __FUNCTION__);
 
     uint64_t PhysicalAddress = 0;
-    char Buffer[4096];
+    uint8_t Buffer[4096];
     uint64_t PhysicalMaxAddress = 0;
 
     if (FDP_Pause(pFDP) == false){
@@ -1347,7 +1354,7 @@ bool testReadWriteAllPhysicalMemory(FDP_SHM* pFDP)
     printf("%s ...", __FUNCTION__);
 
     uint64_t PhysicalAddress = 0;
-    char Buffer[4096];
+    uint8_t Buffer[4096];
     uint64_t PhysicalMaxAddress = 0;
 
     if (FDP_Pause(pFDP) == false){
@@ -1373,239 +1380,6 @@ bool testReadWriteAllPhysicalMemory(FDP_SHM* pFDP)
     printf("[OK]\n");
     return true;
 }
-
-
-/*#define EPROCESS_ACTIVEPROCESSLIST_OFF 0x2F0
-#define EPROCESS_PROCESSNAME_OFF 0x448
-#define EPROCESS_PROCESSNAME_SIZE 15
-uint64_t GetPsActiveProcessHead(){
-    return 0xfffff80002883b90;
-}
-
-uint64_t BreakOnKiSystemCall64(FDP_SHM *pFDP){
-
-    FDP_Pause(pFDP);
-
-    uint64_t KiSystemCall64;
-    if (FDP_ReadMsr(pFDP, 0, MSR_LSTAR, &KiSystemCall64) == false){
-        printf("Failed to read FDP_ReadMsr !\n");
-        return false;
-    }
-
-    int breakpointId = FDP_SetBreakpoint(pFDP, 0, FDP_SOFTHBP, -1, FDP_EXECUTE_BP, FDP_VIRTUAL_ADDRESS, KiSystemCall64, 1);
-    if (breakpointId < 0){
-        printf("Failed to FDP_SetBreakpoint !\n");
-        return false;
-    }
-
-    if (FDP_Resume(pFDP) == false){
-        printf("Failed to FDP_Resume");
-        return false;
-    }
-
-    //TODO:
-    while (true){
-        if (FDP_GetStateChanged(pFDP) == true){
-            FDP_State state;
-            if (FDP_GetState(pFDP, &state) == false){
-                printf("Failed to FDP_GetState !\n");
-                return false;
-            }
-            if (state & FDP_STATE_BREAKPOINT_HIT
-                && !(state & FDP_STATE_DEBUGGER_ALERTED)){
-                break;
-            }
-        }
-    }
-
-    FDP_UnsetBreakpoint(pFDP, breakpointId);
-
-    printf("BreakOnKiSystemCall64\n");
-
-    return true;
-}
-
-
-bool MonitorProcessList(FDP_SHM *pFDP){
-    bool bRunning = true;
-
-    FDP_Resume(pFDP);
-    printf("Saving safe state...");
-    FDP_Pause(pFDP);
-    FDP_Save(pFDP);
-    FDP_Resume(pFDP);
-    printf("DONE !\n");
-
-    uint64_t ReadCount = 0;
-
-    ReadCount = 0;
-    TimerOut = false;
-    TimerGo = true;
-    iTimerDelay = 1;
-    while (true){
-        if (TimerOut == true){
-            printf("%d\n", ReadCount / TimerGetDelay());
-            ReadCount = 0;
-            TimerOut = false;
-            TimerGo = true;
-        }
-        uint64_t PsActiveProcessHead = GetPsActiveProcessHead();
-        uint64_t FirstProcess = PsActiveProcessHead - EPROCESS_ACTIVEPROCESSLIST_OFF;
-
-        if (FDP_ReadVirtualMemory(pFDP, 0, (uint8_t*)&FirstProcess, sizeof(FirstProcess), FirstProcess + EPROCESS_ACTIVEPROCESSLIST_OFF) == false){
-            break;
-        }
-        FirstProcess = FirstProcess - EPROCESS_ACTIVEPROCESSLIST_OFF;
-        uint64_t CurrentProcess = FirstProcess;
-        while (true){
-            char ProcessName[EPROCESS_PROCESSNAME_SIZE];
-            if (FDP_ReadVirtualMemory(pFDP, 0, (uint8_t*)ProcessName, EPROCESS_PROCESSNAME_SIZE, CurrentProcess + EPROCESS_PROCESSNAME_OFF) == false){
-                break;
-            }
-
-            if (strcmp(ProcessName, "notepad.exe") == 0){
-                printf("Restoring state...");
-                FDP_Pause(pFDP);
-                FDP_Restore(pFDP);
-                FDP_Resume(pFDP);
-                printf("DONE !\n");
-                break;
-            }
-
-            if (FDP_ReadVirtualMemory(pFDP, 0, (uint8_t*)&CurrentProcess, sizeof(CurrentProcess), CurrentProcess + EPROCESS_ACTIVEPROCESSLIST_OFF) == false){
-                break;
-            }
-            CurrentProcess = CurrentProcess - EPROCESS_ACTIVEPROCESSLIST_OFF;
-
-            if (CurrentProcess == FirstProcess){
-                ReadCount++;
-                break;
-            }
-        }
-    }
-    return 0;
-}
-
-uint64_t FDP_VirutalChecksum(FDP_SHM *pFDP, uint64_t VirtualAddress, uint32_t DataSize)
-{
-    uint64_t ChecksumResult = 0xDEADDEADDEADDEAD;
-    uint64_t Buffer[4096 / 8];
-    for (uint32_t i = 0; i < (DataSize / 4096); i++){
-        printf(".");
-        FDP_ReadVirtualMemory(pFDP, 0, (uint8_t*)Buffer, 4096, VirtualAddress + (i * 4096));
-
-        for (int j = 0; j < (4096 / 8); j++){
-            ChecksumResult = (ChecksumResult ^ Buffer[j]);
-        }
-    }
-    return ChecksumResult;
-}
-
-bool testNTChecksum(FDP_SHM *pFDP){
-    uint64_t NTVirtualAddress = 0xfffff80097e08018;
-    while (true){
-        uint64_t CurrentChecksum = FDP_VirutalChecksum(pFDP, NTVirtualAddress, 0x80d3e8);
-        printf("%p\n", CurrentChecksum);
-        Sleep(1000);
-    }
-}
-
-bool MonitorNtCreateFile(FDP_SHM* pFDP){
-    printf("%s ...", __FUNCTION__);
-
-    if (FDP_Pause(pFDP) == false){
-        printf("Failed to pause !\n");
-    }
-
-    uint64_t oldDR0Value;
-    uint64_t oldDR7Value;
-    if (FDP_ReadRegister(pFDP, 0, FDP_DR0_REGISTER, &oldDR0Value) == false){
-        return false;
-    }
-    if (FDP_ReadRegister(pFDP, 0, FDP_DR7_REGISTER, &oldDR7Value) == false){
-        return false;
-    }
-
-    uint64_t NtCreateFileAddress = 0xfffff80098289270; //NtCreateFIile
-    //uint64_t NtCreateFileAddress = 0xfffff80098289204; //NtOpenFile
-    //uint64_t NtCreateFileAddress = 0xfffff80098226100; //NtWriteFile
-
-    if (FDP_WriteRegister(pFDP, 0, FDP_DR0_REGISTER, NtCreateFileAddress) == false){
-        printf("Failed to write DR0!\n");
-        return false;
-    }
-
-    if (FDP_WriteRegister(pFDP, 0, FDP_DR7_REGISTER, 0x0000000000000403) == false){
-        printf("Failed to write DR0!\n");
-        return false;
-    }
-
-    if (FDP_Resume(pFDP) == 0){
-        return false;
-    }
-
-    printTime();
-    int i = 0;
-    while (i < 10000000000){
-        if (FDP_GetStateChanged(pFDP)){
-            FDP_State state;
-            if (FDP_GetState(pFDP, &state) == false){
-                printf("Failed to get state !\n");
-                return false;
-            }
-            if (state & FDP_STATE_BREAKPOINT_HIT
-                && !(state & FDP_STATE_DEBUGGER_ALERTED)){
-                i++;
-
-
-                uint64_t R8Value;
-                FDP_ReadRegister(pFDP, 0, FDP_R8_REGISTER, &R8Value);
-
-                uint64_t ObjectAttributeAddress;
-                FDP_ReadVirtualMemory(pFDP, 0, (uint8_t*)&ObjectAttributeAddress, 8, R8Value + (2 * 8));
-
-                uint64_t ObjectNameAddress;
-                FDP_ReadVirtualMemory(pFDP, 0, (uint8_t*)&ObjectNameAddress, 8, ObjectAttributeAddress + 8);
-
-                wchar_t ObjectName[512];
-                FDP_ReadVirtualMemory(pFDP, 0, (uint8_t*)ObjectName, 512, ObjectNameAddress);
-                ObjectName[254] = 0x00;
-                printf("%S\n", ObjectName);
-
-                if (FDP_WriteRegister(pFDP, 0, FDP_DR7_REGISTER, 0) == false){
-                    printf("Failed to write DR7!\n");
-                    return false;
-                }
-                if (FDP_SingleStep(pFDP, 0) == false){
-                    return false;
-                }
-                if (FDP_WriteRegister(pFDP, 0, FDP_DR7_REGISTER, 0x0000000000000403) == false){
-                    printf("Failed to write DR7!\n");
-                    return false;
-                }
-                if (FDP_Resume(pFDP) == false){
-                    return false;
-                }
-            }
-        }
-    }
-    printTime();
-
-    if (FDP_WriteRegister(pFDP, 0, FDP_DR0_REGISTER, oldDR0Value) == false){
-        return false;
-    }
-
-    if (FDP_WriteRegister(pFDP, 0, FDP_DR7_REGISTER, oldDR7Value) == false){
-        return false;
-    }
-
-    if (FDP_Resume(pFDP) == false){
-        return false;
-    }
-
-    printf("[OK]\n");
-    return true;
-}*/
 
 bool testSetCr3(FDP_SHM* pFDP)
 {

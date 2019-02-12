@@ -120,8 +120,10 @@ typedef struct _FDP_SetBreakpoint_req
     uint64_t breakAddress;
 } FDP_SetBreakpoint_req;
 
-#pragma pack(push, 1)
-#pragma warning(disable : 4200)
+#ifdef _MSC_VER
+#    pragma pack(push, 1)
+#    pragma warning(disable : 4200)
+#endif
 
 #define FDP_1M              1024 * 1024
 #define FDP_MAX_DATA_SIZE   10 * FDP_1M
@@ -274,12 +276,6 @@ typedef struct FDP_UNSET_BREAKPOINT_PKT_REQ
     int     BreakpointId;
 } FDP_CLEAR_BREAKPOINT_PKT_REQ;
 
-/*typedef struct FDP_SWITCH_CPU_PKT_REQ_
-{
-uint8_t  Type;
-uint32_t CPUIndex;
-} FDP_SWITCH_CPU_PKT_REQ;*/
-
 typedef struct FDP_SET_BREAKPOINT_PKT_REQ_
 {
     uint8_t  Type;
@@ -308,6 +304,9 @@ typedef struct FDP_SET_FX_STATE_REQ_
     uint32_t CpuId;
     FDP_XSAVE_FORMAT64_T FxState64;
 } FDP_SET_FX_STATE_REQ;
-#pragma pack(pop)
+
+#ifdef _MSC_VER
+#    pragma pack(pop)
+#endif
 
 #endif

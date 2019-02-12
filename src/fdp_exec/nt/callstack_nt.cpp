@@ -9,6 +9,7 @@
 #include "utils/fnview.hpp"
 #include "utils/path.hpp"
 #include "utils/pe.hpp"
+#include "utils/utils.hpp"
 
 #include <algorithm>
 #include <map>
@@ -302,6 +303,7 @@ bool CallstackNt::get_callstack64(proc_t proc, callstack::context_t ctx, const c
 
             const auto filename = path::filename(*modname).replace_extension("").generic_string();
             const auto inserted = core_.sym.insert(filename.data(), *span, &buffer[0], buffer.size());
+            UNUSED(inserted);
         }
 
         // Get function table of the module

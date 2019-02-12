@@ -26,6 +26,8 @@ namespace pdb = retdec::pdbparser;
 
 #ifdef _MSC_VER
 #    define stricmp _stricmp
+#else
+#    define stricmp strcasecmp
 #endif
 
 namespace

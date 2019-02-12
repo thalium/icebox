@@ -513,7 +513,7 @@ bool OsNt::setup_wow64(proc_t proc)
 
     bool found      = false;
     const auto head = *ldr32 + offsetof(peb_ldr_data32_t, InLoadOrderModuleList);
-    for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
+    for(auto link = reader.le32(head); link && link != static_cast<uint32_t>(head); link = reader.le32(*link))
     {
         const mod_t mod = {*link - offsetof(ldr_data_table_entry_t, InLoadOrderLinks)};
         const auto name = read_unicode_string32(reader, mod.id + offsetof(ldr_data_table_entry_t, FullDllName));
@@ -653,7 +653,7 @@ bool OsNt::mod_list32(proc_t proc, const on_mod_fn& on_mod)
         FAIL(false, "unable to read PEB32.Ldr");
 
     const auto head = *ldr32 + members_[PEB_LDR_DATA32_InLoadOrderModuleList];
-    for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
+    for(auto link = reader.le32(head); link && link != static_cast<uint32_t>(head); link = reader.le32(*link))
         if(on_mod({*link - members_[LDR_DATA_TABLE_ENTRY32_InLoadOrderLinks]}) == WALK_STOP)
             break;
 
