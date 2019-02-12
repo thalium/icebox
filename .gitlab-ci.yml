@@ -26,6 +26,6 @@ build:clang:
   script:
     - $APT_UPDATE && $APT_INSTALL cmake python3 clang-7 clang-tidy-7 ninja-build > /dev/null
     - cd build
-    - CC=/usr/bin/clang-7 CXX=/usr/bin/clang++-7 TARGET=Ninja ./configure.sh
+    - CC=/usr/bin/clang-7 CXX=/usr/bin/clang++-7 TARGET=Ninja USE_STATIC_ANALYZER=1 ./configure.sh
     - cd ../out/x64
     - ninja

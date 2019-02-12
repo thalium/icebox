@@ -12,6 +12,11 @@ then
 fi
 echo CONFIG=$CONFIG [Debug, RelWithDebInfo]
 
+if [ -z "$USE_STATIC_ANALYZER" ]
+then
+    USE_STATIC_ANALYZER=0
+fi
+
 if [ -z "$OUT" ]
 then
     OUT=../out/x64
@@ -21,4 +26,5 @@ echo OUT=$OUT
 mkdir -p "$OUT"
 cd "$OUT"
 cmake ../../build -DCMAKE_BUILD_TYPE="${CONFIG}" \
-    -G "${TARGET}"
+    -G "${TARGET}" \
+    -DUSE_STATIC_ANALYZER=${USE_STATIC_ANALYZER}

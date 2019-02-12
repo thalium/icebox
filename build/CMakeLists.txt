@@ -14,6 +14,30 @@ if(NOT MSVC)
     )
 endif()
 
+if(${USE_STATIC_ANALYZER})
+    message("-- clang static analyzer: enabled")
+    find_program(CLANG_TIDY_EXECUTABLE NAMES clang-tidy clang-tidy-7)
+    if(NOT CLANG_TIDY_EXECUTABLE)
+        message(FATAL_ERROR "missing clang-tidy")
+    endif()
+    set(enable_checks "-*")
+    foreach(check IN ITEMS
+        "clang-analyzer-*"
+        "bugprone-*"
+        "modernize-*"
+        "misc-*"
+        "performance-*"
+        "portability-*"
+        "readability-*"
+    )
+        set(enable_checks "${enable_checks},${check}")
+    endforeach()
+    set(CLANG_TIDY_ARGS "${CLANG_TIDY_EXECUTABLE}"
+        "--warnings-as-errors=*"
+        "--checks=\"${enable_checks}\""
+    )
+endif()
+
 # fdp
 function(add_fdp target options)
     add_target(${target} libs "${root_dir}/src/FDP" OPTIONS fmt recurse warnings ${options})
@@ -94,15 +118,14 @@ function(add_tracer namespace input_file)
         COMMENT "generating ${filename}.gen.cpp"
     )
 endfunction()
-add_tracer("nt" "${monitor_dir}/syscalls.json")
+add_tracer("nt"     "${monitor_dir}/syscalls.json")
 add_tracer("wntdll" "${monitor_dir}/syscallswow64.json" "-w")
-add_tracer("nt" "${monitor_dir}/heaps.json")
+add_tracer("nt"     "${monitor_dir}/heaps.json")
 
 # fdp_exec
 set(fdp_exec_dir "${root_dir}/src/fdp_exec")
-add_target(fdp_exec apps ${fdp_exec_dir} OPTIONS fmt recurse executable)
+add_target(fdp_exec apps ${fdp_exec_dir} OPTIONS executable fmt recurse tidy)
 set_target_output_directory(fdp_exec "")
-
 target_include_directories(fdp_exec PRIVATE
     "${fdp_exec_dir}"
     "${root_dir}/deps/expected-lite/include"
