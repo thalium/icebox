@@ -142,6 +142,7 @@ function(get_files output)
             "${it}/*.cxx"
             "${it}/*.fbs"
             "${it}/*.h"
+            "${it}/*.hh"
             "${it}/*.hpp"
             "${it}/*.in"
             "${it}/*.json"
@@ -189,7 +190,7 @@ function(setup_flatbuffers target files_ includes_)
         set(output "${CMAKE_CURRENT_BINARY_DIR}/${namewe}_generated.h")
         add_custom_command(OUTPUT ${output}
             COMMAND ${FLATBUFFERS_FLATC_EXECUTABLE}
-            ARGS -c -p -o "${CMAKE_CURRENT_BINARY_DIR}/" ${it}
+            ARGS --cpp --python --scoped-enums --no-prefix -o "${CMAKE_CURRENT_BINARY_DIR}/" ${it}
             COMMENT "${namewe}.fbs"
             DEPENDS "${it}"
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
@@ -343,6 +344,7 @@ function(setup_gcc target)
         target_compile_options(${target} PRIVATE "-Wall")
     else()
         target_compile_options(${target} PRIVATE
+            "-W"
             "-Wall"
             "-Wextra"
             "-Werror"
@@ -366,6 +368,9 @@ function(setup_target target)
 endfunction()
 
 function(setup_clang_format target)
+    if("$ENV{DISABLE_CLANG_FORMAT}" STREQUAL "true")
+        return()
+    endif()
     find_program(CLANG_FORMAT "clang-format" REQUIRED)
     find_package(PythonInterp REQUIRED)
     get_target_property(files_ ${target} SOURCES)
@@ -389,6 +394,11 @@ function(setup_clang_format target)
             ${CLANG_FORMAT}
             ${files}
     )
+    add_dependencies(${target} ${target}_fmt)
+endfunction()
+
+function(setup_clang_tidy target)
+    set_target_properties(${target} PROPERTIES CXX_CLANG_TIDY "${CLANG_TIDY_ARGS}")
 endfunction()
 
 # make_target <target> <group> <files...> [INCLUDES <includes...>] [OPTIONS <options...>]
@@ -407,6 +417,8 @@ endfunction()
 # - external        disable warnings on external projects
 # - unity           enable unity build on target
 # - fmt             enable clang-format on target
+# - lto             enable link time optimizations
+# - tidy            enable clang-tidy
 function(make_target target group)
     message("-- Configuring ${group}/${target}")
 
@@ -423,6 +435,8 @@ function(make_target target group)
     has_item(is_win32 "win32" ${options})
     has_item(is_unity "unity" ${options})
     has_item(is_fmt "fmt" ${options})
+    has_item(is_lto "lto" ${options})
+    has_item(is_tidy "tidy" ${options})
 
     # sort files
     list(SORT files)
@@ -495,8 +509,20 @@ function(make_target target group)
         setup_clang_format(${target})
     endif()
 
+    # optional clang_tidy
+    if(is_tidy)
+        setup_clang_tidy(${target})
+    endif()
+
     # add all additional include directories
     add_target_includes(${target} includes)
+
+    if(is_lto AND NOT MSVC)
+	    set_target_properties(${target} PROPERTIES INTERPROCEDURAL_OPTIMIZATION TRUE)
+    endif()
+
+    string(TOUPPER ARCH_${ARCH} arch_define)
+    target_compile_definitions(${target} PRIVATE ${arch_define} $<$<CONFIG:Debug>:DEBUG>)
 
     # set directories for visual
     source_group(cmake REGULAR_EXPRESSION [.]rule$)
@@ -519,9 +545,11 @@ function(set_target_output_directory target suffix)
         RUNTIME_OUTPUT_DIRECTORY_DEBUG          "${bin_d_dir}/${suffix}"
         RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO "${bin_dir}/${suffix}"
         RUNTIME_OUTPUT_DIRECTORY_RELEASE        "${bin_dir}/${suffix}"
+        RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL     "${bin_dir}/${suffix}"
         LIBRARY_OUTPUT_DIRECTORY_DEBUG          "${bin_d_dir}/${suffix}"
         LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO "${bin_dir}/${suffix}"
         LIBRARY_OUTPUT_DIRECTORY_RELEASE        "${bin_dir}/${suffix}"
+        LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL     "${bin_dir}/${suffix}"
     )
 endfunction()
 
@@ -539,6 +567,7 @@ function(set_target_output_name target release debug)
         OUTPUT_NAME_DEBUG           ${debug}
         OUTPUT_NAME_RELWITHDEBINFO  ${release}
         OUTPUT_NAME_RELEASE         ${release}
+        OUTPUT_NAME_MINSIZEREL      ${release}
     )
 endfunction()
 
@@ -694,13 +723,13 @@ function(autoconfigure outputs includes target input)
 endfunction()
 
 # set current arch flag
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(ARCH x64)
-else()
-    set(ARCH x86)
+if("${ARCH}" STREQUAL "")
+    if(CMAKE_SIZEOF_VOID_P EQUAL 8)
+        set(ARCH x64)
+    else()
+        set(ARCH x86)
+    endif()
 endif()
-string(TOUPPER ARCH_${ARCH} arch_define)
-add_definitions(-D${arch_define})
 if(WIN32)
     set(OS nt)
 elseif(APPLE)
@@ -744,24 +773,27 @@ if(MSVC)
     # disable runtime checks (and add them back per target)
     set_cx_flags(DEBUG "/RTC1" " ")
     # disable broken incremental compilations on release
-    set_flag_all(LINKER_FLAGS "/INCREMENTAL(:(YES|NO))?" "/INCREMENTAL:NO" RELEASE RELWITHDEBINFO)
+    set_flag_all(LINKER_FLAGS "/INCREMENTAL(:(YES|NO))?" "/INCREMENTAL:NO" RELEASE RELWITHDEBINFO MINSIZEREL)
     # remove unused symbols on release
-    set_flag_all(LINKER_FLAGS "/OPT:REF" "/OPT:REF" RELEASE RELWITHDEBINFO)
-    set_flag_all(LINKER_FLAGS "/OPT:ICF" "/OPT:ICF" RELEASE RELWITHDEBINFO)
+    set_flag_all(LINKER_FLAGS "/OPT:REF" "/OPT:REF" RELEASE RELWITHDEBINFO MINSIZEREL)
+    set_flag_all(LINKER_FLAGS "/OPT:ICF" "/OPT:ICF" RELEASE RELWITHDEBINFO MINSIZEREL)
     # disable manifests
-    set_flag_all(LINKER_FLAGS "/MANIFESTUAC(:(YES|NO))?" " " RELEASE RELWITHDEBINFO)
-    set_flag_all(LINKER_FLAGS "/MANIFEST(:(YES|NO))?" "/MANIFEST:NO" RELEASE RELWITHDEBINFO)
+    set_flag_all(LINKER_FLAGS "/MANIFESTUAC(:(YES|NO))?" " " RELEASE RELWITHDEBINFO MINSIZEREL)
+    set_flag_all(LINKER_FLAGS "/MANIFEST(:(YES|NO))?" "/MANIFEST:NO" RELEASE RELWITHDEBINFO MINSIZEREL)
     # enable function-level linking and reduce binary size on release
     set_cx_flags(RELWITHDEBINFO "/Gy" "/Gy")
     set_cx_flags(RELEASE        "/Gy" "/Gy")
+    set_cx_flags(MINSIZEREL     "/Gy" "/Gy")
     # disable runtime link flags (and add them back per target)
     set_cx_flags(DEBUG          "/(MD|MT)d" " ")
     set_cx_flags(RELWITHDEBINFO "/(MD|MT)"  " ")
     set_cx_flags(RELEASE        "/(MD|MT)"  " ")
+    set_cx_flags(MINSIZEREL     "/(MD|MT)"  " ")
     # disable warnings (and add them back per target)
     set_cx_flags(DEBUG          "/W[0-9]" " ")
     set_cx_flags(RELWITHDEBINFO "/W[0-9]" " ")
     set_cx_flags(RELEASE        "/W[0-9]" " ")
+    set_cx_flags(MINSIZEREL     "/W[0-9]" " ")
     # save & disable default libraries
     if(NOT "${CMAKE_C_STANDARD_LIBRARIES}" STREQUAL "")
         set(STANDARD_LIBRARIES ${CMAKE_C_STANDARD_LIBRARIES})

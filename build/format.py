@@ -93,7 +93,7 @@ def main():
         # align #define MACRO(...) ...
         (4, r"# *define [a-zA-Z_][a-zA-Z_0-9_]*(?:\([^)]+\))?", " +", r".+?"),
         # align members (or try to...)
-        (0, r" *[a-zA-Z_][a-zA-Z0-9_:<>*&, ]*", " +", r"[a-zA-Z_][a-zA-Z0-9_[\]]*(?:\[\d+\])?;"),
+        (0, r" *[a-zA-Z_][a-zA-Z0-9_:<>*&, ]*", " +", r"[a-zA-Z_][a-zA-Z0-9_[\]]*(?:\[\d+\]| = {[^}]+})?;"),
         # align ... = ...
         (0, r" *\b(?:using )?[^\n ]+", " +", r"= .+?"),
         # align method names
@@ -158,7 +158,7 @@ def main():
             os.utime(filename, modified)
         else:
             print("fmt: %s/%s" % (target, os.path.basename(filename)))
-    print("fmt: %s %d files %dms" % (target, len(files), round_time(total)))
+    #print("fmt: %s %d files %dms" % (target, len(files), round_time(total)))
 
 if __name__ == "__main__":
     main()
