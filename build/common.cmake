@@ -394,6 +394,7 @@ function(setup_clang_format target)
             ${CLANG_FORMAT}
             ${files}
     )
+    set_target_properties(${target}_fmt PROPERTIES FOLDER fmt)
     add_dependencies(${target} ${target}_fmt)
 endfunction()
 
