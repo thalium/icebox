@@ -108,7 +108,7 @@ def generate_dispatchers(json_data, filename, namespace):
         logargs = ", " if len(names) else ""
         dispatchers += """
         if constexpr(g_debug)
-            LOG(INFO, "{target}({fmtargs})"{logargs});
+            logg::print(logg::level_t::info, fmt::format("{target}({fmtargs})"{logargs}));
 
         for(const auto& it : d.observers_{target})
             it({args});
@@ -151,7 +151,7 @@ def generate_impl(json_data, filename, namespace, pad, wow64):
 
 namespace
 {{
-	constexpr bool g_debug = true;
+	constexpr bool g_debug = false;
 }}
 
 struct monitor::{filename}::Data

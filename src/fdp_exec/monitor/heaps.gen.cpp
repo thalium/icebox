@@ -6,7 +6,7 @@
 
 namespace
 {
-	constexpr bool g_debug = true;
+	constexpr bool g_debug = false;
 }
 
 struct monitor::heaps::Data
@@ -82,7 +82,7 @@ namespace
         const auto Size       = arg<nt::SIZE_T>(d.core, 1);
 
         if constexpr(g_debug)
-            LOG(INFO, "RtlpAllocateHeapInternal(HeapHandle:{:#x}, Size:{:#x})", HeapHandle, Size);
+            logg::print(logg::level_t::info, fmt::format("RtlpAllocateHeapInternal(HeapHandle:{:#x}, Size:{:#x})", HeapHandle, Size));
 
         for(const auto& it : d.observers_RtlpAllocateHeapInternal)
             it(HeapHandle, Size);
@@ -95,7 +95,7 @@ namespace
         const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
 
         if constexpr(g_debug)
-            LOG(INFO, "RtlFreeHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x})", HeapHandle, Flags, BaseAddress);
+            logg::print(logg::level_t::info, fmt::format("RtlFreeHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x})", HeapHandle, Flags, BaseAddress));
 
         for(const auto& it : d.observers_RtlFreeHeap)
             it(HeapHandle, Flags, BaseAddress);
@@ -109,7 +109,7 @@ namespace
         const auto Size        = arg<nt::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            LOG(INFO, "RtlpReAllocateHeapInternal(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, Size:{:#x})", HeapHandle, Flags, BaseAddress, Size);
+            logg::print(logg::level_t::info, fmt::format("RtlpReAllocateHeapInternal(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, Size:{:#x})", HeapHandle, Flags, BaseAddress, Size));
 
         for(const auto& it : d.observers_RtlpReAllocateHeapInternal)
             it(HeapHandle, Flags, BaseAddress, Size);
@@ -122,7 +122,7 @@ namespace
         const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
 
         if constexpr(g_debug)
-            LOG(INFO, "RtlSizeHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x})", HeapHandle, Flags, BaseAddress);
+            logg::print(logg::level_t::info, fmt::format("RtlSizeHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x})", HeapHandle, Flags, BaseAddress));
 
         for(const auto& it : d.observers_RtlSizeHeap)
             it(HeapHandle, Flags, BaseAddress);
@@ -136,7 +136,7 @@ namespace
         const auto UserValue   = arg<nt::PVOID>(d.core, 3);
 
         if constexpr(g_debug)
-            LOG(INFO, "RtlSetUserValueHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, UserValue:{:#x})", HeapHandle, Flags, BaseAddress, UserValue);
+            logg::print(logg::level_t::info, fmt::format("RtlSetUserValueHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, UserValue:{:#x})", HeapHandle, Flags, BaseAddress, UserValue));
 
         for(const auto& it : d.observers_RtlSetUserValueHeap)
             it(HeapHandle, Flags, BaseAddress, UserValue);
@@ -151,7 +151,7 @@ namespace
         const auto UserFlags   = arg<nt::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            LOG(INFO, "RtlGetUserInfoHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, UserValue:{:#x}, UserFlags:{:#x})", HeapHandle, Flags, BaseAddress, UserValue, UserFlags);
+            logg::print(logg::level_t::info, fmt::format("RtlGetUserInfoHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, UserValue:{:#x}, UserFlags:{:#x})", HeapHandle, Flags, BaseAddress, UserValue, UserFlags));
 
         for(const auto& it : d.observers_RtlGetUserInfoHeap)
             it(HeapHandle, Flags, BaseAddress, UserValue, UserFlags);
