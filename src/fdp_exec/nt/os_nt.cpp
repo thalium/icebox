@@ -406,14 +406,14 @@ namespace
 {
     opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
     {
-        using UnicodeString = struct
+        using _UNICODE_STRING = struct
         {
             uint16_t length;
             uint16_t max_length;
             uint32_t _; // padding
             uint64_t buffer;
         };
-        UnicodeString us;
+        _UNICODE_STRING us;
         auto ok = reader.read(&us, unicode_string, sizeof us);
         if(!ok)
             FAIL({}, "unable to read UNICODE_STRING");
@@ -434,34 +434,75 @@ namespace
         return utf8::convert(p, &p[us.length]);
     }
 
-    opt<std::string> read_unicode_string32(const reader::Reader& reader, uint64_t unicode_string)
+    namespace nt32
     {
-        using UnicodeString32 = struct
+        struct _LIST_ENTRY
+        {
+            uint32_t flink;
+            uint32_t blink;
+        };
+        STATIC_ASSERT_EQ(8, sizeof(_LIST_ENTRY));
+
+        struct _PEB_LDR_DATA
+        {
+            uint32_t    Length;
+            uint8_t     Initialized;
+            uint8_t     Padding_0[3];
+            uint32_t    SsHandle;
+            _LIST_ENTRY InLoadOrderModuleList;
+            _LIST_ENTRY InMemoryOrderModuleList;
+            _LIST_ENTRY InInitializationOrderModuleList;
+            uint32_t    EntryInProgress;
+            uint8_t     ShutdownInProgress;
+            uint8_t     Padding_1[3];
+            uint32_t    ShutdownThreadId;
+        };
+        STATIC_ASSERT_EQ(48, sizeof(_PEB_LDR_DATA));
+
+        using _UNICODE_STRING = struct
         {
             uint16_t length;
             uint16_t max_length;
             uint32_t buffer;
         };
-        UnicodeString32 us;
-        auto ok = reader.read(&us, unicode_string, sizeof us);
-        if(!ok)
-            FAIL({}, "unable to read UNICODE_STRING");
+        STATIC_ASSERT_EQ(8, sizeof(_UNICODE_STRING));
 
-        us.length     = read_le16(&us.length);
-        us.max_length = read_le16(&us.max_length);
-        us.buffer     = read_le32(&us.buffer);
+        struct _LDR_DATA_TABLE_ENTRY
+        {
+            _LIST_ENTRY     InLoadOrderLinks;
+            _LIST_ENTRY     InMemoryOrderLinks;
+            _LIST_ENTRY     InInitializationOrderLinks;
+            uint32_t        DllBase;
+            uint32_t        EntryPoint;
+            uint32_t        SizeOfImage;
+            _UNICODE_STRING FullDllName;
+            _UNICODE_STRING BaseDllName;
+        };
+        STATIC_ASSERT_EQ(52, sizeof(_LDR_DATA_TABLE_ENTRY));
 
-        if(us.length > us.max_length)
-            FAIL({}, "corrupted UNICODE_STRING");
+        opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
+        {
+            nt32::_UNICODE_STRING us;
+            auto ok = reader.read(&us, unicode_string, sizeof us);
+            if(!ok)
+                FAIL({}, "unable to read UNICODE_STRING");
 
-        std::vector<uint8_t> buffer(us.length);
-        ok = reader.read(&buffer[0], us.buffer, us.length);
-        if(!ok)
-            FAIL({}, "unable to read UNICODE_STRING.buffer");
+            us.length     = read_le16(&us.length);
+            us.max_length = read_le16(&us.max_length);
+            us.buffer     = read_le32(&us.buffer);
 
-        const auto p = &buffer[0];
-        return utf8::convert(p, &p[us.length]);
-    }
+            if(us.length > us.max_length)
+                FAIL({}, "corrupted UNICODE_STRING");
+
+            std::vector<uint8_t> buffer(us.length);
+            ok = reader.read(&buffer[0], us.buffer, us.length);
+            if(!ok)
+                FAIL({}, "unable to read UNICODE_STRING.buffer");
+
+            const auto p = &buffer[0];
+            return utf8::convert(p, &p[us.length]);
+        }
+    } // namespace nt32
 
     static opt<uint64_t> read_peb_wow64(OsNt& os, const reader::Reader& reader, proc_t proc)
     {
@@ -482,42 +523,6 @@ namespace
 
 bool OsNt::setup_wow64(proc_t proc)
 {
-
-#pragma pack(push, 4) // Remove uint64_t alignment
-    struct list_entry32_t
-    {
-        uint32_t flink;
-        uint32_t blink;
-    };
-
-    struct peb_ldr_data32_t
-    {
-        uint32_t       Length;
-        uint8_t        Initialized;
-        uint8_t        Padding_0[3];
-        uint32_t       SsHandle;
-        list_entry32_t InLoadOrderModuleList;
-        list_entry32_t InMemoryOrderModuleList;
-        list_entry32_t InInitializationOrderModuleList;
-        uint32_t       EntryInProgress;
-        uint8_t        ShutdownInProgress;
-        uint8_t        Padding_1[3];
-        uint32_t       ShutdownThreadId;
-    };
-
-    struct ldr_data_table_entry_t
-    {
-        list_entry32_t InLoadOrderLinks;
-        list_entry32_t InMemoryOrderLinks;
-        list_entry32_t InInitializationOrderLinks;
-        uint32_t       DllBase;
-        uint32_t       EntryPoint;
-        uint32_t       SizeOfImage;
-        uint64_t       FullDllName;
-        uint64_t       BaseDllName;
-    };
-#pragma pack(pop)
-
     const auto reader = reader::make(core_, proc);
     const auto peb32  = read_peb_wow64(*this, reader, proc);
     if(!peb32)
@@ -532,11 +537,11 @@ bool OsNt::setup_wow64(proc_t proc)
         FAIL(false, "unable to read PEB32.Ldr");
 
     bool found      = false;
-    const auto head = *ldr32 + offsetof(peb_ldr_data32_t, InLoadOrderModuleList);
+    const auto head = *ldr32 + offsetof(nt32::_PEB_LDR_DATA, InLoadOrderModuleList);
     for(auto link = reader.le32(head); link && link != static_cast<uint32_t>(head); link = reader.le32(*link))
     {
-        const mod_t mod = {*link - offsetof(ldr_data_table_entry_t, InLoadOrderLinks)};
-        const auto name = read_unicode_string32(reader, mod.id + offsetof(ldr_data_table_entry_t, FullDllName));
+        const mod_t mod = {*link - offsetof(nt32::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)};
+        const auto name = nt32::read_unicode_string(reader, mod.id + offsetof(nt32::_LDR_DATA_TABLE_ENTRY, FullDllName));
         if(!name)
             FAIL(false, "Unable to read mod name to find wntdll");
 
@@ -544,8 +549,8 @@ bool OsNt::setup_wow64(proc_t proc)
             continue;
 
         found           = true;
-        const auto base = reader.le32(mod.id + offsetof(ldr_data_table_entry_t, DllBase));
-        const auto size = reader.le32(mod.id + offsetof(ldr_data_table_entry_t, SizeOfImage));
+        const auto base = reader.le32(mod.id + offsetof(nt32::_LDR_DATA_TABLE_ENTRY, DllBase));
+        const auto size = reader.le32(mod.id + offsetof(nt32::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
         if(!base || !size)
             FAIL(false, "Unable to read wntdll's span");
 
@@ -689,7 +694,7 @@ opt<std::string> OsNt::mod_name(proc_t proc, mod_t mod)
 opt<std::string> OsNt::mod_name32(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    return read_unicode_string32(reader, mod.id + members_[LDR_DATA_TABLE_ENTRY32_FullDllName]);
+    return nt32::read_unicode_string(reader, mod.id + members_[LDR_DATA_TABLE_ENTRY32_FullDllName]);
 }
 
 opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
