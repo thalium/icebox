@@ -46,4 +46,12 @@ namespace utils
             else
                 ++it;
     }
+
+    template <int WANT, int GOT>
+    struct expect_eq
+    {
+        static_assert(WANT == GOT, "size mismatch");
+        static constexpr bool ok = true;
+    };
+#define STATIC_ASSERT_EQ(A, B) static_assert(!!utils::expect_eq<A, B>::ok);
 } // namespace utils
