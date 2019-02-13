@@ -575,47 +575,6 @@ bool OsNt::proc_ctx_is_x64()
 
 namespace
 {
-    opt<uint64_t> get_pspnotifyroutine_address(core::Core& core, uint64_t routine_addr, uint64_t count_addr)
-    {
-        struct _EX_CALLBACK_ROUTINE_BLOCK
-        {
-            uint64_t RundownProtect;
-            uint64_t Function;
-            uint64_t Context;
-        };
-
-        const auto reader = reader::make(core);
-        const auto count  = reader.le32(count_addr);
-        if(!count)
-            FAIL({}, "unable to read pspnotifyroutinecount");
-
-        if(*count == 0)
-            FAIL({}, "no entry to pspnotifyroutine...");
-
-        // For each routine type there is a global array of callbacks that contains up to 64 entries
-        size_t max_entries  = 64;
-        uint64_t ex_fastref = 0;
-        for(size_t i = 0; i < max_entries; ++i)
-        {
-            const auto m = reader.read(routine_addr);
-            if(!m)
-                FAIL({}, "unable to read ex_callback_routine_block");
-
-            if(*m == 0)
-                continue;
-
-            ex_fastref = *m;
-            break;
-        }
-
-        // Check if we found a correct registered routine
-        if(ex_fastref == 0)
-            FAIL({}, "unable to find correct psnotifyroutine");
-
-        const auto ex_callback_routine_block = ex_fastref & 0xFFFFFFFFFFFFFFF0;
-        return reader.read(ex_callback_routine_block + offsetof(_EX_CALLBACK_ROUTINE_BLOCK, Function));
-    }
-
     static bool register_callback_notifyroutine(OsNt& os, uint64_t routine_addr, void (*callback)(OsNt&))
     {
         const auto osptr = &os;
@@ -703,12 +662,12 @@ namespace
     {
         struct _IMAGE_INFO
         {
-            uint64_t reserved;
-            uint64_t properties;
-            uint64_t base;
-            uint64_t selector;
-            uint64_t size;
-            uint64_t section_num;
+            uint64_t Properties;
+            uint64_t ImageAddressingMode;
+            uint64_t ImageBase;
+            uint64_t ImageSelector;
+            uint64_t ImageSize;
+            uint64_t ImageSectionNumber;
         };
 
         const auto name_addr       = os.core_.regs.read(FDP_RCX_REGISTER);
@@ -724,11 +683,11 @@ namespace
         if(!mod_name)
             return;
 
-        const auto base = reader.read(image_info_addr + offsetof(_IMAGE_INFO, base));
+        const auto base = reader.read(image_info_addr + offsetof(_IMAGE_INFO, ImageBase));
         if(!base)
             return;
 
-        const auto size = reader.read(image_info_addr + offsetof(_IMAGE_INFO, size));
+        const auto size = reader.read(image_info_addr + offsetof(_IMAGE_INFO, ImageSize));
         if(!size)
             return;
 
