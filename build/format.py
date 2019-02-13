@@ -5,6 +5,7 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import time
 import timeit
 
 def read_file(filename):
@@ -17,12 +18,12 @@ def write_file(filename, data):
         fd.write(data.encode("utf-8"))
     finally:
         fd.close()
-    for _ in range(0, 4):
+    while True:
         try:
             shutil.move(fd.name, filename)
             return
         except:
-            pass
+            time.sleep(0.1)
 
 def compile_fields(fields):
     reply = []
