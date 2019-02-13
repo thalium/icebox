@@ -29,3 +29,13 @@ build:clang:
     - CC=/usr/bin/clang-7 CXX=/usr/bin/clang++-7 TARGET=Ninja USE_STATIC_ANALYZER=1 ./configure.sh
     - cd ../out/x64
     - ninja
+
+build:msvc:
+  stage: build
+  tags:
+    - msvc2017
+  script:
+    - mkdir out\x64
+    - cd out/x64
+    - cmake ../../build -G "Visual Studio 15 2017 Win64" -DCMAKE_CONFIGURATION_TYPES=RelWithDebInfo
+    - cmake --build . --config RelWithDebInfo -- -verbosity:minimal
