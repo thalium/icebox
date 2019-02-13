@@ -99,9 +99,9 @@ using StateData = core::State::Data;
 core::State::State()  = default;
 core::State::~State() = default;
 
-void core::setup(State& mem, FDP_SHM& shm, Core& core)
+void core::setup(State& state, FDP_SHM& shm, Core& core)
 {
-    mem.d_ = std::make_unique<core::State::Data>(shm, core);
+    state.d_ = std::make_unique<core::State::Data>(shm, core);
 }
 
 namespace
