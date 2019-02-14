@@ -646,11 +646,9 @@ opt<bool> OsNt::proc_is_wow64(proc_t proc)
 
 bool OsNt::proc_ctx_is_x64()
 {
-    const auto segcs = core_.regs.read(FDP_CS_REGISTER);
-
-    static const uint64_t WOW64_CS32 = 0x23;
-    const auto context_is_64         = segcs != WOW64_CS32 ? true : false;
-    return context_is_64;
+    const auto segcs              = core_.regs.read(FDP_CS_REGISTER);
+    constexpr uint64_t WOW64_CS32 = 0x23;
+    return segcs != WOW64_CS32;
 }
 
 bool OsNt::mod_list(proc_t proc, const on_mod_fn& on_mod)
