@@ -18,11 +18,10 @@ namespace
     enum class cat_e
     {
         REQUIRED,
-        REQUIRED32,
         OPTIONAL,
     };
 
-    enum member_offset_e
+    enum nt_e
     {
         CLIENT_ID_UniqueThread,
         EPROCESS_ActiveProcessLinks,
@@ -47,92 +46,102 @@ namespace
         KTHREAD_TrapFrame,
         KTRAP_FRAME_Rip,
         TEB_NtTib,
-        TEB32_NtTib,
         NT_TIB_StackBase,
         NT_TIB_StackLimit,
-        NT_TIB32_StackBase,
-        NT_TIB32_StackLimit,
         LDR_DATA_TABLE_ENTRY_DllBase,
         LDR_DATA_TABLE_ENTRY_FullDllName,
         LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,
         LDR_DATA_TABLE_ENTRY_SizeOfImage,
-        LDR_DATA_TABLE_ENTRY32_DllBase,
-        LDR_DATA_TABLE_ENTRY32_FullDllName,
-        LDR_DATA_TABLE_ENTRY32_InLoadOrderLinks,
-        LDR_DATA_TABLE_ENTRY32_SizeOfImage,
         OBJECT_NAME_INFORMATION_Name,
         PEB_Ldr,
         PEB_LDR_DATA_InLoadOrderModuleList,
-        PEB_LDR_DATA32_InLoadOrderModuleList,
         PEB_ProcessParameters,
         PEB32_Ldr,
         RTL_USER_PROCESS_PARAMETERS_ImagePathName,
         SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,
         EWOW64PROCESS_Peb,
         EWOW64PROCESS_NtdllType,
-        MEMBER_OFFSET_COUNT,
+        NT_COUNT,
     };
 
-    struct MemberOffset
+    enum nt32_e
     {
-        cat_e           e_cat;
-        member_offset_e e_id;
-        const char      module[16];
-        const char      struc[32];
-        const char      member[32];
+        NT32_TEB_NtTib,
+        NT32_NT_TIB_StackBase,
+        NT32_NT_TIB_StackLimit,
+        NT32_LDR_DATA_TABLE_ENTRY_DllBase,
+        NT32_LDR_DATA_TABLE_ENTRY_FullDllName,
+        NT32_LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,
+        NT32_LDR_DATA_TABLE_ENTRY_SizeOfImage,
+        NT32_PEB_LDR_DATA_InLoadOrderModuleList,
+        NT32_COUNT,
+    };
+
+    template <typename T>
+    struct NtOffset
+    {
+        cat_e      e_cat;
+        T          e_id;
+        const char module[16];
+        const char struc[32];
+        const char member[32];
     };
     // clang-format off
-    const MemberOffset g_member_offsets[] =
+    const NtOffset<nt_e> g_nt_offsets[] =
     {
-        {cat_e::REQUIRED,   CLIENT_ID_UniqueThread,                      "nt",     "_CLIENT_ID",                       "UniqueThread"},
-        {cat_e::REQUIRED,   EPROCESS_ActiveProcessLinks,                 "nt",     "_EPROCESS",                        "ActiveProcessLinks"},
-        {cat_e::REQUIRED,   EPROCESS_ImageFileName,                      "nt",     "_EPROCESS",                        "ImageFileName"},
-        {cat_e::REQUIRED,   EPROCESS_Pcb,                                "nt",     "_EPROCESS",                        "Pcb"},
-        {cat_e::REQUIRED,   EPROCESS_Peb,                                "nt",     "_EPROCESS",                        "Peb"},
-        {cat_e::REQUIRED,   EPROCESS_SeAuditProcessCreationInfo,         "nt",     "_EPROCESS",                        "SeAuditProcessCreationInfo"},
-        {cat_e::REQUIRED,   EPROCESS_ThreadListHead,                     "nt",     "_EPROCESS",                        "ThreadListHead"},
-        {cat_e::REQUIRED,   EPROCESS_UniqueProcessId,                    "nt",     "_EPROCESS",                        "UniqueProcessId"},
-        {cat_e::REQUIRED,   EPROCESS_VadRoot,                            "nt",     "_EPROCESS",                        "VadRoot"},
-        {cat_e::REQUIRED,   EPROCESS_Wow64Process,                       "nt",     "_EPROCESS",                        "Wow64Process"},
-        {cat_e::REQUIRED,   ETHREAD_Cid,                                 "nt",     "_ETHREAD",                         "Cid"},
-        {cat_e::REQUIRED,   ETHREAD_Tcb,                                 "nt",     "_ETHREAD",                         "Tcb"},
-        {cat_e::REQUIRED,   ETHREAD_ThreadListEntry,                     "nt",     "_ETHREAD",                         "ThreadListEntry"},
-        {cat_e::REQUIRED,   KPCR_Irql,                                   "nt",     "_KPCR",                            "Irql"},
-        {cat_e::REQUIRED,   KPCR_Prcb,                                   "nt",     "_KPCR",                            "Prcb"},
-        {cat_e::REQUIRED,   KPRCB_CurrentThread,                         "nt",     "_KPRCB",                           "CurrentThread"},
-        {cat_e::OPTIONAL,   KPRCB_KernelDirectoryTableBase,              "nt",     "_KPRCB",                           "KernelDirectoryTableBase"},
-        {cat_e::REQUIRED,   KPROCESS_DirectoryTableBase,                 "nt",     "_KPROCESS",                        "DirectoryTableBase"},
-        {cat_e::OPTIONAL,   KPROCESS_UserDirectoryTableBase,             "nt",     "_KPROCESS",                        "UserDirectoryTableBase"},
-        {cat_e::REQUIRED,   KTHREAD_Process,                             "nt",     "_KTHREAD",                         "Process"},
-        {cat_e::REQUIRED,   KTHREAD_TrapFrame,                           "nt",     "_KTHREAD",                         "TrapFrame"},
-        {cat_e::REQUIRED,   KTRAP_FRAME_Rip,                             "nt",     "_KTRAP_FRAME",                     "Rip"},
-        {cat_e::REQUIRED,   TEB_NtTib,                                   "nt",     "_TEB",                             "NtTib"},
-        {cat_e::REQUIRED32, TEB32_NtTib,                                 "wntdll", "_TEB",                             "NtTib"},
-        {cat_e::REQUIRED,   NT_TIB_StackBase,                            "nt",     "_NT_TIB",                          "StackBase"},
-        {cat_e::REQUIRED,   NT_TIB_StackLimit,                           "nt",     "_NT_TIB",                           "StackLimit"},
-        {cat_e::REQUIRED32, NT_TIB32_StackBase,                          "wntdll", "_NT_TIB",                          "StackBase"},
-        {cat_e::REQUIRED32, NT_TIB32_StackLimit,                         "wntdll", "_NT_TIB",                           "StackLimit"},
-        {cat_e::REQUIRED,   LDR_DATA_TABLE_ENTRY_DllBase,                "nt",     "_LDR_DATA_TABLE_ENTRY",            "DllBase"},
-        {cat_e::REQUIRED,   LDR_DATA_TABLE_ENTRY_FullDllName,            "nt",     "_LDR_DATA_TABLE_ENTRY",            "FullDllName"},
-        {cat_e::REQUIRED,   LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,       "nt",     "_LDR_DATA_TABLE_ENTRY",            "InLoadOrderLinks"},
-        {cat_e::REQUIRED,   LDR_DATA_TABLE_ENTRY_SizeOfImage,            "nt",     "_LDR_DATA_TABLE_ENTRY",            "SizeOfImage"},
-        {cat_e::REQUIRED32, LDR_DATA_TABLE_ENTRY32_DllBase,              "wntdll", "_LDR_DATA_TABLE_ENTRY",            "DllBase"},
-        {cat_e::REQUIRED32, LDR_DATA_TABLE_ENTRY32_FullDllName,          "wntdll", "_LDR_DATA_TABLE_ENTRY",            "FullDllName"},
-        {cat_e::REQUIRED32, LDR_DATA_TABLE_ENTRY32_InLoadOrderLinks,     "wntdll", "_LDR_DATA_TABLE_ENTRY",            "InLoadOrderLinks"},
-        {cat_e::REQUIRED32, LDR_DATA_TABLE_ENTRY32_SizeOfImage,          "wntdll", "_LDR_DATA_TABLE_ENTRY",            "SizeOfImage"},
-        {cat_e::REQUIRED,   OBJECT_NAME_INFORMATION_Name,                "nt",     "_OBJECT_NAME_INFORMATION",         "Name"},
-        {cat_e::REQUIRED,   PEB_Ldr,                                     "nt",     "_PEB",                             "Ldr"},
-        {cat_e::REQUIRED,   PEB_LDR_DATA_InLoadOrderModuleList,          "nt",     "_PEB_LDR_DATA",                    "InLoadOrderModuleList"},
-        {cat_e::REQUIRED32, PEB_LDR_DATA32_InLoadOrderModuleList,        "wntdll", "_PEB_LDR_DATA",                    "InLoadOrderModuleList"},
-        {cat_e::REQUIRED,   PEB_ProcessParameters,                       "nt",     "_PEB",                             "ProcessParameters"},
-        {cat_e::REQUIRED,   PEB32_Ldr,                                   "nt",     "_PEB32",                           "Ldr"},
-        {cat_e::REQUIRED,   RTL_USER_PROCESS_PARAMETERS_ImagePathName,   "nt",     "_RTL_USER_PROCESS_PARAMETERS",     "ImagePathName"},
-        {cat_e::REQUIRED,   SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,"nt",     "_SE_AUDIT_PROCESS_CREATION_INFO",  "ImageFileName"},
-        {cat_e::OPTIONAL,   EWOW64PROCESS_Peb,                           "nt",     "_EWOW64PROCESS",                   "Peb"},
-        {cat_e::OPTIONAL,   EWOW64PROCESS_NtdllType,                     "nt",     "_EWOW64PROCESS",                   "NtdllType"},
+        {cat_e::REQUIRED,   CLIENT_ID_UniqueThread,                       "nt", "_CLIENT_ID",                       "UniqueThread"},
+        {cat_e::REQUIRED,   EPROCESS_ActiveProcessLinks,                  "nt", "_EPROCESS",                        "ActiveProcessLinks"},
+        {cat_e::REQUIRED,   EPROCESS_ImageFileName,                       "nt", "_EPROCESS",                        "ImageFileName"},
+        {cat_e::REQUIRED,   EPROCESS_Pcb,                                 "nt", "_EPROCESS",                        "Pcb"},
+        {cat_e::REQUIRED,   EPROCESS_Peb,                                 "nt", "_EPROCESS",                        "Peb"},
+        {cat_e::REQUIRED,   EPROCESS_SeAuditProcessCreationInfo,          "nt", "_EPROCESS",                        "SeAuditProcessCreationInfo"},
+        {cat_e::REQUIRED,   EPROCESS_ThreadListHead,                      "nt", "_EPROCESS",                        "ThreadListHead"},
+        {cat_e::REQUIRED,   EPROCESS_UniqueProcessId,                     "nt", "_EPROCESS",                        "UniqueProcessId"},
+        {cat_e::REQUIRED,   EPROCESS_VadRoot,                             "nt", "_EPROCESS",                        "VadRoot"},
+        {cat_e::REQUIRED,   EPROCESS_Wow64Process,                        "nt", "_EPROCESS",                        "Wow64Process"},
+        {cat_e::REQUIRED,   ETHREAD_Cid,                                  "nt", "_ETHREAD",                         "Cid"},
+        {cat_e::REQUIRED,   ETHREAD_Tcb,                                  "nt", "_ETHREAD",                         "Tcb"},
+        {cat_e::REQUIRED,   ETHREAD_ThreadListEntry,                      "nt", "_ETHREAD",                         "ThreadListEntry"},
+        {cat_e::REQUIRED,   KPCR_Irql,                                    "nt", "_KPCR",                            "Irql"},
+        {cat_e::REQUIRED,   KPCR_Prcb,                                    "nt", "_KPCR",                            "Prcb"},
+        {cat_e::REQUIRED,   KPRCB_CurrentThread,                          "nt", "_KPRCB",                           "CurrentThread"},
+        {cat_e::OPTIONAL,   KPRCB_KernelDirectoryTableBase,               "nt", "_KPRCB",                           "KernelDirectoryTableBase"},
+        {cat_e::REQUIRED,   KPROCESS_DirectoryTableBase,                  "nt", "_KPROCESS",                        "DirectoryTableBase"},
+        {cat_e::OPTIONAL,   KPROCESS_UserDirectoryTableBase,              "nt", "_KPROCESS",                        "UserDirectoryTableBase"},
+        {cat_e::REQUIRED,   KTHREAD_Process,                              "nt", "_KTHREAD",                         "Process"},
+        {cat_e::REQUIRED,   KTHREAD_TrapFrame,                            "nt", "_KTHREAD",                         "TrapFrame"},
+        {cat_e::REQUIRED,   KTRAP_FRAME_Rip,                              "nt", "_KTRAP_FRAME",                     "Rip"},
+        {cat_e::REQUIRED,   TEB_NtTib,                                    "nt", "_TEB",                             "NtTib"},
+        {cat_e::REQUIRED,   NT_TIB_StackBase,                             "nt", "_NT_TIB",                          "StackBase"},
+        {cat_e::REQUIRED,   NT_TIB_StackLimit,                            "nt", "_NT_TIB",                          "StackLimit"},
+        {cat_e::REQUIRED,   LDR_DATA_TABLE_ENTRY_DllBase,                 "nt", "_LDR_DATA_TABLE_ENTRY",            "DllBase"},
+        {cat_e::REQUIRED,   LDR_DATA_TABLE_ENTRY_FullDllName,             "nt", "_LDR_DATA_TABLE_ENTRY",            "FullDllName"},
+        {cat_e::REQUIRED,   LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,        "nt", "_LDR_DATA_TABLE_ENTRY",            "InLoadOrderLinks"},
+        {cat_e::REQUIRED,   LDR_DATA_TABLE_ENTRY_SizeOfImage,             "nt", "_LDR_DATA_TABLE_ENTRY",            "SizeOfImage"},
+        {cat_e::REQUIRED,   OBJECT_NAME_INFORMATION_Name,                 "nt", "_OBJECT_NAME_INFORMATION",         "Name"},
+        {cat_e::REQUIRED,   PEB_Ldr,                                      "nt", "_PEB",                             "Ldr"},
+        {cat_e::REQUIRED,   PEB_LDR_DATA_InLoadOrderModuleList,           "nt", "_PEB_LDR_DATA",                    "InLoadOrderModuleList"},
+        {cat_e::REQUIRED,   PEB_ProcessParameters,                        "nt", "_PEB",                             "ProcessParameters"},
+        {cat_e::REQUIRED,   PEB32_Ldr,                                    "nt", "_PEB32",                           "Ldr"},
+        {cat_e::REQUIRED,   RTL_USER_PROCESS_PARAMETERS_ImagePathName,    "nt", "_RTL_USER_PROCESS_PARAMETERS",     "ImagePathName"},
+        {cat_e::REQUIRED,   SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName, "nt", "_SE_AUDIT_PROCESS_CREATION_INFO",  "ImageFileName"},
+        {cat_e::OPTIONAL,   EWOW64PROCESS_Peb,                            "nt", "_EWOW64PROCESS",                   "Peb"},
+        {cat_e::OPTIONAL,   EWOW64PROCESS_NtdllType,                      "nt", "_EWOW64PROCESS",                   "NtdllType"},
+    };
+    const NtOffset<nt32_e> g_nt32_offsets[] =
+    {
+        {cat_e::REQUIRED, NT32_TEB_NtTib,                                "wntdll",   "_TEB",                     "NtTib"},
+        {cat_e::REQUIRED, NT32_NT_TIB_StackBase,                         "wntdll",   "_NT_TIB",                  "StackBase"},
+        {cat_e::REQUIRED, NT32_NT_TIB_StackLimit,                        "wntdll",   "_NT_TIB",                  "StackLimit"},
+        {cat_e::REQUIRED, NT32_LDR_DATA_TABLE_ENTRY_DllBase,             "wntdll",   "_LDR_DATA_TABLE_ENTRY",    "DllBase"},
+        {cat_e::REQUIRED, NT32_LDR_DATA_TABLE_ENTRY_FullDllName,         "wntdll",   "_LDR_DATA_TABLE_ENTRY",    "FullDllName"},
+        {cat_e::REQUIRED, NT32_LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,    "wntdll",   "_LDR_DATA_TABLE_ENTRY",    "InLoadOrderLinks"},
+        {cat_e::REQUIRED, NT32_LDR_DATA_TABLE_ENTRY_SizeOfImage,         "wntdll",   "_LDR_DATA_TABLE_ENTRY",    "SizeOfImage"},
+        {cat_e::REQUIRED, NT32_PEB_LDR_DATA_InLoadOrderModuleList,       "wntdll",   "_PEB_LDR_DATA",            "InLoadOrderModuleList"},
     };
     // clang-format on
-    static_assert(COUNT_OF(g_member_offsets) == MEMBER_OFFSET_COUNT, "invalid members");
+    STATIC_ASSERT_EQ(COUNT_OF(g_nt_offsets), NT_COUNT);
+    STATIC_ASSERT_EQ(COUNT_OF(g_nt32_offsets), NT32_COUNT);
 
     enum symbol_offset_e
     {
@@ -163,7 +172,8 @@ namespace
     // clang-format on
     static_assert(COUNT_OF(g_symbol_offsets) == SYMBOL_OFFSET_COUNT, "invalid symbols");
 
-    using MemberOffsets = std::array<uint64_t, MEMBER_OFFSET_COUNT>;
+    using NtOffsets     = std::array<uint64_t, NT_COUNT>;
+    using Nt32Offsets   = std::array<uint32_t, NT32_COUNT>;
     using SymbolOffsets = std::array<uint64_t, SYMBOL_OFFSET_COUNT>;
 
     struct OsNt
@@ -217,7 +227,8 @@ namespace
 
         // members
         core::Core&    core_;
-        MemberOffsets  members_;
+        NtOffsets      offsets_;
+        Nt32Offsets    offsets32_;
         SymbolOffsets  symbols_;
         std::string    last_dump_;
         uint64_t       kpcr_;
@@ -288,21 +299,21 @@ bool OsNt::setup()
         symbols_[i] = *addr;
     }
 
-    memset(&members_[0], 0, sizeof members_);
-    for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
+    memset(&offsets_[0], 0, sizeof offsets_);
+    for(size_t i = 0; i < NT_COUNT; ++i)
     {
-        const auto offset = core_.sym.struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+        fail |= g_nt_offsets[i].e_id != i;
+        const auto offset = core_.sym.struc_offset(g_nt_offsets[i].module, g_nt_offsets[i].struc, g_nt_offsets[i].member);
         if(!offset)
         {
-            fail |= g_member_offsets[i].e_cat == cat_e::REQUIRED;
-            if(g_member_offsets[i].e_cat == cat_e::REQUIRED)
-                LOG(ERROR, "unable to read {}!{}.{} member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
-            else if(g_member_offsets[i].e_cat == cat_e::OPTIONAL)
-                LOG(WARNING, "unable to read {}!{}.{} member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+            fail |= g_nt_offsets[i].e_cat == cat_e::REQUIRED;
+            if(g_nt_offsets[i].e_cat == cat_e::REQUIRED)
+                LOG(ERROR, "unable to read {}!{}.{} member offset", g_nt_offsets[i].module, g_nt_offsets[i].struc, g_nt_offsets[i].member);
+            else
+                LOG(WARNING, "unable to read {}!{}.{} member offset", g_nt_offsets[i].module, g_nt_offsets[i].struc, g_nt_offsets[i].member);
             continue;
         }
-
-        members_[i] = *offset;
+        offsets_[i] = *offset;
     }
     if(fail)
         return false;
@@ -314,16 +325,16 @@ bool OsNt::setup()
         FAIL(false, "unable to read KPCR");
 
     auto gdtb = dtb_t{core_.regs.read(FDP_CR3_REGISTER)};
-    if(members_[KPRCB_KernelDirectoryTableBase])
+    if(offsets_[KPRCB_KernelDirectoryTableBase])
     {
-        ok = core_.mem.read_virtual(&gdtb, kpcr_ + members_[KPCR_Prcb] + members_[KPRCB_KernelDirectoryTableBase], sizeof gdtb);
+        ok = core_.mem.read_virtual(&gdtb, kpcr_ + offsets_[KPCR_Prcb] + offsets_[KPRCB_KernelDirectoryTableBase], sizeof gdtb);
         if(!ok)
             FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
     }
 
     // cr3 is same in user & kernel mode
-    if(!members_[KPROCESS_UserDirectoryTableBase])
-        members_[KPROCESS_UserDirectoryTableBase] = members_[KPROCESS_DirectoryTableBase];
+    if(!offsets_[KPROCESS_UserDirectoryTableBase])
+        offsets_[KPROCESS_UserDirectoryTableBase] = offsets_[KPROCESS_DirectoryTableBase];
 
     reader_.kdtb_ = gdtb;
     LOG(WARNING, "kernel: kpcr: {:#x} kdtb: {:#x}", kpcr_, gdtb.val);
@@ -348,8 +359,8 @@ bool OsNt::proc_list(const on_proc_fn& on_process)
     const auto head = symbols_[PsActiveProcessHead];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
     {
-        const auto eproc = *link - members_[EPROCESS_ActiveProcessLinks];
-        const auto dtb   = reader_.read(eproc + members_[EPROCESS_Pcb] + members_[KPROCESS_UserDirectoryTableBase]);
+        const auto eproc = *link - offsets_[EPROCESS_ActiveProcessLinks];
+        const auto dtb   = reader_.read(eproc + offsets_[EPROCESS_Pcb] + offsets_[KPROCESS_UserDirectoryTableBase]);
         if(!dtb)
         {
             LOG(ERROR, "unable to read KPROCESS.DirectoryTableBase from {:#x}", eproc);
@@ -506,14 +517,14 @@ namespace
 
     static opt<uint64_t> read_peb_wow64(OsNt& os, const reader::Reader& reader, proc_t proc)
     {
-        const auto wowp = reader.read(proc.id + os.members_[EPROCESS_Wow64Process]);
+        const auto wowp = reader.read(proc.id + os.offsets_[EPROCESS_Wow64Process]);
         if(!wowp)
             FAIL(false, "unable to read EPROCESS.Wow64Process");
 
-        if(!os.members_[EWOW64PROCESS_NtdllType])
+        if(!os.offsets_[EWOW64PROCESS_NtdllType])
             return wowp;
 
-        const auto peb32 = reader.read(*wowp + os.members_[EWOW64PROCESS_Peb]);
+        const auto peb32 = reader.read(*wowp + os.offsets_[EWOW64PROCESS_Peb]);
         if(!peb32)
             FAIL(false, "unable to read EWOW64PROCESS.Peb");
 
@@ -532,13 +543,13 @@ bool OsNt::setup_wow64(proc_t proc)
     if(!*peb32)
         return true;
 
-    const auto ldr32 = reader.le32(*peb32 + members_[PEB32_Ldr]);
+    const auto ldr32 = reader.le32(*peb32 + offsets_[PEB32_Ldr]);
     if(!ldr32)
         FAIL(false, "unable to read PEB32.Ldr");
 
     bool found      = false;
     const auto head = *ldr32 + offsetof(nt32::_PEB_LDR_DATA, InLoadOrderModuleList);
-    for(auto link = reader.le32(head); link && link != static_cast<uint32_t>(head); link = reader.le32(*link))
+    for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
     {
         const mod_t mod = {*link - offsetof(nt32::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)};
         const auto name = nt32::read_unicode_string(reader, mod.id + offsetof(nt32::_LDR_DATA_TABLE_ENTRY, FullDllName));
@@ -570,19 +581,22 @@ bool OsNt::setup_wow64(proc_t proc)
         FAIL(false, "Unable to find wntdll");
 
     bool fail = false;
-    for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
+    memset(&offsets32_[0], 0, sizeof offsets32_);
+    for(size_t i = 0; i < NT32_COUNT; ++i)
     {
-        if(g_member_offsets[i].e_cat != cat_e::REQUIRED32)
-            continue;
-
-        const auto offset = core_.sym.struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+        fail |= g_nt32_offsets[i].e_id != i;
+        const auto offset = core_.sym.struc_offset(g_nt32_offsets[i].module, g_nt32_offsets[i].struc, g_nt32_offsets[i].member);
         if(!offset)
         {
-            fail = true;
-            LOG(ERROR, "unable to read {}!{}.{} member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+            fail |= g_nt32_offsets[i].e_cat == cat_e::REQUIRED;
+            if(g_nt32_offsets[i].e_cat == cat_e::REQUIRED)
+                LOG(ERROR, "unable to read {}!{}.{} member offset", g_nt32_offsets[i].module, g_nt32_offsets[i].struc, g_nt32_offsets[i].member);
+            else
+                LOG(WARNING, "unable to read {}!{}.{} member offset", g_nt32_offsets[i].module, g_nt32_offsets[i].struc, g_nt32_offsets[i].member);
+            continue;
         }
 
-        members_[i] = *offset;
+        offsets32_[i] = static_cast<uint32_t>(*offset);
     }
 
     return !fail;
@@ -592,7 +606,7 @@ opt<std::string> OsNt::proc_name(proc_t proc)
 {
     // EPROCESS.ImageFileName is 16 bytes, but only 14 are actually used
     char buffer[14 + 1];
-    const auto ok             = reader_.read(buffer, proc.id + members_[EPROCESS_ImageFileName], sizeof buffer);
+    const auto ok             = reader_.read(buffer, proc.id + offsets_[EPROCESS_ImageFileName], sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
         return {};
@@ -601,11 +615,11 @@ opt<std::string> OsNt::proc_name(proc_t proc)
     if(name.size() < sizeof buffer - 1)
         return name;
 
-    const auto image_file_name = reader_.read(proc.id + members_[EPROCESS_SeAuditProcessCreationInfo] + members_[SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName]);
+    const auto image_file_name = reader_.read(proc.id + offsets_[EPROCESS_SeAuditProcessCreationInfo] + offsets_[SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName]);
     if(!image_file_name)
         return name;
 
-    const auto path = read_unicode_string(reader_, *image_file_name + members_[OBJECT_NAME_INFORMATION_Name]);
+    const auto path = read_unicode_string(reader_, *image_file_name + offsets_[OBJECT_NAME_INFORMATION_Name]);
     if(!path)
         return name;
 
@@ -614,7 +628,7 @@ opt<std::string> OsNt::proc_name(proc_t proc)
 
 uint64_t OsNt::proc_id(proc_t proc)
 {
-    const auto pid = reader_.read(proc.id + members_[EPROCESS_UniqueProcessId]);
+    const auto pid = reader_.read(proc.id + offsets_[EPROCESS_UniqueProcessId]);
     if(!pid)
         return 0;
 
@@ -623,7 +637,7 @@ uint64_t OsNt::proc_id(proc_t proc)
 
 opt<bool> OsNt::proc_is_wow64(proc_t proc)
 {
-    const auto isx64 = reader_.read(proc.id + members_[EPROCESS_Wow64Process]);
+    const auto isx64 = reader_.read(proc.id + offsets_[EPROCESS_Wow64Process]);
     if(!isx64)
         return {};
 
@@ -642,7 +656,7 @@ bool OsNt::proc_ctx_is_x64()
 bool OsNt::mod_list(proc_t proc, const on_mod_fn& on_mod)
 {
     const auto reader = reader::make(core_, proc);
-    const auto peb    = reader.read(proc.id + members_[EPROCESS_Peb]);
+    const auto peb    = reader.read(proc.id + offsets_[EPROCESS_Peb]);
     if(!peb)
         FAIL(false, "unable to read EPROCESS.Peb");
 
@@ -650,13 +664,13 @@ bool OsNt::mod_list(proc_t proc, const on_mod_fn& on_mod)
     if(!*peb)
         return true;
 
-    const auto ldr = reader.read(*peb + members_[PEB_Ldr]);
+    const auto ldr = reader.read(*peb + offsets_[PEB_Ldr]);
     if(!ldr)
         FAIL(false, "unable to read PEB.Ldr");
 
-    const auto head = *ldr + members_[PEB_LDR_DATA_InLoadOrderModuleList];
+    const auto head = *ldr + offsets_[PEB_LDR_DATA_InLoadOrderModuleList];
     for(auto link = reader.read(head); link && link != head; link = reader.read(*link))
-        if(on_mod({*link - members_[LDR_DATA_TABLE_ENTRY_InLoadOrderLinks]}) == WALK_STOP)
+        if(on_mod({*link - offsets_[LDR_DATA_TABLE_ENTRY_InLoadOrderLinks]}) == WALK_STOP)
             break;
 
     return true;
@@ -665,7 +679,7 @@ bool OsNt::mod_list(proc_t proc, const on_mod_fn& on_mod)
 bool OsNt::mod_list32(proc_t proc, const on_mod_fn& on_mod)
 {
     const auto reader = reader::make(core_, proc);
-    const auto peb32  = reader.read(proc.id + members_[EPROCESS_Wow64Process]);
+    const auto peb32  = reader.read(proc.id + offsets_[EPROCESS_Wow64Process]);
     if(!peb32)
         FAIL(false, "unable to read EPROCESS.Peb32");
 
@@ -673,13 +687,13 @@ bool OsNt::mod_list32(proc_t proc, const on_mod_fn& on_mod)
     if(!*peb32)
         return true;
 
-    const auto ldr32 = reader.le32(*peb32 + members_[PEB32_Ldr]);
+    const auto ldr32 = reader.le32(*peb32 + offsets_[PEB32_Ldr]);
     if(!ldr32)
         FAIL(false, "unable to read PEB32.Ldr");
 
-    const auto head = *ldr32 + members_[PEB_LDR_DATA32_InLoadOrderModuleList];
-    for(auto link = reader.le32(head); link && link != static_cast<uint32_t>(head); link = reader.le32(*link))
-        if(on_mod({*link - members_[LDR_DATA_TABLE_ENTRY32_InLoadOrderLinks]}) == WALK_STOP)
+    const auto head = *ldr32 + offsets32_[NT32_PEB_LDR_DATA_InLoadOrderModuleList];
+    for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
+        if(on_mod({*link - offsets32_[NT32_LDR_DATA_TABLE_ENTRY_InLoadOrderLinks]}) == WALK_STOP)
             break;
 
     return true;
@@ -688,13 +702,13 @@ bool OsNt::mod_list32(proc_t proc, const on_mod_fn& on_mod)
 opt<std::string> OsNt::mod_name(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    return read_unicode_string(reader, mod.id + members_[LDR_DATA_TABLE_ENTRY_FullDllName]);
+    return read_unicode_string(reader, mod.id + offsets_[LDR_DATA_TABLE_ENTRY_FullDllName]);
 }
 
 opt<std::string> OsNt::mod_name32(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    return nt32::read_unicode_string(reader, mod.id + members_[LDR_DATA_TABLE_ENTRY32_FullDllName]);
+    return nt32::read_unicode_string(reader, mod.id + offsets32_[NT32_LDR_DATA_TABLE_ENTRY_FullDllName]);
 }
 
 opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
@@ -721,10 +735,10 @@ opt<span_t> OsNt::stack_curr_bounds(proc_t proc)
     if(!proc_ctx_is_x64())
     {
         const auto teb    = core_.regs.read(MSR_FS_BASE);
-        const auto nt_tib = teb + members_[TEB32_NtTib];
+        const auto nt_tib = teb + offsets32_[NT32_TEB_NtTib];
 
-        const auto stack_base  = reader.le32(nt_tib + members_[NT_TIB32_StackBase]);
-        const auto stack_limit = reader.le32(nt_tib + members_[NT_TIB32_StackLimit]);
+        const auto stack_base  = reader.le32(nt_tib + offsets32_[NT32_NT_TIB_StackBase]);
+        const auto stack_limit = reader.le32(nt_tib + offsets32_[NT32_NT_TIB_StackLimit]);
         if(!stack_base || !stack_limit)
             FAIL({}, "Unable to stack bounds");
 
@@ -732,10 +746,10 @@ opt<span_t> OsNt::stack_curr_bounds(proc_t proc)
     }
 
     const auto teb    = core_.regs.read(MSR_GS_BASE);
-    const auto nt_tib = teb + members_[TEB_NtTib];
+    const auto nt_tib = teb + offsets_[TEB_NtTib];
 
-    const auto stack_base  = reader.read(nt_tib + members_[NT_TIB_StackBase]);
-    const auto stack_limit = reader.read(nt_tib + members_[NT_TIB_StackLimit]);
+    const auto stack_base  = reader.read(nt_tib + offsets_[NT_TIB_StackBase]);
+    const auto stack_limit = reader.read(nt_tib + offsets_[NT_TIB_StackLimit]);
     if(!stack_base || !stack_limit)
         FAIL({}, "Unable to stack bounds");
 
@@ -744,18 +758,18 @@ opt<span_t> OsNt::stack_curr_bounds(proc_t proc)
 
 bool OsNt::proc_is_valid(proc_t proc)
 {
-    const auto vad_root = reader_.read(proc.id + members_[EPROCESS_VadRoot]);
+    const auto vad_root = reader_.read(proc.id + offsets_[EPROCESS_VadRoot]);
     return vad_root && *vad_root;
 }
 
 opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    const auto base   = reader.read(mod.id + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
+    const auto base   = reader.read(mod.id + offsets_[LDR_DATA_TABLE_ENTRY_DllBase]);
     if(!base)
         return {};
 
-    const auto size = reader.read(mod.id + members_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
+    const auto size = reader.read(mod.id + offsets_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
     if(!size)
         return {};
 
@@ -765,11 +779,11 @@ opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
 opt<span_t> OsNt::mod_span32(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    const auto base   = reader.le32(mod.id + members_[LDR_DATA_TABLE_ENTRY32_DllBase]);
+    const auto base   = reader.le32(mod.id + offsets32_[NT32_LDR_DATA_TABLE_ENTRY_DllBase]);
     if(!base)
         return {};
 
-    const auto size = reader.le32(mod.id + members_[LDR_DATA_TABLE_ENTRY32_SizeOfImage]);
+    const auto size = reader.le32(mod.id + offsets32_[NT32_LDR_DATA_TABLE_ENTRY_SizeOfImage]);
     if(!size)
         return {};
 
@@ -780,7 +794,7 @@ bool OsNt::driver_list(const on_driver_fn& on_driver)
 {
     const auto head = symbols_[PsLoadedModuleList];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
-        if(on_driver({*link - members_[LDR_DATA_TABLE_ENTRY_InLoadOrderLinks]}) == WALK_STOP)
+        if(on_driver({*link - offsets_[LDR_DATA_TABLE_ENTRY_InLoadOrderLinks]}) == WALK_STOP)
             break;
     return true;
 }
@@ -802,16 +816,16 @@ opt<driver_t> OsNt::driver_find(const std::string& name)
 
 opt<std::string> OsNt::driver_name(driver_t drv)
 {
-    return read_unicode_string(reader_, drv.id + members_[LDR_DATA_TABLE_ENTRY_FullDllName]);
+    return read_unicode_string(reader_, drv.id + offsets_[LDR_DATA_TABLE_ENTRY_FullDllName]);
 }
 
 opt<span_t> OsNt::driver_span(driver_t drv)
 {
-    const auto base = reader_.read(drv.id + members_[LDR_DATA_TABLE_ENTRY_DllBase]);
+    const auto base = reader_.read(drv.id + offsets_[LDR_DATA_TABLE_ENTRY_DllBase]);
     if(!base)
         return {};
 
-    const auto size = reader_.read(drv.id + members_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
+    const auto size = reader_.read(drv.id + offsets_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
     if(!size)
         return {};
 
@@ -820,9 +834,9 @@ opt<span_t> OsNt::driver_span(driver_t drv)
 
 bool OsNt::thread_list(proc_t proc, const on_thread_fn& on_thread)
 {
-    const auto head = proc.id + members_[EPROCESS_ThreadListHead];
+    const auto head = proc.id + offsets_[EPROCESS_ThreadListHead];
     for(auto link = reader_.read(head); link && link != head; link = reader_.read(*link))
-        if(on_thread({*link - members_[ETHREAD_ThreadListEntry]}) == WALK_STOP)
+        if(on_thread({*link - offsets_[ETHREAD_ThreadListEntry]}) == WALK_STOP)
             break;
 
     return true;
@@ -830,7 +844,7 @@ bool OsNt::thread_list(proc_t proc, const on_thread_fn& on_thread)
 
 opt<thread_t> OsNt::thread_current()
 {
-    const auto thread = reader_.read(kpcr_ + members_[KPCR_Prcb] + members_[KPRCB_CurrentThread]);
+    const auto thread = reader_.read(kpcr_ + offsets_[KPCR_Prcb] + offsets_[KPRCB_CurrentThread]);
     if(!thread)
         FAIL({}, "unable to read KPCR.Prcb.CurrentThread");
 
@@ -839,28 +853,28 @@ opt<thread_t> OsNt::thread_current()
 
 opt<proc_t> OsNt::thread_proc(thread_t thread)
 {
-    const auto kproc = reader_.read(thread.id + members_[KTHREAD_Process]);
+    const auto kproc = reader_.read(thread.id + offsets_[KTHREAD_Process]);
     if(!kproc)
         FAIL({}, "unable to read KTHREAD.Process");
 
-    const auto dtb = reader_.read(*kproc + members_[KPROCESS_UserDirectoryTableBase]);
+    const auto dtb = reader_.read(*kproc + offsets_[KPROCESS_UserDirectoryTableBase]);
     if(!dtb)
         FAIL({}, "unable to read KPROCESS.DirectoryTableBase");
 
-    const auto eproc = *kproc - members_[EPROCESS_Pcb];
+    const auto eproc = *kproc - offsets_[EPROCESS_Pcb];
     return proc_t{eproc, dtb_t{*dtb}};
 }
 
 opt<uint64_t> OsNt::thread_pc(proc_t /*proc*/, thread_t thread)
 {
-    const auto ktrap_frame = reader_.read(thread.id + members_[ETHREAD_Tcb] + members_[KTHREAD_TrapFrame]);
+    const auto ktrap_frame = reader_.read(thread.id + offsets_[ETHREAD_Tcb] + offsets_[KTHREAD_TrapFrame]);
     if(!ktrap_frame)
         FAIL({}, "unable to read KTHREAD.TrapFrame");
 
     if(!*ktrap_frame)
         return {};
 
-    const auto rip = reader_.read(*ktrap_frame + members_[KTRAP_FRAME_Rip]);
+    const auto rip = reader_.read(*ktrap_frame + offsets_[KTRAP_FRAME_Rip]);
     if(!rip)
         return {};
 
@@ -869,7 +883,7 @@ opt<uint64_t> OsNt::thread_pc(proc_t /*proc*/, thread_t thread)
 
 uint64_t OsNt::thread_id(proc_t /*proc*/, thread_t thread)
 {
-    const auto tid = reader_.read(thread.id + members_[ETHREAD_Cid] + members_[CLIENT_ID_UniqueThread]);
+    const auto tid = reader_.read(thread.id + offsets_[ETHREAD_Cid] + offsets_[CLIENT_ID_UniqueThread]);
     if(!tid)
         return 0;
 
@@ -920,7 +934,7 @@ opt<proc_t> OsNt::proc_select(proc_t proc, uint64_t ptr)
     if(!is_kernel(ptr))
         return proc;
 
-    const auto kdtb = reader_.read(proc.id + members_[EPROCESS_Pcb] + members_[KPROCESS_DirectoryTableBase]);
+    const auto kdtb = reader_.read(proc.id + offsets_[EPROCESS_Pcb] + offsets_[KPROCESS_DirectoryTableBase]);
     if(!kdtb)
         return {};
 
@@ -929,11 +943,11 @@ opt<proc_t> OsNt::proc_select(proc_t proc, uint64_t ptr)
 
 bool OsNt::reader_setup(reader::Reader& reader, proc_t proc)
 {
-    const auto dtb = reader_.read(proc.id + members_[EPROCESS_Pcb] + members_[KPROCESS_UserDirectoryTableBase]);
+    const auto dtb = reader_.read(proc.id + offsets_[EPROCESS_Pcb] + offsets_[KPROCESS_UserDirectoryTableBase]);
     if(!dtb)
         return false;
 
-    const auto kdtb = reader_.read(proc.id + members_[EPROCESS_Pcb] + members_[KPROCESS_DirectoryTableBase]);
+    const auto kdtb = reader_.read(proc.id + offsets_[EPROCESS_Pcb] + offsets_[KPROCESS_DirectoryTableBase]);
     if(!kdtb)
         return false;
 
@@ -971,7 +985,7 @@ void OsNt::debug_print()
 {
     if(true)
         return;
-    const auto irql   = reader_.byte(kpcr_ + members_[KPCR_Irql]);
+    const auto irql   = reader_.byte(kpcr_ + offsets_[KPCR_Irql]);
     const auto cs     = core_.regs.read(FDP_CS_REGISTER);
     const auto rip    = core_.regs.read(FDP_RIP_REGISTER);
     const auto cr3    = core_.regs.read(FDP_CR3_REGISTER);
