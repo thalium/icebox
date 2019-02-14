@@ -15,6 +15,51 @@
 
 namespace
 {
+    namespace nt32
+    {
+        struct _LIST_ENTRY
+        {
+            uint32_t flink;
+            uint32_t blink;
+        };
+        STATIC_ASSERT_EQ(8, sizeof(_LIST_ENTRY));
+
+        struct _PEB_LDR_DATA
+        {
+            uint32_t    Length;
+            uint8_t     Initialized;
+            uint32_t    SsHandle;
+            _LIST_ENTRY InLoadOrderModuleList;
+            _LIST_ENTRY InMemoryOrderModuleList;
+            _LIST_ENTRY InInitializationOrderModuleList;
+            uint32_t    EntryInProgress;
+            uint8_t     ShutdownInProgress;
+            uint32_t    ShutdownThreadId;
+        };
+        STATIC_ASSERT_EQ(48, sizeof(_PEB_LDR_DATA));
+
+        using _UNICODE_STRING = struct
+        {
+            uint16_t length;
+            uint16_t max_length;
+            uint32_t buffer;
+        };
+        STATIC_ASSERT_EQ(8, sizeof(_UNICODE_STRING));
+
+        struct _LDR_DATA_TABLE_ENTRY
+        {
+            _LIST_ENTRY     InLoadOrderLinks;
+            _LIST_ENTRY     InMemoryOrderLinks;
+            _LIST_ENTRY     InInitializationOrderLinks;
+            uint32_t        DllBase;
+            uint32_t        EntryPoint;
+            uint32_t        SizeOfImage;
+            _UNICODE_STRING FullDllName;
+            _UNICODE_STRING BaseDllName;
+        };
+        STATIC_ASSERT_EQ(52, sizeof(_LDR_DATA_TABLE_ENTRY));
+    } // namespace nt32
+
     enum class cat_e
     {
         REQUIRED,
@@ -69,11 +114,6 @@ namespace
         NT32_TEB_NtTib,
         NT32_NT_TIB_StackBase,
         NT32_NT_TIB_StackLimit,
-        NT32_LDR_DATA_TABLE_ENTRY_DllBase,
-        NT32_LDR_DATA_TABLE_ENTRY_FullDllName,
-        NT32_LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,
-        NT32_LDR_DATA_TABLE_ENTRY_SizeOfImage,
-        NT32_PEB_LDR_DATA_InLoadOrderModuleList,
         NT32_COUNT,
     };
 
@@ -133,11 +173,6 @@ namespace
         {cat_e::REQUIRED, NT32_TEB_NtTib,                                "wntdll",   "_TEB",                     "NtTib"},
         {cat_e::REQUIRED, NT32_NT_TIB_StackBase,                         "wntdll",   "_NT_TIB",                  "StackBase"},
         {cat_e::REQUIRED, NT32_NT_TIB_StackLimit,                        "wntdll",   "_NT_TIB",                  "StackLimit"},
-        {cat_e::REQUIRED, NT32_LDR_DATA_TABLE_ENTRY_DllBase,             "wntdll",   "_LDR_DATA_TABLE_ENTRY",    "DllBase"},
-        {cat_e::REQUIRED, NT32_LDR_DATA_TABLE_ENTRY_FullDllName,         "wntdll",   "_LDR_DATA_TABLE_ENTRY",    "FullDllName"},
-        {cat_e::REQUIRED, NT32_LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,    "wntdll",   "_LDR_DATA_TABLE_ENTRY",    "InLoadOrderLinks"},
-        {cat_e::REQUIRED, NT32_LDR_DATA_TABLE_ENTRY_SizeOfImage,         "wntdll",   "_LDR_DATA_TABLE_ENTRY",    "SizeOfImage"},
-        {cat_e::REQUIRED, NT32_PEB_LDR_DATA_InLoadOrderModuleList,       "wntdll",   "_PEB_LDR_DATA",            "InLoadOrderModuleList"},
     };
     // clang-format on
     STATIC_ASSERT_EQ(COUNT_OF(g_nt_offsets), NT_COUNT);
@@ -447,50 +482,6 @@ namespace
 
     namespace nt32
     {
-        struct _LIST_ENTRY
-        {
-            uint32_t flink;
-            uint32_t blink;
-        };
-        STATIC_ASSERT_EQ(8, sizeof(_LIST_ENTRY));
-
-        struct _PEB_LDR_DATA
-        {
-            uint32_t    Length;
-            uint8_t     Initialized;
-            uint8_t     Padding_0[3];
-            uint32_t    SsHandle;
-            _LIST_ENTRY InLoadOrderModuleList;
-            _LIST_ENTRY InMemoryOrderModuleList;
-            _LIST_ENTRY InInitializationOrderModuleList;
-            uint32_t    EntryInProgress;
-            uint8_t     ShutdownInProgress;
-            uint8_t     Padding_1[3];
-            uint32_t    ShutdownThreadId;
-        };
-        STATIC_ASSERT_EQ(48, sizeof(_PEB_LDR_DATA));
-
-        using _UNICODE_STRING = struct
-        {
-            uint16_t length;
-            uint16_t max_length;
-            uint32_t buffer;
-        };
-        STATIC_ASSERT_EQ(8, sizeof(_UNICODE_STRING));
-
-        struct _LDR_DATA_TABLE_ENTRY
-        {
-            _LIST_ENTRY     InLoadOrderLinks;
-            _LIST_ENTRY     InMemoryOrderLinks;
-            _LIST_ENTRY     InInitializationOrderLinks;
-            uint32_t        DllBase;
-            uint32_t        EntryPoint;
-            uint32_t        SizeOfImage;
-            _UNICODE_STRING FullDllName;
-            _UNICODE_STRING BaseDllName;
-        };
-        STATIC_ASSERT_EQ(52, sizeof(_LDR_DATA_TABLE_ENTRY));
-
         opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
         {
             nt32::_UNICODE_STRING us;
@@ -689,9 +680,9 @@ bool OsNt::mod_list32(proc_t proc, const on_mod_fn& on_mod)
     if(!ldr32)
         FAIL(false, "unable to read PEB32.Ldr");
 
-    const auto head = *ldr32 + offsets32_[NT32_PEB_LDR_DATA_InLoadOrderModuleList];
+    const auto head = *ldr32 + offsetof(nt32::_PEB_LDR_DATA, InLoadOrderModuleList);
     for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
-        if(on_mod({*link - offsets32_[NT32_LDR_DATA_TABLE_ENTRY_InLoadOrderLinks]}) == WALK_STOP)
+        if(on_mod({*link - offsetof(nt32::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)}) == WALK_STOP)
             break;
 
     return true;
@@ -706,7 +697,7 @@ opt<std::string> OsNt::mod_name(proc_t proc, mod_t mod)
 opt<std::string> OsNt::mod_name32(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    return nt32::read_unicode_string(reader, mod.id + offsets32_[NT32_LDR_DATA_TABLE_ENTRY_FullDllName]);
+    return nt32::read_unicode_string(reader, mod.id + offsetof(nt32::_LDR_DATA_TABLE_ENTRY, FullDllName));
 }
 
 opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
@@ -777,11 +768,11 @@ opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
 opt<span_t> OsNt::mod_span32(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    const auto base   = reader.le32(mod.id + offsets32_[NT32_LDR_DATA_TABLE_ENTRY_DllBase]);
+    const auto base   = reader.le32(mod.id + offsetof(nt32::_LDR_DATA_TABLE_ENTRY, DllBase));
     if(!base)
         return {};
 
-    const auto size = reader.le32(mod.id + offsets32_[NT32_LDR_DATA_TABLE_ENTRY_SizeOfImage]);
+    const auto size = reader.le32(mod.id + offsetof(nt32::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
     if(!size)
         return {};
 
