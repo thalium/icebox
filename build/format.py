@@ -137,29 +137,19 @@ def main():
     targets = []
     for filename in files:
         data = read_file(filename)
-        st = os.stat(filename)
-        atime = st.st_atime
-        mtime = st.st_mtime
-        targets.append((filename, data, (atime, mtime)))
+        targets.append((filename, data))
 
-    # call clang on all files which *WILL* modify them
     target = sys.argv[1]
     clang = os.path.abspath(sys.argv[2])
-    subprocess.check_output([clang, "-i", "-style=file"] + files)
-
-    for filename, data, modified in targets:
+    for filename, data in targets:
         t = timeit.default_timer()
-        after_clang = read_file(filename)
+        after_clang = subprocess.check_output([clang, "-style=file", filename]).decode()
         value = process(after_clang, pre_patterns, re_fields, post_patterns)
         step = timeit.default_timer() - t
         #print("%4dms: %s" % (round_time(step), f))
         total += step
-        write_file(filename, value)
-        # if content is the same, we reset modified time
-        # so that build systems do not rebuild them
-        if value == data:
-            os.utime(filename, modified)
-        else:
+        if value != data:
+            write_file(filename, value)
             print("fmt: %s/%s" % (target, os.path.basename(filename)))
     #print("fmt: %s %d files %dms" % (target, len(files), round_time(total)))
 
