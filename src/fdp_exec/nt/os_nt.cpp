@@ -68,6 +68,8 @@ namespace
         PEB32_Ldr,
         RTL_USER_PROCESS_PARAMETERS_ImagePathName,
         SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,
+        EWOW64PROCESS_Peb,
+        EWOW64PROCESS_NtdllType,
         MEMBER_OFFSET_COUNT,
     };
 
@@ -126,6 +128,8 @@ namespace
         {cat_e::REQUIRED,   PEB32_Ldr,                                   "nt",     "_PEB32",                           "Ldr"},
         {cat_e::REQUIRED,   RTL_USER_PROCESS_PARAMETERS_ImagePathName,   "nt",     "_RTL_USER_PROCESS_PARAMETERS",     "ImagePathName"},
         {cat_e::REQUIRED,   SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,"nt",     "_SE_AUDIT_PROCESS_CREATION_INFO",  "ImageFileName"},
+        {cat_e::OPTIONAL,   EWOW64PROCESS_Peb,                           "nt",     "_EWOW64PROCESS",                   "Peb"},
+        {cat_e::OPTIONAL,   EWOW64PROCESS_NtdllType,                     "nt",     "_EWOW64PROCESS",                   "NtdllType"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_member_offsets) == MEMBER_OFFSET_COUNT, "invalid members");
@@ -458,6 +462,22 @@ namespace
         const auto p = &buffer[0];
         return utf8::convert(p, &p[us.length]);
     }
+
+    static opt<uint64_t> read_peb_wow64(OsNt& os, const reader::Reader& reader, proc_t proc)
+    {
+        const auto wowp = reader.read(proc.id + os.members_[EPROCESS_Wow64Process]);
+        if(!wowp)
+            FAIL(false, "unable to read EPROCESS.Wow64Process");
+
+        if(!os.members_[EWOW64PROCESS_NtdllType])
+            return wowp;
+
+        const auto peb32 = reader.read(*wowp + os.members_[EWOW64PROCESS_Peb]);
+        if(!peb32)
+            FAIL(false, "unable to read EWOW64PROCESS.Peb");
+
+        return *peb32;
+    }
 }
 
 bool OsNt::setup_wow64(proc_t proc)
@@ -499,9 +519,9 @@ bool OsNt::setup_wow64(proc_t proc)
 #pragma pack(pop)
 
     const auto reader = reader::make(core_, proc);
-    const auto peb32  = reader.read(proc.id + members_[EPROCESS_Wow64Process]);
+    const auto peb32  = read_peb_wow64(*this, reader, proc);
     if(!peb32)
-        FAIL(false, "unable to read EPROCESS.Peb32");
+        return false;
 
     // no PEB on system process
     if(!*peb32)
