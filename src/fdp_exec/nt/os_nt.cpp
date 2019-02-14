@@ -521,6 +521,8 @@ namespace
 
         return *peb32;
     }
+
+#define offsetof32(x, y) static_cast<uint32_t>(offsetof(x, y))
 }
 
 bool OsNt::setup_wow64(proc_t proc)
@@ -539,11 +541,11 @@ bool OsNt::setup_wow64(proc_t proc)
         FAIL(false, "unable to read PEB32.Ldr");
 
     bool found      = false;
-    const auto head = *ldr32 + offsetof(nt32::_PEB_LDR_DATA, InLoadOrderModuleList);
+    const auto head = *ldr32 + offsetof32(nt32::_PEB_LDR_DATA, InLoadOrderModuleList);
     for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
     {
-        const mod_t mod = {*link - offsetof(nt32::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)};
-        const auto name = nt32::read_unicode_string(reader, mod.id + offsetof(nt32::_LDR_DATA_TABLE_ENTRY, FullDllName));
+        const mod_t mod = {*link - offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)};
+        const auto name = nt32::read_unicode_string(reader, mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, FullDllName));
         if(!name)
             FAIL(false, "Unable to read mod name to find wntdll");
 
@@ -551,8 +553,8 @@ bool OsNt::setup_wow64(proc_t proc)
             continue;
 
         found           = true;
-        const auto base = reader.le32(mod.id + offsetof(nt32::_LDR_DATA_TABLE_ENTRY, DllBase));
-        const auto size = reader.le32(mod.id + offsetof(nt32::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
+        const auto base = reader.le32(mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, DllBase));
+        const auto size = reader.le32(mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
         if(!base || !size)
             FAIL(false, "Unable to read wntdll's span");
 
@@ -680,9 +682,9 @@ bool OsNt::mod_list32(proc_t proc, const on_mod_fn& on_mod)
     if(!ldr32)
         FAIL(false, "unable to read PEB32.Ldr");
 
-    const auto head = *ldr32 + offsetof(nt32::_PEB_LDR_DATA, InLoadOrderModuleList);
+    const auto head = *ldr32 + offsetof32(nt32::_PEB_LDR_DATA, InLoadOrderModuleList);
     for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
-        if(on_mod({*link - offsetof(nt32::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)}) == WALK_STOP)
+        if(on_mod({*link - offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)}) == WALK_STOP)
             break;
 
     return true;
@@ -697,7 +699,7 @@ opt<std::string> OsNt::mod_name(proc_t proc, mod_t mod)
 opt<std::string> OsNt::mod_name32(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    return nt32::read_unicode_string(reader, mod.id + offsetof(nt32::_LDR_DATA_TABLE_ENTRY, FullDllName));
+    return nt32::read_unicode_string(reader, mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, FullDllName));
 }
 
 opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
@@ -768,11 +770,11 @@ opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
 opt<span_t> OsNt::mod_span32(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    const auto base   = reader.le32(mod.id + offsetof(nt32::_LDR_DATA_TABLE_ENTRY, DllBase));
+    const auto base   = reader.le32(mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, DllBase));
     if(!base)
         return {};
 
-    const auto size = reader.le32(mod.id + offsetof(nt32::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
+    const auto size = reader.le32(mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
     if(!size)
         return {};
 
