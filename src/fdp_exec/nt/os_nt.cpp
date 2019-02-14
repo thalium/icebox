@@ -542,7 +542,7 @@ bool OsNt::setup_wow64(proc_t proc)
 
     bool found      = false;
     const auto head = *ldr32 + offsetof32(nt32::_PEB_LDR_DATA, InLoadOrderModuleList);
-    for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
+    for(auto link = reader.le32(head); link && link != head && !found; link = reader.le32(*link))
     {
         const mod_t mod = {*link - offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)};
         const auto name = nt32::read_unicode_string(reader, mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, FullDllName));
