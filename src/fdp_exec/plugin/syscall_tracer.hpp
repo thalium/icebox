@@ -11,7 +11,7 @@ namespace syscall_tracer
 {
     struct SyscallPlugin
     {
-         SyscallPlugin(core::Core& core, pe::Pe& pe);
+         SyscallPlugin(core::Core& core);
         ~SyscallPlugin();
 
         bool    setup   (proc_t target);
@@ -23,7 +23,7 @@ namespace syscall_tracer
 
     struct SyscallPluginWow64
     {
-         SyscallPluginWow64(core::Core& core, pe::Pe& pe);
+         SyscallPluginWow64(core::Core& core);
         ~SyscallPluginWow64();
 
         bool    setup   (proc_t target);

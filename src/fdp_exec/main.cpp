@@ -17,9 +17,9 @@
 namespace
 {
     template <typename T>
-    void test_tracer(core::Core& core, pe::Pe& pe, proc_t target)
+    void test_tracer(core::Core& core, proc_t target)
     {
-        T syscall_plugin(core, pe);
+        T syscall_plugin(core);
         syscall_plugin.setup(target);
 
         LOG(INFO, "Everything is set up ! Please trigger some syscalls");
@@ -34,7 +34,7 @@ namespace
         syscall_plugin.generate("output.json");
     }
 
-    bool test_core(core::Core& core, pe::Pe& pe)
+    bool test_core(core::Core& core)
     {
         LOG(INFO, "drivers:");
         core.os->driver_list([&](driver_t drv)
@@ -75,13 +75,8 @@ namespace
             FAIL(false, "unable to check if proc is wow64");
 
         if(*is_wow64)
-        {
             if(!core.os->setup_wow64(*target))
                 return false;
-
-            if(!pe.setup_wow64(core))
-                return false;
-        }
 
         std::vector<uint8_t> buffer;
         const auto reader = reader::make(core, *target);
@@ -102,7 +97,7 @@ namespace
             LOG(INFO, "module[{:>2}/{:<2}] {}: {:#x} {:#x}", modi, modcount, name->data(), span->addr, span->size);
             ++modi;
 
-            const auto debug = pe.find_debug_codeview(reader, *span);
+            const auto debug = pe::find_debug_codeview(reader, *span);
             if(!debug)
                 return WALK_NEXT;
 
@@ -138,7 +133,7 @@ namespace
                 LOG(INFO, "module[{:>2}/{:<2}] {}: {:#x} {:#x}", modi32, modcount, name->data(), span->addr, span->size);
                 ++modi32;
 
-                const auto debug = pe.find_debug_codeview(reader, *span);
+                const auto debug = pe::find_debug_codeview(reader, *span);
                 if(!debug)
                     return WALK_NEXT;
 
@@ -194,7 +189,7 @@ namespace
 
         // test callstack
         {
-            const auto callstack = callstack::make_callstack_nt(core, pe);
+            const auto callstack = callstack::make_callstack_nt(core);
             const auto cs_depth  = 40;
             const auto pdb_name  = "ntdll";
             const auto func_name = "RtlAllocateHeap";
@@ -232,9 +227,9 @@ namespace
         // test syscall plugin
         {
             if(*is_wow64)
-                test_tracer<syscall_tracer::SyscallPluginWow64>(core, pe, *target);
+                test_tracer<syscall_tracer::SyscallPluginWow64>(core, *target);
             else
-                test_tracer<syscall_tracer::SyscallPlugin>(core, pe, *target);
+                test_tracer<syscall_tracer::SyscallPlugin>(core, *target);
         }
 
         return true;
@@ -255,14 +250,9 @@ int main(int argc, char* argv[])
     if(!ok)
         FAIL(-1, "unable to start core at {}", name.data());
 
-    pe::Pe pe;
-    ok = pe.setup(core);
-    if(!ok)
-        FAIL(-1, "unable to retrieve PE format informations from pdb");
-
     // core.state.resume();
     core.state.pause();
-    const auto valid = test_core(core, pe);
+    const auto valid = test_core(core);
     core.state.resume();
     return !valid;
 }

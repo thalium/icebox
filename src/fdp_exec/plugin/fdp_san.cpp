@@ -41,10 +41,9 @@ namespace
 
 struct plugin::FdpSan::Data
 {
-    Data(core::Core& core, pe::Pe& pe);
+    Data(core::Core& core);
 
     core::Core&                            core_;
-    pe::Pe&                                pe_;
     monitor::heaps                         heaps_;
     std::shared_ptr<callstack::ICallstack> callstack_;
 
@@ -56,16 +55,15 @@ struct plugin::FdpSan::Data
     proc_t   target_;
 };
 
-plugin::FdpSan::Data::Data(core::Core& core, pe::Pe& pe)
+plugin::FdpSan::Data::Data(core::Core& core)
     : core_(core)
-    , pe_(pe)
     , heaps_(core, "ntdll")
     , target_()
 {
 }
 
-plugin::FdpSan::FdpSan(core::Core& core, pe::Pe& pe)
-    : d_(std::make_unique<Data>(core, pe))
+plugin::FdpSan::FdpSan(core::Core& core)
+    : d_(std::make_unique<Data>(core))
 {
 }
 
@@ -105,7 +103,7 @@ bool plugin::FdpSan::setup(proc_t target)
     d_->threads_rellocating.clear();
     d_->threads_allocating.clear();
 
-    d_->callstack_ = callstack::make_callstack_nt(d_->core_, d_->pe_);
+    d_->callstack_ = callstack::make_callstack_nt(d_->core_);
     if(!d_->callstack_)
         FAIL(false, "Unable to create callstack object");
 

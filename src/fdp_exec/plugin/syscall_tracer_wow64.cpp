@@ -36,10 +36,9 @@ namespace
 
 struct syscall_tracer::SyscallPluginWow64::Data
 {
-    Data(core::Core& core, pe::Pe& pe);
+    Data(core::Core& core);
 
     core::Core&                            core_;
-    pe::Pe&                                pe_;
     monitor::syscallswow64                 syscalls_;
     std::shared_ptr<callstack::ICallstack> callstack_;
     Callsteps                              callsteps_;
@@ -49,17 +48,16 @@ struct syscall_tracer::SyscallPluginWow64::Data
     uint64_t                               nb_triggers_;
 };
 
-syscall_tracer::SyscallPluginWow64::Data::Data(core::Core& core, pe::Pe& pe)
+syscall_tracer::SyscallPluginWow64::Data::Data(core::Core& core)
     : core_(core)
-    , pe_(pe)
     , syscalls_(core, "wntdll")
     , target_()
     , nb_triggers_()
 {
 }
 
-syscall_tracer::SyscallPluginWow64::SyscallPluginWow64(core::Core& core, pe::Pe& pe)
-    : d_(std::make_unique<Data>(core, pe))
+syscall_tracer::SyscallPluginWow64::SyscallPluginWow64(core::Core& core)
+    : d_(std::make_unique<Data>(core))
 {
 }
 
@@ -148,7 +146,7 @@ bool syscall_tracer::SyscallPluginWow64::setup(proc_t target)
     d_->target_      = target;
     d_->nb_triggers_ = 0;
 
-    d_->callstack_ = callstack::make_callstack_nt(d_->core_, d_->pe_);
+    d_->callstack_ = callstack::make_callstack_nt(d_->core_);
     if(!d_->callstack_)
         FAIL(false, "Unable to create callstack object");
 

@@ -13,7 +13,7 @@ namespace plugin
 {
     struct FdpSan
     {
-         FdpSan(core::Core& core, pe::Pe& pe);
+         FdpSan(core::Core& core);
         ~FdpSan();
 
         bool setup(proc_t target);

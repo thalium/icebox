@@ -110,7 +110,7 @@ namespace
     struct CallstackNt
         : public callstack::ICallstack
     {
-        CallstackNt(core::Core& core, pe::Pe& pe);
+        CallstackNt(core::Core& core);
 
         // callstack::ICallstack
         bool get_callstack(proc_t proc, callstack::context_t context, const callstack::on_callstep_fn& on_callstep) override;
@@ -128,21 +128,19 @@ namespace
 
         // members
         core::Core&   core_;
-        pe::Pe&       pe_;
         AllModules    all_modules_;
         ExceptionDirs exception_dirs_;
     };
 }
 
-CallstackNt::CallstackNt(core::Core& core, pe::Pe& pe)
+CallstackNt::CallstackNt(core::Core& core)
     : core_(core)
-    , pe_(pe)
 {
 }
 
-std::shared_ptr<callstack::ICallstack> callstack::make_callstack_nt(core::Core& core, pe::Pe& pe)
+std::shared_ptr<callstack::ICallstack> callstack::make_callstack_nt(core::Core& core)
 {
-    auto cs_nt = std::make_shared<CallstackNt>(core, pe);
+    auto cs_nt = std::make_shared<CallstackNt>(core);
     if(!cs_nt)
         return nullptr;
 
@@ -241,7 +239,7 @@ opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
 opt<FunctionTable> CallstackNt::insert(proc_t proc, const std::string& name, const span_t span)
 {
     const auto reader        = reader::make(core_, proc);
-    const auto exception_dir = pe_.find_image_directory(reader, span, pe::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
+    const auto exception_dir = pe::find_image_directory(reader, span, pe::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
     if(!exception_dir)
         FAIL({}, "Unable to get span of exception_dir");
 
@@ -291,7 +289,7 @@ bool CallstackNt::get_callstack64(proc_t proc, callstack::context_t ctx, const c
         // Load PDB
         if(false)
         {
-            const auto debug = pe_.find_debug_codeview(reader, *span);
+            const auto debug = pe::find_debug_codeview(reader, *span);
             if(!debug)
                 return WALK_NEXT;
 

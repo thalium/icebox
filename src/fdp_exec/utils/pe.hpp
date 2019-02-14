@@ -26,21 +26,8 @@ namespace pe
         IMAGE_DIRECTORY_ENTRY_COM_DESCRIPTOR, // COM Runtime descriptor
     };
 
-    struct Pe
-    {
-         Pe();
-        ~Pe();
-
-        bool    setup       (core::Core& core);
-        bool    setup_wow64 (core::Core& core);
-
-        opt<span_t> find_image_directory(const reader::Reader& core, span_t module, image_directory_entry_e id);
-        opt<span_t> find_debug_codeview (const reader::Reader& core, span_t module);
-        opt<bool>   is_pe64             (const reader::Reader& reader, const uint64_t image_file_header);
-
-        struct Data;
-        std::unique_ptr<Data> d_;
-    };
-
-    opt<size_t> read_image_size(const void* src, size_t size);
+    opt<span_t> find_image_directory(const reader::Reader& core, span_t module, image_directory_entry_e id);
+    opt<span_t> find_debug_codeview (const reader::Reader& core, span_t module);
+    opt<bool>   is_pe64             (const reader::Reader& reader, const uint64_t image_file_header);
+    opt<size_t> read_image_size     (const void* src, size_t size);
 } // namespace pe

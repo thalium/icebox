@@ -29,5 +29,5 @@ namespace callstack
         virtual bool get_callstack(proc_t proc, context_t ctx, const on_callstep_fn& on_callstep) = 0;
     };
 
-    std::shared_ptr<ICallstack> make_callstack_nt(core::Core& core, pe::Pe& pe);
+    std::shared_ptr<ICallstack> make_callstack_nt(core::Core& core);
 } // namespace callstack
