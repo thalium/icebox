@@ -123,7 +123,7 @@ namespace
         {cat_e::REQUIRED,   OBJECT_NAME_INFORMATION_Name,                "nt",     "_OBJECT_NAME_INFORMATION",         "Name"},
         {cat_e::REQUIRED,   PEB_Ldr,                                     "nt",     "_PEB",                             "Ldr"},
         {cat_e::REQUIRED,   PEB_LDR_DATA_InLoadOrderModuleList,          "nt",     "_PEB_LDR_DATA",                    "InLoadOrderModuleList"},
-        {cat_e::REQUIRED32, PEB_LDR_DATA_InLoadOrderModuleList,          "wntdll", "_PEB_LDR_DATA",                    "InLoadOrderModuleList"},
+        {cat_e::REQUIRED32, PEB_LDR_DATA32_InLoadOrderModuleList,        "wntdll", "_PEB_LDR_DATA",                    "InLoadOrderModuleList"},
         {cat_e::REQUIRED,   PEB_ProcessParameters,                       "nt",     "_PEB",                             "ProcessParameters"},
         {cat_e::REQUIRED,   PEB32_Ldr,                                   "nt",     "_PEB32",                           "Ldr"},
         {cat_e::REQUIRED,   RTL_USER_PROCESS_PARAMETERS_ImagePathName,   "nt",     "_RTL_USER_PROCESS_PARAMETERS",     "ImagePathName"},
