@@ -670,9 +670,9 @@ bool OsNt::mod_list(proc_t proc, const on_mod_fn& on_mod)
 bool OsNt::mod_list32(proc_t proc, const on_mod_fn& on_mod)
 {
     const auto reader = reader::make(core_, proc);
-    const auto peb32  = reader.read(proc.id + offsets_[EPROCESS_Wow64Process]);
+    const auto peb32  = read_peb_wow64(*this, reader, proc);
     if(!peb32)
-        FAIL(false, "unable to read EPROCESS.Peb32");
+        return false;
 
     // no PEB on system process
     if(!*peb32)
