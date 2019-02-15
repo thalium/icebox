@@ -299,7 +299,7 @@ uint64_t OsLinux::thread_id(proc_t /*proc*/, thread_t /*thread*/)
 
 bool OsLinux::mod_list(proc_t /*proc*/, const on_mod_fn& on_module)
 {
-    mod_t dummy_mod = {0};
+    mod_t dummy_mod = {0, FLAGS_NONE};
     on_module(dummy_mod);
     return true;
 }
