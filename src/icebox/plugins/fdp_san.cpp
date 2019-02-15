@@ -103,7 +103,7 @@ bool plugins::FdpSan::setup(proc_t target)
 
     d_->callstack_ = callstack::make_callstack_nt(d_->core_);
     if(!d_->callstack_)
-        FAIL(false, "Unable to create callstack object");
+        return FAIL(false, "unable to create callstack object");
 
     const auto reader = reader::make(d_->core_, target);
     d_->heaps_.register_RtlpAllocateHeapInternal(d_->target_, [&](nt::PVOID HeapHandle, nt::SIZE_T Size)

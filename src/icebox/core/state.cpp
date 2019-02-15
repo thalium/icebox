@@ -111,17 +111,17 @@ namespace
         memset(&d.breakstate, 0, sizeof d.breakstate);
         const auto thread = d.core.os->thread_current();
         if(!thread)
-            FAIL(false, "unable to get current thread");
+            return FAIL(false, "unable to get current thread");
 
         const auto proc = d.core.os->thread_proc(*thread);
         if(!proc)
-            FAIL(false, "unable to get current proc");
+            return FAIL(false, "unable to get current proc");
 
         const auto rip = d.core.regs.read(FDP_RIP_REGISTER);
         const auto dtb = dtb_t{d.core.regs.read(FDP_CR3_REGISTER)};
         const auto phy = d.core.mem.virtual_to_physical(rip, dtb);
         if(!phy)
-            FAIL(false, "unable to get current physical address");
+            return FAIL(false, "unable to get current physical address");
 
         d.breakstate.thread = *thread;
         d.breakstate.proc   = *proc;
@@ -144,7 +144,7 @@ namespace
 
         FDP_Pause(&d.shm);
         if(!ok)
-            FAIL(false, "unable to pause");
+            return FAIL(false, "unable to pause");
 
         const auto updated = update_break_state(d);
         return updated;
@@ -171,7 +171,7 @@ namespace
 
         const auto resumed = FDP_Resume(&d.shm);
         if(!resumed)
-            FAIL(false, "unable to resume");
+            return FAIL(false, "unable to resume");
 
         return true;
     }

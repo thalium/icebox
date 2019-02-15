@@ -110,7 +110,7 @@ bool Pdb::setup()
 {
     const auto err = pdb_.load_pdb_file(filename_.generic_string().data());
     if(err != pdb::PDB_STATE_OK)
-        FAIL(false, "unable to open pdb {}: {}", filename_.generic_string().data(), to_string(err));
+        return FAIL(false, "unable to open pdb {}: {}", filename_.generic_string().data(), to_string(err));
 
     pdb_.initialize(BASE_ADDRESS);
     const auto globals = pdb_.get_global_variables();
@@ -239,15 +239,15 @@ namespace
         {
             const auto rsds = search(&src[0], &src[src_size], rsds_pattern);
             if(!rsds)
-                FAIL({}, "unable to find RSDS pattern into kernel module");
+                return FAIL(ext::nullopt, "unable to find RSDS pattern into kernel module");
 
             const auto size = std::distance(rsds, &src[src_size]);
             if(size < 4 /*magic*/ + 16 /*guid*/ + 4 /*age*/ + 2 /*name*/)
-                FAIL({}, "kernel module is too small for pdb header");
+                return FAIL(ext::nullopt, "kernel module is too small for pdb header");
 
             const auto name_end = reinterpret_cast<const uint8_t*>(memchr(&rsds[4 + 16 + 4], 0x00, size));
             if(!name_end)
-                FAIL({}, "missing null-terminating byte on PDB header module name");
+                return FAIL(ext::nullopt, "missing null-terminating byte on PDB header module name");
 
             uint8_t guid[16];
             write_be32(&guid[0], read_le32(&rsds[4 + 0])); // Data1

@@ -311,17 +311,17 @@ bool OsNt::setup()
     const auto lstar  = core_.regs.read(MSR_LSTAR);
     const auto kernel = find_kernel(core_.mem, lstar);
     if(!kernel)
-        FAIL(false, "unable to find kernel");
+        return FAIL(false, "unable to find kernel");
 
     LOG(INFO, "kernel: {:#x} - {:#x} ({} {:#x})", kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
     std::vector<uint8_t> buffer(kernel->size);
     auto ok = core_.mem.read_virtual(&buffer[0], kernel->addr, kernel->size);
     if(!ok)
-        FAIL(false, "unable to read kernel module");
+        return FAIL(false, "unable to read kernel module");
 
     ok = core_.sym.insert("nt", *kernel, &buffer[0], buffer.size());
     if(!ok)
-        FAIL(false, "unable to load symbols from kernel module");
+        return FAIL(false, "unable to load symbols from kernel module");
 
     bool fail = false;
     size_t i  = 0;
@@ -367,14 +367,14 @@ bool OsNt::setup()
     if(!is_kernel(kpcr_))
         kpcr_ = core_.regs.read(MSR_KERNEL_GS_BASE);
     if(!is_kernel(kpcr_))
-        FAIL(false, "unable to read KPCR");
+        return FAIL(false, "unable to read KPCR");
 
     auto gdtb = dtb_t{core_.regs.read(FDP_CR3_REGISTER)};
     if(offsets_[KPRCB_KernelDirectoryTableBase])
     {
         ok = core_.mem.read_virtual(&gdtb, kpcr_ + offsets_[KPCR_Prcb] + offsets_[KPRCB_KernelDirectoryTableBase], sizeof gdtb);
         if(!ok)
-            FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
+            return FAIL(false, "unable to read KPRCB.KernelDirectoryTableBase");
     }
 
     // cr3 is same in user & kernel mode
@@ -423,7 +423,7 @@ opt<proc_t> OsNt::proc_current()
 {
     const auto current = thread_current();
     if(!current)
-        FAIL({}, "unable to get current thread");
+        return FAIL(ext::nullopt, "unable to get current thread");
 
     return thread_proc(*current);
 }
@@ -472,19 +472,19 @@ namespace
         _UNICODE_STRING us;
         auto ok = reader.read(&us, unicode_string, sizeof us);
         if(!ok)
-            FAIL({}, "unable to read UNICODE_STRING");
+            return FAIL(ext::nullopt, "unable to read UNICODE_STRING");
 
         us.length     = read_le16(&us.length);
         us.max_length = read_le16(&us.max_length);
         us.buffer     = read_le64(&us.buffer);
 
         if(us.length > us.max_length)
-            FAIL({}, "corrupted UNICODE_STRING");
+            return FAIL(ext::nullopt, "corrupted UNICODE_STRING");
 
         std::vector<uint8_t> buffer(us.length);
         ok = reader.read(&buffer[0], us.buffer, us.length);
         if(!ok)
-            FAIL({}, "unable to read UNICODE_STRING.buffer");
+            return FAIL(ext::nullopt, "unable to read UNICODE_STRING.buffer");
 
         const auto p = &buffer[0];
         return utf8::convert(p, &p[us.length]);
@@ -497,19 +497,19 @@ namespace
             nt32::_UNICODE_STRING us;
             auto ok = reader.read(&us, unicode_string, sizeof us);
             if(!ok)
-                FAIL({}, "unable to read UNICODE_STRING");
+                return FAIL(ext::nullopt, "unable to read UNICODE_STRING");
 
             us.length     = read_le16(&us.length);
             us.max_length = read_le16(&us.max_length);
             us.buffer     = read_le32(&us.buffer);
 
             if(us.length > us.max_length)
-                FAIL({}, "corrupted UNICODE_STRING");
+                return FAIL(ext::nullopt, "corrupted UNICODE_STRING");
 
             std::vector<uint8_t> buffer(us.length);
             ok = reader.read(&buffer[0], us.buffer, us.length);
             if(!ok)
-                FAIL({}, "unable to read UNICODE_STRING.buffer");
+                return FAIL(ext::nullopt, "unable to read UNICODE_STRING.buffer");
 
             const auto p = &buffer[0];
             return utf8::convert(p, &p[us.length]);
@@ -520,14 +520,14 @@ namespace
     {
         const auto wowp = reader.read(proc.id + os.offsets_[EPROCESS_Wow64Process]);
         if(!wowp)
-            FAIL(false, "unable to read EPROCESS.Wow64Process");
+            return FAIL(false, "unable to read EPROCESS.Wow64Process");
 
         if(!os.offsets_[EWOW64PROCESS_NtdllType])
             return wowp;
 
         const auto peb32 = reader.read(*wowp + os.offsets_[EWOW64PROCESS_Peb]);
         if(!peb32)
-            FAIL(false, "unable to read EWOW64PROCESS.Peb");
+            return FAIL(false, "unable to read EWOW64PROCESS.Peb");
 
         return *peb32;
     }
@@ -752,7 +752,7 @@ namespace
     {
         const auto peb = reader.read(proc.id + os.offsets_[EPROCESS_Peb]);
         if(!peb)
-            FAIL({}, "unable to read EPROCESS.Peb");
+            return FAIL(ext::nullopt, "unable to read EPROCESS.Peb");
 
         // no PEB on system process
         if(!*peb)
@@ -760,7 +760,7 @@ namespace
 
         const auto ldr = reader.read(*peb + os.offsets_[PEB_Ldr]);
         if(!ldr)
-            FAIL({}, "unable to read PEB.Ldr");
+            return FAIL(ext::nullopt, "unable to read PEB.Ldr");
 
         const auto head = *ldr + os.offsets_[PEB_LDR_DATA_InLoadOrderModuleList];
         for(auto link = reader.read(head); link && link != head; link = reader.read(*link))
@@ -785,7 +785,7 @@ namespace
 
         const auto ldr32 = reader.le32(*peb32 + os.offsets_[PEB32_Ldr]);
         if(!ldr32)
-            FAIL({}, "unable to read PEB32.Ldr");
+            return FAIL(ext::nullopt, "unable to read PEB32.Ldr");
 
         const auto head = *ldr32 + offsetof32(nt32::_PEB_LDR_DATA, InLoadOrderModuleList);
         for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
@@ -949,7 +949,7 @@ opt<thread_t> OsNt::thread_current()
 {
     const auto thread = reader_.read(kpcr_ + offsets_[KPCR_Prcb] + offsets_[KPRCB_CurrentThread]);
     if(!thread)
-        FAIL({}, "unable to read KPCR.Prcb.CurrentThread");
+        return FAIL(ext::nullopt, "unable to read KPCR.Prcb.CurrentThread");
 
     return thread_t{*thread};
 }
@@ -958,11 +958,11 @@ opt<proc_t> OsNt::thread_proc(thread_t thread)
 {
     const auto kproc = reader_.read(thread.id + offsets_[KTHREAD_Process]);
     if(!kproc)
-        FAIL({}, "unable to read KTHREAD.Process");
+        return FAIL(ext::nullopt, "unable to read KTHREAD.Process");
 
     const auto dtb = reader_.read(*kproc + offsets_[KPROCESS_UserDirectoryTableBase]);
     if(!dtb)
-        FAIL({}, "unable to read KPROCESS.DirectoryTableBase");
+        return FAIL(ext::nullopt, "unable to read KPROCESS.DirectoryTableBase");
 
     const auto eproc = *kproc - offsets_[EPROCESS_Pcb];
     return proc_t{eproc, dtb_t{*dtb}};
@@ -972,7 +972,7 @@ opt<uint64_t> OsNt::thread_pc(proc_t /*proc*/, thread_t thread)
 {
     const auto ktrap_frame = reader_.read(thread.id + offsets_[ETHREAD_Tcb] + offsets_[KTHREAD_TrapFrame]);
     if(!ktrap_frame)
-        FAIL({}, "unable to read KTHREAD.TrapFrame");
+        return FAIL(ext::nullopt, "unable to read KTHREAD.TrapFrame");
 
     if(!*ktrap_frame)
         return {};

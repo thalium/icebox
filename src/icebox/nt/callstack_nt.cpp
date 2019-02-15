@@ -261,12 +261,12 @@ opt<FunctionTable> CallstackNt::insert(proc_t proc, const std::string& name, con
     const auto reader        = reader::make(core_, proc);
     const auto exception_dir = pe::find_image_directory(reader, span, pe::IMAGE_DIRECTORY_ENTRY_EXCEPTION);
     if(!exception_dir)
-        FAIL({}, "Unable to get span of exception_dir");
+        return FAIL(ext::nullopt, "unable to get span of exception_dir");
 
     std::vector<uint8_t> buffer(exception_dir->size);
     auto ok = reader.read(&buffer[0], exception_dir->addr, exception_dir->size);
     if(!ok)
-        FAIL({}, "unable to read exception dir of {}", name.c_str());
+        return FAIL(ext::nullopt, "unable to read exception dir of {}", name.c_str());
 
     const auto function_table = parse_exception_dir(proc, &buffer[0], span.addr, *exception_dir);
     const auto ret            = exception_dirs_.emplace(name, *function_table);
@@ -316,7 +316,7 @@ namespace
             std::vector<uint8_t> buffer(debug->size);
             const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
             if(!ok)
-                FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
+                return FAIL(WALK_NEXT, "unable to read IMAGE_CODEVIEW (RSDS)");
 
             auto tmp            = std::make_unique<sym::Symbols>();
             const auto inserted = tmp->insert("ntdll", *span, &buffer[0], buffer.size());
@@ -337,7 +337,7 @@ namespace
 
         const auto sym = load_ntdll(c.core_, proc, is_32bit);
         if(!sym)
-            FAIL(false, "unable to load ntdll");
+            return FAIL(false, "unable to load ntdll");
 
         bool fail = false;
         Offsets offsets;
@@ -370,14 +370,14 @@ namespace
     {
         const auto reader = reader::make(c.core_, proc);
         if(!read_offsets(c, proc, is_32bit))
-            FAIL({}, "unable to read ntdll offsets");
+            return FAIL(ext::nullopt, "unable to read ntdll offsets");
 
         const auto teb    = c.core_.regs.read(is_32bit ? MSR_FS_BASE : MSR_GS_BASE);
         const auto nt_tib = teb + offset(c, is_32bit, TEB_NtTib);
         const auto base   = reader.read(nt_tib + offset(c, is_32bit, NT_TIB_StackBase));
         const auto limit  = reader.read(nt_tib + offset(c, is_32bit, NT_TIB_StackLimit));
         if(!base || !limit)
-            FAIL({}, "unable to find stack boundaries");
+            return FAIL(ext::nullopt, "unable to find stack boundaries");
 
         return span_t{*limit, *base - *limit};
     }
@@ -413,7 +413,7 @@ namespace
                 buffer.resize(debug->size);
                 const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
                 if(!ok)
-                    FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
+                    return FAIL(WALK_NEXT, "unable to read IMAGE_CODEVIEW (RSDS)");
 
                 const auto filename = path::filename(*modname).replace_extension("").generic_string();
                 const auto inserted = c.core_.sym.insert(filename.data(), *span, &buffer[0], buffer.size());
@@ -423,16 +423,16 @@ namespace
             // Get function table of the module
             const auto function_table = c.get_mod_functiontable(proc, *modname, *span);
             if(!function_table)
-                FAIL(false, "unable to get function table of {}", modname->c_str());
+                return FAIL(false, "unable to get function table of {}", modname->c_str());
 
             const auto off_in_mod     = static_cast<uint32_t>(ctx.ip - span->addr);
             const auto function_entry = c.lookup_function_entry(off_in_mod, function_table->function_entries);
             if(!function_entry)
-                FAIL(false, "No matching function entry");
+                return FAIL(false, "No matching function entry");
 
             const auto stack_frame_size = get_stack_frame_size(off_in_mod, *function_table, *function_entry);
             if(!stack_frame_size)
-                FAIL(false, "Can't calculate stack frame size");
+                return FAIL(false, "Can't calculate stack frame size");
 
             if(function_entry->frame_reg_offset != 0)
                 ctx.sp = ctx.bp - function_entry->frame_reg_offset;
@@ -449,7 +449,7 @@ namespace
 
             const auto return_addr = reader.read(caller_addr_on_stack);
             if(!return_addr)
-                FAIL(false, "Unable to read return address at {:#x}", caller_addr_on_stack);
+                return FAIL(false, "unable to read return address at {:#x}", caller_addr_on_stack);
 
 #ifdef USE_DEBUG_PRINT
             // print stack
@@ -490,11 +490,11 @@ namespace
 
             const auto caller_addr_on_stack = reader.le32(ctx.bp);
             if(!caller_addr_on_stack)
-                FAIL(false, "Unable to read caller address on stack at %lx", ctx.bp);
+                return FAIL(false, "unable to read caller address on stack at %lx", ctx.bp);
 
             const auto return_addr = reader.le32(ctx.bp + reg_size);
             if(!return_addr)
-                FAIL(false, "Unable to read return address at {}", ctx.bp + reg_size);
+                return FAIL(false, "unable to read return address at {}", ctx.bp + reg_size);
 
             if(on_callstep(callstack::callstep_t{ctx.ip}) == WALK_STOP)
                 return true;
@@ -621,7 +621,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(proc_t proc, const void* vsr
         const auto to_read = mod_base_addr + unwind_info_ptr;
         auto ok            = reader.read(unwind_info, to_read, sizeof unwind_info);
         if(!ok)
-            FAIL({}, "unable to read unwind info");
+            return FAIL(ext::nullopt, "unable to read unwind info");
 
         const bool chained_flag        = unwind_info[0] & UNWIND_CHAINED_FLAG_MASK;
         function_entry.prolog_size     = unwind_info[1];
@@ -646,7 +646,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(proc_t proc, const void* vsr
         std::vector<uint8_t> buffer(unwind_codes_size);
         reader.read(&buffer[0], mod_base_addr + unwind_info_ptr + sizeof unwind_info, unwind_codes_size);
         if(!ok)
-            FAIL({}, "unable to read unwind codes");
+            return FAIL(ext::nullopt, "unable to read unwind codes");
 
         function_entry.unwind_codes_idx = function_table.unwinds.size();
         get_unwind_codes(function_table.unwinds, function_entry, buffer, unwind_codes_size, chained_info_size);

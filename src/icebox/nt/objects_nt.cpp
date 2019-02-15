@@ -162,11 +162,11 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
 
     const auto handle_table = reader.read(handle_table_addr);
     if(!handle_table)
-        FAIL({}, "Unable to read handle table");
+        return FAIL(ext::nullopt, "unable to read handle table");
 
     auto handle_table_code = reader.read(*handle_table + d_->members_[HANDLE_TABLE_TableCode]);
     if(!handle_table_code)
-        FAIL({}, "Unable to read handle table code");
+        return FAIL(ext::nullopt, "unable to read handle table code");
 
     const auto handle_table_level = *handle_table_code & 3;
     *handle_table_code &= ~3;
@@ -205,12 +205,12 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
             break;
 
         default:
-            FAIL({}, "Unknown table level");
+            return FAIL(ext::nullopt, "Unknown table level");
     }
 
     const auto handle_table_entry = reader.read(*handle_table_code + i * (HANDLE_TABLE_ENTRY_SIZE / HANDLE_VALUE_INC));
     if(!handle_table_entry)
-        FAIL({}, "Unable to read table entry");
+        return FAIL(ext::nullopt, "unable to read table entry");
 
     // TODO deal with theses shifts on x32
     uint64_t p                = 0xffff;
@@ -234,19 +234,19 @@ namespace
         UnicodeString us;
         auto ok = reader.read(&us, unicode_string, sizeof us);
         if(!ok)
-            FAIL({}, "unable to read UNICODE_STRING");
+            return FAIL(ext::nullopt, "unable to read UNICODE_STRING");
 
         us.length     = read_le16(&us.length);
         us.max_length = read_le16(&us.max_length);
         us.buffer     = read_le64(&us.buffer);
 
         if(us.length > us.max_length)
-            FAIL({}, "corrupted UNICODE_STRING");
+            return FAIL(ext::nullopt, "corrupted UNICODE_STRING");
 
         std::vector<uint8_t> buffer(us.length);
         ok = reader.read(&buffer[0], us.buffer, us.length);
         if(!ok)
-            FAIL({}, "unable to read UNICODE_STRING.buffer");
+            return FAIL(ext::nullopt, "unable to read UNICODE_STRING.buffer");
 
         const auto p = &buffer[0];
         return utf8::convert(p, &p[us.length]);
@@ -265,19 +265,19 @@ namespace
             UnicodeString us;
             auto ok = reader.read(&us, unicode_string, sizeof us);
             if(!ok)
-                FAIL({}, "unable to read UNICODE_STRING");
+                return FAIL(ext::nullopt, "unable to read UNICODE_STRING");
 
             us.length     = read_le16(&us.length);
             us.max_length = read_le16(&us.max_length);
             us.buffer     = read_le32(&us.buffer);
 
             if(us.length > us.max_length)
-                FAIL({}, "corrupted UNICODE_STRING");
+                return FAIL(ext::nullopt, "corrupted UNICODE_STRING");
 
             std::vector<uint8_t> buffer(us.length);
             ok = reader.read(&buffer[0], us.buffer, us.length);
             if(!ok)
-                FAIL({}, "unable to read UNICODE_STRING.buffer");
+                return FAIL(ext::nullopt, "unable to read UNICODE_STRING.buffer");
 
             const auto p = &buffer[0];
             return utf8::convert(p, &p[us.length]);
@@ -292,18 +292,18 @@ opt<std::string> nt::ObjectNt::obj_typename(proc_t proc, nt::obj_t obj)
     const auto obj_header       = obj.id - d_->members_[OBJECT_HEADER_Body];
     const auto encoded_type_idx = reader.byte(obj_header + d_->members_[OBJECT_HEADER_TypeIndex]);
     if(!encoded_type_idx)
-        FAIL({}, "Unable to read encoded type index");
+        return FAIL(ext::nullopt, "unable to read encoded type index");
 
     const auto header_cookie = reader.byte(d_->symbols_[ObHeaderCookie]);
     if(!header_cookie)
-        FAIL({}, "Unable to read ObHeaderCookie");
+        return FAIL(ext::nullopt, "unable to read ObHeaderCookie");
 
     const uint8_t obj_addr_cookie = ((obj_header >> 8) & 0xff);
     const auto type_idx           = *encoded_type_idx ^ *header_cookie ^ obj_addr_cookie;
 
     const auto obj_type = reader.read(d_->symbols_[ObTypeIndexTable] + type_idx * POINTER_SIZE);
     if(!obj_type)
-        FAIL({}, "Unable to read object type");
+        return FAIL(ext::nullopt, "unable to read object type");
 
     return read_unicode_string(reader, *obj_type + d_->members_[OBJECT_TYPE_Name]);
 }

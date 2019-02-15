@@ -66,24 +66,24 @@ bool core::setup(Core& core, std::string_view name)
     core.d_      = std::make_unique<core::Core::Data>(name);
     auto ptr_shm = FDP_OpenSHM(name.data());
     if(!ptr_shm)
-        FAIL(false, "unable to open shm");
+        return FAIL(false, "unable to open shm");
 
     core.d_->shm_ = make_unique(ptr_shm);
     auto ok       = FDP_Init(ptr_shm);
     if(!ok)
-        FAIL(false, "unable to init shm");
+        return FAIL(false, "unable to init shm");
 
     FDP_State state;
     memset(&state, 0, sizeof state);
     ok = FDP_GetState(ptr_shm, &state);
     if(!ok)
-        FAIL(false, "unable to get initial fdp state");
+        return FAIL(false, "unable to get initial fdp state");
 
     if(!(state & FDP_STATE_PAUSED))
     {
         ok = FDP_Pause(ptr_shm);
         if(!ok)
-            FAIL(false, "unable to pause fdp");
+            return FAIL(false, "unable to pause fdp");
     }
 
     for(int i = 0; i < FDP_MAX_BREAKPOINT; ++i)

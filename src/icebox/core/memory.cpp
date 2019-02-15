@@ -141,7 +141,7 @@ namespace
         {
             const auto ok = operand(buffer, ptr, sizeof buffer);
             if(!ok)
-                FAIL(false, "unable to read {} mem {:#x}-{:#x} ({} {:#x} bytes)", where, ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
+                return FAIL(false, "unable to read {} mem {:#x}-{:#x} ({} {:#x} bytes)", where, ptr, ptr + sizeof buffer, sizeof buffer, sizeof buffer);
 
             const auto chunk = std::min(size - fill, sizeof buffer - skip);
             memcpy(&dst[fill], &buffer[skip], chunk);
@@ -158,7 +158,7 @@ namespace
         const auto code     = user_mode ? 1 << 2 : 0;
         const auto injected = FDP_InjectInterrupt(&d.shm, 0, PAGE_FAULT, code, src);
         if(!injected)
-            FAIL(false, "unable to inject page fault");
+            return FAIL(false, "unable to inject page fault");
 
         d.core.state.run_to(dtb, rip);
         return true;

@@ -156,19 +156,19 @@ namespace
         UnicodeString us;
         auto ok = reader.read(&us, unicode_string, sizeof us);
         if(!ok)
-            FAIL({}, "unable to read UNICODE_STRING");
+            return FAIL(ext::nullopt, "unable to read UNICODE_STRING");
 
         us.length     = read_le16(&us.length);
         us.max_length = read_le16(&us.max_length);
         us.buffer     = read_le32(&us.buffer);
 
         if(us.length > us.max_length)
-            FAIL({}, "corrupted UNICODE_STRING");
+            return FAIL(ext::nullopt, "corrupted UNICODE_STRING");
 
         std::vector<uint8_t> buffer(us.length);
         ok = reader.read(&buffer[0], us.buffer, us.length);
         if(!ok)
-            FAIL({}, "unable to read UNICODE_STRING.buffer");
+            return FAIL(ext::nullopt, "unable to read UNICODE_STRING.buffer");
 
         const auto p = &buffer[0];
         return utf8::convert(p, &p[us.length]);
@@ -182,11 +182,11 @@ bool plugins::Syscalls32::setup(proc_t target)
 
     d_->callstack_ = callstack::make_callstack_nt(d_->core_);
     if(!d_->callstack_)
-        FAIL(false, "Unable to create callstack object");
+        return FAIL(false, "unable to create callstack object");
 
     d_->objects_ = nt::make_objectnt(d_->core_);
     if(!d_->objects_)
-        FAIL(false, "Unable to create ObjectNt object");
+        return FAIL(false, "Unable to create ObjectNt object");
 
     // Horrible workaround
     d_->syscalls_.register_ZwQueryInformationProcess(target, [=](nt32::HANDLE, nt32::PROCESSINFOCLASS, nt32::PVOID, nt32::ULONG, nt32::PULONG)

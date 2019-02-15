@@ -146,11 +146,11 @@ bool plugins::Syscalls::setup(proc_t target)
 
     d_->callstack_ = callstack::make_callstack_nt(d_->core_);
     if(!d_->callstack_)
-        FAIL(false, "Unable to create callstack object");
+        return FAIL(false, "unable to create callstack object");
 
     d_->objects_ = nt::make_objectnt(d_->core_);
     if(!d_->objects_)
-        FAIL(false, "Unable to create ObjectNt object");
+        return FAIL(false, "unable to create ObjectNt object");
 
     d_->syscalls_.register_NtWriteFile(target, [=](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/, nt::PVOID /*ApcContext*/,
                                                    nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::PVOID Buffer, nt::ULONG Length,

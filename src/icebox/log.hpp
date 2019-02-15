@@ -26,9 +26,7 @@ namespace logg
 
 #define LOG(LEVEL, FMT, ...) LOG_WITH(logg::level_t::info, FMT, ##__VA_ARGS__)
 
-#define FAIL(VALUE, FMT, ...)                               \
-    do                                                      \
-    {                                                       \
-        LOG_WITH(logg::level_t::error, FMT, ##__VA_ARGS__); \
-        return VALUE;                                       \
-    } while(0)
+#define FAIL(VALUE, FMT, ...) [&] {                     \
+    LOG_WITH(logg::level_t::error, FMT, ##__VA_ARGS__); \
+    return VALUE;                                       \
+}()
