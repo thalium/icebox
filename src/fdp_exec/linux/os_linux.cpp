@@ -66,6 +66,9 @@ namespace
         opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
         opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
 
+        bool    mod_listen_load     (const on_mod_event_fn& on_load) override;
+        bool    mod_listen_unload   (const on_mod_event_fn& on_unload) override;
+
         bool                driver_list (const on_driver_fn& on_driver) override;
         opt<driver_t>       driver_find (const std::string& name) override;
         opt<std::string>    driver_name (driver_t drv) override;
@@ -246,6 +249,16 @@ bool OsLinux::thread_listen_create(const on_thread_event_fn& /*on_create*/)
 }
 
 bool OsLinux::thread_listen_delete(const on_thread_event_fn& /*on_remove*/)
+{
+    return true;
+}
+
+bool OsLinux::mod_listen_load(const on_mod_event_fn& /*on_load*/)
+{
+    return true;
+}
+
+bool OsLinux::mod_listen_unload(const on_mod_event_fn& /*on_load*/)
 {
     return true;
 }

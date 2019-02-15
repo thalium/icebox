@@ -27,7 +27,7 @@ namespace os
 
         using on_proc_event_fn   = fn::view<void(proc_t, proc_t)>;
         using on_thread_event_fn = fn::view<void(proc_t, thread_t)>;
-        using on_mod_event_fn    = fn::view<void(mod_t)>;
+        using on_mod_event_fn    = fn::view<void(proc_t, const std::string&, span_t)>;
 
         virtual bool    is_kernel   (uint64_t ptr) = 0;
         virtual bool    reader_setup(reader::Reader& reader, proc_t proc) = 0;
@@ -59,6 +59,9 @@ namespace os
         virtual opt<std::string>    mod_name(proc_t proc, mod_t mod) = 0;
         virtual opt<span_t>         mod_span(proc_t proc, mod_t mod) = 0;
         virtual opt<mod_t>          mod_find(proc_t proc, uint64_t addr) = 0;
+
+        virtual bool    mod_listen_load     (const on_mod_event_fn& on_load) = 0;
+        virtual bool    mod_listen_unload   (const on_mod_event_fn& on_unload) = 0;
 
         virtual bool                driver_list (const on_driver_fn& on_driver) = 0;
         virtual opt<driver_t>       driver_find (const std::string& name) = 0;
