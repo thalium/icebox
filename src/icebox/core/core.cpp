@@ -35,8 +35,8 @@ namespace
 
 struct core::Core::Data
 {
-    Data(std::string name)
-        : name_(std::move(name))
+    Data(std::string_view name)
+        : name_(name)
     {
     }
 
@@ -61,7 +61,7 @@ namespace
     };
 }
 
-bool core::setup(Core& core, const std::string& name)
+bool core::setup(Core& core, std::string_view name)
 {
     core.d_      = std::make_unique<core::Core::Data>(name);
     auto ptr_shm = FDP_OpenSHM(name.data());

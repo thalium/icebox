@@ -11,7 +11,7 @@ namespace
 
 struct tracer::heaps::Data
 {
-    Data(core::Core& core, std::string module);
+    Data(core::Core& core, std::string_view module);
 
     using Breakpoints = std::vector<core::Breakpoint>;
     core::Core& core;
@@ -26,14 +26,14 @@ struct tracer::heaps::Data
     std::vector<on_RtlGetUserInfoHeap_fn>         observers_RtlGetUserInfoHeap;
 };
 
-tracer::heaps::Data::Data(core::Core& core, std::string module)
+tracer::heaps::Data::Data(core::Core& core, std::string_view module)
     : core(core)
-    , module(std::move(module))
+    , module(module)
 {
 }
 
-tracer::heaps::heaps(core::Core& core, std::string module)
-    : d_(std::make_unique<Data>(core, std::move(module)))
+tracer::heaps::heaps(core::Core& core, std::string_view module)
+    : d_(std::make_unique<Data>(core, module))
 {
 }
 

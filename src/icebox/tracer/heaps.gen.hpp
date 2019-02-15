@@ -18,7 +18,7 @@ namespace tracer
 
     struct heaps
     {
-         heaps(core::Core& core, std::string module);
+         heaps(core::Core& core, std::string_view module);
         ~heaps();
 
         // register generic callback with process filtering

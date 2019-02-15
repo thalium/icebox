@@ -412,7 +412,7 @@ namespace tracer
 
     struct syscalls
     {
-         syscalls(core::Core& core, std::string module);
+         syscalls(core::Core& core, std::string_view module);
         ~syscalls();
 
         // register generic callback with process filtering

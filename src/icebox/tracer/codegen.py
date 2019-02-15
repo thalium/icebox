@@ -41,7 +41,7 @@ namespace tracer
 
     struct {filename}
     {{
-         {filename}(core::Core& core, std::string module);
+         {filename}(core::Core& core, std::string_view module);
         ~{filename}();
 
         // register generic callback with process filtering
@@ -156,7 +156,7 @@ namespace
 
 struct tracer::{filename}::Data
 {{
-    Data(core::Core& core, std::string module);
+    Data(core::Core& core, std::string_view module);
 
     using Breakpoints = std::vector<core::Breakpoint>;
     core::Core& core;
@@ -166,14 +166,14 @@ struct tracer::{filename}::Data
 {observers}
 }};
 
-tracer::{filename}::Data::Data(core::Core& core, std::string module)
+tracer::{filename}::Data::Data(core::Core& core, std::string_view module)
     : core(core)
-    , module(std::move(module))
+    , module(module)
 {{
 }}
 
-tracer::{filename}::{filename}(core::Core& core, std::string module)
-    : d_(std::make_unique<Data>(core, std::move(module)))
+tracer::{filename}::{filename}(core::Core& core, std::string_view module)
+    : d_(std::make_unique<Data>(core, module))
 {{
 }}
 

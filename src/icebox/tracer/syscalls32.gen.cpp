@@ -11,7 +11,7 @@ namespace
 
 struct tracer::syscalls32::Data
 {
-    Data(core::Core& core, std::string module);
+    Data(core::Core& core, std::string_view module);
 
     using Breakpoints = std::vector<core::Breakpoint>;
     core::Core& core;
@@ -419,14 +419,14 @@ struct tracer::syscalls32::Data
     std::vector<on_ZwYieldExecution_fn>                                   observers_ZwYieldExecution;
 };
 
-tracer::syscalls32::Data::Data(core::Core& core, std::string module)
+tracer::syscalls32::Data::Data(core::Core& core, std::string_view module)
     : core(core)
-    , module(std::move(module))
+    , module(module)
 {
 }
 
-tracer::syscalls32::syscalls32(core::Core& core, std::string module)
-    : d_(std::make_unique<Data>(core, std::move(module)))
+tracer::syscalls32::syscalls32(core::Core& core, std::string_view module)
+    : d_(std::make_unique<Data>(core, module))
 {
 }
 

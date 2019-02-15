@@ -7,6 +7,7 @@
 #include "types.hpp"
 
 #include <memory>
+#include <string_view>
 
 namespace os { struct IModule; }
 
@@ -29,5 +30,5 @@ namespace core
         std::unique_ptr<Data> d_;
     };
 
-    bool setup(Core& core, const std::string& name);
+    bool setup(Core& core, std::string_view name);
 } // namespace core
