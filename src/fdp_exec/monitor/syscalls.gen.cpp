@@ -10628,7 +10628,7 @@ bool monitor::syscalls::register_all(proc_t proc, const monitor::syscalls::on_ca
     {
         const auto bp = register_callback(*d_, proc, it, on_call);
         if(!bp)
-            return false;
+            continue;
 
         breakpoints.emplace_back(bp);
     }
