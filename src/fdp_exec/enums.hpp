@@ -28,3 +28,9 @@ enum constants_e
     PAGE_SIZE  = 0x1000,
     PAGE_FAULT = 0xE,
 };
+
+enum flags_e
+{
+    FLAGS_NONE  = 0,
+    FLAGS_32BIT = 1 << 0,
+};

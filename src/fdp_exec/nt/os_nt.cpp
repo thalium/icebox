@@ -109,25 +109,16 @@ namespace
         NT_COUNT,
     };
 
-    enum nt32_e
-    {
-        NT32_TEB_NtTib,
-        NT32_NT_TIB_StackBase,
-        NT32_NT_TIB_StackLimit,
-        NT32_COUNT,
-    };
-
-    template <typename T>
     struct NtOffset
     {
         cat_e      e_cat;
-        T          e_id;
+        nt_e       e_id;
         const char module[16];
         const char struc[32];
         const char member[32];
     };
     // clang-format off
-    const NtOffset<nt_e> g_nt_offsets[] =
+    const NtOffset g_nt_offsets[] =
     {
         {cat_e::REQUIRED,   CLIENT_ID_UniqueThread,                       "nt", "_CLIENT_ID",                       "UniqueThread"},
         {cat_e::REQUIRED,   EPROCESS_ActiveProcessLinks,                  "nt", "_EPROCESS",                        "ActiveProcessLinks"},
@@ -168,15 +159,8 @@ namespace
         {cat_e::OPTIONAL,   EWOW64PROCESS_Peb,                            "nt", "_EWOW64PROCESS",                   "Peb"},
         {cat_e::OPTIONAL,   EWOW64PROCESS_NtdllType,                      "nt", "_EWOW64PROCESS",                   "NtdllType"},
     };
-    const NtOffset<nt32_e> g_nt32_offsets[] =
-    {
-        {cat_e::REQUIRED, NT32_TEB_NtTib,                                "wntdll",   "_TEB",                     "NtTib"},
-        {cat_e::REQUIRED, NT32_NT_TIB_StackBase,                         "wntdll",   "_NT_TIB",                  "StackBase"},
-        {cat_e::REQUIRED, NT32_NT_TIB_StackLimit,                        "wntdll",   "_NT_TIB",                  "StackLimit"},
-    };
     // clang-format on
     STATIC_ASSERT_EQ(COUNT_OF(g_nt_offsets), NT_COUNT);
-    STATIC_ASSERT_EQ(COUNT_OF(g_nt32_offsets), NT32_COUNT);
 
     enum symbol_offset_e
     {
@@ -208,7 +192,6 @@ namespace
     static_assert(COUNT_OF(g_symbol_offsets) == SYMBOL_OFFSET_COUNT, "invalid symbols");
 
     using NtOffsets     = std::array<uint64_t, NT_COUNT>;
-    using Nt32Offsets   = std::array<uint32_t, NT32_COUNT>;
     using SymbolOffsets = std::array<uint64_t, SYMBOL_OFFSET_COUNT>;
 
     struct OsNt
@@ -222,7 +205,6 @@ namespace
         // os::IModule
         bool    is_kernel   (uint64_t ptr) override;
         bool    reader_setup(reader::Reader& reader, proc_t proc) override;
-        bool    setup_wow64 (proc_t proc) override;
 
         bool                proc_list       (const on_proc_fn& on_process) override;
         opt<proc_t>         proc_current    () override;
@@ -230,14 +212,12 @@ namespace
         opt<proc_t>         proc_find       (uint64_t pid) override;
         opt<std::string>    proc_name       (proc_t proc) override;
         bool                proc_is_valid   (proc_t proc) override;
+        flags_e             proc_flags      (proc_t proc) override;
         uint64_t            proc_id         (proc_t proc) override;
-        opt<bool>           proc_is_wow64   (proc_t proc) override;
         bool                proc_ctx_is_x64 () override;
         void                proc_join       (proc_t proc, os::join_e join) override;
         opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
-
-        opt<span_t> stack_curr_bounds(proc_t proc) override;
 
         bool            thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
         opt<thread_t>   thread_current  () override;
@@ -245,13 +225,10 @@ namespace
         opt<uint64_t>   thread_pc       (proc_t proc, thread_t thread) override;
         uint64_t        thread_id       (proc_t proc, thread_t thread) override;
 
-        bool                mod_list    (proc_t proc, const on_mod_fn& on_module) override;
-        bool                mod_list32  (proc_t proc, const on_mod_fn& on_module) override;
-        opt<std::string>    mod_name    (proc_t proc, mod_t mod) override;
-        opt<std::string>    mod_name32  (proc_t proc, mod_t mod) override;
-        opt<span_t>         mod_span    (proc_t proc, mod_t mod) override;
-        opt<span_t>         mod_span32  (proc_t proc, mod_t mod) override;
-        opt<mod_t>          mod_find    (proc_t proc, uint64_t addr) override;
+        bool                mod_list(proc_t proc, const on_mod_fn& on_module) override;
+        opt<std::string>    mod_name(proc_t proc, mod_t mod) override;
+        opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
+        opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
 
         bool                driver_list (const on_driver_fn& on_driver) override;
         opt<driver_t>       driver_find (const std::string& name) override;
@@ -263,7 +240,6 @@ namespace
         // members
         core::Core&    core_;
         NtOffsets      offsets_;
-        Nt32Offsets    offsets32_;
         SymbolOffsets  symbols_;
         std::string    last_dump_;
         uint64_t       kpcr_;
@@ -506,7 +482,7 @@ namespace
         }
     } // namespace nt32
 
-    static opt<uint64_t> read_peb_wow64(OsNt& os, const reader::Reader& reader, proc_t proc)
+    static opt<uint64_t> read_wow64_peb(const OsNt& os, const reader::Reader& reader, proc_t proc)
     {
         const auto wowp = reader.read(proc.id + os.offsets_[EPROCESS_Wow64Process]);
         if(!wowp)
@@ -523,76 +499,6 @@ namespace
     }
 
 #define offsetof32(x, y) static_cast<uint32_t>(offsetof(x, y))
-}
-
-bool OsNt::setup_wow64(proc_t proc)
-{
-    const auto reader = reader::make(core_, proc);
-    const auto peb32  = read_peb_wow64(*this, reader, proc);
-    if(!peb32)
-        return false;
-
-    // no PEB on system process
-    if(!*peb32)
-        return true;
-
-    const auto ldr32 = reader.le32(*peb32 + offsets_[PEB32_Ldr]);
-    if(!ldr32)
-        FAIL(false, "unable to read PEB32.Ldr");
-
-    bool found      = false;
-    const auto head = *ldr32 + offsetof32(nt32::_PEB_LDR_DATA, InLoadOrderModuleList);
-    for(auto link = reader.le32(head); link && link != head && !found; link = reader.le32(*link))
-    {
-        const mod_t mod = {*link - offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)};
-        const auto name = nt32::read_unicode_string(reader, mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, FullDllName));
-        if(!name)
-            FAIL(false, "Unable to read mod name to find wntdll");
-
-        if(name->find("ntdll") == std::string::npos)
-            continue;
-
-        found           = true;
-        const auto base = reader.le32(mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, DllBase));
-        const auto size = reader.le32(mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
-        if(!base || !size)
-            FAIL(false, "Unable to read wntdll's span");
-
-        const auto span = span_t{*base, *size};
-        std::vector<uint8_t> buffer(span.size);
-        const auto ok = reader.read(&buffer[0], span.addr, span.size);
-        if(!ok)
-            FAIL(WALK_NEXT, "Unable to read wntdll");
-
-        const auto filename = path::filename(*name).replace_extension("").generic_string();
-        const auto inserted = core_.sym.insert("wntdll", span, &buffer[0], buffer.size());
-        if(!inserted)
-            FAIL(WALK_NEXT, "Unable to insert wntdll's pdb");
-    }
-
-    if(!found)
-        FAIL(false, "Unable to find wntdll");
-
-    bool fail = false;
-    memset(&offsets32_[0], 0, sizeof offsets32_);
-    for(size_t i = 0; i < NT32_COUNT; ++i)
-    {
-        fail |= g_nt32_offsets[i].e_id != i;
-        const auto offset = core_.sym.struc_offset(g_nt32_offsets[i].module, g_nt32_offsets[i].struc, g_nt32_offsets[i].member);
-        if(!offset)
-        {
-            fail |= g_nt32_offsets[i].e_cat == cat_e::REQUIRED;
-            if(g_nt32_offsets[i].e_cat == cat_e::REQUIRED)
-                LOG(ERROR, "unable to read {}!{}.{} member offset", g_nt32_offsets[i].module, g_nt32_offsets[i].struc, g_nt32_offsets[i].member);
-            else
-                LOG(WARNING, "unable to read {}!{}.{} member offset", g_nt32_offsets[i].module, g_nt32_offsets[i].struc, g_nt32_offsets[i].member);
-            continue;
-        }
-
-        offsets32_[i] = static_cast<uint32_t>(*offset);
-    }
-
-    return !fail;
 }
 
 opt<std::string> OsNt::proc_name(proc_t proc)
@@ -628,78 +534,86 @@ uint64_t OsNt::proc_id(proc_t proc)
     return *pid;
 }
 
-opt<bool> OsNt::proc_is_wow64(proc_t proc)
-{
-    const auto isx64 = reader_.read(proc.id + offsets_[EPROCESS_Wow64Process]);
-    if(!isx64)
-        return {};
-
-    return !!(*isx64);
-}
-
 bool OsNt::proc_ctx_is_x64()
 {
-    const auto segcs              = core_.regs.read(FDP_CS_REGISTER);
-    constexpr uint64_t WOW64_CS32 = 0x23;
-    return segcs != WOW64_CS32;
+    const auto cs         = core_.regs.read(FDP_CS_REGISTER);
+    const auto WOW64_CS32 = 0x23;
+    return cs != WOW64_CS32;
+}
+
+namespace
+{
+    static opt<walk_e> mod_list_64(const OsNt& os, proc_t proc, const reader::Reader& reader, os::IModule::on_mod_fn on_mod)
+    {
+        const auto peb = reader.read(proc.id + os.offsets_[EPROCESS_Peb]);
+        if(!peb)
+            FAIL({}, "unable to read EPROCESS.Peb");
+
+        // no PEB on system process
+        if(!*peb)
+            return WALK_NEXT;
+
+        const auto ldr = reader.read(*peb + os.offsets_[PEB_Ldr]);
+        if(!ldr)
+            FAIL({}, "unable to read PEB.Ldr");
+
+        const auto head = *ldr + os.offsets_[PEB_LDR_DATA_InLoadOrderModuleList];
+        for(auto link = reader.read(head); link && link != head; link = reader.read(*link))
+        {
+            const auto ret = on_mod({*link - os.offsets_[LDR_DATA_TABLE_ENTRY_InLoadOrderLinks], FLAGS_NONE});
+            if(ret == WALK_STOP)
+                return ret;
+        }
+
+        return WALK_NEXT;
+    }
+
+    static opt<walk_e> mod_list_32(const OsNt& os, proc_t proc, const reader::Reader& reader, os::IModule::on_mod_fn on_mod)
+    {
+        const auto peb32 = read_wow64_peb(os, reader, proc);
+        if(!peb32)
+            return {};
+
+        // no PEB on system process
+        if(!*peb32)
+            return WALK_NEXT;
+
+        const auto ldr32 = reader.le32(*peb32 + os.offsets_[PEB32_Ldr]);
+        if(!ldr32)
+            FAIL({}, "unable to read PEB32.Ldr");
+
+        const auto head = *ldr32 + offsetof32(nt32::_PEB_LDR_DATA, InLoadOrderModuleList);
+        for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
+        {
+            const auto ret = on_mod({*link - offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), FLAGS_32BIT});
+            if(ret == WALK_STOP)
+                return ret;
+        }
+
+        return WALK_NEXT;
+    }
 }
 
 bool OsNt::mod_list(proc_t proc, const on_mod_fn& on_mod)
 {
     const auto reader = reader::make(core_, proc);
-    const auto peb    = reader.read(proc.id + offsets_[EPROCESS_Peb]);
-    if(!peb)
-        FAIL(false, "unable to read EPROCESS.Peb");
-
-    // no PEB on system process
-    if(!*peb)
-        return true;
-
-    const auto ldr = reader.read(*peb + offsets_[PEB_Ldr]);
-    if(!ldr)
-        FAIL(false, "unable to read PEB.Ldr");
-
-    const auto head = *ldr + offsets_[PEB_LDR_DATA_InLoadOrderModuleList];
-    for(auto link = reader.read(head); link && link != head; link = reader.read(*link))
-        if(on_mod({*link - offsets_[LDR_DATA_TABLE_ENTRY_InLoadOrderLinks]}) == WALK_STOP)
-            break;
-
-    return true;
-}
-
-bool OsNt::mod_list32(proc_t proc, const on_mod_fn& on_mod)
-{
-    const auto reader = reader::make(core_, proc);
-    const auto peb32  = read_peb_wow64(*this, reader, proc);
-    if(!peb32)
+    auto ret          = mod_list_64(*this, proc, reader, on_mod);
+    if(!ret)
         return false;
-
-    // no PEB on system process
-    if(!*peb32)
+    if(*ret == WALK_STOP)
         return true;
 
-    const auto ldr32 = reader.le32(*peb32 + offsets_[PEB32_Ldr]);
-    if(!ldr32)
-        FAIL(false, "unable to read PEB32.Ldr");
-
-    const auto head = *ldr32 + offsetof32(nt32::_PEB_LDR_DATA, InLoadOrderModuleList);
-    for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
-        if(on_mod({*link - offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)}) == WALK_STOP)
-            break;
-
-    return true;
+    ret = mod_list_32(*this, proc, reader, on_mod);
+    return !!ret;
 }
 
 opt<std::string> OsNt::mod_name(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    return read_unicode_string(reader, mod.id + offsets_[LDR_DATA_TABLE_ENTRY_FullDllName]);
-}
+    if(mod.flags & FLAGS_32BIT)
+        return nt32::read_unicode_string(reader, mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, FullDllName));
 
-opt<std::string> OsNt::mod_name32(proc_t proc, mod_t mod)
-{
-    const auto reader = reader::make(core_, proc);
-    return nt32::read_unicode_string(reader, mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, FullDllName));
+    return read_unicode_string(reader, mod.id + offsets_[LDR_DATA_TABLE_ENTRY_FullDllName]);
 }
 
 opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
@@ -720,65 +634,58 @@ opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
     return found;
 }
 
-opt<span_t> OsNt::stack_curr_bounds(proc_t proc)
-{
-    const auto reader = reader::make(core_, proc);
-    if(!proc_ctx_is_x64())
-    {
-        const auto teb    = core_.regs.read(MSR_FS_BASE);
-        const auto nt_tib = teb + offsets32_[NT32_TEB_NtTib];
-
-        const auto stack_base  = reader.le32(nt_tib + offsets32_[NT32_NT_TIB_StackBase]);
-        const auto stack_limit = reader.le32(nt_tib + offsets32_[NT32_NT_TIB_StackLimit]);
-        if(!stack_base || !stack_limit)
-            FAIL({}, "Unable to stack bounds");
-
-        return span_t{*stack_limit, *stack_base - *stack_limit};
-    }
-
-    const auto teb    = core_.regs.read(MSR_GS_BASE);
-    const auto nt_tib = teb + offsets_[TEB_NtTib];
-
-    const auto stack_base  = reader.read(nt_tib + offsets_[NT_TIB_StackBase]);
-    const auto stack_limit = reader.read(nt_tib + offsets_[NT_TIB_StackLimit]);
-    if(!stack_base || !stack_limit)
-        FAIL({}, "Unable to stack bounds");
-
-    return span_t{*stack_limit, *stack_base - *stack_limit};
-}
-
 bool OsNt::proc_is_valid(proc_t proc)
 {
     const auto vad_root = reader_.read(proc.id + offsets_[EPROCESS_VadRoot]);
     return vad_root && *vad_root;
 }
 
+flags_e OsNt::proc_flags(proc_t proc)
+{
+    const auto reader = reader::make(core_, proc);
+    int flags         = FLAGS_NONE;
+    const auto wow64  = reader.read(proc.id + offsets_[EPROCESS_Wow64Process]);
+    if(wow64)
+        flags |= FLAGS_32BIT;
+    return static_cast<flags_e>(flags);
+}
+
+namespace
+{
+    static opt<span_t> mod_span_64(const OsNt& os, const reader::Reader& reader, mod_t mod)
+    {
+        const auto base = reader.read(mod.id + os.offsets_[LDR_DATA_TABLE_ENTRY_DllBase]);
+        if(!base)
+            return {};
+
+        const auto size = reader.read(mod.id + os.offsets_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
+        if(!size)
+            return {};
+
+        return span_t{*base, *size};
+    }
+
+    static opt<span_t> mod_span_32(const reader::Reader& reader, mod_t mod)
+    {
+        const auto base = reader.le32(mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, DllBase));
+        if(!base)
+            return {};
+
+        const auto size = reader.le32(mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
+        if(!size)
+            return {};
+
+        return span_t{*base, *size};
+    }
+}
+
 opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
-    const auto base   = reader.read(mod.id + offsets_[LDR_DATA_TABLE_ENTRY_DllBase]);
-    if(!base)
-        return {};
+    if(mod.flags & FLAGS_32BIT)
+        return mod_span_32(reader, mod);
 
-    const auto size = reader.read(mod.id + offsets_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
-    if(!size)
-        return {};
-
-    return span_t{*base, *size};
-}
-
-opt<span_t> OsNt::mod_span32(proc_t proc, mod_t mod)
-{
-    const auto reader = reader::make(core_, proc);
-    const auto base   = reader.le32(mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, DllBase));
-    if(!base)
-        return {};
-
-    const auto size = reader.le32(mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
-    if(!size)
-        return {};
-
-    return span_t{*base, *size};
+    return mod_span_64(*this, reader, mod);
 }
 
 bool OsNt::driver_list(const on_driver_fn& on_driver)

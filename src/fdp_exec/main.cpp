@@ -70,13 +70,7 @@ namespace
         core.os->proc_join(*target, os::JOIN_ANY_MODE);
         core.os->proc_join(*target, os::JOIN_USER_MODE);
 
-        const auto is_wow64 = core.os->proc_is_wow64(*target);
-        if(!is_wow64)
-            FAIL(false, "unable to check if proc is wow64");
-
-        if(*is_wow64)
-            if(!core.os->setup_wow64(*target))
-                return false;
+        const auto is_32bit = core.os->proc_flags(*target) & FLAGS_32BIT;
 
         std::vector<uint8_t> buffer;
         const auto reader = reader::make(core, *target);
@@ -94,7 +88,8 @@ namespace
             if(!name || !span)
                 return WALK_NEXT;
 
-            LOG(INFO, "module[{:>2}/{:<2}] {}: {:#x} {:#x}", modi, modcount, name->data(), span->addr, span->size);
+            LOG(INFO, "module[{:>2}/{:<2}] {}: {:#x} {:#x}{}", modi, modcount, name->data(), span->addr, span->size,
+                mod.flags & FLAGS_32BIT ? " wow64" : "");
             ++modi;
 
             const auto debug = pe::find_debug_codeview(reader, *span);
@@ -113,43 +108,6 @@ namespace
 
             return WALK_NEXT;
         });
-
-        if(*is_wow64)
-        {
-            modcount = 0;
-            core.os->mod_list32(*target, [&](mod_t)
-            {
-                ++modcount;
-                return WALK_NEXT;
-            });
-            size_t modi32 = 0;
-            core.os->mod_list32(*target, [&](mod_t mod)
-            {
-                const auto name = core.os->mod_name32(*target, mod);
-                const auto span = core.os->mod_span32(*target, mod);
-                if(!name || !span)
-                    return WALK_NEXT;
-
-                LOG(INFO, "module[{:>2}/{:<2}] {}: {:#x} {:#x}", modi32, modcount, name->data(), span->addr, span->size);
-                ++modi32;
-
-                const auto debug = pe::find_debug_codeview(reader, *span);
-                if(!debug)
-                    return WALK_NEXT;
-
-                buffer.resize(debug->size);
-                const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
-                if(!ok)
-                    FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
-
-                const auto filename = path::filename(*name).replace_extension("").generic_string();
-                const auto inserted = core.sym.insert(filename.data(), *span, &buffer[0], buffer.size());
-                if(!inserted)
-                    return WALK_NEXT;
-
-                return WALK_NEXT;
-            });
-        }
 
         core.os->thread_list(*target, [&](thread_t thread)
         {
@@ -202,7 +160,7 @@ namespace
                 const auto rsp = core.regs.read(FDP_RSP_REGISTER);
                 const auto rbp = core.regs.read(FDP_RBP_REGISTER);
                 int k          = 0;
-                callstack->get_callstack(*target, {rip, rsp, rbp, core.os->proc_ctx_is_x64()}, [&](callstack::callstep_t callstep)
+                callstack->get_callstack(*target, {rip, rsp, rbp}, [&](callstack::callstep_t callstep)
                 {
                     auto cursor = core.sym.find(callstep.addr);
                     if(!cursor)
@@ -226,7 +184,7 @@ namespace
 
         // test syscall plugin
         {
-            if(*is_wow64)
+            if(is_32bit)
                 test_tracer<syscall_tracer::SyscallPluginWow64>(core, *target);
             else
                 test_tracer<syscall_tracer::SyscallPlugin>(core, *target);

@@ -19,7 +19,6 @@ namespace callstack
         uint64_t rip;
         uint64_t rsp;
         uint64_t rbp;
-        bool     is_x64;
     };
 
     struct ICallstack

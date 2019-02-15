@@ -6,12 +6,14 @@
 #include "log.hpp"
 #include "os.hpp"
 #include "reader.hpp"
+#include "sym.hpp"
 #include "utils/fnview.hpp"
 #include "utils/path.hpp"
 #include "utils/pe.hpp"
 #include "utils/utils.hpp"
 
 #include <algorithm>
+#include <array>
 #include <map>
 #include <string>
 #include <unordered_map>
@@ -92,6 +94,30 @@ namespace
         UWINFO_RDI,
     };
 
+    enum offsets_e
+    {
+        TEB_NtTib,
+        NT_TIB_StackBase,
+        NT_TIB_StackLimit,
+        OFFSET_COUNT,
+    };
+
+    struct NtOffset
+    {
+        offsets_e  e_id;
+        const char struc[32];
+        const char member[32];
+    };
+    // clang-format off
+    const NtOffset g_nt_offsets[] =
+    {
+        {TEB_NtTib,         "_TEB",     "NtTib"},
+        {NT_TIB_StackBase,  "_NT_TIB",  "StackBase"},
+        {NT_TIB_StackLimit, "_NT_TIB",  "StackLimit"},
+    };
+    // clang-format on
+    STATIC_ASSERT_EQ(COUNT_OF(g_nt_offsets), OFFSET_COUNT);
+
     const auto UNWIND_CHAINED_FLAG_MASK = 0b00100000;
 
     using UnwindInfo = uint8_t[4];
@@ -106,6 +132,7 @@ namespace
     using Modules       = std::map<uint64_t, mod_t>;
     using AllModules    = std::unordered_map<proc_t, Modules>;
     using ExceptionDirs = std::unordered_map<std::string, FunctionTable>;
+    using Offsets       = std::array<uint64_t, OFFSET_COUNT>;
 
     struct CallstackNt
         : public callstack::ICallstack
@@ -119,7 +146,6 @@ namespace
         bool    get_callstack32 (proc_t proc, callstack::context_t context, const callstack::on_callstep_fn& on_callstep);
 
         // methods
-        bool                    setup                   ();
         opt<FunctionTable>      get_mod_functiontable   (proc_t proc, const std::string& name, const span_t module);
         opt<FunctionTable>      insert                  (proc_t proc, const std::string& name, const span_t module);
         opt<mod_t>              find_mod                (proc_t proc, uint64_t addr);
@@ -130,6 +156,8 @@ namespace
         core::Core&   core_;
         AllModules    all_modules_;
         ExceptionDirs exception_dirs_;
+        opt<Offsets>  offsets64_;
+        opt<Offsets>  offsets32_;
     };
 }
 
@@ -140,20 +168,7 @@ CallstackNt::CallstackNt(core::Core& core)
 
 std::shared_ptr<callstack::ICallstack> callstack::make_callstack_nt(core::Core& core)
 {
-    auto cs_nt = std::make_shared<CallstackNt>(core);
-    if(!cs_nt)
-        return nullptr;
-
-    const auto ok = cs_nt->setup();
-    if(!ok)
-        return nullptr;
-
-    return cs_nt;
-}
-
-bool CallstackNt::setup()
-{
-    return true;
+    return std::make_shared<CallstackNt>(core);
 }
 
 namespace
@@ -265,15 +280,112 @@ opt<FunctionTable> CallstackNt::get_mod_functiontable(proc_t proc, const std::st
     return insert(proc, name, span);
 }
 
+namespace
+{
+    static std::unique_ptr<sym::Symbols> load_ntdll(core::Core& core, proc_t proc, bool is_32bit)
+    {
+        std::unique_ptr<sym::Symbols> sym;
+        const auto reader = reader::make(core, proc);
+        core.os->mod_list(proc, [&](mod_t mod)
+        {
+            const auto name = core.os->mod_name(proc, mod);
+            if(!name)
+                return WALK_NEXT;
+
+            const auto filename = path::filename(*name);
+            if(filename != "ntdll.dll")
+                return WALK_NEXT;
+
+            const auto is_wow64 = !!(mod.flags & FLAGS_32BIT);
+            if(is_32bit ^ is_wow64)
+                return WALK_NEXT;
+
+            const auto span = core.os->mod_span(proc, mod);
+            if(!span)
+                return WALK_NEXT;
+
+            const auto debug = pe::find_debug_codeview(reader, *span);
+            if(!debug)
+                return WALK_NEXT;
+
+            std::vector<uint8_t> buffer(debug->size);
+            const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
+            if(!ok)
+                FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
+
+            auto tmp            = std::make_unique<sym::Symbols>();
+            const auto inserted = tmp->insert("ntdll", *span, &buffer[0], buffer.size());
+            if(!inserted)
+                return WALK_NEXT;
+
+            sym = std::move(tmp);
+            return WALK_STOP;
+        });
+        return sym;
+    }
+
+    static bool read_offsets(CallstackNt& c, proc_t proc, bool is_32bit)
+    {
+        auto& opt_offsets = is_32bit ? c.offsets32_ : c.offsets64_;
+        if(opt_offsets)
+            return true;
+
+        const auto sym = load_ntdll(c.core_, proc, is_32bit);
+        if(!sym)
+            FAIL(false, "unable to load ntdll");
+
+        bool fail = false;
+        Offsets offsets;
+        memset(&offsets[0], 0, sizeof offsets);
+        for(size_t i = 0; i < OFFSET_COUNT; ++i)
+        {
+            fail |= g_nt_offsets[i].e_id != i;
+            const auto offset = c.core_.sym.struc_offset("ntdll", g_nt_offsets[i].struc, g_nt_offsets[i].member);
+            if(!offset)
+            {
+                LOG(ERROR, "unable to read ntdll!{}.{} member offset", g_nt_offsets[i].struc, g_nt_offsets[i].member);
+                continue;
+            }
+            offsets[i] = *offset;
+        }
+        if(fail)
+            return false;
+
+        opt_offsets = offsets;
+        return true;
+    }
+
+    static uint64_t offset(const CallstackNt& c, bool is_32bit, offsets_e off)
+    {
+        const auto& offsets = is_32bit ? *c.offsets32_ : *c.offsets64_;
+        return offsets[off];
+    }
+
+    static opt<span_t> get_stack(CallstackNt& c, proc_t proc, bool is_32bit)
+    {
+        const auto reader = reader::make(c.core_, proc);
+        if(!read_offsets(c, proc, is_32bit))
+            FAIL({}, "unable to read ntdll offsets");
+
+        const auto teb    = c.core_.regs.read(is_32bit ? MSR_FS_BASE : MSR_GS_BASE);
+        const auto nt_tib = teb + offset(c, is_32bit, TEB_NtTib);
+        const auto base   = reader.read(nt_tib + offset(c, is_32bit, NT_TIB_StackBase));
+        const auto limit  = reader.read(nt_tib + offset(c, is_32bit, NT_TIB_StackLimit));
+        if(!base || !limit)
+            FAIL({}, "unable to find stack boundaries");
+
+        return span_t{*limit, *base - *limit};
+    }
+}
+
 bool CallstackNt::get_callstack64(proc_t proc, callstack::context_t ctx, const callstack::on_callstep_fn& on_callstep)
 {
-    static const auto reg_size = 8;
     std::vector<uint8_t> buffer;
+    constexpr auto reg_size = 8;
     const auto max_cs_depth = size_t(150);
     const auto reader       = reader::make(core_, proc);
-
-    const auto stack_bounds = core_.os->stack_curr_bounds(proc);
-    if(!stack_bounds)
+    const auto stack        = get_stack(*this, proc, false);
+    if(!stack)
         return false;
 
     for(size_t i = 0; i < max_cs_depth; ++i)
@@ -327,7 +439,7 @@ bool CallstackNt::get_callstack64(proc_t proc, callstack::context_t ctx, const c
         const auto caller_addr_on_stack = ctx.rsp + *stack_frame_size;
 
         // Check if caller's address on stack is consistent, if not we suppose that the end of the callstack has been reached
-        if(stack_bounds->addr > caller_addr_on_stack || stack_bounds->addr + stack_bounds->size < caller_addr_on_stack)
+        if(stack->addr > caller_addr_on_stack || stack->addr + stack->size < caller_addr_on_stack)
             return true;
 
         const auto return_addr = reader.read(caller_addr_on_stack);
@@ -357,18 +469,17 @@ bool CallstackNt::get_callstack64(proc_t proc, callstack::context_t ctx, const c
 
 bool CallstackNt::get_callstack32(proc_t proc, callstack::context_t ctx, const callstack::on_callstep_fn& on_callstep)
 {
-    static const auto reg_size = 4;
     std::vector<uint8_t> buffer;
+    constexpr auto reg_size = 4;
     const auto max_cs_depth = size_t(150);
     const auto reader       = reader::make(core_, proc);
-
-    const auto stack_bounds = core_.os->stack_curr_bounds(proc);
-    if(!stack_bounds)
+    const auto stack        = get_stack(*this, proc, true);
+    if(!stack)
         return false;
 
     for(size_t i = 0; i < max_cs_depth; ++i)
     {
-        if(stack_bounds->addr > ctx.rbp || stack_bounds->addr + stack_bounds->size < ctx.rbp)
+        if(stack->addr > ctx.rbp || stack->addr + stack->size < ctx.rbp)
             return true;
 
         const auto caller_addr_on_stack = reader.le32(ctx.rbp);
@@ -390,7 +501,7 @@ bool CallstackNt::get_callstack32(proc_t proc, callstack::context_t ctx, const c
 
 bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const callstack::on_callstep_fn& on_callstep)
 {
-    if(ctx.is_x64 == true)
+    if(core_.os->proc_ctx_is_x64())
         return get_callstack64(proc, ctx, on_callstep);
 
     return get_callstack32(proc, ctx, on_callstep);

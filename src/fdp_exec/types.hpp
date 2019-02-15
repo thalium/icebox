@@ -19,6 +19,8 @@ namespace ext = std::experimental;
 namespace fs  = std::experimental::filesystem;
 #endif
 
+#include "enums.hpp"
+
 struct dtb_t
 {
     uint64_t val;
@@ -43,6 +45,7 @@ struct thread_t
 struct mod_t
 {
     uint64_t id;
+    flags_e  flags;
 };
 
 struct driver_t
