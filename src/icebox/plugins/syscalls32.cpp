@@ -118,10 +118,7 @@ namespace
 
         const auto idx = d.callsteps_.size();
         size_t cs_size = 0;
-        const auto rip = d.core_.regs.read(FDP_RIP_REGISTER);
-        const auto rsp = d.core_.regs.read(FDP_RSP_REGISTER);
-        const auto rbp = d.core_.regs.read(FDP_RBP_REGISTER);
-        d.callstack_->get_callstack(d.target_, {rip, rsp, rbp}, [&](callstack::callstep_t cstep)
+        d.callstack_->get_callstack(d.target_, [&](callstack::callstep_t cstep)
         {
             d.callsteps_.push_back(cstep);
 

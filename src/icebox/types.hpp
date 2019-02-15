@@ -59,14 +59,6 @@ struct span_t
     size_t   size;
 };
 
-struct context_t
-{
-    uint64_t ip; // instruction pointer
-    uint64_t sp; // stack pointer
-    uint64_t bp; // base pointer
-    uint64_t cs; // code segment
-};
-
 struct arg_t
 {
     uint64_t val;

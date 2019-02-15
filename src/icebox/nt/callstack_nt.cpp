@@ -38,6 +38,14 @@ static inline bool operator==(const proc_t& a, const proc_t& b)
 
 namespace
 {
+    struct context_t
+    {
+        uint64_t ip; // instruction pointer
+        uint64_t sp; // stack pointer
+        uint64_t bp; // base pointer
+        uint64_t cs; // code segment
+    };
+
     struct unwind_code_t
     {
         uint32_t stack_size_used;
@@ -140,7 +148,7 @@ namespace
         CallstackNt(core::Core& core);
 
         // callstack::ICallstack
-        bool get_callstack(proc_t proc, const context_t& context, const callstack::on_callstep_fn& on_callstep) override;
+        bool get_callstack(proc_t proc, const callstack::on_callstep_fn& on_callstep) override;
 
         // methods
         opt<FunctionTable>      get_mod_functiontable   (proc_t proc, const std::string& name, const span_t module);
@@ -498,10 +506,15 @@ namespace
     }
 }
 
-bool CallstackNt::get_callstack(proc_t proc, const context_t& ctx, const callstack::on_callstep_fn& on_callstep)
+bool CallstackNt::get_callstack(proc_t proc, const callstack::on_callstep_fn& on_callstep)
 {
+    const auto ip         = core_.regs.read(FDP_RIP_REGISTER);
+    const auto sp         = core_.regs.read(FDP_RSP_REGISTER);
+    const auto bp         = core_.regs.read(FDP_RBP_REGISTER);
+    const auto cs         = core_.regs.read(FDP_CS_REGISTER);
+    const auto ctx        = context_t{ip, sp, bp, cs};
     constexpr auto x86_cs = 0x23;
-    if(ctx.cs & x86_cs)
+    if(cs & x86_cs)
         return get_callstack32(*this, proc, ctx, on_callstep);
 
     return get_callstack64(*this, proc, ctx, on_callstep);

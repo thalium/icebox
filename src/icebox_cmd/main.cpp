@@ -213,11 +213,8 @@ namespace
 
             const auto bp = core.state.set_breakpoint(*func_addr, *target, [&]
             {
-                const auto rip = core.regs.read(FDP_RIP_REGISTER);
-                const auto rsp = core.regs.read(FDP_RSP_REGISTER);
-                const auto rbp = core.regs.read(FDP_RBP_REGISTER);
-                int k          = 0;
-                callstack->get_callstack(*target, {rip, rsp, rbp}, [&](callstack::callstep_t callstep)
+                int k = 0;
+                callstack->get_callstack(*target, [&](callstack::callstep_t callstep)
                 {
                     auto cursor = core.sym.find(callstep.addr);
                     if(!cursor)
