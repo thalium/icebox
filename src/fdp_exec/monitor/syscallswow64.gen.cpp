@@ -140,122 +140,121 @@ struct monitor::syscallswow64::Data
     std::vector<on_NtFilterToken_fn>                                      observers_NtFilterToken;
     std::vector<on_NtFindAtom_fn>                                         observers_NtFindAtom;
     std::vector<on_ZwFlushBuffersFile_fn>                                 observers_ZwFlushBuffersFile;
-    std::vector<on_NtFlushInstallUILanguage_fn>                           observers_NtFlushInstallUILanguage;
-    std::vector<on_NtFlushInstructionCache_fn>                            observers_NtFlushInstructionCache;
+    std::vector<on_ZwFlushInstallUILanguage_fn>                           observers_ZwFlushInstallUILanguage;
+    std::vector<on_ZwFlushInstructionCache_fn>                            observers_ZwFlushInstructionCache;
     std::vector<on_NtFlushKey_fn>                                         observers_NtFlushKey;
-    std::vector<on_NtFlushVirtualMemory_fn>                               observers_NtFlushVirtualMemory;
+    std::vector<on_ZwFlushVirtualMemory_fn>                               observers_ZwFlushVirtualMemory;
     std::vector<on_NtFreeUserPhysicalPages_fn>                            observers_NtFreeUserPhysicalPages;
     std::vector<on_NtFreeVirtualMemory_fn>                                observers_NtFreeVirtualMemory;
     std::vector<on_NtFreezeRegistry_fn>                                   observers_NtFreezeRegistry;
-    std::vector<on_NtFreezeTransactions_fn>                               observers_NtFreezeTransactions;
+    std::vector<on_ZwFreezeTransactions_fn>                               observers_ZwFreezeTransactions;
     std::vector<on_NtFsControlFile_fn>                                    observers_NtFsControlFile;
     std::vector<on_NtGetContextThread_fn>                                 observers_NtGetContextThread;
     std::vector<on_NtGetDevicePowerState_fn>                              observers_NtGetDevicePowerState;
     std::vector<on_NtGetMUIRegistryInfo_fn>                               observers_NtGetMUIRegistryInfo;
-    std::vector<on_NtGetNextProcess_fn>                                   observers_NtGetNextProcess;
-    std::vector<on_NtGetNextThread_fn>                                    observers_NtGetNextThread;
+    std::vector<on_ZwGetNextProcess_fn>                                   observers_ZwGetNextProcess;
+    std::vector<on_ZwGetNextThread_fn>                                    observers_ZwGetNextThread;
     std::vector<on_NtGetNlsSectionPtr_fn>                                 observers_NtGetNlsSectionPtr;
-    std::vector<on_NtGetNotificationResourceManager_fn>                   observers_NtGetNotificationResourceManager;
-    std::vector<on_NtGetPlugPlayEvent_fn>                                 observers_NtGetPlugPlayEvent;
+    std::vector<on_ZwGetNotificationResourceManager_fn>                   observers_ZwGetNotificationResourceManager;
     std::vector<on_NtGetWriteWatch_fn>                                    observers_NtGetWriteWatch;
     std::vector<on_NtImpersonateAnonymousToken_fn>                        observers_NtImpersonateAnonymousToken;
-    std::vector<on_NtImpersonateClientOfPort_fn>                          observers_NtImpersonateClientOfPort;
-    std::vector<on_NtImpersonateThread_fn>                                observers_NtImpersonateThread;
+    std::vector<on_ZwImpersonateClientOfPort_fn>                          observers_ZwImpersonateClientOfPort;
+    std::vector<on_ZwImpersonateThread_fn>                                observers_ZwImpersonateThread;
     std::vector<on_NtInitializeNlsFiles_fn>                               observers_NtInitializeNlsFiles;
-    std::vector<on_NtInitializeRegistry_fn>                               observers_NtInitializeRegistry;
+    std::vector<on_ZwInitializeRegistry_fn>                               observers_ZwInitializeRegistry;
     std::vector<on_NtInitiatePowerAction_fn>                              observers_NtInitiatePowerAction;
-    std::vector<on_NtIsProcessInJob_fn>                                   observers_NtIsProcessInJob;
-    std::vector<on_NtListenPort_fn>                                       observers_NtListenPort;
+    std::vector<on_ZwIsProcessInJob_fn>                                   observers_ZwIsProcessInJob;
+    std::vector<on_ZwListenPort_fn>                                       observers_ZwListenPort;
     std::vector<on_NtLoadDriver_fn>                                       observers_NtLoadDriver;
     std::vector<on_NtLoadKey2_fn>                                         observers_NtLoadKey2;
     std::vector<on_NtLoadKeyEx_fn>                                        observers_NtLoadKeyEx;
     std::vector<on_NtLoadKey_fn>                                          observers_NtLoadKey;
     std::vector<on_NtLockFile_fn>                                         observers_NtLockFile;
-    std::vector<on_NtLockProductActivationKeys_fn>                        observers_NtLockProductActivationKeys;
+    std::vector<on_ZwLockProductActivationKeys_fn>                        observers_ZwLockProductActivationKeys;
     std::vector<on_NtLockRegistryKey_fn>                                  observers_NtLockRegistryKey;
-    std::vector<on_NtLockVirtualMemory_fn>                                observers_NtLockVirtualMemory;
-    std::vector<on_NtMakePermanentObject_fn>                              observers_NtMakePermanentObject;
+    std::vector<on_ZwLockVirtualMemory_fn>                                observers_ZwLockVirtualMemory;
+    std::vector<on_ZwMakePermanentObject_fn>                              observers_ZwMakePermanentObject;
     std::vector<on_NtMakeTemporaryObject_fn>                              observers_NtMakeTemporaryObject;
-    std::vector<on_NtMapCMFModule_fn>                                     observers_NtMapCMFModule;
+    std::vector<on_ZwMapCMFModule_fn>                                     observers_ZwMapCMFModule;
     std::vector<on_NtMapUserPhysicalPages_fn>                             observers_NtMapUserPhysicalPages;
-    std::vector<on_NtMapUserPhysicalPagesScatter_fn>                      observers_NtMapUserPhysicalPagesScatter;
-    std::vector<on_NtMapViewOfSection_fn>                                 observers_NtMapViewOfSection;
+    std::vector<on_ZwMapUserPhysicalPagesScatter_fn>                      observers_ZwMapUserPhysicalPagesScatter;
+    std::vector<on_ZwMapViewOfSection_fn>                                 observers_ZwMapViewOfSection;
     std::vector<on_NtModifyBootEntry_fn>                                  observers_NtModifyBootEntry;
-    std::vector<on_NtModifyDriverEntry_fn>                                observers_NtModifyDriverEntry;
+    std::vector<on_ZwModifyDriverEntry_fn>                                observers_ZwModifyDriverEntry;
     std::vector<on_NtNotifyChangeDirectoryFile_fn>                        observers_NtNotifyChangeDirectoryFile;
     std::vector<on_NtNotifyChangeKey_fn>                                  observers_NtNotifyChangeKey;
     std::vector<on_NtNotifyChangeMultipleKeys_fn>                         observers_NtNotifyChangeMultipleKeys;
     std::vector<on_NtNotifyChangeSession_fn>                              observers_NtNotifyChangeSession;
-    std::vector<on_NtOpenDirectoryObject_fn>                              observers_NtOpenDirectoryObject;
-    std::vector<on_NtOpenEnlistment_fn>                                   observers_NtOpenEnlistment;
+    std::vector<on_ZwOpenDirectoryObject_fn>                              observers_ZwOpenDirectoryObject;
+    std::vector<on_ZwOpenEnlistment_fn>                                   observers_ZwOpenEnlistment;
     std::vector<on_NtOpenEvent_fn>                                        observers_NtOpenEvent;
     std::vector<on_NtOpenEventPair_fn>                                    observers_NtOpenEventPair;
     std::vector<on_NtOpenFile_fn>                                         observers_NtOpenFile;
-    std::vector<on_NtOpenIoCompletion_fn>                                 observers_NtOpenIoCompletion;
-    std::vector<on_NtOpenJobObject_fn>                                    observers_NtOpenJobObject;
+    std::vector<on_ZwOpenIoCompletion_fn>                                 observers_ZwOpenIoCompletion;
+    std::vector<on_ZwOpenJobObject_fn>                                    observers_ZwOpenJobObject;
     std::vector<on_NtOpenKeyedEvent_fn>                                   observers_NtOpenKeyedEvent;
-    std::vector<on_NtOpenKeyEx_fn>                                        observers_NtOpenKeyEx;
-    std::vector<on_NtOpenKey_fn>                                          observers_NtOpenKey;
+    std::vector<on_ZwOpenKeyEx_fn>                                        observers_ZwOpenKeyEx;
+    std::vector<on_ZwOpenKey_fn>                                          observers_ZwOpenKey;
     std::vector<on_NtOpenKeyTransactedEx_fn>                              observers_NtOpenKeyTransactedEx;
     std::vector<on_NtOpenKeyTransacted_fn>                                observers_NtOpenKeyTransacted;
     std::vector<on_NtOpenMutant_fn>                                       observers_NtOpenMutant;
-    std::vector<on_NtOpenObjectAuditAlarm_fn>                             observers_NtOpenObjectAuditAlarm;
+    std::vector<on_ZwOpenObjectAuditAlarm_fn>                             observers_ZwOpenObjectAuditAlarm;
     std::vector<on_NtOpenPrivateNamespace_fn>                             observers_NtOpenPrivateNamespace;
-    std::vector<on_NtOpenProcess_fn>                                      observers_NtOpenProcess;
-    std::vector<on_NtOpenProcessTokenEx_fn>                               observers_NtOpenProcessTokenEx;
-    std::vector<on_NtOpenProcessToken_fn>                                 observers_NtOpenProcessToken;
-    std::vector<on_NtOpenResourceManager_fn>                              observers_NtOpenResourceManager;
+    std::vector<on_ZwOpenProcess_fn>                                      observers_ZwOpenProcess;
+    std::vector<on_ZwOpenProcessTokenEx_fn>                               observers_ZwOpenProcessTokenEx;
+    std::vector<on_ZwOpenProcessToken_fn>                                 observers_ZwOpenProcessToken;
+    std::vector<on_ZwOpenResourceManager_fn>                              observers_ZwOpenResourceManager;
     std::vector<on_NtOpenSection_fn>                                      observers_NtOpenSection;
     std::vector<on_NtOpenSemaphore_fn>                                    observers_NtOpenSemaphore;
     std::vector<on_NtOpenSession_fn>                                      observers_NtOpenSession;
     std::vector<on_NtOpenSymbolicLinkObject_fn>                           observers_NtOpenSymbolicLinkObject;
-    std::vector<on_NtOpenThread_fn>                                       observers_NtOpenThread;
+    std::vector<on_ZwOpenThread_fn>                                       observers_ZwOpenThread;
     std::vector<on_NtOpenThreadTokenEx_fn>                                observers_NtOpenThreadTokenEx;
     std::vector<on_NtOpenThreadToken_fn>                                  observers_NtOpenThreadToken;
-    std::vector<on_NtOpenTimer_fn>                                        observers_NtOpenTimer;
-    std::vector<on_NtOpenTransactionManager_fn>                           observers_NtOpenTransactionManager;
-    std::vector<on_NtOpenTransaction_fn>                                  observers_NtOpenTransaction;
+    std::vector<on_ZwOpenTimer_fn>                                        observers_ZwOpenTimer;
+    std::vector<on_ZwOpenTransactionManager_fn>                           observers_ZwOpenTransactionManager;
+    std::vector<on_ZwOpenTransaction_fn>                                  observers_ZwOpenTransaction;
     std::vector<on_NtPlugPlayControl_fn>                                  observers_NtPlugPlayControl;
-    std::vector<on_NtPowerInformation_fn>                                 observers_NtPowerInformation;
+    std::vector<on_ZwPowerInformation_fn>                                 observers_ZwPowerInformation;
     std::vector<on_NtPrepareComplete_fn>                                  observers_NtPrepareComplete;
-    std::vector<on_NtPrepareEnlistment_fn>                                observers_NtPrepareEnlistment;
-    std::vector<on_NtPrePrepareComplete_fn>                               observers_NtPrePrepareComplete;
+    std::vector<on_ZwPrepareEnlistment_fn>                                observers_ZwPrepareEnlistment;
+    std::vector<on_ZwPrePrepareComplete_fn>                               observers_ZwPrePrepareComplete;
     std::vector<on_NtPrePrepareEnlistment_fn>                             observers_NtPrePrepareEnlistment;
-    std::vector<on_NtPrivilegeCheck_fn>                                   observers_NtPrivilegeCheck;
+    std::vector<on_ZwPrivilegeCheck_fn>                                   observers_ZwPrivilegeCheck;
     std::vector<on_NtPrivilegedServiceAuditAlarm_fn>                      observers_NtPrivilegedServiceAuditAlarm;
-    std::vector<on_NtPrivilegeObjectAuditAlarm_fn>                        observers_NtPrivilegeObjectAuditAlarm;
+    std::vector<on_ZwPrivilegeObjectAuditAlarm_fn>                        observers_ZwPrivilegeObjectAuditAlarm;
     std::vector<on_NtPropagationComplete_fn>                              observers_NtPropagationComplete;
-    std::vector<on_NtPropagationFailed_fn>                                observers_NtPropagationFailed;
-    std::vector<on_NtProtectVirtualMemory_fn>                             observers_NtProtectVirtualMemory;
-    std::vector<on_NtPulseEvent_fn>                                       observers_NtPulseEvent;
-    std::vector<on_NtQueryAttributesFile_fn>                              observers_NtQueryAttributesFile;
-    std::vector<on_NtQueryBootEntryOrder_fn>                              observers_NtQueryBootEntryOrder;
-    std::vector<on_NtQueryBootOptions_fn>                                 observers_NtQueryBootOptions;
+    std::vector<on_ZwPropagationFailed_fn>                                observers_ZwPropagationFailed;
+    std::vector<on_ZwProtectVirtualMemory_fn>                             observers_ZwProtectVirtualMemory;
+    std::vector<on_ZwPulseEvent_fn>                                       observers_ZwPulseEvent;
+    std::vector<on_ZwQueryAttributesFile_fn>                              observers_ZwQueryAttributesFile;
+    std::vector<on_ZwQueryBootEntryOrder_fn>                              observers_ZwQueryBootEntryOrder;
+    std::vector<on_ZwQueryBootOptions_fn>                                 observers_ZwQueryBootOptions;
     std::vector<on_NtQueryDebugFilterState_fn>                            observers_NtQueryDebugFilterState;
     std::vector<on_NtQueryDefaultLocale_fn>                               observers_NtQueryDefaultLocale;
-    std::vector<on_NtQueryDefaultUILanguage_fn>                           observers_NtQueryDefaultUILanguage;
-    std::vector<on_NtQueryDirectoryFile_fn>                               observers_NtQueryDirectoryFile;
-    std::vector<on_NtQueryDirectoryObject_fn>                             observers_NtQueryDirectoryObject;
+    std::vector<on_ZwQueryDefaultUILanguage_fn>                           observers_ZwQueryDefaultUILanguage;
+    std::vector<on_ZwQueryDirectoryFile_fn>                               observers_ZwQueryDirectoryFile;
+    std::vector<on_ZwQueryDirectoryObject_fn>                             observers_ZwQueryDirectoryObject;
     std::vector<on_NtQueryDriverEntryOrder_fn>                            observers_NtQueryDriverEntryOrder;
-    std::vector<on_NtQueryEaFile_fn>                                      observers_NtQueryEaFile;
+    std::vector<on_ZwQueryEaFile_fn>                                      observers_ZwQueryEaFile;
     std::vector<on_NtQueryEvent_fn>                                       observers_NtQueryEvent;
-    std::vector<on_NtQueryFullAttributesFile_fn>                          observers_NtQueryFullAttributesFile;
+    std::vector<on_ZwQueryFullAttributesFile_fn>                          observers_ZwQueryFullAttributesFile;
     std::vector<on_NtQueryInformationAtom_fn>                             observers_NtQueryInformationAtom;
-    std::vector<on_NtQueryInformationEnlistment_fn>                       observers_NtQueryInformationEnlistment;
-    std::vector<on_NtQueryInformationFile_fn>                             observers_NtQueryInformationFile;
-    std::vector<on_NtQueryInformationJobObject_fn>                        observers_NtQueryInformationJobObject;
-    std::vector<on_NtQueryInformationPort_fn>                             observers_NtQueryInformationPort;
+    std::vector<on_ZwQueryInformationEnlistment_fn>                       observers_ZwQueryInformationEnlistment;
+    std::vector<on_ZwQueryInformationFile_fn>                             observers_ZwQueryInformationFile;
+    std::vector<on_ZwQueryInformationJobObject_fn>                        observers_ZwQueryInformationJobObject;
+    std::vector<on_ZwQueryInformationPort_fn>                             observers_ZwQueryInformationPort;
     std::vector<on_ZwQueryInformationProcess_fn>                          observers_ZwQueryInformationProcess;
-    std::vector<on_NtQueryInformationResourceManager_fn>                  observers_NtQueryInformationResourceManager;
+    std::vector<on_ZwQueryInformationResourceManager_fn>                  observers_ZwQueryInformationResourceManager;
     std::vector<on_NtQueryInformationThread_fn>                           observers_NtQueryInformationThread;
-    std::vector<on_NtQueryInformationToken_fn>                            observers_NtQueryInformationToken;
-    std::vector<on_NtQueryInformationTransaction_fn>                      observers_NtQueryInformationTransaction;
+    std::vector<on_ZwQueryInformationToken_fn>                            observers_ZwQueryInformationToken;
+    std::vector<on_ZwQueryInformationTransaction_fn>                      observers_ZwQueryInformationTransaction;
     std::vector<on_NtQueryInformationTransactionManager_fn>               observers_NtQueryInformationTransactionManager;
-    std::vector<on_NtQueryInformationWorkerFactory_fn>                    observers_NtQueryInformationWorkerFactory;
+    std::vector<on_ZwQueryInformationWorkerFactory_fn>                    observers_ZwQueryInformationWorkerFactory;
     std::vector<on_NtQueryInstallUILanguage_fn>                           observers_NtQueryInstallUILanguage;
     std::vector<on_NtQueryIntervalProfile_fn>                             observers_NtQueryIntervalProfile;
     std::vector<on_NtQueryIoCompletion_fn>                                observers_NtQueryIoCompletion;
-    std::vector<on_NtQueryKey_fn>                                         observers_NtQueryKey;
+    std::vector<on_ZwQueryKey_fn>                                         observers_ZwQueryKey;
     std::vector<on_NtQueryLicenseValue_fn>                                observers_NtQueryLicenseValue;
     std::vector<on_NtQueryMultipleValueKey_fn>                            observers_NtQueryMultipleValueKey;
     std::vector<on_NtQueryMutant_fn>                                      observers_NtQueryMutant;
@@ -263,59 +262,59 @@ struct monitor::syscallswow64::Data
     std::vector<on_NtQueryOpenSubKeysEx_fn>                               observers_NtQueryOpenSubKeysEx;
     std::vector<on_NtQueryOpenSubKeys_fn>                                 observers_NtQueryOpenSubKeys;
     std::vector<on_NtQueryPerformanceCounter_fn>                          observers_NtQueryPerformanceCounter;
-    std::vector<on_NtQueryQuotaInformationFile_fn>                        observers_NtQueryQuotaInformationFile;
-    std::vector<on_NtQuerySection_fn>                                     observers_NtQuerySection;
-    std::vector<on_NtQuerySecurityAttributesToken_fn>                     observers_NtQuerySecurityAttributesToken;
+    std::vector<on_ZwQueryQuotaInformationFile_fn>                        observers_ZwQueryQuotaInformationFile;
+    std::vector<on_ZwQuerySection_fn>                                     observers_ZwQuerySection;
+    std::vector<on_ZwQuerySecurityAttributesToken_fn>                     observers_ZwQuerySecurityAttributesToken;
     std::vector<on_NtQuerySecurityObject_fn>                              observers_NtQuerySecurityObject;
-    std::vector<on_NtQuerySemaphore_fn>                                   observers_NtQuerySemaphore;
-    std::vector<on_NtQuerySymbolicLinkObject_fn>                          observers_NtQuerySymbolicLinkObject;
-    std::vector<on_NtQuerySystemEnvironmentValueEx_fn>                    observers_NtQuerySystemEnvironmentValueEx;
-    std::vector<on_NtQuerySystemEnvironmentValue_fn>                      observers_NtQuerySystemEnvironmentValue;
-    std::vector<on_NtQuerySystemInformationEx_fn>                         observers_NtQuerySystemInformationEx;
+    std::vector<on_ZwQuerySemaphore_fn>                                   observers_ZwQuerySemaphore;
+    std::vector<on_ZwQuerySymbolicLinkObject_fn>                          observers_ZwQuerySymbolicLinkObject;
+    std::vector<on_ZwQuerySystemEnvironmentValueEx_fn>                    observers_ZwQuerySystemEnvironmentValueEx;
+    std::vector<on_ZwQuerySystemEnvironmentValue_fn>                      observers_ZwQuerySystemEnvironmentValue;
+    std::vector<on_ZwQuerySystemInformationEx_fn>                         observers_ZwQuerySystemInformationEx;
     std::vector<on_NtQuerySystemInformation_fn>                           observers_NtQuerySystemInformation;
     std::vector<on_NtQuerySystemTime_fn>                                  observers_NtQuerySystemTime;
-    std::vector<on_NtQueryTimer_fn>                                       observers_NtQueryTimer;
+    std::vector<on_ZwQueryTimer_fn>                                       observers_ZwQueryTimer;
     std::vector<on_NtQueryTimerResolution_fn>                             observers_NtQueryTimerResolution;
-    std::vector<on_NtQueryValueKey_fn>                                    observers_NtQueryValueKey;
+    std::vector<on_ZwQueryValueKey_fn>                                    observers_ZwQueryValueKey;
     std::vector<on_NtQueryVirtualMemory_fn>                               observers_NtQueryVirtualMemory;
     std::vector<on_NtQueryVolumeInformationFile_fn>                       observers_NtQueryVolumeInformationFile;
     std::vector<on_NtQueueApcThreadEx_fn>                                 observers_NtQueueApcThreadEx;
     std::vector<on_NtQueueApcThread_fn>                                   observers_NtQueueApcThread;
-    std::vector<on_NtRaiseException_fn>                                   observers_NtRaiseException;
-    std::vector<on_NtRaiseHardError_fn>                                   observers_NtRaiseHardError;
+    std::vector<on_ZwRaiseException_fn>                                   observers_ZwRaiseException;
+    std::vector<on_ZwRaiseHardError_fn>                                   observers_ZwRaiseHardError;
     std::vector<on_NtReadFile_fn>                                         observers_NtReadFile;
     std::vector<on_NtReadFileScatter_fn>                                  observers_NtReadFileScatter;
-    std::vector<on_NtReadOnlyEnlistment_fn>                               observers_NtReadOnlyEnlistment;
-    std::vector<on_NtReadRequestData_fn>                                  observers_NtReadRequestData;
+    std::vector<on_ZwReadOnlyEnlistment_fn>                               observers_ZwReadOnlyEnlistment;
+    std::vector<on_ZwReadRequestData_fn>                                  observers_ZwReadRequestData;
     std::vector<on_NtReadVirtualMemory_fn>                                observers_NtReadVirtualMemory;
     std::vector<on_NtRecoverEnlistment_fn>                                observers_NtRecoverEnlistment;
     std::vector<on_NtRecoverResourceManager_fn>                           observers_NtRecoverResourceManager;
-    std::vector<on_NtRecoverTransactionManager_fn>                        observers_NtRecoverTransactionManager;
-    std::vector<on_NtRegisterProtocolAddressInformation_fn>               observers_NtRegisterProtocolAddressInformation;
-    std::vector<on_NtRegisterThreadTerminatePort_fn>                      observers_NtRegisterThreadTerminatePort;
+    std::vector<on_ZwRecoverTransactionManager_fn>                        observers_ZwRecoverTransactionManager;
+    std::vector<on_ZwRegisterProtocolAddressInformation_fn>               observers_ZwRegisterProtocolAddressInformation;
+    std::vector<on_ZwRegisterThreadTerminatePort_fn>                      observers_ZwRegisterThreadTerminatePort;
     std::vector<on_NtReleaseKeyedEvent_fn>                                observers_NtReleaseKeyedEvent;
-    std::vector<on_NtReleaseMutant_fn>                                    observers_NtReleaseMutant;
+    std::vector<on_ZwReleaseMutant_fn>                                    observers_ZwReleaseMutant;
     std::vector<on_NtReleaseSemaphore_fn>                                 observers_NtReleaseSemaphore;
-    std::vector<on_NtReleaseWorkerFactoryWorker_fn>                       observers_NtReleaseWorkerFactoryWorker;
-    std::vector<on_NtRemoveIoCompletionEx_fn>                             observers_NtRemoveIoCompletionEx;
-    std::vector<on_NtRemoveIoCompletion_fn>                               observers_NtRemoveIoCompletion;
-    std::vector<on_NtRemoveProcessDebug_fn>                               observers_NtRemoveProcessDebug;
-    std::vector<on_NtRenameKey_fn>                                        observers_NtRenameKey;
+    std::vector<on_ZwReleaseWorkerFactoryWorker_fn>                       observers_ZwReleaseWorkerFactoryWorker;
+    std::vector<on_ZwRemoveIoCompletionEx_fn>                             observers_ZwRemoveIoCompletionEx;
+    std::vector<on_ZwRemoveIoCompletion_fn>                               observers_ZwRemoveIoCompletion;
+    std::vector<on_ZwRemoveProcessDebug_fn>                               observers_ZwRemoveProcessDebug;
+    std::vector<on_ZwRenameKey_fn>                                        observers_ZwRenameKey;
     std::vector<on_NtRenameTransactionManager_fn>                         observers_NtRenameTransactionManager;
-    std::vector<on_NtReplaceKey_fn>                                       observers_NtReplaceKey;
+    std::vector<on_ZwReplaceKey_fn>                                       observers_ZwReplaceKey;
     std::vector<on_NtReplacePartitionUnit_fn>                             observers_NtReplacePartitionUnit;
-    std::vector<on_NtReplyPort_fn>                                        observers_NtReplyPort;
+    std::vector<on_ZwReplyPort_fn>                                        observers_ZwReplyPort;
     std::vector<on_NtReplyWaitReceivePortEx_fn>                           observers_NtReplyWaitReceivePortEx;
     std::vector<on_NtReplyWaitReceivePort_fn>                             observers_NtReplyWaitReceivePort;
     std::vector<on_NtReplyWaitReplyPort_fn>                               observers_NtReplyWaitReplyPort;
-    std::vector<on_NtRequestPort_fn>                                      observers_NtRequestPort;
+    std::vector<on_ZwRequestPort_fn>                                      observers_ZwRequestPort;
     std::vector<on_NtRequestWaitReplyPort_fn>                             observers_NtRequestWaitReplyPort;
     std::vector<on_NtResetEvent_fn>                                       observers_NtResetEvent;
-    std::vector<on_NtResetWriteWatch_fn>                                  observers_NtResetWriteWatch;
+    std::vector<on_ZwResetWriteWatch_fn>                                  observers_ZwResetWriteWatch;
     std::vector<on_NtRestoreKey_fn>                                       observers_NtRestoreKey;
-    std::vector<on_NtResumeProcess_fn>                                    observers_NtResumeProcess;
-    std::vector<on_NtResumeThread_fn>                                     observers_NtResumeThread;
-    std::vector<on_NtRollbackComplete_fn>                                 observers_NtRollbackComplete;
+    std::vector<on_ZwResumeProcess_fn>                                    observers_ZwResumeProcess;
+    std::vector<on_ZwResumeThread_fn>                                     observers_ZwResumeThread;
+    std::vector<on_ZwRollbackComplete_fn>                                 observers_ZwRollbackComplete;
     std::vector<on_NtRollbackEnlistment_fn>                               observers_NtRollbackEnlistment;
     std::vector<on_NtRollbackTransaction_fn>                              observers_NtRollbackTransaction;
     std::vector<on_NtRollforwardTransactionManager_fn>                    observers_NtRollforwardTransactionManager;
@@ -323,72 +322,72 @@ struct monitor::syscallswow64::Data
     std::vector<on_NtSaveKey_fn>                                          observers_NtSaveKey;
     std::vector<on_NtSaveMergedKeys_fn>                                   observers_NtSaveMergedKeys;
     std::vector<on_NtSecureConnectPort_fn>                                observers_NtSecureConnectPort;
-    std::vector<on_NtSetBootEntryOrder_fn>                                observers_NtSetBootEntryOrder;
-    std::vector<on_NtSetBootOptions_fn>                                   observers_NtSetBootOptions;
-    std::vector<on_NtSetContextThread_fn>                                 observers_NtSetContextThread;
+    std::vector<on_ZwSetBootEntryOrder_fn>                                observers_ZwSetBootEntryOrder;
+    std::vector<on_ZwSetBootOptions_fn>                                   observers_ZwSetBootOptions;
+    std::vector<on_ZwSetContextThread_fn>                                 observers_ZwSetContextThread;
     std::vector<on_NtSetDebugFilterState_fn>                              observers_NtSetDebugFilterState;
     std::vector<on_NtSetDefaultHardErrorPort_fn>                          observers_NtSetDefaultHardErrorPort;
     std::vector<on_NtSetDefaultLocale_fn>                                 observers_NtSetDefaultLocale;
-    std::vector<on_NtSetDefaultUILanguage_fn>                             observers_NtSetDefaultUILanguage;
+    std::vector<on_ZwSetDefaultUILanguage_fn>                             observers_ZwSetDefaultUILanguage;
     std::vector<on_NtSetDriverEntryOrder_fn>                              observers_NtSetDriverEntryOrder;
-    std::vector<on_NtSetEaFile_fn>                                        observers_NtSetEaFile;
+    std::vector<on_ZwSetEaFile_fn>                                        observers_ZwSetEaFile;
     std::vector<on_NtSetEventBoostPriority_fn>                            observers_NtSetEventBoostPriority;
     std::vector<on_NtSetEvent_fn>                                         observers_NtSetEvent;
     std::vector<on_NtSetHighEventPair_fn>                                 observers_NtSetHighEventPair;
     std::vector<on_NtSetHighWaitLowEventPair_fn>                          observers_NtSetHighWaitLowEventPair;
-    std::vector<on_NtSetInformationDebugObject_fn>                        observers_NtSetInformationDebugObject;
+    std::vector<on_ZwSetInformationDebugObject_fn>                        observers_ZwSetInformationDebugObject;
     std::vector<on_NtSetInformationEnlistment_fn>                         observers_NtSetInformationEnlistment;
-    std::vector<on_NtSetInformationFile_fn>                               observers_NtSetInformationFile;
-    std::vector<on_NtSetInformationJobObject_fn>                          observers_NtSetInformationJobObject;
-    std::vector<on_NtSetInformationKey_fn>                                observers_NtSetInformationKey;
-    std::vector<on_NtSetInformationObject_fn>                             observers_NtSetInformationObject;
-    std::vector<on_NtSetInformationProcess_fn>                            observers_NtSetInformationProcess;
-    std::vector<on_NtSetInformationResourceManager_fn>                    observers_NtSetInformationResourceManager;
-    std::vector<on_NtSetInformationThread_fn>                             observers_NtSetInformationThread;
-    std::vector<on_NtSetInformationToken_fn>                              observers_NtSetInformationToken;
-    std::vector<on_NtSetInformationTransaction_fn>                        observers_NtSetInformationTransaction;
-    std::vector<on_NtSetInformationTransactionManager_fn>                 observers_NtSetInformationTransactionManager;
-    std::vector<on_NtSetInformationWorkerFactory_fn>                      observers_NtSetInformationWorkerFactory;
+    std::vector<on_ZwSetInformationFile_fn>                               observers_ZwSetInformationFile;
+    std::vector<on_ZwSetInformationJobObject_fn>                          observers_ZwSetInformationJobObject;
+    std::vector<on_ZwSetInformationKey_fn>                                observers_ZwSetInformationKey;
+    std::vector<on_ZwSetInformationObject_fn>                             observers_ZwSetInformationObject;
+    std::vector<on_ZwSetInformationProcess_fn>                            observers_ZwSetInformationProcess;
+    std::vector<on_ZwSetInformationResourceManager_fn>                    observers_ZwSetInformationResourceManager;
+    std::vector<on_ZwSetInformationThread_fn>                             observers_ZwSetInformationThread;
+    std::vector<on_ZwSetInformationToken_fn>                              observers_ZwSetInformationToken;
+    std::vector<on_ZwSetInformationTransaction_fn>                        observers_ZwSetInformationTransaction;
+    std::vector<on_ZwSetInformationTransactionManager_fn>                 observers_ZwSetInformationTransactionManager;
+    std::vector<on_ZwSetInformationWorkerFactory_fn>                      observers_ZwSetInformationWorkerFactory;
     std::vector<on_NtSetIntervalProfile_fn>                               observers_NtSetIntervalProfile;
     std::vector<on_NtSetIoCompletionEx_fn>                                observers_NtSetIoCompletionEx;
     std::vector<on_NtSetIoCompletion_fn>                                  observers_NtSetIoCompletion;
-    std::vector<on_NtSetLdtEntries_fn>                                    observers_NtSetLdtEntries;
-    std::vector<on_NtSetLowEventPair_fn>                                  observers_NtSetLowEventPair;
-    std::vector<on_NtSetLowWaitHighEventPair_fn>                          observers_NtSetLowWaitHighEventPair;
-    std::vector<on_NtSetQuotaInformationFile_fn>                          observers_NtSetQuotaInformationFile;
+    std::vector<on_ZwSetLdtEntries_fn>                                    observers_ZwSetLdtEntries;
+    std::vector<on_ZwSetLowEventPair_fn>                                  observers_ZwSetLowEventPair;
+    std::vector<on_ZwSetLowWaitHighEventPair_fn>                          observers_ZwSetLowWaitHighEventPair;
+    std::vector<on_ZwSetQuotaInformationFile_fn>                          observers_ZwSetQuotaInformationFile;
     std::vector<on_NtSetSecurityObject_fn>                                observers_NtSetSecurityObject;
-    std::vector<on_NtSetSystemEnvironmentValueEx_fn>                      observers_NtSetSystemEnvironmentValueEx;
-    std::vector<on_NtSetSystemEnvironmentValue_fn>                        observers_NtSetSystemEnvironmentValue;
-    std::vector<on_NtSetSystemInformation_fn>                             observers_NtSetSystemInformation;
-    std::vector<on_NtSetSystemPowerState_fn>                              observers_NtSetSystemPowerState;
-    std::vector<on_NtSetSystemTime_fn>                                    observers_NtSetSystemTime;
-    std::vector<on_NtSetThreadExecutionState_fn>                          observers_NtSetThreadExecutionState;
-    std::vector<on_NtSetTimerEx_fn>                                       observers_NtSetTimerEx;
-    std::vector<on_NtSetTimer_fn>                                         observers_NtSetTimer;
+    std::vector<on_ZwSetSystemEnvironmentValueEx_fn>                      observers_ZwSetSystemEnvironmentValueEx;
+    std::vector<on_ZwSetSystemEnvironmentValue_fn>                        observers_ZwSetSystemEnvironmentValue;
+    std::vector<on_ZwSetSystemInformation_fn>                             observers_ZwSetSystemInformation;
+    std::vector<on_ZwSetSystemPowerState_fn>                              observers_ZwSetSystemPowerState;
+    std::vector<on_ZwSetSystemTime_fn>                                    observers_ZwSetSystemTime;
+    std::vector<on_ZwSetThreadExecutionState_fn>                          observers_ZwSetThreadExecutionState;
+    std::vector<on_ZwSetTimerEx_fn>                                       observers_ZwSetTimerEx;
+    std::vector<on_ZwSetTimer_fn>                                         observers_ZwSetTimer;
     std::vector<on_NtSetTimerResolution_fn>                               observers_NtSetTimerResolution;
-    std::vector<on_NtSetUuidSeed_fn>                                      observers_NtSetUuidSeed;
-    std::vector<on_NtSetValueKey_fn>                                      observers_NtSetValueKey;
+    std::vector<on_ZwSetUuidSeed_fn>                                      observers_ZwSetUuidSeed;
+    std::vector<on_ZwSetValueKey_fn>                                      observers_ZwSetValueKey;
     std::vector<on_NtSetVolumeInformationFile_fn>                         observers_NtSetVolumeInformationFile;
-    std::vector<on_NtShutdownSystem_fn>                                   observers_NtShutdownSystem;
+    std::vector<on_ZwShutdownSystem_fn>                                   observers_ZwShutdownSystem;
     std::vector<on_NtShutdownWorkerFactory_fn>                            observers_NtShutdownWorkerFactory;
-    std::vector<on_NtSignalAndWaitForSingleObject_fn>                     observers_NtSignalAndWaitForSingleObject;
-    std::vector<on_NtSinglePhaseReject_fn>                                observers_NtSinglePhaseReject;
+    std::vector<on_ZwSignalAndWaitForSingleObject_fn>                     observers_ZwSignalAndWaitForSingleObject;
+    std::vector<on_ZwSinglePhaseReject_fn>                                observers_ZwSinglePhaseReject;
     std::vector<on_NtStartProfile_fn>                                     observers_NtStartProfile;
-    std::vector<on_NtStopProfile_fn>                                      observers_NtStopProfile;
-    std::vector<on_NtSuspendProcess_fn>                                   observers_NtSuspendProcess;
-    std::vector<on_NtSuspendThread_fn>                                    observers_NtSuspendThread;
+    std::vector<on_ZwStopProfile_fn>                                      observers_ZwStopProfile;
+    std::vector<on_ZwSuspendProcess_fn>                                   observers_ZwSuspendProcess;
+    std::vector<on_ZwSuspendThread_fn>                                    observers_ZwSuspendThread;
     std::vector<on_NtSystemDebugControl_fn>                               observers_NtSystemDebugControl;
-    std::vector<on_NtTerminateJobObject_fn>                               observers_NtTerminateJobObject;
-    std::vector<on_NtTerminateProcess_fn>                                 observers_NtTerminateProcess;
-    std::vector<on_NtTerminateThread_fn>                                  observers_NtTerminateThread;
-    std::vector<on_NtTraceControl_fn>                                     observers_NtTraceControl;
+    std::vector<on_ZwTerminateJobObject_fn>                               observers_ZwTerminateJobObject;
+    std::vector<on_ZwTerminateProcess_fn>                                 observers_ZwTerminateProcess;
+    std::vector<on_ZwTerminateThread_fn>                                  observers_ZwTerminateThread;
+    std::vector<on_ZwTraceControl_fn>                                     observers_ZwTraceControl;
     std::vector<on_NtTraceEvent_fn>                                       observers_NtTraceEvent;
     std::vector<on_NtTranslateFilePath_fn>                                observers_NtTranslateFilePath;
-    std::vector<on_NtUnloadDriver_fn>                                     observers_NtUnloadDriver;
-    std::vector<on_NtUnloadKey2_fn>                                       observers_NtUnloadKey2;
-    std::vector<on_NtUnloadKeyEx_fn>                                      observers_NtUnloadKeyEx;
+    std::vector<on_ZwUnloadDriver_fn>                                     observers_ZwUnloadDriver;
+    std::vector<on_ZwUnloadKey2_fn>                                       observers_ZwUnloadKey2;
+    std::vector<on_ZwUnloadKeyEx_fn>                                      observers_ZwUnloadKeyEx;
     std::vector<on_NtUnloadKey_fn>                                        observers_NtUnloadKey;
-    std::vector<on_NtUnlockFile_fn>                                       observers_NtUnlockFile;
+    std::vector<on_ZwUnlockFile_fn>                                       observers_ZwUnlockFile;
     std::vector<on_NtUnlockVirtualMemory_fn>                              observers_NtUnlockVirtualMemory;
     std::vector<on_NtUnmapViewOfSection_fn>                               observers_NtUnmapViewOfSection;
     std::vector<on_NtVdmControl_fn>                                       observers_NtVdmControl;
@@ -396,9 +395,9 @@ struct monitor::syscallswow64::Data
     std::vector<on_NtWaitForKeyedEvent_fn>                                observers_NtWaitForKeyedEvent;
     std::vector<on_NtWaitForMultipleObjects32_fn>                         observers_NtWaitForMultipleObjects32;
     std::vector<on_NtWaitForMultipleObjects_fn>                           observers_NtWaitForMultipleObjects;
-    std::vector<on_NtWaitForSingleObject_fn>                              observers_NtWaitForSingleObject;
+    std::vector<on_ZwWaitForSingleObject_fn>                              observers_ZwWaitForSingleObject;
     std::vector<on_NtWaitForWorkViaWorkerFactory_fn>                      observers_NtWaitForWorkViaWorkerFactory;
-    std::vector<on_NtWaitHighEventPair_fn>                                observers_NtWaitHighEventPair;
+    std::vector<on_ZwWaitHighEventPair_fn>                                observers_ZwWaitHighEventPair;
     std::vector<on_NtWaitLowEventPair_fn>                                 observers_NtWaitLowEventPair;
     std::vector<on_NtWorkerFactoryWorkerReady_fn>                         observers_NtWorkerFactoryWorkerReady;
     std::vector<on_NtWriteFileGather_fn>                                  observers_NtWriteFileGather;
@@ -407,18 +406,18 @@ struct monitor::syscallswow64::Data
     std::vector<on_NtWriteVirtualMemory_fn>                               observers_NtWriteVirtualMemory;
     std::vector<on_NtDisableLastKnownGood_fn>                             observers_NtDisableLastKnownGood;
     std::vector<on_NtEnableLastKnownGood_fn>                              observers_NtEnableLastKnownGood;
-    std::vector<on_NtFlushProcessWriteBuffers_fn>                         observers_NtFlushProcessWriteBuffers;
+    std::vector<on_ZwFlushProcessWriteBuffers_fn>                         observers_ZwFlushProcessWriteBuffers;
     std::vector<on_NtFlushWriteBuffer_fn>                                 observers_NtFlushWriteBuffer;
     std::vector<on_NtGetCurrentProcessorNumber_fn>                        observers_NtGetCurrentProcessorNumber;
     std::vector<on_NtIsSystemResumeAutomatic_fn>                          observers_NtIsSystemResumeAutomatic;
-    std::vector<on_NtIsUILanguageComitted_fn>                             observers_NtIsUILanguageComitted;
-    std::vector<on_NtQueryPortInformationProcess_fn>                      observers_NtQueryPortInformationProcess;
+    std::vector<on_ZwIsUILanguageComitted_fn>                             observers_ZwIsUILanguageComitted;
+    std::vector<on_ZwQueryPortInformationProcess_fn>                      observers_ZwQueryPortInformationProcess;
     std::vector<on_NtSerializeBoot_fn>                                    observers_NtSerializeBoot;
     std::vector<on_NtTestAlert_fn>                                        observers_NtTestAlert;
-    std::vector<on_NtThawRegistry_fn>                                     observers_NtThawRegistry;
+    std::vector<on_ZwThawRegistry_fn>                                     observers_ZwThawRegistry;
     std::vector<on_NtThawTransactions_fn>                                 observers_NtThawTransactions;
-    std::vector<on_NtUmsThreadYield_fn>                                   observers_NtUmsThreadYield;
-    std::vector<on_NtYieldExecution_fn>                                   observers_NtYieldExecution;
+    std::vector<on_ZwUmsThreadYield_fn>                                   observers_ZwUmsThreadYield;
+    std::vector<on_ZwYieldExecution_fn>                                   observers_ZwYieldExecution;
 };
 
 monitor::syscallswow64::Data::Data(core::Core& core, std::string module)
@@ -2289,28 +2288,28 @@ namespace
             it(FileHandle, IoStatusBlock);
     }
 
-    static void on_NtFlushInstallUILanguage(monitor::syscallswow64::Data& d)
+    static void on_ZwFlushInstallUILanguage(monitor::syscallswow64::Data& d)
     {
         const auto InstallUILanguage = arg<wntdll::LANGID>(d.core, 0);
         const auto SetComittedFlag   = arg<wntdll::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFlushInstallUILanguage(InstallUILanguage:{:#x}, SetComittedFlag:{:#x})", InstallUILanguage, SetComittedFlag));
+            logg::print(logg::level_t::info, fmt::format("ZwFlushInstallUILanguage(InstallUILanguage:{:#x}, SetComittedFlag:{:#x})", InstallUILanguage, SetComittedFlag));
 
-        for(const auto& it : d.observers_NtFlushInstallUILanguage)
+        for(const auto& it : d.observers_ZwFlushInstallUILanguage)
             it(InstallUILanguage, SetComittedFlag);
     }
 
-    static void on_NtFlushInstructionCache(monitor::syscallswow64::Data& d)
+    static void on_ZwFlushInstructionCache(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto BaseAddress   = arg<wntdll::PVOID>(d.core, 1);
         const auto Length        = arg<wntdll::SIZE_T>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFlushInstructionCache(ProcessHandle:{:#x}, BaseAddress:{:#x}, Length:{:#x})", ProcessHandle, BaseAddress, Length));
+            logg::print(logg::level_t::info, fmt::format("ZwFlushInstructionCache(ProcessHandle:{:#x}, BaseAddress:{:#x}, Length:{:#x})", ProcessHandle, BaseAddress, Length));
 
-        for(const auto& it : d.observers_NtFlushInstructionCache)
+        for(const auto& it : d.observers_ZwFlushInstructionCache)
             it(ProcessHandle, BaseAddress, Length);
     }
 
@@ -2325,7 +2324,7 @@ namespace
             it(KeyHandle);
     }
 
-    static void on_NtFlushVirtualMemory(monitor::syscallswow64::Data& d)
+    static void on_ZwFlushVirtualMemory(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle   = arg<wntdll::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<wntdll::PVOID>(d.core, 1);
@@ -2333,9 +2332,9 @@ namespace
         const auto IoStatus        = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFlushVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, IoStatus:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, IoStatus));
+            logg::print(logg::level_t::info, fmt::format("ZwFlushVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, IoStatus:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, IoStatus));
 
-        for(const auto& it : d.observers_NtFlushVirtualMemory)
+        for(const auto& it : d.observers_ZwFlushVirtualMemory)
             it(ProcessHandle, STARBaseAddress, RegionSize, IoStatus);
     }
 
@@ -2377,15 +2376,15 @@ namespace
             it(TimeOutInSeconds);
     }
 
-    static void on_NtFreezeTransactions(monitor::syscallswow64::Data& d)
+    static void on_ZwFreezeTransactions(monitor::syscallswow64::Data& d)
     {
         const auto FreezeTimeout = arg<wntdll::PLARGE_INTEGER>(d.core, 0);
         const auto ThawTimeout   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFreezeTransactions(FreezeTimeout:{:#x}, ThawTimeout:{:#x})", FreezeTimeout, ThawTimeout));
+            logg::print(logg::level_t::info, fmt::format("ZwFreezeTransactions(FreezeTimeout:{:#x}, ThawTimeout:{:#x})", FreezeTimeout, ThawTimeout));
 
-        for(const auto& it : d.observers_NtFreezeTransactions)
+        for(const auto& it : d.observers_ZwFreezeTransactions)
             it(FreezeTimeout, ThawTimeout);
     }
 
@@ -2446,7 +2445,7 @@ namespace
             it(Flags, DataSize, Data);
     }
 
-    static void on_NtGetNextProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwGetNextProcess(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle    = arg<wntdll::HANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
@@ -2455,13 +2454,13 @@ namespace
         const auto NewProcessHandle = arg<wntdll::PHANDLE>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtGetNextProcess(ProcessHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, Flags:{:#x}, NewProcessHandle:{:#x})", ProcessHandle, DesiredAccess, HandleAttributes, Flags, NewProcessHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwGetNextProcess(ProcessHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, Flags:{:#x}, NewProcessHandle:{:#x})", ProcessHandle, DesiredAccess, HandleAttributes, Flags, NewProcessHandle));
 
-        for(const auto& it : d.observers_NtGetNextProcess)
+        for(const auto& it : d.observers_ZwGetNextProcess)
             it(ProcessHandle, DesiredAccess, HandleAttributes, Flags, NewProcessHandle);
     }
 
-    static void on_NtGetNextThread(monitor::syscallswow64::Data& d)
+    static void on_ZwGetNextThread(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle    = arg<wntdll::HANDLE>(d.core, 0);
         const auto ThreadHandle     = arg<wntdll::HANDLE>(d.core, 1);
@@ -2471,9 +2470,9 @@ namespace
         const auto NewThreadHandle  = arg<wntdll::PHANDLE>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtGetNextThread(ProcessHandle:{:#x}, ThreadHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, Flags:{:#x}, NewThreadHandle:{:#x})", ProcessHandle, ThreadHandle, DesiredAccess, HandleAttributes, Flags, NewThreadHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwGetNextThread(ProcessHandle:{:#x}, ThreadHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, Flags:{:#x}, NewThreadHandle:{:#x})", ProcessHandle, ThreadHandle, DesiredAccess, HandleAttributes, Flags, NewThreadHandle));
 
-        for(const auto& it : d.observers_NtGetNextThread)
+        for(const auto& it : d.observers_ZwGetNextThread)
             it(ProcessHandle, ThreadHandle, DesiredAccess, HandleAttributes, Flags, NewThreadHandle);
     }
 
@@ -2492,7 +2491,7 @@ namespace
             it(SectionType, SectionData, ContextData, STARSectionPointer, SectionSize);
     }
 
-    static void on_NtGetNotificationResourceManager(monitor::syscallswow64::Data& d)
+    static void on_ZwGetNotificationResourceManager(monitor::syscallswow64::Data& d)
     {
         const auto ResourceManagerHandle   = arg<wntdll::HANDLE>(d.core, 0);
         const auto TransactionNotification = arg<wntdll::PTRANSACTION_NOTIFICATION>(d.core, 1);
@@ -2503,24 +2502,10 @@ namespace
         const auto AsynchronousContext     = arg<wntdll::ULONG_PTR>(d.core, 6);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtGetNotificationResourceManager(ResourceManagerHandle:{:#x}, TransactionNotification:{:#x}, NotificationLength:{:#x}, Timeout:{:#x}, ReturnLength:{:#x}, Asynchronous:{:#x}, AsynchronousContext:{:#x})", ResourceManagerHandle, TransactionNotification, NotificationLength, Timeout, ReturnLength, Asynchronous, AsynchronousContext));
+            logg::print(logg::level_t::info, fmt::format("ZwGetNotificationResourceManager(ResourceManagerHandle:{:#x}, TransactionNotification:{:#x}, NotificationLength:{:#x}, Timeout:{:#x}, ReturnLength:{:#x}, Asynchronous:{:#x}, AsynchronousContext:{:#x})", ResourceManagerHandle, TransactionNotification, NotificationLength, Timeout, ReturnLength, Asynchronous, AsynchronousContext));
 
-        for(const auto& it : d.observers_NtGetNotificationResourceManager)
+        for(const auto& it : d.observers_ZwGetNotificationResourceManager)
             it(ResourceManagerHandle, TransactionNotification, NotificationLength, Timeout, ReturnLength, Asynchronous, AsynchronousContext);
-    }
-
-    static void on_NtGetPlugPlayEvent(monitor::syscallswow64::Data& d)
-    {
-        const auto EventHandle     = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Context         = arg<wntdll::PVOID>(d.core, 1);
-        const auto EventBlock      = arg<wntdll::PPLUGPLAY_EVENT_BLOCK>(d.core, 2);
-        const auto EventBufferSize = arg<wntdll::ULONG>(d.core, 3);
-
-        if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtGetPlugPlayEvent(EventHandle:{:#x}, Context:{:#x}, EventBlock:{:#x}, EventBufferSize:{:#x})", EventHandle, Context, EventBlock, EventBufferSize));
-
-        for(const auto& it : d.observers_NtGetPlugPlayEvent)
-            it(EventHandle, Context, EventBlock, EventBufferSize);
     }
 
     static void on_NtGetWriteWatch(monitor::syscallswow64::Data& d)
@@ -2551,28 +2536,28 @@ namespace
             it(ThreadHandle);
     }
 
-    static void on_NtImpersonateClientOfPort(monitor::syscallswow64::Data& d)
+    static void on_ZwImpersonateClientOfPort(monitor::syscallswow64::Data& d)
     {
         const auto PortHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto Message    = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtImpersonateClientOfPort(PortHandle:{:#x}, Message:{:#x})", PortHandle, Message));
+            logg::print(logg::level_t::info, fmt::format("ZwImpersonateClientOfPort(PortHandle:{:#x}, Message:{:#x})", PortHandle, Message));
 
-        for(const auto& it : d.observers_NtImpersonateClientOfPort)
+        for(const auto& it : d.observers_ZwImpersonateClientOfPort)
             it(PortHandle, Message);
     }
 
-    static void on_NtImpersonateThread(monitor::syscallswow64::Data& d)
+    static void on_ZwImpersonateThread(monitor::syscallswow64::Data& d)
     {
         const auto ServerThreadHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto ClientThreadHandle = arg<wntdll::HANDLE>(d.core, 1);
         const auto SecurityQos        = arg<wntdll::PSECURITY_QUALITY_OF_SERVICE>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtImpersonateThread(ServerThreadHandle:{:#x}, ClientThreadHandle:{:#x}, SecurityQos:{:#x})", ServerThreadHandle, ClientThreadHandle, SecurityQos));
+            logg::print(logg::level_t::info, fmt::format("ZwImpersonateThread(ServerThreadHandle:{:#x}, ClientThreadHandle:{:#x}, SecurityQos:{:#x})", ServerThreadHandle, ClientThreadHandle, SecurityQos));
 
-        for(const auto& it : d.observers_NtImpersonateThread)
+        for(const auto& it : d.observers_ZwImpersonateThread)
             it(ServerThreadHandle, ClientThreadHandle, SecurityQos);
     }
 
@@ -2589,14 +2574,14 @@ namespace
             it(STARBaseAddress, DefaultLocaleId, DefaultCasingTableSize);
     }
 
-    static void on_NtInitializeRegistry(monitor::syscallswow64::Data& d)
+    static void on_ZwInitializeRegistry(monitor::syscallswow64::Data& d)
     {
         const auto BootCondition = arg<wntdll::USHORT>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtInitializeRegistry(BootCondition:{:#x})", BootCondition));
+            logg::print(logg::level_t::info, fmt::format("ZwInitializeRegistry(BootCondition:{:#x})", BootCondition));
 
-        for(const auto& it : d.observers_NtInitializeRegistry)
+        for(const auto& it : d.observers_ZwInitializeRegistry)
             it(BootCondition);
     }
 
@@ -2614,27 +2599,27 @@ namespace
             it(SystemAction, MinSystemState, Flags, Asynchronous);
     }
 
-    static void on_NtIsProcessInJob(monitor::syscallswow64::Data& d)
+    static void on_ZwIsProcessInJob(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto JobHandle     = arg<wntdll::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtIsProcessInJob(ProcessHandle:{:#x}, JobHandle:{:#x})", ProcessHandle, JobHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwIsProcessInJob(ProcessHandle:{:#x}, JobHandle:{:#x})", ProcessHandle, JobHandle));
 
-        for(const auto& it : d.observers_NtIsProcessInJob)
+        for(const auto& it : d.observers_ZwIsProcessInJob)
             it(ProcessHandle, JobHandle);
     }
 
-    static void on_NtListenPort(monitor::syscallswow64::Data& d)
+    static void on_ZwListenPort(monitor::syscallswow64::Data& d)
     {
         const auto PortHandle        = arg<wntdll::HANDLE>(d.core, 0);
         const auto ConnectionRequest = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtListenPort(PortHandle:{:#x}, ConnectionRequest:{:#x})", PortHandle, ConnectionRequest));
+            logg::print(logg::level_t::info, fmt::format("ZwListenPort(PortHandle:{:#x}, ConnectionRequest:{:#x})", PortHandle, ConnectionRequest));
 
-        for(const auto& it : d.observers_NtListenPort)
+        for(const auto& it : d.observers_ZwListenPort)
             it(PortHandle, ConnectionRequest);
     }
 
@@ -2664,16 +2649,20 @@ namespace
 
     static void on_NtLoadKeyEx(monitor::syscallswow64::Data& d)
     {
-        const auto TargetKey     = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
-        const auto SourceFile    = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 1);
-        const auto Flags         = arg<wntdll::ULONG>(d.core, 2);
-        const auto TrustClassKey = arg<wntdll::HANDLE>(d.core, 3);
+        const auto TargetKey         = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
+        const auto SourceFile        = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 1);
+        const auto Flags             = arg<wntdll::ULONG>(d.core, 2);
+        const auto TrustClassKey     = arg<wntdll::HANDLE>(d.core, 3);
+        const auto Reserved          = arg<wntdll::PVOID>(d.core, 4);
+        const auto ObjectContext     = arg<wntdll::PVOID>(d.core, 5);
+        const auto CallbackReserverd = arg<wntdll::PVOID>(d.core, 6);
+        const auto IoStatusBlock     = arg<wntdll::PVOID>(d.core, 7);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtLoadKeyEx(TargetKey:{:#x}, SourceFile:{:#x}, Flags:{:#x}, TrustClassKey:{:#x})", TargetKey, SourceFile, Flags, TrustClassKey));
+            logg::print(logg::level_t::info, fmt::format("NtLoadKeyEx(TargetKey:{:#x}, SourceFile:{:#x}, Flags:{:#x}, TrustClassKey:{:#x}, Reserved:{:#x}, ObjectContext:{:#x}, CallbackReserverd:{:#x}, IoStatusBlock:{:#x})", TargetKey, SourceFile, Flags, TrustClassKey, Reserved, ObjectContext, CallbackReserverd, IoStatusBlock));
 
         for(const auto& it : d.observers_NtLoadKeyEx)
-            it(TargetKey, SourceFile, Flags, TrustClassKey);
+            it(TargetKey, SourceFile, Flags, TrustClassKey, Reserved, ObjectContext, CallbackReserverd, IoStatusBlock);
     }
 
     static void on_NtLoadKey(monitor::syscallswow64::Data& d)
@@ -2708,15 +2697,15 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, ByteOffset, Length, Key, FailImmediately, ExclusiveLock);
     }
 
-    static void on_NtLockProductActivationKeys(monitor::syscallswow64::Data& d)
+    static void on_ZwLockProductActivationKeys(monitor::syscallswow64::Data& d)
     {
         const auto STARpPrivateVer = arg<wntdll::ULONG>(d.core, 0);
         const auto STARpSafeMode   = arg<wntdll::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtLockProductActivationKeys(STARpPrivateVer:{:#x}, STARpSafeMode:{:#x})", STARpPrivateVer, STARpSafeMode));
+            logg::print(logg::level_t::info, fmt::format("ZwLockProductActivationKeys(STARpPrivateVer:{:#x}, STARpSafeMode:{:#x})", STARpPrivateVer, STARpSafeMode));
 
-        for(const auto& it : d.observers_NtLockProductActivationKeys)
+        for(const auto& it : d.observers_ZwLockProductActivationKeys)
             it(STARpPrivateVer, STARpSafeMode);
     }
 
@@ -2731,7 +2720,7 @@ namespace
             it(KeyHandle);
     }
 
-    static void on_NtLockVirtualMemory(monitor::syscallswow64::Data& d)
+    static void on_ZwLockVirtualMemory(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle   = arg<wntdll::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<wntdll::PVOID>(d.core, 1);
@@ -2739,20 +2728,20 @@ namespace
         const auto MapType         = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtLockVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, MapType:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, MapType));
+            logg::print(logg::level_t::info, fmt::format("ZwLockVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, MapType:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, MapType));
 
-        for(const auto& it : d.observers_NtLockVirtualMemory)
+        for(const auto& it : d.observers_ZwLockVirtualMemory)
             it(ProcessHandle, STARBaseAddress, RegionSize, MapType);
     }
 
-    static void on_NtMakePermanentObject(monitor::syscallswow64::Data& d)
+    static void on_ZwMakePermanentObject(monitor::syscallswow64::Data& d)
     {
         const auto Handle = arg<wntdll::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtMakePermanentObject(Handle:{:#x})", Handle));
+            logg::print(logg::level_t::info, fmt::format("ZwMakePermanentObject(Handle:{:#x})", Handle));
 
-        for(const auto& it : d.observers_NtMakePermanentObject)
+        for(const auto& it : d.observers_ZwMakePermanentObject)
             it(Handle);
     }
 
@@ -2767,7 +2756,7 @@ namespace
             it(Handle);
     }
 
-    static void on_NtMapCMFModule(monitor::syscallswow64::Data& d)
+    static void on_ZwMapCMFModule(monitor::syscallswow64::Data& d)
     {
         const auto What            = arg<wntdll::ULONG>(d.core, 0);
         const auto Index           = arg<wntdll::ULONG>(d.core, 1);
@@ -2777,9 +2766,9 @@ namespace
         const auto STARBaseAddress = arg<wntdll::PVOID>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtMapCMFModule(What:{:#x}, Index:{:#x}, CacheIndexOut:{:#x}, CacheFlagsOut:{:#x}, ViewSizeOut:{:#x}, STARBaseAddress:{:#x})", What, Index, CacheIndexOut, CacheFlagsOut, ViewSizeOut, STARBaseAddress));
+            logg::print(logg::level_t::info, fmt::format("ZwMapCMFModule(What:{:#x}, Index:{:#x}, CacheIndexOut:{:#x}, CacheFlagsOut:{:#x}, ViewSizeOut:{:#x}, STARBaseAddress:{:#x})", What, Index, CacheIndexOut, CacheFlagsOut, ViewSizeOut, STARBaseAddress));
 
-        for(const auto& it : d.observers_NtMapCMFModule)
+        for(const auto& it : d.observers_ZwMapCMFModule)
             it(What, Index, CacheIndexOut, CacheFlagsOut, ViewSizeOut, STARBaseAddress);
     }
 
@@ -2796,20 +2785,20 @@ namespace
             it(VirtualAddress, NumberOfPages, UserPfnArra);
     }
 
-    static void on_NtMapUserPhysicalPagesScatter(monitor::syscallswow64::Data& d)
+    static void on_ZwMapUserPhysicalPagesScatter(monitor::syscallswow64::Data& d)
     {
         const auto STARVirtualAddresses = arg<wntdll::PVOID>(d.core, 0);
         const auto NumberOfPages        = arg<wntdll::ULONG_PTR>(d.core, 1);
         const auto UserPfnArray         = arg<wntdll::PULONG_PTR>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtMapUserPhysicalPagesScatter(STARVirtualAddresses:{:#x}, NumberOfPages:{:#x}, UserPfnArray:{:#x})", STARVirtualAddresses, NumberOfPages, UserPfnArray));
+            logg::print(logg::level_t::info, fmt::format("ZwMapUserPhysicalPagesScatter(STARVirtualAddresses:{:#x}, NumberOfPages:{:#x}, UserPfnArray:{:#x})", STARVirtualAddresses, NumberOfPages, UserPfnArray));
 
-        for(const auto& it : d.observers_NtMapUserPhysicalPagesScatter)
+        for(const auto& it : d.observers_ZwMapUserPhysicalPagesScatter)
             it(STARVirtualAddresses, NumberOfPages, UserPfnArray);
     }
 
-    static void on_NtMapViewOfSection(monitor::syscallswow64::Data& d)
+    static void on_ZwMapViewOfSection(monitor::syscallswow64::Data& d)
     {
         const auto SectionHandle      = arg<wntdll::HANDLE>(d.core, 0);
         const auto ProcessHandle      = arg<wntdll::HANDLE>(d.core, 1);
@@ -2823,9 +2812,9 @@ namespace
         const auto Win32Protect       = arg<wntdll::WIN32_PROTECTION_MASK>(d.core, 9);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtMapViewOfSection(SectionHandle:{:#x}, ProcessHandle:{:#x}, STARBaseAddress:{:#x}, ZeroBits:{:#x}, CommitSize:{:#x}, SectionOffset:{:#x}, ViewSize:{:#x}, InheritDisposition:{:#x}, AllocationType:{:#x}, Win32Protect:{:#x})", SectionHandle, ProcessHandle, STARBaseAddress, ZeroBits, CommitSize, SectionOffset, ViewSize, InheritDisposition, AllocationType, Win32Protect));
+            logg::print(logg::level_t::info, fmt::format("ZwMapViewOfSection(SectionHandle:{:#x}, ProcessHandle:{:#x}, STARBaseAddress:{:#x}, ZeroBits:{:#x}, CommitSize:{:#x}, SectionOffset:{:#x}, ViewSize:{:#x}, InheritDisposition:{:#x}, AllocationType:{:#x}, Win32Protect:{:#x})", SectionHandle, ProcessHandle, STARBaseAddress, ZeroBits, CommitSize, SectionOffset, ViewSize, InheritDisposition, AllocationType, Win32Protect));
 
-        for(const auto& it : d.observers_NtMapViewOfSection)
+        for(const auto& it : d.observers_ZwMapViewOfSection)
             it(SectionHandle, ProcessHandle, STARBaseAddress, ZeroBits, CommitSize, SectionOffset, ViewSize, InheritDisposition, AllocationType, Win32Protect);
     }
 
@@ -2840,14 +2829,14 @@ namespace
             it(BootEntry);
     }
 
-    static void on_NtModifyDriverEntry(monitor::syscallswow64::Data& d)
+    static void on_ZwModifyDriverEntry(monitor::syscallswow64::Data& d)
     {
         const auto DriverEntry = arg<wntdll::PEFI_DRIVER_ENTRY>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtModifyDriverEntry(DriverEntry:{:#x})", DriverEntry));
+            logg::print(logg::level_t::info, fmt::format("ZwModifyDriverEntry(DriverEntry:{:#x})", DriverEntry));
 
-        for(const auto& it : d.observers_NtModifyDriverEntry)
+        for(const auto& it : d.observers_ZwModifyDriverEntry)
             it(DriverEntry);
     }
 
@@ -2930,20 +2919,20 @@ namespace
             it(Session, IoStateSequence, Reserved, Action, IoState, IoState2, Buffer, BufferSize);
     }
 
-    static void on_NtOpenDirectoryObject(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenDirectoryObject(monitor::syscallswow64::Data& d)
     {
         const auto DirectoryHandle  = arg<wntdll::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenDirectoryObject(DirectoryHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", DirectoryHandle, DesiredAccess, ObjectAttributes));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenDirectoryObject(DirectoryHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", DirectoryHandle, DesiredAccess, ObjectAttributes));
 
-        for(const auto& it : d.observers_NtOpenDirectoryObject)
+        for(const auto& it : d.observers_ZwOpenDirectoryObject)
             it(DirectoryHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenEnlistment(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenEnlistment(monitor::syscallswow64::Data& d)
     {
         const auto EnlistmentHandle      = arg<wntdll::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<wntdll::ACCESS_MASK>(d.core, 1);
@@ -2952,9 +2941,9 @@ namespace
         const auto ObjectAttributes      = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenEnlistment(EnlistmentHandle:{:#x}, DesiredAccess:{:#x}, ResourceManagerHandle:{:#x}, EnlistmentGuid:{:#x}, ObjectAttributes:{:#x})", EnlistmentHandle, DesiredAccess, ResourceManagerHandle, EnlistmentGuid, ObjectAttributes));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenEnlistment(EnlistmentHandle:{:#x}, DesiredAccess:{:#x}, ResourceManagerHandle:{:#x}, EnlistmentGuid:{:#x}, ObjectAttributes:{:#x})", EnlistmentHandle, DesiredAccess, ResourceManagerHandle, EnlistmentGuid, ObjectAttributes));
 
-        for(const auto& it : d.observers_NtOpenEnlistment)
+        for(const auto& it : d.observers_ZwOpenEnlistment)
             it(EnlistmentHandle, DesiredAccess, ResourceManagerHandle, EnlistmentGuid, ObjectAttributes);
     }
 
@@ -3000,29 +2989,29 @@ namespace
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, OpenOptions);
     }
 
-    static void on_NtOpenIoCompletion(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenIoCompletion(monitor::syscallswow64::Data& d)
     {
         const auto IoCompletionHandle = arg<wntdll::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<wntdll::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes   = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenIoCompletion(IoCompletionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", IoCompletionHandle, DesiredAccess, ObjectAttributes));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenIoCompletion(IoCompletionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", IoCompletionHandle, DesiredAccess, ObjectAttributes));
 
-        for(const auto& it : d.observers_NtOpenIoCompletion)
+        for(const auto& it : d.observers_ZwOpenIoCompletion)
             it(IoCompletionHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenJobObject(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenJobObject(monitor::syscallswow64::Data& d)
     {
         const auto JobHandle        = arg<wntdll::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenJobObject(JobHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", JobHandle, DesiredAccess, ObjectAttributes));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenJobObject(JobHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", JobHandle, DesiredAccess, ObjectAttributes));
 
-        for(const auto& it : d.observers_NtOpenJobObject)
+        for(const auto& it : d.observers_ZwOpenJobObject)
             it(JobHandle, DesiredAccess, ObjectAttributes);
     }
 
@@ -3039,7 +3028,7 @@ namespace
             it(KeyedEventHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenKeyEx(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenKeyEx(monitor::syscallswow64::Data& d)
     {
         const auto KeyHandle        = arg<wntdll::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
@@ -3047,22 +3036,22 @@ namespace
         const auto OpenOptions      = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenKeyEx(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, OpenOptions:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenKeyEx(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, OpenOptions:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions));
 
-        for(const auto& it : d.observers_NtOpenKeyEx)
+        for(const auto& it : d.observers_ZwOpenKeyEx)
             it(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions);
     }
 
-    static void on_NtOpenKey(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenKey(monitor::syscallswow64::Data& d)
     {
         const auto KeyHandle        = arg<wntdll::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenKey(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenKey(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes));
 
-        for(const auto& it : d.observers_NtOpenKey)
+        for(const auto& it : d.observers_ZwOpenKey)
             it(KeyHandle, DesiredAccess, ObjectAttributes);
     }
 
@@ -3108,7 +3097,7 @@ namespace
             it(MutantHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenObjectAuditAlarm(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenObjectAuditAlarm(monitor::syscallswow64::Data& d)
     {
         const auto SubsystemName      = arg<wntdll::PUNICODE_STRING>(d.core, 0);
         const auto HandleId           = arg<wntdll::PVOID>(d.core, 1);
@@ -3124,9 +3113,9 @@ namespace
         const auto GenerateOnClose    = arg<wntdll::PBOOLEAN>(d.core, 11);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, GrantedAccess:{:#x}, Privileges:{:#x}, ObjectCreation:{:#x}, AccessGranted:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, ClientToken, DesiredAccess, GrantedAccess, Privileges, ObjectCreation, AccessGranted, GenerateOnClose));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, GrantedAccess:{:#x}, Privileges:{:#x}, ObjectCreation:{:#x}, AccessGranted:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, ClientToken, DesiredAccess, GrantedAccess, Privileges, ObjectCreation, AccessGranted, GenerateOnClose));
 
-        for(const auto& it : d.observers_NtOpenObjectAuditAlarm)
+        for(const auto& it : d.observers_ZwOpenObjectAuditAlarm)
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, ClientToken, DesiredAccess, GrantedAccess, Privileges, ObjectCreation, AccessGranted, GenerateOnClose);
     }
 
@@ -3144,7 +3133,7 @@ namespace
             it(NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
     }
 
-    static void on_NtOpenProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenProcess(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle    = arg<wntdll::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
@@ -3152,13 +3141,13 @@ namespace
         const auto ClientId         = arg<wntdll::PCLIENT_ID>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenProcess(ProcessHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ClientId:{:#x})", ProcessHandle, DesiredAccess, ObjectAttributes, ClientId));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenProcess(ProcessHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ClientId:{:#x})", ProcessHandle, DesiredAccess, ObjectAttributes, ClientId));
 
-        for(const auto& it : d.observers_NtOpenProcess)
+        for(const auto& it : d.observers_ZwOpenProcess)
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ClientId);
     }
 
-    static void on_NtOpenProcessTokenEx(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenProcessTokenEx(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle    = arg<wntdll::HANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
@@ -3166,26 +3155,26 @@ namespace
         const auto TokenHandle      = arg<wntdll::PHANDLE>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenProcessTokenEx(ProcessHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, TokenHandle:{:#x})", ProcessHandle, DesiredAccess, HandleAttributes, TokenHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenProcessTokenEx(ProcessHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, TokenHandle:{:#x})", ProcessHandle, DesiredAccess, HandleAttributes, TokenHandle));
 
-        for(const auto& it : d.observers_NtOpenProcessTokenEx)
+        for(const auto& it : d.observers_ZwOpenProcessTokenEx)
             it(ProcessHandle, DesiredAccess, HandleAttributes, TokenHandle);
     }
 
-    static void on_NtOpenProcessToken(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenProcessToken(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto DesiredAccess = arg<wntdll::ACCESS_MASK>(d.core, 1);
         const auto TokenHandle   = arg<wntdll::PHANDLE>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenProcessToken(ProcessHandle:{:#x}, DesiredAccess:{:#x}, TokenHandle:{:#x})", ProcessHandle, DesiredAccess, TokenHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenProcessToken(ProcessHandle:{:#x}, DesiredAccess:{:#x}, TokenHandle:{:#x})", ProcessHandle, DesiredAccess, TokenHandle));
 
-        for(const auto& it : d.observers_NtOpenProcessToken)
+        for(const auto& it : d.observers_ZwOpenProcessToken)
             it(ProcessHandle, DesiredAccess, TokenHandle);
     }
 
-    static void on_NtOpenResourceManager(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenResourceManager(monitor::syscallswow64::Data& d)
     {
         const auto ResourceManagerHandle = arg<wntdll::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<wntdll::ACCESS_MASK>(d.core, 1);
@@ -3194,9 +3183,9 @@ namespace
         const auto ObjectAttributes      = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenResourceManager(ResourceManagerHandle:{:#x}, DesiredAccess:{:#x}, TmHandle:{:#x}, ResourceManagerGuid:{:#x}, ObjectAttributes:{:#x})", ResourceManagerHandle, DesiredAccess, TmHandle, ResourceManagerGuid, ObjectAttributes));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenResourceManager(ResourceManagerHandle:{:#x}, DesiredAccess:{:#x}, TmHandle:{:#x}, ResourceManagerGuid:{:#x}, ObjectAttributes:{:#x})", ResourceManagerHandle, DesiredAccess, TmHandle, ResourceManagerGuid, ObjectAttributes));
 
-        for(const auto& it : d.observers_NtOpenResourceManager)
+        for(const auto& it : d.observers_ZwOpenResourceManager)
             it(ResourceManagerHandle, DesiredAccess, TmHandle, ResourceManagerGuid, ObjectAttributes);
     }
 
@@ -3252,7 +3241,7 @@ namespace
             it(LinkHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenThread(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenThread(monitor::syscallswow64::Data& d)
     {
         const auto ThreadHandle     = arg<wntdll::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
@@ -3260,9 +3249,9 @@ namespace
         const auto ClientId         = arg<wntdll::PCLIENT_ID>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenThread(ThreadHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ClientId:{:#x})", ThreadHandle, DesiredAccess, ObjectAttributes, ClientId));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenThread(ThreadHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ClientId:{:#x})", ThreadHandle, DesiredAccess, ObjectAttributes, ClientId));
 
-        for(const auto& it : d.observers_NtOpenThread)
+        for(const auto& it : d.observers_ZwOpenThread)
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ClientId);
     }
 
@@ -3295,20 +3284,20 @@ namespace
             it(ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
     }
 
-    static void on_NtOpenTimer(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenTimer(monitor::syscallswow64::Data& d)
     {
         const auto TimerHandle      = arg<wntdll::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
         const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenTimer(TimerHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", TimerHandle, DesiredAccess, ObjectAttributes));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenTimer(TimerHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", TimerHandle, DesiredAccess, ObjectAttributes));
 
-        for(const auto& it : d.observers_NtOpenTimer)
+        for(const auto& it : d.observers_ZwOpenTimer)
             it(TimerHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenTransactionManager(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenTransactionManager(monitor::syscallswow64::Data& d)
     {
         const auto TmHandle         = arg<wntdll::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
@@ -3318,13 +3307,13 @@ namespace
         const auto OpenOptions      = arg<wntdll::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenTransactionManager(TmHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, LogFileName:{:#x}, TmIdentity:{:#x}, OpenOptions:{:#x})", TmHandle, DesiredAccess, ObjectAttributes, LogFileName, TmIdentity, OpenOptions));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenTransactionManager(TmHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, LogFileName:{:#x}, TmIdentity:{:#x}, OpenOptions:{:#x})", TmHandle, DesiredAccess, ObjectAttributes, LogFileName, TmIdentity, OpenOptions));
 
-        for(const auto& it : d.observers_NtOpenTransactionManager)
+        for(const auto& it : d.observers_ZwOpenTransactionManager)
             it(TmHandle, DesiredAccess, ObjectAttributes, LogFileName, TmIdentity, OpenOptions);
     }
 
-    static void on_NtOpenTransaction(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenTransaction(monitor::syscallswow64::Data& d)
     {
         const auto TransactionHandle = arg<wntdll::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<wntdll::ACCESS_MASK>(d.core, 1);
@@ -3333,9 +3322,9 @@ namespace
         const auto TmHandle          = arg<wntdll::HANDLE>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenTransaction(TransactionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Uow:{:#x}, TmHandle:{:#x})", TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwOpenTransaction(TransactionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Uow:{:#x}, TmHandle:{:#x})", TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle));
 
-        for(const auto& it : d.observers_NtOpenTransaction)
+        for(const auto& it : d.observers_ZwOpenTransaction)
             it(TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle);
     }
 
@@ -3352,7 +3341,7 @@ namespace
             it(PnPControlClass, PnPControlData, PnPControlDataLength);
     }
 
-    static void on_NtPowerInformation(monitor::syscallswow64::Data& d)
+    static void on_ZwPowerInformation(monitor::syscallswow64::Data& d)
     {
         const auto InformationLevel   = arg<wntdll::POWER_INFORMATION_LEVEL>(d.core, 0);
         const auto InputBuffer        = arg<wntdll::PVOID>(d.core, 1);
@@ -3361,9 +3350,9 @@ namespace
         const auto OutputBufferLength = arg<wntdll::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPowerInformation(InformationLevel:{:#x}, InputBuffer:{:#x}, InputBufferLength:{:#x}, OutputBuffer:{:#x}, OutputBufferLength:{:#x})", InformationLevel, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength));
+            logg::print(logg::level_t::info, fmt::format("ZwPowerInformation(InformationLevel:{:#x}, InputBuffer:{:#x}, InputBufferLength:{:#x}, OutputBuffer:{:#x}, OutputBufferLength:{:#x})", InformationLevel, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength));
 
-        for(const auto& it : d.observers_NtPowerInformation)
+        for(const auto& it : d.observers_ZwPowerInformation)
             it(InformationLevel, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
     }
 
@@ -3379,27 +3368,27 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtPrepareEnlistment(monitor::syscallswow64::Data& d)
+    static void on_ZwPrepareEnlistment(monitor::syscallswow64::Data& d)
     {
         const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPrepareEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            logg::print(logg::level_t::info, fmt::format("ZwPrepareEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
 
-        for(const auto& it : d.observers_NtPrepareEnlistment)
+        for(const auto& it : d.observers_ZwPrepareEnlistment)
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtPrePrepareComplete(monitor::syscallswow64::Data& d)
+    static void on_ZwPrePrepareComplete(monitor::syscallswow64::Data& d)
     {
         const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPrePrepareComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            logg::print(logg::level_t::info, fmt::format("ZwPrePrepareComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
 
-        for(const auto& it : d.observers_NtPrePrepareComplete)
+        for(const auto& it : d.observers_ZwPrePrepareComplete)
             it(EnlistmentHandle, TmVirtualClock);
     }
 
@@ -3415,16 +3404,16 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtPrivilegeCheck(monitor::syscallswow64::Data& d)
+    static void on_ZwPrivilegeCheck(monitor::syscallswow64::Data& d)
     {
         const auto ClientToken        = arg<wntdll::HANDLE>(d.core, 0);
         const auto RequiredPrivileges = arg<wntdll::PPRIVILEGE_SET>(d.core, 1);
         const auto Result             = arg<wntdll::PBOOLEAN>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPrivilegeCheck(ClientToken:{:#x}, RequiredPrivileges:{:#x}, Result:{:#x})", ClientToken, RequiredPrivileges, Result));
+            logg::print(logg::level_t::info, fmt::format("ZwPrivilegeCheck(ClientToken:{:#x}, RequiredPrivileges:{:#x}, Result:{:#x})", ClientToken, RequiredPrivileges, Result));
 
-        for(const auto& it : d.observers_NtPrivilegeCheck)
+        for(const auto& it : d.observers_ZwPrivilegeCheck)
             it(ClientToken, RequiredPrivileges, Result);
     }
 
@@ -3443,7 +3432,7 @@ namespace
             it(SubsystemName, ServiceName, ClientToken, Privileges, AccessGranted);
     }
 
-    static void on_NtPrivilegeObjectAuditAlarm(monitor::syscallswow64::Data& d)
+    static void on_ZwPrivilegeObjectAuditAlarm(monitor::syscallswow64::Data& d)
     {
         const auto SubsystemName = arg<wntdll::PUNICODE_STRING>(d.core, 0);
         const auto HandleId      = arg<wntdll::PVOID>(d.core, 1);
@@ -3453,9 +3442,9 @@ namespace
         const auto AccessGranted = arg<wntdll::BOOLEAN>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPrivilegeObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, Privileges:{:#x}, AccessGranted:{:#x})", SubsystemName, HandleId, ClientToken, DesiredAccess, Privileges, AccessGranted));
+            logg::print(logg::level_t::info, fmt::format("ZwPrivilegeObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, Privileges:{:#x}, AccessGranted:{:#x})", SubsystemName, HandleId, ClientToken, DesiredAccess, Privileges, AccessGranted));
 
-        for(const auto& it : d.observers_NtPrivilegeObjectAuditAlarm)
+        for(const auto& it : d.observers_ZwPrivilegeObjectAuditAlarm)
             it(SubsystemName, HandleId, ClientToken, DesiredAccess, Privileges, AccessGranted);
     }
 
@@ -3473,20 +3462,20 @@ namespace
             it(ResourceManagerHandle, RequestCookie, BufferLength, Buffer);
     }
 
-    static void on_NtPropagationFailed(monitor::syscallswow64::Data& d)
+    static void on_ZwPropagationFailed(monitor::syscallswow64::Data& d)
     {
         const auto ResourceManagerHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto RequestCookie         = arg<wntdll::ULONG>(d.core, 1);
         const auto PropStatus            = arg<wntdll::NTSTATUS>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPropagationFailed(ResourceManagerHandle:{:#x}, RequestCookie:{:#x}, PropStatus:{:#x})", ResourceManagerHandle, RequestCookie, PropStatus));
+            logg::print(logg::level_t::info, fmt::format("ZwPropagationFailed(ResourceManagerHandle:{:#x}, RequestCookie:{:#x}, PropStatus:{:#x})", ResourceManagerHandle, RequestCookie, PropStatus));
 
-        for(const auto& it : d.observers_NtPropagationFailed)
+        for(const auto& it : d.observers_ZwPropagationFailed)
             it(ResourceManagerHandle, RequestCookie, PropStatus);
     }
 
-    static void on_NtProtectVirtualMemory(monitor::syscallswow64::Data& d)
+    static void on_ZwProtectVirtualMemory(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle   = arg<wntdll::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<wntdll::PVOID>(d.core, 1);
@@ -3495,57 +3484,57 @@ namespace
         const auto OldProtect      = arg<wntdll::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtProtectVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, NewProtectWin32:{:#x}, OldProtect:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, NewProtectWin32, OldProtect));
+            logg::print(logg::level_t::info, fmt::format("ZwProtectVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, NewProtectWin32:{:#x}, OldProtect:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, NewProtectWin32, OldProtect));
 
-        for(const auto& it : d.observers_NtProtectVirtualMemory)
+        for(const auto& it : d.observers_ZwProtectVirtualMemory)
             it(ProcessHandle, STARBaseAddress, RegionSize, NewProtectWin32, OldProtect);
     }
 
-    static void on_NtPulseEvent(monitor::syscallswow64::Data& d)
+    static void on_ZwPulseEvent(monitor::syscallswow64::Data& d)
     {
         const auto EventHandle   = arg<wntdll::HANDLE>(d.core, 0);
         const auto PreviousState = arg<wntdll::PLONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPulseEvent(EventHandle:{:#x}, PreviousState:{:#x})", EventHandle, PreviousState));
+            logg::print(logg::level_t::info, fmt::format("ZwPulseEvent(EventHandle:{:#x}, PreviousState:{:#x})", EventHandle, PreviousState));
 
-        for(const auto& it : d.observers_NtPulseEvent)
+        for(const auto& it : d.observers_ZwPulseEvent)
             it(EventHandle, PreviousState);
     }
 
-    static void on_NtQueryAttributesFile(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryAttributesFile(monitor::syscallswow64::Data& d)
     {
         const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto FileInformation  = arg<wntdll::PFILE_BASIC_INFORMATION>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryAttributesFile(ObjectAttributes:{:#x}, FileInformation:{:#x})", ObjectAttributes, FileInformation));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryAttributesFile(ObjectAttributes:{:#x}, FileInformation:{:#x})", ObjectAttributes, FileInformation));
 
-        for(const auto& it : d.observers_NtQueryAttributesFile)
+        for(const auto& it : d.observers_ZwQueryAttributesFile)
             it(ObjectAttributes, FileInformation);
     }
 
-    static void on_NtQueryBootEntryOrder(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryBootEntryOrder(monitor::syscallswow64::Data& d)
     {
         const auto Ids   = arg<wntdll::PULONG>(d.core, 0);
         const auto Count = arg<wntdll::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryBootEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryBootEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count));
 
-        for(const auto& it : d.observers_NtQueryBootEntryOrder)
+        for(const auto& it : d.observers_ZwQueryBootEntryOrder)
             it(Ids, Count);
     }
 
-    static void on_NtQueryBootOptions(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryBootOptions(monitor::syscallswow64::Data& d)
     {
         const auto BootOptions       = arg<wntdll::PBOOT_OPTIONS>(d.core, 0);
         const auto BootOptionsLength = arg<wntdll::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryBootOptions(BootOptions:{:#x}, BootOptionsLength:{:#x})", BootOptions, BootOptionsLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryBootOptions(BootOptions:{:#x}, BootOptionsLength:{:#x})", BootOptions, BootOptionsLength));
 
-        for(const auto& it : d.observers_NtQueryBootOptions)
+        for(const auto& it : d.observers_ZwQueryBootOptions)
             it(BootOptions, BootOptionsLength);
     }
 
@@ -3573,18 +3562,18 @@ namespace
             it(UserProfile, DefaultLocaleId);
     }
 
-    static void on_NtQueryDefaultUILanguage(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryDefaultUILanguage(monitor::syscallswow64::Data& d)
     {
         const auto STARDefaultUILanguageId = arg<wntdll::LANGID>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryDefaultUILanguage(STARDefaultUILanguageId:{:#x})", STARDefaultUILanguageId));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryDefaultUILanguage(STARDefaultUILanguageId:{:#x})", STARDefaultUILanguageId));
 
-        for(const auto& it : d.observers_NtQueryDefaultUILanguage)
+        for(const auto& it : d.observers_ZwQueryDefaultUILanguage)
             it(STARDefaultUILanguageId);
     }
 
-    static void on_NtQueryDirectoryFile(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryDirectoryFile(monitor::syscallswow64::Data& d)
     {
         const auto FileHandle           = arg<wntdll::HANDLE>(d.core, 0);
         const auto Event                = arg<wntdll::HANDLE>(d.core, 1);
@@ -3599,13 +3588,13 @@ namespace
         const auto RestartScan          = arg<wntdll::BOOLEAN>(d.core, 10);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryDirectoryFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x}, ReturnSingleEntry:{:#x}, FileName:{:#x}, RestartScan:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryDirectoryFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x}, ReturnSingleEntry:{:#x}, FileName:{:#x}, RestartScan:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan));
 
-        for(const auto& it : d.observers_NtQueryDirectoryFile)
+        for(const auto& it : d.observers_ZwQueryDirectoryFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan);
     }
 
-    static void on_NtQueryDirectoryObject(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryDirectoryObject(monitor::syscallswow64::Data& d)
     {
         const auto DirectoryHandle   = arg<wntdll::HANDLE>(d.core, 0);
         const auto Buffer            = arg<wntdll::PVOID>(d.core, 1);
@@ -3616,9 +3605,9 @@ namespace
         const auto ReturnLength      = arg<wntdll::PULONG>(d.core, 6);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryDirectoryObject(DirectoryHandle:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, RestartScan:{:#x}, Context:{:#x}, ReturnLength:{:#x})", DirectoryHandle, Buffer, Length, ReturnSingleEntry, RestartScan, Context, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryDirectoryObject(DirectoryHandle:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, RestartScan:{:#x}, Context:{:#x}, ReturnLength:{:#x})", DirectoryHandle, Buffer, Length, ReturnSingleEntry, RestartScan, Context, ReturnLength));
 
-        for(const auto& it : d.observers_NtQueryDirectoryObject)
+        for(const auto& it : d.observers_ZwQueryDirectoryObject)
             it(DirectoryHandle, Buffer, Length, ReturnSingleEntry, RestartScan, Context, ReturnLength);
     }
 
@@ -3634,7 +3623,7 @@ namespace
             it(Ids, Count);
     }
 
-    static void on_NtQueryEaFile(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryEaFile(monitor::syscallswow64::Data& d)
     {
         const auto FileHandle        = arg<wntdll::HANDLE>(d.core, 0);
         const auto IoStatusBlock     = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
@@ -3647,9 +3636,9 @@ namespace
         const auto RestartScan       = arg<wntdll::BOOLEAN>(d.core, 8);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryEaFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, EaList:{:#x}, EaListLength:{:#x}, EaIndex:{:#x}, RestartScan:{:#x})", FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, EaList, EaListLength, EaIndex, RestartScan));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryEaFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, EaList:{:#x}, EaListLength:{:#x}, EaIndex:{:#x}, RestartScan:{:#x})", FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, EaList, EaListLength, EaIndex, RestartScan));
 
-        for(const auto& it : d.observers_NtQueryEaFile)
+        for(const auto& it : d.observers_ZwQueryEaFile)
             it(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, EaList, EaListLength, EaIndex, RestartScan);
     }
 
@@ -3668,15 +3657,15 @@ namespace
             it(EventHandle, EventInformationClass, EventInformation, EventInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryFullAttributesFile(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryFullAttributesFile(monitor::syscallswow64::Data& d)
     {
         const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto FileInformation  = arg<wntdll::PFILE_NETWORK_OPEN_INFORMATION>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryFullAttributesFile(ObjectAttributes:{:#x}, FileInformation:{:#x})", ObjectAttributes, FileInformation));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryFullAttributesFile(ObjectAttributes:{:#x}, FileInformation:{:#x})", ObjectAttributes, FileInformation));
 
-        for(const auto& it : d.observers_NtQueryFullAttributesFile)
+        for(const auto& it : d.observers_ZwQueryFullAttributesFile)
             it(ObjectAttributes, FileInformation);
     }
 
@@ -3695,7 +3684,7 @@ namespace
             it(Atom, InformationClass, AtomInformation, AtomInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationEnlistment(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationEnlistment(monitor::syscallswow64::Data& d)
     {
         const auto EnlistmentHandle            = arg<wntdll::HANDLE>(d.core, 0);
         const auto EnlistmentInformationClass  = arg<wntdll::ENLISTMENT_INFORMATION_CLASS>(d.core, 1);
@@ -3704,13 +3693,13 @@ namespace
         const auto ReturnLength                = arg<wntdll::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationEnlistment(EnlistmentHandle:{:#x}, EnlistmentInformationClass:{:#x}, EnlistmentInformation:{:#x}, EnlistmentInformationLength:{:#x}, ReturnLength:{:#x})", EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryInformationEnlistment(EnlistmentHandle:{:#x}, EnlistmentInformationClass:{:#x}, EnlistmentInformation:{:#x}, EnlistmentInformationLength:{:#x}, ReturnLength:{:#x})", EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength, ReturnLength));
 
-        for(const auto& it : d.observers_NtQueryInformationEnlistment)
+        for(const auto& it : d.observers_ZwQueryInformationEnlistment)
             it(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationFile(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationFile(monitor::syscallswow64::Data& d)
     {
         const auto FileHandle           = arg<wntdll::HANDLE>(d.core, 0);
         const auto IoStatusBlock        = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
@@ -3719,13 +3708,13 @@ namespace
         const auto FileInformationClass = arg<wntdll::FILE_INFORMATION_CLASS>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x})", FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x})", FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass));
 
-        for(const auto& it : d.observers_NtQueryInformationFile)
+        for(const auto& it : d.observers_ZwQueryInformationFile)
             it(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
     }
 
-    static void on_NtQueryInformationJobObject(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationJobObject(monitor::syscallswow64::Data& d)
     {
         const auto JobHandle                  = arg<wntdll::HANDLE>(d.core, 0);
         const auto JobObjectInformationClass  = arg<wntdll::JOBOBJECTINFOCLASS>(d.core, 1);
@@ -3734,13 +3723,13 @@ namespace
         const auto ReturnLength               = arg<wntdll::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationJobObject(JobHandle:{:#x}, JobObjectInformationClass:{:#x}, JobObjectInformation:{:#x}, JobObjectInformationLength:{:#x}, ReturnLength:{:#x})", JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryInformationJobObject(JobHandle:{:#x}, JobObjectInformationClass:{:#x}, JobObjectInformation:{:#x}, JobObjectInformationLength:{:#x}, ReturnLength:{:#x})", JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength, ReturnLength));
 
-        for(const auto& it : d.observers_NtQueryInformationJobObject)
+        for(const auto& it : d.observers_ZwQueryInformationJobObject)
             it(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationPort(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationPort(monitor::syscallswow64::Data& d)
     {
         const auto PortHandle           = arg<wntdll::HANDLE>(d.core, 0);
         const auto PortInformationClass = arg<wntdll::PORT_INFORMATION_CLASS>(d.core, 1);
@@ -3749,9 +3738,9 @@ namespace
         const auto ReturnLength         = arg<wntdll::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationPort(PortHandle:{:#x}, PortInformationClass:{:#x}, PortInformation:{:#x}, Length:{:#x}, ReturnLength:{:#x})", PortHandle, PortInformationClass, PortInformation, Length, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryInformationPort(PortHandle:{:#x}, PortInformationClass:{:#x}, PortInformation:{:#x}, Length:{:#x}, ReturnLength:{:#x})", PortHandle, PortInformationClass, PortInformation, Length, ReturnLength));
 
-        for(const auto& it : d.observers_NtQueryInformationPort)
+        for(const auto& it : d.observers_ZwQueryInformationPort)
             it(PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
     }
 
@@ -3770,7 +3759,7 @@ namespace
             it(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationResourceManager(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationResourceManager(monitor::syscallswow64::Data& d)
     {
         const auto ResourceManagerHandle            = arg<wntdll::HANDLE>(d.core, 0);
         const auto ResourceManagerInformationClass  = arg<wntdll::RESOURCEMANAGER_INFORMATION_CLASS>(d.core, 1);
@@ -3779,9 +3768,9 @@ namespace
         const auto ReturnLength                     = arg<wntdll::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationResourceManager(ResourceManagerHandle:{:#x}, ResourceManagerInformationClass:{:#x}, ResourceManagerInformation:{:#x}, ResourceManagerInformationLength:{:#x}, ReturnLength:{:#x})", ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryInformationResourceManager(ResourceManagerHandle:{:#x}, ResourceManagerInformationClass:{:#x}, ResourceManagerInformation:{:#x}, ResourceManagerInformationLength:{:#x}, ReturnLength:{:#x})", ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength, ReturnLength));
 
-        for(const auto& it : d.observers_NtQueryInformationResourceManager)
+        for(const auto& it : d.observers_ZwQueryInformationResourceManager)
             it(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength, ReturnLength);
     }
 
@@ -3800,7 +3789,7 @@ namespace
             it(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationToken(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationToken(monitor::syscallswow64::Data& d)
     {
         const auto TokenHandle            = arg<wntdll::HANDLE>(d.core, 0);
         const auto TokenInformationClass  = arg<wntdll::TOKEN_INFORMATION_CLASS>(d.core, 1);
@@ -3809,13 +3798,13 @@ namespace
         const auto ReturnLength           = arg<wntdll::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationToken(TokenHandle:{:#x}, TokenInformationClass:{:#x}, TokenInformation:{:#x}, TokenInformationLength:{:#x}, ReturnLength:{:#x})", TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryInformationToken(TokenHandle:{:#x}, TokenInformationClass:{:#x}, TokenInformation:{:#x}, TokenInformationLength:{:#x}, ReturnLength:{:#x})", TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength, ReturnLength));
 
-        for(const auto& it : d.observers_NtQueryInformationToken)
+        for(const auto& it : d.observers_ZwQueryInformationToken)
             it(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationTransaction(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationTransaction(monitor::syscallswow64::Data& d)
     {
         const auto TransactionHandle            = arg<wntdll::HANDLE>(d.core, 0);
         const auto TransactionInformationClass  = arg<wntdll::TRANSACTION_INFORMATION_CLASS>(d.core, 1);
@@ -3824,9 +3813,9 @@ namespace
         const auto ReturnLength                 = arg<wntdll::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationTransaction(TransactionHandle:{:#x}, TransactionInformationClass:{:#x}, TransactionInformation:{:#x}, TransactionInformationLength:{:#x}, ReturnLength:{:#x})", TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryInformationTransaction(TransactionHandle:{:#x}, TransactionInformationClass:{:#x}, TransactionInformation:{:#x}, TransactionInformationLength:{:#x}, ReturnLength:{:#x})", TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength, ReturnLength));
 
-        for(const auto& it : d.observers_NtQueryInformationTransaction)
+        for(const auto& it : d.observers_ZwQueryInformationTransaction)
             it(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength, ReturnLength);
     }
 
@@ -3845,7 +3834,7 @@ namespace
             it(TransactionManagerHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationWorkerFactory(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationWorkerFactory(monitor::syscallswow64::Data& d)
     {
         const auto WorkerFactoryHandle            = arg<wntdll::HANDLE>(d.core, 0);
         const auto WorkerFactoryInformationClass  = arg<wntdll::WORKERFACTORYINFOCLASS>(d.core, 1);
@@ -3854,9 +3843,9 @@ namespace
         const auto ReturnLength                   = arg<wntdll::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationWorkerFactory(WorkerFactoryHandle:{:#x}, WorkerFactoryInformationClass:{:#x}, WorkerFactoryInformation:{:#x}, WorkerFactoryInformationLength:{:#x}, ReturnLength:{:#x})", WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryInformationWorkerFactory(WorkerFactoryHandle:{:#x}, WorkerFactoryInformationClass:{:#x}, WorkerFactoryInformation:{:#x}, WorkerFactoryInformationLength:{:#x}, ReturnLength:{:#x})", WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength, ReturnLength));
 
-        for(const auto& it : d.observers_NtQueryInformationWorkerFactory)
+        for(const auto& it : d.observers_ZwQueryInformationWorkerFactory)
             it(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength, ReturnLength);
     }
 
@@ -3898,7 +3887,7 @@ namespace
             it(IoCompletionHandle, IoCompletionInformationClass, IoCompletionInformation, IoCompletionInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryKey(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryKey(monitor::syscallswow64::Data& d)
     {
         const auto KeyHandle           = arg<wntdll::HANDLE>(d.core, 0);
         const auto KeyInformationClass = arg<wntdll::KEY_INFORMATION_CLASS>(d.core, 1);
@@ -3907,9 +3896,9 @@ namespace
         const auto ResultLength        = arg<wntdll::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryKey(KeyHandle:{:#x}, KeyInformationClass:{:#x}, KeyInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryKey(KeyHandle:{:#x}, KeyInformationClass:{:#x}, KeyInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength));
 
-        for(const auto& it : d.observers_NtQueryKey)
+        for(const auto& it : d.observers_ZwQueryKey)
             it(KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength);
     }
 
@@ -4012,7 +4001,7 @@ namespace
             it(PerformanceCounter, PerformanceFrequency);
     }
 
-    static void on_NtQueryQuotaInformationFile(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryQuotaInformationFile(monitor::syscallswow64::Data& d)
     {
         const auto FileHandle        = arg<wntdll::HANDLE>(d.core, 0);
         const auto IoStatusBlock     = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
@@ -4025,13 +4014,13 @@ namespace
         const auto RestartScan       = arg<wntdll::BOOLEAN>(d.core, 8);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryQuotaInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, SidList:{:#x}, SidListLength:{:#x}, StartSid:{:#x}, RestartScan:{:#x})", FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, SidList, SidListLength, StartSid, RestartScan));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryQuotaInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, SidList:{:#x}, SidListLength:{:#x}, StartSid:{:#x}, RestartScan:{:#x})", FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, SidList, SidListLength, StartSid, RestartScan));
 
-        for(const auto& it : d.observers_NtQueryQuotaInformationFile)
+        for(const auto& it : d.observers_ZwQueryQuotaInformationFile)
             it(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, SidList, SidListLength, StartSid, RestartScan);
     }
 
-    static void on_NtQuerySection(monitor::syscallswow64::Data& d)
+    static void on_ZwQuerySection(monitor::syscallswow64::Data& d)
     {
         const auto SectionHandle            = arg<wntdll::HANDLE>(d.core, 0);
         const auto SectionInformationClass  = arg<wntdll::SECTION_INFORMATION_CLASS>(d.core, 1);
@@ -4040,13 +4029,13 @@ namespace
         const auto ReturnLength             = arg<wntdll::PSIZE_T>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySection(SectionHandle:{:#x}, SectionInformationClass:{:#x}, SectionInformation:{:#x}, SectionInformationLength:{:#x}, ReturnLength:{:#x})", SectionHandle, SectionInformationClass, SectionInformation, SectionInformationLength, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQuerySection(SectionHandle:{:#x}, SectionInformationClass:{:#x}, SectionInformation:{:#x}, SectionInformationLength:{:#x}, ReturnLength:{:#x})", SectionHandle, SectionInformationClass, SectionInformation, SectionInformationLength, ReturnLength));
 
-        for(const auto& it : d.observers_NtQuerySection)
+        for(const auto& it : d.observers_ZwQuerySection)
             it(SectionHandle, SectionInformationClass, SectionInformation, SectionInformationLength, ReturnLength);
     }
 
-    static void on_NtQuerySecurityAttributesToken(monitor::syscallswow64::Data& d)
+    static void on_ZwQuerySecurityAttributesToken(monitor::syscallswow64::Data& d)
     {
         const auto TokenHandle        = arg<wntdll::HANDLE>(d.core, 0);
         const auto Attributes         = arg<wntdll::PUNICODE_STRING>(d.core, 1);
@@ -4056,9 +4045,9 @@ namespace
         const auto ReturnLength       = arg<wntdll::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySecurityAttributesToken(TokenHandle:{:#x}, Attributes:{:#x}, NumberOfAttributes:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnLength:{:#x})", TokenHandle, Attributes, NumberOfAttributes, Buffer, Length, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQuerySecurityAttributesToken(TokenHandle:{:#x}, Attributes:{:#x}, NumberOfAttributes:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnLength:{:#x})", TokenHandle, Attributes, NumberOfAttributes, Buffer, Length, ReturnLength));
 
-        for(const auto& it : d.observers_NtQuerySecurityAttributesToken)
+        for(const auto& it : d.observers_ZwQuerySecurityAttributesToken)
             it(TokenHandle, Attributes, NumberOfAttributes, Buffer, Length, ReturnLength);
     }
 
@@ -4077,7 +4066,7 @@ namespace
             it(Handle, SecurityInformation, SecurityDescriptor, Length, LengthNeeded);
     }
 
-    static void on_NtQuerySemaphore(monitor::syscallswow64::Data& d)
+    static void on_ZwQuerySemaphore(monitor::syscallswow64::Data& d)
     {
         const auto SemaphoreHandle            = arg<wntdll::HANDLE>(d.core, 0);
         const auto SemaphoreInformationClass  = arg<wntdll::SEMAPHORE_INFORMATION_CLASS>(d.core, 1);
@@ -4086,26 +4075,26 @@ namespace
         const auto ReturnLength               = arg<wntdll::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySemaphore(SemaphoreHandle:{:#x}, SemaphoreInformationClass:{:#x}, SemaphoreInformation:{:#x}, SemaphoreInformationLength:{:#x}, ReturnLength:{:#x})", SemaphoreHandle, SemaphoreInformationClass, SemaphoreInformation, SemaphoreInformationLength, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQuerySemaphore(SemaphoreHandle:{:#x}, SemaphoreInformationClass:{:#x}, SemaphoreInformation:{:#x}, SemaphoreInformationLength:{:#x}, ReturnLength:{:#x})", SemaphoreHandle, SemaphoreInformationClass, SemaphoreInformation, SemaphoreInformationLength, ReturnLength));
 
-        for(const auto& it : d.observers_NtQuerySemaphore)
+        for(const auto& it : d.observers_ZwQuerySemaphore)
             it(SemaphoreHandle, SemaphoreInformationClass, SemaphoreInformation, SemaphoreInformationLength, ReturnLength);
     }
 
-    static void on_NtQuerySymbolicLinkObject(monitor::syscallswow64::Data& d)
+    static void on_ZwQuerySymbolicLinkObject(monitor::syscallswow64::Data& d)
     {
         const auto LinkHandle     = arg<wntdll::HANDLE>(d.core, 0);
         const auto LinkTarget     = arg<wntdll::PUNICODE_STRING>(d.core, 1);
         const auto ReturnedLength = arg<wntdll::PULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySymbolicLinkObject(LinkHandle:{:#x}, LinkTarget:{:#x}, ReturnedLength:{:#x})", LinkHandle, LinkTarget, ReturnedLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQuerySymbolicLinkObject(LinkHandle:{:#x}, LinkTarget:{:#x}, ReturnedLength:{:#x})", LinkHandle, LinkTarget, ReturnedLength));
 
-        for(const auto& it : d.observers_NtQuerySymbolicLinkObject)
+        for(const auto& it : d.observers_ZwQuerySymbolicLinkObject)
             it(LinkHandle, LinkTarget, ReturnedLength);
     }
 
-    static void on_NtQuerySystemEnvironmentValueEx(monitor::syscallswow64::Data& d)
+    static void on_ZwQuerySystemEnvironmentValueEx(monitor::syscallswow64::Data& d)
     {
         const auto VariableName = arg<wntdll::PUNICODE_STRING>(d.core, 0);
         const auto VendorGuid   = arg<wntdll::LPGUID>(d.core, 1);
@@ -4114,13 +4103,13 @@ namespace
         const auto Attributes   = arg<wntdll::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySystemEnvironmentValueEx(VariableName:{:#x}, VendorGuid:{:#x}, Value:{:#x}, ValueLength:{:#x}, Attributes:{:#x})", VariableName, VendorGuid, Value, ValueLength, Attributes));
+            logg::print(logg::level_t::info, fmt::format("ZwQuerySystemEnvironmentValueEx(VariableName:{:#x}, VendorGuid:{:#x}, Value:{:#x}, ValueLength:{:#x}, Attributes:{:#x})", VariableName, VendorGuid, Value, ValueLength, Attributes));
 
-        for(const auto& it : d.observers_NtQuerySystemEnvironmentValueEx)
+        for(const auto& it : d.observers_ZwQuerySystemEnvironmentValueEx)
             it(VariableName, VendorGuid, Value, ValueLength, Attributes);
     }
 
-    static void on_NtQuerySystemEnvironmentValue(monitor::syscallswow64::Data& d)
+    static void on_ZwQuerySystemEnvironmentValue(monitor::syscallswow64::Data& d)
     {
         const auto VariableName  = arg<wntdll::PUNICODE_STRING>(d.core, 0);
         const auto VariableValue = arg<wntdll::PWSTR>(d.core, 1);
@@ -4128,13 +4117,13 @@ namespace
         const auto ReturnLength  = arg<wntdll::PUSHORT>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySystemEnvironmentValue(VariableName:{:#x}, VariableValue:{:#x}, ValueLength:{:#x}, ReturnLength:{:#x})", VariableName, VariableValue, ValueLength, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQuerySystemEnvironmentValue(VariableName:{:#x}, VariableValue:{:#x}, ValueLength:{:#x}, ReturnLength:{:#x})", VariableName, VariableValue, ValueLength, ReturnLength));
 
-        for(const auto& it : d.observers_NtQuerySystemEnvironmentValue)
+        for(const auto& it : d.observers_ZwQuerySystemEnvironmentValue)
             it(VariableName, VariableValue, ValueLength, ReturnLength);
     }
 
-    static void on_NtQuerySystemInformationEx(monitor::syscallswow64::Data& d)
+    static void on_ZwQuerySystemInformationEx(monitor::syscallswow64::Data& d)
     {
         const auto SystemInformationClass  = arg<wntdll::SYSTEM_INFORMATION_CLASS>(d.core, 0);
         const auto QueryInformation        = arg<wntdll::PVOID>(d.core, 1);
@@ -4144,9 +4133,9 @@ namespace
         const auto ReturnLength            = arg<wntdll::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySystemInformationEx(SystemInformationClass:{:#x}, QueryInformation:{:#x}, QueryInformationLength:{:#x}, SystemInformation:{:#x}, SystemInformationLength:{:#x}, ReturnLength:{:#x})", SystemInformationClass, QueryInformation, QueryInformationLength, SystemInformation, SystemInformationLength, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQuerySystemInformationEx(SystemInformationClass:{:#x}, QueryInformation:{:#x}, QueryInformationLength:{:#x}, SystemInformation:{:#x}, SystemInformationLength:{:#x}, ReturnLength:{:#x})", SystemInformationClass, QueryInformation, QueryInformationLength, SystemInformation, SystemInformationLength, ReturnLength));
 
-        for(const auto& it : d.observers_NtQuerySystemInformationEx)
+        for(const auto& it : d.observers_ZwQuerySystemInformationEx)
             it(SystemInformationClass, QueryInformation, QueryInformationLength, SystemInformation, SystemInformationLength, ReturnLength);
     }
 
@@ -4175,7 +4164,7 @@ namespace
             it(SystemTime);
     }
 
-    static void on_NtQueryTimer(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryTimer(monitor::syscallswow64::Data& d)
     {
         const auto TimerHandle            = arg<wntdll::HANDLE>(d.core, 0);
         const auto TimerInformationClass  = arg<wntdll::TIMER_INFORMATION_CLASS>(d.core, 1);
@@ -4184,9 +4173,9 @@ namespace
         const auto ReturnLength           = arg<wntdll::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryTimer(TimerHandle:{:#x}, TimerInformationClass:{:#x}, TimerInformation:{:#x}, TimerInformationLength:{:#x}, ReturnLength:{:#x})", TimerHandle, TimerInformationClass, TimerInformation, TimerInformationLength, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryTimer(TimerHandle:{:#x}, TimerInformationClass:{:#x}, TimerInformation:{:#x}, TimerInformationLength:{:#x}, ReturnLength:{:#x})", TimerHandle, TimerInformationClass, TimerInformation, TimerInformationLength, ReturnLength));
 
-        for(const auto& it : d.observers_NtQueryTimer)
+        for(const auto& it : d.observers_ZwQueryTimer)
             it(TimerHandle, TimerInformationClass, TimerInformation, TimerInformationLength, ReturnLength);
     }
 
@@ -4203,7 +4192,7 @@ namespace
             it(MaximumTime, MinimumTime, CurrentTime);
     }
 
-    static void on_NtQueryValueKey(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryValueKey(monitor::syscallswow64::Data& d)
     {
         const auto KeyHandle                = arg<wntdll::HANDLE>(d.core, 0);
         const auto ValueName                = arg<wntdll::PUNICODE_STRING>(d.core, 1);
@@ -4213,9 +4202,9 @@ namespace
         const auto ResultLength             = arg<wntdll::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryValueKey(KeyHandle:{:#x}, ValueName:{:#x}, KeyValueInformationClass:{:#x}, KeyValueInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, ValueName, KeyValueInformationClass, KeyValueInformation, Length, ResultLength));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryValueKey(KeyHandle:{:#x}, ValueName:{:#x}, KeyValueInformationClass:{:#x}, KeyValueInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, ValueName, KeyValueInformationClass, KeyValueInformation, Length, ResultLength));
 
-        for(const auto& it : d.observers_NtQueryValueKey)
+        for(const auto& it : d.observers_ZwQueryValueKey)
             it(KeyHandle, ValueName, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
     }
 
@@ -4281,20 +4270,20 @@ namespace
             it(ThreadHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
     }
 
-    static void on_NtRaiseException(monitor::syscallswow64::Data& d)
+    static void on_ZwRaiseException(monitor::syscallswow64::Data& d)
     {
         const auto ExceptionRecord = arg<wntdll::PEXCEPTION_RECORD>(d.core, 0);
         const auto ContextRecord   = arg<wntdll::PCONTEXT>(d.core, 1);
         const auto FirstChance     = arg<wntdll::BOOLEAN>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRaiseException(ExceptionRecord:{:#x}, ContextRecord:{:#x}, FirstChance:{:#x})", ExceptionRecord, ContextRecord, FirstChance));
+            logg::print(logg::level_t::info, fmt::format("ZwRaiseException(ExceptionRecord:{:#x}, ContextRecord:{:#x}, FirstChance:{:#x})", ExceptionRecord, ContextRecord, FirstChance));
 
-        for(const auto& it : d.observers_NtRaiseException)
+        for(const auto& it : d.observers_ZwRaiseException)
             it(ExceptionRecord, ContextRecord, FirstChance);
     }
 
-    static void on_NtRaiseHardError(monitor::syscallswow64::Data& d)
+    static void on_ZwRaiseHardError(monitor::syscallswow64::Data& d)
     {
         const auto ErrorStatus                = arg<wntdll::NTSTATUS>(d.core, 0);
         const auto NumberOfParameters         = arg<wntdll::ULONG>(d.core, 1);
@@ -4304,9 +4293,9 @@ namespace
         const auto Response                   = arg<wntdll::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRaiseHardError(ErrorStatus:{:#x}, NumberOfParameters:{:#x}, UnicodeStringParameterMask:{:#x}, Parameters:{:#x}, ValidResponseOptions:{:#x}, Response:{:#x})", ErrorStatus, NumberOfParameters, UnicodeStringParameterMask, Parameters, ValidResponseOptions, Response));
+            logg::print(logg::level_t::info, fmt::format("ZwRaiseHardError(ErrorStatus:{:#x}, NumberOfParameters:{:#x}, UnicodeStringParameterMask:{:#x}, Parameters:{:#x}, ValidResponseOptions:{:#x}, Response:{:#x})", ErrorStatus, NumberOfParameters, UnicodeStringParameterMask, Parameters, ValidResponseOptions, Response));
 
-        for(const auto& it : d.observers_NtRaiseHardError)
+        for(const auto& it : d.observers_ZwRaiseHardError)
             it(ErrorStatus, NumberOfParameters, UnicodeStringParameterMask, Parameters, ValidResponseOptions, Response);
     }
 
@@ -4348,19 +4337,19 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
     }
 
-    static void on_NtReadOnlyEnlistment(monitor::syscallswow64::Data& d)
+    static void on_ZwReadOnlyEnlistment(monitor::syscallswow64::Data& d)
     {
         const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReadOnlyEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            logg::print(logg::level_t::info, fmt::format("ZwReadOnlyEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
 
-        for(const auto& it : d.observers_NtReadOnlyEnlistment)
+        for(const auto& it : d.observers_ZwReadOnlyEnlistment)
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtReadRequestData(monitor::syscallswow64::Data& d)
+    static void on_ZwReadRequestData(monitor::syscallswow64::Data& d)
     {
         const auto PortHandle        = arg<wntdll::HANDLE>(d.core, 0);
         const auto Message           = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
@@ -4370,9 +4359,9 @@ namespace
         const auto NumberOfBytesRead = arg<wntdll::PSIZE_T>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReadRequestData(PortHandle:{:#x}, Message:{:#x}, DataEntryIndex:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, NumberOfBytesRead:{:#x})", PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesRead));
+            logg::print(logg::level_t::info, fmt::format("ZwReadRequestData(PortHandle:{:#x}, Message:{:#x}, DataEntryIndex:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, NumberOfBytesRead:{:#x})", PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesRead));
 
-        for(const auto& it : d.observers_NtReadRequestData)
+        for(const auto& it : d.observers_ZwReadRequestData)
             it(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesRead);
     }
 
@@ -4414,18 +4403,18 @@ namespace
             it(ResourceManagerHandle);
     }
 
-    static void on_NtRecoverTransactionManager(monitor::syscallswow64::Data& d)
+    static void on_ZwRecoverTransactionManager(monitor::syscallswow64::Data& d)
     {
         const auto TransactionManagerHandle = arg<wntdll::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRecoverTransactionManager(TransactionManagerHandle:{:#x})", TransactionManagerHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwRecoverTransactionManager(TransactionManagerHandle:{:#x})", TransactionManagerHandle));
 
-        for(const auto& it : d.observers_NtRecoverTransactionManager)
+        for(const auto& it : d.observers_ZwRecoverTransactionManager)
             it(TransactionManagerHandle);
     }
 
-    static void on_NtRegisterProtocolAddressInformation(monitor::syscallswow64::Data& d)
+    static void on_ZwRegisterProtocolAddressInformation(monitor::syscallswow64::Data& d)
     {
         const auto ResourceManager         = arg<wntdll::HANDLE>(d.core, 0);
         const auto ProtocolId              = arg<wntdll::PCRM_PROTOCOL_ID>(d.core, 1);
@@ -4434,20 +4423,20 @@ namespace
         const auto CreateOptions           = arg<wntdll::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRegisterProtocolAddressInformation(ResourceManager:{:#x}, ProtocolId:{:#x}, ProtocolInformationSize:{:#x}, ProtocolInformation:{:#x}, CreateOptions:{:#x})", ResourceManager, ProtocolId, ProtocolInformationSize, ProtocolInformation, CreateOptions));
+            logg::print(logg::level_t::info, fmt::format("ZwRegisterProtocolAddressInformation(ResourceManager:{:#x}, ProtocolId:{:#x}, ProtocolInformationSize:{:#x}, ProtocolInformation:{:#x}, CreateOptions:{:#x})", ResourceManager, ProtocolId, ProtocolInformationSize, ProtocolInformation, CreateOptions));
 
-        for(const auto& it : d.observers_NtRegisterProtocolAddressInformation)
+        for(const auto& it : d.observers_ZwRegisterProtocolAddressInformation)
             it(ResourceManager, ProtocolId, ProtocolInformationSize, ProtocolInformation, CreateOptions);
     }
 
-    static void on_NtRegisterThreadTerminatePort(monitor::syscallswow64::Data& d)
+    static void on_ZwRegisterThreadTerminatePort(monitor::syscallswow64::Data& d)
     {
         const auto PortHandle = arg<wntdll::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRegisterThreadTerminatePort(PortHandle:{:#x})", PortHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwRegisterThreadTerminatePort(PortHandle:{:#x})", PortHandle));
 
-        for(const auto& it : d.observers_NtRegisterThreadTerminatePort)
+        for(const auto& it : d.observers_ZwRegisterThreadTerminatePort)
             it(PortHandle);
     }
 
@@ -4465,15 +4454,15 @@ namespace
             it(KeyedEventHandle, KeyValue, Alertable, Timeout);
     }
 
-    static void on_NtReleaseMutant(monitor::syscallswow64::Data& d)
+    static void on_ZwReleaseMutant(monitor::syscallswow64::Data& d)
     {
         const auto MutantHandle  = arg<wntdll::HANDLE>(d.core, 0);
         const auto PreviousCount = arg<wntdll::PLONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReleaseMutant(MutantHandle:{:#x}, PreviousCount:{:#x})", MutantHandle, PreviousCount));
+            logg::print(logg::level_t::info, fmt::format("ZwReleaseMutant(MutantHandle:{:#x}, PreviousCount:{:#x})", MutantHandle, PreviousCount));
 
-        for(const auto& it : d.observers_NtReleaseMutant)
+        for(const auto& it : d.observers_ZwReleaseMutant)
             it(MutantHandle, PreviousCount);
     }
 
@@ -4490,18 +4479,18 @@ namespace
             it(SemaphoreHandle, ReleaseCount, PreviousCount);
     }
 
-    static void on_NtReleaseWorkerFactoryWorker(monitor::syscallswow64::Data& d)
+    static void on_ZwReleaseWorkerFactoryWorker(monitor::syscallswow64::Data& d)
     {
         const auto WorkerFactoryHandle = arg<wntdll::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReleaseWorkerFactoryWorker(WorkerFactoryHandle:{:#x})", WorkerFactoryHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwReleaseWorkerFactoryWorker(WorkerFactoryHandle:{:#x})", WorkerFactoryHandle));
 
-        for(const auto& it : d.observers_NtReleaseWorkerFactoryWorker)
+        for(const auto& it : d.observers_ZwReleaseWorkerFactoryWorker)
             it(WorkerFactoryHandle);
     }
 
-    static void on_NtRemoveIoCompletionEx(monitor::syscallswow64::Data& d)
+    static void on_ZwRemoveIoCompletionEx(monitor::syscallswow64::Data& d)
     {
         const auto IoCompletionHandle      = arg<wntdll::HANDLE>(d.core, 0);
         const auto IoCompletionInformation = arg<wntdll::PFILE_IO_COMPLETION_INFORMATION>(d.core, 1);
@@ -4511,13 +4500,13 @@ namespace
         const auto Alertable               = arg<wntdll::BOOLEAN>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRemoveIoCompletionEx(IoCompletionHandle:{:#x}, IoCompletionInformation:{:#x}, Count:{:#x}, NumEntriesRemoved:{:#x}, Timeout:{:#x}, Alertable:{:#x})", IoCompletionHandle, IoCompletionInformation, Count, NumEntriesRemoved, Timeout, Alertable));
+            logg::print(logg::level_t::info, fmt::format("ZwRemoveIoCompletionEx(IoCompletionHandle:{:#x}, IoCompletionInformation:{:#x}, Count:{:#x}, NumEntriesRemoved:{:#x}, Timeout:{:#x}, Alertable:{:#x})", IoCompletionHandle, IoCompletionInformation, Count, NumEntriesRemoved, Timeout, Alertable));
 
-        for(const auto& it : d.observers_NtRemoveIoCompletionEx)
+        for(const auto& it : d.observers_ZwRemoveIoCompletionEx)
             it(IoCompletionHandle, IoCompletionInformation, Count, NumEntriesRemoved, Timeout, Alertable);
     }
 
-    static void on_NtRemoveIoCompletion(monitor::syscallswow64::Data& d)
+    static void on_ZwRemoveIoCompletion(monitor::syscallswow64::Data& d)
     {
         const auto IoCompletionHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto STARKeyContext     = arg<wntdll::PVOID>(d.core, 1);
@@ -4526,33 +4515,33 @@ namespace
         const auto Timeout            = arg<wntdll::PLARGE_INTEGER>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRemoveIoCompletion(IoCompletionHandle:{:#x}, STARKeyContext:{:#x}, STARApcContext:{:#x}, IoStatusBlock:{:#x}, Timeout:{:#x})", IoCompletionHandle, STARKeyContext, STARApcContext, IoStatusBlock, Timeout));
+            logg::print(logg::level_t::info, fmt::format("ZwRemoveIoCompletion(IoCompletionHandle:{:#x}, STARKeyContext:{:#x}, STARApcContext:{:#x}, IoStatusBlock:{:#x}, Timeout:{:#x})", IoCompletionHandle, STARKeyContext, STARApcContext, IoStatusBlock, Timeout));
 
-        for(const auto& it : d.observers_NtRemoveIoCompletion)
+        for(const auto& it : d.observers_ZwRemoveIoCompletion)
             it(IoCompletionHandle, STARKeyContext, STARApcContext, IoStatusBlock, Timeout);
     }
 
-    static void on_NtRemoveProcessDebug(monitor::syscallswow64::Data& d)
+    static void on_ZwRemoveProcessDebug(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle     = arg<wntdll::HANDLE>(d.core, 0);
         const auto DebugObjectHandle = arg<wntdll::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRemoveProcessDebug(ProcessHandle:{:#x}, DebugObjectHandle:{:#x})", ProcessHandle, DebugObjectHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwRemoveProcessDebug(ProcessHandle:{:#x}, DebugObjectHandle:{:#x})", ProcessHandle, DebugObjectHandle));
 
-        for(const auto& it : d.observers_NtRemoveProcessDebug)
+        for(const auto& it : d.observers_ZwRemoveProcessDebug)
             it(ProcessHandle, DebugObjectHandle);
     }
 
-    static void on_NtRenameKey(monitor::syscallswow64::Data& d)
+    static void on_ZwRenameKey(monitor::syscallswow64::Data& d)
     {
         const auto KeyHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto NewName   = arg<wntdll::PUNICODE_STRING>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRenameKey(KeyHandle:{:#x}, NewName:{:#x})", KeyHandle, NewName));
+            logg::print(logg::level_t::info, fmt::format("ZwRenameKey(KeyHandle:{:#x}, NewName:{:#x})", KeyHandle, NewName));
 
-        for(const auto& it : d.observers_NtRenameKey)
+        for(const auto& it : d.observers_ZwRenameKey)
             it(KeyHandle, NewName);
     }
 
@@ -4568,16 +4557,16 @@ namespace
             it(LogFileName, ExistingTransactionManagerGuid);
     }
 
-    static void on_NtReplaceKey(monitor::syscallswow64::Data& d)
+    static void on_ZwReplaceKey(monitor::syscallswow64::Data& d)
     {
         const auto NewFile      = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto TargetHandle = arg<wntdll::HANDLE>(d.core, 1);
         const auto OldFile      = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReplaceKey(NewFile:{:#x}, TargetHandle:{:#x}, OldFile:{:#x})", NewFile, TargetHandle, OldFile));
+            logg::print(logg::level_t::info, fmt::format("ZwReplaceKey(NewFile:{:#x}, TargetHandle:{:#x}, OldFile:{:#x})", NewFile, TargetHandle, OldFile));
 
-        for(const auto& it : d.observers_NtReplaceKey)
+        for(const auto& it : d.observers_ZwReplaceKey)
             it(NewFile, TargetHandle, OldFile);
     }
 
@@ -4594,15 +4583,15 @@ namespace
             it(TargetInstancePath, SpareInstancePath, Flags);
     }
 
-    static void on_NtReplyPort(monitor::syscallswow64::Data& d)
+    static void on_ZwReplyPort(monitor::syscallswow64::Data& d)
     {
         const auto PortHandle   = arg<wntdll::HANDLE>(d.core, 0);
         const auto ReplyMessage = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReplyPort(PortHandle:{:#x}, ReplyMessage:{:#x})", PortHandle, ReplyMessage));
+            logg::print(logg::level_t::info, fmt::format("ZwReplyPort(PortHandle:{:#x}, ReplyMessage:{:#x})", PortHandle, ReplyMessage));
 
-        for(const auto& it : d.observers_NtReplyPort)
+        for(const auto& it : d.observers_ZwReplyPort)
             it(PortHandle, ReplyMessage);
     }
 
@@ -4647,15 +4636,15 @@ namespace
             it(PortHandle, ReplyMessage);
     }
 
-    static void on_NtRequestPort(monitor::syscallswow64::Data& d)
+    static void on_ZwRequestPort(monitor::syscallswow64::Data& d)
     {
         const auto PortHandle     = arg<wntdll::HANDLE>(d.core, 0);
         const auto RequestMessage = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRequestPort(PortHandle:{:#x}, RequestMessage:{:#x})", PortHandle, RequestMessage));
+            logg::print(logg::level_t::info, fmt::format("ZwRequestPort(PortHandle:{:#x}, RequestMessage:{:#x})", PortHandle, RequestMessage));
 
-        for(const auto& it : d.observers_NtRequestPort)
+        for(const auto& it : d.observers_ZwRequestPort)
             it(PortHandle, RequestMessage);
     }
 
@@ -4684,16 +4673,16 @@ namespace
             it(EventHandle, PreviousState);
     }
 
-    static void on_NtResetWriteWatch(monitor::syscallswow64::Data& d)
+    static void on_ZwResetWriteWatch(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto BaseAddress   = arg<wntdll::PVOID>(d.core, 1);
         const auto RegionSize    = arg<wntdll::SIZE_T>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtResetWriteWatch(ProcessHandle:{:#x}, BaseAddress:{:#x}, RegionSize:{:#x})", ProcessHandle, BaseAddress, RegionSize));
+            logg::print(logg::level_t::info, fmt::format("ZwResetWriteWatch(ProcessHandle:{:#x}, BaseAddress:{:#x}, RegionSize:{:#x})", ProcessHandle, BaseAddress, RegionSize));
 
-        for(const auto& it : d.observers_NtResetWriteWatch)
+        for(const auto& it : d.observers_ZwResetWriteWatch)
             it(ProcessHandle, BaseAddress, RegionSize);
     }
 
@@ -4710,38 +4699,38 @@ namespace
             it(KeyHandle, FileHandle, Flags);
     }
 
-    static void on_NtResumeProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwResumeProcess(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtResumeProcess(ProcessHandle:{:#x})", ProcessHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwResumeProcess(ProcessHandle:{:#x})", ProcessHandle));
 
-        for(const auto& it : d.observers_NtResumeProcess)
+        for(const auto& it : d.observers_ZwResumeProcess)
             it(ProcessHandle);
     }
 
-    static void on_NtResumeThread(monitor::syscallswow64::Data& d)
+    static void on_ZwResumeThread(monitor::syscallswow64::Data& d)
     {
         const auto ThreadHandle         = arg<wntdll::HANDLE>(d.core, 0);
         const auto PreviousSuspendCount = arg<wntdll::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtResumeThread(ThreadHandle:{:#x}, PreviousSuspendCount:{:#x})", ThreadHandle, PreviousSuspendCount));
+            logg::print(logg::level_t::info, fmt::format("ZwResumeThread(ThreadHandle:{:#x}, PreviousSuspendCount:{:#x})", ThreadHandle, PreviousSuspendCount));
 
-        for(const auto& it : d.observers_NtResumeThread)
+        for(const auto& it : d.observers_ZwResumeThread)
             it(ThreadHandle, PreviousSuspendCount);
     }
 
-    static void on_NtRollbackComplete(monitor::syscallswow64::Data& d)
+    static void on_ZwRollbackComplete(monitor::syscallswow64::Data& d)
     {
         const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRollbackComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            logg::print(logg::level_t::info, fmt::format("ZwRollbackComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
 
-        for(const auto& it : d.observers_NtRollbackComplete)
+        for(const auto& it : d.observers_ZwRollbackComplete)
             it(EnlistmentHandle, TmVirtualClock);
     }
 
@@ -4838,39 +4827,39 @@ namespace
             it(PortHandle, PortName, SecurityQos, ClientView, RequiredServerSid, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
     }
 
-    static void on_NtSetBootEntryOrder(monitor::syscallswow64::Data& d)
+    static void on_ZwSetBootEntryOrder(monitor::syscallswow64::Data& d)
     {
         const auto Ids   = arg<wntdll::PULONG>(d.core, 0);
         const auto Count = arg<wntdll::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetBootEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count));
+            logg::print(logg::level_t::info, fmt::format("ZwSetBootEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count));
 
-        for(const auto& it : d.observers_NtSetBootEntryOrder)
+        for(const auto& it : d.observers_ZwSetBootEntryOrder)
             it(Ids, Count);
     }
 
-    static void on_NtSetBootOptions(monitor::syscallswow64::Data& d)
+    static void on_ZwSetBootOptions(monitor::syscallswow64::Data& d)
     {
         const auto BootOptions    = arg<wntdll::PBOOT_OPTIONS>(d.core, 0);
         const auto FieldsToChange = arg<wntdll::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetBootOptions(BootOptions:{:#x}, FieldsToChange:{:#x})", BootOptions, FieldsToChange));
+            logg::print(logg::level_t::info, fmt::format("ZwSetBootOptions(BootOptions:{:#x}, FieldsToChange:{:#x})", BootOptions, FieldsToChange));
 
-        for(const auto& it : d.observers_NtSetBootOptions)
+        for(const auto& it : d.observers_ZwSetBootOptions)
             it(BootOptions, FieldsToChange);
     }
 
-    static void on_NtSetContextThread(monitor::syscallswow64::Data& d)
+    static void on_ZwSetContextThread(monitor::syscallswow64::Data& d)
     {
         const auto ThreadHandle  = arg<wntdll::HANDLE>(d.core, 0);
         const auto ThreadContext = arg<wntdll::PCONTEXT>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetContextThread(ThreadHandle:{:#x}, ThreadContext:{:#x})", ThreadHandle, ThreadContext));
+            logg::print(logg::level_t::info, fmt::format("ZwSetContextThread(ThreadHandle:{:#x}, ThreadContext:{:#x})", ThreadHandle, ThreadContext));
 
-        for(const auto& it : d.observers_NtSetContextThread)
+        for(const auto& it : d.observers_ZwSetContextThread)
             it(ThreadHandle, ThreadContext);
     }
 
@@ -4910,14 +4899,14 @@ namespace
             it(UserProfile, DefaultLocaleId);
     }
 
-    static void on_NtSetDefaultUILanguage(monitor::syscallswow64::Data& d)
+    static void on_ZwSetDefaultUILanguage(monitor::syscallswow64::Data& d)
     {
         const auto DefaultUILanguageId = arg<wntdll::LANGID>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetDefaultUILanguage(DefaultUILanguageId:{:#x})", DefaultUILanguageId));
+            logg::print(logg::level_t::info, fmt::format("ZwSetDefaultUILanguage(DefaultUILanguageId:{:#x})", DefaultUILanguageId));
 
-        for(const auto& it : d.observers_NtSetDefaultUILanguage)
+        for(const auto& it : d.observers_ZwSetDefaultUILanguage)
             it(DefaultUILanguageId);
     }
 
@@ -4933,7 +4922,7 @@ namespace
             it(Ids, Count);
     }
 
-    static void on_NtSetEaFile(monitor::syscallswow64::Data& d)
+    static void on_ZwSetEaFile(monitor::syscallswow64::Data& d)
     {
         const auto FileHandle    = arg<wntdll::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
@@ -4941,9 +4930,9 @@ namespace
         const auto Length        = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetEaFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x})", FileHandle, IoStatusBlock, Buffer, Length));
+            logg::print(logg::level_t::info, fmt::format("ZwSetEaFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x})", FileHandle, IoStatusBlock, Buffer, Length));
 
-        for(const auto& it : d.observers_NtSetEaFile)
+        for(const auto& it : d.observers_ZwSetEaFile)
             it(FileHandle, IoStatusBlock, Buffer, Length);
     }
 
@@ -4992,7 +4981,7 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_NtSetInformationDebugObject(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationDebugObject(monitor::syscallswow64::Data& d)
     {
         const auto DebugObjectHandle           = arg<wntdll::HANDLE>(d.core, 0);
         const auto DebugObjectInformationClass = arg<wntdll::DEBUGOBJECTINFOCLASS>(d.core, 1);
@@ -5001,9 +4990,9 @@ namespace
         const auto ReturnLength                = arg<wntdll::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationDebugObject(DebugObjectHandle:{:#x}, DebugObjectInformationClass:{:#x}, DebugInformation:{:#x}, DebugInformationLength:{:#x}, ReturnLength:{:#x})", DebugObjectHandle, DebugObjectInformationClass, DebugInformation, DebugInformationLength, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwSetInformationDebugObject(DebugObjectHandle:{:#x}, DebugObjectInformationClass:{:#x}, DebugInformation:{:#x}, DebugInformationLength:{:#x}, ReturnLength:{:#x})", DebugObjectHandle, DebugObjectInformationClass, DebugInformation, DebugInformationLength, ReturnLength));
 
-        for(const auto& it : d.observers_NtSetInformationDebugObject)
+        for(const auto& it : d.observers_ZwSetInformationDebugObject)
             it(DebugObjectHandle, DebugObjectInformationClass, DebugInformation, DebugInformationLength, ReturnLength);
     }
 
@@ -5021,7 +5010,7 @@ namespace
             it(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength);
     }
 
-    static void on_NtSetInformationFile(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationFile(monitor::syscallswow64::Data& d)
     {
         const auto FileHandle           = arg<wntdll::HANDLE>(d.core, 0);
         const auto IoStatusBlock        = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
@@ -5030,13 +5019,13 @@ namespace
         const auto FileInformationClass = arg<wntdll::FILE_INFORMATION_CLASS>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x})", FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass));
+            logg::print(logg::level_t::info, fmt::format("ZwSetInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x})", FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass));
 
-        for(const auto& it : d.observers_NtSetInformationFile)
+        for(const auto& it : d.observers_ZwSetInformationFile)
             it(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
     }
 
-    static void on_NtSetInformationJobObject(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationJobObject(monitor::syscallswow64::Data& d)
     {
         const auto JobHandle                  = arg<wntdll::HANDLE>(d.core, 0);
         const auto JobObjectInformationClass  = arg<wntdll::JOBOBJECTINFOCLASS>(d.core, 1);
@@ -5044,13 +5033,13 @@ namespace
         const auto JobObjectInformationLength = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationJobObject(JobHandle:{:#x}, JobObjectInformationClass:{:#x}, JobObjectInformation:{:#x}, JobObjectInformationLength:{:#x})", JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength));
+            logg::print(logg::level_t::info, fmt::format("ZwSetInformationJobObject(JobHandle:{:#x}, JobObjectInformationClass:{:#x}, JobObjectInformation:{:#x}, JobObjectInformationLength:{:#x})", JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength));
 
-        for(const auto& it : d.observers_NtSetInformationJobObject)
+        for(const auto& it : d.observers_ZwSetInformationJobObject)
             it(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength);
     }
 
-    static void on_NtSetInformationKey(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationKey(monitor::syscallswow64::Data& d)
     {
         const auto KeyHandle               = arg<wntdll::HANDLE>(d.core, 0);
         const auto KeySetInformationClass  = arg<wntdll::KEY_SET_INFORMATION_CLASS>(d.core, 1);
@@ -5058,13 +5047,13 @@ namespace
         const auto KeySetInformationLength = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationKey(KeyHandle:{:#x}, KeySetInformationClass:{:#x}, KeySetInformation:{:#x}, KeySetInformationLength:{:#x})", KeyHandle, KeySetInformationClass, KeySetInformation, KeySetInformationLength));
+            logg::print(logg::level_t::info, fmt::format("ZwSetInformationKey(KeyHandle:{:#x}, KeySetInformationClass:{:#x}, KeySetInformation:{:#x}, KeySetInformationLength:{:#x})", KeyHandle, KeySetInformationClass, KeySetInformation, KeySetInformationLength));
 
-        for(const auto& it : d.observers_NtSetInformationKey)
+        for(const auto& it : d.observers_ZwSetInformationKey)
             it(KeyHandle, KeySetInformationClass, KeySetInformation, KeySetInformationLength);
     }
 
-    static void on_NtSetInformationObject(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationObject(monitor::syscallswow64::Data& d)
     {
         const auto Handle                  = arg<wntdll::HANDLE>(d.core, 0);
         const auto ObjectInformationClass  = arg<wntdll::OBJECT_INFORMATION_CLASS>(d.core, 1);
@@ -5072,13 +5061,13 @@ namespace
         const auto ObjectInformationLength = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationObject(Handle:{:#x}, ObjectInformationClass:{:#x}, ObjectInformation:{:#x}, ObjectInformationLength:{:#x})", Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength));
+            logg::print(logg::level_t::info, fmt::format("ZwSetInformationObject(Handle:{:#x}, ObjectInformationClass:{:#x}, ObjectInformation:{:#x}, ObjectInformationLength:{:#x})", Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength));
 
-        for(const auto& it : d.observers_NtSetInformationObject)
+        for(const auto& it : d.observers_ZwSetInformationObject)
             it(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength);
     }
 
-    static void on_NtSetInformationProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationProcess(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle            = arg<wntdll::HANDLE>(d.core, 0);
         const auto ProcessInformationClass  = arg<wntdll::PROCESSINFOCLASS>(d.core, 1);
@@ -5086,13 +5075,13 @@ namespace
         const auto ProcessInformationLength = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationProcess(ProcessHandle:{:#x}, ProcessInformationClass:{:#x}, ProcessInformation:{:#x}, ProcessInformationLength:{:#x})", ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength));
+            logg::print(logg::level_t::info, fmt::format("ZwSetInformationProcess(ProcessHandle:{:#x}, ProcessInformationClass:{:#x}, ProcessInformation:{:#x}, ProcessInformationLength:{:#x})", ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength));
 
-        for(const auto& it : d.observers_NtSetInformationProcess)
+        for(const auto& it : d.observers_ZwSetInformationProcess)
             it(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength);
     }
 
-    static void on_NtSetInformationResourceManager(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationResourceManager(monitor::syscallswow64::Data& d)
     {
         const auto ResourceManagerHandle            = arg<wntdll::HANDLE>(d.core, 0);
         const auto ResourceManagerInformationClass  = arg<wntdll::RESOURCEMANAGER_INFORMATION_CLASS>(d.core, 1);
@@ -5100,13 +5089,13 @@ namespace
         const auto ResourceManagerInformationLength = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationResourceManager(ResourceManagerHandle:{:#x}, ResourceManagerInformationClass:{:#x}, ResourceManagerInformation:{:#x}, ResourceManagerInformationLength:{:#x})", ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength));
+            logg::print(logg::level_t::info, fmt::format("ZwSetInformationResourceManager(ResourceManagerHandle:{:#x}, ResourceManagerInformationClass:{:#x}, ResourceManagerInformation:{:#x}, ResourceManagerInformationLength:{:#x})", ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength));
 
-        for(const auto& it : d.observers_NtSetInformationResourceManager)
+        for(const auto& it : d.observers_ZwSetInformationResourceManager)
             it(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength);
     }
 
-    static void on_NtSetInformationThread(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationThread(monitor::syscallswow64::Data& d)
     {
         const auto ThreadHandle            = arg<wntdll::HANDLE>(d.core, 0);
         const auto ThreadInformationClass  = arg<wntdll::THREADINFOCLASS>(d.core, 1);
@@ -5114,13 +5103,13 @@ namespace
         const auto ThreadInformationLength = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationThread(ThreadHandle:{:#x}, ThreadInformationClass:{:#x}, ThreadInformation:{:#x}, ThreadInformationLength:{:#x})", ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength));
+            logg::print(logg::level_t::info, fmt::format("ZwSetInformationThread(ThreadHandle:{:#x}, ThreadInformationClass:{:#x}, ThreadInformation:{:#x}, ThreadInformationLength:{:#x})", ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength));
 
-        for(const auto& it : d.observers_NtSetInformationThread)
+        for(const auto& it : d.observers_ZwSetInformationThread)
             it(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength);
     }
 
-    static void on_NtSetInformationToken(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationToken(monitor::syscallswow64::Data& d)
     {
         const auto TokenHandle            = arg<wntdll::HANDLE>(d.core, 0);
         const auto TokenInformationClass  = arg<wntdll::TOKEN_INFORMATION_CLASS>(d.core, 1);
@@ -5128,13 +5117,13 @@ namespace
         const auto TokenInformationLength = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationToken(TokenHandle:{:#x}, TokenInformationClass:{:#x}, TokenInformation:{:#x}, TokenInformationLength:{:#x})", TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength));
+            logg::print(logg::level_t::info, fmt::format("ZwSetInformationToken(TokenHandle:{:#x}, TokenInformationClass:{:#x}, TokenInformation:{:#x}, TokenInformationLength:{:#x})", TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength));
 
-        for(const auto& it : d.observers_NtSetInformationToken)
+        for(const auto& it : d.observers_ZwSetInformationToken)
             it(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength);
     }
 
-    static void on_NtSetInformationTransaction(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationTransaction(monitor::syscallswow64::Data& d)
     {
         const auto TransactionHandle            = arg<wntdll::HANDLE>(d.core, 0);
         const auto TransactionInformationClass  = arg<wntdll::TRANSACTION_INFORMATION_CLASS>(d.core, 1);
@@ -5142,13 +5131,13 @@ namespace
         const auto TransactionInformationLength = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationTransaction(TransactionHandle:{:#x}, TransactionInformationClass:{:#x}, TransactionInformation:{:#x}, TransactionInformationLength:{:#x})", TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength));
+            logg::print(logg::level_t::info, fmt::format("ZwSetInformationTransaction(TransactionHandle:{:#x}, TransactionInformationClass:{:#x}, TransactionInformation:{:#x}, TransactionInformationLength:{:#x})", TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength));
 
-        for(const auto& it : d.observers_NtSetInformationTransaction)
+        for(const auto& it : d.observers_ZwSetInformationTransaction)
             it(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength);
     }
 
-    static void on_NtSetInformationTransactionManager(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationTransactionManager(monitor::syscallswow64::Data& d)
     {
         const auto TmHandle                            = arg<wntdll::HANDLE>(d.core, 0);
         const auto TransactionManagerInformationClass  = arg<wntdll::TRANSACTIONMANAGER_INFORMATION_CLASS>(d.core, 1);
@@ -5156,13 +5145,13 @@ namespace
         const auto TransactionManagerInformationLength = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationTransactionManager(TmHandle:{:#x}, TransactionManagerInformationClass:{:#x}, TransactionManagerInformation:{:#x}, TransactionManagerInformationLength:{:#x})", TmHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength));
+            logg::print(logg::level_t::info, fmt::format("ZwSetInformationTransactionManager(TmHandle:{:#x}, TransactionManagerInformationClass:{:#x}, TransactionManagerInformation:{:#x}, TransactionManagerInformationLength:{:#x})", TmHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength));
 
-        for(const auto& it : d.observers_NtSetInformationTransactionManager)
+        for(const auto& it : d.observers_ZwSetInformationTransactionManager)
             it(TmHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength);
     }
 
-    static void on_NtSetInformationWorkerFactory(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationWorkerFactory(monitor::syscallswow64::Data& d)
     {
         const auto WorkerFactoryHandle            = arg<wntdll::HANDLE>(d.core, 0);
         const auto WorkerFactoryInformationClass  = arg<wntdll::WORKERFACTORYINFOCLASS>(d.core, 1);
@@ -5170,9 +5159,9 @@ namespace
         const auto WorkerFactoryInformationLength = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationWorkerFactory(WorkerFactoryHandle:{:#x}, WorkerFactoryInformationClass:{:#x}, WorkerFactoryInformation:{:#x}, WorkerFactoryInformationLength:{:#x})", WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength));
+            logg::print(logg::level_t::info, fmt::format("ZwSetInformationWorkerFactory(WorkerFactoryHandle:{:#x}, WorkerFactoryInformationClass:{:#x}, WorkerFactoryInformation:{:#x}, WorkerFactoryInformationLength:{:#x})", WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength));
 
-        for(const auto& it : d.observers_NtSetInformationWorkerFactory)
+        for(const auto& it : d.observers_ZwSetInformationWorkerFactory)
             it(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength);
     }
 
@@ -5219,7 +5208,7 @@ namespace
             it(IoCompletionHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
     }
 
-    static void on_NtSetLdtEntries(monitor::syscallswow64::Data& d)
+    static void on_ZwSetLdtEntries(monitor::syscallswow64::Data& d)
     {
         const auto Selector0 = arg<wntdll::ULONG>(d.core, 0);
         const auto Entry0Low = arg<wntdll::ULONG>(d.core, 1);
@@ -5229,35 +5218,35 @@ namespace
         const auto Entry1Hi  = arg<wntdll::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetLdtEntries(Selector0:{:#x}, Entry0Low:{:#x}, Entry0Hi:{:#x}, Selector1:{:#x}, Entry1Low:{:#x}, Entry1Hi:{:#x})", Selector0, Entry0Low, Entry0Hi, Selector1, Entry1Low, Entry1Hi));
+            logg::print(logg::level_t::info, fmt::format("ZwSetLdtEntries(Selector0:{:#x}, Entry0Low:{:#x}, Entry0Hi:{:#x}, Selector1:{:#x}, Entry1Low:{:#x}, Entry1Hi:{:#x})", Selector0, Entry0Low, Entry0Hi, Selector1, Entry1Low, Entry1Hi));
 
-        for(const auto& it : d.observers_NtSetLdtEntries)
+        for(const auto& it : d.observers_ZwSetLdtEntries)
             it(Selector0, Entry0Low, Entry0Hi, Selector1, Entry1Low, Entry1Hi);
     }
 
-    static void on_NtSetLowEventPair(monitor::syscallswow64::Data& d)
+    static void on_ZwSetLowEventPair(monitor::syscallswow64::Data& d)
     {
         const auto EventPairHandle = arg<wntdll::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetLowEventPair(EventPairHandle:{:#x})", EventPairHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwSetLowEventPair(EventPairHandle:{:#x})", EventPairHandle));
 
-        for(const auto& it : d.observers_NtSetLowEventPair)
+        for(const auto& it : d.observers_ZwSetLowEventPair)
             it(EventPairHandle);
     }
 
-    static void on_NtSetLowWaitHighEventPair(monitor::syscallswow64::Data& d)
+    static void on_ZwSetLowWaitHighEventPair(monitor::syscallswow64::Data& d)
     {
         const auto EventPairHandle = arg<wntdll::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetLowWaitHighEventPair(EventPairHandle:{:#x})", EventPairHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwSetLowWaitHighEventPair(EventPairHandle:{:#x})", EventPairHandle));
 
-        for(const auto& it : d.observers_NtSetLowWaitHighEventPair)
+        for(const auto& it : d.observers_ZwSetLowWaitHighEventPair)
             it(EventPairHandle);
     }
 
-    static void on_NtSetQuotaInformationFile(monitor::syscallswow64::Data& d)
+    static void on_ZwSetQuotaInformationFile(monitor::syscallswow64::Data& d)
     {
         const auto FileHandle    = arg<wntdll::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
@@ -5265,9 +5254,9 @@ namespace
         const auto Length        = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetQuotaInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x})", FileHandle, IoStatusBlock, Buffer, Length));
+            logg::print(logg::level_t::info, fmt::format("ZwSetQuotaInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x})", FileHandle, IoStatusBlock, Buffer, Length));
 
-        for(const auto& it : d.observers_NtSetQuotaInformationFile)
+        for(const auto& it : d.observers_ZwSetQuotaInformationFile)
             it(FileHandle, IoStatusBlock, Buffer, Length);
     }
 
@@ -5284,7 +5273,7 @@ namespace
             it(Handle, SecurityInformation, SecurityDescriptor);
     }
 
-    static void on_NtSetSystemEnvironmentValueEx(monitor::syscallswow64::Data& d)
+    static void on_ZwSetSystemEnvironmentValueEx(monitor::syscallswow64::Data& d)
     {
         const auto VariableName = arg<wntdll::PUNICODE_STRING>(d.core, 0);
         const auto VendorGuid   = arg<wntdll::LPGUID>(d.core, 1);
@@ -5293,75 +5282,75 @@ namespace
         const auto Attributes   = arg<wntdll::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetSystemEnvironmentValueEx(VariableName:{:#x}, VendorGuid:{:#x}, Value:{:#x}, ValueLength:{:#x}, Attributes:{:#x})", VariableName, VendorGuid, Value, ValueLength, Attributes));
+            logg::print(logg::level_t::info, fmt::format("ZwSetSystemEnvironmentValueEx(VariableName:{:#x}, VendorGuid:{:#x}, Value:{:#x}, ValueLength:{:#x}, Attributes:{:#x})", VariableName, VendorGuid, Value, ValueLength, Attributes));
 
-        for(const auto& it : d.observers_NtSetSystemEnvironmentValueEx)
+        for(const auto& it : d.observers_ZwSetSystemEnvironmentValueEx)
             it(VariableName, VendorGuid, Value, ValueLength, Attributes);
     }
 
-    static void on_NtSetSystemEnvironmentValue(monitor::syscallswow64::Data& d)
+    static void on_ZwSetSystemEnvironmentValue(monitor::syscallswow64::Data& d)
     {
         const auto VariableName  = arg<wntdll::PUNICODE_STRING>(d.core, 0);
         const auto VariableValue = arg<wntdll::PUNICODE_STRING>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetSystemEnvironmentValue(VariableName:{:#x}, VariableValue:{:#x})", VariableName, VariableValue));
+            logg::print(logg::level_t::info, fmt::format("ZwSetSystemEnvironmentValue(VariableName:{:#x}, VariableValue:{:#x})", VariableName, VariableValue));
 
-        for(const auto& it : d.observers_NtSetSystemEnvironmentValue)
+        for(const auto& it : d.observers_ZwSetSystemEnvironmentValue)
             it(VariableName, VariableValue);
     }
 
-    static void on_NtSetSystemInformation(monitor::syscallswow64::Data& d)
+    static void on_ZwSetSystemInformation(monitor::syscallswow64::Data& d)
     {
         const auto SystemInformationClass  = arg<wntdll::SYSTEM_INFORMATION_CLASS>(d.core, 0);
         const auto SystemInformation       = arg<wntdll::PVOID>(d.core, 1);
         const auto SystemInformationLength = arg<wntdll::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetSystemInformation(SystemInformationClass:{:#x}, SystemInformation:{:#x}, SystemInformationLength:{:#x})", SystemInformationClass, SystemInformation, SystemInformationLength));
+            logg::print(logg::level_t::info, fmt::format("ZwSetSystemInformation(SystemInformationClass:{:#x}, SystemInformation:{:#x}, SystemInformationLength:{:#x})", SystemInformationClass, SystemInformation, SystemInformationLength));
 
-        for(const auto& it : d.observers_NtSetSystemInformation)
+        for(const auto& it : d.observers_ZwSetSystemInformation)
             it(SystemInformationClass, SystemInformation, SystemInformationLength);
     }
 
-    static void on_NtSetSystemPowerState(monitor::syscallswow64::Data& d)
+    static void on_ZwSetSystemPowerState(monitor::syscallswow64::Data& d)
     {
         const auto SystemAction   = arg<wntdll::POWER_ACTION>(d.core, 0);
         const auto MinSystemState = arg<wntdll::SYSTEM_POWER_STATE>(d.core, 1);
         const auto Flags          = arg<wntdll::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetSystemPowerState(SystemAction:{:#x}, MinSystemState:{:#x}, Flags:{:#x})", SystemAction, MinSystemState, Flags));
+            logg::print(logg::level_t::info, fmt::format("ZwSetSystemPowerState(SystemAction:{:#x}, MinSystemState:{:#x}, Flags:{:#x})", SystemAction, MinSystemState, Flags));
 
-        for(const auto& it : d.observers_NtSetSystemPowerState)
+        for(const auto& it : d.observers_ZwSetSystemPowerState)
             it(SystemAction, MinSystemState, Flags);
     }
 
-    static void on_NtSetSystemTime(monitor::syscallswow64::Data& d)
+    static void on_ZwSetSystemTime(monitor::syscallswow64::Data& d)
     {
         const auto SystemTime   = arg<wntdll::PLARGE_INTEGER>(d.core, 0);
         const auto PreviousTime = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetSystemTime(SystemTime:{:#x}, PreviousTime:{:#x})", SystemTime, PreviousTime));
+            logg::print(logg::level_t::info, fmt::format("ZwSetSystemTime(SystemTime:{:#x}, PreviousTime:{:#x})", SystemTime, PreviousTime));
 
-        for(const auto& it : d.observers_NtSetSystemTime)
+        for(const auto& it : d.observers_ZwSetSystemTime)
             it(SystemTime, PreviousTime);
     }
 
-    static void on_NtSetThreadExecutionState(monitor::syscallswow64::Data& d)
+    static void on_ZwSetThreadExecutionState(monitor::syscallswow64::Data& d)
     {
         const auto esFlags           = arg<wntdll::EXECUTION_STATE>(d.core, 0);
         const auto STARPreviousFlags = arg<wntdll::EXECUTION_STATE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetThreadExecutionState(esFlags:{:#x}, STARPreviousFlags:{:#x})", esFlags, STARPreviousFlags));
+            logg::print(logg::level_t::info, fmt::format("ZwSetThreadExecutionState(esFlags:{:#x}, STARPreviousFlags:{:#x})", esFlags, STARPreviousFlags));
 
-        for(const auto& it : d.observers_NtSetThreadExecutionState)
+        for(const auto& it : d.observers_ZwSetThreadExecutionState)
             it(esFlags, STARPreviousFlags);
     }
 
-    static void on_NtSetTimerEx(monitor::syscallswow64::Data& d)
+    static void on_ZwSetTimerEx(monitor::syscallswow64::Data& d)
     {
         const auto TimerHandle               = arg<wntdll::HANDLE>(d.core, 0);
         const auto TimerSetInformationClass  = arg<wntdll::TIMER_SET_INFORMATION_CLASS>(d.core, 1);
@@ -5369,13 +5358,13 @@ namespace
         const auto TimerSetInformationLength = arg<wntdll::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetTimerEx(TimerHandle:{:#x}, TimerSetInformationClass:{:#x}, TimerSetInformation:{:#x}, TimerSetInformationLength:{:#x})", TimerHandle, TimerSetInformationClass, TimerSetInformation, TimerSetInformationLength));
+            logg::print(logg::level_t::info, fmt::format("ZwSetTimerEx(TimerHandle:{:#x}, TimerSetInformationClass:{:#x}, TimerSetInformation:{:#x}, TimerSetInformationLength:{:#x})", TimerHandle, TimerSetInformationClass, TimerSetInformation, TimerSetInformationLength));
 
-        for(const auto& it : d.observers_NtSetTimerEx)
+        for(const auto& it : d.observers_ZwSetTimerEx)
             it(TimerHandle, TimerSetInformationClass, TimerSetInformation, TimerSetInformationLength);
     }
 
-    static void on_NtSetTimer(monitor::syscallswow64::Data& d)
+    static void on_ZwSetTimer(monitor::syscallswow64::Data& d)
     {
         const auto TimerHandle     = arg<wntdll::HANDLE>(d.core, 0);
         const auto DueTime         = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
@@ -5386,9 +5375,9 @@ namespace
         const auto PreviousState   = arg<wntdll::PBOOLEAN>(d.core, 6);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetTimer(TimerHandle:{:#x}, DueTime:{:#x}, TimerApcRoutine:{:#x}, TimerContext:{:#x}, WakeTimer:{:#x}, Period:{:#x}, PreviousState:{:#x})", TimerHandle, DueTime, TimerApcRoutine, TimerContext, WakeTimer, Period, PreviousState));
+            logg::print(logg::level_t::info, fmt::format("ZwSetTimer(TimerHandle:{:#x}, DueTime:{:#x}, TimerApcRoutine:{:#x}, TimerContext:{:#x}, WakeTimer:{:#x}, Period:{:#x}, PreviousState:{:#x})", TimerHandle, DueTime, TimerApcRoutine, TimerContext, WakeTimer, Period, PreviousState));
 
-        for(const auto& it : d.observers_NtSetTimer)
+        for(const auto& it : d.observers_ZwSetTimer)
             it(TimerHandle, DueTime, TimerApcRoutine, TimerContext, WakeTimer, Period, PreviousState);
     }
 
@@ -5405,18 +5394,18 @@ namespace
             it(DesiredTime, SetResolution, ActualTime);
     }
 
-    static void on_NtSetUuidSeed(monitor::syscallswow64::Data& d)
+    static void on_ZwSetUuidSeed(monitor::syscallswow64::Data& d)
     {
         const auto Seed = arg<wntdll::PCHAR>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetUuidSeed(Seed:{:#x})", Seed));
+            logg::print(logg::level_t::info, fmt::format("ZwSetUuidSeed(Seed:{:#x})", Seed));
 
-        for(const auto& it : d.observers_NtSetUuidSeed)
+        for(const auto& it : d.observers_ZwSetUuidSeed)
             it(Seed);
     }
 
-    static void on_NtSetValueKey(monitor::syscallswow64::Data& d)
+    static void on_ZwSetValueKey(monitor::syscallswow64::Data& d)
     {
         const auto KeyHandle  = arg<wntdll::HANDLE>(d.core, 0);
         const auto ValueName  = arg<wntdll::PUNICODE_STRING>(d.core, 1);
@@ -5426,9 +5415,9 @@ namespace
         const auto DataSize   = arg<wntdll::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetValueKey(KeyHandle:{:#x}, ValueName:{:#x}, TitleIndex:{:#x}, Type:{:#x}, Data:{:#x}, DataSize:{:#x})", KeyHandle, ValueName, TitleIndex, Type, Data, DataSize));
+            logg::print(logg::level_t::info, fmt::format("ZwSetValueKey(KeyHandle:{:#x}, ValueName:{:#x}, TitleIndex:{:#x}, Type:{:#x}, Data:{:#x}, DataSize:{:#x})", KeyHandle, ValueName, TitleIndex, Type, Data, DataSize));
 
-        for(const auto& it : d.observers_NtSetValueKey)
+        for(const auto& it : d.observers_ZwSetValueKey)
             it(KeyHandle, ValueName, TitleIndex, Type, Data, DataSize);
     }
 
@@ -5447,14 +5436,14 @@ namespace
             it(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
     }
 
-    static void on_NtShutdownSystem(monitor::syscallswow64::Data& d)
+    static void on_ZwShutdownSystem(monitor::syscallswow64::Data& d)
     {
         const auto Action = arg<wntdll::SHUTDOWN_ACTION>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtShutdownSystem(Action:{:#x})", Action));
+            logg::print(logg::level_t::info, fmt::format("ZwShutdownSystem(Action:{:#x})", Action));
 
-        for(const auto& it : d.observers_NtShutdownSystem)
+        for(const auto& it : d.observers_ZwShutdownSystem)
             it(Action);
     }
 
@@ -5470,7 +5459,7 @@ namespace
             it(WorkerFactoryHandle, STARPendingWorkerCount);
     }
 
-    static void on_NtSignalAndWaitForSingleObject(monitor::syscallswow64::Data& d)
+    static void on_ZwSignalAndWaitForSingleObject(monitor::syscallswow64::Data& d)
     {
         const auto SignalHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto WaitHandle   = arg<wntdll::HANDLE>(d.core, 1);
@@ -5478,21 +5467,21 @@ namespace
         const auto Timeout      = arg<wntdll::PLARGE_INTEGER>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSignalAndWaitForSingleObject(SignalHandle:{:#x}, WaitHandle:{:#x}, Alertable:{:#x}, Timeout:{:#x})", SignalHandle, WaitHandle, Alertable, Timeout));
+            logg::print(logg::level_t::info, fmt::format("ZwSignalAndWaitForSingleObject(SignalHandle:{:#x}, WaitHandle:{:#x}, Alertable:{:#x}, Timeout:{:#x})", SignalHandle, WaitHandle, Alertable, Timeout));
 
-        for(const auto& it : d.observers_NtSignalAndWaitForSingleObject)
+        for(const auto& it : d.observers_ZwSignalAndWaitForSingleObject)
             it(SignalHandle, WaitHandle, Alertable, Timeout);
     }
 
-    static void on_NtSinglePhaseReject(monitor::syscallswow64::Data& d)
+    static void on_ZwSinglePhaseReject(monitor::syscallswow64::Data& d)
     {
         const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSinglePhaseReject(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            logg::print(logg::level_t::info, fmt::format("ZwSinglePhaseReject(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
 
-        for(const auto& it : d.observers_NtSinglePhaseReject)
+        for(const auto& it : d.observers_ZwSinglePhaseReject)
             it(EnlistmentHandle, TmVirtualClock);
     }
 
@@ -5507,37 +5496,37 @@ namespace
             it(ProfileHandle);
     }
 
-    static void on_NtStopProfile(monitor::syscallswow64::Data& d)
+    static void on_ZwStopProfile(monitor::syscallswow64::Data& d)
     {
         const auto ProfileHandle = arg<wntdll::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtStopProfile(ProfileHandle:{:#x})", ProfileHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwStopProfile(ProfileHandle:{:#x})", ProfileHandle));
 
-        for(const auto& it : d.observers_NtStopProfile)
+        for(const auto& it : d.observers_ZwStopProfile)
             it(ProfileHandle);
     }
 
-    static void on_NtSuspendProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwSuspendProcess(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSuspendProcess(ProcessHandle:{:#x})", ProcessHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwSuspendProcess(ProcessHandle:{:#x})", ProcessHandle));
 
-        for(const auto& it : d.observers_NtSuspendProcess)
+        for(const auto& it : d.observers_ZwSuspendProcess)
             it(ProcessHandle);
     }
 
-    static void on_NtSuspendThread(monitor::syscallswow64::Data& d)
+    static void on_ZwSuspendThread(monitor::syscallswow64::Data& d)
     {
         const auto ThreadHandle         = arg<wntdll::HANDLE>(d.core, 0);
         const auto PreviousSuspendCount = arg<wntdll::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSuspendThread(ThreadHandle:{:#x}, PreviousSuspendCount:{:#x})", ThreadHandle, PreviousSuspendCount));
+            logg::print(logg::level_t::info, fmt::format("ZwSuspendThread(ThreadHandle:{:#x}, PreviousSuspendCount:{:#x})", ThreadHandle, PreviousSuspendCount));
 
-        for(const auto& it : d.observers_NtSuspendThread)
+        for(const auto& it : d.observers_ZwSuspendThread)
             it(ThreadHandle, PreviousSuspendCount);
     }
 
@@ -5557,43 +5546,43 @@ namespace
             it(Command, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength, ReturnLength);
     }
 
-    static void on_NtTerminateJobObject(monitor::syscallswow64::Data& d)
+    static void on_ZwTerminateJobObject(monitor::syscallswow64::Data& d)
     {
         const auto JobHandle  = arg<wntdll::HANDLE>(d.core, 0);
         const auto ExitStatus = arg<wntdll::NTSTATUS>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtTerminateJobObject(JobHandle:{:#x}, ExitStatus:{:#x})", JobHandle, ExitStatus));
+            logg::print(logg::level_t::info, fmt::format("ZwTerminateJobObject(JobHandle:{:#x}, ExitStatus:{:#x})", JobHandle, ExitStatus));
 
-        for(const auto& it : d.observers_NtTerminateJobObject)
+        for(const auto& it : d.observers_ZwTerminateJobObject)
             it(JobHandle, ExitStatus);
     }
 
-    static void on_NtTerminateProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwTerminateProcess(monitor::syscallswow64::Data& d)
     {
         const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto ExitStatus    = arg<wntdll::NTSTATUS>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtTerminateProcess(ProcessHandle:{:#x}, ExitStatus:{:#x})", ProcessHandle, ExitStatus));
+            logg::print(logg::level_t::info, fmt::format("ZwTerminateProcess(ProcessHandle:{:#x}, ExitStatus:{:#x})", ProcessHandle, ExitStatus));
 
-        for(const auto& it : d.observers_NtTerminateProcess)
+        for(const auto& it : d.observers_ZwTerminateProcess)
             it(ProcessHandle, ExitStatus);
     }
 
-    static void on_NtTerminateThread(monitor::syscallswow64::Data& d)
+    static void on_ZwTerminateThread(monitor::syscallswow64::Data& d)
     {
         const auto ThreadHandle = arg<wntdll::HANDLE>(d.core, 0);
         const auto ExitStatus   = arg<wntdll::NTSTATUS>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtTerminateThread(ThreadHandle:{:#x}, ExitStatus:{:#x})", ThreadHandle, ExitStatus));
+            logg::print(logg::level_t::info, fmt::format("ZwTerminateThread(ThreadHandle:{:#x}, ExitStatus:{:#x})", ThreadHandle, ExitStatus));
 
-        for(const auto& it : d.observers_NtTerminateThread)
+        for(const auto& it : d.observers_ZwTerminateThread)
             it(ThreadHandle, ExitStatus);
     }
 
-    static void on_NtTraceControl(monitor::syscallswow64::Data& d)
+    static void on_ZwTraceControl(monitor::syscallswow64::Data& d)
     {
         const auto FunctionCode = arg<wntdll::ULONG>(d.core, 0);
         const auto InBuffer     = arg<wntdll::PVOID>(d.core, 1);
@@ -5603,9 +5592,9 @@ namespace
         const auto ReturnLength = arg<wntdll::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtTraceControl(FunctionCode:{:#x}, InBuffer:{:#x}, InBufferLen:{:#x}, OutBuffer:{:#x}, OutBufferLen:{:#x}, ReturnLength:{:#x})", FunctionCode, InBuffer, InBufferLen, OutBuffer, OutBufferLen, ReturnLength));
+            logg::print(logg::level_t::info, fmt::format("ZwTraceControl(FunctionCode:{:#x}, InBuffer:{:#x}, InBufferLen:{:#x}, OutBuffer:{:#x}, OutBufferLen:{:#x}, ReturnLength:{:#x})", FunctionCode, InBuffer, InBufferLen, OutBuffer, OutBufferLen, ReturnLength));
 
-        for(const auto& it : d.observers_NtTraceControl)
+        for(const auto& it : d.observers_ZwTraceControl)
             it(FunctionCode, InBuffer, InBufferLen, OutBuffer, OutBufferLen, ReturnLength);
     }
 
@@ -5637,38 +5626,38 @@ namespace
             it(InputFilePath, OutputType, OutputFilePath, OutputFilePathLength);
     }
 
-    static void on_NtUnloadDriver(monitor::syscallswow64::Data& d)
+    static void on_ZwUnloadDriver(monitor::syscallswow64::Data& d)
     {
         const auto DriverServiceName = arg<wntdll::PUNICODE_STRING>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtUnloadDriver(DriverServiceName:{:#x})", DriverServiceName));
+            logg::print(logg::level_t::info, fmt::format("ZwUnloadDriver(DriverServiceName:{:#x})", DriverServiceName));
 
-        for(const auto& it : d.observers_NtUnloadDriver)
+        for(const auto& it : d.observers_ZwUnloadDriver)
             it(DriverServiceName);
     }
 
-    static void on_NtUnloadKey2(monitor::syscallswow64::Data& d)
+    static void on_ZwUnloadKey2(monitor::syscallswow64::Data& d)
     {
         const auto TargetKey = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto Flags     = arg<wntdll::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtUnloadKey2(TargetKey:{:#x}, Flags:{:#x})", TargetKey, Flags));
+            logg::print(logg::level_t::info, fmt::format("ZwUnloadKey2(TargetKey:{:#x}, Flags:{:#x})", TargetKey, Flags));
 
-        for(const auto& it : d.observers_NtUnloadKey2)
+        for(const auto& it : d.observers_ZwUnloadKey2)
             it(TargetKey, Flags);
     }
 
-    static void on_NtUnloadKeyEx(monitor::syscallswow64::Data& d)
+    static void on_ZwUnloadKeyEx(monitor::syscallswow64::Data& d)
     {
         const auto TargetKey = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto Event     = arg<wntdll::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtUnloadKeyEx(TargetKey:{:#x}, Event:{:#x})", TargetKey, Event));
+            logg::print(logg::level_t::info, fmt::format("ZwUnloadKeyEx(TargetKey:{:#x}, Event:{:#x})", TargetKey, Event));
 
-        for(const auto& it : d.observers_NtUnloadKeyEx)
+        for(const auto& it : d.observers_ZwUnloadKeyEx)
             it(TargetKey, Event);
     }
 
@@ -5683,7 +5672,7 @@ namespace
             it(TargetKey);
     }
 
-    static void on_NtUnlockFile(monitor::syscallswow64::Data& d)
+    static void on_ZwUnlockFile(monitor::syscallswow64::Data& d)
     {
         const auto FileHandle    = arg<wntdll::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
@@ -5692,9 +5681,9 @@ namespace
         const auto Key           = arg<wntdll::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtUnlockFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, ByteOffset:{:#x}, Length:{:#x}, Key:{:#x})", FileHandle, IoStatusBlock, ByteOffset, Length, Key));
+            logg::print(logg::level_t::info, fmt::format("ZwUnlockFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, ByteOffset:{:#x}, Length:{:#x}, Key:{:#x})", FileHandle, IoStatusBlock, ByteOffset, Length, Key));
 
-        for(const auto& it : d.observers_NtUnlockFile)
+        for(const auto& it : d.observers_ZwUnlockFile)
             it(FileHandle, IoStatusBlock, ByteOffset, Length, Key);
     }
 
@@ -5794,16 +5783,16 @@ namespace
             it(Count, Handles, WaitType, Alertable, Timeout);
     }
 
-    static void on_NtWaitForSingleObject(monitor::syscallswow64::Data& d)
+    static void on_ZwWaitForSingleObject(monitor::syscallswow64::Data& d)
     {
         const auto Handle    = arg<wntdll::HANDLE>(d.core, 0);
         const auto Alertable = arg<wntdll::BOOLEAN>(d.core, 1);
         const auto Timeout   = arg<wntdll::PLARGE_INTEGER>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWaitForSingleObject(Handle:{:#x}, Alertable:{:#x}, Timeout:{:#x})", Handle, Alertable, Timeout));
+            logg::print(logg::level_t::info, fmt::format("ZwWaitForSingleObject(Handle:{:#x}, Alertable:{:#x}, Timeout:{:#x})", Handle, Alertable, Timeout));
 
-        for(const auto& it : d.observers_NtWaitForSingleObject)
+        for(const auto& it : d.observers_ZwWaitForSingleObject)
             it(Handle, Alertable, Timeout);
     }
 
@@ -5819,14 +5808,14 @@ namespace
             it(WorkerFactoryHandle, MiniPacket);
     }
 
-    static void on_NtWaitHighEventPair(monitor::syscallswow64::Data& d)
+    static void on_ZwWaitHighEventPair(monitor::syscallswow64::Data& d)
     {
         const auto EventPairHandle = arg<wntdll::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWaitHighEventPair(EventPairHandle:{:#x})", EventPairHandle));
+            logg::print(logg::level_t::info, fmt::format("ZwWaitHighEventPair(EventPairHandle:{:#x})", EventPairHandle));
 
-        for(const auto& it : d.observers_NtWaitHighEventPair)
+        for(const auto& it : d.observers_ZwWaitHighEventPair)
             it(EventPairHandle);
     }
 
@@ -5939,12 +5928,12 @@ namespace
             it();
     }
 
-    static void on_NtFlushProcessWriteBuffers(monitor::syscallswow64::Data& d)
+    static void on_ZwFlushProcessWriteBuffers(monitor::syscallswow64::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFlushProcessWriteBuffers()"));
+            logg::print(logg::level_t::info, fmt::format("ZwFlushProcessWriteBuffers()"));
 
-        for(const auto& it : d.observers_NtFlushProcessWriteBuffers)
+        for(const auto& it : d.observers_ZwFlushProcessWriteBuffers)
             it();
     }
 
@@ -5975,21 +5964,21 @@ namespace
             it();
     }
 
-    static void on_NtIsUILanguageComitted(monitor::syscallswow64::Data& d)
+    static void on_ZwIsUILanguageComitted(monitor::syscallswow64::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtIsUILanguageComitted()"));
+            logg::print(logg::level_t::info, fmt::format("ZwIsUILanguageComitted()"));
 
-        for(const auto& it : d.observers_NtIsUILanguageComitted)
+        for(const auto& it : d.observers_ZwIsUILanguageComitted)
             it();
     }
 
-    static void on_NtQueryPortInformationProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryPortInformationProcess(monitor::syscallswow64::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryPortInformationProcess()"));
+            logg::print(logg::level_t::info, fmt::format("ZwQueryPortInformationProcess()"));
 
-        for(const auto& it : d.observers_NtQueryPortInformationProcess)
+        for(const auto& it : d.observers_ZwQueryPortInformationProcess)
             it();
     }
 
@@ -6011,12 +6000,12 @@ namespace
             it();
     }
 
-    static void on_NtThawRegistry(monitor::syscallswow64::Data& d)
+    static void on_ZwThawRegistry(monitor::syscallswow64::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtThawRegistry()"));
+            logg::print(logg::level_t::info, fmt::format("ZwThawRegistry()"));
 
-        for(const auto& it : d.observers_NtThawRegistry)
+        for(const auto& it : d.observers_ZwThawRegistry)
             it();
     }
 
@@ -6029,21 +6018,23 @@ namespace
             it();
     }
 
-    static void on_NtUmsThreadYield(monitor::syscallswow64::Data& d)
+    static void on_ZwUmsThreadYield(monitor::syscallswow64::Data& d)
     {
-        if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtUmsThreadYield()"));
+        const auto SchedulerParam = arg<wntdll::PVOID>(d.core, 0);
 
-        for(const auto& it : d.observers_NtUmsThreadYield)
-            it();
+        if constexpr(g_debug)
+            logg::print(logg::level_t::info, fmt::format("ZwUmsThreadYield(SchedulerParam:{:#x})", SchedulerParam));
+
+        for(const auto& it : d.observers_ZwUmsThreadYield)
+            it(SchedulerParam);
     }
 
-    static void on_NtYieldExecution(monitor::syscallswow64::Data& d)
+    static void on_ZwYieldExecution(monitor::syscallswow64::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtYieldExecution()"));
+            logg::print(logg::level_t::info, fmt::format("ZwYieldExecution()"));
 
-        for(const auto& it : d.observers_NtYieldExecution)
+        for(const auto& it : d.observers_ZwYieldExecution)
             it();
     }
 
@@ -7270,23 +7261,23 @@ bool monitor::syscallswow64::register_ZwFlushBuffersFile(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscallswow64::register_NtFlushInstallUILanguage(proc_t proc, const on_NtFlushInstallUILanguage_fn& on_func)
+bool monitor::syscallswow64::register_ZwFlushInstallUILanguage(proc_t proc, const on_ZwFlushInstallUILanguage_fn& on_func)
 {
-    if(d_->observers_NtFlushInstallUILanguage.empty())
-        if(!register_callback_with(*d_, proc, "_NtFlushInstallUILanguage@8", &on_NtFlushInstallUILanguage))
+    if(d_->observers_ZwFlushInstallUILanguage.empty())
+        if(!register_callback_with(*d_, proc, "_ZwFlushInstallUILanguage@8", &on_ZwFlushInstallUILanguage))
             return false;
 
-    d_->observers_NtFlushInstallUILanguage.push_back(on_func);
+    d_->observers_ZwFlushInstallUILanguage.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtFlushInstructionCache(proc_t proc, const on_NtFlushInstructionCache_fn& on_func)
+bool monitor::syscallswow64::register_ZwFlushInstructionCache(proc_t proc, const on_ZwFlushInstructionCache_fn& on_func)
 {
-    if(d_->observers_NtFlushInstructionCache.empty())
-        if(!register_callback_with(*d_, proc, "_NtFlushInstructionCache@12", &on_NtFlushInstructionCache))
+    if(d_->observers_ZwFlushInstructionCache.empty())
+        if(!register_callback_with(*d_, proc, "_ZwFlushInstructionCache@12", &on_ZwFlushInstructionCache))
             return false;
 
-    d_->observers_NtFlushInstructionCache.push_back(on_func);
+    d_->observers_ZwFlushInstructionCache.push_back(on_func);
     return true;
 }
 
@@ -7300,13 +7291,13 @@ bool monitor::syscallswow64::register_NtFlushKey(proc_t proc, const on_NtFlushKe
     return true;
 }
 
-bool monitor::syscallswow64::register_NtFlushVirtualMemory(proc_t proc, const on_NtFlushVirtualMemory_fn& on_func)
+bool monitor::syscallswow64::register_ZwFlushVirtualMemory(proc_t proc, const on_ZwFlushVirtualMemory_fn& on_func)
 {
-    if(d_->observers_NtFlushVirtualMemory.empty())
-        if(!register_callback_with(*d_, proc, "_NtFlushVirtualMemory@16", &on_NtFlushVirtualMemory))
+    if(d_->observers_ZwFlushVirtualMemory.empty())
+        if(!register_callback_with(*d_, proc, "_ZwFlushVirtualMemory@16", &on_ZwFlushVirtualMemory))
             return false;
 
-    d_->observers_NtFlushVirtualMemory.push_back(on_func);
+    d_->observers_ZwFlushVirtualMemory.push_back(on_func);
     return true;
 }
 
@@ -7340,13 +7331,13 @@ bool monitor::syscallswow64::register_NtFreezeRegistry(proc_t proc, const on_NtF
     return true;
 }
 
-bool monitor::syscallswow64::register_NtFreezeTransactions(proc_t proc, const on_NtFreezeTransactions_fn& on_func)
+bool monitor::syscallswow64::register_ZwFreezeTransactions(proc_t proc, const on_ZwFreezeTransactions_fn& on_func)
 {
-    if(d_->observers_NtFreezeTransactions.empty())
-        if(!register_callback_with(*d_, proc, "_NtFreezeTransactions@8", &on_NtFreezeTransactions))
+    if(d_->observers_ZwFreezeTransactions.empty())
+        if(!register_callback_with(*d_, proc, "_ZwFreezeTransactions@8", &on_ZwFreezeTransactions))
             return false;
 
-    d_->observers_NtFreezeTransactions.push_back(on_func);
+    d_->observers_ZwFreezeTransactions.push_back(on_func);
     return true;
 }
 
@@ -7390,23 +7381,23 @@ bool monitor::syscallswow64::register_NtGetMUIRegistryInfo(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtGetNextProcess(proc_t proc, const on_NtGetNextProcess_fn& on_func)
+bool monitor::syscallswow64::register_ZwGetNextProcess(proc_t proc, const on_ZwGetNextProcess_fn& on_func)
 {
-    if(d_->observers_NtGetNextProcess.empty())
-        if(!register_callback_with(*d_, proc, "_NtGetNextProcess@20", &on_NtGetNextProcess))
+    if(d_->observers_ZwGetNextProcess.empty())
+        if(!register_callback_with(*d_, proc, "_ZwGetNextProcess@20", &on_ZwGetNextProcess))
             return false;
 
-    d_->observers_NtGetNextProcess.push_back(on_func);
+    d_->observers_ZwGetNextProcess.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtGetNextThread(proc_t proc, const on_NtGetNextThread_fn& on_func)
+bool monitor::syscallswow64::register_ZwGetNextThread(proc_t proc, const on_ZwGetNextThread_fn& on_func)
 {
-    if(d_->observers_NtGetNextThread.empty())
-        if(!register_callback_with(*d_, proc, "_NtGetNextThread@24", &on_NtGetNextThread))
+    if(d_->observers_ZwGetNextThread.empty())
+        if(!register_callback_with(*d_, proc, "_ZwGetNextThread@24", &on_ZwGetNextThread))
             return false;
 
-    d_->observers_NtGetNextThread.push_back(on_func);
+    d_->observers_ZwGetNextThread.push_back(on_func);
     return true;
 }
 
@@ -7420,23 +7411,13 @@ bool monitor::syscallswow64::register_NtGetNlsSectionPtr(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_NtGetNotificationResourceManager(proc_t proc, const on_NtGetNotificationResourceManager_fn& on_func)
+bool monitor::syscallswow64::register_ZwGetNotificationResourceManager(proc_t proc, const on_ZwGetNotificationResourceManager_fn& on_func)
 {
-    if(d_->observers_NtGetNotificationResourceManager.empty())
-        if(!register_callback_with(*d_, proc, "_NtGetNotificationResourceManager@28", &on_NtGetNotificationResourceManager))
+    if(d_->observers_ZwGetNotificationResourceManager.empty())
+        if(!register_callback_with(*d_, proc, "_ZwGetNotificationResourceManager@28", &on_ZwGetNotificationResourceManager))
             return false;
 
-    d_->observers_NtGetNotificationResourceManager.push_back(on_func);
-    return true;
-}
-
-bool monitor::syscallswow64::register_NtGetPlugPlayEvent(proc_t proc, const on_NtGetPlugPlayEvent_fn& on_func)
-{
-    if(d_->observers_NtGetPlugPlayEvent.empty())
-        if(!register_callback_with(*d_, proc, "_NtGetPlugPlayEvent@16", &on_NtGetPlugPlayEvent))
-            return false;
-
-    d_->observers_NtGetPlugPlayEvent.push_back(on_func);
+    d_->observers_ZwGetNotificationResourceManager.push_back(on_func);
     return true;
 }
 
@@ -7460,23 +7441,23 @@ bool monitor::syscallswow64::register_NtImpersonateAnonymousToken(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_NtImpersonateClientOfPort(proc_t proc, const on_NtImpersonateClientOfPort_fn& on_func)
+bool monitor::syscallswow64::register_ZwImpersonateClientOfPort(proc_t proc, const on_ZwImpersonateClientOfPort_fn& on_func)
 {
-    if(d_->observers_NtImpersonateClientOfPort.empty())
-        if(!register_callback_with(*d_, proc, "_NtImpersonateClientOfPort@8", &on_NtImpersonateClientOfPort))
+    if(d_->observers_ZwImpersonateClientOfPort.empty())
+        if(!register_callback_with(*d_, proc, "_ZwImpersonateClientOfPort@8", &on_ZwImpersonateClientOfPort))
             return false;
 
-    d_->observers_NtImpersonateClientOfPort.push_back(on_func);
+    d_->observers_ZwImpersonateClientOfPort.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtImpersonateThread(proc_t proc, const on_NtImpersonateThread_fn& on_func)
+bool monitor::syscallswow64::register_ZwImpersonateThread(proc_t proc, const on_ZwImpersonateThread_fn& on_func)
 {
-    if(d_->observers_NtImpersonateThread.empty())
-        if(!register_callback_with(*d_, proc, "_NtImpersonateThread@12", &on_NtImpersonateThread))
+    if(d_->observers_ZwImpersonateThread.empty())
+        if(!register_callback_with(*d_, proc, "_ZwImpersonateThread@12", &on_ZwImpersonateThread))
             return false;
 
-    d_->observers_NtImpersonateThread.push_back(on_func);
+    d_->observers_ZwImpersonateThread.push_back(on_func);
     return true;
 }
 
@@ -7490,13 +7471,13 @@ bool monitor::syscallswow64::register_NtInitializeNlsFiles(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtInitializeRegistry(proc_t proc, const on_NtInitializeRegistry_fn& on_func)
+bool monitor::syscallswow64::register_ZwInitializeRegistry(proc_t proc, const on_ZwInitializeRegistry_fn& on_func)
 {
-    if(d_->observers_NtInitializeRegistry.empty())
-        if(!register_callback_with(*d_, proc, "_NtInitializeRegistry@4", &on_NtInitializeRegistry))
+    if(d_->observers_ZwInitializeRegistry.empty())
+        if(!register_callback_with(*d_, proc, "_ZwInitializeRegistry@4", &on_ZwInitializeRegistry))
             return false;
 
-    d_->observers_NtInitializeRegistry.push_back(on_func);
+    d_->observers_ZwInitializeRegistry.push_back(on_func);
     return true;
 }
 
@@ -7510,23 +7491,23 @@ bool monitor::syscallswow64::register_NtInitiatePowerAction(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtIsProcessInJob(proc_t proc, const on_NtIsProcessInJob_fn& on_func)
+bool monitor::syscallswow64::register_ZwIsProcessInJob(proc_t proc, const on_ZwIsProcessInJob_fn& on_func)
 {
-    if(d_->observers_NtIsProcessInJob.empty())
-        if(!register_callback_with(*d_, proc, "_NtIsProcessInJob@8", &on_NtIsProcessInJob))
+    if(d_->observers_ZwIsProcessInJob.empty())
+        if(!register_callback_with(*d_, proc, "_ZwIsProcessInJob@8", &on_ZwIsProcessInJob))
             return false;
 
-    d_->observers_NtIsProcessInJob.push_back(on_func);
+    d_->observers_ZwIsProcessInJob.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtListenPort(proc_t proc, const on_NtListenPort_fn& on_func)
+bool monitor::syscallswow64::register_ZwListenPort(proc_t proc, const on_ZwListenPort_fn& on_func)
 {
-    if(d_->observers_NtListenPort.empty())
-        if(!register_callback_with(*d_, proc, "_NtListenPort@8", &on_NtListenPort))
+    if(d_->observers_ZwListenPort.empty())
+        if(!register_callback_with(*d_, proc, "_ZwListenPort@8", &on_ZwListenPort))
             return false;
 
-    d_->observers_NtListenPort.push_back(on_func);
+    d_->observers_ZwListenPort.push_back(on_func);
     return true;
 }
 
@@ -7553,7 +7534,7 @@ bool monitor::syscallswow64::register_NtLoadKey2(proc_t proc, const on_NtLoadKey
 bool monitor::syscallswow64::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_fn& on_func)
 {
     if(d_->observers_NtLoadKeyEx.empty())
-        if(!register_callback_with(*d_, proc, "_NtLoadKeyEx@16", &on_NtLoadKeyEx))
+        if(!register_callback_with(*d_, proc, "_NtLoadKeyEx@32", &on_NtLoadKeyEx))
             return false;
 
     d_->observers_NtLoadKeyEx.push_back(on_func);
@@ -7580,13 +7561,13 @@ bool monitor::syscallswow64::register_NtLockFile(proc_t proc, const on_NtLockFil
     return true;
 }
 
-bool monitor::syscallswow64::register_NtLockProductActivationKeys(proc_t proc, const on_NtLockProductActivationKeys_fn& on_func)
+bool monitor::syscallswow64::register_ZwLockProductActivationKeys(proc_t proc, const on_ZwLockProductActivationKeys_fn& on_func)
 {
-    if(d_->observers_NtLockProductActivationKeys.empty())
-        if(!register_callback_with(*d_, proc, "_NtLockProductActivationKeys@8", &on_NtLockProductActivationKeys))
+    if(d_->observers_ZwLockProductActivationKeys.empty())
+        if(!register_callback_with(*d_, proc, "_ZwLockProductActivationKeys@8", &on_ZwLockProductActivationKeys))
             return false;
 
-    d_->observers_NtLockProductActivationKeys.push_back(on_func);
+    d_->observers_ZwLockProductActivationKeys.push_back(on_func);
     return true;
 }
 
@@ -7600,23 +7581,23 @@ bool monitor::syscallswow64::register_NtLockRegistryKey(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_NtLockVirtualMemory(proc_t proc, const on_NtLockVirtualMemory_fn& on_func)
+bool monitor::syscallswow64::register_ZwLockVirtualMemory(proc_t proc, const on_ZwLockVirtualMemory_fn& on_func)
 {
-    if(d_->observers_NtLockVirtualMemory.empty())
-        if(!register_callback_with(*d_, proc, "_NtLockVirtualMemory@16", &on_NtLockVirtualMemory))
+    if(d_->observers_ZwLockVirtualMemory.empty())
+        if(!register_callback_with(*d_, proc, "_ZwLockVirtualMemory@16", &on_ZwLockVirtualMemory))
             return false;
 
-    d_->observers_NtLockVirtualMemory.push_back(on_func);
+    d_->observers_ZwLockVirtualMemory.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtMakePermanentObject(proc_t proc, const on_NtMakePermanentObject_fn& on_func)
+bool monitor::syscallswow64::register_ZwMakePermanentObject(proc_t proc, const on_ZwMakePermanentObject_fn& on_func)
 {
-    if(d_->observers_NtMakePermanentObject.empty())
-        if(!register_callback_with(*d_, proc, "_NtMakePermanentObject@4", &on_NtMakePermanentObject))
+    if(d_->observers_ZwMakePermanentObject.empty())
+        if(!register_callback_with(*d_, proc, "_ZwMakePermanentObject@4", &on_ZwMakePermanentObject))
             return false;
 
-    d_->observers_NtMakePermanentObject.push_back(on_func);
+    d_->observers_ZwMakePermanentObject.push_back(on_func);
     return true;
 }
 
@@ -7630,13 +7611,13 @@ bool monitor::syscallswow64::register_NtMakeTemporaryObject(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtMapCMFModule(proc_t proc, const on_NtMapCMFModule_fn& on_func)
+bool monitor::syscallswow64::register_ZwMapCMFModule(proc_t proc, const on_ZwMapCMFModule_fn& on_func)
 {
-    if(d_->observers_NtMapCMFModule.empty())
-        if(!register_callback_with(*d_, proc, "_NtMapCMFModule@24", &on_NtMapCMFModule))
+    if(d_->observers_ZwMapCMFModule.empty())
+        if(!register_callback_with(*d_, proc, "_ZwMapCMFModule@24", &on_ZwMapCMFModule))
             return false;
 
-    d_->observers_NtMapCMFModule.push_back(on_func);
+    d_->observers_ZwMapCMFModule.push_back(on_func);
     return true;
 }
 
@@ -7650,23 +7631,23 @@ bool monitor::syscallswow64::register_NtMapUserPhysicalPages(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtMapUserPhysicalPagesScatter(proc_t proc, const on_NtMapUserPhysicalPagesScatter_fn& on_func)
+bool monitor::syscallswow64::register_ZwMapUserPhysicalPagesScatter(proc_t proc, const on_ZwMapUserPhysicalPagesScatter_fn& on_func)
 {
-    if(d_->observers_NtMapUserPhysicalPagesScatter.empty())
-        if(!register_callback_with(*d_, proc, "_NtMapUserPhysicalPagesScatter@12", &on_NtMapUserPhysicalPagesScatter))
+    if(d_->observers_ZwMapUserPhysicalPagesScatter.empty())
+        if(!register_callback_with(*d_, proc, "_ZwMapUserPhysicalPagesScatter@12", &on_ZwMapUserPhysicalPagesScatter))
             return false;
 
-    d_->observers_NtMapUserPhysicalPagesScatter.push_back(on_func);
+    d_->observers_ZwMapUserPhysicalPagesScatter.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtMapViewOfSection(proc_t proc, const on_NtMapViewOfSection_fn& on_func)
+bool monitor::syscallswow64::register_ZwMapViewOfSection(proc_t proc, const on_ZwMapViewOfSection_fn& on_func)
 {
-    if(d_->observers_NtMapViewOfSection.empty())
-        if(!register_callback_with(*d_, proc, "_NtMapViewOfSection@40", &on_NtMapViewOfSection))
+    if(d_->observers_ZwMapViewOfSection.empty())
+        if(!register_callback_with(*d_, proc, "_ZwMapViewOfSection@40", &on_ZwMapViewOfSection))
             return false;
 
-    d_->observers_NtMapViewOfSection.push_back(on_func);
+    d_->observers_ZwMapViewOfSection.push_back(on_func);
     return true;
 }
 
@@ -7680,13 +7661,13 @@ bool monitor::syscallswow64::register_NtModifyBootEntry(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_NtModifyDriverEntry(proc_t proc, const on_NtModifyDriverEntry_fn& on_func)
+bool monitor::syscallswow64::register_ZwModifyDriverEntry(proc_t proc, const on_ZwModifyDriverEntry_fn& on_func)
 {
-    if(d_->observers_NtModifyDriverEntry.empty())
-        if(!register_callback_with(*d_, proc, "_NtModifyDriverEntry@4", &on_NtModifyDriverEntry))
+    if(d_->observers_ZwModifyDriverEntry.empty())
+        if(!register_callback_with(*d_, proc, "_ZwModifyDriverEntry@4", &on_ZwModifyDriverEntry))
             return false;
 
-    d_->observers_NtModifyDriverEntry.push_back(on_func);
+    d_->observers_ZwModifyDriverEntry.push_back(on_func);
     return true;
 }
 
@@ -7730,23 +7711,23 @@ bool monitor::syscallswow64::register_NtNotifyChangeSession(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenDirectoryObject(proc_t proc, const on_NtOpenDirectoryObject_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenDirectoryObject(proc_t proc, const on_ZwOpenDirectoryObject_fn& on_func)
 {
-    if(d_->observers_NtOpenDirectoryObject.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenDirectoryObject@12", &on_NtOpenDirectoryObject))
+    if(d_->observers_ZwOpenDirectoryObject.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenDirectoryObject@12", &on_ZwOpenDirectoryObject))
             return false;
 
-    d_->observers_NtOpenDirectoryObject.push_back(on_func);
+    d_->observers_ZwOpenDirectoryObject.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenEnlistment(proc_t proc, const on_NtOpenEnlistment_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenEnlistment(proc_t proc, const on_ZwOpenEnlistment_fn& on_func)
 {
-    if(d_->observers_NtOpenEnlistment.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenEnlistment@20", &on_NtOpenEnlistment))
+    if(d_->observers_ZwOpenEnlistment.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenEnlistment@20", &on_ZwOpenEnlistment))
             return false;
 
-    d_->observers_NtOpenEnlistment.push_back(on_func);
+    d_->observers_ZwOpenEnlistment.push_back(on_func);
     return true;
 }
 
@@ -7780,23 +7761,23 @@ bool monitor::syscallswow64::register_NtOpenFile(proc_t proc, const on_NtOpenFil
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenIoCompletion(proc_t proc, const on_NtOpenIoCompletion_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenIoCompletion(proc_t proc, const on_ZwOpenIoCompletion_fn& on_func)
 {
-    if(d_->observers_NtOpenIoCompletion.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenIoCompletion@12", &on_NtOpenIoCompletion))
+    if(d_->observers_ZwOpenIoCompletion.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenIoCompletion@12", &on_ZwOpenIoCompletion))
             return false;
 
-    d_->observers_NtOpenIoCompletion.push_back(on_func);
+    d_->observers_ZwOpenIoCompletion.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenJobObject(proc_t proc, const on_NtOpenJobObject_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenJobObject(proc_t proc, const on_ZwOpenJobObject_fn& on_func)
 {
-    if(d_->observers_NtOpenJobObject.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenJobObject@12", &on_NtOpenJobObject))
+    if(d_->observers_ZwOpenJobObject.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenJobObject@12", &on_ZwOpenJobObject))
             return false;
 
-    d_->observers_NtOpenJobObject.push_back(on_func);
+    d_->observers_ZwOpenJobObject.push_back(on_func);
     return true;
 }
 
@@ -7810,23 +7791,23 @@ bool monitor::syscallswow64::register_NtOpenKeyedEvent(proc_t proc, const on_NtO
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenKeyEx(proc_t proc, const on_NtOpenKeyEx_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenKeyEx(proc_t proc, const on_ZwOpenKeyEx_fn& on_func)
 {
-    if(d_->observers_NtOpenKeyEx.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenKeyEx@16", &on_NtOpenKeyEx))
+    if(d_->observers_ZwOpenKeyEx.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenKeyEx@16", &on_ZwOpenKeyEx))
             return false;
 
-    d_->observers_NtOpenKeyEx.push_back(on_func);
+    d_->observers_ZwOpenKeyEx.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenKey(proc_t proc, const on_NtOpenKey_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenKey(proc_t proc, const on_ZwOpenKey_fn& on_func)
 {
-    if(d_->observers_NtOpenKey.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenKey@12", &on_NtOpenKey))
+    if(d_->observers_ZwOpenKey.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenKey@12", &on_ZwOpenKey))
             return false;
 
-    d_->observers_NtOpenKey.push_back(on_func);
+    d_->observers_ZwOpenKey.push_back(on_func);
     return true;
 }
 
@@ -7860,13 +7841,13 @@ bool monitor::syscallswow64::register_NtOpenMutant(proc_t proc, const on_NtOpenM
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenObjectAuditAlarm(proc_t proc, const on_NtOpenObjectAuditAlarm_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenObjectAuditAlarm(proc_t proc, const on_ZwOpenObjectAuditAlarm_fn& on_func)
 {
-    if(d_->observers_NtOpenObjectAuditAlarm.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenObjectAuditAlarm@48", &on_NtOpenObjectAuditAlarm))
+    if(d_->observers_ZwOpenObjectAuditAlarm.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenObjectAuditAlarm@48", &on_ZwOpenObjectAuditAlarm))
             return false;
 
-    d_->observers_NtOpenObjectAuditAlarm.push_back(on_func);
+    d_->observers_ZwOpenObjectAuditAlarm.push_back(on_func);
     return true;
 }
 
@@ -7880,43 +7861,43 @@ bool monitor::syscallswow64::register_NtOpenPrivateNamespace(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenProcess(proc_t proc, const on_NtOpenProcess_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenProcess(proc_t proc, const on_ZwOpenProcess_fn& on_func)
 {
-    if(d_->observers_NtOpenProcess.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenProcess@16", &on_NtOpenProcess))
+    if(d_->observers_ZwOpenProcess.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenProcess@16", &on_ZwOpenProcess))
             return false;
 
-    d_->observers_NtOpenProcess.push_back(on_func);
+    d_->observers_ZwOpenProcess.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenProcessTokenEx(proc_t proc, const on_NtOpenProcessTokenEx_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenProcessTokenEx(proc_t proc, const on_ZwOpenProcessTokenEx_fn& on_func)
 {
-    if(d_->observers_NtOpenProcessTokenEx.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenProcessTokenEx@16", &on_NtOpenProcessTokenEx))
+    if(d_->observers_ZwOpenProcessTokenEx.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenProcessTokenEx@16", &on_ZwOpenProcessTokenEx))
             return false;
 
-    d_->observers_NtOpenProcessTokenEx.push_back(on_func);
+    d_->observers_ZwOpenProcessTokenEx.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenProcessToken(proc_t proc, const on_NtOpenProcessToken_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenProcessToken(proc_t proc, const on_ZwOpenProcessToken_fn& on_func)
 {
-    if(d_->observers_NtOpenProcessToken.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenProcessToken@12", &on_NtOpenProcessToken))
+    if(d_->observers_ZwOpenProcessToken.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenProcessToken@12", &on_ZwOpenProcessToken))
             return false;
 
-    d_->observers_NtOpenProcessToken.push_back(on_func);
+    d_->observers_ZwOpenProcessToken.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenResourceManager(proc_t proc, const on_NtOpenResourceManager_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenResourceManager(proc_t proc, const on_ZwOpenResourceManager_fn& on_func)
 {
-    if(d_->observers_NtOpenResourceManager.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenResourceManager@20", &on_NtOpenResourceManager))
+    if(d_->observers_ZwOpenResourceManager.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenResourceManager@20", &on_ZwOpenResourceManager))
             return false;
 
-    d_->observers_NtOpenResourceManager.push_back(on_func);
+    d_->observers_ZwOpenResourceManager.push_back(on_func);
     return true;
 }
 
@@ -7960,13 +7941,13 @@ bool monitor::syscallswow64::register_NtOpenSymbolicLinkObject(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenThread(proc_t proc, const on_NtOpenThread_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenThread(proc_t proc, const on_ZwOpenThread_fn& on_func)
 {
-    if(d_->observers_NtOpenThread.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenThread@16", &on_NtOpenThread))
+    if(d_->observers_ZwOpenThread.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenThread@16", &on_ZwOpenThread))
             return false;
 
-    d_->observers_NtOpenThread.push_back(on_func);
+    d_->observers_ZwOpenThread.push_back(on_func);
     return true;
 }
 
@@ -7990,33 +7971,33 @@ bool monitor::syscallswow64::register_NtOpenThreadToken(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenTimer(proc_t proc, const on_NtOpenTimer_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenTimer(proc_t proc, const on_ZwOpenTimer_fn& on_func)
 {
-    if(d_->observers_NtOpenTimer.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenTimer@12", &on_NtOpenTimer))
+    if(d_->observers_ZwOpenTimer.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenTimer@12", &on_ZwOpenTimer))
             return false;
 
-    d_->observers_NtOpenTimer.push_back(on_func);
+    d_->observers_ZwOpenTimer.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenTransactionManager(proc_t proc, const on_NtOpenTransactionManager_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenTransactionManager(proc_t proc, const on_ZwOpenTransactionManager_fn& on_func)
 {
-    if(d_->observers_NtOpenTransactionManager.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenTransactionManager@24", &on_NtOpenTransactionManager))
+    if(d_->observers_ZwOpenTransactionManager.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenTransactionManager@24", &on_ZwOpenTransactionManager))
             return false;
 
-    d_->observers_NtOpenTransactionManager.push_back(on_func);
+    d_->observers_ZwOpenTransactionManager.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenTransaction(proc_t proc, const on_NtOpenTransaction_fn& on_func)
+bool monitor::syscallswow64::register_ZwOpenTransaction(proc_t proc, const on_ZwOpenTransaction_fn& on_func)
 {
-    if(d_->observers_NtOpenTransaction.empty())
-        if(!register_callback_with(*d_, proc, "_NtOpenTransaction@20", &on_NtOpenTransaction))
+    if(d_->observers_ZwOpenTransaction.empty())
+        if(!register_callback_with(*d_, proc, "_ZwOpenTransaction@20", &on_ZwOpenTransaction))
             return false;
 
-    d_->observers_NtOpenTransaction.push_back(on_func);
+    d_->observers_ZwOpenTransaction.push_back(on_func);
     return true;
 }
 
@@ -8030,13 +8011,13 @@ bool monitor::syscallswow64::register_NtPlugPlayControl(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_NtPowerInformation(proc_t proc, const on_NtPowerInformation_fn& on_func)
+bool monitor::syscallswow64::register_ZwPowerInformation(proc_t proc, const on_ZwPowerInformation_fn& on_func)
 {
-    if(d_->observers_NtPowerInformation.empty())
-        if(!register_callback_with(*d_, proc, "_NtPowerInformation@20", &on_NtPowerInformation))
+    if(d_->observers_ZwPowerInformation.empty())
+        if(!register_callback_with(*d_, proc, "_ZwPowerInformation@20", &on_ZwPowerInformation))
             return false;
 
-    d_->observers_NtPowerInformation.push_back(on_func);
+    d_->observers_ZwPowerInformation.push_back(on_func);
     return true;
 }
 
@@ -8050,23 +8031,23 @@ bool monitor::syscallswow64::register_NtPrepareComplete(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_NtPrepareEnlistment(proc_t proc, const on_NtPrepareEnlistment_fn& on_func)
+bool monitor::syscallswow64::register_ZwPrepareEnlistment(proc_t proc, const on_ZwPrepareEnlistment_fn& on_func)
 {
-    if(d_->observers_NtPrepareEnlistment.empty())
-        if(!register_callback_with(*d_, proc, "_NtPrepareEnlistment@8", &on_NtPrepareEnlistment))
+    if(d_->observers_ZwPrepareEnlistment.empty())
+        if(!register_callback_with(*d_, proc, "_ZwPrepareEnlistment@8", &on_ZwPrepareEnlistment))
             return false;
 
-    d_->observers_NtPrepareEnlistment.push_back(on_func);
+    d_->observers_ZwPrepareEnlistment.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtPrePrepareComplete(proc_t proc, const on_NtPrePrepareComplete_fn& on_func)
+bool monitor::syscallswow64::register_ZwPrePrepareComplete(proc_t proc, const on_ZwPrePrepareComplete_fn& on_func)
 {
-    if(d_->observers_NtPrePrepareComplete.empty())
-        if(!register_callback_with(*d_, proc, "_NtPrePrepareComplete@8", &on_NtPrePrepareComplete))
+    if(d_->observers_ZwPrePrepareComplete.empty())
+        if(!register_callback_with(*d_, proc, "_ZwPrePrepareComplete@8", &on_ZwPrePrepareComplete))
             return false;
 
-    d_->observers_NtPrePrepareComplete.push_back(on_func);
+    d_->observers_ZwPrePrepareComplete.push_back(on_func);
     return true;
 }
 
@@ -8080,13 +8061,13 @@ bool monitor::syscallswow64::register_NtPrePrepareEnlistment(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtPrivilegeCheck(proc_t proc, const on_NtPrivilegeCheck_fn& on_func)
+bool monitor::syscallswow64::register_ZwPrivilegeCheck(proc_t proc, const on_ZwPrivilegeCheck_fn& on_func)
 {
-    if(d_->observers_NtPrivilegeCheck.empty())
-        if(!register_callback_with(*d_, proc, "_NtPrivilegeCheck@12", &on_NtPrivilegeCheck))
+    if(d_->observers_ZwPrivilegeCheck.empty())
+        if(!register_callback_with(*d_, proc, "_ZwPrivilegeCheck@12", &on_ZwPrivilegeCheck))
             return false;
 
-    d_->observers_NtPrivilegeCheck.push_back(on_func);
+    d_->observers_ZwPrivilegeCheck.push_back(on_func);
     return true;
 }
 
@@ -8100,13 +8081,13 @@ bool monitor::syscallswow64::register_NtPrivilegedServiceAuditAlarm(proc_t proc,
     return true;
 }
 
-bool monitor::syscallswow64::register_NtPrivilegeObjectAuditAlarm(proc_t proc, const on_NtPrivilegeObjectAuditAlarm_fn& on_func)
+bool monitor::syscallswow64::register_ZwPrivilegeObjectAuditAlarm(proc_t proc, const on_ZwPrivilegeObjectAuditAlarm_fn& on_func)
 {
-    if(d_->observers_NtPrivilegeObjectAuditAlarm.empty())
-        if(!register_callback_with(*d_, proc, "_NtPrivilegeObjectAuditAlarm@24", &on_NtPrivilegeObjectAuditAlarm))
+    if(d_->observers_ZwPrivilegeObjectAuditAlarm.empty())
+        if(!register_callback_with(*d_, proc, "_ZwPrivilegeObjectAuditAlarm@24", &on_ZwPrivilegeObjectAuditAlarm))
             return false;
 
-    d_->observers_NtPrivilegeObjectAuditAlarm.push_back(on_func);
+    d_->observers_ZwPrivilegeObjectAuditAlarm.push_back(on_func);
     return true;
 }
 
@@ -8120,63 +8101,63 @@ bool monitor::syscallswow64::register_NtPropagationComplete(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtPropagationFailed(proc_t proc, const on_NtPropagationFailed_fn& on_func)
+bool monitor::syscallswow64::register_ZwPropagationFailed(proc_t proc, const on_ZwPropagationFailed_fn& on_func)
 {
-    if(d_->observers_NtPropagationFailed.empty())
-        if(!register_callback_with(*d_, proc, "_NtPropagationFailed@12", &on_NtPropagationFailed))
+    if(d_->observers_ZwPropagationFailed.empty())
+        if(!register_callback_with(*d_, proc, "_ZwPropagationFailed@12", &on_ZwPropagationFailed))
             return false;
 
-    d_->observers_NtPropagationFailed.push_back(on_func);
+    d_->observers_ZwPropagationFailed.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtProtectVirtualMemory(proc_t proc, const on_NtProtectVirtualMemory_fn& on_func)
+bool monitor::syscallswow64::register_ZwProtectVirtualMemory(proc_t proc, const on_ZwProtectVirtualMemory_fn& on_func)
 {
-    if(d_->observers_NtProtectVirtualMemory.empty())
-        if(!register_callback_with(*d_, proc, "_NtProtectVirtualMemory@20", &on_NtProtectVirtualMemory))
+    if(d_->observers_ZwProtectVirtualMemory.empty())
+        if(!register_callback_with(*d_, proc, "_ZwProtectVirtualMemory@20", &on_ZwProtectVirtualMemory))
             return false;
 
-    d_->observers_NtProtectVirtualMemory.push_back(on_func);
+    d_->observers_ZwProtectVirtualMemory.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtPulseEvent(proc_t proc, const on_NtPulseEvent_fn& on_func)
+bool monitor::syscallswow64::register_ZwPulseEvent(proc_t proc, const on_ZwPulseEvent_fn& on_func)
 {
-    if(d_->observers_NtPulseEvent.empty())
-        if(!register_callback_with(*d_, proc, "_NtPulseEvent@8", &on_NtPulseEvent))
+    if(d_->observers_ZwPulseEvent.empty())
+        if(!register_callback_with(*d_, proc, "_ZwPulseEvent@8", &on_ZwPulseEvent))
             return false;
 
-    d_->observers_NtPulseEvent.push_back(on_func);
+    d_->observers_ZwPulseEvent.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryAttributesFile(proc_t proc, const on_NtQueryAttributesFile_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryAttributesFile(proc_t proc, const on_ZwQueryAttributesFile_fn& on_func)
 {
-    if(d_->observers_NtQueryAttributesFile.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryAttributesFile@8", &on_NtQueryAttributesFile))
+    if(d_->observers_ZwQueryAttributesFile.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryAttributesFile@8", &on_ZwQueryAttributesFile))
             return false;
 
-    d_->observers_NtQueryAttributesFile.push_back(on_func);
+    d_->observers_ZwQueryAttributesFile.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryBootEntryOrder(proc_t proc, const on_NtQueryBootEntryOrder_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryBootEntryOrder(proc_t proc, const on_ZwQueryBootEntryOrder_fn& on_func)
 {
-    if(d_->observers_NtQueryBootEntryOrder.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryBootEntryOrder@8", &on_NtQueryBootEntryOrder))
+    if(d_->observers_ZwQueryBootEntryOrder.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryBootEntryOrder@8", &on_ZwQueryBootEntryOrder))
             return false;
 
-    d_->observers_NtQueryBootEntryOrder.push_back(on_func);
+    d_->observers_ZwQueryBootEntryOrder.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryBootOptions(proc_t proc, const on_NtQueryBootOptions_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryBootOptions(proc_t proc, const on_ZwQueryBootOptions_fn& on_func)
 {
-    if(d_->observers_NtQueryBootOptions.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryBootOptions@8", &on_NtQueryBootOptions))
+    if(d_->observers_ZwQueryBootOptions.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryBootOptions@8", &on_ZwQueryBootOptions))
             return false;
 
-    d_->observers_NtQueryBootOptions.push_back(on_func);
+    d_->observers_ZwQueryBootOptions.push_back(on_func);
     return true;
 }
 
@@ -8200,33 +8181,33 @@ bool monitor::syscallswow64::register_NtQueryDefaultLocale(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryDefaultUILanguage(proc_t proc, const on_NtQueryDefaultUILanguage_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryDefaultUILanguage(proc_t proc, const on_ZwQueryDefaultUILanguage_fn& on_func)
 {
-    if(d_->observers_NtQueryDefaultUILanguage.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryDefaultUILanguage@4", &on_NtQueryDefaultUILanguage))
+    if(d_->observers_ZwQueryDefaultUILanguage.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryDefaultUILanguage@4", &on_ZwQueryDefaultUILanguage))
             return false;
 
-    d_->observers_NtQueryDefaultUILanguage.push_back(on_func);
+    d_->observers_ZwQueryDefaultUILanguage.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryDirectoryFile(proc_t proc, const on_NtQueryDirectoryFile_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryDirectoryFile(proc_t proc, const on_ZwQueryDirectoryFile_fn& on_func)
 {
-    if(d_->observers_NtQueryDirectoryFile.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryDirectoryFile@44", &on_NtQueryDirectoryFile))
+    if(d_->observers_ZwQueryDirectoryFile.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryDirectoryFile@44", &on_ZwQueryDirectoryFile))
             return false;
 
-    d_->observers_NtQueryDirectoryFile.push_back(on_func);
+    d_->observers_ZwQueryDirectoryFile.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryDirectoryObject(proc_t proc, const on_NtQueryDirectoryObject_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryDirectoryObject(proc_t proc, const on_ZwQueryDirectoryObject_fn& on_func)
 {
-    if(d_->observers_NtQueryDirectoryObject.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryDirectoryObject@28", &on_NtQueryDirectoryObject))
+    if(d_->observers_ZwQueryDirectoryObject.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryDirectoryObject@28", &on_ZwQueryDirectoryObject))
             return false;
 
-    d_->observers_NtQueryDirectoryObject.push_back(on_func);
+    d_->observers_ZwQueryDirectoryObject.push_back(on_func);
     return true;
 }
 
@@ -8240,13 +8221,13 @@ bool monitor::syscallswow64::register_NtQueryDriverEntryOrder(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryEaFile(proc_t proc, const on_NtQueryEaFile_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryEaFile(proc_t proc, const on_ZwQueryEaFile_fn& on_func)
 {
-    if(d_->observers_NtQueryEaFile.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryEaFile@36", &on_NtQueryEaFile))
+    if(d_->observers_ZwQueryEaFile.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryEaFile@36", &on_ZwQueryEaFile))
             return false;
 
-    d_->observers_NtQueryEaFile.push_back(on_func);
+    d_->observers_ZwQueryEaFile.push_back(on_func);
     return true;
 }
 
@@ -8260,13 +8241,13 @@ bool monitor::syscallswow64::register_NtQueryEvent(proc_t proc, const on_NtQuery
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryFullAttributesFile(proc_t proc, const on_NtQueryFullAttributesFile_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryFullAttributesFile(proc_t proc, const on_ZwQueryFullAttributesFile_fn& on_func)
 {
-    if(d_->observers_NtQueryFullAttributesFile.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryFullAttributesFile@8", &on_NtQueryFullAttributesFile))
+    if(d_->observers_ZwQueryFullAttributesFile.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryFullAttributesFile@8", &on_ZwQueryFullAttributesFile))
             return false;
 
-    d_->observers_NtQueryFullAttributesFile.push_back(on_func);
+    d_->observers_ZwQueryFullAttributesFile.push_back(on_func);
     return true;
 }
 
@@ -8280,43 +8261,43 @@ bool monitor::syscallswow64::register_NtQueryInformationAtom(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryInformationEnlistment(proc_t proc, const on_NtQueryInformationEnlistment_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryInformationEnlistment(proc_t proc, const on_ZwQueryInformationEnlistment_fn& on_func)
 {
-    if(d_->observers_NtQueryInformationEnlistment.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryInformationEnlistment@20", &on_NtQueryInformationEnlistment))
+    if(d_->observers_ZwQueryInformationEnlistment.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryInformationEnlistment@20", &on_ZwQueryInformationEnlistment))
             return false;
 
-    d_->observers_NtQueryInformationEnlistment.push_back(on_func);
+    d_->observers_ZwQueryInformationEnlistment.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryInformationFile(proc_t proc, const on_NtQueryInformationFile_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryInformationFile(proc_t proc, const on_ZwQueryInformationFile_fn& on_func)
 {
-    if(d_->observers_NtQueryInformationFile.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryInformationFile@20", &on_NtQueryInformationFile))
+    if(d_->observers_ZwQueryInformationFile.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryInformationFile@20", &on_ZwQueryInformationFile))
             return false;
 
-    d_->observers_NtQueryInformationFile.push_back(on_func);
+    d_->observers_ZwQueryInformationFile.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryInformationJobObject(proc_t proc, const on_NtQueryInformationJobObject_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryInformationJobObject(proc_t proc, const on_ZwQueryInformationJobObject_fn& on_func)
 {
-    if(d_->observers_NtQueryInformationJobObject.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryInformationJobObject@20", &on_NtQueryInformationJobObject))
+    if(d_->observers_ZwQueryInformationJobObject.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryInformationJobObject@20", &on_ZwQueryInformationJobObject))
             return false;
 
-    d_->observers_NtQueryInformationJobObject.push_back(on_func);
+    d_->observers_ZwQueryInformationJobObject.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryInformationPort(proc_t proc, const on_NtQueryInformationPort_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryInformationPort(proc_t proc, const on_ZwQueryInformationPort_fn& on_func)
 {
-    if(d_->observers_NtQueryInformationPort.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryInformationPort@20", &on_NtQueryInformationPort))
+    if(d_->observers_ZwQueryInformationPort.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryInformationPort@20", &on_ZwQueryInformationPort))
             return false;
 
-    d_->observers_NtQueryInformationPort.push_back(on_func);
+    d_->observers_ZwQueryInformationPort.push_back(on_func);
     return true;
 }
 
@@ -8330,13 +8311,13 @@ bool monitor::syscallswow64::register_ZwQueryInformationProcess(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryInformationResourceManager(proc_t proc, const on_NtQueryInformationResourceManager_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryInformationResourceManager(proc_t proc, const on_ZwQueryInformationResourceManager_fn& on_func)
 {
-    if(d_->observers_NtQueryInformationResourceManager.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryInformationResourceManager@20", &on_NtQueryInformationResourceManager))
+    if(d_->observers_ZwQueryInformationResourceManager.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryInformationResourceManager@20", &on_ZwQueryInformationResourceManager))
             return false;
 
-    d_->observers_NtQueryInformationResourceManager.push_back(on_func);
+    d_->observers_ZwQueryInformationResourceManager.push_back(on_func);
     return true;
 }
 
@@ -8350,23 +8331,23 @@ bool monitor::syscallswow64::register_NtQueryInformationThread(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryInformationToken(proc_t proc, const on_NtQueryInformationToken_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryInformationToken(proc_t proc, const on_ZwQueryInformationToken_fn& on_func)
 {
-    if(d_->observers_NtQueryInformationToken.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryInformationToken@20", &on_NtQueryInformationToken))
+    if(d_->observers_ZwQueryInformationToken.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryInformationToken@20", &on_ZwQueryInformationToken))
             return false;
 
-    d_->observers_NtQueryInformationToken.push_back(on_func);
+    d_->observers_ZwQueryInformationToken.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryInformationTransaction(proc_t proc, const on_NtQueryInformationTransaction_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryInformationTransaction(proc_t proc, const on_ZwQueryInformationTransaction_fn& on_func)
 {
-    if(d_->observers_NtQueryInformationTransaction.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryInformationTransaction@20", &on_NtQueryInformationTransaction))
+    if(d_->observers_ZwQueryInformationTransaction.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryInformationTransaction@20", &on_ZwQueryInformationTransaction))
             return false;
 
-    d_->observers_NtQueryInformationTransaction.push_back(on_func);
+    d_->observers_ZwQueryInformationTransaction.push_back(on_func);
     return true;
 }
 
@@ -8380,13 +8361,13 @@ bool monitor::syscallswow64::register_NtQueryInformationTransactionManager(proc_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryInformationWorkerFactory(proc_t proc, const on_NtQueryInformationWorkerFactory_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryInformationWorkerFactory(proc_t proc, const on_ZwQueryInformationWorkerFactory_fn& on_func)
 {
-    if(d_->observers_NtQueryInformationWorkerFactory.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryInformationWorkerFactory@20", &on_NtQueryInformationWorkerFactory))
+    if(d_->observers_ZwQueryInformationWorkerFactory.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryInformationWorkerFactory@20", &on_ZwQueryInformationWorkerFactory))
             return false;
 
-    d_->observers_NtQueryInformationWorkerFactory.push_back(on_func);
+    d_->observers_ZwQueryInformationWorkerFactory.push_back(on_func);
     return true;
 }
 
@@ -8420,13 +8401,13 @@ bool monitor::syscallswow64::register_NtQueryIoCompletion(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryKey(proc_t proc, const on_NtQueryKey_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryKey(proc_t proc, const on_ZwQueryKey_fn& on_func)
 {
-    if(d_->observers_NtQueryKey.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryKey@20", &on_NtQueryKey))
+    if(d_->observers_ZwQueryKey.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryKey@20", &on_ZwQueryKey))
             return false;
 
-    d_->observers_NtQueryKey.push_back(on_func);
+    d_->observers_ZwQueryKey.push_back(on_func);
     return true;
 }
 
@@ -8500,33 +8481,33 @@ bool monitor::syscallswow64::register_NtQueryPerformanceCounter(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryQuotaInformationFile(proc_t proc, const on_NtQueryQuotaInformationFile_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryQuotaInformationFile(proc_t proc, const on_ZwQueryQuotaInformationFile_fn& on_func)
 {
-    if(d_->observers_NtQueryQuotaInformationFile.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryQuotaInformationFile@36", &on_NtQueryQuotaInformationFile))
+    if(d_->observers_ZwQueryQuotaInformationFile.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryQuotaInformationFile@36", &on_ZwQueryQuotaInformationFile))
             return false;
 
-    d_->observers_NtQueryQuotaInformationFile.push_back(on_func);
+    d_->observers_ZwQueryQuotaInformationFile.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQuerySection(proc_t proc, const on_NtQuerySection_fn& on_func)
+bool monitor::syscallswow64::register_ZwQuerySection(proc_t proc, const on_ZwQuerySection_fn& on_func)
 {
-    if(d_->observers_NtQuerySection.empty())
-        if(!register_callback_with(*d_, proc, "_NtQuerySection@20", &on_NtQuerySection))
+    if(d_->observers_ZwQuerySection.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQuerySection@20", &on_ZwQuerySection))
             return false;
 
-    d_->observers_NtQuerySection.push_back(on_func);
+    d_->observers_ZwQuerySection.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQuerySecurityAttributesToken(proc_t proc, const on_NtQuerySecurityAttributesToken_fn& on_func)
+bool monitor::syscallswow64::register_ZwQuerySecurityAttributesToken(proc_t proc, const on_ZwQuerySecurityAttributesToken_fn& on_func)
 {
-    if(d_->observers_NtQuerySecurityAttributesToken.empty())
-        if(!register_callback_with(*d_, proc, "_NtQuerySecurityAttributesToken@24", &on_NtQuerySecurityAttributesToken))
+    if(d_->observers_ZwQuerySecurityAttributesToken.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQuerySecurityAttributesToken@24", &on_ZwQuerySecurityAttributesToken))
             return false;
 
-    d_->observers_NtQuerySecurityAttributesToken.push_back(on_func);
+    d_->observers_ZwQuerySecurityAttributesToken.push_back(on_func);
     return true;
 }
 
@@ -8540,53 +8521,53 @@ bool monitor::syscallswow64::register_NtQuerySecurityObject(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQuerySemaphore(proc_t proc, const on_NtQuerySemaphore_fn& on_func)
+bool monitor::syscallswow64::register_ZwQuerySemaphore(proc_t proc, const on_ZwQuerySemaphore_fn& on_func)
 {
-    if(d_->observers_NtQuerySemaphore.empty())
-        if(!register_callback_with(*d_, proc, "_NtQuerySemaphore@20", &on_NtQuerySemaphore))
+    if(d_->observers_ZwQuerySemaphore.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQuerySemaphore@20", &on_ZwQuerySemaphore))
             return false;
 
-    d_->observers_NtQuerySemaphore.push_back(on_func);
+    d_->observers_ZwQuerySemaphore.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQuerySymbolicLinkObject(proc_t proc, const on_NtQuerySymbolicLinkObject_fn& on_func)
+bool monitor::syscallswow64::register_ZwQuerySymbolicLinkObject(proc_t proc, const on_ZwQuerySymbolicLinkObject_fn& on_func)
 {
-    if(d_->observers_NtQuerySymbolicLinkObject.empty())
-        if(!register_callback_with(*d_, proc, "_NtQuerySymbolicLinkObject@12", &on_NtQuerySymbolicLinkObject))
+    if(d_->observers_ZwQuerySymbolicLinkObject.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQuerySymbolicLinkObject@12", &on_ZwQuerySymbolicLinkObject))
             return false;
 
-    d_->observers_NtQuerySymbolicLinkObject.push_back(on_func);
+    d_->observers_ZwQuerySymbolicLinkObject.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQuerySystemEnvironmentValueEx(proc_t proc, const on_NtQuerySystemEnvironmentValueEx_fn& on_func)
+bool monitor::syscallswow64::register_ZwQuerySystemEnvironmentValueEx(proc_t proc, const on_ZwQuerySystemEnvironmentValueEx_fn& on_func)
 {
-    if(d_->observers_NtQuerySystemEnvironmentValueEx.empty())
-        if(!register_callback_with(*d_, proc, "_NtQuerySystemEnvironmentValueEx@20", &on_NtQuerySystemEnvironmentValueEx))
+    if(d_->observers_ZwQuerySystemEnvironmentValueEx.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQuerySystemEnvironmentValueEx@20", &on_ZwQuerySystemEnvironmentValueEx))
             return false;
 
-    d_->observers_NtQuerySystemEnvironmentValueEx.push_back(on_func);
+    d_->observers_ZwQuerySystemEnvironmentValueEx.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQuerySystemEnvironmentValue(proc_t proc, const on_NtQuerySystemEnvironmentValue_fn& on_func)
+bool monitor::syscallswow64::register_ZwQuerySystemEnvironmentValue(proc_t proc, const on_ZwQuerySystemEnvironmentValue_fn& on_func)
 {
-    if(d_->observers_NtQuerySystemEnvironmentValue.empty())
-        if(!register_callback_with(*d_, proc, "_NtQuerySystemEnvironmentValue@16", &on_NtQuerySystemEnvironmentValue))
+    if(d_->observers_ZwQuerySystemEnvironmentValue.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQuerySystemEnvironmentValue@16", &on_ZwQuerySystemEnvironmentValue))
             return false;
 
-    d_->observers_NtQuerySystemEnvironmentValue.push_back(on_func);
+    d_->observers_ZwQuerySystemEnvironmentValue.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQuerySystemInformationEx(proc_t proc, const on_NtQuerySystemInformationEx_fn& on_func)
+bool monitor::syscallswow64::register_ZwQuerySystemInformationEx(proc_t proc, const on_ZwQuerySystemInformationEx_fn& on_func)
 {
-    if(d_->observers_NtQuerySystemInformationEx.empty())
-        if(!register_callback_with(*d_, proc, "_NtQuerySystemInformationEx@24", &on_NtQuerySystemInformationEx))
+    if(d_->observers_ZwQuerySystemInformationEx.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQuerySystemInformationEx@24", &on_ZwQuerySystemInformationEx))
             return false;
 
-    d_->observers_NtQuerySystemInformationEx.push_back(on_func);
+    d_->observers_ZwQuerySystemInformationEx.push_back(on_func);
     return true;
 }
 
@@ -8610,13 +8591,13 @@ bool monitor::syscallswow64::register_NtQuerySystemTime(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryTimer(proc_t proc, const on_NtQueryTimer_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryTimer(proc_t proc, const on_ZwQueryTimer_fn& on_func)
 {
-    if(d_->observers_NtQueryTimer.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryTimer@20", &on_NtQueryTimer))
+    if(d_->observers_ZwQueryTimer.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryTimer@20", &on_ZwQueryTimer))
             return false;
 
-    d_->observers_NtQueryTimer.push_back(on_func);
+    d_->observers_ZwQueryTimer.push_back(on_func);
     return true;
 }
 
@@ -8630,13 +8611,13 @@ bool monitor::syscallswow64::register_NtQueryTimerResolution(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryValueKey(proc_t proc, const on_NtQueryValueKey_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryValueKey(proc_t proc, const on_ZwQueryValueKey_fn& on_func)
 {
-    if(d_->observers_NtQueryValueKey.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryValueKey@24", &on_NtQueryValueKey))
+    if(d_->observers_ZwQueryValueKey.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryValueKey@24", &on_ZwQueryValueKey))
             return false;
 
-    d_->observers_NtQueryValueKey.push_back(on_func);
+    d_->observers_ZwQueryValueKey.push_back(on_func);
     return true;
 }
 
@@ -8680,23 +8661,23 @@ bool monitor::syscallswow64::register_NtQueueApcThread(proc_t proc, const on_NtQ
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRaiseException(proc_t proc, const on_NtRaiseException_fn& on_func)
+bool monitor::syscallswow64::register_ZwRaiseException(proc_t proc, const on_ZwRaiseException_fn& on_func)
 {
-    if(d_->observers_NtRaiseException.empty())
-        if(!register_callback_with(*d_, proc, "_NtRaiseException@12", &on_NtRaiseException))
+    if(d_->observers_ZwRaiseException.empty())
+        if(!register_callback_with(*d_, proc, "_ZwRaiseException@12", &on_ZwRaiseException))
             return false;
 
-    d_->observers_NtRaiseException.push_back(on_func);
+    d_->observers_ZwRaiseException.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRaiseHardError(proc_t proc, const on_NtRaiseHardError_fn& on_func)
+bool monitor::syscallswow64::register_ZwRaiseHardError(proc_t proc, const on_ZwRaiseHardError_fn& on_func)
 {
-    if(d_->observers_NtRaiseHardError.empty())
-        if(!register_callback_with(*d_, proc, "_NtRaiseHardError@24", &on_NtRaiseHardError))
+    if(d_->observers_ZwRaiseHardError.empty())
+        if(!register_callback_with(*d_, proc, "_ZwRaiseHardError@24", &on_ZwRaiseHardError))
             return false;
 
-    d_->observers_NtRaiseHardError.push_back(on_func);
+    d_->observers_ZwRaiseHardError.push_back(on_func);
     return true;
 }
 
@@ -8720,23 +8701,23 @@ bool monitor::syscallswow64::register_NtReadFileScatter(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReadOnlyEnlistment(proc_t proc, const on_NtReadOnlyEnlistment_fn& on_func)
+bool monitor::syscallswow64::register_ZwReadOnlyEnlistment(proc_t proc, const on_ZwReadOnlyEnlistment_fn& on_func)
 {
-    if(d_->observers_NtReadOnlyEnlistment.empty())
-        if(!register_callback_with(*d_, proc, "_NtReadOnlyEnlistment@8", &on_NtReadOnlyEnlistment))
+    if(d_->observers_ZwReadOnlyEnlistment.empty())
+        if(!register_callback_with(*d_, proc, "_ZwReadOnlyEnlistment@8", &on_ZwReadOnlyEnlistment))
             return false;
 
-    d_->observers_NtReadOnlyEnlistment.push_back(on_func);
+    d_->observers_ZwReadOnlyEnlistment.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReadRequestData(proc_t proc, const on_NtReadRequestData_fn& on_func)
+bool monitor::syscallswow64::register_ZwReadRequestData(proc_t proc, const on_ZwReadRequestData_fn& on_func)
 {
-    if(d_->observers_NtReadRequestData.empty())
-        if(!register_callback_with(*d_, proc, "_NtReadRequestData@24", &on_NtReadRequestData))
+    if(d_->observers_ZwReadRequestData.empty())
+        if(!register_callback_with(*d_, proc, "_ZwReadRequestData@24", &on_ZwReadRequestData))
             return false;
 
-    d_->observers_NtReadRequestData.push_back(on_func);
+    d_->observers_ZwReadRequestData.push_back(on_func);
     return true;
 }
 
@@ -8770,33 +8751,33 @@ bool monitor::syscallswow64::register_NtRecoverResourceManager(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRecoverTransactionManager(proc_t proc, const on_NtRecoverTransactionManager_fn& on_func)
+bool monitor::syscallswow64::register_ZwRecoverTransactionManager(proc_t proc, const on_ZwRecoverTransactionManager_fn& on_func)
 {
-    if(d_->observers_NtRecoverTransactionManager.empty())
-        if(!register_callback_with(*d_, proc, "_NtRecoverTransactionManager@4", &on_NtRecoverTransactionManager))
+    if(d_->observers_ZwRecoverTransactionManager.empty())
+        if(!register_callback_with(*d_, proc, "_ZwRecoverTransactionManager@4", &on_ZwRecoverTransactionManager))
             return false;
 
-    d_->observers_NtRecoverTransactionManager.push_back(on_func);
+    d_->observers_ZwRecoverTransactionManager.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRegisterProtocolAddressInformation(proc_t proc, const on_NtRegisterProtocolAddressInformation_fn& on_func)
+bool monitor::syscallswow64::register_ZwRegisterProtocolAddressInformation(proc_t proc, const on_ZwRegisterProtocolAddressInformation_fn& on_func)
 {
-    if(d_->observers_NtRegisterProtocolAddressInformation.empty())
-        if(!register_callback_with(*d_, proc, "_NtRegisterProtocolAddressInformation@20", &on_NtRegisterProtocolAddressInformation))
+    if(d_->observers_ZwRegisterProtocolAddressInformation.empty())
+        if(!register_callback_with(*d_, proc, "_ZwRegisterProtocolAddressInformation@20", &on_ZwRegisterProtocolAddressInformation))
             return false;
 
-    d_->observers_NtRegisterProtocolAddressInformation.push_back(on_func);
+    d_->observers_ZwRegisterProtocolAddressInformation.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRegisterThreadTerminatePort(proc_t proc, const on_NtRegisterThreadTerminatePort_fn& on_func)
+bool monitor::syscallswow64::register_ZwRegisterThreadTerminatePort(proc_t proc, const on_ZwRegisterThreadTerminatePort_fn& on_func)
 {
-    if(d_->observers_NtRegisterThreadTerminatePort.empty())
-        if(!register_callback_with(*d_, proc, "_NtRegisterThreadTerminatePort@4", &on_NtRegisterThreadTerminatePort))
+    if(d_->observers_ZwRegisterThreadTerminatePort.empty())
+        if(!register_callback_with(*d_, proc, "_ZwRegisterThreadTerminatePort@4", &on_ZwRegisterThreadTerminatePort))
             return false;
 
-    d_->observers_NtRegisterThreadTerminatePort.push_back(on_func);
+    d_->observers_ZwRegisterThreadTerminatePort.push_back(on_func);
     return true;
 }
 
@@ -8810,13 +8791,13 @@ bool monitor::syscallswow64::register_NtReleaseKeyedEvent(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReleaseMutant(proc_t proc, const on_NtReleaseMutant_fn& on_func)
+bool monitor::syscallswow64::register_ZwReleaseMutant(proc_t proc, const on_ZwReleaseMutant_fn& on_func)
 {
-    if(d_->observers_NtReleaseMutant.empty())
-        if(!register_callback_with(*d_, proc, "_NtReleaseMutant@8", &on_NtReleaseMutant))
+    if(d_->observers_ZwReleaseMutant.empty())
+        if(!register_callback_with(*d_, proc, "_ZwReleaseMutant@8", &on_ZwReleaseMutant))
             return false;
 
-    d_->observers_NtReleaseMutant.push_back(on_func);
+    d_->observers_ZwReleaseMutant.push_back(on_func);
     return true;
 }
 
@@ -8830,53 +8811,53 @@ bool monitor::syscallswow64::register_NtReleaseSemaphore(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReleaseWorkerFactoryWorker(proc_t proc, const on_NtReleaseWorkerFactoryWorker_fn& on_func)
+bool monitor::syscallswow64::register_ZwReleaseWorkerFactoryWorker(proc_t proc, const on_ZwReleaseWorkerFactoryWorker_fn& on_func)
 {
-    if(d_->observers_NtReleaseWorkerFactoryWorker.empty())
-        if(!register_callback_with(*d_, proc, "_NtReleaseWorkerFactoryWorker@4", &on_NtReleaseWorkerFactoryWorker))
+    if(d_->observers_ZwReleaseWorkerFactoryWorker.empty())
+        if(!register_callback_with(*d_, proc, "_ZwReleaseWorkerFactoryWorker@4", &on_ZwReleaseWorkerFactoryWorker))
             return false;
 
-    d_->observers_NtReleaseWorkerFactoryWorker.push_back(on_func);
+    d_->observers_ZwReleaseWorkerFactoryWorker.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRemoveIoCompletionEx(proc_t proc, const on_NtRemoveIoCompletionEx_fn& on_func)
+bool monitor::syscallswow64::register_ZwRemoveIoCompletionEx(proc_t proc, const on_ZwRemoveIoCompletionEx_fn& on_func)
 {
-    if(d_->observers_NtRemoveIoCompletionEx.empty())
-        if(!register_callback_with(*d_, proc, "_NtRemoveIoCompletionEx@24", &on_NtRemoveIoCompletionEx))
+    if(d_->observers_ZwRemoveIoCompletionEx.empty())
+        if(!register_callback_with(*d_, proc, "_ZwRemoveIoCompletionEx@24", &on_ZwRemoveIoCompletionEx))
             return false;
 
-    d_->observers_NtRemoveIoCompletionEx.push_back(on_func);
+    d_->observers_ZwRemoveIoCompletionEx.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRemoveIoCompletion(proc_t proc, const on_NtRemoveIoCompletion_fn& on_func)
+bool monitor::syscallswow64::register_ZwRemoveIoCompletion(proc_t proc, const on_ZwRemoveIoCompletion_fn& on_func)
 {
-    if(d_->observers_NtRemoveIoCompletion.empty())
-        if(!register_callback_with(*d_, proc, "_NtRemoveIoCompletion@20", &on_NtRemoveIoCompletion))
+    if(d_->observers_ZwRemoveIoCompletion.empty())
+        if(!register_callback_with(*d_, proc, "_ZwRemoveIoCompletion@20", &on_ZwRemoveIoCompletion))
             return false;
 
-    d_->observers_NtRemoveIoCompletion.push_back(on_func);
+    d_->observers_ZwRemoveIoCompletion.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRemoveProcessDebug(proc_t proc, const on_NtRemoveProcessDebug_fn& on_func)
+bool monitor::syscallswow64::register_ZwRemoveProcessDebug(proc_t proc, const on_ZwRemoveProcessDebug_fn& on_func)
 {
-    if(d_->observers_NtRemoveProcessDebug.empty())
-        if(!register_callback_with(*d_, proc, "_NtRemoveProcessDebug@8", &on_NtRemoveProcessDebug))
+    if(d_->observers_ZwRemoveProcessDebug.empty())
+        if(!register_callback_with(*d_, proc, "_ZwRemoveProcessDebug@8", &on_ZwRemoveProcessDebug))
             return false;
 
-    d_->observers_NtRemoveProcessDebug.push_back(on_func);
+    d_->observers_ZwRemoveProcessDebug.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRenameKey(proc_t proc, const on_NtRenameKey_fn& on_func)
+bool monitor::syscallswow64::register_ZwRenameKey(proc_t proc, const on_ZwRenameKey_fn& on_func)
 {
-    if(d_->observers_NtRenameKey.empty())
-        if(!register_callback_with(*d_, proc, "_NtRenameKey@8", &on_NtRenameKey))
+    if(d_->observers_ZwRenameKey.empty())
+        if(!register_callback_with(*d_, proc, "_ZwRenameKey@8", &on_ZwRenameKey))
             return false;
 
-    d_->observers_NtRenameKey.push_back(on_func);
+    d_->observers_ZwRenameKey.push_back(on_func);
     return true;
 }
 
@@ -8890,13 +8871,13 @@ bool monitor::syscallswow64::register_NtRenameTransactionManager(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReplaceKey(proc_t proc, const on_NtReplaceKey_fn& on_func)
+bool monitor::syscallswow64::register_ZwReplaceKey(proc_t proc, const on_ZwReplaceKey_fn& on_func)
 {
-    if(d_->observers_NtReplaceKey.empty())
-        if(!register_callback_with(*d_, proc, "_NtReplaceKey@12", &on_NtReplaceKey))
+    if(d_->observers_ZwReplaceKey.empty())
+        if(!register_callback_with(*d_, proc, "_ZwReplaceKey@12", &on_ZwReplaceKey))
             return false;
 
-    d_->observers_NtReplaceKey.push_back(on_func);
+    d_->observers_ZwReplaceKey.push_back(on_func);
     return true;
 }
 
@@ -8910,13 +8891,13 @@ bool monitor::syscallswow64::register_NtReplacePartitionUnit(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReplyPort(proc_t proc, const on_NtReplyPort_fn& on_func)
+bool monitor::syscallswow64::register_ZwReplyPort(proc_t proc, const on_ZwReplyPort_fn& on_func)
 {
-    if(d_->observers_NtReplyPort.empty())
-        if(!register_callback_with(*d_, proc, "_NtReplyPort@8", &on_NtReplyPort))
+    if(d_->observers_ZwReplyPort.empty())
+        if(!register_callback_with(*d_, proc, "_ZwReplyPort@8", &on_ZwReplyPort))
             return false;
 
-    d_->observers_NtReplyPort.push_back(on_func);
+    d_->observers_ZwReplyPort.push_back(on_func);
     return true;
 }
 
@@ -8950,13 +8931,13 @@ bool monitor::syscallswow64::register_NtReplyWaitReplyPort(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRequestPort(proc_t proc, const on_NtRequestPort_fn& on_func)
+bool monitor::syscallswow64::register_ZwRequestPort(proc_t proc, const on_ZwRequestPort_fn& on_func)
 {
-    if(d_->observers_NtRequestPort.empty())
-        if(!register_callback_with(*d_, proc, "_NtRequestPort@8", &on_NtRequestPort))
+    if(d_->observers_ZwRequestPort.empty())
+        if(!register_callback_with(*d_, proc, "_ZwRequestPort@8", &on_ZwRequestPort))
             return false;
 
-    d_->observers_NtRequestPort.push_back(on_func);
+    d_->observers_ZwRequestPort.push_back(on_func);
     return true;
 }
 
@@ -8980,13 +8961,13 @@ bool monitor::syscallswow64::register_NtResetEvent(proc_t proc, const on_NtReset
     return true;
 }
 
-bool monitor::syscallswow64::register_NtResetWriteWatch(proc_t proc, const on_NtResetWriteWatch_fn& on_func)
+bool monitor::syscallswow64::register_ZwResetWriteWatch(proc_t proc, const on_ZwResetWriteWatch_fn& on_func)
 {
-    if(d_->observers_NtResetWriteWatch.empty())
-        if(!register_callback_with(*d_, proc, "_NtResetWriteWatch@12", &on_NtResetWriteWatch))
+    if(d_->observers_ZwResetWriteWatch.empty())
+        if(!register_callback_with(*d_, proc, "_ZwResetWriteWatch@12", &on_ZwResetWriteWatch))
             return false;
 
-    d_->observers_NtResetWriteWatch.push_back(on_func);
+    d_->observers_ZwResetWriteWatch.push_back(on_func);
     return true;
 }
 
@@ -9000,33 +8981,33 @@ bool monitor::syscallswow64::register_NtRestoreKey(proc_t proc, const on_NtResto
     return true;
 }
 
-bool monitor::syscallswow64::register_NtResumeProcess(proc_t proc, const on_NtResumeProcess_fn& on_func)
+bool monitor::syscallswow64::register_ZwResumeProcess(proc_t proc, const on_ZwResumeProcess_fn& on_func)
 {
-    if(d_->observers_NtResumeProcess.empty())
-        if(!register_callback_with(*d_, proc, "_NtResumeProcess@4", &on_NtResumeProcess))
+    if(d_->observers_ZwResumeProcess.empty())
+        if(!register_callback_with(*d_, proc, "_ZwResumeProcess@4", &on_ZwResumeProcess))
             return false;
 
-    d_->observers_NtResumeProcess.push_back(on_func);
+    d_->observers_ZwResumeProcess.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtResumeThread(proc_t proc, const on_NtResumeThread_fn& on_func)
+bool monitor::syscallswow64::register_ZwResumeThread(proc_t proc, const on_ZwResumeThread_fn& on_func)
 {
-    if(d_->observers_NtResumeThread.empty())
-        if(!register_callback_with(*d_, proc, "_NtResumeThread@8", &on_NtResumeThread))
+    if(d_->observers_ZwResumeThread.empty())
+        if(!register_callback_with(*d_, proc, "_ZwResumeThread@8", &on_ZwResumeThread))
             return false;
 
-    d_->observers_NtResumeThread.push_back(on_func);
+    d_->observers_ZwResumeThread.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRollbackComplete(proc_t proc, const on_NtRollbackComplete_fn& on_func)
+bool monitor::syscallswow64::register_ZwRollbackComplete(proc_t proc, const on_ZwRollbackComplete_fn& on_func)
 {
-    if(d_->observers_NtRollbackComplete.empty())
-        if(!register_callback_with(*d_, proc, "_NtRollbackComplete@8", &on_NtRollbackComplete))
+    if(d_->observers_ZwRollbackComplete.empty())
+        if(!register_callback_with(*d_, proc, "_ZwRollbackComplete@8", &on_ZwRollbackComplete))
             return false;
 
-    d_->observers_NtRollbackComplete.push_back(on_func);
+    d_->observers_ZwRollbackComplete.push_back(on_func);
     return true;
 }
 
@@ -9100,33 +9081,33 @@ bool monitor::syscallswow64::register_NtSecureConnectPort(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetBootEntryOrder(proc_t proc, const on_NtSetBootEntryOrder_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetBootEntryOrder(proc_t proc, const on_ZwSetBootEntryOrder_fn& on_func)
 {
-    if(d_->observers_NtSetBootEntryOrder.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetBootEntryOrder@8", &on_NtSetBootEntryOrder))
+    if(d_->observers_ZwSetBootEntryOrder.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetBootEntryOrder@8", &on_ZwSetBootEntryOrder))
             return false;
 
-    d_->observers_NtSetBootEntryOrder.push_back(on_func);
+    d_->observers_ZwSetBootEntryOrder.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetBootOptions(proc_t proc, const on_NtSetBootOptions_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetBootOptions(proc_t proc, const on_ZwSetBootOptions_fn& on_func)
 {
-    if(d_->observers_NtSetBootOptions.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetBootOptions@8", &on_NtSetBootOptions))
+    if(d_->observers_ZwSetBootOptions.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetBootOptions@8", &on_ZwSetBootOptions))
             return false;
 
-    d_->observers_NtSetBootOptions.push_back(on_func);
+    d_->observers_ZwSetBootOptions.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetContextThread(proc_t proc, const on_NtSetContextThread_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetContextThread(proc_t proc, const on_ZwSetContextThread_fn& on_func)
 {
-    if(d_->observers_NtSetContextThread.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetContextThread@8", &on_NtSetContextThread))
+    if(d_->observers_ZwSetContextThread.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetContextThread@8", &on_ZwSetContextThread))
             return false;
 
-    d_->observers_NtSetContextThread.push_back(on_func);
+    d_->observers_ZwSetContextThread.push_back(on_func);
     return true;
 }
 
@@ -9160,13 +9141,13 @@ bool monitor::syscallswow64::register_NtSetDefaultLocale(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetDefaultUILanguage(proc_t proc, const on_NtSetDefaultUILanguage_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetDefaultUILanguage(proc_t proc, const on_ZwSetDefaultUILanguage_fn& on_func)
 {
-    if(d_->observers_NtSetDefaultUILanguage.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetDefaultUILanguage@4", &on_NtSetDefaultUILanguage))
+    if(d_->observers_ZwSetDefaultUILanguage.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetDefaultUILanguage@4", &on_ZwSetDefaultUILanguage))
             return false;
 
-    d_->observers_NtSetDefaultUILanguage.push_back(on_func);
+    d_->observers_ZwSetDefaultUILanguage.push_back(on_func);
     return true;
 }
 
@@ -9180,13 +9161,13 @@ bool monitor::syscallswow64::register_NtSetDriverEntryOrder(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetEaFile(proc_t proc, const on_NtSetEaFile_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetEaFile(proc_t proc, const on_ZwSetEaFile_fn& on_func)
 {
-    if(d_->observers_NtSetEaFile.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetEaFile@16", &on_NtSetEaFile))
+    if(d_->observers_ZwSetEaFile.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetEaFile@16", &on_ZwSetEaFile))
             return false;
 
-    d_->observers_NtSetEaFile.push_back(on_func);
+    d_->observers_ZwSetEaFile.push_back(on_func);
     return true;
 }
 
@@ -9230,13 +9211,13 @@ bool monitor::syscallswow64::register_NtSetHighWaitLowEventPair(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetInformationDebugObject(proc_t proc, const on_NtSetInformationDebugObject_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetInformationDebugObject(proc_t proc, const on_ZwSetInformationDebugObject_fn& on_func)
 {
-    if(d_->observers_NtSetInformationDebugObject.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetInformationDebugObject@20", &on_NtSetInformationDebugObject))
+    if(d_->observers_ZwSetInformationDebugObject.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetInformationDebugObject@20", &on_ZwSetInformationDebugObject))
             return false;
 
-    d_->observers_NtSetInformationDebugObject.push_back(on_func);
+    d_->observers_ZwSetInformationDebugObject.push_back(on_func);
     return true;
 }
 
@@ -9250,113 +9231,113 @@ bool monitor::syscallswow64::register_NtSetInformationEnlistment(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetInformationFile(proc_t proc, const on_NtSetInformationFile_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetInformationFile(proc_t proc, const on_ZwSetInformationFile_fn& on_func)
 {
-    if(d_->observers_NtSetInformationFile.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetInformationFile@20", &on_NtSetInformationFile))
+    if(d_->observers_ZwSetInformationFile.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetInformationFile@20", &on_ZwSetInformationFile))
             return false;
 
-    d_->observers_NtSetInformationFile.push_back(on_func);
+    d_->observers_ZwSetInformationFile.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetInformationJobObject(proc_t proc, const on_NtSetInformationJobObject_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetInformationJobObject(proc_t proc, const on_ZwSetInformationJobObject_fn& on_func)
 {
-    if(d_->observers_NtSetInformationJobObject.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetInformationJobObject@16", &on_NtSetInformationJobObject))
+    if(d_->observers_ZwSetInformationJobObject.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetInformationJobObject@16", &on_ZwSetInformationJobObject))
             return false;
 
-    d_->observers_NtSetInformationJobObject.push_back(on_func);
+    d_->observers_ZwSetInformationJobObject.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetInformationKey(proc_t proc, const on_NtSetInformationKey_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetInformationKey(proc_t proc, const on_ZwSetInformationKey_fn& on_func)
 {
-    if(d_->observers_NtSetInformationKey.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetInformationKey@16", &on_NtSetInformationKey))
+    if(d_->observers_ZwSetInformationKey.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetInformationKey@16", &on_ZwSetInformationKey))
             return false;
 
-    d_->observers_NtSetInformationKey.push_back(on_func);
+    d_->observers_ZwSetInformationKey.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetInformationObject(proc_t proc, const on_NtSetInformationObject_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetInformationObject(proc_t proc, const on_ZwSetInformationObject_fn& on_func)
 {
-    if(d_->observers_NtSetInformationObject.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetInformationObject@16", &on_NtSetInformationObject))
+    if(d_->observers_ZwSetInformationObject.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetInformationObject@16", &on_ZwSetInformationObject))
             return false;
 
-    d_->observers_NtSetInformationObject.push_back(on_func);
+    d_->observers_ZwSetInformationObject.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetInformationProcess(proc_t proc, const on_NtSetInformationProcess_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetInformationProcess(proc_t proc, const on_ZwSetInformationProcess_fn& on_func)
 {
-    if(d_->observers_NtSetInformationProcess.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetInformationProcess@16", &on_NtSetInformationProcess))
+    if(d_->observers_ZwSetInformationProcess.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetInformationProcess@16", &on_ZwSetInformationProcess))
             return false;
 
-    d_->observers_NtSetInformationProcess.push_back(on_func);
+    d_->observers_ZwSetInformationProcess.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetInformationResourceManager(proc_t proc, const on_NtSetInformationResourceManager_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetInformationResourceManager(proc_t proc, const on_ZwSetInformationResourceManager_fn& on_func)
 {
-    if(d_->observers_NtSetInformationResourceManager.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetInformationResourceManager@16", &on_NtSetInformationResourceManager))
+    if(d_->observers_ZwSetInformationResourceManager.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetInformationResourceManager@16", &on_ZwSetInformationResourceManager))
             return false;
 
-    d_->observers_NtSetInformationResourceManager.push_back(on_func);
+    d_->observers_ZwSetInformationResourceManager.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetInformationThread(proc_t proc, const on_NtSetInformationThread_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetInformationThread(proc_t proc, const on_ZwSetInformationThread_fn& on_func)
 {
-    if(d_->observers_NtSetInformationThread.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetInformationThread@16", &on_NtSetInformationThread))
+    if(d_->observers_ZwSetInformationThread.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetInformationThread@16", &on_ZwSetInformationThread))
             return false;
 
-    d_->observers_NtSetInformationThread.push_back(on_func);
+    d_->observers_ZwSetInformationThread.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetInformationToken(proc_t proc, const on_NtSetInformationToken_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetInformationToken(proc_t proc, const on_ZwSetInformationToken_fn& on_func)
 {
-    if(d_->observers_NtSetInformationToken.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetInformationToken@16", &on_NtSetInformationToken))
+    if(d_->observers_ZwSetInformationToken.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetInformationToken@16", &on_ZwSetInformationToken))
             return false;
 
-    d_->observers_NtSetInformationToken.push_back(on_func);
+    d_->observers_ZwSetInformationToken.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetInformationTransaction(proc_t proc, const on_NtSetInformationTransaction_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetInformationTransaction(proc_t proc, const on_ZwSetInformationTransaction_fn& on_func)
 {
-    if(d_->observers_NtSetInformationTransaction.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetInformationTransaction@16", &on_NtSetInformationTransaction))
+    if(d_->observers_ZwSetInformationTransaction.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetInformationTransaction@16", &on_ZwSetInformationTransaction))
             return false;
 
-    d_->observers_NtSetInformationTransaction.push_back(on_func);
+    d_->observers_ZwSetInformationTransaction.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetInformationTransactionManager(proc_t proc, const on_NtSetInformationTransactionManager_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetInformationTransactionManager(proc_t proc, const on_ZwSetInformationTransactionManager_fn& on_func)
 {
-    if(d_->observers_NtSetInformationTransactionManager.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetInformationTransactionManager@16", &on_NtSetInformationTransactionManager))
+    if(d_->observers_ZwSetInformationTransactionManager.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetInformationTransactionManager@16", &on_ZwSetInformationTransactionManager))
             return false;
 
-    d_->observers_NtSetInformationTransactionManager.push_back(on_func);
+    d_->observers_ZwSetInformationTransactionManager.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetInformationWorkerFactory(proc_t proc, const on_NtSetInformationWorkerFactory_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetInformationWorkerFactory(proc_t proc, const on_ZwSetInformationWorkerFactory_fn& on_func)
 {
-    if(d_->observers_NtSetInformationWorkerFactory.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetInformationWorkerFactory@16", &on_NtSetInformationWorkerFactory))
+    if(d_->observers_ZwSetInformationWorkerFactory.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetInformationWorkerFactory@16", &on_ZwSetInformationWorkerFactory))
             return false;
 
-    d_->observers_NtSetInformationWorkerFactory.push_back(on_func);
+    d_->observers_ZwSetInformationWorkerFactory.push_back(on_func);
     return true;
 }
 
@@ -9390,43 +9371,43 @@ bool monitor::syscallswow64::register_NtSetIoCompletion(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetLdtEntries(proc_t proc, const on_NtSetLdtEntries_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetLdtEntries(proc_t proc, const on_ZwSetLdtEntries_fn& on_func)
 {
-    if(d_->observers_NtSetLdtEntries.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetLdtEntries@24", &on_NtSetLdtEntries))
+    if(d_->observers_ZwSetLdtEntries.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetLdtEntries@24", &on_ZwSetLdtEntries))
             return false;
 
-    d_->observers_NtSetLdtEntries.push_back(on_func);
+    d_->observers_ZwSetLdtEntries.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetLowEventPair(proc_t proc, const on_NtSetLowEventPair_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetLowEventPair(proc_t proc, const on_ZwSetLowEventPair_fn& on_func)
 {
-    if(d_->observers_NtSetLowEventPair.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetLowEventPair@4", &on_NtSetLowEventPair))
+    if(d_->observers_ZwSetLowEventPair.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetLowEventPair@4", &on_ZwSetLowEventPair))
             return false;
 
-    d_->observers_NtSetLowEventPair.push_back(on_func);
+    d_->observers_ZwSetLowEventPair.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetLowWaitHighEventPair(proc_t proc, const on_NtSetLowWaitHighEventPair_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetLowWaitHighEventPair(proc_t proc, const on_ZwSetLowWaitHighEventPair_fn& on_func)
 {
-    if(d_->observers_NtSetLowWaitHighEventPair.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetLowWaitHighEventPair@4", &on_NtSetLowWaitHighEventPair))
+    if(d_->observers_ZwSetLowWaitHighEventPair.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetLowWaitHighEventPair@4", &on_ZwSetLowWaitHighEventPair))
             return false;
 
-    d_->observers_NtSetLowWaitHighEventPair.push_back(on_func);
+    d_->observers_ZwSetLowWaitHighEventPair.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetQuotaInformationFile(proc_t proc, const on_NtSetQuotaInformationFile_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetQuotaInformationFile(proc_t proc, const on_ZwSetQuotaInformationFile_fn& on_func)
 {
-    if(d_->observers_NtSetQuotaInformationFile.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetQuotaInformationFile@16", &on_NtSetQuotaInformationFile))
+    if(d_->observers_ZwSetQuotaInformationFile.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetQuotaInformationFile@16", &on_ZwSetQuotaInformationFile))
             return false;
 
-    d_->observers_NtSetQuotaInformationFile.push_back(on_func);
+    d_->observers_ZwSetQuotaInformationFile.push_back(on_func);
     return true;
 }
 
@@ -9440,83 +9421,83 @@ bool monitor::syscallswow64::register_NtSetSecurityObject(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetSystemEnvironmentValueEx(proc_t proc, const on_NtSetSystemEnvironmentValueEx_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetSystemEnvironmentValueEx(proc_t proc, const on_ZwSetSystemEnvironmentValueEx_fn& on_func)
 {
-    if(d_->observers_NtSetSystemEnvironmentValueEx.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetSystemEnvironmentValueEx@20", &on_NtSetSystemEnvironmentValueEx))
+    if(d_->observers_ZwSetSystemEnvironmentValueEx.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetSystemEnvironmentValueEx@20", &on_ZwSetSystemEnvironmentValueEx))
             return false;
 
-    d_->observers_NtSetSystemEnvironmentValueEx.push_back(on_func);
+    d_->observers_ZwSetSystemEnvironmentValueEx.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetSystemEnvironmentValue(proc_t proc, const on_NtSetSystemEnvironmentValue_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetSystemEnvironmentValue(proc_t proc, const on_ZwSetSystemEnvironmentValue_fn& on_func)
 {
-    if(d_->observers_NtSetSystemEnvironmentValue.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetSystemEnvironmentValue@8", &on_NtSetSystemEnvironmentValue))
+    if(d_->observers_ZwSetSystemEnvironmentValue.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetSystemEnvironmentValue@8", &on_ZwSetSystemEnvironmentValue))
             return false;
 
-    d_->observers_NtSetSystemEnvironmentValue.push_back(on_func);
+    d_->observers_ZwSetSystemEnvironmentValue.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetSystemInformation(proc_t proc, const on_NtSetSystemInformation_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetSystemInformation(proc_t proc, const on_ZwSetSystemInformation_fn& on_func)
 {
-    if(d_->observers_NtSetSystemInformation.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetSystemInformation@12", &on_NtSetSystemInformation))
+    if(d_->observers_ZwSetSystemInformation.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetSystemInformation@12", &on_ZwSetSystemInformation))
             return false;
 
-    d_->observers_NtSetSystemInformation.push_back(on_func);
+    d_->observers_ZwSetSystemInformation.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetSystemPowerState(proc_t proc, const on_NtSetSystemPowerState_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetSystemPowerState(proc_t proc, const on_ZwSetSystemPowerState_fn& on_func)
 {
-    if(d_->observers_NtSetSystemPowerState.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetSystemPowerState@12", &on_NtSetSystemPowerState))
+    if(d_->observers_ZwSetSystemPowerState.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetSystemPowerState@12", &on_ZwSetSystemPowerState))
             return false;
 
-    d_->observers_NtSetSystemPowerState.push_back(on_func);
+    d_->observers_ZwSetSystemPowerState.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetSystemTime(proc_t proc, const on_NtSetSystemTime_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetSystemTime(proc_t proc, const on_ZwSetSystemTime_fn& on_func)
 {
-    if(d_->observers_NtSetSystemTime.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetSystemTime@8", &on_NtSetSystemTime))
+    if(d_->observers_ZwSetSystemTime.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetSystemTime@8", &on_ZwSetSystemTime))
             return false;
 
-    d_->observers_NtSetSystemTime.push_back(on_func);
+    d_->observers_ZwSetSystemTime.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetThreadExecutionState(proc_t proc, const on_NtSetThreadExecutionState_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetThreadExecutionState(proc_t proc, const on_ZwSetThreadExecutionState_fn& on_func)
 {
-    if(d_->observers_NtSetThreadExecutionState.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetThreadExecutionState@8", &on_NtSetThreadExecutionState))
+    if(d_->observers_ZwSetThreadExecutionState.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetThreadExecutionState@8", &on_ZwSetThreadExecutionState))
             return false;
 
-    d_->observers_NtSetThreadExecutionState.push_back(on_func);
+    d_->observers_ZwSetThreadExecutionState.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetTimerEx(proc_t proc, const on_NtSetTimerEx_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetTimerEx(proc_t proc, const on_ZwSetTimerEx_fn& on_func)
 {
-    if(d_->observers_NtSetTimerEx.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetTimerEx@16", &on_NtSetTimerEx))
+    if(d_->observers_ZwSetTimerEx.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetTimerEx@16", &on_ZwSetTimerEx))
             return false;
 
-    d_->observers_NtSetTimerEx.push_back(on_func);
+    d_->observers_ZwSetTimerEx.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetTimer(proc_t proc, const on_NtSetTimer_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetTimer(proc_t proc, const on_ZwSetTimer_fn& on_func)
 {
-    if(d_->observers_NtSetTimer.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetTimer@28", &on_NtSetTimer))
+    if(d_->observers_ZwSetTimer.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetTimer@28", &on_ZwSetTimer))
             return false;
 
-    d_->observers_NtSetTimer.push_back(on_func);
+    d_->observers_ZwSetTimer.push_back(on_func);
     return true;
 }
 
@@ -9530,23 +9511,23 @@ bool monitor::syscallswow64::register_NtSetTimerResolution(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetUuidSeed(proc_t proc, const on_NtSetUuidSeed_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetUuidSeed(proc_t proc, const on_ZwSetUuidSeed_fn& on_func)
 {
-    if(d_->observers_NtSetUuidSeed.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetUuidSeed@4", &on_NtSetUuidSeed))
+    if(d_->observers_ZwSetUuidSeed.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetUuidSeed@4", &on_ZwSetUuidSeed))
             return false;
 
-    d_->observers_NtSetUuidSeed.push_back(on_func);
+    d_->observers_ZwSetUuidSeed.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetValueKey(proc_t proc, const on_NtSetValueKey_fn& on_func)
+bool monitor::syscallswow64::register_ZwSetValueKey(proc_t proc, const on_ZwSetValueKey_fn& on_func)
 {
-    if(d_->observers_NtSetValueKey.empty())
-        if(!register_callback_with(*d_, proc, "_NtSetValueKey@24", &on_NtSetValueKey))
+    if(d_->observers_ZwSetValueKey.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSetValueKey@24", &on_ZwSetValueKey))
             return false;
 
-    d_->observers_NtSetValueKey.push_back(on_func);
+    d_->observers_ZwSetValueKey.push_back(on_func);
     return true;
 }
 
@@ -9560,13 +9541,13 @@ bool monitor::syscallswow64::register_NtSetVolumeInformationFile(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_NtShutdownSystem(proc_t proc, const on_NtShutdownSystem_fn& on_func)
+bool monitor::syscallswow64::register_ZwShutdownSystem(proc_t proc, const on_ZwShutdownSystem_fn& on_func)
 {
-    if(d_->observers_NtShutdownSystem.empty())
-        if(!register_callback_with(*d_, proc, "_NtShutdownSystem@4", &on_NtShutdownSystem))
+    if(d_->observers_ZwShutdownSystem.empty())
+        if(!register_callback_with(*d_, proc, "_ZwShutdownSystem@4", &on_ZwShutdownSystem))
             return false;
 
-    d_->observers_NtShutdownSystem.push_back(on_func);
+    d_->observers_ZwShutdownSystem.push_back(on_func);
     return true;
 }
 
@@ -9580,23 +9561,23 @@ bool monitor::syscallswow64::register_NtShutdownWorkerFactory(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSignalAndWaitForSingleObject(proc_t proc, const on_NtSignalAndWaitForSingleObject_fn& on_func)
+bool monitor::syscallswow64::register_ZwSignalAndWaitForSingleObject(proc_t proc, const on_ZwSignalAndWaitForSingleObject_fn& on_func)
 {
-    if(d_->observers_NtSignalAndWaitForSingleObject.empty())
-        if(!register_callback_with(*d_, proc, "_NtSignalAndWaitForSingleObject@16", &on_NtSignalAndWaitForSingleObject))
+    if(d_->observers_ZwSignalAndWaitForSingleObject.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSignalAndWaitForSingleObject@16", &on_ZwSignalAndWaitForSingleObject))
             return false;
 
-    d_->observers_NtSignalAndWaitForSingleObject.push_back(on_func);
+    d_->observers_ZwSignalAndWaitForSingleObject.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSinglePhaseReject(proc_t proc, const on_NtSinglePhaseReject_fn& on_func)
+bool monitor::syscallswow64::register_ZwSinglePhaseReject(proc_t proc, const on_ZwSinglePhaseReject_fn& on_func)
 {
-    if(d_->observers_NtSinglePhaseReject.empty())
-        if(!register_callback_with(*d_, proc, "_NtSinglePhaseReject@8", &on_NtSinglePhaseReject))
+    if(d_->observers_ZwSinglePhaseReject.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSinglePhaseReject@8", &on_ZwSinglePhaseReject))
             return false;
 
-    d_->observers_NtSinglePhaseReject.push_back(on_func);
+    d_->observers_ZwSinglePhaseReject.push_back(on_func);
     return true;
 }
 
@@ -9610,33 +9591,33 @@ bool monitor::syscallswow64::register_NtStartProfile(proc_t proc, const on_NtSta
     return true;
 }
 
-bool monitor::syscallswow64::register_NtStopProfile(proc_t proc, const on_NtStopProfile_fn& on_func)
+bool monitor::syscallswow64::register_ZwStopProfile(proc_t proc, const on_ZwStopProfile_fn& on_func)
 {
-    if(d_->observers_NtStopProfile.empty())
-        if(!register_callback_with(*d_, proc, "_NtStopProfile@4", &on_NtStopProfile))
+    if(d_->observers_ZwStopProfile.empty())
+        if(!register_callback_with(*d_, proc, "_ZwStopProfile@4", &on_ZwStopProfile))
             return false;
 
-    d_->observers_NtStopProfile.push_back(on_func);
+    d_->observers_ZwStopProfile.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSuspendProcess(proc_t proc, const on_NtSuspendProcess_fn& on_func)
+bool monitor::syscallswow64::register_ZwSuspendProcess(proc_t proc, const on_ZwSuspendProcess_fn& on_func)
 {
-    if(d_->observers_NtSuspendProcess.empty())
-        if(!register_callback_with(*d_, proc, "_NtSuspendProcess@4", &on_NtSuspendProcess))
+    if(d_->observers_ZwSuspendProcess.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSuspendProcess@4", &on_ZwSuspendProcess))
             return false;
 
-    d_->observers_NtSuspendProcess.push_back(on_func);
+    d_->observers_ZwSuspendProcess.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSuspendThread(proc_t proc, const on_NtSuspendThread_fn& on_func)
+bool monitor::syscallswow64::register_ZwSuspendThread(proc_t proc, const on_ZwSuspendThread_fn& on_func)
 {
-    if(d_->observers_NtSuspendThread.empty())
-        if(!register_callback_with(*d_, proc, "_NtSuspendThread@8", &on_NtSuspendThread))
+    if(d_->observers_ZwSuspendThread.empty())
+        if(!register_callback_with(*d_, proc, "_ZwSuspendThread@8", &on_ZwSuspendThread))
             return false;
 
-    d_->observers_NtSuspendThread.push_back(on_func);
+    d_->observers_ZwSuspendThread.push_back(on_func);
     return true;
 }
 
@@ -9650,43 +9631,43 @@ bool monitor::syscallswow64::register_NtSystemDebugControl(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtTerminateJobObject(proc_t proc, const on_NtTerminateJobObject_fn& on_func)
+bool monitor::syscallswow64::register_ZwTerminateJobObject(proc_t proc, const on_ZwTerminateJobObject_fn& on_func)
 {
-    if(d_->observers_NtTerminateJobObject.empty())
-        if(!register_callback_with(*d_, proc, "_NtTerminateJobObject@8", &on_NtTerminateJobObject))
+    if(d_->observers_ZwTerminateJobObject.empty())
+        if(!register_callback_with(*d_, proc, "_ZwTerminateJobObject@8", &on_ZwTerminateJobObject))
             return false;
 
-    d_->observers_NtTerminateJobObject.push_back(on_func);
+    d_->observers_ZwTerminateJobObject.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtTerminateProcess(proc_t proc, const on_NtTerminateProcess_fn& on_func)
+bool monitor::syscallswow64::register_ZwTerminateProcess(proc_t proc, const on_ZwTerminateProcess_fn& on_func)
 {
-    if(d_->observers_NtTerminateProcess.empty())
-        if(!register_callback_with(*d_, proc, "_NtTerminateProcess@8", &on_NtTerminateProcess))
+    if(d_->observers_ZwTerminateProcess.empty())
+        if(!register_callback_with(*d_, proc, "_ZwTerminateProcess@8", &on_ZwTerminateProcess))
             return false;
 
-    d_->observers_NtTerminateProcess.push_back(on_func);
+    d_->observers_ZwTerminateProcess.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtTerminateThread(proc_t proc, const on_NtTerminateThread_fn& on_func)
+bool monitor::syscallswow64::register_ZwTerminateThread(proc_t proc, const on_ZwTerminateThread_fn& on_func)
 {
-    if(d_->observers_NtTerminateThread.empty())
-        if(!register_callback_with(*d_, proc, "_NtTerminateThread@8", &on_NtTerminateThread))
+    if(d_->observers_ZwTerminateThread.empty())
+        if(!register_callback_with(*d_, proc, "_ZwTerminateThread@8", &on_ZwTerminateThread))
             return false;
 
-    d_->observers_NtTerminateThread.push_back(on_func);
+    d_->observers_ZwTerminateThread.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtTraceControl(proc_t proc, const on_NtTraceControl_fn& on_func)
+bool monitor::syscallswow64::register_ZwTraceControl(proc_t proc, const on_ZwTraceControl_fn& on_func)
 {
-    if(d_->observers_NtTraceControl.empty())
-        if(!register_callback_with(*d_, proc, "_NtTraceControl@24", &on_NtTraceControl))
+    if(d_->observers_ZwTraceControl.empty())
+        if(!register_callback_with(*d_, proc, "_ZwTraceControl@24", &on_ZwTraceControl))
             return false;
 
-    d_->observers_NtTraceControl.push_back(on_func);
+    d_->observers_ZwTraceControl.push_back(on_func);
     return true;
 }
 
@@ -9710,33 +9691,33 @@ bool monitor::syscallswow64::register_NtTranslateFilePath(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtUnloadDriver(proc_t proc, const on_NtUnloadDriver_fn& on_func)
+bool monitor::syscallswow64::register_ZwUnloadDriver(proc_t proc, const on_ZwUnloadDriver_fn& on_func)
 {
-    if(d_->observers_NtUnloadDriver.empty())
-        if(!register_callback_with(*d_, proc, "_NtUnloadDriver@4", &on_NtUnloadDriver))
+    if(d_->observers_ZwUnloadDriver.empty())
+        if(!register_callback_with(*d_, proc, "_ZwUnloadDriver@4", &on_ZwUnloadDriver))
             return false;
 
-    d_->observers_NtUnloadDriver.push_back(on_func);
+    d_->observers_ZwUnloadDriver.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtUnloadKey2(proc_t proc, const on_NtUnloadKey2_fn& on_func)
+bool monitor::syscallswow64::register_ZwUnloadKey2(proc_t proc, const on_ZwUnloadKey2_fn& on_func)
 {
-    if(d_->observers_NtUnloadKey2.empty())
-        if(!register_callback_with(*d_, proc, "_NtUnloadKey2@8", &on_NtUnloadKey2))
+    if(d_->observers_ZwUnloadKey2.empty())
+        if(!register_callback_with(*d_, proc, "_ZwUnloadKey2@8", &on_ZwUnloadKey2))
             return false;
 
-    d_->observers_NtUnloadKey2.push_back(on_func);
+    d_->observers_ZwUnloadKey2.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtUnloadKeyEx(proc_t proc, const on_NtUnloadKeyEx_fn& on_func)
+bool monitor::syscallswow64::register_ZwUnloadKeyEx(proc_t proc, const on_ZwUnloadKeyEx_fn& on_func)
 {
-    if(d_->observers_NtUnloadKeyEx.empty())
-        if(!register_callback_with(*d_, proc, "_NtUnloadKeyEx@8", &on_NtUnloadKeyEx))
+    if(d_->observers_ZwUnloadKeyEx.empty())
+        if(!register_callback_with(*d_, proc, "_ZwUnloadKeyEx@8", &on_ZwUnloadKeyEx))
             return false;
 
-    d_->observers_NtUnloadKeyEx.push_back(on_func);
+    d_->observers_ZwUnloadKeyEx.push_back(on_func);
     return true;
 }
 
@@ -9750,13 +9731,13 @@ bool monitor::syscallswow64::register_NtUnloadKey(proc_t proc, const on_NtUnload
     return true;
 }
 
-bool monitor::syscallswow64::register_NtUnlockFile(proc_t proc, const on_NtUnlockFile_fn& on_func)
+bool monitor::syscallswow64::register_ZwUnlockFile(proc_t proc, const on_ZwUnlockFile_fn& on_func)
 {
-    if(d_->observers_NtUnlockFile.empty())
-        if(!register_callback_with(*d_, proc, "_NtUnlockFile@20", &on_NtUnlockFile))
+    if(d_->observers_ZwUnlockFile.empty())
+        if(!register_callback_with(*d_, proc, "_ZwUnlockFile@20", &on_ZwUnlockFile))
             return false;
 
-    d_->observers_NtUnlockFile.push_back(on_func);
+    d_->observers_ZwUnlockFile.push_back(on_func);
     return true;
 }
 
@@ -9830,13 +9811,13 @@ bool monitor::syscallswow64::register_NtWaitForMultipleObjects(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_NtWaitForSingleObject(proc_t proc, const on_NtWaitForSingleObject_fn& on_func)
+bool monitor::syscallswow64::register_ZwWaitForSingleObject(proc_t proc, const on_ZwWaitForSingleObject_fn& on_func)
 {
-    if(d_->observers_NtWaitForSingleObject.empty())
-        if(!register_callback_with(*d_, proc, "_NtWaitForSingleObject@12", &on_NtWaitForSingleObject))
+    if(d_->observers_ZwWaitForSingleObject.empty())
+        if(!register_callback_with(*d_, proc, "_ZwWaitForSingleObject@12", &on_ZwWaitForSingleObject))
             return false;
 
-    d_->observers_NtWaitForSingleObject.push_back(on_func);
+    d_->observers_ZwWaitForSingleObject.push_back(on_func);
     return true;
 }
 
@@ -9850,13 +9831,13 @@ bool monitor::syscallswow64::register_NtWaitForWorkViaWorkerFactory(proc_t proc,
     return true;
 }
 
-bool monitor::syscallswow64::register_NtWaitHighEventPair(proc_t proc, const on_NtWaitHighEventPair_fn& on_func)
+bool monitor::syscallswow64::register_ZwWaitHighEventPair(proc_t proc, const on_ZwWaitHighEventPair_fn& on_func)
 {
-    if(d_->observers_NtWaitHighEventPair.empty())
-        if(!register_callback_with(*d_, proc, "_NtWaitHighEventPair@4", &on_NtWaitHighEventPair))
+    if(d_->observers_ZwWaitHighEventPair.empty())
+        if(!register_callback_with(*d_, proc, "_ZwWaitHighEventPair@4", &on_ZwWaitHighEventPair))
             return false;
 
-    d_->observers_NtWaitHighEventPair.push_back(on_func);
+    d_->observers_ZwWaitHighEventPair.push_back(on_func);
     return true;
 }
 
@@ -9940,13 +9921,13 @@ bool monitor::syscallswow64::register_NtEnableLastKnownGood(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtFlushProcessWriteBuffers(proc_t proc, const on_NtFlushProcessWriteBuffers_fn& on_func)
+bool monitor::syscallswow64::register_ZwFlushProcessWriteBuffers(proc_t proc, const on_ZwFlushProcessWriteBuffers_fn& on_func)
 {
-    if(d_->observers_NtFlushProcessWriteBuffers.empty())
-        if(!register_callback_with(*d_, proc, "_NtFlushProcessWriteBuffers@0", &on_NtFlushProcessWriteBuffers))
+    if(d_->observers_ZwFlushProcessWriteBuffers.empty())
+        if(!register_callback_with(*d_, proc, "_ZwFlushProcessWriteBuffers@0", &on_ZwFlushProcessWriteBuffers))
             return false;
 
-    d_->observers_NtFlushProcessWriteBuffers.push_back(on_func);
+    d_->observers_ZwFlushProcessWriteBuffers.push_back(on_func);
     return true;
 }
 
@@ -9980,23 +9961,23 @@ bool monitor::syscallswow64::register_NtIsSystemResumeAutomatic(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_NtIsUILanguageComitted(proc_t proc, const on_NtIsUILanguageComitted_fn& on_func)
+bool monitor::syscallswow64::register_ZwIsUILanguageComitted(proc_t proc, const on_ZwIsUILanguageComitted_fn& on_func)
 {
-    if(d_->observers_NtIsUILanguageComitted.empty())
-        if(!register_callback_with(*d_, proc, "_NtIsUILanguageComitted@0", &on_NtIsUILanguageComitted))
+    if(d_->observers_ZwIsUILanguageComitted.empty())
+        if(!register_callback_with(*d_, proc, "_ZwIsUILanguageComitted@0", &on_ZwIsUILanguageComitted))
             return false;
 
-    d_->observers_NtIsUILanguageComitted.push_back(on_func);
+    d_->observers_ZwIsUILanguageComitted.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryPortInformationProcess(proc_t proc, const on_NtQueryPortInformationProcess_fn& on_func)
+bool monitor::syscallswow64::register_ZwQueryPortInformationProcess(proc_t proc, const on_ZwQueryPortInformationProcess_fn& on_func)
 {
-    if(d_->observers_NtQueryPortInformationProcess.empty())
-        if(!register_callback_with(*d_, proc, "_NtQueryPortInformationProcess@0", &on_NtQueryPortInformationProcess))
+    if(d_->observers_ZwQueryPortInformationProcess.empty())
+        if(!register_callback_with(*d_, proc, "_ZwQueryPortInformationProcess@0", &on_ZwQueryPortInformationProcess))
             return false;
 
-    d_->observers_NtQueryPortInformationProcess.push_back(on_func);
+    d_->observers_ZwQueryPortInformationProcess.push_back(on_func);
     return true;
 }
 
@@ -10020,13 +10001,13 @@ bool monitor::syscallswow64::register_NtTestAlert(proc_t proc, const on_NtTestAl
     return true;
 }
 
-bool monitor::syscallswow64::register_NtThawRegistry(proc_t proc, const on_NtThawRegistry_fn& on_func)
+bool monitor::syscallswow64::register_ZwThawRegistry(proc_t proc, const on_ZwThawRegistry_fn& on_func)
 {
-    if(d_->observers_NtThawRegistry.empty())
-        if(!register_callback_with(*d_, proc, "_NtThawRegistry@0", &on_NtThawRegistry))
+    if(d_->observers_ZwThawRegistry.empty())
+        if(!register_callback_with(*d_, proc, "_ZwThawRegistry@0", &on_ZwThawRegistry))
             return false;
 
-    d_->observers_NtThawRegistry.push_back(on_func);
+    d_->observers_ZwThawRegistry.push_back(on_func);
     return true;
 }
 
@@ -10040,23 +10021,23 @@ bool monitor::syscallswow64::register_NtThawTransactions(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_NtUmsThreadYield(proc_t proc, const on_NtUmsThreadYield_fn& on_func)
+bool monitor::syscallswow64::register_ZwUmsThreadYield(proc_t proc, const on_ZwUmsThreadYield_fn& on_func)
 {
-    if(d_->observers_NtUmsThreadYield.empty())
-        if(!register_callback_with(*d_, proc, "_NtUmsThreadYield@0", &on_NtUmsThreadYield))
+    if(d_->observers_ZwUmsThreadYield.empty())
+        if(!register_callback_with(*d_, proc, "_ZwUmsThreadYield@4", &on_ZwUmsThreadYield))
             return false;
 
-    d_->observers_NtUmsThreadYield.push_back(on_func);
+    d_->observers_ZwUmsThreadYield.push_back(on_func);
     return true;
 }
 
-bool monitor::syscallswow64::register_NtYieldExecution(proc_t proc, const on_NtYieldExecution_fn& on_func)
+bool monitor::syscallswow64::register_ZwYieldExecution(proc_t proc, const on_ZwYieldExecution_fn& on_func)
 {
-    if(d_->observers_NtYieldExecution.empty())
-        if(!register_callback_with(*d_, proc, "_NtYieldExecution@0", &on_NtYieldExecution))
+    if(d_->observers_ZwYieldExecution.empty())
+        if(!register_callback_with(*d_, proc, "_ZwYieldExecution@0", &on_ZwYieldExecution))
             return false;
 
-    d_->observers_NtYieldExecution.push_back(on_func);
+    d_->observers_ZwYieldExecution.push_back(on_func);
     return true;
 }
 
@@ -10186,122 +10167,121 @@ namespace
       "_NtFilterToken@24",
       "_NtFindAtom@12",
       "_ZwFlushBuffersFile@8",
-      "_NtFlushInstallUILanguage@8",
-      "_NtFlushInstructionCache@12",
+      "_ZwFlushInstallUILanguage@8",
+      "_ZwFlushInstructionCache@12",
       "_NtFlushKey@4",
-      "_NtFlushVirtualMemory@16",
+      "_ZwFlushVirtualMemory@16",
       "_NtFreeUserPhysicalPages@12",
       "_NtFreeVirtualMemory@16",
       "_NtFreezeRegistry@4",
-      "_NtFreezeTransactions@8",
+      "_ZwFreezeTransactions@8",
       "_NtFsControlFile@40",
       "_NtGetContextThread@8",
       "_NtGetDevicePowerState@8",
       "_NtGetMUIRegistryInfo@12",
-      "_NtGetNextProcess@20",
-      "_NtGetNextThread@24",
+      "_ZwGetNextProcess@20",
+      "_ZwGetNextThread@24",
       "_NtGetNlsSectionPtr@20",
-      "_NtGetNotificationResourceManager@28",
-      "_NtGetPlugPlayEvent@16",
+      "_ZwGetNotificationResourceManager@28",
       "_NtGetWriteWatch@28",
       "_NtImpersonateAnonymousToken@4",
-      "_NtImpersonateClientOfPort@8",
-      "_NtImpersonateThread@12",
+      "_ZwImpersonateClientOfPort@8",
+      "_ZwImpersonateThread@12",
       "_NtInitializeNlsFiles@12",
-      "_NtInitializeRegistry@4",
+      "_ZwInitializeRegistry@4",
       "_NtInitiatePowerAction@16",
-      "_NtIsProcessInJob@8",
-      "_NtListenPort@8",
+      "_ZwIsProcessInJob@8",
+      "_ZwListenPort@8",
       "_NtLoadDriver@4",
       "_NtLoadKey2@12",
-      "_NtLoadKeyEx@16",
+      "_NtLoadKeyEx@32",
       "_NtLoadKey@8",
       "_NtLockFile@40",
-      "_NtLockProductActivationKeys@8",
+      "_ZwLockProductActivationKeys@8",
       "_NtLockRegistryKey@4",
-      "_NtLockVirtualMemory@16",
-      "_NtMakePermanentObject@4",
+      "_ZwLockVirtualMemory@16",
+      "_ZwMakePermanentObject@4",
       "_NtMakeTemporaryObject@4",
-      "_NtMapCMFModule@24",
+      "_ZwMapCMFModule@24",
       "_NtMapUserPhysicalPages@12",
-      "_NtMapUserPhysicalPagesScatter@12",
-      "_NtMapViewOfSection@40",
+      "_ZwMapUserPhysicalPagesScatter@12",
+      "_ZwMapViewOfSection@40",
       "_NtModifyBootEntry@4",
-      "_NtModifyDriverEntry@4",
+      "_ZwModifyDriverEntry@4",
       "_NtNotifyChangeDirectoryFile@36",
       "_NtNotifyChangeKey@40",
       "_NtNotifyChangeMultipleKeys@48",
       "_NtNotifyChangeSession@32",
-      "_NtOpenDirectoryObject@12",
-      "_NtOpenEnlistment@20",
+      "_ZwOpenDirectoryObject@12",
+      "_ZwOpenEnlistment@20",
       "_NtOpenEvent@12",
       "_NtOpenEventPair@12",
       "_NtOpenFile@24",
-      "_NtOpenIoCompletion@12",
-      "_NtOpenJobObject@12",
+      "_ZwOpenIoCompletion@12",
+      "_ZwOpenJobObject@12",
       "_NtOpenKeyedEvent@12",
-      "_NtOpenKeyEx@16",
-      "_NtOpenKey@12",
+      "_ZwOpenKeyEx@16",
+      "_ZwOpenKey@12",
       "_NtOpenKeyTransactedEx@20",
       "_NtOpenKeyTransacted@16",
       "_NtOpenMutant@12",
-      "_NtOpenObjectAuditAlarm@48",
+      "_ZwOpenObjectAuditAlarm@48",
       "_NtOpenPrivateNamespace@16",
-      "_NtOpenProcess@16",
-      "_NtOpenProcessTokenEx@16",
-      "_NtOpenProcessToken@12",
-      "_NtOpenResourceManager@20",
+      "_ZwOpenProcess@16",
+      "_ZwOpenProcessTokenEx@16",
+      "_ZwOpenProcessToken@12",
+      "_ZwOpenResourceManager@20",
       "_NtOpenSection@12",
       "_NtOpenSemaphore@12",
       "_NtOpenSession@12",
       "_NtOpenSymbolicLinkObject@12",
-      "_NtOpenThread@16",
+      "_ZwOpenThread@16",
       "_NtOpenThreadTokenEx@20",
       "_NtOpenThreadToken@16",
-      "_NtOpenTimer@12",
-      "_NtOpenTransactionManager@24",
-      "_NtOpenTransaction@20",
+      "_ZwOpenTimer@12",
+      "_ZwOpenTransactionManager@24",
+      "_ZwOpenTransaction@20",
       "_NtPlugPlayControl@12",
-      "_NtPowerInformation@20",
+      "_ZwPowerInformation@20",
       "_NtPrepareComplete@8",
-      "_NtPrepareEnlistment@8",
-      "_NtPrePrepareComplete@8",
+      "_ZwPrepareEnlistment@8",
+      "_ZwPrePrepareComplete@8",
       "_NtPrePrepareEnlistment@8",
-      "_NtPrivilegeCheck@12",
+      "_ZwPrivilegeCheck@12",
       "_NtPrivilegedServiceAuditAlarm@20",
-      "_NtPrivilegeObjectAuditAlarm@24",
+      "_ZwPrivilegeObjectAuditAlarm@24",
       "_NtPropagationComplete@16",
-      "_NtPropagationFailed@12",
-      "_NtProtectVirtualMemory@20",
-      "_NtPulseEvent@8",
-      "_NtQueryAttributesFile@8",
-      "_NtQueryBootEntryOrder@8",
-      "_NtQueryBootOptions@8",
+      "_ZwPropagationFailed@12",
+      "_ZwProtectVirtualMemory@20",
+      "_ZwPulseEvent@8",
+      "_ZwQueryAttributesFile@8",
+      "_ZwQueryBootEntryOrder@8",
+      "_ZwQueryBootOptions@8",
       "_NtQueryDebugFilterState@8",
       "_NtQueryDefaultLocale@8",
-      "_NtQueryDefaultUILanguage@4",
-      "_NtQueryDirectoryFile@44",
-      "_NtQueryDirectoryObject@28",
+      "_ZwQueryDefaultUILanguage@4",
+      "_ZwQueryDirectoryFile@44",
+      "_ZwQueryDirectoryObject@28",
       "_NtQueryDriverEntryOrder@8",
-      "_NtQueryEaFile@36",
+      "_ZwQueryEaFile@36",
       "_NtQueryEvent@20",
-      "_NtQueryFullAttributesFile@8",
+      "_ZwQueryFullAttributesFile@8",
       "_NtQueryInformationAtom@20",
-      "_NtQueryInformationEnlistment@20",
-      "_NtQueryInformationFile@20",
-      "_NtQueryInformationJobObject@20",
-      "_NtQueryInformationPort@20",
+      "_ZwQueryInformationEnlistment@20",
+      "_ZwQueryInformationFile@20",
+      "_ZwQueryInformationJobObject@20",
+      "_ZwQueryInformationPort@20",
       "_ZwQueryInformationProcess@20",
-      "_NtQueryInformationResourceManager@20",
+      "_ZwQueryInformationResourceManager@20",
       "_NtQueryInformationThread@20",
-      "_NtQueryInformationToken@20",
-      "_NtQueryInformationTransaction@20",
+      "_ZwQueryInformationToken@20",
+      "_ZwQueryInformationTransaction@20",
       "_NtQueryInformationTransactionManager@20",
-      "_NtQueryInformationWorkerFactory@20",
+      "_ZwQueryInformationWorkerFactory@20",
       "_NtQueryInstallUILanguage@4",
       "_NtQueryIntervalProfile@8",
       "_NtQueryIoCompletion@20",
-      "_NtQueryKey@20",
+      "_ZwQueryKey@20",
       "_NtQueryLicenseValue@20",
       "_NtQueryMultipleValueKey@24",
       "_NtQueryMutant@20",
@@ -10309,59 +10289,59 @@ namespace
       "_NtQueryOpenSubKeysEx@16",
       "_NtQueryOpenSubKeys@8",
       "_NtQueryPerformanceCounter@8",
-      "_NtQueryQuotaInformationFile@36",
-      "_NtQuerySection@20",
-      "_NtQuerySecurityAttributesToken@24",
+      "_ZwQueryQuotaInformationFile@36",
+      "_ZwQuerySection@20",
+      "_ZwQuerySecurityAttributesToken@24",
       "_NtQuerySecurityObject@20",
-      "_NtQuerySemaphore@20",
-      "_NtQuerySymbolicLinkObject@12",
-      "_NtQuerySystemEnvironmentValueEx@20",
-      "_NtQuerySystemEnvironmentValue@16",
-      "_NtQuerySystemInformationEx@24",
+      "_ZwQuerySemaphore@20",
+      "_ZwQuerySymbolicLinkObject@12",
+      "_ZwQuerySystemEnvironmentValueEx@20",
+      "_ZwQuerySystemEnvironmentValue@16",
+      "_ZwQuerySystemInformationEx@24",
       "_NtQuerySystemInformation@16",
       "_NtQuerySystemTime@4",
-      "_NtQueryTimer@20",
+      "_ZwQueryTimer@20",
       "_NtQueryTimerResolution@12",
-      "_NtQueryValueKey@24",
+      "_ZwQueryValueKey@24",
       "_NtQueryVirtualMemory@24",
       "_NtQueryVolumeInformationFile@20",
       "_NtQueueApcThreadEx@24",
       "_NtQueueApcThread@20",
-      "_NtRaiseException@12",
-      "_NtRaiseHardError@24",
+      "_ZwRaiseException@12",
+      "_ZwRaiseHardError@24",
       "_NtReadFile@36",
       "_NtReadFileScatter@36",
-      "_NtReadOnlyEnlistment@8",
-      "_NtReadRequestData@24",
+      "_ZwReadOnlyEnlistment@8",
+      "_ZwReadRequestData@24",
       "_NtReadVirtualMemory@20",
       "_NtRecoverEnlistment@8",
       "_NtRecoverResourceManager@4",
-      "_NtRecoverTransactionManager@4",
-      "_NtRegisterProtocolAddressInformation@20",
-      "_NtRegisterThreadTerminatePort@4",
+      "_ZwRecoverTransactionManager@4",
+      "_ZwRegisterProtocolAddressInformation@20",
+      "_ZwRegisterThreadTerminatePort@4",
       "_NtReleaseKeyedEvent@16",
-      "_NtReleaseMutant@8",
+      "_ZwReleaseMutant@8",
       "_NtReleaseSemaphore@12",
-      "_NtReleaseWorkerFactoryWorker@4",
-      "_NtRemoveIoCompletionEx@24",
-      "_NtRemoveIoCompletion@20",
-      "_NtRemoveProcessDebug@8",
-      "_NtRenameKey@8",
+      "_ZwReleaseWorkerFactoryWorker@4",
+      "_ZwRemoveIoCompletionEx@24",
+      "_ZwRemoveIoCompletion@20",
+      "_ZwRemoveProcessDebug@8",
+      "_ZwRenameKey@8",
       "_NtRenameTransactionManager@8",
-      "_NtReplaceKey@12",
+      "_ZwReplaceKey@12",
       "_NtReplacePartitionUnit@12",
-      "_NtReplyPort@8",
+      "_ZwReplyPort@8",
       "_NtReplyWaitReceivePortEx@20",
       "_NtReplyWaitReceivePort@16",
       "_NtReplyWaitReplyPort@8",
-      "_NtRequestPort@8",
+      "_ZwRequestPort@8",
       "_NtRequestWaitReplyPort@12",
       "_NtResetEvent@8",
-      "_NtResetWriteWatch@12",
+      "_ZwResetWriteWatch@12",
       "_NtRestoreKey@12",
-      "_NtResumeProcess@4",
-      "_NtResumeThread@8",
-      "_NtRollbackComplete@8",
+      "_ZwResumeProcess@4",
+      "_ZwResumeThread@8",
+      "_ZwRollbackComplete@8",
       "_NtRollbackEnlistment@8",
       "_NtRollbackTransaction@8",
       "_NtRollforwardTransactionManager@8",
@@ -10369,72 +10349,72 @@ namespace
       "_NtSaveKey@8",
       "_NtSaveMergedKeys@12",
       "_NtSecureConnectPort@36",
-      "_NtSetBootEntryOrder@8",
-      "_NtSetBootOptions@8",
-      "_NtSetContextThread@8",
+      "_ZwSetBootEntryOrder@8",
+      "_ZwSetBootOptions@8",
+      "_ZwSetContextThread@8",
       "_NtSetDebugFilterState@12",
       "_NtSetDefaultHardErrorPort@4",
       "_NtSetDefaultLocale@8",
-      "_NtSetDefaultUILanguage@4",
+      "_ZwSetDefaultUILanguage@4",
       "_NtSetDriverEntryOrder@8",
-      "_NtSetEaFile@16",
+      "_ZwSetEaFile@16",
       "_NtSetEventBoostPriority@4",
       "_NtSetEvent@8",
       "_NtSetHighEventPair@4",
       "_NtSetHighWaitLowEventPair@4",
-      "_NtSetInformationDebugObject@20",
+      "_ZwSetInformationDebugObject@20",
       "_NtSetInformationEnlistment@16",
-      "_NtSetInformationFile@20",
-      "_NtSetInformationJobObject@16",
-      "_NtSetInformationKey@16",
-      "_NtSetInformationObject@16",
-      "_NtSetInformationProcess@16",
-      "_NtSetInformationResourceManager@16",
-      "_NtSetInformationThread@16",
-      "_NtSetInformationToken@16",
-      "_NtSetInformationTransaction@16",
-      "_NtSetInformationTransactionManager@16",
-      "_NtSetInformationWorkerFactory@16",
+      "_ZwSetInformationFile@20",
+      "_ZwSetInformationJobObject@16",
+      "_ZwSetInformationKey@16",
+      "_ZwSetInformationObject@16",
+      "_ZwSetInformationProcess@16",
+      "_ZwSetInformationResourceManager@16",
+      "_ZwSetInformationThread@16",
+      "_ZwSetInformationToken@16",
+      "_ZwSetInformationTransaction@16",
+      "_ZwSetInformationTransactionManager@16",
+      "_ZwSetInformationWorkerFactory@16",
       "_NtSetIntervalProfile@8",
       "_NtSetIoCompletionEx@24",
       "_NtSetIoCompletion@20",
-      "_NtSetLdtEntries@24",
-      "_NtSetLowEventPair@4",
-      "_NtSetLowWaitHighEventPair@4",
-      "_NtSetQuotaInformationFile@16",
+      "_ZwSetLdtEntries@24",
+      "_ZwSetLowEventPair@4",
+      "_ZwSetLowWaitHighEventPair@4",
+      "_ZwSetQuotaInformationFile@16",
       "_NtSetSecurityObject@12",
-      "_NtSetSystemEnvironmentValueEx@20",
-      "_NtSetSystemEnvironmentValue@8",
-      "_NtSetSystemInformation@12",
-      "_NtSetSystemPowerState@12",
-      "_NtSetSystemTime@8",
-      "_NtSetThreadExecutionState@8",
-      "_NtSetTimerEx@16",
-      "_NtSetTimer@28",
+      "_ZwSetSystemEnvironmentValueEx@20",
+      "_ZwSetSystemEnvironmentValue@8",
+      "_ZwSetSystemInformation@12",
+      "_ZwSetSystemPowerState@12",
+      "_ZwSetSystemTime@8",
+      "_ZwSetThreadExecutionState@8",
+      "_ZwSetTimerEx@16",
+      "_ZwSetTimer@28",
       "_NtSetTimerResolution@12",
-      "_NtSetUuidSeed@4",
-      "_NtSetValueKey@24",
+      "_ZwSetUuidSeed@4",
+      "_ZwSetValueKey@24",
       "_NtSetVolumeInformationFile@20",
-      "_NtShutdownSystem@4",
+      "_ZwShutdownSystem@4",
       "_NtShutdownWorkerFactory@8",
-      "_NtSignalAndWaitForSingleObject@16",
-      "_NtSinglePhaseReject@8",
+      "_ZwSignalAndWaitForSingleObject@16",
+      "_ZwSinglePhaseReject@8",
       "_NtStartProfile@4",
-      "_NtStopProfile@4",
-      "_NtSuspendProcess@4",
-      "_NtSuspendThread@8",
+      "_ZwStopProfile@4",
+      "_ZwSuspendProcess@4",
+      "_ZwSuspendThread@8",
       "_NtSystemDebugControl@24",
-      "_NtTerminateJobObject@8",
-      "_NtTerminateProcess@8",
-      "_NtTerminateThread@8",
-      "_NtTraceControl@24",
+      "_ZwTerminateJobObject@8",
+      "_ZwTerminateProcess@8",
+      "_ZwTerminateThread@8",
+      "_ZwTraceControl@24",
       "_NtTraceEvent@16",
       "_NtTranslateFilePath@16",
-      "_NtUnloadDriver@4",
-      "_NtUnloadKey2@8",
-      "_NtUnloadKeyEx@8",
+      "_ZwUnloadDriver@4",
+      "_ZwUnloadKey2@8",
+      "_ZwUnloadKeyEx@8",
       "_NtUnloadKey@4",
-      "_NtUnlockFile@20",
+      "_ZwUnlockFile@20",
       "_NtUnlockVirtualMemory@16",
       "_NtUnmapViewOfSection@8",
       "_NtVdmControl@8",
@@ -10442,9 +10422,9 @@ namespace
       "_NtWaitForKeyedEvent@16",
       "_NtWaitForMultipleObjects32@20",
       "_NtWaitForMultipleObjects@20",
-      "_NtWaitForSingleObject@12",
+      "_ZwWaitForSingleObject@12",
       "_NtWaitForWorkViaWorkerFactory@8",
-      "_NtWaitHighEventPair@4",
+      "_ZwWaitHighEventPair@4",
       "_NtWaitLowEventPair@4",
       "_NtWorkerFactoryWorkerReady@4",
       "_NtWriteFileGather@36",
@@ -10453,18 +10433,18 @@ namespace
       "_NtWriteVirtualMemory@20",
       "_NtDisableLastKnownGood@0",
       "_NtEnableLastKnownGood@0",
-      "_NtFlushProcessWriteBuffers@0",
+      "_ZwFlushProcessWriteBuffers@0",
       "_NtFlushWriteBuffer@0",
       "_NtGetCurrentProcessorNumber@0",
       "_NtIsSystemResumeAutomatic@0",
-      "_NtIsUILanguageComitted@0",
-      "_NtQueryPortInformationProcess@0",
+      "_ZwIsUILanguageComitted@0",
+      "_ZwQueryPortInformationProcess@0",
       "_NtSerializeBoot@0",
       "_NtTestAlert@0",
-      "_NtThawRegistry@0",
+      "_ZwThawRegistry@0",
       "_NtThawTransactions@0",
-      "_NtUmsThreadYield@0",
-      "_NtYieldExecution@0",
+      "_ZwUmsThreadYield@4",
+      "_ZwYieldExecution@0",
     };
 }
 
