@@ -1,10 +1,12 @@
 stages:
   - build
+  - virtualbox
 
 variables:
   APT_UPDATE: apt-get update -qq -y
   APT_INSTALL: apt-get install -qq -y
   DISABLE_CLANG_FORMAT: "true"
+  USER: user
 
 build:gcc:
   stage: build
@@ -39,3 +41,73 @@ build:msvc:
     - cd out/x64
     - cmake ../../build -G "Visual Studio 15 2017 Win64" -DCMAKE_CONFIGURATION_TYPES=RelWithDebInfo
     - cmake --build . --config RelWithDebInfo -- -verbosity:minimal
+
+virtualbox:gcc:
+  stage: virtualbox
+  tags:
+    - ubuntu
+    - docker
+  script:
+    - $APT_UPDATE && $APT_INSTALL
+      acpica-tools
+      build-essential
+      g++-multilib
+      gcc-multilib
+      libcap-dev
+      libcurl4-openssl-dev
+      libdevmapper-dev
+      libidl-dev
+      libelf-dev
+      libopus-dev
+      libpam0g-dev
+      libqt5x11extras5-dev
+      libsdl1.2-dev
+      libsdl2-dev
+      libssl-dev
+      libvpx-dev
+      libxml2-dev
+      libxmu-dev
+      linux-headers-$(uname -r)
+      linux-libc-dev
+      makeself
+      python-dev
+      qt5-default
+      qttools5-dev-tools
+      xsltproc
+      > /dev/null
+    - cd third_party/virtualbox
+    - ./configure
+      --disable-hardening
+      --disable-docs
+      --disable-java
+    - source env.sh
+    - kmk VBOX_WITH_ADDITIONS=
+    - cd out/linux.amd64/release/bin/src
+    - make
+    - make install
+  artifacts:
+    paths:
+      - third_party/virtualbox/out/linux.amd64/release/bin
+
+virtualbox:msvc:
+  stage: virtualbox
+  tags:
+    - msvc2017
+  script:
+    - set PATH=%PATH%;c:/Windows/System32
+    - "cmd /C \"\"c:/Program Files/Microsoft SDKs/Windows/v7.1/Bin/SetEnv.Cmd\" /x64 /Release\""
+    - cd third_party/virtualbox
+    - cscript configure.vbs
+      --with-MinGW-w64=c:/mingw64
+      --with-libSDL=c:/SDL-1.2.15
+      --with-openssl=c:/OpenSSL-Win64
+      --with-openssl32=c:/OpenSSL-Win32
+      --with-qt5=c:/qt-5.6.3/qtbase
+      --with-python=c:/Python37-32
+      --with-libcurl=c:/curl-7.64.0/builds/libcurl-vc10-x64-release-dll-ipv6-sspi-winssl
+      --with-libcurl32=c:/curl-7.64.0/builds/libcurl-vc10-x86-release-dll-ipv6-sspi-winssl
+    - call env.bat
+    - kmk VBOX_WITHOUT_HARDENING=1 VBOX_WITH_ADDITIONS=
+  artifacts:
+    paths:
+      - third_party/virtualbox/out/win.amd64/release/bin
