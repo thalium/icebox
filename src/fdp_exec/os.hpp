@@ -3,6 +3,7 @@
 #include "enums.hpp"
 #include "types.hpp"
 
+#include <functional>
 #include <memory>
 
 namespace core { struct Core; }
@@ -25,9 +26,9 @@ namespace os
         using on_mod_fn    = fn::view<walk_e(mod_t)>;
         using on_driver_fn = fn::view<walk_e(driver_t)>;
 
-        using on_proc_event_fn   = fn::view<void(proc_t, proc_t)>;
-        using on_thread_event_fn = fn::view<void(proc_t, thread_t)>;
-        using on_mod_event_fn    = fn::view<void(proc_t, const std::string&, span_t)>;
+        using on_proc_event_fn   = std::function<void(proc_t, proc_t)>;
+        using on_thread_event_fn = std::function<void(proc_t, thread_t)>;
+        using on_mod_event_fn    = std::function<void(proc_t, const std::string&, span_t)>;
 
         virtual bool    is_kernel   (uint64_t ptr) = 0;
         virtual bool    reader_setup(reader::Reader& reader, proc_t proc) = 0;
