@@ -62,7 +62,6 @@ struct monitor::syscalls::Data
     std::vector<on_NtApphelpCacheControl_fn>                              observers_NtApphelpCacheControl;
     std::vector<on_NtAreMappedFilesTheSame_fn>                            observers_NtAreMappedFilesTheSame;
     std::vector<on_NtAssignProcessToJobObject_fn>                         observers_NtAssignProcessToJobObject;
-    std::vector<on_NtCallbackReturn_fn>                                   observers_NtCallbackReturn;
     std::vector<on_NtCancelIoFileEx_fn>                                   observers_NtCancelIoFileEx;
     std::vector<on_NtCancelIoFile_fn>                                     observers_NtCancelIoFile;
     std::vector<on_NtCancelSynchronousIoFile_fn>                          observers_NtCancelSynchronousIoFile;
@@ -419,12 +418,6 @@ struct monitor::syscalls::Data
     std::vector<on_NtThawTransactions_fn>                                 observers_NtThawTransactions;
     std::vector<on_NtUmsThreadYield_fn>                                   observers_NtUmsThreadYield;
     std::vector<on_NtYieldExecution_fn>                                   observers_NtYieldExecution;
-    std::vector<on_RtlpAllocateHeapInternal_fn>                           observers_RtlpAllocateHeapInternal;
-    std::vector<on_RtlFreeHeap_fn>                                        observers_RtlFreeHeap;
-    std::vector<on_RtlpReAllocateHeapInternal_fn>                         observers_RtlpReAllocateHeapInternal;
-    std::vector<on_RtlSizeHeap_fn>                                        observers_RtlSizeHeap;
-    std::vector<on_RtlSetUserValueHeap_fn>                                observers_RtlSetUserValueHeap;
-    std::vector<on_RtlGetUserInfoHeap_fn>                                 observers_RtlGetUserInfoHeap;
 };
 
 monitor::syscalls::Data::Data(core::Core& core, std::string module)
@@ -1153,19 +1146,6 @@ namespace
 
         for(const auto& it : d.observers_NtAssignProcessToJobObject)
             it(JobHandle, ProcessHandle);
-    }
-
-    static void on_NtCallbackReturn(monitor::syscalls::Data& d)
-    {
-        const auto OutputBuffer = arg<nt::PVOID>(d.core, 0);
-        const auto OutputLength = arg<nt::ULONG>(d.core, 1);
-        const auto Status       = arg<nt::NTSTATUS>(d.core, 2);
-
-        if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCallbackReturn(OutputBuffer:{:#x}, OutputLength:{:#x}, Status:{:#x})", OutputBuffer, OutputLength, Status));
-
-        for(const auto& it : d.observers_NtCallbackReturn)
-            it(OutputBuffer, OutputLength, Status);
     }
 
     static void on_NtCancelIoFileEx(monitor::syscalls::Data& d)
@@ -6053,87 +6033,6 @@ namespace
             it();
     }
 
-    static void on_RtlpAllocateHeapInternal(monitor::syscalls::Data& d)
-    {
-        const auto HeapHandle = arg<nt::PVOID>(d.core, 0);
-        const auto Size       = arg<nt::SIZE_T>(d.core, 1);
-
-        if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("RtlpAllocateHeapInternal(HeapHandle:{:#x}, Size:{:#x})", HeapHandle, Size));
-
-        for(const auto& it : d.observers_RtlpAllocateHeapInternal)
-            it(HeapHandle, Size);
-    }
-
-    static void on_RtlFreeHeap(monitor::syscalls::Data& d)
-    {
-        const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
-        const auto Flags       = arg<nt::ULONG>(d.core, 1);
-        const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
-
-        if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("RtlFreeHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x})", HeapHandle, Flags, BaseAddress));
-
-        for(const auto& it : d.observers_RtlFreeHeap)
-            it(HeapHandle, Flags, BaseAddress);
-    }
-
-    static void on_RtlpReAllocateHeapInternal(monitor::syscalls::Data& d)
-    {
-        const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
-        const auto Flags       = arg<nt::ULONG>(d.core, 1);
-        const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
-        const auto Size        = arg<nt::ULONG>(d.core, 3);
-
-        if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("RtlpReAllocateHeapInternal(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, Size:{:#x})", HeapHandle, Flags, BaseAddress, Size));
-
-        for(const auto& it : d.observers_RtlpReAllocateHeapInternal)
-            it(HeapHandle, Flags, BaseAddress, Size);
-    }
-
-    static void on_RtlSizeHeap(monitor::syscalls::Data& d)
-    {
-        const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
-        const auto Flags       = arg<nt::ULONG>(d.core, 1);
-        const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
-
-        if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("RtlSizeHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x})", HeapHandle, Flags, BaseAddress));
-
-        for(const auto& it : d.observers_RtlSizeHeap)
-            it(HeapHandle, Flags, BaseAddress);
-    }
-
-    static void on_RtlSetUserValueHeap(monitor::syscalls::Data& d)
-    {
-        const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
-        const auto Flags       = arg<nt::ULONG>(d.core, 1);
-        const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
-        const auto UserValue   = arg<nt::PVOID>(d.core, 3);
-
-        if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("RtlSetUserValueHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, UserValue:{:#x})", HeapHandle, Flags, BaseAddress, UserValue));
-
-        for(const auto& it : d.observers_RtlSetUserValueHeap)
-            it(HeapHandle, Flags, BaseAddress, UserValue);
-    }
-
-    static void on_RtlGetUserInfoHeap(monitor::syscalls::Data& d)
-    {
-        const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
-        const auto Flags       = arg<nt::ULONG>(d.core, 1);
-        const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
-        const auto UserValue   = arg<nt::PVOID>(d.core, 3);
-        const auto UserFlags   = arg<nt::PULONG>(d.core, 4);
-
-        if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("RtlGetUserInfoHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, UserValue:{:#x}, UserFlags:{:#x})", HeapHandle, Flags, BaseAddress, UserValue, UserFlags));
-
-        for(const auto& it : d.observers_RtlGetUserInfoHeap)
-            it(HeapHandle, Flags, BaseAddress, UserValue, UserFlags);
-    }
-
 }
 
 
@@ -6574,16 +6473,6 @@ bool monitor::syscalls::register_NtAssignProcessToJobObject(proc_t proc, const o
             return false;
 
     d_->observers_NtAssignProcessToJobObject.push_back(on_func);
-    return true;
-}
-
-bool monitor::syscalls::register_NtCallbackReturn(proc_t proc, const on_NtCallbackReturn_fn& on_func)
-{
-    if(d_->observers_NtCallbackReturn.empty())
-        if(!register_callback_with(*d_, proc, "NtCallbackReturn", &on_NtCallbackReturn))
-            return false;
-
-    d_->observers_NtCallbackReturn.push_back(on_func);
     return true;
 }
 
@@ -10147,66 +10036,6 @@ bool monitor::syscalls::register_NtYieldExecution(proc_t proc, const on_NtYieldE
     return true;
 }
 
-bool monitor::syscalls::register_RtlpAllocateHeapInternal(proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func)
-{
-    if(d_->observers_RtlpAllocateHeapInternal.empty())
-        if(!register_callback_with(*d_, proc, "RtlpAllocateHeapInternal", &on_RtlpAllocateHeapInternal))
-            return false;
-
-    d_->observers_RtlpAllocateHeapInternal.push_back(on_func);
-    return true;
-}
-
-bool monitor::syscalls::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& on_func)
-{
-    if(d_->observers_RtlFreeHeap.empty())
-        if(!register_callback_with(*d_, proc, "RtlFreeHeap", &on_RtlFreeHeap))
-            return false;
-
-    d_->observers_RtlFreeHeap.push_back(on_func);
-    return true;
-}
-
-bool monitor::syscalls::register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func)
-{
-    if(d_->observers_RtlpReAllocateHeapInternal.empty())
-        if(!register_callback_with(*d_, proc, "RtlpReAllocateHeapInternal", &on_RtlpReAllocateHeapInternal))
-            return false;
-
-    d_->observers_RtlpReAllocateHeapInternal.push_back(on_func);
-    return true;
-}
-
-bool monitor::syscalls::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn& on_func)
-{
-    if(d_->observers_RtlSizeHeap.empty())
-        if(!register_callback_with(*d_, proc, "RtlSizeHeap", &on_RtlSizeHeap))
-            return false;
-
-    d_->observers_RtlSizeHeap.push_back(on_func);
-    return true;
-}
-
-bool monitor::syscalls::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUserValueHeap_fn& on_func)
-{
-    if(d_->observers_RtlSetUserValueHeap.empty())
-        if(!register_callback_with(*d_, proc, "RtlSetUserValueHeap", &on_RtlSetUserValueHeap))
-            return false;
-
-    d_->observers_RtlSetUserValueHeap.push_back(on_func);
-    return true;
-}
-
-bool monitor::syscalls::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func)
-{
-    if(d_->observers_RtlGetUserInfoHeap.empty())
-        if(!register_callback_with(*d_, proc, "RtlGetUserInfoHeap", &on_RtlGetUserInfoHeap))
-            return false;
-
-    d_->observers_RtlGetUserInfoHeap.push_back(on_func);
-    return true;
-}
-
 namespace
 {
     static const char g_names[][64] =
@@ -10255,7 +10084,6 @@ namespace
       "NtApphelpCacheControl",
       "NtAreMappedFilesTheSame",
       "NtAssignProcessToJobObject",
-      "NtCallbackReturn",
       "NtCancelIoFileEx",
       "NtCancelIoFile",
       "NtCancelSynchronousIoFile",
@@ -10612,12 +10440,6 @@ namespace
       "NtThawTransactions",
       "NtUmsThreadYield",
       "NtYieldExecution",
-      "RtlpAllocateHeapInternal",
-      "RtlFreeHeap",
-      "RtlpReAllocateHeapInternal",
-      "RtlSizeHeap",
-      "RtlSetUserValueHeap",
-      "RtlGetUserInfoHeap",
     };
 }
 

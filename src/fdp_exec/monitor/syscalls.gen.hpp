@@ -53,7 +53,6 @@ namespace monitor
     using on_NtApphelpCacheControl_fn                              = std::function<nt::NTSTATUS(nt::APPHELPCOMMAND, nt::PVOID)>;
     using on_NtAreMappedFilesTheSame_fn                            = std::function<nt::NTSTATUS(nt::PVOID, nt::PVOID)>;
     using on_NtAssignProcessToJobObject_fn                         = std::function<nt::NTSTATUS(nt::HANDLE, nt::HANDLE)>;
-    using on_NtCallbackReturn_fn                                   = std::function<nt::NTSTATUS(nt::PVOID, nt::ULONG, nt::NTSTATUS)>;
     using on_NtCancelIoFileEx_fn                                   = std::function<nt::NTSTATUS(nt::HANDLE, nt::PIO_STATUS_BLOCK, nt::PIO_STATUS_BLOCK)>;
     using on_NtCancelIoFile_fn                                     = std::function<nt::NTSTATUS(nt::HANDLE, nt::PIO_STATUS_BLOCK)>;
     using on_NtCancelSynchronousIoFile_fn                          = std::function<nt::NTSTATUS(nt::HANDLE, nt::PIO_STATUS_BLOCK, nt::PIO_STATUS_BLOCK)>;
@@ -410,12 +409,6 @@ namespace monitor
     using on_NtThawTransactions_fn                                 = std::function<nt::NTSTATUS()>;
     using on_NtUmsThreadYield_fn                                   = std::function<nt::NTSTATUS()>;
     using on_NtYieldExecution_fn                                   = std::function<nt::NTSTATUS()>;
-    using on_RtlpAllocateHeapInternal_fn                           = std::function<nt::PVOID(nt::PVOID, nt::SIZE_T)>;
-    using on_RtlFreeHeap_fn                                        = std::function<nt::BOOLEAN(nt::PVOID, nt::ULONG, nt::PVOID)>;
-    using on_RtlpReAllocateHeapInternal_fn                         = std::function<nt::PVOID(nt::PVOID, nt::ULONG, nt::PVOID, nt::ULONG)>;
-    using on_RtlSizeHeap_fn                                        = std::function<nt::SIZE_T(nt::PVOID, nt::ULONG, nt::PVOID)>;
-    using on_RtlSetUserValueHeap_fn                                = std::function<nt::BOOLEAN(nt::PVOID, nt::ULONG, nt::PVOID, nt::PVOID)>;
-    using on_RtlGetUserInfoHeap_fn                                 = std::function<nt::BOOLEAN(nt::PVOID, nt::ULONG, nt::PVOID, nt::PVOID, nt::PULONG)>;
 
     struct syscalls
     {
@@ -470,7 +463,6 @@ namespace monitor
         bool register_NtApphelpCacheControl                             (proc_t proc, const on_NtApphelpCacheControl_fn& on_func);
         bool register_NtAreMappedFilesTheSame                           (proc_t proc, const on_NtAreMappedFilesTheSame_fn& on_func);
         bool register_NtAssignProcessToJobObject                        (proc_t proc, const on_NtAssignProcessToJobObject_fn& on_func);
-        bool register_NtCallbackReturn                                  (proc_t proc, const on_NtCallbackReturn_fn& on_func);
         bool register_NtCancelIoFileEx                                  (proc_t proc, const on_NtCancelIoFileEx_fn& on_func);
         bool register_NtCancelIoFile                                    (proc_t proc, const on_NtCancelIoFile_fn& on_func);
         bool register_NtCancelSynchronousIoFile                         (proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_func);
@@ -827,12 +819,6 @@ namespace monitor
         bool register_NtThawTransactions                                (proc_t proc, const on_NtThawTransactions_fn& on_func);
         bool register_NtUmsThreadYield                                  (proc_t proc, const on_NtUmsThreadYield_fn& on_func);
         bool register_NtYieldExecution                                  (proc_t proc, const on_NtYieldExecution_fn& on_func);
-        bool register_RtlpAllocateHeapInternal                          (proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func);
-        bool register_RtlFreeHeap                                       (proc_t proc, const on_RtlFreeHeap_fn& on_func);
-        bool register_RtlpReAllocateHeapInternal                        (proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func);
-        bool register_RtlSizeHeap                                       (proc_t proc, const on_RtlSizeHeap_fn& on_func);
-        bool register_RtlSetUserValueHeap                               (proc_t proc, const on_RtlSetUserValueHeap_fn& on_func);
-        bool register_RtlGetUserInfoHeap                                (proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func);
 
         struct Data;
         std::unique_ptr<Data> d_;
