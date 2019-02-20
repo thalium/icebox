@@ -62,7 +62,6 @@ struct monitor::syscallswow64::Data
     std::vector<on_NtApphelpCacheControl_fn>                              observers_NtApphelpCacheControl;
     std::vector<on_ZwAreMappedFilesTheSame_fn>                            observers_ZwAreMappedFilesTheSame;
     std::vector<on_ZwAssignProcessToJobObject_fn>                         observers_ZwAssignProcessToJobObject;
-    std::vector<on_ZwCallbackReturn_fn>                                   observers_ZwCallbackReturn;
     std::vector<on_NtCancelIoFileEx_fn>                                   observers_NtCancelIoFileEx;
     std::vector<on_ZwCancelIoFile_fn>                                     observers_ZwCancelIoFile;
     std::vector<on_NtCancelSynchronousIoFile_fn>                          observers_NtCancelSynchronousIoFile;
@@ -1146,19 +1145,6 @@ namespace
 
         for(const auto& it : d.observers_ZwAssignProcessToJobObject)
             it(JobHandle, ProcessHandle);
-    }
-
-    static void on_ZwCallbackReturn(monitor::syscallswow64::Data& d)
-    {
-        const auto OutputBuffer = arg<wntdll::PVOID>(d.core, 0);
-        const auto OutputLength = arg<wntdll::ULONG>(d.core, 1);
-        const auto Status       = arg<wntdll::NTSTATUS>(d.core, 2);
-
-        if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("ZwCallbackReturn(OutputBuffer:{:#x}, OutputLength:{:#x}, Status:{:#x})", OutputBuffer, OutputLength, Status));
-
-        for(const auto& it : d.observers_ZwCallbackReturn)
-            it(OutputBuffer, OutputLength, Status);
     }
 
     static void on_NtCancelIoFileEx(monitor::syscallswow64::Data& d)
@@ -6481,16 +6467,6 @@ bool monitor::syscallswow64::register_ZwAssignProcessToJobObject(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCallbackReturn(proc_t proc, const on_ZwCallbackReturn_fn& on_func)
-{
-    if(d_->observers_ZwCallbackReturn.empty())
-        if(!register_callback_with(*d_, proc, "_ZwCallbackReturn@12", &on_ZwCallbackReturn))
-            return false;
-
-    d_->observers_ZwCallbackReturn.push_back(on_func);
-    return true;
-}
-
 bool monitor::syscallswow64::register_NtCancelIoFileEx(proc_t proc, const on_NtCancelIoFileEx_fn& on_func)
 {
     if(d_->observers_NtCancelIoFileEx.empty())
@@ -10089,7 +10065,6 @@ namespace
       "_NtApphelpCacheControl@8",
       "_ZwAreMappedFilesTheSame@8",
       "_ZwAssignProcessToJobObject@8",
-      "_ZwCallbackReturn@12",
       "_NtCancelIoFileEx@12",
       "_ZwCancelIoFile@8",
       "_NtCancelSynchronousIoFile@12",

@@ -53,7 +53,6 @@ namespace monitor
     using on_NtApphelpCacheControl_fn                              = std::function<wntdll::NTSTATUS(wntdll::APPHELPCOMMAND, wntdll::PVOID)>;
     using on_ZwAreMappedFilesTheSame_fn                            = std::function<wntdll::NTSTATUS(wntdll::PVOID, wntdll::PVOID)>;
     using on_ZwAssignProcessToJobObject_fn                         = std::function<wntdll::NTSTATUS(wntdll::HANDLE, wntdll::HANDLE)>;
-    using on_ZwCallbackReturn_fn                                   = std::function<wntdll::NTSTATUS(wntdll::PVOID, wntdll::ULONG, wntdll::NTSTATUS)>;
     using on_NtCancelIoFileEx_fn                                   = std::function<wntdll::NTSTATUS(wntdll::HANDLE, wntdll::PIO_STATUS_BLOCK, wntdll::PIO_STATUS_BLOCK)>;
     using on_ZwCancelIoFile_fn                                     = std::function<wntdll::NTSTATUS(wntdll::HANDLE, wntdll::PIO_STATUS_BLOCK)>;
     using on_NtCancelSynchronousIoFile_fn                          = std::function<wntdll::NTSTATUS(wntdll::HANDLE, wntdll::PIO_STATUS_BLOCK, wntdll::PIO_STATUS_BLOCK)>;
@@ -463,7 +462,6 @@ namespace monitor
         bool register_NtApphelpCacheControl                             (proc_t proc, const on_NtApphelpCacheControl_fn& on_func);
         bool register_ZwAreMappedFilesTheSame                           (proc_t proc, const on_ZwAreMappedFilesTheSame_fn& on_func);
         bool register_ZwAssignProcessToJobObject                        (proc_t proc, const on_ZwAssignProcessToJobObject_fn& on_func);
-        bool register_ZwCallbackReturn                                  (proc_t proc, const on_ZwCallbackReturn_fn& on_func);
         bool register_NtCancelIoFileEx                                  (proc_t proc, const on_NtCancelIoFileEx_fn& on_func);
         bool register_ZwCancelIoFile                                    (proc_t proc, const on_ZwCancelIoFile_fn& on_func);
         bool register_NtCancelSynchronousIoFile                         (proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_func);

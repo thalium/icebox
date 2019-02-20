@@ -325,11 +325,6 @@
             ["JobHandle","HANDLE"],
             ["ProcessHandle","HANDLE"]
         ]],
-        "ZwCallbackReturn" : ["NTSTATUS",[
-            ["OutputBuffer","PVOID"],
-            ["OutputLength","ULONG"],
-            ["Status","NTSTATUS"]
-        ]],
         "NtCancelIoFileEx" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["IoRequestToCancel","PIO_STATUS_BLOCK"],
@@ -1035,7 +1030,7 @@
             ["CacheIndexOut","PULONG"],
             ["CacheFlagsOut","PULONG"],
             ["ViewSizeOut","PULONG"],
-            ["STARBaseAddress","PVOID"]  
+            ["STARBaseAddress","PVOID"]
         ]],
         "NtMapUserPhysicalPages" : ["NTSTATUS",[
             ["VirtualAddress","PVOID"],
