@@ -177,20 +177,22 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
     switch(handle_table_level)
     {
         case 0:
+            i = handle;
             break;
 
         case 1:
             i = handle % ((PAGE_SIZE / HANDLE_TABLE_ENTRY_SIZE) * HANDLE_VALUE_INC);
             handle -= i;
-            j = handle / ((PAGE_SIZE / HANDLE_TABLE_ENTRY_SIZE) * HANDLE_VALUE_INC) / POINTER_SIZE;
+            j = handle / (((PAGE_SIZE / HANDLE_TABLE_ENTRY_SIZE) * HANDLE_VALUE_INC) / POINTER_SIZE);
 
             handle_table_code = reader.read(*handle_table_code + j);
+            // handle_table_code = *handle_table_code + j;
             break;
 
         case 2:
             i = handle % ((PAGE_SIZE / HANDLE_TABLE_ENTRY_SIZE) * HANDLE_VALUE_INC);
             handle -= i;
-            k = handle / ((PAGE_SIZE / HANDLE_TABLE_ENTRY_SIZE) * HANDLE_VALUE_INC) / POINTER_SIZE;
+            k = handle / (((PAGE_SIZE / HANDLE_TABLE_ENTRY_SIZE) * HANDLE_VALUE_INC) / POINTER_SIZE);
             j = k % PAGE_SIZE;
             k -= j;
             k /= (PAGE_SIZE / POINTER_SIZE);
@@ -203,7 +205,7 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
             FAIL({}, "Unknown table level");
     }
 
-    const auto handle_table_entry = reader.read(*handle_table_code + handle * (HANDLE_TABLE_ENTRY_SIZE / HANDLE_VALUE_INC));
+    const auto handle_table_entry = reader.read(*handle_table_code + i * (HANDLE_TABLE_ENTRY_SIZE / HANDLE_VALUE_INC));
     if(!handle_table_entry)
         FAIL({}, "Unable to read table entry");
 
