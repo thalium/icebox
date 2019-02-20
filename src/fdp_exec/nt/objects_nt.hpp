@@ -25,6 +25,7 @@ namespace nt
         opt<obj_t>          fileobj_deviceobject    (proc_t proc, obj_t obj);
         opt<obj_t>          deviceobj_driverobject  (proc_t proc, obj_t obj);
         opt<std::string>    driverobj_drivername    (proc_t proc, obj_t obj);
+        opt<std::string>    objattribute_objectname (proc_t proc, uint64_t addr);
 
         struct Data;
         std::unique_ptr<Data> d_;
