@@ -169,6 +169,8 @@ namespace
         PsActiveProcessHead,
         PsInitialSystemProcess,
         PsLoadedModuleList,
+        PspCreateProcessNotifyRoutine,
+        PspCreateProcessNotifyRoutineCount,
         SYMBOL_OFFSET_COUNT,
     };
 
@@ -177,16 +179,18 @@ namespace
         cat_e           e_cat;
         symbol_offset_e e_id;
         const char      module[16];
-        const char      name[32];
+        const char      name[64];
     };
     // clang-format off
     const SymbolOffset g_symbol_offsets[] =
     {
-        {cat_e::OPTIONAL, KiKernelSysretExit,        "nt", "KiKernelSysretExit"},
-        {cat_e::REQUIRED, KiSystemCall64,            "nt", "KiSystemCall64"},
-        {cat_e::REQUIRED, PsActiveProcessHead,       "nt", "PsActiveProcessHead"},
-        {cat_e::REQUIRED, PsInitialSystemProcess,    "nt", "PsInitialSystemProcess"},
-        {cat_e::REQUIRED, PsLoadedModuleList,        "nt", "PsLoadedModuleList"},
+        {cat_e::OPTIONAL, KiKernelSysretExit,                  "nt", "KiKernelSysretExit"},
+        {cat_e::REQUIRED, KiSystemCall64,                      "nt", "KiSystemCall64"},
+        {cat_e::REQUIRED, PsActiveProcessHead,                 "nt", "PsActiveProcessHead"},
+        {cat_e::REQUIRED, PsInitialSystemProcess,              "nt", "PsInitialSystemProcess"},
+        {cat_e::REQUIRED, PsLoadedModuleList,                  "nt", "PsLoadedModuleList"},
+        {cat_e::REQUIRED, PspCreateProcessNotifyRoutine,       "nt", "PspCreateProcessNotifyRoutine"},
+        {cat_e::REQUIRED, PspCreateProcessNotifyRoutineCount , "nt", "PspCreateProcessNotifyRoutineCount"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbol_offsets) == SYMBOL_OFFSET_COUNT, "invalid symbols");
@@ -206,18 +210,20 @@ namespace
         bool    is_kernel   (uint64_t ptr) override;
         bool    reader_setup(reader::Reader& reader, proc_t proc) override;
 
-        bool                proc_list       (const on_proc_fn& on_process) override;
-        opt<proc_t>         proc_current    () override;
-        opt<proc_t>         proc_find       (const std::string& name) override;
-        opt<proc_t>         proc_find       (uint64_t pid) override;
-        opt<std::string>    proc_name       (proc_t proc) override;
-        bool                proc_is_valid   (proc_t proc) override;
-        flags_e             proc_flags      (proc_t proc) override;
-        uint64_t            proc_id         (proc_t proc) override;
-        bool                proc_ctx_is_x64 () override;
-        void                proc_join       (proc_t proc, os::join_e join) override;
-        opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
-        opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
+        bool                proc_list           (const on_proc_fn& on_process) override;
+        opt<proc_t>         proc_current        () override;
+        opt<proc_t>         proc_find           (const std::string& name) override;
+        opt<proc_t>         proc_find           (uint64_t pid) override;
+        opt<std::string>    proc_name           (proc_t proc) override;
+        bool                proc_is_valid       (proc_t proc) override;
+        flags_e             proc_flags          (proc_t proc) override;
+        uint64_t            proc_id             (proc_t proc) override;
+        bool                proc_ctx_is_x64     () override;
+        void                proc_join           (proc_t proc, os::join_e join) override;
+        opt<phy_t>          proc_resolve        (proc_t proc, uint64_t ptr) override;
+        opt<proc_t>         proc_select         (proc_t proc, uint64_t ptr) override;
+        bool                proc_listen_create  (const on_proc_event_fn& on_proc_event) override;
+        bool                proc_listen_delete  (const on_proc_event_fn& on_proc_event) override;
 
         bool            thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
         opt<thread_t>   thread_current  () override;
@@ -244,6 +250,13 @@ namespace
         std::string    last_dump_;
         uint64_t       kpcr_;
         reader::Reader reader_;
+
+        using Breakpoints  = std::vector<core::Breakpoint>;
+        using ObsProcEvent = std::vector<OsNt::on_proc_event_fn>;
+
+        Breakpoints  breakpoints_;
+        ObsProcEvent observers_proc_create_;
+        ObsProcEvent observers_proc_remove_;
     };
 }
 
@@ -539,6 +552,113 @@ bool OsNt::proc_ctx_is_x64()
     const auto cs         = core_.regs.read(FDP_CS_REGISTER);
     const auto WOW64_CS32 = 0x23;
     return cs != WOW64_CS32;
+}
+
+namespace
+{
+    opt<uint64_t> get_pspnotifyroutine_address(core::Core& core, uint64_t routine_addr, uint64_t count_addr)
+    {
+        struct _EX_CALLBACK_ROUTINE_BLOCK
+        {
+            uint64_t RundownProtect;
+            uint64_t Function;
+            uint64_t Context;
+        };
+
+        const auto reader = reader::make(core);
+        const auto count  = reader.le32(count_addr);
+        if(!count)
+            FAIL({}, "unable to read pspnotifyroutinecount");
+
+        if(*count == 0)
+            FAIL({}, "no entry to pspnotifyroutine...");
+
+        // For each routine type there is a global array of callbacks that contains up to 64 entries
+        size_t max_entries  = 64;
+        uint64_t ex_fastref = 0;
+        for(size_t i = 0; i < max_entries; ++i)
+        {
+            const auto m = reader.read(routine_addr);
+            if(!m)
+                FAIL({}, "unable to read ex_callback_routine_block");
+
+            if(*m == 0)
+                continue;
+
+            ex_fastref = *m;
+            break;
+        }
+
+        // Check if we found a correct registered routine
+        if(ex_fastref == 0)
+            FAIL({}, "unable to find correct psnotifyroutine");
+
+        const auto ex_callback_routine_block = ex_fastref & 0xFFFFFFFFFFFFFFF0;
+        return reader.read(ex_callback_routine_block + offsetof(_EX_CALLBACK_ROUTINE_BLOCK, Function));
+    }
+
+    static bool register_callback_notifyroutine(core::Core& core, OsNt::Breakpoints& breakpoints, OsNt::ObsProcEvent& observers_proc_create, OsNt::ObsProcEvent& observers_proc_remove,
+                                                uint64_t routine_addr, uint64_t count_addr, void (*callback)(core::Core&, OsNt::ObsProcEvent&, OsNt::ObsProcEvent&))
+    {
+        const auto addr = get_pspnotifyroutine_address(core, routine_addr, count_addr);
+        if(!addr)
+            FAIL(nullptr, "unable to find routine address");
+
+        const auto coreptr                  = &core;
+        const auto observers_proc_createptr = &observers_proc_create;
+        const auto observers_proc_removeptr = &observers_proc_remove;
+        const auto bp                       = core.state.set_breakpoint(*addr, [=]()
+        {
+            callback(*coreptr, *observers_proc_createptr, *observers_proc_removeptr);
+        });
+        if(!bp)
+            return false;
+
+        breakpoints.emplace_back(bp);
+        return true;
+    }
+
+    void proc_on_event(core::Core& core, OsNt::ObsProcEvent& observers_proc_create, OsNt::ObsProcEvent& observers_proc_remove)
+    {
+        const auto proc_parent_id = core.regs.read(FDP_RCX_REGISTER);
+        const auto proc_id        = core.regs.read(FDP_RDX_REGISTER);
+        const auto created        = !!(core.regs.read(FDP_R8_REGISTER)); // boolean
+
+        const auto proc_parent = core.os->proc_find(proc_parent_id);
+        if(!proc_parent)
+            return;
+
+        const auto proc = core.os->proc_find(proc_id);
+        if(!proc)
+            return;
+
+        if(created)
+            for(const auto& it : observers_proc_create)
+                it(*proc_parent, *proc);
+        else
+            for(const auto& it : observers_proc_remove)
+                it(*proc_parent, *proc);
+    }
+}
+
+bool OsNt::proc_listen_create(const on_proc_event_fn& on_create)
+{
+    if(observers_proc_create_.empty() && observers_proc_remove_.empty())
+        if(!register_callback_notifyroutine(core_, breakpoints_, observers_proc_create_, observers_proc_remove_, symbols_[PspCreateProcessNotifyRoutine], symbols_[PspCreateProcessNotifyRoutine], &proc_on_event))
+            return false;
+
+    observers_proc_create_.push_back(on_create);
+    return true;
+}
+
+bool OsNt::proc_listen_delete(const on_proc_event_fn& on_remove)
+{
+    if(observers_proc_create_.empty() && observers_proc_remove_.empty())
+        if(!register_callback_notifyroutine(core_, breakpoints_, observers_proc_create_, observers_proc_remove_, symbols_[PspCreateProcessNotifyRoutine], symbols_[PspCreateProcessNotifyRoutine], &proc_on_event))
+            return false;
+
+    observers_proc_remove_.push_back(on_remove);
+    return true;
 }
 
 namespace

@@ -38,18 +38,20 @@ namespace
         bool    is_kernel   (uint64_t ptr) override;
         bool    reader_setup(reader::Reader& reader, proc_t proc) override;
 
-        bool                proc_list       (const on_proc_fn& on_process) override;
-        opt<proc_t>         proc_current    () override;
-        opt<proc_t>         proc_find       (const std::string& name) override;
-        opt<proc_t>         proc_find       (uint64_t pid) override;
-        opt<std::string>    proc_name       (proc_t proc) override;
-        bool                proc_is_valid   (proc_t proc) override;
-        uint64_t            proc_id         (proc_t proc) override;
-        bool                proc_ctx_is_x64 () override;
-        flags_e             proc_flags      (proc_t proc) override;
-        void                proc_join       (proc_t proc, os::join_e join) override;
-        opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
-        opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
+        bool                proc_list           (const on_proc_fn& on_process) override;
+        opt<proc_t>         proc_current        () override;
+        opt<proc_t>         proc_find           (const std::string& name) override;
+        opt<proc_t>         proc_find           (uint64_t pid) override;
+        opt<std::string>    proc_name           (proc_t proc) override;
+        bool                proc_is_valid       (proc_t proc) override;
+        uint64_t            proc_id             (proc_t proc) override;
+        bool                proc_ctx_is_x64     () override;
+        flags_e             proc_flags          (proc_t proc) override;
+        void                proc_join           (proc_t proc, os::join_e join) override;
+        opt<phy_t>          proc_resolve        (proc_t proc, uint64_t ptr) override;
+        opt<proc_t>         proc_select         (proc_t proc, uint64_t ptr) override;
+        bool                proc_listen_create  (const on_proc_event_fn& on_proc_event) override;
+        bool                proc_listen_delete  (const on_proc_event_fn& on_proc_event) override;
 
         bool            thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
         opt<thread_t>   thread_current  () override;
@@ -224,6 +226,16 @@ opt<phy_t> OsLinux::proc_resolve(proc_t /*proc*/, uint64_t /*ptr*/)
 opt<proc_t> OsLinux::proc_select(proc_t proc, uint64_t /*ptr*/)
 {
     return proc;
+}
+
+bool OsLinux::proc_listen_create(const on_proc_event_fn& /*on_create*/)
+{
+    return true;
+}
+
+bool OsLinux::proc_listen_delete(const on_proc_event_fn& /*on_remove*/)
+{
+    return true;
 }
 
 bool OsLinux::reader_setup(reader::Reader& reader, proc_t proc)
