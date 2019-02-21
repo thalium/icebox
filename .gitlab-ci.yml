@@ -75,7 +75,9 @@ virtualbox:gcc:
       qttools5-dev-tools
       xsltproc
       > /dev/null
-    - cd third_party/virtualbox
+    - cd third_party/virtualbox/include
+    - ln -s ../../../src/FDP
+    - cd ..
     - ./configure
       --disable-hardening
       --disable-docs
@@ -96,7 +98,9 @@ virtualbox:msvc:
   script:
     - set PATH=%PATH%;c:/Windows/System32
     - "cmd /C \"\"c:/Program Files/Microsoft SDKs/Windows/v7.1/Bin/SetEnv.Cmd\" /x64 /Release\""
-    - cd third_party/virtualbox
+    - cd third_party/virtualbox/include
+    - mklink /J FDP ..\..\..\src\FDP
+    - cd ..
     - cscript configure.vbs
       --with-MinGW-w64=c:/mingw64
       --with-libSDL=c:/SDL-1.2.15
