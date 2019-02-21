@@ -1,4 +1,4 @@
-#include "syscall_tracer.hpp"
+#include "syscalls.hpp"
 
 #define FDP_MODULE "syscall_tracer"
 #include "log.hpp"
@@ -33,12 +33,12 @@ namespace
     using json        = nlohmann::json;
     using Callsteps   = std::vector<callstack::callstep_t>;
     using Triggers    = std::vector<bp_trigger_info_t>;
-    using SyscallData = syscall_tracer::SyscallPluginWow64::Data;
+    using SyscallData = plugins::Syscalls32::Data;
     using Callstack   = std::shared_ptr<callstack::ICallstack>;
     using ObjectsNt   = std::shared_ptr<nt::ObjectNt>;
 }
 
-struct syscall_tracer::SyscallPluginWow64::Data
+struct plugins::Syscalls32::Data
 {
     Data(core::Core& core);
 
@@ -53,7 +53,7 @@ struct syscall_tracer::SyscallPluginWow64::Data
     uint64_t            nb_triggers_;
 };
 
-syscall_tracer::SyscallPluginWow64::Data::Data(core::Core& core)
+plugins::Syscalls32::Data::Data(core::Core& core)
     : core_(core)
     , syscalls_(core, "wntdll")
     , target_()
@@ -61,12 +61,12 @@ syscall_tracer::SyscallPluginWow64::Data::Data(core::Core& core)
 {
 }
 
-syscall_tracer::SyscallPluginWow64::SyscallPluginWow64(core::Core& core)
+plugins::Syscalls32::Syscalls32(core::Core& core)
     : d_(std::make_unique<Data>(core))
 {
 }
 
-syscall_tracer::SyscallPluginWow64::~SyscallPluginWow64() = default;
+plugins::Syscalls32::~Syscalls32() = default;
 
 namespace
 {
@@ -178,7 +178,7 @@ namespace
     }
 }
 
-bool syscall_tracer::SyscallPluginWow64::setup(proc_t target)
+bool plugins::Syscalls32::setup(proc_t target)
 {
     d_->target_      = target;
     d_->nb_triggers_ = 0;
@@ -350,7 +350,7 @@ bool syscall_tracer::SyscallPluginWow64::setup(proc_t target)
     return true;
 }
 
-bool syscall_tracer::SyscallPluginWow64::generate(const fs::path& file_name)
+bool plugins::Syscalls32::generate(const fs::path& file_name)
 {
     const auto output = create_calltree(d_->core_, d_->triggers_, d_->args_, d_->target_, d_->callsteps_);
     const auto dump   = output.dump();

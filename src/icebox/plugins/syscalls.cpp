@@ -1,6 +1,6 @@
-#include "syscall_tracer.hpp"
+#include "syscalls.hpp"
 
-#define FDP_MODULE "syscall_tracer"
+#define FDP_MODULE "syscalls"
 #include "log.hpp"
 #include "os.hpp"
 
@@ -31,10 +31,10 @@ namespace
     using json        = nlohmann::json;
     using Callsteps   = std::vector<callstack::callstep_t>;
     using Triggers    = std::vector<bp_trigger_info_t>;
-    using SyscallData = syscall_tracer::SyscallPlugin::Data;
+    using SyscallData = plugins::Syscalls::Data;
 }
 
-struct syscall_tracer::SyscallPlugin::Data
+struct plugins::Syscalls::Data
 {
     Data(core::Core& core);
 
@@ -49,7 +49,7 @@ struct syscall_tracer::SyscallPlugin::Data
     uint64_t                               nb_triggers_;
 };
 
-syscall_tracer::SyscallPlugin::Data::Data(core::Core& core)
+plugins::Syscalls::Data::Data(core::Core& core)
     : core_(core)
     , syscalls_(core, "ntdll")
     , target_()
@@ -57,12 +57,12 @@ syscall_tracer::SyscallPlugin::Data::Data(core::Core& core)
 {
 }
 
-syscall_tracer::SyscallPlugin::SyscallPlugin(core::Core& core)
+plugins::Syscalls::Syscalls(core::Core& core)
     : d_(std::make_unique<Data>(core))
 {
 }
 
-syscall_tracer::SyscallPlugin::~SyscallPlugin() = default;
+plugins::Syscalls::~Syscalls() = default;
 
 namespace
 {
@@ -142,7 +142,7 @@ namespace
     }
 }
 
-bool syscall_tracer::SyscallPlugin::setup(proc_t target)
+bool plugins::Syscalls::setup(proc_t target)
 {
     d_->target_      = target;
     d_->nb_triggers_ = 0;
@@ -201,7 +201,7 @@ bool syscall_tracer::SyscallPlugin::setup(proc_t target)
     return true;
 }
 
-bool syscall_tracer::SyscallPlugin::generate(const fs::path& file_name)
+bool plugins::Syscalls::generate(const fs::path& file_name)
 {
     const auto output = create_calltree(d_->core_, d_->triggers_, d_->args_, d_->target_, d_->callsteps_);
     const auto dump   = output.dump();

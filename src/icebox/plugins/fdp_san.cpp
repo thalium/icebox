@@ -3,7 +3,9 @@
 #define FDP_MODULE "fdp_san"
 #include "log.hpp"
 
+#include "callstack.hpp"
 #include "monitor/heaps.gen.hpp"
+#include "monitor/monitor.hpp"
 #include "nt/nt_types.hpp"
 #include "os.hpp"
 #include "reader.hpp"
@@ -33,19 +35,20 @@ namespace
 
     using HeapCtx    = std::multimap<uint64_t, heap_ctx_t>;
     using HeapData   = std::unordered_map<nt::PVOID, std::vector<heap_data_t>>;
-    using FdpSanData = plugin::FdpSan::Data;
+    using FdpSanData = plugins::FdpSan::Data;
+    using Callstack  = std::shared_ptr<callstack::ICallstack>;
 
     static const uint64_t add_size      = 0x20;
     static const uint64_t half_add_size = add_size / 2;
 }
 
-struct plugin::FdpSan::Data
+struct plugins::FdpSan::Data
 {
     Data(core::Core& core);
 
-    core::Core&                            core_;
-    monitor::heaps                         heaps_;
-    std::shared_ptr<callstack::ICallstack> callstack_;
+    core::Core&    core_;
+    monitor::heaps heaps_;
+    Callstack      callstack_;
 
     std::unordered_set<uint64_t> threads_allocating;
     std::unordered_set<uint64_t> threads_rellocating;
@@ -55,19 +58,19 @@ struct plugin::FdpSan::Data
     proc_t   target_;
 };
 
-plugin::FdpSan::Data::Data(core::Core& core)
+plugins::FdpSan::Data::Data(core::Core& core)
     : core_(core)
     , heaps_(core, "ntdll")
     , target_()
 {
 }
 
-plugin::FdpSan::FdpSan(core::Core& core)
+plugins::FdpSan::FdpSan(core::Core& core)
     : d_(std::make_unique<Data>(core))
 {
 }
 
-plugin::FdpSan::~FdpSan() = default;
+plugins::FdpSan::~FdpSan() = default;
 
 namespace
 {
@@ -96,7 +99,7 @@ namespace
     }
 }
 
-bool plugin::FdpSan::setup(proc_t target)
+bool plugins::FdpSan::setup(proc_t target)
 {
     d_->target_ = target;
 

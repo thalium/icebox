@@ -4,7 +4,7 @@
 #define FDP_MODULE "main"
 #include <log.hpp>
 #include <os.hpp>
-#include <plugin/syscall_tracer.hpp>
+#include <plugins/syscalls.hpp>
 #include <reader.hpp>
 #include <utils/fnview.hpp>
 #include <utils/path.hpp>
@@ -38,7 +38,7 @@ namespace
     {
         LOG(INFO, "searching {}", proc_target);
         auto waiter = core::Waiter(core);
-        syscall_tracer::SyscallPluginWow64 syscall_plugin(core);
+        plugins::Syscalls32 syscalls(core);
         opt<proc_t> target = {};
         bool once          = false;
         waiter.mod_wait(proc_target, "ntdll.dll", [&](proc_t proc, const std::string& name, span_t span)
@@ -73,7 +73,7 @@ namespace
             if(!inserted)
                 return;
 
-            ok = syscall_plugin.setup(*target);
+            ok = syscalls.setup(*target);
             if(!ok)
                 return;
 
@@ -88,7 +88,7 @@ namespace
                 LOG(INFO, "{}", i);
         }
 
-        syscall_plugin.generate("output.json");
+        syscalls.generate("output.json");
     }
 
     bool test_core(core::Core& core)
@@ -244,9 +244,9 @@ namespace
         // test syscall plugin
         {
             if(is_32bit)
-                test_tracer<syscall_tracer::SyscallPluginWow64>(core, *target);
+                test_tracer<plugins::Syscalls32>(core, *target);
             else
-                test_tracer<syscall_tracer::SyscallPlugin>(core, *target);
+                test_tracer<plugins::Syscalls>(core, *target);
         }
 
         return true;

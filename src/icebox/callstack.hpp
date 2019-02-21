@@ -4,7 +4,6 @@
 #include "types.hpp"
 
 namespace core { struct Core; }
-namespace pe { struct Pe; }
 
 namespace callstack
 {

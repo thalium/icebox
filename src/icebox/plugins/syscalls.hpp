@@ -5,14 +5,13 @@
 #include <memory>
 
 namespace core { struct Core; }
-namespace pe { struct Pe; }
 
-namespace syscall_tracer
+namespace plugins
 {
-    struct SyscallPlugin
+    struct Syscalls
     {
-         SyscallPlugin(core::Core& core);
-        ~SyscallPlugin();
+         Syscalls(core::Core& core);
+        ~Syscalls();
 
         bool    setup   (proc_t target);
         bool    generate(const fs::path& file_name);
@@ -21,10 +20,10 @@ namespace syscall_tracer
         std::unique_ptr<Data> d_;
     };
 
-    struct SyscallPluginWow64
+    struct Syscalls32
     {
-         SyscallPluginWow64(core::Core& core);
-        ~SyscallPluginWow64();
+         Syscalls32(core::Core& core);
+        ~Syscalls32();
 
         bool    setup   (proc_t target);
         bool    generate(const fs::path& file_name);
@@ -32,4 +31,4 @@ namespace syscall_tracer
         struct Data;
         std::unique_ptr<Data> d_;
     };
-} // namespace syscall_tracer
+} // namespace plugins
