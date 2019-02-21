@@ -152,7 +152,6 @@ set_property(TARGET icebox PROPERTY CXX_STANDARD 17)
 # icebox_cmd
 add_target(icebox_cmd apps "${root_dir}/src/icebox_cmd" OPTIONS executable fmt tidy)
 set_target_output_directory(icebox_cmd "")
-set_target_output_name(icebox_cmd icebox icebox_d)
 target_link_libraries(icebox_cmd PRIVATE icebox)
 
 if(WIN32)
