@@ -205,8 +205,9 @@ namespace
         bool setup();
 
         // os::IModule
-        bool    is_kernel   (uint64_t ptr) override;
-        bool    reader_setup(reader::Reader& reader, proc_t proc) override;
+        bool    is_kernel_address   (uint64_t ptr) override;
+        bool    can_inject_fault    (uint64_t ptr) override;
+        bool    reader_setup        (reader::Reader& reader, proc_t proc) override;
 
         bool                proc_list           (const on_proc_fn& on_process) override;
         opt<proc_t>         proc_current        () override;
@@ -277,6 +278,11 @@ OsNt::OsNt(core::Core& core)
 
 namespace
 {
+    static bool is_kernel(uint64_t ptr)
+    {
+        return !!(ptr & 0xFFF0000000000000);
+    }
+
     opt<span_t> find_kernel(core::Memory& mem, uint64_t lstar)
     {
         uint8_t buf[PAGE_SIZE];
@@ -355,9 +361,9 @@ bool OsNt::setup()
         return false;
 
     kpcr_ = core_.regs.read(MSR_GS_BASE);
-    if(!(kpcr_ & 0xFFF0000000000000))
+    if(!is_kernel(kpcr_))
         kpcr_ = core_.regs.read(MSR_KERNEL_GS_BASE);
-    if(!(kpcr_ & 0xFFF0000000000000))
+    if(!is_kernel(kpcr_))
         FAIL(false, "unable to read KPCR");
 
     auto gdtb = dtb_t{core_.regs.read(FDP_CR3_REGISTER)};
@@ -1025,14 +1031,30 @@ opt<phy_t> OsNt::proc_resolve(proc_t proc, uint64_t ptr)
     return core_.mem.virtual_to_physical(ptr, reader_.kdtb_);
 }
 
-bool OsNt::is_kernel(uint64_t ptr)
+namespace
 {
-    return !!(ptr & 0xFFF0000000000000);
+    static bool is_user_mode(uint64_t cs)
+    {
+        return !!(cs & 3);
+    }
+}
+
+bool OsNt::is_kernel_address(uint64_t ptr)
+{
+    return is_kernel(ptr);
+}
+
+bool OsNt::can_inject_fault(uint64_t ptr)
+{
+    if(is_kernel_address(ptr))
+        return false;
+
+    return is_user_mode(core_.regs.read(FDP_CS_REGISTER));
 }
 
 opt<proc_t> OsNt::proc_select(proc_t proc, uint64_t ptr)
 {
-    if(!is_kernel(ptr))
+    if(!is_kernel_address(ptr))
         return proc;
 
     const auto kdtb = reader_.read(proc.id + offsets_[EPROCESS_Pcb] + offsets_[KPROCESS_DirectoryTableBase]);
@@ -1059,7 +1081,7 @@ bool OsNt::reader_setup(reader::Reader& reader, proc_t proc)
 
 namespace
 {
-    const char* irql_to_text(uint8_t value)
+    static const char* irql_to_text(uint8_t value)
     {
         switch(value)
         {
@@ -1070,12 +1092,7 @@ namespace
         return "?";
     }
 
-    bool is_user_mode(uint64_t cs)
-    {
-        return !!(cs & 3);
-    }
-
-    std::string to_hex(uint64_t x)
+    static std::string to_hex(uint64_t x)
     {
         char buf[sizeof x * 2 + 1];
         return hex::convert<hex::LowerCase | hex::RemovePadding>(buf, x);

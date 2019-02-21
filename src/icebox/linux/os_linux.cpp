@@ -35,8 +35,9 @@ namespace
         bool setup();
 
         // os::IModule
-        bool    is_kernel   (uint64_t ptr) override;
-        bool    reader_setup(reader::Reader& reader, proc_t proc) override;
+        bool    is_kernel_address   (uint64_t ptr) override;
+        bool    can_inject_fault    (uint64_t ptr) override;
+        bool    reader_setup        (reader::Reader& reader, proc_t proc) override;
 
         bool                proc_list           (const on_proc_fn& on_process) override;
         opt<proc_t>         proc_current        () override;
@@ -204,7 +205,12 @@ bool OsLinux::proc_is_valid(proc_t /*proc*/)
     return true;
 }
 
-bool OsLinux::is_kernel(uint64_t /*ptr*/)
+bool OsLinux::is_kernel_address(uint64_t /*ptr*/)
+{
+    return false;
+}
+
+bool OsLinux::can_inject_fault(uint64_t /*ptr*/)
 {
     return false;
 }

@@ -30,8 +30,9 @@ namespace os
         using on_thread_event_fn = std::function<void(proc_t, thread_t)>;
         using on_mod_event_fn    = std::function<void(proc_t, const std::string&, span_t)>;
 
-        virtual bool    is_kernel   (uint64_t ptr) = 0;
-        virtual bool    reader_setup(reader::Reader& reader, proc_t proc) = 0;
+        virtual bool    is_kernel_address   (uint64_t ptr) = 0;
+        virtual bool    can_inject_fault    (uint64_t ptr) = 0;
+        virtual bool    reader_setup        (reader::Reader& reader, proc_t proc) = 0;
 
         virtual bool                proc_list           (const on_proc_fn& on_proc) = 0;
         virtual opt<proc_t>         proc_current        () = 0;

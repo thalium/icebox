@@ -6,6 +6,7 @@
 #include "endian.hpp"
 #include "log.hpp"
 #include "mmu.hpp"
+#include "os.hpp"
 #include "private.hpp"
 #include "utils/utils.hpp"
 
@@ -129,17 +130,6 @@ opt<phy_t> core::Memory::virtual_to_physical(uint64_t ptr, dtb_t dtb)
 
 namespace
 {
-    bool is_user_mode(MemData& m)
-    {
-        const auto cs = m.core.regs.read(FDP_CS_REGISTER);
-        return !!(cs & 3);
-    }
-
-    bool is_kernel_page(uint64_t ptr)
-    {
-        return !!(ptr & 0xFFF0000000000000);
-    }
-
     template <typename T>
     bool read_pages(const char* where, uint8_t* dst, uint64_t src, size_t size, const T& operand)
     {
@@ -180,13 +170,12 @@ namespace
         if(full)
             return true;
 
-        const auto user_mode = is_user_mode(d);
-        if(!user_mode || is_kernel_page(src))
+        if(!d.core.os || !d.core.os->can_inject_fault(src))
             return false;
 
         return read_pages("virtual", dst, src, size, [&](uint8_t* pgdst, uint64_t pgsrc, uint32_t pgsize)
         {
-            const auto ok = inject_page_fault(d, dtb, pgsrc, user_mode);
+            const auto ok = inject_page_fault(d, dtb, pgsrc, true);
             if(!ok)
                 return false;
 
