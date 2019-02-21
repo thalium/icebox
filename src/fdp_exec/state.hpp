@@ -21,6 +21,7 @@ namespace core
 
         bool        pause           ();
         bool        resume          ();
+        bool        single_step     ();
         bool        wait            ();
         Breakpoint  set_breakpoint  (uint64_t ptr, const Task& task);
         Breakpoint  set_breakpoint  (uint64_t ptr, proc_t proc, const Task& task);

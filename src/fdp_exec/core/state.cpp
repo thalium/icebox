@@ -187,6 +187,11 @@ bool core::State::resume()
     return try_resume(*d_);
 }
 
+bool core::State::single_step()
+{
+    return try_single_step(*d_);
+}
+
 struct core::BreakpointPrivate
 {
     BreakpointPrivate(StateData& data, Observer observer)

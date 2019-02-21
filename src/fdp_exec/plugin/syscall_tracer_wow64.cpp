@@ -150,6 +150,20 @@ bool syscall_tracer::SyscallPluginWow64::setup(proc_t target)
     if(!d_->callstack_)
         FAIL(false, "Unable to create callstack object");
 
+    d_->syscalls_.register_ZwQueryInformationProcess(target, [=](wntdll::HANDLE, wntdll::PROCESSINFOCLASS, wntdll::PVOID, wntdll::ULONG, wntdll::PULONG)
+    {
+        const auto nbr = 4;
+        for(auto i = 0; i < nbr; i++)
+        {
+            const auto ok = d_->core_.state.single_step();
+            if(!ok)
+                FAIL(1, "Unable to single step");
+        }
+        const auto rip = d_->core_.regs.read(FDP_RIP_REGISTER);
+        LOG(INFO, "Rip in callback : {:#x}", rip);
+        return 0;
+    });
+
     d_->syscalls_.register_all(target, [=]()
     {
         private_get_callstack(*d_);
