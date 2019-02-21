@@ -17,7 +17,7 @@ namespace
         opt<uint64_t>       struc_offset(const std::string& struc, const std::string& member) override;
         opt<size_t>         struc_size  (const std::string& struc) override;
         opt<sym::ModCursor> symbol      (uint64_t addr) override;
-        bool                sym_list    (const sym::on_sym_fn& on_sym) override;
+        bool                sym_list    (sym::on_sym_fn on_sym) override;
 
         // members
         const span_t span_;
@@ -44,7 +44,7 @@ opt<uint64_t> EmptyMod::symbol(const std::string& /*symbol*/)
     return {};
 }
 
-bool EmptyMod::sym_list(const sym::on_sym_fn& on_sym)
+bool EmptyMod::sym_list(sym::on_sym_fn on_sym)
 {
     on_sym("_", span_.addr);
     return false;

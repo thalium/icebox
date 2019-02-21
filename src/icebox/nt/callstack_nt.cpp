@@ -148,7 +148,7 @@ namespace
         CallstackNt(core::Core& core);
 
         // callstack::ICallstack
-        bool get_callstack(proc_t proc, const callstack::on_callstep_fn& on_callstep) override;
+        bool get_callstack(proc_t proc, callstack::on_callstep_fn on_callstep) override;
 
         // methods
         opt<FunctionTable>      get_mod_functiontable   (proc_t proc, const std::string& name, const span_t module);
@@ -506,7 +506,7 @@ namespace
     }
 }
 
-bool CallstackNt::get_callstack(proc_t proc, const callstack::on_callstep_fn& on_callstep)
+bool CallstackNt::get_callstack(proc_t proc, callstack::on_callstep_fn on_callstep)
 {
     const auto ip         = core_.regs.read(FDP_RIP_REGISTER);
     const auto sp         = core_.regs.read(FDP_RSP_REGISTER);

@@ -209,7 +209,7 @@ namespace
         bool    can_inject_fault    (uint64_t ptr) override;
         bool    reader_setup        (reader::Reader& reader, proc_t proc) override;
 
-        bool                proc_list           (const on_proc_fn& on_process) override;
+        bool                proc_list           (on_proc_fn on_process) override;
         opt<proc_t>         proc_current        () override;
         opt<proc_t>         proc_find           (const std::string& name) override;
         opt<proc_t>         proc_find           (uint64_t pid) override;
@@ -223,7 +223,7 @@ namespace
         bool                proc_listen_create  (const on_proc_event_fn& on_proc_event) override;
         bool                proc_listen_delete  (const on_proc_event_fn& on_proc_event) override;
 
-        bool            thread_list         (proc_t proc, const on_thread_fn& on_thread) override;
+        bool            thread_list         (proc_t proc, on_thread_fn on_thread) override;
         opt<thread_t>   thread_current      () override;
         opt<proc_t>     thread_proc         (thread_t thread) override;
         opt<uint64_t>   thread_pc           (proc_t proc, thread_t thread) override;
@@ -231,15 +231,14 @@ namespace
         bool            thread_listen_create(const on_thread_event_fn& on_thread_event);
         bool            thread_listen_delete(const on_thread_event_fn& on_thread_event);
 
-        bool                mod_list(proc_t proc, const on_mod_fn& on_module) override;
-        opt<std::string>    mod_name(proc_t proc, mod_t mod) override;
-        opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
-        opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
+        bool                mod_list            (proc_t proc, on_mod_fn on_module) override;
+        opt<std::string>    mod_name            (proc_t proc, mod_t mod) override;
+        opt<span_t>         mod_span            (proc_t proc, mod_t mod) override;
+        opt<mod_t>          mod_find            (proc_t proc, uint64_t addr) override;
+        bool                mod_listen_load     (const on_mod_event_fn& on_load) override;
+        bool                mod_listen_unload   (const on_mod_event_fn& on_unload) override;
 
-        bool    mod_listen_load     (const on_mod_event_fn& on_load) override;
-        bool    mod_listen_unload   (const on_mod_event_fn& on_unload) override;
-
-        bool                driver_list (const on_driver_fn& on_driver) override;
+        bool                driver_list (on_driver_fn on_driver) override;
         opt<driver_t>       driver_find (const std::string& name) override;
         opt<std::string>    driver_name (driver_t drv) override;
         opt<span_t>         driver_span (driver_t drv) override;
@@ -399,7 +398,7 @@ std::unique_ptr<os::IModule> os::make_nt(core::Core& core)
     return nt;
 }
 
-bool OsNt::proc_list(const on_proc_fn& on_process)
+bool OsNt::proc_list(on_proc_fn on_process)
 {
     const auto head = symbols_[PsActiveProcessHead];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
@@ -799,7 +798,7 @@ namespace
     }
 }
 
-bool OsNt::mod_list(proc_t proc, const on_mod_fn& on_mod)
+bool OsNt::mod_list(proc_t proc, on_mod_fn on_mod)
 {
     const auto reader = reader::make(core_, proc);
     auto ret          = mod_list_64(*this, proc, reader, on_mod);
@@ -893,7 +892,7 @@ opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
     return mod_span_64(*this, reader, mod);
 }
 
-bool OsNt::driver_list(const on_driver_fn& on_driver)
+bool OsNt::driver_list(on_driver_fn on_driver)
 {
     const auto head = symbols_[PsLoadedModuleList];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
@@ -935,7 +934,7 @@ opt<span_t> OsNt::driver_span(driver_t drv)
     return span_t{*base, *size};
 }
 
-bool OsNt::thread_list(proc_t proc, const on_thread_fn& on_thread)
+bool OsNt::thread_list(proc_t proc, on_thread_fn on_thread)
 {
     const auto head = proc.id + offsets_[EPROCESS_ThreadListHead];
     for(auto link = reader_.read(head); link && link != head; link = reader_.read(*link))

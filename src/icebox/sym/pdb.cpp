@@ -51,7 +51,7 @@ namespace
         opt<uint64_t>       struc_offset(const std::string& struc, const std::string& member) override;
         opt<size_t>         struc_size  (const std::string& struc) override;
         opt<sym::ModCursor> symbol      (uint64_t addr) override;
-        bool                sym_list    (const sym::on_sym_fn& on_sym) override;
+        bool                sym_list    (sym::on_sym_fn on_sym) override;
 
         // members
         const fs::path  filename_;
@@ -137,7 +137,7 @@ opt<uint64_t> Pdb::symbol(const std::string& symbol)
     return get_offset(*this, it->second);
 }
 
-bool Pdb::sym_list(const sym::on_sym_fn& on_sym)
+bool Pdb::sym_list(sym::on_sym_fn on_sym)
 {
     for(const auto& symbol : symbols_)
         if(on_sym(symbol.first, get_offset(*this, symbol.second)) == WALK_STOP)

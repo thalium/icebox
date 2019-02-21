@@ -22,7 +22,7 @@ namespace sym
         virtual opt<uint64_t>   struc_offset(const std::string& struc, const std::string& member) = 0;
         virtual opt<size_t>     struc_size  (const std::string& struc) = 0;
         virtual opt<ModCursor>  symbol      (uint64_t addr) = 0;
-        virtual bool            sym_list    (const on_sym_fn& on_sym) = 0;
+        virtual bool            sym_list    (on_sym_fn on_sym) = 0;
     };
 
     std::unique_ptr<IMod>   make_pdb    (span_t span, const std::string& module, const std::string& guid);
@@ -48,7 +48,7 @@ namespace sym
         bool            insert      (const std::string& name, std::unique_ptr<IMod>& module);
         bool            insert      (const std::string& name, span_t module, const void* data, const size_t data_size);
         bool            remove      (const std::string& name);
-        bool            list        (const on_module_fn& on_module);
+        bool            list        (on_module_fn on_module);
         IMod*           find        (const std::string& name);
         opt<uint64_t>   symbol      (const std::string& module, const std::string& symbol);
         opt<uint64_t>   struc_offset(const std::string& module, const std::string& struc, const std::string& member);

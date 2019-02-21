@@ -39,7 +39,7 @@ namespace
         bool    can_inject_fault    (uint64_t ptr) override;
         bool    reader_setup        (reader::Reader& reader, proc_t proc) override;
 
-        bool                proc_list           (const on_proc_fn& on_process) override;
+        bool                proc_list           (on_proc_fn on_process) override;
         opt<proc_t>         proc_current        () override;
         opt<proc_t>         proc_find           (const std::string& name) override;
         opt<proc_t>         proc_find           (uint64_t pid) override;
@@ -53,7 +53,7 @@ namespace
         bool                proc_listen_create  (const on_proc_event_fn& on_proc_event) override;
         bool                proc_listen_delete  (const on_proc_event_fn& on_proc_event) override;
 
-        bool            thread_list         (proc_t proc, const on_thread_fn& on_thread) override;
+        bool            thread_list         (proc_t proc, on_thread_fn on_thread) override;
         opt<thread_t>   thread_current      () override;
         opt<proc_t>     thread_proc         (thread_t thread) override;
         opt<uint64_t>   thread_pc           (proc_t proc, thread_t thread) override;
@@ -61,15 +61,14 @@ namespace
         bool            thread_listen_create(const on_thread_event_fn& on_create) override;
         bool            thread_listen_delete(const on_thread_event_fn& on_remove) override;
 
-        bool                mod_list(proc_t proc, const on_mod_fn& on_module) override;
-        opt<std::string>    mod_name(proc_t proc, mod_t mod) override;
-        opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
-        opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
+        bool                mod_list            (proc_t proc, on_mod_fn on_module) override;
+        opt<std::string>    mod_name            (proc_t proc, mod_t mod) override;
+        opt<span_t>         mod_span            (proc_t proc, mod_t mod) override;
+        opt<mod_t>          mod_find            (proc_t proc, uint64_t addr) override;
+        bool                mod_listen_load     (const on_mod_event_fn& on_load) override;
+        bool                mod_listen_unload   (const on_mod_event_fn& on_unload) override;
 
-        bool    mod_listen_load     (const on_mod_event_fn& on_load) override;
-        bool    mod_listen_unload   (const on_mod_event_fn& on_unload) override;
-
-        bool                driver_list (const on_driver_fn& on_driver) override;
+        bool                driver_list (on_driver_fn on_driver) override;
         opt<driver_t>       driver_find (const std::string& name) override;
         opt<std::string>    driver_name (driver_t drv) override;
         opt<span_t>         driver_span (driver_t drv) override;
@@ -115,7 +114,7 @@ std::unique_ptr<os::IModule> os::make_linux(core::Core& core)
     return oslinux;
 }
 
-bool OsLinux::proc_list(const on_proc_fn& on_process)
+bool OsLinux::proc_list(on_proc_fn on_process)
 {
     const auto proc = core_.os->proc_current();
     if(!proc)
@@ -274,7 +273,7 @@ bool OsLinux::reader_setup(reader::Reader& reader, proc_t proc)
     return true;
 }
 
-bool OsLinux::thread_list(proc_t /*proc*/, const on_thread_fn& on_thread)
+bool OsLinux::thread_list(proc_t /*proc*/, on_thread_fn on_thread)
 {
     thread_t dummy_thread = {0};
     on_thread(dummy_thread);
@@ -301,7 +300,7 @@ uint64_t OsLinux::thread_id(proc_t /*proc*/, thread_t /*thread*/)
     return 0;
 }
 
-bool OsLinux::mod_list(proc_t /*proc*/, const on_mod_fn& on_module)
+bool OsLinux::mod_list(proc_t /*proc*/, on_mod_fn on_module)
 {
     mod_t dummy_mod = {0, FLAGS_NONE};
     on_module(dummy_mod);
@@ -323,7 +322,7 @@ opt<mod_t> OsLinux::mod_find(proc_t /*proc*/, uint64_t /*addr*/)
     return {};
 }
 
-bool OsLinux::driver_list(const on_driver_fn& on_driver)
+bool OsLinux::driver_list(on_driver_fn on_driver)
 {
     driver_t dummy_driver = {0};
     on_driver(dummy_driver);
