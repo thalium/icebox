@@ -140,10 +140,7 @@ namespace
         CallstackNt(core::Core& core);
 
         // callstack::ICallstack
-        bool get_callstack(proc_t proc, callstack::context_t context, const callstack::on_callstep_fn& on_callstep) override;
-
-        bool    get_callstack64 (proc_t proc, callstack::context_t context, const callstack::on_callstep_fn& on_callstep);
-        bool    get_callstack32 (proc_t proc, callstack::context_t context, const callstack::on_callstep_fn& on_callstep);
+        bool get_callstack(proc_t proc, const context_t& context, const callstack::on_callstep_fn& on_callstep) override;
 
         // methods
         opt<FunctionTable>      get_mod_functiontable   (proc_t proc, const std::string& name, const span_t module);
@@ -376,135 +373,138 @@ namespace
 
         return span_t{*limit, *base - *limit};
     }
-}
 
-bool CallstackNt::get_callstack64(proc_t proc, callstack::context_t ctx, const callstack::on_callstep_fn& on_callstep)
-{
-    std::vector<uint8_t> buffer;
-    constexpr auto reg_size = 8;
-    const auto max_cs_depth = size_t(150);
-    const auto reader       = reader::make(core_, proc);
-    const auto stack        = get_stack(*this, proc, false);
-    if(!stack)
-        return false;
-
-    for(size_t i = 0; i < max_cs_depth; ++i)
+    static bool get_callstack64(CallstackNt& c, proc_t proc, const context_t& first, const callstack::on_callstep_fn& on_callstep)
     {
-        // Get module from address
-        const auto mod = find_mod(proc, ctx.rip);
-        if(!mod)
+        std::vector<uint8_t> buffer;
+        constexpr auto reg_size = 8;
+        const auto max_cs_depth = size_t(150);
+        const auto reader       = reader::make(c.core_, proc);
+        const auto stack        = get_stack(c, proc, false);
+        if(!stack)
             return false;
 
-        const auto modname = core_.os->mod_name(proc, *mod);
-        const auto span    = core_.os->mod_span(proc, *mod);
-
-        // Load PDB
-        if(false)
+        auto ctx = first;
+        for(size_t i = 0; i < max_cs_depth; ++i)
         {
-            const auto debug = pe::find_debug_codeview(reader, *span);
-            if(!debug)
-                return WALK_NEXT;
+            // Get module from address
+            const auto mod = c.find_mod(proc, ctx.ip);
+            if(!mod)
+                return false;
 
-            buffer.resize(debug->size);
-            const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
-            if(!ok)
-                FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
+            const auto modname = c.core_.os->mod_name(proc, *mod);
+            const auto span    = c.core_.os->mod_span(proc, *mod);
 
-            const auto filename = path::filename(*modname).replace_extension("").generic_string();
-            const auto inserted = core_.sym.insert(filename.data(), *span, &buffer[0], buffer.size());
-            UNUSED(inserted);
-        }
+            // Load PDB
+            if(false)
+            {
+                const auto debug = pe::find_debug_codeview(reader, *span);
+                if(!debug)
+                    return WALK_NEXT;
 
-        // Get function table of the module
-        const auto function_table = get_mod_functiontable(proc, *modname, *span);
-        if(!function_table)
-            FAIL(false, "unable to get function table of {}", modname->c_str());
+                buffer.resize(debug->size);
+                const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
+                if(!ok)
+                    FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
 
-        const auto off_in_mod     = static_cast<uint32_t>(ctx.rip - span->addr);
-        const auto function_entry = lookup_function_entry(off_in_mod, function_table->function_entries);
-        if(!function_entry)
-            FAIL(false, "No matching function entry");
+                const auto filename = path::filename(*modname).replace_extension("").generic_string();
+                const auto inserted = c.core_.sym.insert(filename.data(), *span, &buffer[0], buffer.size());
+                UNUSED(inserted);
+            }
 
-        const auto stack_frame_size = get_stack_frame_size(off_in_mod, *function_table, *function_entry);
-        if(!stack_frame_size)
-            FAIL(false, "Can't calculate stack frame size");
+            // Get function table of the module
+            const auto function_table = c.get_mod_functiontable(proc, *modname, *span);
+            if(!function_table)
+                FAIL(false, "unable to get function table of {}", modname->c_str());
 
-        if(function_entry->frame_reg_offset != 0)
-            ctx.rsp = ctx.rbp - function_entry->frame_reg_offset;
+            const auto off_in_mod     = static_cast<uint32_t>(ctx.ip - span->addr);
+            const auto function_entry = c.lookup_function_entry(off_in_mod, function_table->function_entries);
+            if(!function_entry)
+                FAIL(false, "No matching function entry");
 
-        if(function_entry->prev_frame_reg != 0)
-            if(const auto rbp_ = reader.read(ctx.rsp + function_entry->prev_frame_reg))
-                ctx.rbp = *rbp_;
+            const auto stack_frame_size = get_stack_frame_size(off_in_mod, *function_table, *function_entry);
+            if(!stack_frame_size)
+                FAIL(false, "Can't calculate stack frame size");
 
-        const auto caller_addr_on_stack = ctx.rsp + *stack_frame_size;
+            if(function_entry->frame_reg_offset != 0)
+                ctx.sp = ctx.bp - function_entry->frame_reg_offset;
 
-        // Check if caller's address on stack is consistent, if not we suppose that the end of the callstack has been reached
-        if(stack->addr > caller_addr_on_stack || stack->addr + stack->size < caller_addr_on_stack)
-            return true;
+            if(function_entry->prev_frame_reg != 0)
+                if(const auto bp = reader.read(ctx.sp + function_entry->prev_frame_reg))
+                    ctx.bp = *bp;
 
-        const auto return_addr = reader.read(caller_addr_on_stack);
-        if(!return_addr)
-            FAIL(false, "Unable to read return address at {:#x}", caller_addr_on_stack);
+            const auto caller_addr_on_stack = ctx.sp + *stack_frame_size;
+
+            // Check if caller's address on stack is consistent, if not we suppose that the end of the callstack has been reached
+            if(stack->addr > caller_addr_on_stack || stack->addr + stack->size < caller_addr_on_stack)
+                return true;
+
+            const auto return_addr = reader.read(caller_addr_on_stack);
+            if(!return_addr)
+                FAIL(false, "Unable to read return address at {:#x}", caller_addr_on_stack);
 
 #ifdef USE_DEBUG_PRINT
-        // print stack
-        const auto print_d = 25;
-        for(int k = -3 * reg_size; k < print_d * reg_size; k += reg_size)
-        {
-            LOG(INFO, "{:#x} - {:#x}", ctx.rsp + *stack_frame_size + k, *core::read_ptr(core_, ctx.rsp + *stack_frame_size + k));
-        }
-        LOG(INFO, "Chosen chosen {:#x} start address {:#x} end {:#x}", off_in_mod, function_entry->start_address, function_entry->end_address);
-        LOG(INFO, "Offset of current func {:#x}, Caller address on stack {:#x} so {:#x}", off_in_mod, caller_addr_on_stack, *return_addr);
+            // print stack
+            const auto print_d = 25;
+            for(int k = -3 * reg_size; k < print_d * reg_size; k += reg_size)
+            {
+                LOG(INFO, "{:#x} - {:#x}", ctx.rsp + *stack_frame_size + k, *core::read_ptr(core_, ctx.rsp + *stack_frame_size + k));
+            }
+            LOG(INFO, "Chosen chosen {:#x} start address {:#x} end {:#x}", off_in_mod, function_entry->start_address, function_entry->end_address);
+            LOG(INFO, "Offset of current func {:#x}, Caller address on stack {:#x} so {:#x}", off_in_mod, caller_addr_on_stack, *return_addr);
 #endif
 
-        if(on_callstep(callstack::callstep_t{ctx.rip}) == WALK_STOP)
-            return true;
+            if(on_callstep(callstack::callstep_t{ctx.ip}) == WALK_STOP)
+                return true;
 
-        ctx.rip = *return_addr;
-        ctx.rsp = caller_addr_on_stack + reg_size;
+            ctx.ip = *return_addr;
+            ctx.sp = caller_addr_on_stack + reg_size;
+        }
+
+        return true;
     }
 
-    return true;
-}
-
-bool CallstackNt::get_callstack32(proc_t proc, callstack::context_t ctx, const callstack::on_callstep_fn& on_callstep)
-{
-    std::vector<uint8_t> buffer;
-    constexpr auto reg_size = 4;
-    const auto max_cs_depth = size_t(150);
-    const auto reader       = reader::make(core_, proc);
-    const auto stack        = get_stack(*this, proc, true);
-    if(!stack)
-        return false;
-
-    for(size_t i = 0; i < max_cs_depth; ++i)
+    static bool get_callstack32(CallstackNt& c, proc_t proc, const context_t& first, const callstack::on_callstep_fn& on_callstep)
     {
-        if(stack->addr > ctx.rbp || stack->addr + stack->size < ctx.rbp)
-            return true;
+        std::vector<uint8_t> buffer;
+        constexpr auto reg_size = 4;
+        const auto max_cs_depth = size_t(150);
+        const auto reader       = reader::make(c.core_, proc);
+        const auto stack        = get_stack(c, proc, true);
+        if(!stack)
+            return false;
 
-        const auto caller_addr_on_stack = reader.le32(ctx.rbp);
-        if(!caller_addr_on_stack)
-            FAIL(false, "Unable to read caller address on stack at %lx", ctx.rbp);
+        auto ctx = first;
+        for(size_t i = 0; i < max_cs_depth; ++i)
+        {
+            if(stack->addr > ctx.bp || stack->addr + stack->size < ctx.bp)
+                return true;
 
-        const auto return_addr = reader.le32(ctx.rbp + reg_size);
-        if(!return_addr)
-            FAIL(false, "Unable to read return address at {}", ctx.rbp + reg_size);
+            const auto caller_addr_on_stack = reader.le32(ctx.bp);
+            if(!caller_addr_on_stack)
+                FAIL(false, "Unable to read caller address on stack at %lx", ctx.bp);
 
-        if(on_callstep(callstack::callstep_t{ctx.rip}) == WALK_STOP)
-            return true;
+            const auto return_addr = reader.le32(ctx.bp + reg_size);
+            if(!return_addr)
+                FAIL(false, "Unable to read return address at {}", ctx.bp + reg_size);
 
-        ctx.rip = *return_addr;
-        ctx.rbp = *caller_addr_on_stack;
+            if(on_callstep(callstack::callstep_t{ctx.ip}) == WALK_STOP)
+                return true;
+
+            ctx.ip = *return_addr;
+            ctx.bp = *caller_addr_on_stack;
+        }
+        return true;
     }
-    return true;
 }
 
-bool CallstackNt::get_callstack(proc_t proc, callstack::context_t ctx, const callstack::on_callstep_fn& on_callstep)
+bool CallstackNt::get_callstack(proc_t proc, const context_t& ctx, const callstack::on_callstep_fn& on_callstep)
 {
-    if(core_.os->proc_ctx_is_x64())
-        return get_callstack64(proc, ctx, on_callstep);
+    constexpr auto x86_cs = 0x23;
+    if(ctx.cs & x86_cs)
+        return get_callstack32(*this, proc, ctx, on_callstep);
 
-    return get_callstack32(proc, ctx, on_callstep);
+    return get_callstack64(*this, proc, ctx, on_callstep);
 }
 
 namespace

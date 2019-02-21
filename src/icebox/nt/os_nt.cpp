@@ -217,7 +217,6 @@ namespace
         bool                proc_is_valid       (proc_t proc) override;
         flags_e             proc_flags          (proc_t proc) override;
         uint64_t            proc_id             (proc_t proc) override;
-        bool                proc_ctx_is_x64     () override;
         void                proc_join           (proc_t proc, os::join_e join) override;
         opt<phy_t>          proc_resolve        (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_select         (proc_t proc, uint64_t ptr) override;
@@ -244,6 +243,10 @@ namespace
         opt<driver_t>       driver_find (const std::string& name) override;
         opt<std::string>    driver_name (driver_t drv) override;
         opt<span_t>         driver_span (driver_t drv) override;
+
+        opt<arg_t>  read_stack  (size_t index) override;
+        opt<arg_t>  read_arg    (size_t index) override;
+        bool        write_arg   (size_t index, arg_t arg) override;
 
         void debug_print() override;
 
@@ -563,13 +566,6 @@ uint64_t OsNt::proc_id(proc_t proc)
         return 0;
 
     return *pid;
-}
-
-bool OsNt::proc_ctx_is_x64()
-{
-    const auto cs         = core_.regs.read(FDP_CS_REGISTER);
-    const auto WOW64_CS32 = 0x23;
-    return cs != WOW64_CS32;
 }
 
 namespace
@@ -1077,6 +1073,107 @@ bool OsNt::reader_setup(reader::Reader& reader, proc_t proc)
     reader.udtb_ = dtb_t{*dtb};
     reader.kdtb_ = dtb_t{*kdtb};
     return true;
+}
+
+namespace
+{
+    static opt<arg_t> to_arg(opt<uint64_t> arg)
+    {
+        if(!arg)
+            return {};
+
+        return arg_t{*arg};
+    }
+
+    static opt<arg_t> read_stack32(const reader::Reader& reader, uint64_t sp, size_t index)
+    {
+        return to_arg(reader.le32(sp + index * sizeof(uint32_t)));
+    }
+
+    static bool write_stack32(core::Core& /*core*/, size_t /*index*/, uint32_t /*arg*/)
+    {
+        LOG(ERROR, "not implemented");
+        return false;
+    }
+
+    static opt<arg_t> read_stack64(const reader::Reader& reader, uint64_t sp, size_t index)
+    {
+        return to_arg(reader.le64(sp + index * sizeof(uint64_t)));
+    }
+
+    static bool write_stack64(core::Core& /*core*/, size_t /*index*/, uint64_t /*arg*/)
+    {
+        LOG(ERROR, "not implemented");
+        return false;
+    }
+
+    static opt<arg_t> read_arg32(const reader::Reader& reader, uint64_t sp, size_t index)
+    {
+        return read_stack32(reader, sp, index + 1);
+    }
+
+    static bool write_arg32(core::Core& core, size_t index, arg_t arg)
+    {
+        return write_stack32(core, index + 1, static_cast<uint32_t>(arg.val));
+    }
+
+    static opt<arg_t> read_arg64(core::Core& core, const reader::Reader& reader, uint64_t sp, size_t index)
+    {
+        switch(index)
+        {
+            case 0:     return to_arg      (core.regs.read(FDP_RCX_REGISTER));
+            case 1:     return to_arg      (core.regs.read(FDP_RDX_REGISTER));
+            case 2:     return to_arg      (core.regs.read(FDP_R8_REGISTER));
+            case 3:     return to_arg      (core.regs.read(FDP_R9_REGISTER));
+            default:    return read_stack64(reader, sp, index + 1);
+        }
+    }
+
+    static bool write_arg64(core::Core& core, size_t index, arg_t arg)
+    {
+        switch(index)
+        {
+            case 0:     return core.regs.write(FDP_RCX_REGISTER, arg.val);
+            case 1:     return core.regs.write(FDP_RDX_REGISTER, arg.val);
+            case 2:     return core.regs.write(FDP_R8_REGISTER, arg.val);
+            case 3:     return core.regs.write(FDP_R9_REGISTER, arg.val);
+            default:    return write_stack64(core, index + 1, arg.val);
+        }
+    }
+}
+
+opt<arg_t> OsNt::read_stack(size_t index)
+{
+    const auto cs       = core_.regs.read(FDP_CS_REGISTER);
+    const auto is_32bit = cs & 0x23;
+    const auto sp       = core_.regs.read(FDP_RSP_REGISTER);
+    const auto reader   = reader::make(core_);
+    if(is_32bit)
+        return read_stack32(reader, sp, index);
+
+    return read_stack64(reader, sp, index);
+}
+
+opt<arg_t> OsNt::read_arg(size_t index)
+{
+    const auto cs       = core_.regs.read(FDP_CS_REGISTER);
+    const auto is_32bit = cs & 0x23;
+    const auto sp       = core_.regs.read(FDP_RSP_REGISTER);
+    const auto reader   = reader::make(core_);
+    if(is_32bit)
+        return read_arg32(reader, sp, index);
+
+    return read_arg64(core_, reader, sp, index);
+}
+
+bool OsNt::write_arg(size_t index, arg_t arg)
+{
+    const auto cs       = core_.regs.read(FDP_CS_REGISTER);
+    const auto is_32bit = cs & 0x23;
+    if(is_32bit)
+        return write_arg32(core_, index, arg);
+
+    return write_arg64(core_, index, arg);
 }
 
 namespace

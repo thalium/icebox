@@ -147,7 +147,7 @@ def generate_impl(json_data, filename, namespace, pad, wow64):
 
 #define FDP_MODULE "{filename}"
 #include "log.hpp"
-#include "monitor.hpp"
+#include "os.hpp"
 
 namespace
 {{
@@ -209,7 +209,7 @@ namespace
     template <typename T>
     static T arg(core::Core& core, size_t i)
     {{
-        const auto arg = monitor::get_arg_by_index(core, i);
+        const auto arg = core.os->read_arg(i);
         if(!arg)
             return {{}};
 

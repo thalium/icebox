@@ -46,7 +46,6 @@ namespace
         opt<std::string>    proc_name           (proc_t proc) override;
         bool                proc_is_valid       (proc_t proc) override;
         uint64_t            proc_id             (proc_t proc) override;
-        bool                proc_ctx_is_x64     () override;
         flags_e             proc_flags          (proc_t proc) override;
         void                proc_join           (proc_t proc, os::join_e join) override;
         opt<phy_t>          proc_resolve        (proc_t proc, uint64_t ptr) override;
@@ -74,6 +73,10 @@ namespace
         opt<driver_t>       driver_find (const std::string& name) override;
         opt<std::string>    driver_name (driver_t drv) override;
         opt<span_t>         driver_span (driver_t drv) override;
+
+        opt<arg_t>  read_stack  (size_t index) override;
+        opt<arg_t>  read_arg    (size_t index) override;
+        bool        write_arg   (size_t index, arg_t arg) override;
 
         void debug_print() override;
 
@@ -220,11 +223,6 @@ flags_e OsLinux::proc_flags(proc_t /*proc*/)
     return FLAGS_NONE;
 }
 
-bool OsLinux::proc_ctx_is_x64()
-{
-    return false;
-}
-
 void OsLinux::proc_join(proc_t /*proc*/, os::join_e /*join*/)
 {
 }
@@ -345,6 +343,21 @@ opt<std::string> OsLinux::driver_name(driver_t /*drv*/)
 opt<span_t> OsLinux::driver_span(driver_t /*drv*/)
 {
     return {};
+}
+
+opt<arg_t> OsLinux::read_stack(size_t /*index*/)
+{
+    return {};
+}
+
+opt<arg_t> OsLinux::read_arg(size_t /*index*/)
+{
+    return {};
+}
+
+bool OsLinux::write_arg(size_t /*index*/, arg_t /*arg*/)
+{
+    return false;
 }
 
 void OsLinux::debug_print()

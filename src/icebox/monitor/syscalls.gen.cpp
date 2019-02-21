@@ -2,7 +2,7 @@
 
 #define FDP_MODULE "syscalls"
 #include "log.hpp"
-#include "monitor.hpp"
+#include "os.hpp"
 
 namespace
 {
@@ -463,7 +463,7 @@ namespace
     template <typename T>
     static T arg(core::Core& core, size_t i)
     {
-        const auto arg = monitor::get_arg_by_index(core, i);
+        const auto arg = core.os->read_arg(i);
         if(!arg)
             return {};
 

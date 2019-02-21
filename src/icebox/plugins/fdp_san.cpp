@@ -5,7 +5,6 @@
 
 #include "callstack.hpp"
 #include "monitor/heaps.gen.hpp"
-#include "monitor/monitor.hpp"
 #include "nt/nt_types.hpp"
 #include "os.hpp"
 #include "reader.hpp"
@@ -136,7 +135,7 @@ bool plugins::FdpSan::setup(proc_t target)
 
         auto heap_data = heap_data_t{HeapHandle, 0, Size, thread_curr->id};
 
-        const auto ok = monitor::set_arg_by_index(d_->core_, 1, Size + add_size);
+        const auto ok = d_->core_.os->write_arg(1, {Size + add_size});
         if(!ok)
             return 0;
 
@@ -174,7 +173,7 @@ bool plugins::FdpSan::setup(proc_t target)
             if(!ret)
                 return;
 
-            const auto ok_ = monitor::set_return_value(d_->core_, ret + half_add_size);
+            const auto ok_ = d_->core_.regs.write(FDP_RAX_REGISTER, ret + half_add_size);
             if(!ok_)
                 return;
 
@@ -229,13 +228,13 @@ bool plugins::FdpSan::setup(proc_t target)
         }
 
         if(!b)
-            if(!monitor::set_arg_by_index(d_->core_, 2, BaseAddress - half_add_size))
+            if(!d_->core_.os->write_arg(2, {BaseAddress - half_add_size}))
                 return 0;
 
         if(i != -1)
             it->second.erase(it->second.begin() + i);
 
-        const auto ok = monitor::set_arg_by_index(d_->core_, 3, Size + add_size);
+        const auto ok = d_->core_.os->write_arg(3, {Size + add_size});
         if(!ok)
             return 0;
 
@@ -272,7 +271,7 @@ bool plugins::FdpSan::setup(proc_t target)
             if(!ret)
                 return;
 
-            const auto ok_ = monitor::set_return_value(d_->core_, ret + half_add_size);
+            const auto ok_ = d_->core_.regs.write(FDP_RAX_REGISTER, ret + half_add_size);
             if(!ok_)
                 return;
 
@@ -330,7 +329,7 @@ bool plugins::FdpSan::setup(proc_t target)
         if(!found)
             return false;
 
-        const auto ok = monitor::set_arg_by_index(d_->core_, 2, BaseAddress - half_add_size);
+        const auto ok = d_->core_.os->write_arg(2, {BaseAddress - half_add_size});
         if(!ok)
             return false;
 
@@ -373,7 +372,7 @@ bool plugins::FdpSan::setup(proc_t target)
         if(!found)
             return 0;
 
-        const auto ok = monitor::set_arg_by_index(d_->core_, 2, BaseAddress - half_add_size);
+        const auto ok = d_->core_.os->write_arg(2, {BaseAddress - half_add_size});
         if(!ok)
             return 0;
 
@@ -409,7 +408,7 @@ bool plugins::FdpSan::setup(proc_t target)
             if(!ret)
                 return;
 
-            const auto ok_ = monitor::set_return_value(d_->core_, ret - add_size);
+            const auto ok_ = d_->core_.regs.write(FDP_RAX_REGISTER, ret - add_size);
             if(!ok_)
                 return;
 
@@ -450,7 +449,7 @@ bool plugins::FdpSan::setup(proc_t target)
         if(!found)
             return 0;
 
-        const auto ok = monitor::set_arg_by_index(d_->core_, 2, BaseAddress - half_add_size);
+        const auto ok = d_->core_.os->write_arg(2, {BaseAddress - half_add_size});
         if(!ok)
             return 0;
 
@@ -488,7 +487,7 @@ bool plugins::FdpSan::setup(proc_t target)
         if(!found)
             return 0;
 
-        const auto ok = monitor::set_arg_by_index(d_->core_, 2, BaseAddress - half_add_size);
+        const auto ok = d_->core_.os->write_arg(2, {BaseAddress - half_add_size});
         if(!ok)
             return 0;
 

@@ -342,20 +342,22 @@ opt<std::string> nt::ObjectNt::driverobj_drivername(proc_t proc, nt::obj_t obj)
 
 opt<std::string> nt::ObjectNt::objattribute_objectname(proc_t proc, uint64_t ptr)
 {
-    const auto reader = reader::make(d_->core_, proc);
-    if(d_->core_.os->proc_ctx_is_x64())
+    const auto reader   = reader::make(d_->core_, proc);
+    const auto cs       = d_->core_.regs.read(FDP_CS_REGISTER);
+    const auto is_32bit = cs & 0x23;
+    if(is_32bit)
     {
-        const auto obj_name = reader.read(ptr + d_->members_[OBJECT_ATTRIBUTES_ObjectName]);
+        // TODO get offset in 32 bits ntdll version's pdb
+        const auto obj_name = reader.le32(ptr + 8);
         if(!obj_name)
             return {};
 
-        return read_unicode_string(reader, *obj_name);
+        return nt32::read_unicode_string(reader, *obj_name);
     }
 
-    // TODO get offset in 32 bits ntdll version's pdb
-    const auto obj_name = reader.le32(ptr + 8);
+    const auto obj_name = reader.read(ptr + d_->members_[OBJECT_ATTRIBUTES_ObjectName]);
     if(!obj_name)
         return {};
 
-    return nt32::read_unicode_string(reader, *obj_name);
+    return read_unicode_string(reader, *obj_name);
 }

@@ -40,7 +40,6 @@ namespace os
         virtual opt<proc_t>         proc_find           (uint64_t pid) = 0;
         virtual opt<std::string>    proc_name           (proc_t proc) = 0;
         virtual bool                proc_is_valid       (proc_t proc) = 0;
-        virtual bool                proc_ctx_is_x64     () = 0;
         virtual uint64_t            proc_id             (proc_t proc) = 0;
         virtual flags_e             proc_flags          (proc_t proc) = 0;
         virtual void                proc_join           (proc_t proc, join_e join) = 0;
@@ -69,6 +68,10 @@ namespace os
         virtual opt<driver_t>       driver_find (const std::string& name) = 0;
         virtual opt<std::string>    driver_name (driver_t drv) = 0;
         virtual opt<span_t>         driver_span (driver_t drv) = 0;
+
+        virtual opt<arg_t>  read_stack  (size_t index) = 0;
+        virtual opt<arg_t>  read_arg    (size_t index) = 0;
+        virtual bool        write_arg   (size_t index, arg_t arg) = 0;
 
         virtual void debug_print() = 0;
     };
