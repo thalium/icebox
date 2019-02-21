@@ -2,16 +2,14 @@
 #include "core.hpp"
 
 #define FDP_MODULE "main"
-#include "log.hpp"
-#include "os.hpp"
-#include "reader.hpp"
-#include "utils/fnview.hpp"
-#include "utils/path.hpp"
-#include "utils/pe.hpp"
-
-#include "waiter.hpp"
-
-#include "plugin/syscall_tracer.hpp"
+#include <log.hpp>
+#include <os.hpp>
+#include <plugin/syscall_tracer.hpp>
+#include <reader.hpp>
+#include <utils/fnview.hpp>
+#include <utils/path.hpp>
+#include <utils/pe.hpp>
+#include <waiter.hpp>
 
 #include <chrono>
 #include <thread>
@@ -259,7 +257,7 @@ int main(int argc, char* argv[])
 {
     logg::init(argc, argv);
     if(argc != 2)
-        FAIL(-1, "usage: fdp_exec <name>");
+        FAIL(-1, "usage: icebox <name>");
 
     const auto name = std::string{argv[1]};
     LOG(INFO, "starting on {}", name.data());

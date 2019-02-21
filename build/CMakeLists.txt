@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.4)
-project(winbagility)
+project(icebox)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -89,9 +89,6 @@ target_compile_definitions(loguru PRIVATE
 target_include_directories(loguru PUBLIC
     "${loguru_dir}"
 )
-target_link_libraries(loguru PUBLIC
-    fmtlib
-)
 
 # pdbparser
 set(retdec_dir "${root_dir}/deps/retdec-3.2")
@@ -101,7 +98,7 @@ target_include_directories(pdbparser PUBLIC
 )
 
 # tracer code generator
-set(monitor_dir "${root_dir}/src/fdp_exec/monitor")
+set(monitor_dir "${root_dir}/src/icebox/monitor")
 function(add_tracer namespace input_file)
     find_package(PythonInterp 3.6 QUIET REQUIRED)
     get_filename_component(directory ${input_file} DIRECTORY)
@@ -122,32 +119,41 @@ add_tracer("nt"     "${monitor_dir}/syscalls.json")
 add_tracer("wntdll" "${monitor_dir}/syscallswow64.json" "-w")
 add_tracer("nt"     "${monitor_dir}/heaps.json")
 
-# fdp_exec
-set(fdp_exec_dir "${root_dir}/src/fdp_exec")
-add_target(fdp_exec apps ${fdp_exec_dir} OPTIONS executable fmt recurse tidy)
-set_target_output_directory(fdp_exec "")
-target_include_directories(fdp_exec PRIVATE
-    "${fdp_exec_dir}"
+# icebox
+set(icebox_dir "${root_dir}/src/icebox")
+add_target(icebox libs ${icebox_dir} OPTIONS fmt recurse tidy)
+target_include_directories(icebox
+    PUBLIC
+    "${icebox_dir}"
+    PRIVATE
     "${root_dir}/deps/expected-lite/include"
     "${root_dir}/deps/nlohmann_json/include"
 )
-target_compile_definitions(fdp_exec PRIVATE
+target_compile_definitions(icebox PRIVATE
     _CRT_SECURE_NO_WARNINGS
     _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 )
-target_link_libraries(fdp_exec PRIVATE
-    fdp_static
+target_link_libraries(icebox PRIVATE
     loguru
     pdbparser
+    PUBLIC
+    fdp_static
+    fmtlib
 )
 if(NOT WIN32)
-    target_link_libraries(fdp_exec PRIVATE
+    target_link_libraries(icebox PRIVATE
         rt
         dl
     )
-    target_link_libraries(fdp_exec PUBLIC stdc++fs)
+    target_link_libraries(icebox PUBLIC stdc++fs)
 endif()
-set_property(TARGET fdp_exec PROPERTY CXX_STANDARD 17)
+set_property(TARGET icebox PROPERTY CXX_STANDARD 17)
+
+# icebox_cmd
+add_target(icebox_cmd apps "${root_dir}/src/icebox_cmd" OPTIONS executable fmt tidy)
+set_target_output_directory(icebox_cmd "")
+set_target_output_name(icebox_cmd icebox icebox_d)
+target_link_libraries(icebox_cmd PRIVATE icebox)
 
 if(WIN32)
     # winbagility
