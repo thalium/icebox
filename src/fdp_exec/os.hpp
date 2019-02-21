@@ -26,7 +26,7 @@ namespace os
         using on_driver_fn = fn::view<walk_e(driver_t)>;
 
         using on_proc_event_fn   = fn::view<void(proc_t, proc_t)>;
-        using on_thread_event_fn = fn::view<void(thread_t)>;
+        using on_thread_event_fn = fn::view<void(proc_t, thread_t)>;
         using on_mod_event_fn    = fn::view<void(mod_t)>;
 
         virtual bool    is_kernel   (uint64_t ptr) = 0;
@@ -47,11 +47,13 @@ namespace os
         virtual bool                proc_listen_create  (const on_proc_event_fn& on_proc_event) = 0;
         virtual bool                proc_listen_delete  (const on_proc_event_fn& on_proc_event) = 0;
 
-        virtual bool            thread_list     (proc_t proc, const on_thread_fn& on_thread) = 0;
-        virtual opt<thread_t>   thread_current  () = 0;
-        virtual opt<proc_t>     thread_proc     (thread_t thread) = 0;
-        virtual opt<uint64_t>   thread_pc       (proc_t proc, thread_t thread) = 0;
-        virtual uint64_t        thread_id       (proc_t proc, thread_t thread) = 0;
+        virtual bool            thread_list         (proc_t proc, const on_thread_fn& on_thread) = 0;
+        virtual opt<thread_t>   thread_current      () = 0;
+        virtual opt<proc_t>     thread_proc         (thread_t thread) = 0;
+        virtual opt<uint64_t>   thread_pc           (proc_t proc, thread_t thread) = 0;
+        virtual uint64_t        thread_id           (proc_t proc, thread_t thread) = 0;
+        virtual bool            thread_listen_create(const on_thread_event_fn& on_thread_event) = 0;
+        virtual bool            thread_listen_delete(const on_thread_event_fn& on_thread_event) = 0;
 
         virtual bool                mod_list(proc_t proc, const on_mod_fn& on_mod) = 0;
         virtual opt<std::string>    mod_name(proc_t proc, mod_t mod) = 0;

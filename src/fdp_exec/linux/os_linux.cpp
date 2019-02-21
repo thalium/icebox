@@ -53,11 +53,13 @@ namespace
         bool                proc_listen_create  (const on_proc_event_fn& on_proc_event) override;
         bool                proc_listen_delete  (const on_proc_event_fn& on_proc_event) override;
 
-        bool            thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
-        opt<thread_t>   thread_current  () override;
-        opt<proc_t>     thread_proc     (thread_t thread) override;
-        opt<uint64_t>   thread_pc       (proc_t proc, thread_t thread) override;
-        uint64_t        thread_id       (proc_t proc, thread_t thread) override;
+        bool            thread_list         (proc_t proc, const on_thread_fn& on_thread) override;
+        opt<thread_t>   thread_current      () override;
+        opt<proc_t>     thread_proc         (thread_t thread) override;
+        opt<uint64_t>   thread_pc           (proc_t proc, thread_t thread) override;
+        uint64_t        thread_id           (proc_t proc, thread_t thread) override;
+        bool            thread_listen_create(const on_thread_event_fn& on_create) override;
+        bool            thread_listen_delete(const on_thread_event_fn& on_remove) override;
 
         bool                mod_list(proc_t proc, const on_mod_fn& on_module) override;
         opt<std::string>    mod_name(proc_t proc, mod_t mod) override;
@@ -234,6 +236,16 @@ bool OsLinux::proc_listen_create(const on_proc_event_fn& /*on_create*/)
 }
 
 bool OsLinux::proc_listen_delete(const on_proc_event_fn& /*on_remove*/)
+{
+    return true;
+}
+
+bool OsLinux::thread_listen_create(const on_thread_event_fn& /*on_create*/)
+{
+    return true;
+}
+
+bool OsLinux::thread_listen_delete(const on_thread_event_fn& /*on_remove*/)
 {
     return true;
 }

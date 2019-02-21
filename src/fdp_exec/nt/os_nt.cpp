@@ -171,6 +171,8 @@ namespace
         PsLoadedModuleList,
         PspCreateProcessNotifyRoutine,
         PspCreateProcessNotifyRoutineCount,
+        PspCreateThreadNotifyRoutine,
+        PspCreateThreadNotifyRoutineCount,
         SYMBOL_OFFSET_COUNT,
     };
 
@@ -191,6 +193,8 @@ namespace
         {cat_e::REQUIRED, PsLoadedModuleList,                  "nt", "PsLoadedModuleList"},
         {cat_e::REQUIRED, PspCreateProcessNotifyRoutine,       "nt", "PspCreateProcessNotifyRoutine"},
         {cat_e::REQUIRED, PspCreateProcessNotifyRoutineCount , "nt", "PspCreateProcessNotifyRoutineCount"},
+        {cat_e::REQUIRED, PspCreateThreadNotifyRoutine,       "nt", "PspCreateThreadNotifyRoutine"},
+        {cat_e::REQUIRED, PspCreateThreadNotifyRoutineCount , "nt", "PspCreateThreadNotifyRoutineCount"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbol_offsets) == SYMBOL_OFFSET_COUNT, "invalid symbols");
@@ -225,11 +229,13 @@ namespace
         bool                proc_listen_create  (const on_proc_event_fn& on_proc_event) override;
         bool                proc_listen_delete  (const on_proc_event_fn& on_proc_event) override;
 
-        bool            thread_list     (proc_t proc, const on_thread_fn& on_thread) override;
-        opt<thread_t>   thread_current  () override;
-        opt<proc_t>     thread_proc     (thread_t thread) override;
-        opt<uint64_t>   thread_pc       (proc_t proc, thread_t thread) override;
-        uint64_t        thread_id       (proc_t proc, thread_t thread) override;
+        bool            thread_list         (proc_t proc, const on_thread_fn& on_thread) override;
+        opt<thread_t>   thread_current      () override;
+        opt<proc_t>     thread_proc         (thread_t thread) override;
+        opt<uint64_t>   thread_pc           (proc_t proc, thread_t thread) override;
+        uint64_t        thread_id           (proc_t proc, thread_t thread) override;
+        bool            thread_listen_create(const on_thread_event_fn& on_thread_event);
+        bool            thread_listen_delete(const on_thread_event_fn& on_thread_event);
 
         bool                mod_list(proc_t proc, const on_mod_fn& on_module) override;
         opt<std::string>    mod_name(proc_t proc, mod_t mod) override;
@@ -251,12 +257,15 @@ namespace
         uint64_t       kpcr_;
         reader::Reader reader_;
 
-        using Breakpoints  = std::vector<core::Breakpoint>;
-        using ObsProcEvent = std::vector<OsNt::on_proc_event_fn>;
+        using Breakpoints    = std::vector<core::Breakpoint>;
+        using ObsProcEvent   = std::vector<on_proc_event_fn>;
+        using ObsThreadEvent = std::vector<on_thread_event_fn>;
 
-        Breakpoints  breakpoints_;
-        ObsProcEvent observers_proc_create_;
-        ObsProcEvent observers_proc_remove_;
+        Breakpoints    breakpoints_;
+        ObsProcEvent   observers_proc_create_;
+        ObsProcEvent   observers_proc_remove_;
+        ObsThreadEvent observers_thread_create_;
+        ObsThreadEvent observers_thread_remove_;
     };
 }
 
@@ -597,54 +606,69 @@ namespace
         return reader.read(ex_callback_routine_block + offsetof(_EX_CALLBACK_ROUTINE_BLOCK, Function));
     }
 
-    static bool register_callback_notifyroutine(core::Core& core, OsNt::Breakpoints& breakpoints, OsNt::ObsProcEvent& observers_proc_create, OsNt::ObsProcEvent& observers_proc_remove,
-                                                uint64_t routine_addr, uint64_t count_addr, void (*callback)(core::Core&, OsNt::ObsProcEvent&, OsNt::ObsProcEvent&))
+    static bool register_callback_notifyroutine(OsNt& os, uint64_t routine_addr, uint64_t count_addr, void (*callback)(OsNt&))
     {
-        const auto addr = get_pspnotifyroutine_address(core, routine_addr, count_addr);
+        const auto addr = get_pspnotifyroutine_address(os.core_, routine_addr, count_addr);
         if(!addr)
             FAIL(nullptr, "unable to find routine address");
 
-        const auto coreptr                  = &core;
-        const auto observers_proc_createptr = &observers_proc_create;
-        const auto observers_proc_removeptr = &observers_proc_remove;
-        const auto bp                       = core.state.set_breakpoint(*addr, [=]()
+        const auto osptr = &os;
+        const auto bp    = os.core_.state.set_breakpoint(*addr, [=]()
         {
-            callback(*coreptr, *observers_proc_createptr, *observers_proc_removeptr);
+            callback(*osptr);
         });
         if(!bp)
             return false;
 
-        breakpoints.emplace_back(bp);
+        os.breakpoints_.emplace_back(bp);
         return true;
     }
 
-    void proc_on_event(core::Core& core, OsNt::ObsProcEvent& observers_proc_create, OsNt::ObsProcEvent& observers_proc_remove)
+    void proc_on_event(OsNt& os)
     {
-        const auto proc_parent_id = core.regs.read(FDP_RCX_REGISTER);
-        const auto proc_id        = core.regs.read(FDP_RDX_REGISTER);
-        const auto created        = !!(core.regs.read(FDP_R8_REGISTER)); // boolean
+        const auto parent_pid = os.core_.regs.read(FDP_RCX_REGISTER);
+        const auto pid        = os.core_.regs.read(FDP_RDX_REGISTER);
+        const auto created    = !!(os.core_.regs.read(FDP_R8_REGISTER)); // boolean
 
-        const auto proc_parent = core.os->proc_find(proc_parent_id);
+        const auto proc_parent = os.proc_find(parent_pid);
         if(!proc_parent)
             return;
 
-        const auto proc = core.os->proc_find(proc_id);
+        const auto proc = os.proc_find(pid);
         if(!proc)
             return;
 
         if(created)
-            for(const auto& it : observers_proc_create)
+            for(const auto& it : os.observers_proc_create_)
                 it(*proc_parent, *proc);
         else
-            for(const auto& it : observers_proc_remove)
+            for(const auto& it : os.observers_proc_remove_)
                 it(*proc_parent, *proc);
+    }
+
+    void thread_on_event(OsNt& os)
+    {
+        const auto pid     = os.core_.regs.read(FDP_RCX_REGISTER);
+        const auto tid     = os.core_.regs.read(FDP_RDX_REGISTER);
+        const auto created = !!(os.core_.regs.read(FDP_R8_REGISTER)); // boolean
+
+        const auto proc = os.proc_find(pid);
+        if(!proc)
+            return;
+
+        if(created)
+            for(const auto& it : os.observers_thread_create_)
+                it(*proc, {tid});
+        else
+            for(const auto& it : os.observers_thread_remove_)
+                it(*proc, {tid});
     }
 }
 
 bool OsNt::proc_listen_create(const on_proc_event_fn& on_create)
 {
     if(observers_proc_create_.empty() && observers_proc_remove_.empty())
-        if(!register_callback_notifyroutine(core_, breakpoints_, observers_proc_create_, observers_proc_remove_, symbols_[PspCreateProcessNotifyRoutine], symbols_[PspCreateProcessNotifyRoutine], &proc_on_event))
+        if(!register_callback_notifyroutine(*this, symbols_[PspCreateProcessNotifyRoutine], symbols_[PspCreateProcessNotifyRoutine], &proc_on_event))
             return false;
 
     observers_proc_create_.push_back(on_create);
@@ -654,10 +678,30 @@ bool OsNt::proc_listen_create(const on_proc_event_fn& on_create)
 bool OsNt::proc_listen_delete(const on_proc_event_fn& on_remove)
 {
     if(observers_proc_create_.empty() && observers_proc_remove_.empty())
-        if(!register_callback_notifyroutine(core_, breakpoints_, observers_proc_create_, observers_proc_remove_, symbols_[PspCreateProcessNotifyRoutine], symbols_[PspCreateProcessNotifyRoutine], &proc_on_event))
+        if(!register_callback_notifyroutine(*this, symbols_[PspCreateProcessNotifyRoutine], symbols_[PspCreateProcessNotifyRoutine], &proc_on_event))
             return false;
 
     observers_proc_remove_.push_back(on_remove);
+    return true;
+}
+
+bool OsNt::thread_listen_create(const on_thread_event_fn& on_create)
+{
+    if(observers_thread_create_.empty() && observers_thread_remove_.empty())
+        if(!register_callback_notifyroutine(*this, symbols_[PspCreateThreadNotifyRoutine], symbols_[PspCreateThreadNotifyRoutine], &thread_on_event))
+            return false;
+
+    observers_thread_create_.push_back(on_create);
+    return true;
+}
+
+bool OsNt::thread_listen_delete(const on_thread_event_fn& on_remove)
+{
+    if(observers_thread_create_.empty() && observers_thread_remove_.empty())
+        if(!register_callback_notifyroutine(*this, symbols_[PspCreateThreadNotifyRoutine], symbols_[PspCreateThreadNotifyRoutine], &thread_on_event))
+            return false;
+
+    observers_thread_remove_.push_back(on_remove);
     return true;
 }
 
