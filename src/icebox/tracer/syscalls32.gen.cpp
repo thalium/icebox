@@ -5786,12 +5786,15 @@ namespace
     {
         const auto WorkerFactoryHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto MiniPacket          = arg<nt32::PFILE_IO_COMPLETION_INFORMATION>(d.core, 1);
+        const auto ArgNameUnknown1     = arg<nt32::PVOID>(d.core, 2);
+        const auto ArgNameUnknown2     = arg<nt32::PVOID>(d.core, 3);
+        const auto ArgNameUnknown3     = arg<nt32::PVOID>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWaitForWorkViaWorkerFactory(WorkerFactoryHandle:{:#x}, MiniPacket:{:#x})", WorkerFactoryHandle, MiniPacket));
+            logg::print(logg::level_t::info, fmt::format("NtWaitForWorkViaWorkerFactory(WorkerFactoryHandle:{:#x}, MiniPacket:{:#x}, ArgNameUnknown1:{:#x}, ArgNameUnknown2:{:#x}, ArgNameUnknown3:{:#x})", WorkerFactoryHandle, MiniPacket, ArgNameUnknown1, ArgNameUnknown2, ArgNameUnknown3));
 
         for(const auto& it : d.observers_NtWaitForWorkViaWorkerFactory)
-            it(WorkerFactoryHandle, MiniPacket);
+            it(WorkerFactoryHandle, MiniPacket, ArgNameUnknown1, ArgNameUnknown2, ArgNameUnknown3);
     }
 
     static void on_ZwWaitHighEventPair(tracer::syscalls32::Data& d)
@@ -9800,7 +9803,7 @@ bool tracer::syscalls32::register_ZwWaitForSingleObject(proc_t proc, const on_Zw
 bool tracer::syscalls32::register_NtWaitForWorkViaWorkerFactory(proc_t proc, const on_NtWaitForWorkViaWorkerFactory_fn& on_func)
 {
     if(d_->observers_NtWaitForWorkViaWorkerFactory.empty())
-        if(!register_callback_with(*d_, proc, "_NtWaitForWorkViaWorkerFactory@8", &on_NtWaitForWorkViaWorkerFactory))
+        if(!register_callback_with(*d_, proc, "_NtWaitForWorkViaWorkerFactory@20", &on_NtWaitForWorkViaWorkerFactory))
             return false;
 
     d_->observers_NtWaitForWorkViaWorkerFactory.push_back(on_func);
@@ -10398,7 +10401,7 @@ namespace
       "_NtWaitForMultipleObjects32@20",
       "_NtWaitForMultipleObjects@20",
       "_ZwWaitForSingleObject@12",
-      "_NtWaitForWorkViaWorkerFactory@8",
+      "_NtWaitForWorkViaWorkerFactory@20",
       "_ZwWaitHighEventPair@4",
       "_NtWaitLowEventPair@4",
       "_NtWorkerFactoryWorkerReady@4",

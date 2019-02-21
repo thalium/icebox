@@ -386,7 +386,7 @@ namespace tracer
     using on_NtWaitForMultipleObjects32_fn                         = std::function<nt32::NTSTATUS(nt32::ULONG, nt32::LONG, nt32::WAIT_TYPE, nt32::BOOLEAN, nt32::PLARGE_INTEGER)>;
     using on_NtWaitForMultipleObjects_fn                           = std::function<nt32::NTSTATUS(nt32::ULONG, nt32::HANDLE, nt32::WAIT_TYPE, nt32::BOOLEAN, nt32::PLARGE_INTEGER)>;
     using on_ZwWaitForSingleObject_fn                              = std::function<nt32::NTSTATUS(nt32::HANDLE, nt32::BOOLEAN, nt32::PLARGE_INTEGER)>;
-    using on_NtWaitForWorkViaWorkerFactory_fn                      = std::function<nt32::NTSTATUS(nt32::HANDLE, nt32::PFILE_IO_COMPLETION_INFORMATION)>;
+    using on_NtWaitForWorkViaWorkerFactory_fn                      = std::function<nt32::NTSTATUS(nt32::HANDLE, nt32::PFILE_IO_COMPLETION_INFORMATION, nt32::PVOID, nt32::PVOID, nt32::PVOID)>;
     using on_ZwWaitHighEventPair_fn                                = std::function<nt32::NTSTATUS(nt32::HANDLE)>;
     using on_NtWaitLowEventPair_fn                                 = std::function<nt32::NTSTATUS(nt32::HANDLE)>;
     using on_NtWorkerFactoryWorkerReady_fn                         = std::function<nt32::NTSTATUS(nt32::HANDLE)>;
