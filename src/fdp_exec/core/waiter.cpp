@@ -34,64 +34,32 @@ core::Waiter::~Waiter() = default;
 
 namespace
 {
-    static bool search_mod(WaiterData& d, proc_t proc, const std::string& mod_name, bool wow64, const core::Waiter::task_mod& task)
+    static bool search_mod(WaiterData& d, proc_t proc, const std::string& mod_name, const core::Waiter::task_mod& task)
     {
         opt<mod_t> found = {};
-        if(wow64)
+
+        d.core.os->mod_list(proc, [&](mod_t mod)
         {
-            d.core.os->mod_list32(proc, [&](mod_t mod)
-            {
-                const auto name = d.core.os->mod_name32(proc, mod);
-                if(!name)
-                    return WALK_NEXT;
+            const auto name = d.core.os->mod_name(proc, mod);
+            if(!name)
+                return WALK_NEXT;
 
-                const auto span = d.core.os->mod_span32(proc, mod);
-                if(!span)
-                    return WALK_NEXT;
+            if(_stricmp(path::filename(*name).generic_string().data(), mod_name.data()))
+                return WALK_NEXT;
 
-                if(span->addr > 0x100000000)
-                    return WALK_NEXT;
-
-                if(_stricmp(path::filename(*name).generic_string().data(), mod_name.data()))
-                    return WALK_NEXT;
-
-                found = mod;
-                return WALK_STOP;
-            });
-        }
-        else
-        {
-            d.core.os->mod_list(proc, [&](mod_t mod)
-            {
-                const auto name = d.core.os->mod_name(proc, mod);
-                if(!name)
-                    return WALK_NEXT;
-
-                if(_stricmp(path::filename(*name).generic_string().data(), mod_name.data()))
-                    return WALK_NEXT;
-
-                found = mod;
-                return WALK_STOP;
-            });
-        }
+            found = mod;
+            return WALK_STOP;
+        });
 
         if(!found)
             return false;
 
-        opt<std::string> name;
-        opt<span_t>      span;
-        if(wow64)
-        {
-            name = d.core.os->mod_name32(proc, *found);
-            span = d.core.os->mod_span32(proc, *found);
-        }
-        else
-        {
-            name = d.core.os->mod_name(proc, *found);
-            span = d.core.os->mod_span(proc, *found);
-        }
+        const auto name = d.core.os->mod_name(proc, *found);
+        if(!name)
+            return false;
 
-        if(!span || !name)
+        const auto span = d.core.os->mod_span(proc, *found);
+        if(!span)
             return false;
 
         task(proc, *name, *span);
@@ -142,12 +110,12 @@ void core::Waiter::proc_wait(const std::string& proc_name, const core::Waiter::t
     });
 }
 
-void core::Waiter::mod_wait(const std::string& mod_name, bool wow64, const core::Waiter::task_mod& task)
+void core::Waiter::mod_wait(const std::string& mod_name, const core::Waiter::task_mod& task)
 {
     auto ok = false;
     d_->core.os->proc_list([&](proc_t proc)
     {
-        ok = search_mod(*d_, proc, mod_name, wow64, task);
+        ok = search_mod(*d_, proc, mod_name, task);
         if(ok)
             return WALK_STOP;
 
@@ -162,10 +130,6 @@ void core::Waiter::mod_wait(const std::string& mod_name, bool wow64, const core:
 
     d_->observers_mod_wait_.push_back([=](proc_t proc_loading, const std::string& name, span_t span)
     {
-        if(wow64)
-            if(span.addr > 0x100000000)
-                return;
-
         if(_stricmp(path::filename(name).generic_string().data(), mod_name.data()))
             return;
 
@@ -173,9 +137,9 @@ void core::Waiter::mod_wait(const std::string& mod_name, bool wow64, const core:
     });
 }
 
-void core::Waiter::mod_wait(proc_t proc, const std::string& mod_name, bool wow64, const core::Waiter::task_mod& task)
+void core::Waiter::mod_wait(proc_t proc, const std::string& mod_name, const core::Waiter::task_mod& task)
 {
-    if(search_mod(*d_, proc, mod_name, wow64, task))
+    if(search_mod(*d_, proc, mod_name, task))
         return;
 
     if(d_->observers_mod_wait_.empty())
@@ -186,10 +150,6 @@ void core::Waiter::mod_wait(proc_t proc, const std::string& mod_name, bool wow64
         if(proc_loading.id != proc.id)
             return;
 
-        if(wow64)
-            if(span.addr > 0x100000000)
-                return;
-
         if(_stricmp(path::filename(name).generic_string().data(), mod_name.data()))
             return;
 
@@ -197,10 +157,10 @@ void core::Waiter::mod_wait(proc_t proc, const std::string& mod_name, bool wow64
     });
 }
 
-void core::Waiter::mod_wait(const std::string& proc_name, const std::string& mod_name, bool wow64, const core::Waiter::task_mod& task)
+void core::Waiter::mod_wait(const std::string& proc_name, const std::string& mod_name, const core::Waiter::task_mod& task)
 {
     proc_wait(proc_name, [=](proc_t proc)
     {
-        mod_wait(proc, mod_name, wow64, task);
+        mod_wait(proc, mod_name, task);
     });
 }
