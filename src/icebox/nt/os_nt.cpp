@@ -66,7 +66,7 @@ namespace
         OPTIONAL,
     };
 
-    enum nt_e
+    enum offset_e
     {
         CLIENT_ID_UniqueThread,
         EPROCESS_ActiveProcessLinks,
@@ -108,19 +108,19 @@ namespace
         SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,
         EWOW64PROCESS_Peb,
         EWOW64PROCESS_NtdllType,
-        NT_COUNT,
+        OFFSET_COUNT,
     };
 
     struct NtOffset
     {
         cat_e      e_cat;
-        nt_e       e_id;
+        offset_e   e_id;
         const char module[16];
         const char struc[32];
         const char member[32];
     };
     // clang-format off
-    const NtOffset g_nt_offsets[] =
+    const NtOffset g_offsets[] =
     {
         {cat_e::REQUIRED,   CLIENT_ID_UniqueThread,                       "nt", "_CLIENT_ID",                       "UniqueThread"},
         {cat_e::REQUIRED,   EPROCESS_ActiveProcessLinks,                  "nt", "_EPROCESS",                        "ActiveProcessLinks"},
@@ -164,9 +164,9 @@ namespace
         {cat_e::OPTIONAL,   EWOW64PROCESS_NtdllType,                      "nt", "_EWOW64PROCESS",                   "NtdllType"},
     };
     // clang-format on
-    STATIC_ASSERT_EQ(COUNT_OF(g_nt_offsets), NT_COUNT);
+    STATIC_ASSERT_EQ(COUNT_OF(g_offsets), OFFSET_COUNT);
 
-    enum symbol_offset_e
+    enum symbol_e
     {
         KiKernelSysretExit,
         KiSystemCall64,
@@ -177,18 +177,18 @@ namespace
         PspInsertThread,
         PspExitProcess,
         PspExitThread,
-        SYMBOL_OFFSET_COUNT,
+        SYMBOL_COUNT,
     };
 
-    struct SymbolOffset
+    struct NtSymbol
     {
-        cat_e           e_cat;
-        symbol_offset_e e_id;
-        const char      module[16];
-        const char      name[64];
+        cat_e      e_cat;
+        symbol_e   e_id;
+        const char module[16];
+        const char name[32];
     };
     // clang-format off
-    const SymbolOffset g_symbol_offsets[] =
+    const NtSymbol g_symbols[] =
     {
         {cat_e::OPTIONAL, KiKernelSysretExit,                  "nt", "KiKernelSysretExit"},
         {cat_e::REQUIRED, KiSystemCall64,                      "nt", "KiSystemCall64"},
@@ -201,10 +201,10 @@ namespace
         {cat_e::REQUIRED, PspExitThread,                       "nt", "PspExitThread"},
     };
     // clang-format on
-    static_assert(COUNT_OF(g_symbol_offsets) == SYMBOL_OFFSET_COUNT, "invalid symbols");
+    static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
 
-    using NtOffsets     = std::array<uint64_t, NT_COUNT>;
-    using SymbolOffsets = std::array<uint64_t, SYMBOL_OFFSET_COUNT>;
+    using NtOffsets = std::array<uint64_t, OFFSET_COUNT>;
+    using NtSymbols = std::array<uint64_t, SYMBOL_COUNT>;
 
     struct OsNt
         : public os::IModule
@@ -259,7 +259,7 @@ namespace
         // members
         core::Core&    core_;
         NtOffsets      offsets_;
-        SymbolOffsets  symbols_;
+        NtSymbols      symbols_;
         std::string    last_dump_;
         uint64_t       kpcr_;
         reader::Reader reader_;
@@ -325,38 +325,41 @@ bool OsNt::setup()
         FAIL(false, "unable to load symbols from kernel module");
 
     bool fail = false;
+    size_t i  = 0;
     memset(&symbols_[0], 0, sizeof symbols_);
-    for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
+    for(const auto& sym : g_symbols)
     {
-        const auto addr = core_.sym.symbol(g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+        fail |= sym.e_id != i;
+        const auto addr = core_.sym.symbol(sym.module, sym.name);
         if(!addr)
         {
-            fail |= g_symbol_offsets[i].e_cat == cat_e::REQUIRED;
-            if(g_symbol_offsets[i].e_cat == cat_e::REQUIRED)
-                LOG(ERROR, "unable to read {}!{} symbol offset", g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+            fail |= sym.e_cat == cat_e::REQUIRED;
+            if(sym.e_cat == cat_e::REQUIRED)
+                LOG(ERROR, "unable to read {}!{} symbol offset", sym.module, sym.name);
             else
-                LOG(WARNING, "unable to read {}!{} symbol offset", g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+                LOG(WARNING, "unable to read {}!{} symbol offset", sym.module, sym.name);
             continue;
         }
 
-        symbols_[i] = *addr;
+        symbols_[i++] = *addr;
     }
 
+    i = 0;
     memset(&offsets_[0], 0, sizeof offsets_);
-    for(size_t i = 0; i < NT_COUNT; ++i)
+    for(const auto& off : g_offsets)
     {
-        fail |= g_nt_offsets[i].e_id != i;
-        const auto offset = core_.sym.struc_offset(g_nt_offsets[i].module, g_nt_offsets[i].struc, g_nt_offsets[i].member);
+        fail |= off.e_id != i;
+        const auto offset = core_.sym.struc_offset(off.module, off.struc, off.member);
         if(!offset)
         {
-            fail |= g_nt_offsets[i].e_cat == cat_e::REQUIRED;
-            if(g_nt_offsets[i].e_cat == cat_e::REQUIRED)
-                LOG(ERROR, "unable to read {}!{}.{} member offset", g_nt_offsets[i].module, g_nt_offsets[i].struc, g_nt_offsets[i].member);
+            fail |= off.e_cat == cat_e::REQUIRED;
+            if(off.e_cat == cat_e::REQUIRED)
+                LOG(ERROR, "unable to read {}!{}.{} member offset", off.module, off.struc, off.member);
             else
-                LOG(WARNING, "unable to read {}!{}.{} member offset", g_nt_offsets[i].module, g_nt_offsets[i].struc, g_nt_offsets[i].member);
+                LOG(WARNING, "unable to read {}!{}.{} member offset", off.module, off.struc, off.member);
             continue;
         }
-        offsets_[i] = *offset;
+        offsets_[i++] = *offset;
     }
     if(fail)
         return false;
