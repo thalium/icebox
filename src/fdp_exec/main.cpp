@@ -36,47 +36,58 @@ namespace
         syscall_plugin.generate("output.json");
     }
 
-    void test_wait_and_trace(core::Core& core, const std::string& proc_target, const std::string& mod_target)
+    void test_wait_and_trace(core::Core& core, const std::string& proc_target)
     {
         LOG(INFO, "searching {}", proc_target);
         auto waiter = core::Waiter(core);
-        syscall_tracer::SyscallPlugin syscall_plugin(core);
-        proc_t target;
-        bool once = false;
-        waiter.mod_wait(proc_target, mod_target, [&](proc_t proc, const std::string& name, span_t span)
+        syscall_tracer::SyscallPluginWow64 syscall_plugin(core);
+        opt<proc_t> target = {};
+        bool once          = false;
+        waiter.mod_wait(proc_target, "ntdll.dll", [&](proc_t proc, const std::string& name, span_t span)
         {
             LOG(INFO, "PROC FOUND that loaded : {} at {:#x} size {:#x}", name.data(), span.addr, span.size);
             target = proc;
+
+            // We want wntdll here
+            if(span.addr > 0x100000000)
+                return;
 
             if(once)
                 return;
 
             once = true;
-            core.os->proc_join(target, os::JOIN_USER_MODE);
+            core.os->proc_join(proc, os::JOIN_ANY_MODE);
+            core.os->proc_join(*target, os::JOIN_USER_MODE);
 
-            const auto reader = reader::make(core, target);
+            // Load wntdll pdb
+            const auto reader = reader::make(core, *target);
             const auto debug  = pe::find_debug_codeview(reader, span);
             if(!debug)
                 return;
 
             std::vector<uint8_t> buffer;
             buffer.resize(debug->size);
-            const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
+            auto ok = reader.read(&buffer[0], debug->addr, debug->size);
             if(!ok)
                 return;
 
-            const auto filename = path::filename(name).replace_extension("").generic_string();
-            const auto inserted = core.sym.insert(filename.data(), span, &buffer[0], buffer.size());
+            const auto inserted = core.sym.insert("wntdll", span, &buffer[0], buffer.size());
             if(!inserted)
                 return;
 
-            syscall_plugin.setup(target);
+            ok = syscall_plugin.setup(*target);
+            if(!ok)
+                return;
+
+            LOG(INFO, "Every thing is ready ! Please trigger some syscalls");
         });
 
-        for(size_t i = 0; i < 300; ++i)
+        for(size_t i = 0; i < 3000; ++i)
         {
             core.state.resume();
             core.state.wait();
+            if(i % 200 == 0)
+                LOG(INFO, "{}", i);
         }
 
         syscall_plugin.generate("output.json");
@@ -230,7 +241,7 @@ namespace
             }
         }
 
-        test_wait_and_trace(core, "notepad.exe", "ntdll.dll");
+        test_wait_and_trace(core, "notepad.exe");
 
         // test syscall plugin
         {
