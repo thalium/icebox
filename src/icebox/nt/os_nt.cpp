@@ -323,11 +323,11 @@ bool OsNt::setup()
         return FAIL(false, "unable to load symbols from kernel module");
 
     bool fail = false;
-    size_t i  = 0;
+    int i     = -1;
     memset(&symbols_[0], 0, sizeof symbols_);
     for(const auto& sym : g_symbols)
     {
-        fail |= sym.e_id != i;
+        fail |= sym.e_id != ++i;
         const auto addr = core_.sym.symbol(sym.module, sym.name);
         if(!addr)
         {
@@ -339,14 +339,14 @@ bool OsNt::setup()
             continue;
         }
 
-        symbols_[i++] = *addr;
+        symbols_[i] = *addr;
     }
 
-    i = 0;
+    i = -1;
     memset(&offsets_[0], 0, sizeof offsets_);
     for(const auto& off : g_offsets)
     {
-        fail |= off.e_id != i;
+        fail |= off.e_id != ++i;
         const auto offset = core_.sym.struc_offset(off.module, off.struc, off.member);
         if(!offset)
         {
@@ -357,7 +357,7 @@ bool OsNt::setup()
                 LOG(WARNING, "unable to read {}!{}.{} member offset", off.module, off.struc, off.member);
             continue;
         }
-        offsets_[i++] = *offset;
+        offsets_[i] = *offset;
     }
     if(fail)
         return false;
