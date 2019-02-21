@@ -35,7 +35,7 @@ def generate_header(json_data, filename, namespace, pad):
 
 #include <functional>
 
-namespace monitor
+namespace tracer
 {{
 {usings}
 
@@ -53,7 +53,7 @@ namespace monitor
         struct Data;
         std::unique_ptr<Data> d_;
     }};
-}} // namespace monitor
+}} // namespace tracer
 """.format(filename=filename, namespace=namespace,
         usings=generate_usings(json_data, namespace, pad),
         registers=generate_registers(json_data, pad))
@@ -85,7 +85,7 @@ def generate_dispatchers(json_data, filename, namespace):
     for target, (return_type, (args)) in json_data.items():
         # print prologue
         dispatchers += """
-    static void on_{target}(monitor::{filename}::Data& d)
+    static void on_{target}(tracer::{filename}::Data& d)
     {{""".format(filename=filename, target=target)
 
         # print args
@@ -122,7 +122,7 @@ def generate_definitions(json_data, filename, wow64):
         symbol_name = target if not wow64 else "_{target}@{size}".format(target=target, size=len(args)*4)
         # print prologue
         definitions += """
-bool monitor::{filename}::register_{target}(proc_t proc, const on_{target}_fn& on_func)
+bool tracer::{filename}::register_{target}(proc_t proc, const on_{target}_fn& on_func)
 {{
     if(d_->observers_{target}.empty())
         if(!register_callback_with(*d_, proc, "{symbol_name}", &on_{target}))
@@ -154,7 +154,7 @@ namespace
 	constexpr bool g_debug = false;
 }}
 
-struct monitor::{filename}::Data
+struct tracer::{filename}::Data
 {{
     Data(core::Core& core, std::string module);
 
@@ -166,24 +166,24 @@ struct monitor::{filename}::Data
 {observers}
 }};
 
-monitor::{filename}::Data::Data(core::Core& core, std::string module)
+tracer::{filename}::Data::Data(core::Core& core, std::string module)
     : core(core)
     , module(std::move(module))
 {{
 }}
 
-monitor::{filename}::{filename}(core::Core& core, std::string module)
+tracer::{filename}::{filename}(core::Core& core, std::string module)
     : d_(std::make_unique<Data>(core, std::move(module)))
 {{
 }}
 
-monitor::{filename}::~{filename}() = default;
+tracer::{filename}::~{filename}() = default;
 
 namespace
 {{
-    using Data = monitor::{filename}::Data;
+    using Data = tracer::{filename}::Data;
 
-    static core::Breakpoint register_callback(Data& d, proc_t proc, const char* name, const monitor::{filename}::on_call_fn& on_call)
+    static core::Breakpoint register_callback(Data& d, proc_t proc, const char* name, const tracer::{filename}::on_call_fn& on_call)
     {{
         const auto addr = d.core.sym.symbol(d.module, name);
         if(!addr)
@@ -227,7 +227,7 @@ namespace
     }};
 }}
 
-bool monitor::{filename}::register_all(proc_t proc, const monitor::{filename}::on_call_fn& on_call)
+bool tracer::{filename}::register_all(proc_t proc, const tracer::{filename}::on_call_fn& on_call)
 {{
     Data::Breakpoints breakpoints;
     for(const auto it : g_names)

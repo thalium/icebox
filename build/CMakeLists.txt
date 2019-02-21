@@ -98,26 +98,26 @@ target_include_directories(pdbparser PUBLIC
 )
 
 # tracer code generator
-set(monitor_dir "${root_dir}/src/icebox/monitor")
+set(tracer_dir "${root_dir}/src/icebox/tracer")
 function(add_tracer namespace input_file)
     find_package(PythonInterp 3.6 QUIET REQUIRED)
     get_filename_component(directory ${input_file} DIRECTORY)
     get_filename_component(filename ${input_file} NAME_WE)
     add_custom_command(
         COMMAND ${PYTHON_EXECUTABLE}
-            "${monitor_dir}/codegen.py" -n ${namespace} -i "${input_file}" ${ARGV2}
+            "${tracer_dir}/codegen.py" -n ${namespace} -i "${input_file}" ${ARGV2}
         OUTPUT
             "${directory}/${filename}.gen.hpp"
             "${directory}/${filename}.gen.cpp"
         DEPENDS
-            "${monitor_dir}/codegen.py"
+            "${tracer_dir}/codegen.py"
             ${input_file}
         COMMENT "generating ${filename}.gen.cpp"
     )
 endfunction()
-add_tracer("nt"   "${monitor_dir}/syscalls.json")
-add_tracer("nt32" "${monitor_dir}/syscalls32.json" "-w")
-add_tracer("nt"   "${monitor_dir}/heaps.json")
+add_tracer("nt"   "${tracer_dir}/syscalls.json")
+add_tracer("nt32" "${tracer_dir}/syscalls32.json" "-w")
+add_tracer("nt"   "${tracer_dir}/heaps.json")
 
 # icebox
 set(icebox_dir "${root_dir}/src/icebox")

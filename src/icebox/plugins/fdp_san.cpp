@@ -4,10 +4,10 @@
 #include "log.hpp"
 
 #include "callstack.hpp"
-#include "monitor/heaps.gen.hpp"
 #include "nt/nt_types.hpp"
 #include "os.hpp"
 #include "reader.hpp"
+#include "tracer/heaps.gen.hpp"
 #include "utils/fnview.hpp"
 #include "utils/utils.hpp"
 
@@ -45,9 +45,9 @@ struct plugins::FdpSan::Data
 {
     Data(core::Core& core);
 
-    core::Core&    core_;
-    monitor::heaps heaps_;
-    Callstack      callstack_;
+    core::Core&   core_;
+    tracer::heaps heaps_;
+    Callstack     callstack_;
 
     std::unordered_set<uint64_t> threads_allocating;
     std::unordered_set<uint64_t> threads_rellocating;

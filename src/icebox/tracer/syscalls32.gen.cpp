@@ -9,7 +9,7 @@ namespace
 	constexpr bool g_debug = false;
 }
 
-struct monitor::syscalls32::Data
+struct tracer::syscalls32::Data
 {
     Data(core::Core& core, std::string module);
 
@@ -419,24 +419,24 @@ struct monitor::syscalls32::Data
     std::vector<on_ZwYieldExecution_fn>                                   observers_ZwYieldExecution;
 };
 
-monitor::syscalls32::Data::Data(core::Core& core, std::string module)
+tracer::syscalls32::Data::Data(core::Core& core, std::string module)
     : core(core)
     , module(std::move(module))
 {
 }
 
-monitor::syscalls32::syscalls32(core::Core& core, std::string module)
+tracer::syscalls32::syscalls32(core::Core& core, std::string module)
     : d_(std::make_unique<Data>(core, std::move(module)))
 {
 }
 
-monitor::syscalls32::~syscalls32() = default;
+tracer::syscalls32::~syscalls32() = default;
 
 namespace
 {
-    using Data = monitor::syscalls32::Data;
+    using Data = tracer::syscalls32::Data;
 
-    static core::Breakpoint register_callback(Data& d, proc_t proc, const char* name, const monitor::syscalls32::on_call_fn& on_call)
+    static core::Breakpoint register_callback(Data& d, proc_t proc, const char* name, const tracer::syscalls32::on_call_fn& on_call)
     {
         const auto addr = d.core.sym.symbol(d.module, name);
         if(!addr)
@@ -469,7 +469,7 @@ namespace
         return nt32::cast_to<T>(*arg);
     }
 
-    static void on_NtAcceptConnectPort(monitor::syscalls32::Data& d)
+    static void on_NtAcceptConnectPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle        = arg<nt32::PHANDLE>(d.core, 0);
         const auto PortContext       = arg<nt32::PVOID>(d.core, 1);
@@ -485,7 +485,7 @@ namespace
             it(PortHandle, PortContext, ConnectionRequest, AcceptConnection, ServerView, ClientView);
     }
 
-    static void on_ZwAccessCheckAndAuditAlarm(monitor::syscalls32::Data& d)
+    static void on_ZwAccessCheckAndAuditAlarm(tracer::syscalls32::Data& d)
     {
         const auto SubsystemName      = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto HandleId           = arg<nt32::PVOID>(d.core, 1);
@@ -506,7 +506,7 @@ namespace
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, DesiredAccess, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
-    static void on_NtAccessCheckByTypeAndAuditAlarm(monitor::syscalls32::Data& d)
+    static void on_NtAccessCheckByTypeAndAuditAlarm(tracer::syscalls32::Data& d)
     {
         const auto SubsystemName        = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto HandleId             = arg<nt32::PVOID>(d.core, 1);
@@ -532,7 +532,7 @@ namespace
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
-    static void on_NtAccessCheckByType(monitor::syscalls32::Data& d)
+    static void on_NtAccessCheckByType(tracer::syscalls32::Data& d)
     {
         const auto SecurityDescriptor   = arg<nt32::PSECURITY_DESCRIPTOR>(d.core, 0);
         const auto PrincipalSelfSid     = arg<nt32::PSID>(d.core, 1);
@@ -553,7 +553,7 @@ namespace
             it(SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
     }
 
-    static void on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle(monitor::syscalls32::Data& d)
+    static void on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle(tracer::syscalls32::Data& d)
     {
         const auto SubsystemName        = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto HandleId             = arg<nt32::PVOID>(d.core, 1);
@@ -580,7 +580,7 @@ namespace
             it(SubsystemName, HandleId, ClientToken, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
-    static void on_NtAccessCheckByTypeResultListAndAuditAlarm(monitor::syscalls32::Data& d)
+    static void on_NtAccessCheckByTypeResultListAndAuditAlarm(tracer::syscalls32::Data& d)
     {
         const auto SubsystemName        = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto HandleId             = arg<nt32::PVOID>(d.core, 1);
@@ -606,7 +606,7 @@ namespace
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
-    static void on_NtAccessCheckByTypeResultList(monitor::syscalls32::Data& d)
+    static void on_NtAccessCheckByTypeResultList(tracer::syscalls32::Data& d)
     {
         const auto SecurityDescriptor   = arg<nt32::PSECURITY_DESCRIPTOR>(d.core, 0);
         const auto PrincipalSelfSid     = arg<nt32::PSID>(d.core, 1);
@@ -627,7 +627,7 @@ namespace
             it(SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
     }
 
-    static void on_NtAccessCheck(monitor::syscalls32::Data& d)
+    static void on_NtAccessCheck(tracer::syscalls32::Data& d)
     {
         const auto SecurityDescriptor = arg<nt32::PSECURITY_DESCRIPTOR>(d.core, 0);
         const auto ClientToken        = arg<nt32::HANDLE>(d.core, 1);
@@ -645,7 +645,7 @@ namespace
             it(SecurityDescriptor, ClientToken, DesiredAccess, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
     }
 
-    static void on_NtAddAtom(monitor::syscalls32::Data& d)
+    static void on_NtAddAtom(tracer::syscalls32::Data& d)
     {
         const auto AtomName = arg<nt32::PWSTR>(d.core, 0);
         const auto Length   = arg<nt32::ULONG>(d.core, 1);
@@ -658,7 +658,7 @@ namespace
             it(AtomName, Length, Atom);
     }
 
-    static void on_ZwAddBootEntry(monitor::syscalls32::Data& d)
+    static void on_ZwAddBootEntry(tracer::syscalls32::Data& d)
     {
         const auto BootEntry = arg<nt32::PBOOT_ENTRY>(d.core, 0);
         const auto Id        = arg<nt32::PULONG>(d.core, 1);
@@ -670,7 +670,7 @@ namespace
             it(BootEntry, Id);
     }
 
-    static void on_NtAddDriverEntry(monitor::syscalls32::Data& d)
+    static void on_NtAddDriverEntry(tracer::syscalls32::Data& d)
     {
         const auto DriverEntry = arg<nt32::PEFI_DRIVER_ENTRY>(d.core, 0);
         const auto Id          = arg<nt32::PULONG>(d.core, 1);
@@ -682,7 +682,7 @@ namespace
             it(DriverEntry, Id);
     }
 
-    static void on_ZwAdjustGroupsToken(monitor::syscalls32::Data& d)
+    static void on_ZwAdjustGroupsToken(tracer::syscalls32::Data& d)
     {
         const auto TokenHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto ResetToDefault = arg<nt32::BOOLEAN>(d.core, 1);
@@ -698,7 +698,7 @@ namespace
             it(TokenHandle, ResetToDefault, NewState, BufferLength, PreviousState, ReturnLength);
     }
 
-    static void on_ZwAdjustPrivilegesToken(monitor::syscalls32::Data& d)
+    static void on_ZwAdjustPrivilegesToken(tracer::syscalls32::Data& d)
     {
         const auto TokenHandle          = arg<nt32::HANDLE>(d.core, 0);
         const auto DisableAllPrivileges = arg<nt32::BOOLEAN>(d.core, 1);
@@ -714,7 +714,7 @@ namespace
             it(TokenHandle, DisableAllPrivileges, NewState, BufferLength, PreviousState, ReturnLength);
     }
 
-    static void on_NtAlertResumeThread(monitor::syscalls32::Data& d)
+    static void on_NtAlertResumeThread(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle         = arg<nt32::HANDLE>(d.core, 0);
         const auto PreviousSuspendCount = arg<nt32::PULONG>(d.core, 1);
@@ -726,7 +726,7 @@ namespace
             it(ThreadHandle, PreviousSuspendCount);
     }
 
-    static void on_NtAlertThread(monitor::syscalls32::Data& d)
+    static void on_NtAlertThread(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -737,7 +737,7 @@ namespace
             it(ThreadHandle);
     }
 
-    static void on_ZwAllocateLocallyUniqueId(monitor::syscalls32::Data& d)
+    static void on_ZwAllocateLocallyUniqueId(tracer::syscalls32::Data& d)
     {
         const auto Luid = arg<nt32::PLUID>(d.core, 0);
 
@@ -748,7 +748,7 @@ namespace
             it(Luid);
     }
 
-    static void on_NtAllocateReserveObject(monitor::syscalls32::Data& d)
+    static void on_NtAllocateReserveObject(tracer::syscalls32::Data& d)
     {
         const auto MemoryReserveHandle = arg<nt32::PHANDLE>(d.core, 0);
         const auto ObjectAttributes    = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 1);
@@ -761,7 +761,7 @@ namespace
             it(MemoryReserveHandle, ObjectAttributes, Type);
     }
 
-    static void on_NtAllocateUserPhysicalPages(monitor::syscalls32::Data& d)
+    static void on_NtAllocateUserPhysicalPages(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto NumberOfPages = arg<nt32::PULONG_PTR>(d.core, 1);
@@ -774,7 +774,7 @@ namespace
             it(ProcessHandle, NumberOfPages, UserPfnArra);
     }
 
-    static void on_NtAllocateUuids(monitor::syscalls32::Data& d)
+    static void on_NtAllocateUuids(tracer::syscalls32::Data& d)
     {
         const auto Time     = arg<nt32::PULARGE_INTEGER>(d.core, 0);
         const auto Range    = arg<nt32::PULONG>(d.core, 1);
@@ -788,7 +788,7 @@ namespace
             it(Time, Range, Sequence, Seed);
     }
 
-    static void on_NtAllocateVirtualMemory(monitor::syscalls32::Data& d)
+    static void on_NtAllocateVirtualMemory(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle   = arg<nt32::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt32::PVOID>(d.core, 1);
@@ -804,7 +804,7 @@ namespace
             it(ProcessHandle, STARBaseAddress, ZeroBits, RegionSize, AllocationType, Protect);
     }
 
-    static void on_NtAlpcAcceptConnectPort(monitor::syscalls32::Data& d)
+    static void on_NtAlpcAcceptConnectPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle                  = arg<nt32::PHANDLE>(d.core, 0);
         const auto ConnectionPortHandle        = arg<nt32::HANDLE>(d.core, 1);
@@ -823,7 +823,7 @@ namespace
             it(PortHandle, ConnectionPortHandle, Flags, ObjectAttributes, PortAttributes, PortContext, ConnectionRequest, ConnectionMessageAttributes, AcceptConnection);
     }
 
-    static void on_ZwAlpcCancelMessage(monitor::syscalls32::Data& d)
+    static void on_ZwAlpcCancelMessage(tracer::syscalls32::Data& d)
     {
         const auto PortHandle     = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags          = arg<nt32::ULONG>(d.core, 1);
@@ -836,7 +836,7 @@ namespace
             it(PortHandle, Flags, MessageContext);
     }
 
-    static void on_ZwAlpcConnectPort(monitor::syscalls32::Data& d)
+    static void on_ZwAlpcConnectPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle           = arg<nt32::PHANDLE>(d.core, 0);
         const auto PortName             = arg<nt32::PUNICODE_STRING>(d.core, 1);
@@ -857,7 +857,7 @@ namespace
             it(PortHandle, PortName, ObjectAttributes, PortAttributes, Flags, RequiredServerSid, ConnectionMessage, BufferLength, OutMessageAttributes, InMessageAttributes, Timeout);
     }
 
-    static void on_ZwAlpcCreatePort(monitor::syscalls32::Data& d)
+    static void on_ZwAlpcCreatePort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle       = arg<nt32::PHANDLE>(d.core, 0);
         const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 1);
@@ -870,7 +870,7 @@ namespace
             it(PortHandle, ObjectAttributes, PortAttributes);
     }
 
-    static void on_NtAlpcCreatePortSection(monitor::syscalls32::Data& d)
+    static void on_NtAlpcCreatePortSection(tracer::syscalls32::Data& d)
     {
         const auto PortHandle        = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags             = arg<nt32::ULONG>(d.core, 1);
@@ -886,7 +886,7 @@ namespace
             it(PortHandle, Flags, SectionHandle, SectionSize, AlpcSectionHandle, ActualSectionSize);
     }
 
-    static void on_ZwAlpcCreateResourceReserve(monitor::syscalls32::Data& d)
+    static void on_ZwAlpcCreateResourceReserve(tracer::syscalls32::Data& d)
     {
         const auto PortHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags       = arg<nt32::ULONG>(d.core, 1);
@@ -900,7 +900,7 @@ namespace
             it(PortHandle, Flags, MessageSize, ResourceId);
     }
 
-    static void on_ZwAlpcCreateSectionView(monitor::syscalls32::Data& d)
+    static void on_ZwAlpcCreateSectionView(tracer::syscalls32::Data& d)
     {
         const auto PortHandle     = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags          = arg<nt32::ULONG>(d.core, 1);
@@ -913,7 +913,7 @@ namespace
             it(PortHandle, Flags, ViewAttributes);
     }
 
-    static void on_ZwAlpcCreateSecurityContext(monitor::syscalls32::Data& d)
+    static void on_ZwAlpcCreateSecurityContext(tracer::syscalls32::Data& d)
     {
         const auto PortHandle        = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags             = arg<nt32::ULONG>(d.core, 1);
@@ -926,7 +926,7 @@ namespace
             it(PortHandle, Flags, SecurityAttribute);
     }
 
-    static void on_ZwAlpcDeletePortSection(monitor::syscalls32::Data& d)
+    static void on_ZwAlpcDeletePortSection(tracer::syscalls32::Data& d)
     {
         const auto PortHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags         = arg<nt32::ULONG>(d.core, 1);
@@ -939,7 +939,7 @@ namespace
             it(PortHandle, Flags, SectionHandle);
     }
 
-    static void on_NtAlpcDeleteResourceReserve(monitor::syscalls32::Data& d)
+    static void on_NtAlpcDeleteResourceReserve(tracer::syscalls32::Data& d)
     {
         const auto PortHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags      = arg<nt32::ULONG>(d.core, 1);
@@ -952,7 +952,7 @@ namespace
             it(PortHandle, Flags, ResourceId);
     }
 
-    static void on_NtAlpcDeleteSectionView(monitor::syscalls32::Data& d)
+    static void on_NtAlpcDeleteSectionView(tracer::syscalls32::Data& d)
     {
         const auto PortHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags      = arg<nt32::ULONG>(d.core, 1);
@@ -965,7 +965,7 @@ namespace
             it(PortHandle, Flags, ViewBase);
     }
 
-    static void on_NtAlpcDeleteSecurityContext(monitor::syscalls32::Data& d)
+    static void on_NtAlpcDeleteSecurityContext(tracer::syscalls32::Data& d)
     {
         const auto PortHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags         = arg<nt32::ULONG>(d.core, 1);
@@ -978,7 +978,7 @@ namespace
             it(PortHandle, Flags, ContextHandle);
     }
 
-    static void on_NtAlpcDisconnectPort(monitor::syscalls32::Data& d)
+    static void on_NtAlpcDisconnectPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags      = arg<nt32::ULONG>(d.core, 1);
@@ -990,7 +990,7 @@ namespace
             it(PortHandle, Flags);
     }
 
-    static void on_ZwAlpcImpersonateClientOfPort(monitor::syscalls32::Data& d)
+    static void on_ZwAlpcImpersonateClientOfPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto PortMessage = arg<nt32::PPORT_MESSAGE>(d.core, 1);
@@ -1003,7 +1003,7 @@ namespace
             it(PortHandle, PortMessage, Reserved);
     }
 
-    static void on_ZwAlpcOpenSenderProcess(monitor::syscalls32::Data& d)
+    static void on_ZwAlpcOpenSenderProcess(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle    = arg<nt32::PHANDLE>(d.core, 0);
         const auto PortHandle       = arg<nt32::HANDLE>(d.core, 1);
@@ -1019,7 +1019,7 @@ namespace
             it(ProcessHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwAlpcOpenSenderThread(monitor::syscalls32::Data& d)
+    static void on_ZwAlpcOpenSenderThread(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle     = arg<nt32::PHANDLE>(d.core, 0);
         const auto PortHandle       = arg<nt32::HANDLE>(d.core, 1);
@@ -1035,7 +1035,7 @@ namespace
             it(ThreadHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwAlpcQueryInformation(monitor::syscalls32::Data& d)
+    static void on_ZwAlpcQueryInformation(tracer::syscalls32::Data& d)
     {
         const auto PortHandle           = arg<nt32::HANDLE>(d.core, 0);
         const auto PortInformationClass = arg<nt32::ALPC_PORT_INFORMATION_CLASS>(d.core, 1);
@@ -1050,7 +1050,7 @@ namespace
             it(PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
     }
 
-    static void on_ZwAlpcQueryInformationMessage(monitor::syscalls32::Data& d)
+    static void on_ZwAlpcQueryInformationMessage(tracer::syscalls32::Data& d)
     {
         const auto PortHandle              = arg<nt32::HANDLE>(d.core, 0);
         const auto PortMessage             = arg<nt32::PPORT_MESSAGE>(d.core, 1);
@@ -1066,7 +1066,7 @@ namespace
             it(PortHandle, PortMessage, MessageInformationClass, MessageInformation, Length, ReturnLength);
     }
 
-    static void on_NtAlpcRevokeSecurityContext(monitor::syscalls32::Data& d)
+    static void on_NtAlpcRevokeSecurityContext(tracer::syscalls32::Data& d)
     {
         const auto PortHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags         = arg<nt32::ULONG>(d.core, 1);
@@ -1079,7 +1079,7 @@ namespace
             it(PortHandle, Flags, ContextHandle);
     }
 
-    static void on_NtAlpcSendWaitReceivePort(monitor::syscalls32::Data& d)
+    static void on_NtAlpcSendWaitReceivePort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle               = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags                    = arg<nt32::ULONG>(d.core, 1);
@@ -1097,7 +1097,7 @@ namespace
             it(PortHandle, Flags, SendMessage, SendMessageAttributes, ReceiveMessage, BufferLength, ReceiveMessageAttributes, Timeout);
     }
 
-    static void on_NtAlpcSetInformation(monitor::syscalls32::Data& d)
+    static void on_NtAlpcSetInformation(tracer::syscalls32::Data& d)
     {
         const auto PortHandle           = arg<nt32::HANDLE>(d.core, 0);
         const auto PortInformationClass = arg<nt32::ALPC_PORT_INFORMATION_CLASS>(d.core, 1);
@@ -1111,7 +1111,7 @@ namespace
             it(PortHandle, PortInformationClass, PortInformation, Length);
     }
 
-    static void on_NtApphelpCacheControl(monitor::syscalls32::Data& d)
+    static void on_NtApphelpCacheControl(tracer::syscalls32::Data& d)
     {
         const auto type = arg<nt32::APPHELPCOMMAND>(d.core, 0);
         const auto buf  = arg<nt32::PVOID>(d.core, 1);
@@ -1123,7 +1123,7 @@ namespace
             it(type, buf);
     }
 
-    static void on_ZwAreMappedFilesTheSame(monitor::syscalls32::Data& d)
+    static void on_ZwAreMappedFilesTheSame(tracer::syscalls32::Data& d)
     {
         const auto File1MappedAsAnImage = arg<nt32::PVOID>(d.core, 0);
         const auto File2MappedAsFile    = arg<nt32::PVOID>(d.core, 1);
@@ -1135,7 +1135,7 @@ namespace
             it(File1MappedAsAnImage, File2MappedAsFile);
     }
 
-    static void on_ZwAssignProcessToJobObject(monitor::syscalls32::Data& d)
+    static void on_ZwAssignProcessToJobObject(tracer::syscalls32::Data& d)
     {
         const auto JobHandle     = arg<nt32::HANDLE>(d.core, 0);
         const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 1);
@@ -1147,7 +1147,7 @@ namespace
             it(JobHandle, ProcessHandle);
     }
 
-    static void on_NtCancelIoFileEx(monitor::syscalls32::Data& d)
+    static void on_NtCancelIoFileEx(tracer::syscalls32::Data& d)
     {
         const auto FileHandle        = arg<nt32::HANDLE>(d.core, 0);
         const auto IoRequestToCancel = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
@@ -1160,7 +1160,7 @@ namespace
             it(FileHandle, IoRequestToCancel, IoStatusBlock);
     }
 
-    static void on_ZwCancelIoFile(monitor::syscalls32::Data& d)
+    static void on_ZwCancelIoFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
@@ -1172,7 +1172,7 @@ namespace
             it(FileHandle, IoStatusBlock);
     }
 
-    static void on_NtCancelSynchronousIoFile(monitor::syscalls32::Data& d)
+    static void on_NtCancelSynchronousIoFile(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle      = arg<nt32::HANDLE>(d.core, 0);
         const auto IoRequestToCancel = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
@@ -1185,7 +1185,7 @@ namespace
             it(ThreadHandle, IoRequestToCancel, IoStatusBlock);
     }
 
-    static void on_ZwCancelTimer(monitor::syscalls32::Data& d)
+    static void on_ZwCancelTimer(tracer::syscalls32::Data& d)
     {
         const auto TimerHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto CurrentState = arg<nt32::PBOOLEAN>(d.core, 1);
@@ -1197,7 +1197,7 @@ namespace
             it(TimerHandle, CurrentState);
     }
 
-    static void on_NtClearEvent(monitor::syscalls32::Data& d)
+    static void on_NtClearEvent(tracer::syscalls32::Data& d)
     {
         const auto EventHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -1208,7 +1208,7 @@ namespace
             it(EventHandle);
     }
 
-    static void on_NtClose(monitor::syscalls32::Data& d)
+    static void on_NtClose(tracer::syscalls32::Data& d)
     {
         const auto Handle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -1219,7 +1219,7 @@ namespace
             it(Handle);
     }
 
-    static void on_ZwCloseObjectAuditAlarm(monitor::syscalls32::Data& d)
+    static void on_ZwCloseObjectAuditAlarm(tracer::syscalls32::Data& d)
     {
         const auto SubsystemName   = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto HandleId        = arg<nt32::PVOID>(d.core, 1);
@@ -1232,7 +1232,7 @@ namespace
             it(SubsystemName, HandleId, GenerateOnClose);
     }
 
-    static void on_ZwCommitComplete(monitor::syscalls32::Data& d)
+    static void on_ZwCommitComplete(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -1244,7 +1244,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtCommitEnlistment(monitor::syscalls32::Data& d)
+    static void on_NtCommitEnlistment(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -1256,7 +1256,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtCommitTransaction(monitor::syscalls32::Data& d)
+    static void on_NtCommitTransaction(tracer::syscalls32::Data& d)
     {
         const auto TransactionHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto Wait              = arg<nt32::BOOLEAN>(d.core, 1);
@@ -1268,7 +1268,7 @@ namespace
             it(TransactionHandle, Wait);
     }
 
-    static void on_NtCompactKeys(monitor::syscalls32::Data& d)
+    static void on_NtCompactKeys(tracer::syscalls32::Data& d)
     {
         const auto Count    = arg<nt32::ULONG>(d.core, 0);
         const auto KeyArray = arg<nt32::HANDLE>(d.core, 1);
@@ -1280,7 +1280,7 @@ namespace
             it(Count, KeyArray);
     }
 
-    static void on_ZwCompareTokens(monitor::syscalls32::Data& d)
+    static void on_ZwCompareTokens(tracer::syscalls32::Data& d)
     {
         const auto FirstTokenHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto SecondTokenHandle = arg<nt32::HANDLE>(d.core, 1);
@@ -1293,7 +1293,7 @@ namespace
             it(FirstTokenHandle, SecondTokenHandle, Equal);
     }
 
-    static void on_NtCompleteConnectPort(monitor::syscalls32::Data& d)
+    static void on_NtCompleteConnectPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -1304,7 +1304,7 @@ namespace
             it(PortHandle);
     }
 
-    static void on_ZwCompressKey(monitor::syscalls32::Data& d)
+    static void on_ZwCompressKey(tracer::syscalls32::Data& d)
     {
         const auto Key = arg<nt32::HANDLE>(d.core, 0);
 
@@ -1315,7 +1315,7 @@ namespace
             it(Key);
     }
 
-    static void on_NtConnectPort(monitor::syscalls32::Data& d)
+    static void on_NtConnectPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle                  = arg<nt32::PHANDLE>(d.core, 0);
         const auto PortName                    = arg<nt32::PUNICODE_STRING>(d.core, 1);
@@ -1333,7 +1333,7 @@ namespace
             it(PortHandle, PortName, SecurityQos, ClientView, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
     }
 
-    static void on_ZwContinue(monitor::syscalls32::Data& d)
+    static void on_ZwContinue(tracer::syscalls32::Data& d)
     {
         const auto ContextRecord = arg<nt32::PCONTEXT>(d.core, 0);
         const auto TestAlert     = arg<nt32::BOOLEAN>(d.core, 1);
@@ -1345,7 +1345,7 @@ namespace
             it(ContextRecord, TestAlert);
     }
 
-    static void on_ZwCreateDebugObject(monitor::syscalls32::Data& d)
+    static void on_ZwCreateDebugObject(tracer::syscalls32::Data& d)
     {
         const auto DebugObjectHandle = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1359,7 +1359,7 @@ namespace
             it(DebugObjectHandle, DesiredAccess, ObjectAttributes, Flags);
     }
 
-    static void on_ZwCreateDirectoryObject(monitor::syscalls32::Data& d)
+    static void on_ZwCreateDirectoryObject(tracer::syscalls32::Data& d)
     {
         const auto DirectoryHandle  = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1372,7 +1372,7 @@ namespace
             it(DirectoryHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwCreateEnlistment(monitor::syscalls32::Data& d)
+    static void on_ZwCreateEnlistment(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle      = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1390,7 +1390,7 @@ namespace
             it(EnlistmentHandle, DesiredAccess, ResourceManagerHandle, TransactionHandle, ObjectAttributes, CreateOptions, NotificationMask, EnlistmentKey);
     }
 
-    static void on_NtCreateEvent(monitor::syscalls32::Data& d)
+    static void on_NtCreateEvent(tracer::syscalls32::Data& d)
     {
         const auto EventHandle      = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1405,7 +1405,7 @@ namespace
             it(EventHandle, DesiredAccess, ObjectAttributes, EventType, InitialState);
     }
 
-    static void on_NtCreateEventPair(monitor::syscalls32::Data& d)
+    static void on_NtCreateEventPair(tracer::syscalls32::Data& d)
     {
         const auto EventPairHandle  = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1418,7 +1418,7 @@ namespace
             it(EventPairHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtCreateFile(monitor::syscalls32::Data& d)
+    static void on_NtCreateFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle        = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1439,7 +1439,7 @@ namespace
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions, EaBuffer, EaLength);
     }
 
-    static void on_NtCreateIoCompletion(monitor::syscalls32::Data& d)
+    static void on_NtCreateIoCompletion(tracer::syscalls32::Data& d)
     {
         const auto IoCompletionHandle = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1453,7 +1453,7 @@ namespace
             it(IoCompletionHandle, DesiredAccess, ObjectAttributes, Count);
     }
 
-    static void on_ZwCreateJobObject(monitor::syscalls32::Data& d)
+    static void on_ZwCreateJobObject(tracer::syscalls32::Data& d)
     {
         const auto JobHandle        = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1466,7 +1466,7 @@ namespace
             it(JobHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtCreateJobSet(monitor::syscalls32::Data& d)
+    static void on_NtCreateJobSet(tracer::syscalls32::Data& d)
     {
         const auto NumJob     = arg<nt32::ULONG>(d.core, 0);
         const auto UserJobSet = arg<nt32::PJOB_SET_ARRAY>(d.core, 1);
@@ -1479,7 +1479,7 @@ namespace
             it(NumJob, UserJobSet, Flags);
     }
 
-    static void on_ZwCreateKeyedEvent(monitor::syscalls32::Data& d)
+    static void on_ZwCreateKeyedEvent(tracer::syscalls32::Data& d)
     {
         const auto KeyedEventHandle = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1493,7 +1493,7 @@ namespace
             it(KeyedEventHandle, DesiredAccess, ObjectAttributes, Flags);
     }
 
-    static void on_ZwCreateKey(monitor::syscalls32::Data& d)
+    static void on_ZwCreateKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle        = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1510,7 +1510,7 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, Disposition);
     }
 
-    static void on_NtCreateKeyTransacted(monitor::syscalls32::Data& d)
+    static void on_NtCreateKeyTransacted(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle         = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1528,7 +1528,7 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, TransactionHandle, Disposition);
     }
 
-    static void on_ZwCreateMailslotFile(monitor::syscalls32::Data& d)
+    static void on_ZwCreateMailslotFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle         = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt32::ULONG>(d.core, 1);
@@ -1546,7 +1546,7 @@ namespace
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, CreateOptions, MailslotQuota, MaximumMessageSize, ReadTimeout);
     }
 
-    static void on_ZwCreateMutant(monitor::syscalls32::Data& d)
+    static void on_ZwCreateMutant(tracer::syscalls32::Data& d)
     {
         const auto MutantHandle     = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1560,7 +1560,7 @@ namespace
             it(MutantHandle, DesiredAccess, ObjectAttributes, InitialOwner);
     }
 
-    static void on_ZwCreateNamedPipeFile(monitor::syscalls32::Data& d)
+    static void on_ZwCreateNamedPipeFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle        = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt32::ULONG>(d.core, 1);
@@ -1584,7 +1584,7 @@ namespace
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, CreateDisposition, CreateOptions, NamedPipeType, ReadMode, CompletionMode, MaximumInstances, InboundQuota, OutboundQuota, DefaultTimeout);
     }
 
-    static void on_NtCreatePagingFile(monitor::syscalls32::Data& d)
+    static void on_NtCreatePagingFile(tracer::syscalls32::Data& d)
     {
         const auto PageFileName = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto MinimumSize  = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -1598,7 +1598,7 @@ namespace
             it(PageFileName, MinimumSize, MaximumSize, Priority);
     }
 
-    static void on_ZwCreatePort(monitor::syscalls32::Data& d)
+    static void on_ZwCreatePort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle              = arg<nt32::PHANDLE>(d.core, 0);
         const auto ObjectAttributes        = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 1);
@@ -1613,7 +1613,7 @@ namespace
             it(PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage);
     }
 
-    static void on_NtCreatePrivateNamespace(monitor::syscalls32::Data& d)
+    static void on_NtCreatePrivateNamespace(tracer::syscalls32::Data& d)
     {
         const auto NamespaceHandle    = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1627,7 +1627,7 @@ namespace
             it(NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
     }
 
-    static void on_ZwCreateProcessEx(monitor::syscalls32::Data& d)
+    static void on_ZwCreateProcessEx(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle    = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1646,7 +1646,7 @@ namespace
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, Flags, SectionHandle, DebugPort, ExceptionPort, JobMemberLevel);
     }
 
-    static void on_ZwCreateProcess(monitor::syscalls32::Data& d)
+    static void on_ZwCreateProcess(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle      = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1664,7 +1664,7 @@ namespace
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, InheritObjectTable, SectionHandle, DebugPort, ExceptionPort);
     }
 
-    static void on_NtCreateProfileEx(monitor::syscalls32::Data& d)
+    static void on_NtCreateProfileEx(tracer::syscalls32::Data& d)
     {
         const auto ProfileHandle      = arg<nt32::PHANDLE>(d.core, 0);
         const auto Process            = arg<nt32::HANDLE>(d.core, 1);
@@ -1684,7 +1684,7 @@ namespace
             it(ProfileHandle, Process, ProfileBase, ProfileSize, BucketSize, Buffer, BufferSize, ProfileSource, GroupAffinityCount, GroupAffinity);
     }
 
-    static void on_ZwCreateProfile(monitor::syscalls32::Data& d)
+    static void on_ZwCreateProfile(tracer::syscalls32::Data& d)
     {
         const auto ProfileHandle = arg<nt32::PHANDLE>(d.core, 0);
         const auto Process       = arg<nt32::HANDLE>(d.core, 1);
@@ -1703,7 +1703,7 @@ namespace
             it(ProfileHandle, Process, RangeBase, RangeSize, BucketSize, Buffer, BufferSize, ProfileSource, Affinity);
     }
 
-    static void on_ZwCreateResourceManager(monitor::syscalls32::Data& d)
+    static void on_ZwCreateResourceManager(tracer::syscalls32::Data& d)
     {
         const auto ResourceManagerHandle = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1720,7 +1720,7 @@ namespace
             it(ResourceManagerHandle, DesiredAccess, TmHandle, RmGuid, ObjectAttributes, CreateOptions, Description);
     }
 
-    static void on_NtCreateSection(monitor::syscalls32::Data& d)
+    static void on_NtCreateSection(tracer::syscalls32::Data& d)
     {
         const auto SectionHandle         = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1737,7 +1737,7 @@ namespace
             it(SectionHandle, DesiredAccess, ObjectAttributes, MaximumSize, SectionPageProtection, AllocationAttributes, FileHandle);
     }
 
-    static void on_NtCreateSemaphore(monitor::syscalls32::Data& d)
+    static void on_NtCreateSemaphore(tracer::syscalls32::Data& d)
     {
         const auto SemaphoreHandle  = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1752,7 +1752,7 @@ namespace
             it(SemaphoreHandle, DesiredAccess, ObjectAttributes, InitialCount, MaximumCount);
     }
 
-    static void on_ZwCreateSymbolicLinkObject(monitor::syscalls32::Data& d)
+    static void on_ZwCreateSymbolicLinkObject(tracer::syscalls32::Data& d)
     {
         const auto LinkHandle       = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1766,7 +1766,7 @@ namespace
             it(LinkHandle, DesiredAccess, ObjectAttributes, LinkTarget);
     }
 
-    static void on_NtCreateThreadEx(monitor::syscalls32::Data& d)
+    static void on_NtCreateThreadEx(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle     = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1787,7 +1787,7 @@ namespace
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, StartRoutine, Argument, CreateFlags, ZeroBits, StackSize, MaximumStackSize, AttributeList);
     }
 
-    static void on_NtCreateThread(monitor::syscalls32::Data& d)
+    static void on_NtCreateThread(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle     = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1805,7 +1805,7 @@ namespace
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, ClientId, ThreadContext, InitialTeb, CreateSuspended);
     }
 
-    static void on_ZwCreateTimer(monitor::syscalls32::Data& d)
+    static void on_ZwCreateTimer(tracer::syscalls32::Data& d)
     {
         const auto TimerHandle      = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1819,7 +1819,7 @@ namespace
             it(TimerHandle, DesiredAccess, ObjectAttributes, TimerType);
     }
 
-    static void on_NtCreateToken(monitor::syscalls32::Data& d)
+    static void on_NtCreateToken(tracer::syscalls32::Data& d)
     {
         const auto TokenHandle      = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1842,7 +1842,7 @@ namespace
             it(TokenHandle, DesiredAccess, ObjectAttributes, TokenType, AuthenticationId, ExpirationTime, User, Groups, Privileges, Owner, PrimaryGroup, DefaultDacl, TokenSource);
     }
 
-    static void on_ZwCreateTransactionManager(monitor::syscalls32::Data& d)
+    static void on_ZwCreateTransactionManager(tracer::syscalls32::Data& d)
     {
         const auto TmHandle         = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1858,7 +1858,7 @@ namespace
             it(TmHandle, DesiredAccess, ObjectAttributes, LogFileName, CreateOptions, CommitStrength);
     }
 
-    static void on_NtCreateTransaction(monitor::syscalls32::Data& d)
+    static void on_NtCreateTransaction(tracer::syscalls32::Data& d)
     {
         const auto TransactionHandle = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1878,7 +1878,7 @@ namespace
             it(TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle, CreateOptions, IsolationLevel, IsolationFlags, Timeout, Description);
     }
 
-    static void on_NtCreateUserProcess(monitor::syscalls32::Data& d)
+    static void on_NtCreateUserProcess(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle           = arg<nt32::PHANDLE>(d.core, 0);
         const auto ThreadHandle            = arg<nt32::PHANDLE>(d.core, 1);
@@ -1899,7 +1899,7 @@ namespace
             it(ProcessHandle, ThreadHandle, ProcessDesiredAccess, ThreadDesiredAccess, ProcessObjectAttributes, ThreadObjectAttributes, ProcessFlags, ThreadFlags, ProcessParameters, CreateInfo, AttributeList);
     }
 
-    static void on_ZwCreateWaitablePort(monitor::syscalls32::Data& d)
+    static void on_ZwCreateWaitablePort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle              = arg<nt32::PHANDLE>(d.core, 0);
         const auto ObjectAttributes        = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 1);
@@ -1914,7 +1914,7 @@ namespace
             it(PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage);
     }
 
-    static void on_NtCreateWorkerFactory(monitor::syscalls32::Data& d)
+    static void on_NtCreateWorkerFactory(tracer::syscalls32::Data& d)
     {
         const auto WorkerFactoryHandleReturn = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess             = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -1934,7 +1934,7 @@ namespace
             it(WorkerFactoryHandleReturn, DesiredAccess, ObjectAttributes, CompletionPortHandle, WorkerProcessHandle, StartRoutine, StartParameter, MaxThreadCount, StackReserve, StackCommit);
     }
 
-    static void on_NtDebugActiveProcess(monitor::syscalls32::Data& d)
+    static void on_NtDebugActiveProcess(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle     = arg<nt32::HANDLE>(d.core, 0);
         const auto DebugObjectHandle = arg<nt32::HANDLE>(d.core, 1);
@@ -1946,7 +1946,7 @@ namespace
             it(ProcessHandle, DebugObjectHandle);
     }
 
-    static void on_ZwDebugContinue(monitor::syscalls32::Data& d)
+    static void on_ZwDebugContinue(tracer::syscalls32::Data& d)
     {
         const auto DebugObjectHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto ClientId          = arg<nt32::PCLIENT_ID>(d.core, 1);
@@ -1959,7 +1959,7 @@ namespace
             it(DebugObjectHandle, ClientId, ContinueStatus);
     }
 
-    static void on_ZwDelayExecution(monitor::syscalls32::Data& d)
+    static void on_ZwDelayExecution(tracer::syscalls32::Data& d)
     {
         const auto Alertable     = arg<nt32::BOOLEAN>(d.core, 0);
         const auto DelayInterval = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -1971,7 +1971,7 @@ namespace
             it(Alertable, DelayInterval);
     }
 
-    static void on_ZwDeleteAtom(monitor::syscalls32::Data& d)
+    static void on_ZwDeleteAtom(tracer::syscalls32::Data& d)
     {
         const auto Atom = arg<nt32::RTL_ATOM>(d.core, 0);
 
@@ -1982,7 +1982,7 @@ namespace
             it(Atom);
     }
 
-    static void on_NtDeleteBootEntry(monitor::syscalls32::Data& d)
+    static void on_NtDeleteBootEntry(tracer::syscalls32::Data& d)
     {
         const auto Id = arg<nt32::ULONG>(d.core, 0);
 
@@ -1993,7 +1993,7 @@ namespace
             it(Id);
     }
 
-    static void on_ZwDeleteDriverEntry(monitor::syscalls32::Data& d)
+    static void on_ZwDeleteDriverEntry(tracer::syscalls32::Data& d)
     {
         const auto Id = arg<nt32::ULONG>(d.core, 0);
 
@@ -2004,7 +2004,7 @@ namespace
             it(Id);
     }
 
-    static void on_NtDeleteFile(monitor::syscalls32::Data& d)
+    static void on_NtDeleteFile(tracer::syscalls32::Data& d)
     {
         const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
 
@@ -2015,7 +2015,7 @@ namespace
             it(ObjectAttributes);
     }
 
-    static void on_ZwDeleteKey(monitor::syscalls32::Data& d)
+    static void on_ZwDeleteKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -2026,7 +2026,7 @@ namespace
             it(KeyHandle);
     }
 
-    static void on_NtDeleteObjectAuditAlarm(monitor::syscalls32::Data& d)
+    static void on_NtDeleteObjectAuditAlarm(tracer::syscalls32::Data& d)
     {
         const auto SubsystemName   = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto HandleId        = arg<nt32::PVOID>(d.core, 1);
@@ -2039,7 +2039,7 @@ namespace
             it(SubsystemName, HandleId, GenerateOnClose);
     }
 
-    static void on_NtDeletePrivateNamespace(monitor::syscalls32::Data& d)
+    static void on_NtDeletePrivateNamespace(tracer::syscalls32::Data& d)
     {
         const auto NamespaceHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -2050,7 +2050,7 @@ namespace
             it(NamespaceHandle);
     }
 
-    static void on_NtDeleteValueKey(monitor::syscalls32::Data& d)
+    static void on_NtDeleteValueKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto ValueName = arg<nt32::PUNICODE_STRING>(d.core, 1);
@@ -2062,7 +2062,7 @@ namespace
             it(KeyHandle, ValueName);
     }
 
-    static void on_ZwDeviceIoControlFile(monitor::syscalls32::Data& d)
+    static void on_ZwDeviceIoControlFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle         = arg<nt32::HANDLE>(d.core, 0);
         const auto Event              = arg<nt32::HANDLE>(d.core, 1);
@@ -2082,7 +2082,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
     }
 
-    static void on_NtDisplayString(monitor::syscalls32::Data& d)
+    static void on_NtDisplayString(tracer::syscalls32::Data& d)
     {
         const auto String = arg<nt32::PUNICODE_STRING>(d.core, 0);
 
@@ -2093,7 +2093,7 @@ namespace
             it(String);
     }
 
-    static void on_ZwDrawText(monitor::syscalls32::Data& d)
+    static void on_ZwDrawText(tracer::syscalls32::Data& d)
     {
         const auto Text = arg<nt32::PUNICODE_STRING>(d.core, 0);
 
@@ -2104,7 +2104,7 @@ namespace
             it(Text);
     }
 
-    static void on_ZwDuplicateObject(monitor::syscalls32::Data& d)
+    static void on_ZwDuplicateObject(tracer::syscalls32::Data& d)
     {
         const auto SourceProcessHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto SourceHandle        = arg<nt32::HANDLE>(d.core, 1);
@@ -2121,7 +2121,7 @@ namespace
             it(SourceProcessHandle, SourceHandle, TargetProcessHandle, TargetHandle, DesiredAccess, HandleAttributes, Options);
     }
 
-    static void on_NtDuplicateToken(monitor::syscalls32::Data& d)
+    static void on_NtDuplicateToken(tracer::syscalls32::Data& d)
     {
         const auto ExistingTokenHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto DesiredAccess       = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -2137,7 +2137,7 @@ namespace
             it(ExistingTokenHandle, DesiredAccess, ObjectAttributes, EffectiveOnly, TokenType, NewTokenHandle);
     }
 
-    static void on_ZwEnumerateBootEntries(monitor::syscalls32::Data& d)
+    static void on_ZwEnumerateBootEntries(tracer::syscalls32::Data& d)
     {
         const auto Buffer       = arg<nt32::PVOID>(d.core, 0);
         const auto BufferLength = arg<nt32::PULONG>(d.core, 1);
@@ -2149,7 +2149,7 @@ namespace
             it(Buffer, BufferLength);
     }
 
-    static void on_NtEnumerateDriverEntries(monitor::syscalls32::Data& d)
+    static void on_NtEnumerateDriverEntries(tracer::syscalls32::Data& d)
     {
         const auto Buffer       = arg<nt32::PVOID>(d.core, 0);
         const auto BufferLength = arg<nt32::PULONG>(d.core, 1);
@@ -2161,7 +2161,7 @@ namespace
             it(Buffer, BufferLength);
     }
 
-    static void on_ZwEnumerateKey(monitor::syscalls32::Data& d)
+    static void on_ZwEnumerateKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle           = arg<nt32::HANDLE>(d.core, 0);
         const auto Index               = arg<nt32::ULONG>(d.core, 1);
@@ -2177,7 +2177,7 @@ namespace
             it(KeyHandle, Index, KeyInformationClass, KeyInformation, Length, ResultLength);
     }
 
-    static void on_ZwEnumerateSystemEnvironmentValuesEx(monitor::syscalls32::Data& d)
+    static void on_ZwEnumerateSystemEnvironmentValuesEx(tracer::syscalls32::Data& d)
     {
         const auto InformationClass = arg<nt32::ULONG>(d.core, 0);
         const auto Buffer           = arg<nt32::PVOID>(d.core, 1);
@@ -2190,7 +2190,7 @@ namespace
             it(InformationClass, Buffer, BufferLength);
     }
 
-    static void on_ZwEnumerateTransactionObject(monitor::syscalls32::Data& d)
+    static void on_ZwEnumerateTransactionObject(tracer::syscalls32::Data& d)
     {
         const auto RootObjectHandle   = arg<nt32::HANDLE>(d.core, 0);
         const auto QueryType          = arg<nt32::KTMOBJECT_TYPE>(d.core, 1);
@@ -2205,7 +2205,7 @@ namespace
             it(RootObjectHandle, QueryType, ObjectCursor, ObjectCursorLength, ReturnLength);
     }
 
-    static void on_NtEnumerateValueKey(monitor::syscalls32::Data& d)
+    static void on_NtEnumerateValueKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle                = arg<nt32::HANDLE>(d.core, 0);
         const auto Index                    = arg<nt32::ULONG>(d.core, 1);
@@ -2221,7 +2221,7 @@ namespace
             it(KeyHandle, Index, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
     }
 
-    static void on_ZwExtendSection(monitor::syscalls32::Data& d)
+    static void on_ZwExtendSection(tracer::syscalls32::Data& d)
     {
         const auto SectionHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto NewSectionSize = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -2233,7 +2233,7 @@ namespace
             it(SectionHandle, NewSectionSize);
     }
 
-    static void on_NtFilterToken(monitor::syscalls32::Data& d)
+    static void on_NtFilterToken(tracer::syscalls32::Data& d)
     {
         const auto ExistingTokenHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags               = arg<nt32::ULONG>(d.core, 1);
@@ -2249,7 +2249,7 @@ namespace
             it(ExistingTokenHandle, Flags, SidsToDisable, PrivilegesToDelete, RestrictedSids, NewTokenHandle);
     }
 
-    static void on_NtFindAtom(monitor::syscalls32::Data& d)
+    static void on_NtFindAtom(tracer::syscalls32::Data& d)
     {
         const auto AtomName = arg<nt32::PWSTR>(d.core, 0);
         const auto Length   = arg<nt32::ULONG>(d.core, 1);
@@ -2262,7 +2262,7 @@ namespace
             it(AtomName, Length, Atom);
     }
 
-    static void on_ZwFlushBuffersFile(monitor::syscalls32::Data& d)
+    static void on_ZwFlushBuffersFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
@@ -2274,7 +2274,7 @@ namespace
             it(FileHandle, IoStatusBlock);
     }
 
-    static void on_ZwFlushInstallUILanguage(monitor::syscalls32::Data& d)
+    static void on_ZwFlushInstallUILanguage(tracer::syscalls32::Data& d)
     {
         const auto InstallUILanguage = arg<nt32::LANGID>(d.core, 0);
         const auto SetComittedFlag   = arg<nt32::ULONG>(d.core, 1);
@@ -2286,7 +2286,7 @@ namespace
             it(InstallUILanguage, SetComittedFlag);
     }
 
-    static void on_ZwFlushInstructionCache(monitor::syscalls32::Data& d)
+    static void on_ZwFlushInstructionCache(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto BaseAddress   = arg<nt32::PVOID>(d.core, 1);
@@ -2299,7 +2299,7 @@ namespace
             it(ProcessHandle, BaseAddress, Length);
     }
 
-    static void on_NtFlushKey(monitor::syscalls32::Data& d)
+    static void on_NtFlushKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -2310,7 +2310,7 @@ namespace
             it(KeyHandle);
     }
 
-    static void on_ZwFlushVirtualMemory(monitor::syscalls32::Data& d)
+    static void on_ZwFlushVirtualMemory(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle   = arg<nt32::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt32::PVOID>(d.core, 1);
@@ -2324,7 +2324,7 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, IoStatus);
     }
 
-    static void on_NtFreeUserPhysicalPages(monitor::syscalls32::Data& d)
+    static void on_NtFreeUserPhysicalPages(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto NumberOfPages = arg<nt32::PULONG_PTR>(d.core, 1);
@@ -2337,7 +2337,7 @@ namespace
             it(ProcessHandle, NumberOfPages, UserPfnArra);
     }
 
-    static void on_NtFreeVirtualMemory(monitor::syscalls32::Data& d)
+    static void on_NtFreeVirtualMemory(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle   = arg<nt32::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt32::PVOID>(d.core, 1);
@@ -2351,7 +2351,7 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, FreeType);
     }
 
-    static void on_NtFreezeRegistry(monitor::syscalls32::Data& d)
+    static void on_NtFreezeRegistry(tracer::syscalls32::Data& d)
     {
         const auto TimeOutInSeconds = arg<nt32::ULONG>(d.core, 0);
 
@@ -2362,7 +2362,7 @@ namespace
             it(TimeOutInSeconds);
     }
 
-    static void on_ZwFreezeTransactions(monitor::syscalls32::Data& d)
+    static void on_ZwFreezeTransactions(tracer::syscalls32::Data& d)
     {
         const auto FreezeTimeout = arg<nt32::PLARGE_INTEGER>(d.core, 0);
         const auto ThawTimeout   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -2374,7 +2374,7 @@ namespace
             it(FreezeTimeout, ThawTimeout);
     }
 
-    static void on_NtFsControlFile(monitor::syscalls32::Data& d)
+    static void on_NtFsControlFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle         = arg<nt32::HANDLE>(d.core, 0);
         const auto Event              = arg<nt32::HANDLE>(d.core, 1);
@@ -2394,7 +2394,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
     }
 
-    static void on_NtGetContextThread(monitor::syscalls32::Data& d)
+    static void on_NtGetContextThread(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto ThreadContext = arg<nt32::PCONTEXT>(d.core, 1);
@@ -2406,7 +2406,7 @@ namespace
             it(ThreadHandle, ThreadContext);
     }
 
-    static void on_NtGetDevicePowerState(monitor::syscalls32::Data& d)
+    static void on_NtGetDevicePowerState(tracer::syscalls32::Data& d)
     {
         const auto Device    = arg<nt32::HANDLE>(d.core, 0);
         const auto STARState = arg<nt32::DEVICE_POWER_STATE>(d.core, 1);
@@ -2418,7 +2418,7 @@ namespace
             it(Device, STARState);
     }
 
-    static void on_NtGetMUIRegistryInfo(monitor::syscalls32::Data& d)
+    static void on_NtGetMUIRegistryInfo(tracer::syscalls32::Data& d)
     {
         const auto Flags    = arg<nt32::ULONG>(d.core, 0);
         const auto DataSize = arg<nt32::PULONG>(d.core, 1);
@@ -2431,7 +2431,7 @@ namespace
             it(Flags, DataSize, Data);
     }
 
-    static void on_ZwGetNextProcess(monitor::syscalls32::Data& d)
+    static void on_ZwGetNextProcess(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -2446,7 +2446,7 @@ namespace
             it(ProcessHandle, DesiredAccess, HandleAttributes, Flags, NewProcessHandle);
     }
 
-    static void on_ZwGetNextThread(monitor::syscalls32::Data& d)
+    static void on_ZwGetNextThread(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto ThreadHandle     = arg<nt32::HANDLE>(d.core, 1);
@@ -2462,7 +2462,7 @@ namespace
             it(ProcessHandle, ThreadHandle, DesiredAccess, HandleAttributes, Flags, NewThreadHandle);
     }
 
-    static void on_NtGetNlsSectionPtr(monitor::syscalls32::Data& d)
+    static void on_NtGetNlsSectionPtr(tracer::syscalls32::Data& d)
     {
         const auto SectionType        = arg<nt32::ULONG>(d.core, 0);
         const auto SectionData        = arg<nt32::ULONG>(d.core, 1);
@@ -2477,7 +2477,7 @@ namespace
             it(SectionType, SectionData, ContextData, STARSectionPointer, SectionSize);
     }
 
-    static void on_ZwGetNotificationResourceManager(monitor::syscalls32::Data& d)
+    static void on_ZwGetNotificationResourceManager(tracer::syscalls32::Data& d)
     {
         const auto ResourceManagerHandle   = arg<nt32::HANDLE>(d.core, 0);
         const auto TransactionNotification = arg<nt32::PTRANSACTION_NOTIFICATION>(d.core, 1);
@@ -2494,7 +2494,7 @@ namespace
             it(ResourceManagerHandle, TransactionNotification, NotificationLength, Timeout, ReturnLength, Asynchronous, AsynchronousContext);
     }
 
-    static void on_NtGetWriteWatch(monitor::syscalls32::Data& d)
+    static void on_NtGetWriteWatch(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle             = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags                     = arg<nt32::ULONG>(d.core, 1);
@@ -2511,7 +2511,7 @@ namespace
             it(ProcessHandle, Flags, BaseAddress, RegionSize, STARUserAddressArray, EntriesInUserAddressArray, Granularity);
     }
 
-    static void on_NtImpersonateAnonymousToken(monitor::syscalls32::Data& d)
+    static void on_NtImpersonateAnonymousToken(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -2522,7 +2522,7 @@ namespace
             it(ThreadHandle);
     }
 
-    static void on_ZwImpersonateClientOfPort(monitor::syscalls32::Data& d)
+    static void on_ZwImpersonateClientOfPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto Message    = arg<nt32::PPORT_MESSAGE>(d.core, 1);
@@ -2534,7 +2534,7 @@ namespace
             it(PortHandle, Message);
     }
 
-    static void on_ZwImpersonateThread(monitor::syscalls32::Data& d)
+    static void on_ZwImpersonateThread(tracer::syscalls32::Data& d)
     {
         const auto ServerThreadHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto ClientThreadHandle = arg<nt32::HANDLE>(d.core, 1);
@@ -2547,7 +2547,7 @@ namespace
             it(ServerThreadHandle, ClientThreadHandle, SecurityQos);
     }
 
-    static void on_NtInitializeNlsFiles(monitor::syscalls32::Data& d)
+    static void on_NtInitializeNlsFiles(tracer::syscalls32::Data& d)
     {
         const auto STARBaseAddress        = arg<nt32::PVOID>(d.core, 0);
         const auto DefaultLocaleId        = arg<nt32::PLCID>(d.core, 1);
@@ -2560,7 +2560,7 @@ namespace
             it(STARBaseAddress, DefaultLocaleId, DefaultCasingTableSize);
     }
 
-    static void on_ZwInitializeRegistry(monitor::syscalls32::Data& d)
+    static void on_ZwInitializeRegistry(tracer::syscalls32::Data& d)
     {
         const auto BootCondition = arg<nt32::USHORT>(d.core, 0);
 
@@ -2571,7 +2571,7 @@ namespace
             it(BootCondition);
     }
 
-    static void on_NtInitiatePowerAction(monitor::syscalls32::Data& d)
+    static void on_NtInitiatePowerAction(tracer::syscalls32::Data& d)
     {
         const auto SystemAction   = arg<nt32::POWER_ACTION>(d.core, 0);
         const auto MinSystemState = arg<nt32::SYSTEM_POWER_STATE>(d.core, 1);
@@ -2585,7 +2585,7 @@ namespace
             it(SystemAction, MinSystemState, Flags, Asynchronous);
     }
 
-    static void on_ZwIsProcessInJob(monitor::syscalls32::Data& d)
+    static void on_ZwIsProcessInJob(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto JobHandle     = arg<nt32::HANDLE>(d.core, 1);
@@ -2597,7 +2597,7 @@ namespace
             it(ProcessHandle, JobHandle);
     }
 
-    static void on_ZwListenPort(monitor::syscalls32::Data& d)
+    static void on_ZwListenPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle        = arg<nt32::HANDLE>(d.core, 0);
         const auto ConnectionRequest = arg<nt32::PPORT_MESSAGE>(d.core, 1);
@@ -2609,7 +2609,7 @@ namespace
             it(PortHandle, ConnectionRequest);
     }
 
-    static void on_NtLoadDriver(monitor::syscalls32::Data& d)
+    static void on_NtLoadDriver(tracer::syscalls32::Data& d)
     {
         const auto DriverServiceName = arg<nt32::PUNICODE_STRING>(d.core, 0);
 
@@ -2620,7 +2620,7 @@ namespace
             it(DriverServiceName);
     }
 
-    static void on_NtLoadKey2(monitor::syscalls32::Data& d)
+    static void on_NtLoadKey2(tracer::syscalls32::Data& d)
     {
         const auto TargetKey  = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto SourceFile = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 1);
@@ -2633,7 +2633,7 @@ namespace
             it(TargetKey, SourceFile, Flags);
     }
 
-    static void on_NtLoadKeyEx(monitor::syscalls32::Data& d)
+    static void on_NtLoadKeyEx(tracer::syscalls32::Data& d)
     {
         const auto TargetKey         = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto SourceFile        = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 1);
@@ -2651,7 +2651,7 @@ namespace
             it(TargetKey, SourceFile, Flags, TrustClassKey, Reserved, ObjectContext, CallbackReserverd, IoStatusBlock);
     }
 
-    static void on_NtLoadKey(monitor::syscalls32::Data& d)
+    static void on_NtLoadKey(tracer::syscalls32::Data& d)
     {
         const auto TargetKey  = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto SourceFile = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 1);
@@ -2663,7 +2663,7 @@ namespace
             it(TargetKey, SourceFile);
     }
 
-    static void on_NtLockFile(monitor::syscalls32::Data& d)
+    static void on_NtLockFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle      = arg<nt32::HANDLE>(d.core, 0);
         const auto Event           = arg<nt32::HANDLE>(d.core, 1);
@@ -2683,7 +2683,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, ByteOffset, Length, Key, FailImmediately, ExclusiveLock);
     }
 
-    static void on_ZwLockProductActivationKeys(monitor::syscalls32::Data& d)
+    static void on_ZwLockProductActivationKeys(tracer::syscalls32::Data& d)
     {
         const auto STARpPrivateVer = arg<nt32::ULONG>(d.core, 0);
         const auto STARpSafeMode   = arg<nt32::ULONG>(d.core, 1);
@@ -2695,7 +2695,7 @@ namespace
             it(STARpPrivateVer, STARpSafeMode);
     }
 
-    static void on_NtLockRegistryKey(monitor::syscalls32::Data& d)
+    static void on_NtLockRegistryKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -2706,7 +2706,7 @@ namespace
             it(KeyHandle);
     }
 
-    static void on_ZwLockVirtualMemory(monitor::syscalls32::Data& d)
+    static void on_ZwLockVirtualMemory(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle   = arg<nt32::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt32::PVOID>(d.core, 1);
@@ -2720,7 +2720,7 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, MapType);
     }
 
-    static void on_ZwMakePermanentObject(monitor::syscalls32::Data& d)
+    static void on_ZwMakePermanentObject(tracer::syscalls32::Data& d)
     {
         const auto Handle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -2731,7 +2731,7 @@ namespace
             it(Handle);
     }
 
-    static void on_NtMakeTemporaryObject(monitor::syscalls32::Data& d)
+    static void on_NtMakeTemporaryObject(tracer::syscalls32::Data& d)
     {
         const auto Handle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -2742,7 +2742,7 @@ namespace
             it(Handle);
     }
 
-    static void on_ZwMapCMFModule(monitor::syscalls32::Data& d)
+    static void on_ZwMapCMFModule(tracer::syscalls32::Data& d)
     {
         const auto What            = arg<nt32::ULONG>(d.core, 0);
         const auto Index           = arg<nt32::ULONG>(d.core, 1);
@@ -2758,7 +2758,7 @@ namespace
             it(What, Index, CacheIndexOut, CacheFlagsOut, ViewSizeOut, STARBaseAddress);
     }
 
-    static void on_NtMapUserPhysicalPages(monitor::syscalls32::Data& d)
+    static void on_NtMapUserPhysicalPages(tracer::syscalls32::Data& d)
     {
         const auto VirtualAddress = arg<nt32::PVOID>(d.core, 0);
         const auto NumberOfPages  = arg<nt32::ULONG_PTR>(d.core, 1);
@@ -2771,7 +2771,7 @@ namespace
             it(VirtualAddress, NumberOfPages, UserPfnArra);
     }
 
-    static void on_ZwMapUserPhysicalPagesScatter(monitor::syscalls32::Data& d)
+    static void on_ZwMapUserPhysicalPagesScatter(tracer::syscalls32::Data& d)
     {
         const auto STARVirtualAddresses = arg<nt32::PVOID>(d.core, 0);
         const auto NumberOfPages        = arg<nt32::ULONG_PTR>(d.core, 1);
@@ -2784,7 +2784,7 @@ namespace
             it(STARVirtualAddresses, NumberOfPages, UserPfnArray);
     }
 
-    static void on_ZwMapViewOfSection(monitor::syscalls32::Data& d)
+    static void on_ZwMapViewOfSection(tracer::syscalls32::Data& d)
     {
         const auto SectionHandle      = arg<nt32::HANDLE>(d.core, 0);
         const auto ProcessHandle      = arg<nt32::HANDLE>(d.core, 1);
@@ -2804,7 +2804,7 @@ namespace
             it(SectionHandle, ProcessHandle, STARBaseAddress, ZeroBits, CommitSize, SectionOffset, ViewSize, InheritDisposition, AllocationType, Win32Protect);
     }
 
-    static void on_NtModifyBootEntry(monitor::syscalls32::Data& d)
+    static void on_NtModifyBootEntry(tracer::syscalls32::Data& d)
     {
         const auto BootEntry = arg<nt32::PBOOT_ENTRY>(d.core, 0);
 
@@ -2815,7 +2815,7 @@ namespace
             it(BootEntry);
     }
 
-    static void on_ZwModifyDriverEntry(monitor::syscalls32::Data& d)
+    static void on_ZwModifyDriverEntry(tracer::syscalls32::Data& d)
     {
         const auto DriverEntry = arg<nt32::PEFI_DRIVER_ENTRY>(d.core, 0);
 
@@ -2826,7 +2826,7 @@ namespace
             it(DriverEntry);
     }
 
-    static void on_NtNotifyChangeDirectoryFile(monitor::syscalls32::Data& d)
+    static void on_NtNotifyChangeDirectoryFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle       = arg<nt32::HANDLE>(d.core, 0);
         const auto Event            = arg<nt32::HANDLE>(d.core, 1);
@@ -2845,7 +2845,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, CompletionFilter, WatchTree);
     }
 
-    static void on_NtNotifyChangeKey(monitor::syscalls32::Data& d)
+    static void on_NtNotifyChangeKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle        = arg<nt32::HANDLE>(d.core, 0);
         const auto Event            = arg<nt32::HANDLE>(d.core, 1);
@@ -2865,7 +2865,7 @@ namespace
             it(KeyHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
     }
 
-    static void on_NtNotifyChangeMultipleKeys(monitor::syscalls32::Data& d)
+    static void on_NtNotifyChangeMultipleKeys(tracer::syscalls32::Data& d)
     {
         const auto MasterKeyHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto Count            = arg<nt32::ULONG>(d.core, 1);
@@ -2887,7 +2887,7 @@ namespace
             it(MasterKeyHandle, Count, SlaveObjects, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
     }
 
-    static void on_NtNotifyChangeSession(monitor::syscalls32::Data& d)
+    static void on_NtNotifyChangeSession(tracer::syscalls32::Data& d)
     {
         const auto Session         = arg<nt32::HANDLE>(d.core, 0);
         const auto IoStateSequence = arg<nt32::ULONG>(d.core, 1);
@@ -2905,7 +2905,7 @@ namespace
             it(Session, IoStateSequence, Reserved, Action, IoState, IoState2, Buffer, BufferSize);
     }
 
-    static void on_ZwOpenDirectoryObject(monitor::syscalls32::Data& d)
+    static void on_ZwOpenDirectoryObject(tracer::syscalls32::Data& d)
     {
         const auto DirectoryHandle  = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -2918,7 +2918,7 @@ namespace
             it(DirectoryHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwOpenEnlistment(monitor::syscalls32::Data& d)
+    static void on_ZwOpenEnlistment(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle      = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -2933,7 +2933,7 @@ namespace
             it(EnlistmentHandle, DesiredAccess, ResourceManagerHandle, EnlistmentGuid, ObjectAttributes);
     }
 
-    static void on_NtOpenEvent(monitor::syscalls32::Data& d)
+    static void on_NtOpenEvent(tracer::syscalls32::Data& d)
     {
         const auto EventHandle      = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -2946,7 +2946,7 @@ namespace
             it(EventHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenEventPair(monitor::syscalls32::Data& d)
+    static void on_NtOpenEventPair(tracer::syscalls32::Data& d)
     {
         const auto EventPairHandle  = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -2959,7 +2959,7 @@ namespace
             it(EventPairHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenFile(monitor::syscalls32::Data& d)
+    static void on_NtOpenFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle       = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -2975,7 +2975,7 @@ namespace
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, OpenOptions);
     }
 
-    static void on_ZwOpenIoCompletion(monitor::syscalls32::Data& d)
+    static void on_ZwOpenIoCompletion(tracer::syscalls32::Data& d)
     {
         const auto IoCompletionHandle = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -2988,7 +2988,7 @@ namespace
             it(IoCompletionHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwOpenJobObject(monitor::syscalls32::Data& d)
+    static void on_ZwOpenJobObject(tracer::syscalls32::Data& d)
     {
         const auto JobHandle        = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3001,7 +3001,7 @@ namespace
             it(JobHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenKeyedEvent(monitor::syscalls32::Data& d)
+    static void on_NtOpenKeyedEvent(tracer::syscalls32::Data& d)
     {
         const auto KeyedEventHandle = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3014,7 +3014,7 @@ namespace
             it(KeyedEventHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwOpenKeyEx(monitor::syscalls32::Data& d)
+    static void on_ZwOpenKeyEx(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle        = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3028,7 +3028,7 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions);
     }
 
-    static void on_ZwOpenKey(monitor::syscalls32::Data& d)
+    static void on_ZwOpenKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle        = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3041,7 +3041,7 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenKeyTransactedEx(monitor::syscalls32::Data& d)
+    static void on_NtOpenKeyTransactedEx(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle         = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3056,7 +3056,7 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions, TransactionHandle);
     }
 
-    static void on_NtOpenKeyTransacted(monitor::syscalls32::Data& d)
+    static void on_NtOpenKeyTransacted(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle         = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3070,7 +3070,7 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, TransactionHandle);
     }
 
-    static void on_NtOpenMutant(monitor::syscalls32::Data& d)
+    static void on_NtOpenMutant(tracer::syscalls32::Data& d)
     {
         const auto MutantHandle     = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3083,7 +3083,7 @@ namespace
             it(MutantHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwOpenObjectAuditAlarm(monitor::syscalls32::Data& d)
+    static void on_ZwOpenObjectAuditAlarm(tracer::syscalls32::Data& d)
     {
         const auto SubsystemName      = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto HandleId           = arg<nt32::PVOID>(d.core, 1);
@@ -3105,7 +3105,7 @@ namespace
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, ClientToken, DesiredAccess, GrantedAccess, Privileges, ObjectCreation, AccessGranted, GenerateOnClose);
     }
 
-    static void on_NtOpenPrivateNamespace(monitor::syscalls32::Data& d)
+    static void on_NtOpenPrivateNamespace(tracer::syscalls32::Data& d)
     {
         const auto NamespaceHandle    = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3119,7 +3119,7 @@ namespace
             it(NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
     }
 
-    static void on_ZwOpenProcess(monitor::syscalls32::Data& d)
+    static void on_ZwOpenProcess(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle    = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3133,7 +3133,7 @@ namespace
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ClientId);
     }
 
-    static void on_ZwOpenProcessTokenEx(monitor::syscalls32::Data& d)
+    static void on_ZwOpenProcessTokenEx(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3147,7 +3147,7 @@ namespace
             it(ProcessHandle, DesiredAccess, HandleAttributes, TokenHandle);
     }
 
-    static void on_ZwOpenProcessToken(monitor::syscalls32::Data& d)
+    static void on_ZwOpenProcessToken(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto DesiredAccess = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3160,7 +3160,7 @@ namespace
             it(ProcessHandle, DesiredAccess, TokenHandle);
     }
 
-    static void on_ZwOpenResourceManager(monitor::syscalls32::Data& d)
+    static void on_ZwOpenResourceManager(tracer::syscalls32::Data& d)
     {
         const auto ResourceManagerHandle = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3175,7 +3175,7 @@ namespace
             it(ResourceManagerHandle, DesiredAccess, TmHandle, ResourceManagerGuid, ObjectAttributes);
     }
 
-    static void on_NtOpenSection(monitor::syscalls32::Data& d)
+    static void on_NtOpenSection(tracer::syscalls32::Data& d)
     {
         const auto SectionHandle    = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3188,7 +3188,7 @@ namespace
             it(SectionHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenSemaphore(monitor::syscalls32::Data& d)
+    static void on_NtOpenSemaphore(tracer::syscalls32::Data& d)
     {
         const auto SemaphoreHandle  = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3201,7 +3201,7 @@ namespace
             it(SemaphoreHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenSession(monitor::syscalls32::Data& d)
+    static void on_NtOpenSession(tracer::syscalls32::Data& d)
     {
         const auto SessionHandle    = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3214,7 +3214,7 @@ namespace
             it(SessionHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenSymbolicLinkObject(monitor::syscalls32::Data& d)
+    static void on_NtOpenSymbolicLinkObject(tracer::syscalls32::Data& d)
     {
         const auto LinkHandle       = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3227,7 +3227,7 @@ namespace
             it(LinkHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwOpenThread(monitor::syscalls32::Data& d)
+    static void on_ZwOpenThread(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle     = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3241,7 +3241,7 @@ namespace
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ClientId);
     }
 
-    static void on_NtOpenThreadTokenEx(monitor::syscalls32::Data& d)
+    static void on_NtOpenThreadTokenEx(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle     = arg<nt32::HANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3256,7 +3256,7 @@ namespace
             it(ThreadHandle, DesiredAccess, OpenAsSelf, HandleAttributes, TokenHandle);
     }
 
-    static void on_NtOpenThreadToken(monitor::syscalls32::Data& d)
+    static void on_NtOpenThreadToken(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto DesiredAccess = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3270,7 +3270,7 @@ namespace
             it(ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
     }
 
-    static void on_ZwOpenTimer(monitor::syscalls32::Data& d)
+    static void on_ZwOpenTimer(tracer::syscalls32::Data& d)
     {
         const auto TimerHandle      = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3283,7 +3283,7 @@ namespace
             it(TimerHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwOpenTransactionManager(monitor::syscalls32::Data& d)
+    static void on_ZwOpenTransactionManager(tracer::syscalls32::Data& d)
     {
         const auto TmHandle         = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3299,7 +3299,7 @@ namespace
             it(TmHandle, DesiredAccess, ObjectAttributes, LogFileName, TmIdentity, OpenOptions);
     }
 
-    static void on_ZwOpenTransaction(monitor::syscalls32::Data& d)
+    static void on_ZwOpenTransaction(tracer::syscalls32::Data& d)
     {
         const auto TransactionHandle = arg<nt32::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 1);
@@ -3314,7 +3314,7 @@ namespace
             it(TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle);
     }
 
-    static void on_NtPlugPlayControl(monitor::syscalls32::Data& d)
+    static void on_NtPlugPlayControl(tracer::syscalls32::Data& d)
     {
         const auto PnPControlClass      = arg<nt32::PLUGPLAY_CONTROL_CLASS>(d.core, 0);
         const auto PnPControlData       = arg<nt32::PVOID>(d.core, 1);
@@ -3327,7 +3327,7 @@ namespace
             it(PnPControlClass, PnPControlData, PnPControlDataLength);
     }
 
-    static void on_ZwPowerInformation(monitor::syscalls32::Data& d)
+    static void on_ZwPowerInformation(tracer::syscalls32::Data& d)
     {
         const auto InformationLevel   = arg<nt32::POWER_INFORMATION_LEVEL>(d.core, 0);
         const auto InputBuffer        = arg<nt32::PVOID>(d.core, 1);
@@ -3342,7 +3342,7 @@ namespace
             it(InformationLevel, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
     }
 
-    static void on_NtPrepareComplete(monitor::syscalls32::Data& d)
+    static void on_NtPrepareComplete(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -3354,7 +3354,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_ZwPrepareEnlistment(monitor::syscalls32::Data& d)
+    static void on_ZwPrepareEnlistment(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -3366,7 +3366,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_ZwPrePrepareComplete(monitor::syscalls32::Data& d)
+    static void on_ZwPrePrepareComplete(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -3378,7 +3378,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtPrePrepareEnlistment(monitor::syscalls32::Data& d)
+    static void on_NtPrePrepareEnlistment(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -3390,7 +3390,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_ZwPrivilegeCheck(monitor::syscalls32::Data& d)
+    static void on_ZwPrivilegeCheck(tracer::syscalls32::Data& d)
     {
         const auto ClientToken        = arg<nt32::HANDLE>(d.core, 0);
         const auto RequiredPrivileges = arg<nt32::PPRIVILEGE_SET>(d.core, 1);
@@ -3403,7 +3403,7 @@ namespace
             it(ClientToken, RequiredPrivileges, Result);
     }
 
-    static void on_NtPrivilegedServiceAuditAlarm(monitor::syscalls32::Data& d)
+    static void on_NtPrivilegedServiceAuditAlarm(tracer::syscalls32::Data& d)
     {
         const auto SubsystemName = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto ServiceName   = arg<nt32::PUNICODE_STRING>(d.core, 1);
@@ -3418,7 +3418,7 @@ namespace
             it(SubsystemName, ServiceName, ClientToken, Privileges, AccessGranted);
     }
 
-    static void on_ZwPrivilegeObjectAuditAlarm(monitor::syscalls32::Data& d)
+    static void on_ZwPrivilegeObjectAuditAlarm(tracer::syscalls32::Data& d)
     {
         const auto SubsystemName = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto HandleId      = arg<nt32::PVOID>(d.core, 1);
@@ -3434,7 +3434,7 @@ namespace
             it(SubsystemName, HandleId, ClientToken, DesiredAccess, Privileges, AccessGranted);
     }
 
-    static void on_NtPropagationComplete(monitor::syscalls32::Data& d)
+    static void on_NtPropagationComplete(tracer::syscalls32::Data& d)
     {
         const auto ResourceManagerHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto RequestCookie         = arg<nt32::ULONG>(d.core, 1);
@@ -3448,7 +3448,7 @@ namespace
             it(ResourceManagerHandle, RequestCookie, BufferLength, Buffer);
     }
 
-    static void on_ZwPropagationFailed(monitor::syscalls32::Data& d)
+    static void on_ZwPropagationFailed(tracer::syscalls32::Data& d)
     {
         const auto ResourceManagerHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto RequestCookie         = arg<nt32::ULONG>(d.core, 1);
@@ -3461,7 +3461,7 @@ namespace
             it(ResourceManagerHandle, RequestCookie, PropStatus);
     }
 
-    static void on_ZwProtectVirtualMemory(monitor::syscalls32::Data& d)
+    static void on_ZwProtectVirtualMemory(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle   = arg<nt32::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt32::PVOID>(d.core, 1);
@@ -3476,7 +3476,7 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, NewProtectWin32, OldProtect);
     }
 
-    static void on_ZwPulseEvent(monitor::syscalls32::Data& d)
+    static void on_ZwPulseEvent(tracer::syscalls32::Data& d)
     {
         const auto EventHandle   = arg<nt32::HANDLE>(d.core, 0);
         const auto PreviousState = arg<nt32::PLONG>(d.core, 1);
@@ -3488,7 +3488,7 @@ namespace
             it(EventHandle, PreviousState);
     }
 
-    static void on_ZwQueryAttributesFile(monitor::syscalls32::Data& d)
+    static void on_ZwQueryAttributesFile(tracer::syscalls32::Data& d)
     {
         const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto FileInformation  = arg<nt32::PFILE_BASIC_INFORMATION>(d.core, 1);
@@ -3500,7 +3500,7 @@ namespace
             it(ObjectAttributes, FileInformation);
     }
 
-    static void on_ZwQueryBootEntryOrder(monitor::syscalls32::Data& d)
+    static void on_ZwQueryBootEntryOrder(tracer::syscalls32::Data& d)
     {
         const auto Ids   = arg<nt32::PULONG>(d.core, 0);
         const auto Count = arg<nt32::PULONG>(d.core, 1);
@@ -3512,7 +3512,7 @@ namespace
             it(Ids, Count);
     }
 
-    static void on_ZwQueryBootOptions(monitor::syscalls32::Data& d)
+    static void on_ZwQueryBootOptions(tracer::syscalls32::Data& d)
     {
         const auto BootOptions       = arg<nt32::PBOOT_OPTIONS>(d.core, 0);
         const auto BootOptionsLength = arg<nt32::PULONG>(d.core, 1);
@@ -3524,7 +3524,7 @@ namespace
             it(BootOptions, BootOptionsLength);
     }
 
-    static void on_NtQueryDebugFilterState(monitor::syscalls32::Data& d)
+    static void on_NtQueryDebugFilterState(tracer::syscalls32::Data& d)
     {
         const auto ComponentId = arg<nt32::ULONG>(d.core, 0);
         const auto Level       = arg<nt32::ULONG>(d.core, 1);
@@ -3536,7 +3536,7 @@ namespace
             it(ComponentId, Level);
     }
 
-    static void on_NtQueryDefaultLocale(monitor::syscalls32::Data& d)
+    static void on_NtQueryDefaultLocale(tracer::syscalls32::Data& d)
     {
         const auto UserProfile     = arg<nt32::BOOLEAN>(d.core, 0);
         const auto DefaultLocaleId = arg<nt32::PLCID>(d.core, 1);
@@ -3548,7 +3548,7 @@ namespace
             it(UserProfile, DefaultLocaleId);
     }
 
-    static void on_ZwQueryDefaultUILanguage(monitor::syscalls32::Data& d)
+    static void on_ZwQueryDefaultUILanguage(tracer::syscalls32::Data& d)
     {
         const auto STARDefaultUILanguageId = arg<nt32::LANGID>(d.core, 0);
 
@@ -3559,7 +3559,7 @@ namespace
             it(STARDefaultUILanguageId);
     }
 
-    static void on_ZwQueryDirectoryFile(monitor::syscalls32::Data& d)
+    static void on_ZwQueryDirectoryFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle           = arg<nt32::HANDLE>(d.core, 0);
         const auto Event                = arg<nt32::HANDLE>(d.core, 1);
@@ -3580,7 +3580,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan);
     }
 
-    static void on_ZwQueryDirectoryObject(monitor::syscalls32::Data& d)
+    static void on_ZwQueryDirectoryObject(tracer::syscalls32::Data& d)
     {
         const auto DirectoryHandle   = arg<nt32::HANDLE>(d.core, 0);
         const auto Buffer            = arg<nt32::PVOID>(d.core, 1);
@@ -3597,7 +3597,7 @@ namespace
             it(DirectoryHandle, Buffer, Length, ReturnSingleEntry, RestartScan, Context, ReturnLength);
     }
 
-    static void on_NtQueryDriverEntryOrder(monitor::syscalls32::Data& d)
+    static void on_NtQueryDriverEntryOrder(tracer::syscalls32::Data& d)
     {
         const auto Ids   = arg<nt32::PULONG>(d.core, 0);
         const auto Count = arg<nt32::PULONG>(d.core, 1);
@@ -3609,7 +3609,7 @@ namespace
             it(Ids, Count);
     }
 
-    static void on_ZwQueryEaFile(monitor::syscalls32::Data& d)
+    static void on_ZwQueryEaFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle        = arg<nt32::HANDLE>(d.core, 0);
         const auto IoStatusBlock     = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
@@ -3628,7 +3628,7 @@ namespace
             it(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, EaList, EaListLength, EaIndex, RestartScan);
     }
 
-    static void on_NtQueryEvent(monitor::syscalls32::Data& d)
+    static void on_NtQueryEvent(tracer::syscalls32::Data& d)
     {
         const auto EventHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto EventInformationClass  = arg<nt32::EVENT_INFORMATION_CLASS>(d.core, 1);
@@ -3643,7 +3643,7 @@ namespace
             it(EventHandle, EventInformationClass, EventInformation, EventInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryFullAttributesFile(monitor::syscalls32::Data& d)
+    static void on_ZwQueryFullAttributesFile(tracer::syscalls32::Data& d)
     {
         const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto FileInformation  = arg<nt32::PFILE_NETWORK_OPEN_INFORMATION>(d.core, 1);
@@ -3655,7 +3655,7 @@ namespace
             it(ObjectAttributes, FileInformation);
     }
 
-    static void on_NtQueryInformationAtom(monitor::syscalls32::Data& d)
+    static void on_NtQueryInformationAtom(tracer::syscalls32::Data& d)
     {
         const auto Atom                  = arg<nt32::RTL_ATOM>(d.core, 0);
         const auto InformationClass      = arg<nt32::ATOM_INFORMATION_CLASS>(d.core, 1);
@@ -3670,7 +3670,7 @@ namespace
             it(Atom, InformationClass, AtomInformation, AtomInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryInformationEnlistment(monitor::syscalls32::Data& d)
+    static void on_ZwQueryInformationEnlistment(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto EnlistmentInformationClass  = arg<nt32::ENLISTMENT_INFORMATION_CLASS>(d.core, 1);
@@ -3685,7 +3685,7 @@ namespace
             it(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryInformationFile(monitor::syscalls32::Data& d)
+    static void on_ZwQueryInformationFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle           = arg<nt32::HANDLE>(d.core, 0);
         const auto IoStatusBlock        = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
@@ -3700,7 +3700,7 @@ namespace
             it(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
     }
 
-    static void on_ZwQueryInformationJobObject(monitor::syscalls32::Data& d)
+    static void on_ZwQueryInformationJobObject(tracer::syscalls32::Data& d)
     {
         const auto JobHandle                  = arg<nt32::HANDLE>(d.core, 0);
         const auto JobObjectInformationClass  = arg<nt32::JOBOBJECTINFOCLASS>(d.core, 1);
@@ -3715,7 +3715,7 @@ namespace
             it(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryInformationPort(monitor::syscalls32::Data& d)
+    static void on_ZwQueryInformationPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle           = arg<nt32::HANDLE>(d.core, 0);
         const auto PortInformationClass = arg<nt32::PORT_INFORMATION_CLASS>(d.core, 1);
@@ -3730,7 +3730,7 @@ namespace
             it(PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
     }
 
-    static void on_ZwQueryInformationProcess(monitor::syscalls32::Data& d)
+    static void on_ZwQueryInformationProcess(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto ProcessInformationClass  = arg<nt32::PROCESSINFOCLASS>(d.core, 1);
@@ -3745,7 +3745,7 @@ namespace
             it(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryInformationResourceManager(monitor::syscalls32::Data& d)
+    static void on_ZwQueryInformationResourceManager(tracer::syscalls32::Data& d)
     {
         const auto ResourceManagerHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto ResourceManagerInformationClass  = arg<nt32::RESOURCEMANAGER_INFORMATION_CLASS>(d.core, 1);
@@ -3760,7 +3760,7 @@ namespace
             it(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationThread(monitor::syscalls32::Data& d)
+    static void on_NtQueryInformationThread(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto ThreadInformationClass  = arg<nt32::THREADINFOCLASS>(d.core, 1);
@@ -3775,7 +3775,7 @@ namespace
             it(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryInformationToken(monitor::syscalls32::Data& d)
+    static void on_ZwQueryInformationToken(tracer::syscalls32::Data& d)
     {
         const auto TokenHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto TokenInformationClass  = arg<nt32::TOKEN_INFORMATION_CLASS>(d.core, 1);
@@ -3790,7 +3790,7 @@ namespace
             it(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryInformationTransaction(monitor::syscalls32::Data& d)
+    static void on_ZwQueryInformationTransaction(tracer::syscalls32::Data& d)
     {
         const auto TransactionHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto TransactionInformationClass  = arg<nt32::TRANSACTION_INFORMATION_CLASS>(d.core, 1);
@@ -3805,7 +3805,7 @@ namespace
             it(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationTransactionManager(monitor::syscalls32::Data& d)
+    static void on_NtQueryInformationTransactionManager(tracer::syscalls32::Data& d)
     {
         const auto TransactionManagerHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto TransactionManagerInformationClass  = arg<nt32::TRANSACTIONMANAGER_INFORMATION_CLASS>(d.core, 1);
@@ -3820,7 +3820,7 @@ namespace
             it(TransactionManagerHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryInformationWorkerFactory(monitor::syscalls32::Data& d)
+    static void on_ZwQueryInformationWorkerFactory(tracer::syscalls32::Data& d)
     {
         const auto WorkerFactoryHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto WorkerFactoryInformationClass  = arg<nt32::WORKERFACTORYINFOCLASS>(d.core, 1);
@@ -3835,7 +3835,7 @@ namespace
             it(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInstallUILanguage(monitor::syscalls32::Data& d)
+    static void on_NtQueryInstallUILanguage(tracer::syscalls32::Data& d)
     {
         const auto STARInstallUILanguageId = arg<nt32::LANGID>(d.core, 0);
 
@@ -3846,7 +3846,7 @@ namespace
             it(STARInstallUILanguageId);
     }
 
-    static void on_NtQueryIntervalProfile(monitor::syscalls32::Data& d)
+    static void on_NtQueryIntervalProfile(tracer::syscalls32::Data& d)
     {
         const auto ProfileSource = arg<nt32::KPROFILE_SOURCE>(d.core, 0);
         const auto Interval      = arg<nt32::PULONG>(d.core, 1);
@@ -3858,7 +3858,7 @@ namespace
             it(ProfileSource, Interval);
     }
 
-    static void on_NtQueryIoCompletion(monitor::syscalls32::Data& d)
+    static void on_NtQueryIoCompletion(tracer::syscalls32::Data& d)
     {
         const auto IoCompletionHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto IoCompletionInformationClass  = arg<nt32::IO_COMPLETION_INFORMATION_CLASS>(d.core, 1);
@@ -3873,7 +3873,7 @@ namespace
             it(IoCompletionHandle, IoCompletionInformationClass, IoCompletionInformation, IoCompletionInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryKey(monitor::syscalls32::Data& d)
+    static void on_ZwQueryKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle           = arg<nt32::HANDLE>(d.core, 0);
         const auto KeyInformationClass = arg<nt32::KEY_INFORMATION_CLASS>(d.core, 1);
@@ -3888,7 +3888,7 @@ namespace
             it(KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength);
     }
 
-    static void on_NtQueryLicenseValue(monitor::syscalls32::Data& d)
+    static void on_NtQueryLicenseValue(tracer::syscalls32::Data& d)
     {
         const auto Name           = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto Type           = arg<nt32::PULONG>(d.core, 1);
@@ -3903,7 +3903,7 @@ namespace
             it(Name, Type, Buffer, Length, ReturnedLength);
     }
 
-    static void on_NtQueryMultipleValueKey(monitor::syscalls32::Data& d)
+    static void on_NtQueryMultipleValueKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto ValueEntries         = arg<nt32::PKEY_VALUE_ENTRY>(d.core, 1);
@@ -3919,7 +3919,7 @@ namespace
             it(KeyHandle, ValueEntries, EntryCount, ValueBuffer, BufferLength, RequiredBufferLength);
     }
 
-    static void on_NtQueryMutant(monitor::syscalls32::Data& d)
+    static void on_NtQueryMutant(tracer::syscalls32::Data& d)
     {
         const auto MutantHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto MutantInformationClass  = arg<nt32::MUTANT_INFORMATION_CLASS>(d.core, 1);
@@ -3934,7 +3934,7 @@ namespace
             it(MutantHandle, MutantInformationClass, MutantInformation, MutantInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryObject(monitor::syscalls32::Data& d)
+    static void on_NtQueryObject(tracer::syscalls32::Data& d)
     {
         const auto Handle                  = arg<nt32::HANDLE>(d.core, 0);
         const auto ObjectInformationClass  = arg<nt32::OBJECT_INFORMATION_CLASS>(d.core, 1);
@@ -3949,7 +3949,7 @@ namespace
             it(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryOpenSubKeysEx(monitor::syscalls32::Data& d)
+    static void on_NtQueryOpenSubKeysEx(tracer::syscalls32::Data& d)
     {
         const auto TargetKey    = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto BufferLength = arg<nt32::ULONG>(d.core, 1);
@@ -3963,7 +3963,7 @@ namespace
             it(TargetKey, BufferLength, Buffer, RequiredSize);
     }
 
-    static void on_NtQueryOpenSubKeys(monitor::syscalls32::Data& d)
+    static void on_NtQueryOpenSubKeys(tracer::syscalls32::Data& d)
     {
         const auto TargetKey   = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto HandleCount = arg<nt32::PULONG>(d.core, 1);
@@ -3975,7 +3975,7 @@ namespace
             it(TargetKey, HandleCount);
     }
 
-    static void on_NtQueryPerformanceCounter(monitor::syscalls32::Data& d)
+    static void on_NtQueryPerformanceCounter(tracer::syscalls32::Data& d)
     {
         const auto PerformanceCounter   = arg<nt32::PLARGE_INTEGER>(d.core, 0);
         const auto PerformanceFrequency = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -3987,7 +3987,7 @@ namespace
             it(PerformanceCounter, PerformanceFrequency);
     }
 
-    static void on_ZwQueryQuotaInformationFile(monitor::syscalls32::Data& d)
+    static void on_ZwQueryQuotaInformationFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle        = arg<nt32::HANDLE>(d.core, 0);
         const auto IoStatusBlock     = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
@@ -4006,7 +4006,7 @@ namespace
             it(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, SidList, SidListLength, StartSid, RestartScan);
     }
 
-    static void on_ZwQuerySection(monitor::syscalls32::Data& d)
+    static void on_ZwQuerySection(tracer::syscalls32::Data& d)
     {
         const auto SectionHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto SectionInformationClass  = arg<nt32::SECTION_INFORMATION_CLASS>(d.core, 1);
@@ -4021,7 +4021,7 @@ namespace
             it(SectionHandle, SectionInformationClass, SectionInformation, SectionInformationLength, ReturnLength);
     }
 
-    static void on_ZwQuerySecurityAttributesToken(monitor::syscalls32::Data& d)
+    static void on_ZwQuerySecurityAttributesToken(tracer::syscalls32::Data& d)
     {
         const auto TokenHandle        = arg<nt32::HANDLE>(d.core, 0);
         const auto Attributes         = arg<nt32::PUNICODE_STRING>(d.core, 1);
@@ -4037,7 +4037,7 @@ namespace
             it(TokenHandle, Attributes, NumberOfAttributes, Buffer, Length, ReturnLength);
     }
 
-    static void on_NtQuerySecurityObject(monitor::syscalls32::Data& d)
+    static void on_NtQuerySecurityObject(tracer::syscalls32::Data& d)
     {
         const auto Handle              = arg<nt32::HANDLE>(d.core, 0);
         const auto SecurityInformation = arg<nt32::SECURITY_INFORMATION>(d.core, 1);
@@ -4052,7 +4052,7 @@ namespace
             it(Handle, SecurityInformation, SecurityDescriptor, Length, LengthNeeded);
     }
 
-    static void on_ZwQuerySemaphore(monitor::syscalls32::Data& d)
+    static void on_ZwQuerySemaphore(tracer::syscalls32::Data& d)
     {
         const auto SemaphoreHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto SemaphoreInformationClass  = arg<nt32::SEMAPHORE_INFORMATION_CLASS>(d.core, 1);
@@ -4067,7 +4067,7 @@ namespace
             it(SemaphoreHandle, SemaphoreInformationClass, SemaphoreInformation, SemaphoreInformationLength, ReturnLength);
     }
 
-    static void on_ZwQuerySymbolicLinkObject(monitor::syscalls32::Data& d)
+    static void on_ZwQuerySymbolicLinkObject(tracer::syscalls32::Data& d)
     {
         const auto LinkHandle     = arg<nt32::HANDLE>(d.core, 0);
         const auto LinkTarget     = arg<nt32::PUNICODE_STRING>(d.core, 1);
@@ -4080,7 +4080,7 @@ namespace
             it(LinkHandle, LinkTarget, ReturnedLength);
     }
 
-    static void on_ZwQuerySystemEnvironmentValueEx(monitor::syscalls32::Data& d)
+    static void on_ZwQuerySystemEnvironmentValueEx(tracer::syscalls32::Data& d)
     {
         const auto VariableName = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto VendorGuid   = arg<nt32::LPGUID>(d.core, 1);
@@ -4095,7 +4095,7 @@ namespace
             it(VariableName, VendorGuid, Value, ValueLength, Attributes);
     }
 
-    static void on_ZwQuerySystemEnvironmentValue(monitor::syscalls32::Data& d)
+    static void on_ZwQuerySystemEnvironmentValue(tracer::syscalls32::Data& d)
     {
         const auto VariableName  = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto VariableValue = arg<nt32::PWSTR>(d.core, 1);
@@ -4109,7 +4109,7 @@ namespace
             it(VariableName, VariableValue, ValueLength, ReturnLength);
     }
 
-    static void on_ZwQuerySystemInformationEx(monitor::syscalls32::Data& d)
+    static void on_ZwQuerySystemInformationEx(tracer::syscalls32::Data& d)
     {
         const auto SystemInformationClass  = arg<nt32::SYSTEM_INFORMATION_CLASS>(d.core, 0);
         const auto QueryInformation        = arg<nt32::PVOID>(d.core, 1);
@@ -4125,7 +4125,7 @@ namespace
             it(SystemInformationClass, QueryInformation, QueryInformationLength, SystemInformation, SystemInformationLength, ReturnLength);
     }
 
-    static void on_NtQuerySystemInformation(monitor::syscalls32::Data& d)
+    static void on_NtQuerySystemInformation(tracer::syscalls32::Data& d)
     {
         const auto SystemInformationClass  = arg<nt32::SYSTEM_INFORMATION_CLASS>(d.core, 0);
         const auto SystemInformation       = arg<nt32::PVOID>(d.core, 1);
@@ -4139,7 +4139,7 @@ namespace
             it(SystemInformationClass, SystemInformation, SystemInformationLength, ReturnLength);
     }
 
-    static void on_NtQuerySystemTime(monitor::syscalls32::Data& d)
+    static void on_NtQuerySystemTime(tracer::syscalls32::Data& d)
     {
         const auto SystemTime = arg<nt32::PLARGE_INTEGER>(d.core, 0);
 
@@ -4150,7 +4150,7 @@ namespace
             it(SystemTime);
     }
 
-    static void on_ZwQueryTimer(monitor::syscalls32::Data& d)
+    static void on_ZwQueryTimer(tracer::syscalls32::Data& d)
     {
         const auto TimerHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto TimerInformationClass  = arg<nt32::TIMER_INFORMATION_CLASS>(d.core, 1);
@@ -4165,7 +4165,7 @@ namespace
             it(TimerHandle, TimerInformationClass, TimerInformation, TimerInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryTimerResolution(monitor::syscalls32::Data& d)
+    static void on_NtQueryTimerResolution(tracer::syscalls32::Data& d)
     {
         const auto MaximumTime = arg<nt32::PULONG>(d.core, 0);
         const auto MinimumTime = arg<nt32::PULONG>(d.core, 1);
@@ -4178,7 +4178,7 @@ namespace
             it(MaximumTime, MinimumTime, CurrentTime);
     }
 
-    static void on_ZwQueryValueKey(monitor::syscalls32::Data& d)
+    static void on_ZwQueryValueKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle                = arg<nt32::HANDLE>(d.core, 0);
         const auto ValueName                = arg<nt32::PUNICODE_STRING>(d.core, 1);
@@ -4194,7 +4194,7 @@ namespace
             it(KeyHandle, ValueName, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
     }
 
-    static void on_NtQueryVirtualMemory(monitor::syscalls32::Data& d)
+    static void on_NtQueryVirtualMemory(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle           = arg<nt32::HANDLE>(d.core, 0);
         const auto BaseAddress             = arg<nt32::PVOID>(d.core, 1);
@@ -4210,7 +4210,7 @@ namespace
             it(ProcessHandle, BaseAddress, MemoryInformationClass, MemoryInformation, MemoryInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryVolumeInformationFile(monitor::syscalls32::Data& d)
+    static void on_NtQueryVolumeInformationFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle         = arg<nt32::HANDLE>(d.core, 0);
         const auto IoStatusBlock      = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
@@ -4225,7 +4225,7 @@ namespace
             it(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
     }
 
-    static void on_NtQueueApcThreadEx(monitor::syscalls32::Data& d)
+    static void on_NtQueueApcThreadEx(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle         = arg<nt32::HANDLE>(d.core, 0);
         const auto UserApcReserveHandle = arg<nt32::HANDLE>(d.core, 1);
@@ -4241,7 +4241,7 @@ namespace
             it(ThreadHandle, UserApcReserveHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
     }
 
-    static void on_NtQueueApcThread(monitor::syscalls32::Data& d)
+    static void on_NtQueueApcThread(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto ApcRoutine   = arg<nt32::PPS_APC_ROUTINE>(d.core, 1);
@@ -4256,7 +4256,7 @@ namespace
             it(ThreadHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
     }
 
-    static void on_ZwRaiseException(monitor::syscalls32::Data& d)
+    static void on_ZwRaiseException(tracer::syscalls32::Data& d)
     {
         const auto ExceptionRecord = arg<nt32::PEXCEPTION_RECORD>(d.core, 0);
         const auto ContextRecord   = arg<nt32::PCONTEXT>(d.core, 1);
@@ -4269,7 +4269,7 @@ namespace
             it(ExceptionRecord, ContextRecord, FirstChance);
     }
 
-    static void on_ZwRaiseHardError(monitor::syscalls32::Data& d)
+    static void on_ZwRaiseHardError(tracer::syscalls32::Data& d)
     {
         const auto ErrorStatus                = arg<nt32::NTSTATUS>(d.core, 0);
         const auto NumberOfParameters         = arg<nt32::ULONG>(d.core, 1);
@@ -4285,7 +4285,7 @@ namespace
             it(ErrorStatus, NumberOfParameters, UnicodeStringParameterMask, Parameters, ValidResponseOptions, Response);
     }
 
-    static void on_NtReadFile(monitor::syscalls32::Data& d)
+    static void on_NtReadFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto Event         = arg<nt32::HANDLE>(d.core, 1);
@@ -4304,7 +4304,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
     }
 
-    static void on_NtReadFileScatter(monitor::syscalls32::Data& d)
+    static void on_NtReadFileScatter(tracer::syscalls32::Data& d)
     {
         const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto Event         = arg<nt32::HANDLE>(d.core, 1);
@@ -4323,7 +4323,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
     }
 
-    static void on_ZwReadOnlyEnlistment(monitor::syscalls32::Data& d)
+    static void on_ZwReadOnlyEnlistment(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -4335,7 +4335,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_ZwReadRequestData(monitor::syscalls32::Data& d)
+    static void on_ZwReadRequestData(tracer::syscalls32::Data& d)
     {
         const auto PortHandle        = arg<nt32::HANDLE>(d.core, 0);
         const auto Message           = arg<nt32::PPORT_MESSAGE>(d.core, 1);
@@ -4351,7 +4351,7 @@ namespace
             it(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesRead);
     }
 
-    static void on_NtReadVirtualMemory(monitor::syscalls32::Data& d)
+    static void on_NtReadVirtualMemory(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle     = arg<nt32::HANDLE>(d.core, 0);
         const auto BaseAddress       = arg<nt32::PVOID>(d.core, 1);
@@ -4366,7 +4366,7 @@ namespace
             it(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesRead);
     }
 
-    static void on_NtRecoverEnlistment(monitor::syscalls32::Data& d)
+    static void on_NtRecoverEnlistment(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto EnlistmentKey    = arg<nt32::PVOID>(d.core, 1);
@@ -4378,7 +4378,7 @@ namespace
             it(EnlistmentHandle, EnlistmentKey);
     }
 
-    static void on_NtRecoverResourceManager(monitor::syscalls32::Data& d)
+    static void on_NtRecoverResourceManager(tracer::syscalls32::Data& d)
     {
         const auto ResourceManagerHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -4389,7 +4389,7 @@ namespace
             it(ResourceManagerHandle);
     }
 
-    static void on_ZwRecoverTransactionManager(monitor::syscalls32::Data& d)
+    static void on_ZwRecoverTransactionManager(tracer::syscalls32::Data& d)
     {
         const auto TransactionManagerHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -4400,7 +4400,7 @@ namespace
             it(TransactionManagerHandle);
     }
 
-    static void on_ZwRegisterProtocolAddressInformation(monitor::syscalls32::Data& d)
+    static void on_ZwRegisterProtocolAddressInformation(tracer::syscalls32::Data& d)
     {
         const auto ResourceManager         = arg<nt32::HANDLE>(d.core, 0);
         const auto ProtocolId              = arg<nt32::PCRM_PROTOCOL_ID>(d.core, 1);
@@ -4415,7 +4415,7 @@ namespace
             it(ResourceManager, ProtocolId, ProtocolInformationSize, ProtocolInformation, CreateOptions);
     }
 
-    static void on_ZwRegisterThreadTerminatePort(monitor::syscalls32::Data& d)
+    static void on_ZwRegisterThreadTerminatePort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -4426,7 +4426,7 @@ namespace
             it(PortHandle);
     }
 
-    static void on_NtReleaseKeyedEvent(monitor::syscalls32::Data& d)
+    static void on_NtReleaseKeyedEvent(tracer::syscalls32::Data& d)
     {
         const auto KeyedEventHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto KeyValue         = arg<nt32::PVOID>(d.core, 1);
@@ -4440,7 +4440,7 @@ namespace
             it(KeyedEventHandle, KeyValue, Alertable, Timeout);
     }
 
-    static void on_ZwReleaseMutant(monitor::syscalls32::Data& d)
+    static void on_ZwReleaseMutant(tracer::syscalls32::Data& d)
     {
         const auto MutantHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto PreviousCount = arg<nt32::PLONG>(d.core, 1);
@@ -4452,7 +4452,7 @@ namespace
             it(MutantHandle, PreviousCount);
     }
 
-    static void on_NtReleaseSemaphore(monitor::syscalls32::Data& d)
+    static void on_NtReleaseSemaphore(tracer::syscalls32::Data& d)
     {
         const auto SemaphoreHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto ReleaseCount    = arg<nt32::LONG>(d.core, 1);
@@ -4465,7 +4465,7 @@ namespace
             it(SemaphoreHandle, ReleaseCount, PreviousCount);
     }
 
-    static void on_ZwReleaseWorkerFactoryWorker(monitor::syscalls32::Data& d)
+    static void on_ZwReleaseWorkerFactoryWorker(tracer::syscalls32::Data& d)
     {
         const auto WorkerFactoryHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -4476,7 +4476,7 @@ namespace
             it(WorkerFactoryHandle);
     }
 
-    static void on_ZwRemoveIoCompletionEx(monitor::syscalls32::Data& d)
+    static void on_ZwRemoveIoCompletionEx(tracer::syscalls32::Data& d)
     {
         const auto IoCompletionHandle      = arg<nt32::HANDLE>(d.core, 0);
         const auto IoCompletionInformation = arg<nt32::PFILE_IO_COMPLETION_INFORMATION>(d.core, 1);
@@ -4492,7 +4492,7 @@ namespace
             it(IoCompletionHandle, IoCompletionInformation, Count, NumEntriesRemoved, Timeout, Alertable);
     }
 
-    static void on_ZwRemoveIoCompletion(monitor::syscalls32::Data& d)
+    static void on_ZwRemoveIoCompletion(tracer::syscalls32::Data& d)
     {
         const auto IoCompletionHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto STARKeyContext     = arg<nt32::PVOID>(d.core, 1);
@@ -4507,7 +4507,7 @@ namespace
             it(IoCompletionHandle, STARKeyContext, STARApcContext, IoStatusBlock, Timeout);
     }
 
-    static void on_ZwRemoveProcessDebug(monitor::syscalls32::Data& d)
+    static void on_ZwRemoveProcessDebug(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle     = arg<nt32::HANDLE>(d.core, 0);
         const auto DebugObjectHandle = arg<nt32::HANDLE>(d.core, 1);
@@ -4519,7 +4519,7 @@ namespace
             it(ProcessHandle, DebugObjectHandle);
     }
 
-    static void on_ZwRenameKey(monitor::syscalls32::Data& d)
+    static void on_ZwRenameKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto NewName   = arg<nt32::PUNICODE_STRING>(d.core, 1);
@@ -4531,7 +4531,7 @@ namespace
             it(KeyHandle, NewName);
     }
 
-    static void on_NtRenameTransactionManager(monitor::syscalls32::Data& d)
+    static void on_NtRenameTransactionManager(tracer::syscalls32::Data& d)
     {
         const auto LogFileName                    = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto ExistingTransactionManagerGuid = arg<nt32::LPGUID>(d.core, 1);
@@ -4543,7 +4543,7 @@ namespace
             it(LogFileName, ExistingTransactionManagerGuid);
     }
 
-    static void on_ZwReplaceKey(monitor::syscalls32::Data& d)
+    static void on_ZwReplaceKey(tracer::syscalls32::Data& d)
     {
         const auto NewFile      = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto TargetHandle = arg<nt32::HANDLE>(d.core, 1);
@@ -4556,7 +4556,7 @@ namespace
             it(NewFile, TargetHandle, OldFile);
     }
 
-    static void on_NtReplacePartitionUnit(monitor::syscalls32::Data& d)
+    static void on_NtReplacePartitionUnit(tracer::syscalls32::Data& d)
     {
         const auto TargetInstancePath = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto SpareInstancePath  = arg<nt32::PUNICODE_STRING>(d.core, 1);
@@ -4569,7 +4569,7 @@ namespace
             it(TargetInstancePath, SpareInstancePath, Flags);
     }
 
-    static void on_ZwReplyPort(monitor::syscalls32::Data& d)
+    static void on_ZwReplyPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle   = arg<nt32::HANDLE>(d.core, 0);
         const auto ReplyMessage = arg<nt32::PPORT_MESSAGE>(d.core, 1);
@@ -4581,7 +4581,7 @@ namespace
             it(PortHandle, ReplyMessage);
     }
 
-    static void on_NtReplyWaitReceivePortEx(monitor::syscalls32::Data& d)
+    static void on_NtReplyWaitReceivePortEx(tracer::syscalls32::Data& d)
     {
         const auto PortHandle      = arg<nt32::HANDLE>(d.core, 0);
         const auto STARPortContext = arg<nt32::PVOID>(d.core, 1);
@@ -4596,7 +4596,7 @@ namespace
             it(PortHandle, STARPortContext, ReplyMessage, ReceiveMessage, Timeout);
     }
 
-    static void on_NtReplyWaitReceivePort(monitor::syscalls32::Data& d)
+    static void on_NtReplyWaitReceivePort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle      = arg<nt32::HANDLE>(d.core, 0);
         const auto STARPortContext = arg<nt32::PVOID>(d.core, 1);
@@ -4610,7 +4610,7 @@ namespace
             it(PortHandle, STARPortContext, ReplyMessage, ReceiveMessage);
     }
 
-    static void on_NtReplyWaitReplyPort(monitor::syscalls32::Data& d)
+    static void on_NtReplyWaitReplyPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle   = arg<nt32::HANDLE>(d.core, 0);
         const auto ReplyMessage = arg<nt32::PPORT_MESSAGE>(d.core, 1);
@@ -4622,7 +4622,7 @@ namespace
             it(PortHandle, ReplyMessage);
     }
 
-    static void on_ZwRequestPort(monitor::syscalls32::Data& d)
+    static void on_ZwRequestPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle     = arg<nt32::HANDLE>(d.core, 0);
         const auto RequestMessage = arg<nt32::PPORT_MESSAGE>(d.core, 1);
@@ -4634,7 +4634,7 @@ namespace
             it(PortHandle, RequestMessage);
     }
 
-    static void on_NtRequestWaitReplyPort(monitor::syscalls32::Data& d)
+    static void on_NtRequestWaitReplyPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle     = arg<nt32::HANDLE>(d.core, 0);
         const auto RequestMessage = arg<nt32::PPORT_MESSAGE>(d.core, 1);
@@ -4647,7 +4647,7 @@ namespace
             it(PortHandle, RequestMessage, ReplyMessage);
     }
 
-    static void on_NtResetEvent(monitor::syscalls32::Data& d)
+    static void on_NtResetEvent(tracer::syscalls32::Data& d)
     {
         const auto EventHandle   = arg<nt32::HANDLE>(d.core, 0);
         const auto PreviousState = arg<nt32::PLONG>(d.core, 1);
@@ -4659,7 +4659,7 @@ namespace
             it(EventHandle, PreviousState);
     }
 
-    static void on_ZwResetWriteWatch(monitor::syscalls32::Data& d)
+    static void on_ZwResetWriteWatch(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto BaseAddress   = arg<nt32::PVOID>(d.core, 1);
@@ -4672,7 +4672,7 @@ namespace
             it(ProcessHandle, BaseAddress, RegionSize);
     }
 
-    static void on_NtRestoreKey(monitor::syscalls32::Data& d)
+    static void on_NtRestoreKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto FileHandle = arg<nt32::HANDLE>(d.core, 1);
@@ -4685,7 +4685,7 @@ namespace
             it(KeyHandle, FileHandle, Flags);
     }
 
-    static void on_ZwResumeProcess(monitor::syscalls32::Data& d)
+    static void on_ZwResumeProcess(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -4696,7 +4696,7 @@ namespace
             it(ProcessHandle);
     }
 
-    static void on_ZwResumeThread(monitor::syscalls32::Data& d)
+    static void on_ZwResumeThread(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle         = arg<nt32::HANDLE>(d.core, 0);
         const auto PreviousSuspendCount = arg<nt32::PULONG>(d.core, 1);
@@ -4708,7 +4708,7 @@ namespace
             it(ThreadHandle, PreviousSuspendCount);
     }
 
-    static void on_ZwRollbackComplete(monitor::syscalls32::Data& d)
+    static void on_ZwRollbackComplete(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -4720,7 +4720,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtRollbackEnlistment(monitor::syscalls32::Data& d)
+    static void on_NtRollbackEnlistment(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -4732,7 +4732,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtRollbackTransaction(monitor::syscalls32::Data& d)
+    static void on_NtRollbackTransaction(tracer::syscalls32::Data& d)
     {
         const auto TransactionHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto Wait              = arg<nt32::BOOLEAN>(d.core, 1);
@@ -4744,7 +4744,7 @@ namespace
             it(TransactionHandle, Wait);
     }
 
-    static void on_NtRollforwardTransactionManager(monitor::syscalls32::Data& d)
+    static void on_NtRollforwardTransactionManager(tracer::syscalls32::Data& d)
     {
         const auto TransactionManagerHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto TmVirtualClock           = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -4756,7 +4756,7 @@ namespace
             it(TransactionManagerHandle, TmVirtualClock);
     }
 
-    static void on_NtSaveKeyEx(monitor::syscalls32::Data& d)
+    static void on_NtSaveKeyEx(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto FileHandle = arg<nt32::HANDLE>(d.core, 1);
@@ -4769,7 +4769,7 @@ namespace
             it(KeyHandle, FileHandle, Format);
     }
 
-    static void on_NtSaveKey(monitor::syscalls32::Data& d)
+    static void on_NtSaveKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto FileHandle = arg<nt32::HANDLE>(d.core, 1);
@@ -4781,7 +4781,7 @@ namespace
             it(KeyHandle, FileHandle);
     }
 
-    static void on_NtSaveMergedKeys(monitor::syscalls32::Data& d)
+    static void on_NtSaveMergedKeys(tracer::syscalls32::Data& d)
     {
         const auto HighPrecedenceKeyHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto LowPrecedenceKeyHandle  = arg<nt32::HANDLE>(d.core, 1);
@@ -4794,7 +4794,7 @@ namespace
             it(HighPrecedenceKeyHandle, LowPrecedenceKeyHandle, FileHandle);
     }
 
-    static void on_NtSecureConnectPort(monitor::syscalls32::Data& d)
+    static void on_NtSecureConnectPort(tracer::syscalls32::Data& d)
     {
         const auto PortHandle                  = arg<nt32::PHANDLE>(d.core, 0);
         const auto PortName                    = arg<nt32::PUNICODE_STRING>(d.core, 1);
@@ -4813,7 +4813,7 @@ namespace
             it(PortHandle, PortName, SecurityQos, ClientView, RequiredServerSid, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
     }
 
-    static void on_ZwSetBootEntryOrder(monitor::syscalls32::Data& d)
+    static void on_ZwSetBootEntryOrder(tracer::syscalls32::Data& d)
     {
         const auto Ids   = arg<nt32::PULONG>(d.core, 0);
         const auto Count = arg<nt32::ULONG>(d.core, 1);
@@ -4825,7 +4825,7 @@ namespace
             it(Ids, Count);
     }
 
-    static void on_ZwSetBootOptions(monitor::syscalls32::Data& d)
+    static void on_ZwSetBootOptions(tracer::syscalls32::Data& d)
     {
         const auto BootOptions    = arg<nt32::PBOOT_OPTIONS>(d.core, 0);
         const auto FieldsToChange = arg<nt32::ULONG>(d.core, 1);
@@ -4837,7 +4837,7 @@ namespace
             it(BootOptions, FieldsToChange);
     }
 
-    static void on_ZwSetContextThread(monitor::syscalls32::Data& d)
+    static void on_ZwSetContextThread(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto ThreadContext = arg<nt32::PCONTEXT>(d.core, 1);
@@ -4849,7 +4849,7 @@ namespace
             it(ThreadHandle, ThreadContext);
     }
 
-    static void on_NtSetDebugFilterState(monitor::syscalls32::Data& d)
+    static void on_NtSetDebugFilterState(tracer::syscalls32::Data& d)
     {
         const auto ComponentId = arg<nt32::ULONG>(d.core, 0);
         const auto Level       = arg<nt32::ULONG>(d.core, 1);
@@ -4862,7 +4862,7 @@ namespace
             it(ComponentId, Level, State);
     }
 
-    static void on_NtSetDefaultHardErrorPort(monitor::syscalls32::Data& d)
+    static void on_NtSetDefaultHardErrorPort(tracer::syscalls32::Data& d)
     {
         const auto DefaultHardErrorPort = arg<nt32::HANDLE>(d.core, 0);
 
@@ -4873,7 +4873,7 @@ namespace
             it(DefaultHardErrorPort);
     }
 
-    static void on_NtSetDefaultLocale(monitor::syscalls32::Data& d)
+    static void on_NtSetDefaultLocale(tracer::syscalls32::Data& d)
     {
         const auto UserProfile     = arg<nt32::BOOLEAN>(d.core, 0);
         const auto DefaultLocaleId = arg<nt32::LCID>(d.core, 1);
@@ -4885,7 +4885,7 @@ namespace
             it(UserProfile, DefaultLocaleId);
     }
 
-    static void on_ZwSetDefaultUILanguage(monitor::syscalls32::Data& d)
+    static void on_ZwSetDefaultUILanguage(tracer::syscalls32::Data& d)
     {
         const auto DefaultUILanguageId = arg<nt32::LANGID>(d.core, 0);
 
@@ -4896,7 +4896,7 @@ namespace
             it(DefaultUILanguageId);
     }
 
-    static void on_NtSetDriverEntryOrder(monitor::syscalls32::Data& d)
+    static void on_NtSetDriverEntryOrder(tracer::syscalls32::Data& d)
     {
         const auto Ids   = arg<nt32::PULONG>(d.core, 0);
         const auto Count = arg<nt32::ULONG>(d.core, 1);
@@ -4908,7 +4908,7 @@ namespace
             it(Ids, Count);
     }
 
-    static void on_ZwSetEaFile(monitor::syscalls32::Data& d)
+    static void on_ZwSetEaFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
@@ -4922,7 +4922,7 @@ namespace
             it(FileHandle, IoStatusBlock, Buffer, Length);
     }
 
-    static void on_NtSetEventBoostPriority(monitor::syscalls32::Data& d)
+    static void on_NtSetEventBoostPriority(tracer::syscalls32::Data& d)
     {
         const auto EventHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -4933,7 +4933,7 @@ namespace
             it(EventHandle);
     }
 
-    static void on_NtSetEvent(monitor::syscalls32::Data& d)
+    static void on_NtSetEvent(tracer::syscalls32::Data& d)
     {
         const auto EventHandle   = arg<nt32::HANDLE>(d.core, 0);
         const auto PreviousState = arg<nt32::PLONG>(d.core, 1);
@@ -4945,7 +4945,7 @@ namespace
             it(EventHandle, PreviousState);
     }
 
-    static void on_NtSetHighEventPair(monitor::syscalls32::Data& d)
+    static void on_NtSetHighEventPair(tracer::syscalls32::Data& d)
     {
         const auto EventPairHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -4956,7 +4956,7 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_NtSetHighWaitLowEventPair(monitor::syscalls32::Data& d)
+    static void on_NtSetHighWaitLowEventPair(tracer::syscalls32::Data& d)
     {
         const auto EventPairHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -4967,7 +4967,7 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_ZwSetInformationDebugObject(monitor::syscalls32::Data& d)
+    static void on_ZwSetInformationDebugObject(tracer::syscalls32::Data& d)
     {
         const auto DebugObjectHandle           = arg<nt32::HANDLE>(d.core, 0);
         const auto DebugObjectInformationClass = arg<nt32::DEBUGOBJECTINFOCLASS>(d.core, 1);
@@ -4982,7 +4982,7 @@ namespace
             it(DebugObjectHandle, DebugObjectInformationClass, DebugInformation, DebugInformationLength, ReturnLength);
     }
 
-    static void on_NtSetInformationEnlistment(monitor::syscalls32::Data& d)
+    static void on_NtSetInformationEnlistment(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto EnlistmentInformationClass  = arg<nt32::ENLISTMENT_INFORMATION_CLASS>(d.core, 1);
@@ -4996,7 +4996,7 @@ namespace
             it(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength);
     }
 
-    static void on_ZwSetInformationFile(monitor::syscalls32::Data& d)
+    static void on_ZwSetInformationFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle           = arg<nt32::HANDLE>(d.core, 0);
         const auto IoStatusBlock        = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
@@ -5011,7 +5011,7 @@ namespace
             it(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
     }
 
-    static void on_ZwSetInformationJobObject(monitor::syscalls32::Data& d)
+    static void on_ZwSetInformationJobObject(tracer::syscalls32::Data& d)
     {
         const auto JobHandle                  = arg<nt32::HANDLE>(d.core, 0);
         const auto JobObjectInformationClass  = arg<nt32::JOBOBJECTINFOCLASS>(d.core, 1);
@@ -5025,7 +5025,7 @@ namespace
             it(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength);
     }
 
-    static void on_ZwSetInformationKey(monitor::syscalls32::Data& d)
+    static void on_ZwSetInformationKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle               = arg<nt32::HANDLE>(d.core, 0);
         const auto KeySetInformationClass  = arg<nt32::KEY_SET_INFORMATION_CLASS>(d.core, 1);
@@ -5039,7 +5039,7 @@ namespace
             it(KeyHandle, KeySetInformationClass, KeySetInformation, KeySetInformationLength);
     }
 
-    static void on_ZwSetInformationObject(monitor::syscalls32::Data& d)
+    static void on_ZwSetInformationObject(tracer::syscalls32::Data& d)
     {
         const auto Handle                  = arg<nt32::HANDLE>(d.core, 0);
         const auto ObjectInformationClass  = arg<nt32::OBJECT_INFORMATION_CLASS>(d.core, 1);
@@ -5053,7 +5053,7 @@ namespace
             it(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength);
     }
 
-    static void on_ZwSetInformationProcess(monitor::syscalls32::Data& d)
+    static void on_ZwSetInformationProcess(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto ProcessInformationClass  = arg<nt32::PROCESSINFOCLASS>(d.core, 1);
@@ -5067,7 +5067,7 @@ namespace
             it(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength);
     }
 
-    static void on_ZwSetInformationResourceManager(monitor::syscalls32::Data& d)
+    static void on_ZwSetInformationResourceManager(tracer::syscalls32::Data& d)
     {
         const auto ResourceManagerHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto ResourceManagerInformationClass  = arg<nt32::RESOURCEMANAGER_INFORMATION_CLASS>(d.core, 1);
@@ -5081,7 +5081,7 @@ namespace
             it(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength);
     }
 
-    static void on_ZwSetInformationThread(monitor::syscalls32::Data& d)
+    static void on_ZwSetInformationThread(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto ThreadInformationClass  = arg<nt32::THREADINFOCLASS>(d.core, 1);
@@ -5095,7 +5095,7 @@ namespace
             it(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength);
     }
 
-    static void on_ZwSetInformationToken(monitor::syscalls32::Data& d)
+    static void on_ZwSetInformationToken(tracer::syscalls32::Data& d)
     {
         const auto TokenHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto TokenInformationClass  = arg<nt32::TOKEN_INFORMATION_CLASS>(d.core, 1);
@@ -5109,7 +5109,7 @@ namespace
             it(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength);
     }
 
-    static void on_ZwSetInformationTransaction(monitor::syscalls32::Data& d)
+    static void on_ZwSetInformationTransaction(tracer::syscalls32::Data& d)
     {
         const auto TransactionHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto TransactionInformationClass  = arg<nt32::TRANSACTION_INFORMATION_CLASS>(d.core, 1);
@@ -5123,7 +5123,7 @@ namespace
             it(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength);
     }
 
-    static void on_ZwSetInformationTransactionManager(monitor::syscalls32::Data& d)
+    static void on_ZwSetInformationTransactionManager(tracer::syscalls32::Data& d)
     {
         const auto TmHandle                            = arg<nt32::HANDLE>(d.core, 0);
         const auto TransactionManagerInformationClass  = arg<nt32::TRANSACTIONMANAGER_INFORMATION_CLASS>(d.core, 1);
@@ -5137,7 +5137,7 @@ namespace
             it(TmHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength);
     }
 
-    static void on_ZwSetInformationWorkerFactory(monitor::syscalls32::Data& d)
+    static void on_ZwSetInformationWorkerFactory(tracer::syscalls32::Data& d)
     {
         const auto WorkerFactoryHandle            = arg<nt32::HANDLE>(d.core, 0);
         const auto WorkerFactoryInformationClass  = arg<nt32::WORKERFACTORYINFOCLASS>(d.core, 1);
@@ -5151,7 +5151,7 @@ namespace
             it(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength);
     }
 
-    static void on_NtSetIntervalProfile(monitor::syscalls32::Data& d)
+    static void on_NtSetIntervalProfile(tracer::syscalls32::Data& d)
     {
         const auto Interval = arg<nt32::ULONG>(d.core, 0);
         const auto Source   = arg<nt32::KPROFILE_SOURCE>(d.core, 1);
@@ -5163,7 +5163,7 @@ namespace
             it(Interval, Source);
     }
 
-    static void on_NtSetIoCompletionEx(monitor::syscalls32::Data& d)
+    static void on_NtSetIoCompletionEx(tracer::syscalls32::Data& d)
     {
         const auto IoCompletionHandle        = arg<nt32::HANDLE>(d.core, 0);
         const auto IoCompletionReserveHandle = arg<nt32::HANDLE>(d.core, 1);
@@ -5179,7 +5179,7 @@ namespace
             it(IoCompletionHandle, IoCompletionReserveHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
     }
 
-    static void on_NtSetIoCompletion(monitor::syscalls32::Data& d)
+    static void on_NtSetIoCompletion(tracer::syscalls32::Data& d)
     {
         const auto IoCompletionHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto KeyContext          = arg<nt32::PVOID>(d.core, 1);
@@ -5194,7 +5194,7 @@ namespace
             it(IoCompletionHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
     }
 
-    static void on_ZwSetLdtEntries(monitor::syscalls32::Data& d)
+    static void on_ZwSetLdtEntries(tracer::syscalls32::Data& d)
     {
         const auto Selector0 = arg<nt32::ULONG>(d.core, 0);
         const auto Entry0Low = arg<nt32::ULONG>(d.core, 1);
@@ -5210,7 +5210,7 @@ namespace
             it(Selector0, Entry0Low, Entry0Hi, Selector1, Entry1Low, Entry1Hi);
     }
 
-    static void on_ZwSetLowEventPair(monitor::syscalls32::Data& d)
+    static void on_ZwSetLowEventPair(tracer::syscalls32::Data& d)
     {
         const auto EventPairHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -5221,7 +5221,7 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_ZwSetLowWaitHighEventPair(monitor::syscalls32::Data& d)
+    static void on_ZwSetLowWaitHighEventPair(tracer::syscalls32::Data& d)
     {
         const auto EventPairHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -5232,7 +5232,7 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_ZwSetQuotaInformationFile(monitor::syscalls32::Data& d)
+    static void on_ZwSetQuotaInformationFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
@@ -5246,7 +5246,7 @@ namespace
             it(FileHandle, IoStatusBlock, Buffer, Length);
     }
 
-    static void on_NtSetSecurityObject(monitor::syscalls32::Data& d)
+    static void on_NtSetSecurityObject(tracer::syscalls32::Data& d)
     {
         const auto Handle              = arg<nt32::HANDLE>(d.core, 0);
         const auto SecurityInformation = arg<nt32::SECURITY_INFORMATION>(d.core, 1);
@@ -5259,7 +5259,7 @@ namespace
             it(Handle, SecurityInformation, SecurityDescriptor);
     }
 
-    static void on_ZwSetSystemEnvironmentValueEx(monitor::syscalls32::Data& d)
+    static void on_ZwSetSystemEnvironmentValueEx(tracer::syscalls32::Data& d)
     {
         const auto VariableName = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto VendorGuid   = arg<nt32::LPGUID>(d.core, 1);
@@ -5274,7 +5274,7 @@ namespace
             it(VariableName, VendorGuid, Value, ValueLength, Attributes);
     }
 
-    static void on_ZwSetSystemEnvironmentValue(monitor::syscalls32::Data& d)
+    static void on_ZwSetSystemEnvironmentValue(tracer::syscalls32::Data& d)
     {
         const auto VariableName  = arg<nt32::PUNICODE_STRING>(d.core, 0);
         const auto VariableValue = arg<nt32::PUNICODE_STRING>(d.core, 1);
@@ -5286,7 +5286,7 @@ namespace
             it(VariableName, VariableValue);
     }
 
-    static void on_ZwSetSystemInformation(monitor::syscalls32::Data& d)
+    static void on_ZwSetSystemInformation(tracer::syscalls32::Data& d)
     {
         const auto SystemInformationClass  = arg<nt32::SYSTEM_INFORMATION_CLASS>(d.core, 0);
         const auto SystemInformation       = arg<nt32::PVOID>(d.core, 1);
@@ -5299,7 +5299,7 @@ namespace
             it(SystemInformationClass, SystemInformation, SystemInformationLength);
     }
 
-    static void on_ZwSetSystemPowerState(monitor::syscalls32::Data& d)
+    static void on_ZwSetSystemPowerState(tracer::syscalls32::Data& d)
     {
         const auto SystemAction   = arg<nt32::POWER_ACTION>(d.core, 0);
         const auto MinSystemState = arg<nt32::SYSTEM_POWER_STATE>(d.core, 1);
@@ -5312,7 +5312,7 @@ namespace
             it(SystemAction, MinSystemState, Flags);
     }
 
-    static void on_ZwSetSystemTime(monitor::syscalls32::Data& d)
+    static void on_ZwSetSystemTime(tracer::syscalls32::Data& d)
     {
         const auto SystemTime   = arg<nt32::PLARGE_INTEGER>(d.core, 0);
         const auto PreviousTime = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -5324,7 +5324,7 @@ namespace
             it(SystemTime, PreviousTime);
     }
 
-    static void on_ZwSetThreadExecutionState(monitor::syscalls32::Data& d)
+    static void on_ZwSetThreadExecutionState(tracer::syscalls32::Data& d)
     {
         const auto esFlags           = arg<nt32::EXECUTION_STATE>(d.core, 0);
         const auto STARPreviousFlags = arg<nt32::EXECUTION_STATE>(d.core, 1);
@@ -5336,7 +5336,7 @@ namespace
             it(esFlags, STARPreviousFlags);
     }
 
-    static void on_ZwSetTimerEx(monitor::syscalls32::Data& d)
+    static void on_ZwSetTimerEx(tracer::syscalls32::Data& d)
     {
         const auto TimerHandle               = arg<nt32::HANDLE>(d.core, 0);
         const auto TimerSetInformationClass  = arg<nt32::TIMER_SET_INFORMATION_CLASS>(d.core, 1);
@@ -5350,7 +5350,7 @@ namespace
             it(TimerHandle, TimerSetInformationClass, TimerSetInformation, TimerSetInformationLength);
     }
 
-    static void on_ZwSetTimer(monitor::syscalls32::Data& d)
+    static void on_ZwSetTimer(tracer::syscalls32::Data& d)
     {
         const auto TimerHandle     = arg<nt32::HANDLE>(d.core, 0);
         const auto DueTime         = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -5367,7 +5367,7 @@ namespace
             it(TimerHandle, DueTime, TimerApcRoutine, TimerContext, WakeTimer, Period, PreviousState);
     }
 
-    static void on_NtSetTimerResolution(monitor::syscalls32::Data& d)
+    static void on_NtSetTimerResolution(tracer::syscalls32::Data& d)
     {
         const auto DesiredTime   = arg<nt32::ULONG>(d.core, 0);
         const auto SetResolution = arg<nt32::BOOLEAN>(d.core, 1);
@@ -5380,7 +5380,7 @@ namespace
             it(DesiredTime, SetResolution, ActualTime);
     }
 
-    static void on_ZwSetUuidSeed(monitor::syscalls32::Data& d)
+    static void on_ZwSetUuidSeed(tracer::syscalls32::Data& d)
     {
         const auto Seed = arg<nt32::PCHAR>(d.core, 0);
 
@@ -5391,7 +5391,7 @@ namespace
             it(Seed);
     }
 
-    static void on_ZwSetValueKey(monitor::syscalls32::Data& d)
+    static void on_ZwSetValueKey(tracer::syscalls32::Data& d)
     {
         const auto KeyHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto ValueName  = arg<nt32::PUNICODE_STRING>(d.core, 1);
@@ -5407,7 +5407,7 @@ namespace
             it(KeyHandle, ValueName, TitleIndex, Type, Data, DataSize);
     }
 
-    static void on_NtSetVolumeInformationFile(monitor::syscalls32::Data& d)
+    static void on_NtSetVolumeInformationFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle         = arg<nt32::HANDLE>(d.core, 0);
         const auto IoStatusBlock      = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
@@ -5422,7 +5422,7 @@ namespace
             it(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
     }
 
-    static void on_ZwShutdownSystem(monitor::syscalls32::Data& d)
+    static void on_ZwShutdownSystem(tracer::syscalls32::Data& d)
     {
         const auto Action = arg<nt32::SHUTDOWN_ACTION>(d.core, 0);
 
@@ -5433,7 +5433,7 @@ namespace
             it(Action);
     }
 
-    static void on_NtShutdownWorkerFactory(monitor::syscalls32::Data& d)
+    static void on_NtShutdownWorkerFactory(tracer::syscalls32::Data& d)
     {
         const auto WorkerFactoryHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto STARPendingWorkerCount = arg<nt32::LONG>(d.core, 1);
@@ -5445,7 +5445,7 @@ namespace
             it(WorkerFactoryHandle, STARPendingWorkerCount);
     }
 
-    static void on_ZwSignalAndWaitForSingleObject(monitor::syscalls32::Data& d)
+    static void on_ZwSignalAndWaitForSingleObject(tracer::syscalls32::Data& d)
     {
         const auto SignalHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto WaitHandle   = arg<nt32::HANDLE>(d.core, 1);
@@ -5459,7 +5459,7 @@ namespace
             it(SignalHandle, WaitHandle, Alertable, Timeout);
     }
 
-    static void on_ZwSinglePhaseReject(monitor::syscalls32::Data& d)
+    static void on_ZwSinglePhaseReject(tracer::syscalls32::Data& d)
     {
         const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
@@ -5471,7 +5471,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtStartProfile(monitor::syscalls32::Data& d)
+    static void on_NtStartProfile(tracer::syscalls32::Data& d)
     {
         const auto ProfileHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -5482,7 +5482,7 @@ namespace
             it(ProfileHandle);
     }
 
-    static void on_ZwStopProfile(monitor::syscalls32::Data& d)
+    static void on_ZwStopProfile(tracer::syscalls32::Data& d)
     {
         const auto ProfileHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -5493,7 +5493,7 @@ namespace
             it(ProfileHandle);
     }
 
-    static void on_ZwSuspendProcess(monitor::syscalls32::Data& d)
+    static void on_ZwSuspendProcess(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -5504,7 +5504,7 @@ namespace
             it(ProcessHandle);
     }
 
-    static void on_ZwSuspendThread(monitor::syscalls32::Data& d)
+    static void on_ZwSuspendThread(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle         = arg<nt32::HANDLE>(d.core, 0);
         const auto PreviousSuspendCount = arg<nt32::PULONG>(d.core, 1);
@@ -5516,7 +5516,7 @@ namespace
             it(ThreadHandle, PreviousSuspendCount);
     }
 
-    static void on_NtSystemDebugControl(monitor::syscalls32::Data& d)
+    static void on_NtSystemDebugControl(tracer::syscalls32::Data& d)
     {
         const auto Command            = arg<nt32::SYSDBG_COMMAND>(d.core, 0);
         const auto InputBuffer        = arg<nt32::PVOID>(d.core, 1);
@@ -5532,7 +5532,7 @@ namespace
             it(Command, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength, ReturnLength);
     }
 
-    static void on_ZwTerminateJobObject(monitor::syscalls32::Data& d)
+    static void on_ZwTerminateJobObject(tracer::syscalls32::Data& d)
     {
         const auto JobHandle  = arg<nt32::HANDLE>(d.core, 0);
         const auto ExitStatus = arg<nt32::NTSTATUS>(d.core, 1);
@@ -5544,7 +5544,7 @@ namespace
             it(JobHandle, ExitStatus);
     }
 
-    static void on_ZwTerminateProcess(monitor::syscalls32::Data& d)
+    static void on_ZwTerminateProcess(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto ExitStatus    = arg<nt32::NTSTATUS>(d.core, 1);
@@ -5556,7 +5556,7 @@ namespace
             it(ProcessHandle, ExitStatus);
     }
 
-    static void on_ZwTerminateThread(monitor::syscalls32::Data& d)
+    static void on_ZwTerminateThread(tracer::syscalls32::Data& d)
     {
         const auto ThreadHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto ExitStatus   = arg<nt32::NTSTATUS>(d.core, 1);
@@ -5568,7 +5568,7 @@ namespace
             it(ThreadHandle, ExitStatus);
     }
 
-    static void on_ZwTraceControl(monitor::syscalls32::Data& d)
+    static void on_ZwTraceControl(tracer::syscalls32::Data& d)
     {
         const auto FunctionCode = arg<nt32::ULONG>(d.core, 0);
         const auto InBuffer     = arg<nt32::PVOID>(d.core, 1);
@@ -5584,7 +5584,7 @@ namespace
             it(FunctionCode, InBuffer, InBufferLen, OutBuffer, OutBufferLen, ReturnLength);
     }
 
-    static void on_NtTraceEvent(monitor::syscalls32::Data& d)
+    static void on_NtTraceEvent(tracer::syscalls32::Data& d)
     {
         const auto TraceHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto Flags       = arg<nt32::ULONG>(d.core, 1);
@@ -5598,7 +5598,7 @@ namespace
             it(TraceHandle, Flags, FieldSize, Fields);
     }
 
-    static void on_NtTranslateFilePath(monitor::syscalls32::Data& d)
+    static void on_NtTranslateFilePath(tracer::syscalls32::Data& d)
     {
         const auto InputFilePath        = arg<nt32::PFILE_PATH>(d.core, 0);
         const auto OutputType           = arg<nt32::ULONG>(d.core, 1);
@@ -5612,7 +5612,7 @@ namespace
             it(InputFilePath, OutputType, OutputFilePath, OutputFilePathLength);
     }
 
-    static void on_ZwUnloadDriver(monitor::syscalls32::Data& d)
+    static void on_ZwUnloadDriver(tracer::syscalls32::Data& d)
     {
         const auto DriverServiceName = arg<nt32::PUNICODE_STRING>(d.core, 0);
 
@@ -5623,7 +5623,7 @@ namespace
             it(DriverServiceName);
     }
 
-    static void on_ZwUnloadKey2(monitor::syscalls32::Data& d)
+    static void on_ZwUnloadKey2(tracer::syscalls32::Data& d)
     {
         const auto TargetKey = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto Flags     = arg<nt32::ULONG>(d.core, 1);
@@ -5635,7 +5635,7 @@ namespace
             it(TargetKey, Flags);
     }
 
-    static void on_ZwUnloadKeyEx(monitor::syscalls32::Data& d)
+    static void on_ZwUnloadKeyEx(tracer::syscalls32::Data& d)
     {
         const auto TargetKey = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto Event     = arg<nt32::HANDLE>(d.core, 1);
@@ -5647,7 +5647,7 @@ namespace
             it(TargetKey, Event);
     }
 
-    static void on_NtUnloadKey(monitor::syscalls32::Data& d)
+    static void on_NtUnloadKey(tracer::syscalls32::Data& d)
     {
         const auto TargetKey = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
 
@@ -5658,7 +5658,7 @@ namespace
             it(TargetKey);
     }
 
-    static void on_ZwUnlockFile(monitor::syscalls32::Data& d)
+    static void on_ZwUnlockFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
@@ -5673,7 +5673,7 @@ namespace
             it(FileHandle, IoStatusBlock, ByteOffset, Length, Key);
     }
 
-    static void on_NtUnlockVirtualMemory(monitor::syscalls32::Data& d)
+    static void on_NtUnlockVirtualMemory(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle   = arg<nt32::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt32::PVOID>(d.core, 1);
@@ -5687,7 +5687,7 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, MapType);
     }
 
-    static void on_NtUnmapViewOfSection(monitor::syscalls32::Data& d)
+    static void on_NtUnmapViewOfSection(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto BaseAddress   = arg<nt32::PVOID>(d.core, 1);
@@ -5699,7 +5699,7 @@ namespace
             it(ProcessHandle, BaseAddress);
     }
 
-    static void on_NtVdmControl(monitor::syscalls32::Data& d)
+    static void on_NtVdmControl(tracer::syscalls32::Data& d)
     {
         const auto Service     = arg<nt32::VDMSERVICECLASS>(d.core, 0);
         const auto ServiceData = arg<nt32::PVOID>(d.core, 1);
@@ -5711,7 +5711,7 @@ namespace
             it(Service, ServiceData);
     }
 
-    static void on_NtWaitForDebugEvent(monitor::syscalls32::Data& d)
+    static void on_NtWaitForDebugEvent(tracer::syscalls32::Data& d)
     {
         const auto DebugObjectHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto Alertable         = arg<nt32::BOOLEAN>(d.core, 1);
@@ -5725,7 +5725,7 @@ namespace
             it(DebugObjectHandle, Alertable, Timeout, WaitStateChange);
     }
 
-    static void on_NtWaitForKeyedEvent(monitor::syscalls32::Data& d)
+    static void on_NtWaitForKeyedEvent(tracer::syscalls32::Data& d)
     {
         const auto KeyedEventHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto KeyValue         = arg<nt32::PVOID>(d.core, 1);
@@ -5739,7 +5739,7 @@ namespace
             it(KeyedEventHandle, KeyValue, Alertable, Timeout);
     }
 
-    static void on_NtWaitForMultipleObjects32(monitor::syscalls32::Data& d)
+    static void on_NtWaitForMultipleObjects32(tracer::syscalls32::Data& d)
     {
         const auto Count     = arg<nt32::ULONG>(d.core, 0);
         const auto Handles   = arg<nt32::LONG>(d.core, 1);
@@ -5754,7 +5754,7 @@ namespace
             it(Count, Handles, WaitType, Alertable, Timeout);
     }
 
-    static void on_NtWaitForMultipleObjects(monitor::syscalls32::Data& d)
+    static void on_NtWaitForMultipleObjects(tracer::syscalls32::Data& d)
     {
         const auto Count     = arg<nt32::ULONG>(d.core, 0);
         const auto Handles   = arg<nt32::HANDLE>(d.core, 1);
@@ -5769,7 +5769,7 @@ namespace
             it(Count, Handles, WaitType, Alertable, Timeout);
     }
 
-    static void on_ZwWaitForSingleObject(monitor::syscalls32::Data& d)
+    static void on_ZwWaitForSingleObject(tracer::syscalls32::Data& d)
     {
         const auto Handle    = arg<nt32::HANDLE>(d.core, 0);
         const auto Alertable = arg<nt32::BOOLEAN>(d.core, 1);
@@ -5782,7 +5782,7 @@ namespace
             it(Handle, Alertable, Timeout);
     }
 
-    static void on_NtWaitForWorkViaWorkerFactory(monitor::syscalls32::Data& d)
+    static void on_NtWaitForWorkViaWorkerFactory(tracer::syscalls32::Data& d)
     {
         const auto WorkerFactoryHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto MiniPacket          = arg<nt32::PFILE_IO_COMPLETION_INFORMATION>(d.core, 1);
@@ -5794,7 +5794,7 @@ namespace
             it(WorkerFactoryHandle, MiniPacket);
     }
 
-    static void on_ZwWaitHighEventPair(monitor::syscalls32::Data& d)
+    static void on_ZwWaitHighEventPair(tracer::syscalls32::Data& d)
     {
         const auto EventPairHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -5805,7 +5805,7 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_NtWaitLowEventPair(monitor::syscalls32::Data& d)
+    static void on_NtWaitLowEventPair(tracer::syscalls32::Data& d)
     {
         const auto EventPairHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -5816,7 +5816,7 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_NtWorkerFactoryWorkerReady(monitor::syscalls32::Data& d)
+    static void on_NtWorkerFactoryWorkerReady(tracer::syscalls32::Data& d)
     {
         const auto WorkerFactoryHandle = arg<nt32::HANDLE>(d.core, 0);
 
@@ -5827,7 +5827,7 @@ namespace
             it(WorkerFactoryHandle);
     }
 
-    static void on_NtWriteFileGather(monitor::syscalls32::Data& d)
+    static void on_NtWriteFileGather(tracer::syscalls32::Data& d)
     {
         const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto Event         = arg<nt32::HANDLE>(d.core, 1);
@@ -5846,7 +5846,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
     }
 
-    static void on_NtWriteFile(monitor::syscalls32::Data& d)
+    static void on_NtWriteFile(tracer::syscalls32::Data& d)
     {
         const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
         const auto Event         = arg<nt32::HANDLE>(d.core, 1);
@@ -5865,7 +5865,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
     }
 
-    static void on_NtWriteRequestData(monitor::syscalls32::Data& d)
+    static void on_NtWriteRequestData(tracer::syscalls32::Data& d)
     {
         const auto PortHandle           = arg<nt32::HANDLE>(d.core, 0);
         const auto Message              = arg<nt32::PPORT_MESSAGE>(d.core, 1);
@@ -5881,7 +5881,7 @@ namespace
             it(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesWritten);
     }
 
-    static void on_NtWriteVirtualMemory(monitor::syscalls32::Data& d)
+    static void on_NtWriteVirtualMemory(tracer::syscalls32::Data& d)
     {
         const auto ProcessHandle        = arg<nt32::HANDLE>(d.core, 0);
         const auto BaseAddress          = arg<nt32::PVOID>(d.core, 1);
@@ -5896,7 +5896,7 @@ namespace
             it(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesWritten);
     }
 
-    static void on_NtDisableLastKnownGood(monitor::syscalls32::Data& d)
+    static void on_NtDisableLastKnownGood(tracer::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtDisableLastKnownGood()"));
@@ -5905,7 +5905,7 @@ namespace
             it();
     }
 
-    static void on_NtEnableLastKnownGood(monitor::syscalls32::Data& d)
+    static void on_NtEnableLastKnownGood(tracer::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtEnableLastKnownGood()"));
@@ -5914,7 +5914,7 @@ namespace
             it();
     }
 
-    static void on_ZwFlushProcessWriteBuffers(monitor::syscalls32::Data& d)
+    static void on_ZwFlushProcessWriteBuffers(tracer::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwFlushProcessWriteBuffers()"));
@@ -5923,7 +5923,7 @@ namespace
             it();
     }
 
-    static void on_NtFlushWriteBuffer(monitor::syscalls32::Data& d)
+    static void on_NtFlushWriteBuffer(tracer::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtFlushWriteBuffer()"));
@@ -5932,7 +5932,7 @@ namespace
             it();
     }
 
-    static void on_NtGetCurrentProcessorNumber(monitor::syscalls32::Data& d)
+    static void on_NtGetCurrentProcessorNumber(tracer::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtGetCurrentProcessorNumber()"));
@@ -5941,7 +5941,7 @@ namespace
             it();
     }
 
-    static void on_NtIsSystemResumeAutomatic(monitor::syscalls32::Data& d)
+    static void on_NtIsSystemResumeAutomatic(tracer::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtIsSystemResumeAutomatic()"));
@@ -5950,7 +5950,7 @@ namespace
             it();
     }
 
-    static void on_ZwIsUILanguageComitted(monitor::syscalls32::Data& d)
+    static void on_ZwIsUILanguageComitted(tracer::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwIsUILanguageComitted()"));
@@ -5959,7 +5959,7 @@ namespace
             it();
     }
 
-    static void on_ZwQueryPortInformationProcess(monitor::syscalls32::Data& d)
+    static void on_ZwQueryPortInformationProcess(tracer::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryPortInformationProcess()"));
@@ -5968,7 +5968,7 @@ namespace
             it();
     }
 
-    static void on_NtSerializeBoot(monitor::syscalls32::Data& d)
+    static void on_NtSerializeBoot(tracer::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSerializeBoot()"));
@@ -5977,7 +5977,7 @@ namespace
             it();
     }
 
-    static void on_NtTestAlert(monitor::syscalls32::Data& d)
+    static void on_NtTestAlert(tracer::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtTestAlert()"));
@@ -5986,7 +5986,7 @@ namespace
             it();
     }
 
-    static void on_ZwThawRegistry(monitor::syscalls32::Data& d)
+    static void on_ZwThawRegistry(tracer::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwThawRegistry()"));
@@ -5995,7 +5995,7 @@ namespace
             it();
     }
 
-    static void on_NtThawTransactions(monitor::syscalls32::Data& d)
+    static void on_NtThawTransactions(tracer::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtThawTransactions()"));
@@ -6004,7 +6004,7 @@ namespace
             it();
     }
 
-    static void on_ZwUmsThreadYield(monitor::syscalls32::Data& d)
+    static void on_ZwUmsThreadYield(tracer::syscalls32::Data& d)
     {
         const auto SchedulerParam = arg<nt32::PVOID>(d.core, 0);
 
@@ -6015,7 +6015,7 @@ namespace
             it(SchedulerParam);
     }
 
-    static void on_ZwYieldExecution(monitor::syscalls32::Data& d)
+    static void on_ZwYieldExecution(tracer::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwYieldExecution()"));
@@ -6027,7 +6027,7 @@ namespace
 }
 
 
-bool monitor::syscalls32::register_NtAcceptConnectPort(proc_t proc, const on_NtAcceptConnectPort_fn& on_func)
+bool tracer::syscalls32::register_NtAcceptConnectPort(proc_t proc, const on_NtAcceptConnectPort_fn& on_func)
 {
     if(d_->observers_NtAcceptConnectPort.empty())
         if(!register_callback_with(*d_, proc, "_NtAcceptConnectPort@24", &on_NtAcceptConnectPort))
@@ -6037,7 +6037,7 @@ bool monitor::syscalls32::register_NtAcceptConnectPort(proc_t proc, const on_NtA
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAccessCheckAndAuditAlarm(proc_t proc, const on_ZwAccessCheckAndAuditAlarm_fn& on_func)
+bool tracer::syscalls32::register_ZwAccessCheckAndAuditAlarm(proc_t proc, const on_ZwAccessCheckAndAuditAlarm_fn& on_func)
 {
     if(d_->observers_ZwAccessCheckAndAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_ZwAccessCheckAndAuditAlarm@44", &on_ZwAccessCheckAndAuditAlarm))
@@ -6047,7 +6047,7 @@ bool monitor::syscalls32::register_ZwAccessCheckAndAuditAlarm(proc_t proc, const
     return true;
 }
 
-bool monitor::syscalls32::register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeAndAuditAlarm_fn& on_func)
+bool tracer::syscalls32::register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeAndAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtAccessCheckByTypeAndAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_NtAccessCheckByTypeAndAuditAlarm@64", &on_NtAccessCheckByTypeAndAuditAlarm))
@@ -6057,7 +6057,7 @@ bool monitor::syscalls32::register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc,
     return true;
 }
 
-bool monitor::syscalls32::register_NtAccessCheckByType(proc_t proc, const on_NtAccessCheckByType_fn& on_func)
+bool tracer::syscalls32::register_NtAccessCheckByType(proc_t proc, const on_NtAccessCheckByType_fn& on_func)
 {
     if(d_->observers_NtAccessCheckByType.empty())
         if(!register_callback_with(*d_, proc, "_NtAccessCheckByType@44", &on_NtAccessCheckByType))
@@ -6067,7 +6067,7 @@ bool monitor::syscalls32::register_NtAccessCheckByType(proc_t proc, const on_NtA
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_func)
+bool tracer::syscalls32::register_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_func)
 {
     if(d_->observers_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle.empty())
         if(!register_callback_with(*d_, proc, "_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle@68", &on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle))
@@ -6077,7 +6077,7 @@ bool monitor::syscalls32::register_ZwAccessCheckByTypeResultListAndAuditAlarmByH
     return true;
 }
 
-bool monitor::syscalls32::register_NtAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarm_fn& on_func)
+bool tracer::syscalls32::register_NtAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtAccessCheckByTypeResultListAndAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_NtAccessCheckByTypeResultListAndAuditAlarm@64", &on_NtAccessCheckByTypeResultListAndAuditAlarm))
@@ -6087,7 +6087,7 @@ bool monitor::syscalls32::register_NtAccessCheckByTypeResultListAndAuditAlarm(pr
     return true;
 }
 
-bool monitor::syscalls32::register_NtAccessCheckByTypeResultList(proc_t proc, const on_NtAccessCheckByTypeResultList_fn& on_func)
+bool tracer::syscalls32::register_NtAccessCheckByTypeResultList(proc_t proc, const on_NtAccessCheckByTypeResultList_fn& on_func)
 {
     if(d_->observers_NtAccessCheckByTypeResultList.empty())
         if(!register_callback_with(*d_, proc, "_NtAccessCheckByTypeResultList@44", &on_NtAccessCheckByTypeResultList))
@@ -6097,7 +6097,7 @@ bool monitor::syscalls32::register_NtAccessCheckByTypeResultList(proc_t proc, co
     return true;
 }
 
-bool monitor::syscalls32::register_NtAccessCheck(proc_t proc, const on_NtAccessCheck_fn& on_func)
+bool tracer::syscalls32::register_NtAccessCheck(proc_t proc, const on_NtAccessCheck_fn& on_func)
 {
     if(d_->observers_NtAccessCheck.empty())
         if(!register_callback_with(*d_, proc, "_NtAccessCheck@32", &on_NtAccessCheck))
@@ -6107,7 +6107,7 @@ bool monitor::syscalls32::register_NtAccessCheck(proc_t proc, const on_NtAccessC
     return true;
 }
 
-bool monitor::syscalls32::register_NtAddAtom(proc_t proc, const on_NtAddAtom_fn& on_func)
+bool tracer::syscalls32::register_NtAddAtom(proc_t proc, const on_NtAddAtom_fn& on_func)
 {
     if(d_->observers_NtAddAtom.empty())
         if(!register_callback_with(*d_, proc, "_NtAddAtom@12", &on_NtAddAtom))
@@ -6117,7 +6117,7 @@ bool monitor::syscalls32::register_NtAddAtom(proc_t proc, const on_NtAddAtom_fn&
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAddBootEntry(proc_t proc, const on_ZwAddBootEntry_fn& on_func)
+bool tracer::syscalls32::register_ZwAddBootEntry(proc_t proc, const on_ZwAddBootEntry_fn& on_func)
 {
     if(d_->observers_ZwAddBootEntry.empty())
         if(!register_callback_with(*d_, proc, "_ZwAddBootEntry@8", &on_ZwAddBootEntry))
@@ -6127,7 +6127,7 @@ bool monitor::syscalls32::register_ZwAddBootEntry(proc_t proc, const on_ZwAddBoo
     return true;
 }
 
-bool monitor::syscalls32::register_NtAddDriverEntry(proc_t proc, const on_NtAddDriverEntry_fn& on_func)
+bool tracer::syscalls32::register_NtAddDriverEntry(proc_t proc, const on_NtAddDriverEntry_fn& on_func)
 {
     if(d_->observers_NtAddDriverEntry.empty())
         if(!register_callback_with(*d_, proc, "_NtAddDriverEntry@8", &on_NtAddDriverEntry))
@@ -6137,7 +6137,7 @@ bool monitor::syscalls32::register_NtAddDriverEntry(proc_t proc, const on_NtAddD
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAdjustGroupsToken(proc_t proc, const on_ZwAdjustGroupsToken_fn& on_func)
+bool tracer::syscalls32::register_ZwAdjustGroupsToken(proc_t proc, const on_ZwAdjustGroupsToken_fn& on_func)
 {
     if(d_->observers_ZwAdjustGroupsToken.empty())
         if(!register_callback_with(*d_, proc, "_ZwAdjustGroupsToken@24", &on_ZwAdjustGroupsToken))
@@ -6147,7 +6147,7 @@ bool monitor::syscalls32::register_ZwAdjustGroupsToken(proc_t proc, const on_ZwA
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAdjustPrivilegesToken(proc_t proc, const on_ZwAdjustPrivilegesToken_fn& on_func)
+bool tracer::syscalls32::register_ZwAdjustPrivilegesToken(proc_t proc, const on_ZwAdjustPrivilegesToken_fn& on_func)
 {
     if(d_->observers_ZwAdjustPrivilegesToken.empty())
         if(!register_callback_with(*d_, proc, "_ZwAdjustPrivilegesToken@24", &on_ZwAdjustPrivilegesToken))
@@ -6157,7 +6157,7 @@ bool monitor::syscalls32::register_ZwAdjustPrivilegesToken(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_NtAlertResumeThread(proc_t proc, const on_NtAlertResumeThread_fn& on_func)
+bool tracer::syscalls32::register_NtAlertResumeThread(proc_t proc, const on_NtAlertResumeThread_fn& on_func)
 {
     if(d_->observers_NtAlertResumeThread.empty())
         if(!register_callback_with(*d_, proc, "_NtAlertResumeThread@8", &on_NtAlertResumeThread))
@@ -6167,7 +6167,7 @@ bool monitor::syscalls32::register_NtAlertResumeThread(proc_t proc, const on_NtA
     return true;
 }
 
-bool monitor::syscalls32::register_NtAlertThread(proc_t proc, const on_NtAlertThread_fn& on_func)
+bool tracer::syscalls32::register_NtAlertThread(proc_t proc, const on_NtAlertThread_fn& on_func)
 {
     if(d_->observers_NtAlertThread.empty())
         if(!register_callback_with(*d_, proc, "_NtAlertThread@4", &on_NtAlertThread))
@@ -6177,7 +6177,7 @@ bool monitor::syscalls32::register_NtAlertThread(proc_t proc, const on_NtAlertTh
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAllocateLocallyUniqueId(proc_t proc, const on_ZwAllocateLocallyUniqueId_fn& on_func)
+bool tracer::syscalls32::register_ZwAllocateLocallyUniqueId(proc_t proc, const on_ZwAllocateLocallyUniqueId_fn& on_func)
 {
     if(d_->observers_ZwAllocateLocallyUniqueId.empty())
         if(!register_callback_with(*d_, proc, "_ZwAllocateLocallyUniqueId@4", &on_ZwAllocateLocallyUniqueId))
@@ -6187,7 +6187,7 @@ bool monitor::syscalls32::register_ZwAllocateLocallyUniqueId(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_NtAllocateReserveObject(proc_t proc, const on_NtAllocateReserveObject_fn& on_func)
+bool tracer::syscalls32::register_NtAllocateReserveObject(proc_t proc, const on_NtAllocateReserveObject_fn& on_func)
 {
     if(d_->observers_NtAllocateReserveObject.empty())
         if(!register_callback_with(*d_, proc, "_NtAllocateReserveObject@12", &on_NtAllocateReserveObject))
@@ -6197,7 +6197,7 @@ bool monitor::syscalls32::register_NtAllocateReserveObject(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_NtAllocateUserPhysicalPages(proc_t proc, const on_NtAllocateUserPhysicalPages_fn& on_func)
+bool tracer::syscalls32::register_NtAllocateUserPhysicalPages(proc_t proc, const on_NtAllocateUserPhysicalPages_fn& on_func)
 {
     if(d_->observers_NtAllocateUserPhysicalPages.empty())
         if(!register_callback_with(*d_, proc, "_NtAllocateUserPhysicalPages@12", &on_NtAllocateUserPhysicalPages))
@@ -6207,7 +6207,7 @@ bool monitor::syscalls32::register_NtAllocateUserPhysicalPages(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_NtAllocateUuids(proc_t proc, const on_NtAllocateUuids_fn& on_func)
+bool tracer::syscalls32::register_NtAllocateUuids(proc_t proc, const on_NtAllocateUuids_fn& on_func)
 {
     if(d_->observers_NtAllocateUuids.empty())
         if(!register_callback_with(*d_, proc, "_NtAllocateUuids@16", &on_NtAllocateUuids))
@@ -6217,7 +6217,7 @@ bool monitor::syscalls32::register_NtAllocateUuids(proc_t proc, const on_NtAlloc
     return true;
 }
 
-bool monitor::syscalls32::register_NtAllocateVirtualMemory(proc_t proc, const on_NtAllocateVirtualMemory_fn& on_func)
+bool tracer::syscalls32::register_NtAllocateVirtualMemory(proc_t proc, const on_NtAllocateVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtAllocateVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_NtAllocateVirtualMemory@24", &on_NtAllocateVirtualMemory))
@@ -6227,7 +6227,7 @@ bool monitor::syscalls32::register_NtAllocateVirtualMemory(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_NtAlpcAcceptConnectPort(proc_t proc, const on_NtAlpcAcceptConnectPort_fn& on_func)
+bool tracer::syscalls32::register_NtAlpcAcceptConnectPort(proc_t proc, const on_NtAlpcAcceptConnectPort_fn& on_func)
 {
     if(d_->observers_NtAlpcAcceptConnectPort.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcAcceptConnectPort@36", &on_NtAlpcAcceptConnectPort))
@@ -6237,7 +6237,7 @@ bool monitor::syscalls32::register_NtAlpcAcceptConnectPort(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAlpcCancelMessage(proc_t proc, const on_ZwAlpcCancelMessage_fn& on_func)
+bool tracer::syscalls32::register_ZwAlpcCancelMessage(proc_t proc, const on_ZwAlpcCancelMessage_fn& on_func)
 {
     if(d_->observers_ZwAlpcCancelMessage.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcCancelMessage@12", &on_ZwAlpcCancelMessage))
@@ -6247,7 +6247,7 @@ bool monitor::syscalls32::register_ZwAlpcCancelMessage(proc_t proc, const on_ZwA
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAlpcConnectPort(proc_t proc, const on_ZwAlpcConnectPort_fn& on_func)
+bool tracer::syscalls32::register_ZwAlpcConnectPort(proc_t proc, const on_ZwAlpcConnectPort_fn& on_func)
 {
     if(d_->observers_ZwAlpcConnectPort.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcConnectPort@44", &on_ZwAlpcConnectPort))
@@ -6257,7 +6257,7 @@ bool monitor::syscalls32::register_ZwAlpcConnectPort(proc_t proc, const on_ZwAlp
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAlpcCreatePort(proc_t proc, const on_ZwAlpcCreatePort_fn& on_func)
+bool tracer::syscalls32::register_ZwAlpcCreatePort(proc_t proc, const on_ZwAlpcCreatePort_fn& on_func)
 {
     if(d_->observers_ZwAlpcCreatePort.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcCreatePort@12", &on_ZwAlpcCreatePort))
@@ -6267,7 +6267,7 @@ bool monitor::syscalls32::register_ZwAlpcCreatePort(proc_t proc, const on_ZwAlpc
     return true;
 }
 
-bool monitor::syscalls32::register_NtAlpcCreatePortSection(proc_t proc, const on_NtAlpcCreatePortSection_fn& on_func)
+bool tracer::syscalls32::register_NtAlpcCreatePortSection(proc_t proc, const on_NtAlpcCreatePortSection_fn& on_func)
 {
     if(d_->observers_NtAlpcCreatePortSection.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcCreatePortSection@24", &on_NtAlpcCreatePortSection))
@@ -6277,7 +6277,7 @@ bool monitor::syscalls32::register_NtAlpcCreatePortSection(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAlpcCreateResourceReserve(proc_t proc, const on_ZwAlpcCreateResourceReserve_fn& on_func)
+bool tracer::syscalls32::register_ZwAlpcCreateResourceReserve(proc_t proc, const on_ZwAlpcCreateResourceReserve_fn& on_func)
 {
     if(d_->observers_ZwAlpcCreateResourceReserve.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcCreateResourceReserve@16", &on_ZwAlpcCreateResourceReserve))
@@ -6287,7 +6287,7 @@ bool monitor::syscalls32::register_ZwAlpcCreateResourceReserve(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAlpcCreateSectionView(proc_t proc, const on_ZwAlpcCreateSectionView_fn& on_func)
+bool tracer::syscalls32::register_ZwAlpcCreateSectionView(proc_t proc, const on_ZwAlpcCreateSectionView_fn& on_func)
 {
     if(d_->observers_ZwAlpcCreateSectionView.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcCreateSectionView@12", &on_ZwAlpcCreateSectionView))
@@ -6297,7 +6297,7 @@ bool monitor::syscalls32::register_ZwAlpcCreateSectionView(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAlpcCreateSecurityContext(proc_t proc, const on_ZwAlpcCreateSecurityContext_fn& on_func)
+bool tracer::syscalls32::register_ZwAlpcCreateSecurityContext(proc_t proc, const on_ZwAlpcCreateSecurityContext_fn& on_func)
 {
     if(d_->observers_ZwAlpcCreateSecurityContext.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcCreateSecurityContext@12", &on_ZwAlpcCreateSecurityContext))
@@ -6307,7 +6307,7 @@ bool monitor::syscalls32::register_ZwAlpcCreateSecurityContext(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAlpcDeletePortSection(proc_t proc, const on_ZwAlpcDeletePortSection_fn& on_func)
+bool tracer::syscalls32::register_ZwAlpcDeletePortSection(proc_t proc, const on_ZwAlpcDeletePortSection_fn& on_func)
 {
     if(d_->observers_ZwAlpcDeletePortSection.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcDeletePortSection@12", &on_ZwAlpcDeletePortSection))
@@ -6317,7 +6317,7 @@ bool monitor::syscalls32::register_ZwAlpcDeletePortSection(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_NtAlpcDeleteResourceReserve(proc_t proc, const on_NtAlpcDeleteResourceReserve_fn& on_func)
+bool tracer::syscalls32::register_NtAlpcDeleteResourceReserve(proc_t proc, const on_NtAlpcDeleteResourceReserve_fn& on_func)
 {
     if(d_->observers_NtAlpcDeleteResourceReserve.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcDeleteResourceReserve@12", &on_NtAlpcDeleteResourceReserve))
@@ -6327,7 +6327,7 @@ bool monitor::syscalls32::register_NtAlpcDeleteResourceReserve(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_NtAlpcDeleteSectionView(proc_t proc, const on_NtAlpcDeleteSectionView_fn& on_func)
+bool tracer::syscalls32::register_NtAlpcDeleteSectionView(proc_t proc, const on_NtAlpcDeleteSectionView_fn& on_func)
 {
     if(d_->observers_NtAlpcDeleteSectionView.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcDeleteSectionView@12", &on_NtAlpcDeleteSectionView))
@@ -6337,7 +6337,7 @@ bool monitor::syscalls32::register_NtAlpcDeleteSectionView(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_NtAlpcDeleteSecurityContext(proc_t proc, const on_NtAlpcDeleteSecurityContext_fn& on_func)
+bool tracer::syscalls32::register_NtAlpcDeleteSecurityContext(proc_t proc, const on_NtAlpcDeleteSecurityContext_fn& on_func)
 {
     if(d_->observers_NtAlpcDeleteSecurityContext.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcDeleteSecurityContext@12", &on_NtAlpcDeleteSecurityContext))
@@ -6347,7 +6347,7 @@ bool monitor::syscalls32::register_NtAlpcDeleteSecurityContext(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_NtAlpcDisconnectPort(proc_t proc, const on_NtAlpcDisconnectPort_fn& on_func)
+bool tracer::syscalls32::register_NtAlpcDisconnectPort(proc_t proc, const on_NtAlpcDisconnectPort_fn& on_func)
 {
     if(d_->observers_NtAlpcDisconnectPort.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcDisconnectPort@8", &on_NtAlpcDisconnectPort))
@@ -6357,7 +6357,7 @@ bool monitor::syscalls32::register_NtAlpcDisconnectPort(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAlpcImpersonateClientOfPort(proc_t proc, const on_ZwAlpcImpersonateClientOfPort_fn& on_func)
+bool tracer::syscalls32::register_ZwAlpcImpersonateClientOfPort(proc_t proc, const on_ZwAlpcImpersonateClientOfPort_fn& on_func)
 {
     if(d_->observers_ZwAlpcImpersonateClientOfPort.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcImpersonateClientOfPort@12", &on_ZwAlpcImpersonateClientOfPort))
@@ -6367,7 +6367,7 @@ bool monitor::syscalls32::register_ZwAlpcImpersonateClientOfPort(proc_t proc, co
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAlpcOpenSenderProcess(proc_t proc, const on_ZwAlpcOpenSenderProcess_fn& on_func)
+bool tracer::syscalls32::register_ZwAlpcOpenSenderProcess(proc_t proc, const on_ZwAlpcOpenSenderProcess_fn& on_func)
 {
     if(d_->observers_ZwAlpcOpenSenderProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcOpenSenderProcess@24", &on_ZwAlpcOpenSenderProcess))
@@ -6377,7 +6377,7 @@ bool monitor::syscalls32::register_ZwAlpcOpenSenderProcess(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAlpcOpenSenderThread(proc_t proc, const on_ZwAlpcOpenSenderThread_fn& on_func)
+bool tracer::syscalls32::register_ZwAlpcOpenSenderThread(proc_t proc, const on_ZwAlpcOpenSenderThread_fn& on_func)
 {
     if(d_->observers_ZwAlpcOpenSenderThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcOpenSenderThread@24", &on_ZwAlpcOpenSenderThread))
@@ -6387,7 +6387,7 @@ bool monitor::syscalls32::register_ZwAlpcOpenSenderThread(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAlpcQueryInformation(proc_t proc, const on_ZwAlpcQueryInformation_fn& on_func)
+bool tracer::syscalls32::register_ZwAlpcQueryInformation(proc_t proc, const on_ZwAlpcQueryInformation_fn& on_func)
 {
     if(d_->observers_ZwAlpcQueryInformation.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcQueryInformation@20", &on_ZwAlpcQueryInformation))
@@ -6397,7 +6397,7 @@ bool monitor::syscalls32::register_ZwAlpcQueryInformation(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAlpcQueryInformationMessage(proc_t proc, const on_ZwAlpcQueryInformationMessage_fn& on_func)
+bool tracer::syscalls32::register_ZwAlpcQueryInformationMessage(proc_t proc, const on_ZwAlpcQueryInformationMessage_fn& on_func)
 {
     if(d_->observers_ZwAlpcQueryInformationMessage.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcQueryInformationMessage@24", &on_ZwAlpcQueryInformationMessage))
@@ -6407,7 +6407,7 @@ bool monitor::syscalls32::register_ZwAlpcQueryInformationMessage(proc_t proc, co
     return true;
 }
 
-bool monitor::syscalls32::register_NtAlpcRevokeSecurityContext(proc_t proc, const on_NtAlpcRevokeSecurityContext_fn& on_func)
+bool tracer::syscalls32::register_NtAlpcRevokeSecurityContext(proc_t proc, const on_NtAlpcRevokeSecurityContext_fn& on_func)
 {
     if(d_->observers_NtAlpcRevokeSecurityContext.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcRevokeSecurityContext@12", &on_NtAlpcRevokeSecurityContext))
@@ -6417,7 +6417,7 @@ bool monitor::syscalls32::register_NtAlpcRevokeSecurityContext(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_NtAlpcSendWaitReceivePort(proc_t proc, const on_NtAlpcSendWaitReceivePort_fn& on_func)
+bool tracer::syscalls32::register_NtAlpcSendWaitReceivePort(proc_t proc, const on_NtAlpcSendWaitReceivePort_fn& on_func)
 {
     if(d_->observers_NtAlpcSendWaitReceivePort.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcSendWaitReceivePort@32", &on_NtAlpcSendWaitReceivePort))
@@ -6427,7 +6427,7 @@ bool monitor::syscalls32::register_NtAlpcSendWaitReceivePort(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_NtAlpcSetInformation(proc_t proc, const on_NtAlpcSetInformation_fn& on_func)
+bool tracer::syscalls32::register_NtAlpcSetInformation(proc_t proc, const on_NtAlpcSetInformation_fn& on_func)
 {
     if(d_->observers_NtAlpcSetInformation.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcSetInformation@16", &on_NtAlpcSetInformation))
@@ -6437,7 +6437,7 @@ bool monitor::syscalls32::register_NtAlpcSetInformation(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_NtApphelpCacheControl(proc_t proc, const on_NtApphelpCacheControl_fn& on_func)
+bool tracer::syscalls32::register_NtApphelpCacheControl(proc_t proc, const on_NtApphelpCacheControl_fn& on_func)
 {
     if(d_->observers_NtApphelpCacheControl.empty())
         if(!register_callback_with(*d_, proc, "_NtApphelpCacheControl@8", &on_NtApphelpCacheControl))
@@ -6447,7 +6447,7 @@ bool monitor::syscalls32::register_NtApphelpCacheControl(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAreMappedFilesTheSame(proc_t proc, const on_ZwAreMappedFilesTheSame_fn& on_func)
+bool tracer::syscalls32::register_ZwAreMappedFilesTheSame(proc_t proc, const on_ZwAreMappedFilesTheSame_fn& on_func)
 {
     if(d_->observers_ZwAreMappedFilesTheSame.empty())
         if(!register_callback_with(*d_, proc, "_ZwAreMappedFilesTheSame@8", &on_ZwAreMappedFilesTheSame))
@@ -6457,7 +6457,7 @@ bool monitor::syscalls32::register_ZwAreMappedFilesTheSame(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_ZwAssignProcessToJobObject(proc_t proc, const on_ZwAssignProcessToJobObject_fn& on_func)
+bool tracer::syscalls32::register_ZwAssignProcessToJobObject(proc_t proc, const on_ZwAssignProcessToJobObject_fn& on_func)
 {
     if(d_->observers_ZwAssignProcessToJobObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwAssignProcessToJobObject@8", &on_ZwAssignProcessToJobObject))
@@ -6467,7 +6467,7 @@ bool monitor::syscalls32::register_ZwAssignProcessToJobObject(proc_t proc, const
     return true;
 }
 
-bool monitor::syscalls32::register_NtCancelIoFileEx(proc_t proc, const on_NtCancelIoFileEx_fn& on_func)
+bool tracer::syscalls32::register_NtCancelIoFileEx(proc_t proc, const on_NtCancelIoFileEx_fn& on_func)
 {
     if(d_->observers_NtCancelIoFileEx.empty())
         if(!register_callback_with(*d_, proc, "_NtCancelIoFileEx@12", &on_NtCancelIoFileEx))
@@ -6477,7 +6477,7 @@ bool monitor::syscalls32::register_NtCancelIoFileEx(proc_t proc, const on_NtCanc
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCancelIoFile(proc_t proc, const on_ZwCancelIoFile_fn& on_func)
+bool tracer::syscalls32::register_ZwCancelIoFile(proc_t proc, const on_ZwCancelIoFile_fn& on_func)
 {
     if(d_->observers_ZwCancelIoFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwCancelIoFile@8", &on_ZwCancelIoFile))
@@ -6487,7 +6487,7 @@ bool monitor::syscalls32::register_ZwCancelIoFile(proc_t proc, const on_ZwCancel
     return true;
 }
 
-bool monitor::syscalls32::register_NtCancelSynchronousIoFile(proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_func)
+bool tracer::syscalls32::register_NtCancelSynchronousIoFile(proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_func)
 {
     if(d_->observers_NtCancelSynchronousIoFile.empty())
         if(!register_callback_with(*d_, proc, "_NtCancelSynchronousIoFile@12", &on_NtCancelSynchronousIoFile))
@@ -6497,7 +6497,7 @@ bool monitor::syscalls32::register_NtCancelSynchronousIoFile(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCancelTimer(proc_t proc, const on_ZwCancelTimer_fn& on_func)
+bool tracer::syscalls32::register_ZwCancelTimer(proc_t proc, const on_ZwCancelTimer_fn& on_func)
 {
     if(d_->observers_ZwCancelTimer.empty())
         if(!register_callback_with(*d_, proc, "_ZwCancelTimer@8", &on_ZwCancelTimer))
@@ -6507,7 +6507,7 @@ bool monitor::syscalls32::register_ZwCancelTimer(proc_t proc, const on_ZwCancelT
     return true;
 }
 
-bool monitor::syscalls32::register_NtClearEvent(proc_t proc, const on_NtClearEvent_fn& on_func)
+bool tracer::syscalls32::register_NtClearEvent(proc_t proc, const on_NtClearEvent_fn& on_func)
 {
     if(d_->observers_NtClearEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtClearEvent@4", &on_NtClearEvent))
@@ -6517,7 +6517,7 @@ bool monitor::syscalls32::register_NtClearEvent(proc_t proc, const on_NtClearEve
     return true;
 }
 
-bool monitor::syscalls32::register_NtClose(proc_t proc, const on_NtClose_fn& on_func)
+bool tracer::syscalls32::register_NtClose(proc_t proc, const on_NtClose_fn& on_func)
 {
     if(d_->observers_NtClose.empty())
         if(!register_callback_with(*d_, proc, "_NtClose@4", &on_NtClose))
@@ -6527,7 +6527,7 @@ bool monitor::syscalls32::register_NtClose(proc_t proc, const on_NtClose_fn& on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCloseObjectAuditAlarm(proc_t proc, const on_ZwCloseObjectAuditAlarm_fn& on_func)
+bool tracer::syscalls32::register_ZwCloseObjectAuditAlarm(proc_t proc, const on_ZwCloseObjectAuditAlarm_fn& on_func)
 {
     if(d_->observers_ZwCloseObjectAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_ZwCloseObjectAuditAlarm@12", &on_ZwCloseObjectAuditAlarm))
@@ -6537,7 +6537,7 @@ bool monitor::syscalls32::register_ZwCloseObjectAuditAlarm(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCommitComplete(proc_t proc, const on_ZwCommitComplete_fn& on_func)
+bool tracer::syscalls32::register_ZwCommitComplete(proc_t proc, const on_ZwCommitComplete_fn& on_func)
 {
     if(d_->observers_ZwCommitComplete.empty())
         if(!register_callback_with(*d_, proc, "_ZwCommitComplete@8", &on_ZwCommitComplete))
@@ -6547,7 +6547,7 @@ bool monitor::syscalls32::register_ZwCommitComplete(proc_t proc, const on_ZwComm
     return true;
 }
 
-bool monitor::syscalls32::register_NtCommitEnlistment(proc_t proc, const on_NtCommitEnlistment_fn& on_func)
+bool tracer::syscalls32::register_NtCommitEnlistment(proc_t proc, const on_NtCommitEnlistment_fn& on_func)
 {
     if(d_->observers_NtCommitEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_NtCommitEnlistment@8", &on_NtCommitEnlistment))
@@ -6557,7 +6557,7 @@ bool monitor::syscalls32::register_NtCommitEnlistment(proc_t proc, const on_NtCo
     return true;
 }
 
-bool monitor::syscalls32::register_NtCommitTransaction(proc_t proc, const on_NtCommitTransaction_fn& on_func)
+bool tracer::syscalls32::register_NtCommitTransaction(proc_t proc, const on_NtCommitTransaction_fn& on_func)
 {
     if(d_->observers_NtCommitTransaction.empty())
         if(!register_callback_with(*d_, proc, "_NtCommitTransaction@8", &on_NtCommitTransaction))
@@ -6567,7 +6567,7 @@ bool monitor::syscalls32::register_NtCommitTransaction(proc_t proc, const on_NtC
     return true;
 }
 
-bool monitor::syscalls32::register_NtCompactKeys(proc_t proc, const on_NtCompactKeys_fn& on_func)
+bool tracer::syscalls32::register_NtCompactKeys(proc_t proc, const on_NtCompactKeys_fn& on_func)
 {
     if(d_->observers_NtCompactKeys.empty())
         if(!register_callback_with(*d_, proc, "_NtCompactKeys@8", &on_NtCompactKeys))
@@ -6577,7 +6577,7 @@ bool monitor::syscalls32::register_NtCompactKeys(proc_t proc, const on_NtCompact
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCompareTokens(proc_t proc, const on_ZwCompareTokens_fn& on_func)
+bool tracer::syscalls32::register_ZwCompareTokens(proc_t proc, const on_ZwCompareTokens_fn& on_func)
 {
     if(d_->observers_ZwCompareTokens.empty())
         if(!register_callback_with(*d_, proc, "_ZwCompareTokens@12", &on_ZwCompareTokens))
@@ -6587,7 +6587,7 @@ bool monitor::syscalls32::register_ZwCompareTokens(proc_t proc, const on_ZwCompa
     return true;
 }
 
-bool monitor::syscalls32::register_NtCompleteConnectPort(proc_t proc, const on_NtCompleteConnectPort_fn& on_func)
+bool tracer::syscalls32::register_NtCompleteConnectPort(proc_t proc, const on_NtCompleteConnectPort_fn& on_func)
 {
     if(d_->observers_NtCompleteConnectPort.empty())
         if(!register_callback_with(*d_, proc, "_NtCompleteConnectPort@4", &on_NtCompleteConnectPort))
@@ -6597,7 +6597,7 @@ bool monitor::syscalls32::register_NtCompleteConnectPort(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCompressKey(proc_t proc, const on_ZwCompressKey_fn& on_func)
+bool tracer::syscalls32::register_ZwCompressKey(proc_t proc, const on_ZwCompressKey_fn& on_func)
 {
     if(d_->observers_ZwCompressKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwCompressKey@4", &on_ZwCompressKey))
@@ -6607,7 +6607,7 @@ bool monitor::syscalls32::register_ZwCompressKey(proc_t proc, const on_ZwCompres
     return true;
 }
 
-bool monitor::syscalls32::register_NtConnectPort(proc_t proc, const on_NtConnectPort_fn& on_func)
+bool tracer::syscalls32::register_NtConnectPort(proc_t proc, const on_NtConnectPort_fn& on_func)
 {
     if(d_->observers_NtConnectPort.empty())
         if(!register_callback_with(*d_, proc, "_NtConnectPort@32", &on_NtConnectPort))
@@ -6617,7 +6617,7 @@ bool monitor::syscalls32::register_NtConnectPort(proc_t proc, const on_NtConnect
     return true;
 }
 
-bool monitor::syscalls32::register_ZwContinue(proc_t proc, const on_ZwContinue_fn& on_func)
+bool tracer::syscalls32::register_ZwContinue(proc_t proc, const on_ZwContinue_fn& on_func)
 {
     if(d_->observers_ZwContinue.empty())
         if(!register_callback_with(*d_, proc, "_ZwContinue@8", &on_ZwContinue))
@@ -6627,7 +6627,7 @@ bool monitor::syscalls32::register_ZwContinue(proc_t proc, const on_ZwContinue_f
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateDebugObject(proc_t proc, const on_ZwCreateDebugObject_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateDebugObject(proc_t proc, const on_ZwCreateDebugObject_fn& on_func)
 {
     if(d_->observers_ZwCreateDebugObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateDebugObject@16", &on_ZwCreateDebugObject))
@@ -6637,7 +6637,7 @@ bool monitor::syscalls32::register_ZwCreateDebugObject(proc_t proc, const on_ZwC
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateDirectoryObject(proc_t proc, const on_ZwCreateDirectoryObject_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateDirectoryObject(proc_t proc, const on_ZwCreateDirectoryObject_fn& on_func)
 {
     if(d_->observers_ZwCreateDirectoryObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateDirectoryObject@12", &on_ZwCreateDirectoryObject))
@@ -6647,7 +6647,7 @@ bool monitor::syscalls32::register_ZwCreateDirectoryObject(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateEnlistment(proc_t proc, const on_ZwCreateEnlistment_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateEnlistment(proc_t proc, const on_ZwCreateEnlistment_fn& on_func)
 {
     if(d_->observers_ZwCreateEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateEnlistment@32", &on_ZwCreateEnlistment))
@@ -6657,7 +6657,7 @@ bool monitor::syscalls32::register_ZwCreateEnlistment(proc_t proc, const on_ZwCr
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateEvent(proc_t proc, const on_NtCreateEvent_fn& on_func)
+bool tracer::syscalls32::register_NtCreateEvent(proc_t proc, const on_NtCreateEvent_fn& on_func)
 {
     if(d_->observers_NtCreateEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateEvent@20", &on_NtCreateEvent))
@@ -6667,7 +6667,7 @@ bool monitor::syscalls32::register_NtCreateEvent(proc_t proc, const on_NtCreateE
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateEventPair(proc_t proc, const on_NtCreateEventPair_fn& on_func)
+bool tracer::syscalls32::register_NtCreateEventPair(proc_t proc, const on_NtCreateEventPair_fn& on_func)
 {
     if(d_->observers_NtCreateEventPair.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateEventPair@12", &on_NtCreateEventPair))
@@ -6677,7 +6677,7 @@ bool monitor::syscalls32::register_NtCreateEventPair(proc_t proc, const on_NtCre
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateFile(proc_t proc, const on_NtCreateFile_fn& on_func)
+bool tracer::syscalls32::register_NtCreateFile(proc_t proc, const on_NtCreateFile_fn& on_func)
 {
     if(d_->observers_NtCreateFile.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateFile@44", &on_NtCreateFile))
@@ -6687,7 +6687,7 @@ bool monitor::syscalls32::register_NtCreateFile(proc_t proc, const on_NtCreateFi
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateIoCompletion(proc_t proc, const on_NtCreateIoCompletion_fn& on_func)
+bool tracer::syscalls32::register_NtCreateIoCompletion(proc_t proc, const on_NtCreateIoCompletion_fn& on_func)
 {
     if(d_->observers_NtCreateIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateIoCompletion@16", &on_NtCreateIoCompletion))
@@ -6697,7 +6697,7 @@ bool monitor::syscalls32::register_NtCreateIoCompletion(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateJobObject(proc_t proc, const on_ZwCreateJobObject_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateJobObject(proc_t proc, const on_ZwCreateJobObject_fn& on_func)
 {
     if(d_->observers_ZwCreateJobObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateJobObject@12", &on_ZwCreateJobObject))
@@ -6707,7 +6707,7 @@ bool monitor::syscalls32::register_ZwCreateJobObject(proc_t proc, const on_ZwCre
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateJobSet(proc_t proc, const on_NtCreateJobSet_fn& on_func)
+bool tracer::syscalls32::register_NtCreateJobSet(proc_t proc, const on_NtCreateJobSet_fn& on_func)
 {
     if(d_->observers_NtCreateJobSet.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateJobSet@12", &on_NtCreateJobSet))
@@ -6717,7 +6717,7 @@ bool monitor::syscalls32::register_NtCreateJobSet(proc_t proc, const on_NtCreate
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateKeyedEvent(proc_t proc, const on_ZwCreateKeyedEvent_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateKeyedEvent(proc_t proc, const on_ZwCreateKeyedEvent_fn& on_func)
 {
     if(d_->observers_ZwCreateKeyedEvent.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateKeyedEvent@16", &on_ZwCreateKeyedEvent))
@@ -6727,7 +6727,7 @@ bool monitor::syscalls32::register_ZwCreateKeyedEvent(proc_t proc, const on_ZwCr
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateKey(proc_t proc, const on_ZwCreateKey_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateKey(proc_t proc, const on_ZwCreateKey_fn& on_func)
 {
     if(d_->observers_ZwCreateKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateKey@28", &on_ZwCreateKey))
@@ -6737,7 +6737,7 @@ bool monitor::syscalls32::register_ZwCreateKey(proc_t proc, const on_ZwCreateKey
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateKeyTransacted(proc_t proc, const on_NtCreateKeyTransacted_fn& on_func)
+bool tracer::syscalls32::register_NtCreateKeyTransacted(proc_t proc, const on_NtCreateKeyTransacted_fn& on_func)
 {
     if(d_->observers_NtCreateKeyTransacted.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateKeyTransacted@32", &on_NtCreateKeyTransacted))
@@ -6747,7 +6747,7 @@ bool monitor::syscalls32::register_NtCreateKeyTransacted(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateMailslotFile(proc_t proc, const on_ZwCreateMailslotFile_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateMailslotFile(proc_t proc, const on_ZwCreateMailslotFile_fn& on_func)
 {
     if(d_->observers_ZwCreateMailslotFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateMailslotFile@32", &on_ZwCreateMailslotFile))
@@ -6757,7 +6757,7 @@ bool monitor::syscalls32::register_ZwCreateMailslotFile(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateMutant(proc_t proc, const on_ZwCreateMutant_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateMutant(proc_t proc, const on_ZwCreateMutant_fn& on_func)
 {
     if(d_->observers_ZwCreateMutant.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateMutant@16", &on_ZwCreateMutant))
@@ -6767,7 +6767,7 @@ bool monitor::syscalls32::register_ZwCreateMutant(proc_t proc, const on_ZwCreate
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateNamedPipeFile(proc_t proc, const on_ZwCreateNamedPipeFile_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateNamedPipeFile(proc_t proc, const on_ZwCreateNamedPipeFile_fn& on_func)
 {
     if(d_->observers_ZwCreateNamedPipeFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateNamedPipeFile@56", &on_ZwCreateNamedPipeFile))
@@ -6777,7 +6777,7 @@ bool monitor::syscalls32::register_ZwCreateNamedPipeFile(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreatePagingFile(proc_t proc, const on_NtCreatePagingFile_fn& on_func)
+bool tracer::syscalls32::register_NtCreatePagingFile(proc_t proc, const on_NtCreatePagingFile_fn& on_func)
 {
     if(d_->observers_NtCreatePagingFile.empty())
         if(!register_callback_with(*d_, proc, "_NtCreatePagingFile@16", &on_NtCreatePagingFile))
@@ -6787,7 +6787,7 @@ bool monitor::syscalls32::register_NtCreatePagingFile(proc_t proc, const on_NtCr
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreatePort(proc_t proc, const on_ZwCreatePort_fn& on_func)
+bool tracer::syscalls32::register_ZwCreatePort(proc_t proc, const on_ZwCreatePort_fn& on_func)
 {
     if(d_->observers_ZwCreatePort.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreatePort@20", &on_ZwCreatePort))
@@ -6797,7 +6797,7 @@ bool monitor::syscalls32::register_ZwCreatePort(proc_t proc, const on_ZwCreatePo
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreatePrivateNamespace(proc_t proc, const on_NtCreatePrivateNamespace_fn& on_func)
+bool tracer::syscalls32::register_NtCreatePrivateNamespace(proc_t proc, const on_NtCreatePrivateNamespace_fn& on_func)
 {
     if(d_->observers_NtCreatePrivateNamespace.empty())
         if(!register_callback_with(*d_, proc, "_NtCreatePrivateNamespace@16", &on_NtCreatePrivateNamespace))
@@ -6807,7 +6807,7 @@ bool monitor::syscalls32::register_NtCreatePrivateNamespace(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateProcessEx(proc_t proc, const on_ZwCreateProcessEx_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateProcessEx(proc_t proc, const on_ZwCreateProcessEx_fn& on_func)
 {
     if(d_->observers_ZwCreateProcessEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateProcessEx@36", &on_ZwCreateProcessEx))
@@ -6817,7 +6817,7 @@ bool monitor::syscalls32::register_ZwCreateProcessEx(proc_t proc, const on_ZwCre
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateProcess(proc_t proc, const on_ZwCreateProcess_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateProcess(proc_t proc, const on_ZwCreateProcess_fn& on_func)
 {
     if(d_->observers_ZwCreateProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateProcess@32", &on_ZwCreateProcess))
@@ -6827,7 +6827,7 @@ bool monitor::syscalls32::register_ZwCreateProcess(proc_t proc, const on_ZwCreat
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateProfileEx(proc_t proc, const on_NtCreateProfileEx_fn& on_func)
+bool tracer::syscalls32::register_NtCreateProfileEx(proc_t proc, const on_NtCreateProfileEx_fn& on_func)
 {
     if(d_->observers_NtCreateProfileEx.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateProfileEx@40", &on_NtCreateProfileEx))
@@ -6837,7 +6837,7 @@ bool monitor::syscalls32::register_NtCreateProfileEx(proc_t proc, const on_NtCre
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateProfile(proc_t proc, const on_ZwCreateProfile_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateProfile(proc_t proc, const on_ZwCreateProfile_fn& on_func)
 {
     if(d_->observers_ZwCreateProfile.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateProfile@36", &on_ZwCreateProfile))
@@ -6847,7 +6847,7 @@ bool monitor::syscalls32::register_ZwCreateProfile(proc_t proc, const on_ZwCreat
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateResourceManager(proc_t proc, const on_ZwCreateResourceManager_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateResourceManager(proc_t proc, const on_ZwCreateResourceManager_fn& on_func)
 {
     if(d_->observers_ZwCreateResourceManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateResourceManager@28", &on_ZwCreateResourceManager))
@@ -6857,7 +6857,7 @@ bool monitor::syscalls32::register_ZwCreateResourceManager(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateSection(proc_t proc, const on_NtCreateSection_fn& on_func)
+bool tracer::syscalls32::register_NtCreateSection(proc_t proc, const on_NtCreateSection_fn& on_func)
 {
     if(d_->observers_NtCreateSection.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateSection@28", &on_NtCreateSection))
@@ -6867,7 +6867,7 @@ bool monitor::syscalls32::register_NtCreateSection(proc_t proc, const on_NtCreat
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateSemaphore(proc_t proc, const on_NtCreateSemaphore_fn& on_func)
+bool tracer::syscalls32::register_NtCreateSemaphore(proc_t proc, const on_NtCreateSemaphore_fn& on_func)
 {
     if(d_->observers_NtCreateSemaphore.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateSemaphore@20", &on_NtCreateSemaphore))
@@ -6877,7 +6877,7 @@ bool monitor::syscalls32::register_NtCreateSemaphore(proc_t proc, const on_NtCre
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateSymbolicLinkObject(proc_t proc, const on_ZwCreateSymbolicLinkObject_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateSymbolicLinkObject(proc_t proc, const on_ZwCreateSymbolicLinkObject_fn& on_func)
 {
     if(d_->observers_ZwCreateSymbolicLinkObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateSymbolicLinkObject@16", &on_ZwCreateSymbolicLinkObject))
@@ -6887,7 +6887,7 @@ bool monitor::syscalls32::register_ZwCreateSymbolicLinkObject(proc_t proc, const
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateThreadEx(proc_t proc, const on_NtCreateThreadEx_fn& on_func)
+bool tracer::syscalls32::register_NtCreateThreadEx(proc_t proc, const on_NtCreateThreadEx_fn& on_func)
 {
     if(d_->observers_NtCreateThreadEx.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateThreadEx@44", &on_NtCreateThreadEx))
@@ -6897,7 +6897,7 @@ bool monitor::syscalls32::register_NtCreateThreadEx(proc_t proc, const on_NtCrea
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateThread(proc_t proc, const on_NtCreateThread_fn& on_func)
+bool tracer::syscalls32::register_NtCreateThread(proc_t proc, const on_NtCreateThread_fn& on_func)
 {
     if(d_->observers_NtCreateThread.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateThread@32", &on_NtCreateThread))
@@ -6907,7 +6907,7 @@ bool monitor::syscalls32::register_NtCreateThread(proc_t proc, const on_NtCreate
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateTimer(proc_t proc, const on_ZwCreateTimer_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateTimer(proc_t proc, const on_ZwCreateTimer_fn& on_func)
 {
     if(d_->observers_ZwCreateTimer.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateTimer@16", &on_ZwCreateTimer))
@@ -6917,7 +6917,7 @@ bool monitor::syscalls32::register_ZwCreateTimer(proc_t proc, const on_ZwCreateT
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateToken(proc_t proc, const on_NtCreateToken_fn& on_func)
+bool tracer::syscalls32::register_NtCreateToken(proc_t proc, const on_NtCreateToken_fn& on_func)
 {
     if(d_->observers_NtCreateToken.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateToken@52", &on_NtCreateToken))
@@ -6927,7 +6927,7 @@ bool monitor::syscalls32::register_NtCreateToken(proc_t proc, const on_NtCreateT
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateTransactionManager(proc_t proc, const on_ZwCreateTransactionManager_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateTransactionManager(proc_t proc, const on_ZwCreateTransactionManager_fn& on_func)
 {
     if(d_->observers_ZwCreateTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateTransactionManager@24", &on_ZwCreateTransactionManager))
@@ -6937,7 +6937,7 @@ bool monitor::syscalls32::register_ZwCreateTransactionManager(proc_t proc, const
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateTransaction(proc_t proc, const on_NtCreateTransaction_fn& on_func)
+bool tracer::syscalls32::register_NtCreateTransaction(proc_t proc, const on_NtCreateTransaction_fn& on_func)
 {
     if(d_->observers_NtCreateTransaction.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateTransaction@40", &on_NtCreateTransaction))
@@ -6947,7 +6947,7 @@ bool monitor::syscalls32::register_NtCreateTransaction(proc_t proc, const on_NtC
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateUserProcess(proc_t proc, const on_NtCreateUserProcess_fn& on_func)
+bool tracer::syscalls32::register_NtCreateUserProcess(proc_t proc, const on_NtCreateUserProcess_fn& on_func)
 {
     if(d_->observers_NtCreateUserProcess.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateUserProcess@44", &on_NtCreateUserProcess))
@@ -6957,7 +6957,7 @@ bool monitor::syscalls32::register_NtCreateUserProcess(proc_t proc, const on_NtC
     return true;
 }
 
-bool monitor::syscalls32::register_ZwCreateWaitablePort(proc_t proc, const on_ZwCreateWaitablePort_fn& on_func)
+bool tracer::syscalls32::register_ZwCreateWaitablePort(proc_t proc, const on_ZwCreateWaitablePort_fn& on_func)
 {
     if(d_->observers_ZwCreateWaitablePort.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateWaitablePort@20", &on_ZwCreateWaitablePort))
@@ -6967,7 +6967,7 @@ bool monitor::syscalls32::register_ZwCreateWaitablePort(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscalls32::register_NtCreateWorkerFactory(proc_t proc, const on_NtCreateWorkerFactory_fn& on_func)
+bool tracer::syscalls32::register_NtCreateWorkerFactory(proc_t proc, const on_NtCreateWorkerFactory_fn& on_func)
 {
     if(d_->observers_NtCreateWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateWorkerFactory@40", &on_NtCreateWorkerFactory))
@@ -6977,7 +6977,7 @@ bool monitor::syscalls32::register_NtCreateWorkerFactory(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_NtDebugActiveProcess(proc_t proc, const on_NtDebugActiveProcess_fn& on_func)
+bool tracer::syscalls32::register_NtDebugActiveProcess(proc_t proc, const on_NtDebugActiveProcess_fn& on_func)
 {
     if(d_->observers_NtDebugActiveProcess.empty())
         if(!register_callback_with(*d_, proc, "_NtDebugActiveProcess@8", &on_NtDebugActiveProcess))
@@ -6987,7 +6987,7 @@ bool monitor::syscalls32::register_NtDebugActiveProcess(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_ZwDebugContinue(proc_t proc, const on_ZwDebugContinue_fn& on_func)
+bool tracer::syscalls32::register_ZwDebugContinue(proc_t proc, const on_ZwDebugContinue_fn& on_func)
 {
     if(d_->observers_ZwDebugContinue.empty())
         if(!register_callback_with(*d_, proc, "_ZwDebugContinue@12", &on_ZwDebugContinue))
@@ -6997,7 +6997,7 @@ bool monitor::syscalls32::register_ZwDebugContinue(proc_t proc, const on_ZwDebug
     return true;
 }
 
-bool monitor::syscalls32::register_ZwDelayExecution(proc_t proc, const on_ZwDelayExecution_fn& on_func)
+bool tracer::syscalls32::register_ZwDelayExecution(proc_t proc, const on_ZwDelayExecution_fn& on_func)
 {
     if(d_->observers_ZwDelayExecution.empty())
         if(!register_callback_with(*d_, proc, "_ZwDelayExecution@8", &on_ZwDelayExecution))
@@ -7007,7 +7007,7 @@ bool monitor::syscalls32::register_ZwDelayExecution(proc_t proc, const on_ZwDela
     return true;
 }
 
-bool monitor::syscalls32::register_ZwDeleteAtom(proc_t proc, const on_ZwDeleteAtom_fn& on_func)
+bool tracer::syscalls32::register_ZwDeleteAtom(proc_t proc, const on_ZwDeleteAtom_fn& on_func)
 {
     if(d_->observers_ZwDeleteAtom.empty())
         if(!register_callback_with(*d_, proc, "_ZwDeleteAtom@4", &on_ZwDeleteAtom))
@@ -7017,7 +7017,7 @@ bool monitor::syscalls32::register_ZwDeleteAtom(proc_t proc, const on_ZwDeleteAt
     return true;
 }
 
-bool monitor::syscalls32::register_NtDeleteBootEntry(proc_t proc, const on_NtDeleteBootEntry_fn& on_func)
+bool tracer::syscalls32::register_NtDeleteBootEntry(proc_t proc, const on_NtDeleteBootEntry_fn& on_func)
 {
     if(d_->observers_NtDeleteBootEntry.empty())
         if(!register_callback_with(*d_, proc, "_NtDeleteBootEntry@4", &on_NtDeleteBootEntry))
@@ -7027,7 +7027,7 @@ bool monitor::syscalls32::register_NtDeleteBootEntry(proc_t proc, const on_NtDel
     return true;
 }
 
-bool monitor::syscalls32::register_ZwDeleteDriverEntry(proc_t proc, const on_ZwDeleteDriverEntry_fn& on_func)
+bool tracer::syscalls32::register_ZwDeleteDriverEntry(proc_t proc, const on_ZwDeleteDriverEntry_fn& on_func)
 {
     if(d_->observers_ZwDeleteDriverEntry.empty())
         if(!register_callback_with(*d_, proc, "_ZwDeleteDriverEntry@4", &on_ZwDeleteDriverEntry))
@@ -7037,7 +7037,7 @@ bool monitor::syscalls32::register_ZwDeleteDriverEntry(proc_t proc, const on_ZwD
     return true;
 }
 
-bool monitor::syscalls32::register_NtDeleteFile(proc_t proc, const on_NtDeleteFile_fn& on_func)
+bool tracer::syscalls32::register_NtDeleteFile(proc_t proc, const on_NtDeleteFile_fn& on_func)
 {
     if(d_->observers_NtDeleteFile.empty())
         if(!register_callback_with(*d_, proc, "_NtDeleteFile@4", &on_NtDeleteFile))
@@ -7047,7 +7047,7 @@ bool monitor::syscalls32::register_NtDeleteFile(proc_t proc, const on_NtDeleteFi
     return true;
 }
 
-bool monitor::syscalls32::register_ZwDeleteKey(proc_t proc, const on_ZwDeleteKey_fn& on_func)
+bool tracer::syscalls32::register_ZwDeleteKey(proc_t proc, const on_ZwDeleteKey_fn& on_func)
 {
     if(d_->observers_ZwDeleteKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwDeleteKey@4", &on_ZwDeleteKey))
@@ -7057,7 +7057,7 @@ bool monitor::syscalls32::register_ZwDeleteKey(proc_t proc, const on_ZwDeleteKey
     return true;
 }
 
-bool monitor::syscalls32::register_NtDeleteObjectAuditAlarm(proc_t proc, const on_NtDeleteObjectAuditAlarm_fn& on_func)
+bool tracer::syscalls32::register_NtDeleteObjectAuditAlarm(proc_t proc, const on_NtDeleteObjectAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtDeleteObjectAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_NtDeleteObjectAuditAlarm@12", &on_NtDeleteObjectAuditAlarm))
@@ -7067,7 +7067,7 @@ bool monitor::syscalls32::register_NtDeleteObjectAuditAlarm(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscalls32::register_NtDeletePrivateNamespace(proc_t proc, const on_NtDeletePrivateNamespace_fn& on_func)
+bool tracer::syscalls32::register_NtDeletePrivateNamespace(proc_t proc, const on_NtDeletePrivateNamespace_fn& on_func)
 {
     if(d_->observers_NtDeletePrivateNamespace.empty())
         if(!register_callback_with(*d_, proc, "_NtDeletePrivateNamespace@4", &on_NtDeletePrivateNamespace))
@@ -7077,7 +7077,7 @@ bool monitor::syscalls32::register_NtDeletePrivateNamespace(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscalls32::register_NtDeleteValueKey(proc_t proc, const on_NtDeleteValueKey_fn& on_func)
+bool tracer::syscalls32::register_NtDeleteValueKey(proc_t proc, const on_NtDeleteValueKey_fn& on_func)
 {
     if(d_->observers_NtDeleteValueKey.empty())
         if(!register_callback_with(*d_, proc, "_NtDeleteValueKey@8", &on_NtDeleteValueKey))
@@ -7087,7 +7087,7 @@ bool monitor::syscalls32::register_NtDeleteValueKey(proc_t proc, const on_NtDele
     return true;
 }
 
-bool monitor::syscalls32::register_ZwDeviceIoControlFile(proc_t proc, const on_ZwDeviceIoControlFile_fn& on_func)
+bool tracer::syscalls32::register_ZwDeviceIoControlFile(proc_t proc, const on_ZwDeviceIoControlFile_fn& on_func)
 {
     if(d_->observers_ZwDeviceIoControlFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwDeviceIoControlFile@40", &on_ZwDeviceIoControlFile))
@@ -7097,7 +7097,7 @@ bool monitor::syscalls32::register_ZwDeviceIoControlFile(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscalls32::register_NtDisplayString(proc_t proc, const on_NtDisplayString_fn& on_func)
+bool tracer::syscalls32::register_NtDisplayString(proc_t proc, const on_NtDisplayString_fn& on_func)
 {
     if(d_->observers_NtDisplayString.empty())
         if(!register_callback_with(*d_, proc, "_NtDisplayString@4", &on_NtDisplayString))
@@ -7107,7 +7107,7 @@ bool monitor::syscalls32::register_NtDisplayString(proc_t proc, const on_NtDispl
     return true;
 }
 
-bool monitor::syscalls32::register_ZwDrawText(proc_t proc, const on_ZwDrawText_fn& on_func)
+bool tracer::syscalls32::register_ZwDrawText(proc_t proc, const on_ZwDrawText_fn& on_func)
 {
     if(d_->observers_ZwDrawText.empty())
         if(!register_callback_with(*d_, proc, "_ZwDrawText@4", &on_ZwDrawText))
@@ -7117,7 +7117,7 @@ bool monitor::syscalls32::register_ZwDrawText(proc_t proc, const on_ZwDrawText_f
     return true;
 }
 
-bool monitor::syscalls32::register_ZwDuplicateObject(proc_t proc, const on_ZwDuplicateObject_fn& on_func)
+bool tracer::syscalls32::register_ZwDuplicateObject(proc_t proc, const on_ZwDuplicateObject_fn& on_func)
 {
     if(d_->observers_ZwDuplicateObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwDuplicateObject@28", &on_ZwDuplicateObject))
@@ -7127,7 +7127,7 @@ bool monitor::syscalls32::register_ZwDuplicateObject(proc_t proc, const on_ZwDup
     return true;
 }
 
-bool monitor::syscalls32::register_NtDuplicateToken(proc_t proc, const on_NtDuplicateToken_fn& on_func)
+bool tracer::syscalls32::register_NtDuplicateToken(proc_t proc, const on_NtDuplicateToken_fn& on_func)
 {
     if(d_->observers_NtDuplicateToken.empty())
         if(!register_callback_with(*d_, proc, "_NtDuplicateToken@24", &on_NtDuplicateToken))
@@ -7137,7 +7137,7 @@ bool monitor::syscalls32::register_NtDuplicateToken(proc_t proc, const on_NtDupl
     return true;
 }
 
-bool monitor::syscalls32::register_ZwEnumerateBootEntries(proc_t proc, const on_ZwEnumerateBootEntries_fn& on_func)
+bool tracer::syscalls32::register_ZwEnumerateBootEntries(proc_t proc, const on_ZwEnumerateBootEntries_fn& on_func)
 {
     if(d_->observers_ZwEnumerateBootEntries.empty())
         if(!register_callback_with(*d_, proc, "_ZwEnumerateBootEntries@8", &on_ZwEnumerateBootEntries))
@@ -7147,7 +7147,7 @@ bool monitor::syscalls32::register_ZwEnumerateBootEntries(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_NtEnumerateDriverEntries(proc_t proc, const on_NtEnumerateDriverEntries_fn& on_func)
+bool tracer::syscalls32::register_NtEnumerateDriverEntries(proc_t proc, const on_NtEnumerateDriverEntries_fn& on_func)
 {
     if(d_->observers_NtEnumerateDriverEntries.empty())
         if(!register_callback_with(*d_, proc, "_NtEnumerateDriverEntries@8", &on_NtEnumerateDriverEntries))
@@ -7157,7 +7157,7 @@ bool monitor::syscalls32::register_NtEnumerateDriverEntries(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscalls32::register_ZwEnumerateKey(proc_t proc, const on_ZwEnumerateKey_fn& on_func)
+bool tracer::syscalls32::register_ZwEnumerateKey(proc_t proc, const on_ZwEnumerateKey_fn& on_func)
 {
     if(d_->observers_ZwEnumerateKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwEnumerateKey@24", &on_ZwEnumerateKey))
@@ -7167,7 +7167,7 @@ bool monitor::syscalls32::register_ZwEnumerateKey(proc_t proc, const on_ZwEnumer
     return true;
 }
 
-bool monitor::syscalls32::register_ZwEnumerateSystemEnvironmentValuesEx(proc_t proc, const on_ZwEnumerateSystemEnvironmentValuesEx_fn& on_func)
+bool tracer::syscalls32::register_ZwEnumerateSystemEnvironmentValuesEx(proc_t proc, const on_ZwEnumerateSystemEnvironmentValuesEx_fn& on_func)
 {
     if(d_->observers_ZwEnumerateSystemEnvironmentValuesEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwEnumerateSystemEnvironmentValuesEx@12", &on_ZwEnumerateSystemEnvironmentValuesEx))
@@ -7177,7 +7177,7 @@ bool monitor::syscalls32::register_ZwEnumerateSystemEnvironmentValuesEx(proc_t p
     return true;
 }
 
-bool monitor::syscalls32::register_ZwEnumerateTransactionObject(proc_t proc, const on_ZwEnumerateTransactionObject_fn& on_func)
+bool tracer::syscalls32::register_ZwEnumerateTransactionObject(proc_t proc, const on_ZwEnumerateTransactionObject_fn& on_func)
 {
     if(d_->observers_ZwEnumerateTransactionObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwEnumerateTransactionObject@20", &on_ZwEnumerateTransactionObject))
@@ -7187,7 +7187,7 @@ bool monitor::syscalls32::register_ZwEnumerateTransactionObject(proc_t proc, con
     return true;
 }
 
-bool monitor::syscalls32::register_NtEnumerateValueKey(proc_t proc, const on_NtEnumerateValueKey_fn& on_func)
+bool tracer::syscalls32::register_NtEnumerateValueKey(proc_t proc, const on_NtEnumerateValueKey_fn& on_func)
 {
     if(d_->observers_NtEnumerateValueKey.empty())
         if(!register_callback_with(*d_, proc, "_NtEnumerateValueKey@24", &on_NtEnumerateValueKey))
@@ -7197,7 +7197,7 @@ bool monitor::syscalls32::register_NtEnumerateValueKey(proc_t proc, const on_NtE
     return true;
 }
 
-bool monitor::syscalls32::register_ZwExtendSection(proc_t proc, const on_ZwExtendSection_fn& on_func)
+bool tracer::syscalls32::register_ZwExtendSection(proc_t proc, const on_ZwExtendSection_fn& on_func)
 {
     if(d_->observers_ZwExtendSection.empty())
         if(!register_callback_with(*d_, proc, "_ZwExtendSection@8", &on_ZwExtendSection))
@@ -7207,7 +7207,7 @@ bool monitor::syscalls32::register_ZwExtendSection(proc_t proc, const on_ZwExten
     return true;
 }
 
-bool monitor::syscalls32::register_NtFilterToken(proc_t proc, const on_NtFilterToken_fn& on_func)
+bool tracer::syscalls32::register_NtFilterToken(proc_t proc, const on_NtFilterToken_fn& on_func)
 {
     if(d_->observers_NtFilterToken.empty())
         if(!register_callback_with(*d_, proc, "_NtFilterToken@24", &on_NtFilterToken))
@@ -7217,7 +7217,7 @@ bool monitor::syscalls32::register_NtFilterToken(proc_t proc, const on_NtFilterT
     return true;
 }
 
-bool monitor::syscalls32::register_NtFindAtom(proc_t proc, const on_NtFindAtom_fn& on_func)
+bool tracer::syscalls32::register_NtFindAtom(proc_t proc, const on_NtFindAtom_fn& on_func)
 {
     if(d_->observers_NtFindAtom.empty())
         if(!register_callback_with(*d_, proc, "_NtFindAtom@12", &on_NtFindAtom))
@@ -7227,7 +7227,7 @@ bool monitor::syscalls32::register_NtFindAtom(proc_t proc, const on_NtFindAtom_f
     return true;
 }
 
-bool monitor::syscalls32::register_ZwFlushBuffersFile(proc_t proc, const on_ZwFlushBuffersFile_fn& on_func)
+bool tracer::syscalls32::register_ZwFlushBuffersFile(proc_t proc, const on_ZwFlushBuffersFile_fn& on_func)
 {
     if(d_->observers_ZwFlushBuffersFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwFlushBuffersFile@8", &on_ZwFlushBuffersFile))
@@ -7237,7 +7237,7 @@ bool monitor::syscalls32::register_ZwFlushBuffersFile(proc_t proc, const on_ZwFl
     return true;
 }
 
-bool monitor::syscalls32::register_ZwFlushInstallUILanguage(proc_t proc, const on_ZwFlushInstallUILanguage_fn& on_func)
+bool tracer::syscalls32::register_ZwFlushInstallUILanguage(proc_t proc, const on_ZwFlushInstallUILanguage_fn& on_func)
 {
     if(d_->observers_ZwFlushInstallUILanguage.empty())
         if(!register_callback_with(*d_, proc, "_ZwFlushInstallUILanguage@8", &on_ZwFlushInstallUILanguage))
@@ -7247,7 +7247,7 @@ bool monitor::syscalls32::register_ZwFlushInstallUILanguage(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscalls32::register_ZwFlushInstructionCache(proc_t proc, const on_ZwFlushInstructionCache_fn& on_func)
+bool tracer::syscalls32::register_ZwFlushInstructionCache(proc_t proc, const on_ZwFlushInstructionCache_fn& on_func)
 {
     if(d_->observers_ZwFlushInstructionCache.empty())
         if(!register_callback_with(*d_, proc, "_ZwFlushInstructionCache@12", &on_ZwFlushInstructionCache))
@@ -7257,7 +7257,7 @@ bool monitor::syscalls32::register_ZwFlushInstructionCache(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_NtFlushKey(proc_t proc, const on_NtFlushKey_fn& on_func)
+bool tracer::syscalls32::register_NtFlushKey(proc_t proc, const on_NtFlushKey_fn& on_func)
 {
     if(d_->observers_NtFlushKey.empty())
         if(!register_callback_with(*d_, proc, "_NtFlushKey@4", &on_NtFlushKey))
@@ -7267,7 +7267,7 @@ bool monitor::syscalls32::register_NtFlushKey(proc_t proc, const on_NtFlushKey_f
     return true;
 }
 
-bool monitor::syscalls32::register_ZwFlushVirtualMemory(proc_t proc, const on_ZwFlushVirtualMemory_fn& on_func)
+bool tracer::syscalls32::register_ZwFlushVirtualMemory(proc_t proc, const on_ZwFlushVirtualMemory_fn& on_func)
 {
     if(d_->observers_ZwFlushVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_ZwFlushVirtualMemory@16", &on_ZwFlushVirtualMemory))
@@ -7277,7 +7277,7 @@ bool monitor::syscalls32::register_ZwFlushVirtualMemory(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscalls32::register_NtFreeUserPhysicalPages(proc_t proc, const on_NtFreeUserPhysicalPages_fn& on_func)
+bool tracer::syscalls32::register_NtFreeUserPhysicalPages(proc_t proc, const on_NtFreeUserPhysicalPages_fn& on_func)
 {
     if(d_->observers_NtFreeUserPhysicalPages.empty())
         if(!register_callback_with(*d_, proc, "_NtFreeUserPhysicalPages@12", &on_NtFreeUserPhysicalPages))
@@ -7287,7 +7287,7 @@ bool monitor::syscalls32::register_NtFreeUserPhysicalPages(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_NtFreeVirtualMemory(proc_t proc, const on_NtFreeVirtualMemory_fn& on_func)
+bool tracer::syscalls32::register_NtFreeVirtualMemory(proc_t proc, const on_NtFreeVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtFreeVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_NtFreeVirtualMemory@16", &on_NtFreeVirtualMemory))
@@ -7297,7 +7297,7 @@ bool monitor::syscalls32::register_NtFreeVirtualMemory(proc_t proc, const on_NtF
     return true;
 }
 
-bool monitor::syscalls32::register_NtFreezeRegistry(proc_t proc, const on_NtFreezeRegistry_fn& on_func)
+bool tracer::syscalls32::register_NtFreezeRegistry(proc_t proc, const on_NtFreezeRegistry_fn& on_func)
 {
     if(d_->observers_NtFreezeRegistry.empty())
         if(!register_callback_with(*d_, proc, "_NtFreezeRegistry@4", &on_NtFreezeRegistry))
@@ -7307,7 +7307,7 @@ bool monitor::syscalls32::register_NtFreezeRegistry(proc_t proc, const on_NtFree
     return true;
 }
 
-bool monitor::syscalls32::register_ZwFreezeTransactions(proc_t proc, const on_ZwFreezeTransactions_fn& on_func)
+bool tracer::syscalls32::register_ZwFreezeTransactions(proc_t proc, const on_ZwFreezeTransactions_fn& on_func)
 {
     if(d_->observers_ZwFreezeTransactions.empty())
         if(!register_callback_with(*d_, proc, "_ZwFreezeTransactions@8", &on_ZwFreezeTransactions))
@@ -7317,7 +7317,7 @@ bool monitor::syscalls32::register_ZwFreezeTransactions(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscalls32::register_NtFsControlFile(proc_t proc, const on_NtFsControlFile_fn& on_func)
+bool tracer::syscalls32::register_NtFsControlFile(proc_t proc, const on_NtFsControlFile_fn& on_func)
 {
     if(d_->observers_NtFsControlFile.empty())
         if(!register_callback_with(*d_, proc, "_NtFsControlFile@40", &on_NtFsControlFile))
@@ -7327,7 +7327,7 @@ bool monitor::syscalls32::register_NtFsControlFile(proc_t proc, const on_NtFsCon
     return true;
 }
 
-bool monitor::syscalls32::register_NtGetContextThread(proc_t proc, const on_NtGetContextThread_fn& on_func)
+bool tracer::syscalls32::register_NtGetContextThread(proc_t proc, const on_NtGetContextThread_fn& on_func)
 {
     if(d_->observers_NtGetContextThread.empty())
         if(!register_callback_with(*d_, proc, "_NtGetContextThread@8", &on_NtGetContextThread))
@@ -7337,7 +7337,7 @@ bool monitor::syscalls32::register_NtGetContextThread(proc_t proc, const on_NtGe
     return true;
 }
 
-bool monitor::syscalls32::register_NtGetDevicePowerState(proc_t proc, const on_NtGetDevicePowerState_fn& on_func)
+bool tracer::syscalls32::register_NtGetDevicePowerState(proc_t proc, const on_NtGetDevicePowerState_fn& on_func)
 {
     if(d_->observers_NtGetDevicePowerState.empty())
         if(!register_callback_with(*d_, proc, "_NtGetDevicePowerState@8", &on_NtGetDevicePowerState))
@@ -7347,7 +7347,7 @@ bool monitor::syscalls32::register_NtGetDevicePowerState(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_NtGetMUIRegistryInfo(proc_t proc, const on_NtGetMUIRegistryInfo_fn& on_func)
+bool tracer::syscalls32::register_NtGetMUIRegistryInfo(proc_t proc, const on_NtGetMUIRegistryInfo_fn& on_func)
 {
     if(d_->observers_NtGetMUIRegistryInfo.empty())
         if(!register_callback_with(*d_, proc, "_NtGetMUIRegistryInfo@12", &on_NtGetMUIRegistryInfo))
@@ -7357,7 +7357,7 @@ bool monitor::syscalls32::register_NtGetMUIRegistryInfo(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_ZwGetNextProcess(proc_t proc, const on_ZwGetNextProcess_fn& on_func)
+bool tracer::syscalls32::register_ZwGetNextProcess(proc_t proc, const on_ZwGetNextProcess_fn& on_func)
 {
     if(d_->observers_ZwGetNextProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwGetNextProcess@20", &on_ZwGetNextProcess))
@@ -7367,7 +7367,7 @@ bool monitor::syscalls32::register_ZwGetNextProcess(proc_t proc, const on_ZwGetN
     return true;
 }
 
-bool monitor::syscalls32::register_ZwGetNextThread(proc_t proc, const on_ZwGetNextThread_fn& on_func)
+bool tracer::syscalls32::register_ZwGetNextThread(proc_t proc, const on_ZwGetNextThread_fn& on_func)
 {
     if(d_->observers_ZwGetNextThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwGetNextThread@24", &on_ZwGetNextThread))
@@ -7377,7 +7377,7 @@ bool monitor::syscalls32::register_ZwGetNextThread(proc_t proc, const on_ZwGetNe
     return true;
 }
 
-bool monitor::syscalls32::register_NtGetNlsSectionPtr(proc_t proc, const on_NtGetNlsSectionPtr_fn& on_func)
+bool tracer::syscalls32::register_NtGetNlsSectionPtr(proc_t proc, const on_NtGetNlsSectionPtr_fn& on_func)
 {
     if(d_->observers_NtGetNlsSectionPtr.empty())
         if(!register_callback_with(*d_, proc, "_NtGetNlsSectionPtr@20", &on_NtGetNlsSectionPtr))
@@ -7387,7 +7387,7 @@ bool monitor::syscalls32::register_NtGetNlsSectionPtr(proc_t proc, const on_NtGe
     return true;
 }
 
-bool monitor::syscalls32::register_ZwGetNotificationResourceManager(proc_t proc, const on_ZwGetNotificationResourceManager_fn& on_func)
+bool tracer::syscalls32::register_ZwGetNotificationResourceManager(proc_t proc, const on_ZwGetNotificationResourceManager_fn& on_func)
 {
     if(d_->observers_ZwGetNotificationResourceManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwGetNotificationResourceManager@28", &on_ZwGetNotificationResourceManager))
@@ -7397,7 +7397,7 @@ bool monitor::syscalls32::register_ZwGetNotificationResourceManager(proc_t proc,
     return true;
 }
 
-bool monitor::syscalls32::register_NtGetWriteWatch(proc_t proc, const on_NtGetWriteWatch_fn& on_func)
+bool tracer::syscalls32::register_NtGetWriteWatch(proc_t proc, const on_NtGetWriteWatch_fn& on_func)
 {
     if(d_->observers_NtGetWriteWatch.empty())
         if(!register_callback_with(*d_, proc, "_NtGetWriteWatch@28", &on_NtGetWriteWatch))
@@ -7407,7 +7407,7 @@ bool monitor::syscalls32::register_NtGetWriteWatch(proc_t proc, const on_NtGetWr
     return true;
 }
 
-bool monitor::syscalls32::register_NtImpersonateAnonymousToken(proc_t proc, const on_NtImpersonateAnonymousToken_fn& on_func)
+bool tracer::syscalls32::register_NtImpersonateAnonymousToken(proc_t proc, const on_NtImpersonateAnonymousToken_fn& on_func)
 {
     if(d_->observers_NtImpersonateAnonymousToken.empty())
         if(!register_callback_with(*d_, proc, "_NtImpersonateAnonymousToken@4", &on_NtImpersonateAnonymousToken))
@@ -7417,7 +7417,7 @@ bool monitor::syscalls32::register_NtImpersonateAnonymousToken(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_ZwImpersonateClientOfPort(proc_t proc, const on_ZwImpersonateClientOfPort_fn& on_func)
+bool tracer::syscalls32::register_ZwImpersonateClientOfPort(proc_t proc, const on_ZwImpersonateClientOfPort_fn& on_func)
 {
     if(d_->observers_ZwImpersonateClientOfPort.empty())
         if(!register_callback_with(*d_, proc, "_ZwImpersonateClientOfPort@8", &on_ZwImpersonateClientOfPort))
@@ -7427,7 +7427,7 @@ bool monitor::syscalls32::register_ZwImpersonateClientOfPort(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_ZwImpersonateThread(proc_t proc, const on_ZwImpersonateThread_fn& on_func)
+bool tracer::syscalls32::register_ZwImpersonateThread(proc_t proc, const on_ZwImpersonateThread_fn& on_func)
 {
     if(d_->observers_ZwImpersonateThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwImpersonateThread@12", &on_ZwImpersonateThread))
@@ -7437,7 +7437,7 @@ bool monitor::syscalls32::register_ZwImpersonateThread(proc_t proc, const on_ZwI
     return true;
 }
 
-bool monitor::syscalls32::register_NtInitializeNlsFiles(proc_t proc, const on_NtInitializeNlsFiles_fn& on_func)
+bool tracer::syscalls32::register_NtInitializeNlsFiles(proc_t proc, const on_NtInitializeNlsFiles_fn& on_func)
 {
     if(d_->observers_NtInitializeNlsFiles.empty())
         if(!register_callback_with(*d_, proc, "_NtInitializeNlsFiles@12", &on_NtInitializeNlsFiles))
@@ -7447,7 +7447,7 @@ bool monitor::syscalls32::register_NtInitializeNlsFiles(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_ZwInitializeRegistry(proc_t proc, const on_ZwInitializeRegistry_fn& on_func)
+bool tracer::syscalls32::register_ZwInitializeRegistry(proc_t proc, const on_ZwInitializeRegistry_fn& on_func)
 {
     if(d_->observers_ZwInitializeRegistry.empty())
         if(!register_callback_with(*d_, proc, "_ZwInitializeRegistry@4", &on_ZwInitializeRegistry))
@@ -7457,7 +7457,7 @@ bool monitor::syscalls32::register_ZwInitializeRegistry(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscalls32::register_NtInitiatePowerAction(proc_t proc, const on_NtInitiatePowerAction_fn& on_func)
+bool tracer::syscalls32::register_NtInitiatePowerAction(proc_t proc, const on_NtInitiatePowerAction_fn& on_func)
 {
     if(d_->observers_NtInitiatePowerAction.empty())
         if(!register_callback_with(*d_, proc, "_NtInitiatePowerAction@16", &on_NtInitiatePowerAction))
@@ -7467,7 +7467,7 @@ bool monitor::syscalls32::register_NtInitiatePowerAction(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_ZwIsProcessInJob(proc_t proc, const on_ZwIsProcessInJob_fn& on_func)
+bool tracer::syscalls32::register_ZwIsProcessInJob(proc_t proc, const on_ZwIsProcessInJob_fn& on_func)
 {
     if(d_->observers_ZwIsProcessInJob.empty())
         if(!register_callback_with(*d_, proc, "_ZwIsProcessInJob@8", &on_ZwIsProcessInJob))
@@ -7477,7 +7477,7 @@ bool monitor::syscalls32::register_ZwIsProcessInJob(proc_t proc, const on_ZwIsPr
     return true;
 }
 
-bool monitor::syscalls32::register_ZwListenPort(proc_t proc, const on_ZwListenPort_fn& on_func)
+bool tracer::syscalls32::register_ZwListenPort(proc_t proc, const on_ZwListenPort_fn& on_func)
 {
     if(d_->observers_ZwListenPort.empty())
         if(!register_callback_with(*d_, proc, "_ZwListenPort@8", &on_ZwListenPort))
@@ -7487,7 +7487,7 @@ bool monitor::syscalls32::register_ZwListenPort(proc_t proc, const on_ZwListenPo
     return true;
 }
 
-bool monitor::syscalls32::register_NtLoadDriver(proc_t proc, const on_NtLoadDriver_fn& on_func)
+bool tracer::syscalls32::register_NtLoadDriver(proc_t proc, const on_NtLoadDriver_fn& on_func)
 {
     if(d_->observers_NtLoadDriver.empty())
         if(!register_callback_with(*d_, proc, "_NtLoadDriver@4", &on_NtLoadDriver))
@@ -7497,7 +7497,7 @@ bool monitor::syscalls32::register_NtLoadDriver(proc_t proc, const on_NtLoadDriv
     return true;
 }
 
-bool monitor::syscalls32::register_NtLoadKey2(proc_t proc, const on_NtLoadKey2_fn& on_func)
+bool tracer::syscalls32::register_NtLoadKey2(proc_t proc, const on_NtLoadKey2_fn& on_func)
 {
     if(d_->observers_NtLoadKey2.empty())
         if(!register_callback_with(*d_, proc, "_NtLoadKey2@12", &on_NtLoadKey2))
@@ -7507,7 +7507,7 @@ bool monitor::syscalls32::register_NtLoadKey2(proc_t proc, const on_NtLoadKey2_f
     return true;
 }
 
-bool monitor::syscalls32::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_fn& on_func)
+bool tracer::syscalls32::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_fn& on_func)
 {
     if(d_->observers_NtLoadKeyEx.empty())
         if(!register_callback_with(*d_, proc, "_NtLoadKeyEx@32", &on_NtLoadKeyEx))
@@ -7517,7 +7517,7 @@ bool monitor::syscalls32::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx
     return true;
 }
 
-bool monitor::syscalls32::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn& on_func)
+bool tracer::syscalls32::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn& on_func)
 {
     if(d_->observers_NtLoadKey.empty())
         if(!register_callback_with(*d_, proc, "_NtLoadKey@8", &on_NtLoadKey))
@@ -7527,7 +7527,7 @@ bool monitor::syscalls32::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn&
     return true;
 }
 
-bool monitor::syscalls32::register_NtLockFile(proc_t proc, const on_NtLockFile_fn& on_func)
+bool tracer::syscalls32::register_NtLockFile(proc_t proc, const on_NtLockFile_fn& on_func)
 {
     if(d_->observers_NtLockFile.empty())
         if(!register_callback_with(*d_, proc, "_NtLockFile@40", &on_NtLockFile))
@@ -7537,7 +7537,7 @@ bool monitor::syscalls32::register_NtLockFile(proc_t proc, const on_NtLockFile_f
     return true;
 }
 
-bool monitor::syscalls32::register_ZwLockProductActivationKeys(proc_t proc, const on_ZwLockProductActivationKeys_fn& on_func)
+bool tracer::syscalls32::register_ZwLockProductActivationKeys(proc_t proc, const on_ZwLockProductActivationKeys_fn& on_func)
 {
     if(d_->observers_ZwLockProductActivationKeys.empty())
         if(!register_callback_with(*d_, proc, "_ZwLockProductActivationKeys@8", &on_ZwLockProductActivationKeys))
@@ -7547,7 +7547,7 @@ bool monitor::syscalls32::register_ZwLockProductActivationKeys(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_NtLockRegistryKey(proc_t proc, const on_NtLockRegistryKey_fn& on_func)
+bool tracer::syscalls32::register_NtLockRegistryKey(proc_t proc, const on_NtLockRegistryKey_fn& on_func)
 {
     if(d_->observers_NtLockRegistryKey.empty())
         if(!register_callback_with(*d_, proc, "_NtLockRegistryKey@4", &on_NtLockRegistryKey))
@@ -7557,7 +7557,7 @@ bool monitor::syscalls32::register_NtLockRegistryKey(proc_t proc, const on_NtLoc
     return true;
 }
 
-bool monitor::syscalls32::register_ZwLockVirtualMemory(proc_t proc, const on_ZwLockVirtualMemory_fn& on_func)
+bool tracer::syscalls32::register_ZwLockVirtualMemory(proc_t proc, const on_ZwLockVirtualMemory_fn& on_func)
 {
     if(d_->observers_ZwLockVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_ZwLockVirtualMemory@16", &on_ZwLockVirtualMemory))
@@ -7567,7 +7567,7 @@ bool monitor::syscalls32::register_ZwLockVirtualMemory(proc_t proc, const on_ZwL
     return true;
 }
 
-bool monitor::syscalls32::register_ZwMakePermanentObject(proc_t proc, const on_ZwMakePermanentObject_fn& on_func)
+bool tracer::syscalls32::register_ZwMakePermanentObject(proc_t proc, const on_ZwMakePermanentObject_fn& on_func)
 {
     if(d_->observers_ZwMakePermanentObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwMakePermanentObject@4", &on_ZwMakePermanentObject))
@@ -7577,7 +7577,7 @@ bool monitor::syscalls32::register_ZwMakePermanentObject(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscalls32::register_NtMakeTemporaryObject(proc_t proc, const on_NtMakeTemporaryObject_fn& on_func)
+bool tracer::syscalls32::register_NtMakeTemporaryObject(proc_t proc, const on_NtMakeTemporaryObject_fn& on_func)
 {
     if(d_->observers_NtMakeTemporaryObject.empty())
         if(!register_callback_with(*d_, proc, "_NtMakeTemporaryObject@4", &on_NtMakeTemporaryObject))
@@ -7587,7 +7587,7 @@ bool monitor::syscalls32::register_NtMakeTemporaryObject(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_ZwMapCMFModule(proc_t proc, const on_ZwMapCMFModule_fn& on_func)
+bool tracer::syscalls32::register_ZwMapCMFModule(proc_t proc, const on_ZwMapCMFModule_fn& on_func)
 {
     if(d_->observers_ZwMapCMFModule.empty())
         if(!register_callback_with(*d_, proc, "_ZwMapCMFModule@24", &on_ZwMapCMFModule))
@@ -7597,7 +7597,7 @@ bool monitor::syscalls32::register_ZwMapCMFModule(proc_t proc, const on_ZwMapCMF
     return true;
 }
 
-bool monitor::syscalls32::register_NtMapUserPhysicalPages(proc_t proc, const on_NtMapUserPhysicalPages_fn& on_func)
+bool tracer::syscalls32::register_NtMapUserPhysicalPages(proc_t proc, const on_NtMapUserPhysicalPages_fn& on_func)
 {
     if(d_->observers_NtMapUserPhysicalPages.empty())
         if(!register_callback_with(*d_, proc, "_NtMapUserPhysicalPages@12", &on_NtMapUserPhysicalPages))
@@ -7607,7 +7607,7 @@ bool monitor::syscalls32::register_NtMapUserPhysicalPages(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwMapUserPhysicalPagesScatter(proc_t proc, const on_ZwMapUserPhysicalPagesScatter_fn& on_func)
+bool tracer::syscalls32::register_ZwMapUserPhysicalPagesScatter(proc_t proc, const on_ZwMapUserPhysicalPagesScatter_fn& on_func)
 {
     if(d_->observers_ZwMapUserPhysicalPagesScatter.empty())
         if(!register_callback_with(*d_, proc, "_ZwMapUserPhysicalPagesScatter@12", &on_ZwMapUserPhysicalPagesScatter))
@@ -7617,7 +7617,7 @@ bool monitor::syscalls32::register_ZwMapUserPhysicalPagesScatter(proc_t proc, co
     return true;
 }
 
-bool monitor::syscalls32::register_ZwMapViewOfSection(proc_t proc, const on_ZwMapViewOfSection_fn& on_func)
+bool tracer::syscalls32::register_ZwMapViewOfSection(proc_t proc, const on_ZwMapViewOfSection_fn& on_func)
 {
     if(d_->observers_ZwMapViewOfSection.empty())
         if(!register_callback_with(*d_, proc, "_ZwMapViewOfSection@40", &on_ZwMapViewOfSection))
@@ -7627,7 +7627,7 @@ bool monitor::syscalls32::register_ZwMapViewOfSection(proc_t proc, const on_ZwMa
     return true;
 }
 
-bool monitor::syscalls32::register_NtModifyBootEntry(proc_t proc, const on_NtModifyBootEntry_fn& on_func)
+bool tracer::syscalls32::register_NtModifyBootEntry(proc_t proc, const on_NtModifyBootEntry_fn& on_func)
 {
     if(d_->observers_NtModifyBootEntry.empty())
         if(!register_callback_with(*d_, proc, "_NtModifyBootEntry@4", &on_NtModifyBootEntry))
@@ -7637,7 +7637,7 @@ bool monitor::syscalls32::register_NtModifyBootEntry(proc_t proc, const on_NtMod
     return true;
 }
 
-bool monitor::syscalls32::register_ZwModifyDriverEntry(proc_t proc, const on_ZwModifyDriverEntry_fn& on_func)
+bool tracer::syscalls32::register_ZwModifyDriverEntry(proc_t proc, const on_ZwModifyDriverEntry_fn& on_func)
 {
     if(d_->observers_ZwModifyDriverEntry.empty())
         if(!register_callback_with(*d_, proc, "_ZwModifyDriverEntry@4", &on_ZwModifyDriverEntry))
@@ -7647,7 +7647,7 @@ bool monitor::syscalls32::register_ZwModifyDriverEntry(proc_t proc, const on_ZwM
     return true;
 }
 
-bool monitor::syscalls32::register_NtNotifyChangeDirectoryFile(proc_t proc, const on_NtNotifyChangeDirectoryFile_fn& on_func)
+bool tracer::syscalls32::register_NtNotifyChangeDirectoryFile(proc_t proc, const on_NtNotifyChangeDirectoryFile_fn& on_func)
 {
     if(d_->observers_NtNotifyChangeDirectoryFile.empty())
         if(!register_callback_with(*d_, proc, "_NtNotifyChangeDirectoryFile@36", &on_NtNotifyChangeDirectoryFile))
@@ -7657,7 +7657,7 @@ bool monitor::syscalls32::register_NtNotifyChangeDirectoryFile(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_NtNotifyChangeKey(proc_t proc, const on_NtNotifyChangeKey_fn& on_func)
+bool tracer::syscalls32::register_NtNotifyChangeKey(proc_t proc, const on_NtNotifyChangeKey_fn& on_func)
 {
     if(d_->observers_NtNotifyChangeKey.empty())
         if(!register_callback_with(*d_, proc, "_NtNotifyChangeKey@40", &on_NtNotifyChangeKey))
@@ -7667,7 +7667,7 @@ bool monitor::syscalls32::register_NtNotifyChangeKey(proc_t proc, const on_NtNot
     return true;
 }
 
-bool monitor::syscalls32::register_NtNotifyChangeMultipleKeys(proc_t proc, const on_NtNotifyChangeMultipleKeys_fn& on_func)
+bool tracer::syscalls32::register_NtNotifyChangeMultipleKeys(proc_t proc, const on_NtNotifyChangeMultipleKeys_fn& on_func)
 {
     if(d_->observers_NtNotifyChangeMultipleKeys.empty())
         if(!register_callback_with(*d_, proc, "_NtNotifyChangeMultipleKeys@48", &on_NtNotifyChangeMultipleKeys))
@@ -7677,7 +7677,7 @@ bool monitor::syscalls32::register_NtNotifyChangeMultipleKeys(proc_t proc, const
     return true;
 }
 
-bool monitor::syscalls32::register_NtNotifyChangeSession(proc_t proc, const on_NtNotifyChangeSession_fn& on_func)
+bool tracer::syscalls32::register_NtNotifyChangeSession(proc_t proc, const on_NtNotifyChangeSession_fn& on_func)
 {
     if(d_->observers_NtNotifyChangeSession.empty())
         if(!register_callback_with(*d_, proc, "_NtNotifyChangeSession@32", &on_NtNotifyChangeSession))
@@ -7687,7 +7687,7 @@ bool monitor::syscalls32::register_NtNotifyChangeSession(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenDirectoryObject(proc_t proc, const on_ZwOpenDirectoryObject_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenDirectoryObject(proc_t proc, const on_ZwOpenDirectoryObject_fn& on_func)
 {
     if(d_->observers_ZwOpenDirectoryObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenDirectoryObject@12", &on_ZwOpenDirectoryObject))
@@ -7697,7 +7697,7 @@ bool monitor::syscalls32::register_ZwOpenDirectoryObject(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenEnlistment(proc_t proc, const on_ZwOpenEnlistment_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenEnlistment(proc_t proc, const on_ZwOpenEnlistment_fn& on_func)
 {
     if(d_->observers_ZwOpenEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenEnlistment@20", &on_ZwOpenEnlistment))
@@ -7707,7 +7707,7 @@ bool monitor::syscalls32::register_ZwOpenEnlistment(proc_t proc, const on_ZwOpen
     return true;
 }
 
-bool monitor::syscalls32::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent_fn& on_func)
+bool tracer::syscalls32::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent_fn& on_func)
 {
     if(d_->observers_NtOpenEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenEvent@12", &on_NtOpenEvent))
@@ -7717,7 +7717,7 @@ bool monitor::syscalls32::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent
     return true;
 }
 
-bool monitor::syscalls32::register_NtOpenEventPair(proc_t proc, const on_NtOpenEventPair_fn& on_func)
+bool tracer::syscalls32::register_NtOpenEventPair(proc_t proc, const on_NtOpenEventPair_fn& on_func)
 {
     if(d_->observers_NtOpenEventPair.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenEventPair@12", &on_NtOpenEventPair))
@@ -7727,7 +7727,7 @@ bool monitor::syscalls32::register_NtOpenEventPair(proc_t proc, const on_NtOpenE
     return true;
 }
 
-bool monitor::syscalls32::register_NtOpenFile(proc_t proc, const on_NtOpenFile_fn& on_func)
+bool tracer::syscalls32::register_NtOpenFile(proc_t proc, const on_NtOpenFile_fn& on_func)
 {
     if(d_->observers_NtOpenFile.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenFile@24", &on_NtOpenFile))
@@ -7737,7 +7737,7 @@ bool monitor::syscalls32::register_NtOpenFile(proc_t proc, const on_NtOpenFile_f
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenIoCompletion(proc_t proc, const on_ZwOpenIoCompletion_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenIoCompletion(proc_t proc, const on_ZwOpenIoCompletion_fn& on_func)
 {
     if(d_->observers_ZwOpenIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenIoCompletion@12", &on_ZwOpenIoCompletion))
@@ -7747,7 +7747,7 @@ bool monitor::syscalls32::register_ZwOpenIoCompletion(proc_t proc, const on_ZwOp
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenJobObject(proc_t proc, const on_ZwOpenJobObject_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenJobObject(proc_t proc, const on_ZwOpenJobObject_fn& on_func)
 {
     if(d_->observers_ZwOpenJobObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenJobObject@12", &on_ZwOpenJobObject))
@@ -7757,7 +7757,7 @@ bool monitor::syscalls32::register_ZwOpenJobObject(proc_t proc, const on_ZwOpenJ
     return true;
 }
 
-bool monitor::syscalls32::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpenKeyedEvent_fn& on_func)
+bool tracer::syscalls32::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpenKeyedEvent_fn& on_func)
 {
     if(d_->observers_NtOpenKeyedEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenKeyedEvent@12", &on_NtOpenKeyedEvent))
@@ -7767,7 +7767,7 @@ bool monitor::syscalls32::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpen
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenKeyEx(proc_t proc, const on_ZwOpenKeyEx_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenKeyEx(proc_t proc, const on_ZwOpenKeyEx_fn& on_func)
 {
     if(d_->observers_ZwOpenKeyEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenKeyEx@16", &on_ZwOpenKeyEx))
@@ -7777,7 +7777,7 @@ bool monitor::syscalls32::register_ZwOpenKeyEx(proc_t proc, const on_ZwOpenKeyEx
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenKey(proc_t proc, const on_ZwOpenKey_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenKey(proc_t proc, const on_ZwOpenKey_fn& on_func)
 {
     if(d_->observers_ZwOpenKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenKey@12", &on_ZwOpenKey))
@@ -7787,7 +7787,7 @@ bool monitor::syscalls32::register_ZwOpenKey(proc_t proc, const on_ZwOpenKey_fn&
     return true;
 }
 
-bool monitor::syscalls32::register_NtOpenKeyTransactedEx(proc_t proc, const on_NtOpenKeyTransactedEx_fn& on_func)
+bool tracer::syscalls32::register_NtOpenKeyTransactedEx(proc_t proc, const on_NtOpenKeyTransactedEx_fn& on_func)
 {
     if(d_->observers_NtOpenKeyTransactedEx.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenKeyTransactedEx@20", &on_NtOpenKeyTransactedEx))
@@ -7797,7 +7797,7 @@ bool monitor::syscalls32::register_NtOpenKeyTransactedEx(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_NtOpenKeyTransacted(proc_t proc, const on_NtOpenKeyTransacted_fn& on_func)
+bool tracer::syscalls32::register_NtOpenKeyTransacted(proc_t proc, const on_NtOpenKeyTransacted_fn& on_func)
 {
     if(d_->observers_NtOpenKeyTransacted.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenKeyTransacted@16", &on_NtOpenKeyTransacted))
@@ -7807,7 +7807,7 @@ bool monitor::syscalls32::register_NtOpenKeyTransacted(proc_t proc, const on_NtO
     return true;
 }
 
-bool monitor::syscalls32::register_NtOpenMutant(proc_t proc, const on_NtOpenMutant_fn& on_func)
+bool tracer::syscalls32::register_NtOpenMutant(proc_t proc, const on_NtOpenMutant_fn& on_func)
 {
     if(d_->observers_NtOpenMutant.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenMutant@12", &on_NtOpenMutant))
@@ -7817,7 +7817,7 @@ bool monitor::syscalls32::register_NtOpenMutant(proc_t proc, const on_NtOpenMuta
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenObjectAuditAlarm(proc_t proc, const on_ZwOpenObjectAuditAlarm_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenObjectAuditAlarm(proc_t proc, const on_ZwOpenObjectAuditAlarm_fn& on_func)
 {
     if(d_->observers_ZwOpenObjectAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenObjectAuditAlarm@48", &on_ZwOpenObjectAuditAlarm))
@@ -7827,7 +7827,7 @@ bool monitor::syscalls32::register_ZwOpenObjectAuditAlarm(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_NtOpenPrivateNamespace(proc_t proc, const on_NtOpenPrivateNamespace_fn& on_func)
+bool tracer::syscalls32::register_NtOpenPrivateNamespace(proc_t proc, const on_NtOpenPrivateNamespace_fn& on_func)
 {
     if(d_->observers_NtOpenPrivateNamespace.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenPrivateNamespace@16", &on_NtOpenPrivateNamespace))
@@ -7837,7 +7837,7 @@ bool monitor::syscalls32::register_NtOpenPrivateNamespace(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenProcess(proc_t proc, const on_ZwOpenProcess_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenProcess(proc_t proc, const on_ZwOpenProcess_fn& on_func)
 {
     if(d_->observers_ZwOpenProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenProcess@16", &on_ZwOpenProcess))
@@ -7847,7 +7847,7 @@ bool monitor::syscalls32::register_ZwOpenProcess(proc_t proc, const on_ZwOpenPro
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenProcessTokenEx(proc_t proc, const on_ZwOpenProcessTokenEx_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenProcessTokenEx(proc_t proc, const on_ZwOpenProcessTokenEx_fn& on_func)
 {
     if(d_->observers_ZwOpenProcessTokenEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenProcessTokenEx@16", &on_ZwOpenProcessTokenEx))
@@ -7857,7 +7857,7 @@ bool monitor::syscalls32::register_ZwOpenProcessTokenEx(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenProcessToken(proc_t proc, const on_ZwOpenProcessToken_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenProcessToken(proc_t proc, const on_ZwOpenProcessToken_fn& on_func)
 {
     if(d_->observers_ZwOpenProcessToken.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenProcessToken@12", &on_ZwOpenProcessToken))
@@ -7867,7 +7867,7 @@ bool monitor::syscalls32::register_ZwOpenProcessToken(proc_t proc, const on_ZwOp
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenResourceManager(proc_t proc, const on_ZwOpenResourceManager_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenResourceManager(proc_t proc, const on_ZwOpenResourceManager_fn& on_func)
 {
     if(d_->observers_ZwOpenResourceManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenResourceManager@20", &on_ZwOpenResourceManager))
@@ -7877,7 +7877,7 @@ bool monitor::syscalls32::register_ZwOpenResourceManager(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscalls32::register_NtOpenSection(proc_t proc, const on_NtOpenSection_fn& on_func)
+bool tracer::syscalls32::register_NtOpenSection(proc_t proc, const on_NtOpenSection_fn& on_func)
 {
     if(d_->observers_NtOpenSection.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenSection@12", &on_NtOpenSection))
@@ -7887,7 +7887,7 @@ bool monitor::syscalls32::register_NtOpenSection(proc_t proc, const on_NtOpenSec
     return true;
 }
 
-bool monitor::syscalls32::register_NtOpenSemaphore(proc_t proc, const on_NtOpenSemaphore_fn& on_func)
+bool tracer::syscalls32::register_NtOpenSemaphore(proc_t proc, const on_NtOpenSemaphore_fn& on_func)
 {
     if(d_->observers_NtOpenSemaphore.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenSemaphore@12", &on_NtOpenSemaphore))
@@ -7897,7 +7897,7 @@ bool monitor::syscalls32::register_NtOpenSemaphore(proc_t proc, const on_NtOpenS
     return true;
 }
 
-bool monitor::syscalls32::register_NtOpenSession(proc_t proc, const on_NtOpenSession_fn& on_func)
+bool tracer::syscalls32::register_NtOpenSession(proc_t proc, const on_NtOpenSession_fn& on_func)
 {
     if(d_->observers_NtOpenSession.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenSession@12", &on_NtOpenSession))
@@ -7907,7 +7907,7 @@ bool monitor::syscalls32::register_NtOpenSession(proc_t proc, const on_NtOpenSes
     return true;
 }
 
-bool monitor::syscalls32::register_NtOpenSymbolicLinkObject(proc_t proc, const on_NtOpenSymbolicLinkObject_fn& on_func)
+bool tracer::syscalls32::register_NtOpenSymbolicLinkObject(proc_t proc, const on_NtOpenSymbolicLinkObject_fn& on_func)
 {
     if(d_->observers_NtOpenSymbolicLinkObject.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenSymbolicLinkObject@12", &on_NtOpenSymbolicLinkObject))
@@ -7917,7 +7917,7 @@ bool monitor::syscalls32::register_NtOpenSymbolicLinkObject(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenThread(proc_t proc, const on_ZwOpenThread_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenThread(proc_t proc, const on_ZwOpenThread_fn& on_func)
 {
     if(d_->observers_ZwOpenThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenThread@16", &on_ZwOpenThread))
@@ -7927,7 +7927,7 @@ bool monitor::syscalls32::register_ZwOpenThread(proc_t proc, const on_ZwOpenThre
     return true;
 }
 
-bool monitor::syscalls32::register_NtOpenThreadTokenEx(proc_t proc, const on_NtOpenThreadTokenEx_fn& on_func)
+bool tracer::syscalls32::register_NtOpenThreadTokenEx(proc_t proc, const on_NtOpenThreadTokenEx_fn& on_func)
 {
     if(d_->observers_NtOpenThreadTokenEx.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenThreadTokenEx@20", &on_NtOpenThreadTokenEx))
@@ -7937,7 +7937,7 @@ bool monitor::syscalls32::register_NtOpenThreadTokenEx(proc_t proc, const on_NtO
     return true;
 }
 
-bool monitor::syscalls32::register_NtOpenThreadToken(proc_t proc, const on_NtOpenThreadToken_fn& on_func)
+bool tracer::syscalls32::register_NtOpenThreadToken(proc_t proc, const on_NtOpenThreadToken_fn& on_func)
 {
     if(d_->observers_NtOpenThreadToken.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenThreadToken@16", &on_NtOpenThreadToken))
@@ -7947,7 +7947,7 @@ bool monitor::syscalls32::register_NtOpenThreadToken(proc_t proc, const on_NtOpe
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenTimer(proc_t proc, const on_ZwOpenTimer_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenTimer(proc_t proc, const on_ZwOpenTimer_fn& on_func)
 {
     if(d_->observers_ZwOpenTimer.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenTimer@12", &on_ZwOpenTimer))
@@ -7957,7 +7957,7 @@ bool monitor::syscalls32::register_ZwOpenTimer(proc_t proc, const on_ZwOpenTimer
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenTransactionManager(proc_t proc, const on_ZwOpenTransactionManager_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenTransactionManager(proc_t proc, const on_ZwOpenTransactionManager_fn& on_func)
 {
     if(d_->observers_ZwOpenTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenTransactionManager@24", &on_ZwOpenTransactionManager))
@@ -7967,7 +7967,7 @@ bool monitor::syscalls32::register_ZwOpenTransactionManager(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscalls32::register_ZwOpenTransaction(proc_t proc, const on_ZwOpenTransaction_fn& on_func)
+bool tracer::syscalls32::register_ZwOpenTransaction(proc_t proc, const on_ZwOpenTransaction_fn& on_func)
 {
     if(d_->observers_ZwOpenTransaction.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenTransaction@20", &on_ZwOpenTransaction))
@@ -7977,7 +7977,7 @@ bool monitor::syscalls32::register_ZwOpenTransaction(proc_t proc, const on_ZwOpe
     return true;
 }
 
-bool monitor::syscalls32::register_NtPlugPlayControl(proc_t proc, const on_NtPlugPlayControl_fn& on_func)
+bool tracer::syscalls32::register_NtPlugPlayControl(proc_t proc, const on_NtPlugPlayControl_fn& on_func)
 {
     if(d_->observers_NtPlugPlayControl.empty())
         if(!register_callback_with(*d_, proc, "_NtPlugPlayControl@12", &on_NtPlugPlayControl))
@@ -7987,7 +7987,7 @@ bool monitor::syscalls32::register_NtPlugPlayControl(proc_t proc, const on_NtPlu
     return true;
 }
 
-bool monitor::syscalls32::register_ZwPowerInformation(proc_t proc, const on_ZwPowerInformation_fn& on_func)
+bool tracer::syscalls32::register_ZwPowerInformation(proc_t proc, const on_ZwPowerInformation_fn& on_func)
 {
     if(d_->observers_ZwPowerInformation.empty())
         if(!register_callback_with(*d_, proc, "_ZwPowerInformation@20", &on_ZwPowerInformation))
@@ -7997,7 +7997,7 @@ bool monitor::syscalls32::register_ZwPowerInformation(proc_t proc, const on_ZwPo
     return true;
 }
 
-bool monitor::syscalls32::register_NtPrepareComplete(proc_t proc, const on_NtPrepareComplete_fn& on_func)
+bool tracer::syscalls32::register_NtPrepareComplete(proc_t proc, const on_NtPrepareComplete_fn& on_func)
 {
     if(d_->observers_NtPrepareComplete.empty())
         if(!register_callback_with(*d_, proc, "_NtPrepareComplete@8", &on_NtPrepareComplete))
@@ -8007,7 +8007,7 @@ bool monitor::syscalls32::register_NtPrepareComplete(proc_t proc, const on_NtPre
     return true;
 }
 
-bool monitor::syscalls32::register_ZwPrepareEnlistment(proc_t proc, const on_ZwPrepareEnlistment_fn& on_func)
+bool tracer::syscalls32::register_ZwPrepareEnlistment(proc_t proc, const on_ZwPrepareEnlistment_fn& on_func)
 {
     if(d_->observers_ZwPrepareEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_ZwPrepareEnlistment@8", &on_ZwPrepareEnlistment))
@@ -8017,7 +8017,7 @@ bool monitor::syscalls32::register_ZwPrepareEnlistment(proc_t proc, const on_ZwP
     return true;
 }
 
-bool monitor::syscalls32::register_ZwPrePrepareComplete(proc_t proc, const on_ZwPrePrepareComplete_fn& on_func)
+bool tracer::syscalls32::register_ZwPrePrepareComplete(proc_t proc, const on_ZwPrePrepareComplete_fn& on_func)
 {
     if(d_->observers_ZwPrePrepareComplete.empty())
         if(!register_callback_with(*d_, proc, "_ZwPrePrepareComplete@8", &on_ZwPrePrepareComplete))
@@ -8027,7 +8027,7 @@ bool monitor::syscalls32::register_ZwPrePrepareComplete(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscalls32::register_NtPrePrepareEnlistment(proc_t proc, const on_NtPrePrepareEnlistment_fn& on_func)
+bool tracer::syscalls32::register_NtPrePrepareEnlistment(proc_t proc, const on_NtPrePrepareEnlistment_fn& on_func)
 {
     if(d_->observers_NtPrePrepareEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_NtPrePrepareEnlistment@8", &on_NtPrePrepareEnlistment))
@@ -8037,7 +8037,7 @@ bool monitor::syscalls32::register_NtPrePrepareEnlistment(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwPrivilegeCheck(proc_t proc, const on_ZwPrivilegeCheck_fn& on_func)
+bool tracer::syscalls32::register_ZwPrivilegeCheck(proc_t proc, const on_ZwPrivilegeCheck_fn& on_func)
 {
     if(d_->observers_ZwPrivilegeCheck.empty())
         if(!register_callback_with(*d_, proc, "_ZwPrivilegeCheck@12", &on_ZwPrivilegeCheck))
@@ -8047,7 +8047,7 @@ bool monitor::syscalls32::register_ZwPrivilegeCheck(proc_t proc, const on_ZwPriv
     return true;
 }
 
-bool monitor::syscalls32::register_NtPrivilegedServiceAuditAlarm(proc_t proc, const on_NtPrivilegedServiceAuditAlarm_fn& on_func)
+bool tracer::syscalls32::register_NtPrivilegedServiceAuditAlarm(proc_t proc, const on_NtPrivilegedServiceAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtPrivilegedServiceAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_NtPrivilegedServiceAuditAlarm@20", &on_NtPrivilegedServiceAuditAlarm))
@@ -8057,7 +8057,7 @@ bool monitor::syscalls32::register_NtPrivilegedServiceAuditAlarm(proc_t proc, co
     return true;
 }
 
-bool monitor::syscalls32::register_ZwPrivilegeObjectAuditAlarm(proc_t proc, const on_ZwPrivilegeObjectAuditAlarm_fn& on_func)
+bool tracer::syscalls32::register_ZwPrivilegeObjectAuditAlarm(proc_t proc, const on_ZwPrivilegeObjectAuditAlarm_fn& on_func)
 {
     if(d_->observers_ZwPrivilegeObjectAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_ZwPrivilegeObjectAuditAlarm@24", &on_ZwPrivilegeObjectAuditAlarm))
@@ -8067,7 +8067,7 @@ bool monitor::syscalls32::register_ZwPrivilegeObjectAuditAlarm(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_NtPropagationComplete(proc_t proc, const on_NtPropagationComplete_fn& on_func)
+bool tracer::syscalls32::register_NtPropagationComplete(proc_t proc, const on_NtPropagationComplete_fn& on_func)
 {
     if(d_->observers_NtPropagationComplete.empty())
         if(!register_callback_with(*d_, proc, "_NtPropagationComplete@16", &on_NtPropagationComplete))
@@ -8077,7 +8077,7 @@ bool monitor::syscalls32::register_NtPropagationComplete(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_ZwPropagationFailed(proc_t proc, const on_ZwPropagationFailed_fn& on_func)
+bool tracer::syscalls32::register_ZwPropagationFailed(proc_t proc, const on_ZwPropagationFailed_fn& on_func)
 {
     if(d_->observers_ZwPropagationFailed.empty())
         if(!register_callback_with(*d_, proc, "_ZwPropagationFailed@12", &on_ZwPropagationFailed))
@@ -8087,7 +8087,7 @@ bool monitor::syscalls32::register_ZwPropagationFailed(proc_t proc, const on_ZwP
     return true;
 }
 
-bool monitor::syscalls32::register_ZwProtectVirtualMemory(proc_t proc, const on_ZwProtectVirtualMemory_fn& on_func)
+bool tracer::syscalls32::register_ZwProtectVirtualMemory(proc_t proc, const on_ZwProtectVirtualMemory_fn& on_func)
 {
     if(d_->observers_ZwProtectVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_ZwProtectVirtualMemory@20", &on_ZwProtectVirtualMemory))
@@ -8097,7 +8097,7 @@ bool monitor::syscalls32::register_ZwProtectVirtualMemory(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwPulseEvent(proc_t proc, const on_ZwPulseEvent_fn& on_func)
+bool tracer::syscalls32::register_ZwPulseEvent(proc_t proc, const on_ZwPulseEvent_fn& on_func)
 {
     if(d_->observers_ZwPulseEvent.empty())
         if(!register_callback_with(*d_, proc, "_ZwPulseEvent@8", &on_ZwPulseEvent))
@@ -8107,7 +8107,7 @@ bool monitor::syscalls32::register_ZwPulseEvent(proc_t proc, const on_ZwPulseEve
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryAttributesFile(proc_t proc, const on_ZwQueryAttributesFile_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryAttributesFile(proc_t proc, const on_ZwQueryAttributesFile_fn& on_func)
 {
     if(d_->observers_ZwQueryAttributesFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryAttributesFile@8", &on_ZwQueryAttributesFile))
@@ -8117,7 +8117,7 @@ bool monitor::syscalls32::register_ZwQueryAttributesFile(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryBootEntryOrder(proc_t proc, const on_ZwQueryBootEntryOrder_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryBootEntryOrder(proc_t proc, const on_ZwQueryBootEntryOrder_fn& on_func)
 {
     if(d_->observers_ZwQueryBootEntryOrder.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryBootEntryOrder@8", &on_ZwQueryBootEntryOrder))
@@ -8127,7 +8127,7 @@ bool monitor::syscalls32::register_ZwQueryBootEntryOrder(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryBootOptions(proc_t proc, const on_ZwQueryBootOptions_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryBootOptions(proc_t proc, const on_ZwQueryBootOptions_fn& on_func)
 {
     if(d_->observers_ZwQueryBootOptions.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryBootOptions@8", &on_ZwQueryBootOptions))
@@ -8137,7 +8137,7 @@ bool monitor::syscalls32::register_ZwQueryBootOptions(proc_t proc, const on_ZwQu
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryDebugFilterState(proc_t proc, const on_NtQueryDebugFilterState_fn& on_func)
+bool tracer::syscalls32::register_NtQueryDebugFilterState(proc_t proc, const on_NtQueryDebugFilterState_fn& on_func)
 {
     if(d_->observers_NtQueryDebugFilterState.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryDebugFilterState@8", &on_NtQueryDebugFilterState))
@@ -8147,7 +8147,7 @@ bool monitor::syscalls32::register_NtQueryDebugFilterState(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryDefaultLocale(proc_t proc, const on_NtQueryDefaultLocale_fn& on_func)
+bool tracer::syscalls32::register_NtQueryDefaultLocale(proc_t proc, const on_NtQueryDefaultLocale_fn& on_func)
 {
     if(d_->observers_NtQueryDefaultLocale.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryDefaultLocale@8", &on_NtQueryDefaultLocale))
@@ -8157,7 +8157,7 @@ bool monitor::syscalls32::register_NtQueryDefaultLocale(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryDefaultUILanguage(proc_t proc, const on_ZwQueryDefaultUILanguage_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryDefaultUILanguage(proc_t proc, const on_ZwQueryDefaultUILanguage_fn& on_func)
 {
     if(d_->observers_ZwQueryDefaultUILanguage.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryDefaultUILanguage@4", &on_ZwQueryDefaultUILanguage))
@@ -8167,7 +8167,7 @@ bool monitor::syscalls32::register_ZwQueryDefaultUILanguage(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryDirectoryFile(proc_t proc, const on_ZwQueryDirectoryFile_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryDirectoryFile(proc_t proc, const on_ZwQueryDirectoryFile_fn& on_func)
 {
     if(d_->observers_ZwQueryDirectoryFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryDirectoryFile@44", &on_ZwQueryDirectoryFile))
@@ -8177,7 +8177,7 @@ bool monitor::syscalls32::register_ZwQueryDirectoryFile(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryDirectoryObject(proc_t proc, const on_ZwQueryDirectoryObject_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryDirectoryObject(proc_t proc, const on_ZwQueryDirectoryObject_fn& on_func)
 {
     if(d_->observers_ZwQueryDirectoryObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryDirectoryObject@28", &on_ZwQueryDirectoryObject))
@@ -8187,7 +8187,7 @@ bool monitor::syscalls32::register_ZwQueryDirectoryObject(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryDriverEntryOrder(proc_t proc, const on_NtQueryDriverEntryOrder_fn& on_func)
+bool tracer::syscalls32::register_NtQueryDriverEntryOrder(proc_t proc, const on_NtQueryDriverEntryOrder_fn& on_func)
 {
     if(d_->observers_NtQueryDriverEntryOrder.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryDriverEntryOrder@8", &on_NtQueryDriverEntryOrder))
@@ -8197,7 +8197,7 @@ bool monitor::syscalls32::register_NtQueryDriverEntryOrder(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryEaFile(proc_t proc, const on_ZwQueryEaFile_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryEaFile(proc_t proc, const on_ZwQueryEaFile_fn& on_func)
 {
     if(d_->observers_ZwQueryEaFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryEaFile@36", &on_ZwQueryEaFile))
@@ -8207,7 +8207,7 @@ bool monitor::syscalls32::register_ZwQueryEaFile(proc_t proc, const on_ZwQueryEa
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryEvent(proc_t proc, const on_NtQueryEvent_fn& on_func)
+bool tracer::syscalls32::register_NtQueryEvent(proc_t proc, const on_NtQueryEvent_fn& on_func)
 {
     if(d_->observers_NtQueryEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryEvent@20", &on_NtQueryEvent))
@@ -8217,7 +8217,7 @@ bool monitor::syscalls32::register_NtQueryEvent(proc_t proc, const on_NtQueryEve
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryFullAttributesFile(proc_t proc, const on_ZwQueryFullAttributesFile_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryFullAttributesFile(proc_t proc, const on_ZwQueryFullAttributesFile_fn& on_func)
 {
     if(d_->observers_ZwQueryFullAttributesFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryFullAttributesFile@8", &on_ZwQueryFullAttributesFile))
@@ -8227,7 +8227,7 @@ bool monitor::syscalls32::register_ZwQueryFullAttributesFile(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryInformationAtom(proc_t proc, const on_NtQueryInformationAtom_fn& on_func)
+bool tracer::syscalls32::register_NtQueryInformationAtom(proc_t proc, const on_NtQueryInformationAtom_fn& on_func)
 {
     if(d_->observers_NtQueryInformationAtom.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryInformationAtom@20", &on_NtQueryInformationAtom))
@@ -8237,7 +8237,7 @@ bool monitor::syscalls32::register_NtQueryInformationAtom(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryInformationEnlistment(proc_t proc, const on_ZwQueryInformationEnlistment_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryInformationEnlistment(proc_t proc, const on_ZwQueryInformationEnlistment_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationEnlistment@20", &on_ZwQueryInformationEnlistment))
@@ -8247,7 +8247,7 @@ bool monitor::syscalls32::register_ZwQueryInformationEnlistment(proc_t proc, con
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryInformationFile(proc_t proc, const on_ZwQueryInformationFile_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryInformationFile(proc_t proc, const on_ZwQueryInformationFile_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationFile@20", &on_ZwQueryInformationFile))
@@ -8257,7 +8257,7 @@ bool monitor::syscalls32::register_ZwQueryInformationFile(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryInformationJobObject(proc_t proc, const on_ZwQueryInformationJobObject_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryInformationJobObject(proc_t proc, const on_ZwQueryInformationJobObject_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationJobObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationJobObject@20", &on_ZwQueryInformationJobObject))
@@ -8267,7 +8267,7 @@ bool monitor::syscalls32::register_ZwQueryInformationJobObject(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryInformationPort(proc_t proc, const on_ZwQueryInformationPort_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryInformationPort(proc_t proc, const on_ZwQueryInformationPort_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationPort.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationPort@20", &on_ZwQueryInformationPort))
@@ -8277,7 +8277,7 @@ bool monitor::syscalls32::register_ZwQueryInformationPort(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryInformationProcess(proc_t proc, const on_ZwQueryInformationProcess_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryInformationProcess(proc_t proc, const on_ZwQueryInformationProcess_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationProcess@20", &on_ZwQueryInformationProcess))
@@ -8287,7 +8287,7 @@ bool monitor::syscalls32::register_ZwQueryInformationProcess(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryInformationResourceManager(proc_t proc, const on_ZwQueryInformationResourceManager_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryInformationResourceManager(proc_t proc, const on_ZwQueryInformationResourceManager_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationResourceManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationResourceManager@20", &on_ZwQueryInformationResourceManager))
@@ -8297,7 +8297,7 @@ bool monitor::syscalls32::register_ZwQueryInformationResourceManager(proc_t proc
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryInformationThread(proc_t proc, const on_NtQueryInformationThread_fn& on_func)
+bool tracer::syscalls32::register_NtQueryInformationThread(proc_t proc, const on_NtQueryInformationThread_fn& on_func)
 {
     if(d_->observers_NtQueryInformationThread.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryInformationThread@20", &on_NtQueryInformationThread))
@@ -8307,7 +8307,7 @@ bool monitor::syscalls32::register_NtQueryInformationThread(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryInformationToken(proc_t proc, const on_ZwQueryInformationToken_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryInformationToken(proc_t proc, const on_ZwQueryInformationToken_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationToken.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationToken@20", &on_ZwQueryInformationToken))
@@ -8317,7 +8317,7 @@ bool monitor::syscalls32::register_ZwQueryInformationToken(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryInformationTransaction(proc_t proc, const on_ZwQueryInformationTransaction_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryInformationTransaction(proc_t proc, const on_ZwQueryInformationTransaction_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationTransaction.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationTransaction@20", &on_ZwQueryInformationTransaction))
@@ -8327,7 +8327,7 @@ bool monitor::syscalls32::register_ZwQueryInformationTransaction(proc_t proc, co
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryInformationTransactionManager(proc_t proc, const on_NtQueryInformationTransactionManager_fn& on_func)
+bool tracer::syscalls32::register_NtQueryInformationTransactionManager(proc_t proc, const on_NtQueryInformationTransactionManager_fn& on_func)
 {
     if(d_->observers_NtQueryInformationTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryInformationTransactionManager@20", &on_NtQueryInformationTransactionManager))
@@ -8337,7 +8337,7 @@ bool monitor::syscalls32::register_NtQueryInformationTransactionManager(proc_t p
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryInformationWorkerFactory(proc_t proc, const on_ZwQueryInformationWorkerFactory_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryInformationWorkerFactory(proc_t proc, const on_ZwQueryInformationWorkerFactory_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationWorkerFactory@20", &on_ZwQueryInformationWorkerFactory))
@@ -8347,7 +8347,7 @@ bool monitor::syscalls32::register_ZwQueryInformationWorkerFactory(proc_t proc, 
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryInstallUILanguage(proc_t proc, const on_NtQueryInstallUILanguage_fn& on_func)
+bool tracer::syscalls32::register_NtQueryInstallUILanguage(proc_t proc, const on_NtQueryInstallUILanguage_fn& on_func)
 {
     if(d_->observers_NtQueryInstallUILanguage.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryInstallUILanguage@4", &on_NtQueryInstallUILanguage))
@@ -8357,7 +8357,7 @@ bool monitor::syscalls32::register_NtQueryInstallUILanguage(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryIntervalProfile(proc_t proc, const on_NtQueryIntervalProfile_fn& on_func)
+bool tracer::syscalls32::register_NtQueryIntervalProfile(proc_t proc, const on_NtQueryIntervalProfile_fn& on_func)
 {
     if(d_->observers_NtQueryIntervalProfile.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryIntervalProfile@8", &on_NtQueryIntervalProfile))
@@ -8367,7 +8367,7 @@ bool monitor::syscalls32::register_NtQueryIntervalProfile(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryIoCompletion(proc_t proc, const on_NtQueryIoCompletion_fn& on_func)
+bool tracer::syscalls32::register_NtQueryIoCompletion(proc_t proc, const on_NtQueryIoCompletion_fn& on_func)
 {
     if(d_->observers_NtQueryIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryIoCompletion@20", &on_NtQueryIoCompletion))
@@ -8377,7 +8377,7 @@ bool monitor::syscalls32::register_NtQueryIoCompletion(proc_t proc, const on_NtQ
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryKey(proc_t proc, const on_ZwQueryKey_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryKey(proc_t proc, const on_ZwQueryKey_fn& on_func)
 {
     if(d_->observers_ZwQueryKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryKey@20", &on_ZwQueryKey))
@@ -8387,7 +8387,7 @@ bool monitor::syscalls32::register_ZwQueryKey(proc_t proc, const on_ZwQueryKey_f
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryLicenseValue(proc_t proc, const on_NtQueryLicenseValue_fn& on_func)
+bool tracer::syscalls32::register_NtQueryLicenseValue(proc_t proc, const on_NtQueryLicenseValue_fn& on_func)
 {
     if(d_->observers_NtQueryLicenseValue.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryLicenseValue@20", &on_NtQueryLicenseValue))
@@ -8397,7 +8397,7 @@ bool monitor::syscalls32::register_NtQueryLicenseValue(proc_t proc, const on_NtQ
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryMultipleValueKey(proc_t proc, const on_NtQueryMultipleValueKey_fn& on_func)
+bool tracer::syscalls32::register_NtQueryMultipleValueKey(proc_t proc, const on_NtQueryMultipleValueKey_fn& on_func)
 {
     if(d_->observers_NtQueryMultipleValueKey.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryMultipleValueKey@24", &on_NtQueryMultipleValueKey))
@@ -8407,7 +8407,7 @@ bool monitor::syscalls32::register_NtQueryMultipleValueKey(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryMutant(proc_t proc, const on_NtQueryMutant_fn& on_func)
+bool tracer::syscalls32::register_NtQueryMutant(proc_t proc, const on_NtQueryMutant_fn& on_func)
 {
     if(d_->observers_NtQueryMutant.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryMutant@20", &on_NtQueryMutant))
@@ -8417,7 +8417,7 @@ bool monitor::syscalls32::register_NtQueryMutant(proc_t proc, const on_NtQueryMu
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryObject(proc_t proc, const on_NtQueryObject_fn& on_func)
+bool tracer::syscalls32::register_NtQueryObject(proc_t proc, const on_NtQueryObject_fn& on_func)
 {
     if(d_->observers_NtQueryObject.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryObject@20", &on_NtQueryObject))
@@ -8427,7 +8427,7 @@ bool monitor::syscalls32::register_NtQueryObject(proc_t proc, const on_NtQueryOb
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryOpenSubKeysEx(proc_t proc, const on_NtQueryOpenSubKeysEx_fn& on_func)
+bool tracer::syscalls32::register_NtQueryOpenSubKeysEx(proc_t proc, const on_NtQueryOpenSubKeysEx_fn& on_func)
 {
     if(d_->observers_NtQueryOpenSubKeysEx.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryOpenSubKeysEx@16", &on_NtQueryOpenSubKeysEx))
@@ -8437,7 +8437,7 @@ bool monitor::syscalls32::register_NtQueryOpenSubKeysEx(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQueryOpenSubKeys_fn& on_func)
+bool tracer::syscalls32::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQueryOpenSubKeys_fn& on_func)
 {
     if(d_->observers_NtQueryOpenSubKeys.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryOpenSubKeys@8", &on_NtQueryOpenSubKeys))
@@ -8447,7 +8447,7 @@ bool monitor::syscalls32::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQu
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryPerformanceCounter(proc_t proc, const on_NtQueryPerformanceCounter_fn& on_func)
+bool tracer::syscalls32::register_NtQueryPerformanceCounter(proc_t proc, const on_NtQueryPerformanceCounter_fn& on_func)
 {
     if(d_->observers_NtQueryPerformanceCounter.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryPerformanceCounter@8", &on_NtQueryPerformanceCounter))
@@ -8457,7 +8457,7 @@ bool monitor::syscalls32::register_NtQueryPerformanceCounter(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryQuotaInformationFile(proc_t proc, const on_ZwQueryQuotaInformationFile_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryQuotaInformationFile(proc_t proc, const on_ZwQueryQuotaInformationFile_fn& on_func)
 {
     if(d_->observers_ZwQueryQuotaInformationFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryQuotaInformationFile@36", &on_ZwQueryQuotaInformationFile))
@@ -8467,7 +8467,7 @@ bool monitor::syscalls32::register_ZwQueryQuotaInformationFile(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQuerySection(proc_t proc, const on_ZwQuerySection_fn& on_func)
+bool tracer::syscalls32::register_ZwQuerySection(proc_t proc, const on_ZwQuerySection_fn& on_func)
 {
     if(d_->observers_ZwQuerySection.empty())
         if(!register_callback_with(*d_, proc, "_ZwQuerySection@20", &on_ZwQuerySection))
@@ -8477,7 +8477,7 @@ bool monitor::syscalls32::register_ZwQuerySection(proc_t proc, const on_ZwQueryS
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQuerySecurityAttributesToken(proc_t proc, const on_ZwQuerySecurityAttributesToken_fn& on_func)
+bool tracer::syscalls32::register_ZwQuerySecurityAttributesToken(proc_t proc, const on_ZwQuerySecurityAttributesToken_fn& on_func)
 {
     if(d_->observers_ZwQuerySecurityAttributesToken.empty())
         if(!register_callback_with(*d_, proc, "_ZwQuerySecurityAttributesToken@24", &on_ZwQuerySecurityAttributesToken))
@@ -8487,7 +8487,7 @@ bool monitor::syscalls32::register_ZwQuerySecurityAttributesToken(proc_t proc, c
     return true;
 }
 
-bool monitor::syscalls32::register_NtQuerySecurityObject(proc_t proc, const on_NtQuerySecurityObject_fn& on_func)
+bool tracer::syscalls32::register_NtQuerySecurityObject(proc_t proc, const on_NtQuerySecurityObject_fn& on_func)
 {
     if(d_->observers_NtQuerySecurityObject.empty())
         if(!register_callback_with(*d_, proc, "_NtQuerySecurityObject@20", &on_NtQuerySecurityObject))
@@ -8497,7 +8497,7 @@ bool monitor::syscalls32::register_NtQuerySecurityObject(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQuerySemaphore(proc_t proc, const on_ZwQuerySemaphore_fn& on_func)
+bool tracer::syscalls32::register_ZwQuerySemaphore(proc_t proc, const on_ZwQuerySemaphore_fn& on_func)
 {
     if(d_->observers_ZwQuerySemaphore.empty())
         if(!register_callback_with(*d_, proc, "_ZwQuerySemaphore@20", &on_ZwQuerySemaphore))
@@ -8507,7 +8507,7 @@ bool monitor::syscalls32::register_ZwQuerySemaphore(proc_t proc, const on_ZwQuer
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQuerySymbolicLinkObject(proc_t proc, const on_ZwQuerySymbolicLinkObject_fn& on_func)
+bool tracer::syscalls32::register_ZwQuerySymbolicLinkObject(proc_t proc, const on_ZwQuerySymbolicLinkObject_fn& on_func)
 {
     if(d_->observers_ZwQuerySymbolicLinkObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwQuerySymbolicLinkObject@12", &on_ZwQuerySymbolicLinkObject))
@@ -8517,7 +8517,7 @@ bool monitor::syscalls32::register_ZwQuerySymbolicLinkObject(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQuerySystemEnvironmentValueEx(proc_t proc, const on_ZwQuerySystemEnvironmentValueEx_fn& on_func)
+bool tracer::syscalls32::register_ZwQuerySystemEnvironmentValueEx(proc_t proc, const on_ZwQuerySystemEnvironmentValueEx_fn& on_func)
 {
     if(d_->observers_ZwQuerySystemEnvironmentValueEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwQuerySystemEnvironmentValueEx@20", &on_ZwQuerySystemEnvironmentValueEx))
@@ -8527,7 +8527,7 @@ bool monitor::syscalls32::register_ZwQuerySystemEnvironmentValueEx(proc_t proc, 
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQuerySystemEnvironmentValue(proc_t proc, const on_ZwQuerySystemEnvironmentValue_fn& on_func)
+bool tracer::syscalls32::register_ZwQuerySystemEnvironmentValue(proc_t proc, const on_ZwQuerySystemEnvironmentValue_fn& on_func)
 {
     if(d_->observers_ZwQuerySystemEnvironmentValue.empty())
         if(!register_callback_with(*d_, proc, "_ZwQuerySystemEnvironmentValue@16", &on_ZwQuerySystemEnvironmentValue))
@@ -8537,7 +8537,7 @@ bool monitor::syscalls32::register_ZwQuerySystemEnvironmentValue(proc_t proc, co
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQuerySystemInformationEx(proc_t proc, const on_ZwQuerySystemInformationEx_fn& on_func)
+bool tracer::syscalls32::register_ZwQuerySystemInformationEx(proc_t proc, const on_ZwQuerySystemInformationEx_fn& on_func)
 {
     if(d_->observers_ZwQuerySystemInformationEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwQuerySystemInformationEx@24", &on_ZwQuerySystemInformationEx))
@@ -8547,7 +8547,7 @@ bool monitor::syscalls32::register_ZwQuerySystemInformationEx(proc_t proc, const
     return true;
 }
 
-bool monitor::syscalls32::register_NtQuerySystemInformation(proc_t proc, const on_NtQuerySystemInformation_fn& on_func)
+bool tracer::syscalls32::register_NtQuerySystemInformation(proc_t proc, const on_NtQuerySystemInformation_fn& on_func)
 {
     if(d_->observers_NtQuerySystemInformation.empty())
         if(!register_callback_with(*d_, proc, "_NtQuerySystemInformation@16", &on_NtQuerySystemInformation))
@@ -8557,7 +8557,7 @@ bool monitor::syscalls32::register_NtQuerySystemInformation(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscalls32::register_NtQuerySystemTime(proc_t proc, const on_NtQuerySystemTime_fn& on_func)
+bool tracer::syscalls32::register_NtQuerySystemTime(proc_t proc, const on_NtQuerySystemTime_fn& on_func)
 {
     if(d_->observers_NtQuerySystemTime.empty())
         if(!register_callback_with(*d_, proc, "_NtQuerySystemTime@4", &on_NtQuerySystemTime))
@@ -8567,7 +8567,7 @@ bool monitor::syscalls32::register_NtQuerySystemTime(proc_t proc, const on_NtQue
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryTimer(proc_t proc, const on_ZwQueryTimer_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryTimer(proc_t proc, const on_ZwQueryTimer_fn& on_func)
 {
     if(d_->observers_ZwQueryTimer.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryTimer@20", &on_ZwQueryTimer))
@@ -8577,7 +8577,7 @@ bool monitor::syscalls32::register_ZwQueryTimer(proc_t proc, const on_ZwQueryTim
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryTimerResolution(proc_t proc, const on_NtQueryTimerResolution_fn& on_func)
+bool tracer::syscalls32::register_NtQueryTimerResolution(proc_t proc, const on_NtQueryTimerResolution_fn& on_func)
 {
     if(d_->observers_NtQueryTimerResolution.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryTimerResolution@12", &on_NtQueryTimerResolution))
@@ -8587,7 +8587,7 @@ bool monitor::syscalls32::register_NtQueryTimerResolution(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryValueKey(proc_t proc, const on_ZwQueryValueKey_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryValueKey(proc_t proc, const on_ZwQueryValueKey_fn& on_func)
 {
     if(d_->observers_ZwQueryValueKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryValueKey@24", &on_ZwQueryValueKey))
@@ -8597,7 +8597,7 @@ bool monitor::syscalls32::register_ZwQueryValueKey(proc_t proc, const on_ZwQuery
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryVirtualMemory(proc_t proc, const on_NtQueryVirtualMemory_fn& on_func)
+bool tracer::syscalls32::register_NtQueryVirtualMemory(proc_t proc, const on_NtQueryVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtQueryVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryVirtualMemory@24", &on_NtQueryVirtualMemory))
@@ -8607,7 +8607,7 @@ bool monitor::syscalls32::register_NtQueryVirtualMemory(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueryVolumeInformationFile(proc_t proc, const on_NtQueryVolumeInformationFile_fn& on_func)
+bool tracer::syscalls32::register_NtQueryVolumeInformationFile(proc_t proc, const on_NtQueryVolumeInformationFile_fn& on_func)
 {
     if(d_->observers_NtQueryVolumeInformationFile.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryVolumeInformationFile@20", &on_NtQueryVolumeInformationFile))
@@ -8617,7 +8617,7 @@ bool monitor::syscalls32::register_NtQueryVolumeInformationFile(proc_t proc, con
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueueApcThreadEx(proc_t proc, const on_NtQueueApcThreadEx_fn& on_func)
+bool tracer::syscalls32::register_NtQueueApcThreadEx(proc_t proc, const on_NtQueueApcThreadEx_fn& on_func)
 {
     if(d_->observers_NtQueueApcThreadEx.empty())
         if(!register_callback_with(*d_, proc, "_NtQueueApcThreadEx@24", &on_NtQueueApcThreadEx))
@@ -8627,7 +8627,7 @@ bool monitor::syscalls32::register_NtQueueApcThreadEx(proc_t proc, const on_NtQu
     return true;
 }
 
-bool monitor::syscalls32::register_NtQueueApcThread(proc_t proc, const on_NtQueueApcThread_fn& on_func)
+bool tracer::syscalls32::register_NtQueueApcThread(proc_t proc, const on_NtQueueApcThread_fn& on_func)
 {
     if(d_->observers_NtQueueApcThread.empty())
         if(!register_callback_with(*d_, proc, "_NtQueueApcThread@20", &on_NtQueueApcThread))
@@ -8637,7 +8637,7 @@ bool monitor::syscalls32::register_NtQueueApcThread(proc_t proc, const on_NtQueu
     return true;
 }
 
-bool monitor::syscalls32::register_ZwRaiseException(proc_t proc, const on_ZwRaiseException_fn& on_func)
+bool tracer::syscalls32::register_ZwRaiseException(proc_t proc, const on_ZwRaiseException_fn& on_func)
 {
     if(d_->observers_ZwRaiseException.empty())
         if(!register_callback_with(*d_, proc, "_ZwRaiseException@12", &on_ZwRaiseException))
@@ -8647,7 +8647,7 @@ bool monitor::syscalls32::register_ZwRaiseException(proc_t proc, const on_ZwRais
     return true;
 }
 
-bool monitor::syscalls32::register_ZwRaiseHardError(proc_t proc, const on_ZwRaiseHardError_fn& on_func)
+bool tracer::syscalls32::register_ZwRaiseHardError(proc_t proc, const on_ZwRaiseHardError_fn& on_func)
 {
     if(d_->observers_ZwRaiseHardError.empty())
         if(!register_callback_with(*d_, proc, "_ZwRaiseHardError@24", &on_ZwRaiseHardError))
@@ -8657,7 +8657,7 @@ bool monitor::syscalls32::register_ZwRaiseHardError(proc_t proc, const on_ZwRais
     return true;
 }
 
-bool monitor::syscalls32::register_NtReadFile(proc_t proc, const on_NtReadFile_fn& on_func)
+bool tracer::syscalls32::register_NtReadFile(proc_t proc, const on_NtReadFile_fn& on_func)
 {
     if(d_->observers_NtReadFile.empty())
         if(!register_callback_with(*d_, proc, "_NtReadFile@36", &on_NtReadFile))
@@ -8667,7 +8667,7 @@ bool monitor::syscalls32::register_NtReadFile(proc_t proc, const on_NtReadFile_f
     return true;
 }
 
-bool monitor::syscalls32::register_NtReadFileScatter(proc_t proc, const on_NtReadFileScatter_fn& on_func)
+bool tracer::syscalls32::register_NtReadFileScatter(proc_t proc, const on_NtReadFileScatter_fn& on_func)
 {
     if(d_->observers_NtReadFileScatter.empty())
         if(!register_callback_with(*d_, proc, "_NtReadFileScatter@36", &on_NtReadFileScatter))
@@ -8677,7 +8677,7 @@ bool monitor::syscalls32::register_NtReadFileScatter(proc_t proc, const on_NtRea
     return true;
 }
 
-bool monitor::syscalls32::register_ZwReadOnlyEnlistment(proc_t proc, const on_ZwReadOnlyEnlistment_fn& on_func)
+bool tracer::syscalls32::register_ZwReadOnlyEnlistment(proc_t proc, const on_ZwReadOnlyEnlistment_fn& on_func)
 {
     if(d_->observers_ZwReadOnlyEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_ZwReadOnlyEnlistment@8", &on_ZwReadOnlyEnlistment))
@@ -8687,7 +8687,7 @@ bool monitor::syscalls32::register_ZwReadOnlyEnlistment(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscalls32::register_ZwReadRequestData(proc_t proc, const on_ZwReadRequestData_fn& on_func)
+bool tracer::syscalls32::register_ZwReadRequestData(proc_t proc, const on_ZwReadRequestData_fn& on_func)
 {
     if(d_->observers_ZwReadRequestData.empty())
         if(!register_callback_with(*d_, proc, "_ZwReadRequestData@24", &on_ZwReadRequestData))
@@ -8697,7 +8697,7 @@ bool monitor::syscalls32::register_ZwReadRequestData(proc_t proc, const on_ZwRea
     return true;
 }
 
-bool monitor::syscalls32::register_NtReadVirtualMemory(proc_t proc, const on_NtReadVirtualMemory_fn& on_func)
+bool tracer::syscalls32::register_NtReadVirtualMemory(proc_t proc, const on_NtReadVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtReadVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_NtReadVirtualMemory@20", &on_NtReadVirtualMemory))
@@ -8707,7 +8707,7 @@ bool monitor::syscalls32::register_NtReadVirtualMemory(proc_t proc, const on_NtR
     return true;
 }
 
-bool monitor::syscalls32::register_NtRecoverEnlistment(proc_t proc, const on_NtRecoverEnlistment_fn& on_func)
+bool tracer::syscalls32::register_NtRecoverEnlistment(proc_t proc, const on_NtRecoverEnlistment_fn& on_func)
 {
     if(d_->observers_NtRecoverEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_NtRecoverEnlistment@8", &on_NtRecoverEnlistment))
@@ -8717,7 +8717,7 @@ bool monitor::syscalls32::register_NtRecoverEnlistment(proc_t proc, const on_NtR
     return true;
 }
 
-bool monitor::syscalls32::register_NtRecoverResourceManager(proc_t proc, const on_NtRecoverResourceManager_fn& on_func)
+bool tracer::syscalls32::register_NtRecoverResourceManager(proc_t proc, const on_NtRecoverResourceManager_fn& on_func)
 {
     if(d_->observers_NtRecoverResourceManager.empty())
         if(!register_callback_with(*d_, proc, "_NtRecoverResourceManager@4", &on_NtRecoverResourceManager))
@@ -8727,7 +8727,7 @@ bool monitor::syscalls32::register_NtRecoverResourceManager(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscalls32::register_ZwRecoverTransactionManager(proc_t proc, const on_ZwRecoverTransactionManager_fn& on_func)
+bool tracer::syscalls32::register_ZwRecoverTransactionManager(proc_t proc, const on_ZwRecoverTransactionManager_fn& on_func)
 {
     if(d_->observers_ZwRecoverTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwRecoverTransactionManager@4", &on_ZwRecoverTransactionManager))
@@ -8737,7 +8737,7 @@ bool monitor::syscalls32::register_ZwRecoverTransactionManager(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_ZwRegisterProtocolAddressInformation(proc_t proc, const on_ZwRegisterProtocolAddressInformation_fn& on_func)
+bool tracer::syscalls32::register_ZwRegisterProtocolAddressInformation(proc_t proc, const on_ZwRegisterProtocolAddressInformation_fn& on_func)
 {
     if(d_->observers_ZwRegisterProtocolAddressInformation.empty())
         if(!register_callback_with(*d_, proc, "_ZwRegisterProtocolAddressInformation@20", &on_ZwRegisterProtocolAddressInformation))
@@ -8747,7 +8747,7 @@ bool monitor::syscalls32::register_ZwRegisterProtocolAddressInformation(proc_t p
     return true;
 }
 
-bool monitor::syscalls32::register_ZwRegisterThreadTerminatePort(proc_t proc, const on_ZwRegisterThreadTerminatePort_fn& on_func)
+bool tracer::syscalls32::register_ZwRegisterThreadTerminatePort(proc_t proc, const on_ZwRegisterThreadTerminatePort_fn& on_func)
 {
     if(d_->observers_ZwRegisterThreadTerminatePort.empty())
         if(!register_callback_with(*d_, proc, "_ZwRegisterThreadTerminatePort@4", &on_ZwRegisterThreadTerminatePort))
@@ -8757,7 +8757,7 @@ bool monitor::syscalls32::register_ZwRegisterThreadTerminatePort(proc_t proc, co
     return true;
 }
 
-bool monitor::syscalls32::register_NtReleaseKeyedEvent(proc_t proc, const on_NtReleaseKeyedEvent_fn& on_func)
+bool tracer::syscalls32::register_NtReleaseKeyedEvent(proc_t proc, const on_NtReleaseKeyedEvent_fn& on_func)
 {
     if(d_->observers_NtReleaseKeyedEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtReleaseKeyedEvent@16", &on_NtReleaseKeyedEvent))
@@ -8767,7 +8767,7 @@ bool monitor::syscalls32::register_NtReleaseKeyedEvent(proc_t proc, const on_NtR
     return true;
 }
 
-bool monitor::syscalls32::register_ZwReleaseMutant(proc_t proc, const on_ZwReleaseMutant_fn& on_func)
+bool tracer::syscalls32::register_ZwReleaseMutant(proc_t proc, const on_ZwReleaseMutant_fn& on_func)
 {
     if(d_->observers_ZwReleaseMutant.empty())
         if(!register_callback_with(*d_, proc, "_ZwReleaseMutant@8", &on_ZwReleaseMutant))
@@ -8777,7 +8777,7 @@ bool monitor::syscalls32::register_ZwReleaseMutant(proc_t proc, const on_ZwRelea
     return true;
 }
 
-bool monitor::syscalls32::register_NtReleaseSemaphore(proc_t proc, const on_NtReleaseSemaphore_fn& on_func)
+bool tracer::syscalls32::register_NtReleaseSemaphore(proc_t proc, const on_NtReleaseSemaphore_fn& on_func)
 {
     if(d_->observers_NtReleaseSemaphore.empty())
         if(!register_callback_with(*d_, proc, "_NtReleaseSemaphore@12", &on_NtReleaseSemaphore))
@@ -8787,7 +8787,7 @@ bool monitor::syscalls32::register_NtReleaseSemaphore(proc_t proc, const on_NtRe
     return true;
 }
 
-bool monitor::syscalls32::register_ZwReleaseWorkerFactoryWorker(proc_t proc, const on_ZwReleaseWorkerFactoryWorker_fn& on_func)
+bool tracer::syscalls32::register_ZwReleaseWorkerFactoryWorker(proc_t proc, const on_ZwReleaseWorkerFactoryWorker_fn& on_func)
 {
     if(d_->observers_ZwReleaseWorkerFactoryWorker.empty())
         if(!register_callback_with(*d_, proc, "_ZwReleaseWorkerFactoryWorker@4", &on_ZwReleaseWorkerFactoryWorker))
@@ -8797,7 +8797,7 @@ bool monitor::syscalls32::register_ZwReleaseWorkerFactoryWorker(proc_t proc, con
     return true;
 }
 
-bool monitor::syscalls32::register_ZwRemoveIoCompletionEx(proc_t proc, const on_ZwRemoveIoCompletionEx_fn& on_func)
+bool tracer::syscalls32::register_ZwRemoveIoCompletionEx(proc_t proc, const on_ZwRemoveIoCompletionEx_fn& on_func)
 {
     if(d_->observers_ZwRemoveIoCompletionEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwRemoveIoCompletionEx@24", &on_ZwRemoveIoCompletionEx))
@@ -8807,7 +8807,7 @@ bool monitor::syscalls32::register_ZwRemoveIoCompletionEx(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwRemoveIoCompletion(proc_t proc, const on_ZwRemoveIoCompletion_fn& on_func)
+bool tracer::syscalls32::register_ZwRemoveIoCompletion(proc_t proc, const on_ZwRemoveIoCompletion_fn& on_func)
 {
     if(d_->observers_ZwRemoveIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "_ZwRemoveIoCompletion@20", &on_ZwRemoveIoCompletion))
@@ -8817,7 +8817,7 @@ bool monitor::syscalls32::register_ZwRemoveIoCompletion(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscalls32::register_ZwRemoveProcessDebug(proc_t proc, const on_ZwRemoveProcessDebug_fn& on_func)
+bool tracer::syscalls32::register_ZwRemoveProcessDebug(proc_t proc, const on_ZwRemoveProcessDebug_fn& on_func)
 {
     if(d_->observers_ZwRemoveProcessDebug.empty())
         if(!register_callback_with(*d_, proc, "_ZwRemoveProcessDebug@8", &on_ZwRemoveProcessDebug))
@@ -8827,7 +8827,7 @@ bool monitor::syscalls32::register_ZwRemoveProcessDebug(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscalls32::register_ZwRenameKey(proc_t proc, const on_ZwRenameKey_fn& on_func)
+bool tracer::syscalls32::register_ZwRenameKey(proc_t proc, const on_ZwRenameKey_fn& on_func)
 {
     if(d_->observers_ZwRenameKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwRenameKey@8", &on_ZwRenameKey))
@@ -8837,7 +8837,7 @@ bool monitor::syscalls32::register_ZwRenameKey(proc_t proc, const on_ZwRenameKey
     return true;
 }
 
-bool monitor::syscalls32::register_NtRenameTransactionManager(proc_t proc, const on_NtRenameTransactionManager_fn& on_func)
+bool tracer::syscalls32::register_NtRenameTransactionManager(proc_t proc, const on_NtRenameTransactionManager_fn& on_func)
 {
     if(d_->observers_NtRenameTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "_NtRenameTransactionManager@8", &on_NtRenameTransactionManager))
@@ -8847,7 +8847,7 @@ bool monitor::syscalls32::register_NtRenameTransactionManager(proc_t proc, const
     return true;
 }
 
-bool monitor::syscalls32::register_ZwReplaceKey(proc_t proc, const on_ZwReplaceKey_fn& on_func)
+bool tracer::syscalls32::register_ZwReplaceKey(proc_t proc, const on_ZwReplaceKey_fn& on_func)
 {
     if(d_->observers_ZwReplaceKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwReplaceKey@12", &on_ZwReplaceKey))
@@ -8857,7 +8857,7 @@ bool monitor::syscalls32::register_ZwReplaceKey(proc_t proc, const on_ZwReplaceK
     return true;
 }
 
-bool monitor::syscalls32::register_NtReplacePartitionUnit(proc_t proc, const on_NtReplacePartitionUnit_fn& on_func)
+bool tracer::syscalls32::register_NtReplacePartitionUnit(proc_t proc, const on_NtReplacePartitionUnit_fn& on_func)
 {
     if(d_->observers_NtReplacePartitionUnit.empty())
         if(!register_callback_with(*d_, proc, "_NtReplacePartitionUnit@12", &on_NtReplacePartitionUnit))
@@ -8867,7 +8867,7 @@ bool monitor::syscalls32::register_NtReplacePartitionUnit(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwReplyPort(proc_t proc, const on_ZwReplyPort_fn& on_func)
+bool tracer::syscalls32::register_ZwReplyPort(proc_t proc, const on_ZwReplyPort_fn& on_func)
 {
     if(d_->observers_ZwReplyPort.empty())
         if(!register_callback_with(*d_, proc, "_ZwReplyPort@8", &on_ZwReplyPort))
@@ -8877,7 +8877,7 @@ bool monitor::syscalls32::register_ZwReplyPort(proc_t proc, const on_ZwReplyPort
     return true;
 }
 
-bool monitor::syscalls32::register_NtReplyWaitReceivePortEx(proc_t proc, const on_NtReplyWaitReceivePortEx_fn& on_func)
+bool tracer::syscalls32::register_NtReplyWaitReceivePortEx(proc_t proc, const on_NtReplyWaitReceivePortEx_fn& on_func)
 {
     if(d_->observers_NtReplyWaitReceivePortEx.empty())
         if(!register_callback_with(*d_, proc, "_NtReplyWaitReceivePortEx@20", &on_NtReplyWaitReceivePortEx))
@@ -8887,7 +8887,7 @@ bool monitor::syscalls32::register_NtReplyWaitReceivePortEx(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscalls32::register_NtReplyWaitReceivePort(proc_t proc, const on_NtReplyWaitReceivePort_fn& on_func)
+bool tracer::syscalls32::register_NtReplyWaitReceivePort(proc_t proc, const on_NtReplyWaitReceivePort_fn& on_func)
 {
     if(d_->observers_NtReplyWaitReceivePort.empty())
         if(!register_callback_with(*d_, proc, "_NtReplyWaitReceivePort@16", &on_NtReplyWaitReceivePort))
@@ -8897,7 +8897,7 @@ bool monitor::syscalls32::register_NtReplyWaitReceivePort(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_NtReplyWaitReplyPort(proc_t proc, const on_NtReplyWaitReplyPort_fn& on_func)
+bool tracer::syscalls32::register_NtReplyWaitReplyPort(proc_t proc, const on_NtReplyWaitReplyPort_fn& on_func)
 {
     if(d_->observers_NtReplyWaitReplyPort.empty())
         if(!register_callback_with(*d_, proc, "_NtReplyWaitReplyPort@8", &on_NtReplyWaitReplyPort))
@@ -8907,7 +8907,7 @@ bool monitor::syscalls32::register_NtReplyWaitReplyPort(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_ZwRequestPort(proc_t proc, const on_ZwRequestPort_fn& on_func)
+bool tracer::syscalls32::register_ZwRequestPort(proc_t proc, const on_ZwRequestPort_fn& on_func)
 {
     if(d_->observers_ZwRequestPort.empty())
         if(!register_callback_with(*d_, proc, "_ZwRequestPort@8", &on_ZwRequestPort))
@@ -8917,7 +8917,7 @@ bool monitor::syscalls32::register_ZwRequestPort(proc_t proc, const on_ZwRequest
     return true;
 }
 
-bool monitor::syscalls32::register_NtRequestWaitReplyPort(proc_t proc, const on_NtRequestWaitReplyPort_fn& on_func)
+bool tracer::syscalls32::register_NtRequestWaitReplyPort(proc_t proc, const on_NtRequestWaitReplyPort_fn& on_func)
 {
     if(d_->observers_NtRequestWaitReplyPort.empty())
         if(!register_callback_with(*d_, proc, "_NtRequestWaitReplyPort@12", &on_NtRequestWaitReplyPort))
@@ -8927,7 +8927,7 @@ bool monitor::syscalls32::register_NtRequestWaitReplyPort(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_NtResetEvent(proc_t proc, const on_NtResetEvent_fn& on_func)
+bool tracer::syscalls32::register_NtResetEvent(proc_t proc, const on_NtResetEvent_fn& on_func)
 {
     if(d_->observers_NtResetEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtResetEvent@8", &on_NtResetEvent))
@@ -8937,7 +8937,7 @@ bool monitor::syscalls32::register_NtResetEvent(proc_t proc, const on_NtResetEve
     return true;
 }
 
-bool monitor::syscalls32::register_ZwResetWriteWatch(proc_t proc, const on_ZwResetWriteWatch_fn& on_func)
+bool tracer::syscalls32::register_ZwResetWriteWatch(proc_t proc, const on_ZwResetWriteWatch_fn& on_func)
 {
     if(d_->observers_ZwResetWriteWatch.empty())
         if(!register_callback_with(*d_, proc, "_ZwResetWriteWatch@12", &on_ZwResetWriteWatch))
@@ -8947,7 +8947,7 @@ bool monitor::syscalls32::register_ZwResetWriteWatch(proc_t proc, const on_ZwRes
     return true;
 }
 
-bool monitor::syscalls32::register_NtRestoreKey(proc_t proc, const on_NtRestoreKey_fn& on_func)
+bool tracer::syscalls32::register_NtRestoreKey(proc_t proc, const on_NtRestoreKey_fn& on_func)
 {
     if(d_->observers_NtRestoreKey.empty())
         if(!register_callback_with(*d_, proc, "_NtRestoreKey@12", &on_NtRestoreKey))
@@ -8957,7 +8957,7 @@ bool monitor::syscalls32::register_NtRestoreKey(proc_t proc, const on_NtRestoreK
     return true;
 }
 
-bool monitor::syscalls32::register_ZwResumeProcess(proc_t proc, const on_ZwResumeProcess_fn& on_func)
+bool tracer::syscalls32::register_ZwResumeProcess(proc_t proc, const on_ZwResumeProcess_fn& on_func)
 {
     if(d_->observers_ZwResumeProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwResumeProcess@4", &on_ZwResumeProcess))
@@ -8967,7 +8967,7 @@ bool monitor::syscalls32::register_ZwResumeProcess(proc_t proc, const on_ZwResum
     return true;
 }
 
-bool monitor::syscalls32::register_ZwResumeThread(proc_t proc, const on_ZwResumeThread_fn& on_func)
+bool tracer::syscalls32::register_ZwResumeThread(proc_t proc, const on_ZwResumeThread_fn& on_func)
 {
     if(d_->observers_ZwResumeThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwResumeThread@8", &on_ZwResumeThread))
@@ -8977,7 +8977,7 @@ bool monitor::syscalls32::register_ZwResumeThread(proc_t proc, const on_ZwResume
     return true;
 }
 
-bool monitor::syscalls32::register_ZwRollbackComplete(proc_t proc, const on_ZwRollbackComplete_fn& on_func)
+bool tracer::syscalls32::register_ZwRollbackComplete(proc_t proc, const on_ZwRollbackComplete_fn& on_func)
 {
     if(d_->observers_ZwRollbackComplete.empty())
         if(!register_callback_with(*d_, proc, "_ZwRollbackComplete@8", &on_ZwRollbackComplete))
@@ -8987,7 +8987,7 @@ bool monitor::syscalls32::register_ZwRollbackComplete(proc_t proc, const on_ZwRo
     return true;
 }
 
-bool monitor::syscalls32::register_NtRollbackEnlistment(proc_t proc, const on_NtRollbackEnlistment_fn& on_func)
+bool tracer::syscalls32::register_NtRollbackEnlistment(proc_t proc, const on_NtRollbackEnlistment_fn& on_func)
 {
     if(d_->observers_NtRollbackEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_NtRollbackEnlistment@8", &on_NtRollbackEnlistment))
@@ -8997,7 +8997,7 @@ bool monitor::syscalls32::register_NtRollbackEnlistment(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_NtRollbackTransaction(proc_t proc, const on_NtRollbackTransaction_fn& on_func)
+bool tracer::syscalls32::register_NtRollbackTransaction(proc_t proc, const on_NtRollbackTransaction_fn& on_func)
 {
     if(d_->observers_NtRollbackTransaction.empty())
         if(!register_callback_with(*d_, proc, "_NtRollbackTransaction@8", &on_NtRollbackTransaction))
@@ -9007,7 +9007,7 @@ bool monitor::syscalls32::register_NtRollbackTransaction(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_NtRollforwardTransactionManager(proc_t proc, const on_NtRollforwardTransactionManager_fn& on_func)
+bool tracer::syscalls32::register_NtRollforwardTransactionManager(proc_t proc, const on_NtRollforwardTransactionManager_fn& on_func)
 {
     if(d_->observers_NtRollforwardTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "_NtRollforwardTransactionManager@8", &on_NtRollforwardTransactionManager))
@@ -9017,7 +9017,7 @@ bool monitor::syscalls32::register_NtRollforwardTransactionManager(proc_t proc, 
     return true;
 }
 
-bool monitor::syscalls32::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx_fn& on_func)
+bool tracer::syscalls32::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx_fn& on_func)
 {
     if(d_->observers_NtSaveKeyEx.empty())
         if(!register_callback_with(*d_, proc, "_NtSaveKeyEx@12", &on_NtSaveKeyEx))
@@ -9027,7 +9027,7 @@ bool monitor::syscalls32::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx
     return true;
 }
 
-bool monitor::syscalls32::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn& on_func)
+bool tracer::syscalls32::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn& on_func)
 {
     if(d_->observers_NtSaveKey.empty())
         if(!register_callback_with(*d_, proc, "_NtSaveKey@8", &on_NtSaveKey))
@@ -9037,7 +9037,7 @@ bool monitor::syscalls32::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn&
     return true;
 }
 
-bool monitor::syscalls32::register_NtSaveMergedKeys(proc_t proc, const on_NtSaveMergedKeys_fn& on_func)
+bool tracer::syscalls32::register_NtSaveMergedKeys(proc_t proc, const on_NtSaveMergedKeys_fn& on_func)
 {
     if(d_->observers_NtSaveMergedKeys.empty())
         if(!register_callback_with(*d_, proc, "_NtSaveMergedKeys@12", &on_NtSaveMergedKeys))
@@ -9047,7 +9047,7 @@ bool monitor::syscalls32::register_NtSaveMergedKeys(proc_t proc, const on_NtSave
     return true;
 }
 
-bool monitor::syscalls32::register_NtSecureConnectPort(proc_t proc, const on_NtSecureConnectPort_fn& on_func)
+bool tracer::syscalls32::register_NtSecureConnectPort(proc_t proc, const on_NtSecureConnectPort_fn& on_func)
 {
     if(d_->observers_NtSecureConnectPort.empty())
         if(!register_callback_with(*d_, proc, "_NtSecureConnectPort@36", &on_NtSecureConnectPort))
@@ -9057,7 +9057,7 @@ bool monitor::syscalls32::register_NtSecureConnectPort(proc_t proc, const on_NtS
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetBootEntryOrder(proc_t proc, const on_ZwSetBootEntryOrder_fn& on_func)
+bool tracer::syscalls32::register_ZwSetBootEntryOrder(proc_t proc, const on_ZwSetBootEntryOrder_fn& on_func)
 {
     if(d_->observers_ZwSetBootEntryOrder.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetBootEntryOrder@8", &on_ZwSetBootEntryOrder))
@@ -9067,7 +9067,7 @@ bool monitor::syscalls32::register_ZwSetBootEntryOrder(proc_t proc, const on_ZwS
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetBootOptions(proc_t proc, const on_ZwSetBootOptions_fn& on_func)
+bool tracer::syscalls32::register_ZwSetBootOptions(proc_t proc, const on_ZwSetBootOptions_fn& on_func)
 {
     if(d_->observers_ZwSetBootOptions.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetBootOptions@8", &on_ZwSetBootOptions))
@@ -9077,7 +9077,7 @@ bool monitor::syscalls32::register_ZwSetBootOptions(proc_t proc, const on_ZwSetB
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetContextThread(proc_t proc, const on_ZwSetContextThread_fn& on_func)
+bool tracer::syscalls32::register_ZwSetContextThread(proc_t proc, const on_ZwSetContextThread_fn& on_func)
 {
     if(d_->observers_ZwSetContextThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetContextThread@8", &on_ZwSetContextThread))
@@ -9087,7 +9087,7 @@ bool monitor::syscalls32::register_ZwSetContextThread(proc_t proc, const on_ZwSe
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetDebugFilterState(proc_t proc, const on_NtSetDebugFilterState_fn& on_func)
+bool tracer::syscalls32::register_NtSetDebugFilterState(proc_t proc, const on_NtSetDebugFilterState_fn& on_func)
 {
     if(d_->observers_NtSetDebugFilterState.empty())
         if(!register_callback_with(*d_, proc, "_NtSetDebugFilterState@12", &on_NtSetDebugFilterState))
@@ -9097,7 +9097,7 @@ bool monitor::syscalls32::register_NtSetDebugFilterState(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetDefaultHardErrorPort(proc_t proc, const on_NtSetDefaultHardErrorPort_fn& on_func)
+bool tracer::syscalls32::register_NtSetDefaultHardErrorPort(proc_t proc, const on_NtSetDefaultHardErrorPort_fn& on_func)
 {
     if(d_->observers_NtSetDefaultHardErrorPort.empty())
         if(!register_callback_with(*d_, proc, "_NtSetDefaultHardErrorPort@4", &on_NtSetDefaultHardErrorPort))
@@ -9107,7 +9107,7 @@ bool monitor::syscalls32::register_NtSetDefaultHardErrorPort(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetDefaultLocale(proc_t proc, const on_NtSetDefaultLocale_fn& on_func)
+bool tracer::syscalls32::register_NtSetDefaultLocale(proc_t proc, const on_NtSetDefaultLocale_fn& on_func)
 {
     if(d_->observers_NtSetDefaultLocale.empty())
         if(!register_callback_with(*d_, proc, "_NtSetDefaultLocale@8", &on_NtSetDefaultLocale))
@@ -9117,7 +9117,7 @@ bool monitor::syscalls32::register_NtSetDefaultLocale(proc_t proc, const on_NtSe
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetDefaultUILanguage(proc_t proc, const on_ZwSetDefaultUILanguage_fn& on_func)
+bool tracer::syscalls32::register_ZwSetDefaultUILanguage(proc_t proc, const on_ZwSetDefaultUILanguage_fn& on_func)
 {
     if(d_->observers_ZwSetDefaultUILanguage.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetDefaultUILanguage@4", &on_ZwSetDefaultUILanguage))
@@ -9127,7 +9127,7 @@ bool monitor::syscalls32::register_ZwSetDefaultUILanguage(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetDriverEntryOrder(proc_t proc, const on_NtSetDriverEntryOrder_fn& on_func)
+bool tracer::syscalls32::register_NtSetDriverEntryOrder(proc_t proc, const on_NtSetDriverEntryOrder_fn& on_func)
 {
     if(d_->observers_NtSetDriverEntryOrder.empty())
         if(!register_callback_with(*d_, proc, "_NtSetDriverEntryOrder@8", &on_NtSetDriverEntryOrder))
@@ -9137,7 +9137,7 @@ bool monitor::syscalls32::register_NtSetDriverEntryOrder(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetEaFile(proc_t proc, const on_ZwSetEaFile_fn& on_func)
+bool tracer::syscalls32::register_ZwSetEaFile(proc_t proc, const on_ZwSetEaFile_fn& on_func)
 {
     if(d_->observers_ZwSetEaFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetEaFile@16", &on_ZwSetEaFile))
@@ -9147,7 +9147,7 @@ bool monitor::syscalls32::register_ZwSetEaFile(proc_t proc, const on_ZwSetEaFile
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetEventBoostPriority(proc_t proc, const on_NtSetEventBoostPriority_fn& on_func)
+bool tracer::syscalls32::register_NtSetEventBoostPriority(proc_t proc, const on_NtSetEventBoostPriority_fn& on_func)
 {
     if(d_->observers_NtSetEventBoostPriority.empty())
         if(!register_callback_with(*d_, proc, "_NtSetEventBoostPriority@4", &on_NtSetEventBoostPriority))
@@ -9157,7 +9157,7 @@ bool monitor::syscalls32::register_NtSetEventBoostPriority(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetEvent(proc_t proc, const on_NtSetEvent_fn& on_func)
+bool tracer::syscalls32::register_NtSetEvent(proc_t proc, const on_NtSetEvent_fn& on_func)
 {
     if(d_->observers_NtSetEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtSetEvent@8", &on_NtSetEvent))
@@ -9167,7 +9167,7 @@ bool monitor::syscalls32::register_NtSetEvent(proc_t proc, const on_NtSetEvent_f
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetHighEventPair(proc_t proc, const on_NtSetHighEventPair_fn& on_func)
+bool tracer::syscalls32::register_NtSetHighEventPair(proc_t proc, const on_NtSetHighEventPair_fn& on_func)
 {
     if(d_->observers_NtSetHighEventPair.empty())
         if(!register_callback_with(*d_, proc, "_NtSetHighEventPair@4", &on_NtSetHighEventPair))
@@ -9177,7 +9177,7 @@ bool monitor::syscalls32::register_NtSetHighEventPair(proc_t proc, const on_NtSe
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetHighWaitLowEventPair(proc_t proc, const on_NtSetHighWaitLowEventPair_fn& on_func)
+bool tracer::syscalls32::register_NtSetHighWaitLowEventPair(proc_t proc, const on_NtSetHighWaitLowEventPair_fn& on_func)
 {
     if(d_->observers_NtSetHighWaitLowEventPair.empty())
         if(!register_callback_with(*d_, proc, "_NtSetHighWaitLowEventPair@4", &on_NtSetHighWaitLowEventPair))
@@ -9187,7 +9187,7 @@ bool monitor::syscalls32::register_NtSetHighWaitLowEventPair(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetInformationDebugObject(proc_t proc, const on_ZwSetInformationDebugObject_fn& on_func)
+bool tracer::syscalls32::register_ZwSetInformationDebugObject(proc_t proc, const on_ZwSetInformationDebugObject_fn& on_func)
 {
     if(d_->observers_ZwSetInformationDebugObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationDebugObject@20", &on_ZwSetInformationDebugObject))
@@ -9197,7 +9197,7 @@ bool monitor::syscalls32::register_ZwSetInformationDebugObject(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetInformationEnlistment(proc_t proc, const on_NtSetInformationEnlistment_fn& on_func)
+bool tracer::syscalls32::register_NtSetInformationEnlistment(proc_t proc, const on_NtSetInformationEnlistment_fn& on_func)
 {
     if(d_->observers_NtSetInformationEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_NtSetInformationEnlistment@16", &on_NtSetInformationEnlistment))
@@ -9207,7 +9207,7 @@ bool monitor::syscalls32::register_NtSetInformationEnlistment(proc_t proc, const
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetInformationFile(proc_t proc, const on_ZwSetInformationFile_fn& on_func)
+bool tracer::syscalls32::register_ZwSetInformationFile(proc_t proc, const on_ZwSetInformationFile_fn& on_func)
 {
     if(d_->observers_ZwSetInformationFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationFile@20", &on_ZwSetInformationFile))
@@ -9217,7 +9217,7 @@ bool monitor::syscalls32::register_ZwSetInformationFile(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetInformationJobObject(proc_t proc, const on_ZwSetInformationJobObject_fn& on_func)
+bool tracer::syscalls32::register_ZwSetInformationJobObject(proc_t proc, const on_ZwSetInformationJobObject_fn& on_func)
 {
     if(d_->observers_ZwSetInformationJobObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationJobObject@16", &on_ZwSetInformationJobObject))
@@ -9227,7 +9227,7 @@ bool monitor::syscalls32::register_ZwSetInformationJobObject(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetInformationKey(proc_t proc, const on_ZwSetInformationKey_fn& on_func)
+bool tracer::syscalls32::register_ZwSetInformationKey(proc_t proc, const on_ZwSetInformationKey_fn& on_func)
 {
     if(d_->observers_ZwSetInformationKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationKey@16", &on_ZwSetInformationKey))
@@ -9237,7 +9237,7 @@ bool monitor::syscalls32::register_ZwSetInformationKey(proc_t proc, const on_ZwS
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetInformationObject(proc_t proc, const on_ZwSetInformationObject_fn& on_func)
+bool tracer::syscalls32::register_ZwSetInformationObject(proc_t proc, const on_ZwSetInformationObject_fn& on_func)
 {
     if(d_->observers_ZwSetInformationObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationObject@16", &on_ZwSetInformationObject))
@@ -9247,7 +9247,7 @@ bool monitor::syscalls32::register_ZwSetInformationObject(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetInformationProcess(proc_t proc, const on_ZwSetInformationProcess_fn& on_func)
+bool tracer::syscalls32::register_ZwSetInformationProcess(proc_t proc, const on_ZwSetInformationProcess_fn& on_func)
 {
     if(d_->observers_ZwSetInformationProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationProcess@16", &on_ZwSetInformationProcess))
@@ -9257,7 +9257,7 @@ bool monitor::syscalls32::register_ZwSetInformationProcess(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetInformationResourceManager(proc_t proc, const on_ZwSetInformationResourceManager_fn& on_func)
+bool tracer::syscalls32::register_ZwSetInformationResourceManager(proc_t proc, const on_ZwSetInformationResourceManager_fn& on_func)
 {
     if(d_->observers_ZwSetInformationResourceManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationResourceManager@16", &on_ZwSetInformationResourceManager))
@@ -9267,7 +9267,7 @@ bool monitor::syscalls32::register_ZwSetInformationResourceManager(proc_t proc, 
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetInformationThread(proc_t proc, const on_ZwSetInformationThread_fn& on_func)
+bool tracer::syscalls32::register_ZwSetInformationThread(proc_t proc, const on_ZwSetInformationThread_fn& on_func)
 {
     if(d_->observers_ZwSetInformationThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationThread@16", &on_ZwSetInformationThread))
@@ -9277,7 +9277,7 @@ bool monitor::syscalls32::register_ZwSetInformationThread(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetInformationToken(proc_t proc, const on_ZwSetInformationToken_fn& on_func)
+bool tracer::syscalls32::register_ZwSetInformationToken(proc_t proc, const on_ZwSetInformationToken_fn& on_func)
 {
     if(d_->observers_ZwSetInformationToken.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationToken@16", &on_ZwSetInformationToken))
@@ -9287,7 +9287,7 @@ bool monitor::syscalls32::register_ZwSetInformationToken(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetInformationTransaction(proc_t proc, const on_ZwSetInformationTransaction_fn& on_func)
+bool tracer::syscalls32::register_ZwSetInformationTransaction(proc_t proc, const on_ZwSetInformationTransaction_fn& on_func)
 {
     if(d_->observers_ZwSetInformationTransaction.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationTransaction@16", &on_ZwSetInformationTransaction))
@@ -9297,7 +9297,7 @@ bool monitor::syscalls32::register_ZwSetInformationTransaction(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetInformationTransactionManager(proc_t proc, const on_ZwSetInformationTransactionManager_fn& on_func)
+bool tracer::syscalls32::register_ZwSetInformationTransactionManager(proc_t proc, const on_ZwSetInformationTransactionManager_fn& on_func)
 {
     if(d_->observers_ZwSetInformationTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationTransactionManager@16", &on_ZwSetInformationTransactionManager))
@@ -9307,7 +9307,7 @@ bool monitor::syscalls32::register_ZwSetInformationTransactionManager(proc_t pro
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetInformationWorkerFactory(proc_t proc, const on_ZwSetInformationWorkerFactory_fn& on_func)
+bool tracer::syscalls32::register_ZwSetInformationWorkerFactory(proc_t proc, const on_ZwSetInformationWorkerFactory_fn& on_func)
 {
     if(d_->observers_ZwSetInformationWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationWorkerFactory@16", &on_ZwSetInformationWorkerFactory))
@@ -9317,7 +9317,7 @@ bool monitor::syscalls32::register_ZwSetInformationWorkerFactory(proc_t proc, co
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetIntervalProfile(proc_t proc, const on_NtSetIntervalProfile_fn& on_func)
+bool tracer::syscalls32::register_NtSetIntervalProfile(proc_t proc, const on_NtSetIntervalProfile_fn& on_func)
 {
     if(d_->observers_NtSetIntervalProfile.empty())
         if(!register_callback_with(*d_, proc, "_NtSetIntervalProfile@8", &on_NtSetIntervalProfile))
@@ -9327,7 +9327,7 @@ bool monitor::syscalls32::register_NtSetIntervalProfile(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetIoCompletionEx(proc_t proc, const on_NtSetIoCompletionEx_fn& on_func)
+bool tracer::syscalls32::register_NtSetIoCompletionEx(proc_t proc, const on_NtSetIoCompletionEx_fn& on_func)
 {
     if(d_->observers_NtSetIoCompletionEx.empty())
         if(!register_callback_with(*d_, proc, "_NtSetIoCompletionEx@24", &on_NtSetIoCompletionEx))
@@ -9337,7 +9337,7 @@ bool monitor::syscalls32::register_NtSetIoCompletionEx(proc_t proc, const on_NtS
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetIoCompletion(proc_t proc, const on_NtSetIoCompletion_fn& on_func)
+bool tracer::syscalls32::register_NtSetIoCompletion(proc_t proc, const on_NtSetIoCompletion_fn& on_func)
 {
     if(d_->observers_NtSetIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "_NtSetIoCompletion@20", &on_NtSetIoCompletion))
@@ -9347,7 +9347,7 @@ bool monitor::syscalls32::register_NtSetIoCompletion(proc_t proc, const on_NtSet
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetLdtEntries(proc_t proc, const on_ZwSetLdtEntries_fn& on_func)
+bool tracer::syscalls32::register_ZwSetLdtEntries(proc_t proc, const on_ZwSetLdtEntries_fn& on_func)
 {
     if(d_->observers_ZwSetLdtEntries.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetLdtEntries@24", &on_ZwSetLdtEntries))
@@ -9357,7 +9357,7 @@ bool monitor::syscalls32::register_ZwSetLdtEntries(proc_t proc, const on_ZwSetLd
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetLowEventPair(proc_t proc, const on_ZwSetLowEventPair_fn& on_func)
+bool tracer::syscalls32::register_ZwSetLowEventPair(proc_t proc, const on_ZwSetLowEventPair_fn& on_func)
 {
     if(d_->observers_ZwSetLowEventPair.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetLowEventPair@4", &on_ZwSetLowEventPair))
@@ -9367,7 +9367,7 @@ bool monitor::syscalls32::register_ZwSetLowEventPair(proc_t proc, const on_ZwSet
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetLowWaitHighEventPair(proc_t proc, const on_ZwSetLowWaitHighEventPair_fn& on_func)
+bool tracer::syscalls32::register_ZwSetLowWaitHighEventPair(proc_t proc, const on_ZwSetLowWaitHighEventPair_fn& on_func)
 {
     if(d_->observers_ZwSetLowWaitHighEventPair.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetLowWaitHighEventPair@4", &on_ZwSetLowWaitHighEventPair))
@@ -9377,7 +9377,7 @@ bool monitor::syscalls32::register_ZwSetLowWaitHighEventPair(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetQuotaInformationFile(proc_t proc, const on_ZwSetQuotaInformationFile_fn& on_func)
+bool tracer::syscalls32::register_ZwSetQuotaInformationFile(proc_t proc, const on_ZwSetQuotaInformationFile_fn& on_func)
 {
     if(d_->observers_ZwSetQuotaInformationFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetQuotaInformationFile@16", &on_ZwSetQuotaInformationFile))
@@ -9387,7 +9387,7 @@ bool monitor::syscalls32::register_ZwSetQuotaInformationFile(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetSecurityObject(proc_t proc, const on_NtSetSecurityObject_fn& on_func)
+bool tracer::syscalls32::register_NtSetSecurityObject(proc_t proc, const on_NtSetSecurityObject_fn& on_func)
 {
     if(d_->observers_NtSetSecurityObject.empty())
         if(!register_callback_with(*d_, proc, "_NtSetSecurityObject@12", &on_NtSetSecurityObject))
@@ -9397,7 +9397,7 @@ bool monitor::syscalls32::register_NtSetSecurityObject(proc_t proc, const on_NtS
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetSystemEnvironmentValueEx(proc_t proc, const on_ZwSetSystemEnvironmentValueEx_fn& on_func)
+bool tracer::syscalls32::register_ZwSetSystemEnvironmentValueEx(proc_t proc, const on_ZwSetSystemEnvironmentValueEx_fn& on_func)
 {
     if(d_->observers_ZwSetSystemEnvironmentValueEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetSystemEnvironmentValueEx@20", &on_ZwSetSystemEnvironmentValueEx))
@@ -9407,7 +9407,7 @@ bool monitor::syscalls32::register_ZwSetSystemEnvironmentValueEx(proc_t proc, co
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetSystemEnvironmentValue(proc_t proc, const on_ZwSetSystemEnvironmentValue_fn& on_func)
+bool tracer::syscalls32::register_ZwSetSystemEnvironmentValue(proc_t proc, const on_ZwSetSystemEnvironmentValue_fn& on_func)
 {
     if(d_->observers_ZwSetSystemEnvironmentValue.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetSystemEnvironmentValue@8", &on_ZwSetSystemEnvironmentValue))
@@ -9417,7 +9417,7 @@ bool monitor::syscalls32::register_ZwSetSystemEnvironmentValue(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetSystemInformation(proc_t proc, const on_ZwSetSystemInformation_fn& on_func)
+bool tracer::syscalls32::register_ZwSetSystemInformation(proc_t proc, const on_ZwSetSystemInformation_fn& on_func)
 {
     if(d_->observers_ZwSetSystemInformation.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetSystemInformation@12", &on_ZwSetSystemInformation))
@@ -9427,7 +9427,7 @@ bool monitor::syscalls32::register_ZwSetSystemInformation(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetSystemPowerState(proc_t proc, const on_ZwSetSystemPowerState_fn& on_func)
+bool tracer::syscalls32::register_ZwSetSystemPowerState(proc_t proc, const on_ZwSetSystemPowerState_fn& on_func)
 {
     if(d_->observers_ZwSetSystemPowerState.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetSystemPowerState@12", &on_ZwSetSystemPowerState))
@@ -9437,7 +9437,7 @@ bool monitor::syscalls32::register_ZwSetSystemPowerState(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetSystemTime(proc_t proc, const on_ZwSetSystemTime_fn& on_func)
+bool tracer::syscalls32::register_ZwSetSystemTime(proc_t proc, const on_ZwSetSystemTime_fn& on_func)
 {
     if(d_->observers_ZwSetSystemTime.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetSystemTime@8", &on_ZwSetSystemTime))
@@ -9447,7 +9447,7 @@ bool monitor::syscalls32::register_ZwSetSystemTime(proc_t proc, const on_ZwSetSy
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetThreadExecutionState(proc_t proc, const on_ZwSetThreadExecutionState_fn& on_func)
+bool tracer::syscalls32::register_ZwSetThreadExecutionState(proc_t proc, const on_ZwSetThreadExecutionState_fn& on_func)
 {
     if(d_->observers_ZwSetThreadExecutionState.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetThreadExecutionState@8", &on_ZwSetThreadExecutionState))
@@ -9457,7 +9457,7 @@ bool monitor::syscalls32::register_ZwSetThreadExecutionState(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetTimerEx(proc_t proc, const on_ZwSetTimerEx_fn& on_func)
+bool tracer::syscalls32::register_ZwSetTimerEx(proc_t proc, const on_ZwSetTimerEx_fn& on_func)
 {
     if(d_->observers_ZwSetTimerEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetTimerEx@16", &on_ZwSetTimerEx))
@@ -9467,7 +9467,7 @@ bool monitor::syscalls32::register_ZwSetTimerEx(proc_t proc, const on_ZwSetTimer
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetTimer(proc_t proc, const on_ZwSetTimer_fn& on_func)
+bool tracer::syscalls32::register_ZwSetTimer(proc_t proc, const on_ZwSetTimer_fn& on_func)
 {
     if(d_->observers_ZwSetTimer.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetTimer@28", &on_ZwSetTimer))
@@ -9477,7 +9477,7 @@ bool monitor::syscalls32::register_ZwSetTimer(proc_t proc, const on_ZwSetTimer_f
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetTimerResolution(proc_t proc, const on_NtSetTimerResolution_fn& on_func)
+bool tracer::syscalls32::register_NtSetTimerResolution(proc_t proc, const on_NtSetTimerResolution_fn& on_func)
 {
     if(d_->observers_NtSetTimerResolution.empty())
         if(!register_callback_with(*d_, proc, "_NtSetTimerResolution@12", &on_NtSetTimerResolution))
@@ -9487,7 +9487,7 @@ bool monitor::syscalls32::register_NtSetTimerResolution(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetUuidSeed(proc_t proc, const on_ZwSetUuidSeed_fn& on_func)
+bool tracer::syscalls32::register_ZwSetUuidSeed(proc_t proc, const on_ZwSetUuidSeed_fn& on_func)
 {
     if(d_->observers_ZwSetUuidSeed.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetUuidSeed@4", &on_ZwSetUuidSeed))
@@ -9497,7 +9497,7 @@ bool monitor::syscalls32::register_ZwSetUuidSeed(proc_t proc, const on_ZwSetUuid
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSetValueKey(proc_t proc, const on_ZwSetValueKey_fn& on_func)
+bool tracer::syscalls32::register_ZwSetValueKey(proc_t proc, const on_ZwSetValueKey_fn& on_func)
 {
     if(d_->observers_ZwSetValueKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetValueKey@24", &on_ZwSetValueKey))
@@ -9507,7 +9507,7 @@ bool monitor::syscalls32::register_ZwSetValueKey(proc_t proc, const on_ZwSetValu
     return true;
 }
 
-bool monitor::syscalls32::register_NtSetVolumeInformationFile(proc_t proc, const on_NtSetVolumeInformationFile_fn& on_func)
+bool tracer::syscalls32::register_NtSetVolumeInformationFile(proc_t proc, const on_NtSetVolumeInformationFile_fn& on_func)
 {
     if(d_->observers_NtSetVolumeInformationFile.empty())
         if(!register_callback_with(*d_, proc, "_NtSetVolumeInformationFile@20", &on_NtSetVolumeInformationFile))
@@ -9517,7 +9517,7 @@ bool monitor::syscalls32::register_NtSetVolumeInformationFile(proc_t proc, const
     return true;
 }
 
-bool monitor::syscalls32::register_ZwShutdownSystem(proc_t proc, const on_ZwShutdownSystem_fn& on_func)
+bool tracer::syscalls32::register_ZwShutdownSystem(proc_t proc, const on_ZwShutdownSystem_fn& on_func)
 {
     if(d_->observers_ZwShutdownSystem.empty())
         if(!register_callback_with(*d_, proc, "_ZwShutdownSystem@4", &on_ZwShutdownSystem))
@@ -9527,7 +9527,7 @@ bool monitor::syscalls32::register_ZwShutdownSystem(proc_t proc, const on_ZwShut
     return true;
 }
 
-bool monitor::syscalls32::register_NtShutdownWorkerFactory(proc_t proc, const on_NtShutdownWorkerFactory_fn& on_func)
+bool tracer::syscalls32::register_NtShutdownWorkerFactory(proc_t proc, const on_NtShutdownWorkerFactory_fn& on_func)
 {
     if(d_->observers_NtShutdownWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "_NtShutdownWorkerFactory@8", &on_NtShutdownWorkerFactory))
@@ -9537,7 +9537,7 @@ bool monitor::syscalls32::register_NtShutdownWorkerFactory(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSignalAndWaitForSingleObject(proc_t proc, const on_ZwSignalAndWaitForSingleObject_fn& on_func)
+bool tracer::syscalls32::register_ZwSignalAndWaitForSingleObject(proc_t proc, const on_ZwSignalAndWaitForSingleObject_fn& on_func)
 {
     if(d_->observers_ZwSignalAndWaitForSingleObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwSignalAndWaitForSingleObject@16", &on_ZwSignalAndWaitForSingleObject))
@@ -9547,7 +9547,7 @@ bool monitor::syscalls32::register_ZwSignalAndWaitForSingleObject(proc_t proc, c
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSinglePhaseReject(proc_t proc, const on_ZwSinglePhaseReject_fn& on_func)
+bool tracer::syscalls32::register_ZwSinglePhaseReject(proc_t proc, const on_ZwSinglePhaseReject_fn& on_func)
 {
     if(d_->observers_ZwSinglePhaseReject.empty())
         if(!register_callback_with(*d_, proc, "_ZwSinglePhaseReject@8", &on_ZwSinglePhaseReject))
@@ -9557,7 +9557,7 @@ bool monitor::syscalls32::register_ZwSinglePhaseReject(proc_t proc, const on_ZwS
     return true;
 }
 
-bool monitor::syscalls32::register_NtStartProfile(proc_t proc, const on_NtStartProfile_fn& on_func)
+bool tracer::syscalls32::register_NtStartProfile(proc_t proc, const on_NtStartProfile_fn& on_func)
 {
     if(d_->observers_NtStartProfile.empty())
         if(!register_callback_with(*d_, proc, "_NtStartProfile@4", &on_NtStartProfile))
@@ -9567,7 +9567,7 @@ bool monitor::syscalls32::register_NtStartProfile(proc_t proc, const on_NtStartP
     return true;
 }
 
-bool monitor::syscalls32::register_ZwStopProfile(proc_t proc, const on_ZwStopProfile_fn& on_func)
+bool tracer::syscalls32::register_ZwStopProfile(proc_t proc, const on_ZwStopProfile_fn& on_func)
 {
     if(d_->observers_ZwStopProfile.empty())
         if(!register_callback_with(*d_, proc, "_ZwStopProfile@4", &on_ZwStopProfile))
@@ -9577,7 +9577,7 @@ bool monitor::syscalls32::register_ZwStopProfile(proc_t proc, const on_ZwStopPro
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSuspendProcess(proc_t proc, const on_ZwSuspendProcess_fn& on_func)
+bool tracer::syscalls32::register_ZwSuspendProcess(proc_t proc, const on_ZwSuspendProcess_fn& on_func)
 {
     if(d_->observers_ZwSuspendProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwSuspendProcess@4", &on_ZwSuspendProcess))
@@ -9587,7 +9587,7 @@ bool monitor::syscalls32::register_ZwSuspendProcess(proc_t proc, const on_ZwSusp
     return true;
 }
 
-bool monitor::syscalls32::register_ZwSuspendThread(proc_t proc, const on_ZwSuspendThread_fn& on_func)
+bool tracer::syscalls32::register_ZwSuspendThread(proc_t proc, const on_ZwSuspendThread_fn& on_func)
 {
     if(d_->observers_ZwSuspendThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwSuspendThread@8", &on_ZwSuspendThread))
@@ -9597,7 +9597,7 @@ bool monitor::syscalls32::register_ZwSuspendThread(proc_t proc, const on_ZwSuspe
     return true;
 }
 
-bool monitor::syscalls32::register_NtSystemDebugControl(proc_t proc, const on_NtSystemDebugControl_fn& on_func)
+bool tracer::syscalls32::register_NtSystemDebugControl(proc_t proc, const on_NtSystemDebugControl_fn& on_func)
 {
     if(d_->observers_NtSystemDebugControl.empty())
         if(!register_callback_with(*d_, proc, "_NtSystemDebugControl@24", &on_NtSystemDebugControl))
@@ -9607,7 +9607,7 @@ bool monitor::syscalls32::register_NtSystemDebugControl(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_ZwTerminateJobObject(proc_t proc, const on_ZwTerminateJobObject_fn& on_func)
+bool tracer::syscalls32::register_ZwTerminateJobObject(proc_t proc, const on_ZwTerminateJobObject_fn& on_func)
 {
     if(d_->observers_ZwTerminateJobObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwTerminateJobObject@8", &on_ZwTerminateJobObject))
@@ -9617,7 +9617,7 @@ bool monitor::syscalls32::register_ZwTerminateJobObject(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscalls32::register_ZwTerminateProcess(proc_t proc, const on_ZwTerminateProcess_fn& on_func)
+bool tracer::syscalls32::register_ZwTerminateProcess(proc_t proc, const on_ZwTerminateProcess_fn& on_func)
 {
     if(d_->observers_ZwTerminateProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwTerminateProcess@8", &on_ZwTerminateProcess))
@@ -9627,7 +9627,7 @@ bool monitor::syscalls32::register_ZwTerminateProcess(proc_t proc, const on_ZwTe
     return true;
 }
 
-bool monitor::syscalls32::register_ZwTerminateThread(proc_t proc, const on_ZwTerminateThread_fn& on_func)
+bool tracer::syscalls32::register_ZwTerminateThread(proc_t proc, const on_ZwTerminateThread_fn& on_func)
 {
     if(d_->observers_ZwTerminateThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwTerminateThread@8", &on_ZwTerminateThread))
@@ -9637,7 +9637,7 @@ bool monitor::syscalls32::register_ZwTerminateThread(proc_t proc, const on_ZwTer
     return true;
 }
 
-bool monitor::syscalls32::register_ZwTraceControl(proc_t proc, const on_ZwTraceControl_fn& on_func)
+bool tracer::syscalls32::register_ZwTraceControl(proc_t proc, const on_ZwTraceControl_fn& on_func)
 {
     if(d_->observers_ZwTraceControl.empty())
         if(!register_callback_with(*d_, proc, "_ZwTraceControl@24", &on_ZwTraceControl))
@@ -9647,7 +9647,7 @@ bool monitor::syscalls32::register_ZwTraceControl(proc_t proc, const on_ZwTraceC
     return true;
 }
 
-bool monitor::syscalls32::register_NtTraceEvent(proc_t proc, const on_NtTraceEvent_fn& on_func)
+bool tracer::syscalls32::register_NtTraceEvent(proc_t proc, const on_NtTraceEvent_fn& on_func)
 {
     if(d_->observers_NtTraceEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtTraceEvent@16", &on_NtTraceEvent))
@@ -9657,7 +9657,7 @@ bool monitor::syscalls32::register_NtTraceEvent(proc_t proc, const on_NtTraceEve
     return true;
 }
 
-bool monitor::syscalls32::register_NtTranslateFilePath(proc_t proc, const on_NtTranslateFilePath_fn& on_func)
+bool tracer::syscalls32::register_NtTranslateFilePath(proc_t proc, const on_NtTranslateFilePath_fn& on_func)
 {
     if(d_->observers_NtTranslateFilePath.empty())
         if(!register_callback_with(*d_, proc, "_NtTranslateFilePath@16", &on_NtTranslateFilePath))
@@ -9667,7 +9667,7 @@ bool monitor::syscalls32::register_NtTranslateFilePath(proc_t proc, const on_NtT
     return true;
 }
 
-bool monitor::syscalls32::register_ZwUnloadDriver(proc_t proc, const on_ZwUnloadDriver_fn& on_func)
+bool tracer::syscalls32::register_ZwUnloadDriver(proc_t proc, const on_ZwUnloadDriver_fn& on_func)
 {
     if(d_->observers_ZwUnloadDriver.empty())
         if(!register_callback_with(*d_, proc, "_ZwUnloadDriver@4", &on_ZwUnloadDriver))
@@ -9677,7 +9677,7 @@ bool monitor::syscalls32::register_ZwUnloadDriver(proc_t proc, const on_ZwUnload
     return true;
 }
 
-bool monitor::syscalls32::register_ZwUnloadKey2(proc_t proc, const on_ZwUnloadKey2_fn& on_func)
+bool tracer::syscalls32::register_ZwUnloadKey2(proc_t proc, const on_ZwUnloadKey2_fn& on_func)
 {
     if(d_->observers_ZwUnloadKey2.empty())
         if(!register_callback_with(*d_, proc, "_ZwUnloadKey2@8", &on_ZwUnloadKey2))
@@ -9687,7 +9687,7 @@ bool monitor::syscalls32::register_ZwUnloadKey2(proc_t proc, const on_ZwUnloadKe
     return true;
 }
 
-bool monitor::syscalls32::register_ZwUnloadKeyEx(proc_t proc, const on_ZwUnloadKeyEx_fn& on_func)
+bool tracer::syscalls32::register_ZwUnloadKeyEx(proc_t proc, const on_ZwUnloadKeyEx_fn& on_func)
 {
     if(d_->observers_ZwUnloadKeyEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwUnloadKeyEx@8", &on_ZwUnloadKeyEx))
@@ -9697,7 +9697,7 @@ bool monitor::syscalls32::register_ZwUnloadKeyEx(proc_t proc, const on_ZwUnloadK
     return true;
 }
 
-bool monitor::syscalls32::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey_fn& on_func)
+bool tracer::syscalls32::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey_fn& on_func)
 {
     if(d_->observers_NtUnloadKey.empty())
         if(!register_callback_with(*d_, proc, "_NtUnloadKey@4", &on_NtUnloadKey))
@@ -9707,7 +9707,7 @@ bool monitor::syscalls32::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey
     return true;
 }
 
-bool monitor::syscalls32::register_ZwUnlockFile(proc_t proc, const on_ZwUnlockFile_fn& on_func)
+bool tracer::syscalls32::register_ZwUnlockFile(proc_t proc, const on_ZwUnlockFile_fn& on_func)
 {
     if(d_->observers_ZwUnlockFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwUnlockFile@20", &on_ZwUnlockFile))
@@ -9717,7 +9717,7 @@ bool monitor::syscalls32::register_ZwUnlockFile(proc_t proc, const on_ZwUnlockFi
     return true;
 }
 
-bool monitor::syscalls32::register_NtUnlockVirtualMemory(proc_t proc, const on_NtUnlockVirtualMemory_fn& on_func)
+bool tracer::syscalls32::register_NtUnlockVirtualMemory(proc_t proc, const on_NtUnlockVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtUnlockVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_NtUnlockVirtualMemory@16", &on_NtUnlockVirtualMemory))
@@ -9727,7 +9727,7 @@ bool monitor::syscalls32::register_NtUnlockVirtualMemory(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_NtUnmapViewOfSection(proc_t proc, const on_NtUnmapViewOfSection_fn& on_func)
+bool tracer::syscalls32::register_NtUnmapViewOfSection(proc_t proc, const on_NtUnmapViewOfSection_fn& on_func)
 {
     if(d_->observers_NtUnmapViewOfSection.empty())
         if(!register_callback_with(*d_, proc, "_NtUnmapViewOfSection@8", &on_NtUnmapViewOfSection))
@@ -9737,7 +9737,7 @@ bool monitor::syscalls32::register_NtUnmapViewOfSection(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_NtVdmControl(proc_t proc, const on_NtVdmControl_fn& on_func)
+bool tracer::syscalls32::register_NtVdmControl(proc_t proc, const on_NtVdmControl_fn& on_func)
 {
     if(d_->observers_NtVdmControl.empty())
         if(!register_callback_with(*d_, proc, "_NtVdmControl@8", &on_NtVdmControl))
@@ -9747,7 +9747,7 @@ bool monitor::syscalls32::register_NtVdmControl(proc_t proc, const on_NtVdmContr
     return true;
 }
 
-bool monitor::syscalls32::register_NtWaitForDebugEvent(proc_t proc, const on_NtWaitForDebugEvent_fn& on_func)
+bool tracer::syscalls32::register_NtWaitForDebugEvent(proc_t proc, const on_NtWaitForDebugEvent_fn& on_func)
 {
     if(d_->observers_NtWaitForDebugEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtWaitForDebugEvent@16", &on_NtWaitForDebugEvent))
@@ -9757,7 +9757,7 @@ bool monitor::syscalls32::register_NtWaitForDebugEvent(proc_t proc, const on_NtW
     return true;
 }
 
-bool monitor::syscalls32::register_NtWaitForKeyedEvent(proc_t proc, const on_NtWaitForKeyedEvent_fn& on_func)
+bool tracer::syscalls32::register_NtWaitForKeyedEvent(proc_t proc, const on_NtWaitForKeyedEvent_fn& on_func)
 {
     if(d_->observers_NtWaitForKeyedEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtWaitForKeyedEvent@16", &on_NtWaitForKeyedEvent))
@@ -9767,7 +9767,7 @@ bool monitor::syscalls32::register_NtWaitForKeyedEvent(proc_t proc, const on_NtW
     return true;
 }
 
-bool monitor::syscalls32::register_NtWaitForMultipleObjects32(proc_t proc, const on_NtWaitForMultipleObjects32_fn& on_func)
+bool tracer::syscalls32::register_NtWaitForMultipleObjects32(proc_t proc, const on_NtWaitForMultipleObjects32_fn& on_func)
 {
     if(d_->observers_NtWaitForMultipleObjects32.empty())
         if(!register_callback_with(*d_, proc, "_NtWaitForMultipleObjects32@20", &on_NtWaitForMultipleObjects32))
@@ -9777,7 +9777,7 @@ bool monitor::syscalls32::register_NtWaitForMultipleObjects32(proc_t proc, const
     return true;
 }
 
-bool monitor::syscalls32::register_NtWaitForMultipleObjects(proc_t proc, const on_NtWaitForMultipleObjects_fn& on_func)
+bool tracer::syscalls32::register_NtWaitForMultipleObjects(proc_t proc, const on_NtWaitForMultipleObjects_fn& on_func)
 {
     if(d_->observers_NtWaitForMultipleObjects.empty())
         if(!register_callback_with(*d_, proc, "_NtWaitForMultipleObjects@20", &on_NtWaitForMultipleObjects))
@@ -9787,7 +9787,7 @@ bool monitor::syscalls32::register_NtWaitForMultipleObjects(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscalls32::register_ZwWaitForSingleObject(proc_t proc, const on_ZwWaitForSingleObject_fn& on_func)
+bool tracer::syscalls32::register_ZwWaitForSingleObject(proc_t proc, const on_ZwWaitForSingleObject_fn& on_func)
 {
     if(d_->observers_ZwWaitForSingleObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwWaitForSingleObject@12", &on_ZwWaitForSingleObject))
@@ -9797,7 +9797,7 @@ bool monitor::syscalls32::register_ZwWaitForSingleObject(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscalls32::register_NtWaitForWorkViaWorkerFactory(proc_t proc, const on_NtWaitForWorkViaWorkerFactory_fn& on_func)
+bool tracer::syscalls32::register_NtWaitForWorkViaWorkerFactory(proc_t proc, const on_NtWaitForWorkViaWorkerFactory_fn& on_func)
 {
     if(d_->observers_NtWaitForWorkViaWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "_NtWaitForWorkViaWorkerFactory@8", &on_NtWaitForWorkViaWorkerFactory))
@@ -9807,7 +9807,7 @@ bool monitor::syscalls32::register_NtWaitForWorkViaWorkerFactory(proc_t proc, co
     return true;
 }
 
-bool monitor::syscalls32::register_ZwWaitHighEventPair(proc_t proc, const on_ZwWaitHighEventPair_fn& on_func)
+bool tracer::syscalls32::register_ZwWaitHighEventPair(proc_t proc, const on_ZwWaitHighEventPair_fn& on_func)
 {
     if(d_->observers_ZwWaitHighEventPair.empty())
         if(!register_callback_with(*d_, proc, "_ZwWaitHighEventPair@4", &on_ZwWaitHighEventPair))
@@ -9817,7 +9817,7 @@ bool monitor::syscalls32::register_ZwWaitHighEventPair(proc_t proc, const on_ZwW
     return true;
 }
 
-bool monitor::syscalls32::register_NtWaitLowEventPair(proc_t proc, const on_NtWaitLowEventPair_fn& on_func)
+bool tracer::syscalls32::register_NtWaitLowEventPair(proc_t proc, const on_NtWaitLowEventPair_fn& on_func)
 {
     if(d_->observers_NtWaitLowEventPair.empty())
         if(!register_callback_with(*d_, proc, "_NtWaitLowEventPair@4", &on_NtWaitLowEventPair))
@@ -9827,7 +9827,7 @@ bool monitor::syscalls32::register_NtWaitLowEventPair(proc_t proc, const on_NtWa
     return true;
 }
 
-bool monitor::syscalls32::register_NtWorkerFactoryWorkerReady(proc_t proc, const on_NtWorkerFactoryWorkerReady_fn& on_func)
+bool tracer::syscalls32::register_NtWorkerFactoryWorkerReady(proc_t proc, const on_NtWorkerFactoryWorkerReady_fn& on_func)
 {
     if(d_->observers_NtWorkerFactoryWorkerReady.empty())
         if(!register_callback_with(*d_, proc, "_NtWorkerFactoryWorkerReady@4", &on_NtWorkerFactoryWorkerReady))
@@ -9837,7 +9837,7 @@ bool monitor::syscalls32::register_NtWorkerFactoryWorkerReady(proc_t proc, const
     return true;
 }
 
-bool monitor::syscalls32::register_NtWriteFileGather(proc_t proc, const on_NtWriteFileGather_fn& on_func)
+bool tracer::syscalls32::register_NtWriteFileGather(proc_t proc, const on_NtWriteFileGather_fn& on_func)
 {
     if(d_->observers_NtWriteFileGather.empty())
         if(!register_callback_with(*d_, proc, "_NtWriteFileGather@36", &on_NtWriteFileGather))
@@ -9847,7 +9847,7 @@ bool monitor::syscalls32::register_NtWriteFileGather(proc_t proc, const on_NtWri
     return true;
 }
 
-bool monitor::syscalls32::register_NtWriteFile(proc_t proc, const on_NtWriteFile_fn& on_func)
+bool tracer::syscalls32::register_NtWriteFile(proc_t proc, const on_NtWriteFile_fn& on_func)
 {
     if(d_->observers_NtWriteFile.empty())
         if(!register_callback_with(*d_, proc, "_NtWriteFile@36", &on_NtWriteFile))
@@ -9857,7 +9857,7 @@ bool monitor::syscalls32::register_NtWriteFile(proc_t proc, const on_NtWriteFile
     return true;
 }
 
-bool monitor::syscalls32::register_NtWriteRequestData(proc_t proc, const on_NtWriteRequestData_fn& on_func)
+bool tracer::syscalls32::register_NtWriteRequestData(proc_t proc, const on_NtWriteRequestData_fn& on_func)
 {
     if(d_->observers_NtWriteRequestData.empty())
         if(!register_callback_with(*d_, proc, "_NtWriteRequestData@24", &on_NtWriteRequestData))
@@ -9867,7 +9867,7 @@ bool monitor::syscalls32::register_NtWriteRequestData(proc_t proc, const on_NtWr
     return true;
 }
 
-bool monitor::syscalls32::register_NtWriteVirtualMemory(proc_t proc, const on_NtWriteVirtualMemory_fn& on_func)
+bool tracer::syscalls32::register_NtWriteVirtualMemory(proc_t proc, const on_NtWriteVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtWriteVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_NtWriteVirtualMemory@20", &on_NtWriteVirtualMemory))
@@ -9877,7 +9877,7 @@ bool monitor::syscalls32::register_NtWriteVirtualMemory(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscalls32::register_NtDisableLastKnownGood(proc_t proc, const on_NtDisableLastKnownGood_fn& on_func)
+bool tracer::syscalls32::register_NtDisableLastKnownGood(proc_t proc, const on_NtDisableLastKnownGood_fn& on_func)
 {
     if(d_->observers_NtDisableLastKnownGood.empty())
         if(!register_callback_with(*d_, proc, "_NtDisableLastKnownGood@0", &on_NtDisableLastKnownGood))
@@ -9887,7 +9887,7 @@ bool monitor::syscalls32::register_NtDisableLastKnownGood(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_NtEnableLastKnownGood(proc_t proc, const on_NtEnableLastKnownGood_fn& on_func)
+bool tracer::syscalls32::register_NtEnableLastKnownGood(proc_t proc, const on_NtEnableLastKnownGood_fn& on_func)
 {
     if(d_->observers_NtEnableLastKnownGood.empty())
         if(!register_callback_with(*d_, proc, "_NtEnableLastKnownGood@0", &on_NtEnableLastKnownGood))
@@ -9897,7 +9897,7 @@ bool monitor::syscalls32::register_NtEnableLastKnownGood(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscalls32::register_ZwFlushProcessWriteBuffers(proc_t proc, const on_ZwFlushProcessWriteBuffers_fn& on_func)
+bool tracer::syscalls32::register_ZwFlushProcessWriteBuffers(proc_t proc, const on_ZwFlushProcessWriteBuffers_fn& on_func)
 {
     if(d_->observers_ZwFlushProcessWriteBuffers.empty())
         if(!register_callback_with(*d_, proc, "_ZwFlushProcessWriteBuffers@0", &on_ZwFlushProcessWriteBuffers))
@@ -9907,7 +9907,7 @@ bool monitor::syscalls32::register_ZwFlushProcessWriteBuffers(proc_t proc, const
     return true;
 }
 
-bool monitor::syscalls32::register_NtFlushWriteBuffer(proc_t proc, const on_NtFlushWriteBuffer_fn& on_func)
+bool tracer::syscalls32::register_NtFlushWriteBuffer(proc_t proc, const on_NtFlushWriteBuffer_fn& on_func)
 {
     if(d_->observers_NtFlushWriteBuffer.empty())
         if(!register_callback_with(*d_, proc, "_NtFlushWriteBuffer@0", &on_NtFlushWriteBuffer))
@@ -9917,7 +9917,7 @@ bool monitor::syscalls32::register_NtFlushWriteBuffer(proc_t proc, const on_NtFl
     return true;
 }
 
-bool monitor::syscalls32::register_NtGetCurrentProcessorNumber(proc_t proc, const on_NtGetCurrentProcessorNumber_fn& on_func)
+bool tracer::syscalls32::register_NtGetCurrentProcessorNumber(proc_t proc, const on_NtGetCurrentProcessorNumber_fn& on_func)
 {
     if(d_->observers_NtGetCurrentProcessorNumber.empty())
         if(!register_callback_with(*d_, proc, "_NtGetCurrentProcessorNumber@0", &on_NtGetCurrentProcessorNumber))
@@ -9927,7 +9927,7 @@ bool monitor::syscalls32::register_NtGetCurrentProcessorNumber(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscalls32::register_NtIsSystemResumeAutomatic(proc_t proc, const on_NtIsSystemResumeAutomatic_fn& on_func)
+bool tracer::syscalls32::register_NtIsSystemResumeAutomatic(proc_t proc, const on_NtIsSystemResumeAutomatic_fn& on_func)
 {
     if(d_->observers_NtIsSystemResumeAutomatic.empty())
         if(!register_callback_with(*d_, proc, "_NtIsSystemResumeAutomatic@0", &on_NtIsSystemResumeAutomatic))
@@ -9937,7 +9937,7 @@ bool monitor::syscalls32::register_NtIsSystemResumeAutomatic(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscalls32::register_ZwIsUILanguageComitted(proc_t proc, const on_ZwIsUILanguageComitted_fn& on_func)
+bool tracer::syscalls32::register_ZwIsUILanguageComitted(proc_t proc, const on_ZwIsUILanguageComitted_fn& on_func)
 {
     if(d_->observers_ZwIsUILanguageComitted.empty())
         if(!register_callback_with(*d_, proc, "_ZwIsUILanguageComitted@0", &on_ZwIsUILanguageComitted))
@@ -9947,7 +9947,7 @@ bool monitor::syscalls32::register_ZwIsUILanguageComitted(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscalls32::register_ZwQueryPortInformationProcess(proc_t proc, const on_ZwQueryPortInformationProcess_fn& on_func)
+bool tracer::syscalls32::register_ZwQueryPortInformationProcess(proc_t proc, const on_ZwQueryPortInformationProcess_fn& on_func)
 {
     if(d_->observers_ZwQueryPortInformationProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryPortInformationProcess@0", &on_ZwQueryPortInformationProcess))
@@ -9957,7 +9957,7 @@ bool monitor::syscalls32::register_ZwQueryPortInformationProcess(proc_t proc, co
     return true;
 }
 
-bool monitor::syscalls32::register_NtSerializeBoot(proc_t proc, const on_NtSerializeBoot_fn& on_func)
+bool tracer::syscalls32::register_NtSerializeBoot(proc_t proc, const on_NtSerializeBoot_fn& on_func)
 {
     if(d_->observers_NtSerializeBoot.empty())
         if(!register_callback_with(*d_, proc, "_NtSerializeBoot@0", &on_NtSerializeBoot))
@@ -9967,7 +9967,7 @@ bool monitor::syscalls32::register_NtSerializeBoot(proc_t proc, const on_NtSeria
     return true;
 }
 
-bool monitor::syscalls32::register_NtTestAlert(proc_t proc, const on_NtTestAlert_fn& on_func)
+bool tracer::syscalls32::register_NtTestAlert(proc_t proc, const on_NtTestAlert_fn& on_func)
 {
     if(d_->observers_NtTestAlert.empty())
         if(!register_callback_with(*d_, proc, "_NtTestAlert@0", &on_NtTestAlert))
@@ -9977,7 +9977,7 @@ bool monitor::syscalls32::register_NtTestAlert(proc_t proc, const on_NtTestAlert
     return true;
 }
 
-bool monitor::syscalls32::register_ZwThawRegistry(proc_t proc, const on_ZwThawRegistry_fn& on_func)
+bool tracer::syscalls32::register_ZwThawRegistry(proc_t proc, const on_ZwThawRegistry_fn& on_func)
 {
     if(d_->observers_ZwThawRegistry.empty())
         if(!register_callback_with(*d_, proc, "_ZwThawRegistry@0", &on_ZwThawRegistry))
@@ -9987,7 +9987,7 @@ bool monitor::syscalls32::register_ZwThawRegistry(proc_t proc, const on_ZwThawRe
     return true;
 }
 
-bool monitor::syscalls32::register_NtThawTransactions(proc_t proc, const on_NtThawTransactions_fn& on_func)
+bool tracer::syscalls32::register_NtThawTransactions(proc_t proc, const on_NtThawTransactions_fn& on_func)
 {
     if(d_->observers_NtThawTransactions.empty())
         if(!register_callback_with(*d_, proc, "_NtThawTransactions@0", &on_NtThawTransactions))
@@ -9997,7 +9997,7 @@ bool monitor::syscalls32::register_NtThawTransactions(proc_t proc, const on_NtTh
     return true;
 }
 
-bool monitor::syscalls32::register_ZwUmsThreadYield(proc_t proc, const on_ZwUmsThreadYield_fn& on_func)
+bool tracer::syscalls32::register_ZwUmsThreadYield(proc_t proc, const on_ZwUmsThreadYield_fn& on_func)
 {
     if(d_->observers_ZwUmsThreadYield.empty())
         if(!register_callback_with(*d_, proc, "_ZwUmsThreadYield@4", &on_ZwUmsThreadYield))
@@ -10007,7 +10007,7 @@ bool monitor::syscalls32::register_ZwUmsThreadYield(proc_t proc, const on_ZwUmsT
     return true;
 }
 
-bool monitor::syscalls32::register_ZwYieldExecution(proc_t proc, const on_ZwYieldExecution_fn& on_func)
+bool tracer::syscalls32::register_ZwYieldExecution(proc_t proc, const on_ZwYieldExecution_fn& on_func)
 {
     if(d_->observers_ZwYieldExecution.empty())
         if(!register_callback_with(*d_, proc, "_ZwYieldExecution@0", &on_ZwYieldExecution))
@@ -10423,7 +10423,7 @@ namespace
     };
 }
 
-bool monitor::syscalls32::register_all(proc_t proc, const monitor::syscalls32::on_call_fn& on_call)
+bool tracer::syscalls32::register_all(proc_t proc, const tracer::syscalls32::on_call_fn& on_call)
 {
     Data::Breakpoints breakpoints;
     for(const auto it : g_names)

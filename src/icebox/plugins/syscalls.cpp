@@ -5,9 +5,9 @@
 #include "os.hpp"
 
 #include "callstack.hpp"
-#include "monitor/syscalls.gen.hpp"
 #include "nt/objects_nt.hpp"
 #include "reader.hpp"
+#include "tracer/syscalls.gen.hpp"
 #include "utils/file.hpp"
 #include "utils/fnview.hpp"
 #include "utils/pe.hpp"
@@ -39,7 +39,7 @@ struct plugins::Syscalls::Data
     Data(core::Core& core);
 
     core::Core&                            core_;
-    monitor::syscalls                      syscalls_;
+    tracer::syscalls                       syscalls_;
     std::shared_ptr<callstack::ICallstack> callstack_;
     std::shared_ptr<nt::ObjectNt>          objects_;
     Callsteps                              callsteps_;

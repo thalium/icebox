@@ -5,9 +5,9 @@
 
 #include "callstack.hpp"
 #include "endian.hpp"
-#include "monitor/syscalls32.gen.hpp"
 #include "nt/objects_nt.hpp"
 #include "reader.hpp"
+#include "tracer/syscalls32.gen.hpp"
 #include "utils/file.hpp"
 #include "utils/fnview.hpp"
 #include "utils/pe.hpp"
@@ -42,15 +42,15 @@ struct plugins::Syscalls32::Data
 {
     Data(core::Core& core);
 
-    core::Core&         core_;
-    monitor::syscalls32 syscalls_;
-    ObjectsNt           objects_;
-    Callstack           callstack_;
-    Callsteps           callsteps_;
-    Triggers            triggers_;
-    json                args_;
-    proc_t              target_;
-    uint64_t            nb_triggers_;
+    core::Core&        core_;
+    tracer::syscalls32 syscalls_;
+    ObjectsNt          objects_;
+    Callstack          callstack_;
+    Callsteps          callsteps_;
+    Triggers           triggers_;
+    json               args_;
+    proc_t             target_;
+    uint64_t           nb_triggers_;
 };
 
 plugins::Syscalls32::Data::Data(core::Core& core)
