@@ -2,13 +2,11 @@
 
 #define FDP_MODULE "syscall_tracer"
 #include "log.hpp"
-#include "os.hpp"
 
 #include "callstack.hpp"
 #include "endian.hpp"
-#include "monitor/syscallswow64.gen.hpp"
+#include "monitor/syscalls32.gen.hpp"
 #include "nt/objects_nt.hpp"
-#include "os.hpp"
 #include "reader.hpp"
 #include "utils/file.hpp"
 #include "utils/fnview.hpp"
@@ -36,21 +34,23 @@ namespace
     using Callsteps   = std::vector<callstack::callstep_t>;
     using Triggers    = std::vector<bp_trigger_info_t>;
     using SyscallData = syscall_tracer::SyscallPluginWow64::Data;
+    using Callstack   = std::shared_ptr<callstack::ICallstack>;
+    using ObjectsNt   = std::shared_ptr<nt::ObjectNt>;
 }
 
 struct syscall_tracer::SyscallPluginWow64::Data
 {
     Data(core::Core& core);
 
-    core::Core&                            core_;
-    monitor::syscallswow64                 syscalls_;
-    std::shared_ptr<nt::ObjectNt>          objects_;
-    std::shared_ptr<callstack::ICallstack> callstack_;
-    Callsteps                              callsteps_;
-    Triggers                               triggers_;
-    json                                   args_;
-    proc_t                                 target_;
-    uint64_t                               nb_triggers_;
+    core::Core&         core_;
+    monitor::syscalls32 syscalls_;
+    ObjectsNt           objects_;
+    Callstack           callstack_;
+    Callsteps           callsteps_;
+    Triggers            triggers_;
+    json                args_;
+    proc_t              target_;
+    uint64_t            nb_triggers_;
 };
 
 syscall_tracer::SyscallPluginWow64::Data::Data(core::Core& core)
@@ -154,8 +154,7 @@ namespace
         {
             uint16_t length;
             uint16_t max_length;
-            uint32_t _; // padding
-            uint64_t buffer;
+            uint32_t buffer;
         };
         UnicodeString us;
         auto ok = reader.read(&us, unicode_string, sizeof us);
@@ -164,7 +163,7 @@ namespace
 
         us.length     = read_le16(&us.length);
         us.max_length = read_le16(&us.max_length);
-        us.buffer     = read_le64(&us.buffer);
+        us.buffer     = read_le32(&us.buffer);
 
         if(us.length > us.max_length)
             FAIL({}, "corrupted UNICODE_STRING");
@@ -177,38 +176,6 @@ namespace
         const auto p = &buffer[0];
         return utf8::convert(p, &p[us.length]);
     }
-
-    namespace nt32
-    {
-        opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
-        {
-            using UnicodeString = struct
-            {
-                uint16_t length;
-                uint16_t max_length;
-                uint32_t buffer;
-            };
-            UnicodeString us;
-            auto ok = reader.read(&us, unicode_string, sizeof us);
-            if(!ok)
-                FAIL({}, "unable to read UNICODE_STRING");
-
-            us.length     = read_le16(&us.length);
-            us.max_length = read_le16(&us.max_length);
-            us.buffer     = read_le32(&us.buffer);
-
-            if(us.length > us.max_length)
-                FAIL({}, "corrupted UNICODE_STRING");
-
-            std::vector<uint8_t> buffer(us.length);
-            ok = reader.read(&buffer[0], us.buffer, us.length);
-            if(!ok)
-                FAIL({}, "unable to read UNICODE_STRING.buffer");
-
-            const auto p = &buffer[0];
-            return utf8::convert(p, &p[us.length]);
-        }
-    } // namespace nt32
 }
 
 bool syscall_tracer::SyscallPluginWow64::setup(proc_t target)
@@ -225,7 +192,7 @@ bool syscall_tracer::SyscallPluginWow64::setup(proc_t target)
         FAIL(false, "Unable to create ObjectNt object");
 
     // Horrible workaround
-    d_->syscalls_.register_ZwQueryInformationProcess(target, [=](wntdll::HANDLE, wntdll::PROCESSINFOCLASS, wntdll::PVOID, wntdll::ULONG, wntdll::PULONG)
+    d_->syscalls_.register_ZwQueryInformationProcess(target, [=](nt32::HANDLE, nt32::PROCESSINFOCLASS, nt32::PVOID, nt32::ULONG, nt32::PULONG)
     {
         const auto nbr = 4;
         for(auto i = 0; i < nbr; i++)
@@ -237,9 +204,9 @@ bool syscall_tracer::SyscallPluginWow64::setup(proc_t target)
         return 0;
     });
 
-    d_->syscalls_.register_NtWriteFile(target, [=](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/, nt::PVOID /*ApcContext*/,
-                                                   nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::PVOID Buffer, nt::ULONG Length,
-                                                   nt::PLARGE_INTEGER /*ByteOffsetm*/, nt::PULONG /*Key*/)
+    d_->syscalls_.register_NtWriteFile(target, [=](nt32::HANDLE FileHandle, nt32::HANDLE /*Event*/, nt32::PIO_APC_ROUTINE /*ApcRoutine*/, nt32::PVOID /*ApcContext*/,
+                                                   nt32::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt32::PVOID Buffer, nt32::ULONG Length,
+                                                   nt32::PLARGE_INTEGER /*ByteOffsetm*/, nt32::PULONG /*Key*/)
     {
         const auto proc = d_->target_;
         std::vector<char> buf(Length);
@@ -277,10 +244,10 @@ bool syscall_tracer::SyscallPluginWow64::setup(proc_t target)
         return 0;
     });
 
-    d_->syscalls_.register_ZwDeviceIoControlFile(target, [=](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,
-                                                             nt::PVOID /*ApcContext*/, nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::ULONG IoControlCode,
-                                                             nt::PVOID /*InputBuffer*/, nt::ULONG /*InputBufferLength*/, nt::PVOID /*OutputBuffer*/,
-                                                             nt::ULONG /*OutputBufferLength*/)
+    d_->syscalls_.register_ZwDeviceIoControlFile(target, [=](nt32::HANDLE FileHandle, nt32::HANDLE /*Event*/, nt32::PIO_APC_ROUTINE /*ApcRoutine*/,
+                                                             nt32::PVOID /*ApcContext*/, nt32::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt32::ULONG IoControlCode,
+                                                             nt32::PVOID /*InputBuffer*/, nt32::ULONG /*InputBufferLength*/, nt32::PVOID /*OutputBuffer*/,
+                                                             nt32::ULONG /*OutputBufferLength*/)
     {
         const auto proc = d_->target_;
         const auto obj  = d_->objects_->get_object_ref(proc, FileHandle);
@@ -300,11 +267,11 @@ bool syscall_tracer::SyscallPluginWow64::setup(proc_t target)
             return 1;
 
         opt<std::string> ioctrole_code = {};
-        for(size_t i = 0; i < COUNT_OF(nt::g_nt_afd_status); i++)
+        for(size_t i = 0; i < COUNT_OF(nt32::g_afd_status); i++)
         {
-            if(IoControlCode == nt::g_nt_afd_status[i].status)
+            if(IoControlCode == nt32::g_afd_status[i].status)
             {
-                ioctrole_code = nt::g_nt_afd_status[i].status_name;
+                ioctrole_code = nt32::g_afd_status[i].status_name;
                 break;
             }
         }
@@ -316,8 +283,8 @@ bool syscall_tracer::SyscallPluginWow64::setup(proc_t target)
         return 0;
     });
 
-    d_->syscalls_.register_NtOpenFile(target, [=](nt::PHANDLE /*FileHandle*/, nt::ACCESS_MASK /*DesiredAccess*/, nt::POBJECT_ATTRIBUTES ObjectAttributes,
-                                                  nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::ULONG /*ShareAccess*/, nt::ULONG /*OpenOptions*/)
+    d_->syscalls_.register_NtOpenFile(target, [=](nt32::PHANDLE /*FileHandle*/, nt32::ACCESS_MASK /*DesiredAccess*/, nt32::POBJECT_ATTRIBUTES ObjectAttributes,
+                                                  nt32::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt32::ULONG /*ShareAccess*/, nt32::ULONG /*OpenOptions*/)
     {
         const auto proc        = d_->target_;
         const auto object_name = d_->objects_->objattribute_objectname(proc, ObjectAttributes);
@@ -328,31 +295,24 @@ bool syscall_tracer::SyscallPluginWow64::setup(proc_t target)
         return 0;
     });
 
-    d_->syscalls_.register_NtCreateUserProcess(target, [&](nt::PHANDLE /*ProcessHandle*/, nt::PHANDLE /*ThreadHandle*/, nt::ACCESS_MASK /*ProcessDesiredAccess*/,
-                                                           nt::ACCESS_MASK /*ThreadDesiredAccess*/, nt::POBJECT_ATTRIBUTES /*ProcessObjectAttributes*/,
-                                                           nt::POBJECT_ATTRIBUTES /*ThreadObjectAttributes*/, nt::ULONG /*ProcessFlags*/, nt::ULONG /*ThreadFlags*/,
-                                                           nt::PRTL_USER_PROCESS_PARAMETERS ProcessParameters, nt::PPROCESS_CREATE_INFO /*CreateInfo*/,
-                                                           nt::PPROCESS_ATTRIBUTE_LIST /*AttributeList*/)
+    d_->syscalls_.register_NtCreateUserProcess(target, [&](nt32::PHANDLE /*ProcessHandle*/, nt32::PHANDLE /*ThreadHandle*/, nt32::ACCESS_MASK /*ProcessDesiredAccess*/,
+                                                           nt32::ACCESS_MASK /*ThreadDesiredAccess*/, nt32::POBJECT_ATTRIBUTES /*ProcessObjectAttributes*/,
+                                                           nt32::POBJECT_ATTRIBUTES /*ThreadObjectAttributes*/, nt32::ULONG /*ProcessFlags*/, nt32::ULONG /*ThreadFlags*/,
+                                                           nt32::PRTL_USER_PROCESS_PARAMETERS ProcessParameters, nt32::PPROCESS_CREATE_INFO /*CreateInfo*/,
+                                                           nt32::PPROCESS_ATTRIBUTE_LIST /*AttributeList*/)
     {
         const auto proc   = d_->target_;
         const auto reader = reader::make(d_->core_, proc);
 
         // TODO get _RTL_USER_PROCESS_PARAMETERS from pdb
         // fields ImagePathName and CommandLine
-        opt<std::string> image_pathname;
-        opt<std::string> command_line;
-        if(d_->core_.os->proc_ctx_is_x64())
-        {
-            image_pathname = read_unicode_string(reader, ProcessParameters + 0x60);
-            command_line   = read_unicode_string(reader, ProcessParameters + 0x70);
-        }
-        else
-        {
-            image_pathname = nt32::read_unicode_string(reader, ProcessParameters + 0x38);
-            command_line   = nt32::read_unicode_string(reader, ProcessParameters + 0x40);
-        }
+        // 32 bits unicode string
+        const auto image_pathname = read_unicode_string(reader, ProcessParameters + 0x38);
+        if(!image_pathname)
+            return 1;
 
-        if(!command_line || !image_pathname)
+        const auto command_line = read_unicode_string(reader, ProcessParameters + 0x40);
+        if(!command_line)
             return 1;
 
         d_->args_[d_->nb_triggers_]["ImagePathName"] = image_pathname->data();
@@ -360,10 +320,10 @@ bool syscall_tracer::SyscallPluginWow64::setup(proc_t target)
         return 0;
     });
 
-    d_->syscalls_.register_NtCreateFile(target, [&](nt::PHANDLE /*FileHandle*/, nt::ACCESS_MASK DesiredAccess, nt::POBJECT_ATTRIBUTES ObjectAttributes,
-                                                    nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::PLARGE_INTEGER /*AllocationSize*/, nt::ULONG /*FileAttributes*/,
-                                                    nt::ULONG /*ShareAccess*/, nt::ULONG /*CreateDisposition*/, nt::ULONG /*CreateOptions*/, nt::PVOID /*EaBuffer*/,
-                                                    nt::ULONG /*EaLength*/)
+    d_->syscalls_.register_NtCreateFile(target, [&](nt32::PHANDLE /*FileHandle*/, nt32::ACCESS_MASK DesiredAccess, nt32::POBJECT_ATTRIBUTES ObjectAttributes,
+                                                    nt32::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt32::PLARGE_INTEGER /*AllocationSize*/, nt32::ULONG /*FileAttributes*/,
+                                                    nt32::ULONG /*ShareAccess*/, nt32::ULONG /*CreateDisposition*/, nt32::ULONG /*CreateOptions*/, nt32::PVOID /*EaBuffer*/,
+                                                    nt32::ULONG /*EaLength*/)
     {
         const auto proc        = d_->target_;
         const auto object_name = d_->objects_->objattribute_objectname(proc, ObjectAttributes);
@@ -371,9 +331,9 @@ bool syscall_tracer::SyscallPluginWow64::setup(proc_t target)
             return 1;
 
         std::vector<std::string> access;
-        for(size_t i = 0; i < COUNT_OF(nt::g_nt_access_mask); i++)
-            if(DesiredAccess & nt::g_nt_access_mask[i].mask)
-                access.push_back(nt::g_nt_access_mask[i].mask_name);
+        for(size_t i = 0; i < COUNT_OF(nt::g_access_mask); i++)
+            if(DesiredAccess & nt::g_access_mask[i].mask)
+                access.push_back(nt::g_access_mask[i].mask_name);
 
         d_->args_[d_->nb_triggers_]["FileName"] = object_name->data();
         d_->args_[d_->nb_triggers_]["Access"]   = access;

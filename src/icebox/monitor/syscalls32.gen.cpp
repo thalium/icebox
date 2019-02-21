@@ -1,6 +1,6 @@
-#include "syscallswow64.gen.hpp"
+#include "syscalls32.gen.hpp"
 
-#define FDP_MODULE "syscallswow64"
+#define FDP_MODULE "syscalls32"
 #include "log.hpp"
 #include "monitor.hpp"
 
@@ -9,7 +9,7 @@ namespace
 	constexpr bool g_debug = false;
 }
 
-struct monitor::syscallswow64::Data
+struct monitor::syscalls32::Data
 {
     Data(core::Core& core, std::string module);
 
@@ -419,24 +419,24 @@ struct monitor::syscallswow64::Data
     std::vector<on_ZwYieldExecution_fn>                                   observers_ZwYieldExecution;
 };
 
-monitor::syscallswow64::Data::Data(core::Core& core, std::string module)
+monitor::syscalls32::Data::Data(core::Core& core, std::string module)
     : core(core)
     , module(std::move(module))
 {
 }
 
-monitor::syscallswow64::syscallswow64(core::Core& core, std::string module)
+monitor::syscalls32::syscalls32(core::Core& core, std::string module)
     : d_(std::make_unique<Data>(core, std::move(module)))
 {
 }
 
-monitor::syscallswow64::~syscallswow64() = default;
+monitor::syscalls32::~syscalls32() = default;
 
 namespace
 {
-    using Data = monitor::syscallswow64::Data;
+    using Data = monitor::syscalls32::Data;
 
-    static core::Breakpoint register_callback(Data& d, proc_t proc, const char* name, const monitor::syscallswow64::on_call_fn& on_call)
+    static core::Breakpoint register_callback(Data& d, proc_t proc, const char* name, const monitor::syscalls32::on_call_fn& on_call)
     {
         const auto addr = d.core.sym.symbol(d.module, name);
         if(!addr)
@@ -466,17 +466,17 @@ namespace
         if(!arg)
             return {};
 
-        return wntdll::cast_to<T>(*arg);
+        return nt32::cast_to<T>(*arg);
     }
 
-    static void on_NtAcceptConnectPort(monitor::syscallswow64::Data& d)
+    static void on_NtAcceptConnectPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle        = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto PortContext       = arg<wntdll::PVOID>(d.core, 1);
-        const auto ConnectionRequest = arg<wntdll::PPORT_MESSAGE>(d.core, 2);
-        const auto AcceptConnection  = arg<wntdll::BOOLEAN>(d.core, 3);
-        const auto ServerView        = arg<wntdll::PPORT_VIEW>(d.core, 4);
-        const auto ClientView        = arg<wntdll::PREMOTE_PORT_VIEW>(d.core, 5);
+        const auto PortHandle        = arg<nt32::PHANDLE>(d.core, 0);
+        const auto PortContext       = arg<nt32::PVOID>(d.core, 1);
+        const auto ConnectionRequest = arg<nt32::PPORT_MESSAGE>(d.core, 2);
+        const auto AcceptConnection  = arg<nt32::BOOLEAN>(d.core, 3);
+        const auto ServerView        = arg<nt32::PPORT_VIEW>(d.core, 4);
+        const auto ClientView        = arg<nt32::PREMOTE_PORT_VIEW>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAcceptConnectPort(PortHandle:{:#x}, PortContext:{:#x}, ConnectionRequest:{:#x}, AcceptConnection:{:#x}, ServerView:{:#x}, ClientView:{:#x})", PortHandle, PortContext, ConnectionRequest, AcceptConnection, ServerView, ClientView));
@@ -485,19 +485,19 @@ namespace
             it(PortHandle, PortContext, ConnectionRequest, AcceptConnection, ServerView, ClientView);
     }
 
-    static void on_ZwAccessCheckAndAuditAlarm(monitor::syscallswow64::Data& d)
+    static void on_ZwAccessCheckAndAuditAlarm(monitor::syscalls32::Data& d)
     {
-        const auto SubsystemName      = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto HandleId           = arg<wntdll::PVOID>(d.core, 1);
-        const auto ObjectTypeName     = arg<wntdll::PUNICODE_STRING>(d.core, 2);
-        const auto ObjectName         = arg<wntdll::PUNICODE_STRING>(d.core, 3);
-        const auto SecurityDescriptor = arg<wntdll::PSECURITY_DESCRIPTOR>(d.core, 4);
-        const auto DesiredAccess      = arg<wntdll::ACCESS_MASK>(d.core, 5);
-        const auto GenericMapping     = arg<wntdll::PGENERIC_MAPPING>(d.core, 6);
-        const auto ObjectCreation     = arg<wntdll::BOOLEAN>(d.core, 7);
-        const auto GrantedAccess      = arg<wntdll::PACCESS_MASK>(d.core, 8);
-        const auto AccessStatus       = arg<wntdll::PNTSTATUS>(d.core, 9);
-        const auto GenerateOnClose    = arg<wntdll::PBOOLEAN>(d.core, 10);
+        const auto SubsystemName      = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto HandleId           = arg<nt32::PVOID>(d.core, 1);
+        const auto ObjectTypeName     = arg<nt32::PUNICODE_STRING>(d.core, 2);
+        const auto ObjectName         = arg<nt32::PUNICODE_STRING>(d.core, 3);
+        const auto SecurityDescriptor = arg<nt32::PSECURITY_DESCRIPTOR>(d.core, 4);
+        const auto DesiredAccess      = arg<nt32::ACCESS_MASK>(d.core, 5);
+        const auto GenericMapping     = arg<nt32::PGENERIC_MAPPING>(d.core, 6);
+        const auto ObjectCreation     = arg<nt32::BOOLEAN>(d.core, 7);
+        const auto GrantedAccess      = arg<nt32::PACCESS_MASK>(d.core, 8);
+        const auto AccessStatus       = arg<nt32::PNTSTATUS>(d.core, 9);
+        const auto GenerateOnClose    = arg<nt32::PBOOLEAN>(d.core, 10);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAccessCheckAndAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, DesiredAccess:{:#x}, GenericMapping:{:#x}, ObjectCreation:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, DesiredAccess, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose));
@@ -506,24 +506,24 @@ namespace
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, DesiredAccess, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
-    static void on_NtAccessCheckByTypeAndAuditAlarm(monitor::syscallswow64::Data& d)
+    static void on_NtAccessCheckByTypeAndAuditAlarm(monitor::syscalls32::Data& d)
     {
-        const auto SubsystemName        = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto HandleId             = arg<wntdll::PVOID>(d.core, 1);
-        const auto ObjectTypeName       = arg<wntdll::PUNICODE_STRING>(d.core, 2);
-        const auto ObjectName           = arg<wntdll::PUNICODE_STRING>(d.core, 3);
-        const auto SecurityDescriptor   = arg<wntdll::PSECURITY_DESCRIPTOR>(d.core, 4);
-        const auto PrincipalSelfSid     = arg<wntdll::PSID>(d.core, 5);
-        const auto DesiredAccess        = arg<wntdll::ACCESS_MASK>(d.core, 6);
-        const auto AuditType            = arg<wntdll::AUDIT_EVENT_TYPE>(d.core, 7);
-        const auto Flags                = arg<wntdll::ULONG>(d.core, 8);
-        const auto ObjectTypeList       = arg<wntdll::POBJECT_TYPE_LIST>(d.core, 9);
-        const auto ObjectTypeListLength = arg<wntdll::ULONG>(d.core, 10);
-        const auto GenericMapping       = arg<wntdll::PGENERIC_MAPPING>(d.core, 11);
-        const auto ObjectCreation       = arg<wntdll::BOOLEAN>(d.core, 12);
-        const auto GrantedAccess        = arg<wntdll::PACCESS_MASK>(d.core, 13);
-        const auto AccessStatus         = arg<wntdll::PNTSTATUS>(d.core, 14);
-        const auto GenerateOnClose      = arg<wntdll::PBOOLEAN>(d.core, 15);
+        const auto SubsystemName        = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto HandleId             = arg<nt32::PVOID>(d.core, 1);
+        const auto ObjectTypeName       = arg<nt32::PUNICODE_STRING>(d.core, 2);
+        const auto ObjectName           = arg<nt32::PUNICODE_STRING>(d.core, 3);
+        const auto SecurityDescriptor   = arg<nt32::PSECURITY_DESCRIPTOR>(d.core, 4);
+        const auto PrincipalSelfSid     = arg<nt32::PSID>(d.core, 5);
+        const auto DesiredAccess        = arg<nt32::ACCESS_MASK>(d.core, 6);
+        const auto AuditType            = arg<nt32::AUDIT_EVENT_TYPE>(d.core, 7);
+        const auto Flags                = arg<nt32::ULONG>(d.core, 8);
+        const auto ObjectTypeList       = arg<nt32::POBJECT_TYPE_LIST>(d.core, 9);
+        const auto ObjectTypeListLength = arg<nt32::ULONG>(d.core, 10);
+        const auto GenericMapping       = arg<nt32::PGENERIC_MAPPING>(d.core, 11);
+        const auto ObjectCreation       = arg<nt32::BOOLEAN>(d.core, 12);
+        const auto GrantedAccess        = arg<nt32::PACCESS_MASK>(d.core, 13);
+        const auto AccessStatus         = arg<nt32::PNTSTATUS>(d.core, 14);
+        const auto GenerateOnClose      = arg<nt32::PBOOLEAN>(d.core, 15);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAccessCheckByTypeAndAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, DesiredAccess:{:#x}, AuditType:{:#x}, Flags:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, ObjectCreation:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose));
@@ -532,19 +532,19 @@ namespace
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
-    static void on_NtAccessCheckByType(monitor::syscallswow64::Data& d)
+    static void on_NtAccessCheckByType(monitor::syscalls32::Data& d)
     {
-        const auto SecurityDescriptor   = arg<wntdll::PSECURITY_DESCRIPTOR>(d.core, 0);
-        const auto PrincipalSelfSid     = arg<wntdll::PSID>(d.core, 1);
-        const auto ClientToken          = arg<wntdll::HANDLE>(d.core, 2);
-        const auto DesiredAccess        = arg<wntdll::ACCESS_MASK>(d.core, 3);
-        const auto ObjectTypeList       = arg<wntdll::POBJECT_TYPE_LIST>(d.core, 4);
-        const auto ObjectTypeListLength = arg<wntdll::ULONG>(d.core, 5);
-        const auto GenericMapping       = arg<wntdll::PGENERIC_MAPPING>(d.core, 6);
-        const auto PrivilegeSet         = arg<wntdll::PPRIVILEGE_SET>(d.core, 7);
-        const auto PrivilegeSetLength   = arg<wntdll::PULONG>(d.core, 8);
-        const auto GrantedAccess        = arg<wntdll::PACCESS_MASK>(d.core, 9);
-        const auto AccessStatus         = arg<wntdll::PNTSTATUS>(d.core, 10);
+        const auto SecurityDescriptor   = arg<nt32::PSECURITY_DESCRIPTOR>(d.core, 0);
+        const auto PrincipalSelfSid     = arg<nt32::PSID>(d.core, 1);
+        const auto ClientToken          = arg<nt32::HANDLE>(d.core, 2);
+        const auto DesiredAccess        = arg<nt32::ACCESS_MASK>(d.core, 3);
+        const auto ObjectTypeList       = arg<nt32::POBJECT_TYPE_LIST>(d.core, 4);
+        const auto ObjectTypeListLength = arg<nt32::ULONG>(d.core, 5);
+        const auto GenericMapping       = arg<nt32::PGENERIC_MAPPING>(d.core, 6);
+        const auto PrivilegeSet         = arg<nt32::PPRIVILEGE_SET>(d.core, 7);
+        const auto PrivilegeSetLength   = arg<nt32::PULONG>(d.core, 8);
+        const auto GrantedAccess        = arg<nt32::PACCESS_MASK>(d.core, 9);
+        const auto AccessStatus         = arg<nt32::PNTSTATUS>(d.core, 10);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAccessCheckByType(SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, PrivilegeSet:{:#x}, PrivilegeSetLength:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x})", SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus));
@@ -553,25 +553,25 @@ namespace
             it(SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
     }
 
-    static void on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle(monitor::syscallswow64::Data& d)
+    static void on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle(monitor::syscalls32::Data& d)
     {
-        const auto SubsystemName        = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto HandleId             = arg<wntdll::PVOID>(d.core, 1);
-        const auto ClientToken          = arg<wntdll::HANDLE>(d.core, 2);
-        const auto ObjectTypeName       = arg<wntdll::PUNICODE_STRING>(d.core, 3);
-        const auto ObjectName           = arg<wntdll::PUNICODE_STRING>(d.core, 4);
-        const auto SecurityDescriptor   = arg<wntdll::PSECURITY_DESCRIPTOR>(d.core, 5);
-        const auto PrincipalSelfSid     = arg<wntdll::PSID>(d.core, 6);
-        const auto DesiredAccess        = arg<wntdll::ACCESS_MASK>(d.core, 7);
-        const auto AuditType            = arg<wntdll::AUDIT_EVENT_TYPE>(d.core, 8);
-        const auto Flags                = arg<wntdll::ULONG>(d.core, 9);
-        const auto ObjectTypeList       = arg<wntdll::POBJECT_TYPE_LIST>(d.core, 10);
-        const auto ObjectTypeListLength = arg<wntdll::ULONG>(d.core, 11);
-        const auto GenericMapping       = arg<wntdll::PGENERIC_MAPPING>(d.core, 12);
-        const auto ObjectCreation       = arg<wntdll::BOOLEAN>(d.core, 13);
-        const auto GrantedAccess        = arg<wntdll::PACCESS_MASK>(d.core, 14);
-        const auto AccessStatus         = arg<wntdll::PNTSTATUS>(d.core, 15);
-        const auto GenerateOnClose      = arg<wntdll::PBOOLEAN>(d.core, 16);
+        const auto SubsystemName        = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto HandleId             = arg<nt32::PVOID>(d.core, 1);
+        const auto ClientToken          = arg<nt32::HANDLE>(d.core, 2);
+        const auto ObjectTypeName       = arg<nt32::PUNICODE_STRING>(d.core, 3);
+        const auto ObjectName           = arg<nt32::PUNICODE_STRING>(d.core, 4);
+        const auto SecurityDescriptor   = arg<nt32::PSECURITY_DESCRIPTOR>(d.core, 5);
+        const auto PrincipalSelfSid     = arg<nt32::PSID>(d.core, 6);
+        const auto DesiredAccess        = arg<nt32::ACCESS_MASK>(d.core, 7);
+        const auto AuditType            = arg<nt32::AUDIT_EVENT_TYPE>(d.core, 8);
+        const auto Flags                = arg<nt32::ULONG>(d.core, 9);
+        const auto ObjectTypeList       = arg<nt32::POBJECT_TYPE_LIST>(d.core, 10);
+        const auto ObjectTypeListLength = arg<nt32::ULONG>(d.core, 11);
+        const auto GenericMapping       = arg<nt32::PGENERIC_MAPPING>(d.core, 12);
+        const auto ObjectCreation       = arg<nt32::BOOLEAN>(d.core, 13);
+        const auto GrantedAccess        = arg<nt32::PACCESS_MASK>(d.core, 14);
+        const auto AccessStatus         = arg<nt32::PNTSTATUS>(d.core, 15);
+        const auto GenerateOnClose      = arg<nt32::PBOOLEAN>(d.core, 16);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAccessCheckByTypeResultListAndAuditAlarmByHandle(SubsystemName:{:#x}, HandleId:{:#x}, ClientToken:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, DesiredAccess:{:#x}, AuditType:{:#x}, Flags:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, ObjectCreation:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ClientToken, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose));
@@ -580,24 +580,24 @@ namespace
             it(SubsystemName, HandleId, ClientToken, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
-    static void on_NtAccessCheckByTypeResultListAndAuditAlarm(monitor::syscallswow64::Data& d)
+    static void on_NtAccessCheckByTypeResultListAndAuditAlarm(monitor::syscalls32::Data& d)
     {
-        const auto SubsystemName        = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto HandleId             = arg<wntdll::PVOID>(d.core, 1);
-        const auto ObjectTypeName       = arg<wntdll::PUNICODE_STRING>(d.core, 2);
-        const auto ObjectName           = arg<wntdll::PUNICODE_STRING>(d.core, 3);
-        const auto SecurityDescriptor   = arg<wntdll::PSECURITY_DESCRIPTOR>(d.core, 4);
-        const auto PrincipalSelfSid     = arg<wntdll::PSID>(d.core, 5);
-        const auto DesiredAccess        = arg<wntdll::ACCESS_MASK>(d.core, 6);
-        const auto AuditType            = arg<wntdll::AUDIT_EVENT_TYPE>(d.core, 7);
-        const auto Flags                = arg<wntdll::ULONG>(d.core, 8);
-        const auto ObjectTypeList       = arg<wntdll::POBJECT_TYPE_LIST>(d.core, 9);
-        const auto ObjectTypeListLength = arg<wntdll::ULONG>(d.core, 10);
-        const auto GenericMapping       = arg<wntdll::PGENERIC_MAPPING>(d.core, 11);
-        const auto ObjectCreation       = arg<wntdll::BOOLEAN>(d.core, 12);
-        const auto GrantedAccess        = arg<wntdll::PACCESS_MASK>(d.core, 13);
-        const auto AccessStatus         = arg<wntdll::PNTSTATUS>(d.core, 14);
-        const auto GenerateOnClose      = arg<wntdll::PBOOLEAN>(d.core, 15);
+        const auto SubsystemName        = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto HandleId             = arg<nt32::PVOID>(d.core, 1);
+        const auto ObjectTypeName       = arg<nt32::PUNICODE_STRING>(d.core, 2);
+        const auto ObjectName           = arg<nt32::PUNICODE_STRING>(d.core, 3);
+        const auto SecurityDescriptor   = arg<nt32::PSECURITY_DESCRIPTOR>(d.core, 4);
+        const auto PrincipalSelfSid     = arg<nt32::PSID>(d.core, 5);
+        const auto DesiredAccess        = arg<nt32::ACCESS_MASK>(d.core, 6);
+        const auto AuditType            = arg<nt32::AUDIT_EVENT_TYPE>(d.core, 7);
+        const auto Flags                = arg<nt32::ULONG>(d.core, 8);
+        const auto ObjectTypeList       = arg<nt32::POBJECT_TYPE_LIST>(d.core, 9);
+        const auto ObjectTypeListLength = arg<nt32::ULONG>(d.core, 10);
+        const auto GenericMapping       = arg<nt32::PGENERIC_MAPPING>(d.core, 11);
+        const auto ObjectCreation       = arg<nt32::BOOLEAN>(d.core, 12);
+        const auto GrantedAccess        = arg<nt32::PACCESS_MASK>(d.core, 13);
+        const auto AccessStatus         = arg<nt32::PNTSTATUS>(d.core, 14);
+        const auto GenerateOnClose      = arg<nt32::PBOOLEAN>(d.core, 15);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAccessCheckByTypeResultListAndAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, DesiredAccess:{:#x}, AuditType:{:#x}, Flags:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, ObjectCreation:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose));
@@ -606,19 +606,19 @@ namespace
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
-    static void on_NtAccessCheckByTypeResultList(monitor::syscallswow64::Data& d)
+    static void on_NtAccessCheckByTypeResultList(monitor::syscalls32::Data& d)
     {
-        const auto SecurityDescriptor   = arg<wntdll::PSECURITY_DESCRIPTOR>(d.core, 0);
-        const auto PrincipalSelfSid     = arg<wntdll::PSID>(d.core, 1);
-        const auto ClientToken          = arg<wntdll::HANDLE>(d.core, 2);
-        const auto DesiredAccess        = arg<wntdll::ACCESS_MASK>(d.core, 3);
-        const auto ObjectTypeList       = arg<wntdll::POBJECT_TYPE_LIST>(d.core, 4);
-        const auto ObjectTypeListLength = arg<wntdll::ULONG>(d.core, 5);
-        const auto GenericMapping       = arg<wntdll::PGENERIC_MAPPING>(d.core, 6);
-        const auto PrivilegeSet         = arg<wntdll::PPRIVILEGE_SET>(d.core, 7);
-        const auto PrivilegeSetLength   = arg<wntdll::PULONG>(d.core, 8);
-        const auto GrantedAccess        = arg<wntdll::PACCESS_MASK>(d.core, 9);
-        const auto AccessStatus         = arg<wntdll::PNTSTATUS>(d.core, 10);
+        const auto SecurityDescriptor   = arg<nt32::PSECURITY_DESCRIPTOR>(d.core, 0);
+        const auto PrincipalSelfSid     = arg<nt32::PSID>(d.core, 1);
+        const auto ClientToken          = arg<nt32::HANDLE>(d.core, 2);
+        const auto DesiredAccess        = arg<nt32::ACCESS_MASK>(d.core, 3);
+        const auto ObjectTypeList       = arg<nt32::POBJECT_TYPE_LIST>(d.core, 4);
+        const auto ObjectTypeListLength = arg<nt32::ULONG>(d.core, 5);
+        const auto GenericMapping       = arg<nt32::PGENERIC_MAPPING>(d.core, 6);
+        const auto PrivilegeSet         = arg<nt32::PPRIVILEGE_SET>(d.core, 7);
+        const auto PrivilegeSetLength   = arg<nt32::PULONG>(d.core, 8);
+        const auto GrantedAccess        = arg<nt32::PACCESS_MASK>(d.core, 9);
+        const auto AccessStatus         = arg<nt32::PNTSTATUS>(d.core, 10);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAccessCheckByTypeResultList(SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, PrivilegeSet:{:#x}, PrivilegeSetLength:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x})", SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus));
@@ -627,16 +627,16 @@ namespace
             it(SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
     }
 
-    static void on_NtAccessCheck(monitor::syscallswow64::Data& d)
+    static void on_NtAccessCheck(monitor::syscalls32::Data& d)
     {
-        const auto SecurityDescriptor = arg<wntdll::PSECURITY_DESCRIPTOR>(d.core, 0);
-        const auto ClientToken        = arg<wntdll::HANDLE>(d.core, 1);
-        const auto DesiredAccess      = arg<wntdll::ACCESS_MASK>(d.core, 2);
-        const auto GenericMapping     = arg<wntdll::PGENERIC_MAPPING>(d.core, 3);
-        const auto PrivilegeSet       = arg<wntdll::PPRIVILEGE_SET>(d.core, 4);
-        const auto PrivilegeSetLength = arg<wntdll::PULONG>(d.core, 5);
-        const auto GrantedAccess      = arg<wntdll::PACCESS_MASK>(d.core, 6);
-        const auto AccessStatus       = arg<wntdll::PNTSTATUS>(d.core, 7);
+        const auto SecurityDescriptor = arg<nt32::PSECURITY_DESCRIPTOR>(d.core, 0);
+        const auto ClientToken        = arg<nt32::HANDLE>(d.core, 1);
+        const auto DesiredAccess      = arg<nt32::ACCESS_MASK>(d.core, 2);
+        const auto GenericMapping     = arg<nt32::PGENERIC_MAPPING>(d.core, 3);
+        const auto PrivilegeSet       = arg<nt32::PPRIVILEGE_SET>(d.core, 4);
+        const auto PrivilegeSetLength = arg<nt32::PULONG>(d.core, 5);
+        const auto GrantedAccess      = arg<nt32::PACCESS_MASK>(d.core, 6);
+        const auto AccessStatus       = arg<nt32::PNTSTATUS>(d.core, 7);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAccessCheck(SecurityDescriptor:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, GenericMapping:{:#x}, PrivilegeSet:{:#x}, PrivilegeSetLength:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x})", SecurityDescriptor, ClientToken, DesiredAccess, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus));
@@ -645,11 +645,11 @@ namespace
             it(SecurityDescriptor, ClientToken, DesiredAccess, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
     }
 
-    static void on_NtAddAtom(monitor::syscallswow64::Data& d)
+    static void on_NtAddAtom(monitor::syscalls32::Data& d)
     {
-        const auto AtomName = arg<wntdll::PWSTR>(d.core, 0);
-        const auto Length   = arg<wntdll::ULONG>(d.core, 1);
-        const auto Atom     = arg<wntdll::PRTL_ATOM>(d.core, 2);
+        const auto AtomName = arg<nt32::PWSTR>(d.core, 0);
+        const auto Length   = arg<nt32::ULONG>(d.core, 1);
+        const auto Atom     = arg<nt32::PRTL_ATOM>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAddAtom(AtomName:{:#x}, Length:{:#x}, Atom:{:#x})", AtomName, Length, Atom));
@@ -658,10 +658,10 @@ namespace
             it(AtomName, Length, Atom);
     }
 
-    static void on_ZwAddBootEntry(monitor::syscallswow64::Data& d)
+    static void on_ZwAddBootEntry(monitor::syscalls32::Data& d)
     {
-        const auto BootEntry = arg<wntdll::PBOOT_ENTRY>(d.core, 0);
-        const auto Id        = arg<wntdll::PULONG>(d.core, 1);
+        const auto BootEntry = arg<nt32::PBOOT_ENTRY>(d.core, 0);
+        const auto Id        = arg<nt32::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAddBootEntry(BootEntry:{:#x}, Id:{:#x})", BootEntry, Id));
@@ -670,10 +670,10 @@ namespace
             it(BootEntry, Id);
     }
 
-    static void on_NtAddDriverEntry(monitor::syscallswow64::Data& d)
+    static void on_NtAddDriverEntry(monitor::syscalls32::Data& d)
     {
-        const auto DriverEntry = arg<wntdll::PEFI_DRIVER_ENTRY>(d.core, 0);
-        const auto Id          = arg<wntdll::PULONG>(d.core, 1);
+        const auto DriverEntry = arg<nt32::PEFI_DRIVER_ENTRY>(d.core, 0);
+        const auto Id          = arg<nt32::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAddDriverEntry(DriverEntry:{:#x}, Id:{:#x})", DriverEntry, Id));
@@ -682,14 +682,14 @@ namespace
             it(DriverEntry, Id);
     }
 
-    static void on_ZwAdjustGroupsToken(monitor::syscallswow64::Data& d)
+    static void on_ZwAdjustGroupsToken(monitor::syscalls32::Data& d)
     {
-        const auto TokenHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ResetToDefault = arg<wntdll::BOOLEAN>(d.core, 1);
-        const auto NewState       = arg<wntdll::PTOKEN_GROUPS>(d.core, 2);
-        const auto BufferLength   = arg<wntdll::ULONG>(d.core, 3);
-        const auto PreviousState  = arg<wntdll::PTOKEN_GROUPS>(d.core, 4);
-        const auto ReturnLength   = arg<wntdll::PULONG>(d.core, 5);
+        const auto TokenHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto ResetToDefault = arg<nt32::BOOLEAN>(d.core, 1);
+        const auto NewState       = arg<nt32::PTOKEN_GROUPS>(d.core, 2);
+        const auto BufferLength   = arg<nt32::ULONG>(d.core, 3);
+        const auto PreviousState  = arg<nt32::PTOKEN_GROUPS>(d.core, 4);
+        const auto ReturnLength   = arg<nt32::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAdjustGroupsToken(TokenHandle:{:#x}, ResetToDefault:{:#x}, NewState:{:#x}, BufferLength:{:#x}, PreviousState:{:#x}, ReturnLength:{:#x})", TokenHandle, ResetToDefault, NewState, BufferLength, PreviousState, ReturnLength));
@@ -698,14 +698,14 @@ namespace
             it(TokenHandle, ResetToDefault, NewState, BufferLength, PreviousState, ReturnLength);
     }
 
-    static void on_ZwAdjustPrivilegesToken(monitor::syscallswow64::Data& d)
+    static void on_ZwAdjustPrivilegesToken(monitor::syscalls32::Data& d)
     {
-        const auto TokenHandle          = arg<wntdll::HANDLE>(d.core, 0);
-        const auto DisableAllPrivileges = arg<wntdll::BOOLEAN>(d.core, 1);
-        const auto NewState             = arg<wntdll::PTOKEN_PRIVILEGES>(d.core, 2);
-        const auto BufferLength         = arg<wntdll::ULONG>(d.core, 3);
-        const auto PreviousState        = arg<wntdll::PTOKEN_PRIVILEGES>(d.core, 4);
-        const auto ReturnLength         = arg<wntdll::PULONG>(d.core, 5);
+        const auto TokenHandle          = arg<nt32::HANDLE>(d.core, 0);
+        const auto DisableAllPrivileges = arg<nt32::BOOLEAN>(d.core, 1);
+        const auto NewState             = arg<nt32::PTOKEN_PRIVILEGES>(d.core, 2);
+        const auto BufferLength         = arg<nt32::ULONG>(d.core, 3);
+        const auto PreviousState        = arg<nt32::PTOKEN_PRIVILEGES>(d.core, 4);
+        const auto ReturnLength         = arg<nt32::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAdjustPrivilegesToken(TokenHandle:{:#x}, DisableAllPrivileges:{:#x}, NewState:{:#x}, BufferLength:{:#x}, PreviousState:{:#x}, ReturnLength:{:#x})", TokenHandle, DisableAllPrivileges, NewState, BufferLength, PreviousState, ReturnLength));
@@ -714,10 +714,10 @@ namespace
             it(TokenHandle, DisableAllPrivileges, NewState, BufferLength, PreviousState, ReturnLength);
     }
 
-    static void on_NtAlertResumeThread(monitor::syscallswow64::Data& d)
+    static void on_NtAlertResumeThread(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle         = arg<wntdll::HANDLE>(d.core, 0);
-        const auto PreviousSuspendCount = arg<wntdll::PULONG>(d.core, 1);
+        const auto ThreadHandle         = arg<nt32::HANDLE>(d.core, 0);
+        const auto PreviousSuspendCount = arg<nt32::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAlertResumeThread(ThreadHandle:{:#x}, PreviousSuspendCount:{:#x})", ThreadHandle, PreviousSuspendCount));
@@ -726,9 +726,9 @@ namespace
             it(ThreadHandle, PreviousSuspendCount);
     }
 
-    static void on_NtAlertThread(monitor::syscallswow64::Data& d)
+    static void on_NtAlertThread(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto ThreadHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAlertThread(ThreadHandle:{:#x})", ThreadHandle));
@@ -737,9 +737,9 @@ namespace
             it(ThreadHandle);
     }
 
-    static void on_ZwAllocateLocallyUniqueId(monitor::syscallswow64::Data& d)
+    static void on_ZwAllocateLocallyUniqueId(monitor::syscalls32::Data& d)
     {
-        const auto Luid = arg<wntdll::PLUID>(d.core, 0);
+        const auto Luid = arg<nt32::PLUID>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAllocateLocallyUniqueId(Luid:{:#x})", Luid));
@@ -748,11 +748,11 @@ namespace
             it(Luid);
     }
 
-    static void on_NtAllocateReserveObject(monitor::syscallswow64::Data& d)
+    static void on_NtAllocateReserveObject(monitor::syscalls32::Data& d)
     {
-        const auto MemoryReserveHandle = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto ObjectAttributes    = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 1);
-        const auto Type                = arg<wntdll::MEMORY_RESERVE_TYPE>(d.core, 2);
+        const auto MemoryReserveHandle = arg<nt32::PHANDLE>(d.core, 0);
+        const auto ObjectAttributes    = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 1);
+        const auto Type                = arg<nt32::MEMORY_RESERVE_TYPE>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAllocateReserveObject(MemoryReserveHandle:{:#x}, ObjectAttributes:{:#x}, Type:{:#x})", MemoryReserveHandle, ObjectAttributes, Type));
@@ -761,11 +761,11 @@ namespace
             it(MemoryReserveHandle, ObjectAttributes, Type);
     }
 
-    static void on_NtAllocateUserPhysicalPages(monitor::syscallswow64::Data& d)
+    static void on_NtAllocateUserPhysicalPages(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto NumberOfPages = arg<wntdll::PULONG_PTR>(d.core, 1);
-        const auto UserPfnArra   = arg<wntdll::PULONG_PTR>(d.core, 2);
+        const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto NumberOfPages = arg<nt32::PULONG_PTR>(d.core, 1);
+        const auto UserPfnArra   = arg<nt32::PULONG_PTR>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAllocateUserPhysicalPages(ProcessHandle:{:#x}, NumberOfPages:{:#x}, UserPfnArra:{:#x})", ProcessHandle, NumberOfPages, UserPfnArra));
@@ -774,12 +774,12 @@ namespace
             it(ProcessHandle, NumberOfPages, UserPfnArra);
     }
 
-    static void on_NtAllocateUuids(monitor::syscallswow64::Data& d)
+    static void on_NtAllocateUuids(monitor::syscalls32::Data& d)
     {
-        const auto Time     = arg<wntdll::PULARGE_INTEGER>(d.core, 0);
-        const auto Range    = arg<wntdll::PULONG>(d.core, 1);
-        const auto Sequence = arg<wntdll::PULONG>(d.core, 2);
-        const auto Seed     = arg<wntdll::PCHAR>(d.core, 3);
+        const auto Time     = arg<nt32::PULARGE_INTEGER>(d.core, 0);
+        const auto Range    = arg<nt32::PULONG>(d.core, 1);
+        const auto Sequence = arg<nt32::PULONG>(d.core, 2);
+        const auto Seed     = arg<nt32::PCHAR>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAllocateUuids(Time:{:#x}, Range:{:#x}, Sequence:{:#x}, Seed:{:#x})", Time, Range, Sequence, Seed));
@@ -788,14 +788,14 @@ namespace
             it(Time, Range, Sequence, Seed);
     }
 
-    static void on_NtAllocateVirtualMemory(monitor::syscallswow64::Data& d)
+    static void on_NtAllocateVirtualMemory(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle   = arg<wntdll::HANDLE>(d.core, 0);
-        const auto STARBaseAddress = arg<wntdll::PVOID>(d.core, 1);
-        const auto ZeroBits        = arg<wntdll::ULONG_PTR>(d.core, 2);
-        const auto RegionSize      = arg<wntdll::PSIZE_T>(d.core, 3);
-        const auto AllocationType  = arg<wntdll::ULONG>(d.core, 4);
-        const auto Protect         = arg<wntdll::ULONG>(d.core, 5);
+        const auto ProcessHandle   = arg<nt32::HANDLE>(d.core, 0);
+        const auto STARBaseAddress = arg<nt32::PVOID>(d.core, 1);
+        const auto ZeroBits        = arg<nt32::ULONG_PTR>(d.core, 2);
+        const auto RegionSize      = arg<nt32::PSIZE_T>(d.core, 3);
+        const auto AllocationType  = arg<nt32::ULONG>(d.core, 4);
+        const auto Protect         = arg<nt32::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAllocateVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, ZeroBits:{:#x}, RegionSize:{:#x}, AllocationType:{:#x}, Protect:{:#x})", ProcessHandle, STARBaseAddress, ZeroBits, RegionSize, AllocationType, Protect));
@@ -804,17 +804,17 @@ namespace
             it(ProcessHandle, STARBaseAddress, ZeroBits, RegionSize, AllocationType, Protect);
     }
 
-    static void on_NtAlpcAcceptConnectPort(monitor::syscallswow64::Data& d)
+    static void on_NtAlpcAcceptConnectPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle                  = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto ConnectionPortHandle        = arg<wntdll::HANDLE>(d.core, 1);
-        const auto Flags                       = arg<wntdll::ULONG>(d.core, 2);
-        const auto ObjectAttributes            = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 3);
-        const auto PortAttributes              = arg<wntdll::PALPC_PORT_ATTRIBUTES>(d.core, 4);
-        const auto PortContext                 = arg<wntdll::PVOID>(d.core, 5);
-        const auto ConnectionRequest           = arg<wntdll::PPORT_MESSAGE>(d.core, 6);
-        const auto ConnectionMessageAttributes = arg<wntdll::PALPC_MESSAGE_ATTRIBUTES>(d.core, 7);
-        const auto AcceptConnection            = arg<wntdll::BOOLEAN>(d.core, 8);
+        const auto PortHandle                  = arg<nt32::PHANDLE>(d.core, 0);
+        const auto ConnectionPortHandle        = arg<nt32::HANDLE>(d.core, 1);
+        const auto Flags                       = arg<nt32::ULONG>(d.core, 2);
+        const auto ObjectAttributes            = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 3);
+        const auto PortAttributes              = arg<nt32::PALPC_PORT_ATTRIBUTES>(d.core, 4);
+        const auto PortContext                 = arg<nt32::PVOID>(d.core, 5);
+        const auto ConnectionRequest           = arg<nt32::PPORT_MESSAGE>(d.core, 6);
+        const auto ConnectionMessageAttributes = arg<nt32::PALPC_MESSAGE_ATTRIBUTES>(d.core, 7);
+        const auto AcceptConnection            = arg<nt32::BOOLEAN>(d.core, 8);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAlpcAcceptConnectPort(PortHandle:{:#x}, ConnectionPortHandle:{:#x}, Flags:{:#x}, ObjectAttributes:{:#x}, PortAttributes:{:#x}, PortContext:{:#x}, ConnectionRequest:{:#x}, ConnectionMessageAttributes:{:#x}, AcceptConnection:{:#x})", PortHandle, ConnectionPortHandle, Flags, ObjectAttributes, PortAttributes, PortContext, ConnectionRequest, ConnectionMessageAttributes, AcceptConnection));
@@ -823,11 +823,11 @@ namespace
             it(PortHandle, ConnectionPortHandle, Flags, ObjectAttributes, PortAttributes, PortContext, ConnectionRequest, ConnectionMessageAttributes, AcceptConnection);
     }
 
-    static void on_ZwAlpcCancelMessage(monitor::syscallswow64::Data& d)
+    static void on_ZwAlpcCancelMessage(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle     = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags          = arg<wntdll::ULONG>(d.core, 1);
-        const auto MessageContext = arg<wntdll::PALPC_CONTEXT_ATTR>(d.core, 2);
+        const auto PortHandle     = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags          = arg<nt32::ULONG>(d.core, 1);
+        const auto MessageContext = arg<nt32::PALPC_CONTEXT_ATTR>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAlpcCancelMessage(PortHandle:{:#x}, Flags:{:#x}, MessageContext:{:#x})", PortHandle, Flags, MessageContext));
@@ -836,19 +836,19 @@ namespace
             it(PortHandle, Flags, MessageContext);
     }
 
-    static void on_ZwAlpcConnectPort(monitor::syscallswow64::Data& d)
+    static void on_ZwAlpcConnectPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle           = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto PortName             = arg<wntdll::PUNICODE_STRING>(d.core, 1);
-        const auto ObjectAttributes     = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto PortAttributes       = arg<wntdll::PALPC_PORT_ATTRIBUTES>(d.core, 3);
-        const auto Flags                = arg<wntdll::ULONG>(d.core, 4);
-        const auto RequiredServerSid    = arg<wntdll::PSID>(d.core, 5);
-        const auto ConnectionMessage    = arg<wntdll::PPORT_MESSAGE>(d.core, 6);
-        const auto BufferLength         = arg<wntdll::PULONG>(d.core, 7);
-        const auto OutMessageAttributes = arg<wntdll::PALPC_MESSAGE_ATTRIBUTES>(d.core, 8);
-        const auto InMessageAttributes  = arg<wntdll::PALPC_MESSAGE_ATTRIBUTES>(d.core, 9);
-        const auto Timeout              = arg<wntdll::PLARGE_INTEGER>(d.core, 10);
+        const auto PortHandle           = arg<nt32::PHANDLE>(d.core, 0);
+        const auto PortName             = arg<nt32::PUNICODE_STRING>(d.core, 1);
+        const auto ObjectAttributes     = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto PortAttributes       = arg<nt32::PALPC_PORT_ATTRIBUTES>(d.core, 3);
+        const auto Flags                = arg<nt32::ULONG>(d.core, 4);
+        const auto RequiredServerSid    = arg<nt32::PSID>(d.core, 5);
+        const auto ConnectionMessage    = arg<nt32::PPORT_MESSAGE>(d.core, 6);
+        const auto BufferLength         = arg<nt32::PULONG>(d.core, 7);
+        const auto OutMessageAttributes = arg<nt32::PALPC_MESSAGE_ATTRIBUTES>(d.core, 8);
+        const auto InMessageAttributes  = arg<nt32::PALPC_MESSAGE_ATTRIBUTES>(d.core, 9);
+        const auto Timeout              = arg<nt32::PLARGE_INTEGER>(d.core, 10);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAlpcConnectPort(PortHandle:{:#x}, PortName:{:#x}, ObjectAttributes:{:#x}, PortAttributes:{:#x}, Flags:{:#x}, RequiredServerSid:{:#x}, ConnectionMessage:{:#x}, BufferLength:{:#x}, OutMessageAttributes:{:#x}, InMessageAttributes:{:#x}, Timeout:{:#x})", PortHandle, PortName, ObjectAttributes, PortAttributes, Flags, RequiredServerSid, ConnectionMessage, BufferLength, OutMessageAttributes, InMessageAttributes, Timeout));
@@ -857,11 +857,11 @@ namespace
             it(PortHandle, PortName, ObjectAttributes, PortAttributes, Flags, RequiredServerSid, ConnectionMessage, BufferLength, OutMessageAttributes, InMessageAttributes, Timeout);
     }
 
-    static void on_ZwAlpcCreatePort(monitor::syscallswow64::Data& d)
+    static void on_ZwAlpcCreatePort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle       = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 1);
-        const auto PortAttributes   = arg<wntdll::PALPC_PORT_ATTRIBUTES>(d.core, 2);
+        const auto PortHandle       = arg<nt32::PHANDLE>(d.core, 0);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 1);
+        const auto PortAttributes   = arg<nt32::PALPC_PORT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAlpcCreatePort(PortHandle:{:#x}, ObjectAttributes:{:#x}, PortAttributes:{:#x})", PortHandle, ObjectAttributes, PortAttributes));
@@ -870,14 +870,14 @@ namespace
             it(PortHandle, ObjectAttributes, PortAttributes);
     }
 
-    static void on_NtAlpcCreatePortSection(monitor::syscallswow64::Data& d)
+    static void on_NtAlpcCreatePortSection(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle        = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags             = arg<wntdll::ULONG>(d.core, 1);
-        const auto SectionHandle     = arg<wntdll::HANDLE>(d.core, 2);
-        const auto SectionSize       = arg<wntdll::SIZE_T>(d.core, 3);
-        const auto AlpcSectionHandle = arg<wntdll::PALPC_HANDLE>(d.core, 4);
-        const auto ActualSectionSize = arg<wntdll::PSIZE_T>(d.core, 5);
+        const auto PortHandle        = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags             = arg<nt32::ULONG>(d.core, 1);
+        const auto SectionHandle     = arg<nt32::HANDLE>(d.core, 2);
+        const auto SectionSize       = arg<nt32::SIZE_T>(d.core, 3);
+        const auto AlpcSectionHandle = arg<nt32::PALPC_HANDLE>(d.core, 4);
+        const auto ActualSectionSize = arg<nt32::PSIZE_T>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAlpcCreatePortSection(PortHandle:{:#x}, Flags:{:#x}, SectionHandle:{:#x}, SectionSize:{:#x}, AlpcSectionHandle:{:#x}, ActualSectionSize:{:#x})", PortHandle, Flags, SectionHandle, SectionSize, AlpcSectionHandle, ActualSectionSize));
@@ -886,12 +886,12 @@ namespace
             it(PortHandle, Flags, SectionHandle, SectionSize, AlpcSectionHandle, ActualSectionSize);
     }
 
-    static void on_ZwAlpcCreateResourceReserve(monitor::syscallswow64::Data& d)
+    static void on_ZwAlpcCreateResourceReserve(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags       = arg<wntdll::ULONG>(d.core, 1);
-        const auto MessageSize = arg<wntdll::SIZE_T>(d.core, 2);
-        const auto ResourceId  = arg<wntdll::PALPC_HANDLE>(d.core, 3);
+        const auto PortHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags       = arg<nt32::ULONG>(d.core, 1);
+        const auto MessageSize = arg<nt32::SIZE_T>(d.core, 2);
+        const auto ResourceId  = arg<nt32::PALPC_HANDLE>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAlpcCreateResourceReserve(PortHandle:{:#x}, Flags:{:#x}, MessageSize:{:#x}, ResourceId:{:#x})", PortHandle, Flags, MessageSize, ResourceId));
@@ -900,11 +900,11 @@ namespace
             it(PortHandle, Flags, MessageSize, ResourceId);
     }
 
-    static void on_ZwAlpcCreateSectionView(monitor::syscallswow64::Data& d)
+    static void on_ZwAlpcCreateSectionView(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle     = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags          = arg<wntdll::ULONG>(d.core, 1);
-        const auto ViewAttributes = arg<wntdll::PALPC_DATA_VIEW_ATTR>(d.core, 2);
+        const auto PortHandle     = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags          = arg<nt32::ULONG>(d.core, 1);
+        const auto ViewAttributes = arg<nt32::PALPC_DATA_VIEW_ATTR>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAlpcCreateSectionView(PortHandle:{:#x}, Flags:{:#x}, ViewAttributes:{:#x})", PortHandle, Flags, ViewAttributes));
@@ -913,11 +913,11 @@ namespace
             it(PortHandle, Flags, ViewAttributes);
     }
 
-    static void on_ZwAlpcCreateSecurityContext(monitor::syscallswow64::Data& d)
+    static void on_ZwAlpcCreateSecurityContext(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle        = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags             = arg<wntdll::ULONG>(d.core, 1);
-        const auto SecurityAttribute = arg<wntdll::PALPC_SECURITY_ATTR>(d.core, 2);
+        const auto PortHandle        = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags             = arg<nt32::ULONG>(d.core, 1);
+        const auto SecurityAttribute = arg<nt32::PALPC_SECURITY_ATTR>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAlpcCreateSecurityContext(PortHandle:{:#x}, Flags:{:#x}, SecurityAttribute:{:#x})", PortHandle, Flags, SecurityAttribute));
@@ -926,11 +926,11 @@ namespace
             it(PortHandle, Flags, SecurityAttribute);
     }
 
-    static void on_ZwAlpcDeletePortSection(monitor::syscallswow64::Data& d)
+    static void on_ZwAlpcDeletePortSection(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags         = arg<wntdll::ULONG>(d.core, 1);
-        const auto SectionHandle = arg<wntdll::ALPC_HANDLE>(d.core, 2);
+        const auto PortHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags         = arg<nt32::ULONG>(d.core, 1);
+        const auto SectionHandle = arg<nt32::ALPC_HANDLE>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAlpcDeletePortSection(PortHandle:{:#x}, Flags:{:#x}, SectionHandle:{:#x})", PortHandle, Flags, SectionHandle));
@@ -939,11 +939,11 @@ namespace
             it(PortHandle, Flags, SectionHandle);
     }
 
-    static void on_NtAlpcDeleteResourceReserve(monitor::syscallswow64::Data& d)
+    static void on_NtAlpcDeleteResourceReserve(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags      = arg<wntdll::ULONG>(d.core, 1);
-        const auto ResourceId = arg<wntdll::ALPC_HANDLE>(d.core, 2);
+        const auto PortHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags      = arg<nt32::ULONG>(d.core, 1);
+        const auto ResourceId = arg<nt32::ALPC_HANDLE>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAlpcDeleteResourceReserve(PortHandle:{:#x}, Flags:{:#x}, ResourceId:{:#x})", PortHandle, Flags, ResourceId));
@@ -952,11 +952,11 @@ namespace
             it(PortHandle, Flags, ResourceId);
     }
 
-    static void on_NtAlpcDeleteSectionView(monitor::syscallswow64::Data& d)
+    static void on_NtAlpcDeleteSectionView(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags      = arg<wntdll::ULONG>(d.core, 1);
-        const auto ViewBase   = arg<wntdll::PVOID>(d.core, 2);
+        const auto PortHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags      = arg<nt32::ULONG>(d.core, 1);
+        const auto ViewBase   = arg<nt32::PVOID>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAlpcDeleteSectionView(PortHandle:{:#x}, Flags:{:#x}, ViewBase:{:#x})", PortHandle, Flags, ViewBase));
@@ -965,11 +965,11 @@ namespace
             it(PortHandle, Flags, ViewBase);
     }
 
-    static void on_NtAlpcDeleteSecurityContext(monitor::syscallswow64::Data& d)
+    static void on_NtAlpcDeleteSecurityContext(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags         = arg<wntdll::ULONG>(d.core, 1);
-        const auto ContextHandle = arg<wntdll::ALPC_HANDLE>(d.core, 2);
+        const auto PortHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags         = arg<nt32::ULONG>(d.core, 1);
+        const auto ContextHandle = arg<nt32::ALPC_HANDLE>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAlpcDeleteSecurityContext(PortHandle:{:#x}, Flags:{:#x}, ContextHandle:{:#x})", PortHandle, Flags, ContextHandle));
@@ -978,10 +978,10 @@ namespace
             it(PortHandle, Flags, ContextHandle);
     }
 
-    static void on_NtAlpcDisconnectPort(monitor::syscallswow64::Data& d)
+    static void on_NtAlpcDisconnectPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags      = arg<wntdll::ULONG>(d.core, 1);
+        const auto PortHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags      = arg<nt32::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAlpcDisconnectPort(PortHandle:{:#x}, Flags:{:#x})", PortHandle, Flags));
@@ -990,11 +990,11 @@ namespace
             it(PortHandle, Flags);
     }
 
-    static void on_ZwAlpcImpersonateClientOfPort(monitor::syscallswow64::Data& d)
+    static void on_ZwAlpcImpersonateClientOfPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto PortMessage = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
-        const auto Reserved    = arg<wntdll::PVOID>(d.core, 2);
+        const auto PortHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto PortMessage = arg<nt32::PPORT_MESSAGE>(d.core, 1);
+        const auto Reserved    = arg<nt32::PVOID>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAlpcImpersonateClientOfPort(PortHandle:{:#x}, PortMessage:{:#x}, Reserved:{:#x})", PortHandle, PortMessage, Reserved));
@@ -1003,14 +1003,14 @@ namespace
             it(PortHandle, PortMessage, Reserved);
     }
 
-    static void on_ZwAlpcOpenSenderProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwAlpcOpenSenderProcess(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle    = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto PortHandle       = arg<wntdll::HANDLE>(d.core, 1);
-        const auto PortMessage      = arg<wntdll::PPORT_MESSAGE>(d.core, 2);
-        const auto Flags            = arg<wntdll::ULONG>(d.core, 3);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 4);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 5);
+        const auto ProcessHandle    = arg<nt32::PHANDLE>(d.core, 0);
+        const auto PortHandle       = arg<nt32::HANDLE>(d.core, 1);
+        const auto PortMessage      = arg<nt32::PPORT_MESSAGE>(d.core, 2);
+        const auto Flags            = arg<nt32::ULONG>(d.core, 3);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 4);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAlpcOpenSenderProcess(ProcessHandle:{:#x}, PortHandle:{:#x}, PortMessage:{:#x}, Flags:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", ProcessHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes));
@@ -1019,14 +1019,14 @@ namespace
             it(ProcessHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwAlpcOpenSenderThread(monitor::syscallswow64::Data& d)
+    static void on_ZwAlpcOpenSenderThread(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle     = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto PortHandle       = arg<wntdll::HANDLE>(d.core, 1);
-        const auto PortMessage      = arg<wntdll::PPORT_MESSAGE>(d.core, 2);
-        const auto Flags            = arg<wntdll::ULONG>(d.core, 3);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 4);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 5);
+        const auto ThreadHandle     = arg<nt32::PHANDLE>(d.core, 0);
+        const auto PortHandle       = arg<nt32::HANDLE>(d.core, 1);
+        const auto PortMessage      = arg<nt32::PPORT_MESSAGE>(d.core, 2);
+        const auto Flags            = arg<nt32::ULONG>(d.core, 3);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 4);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAlpcOpenSenderThread(ThreadHandle:{:#x}, PortHandle:{:#x}, PortMessage:{:#x}, Flags:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", ThreadHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes));
@@ -1035,13 +1035,13 @@ namespace
             it(ThreadHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwAlpcQueryInformation(monitor::syscallswow64::Data& d)
+    static void on_ZwAlpcQueryInformation(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle           = arg<wntdll::HANDLE>(d.core, 0);
-        const auto PortInformationClass = arg<wntdll::ALPC_PORT_INFORMATION_CLASS>(d.core, 1);
-        const auto PortInformation      = arg<wntdll::PVOID>(d.core, 2);
-        const auto Length               = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength         = arg<wntdll::PULONG>(d.core, 4);
+        const auto PortHandle           = arg<nt32::HANDLE>(d.core, 0);
+        const auto PortInformationClass = arg<nt32::ALPC_PORT_INFORMATION_CLASS>(d.core, 1);
+        const auto PortInformation      = arg<nt32::PVOID>(d.core, 2);
+        const auto Length               = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength         = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAlpcQueryInformation(PortHandle:{:#x}, PortInformationClass:{:#x}, PortInformation:{:#x}, Length:{:#x}, ReturnLength:{:#x})", PortHandle, PortInformationClass, PortInformation, Length, ReturnLength));
@@ -1050,14 +1050,14 @@ namespace
             it(PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
     }
 
-    static void on_ZwAlpcQueryInformationMessage(monitor::syscallswow64::Data& d)
+    static void on_ZwAlpcQueryInformationMessage(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle              = arg<wntdll::HANDLE>(d.core, 0);
-        const auto PortMessage             = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
-        const auto MessageInformationClass = arg<wntdll::ALPC_MESSAGE_INFORMATION_CLASS>(d.core, 2);
-        const auto MessageInformation      = arg<wntdll::PVOID>(d.core, 3);
-        const auto Length                  = arg<wntdll::ULONG>(d.core, 4);
-        const auto ReturnLength            = arg<wntdll::PULONG>(d.core, 5);
+        const auto PortHandle              = arg<nt32::HANDLE>(d.core, 0);
+        const auto PortMessage             = arg<nt32::PPORT_MESSAGE>(d.core, 1);
+        const auto MessageInformationClass = arg<nt32::ALPC_MESSAGE_INFORMATION_CLASS>(d.core, 2);
+        const auto MessageInformation      = arg<nt32::PVOID>(d.core, 3);
+        const auto Length                  = arg<nt32::ULONG>(d.core, 4);
+        const auto ReturnLength            = arg<nt32::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAlpcQueryInformationMessage(PortHandle:{:#x}, PortMessage:{:#x}, MessageInformationClass:{:#x}, MessageInformation:{:#x}, Length:{:#x}, ReturnLength:{:#x})", PortHandle, PortMessage, MessageInformationClass, MessageInformation, Length, ReturnLength));
@@ -1066,11 +1066,11 @@ namespace
             it(PortHandle, PortMessage, MessageInformationClass, MessageInformation, Length, ReturnLength);
     }
 
-    static void on_NtAlpcRevokeSecurityContext(monitor::syscallswow64::Data& d)
+    static void on_NtAlpcRevokeSecurityContext(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags         = arg<wntdll::ULONG>(d.core, 1);
-        const auto ContextHandle = arg<wntdll::ALPC_HANDLE>(d.core, 2);
+        const auto PortHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags         = arg<nt32::ULONG>(d.core, 1);
+        const auto ContextHandle = arg<nt32::ALPC_HANDLE>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAlpcRevokeSecurityContext(PortHandle:{:#x}, Flags:{:#x}, ContextHandle:{:#x})", PortHandle, Flags, ContextHandle));
@@ -1079,16 +1079,16 @@ namespace
             it(PortHandle, Flags, ContextHandle);
     }
 
-    static void on_NtAlpcSendWaitReceivePort(monitor::syscallswow64::Data& d)
+    static void on_NtAlpcSendWaitReceivePort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle               = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags                    = arg<wntdll::ULONG>(d.core, 1);
-        const auto SendMessage              = arg<wntdll::PPORT_MESSAGE>(d.core, 2);
-        const auto SendMessageAttributes    = arg<wntdll::PALPC_MESSAGE_ATTRIBUTES>(d.core, 3);
-        const auto ReceiveMessage           = arg<wntdll::PPORT_MESSAGE>(d.core, 4);
-        const auto BufferLength             = arg<wntdll::PULONG>(d.core, 5);
-        const auto ReceiveMessageAttributes = arg<wntdll::PALPC_MESSAGE_ATTRIBUTES>(d.core, 6);
-        const auto Timeout                  = arg<wntdll::PLARGE_INTEGER>(d.core, 7);
+        const auto PortHandle               = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags                    = arg<nt32::ULONG>(d.core, 1);
+        const auto SendMessage              = arg<nt32::PPORT_MESSAGE>(d.core, 2);
+        const auto SendMessageAttributes    = arg<nt32::PALPC_MESSAGE_ATTRIBUTES>(d.core, 3);
+        const auto ReceiveMessage           = arg<nt32::PPORT_MESSAGE>(d.core, 4);
+        const auto BufferLength             = arg<nt32::PULONG>(d.core, 5);
+        const auto ReceiveMessageAttributes = arg<nt32::PALPC_MESSAGE_ATTRIBUTES>(d.core, 6);
+        const auto Timeout                  = arg<nt32::PLARGE_INTEGER>(d.core, 7);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAlpcSendWaitReceivePort(PortHandle:{:#x}, Flags:{:#x}, SendMessage:{:#x}, SendMessageAttributes:{:#x}, ReceiveMessage:{:#x}, BufferLength:{:#x}, ReceiveMessageAttributes:{:#x}, Timeout:{:#x})", PortHandle, Flags, SendMessage, SendMessageAttributes, ReceiveMessage, BufferLength, ReceiveMessageAttributes, Timeout));
@@ -1097,12 +1097,12 @@ namespace
             it(PortHandle, Flags, SendMessage, SendMessageAttributes, ReceiveMessage, BufferLength, ReceiveMessageAttributes, Timeout);
     }
 
-    static void on_NtAlpcSetInformation(monitor::syscallswow64::Data& d)
+    static void on_NtAlpcSetInformation(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle           = arg<wntdll::HANDLE>(d.core, 0);
-        const auto PortInformationClass = arg<wntdll::ALPC_PORT_INFORMATION_CLASS>(d.core, 1);
-        const auto PortInformation      = arg<wntdll::PVOID>(d.core, 2);
-        const auto Length               = arg<wntdll::ULONG>(d.core, 3);
+        const auto PortHandle           = arg<nt32::HANDLE>(d.core, 0);
+        const auto PortInformationClass = arg<nt32::ALPC_PORT_INFORMATION_CLASS>(d.core, 1);
+        const auto PortInformation      = arg<nt32::PVOID>(d.core, 2);
+        const auto Length               = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtAlpcSetInformation(PortHandle:{:#x}, PortInformationClass:{:#x}, PortInformation:{:#x}, Length:{:#x})", PortHandle, PortInformationClass, PortInformation, Length));
@@ -1111,10 +1111,10 @@ namespace
             it(PortHandle, PortInformationClass, PortInformation, Length);
     }
 
-    static void on_NtApphelpCacheControl(monitor::syscallswow64::Data& d)
+    static void on_NtApphelpCacheControl(monitor::syscalls32::Data& d)
     {
-        const auto type = arg<wntdll::APPHELPCOMMAND>(d.core, 0);
-        const auto buf  = arg<wntdll::PVOID>(d.core, 1);
+        const auto type = arg<nt32::APPHELPCOMMAND>(d.core, 0);
+        const auto buf  = arg<nt32::PVOID>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtApphelpCacheControl(type:{:#x}, buf:{:#x})", type, buf));
@@ -1123,10 +1123,10 @@ namespace
             it(type, buf);
     }
 
-    static void on_ZwAreMappedFilesTheSame(monitor::syscallswow64::Data& d)
+    static void on_ZwAreMappedFilesTheSame(monitor::syscalls32::Data& d)
     {
-        const auto File1MappedAsAnImage = arg<wntdll::PVOID>(d.core, 0);
-        const auto File2MappedAsFile    = arg<wntdll::PVOID>(d.core, 1);
+        const auto File1MappedAsAnImage = arg<nt32::PVOID>(d.core, 0);
+        const auto File2MappedAsFile    = arg<nt32::PVOID>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAreMappedFilesTheSame(File1MappedAsAnImage:{:#x}, File2MappedAsFile:{:#x})", File1MappedAsAnImage, File2MappedAsFile));
@@ -1135,10 +1135,10 @@ namespace
             it(File1MappedAsAnImage, File2MappedAsFile);
     }
 
-    static void on_ZwAssignProcessToJobObject(monitor::syscallswow64::Data& d)
+    static void on_ZwAssignProcessToJobObject(monitor::syscalls32::Data& d)
     {
-        const auto JobHandle     = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 1);
+        const auto JobHandle     = arg<nt32::HANDLE>(d.core, 0);
+        const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwAssignProcessToJobObject(JobHandle:{:#x}, ProcessHandle:{:#x})", JobHandle, ProcessHandle));
@@ -1147,11 +1147,11 @@ namespace
             it(JobHandle, ProcessHandle);
     }
 
-    static void on_NtCancelIoFileEx(monitor::syscallswow64::Data& d)
+    static void on_NtCancelIoFileEx(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle        = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoRequestToCancel = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
-        const auto IoStatusBlock     = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 2);
+        const auto FileHandle        = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoRequestToCancel = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
+        const auto IoStatusBlock     = arg<nt32::PIO_STATUS_BLOCK>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCancelIoFileEx(FileHandle:{:#x}, IoRequestToCancel:{:#x}, IoStatusBlock:{:#x})", FileHandle, IoRequestToCancel, IoStatusBlock));
@@ -1160,10 +1160,10 @@ namespace
             it(FileHandle, IoRequestToCancel, IoStatusBlock);
     }
 
-    static void on_ZwCancelIoFile(monitor::syscallswow64::Data& d)
+    static void on_ZwCancelIoFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoStatusBlock = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
+        const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoStatusBlock = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCancelIoFile(FileHandle:{:#x}, IoStatusBlock:{:#x})", FileHandle, IoStatusBlock));
@@ -1172,11 +1172,11 @@ namespace
             it(FileHandle, IoStatusBlock);
     }
 
-    static void on_NtCancelSynchronousIoFile(monitor::syscallswow64::Data& d)
+    static void on_NtCancelSynchronousIoFile(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle      = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoRequestToCancel = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
-        const auto IoStatusBlock     = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 2);
+        const auto ThreadHandle      = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoRequestToCancel = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
+        const auto IoStatusBlock     = arg<nt32::PIO_STATUS_BLOCK>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCancelSynchronousIoFile(ThreadHandle:{:#x}, IoRequestToCancel:{:#x}, IoStatusBlock:{:#x})", ThreadHandle, IoRequestToCancel, IoStatusBlock));
@@ -1185,10 +1185,10 @@ namespace
             it(ThreadHandle, IoRequestToCancel, IoStatusBlock);
     }
 
-    static void on_ZwCancelTimer(monitor::syscallswow64::Data& d)
+    static void on_ZwCancelTimer(monitor::syscalls32::Data& d)
     {
-        const auto TimerHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto CurrentState = arg<wntdll::PBOOLEAN>(d.core, 1);
+        const auto TimerHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto CurrentState = arg<nt32::PBOOLEAN>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCancelTimer(TimerHandle:{:#x}, CurrentState:{:#x})", TimerHandle, CurrentState));
@@ -1197,9 +1197,9 @@ namespace
             it(TimerHandle, CurrentState);
     }
 
-    static void on_NtClearEvent(monitor::syscallswow64::Data& d)
+    static void on_NtClearEvent(monitor::syscalls32::Data& d)
     {
-        const auto EventHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto EventHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtClearEvent(EventHandle:{:#x})", EventHandle));
@@ -1208,9 +1208,9 @@ namespace
             it(EventHandle);
     }
 
-    static void on_NtClose(monitor::syscallswow64::Data& d)
+    static void on_NtClose(monitor::syscalls32::Data& d)
     {
-        const auto Handle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto Handle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtClose(Handle:{:#x})", Handle));
@@ -1219,11 +1219,11 @@ namespace
             it(Handle);
     }
 
-    static void on_ZwCloseObjectAuditAlarm(monitor::syscallswow64::Data& d)
+    static void on_ZwCloseObjectAuditAlarm(monitor::syscalls32::Data& d)
     {
-        const auto SubsystemName   = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto HandleId        = arg<wntdll::PVOID>(d.core, 1);
-        const auto GenerateOnClose = arg<wntdll::BOOLEAN>(d.core, 2);
+        const auto SubsystemName   = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto HandleId        = arg<nt32::PVOID>(d.core, 1);
+        const auto GenerateOnClose = arg<nt32::BOOLEAN>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCloseObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, GenerateOnClose));
@@ -1232,10 +1232,10 @@ namespace
             it(SubsystemName, HandleId, GenerateOnClose);
     }
 
-    static void on_ZwCommitComplete(monitor::syscallswow64::Data& d)
+    static void on_ZwCommitComplete(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCommitComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
@@ -1244,10 +1244,10 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtCommitEnlistment(monitor::syscallswow64::Data& d)
+    static void on_NtCommitEnlistment(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCommitEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
@@ -1256,10 +1256,10 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtCommitTransaction(monitor::syscallswow64::Data& d)
+    static void on_NtCommitTransaction(monitor::syscalls32::Data& d)
     {
-        const auto TransactionHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Wait              = arg<wntdll::BOOLEAN>(d.core, 1);
+        const auto TransactionHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto Wait              = arg<nt32::BOOLEAN>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCommitTransaction(TransactionHandle:{:#x}, Wait:{:#x})", TransactionHandle, Wait));
@@ -1268,10 +1268,10 @@ namespace
             it(TransactionHandle, Wait);
     }
 
-    static void on_NtCompactKeys(monitor::syscallswow64::Data& d)
+    static void on_NtCompactKeys(monitor::syscalls32::Data& d)
     {
-        const auto Count    = arg<wntdll::ULONG>(d.core, 0);
-        const auto KeyArray = arg<wntdll::HANDLE>(d.core, 1);
+        const auto Count    = arg<nt32::ULONG>(d.core, 0);
+        const auto KeyArray = arg<nt32::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCompactKeys(Count:{:#x}, KeyArray:{:#x})", Count, KeyArray));
@@ -1280,11 +1280,11 @@ namespace
             it(Count, KeyArray);
     }
 
-    static void on_ZwCompareTokens(monitor::syscallswow64::Data& d)
+    static void on_ZwCompareTokens(monitor::syscalls32::Data& d)
     {
-        const auto FirstTokenHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto SecondTokenHandle = arg<wntdll::HANDLE>(d.core, 1);
-        const auto Equal             = arg<wntdll::PBOOLEAN>(d.core, 2);
+        const auto FirstTokenHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto SecondTokenHandle = arg<nt32::HANDLE>(d.core, 1);
+        const auto Equal             = arg<nt32::PBOOLEAN>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCompareTokens(FirstTokenHandle:{:#x}, SecondTokenHandle:{:#x}, Equal:{:#x})", FirstTokenHandle, SecondTokenHandle, Equal));
@@ -1293,9 +1293,9 @@ namespace
             it(FirstTokenHandle, SecondTokenHandle, Equal);
     }
 
-    static void on_NtCompleteConnectPort(monitor::syscallswow64::Data& d)
+    static void on_NtCompleteConnectPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto PortHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCompleteConnectPort(PortHandle:{:#x})", PortHandle));
@@ -1304,9 +1304,9 @@ namespace
             it(PortHandle);
     }
 
-    static void on_ZwCompressKey(monitor::syscallswow64::Data& d)
+    static void on_ZwCompressKey(monitor::syscalls32::Data& d)
     {
-        const auto Key = arg<wntdll::HANDLE>(d.core, 0);
+        const auto Key = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCompressKey(Key:{:#x})", Key));
@@ -1315,16 +1315,16 @@ namespace
             it(Key);
     }
 
-    static void on_NtConnectPort(monitor::syscallswow64::Data& d)
+    static void on_NtConnectPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle                  = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto PortName                    = arg<wntdll::PUNICODE_STRING>(d.core, 1);
-        const auto SecurityQos                 = arg<wntdll::PSECURITY_QUALITY_OF_SERVICE>(d.core, 2);
-        const auto ClientView                  = arg<wntdll::PPORT_VIEW>(d.core, 3);
-        const auto ServerView                  = arg<wntdll::PREMOTE_PORT_VIEW>(d.core, 4);
-        const auto MaxMessageLength            = arg<wntdll::PULONG>(d.core, 5);
-        const auto ConnectionInformation       = arg<wntdll::PVOID>(d.core, 6);
-        const auto ConnectionInformationLength = arg<wntdll::PULONG>(d.core, 7);
+        const auto PortHandle                  = arg<nt32::PHANDLE>(d.core, 0);
+        const auto PortName                    = arg<nt32::PUNICODE_STRING>(d.core, 1);
+        const auto SecurityQos                 = arg<nt32::PSECURITY_QUALITY_OF_SERVICE>(d.core, 2);
+        const auto ClientView                  = arg<nt32::PPORT_VIEW>(d.core, 3);
+        const auto ServerView                  = arg<nt32::PREMOTE_PORT_VIEW>(d.core, 4);
+        const auto MaxMessageLength            = arg<nt32::PULONG>(d.core, 5);
+        const auto ConnectionInformation       = arg<nt32::PVOID>(d.core, 6);
+        const auto ConnectionInformationLength = arg<nt32::PULONG>(d.core, 7);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtConnectPort(PortHandle:{:#x}, PortName:{:#x}, SecurityQos:{:#x}, ClientView:{:#x}, ServerView:{:#x}, MaxMessageLength:{:#x}, ConnectionInformation:{:#x}, ConnectionInformationLength:{:#x})", PortHandle, PortName, SecurityQos, ClientView, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength));
@@ -1333,10 +1333,10 @@ namespace
             it(PortHandle, PortName, SecurityQos, ClientView, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
     }
 
-    static void on_ZwContinue(monitor::syscallswow64::Data& d)
+    static void on_ZwContinue(monitor::syscalls32::Data& d)
     {
-        const auto ContextRecord = arg<wntdll::PCONTEXT>(d.core, 0);
-        const auto TestAlert     = arg<wntdll::BOOLEAN>(d.core, 1);
+        const auto ContextRecord = arg<nt32::PCONTEXT>(d.core, 0);
+        const auto TestAlert     = arg<nt32::BOOLEAN>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwContinue(ContextRecord:{:#x}, TestAlert:{:#x})", ContextRecord, TestAlert));
@@ -1345,12 +1345,12 @@ namespace
             it(ContextRecord, TestAlert);
     }
 
-    static void on_ZwCreateDebugObject(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateDebugObject(monitor::syscalls32::Data& d)
     {
-        const auto DebugObjectHandle = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess     = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes  = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto Flags             = arg<wntdll::ULONG>(d.core, 3);
+        const auto DebugObjectHandle = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes  = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto Flags             = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateDebugObject(DebugObjectHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Flags:{:#x})", DebugObjectHandle, DesiredAccess, ObjectAttributes, Flags));
@@ -1359,11 +1359,11 @@ namespace
             it(DebugObjectHandle, DesiredAccess, ObjectAttributes, Flags);
     }
 
-    static void on_ZwCreateDirectoryObject(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateDirectoryObject(monitor::syscalls32::Data& d)
     {
-        const auto DirectoryHandle  = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto DirectoryHandle  = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateDirectoryObject(DirectoryHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", DirectoryHandle, DesiredAccess, ObjectAttributes));
@@ -1372,16 +1372,16 @@ namespace
             it(DirectoryHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwCreateEnlistment(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateEnlistment(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle      = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess         = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ResourceManagerHandle = arg<wntdll::HANDLE>(d.core, 2);
-        const auto TransactionHandle     = arg<wntdll::HANDLE>(d.core, 3);
-        const auto ObjectAttributes      = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 4);
-        const auto CreateOptions         = arg<wntdll::ULONG>(d.core, 5);
-        const auto NotificationMask      = arg<wntdll::NOTIFICATION_MASK>(d.core, 6);
-        const auto EnlistmentKey         = arg<wntdll::PVOID>(d.core, 7);
+        const auto EnlistmentHandle      = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess         = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ResourceManagerHandle = arg<nt32::HANDLE>(d.core, 2);
+        const auto TransactionHandle     = arg<nt32::HANDLE>(d.core, 3);
+        const auto ObjectAttributes      = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 4);
+        const auto CreateOptions         = arg<nt32::ULONG>(d.core, 5);
+        const auto NotificationMask      = arg<nt32::NOTIFICATION_MASK>(d.core, 6);
+        const auto EnlistmentKey         = arg<nt32::PVOID>(d.core, 7);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateEnlistment(EnlistmentHandle:{:#x}, DesiredAccess:{:#x}, ResourceManagerHandle:{:#x}, TransactionHandle:{:#x}, ObjectAttributes:{:#x}, CreateOptions:{:#x}, NotificationMask:{:#x}, EnlistmentKey:{:#x})", EnlistmentHandle, DesiredAccess, ResourceManagerHandle, TransactionHandle, ObjectAttributes, CreateOptions, NotificationMask, EnlistmentKey));
@@ -1390,13 +1390,13 @@ namespace
             it(EnlistmentHandle, DesiredAccess, ResourceManagerHandle, TransactionHandle, ObjectAttributes, CreateOptions, NotificationMask, EnlistmentKey);
     }
 
-    static void on_NtCreateEvent(monitor::syscallswow64::Data& d)
+    static void on_NtCreateEvent(monitor::syscalls32::Data& d)
     {
-        const auto EventHandle      = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto EventType        = arg<wntdll::EVENT_TYPE>(d.core, 3);
-        const auto InitialState     = arg<wntdll::BOOLEAN>(d.core, 4);
+        const auto EventHandle      = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto EventType        = arg<nt32::EVENT_TYPE>(d.core, 3);
+        const auto InitialState     = arg<nt32::BOOLEAN>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateEvent(EventHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, EventType:{:#x}, InitialState:{:#x})", EventHandle, DesiredAccess, ObjectAttributes, EventType, InitialState));
@@ -1405,11 +1405,11 @@ namespace
             it(EventHandle, DesiredAccess, ObjectAttributes, EventType, InitialState);
     }
 
-    static void on_NtCreateEventPair(monitor::syscallswow64::Data& d)
+    static void on_NtCreateEventPair(monitor::syscalls32::Data& d)
     {
-        const auto EventPairHandle  = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto EventPairHandle  = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateEventPair(EventPairHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", EventPairHandle, DesiredAccess, ObjectAttributes));
@@ -1418,19 +1418,19 @@ namespace
             it(EventPairHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtCreateFile(monitor::syscallswow64::Data& d)
+    static void on_NtCreateFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle        = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess     = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes  = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto IoStatusBlock     = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 3);
-        const auto AllocationSize    = arg<wntdll::PLARGE_INTEGER>(d.core, 4);
-        const auto FileAttributes    = arg<wntdll::ULONG>(d.core, 5);
-        const auto ShareAccess       = arg<wntdll::ULONG>(d.core, 6);
-        const auto CreateDisposition = arg<wntdll::ULONG>(d.core, 7);
-        const auto CreateOptions     = arg<wntdll::ULONG>(d.core, 8);
-        const auto EaBuffer          = arg<wntdll::PVOID>(d.core, 9);
-        const auto EaLength          = arg<wntdll::ULONG>(d.core, 10);
+        const auto FileHandle        = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes  = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto IoStatusBlock     = arg<nt32::PIO_STATUS_BLOCK>(d.core, 3);
+        const auto AllocationSize    = arg<nt32::PLARGE_INTEGER>(d.core, 4);
+        const auto FileAttributes    = arg<nt32::ULONG>(d.core, 5);
+        const auto ShareAccess       = arg<nt32::ULONG>(d.core, 6);
+        const auto CreateDisposition = arg<nt32::ULONG>(d.core, 7);
+        const auto CreateOptions     = arg<nt32::ULONG>(d.core, 8);
+        const auto EaBuffer          = arg<nt32::PVOID>(d.core, 9);
+        const auto EaLength          = arg<nt32::ULONG>(d.core, 10);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateFile(FileHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, IoStatusBlock:{:#x}, AllocationSize:{:#x}, FileAttributes:{:#x}, ShareAccess:{:#x}, CreateDisposition:{:#x}, CreateOptions:{:#x}, EaBuffer:{:#x}, EaLength:{:#x})", FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions, EaBuffer, EaLength));
@@ -1439,12 +1439,12 @@ namespace
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions, EaBuffer, EaLength);
     }
 
-    static void on_NtCreateIoCompletion(monitor::syscallswow64::Data& d)
+    static void on_NtCreateIoCompletion(monitor::syscalls32::Data& d)
     {
-        const auto IoCompletionHandle = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess      = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes   = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto Count              = arg<wntdll::ULONG>(d.core, 3);
+        const auto IoCompletionHandle = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess      = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes   = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto Count              = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateIoCompletion(IoCompletionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Count:{:#x})", IoCompletionHandle, DesiredAccess, ObjectAttributes, Count));
@@ -1453,11 +1453,11 @@ namespace
             it(IoCompletionHandle, DesiredAccess, ObjectAttributes, Count);
     }
 
-    static void on_ZwCreateJobObject(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateJobObject(monitor::syscalls32::Data& d)
     {
-        const auto JobHandle        = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto JobHandle        = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateJobObject(JobHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", JobHandle, DesiredAccess, ObjectAttributes));
@@ -1466,11 +1466,11 @@ namespace
             it(JobHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtCreateJobSet(monitor::syscallswow64::Data& d)
+    static void on_NtCreateJobSet(monitor::syscalls32::Data& d)
     {
-        const auto NumJob     = arg<wntdll::ULONG>(d.core, 0);
-        const auto UserJobSet = arg<wntdll::PJOB_SET_ARRAY>(d.core, 1);
-        const auto Flags      = arg<wntdll::ULONG>(d.core, 2);
+        const auto NumJob     = arg<nt32::ULONG>(d.core, 0);
+        const auto UserJobSet = arg<nt32::PJOB_SET_ARRAY>(d.core, 1);
+        const auto Flags      = arg<nt32::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateJobSet(NumJob:{:#x}, UserJobSet:{:#x}, Flags:{:#x})", NumJob, UserJobSet, Flags));
@@ -1479,12 +1479,12 @@ namespace
             it(NumJob, UserJobSet, Flags);
     }
 
-    static void on_ZwCreateKeyedEvent(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateKeyedEvent(monitor::syscalls32::Data& d)
     {
-        const auto KeyedEventHandle = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto Flags            = arg<wntdll::ULONG>(d.core, 3);
+        const auto KeyedEventHandle = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto Flags            = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateKeyedEvent(KeyedEventHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Flags:{:#x})", KeyedEventHandle, DesiredAccess, ObjectAttributes, Flags));
@@ -1493,15 +1493,15 @@ namespace
             it(KeyedEventHandle, DesiredAccess, ObjectAttributes, Flags);
     }
 
-    static void on_ZwCreateKey(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle        = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto TitleIndex       = arg<wntdll::ULONG>(d.core, 3);
-        const auto Class            = arg<wntdll::PUNICODE_STRING>(d.core, 4);
-        const auto CreateOptions    = arg<wntdll::ULONG>(d.core, 5);
-        const auto Disposition      = arg<wntdll::PULONG>(d.core, 6);
+        const auto KeyHandle        = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto TitleIndex       = arg<nt32::ULONG>(d.core, 3);
+        const auto Class            = arg<nt32::PUNICODE_STRING>(d.core, 4);
+        const auto CreateOptions    = arg<nt32::ULONG>(d.core, 5);
+        const auto Disposition      = arg<nt32::PULONG>(d.core, 6);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateKey(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TitleIndex:{:#x}, Class:{:#x}, CreateOptions:{:#x}, Disposition:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, Disposition));
@@ -1510,16 +1510,16 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, Disposition);
     }
 
-    static void on_NtCreateKeyTransacted(monitor::syscallswow64::Data& d)
+    static void on_NtCreateKeyTransacted(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle         = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess     = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes  = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto TitleIndex        = arg<wntdll::ULONG>(d.core, 3);
-        const auto Class             = arg<wntdll::PUNICODE_STRING>(d.core, 4);
-        const auto CreateOptions     = arg<wntdll::ULONG>(d.core, 5);
-        const auto TransactionHandle = arg<wntdll::HANDLE>(d.core, 6);
-        const auto Disposition       = arg<wntdll::PULONG>(d.core, 7);
+        const auto KeyHandle         = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes  = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto TitleIndex        = arg<nt32::ULONG>(d.core, 3);
+        const auto Class             = arg<nt32::PUNICODE_STRING>(d.core, 4);
+        const auto CreateOptions     = arg<nt32::ULONG>(d.core, 5);
+        const auto TransactionHandle = arg<nt32::HANDLE>(d.core, 6);
+        const auto Disposition       = arg<nt32::PULONG>(d.core, 7);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateKeyTransacted(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TitleIndex:{:#x}, Class:{:#x}, CreateOptions:{:#x}, TransactionHandle:{:#x}, Disposition:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, TransactionHandle, Disposition));
@@ -1528,16 +1528,16 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, TransactionHandle, Disposition);
     }
 
-    static void on_ZwCreateMailslotFile(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateMailslotFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle         = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess      = arg<wntdll::ULONG>(d.core, 1);
-        const auto ObjectAttributes   = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto IoStatusBlock      = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 3);
-        const auto CreateOptions      = arg<wntdll::ULONG>(d.core, 4);
-        const auto MailslotQuota      = arg<wntdll::ULONG>(d.core, 5);
-        const auto MaximumMessageSize = arg<wntdll::ULONG>(d.core, 6);
-        const auto ReadTimeout        = arg<wntdll::PLARGE_INTEGER>(d.core, 7);
+        const auto FileHandle         = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess      = arg<nt32::ULONG>(d.core, 1);
+        const auto ObjectAttributes   = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto IoStatusBlock      = arg<nt32::PIO_STATUS_BLOCK>(d.core, 3);
+        const auto CreateOptions      = arg<nt32::ULONG>(d.core, 4);
+        const auto MailslotQuota      = arg<nt32::ULONG>(d.core, 5);
+        const auto MaximumMessageSize = arg<nt32::ULONG>(d.core, 6);
+        const auto ReadTimeout        = arg<nt32::PLARGE_INTEGER>(d.core, 7);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateMailslotFile(FileHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, IoStatusBlock:{:#x}, CreateOptions:{:#x}, MailslotQuota:{:#x}, MaximumMessageSize:{:#x}, ReadTimeout:{:#x})", FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, CreateOptions, MailslotQuota, MaximumMessageSize, ReadTimeout));
@@ -1546,12 +1546,12 @@ namespace
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, CreateOptions, MailslotQuota, MaximumMessageSize, ReadTimeout);
     }
 
-    static void on_ZwCreateMutant(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateMutant(monitor::syscalls32::Data& d)
     {
-        const auto MutantHandle     = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto InitialOwner     = arg<wntdll::BOOLEAN>(d.core, 3);
+        const auto MutantHandle     = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto InitialOwner     = arg<nt32::BOOLEAN>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateMutant(MutantHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, InitialOwner:{:#x})", MutantHandle, DesiredAccess, ObjectAttributes, InitialOwner));
@@ -1560,22 +1560,22 @@ namespace
             it(MutantHandle, DesiredAccess, ObjectAttributes, InitialOwner);
     }
 
-    static void on_ZwCreateNamedPipeFile(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateNamedPipeFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle        = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess     = arg<wntdll::ULONG>(d.core, 1);
-        const auto ObjectAttributes  = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto IoStatusBlock     = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 3);
-        const auto ShareAccess       = arg<wntdll::ULONG>(d.core, 4);
-        const auto CreateDisposition = arg<wntdll::ULONG>(d.core, 5);
-        const auto CreateOptions     = arg<wntdll::ULONG>(d.core, 6);
-        const auto NamedPipeType     = arg<wntdll::ULONG>(d.core, 7);
-        const auto ReadMode          = arg<wntdll::ULONG>(d.core, 8);
-        const auto CompletionMode    = arg<wntdll::ULONG>(d.core, 9);
-        const auto MaximumInstances  = arg<wntdll::ULONG>(d.core, 10);
-        const auto InboundQuota      = arg<wntdll::ULONG>(d.core, 11);
-        const auto OutboundQuota     = arg<wntdll::ULONG>(d.core, 12);
-        const auto DefaultTimeout    = arg<wntdll::PLARGE_INTEGER>(d.core, 13);
+        const auto FileHandle        = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess     = arg<nt32::ULONG>(d.core, 1);
+        const auto ObjectAttributes  = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto IoStatusBlock     = arg<nt32::PIO_STATUS_BLOCK>(d.core, 3);
+        const auto ShareAccess       = arg<nt32::ULONG>(d.core, 4);
+        const auto CreateDisposition = arg<nt32::ULONG>(d.core, 5);
+        const auto CreateOptions     = arg<nt32::ULONG>(d.core, 6);
+        const auto NamedPipeType     = arg<nt32::ULONG>(d.core, 7);
+        const auto ReadMode          = arg<nt32::ULONG>(d.core, 8);
+        const auto CompletionMode    = arg<nt32::ULONG>(d.core, 9);
+        const auto MaximumInstances  = arg<nt32::ULONG>(d.core, 10);
+        const auto InboundQuota      = arg<nt32::ULONG>(d.core, 11);
+        const auto OutboundQuota     = arg<nt32::ULONG>(d.core, 12);
+        const auto DefaultTimeout    = arg<nt32::PLARGE_INTEGER>(d.core, 13);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateNamedPipeFile(FileHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, IoStatusBlock:{:#x}, ShareAccess:{:#x}, CreateDisposition:{:#x}, CreateOptions:{:#x}, NamedPipeType:{:#x}, ReadMode:{:#x}, CompletionMode:{:#x}, MaximumInstances:{:#x}, InboundQuota:{:#x}, OutboundQuota:{:#x}, DefaultTimeout:{:#x})", FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, CreateDisposition, CreateOptions, NamedPipeType, ReadMode, CompletionMode, MaximumInstances, InboundQuota, OutboundQuota, DefaultTimeout));
@@ -1584,12 +1584,12 @@ namespace
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, CreateDisposition, CreateOptions, NamedPipeType, ReadMode, CompletionMode, MaximumInstances, InboundQuota, OutboundQuota, DefaultTimeout);
     }
 
-    static void on_NtCreatePagingFile(monitor::syscallswow64::Data& d)
+    static void on_NtCreatePagingFile(monitor::syscalls32::Data& d)
     {
-        const auto PageFileName = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto MinimumSize  = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
-        const auto MaximumSize  = arg<wntdll::PLARGE_INTEGER>(d.core, 2);
-        const auto Priority     = arg<wntdll::ULONG>(d.core, 3);
+        const auto PageFileName = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto MinimumSize  = arg<nt32::PLARGE_INTEGER>(d.core, 1);
+        const auto MaximumSize  = arg<nt32::PLARGE_INTEGER>(d.core, 2);
+        const auto Priority     = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreatePagingFile(PageFileName:{:#x}, MinimumSize:{:#x}, MaximumSize:{:#x}, Priority:{:#x})", PageFileName, MinimumSize, MaximumSize, Priority));
@@ -1598,13 +1598,13 @@ namespace
             it(PageFileName, MinimumSize, MaximumSize, Priority);
     }
 
-    static void on_ZwCreatePort(monitor::syscallswow64::Data& d)
+    static void on_ZwCreatePort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle              = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto ObjectAttributes        = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 1);
-        const auto MaxConnectionInfoLength = arg<wntdll::ULONG>(d.core, 2);
-        const auto MaxMessageLength        = arg<wntdll::ULONG>(d.core, 3);
-        const auto MaxPoolUsage            = arg<wntdll::ULONG>(d.core, 4);
+        const auto PortHandle              = arg<nt32::PHANDLE>(d.core, 0);
+        const auto ObjectAttributes        = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 1);
+        const auto MaxConnectionInfoLength = arg<nt32::ULONG>(d.core, 2);
+        const auto MaxMessageLength        = arg<nt32::ULONG>(d.core, 3);
+        const auto MaxPoolUsage            = arg<nt32::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreatePort(PortHandle:{:#x}, ObjectAttributes:{:#x}, MaxConnectionInfoLength:{:#x}, MaxMessageLength:{:#x}, MaxPoolUsage:{:#x})", PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage));
@@ -1613,12 +1613,12 @@ namespace
             it(PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage);
     }
 
-    static void on_NtCreatePrivateNamespace(monitor::syscallswow64::Data& d)
+    static void on_NtCreatePrivateNamespace(monitor::syscalls32::Data& d)
     {
-        const auto NamespaceHandle    = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess      = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes   = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto BoundaryDescriptor = arg<wntdll::PVOID>(d.core, 3);
+        const auto NamespaceHandle    = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess      = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes   = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto BoundaryDescriptor = arg<nt32::PVOID>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreatePrivateNamespace(NamespaceHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, BoundaryDescriptor:{:#x})", NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor));
@@ -1627,17 +1627,17 @@ namespace
             it(NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
     }
 
-    static void on_ZwCreateProcessEx(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateProcessEx(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle    = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto ParentProcess    = arg<wntdll::HANDLE>(d.core, 3);
-        const auto Flags            = arg<wntdll::ULONG>(d.core, 4);
-        const auto SectionHandle    = arg<wntdll::HANDLE>(d.core, 5);
-        const auto DebugPort        = arg<wntdll::HANDLE>(d.core, 6);
-        const auto ExceptionPort    = arg<wntdll::HANDLE>(d.core, 7);
-        const auto JobMemberLevel   = arg<wntdll::ULONG>(d.core, 8);
+        const auto ProcessHandle    = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto ParentProcess    = arg<nt32::HANDLE>(d.core, 3);
+        const auto Flags            = arg<nt32::ULONG>(d.core, 4);
+        const auto SectionHandle    = arg<nt32::HANDLE>(d.core, 5);
+        const auto DebugPort        = arg<nt32::HANDLE>(d.core, 6);
+        const auto ExceptionPort    = arg<nt32::HANDLE>(d.core, 7);
+        const auto JobMemberLevel   = arg<nt32::ULONG>(d.core, 8);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateProcessEx(ProcessHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ParentProcess:{:#x}, Flags:{:#x}, SectionHandle:{:#x}, DebugPort:{:#x}, ExceptionPort:{:#x}, JobMemberLevel:{:#x})", ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, Flags, SectionHandle, DebugPort, ExceptionPort, JobMemberLevel));
@@ -1646,16 +1646,16 @@ namespace
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, Flags, SectionHandle, DebugPort, ExceptionPort, JobMemberLevel);
     }
 
-    static void on_ZwCreateProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateProcess(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle      = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess      = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes   = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto ParentProcess      = arg<wntdll::HANDLE>(d.core, 3);
-        const auto InheritObjectTable = arg<wntdll::BOOLEAN>(d.core, 4);
-        const auto SectionHandle      = arg<wntdll::HANDLE>(d.core, 5);
-        const auto DebugPort          = arg<wntdll::HANDLE>(d.core, 6);
-        const auto ExceptionPort      = arg<wntdll::HANDLE>(d.core, 7);
+        const auto ProcessHandle      = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess      = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes   = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto ParentProcess      = arg<nt32::HANDLE>(d.core, 3);
+        const auto InheritObjectTable = arg<nt32::BOOLEAN>(d.core, 4);
+        const auto SectionHandle      = arg<nt32::HANDLE>(d.core, 5);
+        const auto DebugPort          = arg<nt32::HANDLE>(d.core, 6);
+        const auto ExceptionPort      = arg<nt32::HANDLE>(d.core, 7);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateProcess(ProcessHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ParentProcess:{:#x}, InheritObjectTable:{:#x}, SectionHandle:{:#x}, DebugPort:{:#x}, ExceptionPort:{:#x})", ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, InheritObjectTable, SectionHandle, DebugPort, ExceptionPort));
@@ -1664,18 +1664,18 @@ namespace
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, InheritObjectTable, SectionHandle, DebugPort, ExceptionPort);
     }
 
-    static void on_NtCreateProfileEx(monitor::syscallswow64::Data& d)
+    static void on_NtCreateProfileEx(monitor::syscalls32::Data& d)
     {
-        const auto ProfileHandle      = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto Process            = arg<wntdll::HANDLE>(d.core, 1);
-        const auto ProfileBase        = arg<wntdll::PVOID>(d.core, 2);
-        const auto ProfileSize        = arg<wntdll::SIZE_T>(d.core, 3);
-        const auto BucketSize         = arg<wntdll::ULONG>(d.core, 4);
-        const auto Buffer             = arg<wntdll::PULONG>(d.core, 5);
-        const auto BufferSize         = arg<wntdll::ULONG>(d.core, 6);
-        const auto ProfileSource      = arg<wntdll::KPROFILE_SOURCE>(d.core, 7);
-        const auto GroupAffinityCount = arg<wntdll::ULONG>(d.core, 8);
-        const auto GroupAffinity      = arg<wntdll::PGROUP_AFFINITY>(d.core, 9);
+        const auto ProfileHandle      = arg<nt32::PHANDLE>(d.core, 0);
+        const auto Process            = arg<nt32::HANDLE>(d.core, 1);
+        const auto ProfileBase        = arg<nt32::PVOID>(d.core, 2);
+        const auto ProfileSize        = arg<nt32::SIZE_T>(d.core, 3);
+        const auto BucketSize         = arg<nt32::ULONG>(d.core, 4);
+        const auto Buffer             = arg<nt32::PULONG>(d.core, 5);
+        const auto BufferSize         = arg<nt32::ULONG>(d.core, 6);
+        const auto ProfileSource      = arg<nt32::KPROFILE_SOURCE>(d.core, 7);
+        const auto GroupAffinityCount = arg<nt32::ULONG>(d.core, 8);
+        const auto GroupAffinity      = arg<nt32::PGROUP_AFFINITY>(d.core, 9);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateProfileEx(ProfileHandle:{:#x}, Process:{:#x}, ProfileBase:{:#x}, ProfileSize:{:#x}, BucketSize:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, ProfileSource:{:#x}, GroupAffinityCount:{:#x}, GroupAffinity:{:#x})", ProfileHandle, Process, ProfileBase, ProfileSize, BucketSize, Buffer, BufferSize, ProfileSource, GroupAffinityCount, GroupAffinity));
@@ -1684,17 +1684,17 @@ namespace
             it(ProfileHandle, Process, ProfileBase, ProfileSize, BucketSize, Buffer, BufferSize, ProfileSource, GroupAffinityCount, GroupAffinity);
     }
 
-    static void on_ZwCreateProfile(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateProfile(monitor::syscalls32::Data& d)
     {
-        const auto ProfileHandle = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto Process       = arg<wntdll::HANDLE>(d.core, 1);
-        const auto RangeBase     = arg<wntdll::PVOID>(d.core, 2);
-        const auto RangeSize     = arg<wntdll::SIZE_T>(d.core, 3);
-        const auto BucketSize    = arg<wntdll::ULONG>(d.core, 4);
-        const auto Buffer        = arg<wntdll::PULONG>(d.core, 5);
-        const auto BufferSize    = arg<wntdll::ULONG>(d.core, 6);
-        const auto ProfileSource = arg<wntdll::KPROFILE_SOURCE>(d.core, 7);
-        const auto Affinity      = arg<wntdll::KAFFINITY>(d.core, 8);
+        const auto ProfileHandle = arg<nt32::PHANDLE>(d.core, 0);
+        const auto Process       = arg<nt32::HANDLE>(d.core, 1);
+        const auto RangeBase     = arg<nt32::PVOID>(d.core, 2);
+        const auto RangeSize     = arg<nt32::SIZE_T>(d.core, 3);
+        const auto BucketSize    = arg<nt32::ULONG>(d.core, 4);
+        const auto Buffer        = arg<nt32::PULONG>(d.core, 5);
+        const auto BufferSize    = arg<nt32::ULONG>(d.core, 6);
+        const auto ProfileSource = arg<nt32::KPROFILE_SOURCE>(d.core, 7);
+        const auto Affinity      = arg<nt32::KAFFINITY>(d.core, 8);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateProfile(ProfileHandle:{:#x}, Process:{:#x}, RangeBase:{:#x}, RangeSize:{:#x}, BucketSize:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, ProfileSource:{:#x}, Affinity:{:#x})", ProfileHandle, Process, RangeBase, RangeSize, BucketSize, Buffer, BufferSize, ProfileSource, Affinity));
@@ -1703,15 +1703,15 @@ namespace
             it(ProfileHandle, Process, RangeBase, RangeSize, BucketSize, Buffer, BufferSize, ProfileSource, Affinity);
     }
 
-    static void on_ZwCreateResourceManager(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateResourceManager(monitor::syscalls32::Data& d)
     {
-        const auto ResourceManagerHandle = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess         = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto TmHandle              = arg<wntdll::HANDLE>(d.core, 2);
-        const auto RmGuid                = arg<wntdll::LPGUID>(d.core, 3);
-        const auto ObjectAttributes      = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 4);
-        const auto CreateOptions         = arg<wntdll::ULONG>(d.core, 5);
-        const auto Description           = arg<wntdll::PUNICODE_STRING>(d.core, 6);
+        const auto ResourceManagerHandle = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess         = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto TmHandle              = arg<nt32::HANDLE>(d.core, 2);
+        const auto RmGuid                = arg<nt32::LPGUID>(d.core, 3);
+        const auto ObjectAttributes      = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 4);
+        const auto CreateOptions         = arg<nt32::ULONG>(d.core, 5);
+        const auto Description           = arg<nt32::PUNICODE_STRING>(d.core, 6);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateResourceManager(ResourceManagerHandle:{:#x}, DesiredAccess:{:#x}, TmHandle:{:#x}, RmGuid:{:#x}, ObjectAttributes:{:#x}, CreateOptions:{:#x}, Description:{:#x})", ResourceManagerHandle, DesiredAccess, TmHandle, RmGuid, ObjectAttributes, CreateOptions, Description));
@@ -1720,15 +1720,15 @@ namespace
             it(ResourceManagerHandle, DesiredAccess, TmHandle, RmGuid, ObjectAttributes, CreateOptions, Description);
     }
 
-    static void on_NtCreateSection(monitor::syscallswow64::Data& d)
+    static void on_NtCreateSection(monitor::syscalls32::Data& d)
     {
-        const auto SectionHandle         = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess         = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes      = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto MaximumSize           = arg<wntdll::PLARGE_INTEGER>(d.core, 3);
-        const auto SectionPageProtection = arg<wntdll::ULONG>(d.core, 4);
-        const auto AllocationAttributes  = arg<wntdll::ULONG>(d.core, 5);
-        const auto FileHandle            = arg<wntdll::HANDLE>(d.core, 6);
+        const auto SectionHandle         = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess         = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes      = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto MaximumSize           = arg<nt32::PLARGE_INTEGER>(d.core, 3);
+        const auto SectionPageProtection = arg<nt32::ULONG>(d.core, 4);
+        const auto AllocationAttributes  = arg<nt32::ULONG>(d.core, 5);
+        const auto FileHandle            = arg<nt32::HANDLE>(d.core, 6);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateSection(SectionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, MaximumSize:{:#x}, SectionPageProtection:{:#x}, AllocationAttributes:{:#x}, FileHandle:{:#x})", SectionHandle, DesiredAccess, ObjectAttributes, MaximumSize, SectionPageProtection, AllocationAttributes, FileHandle));
@@ -1737,13 +1737,13 @@ namespace
             it(SectionHandle, DesiredAccess, ObjectAttributes, MaximumSize, SectionPageProtection, AllocationAttributes, FileHandle);
     }
 
-    static void on_NtCreateSemaphore(monitor::syscallswow64::Data& d)
+    static void on_NtCreateSemaphore(monitor::syscalls32::Data& d)
     {
-        const auto SemaphoreHandle  = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto InitialCount     = arg<wntdll::LONG>(d.core, 3);
-        const auto MaximumCount     = arg<wntdll::LONG>(d.core, 4);
+        const auto SemaphoreHandle  = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto InitialCount     = arg<nt32::LONG>(d.core, 3);
+        const auto MaximumCount     = arg<nt32::LONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateSemaphore(SemaphoreHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, InitialCount:{:#x}, MaximumCount:{:#x})", SemaphoreHandle, DesiredAccess, ObjectAttributes, InitialCount, MaximumCount));
@@ -1752,12 +1752,12 @@ namespace
             it(SemaphoreHandle, DesiredAccess, ObjectAttributes, InitialCount, MaximumCount);
     }
 
-    static void on_ZwCreateSymbolicLinkObject(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateSymbolicLinkObject(monitor::syscalls32::Data& d)
     {
-        const auto LinkHandle       = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto LinkTarget       = arg<wntdll::PUNICODE_STRING>(d.core, 3);
+        const auto LinkHandle       = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto LinkTarget       = arg<nt32::PUNICODE_STRING>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateSymbolicLinkObject(LinkHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, LinkTarget:{:#x})", LinkHandle, DesiredAccess, ObjectAttributes, LinkTarget));
@@ -1766,19 +1766,19 @@ namespace
             it(LinkHandle, DesiredAccess, ObjectAttributes, LinkTarget);
     }
 
-    static void on_NtCreateThreadEx(monitor::syscallswow64::Data& d)
+    static void on_NtCreateThreadEx(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle     = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto ProcessHandle    = arg<wntdll::HANDLE>(d.core, 3);
-        const auto StartRoutine     = arg<wntdll::PVOID>(d.core, 4);
-        const auto Argument         = arg<wntdll::PVOID>(d.core, 5);
-        const auto CreateFlags      = arg<wntdll::ULONG>(d.core, 6);
-        const auto ZeroBits         = arg<wntdll::ULONG_PTR>(d.core, 7);
-        const auto StackSize        = arg<wntdll::SIZE_T>(d.core, 8);
-        const auto MaximumStackSize = arg<wntdll::SIZE_T>(d.core, 9);
-        const auto AttributeList    = arg<wntdll::PPS_ATTRIBUTE_LIST>(d.core, 10);
+        const auto ThreadHandle     = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto ProcessHandle    = arg<nt32::HANDLE>(d.core, 3);
+        const auto StartRoutine     = arg<nt32::PVOID>(d.core, 4);
+        const auto Argument         = arg<nt32::PVOID>(d.core, 5);
+        const auto CreateFlags      = arg<nt32::ULONG>(d.core, 6);
+        const auto ZeroBits         = arg<nt32::ULONG_PTR>(d.core, 7);
+        const auto StackSize        = arg<nt32::SIZE_T>(d.core, 8);
+        const auto MaximumStackSize = arg<nt32::SIZE_T>(d.core, 9);
+        const auto AttributeList    = arg<nt32::PPS_ATTRIBUTE_LIST>(d.core, 10);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateThreadEx(ThreadHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ProcessHandle:{:#x}, StartRoutine:{:#x}, Argument:{:#x}, CreateFlags:{:#x}, ZeroBits:{:#x}, StackSize:{:#x}, MaximumStackSize:{:#x}, AttributeList:{:#x})", ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, StartRoutine, Argument, CreateFlags, ZeroBits, StackSize, MaximumStackSize, AttributeList));
@@ -1787,16 +1787,16 @@ namespace
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, StartRoutine, Argument, CreateFlags, ZeroBits, StackSize, MaximumStackSize, AttributeList);
     }
 
-    static void on_NtCreateThread(monitor::syscallswow64::Data& d)
+    static void on_NtCreateThread(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle     = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto ProcessHandle    = arg<wntdll::HANDLE>(d.core, 3);
-        const auto ClientId         = arg<wntdll::PCLIENT_ID>(d.core, 4);
-        const auto ThreadContext    = arg<wntdll::PCONTEXT>(d.core, 5);
-        const auto InitialTeb       = arg<wntdll::PINITIAL_TEB>(d.core, 6);
-        const auto CreateSuspended  = arg<wntdll::BOOLEAN>(d.core, 7);
+        const auto ThreadHandle     = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto ProcessHandle    = arg<nt32::HANDLE>(d.core, 3);
+        const auto ClientId         = arg<nt32::PCLIENT_ID>(d.core, 4);
+        const auto ThreadContext    = arg<nt32::PCONTEXT>(d.core, 5);
+        const auto InitialTeb       = arg<nt32::PINITIAL_TEB>(d.core, 6);
+        const auto CreateSuspended  = arg<nt32::BOOLEAN>(d.core, 7);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateThread(ThreadHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ProcessHandle:{:#x}, ClientId:{:#x}, ThreadContext:{:#x}, InitialTeb:{:#x}, CreateSuspended:{:#x})", ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, ClientId, ThreadContext, InitialTeb, CreateSuspended));
@@ -1805,12 +1805,12 @@ namespace
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, ClientId, ThreadContext, InitialTeb, CreateSuspended);
     }
 
-    static void on_ZwCreateTimer(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateTimer(monitor::syscalls32::Data& d)
     {
-        const auto TimerHandle      = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto TimerType        = arg<wntdll::TIMER_TYPE>(d.core, 3);
+        const auto TimerHandle      = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto TimerType        = arg<nt32::TIMER_TYPE>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateTimer(TimerHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TimerType:{:#x})", TimerHandle, DesiredAccess, ObjectAttributes, TimerType));
@@ -1819,21 +1819,21 @@ namespace
             it(TimerHandle, DesiredAccess, ObjectAttributes, TimerType);
     }
 
-    static void on_NtCreateToken(monitor::syscallswow64::Data& d)
+    static void on_NtCreateToken(monitor::syscalls32::Data& d)
     {
-        const auto TokenHandle      = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto TokenType        = arg<wntdll::TOKEN_TYPE>(d.core, 3);
-        const auto AuthenticationId = arg<wntdll::PLUID>(d.core, 4);
-        const auto ExpirationTime   = arg<wntdll::PLARGE_INTEGER>(d.core, 5);
-        const auto User             = arg<wntdll::PTOKEN_USER>(d.core, 6);
-        const auto Groups           = arg<wntdll::PTOKEN_GROUPS>(d.core, 7);
-        const auto Privileges       = arg<wntdll::PTOKEN_PRIVILEGES>(d.core, 8);
-        const auto Owner            = arg<wntdll::PTOKEN_OWNER>(d.core, 9);
-        const auto PrimaryGroup     = arg<wntdll::PTOKEN_PRIMARY_GROUP>(d.core, 10);
-        const auto DefaultDacl      = arg<wntdll::PTOKEN_DEFAULT_DACL>(d.core, 11);
-        const auto TokenSource      = arg<wntdll::PTOKEN_SOURCE>(d.core, 12);
+        const auto TokenHandle      = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto TokenType        = arg<nt32::TOKEN_TYPE>(d.core, 3);
+        const auto AuthenticationId = arg<nt32::PLUID>(d.core, 4);
+        const auto ExpirationTime   = arg<nt32::PLARGE_INTEGER>(d.core, 5);
+        const auto User             = arg<nt32::PTOKEN_USER>(d.core, 6);
+        const auto Groups           = arg<nt32::PTOKEN_GROUPS>(d.core, 7);
+        const auto Privileges       = arg<nt32::PTOKEN_PRIVILEGES>(d.core, 8);
+        const auto Owner            = arg<nt32::PTOKEN_OWNER>(d.core, 9);
+        const auto PrimaryGroup     = arg<nt32::PTOKEN_PRIMARY_GROUP>(d.core, 10);
+        const auto DefaultDacl      = arg<nt32::PTOKEN_DEFAULT_DACL>(d.core, 11);
+        const auto TokenSource      = arg<nt32::PTOKEN_SOURCE>(d.core, 12);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateToken(TokenHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TokenType:{:#x}, AuthenticationId:{:#x}, ExpirationTime:{:#x}, User:{:#x}, Groups:{:#x}, Privileges:{:#x}, Owner:{:#x}, PrimaryGroup:{:#x}, DefaultDacl:{:#x}, TokenSource:{:#x})", TokenHandle, DesiredAccess, ObjectAttributes, TokenType, AuthenticationId, ExpirationTime, User, Groups, Privileges, Owner, PrimaryGroup, DefaultDacl, TokenSource));
@@ -1842,14 +1842,14 @@ namespace
             it(TokenHandle, DesiredAccess, ObjectAttributes, TokenType, AuthenticationId, ExpirationTime, User, Groups, Privileges, Owner, PrimaryGroup, DefaultDacl, TokenSource);
     }
 
-    static void on_ZwCreateTransactionManager(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateTransactionManager(monitor::syscalls32::Data& d)
     {
-        const auto TmHandle         = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto LogFileName      = arg<wntdll::PUNICODE_STRING>(d.core, 3);
-        const auto CreateOptions    = arg<wntdll::ULONG>(d.core, 4);
-        const auto CommitStrength   = arg<wntdll::ULONG>(d.core, 5);
+        const auto TmHandle         = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto LogFileName      = arg<nt32::PUNICODE_STRING>(d.core, 3);
+        const auto CreateOptions    = arg<nt32::ULONG>(d.core, 4);
+        const auto CommitStrength   = arg<nt32::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateTransactionManager(TmHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, LogFileName:{:#x}, CreateOptions:{:#x}, CommitStrength:{:#x})", TmHandle, DesiredAccess, ObjectAttributes, LogFileName, CreateOptions, CommitStrength));
@@ -1858,18 +1858,18 @@ namespace
             it(TmHandle, DesiredAccess, ObjectAttributes, LogFileName, CreateOptions, CommitStrength);
     }
 
-    static void on_NtCreateTransaction(monitor::syscallswow64::Data& d)
+    static void on_NtCreateTransaction(monitor::syscalls32::Data& d)
     {
-        const auto TransactionHandle = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess     = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes  = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto Uow               = arg<wntdll::LPGUID>(d.core, 3);
-        const auto TmHandle          = arg<wntdll::HANDLE>(d.core, 4);
-        const auto CreateOptions     = arg<wntdll::ULONG>(d.core, 5);
-        const auto IsolationLevel    = arg<wntdll::ULONG>(d.core, 6);
-        const auto IsolationFlags    = arg<wntdll::ULONG>(d.core, 7);
-        const auto Timeout           = arg<wntdll::PLARGE_INTEGER>(d.core, 8);
-        const auto Description       = arg<wntdll::PUNICODE_STRING>(d.core, 9);
+        const auto TransactionHandle = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes  = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto Uow               = arg<nt32::LPGUID>(d.core, 3);
+        const auto TmHandle          = arg<nt32::HANDLE>(d.core, 4);
+        const auto CreateOptions     = arg<nt32::ULONG>(d.core, 5);
+        const auto IsolationLevel    = arg<nt32::ULONG>(d.core, 6);
+        const auto IsolationFlags    = arg<nt32::ULONG>(d.core, 7);
+        const auto Timeout           = arg<nt32::PLARGE_INTEGER>(d.core, 8);
+        const auto Description       = arg<nt32::PUNICODE_STRING>(d.core, 9);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateTransaction(TransactionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Uow:{:#x}, TmHandle:{:#x}, CreateOptions:{:#x}, IsolationLevel:{:#x}, IsolationFlags:{:#x}, Timeout:{:#x}, Description:{:#x})", TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle, CreateOptions, IsolationLevel, IsolationFlags, Timeout, Description));
@@ -1878,19 +1878,19 @@ namespace
             it(TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle, CreateOptions, IsolationLevel, IsolationFlags, Timeout, Description);
     }
 
-    static void on_NtCreateUserProcess(monitor::syscallswow64::Data& d)
+    static void on_NtCreateUserProcess(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle           = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto ThreadHandle            = arg<wntdll::PHANDLE>(d.core, 1);
-        const auto ProcessDesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 2);
-        const auto ThreadDesiredAccess     = arg<wntdll::ACCESS_MASK>(d.core, 3);
-        const auto ProcessObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 4);
-        const auto ThreadObjectAttributes  = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 5);
-        const auto ProcessFlags            = arg<wntdll::ULONG>(d.core, 6);
-        const auto ThreadFlags             = arg<wntdll::ULONG>(d.core, 7);
-        const auto ProcessParameters       = arg<wntdll::PRTL_USER_PROCESS_PARAMETERS>(d.core, 8);
-        const auto CreateInfo              = arg<wntdll::PPROCESS_CREATE_INFO>(d.core, 9);
-        const auto AttributeList           = arg<wntdll::PPROCESS_ATTRIBUTE_LIST>(d.core, 10);
+        const auto ProcessHandle           = arg<nt32::PHANDLE>(d.core, 0);
+        const auto ThreadHandle            = arg<nt32::PHANDLE>(d.core, 1);
+        const auto ProcessDesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 2);
+        const auto ThreadDesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 3);
+        const auto ProcessObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 4);
+        const auto ThreadObjectAttributes  = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 5);
+        const auto ProcessFlags            = arg<nt32::ULONG>(d.core, 6);
+        const auto ThreadFlags             = arg<nt32::ULONG>(d.core, 7);
+        const auto ProcessParameters       = arg<nt32::PRTL_USER_PROCESS_PARAMETERS>(d.core, 8);
+        const auto CreateInfo              = arg<nt32::PPROCESS_CREATE_INFO>(d.core, 9);
+        const auto AttributeList           = arg<nt32::PPROCESS_ATTRIBUTE_LIST>(d.core, 10);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateUserProcess(ProcessHandle:{:#x}, ThreadHandle:{:#x}, ProcessDesiredAccess:{:#x}, ThreadDesiredAccess:{:#x}, ProcessObjectAttributes:{:#x}, ThreadObjectAttributes:{:#x}, ProcessFlags:{:#x}, ThreadFlags:{:#x}, ProcessParameters:{:#x}, CreateInfo:{:#x}, AttributeList:{:#x})", ProcessHandle, ThreadHandle, ProcessDesiredAccess, ThreadDesiredAccess, ProcessObjectAttributes, ThreadObjectAttributes, ProcessFlags, ThreadFlags, ProcessParameters, CreateInfo, AttributeList));
@@ -1899,13 +1899,13 @@ namespace
             it(ProcessHandle, ThreadHandle, ProcessDesiredAccess, ThreadDesiredAccess, ProcessObjectAttributes, ThreadObjectAttributes, ProcessFlags, ThreadFlags, ProcessParameters, CreateInfo, AttributeList);
     }
 
-    static void on_ZwCreateWaitablePort(monitor::syscallswow64::Data& d)
+    static void on_ZwCreateWaitablePort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle              = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto ObjectAttributes        = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 1);
-        const auto MaxConnectionInfoLength = arg<wntdll::ULONG>(d.core, 2);
-        const auto MaxMessageLength        = arg<wntdll::ULONG>(d.core, 3);
-        const auto MaxPoolUsage            = arg<wntdll::ULONG>(d.core, 4);
+        const auto PortHandle              = arg<nt32::PHANDLE>(d.core, 0);
+        const auto ObjectAttributes        = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 1);
+        const auto MaxConnectionInfoLength = arg<nt32::ULONG>(d.core, 2);
+        const auto MaxMessageLength        = arg<nt32::ULONG>(d.core, 3);
+        const auto MaxPoolUsage            = arg<nt32::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwCreateWaitablePort(PortHandle:{:#x}, ObjectAttributes:{:#x}, MaxConnectionInfoLength:{:#x}, MaxMessageLength:{:#x}, MaxPoolUsage:{:#x})", PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage));
@@ -1914,18 +1914,18 @@ namespace
             it(PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage);
     }
 
-    static void on_NtCreateWorkerFactory(monitor::syscallswow64::Data& d)
+    static void on_NtCreateWorkerFactory(monitor::syscalls32::Data& d)
     {
-        const auto WorkerFactoryHandleReturn = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess             = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes          = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto CompletionPortHandle      = arg<wntdll::HANDLE>(d.core, 3);
-        const auto WorkerProcessHandle       = arg<wntdll::HANDLE>(d.core, 4);
-        const auto StartRoutine              = arg<wntdll::PVOID>(d.core, 5);
-        const auto StartParameter            = arg<wntdll::PVOID>(d.core, 6);
-        const auto MaxThreadCount            = arg<wntdll::ULONG>(d.core, 7);
-        const auto StackReserve              = arg<wntdll::SIZE_T>(d.core, 8);
-        const auto StackCommit               = arg<wntdll::SIZE_T>(d.core, 9);
+        const auto WorkerFactoryHandleReturn = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess             = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes          = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto CompletionPortHandle      = arg<nt32::HANDLE>(d.core, 3);
+        const auto WorkerProcessHandle       = arg<nt32::HANDLE>(d.core, 4);
+        const auto StartRoutine              = arg<nt32::PVOID>(d.core, 5);
+        const auto StartParameter            = arg<nt32::PVOID>(d.core, 6);
+        const auto MaxThreadCount            = arg<nt32::ULONG>(d.core, 7);
+        const auto StackReserve              = arg<nt32::SIZE_T>(d.core, 8);
+        const auto StackCommit               = arg<nt32::SIZE_T>(d.core, 9);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtCreateWorkerFactory(WorkerFactoryHandleReturn:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, CompletionPortHandle:{:#x}, WorkerProcessHandle:{:#x}, StartRoutine:{:#x}, StartParameter:{:#x}, MaxThreadCount:{:#x}, StackReserve:{:#x}, StackCommit:{:#x})", WorkerFactoryHandleReturn, DesiredAccess, ObjectAttributes, CompletionPortHandle, WorkerProcessHandle, StartRoutine, StartParameter, MaxThreadCount, StackReserve, StackCommit));
@@ -1934,10 +1934,10 @@ namespace
             it(WorkerFactoryHandleReturn, DesiredAccess, ObjectAttributes, CompletionPortHandle, WorkerProcessHandle, StartRoutine, StartParameter, MaxThreadCount, StackReserve, StackCommit);
     }
 
-    static void on_NtDebugActiveProcess(monitor::syscallswow64::Data& d)
+    static void on_NtDebugActiveProcess(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle     = arg<wntdll::HANDLE>(d.core, 0);
-        const auto DebugObjectHandle = arg<wntdll::HANDLE>(d.core, 1);
+        const auto ProcessHandle     = arg<nt32::HANDLE>(d.core, 0);
+        const auto DebugObjectHandle = arg<nt32::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtDebugActiveProcess(ProcessHandle:{:#x}, DebugObjectHandle:{:#x})", ProcessHandle, DebugObjectHandle));
@@ -1946,11 +1946,11 @@ namespace
             it(ProcessHandle, DebugObjectHandle);
     }
 
-    static void on_ZwDebugContinue(monitor::syscallswow64::Data& d)
+    static void on_ZwDebugContinue(monitor::syscalls32::Data& d)
     {
-        const auto DebugObjectHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ClientId          = arg<wntdll::PCLIENT_ID>(d.core, 1);
-        const auto ContinueStatus    = arg<wntdll::NTSTATUS>(d.core, 2);
+        const auto DebugObjectHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto ClientId          = arg<nt32::PCLIENT_ID>(d.core, 1);
+        const auto ContinueStatus    = arg<nt32::NTSTATUS>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwDebugContinue(DebugObjectHandle:{:#x}, ClientId:{:#x}, ContinueStatus:{:#x})", DebugObjectHandle, ClientId, ContinueStatus));
@@ -1959,10 +1959,10 @@ namespace
             it(DebugObjectHandle, ClientId, ContinueStatus);
     }
 
-    static void on_ZwDelayExecution(monitor::syscallswow64::Data& d)
+    static void on_ZwDelayExecution(monitor::syscalls32::Data& d)
     {
-        const auto Alertable     = arg<wntdll::BOOLEAN>(d.core, 0);
-        const auto DelayInterval = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto Alertable     = arg<nt32::BOOLEAN>(d.core, 0);
+        const auto DelayInterval = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwDelayExecution(Alertable:{:#x}, DelayInterval:{:#x})", Alertable, DelayInterval));
@@ -1971,9 +1971,9 @@ namespace
             it(Alertable, DelayInterval);
     }
 
-    static void on_ZwDeleteAtom(monitor::syscallswow64::Data& d)
+    static void on_ZwDeleteAtom(monitor::syscalls32::Data& d)
     {
-        const auto Atom = arg<wntdll::RTL_ATOM>(d.core, 0);
+        const auto Atom = arg<nt32::RTL_ATOM>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwDeleteAtom(Atom:{:#x})", Atom));
@@ -1982,9 +1982,9 @@ namespace
             it(Atom);
     }
 
-    static void on_NtDeleteBootEntry(monitor::syscallswow64::Data& d)
+    static void on_NtDeleteBootEntry(monitor::syscalls32::Data& d)
     {
-        const auto Id = arg<wntdll::ULONG>(d.core, 0);
+        const auto Id = arg<nt32::ULONG>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtDeleteBootEntry(Id:{:#x})", Id));
@@ -1993,9 +1993,9 @@ namespace
             it(Id);
     }
 
-    static void on_ZwDeleteDriverEntry(monitor::syscallswow64::Data& d)
+    static void on_ZwDeleteDriverEntry(monitor::syscalls32::Data& d)
     {
-        const auto Id = arg<wntdll::ULONG>(d.core, 0);
+        const auto Id = arg<nt32::ULONG>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwDeleteDriverEntry(Id:{:#x})", Id));
@@ -2004,9 +2004,9 @@ namespace
             it(Id);
     }
 
-    static void on_NtDeleteFile(monitor::syscallswow64::Data& d)
+    static void on_NtDeleteFile(monitor::syscalls32::Data& d)
     {
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtDeleteFile(ObjectAttributes:{:#x})", ObjectAttributes));
@@ -2015,9 +2015,9 @@ namespace
             it(ObjectAttributes);
     }
 
-    static void on_ZwDeleteKey(monitor::syscallswow64::Data& d)
+    static void on_ZwDeleteKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto KeyHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwDeleteKey(KeyHandle:{:#x})", KeyHandle));
@@ -2026,11 +2026,11 @@ namespace
             it(KeyHandle);
     }
 
-    static void on_NtDeleteObjectAuditAlarm(monitor::syscallswow64::Data& d)
+    static void on_NtDeleteObjectAuditAlarm(monitor::syscalls32::Data& d)
     {
-        const auto SubsystemName   = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto HandleId        = arg<wntdll::PVOID>(d.core, 1);
-        const auto GenerateOnClose = arg<wntdll::BOOLEAN>(d.core, 2);
+        const auto SubsystemName   = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto HandleId        = arg<nt32::PVOID>(d.core, 1);
+        const auto GenerateOnClose = arg<nt32::BOOLEAN>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtDeleteObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, GenerateOnClose));
@@ -2039,9 +2039,9 @@ namespace
             it(SubsystemName, HandleId, GenerateOnClose);
     }
 
-    static void on_NtDeletePrivateNamespace(monitor::syscallswow64::Data& d)
+    static void on_NtDeletePrivateNamespace(monitor::syscalls32::Data& d)
     {
-        const auto NamespaceHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto NamespaceHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtDeletePrivateNamespace(NamespaceHandle:{:#x})", NamespaceHandle));
@@ -2050,10 +2050,10 @@ namespace
             it(NamespaceHandle);
     }
 
-    static void on_NtDeleteValueKey(monitor::syscallswow64::Data& d)
+    static void on_NtDeleteValueKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ValueName = arg<wntdll::PUNICODE_STRING>(d.core, 1);
+        const auto KeyHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto ValueName = arg<nt32::PUNICODE_STRING>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtDeleteValueKey(KeyHandle:{:#x}, ValueName:{:#x})", KeyHandle, ValueName));
@@ -2062,18 +2062,18 @@ namespace
             it(KeyHandle, ValueName);
     }
 
-    static void on_ZwDeviceIoControlFile(monitor::syscallswow64::Data& d)
+    static void on_ZwDeviceIoControlFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle         = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Event              = arg<wntdll::HANDLE>(d.core, 1);
-        const auto ApcRoutine         = arg<wntdll::PIO_APC_ROUTINE>(d.core, 2);
-        const auto ApcContext         = arg<wntdll::PVOID>(d.core, 3);
-        const auto IoStatusBlock      = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 4);
-        const auto IoControlCode      = arg<wntdll::ULONG>(d.core, 5);
-        const auto InputBuffer        = arg<wntdll::PVOID>(d.core, 6);
-        const auto InputBufferLength  = arg<wntdll::ULONG>(d.core, 7);
-        const auto OutputBuffer       = arg<wntdll::PVOID>(d.core, 8);
-        const auto OutputBufferLength = arg<wntdll::ULONG>(d.core, 9);
+        const auto FileHandle         = arg<nt32::HANDLE>(d.core, 0);
+        const auto Event              = arg<nt32::HANDLE>(d.core, 1);
+        const auto ApcRoutine         = arg<nt32::PIO_APC_ROUTINE>(d.core, 2);
+        const auto ApcContext         = arg<nt32::PVOID>(d.core, 3);
+        const auto IoStatusBlock      = arg<nt32::PIO_STATUS_BLOCK>(d.core, 4);
+        const auto IoControlCode      = arg<nt32::ULONG>(d.core, 5);
+        const auto InputBuffer        = arg<nt32::PVOID>(d.core, 6);
+        const auto InputBufferLength  = arg<nt32::ULONG>(d.core, 7);
+        const auto OutputBuffer       = arg<nt32::PVOID>(d.core, 8);
+        const auto OutputBufferLength = arg<nt32::ULONG>(d.core, 9);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwDeviceIoControlFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, IoControlCode:{:#x}, InputBuffer:{:#x}, InputBufferLength:{:#x}, OutputBuffer:{:#x}, OutputBufferLength:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength));
@@ -2082,9 +2082,9 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
     }
 
-    static void on_NtDisplayString(monitor::syscallswow64::Data& d)
+    static void on_NtDisplayString(monitor::syscalls32::Data& d)
     {
-        const auto String = arg<wntdll::PUNICODE_STRING>(d.core, 0);
+        const auto String = arg<nt32::PUNICODE_STRING>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtDisplayString(String:{:#x})", String));
@@ -2093,9 +2093,9 @@ namespace
             it(String);
     }
 
-    static void on_ZwDrawText(monitor::syscallswow64::Data& d)
+    static void on_ZwDrawText(monitor::syscalls32::Data& d)
     {
-        const auto Text = arg<wntdll::PUNICODE_STRING>(d.core, 0);
+        const auto Text = arg<nt32::PUNICODE_STRING>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwDrawText(Text:{:#x})", Text));
@@ -2104,15 +2104,15 @@ namespace
             it(Text);
     }
 
-    static void on_ZwDuplicateObject(monitor::syscallswow64::Data& d)
+    static void on_ZwDuplicateObject(monitor::syscalls32::Data& d)
     {
-        const auto SourceProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto SourceHandle        = arg<wntdll::HANDLE>(d.core, 1);
-        const auto TargetProcessHandle = arg<wntdll::HANDLE>(d.core, 2);
-        const auto TargetHandle        = arg<wntdll::PHANDLE>(d.core, 3);
-        const auto DesiredAccess       = arg<wntdll::ACCESS_MASK>(d.core, 4);
-        const auto HandleAttributes    = arg<wntdll::ULONG>(d.core, 5);
-        const auto Options             = arg<wntdll::ULONG>(d.core, 6);
+        const auto SourceProcessHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto SourceHandle        = arg<nt32::HANDLE>(d.core, 1);
+        const auto TargetProcessHandle = arg<nt32::HANDLE>(d.core, 2);
+        const auto TargetHandle        = arg<nt32::PHANDLE>(d.core, 3);
+        const auto DesiredAccess       = arg<nt32::ACCESS_MASK>(d.core, 4);
+        const auto HandleAttributes    = arg<nt32::ULONG>(d.core, 5);
+        const auto Options             = arg<nt32::ULONG>(d.core, 6);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwDuplicateObject(SourceProcessHandle:{:#x}, SourceHandle:{:#x}, TargetProcessHandle:{:#x}, TargetHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, Options:{:#x})", SourceProcessHandle, SourceHandle, TargetProcessHandle, TargetHandle, DesiredAccess, HandleAttributes, Options));
@@ -2121,14 +2121,14 @@ namespace
             it(SourceProcessHandle, SourceHandle, TargetProcessHandle, TargetHandle, DesiredAccess, HandleAttributes, Options);
     }
 
-    static void on_NtDuplicateToken(monitor::syscallswow64::Data& d)
+    static void on_NtDuplicateToken(monitor::syscalls32::Data& d)
     {
-        const auto ExistingTokenHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto DesiredAccess       = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes    = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto EffectiveOnly       = arg<wntdll::BOOLEAN>(d.core, 3);
-        const auto TokenType           = arg<wntdll::TOKEN_TYPE>(d.core, 4);
-        const auto NewTokenHandle      = arg<wntdll::PHANDLE>(d.core, 5);
+        const auto ExistingTokenHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto DesiredAccess       = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes    = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto EffectiveOnly       = arg<nt32::BOOLEAN>(d.core, 3);
+        const auto TokenType           = arg<nt32::TOKEN_TYPE>(d.core, 4);
+        const auto NewTokenHandle      = arg<nt32::PHANDLE>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtDuplicateToken(ExistingTokenHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, EffectiveOnly:{:#x}, TokenType:{:#x}, NewTokenHandle:{:#x})", ExistingTokenHandle, DesiredAccess, ObjectAttributes, EffectiveOnly, TokenType, NewTokenHandle));
@@ -2137,10 +2137,10 @@ namespace
             it(ExistingTokenHandle, DesiredAccess, ObjectAttributes, EffectiveOnly, TokenType, NewTokenHandle);
     }
 
-    static void on_ZwEnumerateBootEntries(monitor::syscallswow64::Data& d)
+    static void on_ZwEnumerateBootEntries(monitor::syscalls32::Data& d)
     {
-        const auto Buffer       = arg<wntdll::PVOID>(d.core, 0);
-        const auto BufferLength = arg<wntdll::PULONG>(d.core, 1);
+        const auto Buffer       = arg<nt32::PVOID>(d.core, 0);
+        const auto BufferLength = arg<nt32::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwEnumerateBootEntries(Buffer:{:#x}, BufferLength:{:#x})", Buffer, BufferLength));
@@ -2149,10 +2149,10 @@ namespace
             it(Buffer, BufferLength);
     }
 
-    static void on_NtEnumerateDriverEntries(monitor::syscallswow64::Data& d)
+    static void on_NtEnumerateDriverEntries(monitor::syscalls32::Data& d)
     {
-        const auto Buffer       = arg<wntdll::PVOID>(d.core, 0);
-        const auto BufferLength = arg<wntdll::PULONG>(d.core, 1);
+        const auto Buffer       = arg<nt32::PVOID>(d.core, 0);
+        const auto BufferLength = arg<nt32::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtEnumerateDriverEntries(Buffer:{:#x}, BufferLength:{:#x})", Buffer, BufferLength));
@@ -2161,14 +2161,14 @@ namespace
             it(Buffer, BufferLength);
     }
 
-    static void on_ZwEnumerateKey(monitor::syscallswow64::Data& d)
+    static void on_ZwEnumerateKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle           = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Index               = arg<wntdll::ULONG>(d.core, 1);
-        const auto KeyInformationClass = arg<wntdll::KEY_INFORMATION_CLASS>(d.core, 2);
-        const auto KeyInformation      = arg<wntdll::PVOID>(d.core, 3);
-        const auto Length              = arg<wntdll::ULONG>(d.core, 4);
-        const auto ResultLength        = arg<wntdll::PULONG>(d.core, 5);
+        const auto KeyHandle           = arg<nt32::HANDLE>(d.core, 0);
+        const auto Index               = arg<nt32::ULONG>(d.core, 1);
+        const auto KeyInformationClass = arg<nt32::KEY_INFORMATION_CLASS>(d.core, 2);
+        const auto KeyInformation      = arg<nt32::PVOID>(d.core, 3);
+        const auto Length              = arg<nt32::ULONG>(d.core, 4);
+        const auto ResultLength        = arg<nt32::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwEnumerateKey(KeyHandle:{:#x}, Index:{:#x}, KeyInformationClass:{:#x}, KeyInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, Index, KeyInformationClass, KeyInformation, Length, ResultLength));
@@ -2177,11 +2177,11 @@ namespace
             it(KeyHandle, Index, KeyInformationClass, KeyInformation, Length, ResultLength);
     }
 
-    static void on_ZwEnumerateSystemEnvironmentValuesEx(monitor::syscallswow64::Data& d)
+    static void on_ZwEnumerateSystemEnvironmentValuesEx(monitor::syscalls32::Data& d)
     {
-        const auto InformationClass = arg<wntdll::ULONG>(d.core, 0);
-        const auto Buffer           = arg<wntdll::PVOID>(d.core, 1);
-        const auto BufferLength     = arg<wntdll::PULONG>(d.core, 2);
+        const auto InformationClass = arg<nt32::ULONG>(d.core, 0);
+        const auto Buffer           = arg<nt32::PVOID>(d.core, 1);
+        const auto BufferLength     = arg<nt32::PULONG>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwEnumerateSystemEnvironmentValuesEx(InformationClass:{:#x}, Buffer:{:#x}, BufferLength:{:#x})", InformationClass, Buffer, BufferLength));
@@ -2190,13 +2190,13 @@ namespace
             it(InformationClass, Buffer, BufferLength);
     }
 
-    static void on_ZwEnumerateTransactionObject(monitor::syscallswow64::Data& d)
+    static void on_ZwEnumerateTransactionObject(monitor::syscalls32::Data& d)
     {
-        const auto RootObjectHandle   = arg<wntdll::HANDLE>(d.core, 0);
-        const auto QueryType          = arg<wntdll::KTMOBJECT_TYPE>(d.core, 1);
-        const auto ObjectCursor       = arg<wntdll::PKTMOBJECT_CURSOR>(d.core, 2);
-        const auto ObjectCursorLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength       = arg<wntdll::PULONG>(d.core, 4);
+        const auto RootObjectHandle   = arg<nt32::HANDLE>(d.core, 0);
+        const auto QueryType          = arg<nt32::KTMOBJECT_TYPE>(d.core, 1);
+        const auto ObjectCursor       = arg<nt32::PKTMOBJECT_CURSOR>(d.core, 2);
+        const auto ObjectCursorLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength       = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwEnumerateTransactionObject(RootObjectHandle:{:#x}, QueryType:{:#x}, ObjectCursor:{:#x}, ObjectCursorLength:{:#x}, ReturnLength:{:#x})", RootObjectHandle, QueryType, ObjectCursor, ObjectCursorLength, ReturnLength));
@@ -2205,14 +2205,14 @@ namespace
             it(RootObjectHandle, QueryType, ObjectCursor, ObjectCursorLength, ReturnLength);
     }
 
-    static void on_NtEnumerateValueKey(monitor::syscallswow64::Data& d)
+    static void on_NtEnumerateValueKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle                = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Index                    = arg<wntdll::ULONG>(d.core, 1);
-        const auto KeyValueInformationClass = arg<wntdll::KEY_VALUE_INFORMATION_CLASS>(d.core, 2);
-        const auto KeyValueInformation      = arg<wntdll::PVOID>(d.core, 3);
-        const auto Length                   = arg<wntdll::ULONG>(d.core, 4);
-        const auto ResultLength             = arg<wntdll::PULONG>(d.core, 5);
+        const auto KeyHandle                = arg<nt32::HANDLE>(d.core, 0);
+        const auto Index                    = arg<nt32::ULONG>(d.core, 1);
+        const auto KeyValueInformationClass = arg<nt32::KEY_VALUE_INFORMATION_CLASS>(d.core, 2);
+        const auto KeyValueInformation      = arg<nt32::PVOID>(d.core, 3);
+        const auto Length                   = arg<nt32::ULONG>(d.core, 4);
+        const auto ResultLength             = arg<nt32::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtEnumerateValueKey(KeyHandle:{:#x}, Index:{:#x}, KeyValueInformationClass:{:#x}, KeyValueInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, Index, KeyValueInformationClass, KeyValueInformation, Length, ResultLength));
@@ -2221,10 +2221,10 @@ namespace
             it(KeyHandle, Index, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
     }
 
-    static void on_ZwExtendSection(monitor::syscallswow64::Data& d)
+    static void on_ZwExtendSection(monitor::syscalls32::Data& d)
     {
-        const auto SectionHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto NewSectionSize = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto SectionHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto NewSectionSize = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwExtendSection(SectionHandle:{:#x}, NewSectionSize:{:#x})", SectionHandle, NewSectionSize));
@@ -2233,14 +2233,14 @@ namespace
             it(SectionHandle, NewSectionSize);
     }
 
-    static void on_NtFilterToken(monitor::syscallswow64::Data& d)
+    static void on_NtFilterToken(monitor::syscalls32::Data& d)
     {
-        const auto ExistingTokenHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags               = arg<wntdll::ULONG>(d.core, 1);
-        const auto SidsToDisable       = arg<wntdll::PTOKEN_GROUPS>(d.core, 2);
-        const auto PrivilegesToDelete  = arg<wntdll::PTOKEN_PRIVILEGES>(d.core, 3);
-        const auto RestrictedSids      = arg<wntdll::PTOKEN_GROUPS>(d.core, 4);
-        const auto NewTokenHandle      = arg<wntdll::PHANDLE>(d.core, 5);
+        const auto ExistingTokenHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags               = arg<nt32::ULONG>(d.core, 1);
+        const auto SidsToDisable       = arg<nt32::PTOKEN_GROUPS>(d.core, 2);
+        const auto PrivilegesToDelete  = arg<nt32::PTOKEN_PRIVILEGES>(d.core, 3);
+        const auto RestrictedSids      = arg<nt32::PTOKEN_GROUPS>(d.core, 4);
+        const auto NewTokenHandle      = arg<nt32::PHANDLE>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtFilterToken(ExistingTokenHandle:{:#x}, Flags:{:#x}, SidsToDisable:{:#x}, PrivilegesToDelete:{:#x}, RestrictedSids:{:#x}, NewTokenHandle:{:#x})", ExistingTokenHandle, Flags, SidsToDisable, PrivilegesToDelete, RestrictedSids, NewTokenHandle));
@@ -2249,11 +2249,11 @@ namespace
             it(ExistingTokenHandle, Flags, SidsToDisable, PrivilegesToDelete, RestrictedSids, NewTokenHandle);
     }
 
-    static void on_NtFindAtom(monitor::syscallswow64::Data& d)
+    static void on_NtFindAtom(monitor::syscalls32::Data& d)
     {
-        const auto AtomName = arg<wntdll::PWSTR>(d.core, 0);
-        const auto Length   = arg<wntdll::ULONG>(d.core, 1);
-        const auto Atom     = arg<wntdll::PRTL_ATOM>(d.core, 2);
+        const auto AtomName = arg<nt32::PWSTR>(d.core, 0);
+        const auto Length   = arg<nt32::ULONG>(d.core, 1);
+        const auto Atom     = arg<nt32::PRTL_ATOM>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtFindAtom(AtomName:{:#x}, Length:{:#x}, Atom:{:#x})", AtomName, Length, Atom));
@@ -2262,10 +2262,10 @@ namespace
             it(AtomName, Length, Atom);
     }
 
-    static void on_ZwFlushBuffersFile(monitor::syscallswow64::Data& d)
+    static void on_ZwFlushBuffersFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoStatusBlock = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
+        const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoStatusBlock = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwFlushBuffersFile(FileHandle:{:#x}, IoStatusBlock:{:#x})", FileHandle, IoStatusBlock));
@@ -2274,10 +2274,10 @@ namespace
             it(FileHandle, IoStatusBlock);
     }
 
-    static void on_ZwFlushInstallUILanguage(monitor::syscallswow64::Data& d)
+    static void on_ZwFlushInstallUILanguage(monitor::syscalls32::Data& d)
     {
-        const auto InstallUILanguage = arg<wntdll::LANGID>(d.core, 0);
-        const auto SetComittedFlag   = arg<wntdll::ULONG>(d.core, 1);
+        const auto InstallUILanguage = arg<nt32::LANGID>(d.core, 0);
+        const auto SetComittedFlag   = arg<nt32::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwFlushInstallUILanguage(InstallUILanguage:{:#x}, SetComittedFlag:{:#x})", InstallUILanguage, SetComittedFlag));
@@ -2286,11 +2286,11 @@ namespace
             it(InstallUILanguage, SetComittedFlag);
     }
 
-    static void on_ZwFlushInstructionCache(monitor::syscallswow64::Data& d)
+    static void on_ZwFlushInstructionCache(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto BaseAddress   = arg<wntdll::PVOID>(d.core, 1);
-        const auto Length        = arg<wntdll::SIZE_T>(d.core, 2);
+        const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto BaseAddress   = arg<nt32::PVOID>(d.core, 1);
+        const auto Length        = arg<nt32::SIZE_T>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwFlushInstructionCache(ProcessHandle:{:#x}, BaseAddress:{:#x}, Length:{:#x})", ProcessHandle, BaseAddress, Length));
@@ -2299,9 +2299,9 @@ namespace
             it(ProcessHandle, BaseAddress, Length);
     }
 
-    static void on_NtFlushKey(monitor::syscallswow64::Data& d)
+    static void on_NtFlushKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto KeyHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtFlushKey(KeyHandle:{:#x})", KeyHandle));
@@ -2310,12 +2310,12 @@ namespace
             it(KeyHandle);
     }
 
-    static void on_ZwFlushVirtualMemory(monitor::syscallswow64::Data& d)
+    static void on_ZwFlushVirtualMemory(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle   = arg<wntdll::HANDLE>(d.core, 0);
-        const auto STARBaseAddress = arg<wntdll::PVOID>(d.core, 1);
-        const auto RegionSize      = arg<wntdll::PSIZE_T>(d.core, 2);
-        const auto IoStatus        = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 3);
+        const auto ProcessHandle   = arg<nt32::HANDLE>(d.core, 0);
+        const auto STARBaseAddress = arg<nt32::PVOID>(d.core, 1);
+        const auto RegionSize      = arg<nt32::PSIZE_T>(d.core, 2);
+        const auto IoStatus        = arg<nt32::PIO_STATUS_BLOCK>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwFlushVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, IoStatus:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, IoStatus));
@@ -2324,11 +2324,11 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, IoStatus);
     }
 
-    static void on_NtFreeUserPhysicalPages(monitor::syscallswow64::Data& d)
+    static void on_NtFreeUserPhysicalPages(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto NumberOfPages = arg<wntdll::PULONG_PTR>(d.core, 1);
-        const auto UserPfnArra   = arg<wntdll::PULONG_PTR>(d.core, 2);
+        const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto NumberOfPages = arg<nt32::PULONG_PTR>(d.core, 1);
+        const auto UserPfnArra   = arg<nt32::PULONG_PTR>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtFreeUserPhysicalPages(ProcessHandle:{:#x}, NumberOfPages:{:#x}, UserPfnArra:{:#x})", ProcessHandle, NumberOfPages, UserPfnArra));
@@ -2337,12 +2337,12 @@ namespace
             it(ProcessHandle, NumberOfPages, UserPfnArra);
     }
 
-    static void on_NtFreeVirtualMemory(monitor::syscallswow64::Data& d)
+    static void on_NtFreeVirtualMemory(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle   = arg<wntdll::HANDLE>(d.core, 0);
-        const auto STARBaseAddress = arg<wntdll::PVOID>(d.core, 1);
-        const auto RegionSize      = arg<wntdll::PSIZE_T>(d.core, 2);
-        const auto FreeType        = arg<wntdll::ULONG>(d.core, 3);
+        const auto ProcessHandle   = arg<nt32::HANDLE>(d.core, 0);
+        const auto STARBaseAddress = arg<nt32::PVOID>(d.core, 1);
+        const auto RegionSize      = arg<nt32::PSIZE_T>(d.core, 2);
+        const auto FreeType        = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtFreeVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, FreeType:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, FreeType));
@@ -2351,9 +2351,9 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, FreeType);
     }
 
-    static void on_NtFreezeRegistry(monitor::syscallswow64::Data& d)
+    static void on_NtFreezeRegistry(monitor::syscalls32::Data& d)
     {
-        const auto TimeOutInSeconds = arg<wntdll::ULONG>(d.core, 0);
+        const auto TimeOutInSeconds = arg<nt32::ULONG>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtFreezeRegistry(TimeOutInSeconds:{:#x})", TimeOutInSeconds));
@@ -2362,10 +2362,10 @@ namespace
             it(TimeOutInSeconds);
     }
 
-    static void on_ZwFreezeTransactions(monitor::syscallswow64::Data& d)
+    static void on_ZwFreezeTransactions(monitor::syscalls32::Data& d)
     {
-        const auto FreezeTimeout = arg<wntdll::PLARGE_INTEGER>(d.core, 0);
-        const auto ThawTimeout   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto FreezeTimeout = arg<nt32::PLARGE_INTEGER>(d.core, 0);
+        const auto ThawTimeout   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwFreezeTransactions(FreezeTimeout:{:#x}, ThawTimeout:{:#x})", FreezeTimeout, ThawTimeout));
@@ -2374,18 +2374,18 @@ namespace
             it(FreezeTimeout, ThawTimeout);
     }
 
-    static void on_NtFsControlFile(monitor::syscallswow64::Data& d)
+    static void on_NtFsControlFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle         = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Event              = arg<wntdll::HANDLE>(d.core, 1);
-        const auto ApcRoutine         = arg<wntdll::PIO_APC_ROUTINE>(d.core, 2);
-        const auto ApcContext         = arg<wntdll::PVOID>(d.core, 3);
-        const auto IoStatusBlock      = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 4);
-        const auto IoControlCode      = arg<wntdll::ULONG>(d.core, 5);
-        const auto InputBuffer        = arg<wntdll::PVOID>(d.core, 6);
-        const auto InputBufferLength  = arg<wntdll::ULONG>(d.core, 7);
-        const auto OutputBuffer       = arg<wntdll::PVOID>(d.core, 8);
-        const auto OutputBufferLength = arg<wntdll::ULONG>(d.core, 9);
+        const auto FileHandle         = arg<nt32::HANDLE>(d.core, 0);
+        const auto Event              = arg<nt32::HANDLE>(d.core, 1);
+        const auto ApcRoutine         = arg<nt32::PIO_APC_ROUTINE>(d.core, 2);
+        const auto ApcContext         = arg<nt32::PVOID>(d.core, 3);
+        const auto IoStatusBlock      = arg<nt32::PIO_STATUS_BLOCK>(d.core, 4);
+        const auto IoControlCode      = arg<nt32::ULONG>(d.core, 5);
+        const auto InputBuffer        = arg<nt32::PVOID>(d.core, 6);
+        const auto InputBufferLength  = arg<nt32::ULONG>(d.core, 7);
+        const auto OutputBuffer       = arg<nt32::PVOID>(d.core, 8);
+        const auto OutputBufferLength = arg<nt32::ULONG>(d.core, 9);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtFsControlFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, IoControlCode:{:#x}, InputBuffer:{:#x}, InputBufferLength:{:#x}, OutputBuffer:{:#x}, OutputBufferLength:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength));
@@ -2394,10 +2394,10 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
     }
 
-    static void on_NtGetContextThread(monitor::syscallswow64::Data& d)
+    static void on_NtGetContextThread(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ThreadContext = arg<wntdll::PCONTEXT>(d.core, 1);
+        const auto ThreadHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto ThreadContext = arg<nt32::PCONTEXT>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtGetContextThread(ThreadHandle:{:#x}, ThreadContext:{:#x})", ThreadHandle, ThreadContext));
@@ -2406,10 +2406,10 @@ namespace
             it(ThreadHandle, ThreadContext);
     }
 
-    static void on_NtGetDevicePowerState(monitor::syscallswow64::Data& d)
+    static void on_NtGetDevicePowerState(monitor::syscalls32::Data& d)
     {
-        const auto Device    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto STARState = arg<wntdll::DEVICE_POWER_STATE>(d.core, 1);
+        const auto Device    = arg<nt32::HANDLE>(d.core, 0);
+        const auto STARState = arg<nt32::DEVICE_POWER_STATE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtGetDevicePowerState(Device:{:#x}, STARState:{:#x})", Device, STARState));
@@ -2418,11 +2418,11 @@ namespace
             it(Device, STARState);
     }
 
-    static void on_NtGetMUIRegistryInfo(monitor::syscallswow64::Data& d)
+    static void on_NtGetMUIRegistryInfo(monitor::syscalls32::Data& d)
     {
-        const auto Flags    = arg<wntdll::ULONG>(d.core, 0);
-        const auto DataSize = arg<wntdll::PULONG>(d.core, 1);
-        const auto Data     = arg<wntdll::PVOID>(d.core, 2);
+        const auto Flags    = arg<nt32::ULONG>(d.core, 0);
+        const auto DataSize = arg<nt32::PULONG>(d.core, 1);
+        const auto Data     = arg<nt32::PVOID>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtGetMUIRegistryInfo(Flags:{:#x}, DataSize:{:#x}, Data:{:#x})", Flags, DataSize, Data));
@@ -2431,13 +2431,13 @@ namespace
             it(Flags, DataSize, Data);
     }
 
-    static void on_ZwGetNextProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwGetNextProcess(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto HandleAttributes = arg<wntdll::ULONG>(d.core, 2);
-        const auto Flags            = arg<wntdll::ULONG>(d.core, 3);
-        const auto NewProcessHandle = arg<wntdll::PHANDLE>(d.core, 4);
+        const auto ProcessHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto HandleAttributes = arg<nt32::ULONG>(d.core, 2);
+        const auto Flags            = arg<nt32::ULONG>(d.core, 3);
+        const auto NewProcessHandle = arg<nt32::PHANDLE>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwGetNextProcess(ProcessHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, Flags:{:#x}, NewProcessHandle:{:#x})", ProcessHandle, DesiredAccess, HandleAttributes, Flags, NewProcessHandle));
@@ -2446,14 +2446,14 @@ namespace
             it(ProcessHandle, DesiredAccess, HandleAttributes, Flags, NewProcessHandle);
     }
 
-    static void on_ZwGetNextThread(monitor::syscallswow64::Data& d)
+    static void on_ZwGetNextThread(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ThreadHandle     = arg<wntdll::HANDLE>(d.core, 1);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 2);
-        const auto HandleAttributes = arg<wntdll::ULONG>(d.core, 3);
-        const auto Flags            = arg<wntdll::ULONG>(d.core, 4);
-        const auto NewThreadHandle  = arg<wntdll::PHANDLE>(d.core, 5);
+        const auto ProcessHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto ThreadHandle     = arg<nt32::HANDLE>(d.core, 1);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 2);
+        const auto HandleAttributes = arg<nt32::ULONG>(d.core, 3);
+        const auto Flags            = arg<nt32::ULONG>(d.core, 4);
+        const auto NewThreadHandle  = arg<nt32::PHANDLE>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwGetNextThread(ProcessHandle:{:#x}, ThreadHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, Flags:{:#x}, NewThreadHandle:{:#x})", ProcessHandle, ThreadHandle, DesiredAccess, HandleAttributes, Flags, NewThreadHandle));
@@ -2462,13 +2462,13 @@ namespace
             it(ProcessHandle, ThreadHandle, DesiredAccess, HandleAttributes, Flags, NewThreadHandle);
     }
 
-    static void on_NtGetNlsSectionPtr(monitor::syscallswow64::Data& d)
+    static void on_NtGetNlsSectionPtr(monitor::syscalls32::Data& d)
     {
-        const auto SectionType        = arg<wntdll::ULONG>(d.core, 0);
-        const auto SectionData        = arg<wntdll::ULONG>(d.core, 1);
-        const auto ContextData        = arg<wntdll::PVOID>(d.core, 2);
-        const auto STARSectionPointer = arg<wntdll::PVOID>(d.core, 3);
-        const auto SectionSize        = arg<wntdll::PULONG>(d.core, 4);
+        const auto SectionType        = arg<nt32::ULONG>(d.core, 0);
+        const auto SectionData        = arg<nt32::ULONG>(d.core, 1);
+        const auto ContextData        = arg<nt32::PVOID>(d.core, 2);
+        const auto STARSectionPointer = arg<nt32::PVOID>(d.core, 3);
+        const auto SectionSize        = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtGetNlsSectionPtr(SectionType:{:#x}, SectionData:{:#x}, ContextData:{:#x}, STARSectionPointer:{:#x}, SectionSize:{:#x})", SectionType, SectionData, ContextData, STARSectionPointer, SectionSize));
@@ -2477,15 +2477,15 @@ namespace
             it(SectionType, SectionData, ContextData, STARSectionPointer, SectionSize);
     }
 
-    static void on_ZwGetNotificationResourceManager(monitor::syscallswow64::Data& d)
+    static void on_ZwGetNotificationResourceManager(monitor::syscalls32::Data& d)
     {
-        const auto ResourceManagerHandle   = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TransactionNotification = arg<wntdll::PTRANSACTION_NOTIFICATION>(d.core, 1);
-        const auto NotificationLength      = arg<wntdll::ULONG>(d.core, 2);
-        const auto Timeout                 = arg<wntdll::PLARGE_INTEGER>(d.core, 3);
-        const auto ReturnLength            = arg<wntdll::PULONG>(d.core, 4);
-        const auto Asynchronous            = arg<wntdll::ULONG>(d.core, 5);
-        const auto AsynchronousContext     = arg<wntdll::ULONG_PTR>(d.core, 6);
+        const auto ResourceManagerHandle   = arg<nt32::HANDLE>(d.core, 0);
+        const auto TransactionNotification = arg<nt32::PTRANSACTION_NOTIFICATION>(d.core, 1);
+        const auto NotificationLength      = arg<nt32::ULONG>(d.core, 2);
+        const auto Timeout                 = arg<nt32::PLARGE_INTEGER>(d.core, 3);
+        const auto ReturnLength            = arg<nt32::PULONG>(d.core, 4);
+        const auto Asynchronous            = arg<nt32::ULONG>(d.core, 5);
+        const auto AsynchronousContext     = arg<nt32::ULONG_PTR>(d.core, 6);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwGetNotificationResourceManager(ResourceManagerHandle:{:#x}, TransactionNotification:{:#x}, NotificationLength:{:#x}, Timeout:{:#x}, ReturnLength:{:#x}, Asynchronous:{:#x}, AsynchronousContext:{:#x})", ResourceManagerHandle, TransactionNotification, NotificationLength, Timeout, ReturnLength, Asynchronous, AsynchronousContext));
@@ -2494,15 +2494,15 @@ namespace
             it(ResourceManagerHandle, TransactionNotification, NotificationLength, Timeout, ReturnLength, Asynchronous, AsynchronousContext);
     }
 
-    static void on_NtGetWriteWatch(monitor::syscallswow64::Data& d)
+    static void on_NtGetWriteWatch(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle             = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags                     = arg<wntdll::ULONG>(d.core, 1);
-        const auto BaseAddress               = arg<wntdll::PVOID>(d.core, 2);
-        const auto RegionSize                = arg<wntdll::SIZE_T>(d.core, 3);
-        const auto STARUserAddressArray      = arg<wntdll::PVOID>(d.core, 4);
-        const auto EntriesInUserAddressArray = arg<wntdll::PULONG_PTR>(d.core, 5);
-        const auto Granularity               = arg<wntdll::PULONG>(d.core, 6);
+        const auto ProcessHandle             = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags                     = arg<nt32::ULONG>(d.core, 1);
+        const auto BaseAddress               = arg<nt32::PVOID>(d.core, 2);
+        const auto RegionSize                = arg<nt32::SIZE_T>(d.core, 3);
+        const auto STARUserAddressArray      = arg<nt32::PVOID>(d.core, 4);
+        const auto EntriesInUserAddressArray = arg<nt32::PULONG_PTR>(d.core, 5);
+        const auto Granularity               = arg<nt32::PULONG>(d.core, 6);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtGetWriteWatch(ProcessHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, RegionSize:{:#x}, STARUserAddressArray:{:#x}, EntriesInUserAddressArray:{:#x}, Granularity:{:#x})", ProcessHandle, Flags, BaseAddress, RegionSize, STARUserAddressArray, EntriesInUserAddressArray, Granularity));
@@ -2511,9 +2511,9 @@ namespace
             it(ProcessHandle, Flags, BaseAddress, RegionSize, STARUserAddressArray, EntriesInUserAddressArray, Granularity);
     }
 
-    static void on_NtImpersonateAnonymousToken(monitor::syscallswow64::Data& d)
+    static void on_NtImpersonateAnonymousToken(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto ThreadHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtImpersonateAnonymousToken(ThreadHandle:{:#x})", ThreadHandle));
@@ -2522,10 +2522,10 @@ namespace
             it(ThreadHandle);
     }
 
-    static void on_ZwImpersonateClientOfPort(monitor::syscallswow64::Data& d)
+    static void on_ZwImpersonateClientOfPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Message    = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
+        const auto PortHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto Message    = arg<nt32::PPORT_MESSAGE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwImpersonateClientOfPort(PortHandle:{:#x}, Message:{:#x})", PortHandle, Message));
@@ -2534,11 +2534,11 @@ namespace
             it(PortHandle, Message);
     }
 
-    static void on_ZwImpersonateThread(monitor::syscallswow64::Data& d)
+    static void on_ZwImpersonateThread(monitor::syscalls32::Data& d)
     {
-        const auto ServerThreadHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ClientThreadHandle = arg<wntdll::HANDLE>(d.core, 1);
-        const auto SecurityQos        = arg<wntdll::PSECURITY_QUALITY_OF_SERVICE>(d.core, 2);
+        const auto ServerThreadHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto ClientThreadHandle = arg<nt32::HANDLE>(d.core, 1);
+        const auto SecurityQos        = arg<nt32::PSECURITY_QUALITY_OF_SERVICE>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwImpersonateThread(ServerThreadHandle:{:#x}, ClientThreadHandle:{:#x}, SecurityQos:{:#x})", ServerThreadHandle, ClientThreadHandle, SecurityQos));
@@ -2547,11 +2547,11 @@ namespace
             it(ServerThreadHandle, ClientThreadHandle, SecurityQos);
     }
 
-    static void on_NtInitializeNlsFiles(monitor::syscallswow64::Data& d)
+    static void on_NtInitializeNlsFiles(monitor::syscalls32::Data& d)
     {
-        const auto STARBaseAddress        = arg<wntdll::PVOID>(d.core, 0);
-        const auto DefaultLocaleId        = arg<wntdll::PLCID>(d.core, 1);
-        const auto DefaultCasingTableSize = arg<wntdll::PLARGE_INTEGER>(d.core, 2);
+        const auto STARBaseAddress        = arg<nt32::PVOID>(d.core, 0);
+        const auto DefaultLocaleId        = arg<nt32::PLCID>(d.core, 1);
+        const auto DefaultCasingTableSize = arg<nt32::PLARGE_INTEGER>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtInitializeNlsFiles(STARBaseAddress:{:#x}, DefaultLocaleId:{:#x}, DefaultCasingTableSize:{:#x})", STARBaseAddress, DefaultLocaleId, DefaultCasingTableSize));
@@ -2560,9 +2560,9 @@ namespace
             it(STARBaseAddress, DefaultLocaleId, DefaultCasingTableSize);
     }
 
-    static void on_ZwInitializeRegistry(monitor::syscallswow64::Data& d)
+    static void on_ZwInitializeRegistry(monitor::syscalls32::Data& d)
     {
-        const auto BootCondition = arg<wntdll::USHORT>(d.core, 0);
+        const auto BootCondition = arg<nt32::USHORT>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwInitializeRegistry(BootCondition:{:#x})", BootCondition));
@@ -2571,12 +2571,12 @@ namespace
             it(BootCondition);
     }
 
-    static void on_NtInitiatePowerAction(monitor::syscallswow64::Data& d)
+    static void on_NtInitiatePowerAction(monitor::syscalls32::Data& d)
     {
-        const auto SystemAction   = arg<wntdll::POWER_ACTION>(d.core, 0);
-        const auto MinSystemState = arg<wntdll::SYSTEM_POWER_STATE>(d.core, 1);
-        const auto Flags          = arg<wntdll::ULONG>(d.core, 2);
-        const auto Asynchronous   = arg<wntdll::BOOLEAN>(d.core, 3);
+        const auto SystemAction   = arg<nt32::POWER_ACTION>(d.core, 0);
+        const auto MinSystemState = arg<nt32::SYSTEM_POWER_STATE>(d.core, 1);
+        const auto Flags          = arg<nt32::ULONG>(d.core, 2);
+        const auto Asynchronous   = arg<nt32::BOOLEAN>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtInitiatePowerAction(SystemAction:{:#x}, MinSystemState:{:#x}, Flags:{:#x}, Asynchronous:{:#x})", SystemAction, MinSystemState, Flags, Asynchronous));
@@ -2585,10 +2585,10 @@ namespace
             it(SystemAction, MinSystemState, Flags, Asynchronous);
     }
 
-    static void on_ZwIsProcessInJob(monitor::syscallswow64::Data& d)
+    static void on_ZwIsProcessInJob(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto JobHandle     = arg<wntdll::HANDLE>(d.core, 1);
+        const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto JobHandle     = arg<nt32::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwIsProcessInJob(ProcessHandle:{:#x}, JobHandle:{:#x})", ProcessHandle, JobHandle));
@@ -2597,10 +2597,10 @@ namespace
             it(ProcessHandle, JobHandle);
     }
 
-    static void on_ZwListenPort(monitor::syscallswow64::Data& d)
+    static void on_ZwListenPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle        = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ConnectionRequest = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
+        const auto PortHandle        = arg<nt32::HANDLE>(d.core, 0);
+        const auto ConnectionRequest = arg<nt32::PPORT_MESSAGE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwListenPort(PortHandle:{:#x}, ConnectionRequest:{:#x})", PortHandle, ConnectionRequest));
@@ -2609,9 +2609,9 @@ namespace
             it(PortHandle, ConnectionRequest);
     }
 
-    static void on_NtLoadDriver(monitor::syscallswow64::Data& d)
+    static void on_NtLoadDriver(monitor::syscalls32::Data& d)
     {
-        const auto DriverServiceName = arg<wntdll::PUNICODE_STRING>(d.core, 0);
+        const auto DriverServiceName = arg<nt32::PUNICODE_STRING>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtLoadDriver(DriverServiceName:{:#x})", DriverServiceName));
@@ -2620,11 +2620,11 @@ namespace
             it(DriverServiceName);
     }
 
-    static void on_NtLoadKey2(monitor::syscallswow64::Data& d)
+    static void on_NtLoadKey2(monitor::syscalls32::Data& d)
     {
-        const auto TargetKey  = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
-        const auto SourceFile = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 1);
-        const auto Flags      = arg<wntdll::ULONG>(d.core, 2);
+        const auto TargetKey  = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
+        const auto SourceFile = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 1);
+        const auto Flags      = arg<nt32::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtLoadKey2(TargetKey:{:#x}, SourceFile:{:#x}, Flags:{:#x})", TargetKey, SourceFile, Flags));
@@ -2633,16 +2633,16 @@ namespace
             it(TargetKey, SourceFile, Flags);
     }
 
-    static void on_NtLoadKeyEx(monitor::syscallswow64::Data& d)
+    static void on_NtLoadKeyEx(monitor::syscalls32::Data& d)
     {
-        const auto TargetKey         = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
-        const auto SourceFile        = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 1);
-        const auto Flags             = arg<wntdll::ULONG>(d.core, 2);
-        const auto TrustClassKey     = arg<wntdll::HANDLE>(d.core, 3);
-        const auto Reserved          = arg<wntdll::PVOID>(d.core, 4);
-        const auto ObjectContext     = arg<wntdll::PVOID>(d.core, 5);
-        const auto CallbackReserverd = arg<wntdll::PVOID>(d.core, 6);
-        const auto IoStatusBlock     = arg<wntdll::PVOID>(d.core, 7);
+        const auto TargetKey         = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
+        const auto SourceFile        = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 1);
+        const auto Flags             = arg<nt32::ULONG>(d.core, 2);
+        const auto TrustClassKey     = arg<nt32::HANDLE>(d.core, 3);
+        const auto Reserved          = arg<nt32::PVOID>(d.core, 4);
+        const auto ObjectContext     = arg<nt32::PVOID>(d.core, 5);
+        const auto CallbackReserverd = arg<nt32::PVOID>(d.core, 6);
+        const auto IoStatusBlock     = arg<nt32::PVOID>(d.core, 7);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtLoadKeyEx(TargetKey:{:#x}, SourceFile:{:#x}, Flags:{:#x}, TrustClassKey:{:#x}, Reserved:{:#x}, ObjectContext:{:#x}, CallbackReserverd:{:#x}, IoStatusBlock:{:#x})", TargetKey, SourceFile, Flags, TrustClassKey, Reserved, ObjectContext, CallbackReserverd, IoStatusBlock));
@@ -2651,10 +2651,10 @@ namespace
             it(TargetKey, SourceFile, Flags, TrustClassKey, Reserved, ObjectContext, CallbackReserverd, IoStatusBlock);
     }
 
-    static void on_NtLoadKey(monitor::syscallswow64::Data& d)
+    static void on_NtLoadKey(monitor::syscalls32::Data& d)
     {
-        const auto TargetKey  = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
-        const auto SourceFile = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 1);
+        const auto TargetKey  = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
+        const auto SourceFile = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtLoadKey(TargetKey:{:#x}, SourceFile:{:#x})", TargetKey, SourceFile));
@@ -2663,18 +2663,18 @@ namespace
             it(TargetKey, SourceFile);
     }
 
-    static void on_NtLockFile(monitor::syscallswow64::Data& d)
+    static void on_NtLockFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle      = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Event           = arg<wntdll::HANDLE>(d.core, 1);
-        const auto ApcRoutine      = arg<wntdll::PIO_APC_ROUTINE>(d.core, 2);
-        const auto ApcContext      = arg<wntdll::PVOID>(d.core, 3);
-        const auto IoStatusBlock   = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 4);
-        const auto ByteOffset      = arg<wntdll::PLARGE_INTEGER>(d.core, 5);
-        const auto Length          = arg<wntdll::PLARGE_INTEGER>(d.core, 6);
-        const auto Key             = arg<wntdll::ULONG>(d.core, 7);
-        const auto FailImmediately = arg<wntdll::BOOLEAN>(d.core, 8);
-        const auto ExclusiveLock   = arg<wntdll::BOOLEAN>(d.core, 9);
+        const auto FileHandle      = arg<nt32::HANDLE>(d.core, 0);
+        const auto Event           = arg<nt32::HANDLE>(d.core, 1);
+        const auto ApcRoutine      = arg<nt32::PIO_APC_ROUTINE>(d.core, 2);
+        const auto ApcContext      = arg<nt32::PVOID>(d.core, 3);
+        const auto IoStatusBlock   = arg<nt32::PIO_STATUS_BLOCK>(d.core, 4);
+        const auto ByteOffset      = arg<nt32::PLARGE_INTEGER>(d.core, 5);
+        const auto Length          = arg<nt32::PLARGE_INTEGER>(d.core, 6);
+        const auto Key             = arg<nt32::ULONG>(d.core, 7);
+        const auto FailImmediately = arg<nt32::BOOLEAN>(d.core, 8);
+        const auto ExclusiveLock   = arg<nt32::BOOLEAN>(d.core, 9);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtLockFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, ByteOffset:{:#x}, Length:{:#x}, Key:{:#x}, FailImmediately:{:#x}, ExclusiveLock:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, ByteOffset, Length, Key, FailImmediately, ExclusiveLock));
@@ -2683,10 +2683,10 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, ByteOffset, Length, Key, FailImmediately, ExclusiveLock);
     }
 
-    static void on_ZwLockProductActivationKeys(monitor::syscallswow64::Data& d)
+    static void on_ZwLockProductActivationKeys(monitor::syscalls32::Data& d)
     {
-        const auto STARpPrivateVer = arg<wntdll::ULONG>(d.core, 0);
-        const auto STARpSafeMode   = arg<wntdll::ULONG>(d.core, 1);
+        const auto STARpPrivateVer = arg<nt32::ULONG>(d.core, 0);
+        const auto STARpSafeMode   = arg<nt32::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwLockProductActivationKeys(STARpPrivateVer:{:#x}, STARpSafeMode:{:#x})", STARpPrivateVer, STARpSafeMode));
@@ -2695,9 +2695,9 @@ namespace
             it(STARpPrivateVer, STARpSafeMode);
     }
 
-    static void on_NtLockRegistryKey(monitor::syscallswow64::Data& d)
+    static void on_NtLockRegistryKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto KeyHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtLockRegistryKey(KeyHandle:{:#x})", KeyHandle));
@@ -2706,12 +2706,12 @@ namespace
             it(KeyHandle);
     }
 
-    static void on_ZwLockVirtualMemory(monitor::syscallswow64::Data& d)
+    static void on_ZwLockVirtualMemory(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle   = arg<wntdll::HANDLE>(d.core, 0);
-        const auto STARBaseAddress = arg<wntdll::PVOID>(d.core, 1);
-        const auto RegionSize      = arg<wntdll::PSIZE_T>(d.core, 2);
-        const auto MapType         = arg<wntdll::ULONG>(d.core, 3);
+        const auto ProcessHandle   = arg<nt32::HANDLE>(d.core, 0);
+        const auto STARBaseAddress = arg<nt32::PVOID>(d.core, 1);
+        const auto RegionSize      = arg<nt32::PSIZE_T>(d.core, 2);
+        const auto MapType         = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwLockVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, MapType:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, MapType));
@@ -2720,9 +2720,9 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, MapType);
     }
 
-    static void on_ZwMakePermanentObject(monitor::syscallswow64::Data& d)
+    static void on_ZwMakePermanentObject(monitor::syscalls32::Data& d)
     {
-        const auto Handle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto Handle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwMakePermanentObject(Handle:{:#x})", Handle));
@@ -2731,9 +2731,9 @@ namespace
             it(Handle);
     }
 
-    static void on_NtMakeTemporaryObject(monitor::syscallswow64::Data& d)
+    static void on_NtMakeTemporaryObject(monitor::syscalls32::Data& d)
     {
-        const auto Handle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto Handle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtMakeTemporaryObject(Handle:{:#x})", Handle));
@@ -2742,14 +2742,14 @@ namespace
             it(Handle);
     }
 
-    static void on_ZwMapCMFModule(monitor::syscallswow64::Data& d)
+    static void on_ZwMapCMFModule(monitor::syscalls32::Data& d)
     {
-        const auto What            = arg<wntdll::ULONG>(d.core, 0);
-        const auto Index           = arg<wntdll::ULONG>(d.core, 1);
-        const auto CacheIndexOut   = arg<wntdll::PULONG>(d.core, 2);
-        const auto CacheFlagsOut   = arg<wntdll::PULONG>(d.core, 3);
-        const auto ViewSizeOut     = arg<wntdll::PULONG>(d.core, 4);
-        const auto STARBaseAddress = arg<wntdll::PVOID>(d.core, 5);
+        const auto What            = arg<nt32::ULONG>(d.core, 0);
+        const auto Index           = arg<nt32::ULONG>(d.core, 1);
+        const auto CacheIndexOut   = arg<nt32::PULONG>(d.core, 2);
+        const auto CacheFlagsOut   = arg<nt32::PULONG>(d.core, 3);
+        const auto ViewSizeOut     = arg<nt32::PULONG>(d.core, 4);
+        const auto STARBaseAddress = arg<nt32::PVOID>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwMapCMFModule(What:{:#x}, Index:{:#x}, CacheIndexOut:{:#x}, CacheFlagsOut:{:#x}, ViewSizeOut:{:#x}, STARBaseAddress:{:#x})", What, Index, CacheIndexOut, CacheFlagsOut, ViewSizeOut, STARBaseAddress));
@@ -2758,11 +2758,11 @@ namespace
             it(What, Index, CacheIndexOut, CacheFlagsOut, ViewSizeOut, STARBaseAddress);
     }
 
-    static void on_NtMapUserPhysicalPages(monitor::syscallswow64::Data& d)
+    static void on_NtMapUserPhysicalPages(monitor::syscalls32::Data& d)
     {
-        const auto VirtualAddress = arg<wntdll::PVOID>(d.core, 0);
-        const auto NumberOfPages  = arg<wntdll::ULONG_PTR>(d.core, 1);
-        const auto UserPfnArra    = arg<wntdll::PULONG_PTR>(d.core, 2);
+        const auto VirtualAddress = arg<nt32::PVOID>(d.core, 0);
+        const auto NumberOfPages  = arg<nt32::ULONG_PTR>(d.core, 1);
+        const auto UserPfnArra    = arg<nt32::PULONG_PTR>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtMapUserPhysicalPages(VirtualAddress:{:#x}, NumberOfPages:{:#x}, UserPfnArra:{:#x})", VirtualAddress, NumberOfPages, UserPfnArra));
@@ -2771,11 +2771,11 @@ namespace
             it(VirtualAddress, NumberOfPages, UserPfnArra);
     }
 
-    static void on_ZwMapUserPhysicalPagesScatter(monitor::syscallswow64::Data& d)
+    static void on_ZwMapUserPhysicalPagesScatter(monitor::syscalls32::Data& d)
     {
-        const auto STARVirtualAddresses = arg<wntdll::PVOID>(d.core, 0);
-        const auto NumberOfPages        = arg<wntdll::ULONG_PTR>(d.core, 1);
-        const auto UserPfnArray         = arg<wntdll::PULONG_PTR>(d.core, 2);
+        const auto STARVirtualAddresses = arg<nt32::PVOID>(d.core, 0);
+        const auto NumberOfPages        = arg<nt32::ULONG_PTR>(d.core, 1);
+        const auto UserPfnArray         = arg<nt32::PULONG_PTR>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwMapUserPhysicalPagesScatter(STARVirtualAddresses:{:#x}, NumberOfPages:{:#x}, UserPfnArray:{:#x})", STARVirtualAddresses, NumberOfPages, UserPfnArray));
@@ -2784,18 +2784,18 @@ namespace
             it(STARVirtualAddresses, NumberOfPages, UserPfnArray);
     }
 
-    static void on_ZwMapViewOfSection(monitor::syscallswow64::Data& d)
+    static void on_ZwMapViewOfSection(monitor::syscalls32::Data& d)
     {
-        const auto SectionHandle      = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ProcessHandle      = arg<wntdll::HANDLE>(d.core, 1);
-        const auto STARBaseAddress    = arg<wntdll::PVOID>(d.core, 2);
-        const auto ZeroBits           = arg<wntdll::ULONG_PTR>(d.core, 3);
-        const auto CommitSize         = arg<wntdll::SIZE_T>(d.core, 4);
-        const auto SectionOffset      = arg<wntdll::PLARGE_INTEGER>(d.core, 5);
-        const auto ViewSize           = arg<wntdll::PSIZE_T>(d.core, 6);
-        const auto InheritDisposition = arg<wntdll::SECTION_INHERIT>(d.core, 7);
-        const auto AllocationType     = arg<wntdll::ULONG>(d.core, 8);
-        const auto Win32Protect       = arg<wntdll::WIN32_PROTECTION_MASK>(d.core, 9);
+        const auto SectionHandle      = arg<nt32::HANDLE>(d.core, 0);
+        const auto ProcessHandle      = arg<nt32::HANDLE>(d.core, 1);
+        const auto STARBaseAddress    = arg<nt32::PVOID>(d.core, 2);
+        const auto ZeroBits           = arg<nt32::ULONG_PTR>(d.core, 3);
+        const auto CommitSize         = arg<nt32::SIZE_T>(d.core, 4);
+        const auto SectionOffset      = arg<nt32::PLARGE_INTEGER>(d.core, 5);
+        const auto ViewSize           = arg<nt32::PSIZE_T>(d.core, 6);
+        const auto InheritDisposition = arg<nt32::SECTION_INHERIT>(d.core, 7);
+        const auto AllocationType     = arg<nt32::ULONG>(d.core, 8);
+        const auto Win32Protect       = arg<nt32::WIN32_PROTECTION_MASK>(d.core, 9);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwMapViewOfSection(SectionHandle:{:#x}, ProcessHandle:{:#x}, STARBaseAddress:{:#x}, ZeroBits:{:#x}, CommitSize:{:#x}, SectionOffset:{:#x}, ViewSize:{:#x}, InheritDisposition:{:#x}, AllocationType:{:#x}, Win32Protect:{:#x})", SectionHandle, ProcessHandle, STARBaseAddress, ZeroBits, CommitSize, SectionOffset, ViewSize, InheritDisposition, AllocationType, Win32Protect));
@@ -2804,9 +2804,9 @@ namespace
             it(SectionHandle, ProcessHandle, STARBaseAddress, ZeroBits, CommitSize, SectionOffset, ViewSize, InheritDisposition, AllocationType, Win32Protect);
     }
 
-    static void on_NtModifyBootEntry(monitor::syscallswow64::Data& d)
+    static void on_NtModifyBootEntry(monitor::syscalls32::Data& d)
     {
-        const auto BootEntry = arg<wntdll::PBOOT_ENTRY>(d.core, 0);
+        const auto BootEntry = arg<nt32::PBOOT_ENTRY>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtModifyBootEntry(BootEntry:{:#x})", BootEntry));
@@ -2815,9 +2815,9 @@ namespace
             it(BootEntry);
     }
 
-    static void on_ZwModifyDriverEntry(monitor::syscallswow64::Data& d)
+    static void on_ZwModifyDriverEntry(monitor::syscalls32::Data& d)
     {
-        const auto DriverEntry = arg<wntdll::PEFI_DRIVER_ENTRY>(d.core, 0);
+        const auto DriverEntry = arg<nt32::PEFI_DRIVER_ENTRY>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwModifyDriverEntry(DriverEntry:{:#x})", DriverEntry));
@@ -2826,17 +2826,17 @@ namespace
             it(DriverEntry);
     }
 
-    static void on_NtNotifyChangeDirectoryFile(monitor::syscallswow64::Data& d)
+    static void on_NtNotifyChangeDirectoryFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle       = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Event            = arg<wntdll::HANDLE>(d.core, 1);
-        const auto ApcRoutine       = arg<wntdll::PIO_APC_ROUTINE>(d.core, 2);
-        const auto ApcContext       = arg<wntdll::PVOID>(d.core, 3);
-        const auto IoStatusBlock    = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 4);
-        const auto Buffer           = arg<wntdll::PVOID>(d.core, 5);
-        const auto Length           = arg<wntdll::ULONG>(d.core, 6);
-        const auto CompletionFilter = arg<wntdll::ULONG>(d.core, 7);
-        const auto WatchTree        = arg<wntdll::BOOLEAN>(d.core, 8);
+        const auto FileHandle       = arg<nt32::HANDLE>(d.core, 0);
+        const auto Event            = arg<nt32::HANDLE>(d.core, 1);
+        const auto ApcRoutine       = arg<nt32::PIO_APC_ROUTINE>(d.core, 2);
+        const auto ApcContext       = arg<nt32::PVOID>(d.core, 3);
+        const auto IoStatusBlock    = arg<nt32::PIO_STATUS_BLOCK>(d.core, 4);
+        const auto Buffer           = arg<nt32::PVOID>(d.core, 5);
+        const auto Length           = arg<nt32::ULONG>(d.core, 6);
+        const auto CompletionFilter = arg<nt32::ULONG>(d.core, 7);
+        const auto WatchTree        = arg<nt32::BOOLEAN>(d.core, 8);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtNotifyChangeDirectoryFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, CompletionFilter:{:#x}, WatchTree:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, CompletionFilter, WatchTree));
@@ -2845,18 +2845,18 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, CompletionFilter, WatchTree);
     }
 
-    static void on_NtNotifyChangeKey(monitor::syscallswow64::Data& d)
+    static void on_NtNotifyChangeKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle        = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Event            = arg<wntdll::HANDLE>(d.core, 1);
-        const auto ApcRoutine       = arg<wntdll::PIO_APC_ROUTINE>(d.core, 2);
-        const auto ApcContext       = arg<wntdll::PVOID>(d.core, 3);
-        const auto IoStatusBlock    = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 4);
-        const auto CompletionFilter = arg<wntdll::ULONG>(d.core, 5);
-        const auto WatchTree        = arg<wntdll::BOOLEAN>(d.core, 6);
-        const auto Buffer           = arg<wntdll::PVOID>(d.core, 7);
-        const auto BufferSize       = arg<wntdll::ULONG>(d.core, 8);
-        const auto Asynchronous     = arg<wntdll::BOOLEAN>(d.core, 9);
+        const auto KeyHandle        = arg<nt32::HANDLE>(d.core, 0);
+        const auto Event            = arg<nt32::HANDLE>(d.core, 1);
+        const auto ApcRoutine       = arg<nt32::PIO_APC_ROUTINE>(d.core, 2);
+        const auto ApcContext       = arg<nt32::PVOID>(d.core, 3);
+        const auto IoStatusBlock    = arg<nt32::PIO_STATUS_BLOCK>(d.core, 4);
+        const auto CompletionFilter = arg<nt32::ULONG>(d.core, 5);
+        const auto WatchTree        = arg<nt32::BOOLEAN>(d.core, 6);
+        const auto Buffer           = arg<nt32::PVOID>(d.core, 7);
+        const auto BufferSize       = arg<nt32::ULONG>(d.core, 8);
+        const auto Asynchronous     = arg<nt32::BOOLEAN>(d.core, 9);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtNotifyChangeKey(KeyHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, CompletionFilter:{:#x}, WatchTree:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, Asynchronous:{:#x})", KeyHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous));
@@ -2865,20 +2865,20 @@ namespace
             it(KeyHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
     }
 
-    static void on_NtNotifyChangeMultipleKeys(monitor::syscallswow64::Data& d)
+    static void on_NtNotifyChangeMultipleKeys(monitor::syscalls32::Data& d)
     {
-        const auto MasterKeyHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Count            = arg<wntdll::ULONG>(d.core, 1);
-        const auto SlaveObjects     = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto Event            = arg<wntdll::HANDLE>(d.core, 3);
-        const auto ApcRoutine       = arg<wntdll::PIO_APC_ROUTINE>(d.core, 4);
-        const auto ApcContext       = arg<wntdll::PVOID>(d.core, 5);
-        const auto IoStatusBlock    = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 6);
-        const auto CompletionFilter = arg<wntdll::ULONG>(d.core, 7);
-        const auto WatchTree        = arg<wntdll::BOOLEAN>(d.core, 8);
-        const auto Buffer           = arg<wntdll::PVOID>(d.core, 9);
-        const auto BufferSize       = arg<wntdll::ULONG>(d.core, 10);
-        const auto Asynchronous     = arg<wntdll::BOOLEAN>(d.core, 11);
+        const auto MasterKeyHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto Count            = arg<nt32::ULONG>(d.core, 1);
+        const auto SlaveObjects     = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto Event            = arg<nt32::HANDLE>(d.core, 3);
+        const auto ApcRoutine       = arg<nt32::PIO_APC_ROUTINE>(d.core, 4);
+        const auto ApcContext       = arg<nt32::PVOID>(d.core, 5);
+        const auto IoStatusBlock    = arg<nt32::PIO_STATUS_BLOCK>(d.core, 6);
+        const auto CompletionFilter = arg<nt32::ULONG>(d.core, 7);
+        const auto WatchTree        = arg<nt32::BOOLEAN>(d.core, 8);
+        const auto Buffer           = arg<nt32::PVOID>(d.core, 9);
+        const auto BufferSize       = arg<nt32::ULONG>(d.core, 10);
+        const auto Asynchronous     = arg<nt32::BOOLEAN>(d.core, 11);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtNotifyChangeMultipleKeys(MasterKeyHandle:{:#x}, Count:{:#x}, SlaveObjects:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, CompletionFilter:{:#x}, WatchTree:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, Asynchronous:{:#x})", MasterKeyHandle, Count, SlaveObjects, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous));
@@ -2887,16 +2887,16 @@ namespace
             it(MasterKeyHandle, Count, SlaveObjects, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
     }
 
-    static void on_NtNotifyChangeSession(monitor::syscallswow64::Data& d)
+    static void on_NtNotifyChangeSession(monitor::syscalls32::Data& d)
     {
-        const auto Session         = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoStateSequence = arg<wntdll::ULONG>(d.core, 1);
-        const auto Reserved        = arg<wntdll::PVOID>(d.core, 2);
-        const auto Action          = arg<wntdll::ULONG>(d.core, 3);
-        const auto IoState         = arg<wntdll::IO_SESSION_STATE>(d.core, 4);
-        const auto IoState2        = arg<wntdll::IO_SESSION_STATE>(d.core, 5);
-        const auto Buffer          = arg<wntdll::PVOID>(d.core, 6);
-        const auto BufferSize      = arg<wntdll::ULONG>(d.core, 7);
+        const auto Session         = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoStateSequence = arg<nt32::ULONG>(d.core, 1);
+        const auto Reserved        = arg<nt32::PVOID>(d.core, 2);
+        const auto Action          = arg<nt32::ULONG>(d.core, 3);
+        const auto IoState         = arg<nt32::IO_SESSION_STATE>(d.core, 4);
+        const auto IoState2        = arg<nt32::IO_SESSION_STATE>(d.core, 5);
+        const auto Buffer          = arg<nt32::PVOID>(d.core, 6);
+        const auto BufferSize      = arg<nt32::ULONG>(d.core, 7);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtNotifyChangeSession(Session:{:#x}, IoStateSequence:{:#x}, Reserved:{:#x}, Action:{:#x}, IoState:{:#x}, IoState2:{:#x}, Buffer:{:#x}, BufferSize:{:#x})", Session, IoStateSequence, Reserved, Action, IoState, IoState2, Buffer, BufferSize));
@@ -2905,11 +2905,11 @@ namespace
             it(Session, IoStateSequence, Reserved, Action, IoState, IoState2, Buffer, BufferSize);
     }
 
-    static void on_ZwOpenDirectoryObject(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenDirectoryObject(monitor::syscalls32::Data& d)
     {
-        const auto DirectoryHandle  = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto DirectoryHandle  = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenDirectoryObject(DirectoryHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", DirectoryHandle, DesiredAccess, ObjectAttributes));
@@ -2918,13 +2918,13 @@ namespace
             it(DirectoryHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwOpenEnlistment(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenEnlistment(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle      = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess         = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ResourceManagerHandle = arg<wntdll::HANDLE>(d.core, 2);
-        const auto EnlistmentGuid        = arg<wntdll::LPGUID>(d.core, 3);
-        const auto ObjectAttributes      = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 4);
+        const auto EnlistmentHandle      = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess         = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ResourceManagerHandle = arg<nt32::HANDLE>(d.core, 2);
+        const auto EnlistmentGuid        = arg<nt32::LPGUID>(d.core, 3);
+        const auto ObjectAttributes      = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenEnlistment(EnlistmentHandle:{:#x}, DesiredAccess:{:#x}, ResourceManagerHandle:{:#x}, EnlistmentGuid:{:#x}, ObjectAttributes:{:#x})", EnlistmentHandle, DesiredAccess, ResourceManagerHandle, EnlistmentGuid, ObjectAttributes));
@@ -2933,11 +2933,11 @@ namespace
             it(EnlistmentHandle, DesiredAccess, ResourceManagerHandle, EnlistmentGuid, ObjectAttributes);
     }
 
-    static void on_NtOpenEvent(monitor::syscallswow64::Data& d)
+    static void on_NtOpenEvent(monitor::syscalls32::Data& d)
     {
-        const auto EventHandle      = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto EventHandle      = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtOpenEvent(EventHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", EventHandle, DesiredAccess, ObjectAttributes));
@@ -2946,11 +2946,11 @@ namespace
             it(EventHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenEventPair(monitor::syscallswow64::Data& d)
+    static void on_NtOpenEventPair(monitor::syscalls32::Data& d)
     {
-        const auto EventPairHandle  = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto EventPairHandle  = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtOpenEventPair(EventPairHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", EventPairHandle, DesiredAccess, ObjectAttributes));
@@ -2959,14 +2959,14 @@ namespace
             it(EventPairHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenFile(monitor::syscallswow64::Data& d)
+    static void on_NtOpenFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle       = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto IoStatusBlock    = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 3);
-        const auto ShareAccess      = arg<wntdll::ULONG>(d.core, 4);
-        const auto OpenOptions      = arg<wntdll::ULONG>(d.core, 5);
+        const auto FileHandle       = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto IoStatusBlock    = arg<nt32::PIO_STATUS_BLOCK>(d.core, 3);
+        const auto ShareAccess      = arg<nt32::ULONG>(d.core, 4);
+        const auto OpenOptions      = arg<nt32::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtOpenFile(FileHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, IoStatusBlock:{:#x}, ShareAccess:{:#x}, OpenOptions:{:#x})", FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, OpenOptions));
@@ -2975,11 +2975,11 @@ namespace
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, OpenOptions);
     }
 
-    static void on_ZwOpenIoCompletion(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenIoCompletion(monitor::syscalls32::Data& d)
     {
-        const auto IoCompletionHandle = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess      = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes   = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto IoCompletionHandle = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess      = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes   = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenIoCompletion(IoCompletionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", IoCompletionHandle, DesiredAccess, ObjectAttributes));
@@ -2988,11 +2988,11 @@ namespace
             it(IoCompletionHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwOpenJobObject(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenJobObject(monitor::syscalls32::Data& d)
     {
-        const auto JobHandle        = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto JobHandle        = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenJobObject(JobHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", JobHandle, DesiredAccess, ObjectAttributes));
@@ -3001,11 +3001,11 @@ namespace
             it(JobHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenKeyedEvent(monitor::syscallswow64::Data& d)
+    static void on_NtOpenKeyedEvent(monitor::syscalls32::Data& d)
     {
-        const auto KeyedEventHandle = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto KeyedEventHandle = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtOpenKeyedEvent(KeyedEventHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", KeyedEventHandle, DesiredAccess, ObjectAttributes));
@@ -3014,12 +3014,12 @@ namespace
             it(KeyedEventHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwOpenKeyEx(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenKeyEx(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle        = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto OpenOptions      = arg<wntdll::ULONG>(d.core, 3);
+        const auto KeyHandle        = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto OpenOptions      = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenKeyEx(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, OpenOptions:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions));
@@ -3028,11 +3028,11 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions);
     }
 
-    static void on_ZwOpenKey(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle        = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto KeyHandle        = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenKey(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes));
@@ -3041,13 +3041,13 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenKeyTransactedEx(monitor::syscallswow64::Data& d)
+    static void on_NtOpenKeyTransactedEx(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle         = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess     = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes  = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto OpenOptions       = arg<wntdll::ULONG>(d.core, 3);
-        const auto TransactionHandle = arg<wntdll::HANDLE>(d.core, 4);
+        const auto KeyHandle         = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes  = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto OpenOptions       = arg<nt32::ULONG>(d.core, 3);
+        const auto TransactionHandle = arg<nt32::HANDLE>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtOpenKeyTransactedEx(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, OpenOptions:{:#x}, TransactionHandle:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions, TransactionHandle));
@@ -3056,12 +3056,12 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions, TransactionHandle);
     }
 
-    static void on_NtOpenKeyTransacted(monitor::syscallswow64::Data& d)
+    static void on_NtOpenKeyTransacted(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle         = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess     = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes  = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto TransactionHandle = arg<wntdll::HANDLE>(d.core, 3);
+        const auto KeyHandle         = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes  = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto TransactionHandle = arg<nt32::HANDLE>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtOpenKeyTransacted(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TransactionHandle:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, TransactionHandle));
@@ -3070,11 +3070,11 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, TransactionHandle);
     }
 
-    static void on_NtOpenMutant(monitor::syscallswow64::Data& d)
+    static void on_NtOpenMutant(monitor::syscalls32::Data& d)
     {
-        const auto MutantHandle     = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto MutantHandle     = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtOpenMutant(MutantHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", MutantHandle, DesiredAccess, ObjectAttributes));
@@ -3083,20 +3083,20 @@ namespace
             it(MutantHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwOpenObjectAuditAlarm(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenObjectAuditAlarm(monitor::syscalls32::Data& d)
     {
-        const auto SubsystemName      = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto HandleId           = arg<wntdll::PVOID>(d.core, 1);
-        const auto ObjectTypeName     = arg<wntdll::PUNICODE_STRING>(d.core, 2);
-        const auto ObjectName         = arg<wntdll::PUNICODE_STRING>(d.core, 3);
-        const auto SecurityDescriptor = arg<wntdll::PSECURITY_DESCRIPTOR>(d.core, 4);
-        const auto ClientToken        = arg<wntdll::HANDLE>(d.core, 5);
-        const auto DesiredAccess      = arg<wntdll::ACCESS_MASK>(d.core, 6);
-        const auto GrantedAccess      = arg<wntdll::ACCESS_MASK>(d.core, 7);
-        const auto Privileges         = arg<wntdll::PPRIVILEGE_SET>(d.core, 8);
-        const auto ObjectCreation     = arg<wntdll::BOOLEAN>(d.core, 9);
-        const auto AccessGranted      = arg<wntdll::BOOLEAN>(d.core, 10);
-        const auto GenerateOnClose    = arg<wntdll::PBOOLEAN>(d.core, 11);
+        const auto SubsystemName      = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto HandleId           = arg<nt32::PVOID>(d.core, 1);
+        const auto ObjectTypeName     = arg<nt32::PUNICODE_STRING>(d.core, 2);
+        const auto ObjectName         = arg<nt32::PUNICODE_STRING>(d.core, 3);
+        const auto SecurityDescriptor = arg<nt32::PSECURITY_DESCRIPTOR>(d.core, 4);
+        const auto ClientToken        = arg<nt32::HANDLE>(d.core, 5);
+        const auto DesiredAccess      = arg<nt32::ACCESS_MASK>(d.core, 6);
+        const auto GrantedAccess      = arg<nt32::ACCESS_MASK>(d.core, 7);
+        const auto Privileges         = arg<nt32::PPRIVILEGE_SET>(d.core, 8);
+        const auto ObjectCreation     = arg<nt32::BOOLEAN>(d.core, 9);
+        const auto AccessGranted      = arg<nt32::BOOLEAN>(d.core, 10);
+        const auto GenerateOnClose    = arg<nt32::PBOOLEAN>(d.core, 11);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, GrantedAccess:{:#x}, Privileges:{:#x}, ObjectCreation:{:#x}, AccessGranted:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, ClientToken, DesiredAccess, GrantedAccess, Privileges, ObjectCreation, AccessGranted, GenerateOnClose));
@@ -3105,12 +3105,12 @@ namespace
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, ClientToken, DesiredAccess, GrantedAccess, Privileges, ObjectCreation, AccessGranted, GenerateOnClose);
     }
 
-    static void on_NtOpenPrivateNamespace(monitor::syscallswow64::Data& d)
+    static void on_NtOpenPrivateNamespace(monitor::syscalls32::Data& d)
     {
-        const auto NamespaceHandle    = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess      = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes   = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto BoundaryDescriptor = arg<wntdll::PVOID>(d.core, 3);
+        const auto NamespaceHandle    = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess      = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes   = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto BoundaryDescriptor = arg<nt32::PVOID>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtOpenPrivateNamespace(NamespaceHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, BoundaryDescriptor:{:#x})", NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor));
@@ -3119,12 +3119,12 @@ namespace
             it(NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
     }
 
-    static void on_ZwOpenProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenProcess(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle    = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto ClientId         = arg<wntdll::PCLIENT_ID>(d.core, 3);
+        const auto ProcessHandle    = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto ClientId         = arg<nt32::PCLIENT_ID>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenProcess(ProcessHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ClientId:{:#x})", ProcessHandle, DesiredAccess, ObjectAttributes, ClientId));
@@ -3133,12 +3133,12 @@ namespace
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ClientId);
     }
 
-    static void on_ZwOpenProcessTokenEx(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenProcessTokenEx(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto HandleAttributes = arg<wntdll::ULONG>(d.core, 2);
-        const auto TokenHandle      = arg<wntdll::PHANDLE>(d.core, 3);
+        const auto ProcessHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto HandleAttributes = arg<nt32::ULONG>(d.core, 2);
+        const auto TokenHandle      = arg<nt32::PHANDLE>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenProcessTokenEx(ProcessHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, TokenHandle:{:#x})", ProcessHandle, DesiredAccess, HandleAttributes, TokenHandle));
@@ -3147,11 +3147,11 @@ namespace
             it(ProcessHandle, DesiredAccess, HandleAttributes, TokenHandle);
     }
 
-    static void on_ZwOpenProcessToken(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenProcessToken(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto DesiredAccess = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto TokenHandle   = arg<wntdll::PHANDLE>(d.core, 2);
+        const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto DesiredAccess = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto TokenHandle   = arg<nt32::PHANDLE>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenProcessToken(ProcessHandle:{:#x}, DesiredAccess:{:#x}, TokenHandle:{:#x})", ProcessHandle, DesiredAccess, TokenHandle));
@@ -3160,13 +3160,13 @@ namespace
             it(ProcessHandle, DesiredAccess, TokenHandle);
     }
 
-    static void on_ZwOpenResourceManager(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenResourceManager(monitor::syscalls32::Data& d)
     {
-        const auto ResourceManagerHandle = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess         = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto TmHandle              = arg<wntdll::HANDLE>(d.core, 2);
-        const auto ResourceManagerGuid   = arg<wntdll::LPGUID>(d.core, 3);
-        const auto ObjectAttributes      = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 4);
+        const auto ResourceManagerHandle = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess         = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto TmHandle              = arg<nt32::HANDLE>(d.core, 2);
+        const auto ResourceManagerGuid   = arg<nt32::LPGUID>(d.core, 3);
+        const auto ObjectAttributes      = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenResourceManager(ResourceManagerHandle:{:#x}, DesiredAccess:{:#x}, TmHandle:{:#x}, ResourceManagerGuid:{:#x}, ObjectAttributes:{:#x})", ResourceManagerHandle, DesiredAccess, TmHandle, ResourceManagerGuid, ObjectAttributes));
@@ -3175,11 +3175,11 @@ namespace
             it(ResourceManagerHandle, DesiredAccess, TmHandle, ResourceManagerGuid, ObjectAttributes);
     }
 
-    static void on_NtOpenSection(monitor::syscallswow64::Data& d)
+    static void on_NtOpenSection(monitor::syscalls32::Data& d)
     {
-        const auto SectionHandle    = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto SectionHandle    = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtOpenSection(SectionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", SectionHandle, DesiredAccess, ObjectAttributes));
@@ -3188,11 +3188,11 @@ namespace
             it(SectionHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenSemaphore(monitor::syscallswow64::Data& d)
+    static void on_NtOpenSemaphore(monitor::syscalls32::Data& d)
     {
-        const auto SemaphoreHandle  = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto SemaphoreHandle  = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtOpenSemaphore(SemaphoreHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", SemaphoreHandle, DesiredAccess, ObjectAttributes));
@@ -3201,11 +3201,11 @@ namespace
             it(SemaphoreHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenSession(monitor::syscallswow64::Data& d)
+    static void on_NtOpenSession(monitor::syscalls32::Data& d)
     {
-        const auto SessionHandle    = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto SessionHandle    = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtOpenSession(SessionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", SessionHandle, DesiredAccess, ObjectAttributes));
@@ -3214,11 +3214,11 @@ namespace
             it(SessionHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenSymbolicLinkObject(monitor::syscallswow64::Data& d)
+    static void on_NtOpenSymbolicLinkObject(monitor::syscalls32::Data& d)
     {
-        const auto LinkHandle       = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto LinkHandle       = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtOpenSymbolicLinkObject(LinkHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", LinkHandle, DesiredAccess, ObjectAttributes));
@@ -3227,12 +3227,12 @@ namespace
             it(LinkHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwOpenThread(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenThread(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle     = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto ClientId         = arg<wntdll::PCLIENT_ID>(d.core, 3);
+        const auto ThreadHandle     = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto ClientId         = arg<nt32::PCLIENT_ID>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenThread(ThreadHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ClientId:{:#x})", ThreadHandle, DesiredAccess, ObjectAttributes, ClientId));
@@ -3241,13 +3241,13 @@ namespace
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ClientId);
     }
 
-    static void on_NtOpenThreadTokenEx(monitor::syscallswow64::Data& d)
+    static void on_NtOpenThreadTokenEx(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle     = arg<wntdll::HANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto OpenAsSelf       = arg<wntdll::BOOLEAN>(d.core, 2);
-        const auto HandleAttributes = arg<wntdll::ULONG>(d.core, 3);
-        const auto TokenHandle      = arg<wntdll::PHANDLE>(d.core, 4);
+        const auto ThreadHandle     = arg<nt32::HANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto OpenAsSelf       = arg<nt32::BOOLEAN>(d.core, 2);
+        const auto HandleAttributes = arg<nt32::ULONG>(d.core, 3);
+        const auto TokenHandle      = arg<nt32::PHANDLE>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtOpenThreadTokenEx(ThreadHandle:{:#x}, DesiredAccess:{:#x}, OpenAsSelf:{:#x}, HandleAttributes:{:#x}, TokenHandle:{:#x})", ThreadHandle, DesiredAccess, OpenAsSelf, HandleAttributes, TokenHandle));
@@ -3256,12 +3256,12 @@ namespace
             it(ThreadHandle, DesiredAccess, OpenAsSelf, HandleAttributes, TokenHandle);
     }
 
-    static void on_NtOpenThreadToken(monitor::syscallswow64::Data& d)
+    static void on_NtOpenThreadToken(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto DesiredAccess = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto OpenAsSelf    = arg<wntdll::BOOLEAN>(d.core, 2);
-        const auto TokenHandle   = arg<wntdll::PHANDLE>(d.core, 3);
+        const auto ThreadHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto DesiredAccess = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto OpenAsSelf    = arg<nt32::BOOLEAN>(d.core, 2);
+        const auto TokenHandle   = arg<nt32::PHANDLE>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtOpenThreadToken(ThreadHandle:{:#x}, DesiredAccess:{:#x}, OpenAsSelf:{:#x}, TokenHandle:{:#x})", ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle));
@@ -3270,11 +3270,11 @@ namespace
             it(ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
     }
 
-    static void on_ZwOpenTimer(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenTimer(monitor::syscalls32::Data& d)
     {
-        const auto TimerHandle      = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto TimerHandle      = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenTimer(TimerHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", TimerHandle, DesiredAccess, ObjectAttributes));
@@ -3283,14 +3283,14 @@ namespace
             it(TimerHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_ZwOpenTransactionManager(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenTransactionManager(monitor::syscalls32::Data& d)
     {
-        const auto TmHandle         = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess    = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto LogFileName      = arg<wntdll::PUNICODE_STRING>(d.core, 3);
-        const auto TmIdentity       = arg<wntdll::LPGUID>(d.core, 4);
-        const auto OpenOptions      = arg<wntdll::ULONG>(d.core, 5);
+        const auto TmHandle         = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess    = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto LogFileName      = arg<nt32::PUNICODE_STRING>(d.core, 3);
+        const auto TmIdentity       = arg<nt32::LPGUID>(d.core, 4);
+        const auto OpenOptions      = arg<nt32::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenTransactionManager(TmHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, LogFileName:{:#x}, TmIdentity:{:#x}, OpenOptions:{:#x})", TmHandle, DesiredAccess, ObjectAttributes, LogFileName, TmIdentity, OpenOptions));
@@ -3299,13 +3299,13 @@ namespace
             it(TmHandle, DesiredAccess, ObjectAttributes, LogFileName, TmIdentity, OpenOptions);
     }
 
-    static void on_ZwOpenTransaction(monitor::syscallswow64::Data& d)
+    static void on_ZwOpenTransaction(monitor::syscalls32::Data& d)
     {
-        const auto TransactionHandle = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto DesiredAccess     = arg<wntdll::ACCESS_MASK>(d.core, 1);
-        const auto ObjectAttributes  = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
-        const auto Uow               = arg<wntdll::LPGUID>(d.core, 3);
-        const auto TmHandle          = arg<wntdll::HANDLE>(d.core, 4);
+        const auto TransactionHandle = arg<nt32::PHANDLE>(d.core, 0);
+        const auto DesiredAccess     = arg<nt32::ACCESS_MASK>(d.core, 1);
+        const auto ObjectAttributes  = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto Uow               = arg<nt32::LPGUID>(d.core, 3);
+        const auto TmHandle          = arg<nt32::HANDLE>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwOpenTransaction(TransactionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Uow:{:#x}, TmHandle:{:#x})", TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle));
@@ -3314,11 +3314,11 @@ namespace
             it(TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle);
     }
 
-    static void on_NtPlugPlayControl(monitor::syscallswow64::Data& d)
+    static void on_NtPlugPlayControl(monitor::syscalls32::Data& d)
     {
-        const auto PnPControlClass      = arg<wntdll::PLUGPLAY_CONTROL_CLASS>(d.core, 0);
-        const auto PnPControlData       = arg<wntdll::PVOID>(d.core, 1);
-        const auto PnPControlDataLength = arg<wntdll::ULONG>(d.core, 2);
+        const auto PnPControlClass      = arg<nt32::PLUGPLAY_CONTROL_CLASS>(d.core, 0);
+        const auto PnPControlData       = arg<nt32::PVOID>(d.core, 1);
+        const auto PnPControlDataLength = arg<nt32::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtPlugPlayControl(PnPControlClass:{:#x}, PnPControlData:{:#x}, PnPControlDataLength:{:#x})", PnPControlClass, PnPControlData, PnPControlDataLength));
@@ -3327,13 +3327,13 @@ namespace
             it(PnPControlClass, PnPControlData, PnPControlDataLength);
     }
 
-    static void on_ZwPowerInformation(monitor::syscallswow64::Data& d)
+    static void on_ZwPowerInformation(monitor::syscalls32::Data& d)
     {
-        const auto InformationLevel   = arg<wntdll::POWER_INFORMATION_LEVEL>(d.core, 0);
-        const auto InputBuffer        = arg<wntdll::PVOID>(d.core, 1);
-        const auto InputBufferLength  = arg<wntdll::ULONG>(d.core, 2);
-        const auto OutputBuffer       = arg<wntdll::PVOID>(d.core, 3);
-        const auto OutputBufferLength = arg<wntdll::ULONG>(d.core, 4);
+        const auto InformationLevel   = arg<nt32::POWER_INFORMATION_LEVEL>(d.core, 0);
+        const auto InputBuffer        = arg<nt32::PVOID>(d.core, 1);
+        const auto InputBufferLength  = arg<nt32::ULONG>(d.core, 2);
+        const auto OutputBuffer       = arg<nt32::PVOID>(d.core, 3);
+        const auto OutputBufferLength = arg<nt32::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwPowerInformation(InformationLevel:{:#x}, InputBuffer:{:#x}, InputBufferLength:{:#x}, OutputBuffer:{:#x}, OutputBufferLength:{:#x})", InformationLevel, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength));
@@ -3342,10 +3342,10 @@ namespace
             it(InformationLevel, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
     }
 
-    static void on_NtPrepareComplete(monitor::syscallswow64::Data& d)
+    static void on_NtPrepareComplete(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtPrepareComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
@@ -3354,10 +3354,10 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_ZwPrepareEnlistment(monitor::syscallswow64::Data& d)
+    static void on_ZwPrepareEnlistment(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwPrepareEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
@@ -3366,10 +3366,10 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_ZwPrePrepareComplete(monitor::syscallswow64::Data& d)
+    static void on_ZwPrePrepareComplete(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwPrePrepareComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
@@ -3378,10 +3378,10 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtPrePrepareEnlistment(monitor::syscallswow64::Data& d)
+    static void on_NtPrePrepareEnlistment(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtPrePrepareEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
@@ -3390,11 +3390,11 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_ZwPrivilegeCheck(monitor::syscallswow64::Data& d)
+    static void on_ZwPrivilegeCheck(monitor::syscalls32::Data& d)
     {
-        const auto ClientToken        = arg<wntdll::HANDLE>(d.core, 0);
-        const auto RequiredPrivileges = arg<wntdll::PPRIVILEGE_SET>(d.core, 1);
-        const auto Result             = arg<wntdll::PBOOLEAN>(d.core, 2);
+        const auto ClientToken        = arg<nt32::HANDLE>(d.core, 0);
+        const auto RequiredPrivileges = arg<nt32::PPRIVILEGE_SET>(d.core, 1);
+        const auto Result             = arg<nt32::PBOOLEAN>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwPrivilegeCheck(ClientToken:{:#x}, RequiredPrivileges:{:#x}, Result:{:#x})", ClientToken, RequiredPrivileges, Result));
@@ -3403,13 +3403,13 @@ namespace
             it(ClientToken, RequiredPrivileges, Result);
     }
 
-    static void on_NtPrivilegedServiceAuditAlarm(monitor::syscallswow64::Data& d)
+    static void on_NtPrivilegedServiceAuditAlarm(monitor::syscalls32::Data& d)
     {
-        const auto SubsystemName = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto ServiceName   = arg<wntdll::PUNICODE_STRING>(d.core, 1);
-        const auto ClientToken   = arg<wntdll::HANDLE>(d.core, 2);
-        const auto Privileges    = arg<wntdll::PPRIVILEGE_SET>(d.core, 3);
-        const auto AccessGranted = arg<wntdll::BOOLEAN>(d.core, 4);
+        const auto SubsystemName = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto ServiceName   = arg<nt32::PUNICODE_STRING>(d.core, 1);
+        const auto ClientToken   = arg<nt32::HANDLE>(d.core, 2);
+        const auto Privileges    = arg<nt32::PPRIVILEGE_SET>(d.core, 3);
+        const auto AccessGranted = arg<nt32::BOOLEAN>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtPrivilegedServiceAuditAlarm(SubsystemName:{:#x}, ServiceName:{:#x}, ClientToken:{:#x}, Privileges:{:#x}, AccessGranted:{:#x})", SubsystemName, ServiceName, ClientToken, Privileges, AccessGranted));
@@ -3418,14 +3418,14 @@ namespace
             it(SubsystemName, ServiceName, ClientToken, Privileges, AccessGranted);
     }
 
-    static void on_ZwPrivilegeObjectAuditAlarm(monitor::syscallswow64::Data& d)
+    static void on_ZwPrivilegeObjectAuditAlarm(monitor::syscalls32::Data& d)
     {
-        const auto SubsystemName = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto HandleId      = arg<wntdll::PVOID>(d.core, 1);
-        const auto ClientToken   = arg<wntdll::HANDLE>(d.core, 2);
-        const auto DesiredAccess = arg<wntdll::ACCESS_MASK>(d.core, 3);
-        const auto Privileges    = arg<wntdll::PPRIVILEGE_SET>(d.core, 4);
-        const auto AccessGranted = arg<wntdll::BOOLEAN>(d.core, 5);
+        const auto SubsystemName = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto HandleId      = arg<nt32::PVOID>(d.core, 1);
+        const auto ClientToken   = arg<nt32::HANDLE>(d.core, 2);
+        const auto DesiredAccess = arg<nt32::ACCESS_MASK>(d.core, 3);
+        const auto Privileges    = arg<nt32::PPRIVILEGE_SET>(d.core, 4);
+        const auto AccessGranted = arg<nt32::BOOLEAN>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwPrivilegeObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, Privileges:{:#x}, AccessGranted:{:#x})", SubsystemName, HandleId, ClientToken, DesiredAccess, Privileges, AccessGranted));
@@ -3434,12 +3434,12 @@ namespace
             it(SubsystemName, HandleId, ClientToken, DesiredAccess, Privileges, AccessGranted);
     }
 
-    static void on_NtPropagationComplete(monitor::syscallswow64::Data& d)
+    static void on_NtPropagationComplete(monitor::syscalls32::Data& d)
     {
-        const auto ResourceManagerHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto RequestCookie         = arg<wntdll::ULONG>(d.core, 1);
-        const auto BufferLength          = arg<wntdll::ULONG>(d.core, 2);
-        const auto Buffer                = arg<wntdll::PVOID>(d.core, 3);
+        const auto ResourceManagerHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto RequestCookie         = arg<nt32::ULONG>(d.core, 1);
+        const auto BufferLength          = arg<nt32::ULONG>(d.core, 2);
+        const auto Buffer                = arg<nt32::PVOID>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtPropagationComplete(ResourceManagerHandle:{:#x}, RequestCookie:{:#x}, BufferLength:{:#x}, Buffer:{:#x})", ResourceManagerHandle, RequestCookie, BufferLength, Buffer));
@@ -3448,11 +3448,11 @@ namespace
             it(ResourceManagerHandle, RequestCookie, BufferLength, Buffer);
     }
 
-    static void on_ZwPropagationFailed(monitor::syscallswow64::Data& d)
+    static void on_ZwPropagationFailed(monitor::syscalls32::Data& d)
     {
-        const auto ResourceManagerHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto RequestCookie         = arg<wntdll::ULONG>(d.core, 1);
-        const auto PropStatus            = arg<wntdll::NTSTATUS>(d.core, 2);
+        const auto ResourceManagerHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto RequestCookie         = arg<nt32::ULONG>(d.core, 1);
+        const auto PropStatus            = arg<nt32::NTSTATUS>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwPropagationFailed(ResourceManagerHandle:{:#x}, RequestCookie:{:#x}, PropStatus:{:#x})", ResourceManagerHandle, RequestCookie, PropStatus));
@@ -3461,13 +3461,13 @@ namespace
             it(ResourceManagerHandle, RequestCookie, PropStatus);
     }
 
-    static void on_ZwProtectVirtualMemory(monitor::syscallswow64::Data& d)
+    static void on_ZwProtectVirtualMemory(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle   = arg<wntdll::HANDLE>(d.core, 0);
-        const auto STARBaseAddress = arg<wntdll::PVOID>(d.core, 1);
-        const auto RegionSize      = arg<wntdll::PSIZE_T>(d.core, 2);
-        const auto NewProtectWin32 = arg<wntdll::WIN32_PROTECTION_MASK>(d.core, 3);
-        const auto OldProtect      = arg<wntdll::PULONG>(d.core, 4);
+        const auto ProcessHandle   = arg<nt32::HANDLE>(d.core, 0);
+        const auto STARBaseAddress = arg<nt32::PVOID>(d.core, 1);
+        const auto RegionSize      = arg<nt32::PSIZE_T>(d.core, 2);
+        const auto NewProtectWin32 = arg<nt32::WIN32_PROTECTION_MASK>(d.core, 3);
+        const auto OldProtect      = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwProtectVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, NewProtectWin32:{:#x}, OldProtect:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, NewProtectWin32, OldProtect));
@@ -3476,10 +3476,10 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, NewProtectWin32, OldProtect);
     }
 
-    static void on_ZwPulseEvent(monitor::syscallswow64::Data& d)
+    static void on_ZwPulseEvent(monitor::syscalls32::Data& d)
     {
-        const auto EventHandle   = arg<wntdll::HANDLE>(d.core, 0);
-        const auto PreviousState = arg<wntdll::PLONG>(d.core, 1);
+        const auto EventHandle   = arg<nt32::HANDLE>(d.core, 0);
+        const auto PreviousState = arg<nt32::PLONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwPulseEvent(EventHandle:{:#x}, PreviousState:{:#x})", EventHandle, PreviousState));
@@ -3488,10 +3488,10 @@ namespace
             it(EventHandle, PreviousState);
     }
 
-    static void on_ZwQueryAttributesFile(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryAttributesFile(monitor::syscalls32::Data& d)
     {
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
-        const auto FileInformation  = arg<wntdll::PFILE_BASIC_INFORMATION>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
+        const auto FileInformation  = arg<nt32::PFILE_BASIC_INFORMATION>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryAttributesFile(ObjectAttributes:{:#x}, FileInformation:{:#x})", ObjectAttributes, FileInformation));
@@ -3500,10 +3500,10 @@ namespace
             it(ObjectAttributes, FileInformation);
     }
 
-    static void on_ZwQueryBootEntryOrder(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryBootEntryOrder(monitor::syscalls32::Data& d)
     {
-        const auto Ids   = arg<wntdll::PULONG>(d.core, 0);
-        const auto Count = arg<wntdll::PULONG>(d.core, 1);
+        const auto Ids   = arg<nt32::PULONG>(d.core, 0);
+        const auto Count = arg<nt32::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryBootEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count));
@@ -3512,10 +3512,10 @@ namespace
             it(Ids, Count);
     }
 
-    static void on_ZwQueryBootOptions(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryBootOptions(monitor::syscalls32::Data& d)
     {
-        const auto BootOptions       = arg<wntdll::PBOOT_OPTIONS>(d.core, 0);
-        const auto BootOptionsLength = arg<wntdll::PULONG>(d.core, 1);
+        const auto BootOptions       = arg<nt32::PBOOT_OPTIONS>(d.core, 0);
+        const auto BootOptionsLength = arg<nt32::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryBootOptions(BootOptions:{:#x}, BootOptionsLength:{:#x})", BootOptions, BootOptionsLength));
@@ -3524,10 +3524,10 @@ namespace
             it(BootOptions, BootOptionsLength);
     }
 
-    static void on_NtQueryDebugFilterState(monitor::syscallswow64::Data& d)
+    static void on_NtQueryDebugFilterState(monitor::syscalls32::Data& d)
     {
-        const auto ComponentId = arg<wntdll::ULONG>(d.core, 0);
-        const auto Level       = arg<wntdll::ULONG>(d.core, 1);
+        const auto ComponentId = arg<nt32::ULONG>(d.core, 0);
+        const auto Level       = arg<nt32::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryDebugFilterState(ComponentId:{:#x}, Level:{:#x})", ComponentId, Level));
@@ -3536,10 +3536,10 @@ namespace
             it(ComponentId, Level);
     }
 
-    static void on_NtQueryDefaultLocale(monitor::syscallswow64::Data& d)
+    static void on_NtQueryDefaultLocale(monitor::syscalls32::Data& d)
     {
-        const auto UserProfile     = arg<wntdll::BOOLEAN>(d.core, 0);
-        const auto DefaultLocaleId = arg<wntdll::PLCID>(d.core, 1);
+        const auto UserProfile     = arg<nt32::BOOLEAN>(d.core, 0);
+        const auto DefaultLocaleId = arg<nt32::PLCID>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryDefaultLocale(UserProfile:{:#x}, DefaultLocaleId:{:#x})", UserProfile, DefaultLocaleId));
@@ -3548,9 +3548,9 @@ namespace
             it(UserProfile, DefaultLocaleId);
     }
 
-    static void on_ZwQueryDefaultUILanguage(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryDefaultUILanguage(monitor::syscalls32::Data& d)
     {
-        const auto STARDefaultUILanguageId = arg<wntdll::LANGID>(d.core, 0);
+        const auto STARDefaultUILanguageId = arg<nt32::LANGID>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryDefaultUILanguage(STARDefaultUILanguageId:{:#x})", STARDefaultUILanguageId));
@@ -3559,19 +3559,19 @@ namespace
             it(STARDefaultUILanguageId);
     }
 
-    static void on_ZwQueryDirectoryFile(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryDirectoryFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle           = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Event                = arg<wntdll::HANDLE>(d.core, 1);
-        const auto ApcRoutine           = arg<wntdll::PIO_APC_ROUTINE>(d.core, 2);
-        const auto ApcContext           = arg<wntdll::PVOID>(d.core, 3);
-        const auto IoStatusBlock        = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 4);
-        const auto FileInformation      = arg<wntdll::PVOID>(d.core, 5);
-        const auto Length               = arg<wntdll::ULONG>(d.core, 6);
-        const auto FileInformationClass = arg<wntdll::FILE_INFORMATION_CLASS>(d.core, 7);
-        const auto ReturnSingleEntry    = arg<wntdll::BOOLEAN>(d.core, 8);
-        const auto FileName             = arg<wntdll::PUNICODE_STRING>(d.core, 9);
-        const auto RestartScan          = arg<wntdll::BOOLEAN>(d.core, 10);
+        const auto FileHandle           = arg<nt32::HANDLE>(d.core, 0);
+        const auto Event                = arg<nt32::HANDLE>(d.core, 1);
+        const auto ApcRoutine           = arg<nt32::PIO_APC_ROUTINE>(d.core, 2);
+        const auto ApcContext           = arg<nt32::PVOID>(d.core, 3);
+        const auto IoStatusBlock        = arg<nt32::PIO_STATUS_BLOCK>(d.core, 4);
+        const auto FileInformation      = arg<nt32::PVOID>(d.core, 5);
+        const auto Length               = arg<nt32::ULONG>(d.core, 6);
+        const auto FileInformationClass = arg<nt32::FILE_INFORMATION_CLASS>(d.core, 7);
+        const auto ReturnSingleEntry    = arg<nt32::BOOLEAN>(d.core, 8);
+        const auto FileName             = arg<nt32::PUNICODE_STRING>(d.core, 9);
+        const auto RestartScan          = arg<nt32::BOOLEAN>(d.core, 10);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryDirectoryFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x}, ReturnSingleEntry:{:#x}, FileName:{:#x}, RestartScan:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan));
@@ -3580,15 +3580,15 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan);
     }
 
-    static void on_ZwQueryDirectoryObject(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryDirectoryObject(monitor::syscalls32::Data& d)
     {
-        const auto DirectoryHandle   = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Buffer            = arg<wntdll::PVOID>(d.core, 1);
-        const auto Length            = arg<wntdll::ULONG>(d.core, 2);
-        const auto ReturnSingleEntry = arg<wntdll::BOOLEAN>(d.core, 3);
-        const auto RestartScan       = arg<wntdll::BOOLEAN>(d.core, 4);
-        const auto Context           = arg<wntdll::PULONG>(d.core, 5);
-        const auto ReturnLength      = arg<wntdll::PULONG>(d.core, 6);
+        const auto DirectoryHandle   = arg<nt32::HANDLE>(d.core, 0);
+        const auto Buffer            = arg<nt32::PVOID>(d.core, 1);
+        const auto Length            = arg<nt32::ULONG>(d.core, 2);
+        const auto ReturnSingleEntry = arg<nt32::BOOLEAN>(d.core, 3);
+        const auto RestartScan       = arg<nt32::BOOLEAN>(d.core, 4);
+        const auto Context           = arg<nt32::PULONG>(d.core, 5);
+        const auto ReturnLength      = arg<nt32::PULONG>(d.core, 6);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryDirectoryObject(DirectoryHandle:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, RestartScan:{:#x}, Context:{:#x}, ReturnLength:{:#x})", DirectoryHandle, Buffer, Length, ReturnSingleEntry, RestartScan, Context, ReturnLength));
@@ -3597,10 +3597,10 @@ namespace
             it(DirectoryHandle, Buffer, Length, ReturnSingleEntry, RestartScan, Context, ReturnLength);
     }
 
-    static void on_NtQueryDriverEntryOrder(monitor::syscallswow64::Data& d)
+    static void on_NtQueryDriverEntryOrder(monitor::syscalls32::Data& d)
     {
-        const auto Ids   = arg<wntdll::PULONG>(d.core, 0);
-        const auto Count = arg<wntdll::PULONG>(d.core, 1);
+        const auto Ids   = arg<nt32::PULONG>(d.core, 0);
+        const auto Count = arg<nt32::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryDriverEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count));
@@ -3609,17 +3609,17 @@ namespace
             it(Ids, Count);
     }
 
-    static void on_ZwQueryEaFile(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryEaFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle        = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoStatusBlock     = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
-        const auto Buffer            = arg<wntdll::PVOID>(d.core, 2);
-        const auto Length            = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnSingleEntry = arg<wntdll::BOOLEAN>(d.core, 4);
-        const auto EaList            = arg<wntdll::PVOID>(d.core, 5);
-        const auto EaListLength      = arg<wntdll::ULONG>(d.core, 6);
-        const auto EaIndex           = arg<wntdll::PULONG>(d.core, 7);
-        const auto RestartScan       = arg<wntdll::BOOLEAN>(d.core, 8);
+        const auto FileHandle        = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoStatusBlock     = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
+        const auto Buffer            = arg<nt32::PVOID>(d.core, 2);
+        const auto Length            = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnSingleEntry = arg<nt32::BOOLEAN>(d.core, 4);
+        const auto EaList            = arg<nt32::PVOID>(d.core, 5);
+        const auto EaListLength      = arg<nt32::ULONG>(d.core, 6);
+        const auto EaIndex           = arg<nt32::PULONG>(d.core, 7);
+        const auto RestartScan       = arg<nt32::BOOLEAN>(d.core, 8);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryEaFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, EaList:{:#x}, EaListLength:{:#x}, EaIndex:{:#x}, RestartScan:{:#x})", FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, EaList, EaListLength, EaIndex, RestartScan));
@@ -3628,13 +3628,13 @@ namespace
             it(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, EaList, EaListLength, EaIndex, RestartScan);
     }
 
-    static void on_NtQueryEvent(monitor::syscallswow64::Data& d)
+    static void on_NtQueryEvent(monitor::syscalls32::Data& d)
     {
-        const auto EventHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto EventInformationClass  = arg<wntdll::EVENT_INFORMATION_CLASS>(d.core, 1);
-        const auto EventInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto EventInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength           = arg<wntdll::PULONG>(d.core, 4);
+        const auto EventHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto EventInformationClass  = arg<nt32::EVENT_INFORMATION_CLASS>(d.core, 1);
+        const auto EventInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto EventInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength           = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryEvent(EventHandle:{:#x}, EventInformationClass:{:#x}, EventInformation:{:#x}, EventInformationLength:{:#x}, ReturnLength:{:#x})", EventHandle, EventInformationClass, EventInformation, EventInformationLength, ReturnLength));
@@ -3643,10 +3643,10 @@ namespace
             it(EventHandle, EventInformationClass, EventInformation, EventInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryFullAttributesFile(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryFullAttributesFile(monitor::syscalls32::Data& d)
     {
-        const auto ObjectAttributes = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
-        const auto FileInformation  = arg<wntdll::PFILE_NETWORK_OPEN_INFORMATION>(d.core, 1);
+        const auto ObjectAttributes = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
+        const auto FileInformation  = arg<nt32::PFILE_NETWORK_OPEN_INFORMATION>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryFullAttributesFile(ObjectAttributes:{:#x}, FileInformation:{:#x})", ObjectAttributes, FileInformation));
@@ -3655,13 +3655,13 @@ namespace
             it(ObjectAttributes, FileInformation);
     }
 
-    static void on_NtQueryInformationAtom(monitor::syscallswow64::Data& d)
+    static void on_NtQueryInformationAtom(monitor::syscalls32::Data& d)
     {
-        const auto Atom                  = arg<wntdll::RTL_ATOM>(d.core, 0);
-        const auto InformationClass      = arg<wntdll::ATOM_INFORMATION_CLASS>(d.core, 1);
-        const auto AtomInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto AtomInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength          = arg<wntdll::PULONG>(d.core, 4);
+        const auto Atom                  = arg<nt32::RTL_ATOM>(d.core, 0);
+        const auto InformationClass      = arg<nt32::ATOM_INFORMATION_CLASS>(d.core, 1);
+        const auto AtomInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto AtomInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength          = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryInformationAtom(Atom:{:#x}, InformationClass:{:#x}, AtomInformation:{:#x}, AtomInformationLength:{:#x}, ReturnLength:{:#x})", Atom, InformationClass, AtomInformation, AtomInformationLength, ReturnLength));
@@ -3670,13 +3670,13 @@ namespace
             it(Atom, InformationClass, AtomInformation, AtomInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryInformationEnlistment(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationEnlistment(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto EnlistmentInformationClass  = arg<wntdll::ENLISTMENT_INFORMATION_CLASS>(d.core, 1);
-        const auto EnlistmentInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto EnlistmentInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength                = arg<wntdll::PULONG>(d.core, 4);
+        const auto EnlistmentHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto EnlistmentInformationClass  = arg<nt32::ENLISTMENT_INFORMATION_CLASS>(d.core, 1);
+        const auto EnlistmentInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto EnlistmentInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength                = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryInformationEnlistment(EnlistmentHandle:{:#x}, EnlistmentInformationClass:{:#x}, EnlistmentInformation:{:#x}, EnlistmentInformationLength:{:#x}, ReturnLength:{:#x})", EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength, ReturnLength));
@@ -3685,13 +3685,13 @@ namespace
             it(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryInformationFile(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle           = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoStatusBlock        = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
-        const auto FileInformation      = arg<wntdll::PVOID>(d.core, 2);
-        const auto Length               = arg<wntdll::ULONG>(d.core, 3);
-        const auto FileInformationClass = arg<wntdll::FILE_INFORMATION_CLASS>(d.core, 4);
+        const auto FileHandle           = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoStatusBlock        = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
+        const auto FileInformation      = arg<nt32::PVOID>(d.core, 2);
+        const auto Length               = arg<nt32::ULONG>(d.core, 3);
+        const auto FileInformationClass = arg<nt32::FILE_INFORMATION_CLASS>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x})", FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass));
@@ -3700,13 +3700,13 @@ namespace
             it(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
     }
 
-    static void on_ZwQueryInformationJobObject(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationJobObject(monitor::syscalls32::Data& d)
     {
-        const auto JobHandle                  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto JobObjectInformationClass  = arg<wntdll::JOBOBJECTINFOCLASS>(d.core, 1);
-        const auto JobObjectInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto JobObjectInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength               = arg<wntdll::PULONG>(d.core, 4);
+        const auto JobHandle                  = arg<nt32::HANDLE>(d.core, 0);
+        const auto JobObjectInformationClass  = arg<nt32::JOBOBJECTINFOCLASS>(d.core, 1);
+        const auto JobObjectInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto JobObjectInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength               = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryInformationJobObject(JobHandle:{:#x}, JobObjectInformationClass:{:#x}, JobObjectInformation:{:#x}, JobObjectInformationLength:{:#x}, ReturnLength:{:#x})", JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength, ReturnLength));
@@ -3715,13 +3715,13 @@ namespace
             it(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryInformationPort(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle           = arg<wntdll::HANDLE>(d.core, 0);
-        const auto PortInformationClass = arg<wntdll::PORT_INFORMATION_CLASS>(d.core, 1);
-        const auto PortInformation      = arg<wntdll::PVOID>(d.core, 2);
-        const auto Length               = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength         = arg<wntdll::PULONG>(d.core, 4);
+        const auto PortHandle           = arg<nt32::HANDLE>(d.core, 0);
+        const auto PortInformationClass = arg<nt32::PORT_INFORMATION_CLASS>(d.core, 1);
+        const auto PortInformation      = arg<nt32::PVOID>(d.core, 2);
+        const auto Length               = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength         = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryInformationPort(PortHandle:{:#x}, PortInformationClass:{:#x}, PortInformation:{:#x}, Length:{:#x}, ReturnLength:{:#x})", PortHandle, PortInformationClass, PortInformation, Length, ReturnLength));
@@ -3730,13 +3730,13 @@ namespace
             it(PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
     }
 
-    static void on_ZwQueryInformationProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationProcess(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ProcessInformationClass  = arg<wntdll::PROCESSINFOCLASS>(d.core, 1);
-        const auto ProcessInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto ProcessInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength             = arg<wntdll::PULONG>(d.core, 4);
+        const auto ProcessHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto ProcessInformationClass  = arg<nt32::PROCESSINFOCLASS>(d.core, 1);
+        const auto ProcessInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto ProcessInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength             = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryInformationProcess(ProcessHandle:{:#x}, ProcessInformationClass:{:#x}, ProcessInformation:{:#x}, ProcessInformationLength:{:#x}, ReturnLength:{:#x})", ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength));
@@ -3745,13 +3745,13 @@ namespace
             it(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryInformationResourceManager(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationResourceManager(monitor::syscalls32::Data& d)
     {
-        const auto ResourceManagerHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ResourceManagerInformationClass  = arg<wntdll::RESOURCEMANAGER_INFORMATION_CLASS>(d.core, 1);
-        const auto ResourceManagerInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto ResourceManagerInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength                     = arg<wntdll::PULONG>(d.core, 4);
+        const auto ResourceManagerHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto ResourceManagerInformationClass  = arg<nt32::RESOURCEMANAGER_INFORMATION_CLASS>(d.core, 1);
+        const auto ResourceManagerInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto ResourceManagerInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength                     = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryInformationResourceManager(ResourceManagerHandle:{:#x}, ResourceManagerInformationClass:{:#x}, ResourceManagerInformation:{:#x}, ResourceManagerInformationLength:{:#x}, ReturnLength:{:#x})", ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength, ReturnLength));
@@ -3760,13 +3760,13 @@ namespace
             it(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationThread(monitor::syscallswow64::Data& d)
+    static void on_NtQueryInformationThread(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ThreadInformationClass  = arg<wntdll::THREADINFOCLASS>(d.core, 1);
-        const auto ThreadInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto ThreadInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength            = arg<wntdll::PULONG>(d.core, 4);
+        const auto ThreadHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto ThreadInformationClass  = arg<nt32::THREADINFOCLASS>(d.core, 1);
+        const auto ThreadInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto ThreadInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength            = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryInformationThread(ThreadHandle:{:#x}, ThreadInformationClass:{:#x}, ThreadInformation:{:#x}, ThreadInformationLength:{:#x}, ReturnLength:{:#x})", ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength, ReturnLength));
@@ -3775,13 +3775,13 @@ namespace
             it(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryInformationToken(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationToken(monitor::syscalls32::Data& d)
     {
-        const auto TokenHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TokenInformationClass  = arg<wntdll::TOKEN_INFORMATION_CLASS>(d.core, 1);
-        const auto TokenInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto TokenInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength           = arg<wntdll::PULONG>(d.core, 4);
+        const auto TokenHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto TokenInformationClass  = arg<nt32::TOKEN_INFORMATION_CLASS>(d.core, 1);
+        const auto TokenInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto TokenInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength           = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryInformationToken(TokenHandle:{:#x}, TokenInformationClass:{:#x}, TokenInformation:{:#x}, TokenInformationLength:{:#x}, ReturnLength:{:#x})", TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength, ReturnLength));
@@ -3790,13 +3790,13 @@ namespace
             it(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryInformationTransaction(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationTransaction(monitor::syscalls32::Data& d)
     {
-        const auto TransactionHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TransactionInformationClass  = arg<wntdll::TRANSACTION_INFORMATION_CLASS>(d.core, 1);
-        const auto TransactionInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto TransactionInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength                 = arg<wntdll::PULONG>(d.core, 4);
+        const auto TransactionHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto TransactionInformationClass  = arg<nt32::TRANSACTION_INFORMATION_CLASS>(d.core, 1);
+        const auto TransactionInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto TransactionInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength                 = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryInformationTransaction(TransactionHandle:{:#x}, TransactionInformationClass:{:#x}, TransactionInformation:{:#x}, TransactionInformationLength:{:#x}, ReturnLength:{:#x})", TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength, ReturnLength));
@@ -3805,13 +3805,13 @@ namespace
             it(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationTransactionManager(monitor::syscallswow64::Data& d)
+    static void on_NtQueryInformationTransactionManager(monitor::syscalls32::Data& d)
     {
-        const auto TransactionManagerHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TransactionManagerInformationClass  = arg<wntdll::TRANSACTIONMANAGER_INFORMATION_CLASS>(d.core, 1);
-        const auto TransactionManagerInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto TransactionManagerInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength                        = arg<wntdll::PULONG>(d.core, 4);
+        const auto TransactionManagerHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto TransactionManagerInformationClass  = arg<nt32::TRANSACTIONMANAGER_INFORMATION_CLASS>(d.core, 1);
+        const auto TransactionManagerInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto TransactionManagerInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength                        = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryInformationTransactionManager(TransactionManagerHandle:{:#x}, TransactionManagerInformationClass:{:#x}, TransactionManagerInformation:{:#x}, TransactionManagerInformationLength:{:#x}, ReturnLength:{:#x})", TransactionManagerHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength, ReturnLength));
@@ -3820,13 +3820,13 @@ namespace
             it(TransactionManagerHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryInformationWorkerFactory(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryInformationWorkerFactory(monitor::syscalls32::Data& d)
     {
-        const auto WorkerFactoryHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto WorkerFactoryInformationClass  = arg<wntdll::WORKERFACTORYINFOCLASS>(d.core, 1);
-        const auto WorkerFactoryInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto WorkerFactoryInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength                   = arg<wntdll::PULONG>(d.core, 4);
+        const auto WorkerFactoryHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto WorkerFactoryInformationClass  = arg<nt32::WORKERFACTORYINFOCLASS>(d.core, 1);
+        const auto WorkerFactoryInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto WorkerFactoryInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength                   = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryInformationWorkerFactory(WorkerFactoryHandle:{:#x}, WorkerFactoryInformationClass:{:#x}, WorkerFactoryInformation:{:#x}, WorkerFactoryInformationLength:{:#x}, ReturnLength:{:#x})", WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength, ReturnLength));
@@ -3835,9 +3835,9 @@ namespace
             it(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInstallUILanguage(monitor::syscallswow64::Data& d)
+    static void on_NtQueryInstallUILanguage(monitor::syscalls32::Data& d)
     {
-        const auto STARInstallUILanguageId = arg<wntdll::LANGID>(d.core, 0);
+        const auto STARInstallUILanguageId = arg<nt32::LANGID>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryInstallUILanguage(STARInstallUILanguageId:{:#x})", STARInstallUILanguageId));
@@ -3846,10 +3846,10 @@ namespace
             it(STARInstallUILanguageId);
     }
 
-    static void on_NtQueryIntervalProfile(monitor::syscallswow64::Data& d)
+    static void on_NtQueryIntervalProfile(monitor::syscalls32::Data& d)
     {
-        const auto ProfileSource = arg<wntdll::KPROFILE_SOURCE>(d.core, 0);
-        const auto Interval      = arg<wntdll::PULONG>(d.core, 1);
+        const auto ProfileSource = arg<nt32::KPROFILE_SOURCE>(d.core, 0);
+        const auto Interval      = arg<nt32::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryIntervalProfile(ProfileSource:{:#x}, Interval:{:#x})", ProfileSource, Interval));
@@ -3858,13 +3858,13 @@ namespace
             it(ProfileSource, Interval);
     }
 
-    static void on_NtQueryIoCompletion(monitor::syscallswow64::Data& d)
+    static void on_NtQueryIoCompletion(monitor::syscalls32::Data& d)
     {
-        const auto IoCompletionHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoCompletionInformationClass  = arg<wntdll::IO_COMPLETION_INFORMATION_CLASS>(d.core, 1);
-        const auto IoCompletionInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto IoCompletionInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength                  = arg<wntdll::PULONG>(d.core, 4);
+        const auto IoCompletionHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoCompletionInformationClass  = arg<nt32::IO_COMPLETION_INFORMATION_CLASS>(d.core, 1);
+        const auto IoCompletionInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto IoCompletionInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength                  = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryIoCompletion(IoCompletionHandle:{:#x}, IoCompletionInformationClass:{:#x}, IoCompletionInformation:{:#x}, IoCompletionInformationLength:{:#x}, ReturnLength:{:#x})", IoCompletionHandle, IoCompletionInformationClass, IoCompletionInformation, IoCompletionInformationLength, ReturnLength));
@@ -3873,13 +3873,13 @@ namespace
             it(IoCompletionHandle, IoCompletionInformationClass, IoCompletionInformation, IoCompletionInformationLength, ReturnLength);
     }
 
-    static void on_ZwQueryKey(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle           = arg<wntdll::HANDLE>(d.core, 0);
-        const auto KeyInformationClass = arg<wntdll::KEY_INFORMATION_CLASS>(d.core, 1);
-        const auto KeyInformation      = arg<wntdll::PVOID>(d.core, 2);
-        const auto Length              = arg<wntdll::ULONG>(d.core, 3);
-        const auto ResultLength        = arg<wntdll::PULONG>(d.core, 4);
+        const auto KeyHandle           = arg<nt32::HANDLE>(d.core, 0);
+        const auto KeyInformationClass = arg<nt32::KEY_INFORMATION_CLASS>(d.core, 1);
+        const auto KeyInformation      = arg<nt32::PVOID>(d.core, 2);
+        const auto Length              = arg<nt32::ULONG>(d.core, 3);
+        const auto ResultLength        = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryKey(KeyHandle:{:#x}, KeyInformationClass:{:#x}, KeyInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength));
@@ -3888,13 +3888,13 @@ namespace
             it(KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength);
     }
 
-    static void on_NtQueryLicenseValue(monitor::syscallswow64::Data& d)
+    static void on_NtQueryLicenseValue(monitor::syscalls32::Data& d)
     {
-        const auto Name           = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto Type           = arg<wntdll::PULONG>(d.core, 1);
-        const auto Buffer         = arg<wntdll::PVOID>(d.core, 2);
-        const auto Length         = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnedLength = arg<wntdll::PULONG>(d.core, 4);
+        const auto Name           = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto Type           = arg<nt32::PULONG>(d.core, 1);
+        const auto Buffer         = arg<nt32::PVOID>(d.core, 2);
+        const auto Length         = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnedLength = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryLicenseValue(Name:{:#x}, Type:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnedLength:{:#x})", Name, Type, Buffer, Length, ReturnedLength));
@@ -3903,14 +3903,14 @@ namespace
             it(Name, Type, Buffer, Length, ReturnedLength);
     }
 
-    static void on_NtQueryMultipleValueKey(monitor::syscallswow64::Data& d)
+    static void on_NtQueryMultipleValueKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ValueEntries         = arg<wntdll::PKEY_VALUE_ENTRY>(d.core, 1);
-        const auto EntryCount           = arg<wntdll::ULONG>(d.core, 2);
-        const auto ValueBuffer          = arg<wntdll::PVOID>(d.core, 3);
-        const auto BufferLength         = arg<wntdll::PULONG>(d.core, 4);
-        const auto RequiredBufferLength = arg<wntdll::PULONG>(d.core, 5);
+        const auto KeyHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto ValueEntries         = arg<nt32::PKEY_VALUE_ENTRY>(d.core, 1);
+        const auto EntryCount           = arg<nt32::ULONG>(d.core, 2);
+        const auto ValueBuffer          = arg<nt32::PVOID>(d.core, 3);
+        const auto BufferLength         = arg<nt32::PULONG>(d.core, 4);
+        const auto RequiredBufferLength = arg<nt32::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryMultipleValueKey(KeyHandle:{:#x}, ValueEntries:{:#x}, EntryCount:{:#x}, ValueBuffer:{:#x}, BufferLength:{:#x}, RequiredBufferLength:{:#x})", KeyHandle, ValueEntries, EntryCount, ValueBuffer, BufferLength, RequiredBufferLength));
@@ -3919,13 +3919,13 @@ namespace
             it(KeyHandle, ValueEntries, EntryCount, ValueBuffer, BufferLength, RequiredBufferLength);
     }
 
-    static void on_NtQueryMutant(monitor::syscallswow64::Data& d)
+    static void on_NtQueryMutant(monitor::syscalls32::Data& d)
     {
-        const auto MutantHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto MutantInformationClass  = arg<wntdll::MUTANT_INFORMATION_CLASS>(d.core, 1);
-        const auto MutantInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto MutantInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength            = arg<wntdll::PULONG>(d.core, 4);
+        const auto MutantHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto MutantInformationClass  = arg<nt32::MUTANT_INFORMATION_CLASS>(d.core, 1);
+        const auto MutantInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto MutantInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength            = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryMutant(MutantHandle:{:#x}, MutantInformationClass:{:#x}, MutantInformation:{:#x}, MutantInformationLength:{:#x}, ReturnLength:{:#x})", MutantHandle, MutantInformationClass, MutantInformation, MutantInformationLength, ReturnLength));
@@ -3934,13 +3934,13 @@ namespace
             it(MutantHandle, MutantInformationClass, MutantInformation, MutantInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryObject(monitor::syscallswow64::Data& d)
+    static void on_NtQueryObject(monitor::syscalls32::Data& d)
     {
-        const auto Handle                  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ObjectInformationClass  = arg<wntdll::OBJECT_INFORMATION_CLASS>(d.core, 1);
-        const auto ObjectInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto ObjectInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength            = arg<wntdll::PULONG>(d.core, 4);
+        const auto Handle                  = arg<nt32::HANDLE>(d.core, 0);
+        const auto ObjectInformationClass  = arg<nt32::OBJECT_INFORMATION_CLASS>(d.core, 1);
+        const auto ObjectInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto ObjectInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength            = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryObject(Handle:{:#x}, ObjectInformationClass:{:#x}, ObjectInformation:{:#x}, ObjectInformationLength:{:#x}, ReturnLength:{:#x})", Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength, ReturnLength));
@@ -3949,12 +3949,12 @@ namespace
             it(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryOpenSubKeysEx(monitor::syscallswow64::Data& d)
+    static void on_NtQueryOpenSubKeysEx(monitor::syscalls32::Data& d)
     {
-        const auto TargetKey    = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
-        const auto BufferLength = arg<wntdll::ULONG>(d.core, 1);
-        const auto Buffer       = arg<wntdll::PVOID>(d.core, 2);
-        const auto RequiredSize = arg<wntdll::PULONG>(d.core, 3);
+        const auto TargetKey    = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
+        const auto BufferLength = arg<nt32::ULONG>(d.core, 1);
+        const auto Buffer       = arg<nt32::PVOID>(d.core, 2);
+        const auto RequiredSize = arg<nt32::PULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryOpenSubKeysEx(TargetKey:{:#x}, BufferLength:{:#x}, Buffer:{:#x}, RequiredSize:{:#x})", TargetKey, BufferLength, Buffer, RequiredSize));
@@ -3963,10 +3963,10 @@ namespace
             it(TargetKey, BufferLength, Buffer, RequiredSize);
     }
 
-    static void on_NtQueryOpenSubKeys(monitor::syscallswow64::Data& d)
+    static void on_NtQueryOpenSubKeys(monitor::syscalls32::Data& d)
     {
-        const auto TargetKey   = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
-        const auto HandleCount = arg<wntdll::PULONG>(d.core, 1);
+        const auto TargetKey   = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
+        const auto HandleCount = arg<nt32::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryOpenSubKeys(TargetKey:{:#x}, HandleCount:{:#x})", TargetKey, HandleCount));
@@ -3975,10 +3975,10 @@ namespace
             it(TargetKey, HandleCount);
     }
 
-    static void on_NtQueryPerformanceCounter(monitor::syscallswow64::Data& d)
+    static void on_NtQueryPerformanceCounter(monitor::syscalls32::Data& d)
     {
-        const auto PerformanceCounter   = arg<wntdll::PLARGE_INTEGER>(d.core, 0);
-        const auto PerformanceFrequency = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto PerformanceCounter   = arg<nt32::PLARGE_INTEGER>(d.core, 0);
+        const auto PerformanceFrequency = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryPerformanceCounter(PerformanceCounter:{:#x}, PerformanceFrequency:{:#x})", PerformanceCounter, PerformanceFrequency));
@@ -3987,17 +3987,17 @@ namespace
             it(PerformanceCounter, PerformanceFrequency);
     }
 
-    static void on_ZwQueryQuotaInformationFile(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryQuotaInformationFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle        = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoStatusBlock     = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
-        const auto Buffer            = arg<wntdll::PVOID>(d.core, 2);
-        const auto Length            = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnSingleEntry = arg<wntdll::BOOLEAN>(d.core, 4);
-        const auto SidList           = arg<wntdll::PVOID>(d.core, 5);
-        const auto SidListLength     = arg<wntdll::ULONG>(d.core, 6);
-        const auto StartSid          = arg<wntdll::PULONG>(d.core, 7);
-        const auto RestartScan       = arg<wntdll::BOOLEAN>(d.core, 8);
+        const auto FileHandle        = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoStatusBlock     = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
+        const auto Buffer            = arg<nt32::PVOID>(d.core, 2);
+        const auto Length            = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnSingleEntry = arg<nt32::BOOLEAN>(d.core, 4);
+        const auto SidList           = arg<nt32::PVOID>(d.core, 5);
+        const auto SidListLength     = arg<nt32::ULONG>(d.core, 6);
+        const auto StartSid          = arg<nt32::PULONG>(d.core, 7);
+        const auto RestartScan       = arg<nt32::BOOLEAN>(d.core, 8);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryQuotaInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, SidList:{:#x}, SidListLength:{:#x}, StartSid:{:#x}, RestartScan:{:#x})", FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, SidList, SidListLength, StartSid, RestartScan));
@@ -4006,13 +4006,13 @@ namespace
             it(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, SidList, SidListLength, StartSid, RestartScan);
     }
 
-    static void on_ZwQuerySection(monitor::syscallswow64::Data& d)
+    static void on_ZwQuerySection(monitor::syscalls32::Data& d)
     {
-        const auto SectionHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto SectionInformationClass  = arg<wntdll::SECTION_INFORMATION_CLASS>(d.core, 1);
-        const auto SectionInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto SectionInformationLength = arg<wntdll::SIZE_T>(d.core, 3);
-        const auto ReturnLength             = arg<wntdll::PSIZE_T>(d.core, 4);
+        const auto SectionHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto SectionInformationClass  = arg<nt32::SECTION_INFORMATION_CLASS>(d.core, 1);
+        const auto SectionInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto SectionInformationLength = arg<nt32::SIZE_T>(d.core, 3);
+        const auto ReturnLength             = arg<nt32::PSIZE_T>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQuerySection(SectionHandle:{:#x}, SectionInformationClass:{:#x}, SectionInformation:{:#x}, SectionInformationLength:{:#x}, ReturnLength:{:#x})", SectionHandle, SectionInformationClass, SectionInformation, SectionInformationLength, ReturnLength));
@@ -4021,14 +4021,14 @@ namespace
             it(SectionHandle, SectionInformationClass, SectionInformation, SectionInformationLength, ReturnLength);
     }
 
-    static void on_ZwQuerySecurityAttributesToken(monitor::syscallswow64::Data& d)
+    static void on_ZwQuerySecurityAttributesToken(monitor::syscalls32::Data& d)
     {
-        const auto TokenHandle        = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Attributes         = arg<wntdll::PUNICODE_STRING>(d.core, 1);
-        const auto NumberOfAttributes = arg<wntdll::ULONG>(d.core, 2);
-        const auto Buffer             = arg<wntdll::PVOID>(d.core, 3);
-        const auto Length             = arg<wntdll::ULONG>(d.core, 4);
-        const auto ReturnLength       = arg<wntdll::PULONG>(d.core, 5);
+        const auto TokenHandle        = arg<nt32::HANDLE>(d.core, 0);
+        const auto Attributes         = arg<nt32::PUNICODE_STRING>(d.core, 1);
+        const auto NumberOfAttributes = arg<nt32::ULONG>(d.core, 2);
+        const auto Buffer             = arg<nt32::PVOID>(d.core, 3);
+        const auto Length             = arg<nt32::ULONG>(d.core, 4);
+        const auto ReturnLength       = arg<nt32::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQuerySecurityAttributesToken(TokenHandle:{:#x}, Attributes:{:#x}, NumberOfAttributes:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnLength:{:#x})", TokenHandle, Attributes, NumberOfAttributes, Buffer, Length, ReturnLength));
@@ -4037,13 +4037,13 @@ namespace
             it(TokenHandle, Attributes, NumberOfAttributes, Buffer, Length, ReturnLength);
     }
 
-    static void on_NtQuerySecurityObject(monitor::syscallswow64::Data& d)
+    static void on_NtQuerySecurityObject(monitor::syscalls32::Data& d)
     {
-        const auto Handle              = arg<wntdll::HANDLE>(d.core, 0);
-        const auto SecurityInformation = arg<wntdll::SECURITY_INFORMATION>(d.core, 1);
-        const auto SecurityDescriptor  = arg<wntdll::PSECURITY_DESCRIPTOR>(d.core, 2);
-        const auto Length              = arg<wntdll::ULONG>(d.core, 3);
-        const auto LengthNeeded        = arg<wntdll::PULONG>(d.core, 4);
+        const auto Handle              = arg<nt32::HANDLE>(d.core, 0);
+        const auto SecurityInformation = arg<nt32::SECURITY_INFORMATION>(d.core, 1);
+        const auto SecurityDescriptor  = arg<nt32::PSECURITY_DESCRIPTOR>(d.core, 2);
+        const auto Length              = arg<nt32::ULONG>(d.core, 3);
+        const auto LengthNeeded        = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQuerySecurityObject(Handle:{:#x}, SecurityInformation:{:#x}, SecurityDescriptor:{:#x}, Length:{:#x}, LengthNeeded:{:#x})", Handle, SecurityInformation, SecurityDescriptor, Length, LengthNeeded));
@@ -4052,13 +4052,13 @@ namespace
             it(Handle, SecurityInformation, SecurityDescriptor, Length, LengthNeeded);
     }
 
-    static void on_ZwQuerySemaphore(monitor::syscallswow64::Data& d)
+    static void on_ZwQuerySemaphore(monitor::syscalls32::Data& d)
     {
-        const auto SemaphoreHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto SemaphoreInformationClass  = arg<wntdll::SEMAPHORE_INFORMATION_CLASS>(d.core, 1);
-        const auto SemaphoreInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto SemaphoreInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength               = arg<wntdll::PULONG>(d.core, 4);
+        const auto SemaphoreHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto SemaphoreInformationClass  = arg<nt32::SEMAPHORE_INFORMATION_CLASS>(d.core, 1);
+        const auto SemaphoreInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto SemaphoreInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength               = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQuerySemaphore(SemaphoreHandle:{:#x}, SemaphoreInformationClass:{:#x}, SemaphoreInformation:{:#x}, SemaphoreInformationLength:{:#x}, ReturnLength:{:#x})", SemaphoreHandle, SemaphoreInformationClass, SemaphoreInformation, SemaphoreInformationLength, ReturnLength));
@@ -4067,11 +4067,11 @@ namespace
             it(SemaphoreHandle, SemaphoreInformationClass, SemaphoreInformation, SemaphoreInformationLength, ReturnLength);
     }
 
-    static void on_ZwQuerySymbolicLinkObject(monitor::syscallswow64::Data& d)
+    static void on_ZwQuerySymbolicLinkObject(monitor::syscalls32::Data& d)
     {
-        const auto LinkHandle     = arg<wntdll::HANDLE>(d.core, 0);
-        const auto LinkTarget     = arg<wntdll::PUNICODE_STRING>(d.core, 1);
-        const auto ReturnedLength = arg<wntdll::PULONG>(d.core, 2);
+        const auto LinkHandle     = arg<nt32::HANDLE>(d.core, 0);
+        const auto LinkTarget     = arg<nt32::PUNICODE_STRING>(d.core, 1);
+        const auto ReturnedLength = arg<nt32::PULONG>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQuerySymbolicLinkObject(LinkHandle:{:#x}, LinkTarget:{:#x}, ReturnedLength:{:#x})", LinkHandle, LinkTarget, ReturnedLength));
@@ -4080,13 +4080,13 @@ namespace
             it(LinkHandle, LinkTarget, ReturnedLength);
     }
 
-    static void on_ZwQuerySystemEnvironmentValueEx(monitor::syscallswow64::Data& d)
+    static void on_ZwQuerySystemEnvironmentValueEx(monitor::syscalls32::Data& d)
     {
-        const auto VariableName = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto VendorGuid   = arg<wntdll::LPGUID>(d.core, 1);
-        const auto Value        = arg<wntdll::PVOID>(d.core, 2);
-        const auto ValueLength  = arg<wntdll::PULONG>(d.core, 3);
-        const auto Attributes   = arg<wntdll::PULONG>(d.core, 4);
+        const auto VariableName = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto VendorGuid   = arg<nt32::LPGUID>(d.core, 1);
+        const auto Value        = arg<nt32::PVOID>(d.core, 2);
+        const auto ValueLength  = arg<nt32::PULONG>(d.core, 3);
+        const auto Attributes   = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQuerySystemEnvironmentValueEx(VariableName:{:#x}, VendorGuid:{:#x}, Value:{:#x}, ValueLength:{:#x}, Attributes:{:#x})", VariableName, VendorGuid, Value, ValueLength, Attributes));
@@ -4095,12 +4095,12 @@ namespace
             it(VariableName, VendorGuid, Value, ValueLength, Attributes);
     }
 
-    static void on_ZwQuerySystemEnvironmentValue(monitor::syscallswow64::Data& d)
+    static void on_ZwQuerySystemEnvironmentValue(monitor::syscalls32::Data& d)
     {
-        const auto VariableName  = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto VariableValue = arg<wntdll::PWSTR>(d.core, 1);
-        const auto ValueLength   = arg<wntdll::USHORT>(d.core, 2);
-        const auto ReturnLength  = arg<wntdll::PUSHORT>(d.core, 3);
+        const auto VariableName  = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto VariableValue = arg<nt32::PWSTR>(d.core, 1);
+        const auto ValueLength   = arg<nt32::USHORT>(d.core, 2);
+        const auto ReturnLength  = arg<nt32::PUSHORT>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQuerySystemEnvironmentValue(VariableName:{:#x}, VariableValue:{:#x}, ValueLength:{:#x}, ReturnLength:{:#x})", VariableName, VariableValue, ValueLength, ReturnLength));
@@ -4109,14 +4109,14 @@ namespace
             it(VariableName, VariableValue, ValueLength, ReturnLength);
     }
 
-    static void on_ZwQuerySystemInformationEx(monitor::syscallswow64::Data& d)
+    static void on_ZwQuerySystemInformationEx(monitor::syscalls32::Data& d)
     {
-        const auto SystemInformationClass  = arg<wntdll::SYSTEM_INFORMATION_CLASS>(d.core, 0);
-        const auto QueryInformation        = arg<wntdll::PVOID>(d.core, 1);
-        const auto QueryInformationLength  = arg<wntdll::ULONG>(d.core, 2);
-        const auto SystemInformation       = arg<wntdll::PVOID>(d.core, 3);
-        const auto SystemInformationLength = arg<wntdll::ULONG>(d.core, 4);
-        const auto ReturnLength            = arg<wntdll::PULONG>(d.core, 5);
+        const auto SystemInformationClass  = arg<nt32::SYSTEM_INFORMATION_CLASS>(d.core, 0);
+        const auto QueryInformation        = arg<nt32::PVOID>(d.core, 1);
+        const auto QueryInformationLength  = arg<nt32::ULONG>(d.core, 2);
+        const auto SystemInformation       = arg<nt32::PVOID>(d.core, 3);
+        const auto SystemInformationLength = arg<nt32::ULONG>(d.core, 4);
+        const auto ReturnLength            = arg<nt32::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQuerySystemInformationEx(SystemInformationClass:{:#x}, QueryInformation:{:#x}, QueryInformationLength:{:#x}, SystemInformation:{:#x}, SystemInformationLength:{:#x}, ReturnLength:{:#x})", SystemInformationClass, QueryInformation, QueryInformationLength, SystemInformation, SystemInformationLength, ReturnLength));
@@ -4125,12 +4125,12 @@ namespace
             it(SystemInformationClass, QueryInformation, QueryInformationLength, SystemInformation, SystemInformationLength, ReturnLength);
     }
 
-    static void on_NtQuerySystemInformation(monitor::syscallswow64::Data& d)
+    static void on_NtQuerySystemInformation(monitor::syscalls32::Data& d)
     {
-        const auto SystemInformationClass  = arg<wntdll::SYSTEM_INFORMATION_CLASS>(d.core, 0);
-        const auto SystemInformation       = arg<wntdll::PVOID>(d.core, 1);
-        const auto SystemInformationLength = arg<wntdll::ULONG>(d.core, 2);
-        const auto ReturnLength            = arg<wntdll::PULONG>(d.core, 3);
+        const auto SystemInformationClass  = arg<nt32::SYSTEM_INFORMATION_CLASS>(d.core, 0);
+        const auto SystemInformation       = arg<nt32::PVOID>(d.core, 1);
+        const auto SystemInformationLength = arg<nt32::ULONG>(d.core, 2);
+        const auto ReturnLength            = arg<nt32::PULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQuerySystemInformation(SystemInformationClass:{:#x}, SystemInformation:{:#x}, SystemInformationLength:{:#x}, ReturnLength:{:#x})", SystemInformationClass, SystemInformation, SystemInformationLength, ReturnLength));
@@ -4139,9 +4139,9 @@ namespace
             it(SystemInformationClass, SystemInformation, SystemInformationLength, ReturnLength);
     }
 
-    static void on_NtQuerySystemTime(monitor::syscallswow64::Data& d)
+    static void on_NtQuerySystemTime(monitor::syscalls32::Data& d)
     {
-        const auto SystemTime = arg<wntdll::PLARGE_INTEGER>(d.core, 0);
+        const auto SystemTime = arg<nt32::PLARGE_INTEGER>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQuerySystemTime(SystemTime:{:#x})", SystemTime));
@@ -4150,13 +4150,13 @@ namespace
             it(SystemTime);
     }
 
-    static void on_ZwQueryTimer(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryTimer(monitor::syscalls32::Data& d)
     {
-        const auto TimerHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TimerInformationClass  = arg<wntdll::TIMER_INFORMATION_CLASS>(d.core, 1);
-        const auto TimerInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto TimerInformationLength = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength           = arg<wntdll::PULONG>(d.core, 4);
+        const auto TimerHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto TimerInformationClass  = arg<nt32::TIMER_INFORMATION_CLASS>(d.core, 1);
+        const auto TimerInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto TimerInformationLength = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength           = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryTimer(TimerHandle:{:#x}, TimerInformationClass:{:#x}, TimerInformation:{:#x}, TimerInformationLength:{:#x}, ReturnLength:{:#x})", TimerHandle, TimerInformationClass, TimerInformation, TimerInformationLength, ReturnLength));
@@ -4165,11 +4165,11 @@ namespace
             it(TimerHandle, TimerInformationClass, TimerInformation, TimerInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryTimerResolution(monitor::syscallswow64::Data& d)
+    static void on_NtQueryTimerResolution(monitor::syscalls32::Data& d)
     {
-        const auto MaximumTime = arg<wntdll::PULONG>(d.core, 0);
-        const auto MinimumTime = arg<wntdll::PULONG>(d.core, 1);
-        const auto CurrentTime = arg<wntdll::PULONG>(d.core, 2);
+        const auto MaximumTime = arg<nt32::PULONG>(d.core, 0);
+        const auto MinimumTime = arg<nt32::PULONG>(d.core, 1);
+        const auto CurrentTime = arg<nt32::PULONG>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryTimerResolution(MaximumTime:{:#x}, MinimumTime:{:#x}, CurrentTime:{:#x})", MaximumTime, MinimumTime, CurrentTime));
@@ -4178,14 +4178,14 @@ namespace
             it(MaximumTime, MinimumTime, CurrentTime);
     }
 
-    static void on_ZwQueryValueKey(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryValueKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle                = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ValueName                = arg<wntdll::PUNICODE_STRING>(d.core, 1);
-        const auto KeyValueInformationClass = arg<wntdll::KEY_VALUE_INFORMATION_CLASS>(d.core, 2);
-        const auto KeyValueInformation      = arg<wntdll::PVOID>(d.core, 3);
-        const auto Length                   = arg<wntdll::ULONG>(d.core, 4);
-        const auto ResultLength             = arg<wntdll::PULONG>(d.core, 5);
+        const auto KeyHandle                = arg<nt32::HANDLE>(d.core, 0);
+        const auto ValueName                = arg<nt32::PUNICODE_STRING>(d.core, 1);
+        const auto KeyValueInformationClass = arg<nt32::KEY_VALUE_INFORMATION_CLASS>(d.core, 2);
+        const auto KeyValueInformation      = arg<nt32::PVOID>(d.core, 3);
+        const auto Length                   = arg<nt32::ULONG>(d.core, 4);
+        const auto ResultLength             = arg<nt32::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryValueKey(KeyHandle:{:#x}, ValueName:{:#x}, KeyValueInformationClass:{:#x}, KeyValueInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, ValueName, KeyValueInformationClass, KeyValueInformation, Length, ResultLength));
@@ -4194,14 +4194,14 @@ namespace
             it(KeyHandle, ValueName, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
     }
 
-    static void on_NtQueryVirtualMemory(monitor::syscallswow64::Data& d)
+    static void on_NtQueryVirtualMemory(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle           = arg<wntdll::HANDLE>(d.core, 0);
-        const auto BaseAddress             = arg<wntdll::PVOID>(d.core, 1);
-        const auto MemoryInformationClass  = arg<wntdll::MEMORY_INFORMATION_CLASS>(d.core, 2);
-        const auto MemoryInformation       = arg<wntdll::PVOID>(d.core, 3);
-        const auto MemoryInformationLength = arg<wntdll::SIZE_T>(d.core, 4);
-        const auto ReturnLength            = arg<wntdll::PSIZE_T>(d.core, 5);
+        const auto ProcessHandle           = arg<nt32::HANDLE>(d.core, 0);
+        const auto BaseAddress             = arg<nt32::PVOID>(d.core, 1);
+        const auto MemoryInformationClass  = arg<nt32::MEMORY_INFORMATION_CLASS>(d.core, 2);
+        const auto MemoryInformation       = arg<nt32::PVOID>(d.core, 3);
+        const auto MemoryInformationLength = arg<nt32::SIZE_T>(d.core, 4);
+        const auto ReturnLength            = arg<nt32::PSIZE_T>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryVirtualMemory(ProcessHandle:{:#x}, BaseAddress:{:#x}, MemoryInformationClass:{:#x}, MemoryInformation:{:#x}, MemoryInformationLength:{:#x}, ReturnLength:{:#x})", ProcessHandle, BaseAddress, MemoryInformationClass, MemoryInformation, MemoryInformationLength, ReturnLength));
@@ -4210,13 +4210,13 @@ namespace
             it(ProcessHandle, BaseAddress, MemoryInformationClass, MemoryInformation, MemoryInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryVolumeInformationFile(monitor::syscallswow64::Data& d)
+    static void on_NtQueryVolumeInformationFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle         = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoStatusBlock      = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
-        const auto FsInformation      = arg<wntdll::PVOID>(d.core, 2);
-        const auto Length             = arg<wntdll::ULONG>(d.core, 3);
-        const auto FsInformationClass = arg<wntdll::FS_INFORMATION_CLASS>(d.core, 4);
+        const auto FileHandle         = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoStatusBlock      = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
+        const auto FsInformation      = arg<nt32::PVOID>(d.core, 2);
+        const auto Length             = arg<nt32::ULONG>(d.core, 3);
+        const auto FsInformationClass = arg<nt32::FS_INFORMATION_CLASS>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryVolumeInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FsInformation:{:#x}, Length:{:#x}, FsInformationClass:{:#x})", FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass));
@@ -4225,14 +4225,14 @@ namespace
             it(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
     }
 
-    static void on_NtQueueApcThreadEx(monitor::syscallswow64::Data& d)
+    static void on_NtQueueApcThreadEx(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle         = arg<wntdll::HANDLE>(d.core, 0);
-        const auto UserApcReserveHandle = arg<wntdll::HANDLE>(d.core, 1);
-        const auto ApcRoutine           = arg<wntdll::PPS_APC_ROUTINE>(d.core, 2);
-        const auto ApcArgument1         = arg<wntdll::PVOID>(d.core, 3);
-        const auto ApcArgument2         = arg<wntdll::PVOID>(d.core, 4);
-        const auto ApcArgument3         = arg<wntdll::PVOID>(d.core, 5);
+        const auto ThreadHandle         = arg<nt32::HANDLE>(d.core, 0);
+        const auto UserApcReserveHandle = arg<nt32::HANDLE>(d.core, 1);
+        const auto ApcRoutine           = arg<nt32::PPS_APC_ROUTINE>(d.core, 2);
+        const auto ApcArgument1         = arg<nt32::PVOID>(d.core, 3);
+        const auto ApcArgument2         = arg<nt32::PVOID>(d.core, 4);
+        const auto ApcArgument3         = arg<nt32::PVOID>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueueApcThreadEx(ThreadHandle:{:#x}, UserApcReserveHandle:{:#x}, ApcRoutine:{:#x}, ApcArgument1:{:#x}, ApcArgument2:{:#x}, ApcArgument3:{:#x})", ThreadHandle, UserApcReserveHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3));
@@ -4241,13 +4241,13 @@ namespace
             it(ThreadHandle, UserApcReserveHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
     }
 
-    static void on_NtQueueApcThread(monitor::syscallswow64::Data& d)
+    static void on_NtQueueApcThread(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ApcRoutine   = arg<wntdll::PPS_APC_ROUTINE>(d.core, 1);
-        const auto ApcArgument1 = arg<wntdll::PVOID>(d.core, 2);
-        const auto ApcArgument2 = arg<wntdll::PVOID>(d.core, 3);
-        const auto ApcArgument3 = arg<wntdll::PVOID>(d.core, 4);
+        const auto ThreadHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto ApcRoutine   = arg<nt32::PPS_APC_ROUTINE>(d.core, 1);
+        const auto ApcArgument1 = arg<nt32::PVOID>(d.core, 2);
+        const auto ApcArgument2 = arg<nt32::PVOID>(d.core, 3);
+        const auto ApcArgument3 = arg<nt32::PVOID>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueueApcThread(ThreadHandle:{:#x}, ApcRoutine:{:#x}, ApcArgument1:{:#x}, ApcArgument2:{:#x}, ApcArgument3:{:#x})", ThreadHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3));
@@ -4256,11 +4256,11 @@ namespace
             it(ThreadHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
     }
 
-    static void on_ZwRaiseException(monitor::syscallswow64::Data& d)
+    static void on_ZwRaiseException(monitor::syscalls32::Data& d)
     {
-        const auto ExceptionRecord = arg<wntdll::PEXCEPTION_RECORD>(d.core, 0);
-        const auto ContextRecord   = arg<wntdll::PCONTEXT>(d.core, 1);
-        const auto FirstChance     = arg<wntdll::BOOLEAN>(d.core, 2);
+        const auto ExceptionRecord = arg<nt32::PEXCEPTION_RECORD>(d.core, 0);
+        const auto ContextRecord   = arg<nt32::PCONTEXT>(d.core, 1);
+        const auto FirstChance     = arg<nt32::BOOLEAN>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwRaiseException(ExceptionRecord:{:#x}, ContextRecord:{:#x}, FirstChance:{:#x})", ExceptionRecord, ContextRecord, FirstChance));
@@ -4269,14 +4269,14 @@ namespace
             it(ExceptionRecord, ContextRecord, FirstChance);
     }
 
-    static void on_ZwRaiseHardError(monitor::syscallswow64::Data& d)
+    static void on_ZwRaiseHardError(monitor::syscalls32::Data& d)
     {
-        const auto ErrorStatus                = arg<wntdll::NTSTATUS>(d.core, 0);
-        const auto NumberOfParameters         = arg<wntdll::ULONG>(d.core, 1);
-        const auto UnicodeStringParameterMask = arg<wntdll::ULONG>(d.core, 2);
-        const auto Parameters                 = arg<wntdll::PULONG_PTR>(d.core, 3);
-        const auto ValidResponseOptions       = arg<wntdll::ULONG>(d.core, 4);
-        const auto Response                   = arg<wntdll::PULONG>(d.core, 5);
+        const auto ErrorStatus                = arg<nt32::NTSTATUS>(d.core, 0);
+        const auto NumberOfParameters         = arg<nt32::ULONG>(d.core, 1);
+        const auto UnicodeStringParameterMask = arg<nt32::ULONG>(d.core, 2);
+        const auto Parameters                 = arg<nt32::PULONG_PTR>(d.core, 3);
+        const auto ValidResponseOptions       = arg<nt32::ULONG>(d.core, 4);
+        const auto Response                   = arg<nt32::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwRaiseHardError(ErrorStatus:{:#x}, NumberOfParameters:{:#x}, UnicodeStringParameterMask:{:#x}, Parameters:{:#x}, ValidResponseOptions:{:#x}, Response:{:#x})", ErrorStatus, NumberOfParameters, UnicodeStringParameterMask, Parameters, ValidResponseOptions, Response));
@@ -4285,17 +4285,17 @@ namespace
             it(ErrorStatus, NumberOfParameters, UnicodeStringParameterMask, Parameters, ValidResponseOptions, Response);
     }
 
-    static void on_NtReadFile(monitor::syscallswow64::Data& d)
+    static void on_NtReadFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Event         = arg<wntdll::HANDLE>(d.core, 1);
-        const auto ApcRoutine    = arg<wntdll::PIO_APC_ROUTINE>(d.core, 2);
-        const auto ApcContext    = arg<wntdll::PVOID>(d.core, 3);
-        const auto IoStatusBlock = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 4);
-        const auto Buffer        = arg<wntdll::PVOID>(d.core, 5);
-        const auto Length        = arg<wntdll::ULONG>(d.core, 6);
-        const auto ByteOffset    = arg<wntdll::PLARGE_INTEGER>(d.core, 7);
-        const auto Key           = arg<wntdll::PULONG>(d.core, 8);
+        const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto Event         = arg<nt32::HANDLE>(d.core, 1);
+        const auto ApcRoutine    = arg<nt32::PIO_APC_ROUTINE>(d.core, 2);
+        const auto ApcContext    = arg<nt32::PVOID>(d.core, 3);
+        const auto IoStatusBlock = arg<nt32::PIO_STATUS_BLOCK>(d.core, 4);
+        const auto Buffer        = arg<nt32::PVOID>(d.core, 5);
+        const auto Length        = arg<nt32::ULONG>(d.core, 6);
+        const auto ByteOffset    = arg<nt32::PLARGE_INTEGER>(d.core, 7);
+        const auto Key           = arg<nt32::PULONG>(d.core, 8);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtReadFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ByteOffset:{:#x}, Key:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key));
@@ -4304,17 +4304,17 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
     }
 
-    static void on_NtReadFileScatter(monitor::syscallswow64::Data& d)
+    static void on_NtReadFileScatter(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Event         = arg<wntdll::HANDLE>(d.core, 1);
-        const auto ApcRoutine    = arg<wntdll::PIO_APC_ROUTINE>(d.core, 2);
-        const auto ApcContext    = arg<wntdll::PVOID>(d.core, 3);
-        const auto IoStatusBlock = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 4);
-        const auto SegmentArray  = arg<wntdll::PFILE_SEGMENT_ELEMENT>(d.core, 5);
-        const auto Length        = arg<wntdll::ULONG>(d.core, 6);
-        const auto ByteOffset    = arg<wntdll::PLARGE_INTEGER>(d.core, 7);
-        const auto Key           = arg<wntdll::PULONG>(d.core, 8);
+        const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto Event         = arg<nt32::HANDLE>(d.core, 1);
+        const auto ApcRoutine    = arg<nt32::PIO_APC_ROUTINE>(d.core, 2);
+        const auto ApcContext    = arg<nt32::PVOID>(d.core, 3);
+        const auto IoStatusBlock = arg<nt32::PIO_STATUS_BLOCK>(d.core, 4);
+        const auto SegmentArray  = arg<nt32::PFILE_SEGMENT_ELEMENT>(d.core, 5);
+        const auto Length        = arg<nt32::ULONG>(d.core, 6);
+        const auto ByteOffset    = arg<nt32::PLARGE_INTEGER>(d.core, 7);
+        const auto Key           = arg<nt32::PULONG>(d.core, 8);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtReadFileScatter(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, SegmentArray:{:#x}, Length:{:#x}, ByteOffset:{:#x}, Key:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key));
@@ -4323,10 +4323,10 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
     }
 
-    static void on_ZwReadOnlyEnlistment(monitor::syscallswow64::Data& d)
+    static void on_ZwReadOnlyEnlistment(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwReadOnlyEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
@@ -4335,14 +4335,14 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_ZwReadRequestData(monitor::syscallswow64::Data& d)
+    static void on_ZwReadRequestData(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle        = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Message           = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
-        const auto DataEntryIndex    = arg<wntdll::ULONG>(d.core, 2);
-        const auto Buffer            = arg<wntdll::PVOID>(d.core, 3);
-        const auto BufferSize        = arg<wntdll::SIZE_T>(d.core, 4);
-        const auto NumberOfBytesRead = arg<wntdll::PSIZE_T>(d.core, 5);
+        const auto PortHandle        = arg<nt32::HANDLE>(d.core, 0);
+        const auto Message           = arg<nt32::PPORT_MESSAGE>(d.core, 1);
+        const auto DataEntryIndex    = arg<nt32::ULONG>(d.core, 2);
+        const auto Buffer            = arg<nt32::PVOID>(d.core, 3);
+        const auto BufferSize        = arg<nt32::SIZE_T>(d.core, 4);
+        const auto NumberOfBytesRead = arg<nt32::PSIZE_T>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwReadRequestData(PortHandle:{:#x}, Message:{:#x}, DataEntryIndex:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, NumberOfBytesRead:{:#x})", PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesRead));
@@ -4351,13 +4351,13 @@ namespace
             it(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesRead);
     }
 
-    static void on_NtReadVirtualMemory(monitor::syscallswow64::Data& d)
+    static void on_NtReadVirtualMemory(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle     = arg<wntdll::HANDLE>(d.core, 0);
-        const auto BaseAddress       = arg<wntdll::PVOID>(d.core, 1);
-        const auto Buffer            = arg<wntdll::PVOID>(d.core, 2);
-        const auto BufferSize        = arg<wntdll::SIZE_T>(d.core, 3);
-        const auto NumberOfBytesRead = arg<wntdll::PSIZE_T>(d.core, 4);
+        const auto ProcessHandle     = arg<nt32::HANDLE>(d.core, 0);
+        const auto BaseAddress       = arg<nt32::PVOID>(d.core, 1);
+        const auto Buffer            = arg<nt32::PVOID>(d.core, 2);
+        const auto BufferSize        = arg<nt32::SIZE_T>(d.core, 3);
+        const auto NumberOfBytesRead = arg<nt32::PSIZE_T>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtReadVirtualMemory(ProcessHandle:{:#x}, BaseAddress:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, NumberOfBytesRead:{:#x})", ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesRead));
@@ -4366,10 +4366,10 @@ namespace
             it(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesRead);
     }
 
-    static void on_NtRecoverEnlistment(monitor::syscallswow64::Data& d)
+    static void on_NtRecoverEnlistment(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto EnlistmentKey    = arg<wntdll::PVOID>(d.core, 1);
+        const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto EnlistmentKey    = arg<nt32::PVOID>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtRecoverEnlistment(EnlistmentHandle:{:#x}, EnlistmentKey:{:#x})", EnlistmentHandle, EnlistmentKey));
@@ -4378,9 +4378,9 @@ namespace
             it(EnlistmentHandle, EnlistmentKey);
     }
 
-    static void on_NtRecoverResourceManager(monitor::syscallswow64::Data& d)
+    static void on_NtRecoverResourceManager(monitor::syscalls32::Data& d)
     {
-        const auto ResourceManagerHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto ResourceManagerHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtRecoverResourceManager(ResourceManagerHandle:{:#x})", ResourceManagerHandle));
@@ -4389,9 +4389,9 @@ namespace
             it(ResourceManagerHandle);
     }
 
-    static void on_ZwRecoverTransactionManager(monitor::syscallswow64::Data& d)
+    static void on_ZwRecoverTransactionManager(monitor::syscalls32::Data& d)
     {
-        const auto TransactionManagerHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto TransactionManagerHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwRecoverTransactionManager(TransactionManagerHandle:{:#x})", TransactionManagerHandle));
@@ -4400,13 +4400,13 @@ namespace
             it(TransactionManagerHandle);
     }
 
-    static void on_ZwRegisterProtocolAddressInformation(monitor::syscallswow64::Data& d)
+    static void on_ZwRegisterProtocolAddressInformation(monitor::syscalls32::Data& d)
     {
-        const auto ResourceManager         = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ProtocolId              = arg<wntdll::PCRM_PROTOCOL_ID>(d.core, 1);
-        const auto ProtocolInformationSize = arg<wntdll::ULONG>(d.core, 2);
-        const auto ProtocolInformation     = arg<wntdll::PVOID>(d.core, 3);
-        const auto CreateOptions           = arg<wntdll::ULONG>(d.core, 4);
+        const auto ResourceManager         = arg<nt32::HANDLE>(d.core, 0);
+        const auto ProtocolId              = arg<nt32::PCRM_PROTOCOL_ID>(d.core, 1);
+        const auto ProtocolInformationSize = arg<nt32::ULONG>(d.core, 2);
+        const auto ProtocolInformation     = arg<nt32::PVOID>(d.core, 3);
+        const auto CreateOptions           = arg<nt32::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwRegisterProtocolAddressInformation(ResourceManager:{:#x}, ProtocolId:{:#x}, ProtocolInformationSize:{:#x}, ProtocolInformation:{:#x}, CreateOptions:{:#x})", ResourceManager, ProtocolId, ProtocolInformationSize, ProtocolInformation, CreateOptions));
@@ -4415,9 +4415,9 @@ namespace
             it(ResourceManager, ProtocolId, ProtocolInformationSize, ProtocolInformation, CreateOptions);
     }
 
-    static void on_ZwRegisterThreadTerminatePort(monitor::syscallswow64::Data& d)
+    static void on_ZwRegisterThreadTerminatePort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto PortHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwRegisterThreadTerminatePort(PortHandle:{:#x})", PortHandle));
@@ -4426,12 +4426,12 @@ namespace
             it(PortHandle);
     }
 
-    static void on_NtReleaseKeyedEvent(monitor::syscallswow64::Data& d)
+    static void on_NtReleaseKeyedEvent(monitor::syscalls32::Data& d)
     {
-        const auto KeyedEventHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto KeyValue         = arg<wntdll::PVOID>(d.core, 1);
-        const auto Alertable        = arg<wntdll::BOOLEAN>(d.core, 2);
-        const auto Timeout          = arg<wntdll::PLARGE_INTEGER>(d.core, 3);
+        const auto KeyedEventHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto KeyValue         = arg<nt32::PVOID>(d.core, 1);
+        const auto Alertable        = arg<nt32::BOOLEAN>(d.core, 2);
+        const auto Timeout          = arg<nt32::PLARGE_INTEGER>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtReleaseKeyedEvent(KeyedEventHandle:{:#x}, KeyValue:{:#x}, Alertable:{:#x}, Timeout:{:#x})", KeyedEventHandle, KeyValue, Alertable, Timeout));
@@ -4440,10 +4440,10 @@ namespace
             it(KeyedEventHandle, KeyValue, Alertable, Timeout);
     }
 
-    static void on_ZwReleaseMutant(monitor::syscallswow64::Data& d)
+    static void on_ZwReleaseMutant(monitor::syscalls32::Data& d)
     {
-        const auto MutantHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto PreviousCount = arg<wntdll::PLONG>(d.core, 1);
+        const auto MutantHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto PreviousCount = arg<nt32::PLONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwReleaseMutant(MutantHandle:{:#x}, PreviousCount:{:#x})", MutantHandle, PreviousCount));
@@ -4452,11 +4452,11 @@ namespace
             it(MutantHandle, PreviousCount);
     }
 
-    static void on_NtReleaseSemaphore(monitor::syscallswow64::Data& d)
+    static void on_NtReleaseSemaphore(monitor::syscalls32::Data& d)
     {
-        const auto SemaphoreHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ReleaseCount    = arg<wntdll::LONG>(d.core, 1);
-        const auto PreviousCount   = arg<wntdll::PLONG>(d.core, 2);
+        const auto SemaphoreHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto ReleaseCount    = arg<nt32::LONG>(d.core, 1);
+        const auto PreviousCount   = arg<nt32::PLONG>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtReleaseSemaphore(SemaphoreHandle:{:#x}, ReleaseCount:{:#x}, PreviousCount:{:#x})", SemaphoreHandle, ReleaseCount, PreviousCount));
@@ -4465,9 +4465,9 @@ namespace
             it(SemaphoreHandle, ReleaseCount, PreviousCount);
     }
 
-    static void on_ZwReleaseWorkerFactoryWorker(monitor::syscallswow64::Data& d)
+    static void on_ZwReleaseWorkerFactoryWorker(monitor::syscalls32::Data& d)
     {
-        const auto WorkerFactoryHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto WorkerFactoryHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwReleaseWorkerFactoryWorker(WorkerFactoryHandle:{:#x})", WorkerFactoryHandle));
@@ -4476,14 +4476,14 @@ namespace
             it(WorkerFactoryHandle);
     }
 
-    static void on_ZwRemoveIoCompletionEx(monitor::syscallswow64::Data& d)
+    static void on_ZwRemoveIoCompletionEx(monitor::syscalls32::Data& d)
     {
-        const auto IoCompletionHandle      = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoCompletionInformation = arg<wntdll::PFILE_IO_COMPLETION_INFORMATION>(d.core, 1);
-        const auto Count                   = arg<wntdll::ULONG>(d.core, 2);
-        const auto NumEntriesRemoved       = arg<wntdll::PULONG>(d.core, 3);
-        const auto Timeout                 = arg<wntdll::PLARGE_INTEGER>(d.core, 4);
-        const auto Alertable               = arg<wntdll::BOOLEAN>(d.core, 5);
+        const auto IoCompletionHandle      = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoCompletionInformation = arg<nt32::PFILE_IO_COMPLETION_INFORMATION>(d.core, 1);
+        const auto Count                   = arg<nt32::ULONG>(d.core, 2);
+        const auto NumEntriesRemoved       = arg<nt32::PULONG>(d.core, 3);
+        const auto Timeout                 = arg<nt32::PLARGE_INTEGER>(d.core, 4);
+        const auto Alertable               = arg<nt32::BOOLEAN>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwRemoveIoCompletionEx(IoCompletionHandle:{:#x}, IoCompletionInformation:{:#x}, Count:{:#x}, NumEntriesRemoved:{:#x}, Timeout:{:#x}, Alertable:{:#x})", IoCompletionHandle, IoCompletionInformation, Count, NumEntriesRemoved, Timeout, Alertable));
@@ -4492,13 +4492,13 @@ namespace
             it(IoCompletionHandle, IoCompletionInformation, Count, NumEntriesRemoved, Timeout, Alertable);
     }
 
-    static void on_ZwRemoveIoCompletion(monitor::syscallswow64::Data& d)
+    static void on_ZwRemoveIoCompletion(monitor::syscalls32::Data& d)
     {
-        const auto IoCompletionHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto STARKeyContext     = arg<wntdll::PVOID>(d.core, 1);
-        const auto STARApcContext     = arg<wntdll::PVOID>(d.core, 2);
-        const auto IoStatusBlock      = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 3);
-        const auto Timeout            = arg<wntdll::PLARGE_INTEGER>(d.core, 4);
+        const auto IoCompletionHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto STARKeyContext     = arg<nt32::PVOID>(d.core, 1);
+        const auto STARApcContext     = arg<nt32::PVOID>(d.core, 2);
+        const auto IoStatusBlock      = arg<nt32::PIO_STATUS_BLOCK>(d.core, 3);
+        const auto Timeout            = arg<nt32::PLARGE_INTEGER>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwRemoveIoCompletion(IoCompletionHandle:{:#x}, STARKeyContext:{:#x}, STARApcContext:{:#x}, IoStatusBlock:{:#x}, Timeout:{:#x})", IoCompletionHandle, STARKeyContext, STARApcContext, IoStatusBlock, Timeout));
@@ -4507,10 +4507,10 @@ namespace
             it(IoCompletionHandle, STARKeyContext, STARApcContext, IoStatusBlock, Timeout);
     }
 
-    static void on_ZwRemoveProcessDebug(monitor::syscallswow64::Data& d)
+    static void on_ZwRemoveProcessDebug(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle     = arg<wntdll::HANDLE>(d.core, 0);
-        const auto DebugObjectHandle = arg<wntdll::HANDLE>(d.core, 1);
+        const auto ProcessHandle     = arg<nt32::HANDLE>(d.core, 0);
+        const auto DebugObjectHandle = arg<nt32::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwRemoveProcessDebug(ProcessHandle:{:#x}, DebugObjectHandle:{:#x})", ProcessHandle, DebugObjectHandle));
@@ -4519,10 +4519,10 @@ namespace
             it(ProcessHandle, DebugObjectHandle);
     }
 
-    static void on_ZwRenameKey(monitor::syscallswow64::Data& d)
+    static void on_ZwRenameKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto NewName   = arg<wntdll::PUNICODE_STRING>(d.core, 1);
+        const auto KeyHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto NewName   = arg<nt32::PUNICODE_STRING>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwRenameKey(KeyHandle:{:#x}, NewName:{:#x})", KeyHandle, NewName));
@@ -4531,10 +4531,10 @@ namespace
             it(KeyHandle, NewName);
     }
 
-    static void on_NtRenameTransactionManager(monitor::syscallswow64::Data& d)
+    static void on_NtRenameTransactionManager(monitor::syscalls32::Data& d)
     {
-        const auto LogFileName                    = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto ExistingTransactionManagerGuid = arg<wntdll::LPGUID>(d.core, 1);
+        const auto LogFileName                    = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto ExistingTransactionManagerGuid = arg<nt32::LPGUID>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtRenameTransactionManager(LogFileName:{:#x}, ExistingTransactionManagerGuid:{:#x})", LogFileName, ExistingTransactionManagerGuid));
@@ -4543,11 +4543,11 @@ namespace
             it(LogFileName, ExistingTransactionManagerGuid);
     }
 
-    static void on_ZwReplaceKey(monitor::syscallswow64::Data& d)
+    static void on_ZwReplaceKey(monitor::syscalls32::Data& d)
     {
-        const auto NewFile      = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
-        const auto TargetHandle = arg<wntdll::HANDLE>(d.core, 1);
-        const auto OldFile      = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 2);
+        const auto NewFile      = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
+        const auto TargetHandle = arg<nt32::HANDLE>(d.core, 1);
+        const auto OldFile      = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwReplaceKey(NewFile:{:#x}, TargetHandle:{:#x}, OldFile:{:#x})", NewFile, TargetHandle, OldFile));
@@ -4556,11 +4556,11 @@ namespace
             it(NewFile, TargetHandle, OldFile);
     }
 
-    static void on_NtReplacePartitionUnit(monitor::syscallswow64::Data& d)
+    static void on_NtReplacePartitionUnit(monitor::syscalls32::Data& d)
     {
-        const auto TargetInstancePath = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto SpareInstancePath  = arg<wntdll::PUNICODE_STRING>(d.core, 1);
-        const auto Flags              = arg<wntdll::ULONG>(d.core, 2);
+        const auto TargetInstancePath = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto SpareInstancePath  = arg<nt32::PUNICODE_STRING>(d.core, 1);
+        const auto Flags              = arg<nt32::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtReplacePartitionUnit(TargetInstancePath:{:#x}, SpareInstancePath:{:#x}, Flags:{:#x})", TargetInstancePath, SpareInstancePath, Flags));
@@ -4569,10 +4569,10 @@ namespace
             it(TargetInstancePath, SpareInstancePath, Flags);
     }
 
-    static void on_ZwReplyPort(monitor::syscallswow64::Data& d)
+    static void on_ZwReplyPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle   = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ReplyMessage = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
+        const auto PortHandle   = arg<nt32::HANDLE>(d.core, 0);
+        const auto ReplyMessage = arg<nt32::PPORT_MESSAGE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwReplyPort(PortHandle:{:#x}, ReplyMessage:{:#x})", PortHandle, ReplyMessage));
@@ -4581,13 +4581,13 @@ namespace
             it(PortHandle, ReplyMessage);
     }
 
-    static void on_NtReplyWaitReceivePortEx(monitor::syscallswow64::Data& d)
+    static void on_NtReplyWaitReceivePortEx(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle      = arg<wntdll::HANDLE>(d.core, 0);
-        const auto STARPortContext = arg<wntdll::PVOID>(d.core, 1);
-        const auto ReplyMessage    = arg<wntdll::PPORT_MESSAGE>(d.core, 2);
-        const auto ReceiveMessage  = arg<wntdll::PPORT_MESSAGE>(d.core, 3);
-        const auto Timeout         = arg<wntdll::PLARGE_INTEGER>(d.core, 4);
+        const auto PortHandle      = arg<nt32::HANDLE>(d.core, 0);
+        const auto STARPortContext = arg<nt32::PVOID>(d.core, 1);
+        const auto ReplyMessage    = arg<nt32::PPORT_MESSAGE>(d.core, 2);
+        const auto ReceiveMessage  = arg<nt32::PPORT_MESSAGE>(d.core, 3);
+        const auto Timeout         = arg<nt32::PLARGE_INTEGER>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtReplyWaitReceivePortEx(PortHandle:{:#x}, STARPortContext:{:#x}, ReplyMessage:{:#x}, ReceiveMessage:{:#x}, Timeout:{:#x})", PortHandle, STARPortContext, ReplyMessage, ReceiveMessage, Timeout));
@@ -4596,12 +4596,12 @@ namespace
             it(PortHandle, STARPortContext, ReplyMessage, ReceiveMessage, Timeout);
     }
 
-    static void on_NtReplyWaitReceivePort(monitor::syscallswow64::Data& d)
+    static void on_NtReplyWaitReceivePort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle      = arg<wntdll::HANDLE>(d.core, 0);
-        const auto STARPortContext = arg<wntdll::PVOID>(d.core, 1);
-        const auto ReplyMessage    = arg<wntdll::PPORT_MESSAGE>(d.core, 2);
-        const auto ReceiveMessage  = arg<wntdll::PPORT_MESSAGE>(d.core, 3);
+        const auto PortHandle      = arg<nt32::HANDLE>(d.core, 0);
+        const auto STARPortContext = arg<nt32::PVOID>(d.core, 1);
+        const auto ReplyMessage    = arg<nt32::PPORT_MESSAGE>(d.core, 2);
+        const auto ReceiveMessage  = arg<nt32::PPORT_MESSAGE>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtReplyWaitReceivePort(PortHandle:{:#x}, STARPortContext:{:#x}, ReplyMessage:{:#x}, ReceiveMessage:{:#x})", PortHandle, STARPortContext, ReplyMessage, ReceiveMessage));
@@ -4610,10 +4610,10 @@ namespace
             it(PortHandle, STARPortContext, ReplyMessage, ReceiveMessage);
     }
 
-    static void on_NtReplyWaitReplyPort(monitor::syscallswow64::Data& d)
+    static void on_NtReplyWaitReplyPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle   = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ReplyMessage = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
+        const auto PortHandle   = arg<nt32::HANDLE>(d.core, 0);
+        const auto ReplyMessage = arg<nt32::PPORT_MESSAGE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtReplyWaitReplyPort(PortHandle:{:#x}, ReplyMessage:{:#x})", PortHandle, ReplyMessage));
@@ -4622,10 +4622,10 @@ namespace
             it(PortHandle, ReplyMessage);
     }
 
-    static void on_ZwRequestPort(monitor::syscallswow64::Data& d)
+    static void on_ZwRequestPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle     = arg<wntdll::HANDLE>(d.core, 0);
-        const auto RequestMessage = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
+        const auto PortHandle     = arg<nt32::HANDLE>(d.core, 0);
+        const auto RequestMessage = arg<nt32::PPORT_MESSAGE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwRequestPort(PortHandle:{:#x}, RequestMessage:{:#x})", PortHandle, RequestMessage));
@@ -4634,11 +4634,11 @@ namespace
             it(PortHandle, RequestMessage);
     }
 
-    static void on_NtRequestWaitReplyPort(monitor::syscallswow64::Data& d)
+    static void on_NtRequestWaitReplyPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle     = arg<wntdll::HANDLE>(d.core, 0);
-        const auto RequestMessage = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
-        const auto ReplyMessage   = arg<wntdll::PPORT_MESSAGE>(d.core, 2);
+        const auto PortHandle     = arg<nt32::HANDLE>(d.core, 0);
+        const auto RequestMessage = arg<nt32::PPORT_MESSAGE>(d.core, 1);
+        const auto ReplyMessage   = arg<nt32::PPORT_MESSAGE>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtRequestWaitReplyPort(PortHandle:{:#x}, RequestMessage:{:#x}, ReplyMessage:{:#x})", PortHandle, RequestMessage, ReplyMessage));
@@ -4647,10 +4647,10 @@ namespace
             it(PortHandle, RequestMessage, ReplyMessage);
     }
 
-    static void on_NtResetEvent(monitor::syscallswow64::Data& d)
+    static void on_NtResetEvent(monitor::syscalls32::Data& d)
     {
-        const auto EventHandle   = arg<wntdll::HANDLE>(d.core, 0);
-        const auto PreviousState = arg<wntdll::PLONG>(d.core, 1);
+        const auto EventHandle   = arg<nt32::HANDLE>(d.core, 0);
+        const auto PreviousState = arg<nt32::PLONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtResetEvent(EventHandle:{:#x}, PreviousState:{:#x})", EventHandle, PreviousState));
@@ -4659,11 +4659,11 @@ namespace
             it(EventHandle, PreviousState);
     }
 
-    static void on_ZwResetWriteWatch(monitor::syscallswow64::Data& d)
+    static void on_ZwResetWriteWatch(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto BaseAddress   = arg<wntdll::PVOID>(d.core, 1);
-        const auto RegionSize    = arg<wntdll::SIZE_T>(d.core, 2);
+        const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto BaseAddress   = arg<nt32::PVOID>(d.core, 1);
+        const auto RegionSize    = arg<nt32::SIZE_T>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwResetWriteWatch(ProcessHandle:{:#x}, BaseAddress:{:#x}, RegionSize:{:#x})", ProcessHandle, BaseAddress, RegionSize));
@@ -4672,11 +4672,11 @@ namespace
             it(ProcessHandle, BaseAddress, RegionSize);
     }
 
-    static void on_NtRestoreKey(monitor::syscallswow64::Data& d)
+    static void on_NtRestoreKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto FileHandle = arg<wntdll::HANDLE>(d.core, 1);
-        const auto Flags      = arg<wntdll::ULONG>(d.core, 2);
+        const auto KeyHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto FileHandle = arg<nt32::HANDLE>(d.core, 1);
+        const auto Flags      = arg<nt32::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtRestoreKey(KeyHandle:{:#x}, FileHandle:{:#x}, Flags:{:#x})", KeyHandle, FileHandle, Flags));
@@ -4685,9 +4685,9 @@ namespace
             it(KeyHandle, FileHandle, Flags);
     }
 
-    static void on_ZwResumeProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwResumeProcess(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwResumeProcess(ProcessHandle:{:#x})", ProcessHandle));
@@ -4696,10 +4696,10 @@ namespace
             it(ProcessHandle);
     }
 
-    static void on_ZwResumeThread(monitor::syscallswow64::Data& d)
+    static void on_ZwResumeThread(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle         = arg<wntdll::HANDLE>(d.core, 0);
-        const auto PreviousSuspendCount = arg<wntdll::PULONG>(d.core, 1);
+        const auto ThreadHandle         = arg<nt32::HANDLE>(d.core, 0);
+        const auto PreviousSuspendCount = arg<nt32::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwResumeThread(ThreadHandle:{:#x}, PreviousSuspendCount:{:#x})", ThreadHandle, PreviousSuspendCount));
@@ -4708,10 +4708,10 @@ namespace
             it(ThreadHandle, PreviousSuspendCount);
     }
 
-    static void on_ZwRollbackComplete(monitor::syscallswow64::Data& d)
+    static void on_ZwRollbackComplete(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwRollbackComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
@@ -4720,10 +4720,10 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtRollbackEnlistment(monitor::syscallswow64::Data& d)
+    static void on_NtRollbackEnlistment(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtRollbackEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
@@ -4732,10 +4732,10 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtRollbackTransaction(monitor::syscallswow64::Data& d)
+    static void on_NtRollbackTransaction(monitor::syscalls32::Data& d)
     {
-        const auto TransactionHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Wait              = arg<wntdll::BOOLEAN>(d.core, 1);
+        const auto TransactionHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto Wait              = arg<nt32::BOOLEAN>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtRollbackTransaction(TransactionHandle:{:#x}, Wait:{:#x})", TransactionHandle, Wait));
@@ -4744,10 +4744,10 @@ namespace
             it(TransactionHandle, Wait);
     }
 
-    static void on_NtRollforwardTransactionManager(monitor::syscallswow64::Data& d)
+    static void on_NtRollforwardTransactionManager(monitor::syscalls32::Data& d)
     {
-        const auto TransactionManagerHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TmVirtualClock           = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto TransactionManagerHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto TmVirtualClock           = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtRollforwardTransactionManager(TransactionManagerHandle:{:#x}, TmVirtualClock:{:#x})", TransactionManagerHandle, TmVirtualClock));
@@ -4756,11 +4756,11 @@ namespace
             it(TransactionManagerHandle, TmVirtualClock);
     }
 
-    static void on_NtSaveKeyEx(monitor::syscallswow64::Data& d)
+    static void on_NtSaveKeyEx(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto FileHandle = arg<wntdll::HANDLE>(d.core, 1);
-        const auto Format     = arg<wntdll::ULONG>(d.core, 2);
+        const auto KeyHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto FileHandle = arg<nt32::HANDLE>(d.core, 1);
+        const auto Format     = arg<nt32::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSaveKeyEx(KeyHandle:{:#x}, FileHandle:{:#x}, Format:{:#x})", KeyHandle, FileHandle, Format));
@@ -4769,10 +4769,10 @@ namespace
             it(KeyHandle, FileHandle, Format);
     }
 
-    static void on_NtSaveKey(monitor::syscallswow64::Data& d)
+    static void on_NtSaveKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto FileHandle = arg<wntdll::HANDLE>(d.core, 1);
+        const auto KeyHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto FileHandle = arg<nt32::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSaveKey(KeyHandle:{:#x}, FileHandle:{:#x})", KeyHandle, FileHandle));
@@ -4781,11 +4781,11 @@ namespace
             it(KeyHandle, FileHandle);
     }
 
-    static void on_NtSaveMergedKeys(monitor::syscallswow64::Data& d)
+    static void on_NtSaveMergedKeys(monitor::syscalls32::Data& d)
     {
-        const auto HighPrecedenceKeyHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto LowPrecedenceKeyHandle  = arg<wntdll::HANDLE>(d.core, 1);
-        const auto FileHandle              = arg<wntdll::HANDLE>(d.core, 2);
+        const auto HighPrecedenceKeyHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto LowPrecedenceKeyHandle  = arg<nt32::HANDLE>(d.core, 1);
+        const auto FileHandle              = arg<nt32::HANDLE>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSaveMergedKeys(HighPrecedenceKeyHandle:{:#x}, LowPrecedenceKeyHandle:{:#x}, FileHandle:{:#x})", HighPrecedenceKeyHandle, LowPrecedenceKeyHandle, FileHandle));
@@ -4794,17 +4794,17 @@ namespace
             it(HighPrecedenceKeyHandle, LowPrecedenceKeyHandle, FileHandle);
     }
 
-    static void on_NtSecureConnectPort(monitor::syscallswow64::Data& d)
+    static void on_NtSecureConnectPort(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle                  = arg<wntdll::PHANDLE>(d.core, 0);
-        const auto PortName                    = arg<wntdll::PUNICODE_STRING>(d.core, 1);
-        const auto SecurityQos                 = arg<wntdll::PSECURITY_QUALITY_OF_SERVICE>(d.core, 2);
-        const auto ClientView                  = arg<wntdll::PPORT_VIEW>(d.core, 3);
-        const auto RequiredServerSid           = arg<wntdll::PSID>(d.core, 4);
-        const auto ServerView                  = arg<wntdll::PREMOTE_PORT_VIEW>(d.core, 5);
-        const auto MaxMessageLength            = arg<wntdll::PULONG>(d.core, 6);
-        const auto ConnectionInformation       = arg<wntdll::PVOID>(d.core, 7);
-        const auto ConnectionInformationLength = arg<wntdll::PULONG>(d.core, 8);
+        const auto PortHandle                  = arg<nt32::PHANDLE>(d.core, 0);
+        const auto PortName                    = arg<nt32::PUNICODE_STRING>(d.core, 1);
+        const auto SecurityQos                 = arg<nt32::PSECURITY_QUALITY_OF_SERVICE>(d.core, 2);
+        const auto ClientView                  = arg<nt32::PPORT_VIEW>(d.core, 3);
+        const auto RequiredServerSid           = arg<nt32::PSID>(d.core, 4);
+        const auto ServerView                  = arg<nt32::PREMOTE_PORT_VIEW>(d.core, 5);
+        const auto MaxMessageLength            = arg<nt32::PULONG>(d.core, 6);
+        const auto ConnectionInformation       = arg<nt32::PVOID>(d.core, 7);
+        const auto ConnectionInformationLength = arg<nt32::PULONG>(d.core, 8);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSecureConnectPort(PortHandle:{:#x}, PortName:{:#x}, SecurityQos:{:#x}, ClientView:{:#x}, RequiredServerSid:{:#x}, ServerView:{:#x}, MaxMessageLength:{:#x}, ConnectionInformation:{:#x}, ConnectionInformationLength:{:#x})", PortHandle, PortName, SecurityQos, ClientView, RequiredServerSid, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength));
@@ -4813,10 +4813,10 @@ namespace
             it(PortHandle, PortName, SecurityQos, ClientView, RequiredServerSid, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
     }
 
-    static void on_ZwSetBootEntryOrder(monitor::syscallswow64::Data& d)
+    static void on_ZwSetBootEntryOrder(monitor::syscalls32::Data& d)
     {
-        const auto Ids   = arg<wntdll::PULONG>(d.core, 0);
-        const auto Count = arg<wntdll::ULONG>(d.core, 1);
+        const auto Ids   = arg<nt32::PULONG>(d.core, 0);
+        const auto Count = arg<nt32::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetBootEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count));
@@ -4825,10 +4825,10 @@ namespace
             it(Ids, Count);
     }
 
-    static void on_ZwSetBootOptions(monitor::syscallswow64::Data& d)
+    static void on_ZwSetBootOptions(monitor::syscalls32::Data& d)
     {
-        const auto BootOptions    = arg<wntdll::PBOOT_OPTIONS>(d.core, 0);
-        const auto FieldsToChange = arg<wntdll::ULONG>(d.core, 1);
+        const auto BootOptions    = arg<nt32::PBOOT_OPTIONS>(d.core, 0);
+        const auto FieldsToChange = arg<nt32::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetBootOptions(BootOptions:{:#x}, FieldsToChange:{:#x})", BootOptions, FieldsToChange));
@@ -4837,10 +4837,10 @@ namespace
             it(BootOptions, FieldsToChange);
     }
 
-    static void on_ZwSetContextThread(monitor::syscallswow64::Data& d)
+    static void on_ZwSetContextThread(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ThreadContext = arg<wntdll::PCONTEXT>(d.core, 1);
+        const auto ThreadHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto ThreadContext = arg<nt32::PCONTEXT>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetContextThread(ThreadHandle:{:#x}, ThreadContext:{:#x})", ThreadHandle, ThreadContext));
@@ -4849,11 +4849,11 @@ namespace
             it(ThreadHandle, ThreadContext);
     }
 
-    static void on_NtSetDebugFilterState(monitor::syscallswow64::Data& d)
+    static void on_NtSetDebugFilterState(monitor::syscalls32::Data& d)
     {
-        const auto ComponentId = arg<wntdll::ULONG>(d.core, 0);
-        const auto Level       = arg<wntdll::ULONG>(d.core, 1);
-        const auto State       = arg<wntdll::BOOLEAN>(d.core, 2);
+        const auto ComponentId = arg<nt32::ULONG>(d.core, 0);
+        const auto Level       = arg<nt32::ULONG>(d.core, 1);
+        const auto State       = arg<nt32::BOOLEAN>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetDebugFilterState(ComponentId:{:#x}, Level:{:#x}, State:{:#x})", ComponentId, Level, State));
@@ -4862,9 +4862,9 @@ namespace
             it(ComponentId, Level, State);
     }
 
-    static void on_NtSetDefaultHardErrorPort(monitor::syscallswow64::Data& d)
+    static void on_NtSetDefaultHardErrorPort(monitor::syscalls32::Data& d)
     {
-        const auto DefaultHardErrorPort = arg<wntdll::HANDLE>(d.core, 0);
+        const auto DefaultHardErrorPort = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetDefaultHardErrorPort(DefaultHardErrorPort:{:#x})", DefaultHardErrorPort));
@@ -4873,10 +4873,10 @@ namespace
             it(DefaultHardErrorPort);
     }
 
-    static void on_NtSetDefaultLocale(monitor::syscallswow64::Data& d)
+    static void on_NtSetDefaultLocale(monitor::syscalls32::Data& d)
     {
-        const auto UserProfile     = arg<wntdll::BOOLEAN>(d.core, 0);
-        const auto DefaultLocaleId = arg<wntdll::LCID>(d.core, 1);
+        const auto UserProfile     = arg<nt32::BOOLEAN>(d.core, 0);
+        const auto DefaultLocaleId = arg<nt32::LCID>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetDefaultLocale(UserProfile:{:#x}, DefaultLocaleId:{:#x})", UserProfile, DefaultLocaleId));
@@ -4885,9 +4885,9 @@ namespace
             it(UserProfile, DefaultLocaleId);
     }
 
-    static void on_ZwSetDefaultUILanguage(monitor::syscallswow64::Data& d)
+    static void on_ZwSetDefaultUILanguage(monitor::syscalls32::Data& d)
     {
-        const auto DefaultUILanguageId = arg<wntdll::LANGID>(d.core, 0);
+        const auto DefaultUILanguageId = arg<nt32::LANGID>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetDefaultUILanguage(DefaultUILanguageId:{:#x})", DefaultUILanguageId));
@@ -4896,10 +4896,10 @@ namespace
             it(DefaultUILanguageId);
     }
 
-    static void on_NtSetDriverEntryOrder(monitor::syscallswow64::Data& d)
+    static void on_NtSetDriverEntryOrder(monitor::syscalls32::Data& d)
     {
-        const auto Ids   = arg<wntdll::PULONG>(d.core, 0);
-        const auto Count = arg<wntdll::ULONG>(d.core, 1);
+        const auto Ids   = arg<nt32::PULONG>(d.core, 0);
+        const auto Count = arg<nt32::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetDriverEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count));
@@ -4908,12 +4908,12 @@ namespace
             it(Ids, Count);
     }
 
-    static void on_ZwSetEaFile(monitor::syscallswow64::Data& d)
+    static void on_ZwSetEaFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoStatusBlock = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
-        const auto Buffer        = arg<wntdll::PVOID>(d.core, 2);
-        const auto Length        = arg<wntdll::ULONG>(d.core, 3);
+        const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoStatusBlock = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
+        const auto Buffer        = arg<nt32::PVOID>(d.core, 2);
+        const auto Length        = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetEaFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x})", FileHandle, IoStatusBlock, Buffer, Length));
@@ -4922,9 +4922,9 @@ namespace
             it(FileHandle, IoStatusBlock, Buffer, Length);
     }
 
-    static void on_NtSetEventBoostPriority(monitor::syscallswow64::Data& d)
+    static void on_NtSetEventBoostPriority(monitor::syscalls32::Data& d)
     {
-        const auto EventHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto EventHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetEventBoostPriority(EventHandle:{:#x})", EventHandle));
@@ -4933,10 +4933,10 @@ namespace
             it(EventHandle);
     }
 
-    static void on_NtSetEvent(monitor::syscallswow64::Data& d)
+    static void on_NtSetEvent(monitor::syscalls32::Data& d)
     {
-        const auto EventHandle   = arg<wntdll::HANDLE>(d.core, 0);
-        const auto PreviousState = arg<wntdll::PLONG>(d.core, 1);
+        const auto EventHandle   = arg<nt32::HANDLE>(d.core, 0);
+        const auto PreviousState = arg<nt32::PLONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetEvent(EventHandle:{:#x}, PreviousState:{:#x})", EventHandle, PreviousState));
@@ -4945,9 +4945,9 @@ namespace
             it(EventHandle, PreviousState);
     }
 
-    static void on_NtSetHighEventPair(monitor::syscallswow64::Data& d)
+    static void on_NtSetHighEventPair(monitor::syscalls32::Data& d)
     {
-        const auto EventPairHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto EventPairHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetHighEventPair(EventPairHandle:{:#x})", EventPairHandle));
@@ -4956,9 +4956,9 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_NtSetHighWaitLowEventPair(monitor::syscallswow64::Data& d)
+    static void on_NtSetHighWaitLowEventPair(monitor::syscalls32::Data& d)
     {
-        const auto EventPairHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto EventPairHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetHighWaitLowEventPair(EventPairHandle:{:#x})", EventPairHandle));
@@ -4967,13 +4967,13 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_ZwSetInformationDebugObject(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationDebugObject(monitor::syscalls32::Data& d)
     {
-        const auto DebugObjectHandle           = arg<wntdll::HANDLE>(d.core, 0);
-        const auto DebugObjectInformationClass = arg<wntdll::DEBUGOBJECTINFOCLASS>(d.core, 1);
-        const auto DebugInformation            = arg<wntdll::PVOID>(d.core, 2);
-        const auto DebugInformationLength      = arg<wntdll::ULONG>(d.core, 3);
-        const auto ReturnLength                = arg<wntdll::PULONG>(d.core, 4);
+        const auto DebugObjectHandle           = arg<nt32::HANDLE>(d.core, 0);
+        const auto DebugObjectInformationClass = arg<nt32::DEBUGOBJECTINFOCLASS>(d.core, 1);
+        const auto DebugInformation            = arg<nt32::PVOID>(d.core, 2);
+        const auto DebugInformationLength      = arg<nt32::ULONG>(d.core, 3);
+        const auto ReturnLength                = arg<nt32::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetInformationDebugObject(DebugObjectHandle:{:#x}, DebugObjectInformationClass:{:#x}, DebugInformation:{:#x}, DebugInformationLength:{:#x}, ReturnLength:{:#x})", DebugObjectHandle, DebugObjectInformationClass, DebugInformation, DebugInformationLength, ReturnLength));
@@ -4982,12 +4982,12 @@ namespace
             it(DebugObjectHandle, DebugObjectInformationClass, DebugInformation, DebugInformationLength, ReturnLength);
     }
 
-    static void on_NtSetInformationEnlistment(monitor::syscallswow64::Data& d)
+    static void on_NtSetInformationEnlistment(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto EnlistmentInformationClass  = arg<wntdll::ENLISTMENT_INFORMATION_CLASS>(d.core, 1);
-        const auto EnlistmentInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto EnlistmentInformationLength = arg<wntdll::ULONG>(d.core, 3);
+        const auto EnlistmentHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto EnlistmentInformationClass  = arg<nt32::ENLISTMENT_INFORMATION_CLASS>(d.core, 1);
+        const auto EnlistmentInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto EnlistmentInformationLength = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetInformationEnlistment(EnlistmentHandle:{:#x}, EnlistmentInformationClass:{:#x}, EnlistmentInformation:{:#x}, EnlistmentInformationLength:{:#x})", EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength));
@@ -4996,13 +4996,13 @@ namespace
             it(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength);
     }
 
-    static void on_ZwSetInformationFile(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle           = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoStatusBlock        = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
-        const auto FileInformation      = arg<wntdll::PVOID>(d.core, 2);
-        const auto Length               = arg<wntdll::ULONG>(d.core, 3);
-        const auto FileInformationClass = arg<wntdll::FILE_INFORMATION_CLASS>(d.core, 4);
+        const auto FileHandle           = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoStatusBlock        = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
+        const auto FileInformation      = arg<nt32::PVOID>(d.core, 2);
+        const auto Length               = arg<nt32::ULONG>(d.core, 3);
+        const auto FileInformationClass = arg<nt32::FILE_INFORMATION_CLASS>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x})", FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass));
@@ -5011,12 +5011,12 @@ namespace
             it(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
     }
 
-    static void on_ZwSetInformationJobObject(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationJobObject(monitor::syscalls32::Data& d)
     {
-        const auto JobHandle                  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto JobObjectInformationClass  = arg<wntdll::JOBOBJECTINFOCLASS>(d.core, 1);
-        const auto JobObjectInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto JobObjectInformationLength = arg<wntdll::ULONG>(d.core, 3);
+        const auto JobHandle                  = arg<nt32::HANDLE>(d.core, 0);
+        const auto JobObjectInformationClass  = arg<nt32::JOBOBJECTINFOCLASS>(d.core, 1);
+        const auto JobObjectInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto JobObjectInformationLength = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetInformationJobObject(JobHandle:{:#x}, JobObjectInformationClass:{:#x}, JobObjectInformation:{:#x}, JobObjectInformationLength:{:#x})", JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength));
@@ -5025,12 +5025,12 @@ namespace
             it(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength);
     }
 
-    static void on_ZwSetInformationKey(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle               = arg<wntdll::HANDLE>(d.core, 0);
-        const auto KeySetInformationClass  = arg<wntdll::KEY_SET_INFORMATION_CLASS>(d.core, 1);
-        const auto KeySetInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto KeySetInformationLength = arg<wntdll::ULONG>(d.core, 3);
+        const auto KeyHandle               = arg<nt32::HANDLE>(d.core, 0);
+        const auto KeySetInformationClass  = arg<nt32::KEY_SET_INFORMATION_CLASS>(d.core, 1);
+        const auto KeySetInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto KeySetInformationLength = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetInformationKey(KeyHandle:{:#x}, KeySetInformationClass:{:#x}, KeySetInformation:{:#x}, KeySetInformationLength:{:#x})", KeyHandle, KeySetInformationClass, KeySetInformation, KeySetInformationLength));
@@ -5039,12 +5039,12 @@ namespace
             it(KeyHandle, KeySetInformationClass, KeySetInformation, KeySetInformationLength);
     }
 
-    static void on_ZwSetInformationObject(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationObject(monitor::syscalls32::Data& d)
     {
-        const auto Handle                  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ObjectInformationClass  = arg<wntdll::OBJECT_INFORMATION_CLASS>(d.core, 1);
-        const auto ObjectInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto ObjectInformationLength = arg<wntdll::ULONG>(d.core, 3);
+        const auto Handle                  = arg<nt32::HANDLE>(d.core, 0);
+        const auto ObjectInformationClass  = arg<nt32::OBJECT_INFORMATION_CLASS>(d.core, 1);
+        const auto ObjectInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto ObjectInformationLength = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetInformationObject(Handle:{:#x}, ObjectInformationClass:{:#x}, ObjectInformation:{:#x}, ObjectInformationLength:{:#x})", Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength));
@@ -5053,12 +5053,12 @@ namespace
             it(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength);
     }
 
-    static void on_ZwSetInformationProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationProcess(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ProcessInformationClass  = arg<wntdll::PROCESSINFOCLASS>(d.core, 1);
-        const auto ProcessInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto ProcessInformationLength = arg<wntdll::ULONG>(d.core, 3);
+        const auto ProcessHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto ProcessInformationClass  = arg<nt32::PROCESSINFOCLASS>(d.core, 1);
+        const auto ProcessInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto ProcessInformationLength = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetInformationProcess(ProcessHandle:{:#x}, ProcessInformationClass:{:#x}, ProcessInformation:{:#x}, ProcessInformationLength:{:#x})", ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength));
@@ -5067,12 +5067,12 @@ namespace
             it(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength);
     }
 
-    static void on_ZwSetInformationResourceManager(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationResourceManager(monitor::syscalls32::Data& d)
     {
-        const auto ResourceManagerHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ResourceManagerInformationClass  = arg<wntdll::RESOURCEMANAGER_INFORMATION_CLASS>(d.core, 1);
-        const auto ResourceManagerInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto ResourceManagerInformationLength = arg<wntdll::ULONG>(d.core, 3);
+        const auto ResourceManagerHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto ResourceManagerInformationClass  = arg<nt32::RESOURCEMANAGER_INFORMATION_CLASS>(d.core, 1);
+        const auto ResourceManagerInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto ResourceManagerInformationLength = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetInformationResourceManager(ResourceManagerHandle:{:#x}, ResourceManagerInformationClass:{:#x}, ResourceManagerInformation:{:#x}, ResourceManagerInformationLength:{:#x})", ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength));
@@ -5081,12 +5081,12 @@ namespace
             it(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength);
     }
 
-    static void on_ZwSetInformationThread(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationThread(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ThreadInformationClass  = arg<wntdll::THREADINFOCLASS>(d.core, 1);
-        const auto ThreadInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto ThreadInformationLength = arg<wntdll::ULONG>(d.core, 3);
+        const auto ThreadHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto ThreadInformationClass  = arg<nt32::THREADINFOCLASS>(d.core, 1);
+        const auto ThreadInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto ThreadInformationLength = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetInformationThread(ThreadHandle:{:#x}, ThreadInformationClass:{:#x}, ThreadInformation:{:#x}, ThreadInformationLength:{:#x})", ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength));
@@ -5095,12 +5095,12 @@ namespace
             it(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength);
     }
 
-    static void on_ZwSetInformationToken(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationToken(monitor::syscalls32::Data& d)
     {
-        const auto TokenHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TokenInformationClass  = arg<wntdll::TOKEN_INFORMATION_CLASS>(d.core, 1);
-        const auto TokenInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto TokenInformationLength = arg<wntdll::ULONG>(d.core, 3);
+        const auto TokenHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto TokenInformationClass  = arg<nt32::TOKEN_INFORMATION_CLASS>(d.core, 1);
+        const auto TokenInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto TokenInformationLength = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetInformationToken(TokenHandle:{:#x}, TokenInformationClass:{:#x}, TokenInformation:{:#x}, TokenInformationLength:{:#x})", TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength));
@@ -5109,12 +5109,12 @@ namespace
             it(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength);
     }
 
-    static void on_ZwSetInformationTransaction(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationTransaction(monitor::syscalls32::Data& d)
     {
-        const auto TransactionHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TransactionInformationClass  = arg<wntdll::TRANSACTION_INFORMATION_CLASS>(d.core, 1);
-        const auto TransactionInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto TransactionInformationLength = arg<wntdll::ULONG>(d.core, 3);
+        const auto TransactionHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto TransactionInformationClass  = arg<nt32::TRANSACTION_INFORMATION_CLASS>(d.core, 1);
+        const auto TransactionInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto TransactionInformationLength = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetInformationTransaction(TransactionHandle:{:#x}, TransactionInformationClass:{:#x}, TransactionInformation:{:#x}, TransactionInformationLength:{:#x})", TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength));
@@ -5123,12 +5123,12 @@ namespace
             it(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength);
     }
 
-    static void on_ZwSetInformationTransactionManager(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationTransactionManager(monitor::syscalls32::Data& d)
     {
-        const auto TmHandle                            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TransactionManagerInformationClass  = arg<wntdll::TRANSACTIONMANAGER_INFORMATION_CLASS>(d.core, 1);
-        const auto TransactionManagerInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto TransactionManagerInformationLength = arg<wntdll::ULONG>(d.core, 3);
+        const auto TmHandle                            = arg<nt32::HANDLE>(d.core, 0);
+        const auto TransactionManagerInformationClass  = arg<nt32::TRANSACTIONMANAGER_INFORMATION_CLASS>(d.core, 1);
+        const auto TransactionManagerInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto TransactionManagerInformationLength = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetInformationTransactionManager(TmHandle:{:#x}, TransactionManagerInformationClass:{:#x}, TransactionManagerInformation:{:#x}, TransactionManagerInformationLength:{:#x})", TmHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength));
@@ -5137,12 +5137,12 @@ namespace
             it(TmHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength);
     }
 
-    static void on_ZwSetInformationWorkerFactory(monitor::syscallswow64::Data& d)
+    static void on_ZwSetInformationWorkerFactory(monitor::syscalls32::Data& d)
     {
-        const auto WorkerFactoryHandle            = arg<wntdll::HANDLE>(d.core, 0);
-        const auto WorkerFactoryInformationClass  = arg<wntdll::WORKERFACTORYINFOCLASS>(d.core, 1);
-        const auto WorkerFactoryInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto WorkerFactoryInformationLength = arg<wntdll::ULONG>(d.core, 3);
+        const auto WorkerFactoryHandle            = arg<nt32::HANDLE>(d.core, 0);
+        const auto WorkerFactoryInformationClass  = arg<nt32::WORKERFACTORYINFOCLASS>(d.core, 1);
+        const auto WorkerFactoryInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto WorkerFactoryInformationLength = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetInformationWorkerFactory(WorkerFactoryHandle:{:#x}, WorkerFactoryInformationClass:{:#x}, WorkerFactoryInformation:{:#x}, WorkerFactoryInformationLength:{:#x})", WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength));
@@ -5151,10 +5151,10 @@ namespace
             it(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength);
     }
 
-    static void on_NtSetIntervalProfile(monitor::syscallswow64::Data& d)
+    static void on_NtSetIntervalProfile(monitor::syscalls32::Data& d)
     {
-        const auto Interval = arg<wntdll::ULONG>(d.core, 0);
-        const auto Source   = arg<wntdll::KPROFILE_SOURCE>(d.core, 1);
+        const auto Interval = arg<nt32::ULONG>(d.core, 0);
+        const auto Source   = arg<nt32::KPROFILE_SOURCE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetIntervalProfile(Interval:{:#x}, Source:{:#x})", Interval, Source));
@@ -5163,14 +5163,14 @@ namespace
             it(Interval, Source);
     }
 
-    static void on_NtSetIoCompletionEx(monitor::syscallswow64::Data& d)
+    static void on_NtSetIoCompletionEx(monitor::syscalls32::Data& d)
     {
-        const auto IoCompletionHandle        = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoCompletionReserveHandle = arg<wntdll::HANDLE>(d.core, 1);
-        const auto KeyContext                = arg<wntdll::PVOID>(d.core, 2);
-        const auto ApcContext                = arg<wntdll::PVOID>(d.core, 3);
-        const auto IoStatus                  = arg<wntdll::NTSTATUS>(d.core, 4);
-        const auto IoStatusInformation       = arg<wntdll::ULONG_PTR>(d.core, 5);
+        const auto IoCompletionHandle        = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoCompletionReserveHandle = arg<nt32::HANDLE>(d.core, 1);
+        const auto KeyContext                = arg<nt32::PVOID>(d.core, 2);
+        const auto ApcContext                = arg<nt32::PVOID>(d.core, 3);
+        const auto IoStatus                  = arg<nt32::NTSTATUS>(d.core, 4);
+        const auto IoStatusInformation       = arg<nt32::ULONG_PTR>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetIoCompletionEx(IoCompletionHandle:{:#x}, IoCompletionReserveHandle:{:#x}, KeyContext:{:#x}, ApcContext:{:#x}, IoStatus:{:#x}, IoStatusInformation:{:#x})", IoCompletionHandle, IoCompletionReserveHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation));
@@ -5179,13 +5179,13 @@ namespace
             it(IoCompletionHandle, IoCompletionReserveHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
     }
 
-    static void on_NtSetIoCompletion(monitor::syscallswow64::Data& d)
+    static void on_NtSetIoCompletion(monitor::syscalls32::Data& d)
     {
-        const auto IoCompletionHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto KeyContext          = arg<wntdll::PVOID>(d.core, 1);
-        const auto ApcContext          = arg<wntdll::PVOID>(d.core, 2);
-        const auto IoStatus            = arg<wntdll::NTSTATUS>(d.core, 3);
-        const auto IoStatusInformation = arg<wntdll::ULONG_PTR>(d.core, 4);
+        const auto IoCompletionHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto KeyContext          = arg<nt32::PVOID>(d.core, 1);
+        const auto ApcContext          = arg<nt32::PVOID>(d.core, 2);
+        const auto IoStatus            = arg<nt32::NTSTATUS>(d.core, 3);
+        const auto IoStatusInformation = arg<nt32::ULONG_PTR>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetIoCompletion(IoCompletionHandle:{:#x}, KeyContext:{:#x}, ApcContext:{:#x}, IoStatus:{:#x}, IoStatusInformation:{:#x})", IoCompletionHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation));
@@ -5194,14 +5194,14 @@ namespace
             it(IoCompletionHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
     }
 
-    static void on_ZwSetLdtEntries(monitor::syscallswow64::Data& d)
+    static void on_ZwSetLdtEntries(monitor::syscalls32::Data& d)
     {
-        const auto Selector0 = arg<wntdll::ULONG>(d.core, 0);
-        const auto Entry0Low = arg<wntdll::ULONG>(d.core, 1);
-        const auto Entry0Hi  = arg<wntdll::ULONG>(d.core, 2);
-        const auto Selector1 = arg<wntdll::ULONG>(d.core, 3);
-        const auto Entry1Low = arg<wntdll::ULONG>(d.core, 4);
-        const auto Entry1Hi  = arg<wntdll::ULONG>(d.core, 5);
+        const auto Selector0 = arg<nt32::ULONG>(d.core, 0);
+        const auto Entry0Low = arg<nt32::ULONG>(d.core, 1);
+        const auto Entry0Hi  = arg<nt32::ULONG>(d.core, 2);
+        const auto Selector1 = arg<nt32::ULONG>(d.core, 3);
+        const auto Entry1Low = arg<nt32::ULONG>(d.core, 4);
+        const auto Entry1Hi  = arg<nt32::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetLdtEntries(Selector0:{:#x}, Entry0Low:{:#x}, Entry0Hi:{:#x}, Selector1:{:#x}, Entry1Low:{:#x}, Entry1Hi:{:#x})", Selector0, Entry0Low, Entry0Hi, Selector1, Entry1Low, Entry1Hi));
@@ -5210,9 +5210,9 @@ namespace
             it(Selector0, Entry0Low, Entry0Hi, Selector1, Entry1Low, Entry1Hi);
     }
 
-    static void on_ZwSetLowEventPair(monitor::syscallswow64::Data& d)
+    static void on_ZwSetLowEventPair(monitor::syscalls32::Data& d)
     {
-        const auto EventPairHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto EventPairHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetLowEventPair(EventPairHandle:{:#x})", EventPairHandle));
@@ -5221,9 +5221,9 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_ZwSetLowWaitHighEventPair(monitor::syscallswow64::Data& d)
+    static void on_ZwSetLowWaitHighEventPair(monitor::syscalls32::Data& d)
     {
-        const auto EventPairHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto EventPairHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetLowWaitHighEventPair(EventPairHandle:{:#x})", EventPairHandle));
@@ -5232,12 +5232,12 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_ZwSetQuotaInformationFile(monitor::syscallswow64::Data& d)
+    static void on_ZwSetQuotaInformationFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoStatusBlock = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
-        const auto Buffer        = arg<wntdll::PVOID>(d.core, 2);
-        const auto Length        = arg<wntdll::ULONG>(d.core, 3);
+        const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoStatusBlock = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
+        const auto Buffer        = arg<nt32::PVOID>(d.core, 2);
+        const auto Length        = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetQuotaInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x})", FileHandle, IoStatusBlock, Buffer, Length));
@@ -5246,11 +5246,11 @@ namespace
             it(FileHandle, IoStatusBlock, Buffer, Length);
     }
 
-    static void on_NtSetSecurityObject(monitor::syscallswow64::Data& d)
+    static void on_NtSetSecurityObject(monitor::syscalls32::Data& d)
     {
-        const auto Handle              = arg<wntdll::HANDLE>(d.core, 0);
-        const auto SecurityInformation = arg<wntdll::SECURITY_INFORMATION>(d.core, 1);
-        const auto SecurityDescriptor  = arg<wntdll::PSECURITY_DESCRIPTOR>(d.core, 2);
+        const auto Handle              = arg<nt32::HANDLE>(d.core, 0);
+        const auto SecurityInformation = arg<nt32::SECURITY_INFORMATION>(d.core, 1);
+        const auto SecurityDescriptor  = arg<nt32::PSECURITY_DESCRIPTOR>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetSecurityObject(Handle:{:#x}, SecurityInformation:{:#x}, SecurityDescriptor:{:#x})", Handle, SecurityInformation, SecurityDescriptor));
@@ -5259,13 +5259,13 @@ namespace
             it(Handle, SecurityInformation, SecurityDescriptor);
     }
 
-    static void on_ZwSetSystemEnvironmentValueEx(monitor::syscallswow64::Data& d)
+    static void on_ZwSetSystemEnvironmentValueEx(monitor::syscalls32::Data& d)
     {
-        const auto VariableName = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto VendorGuid   = arg<wntdll::LPGUID>(d.core, 1);
-        const auto Value        = arg<wntdll::PVOID>(d.core, 2);
-        const auto ValueLength  = arg<wntdll::ULONG>(d.core, 3);
-        const auto Attributes   = arg<wntdll::ULONG>(d.core, 4);
+        const auto VariableName = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto VendorGuid   = arg<nt32::LPGUID>(d.core, 1);
+        const auto Value        = arg<nt32::PVOID>(d.core, 2);
+        const auto ValueLength  = arg<nt32::ULONG>(d.core, 3);
+        const auto Attributes   = arg<nt32::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetSystemEnvironmentValueEx(VariableName:{:#x}, VendorGuid:{:#x}, Value:{:#x}, ValueLength:{:#x}, Attributes:{:#x})", VariableName, VendorGuid, Value, ValueLength, Attributes));
@@ -5274,10 +5274,10 @@ namespace
             it(VariableName, VendorGuid, Value, ValueLength, Attributes);
     }
 
-    static void on_ZwSetSystemEnvironmentValue(monitor::syscallswow64::Data& d)
+    static void on_ZwSetSystemEnvironmentValue(monitor::syscalls32::Data& d)
     {
-        const auto VariableName  = arg<wntdll::PUNICODE_STRING>(d.core, 0);
-        const auto VariableValue = arg<wntdll::PUNICODE_STRING>(d.core, 1);
+        const auto VariableName  = arg<nt32::PUNICODE_STRING>(d.core, 0);
+        const auto VariableValue = arg<nt32::PUNICODE_STRING>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetSystemEnvironmentValue(VariableName:{:#x}, VariableValue:{:#x})", VariableName, VariableValue));
@@ -5286,11 +5286,11 @@ namespace
             it(VariableName, VariableValue);
     }
 
-    static void on_ZwSetSystemInformation(monitor::syscallswow64::Data& d)
+    static void on_ZwSetSystemInformation(monitor::syscalls32::Data& d)
     {
-        const auto SystemInformationClass  = arg<wntdll::SYSTEM_INFORMATION_CLASS>(d.core, 0);
-        const auto SystemInformation       = arg<wntdll::PVOID>(d.core, 1);
-        const auto SystemInformationLength = arg<wntdll::ULONG>(d.core, 2);
+        const auto SystemInformationClass  = arg<nt32::SYSTEM_INFORMATION_CLASS>(d.core, 0);
+        const auto SystemInformation       = arg<nt32::PVOID>(d.core, 1);
+        const auto SystemInformationLength = arg<nt32::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetSystemInformation(SystemInformationClass:{:#x}, SystemInformation:{:#x}, SystemInformationLength:{:#x})", SystemInformationClass, SystemInformation, SystemInformationLength));
@@ -5299,11 +5299,11 @@ namespace
             it(SystemInformationClass, SystemInformation, SystemInformationLength);
     }
 
-    static void on_ZwSetSystemPowerState(monitor::syscallswow64::Data& d)
+    static void on_ZwSetSystemPowerState(monitor::syscalls32::Data& d)
     {
-        const auto SystemAction   = arg<wntdll::POWER_ACTION>(d.core, 0);
-        const auto MinSystemState = arg<wntdll::SYSTEM_POWER_STATE>(d.core, 1);
-        const auto Flags          = arg<wntdll::ULONG>(d.core, 2);
+        const auto SystemAction   = arg<nt32::POWER_ACTION>(d.core, 0);
+        const auto MinSystemState = arg<nt32::SYSTEM_POWER_STATE>(d.core, 1);
+        const auto Flags          = arg<nt32::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetSystemPowerState(SystemAction:{:#x}, MinSystemState:{:#x}, Flags:{:#x})", SystemAction, MinSystemState, Flags));
@@ -5312,10 +5312,10 @@ namespace
             it(SystemAction, MinSystemState, Flags);
     }
 
-    static void on_ZwSetSystemTime(monitor::syscallswow64::Data& d)
+    static void on_ZwSetSystemTime(monitor::syscalls32::Data& d)
     {
-        const auto SystemTime   = arg<wntdll::PLARGE_INTEGER>(d.core, 0);
-        const auto PreviousTime = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto SystemTime   = arg<nt32::PLARGE_INTEGER>(d.core, 0);
+        const auto PreviousTime = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetSystemTime(SystemTime:{:#x}, PreviousTime:{:#x})", SystemTime, PreviousTime));
@@ -5324,10 +5324,10 @@ namespace
             it(SystemTime, PreviousTime);
     }
 
-    static void on_ZwSetThreadExecutionState(monitor::syscallswow64::Data& d)
+    static void on_ZwSetThreadExecutionState(monitor::syscalls32::Data& d)
     {
-        const auto esFlags           = arg<wntdll::EXECUTION_STATE>(d.core, 0);
-        const auto STARPreviousFlags = arg<wntdll::EXECUTION_STATE>(d.core, 1);
+        const auto esFlags           = arg<nt32::EXECUTION_STATE>(d.core, 0);
+        const auto STARPreviousFlags = arg<nt32::EXECUTION_STATE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetThreadExecutionState(esFlags:{:#x}, STARPreviousFlags:{:#x})", esFlags, STARPreviousFlags));
@@ -5336,12 +5336,12 @@ namespace
             it(esFlags, STARPreviousFlags);
     }
 
-    static void on_ZwSetTimerEx(monitor::syscallswow64::Data& d)
+    static void on_ZwSetTimerEx(monitor::syscalls32::Data& d)
     {
-        const auto TimerHandle               = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TimerSetInformationClass  = arg<wntdll::TIMER_SET_INFORMATION_CLASS>(d.core, 1);
-        const auto TimerSetInformation       = arg<wntdll::PVOID>(d.core, 2);
-        const auto TimerSetInformationLength = arg<wntdll::ULONG>(d.core, 3);
+        const auto TimerHandle               = arg<nt32::HANDLE>(d.core, 0);
+        const auto TimerSetInformationClass  = arg<nt32::TIMER_SET_INFORMATION_CLASS>(d.core, 1);
+        const auto TimerSetInformation       = arg<nt32::PVOID>(d.core, 2);
+        const auto TimerSetInformationLength = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetTimerEx(TimerHandle:{:#x}, TimerSetInformationClass:{:#x}, TimerSetInformation:{:#x}, TimerSetInformationLength:{:#x})", TimerHandle, TimerSetInformationClass, TimerSetInformation, TimerSetInformationLength));
@@ -5350,15 +5350,15 @@ namespace
             it(TimerHandle, TimerSetInformationClass, TimerSetInformation, TimerSetInformationLength);
     }
 
-    static void on_ZwSetTimer(monitor::syscallswow64::Data& d)
+    static void on_ZwSetTimer(monitor::syscalls32::Data& d)
     {
-        const auto TimerHandle     = arg<wntdll::HANDLE>(d.core, 0);
-        const auto DueTime         = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
-        const auto TimerApcRoutine = arg<wntdll::PTIMER_APC_ROUTINE>(d.core, 2);
-        const auto TimerContext    = arg<wntdll::PVOID>(d.core, 3);
-        const auto WakeTimer       = arg<wntdll::BOOLEAN>(d.core, 4);
-        const auto Period          = arg<wntdll::LONG>(d.core, 5);
-        const auto PreviousState   = arg<wntdll::PBOOLEAN>(d.core, 6);
+        const auto TimerHandle     = arg<nt32::HANDLE>(d.core, 0);
+        const auto DueTime         = arg<nt32::PLARGE_INTEGER>(d.core, 1);
+        const auto TimerApcRoutine = arg<nt32::PTIMER_APC_ROUTINE>(d.core, 2);
+        const auto TimerContext    = arg<nt32::PVOID>(d.core, 3);
+        const auto WakeTimer       = arg<nt32::BOOLEAN>(d.core, 4);
+        const auto Period          = arg<nt32::LONG>(d.core, 5);
+        const auto PreviousState   = arg<nt32::PBOOLEAN>(d.core, 6);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetTimer(TimerHandle:{:#x}, DueTime:{:#x}, TimerApcRoutine:{:#x}, TimerContext:{:#x}, WakeTimer:{:#x}, Period:{:#x}, PreviousState:{:#x})", TimerHandle, DueTime, TimerApcRoutine, TimerContext, WakeTimer, Period, PreviousState));
@@ -5367,11 +5367,11 @@ namespace
             it(TimerHandle, DueTime, TimerApcRoutine, TimerContext, WakeTimer, Period, PreviousState);
     }
 
-    static void on_NtSetTimerResolution(monitor::syscallswow64::Data& d)
+    static void on_NtSetTimerResolution(monitor::syscalls32::Data& d)
     {
-        const auto DesiredTime   = arg<wntdll::ULONG>(d.core, 0);
-        const auto SetResolution = arg<wntdll::BOOLEAN>(d.core, 1);
-        const auto ActualTime    = arg<wntdll::PULONG>(d.core, 2);
+        const auto DesiredTime   = arg<nt32::ULONG>(d.core, 0);
+        const auto SetResolution = arg<nt32::BOOLEAN>(d.core, 1);
+        const auto ActualTime    = arg<nt32::PULONG>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetTimerResolution(DesiredTime:{:#x}, SetResolution:{:#x}, ActualTime:{:#x})", DesiredTime, SetResolution, ActualTime));
@@ -5380,9 +5380,9 @@ namespace
             it(DesiredTime, SetResolution, ActualTime);
     }
 
-    static void on_ZwSetUuidSeed(monitor::syscallswow64::Data& d)
+    static void on_ZwSetUuidSeed(monitor::syscalls32::Data& d)
     {
-        const auto Seed = arg<wntdll::PCHAR>(d.core, 0);
+        const auto Seed = arg<nt32::PCHAR>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetUuidSeed(Seed:{:#x})", Seed));
@@ -5391,14 +5391,14 @@ namespace
             it(Seed);
     }
 
-    static void on_ZwSetValueKey(monitor::syscallswow64::Data& d)
+    static void on_ZwSetValueKey(monitor::syscalls32::Data& d)
     {
-        const auto KeyHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ValueName  = arg<wntdll::PUNICODE_STRING>(d.core, 1);
-        const auto TitleIndex = arg<wntdll::ULONG>(d.core, 2);
-        const auto Type       = arg<wntdll::ULONG>(d.core, 3);
-        const auto Data       = arg<wntdll::PVOID>(d.core, 4);
-        const auto DataSize   = arg<wntdll::ULONG>(d.core, 5);
+        const auto KeyHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto ValueName  = arg<nt32::PUNICODE_STRING>(d.core, 1);
+        const auto TitleIndex = arg<nt32::ULONG>(d.core, 2);
+        const auto Type       = arg<nt32::ULONG>(d.core, 3);
+        const auto Data       = arg<nt32::PVOID>(d.core, 4);
+        const auto DataSize   = arg<nt32::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSetValueKey(KeyHandle:{:#x}, ValueName:{:#x}, TitleIndex:{:#x}, Type:{:#x}, Data:{:#x}, DataSize:{:#x})", KeyHandle, ValueName, TitleIndex, Type, Data, DataSize));
@@ -5407,13 +5407,13 @@ namespace
             it(KeyHandle, ValueName, TitleIndex, Type, Data, DataSize);
     }
 
-    static void on_NtSetVolumeInformationFile(monitor::syscallswow64::Data& d)
+    static void on_NtSetVolumeInformationFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle         = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoStatusBlock      = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
-        const auto FsInformation      = arg<wntdll::PVOID>(d.core, 2);
-        const auto Length             = arg<wntdll::ULONG>(d.core, 3);
-        const auto FsInformationClass = arg<wntdll::FS_INFORMATION_CLASS>(d.core, 4);
+        const auto FileHandle         = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoStatusBlock      = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
+        const auto FsInformation      = arg<nt32::PVOID>(d.core, 2);
+        const auto Length             = arg<nt32::ULONG>(d.core, 3);
+        const auto FsInformationClass = arg<nt32::FS_INFORMATION_CLASS>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSetVolumeInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FsInformation:{:#x}, Length:{:#x}, FsInformationClass:{:#x})", FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass));
@@ -5422,9 +5422,9 @@ namespace
             it(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
     }
 
-    static void on_ZwShutdownSystem(monitor::syscallswow64::Data& d)
+    static void on_ZwShutdownSystem(monitor::syscalls32::Data& d)
     {
-        const auto Action = arg<wntdll::SHUTDOWN_ACTION>(d.core, 0);
+        const auto Action = arg<nt32::SHUTDOWN_ACTION>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwShutdownSystem(Action:{:#x})", Action));
@@ -5433,10 +5433,10 @@ namespace
             it(Action);
     }
 
-    static void on_NtShutdownWorkerFactory(monitor::syscallswow64::Data& d)
+    static void on_NtShutdownWorkerFactory(monitor::syscalls32::Data& d)
     {
-        const auto WorkerFactoryHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto STARPendingWorkerCount = arg<wntdll::LONG>(d.core, 1);
+        const auto WorkerFactoryHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto STARPendingWorkerCount = arg<nt32::LONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtShutdownWorkerFactory(WorkerFactoryHandle:{:#x}, STARPendingWorkerCount:{:#x})", WorkerFactoryHandle, STARPendingWorkerCount));
@@ -5445,12 +5445,12 @@ namespace
             it(WorkerFactoryHandle, STARPendingWorkerCount);
     }
 
-    static void on_ZwSignalAndWaitForSingleObject(monitor::syscallswow64::Data& d)
+    static void on_ZwSignalAndWaitForSingleObject(monitor::syscalls32::Data& d)
     {
-        const auto SignalHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto WaitHandle   = arg<wntdll::HANDLE>(d.core, 1);
-        const auto Alertable    = arg<wntdll::BOOLEAN>(d.core, 2);
-        const auto Timeout      = arg<wntdll::PLARGE_INTEGER>(d.core, 3);
+        const auto SignalHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto WaitHandle   = arg<nt32::HANDLE>(d.core, 1);
+        const auto Alertable    = arg<nt32::BOOLEAN>(d.core, 2);
+        const auto Timeout      = arg<nt32::PLARGE_INTEGER>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSignalAndWaitForSingleObject(SignalHandle:{:#x}, WaitHandle:{:#x}, Alertable:{:#x}, Timeout:{:#x})", SignalHandle, WaitHandle, Alertable, Timeout));
@@ -5459,10 +5459,10 @@ namespace
             it(SignalHandle, WaitHandle, Alertable, Timeout);
     }
 
-    static void on_ZwSinglePhaseReject(monitor::syscallswow64::Data& d)
+    static void on_ZwSinglePhaseReject(monitor::syscalls32::Data& d)
     {
-        const auto EnlistmentHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto TmVirtualClock   = arg<wntdll::PLARGE_INTEGER>(d.core, 1);
+        const auto EnlistmentHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto TmVirtualClock   = arg<nt32::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSinglePhaseReject(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
@@ -5471,9 +5471,9 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtStartProfile(monitor::syscallswow64::Data& d)
+    static void on_NtStartProfile(monitor::syscalls32::Data& d)
     {
-        const auto ProfileHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto ProfileHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtStartProfile(ProfileHandle:{:#x})", ProfileHandle));
@@ -5482,9 +5482,9 @@ namespace
             it(ProfileHandle);
     }
 
-    static void on_ZwStopProfile(monitor::syscallswow64::Data& d)
+    static void on_ZwStopProfile(monitor::syscalls32::Data& d)
     {
-        const auto ProfileHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto ProfileHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwStopProfile(ProfileHandle:{:#x})", ProfileHandle));
@@ -5493,9 +5493,9 @@ namespace
             it(ProfileHandle);
     }
 
-    static void on_ZwSuspendProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwSuspendProcess(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSuspendProcess(ProcessHandle:{:#x})", ProcessHandle));
@@ -5504,10 +5504,10 @@ namespace
             it(ProcessHandle);
     }
 
-    static void on_ZwSuspendThread(monitor::syscallswow64::Data& d)
+    static void on_ZwSuspendThread(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle         = arg<wntdll::HANDLE>(d.core, 0);
-        const auto PreviousSuspendCount = arg<wntdll::PULONG>(d.core, 1);
+        const auto ThreadHandle         = arg<nt32::HANDLE>(d.core, 0);
+        const auto PreviousSuspendCount = arg<nt32::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwSuspendThread(ThreadHandle:{:#x}, PreviousSuspendCount:{:#x})", ThreadHandle, PreviousSuspendCount));
@@ -5516,14 +5516,14 @@ namespace
             it(ThreadHandle, PreviousSuspendCount);
     }
 
-    static void on_NtSystemDebugControl(monitor::syscallswow64::Data& d)
+    static void on_NtSystemDebugControl(monitor::syscalls32::Data& d)
     {
-        const auto Command            = arg<wntdll::SYSDBG_COMMAND>(d.core, 0);
-        const auto InputBuffer        = arg<wntdll::PVOID>(d.core, 1);
-        const auto InputBufferLength  = arg<wntdll::ULONG>(d.core, 2);
-        const auto OutputBuffer       = arg<wntdll::PVOID>(d.core, 3);
-        const auto OutputBufferLength = arg<wntdll::ULONG>(d.core, 4);
-        const auto ReturnLength       = arg<wntdll::PULONG>(d.core, 5);
+        const auto Command            = arg<nt32::SYSDBG_COMMAND>(d.core, 0);
+        const auto InputBuffer        = arg<nt32::PVOID>(d.core, 1);
+        const auto InputBufferLength  = arg<nt32::ULONG>(d.core, 2);
+        const auto OutputBuffer       = arg<nt32::PVOID>(d.core, 3);
+        const auto OutputBufferLength = arg<nt32::ULONG>(d.core, 4);
+        const auto ReturnLength       = arg<nt32::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSystemDebugControl(Command:{:#x}, InputBuffer:{:#x}, InputBufferLength:{:#x}, OutputBuffer:{:#x}, OutputBufferLength:{:#x}, ReturnLength:{:#x})", Command, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength, ReturnLength));
@@ -5532,10 +5532,10 @@ namespace
             it(Command, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength, ReturnLength);
     }
 
-    static void on_ZwTerminateJobObject(monitor::syscallswow64::Data& d)
+    static void on_ZwTerminateJobObject(monitor::syscalls32::Data& d)
     {
-        const auto JobHandle  = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ExitStatus = arg<wntdll::NTSTATUS>(d.core, 1);
+        const auto JobHandle  = arg<nt32::HANDLE>(d.core, 0);
+        const auto ExitStatus = arg<nt32::NTSTATUS>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwTerminateJobObject(JobHandle:{:#x}, ExitStatus:{:#x})", JobHandle, ExitStatus));
@@ -5544,10 +5544,10 @@ namespace
             it(JobHandle, ExitStatus);
     }
 
-    static void on_ZwTerminateProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwTerminateProcess(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ExitStatus    = arg<wntdll::NTSTATUS>(d.core, 1);
+        const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto ExitStatus    = arg<nt32::NTSTATUS>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwTerminateProcess(ProcessHandle:{:#x}, ExitStatus:{:#x})", ProcessHandle, ExitStatus));
@@ -5556,10 +5556,10 @@ namespace
             it(ProcessHandle, ExitStatus);
     }
 
-    static void on_ZwTerminateThread(monitor::syscallswow64::Data& d)
+    static void on_ZwTerminateThread(monitor::syscalls32::Data& d)
     {
-        const auto ThreadHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto ExitStatus   = arg<wntdll::NTSTATUS>(d.core, 1);
+        const auto ThreadHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto ExitStatus   = arg<nt32::NTSTATUS>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwTerminateThread(ThreadHandle:{:#x}, ExitStatus:{:#x})", ThreadHandle, ExitStatus));
@@ -5568,14 +5568,14 @@ namespace
             it(ThreadHandle, ExitStatus);
     }
 
-    static void on_ZwTraceControl(monitor::syscallswow64::Data& d)
+    static void on_ZwTraceControl(monitor::syscalls32::Data& d)
     {
-        const auto FunctionCode = arg<wntdll::ULONG>(d.core, 0);
-        const auto InBuffer     = arg<wntdll::PVOID>(d.core, 1);
-        const auto InBufferLen  = arg<wntdll::ULONG>(d.core, 2);
-        const auto OutBuffer    = arg<wntdll::PVOID>(d.core, 3);
-        const auto OutBufferLen = arg<wntdll::ULONG>(d.core, 4);
-        const auto ReturnLength = arg<wntdll::PULONG>(d.core, 5);
+        const auto FunctionCode = arg<nt32::ULONG>(d.core, 0);
+        const auto InBuffer     = arg<nt32::PVOID>(d.core, 1);
+        const auto InBufferLen  = arg<nt32::ULONG>(d.core, 2);
+        const auto OutBuffer    = arg<nt32::PVOID>(d.core, 3);
+        const auto OutBufferLen = arg<nt32::ULONG>(d.core, 4);
+        const auto ReturnLength = arg<nt32::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwTraceControl(FunctionCode:{:#x}, InBuffer:{:#x}, InBufferLen:{:#x}, OutBuffer:{:#x}, OutBufferLen:{:#x}, ReturnLength:{:#x})", FunctionCode, InBuffer, InBufferLen, OutBuffer, OutBufferLen, ReturnLength));
@@ -5584,12 +5584,12 @@ namespace
             it(FunctionCode, InBuffer, InBufferLen, OutBuffer, OutBufferLen, ReturnLength);
     }
 
-    static void on_NtTraceEvent(monitor::syscallswow64::Data& d)
+    static void on_NtTraceEvent(monitor::syscalls32::Data& d)
     {
-        const auto TraceHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Flags       = arg<wntdll::ULONG>(d.core, 1);
-        const auto FieldSize   = arg<wntdll::ULONG>(d.core, 2);
-        const auto Fields      = arg<wntdll::PVOID>(d.core, 3);
+        const auto TraceHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto Flags       = arg<nt32::ULONG>(d.core, 1);
+        const auto FieldSize   = arg<nt32::ULONG>(d.core, 2);
+        const auto Fields      = arg<nt32::PVOID>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtTraceEvent(TraceHandle:{:#x}, Flags:{:#x}, FieldSize:{:#x}, Fields:{:#x})", TraceHandle, Flags, FieldSize, Fields));
@@ -5598,12 +5598,12 @@ namespace
             it(TraceHandle, Flags, FieldSize, Fields);
     }
 
-    static void on_NtTranslateFilePath(monitor::syscallswow64::Data& d)
+    static void on_NtTranslateFilePath(monitor::syscalls32::Data& d)
     {
-        const auto InputFilePath        = arg<wntdll::PFILE_PATH>(d.core, 0);
-        const auto OutputType           = arg<wntdll::ULONG>(d.core, 1);
-        const auto OutputFilePath       = arg<wntdll::PFILE_PATH>(d.core, 2);
-        const auto OutputFilePathLength = arg<wntdll::PULONG>(d.core, 3);
+        const auto InputFilePath        = arg<nt32::PFILE_PATH>(d.core, 0);
+        const auto OutputType           = arg<nt32::ULONG>(d.core, 1);
+        const auto OutputFilePath       = arg<nt32::PFILE_PATH>(d.core, 2);
+        const auto OutputFilePathLength = arg<nt32::PULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtTranslateFilePath(InputFilePath:{:#x}, OutputType:{:#x}, OutputFilePath:{:#x}, OutputFilePathLength:{:#x})", InputFilePath, OutputType, OutputFilePath, OutputFilePathLength));
@@ -5612,9 +5612,9 @@ namespace
             it(InputFilePath, OutputType, OutputFilePath, OutputFilePathLength);
     }
 
-    static void on_ZwUnloadDriver(monitor::syscallswow64::Data& d)
+    static void on_ZwUnloadDriver(monitor::syscalls32::Data& d)
     {
-        const auto DriverServiceName = arg<wntdll::PUNICODE_STRING>(d.core, 0);
+        const auto DriverServiceName = arg<nt32::PUNICODE_STRING>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwUnloadDriver(DriverServiceName:{:#x})", DriverServiceName));
@@ -5623,10 +5623,10 @@ namespace
             it(DriverServiceName);
     }
 
-    static void on_ZwUnloadKey2(monitor::syscallswow64::Data& d)
+    static void on_ZwUnloadKey2(monitor::syscalls32::Data& d)
     {
-        const auto TargetKey = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
-        const auto Flags     = arg<wntdll::ULONG>(d.core, 1);
+        const auto TargetKey = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
+        const auto Flags     = arg<nt32::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwUnloadKey2(TargetKey:{:#x}, Flags:{:#x})", TargetKey, Flags));
@@ -5635,10 +5635,10 @@ namespace
             it(TargetKey, Flags);
     }
 
-    static void on_ZwUnloadKeyEx(monitor::syscallswow64::Data& d)
+    static void on_ZwUnloadKeyEx(monitor::syscalls32::Data& d)
     {
-        const auto TargetKey = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
-        const auto Event     = arg<wntdll::HANDLE>(d.core, 1);
+        const auto TargetKey = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
+        const auto Event     = arg<nt32::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwUnloadKeyEx(TargetKey:{:#x}, Event:{:#x})", TargetKey, Event));
@@ -5647,9 +5647,9 @@ namespace
             it(TargetKey, Event);
     }
 
-    static void on_NtUnloadKey(monitor::syscallswow64::Data& d)
+    static void on_NtUnloadKey(monitor::syscalls32::Data& d)
     {
-        const auto TargetKey = arg<wntdll::POBJECT_ATTRIBUTES>(d.core, 0);
+        const auto TargetKey = arg<nt32::POBJECT_ATTRIBUTES>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtUnloadKey(TargetKey:{:#x})", TargetKey));
@@ -5658,13 +5658,13 @@ namespace
             it(TargetKey);
     }
 
-    static void on_ZwUnlockFile(monitor::syscallswow64::Data& d)
+    static void on_ZwUnlockFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto IoStatusBlock = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 1);
-        const auto ByteOffset    = arg<wntdll::PLARGE_INTEGER>(d.core, 2);
-        const auto Length        = arg<wntdll::PLARGE_INTEGER>(d.core, 3);
-        const auto Key           = arg<wntdll::ULONG>(d.core, 4);
+        const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto IoStatusBlock = arg<nt32::PIO_STATUS_BLOCK>(d.core, 1);
+        const auto ByteOffset    = arg<nt32::PLARGE_INTEGER>(d.core, 2);
+        const auto Length        = arg<nt32::PLARGE_INTEGER>(d.core, 3);
+        const auto Key           = arg<nt32::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwUnlockFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, ByteOffset:{:#x}, Length:{:#x}, Key:{:#x})", FileHandle, IoStatusBlock, ByteOffset, Length, Key));
@@ -5673,12 +5673,12 @@ namespace
             it(FileHandle, IoStatusBlock, ByteOffset, Length, Key);
     }
 
-    static void on_NtUnlockVirtualMemory(monitor::syscallswow64::Data& d)
+    static void on_NtUnlockVirtualMemory(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle   = arg<wntdll::HANDLE>(d.core, 0);
-        const auto STARBaseAddress = arg<wntdll::PVOID>(d.core, 1);
-        const auto RegionSize      = arg<wntdll::PSIZE_T>(d.core, 2);
-        const auto MapType         = arg<wntdll::ULONG>(d.core, 3);
+        const auto ProcessHandle   = arg<nt32::HANDLE>(d.core, 0);
+        const auto STARBaseAddress = arg<nt32::PVOID>(d.core, 1);
+        const auto RegionSize      = arg<nt32::PSIZE_T>(d.core, 2);
+        const auto MapType         = arg<nt32::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtUnlockVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, MapType:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, MapType));
@@ -5687,10 +5687,10 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, MapType);
     }
 
-    static void on_NtUnmapViewOfSection(monitor::syscallswow64::Data& d)
+    static void on_NtUnmapViewOfSection(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto BaseAddress   = arg<wntdll::PVOID>(d.core, 1);
+        const auto ProcessHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto BaseAddress   = arg<nt32::PVOID>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtUnmapViewOfSection(ProcessHandle:{:#x}, BaseAddress:{:#x})", ProcessHandle, BaseAddress));
@@ -5699,10 +5699,10 @@ namespace
             it(ProcessHandle, BaseAddress);
     }
 
-    static void on_NtVdmControl(monitor::syscallswow64::Data& d)
+    static void on_NtVdmControl(monitor::syscalls32::Data& d)
     {
-        const auto Service     = arg<wntdll::VDMSERVICECLASS>(d.core, 0);
-        const auto ServiceData = arg<wntdll::PVOID>(d.core, 1);
+        const auto Service     = arg<nt32::VDMSERVICECLASS>(d.core, 0);
+        const auto ServiceData = arg<nt32::PVOID>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtVdmControl(Service:{:#x}, ServiceData:{:#x})", Service, ServiceData));
@@ -5711,12 +5711,12 @@ namespace
             it(Service, ServiceData);
     }
 
-    static void on_NtWaitForDebugEvent(monitor::syscallswow64::Data& d)
+    static void on_NtWaitForDebugEvent(monitor::syscalls32::Data& d)
     {
-        const auto DebugObjectHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Alertable         = arg<wntdll::BOOLEAN>(d.core, 1);
-        const auto Timeout           = arg<wntdll::PLARGE_INTEGER>(d.core, 2);
-        const auto WaitStateChange   = arg<wntdll::PDBGUI_WAIT_STATE_CHANGE>(d.core, 3);
+        const auto DebugObjectHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto Alertable         = arg<nt32::BOOLEAN>(d.core, 1);
+        const auto Timeout           = arg<nt32::PLARGE_INTEGER>(d.core, 2);
+        const auto WaitStateChange   = arg<nt32::PDBGUI_WAIT_STATE_CHANGE>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtWaitForDebugEvent(DebugObjectHandle:{:#x}, Alertable:{:#x}, Timeout:{:#x}, WaitStateChange:{:#x})", DebugObjectHandle, Alertable, Timeout, WaitStateChange));
@@ -5725,12 +5725,12 @@ namespace
             it(DebugObjectHandle, Alertable, Timeout, WaitStateChange);
     }
 
-    static void on_NtWaitForKeyedEvent(monitor::syscallswow64::Data& d)
+    static void on_NtWaitForKeyedEvent(monitor::syscalls32::Data& d)
     {
-        const auto KeyedEventHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto KeyValue         = arg<wntdll::PVOID>(d.core, 1);
-        const auto Alertable        = arg<wntdll::BOOLEAN>(d.core, 2);
-        const auto Timeout          = arg<wntdll::PLARGE_INTEGER>(d.core, 3);
+        const auto KeyedEventHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto KeyValue         = arg<nt32::PVOID>(d.core, 1);
+        const auto Alertable        = arg<nt32::BOOLEAN>(d.core, 2);
+        const auto Timeout          = arg<nt32::PLARGE_INTEGER>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtWaitForKeyedEvent(KeyedEventHandle:{:#x}, KeyValue:{:#x}, Alertable:{:#x}, Timeout:{:#x})", KeyedEventHandle, KeyValue, Alertable, Timeout));
@@ -5739,13 +5739,13 @@ namespace
             it(KeyedEventHandle, KeyValue, Alertable, Timeout);
     }
 
-    static void on_NtWaitForMultipleObjects32(monitor::syscallswow64::Data& d)
+    static void on_NtWaitForMultipleObjects32(monitor::syscalls32::Data& d)
     {
-        const auto Count     = arg<wntdll::ULONG>(d.core, 0);
-        const auto Handles   = arg<wntdll::LONG>(d.core, 1);
-        const auto WaitType  = arg<wntdll::WAIT_TYPE>(d.core, 2);
-        const auto Alertable = arg<wntdll::BOOLEAN>(d.core, 3);
-        const auto Timeout   = arg<wntdll::PLARGE_INTEGER>(d.core, 4);
+        const auto Count     = arg<nt32::ULONG>(d.core, 0);
+        const auto Handles   = arg<nt32::LONG>(d.core, 1);
+        const auto WaitType  = arg<nt32::WAIT_TYPE>(d.core, 2);
+        const auto Alertable = arg<nt32::BOOLEAN>(d.core, 3);
+        const auto Timeout   = arg<nt32::PLARGE_INTEGER>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtWaitForMultipleObjects32(Count:{:#x}, Handles:{:#x}, WaitType:{:#x}, Alertable:{:#x}, Timeout:{:#x})", Count, Handles, WaitType, Alertable, Timeout));
@@ -5754,13 +5754,13 @@ namespace
             it(Count, Handles, WaitType, Alertable, Timeout);
     }
 
-    static void on_NtWaitForMultipleObjects(monitor::syscallswow64::Data& d)
+    static void on_NtWaitForMultipleObjects(monitor::syscalls32::Data& d)
     {
-        const auto Count     = arg<wntdll::ULONG>(d.core, 0);
-        const auto Handles   = arg<wntdll::HANDLE>(d.core, 1);
-        const auto WaitType  = arg<wntdll::WAIT_TYPE>(d.core, 2);
-        const auto Alertable = arg<wntdll::BOOLEAN>(d.core, 3);
-        const auto Timeout   = arg<wntdll::PLARGE_INTEGER>(d.core, 4);
+        const auto Count     = arg<nt32::ULONG>(d.core, 0);
+        const auto Handles   = arg<nt32::HANDLE>(d.core, 1);
+        const auto WaitType  = arg<nt32::WAIT_TYPE>(d.core, 2);
+        const auto Alertable = arg<nt32::BOOLEAN>(d.core, 3);
+        const auto Timeout   = arg<nt32::PLARGE_INTEGER>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtWaitForMultipleObjects(Count:{:#x}, Handles:{:#x}, WaitType:{:#x}, Alertable:{:#x}, Timeout:{:#x})", Count, Handles, WaitType, Alertable, Timeout));
@@ -5769,11 +5769,11 @@ namespace
             it(Count, Handles, WaitType, Alertable, Timeout);
     }
 
-    static void on_ZwWaitForSingleObject(monitor::syscallswow64::Data& d)
+    static void on_ZwWaitForSingleObject(monitor::syscalls32::Data& d)
     {
-        const auto Handle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Alertable = arg<wntdll::BOOLEAN>(d.core, 1);
-        const auto Timeout   = arg<wntdll::PLARGE_INTEGER>(d.core, 2);
+        const auto Handle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto Alertable = arg<nt32::BOOLEAN>(d.core, 1);
+        const auto Timeout   = arg<nt32::PLARGE_INTEGER>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwWaitForSingleObject(Handle:{:#x}, Alertable:{:#x}, Timeout:{:#x})", Handle, Alertable, Timeout));
@@ -5782,10 +5782,10 @@ namespace
             it(Handle, Alertable, Timeout);
     }
 
-    static void on_NtWaitForWorkViaWorkerFactory(monitor::syscallswow64::Data& d)
+    static void on_NtWaitForWorkViaWorkerFactory(monitor::syscalls32::Data& d)
     {
-        const auto WorkerFactoryHandle = arg<wntdll::HANDLE>(d.core, 0);
-        const auto MiniPacket          = arg<wntdll::PFILE_IO_COMPLETION_INFORMATION>(d.core, 1);
+        const auto WorkerFactoryHandle = arg<nt32::HANDLE>(d.core, 0);
+        const auto MiniPacket          = arg<nt32::PFILE_IO_COMPLETION_INFORMATION>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtWaitForWorkViaWorkerFactory(WorkerFactoryHandle:{:#x}, MiniPacket:{:#x})", WorkerFactoryHandle, MiniPacket));
@@ -5794,9 +5794,9 @@ namespace
             it(WorkerFactoryHandle, MiniPacket);
     }
 
-    static void on_ZwWaitHighEventPair(monitor::syscallswow64::Data& d)
+    static void on_ZwWaitHighEventPair(monitor::syscalls32::Data& d)
     {
-        const auto EventPairHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto EventPairHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwWaitHighEventPair(EventPairHandle:{:#x})", EventPairHandle));
@@ -5805,9 +5805,9 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_NtWaitLowEventPair(monitor::syscallswow64::Data& d)
+    static void on_NtWaitLowEventPair(monitor::syscalls32::Data& d)
     {
-        const auto EventPairHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto EventPairHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtWaitLowEventPair(EventPairHandle:{:#x})", EventPairHandle));
@@ -5816,9 +5816,9 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_NtWorkerFactoryWorkerReady(monitor::syscallswow64::Data& d)
+    static void on_NtWorkerFactoryWorkerReady(monitor::syscalls32::Data& d)
     {
-        const auto WorkerFactoryHandle = arg<wntdll::HANDLE>(d.core, 0);
+        const auto WorkerFactoryHandle = arg<nt32::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtWorkerFactoryWorkerReady(WorkerFactoryHandle:{:#x})", WorkerFactoryHandle));
@@ -5827,17 +5827,17 @@ namespace
             it(WorkerFactoryHandle);
     }
 
-    static void on_NtWriteFileGather(monitor::syscallswow64::Data& d)
+    static void on_NtWriteFileGather(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Event         = arg<wntdll::HANDLE>(d.core, 1);
-        const auto ApcRoutine    = arg<wntdll::PIO_APC_ROUTINE>(d.core, 2);
-        const auto ApcContext    = arg<wntdll::PVOID>(d.core, 3);
-        const auto IoStatusBlock = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 4);
-        const auto SegmentArray  = arg<wntdll::PFILE_SEGMENT_ELEMENT>(d.core, 5);
-        const auto Length        = arg<wntdll::ULONG>(d.core, 6);
-        const auto ByteOffset    = arg<wntdll::PLARGE_INTEGER>(d.core, 7);
-        const auto Key           = arg<wntdll::PULONG>(d.core, 8);
+        const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto Event         = arg<nt32::HANDLE>(d.core, 1);
+        const auto ApcRoutine    = arg<nt32::PIO_APC_ROUTINE>(d.core, 2);
+        const auto ApcContext    = arg<nt32::PVOID>(d.core, 3);
+        const auto IoStatusBlock = arg<nt32::PIO_STATUS_BLOCK>(d.core, 4);
+        const auto SegmentArray  = arg<nt32::PFILE_SEGMENT_ELEMENT>(d.core, 5);
+        const auto Length        = arg<nt32::ULONG>(d.core, 6);
+        const auto ByteOffset    = arg<nt32::PLARGE_INTEGER>(d.core, 7);
+        const auto Key           = arg<nt32::PULONG>(d.core, 8);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtWriteFileGather(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, SegmentArray:{:#x}, Length:{:#x}, ByteOffset:{:#x}, Key:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key));
@@ -5846,17 +5846,17 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
     }
 
-    static void on_NtWriteFile(monitor::syscallswow64::Data& d)
+    static void on_NtWriteFile(monitor::syscalls32::Data& d)
     {
-        const auto FileHandle    = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Event         = arg<wntdll::HANDLE>(d.core, 1);
-        const auto ApcRoutine    = arg<wntdll::PIO_APC_ROUTINE>(d.core, 2);
-        const auto ApcContext    = arg<wntdll::PVOID>(d.core, 3);
-        const auto IoStatusBlock = arg<wntdll::PIO_STATUS_BLOCK>(d.core, 4);
-        const auto Buffer        = arg<wntdll::PVOID>(d.core, 5);
-        const auto Length        = arg<wntdll::ULONG>(d.core, 6);
-        const auto ByteOffset    = arg<wntdll::PLARGE_INTEGER>(d.core, 7);
-        const auto Key           = arg<wntdll::PULONG>(d.core, 8);
+        const auto FileHandle    = arg<nt32::HANDLE>(d.core, 0);
+        const auto Event         = arg<nt32::HANDLE>(d.core, 1);
+        const auto ApcRoutine    = arg<nt32::PIO_APC_ROUTINE>(d.core, 2);
+        const auto ApcContext    = arg<nt32::PVOID>(d.core, 3);
+        const auto IoStatusBlock = arg<nt32::PIO_STATUS_BLOCK>(d.core, 4);
+        const auto Buffer        = arg<nt32::PVOID>(d.core, 5);
+        const auto Length        = arg<nt32::ULONG>(d.core, 6);
+        const auto ByteOffset    = arg<nt32::PLARGE_INTEGER>(d.core, 7);
+        const auto Key           = arg<nt32::PULONG>(d.core, 8);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtWriteFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ByteOffset:{:#x}, Key:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key));
@@ -5865,14 +5865,14 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
     }
 
-    static void on_NtWriteRequestData(monitor::syscallswow64::Data& d)
+    static void on_NtWriteRequestData(monitor::syscalls32::Data& d)
     {
-        const auto PortHandle           = arg<wntdll::HANDLE>(d.core, 0);
-        const auto Message              = arg<wntdll::PPORT_MESSAGE>(d.core, 1);
-        const auto DataEntryIndex       = arg<wntdll::ULONG>(d.core, 2);
-        const auto Buffer               = arg<wntdll::PVOID>(d.core, 3);
-        const auto BufferSize           = arg<wntdll::SIZE_T>(d.core, 4);
-        const auto NumberOfBytesWritten = arg<wntdll::PSIZE_T>(d.core, 5);
+        const auto PortHandle           = arg<nt32::HANDLE>(d.core, 0);
+        const auto Message              = arg<nt32::PPORT_MESSAGE>(d.core, 1);
+        const auto DataEntryIndex       = arg<nt32::ULONG>(d.core, 2);
+        const auto Buffer               = arg<nt32::PVOID>(d.core, 3);
+        const auto BufferSize           = arg<nt32::SIZE_T>(d.core, 4);
+        const auto NumberOfBytesWritten = arg<nt32::PSIZE_T>(d.core, 5);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtWriteRequestData(PortHandle:{:#x}, Message:{:#x}, DataEntryIndex:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, NumberOfBytesWritten:{:#x})", PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesWritten));
@@ -5881,13 +5881,13 @@ namespace
             it(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesWritten);
     }
 
-    static void on_NtWriteVirtualMemory(monitor::syscallswow64::Data& d)
+    static void on_NtWriteVirtualMemory(monitor::syscalls32::Data& d)
     {
-        const auto ProcessHandle        = arg<wntdll::HANDLE>(d.core, 0);
-        const auto BaseAddress          = arg<wntdll::PVOID>(d.core, 1);
-        const auto Buffer               = arg<wntdll::PVOID>(d.core, 2);
-        const auto BufferSize           = arg<wntdll::SIZE_T>(d.core, 3);
-        const auto NumberOfBytesWritten = arg<wntdll::PSIZE_T>(d.core, 4);
+        const auto ProcessHandle        = arg<nt32::HANDLE>(d.core, 0);
+        const auto BaseAddress          = arg<nt32::PVOID>(d.core, 1);
+        const auto Buffer               = arg<nt32::PVOID>(d.core, 2);
+        const auto BufferSize           = arg<nt32::SIZE_T>(d.core, 3);
+        const auto NumberOfBytesWritten = arg<nt32::PSIZE_T>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtWriteVirtualMemory(ProcessHandle:{:#x}, BaseAddress:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, NumberOfBytesWritten:{:#x})", ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesWritten));
@@ -5896,7 +5896,7 @@ namespace
             it(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesWritten);
     }
 
-    static void on_NtDisableLastKnownGood(monitor::syscallswow64::Data& d)
+    static void on_NtDisableLastKnownGood(monitor::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtDisableLastKnownGood()"));
@@ -5905,7 +5905,7 @@ namespace
             it();
     }
 
-    static void on_NtEnableLastKnownGood(monitor::syscallswow64::Data& d)
+    static void on_NtEnableLastKnownGood(monitor::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtEnableLastKnownGood()"));
@@ -5914,7 +5914,7 @@ namespace
             it();
     }
 
-    static void on_ZwFlushProcessWriteBuffers(monitor::syscallswow64::Data& d)
+    static void on_ZwFlushProcessWriteBuffers(monitor::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwFlushProcessWriteBuffers()"));
@@ -5923,7 +5923,7 @@ namespace
             it();
     }
 
-    static void on_NtFlushWriteBuffer(monitor::syscallswow64::Data& d)
+    static void on_NtFlushWriteBuffer(monitor::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtFlushWriteBuffer()"));
@@ -5932,7 +5932,7 @@ namespace
             it();
     }
 
-    static void on_NtGetCurrentProcessorNumber(monitor::syscallswow64::Data& d)
+    static void on_NtGetCurrentProcessorNumber(monitor::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtGetCurrentProcessorNumber()"));
@@ -5941,7 +5941,7 @@ namespace
             it();
     }
 
-    static void on_NtIsSystemResumeAutomatic(monitor::syscallswow64::Data& d)
+    static void on_NtIsSystemResumeAutomatic(monitor::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtIsSystemResumeAutomatic()"));
@@ -5950,7 +5950,7 @@ namespace
             it();
     }
 
-    static void on_ZwIsUILanguageComitted(monitor::syscallswow64::Data& d)
+    static void on_ZwIsUILanguageComitted(monitor::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwIsUILanguageComitted()"));
@@ -5959,7 +5959,7 @@ namespace
             it();
     }
 
-    static void on_ZwQueryPortInformationProcess(monitor::syscallswow64::Data& d)
+    static void on_ZwQueryPortInformationProcess(monitor::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwQueryPortInformationProcess()"));
@@ -5968,7 +5968,7 @@ namespace
             it();
     }
 
-    static void on_NtSerializeBoot(monitor::syscallswow64::Data& d)
+    static void on_NtSerializeBoot(monitor::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSerializeBoot()"));
@@ -5977,7 +5977,7 @@ namespace
             it();
     }
 
-    static void on_NtTestAlert(monitor::syscallswow64::Data& d)
+    static void on_NtTestAlert(monitor::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtTestAlert()"));
@@ -5986,7 +5986,7 @@ namespace
             it();
     }
 
-    static void on_ZwThawRegistry(monitor::syscallswow64::Data& d)
+    static void on_ZwThawRegistry(monitor::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwThawRegistry()"));
@@ -5995,7 +5995,7 @@ namespace
             it();
     }
 
-    static void on_NtThawTransactions(monitor::syscallswow64::Data& d)
+    static void on_NtThawTransactions(monitor::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtThawTransactions()"));
@@ -6004,9 +6004,9 @@ namespace
             it();
     }
 
-    static void on_ZwUmsThreadYield(monitor::syscallswow64::Data& d)
+    static void on_ZwUmsThreadYield(monitor::syscalls32::Data& d)
     {
-        const auto SchedulerParam = arg<wntdll::PVOID>(d.core, 0);
+        const auto SchedulerParam = arg<nt32::PVOID>(d.core, 0);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwUmsThreadYield(SchedulerParam:{:#x})", SchedulerParam));
@@ -6015,7 +6015,7 @@ namespace
             it(SchedulerParam);
     }
 
-    static void on_ZwYieldExecution(monitor::syscallswow64::Data& d)
+    static void on_ZwYieldExecution(monitor::syscalls32::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("ZwYieldExecution()"));
@@ -6027,7 +6027,7 @@ namespace
 }
 
 
-bool monitor::syscallswow64::register_NtAcceptConnectPort(proc_t proc, const on_NtAcceptConnectPort_fn& on_func)
+bool monitor::syscalls32::register_NtAcceptConnectPort(proc_t proc, const on_NtAcceptConnectPort_fn& on_func)
 {
     if(d_->observers_NtAcceptConnectPort.empty())
         if(!register_callback_with(*d_, proc, "_NtAcceptConnectPort@24", &on_NtAcceptConnectPort))
@@ -6037,7 +6037,7 @@ bool monitor::syscallswow64::register_NtAcceptConnectPort(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAccessCheckAndAuditAlarm(proc_t proc, const on_ZwAccessCheckAndAuditAlarm_fn& on_func)
+bool monitor::syscalls32::register_ZwAccessCheckAndAuditAlarm(proc_t proc, const on_ZwAccessCheckAndAuditAlarm_fn& on_func)
 {
     if(d_->observers_ZwAccessCheckAndAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_ZwAccessCheckAndAuditAlarm@44", &on_ZwAccessCheckAndAuditAlarm))
@@ -6047,7 +6047,7 @@ bool monitor::syscallswow64::register_ZwAccessCheckAndAuditAlarm(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeAndAuditAlarm_fn& on_func)
+bool monitor::syscalls32::register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeAndAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtAccessCheckByTypeAndAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_NtAccessCheckByTypeAndAuditAlarm@64", &on_NtAccessCheckByTypeAndAuditAlarm))
@@ -6057,7 +6057,7 @@ bool monitor::syscallswow64::register_NtAccessCheckByTypeAndAuditAlarm(proc_t pr
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAccessCheckByType(proc_t proc, const on_NtAccessCheckByType_fn& on_func)
+bool monitor::syscalls32::register_NtAccessCheckByType(proc_t proc, const on_NtAccessCheckByType_fn& on_func)
 {
     if(d_->observers_NtAccessCheckByType.empty())
         if(!register_callback_with(*d_, proc, "_NtAccessCheckByType@44", &on_NtAccessCheckByType))
@@ -6067,7 +6067,7 @@ bool monitor::syscallswow64::register_NtAccessCheckByType(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_func)
+bool monitor::syscalls32::register_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_func)
 {
     if(d_->observers_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle.empty())
         if(!register_callback_with(*d_, proc, "_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle@68", &on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle))
@@ -6077,7 +6077,7 @@ bool monitor::syscallswow64::register_ZwAccessCheckByTypeResultListAndAuditAlarm
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarm_fn& on_func)
+bool monitor::syscalls32::register_NtAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtAccessCheckByTypeResultListAndAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_NtAccessCheckByTypeResultListAndAuditAlarm@64", &on_NtAccessCheckByTypeResultListAndAuditAlarm))
@@ -6087,7 +6087,7 @@ bool monitor::syscallswow64::register_NtAccessCheckByTypeResultListAndAuditAlarm
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAccessCheckByTypeResultList(proc_t proc, const on_NtAccessCheckByTypeResultList_fn& on_func)
+bool monitor::syscalls32::register_NtAccessCheckByTypeResultList(proc_t proc, const on_NtAccessCheckByTypeResultList_fn& on_func)
 {
     if(d_->observers_NtAccessCheckByTypeResultList.empty())
         if(!register_callback_with(*d_, proc, "_NtAccessCheckByTypeResultList@44", &on_NtAccessCheckByTypeResultList))
@@ -6097,7 +6097,7 @@ bool monitor::syscallswow64::register_NtAccessCheckByTypeResultList(proc_t proc,
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAccessCheck(proc_t proc, const on_NtAccessCheck_fn& on_func)
+bool monitor::syscalls32::register_NtAccessCheck(proc_t proc, const on_NtAccessCheck_fn& on_func)
 {
     if(d_->observers_NtAccessCheck.empty())
         if(!register_callback_with(*d_, proc, "_NtAccessCheck@32", &on_NtAccessCheck))
@@ -6107,7 +6107,7 @@ bool monitor::syscallswow64::register_NtAccessCheck(proc_t proc, const on_NtAcce
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAddAtom(proc_t proc, const on_NtAddAtom_fn& on_func)
+bool monitor::syscalls32::register_NtAddAtom(proc_t proc, const on_NtAddAtom_fn& on_func)
 {
     if(d_->observers_NtAddAtom.empty())
         if(!register_callback_with(*d_, proc, "_NtAddAtom@12", &on_NtAddAtom))
@@ -6117,7 +6117,7 @@ bool monitor::syscallswow64::register_NtAddAtom(proc_t proc, const on_NtAddAtom_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAddBootEntry(proc_t proc, const on_ZwAddBootEntry_fn& on_func)
+bool monitor::syscalls32::register_ZwAddBootEntry(proc_t proc, const on_ZwAddBootEntry_fn& on_func)
 {
     if(d_->observers_ZwAddBootEntry.empty())
         if(!register_callback_with(*d_, proc, "_ZwAddBootEntry@8", &on_ZwAddBootEntry))
@@ -6127,7 +6127,7 @@ bool monitor::syscallswow64::register_ZwAddBootEntry(proc_t proc, const on_ZwAdd
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAddDriverEntry(proc_t proc, const on_NtAddDriverEntry_fn& on_func)
+bool monitor::syscalls32::register_NtAddDriverEntry(proc_t proc, const on_NtAddDriverEntry_fn& on_func)
 {
     if(d_->observers_NtAddDriverEntry.empty())
         if(!register_callback_with(*d_, proc, "_NtAddDriverEntry@8", &on_NtAddDriverEntry))
@@ -6137,7 +6137,7 @@ bool monitor::syscallswow64::register_NtAddDriverEntry(proc_t proc, const on_NtA
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAdjustGroupsToken(proc_t proc, const on_ZwAdjustGroupsToken_fn& on_func)
+bool monitor::syscalls32::register_ZwAdjustGroupsToken(proc_t proc, const on_ZwAdjustGroupsToken_fn& on_func)
 {
     if(d_->observers_ZwAdjustGroupsToken.empty())
         if(!register_callback_with(*d_, proc, "_ZwAdjustGroupsToken@24", &on_ZwAdjustGroupsToken))
@@ -6147,7 +6147,7 @@ bool monitor::syscallswow64::register_ZwAdjustGroupsToken(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAdjustPrivilegesToken(proc_t proc, const on_ZwAdjustPrivilegesToken_fn& on_func)
+bool monitor::syscalls32::register_ZwAdjustPrivilegesToken(proc_t proc, const on_ZwAdjustPrivilegesToken_fn& on_func)
 {
     if(d_->observers_ZwAdjustPrivilegesToken.empty())
         if(!register_callback_with(*d_, proc, "_ZwAdjustPrivilegesToken@24", &on_ZwAdjustPrivilegesToken))
@@ -6157,7 +6157,7 @@ bool monitor::syscallswow64::register_ZwAdjustPrivilegesToken(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAlertResumeThread(proc_t proc, const on_NtAlertResumeThread_fn& on_func)
+bool monitor::syscalls32::register_NtAlertResumeThread(proc_t proc, const on_NtAlertResumeThread_fn& on_func)
 {
     if(d_->observers_NtAlertResumeThread.empty())
         if(!register_callback_with(*d_, proc, "_NtAlertResumeThread@8", &on_NtAlertResumeThread))
@@ -6167,7 +6167,7 @@ bool monitor::syscallswow64::register_NtAlertResumeThread(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAlertThread(proc_t proc, const on_NtAlertThread_fn& on_func)
+bool monitor::syscalls32::register_NtAlertThread(proc_t proc, const on_NtAlertThread_fn& on_func)
 {
     if(d_->observers_NtAlertThread.empty())
         if(!register_callback_with(*d_, proc, "_NtAlertThread@4", &on_NtAlertThread))
@@ -6177,7 +6177,7 @@ bool monitor::syscallswow64::register_NtAlertThread(proc_t proc, const on_NtAler
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAllocateLocallyUniqueId(proc_t proc, const on_ZwAllocateLocallyUniqueId_fn& on_func)
+bool monitor::syscalls32::register_ZwAllocateLocallyUniqueId(proc_t proc, const on_ZwAllocateLocallyUniqueId_fn& on_func)
 {
     if(d_->observers_ZwAllocateLocallyUniqueId.empty())
         if(!register_callback_with(*d_, proc, "_ZwAllocateLocallyUniqueId@4", &on_ZwAllocateLocallyUniqueId))
@@ -6187,7 +6187,7 @@ bool monitor::syscallswow64::register_ZwAllocateLocallyUniqueId(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAllocateReserveObject(proc_t proc, const on_NtAllocateReserveObject_fn& on_func)
+bool monitor::syscalls32::register_NtAllocateReserveObject(proc_t proc, const on_NtAllocateReserveObject_fn& on_func)
 {
     if(d_->observers_NtAllocateReserveObject.empty())
         if(!register_callback_with(*d_, proc, "_NtAllocateReserveObject@12", &on_NtAllocateReserveObject))
@@ -6197,7 +6197,7 @@ bool monitor::syscallswow64::register_NtAllocateReserveObject(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAllocateUserPhysicalPages(proc_t proc, const on_NtAllocateUserPhysicalPages_fn& on_func)
+bool monitor::syscalls32::register_NtAllocateUserPhysicalPages(proc_t proc, const on_NtAllocateUserPhysicalPages_fn& on_func)
 {
     if(d_->observers_NtAllocateUserPhysicalPages.empty())
         if(!register_callback_with(*d_, proc, "_NtAllocateUserPhysicalPages@12", &on_NtAllocateUserPhysicalPages))
@@ -6207,7 +6207,7 @@ bool monitor::syscallswow64::register_NtAllocateUserPhysicalPages(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAllocateUuids(proc_t proc, const on_NtAllocateUuids_fn& on_func)
+bool monitor::syscalls32::register_NtAllocateUuids(proc_t proc, const on_NtAllocateUuids_fn& on_func)
 {
     if(d_->observers_NtAllocateUuids.empty())
         if(!register_callback_with(*d_, proc, "_NtAllocateUuids@16", &on_NtAllocateUuids))
@@ -6217,7 +6217,7 @@ bool monitor::syscallswow64::register_NtAllocateUuids(proc_t proc, const on_NtAl
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAllocateVirtualMemory(proc_t proc, const on_NtAllocateVirtualMemory_fn& on_func)
+bool monitor::syscalls32::register_NtAllocateVirtualMemory(proc_t proc, const on_NtAllocateVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtAllocateVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_NtAllocateVirtualMemory@24", &on_NtAllocateVirtualMemory))
@@ -6227,7 +6227,7 @@ bool monitor::syscallswow64::register_NtAllocateVirtualMemory(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAlpcAcceptConnectPort(proc_t proc, const on_NtAlpcAcceptConnectPort_fn& on_func)
+bool monitor::syscalls32::register_NtAlpcAcceptConnectPort(proc_t proc, const on_NtAlpcAcceptConnectPort_fn& on_func)
 {
     if(d_->observers_NtAlpcAcceptConnectPort.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcAcceptConnectPort@36", &on_NtAlpcAcceptConnectPort))
@@ -6237,7 +6237,7 @@ bool monitor::syscallswow64::register_NtAlpcAcceptConnectPort(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAlpcCancelMessage(proc_t proc, const on_ZwAlpcCancelMessage_fn& on_func)
+bool monitor::syscalls32::register_ZwAlpcCancelMessage(proc_t proc, const on_ZwAlpcCancelMessage_fn& on_func)
 {
     if(d_->observers_ZwAlpcCancelMessage.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcCancelMessage@12", &on_ZwAlpcCancelMessage))
@@ -6247,7 +6247,7 @@ bool monitor::syscallswow64::register_ZwAlpcCancelMessage(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAlpcConnectPort(proc_t proc, const on_ZwAlpcConnectPort_fn& on_func)
+bool monitor::syscalls32::register_ZwAlpcConnectPort(proc_t proc, const on_ZwAlpcConnectPort_fn& on_func)
 {
     if(d_->observers_ZwAlpcConnectPort.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcConnectPort@44", &on_ZwAlpcConnectPort))
@@ -6257,7 +6257,7 @@ bool monitor::syscallswow64::register_ZwAlpcConnectPort(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAlpcCreatePort(proc_t proc, const on_ZwAlpcCreatePort_fn& on_func)
+bool monitor::syscalls32::register_ZwAlpcCreatePort(proc_t proc, const on_ZwAlpcCreatePort_fn& on_func)
 {
     if(d_->observers_ZwAlpcCreatePort.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcCreatePort@12", &on_ZwAlpcCreatePort))
@@ -6267,7 +6267,7 @@ bool monitor::syscallswow64::register_ZwAlpcCreatePort(proc_t proc, const on_ZwA
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAlpcCreatePortSection(proc_t proc, const on_NtAlpcCreatePortSection_fn& on_func)
+bool monitor::syscalls32::register_NtAlpcCreatePortSection(proc_t proc, const on_NtAlpcCreatePortSection_fn& on_func)
 {
     if(d_->observers_NtAlpcCreatePortSection.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcCreatePortSection@24", &on_NtAlpcCreatePortSection))
@@ -6277,7 +6277,7 @@ bool monitor::syscallswow64::register_NtAlpcCreatePortSection(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAlpcCreateResourceReserve(proc_t proc, const on_ZwAlpcCreateResourceReserve_fn& on_func)
+bool monitor::syscalls32::register_ZwAlpcCreateResourceReserve(proc_t proc, const on_ZwAlpcCreateResourceReserve_fn& on_func)
 {
     if(d_->observers_ZwAlpcCreateResourceReserve.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcCreateResourceReserve@16", &on_ZwAlpcCreateResourceReserve))
@@ -6287,7 +6287,7 @@ bool monitor::syscallswow64::register_ZwAlpcCreateResourceReserve(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAlpcCreateSectionView(proc_t proc, const on_ZwAlpcCreateSectionView_fn& on_func)
+bool monitor::syscalls32::register_ZwAlpcCreateSectionView(proc_t proc, const on_ZwAlpcCreateSectionView_fn& on_func)
 {
     if(d_->observers_ZwAlpcCreateSectionView.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcCreateSectionView@12", &on_ZwAlpcCreateSectionView))
@@ -6297,7 +6297,7 @@ bool monitor::syscallswow64::register_ZwAlpcCreateSectionView(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAlpcCreateSecurityContext(proc_t proc, const on_ZwAlpcCreateSecurityContext_fn& on_func)
+bool monitor::syscalls32::register_ZwAlpcCreateSecurityContext(proc_t proc, const on_ZwAlpcCreateSecurityContext_fn& on_func)
 {
     if(d_->observers_ZwAlpcCreateSecurityContext.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcCreateSecurityContext@12", &on_ZwAlpcCreateSecurityContext))
@@ -6307,7 +6307,7 @@ bool monitor::syscallswow64::register_ZwAlpcCreateSecurityContext(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAlpcDeletePortSection(proc_t proc, const on_ZwAlpcDeletePortSection_fn& on_func)
+bool monitor::syscalls32::register_ZwAlpcDeletePortSection(proc_t proc, const on_ZwAlpcDeletePortSection_fn& on_func)
 {
     if(d_->observers_ZwAlpcDeletePortSection.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcDeletePortSection@12", &on_ZwAlpcDeletePortSection))
@@ -6317,7 +6317,7 @@ bool monitor::syscallswow64::register_ZwAlpcDeletePortSection(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAlpcDeleteResourceReserve(proc_t proc, const on_NtAlpcDeleteResourceReserve_fn& on_func)
+bool monitor::syscalls32::register_NtAlpcDeleteResourceReserve(proc_t proc, const on_NtAlpcDeleteResourceReserve_fn& on_func)
 {
     if(d_->observers_NtAlpcDeleteResourceReserve.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcDeleteResourceReserve@12", &on_NtAlpcDeleteResourceReserve))
@@ -6327,7 +6327,7 @@ bool monitor::syscallswow64::register_NtAlpcDeleteResourceReserve(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAlpcDeleteSectionView(proc_t proc, const on_NtAlpcDeleteSectionView_fn& on_func)
+bool monitor::syscalls32::register_NtAlpcDeleteSectionView(proc_t proc, const on_NtAlpcDeleteSectionView_fn& on_func)
 {
     if(d_->observers_NtAlpcDeleteSectionView.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcDeleteSectionView@12", &on_NtAlpcDeleteSectionView))
@@ -6337,7 +6337,7 @@ bool monitor::syscallswow64::register_NtAlpcDeleteSectionView(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAlpcDeleteSecurityContext(proc_t proc, const on_NtAlpcDeleteSecurityContext_fn& on_func)
+bool monitor::syscalls32::register_NtAlpcDeleteSecurityContext(proc_t proc, const on_NtAlpcDeleteSecurityContext_fn& on_func)
 {
     if(d_->observers_NtAlpcDeleteSecurityContext.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcDeleteSecurityContext@12", &on_NtAlpcDeleteSecurityContext))
@@ -6347,7 +6347,7 @@ bool monitor::syscallswow64::register_NtAlpcDeleteSecurityContext(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAlpcDisconnectPort(proc_t proc, const on_NtAlpcDisconnectPort_fn& on_func)
+bool monitor::syscalls32::register_NtAlpcDisconnectPort(proc_t proc, const on_NtAlpcDisconnectPort_fn& on_func)
 {
     if(d_->observers_NtAlpcDisconnectPort.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcDisconnectPort@8", &on_NtAlpcDisconnectPort))
@@ -6357,7 +6357,7 @@ bool monitor::syscallswow64::register_NtAlpcDisconnectPort(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAlpcImpersonateClientOfPort(proc_t proc, const on_ZwAlpcImpersonateClientOfPort_fn& on_func)
+bool monitor::syscalls32::register_ZwAlpcImpersonateClientOfPort(proc_t proc, const on_ZwAlpcImpersonateClientOfPort_fn& on_func)
 {
     if(d_->observers_ZwAlpcImpersonateClientOfPort.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcImpersonateClientOfPort@12", &on_ZwAlpcImpersonateClientOfPort))
@@ -6367,7 +6367,7 @@ bool monitor::syscallswow64::register_ZwAlpcImpersonateClientOfPort(proc_t proc,
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAlpcOpenSenderProcess(proc_t proc, const on_ZwAlpcOpenSenderProcess_fn& on_func)
+bool monitor::syscalls32::register_ZwAlpcOpenSenderProcess(proc_t proc, const on_ZwAlpcOpenSenderProcess_fn& on_func)
 {
     if(d_->observers_ZwAlpcOpenSenderProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcOpenSenderProcess@24", &on_ZwAlpcOpenSenderProcess))
@@ -6377,7 +6377,7 @@ bool monitor::syscallswow64::register_ZwAlpcOpenSenderProcess(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAlpcOpenSenderThread(proc_t proc, const on_ZwAlpcOpenSenderThread_fn& on_func)
+bool monitor::syscalls32::register_ZwAlpcOpenSenderThread(proc_t proc, const on_ZwAlpcOpenSenderThread_fn& on_func)
 {
     if(d_->observers_ZwAlpcOpenSenderThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcOpenSenderThread@24", &on_ZwAlpcOpenSenderThread))
@@ -6387,7 +6387,7 @@ bool monitor::syscallswow64::register_ZwAlpcOpenSenderThread(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAlpcQueryInformation(proc_t proc, const on_ZwAlpcQueryInformation_fn& on_func)
+bool monitor::syscalls32::register_ZwAlpcQueryInformation(proc_t proc, const on_ZwAlpcQueryInformation_fn& on_func)
 {
     if(d_->observers_ZwAlpcQueryInformation.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcQueryInformation@20", &on_ZwAlpcQueryInformation))
@@ -6397,7 +6397,7 @@ bool monitor::syscallswow64::register_ZwAlpcQueryInformation(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAlpcQueryInformationMessage(proc_t proc, const on_ZwAlpcQueryInformationMessage_fn& on_func)
+bool monitor::syscalls32::register_ZwAlpcQueryInformationMessage(proc_t proc, const on_ZwAlpcQueryInformationMessage_fn& on_func)
 {
     if(d_->observers_ZwAlpcQueryInformationMessage.empty())
         if(!register_callback_with(*d_, proc, "_ZwAlpcQueryInformationMessage@24", &on_ZwAlpcQueryInformationMessage))
@@ -6407,7 +6407,7 @@ bool monitor::syscallswow64::register_ZwAlpcQueryInformationMessage(proc_t proc,
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAlpcRevokeSecurityContext(proc_t proc, const on_NtAlpcRevokeSecurityContext_fn& on_func)
+bool monitor::syscalls32::register_NtAlpcRevokeSecurityContext(proc_t proc, const on_NtAlpcRevokeSecurityContext_fn& on_func)
 {
     if(d_->observers_NtAlpcRevokeSecurityContext.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcRevokeSecurityContext@12", &on_NtAlpcRevokeSecurityContext))
@@ -6417,7 +6417,7 @@ bool monitor::syscallswow64::register_NtAlpcRevokeSecurityContext(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAlpcSendWaitReceivePort(proc_t proc, const on_NtAlpcSendWaitReceivePort_fn& on_func)
+bool monitor::syscalls32::register_NtAlpcSendWaitReceivePort(proc_t proc, const on_NtAlpcSendWaitReceivePort_fn& on_func)
 {
     if(d_->observers_NtAlpcSendWaitReceivePort.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcSendWaitReceivePort@32", &on_NtAlpcSendWaitReceivePort))
@@ -6427,7 +6427,7 @@ bool monitor::syscallswow64::register_NtAlpcSendWaitReceivePort(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_NtAlpcSetInformation(proc_t proc, const on_NtAlpcSetInformation_fn& on_func)
+bool monitor::syscalls32::register_NtAlpcSetInformation(proc_t proc, const on_NtAlpcSetInformation_fn& on_func)
 {
     if(d_->observers_NtAlpcSetInformation.empty())
         if(!register_callback_with(*d_, proc, "_NtAlpcSetInformation@16", &on_NtAlpcSetInformation))
@@ -6437,7 +6437,7 @@ bool monitor::syscallswow64::register_NtAlpcSetInformation(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtApphelpCacheControl(proc_t proc, const on_NtApphelpCacheControl_fn& on_func)
+bool monitor::syscalls32::register_NtApphelpCacheControl(proc_t proc, const on_NtApphelpCacheControl_fn& on_func)
 {
     if(d_->observers_NtApphelpCacheControl.empty())
         if(!register_callback_with(*d_, proc, "_NtApphelpCacheControl@8", &on_NtApphelpCacheControl))
@@ -6447,7 +6447,7 @@ bool monitor::syscallswow64::register_NtApphelpCacheControl(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAreMappedFilesTheSame(proc_t proc, const on_ZwAreMappedFilesTheSame_fn& on_func)
+bool monitor::syscalls32::register_ZwAreMappedFilesTheSame(proc_t proc, const on_ZwAreMappedFilesTheSame_fn& on_func)
 {
     if(d_->observers_ZwAreMappedFilesTheSame.empty())
         if(!register_callback_with(*d_, proc, "_ZwAreMappedFilesTheSame@8", &on_ZwAreMappedFilesTheSame))
@@ -6457,7 +6457,7 @@ bool monitor::syscallswow64::register_ZwAreMappedFilesTheSame(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwAssignProcessToJobObject(proc_t proc, const on_ZwAssignProcessToJobObject_fn& on_func)
+bool monitor::syscalls32::register_ZwAssignProcessToJobObject(proc_t proc, const on_ZwAssignProcessToJobObject_fn& on_func)
 {
     if(d_->observers_ZwAssignProcessToJobObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwAssignProcessToJobObject@8", &on_ZwAssignProcessToJobObject))
@@ -6467,7 +6467,7 @@ bool monitor::syscallswow64::register_ZwAssignProcessToJobObject(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCancelIoFileEx(proc_t proc, const on_NtCancelIoFileEx_fn& on_func)
+bool monitor::syscalls32::register_NtCancelIoFileEx(proc_t proc, const on_NtCancelIoFileEx_fn& on_func)
 {
     if(d_->observers_NtCancelIoFileEx.empty())
         if(!register_callback_with(*d_, proc, "_NtCancelIoFileEx@12", &on_NtCancelIoFileEx))
@@ -6477,7 +6477,7 @@ bool monitor::syscallswow64::register_NtCancelIoFileEx(proc_t proc, const on_NtC
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCancelIoFile(proc_t proc, const on_ZwCancelIoFile_fn& on_func)
+bool monitor::syscalls32::register_ZwCancelIoFile(proc_t proc, const on_ZwCancelIoFile_fn& on_func)
 {
     if(d_->observers_ZwCancelIoFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwCancelIoFile@8", &on_ZwCancelIoFile))
@@ -6487,7 +6487,7 @@ bool monitor::syscallswow64::register_ZwCancelIoFile(proc_t proc, const on_ZwCan
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCancelSynchronousIoFile(proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_func)
+bool monitor::syscalls32::register_NtCancelSynchronousIoFile(proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_func)
 {
     if(d_->observers_NtCancelSynchronousIoFile.empty())
         if(!register_callback_with(*d_, proc, "_NtCancelSynchronousIoFile@12", &on_NtCancelSynchronousIoFile))
@@ -6497,7 +6497,7 @@ bool monitor::syscallswow64::register_NtCancelSynchronousIoFile(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCancelTimer(proc_t proc, const on_ZwCancelTimer_fn& on_func)
+bool monitor::syscalls32::register_ZwCancelTimer(proc_t proc, const on_ZwCancelTimer_fn& on_func)
 {
     if(d_->observers_ZwCancelTimer.empty())
         if(!register_callback_with(*d_, proc, "_ZwCancelTimer@8", &on_ZwCancelTimer))
@@ -6507,7 +6507,7 @@ bool monitor::syscallswow64::register_ZwCancelTimer(proc_t proc, const on_ZwCanc
     return true;
 }
 
-bool monitor::syscallswow64::register_NtClearEvent(proc_t proc, const on_NtClearEvent_fn& on_func)
+bool monitor::syscalls32::register_NtClearEvent(proc_t proc, const on_NtClearEvent_fn& on_func)
 {
     if(d_->observers_NtClearEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtClearEvent@4", &on_NtClearEvent))
@@ -6517,7 +6517,7 @@ bool monitor::syscallswow64::register_NtClearEvent(proc_t proc, const on_NtClear
     return true;
 }
 
-bool monitor::syscallswow64::register_NtClose(proc_t proc, const on_NtClose_fn& on_func)
+bool monitor::syscalls32::register_NtClose(proc_t proc, const on_NtClose_fn& on_func)
 {
     if(d_->observers_NtClose.empty())
         if(!register_callback_with(*d_, proc, "_NtClose@4", &on_NtClose))
@@ -6527,7 +6527,7 @@ bool monitor::syscallswow64::register_NtClose(proc_t proc, const on_NtClose_fn& 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCloseObjectAuditAlarm(proc_t proc, const on_ZwCloseObjectAuditAlarm_fn& on_func)
+bool monitor::syscalls32::register_ZwCloseObjectAuditAlarm(proc_t proc, const on_ZwCloseObjectAuditAlarm_fn& on_func)
 {
     if(d_->observers_ZwCloseObjectAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_ZwCloseObjectAuditAlarm@12", &on_ZwCloseObjectAuditAlarm))
@@ -6537,7 +6537,7 @@ bool monitor::syscallswow64::register_ZwCloseObjectAuditAlarm(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCommitComplete(proc_t proc, const on_ZwCommitComplete_fn& on_func)
+bool monitor::syscalls32::register_ZwCommitComplete(proc_t proc, const on_ZwCommitComplete_fn& on_func)
 {
     if(d_->observers_ZwCommitComplete.empty())
         if(!register_callback_with(*d_, proc, "_ZwCommitComplete@8", &on_ZwCommitComplete))
@@ -6547,7 +6547,7 @@ bool monitor::syscallswow64::register_ZwCommitComplete(proc_t proc, const on_ZwC
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCommitEnlistment(proc_t proc, const on_NtCommitEnlistment_fn& on_func)
+bool monitor::syscalls32::register_NtCommitEnlistment(proc_t proc, const on_NtCommitEnlistment_fn& on_func)
 {
     if(d_->observers_NtCommitEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_NtCommitEnlistment@8", &on_NtCommitEnlistment))
@@ -6557,7 +6557,7 @@ bool monitor::syscallswow64::register_NtCommitEnlistment(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCommitTransaction(proc_t proc, const on_NtCommitTransaction_fn& on_func)
+bool monitor::syscalls32::register_NtCommitTransaction(proc_t proc, const on_NtCommitTransaction_fn& on_func)
 {
     if(d_->observers_NtCommitTransaction.empty())
         if(!register_callback_with(*d_, proc, "_NtCommitTransaction@8", &on_NtCommitTransaction))
@@ -6567,7 +6567,7 @@ bool monitor::syscallswow64::register_NtCommitTransaction(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCompactKeys(proc_t proc, const on_NtCompactKeys_fn& on_func)
+bool monitor::syscalls32::register_NtCompactKeys(proc_t proc, const on_NtCompactKeys_fn& on_func)
 {
     if(d_->observers_NtCompactKeys.empty())
         if(!register_callback_with(*d_, proc, "_NtCompactKeys@8", &on_NtCompactKeys))
@@ -6577,7 +6577,7 @@ bool monitor::syscallswow64::register_NtCompactKeys(proc_t proc, const on_NtComp
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCompareTokens(proc_t proc, const on_ZwCompareTokens_fn& on_func)
+bool monitor::syscalls32::register_ZwCompareTokens(proc_t proc, const on_ZwCompareTokens_fn& on_func)
 {
     if(d_->observers_ZwCompareTokens.empty())
         if(!register_callback_with(*d_, proc, "_ZwCompareTokens@12", &on_ZwCompareTokens))
@@ -6587,7 +6587,7 @@ bool monitor::syscallswow64::register_ZwCompareTokens(proc_t proc, const on_ZwCo
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCompleteConnectPort(proc_t proc, const on_NtCompleteConnectPort_fn& on_func)
+bool monitor::syscalls32::register_NtCompleteConnectPort(proc_t proc, const on_NtCompleteConnectPort_fn& on_func)
 {
     if(d_->observers_NtCompleteConnectPort.empty())
         if(!register_callback_with(*d_, proc, "_NtCompleteConnectPort@4", &on_NtCompleteConnectPort))
@@ -6597,7 +6597,7 @@ bool monitor::syscallswow64::register_NtCompleteConnectPort(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCompressKey(proc_t proc, const on_ZwCompressKey_fn& on_func)
+bool monitor::syscalls32::register_ZwCompressKey(proc_t proc, const on_ZwCompressKey_fn& on_func)
 {
     if(d_->observers_ZwCompressKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwCompressKey@4", &on_ZwCompressKey))
@@ -6607,7 +6607,7 @@ bool monitor::syscallswow64::register_ZwCompressKey(proc_t proc, const on_ZwComp
     return true;
 }
 
-bool monitor::syscallswow64::register_NtConnectPort(proc_t proc, const on_NtConnectPort_fn& on_func)
+bool monitor::syscalls32::register_NtConnectPort(proc_t proc, const on_NtConnectPort_fn& on_func)
 {
     if(d_->observers_NtConnectPort.empty())
         if(!register_callback_with(*d_, proc, "_NtConnectPort@32", &on_NtConnectPort))
@@ -6617,7 +6617,7 @@ bool monitor::syscallswow64::register_NtConnectPort(proc_t proc, const on_NtConn
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwContinue(proc_t proc, const on_ZwContinue_fn& on_func)
+bool monitor::syscalls32::register_ZwContinue(proc_t proc, const on_ZwContinue_fn& on_func)
 {
     if(d_->observers_ZwContinue.empty())
         if(!register_callback_with(*d_, proc, "_ZwContinue@8", &on_ZwContinue))
@@ -6627,7 +6627,7 @@ bool monitor::syscallswow64::register_ZwContinue(proc_t proc, const on_ZwContinu
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateDebugObject(proc_t proc, const on_ZwCreateDebugObject_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateDebugObject(proc_t proc, const on_ZwCreateDebugObject_fn& on_func)
 {
     if(d_->observers_ZwCreateDebugObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateDebugObject@16", &on_ZwCreateDebugObject))
@@ -6637,7 +6637,7 @@ bool monitor::syscallswow64::register_ZwCreateDebugObject(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateDirectoryObject(proc_t proc, const on_ZwCreateDirectoryObject_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateDirectoryObject(proc_t proc, const on_ZwCreateDirectoryObject_fn& on_func)
 {
     if(d_->observers_ZwCreateDirectoryObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateDirectoryObject@12", &on_ZwCreateDirectoryObject))
@@ -6647,7 +6647,7 @@ bool monitor::syscallswow64::register_ZwCreateDirectoryObject(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateEnlistment(proc_t proc, const on_ZwCreateEnlistment_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateEnlistment(proc_t proc, const on_ZwCreateEnlistment_fn& on_func)
 {
     if(d_->observers_ZwCreateEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateEnlistment@32", &on_ZwCreateEnlistment))
@@ -6657,7 +6657,7 @@ bool monitor::syscallswow64::register_ZwCreateEnlistment(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateEvent(proc_t proc, const on_NtCreateEvent_fn& on_func)
+bool monitor::syscalls32::register_NtCreateEvent(proc_t proc, const on_NtCreateEvent_fn& on_func)
 {
     if(d_->observers_NtCreateEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateEvent@20", &on_NtCreateEvent))
@@ -6667,7 +6667,7 @@ bool monitor::syscallswow64::register_NtCreateEvent(proc_t proc, const on_NtCrea
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateEventPair(proc_t proc, const on_NtCreateEventPair_fn& on_func)
+bool monitor::syscalls32::register_NtCreateEventPair(proc_t proc, const on_NtCreateEventPair_fn& on_func)
 {
     if(d_->observers_NtCreateEventPair.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateEventPair@12", &on_NtCreateEventPair))
@@ -6677,7 +6677,7 @@ bool monitor::syscallswow64::register_NtCreateEventPair(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateFile(proc_t proc, const on_NtCreateFile_fn& on_func)
+bool monitor::syscalls32::register_NtCreateFile(proc_t proc, const on_NtCreateFile_fn& on_func)
 {
     if(d_->observers_NtCreateFile.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateFile@44", &on_NtCreateFile))
@@ -6687,7 +6687,7 @@ bool monitor::syscallswow64::register_NtCreateFile(proc_t proc, const on_NtCreat
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateIoCompletion(proc_t proc, const on_NtCreateIoCompletion_fn& on_func)
+bool monitor::syscalls32::register_NtCreateIoCompletion(proc_t proc, const on_NtCreateIoCompletion_fn& on_func)
 {
     if(d_->observers_NtCreateIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateIoCompletion@16", &on_NtCreateIoCompletion))
@@ -6697,7 +6697,7 @@ bool monitor::syscallswow64::register_NtCreateIoCompletion(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateJobObject(proc_t proc, const on_ZwCreateJobObject_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateJobObject(proc_t proc, const on_ZwCreateJobObject_fn& on_func)
 {
     if(d_->observers_ZwCreateJobObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateJobObject@12", &on_ZwCreateJobObject))
@@ -6707,7 +6707,7 @@ bool monitor::syscallswow64::register_ZwCreateJobObject(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateJobSet(proc_t proc, const on_NtCreateJobSet_fn& on_func)
+bool monitor::syscalls32::register_NtCreateJobSet(proc_t proc, const on_NtCreateJobSet_fn& on_func)
 {
     if(d_->observers_NtCreateJobSet.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateJobSet@12", &on_NtCreateJobSet))
@@ -6717,7 +6717,7 @@ bool monitor::syscallswow64::register_NtCreateJobSet(proc_t proc, const on_NtCre
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateKeyedEvent(proc_t proc, const on_ZwCreateKeyedEvent_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateKeyedEvent(proc_t proc, const on_ZwCreateKeyedEvent_fn& on_func)
 {
     if(d_->observers_ZwCreateKeyedEvent.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateKeyedEvent@16", &on_ZwCreateKeyedEvent))
@@ -6727,7 +6727,7 @@ bool monitor::syscallswow64::register_ZwCreateKeyedEvent(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateKey(proc_t proc, const on_ZwCreateKey_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateKey(proc_t proc, const on_ZwCreateKey_fn& on_func)
 {
     if(d_->observers_ZwCreateKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateKey@28", &on_ZwCreateKey))
@@ -6737,7 +6737,7 @@ bool monitor::syscallswow64::register_ZwCreateKey(proc_t proc, const on_ZwCreate
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateKeyTransacted(proc_t proc, const on_NtCreateKeyTransacted_fn& on_func)
+bool monitor::syscalls32::register_NtCreateKeyTransacted(proc_t proc, const on_NtCreateKeyTransacted_fn& on_func)
 {
     if(d_->observers_NtCreateKeyTransacted.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateKeyTransacted@32", &on_NtCreateKeyTransacted))
@@ -6747,7 +6747,7 @@ bool monitor::syscallswow64::register_NtCreateKeyTransacted(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateMailslotFile(proc_t proc, const on_ZwCreateMailslotFile_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateMailslotFile(proc_t proc, const on_ZwCreateMailslotFile_fn& on_func)
 {
     if(d_->observers_ZwCreateMailslotFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateMailslotFile@32", &on_ZwCreateMailslotFile))
@@ -6757,7 +6757,7 @@ bool monitor::syscallswow64::register_ZwCreateMailslotFile(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateMutant(proc_t proc, const on_ZwCreateMutant_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateMutant(proc_t proc, const on_ZwCreateMutant_fn& on_func)
 {
     if(d_->observers_ZwCreateMutant.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateMutant@16", &on_ZwCreateMutant))
@@ -6767,7 +6767,7 @@ bool monitor::syscallswow64::register_ZwCreateMutant(proc_t proc, const on_ZwCre
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateNamedPipeFile(proc_t proc, const on_ZwCreateNamedPipeFile_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateNamedPipeFile(proc_t proc, const on_ZwCreateNamedPipeFile_fn& on_func)
 {
     if(d_->observers_ZwCreateNamedPipeFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateNamedPipeFile@56", &on_ZwCreateNamedPipeFile))
@@ -6777,7 +6777,7 @@ bool monitor::syscallswow64::register_ZwCreateNamedPipeFile(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreatePagingFile(proc_t proc, const on_NtCreatePagingFile_fn& on_func)
+bool monitor::syscalls32::register_NtCreatePagingFile(proc_t proc, const on_NtCreatePagingFile_fn& on_func)
 {
     if(d_->observers_NtCreatePagingFile.empty())
         if(!register_callback_with(*d_, proc, "_NtCreatePagingFile@16", &on_NtCreatePagingFile))
@@ -6787,7 +6787,7 @@ bool monitor::syscallswow64::register_NtCreatePagingFile(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreatePort(proc_t proc, const on_ZwCreatePort_fn& on_func)
+bool monitor::syscalls32::register_ZwCreatePort(proc_t proc, const on_ZwCreatePort_fn& on_func)
 {
     if(d_->observers_ZwCreatePort.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreatePort@20", &on_ZwCreatePort))
@@ -6797,7 +6797,7 @@ bool monitor::syscallswow64::register_ZwCreatePort(proc_t proc, const on_ZwCreat
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreatePrivateNamespace(proc_t proc, const on_NtCreatePrivateNamespace_fn& on_func)
+bool monitor::syscalls32::register_NtCreatePrivateNamespace(proc_t proc, const on_NtCreatePrivateNamespace_fn& on_func)
 {
     if(d_->observers_NtCreatePrivateNamespace.empty())
         if(!register_callback_with(*d_, proc, "_NtCreatePrivateNamespace@16", &on_NtCreatePrivateNamespace))
@@ -6807,7 +6807,7 @@ bool monitor::syscallswow64::register_NtCreatePrivateNamespace(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateProcessEx(proc_t proc, const on_ZwCreateProcessEx_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateProcessEx(proc_t proc, const on_ZwCreateProcessEx_fn& on_func)
 {
     if(d_->observers_ZwCreateProcessEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateProcessEx@36", &on_ZwCreateProcessEx))
@@ -6817,7 +6817,7 @@ bool monitor::syscallswow64::register_ZwCreateProcessEx(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateProcess(proc_t proc, const on_ZwCreateProcess_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateProcess(proc_t proc, const on_ZwCreateProcess_fn& on_func)
 {
     if(d_->observers_ZwCreateProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateProcess@32", &on_ZwCreateProcess))
@@ -6827,7 +6827,7 @@ bool monitor::syscallswow64::register_ZwCreateProcess(proc_t proc, const on_ZwCr
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateProfileEx(proc_t proc, const on_NtCreateProfileEx_fn& on_func)
+bool monitor::syscalls32::register_NtCreateProfileEx(proc_t proc, const on_NtCreateProfileEx_fn& on_func)
 {
     if(d_->observers_NtCreateProfileEx.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateProfileEx@40", &on_NtCreateProfileEx))
@@ -6837,7 +6837,7 @@ bool monitor::syscallswow64::register_NtCreateProfileEx(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateProfile(proc_t proc, const on_ZwCreateProfile_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateProfile(proc_t proc, const on_ZwCreateProfile_fn& on_func)
 {
     if(d_->observers_ZwCreateProfile.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateProfile@36", &on_ZwCreateProfile))
@@ -6847,7 +6847,7 @@ bool monitor::syscallswow64::register_ZwCreateProfile(proc_t proc, const on_ZwCr
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateResourceManager(proc_t proc, const on_ZwCreateResourceManager_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateResourceManager(proc_t proc, const on_ZwCreateResourceManager_fn& on_func)
 {
     if(d_->observers_ZwCreateResourceManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateResourceManager@28", &on_ZwCreateResourceManager))
@@ -6857,7 +6857,7 @@ bool monitor::syscallswow64::register_ZwCreateResourceManager(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateSection(proc_t proc, const on_NtCreateSection_fn& on_func)
+bool monitor::syscalls32::register_NtCreateSection(proc_t proc, const on_NtCreateSection_fn& on_func)
 {
     if(d_->observers_NtCreateSection.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateSection@28", &on_NtCreateSection))
@@ -6867,7 +6867,7 @@ bool monitor::syscallswow64::register_NtCreateSection(proc_t proc, const on_NtCr
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateSemaphore(proc_t proc, const on_NtCreateSemaphore_fn& on_func)
+bool monitor::syscalls32::register_NtCreateSemaphore(proc_t proc, const on_NtCreateSemaphore_fn& on_func)
 {
     if(d_->observers_NtCreateSemaphore.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateSemaphore@20", &on_NtCreateSemaphore))
@@ -6877,7 +6877,7 @@ bool monitor::syscallswow64::register_NtCreateSemaphore(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateSymbolicLinkObject(proc_t proc, const on_ZwCreateSymbolicLinkObject_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateSymbolicLinkObject(proc_t proc, const on_ZwCreateSymbolicLinkObject_fn& on_func)
 {
     if(d_->observers_ZwCreateSymbolicLinkObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateSymbolicLinkObject@16", &on_ZwCreateSymbolicLinkObject))
@@ -6887,7 +6887,7 @@ bool monitor::syscallswow64::register_ZwCreateSymbolicLinkObject(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateThreadEx(proc_t proc, const on_NtCreateThreadEx_fn& on_func)
+bool monitor::syscalls32::register_NtCreateThreadEx(proc_t proc, const on_NtCreateThreadEx_fn& on_func)
 {
     if(d_->observers_NtCreateThreadEx.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateThreadEx@44", &on_NtCreateThreadEx))
@@ -6897,7 +6897,7 @@ bool monitor::syscallswow64::register_NtCreateThreadEx(proc_t proc, const on_NtC
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateThread(proc_t proc, const on_NtCreateThread_fn& on_func)
+bool monitor::syscalls32::register_NtCreateThread(proc_t proc, const on_NtCreateThread_fn& on_func)
 {
     if(d_->observers_NtCreateThread.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateThread@32", &on_NtCreateThread))
@@ -6907,7 +6907,7 @@ bool monitor::syscallswow64::register_NtCreateThread(proc_t proc, const on_NtCre
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateTimer(proc_t proc, const on_ZwCreateTimer_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateTimer(proc_t proc, const on_ZwCreateTimer_fn& on_func)
 {
     if(d_->observers_ZwCreateTimer.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateTimer@16", &on_ZwCreateTimer))
@@ -6917,7 +6917,7 @@ bool monitor::syscallswow64::register_ZwCreateTimer(proc_t proc, const on_ZwCrea
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateToken(proc_t proc, const on_NtCreateToken_fn& on_func)
+bool monitor::syscalls32::register_NtCreateToken(proc_t proc, const on_NtCreateToken_fn& on_func)
 {
     if(d_->observers_NtCreateToken.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateToken@52", &on_NtCreateToken))
@@ -6927,7 +6927,7 @@ bool monitor::syscallswow64::register_NtCreateToken(proc_t proc, const on_NtCrea
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateTransactionManager(proc_t proc, const on_ZwCreateTransactionManager_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateTransactionManager(proc_t proc, const on_ZwCreateTransactionManager_fn& on_func)
 {
     if(d_->observers_ZwCreateTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateTransactionManager@24", &on_ZwCreateTransactionManager))
@@ -6937,7 +6937,7 @@ bool monitor::syscallswow64::register_ZwCreateTransactionManager(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateTransaction(proc_t proc, const on_NtCreateTransaction_fn& on_func)
+bool monitor::syscalls32::register_NtCreateTransaction(proc_t proc, const on_NtCreateTransaction_fn& on_func)
 {
     if(d_->observers_NtCreateTransaction.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateTransaction@40", &on_NtCreateTransaction))
@@ -6947,7 +6947,7 @@ bool monitor::syscallswow64::register_NtCreateTransaction(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateUserProcess(proc_t proc, const on_NtCreateUserProcess_fn& on_func)
+bool monitor::syscalls32::register_NtCreateUserProcess(proc_t proc, const on_NtCreateUserProcess_fn& on_func)
 {
     if(d_->observers_NtCreateUserProcess.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateUserProcess@44", &on_NtCreateUserProcess))
@@ -6957,7 +6957,7 @@ bool monitor::syscallswow64::register_NtCreateUserProcess(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwCreateWaitablePort(proc_t proc, const on_ZwCreateWaitablePort_fn& on_func)
+bool monitor::syscalls32::register_ZwCreateWaitablePort(proc_t proc, const on_ZwCreateWaitablePort_fn& on_func)
 {
     if(d_->observers_ZwCreateWaitablePort.empty())
         if(!register_callback_with(*d_, proc, "_ZwCreateWaitablePort@20", &on_ZwCreateWaitablePort))
@@ -6967,7 +6967,7 @@ bool monitor::syscallswow64::register_ZwCreateWaitablePort(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtCreateWorkerFactory(proc_t proc, const on_NtCreateWorkerFactory_fn& on_func)
+bool monitor::syscalls32::register_NtCreateWorkerFactory(proc_t proc, const on_NtCreateWorkerFactory_fn& on_func)
 {
     if(d_->observers_NtCreateWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "_NtCreateWorkerFactory@40", &on_NtCreateWorkerFactory))
@@ -6977,7 +6977,7 @@ bool monitor::syscallswow64::register_NtCreateWorkerFactory(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtDebugActiveProcess(proc_t proc, const on_NtDebugActiveProcess_fn& on_func)
+bool monitor::syscalls32::register_NtDebugActiveProcess(proc_t proc, const on_NtDebugActiveProcess_fn& on_func)
 {
     if(d_->observers_NtDebugActiveProcess.empty())
         if(!register_callback_with(*d_, proc, "_NtDebugActiveProcess@8", &on_NtDebugActiveProcess))
@@ -6987,7 +6987,7 @@ bool monitor::syscallswow64::register_NtDebugActiveProcess(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwDebugContinue(proc_t proc, const on_ZwDebugContinue_fn& on_func)
+bool monitor::syscalls32::register_ZwDebugContinue(proc_t proc, const on_ZwDebugContinue_fn& on_func)
 {
     if(d_->observers_ZwDebugContinue.empty())
         if(!register_callback_with(*d_, proc, "_ZwDebugContinue@12", &on_ZwDebugContinue))
@@ -6997,7 +6997,7 @@ bool monitor::syscallswow64::register_ZwDebugContinue(proc_t proc, const on_ZwDe
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwDelayExecution(proc_t proc, const on_ZwDelayExecution_fn& on_func)
+bool monitor::syscalls32::register_ZwDelayExecution(proc_t proc, const on_ZwDelayExecution_fn& on_func)
 {
     if(d_->observers_ZwDelayExecution.empty())
         if(!register_callback_with(*d_, proc, "_ZwDelayExecution@8", &on_ZwDelayExecution))
@@ -7007,7 +7007,7 @@ bool monitor::syscallswow64::register_ZwDelayExecution(proc_t proc, const on_ZwD
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwDeleteAtom(proc_t proc, const on_ZwDeleteAtom_fn& on_func)
+bool monitor::syscalls32::register_ZwDeleteAtom(proc_t proc, const on_ZwDeleteAtom_fn& on_func)
 {
     if(d_->observers_ZwDeleteAtom.empty())
         if(!register_callback_with(*d_, proc, "_ZwDeleteAtom@4", &on_ZwDeleteAtom))
@@ -7017,7 +7017,7 @@ bool monitor::syscallswow64::register_ZwDeleteAtom(proc_t proc, const on_ZwDelet
     return true;
 }
 
-bool monitor::syscallswow64::register_NtDeleteBootEntry(proc_t proc, const on_NtDeleteBootEntry_fn& on_func)
+bool monitor::syscalls32::register_NtDeleteBootEntry(proc_t proc, const on_NtDeleteBootEntry_fn& on_func)
 {
     if(d_->observers_NtDeleteBootEntry.empty())
         if(!register_callback_with(*d_, proc, "_NtDeleteBootEntry@4", &on_NtDeleteBootEntry))
@@ -7027,7 +7027,7 @@ bool monitor::syscallswow64::register_NtDeleteBootEntry(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwDeleteDriverEntry(proc_t proc, const on_ZwDeleteDriverEntry_fn& on_func)
+bool monitor::syscalls32::register_ZwDeleteDriverEntry(proc_t proc, const on_ZwDeleteDriverEntry_fn& on_func)
 {
     if(d_->observers_ZwDeleteDriverEntry.empty())
         if(!register_callback_with(*d_, proc, "_ZwDeleteDriverEntry@4", &on_ZwDeleteDriverEntry))
@@ -7037,7 +7037,7 @@ bool monitor::syscallswow64::register_ZwDeleteDriverEntry(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtDeleteFile(proc_t proc, const on_NtDeleteFile_fn& on_func)
+bool monitor::syscalls32::register_NtDeleteFile(proc_t proc, const on_NtDeleteFile_fn& on_func)
 {
     if(d_->observers_NtDeleteFile.empty())
         if(!register_callback_with(*d_, proc, "_NtDeleteFile@4", &on_NtDeleteFile))
@@ -7047,7 +7047,7 @@ bool monitor::syscallswow64::register_NtDeleteFile(proc_t proc, const on_NtDelet
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwDeleteKey(proc_t proc, const on_ZwDeleteKey_fn& on_func)
+bool monitor::syscalls32::register_ZwDeleteKey(proc_t proc, const on_ZwDeleteKey_fn& on_func)
 {
     if(d_->observers_ZwDeleteKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwDeleteKey@4", &on_ZwDeleteKey))
@@ -7057,7 +7057,7 @@ bool monitor::syscallswow64::register_ZwDeleteKey(proc_t proc, const on_ZwDelete
     return true;
 }
 
-bool monitor::syscallswow64::register_NtDeleteObjectAuditAlarm(proc_t proc, const on_NtDeleteObjectAuditAlarm_fn& on_func)
+bool monitor::syscalls32::register_NtDeleteObjectAuditAlarm(proc_t proc, const on_NtDeleteObjectAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtDeleteObjectAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_NtDeleteObjectAuditAlarm@12", &on_NtDeleteObjectAuditAlarm))
@@ -7067,7 +7067,7 @@ bool monitor::syscallswow64::register_NtDeleteObjectAuditAlarm(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_NtDeletePrivateNamespace(proc_t proc, const on_NtDeletePrivateNamespace_fn& on_func)
+bool monitor::syscalls32::register_NtDeletePrivateNamespace(proc_t proc, const on_NtDeletePrivateNamespace_fn& on_func)
 {
     if(d_->observers_NtDeletePrivateNamespace.empty())
         if(!register_callback_with(*d_, proc, "_NtDeletePrivateNamespace@4", &on_NtDeletePrivateNamespace))
@@ -7077,7 +7077,7 @@ bool monitor::syscallswow64::register_NtDeletePrivateNamespace(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_NtDeleteValueKey(proc_t proc, const on_NtDeleteValueKey_fn& on_func)
+bool monitor::syscalls32::register_NtDeleteValueKey(proc_t proc, const on_NtDeleteValueKey_fn& on_func)
 {
     if(d_->observers_NtDeleteValueKey.empty())
         if(!register_callback_with(*d_, proc, "_NtDeleteValueKey@8", &on_NtDeleteValueKey))
@@ -7087,7 +7087,7 @@ bool monitor::syscallswow64::register_NtDeleteValueKey(proc_t proc, const on_NtD
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwDeviceIoControlFile(proc_t proc, const on_ZwDeviceIoControlFile_fn& on_func)
+bool monitor::syscalls32::register_ZwDeviceIoControlFile(proc_t proc, const on_ZwDeviceIoControlFile_fn& on_func)
 {
     if(d_->observers_ZwDeviceIoControlFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwDeviceIoControlFile@40", &on_ZwDeviceIoControlFile))
@@ -7097,7 +7097,7 @@ bool monitor::syscallswow64::register_ZwDeviceIoControlFile(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtDisplayString(proc_t proc, const on_NtDisplayString_fn& on_func)
+bool monitor::syscalls32::register_NtDisplayString(proc_t proc, const on_NtDisplayString_fn& on_func)
 {
     if(d_->observers_NtDisplayString.empty())
         if(!register_callback_with(*d_, proc, "_NtDisplayString@4", &on_NtDisplayString))
@@ -7107,7 +7107,7 @@ bool monitor::syscallswow64::register_NtDisplayString(proc_t proc, const on_NtDi
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwDrawText(proc_t proc, const on_ZwDrawText_fn& on_func)
+bool monitor::syscalls32::register_ZwDrawText(proc_t proc, const on_ZwDrawText_fn& on_func)
 {
     if(d_->observers_ZwDrawText.empty())
         if(!register_callback_with(*d_, proc, "_ZwDrawText@4", &on_ZwDrawText))
@@ -7117,7 +7117,7 @@ bool monitor::syscallswow64::register_ZwDrawText(proc_t proc, const on_ZwDrawTex
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwDuplicateObject(proc_t proc, const on_ZwDuplicateObject_fn& on_func)
+bool monitor::syscalls32::register_ZwDuplicateObject(proc_t proc, const on_ZwDuplicateObject_fn& on_func)
 {
     if(d_->observers_ZwDuplicateObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwDuplicateObject@28", &on_ZwDuplicateObject))
@@ -7127,7 +7127,7 @@ bool monitor::syscallswow64::register_ZwDuplicateObject(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscallswow64::register_NtDuplicateToken(proc_t proc, const on_NtDuplicateToken_fn& on_func)
+bool monitor::syscalls32::register_NtDuplicateToken(proc_t proc, const on_NtDuplicateToken_fn& on_func)
 {
     if(d_->observers_NtDuplicateToken.empty())
         if(!register_callback_with(*d_, proc, "_NtDuplicateToken@24", &on_NtDuplicateToken))
@@ -7137,7 +7137,7 @@ bool monitor::syscallswow64::register_NtDuplicateToken(proc_t proc, const on_NtD
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwEnumerateBootEntries(proc_t proc, const on_ZwEnumerateBootEntries_fn& on_func)
+bool monitor::syscalls32::register_ZwEnumerateBootEntries(proc_t proc, const on_ZwEnumerateBootEntries_fn& on_func)
 {
     if(d_->observers_ZwEnumerateBootEntries.empty())
         if(!register_callback_with(*d_, proc, "_ZwEnumerateBootEntries@8", &on_ZwEnumerateBootEntries))
@@ -7147,7 +7147,7 @@ bool monitor::syscallswow64::register_ZwEnumerateBootEntries(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtEnumerateDriverEntries(proc_t proc, const on_NtEnumerateDriverEntries_fn& on_func)
+bool monitor::syscalls32::register_NtEnumerateDriverEntries(proc_t proc, const on_NtEnumerateDriverEntries_fn& on_func)
 {
     if(d_->observers_NtEnumerateDriverEntries.empty())
         if(!register_callback_with(*d_, proc, "_NtEnumerateDriverEntries@8", &on_NtEnumerateDriverEntries))
@@ -7157,7 +7157,7 @@ bool monitor::syscallswow64::register_NtEnumerateDriverEntries(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwEnumerateKey(proc_t proc, const on_ZwEnumerateKey_fn& on_func)
+bool monitor::syscalls32::register_ZwEnumerateKey(proc_t proc, const on_ZwEnumerateKey_fn& on_func)
 {
     if(d_->observers_ZwEnumerateKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwEnumerateKey@24", &on_ZwEnumerateKey))
@@ -7167,7 +7167,7 @@ bool monitor::syscallswow64::register_ZwEnumerateKey(proc_t proc, const on_ZwEnu
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwEnumerateSystemEnvironmentValuesEx(proc_t proc, const on_ZwEnumerateSystemEnvironmentValuesEx_fn& on_func)
+bool monitor::syscalls32::register_ZwEnumerateSystemEnvironmentValuesEx(proc_t proc, const on_ZwEnumerateSystemEnvironmentValuesEx_fn& on_func)
 {
     if(d_->observers_ZwEnumerateSystemEnvironmentValuesEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwEnumerateSystemEnvironmentValuesEx@12", &on_ZwEnumerateSystemEnvironmentValuesEx))
@@ -7177,7 +7177,7 @@ bool monitor::syscallswow64::register_ZwEnumerateSystemEnvironmentValuesEx(proc_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwEnumerateTransactionObject(proc_t proc, const on_ZwEnumerateTransactionObject_fn& on_func)
+bool monitor::syscalls32::register_ZwEnumerateTransactionObject(proc_t proc, const on_ZwEnumerateTransactionObject_fn& on_func)
 {
     if(d_->observers_ZwEnumerateTransactionObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwEnumerateTransactionObject@20", &on_ZwEnumerateTransactionObject))
@@ -7187,7 +7187,7 @@ bool monitor::syscallswow64::register_ZwEnumerateTransactionObject(proc_t proc, 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtEnumerateValueKey(proc_t proc, const on_NtEnumerateValueKey_fn& on_func)
+bool monitor::syscalls32::register_NtEnumerateValueKey(proc_t proc, const on_NtEnumerateValueKey_fn& on_func)
 {
     if(d_->observers_NtEnumerateValueKey.empty())
         if(!register_callback_with(*d_, proc, "_NtEnumerateValueKey@24", &on_NtEnumerateValueKey))
@@ -7197,7 +7197,7 @@ bool monitor::syscallswow64::register_NtEnumerateValueKey(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwExtendSection(proc_t proc, const on_ZwExtendSection_fn& on_func)
+bool monitor::syscalls32::register_ZwExtendSection(proc_t proc, const on_ZwExtendSection_fn& on_func)
 {
     if(d_->observers_ZwExtendSection.empty())
         if(!register_callback_with(*d_, proc, "_ZwExtendSection@8", &on_ZwExtendSection))
@@ -7207,7 +7207,7 @@ bool monitor::syscallswow64::register_ZwExtendSection(proc_t proc, const on_ZwEx
     return true;
 }
 
-bool monitor::syscallswow64::register_NtFilterToken(proc_t proc, const on_NtFilterToken_fn& on_func)
+bool monitor::syscalls32::register_NtFilterToken(proc_t proc, const on_NtFilterToken_fn& on_func)
 {
     if(d_->observers_NtFilterToken.empty())
         if(!register_callback_with(*d_, proc, "_NtFilterToken@24", &on_NtFilterToken))
@@ -7217,7 +7217,7 @@ bool monitor::syscallswow64::register_NtFilterToken(proc_t proc, const on_NtFilt
     return true;
 }
 
-bool monitor::syscallswow64::register_NtFindAtom(proc_t proc, const on_NtFindAtom_fn& on_func)
+bool monitor::syscalls32::register_NtFindAtom(proc_t proc, const on_NtFindAtom_fn& on_func)
 {
     if(d_->observers_NtFindAtom.empty())
         if(!register_callback_with(*d_, proc, "_NtFindAtom@12", &on_NtFindAtom))
@@ -7227,7 +7227,7 @@ bool monitor::syscallswow64::register_NtFindAtom(proc_t proc, const on_NtFindAto
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwFlushBuffersFile(proc_t proc, const on_ZwFlushBuffersFile_fn& on_func)
+bool monitor::syscalls32::register_ZwFlushBuffersFile(proc_t proc, const on_ZwFlushBuffersFile_fn& on_func)
 {
     if(d_->observers_ZwFlushBuffersFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwFlushBuffersFile@8", &on_ZwFlushBuffersFile))
@@ -7237,7 +7237,7 @@ bool monitor::syscallswow64::register_ZwFlushBuffersFile(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwFlushInstallUILanguage(proc_t proc, const on_ZwFlushInstallUILanguage_fn& on_func)
+bool monitor::syscalls32::register_ZwFlushInstallUILanguage(proc_t proc, const on_ZwFlushInstallUILanguage_fn& on_func)
 {
     if(d_->observers_ZwFlushInstallUILanguage.empty())
         if(!register_callback_with(*d_, proc, "_ZwFlushInstallUILanguage@8", &on_ZwFlushInstallUILanguage))
@@ -7247,7 +7247,7 @@ bool monitor::syscallswow64::register_ZwFlushInstallUILanguage(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwFlushInstructionCache(proc_t proc, const on_ZwFlushInstructionCache_fn& on_func)
+bool monitor::syscalls32::register_ZwFlushInstructionCache(proc_t proc, const on_ZwFlushInstructionCache_fn& on_func)
 {
     if(d_->observers_ZwFlushInstructionCache.empty())
         if(!register_callback_with(*d_, proc, "_ZwFlushInstructionCache@12", &on_ZwFlushInstructionCache))
@@ -7257,7 +7257,7 @@ bool monitor::syscallswow64::register_ZwFlushInstructionCache(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_NtFlushKey(proc_t proc, const on_NtFlushKey_fn& on_func)
+bool monitor::syscalls32::register_NtFlushKey(proc_t proc, const on_NtFlushKey_fn& on_func)
 {
     if(d_->observers_NtFlushKey.empty())
         if(!register_callback_with(*d_, proc, "_NtFlushKey@4", &on_NtFlushKey))
@@ -7267,7 +7267,7 @@ bool monitor::syscallswow64::register_NtFlushKey(proc_t proc, const on_NtFlushKe
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwFlushVirtualMemory(proc_t proc, const on_ZwFlushVirtualMemory_fn& on_func)
+bool monitor::syscalls32::register_ZwFlushVirtualMemory(proc_t proc, const on_ZwFlushVirtualMemory_fn& on_func)
 {
     if(d_->observers_ZwFlushVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_ZwFlushVirtualMemory@16", &on_ZwFlushVirtualMemory))
@@ -7277,7 +7277,7 @@ bool monitor::syscallswow64::register_ZwFlushVirtualMemory(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtFreeUserPhysicalPages(proc_t proc, const on_NtFreeUserPhysicalPages_fn& on_func)
+bool monitor::syscalls32::register_NtFreeUserPhysicalPages(proc_t proc, const on_NtFreeUserPhysicalPages_fn& on_func)
 {
     if(d_->observers_NtFreeUserPhysicalPages.empty())
         if(!register_callback_with(*d_, proc, "_NtFreeUserPhysicalPages@12", &on_NtFreeUserPhysicalPages))
@@ -7287,7 +7287,7 @@ bool monitor::syscallswow64::register_NtFreeUserPhysicalPages(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_NtFreeVirtualMemory(proc_t proc, const on_NtFreeVirtualMemory_fn& on_func)
+bool monitor::syscalls32::register_NtFreeVirtualMemory(proc_t proc, const on_NtFreeVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtFreeVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_NtFreeVirtualMemory@16", &on_NtFreeVirtualMemory))
@@ -7297,7 +7297,7 @@ bool monitor::syscallswow64::register_NtFreeVirtualMemory(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtFreezeRegistry(proc_t proc, const on_NtFreezeRegistry_fn& on_func)
+bool monitor::syscalls32::register_NtFreezeRegistry(proc_t proc, const on_NtFreezeRegistry_fn& on_func)
 {
     if(d_->observers_NtFreezeRegistry.empty())
         if(!register_callback_with(*d_, proc, "_NtFreezeRegistry@4", &on_NtFreezeRegistry))
@@ -7307,7 +7307,7 @@ bool monitor::syscallswow64::register_NtFreezeRegistry(proc_t proc, const on_NtF
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwFreezeTransactions(proc_t proc, const on_ZwFreezeTransactions_fn& on_func)
+bool monitor::syscalls32::register_ZwFreezeTransactions(proc_t proc, const on_ZwFreezeTransactions_fn& on_func)
 {
     if(d_->observers_ZwFreezeTransactions.empty())
         if(!register_callback_with(*d_, proc, "_ZwFreezeTransactions@8", &on_ZwFreezeTransactions))
@@ -7317,7 +7317,7 @@ bool monitor::syscallswow64::register_ZwFreezeTransactions(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtFsControlFile(proc_t proc, const on_NtFsControlFile_fn& on_func)
+bool monitor::syscalls32::register_NtFsControlFile(proc_t proc, const on_NtFsControlFile_fn& on_func)
 {
     if(d_->observers_NtFsControlFile.empty())
         if(!register_callback_with(*d_, proc, "_NtFsControlFile@40", &on_NtFsControlFile))
@@ -7327,7 +7327,7 @@ bool monitor::syscallswow64::register_NtFsControlFile(proc_t proc, const on_NtFs
     return true;
 }
 
-bool monitor::syscallswow64::register_NtGetContextThread(proc_t proc, const on_NtGetContextThread_fn& on_func)
+bool monitor::syscalls32::register_NtGetContextThread(proc_t proc, const on_NtGetContextThread_fn& on_func)
 {
     if(d_->observers_NtGetContextThread.empty())
         if(!register_callback_with(*d_, proc, "_NtGetContextThread@8", &on_NtGetContextThread))
@@ -7337,7 +7337,7 @@ bool monitor::syscallswow64::register_NtGetContextThread(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_NtGetDevicePowerState(proc_t proc, const on_NtGetDevicePowerState_fn& on_func)
+bool monitor::syscalls32::register_NtGetDevicePowerState(proc_t proc, const on_NtGetDevicePowerState_fn& on_func)
 {
     if(d_->observers_NtGetDevicePowerState.empty())
         if(!register_callback_with(*d_, proc, "_NtGetDevicePowerState@8", &on_NtGetDevicePowerState))
@@ -7347,7 +7347,7 @@ bool monitor::syscallswow64::register_NtGetDevicePowerState(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtGetMUIRegistryInfo(proc_t proc, const on_NtGetMUIRegistryInfo_fn& on_func)
+bool monitor::syscalls32::register_NtGetMUIRegistryInfo(proc_t proc, const on_NtGetMUIRegistryInfo_fn& on_func)
 {
     if(d_->observers_NtGetMUIRegistryInfo.empty())
         if(!register_callback_with(*d_, proc, "_NtGetMUIRegistryInfo@12", &on_NtGetMUIRegistryInfo))
@@ -7357,7 +7357,7 @@ bool monitor::syscallswow64::register_NtGetMUIRegistryInfo(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwGetNextProcess(proc_t proc, const on_ZwGetNextProcess_fn& on_func)
+bool monitor::syscalls32::register_ZwGetNextProcess(proc_t proc, const on_ZwGetNextProcess_fn& on_func)
 {
     if(d_->observers_ZwGetNextProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwGetNextProcess@20", &on_ZwGetNextProcess))
@@ -7367,7 +7367,7 @@ bool monitor::syscallswow64::register_ZwGetNextProcess(proc_t proc, const on_ZwG
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwGetNextThread(proc_t proc, const on_ZwGetNextThread_fn& on_func)
+bool monitor::syscalls32::register_ZwGetNextThread(proc_t proc, const on_ZwGetNextThread_fn& on_func)
 {
     if(d_->observers_ZwGetNextThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwGetNextThread@24", &on_ZwGetNextThread))
@@ -7377,7 +7377,7 @@ bool monitor::syscallswow64::register_ZwGetNextThread(proc_t proc, const on_ZwGe
     return true;
 }
 
-bool monitor::syscallswow64::register_NtGetNlsSectionPtr(proc_t proc, const on_NtGetNlsSectionPtr_fn& on_func)
+bool monitor::syscalls32::register_NtGetNlsSectionPtr(proc_t proc, const on_NtGetNlsSectionPtr_fn& on_func)
 {
     if(d_->observers_NtGetNlsSectionPtr.empty())
         if(!register_callback_with(*d_, proc, "_NtGetNlsSectionPtr@20", &on_NtGetNlsSectionPtr))
@@ -7387,7 +7387,7 @@ bool monitor::syscallswow64::register_NtGetNlsSectionPtr(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwGetNotificationResourceManager(proc_t proc, const on_ZwGetNotificationResourceManager_fn& on_func)
+bool monitor::syscalls32::register_ZwGetNotificationResourceManager(proc_t proc, const on_ZwGetNotificationResourceManager_fn& on_func)
 {
     if(d_->observers_ZwGetNotificationResourceManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwGetNotificationResourceManager@28", &on_ZwGetNotificationResourceManager))
@@ -7397,7 +7397,7 @@ bool monitor::syscallswow64::register_ZwGetNotificationResourceManager(proc_t pr
     return true;
 }
 
-bool monitor::syscallswow64::register_NtGetWriteWatch(proc_t proc, const on_NtGetWriteWatch_fn& on_func)
+bool monitor::syscalls32::register_NtGetWriteWatch(proc_t proc, const on_NtGetWriteWatch_fn& on_func)
 {
     if(d_->observers_NtGetWriteWatch.empty())
         if(!register_callback_with(*d_, proc, "_NtGetWriteWatch@28", &on_NtGetWriteWatch))
@@ -7407,7 +7407,7 @@ bool monitor::syscallswow64::register_NtGetWriteWatch(proc_t proc, const on_NtGe
     return true;
 }
 
-bool monitor::syscallswow64::register_NtImpersonateAnonymousToken(proc_t proc, const on_NtImpersonateAnonymousToken_fn& on_func)
+bool monitor::syscalls32::register_NtImpersonateAnonymousToken(proc_t proc, const on_NtImpersonateAnonymousToken_fn& on_func)
 {
     if(d_->observers_NtImpersonateAnonymousToken.empty())
         if(!register_callback_with(*d_, proc, "_NtImpersonateAnonymousToken@4", &on_NtImpersonateAnonymousToken))
@@ -7417,7 +7417,7 @@ bool monitor::syscallswow64::register_NtImpersonateAnonymousToken(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwImpersonateClientOfPort(proc_t proc, const on_ZwImpersonateClientOfPort_fn& on_func)
+bool monitor::syscalls32::register_ZwImpersonateClientOfPort(proc_t proc, const on_ZwImpersonateClientOfPort_fn& on_func)
 {
     if(d_->observers_ZwImpersonateClientOfPort.empty())
         if(!register_callback_with(*d_, proc, "_ZwImpersonateClientOfPort@8", &on_ZwImpersonateClientOfPort))
@@ -7427,7 +7427,7 @@ bool monitor::syscallswow64::register_ZwImpersonateClientOfPort(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwImpersonateThread(proc_t proc, const on_ZwImpersonateThread_fn& on_func)
+bool monitor::syscalls32::register_ZwImpersonateThread(proc_t proc, const on_ZwImpersonateThread_fn& on_func)
 {
     if(d_->observers_ZwImpersonateThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwImpersonateThread@12", &on_ZwImpersonateThread))
@@ -7437,7 +7437,7 @@ bool monitor::syscallswow64::register_ZwImpersonateThread(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtInitializeNlsFiles(proc_t proc, const on_NtInitializeNlsFiles_fn& on_func)
+bool monitor::syscalls32::register_NtInitializeNlsFiles(proc_t proc, const on_NtInitializeNlsFiles_fn& on_func)
 {
     if(d_->observers_NtInitializeNlsFiles.empty())
         if(!register_callback_with(*d_, proc, "_NtInitializeNlsFiles@12", &on_NtInitializeNlsFiles))
@@ -7447,7 +7447,7 @@ bool monitor::syscallswow64::register_NtInitializeNlsFiles(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwInitializeRegistry(proc_t proc, const on_ZwInitializeRegistry_fn& on_func)
+bool monitor::syscalls32::register_ZwInitializeRegistry(proc_t proc, const on_ZwInitializeRegistry_fn& on_func)
 {
     if(d_->observers_ZwInitializeRegistry.empty())
         if(!register_callback_with(*d_, proc, "_ZwInitializeRegistry@4", &on_ZwInitializeRegistry))
@@ -7457,7 +7457,7 @@ bool monitor::syscallswow64::register_ZwInitializeRegistry(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtInitiatePowerAction(proc_t proc, const on_NtInitiatePowerAction_fn& on_func)
+bool monitor::syscalls32::register_NtInitiatePowerAction(proc_t proc, const on_NtInitiatePowerAction_fn& on_func)
 {
     if(d_->observers_NtInitiatePowerAction.empty())
         if(!register_callback_with(*d_, proc, "_NtInitiatePowerAction@16", &on_NtInitiatePowerAction))
@@ -7467,7 +7467,7 @@ bool monitor::syscallswow64::register_NtInitiatePowerAction(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwIsProcessInJob(proc_t proc, const on_ZwIsProcessInJob_fn& on_func)
+bool monitor::syscalls32::register_ZwIsProcessInJob(proc_t proc, const on_ZwIsProcessInJob_fn& on_func)
 {
     if(d_->observers_ZwIsProcessInJob.empty())
         if(!register_callback_with(*d_, proc, "_ZwIsProcessInJob@8", &on_ZwIsProcessInJob))
@@ -7477,7 +7477,7 @@ bool monitor::syscallswow64::register_ZwIsProcessInJob(proc_t proc, const on_ZwI
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwListenPort(proc_t proc, const on_ZwListenPort_fn& on_func)
+bool monitor::syscalls32::register_ZwListenPort(proc_t proc, const on_ZwListenPort_fn& on_func)
 {
     if(d_->observers_ZwListenPort.empty())
         if(!register_callback_with(*d_, proc, "_ZwListenPort@8", &on_ZwListenPort))
@@ -7487,7 +7487,7 @@ bool monitor::syscallswow64::register_ZwListenPort(proc_t proc, const on_ZwListe
     return true;
 }
 
-bool monitor::syscallswow64::register_NtLoadDriver(proc_t proc, const on_NtLoadDriver_fn& on_func)
+bool monitor::syscalls32::register_NtLoadDriver(proc_t proc, const on_NtLoadDriver_fn& on_func)
 {
     if(d_->observers_NtLoadDriver.empty())
         if(!register_callback_with(*d_, proc, "_NtLoadDriver@4", &on_NtLoadDriver))
@@ -7497,7 +7497,7 @@ bool monitor::syscallswow64::register_NtLoadDriver(proc_t proc, const on_NtLoadD
     return true;
 }
 
-bool monitor::syscallswow64::register_NtLoadKey2(proc_t proc, const on_NtLoadKey2_fn& on_func)
+bool monitor::syscalls32::register_NtLoadKey2(proc_t proc, const on_NtLoadKey2_fn& on_func)
 {
     if(d_->observers_NtLoadKey2.empty())
         if(!register_callback_with(*d_, proc, "_NtLoadKey2@12", &on_NtLoadKey2))
@@ -7507,7 +7507,7 @@ bool monitor::syscallswow64::register_NtLoadKey2(proc_t proc, const on_NtLoadKey
     return true;
 }
 
-bool monitor::syscallswow64::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_fn& on_func)
+bool monitor::syscalls32::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_fn& on_func)
 {
     if(d_->observers_NtLoadKeyEx.empty())
         if(!register_callback_with(*d_, proc, "_NtLoadKeyEx@32", &on_NtLoadKeyEx))
@@ -7517,7 +7517,7 @@ bool monitor::syscallswow64::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKe
     return true;
 }
 
-bool monitor::syscallswow64::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn& on_func)
+bool monitor::syscalls32::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn& on_func)
 {
     if(d_->observers_NtLoadKey.empty())
         if(!register_callback_with(*d_, proc, "_NtLoadKey@8", &on_NtLoadKey))
@@ -7527,7 +7527,7 @@ bool monitor::syscallswow64::register_NtLoadKey(proc_t proc, const on_NtLoadKey_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtLockFile(proc_t proc, const on_NtLockFile_fn& on_func)
+bool monitor::syscalls32::register_NtLockFile(proc_t proc, const on_NtLockFile_fn& on_func)
 {
     if(d_->observers_NtLockFile.empty())
         if(!register_callback_with(*d_, proc, "_NtLockFile@40", &on_NtLockFile))
@@ -7537,7 +7537,7 @@ bool monitor::syscallswow64::register_NtLockFile(proc_t proc, const on_NtLockFil
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwLockProductActivationKeys(proc_t proc, const on_ZwLockProductActivationKeys_fn& on_func)
+bool monitor::syscalls32::register_ZwLockProductActivationKeys(proc_t proc, const on_ZwLockProductActivationKeys_fn& on_func)
 {
     if(d_->observers_ZwLockProductActivationKeys.empty())
         if(!register_callback_with(*d_, proc, "_ZwLockProductActivationKeys@8", &on_ZwLockProductActivationKeys))
@@ -7547,7 +7547,7 @@ bool monitor::syscallswow64::register_ZwLockProductActivationKeys(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_NtLockRegistryKey(proc_t proc, const on_NtLockRegistryKey_fn& on_func)
+bool monitor::syscalls32::register_NtLockRegistryKey(proc_t proc, const on_NtLockRegistryKey_fn& on_func)
 {
     if(d_->observers_NtLockRegistryKey.empty())
         if(!register_callback_with(*d_, proc, "_NtLockRegistryKey@4", &on_NtLockRegistryKey))
@@ -7557,7 +7557,7 @@ bool monitor::syscallswow64::register_NtLockRegistryKey(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwLockVirtualMemory(proc_t proc, const on_ZwLockVirtualMemory_fn& on_func)
+bool monitor::syscalls32::register_ZwLockVirtualMemory(proc_t proc, const on_ZwLockVirtualMemory_fn& on_func)
 {
     if(d_->observers_ZwLockVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_ZwLockVirtualMemory@16", &on_ZwLockVirtualMemory))
@@ -7567,7 +7567,7 @@ bool monitor::syscallswow64::register_ZwLockVirtualMemory(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwMakePermanentObject(proc_t proc, const on_ZwMakePermanentObject_fn& on_func)
+bool monitor::syscalls32::register_ZwMakePermanentObject(proc_t proc, const on_ZwMakePermanentObject_fn& on_func)
 {
     if(d_->observers_ZwMakePermanentObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwMakePermanentObject@4", &on_ZwMakePermanentObject))
@@ -7577,7 +7577,7 @@ bool monitor::syscallswow64::register_ZwMakePermanentObject(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtMakeTemporaryObject(proc_t proc, const on_NtMakeTemporaryObject_fn& on_func)
+bool monitor::syscalls32::register_NtMakeTemporaryObject(proc_t proc, const on_NtMakeTemporaryObject_fn& on_func)
 {
     if(d_->observers_NtMakeTemporaryObject.empty())
         if(!register_callback_with(*d_, proc, "_NtMakeTemporaryObject@4", &on_NtMakeTemporaryObject))
@@ -7587,7 +7587,7 @@ bool monitor::syscallswow64::register_NtMakeTemporaryObject(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwMapCMFModule(proc_t proc, const on_ZwMapCMFModule_fn& on_func)
+bool monitor::syscalls32::register_ZwMapCMFModule(proc_t proc, const on_ZwMapCMFModule_fn& on_func)
 {
     if(d_->observers_ZwMapCMFModule.empty())
         if(!register_callback_with(*d_, proc, "_ZwMapCMFModule@24", &on_ZwMapCMFModule))
@@ -7597,7 +7597,7 @@ bool monitor::syscallswow64::register_ZwMapCMFModule(proc_t proc, const on_ZwMap
     return true;
 }
 
-bool monitor::syscallswow64::register_NtMapUserPhysicalPages(proc_t proc, const on_NtMapUserPhysicalPages_fn& on_func)
+bool monitor::syscalls32::register_NtMapUserPhysicalPages(proc_t proc, const on_NtMapUserPhysicalPages_fn& on_func)
 {
     if(d_->observers_NtMapUserPhysicalPages.empty())
         if(!register_callback_with(*d_, proc, "_NtMapUserPhysicalPages@12", &on_NtMapUserPhysicalPages))
@@ -7607,7 +7607,7 @@ bool monitor::syscallswow64::register_NtMapUserPhysicalPages(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwMapUserPhysicalPagesScatter(proc_t proc, const on_ZwMapUserPhysicalPagesScatter_fn& on_func)
+bool monitor::syscalls32::register_ZwMapUserPhysicalPagesScatter(proc_t proc, const on_ZwMapUserPhysicalPagesScatter_fn& on_func)
 {
     if(d_->observers_ZwMapUserPhysicalPagesScatter.empty())
         if(!register_callback_with(*d_, proc, "_ZwMapUserPhysicalPagesScatter@12", &on_ZwMapUserPhysicalPagesScatter))
@@ -7617,7 +7617,7 @@ bool monitor::syscallswow64::register_ZwMapUserPhysicalPagesScatter(proc_t proc,
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwMapViewOfSection(proc_t proc, const on_ZwMapViewOfSection_fn& on_func)
+bool monitor::syscalls32::register_ZwMapViewOfSection(proc_t proc, const on_ZwMapViewOfSection_fn& on_func)
 {
     if(d_->observers_ZwMapViewOfSection.empty())
         if(!register_callback_with(*d_, proc, "_ZwMapViewOfSection@40", &on_ZwMapViewOfSection))
@@ -7627,7 +7627,7 @@ bool monitor::syscallswow64::register_ZwMapViewOfSection(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscallswow64::register_NtModifyBootEntry(proc_t proc, const on_NtModifyBootEntry_fn& on_func)
+bool monitor::syscalls32::register_NtModifyBootEntry(proc_t proc, const on_NtModifyBootEntry_fn& on_func)
 {
     if(d_->observers_NtModifyBootEntry.empty())
         if(!register_callback_with(*d_, proc, "_NtModifyBootEntry@4", &on_NtModifyBootEntry))
@@ -7637,7 +7637,7 @@ bool monitor::syscallswow64::register_NtModifyBootEntry(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwModifyDriverEntry(proc_t proc, const on_ZwModifyDriverEntry_fn& on_func)
+bool monitor::syscalls32::register_ZwModifyDriverEntry(proc_t proc, const on_ZwModifyDriverEntry_fn& on_func)
 {
     if(d_->observers_ZwModifyDriverEntry.empty())
         if(!register_callback_with(*d_, proc, "_ZwModifyDriverEntry@4", &on_ZwModifyDriverEntry))
@@ -7647,7 +7647,7 @@ bool monitor::syscallswow64::register_ZwModifyDriverEntry(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtNotifyChangeDirectoryFile(proc_t proc, const on_NtNotifyChangeDirectoryFile_fn& on_func)
+bool monitor::syscalls32::register_NtNotifyChangeDirectoryFile(proc_t proc, const on_NtNotifyChangeDirectoryFile_fn& on_func)
 {
     if(d_->observers_NtNotifyChangeDirectoryFile.empty())
         if(!register_callback_with(*d_, proc, "_NtNotifyChangeDirectoryFile@36", &on_NtNotifyChangeDirectoryFile))
@@ -7657,7 +7657,7 @@ bool monitor::syscallswow64::register_NtNotifyChangeDirectoryFile(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_NtNotifyChangeKey(proc_t proc, const on_NtNotifyChangeKey_fn& on_func)
+bool monitor::syscalls32::register_NtNotifyChangeKey(proc_t proc, const on_NtNotifyChangeKey_fn& on_func)
 {
     if(d_->observers_NtNotifyChangeKey.empty())
         if(!register_callback_with(*d_, proc, "_NtNotifyChangeKey@40", &on_NtNotifyChangeKey))
@@ -7667,7 +7667,7 @@ bool monitor::syscallswow64::register_NtNotifyChangeKey(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_NtNotifyChangeMultipleKeys(proc_t proc, const on_NtNotifyChangeMultipleKeys_fn& on_func)
+bool monitor::syscalls32::register_NtNotifyChangeMultipleKeys(proc_t proc, const on_NtNotifyChangeMultipleKeys_fn& on_func)
 {
     if(d_->observers_NtNotifyChangeMultipleKeys.empty())
         if(!register_callback_with(*d_, proc, "_NtNotifyChangeMultipleKeys@48", &on_NtNotifyChangeMultipleKeys))
@@ -7677,7 +7677,7 @@ bool monitor::syscallswow64::register_NtNotifyChangeMultipleKeys(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_NtNotifyChangeSession(proc_t proc, const on_NtNotifyChangeSession_fn& on_func)
+bool monitor::syscalls32::register_NtNotifyChangeSession(proc_t proc, const on_NtNotifyChangeSession_fn& on_func)
 {
     if(d_->observers_NtNotifyChangeSession.empty())
         if(!register_callback_with(*d_, proc, "_NtNotifyChangeSession@32", &on_NtNotifyChangeSession))
@@ -7687,7 +7687,7 @@ bool monitor::syscallswow64::register_NtNotifyChangeSession(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenDirectoryObject(proc_t proc, const on_ZwOpenDirectoryObject_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenDirectoryObject(proc_t proc, const on_ZwOpenDirectoryObject_fn& on_func)
 {
     if(d_->observers_ZwOpenDirectoryObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenDirectoryObject@12", &on_ZwOpenDirectoryObject))
@@ -7697,7 +7697,7 @@ bool monitor::syscallswow64::register_ZwOpenDirectoryObject(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenEnlistment(proc_t proc, const on_ZwOpenEnlistment_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenEnlistment(proc_t proc, const on_ZwOpenEnlistment_fn& on_func)
 {
     if(d_->observers_ZwOpenEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenEnlistment@20", &on_ZwOpenEnlistment))
@@ -7707,7 +7707,7 @@ bool monitor::syscallswow64::register_ZwOpenEnlistment(proc_t proc, const on_ZwO
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent_fn& on_func)
+bool monitor::syscalls32::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent_fn& on_func)
 {
     if(d_->observers_NtOpenEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenEvent@12", &on_NtOpenEvent))
@@ -7717,7 +7717,7 @@ bool monitor::syscallswow64::register_NtOpenEvent(proc_t proc, const on_NtOpenEv
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenEventPair(proc_t proc, const on_NtOpenEventPair_fn& on_func)
+bool monitor::syscalls32::register_NtOpenEventPair(proc_t proc, const on_NtOpenEventPair_fn& on_func)
 {
     if(d_->observers_NtOpenEventPair.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenEventPair@12", &on_NtOpenEventPair))
@@ -7727,7 +7727,7 @@ bool monitor::syscallswow64::register_NtOpenEventPair(proc_t proc, const on_NtOp
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenFile(proc_t proc, const on_NtOpenFile_fn& on_func)
+bool monitor::syscalls32::register_NtOpenFile(proc_t proc, const on_NtOpenFile_fn& on_func)
 {
     if(d_->observers_NtOpenFile.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenFile@24", &on_NtOpenFile))
@@ -7737,7 +7737,7 @@ bool monitor::syscallswow64::register_NtOpenFile(proc_t proc, const on_NtOpenFil
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenIoCompletion(proc_t proc, const on_ZwOpenIoCompletion_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenIoCompletion(proc_t proc, const on_ZwOpenIoCompletion_fn& on_func)
 {
     if(d_->observers_ZwOpenIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenIoCompletion@12", &on_ZwOpenIoCompletion))
@@ -7747,7 +7747,7 @@ bool monitor::syscallswow64::register_ZwOpenIoCompletion(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenJobObject(proc_t proc, const on_ZwOpenJobObject_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenJobObject(proc_t proc, const on_ZwOpenJobObject_fn& on_func)
 {
     if(d_->observers_ZwOpenJobObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenJobObject@12", &on_ZwOpenJobObject))
@@ -7757,7 +7757,7 @@ bool monitor::syscallswow64::register_ZwOpenJobObject(proc_t proc, const on_ZwOp
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpenKeyedEvent_fn& on_func)
+bool monitor::syscalls32::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpenKeyedEvent_fn& on_func)
 {
     if(d_->observers_NtOpenKeyedEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenKeyedEvent@12", &on_NtOpenKeyedEvent))
@@ -7767,7 +7767,7 @@ bool monitor::syscallswow64::register_NtOpenKeyedEvent(proc_t proc, const on_NtO
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenKeyEx(proc_t proc, const on_ZwOpenKeyEx_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenKeyEx(proc_t proc, const on_ZwOpenKeyEx_fn& on_func)
 {
     if(d_->observers_ZwOpenKeyEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenKeyEx@16", &on_ZwOpenKeyEx))
@@ -7777,7 +7777,7 @@ bool monitor::syscallswow64::register_ZwOpenKeyEx(proc_t proc, const on_ZwOpenKe
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenKey(proc_t proc, const on_ZwOpenKey_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenKey(proc_t proc, const on_ZwOpenKey_fn& on_func)
 {
     if(d_->observers_ZwOpenKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenKey@12", &on_ZwOpenKey))
@@ -7787,7 +7787,7 @@ bool monitor::syscallswow64::register_ZwOpenKey(proc_t proc, const on_ZwOpenKey_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenKeyTransactedEx(proc_t proc, const on_NtOpenKeyTransactedEx_fn& on_func)
+bool monitor::syscalls32::register_NtOpenKeyTransactedEx(proc_t proc, const on_NtOpenKeyTransactedEx_fn& on_func)
 {
     if(d_->observers_NtOpenKeyTransactedEx.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenKeyTransactedEx@20", &on_NtOpenKeyTransactedEx))
@@ -7797,7 +7797,7 @@ bool monitor::syscallswow64::register_NtOpenKeyTransactedEx(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenKeyTransacted(proc_t proc, const on_NtOpenKeyTransacted_fn& on_func)
+bool monitor::syscalls32::register_NtOpenKeyTransacted(proc_t proc, const on_NtOpenKeyTransacted_fn& on_func)
 {
     if(d_->observers_NtOpenKeyTransacted.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenKeyTransacted@16", &on_NtOpenKeyTransacted))
@@ -7807,7 +7807,7 @@ bool monitor::syscallswow64::register_NtOpenKeyTransacted(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenMutant(proc_t proc, const on_NtOpenMutant_fn& on_func)
+bool monitor::syscalls32::register_NtOpenMutant(proc_t proc, const on_NtOpenMutant_fn& on_func)
 {
     if(d_->observers_NtOpenMutant.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenMutant@12", &on_NtOpenMutant))
@@ -7817,7 +7817,7 @@ bool monitor::syscallswow64::register_NtOpenMutant(proc_t proc, const on_NtOpenM
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenObjectAuditAlarm(proc_t proc, const on_ZwOpenObjectAuditAlarm_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenObjectAuditAlarm(proc_t proc, const on_ZwOpenObjectAuditAlarm_fn& on_func)
 {
     if(d_->observers_ZwOpenObjectAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenObjectAuditAlarm@48", &on_ZwOpenObjectAuditAlarm))
@@ -7827,7 +7827,7 @@ bool monitor::syscallswow64::register_ZwOpenObjectAuditAlarm(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenPrivateNamespace(proc_t proc, const on_NtOpenPrivateNamespace_fn& on_func)
+bool monitor::syscalls32::register_NtOpenPrivateNamespace(proc_t proc, const on_NtOpenPrivateNamespace_fn& on_func)
 {
     if(d_->observers_NtOpenPrivateNamespace.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenPrivateNamespace@16", &on_NtOpenPrivateNamespace))
@@ -7837,7 +7837,7 @@ bool monitor::syscallswow64::register_NtOpenPrivateNamespace(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenProcess(proc_t proc, const on_ZwOpenProcess_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenProcess(proc_t proc, const on_ZwOpenProcess_fn& on_func)
 {
     if(d_->observers_ZwOpenProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenProcess@16", &on_ZwOpenProcess))
@@ -7847,7 +7847,7 @@ bool monitor::syscallswow64::register_ZwOpenProcess(proc_t proc, const on_ZwOpen
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenProcessTokenEx(proc_t proc, const on_ZwOpenProcessTokenEx_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenProcessTokenEx(proc_t proc, const on_ZwOpenProcessTokenEx_fn& on_func)
 {
     if(d_->observers_ZwOpenProcessTokenEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenProcessTokenEx@16", &on_ZwOpenProcessTokenEx))
@@ -7857,7 +7857,7 @@ bool monitor::syscallswow64::register_ZwOpenProcessTokenEx(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenProcessToken(proc_t proc, const on_ZwOpenProcessToken_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenProcessToken(proc_t proc, const on_ZwOpenProcessToken_fn& on_func)
 {
     if(d_->observers_ZwOpenProcessToken.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenProcessToken@12", &on_ZwOpenProcessToken))
@@ -7867,7 +7867,7 @@ bool monitor::syscallswow64::register_ZwOpenProcessToken(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenResourceManager(proc_t proc, const on_ZwOpenResourceManager_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenResourceManager(proc_t proc, const on_ZwOpenResourceManager_fn& on_func)
 {
     if(d_->observers_ZwOpenResourceManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenResourceManager@20", &on_ZwOpenResourceManager))
@@ -7877,7 +7877,7 @@ bool monitor::syscallswow64::register_ZwOpenResourceManager(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenSection(proc_t proc, const on_NtOpenSection_fn& on_func)
+bool monitor::syscalls32::register_NtOpenSection(proc_t proc, const on_NtOpenSection_fn& on_func)
 {
     if(d_->observers_NtOpenSection.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenSection@12", &on_NtOpenSection))
@@ -7887,7 +7887,7 @@ bool monitor::syscallswow64::register_NtOpenSection(proc_t proc, const on_NtOpen
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenSemaphore(proc_t proc, const on_NtOpenSemaphore_fn& on_func)
+bool monitor::syscalls32::register_NtOpenSemaphore(proc_t proc, const on_NtOpenSemaphore_fn& on_func)
 {
     if(d_->observers_NtOpenSemaphore.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenSemaphore@12", &on_NtOpenSemaphore))
@@ -7897,7 +7897,7 @@ bool monitor::syscallswow64::register_NtOpenSemaphore(proc_t proc, const on_NtOp
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenSession(proc_t proc, const on_NtOpenSession_fn& on_func)
+bool monitor::syscalls32::register_NtOpenSession(proc_t proc, const on_NtOpenSession_fn& on_func)
 {
     if(d_->observers_NtOpenSession.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenSession@12", &on_NtOpenSession))
@@ -7907,7 +7907,7 @@ bool monitor::syscallswow64::register_NtOpenSession(proc_t proc, const on_NtOpen
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenSymbolicLinkObject(proc_t proc, const on_NtOpenSymbolicLinkObject_fn& on_func)
+bool monitor::syscalls32::register_NtOpenSymbolicLinkObject(proc_t proc, const on_NtOpenSymbolicLinkObject_fn& on_func)
 {
     if(d_->observers_NtOpenSymbolicLinkObject.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenSymbolicLinkObject@12", &on_NtOpenSymbolicLinkObject))
@@ -7917,7 +7917,7 @@ bool monitor::syscallswow64::register_NtOpenSymbolicLinkObject(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenThread(proc_t proc, const on_ZwOpenThread_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenThread(proc_t proc, const on_ZwOpenThread_fn& on_func)
 {
     if(d_->observers_ZwOpenThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenThread@16", &on_ZwOpenThread))
@@ -7927,7 +7927,7 @@ bool monitor::syscallswow64::register_ZwOpenThread(proc_t proc, const on_ZwOpenT
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenThreadTokenEx(proc_t proc, const on_NtOpenThreadTokenEx_fn& on_func)
+bool monitor::syscalls32::register_NtOpenThreadTokenEx(proc_t proc, const on_NtOpenThreadTokenEx_fn& on_func)
 {
     if(d_->observers_NtOpenThreadTokenEx.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenThreadTokenEx@20", &on_NtOpenThreadTokenEx))
@@ -7937,7 +7937,7 @@ bool monitor::syscallswow64::register_NtOpenThreadTokenEx(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtOpenThreadToken(proc_t proc, const on_NtOpenThreadToken_fn& on_func)
+bool monitor::syscalls32::register_NtOpenThreadToken(proc_t proc, const on_NtOpenThreadToken_fn& on_func)
 {
     if(d_->observers_NtOpenThreadToken.empty())
         if(!register_callback_with(*d_, proc, "_NtOpenThreadToken@16", &on_NtOpenThreadToken))
@@ -7947,7 +7947,7 @@ bool monitor::syscallswow64::register_NtOpenThreadToken(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenTimer(proc_t proc, const on_ZwOpenTimer_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenTimer(proc_t proc, const on_ZwOpenTimer_fn& on_func)
 {
     if(d_->observers_ZwOpenTimer.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenTimer@12", &on_ZwOpenTimer))
@@ -7957,7 +7957,7 @@ bool monitor::syscallswow64::register_ZwOpenTimer(proc_t proc, const on_ZwOpenTi
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenTransactionManager(proc_t proc, const on_ZwOpenTransactionManager_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenTransactionManager(proc_t proc, const on_ZwOpenTransactionManager_fn& on_func)
 {
     if(d_->observers_ZwOpenTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenTransactionManager@24", &on_ZwOpenTransactionManager))
@@ -7967,7 +7967,7 @@ bool monitor::syscallswow64::register_ZwOpenTransactionManager(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwOpenTransaction(proc_t proc, const on_ZwOpenTransaction_fn& on_func)
+bool monitor::syscalls32::register_ZwOpenTransaction(proc_t proc, const on_ZwOpenTransaction_fn& on_func)
 {
     if(d_->observers_ZwOpenTransaction.empty())
         if(!register_callback_with(*d_, proc, "_ZwOpenTransaction@20", &on_ZwOpenTransaction))
@@ -7977,7 +7977,7 @@ bool monitor::syscallswow64::register_ZwOpenTransaction(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscallswow64::register_NtPlugPlayControl(proc_t proc, const on_NtPlugPlayControl_fn& on_func)
+bool monitor::syscalls32::register_NtPlugPlayControl(proc_t proc, const on_NtPlugPlayControl_fn& on_func)
 {
     if(d_->observers_NtPlugPlayControl.empty())
         if(!register_callback_with(*d_, proc, "_NtPlugPlayControl@12", &on_NtPlugPlayControl))
@@ -7987,7 +7987,7 @@ bool monitor::syscallswow64::register_NtPlugPlayControl(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwPowerInformation(proc_t proc, const on_ZwPowerInformation_fn& on_func)
+bool monitor::syscalls32::register_ZwPowerInformation(proc_t proc, const on_ZwPowerInformation_fn& on_func)
 {
     if(d_->observers_ZwPowerInformation.empty())
         if(!register_callback_with(*d_, proc, "_ZwPowerInformation@20", &on_ZwPowerInformation))
@@ -7997,7 +7997,7 @@ bool monitor::syscallswow64::register_ZwPowerInformation(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscallswow64::register_NtPrepareComplete(proc_t proc, const on_NtPrepareComplete_fn& on_func)
+bool monitor::syscalls32::register_NtPrepareComplete(proc_t proc, const on_NtPrepareComplete_fn& on_func)
 {
     if(d_->observers_NtPrepareComplete.empty())
         if(!register_callback_with(*d_, proc, "_NtPrepareComplete@8", &on_NtPrepareComplete))
@@ -8007,7 +8007,7 @@ bool monitor::syscallswow64::register_NtPrepareComplete(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwPrepareEnlistment(proc_t proc, const on_ZwPrepareEnlistment_fn& on_func)
+bool monitor::syscalls32::register_ZwPrepareEnlistment(proc_t proc, const on_ZwPrepareEnlistment_fn& on_func)
 {
     if(d_->observers_ZwPrepareEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_ZwPrepareEnlistment@8", &on_ZwPrepareEnlistment))
@@ -8017,7 +8017,7 @@ bool monitor::syscallswow64::register_ZwPrepareEnlistment(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwPrePrepareComplete(proc_t proc, const on_ZwPrePrepareComplete_fn& on_func)
+bool monitor::syscalls32::register_ZwPrePrepareComplete(proc_t proc, const on_ZwPrePrepareComplete_fn& on_func)
 {
     if(d_->observers_ZwPrePrepareComplete.empty())
         if(!register_callback_with(*d_, proc, "_ZwPrePrepareComplete@8", &on_ZwPrePrepareComplete))
@@ -8027,7 +8027,7 @@ bool monitor::syscallswow64::register_ZwPrePrepareComplete(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtPrePrepareEnlistment(proc_t proc, const on_NtPrePrepareEnlistment_fn& on_func)
+bool monitor::syscalls32::register_NtPrePrepareEnlistment(proc_t proc, const on_NtPrePrepareEnlistment_fn& on_func)
 {
     if(d_->observers_NtPrePrepareEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_NtPrePrepareEnlistment@8", &on_NtPrePrepareEnlistment))
@@ -8037,7 +8037,7 @@ bool monitor::syscallswow64::register_NtPrePrepareEnlistment(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwPrivilegeCheck(proc_t proc, const on_ZwPrivilegeCheck_fn& on_func)
+bool monitor::syscalls32::register_ZwPrivilegeCheck(proc_t proc, const on_ZwPrivilegeCheck_fn& on_func)
 {
     if(d_->observers_ZwPrivilegeCheck.empty())
         if(!register_callback_with(*d_, proc, "_ZwPrivilegeCheck@12", &on_ZwPrivilegeCheck))
@@ -8047,7 +8047,7 @@ bool monitor::syscallswow64::register_ZwPrivilegeCheck(proc_t proc, const on_ZwP
     return true;
 }
 
-bool monitor::syscallswow64::register_NtPrivilegedServiceAuditAlarm(proc_t proc, const on_NtPrivilegedServiceAuditAlarm_fn& on_func)
+bool monitor::syscalls32::register_NtPrivilegedServiceAuditAlarm(proc_t proc, const on_NtPrivilegedServiceAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtPrivilegedServiceAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_NtPrivilegedServiceAuditAlarm@20", &on_NtPrivilegedServiceAuditAlarm))
@@ -8057,7 +8057,7 @@ bool monitor::syscallswow64::register_NtPrivilegedServiceAuditAlarm(proc_t proc,
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwPrivilegeObjectAuditAlarm(proc_t proc, const on_ZwPrivilegeObjectAuditAlarm_fn& on_func)
+bool monitor::syscalls32::register_ZwPrivilegeObjectAuditAlarm(proc_t proc, const on_ZwPrivilegeObjectAuditAlarm_fn& on_func)
 {
     if(d_->observers_ZwPrivilegeObjectAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "_ZwPrivilegeObjectAuditAlarm@24", &on_ZwPrivilegeObjectAuditAlarm))
@@ -8067,7 +8067,7 @@ bool monitor::syscallswow64::register_ZwPrivilegeObjectAuditAlarm(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_NtPropagationComplete(proc_t proc, const on_NtPropagationComplete_fn& on_func)
+bool monitor::syscalls32::register_NtPropagationComplete(proc_t proc, const on_NtPropagationComplete_fn& on_func)
 {
     if(d_->observers_NtPropagationComplete.empty())
         if(!register_callback_with(*d_, proc, "_NtPropagationComplete@16", &on_NtPropagationComplete))
@@ -8077,7 +8077,7 @@ bool monitor::syscallswow64::register_NtPropagationComplete(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwPropagationFailed(proc_t proc, const on_ZwPropagationFailed_fn& on_func)
+bool monitor::syscalls32::register_ZwPropagationFailed(proc_t proc, const on_ZwPropagationFailed_fn& on_func)
 {
     if(d_->observers_ZwPropagationFailed.empty())
         if(!register_callback_with(*d_, proc, "_ZwPropagationFailed@12", &on_ZwPropagationFailed))
@@ -8087,7 +8087,7 @@ bool monitor::syscallswow64::register_ZwPropagationFailed(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwProtectVirtualMemory(proc_t proc, const on_ZwProtectVirtualMemory_fn& on_func)
+bool monitor::syscalls32::register_ZwProtectVirtualMemory(proc_t proc, const on_ZwProtectVirtualMemory_fn& on_func)
 {
     if(d_->observers_ZwProtectVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_ZwProtectVirtualMemory@20", &on_ZwProtectVirtualMemory))
@@ -8097,7 +8097,7 @@ bool monitor::syscallswow64::register_ZwProtectVirtualMemory(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwPulseEvent(proc_t proc, const on_ZwPulseEvent_fn& on_func)
+bool monitor::syscalls32::register_ZwPulseEvent(proc_t proc, const on_ZwPulseEvent_fn& on_func)
 {
     if(d_->observers_ZwPulseEvent.empty())
         if(!register_callback_with(*d_, proc, "_ZwPulseEvent@8", &on_ZwPulseEvent))
@@ -8107,7 +8107,7 @@ bool monitor::syscallswow64::register_ZwPulseEvent(proc_t proc, const on_ZwPulse
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryAttributesFile(proc_t proc, const on_ZwQueryAttributesFile_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryAttributesFile(proc_t proc, const on_ZwQueryAttributesFile_fn& on_func)
 {
     if(d_->observers_ZwQueryAttributesFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryAttributesFile@8", &on_ZwQueryAttributesFile))
@@ -8117,7 +8117,7 @@ bool monitor::syscallswow64::register_ZwQueryAttributesFile(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryBootEntryOrder(proc_t proc, const on_ZwQueryBootEntryOrder_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryBootEntryOrder(proc_t proc, const on_ZwQueryBootEntryOrder_fn& on_func)
 {
     if(d_->observers_ZwQueryBootEntryOrder.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryBootEntryOrder@8", &on_ZwQueryBootEntryOrder))
@@ -8127,7 +8127,7 @@ bool monitor::syscallswow64::register_ZwQueryBootEntryOrder(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryBootOptions(proc_t proc, const on_ZwQueryBootOptions_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryBootOptions(proc_t proc, const on_ZwQueryBootOptions_fn& on_func)
 {
     if(d_->observers_ZwQueryBootOptions.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryBootOptions@8", &on_ZwQueryBootOptions))
@@ -8137,7 +8137,7 @@ bool monitor::syscallswow64::register_ZwQueryBootOptions(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryDebugFilterState(proc_t proc, const on_NtQueryDebugFilterState_fn& on_func)
+bool monitor::syscalls32::register_NtQueryDebugFilterState(proc_t proc, const on_NtQueryDebugFilterState_fn& on_func)
 {
     if(d_->observers_NtQueryDebugFilterState.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryDebugFilterState@8", &on_NtQueryDebugFilterState))
@@ -8147,7 +8147,7 @@ bool monitor::syscallswow64::register_NtQueryDebugFilterState(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryDefaultLocale(proc_t proc, const on_NtQueryDefaultLocale_fn& on_func)
+bool monitor::syscalls32::register_NtQueryDefaultLocale(proc_t proc, const on_NtQueryDefaultLocale_fn& on_func)
 {
     if(d_->observers_NtQueryDefaultLocale.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryDefaultLocale@8", &on_NtQueryDefaultLocale))
@@ -8157,7 +8157,7 @@ bool monitor::syscallswow64::register_NtQueryDefaultLocale(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryDefaultUILanguage(proc_t proc, const on_ZwQueryDefaultUILanguage_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryDefaultUILanguage(proc_t proc, const on_ZwQueryDefaultUILanguage_fn& on_func)
 {
     if(d_->observers_ZwQueryDefaultUILanguage.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryDefaultUILanguage@4", &on_ZwQueryDefaultUILanguage))
@@ -8167,7 +8167,7 @@ bool monitor::syscallswow64::register_ZwQueryDefaultUILanguage(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryDirectoryFile(proc_t proc, const on_ZwQueryDirectoryFile_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryDirectoryFile(proc_t proc, const on_ZwQueryDirectoryFile_fn& on_func)
 {
     if(d_->observers_ZwQueryDirectoryFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryDirectoryFile@44", &on_ZwQueryDirectoryFile))
@@ -8177,7 +8177,7 @@ bool monitor::syscallswow64::register_ZwQueryDirectoryFile(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryDirectoryObject(proc_t proc, const on_ZwQueryDirectoryObject_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryDirectoryObject(proc_t proc, const on_ZwQueryDirectoryObject_fn& on_func)
 {
     if(d_->observers_ZwQueryDirectoryObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryDirectoryObject@28", &on_ZwQueryDirectoryObject))
@@ -8187,7 +8187,7 @@ bool monitor::syscallswow64::register_ZwQueryDirectoryObject(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryDriverEntryOrder(proc_t proc, const on_NtQueryDriverEntryOrder_fn& on_func)
+bool monitor::syscalls32::register_NtQueryDriverEntryOrder(proc_t proc, const on_NtQueryDriverEntryOrder_fn& on_func)
 {
     if(d_->observers_NtQueryDriverEntryOrder.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryDriverEntryOrder@8", &on_NtQueryDriverEntryOrder))
@@ -8197,7 +8197,7 @@ bool monitor::syscallswow64::register_NtQueryDriverEntryOrder(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryEaFile(proc_t proc, const on_ZwQueryEaFile_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryEaFile(proc_t proc, const on_ZwQueryEaFile_fn& on_func)
 {
     if(d_->observers_ZwQueryEaFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryEaFile@36", &on_ZwQueryEaFile))
@@ -8207,7 +8207,7 @@ bool monitor::syscallswow64::register_ZwQueryEaFile(proc_t proc, const on_ZwQuer
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryEvent(proc_t proc, const on_NtQueryEvent_fn& on_func)
+bool monitor::syscalls32::register_NtQueryEvent(proc_t proc, const on_NtQueryEvent_fn& on_func)
 {
     if(d_->observers_NtQueryEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryEvent@20", &on_NtQueryEvent))
@@ -8217,7 +8217,7 @@ bool monitor::syscallswow64::register_NtQueryEvent(proc_t proc, const on_NtQuery
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryFullAttributesFile(proc_t proc, const on_ZwQueryFullAttributesFile_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryFullAttributesFile(proc_t proc, const on_ZwQueryFullAttributesFile_fn& on_func)
 {
     if(d_->observers_ZwQueryFullAttributesFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryFullAttributesFile@8", &on_ZwQueryFullAttributesFile))
@@ -8227,7 +8227,7 @@ bool monitor::syscallswow64::register_ZwQueryFullAttributesFile(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryInformationAtom(proc_t proc, const on_NtQueryInformationAtom_fn& on_func)
+bool monitor::syscalls32::register_NtQueryInformationAtom(proc_t proc, const on_NtQueryInformationAtom_fn& on_func)
 {
     if(d_->observers_NtQueryInformationAtom.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryInformationAtom@20", &on_NtQueryInformationAtom))
@@ -8237,7 +8237,7 @@ bool monitor::syscallswow64::register_NtQueryInformationAtom(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryInformationEnlistment(proc_t proc, const on_ZwQueryInformationEnlistment_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryInformationEnlistment(proc_t proc, const on_ZwQueryInformationEnlistment_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationEnlistment@20", &on_ZwQueryInformationEnlistment))
@@ -8247,7 +8247,7 @@ bool monitor::syscallswow64::register_ZwQueryInformationEnlistment(proc_t proc, 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryInformationFile(proc_t proc, const on_ZwQueryInformationFile_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryInformationFile(proc_t proc, const on_ZwQueryInformationFile_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationFile@20", &on_ZwQueryInformationFile))
@@ -8257,7 +8257,7 @@ bool monitor::syscallswow64::register_ZwQueryInformationFile(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryInformationJobObject(proc_t proc, const on_ZwQueryInformationJobObject_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryInformationJobObject(proc_t proc, const on_ZwQueryInformationJobObject_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationJobObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationJobObject@20", &on_ZwQueryInformationJobObject))
@@ -8267,7 +8267,7 @@ bool monitor::syscallswow64::register_ZwQueryInformationJobObject(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryInformationPort(proc_t proc, const on_ZwQueryInformationPort_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryInformationPort(proc_t proc, const on_ZwQueryInformationPort_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationPort.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationPort@20", &on_ZwQueryInformationPort))
@@ -8277,7 +8277,7 @@ bool monitor::syscallswow64::register_ZwQueryInformationPort(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryInformationProcess(proc_t proc, const on_ZwQueryInformationProcess_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryInformationProcess(proc_t proc, const on_ZwQueryInformationProcess_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationProcess@20", &on_ZwQueryInformationProcess))
@@ -8287,7 +8287,7 @@ bool monitor::syscallswow64::register_ZwQueryInformationProcess(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryInformationResourceManager(proc_t proc, const on_ZwQueryInformationResourceManager_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryInformationResourceManager(proc_t proc, const on_ZwQueryInformationResourceManager_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationResourceManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationResourceManager@20", &on_ZwQueryInformationResourceManager))
@@ -8297,7 +8297,7 @@ bool monitor::syscallswow64::register_ZwQueryInformationResourceManager(proc_t p
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryInformationThread(proc_t proc, const on_NtQueryInformationThread_fn& on_func)
+bool monitor::syscalls32::register_NtQueryInformationThread(proc_t proc, const on_NtQueryInformationThread_fn& on_func)
 {
     if(d_->observers_NtQueryInformationThread.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryInformationThread@20", &on_NtQueryInformationThread))
@@ -8307,7 +8307,7 @@ bool monitor::syscallswow64::register_NtQueryInformationThread(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryInformationToken(proc_t proc, const on_ZwQueryInformationToken_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryInformationToken(proc_t proc, const on_ZwQueryInformationToken_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationToken.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationToken@20", &on_ZwQueryInformationToken))
@@ -8317,7 +8317,7 @@ bool monitor::syscallswow64::register_ZwQueryInformationToken(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryInformationTransaction(proc_t proc, const on_ZwQueryInformationTransaction_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryInformationTransaction(proc_t proc, const on_ZwQueryInformationTransaction_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationTransaction.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationTransaction@20", &on_ZwQueryInformationTransaction))
@@ -8327,7 +8327,7 @@ bool monitor::syscallswow64::register_ZwQueryInformationTransaction(proc_t proc,
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryInformationTransactionManager(proc_t proc, const on_NtQueryInformationTransactionManager_fn& on_func)
+bool monitor::syscalls32::register_NtQueryInformationTransactionManager(proc_t proc, const on_NtQueryInformationTransactionManager_fn& on_func)
 {
     if(d_->observers_NtQueryInformationTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryInformationTransactionManager@20", &on_NtQueryInformationTransactionManager))
@@ -8337,7 +8337,7 @@ bool monitor::syscallswow64::register_NtQueryInformationTransactionManager(proc_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryInformationWorkerFactory(proc_t proc, const on_ZwQueryInformationWorkerFactory_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryInformationWorkerFactory(proc_t proc, const on_ZwQueryInformationWorkerFactory_fn& on_func)
 {
     if(d_->observers_ZwQueryInformationWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryInformationWorkerFactory@20", &on_ZwQueryInformationWorkerFactory))
@@ -8347,7 +8347,7 @@ bool monitor::syscallswow64::register_ZwQueryInformationWorkerFactory(proc_t pro
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryInstallUILanguage(proc_t proc, const on_NtQueryInstallUILanguage_fn& on_func)
+bool monitor::syscalls32::register_NtQueryInstallUILanguage(proc_t proc, const on_NtQueryInstallUILanguage_fn& on_func)
 {
     if(d_->observers_NtQueryInstallUILanguage.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryInstallUILanguage@4", &on_NtQueryInstallUILanguage))
@@ -8357,7 +8357,7 @@ bool monitor::syscallswow64::register_NtQueryInstallUILanguage(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryIntervalProfile(proc_t proc, const on_NtQueryIntervalProfile_fn& on_func)
+bool monitor::syscalls32::register_NtQueryIntervalProfile(proc_t proc, const on_NtQueryIntervalProfile_fn& on_func)
 {
     if(d_->observers_NtQueryIntervalProfile.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryIntervalProfile@8", &on_NtQueryIntervalProfile))
@@ -8367,7 +8367,7 @@ bool monitor::syscallswow64::register_NtQueryIntervalProfile(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryIoCompletion(proc_t proc, const on_NtQueryIoCompletion_fn& on_func)
+bool monitor::syscalls32::register_NtQueryIoCompletion(proc_t proc, const on_NtQueryIoCompletion_fn& on_func)
 {
     if(d_->observers_NtQueryIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryIoCompletion@20", &on_NtQueryIoCompletion))
@@ -8377,7 +8377,7 @@ bool monitor::syscallswow64::register_NtQueryIoCompletion(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryKey(proc_t proc, const on_ZwQueryKey_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryKey(proc_t proc, const on_ZwQueryKey_fn& on_func)
 {
     if(d_->observers_ZwQueryKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryKey@20", &on_ZwQueryKey))
@@ -8387,7 +8387,7 @@ bool monitor::syscallswow64::register_ZwQueryKey(proc_t proc, const on_ZwQueryKe
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryLicenseValue(proc_t proc, const on_NtQueryLicenseValue_fn& on_func)
+bool monitor::syscalls32::register_NtQueryLicenseValue(proc_t proc, const on_NtQueryLicenseValue_fn& on_func)
 {
     if(d_->observers_NtQueryLicenseValue.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryLicenseValue@20", &on_NtQueryLicenseValue))
@@ -8397,7 +8397,7 @@ bool monitor::syscallswow64::register_NtQueryLicenseValue(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryMultipleValueKey(proc_t proc, const on_NtQueryMultipleValueKey_fn& on_func)
+bool monitor::syscalls32::register_NtQueryMultipleValueKey(proc_t proc, const on_NtQueryMultipleValueKey_fn& on_func)
 {
     if(d_->observers_NtQueryMultipleValueKey.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryMultipleValueKey@24", &on_NtQueryMultipleValueKey))
@@ -8407,7 +8407,7 @@ bool monitor::syscallswow64::register_NtQueryMultipleValueKey(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryMutant(proc_t proc, const on_NtQueryMutant_fn& on_func)
+bool monitor::syscalls32::register_NtQueryMutant(proc_t proc, const on_NtQueryMutant_fn& on_func)
 {
     if(d_->observers_NtQueryMutant.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryMutant@20", &on_NtQueryMutant))
@@ -8417,7 +8417,7 @@ bool monitor::syscallswow64::register_NtQueryMutant(proc_t proc, const on_NtQuer
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryObject(proc_t proc, const on_NtQueryObject_fn& on_func)
+bool monitor::syscalls32::register_NtQueryObject(proc_t proc, const on_NtQueryObject_fn& on_func)
 {
     if(d_->observers_NtQueryObject.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryObject@20", &on_NtQueryObject))
@@ -8427,7 +8427,7 @@ bool monitor::syscallswow64::register_NtQueryObject(proc_t proc, const on_NtQuer
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryOpenSubKeysEx(proc_t proc, const on_NtQueryOpenSubKeysEx_fn& on_func)
+bool monitor::syscalls32::register_NtQueryOpenSubKeysEx(proc_t proc, const on_NtQueryOpenSubKeysEx_fn& on_func)
 {
     if(d_->observers_NtQueryOpenSubKeysEx.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryOpenSubKeysEx@16", &on_NtQueryOpenSubKeysEx))
@@ -8437,7 +8437,7 @@ bool monitor::syscallswow64::register_NtQueryOpenSubKeysEx(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQueryOpenSubKeys_fn& on_func)
+bool monitor::syscalls32::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQueryOpenSubKeys_fn& on_func)
 {
     if(d_->observers_NtQueryOpenSubKeys.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryOpenSubKeys@8", &on_NtQueryOpenSubKeys))
@@ -8447,7 +8447,7 @@ bool monitor::syscallswow64::register_NtQueryOpenSubKeys(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryPerformanceCounter(proc_t proc, const on_NtQueryPerformanceCounter_fn& on_func)
+bool monitor::syscalls32::register_NtQueryPerformanceCounter(proc_t proc, const on_NtQueryPerformanceCounter_fn& on_func)
 {
     if(d_->observers_NtQueryPerformanceCounter.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryPerformanceCounter@8", &on_NtQueryPerformanceCounter))
@@ -8457,7 +8457,7 @@ bool monitor::syscallswow64::register_NtQueryPerformanceCounter(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryQuotaInformationFile(proc_t proc, const on_ZwQueryQuotaInformationFile_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryQuotaInformationFile(proc_t proc, const on_ZwQueryQuotaInformationFile_fn& on_func)
 {
     if(d_->observers_ZwQueryQuotaInformationFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryQuotaInformationFile@36", &on_ZwQueryQuotaInformationFile))
@@ -8467,7 +8467,7 @@ bool monitor::syscallswow64::register_ZwQueryQuotaInformationFile(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQuerySection(proc_t proc, const on_ZwQuerySection_fn& on_func)
+bool monitor::syscalls32::register_ZwQuerySection(proc_t proc, const on_ZwQuerySection_fn& on_func)
 {
     if(d_->observers_ZwQuerySection.empty())
         if(!register_callback_with(*d_, proc, "_ZwQuerySection@20", &on_ZwQuerySection))
@@ -8477,7 +8477,7 @@ bool monitor::syscallswow64::register_ZwQuerySection(proc_t proc, const on_ZwQue
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQuerySecurityAttributesToken(proc_t proc, const on_ZwQuerySecurityAttributesToken_fn& on_func)
+bool monitor::syscalls32::register_ZwQuerySecurityAttributesToken(proc_t proc, const on_ZwQuerySecurityAttributesToken_fn& on_func)
 {
     if(d_->observers_ZwQuerySecurityAttributesToken.empty())
         if(!register_callback_with(*d_, proc, "_ZwQuerySecurityAttributesToken@24", &on_ZwQuerySecurityAttributesToken))
@@ -8487,7 +8487,7 @@ bool monitor::syscallswow64::register_ZwQuerySecurityAttributesToken(proc_t proc
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQuerySecurityObject(proc_t proc, const on_NtQuerySecurityObject_fn& on_func)
+bool monitor::syscalls32::register_NtQuerySecurityObject(proc_t proc, const on_NtQuerySecurityObject_fn& on_func)
 {
     if(d_->observers_NtQuerySecurityObject.empty())
         if(!register_callback_with(*d_, proc, "_NtQuerySecurityObject@20", &on_NtQuerySecurityObject))
@@ -8497,7 +8497,7 @@ bool monitor::syscallswow64::register_NtQuerySecurityObject(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQuerySemaphore(proc_t proc, const on_ZwQuerySemaphore_fn& on_func)
+bool monitor::syscalls32::register_ZwQuerySemaphore(proc_t proc, const on_ZwQuerySemaphore_fn& on_func)
 {
     if(d_->observers_ZwQuerySemaphore.empty())
         if(!register_callback_with(*d_, proc, "_ZwQuerySemaphore@20", &on_ZwQuerySemaphore))
@@ -8507,7 +8507,7 @@ bool monitor::syscallswow64::register_ZwQuerySemaphore(proc_t proc, const on_ZwQ
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQuerySymbolicLinkObject(proc_t proc, const on_ZwQuerySymbolicLinkObject_fn& on_func)
+bool monitor::syscalls32::register_ZwQuerySymbolicLinkObject(proc_t proc, const on_ZwQuerySymbolicLinkObject_fn& on_func)
 {
     if(d_->observers_ZwQuerySymbolicLinkObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwQuerySymbolicLinkObject@12", &on_ZwQuerySymbolicLinkObject))
@@ -8517,7 +8517,7 @@ bool monitor::syscallswow64::register_ZwQuerySymbolicLinkObject(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQuerySystemEnvironmentValueEx(proc_t proc, const on_ZwQuerySystemEnvironmentValueEx_fn& on_func)
+bool monitor::syscalls32::register_ZwQuerySystemEnvironmentValueEx(proc_t proc, const on_ZwQuerySystemEnvironmentValueEx_fn& on_func)
 {
     if(d_->observers_ZwQuerySystemEnvironmentValueEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwQuerySystemEnvironmentValueEx@20", &on_ZwQuerySystemEnvironmentValueEx))
@@ -8527,7 +8527,7 @@ bool monitor::syscallswow64::register_ZwQuerySystemEnvironmentValueEx(proc_t pro
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQuerySystemEnvironmentValue(proc_t proc, const on_ZwQuerySystemEnvironmentValue_fn& on_func)
+bool monitor::syscalls32::register_ZwQuerySystemEnvironmentValue(proc_t proc, const on_ZwQuerySystemEnvironmentValue_fn& on_func)
 {
     if(d_->observers_ZwQuerySystemEnvironmentValue.empty())
         if(!register_callback_with(*d_, proc, "_ZwQuerySystemEnvironmentValue@16", &on_ZwQuerySystemEnvironmentValue))
@@ -8537,7 +8537,7 @@ bool monitor::syscallswow64::register_ZwQuerySystemEnvironmentValue(proc_t proc,
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQuerySystemInformationEx(proc_t proc, const on_ZwQuerySystemInformationEx_fn& on_func)
+bool monitor::syscalls32::register_ZwQuerySystemInformationEx(proc_t proc, const on_ZwQuerySystemInformationEx_fn& on_func)
 {
     if(d_->observers_ZwQuerySystemInformationEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwQuerySystemInformationEx@24", &on_ZwQuerySystemInformationEx))
@@ -8547,7 +8547,7 @@ bool monitor::syscallswow64::register_ZwQuerySystemInformationEx(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQuerySystemInformation(proc_t proc, const on_NtQuerySystemInformation_fn& on_func)
+bool monitor::syscalls32::register_NtQuerySystemInformation(proc_t proc, const on_NtQuerySystemInformation_fn& on_func)
 {
     if(d_->observers_NtQuerySystemInformation.empty())
         if(!register_callback_with(*d_, proc, "_NtQuerySystemInformation@16", &on_NtQuerySystemInformation))
@@ -8557,7 +8557,7 @@ bool monitor::syscallswow64::register_NtQuerySystemInformation(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQuerySystemTime(proc_t proc, const on_NtQuerySystemTime_fn& on_func)
+bool monitor::syscalls32::register_NtQuerySystemTime(proc_t proc, const on_NtQuerySystemTime_fn& on_func)
 {
     if(d_->observers_NtQuerySystemTime.empty())
         if(!register_callback_with(*d_, proc, "_NtQuerySystemTime@4", &on_NtQuerySystemTime))
@@ -8567,7 +8567,7 @@ bool monitor::syscallswow64::register_NtQuerySystemTime(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryTimer(proc_t proc, const on_ZwQueryTimer_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryTimer(proc_t proc, const on_ZwQueryTimer_fn& on_func)
 {
     if(d_->observers_ZwQueryTimer.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryTimer@20", &on_ZwQueryTimer))
@@ -8577,7 +8577,7 @@ bool monitor::syscallswow64::register_ZwQueryTimer(proc_t proc, const on_ZwQuery
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryTimerResolution(proc_t proc, const on_NtQueryTimerResolution_fn& on_func)
+bool monitor::syscalls32::register_NtQueryTimerResolution(proc_t proc, const on_NtQueryTimerResolution_fn& on_func)
 {
     if(d_->observers_NtQueryTimerResolution.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryTimerResolution@12", &on_NtQueryTimerResolution))
@@ -8587,7 +8587,7 @@ bool monitor::syscallswow64::register_NtQueryTimerResolution(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryValueKey(proc_t proc, const on_ZwQueryValueKey_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryValueKey(proc_t proc, const on_ZwQueryValueKey_fn& on_func)
 {
     if(d_->observers_ZwQueryValueKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryValueKey@24", &on_ZwQueryValueKey))
@@ -8597,7 +8597,7 @@ bool monitor::syscallswow64::register_ZwQueryValueKey(proc_t proc, const on_ZwQu
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryVirtualMemory(proc_t proc, const on_NtQueryVirtualMemory_fn& on_func)
+bool monitor::syscalls32::register_NtQueryVirtualMemory(proc_t proc, const on_NtQueryVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtQueryVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryVirtualMemory@24", &on_NtQueryVirtualMemory))
@@ -8607,7 +8607,7 @@ bool monitor::syscallswow64::register_NtQueryVirtualMemory(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueryVolumeInformationFile(proc_t proc, const on_NtQueryVolumeInformationFile_fn& on_func)
+bool monitor::syscalls32::register_NtQueryVolumeInformationFile(proc_t proc, const on_NtQueryVolumeInformationFile_fn& on_func)
 {
     if(d_->observers_NtQueryVolumeInformationFile.empty())
         if(!register_callback_with(*d_, proc, "_NtQueryVolumeInformationFile@20", &on_NtQueryVolumeInformationFile))
@@ -8617,7 +8617,7 @@ bool monitor::syscallswow64::register_NtQueryVolumeInformationFile(proc_t proc, 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueueApcThreadEx(proc_t proc, const on_NtQueueApcThreadEx_fn& on_func)
+bool monitor::syscalls32::register_NtQueueApcThreadEx(proc_t proc, const on_NtQueueApcThreadEx_fn& on_func)
 {
     if(d_->observers_NtQueueApcThreadEx.empty())
         if(!register_callback_with(*d_, proc, "_NtQueueApcThreadEx@24", &on_NtQueueApcThreadEx))
@@ -8627,7 +8627,7 @@ bool monitor::syscallswow64::register_NtQueueApcThreadEx(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_NtQueueApcThread(proc_t proc, const on_NtQueueApcThread_fn& on_func)
+bool monitor::syscalls32::register_NtQueueApcThread(proc_t proc, const on_NtQueueApcThread_fn& on_func)
 {
     if(d_->observers_NtQueueApcThread.empty())
         if(!register_callback_with(*d_, proc, "_NtQueueApcThread@20", &on_NtQueueApcThread))
@@ -8637,7 +8637,7 @@ bool monitor::syscallswow64::register_NtQueueApcThread(proc_t proc, const on_NtQ
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwRaiseException(proc_t proc, const on_ZwRaiseException_fn& on_func)
+bool monitor::syscalls32::register_ZwRaiseException(proc_t proc, const on_ZwRaiseException_fn& on_func)
 {
     if(d_->observers_ZwRaiseException.empty())
         if(!register_callback_with(*d_, proc, "_ZwRaiseException@12", &on_ZwRaiseException))
@@ -8647,7 +8647,7 @@ bool monitor::syscallswow64::register_ZwRaiseException(proc_t proc, const on_ZwR
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwRaiseHardError(proc_t proc, const on_ZwRaiseHardError_fn& on_func)
+bool monitor::syscalls32::register_ZwRaiseHardError(proc_t proc, const on_ZwRaiseHardError_fn& on_func)
 {
     if(d_->observers_ZwRaiseHardError.empty())
         if(!register_callback_with(*d_, proc, "_ZwRaiseHardError@24", &on_ZwRaiseHardError))
@@ -8657,7 +8657,7 @@ bool monitor::syscallswow64::register_ZwRaiseHardError(proc_t proc, const on_ZwR
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReadFile(proc_t proc, const on_NtReadFile_fn& on_func)
+bool monitor::syscalls32::register_NtReadFile(proc_t proc, const on_NtReadFile_fn& on_func)
 {
     if(d_->observers_NtReadFile.empty())
         if(!register_callback_with(*d_, proc, "_NtReadFile@36", &on_NtReadFile))
@@ -8667,7 +8667,7 @@ bool monitor::syscallswow64::register_NtReadFile(proc_t proc, const on_NtReadFil
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReadFileScatter(proc_t proc, const on_NtReadFileScatter_fn& on_func)
+bool monitor::syscalls32::register_NtReadFileScatter(proc_t proc, const on_NtReadFileScatter_fn& on_func)
 {
     if(d_->observers_NtReadFileScatter.empty())
         if(!register_callback_with(*d_, proc, "_NtReadFileScatter@36", &on_NtReadFileScatter))
@@ -8677,7 +8677,7 @@ bool monitor::syscallswow64::register_NtReadFileScatter(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwReadOnlyEnlistment(proc_t proc, const on_ZwReadOnlyEnlistment_fn& on_func)
+bool monitor::syscalls32::register_ZwReadOnlyEnlistment(proc_t proc, const on_ZwReadOnlyEnlistment_fn& on_func)
 {
     if(d_->observers_ZwReadOnlyEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_ZwReadOnlyEnlistment@8", &on_ZwReadOnlyEnlistment))
@@ -8687,7 +8687,7 @@ bool monitor::syscallswow64::register_ZwReadOnlyEnlistment(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwReadRequestData(proc_t proc, const on_ZwReadRequestData_fn& on_func)
+bool monitor::syscalls32::register_ZwReadRequestData(proc_t proc, const on_ZwReadRequestData_fn& on_func)
 {
     if(d_->observers_ZwReadRequestData.empty())
         if(!register_callback_with(*d_, proc, "_ZwReadRequestData@24", &on_ZwReadRequestData))
@@ -8697,7 +8697,7 @@ bool monitor::syscallswow64::register_ZwReadRequestData(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReadVirtualMemory(proc_t proc, const on_NtReadVirtualMemory_fn& on_func)
+bool monitor::syscalls32::register_NtReadVirtualMemory(proc_t proc, const on_NtReadVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtReadVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_NtReadVirtualMemory@20", &on_NtReadVirtualMemory))
@@ -8707,7 +8707,7 @@ bool monitor::syscallswow64::register_NtReadVirtualMemory(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRecoverEnlistment(proc_t proc, const on_NtRecoverEnlistment_fn& on_func)
+bool monitor::syscalls32::register_NtRecoverEnlistment(proc_t proc, const on_NtRecoverEnlistment_fn& on_func)
 {
     if(d_->observers_NtRecoverEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_NtRecoverEnlistment@8", &on_NtRecoverEnlistment))
@@ -8717,7 +8717,7 @@ bool monitor::syscallswow64::register_NtRecoverEnlistment(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRecoverResourceManager(proc_t proc, const on_NtRecoverResourceManager_fn& on_func)
+bool monitor::syscalls32::register_NtRecoverResourceManager(proc_t proc, const on_NtRecoverResourceManager_fn& on_func)
 {
     if(d_->observers_NtRecoverResourceManager.empty())
         if(!register_callback_with(*d_, proc, "_NtRecoverResourceManager@4", &on_NtRecoverResourceManager))
@@ -8727,7 +8727,7 @@ bool monitor::syscallswow64::register_NtRecoverResourceManager(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwRecoverTransactionManager(proc_t proc, const on_ZwRecoverTransactionManager_fn& on_func)
+bool monitor::syscalls32::register_ZwRecoverTransactionManager(proc_t proc, const on_ZwRecoverTransactionManager_fn& on_func)
 {
     if(d_->observers_ZwRecoverTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwRecoverTransactionManager@4", &on_ZwRecoverTransactionManager))
@@ -8737,7 +8737,7 @@ bool monitor::syscallswow64::register_ZwRecoverTransactionManager(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwRegisterProtocolAddressInformation(proc_t proc, const on_ZwRegisterProtocolAddressInformation_fn& on_func)
+bool monitor::syscalls32::register_ZwRegisterProtocolAddressInformation(proc_t proc, const on_ZwRegisterProtocolAddressInformation_fn& on_func)
 {
     if(d_->observers_ZwRegisterProtocolAddressInformation.empty())
         if(!register_callback_with(*d_, proc, "_ZwRegisterProtocolAddressInformation@20", &on_ZwRegisterProtocolAddressInformation))
@@ -8747,7 +8747,7 @@ bool monitor::syscallswow64::register_ZwRegisterProtocolAddressInformation(proc_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwRegisterThreadTerminatePort(proc_t proc, const on_ZwRegisterThreadTerminatePort_fn& on_func)
+bool monitor::syscalls32::register_ZwRegisterThreadTerminatePort(proc_t proc, const on_ZwRegisterThreadTerminatePort_fn& on_func)
 {
     if(d_->observers_ZwRegisterThreadTerminatePort.empty())
         if(!register_callback_with(*d_, proc, "_ZwRegisterThreadTerminatePort@4", &on_ZwRegisterThreadTerminatePort))
@@ -8757,7 +8757,7 @@ bool monitor::syscallswow64::register_ZwRegisterThreadTerminatePort(proc_t proc,
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReleaseKeyedEvent(proc_t proc, const on_NtReleaseKeyedEvent_fn& on_func)
+bool monitor::syscalls32::register_NtReleaseKeyedEvent(proc_t proc, const on_NtReleaseKeyedEvent_fn& on_func)
 {
     if(d_->observers_NtReleaseKeyedEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtReleaseKeyedEvent@16", &on_NtReleaseKeyedEvent))
@@ -8767,7 +8767,7 @@ bool monitor::syscallswow64::register_NtReleaseKeyedEvent(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwReleaseMutant(proc_t proc, const on_ZwReleaseMutant_fn& on_func)
+bool monitor::syscalls32::register_ZwReleaseMutant(proc_t proc, const on_ZwReleaseMutant_fn& on_func)
 {
     if(d_->observers_ZwReleaseMutant.empty())
         if(!register_callback_with(*d_, proc, "_ZwReleaseMutant@8", &on_ZwReleaseMutant))
@@ -8777,7 +8777,7 @@ bool monitor::syscallswow64::register_ZwReleaseMutant(proc_t proc, const on_ZwRe
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReleaseSemaphore(proc_t proc, const on_NtReleaseSemaphore_fn& on_func)
+bool monitor::syscalls32::register_NtReleaseSemaphore(proc_t proc, const on_NtReleaseSemaphore_fn& on_func)
 {
     if(d_->observers_NtReleaseSemaphore.empty())
         if(!register_callback_with(*d_, proc, "_NtReleaseSemaphore@12", &on_NtReleaseSemaphore))
@@ -8787,7 +8787,7 @@ bool monitor::syscallswow64::register_NtReleaseSemaphore(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwReleaseWorkerFactoryWorker(proc_t proc, const on_ZwReleaseWorkerFactoryWorker_fn& on_func)
+bool monitor::syscalls32::register_ZwReleaseWorkerFactoryWorker(proc_t proc, const on_ZwReleaseWorkerFactoryWorker_fn& on_func)
 {
     if(d_->observers_ZwReleaseWorkerFactoryWorker.empty())
         if(!register_callback_with(*d_, proc, "_ZwReleaseWorkerFactoryWorker@4", &on_ZwReleaseWorkerFactoryWorker))
@@ -8797,7 +8797,7 @@ bool monitor::syscallswow64::register_ZwReleaseWorkerFactoryWorker(proc_t proc, 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwRemoveIoCompletionEx(proc_t proc, const on_ZwRemoveIoCompletionEx_fn& on_func)
+bool monitor::syscalls32::register_ZwRemoveIoCompletionEx(proc_t proc, const on_ZwRemoveIoCompletionEx_fn& on_func)
 {
     if(d_->observers_ZwRemoveIoCompletionEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwRemoveIoCompletionEx@24", &on_ZwRemoveIoCompletionEx))
@@ -8807,7 +8807,7 @@ bool monitor::syscallswow64::register_ZwRemoveIoCompletionEx(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwRemoveIoCompletion(proc_t proc, const on_ZwRemoveIoCompletion_fn& on_func)
+bool monitor::syscalls32::register_ZwRemoveIoCompletion(proc_t proc, const on_ZwRemoveIoCompletion_fn& on_func)
 {
     if(d_->observers_ZwRemoveIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "_ZwRemoveIoCompletion@20", &on_ZwRemoveIoCompletion))
@@ -8817,7 +8817,7 @@ bool monitor::syscallswow64::register_ZwRemoveIoCompletion(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwRemoveProcessDebug(proc_t proc, const on_ZwRemoveProcessDebug_fn& on_func)
+bool monitor::syscalls32::register_ZwRemoveProcessDebug(proc_t proc, const on_ZwRemoveProcessDebug_fn& on_func)
 {
     if(d_->observers_ZwRemoveProcessDebug.empty())
         if(!register_callback_with(*d_, proc, "_ZwRemoveProcessDebug@8", &on_ZwRemoveProcessDebug))
@@ -8827,7 +8827,7 @@ bool monitor::syscallswow64::register_ZwRemoveProcessDebug(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwRenameKey(proc_t proc, const on_ZwRenameKey_fn& on_func)
+bool monitor::syscalls32::register_ZwRenameKey(proc_t proc, const on_ZwRenameKey_fn& on_func)
 {
     if(d_->observers_ZwRenameKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwRenameKey@8", &on_ZwRenameKey))
@@ -8837,7 +8837,7 @@ bool monitor::syscallswow64::register_ZwRenameKey(proc_t proc, const on_ZwRename
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRenameTransactionManager(proc_t proc, const on_NtRenameTransactionManager_fn& on_func)
+bool monitor::syscalls32::register_NtRenameTransactionManager(proc_t proc, const on_NtRenameTransactionManager_fn& on_func)
 {
     if(d_->observers_NtRenameTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "_NtRenameTransactionManager@8", &on_NtRenameTransactionManager))
@@ -8847,7 +8847,7 @@ bool monitor::syscallswow64::register_NtRenameTransactionManager(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwReplaceKey(proc_t proc, const on_ZwReplaceKey_fn& on_func)
+bool monitor::syscalls32::register_ZwReplaceKey(proc_t proc, const on_ZwReplaceKey_fn& on_func)
 {
     if(d_->observers_ZwReplaceKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwReplaceKey@12", &on_ZwReplaceKey))
@@ -8857,7 +8857,7 @@ bool monitor::syscallswow64::register_ZwReplaceKey(proc_t proc, const on_ZwRepla
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReplacePartitionUnit(proc_t proc, const on_NtReplacePartitionUnit_fn& on_func)
+bool monitor::syscalls32::register_NtReplacePartitionUnit(proc_t proc, const on_NtReplacePartitionUnit_fn& on_func)
 {
     if(d_->observers_NtReplacePartitionUnit.empty())
         if(!register_callback_with(*d_, proc, "_NtReplacePartitionUnit@12", &on_NtReplacePartitionUnit))
@@ -8867,7 +8867,7 @@ bool monitor::syscallswow64::register_NtReplacePartitionUnit(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwReplyPort(proc_t proc, const on_ZwReplyPort_fn& on_func)
+bool monitor::syscalls32::register_ZwReplyPort(proc_t proc, const on_ZwReplyPort_fn& on_func)
 {
     if(d_->observers_ZwReplyPort.empty())
         if(!register_callback_with(*d_, proc, "_ZwReplyPort@8", &on_ZwReplyPort))
@@ -8877,7 +8877,7 @@ bool monitor::syscallswow64::register_ZwReplyPort(proc_t proc, const on_ZwReplyP
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReplyWaitReceivePortEx(proc_t proc, const on_NtReplyWaitReceivePortEx_fn& on_func)
+bool monitor::syscalls32::register_NtReplyWaitReceivePortEx(proc_t proc, const on_NtReplyWaitReceivePortEx_fn& on_func)
 {
     if(d_->observers_NtReplyWaitReceivePortEx.empty())
         if(!register_callback_with(*d_, proc, "_NtReplyWaitReceivePortEx@20", &on_NtReplyWaitReceivePortEx))
@@ -8887,7 +8887,7 @@ bool monitor::syscallswow64::register_NtReplyWaitReceivePortEx(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReplyWaitReceivePort(proc_t proc, const on_NtReplyWaitReceivePort_fn& on_func)
+bool monitor::syscalls32::register_NtReplyWaitReceivePort(proc_t proc, const on_NtReplyWaitReceivePort_fn& on_func)
 {
     if(d_->observers_NtReplyWaitReceivePort.empty())
         if(!register_callback_with(*d_, proc, "_NtReplyWaitReceivePort@16", &on_NtReplyWaitReceivePort))
@@ -8897,7 +8897,7 @@ bool monitor::syscallswow64::register_NtReplyWaitReceivePort(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtReplyWaitReplyPort(proc_t proc, const on_NtReplyWaitReplyPort_fn& on_func)
+bool monitor::syscalls32::register_NtReplyWaitReplyPort(proc_t proc, const on_NtReplyWaitReplyPort_fn& on_func)
 {
     if(d_->observers_NtReplyWaitReplyPort.empty())
         if(!register_callback_with(*d_, proc, "_NtReplyWaitReplyPort@8", &on_NtReplyWaitReplyPort))
@@ -8907,7 +8907,7 @@ bool monitor::syscallswow64::register_NtReplyWaitReplyPort(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwRequestPort(proc_t proc, const on_ZwRequestPort_fn& on_func)
+bool monitor::syscalls32::register_ZwRequestPort(proc_t proc, const on_ZwRequestPort_fn& on_func)
 {
     if(d_->observers_ZwRequestPort.empty())
         if(!register_callback_with(*d_, proc, "_ZwRequestPort@8", &on_ZwRequestPort))
@@ -8917,7 +8917,7 @@ bool monitor::syscallswow64::register_ZwRequestPort(proc_t proc, const on_ZwRequ
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRequestWaitReplyPort(proc_t proc, const on_NtRequestWaitReplyPort_fn& on_func)
+bool monitor::syscalls32::register_NtRequestWaitReplyPort(proc_t proc, const on_NtRequestWaitReplyPort_fn& on_func)
 {
     if(d_->observers_NtRequestWaitReplyPort.empty())
         if(!register_callback_with(*d_, proc, "_NtRequestWaitReplyPort@12", &on_NtRequestWaitReplyPort))
@@ -8927,7 +8927,7 @@ bool monitor::syscallswow64::register_NtRequestWaitReplyPort(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtResetEvent(proc_t proc, const on_NtResetEvent_fn& on_func)
+bool monitor::syscalls32::register_NtResetEvent(proc_t proc, const on_NtResetEvent_fn& on_func)
 {
     if(d_->observers_NtResetEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtResetEvent@8", &on_NtResetEvent))
@@ -8937,7 +8937,7 @@ bool monitor::syscallswow64::register_NtResetEvent(proc_t proc, const on_NtReset
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwResetWriteWatch(proc_t proc, const on_ZwResetWriteWatch_fn& on_func)
+bool monitor::syscalls32::register_ZwResetWriteWatch(proc_t proc, const on_ZwResetWriteWatch_fn& on_func)
 {
     if(d_->observers_ZwResetWriteWatch.empty())
         if(!register_callback_with(*d_, proc, "_ZwResetWriteWatch@12", &on_ZwResetWriteWatch))
@@ -8947,7 +8947,7 @@ bool monitor::syscallswow64::register_ZwResetWriteWatch(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRestoreKey(proc_t proc, const on_NtRestoreKey_fn& on_func)
+bool monitor::syscalls32::register_NtRestoreKey(proc_t proc, const on_NtRestoreKey_fn& on_func)
 {
     if(d_->observers_NtRestoreKey.empty())
         if(!register_callback_with(*d_, proc, "_NtRestoreKey@12", &on_NtRestoreKey))
@@ -8957,7 +8957,7 @@ bool monitor::syscallswow64::register_NtRestoreKey(proc_t proc, const on_NtResto
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwResumeProcess(proc_t proc, const on_ZwResumeProcess_fn& on_func)
+bool monitor::syscalls32::register_ZwResumeProcess(proc_t proc, const on_ZwResumeProcess_fn& on_func)
 {
     if(d_->observers_ZwResumeProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwResumeProcess@4", &on_ZwResumeProcess))
@@ -8967,7 +8967,7 @@ bool monitor::syscallswow64::register_ZwResumeProcess(proc_t proc, const on_ZwRe
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwResumeThread(proc_t proc, const on_ZwResumeThread_fn& on_func)
+bool monitor::syscalls32::register_ZwResumeThread(proc_t proc, const on_ZwResumeThread_fn& on_func)
 {
     if(d_->observers_ZwResumeThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwResumeThread@8", &on_ZwResumeThread))
@@ -8977,7 +8977,7 @@ bool monitor::syscallswow64::register_ZwResumeThread(proc_t proc, const on_ZwRes
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwRollbackComplete(proc_t proc, const on_ZwRollbackComplete_fn& on_func)
+bool monitor::syscalls32::register_ZwRollbackComplete(proc_t proc, const on_ZwRollbackComplete_fn& on_func)
 {
     if(d_->observers_ZwRollbackComplete.empty())
         if(!register_callback_with(*d_, proc, "_ZwRollbackComplete@8", &on_ZwRollbackComplete))
@@ -8987,7 +8987,7 @@ bool monitor::syscallswow64::register_ZwRollbackComplete(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRollbackEnlistment(proc_t proc, const on_NtRollbackEnlistment_fn& on_func)
+bool monitor::syscalls32::register_NtRollbackEnlistment(proc_t proc, const on_NtRollbackEnlistment_fn& on_func)
 {
     if(d_->observers_NtRollbackEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_NtRollbackEnlistment@8", &on_NtRollbackEnlistment))
@@ -8997,7 +8997,7 @@ bool monitor::syscallswow64::register_NtRollbackEnlistment(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRollbackTransaction(proc_t proc, const on_NtRollbackTransaction_fn& on_func)
+bool monitor::syscalls32::register_NtRollbackTransaction(proc_t proc, const on_NtRollbackTransaction_fn& on_func)
 {
     if(d_->observers_NtRollbackTransaction.empty())
         if(!register_callback_with(*d_, proc, "_NtRollbackTransaction@8", &on_NtRollbackTransaction))
@@ -9007,7 +9007,7 @@ bool monitor::syscallswow64::register_NtRollbackTransaction(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtRollforwardTransactionManager(proc_t proc, const on_NtRollforwardTransactionManager_fn& on_func)
+bool monitor::syscalls32::register_NtRollforwardTransactionManager(proc_t proc, const on_NtRollforwardTransactionManager_fn& on_func)
 {
     if(d_->observers_NtRollforwardTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "_NtRollforwardTransactionManager@8", &on_NtRollforwardTransactionManager))
@@ -9017,7 +9017,7 @@ bool monitor::syscallswow64::register_NtRollforwardTransactionManager(proc_t pro
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx_fn& on_func)
+bool monitor::syscalls32::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx_fn& on_func)
 {
     if(d_->observers_NtSaveKeyEx.empty())
         if(!register_callback_with(*d_, proc, "_NtSaveKeyEx@12", &on_NtSaveKeyEx))
@@ -9027,7 +9027,7 @@ bool monitor::syscallswow64::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKe
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn& on_func)
+bool monitor::syscalls32::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn& on_func)
 {
     if(d_->observers_NtSaveKey.empty())
         if(!register_callback_with(*d_, proc, "_NtSaveKey@8", &on_NtSaveKey))
@@ -9037,7 +9037,7 @@ bool monitor::syscallswow64::register_NtSaveKey(proc_t proc, const on_NtSaveKey_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSaveMergedKeys(proc_t proc, const on_NtSaveMergedKeys_fn& on_func)
+bool monitor::syscalls32::register_NtSaveMergedKeys(proc_t proc, const on_NtSaveMergedKeys_fn& on_func)
 {
     if(d_->observers_NtSaveMergedKeys.empty())
         if(!register_callback_with(*d_, proc, "_NtSaveMergedKeys@12", &on_NtSaveMergedKeys))
@@ -9047,7 +9047,7 @@ bool monitor::syscallswow64::register_NtSaveMergedKeys(proc_t proc, const on_NtS
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSecureConnectPort(proc_t proc, const on_NtSecureConnectPort_fn& on_func)
+bool monitor::syscalls32::register_NtSecureConnectPort(proc_t proc, const on_NtSecureConnectPort_fn& on_func)
 {
     if(d_->observers_NtSecureConnectPort.empty())
         if(!register_callback_with(*d_, proc, "_NtSecureConnectPort@36", &on_NtSecureConnectPort))
@@ -9057,7 +9057,7 @@ bool monitor::syscallswow64::register_NtSecureConnectPort(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetBootEntryOrder(proc_t proc, const on_ZwSetBootEntryOrder_fn& on_func)
+bool monitor::syscalls32::register_ZwSetBootEntryOrder(proc_t proc, const on_ZwSetBootEntryOrder_fn& on_func)
 {
     if(d_->observers_ZwSetBootEntryOrder.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetBootEntryOrder@8", &on_ZwSetBootEntryOrder))
@@ -9067,7 +9067,7 @@ bool monitor::syscallswow64::register_ZwSetBootEntryOrder(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetBootOptions(proc_t proc, const on_ZwSetBootOptions_fn& on_func)
+bool monitor::syscalls32::register_ZwSetBootOptions(proc_t proc, const on_ZwSetBootOptions_fn& on_func)
 {
     if(d_->observers_ZwSetBootOptions.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetBootOptions@8", &on_ZwSetBootOptions))
@@ -9077,7 +9077,7 @@ bool monitor::syscallswow64::register_ZwSetBootOptions(proc_t proc, const on_ZwS
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetContextThread(proc_t proc, const on_ZwSetContextThread_fn& on_func)
+bool monitor::syscalls32::register_ZwSetContextThread(proc_t proc, const on_ZwSetContextThread_fn& on_func)
 {
     if(d_->observers_ZwSetContextThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetContextThread@8", &on_ZwSetContextThread))
@@ -9087,7 +9087,7 @@ bool monitor::syscallswow64::register_ZwSetContextThread(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetDebugFilterState(proc_t proc, const on_NtSetDebugFilterState_fn& on_func)
+bool monitor::syscalls32::register_NtSetDebugFilterState(proc_t proc, const on_NtSetDebugFilterState_fn& on_func)
 {
     if(d_->observers_NtSetDebugFilterState.empty())
         if(!register_callback_with(*d_, proc, "_NtSetDebugFilterState@12", &on_NtSetDebugFilterState))
@@ -9097,7 +9097,7 @@ bool monitor::syscallswow64::register_NtSetDebugFilterState(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetDefaultHardErrorPort(proc_t proc, const on_NtSetDefaultHardErrorPort_fn& on_func)
+bool monitor::syscalls32::register_NtSetDefaultHardErrorPort(proc_t proc, const on_NtSetDefaultHardErrorPort_fn& on_func)
 {
     if(d_->observers_NtSetDefaultHardErrorPort.empty())
         if(!register_callback_with(*d_, proc, "_NtSetDefaultHardErrorPort@4", &on_NtSetDefaultHardErrorPort))
@@ -9107,7 +9107,7 @@ bool monitor::syscallswow64::register_NtSetDefaultHardErrorPort(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetDefaultLocale(proc_t proc, const on_NtSetDefaultLocale_fn& on_func)
+bool monitor::syscalls32::register_NtSetDefaultLocale(proc_t proc, const on_NtSetDefaultLocale_fn& on_func)
 {
     if(d_->observers_NtSetDefaultLocale.empty())
         if(!register_callback_with(*d_, proc, "_NtSetDefaultLocale@8", &on_NtSetDefaultLocale))
@@ -9117,7 +9117,7 @@ bool monitor::syscallswow64::register_NtSetDefaultLocale(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetDefaultUILanguage(proc_t proc, const on_ZwSetDefaultUILanguage_fn& on_func)
+bool monitor::syscalls32::register_ZwSetDefaultUILanguage(proc_t proc, const on_ZwSetDefaultUILanguage_fn& on_func)
 {
     if(d_->observers_ZwSetDefaultUILanguage.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetDefaultUILanguage@4", &on_ZwSetDefaultUILanguage))
@@ -9127,7 +9127,7 @@ bool monitor::syscallswow64::register_ZwSetDefaultUILanguage(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetDriverEntryOrder(proc_t proc, const on_NtSetDriverEntryOrder_fn& on_func)
+bool monitor::syscalls32::register_NtSetDriverEntryOrder(proc_t proc, const on_NtSetDriverEntryOrder_fn& on_func)
 {
     if(d_->observers_NtSetDriverEntryOrder.empty())
         if(!register_callback_with(*d_, proc, "_NtSetDriverEntryOrder@8", &on_NtSetDriverEntryOrder))
@@ -9137,7 +9137,7 @@ bool monitor::syscallswow64::register_NtSetDriverEntryOrder(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetEaFile(proc_t proc, const on_ZwSetEaFile_fn& on_func)
+bool monitor::syscalls32::register_ZwSetEaFile(proc_t proc, const on_ZwSetEaFile_fn& on_func)
 {
     if(d_->observers_ZwSetEaFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetEaFile@16", &on_ZwSetEaFile))
@@ -9147,7 +9147,7 @@ bool monitor::syscallswow64::register_ZwSetEaFile(proc_t proc, const on_ZwSetEaF
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetEventBoostPriority(proc_t proc, const on_NtSetEventBoostPriority_fn& on_func)
+bool monitor::syscalls32::register_NtSetEventBoostPriority(proc_t proc, const on_NtSetEventBoostPriority_fn& on_func)
 {
     if(d_->observers_NtSetEventBoostPriority.empty())
         if(!register_callback_with(*d_, proc, "_NtSetEventBoostPriority@4", &on_NtSetEventBoostPriority))
@@ -9157,7 +9157,7 @@ bool monitor::syscallswow64::register_NtSetEventBoostPriority(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetEvent(proc_t proc, const on_NtSetEvent_fn& on_func)
+bool monitor::syscalls32::register_NtSetEvent(proc_t proc, const on_NtSetEvent_fn& on_func)
 {
     if(d_->observers_NtSetEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtSetEvent@8", &on_NtSetEvent))
@@ -9167,7 +9167,7 @@ bool monitor::syscallswow64::register_NtSetEvent(proc_t proc, const on_NtSetEven
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetHighEventPair(proc_t proc, const on_NtSetHighEventPair_fn& on_func)
+bool monitor::syscalls32::register_NtSetHighEventPair(proc_t proc, const on_NtSetHighEventPair_fn& on_func)
 {
     if(d_->observers_NtSetHighEventPair.empty())
         if(!register_callback_with(*d_, proc, "_NtSetHighEventPair@4", &on_NtSetHighEventPair))
@@ -9177,7 +9177,7 @@ bool monitor::syscallswow64::register_NtSetHighEventPair(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetHighWaitLowEventPair(proc_t proc, const on_NtSetHighWaitLowEventPair_fn& on_func)
+bool monitor::syscalls32::register_NtSetHighWaitLowEventPair(proc_t proc, const on_NtSetHighWaitLowEventPair_fn& on_func)
 {
     if(d_->observers_NtSetHighWaitLowEventPair.empty())
         if(!register_callback_with(*d_, proc, "_NtSetHighWaitLowEventPair@4", &on_NtSetHighWaitLowEventPair))
@@ -9187,7 +9187,7 @@ bool monitor::syscallswow64::register_NtSetHighWaitLowEventPair(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetInformationDebugObject(proc_t proc, const on_ZwSetInformationDebugObject_fn& on_func)
+bool monitor::syscalls32::register_ZwSetInformationDebugObject(proc_t proc, const on_ZwSetInformationDebugObject_fn& on_func)
 {
     if(d_->observers_ZwSetInformationDebugObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationDebugObject@20", &on_ZwSetInformationDebugObject))
@@ -9197,7 +9197,7 @@ bool monitor::syscallswow64::register_ZwSetInformationDebugObject(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetInformationEnlistment(proc_t proc, const on_NtSetInformationEnlistment_fn& on_func)
+bool monitor::syscalls32::register_NtSetInformationEnlistment(proc_t proc, const on_NtSetInformationEnlistment_fn& on_func)
 {
     if(d_->observers_NtSetInformationEnlistment.empty())
         if(!register_callback_with(*d_, proc, "_NtSetInformationEnlistment@16", &on_NtSetInformationEnlistment))
@@ -9207,7 +9207,7 @@ bool monitor::syscallswow64::register_NtSetInformationEnlistment(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetInformationFile(proc_t proc, const on_ZwSetInformationFile_fn& on_func)
+bool monitor::syscalls32::register_ZwSetInformationFile(proc_t proc, const on_ZwSetInformationFile_fn& on_func)
 {
     if(d_->observers_ZwSetInformationFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationFile@20", &on_ZwSetInformationFile))
@@ -9217,7 +9217,7 @@ bool monitor::syscallswow64::register_ZwSetInformationFile(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetInformationJobObject(proc_t proc, const on_ZwSetInformationJobObject_fn& on_func)
+bool monitor::syscalls32::register_ZwSetInformationJobObject(proc_t proc, const on_ZwSetInformationJobObject_fn& on_func)
 {
     if(d_->observers_ZwSetInformationJobObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationJobObject@16", &on_ZwSetInformationJobObject))
@@ -9227,7 +9227,7 @@ bool monitor::syscallswow64::register_ZwSetInformationJobObject(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetInformationKey(proc_t proc, const on_ZwSetInformationKey_fn& on_func)
+bool monitor::syscalls32::register_ZwSetInformationKey(proc_t proc, const on_ZwSetInformationKey_fn& on_func)
 {
     if(d_->observers_ZwSetInformationKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationKey@16", &on_ZwSetInformationKey))
@@ -9237,7 +9237,7 @@ bool monitor::syscallswow64::register_ZwSetInformationKey(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetInformationObject(proc_t proc, const on_ZwSetInformationObject_fn& on_func)
+bool monitor::syscalls32::register_ZwSetInformationObject(proc_t proc, const on_ZwSetInformationObject_fn& on_func)
 {
     if(d_->observers_ZwSetInformationObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationObject@16", &on_ZwSetInformationObject))
@@ -9247,7 +9247,7 @@ bool monitor::syscallswow64::register_ZwSetInformationObject(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetInformationProcess(proc_t proc, const on_ZwSetInformationProcess_fn& on_func)
+bool monitor::syscalls32::register_ZwSetInformationProcess(proc_t proc, const on_ZwSetInformationProcess_fn& on_func)
 {
     if(d_->observers_ZwSetInformationProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationProcess@16", &on_ZwSetInformationProcess))
@@ -9257,7 +9257,7 @@ bool monitor::syscallswow64::register_ZwSetInformationProcess(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetInformationResourceManager(proc_t proc, const on_ZwSetInformationResourceManager_fn& on_func)
+bool monitor::syscalls32::register_ZwSetInformationResourceManager(proc_t proc, const on_ZwSetInformationResourceManager_fn& on_func)
 {
     if(d_->observers_ZwSetInformationResourceManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationResourceManager@16", &on_ZwSetInformationResourceManager))
@@ -9267,7 +9267,7 @@ bool monitor::syscallswow64::register_ZwSetInformationResourceManager(proc_t pro
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetInformationThread(proc_t proc, const on_ZwSetInformationThread_fn& on_func)
+bool monitor::syscalls32::register_ZwSetInformationThread(proc_t proc, const on_ZwSetInformationThread_fn& on_func)
 {
     if(d_->observers_ZwSetInformationThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationThread@16", &on_ZwSetInformationThread))
@@ -9277,7 +9277,7 @@ bool monitor::syscallswow64::register_ZwSetInformationThread(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetInformationToken(proc_t proc, const on_ZwSetInformationToken_fn& on_func)
+bool monitor::syscalls32::register_ZwSetInformationToken(proc_t proc, const on_ZwSetInformationToken_fn& on_func)
 {
     if(d_->observers_ZwSetInformationToken.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationToken@16", &on_ZwSetInformationToken))
@@ -9287,7 +9287,7 @@ bool monitor::syscallswow64::register_ZwSetInformationToken(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetInformationTransaction(proc_t proc, const on_ZwSetInformationTransaction_fn& on_func)
+bool monitor::syscalls32::register_ZwSetInformationTransaction(proc_t proc, const on_ZwSetInformationTransaction_fn& on_func)
 {
     if(d_->observers_ZwSetInformationTransaction.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationTransaction@16", &on_ZwSetInformationTransaction))
@@ -9297,7 +9297,7 @@ bool monitor::syscallswow64::register_ZwSetInformationTransaction(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetInformationTransactionManager(proc_t proc, const on_ZwSetInformationTransactionManager_fn& on_func)
+bool monitor::syscalls32::register_ZwSetInformationTransactionManager(proc_t proc, const on_ZwSetInformationTransactionManager_fn& on_func)
 {
     if(d_->observers_ZwSetInformationTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationTransactionManager@16", &on_ZwSetInformationTransactionManager))
@@ -9307,7 +9307,7 @@ bool monitor::syscallswow64::register_ZwSetInformationTransactionManager(proc_t 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetInformationWorkerFactory(proc_t proc, const on_ZwSetInformationWorkerFactory_fn& on_func)
+bool monitor::syscalls32::register_ZwSetInformationWorkerFactory(proc_t proc, const on_ZwSetInformationWorkerFactory_fn& on_func)
 {
     if(d_->observers_ZwSetInformationWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetInformationWorkerFactory@16", &on_ZwSetInformationWorkerFactory))
@@ -9317,7 +9317,7 @@ bool monitor::syscallswow64::register_ZwSetInformationWorkerFactory(proc_t proc,
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetIntervalProfile(proc_t proc, const on_NtSetIntervalProfile_fn& on_func)
+bool monitor::syscalls32::register_NtSetIntervalProfile(proc_t proc, const on_NtSetIntervalProfile_fn& on_func)
 {
     if(d_->observers_NtSetIntervalProfile.empty())
         if(!register_callback_with(*d_, proc, "_NtSetIntervalProfile@8", &on_NtSetIntervalProfile))
@@ -9327,7 +9327,7 @@ bool monitor::syscallswow64::register_NtSetIntervalProfile(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetIoCompletionEx(proc_t proc, const on_NtSetIoCompletionEx_fn& on_func)
+bool monitor::syscalls32::register_NtSetIoCompletionEx(proc_t proc, const on_NtSetIoCompletionEx_fn& on_func)
 {
     if(d_->observers_NtSetIoCompletionEx.empty())
         if(!register_callback_with(*d_, proc, "_NtSetIoCompletionEx@24", &on_NtSetIoCompletionEx))
@@ -9337,7 +9337,7 @@ bool monitor::syscallswow64::register_NtSetIoCompletionEx(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetIoCompletion(proc_t proc, const on_NtSetIoCompletion_fn& on_func)
+bool monitor::syscalls32::register_NtSetIoCompletion(proc_t proc, const on_NtSetIoCompletion_fn& on_func)
 {
     if(d_->observers_NtSetIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "_NtSetIoCompletion@20", &on_NtSetIoCompletion))
@@ -9347,7 +9347,7 @@ bool monitor::syscallswow64::register_NtSetIoCompletion(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetLdtEntries(proc_t proc, const on_ZwSetLdtEntries_fn& on_func)
+bool monitor::syscalls32::register_ZwSetLdtEntries(proc_t proc, const on_ZwSetLdtEntries_fn& on_func)
 {
     if(d_->observers_ZwSetLdtEntries.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetLdtEntries@24", &on_ZwSetLdtEntries))
@@ -9357,7 +9357,7 @@ bool monitor::syscallswow64::register_ZwSetLdtEntries(proc_t proc, const on_ZwSe
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetLowEventPair(proc_t proc, const on_ZwSetLowEventPair_fn& on_func)
+bool monitor::syscalls32::register_ZwSetLowEventPair(proc_t proc, const on_ZwSetLowEventPair_fn& on_func)
 {
     if(d_->observers_ZwSetLowEventPair.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetLowEventPair@4", &on_ZwSetLowEventPair))
@@ -9367,7 +9367,7 @@ bool monitor::syscallswow64::register_ZwSetLowEventPair(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetLowWaitHighEventPair(proc_t proc, const on_ZwSetLowWaitHighEventPair_fn& on_func)
+bool monitor::syscalls32::register_ZwSetLowWaitHighEventPair(proc_t proc, const on_ZwSetLowWaitHighEventPair_fn& on_func)
 {
     if(d_->observers_ZwSetLowWaitHighEventPair.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetLowWaitHighEventPair@4", &on_ZwSetLowWaitHighEventPair))
@@ -9377,7 +9377,7 @@ bool monitor::syscallswow64::register_ZwSetLowWaitHighEventPair(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetQuotaInformationFile(proc_t proc, const on_ZwSetQuotaInformationFile_fn& on_func)
+bool monitor::syscalls32::register_ZwSetQuotaInformationFile(proc_t proc, const on_ZwSetQuotaInformationFile_fn& on_func)
 {
     if(d_->observers_ZwSetQuotaInformationFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetQuotaInformationFile@16", &on_ZwSetQuotaInformationFile))
@@ -9387,7 +9387,7 @@ bool monitor::syscallswow64::register_ZwSetQuotaInformationFile(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetSecurityObject(proc_t proc, const on_NtSetSecurityObject_fn& on_func)
+bool monitor::syscalls32::register_NtSetSecurityObject(proc_t proc, const on_NtSetSecurityObject_fn& on_func)
 {
     if(d_->observers_NtSetSecurityObject.empty())
         if(!register_callback_with(*d_, proc, "_NtSetSecurityObject@12", &on_NtSetSecurityObject))
@@ -9397,7 +9397,7 @@ bool monitor::syscallswow64::register_NtSetSecurityObject(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetSystemEnvironmentValueEx(proc_t proc, const on_ZwSetSystemEnvironmentValueEx_fn& on_func)
+bool monitor::syscalls32::register_ZwSetSystemEnvironmentValueEx(proc_t proc, const on_ZwSetSystemEnvironmentValueEx_fn& on_func)
 {
     if(d_->observers_ZwSetSystemEnvironmentValueEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetSystemEnvironmentValueEx@20", &on_ZwSetSystemEnvironmentValueEx))
@@ -9407,7 +9407,7 @@ bool monitor::syscallswow64::register_ZwSetSystemEnvironmentValueEx(proc_t proc,
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetSystemEnvironmentValue(proc_t proc, const on_ZwSetSystemEnvironmentValue_fn& on_func)
+bool monitor::syscalls32::register_ZwSetSystemEnvironmentValue(proc_t proc, const on_ZwSetSystemEnvironmentValue_fn& on_func)
 {
     if(d_->observers_ZwSetSystemEnvironmentValue.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetSystemEnvironmentValue@8", &on_ZwSetSystemEnvironmentValue))
@@ -9417,7 +9417,7 @@ bool monitor::syscallswow64::register_ZwSetSystemEnvironmentValue(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetSystemInformation(proc_t proc, const on_ZwSetSystemInformation_fn& on_func)
+bool monitor::syscalls32::register_ZwSetSystemInformation(proc_t proc, const on_ZwSetSystemInformation_fn& on_func)
 {
     if(d_->observers_ZwSetSystemInformation.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetSystemInformation@12", &on_ZwSetSystemInformation))
@@ -9427,7 +9427,7 @@ bool monitor::syscallswow64::register_ZwSetSystemInformation(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetSystemPowerState(proc_t proc, const on_ZwSetSystemPowerState_fn& on_func)
+bool monitor::syscalls32::register_ZwSetSystemPowerState(proc_t proc, const on_ZwSetSystemPowerState_fn& on_func)
 {
     if(d_->observers_ZwSetSystemPowerState.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetSystemPowerState@12", &on_ZwSetSystemPowerState))
@@ -9437,7 +9437,7 @@ bool monitor::syscallswow64::register_ZwSetSystemPowerState(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetSystemTime(proc_t proc, const on_ZwSetSystemTime_fn& on_func)
+bool monitor::syscalls32::register_ZwSetSystemTime(proc_t proc, const on_ZwSetSystemTime_fn& on_func)
 {
     if(d_->observers_ZwSetSystemTime.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetSystemTime@8", &on_ZwSetSystemTime))
@@ -9447,7 +9447,7 @@ bool monitor::syscallswow64::register_ZwSetSystemTime(proc_t proc, const on_ZwSe
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetThreadExecutionState(proc_t proc, const on_ZwSetThreadExecutionState_fn& on_func)
+bool monitor::syscalls32::register_ZwSetThreadExecutionState(proc_t proc, const on_ZwSetThreadExecutionState_fn& on_func)
 {
     if(d_->observers_ZwSetThreadExecutionState.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetThreadExecutionState@8", &on_ZwSetThreadExecutionState))
@@ -9457,7 +9457,7 @@ bool monitor::syscallswow64::register_ZwSetThreadExecutionState(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetTimerEx(proc_t proc, const on_ZwSetTimerEx_fn& on_func)
+bool monitor::syscalls32::register_ZwSetTimerEx(proc_t proc, const on_ZwSetTimerEx_fn& on_func)
 {
     if(d_->observers_ZwSetTimerEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetTimerEx@16", &on_ZwSetTimerEx))
@@ -9467,7 +9467,7 @@ bool monitor::syscallswow64::register_ZwSetTimerEx(proc_t proc, const on_ZwSetTi
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetTimer(proc_t proc, const on_ZwSetTimer_fn& on_func)
+bool monitor::syscalls32::register_ZwSetTimer(proc_t proc, const on_ZwSetTimer_fn& on_func)
 {
     if(d_->observers_ZwSetTimer.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetTimer@28", &on_ZwSetTimer))
@@ -9477,7 +9477,7 @@ bool monitor::syscallswow64::register_ZwSetTimer(proc_t proc, const on_ZwSetTime
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetTimerResolution(proc_t proc, const on_NtSetTimerResolution_fn& on_func)
+bool monitor::syscalls32::register_NtSetTimerResolution(proc_t proc, const on_NtSetTimerResolution_fn& on_func)
 {
     if(d_->observers_NtSetTimerResolution.empty())
         if(!register_callback_with(*d_, proc, "_NtSetTimerResolution@12", &on_NtSetTimerResolution))
@@ -9487,7 +9487,7 @@ bool monitor::syscallswow64::register_NtSetTimerResolution(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetUuidSeed(proc_t proc, const on_ZwSetUuidSeed_fn& on_func)
+bool monitor::syscalls32::register_ZwSetUuidSeed(proc_t proc, const on_ZwSetUuidSeed_fn& on_func)
 {
     if(d_->observers_ZwSetUuidSeed.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetUuidSeed@4", &on_ZwSetUuidSeed))
@@ -9497,7 +9497,7 @@ bool monitor::syscallswow64::register_ZwSetUuidSeed(proc_t proc, const on_ZwSetU
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSetValueKey(proc_t proc, const on_ZwSetValueKey_fn& on_func)
+bool monitor::syscalls32::register_ZwSetValueKey(proc_t proc, const on_ZwSetValueKey_fn& on_func)
 {
     if(d_->observers_ZwSetValueKey.empty())
         if(!register_callback_with(*d_, proc, "_ZwSetValueKey@24", &on_ZwSetValueKey))
@@ -9507,7 +9507,7 @@ bool monitor::syscallswow64::register_ZwSetValueKey(proc_t proc, const on_ZwSetV
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSetVolumeInformationFile(proc_t proc, const on_NtSetVolumeInformationFile_fn& on_func)
+bool monitor::syscalls32::register_NtSetVolumeInformationFile(proc_t proc, const on_NtSetVolumeInformationFile_fn& on_func)
 {
     if(d_->observers_NtSetVolumeInformationFile.empty())
         if(!register_callback_with(*d_, proc, "_NtSetVolumeInformationFile@20", &on_NtSetVolumeInformationFile))
@@ -9517,7 +9517,7 @@ bool monitor::syscallswow64::register_NtSetVolumeInformationFile(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwShutdownSystem(proc_t proc, const on_ZwShutdownSystem_fn& on_func)
+bool monitor::syscalls32::register_ZwShutdownSystem(proc_t proc, const on_ZwShutdownSystem_fn& on_func)
 {
     if(d_->observers_ZwShutdownSystem.empty())
         if(!register_callback_with(*d_, proc, "_ZwShutdownSystem@4", &on_ZwShutdownSystem))
@@ -9527,7 +9527,7 @@ bool monitor::syscallswow64::register_ZwShutdownSystem(proc_t proc, const on_ZwS
     return true;
 }
 
-bool monitor::syscallswow64::register_NtShutdownWorkerFactory(proc_t proc, const on_NtShutdownWorkerFactory_fn& on_func)
+bool monitor::syscalls32::register_NtShutdownWorkerFactory(proc_t proc, const on_NtShutdownWorkerFactory_fn& on_func)
 {
     if(d_->observers_NtShutdownWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "_NtShutdownWorkerFactory@8", &on_NtShutdownWorkerFactory))
@@ -9537,7 +9537,7 @@ bool monitor::syscallswow64::register_NtShutdownWorkerFactory(proc_t proc, const
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSignalAndWaitForSingleObject(proc_t proc, const on_ZwSignalAndWaitForSingleObject_fn& on_func)
+bool monitor::syscalls32::register_ZwSignalAndWaitForSingleObject(proc_t proc, const on_ZwSignalAndWaitForSingleObject_fn& on_func)
 {
     if(d_->observers_ZwSignalAndWaitForSingleObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwSignalAndWaitForSingleObject@16", &on_ZwSignalAndWaitForSingleObject))
@@ -9547,7 +9547,7 @@ bool monitor::syscallswow64::register_ZwSignalAndWaitForSingleObject(proc_t proc
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSinglePhaseReject(proc_t proc, const on_ZwSinglePhaseReject_fn& on_func)
+bool monitor::syscalls32::register_ZwSinglePhaseReject(proc_t proc, const on_ZwSinglePhaseReject_fn& on_func)
 {
     if(d_->observers_ZwSinglePhaseReject.empty())
         if(!register_callback_with(*d_, proc, "_ZwSinglePhaseReject@8", &on_ZwSinglePhaseReject))
@@ -9557,7 +9557,7 @@ bool monitor::syscallswow64::register_ZwSinglePhaseReject(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtStartProfile(proc_t proc, const on_NtStartProfile_fn& on_func)
+bool monitor::syscalls32::register_NtStartProfile(proc_t proc, const on_NtStartProfile_fn& on_func)
 {
     if(d_->observers_NtStartProfile.empty())
         if(!register_callback_with(*d_, proc, "_NtStartProfile@4", &on_NtStartProfile))
@@ -9567,7 +9567,7 @@ bool monitor::syscallswow64::register_NtStartProfile(proc_t proc, const on_NtSta
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwStopProfile(proc_t proc, const on_ZwStopProfile_fn& on_func)
+bool monitor::syscalls32::register_ZwStopProfile(proc_t proc, const on_ZwStopProfile_fn& on_func)
 {
     if(d_->observers_ZwStopProfile.empty())
         if(!register_callback_with(*d_, proc, "_ZwStopProfile@4", &on_ZwStopProfile))
@@ -9577,7 +9577,7 @@ bool monitor::syscallswow64::register_ZwStopProfile(proc_t proc, const on_ZwStop
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSuspendProcess(proc_t proc, const on_ZwSuspendProcess_fn& on_func)
+bool monitor::syscalls32::register_ZwSuspendProcess(proc_t proc, const on_ZwSuspendProcess_fn& on_func)
 {
     if(d_->observers_ZwSuspendProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwSuspendProcess@4", &on_ZwSuspendProcess))
@@ -9587,7 +9587,7 @@ bool monitor::syscallswow64::register_ZwSuspendProcess(proc_t proc, const on_ZwS
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwSuspendThread(proc_t proc, const on_ZwSuspendThread_fn& on_func)
+bool monitor::syscalls32::register_ZwSuspendThread(proc_t proc, const on_ZwSuspendThread_fn& on_func)
 {
     if(d_->observers_ZwSuspendThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwSuspendThread@8", &on_ZwSuspendThread))
@@ -9597,7 +9597,7 @@ bool monitor::syscallswow64::register_ZwSuspendThread(proc_t proc, const on_ZwSu
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSystemDebugControl(proc_t proc, const on_NtSystemDebugControl_fn& on_func)
+bool monitor::syscalls32::register_NtSystemDebugControl(proc_t proc, const on_NtSystemDebugControl_fn& on_func)
 {
     if(d_->observers_NtSystemDebugControl.empty())
         if(!register_callback_with(*d_, proc, "_NtSystemDebugControl@24", &on_NtSystemDebugControl))
@@ -9607,7 +9607,7 @@ bool monitor::syscallswow64::register_NtSystemDebugControl(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwTerminateJobObject(proc_t proc, const on_ZwTerminateJobObject_fn& on_func)
+bool monitor::syscalls32::register_ZwTerminateJobObject(proc_t proc, const on_ZwTerminateJobObject_fn& on_func)
 {
     if(d_->observers_ZwTerminateJobObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwTerminateJobObject@8", &on_ZwTerminateJobObject))
@@ -9617,7 +9617,7 @@ bool monitor::syscallswow64::register_ZwTerminateJobObject(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwTerminateProcess(proc_t proc, const on_ZwTerminateProcess_fn& on_func)
+bool monitor::syscalls32::register_ZwTerminateProcess(proc_t proc, const on_ZwTerminateProcess_fn& on_func)
 {
     if(d_->observers_ZwTerminateProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwTerminateProcess@8", &on_ZwTerminateProcess))
@@ -9627,7 +9627,7 @@ bool monitor::syscallswow64::register_ZwTerminateProcess(proc_t proc, const on_Z
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwTerminateThread(proc_t proc, const on_ZwTerminateThread_fn& on_func)
+bool monitor::syscalls32::register_ZwTerminateThread(proc_t proc, const on_ZwTerminateThread_fn& on_func)
 {
     if(d_->observers_ZwTerminateThread.empty())
         if(!register_callback_with(*d_, proc, "_ZwTerminateThread@8", &on_ZwTerminateThread))
@@ -9637,7 +9637,7 @@ bool monitor::syscallswow64::register_ZwTerminateThread(proc_t proc, const on_Zw
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwTraceControl(proc_t proc, const on_ZwTraceControl_fn& on_func)
+bool monitor::syscalls32::register_ZwTraceControl(proc_t proc, const on_ZwTraceControl_fn& on_func)
 {
     if(d_->observers_ZwTraceControl.empty())
         if(!register_callback_with(*d_, proc, "_ZwTraceControl@24", &on_ZwTraceControl))
@@ -9647,7 +9647,7 @@ bool monitor::syscallswow64::register_ZwTraceControl(proc_t proc, const on_ZwTra
     return true;
 }
 
-bool monitor::syscallswow64::register_NtTraceEvent(proc_t proc, const on_NtTraceEvent_fn& on_func)
+bool monitor::syscalls32::register_NtTraceEvent(proc_t proc, const on_NtTraceEvent_fn& on_func)
 {
     if(d_->observers_NtTraceEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtTraceEvent@16", &on_NtTraceEvent))
@@ -9657,7 +9657,7 @@ bool monitor::syscallswow64::register_NtTraceEvent(proc_t proc, const on_NtTrace
     return true;
 }
 
-bool monitor::syscallswow64::register_NtTranslateFilePath(proc_t proc, const on_NtTranslateFilePath_fn& on_func)
+bool monitor::syscalls32::register_NtTranslateFilePath(proc_t proc, const on_NtTranslateFilePath_fn& on_func)
 {
     if(d_->observers_NtTranslateFilePath.empty())
         if(!register_callback_with(*d_, proc, "_NtTranslateFilePath@16", &on_NtTranslateFilePath))
@@ -9667,7 +9667,7 @@ bool monitor::syscallswow64::register_NtTranslateFilePath(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwUnloadDriver(proc_t proc, const on_ZwUnloadDriver_fn& on_func)
+bool monitor::syscalls32::register_ZwUnloadDriver(proc_t proc, const on_ZwUnloadDriver_fn& on_func)
 {
     if(d_->observers_ZwUnloadDriver.empty())
         if(!register_callback_with(*d_, proc, "_ZwUnloadDriver@4", &on_ZwUnloadDriver))
@@ -9677,7 +9677,7 @@ bool monitor::syscallswow64::register_ZwUnloadDriver(proc_t proc, const on_ZwUnl
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwUnloadKey2(proc_t proc, const on_ZwUnloadKey2_fn& on_func)
+bool monitor::syscalls32::register_ZwUnloadKey2(proc_t proc, const on_ZwUnloadKey2_fn& on_func)
 {
     if(d_->observers_ZwUnloadKey2.empty())
         if(!register_callback_with(*d_, proc, "_ZwUnloadKey2@8", &on_ZwUnloadKey2))
@@ -9687,7 +9687,7 @@ bool monitor::syscallswow64::register_ZwUnloadKey2(proc_t proc, const on_ZwUnloa
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwUnloadKeyEx(proc_t proc, const on_ZwUnloadKeyEx_fn& on_func)
+bool monitor::syscalls32::register_ZwUnloadKeyEx(proc_t proc, const on_ZwUnloadKeyEx_fn& on_func)
 {
     if(d_->observers_ZwUnloadKeyEx.empty())
         if(!register_callback_with(*d_, proc, "_ZwUnloadKeyEx@8", &on_ZwUnloadKeyEx))
@@ -9697,7 +9697,7 @@ bool monitor::syscallswow64::register_ZwUnloadKeyEx(proc_t proc, const on_ZwUnlo
     return true;
 }
 
-bool monitor::syscallswow64::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey_fn& on_func)
+bool monitor::syscalls32::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey_fn& on_func)
 {
     if(d_->observers_NtUnloadKey.empty())
         if(!register_callback_with(*d_, proc, "_NtUnloadKey@4", &on_NtUnloadKey))
@@ -9707,7 +9707,7 @@ bool monitor::syscallswow64::register_NtUnloadKey(proc_t proc, const on_NtUnload
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwUnlockFile(proc_t proc, const on_ZwUnlockFile_fn& on_func)
+bool monitor::syscalls32::register_ZwUnlockFile(proc_t proc, const on_ZwUnlockFile_fn& on_func)
 {
     if(d_->observers_ZwUnlockFile.empty())
         if(!register_callback_with(*d_, proc, "_ZwUnlockFile@20", &on_ZwUnlockFile))
@@ -9717,7 +9717,7 @@ bool monitor::syscallswow64::register_ZwUnlockFile(proc_t proc, const on_ZwUnloc
     return true;
 }
 
-bool monitor::syscallswow64::register_NtUnlockVirtualMemory(proc_t proc, const on_NtUnlockVirtualMemory_fn& on_func)
+bool monitor::syscalls32::register_NtUnlockVirtualMemory(proc_t proc, const on_NtUnlockVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtUnlockVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_NtUnlockVirtualMemory@16", &on_NtUnlockVirtualMemory))
@@ -9727,7 +9727,7 @@ bool monitor::syscallswow64::register_NtUnlockVirtualMemory(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtUnmapViewOfSection(proc_t proc, const on_NtUnmapViewOfSection_fn& on_func)
+bool monitor::syscalls32::register_NtUnmapViewOfSection(proc_t proc, const on_NtUnmapViewOfSection_fn& on_func)
 {
     if(d_->observers_NtUnmapViewOfSection.empty())
         if(!register_callback_with(*d_, proc, "_NtUnmapViewOfSection@8", &on_NtUnmapViewOfSection))
@@ -9737,7 +9737,7 @@ bool monitor::syscallswow64::register_NtUnmapViewOfSection(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtVdmControl(proc_t proc, const on_NtVdmControl_fn& on_func)
+bool monitor::syscalls32::register_NtVdmControl(proc_t proc, const on_NtVdmControl_fn& on_func)
 {
     if(d_->observers_NtVdmControl.empty())
         if(!register_callback_with(*d_, proc, "_NtVdmControl@8", &on_NtVdmControl))
@@ -9747,7 +9747,7 @@ bool monitor::syscallswow64::register_NtVdmControl(proc_t proc, const on_NtVdmCo
     return true;
 }
 
-bool monitor::syscallswow64::register_NtWaitForDebugEvent(proc_t proc, const on_NtWaitForDebugEvent_fn& on_func)
+bool monitor::syscalls32::register_NtWaitForDebugEvent(proc_t proc, const on_NtWaitForDebugEvent_fn& on_func)
 {
     if(d_->observers_NtWaitForDebugEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtWaitForDebugEvent@16", &on_NtWaitForDebugEvent))
@@ -9757,7 +9757,7 @@ bool monitor::syscallswow64::register_NtWaitForDebugEvent(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtWaitForKeyedEvent(proc_t proc, const on_NtWaitForKeyedEvent_fn& on_func)
+bool monitor::syscalls32::register_NtWaitForKeyedEvent(proc_t proc, const on_NtWaitForKeyedEvent_fn& on_func)
 {
     if(d_->observers_NtWaitForKeyedEvent.empty())
         if(!register_callback_with(*d_, proc, "_NtWaitForKeyedEvent@16", &on_NtWaitForKeyedEvent))
@@ -9767,7 +9767,7 @@ bool monitor::syscallswow64::register_NtWaitForKeyedEvent(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtWaitForMultipleObjects32(proc_t proc, const on_NtWaitForMultipleObjects32_fn& on_func)
+bool monitor::syscalls32::register_NtWaitForMultipleObjects32(proc_t proc, const on_NtWaitForMultipleObjects32_fn& on_func)
 {
     if(d_->observers_NtWaitForMultipleObjects32.empty())
         if(!register_callback_with(*d_, proc, "_NtWaitForMultipleObjects32@20", &on_NtWaitForMultipleObjects32))
@@ -9777,7 +9777,7 @@ bool monitor::syscallswow64::register_NtWaitForMultipleObjects32(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_NtWaitForMultipleObjects(proc_t proc, const on_NtWaitForMultipleObjects_fn& on_func)
+bool monitor::syscalls32::register_NtWaitForMultipleObjects(proc_t proc, const on_NtWaitForMultipleObjects_fn& on_func)
 {
     if(d_->observers_NtWaitForMultipleObjects.empty())
         if(!register_callback_with(*d_, proc, "_NtWaitForMultipleObjects@20", &on_NtWaitForMultipleObjects))
@@ -9787,7 +9787,7 @@ bool monitor::syscallswow64::register_NtWaitForMultipleObjects(proc_t proc, cons
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwWaitForSingleObject(proc_t proc, const on_ZwWaitForSingleObject_fn& on_func)
+bool monitor::syscalls32::register_ZwWaitForSingleObject(proc_t proc, const on_ZwWaitForSingleObject_fn& on_func)
 {
     if(d_->observers_ZwWaitForSingleObject.empty())
         if(!register_callback_with(*d_, proc, "_ZwWaitForSingleObject@12", &on_ZwWaitForSingleObject))
@@ -9797,7 +9797,7 @@ bool monitor::syscallswow64::register_ZwWaitForSingleObject(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_NtWaitForWorkViaWorkerFactory(proc_t proc, const on_NtWaitForWorkViaWorkerFactory_fn& on_func)
+bool monitor::syscalls32::register_NtWaitForWorkViaWorkerFactory(proc_t proc, const on_NtWaitForWorkViaWorkerFactory_fn& on_func)
 {
     if(d_->observers_NtWaitForWorkViaWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "_NtWaitForWorkViaWorkerFactory@8", &on_NtWaitForWorkViaWorkerFactory))
@@ -9807,7 +9807,7 @@ bool monitor::syscallswow64::register_NtWaitForWorkViaWorkerFactory(proc_t proc,
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwWaitHighEventPair(proc_t proc, const on_ZwWaitHighEventPair_fn& on_func)
+bool monitor::syscalls32::register_ZwWaitHighEventPair(proc_t proc, const on_ZwWaitHighEventPair_fn& on_func)
 {
     if(d_->observers_ZwWaitHighEventPair.empty())
         if(!register_callback_with(*d_, proc, "_ZwWaitHighEventPair@4", &on_ZwWaitHighEventPair))
@@ -9817,7 +9817,7 @@ bool monitor::syscallswow64::register_ZwWaitHighEventPair(proc_t proc, const on_
     return true;
 }
 
-bool monitor::syscallswow64::register_NtWaitLowEventPair(proc_t proc, const on_NtWaitLowEventPair_fn& on_func)
+bool monitor::syscalls32::register_NtWaitLowEventPair(proc_t proc, const on_NtWaitLowEventPair_fn& on_func)
 {
     if(d_->observers_NtWaitLowEventPair.empty())
         if(!register_callback_with(*d_, proc, "_NtWaitLowEventPair@4", &on_NtWaitLowEventPair))
@@ -9827,7 +9827,7 @@ bool monitor::syscallswow64::register_NtWaitLowEventPair(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_NtWorkerFactoryWorkerReady(proc_t proc, const on_NtWorkerFactoryWorkerReady_fn& on_func)
+bool monitor::syscalls32::register_NtWorkerFactoryWorkerReady(proc_t proc, const on_NtWorkerFactoryWorkerReady_fn& on_func)
 {
     if(d_->observers_NtWorkerFactoryWorkerReady.empty())
         if(!register_callback_with(*d_, proc, "_NtWorkerFactoryWorkerReady@4", &on_NtWorkerFactoryWorkerReady))
@@ -9837,7 +9837,7 @@ bool monitor::syscallswow64::register_NtWorkerFactoryWorkerReady(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_NtWriteFileGather(proc_t proc, const on_NtWriteFileGather_fn& on_func)
+bool monitor::syscalls32::register_NtWriteFileGather(proc_t proc, const on_NtWriteFileGather_fn& on_func)
 {
     if(d_->observers_NtWriteFileGather.empty())
         if(!register_callback_with(*d_, proc, "_NtWriteFileGather@36", &on_NtWriteFileGather))
@@ -9847,7 +9847,7 @@ bool monitor::syscallswow64::register_NtWriteFileGather(proc_t proc, const on_Nt
     return true;
 }
 
-bool monitor::syscallswow64::register_NtWriteFile(proc_t proc, const on_NtWriteFile_fn& on_func)
+bool monitor::syscalls32::register_NtWriteFile(proc_t proc, const on_NtWriteFile_fn& on_func)
 {
     if(d_->observers_NtWriteFile.empty())
         if(!register_callback_with(*d_, proc, "_NtWriteFile@36", &on_NtWriteFile))
@@ -9857,7 +9857,7 @@ bool monitor::syscallswow64::register_NtWriteFile(proc_t proc, const on_NtWriteF
     return true;
 }
 
-bool monitor::syscallswow64::register_NtWriteRequestData(proc_t proc, const on_NtWriteRequestData_fn& on_func)
+bool monitor::syscalls32::register_NtWriteRequestData(proc_t proc, const on_NtWriteRequestData_fn& on_func)
 {
     if(d_->observers_NtWriteRequestData.empty())
         if(!register_callback_with(*d_, proc, "_NtWriteRequestData@24", &on_NtWriteRequestData))
@@ -9867,7 +9867,7 @@ bool monitor::syscallswow64::register_NtWriteRequestData(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_NtWriteVirtualMemory(proc_t proc, const on_NtWriteVirtualMemory_fn& on_func)
+bool monitor::syscalls32::register_NtWriteVirtualMemory(proc_t proc, const on_NtWriteVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtWriteVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "_NtWriteVirtualMemory@20", &on_NtWriteVirtualMemory))
@@ -9877,7 +9877,7 @@ bool monitor::syscallswow64::register_NtWriteVirtualMemory(proc_t proc, const on
     return true;
 }
 
-bool monitor::syscallswow64::register_NtDisableLastKnownGood(proc_t proc, const on_NtDisableLastKnownGood_fn& on_func)
+bool monitor::syscalls32::register_NtDisableLastKnownGood(proc_t proc, const on_NtDisableLastKnownGood_fn& on_func)
 {
     if(d_->observers_NtDisableLastKnownGood.empty())
         if(!register_callback_with(*d_, proc, "_NtDisableLastKnownGood@0", &on_NtDisableLastKnownGood))
@@ -9887,7 +9887,7 @@ bool monitor::syscallswow64::register_NtDisableLastKnownGood(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_NtEnableLastKnownGood(proc_t proc, const on_NtEnableLastKnownGood_fn& on_func)
+bool monitor::syscalls32::register_NtEnableLastKnownGood(proc_t proc, const on_NtEnableLastKnownGood_fn& on_func)
 {
     if(d_->observers_NtEnableLastKnownGood.empty())
         if(!register_callback_with(*d_, proc, "_NtEnableLastKnownGood@0", &on_NtEnableLastKnownGood))
@@ -9897,7 +9897,7 @@ bool monitor::syscallswow64::register_NtEnableLastKnownGood(proc_t proc, const o
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwFlushProcessWriteBuffers(proc_t proc, const on_ZwFlushProcessWriteBuffers_fn& on_func)
+bool monitor::syscalls32::register_ZwFlushProcessWriteBuffers(proc_t proc, const on_ZwFlushProcessWriteBuffers_fn& on_func)
 {
     if(d_->observers_ZwFlushProcessWriteBuffers.empty())
         if(!register_callback_with(*d_, proc, "_ZwFlushProcessWriteBuffers@0", &on_ZwFlushProcessWriteBuffers))
@@ -9907,7 +9907,7 @@ bool monitor::syscallswow64::register_ZwFlushProcessWriteBuffers(proc_t proc, co
     return true;
 }
 
-bool monitor::syscallswow64::register_NtFlushWriteBuffer(proc_t proc, const on_NtFlushWriteBuffer_fn& on_func)
+bool monitor::syscalls32::register_NtFlushWriteBuffer(proc_t proc, const on_NtFlushWriteBuffer_fn& on_func)
 {
     if(d_->observers_NtFlushWriteBuffer.empty())
         if(!register_callback_with(*d_, proc, "_NtFlushWriteBuffer@0", &on_NtFlushWriteBuffer))
@@ -9917,7 +9917,7 @@ bool monitor::syscallswow64::register_NtFlushWriteBuffer(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_NtGetCurrentProcessorNumber(proc_t proc, const on_NtGetCurrentProcessorNumber_fn& on_func)
+bool monitor::syscalls32::register_NtGetCurrentProcessorNumber(proc_t proc, const on_NtGetCurrentProcessorNumber_fn& on_func)
 {
     if(d_->observers_NtGetCurrentProcessorNumber.empty())
         if(!register_callback_with(*d_, proc, "_NtGetCurrentProcessorNumber@0", &on_NtGetCurrentProcessorNumber))
@@ -9927,7 +9927,7 @@ bool monitor::syscallswow64::register_NtGetCurrentProcessorNumber(proc_t proc, c
     return true;
 }
 
-bool monitor::syscallswow64::register_NtIsSystemResumeAutomatic(proc_t proc, const on_NtIsSystemResumeAutomatic_fn& on_func)
+bool monitor::syscalls32::register_NtIsSystemResumeAutomatic(proc_t proc, const on_NtIsSystemResumeAutomatic_fn& on_func)
 {
     if(d_->observers_NtIsSystemResumeAutomatic.empty())
         if(!register_callback_with(*d_, proc, "_NtIsSystemResumeAutomatic@0", &on_NtIsSystemResumeAutomatic))
@@ -9937,7 +9937,7 @@ bool monitor::syscallswow64::register_NtIsSystemResumeAutomatic(proc_t proc, con
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwIsUILanguageComitted(proc_t proc, const on_ZwIsUILanguageComitted_fn& on_func)
+bool monitor::syscalls32::register_ZwIsUILanguageComitted(proc_t proc, const on_ZwIsUILanguageComitted_fn& on_func)
 {
     if(d_->observers_ZwIsUILanguageComitted.empty())
         if(!register_callback_with(*d_, proc, "_ZwIsUILanguageComitted@0", &on_ZwIsUILanguageComitted))
@@ -9947,7 +9947,7 @@ bool monitor::syscallswow64::register_ZwIsUILanguageComitted(proc_t proc, const 
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwQueryPortInformationProcess(proc_t proc, const on_ZwQueryPortInformationProcess_fn& on_func)
+bool monitor::syscalls32::register_ZwQueryPortInformationProcess(proc_t proc, const on_ZwQueryPortInformationProcess_fn& on_func)
 {
     if(d_->observers_ZwQueryPortInformationProcess.empty())
         if(!register_callback_with(*d_, proc, "_ZwQueryPortInformationProcess@0", &on_ZwQueryPortInformationProcess))
@@ -9957,7 +9957,7 @@ bool monitor::syscallswow64::register_ZwQueryPortInformationProcess(proc_t proc,
     return true;
 }
 
-bool monitor::syscallswow64::register_NtSerializeBoot(proc_t proc, const on_NtSerializeBoot_fn& on_func)
+bool monitor::syscalls32::register_NtSerializeBoot(proc_t proc, const on_NtSerializeBoot_fn& on_func)
 {
     if(d_->observers_NtSerializeBoot.empty())
         if(!register_callback_with(*d_, proc, "_NtSerializeBoot@0", &on_NtSerializeBoot))
@@ -9967,7 +9967,7 @@ bool monitor::syscallswow64::register_NtSerializeBoot(proc_t proc, const on_NtSe
     return true;
 }
 
-bool monitor::syscallswow64::register_NtTestAlert(proc_t proc, const on_NtTestAlert_fn& on_func)
+bool monitor::syscalls32::register_NtTestAlert(proc_t proc, const on_NtTestAlert_fn& on_func)
 {
     if(d_->observers_NtTestAlert.empty())
         if(!register_callback_with(*d_, proc, "_NtTestAlert@0", &on_NtTestAlert))
@@ -9977,7 +9977,7 @@ bool monitor::syscallswow64::register_NtTestAlert(proc_t proc, const on_NtTestAl
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwThawRegistry(proc_t proc, const on_ZwThawRegistry_fn& on_func)
+bool monitor::syscalls32::register_ZwThawRegistry(proc_t proc, const on_ZwThawRegistry_fn& on_func)
 {
     if(d_->observers_ZwThawRegistry.empty())
         if(!register_callback_with(*d_, proc, "_ZwThawRegistry@0", &on_ZwThawRegistry))
@@ -9987,7 +9987,7 @@ bool monitor::syscallswow64::register_ZwThawRegistry(proc_t proc, const on_ZwTha
     return true;
 }
 
-bool monitor::syscallswow64::register_NtThawTransactions(proc_t proc, const on_NtThawTransactions_fn& on_func)
+bool monitor::syscalls32::register_NtThawTransactions(proc_t proc, const on_NtThawTransactions_fn& on_func)
 {
     if(d_->observers_NtThawTransactions.empty())
         if(!register_callback_with(*d_, proc, "_NtThawTransactions@0", &on_NtThawTransactions))
@@ -9997,7 +9997,7 @@ bool monitor::syscallswow64::register_NtThawTransactions(proc_t proc, const on_N
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwUmsThreadYield(proc_t proc, const on_ZwUmsThreadYield_fn& on_func)
+bool monitor::syscalls32::register_ZwUmsThreadYield(proc_t proc, const on_ZwUmsThreadYield_fn& on_func)
 {
     if(d_->observers_ZwUmsThreadYield.empty())
         if(!register_callback_with(*d_, proc, "_ZwUmsThreadYield@4", &on_ZwUmsThreadYield))
@@ -10007,7 +10007,7 @@ bool monitor::syscallswow64::register_ZwUmsThreadYield(proc_t proc, const on_ZwU
     return true;
 }
 
-bool monitor::syscallswow64::register_ZwYieldExecution(proc_t proc, const on_ZwYieldExecution_fn& on_func)
+bool monitor::syscalls32::register_ZwYieldExecution(proc_t proc, const on_ZwYieldExecution_fn& on_func)
 {
     if(d_->observers_ZwYieldExecution.empty())
         if(!register_callback_with(*d_, proc, "_ZwYieldExecution@0", &on_ZwYieldExecution))
@@ -10423,7 +10423,7 @@ namespace
     };
 }
 
-bool monitor::syscallswow64::register_all(proc_t proc, const monitor::syscallswow64::on_call_fn& on_call)
+bool monitor::syscalls32::register_all(proc_t proc, const monitor::syscalls32::on_call_fn& on_call)
 {
     Data::Breakpoints breakpoints;
     for(const auto it : g_names)

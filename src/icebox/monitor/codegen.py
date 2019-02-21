@@ -31,7 +31,7 @@ def generate_header(json_data, filename, namespace, pad):
 #include "core.hpp"
 #include "types.hpp"
 
-#include "nt/{namespace}.hpp"
+#include "nt/{namespace}_types.hpp"
 
 #include <functional>
 

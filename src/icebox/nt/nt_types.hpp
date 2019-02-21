@@ -12,7 +12,7 @@ namespace nt
         const char mask_name[32];
     };
 
-    const Access_Mask g_nt_access_mask[] =
+    const Access_Mask g_access_mask[] =
     {
             {0x00010000, "DELETE"},
             {0x00000001, "FILE_READ_DATA"},
@@ -35,7 +35,7 @@ namespace nt
         const char status_name[32];
     };
 
-    const afd_status g_nt_afd_status[] =
+    const afd_status g_afd_status[] =
     {
             {0x1201F, "AfdSend"},
             {0x12017, "AfdReceive"},

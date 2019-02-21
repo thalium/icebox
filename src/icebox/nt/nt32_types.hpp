@@ -4,8 +4,46 @@
 
 #include <string.h>
 
-namespace wntdll
+namespace nt32
 {
+    struct Access_Mask
+    {
+        uint32_t   mask;
+        const char mask_name[32];
+    };
+
+    const Access_Mask g_access_mask[] =
+    {
+            {0x00010000, "DELETE"},
+            {0x00000001, "FILE_READ_DATA"},
+            {0x00000080, "FILE_READ_ATTRIBUTES"},
+            {0x00000008, "FILE_READ_EA"},
+            {0x00020000, "READ_CONTROL"},
+            {0x00000002, "FILE_WRITE_DATA"},
+            {0x00000100, "FILE_WRITE_ATTRIBUTES"},
+            {0x00000010, "FILE_WRITE_EA"},
+            {0x00000004, "FILE_APPEND_DATA"},
+            {0x00040000, "WRITE_DAC"},
+            {0x00080000, "WRITE_OWNER"},
+            {0x00100000, "SYNCHRONIZE"},
+            {0x00000020, "FILE_EXECUTE"},
+    };
+
+    struct afd_status
+    {
+        uint32_t   status;
+        const char status_name[32];
+    };
+
+    const afd_status g_afd_status[] =
+    {
+            {0x1201F, "AfdSend"},
+            {0x12017, "AfdReceive"},
+            {0x12024, "AfdPoll"},
+            {0x12047, "AfdDispatchImmediateIrp"},
+            {0x12003, "AfdBind"},
+    };
+
     using ACCESS_MASK                          = uint32_t;
     using ALPC_HANDLE                          = uint32_t;
     using ALPC_MESSAGE_INFORMATION_CLASS       = uint32_t;
@@ -154,4 +192,4 @@ namespace wntdll
         memcpy(&value, &src.val, sizeof value);
         return value;
     };
-} // namespace wntdll
+} // namespace nt32

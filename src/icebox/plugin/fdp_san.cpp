@@ -4,7 +4,7 @@
 #include "log.hpp"
 
 #include "monitor/heaps.gen.hpp"
-#include "nt/nt.hpp"
+#include "nt/nt_types.hpp"
 #include "os.hpp"
 #include "reader.hpp"
 #include "utils/fnview.hpp"
