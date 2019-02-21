@@ -6,6 +6,13 @@
 #include "utils/fnview.hpp"
 #include "utils/path.hpp"
 
+#ifdef _MSC_VER
+#    define stricmp _stricmp
+#else
+#    include <cstring>
+#    define stricmp strcasecmp
+#endif
+
 struct core::Waiter::Data
 {
     Data(Core& core);
@@ -44,7 +51,7 @@ namespace
             if(!name)
                 return WALK_NEXT;
 
-            if(_stricmp(path::filename(*name).generic_string().data(), mod_name.data()))
+            if(stricmp(path::filename(*name).generic_string().data(), mod_name.data()))
                 return WALK_NEXT;
 
             found = mod;
@@ -130,7 +137,7 @@ void core::Waiter::mod_wait(const std::string& mod_name, const core::Waiter::tas
 
     d_->observers_mod_wait_.push_back([=](proc_t proc_loading, const std::string& name, span_t span)
     {
-        if(_stricmp(path::filename(name).generic_string().data(), mod_name.data()))
+        if(stricmp(path::filename(name).generic_string().data(), mod_name.data()))
             return;
 
         task(proc_loading, name, span);
@@ -150,7 +157,7 @@ void core::Waiter::mod_wait(proc_t proc, const std::string& mod_name, const core
         if(proc_loading.id != proc.id)
             return;
 
-        if(_stricmp(path::filename(name).generic_string().data(), mod_name.data()))
+        if(stricmp(path::filename(name).generic_string().data(), mod_name.data()))
             return;
 
         task(proc_loading, name, span);
