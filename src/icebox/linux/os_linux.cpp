@@ -41,7 +41,7 @@ namespace
 
         bool                proc_list           (on_proc_fn on_process) override;
         opt<proc_t>         proc_current        () override;
-        opt<proc_t>         proc_find           (const std::string& name) override;
+        opt<proc_t>         proc_find           (std::string_view name) override;
         opt<proc_t>         proc_find           (uint64_t pid) override;
         opt<std::string>    proc_name           (proc_t proc) override;
         bool                proc_is_valid       (proc_t proc) override;
@@ -69,7 +69,7 @@ namespace
         bool                mod_listen_unload   (const on_mod_event_fn& on_unload) override;
 
         bool                driver_list (on_driver_fn on_driver) override;
-        opt<driver_t>       driver_find (const std::string& name) override;
+        opt<driver_t>       driver_find (std::string_view name) override;
         opt<std::string>    driver_name (driver_t drv) override;
         opt<span_t>         driver_span (driver_t drv) override;
 
@@ -144,7 +144,7 @@ opt<proc_t> OsLinux::proc_current()
     return {};
 }
 
-opt<proc_t> OsLinux::proc_find(const std::string& name)
+opt<proc_t> OsLinux::proc_find(std::string_view name)
 {
     opt<proc_t> found;
     proc_list([&](proc_t proc)
@@ -329,7 +329,7 @@ bool OsLinux::driver_list(on_driver_fn on_driver)
     return true;
 }
 
-opt<driver_t> OsLinux::driver_find(const std::string& /*name*/)
+opt<driver_t> OsLinux::driver_find(std::string_view /*name*/)
 {
     return {};
 }

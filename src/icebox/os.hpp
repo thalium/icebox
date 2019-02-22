@@ -36,7 +36,7 @@ namespace os
 
         virtual bool                proc_list           (on_proc_fn on_proc) = 0;
         virtual opt<proc_t>         proc_current        () = 0;
-        virtual opt<proc_t>         proc_find           (const std::string& name) = 0;
+        virtual opt<proc_t>         proc_find           (std::string_view name) = 0;
         virtual opt<proc_t>         proc_find           (uint64_t pid) = 0;
         virtual opt<std::string>    proc_name           (proc_t proc) = 0;
         virtual bool                proc_is_valid       (proc_t proc) = 0;
@@ -64,7 +64,7 @@ namespace os
         virtual bool                mod_listen_unload   (const on_mod_event_fn& on_unload) = 0;
 
         virtual bool                driver_list (on_driver_fn on_driver) = 0;
-        virtual opt<driver_t>       driver_find (const std::string& name) = 0;
+        virtual opt<driver_t>       driver_find (std::string_view name) = 0;
         virtual opt<std::string>    driver_name (driver_t drv) = 0;
         virtual opt<span_t>         driver_span (driver_t drv) = 0;
 
