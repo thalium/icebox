@@ -48,7 +48,7 @@ namespace
         waiter::mod_wait(core, *target, "ntdll.dll", span, FLAGS_32BIT);
         core.os->proc_join(*target, os::JOIN_USER_MODE);
 
-        // Load wntdll pdb
+        // Load ntdll32 pdb
         const auto debug = pe::find_debug_codeview(reader, *span);
         if(!debug)
             return;
@@ -59,7 +59,7 @@ namespace
         if(!ok)
             return;
 
-        const auto inserted = core.sym.insert("wntdll", *span, &buffer[0], buffer.size());
+        const auto inserted = core.sym.insert("ntdll32", *span, &buffer[0], buffer.size());
         if(!inserted)
             return;
 

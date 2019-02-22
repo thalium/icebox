@@ -55,7 +55,7 @@ struct plugins::Syscalls32::Data
 
 plugins::Syscalls32::Data::Data(core::Core& core)
     : core_(core)
-    , syscalls_(core, "wntdll")
+    , syscalls_(core, "ntdll32")
     , target_()
     , nb_triggers_()
 {
