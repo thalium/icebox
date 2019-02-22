@@ -41,7 +41,7 @@ namespace
 
         bool                proc_list           (on_proc_fn on_process) override;
         opt<proc_t>         proc_current        () override;
-        opt<proc_t>         proc_find           (std::string_view name) override;
+        opt<proc_t>         proc_find           (std::string_view name, flags_e flags) override;
         opt<proc_t>         proc_find           (uint64_t pid) override;
         opt<std::string>    proc_name           (proc_t proc) override;
         bool                proc_is_valid       (proc_t proc) override;
@@ -144,7 +144,7 @@ opt<proc_t> OsLinux::proc_current()
     return {};
 }
 
-opt<proc_t> OsLinux::proc_find(std::string_view name)
+opt<proc_t> OsLinux::proc_find(std::string_view name, flags_e /*flags*/)
 {
     opt<proc_t> found;
     proc_list([&](proc_t proc)

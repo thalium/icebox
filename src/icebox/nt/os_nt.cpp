@@ -211,7 +211,7 @@ namespace
 
         bool                proc_list           (on_proc_fn on_process) override;
         opt<proc_t>         proc_current        () override;
-        opt<proc_t>         proc_find           (std::string_view name) override;
+        opt<proc_t>         proc_find           (std::string_view name, flags_e flags) override;
         opt<proc_t>         proc_find           (uint64_t pid) override;
         opt<std::string>    proc_name           (proc_t proc) override;
         bool                proc_is_valid       (proc_t proc) override;
@@ -427,13 +427,17 @@ opt<proc_t> OsNt::proc_current()
     return thread_proc(*current);
 }
 
-opt<proc_t> OsNt::proc_find(std::string_view name)
+opt<proc_t> OsNt::proc_find(std::string_view name, flags_e flags)
 {
     opt<proc_t> found;
     proc_list([&](proc_t proc)
     {
         const auto got = proc_name(proc);
         if(got != name)
+            return WALK_NEXT;
+
+        const auto f = proc_flags(proc);
+        if(!(f & flags))
             return WALK_NEXT;
 
         found = proc;
@@ -761,6 +765,10 @@ namespace
         if(!ldr)
             return FAIL(ext::nullopt, "unable to read PEB.Ldr");
 
+        // Ldr = 0 before the process loads it's first module
+        if(!*ldr)
+            return WALK_NEXT;
+
         const auto head = *ldr + os.offsets_[PEB_LDR_DATA_InLoadOrderModuleList];
         for(auto link = reader.read(head); link && link != head; link = reader.read(*link))
         {
@@ -785,6 +793,10 @@ namespace
         const auto ldr32 = reader.le32(*peb32 + os.offsets_[PEB32_Ldr]);
         if(!ldr32)
             return FAIL(ext::nullopt, "unable to read PEB32.Ldr");
+
+        // Ldr = 0 before the process loads it's first module
+        if(!*ldr32)
+            return WALK_NEXT;
 
         const auto head = *ldr32 + offsetof32(nt32::_PEB_LDR_DATA, InLoadOrderModuleList);
         for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
@@ -849,7 +861,7 @@ flags_e OsNt::proc_flags(proc_t proc)
     const auto reader = reader::make(core_, proc);
     int flags         = FLAGS_NONE;
     const auto wow64  = reader.read(proc.id + offsets_[EPROCESS_Wow64Process]);
-    if(wow64)
+    if(*wow64)
         flags |= FLAGS_32BIT;
     return static_cast<flags_e>(flags);
 }

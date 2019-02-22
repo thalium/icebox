@@ -36,26 +36,20 @@ namespace
 
     void test_wait_and_trace(core::Core& core, std::string_view proc_target)
     {
-        LOG(INFO, "searching {}", proc_target);
+        LOG(INFO, "searching for 32 bits {} process", proc_target);
         plugins::Syscalls32 syscalls(core);
-        const auto target = waiter::proc_wait(core, proc_target);
+        const auto target = waiter::proc_wait(core, proc_target, FLAGS_32BIT);
         if(!target)
             return;
 
         const auto reader = reader::make(core, *target);
-        core.os->proc_join(*target, os::JOIN_USER_MODE);
+        // core.os->proc_join(*target, os::JOIN_USER_MODE);
         opt<span_t> span = {};
-        while(!span)
-        {
-            waiter::mod_wait(core, *target, "ntdll.dll", span);
-            const auto is_pe64 = pe::is_pe64(reader, span->addr);
-            if(*is_pe64)
-                span = {};
-        }
+        waiter::mod_wait(core, *target, "ntdll.dll", span, FLAGS_32BIT);
         core.os->proc_join(*target, os::JOIN_USER_MODE);
 
         // Load wntdll pdb
-        const auto debug  = pe::find_debug_codeview(reader, *span);
+        const auto debug = pe::find_debug_codeview(reader, *span);
         if(!debug)
             return;
 
@@ -114,7 +108,7 @@ namespace
 
         const char proc_target[] = "notepad.exe";
         LOG(INFO, "searching {}", proc_target);
-        const auto target = core.os->proc_find(proc_target);
+        const auto target = core.os->proc_find(proc_target, FLAGS_NONE);
         if(!target)
             return false;
 
@@ -231,14 +225,17 @@ namespace
             }
         }
 
-        test_wait_and_trace(core, "notepad.exe");
-
         // test syscall plugin
         {
             if(is_32bit)
                 test_tracer<plugins::Syscalls32>(core, *target);
             else
                 test_tracer<plugins::Syscalls>(core, *target);
+        }
+
+        {
+            if(true)
+                test_wait_and_trace(core, "notepad.exe");
         }
 
         return true;
