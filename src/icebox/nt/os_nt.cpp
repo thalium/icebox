@@ -228,8 +228,8 @@ namespace
         opt<proc_t>     thread_proc         (thread_t thread) override;
         opt<uint64_t>   thread_pc           (proc_t proc, thread_t thread) override;
         uint64_t        thread_id           (proc_t proc, thread_t thread) override;
-        bool            thread_listen_create(const on_thread_event_fn& on_thread_event);
-        bool            thread_listen_delete(const on_thread_event_fn& on_thread_event);
+        bool            thread_listen_create(const on_thread_event_fn& on_thread_event) override;
+        bool            thread_listen_delete(const on_thread_event_fn& on_thread_event) override;
 
         bool                mod_list            (proc_t proc, on_mod_fn on_module) override;
         opt<std::string>    mod_name            (proc_t proc, mod_t mod) override;

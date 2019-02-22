@@ -264,11 +264,11 @@ bool plugins::Syscalls32::setup(proc_t target)
             return 1;
 
         opt<std::string> ioctrole_code = {};
-        for(size_t i = 0; i < COUNT_OF(nt32::g_afd_status); i++)
+        for(const auto& afd_status : nt32::g_afd_status)
         {
-            if(IoControlCode == nt32::g_afd_status[i].status)
+            if(IoControlCode == afd_status.status)
             {
-                ioctrole_code = nt32::g_afd_status[i].status_name;
+                ioctrole_code = afd_status.status_name;
                 break;
             }
         }
@@ -328,9 +328,9 @@ bool plugins::Syscalls32::setup(proc_t target)
             return 1;
 
         std::vector<std::string> access;
-        for(size_t i = 0; i < COUNT_OF(nt::g_access_mask); i++)
-            if(DesiredAccess & nt::g_access_mask[i].mask)
-                access.push_back(nt::g_access_mask[i].mask_name);
+        for(const auto& access_mask : nt::g_access_mask)
+            if(DesiredAccess & access_mask.mask)
+                access.emplace_back(access_mask.mask_name);
 
         d_->args_[d_->nb_triggers_]["FileName"] = object_name->data();
         d_->args_[d_->nb_triggers_]["Access"]   = access;
