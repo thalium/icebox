@@ -34,51 +34,46 @@ namespace
         syscall_plugin.generate("output.json");
     }
 
-    void test_wait_and_trace(core::Core& core, const std::string& proc_target)
+    void test_wait_and_trace(core::Core& core, std::string_view proc_target)
     {
         LOG(INFO, "searching {}", proc_target);
-        auto waiter = core::Waiter(core);
         plugins::Syscalls32 syscalls(core);
-        opt<proc_t> target = {};
-        bool once          = false;
-        waiter.mod_wait(proc_target, "ntdll.dll", [&](proc_t proc, const std::string& name, span_t span)
+        const auto target = waiter::proc_wait(core, proc_target);
+        if(!target)
+            return;
+
+        const auto reader = reader::make(core, *target);
+        core.os->proc_join(*target, os::JOIN_USER_MODE);
+        opt<span_t> span = {};
+        while(!span)
         {
-            LOG(INFO, "PROC FOUND that loaded : {} at {:#x} size {:#x}", name.data(), span.addr, span.size);
-            target = proc;
+            waiter::mod_wait(core, *target, "ntdll.dll", span);
+            const auto is_pe64 = pe::is_pe64(reader, span->addr);
+            if(*is_pe64)
+                span = {};
+        }
+        core.os->proc_join(*target, os::JOIN_USER_MODE);
 
-            // We want wntdll here
-            if(span.addr > 0x100000000)
-                return;
+        // Load wntdll pdb
+        const auto debug  = pe::find_debug_codeview(reader, *span);
+        if(!debug)
+            return;
 
-            if(once)
-                return;
+        std::vector<uint8_t> buffer;
+        buffer.resize(debug->size);
+        auto ok = reader.read(&buffer[0], debug->addr, debug->size);
+        if(!ok)
+            return;
 
-            once = true;
-            core.os->proc_join(proc, os::JOIN_ANY_MODE);
-            core.os->proc_join(*target, os::JOIN_USER_MODE);
+        const auto inserted = core.sym.insert("wntdll", *span, &buffer[0], buffer.size());
+        if(!inserted)
+            return;
 
-            // Load wntdll pdb
-            const auto reader = reader::make(core, *target);
-            const auto debug  = pe::find_debug_codeview(reader, span);
-            if(!debug)
-                return;
+        ok = syscalls.setup(*target);
+        if(!ok)
+            return;
 
-            std::vector<uint8_t> buffer;
-            buffer.resize(debug->size);
-            auto ok = reader.read(&buffer[0], debug->addr, debug->size);
-            if(!ok)
-                return;
-
-            const auto inserted = core.sym.insert("wntdll", span, &buffer[0], buffer.size());
-            if(!inserted)
-                return;
-
-            ok = syscalls.setup(*target);
-            if(!ok)
-                return;
-
-            LOG(INFO, "Every thing is ready ! Please trigger some syscalls");
-        });
+        LOG(INFO, "Every thing is ready ! Please trigger some syscalls");
 
         for(size_t i = 0; i < 3000; ++i)
         {

@@ -13,41 +13,14 @@
 #    define stricmp strcasecmp
 #endif
 
-struct core::Waiter::Data
-{
-    Data(Core& core);
-    Core& core;
-
-    using ObsProcEvent = std::vector<task_proc>;
-    using ObsModEvent  = std::vector<task_mod>;
-
-    ObsProcEvent observers_proc_wait_;
-    ObsModEvent  observers_mod_wait_;
-};
-
-core::Waiter::Data::Data(core::Core& core)
-    : core(core)
-{
-}
-
-using WaiterData = core::Waiter::Data;
-
-core::Waiter::Waiter(core::Core& core)
-    : d_(std::make_unique<Data>(core))
-{
-}
-
-core::Waiter::~Waiter() = default;
-
 namespace
 {
-    static bool search_mod(WaiterData& d, proc_t proc, const std::string& mod_name, const core::Waiter::task_mod& task)
+    static opt<mod_t> search_mod(core::Core& core, proc_t proc, std::string_view mod_name)
     {
         opt<mod_t> found = {};
-
-        d.core.os->mod_list(proc, [&](mod_t mod)
+        core.os->mod_list(proc, [&](mod_t mod)
         {
-            const auto name = d.core.os->mod_name(proc, mod);
+            const auto name = core.os->mod_name(proc, mod);
             if(!name)
                 return WALK_NEXT;
 
@@ -58,101 +31,49 @@ namespace
             return WALK_STOP;
         });
 
-        if(!found)
-            return false;
-
-        const auto name = d.core.os->mod_name(proc, *found);
-        if(!name)
-            return false;
-
-        const auto span = d.core.os->mod_span(proc, *found);
-        if(!span)
-            return false;
-
-        task(proc, *name, *span);
-        return true;
+        return found;
     }
-
-    static void register_proc_wait(core::Waiter::Data& d)
-    {
-        const auto dptr = &d;
-        d.core.os->proc_listen_create([=](proc_t /*parent_proc*/, proc_t proc)
-        {
-            for(const auto& it : (*dptr).observers_proc_wait_)
-                it(proc);
-        });
-    }
-
-    static void register_mod_wait(core::Waiter::Data& d)
-    {
-        const auto dptr = &d;
-        d.core.os->mod_listen_load([=](proc_t proc_loading, const std::string& name, span_t span)
-        {
-            for(const auto& it : (*dptr).observers_mod_wait_)
-                it(proc_loading, name, span);
-        });
-    }
-
 }
 
-void core::Waiter::proc_wait(const std::string& proc_name, const core::Waiter::task_proc& task)
+opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name)
 {
-    const auto proc_f = d_->core.os->proc_find(proc_name);
-    if(proc_f)
-        return task(*proc_f);
-
-    if(d_->observers_proc_wait_.empty())
-        register_proc_wait(*d_);
-
-    d_->observers_proc_wait_.push_back([=](proc_t proc)
+    auto found = core.os->proc_find(proc_name);
+    if(found)
     {
-        const auto name = d_->core.os->proc_name(proc);
+        core.os->proc_join(*found, os::JOIN_ANY_MODE);
+        return found;
+    }
+
+    core.os->proc_listen_create([&](proc_t /*parent_proc*/, proc_t proc)
+    {
+        const auto name = core.os->proc_name(proc);
         if(!name)
             return;
 
         LOG(INFO, "New proc {}", name->data());
 
         if(name == proc_name)
-            task(proc);
+            found = proc;
     });
+
+    while(!found)
+    {
+        core.state.resume();
+        core.state.wait();
+    }
+    return found;
 }
 
-void core::Waiter::mod_wait(const std::string& mod_name, const core::Waiter::task_mod& task)
+opt<mod_t> waiter::mod_wait(core::Core& core, proc_t proc, std::string_view mod_name, opt<span_t>& mod_span)
 {
-    auto ok = false;
-    d_->core.os->proc_list([&](proc_t proc)
+    auto found = search_mod(core, proc, mod_name);
+    if(found)
     {
-        ok = search_mod(*d_, proc, mod_name, task);
-        if(ok)
-            return WALK_STOP;
+        mod_span = core.os->mod_span(proc, *found);
+        return found;
+    }
 
-        return WALK_NEXT;
-    });
-
-    if(ok)
-        return;
-
-    if(d_->observers_mod_wait_.empty())
-        register_mod_wait(*d_);
-
-    d_->observers_mod_wait_.push_back([=](proc_t proc_loading, const std::string& name, span_t span)
-    {
-        if(stricmp(path::filename(name).generic_string().data(), mod_name.data()))
-            return;
-
-        task(proc_loading, name, span);
-    });
-}
-
-void core::Waiter::mod_wait(proc_t proc, const std::string& mod_name, const core::Waiter::task_mod& task)
-{
-    if(search_mod(*d_, proc, mod_name, task))
-        return;
-
-    if(d_->observers_mod_wait_.empty())
-        register_mod_wait(*d_);
-
-    d_->observers_mod_wait_.push_back([=](proc_t proc_loading, const std::string& name, span_t span)
+    core.os->mod_listen_load([&](proc_t proc_loading, const std::string& name, span_t span)
     {
         if(proc_loading.id != proc.id)
             return;
@@ -160,14 +81,14 @@ void core::Waiter::mod_wait(proc_t proc, const std::string& mod_name, const core
         if(stricmp(path::filename(name).generic_string().data(), mod_name.data()))
             return;
 
-        task(proc_loading, name, span);
+        mod_span = span;
+        found    = {};
     });
-}
 
-void core::Waiter::mod_wait(const std::string& proc_name, const std::string& mod_name, const core::Waiter::task_mod& task)
-{
-    proc_wait(proc_name, [=](proc_t proc)
+    while(!mod_span)
     {
-        mod_wait(proc, mod_name, task);
-    });
+        core.state.resume();
+        core.state.wait();
+    }
+    return found;
 }

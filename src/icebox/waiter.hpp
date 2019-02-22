@@ -2,25 +2,8 @@
 
 #include "core.hpp"
 
-#include <functional>
-#include <memory>
-
-namespace core
+namespace waiter
 {
-    struct Waiter
-    {
-         Waiter(Core& core);
-        ~Waiter();
-
-        using task_proc = std::function<void(proc_t)>;
-        using task_mod  = std::function<void(proc_t, const std::string&, span_t)>;
-
-        void    proc_wait   (const std::string& proc_name, const task_proc& task);
-        void    mod_wait    (const std::string& mod_name, const task_mod& task);
-        void    mod_wait    (const std::string& proc_name, const std::string& mod_name, const task_mod& task);
-        void    mod_wait    (proc_t proc, const std::string& mod_name, const task_mod& task);
-
-        struct Data;
-        std::unique_ptr<Data> d_;
-    };
-} // namespace core
+    opt<proc_t> proc_wait   (core::Core& core, std::string_view proc_name);
+    opt<mod_t>  mod_wait    (core::Core& core, proc_t proc, std::string_view mod_name, opt<span_t>& mod_span);
+} // namespace waiter
