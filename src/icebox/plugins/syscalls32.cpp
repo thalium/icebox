@@ -188,7 +188,9 @@ bool plugins::Syscalls32::setup(proc_t target)
     if(!d_->objects_)
         return FAIL(false, "Unable to create ObjectNt object");
 
-    // Horrible workaround
+    // Horrible workaround : Windows's 32 bit version on ntdll patches 4 bits of this function. Setting a breakpoint on this page with FDP
+    // creates a glitch on the instruction that reads the patched bytes. Single stepping this instruction "simplify" the page resolution
+    // and does not trigger the bug...
     d_->syscalls_.register_ZwQueryInformationProcess(target, [=](nt32::HANDLE, nt32::PROCESSINFOCLASS, nt32::PVOID, nt32::ULONG, nt32::PULONG)
     {
         const auto nbr = 4;
