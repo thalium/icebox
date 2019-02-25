@@ -5786,15 +5786,15 @@ namespace
     {
         const auto WorkerFactoryHandle = arg<nt32::HANDLE>(d.core, 0);
         const auto MiniPacket          = arg<nt32::PFILE_IO_COMPLETION_INFORMATION>(d.core, 1);
-        const auto ArgNameUnknown1     = arg<nt32::PVOID>(d.core, 2);
-        const auto ArgNameUnknown2     = arg<nt32::PVOID>(d.core, 3);
-        const auto ArgNameUnknown3     = arg<nt32::PVOID>(d.core, 4);
+        const auto Arg2                = arg<nt32::PVOID>(d.core, 2);
+        const auto Arg3                = arg<nt32::PVOID>(d.core, 3);
+        const auto Arg4                = arg<nt32::PVOID>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWaitForWorkViaWorkerFactory(WorkerFactoryHandle:{:#x}, MiniPacket:{:#x}, ArgNameUnknown1:{:#x}, ArgNameUnknown2:{:#x}, ArgNameUnknown3:{:#x})", WorkerFactoryHandle, MiniPacket, ArgNameUnknown1, ArgNameUnknown2, ArgNameUnknown3));
+            logg::print(logg::level_t::info, fmt::format("NtWaitForWorkViaWorkerFactory(WorkerFactoryHandle:{:#x}, MiniPacket:{:#x}, Arg2:{:#x}, Arg3:{:#x}, Arg4:{:#x})", WorkerFactoryHandle, MiniPacket, Arg2, Arg3, Arg4));
 
         for(const auto& it : d.observers_NtWaitForWorkViaWorkerFactory)
-            it(WorkerFactoryHandle, MiniPacket, ArgNameUnknown1, ArgNameUnknown2, ArgNameUnknown3);
+            it(WorkerFactoryHandle, MiniPacket, Arg2, Arg3, Arg4);
     }
 
     static void on_ZwWaitHighEventPair(tracer::syscalls32::Data& d)
