@@ -59,7 +59,7 @@ opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flag
 
         LOG(INFO, "New proc {}", name->data());
 
-        if(name == proc_name)
+        if(*name == proc_name)
             found = proc;
     });
 

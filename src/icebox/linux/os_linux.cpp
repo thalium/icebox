@@ -150,7 +150,7 @@ opt<proc_t> OsLinux::proc_find(std::string_view name, flags_e /*flags*/)
     proc_list([&](proc_t proc)
     {
         const auto got = proc_name(proc);
-        if(got != name)
+        if(*got != name)
             return WALK_NEXT;
 
         found = proc;

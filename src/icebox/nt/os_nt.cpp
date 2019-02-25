@@ -433,7 +433,7 @@ opt<proc_t> OsNt::proc_find(std::string_view name, flags_e flags)
     proc_list([&](proc_t proc)
     {
         const auto got = proc_name(proc);
-        if(got != name)
+        if(*got != name)
             return WALK_NEXT;
 
         const auto f = proc_flags(proc);
@@ -919,7 +919,7 @@ opt<driver_t> OsNt::driver_find(std::string_view name)
     driver_list([&](driver_t driver)
     {
         const auto got = driver_name(driver);
-        if(got != name)
+        if(*got != name)
             return WALK_NEXT;
 
         found = driver;
