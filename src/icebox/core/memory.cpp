@@ -42,7 +42,7 @@ namespace
         return ~(~uint64_t(0) << bits);
     }
 
-    opt<phy_t> slow_virtual_to_physical(MemData& m, uint64_t ptr, dtb_t dtb)
+    static opt<phy_t> slow_virtual_to_physical(MemData& m, uint64_t ptr, dtb_t dtb)
     {
         const virt_t virt     = {read_le64(&ptr)};
         const auto pml4e_base = dtb.val & (mask(40) << 12);
@@ -102,7 +102,7 @@ namespace
         return phy_t{phy};
     }
 
-    opt<phy_t> fast_virtual_to_physical(MemData& d, uint64_t ptr, dtb_t dtb)
+    static opt<phy_t> fast_virtual_to_physical(MemData& d, uint64_t ptr, dtb_t dtb)
     {
         const auto backup = d.core.regs.read(FDP_CR3_REGISTER);
         d.core.regs.write(FDP_CR3_REGISTER, dtb.val);
@@ -114,18 +114,44 @@ namespace
 
         return phy;
     }
+
+    static bool inject_page_fault(MemData& d, dtb_t dtb, uint64_t src, bool user_mode)
+    {
+        const auto rip      = d.core.regs.read(FDP_RIP_REGISTER);
+        const auto code     = user_mode ? 1 << 2 : 0;
+        const auto injected = FDP_InjectInterrupt(&d.shm, 0, PAGE_FAULT, code, src);
+        if(!injected)
+            return FAIL(false, "unable to inject page fault");
+
+        d.core.state.run_to(dtb, rip);
+        return true;
+    }
+
+    static opt<phy_t> try_virtual_to_physical(MemData& d, uint64_t ptr, dtb_t dtb)
+    {
+        auto ret = fast_virtual_to_physical(d, ptr, dtb);
+        if(ret)
+            if(ret->val)
+                return ret;
+
+        return slow_virtual_to_physical(d, ptr, dtb);
+    }
 }
 
 opt<phy_t> core::Memory::virtual_to_physical(uint64_t ptr, dtb_t dtb)
 {
-    const auto ret = fast_virtual_to_physical(*d_, ptr, dtb);
-    if(!ret)
-        return {};
-
-    if(ret->val)
+    auto ret = try_virtual_to_physical(*d_, ptr, dtb);
+    if(ret)
         return ret;
 
-    return slow_virtual_to_physical(*d_, ptr, dtb);
+    if(!d_->core.os || !d_->core.os->can_inject_fault(ptr))
+        return {};
+
+    const auto ok = inject_page_fault(*d_, dtb, ptr, true);
+    if(!ok)
+        return {};
+
+    return try_virtual_to_physical(*d_, ptr, dtb);
 }
 
 namespace
@@ -149,18 +175,6 @@ namespace
             skip = 0;
             ptr += sizeof buffer;
         }
-        return true;
-    }
-
-    bool inject_page_fault(MemData& d, dtb_t dtb, uint64_t src, bool user_mode)
-    {
-        const auto rip      = d.core.regs.read(FDP_RIP_REGISTER);
-        const auto code     = user_mode ? 1 << 2 : 0;
-        const auto injected = FDP_InjectInterrupt(&d.shm, 0, PAGE_FAULT, code, src);
-        if(!injected)
-            return FAIL(false, "unable to inject page fault");
-
-        d.core.state.run_to(dtb, rip);
         return true;
     }
 
