@@ -26,6 +26,9 @@ namespace core
         Breakpoint  set_breakpoint  (uint64_t ptr, const Task& task);
         Breakpoint  set_breakpoint  (uint64_t ptr, proc_t proc, const Task& task);
         Breakpoint  set_breakpoint  (uint64_t ptr, thread_t thread, const Task& task);
+        Breakpoint  set_breakpoint  (phy_t phy, const Task& task);
+        Breakpoint  set_breakpoint  (phy_t phy, proc_t proc, const Task& task);
+        Breakpoint  set_breakpoint  (phy_t phy, thread_t thread, const Task& task);
         void        run_to          (proc_t proc);
         void        run_to          (proc_t proc, uint64_t ptr);
         void        run_to          (dtb_t dtb, uint64_t ptr);

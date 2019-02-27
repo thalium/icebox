@@ -376,6 +376,21 @@ core::Breakpoint core::State::set_breakpoint(uint64_t ptr, thread_t thread, cons
     return ::set_breakpoint(*d_, ptr, {}, thread, task);
 }
 
+core::Breakpoint core::State::set_breakpoint(phy_t phy, const core::Task& task)
+{
+    return ::set_breakpoint(*d_, phy, {}, {}, task);
+}
+
+core::Breakpoint core::State::set_breakpoint(phy_t phy, proc_t proc, const core::Task& task)
+{
+    return ::set_breakpoint(*d_, phy, proc, {}, task);
+}
+
+core::Breakpoint core::State::set_breakpoint(phy_t phy, thread_t thread, const core::Task& task)
+{
+    return ::set_breakpoint(*d_, phy, {}, thread, task);
+}
+
 namespace
 {
     template <typename T>
