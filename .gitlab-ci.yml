@@ -43,12 +43,12 @@ build:msvc:
     - cmake ../../build -G "Visual Studio 15 2017 Win64" -DCMAKE_CONFIGURATION_TYPES=RelWithDebInfo
     - cmake --build . --config RelWithDebInfo -- -verbosity:minimal
 
-virtualbox:gcc:
+.virtualbox:pre_kmk:gcc:
   stage: virtualbox
   tags:
     - ubuntu
     - docker
-  script:
+  before_script:
     - $APT_UPDATE && $APT_INSTALL
       acpica-tools
       build-essential
@@ -85,6 +85,18 @@ virtualbox:gcc:
       --disable-docs
       --disable-java
     - source env.sh
+
+build:vbox_vmm:gcc:
+  stage: build
+  extends: .virtualbox:pre_kmk:gcc
+  script:
+    - kmk VBoxVMM VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE= VBOX_DO_STRIP=1
+  except:
+    - master
+
+virtualbox:gcc:
+  extends: .virtualbox:pre_kmk:gcc
+  script:
     - kmk VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE= VBOX_DO_STRIP=1
     - cd out/linux.amd64/release/bin/src
     - make
@@ -97,12 +109,14 @@ virtualbox:gcc:
     - 7za -y e tmp/VirtualBox.tar.bz2 -otmp
     - 7za -y e tmp/VirtualBox.tar -olinux.amd64.bin
     - rm -r tmp
+  only:
+    - master
   artifacts:
     expire_in: 1 day
     paths:
       - third_party/virtualbox/linux.amd64.bin
 
-virtualbox:msvc:
+.virtualbox:pre_kmk:msvc:
   stage: virtualbox
   tags:
     - msvc2017
@@ -110,7 +124,7 @@ virtualbox:msvc:
     QT_DIR: c:/qt-5.6.3
     OPENSSL_DIR: c:/OpenSSL-Win64
     CURL_DIR: c:/curl-7.64.0
-  script:
+  before_script:
     - set PATH=%PATH%;c:/Windows/System32
     - "cmd /C \"\"c:/Program Files/Microsoft SDKs/Windows/v7.1/Bin/SetEnv.Cmd\" /x64 /Release\""
     - cd third_party/virtualbox/include
@@ -126,6 +140,18 @@ virtualbox:msvc:
       --with-libcurl=%CURL_DIR%/builds/libcurl-vc10-x64-release-dll-ipv6-sspi-winssl
       --with-libcurl32=%CURL_DIR%/builds/libcurl-vc10-x86-release-dll-ipv6-sspi-winssl
     - call env.bat
+
+build:vbox_vmm:msvc:
+  stage: build
+  extends: .virtualbox:pre_kmk:msvc
+  script:
+    - kmk VBoxVMM VBOX_WITHOUT_HARDENING=1 VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE=
+  except:
+    - master
+
+virtualbox:msvc:
+  extends: .virtualbox:pre_kmk:msvc
+  script:
     - kmk VBOX_WITHOUT_HARDENING=1 VBOX_WITH_ADDITIONS= VBOX_WITH_TESTCASES= VBOX_WITH_TESTSUITE=
     - cd out/win.amd64/release/bin
     - rm -r testcase
@@ -139,6 +165,8 @@ virtualbox:msvc:
     - cp %CURL_DIR%/builds/libcurl-vc10-x64-release-dll-ipv6-sspi-winssl/libcurl.dll .
     - cp -r %CI_PROJECT_DIR%/third_party/virtualbox/kBuild/bin/win.amd64 kmk
     - cp -r %CI_PROJECT_DIR%/build/install.cmd .
+  only:
+    - master
   artifacts:
     expire_in: 1 day
     paths:
@@ -156,6 +184,8 @@ deploy:
     - 7za a -mx=9 ../../../../../../binaries/vbox-$(git describe --long --tags)-win10.7z *
     - cd $CI_PROJECT_DIR/third_party/virtualbox/linux.amd64.bin
     - tar cvJf ../../../binaries/vbox-$(git describe --long --tags)-ubu18.tar.xz *
+  only:
+    - master
   artifacts:
     paths:
       - binaries
