@@ -24,7 +24,7 @@ namespace
             if(!name)
                 return WALK_NEXT;
 
-            if(!(mod.flags & flags))
+            if(flags && !(mod.flags & flags))
                 return WALK_NEXT;
 
             if(stricmp(path::filename(*name).generic_string().data(), mod_name.data()))
@@ -50,7 +50,7 @@ opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flag
     core.os->proc_listen_create([&](proc_t /*parent_proc*/, proc_t proc)
     {
         const auto new_flags = core.os->proc_flags(proc);
-        if(!(new_flags & flags))
+        if(flags && !(new_flags & flags))
             return;
 
         const auto name = core.os->proc_name(proc);

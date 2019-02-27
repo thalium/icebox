@@ -437,7 +437,7 @@ opt<proc_t> OsNt::proc_find(std::string_view name, flags_e flags)
             return WALK_NEXT;
 
         const auto f = proc_flags(proc);
-        if(!(f & flags))
+        if(flags && !(f & flags))
             return WALK_NEXT;
 
         found = proc;
