@@ -767,7 +767,9 @@ namespace
         if(!base)
             return {};
 
-        const auto is_wow64 = *base < 0x100000000;
+        // ntdll32 is always mapped at an address under the maximum 32 bit address
+        const auto max_32bit_addr = 0xffffffff;
+        const auto is_wow64       = *base <= max_32bit_addr;
         if(is_32bit && !is_wow64 || (!is_32bit && is_wow64))
             return {};
 
