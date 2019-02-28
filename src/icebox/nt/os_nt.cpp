@@ -718,7 +718,6 @@ namespace
     static opt<span_t> get_ntdll_span(OsNt& os, proc_t proc, bool is_32bit)
     {
         opt<span_t> found;
-        const auto reader = reader::make(os.core_, proc);
         os.mod_list(proc, [&](mod_t mod)
         {
             const auto name = os.mod_name(proc, mod);
@@ -770,7 +769,7 @@ namespace
         // ntdll32 is always mapped at an address under the maximum 32 bit address
         const auto max_32bit_addr = 0xffffffff;
         const auto is_wow64       = *base <= max_32bit_addr;
-        if(is_32bit && !is_wow64 || (!is_32bit && is_wow64))
+        if((is_32bit && !is_wow64) || (!is_32bit && is_wow64))
             return {};
 
         const auto size = reader.read(image_info_addr + offsetof(_IMAGE_INFO, ImageSize));
@@ -789,7 +788,7 @@ namespace
         return span;
     }
 
-    static opt<phy_t> get_phy_from_sym(OsNt& os, proc_t proc, std::shared_ptr<sym::Symbols> sym, const std::string& mod_name, const std::string& sym_name)
+    static opt<phy_t> get_phy_from_sym(OsNt& os, proc_t proc, const std::shared_ptr<sym::Symbols>& sym, const std::string& mod_name, const std::string& sym_name)
     {
         const auto addr = sym->symbol(mod_name, sym_name);
         if(!addr)

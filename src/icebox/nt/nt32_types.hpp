@@ -1,7 +1,7 @@
 #pragma once
 
 #include "types.hpp"
-#include <string>
+#include <string.h>
 #include <vector>
 
 namespace nt32
