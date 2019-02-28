@@ -220,6 +220,7 @@ namespace
         void                proc_join           (proc_t proc, os::join_e join) override;
         opt<phy_t>          proc_resolve        (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_select         (proc_t proc, uint64_t ptr) override;
+        opt<proc_t>         proc_parent         (proc_t proc) override;
         bool                proc_listen_create  (const on_proc_event_fn& on_proc_event) override;
         bool                proc_listen_delete  (const on_proc_event_fn& on_proc_event) override;
 
@@ -256,19 +257,19 @@ namespace
         uint64_t       kpcr_;
         reader::Reader reader_;
 
-        using Breakpoints    = std::vector<core::Breakpoint>;
-        using ObsProcEvent   = std::vector<on_proc_event_fn>;
-        using ObsThreadEvent = std::vector<on_thread_event_fn>;
-        using ObsModEvent    = std::vector<on_mod_event_fn>;
+        using Breakpoints     = std::vector<core::Breakpoint>;
+        using ProcListeners   = std::vector<on_proc_event_fn>;
+        using ThreadListeners = std::vector<on_thread_event_fn>;
+        using ModListeners    = std::vector<on_mod_event_fn>;
 
-        Breakpoints    breakpoints_;
-        ObsProcEvent   observers_proc_create_;
-        ObsProcEvent   observers_proc_delete_;
-        ObsThreadEvent observers_thread_create_;
-        ObsThreadEvent observers_thread_delete_;
-        ObsModEvent    observers_mod_load_;
-        opt<phy_t>     ldrpinsertdatatableentry_addr_;
-        opt<phy_t>     ldrpinsertdatatableentry32_addr_;
+        Breakpoints     breakpoints_;
+        ProcListeners   observers_proc_create_;
+        ProcListeners   observers_proc_delete_;
+        ThreadListeners observers_thread_create_;
+        ThreadListeners observers_thread_delete_;
+        ModListeners    observers_mod_load_;
+        opt<phy_t>      ldrpinsertdatatableentry_addr_;
+        opt<phy_t>      ldrpinsertdatatableentry32_addr_;
     };
 }
 
@@ -601,18 +602,14 @@ namespace
         return true;
     }
 
-    static void thread_on_insert_event(OsNt& os)
+    static void on_PspInsertThread(OsNt& os)
     {
         const auto thread = os.core_.regs.read(FDP_RCX_REGISTER);
-        const auto eproc  = os.core_.regs.read(FDP_RDX_REGISTER);
-
-        const auto reader = reader::make(os.core_);
-        const auto dtb    = reader.read(eproc + os.offsets_[KPROCESS_UserDirectoryTableBase]);
-        if(!dtb)
-            return;
-
         for(const auto& it : os.observers_thread_create_)
-            it({eproc, dtb_t{*dtb}}, {thread});
+            it({thread});
+
+        const auto eproc  = os.core_.regs.read(FDP_RDX_REGISTER);
+        const auto reader = reader::make(os.core_);
 
         // Check if it is a CreateProcess (if ActiveThreads = 0)
         const auto active_threads = reader.le32(eproc + os.offsets_[EPROCESS_ActiveThreads]);
@@ -622,20 +619,16 @@ namespace
         if(*active_threads)
             return;
 
-        const auto parent_pid = reader.read(eproc + os.offsets_[EPROCESS_InheritedFromUniqueProcessId]);
-        if(!parent_pid)
-            return;
-
-        const auto proc_parent = os.proc_find(*parent_pid);
-        if(!proc_parent)
+        const auto dtb = reader.read(eproc + os.offsets_[KPROCESS_UserDirectoryTableBase]);
+        if(!dtb)
             return;
 
         if(!*active_threads)
             for(const auto& it : os.observers_proc_create_)
-                it(*proc_parent, {eproc, dtb_t{*dtb}});
+                it({eproc, dtb_t{*dtb}});
     }
 
-    static void proc_on_delete_event(OsNt& os)
+    static void on_PspExitProcess(OsNt& os)
     {
         const auto eproc = os.core_.regs.read(FDP_RDX_REGISTER);
 
@@ -644,37 +637,25 @@ namespace
         if(!dtb)
             return;
 
-        const auto parent_pid = reader.read(eproc + os.offsets_[EPROCESS_InheritedFromUniqueProcessId]);
-        if(!parent_pid)
-            return;
-
-        const auto proc_parent = os.proc_find(*parent_pid);
-        if(!proc_parent)
-            return;
-
         for(const auto& it : os.observers_proc_delete_)
-            it(*proc_parent, {eproc, dtb_t{*dtb}});
+            it({eproc, dtb_t{*dtb}});
     }
 
-    static void thread_on_delete_event(OsNt& os)
+    static void on_PspExitThread(OsNt& os)
     {
         const auto thread = os.thread_current();
         if(!thread)
             return;
 
-        const auto proc = os.thread_proc(*thread);
-        if(!proc)
-            return;
-
         for(const auto& it : os.observers_thread_delete_)
-            it(*proc, *thread);
+            it(*thread);
     }
 }
 
 bool OsNt::proc_listen_create(const on_proc_event_fn& on_create)
 {
     if(observers_proc_create_.empty() && observers_thread_create_.empty())
-        if(!register_callback_notifyroutine(*this, symbols_[PspInsertThread], &thread_on_insert_event))
+        if(!register_callback_notifyroutine(*this, symbols_[PspInsertThread], &on_PspInsertThread))
             return false;
 
     observers_proc_create_.push_back(on_create);
@@ -684,7 +665,7 @@ bool OsNt::proc_listen_create(const on_proc_event_fn& on_create)
 bool OsNt::proc_listen_delete(const on_proc_event_fn& on_remove)
 {
     if(observers_proc_delete_.empty())
-        if(!register_callback_notifyroutine(*this, symbols_[PspExitProcess], &proc_on_delete_event))
+        if(!register_callback_notifyroutine(*this, symbols_[PspExitProcess], &on_PspExitProcess))
             return false;
 
     observers_proc_delete_.push_back(on_remove);
@@ -694,7 +675,7 @@ bool OsNt::proc_listen_delete(const on_proc_event_fn& on_remove)
 bool OsNt::thread_listen_create(const on_thread_event_fn& on_create)
 {
     if(observers_proc_create_.empty() && observers_thread_create_.empty())
-        if(!register_callback_notifyroutine(*this, symbols_[PspInsertThread], &thread_on_insert_event))
+        if(!register_callback_notifyroutine(*this, symbols_[PspInsertThread], &on_PspInsertThread))
             return false;
 
     observers_thread_create_.push_back(on_create);
@@ -704,7 +685,7 @@ bool OsNt::thread_listen_create(const on_thread_event_fn& on_create)
 bool OsNt::thread_listen_delete(const on_thread_event_fn& on_remove)
 {
     if(observers_thread_create_.empty() && observers_thread_delete_.empty())
-        if(!register_callback_notifyroutine(*this, symbols_[PspExitThread], &thread_on_delete_event))
+        if(!register_callback_notifyroutine(*this, symbols_[PspExitThread], &on_PspExitThread))
             return false;
 
     observers_thread_delete_.push_back(on_remove);
@@ -1214,6 +1195,16 @@ opt<proc_t> OsNt::proc_select(proc_t proc, uint64_t ptr)
         return {};
 
     return proc_t{proc.id, dtb_t{*kdtb}};
+}
+
+opt<proc_t> OsNt::proc_parent(proc_t proc)
+{
+    const auto reader     = reader::make(core_, proc);
+    const auto parent_pid = reader.read(proc.id + offsets_[EPROCESS_InheritedFromUniqueProcessId]);
+    if(!parent_pid)
+        return {};
+
+    return proc_find(*parent_pid);
 }
 
 bool OsNt::reader_setup(reader::Reader& reader, proc_t proc)

@@ -2,47 +2,45 @@
 
 #include "types.hpp"
 
-#include <string.h>
+#include <string>
+#include <vector>
 
 namespace nt
 {
-    struct Access_Mask
+    enum class access_mask_e : uint32_t
     {
-        uint32_t   mask;
-        const char mask_name[32];
+        DELETE                = 0x00010000,
+        FILE_READ_DATA        = 0x00000001,
+        FILE_READ_ATTRIBUTES  = 0x00000080,
+        FILE_READ_EA          = 0x00000008,
+        READ_CONTROL          = 0x00020000,
+        FILE_WRITE_DATA       = 0x00000002,
+        FILE_WRITE_ATTRIBUTES = 0x00000100,
+        FILE_WRITE_EA         = 0x00000010,
+        FILE_APPEND_DATA      = 0x00000004,
+        WRITE_DAC             = 0x00040000,
+        WRITE_OWNER           = 0x00080000,
+        SYNCHRONIZE           = 0x00100000,
+        FILE_EXECUTE          = 0x00000020,
     };
 
-    const Access_Mask g_access_mask[] =
+    // use string and not string_view because result goes in json (nlohmann)
+    std::string                 access_mask_str (access_mask_e access_mask);
+    std::vector<std::string>    access_mask_dump(uint32_t mask);
+
+    enum class afd_status_e : uint32_t
     {
-            {0x00010000, "DELETE"},
-            {0x00000001, "FILE_READ_DATA"},
-            {0x00000080, "FILE_READ_ATTRIBUTES"},
-            {0x00000008, "FILE_READ_EA"},
-            {0x00020000, "READ_CONTROL"},
-            {0x00000002, "FILE_WRITE_DATA"},
-            {0x00000100, "FILE_WRITE_ATTRIBUTES"},
-            {0x00000010, "FILE_WRITE_EA"},
-            {0x00000004, "FILE_APPEND_DATA"},
-            {0x00040000, "WRITE_DAC"},
-            {0x00080000, "WRITE_OWNER"},
-            {0x00100000, "SYNCHRONIZE"},
-            {0x00000020, "FILE_EXECUTE"},
+        AfdSend                 = 0x1201F,
+        AfdReceive              = 0x12017,
+        AfdPoll                 = 0x12024,
+        AfdDispatchImmediateIrp = 0x12047,
+        AfdBind                 = 0x12003,
+        AFD_COUNT,
     };
 
-    struct afd_status
-    {
-        uint32_t   status;
-        const char status_name[32];
-    };
-
-    const afd_status g_afd_status[] =
-    {
-            {0x1201F, "AfdSend"},
-            {0x12017, "AfdReceive"},
-            {0x12024, "AfdPoll"},
-            {0x12047, "AfdDispatchImmediateIrp"},
-            {0x12003, "AfdBind"},
-    };
+    // use string and not string_view because result goes in json (nlohmann)
+    std::string afd_status_str  (afd_status_e afd_status);
+    std::string afd_status_dump (uint32_t afd_status);
 
     using ACCESS_MASK                          = uint32_t;
     using ALPC_HANDLE                          = uint64_t;

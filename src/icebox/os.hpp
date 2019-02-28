@@ -26,8 +26,8 @@ namespace os
         using on_mod_fn    = fn::view<walk_e(mod_t)>;
         using on_driver_fn = fn::view<walk_e(driver_t)>;
 
-        using on_proc_event_fn   = std::function<void(proc_t, proc_t)>;
-        using on_thread_event_fn = std::function<void(proc_t, thread_t)>;
+        using on_proc_event_fn   = std::function<void(proc_t)>;
+        using on_thread_event_fn = std::function<void(thread_t)>;
         using on_mod_event_fn    = std::function<void(proc_t, mod_t)>;
 
         virtual bool    is_kernel_address   (uint64_t ptr) = 0;
@@ -45,6 +45,7 @@ namespace os
         virtual void                proc_join           (proc_t proc, join_e join) = 0;
         virtual opt<phy_t>          proc_resolve        (proc_t proc, uint64_t ptr) = 0;
         virtual opt<proc_t>         proc_select         (proc_t proc, uint64_t ptr) = 0;
+        virtual opt<proc_t>         proc_parent         (proc_t proc) = 0;
         virtual bool                proc_listen_create  (const on_proc_event_fn& on_proc_event) = 0;
         virtual bool                proc_listen_delete  (const on_proc_event_fn& on_proc_event) = 0;
 

@@ -42,9 +42,9 @@ namespace
         if(!target)
             return;
 
+        core.os->proc_join(*target, os::JOIN_USER_MODE);
         const auto reader = reader::make(core, *target);
-        // core.os->proc_join(*target, os::JOIN_USER_MODE);
-        const auto mod = waiter::mod_wait(core, *target, "ntdll.dll", FLAGS_32BIT);
+        const auto mod    = waiter::mod_wait(core, *target, "ntdll.dll", FLAGS_32BIT);
         if(!mod)
             return;
 
@@ -112,8 +112,8 @@ namespace
         });
 
         const char proc_target[] = "notepad.exe";
-        LOG(INFO, "searching {}", proc_target);
-        const auto target = core.os->proc_find(proc_target, FLAGS_NONE);
+        LOG(INFO, "searching for {}", proc_target);
+        const auto target = waiter::proc_wait(core, proc_target, FLAGS_NONE);
         if(!target)
             return false;
 
@@ -239,7 +239,7 @@ namespace
         }
 
         {
-            if(true)
+            if(false)
                 test_wait_and_trace(core, "notepad.exe");
         }
 

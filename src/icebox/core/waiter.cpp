@@ -9,7 +9,6 @@
 #ifdef _MSC_VER
 #    define stricmp _stricmp
 #else
-#    include <cstring>
 #    define stricmp strcasecmp
 #endif
 
@@ -42,12 +41,9 @@ opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flag
 {
     auto found = core.os->proc_find(proc_name, flags);
     if(found)
-    {
-        core.os->proc_join(*found, os::JOIN_ANY_MODE);
         return found;
-    }
 
-    core.os->proc_listen_create([&](proc_t /*parent_proc*/, proc_t proc)
+    core.os->proc_listen_create([&](proc_t proc)
     {
         const auto new_flags = core.os->proc_flags(proc);
         if(flags && !(new_flags & flags))
@@ -57,7 +53,7 @@ opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flag
         if(!name)
             return;
 
-        LOG(INFO, "New proc {}", name->data());
+        LOG(INFO, "proc started: {}", name->data());
 
         if(*name == proc_name)
             found = proc;
@@ -69,7 +65,6 @@ opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flag
         core.state.wait();
     }
 
-    core.os->proc_join(*found, os::JOIN_ANY_MODE);
     return found;
 }
 

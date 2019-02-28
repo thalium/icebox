@@ -265,20 +265,10 @@ bool plugins::Syscalls32::setup(proc_t target)
         if(!driver_name)
             return 1;
 
-        opt<std::string> ioctrole_code = {};
-        for(const auto& afd_status : nt32::g_afd_status)
-        {
-            if(IoControlCode == afd_status.status)
-            {
-                ioctrole_code = afd_status.status_name;
-                break;
-            }
-        }
-        if(!ioctrole_code)
-            ioctrole_code = std::to_string(IoControlCode);
+        const auto ioctrole_code = nt32::afd_status_dump(IoControlCode);
 
         d_->args_[d_->nb_triggers_]["Driver Name"]   = driver_name->data();
-        d_->args_[d_->nb_triggers_]["IoControlCode"] = ioctrole_code->data();
+        d_->args_[d_->nb_triggers_]["IoControlCode"] = ioctrole_code.data();
         return 0;
     });
 
@@ -329,10 +319,7 @@ bool plugins::Syscalls32::setup(proc_t target)
         if(!object_name)
             return 1;
 
-        std::vector<std::string> access;
-        for(const auto& access_mask : nt::g_access_mask)
-            if(DesiredAccess & access_mask.mask)
-                access.emplace_back(access_mask.mask_name);
+        const auto access = nt32::access_mask_dump(DesiredAccess);
 
         d_->args_[d_->nb_triggers_]["FileName"] = object_name->data();
         d_->args_[d_->nb_triggers_]["Access"]   = access;

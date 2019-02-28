@@ -50,6 +50,7 @@ namespace
         void                proc_join           (proc_t proc, os::join_e join) override;
         opt<phy_t>          proc_resolve        (proc_t proc, uint64_t ptr) override;
         opt<proc_t>         proc_select         (proc_t proc, uint64_t ptr) override;
+        opt<proc_t>         proc_parent         (proc_t proc) override;
         bool                proc_listen_create  (const on_proc_event_fn& on_proc_event) override;
         bool                proc_listen_delete  (const on_proc_event_fn& on_proc_event) override;
 
@@ -233,6 +234,11 @@ opt<phy_t> OsLinux::proc_resolve(proc_t /*proc*/, uint64_t /*ptr*/)
 opt<proc_t> OsLinux::proc_select(proc_t proc, uint64_t /*ptr*/)
 {
     return proc;
+}
+
+opt<proc_t> OsLinux::proc_parent(proc_t /*proc*/)
+{
+    return {};
 }
 
 bool OsLinux::proc_listen_create(const on_proc_event_fn& /*on_create*/)
