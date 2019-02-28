@@ -61,12 +61,11 @@ namespace
         bool            thread_listen_create(const on_thread_event_fn& on_create) override;
         bool            thread_listen_delete(const on_thread_event_fn& on_remove) override;
 
-        bool                mod_list            (proc_t proc, on_mod_fn on_module) override;
-        opt<std::string>    mod_name            (proc_t proc, mod_t mod) override;
-        opt<span_t>         mod_span            (proc_t proc, mod_t mod) override;
-        opt<mod_t>          mod_find            (proc_t proc, uint64_t addr) override;
-        bool                mod_listen_load     (const on_mod_event_fn& on_load) override;
-        bool                mod_listen_unload   (const on_mod_event_fn& on_unload) override;
+        bool                mod_list        (proc_t proc, on_mod_fn on_module) override;
+        opt<std::string>    mod_name        (proc_t proc, mod_t mod) override;
+        opt<span_t>         mod_span        (proc_t proc, mod_t mod) override;
+        opt<mod_t>          mod_find        (proc_t proc, uint64_t addr) override;
+        bool                mod_listen_load (const on_mod_event_fn& on_load) override;
 
         bool                driver_list (on_driver_fn on_driver) override;
         opt<driver_t>       driver_find (std::string_view name) override;
@@ -257,11 +256,6 @@ bool OsLinux::thread_listen_delete(const on_thread_event_fn& /*on_remove*/)
 }
 
 bool OsLinux::mod_listen_load(const on_mod_event_fn& /*on_load*/)
-{
-    return true;
-}
-
-bool OsLinux::mod_listen_unload(const on_mod_event_fn& /*on_load*/)
 {
     return true;
 }

@@ -28,7 +28,7 @@ namespace os
 
         using on_proc_event_fn   = std::function<void(proc_t, proc_t)>;
         using on_thread_event_fn = std::function<void(proc_t, thread_t)>;
-        using on_mod_event_fn    = std::function<void(proc_t, const std::string&, span_t)>;
+        using on_mod_event_fn    = std::function<void(proc_t, mod_t)>;
 
         virtual bool    is_kernel_address   (uint64_t ptr) = 0;
         virtual bool    can_inject_fault    (uint64_t ptr) = 0;
@@ -56,12 +56,11 @@ namespace os
         virtual bool            thread_listen_create(const on_thread_event_fn& on_thread_event) = 0;
         virtual bool            thread_listen_delete(const on_thread_event_fn& on_thread_event) = 0;
 
-        virtual bool                mod_list            (proc_t proc, on_mod_fn on_mod) = 0;
-        virtual opt<std::string>    mod_name            (proc_t proc, mod_t mod) = 0;
-        virtual opt<span_t>         mod_span            (proc_t proc, mod_t mod) = 0;
-        virtual opt<mod_t>          mod_find            (proc_t proc, uint64_t addr) = 0;
-        virtual bool                mod_listen_load     (const on_mod_event_fn& on_load) = 0;
-        virtual bool                mod_listen_unload   (const on_mod_event_fn& on_unload) = 0;
+        virtual bool                mod_list        (proc_t proc, on_mod_fn on_mod) = 0;
+        virtual opt<std::string>    mod_name        (proc_t proc, mod_t mod) = 0;
+        virtual opt<span_t>         mod_span        (proc_t proc, mod_t mod) = 0;
+        virtual opt<mod_t>          mod_find        (proc_t proc, uint64_t addr) = 0;
+        virtual bool                mod_listen_load (const on_mod_event_fn& on_load) = 0;
 
         virtual bool                driver_list (on_driver_fn on_driver) = 0;
         virtual opt<driver_t>       driver_find (std::string_view name) = 0;

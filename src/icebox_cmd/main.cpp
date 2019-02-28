@@ -44,9 +44,14 @@ namespace
 
         const auto reader = reader::make(core, *target);
         // core.os->proc_join(*target, os::JOIN_USER_MODE);
-        opt<span_t> span = {};
-        waiter::mod_wait(core, *target, "ntdll.dll", span, FLAGS_32BIT);
+        const auto mod = waiter::mod_wait(core, *target, "ntdll.dll", FLAGS_32BIT);
+        if(!mod)
+            return;
+
         core.os->proc_join(*target, os::JOIN_USER_MODE);
+        const auto span = core.os->mod_span(*target, *mod);
+        if(!span)
+            return;
 
         // Load ntdll32 pdb
         const auto debug = pe::find_debug_codeview(reader, *span);

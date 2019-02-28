@@ -73,32 +73,31 @@ opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flag
     return found;
 }
 
-opt<mod_t> waiter::mod_wait(core::Core& core, proc_t proc, std::string_view mod_name, opt<span_t>& mod_span, flags_e flags)
+opt<mod_t> waiter::mod_wait(core::Core& core, proc_t proc, std::string_view mod_name, flags_e flags)
 {
     auto found = search_mod(core, proc, mod_name, flags);
     if(found)
-    {
-        mod_span = core.os->mod_span(proc, *found);
         return found;
-    }
 
-    core.os->mod_listen_load([&](proc_t proc_loading, const std::string& name, span_t span)
+    core.os->mod_listen_load([&](proc_t proc_loading, mod_t mod)
     {
         if(proc_loading.id != proc.id)
             return;
 
-        if(flags & FLAGS_32BIT)
-            if(span.addr > 0x100000000)
-                return;
-
-        if(stricmp(path::filename(name).generic_string().data(), mod_name.data()))
+        if(flags && !(mod.flags & flags))
             return;
 
-        mod_span = span;
-        found    = {};
+        const auto name = core.os->mod_name(proc_loading, mod);
+        if(!name)
+            return;
+
+        if(stricmp(path::filename(*name).generic_string().data(), mod_name.data()))
+            return;
+
+        found = mod;
     });
 
-    while(!mod_span)
+    while(!found)
     {
         core.state.resume();
         core.state.wait();

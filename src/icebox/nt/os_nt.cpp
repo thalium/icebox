@@ -231,12 +231,11 @@ namespace
         bool            thread_listen_create(const on_thread_event_fn& on_thread_event) override;
         bool            thread_listen_delete(const on_thread_event_fn& on_thread_event) override;
 
-        bool                mod_list            (proc_t proc, on_mod_fn on_module) override;
-        opt<std::string>    mod_name            (proc_t proc, mod_t mod) override;
-        opt<span_t>         mod_span            (proc_t proc, mod_t mod) override;
-        opt<mod_t>          mod_find            (proc_t proc, uint64_t addr) override;
-        bool                mod_listen_load     (const on_mod_event_fn& on_load) override;
-        bool                mod_listen_unload   (const on_mod_event_fn& on_unload) override;
+        bool                mod_list        (proc_t proc, on_mod_fn on_module) override;
+        opt<std::string>    mod_name        (proc_t proc, mod_t mod) override;
+        opt<span_t>         mod_span        (proc_t proc, mod_t mod) override;
+        opt<mod_t>          mod_find        (proc_t proc, uint64_t addr) override;
+        bool                mod_listen_load (const on_mod_event_fn& on_load) override;
 
         bool                driver_list (on_driver_fn on_driver) override;
         opt<driver_t>       driver_find (std::string_view name) override;
@@ -268,7 +267,8 @@ namespace
         ObsThreadEvent observers_thread_create_;
         ObsThreadEvent observers_thread_delete_;
         ObsModEvent    observers_mod_load_;
-        ObsModEvent    observers_mod_unload_;
+        opt<phy_t>     ldrpinsertdatatableentry_addr_;
+        opt<phy_t>     ldrpinsertdatatableentry32_addr_;
     };
 }
 
@@ -587,6 +587,20 @@ namespace
         return true;
     }
 
+    static bool register_callback_notifyroutine(OsNt& os, phy_t phy, void (*callback)(OsNt&))
+    {
+        const auto osptr = &os;
+        const auto bp    = os.core_.state.set_breakpoint(phy, [=]()
+        {
+            callback(*osptr);
+        });
+        if(!bp)
+            return false;
+
+        os.breakpoints_.emplace_back(bp);
+        return true;
+    }
+
     static void thread_on_insert_event(OsNt& os)
     {
         const auto thread = os.core_.regs.read(FDP_RCX_REGISTER);
@@ -655,43 +669,6 @@ namespace
         for(const auto& it : os.observers_thread_delete_)
             it(*proc, *thread);
     }
-
-    static void mod_on_event(OsNt& os)
-    {
-        struct _IMAGE_INFO
-        {
-            uint64_t Properties;
-            uint64_t ImageAddressingMode;
-            uint64_t ImageBase;
-            uint64_t ImageSelector;
-            uint64_t ImageSize;
-            uint64_t ImageSectionNumber;
-        };
-
-        const auto name_addr       = os.core_.regs.read(FDP_RCX_REGISTER);
-        const auto pid             = os.core_.regs.read(FDP_RDX_REGISTER);
-        const auto image_info_addr = os.core_.regs.read(FDP_R8_REGISTER);
-
-        const auto proc = os.proc_find(pid);
-        if(!proc)
-            return;
-
-        const auto reader   = reader::make(os.core_, *proc);
-        const auto mod_name = read_unicode_string(reader, name_addr);
-        if(!mod_name)
-            return;
-
-        const auto base = reader.read(image_info_addr + offsetof(_IMAGE_INFO, ImageBase));
-        if(!base)
-            return;
-
-        const auto size = reader.read(image_info_addr + offsetof(_IMAGE_INFO, ImageSize));
-        if(!size)
-            return;
-
-        for(const auto& it : os.observers_mod_load_)
-            it(*proc, *mod_name, span_t{*base, *size});
-    }
 }
 
 bool OsNt::proc_listen_create(const on_proc_event_fn& on_create)
@@ -734,18 +711,186 @@ bool OsNt::thread_listen_delete(const on_thread_event_fn& on_remove)
     return true;
 }
 
+namespace
+{
+    static std::shared_ptr<sym::Symbols> insert_pdb(const reader::Reader& reader, span_t span, const std::string& name)
+    {
+        std::shared_ptr<sym::Symbols> sym;
+        const auto debug = pe::find_debug_codeview(reader, span);
+        if(!debug)
+            return sym;
+
+        std::vector<uint8_t> buffer(debug->size);
+        const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
+        if(!ok)
+            return sym;
+
+        auto tmp            = std::make_shared<sym::Symbols>();
+        const auto inserted = tmp->insert(name, span, &buffer[0], buffer.size());
+        if(!inserted)
+            return sym;
+
+        sym = std::move(tmp);
+        return sym;
+    }
+
+    static opt<span_t> get_ntdll_span(OsNt& os, proc_t proc, bool is_32bit)
+    {
+        opt<span_t> found;
+        const auto reader = reader::make(os.core_, proc);
+        os.mod_list(proc, [&](mod_t mod)
+        {
+            const auto name = os.mod_name(proc, mod);
+            if(!name)
+                return WALK_NEXT;
+
+            const auto filename = path::filename(*name);
+            if(filename != "ntdll.dll")
+                return WALK_NEXT;
+
+            const auto is_wow64 = !!(mod.flags & FLAGS_32BIT);
+            if(is_32bit && !is_wow64)
+                return WALK_NEXT;
+
+            found = os.mod_span(proc, mod);
+            return WALK_STOP;
+        });
+        return found;
+    }
+
+    static opt<span_t> get_ntdll_span_on_event(OsNt& os, proc_t proc, bool is_32bit)
+    {
+        struct _IMAGE_INFO
+        {
+            uint64_t Properties;
+            uint64_t ImageAddressingMode;
+            uint64_t ImageBase;
+            uint64_t ImageSelector;
+            uint64_t ImageSize;
+            uint64_t ImageSectionNumber;
+        };
+
+        const auto name_addr = os.core_.regs.read(FDP_RCX_REGISTER);
+
+        const auto reader   = reader::make(os.core_, proc);
+        const auto mod_name = read_unicode_string(reader, name_addr);
+        if(!mod_name)
+            return {};
+
+        const auto filename = path::filename(*mod_name);
+        if(filename != "ntdll.dll")
+            return {};
+
+        const auto image_info_addr = os.core_.regs.read(FDP_R8_REGISTER);
+        const auto base            = reader.read(image_info_addr + offsetof(_IMAGE_INFO, ImageBase));
+        if(!base)
+            return {};
+
+        const auto is_wow64 = *base < 0x100000000;
+        if(is_32bit && !is_wow64 || (!is_32bit && is_wow64))
+            return {};
+
+        const auto size = reader.read(image_info_addr + offsetof(_IMAGE_INFO, ImageSize));
+        if(!size)
+            return {};
+
+        return span_t{*base, *size};
+    }
+
+    static opt<span_t> try_get_ntdll_span(OsNt& os, proc_t proc, bool is_32bit)
+    {
+        const auto span = get_ntdll_span(os, proc, is_32bit);
+        if(!span)
+            return get_ntdll_span_on_event(os, proc, is_32bit);
+
+        return span;
+    }
+
+    static opt<phy_t> get_phy_from_sym(OsNt& os, proc_t proc, std::shared_ptr<sym::Symbols> sym, const std::string& mod_name, const std::string& sym_name)
+    {
+        const auto addr = sym->symbol(mod_name, sym_name);
+        if(!addr)
+            return {};
+
+        return os.proc_resolve(proc, *addr);
+    }
+
+    static void mod_on_event(OsNt& os)
+    {
+        const auto proc = os.proc_current();
+        if(!proc)
+            return;
+
+        const auto cs       = os.core_.regs.read(FDP_CS_REGISTER);
+        const auto is_32bit = cs == 0x23;
+
+        // LdrpInsertDataTableEntry has a fastcall calling convention whether it's in ntdll or ntdll32
+        const auto rcx      = os.core_.regs.read(FDP_RCX_REGISTER);
+        const auto mod_addr = is_32bit ? static_cast<uint32_t>(rcx) : rcx;
+        const auto flags    = is_32bit ? FLAGS_32BIT : FLAGS_NONE;
+
+        for(const auto& it : os.observers_mod_load_)
+            it(*proc, {mod_addr, flags});
+    }
+
+    // Wait for kernel notification
+    static void on_mod_kernel_event(OsNt& os)
+    {
+        if(os.ldrpinsertdatatableentry_addr_ && os.ldrpinsertdatatableentry32_addr_)
+            return;
+
+        const auto proc = os.proc_current();
+        if(!proc)
+            return;
+
+        opt<span_t> ntdll;
+        opt<span_t> ntdll32;
+        if(!os.ldrpinsertdatatableentry_addr_)
+            ntdll = try_get_ntdll_span(os, *proc, false);
+
+        const auto flags = os.proc_flags(*proc);
+        if(!os.ldrpinsertdatatableentry32_addr_)
+            if(flags & FLAGS_32BIT)
+                ntdll32 = try_get_ntdll_span(os, *proc, true);
+
+        if(!ntdll && !ntdll32)
+            return;
+
+        os.proc_join(*proc, os::JOIN_USER_MODE);
+
+        const auto reader = reader::make(os.core_, *proc);
+        if(!os.ldrpinsertdatatableentry_addr_ && ntdll)
+        {
+            const auto sym = insert_pdb(reader, *ntdll, "ntdll");
+            if(!sym)
+                return;
+
+            os.ldrpinsertdatatableentry_addr_ = get_phy_from_sym(os, *proc, sym, "ntdll", "LdrpInsertDataTableEntry");
+            if(os.ldrpinsertdatatableentry_addr_)
+                if(!register_callback_notifyroutine(os, *(os.ldrpinsertdatatableentry_addr_), &mod_on_event))
+                    return;
+        }
+        if(!os.ldrpinsertdatatableentry32_addr_ && ntdll32)
+        {
+            const auto sym = insert_pdb(reader, *ntdll32, "ntdll");
+            if(!sym)
+                return;
+
+            os.ldrpinsertdatatableentry32_addr_ = get_phy_from_sym(os, *proc, sym, "ntdll", "_LdrpInsertDataTableEntry@4");
+            if(os.ldrpinsertdatatableentry32_addr_)
+                if(!register_callback_notifyroutine(os, *(os.ldrpinsertdatatableentry32_addr_), &mod_on_event))
+                    return;
+        }
+    }
+}
+
 bool OsNt::mod_listen_load(const on_mod_event_fn& on_load)
 {
-    if(observers_mod_load_.empty() && observers_mod_unload_.empty())
-        if(!register_callback_notifyroutine(*this, symbols_[PsCallImageNotifyRoutines], &mod_on_event))
+    if(observers_mod_load_.empty())
+        if(!register_callback_notifyroutine(*this, symbols_[PsCallImageNotifyRoutines], &on_mod_kernel_event))
             return false;
 
     observers_mod_load_.push_back(on_load);
-    return true;
-}
-
-bool OsNt::mod_listen_unload(const on_mod_event_fn& /*on_unload*/)
-{
     return true;
 }
 
