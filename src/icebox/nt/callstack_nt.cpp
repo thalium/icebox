@@ -514,7 +514,7 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::on_callstep_fn on_callst
     const auto cs         = core_.regs.read(FDP_CS_REGISTER);
     const auto ctx        = context_t{ip, sp, bp, cs};
     constexpr auto x86_cs = 0x23;
-    if(cs & x86_cs)
+    if(cs == x86_cs)
         return get_callstack32(*this, proc, ctx, on_callstep);
 
     return get_callstack64(*this, proc, ctx, on_callstep);

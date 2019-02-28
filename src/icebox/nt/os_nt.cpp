@@ -1156,7 +1156,7 @@ namespace
 opt<arg_t> OsNt::read_stack(size_t index)
 {
     const auto cs       = core_.regs.read(FDP_CS_REGISTER);
-    const auto is_32bit = cs & 0x23;
+    const auto is_32bit = cs == 0x23;
     const auto sp       = core_.regs.read(FDP_RSP_REGISTER);
     const auto reader   = reader::make(core_);
     if(is_32bit)
@@ -1168,7 +1168,7 @@ opt<arg_t> OsNt::read_stack(size_t index)
 opt<arg_t> OsNt::read_arg(size_t index)
 {
     const auto cs       = core_.regs.read(FDP_CS_REGISTER);
-    const auto is_32bit = cs & 0x23;
+    const auto is_32bit = cs == 0x23;
     const auto sp       = core_.regs.read(FDP_RSP_REGISTER);
     const auto reader   = reader::make(core_);
     if(is_32bit)
@@ -1180,7 +1180,7 @@ opt<arg_t> OsNt::read_arg(size_t index)
 bool OsNt::write_arg(size_t index, arg_t arg)
 {
     const auto cs       = core_.regs.read(FDP_CS_REGISTER);
-    const auto is_32bit = cs & 0x23;
+    const auto is_32bit = cs == 0x23;
     if(is_32bit)
         return write_arg32(core_, index, arg);
 
