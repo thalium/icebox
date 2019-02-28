@@ -345,7 +345,7 @@ namespace
         for(size_t i = 0; i < OFFSET_COUNT; ++i)
         {
             fail |= g_nt_offsets[i].e_id != i;
-            const auto offset = c.core_.sym.struc_offset("ntdll32", g_nt_offsets[i].struc, g_nt_offsets[i].member);
+            const auto offset = sym->struc_offset("ntdll32", g_nt_offsets[i].struc, g_nt_offsets[i].member);
             if(!offset)
             {
                 LOG(ERROR, "unable to read ntdll!{}.{} member offset", g_nt_offsets[i].struc, g_nt_offsets[i].member);
