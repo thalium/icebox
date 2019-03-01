@@ -263,10 +263,10 @@ namespace
         using ModListeners    = std::vector<on_mod_event_fn>;
 
         Breakpoints     breakpoints_;
-        ProcListeners   observers_proc_create_;
-        ProcListeners   observers_proc_delete_;
-        ThreadListeners observers_thread_create_;
-        ThreadListeners observers_thread_delete_;
+        ProcListeners   proc_create_listeners_;
+        ProcListeners   proc_delete_listeners_;
+        ThreadListeners thread_create_listeners_;
+        ThreadListeners thread_delete_listeners_;
         ModListeners    observers_mod_load_;
         opt<phy_t>      LdrpInsertDataTableEntry;
         opt<phy_t>      LdrpInsertDataTableEntry32;
@@ -615,7 +615,7 @@ namespace
     static void on_PspInsertThread(OsNt& os)
     {
         const auto thread = os.core_.regs.read(FDP_RCX_REGISTER);
-        for(const auto& it : os.observers_thread_create_)
+        for(const auto& it : os.thread_create_listeners_)
             it({thread});
 
         // Check if it is a CreateProcess (if ActiveThreads = 0)
@@ -631,7 +631,7 @@ namespace
         if(!proc)
             return;
 
-        for(const auto& it : os.observers_proc_create_)
+        for(const auto& it : os.proc_create_listeners_)
             it(*proc);
     }
 
@@ -642,7 +642,7 @@ namespace
         if(!proc)
             return;
 
-        for(const auto& it : os.observers_proc_delete_)
+        for(const auto& it : os.proc_delete_listeners_)
             it(*proc);
     }
 
@@ -652,32 +652,32 @@ namespace
         if(!thread)
             return;
 
-        for(const auto& it : os.observers_thread_delete_)
+        for(const auto& it : os.thread_delete_listeners_)
             it(*thread);
     }
 }
 
 bool OsNt::proc_listen_create(const on_proc_event_fn& on_create)
 {
-    return register_listener(*this, observers_proc_create_, on_create,
+    return register_listener(*this, proc_create_listeners_, on_create,
                              symbols_[PspInsertThread], &on_PspInsertThread);
 }
 
 bool OsNt::proc_listen_delete(const on_proc_event_fn& on_delete)
 {
-    return register_listener(*this, observers_proc_delete_, on_delete,
+    return register_listener(*this, proc_delete_listeners_, on_delete,
                              symbols_[PspExitProcess], &on_PspExitProcess);
 }
 
 bool OsNt::thread_listen_create(const on_thread_event_fn& on_create)
 {
-    return register_listener(*this, observers_thread_create_, on_create,
+    return register_listener(*this, thread_create_listeners_, on_create,
                              symbols_[PspInsertThread], &on_PspInsertThread);
 }
 
 bool OsNt::thread_listen_delete(const on_thread_event_fn& on_delete)
 {
-    return register_listener(*this, observers_thread_delete_, on_delete,
+    return register_listener(*this, thread_delete_listeners_, on_delete,
                              symbols_[PspExitThread], &on_PspExitThread);
 }
 
