@@ -804,6 +804,8 @@ namespace
         return os.proc_resolve(proc, *addr);
     }
 
+    constexpr auto x86_cs = 0x23;
+
     static void mod_on_event(OsNt& os)
     {
         const auto proc = os.proc_current();
@@ -811,7 +813,7 @@ namespace
             return;
 
         const auto cs       = os.core_.regs.read(FDP_CS_REGISTER);
-        const auto is_32bit = cs == 0x23;
+        const auto is_32bit = cs == x86_cs;
 
         // LdrpInsertDataTableEntry has a fastcall calling convention whether it's in ntdll or ntdll32
         const auto rcx      = os.core_.regs.read(FDP_RCX_REGISTER);
@@ -1300,7 +1302,7 @@ namespace
 opt<arg_t> OsNt::read_stack(size_t index)
 {
     const auto cs       = core_.regs.read(FDP_CS_REGISTER);
-    const auto is_32bit = cs == 0x23;
+    const auto is_32bit = cs == x86_cs;
     const auto sp       = core_.regs.read(FDP_RSP_REGISTER);
     const auto reader   = reader::make(core_);
     if(is_32bit)
@@ -1312,7 +1314,7 @@ opt<arg_t> OsNt::read_stack(size_t index)
 opt<arg_t> OsNt::read_arg(size_t index)
 {
     const auto cs       = core_.regs.read(FDP_CS_REGISTER);
-    const auto is_32bit = cs == 0x23;
+    const auto is_32bit = cs == x86_cs;
     const auto sp       = core_.regs.read(FDP_RSP_REGISTER);
     const auto reader   = reader::make(core_);
     if(is_32bit)
@@ -1324,7 +1326,7 @@ opt<arg_t> OsNt::read_arg(size_t index)
 bool OsNt::write_arg(size_t index, arg_t arg)
 {
     const auto cs       = core_.regs.read(FDP_CS_REGISTER);
-    const auto is_32bit = cs == 0x23;
+    const auto is_32bit = cs == x86_cs;
     if(is_32bit)
         return write_arg32(core_, index, arg);
 

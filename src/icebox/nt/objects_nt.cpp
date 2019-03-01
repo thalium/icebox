@@ -344,7 +344,7 @@ opt<std::string> nt::ObjectNt::objattribute_objectname(proc_t proc, uint64_t ptr
 {
     const auto reader   = reader::make(d_->core_, proc);
     const auto cs       = d_->core_.regs.read(FDP_CS_REGISTER);
-    const auto is_32bit = cs & 0x23;
+    const auto is_32bit = cs == 0x23;
     if(is_32bit)
     {
         // TODO get offset in 32 bits ntdll version's pdb
