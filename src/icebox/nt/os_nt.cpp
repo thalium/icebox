@@ -268,8 +268,8 @@ namespace
         ThreadListeners observers_thread_create_;
         ThreadListeners observers_thread_delete_;
         ModListeners    observers_mod_load_;
-        opt<phy_t>      ldrpinsertdatatableentry_addr_;
-        opt<phy_t>      ldrpinsertdatatableentry32_addr_;
+        opt<phy_t>      LdrpInsertDataTableEntry;
+        opt<phy_t>      LdrpInsertDataTableEntry32;
     };
 }
 
@@ -806,7 +806,7 @@ namespace
 
     constexpr auto x86_cs = 0x23;
 
-    static void mod_on_event(OsNt& os)
+    static void on_LdrpInsertDataTableEntry(OsNt& os)
     {
         const auto proc = os.proc_current();
         if(!proc)
@@ -825,9 +825,9 @@ namespace
     }
 
     // Wait for kernel notification
-    static void on_mod_kernel_event(OsNt& os)
+    static void on_PsCallImageNotifyRoutines(OsNt& os)
     {
-        if(os.ldrpinsertdatatableentry_addr_ && os.ldrpinsertdatatableentry32_addr_)
+        if(os.LdrpInsertDataTableEntry && os.LdrpInsertDataTableEntry32)
             return;
 
         const auto proc = os.proc_current();
@@ -836,11 +836,11 @@ namespace
 
         opt<span_t> ntdll;
         opt<span_t> ntdll32;
-        if(!os.ldrpinsertdatatableentry_addr_)
+        if(!os.LdrpInsertDataTableEntry)
             ntdll = try_get_ntdll_span(os, *proc, false);
 
         const auto flags = os.proc_flags(*proc);
-        if(!os.ldrpinsertdatatableentry32_addr_)
+        if(!os.LdrpInsertDataTableEntry32)
             if(flags & FLAGS_32BIT)
                 ntdll32 = try_get_ntdll_span(os, *proc, true);
 
@@ -850,26 +850,26 @@ namespace
         os.proc_join(*proc, os::JOIN_USER_MODE);
 
         const auto reader = reader::make(os.core_, *proc);
-        if(!os.ldrpinsertdatatableentry_addr_ && ntdll)
+        if(!os.LdrpInsertDataTableEntry && ntdll)
         {
             const auto sym = insert_pdb(reader, *ntdll, "ntdll");
             if(!sym)
                 return;
 
-            os.ldrpinsertdatatableentry_addr_ = get_phy_from_sym(os, *proc, sym, "ntdll", "LdrpInsertDataTableEntry");
-            if(os.ldrpinsertdatatableentry_addr_)
-                if(!register_callback_notifyroutine(os, *(os.ldrpinsertdatatableentry_addr_), &mod_on_event))
+            os.LdrpInsertDataTableEntry = get_phy_from_sym(os, *proc, sym, "ntdll", "LdrpInsertDataTableEntry");
+            if(os.LdrpInsertDataTableEntry)
+                if(!register_callback_notifyroutine(os, *os.LdrpInsertDataTableEntry, &on_LdrpInsertDataTableEntry))
                     return;
         }
-        if(!os.ldrpinsertdatatableentry32_addr_ && ntdll32)
+        if(!os.LdrpInsertDataTableEntry32 && ntdll32)
         {
             const auto sym = insert_pdb(reader, *ntdll32, "ntdll");
             if(!sym)
                 return;
 
-            os.ldrpinsertdatatableentry32_addr_ = get_phy_from_sym(os, *proc, sym, "ntdll", "_LdrpInsertDataTableEntry@4");
-            if(os.ldrpinsertdatatableentry32_addr_)
-                if(!register_callback_notifyroutine(os, *(os.ldrpinsertdatatableentry32_addr_), &mod_on_event))
+            os.LdrpInsertDataTableEntry32 = get_phy_from_sym(os, *proc, sym, "ntdll", "_LdrpInsertDataTableEntry@4");
+            if(os.LdrpInsertDataTableEntry32)
+                if(!register_callback_notifyroutine(os, *os.LdrpInsertDataTableEntry32, &on_LdrpInsertDataTableEntry))
                     return;
         }
     }
@@ -878,7 +878,7 @@ namespace
 bool OsNt::mod_listen_load(const on_mod_event_fn& on_load)
 {
     if(observers_mod_load_.empty())
-        if(!register_callback_notifyroutine(*this, symbols_[PsCallImageNotifyRoutines], &on_mod_kernel_event))
+        if(!register_callback_notifyroutine(*this, symbols_[PsCallImageNotifyRoutines], &on_PsCallImageNotifyRoutines))
             return false;
 
     observers_mod_load_.push_back(on_load);
