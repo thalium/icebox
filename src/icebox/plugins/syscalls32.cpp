@@ -265,10 +265,10 @@ bool plugins::Syscalls32::setup(proc_t target)
         if(!driver_name)
             return 1;
 
-        const auto ioctrole_code = nt32::afd_status_dump(IoControlCode);
+        const auto ioctl_code = nt32::afd_status_dump(IoControlCode);
 
         d_->args_[d_->nb_triggers_]["Driver Name"]   = driver_name->data();
-        d_->args_[d_->nb_triggers_]["IoControlCode"] = ioctrole_code.data();
+        d_->args_[d_->nb_triggers_]["IoControlCode"] = ioctl_code.data();
         return 0;
     });
 
