@@ -399,20 +399,32 @@ std::unique_ptr<os::IModule> os::make_nt(core::Core& core)
     return nt;
 }
 
+namespace
+{
+    static opt<proc_t> make_proc(OsNt& os, uint64_t eproc)
+    {
+        const auto dtb = os.reader_.read(eproc + os.offsets_[EPROCESS_Pcb] + os.offsets_[KPROCESS_UserDirectoryTableBase]);
+        if(!dtb)
+        {
+            LOG(ERROR, "unable to read KPROCESS.UserDirectoryTableBase from {:#x}", eproc);
+            return {};
+        }
+
+        return proc_t{eproc, {*dtb}};
+    }
+}
+
 bool OsNt::proc_list(on_proc_fn on_process)
 {
     const auto head = symbols_[PsActiveProcessHead];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
     {
         const auto eproc = *link - offsets_[EPROCESS_ActiveProcessLinks];
-        const auto dtb   = reader_.read(eproc + offsets_[EPROCESS_Pcb] + offsets_[KPROCESS_UserDirectoryTableBase]);
-        if(!dtb)
-        {
-            LOG(ERROR, "unable to read KPROCESS.DirectoryTableBase from {:#x}", eproc);
+        const auto proc  = make_proc(*this, eproc);
+        if(!proc)
             continue;
-        }
 
-        const auto err = on_process({eproc, {*dtb}});
+        const auto err = on_process(*proc);
         if(err == WALK_STOP)
             break;
     }
@@ -608,37 +620,32 @@ namespace
         for(const auto& it : os.observers_thread_create_)
             it({thread});
 
-        const auto eproc  = os.core_.regs.read(FDP_RDX_REGISTER);
-        const auto reader = reader::make(os.core_);
-
         // Check if it is a CreateProcess (if ActiveThreads = 0)
-        const auto active_threads = reader.le32(eproc + os.offsets_[EPROCESS_ActiveThreads]);
+        const auto eproc          = os.core_.regs.read(FDP_RDX_REGISTER);
+        const auto active_threads = os.reader_.le32(eproc + os.offsets_[EPROCESS_ActiveThreads]);
         if(!active_threads)
             return;
 
         if(*active_threads)
             return;
 
-        const auto dtb = reader.read(eproc + os.offsets_[KPROCESS_UserDirectoryTableBase]);
-        if(!dtb)
+        const auto proc = make_proc(os, eproc);
+        if(!proc)
             return;
 
-        if(!*active_threads)
-            for(const auto& it : os.observers_proc_create_)
-                it({eproc, dtb_t{*dtb}});
+        for(const auto& it : os.observers_proc_create_)
+            it(*proc);
     }
 
     static void on_PspExitProcess(OsNt& os)
     {
         const auto eproc = os.core_.regs.read(FDP_RDX_REGISTER);
-
-        const auto reader = reader::make(os.core_);
-        const auto dtb    = reader.read(eproc + os.offsets_[KPROCESS_UserDirectoryTableBase]);
-        if(!dtb)
+        const auto proc  = make_proc(os, eproc);
+        if(!proc)
             return;
 
         for(const auto& it : os.observers_proc_delete_)
-            it({eproc, dtb_t{*dtb}});
+            it(*proc);
     }
 
     static void on_PspExitThread(OsNt& os)
