@@ -586,10 +586,11 @@ uint64_t OsNt::proc_id(proc_t proc)
 
 namespace
 {
-    static bool register_callback_notifyroutine(OsNt& os, uint64_t routine_addr, void (*callback)(OsNt&))
+    template <typename T>
+    static bool listen_to(OsNt& os, T addr, void (*callback)(OsNt&))
     {
         const auto osptr = &os;
-        const auto bp    = os.core_.state.set_breakpoint(routine_addr, [=]()
+        const auto bp    = os.core_.state.set_breakpoint(addr, [=]
         {
             callback(*osptr);
         });
@@ -600,17 +601,14 @@ namespace
         return true;
     }
 
-    static bool register_callback_notifyroutine(OsNt& os, phy_t phy, void (*callback)(OsNt&))
+    template <typename T, typename U, typename V>
+    static bool register_listener(OsNt& os, T& listeners, U listener, V addr, void (*callback)(OsNt&))
     {
-        const auto osptr = &os;
-        const auto bp    = os.core_.state.set_breakpoint(phy, [=]()
-        {
-            callback(*osptr);
-        });
-        if(!bp)
-            return false;
+        if(listeners.empty())
+            if(!listen_to(os, addr, callback))
+                return false;
 
-        os.breakpoints_.emplace_back(bp);
+        listeners.emplace_back(listener);
         return true;
     }
 
@@ -661,42 +659,26 @@ namespace
 
 bool OsNt::proc_listen_create(const on_proc_event_fn& on_create)
 {
-    if(observers_proc_create_.empty() && observers_thread_create_.empty())
-        if(!register_callback_notifyroutine(*this, symbols_[PspInsertThread], &on_PspInsertThread))
-            return false;
-
-    observers_proc_create_.push_back(on_create);
-    return true;
+    return register_listener(*this, observers_proc_create_, on_create,
+                             symbols_[PspInsertThread], &on_PspInsertThread);
 }
 
-bool OsNt::proc_listen_delete(const on_proc_event_fn& on_remove)
+bool OsNt::proc_listen_delete(const on_proc_event_fn& on_delete)
 {
-    if(observers_proc_delete_.empty())
-        if(!register_callback_notifyroutine(*this, symbols_[PspExitProcess], &on_PspExitProcess))
-            return false;
-
-    observers_proc_delete_.push_back(on_remove);
-    return true;
+    return register_listener(*this, observers_proc_delete_, on_delete,
+                             symbols_[PspExitProcess], &on_PspExitProcess);
 }
 
 bool OsNt::thread_listen_create(const on_thread_event_fn& on_create)
 {
-    if(observers_proc_create_.empty() && observers_thread_create_.empty())
-        if(!register_callback_notifyroutine(*this, symbols_[PspInsertThread], &on_PspInsertThread))
-            return false;
-
-    observers_thread_create_.push_back(on_create);
-    return true;
+    return register_listener(*this, observers_thread_create_, on_create,
+                             symbols_[PspInsertThread], &on_PspInsertThread);
 }
 
-bool OsNt::thread_listen_delete(const on_thread_event_fn& on_remove)
+bool OsNt::thread_listen_delete(const on_thread_event_fn& on_delete)
 {
-    if(observers_thread_create_.empty() && observers_thread_delete_.empty())
-        if(!register_callback_notifyroutine(*this, symbols_[PspExitThread], &on_PspExitThread))
-            return false;
-
-    observers_thread_delete_.push_back(on_remove);
-    return true;
+    return register_listener(*this, observers_thread_delete_, on_delete,
+                             symbols_[PspExitThread], &on_PspExitThread);
 }
 
 namespace
@@ -858,7 +840,7 @@ namespace
 
             os.LdrpInsertDataTableEntry = get_phy_from_sym(os, *proc, sym, "ntdll", "LdrpInsertDataTableEntry");
             if(os.LdrpInsertDataTableEntry)
-                if(!register_callback_notifyroutine(os, *os.LdrpInsertDataTableEntry, &on_LdrpInsertDataTableEntry))
+                if(!listen_to(os, *os.LdrpInsertDataTableEntry, &on_LdrpInsertDataTableEntry))
                     return;
         }
         if(!os.LdrpInsertDataTableEntry32 && ntdll32)
@@ -869,7 +851,7 @@ namespace
 
             os.LdrpInsertDataTableEntry32 = get_phy_from_sym(os, *proc, sym, "ntdll", "_LdrpInsertDataTableEntry@4");
             if(os.LdrpInsertDataTableEntry32)
-                if(!register_callback_notifyroutine(os, *os.LdrpInsertDataTableEntry32, &on_LdrpInsertDataTableEntry))
+                if(!listen_to(os, *os.LdrpInsertDataTableEntry32, &on_LdrpInsertDataTableEntry))
                     return;
         }
     }
@@ -877,12 +859,8 @@ namespace
 
 bool OsNt::mod_listen_load(const on_mod_event_fn& on_load)
 {
-    if(observers_mod_load_.empty())
-        if(!register_callback_notifyroutine(*this, symbols_[PsCallImageNotifyRoutines], &on_PsCallImageNotifyRoutines))
-            return false;
-
-    observers_mod_load_.push_back(on_load);
-    return true;
+    return register_listener(*this, observers_mod_load_, on_load,
+                             symbols_[PsCallImageNotifyRoutines], &on_PsCallImageNotifyRoutines);
 }
 
 namespace
