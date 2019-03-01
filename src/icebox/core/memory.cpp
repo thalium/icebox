@@ -129,10 +129,9 @@ namespace
 
     static opt<phy_t> try_virtual_to_physical(MemData& d, uint64_t ptr, dtb_t dtb)
     {
-        auto ret = fast_virtual_to_physical(d, ptr, dtb);
-        if(ret)
-            if(ret->val)
-                return ret;
+        const auto ret = fast_virtual_to_physical(d, ptr, dtb);
+        if(ret && ret->val)
+            return ret;
 
         return slow_virtual_to_physical(d, ptr, dtb);
     }
@@ -140,7 +139,7 @@ namespace
 
 opt<phy_t> core::Memory::virtual_to_physical(uint64_t ptr, dtb_t dtb)
 {
-    auto ret = try_virtual_to_physical(*d_, ptr, dtb);
+    const auto ret = try_virtual_to_physical(*d_, ptr, dtb);
     if(ret)
         return ret;
 
