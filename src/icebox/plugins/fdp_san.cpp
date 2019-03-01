@@ -73,7 +73,7 @@ plugins::FdpSan::~FdpSan() = default;
 
 namespace
 {
-    void get_callstack(FdpSanData& d)
+    static void get_callstack(FdpSanData& d)
     {
         uint64_t cs_size  = 0;
         uint64_t cs_depth = 15;

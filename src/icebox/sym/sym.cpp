@@ -128,7 +128,7 @@ namespace
         sym::IMod&  mod;
     };
 
-    opt<ModPair> find(SymData& s, uint64_t addr)
+    static opt<ModPair> find(SymData& s, uint64_t addr)
     {
         for(const auto& m : s.mods_)
         {

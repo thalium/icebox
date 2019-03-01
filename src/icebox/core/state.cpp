@@ -106,7 +106,7 @@ void core::setup(State& state, FDP_SHM& shm, Core& core)
 
 namespace
 {
-    bool update_break_state(StateData& d)
+    static bool update_break_state(StateData& d)
     {
         memset(&d.breakstate, 0, sizeof d.breakstate);
         const auto thread = d.core.os->thread_current();
@@ -132,7 +132,7 @@ namespace
         return true;
     }
 
-    bool try_pause(StateData& d)
+    static bool try_pause(StateData& d)
     {
         FDP_State state = FDP_STATE_NULL;
         const auto ok   = FDP_GetState(&d.shm, &state);
@@ -150,12 +150,12 @@ namespace
         return updated;
     }
 
-    bool try_single_step(StateData& d)
+    static bool try_single_step(StateData& d)
     {
         return FDP_SingleStep(&d.shm, 0);
     }
 
-    bool try_resume(StateData& d)
+    static bool try_resume(StateData& d)
     {
         FDP_State state = FDP_STATE_NULL;
         const auto ok   = FDP_GetState(&d.shm, &state);
@@ -224,7 +224,7 @@ struct core::BreakpointPrivate
 
 namespace
 {
-    void check_breakpoints(StateData& d)
+    static void check_breakpoints(StateData& d)
     {
         FDP_State state      = FDP_STATE_NULL;
         const auto has_state = FDP_GetState(&d.shm, &state);
@@ -258,7 +258,7 @@ namespace
         SKIP_BREAKPOINTS
     };
 
-    bool try_wait(StateData& d, check_e check)
+    static bool try_wait(StateData& d, check_e check)
     {
         while(true)
         {
@@ -282,7 +282,7 @@ bool core::State::wait()
 
 namespace
 {
-    opt<dtb_t> get_dtb_filter(StateData& d, const BreakpointObserver& bp)
+    static opt<dtb_t> get_dtb_filter(StateData& d, const BreakpointObserver& bp)
     {
         if(bp.proc)
             return bp.proc->dtb;
@@ -297,7 +297,7 @@ namespace
         return proc->dtb;
     }
 
-    int try_add_breakpoint(StateData& d, phy_t phy, const BreakpointObserver& bp)
+    static int try_add_breakpoint(StateData& d, phy_t phy, const BreakpointObserver& bp)
     {
         auto& targets = d.breakpoints.targets_;
         auto dtb      = get_dtb_filter(d, bp);
@@ -327,7 +327,7 @@ namespace
         return bpid;
     }
 
-    core::Breakpoint set_breakpoint(StateData& d, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread, const core::Task& task)
+    static core::Breakpoint set_breakpoint(StateData& d, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread, const core::Task& task)
     {
         const auto bp = std::make_shared<BreakpointObserver>(task, phy, proc, thread);
         d.breakpoints.observers_.emplace(phy, bp);
@@ -350,7 +350,7 @@ namespace
         return d.core.os->proc_resolve(*current, ptr);
     }
 
-    core::Breakpoint set_breakpoint(StateData& d, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const core::Task& task)
+    static core::Breakpoint set_breakpoint(StateData& d, uint64_t ptr, const opt<proc_t>& proc, const opt<thread_t>& thread, const core::Task& task)
     {
         const auto target = proc ? d.core.os->proc_select(*proc, ptr) : ext::nullopt;
         const auto phy    = to_phy(d, ptr, target);

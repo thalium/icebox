@@ -156,7 +156,7 @@ opt<phy_t> core::Memory::virtual_to_physical(uint64_t ptr, dtb_t dtb)
 namespace
 {
     template <typename T>
-    bool read_pages(const char* where, uint8_t* dst, uint64_t src, size_t size, const T& operand)
+    static bool read_pages(const char* where, uint8_t* dst, uint64_t src, size_t size, const T& operand)
     {
         uint8_t buffer[PAGE_SIZE];
         size_t fill = 0;
@@ -177,7 +177,7 @@ namespace
         return true;
     }
 
-    bool read_virtual(MemData& d, uint8_t* dst, dtb_t dtb, uint64_t src, uint32_t size)
+    static bool read_virtual(MemData& d, uint8_t* dst, dtb_t dtb, uint64_t src, uint32_t size)
     {
         const auto full = FDP_ReadVirtualMemory(&d.shm, 0, dst, size, src);
         if(full)
@@ -196,7 +196,7 @@ namespace
         });
     }
 
-    bool read_physical(MemData& d, uint8_t* dst, uint64_t src, size_t size)
+    static bool read_physical(MemData& d, uint8_t* dst, uint64_t src, size_t size)
     {
         return read_pages("physical", dst, src, size, [&](uint8_t* pgdst, uint64_t pgsrc, uint32_t pgsize)
         {

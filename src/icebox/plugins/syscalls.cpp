@@ -66,7 +66,7 @@ plugins::Syscalls::~Syscalls() = default;
 
 namespace
 {
-    json create_calltree(core::Core& core, Triggers& triggers, json& args, proc_t target, const Callsteps& callsteps)
+    static json create_calltree(core::Core& core, Triggers& triggers, json& args, proc_t target, const Callsteps& callsteps)
     {
         using TriggersHash = std::unordered_map<uint64_t, Triggers>;
         json         calltree;
@@ -108,7 +108,7 @@ namespace
         return calltree;
     }
 
-    bool private_get_callstack(SyscallData& d)
+    static bool private_get_callstack(SyscallData& d)
     {
         constexpr size_t cs_max_depth = 70;
 

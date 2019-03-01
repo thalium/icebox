@@ -178,12 +178,12 @@ std::shared_ptr<callstack::ICallstack> callstack::make_callstack_nt(core::Core& 
 
 namespace
 {
-    bool compare_function_entries(const function_entry_t& a, const function_entry_t& b)
+    static bool compare_function_entries(const function_entry_t& a, const function_entry_t& b)
     {
         return a.start_address < b.start_address;
     }
 
-    opt<uint64_t> get_stack_frame_size(uint64_t off_in_mod, const FunctionTable& function_table, const function_entry_t& function_entry)
+    static opt<uint64_t> get_stack_frame_size(uint64_t off_in_mod, const FunctionTable& function_table, const function_entry_t& function_entry)
     {
         const auto off_in_prolog = off_in_mod - function_entry.start_address;
         if(off_in_prolog == 0)
@@ -204,7 +204,7 @@ namespace
         return {};
     }
 
-    opt<mod_t> find_prev(const uint64_t addr, const Modules& modules)
+    static opt<mod_t> find_prev(const uint64_t addr, const Modules& modules)
     {
         if(modules.empty())
             return {};
@@ -227,7 +227,7 @@ namespace
         return it->second;
     }
 
-    Modules& get_modules(AllModules& all, proc_t proc)
+    static Modules& get_modules(AllModules& all, proc_t proc)
     {
         auto it = all.find(proc);
         if(it == all.end())
@@ -522,7 +522,7 @@ bool CallstackNt::get_callstack(proc_t proc, callstack::on_callstep_fn on_callst
 
 namespace
 {
-    void get_unwind_codes(Unwinds& unwind_codes, function_entry_t& function_entry, const std::vector<uint8_t>& buffer, size_t unwind_codes_size, size_t chained_info_size)
+    static void get_unwind_codes(Unwinds& unwind_codes, function_entry_t& function_entry, const std::vector<uint8_t>& buffer, size_t unwind_codes_size, size_t chained_info_size)
     {
         static const auto reg_size = 0x08; // TODO Defined this somewhere else
         size_t idx                 = 0;
@@ -590,7 +590,7 @@ namespace
         }
     }
 
-    opt<function_entry_t> lookup_mother_function_entry(uint32_t mother_start_addr, const std::vector<function_entry_t>& function_entries)
+    static opt<function_entry_t> lookup_mother_function_entry(uint32_t mother_start_addr, const std::vector<function_entry_t>& function_entries)
     {
         for(const auto& fe : function_entries)
             if(mother_start_addr == fe.start_address)
@@ -692,7 +692,7 @@ opt<FunctionTable> CallstackNt::parse_exception_dir(proc_t proc, const void* vsr
 namespace
 {
     template <typename T>
-    const function_entry_t* check_previous_exist(const T& it, const T& end, const uint32_t offset_in_mod)
+    static const function_entry_t* check_previous_exist(const T& it, const T& end, const uint32_t offset_in_mod)
     {
         if(it == end)
             return nullptr;

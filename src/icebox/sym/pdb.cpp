@@ -84,7 +84,7 @@ std::unique_ptr<sym::IMod> sym::make_pdb(span_t span, const std::string& module,
 
 namespace
 {
-    const char* to_string(pdb::PDBFileState x)
+    static const char* to_string(pdb::PDBFileState x)
     {
         switch(x)
         {
@@ -96,11 +96,8 @@ namespace
         }
         return "<invalid>";
     }
-}
 
-namespace
-{
-    uint64_t get_offset(Pdb& pdb, const pdb::PDBGlobalVariable& var)
+    static uint64_t get_offset(Pdb& pdb, const pdb::PDBGlobalVariable& var)
     {
         return pdb.span_.addr + var.address - BASE_ADDRESS;
     }
@@ -148,7 +145,7 @@ bool Pdb::sym_list(sym::on_sym_fn on_sym)
 
 namespace
 {
-    const pdb::PDBTypeStruct* get_struc(Pdb& p, const std::string& struc)
+    static const pdb::PDBTypeStruct* get_struc(Pdb& p, const std::string& struc)
     {
         const auto type = p.pdb_.get_types_container()->get_type_by_name(const_cast<char*>(struc.data()));
         if(!type)
@@ -186,7 +183,7 @@ opt<size_t> Pdb::struc_size(const std::string& struc)
 namespace
 {
     template <typename T>
-    opt<sym::ModCursor> make_cursor(Pdb& p, const T& it, const T& end, uint64_t addr)
+    static opt<sym::ModCursor> make_cursor(Pdb& p, const T& it, const T& end, uint64_t addr)
     {
         if(it == end)
             return {};
@@ -219,7 +216,7 @@ namespace
         std::string name;
     };
 
-    opt<std::string> read_pdb_name(const uint8_t* ptr, const uint8_t* end)
+    static opt<std::string> read_pdb_name(const uint8_t* ptr, const uint8_t* end)
     {
         for(auto it = ptr; it != end; ++it)
             if(!std::isprint(*it))
@@ -231,7 +228,7 @@ namespace
     static const uint8_t rsds_magic[] = {'R', 'S', 'D', 'S'};
     static const auto rsds_pattern    = boyer_moore_horspool_searcher(std::begin(rsds_magic), std::end(rsds_magic));
 
-    opt<PdbCtx> read_pdb(const void* vsrc, size_t src_size)
+    static opt<PdbCtx> read_pdb(const void* vsrc, size_t src_size)
     {
         auto src       = reinterpret_cast<const uint8_t*>(vsrc);
         const auto end = &src[src_size];

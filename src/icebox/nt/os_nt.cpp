@@ -286,7 +286,7 @@ namespace
         return !!(ptr & 0xFFF0000000000000);
     }
 
-    opt<span_t> find_kernel(core::Memory& mem, uint64_t lstar)
+    static opt<span_t> find_kernel(core::Memory& mem, uint64_t lstar)
     {
         uint8_t buf[PAGE_SIZE];
         for(auto ptr = utils::align<PAGE_SIZE>(lstar); ptr < lstar; ptr -= PAGE_SIZE)
@@ -476,7 +476,7 @@ opt<proc_t> OsNt::proc_find(uint64_t pid)
 
 namespace
 {
-    opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
+    static opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
     {
         using _UNICODE_STRING = struct
         {
@@ -508,7 +508,7 @@ namespace
 
     namespace nt32
     {
-        opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
+        static opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
         {
             nt32::_UNICODE_STRING us;
             auto ok = reader.read(&us, unicode_string, sizeof us);
@@ -1140,12 +1140,12 @@ uint64_t OsNt::thread_id(proc_t /*proc*/, thread_t thread)
 
 namespace
 {
-    void proc_join_kernel(OsNt& os, proc_t proc)
+    static void proc_join_kernel(OsNt& os, proc_t proc)
     {
         os.core_.state.run_to(proc);
     }
 
-    void proc_join_user(OsNt& os, proc_t proc)
+    static void proc_join_user(OsNt& os, proc_t proc)
     {
         // if KiKernelSysretExit doesn't exist, KiSystemCall* in lstar has user return address in rcx
         const auto where = os.symbols_[KiKernelSysretExit] ? os.symbols_[KiKernelSysretExit] : os.core_.regs.read(MSR_LSTAR);

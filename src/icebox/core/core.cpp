@@ -25,7 +25,7 @@ namespace std
 namespace
 {
     template <typename T>
-    std::unique_ptr<T> make_unique(T* ptr)
+    static std::unique_ptr<T> make_unique(T* ptr)
     {
         // check whether we correctly defined a custom deleter
         static_assert(std::default_delete<T>::marker == true, "missing custom marker");

@@ -7,7 +7,7 @@
 namespace
 {
     template <typename T, T (*read)(const void*)>
-    opt<T> read_mem(const reader::Reader& r, uint64_t ptr)
+    static opt<T> read_mem(const reader::Reader& r, uint64_t ptr)
     {
         T value;
         const auto dtb = r.core_.os->is_kernel_address(ptr) ? r.kdtb_ : r.udtb_;

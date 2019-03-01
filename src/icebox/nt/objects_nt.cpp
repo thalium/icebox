@@ -104,7 +104,7 @@ nt::ObjectNt::~ObjectNt() = default;
 
 namespace
 {
-    bool setup(Data& d)
+    static bool setup(Data& d)
     {
         bool fail = false;
         for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
@@ -222,7 +222,7 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
 
 namespace
 {
-    opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
+    static opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
     {
         using UnicodeString = struct
         {
@@ -254,7 +254,7 @@ namespace
 
     namespace nt32
     {
-        opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
+        static opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
         {
             using UnicodeString = struct
             {
