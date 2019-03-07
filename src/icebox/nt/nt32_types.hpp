@@ -40,6 +40,27 @@ namespace nt32
     std::string afd_status_str  (afd_status_e afd_status);
     std::string afd_status_dump (uint32_t afd_status);
 
+    enum class win32_protection_mask_e : uint32_t
+    {
+        PAGE_NOACCESS               = 0x01,
+        PAGE_READONLY               = 0x02,
+        PAGE_READWRITE              = 0x04,
+        PAGE_WRITECOPY              = 0x08,
+        PAGE_EXECUTE                = 0x10,
+        PAGE_EXECUTE_READ           = 0x20,
+        PAGE_EXECUTE_READWRITE      = 0x40,
+        PAGE_EXECUTE_WRITECOPY      = 0x80,
+        PAGE_GUARD                  = 0x100,
+        PAGE_NOCACHE                = 0x200,
+        PAGE_WRITECOMBINE           = 0x400,
+        PAGE_ENCLAVE_THREAD_CONTROL = 0x80000000,
+        PAGE_TARGETS_INVALID        = 0x40000000,
+        PAGE_ENCLAVE_UNVALIDATED    = 0x20000000,
+        PAGE_ENCLAVE_DECOMMIT       = 0x10000000,
+    };
+    const char*                 win32_protection_mask       (win32_protection_mask_e arg);
+    std::vector<const char*>    win32_protection_mask_dump  (uint32_t arg);
+
     using ACCESS_MASK                          = uint32_t;
     using ALPC_HANDLE                          = uint32_t;
     using ALPC_MESSAGE_INFORMATION_CLASS       = uint32_t;

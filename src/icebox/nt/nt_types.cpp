@@ -154,3 +154,69 @@ std::string nt32::afd_status_dump(uint32_t afd_status)
 {
     return ::afd_status_dump(afd_status, nt32_afd_status);
 }
+
+namespace
+{
+    template <typename T>
+    static const char* win32_protection_mask_str(T arg)
+    {
+        switch(arg)
+        {
+            case T::PAGE_NOACCESS:                  return "PAGE_NOACCESS";
+            case T::PAGE_READONLY:                  return "PAGE_READONLY";
+            case T::PAGE_READWRITE:                 return "PAGE_READWRITE";
+            case T::PAGE_WRITECOPY:                 return "PAGE_WRITECOPY";
+            case T::PAGE_EXECUTE:                   return "PAGE_EXECUTE";
+            case T::PAGE_EXECUTE_READ:              return "PAGE_EXECUTE_READ";
+            case T::PAGE_EXECUTE_READWRITE:         return "PAGE_EXECUTE_READWRITE";
+            case T::PAGE_EXECUTE_WRITECOPY:         return "PAGE_EXECUTE_WRITECOPY";
+            case T::PAGE_GUARD:                     return "PAGE_GUARD";
+            case T::PAGE_NOCACHE:                   return "PAGE_NOCACHE";
+            case T::PAGE_WRITECOMBINE:              return "PAGE_WRITECOMBINE";
+            case T::PAGE_ENCLAVE_THREAD_CONTROL:    return "PAGE_ENCLAVE_THREAD_CONTROL";
+            case T::PAGE_TARGETS_INVALID:           return "PAGE_TARGETS_INVALID";
+            case T::PAGE_ENCLAVE_UNVALIDATED:       return "PAGE_ENCLAVE_UNVALIDATED";
+            case T::PAGE_ENCLAVE_DECOMMIT:          return "PAGE_ENCLAVE_DECOMMIT";
+            default:                                return "";
+        }
+    }
+
+    static const nt32::win32_protection_mask_e nt32_win32_protection_masks[] =
+    {
+            nt32::win32_protection_mask_e::PAGE_NOACCESS,
+            nt32::win32_protection_mask_e::PAGE_READONLY,
+            nt32::win32_protection_mask_e::PAGE_READWRITE,
+            nt32::win32_protection_mask_e::PAGE_WRITECOPY,
+            nt32::win32_protection_mask_e::PAGE_EXECUTE,
+            nt32::win32_protection_mask_e::PAGE_EXECUTE_READ,
+            nt32::win32_protection_mask_e::PAGE_EXECUTE_READWRITE,
+            nt32::win32_protection_mask_e::PAGE_EXECUTE_WRITECOPY,
+            nt32::win32_protection_mask_e::PAGE_GUARD,
+            nt32::win32_protection_mask_e::PAGE_NOCACHE,
+            nt32::win32_protection_mask_e::PAGE_WRITECOMBINE,
+            nt32::win32_protection_mask_e::PAGE_ENCLAVE_THREAD_CONTROL,
+            nt32::win32_protection_mask_e::PAGE_TARGETS_INVALID,
+            nt32::win32_protection_mask_e::PAGE_ENCLAVE_UNVALIDATED,
+            nt32::win32_protection_mask_e::PAGE_ENCLAVE_DECOMMIT,
+    };
+
+    template <typename T, size_t N>
+    static std::vector<const char*> win32_protection_mask_dump(uint32_t arg, const T (&masks)[N])
+    {
+        std::vector<const char*> values;
+        for(auto it : masks)
+            if(arg & static_cast<uint32_t>(it))
+                values.emplace_back(win32_protection_mask_str(it));
+        return values;
+    }
+}
+
+const char* nt32::win32_protection_mask(win32_protection_mask_e arg)
+{
+    return win32_protection_mask_str(arg);
+}
+
+std::vector<const char*> nt32::win32_protection_mask_dump(uint32_t arg)
+{
+    return ::win32_protection_mask_dump(arg, nt32_win32_protection_masks);
+}
