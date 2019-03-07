@@ -3,6 +3,7 @@
 #include <stdint.h>
 
 #include "endian.hpp"
+#include "utils.hpp"
 
 namespace hex
 {
@@ -30,7 +31,7 @@ namespace hex
     template <size_t size, uint32_t flags = 0, size_t szdst>
     const char* convert(char (&dst)[szdst], const void* src)
     {
-        static_assert(szdst == !!(flags & HexaPrefix) * 2 + size * 2 + 1, "invalid destination size");
+        STATIC_ASSERT_EQ(szdst, !!(flags & HexaPrefix) * 2 + size * 2 + 1);
         const auto& hexchars = flags & LowerCase ? chars_lower : chars_upper;
         const auto prefix    = flags & HexaPrefix ? 2 : 0;
         convert(&dst[prefix], hexchars, src, size);
