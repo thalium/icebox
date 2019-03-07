@@ -207,6 +207,8 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
         default:
             return FAIL(ext::nullopt, "Unknown table level");
     }
+    if(!*handle_table_code)
+        return {};
 
     const auto handle_table_entry = reader.read(*handle_table_code + i * (HANDLE_TABLE_ENTRY_SIZE / HANDLE_VALUE_INC));
     if(!handle_table_entry)
@@ -243,6 +245,9 @@ namespace
         if(us.length > us.max_length)
             return FAIL(ext::nullopt, "corrupted UNICODE_STRING");
 
+        if(!us.length)
+            return {};
+
         std::vector<uint8_t> buffer(us.length);
         ok = reader.read(&buffer[0], us.buffer, us.length);
         if(!ok)
@@ -273,6 +278,9 @@ namespace
 
             if(us.length > us.max_length)
                 return FAIL(ext::nullopt, "corrupted UNICODE_STRING");
+
+            if(!us.length)
+                return {};
 
             std::vector<uint8_t> buffer(us.length);
             ok = reader.read(&buffer[0], us.buffer, us.length);
@@ -349,7 +357,7 @@ opt<std::string> nt::ObjectNt::objattribute_objectname(proc_t proc, uint64_t ptr
     {
         // TODO get offset in 32 bits ntdll version's pdb
         const auto obj_name = reader.le32(ptr + 8);
-        if(!obj_name)
+        if(!obj_name || !*obj_name)
             return {};
 
         return nt32::read_unicode_string(reader, *obj_name);
