@@ -7,7 +7,7 @@
 
 #include <functional>
 
-namespace tracer
+namespace nt
 {
     using on_NtAcceptConnectPort_fn                                = std::function<nt::NTSTATUS(nt::PHANDLE, nt::PVOID, nt::PPORT_MESSAGE, nt::BOOLEAN, nt::PPORT_VIEW, nt::PREMOTE_PORT_VIEW)>;
     using on_NtAccessCheckAndAuditAlarm_fn                         = std::function<nt::NTSTATUS(nt::PUNICODE_STRING, nt::PVOID, nt::PUNICODE_STRING, nt::PUNICODE_STRING, nt::PSECURITY_DESCRIPTOR, nt::ACCESS_MASK, nt::PGENERIC_MAPPING, nt::BOOLEAN, nt::PACCESS_MASK, nt::PNTSTATUS, nt::PBOOLEAN)>;
@@ -823,4 +823,4 @@ namespace tracer
         struct Data;
         std::unique_ptr<Data> d_;
     };
-} // namespace tracer
+} // namespace nt

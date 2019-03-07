@@ -45,9 +45,9 @@ struct plugins::FdpSan::Data
 {
     Data(core::Core& core);
 
-    core::Core&   core_;
-    tracer::heaps heaps_;
-    Callstack     callstack_;
+    core::Core& core_;
+    nt::heaps   heaps_;
+    Callstack   callstack_;
 
     std::unordered_set<uint64_t> threads_allocating;
     std::unordered_set<uint64_t> threads_rellocating;

@@ -9,7 +9,7 @@ namespace
 	constexpr bool g_debug = false;
 }
 
-struct tracer::syscalls::Data
+struct nt::syscalls::Data
 {
     Data(core::Core& core, std::string_view module);
 
@@ -420,24 +420,24 @@ struct tracer::syscalls::Data
     std::vector<on_NtYieldExecution_fn>                                   observers_NtYieldExecution;
 };
 
-tracer::syscalls::Data::Data(core::Core& core, std::string_view module)
+nt::syscalls::Data::Data(core::Core& core, std::string_view module)
     : core(core)
     , module(module)
 {
 }
 
-tracer::syscalls::syscalls(core::Core& core, std::string_view module)
+nt::syscalls::syscalls(core::Core& core, std::string_view module)
     : d_(std::make_unique<Data>(core, module))
 {
 }
 
-tracer::syscalls::~syscalls() = default;
+nt::syscalls::~syscalls() = default;
 
 namespace
 {
-    using Data = tracer::syscalls::Data;
+    using Data = nt::syscalls::Data;
 
-    static core::Breakpoint register_callback(Data& d, proc_t proc, const char* name, const tracer::syscalls::on_call_fn& on_call)
+    static core::Breakpoint register_callback(Data& d, proc_t proc, const char* name, const core::Task& on_call)
     {
         const auto addr = d.core.sym.symbol(d.module, name);
         if(!addr)
@@ -470,7 +470,7 @@ namespace
         return nt::cast_to<T>(*arg);
     }
 
-    static void on_NtAcceptConnectPort(tracer::syscalls::Data& d)
+    static void on_NtAcceptConnectPort(nt::syscalls::Data& d)
     {
         const auto PortHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto PortContext       = arg<nt::PVOID>(d.core, 1);
@@ -486,7 +486,7 @@ namespace
             it(PortHandle, PortContext, ConnectionRequest, AcceptConnection, ServerView, ClientView);
     }
 
-    static void on_NtAccessCheckAndAuditAlarm(tracer::syscalls::Data& d)
+    static void on_NtAccessCheckAndAuditAlarm(nt::syscalls::Data& d)
     {
         const auto SubsystemName      = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId           = arg<nt::PVOID>(d.core, 1);
@@ -507,7 +507,7 @@ namespace
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, DesiredAccess, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
-    static void on_NtAccessCheckByTypeAndAuditAlarm(tracer::syscalls::Data& d)
+    static void on_NtAccessCheckByTypeAndAuditAlarm(nt::syscalls::Data& d)
     {
         const auto SubsystemName        = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId             = arg<nt::PVOID>(d.core, 1);
@@ -533,7 +533,7 @@ namespace
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
-    static void on_NtAccessCheckByType(tracer::syscalls::Data& d)
+    static void on_NtAccessCheckByType(nt::syscalls::Data& d)
     {
         const auto SecurityDescriptor   = arg<nt::PSECURITY_DESCRIPTOR>(d.core, 0);
         const auto PrincipalSelfSid     = arg<nt::PSID>(d.core, 1);
@@ -554,7 +554,7 @@ namespace
             it(SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
     }
 
-    static void on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle(tracer::syscalls::Data& d)
+    static void on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle(nt::syscalls::Data& d)
     {
         const auto SubsystemName        = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId             = arg<nt::PVOID>(d.core, 1);
@@ -581,7 +581,7 @@ namespace
             it(SubsystemName, HandleId, ClientToken, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
-    static void on_NtAccessCheckByTypeResultListAndAuditAlarm(tracer::syscalls::Data& d)
+    static void on_NtAccessCheckByTypeResultListAndAuditAlarm(nt::syscalls::Data& d)
     {
         const auto SubsystemName        = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId             = arg<nt::PVOID>(d.core, 1);
@@ -607,7 +607,7 @@ namespace
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
     }
 
-    static void on_NtAccessCheckByTypeResultList(tracer::syscalls::Data& d)
+    static void on_NtAccessCheckByTypeResultList(nt::syscalls::Data& d)
     {
         const auto SecurityDescriptor   = arg<nt::PSECURITY_DESCRIPTOR>(d.core, 0);
         const auto PrincipalSelfSid     = arg<nt::PSID>(d.core, 1);
@@ -628,7 +628,7 @@ namespace
             it(SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
     }
 
-    static void on_NtAccessCheck(tracer::syscalls::Data& d)
+    static void on_NtAccessCheck(nt::syscalls::Data& d)
     {
         const auto SecurityDescriptor = arg<nt::PSECURITY_DESCRIPTOR>(d.core, 0);
         const auto ClientToken        = arg<nt::HANDLE>(d.core, 1);
@@ -646,7 +646,7 @@ namespace
             it(SecurityDescriptor, ClientToken, DesiredAccess, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
     }
 
-    static void on_NtAddAtom(tracer::syscalls::Data& d)
+    static void on_NtAddAtom(nt::syscalls::Data& d)
     {
         const auto AtomName = arg<nt::PWSTR>(d.core, 0);
         const auto Length   = arg<nt::ULONG>(d.core, 1);
@@ -659,7 +659,7 @@ namespace
             it(AtomName, Length, Atom);
     }
 
-    static void on_NtAddBootEntry(tracer::syscalls::Data& d)
+    static void on_NtAddBootEntry(nt::syscalls::Data& d)
     {
         const auto BootEntry = arg<nt::PBOOT_ENTRY>(d.core, 0);
         const auto Id        = arg<nt::PULONG>(d.core, 1);
@@ -671,7 +671,7 @@ namespace
             it(BootEntry, Id);
     }
 
-    static void on_NtAddDriverEntry(tracer::syscalls::Data& d)
+    static void on_NtAddDriverEntry(nt::syscalls::Data& d)
     {
         const auto DriverEntry = arg<nt::PEFI_DRIVER_ENTRY>(d.core, 0);
         const auto Id          = arg<nt::PULONG>(d.core, 1);
@@ -683,7 +683,7 @@ namespace
             it(DriverEntry, Id);
     }
 
-    static void on_NtAdjustGroupsToken(tracer::syscalls::Data& d)
+    static void on_NtAdjustGroupsToken(nt::syscalls::Data& d)
     {
         const auto TokenHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto ResetToDefault = arg<nt::BOOLEAN>(d.core, 1);
@@ -699,7 +699,7 @@ namespace
             it(TokenHandle, ResetToDefault, NewState, BufferLength, PreviousState, ReturnLength);
     }
 
-    static void on_NtAdjustPrivilegesToken(tracer::syscalls::Data& d)
+    static void on_NtAdjustPrivilegesToken(nt::syscalls::Data& d)
     {
         const auto TokenHandle          = arg<nt::HANDLE>(d.core, 0);
         const auto DisableAllPrivileges = arg<nt::BOOLEAN>(d.core, 1);
@@ -715,7 +715,7 @@ namespace
             it(TokenHandle, DisableAllPrivileges, NewState, BufferLength, PreviousState, ReturnLength);
     }
 
-    static void on_NtAlertResumeThread(tracer::syscalls::Data& d)
+    static void on_NtAlertResumeThread(nt::syscalls::Data& d)
     {
         const auto ThreadHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto PreviousSuspendCount = arg<nt::PULONG>(d.core, 1);
@@ -727,7 +727,7 @@ namespace
             it(ThreadHandle, PreviousSuspendCount);
     }
 
-    static void on_NtAlertThread(tracer::syscalls::Data& d)
+    static void on_NtAlertThread(nt::syscalls::Data& d)
     {
         const auto ThreadHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -738,7 +738,7 @@ namespace
             it(ThreadHandle);
     }
 
-    static void on_NtAllocateLocallyUniqueId(tracer::syscalls::Data& d)
+    static void on_NtAllocateLocallyUniqueId(nt::syscalls::Data& d)
     {
         const auto Luid = arg<nt::PLUID>(d.core, 0);
 
@@ -749,7 +749,7 @@ namespace
             it(Luid);
     }
 
-    static void on_NtAllocateReserveObject(tracer::syscalls::Data& d)
+    static void on_NtAllocateReserveObject(nt::syscalls::Data& d)
     {
         const auto MemoryReserveHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto ObjectAttributes    = arg<nt::POBJECT_ATTRIBUTES>(d.core, 1);
@@ -762,7 +762,7 @@ namespace
             it(MemoryReserveHandle, ObjectAttributes, Type);
     }
 
-    static void on_NtAllocateUserPhysicalPages(tracer::syscalls::Data& d)
+    static void on_NtAllocateUserPhysicalPages(nt::syscalls::Data& d)
     {
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto NumberOfPages = arg<nt::PULONG_PTR>(d.core, 1);
@@ -775,7 +775,7 @@ namespace
             it(ProcessHandle, NumberOfPages, UserPfnArra);
     }
 
-    static void on_NtAllocateUuids(tracer::syscalls::Data& d)
+    static void on_NtAllocateUuids(nt::syscalls::Data& d)
     {
         const auto Time     = arg<nt::PULARGE_INTEGER>(d.core, 0);
         const auto Range    = arg<nt::PULONG>(d.core, 1);
@@ -789,7 +789,7 @@ namespace
             it(Time, Range, Sequence, Seed);
     }
 
-    static void on_NtAllocateVirtualMemory(tracer::syscalls::Data& d)
+    static void on_NtAllocateVirtualMemory(nt::syscalls::Data& d)
     {
         const auto ProcessHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt::PVOID>(d.core, 1);
@@ -805,7 +805,7 @@ namespace
             it(ProcessHandle, STARBaseAddress, ZeroBits, RegionSize, AllocationType, Protect);
     }
 
-    static void on_NtAlpcAcceptConnectPort(tracer::syscalls::Data& d)
+    static void on_NtAlpcAcceptConnectPort(nt::syscalls::Data& d)
     {
         const auto PortHandle                  = arg<nt::PHANDLE>(d.core, 0);
         const auto ConnectionPortHandle        = arg<nt::HANDLE>(d.core, 1);
@@ -824,7 +824,7 @@ namespace
             it(PortHandle, ConnectionPortHandle, Flags, ObjectAttributes, PortAttributes, PortContext, ConnectionRequest, ConnectionMessageAttributes, AcceptConnection);
     }
 
-    static void on_NtAlpcCancelMessage(tracer::syscalls::Data& d)
+    static void on_NtAlpcCancelMessage(nt::syscalls::Data& d)
     {
         const auto PortHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto Flags          = arg<nt::ULONG>(d.core, 1);
@@ -837,7 +837,7 @@ namespace
             it(PortHandle, Flags, MessageContext);
     }
 
-    static void on_NtAlpcConnectPort(tracer::syscalls::Data& d)
+    static void on_NtAlpcConnectPort(nt::syscalls::Data& d)
     {
         const auto PortHandle           = arg<nt::PHANDLE>(d.core, 0);
         const auto PortName             = arg<nt::PUNICODE_STRING>(d.core, 1);
@@ -858,7 +858,7 @@ namespace
             it(PortHandle, PortName, ObjectAttributes, PortAttributes, Flags, RequiredServerSid, ConnectionMessage, BufferLength, OutMessageAttributes, InMessageAttributes, Timeout);
     }
 
-    static void on_NtAlpcCreatePort(tracer::syscalls::Data& d)
+    static void on_NtAlpcCreatePort(nt::syscalls::Data& d)
     {
         const auto PortHandle       = arg<nt::PHANDLE>(d.core, 0);
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 1);
@@ -871,7 +871,7 @@ namespace
             it(PortHandle, ObjectAttributes, PortAttributes);
     }
 
-    static void on_NtAlpcCreatePortSection(tracer::syscalls::Data& d)
+    static void on_NtAlpcCreatePortSection(nt::syscalls::Data& d)
     {
         const auto PortHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto Flags             = arg<nt::ULONG>(d.core, 1);
@@ -887,7 +887,7 @@ namespace
             it(PortHandle, Flags, SectionHandle, SectionSize, AlpcSectionHandle, ActualSectionSize);
     }
 
-    static void on_NtAlpcCreateResourceReserve(tracer::syscalls::Data& d)
+    static void on_NtAlpcCreateResourceReserve(nt::syscalls::Data& d)
     {
         const auto PortHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
@@ -901,7 +901,7 @@ namespace
             it(PortHandle, Flags, MessageSize, ResourceId);
     }
 
-    static void on_NtAlpcCreateSectionView(tracer::syscalls::Data& d)
+    static void on_NtAlpcCreateSectionView(nt::syscalls::Data& d)
     {
         const auto PortHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto Flags          = arg<nt::ULONG>(d.core, 1);
@@ -914,7 +914,7 @@ namespace
             it(PortHandle, Flags, ViewAttributes);
     }
 
-    static void on_NtAlpcCreateSecurityContext(tracer::syscalls::Data& d)
+    static void on_NtAlpcCreateSecurityContext(nt::syscalls::Data& d)
     {
         const auto PortHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto Flags             = arg<nt::ULONG>(d.core, 1);
@@ -927,7 +927,7 @@ namespace
             it(PortHandle, Flags, SecurityAttribute);
     }
 
-    static void on_NtAlpcDeletePortSection(tracer::syscalls::Data& d)
+    static void on_NtAlpcDeletePortSection(nt::syscalls::Data& d)
     {
         const auto PortHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto Flags         = arg<nt::ULONG>(d.core, 1);
@@ -940,7 +940,7 @@ namespace
             it(PortHandle, Flags, SectionHandle);
     }
 
-    static void on_NtAlpcDeleteResourceReserve(tracer::syscalls::Data& d)
+    static void on_NtAlpcDeleteResourceReserve(nt::syscalls::Data& d)
     {
         const auto PortHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Flags      = arg<nt::ULONG>(d.core, 1);
@@ -953,7 +953,7 @@ namespace
             it(PortHandle, Flags, ResourceId);
     }
 
-    static void on_NtAlpcDeleteSectionView(tracer::syscalls::Data& d)
+    static void on_NtAlpcDeleteSectionView(nt::syscalls::Data& d)
     {
         const auto PortHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Flags      = arg<nt::ULONG>(d.core, 1);
@@ -966,7 +966,7 @@ namespace
             it(PortHandle, Flags, ViewBase);
     }
 
-    static void on_NtAlpcDeleteSecurityContext(tracer::syscalls::Data& d)
+    static void on_NtAlpcDeleteSecurityContext(nt::syscalls::Data& d)
     {
         const auto PortHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto Flags         = arg<nt::ULONG>(d.core, 1);
@@ -979,7 +979,7 @@ namespace
             it(PortHandle, Flags, ContextHandle);
     }
 
-    static void on_NtAlpcDisconnectPort(tracer::syscalls::Data& d)
+    static void on_NtAlpcDisconnectPort(nt::syscalls::Data& d)
     {
         const auto PortHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Flags      = arg<nt::ULONG>(d.core, 1);
@@ -991,7 +991,7 @@ namespace
             it(PortHandle, Flags);
     }
 
-    static void on_NtAlpcImpersonateClientOfPort(tracer::syscalls::Data& d)
+    static void on_NtAlpcImpersonateClientOfPort(nt::syscalls::Data& d)
     {
         const auto PortHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto PortMessage = arg<nt::PPORT_MESSAGE>(d.core, 1);
@@ -1004,7 +1004,7 @@ namespace
             it(PortHandle, PortMessage, Reserved);
     }
 
-    static void on_NtAlpcOpenSenderProcess(tracer::syscalls::Data& d)
+    static void on_NtAlpcOpenSenderProcess(nt::syscalls::Data& d)
     {
         const auto ProcessHandle    = arg<nt::PHANDLE>(d.core, 0);
         const auto PortHandle       = arg<nt::HANDLE>(d.core, 1);
@@ -1020,7 +1020,7 @@ namespace
             it(ProcessHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtAlpcOpenSenderThread(tracer::syscalls::Data& d)
+    static void on_NtAlpcOpenSenderThread(nt::syscalls::Data& d)
     {
         const auto ThreadHandle     = arg<nt::PHANDLE>(d.core, 0);
         const auto PortHandle       = arg<nt::HANDLE>(d.core, 1);
@@ -1036,7 +1036,7 @@ namespace
             it(ThreadHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtAlpcQueryInformation(tracer::syscalls::Data& d)
+    static void on_NtAlpcQueryInformation(nt::syscalls::Data& d)
     {
         const auto PortHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto PortInformationClass = arg<nt::ALPC_PORT_INFORMATION_CLASS>(d.core, 1);
@@ -1051,7 +1051,7 @@ namespace
             it(PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
     }
 
-    static void on_NtAlpcQueryInformationMessage(tracer::syscalls::Data& d)
+    static void on_NtAlpcQueryInformationMessage(nt::syscalls::Data& d)
     {
         const auto PortHandle              = arg<nt::HANDLE>(d.core, 0);
         const auto PortMessage             = arg<nt::PPORT_MESSAGE>(d.core, 1);
@@ -1067,7 +1067,7 @@ namespace
             it(PortHandle, PortMessage, MessageInformationClass, MessageInformation, Length, ReturnLength);
     }
 
-    static void on_NtAlpcRevokeSecurityContext(tracer::syscalls::Data& d)
+    static void on_NtAlpcRevokeSecurityContext(nt::syscalls::Data& d)
     {
         const auto PortHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto Flags         = arg<nt::ULONG>(d.core, 1);
@@ -1080,7 +1080,7 @@ namespace
             it(PortHandle, Flags, ContextHandle);
     }
 
-    static void on_NtAlpcSendWaitReceivePort(tracer::syscalls::Data& d)
+    static void on_NtAlpcSendWaitReceivePort(nt::syscalls::Data& d)
     {
         const auto PortHandle               = arg<nt::HANDLE>(d.core, 0);
         const auto Flags                    = arg<nt::ULONG>(d.core, 1);
@@ -1098,7 +1098,7 @@ namespace
             it(PortHandle, Flags, SendMessage, SendMessageAttributes, ReceiveMessage, BufferLength, ReceiveMessageAttributes, Timeout);
     }
 
-    static void on_NtAlpcSetInformation(tracer::syscalls::Data& d)
+    static void on_NtAlpcSetInformation(nt::syscalls::Data& d)
     {
         const auto PortHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto PortInformationClass = arg<nt::ALPC_PORT_INFORMATION_CLASS>(d.core, 1);
@@ -1112,7 +1112,7 @@ namespace
             it(PortHandle, PortInformationClass, PortInformation, Length);
     }
 
-    static void on_NtApphelpCacheControl(tracer::syscalls::Data& d)
+    static void on_NtApphelpCacheControl(nt::syscalls::Data& d)
     {
         const auto type = arg<nt::APPHELPCOMMAND>(d.core, 0);
         const auto buf  = arg<nt::PVOID>(d.core, 1);
@@ -1124,7 +1124,7 @@ namespace
             it(type, buf);
     }
 
-    static void on_NtAreMappedFilesTheSame(tracer::syscalls::Data& d)
+    static void on_NtAreMappedFilesTheSame(nt::syscalls::Data& d)
     {
         const auto File1MappedAsAnImage = arg<nt::PVOID>(d.core, 0);
         const auto File2MappedAsFile    = arg<nt::PVOID>(d.core, 1);
@@ -1136,7 +1136,7 @@ namespace
             it(File1MappedAsAnImage, File2MappedAsFile);
     }
 
-    static void on_NtAssignProcessToJobObject(tracer::syscalls::Data& d)
+    static void on_NtAssignProcessToJobObject(nt::syscalls::Data& d)
     {
         const auto JobHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 1);
@@ -1148,7 +1148,7 @@ namespace
             it(JobHandle, ProcessHandle);
     }
 
-    static void on_NtCancelIoFileEx(tracer::syscalls::Data& d)
+    static void on_NtCancelIoFileEx(nt::syscalls::Data& d)
     {
         const auto FileHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto IoRequestToCancel = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
@@ -1161,7 +1161,7 @@ namespace
             it(FileHandle, IoRequestToCancel, IoStatusBlock);
     }
 
-    static void on_NtCancelIoFile(tracer::syscalls::Data& d)
+    static void on_NtCancelIoFile(nt::syscalls::Data& d)
     {
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
@@ -1173,7 +1173,7 @@ namespace
             it(FileHandle, IoStatusBlock);
     }
 
-    static void on_NtCancelSynchronousIoFile(tracer::syscalls::Data& d)
+    static void on_NtCancelSynchronousIoFile(nt::syscalls::Data& d)
     {
         const auto ThreadHandle      = arg<nt::HANDLE>(d.core, 0);
         const auto IoRequestToCancel = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
@@ -1186,7 +1186,7 @@ namespace
             it(ThreadHandle, IoRequestToCancel, IoStatusBlock);
     }
 
-    static void on_NtCancelTimer(tracer::syscalls::Data& d)
+    static void on_NtCancelTimer(nt::syscalls::Data& d)
     {
         const auto TimerHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto CurrentState = arg<nt::PBOOLEAN>(d.core, 1);
@@ -1198,7 +1198,7 @@ namespace
             it(TimerHandle, CurrentState);
     }
 
-    static void on_NtClearEvent(tracer::syscalls::Data& d)
+    static void on_NtClearEvent(nt::syscalls::Data& d)
     {
         const auto EventHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -1209,7 +1209,7 @@ namespace
             it(EventHandle);
     }
 
-    static void on_NtClose(tracer::syscalls::Data& d)
+    static void on_NtClose(nt::syscalls::Data& d)
     {
         const auto Handle = arg<nt::HANDLE>(d.core, 0);
 
@@ -1220,7 +1220,7 @@ namespace
             it(Handle);
     }
 
-    static void on_NtCloseObjectAuditAlarm(tracer::syscalls::Data& d)
+    static void on_NtCloseObjectAuditAlarm(nt::syscalls::Data& d)
     {
         const auto SubsystemName   = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId        = arg<nt::PVOID>(d.core, 1);
@@ -1233,7 +1233,7 @@ namespace
             it(SubsystemName, HandleId, GenerateOnClose);
     }
 
-    static void on_NtCommitComplete(tracer::syscalls::Data& d)
+    static void on_NtCommitComplete(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -1245,7 +1245,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtCommitEnlistment(tracer::syscalls::Data& d)
+    static void on_NtCommitEnlistment(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -1257,7 +1257,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtCommitTransaction(tracer::syscalls::Data& d)
+    static void on_NtCommitTransaction(nt::syscalls::Data& d)
     {
         const auto TransactionHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Wait              = arg<nt::BOOLEAN>(d.core, 1);
@@ -1269,7 +1269,7 @@ namespace
             it(TransactionHandle, Wait);
     }
 
-    static void on_NtCompactKeys(tracer::syscalls::Data& d)
+    static void on_NtCompactKeys(nt::syscalls::Data& d)
     {
         const auto Count    = arg<nt::ULONG>(d.core, 0);
         const auto KeyArray = arg<nt::HANDLE>(d.core, 1);
@@ -1281,7 +1281,7 @@ namespace
             it(Count, KeyArray);
     }
 
-    static void on_NtCompareTokens(tracer::syscalls::Data& d)
+    static void on_NtCompareTokens(nt::syscalls::Data& d)
     {
         const auto FirstTokenHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto SecondTokenHandle = arg<nt::HANDLE>(d.core, 1);
@@ -1294,7 +1294,7 @@ namespace
             it(FirstTokenHandle, SecondTokenHandle, Equal);
     }
 
-    static void on_NtCompleteConnectPort(tracer::syscalls::Data& d)
+    static void on_NtCompleteConnectPort(nt::syscalls::Data& d)
     {
         const auto PortHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -1305,7 +1305,7 @@ namespace
             it(PortHandle);
     }
 
-    static void on_NtCompressKey(tracer::syscalls::Data& d)
+    static void on_NtCompressKey(nt::syscalls::Data& d)
     {
         const auto Key = arg<nt::HANDLE>(d.core, 0);
 
@@ -1316,7 +1316,7 @@ namespace
             it(Key);
     }
 
-    static void on_NtConnectPort(tracer::syscalls::Data& d)
+    static void on_NtConnectPort(nt::syscalls::Data& d)
     {
         const auto PortHandle                  = arg<nt::PHANDLE>(d.core, 0);
         const auto PortName                    = arg<nt::PUNICODE_STRING>(d.core, 1);
@@ -1334,7 +1334,7 @@ namespace
             it(PortHandle, PortName, SecurityQos, ClientView, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
     }
 
-    static void on_NtContinue(tracer::syscalls::Data& d)
+    static void on_NtContinue(nt::syscalls::Data& d)
     {
         const auto ContextRecord = arg<nt::PCONTEXT>(d.core, 0);
         const auto TestAlert     = arg<nt::BOOLEAN>(d.core, 1);
@@ -1346,7 +1346,7 @@ namespace
             it(ContextRecord, TestAlert);
     }
 
-    static void on_NtCreateDebugObject(tracer::syscalls::Data& d)
+    static void on_NtCreateDebugObject(nt::syscalls::Data& d)
     {
         const auto DebugObjectHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1360,7 +1360,7 @@ namespace
             it(DebugObjectHandle, DesiredAccess, ObjectAttributes, Flags);
     }
 
-    static void on_NtCreateDirectoryObject(tracer::syscalls::Data& d)
+    static void on_NtCreateDirectoryObject(nt::syscalls::Data& d)
     {
         const auto DirectoryHandle  = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1373,7 +1373,7 @@ namespace
             it(DirectoryHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtCreateEnlistment(tracer::syscalls::Data& d)
+    static void on_NtCreateEnlistment(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1391,7 +1391,7 @@ namespace
             it(EnlistmentHandle, DesiredAccess, ResourceManagerHandle, TransactionHandle, ObjectAttributes, CreateOptions, NotificationMask, EnlistmentKey);
     }
 
-    static void on_NtCreateEvent(tracer::syscalls::Data& d)
+    static void on_NtCreateEvent(nt::syscalls::Data& d)
     {
         const auto EventHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1406,7 +1406,7 @@ namespace
             it(EventHandle, DesiredAccess, ObjectAttributes, EventType, InitialState);
     }
 
-    static void on_NtCreateEventPair(tracer::syscalls::Data& d)
+    static void on_NtCreateEventPair(nt::syscalls::Data& d)
     {
         const auto EventPairHandle  = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1419,7 +1419,7 @@ namespace
             it(EventPairHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtCreateFile(tracer::syscalls::Data& d)
+    static void on_NtCreateFile(nt::syscalls::Data& d)
     {
         const auto FileHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1440,7 +1440,7 @@ namespace
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions, EaBuffer, EaLength);
     }
 
-    static void on_NtCreateIoCompletion(tracer::syscalls::Data& d)
+    static void on_NtCreateIoCompletion(nt::syscalls::Data& d)
     {
         const auto IoCompletionHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1454,7 +1454,7 @@ namespace
             it(IoCompletionHandle, DesiredAccess, ObjectAttributes, Count);
     }
 
-    static void on_NtCreateJobObject(tracer::syscalls::Data& d)
+    static void on_NtCreateJobObject(nt::syscalls::Data& d)
     {
         const auto JobHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1467,7 +1467,7 @@ namespace
             it(JobHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtCreateJobSet(tracer::syscalls::Data& d)
+    static void on_NtCreateJobSet(nt::syscalls::Data& d)
     {
         const auto NumJob     = arg<nt::ULONG>(d.core, 0);
         const auto UserJobSet = arg<nt::PJOB_SET_ARRAY>(d.core, 1);
@@ -1480,7 +1480,7 @@ namespace
             it(NumJob, UserJobSet, Flags);
     }
 
-    static void on_NtCreateKeyedEvent(tracer::syscalls::Data& d)
+    static void on_NtCreateKeyedEvent(nt::syscalls::Data& d)
     {
         const auto KeyedEventHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1494,7 +1494,7 @@ namespace
             it(KeyedEventHandle, DesiredAccess, ObjectAttributes, Flags);
     }
 
-    static void on_NtCreateKey(tracer::syscalls::Data& d)
+    static void on_NtCreateKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1511,7 +1511,7 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, Disposition);
     }
 
-    static void on_NtCreateKeyTransacted(tracer::syscalls::Data& d)
+    static void on_NtCreateKeyTransacted(nt::syscalls::Data& d)
     {
         const auto KeyHandle         = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1529,7 +1529,7 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, TransactionHandle, Disposition);
     }
 
-    static void on_NtCreateMailslotFile(tracer::syscalls::Data& d)
+    static void on_NtCreateMailslotFile(nt::syscalls::Data& d)
     {
         const auto FileHandle         = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt::ULONG>(d.core, 1);
@@ -1547,7 +1547,7 @@ namespace
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, CreateOptions, MailslotQuota, MaximumMessageSize, ReadTimeout);
     }
 
-    static void on_NtCreateMutant(tracer::syscalls::Data& d)
+    static void on_NtCreateMutant(nt::syscalls::Data& d)
     {
         const auto MutantHandle     = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1561,7 +1561,7 @@ namespace
             it(MutantHandle, DesiredAccess, ObjectAttributes, InitialOwner);
     }
 
-    static void on_NtCreateNamedPipeFile(tracer::syscalls::Data& d)
+    static void on_NtCreateNamedPipeFile(nt::syscalls::Data& d)
     {
         const auto FileHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ULONG>(d.core, 1);
@@ -1585,7 +1585,7 @@ namespace
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, CreateDisposition, CreateOptions, NamedPipeType, ReadMode, CompletionMode, MaximumInstances, InboundQuota, OutboundQuota, DefaultTimeout);
     }
 
-    static void on_NtCreatePagingFile(tracer::syscalls::Data& d)
+    static void on_NtCreatePagingFile(nt::syscalls::Data& d)
     {
         const auto PageFileName = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto MinimumSize  = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -1599,7 +1599,7 @@ namespace
             it(PageFileName, MinimumSize, MaximumSize, Priority);
     }
 
-    static void on_NtCreatePort(tracer::syscalls::Data& d)
+    static void on_NtCreatePort(nt::syscalls::Data& d)
     {
         const auto PortHandle              = arg<nt::PHANDLE>(d.core, 0);
         const auto ObjectAttributes        = arg<nt::POBJECT_ATTRIBUTES>(d.core, 1);
@@ -1614,7 +1614,7 @@ namespace
             it(PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage);
     }
 
-    static void on_NtCreatePrivateNamespace(tracer::syscalls::Data& d)
+    static void on_NtCreatePrivateNamespace(nt::syscalls::Data& d)
     {
         const auto NamespaceHandle    = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1628,7 +1628,7 @@ namespace
             it(NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
     }
 
-    static void on_NtCreateProcessEx(tracer::syscalls::Data& d)
+    static void on_NtCreateProcessEx(nt::syscalls::Data& d)
     {
         const auto ProcessHandle    = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1647,7 +1647,7 @@ namespace
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, Flags, SectionHandle, DebugPort, ExceptionPort, JobMemberLevel);
     }
 
-    static void on_NtCreateProcess(tracer::syscalls::Data& d)
+    static void on_NtCreateProcess(nt::syscalls::Data& d)
     {
         const auto ProcessHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1665,7 +1665,7 @@ namespace
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, InheritObjectTable, SectionHandle, DebugPort, ExceptionPort);
     }
 
-    static void on_NtCreateProfileEx(tracer::syscalls::Data& d)
+    static void on_NtCreateProfileEx(nt::syscalls::Data& d)
     {
         const auto ProfileHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto Process            = arg<nt::HANDLE>(d.core, 1);
@@ -1685,7 +1685,7 @@ namespace
             it(ProfileHandle, Process, ProfileBase, ProfileSize, BucketSize, Buffer, BufferSize, ProfileSource, GroupAffinityCount, GroupAffinity);
     }
 
-    static void on_NtCreateProfile(tracer::syscalls::Data& d)
+    static void on_NtCreateProfile(nt::syscalls::Data& d)
     {
         const auto ProfileHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto Process       = arg<nt::HANDLE>(d.core, 1);
@@ -1704,7 +1704,7 @@ namespace
             it(ProfileHandle, Process, RangeBase, RangeSize, BucketSize, Buffer, BufferSize, ProfileSource, Affinity);
     }
 
-    static void on_NtCreateResourceManager(tracer::syscalls::Data& d)
+    static void on_NtCreateResourceManager(nt::syscalls::Data& d)
     {
         const auto ResourceManagerHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1721,7 +1721,7 @@ namespace
             it(ResourceManagerHandle, DesiredAccess, TmHandle, RmGuid, ObjectAttributes, CreateOptions, Description);
     }
 
-    static void on_NtCreateSection(tracer::syscalls::Data& d)
+    static void on_NtCreateSection(nt::syscalls::Data& d)
     {
         const auto SectionHandle         = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1738,7 +1738,7 @@ namespace
             it(SectionHandle, DesiredAccess, ObjectAttributes, MaximumSize, SectionPageProtection, AllocationAttributes, FileHandle);
     }
 
-    static void on_NtCreateSemaphore(tracer::syscalls::Data& d)
+    static void on_NtCreateSemaphore(nt::syscalls::Data& d)
     {
         const auto SemaphoreHandle  = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1753,7 +1753,7 @@ namespace
             it(SemaphoreHandle, DesiredAccess, ObjectAttributes, InitialCount, MaximumCount);
     }
 
-    static void on_NtCreateSymbolicLinkObject(tracer::syscalls::Data& d)
+    static void on_NtCreateSymbolicLinkObject(nt::syscalls::Data& d)
     {
         const auto LinkHandle       = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1767,7 +1767,7 @@ namespace
             it(LinkHandle, DesiredAccess, ObjectAttributes, LinkTarget);
     }
 
-    static void on_NtCreateThreadEx(tracer::syscalls::Data& d)
+    static void on_NtCreateThreadEx(nt::syscalls::Data& d)
     {
         const auto ThreadHandle     = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1788,7 +1788,7 @@ namespace
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, StartRoutine, Argument, CreateFlags, ZeroBits, StackSize, MaximumStackSize, AttributeList);
     }
 
-    static void on_NtCreateThread(tracer::syscalls::Data& d)
+    static void on_NtCreateThread(nt::syscalls::Data& d)
     {
         const auto ThreadHandle     = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1806,7 +1806,7 @@ namespace
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, ClientId, ThreadContext, InitialTeb, CreateSuspended);
     }
 
-    static void on_NtCreateTimer(tracer::syscalls::Data& d)
+    static void on_NtCreateTimer(nt::syscalls::Data& d)
     {
         const auto TimerHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1820,7 +1820,7 @@ namespace
             it(TimerHandle, DesiredAccess, ObjectAttributes, TimerType);
     }
 
-    static void on_NtCreateToken(tracer::syscalls::Data& d)
+    static void on_NtCreateToken(nt::syscalls::Data& d)
     {
         const auto TokenHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1843,7 +1843,7 @@ namespace
             it(TokenHandle, DesiredAccess, ObjectAttributes, TokenType, AuthenticationId, ExpirationTime, User, Groups, Privileges, Owner, PrimaryGroup, DefaultDacl, TokenSource);
     }
 
-    static void on_NtCreateTransactionManager(tracer::syscalls::Data& d)
+    static void on_NtCreateTransactionManager(nt::syscalls::Data& d)
     {
         const auto TmHandle         = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1859,7 +1859,7 @@ namespace
             it(TmHandle, DesiredAccess, ObjectAttributes, LogFileName, CreateOptions, CommitStrength);
     }
 
-    static void on_NtCreateTransaction(tracer::syscalls::Data& d)
+    static void on_NtCreateTransaction(nt::syscalls::Data& d)
     {
         const auto TransactionHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1879,7 +1879,7 @@ namespace
             it(TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle, CreateOptions, IsolationLevel, IsolationFlags, Timeout, Description);
     }
 
-    static void on_NtCreateUserProcess(tracer::syscalls::Data& d)
+    static void on_NtCreateUserProcess(nt::syscalls::Data& d)
     {
         const auto ProcessHandle           = arg<nt::PHANDLE>(d.core, 0);
         const auto ThreadHandle            = arg<nt::PHANDLE>(d.core, 1);
@@ -1900,7 +1900,7 @@ namespace
             it(ProcessHandle, ThreadHandle, ProcessDesiredAccess, ThreadDesiredAccess, ProcessObjectAttributes, ThreadObjectAttributes, ProcessFlags, ThreadFlags, ProcessParameters, CreateInfo, AttributeList);
     }
 
-    static void on_NtCreateWaitablePort(tracer::syscalls::Data& d)
+    static void on_NtCreateWaitablePort(nt::syscalls::Data& d)
     {
         const auto PortHandle              = arg<nt::PHANDLE>(d.core, 0);
         const auto ObjectAttributes        = arg<nt::POBJECT_ATTRIBUTES>(d.core, 1);
@@ -1915,7 +1915,7 @@ namespace
             it(PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage);
     }
 
-    static void on_NtCreateWorkerFactory(tracer::syscalls::Data& d)
+    static void on_NtCreateWorkerFactory(nt::syscalls::Data& d)
     {
         const auto WorkerFactoryHandleReturn = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess             = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -1935,7 +1935,7 @@ namespace
             it(WorkerFactoryHandleReturn, DesiredAccess, ObjectAttributes, CompletionPortHandle, WorkerProcessHandle, StartRoutine, StartParameter, MaxThreadCount, StackReserve, StackCommit);
     }
 
-    static void on_NtDebugActiveProcess(tracer::syscalls::Data& d)
+    static void on_NtDebugActiveProcess(nt::syscalls::Data& d)
     {
         const auto ProcessHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto DebugObjectHandle = arg<nt::HANDLE>(d.core, 1);
@@ -1947,7 +1947,7 @@ namespace
             it(ProcessHandle, DebugObjectHandle);
     }
 
-    static void on_NtDebugContinue(tracer::syscalls::Data& d)
+    static void on_NtDebugContinue(nt::syscalls::Data& d)
     {
         const auto DebugObjectHandle = arg<nt::HANDLE>(d.core, 0);
         const auto ClientId          = arg<nt::PCLIENT_ID>(d.core, 1);
@@ -1960,7 +1960,7 @@ namespace
             it(DebugObjectHandle, ClientId, ContinueStatus);
     }
 
-    static void on_NtDelayExecution(tracer::syscalls::Data& d)
+    static void on_NtDelayExecution(nt::syscalls::Data& d)
     {
         const auto Alertable     = arg<nt::BOOLEAN>(d.core, 0);
         const auto DelayInterval = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -1972,7 +1972,7 @@ namespace
             it(Alertable, DelayInterval);
     }
 
-    static void on_NtDeleteAtom(tracer::syscalls::Data& d)
+    static void on_NtDeleteAtom(nt::syscalls::Data& d)
     {
         const auto Atom = arg<nt::RTL_ATOM>(d.core, 0);
 
@@ -1983,7 +1983,7 @@ namespace
             it(Atom);
     }
 
-    static void on_NtDeleteBootEntry(tracer::syscalls::Data& d)
+    static void on_NtDeleteBootEntry(nt::syscalls::Data& d)
     {
         const auto Id = arg<nt::ULONG>(d.core, 0);
 
@@ -1994,7 +1994,7 @@ namespace
             it(Id);
     }
 
-    static void on_NtDeleteDriverEntry(tracer::syscalls::Data& d)
+    static void on_NtDeleteDriverEntry(nt::syscalls::Data& d)
     {
         const auto Id = arg<nt::ULONG>(d.core, 0);
 
@@ -2005,7 +2005,7 @@ namespace
             it(Id);
     }
 
-    static void on_NtDeleteFile(tracer::syscalls::Data& d)
+    static void on_NtDeleteFile(nt::syscalls::Data& d)
     {
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
 
@@ -2016,7 +2016,7 @@ namespace
             it(ObjectAttributes);
     }
 
-    static void on_NtDeleteKey(tracer::syscalls::Data& d)
+    static void on_NtDeleteKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -2027,7 +2027,7 @@ namespace
             it(KeyHandle);
     }
 
-    static void on_NtDeleteObjectAuditAlarm(tracer::syscalls::Data& d)
+    static void on_NtDeleteObjectAuditAlarm(nt::syscalls::Data& d)
     {
         const auto SubsystemName   = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId        = arg<nt::PVOID>(d.core, 1);
@@ -2040,7 +2040,7 @@ namespace
             it(SubsystemName, HandleId, GenerateOnClose);
     }
 
-    static void on_NtDeletePrivateNamespace(tracer::syscalls::Data& d)
+    static void on_NtDeletePrivateNamespace(nt::syscalls::Data& d)
     {
         const auto NamespaceHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -2051,7 +2051,7 @@ namespace
             it(NamespaceHandle);
     }
 
-    static void on_NtDeleteValueKey(tracer::syscalls::Data& d)
+    static void on_NtDeleteValueKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle = arg<nt::HANDLE>(d.core, 0);
         const auto ValueName = arg<nt::PUNICODE_STRING>(d.core, 1);
@@ -2063,7 +2063,7 @@ namespace
             it(KeyHandle, ValueName);
     }
 
-    static void on_NtDeviceIoControlFile(tracer::syscalls::Data& d)
+    static void on_NtDeviceIoControlFile(nt::syscalls::Data& d)
     {
         const auto FileHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto Event              = arg<nt::HANDLE>(d.core, 1);
@@ -2083,7 +2083,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
     }
 
-    static void on_NtDisplayString(tracer::syscalls::Data& d)
+    static void on_NtDisplayString(nt::syscalls::Data& d)
     {
         const auto String = arg<nt::PUNICODE_STRING>(d.core, 0);
 
@@ -2094,7 +2094,7 @@ namespace
             it(String);
     }
 
-    static void on_NtDrawText(tracer::syscalls::Data& d)
+    static void on_NtDrawText(nt::syscalls::Data& d)
     {
         const auto Text = arg<nt::PUNICODE_STRING>(d.core, 0);
 
@@ -2105,7 +2105,7 @@ namespace
             it(Text);
     }
 
-    static void on_NtDuplicateObject(tracer::syscalls::Data& d)
+    static void on_NtDuplicateObject(nt::syscalls::Data& d)
     {
         const auto SourceProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto SourceHandle        = arg<nt::HANDLE>(d.core, 1);
@@ -2122,7 +2122,7 @@ namespace
             it(SourceProcessHandle, SourceHandle, TargetProcessHandle, TargetHandle, DesiredAccess, HandleAttributes, Options);
     }
 
-    static void on_NtDuplicateToken(tracer::syscalls::Data& d)
+    static void on_NtDuplicateToken(nt::syscalls::Data& d)
     {
         const auto ExistingTokenHandle = arg<nt::HANDLE>(d.core, 0);
         const auto DesiredAccess       = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -2138,7 +2138,7 @@ namespace
             it(ExistingTokenHandle, DesiredAccess, ObjectAttributes, EffectiveOnly, TokenType, NewTokenHandle);
     }
 
-    static void on_NtEnumerateBootEntries(tracer::syscalls::Data& d)
+    static void on_NtEnumerateBootEntries(nt::syscalls::Data& d)
     {
         const auto Buffer       = arg<nt::PVOID>(d.core, 0);
         const auto BufferLength = arg<nt::PULONG>(d.core, 1);
@@ -2150,7 +2150,7 @@ namespace
             it(Buffer, BufferLength);
     }
 
-    static void on_NtEnumerateDriverEntries(tracer::syscalls::Data& d)
+    static void on_NtEnumerateDriverEntries(nt::syscalls::Data& d)
     {
         const auto Buffer       = arg<nt::PVOID>(d.core, 0);
         const auto BufferLength = arg<nt::PULONG>(d.core, 1);
@@ -2162,7 +2162,7 @@ namespace
             it(Buffer, BufferLength);
     }
 
-    static void on_NtEnumerateKey(tracer::syscalls::Data& d)
+    static void on_NtEnumerateKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto Index               = arg<nt::ULONG>(d.core, 1);
@@ -2178,7 +2178,7 @@ namespace
             it(KeyHandle, Index, KeyInformationClass, KeyInformation, Length, ResultLength);
     }
 
-    static void on_NtEnumerateSystemEnvironmentValuesEx(tracer::syscalls::Data& d)
+    static void on_NtEnumerateSystemEnvironmentValuesEx(nt::syscalls::Data& d)
     {
         const auto InformationClass = arg<nt::ULONG>(d.core, 0);
         const auto Buffer           = arg<nt::PVOID>(d.core, 1);
@@ -2191,7 +2191,7 @@ namespace
             it(InformationClass, Buffer, BufferLength);
     }
 
-    static void on_NtEnumerateTransactionObject(tracer::syscalls::Data& d)
+    static void on_NtEnumerateTransactionObject(nt::syscalls::Data& d)
     {
         const auto RootObjectHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto QueryType          = arg<nt::KTMOBJECT_TYPE>(d.core, 1);
@@ -2206,7 +2206,7 @@ namespace
             it(RootObjectHandle, QueryType, ObjectCursor, ObjectCursorLength, ReturnLength);
     }
 
-    static void on_NtEnumerateValueKey(tracer::syscalls::Data& d)
+    static void on_NtEnumerateValueKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle                = arg<nt::HANDLE>(d.core, 0);
         const auto Index                    = arg<nt::ULONG>(d.core, 1);
@@ -2222,7 +2222,7 @@ namespace
             it(KeyHandle, Index, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
     }
 
-    static void on_NtExtendSection(tracer::syscalls::Data& d)
+    static void on_NtExtendSection(nt::syscalls::Data& d)
     {
         const auto SectionHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto NewSectionSize = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -2234,7 +2234,7 @@ namespace
             it(SectionHandle, NewSectionSize);
     }
 
-    static void on_NtFilterToken(tracer::syscalls::Data& d)
+    static void on_NtFilterToken(nt::syscalls::Data& d)
     {
         const auto ExistingTokenHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Flags               = arg<nt::ULONG>(d.core, 1);
@@ -2250,7 +2250,7 @@ namespace
             it(ExistingTokenHandle, Flags, SidsToDisable, PrivilegesToDelete, RestrictedSids, NewTokenHandle);
     }
 
-    static void on_NtFindAtom(tracer::syscalls::Data& d)
+    static void on_NtFindAtom(nt::syscalls::Data& d)
     {
         const auto AtomName = arg<nt::PWSTR>(d.core, 0);
         const auto Length   = arg<nt::ULONG>(d.core, 1);
@@ -2263,7 +2263,7 @@ namespace
             it(AtomName, Length, Atom);
     }
 
-    static void on_NtFlushBuffersFile(tracer::syscalls::Data& d)
+    static void on_NtFlushBuffersFile(nt::syscalls::Data& d)
     {
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
@@ -2275,7 +2275,7 @@ namespace
             it(FileHandle, IoStatusBlock);
     }
 
-    static void on_NtFlushInstallUILanguage(tracer::syscalls::Data& d)
+    static void on_NtFlushInstallUILanguage(nt::syscalls::Data& d)
     {
         const auto InstallUILanguage = arg<nt::LANGID>(d.core, 0);
         const auto SetComittedFlag   = arg<nt::ULONG>(d.core, 1);
@@ -2287,7 +2287,7 @@ namespace
             it(InstallUILanguage, SetComittedFlag);
     }
 
-    static void on_NtFlushInstructionCache(tracer::syscalls::Data& d)
+    static void on_NtFlushInstructionCache(nt::syscalls::Data& d)
     {
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto BaseAddress   = arg<nt::PVOID>(d.core, 1);
@@ -2300,7 +2300,7 @@ namespace
             it(ProcessHandle, BaseAddress, Length);
     }
 
-    static void on_NtFlushKey(tracer::syscalls::Data& d)
+    static void on_NtFlushKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -2311,7 +2311,7 @@ namespace
             it(KeyHandle);
     }
 
-    static void on_NtFlushVirtualMemory(tracer::syscalls::Data& d)
+    static void on_NtFlushVirtualMemory(nt::syscalls::Data& d)
     {
         const auto ProcessHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt::PVOID>(d.core, 1);
@@ -2325,7 +2325,7 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, IoStatus);
     }
 
-    static void on_NtFreeUserPhysicalPages(tracer::syscalls::Data& d)
+    static void on_NtFreeUserPhysicalPages(nt::syscalls::Data& d)
     {
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto NumberOfPages = arg<nt::PULONG_PTR>(d.core, 1);
@@ -2338,7 +2338,7 @@ namespace
             it(ProcessHandle, NumberOfPages, UserPfnArra);
     }
 
-    static void on_NtFreeVirtualMemory(tracer::syscalls::Data& d)
+    static void on_NtFreeVirtualMemory(nt::syscalls::Data& d)
     {
         const auto ProcessHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt::PVOID>(d.core, 1);
@@ -2352,7 +2352,7 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, FreeType);
     }
 
-    static void on_NtFreezeRegistry(tracer::syscalls::Data& d)
+    static void on_NtFreezeRegistry(nt::syscalls::Data& d)
     {
         const auto TimeOutInSeconds = arg<nt::ULONG>(d.core, 0);
 
@@ -2363,7 +2363,7 @@ namespace
             it(TimeOutInSeconds);
     }
 
-    static void on_NtFreezeTransactions(tracer::syscalls::Data& d)
+    static void on_NtFreezeTransactions(nt::syscalls::Data& d)
     {
         const auto FreezeTimeout = arg<nt::PLARGE_INTEGER>(d.core, 0);
         const auto ThawTimeout   = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -2375,7 +2375,7 @@ namespace
             it(FreezeTimeout, ThawTimeout);
     }
 
-    static void on_NtFsControlFile(tracer::syscalls::Data& d)
+    static void on_NtFsControlFile(nt::syscalls::Data& d)
     {
         const auto FileHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto Event              = arg<nt::HANDLE>(d.core, 1);
@@ -2395,7 +2395,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
     }
 
-    static void on_NtGetContextThread(tracer::syscalls::Data& d)
+    static void on_NtGetContextThread(nt::syscalls::Data& d)
     {
         const auto ThreadHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto ThreadContext = arg<nt::PCONTEXT>(d.core, 1);
@@ -2407,7 +2407,7 @@ namespace
             it(ThreadHandle, ThreadContext);
     }
 
-    static void on_NtGetDevicePowerState(tracer::syscalls::Data& d)
+    static void on_NtGetDevicePowerState(nt::syscalls::Data& d)
     {
         const auto Device    = arg<nt::HANDLE>(d.core, 0);
         const auto STARState = arg<nt::DEVICE_POWER_STATE>(d.core, 1);
@@ -2419,7 +2419,7 @@ namespace
             it(Device, STARState);
     }
 
-    static void on_NtGetMUIRegistryInfo(tracer::syscalls::Data& d)
+    static void on_NtGetMUIRegistryInfo(nt::syscalls::Data& d)
     {
         const auto Flags    = arg<nt::ULONG>(d.core, 0);
         const auto DataSize = arg<nt::PULONG>(d.core, 1);
@@ -2432,7 +2432,7 @@ namespace
             it(Flags, DataSize, Data);
     }
 
-    static void on_NtGetNextProcess(tracer::syscalls::Data& d)
+    static void on_NtGetNextProcess(nt::syscalls::Data& d)
     {
         const auto ProcessHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -2447,7 +2447,7 @@ namespace
             it(ProcessHandle, DesiredAccess, HandleAttributes, Flags, NewProcessHandle);
     }
 
-    static void on_NtGetNextThread(tracer::syscalls::Data& d)
+    static void on_NtGetNextThread(nt::syscalls::Data& d)
     {
         const auto ProcessHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto ThreadHandle     = arg<nt::HANDLE>(d.core, 1);
@@ -2463,7 +2463,7 @@ namespace
             it(ProcessHandle, ThreadHandle, DesiredAccess, HandleAttributes, Flags, NewThreadHandle);
     }
 
-    static void on_NtGetNlsSectionPtr(tracer::syscalls::Data& d)
+    static void on_NtGetNlsSectionPtr(nt::syscalls::Data& d)
     {
         const auto SectionType        = arg<nt::ULONG>(d.core, 0);
         const auto SectionData        = arg<nt::ULONG>(d.core, 1);
@@ -2478,7 +2478,7 @@ namespace
             it(SectionType, SectionData, ContextData, STARSectionPointer, SectionSize);
     }
 
-    static void on_NtGetNotificationResourceManager(tracer::syscalls::Data& d)
+    static void on_NtGetNotificationResourceManager(nt::syscalls::Data& d)
     {
         const auto ResourceManagerHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto TransactionNotification = arg<nt::PTRANSACTION_NOTIFICATION>(d.core, 1);
@@ -2495,7 +2495,7 @@ namespace
             it(ResourceManagerHandle, TransactionNotification, NotificationLength, Timeout, ReturnLength, Asynchronous, AsynchronousContext);
     }
 
-    static void on_NtGetPlugPlayEvent(tracer::syscalls::Data& d)
+    static void on_NtGetPlugPlayEvent(nt::syscalls::Data& d)
     {
         const auto EventHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto Context         = arg<nt::PVOID>(d.core, 1);
@@ -2509,7 +2509,7 @@ namespace
             it(EventHandle, Context, EventBlock, EventBufferSize);
     }
 
-    static void on_NtGetWriteWatch(tracer::syscalls::Data& d)
+    static void on_NtGetWriteWatch(nt::syscalls::Data& d)
     {
         const auto ProcessHandle             = arg<nt::HANDLE>(d.core, 0);
         const auto Flags                     = arg<nt::ULONG>(d.core, 1);
@@ -2526,7 +2526,7 @@ namespace
             it(ProcessHandle, Flags, BaseAddress, RegionSize, STARUserAddressArray, EntriesInUserAddressArray, Granularity);
     }
 
-    static void on_NtImpersonateAnonymousToken(tracer::syscalls::Data& d)
+    static void on_NtImpersonateAnonymousToken(nt::syscalls::Data& d)
     {
         const auto ThreadHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -2537,7 +2537,7 @@ namespace
             it(ThreadHandle);
     }
 
-    static void on_NtImpersonateClientOfPort(tracer::syscalls::Data& d)
+    static void on_NtImpersonateClientOfPort(nt::syscalls::Data& d)
     {
         const auto PortHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Message    = arg<nt::PPORT_MESSAGE>(d.core, 1);
@@ -2549,7 +2549,7 @@ namespace
             it(PortHandle, Message);
     }
 
-    static void on_NtImpersonateThread(tracer::syscalls::Data& d)
+    static void on_NtImpersonateThread(nt::syscalls::Data& d)
     {
         const auto ServerThreadHandle = arg<nt::HANDLE>(d.core, 0);
         const auto ClientThreadHandle = arg<nt::HANDLE>(d.core, 1);
@@ -2562,7 +2562,7 @@ namespace
             it(ServerThreadHandle, ClientThreadHandle, SecurityQos);
     }
 
-    static void on_NtInitializeNlsFiles(tracer::syscalls::Data& d)
+    static void on_NtInitializeNlsFiles(nt::syscalls::Data& d)
     {
         const auto STARBaseAddress        = arg<nt::PVOID>(d.core, 0);
         const auto DefaultLocaleId        = arg<nt::PLCID>(d.core, 1);
@@ -2575,7 +2575,7 @@ namespace
             it(STARBaseAddress, DefaultLocaleId, DefaultCasingTableSize);
     }
 
-    static void on_NtInitializeRegistry(tracer::syscalls::Data& d)
+    static void on_NtInitializeRegistry(nt::syscalls::Data& d)
     {
         const auto BootCondition = arg<nt::USHORT>(d.core, 0);
 
@@ -2586,7 +2586,7 @@ namespace
             it(BootCondition);
     }
 
-    static void on_NtInitiatePowerAction(tracer::syscalls::Data& d)
+    static void on_NtInitiatePowerAction(nt::syscalls::Data& d)
     {
         const auto SystemAction   = arg<nt::POWER_ACTION>(d.core, 0);
         const auto MinSystemState = arg<nt::SYSTEM_POWER_STATE>(d.core, 1);
@@ -2600,7 +2600,7 @@ namespace
             it(SystemAction, MinSystemState, Flags, Asynchronous);
     }
 
-    static void on_NtIsProcessInJob(tracer::syscalls::Data& d)
+    static void on_NtIsProcessInJob(nt::syscalls::Data& d)
     {
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto JobHandle     = arg<nt::HANDLE>(d.core, 1);
@@ -2612,7 +2612,7 @@ namespace
             it(ProcessHandle, JobHandle);
     }
 
-    static void on_NtListenPort(tracer::syscalls::Data& d)
+    static void on_NtListenPort(nt::syscalls::Data& d)
     {
         const auto PortHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto ConnectionRequest = arg<nt::PPORT_MESSAGE>(d.core, 1);
@@ -2624,7 +2624,7 @@ namespace
             it(PortHandle, ConnectionRequest);
     }
 
-    static void on_NtLoadDriver(tracer::syscalls::Data& d)
+    static void on_NtLoadDriver(nt::syscalls::Data& d)
     {
         const auto DriverServiceName = arg<nt::PUNICODE_STRING>(d.core, 0);
 
@@ -2635,7 +2635,7 @@ namespace
             it(DriverServiceName);
     }
 
-    static void on_NtLoadKey2(tracer::syscalls::Data& d)
+    static void on_NtLoadKey2(nt::syscalls::Data& d)
     {
         const auto TargetKey  = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto SourceFile = arg<nt::POBJECT_ATTRIBUTES>(d.core, 1);
@@ -2648,7 +2648,7 @@ namespace
             it(TargetKey, SourceFile, Flags);
     }
 
-    static void on_NtLoadKeyEx(tracer::syscalls::Data& d)
+    static void on_NtLoadKeyEx(nt::syscalls::Data& d)
     {
         const auto TargetKey     = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto SourceFile    = arg<nt::POBJECT_ATTRIBUTES>(d.core, 1);
@@ -2662,7 +2662,7 @@ namespace
             it(TargetKey, SourceFile, Flags, TrustClassKey);
     }
 
-    static void on_NtLoadKey(tracer::syscalls::Data& d)
+    static void on_NtLoadKey(nt::syscalls::Data& d)
     {
         const auto TargetKey  = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto SourceFile = arg<nt::POBJECT_ATTRIBUTES>(d.core, 1);
@@ -2674,7 +2674,7 @@ namespace
             it(TargetKey, SourceFile);
     }
 
-    static void on_NtLockFile(tracer::syscalls::Data& d)
+    static void on_NtLockFile(nt::syscalls::Data& d)
     {
         const auto FileHandle      = arg<nt::HANDLE>(d.core, 0);
         const auto Event           = arg<nt::HANDLE>(d.core, 1);
@@ -2694,7 +2694,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, ByteOffset, Length, Key, FailImmediately, ExclusiveLock);
     }
 
-    static void on_NtLockProductActivationKeys(tracer::syscalls::Data& d)
+    static void on_NtLockProductActivationKeys(nt::syscalls::Data& d)
     {
         const auto STARpPrivateVer = arg<nt::ULONG>(d.core, 0);
         const auto STARpSafeMode   = arg<nt::ULONG>(d.core, 1);
@@ -2706,7 +2706,7 @@ namespace
             it(STARpPrivateVer, STARpSafeMode);
     }
 
-    static void on_NtLockRegistryKey(tracer::syscalls::Data& d)
+    static void on_NtLockRegistryKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -2717,7 +2717,7 @@ namespace
             it(KeyHandle);
     }
 
-    static void on_NtLockVirtualMemory(tracer::syscalls::Data& d)
+    static void on_NtLockVirtualMemory(nt::syscalls::Data& d)
     {
         const auto ProcessHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt::PVOID>(d.core, 1);
@@ -2731,7 +2731,7 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, MapType);
     }
 
-    static void on_NtMakePermanentObject(tracer::syscalls::Data& d)
+    static void on_NtMakePermanentObject(nt::syscalls::Data& d)
     {
         const auto Handle = arg<nt::HANDLE>(d.core, 0);
 
@@ -2742,7 +2742,7 @@ namespace
             it(Handle);
     }
 
-    static void on_NtMakeTemporaryObject(tracer::syscalls::Data& d)
+    static void on_NtMakeTemporaryObject(nt::syscalls::Data& d)
     {
         const auto Handle = arg<nt::HANDLE>(d.core, 0);
 
@@ -2753,7 +2753,7 @@ namespace
             it(Handle);
     }
 
-    static void on_NtMapCMFModule(tracer::syscalls::Data& d)
+    static void on_NtMapCMFModule(nt::syscalls::Data& d)
     {
         const auto What            = arg<nt::ULONG>(d.core, 0);
         const auto Index           = arg<nt::ULONG>(d.core, 1);
@@ -2769,7 +2769,7 @@ namespace
             it(What, Index, CacheIndexOut, CacheFlagsOut, ViewSizeOut, STARBaseAddress);
     }
 
-    static void on_NtMapUserPhysicalPages(tracer::syscalls::Data& d)
+    static void on_NtMapUserPhysicalPages(nt::syscalls::Data& d)
     {
         const auto VirtualAddress = arg<nt::PVOID>(d.core, 0);
         const auto NumberOfPages  = arg<nt::ULONG_PTR>(d.core, 1);
@@ -2782,7 +2782,7 @@ namespace
             it(VirtualAddress, NumberOfPages, UserPfnArra);
     }
 
-    static void on_NtMapUserPhysicalPagesScatter(tracer::syscalls::Data& d)
+    static void on_NtMapUserPhysicalPagesScatter(nt::syscalls::Data& d)
     {
         const auto STARVirtualAddresses = arg<nt::PVOID>(d.core, 0);
         const auto NumberOfPages        = arg<nt::ULONG_PTR>(d.core, 1);
@@ -2795,7 +2795,7 @@ namespace
             it(STARVirtualAddresses, NumberOfPages, UserPfnArray);
     }
 
-    static void on_NtMapViewOfSection(tracer::syscalls::Data& d)
+    static void on_NtMapViewOfSection(nt::syscalls::Data& d)
     {
         const auto SectionHandle      = arg<nt::HANDLE>(d.core, 0);
         const auto ProcessHandle      = arg<nt::HANDLE>(d.core, 1);
@@ -2815,7 +2815,7 @@ namespace
             it(SectionHandle, ProcessHandle, STARBaseAddress, ZeroBits, CommitSize, SectionOffset, ViewSize, InheritDisposition, AllocationType, Win32Protect);
     }
 
-    static void on_NtModifyBootEntry(tracer::syscalls::Data& d)
+    static void on_NtModifyBootEntry(nt::syscalls::Data& d)
     {
         const auto BootEntry = arg<nt::PBOOT_ENTRY>(d.core, 0);
 
@@ -2826,7 +2826,7 @@ namespace
             it(BootEntry);
     }
 
-    static void on_NtModifyDriverEntry(tracer::syscalls::Data& d)
+    static void on_NtModifyDriverEntry(nt::syscalls::Data& d)
     {
         const auto DriverEntry = arg<nt::PEFI_DRIVER_ENTRY>(d.core, 0);
 
@@ -2837,7 +2837,7 @@ namespace
             it(DriverEntry);
     }
 
-    static void on_NtNotifyChangeDirectoryFile(tracer::syscalls::Data& d)
+    static void on_NtNotifyChangeDirectoryFile(nt::syscalls::Data& d)
     {
         const auto FileHandle       = arg<nt::HANDLE>(d.core, 0);
         const auto Event            = arg<nt::HANDLE>(d.core, 1);
@@ -2856,7 +2856,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, CompletionFilter, WatchTree);
     }
 
-    static void on_NtNotifyChangeKey(tracer::syscalls::Data& d)
+    static void on_NtNotifyChangeKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto Event            = arg<nt::HANDLE>(d.core, 1);
@@ -2876,7 +2876,7 @@ namespace
             it(KeyHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
     }
 
-    static void on_NtNotifyChangeMultipleKeys(tracer::syscalls::Data& d)
+    static void on_NtNotifyChangeMultipleKeys(nt::syscalls::Data& d)
     {
         const auto MasterKeyHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto Count            = arg<nt::ULONG>(d.core, 1);
@@ -2898,7 +2898,7 @@ namespace
             it(MasterKeyHandle, Count, SlaveObjects, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
     }
 
-    static void on_NtNotifyChangeSession(tracer::syscalls::Data& d)
+    static void on_NtNotifyChangeSession(nt::syscalls::Data& d)
     {
         const auto Session         = arg<nt::HANDLE>(d.core, 0);
         const auto IoStateSequence = arg<nt::ULONG>(d.core, 1);
@@ -2916,7 +2916,7 @@ namespace
             it(Session, IoStateSequence, Reserved, Action, IoState, IoState2, Buffer, BufferSize);
     }
 
-    static void on_NtOpenDirectoryObject(tracer::syscalls::Data& d)
+    static void on_NtOpenDirectoryObject(nt::syscalls::Data& d)
     {
         const auto DirectoryHandle  = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -2929,7 +2929,7 @@ namespace
             it(DirectoryHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenEnlistment(tracer::syscalls::Data& d)
+    static void on_NtOpenEnlistment(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -2944,7 +2944,7 @@ namespace
             it(EnlistmentHandle, DesiredAccess, ResourceManagerHandle, EnlistmentGuid, ObjectAttributes);
     }
 
-    static void on_NtOpenEvent(tracer::syscalls::Data& d)
+    static void on_NtOpenEvent(nt::syscalls::Data& d)
     {
         const auto EventHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -2957,7 +2957,7 @@ namespace
             it(EventHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenEventPair(tracer::syscalls::Data& d)
+    static void on_NtOpenEventPair(nt::syscalls::Data& d)
     {
         const auto EventPairHandle  = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -2970,7 +2970,7 @@ namespace
             it(EventPairHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenFile(tracer::syscalls::Data& d)
+    static void on_NtOpenFile(nt::syscalls::Data& d)
     {
         const auto FileHandle       = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -2986,7 +2986,7 @@ namespace
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, OpenOptions);
     }
 
-    static void on_NtOpenIoCompletion(tracer::syscalls::Data& d)
+    static void on_NtOpenIoCompletion(nt::syscalls::Data& d)
     {
         const auto IoCompletionHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -2999,7 +2999,7 @@ namespace
             it(IoCompletionHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenJobObject(tracer::syscalls::Data& d)
+    static void on_NtOpenJobObject(nt::syscalls::Data& d)
     {
         const auto JobHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3012,7 +3012,7 @@ namespace
             it(JobHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenKeyedEvent(tracer::syscalls::Data& d)
+    static void on_NtOpenKeyedEvent(nt::syscalls::Data& d)
     {
         const auto KeyedEventHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3025,7 +3025,7 @@ namespace
             it(KeyedEventHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenKeyEx(tracer::syscalls::Data& d)
+    static void on_NtOpenKeyEx(nt::syscalls::Data& d)
     {
         const auto KeyHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3039,7 +3039,7 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions);
     }
 
-    static void on_NtOpenKey(tracer::syscalls::Data& d)
+    static void on_NtOpenKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle        = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3052,7 +3052,7 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenKeyTransactedEx(tracer::syscalls::Data& d)
+    static void on_NtOpenKeyTransactedEx(nt::syscalls::Data& d)
     {
         const auto KeyHandle         = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3067,7 +3067,7 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions, TransactionHandle);
     }
 
-    static void on_NtOpenKeyTransacted(tracer::syscalls::Data& d)
+    static void on_NtOpenKeyTransacted(nt::syscalls::Data& d)
     {
         const auto KeyHandle         = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3081,7 +3081,7 @@ namespace
             it(KeyHandle, DesiredAccess, ObjectAttributes, TransactionHandle);
     }
 
-    static void on_NtOpenMutant(tracer::syscalls::Data& d)
+    static void on_NtOpenMutant(nt::syscalls::Data& d)
     {
         const auto MutantHandle     = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3094,7 +3094,7 @@ namespace
             it(MutantHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenObjectAuditAlarm(tracer::syscalls::Data& d)
+    static void on_NtOpenObjectAuditAlarm(nt::syscalls::Data& d)
     {
         const auto SubsystemName      = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId           = arg<nt::PVOID>(d.core, 1);
@@ -3116,7 +3116,7 @@ namespace
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, ClientToken, DesiredAccess, GrantedAccess, Privileges, ObjectCreation, AccessGranted, GenerateOnClose);
     }
 
-    static void on_NtOpenPrivateNamespace(tracer::syscalls::Data& d)
+    static void on_NtOpenPrivateNamespace(nt::syscalls::Data& d)
     {
         const auto NamespaceHandle    = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess      = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3130,7 +3130,7 @@ namespace
             it(NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
     }
 
-    static void on_NtOpenProcess(tracer::syscalls::Data& d)
+    static void on_NtOpenProcess(nt::syscalls::Data& d)
     {
         const auto ProcessHandle    = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3144,7 +3144,7 @@ namespace
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ClientId);
     }
 
-    static void on_NtOpenProcessTokenEx(tracer::syscalls::Data& d)
+    static void on_NtOpenProcessTokenEx(nt::syscalls::Data& d)
     {
         const auto ProcessHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3158,7 +3158,7 @@ namespace
             it(ProcessHandle, DesiredAccess, HandleAttributes, TokenHandle);
     }
 
-    static void on_NtOpenProcessToken(tracer::syscalls::Data& d)
+    static void on_NtOpenProcessToken(nt::syscalls::Data& d)
     {
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto DesiredAccess = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3171,7 +3171,7 @@ namespace
             it(ProcessHandle, DesiredAccess, TokenHandle);
     }
 
-    static void on_NtOpenResourceManager(tracer::syscalls::Data& d)
+    static void on_NtOpenResourceManager(nt::syscalls::Data& d)
     {
         const auto ResourceManagerHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess         = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3186,7 +3186,7 @@ namespace
             it(ResourceManagerHandle, DesiredAccess, TmHandle, ResourceManagerGuid, ObjectAttributes);
     }
 
-    static void on_NtOpenSection(tracer::syscalls::Data& d)
+    static void on_NtOpenSection(nt::syscalls::Data& d)
     {
         const auto SectionHandle    = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3199,7 +3199,7 @@ namespace
             it(SectionHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenSemaphore(tracer::syscalls::Data& d)
+    static void on_NtOpenSemaphore(nt::syscalls::Data& d)
     {
         const auto SemaphoreHandle  = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3212,7 +3212,7 @@ namespace
             it(SemaphoreHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenSession(tracer::syscalls::Data& d)
+    static void on_NtOpenSession(nt::syscalls::Data& d)
     {
         const auto SessionHandle    = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3225,7 +3225,7 @@ namespace
             it(SessionHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenSymbolicLinkObject(tracer::syscalls::Data& d)
+    static void on_NtOpenSymbolicLinkObject(nt::syscalls::Data& d)
     {
         const auto LinkHandle       = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3238,7 +3238,7 @@ namespace
             it(LinkHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenThread(tracer::syscalls::Data& d)
+    static void on_NtOpenThread(nt::syscalls::Data& d)
     {
         const auto ThreadHandle     = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3252,7 +3252,7 @@ namespace
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ClientId);
     }
 
-    static void on_NtOpenThreadTokenEx(tracer::syscalls::Data& d)
+    static void on_NtOpenThreadTokenEx(nt::syscalls::Data& d)
     {
         const auto ThreadHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3267,7 +3267,7 @@ namespace
             it(ThreadHandle, DesiredAccess, OpenAsSelf, HandleAttributes, TokenHandle);
     }
 
-    static void on_NtOpenThreadToken(tracer::syscalls::Data& d)
+    static void on_NtOpenThreadToken(nt::syscalls::Data& d)
     {
         const auto ThreadHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto DesiredAccess = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3281,7 +3281,7 @@ namespace
             it(ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
     }
 
-    static void on_NtOpenTimer(tracer::syscalls::Data& d)
+    static void on_NtOpenTimer(nt::syscalls::Data& d)
     {
         const auto TimerHandle      = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3294,7 +3294,7 @@ namespace
             it(TimerHandle, DesiredAccess, ObjectAttributes);
     }
 
-    static void on_NtOpenTransactionManager(tracer::syscalls::Data& d)
+    static void on_NtOpenTransactionManager(nt::syscalls::Data& d)
     {
         const auto TmHandle         = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess    = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3310,7 +3310,7 @@ namespace
             it(TmHandle, DesiredAccess, ObjectAttributes, LogFileName, TmIdentity, OpenOptions);
     }
 
-    static void on_NtOpenTransaction(tracer::syscalls::Data& d)
+    static void on_NtOpenTransaction(nt::syscalls::Data& d)
     {
         const auto TransactionHandle = arg<nt::PHANDLE>(d.core, 0);
         const auto DesiredAccess     = arg<nt::ACCESS_MASK>(d.core, 1);
@@ -3325,7 +3325,7 @@ namespace
             it(TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle);
     }
 
-    static void on_NtPlugPlayControl(tracer::syscalls::Data& d)
+    static void on_NtPlugPlayControl(nt::syscalls::Data& d)
     {
         const auto PnPControlClass      = arg<nt::PLUGPLAY_CONTROL_CLASS>(d.core, 0);
         const auto PnPControlData       = arg<nt::PVOID>(d.core, 1);
@@ -3338,7 +3338,7 @@ namespace
             it(PnPControlClass, PnPControlData, PnPControlDataLength);
     }
 
-    static void on_NtPowerInformation(tracer::syscalls::Data& d)
+    static void on_NtPowerInformation(nt::syscalls::Data& d)
     {
         const auto InformationLevel   = arg<nt::POWER_INFORMATION_LEVEL>(d.core, 0);
         const auto InputBuffer        = arg<nt::PVOID>(d.core, 1);
@@ -3353,7 +3353,7 @@ namespace
             it(InformationLevel, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
     }
 
-    static void on_NtPrepareComplete(tracer::syscalls::Data& d)
+    static void on_NtPrepareComplete(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -3365,7 +3365,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtPrepareEnlistment(tracer::syscalls::Data& d)
+    static void on_NtPrepareEnlistment(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -3377,7 +3377,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtPrePrepareComplete(tracer::syscalls::Data& d)
+    static void on_NtPrePrepareComplete(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -3389,7 +3389,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtPrePrepareEnlistment(tracer::syscalls::Data& d)
+    static void on_NtPrePrepareEnlistment(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -3401,7 +3401,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtPrivilegeCheck(tracer::syscalls::Data& d)
+    static void on_NtPrivilegeCheck(nt::syscalls::Data& d)
     {
         const auto ClientToken        = arg<nt::HANDLE>(d.core, 0);
         const auto RequiredPrivileges = arg<nt::PPRIVILEGE_SET>(d.core, 1);
@@ -3414,7 +3414,7 @@ namespace
             it(ClientToken, RequiredPrivileges, Result);
     }
 
-    static void on_NtPrivilegedServiceAuditAlarm(tracer::syscalls::Data& d)
+    static void on_NtPrivilegedServiceAuditAlarm(nt::syscalls::Data& d)
     {
         const auto SubsystemName = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto ServiceName   = arg<nt::PUNICODE_STRING>(d.core, 1);
@@ -3429,7 +3429,7 @@ namespace
             it(SubsystemName, ServiceName, ClientToken, Privileges, AccessGranted);
     }
 
-    static void on_NtPrivilegeObjectAuditAlarm(tracer::syscalls::Data& d)
+    static void on_NtPrivilegeObjectAuditAlarm(nt::syscalls::Data& d)
     {
         const auto SubsystemName = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto HandleId      = arg<nt::PVOID>(d.core, 1);
@@ -3445,7 +3445,7 @@ namespace
             it(SubsystemName, HandleId, ClientToken, DesiredAccess, Privileges, AccessGranted);
     }
 
-    static void on_NtPropagationComplete(tracer::syscalls::Data& d)
+    static void on_NtPropagationComplete(nt::syscalls::Data& d)
     {
         const auto ResourceManagerHandle = arg<nt::HANDLE>(d.core, 0);
         const auto RequestCookie         = arg<nt::ULONG>(d.core, 1);
@@ -3459,7 +3459,7 @@ namespace
             it(ResourceManagerHandle, RequestCookie, BufferLength, Buffer);
     }
 
-    static void on_NtPropagationFailed(tracer::syscalls::Data& d)
+    static void on_NtPropagationFailed(nt::syscalls::Data& d)
     {
         const auto ResourceManagerHandle = arg<nt::HANDLE>(d.core, 0);
         const auto RequestCookie         = arg<nt::ULONG>(d.core, 1);
@@ -3472,7 +3472,7 @@ namespace
             it(ResourceManagerHandle, RequestCookie, PropStatus);
     }
 
-    static void on_NtProtectVirtualMemory(tracer::syscalls::Data& d)
+    static void on_NtProtectVirtualMemory(nt::syscalls::Data& d)
     {
         const auto ProcessHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt::PVOID>(d.core, 1);
@@ -3487,7 +3487,7 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, NewProtectWin32, OldProtect);
     }
 
-    static void on_NtPulseEvent(tracer::syscalls::Data& d)
+    static void on_NtPulseEvent(nt::syscalls::Data& d)
     {
         const auto EventHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto PreviousState = arg<nt::PLONG>(d.core, 1);
@@ -3499,7 +3499,7 @@ namespace
             it(EventHandle, PreviousState);
     }
 
-    static void on_NtQueryAttributesFile(tracer::syscalls::Data& d)
+    static void on_NtQueryAttributesFile(nt::syscalls::Data& d)
     {
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto FileInformation  = arg<nt::PFILE_BASIC_INFORMATION>(d.core, 1);
@@ -3511,7 +3511,7 @@ namespace
             it(ObjectAttributes, FileInformation);
     }
 
-    static void on_NtQueryBootEntryOrder(tracer::syscalls::Data& d)
+    static void on_NtQueryBootEntryOrder(nt::syscalls::Data& d)
     {
         const auto Ids   = arg<nt::PULONG>(d.core, 0);
         const auto Count = arg<nt::PULONG>(d.core, 1);
@@ -3523,7 +3523,7 @@ namespace
             it(Ids, Count);
     }
 
-    static void on_NtQueryBootOptions(tracer::syscalls::Data& d)
+    static void on_NtQueryBootOptions(nt::syscalls::Data& d)
     {
         const auto BootOptions       = arg<nt::PBOOT_OPTIONS>(d.core, 0);
         const auto BootOptionsLength = arg<nt::PULONG>(d.core, 1);
@@ -3535,7 +3535,7 @@ namespace
             it(BootOptions, BootOptionsLength);
     }
 
-    static void on_NtQueryDebugFilterState(tracer::syscalls::Data& d)
+    static void on_NtQueryDebugFilterState(nt::syscalls::Data& d)
     {
         const auto ComponentId = arg<nt::ULONG>(d.core, 0);
         const auto Level       = arg<nt::ULONG>(d.core, 1);
@@ -3547,7 +3547,7 @@ namespace
             it(ComponentId, Level);
     }
 
-    static void on_NtQueryDefaultLocale(tracer::syscalls::Data& d)
+    static void on_NtQueryDefaultLocale(nt::syscalls::Data& d)
     {
         const auto UserProfile     = arg<nt::BOOLEAN>(d.core, 0);
         const auto DefaultLocaleId = arg<nt::PLCID>(d.core, 1);
@@ -3559,7 +3559,7 @@ namespace
             it(UserProfile, DefaultLocaleId);
     }
 
-    static void on_NtQueryDefaultUILanguage(tracer::syscalls::Data& d)
+    static void on_NtQueryDefaultUILanguage(nt::syscalls::Data& d)
     {
         const auto STARDefaultUILanguageId = arg<nt::LANGID>(d.core, 0);
 
@@ -3570,7 +3570,7 @@ namespace
             it(STARDefaultUILanguageId);
     }
 
-    static void on_NtQueryDirectoryFile(tracer::syscalls::Data& d)
+    static void on_NtQueryDirectoryFile(nt::syscalls::Data& d)
     {
         const auto FileHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto Event                = arg<nt::HANDLE>(d.core, 1);
@@ -3591,7 +3591,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan);
     }
 
-    static void on_NtQueryDirectoryObject(tracer::syscalls::Data& d)
+    static void on_NtQueryDirectoryObject(nt::syscalls::Data& d)
     {
         const auto DirectoryHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto Buffer            = arg<nt::PVOID>(d.core, 1);
@@ -3608,7 +3608,7 @@ namespace
             it(DirectoryHandle, Buffer, Length, ReturnSingleEntry, RestartScan, Context, ReturnLength);
     }
 
-    static void on_NtQueryDriverEntryOrder(tracer::syscalls::Data& d)
+    static void on_NtQueryDriverEntryOrder(nt::syscalls::Data& d)
     {
         const auto Ids   = arg<nt::PULONG>(d.core, 0);
         const auto Count = arg<nt::PULONG>(d.core, 1);
@@ -3620,7 +3620,7 @@ namespace
             it(Ids, Count);
     }
 
-    static void on_NtQueryEaFile(tracer::syscalls::Data& d)
+    static void on_NtQueryEaFile(nt::syscalls::Data& d)
     {
         const auto FileHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock     = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
@@ -3639,7 +3639,7 @@ namespace
             it(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, EaList, EaListLength, EaIndex, RestartScan);
     }
 
-    static void on_NtQueryEvent(tracer::syscalls::Data& d)
+    static void on_NtQueryEvent(nt::syscalls::Data& d)
     {
         const auto EventHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto EventInformationClass  = arg<nt::EVENT_INFORMATION_CLASS>(d.core, 1);
@@ -3654,7 +3654,7 @@ namespace
             it(EventHandle, EventInformationClass, EventInformation, EventInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryFullAttributesFile(tracer::syscalls::Data& d)
+    static void on_NtQueryFullAttributesFile(nt::syscalls::Data& d)
     {
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto FileInformation  = arg<nt::PFILE_NETWORK_OPEN_INFORMATION>(d.core, 1);
@@ -3666,7 +3666,7 @@ namespace
             it(ObjectAttributes, FileInformation);
     }
 
-    static void on_NtQueryInformationAtom(tracer::syscalls::Data& d)
+    static void on_NtQueryInformationAtom(nt::syscalls::Data& d)
     {
         const auto Atom                  = arg<nt::RTL_ATOM>(d.core, 0);
         const auto InformationClass      = arg<nt::ATOM_INFORMATION_CLASS>(d.core, 1);
@@ -3681,7 +3681,7 @@ namespace
             it(Atom, InformationClass, AtomInformation, AtomInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationEnlistment(tracer::syscalls::Data& d)
+    static void on_NtQueryInformationEnlistment(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto EnlistmentInformationClass  = arg<nt::ENLISTMENT_INFORMATION_CLASS>(d.core, 1);
@@ -3696,7 +3696,7 @@ namespace
             it(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationFile(tracer::syscalls::Data& d)
+    static void on_NtQueryInformationFile(nt::syscalls::Data& d)
     {
         const auto FileHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock        = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
@@ -3711,7 +3711,7 @@ namespace
             it(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
     }
 
-    static void on_NtQueryInformationJobObject(tracer::syscalls::Data& d)
+    static void on_NtQueryInformationJobObject(nt::syscalls::Data& d)
     {
         const auto JobHandle                  = arg<nt::HANDLE>(d.core, 0);
         const auto JobObjectInformationClass  = arg<nt::JOBOBJECTINFOCLASS>(d.core, 1);
@@ -3726,7 +3726,7 @@ namespace
             it(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationPort(tracer::syscalls::Data& d)
+    static void on_NtQueryInformationPort(nt::syscalls::Data& d)
     {
         const auto PortHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto PortInformationClass = arg<nt::PORT_INFORMATION_CLASS>(d.core, 1);
@@ -3741,7 +3741,7 @@ namespace
             it(PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
     }
 
-    static void on_NtQueryInformationProcess(tracer::syscalls::Data& d)
+    static void on_NtQueryInformationProcess(nt::syscalls::Data& d)
     {
         const auto ProcessHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto ProcessInformationClass  = arg<nt::PROCESSINFOCLASS>(d.core, 1);
@@ -3756,7 +3756,7 @@ namespace
             it(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationResourceManager(tracer::syscalls::Data& d)
+    static void on_NtQueryInformationResourceManager(nt::syscalls::Data& d)
     {
         const auto ResourceManagerHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto ResourceManagerInformationClass  = arg<nt::RESOURCEMANAGER_INFORMATION_CLASS>(d.core, 1);
@@ -3771,7 +3771,7 @@ namespace
             it(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationThread(tracer::syscalls::Data& d)
+    static void on_NtQueryInformationThread(nt::syscalls::Data& d)
     {
         const auto ThreadHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto ThreadInformationClass  = arg<nt::THREADINFOCLASS>(d.core, 1);
@@ -3786,7 +3786,7 @@ namespace
             it(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationToken(tracer::syscalls::Data& d)
+    static void on_NtQueryInformationToken(nt::syscalls::Data& d)
     {
         const auto TokenHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto TokenInformationClass  = arg<nt::TOKEN_INFORMATION_CLASS>(d.core, 1);
@@ -3801,7 +3801,7 @@ namespace
             it(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationTransaction(tracer::syscalls::Data& d)
+    static void on_NtQueryInformationTransaction(nt::syscalls::Data& d)
     {
         const auto TransactionHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto TransactionInformationClass  = arg<nt::TRANSACTION_INFORMATION_CLASS>(d.core, 1);
@@ -3816,7 +3816,7 @@ namespace
             it(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationTransactionManager(tracer::syscalls::Data& d)
+    static void on_NtQueryInformationTransactionManager(nt::syscalls::Data& d)
     {
         const auto TransactionManagerHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto TransactionManagerInformationClass  = arg<nt::TRANSACTIONMANAGER_INFORMATION_CLASS>(d.core, 1);
@@ -3831,7 +3831,7 @@ namespace
             it(TransactionManagerHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInformationWorkerFactory(tracer::syscalls::Data& d)
+    static void on_NtQueryInformationWorkerFactory(nt::syscalls::Data& d)
     {
         const auto WorkerFactoryHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto WorkerFactoryInformationClass  = arg<nt::WORKERFACTORYINFOCLASS>(d.core, 1);
@@ -3846,7 +3846,7 @@ namespace
             it(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryInstallUILanguage(tracer::syscalls::Data& d)
+    static void on_NtQueryInstallUILanguage(nt::syscalls::Data& d)
     {
         const auto STARInstallUILanguageId = arg<nt::LANGID>(d.core, 0);
 
@@ -3857,7 +3857,7 @@ namespace
             it(STARInstallUILanguageId);
     }
 
-    static void on_NtQueryIntervalProfile(tracer::syscalls::Data& d)
+    static void on_NtQueryIntervalProfile(nt::syscalls::Data& d)
     {
         const auto ProfileSource = arg<nt::KPROFILE_SOURCE>(d.core, 0);
         const auto Interval      = arg<nt::PULONG>(d.core, 1);
@@ -3869,7 +3869,7 @@ namespace
             it(ProfileSource, Interval);
     }
 
-    static void on_NtQueryIoCompletion(tracer::syscalls::Data& d)
+    static void on_NtQueryIoCompletion(nt::syscalls::Data& d)
     {
         const auto IoCompletionHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto IoCompletionInformationClass  = arg<nt::IO_COMPLETION_INFORMATION_CLASS>(d.core, 1);
@@ -3884,7 +3884,7 @@ namespace
             it(IoCompletionHandle, IoCompletionInformationClass, IoCompletionInformation, IoCompletionInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryKey(tracer::syscalls::Data& d)
+    static void on_NtQueryKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto KeyInformationClass = arg<nt::KEY_INFORMATION_CLASS>(d.core, 1);
@@ -3899,7 +3899,7 @@ namespace
             it(KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength);
     }
 
-    static void on_NtQueryLicenseValue(tracer::syscalls::Data& d)
+    static void on_NtQueryLicenseValue(nt::syscalls::Data& d)
     {
         const auto Name           = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto Type           = arg<nt::PULONG>(d.core, 1);
@@ -3914,7 +3914,7 @@ namespace
             it(Name, Type, Buffer, Length, ReturnedLength);
     }
 
-    static void on_NtQueryMultipleValueKey(tracer::syscalls::Data& d)
+    static void on_NtQueryMultipleValueKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto ValueEntries         = arg<nt::PKEY_VALUE_ENTRY>(d.core, 1);
@@ -3930,7 +3930,7 @@ namespace
             it(KeyHandle, ValueEntries, EntryCount, ValueBuffer, BufferLength, RequiredBufferLength);
     }
 
-    static void on_NtQueryMutant(tracer::syscalls::Data& d)
+    static void on_NtQueryMutant(nt::syscalls::Data& d)
     {
         const auto MutantHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto MutantInformationClass  = arg<nt::MUTANT_INFORMATION_CLASS>(d.core, 1);
@@ -3945,7 +3945,7 @@ namespace
             it(MutantHandle, MutantInformationClass, MutantInformation, MutantInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryObject(tracer::syscalls::Data& d)
+    static void on_NtQueryObject(nt::syscalls::Data& d)
     {
         const auto Handle                  = arg<nt::HANDLE>(d.core, 0);
         const auto ObjectInformationClass  = arg<nt::OBJECT_INFORMATION_CLASS>(d.core, 1);
@@ -3960,7 +3960,7 @@ namespace
             it(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryOpenSubKeysEx(tracer::syscalls::Data& d)
+    static void on_NtQueryOpenSubKeysEx(nt::syscalls::Data& d)
     {
         const auto TargetKey    = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto BufferLength = arg<nt::ULONG>(d.core, 1);
@@ -3974,7 +3974,7 @@ namespace
             it(TargetKey, BufferLength, Buffer, RequiredSize);
     }
 
-    static void on_NtQueryOpenSubKeys(tracer::syscalls::Data& d)
+    static void on_NtQueryOpenSubKeys(nt::syscalls::Data& d)
     {
         const auto TargetKey   = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto HandleCount = arg<nt::PULONG>(d.core, 1);
@@ -3986,7 +3986,7 @@ namespace
             it(TargetKey, HandleCount);
     }
 
-    static void on_NtQueryPerformanceCounter(tracer::syscalls::Data& d)
+    static void on_NtQueryPerformanceCounter(nt::syscalls::Data& d)
     {
         const auto PerformanceCounter   = arg<nt::PLARGE_INTEGER>(d.core, 0);
         const auto PerformanceFrequency = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -3998,7 +3998,7 @@ namespace
             it(PerformanceCounter, PerformanceFrequency);
     }
 
-    static void on_NtQueryQuotaInformationFile(tracer::syscalls::Data& d)
+    static void on_NtQueryQuotaInformationFile(nt::syscalls::Data& d)
     {
         const auto FileHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock     = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
@@ -4017,7 +4017,7 @@ namespace
             it(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, SidList, SidListLength, StartSid, RestartScan);
     }
 
-    static void on_NtQuerySection(tracer::syscalls::Data& d)
+    static void on_NtQuerySection(nt::syscalls::Data& d)
     {
         const auto SectionHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto SectionInformationClass  = arg<nt::SECTION_INFORMATION_CLASS>(d.core, 1);
@@ -4032,7 +4032,7 @@ namespace
             it(SectionHandle, SectionInformationClass, SectionInformation, SectionInformationLength, ReturnLength);
     }
 
-    static void on_NtQuerySecurityAttributesToken(tracer::syscalls::Data& d)
+    static void on_NtQuerySecurityAttributesToken(nt::syscalls::Data& d)
     {
         const auto TokenHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto Attributes         = arg<nt::PUNICODE_STRING>(d.core, 1);
@@ -4048,7 +4048,7 @@ namespace
             it(TokenHandle, Attributes, NumberOfAttributes, Buffer, Length, ReturnLength);
     }
 
-    static void on_NtQuerySecurityObject(tracer::syscalls::Data& d)
+    static void on_NtQuerySecurityObject(nt::syscalls::Data& d)
     {
         const auto Handle              = arg<nt::HANDLE>(d.core, 0);
         const auto SecurityInformation = arg<nt::SECURITY_INFORMATION>(d.core, 1);
@@ -4063,7 +4063,7 @@ namespace
             it(Handle, SecurityInformation, SecurityDescriptor, Length, LengthNeeded);
     }
 
-    static void on_NtQuerySemaphore(tracer::syscalls::Data& d)
+    static void on_NtQuerySemaphore(nt::syscalls::Data& d)
     {
         const auto SemaphoreHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto SemaphoreInformationClass  = arg<nt::SEMAPHORE_INFORMATION_CLASS>(d.core, 1);
@@ -4078,7 +4078,7 @@ namespace
             it(SemaphoreHandle, SemaphoreInformationClass, SemaphoreInformation, SemaphoreInformationLength, ReturnLength);
     }
 
-    static void on_NtQuerySymbolicLinkObject(tracer::syscalls::Data& d)
+    static void on_NtQuerySymbolicLinkObject(nt::syscalls::Data& d)
     {
         const auto LinkHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto LinkTarget     = arg<nt::PUNICODE_STRING>(d.core, 1);
@@ -4091,7 +4091,7 @@ namespace
             it(LinkHandle, LinkTarget, ReturnedLength);
     }
 
-    static void on_NtQuerySystemEnvironmentValueEx(tracer::syscalls::Data& d)
+    static void on_NtQuerySystemEnvironmentValueEx(nt::syscalls::Data& d)
     {
         const auto VariableName = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto VendorGuid   = arg<nt::LPGUID>(d.core, 1);
@@ -4106,7 +4106,7 @@ namespace
             it(VariableName, VendorGuid, Value, ValueLength, Attributes);
     }
 
-    static void on_NtQuerySystemEnvironmentValue(tracer::syscalls::Data& d)
+    static void on_NtQuerySystemEnvironmentValue(nt::syscalls::Data& d)
     {
         const auto VariableName  = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto VariableValue = arg<nt::PWSTR>(d.core, 1);
@@ -4120,7 +4120,7 @@ namespace
             it(VariableName, VariableValue, ValueLength, ReturnLength);
     }
 
-    static void on_NtQuerySystemInformationEx(tracer::syscalls::Data& d)
+    static void on_NtQuerySystemInformationEx(nt::syscalls::Data& d)
     {
         const auto SystemInformationClass  = arg<nt::SYSTEM_INFORMATION_CLASS>(d.core, 0);
         const auto QueryInformation        = arg<nt::PVOID>(d.core, 1);
@@ -4136,7 +4136,7 @@ namespace
             it(SystemInformationClass, QueryInformation, QueryInformationLength, SystemInformation, SystemInformationLength, ReturnLength);
     }
 
-    static void on_NtQuerySystemInformation(tracer::syscalls::Data& d)
+    static void on_NtQuerySystemInformation(nt::syscalls::Data& d)
     {
         const auto SystemInformationClass  = arg<nt::SYSTEM_INFORMATION_CLASS>(d.core, 0);
         const auto SystemInformation       = arg<nt::PVOID>(d.core, 1);
@@ -4150,7 +4150,7 @@ namespace
             it(SystemInformationClass, SystemInformation, SystemInformationLength, ReturnLength);
     }
 
-    static void on_NtQuerySystemTime(tracer::syscalls::Data& d)
+    static void on_NtQuerySystemTime(nt::syscalls::Data& d)
     {
         const auto SystemTime = arg<nt::PLARGE_INTEGER>(d.core, 0);
 
@@ -4161,7 +4161,7 @@ namespace
             it(SystemTime);
     }
 
-    static void on_NtQueryTimer(tracer::syscalls::Data& d)
+    static void on_NtQueryTimer(nt::syscalls::Data& d)
     {
         const auto TimerHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto TimerInformationClass  = arg<nt::TIMER_INFORMATION_CLASS>(d.core, 1);
@@ -4176,7 +4176,7 @@ namespace
             it(TimerHandle, TimerInformationClass, TimerInformation, TimerInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryTimerResolution(tracer::syscalls::Data& d)
+    static void on_NtQueryTimerResolution(nt::syscalls::Data& d)
     {
         const auto MaximumTime = arg<nt::PULONG>(d.core, 0);
         const auto MinimumTime = arg<nt::PULONG>(d.core, 1);
@@ -4189,7 +4189,7 @@ namespace
             it(MaximumTime, MinimumTime, CurrentTime);
     }
 
-    static void on_NtQueryValueKey(tracer::syscalls::Data& d)
+    static void on_NtQueryValueKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle                = arg<nt::HANDLE>(d.core, 0);
         const auto ValueName                = arg<nt::PUNICODE_STRING>(d.core, 1);
@@ -4205,7 +4205,7 @@ namespace
             it(KeyHandle, ValueName, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
     }
 
-    static void on_NtQueryVirtualMemory(tracer::syscalls::Data& d)
+    static void on_NtQueryVirtualMemory(nt::syscalls::Data& d)
     {
         const auto ProcessHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto BaseAddress             = arg<nt::PVOID>(d.core, 1);
@@ -4221,7 +4221,7 @@ namespace
             it(ProcessHandle, BaseAddress, MemoryInformationClass, MemoryInformation, MemoryInformationLength, ReturnLength);
     }
 
-    static void on_NtQueryVolumeInformationFile(tracer::syscalls::Data& d)
+    static void on_NtQueryVolumeInformationFile(nt::syscalls::Data& d)
     {
         const auto FileHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock      = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
@@ -4236,7 +4236,7 @@ namespace
             it(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
     }
 
-    static void on_NtQueueApcThreadEx(tracer::syscalls::Data& d)
+    static void on_NtQueueApcThreadEx(nt::syscalls::Data& d)
     {
         const auto ThreadHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto UserApcReserveHandle = arg<nt::HANDLE>(d.core, 1);
@@ -4252,7 +4252,7 @@ namespace
             it(ThreadHandle, UserApcReserveHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
     }
 
-    static void on_NtQueueApcThread(tracer::syscalls::Data& d)
+    static void on_NtQueueApcThread(nt::syscalls::Data& d)
     {
         const auto ThreadHandle = arg<nt::HANDLE>(d.core, 0);
         const auto ApcRoutine   = arg<nt::PPS_APC_ROUTINE>(d.core, 1);
@@ -4267,7 +4267,7 @@ namespace
             it(ThreadHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
     }
 
-    static void on_NtRaiseException(tracer::syscalls::Data& d)
+    static void on_NtRaiseException(nt::syscalls::Data& d)
     {
         const auto ExceptionRecord = arg<nt::PEXCEPTION_RECORD>(d.core, 0);
         const auto ContextRecord   = arg<nt::PCONTEXT>(d.core, 1);
@@ -4280,7 +4280,7 @@ namespace
             it(ExceptionRecord, ContextRecord, FirstChance);
     }
 
-    static void on_NtRaiseHardError(tracer::syscalls::Data& d)
+    static void on_NtRaiseHardError(nt::syscalls::Data& d)
     {
         const auto ErrorStatus                = arg<nt::NTSTATUS>(d.core, 0);
         const auto NumberOfParameters         = arg<nt::ULONG>(d.core, 1);
@@ -4296,7 +4296,7 @@ namespace
             it(ErrorStatus, NumberOfParameters, UnicodeStringParameterMask, Parameters, ValidResponseOptions, Response);
     }
 
-    static void on_NtReadFile(tracer::syscalls::Data& d)
+    static void on_NtReadFile(nt::syscalls::Data& d)
     {
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto Event         = arg<nt::HANDLE>(d.core, 1);
@@ -4315,7 +4315,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
     }
 
-    static void on_NtReadFileScatter(tracer::syscalls::Data& d)
+    static void on_NtReadFileScatter(nt::syscalls::Data& d)
     {
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto Event         = arg<nt::HANDLE>(d.core, 1);
@@ -4334,7 +4334,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
     }
 
-    static void on_NtReadOnlyEnlistment(tracer::syscalls::Data& d)
+    static void on_NtReadOnlyEnlistment(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -4346,7 +4346,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtReadRequestData(tracer::syscalls::Data& d)
+    static void on_NtReadRequestData(nt::syscalls::Data& d)
     {
         const auto PortHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto Message           = arg<nt::PPORT_MESSAGE>(d.core, 1);
@@ -4362,7 +4362,7 @@ namespace
             it(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesRead);
     }
 
-    static void on_NtReadVirtualMemory(tracer::syscalls::Data& d)
+    static void on_NtReadVirtualMemory(nt::syscalls::Data& d)
     {
         const auto ProcessHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto BaseAddress       = arg<nt::PVOID>(d.core, 1);
@@ -4377,7 +4377,7 @@ namespace
             it(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesRead);
     }
 
-    static void on_NtRecoverEnlistment(tracer::syscalls::Data& d)
+    static void on_NtRecoverEnlistment(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto EnlistmentKey    = arg<nt::PVOID>(d.core, 1);
@@ -4389,7 +4389,7 @@ namespace
             it(EnlistmentHandle, EnlistmentKey);
     }
 
-    static void on_NtRecoverResourceManager(tracer::syscalls::Data& d)
+    static void on_NtRecoverResourceManager(nt::syscalls::Data& d)
     {
         const auto ResourceManagerHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -4400,7 +4400,7 @@ namespace
             it(ResourceManagerHandle);
     }
 
-    static void on_NtRecoverTransactionManager(tracer::syscalls::Data& d)
+    static void on_NtRecoverTransactionManager(nt::syscalls::Data& d)
     {
         const auto TransactionManagerHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -4411,7 +4411,7 @@ namespace
             it(TransactionManagerHandle);
     }
 
-    static void on_NtRegisterProtocolAddressInformation(tracer::syscalls::Data& d)
+    static void on_NtRegisterProtocolAddressInformation(nt::syscalls::Data& d)
     {
         const auto ResourceManager         = arg<nt::HANDLE>(d.core, 0);
         const auto ProtocolId              = arg<nt::PCRM_PROTOCOL_ID>(d.core, 1);
@@ -4426,7 +4426,7 @@ namespace
             it(ResourceManager, ProtocolId, ProtocolInformationSize, ProtocolInformation, CreateOptions);
     }
 
-    static void on_NtRegisterThreadTerminatePort(tracer::syscalls::Data& d)
+    static void on_NtRegisterThreadTerminatePort(nt::syscalls::Data& d)
     {
         const auto PortHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -4437,7 +4437,7 @@ namespace
             it(PortHandle);
     }
 
-    static void on_NtReleaseKeyedEvent(tracer::syscalls::Data& d)
+    static void on_NtReleaseKeyedEvent(nt::syscalls::Data& d)
     {
         const auto KeyedEventHandle = arg<nt::HANDLE>(d.core, 0);
         const auto KeyValue         = arg<nt::PVOID>(d.core, 1);
@@ -4451,7 +4451,7 @@ namespace
             it(KeyedEventHandle, KeyValue, Alertable, Timeout);
     }
 
-    static void on_NtReleaseMutant(tracer::syscalls::Data& d)
+    static void on_NtReleaseMutant(nt::syscalls::Data& d)
     {
         const auto MutantHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto PreviousCount = arg<nt::PLONG>(d.core, 1);
@@ -4463,7 +4463,7 @@ namespace
             it(MutantHandle, PreviousCount);
     }
 
-    static void on_NtReleaseSemaphore(tracer::syscalls::Data& d)
+    static void on_NtReleaseSemaphore(nt::syscalls::Data& d)
     {
         const auto SemaphoreHandle = arg<nt::HANDLE>(d.core, 0);
         const auto ReleaseCount    = arg<nt::LONG>(d.core, 1);
@@ -4476,7 +4476,7 @@ namespace
             it(SemaphoreHandle, ReleaseCount, PreviousCount);
     }
 
-    static void on_NtReleaseWorkerFactoryWorker(tracer::syscalls::Data& d)
+    static void on_NtReleaseWorkerFactoryWorker(nt::syscalls::Data& d)
     {
         const auto WorkerFactoryHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -4487,7 +4487,7 @@ namespace
             it(WorkerFactoryHandle);
     }
 
-    static void on_NtRemoveIoCompletionEx(tracer::syscalls::Data& d)
+    static void on_NtRemoveIoCompletionEx(nt::syscalls::Data& d)
     {
         const auto IoCompletionHandle      = arg<nt::HANDLE>(d.core, 0);
         const auto IoCompletionInformation = arg<nt::PFILE_IO_COMPLETION_INFORMATION>(d.core, 1);
@@ -4503,7 +4503,7 @@ namespace
             it(IoCompletionHandle, IoCompletionInformation, Count, NumEntriesRemoved, Timeout, Alertable);
     }
 
-    static void on_NtRemoveIoCompletion(tracer::syscalls::Data& d)
+    static void on_NtRemoveIoCompletion(nt::syscalls::Data& d)
     {
         const auto IoCompletionHandle = arg<nt::HANDLE>(d.core, 0);
         const auto STARKeyContext     = arg<nt::PVOID>(d.core, 1);
@@ -4518,7 +4518,7 @@ namespace
             it(IoCompletionHandle, STARKeyContext, STARApcContext, IoStatusBlock, Timeout);
     }
 
-    static void on_NtRemoveProcessDebug(tracer::syscalls::Data& d)
+    static void on_NtRemoveProcessDebug(nt::syscalls::Data& d)
     {
         const auto ProcessHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto DebugObjectHandle = arg<nt::HANDLE>(d.core, 1);
@@ -4530,7 +4530,7 @@ namespace
             it(ProcessHandle, DebugObjectHandle);
     }
 
-    static void on_NtRenameKey(tracer::syscalls::Data& d)
+    static void on_NtRenameKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle = arg<nt::HANDLE>(d.core, 0);
         const auto NewName   = arg<nt::PUNICODE_STRING>(d.core, 1);
@@ -4542,7 +4542,7 @@ namespace
             it(KeyHandle, NewName);
     }
 
-    static void on_NtRenameTransactionManager(tracer::syscalls::Data& d)
+    static void on_NtRenameTransactionManager(nt::syscalls::Data& d)
     {
         const auto LogFileName                    = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto ExistingTransactionManagerGuid = arg<nt::LPGUID>(d.core, 1);
@@ -4554,7 +4554,7 @@ namespace
             it(LogFileName, ExistingTransactionManagerGuid);
     }
 
-    static void on_NtReplaceKey(tracer::syscalls::Data& d)
+    static void on_NtReplaceKey(nt::syscalls::Data& d)
     {
         const auto NewFile      = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto TargetHandle = arg<nt::HANDLE>(d.core, 1);
@@ -4567,7 +4567,7 @@ namespace
             it(NewFile, TargetHandle, OldFile);
     }
 
-    static void on_NtReplacePartitionUnit(tracer::syscalls::Data& d)
+    static void on_NtReplacePartitionUnit(nt::syscalls::Data& d)
     {
         const auto TargetInstancePath = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto SpareInstancePath  = arg<nt::PUNICODE_STRING>(d.core, 1);
@@ -4580,7 +4580,7 @@ namespace
             it(TargetInstancePath, SpareInstancePath, Flags);
     }
 
-    static void on_NtReplyPort(tracer::syscalls::Data& d)
+    static void on_NtReplyPort(nt::syscalls::Data& d)
     {
         const auto PortHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto ReplyMessage = arg<nt::PPORT_MESSAGE>(d.core, 1);
@@ -4592,7 +4592,7 @@ namespace
             it(PortHandle, ReplyMessage);
     }
 
-    static void on_NtReplyWaitReceivePortEx(tracer::syscalls::Data& d)
+    static void on_NtReplyWaitReceivePortEx(nt::syscalls::Data& d)
     {
         const auto PortHandle      = arg<nt::HANDLE>(d.core, 0);
         const auto STARPortContext = arg<nt::PVOID>(d.core, 1);
@@ -4607,7 +4607,7 @@ namespace
             it(PortHandle, STARPortContext, ReplyMessage, ReceiveMessage, Timeout);
     }
 
-    static void on_NtReplyWaitReceivePort(tracer::syscalls::Data& d)
+    static void on_NtReplyWaitReceivePort(nt::syscalls::Data& d)
     {
         const auto PortHandle      = arg<nt::HANDLE>(d.core, 0);
         const auto STARPortContext = arg<nt::PVOID>(d.core, 1);
@@ -4621,7 +4621,7 @@ namespace
             it(PortHandle, STARPortContext, ReplyMessage, ReceiveMessage);
     }
 
-    static void on_NtReplyWaitReplyPort(tracer::syscalls::Data& d)
+    static void on_NtReplyWaitReplyPort(nt::syscalls::Data& d)
     {
         const auto PortHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto ReplyMessage = arg<nt::PPORT_MESSAGE>(d.core, 1);
@@ -4633,7 +4633,7 @@ namespace
             it(PortHandle, ReplyMessage);
     }
 
-    static void on_NtRequestPort(tracer::syscalls::Data& d)
+    static void on_NtRequestPort(nt::syscalls::Data& d)
     {
         const auto PortHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto RequestMessage = arg<nt::PPORT_MESSAGE>(d.core, 1);
@@ -4645,7 +4645,7 @@ namespace
             it(PortHandle, RequestMessage);
     }
 
-    static void on_NtRequestWaitReplyPort(tracer::syscalls::Data& d)
+    static void on_NtRequestWaitReplyPort(nt::syscalls::Data& d)
     {
         const auto PortHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto RequestMessage = arg<nt::PPORT_MESSAGE>(d.core, 1);
@@ -4658,7 +4658,7 @@ namespace
             it(PortHandle, RequestMessage, ReplyMessage);
     }
 
-    static void on_NtResetEvent(tracer::syscalls::Data& d)
+    static void on_NtResetEvent(nt::syscalls::Data& d)
     {
         const auto EventHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto PreviousState = arg<nt::PLONG>(d.core, 1);
@@ -4670,7 +4670,7 @@ namespace
             it(EventHandle, PreviousState);
     }
 
-    static void on_NtResetWriteWatch(tracer::syscalls::Data& d)
+    static void on_NtResetWriteWatch(nt::syscalls::Data& d)
     {
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto BaseAddress   = arg<nt::PVOID>(d.core, 1);
@@ -4683,7 +4683,7 @@ namespace
             it(ProcessHandle, BaseAddress, RegionSize);
     }
 
-    static void on_NtRestoreKey(tracer::syscalls::Data& d)
+    static void on_NtRestoreKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto FileHandle = arg<nt::HANDLE>(d.core, 1);
@@ -4696,7 +4696,7 @@ namespace
             it(KeyHandle, FileHandle, Flags);
     }
 
-    static void on_NtResumeProcess(tracer::syscalls::Data& d)
+    static void on_NtResumeProcess(nt::syscalls::Data& d)
     {
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -4707,7 +4707,7 @@ namespace
             it(ProcessHandle);
     }
 
-    static void on_NtResumeThread(tracer::syscalls::Data& d)
+    static void on_NtResumeThread(nt::syscalls::Data& d)
     {
         const auto ThreadHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto PreviousSuspendCount = arg<nt::PULONG>(d.core, 1);
@@ -4719,7 +4719,7 @@ namespace
             it(ThreadHandle, PreviousSuspendCount);
     }
 
-    static void on_NtRollbackComplete(tracer::syscalls::Data& d)
+    static void on_NtRollbackComplete(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -4731,7 +4731,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtRollbackEnlistment(tracer::syscalls::Data& d)
+    static void on_NtRollbackEnlistment(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -4743,7 +4743,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtRollbackTransaction(tracer::syscalls::Data& d)
+    static void on_NtRollbackTransaction(nt::syscalls::Data& d)
     {
         const auto TransactionHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Wait              = arg<nt::BOOLEAN>(d.core, 1);
@@ -4755,7 +4755,7 @@ namespace
             it(TransactionHandle, Wait);
     }
 
-    static void on_NtRollforwardTransactionManager(tracer::syscalls::Data& d)
+    static void on_NtRollforwardTransactionManager(nt::syscalls::Data& d)
     {
         const auto TransactionManagerHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock           = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -4767,7 +4767,7 @@ namespace
             it(TransactionManagerHandle, TmVirtualClock);
     }
 
-    static void on_NtSaveKeyEx(tracer::syscalls::Data& d)
+    static void on_NtSaveKeyEx(nt::syscalls::Data& d)
     {
         const auto KeyHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto FileHandle = arg<nt::HANDLE>(d.core, 1);
@@ -4780,7 +4780,7 @@ namespace
             it(KeyHandle, FileHandle, Format);
     }
 
-    static void on_NtSaveKey(tracer::syscalls::Data& d)
+    static void on_NtSaveKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto FileHandle = arg<nt::HANDLE>(d.core, 1);
@@ -4792,7 +4792,7 @@ namespace
             it(KeyHandle, FileHandle);
     }
 
-    static void on_NtSaveMergedKeys(tracer::syscalls::Data& d)
+    static void on_NtSaveMergedKeys(nt::syscalls::Data& d)
     {
         const auto HighPrecedenceKeyHandle = arg<nt::HANDLE>(d.core, 0);
         const auto LowPrecedenceKeyHandle  = arg<nt::HANDLE>(d.core, 1);
@@ -4805,7 +4805,7 @@ namespace
             it(HighPrecedenceKeyHandle, LowPrecedenceKeyHandle, FileHandle);
     }
 
-    static void on_NtSecureConnectPort(tracer::syscalls::Data& d)
+    static void on_NtSecureConnectPort(nt::syscalls::Data& d)
     {
         const auto PortHandle                  = arg<nt::PHANDLE>(d.core, 0);
         const auto PortName                    = arg<nt::PUNICODE_STRING>(d.core, 1);
@@ -4824,7 +4824,7 @@ namespace
             it(PortHandle, PortName, SecurityQos, ClientView, RequiredServerSid, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
     }
 
-    static void on_NtSetBootEntryOrder(tracer::syscalls::Data& d)
+    static void on_NtSetBootEntryOrder(nt::syscalls::Data& d)
     {
         const auto Ids   = arg<nt::PULONG>(d.core, 0);
         const auto Count = arg<nt::ULONG>(d.core, 1);
@@ -4836,7 +4836,7 @@ namespace
             it(Ids, Count);
     }
 
-    static void on_NtSetBootOptions(tracer::syscalls::Data& d)
+    static void on_NtSetBootOptions(nt::syscalls::Data& d)
     {
         const auto BootOptions    = arg<nt::PBOOT_OPTIONS>(d.core, 0);
         const auto FieldsToChange = arg<nt::ULONG>(d.core, 1);
@@ -4848,7 +4848,7 @@ namespace
             it(BootOptions, FieldsToChange);
     }
 
-    static void on_NtSetContextThread(tracer::syscalls::Data& d)
+    static void on_NtSetContextThread(nt::syscalls::Data& d)
     {
         const auto ThreadHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto ThreadContext = arg<nt::PCONTEXT>(d.core, 1);
@@ -4860,7 +4860,7 @@ namespace
             it(ThreadHandle, ThreadContext);
     }
 
-    static void on_NtSetDebugFilterState(tracer::syscalls::Data& d)
+    static void on_NtSetDebugFilterState(nt::syscalls::Data& d)
     {
         const auto ComponentId = arg<nt::ULONG>(d.core, 0);
         const auto Level       = arg<nt::ULONG>(d.core, 1);
@@ -4873,7 +4873,7 @@ namespace
             it(ComponentId, Level, State);
     }
 
-    static void on_NtSetDefaultHardErrorPort(tracer::syscalls::Data& d)
+    static void on_NtSetDefaultHardErrorPort(nt::syscalls::Data& d)
     {
         const auto DefaultHardErrorPort = arg<nt::HANDLE>(d.core, 0);
 
@@ -4884,7 +4884,7 @@ namespace
             it(DefaultHardErrorPort);
     }
 
-    static void on_NtSetDefaultLocale(tracer::syscalls::Data& d)
+    static void on_NtSetDefaultLocale(nt::syscalls::Data& d)
     {
         const auto UserProfile     = arg<nt::BOOLEAN>(d.core, 0);
         const auto DefaultLocaleId = arg<nt::LCID>(d.core, 1);
@@ -4896,7 +4896,7 @@ namespace
             it(UserProfile, DefaultLocaleId);
     }
 
-    static void on_NtSetDefaultUILanguage(tracer::syscalls::Data& d)
+    static void on_NtSetDefaultUILanguage(nt::syscalls::Data& d)
     {
         const auto DefaultUILanguageId = arg<nt::LANGID>(d.core, 0);
 
@@ -4907,7 +4907,7 @@ namespace
             it(DefaultUILanguageId);
     }
 
-    static void on_NtSetDriverEntryOrder(tracer::syscalls::Data& d)
+    static void on_NtSetDriverEntryOrder(nt::syscalls::Data& d)
     {
         const auto Ids   = arg<nt::PULONG>(d.core, 0);
         const auto Count = arg<nt::ULONG>(d.core, 1);
@@ -4919,7 +4919,7 @@ namespace
             it(Ids, Count);
     }
 
-    static void on_NtSetEaFile(tracer::syscalls::Data& d)
+    static void on_NtSetEaFile(nt::syscalls::Data& d)
     {
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
@@ -4933,7 +4933,7 @@ namespace
             it(FileHandle, IoStatusBlock, Buffer, Length);
     }
 
-    static void on_NtSetEventBoostPriority(tracer::syscalls::Data& d)
+    static void on_NtSetEventBoostPriority(nt::syscalls::Data& d)
     {
         const auto EventHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -4944,7 +4944,7 @@ namespace
             it(EventHandle);
     }
 
-    static void on_NtSetEvent(tracer::syscalls::Data& d)
+    static void on_NtSetEvent(nt::syscalls::Data& d)
     {
         const auto EventHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto PreviousState = arg<nt::PLONG>(d.core, 1);
@@ -4956,7 +4956,7 @@ namespace
             it(EventHandle, PreviousState);
     }
 
-    static void on_NtSetHighEventPair(tracer::syscalls::Data& d)
+    static void on_NtSetHighEventPair(nt::syscalls::Data& d)
     {
         const auto EventPairHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -4967,7 +4967,7 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_NtSetHighWaitLowEventPair(tracer::syscalls::Data& d)
+    static void on_NtSetHighWaitLowEventPair(nt::syscalls::Data& d)
     {
         const auto EventPairHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -4978,7 +4978,7 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_NtSetInformationDebugObject(tracer::syscalls::Data& d)
+    static void on_NtSetInformationDebugObject(nt::syscalls::Data& d)
     {
         const auto DebugObjectHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto DebugObjectInformationClass = arg<nt::DEBUGOBJECTINFOCLASS>(d.core, 1);
@@ -4993,7 +4993,7 @@ namespace
             it(DebugObjectHandle, DebugObjectInformationClass, DebugInformation, DebugInformationLength, ReturnLength);
     }
 
-    static void on_NtSetInformationEnlistment(tracer::syscalls::Data& d)
+    static void on_NtSetInformationEnlistment(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto EnlistmentInformationClass  = arg<nt::ENLISTMENT_INFORMATION_CLASS>(d.core, 1);
@@ -5007,7 +5007,7 @@ namespace
             it(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength);
     }
 
-    static void on_NtSetInformationFile(tracer::syscalls::Data& d)
+    static void on_NtSetInformationFile(nt::syscalls::Data& d)
     {
         const auto FileHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock        = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
@@ -5022,7 +5022,7 @@ namespace
             it(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
     }
 
-    static void on_NtSetInformationJobObject(tracer::syscalls::Data& d)
+    static void on_NtSetInformationJobObject(nt::syscalls::Data& d)
     {
         const auto JobHandle                  = arg<nt::HANDLE>(d.core, 0);
         const auto JobObjectInformationClass  = arg<nt::JOBOBJECTINFOCLASS>(d.core, 1);
@@ -5036,7 +5036,7 @@ namespace
             it(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength);
     }
 
-    static void on_NtSetInformationKey(tracer::syscalls::Data& d)
+    static void on_NtSetInformationKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle               = arg<nt::HANDLE>(d.core, 0);
         const auto KeySetInformationClass  = arg<nt::KEY_SET_INFORMATION_CLASS>(d.core, 1);
@@ -5050,7 +5050,7 @@ namespace
             it(KeyHandle, KeySetInformationClass, KeySetInformation, KeySetInformationLength);
     }
 
-    static void on_NtSetInformationObject(tracer::syscalls::Data& d)
+    static void on_NtSetInformationObject(nt::syscalls::Data& d)
     {
         const auto Handle                  = arg<nt::HANDLE>(d.core, 0);
         const auto ObjectInformationClass  = arg<nt::OBJECT_INFORMATION_CLASS>(d.core, 1);
@@ -5064,7 +5064,7 @@ namespace
             it(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength);
     }
 
-    static void on_NtSetInformationProcess(tracer::syscalls::Data& d)
+    static void on_NtSetInformationProcess(nt::syscalls::Data& d)
     {
         const auto ProcessHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto ProcessInformationClass  = arg<nt::PROCESSINFOCLASS>(d.core, 1);
@@ -5078,7 +5078,7 @@ namespace
             it(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength);
     }
 
-    static void on_NtSetInformationResourceManager(tracer::syscalls::Data& d)
+    static void on_NtSetInformationResourceManager(nt::syscalls::Data& d)
     {
         const auto ResourceManagerHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto ResourceManagerInformationClass  = arg<nt::RESOURCEMANAGER_INFORMATION_CLASS>(d.core, 1);
@@ -5092,7 +5092,7 @@ namespace
             it(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength);
     }
 
-    static void on_NtSetInformationThread(tracer::syscalls::Data& d)
+    static void on_NtSetInformationThread(nt::syscalls::Data& d)
     {
         const auto ThreadHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto ThreadInformationClass  = arg<nt::THREADINFOCLASS>(d.core, 1);
@@ -5106,7 +5106,7 @@ namespace
             it(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength);
     }
 
-    static void on_NtSetInformationToken(tracer::syscalls::Data& d)
+    static void on_NtSetInformationToken(nt::syscalls::Data& d)
     {
         const auto TokenHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto TokenInformationClass  = arg<nt::TOKEN_INFORMATION_CLASS>(d.core, 1);
@@ -5120,7 +5120,7 @@ namespace
             it(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength);
     }
 
-    static void on_NtSetInformationTransaction(tracer::syscalls::Data& d)
+    static void on_NtSetInformationTransaction(nt::syscalls::Data& d)
     {
         const auto TransactionHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto TransactionInformationClass  = arg<nt::TRANSACTION_INFORMATION_CLASS>(d.core, 1);
@@ -5134,7 +5134,7 @@ namespace
             it(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength);
     }
 
-    static void on_NtSetInformationTransactionManager(tracer::syscalls::Data& d)
+    static void on_NtSetInformationTransactionManager(nt::syscalls::Data& d)
     {
         const auto TmHandle                            = arg<nt::HANDLE>(d.core, 0);
         const auto TransactionManagerInformationClass  = arg<nt::TRANSACTIONMANAGER_INFORMATION_CLASS>(d.core, 1);
@@ -5148,7 +5148,7 @@ namespace
             it(TmHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength);
     }
 
-    static void on_NtSetInformationWorkerFactory(tracer::syscalls::Data& d)
+    static void on_NtSetInformationWorkerFactory(nt::syscalls::Data& d)
     {
         const auto WorkerFactoryHandle            = arg<nt::HANDLE>(d.core, 0);
         const auto WorkerFactoryInformationClass  = arg<nt::WORKERFACTORYINFOCLASS>(d.core, 1);
@@ -5162,7 +5162,7 @@ namespace
             it(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength);
     }
 
-    static void on_NtSetIntervalProfile(tracer::syscalls::Data& d)
+    static void on_NtSetIntervalProfile(nt::syscalls::Data& d)
     {
         const auto Interval = arg<nt::ULONG>(d.core, 0);
         const auto Source   = arg<nt::KPROFILE_SOURCE>(d.core, 1);
@@ -5174,7 +5174,7 @@ namespace
             it(Interval, Source);
     }
 
-    static void on_NtSetIoCompletionEx(tracer::syscalls::Data& d)
+    static void on_NtSetIoCompletionEx(nt::syscalls::Data& d)
     {
         const auto IoCompletionHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto IoCompletionReserveHandle = arg<nt::HANDLE>(d.core, 1);
@@ -5190,7 +5190,7 @@ namespace
             it(IoCompletionHandle, IoCompletionReserveHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
     }
 
-    static void on_NtSetIoCompletion(tracer::syscalls::Data& d)
+    static void on_NtSetIoCompletion(nt::syscalls::Data& d)
     {
         const auto IoCompletionHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto KeyContext          = arg<nt::PVOID>(d.core, 1);
@@ -5205,7 +5205,7 @@ namespace
             it(IoCompletionHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
     }
 
-    static void on_NtSetLdtEntries(tracer::syscalls::Data& d)
+    static void on_NtSetLdtEntries(nt::syscalls::Data& d)
     {
         const auto Selector0 = arg<nt::ULONG>(d.core, 0);
         const auto Entry0Low = arg<nt::ULONG>(d.core, 1);
@@ -5221,7 +5221,7 @@ namespace
             it(Selector0, Entry0Low, Entry0Hi, Selector1, Entry1Low, Entry1Hi);
     }
 
-    static void on_NtSetLowEventPair(tracer::syscalls::Data& d)
+    static void on_NtSetLowEventPair(nt::syscalls::Data& d)
     {
         const auto EventPairHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -5232,7 +5232,7 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_NtSetLowWaitHighEventPair(tracer::syscalls::Data& d)
+    static void on_NtSetLowWaitHighEventPair(nt::syscalls::Data& d)
     {
         const auto EventPairHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -5243,7 +5243,7 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_NtSetQuotaInformationFile(tracer::syscalls::Data& d)
+    static void on_NtSetQuotaInformationFile(nt::syscalls::Data& d)
     {
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
@@ -5257,7 +5257,7 @@ namespace
             it(FileHandle, IoStatusBlock, Buffer, Length);
     }
 
-    static void on_NtSetSecurityObject(tracer::syscalls::Data& d)
+    static void on_NtSetSecurityObject(nt::syscalls::Data& d)
     {
         const auto Handle              = arg<nt::HANDLE>(d.core, 0);
         const auto SecurityInformation = arg<nt::SECURITY_INFORMATION>(d.core, 1);
@@ -5270,7 +5270,7 @@ namespace
             it(Handle, SecurityInformation, SecurityDescriptor);
     }
 
-    static void on_NtSetSystemEnvironmentValueEx(tracer::syscalls::Data& d)
+    static void on_NtSetSystemEnvironmentValueEx(nt::syscalls::Data& d)
     {
         const auto VariableName = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto VendorGuid   = arg<nt::LPGUID>(d.core, 1);
@@ -5285,7 +5285,7 @@ namespace
             it(VariableName, VendorGuid, Value, ValueLength, Attributes);
     }
 
-    static void on_NtSetSystemEnvironmentValue(tracer::syscalls::Data& d)
+    static void on_NtSetSystemEnvironmentValue(nt::syscalls::Data& d)
     {
         const auto VariableName  = arg<nt::PUNICODE_STRING>(d.core, 0);
         const auto VariableValue = arg<nt::PUNICODE_STRING>(d.core, 1);
@@ -5297,7 +5297,7 @@ namespace
             it(VariableName, VariableValue);
     }
 
-    static void on_NtSetSystemInformation(tracer::syscalls::Data& d)
+    static void on_NtSetSystemInformation(nt::syscalls::Data& d)
     {
         const auto SystemInformationClass  = arg<nt::SYSTEM_INFORMATION_CLASS>(d.core, 0);
         const auto SystemInformation       = arg<nt::PVOID>(d.core, 1);
@@ -5310,7 +5310,7 @@ namespace
             it(SystemInformationClass, SystemInformation, SystemInformationLength);
     }
 
-    static void on_NtSetSystemPowerState(tracer::syscalls::Data& d)
+    static void on_NtSetSystemPowerState(nt::syscalls::Data& d)
     {
         const auto SystemAction   = arg<nt::POWER_ACTION>(d.core, 0);
         const auto MinSystemState = arg<nt::SYSTEM_POWER_STATE>(d.core, 1);
@@ -5323,7 +5323,7 @@ namespace
             it(SystemAction, MinSystemState, Flags);
     }
 
-    static void on_NtSetSystemTime(tracer::syscalls::Data& d)
+    static void on_NtSetSystemTime(nt::syscalls::Data& d)
     {
         const auto SystemTime   = arg<nt::PLARGE_INTEGER>(d.core, 0);
         const auto PreviousTime = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -5335,7 +5335,7 @@ namespace
             it(SystemTime, PreviousTime);
     }
 
-    static void on_NtSetThreadExecutionState(tracer::syscalls::Data& d)
+    static void on_NtSetThreadExecutionState(nt::syscalls::Data& d)
     {
         const auto esFlags           = arg<nt::EXECUTION_STATE>(d.core, 0);
         const auto STARPreviousFlags = arg<nt::EXECUTION_STATE>(d.core, 1);
@@ -5347,7 +5347,7 @@ namespace
             it(esFlags, STARPreviousFlags);
     }
 
-    static void on_NtSetTimerEx(tracer::syscalls::Data& d)
+    static void on_NtSetTimerEx(nt::syscalls::Data& d)
     {
         const auto TimerHandle               = arg<nt::HANDLE>(d.core, 0);
         const auto TimerSetInformationClass  = arg<nt::TIMER_SET_INFORMATION_CLASS>(d.core, 1);
@@ -5361,7 +5361,7 @@ namespace
             it(TimerHandle, TimerSetInformationClass, TimerSetInformation, TimerSetInformationLength);
     }
 
-    static void on_NtSetTimer(tracer::syscalls::Data& d)
+    static void on_NtSetTimer(nt::syscalls::Data& d)
     {
         const auto TimerHandle     = arg<nt::HANDLE>(d.core, 0);
         const auto DueTime         = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -5378,7 +5378,7 @@ namespace
             it(TimerHandle, DueTime, TimerApcRoutine, TimerContext, WakeTimer, Period, PreviousState);
     }
 
-    static void on_NtSetTimerResolution(tracer::syscalls::Data& d)
+    static void on_NtSetTimerResolution(nt::syscalls::Data& d)
     {
         const auto DesiredTime   = arg<nt::ULONG>(d.core, 0);
         const auto SetResolution = arg<nt::BOOLEAN>(d.core, 1);
@@ -5391,7 +5391,7 @@ namespace
             it(DesiredTime, SetResolution, ActualTime);
     }
 
-    static void on_NtSetUuidSeed(tracer::syscalls::Data& d)
+    static void on_NtSetUuidSeed(nt::syscalls::Data& d)
     {
         const auto Seed = arg<nt::PCHAR>(d.core, 0);
 
@@ -5402,7 +5402,7 @@ namespace
             it(Seed);
     }
 
-    static void on_NtSetValueKey(tracer::syscalls::Data& d)
+    static void on_NtSetValueKey(nt::syscalls::Data& d)
     {
         const auto KeyHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto ValueName  = arg<nt::PUNICODE_STRING>(d.core, 1);
@@ -5418,7 +5418,7 @@ namespace
             it(KeyHandle, ValueName, TitleIndex, Type, Data, DataSize);
     }
 
-    static void on_NtSetVolumeInformationFile(tracer::syscalls::Data& d)
+    static void on_NtSetVolumeInformationFile(nt::syscalls::Data& d)
     {
         const auto FileHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock      = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
@@ -5433,7 +5433,7 @@ namespace
             it(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
     }
 
-    static void on_NtShutdownSystem(tracer::syscalls::Data& d)
+    static void on_NtShutdownSystem(nt::syscalls::Data& d)
     {
         const auto Action = arg<nt::SHUTDOWN_ACTION>(d.core, 0);
 
@@ -5444,7 +5444,7 @@ namespace
             it(Action);
     }
 
-    static void on_NtShutdownWorkerFactory(tracer::syscalls::Data& d)
+    static void on_NtShutdownWorkerFactory(nt::syscalls::Data& d)
     {
         const auto WorkerFactoryHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto STARPendingWorkerCount = arg<nt::LONG>(d.core, 1);
@@ -5456,7 +5456,7 @@ namespace
             it(WorkerFactoryHandle, STARPendingWorkerCount);
     }
 
-    static void on_NtSignalAndWaitForSingleObject(tracer::syscalls::Data& d)
+    static void on_NtSignalAndWaitForSingleObject(nt::syscalls::Data& d)
     {
         const auto SignalHandle = arg<nt::HANDLE>(d.core, 0);
         const auto WaitHandle   = arg<nt::HANDLE>(d.core, 1);
@@ -5470,7 +5470,7 @@ namespace
             it(SignalHandle, WaitHandle, Alertable, Timeout);
     }
 
-    static void on_NtSinglePhaseReject(tracer::syscalls::Data& d)
+    static void on_NtSinglePhaseReject(nt::syscalls::Data& d)
     {
         const auto EnlistmentHandle = arg<nt::HANDLE>(d.core, 0);
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(d.core, 1);
@@ -5482,7 +5482,7 @@ namespace
             it(EnlistmentHandle, TmVirtualClock);
     }
 
-    static void on_NtStartProfile(tracer::syscalls::Data& d)
+    static void on_NtStartProfile(nt::syscalls::Data& d)
     {
         const auto ProfileHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -5493,7 +5493,7 @@ namespace
             it(ProfileHandle);
     }
 
-    static void on_NtStopProfile(tracer::syscalls::Data& d)
+    static void on_NtStopProfile(nt::syscalls::Data& d)
     {
         const auto ProfileHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -5504,7 +5504,7 @@ namespace
             it(ProfileHandle);
     }
 
-    static void on_NtSuspendProcess(tracer::syscalls::Data& d)
+    static void on_NtSuspendProcess(nt::syscalls::Data& d)
     {
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -5515,7 +5515,7 @@ namespace
             it(ProcessHandle);
     }
 
-    static void on_NtSuspendThread(tracer::syscalls::Data& d)
+    static void on_NtSuspendThread(nt::syscalls::Data& d)
     {
         const auto ThreadHandle         = arg<nt::HANDLE>(d.core, 0);
         const auto PreviousSuspendCount = arg<nt::PULONG>(d.core, 1);
@@ -5527,7 +5527,7 @@ namespace
             it(ThreadHandle, PreviousSuspendCount);
     }
 
-    static void on_NtSystemDebugControl(tracer::syscalls::Data& d)
+    static void on_NtSystemDebugControl(nt::syscalls::Data& d)
     {
         const auto Command            = arg<nt::SYSDBG_COMMAND>(d.core, 0);
         const auto InputBuffer        = arg<nt::PVOID>(d.core, 1);
@@ -5543,7 +5543,7 @@ namespace
             it(Command, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength, ReturnLength);
     }
 
-    static void on_NtTerminateJobObject(tracer::syscalls::Data& d)
+    static void on_NtTerminateJobObject(nt::syscalls::Data& d)
     {
         const auto JobHandle  = arg<nt::HANDLE>(d.core, 0);
         const auto ExitStatus = arg<nt::NTSTATUS>(d.core, 1);
@@ -5555,7 +5555,7 @@ namespace
             it(JobHandle, ExitStatus);
     }
 
-    static void on_NtTerminateProcess(tracer::syscalls::Data& d)
+    static void on_NtTerminateProcess(nt::syscalls::Data& d)
     {
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto ExitStatus    = arg<nt::NTSTATUS>(d.core, 1);
@@ -5567,7 +5567,7 @@ namespace
             it(ProcessHandle, ExitStatus);
     }
 
-    static void on_NtTerminateThread(tracer::syscalls::Data& d)
+    static void on_NtTerminateThread(nt::syscalls::Data& d)
     {
         const auto ThreadHandle = arg<nt::HANDLE>(d.core, 0);
         const auto ExitStatus   = arg<nt::NTSTATUS>(d.core, 1);
@@ -5579,7 +5579,7 @@ namespace
             it(ThreadHandle, ExitStatus);
     }
 
-    static void on_NtTraceControl(tracer::syscalls::Data& d)
+    static void on_NtTraceControl(nt::syscalls::Data& d)
     {
         const auto FunctionCode = arg<nt::ULONG>(d.core, 0);
         const auto InBuffer     = arg<nt::PVOID>(d.core, 1);
@@ -5595,7 +5595,7 @@ namespace
             it(FunctionCode, InBuffer, InBufferLen, OutBuffer, OutBufferLen, ReturnLength);
     }
 
-    static void on_NtTraceEvent(tracer::syscalls::Data& d)
+    static void on_NtTraceEvent(nt::syscalls::Data& d)
     {
         const auto TraceHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
@@ -5609,7 +5609,7 @@ namespace
             it(TraceHandle, Flags, FieldSize, Fields);
     }
 
-    static void on_NtTranslateFilePath(tracer::syscalls::Data& d)
+    static void on_NtTranslateFilePath(nt::syscalls::Data& d)
     {
         const auto InputFilePath        = arg<nt::PFILE_PATH>(d.core, 0);
         const auto OutputType           = arg<nt::ULONG>(d.core, 1);
@@ -5623,7 +5623,7 @@ namespace
             it(InputFilePath, OutputType, OutputFilePath, OutputFilePathLength);
     }
 
-    static void on_NtUnloadDriver(tracer::syscalls::Data& d)
+    static void on_NtUnloadDriver(nt::syscalls::Data& d)
     {
         const auto DriverServiceName = arg<nt::PUNICODE_STRING>(d.core, 0);
 
@@ -5634,7 +5634,7 @@ namespace
             it(DriverServiceName);
     }
 
-    static void on_NtUnloadKey2(tracer::syscalls::Data& d)
+    static void on_NtUnloadKey2(nt::syscalls::Data& d)
     {
         const auto TargetKey = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto Flags     = arg<nt::ULONG>(d.core, 1);
@@ -5646,7 +5646,7 @@ namespace
             it(TargetKey, Flags);
     }
 
-    static void on_NtUnloadKeyEx(tracer::syscalls::Data& d)
+    static void on_NtUnloadKeyEx(nt::syscalls::Data& d)
     {
         const auto TargetKey = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
         const auto Event     = arg<nt::HANDLE>(d.core, 1);
@@ -5658,7 +5658,7 @@ namespace
             it(TargetKey, Event);
     }
 
-    static void on_NtUnloadKey(tracer::syscalls::Data& d)
+    static void on_NtUnloadKey(nt::syscalls::Data& d)
     {
         const auto TargetKey = arg<nt::POBJECT_ATTRIBUTES>(d.core, 0);
 
@@ -5669,7 +5669,7 @@ namespace
             it(TargetKey);
     }
 
-    static void on_NtUnlockFile(tracer::syscalls::Data& d)
+    static void on_NtUnlockFile(nt::syscalls::Data& d)
     {
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto IoStatusBlock = arg<nt::PIO_STATUS_BLOCK>(d.core, 1);
@@ -5684,7 +5684,7 @@ namespace
             it(FileHandle, IoStatusBlock, ByteOffset, Length, Key);
     }
 
-    static void on_NtUnlockVirtualMemory(tracer::syscalls::Data& d)
+    static void on_NtUnlockVirtualMemory(nt::syscalls::Data& d)
     {
         const auto ProcessHandle   = arg<nt::HANDLE>(d.core, 0);
         const auto STARBaseAddress = arg<nt::PVOID>(d.core, 1);
@@ -5698,7 +5698,7 @@ namespace
             it(ProcessHandle, STARBaseAddress, RegionSize, MapType);
     }
 
-    static void on_NtUnmapViewOfSection(tracer::syscalls::Data& d)
+    static void on_NtUnmapViewOfSection(nt::syscalls::Data& d)
     {
         const auto ProcessHandle = arg<nt::HANDLE>(d.core, 0);
         const auto BaseAddress   = arg<nt::PVOID>(d.core, 1);
@@ -5710,7 +5710,7 @@ namespace
             it(ProcessHandle, BaseAddress);
     }
 
-    static void on_NtVdmControl(tracer::syscalls::Data& d)
+    static void on_NtVdmControl(nt::syscalls::Data& d)
     {
         const auto Service     = arg<nt::VDMSERVICECLASS>(d.core, 0);
         const auto ServiceData = arg<nt::PVOID>(d.core, 1);
@@ -5722,7 +5722,7 @@ namespace
             it(Service, ServiceData);
     }
 
-    static void on_NtWaitForDebugEvent(tracer::syscalls::Data& d)
+    static void on_NtWaitForDebugEvent(nt::syscalls::Data& d)
     {
         const auto DebugObjectHandle = arg<nt::HANDLE>(d.core, 0);
         const auto Alertable         = arg<nt::BOOLEAN>(d.core, 1);
@@ -5736,7 +5736,7 @@ namespace
             it(DebugObjectHandle, Alertable, Timeout, WaitStateChange);
     }
 
-    static void on_NtWaitForKeyedEvent(tracer::syscalls::Data& d)
+    static void on_NtWaitForKeyedEvent(nt::syscalls::Data& d)
     {
         const auto KeyedEventHandle = arg<nt::HANDLE>(d.core, 0);
         const auto KeyValue         = arg<nt::PVOID>(d.core, 1);
@@ -5750,7 +5750,7 @@ namespace
             it(KeyedEventHandle, KeyValue, Alertable, Timeout);
     }
 
-    static void on_NtWaitForMultipleObjects32(tracer::syscalls::Data& d)
+    static void on_NtWaitForMultipleObjects32(nt::syscalls::Data& d)
     {
         const auto Count     = arg<nt::ULONG>(d.core, 0);
         const auto Handles   = arg<nt::LONG>(d.core, 1);
@@ -5765,7 +5765,7 @@ namespace
             it(Count, Handles, WaitType, Alertable, Timeout);
     }
 
-    static void on_NtWaitForMultipleObjects(tracer::syscalls::Data& d)
+    static void on_NtWaitForMultipleObjects(nt::syscalls::Data& d)
     {
         const auto Count     = arg<nt::ULONG>(d.core, 0);
         const auto Handles   = arg<nt::HANDLE>(d.core, 1);
@@ -5780,7 +5780,7 @@ namespace
             it(Count, Handles, WaitType, Alertable, Timeout);
     }
 
-    static void on_NtWaitForSingleObject(tracer::syscalls::Data& d)
+    static void on_NtWaitForSingleObject(nt::syscalls::Data& d)
     {
         const auto Handle    = arg<nt::HANDLE>(d.core, 0);
         const auto Alertable = arg<nt::BOOLEAN>(d.core, 1);
@@ -5793,7 +5793,7 @@ namespace
             it(Handle, Alertable, Timeout);
     }
 
-    static void on_NtWaitForWorkViaWorkerFactory(tracer::syscalls::Data& d)
+    static void on_NtWaitForWorkViaWorkerFactory(nt::syscalls::Data& d)
     {
         const auto WorkerFactoryHandle = arg<nt::HANDLE>(d.core, 0);
         const auto MiniPacket          = arg<nt::PFILE_IO_COMPLETION_INFORMATION>(d.core, 1);
@@ -5805,7 +5805,7 @@ namespace
             it(WorkerFactoryHandle, MiniPacket);
     }
 
-    static void on_NtWaitHighEventPair(tracer::syscalls::Data& d)
+    static void on_NtWaitHighEventPair(nt::syscalls::Data& d)
     {
         const auto EventPairHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -5816,7 +5816,7 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_NtWaitLowEventPair(tracer::syscalls::Data& d)
+    static void on_NtWaitLowEventPair(nt::syscalls::Data& d)
     {
         const auto EventPairHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -5827,7 +5827,7 @@ namespace
             it(EventPairHandle);
     }
 
-    static void on_NtWorkerFactoryWorkerReady(tracer::syscalls::Data& d)
+    static void on_NtWorkerFactoryWorkerReady(nt::syscalls::Data& d)
     {
         const auto WorkerFactoryHandle = arg<nt::HANDLE>(d.core, 0);
 
@@ -5838,7 +5838,7 @@ namespace
             it(WorkerFactoryHandle);
     }
 
-    static void on_NtWriteFileGather(tracer::syscalls::Data& d)
+    static void on_NtWriteFileGather(nt::syscalls::Data& d)
     {
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto Event         = arg<nt::HANDLE>(d.core, 1);
@@ -5857,7 +5857,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
     }
 
-    static void on_NtWriteFile(tracer::syscalls::Data& d)
+    static void on_NtWriteFile(nt::syscalls::Data& d)
     {
         const auto FileHandle    = arg<nt::HANDLE>(d.core, 0);
         const auto Event         = arg<nt::HANDLE>(d.core, 1);
@@ -5876,7 +5876,7 @@ namespace
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
     }
 
-    static void on_NtWriteRequestData(tracer::syscalls::Data& d)
+    static void on_NtWriteRequestData(nt::syscalls::Data& d)
     {
         const auto PortHandle           = arg<nt::HANDLE>(d.core, 0);
         const auto Message              = arg<nt::PPORT_MESSAGE>(d.core, 1);
@@ -5892,7 +5892,7 @@ namespace
             it(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesWritten);
     }
 
-    static void on_NtWriteVirtualMemory(tracer::syscalls::Data& d)
+    static void on_NtWriteVirtualMemory(nt::syscalls::Data& d)
     {
         const auto ProcessHandle        = arg<nt::HANDLE>(d.core, 0);
         const auto BaseAddress          = arg<nt::PVOID>(d.core, 1);
@@ -5907,7 +5907,7 @@ namespace
             it(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesWritten);
     }
 
-    static void on_NtDisableLastKnownGood(tracer::syscalls::Data& d)
+    static void on_NtDisableLastKnownGood(nt::syscalls::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtDisableLastKnownGood()"));
@@ -5916,7 +5916,7 @@ namespace
             it();
     }
 
-    static void on_NtEnableLastKnownGood(tracer::syscalls::Data& d)
+    static void on_NtEnableLastKnownGood(nt::syscalls::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtEnableLastKnownGood()"));
@@ -5925,7 +5925,7 @@ namespace
             it();
     }
 
-    static void on_NtFlushProcessWriteBuffers(tracer::syscalls::Data& d)
+    static void on_NtFlushProcessWriteBuffers(nt::syscalls::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtFlushProcessWriteBuffers()"));
@@ -5934,7 +5934,7 @@ namespace
             it();
     }
 
-    static void on_NtFlushWriteBuffer(tracer::syscalls::Data& d)
+    static void on_NtFlushWriteBuffer(nt::syscalls::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtFlushWriteBuffer()"));
@@ -5943,7 +5943,7 @@ namespace
             it();
     }
 
-    static void on_NtGetCurrentProcessorNumber(tracer::syscalls::Data& d)
+    static void on_NtGetCurrentProcessorNumber(nt::syscalls::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtGetCurrentProcessorNumber()"));
@@ -5952,7 +5952,7 @@ namespace
             it();
     }
 
-    static void on_NtIsSystemResumeAutomatic(tracer::syscalls::Data& d)
+    static void on_NtIsSystemResumeAutomatic(nt::syscalls::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtIsSystemResumeAutomatic()"));
@@ -5961,7 +5961,7 @@ namespace
             it();
     }
 
-    static void on_NtIsUILanguageComitted(tracer::syscalls::Data& d)
+    static void on_NtIsUILanguageComitted(nt::syscalls::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtIsUILanguageComitted()"));
@@ -5970,7 +5970,7 @@ namespace
             it();
     }
 
-    static void on_NtQueryPortInformationProcess(tracer::syscalls::Data& d)
+    static void on_NtQueryPortInformationProcess(nt::syscalls::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtQueryPortInformationProcess()"));
@@ -5979,7 +5979,7 @@ namespace
             it();
     }
 
-    static void on_NtSerializeBoot(tracer::syscalls::Data& d)
+    static void on_NtSerializeBoot(nt::syscalls::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtSerializeBoot()"));
@@ -5988,7 +5988,7 @@ namespace
             it();
     }
 
-    static void on_NtTestAlert(tracer::syscalls::Data& d)
+    static void on_NtTestAlert(nt::syscalls::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtTestAlert()"));
@@ -5997,7 +5997,7 @@ namespace
             it();
     }
 
-    static void on_NtThawRegistry(tracer::syscalls::Data& d)
+    static void on_NtThawRegistry(nt::syscalls::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtThawRegistry()"));
@@ -6006,7 +6006,7 @@ namespace
             it();
     }
 
-    static void on_NtThawTransactions(tracer::syscalls::Data& d)
+    static void on_NtThawTransactions(nt::syscalls::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtThawTransactions()"));
@@ -6015,7 +6015,7 @@ namespace
             it();
     }
 
-    static void on_NtUmsThreadYield(tracer::syscalls::Data& d)
+    static void on_NtUmsThreadYield(nt::syscalls::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtUmsThreadYield()"));
@@ -6024,7 +6024,7 @@ namespace
             it();
     }
 
-    static void on_NtYieldExecution(tracer::syscalls::Data& d)
+    static void on_NtYieldExecution(nt::syscalls::Data& d)
     {
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("NtYieldExecution()"));
@@ -6036,7 +6036,7 @@ namespace
 }
 
 
-bool tracer::syscalls::register_NtAcceptConnectPort(proc_t proc, const on_NtAcceptConnectPort_fn& on_func)
+bool nt::syscalls::register_NtAcceptConnectPort(proc_t proc, const on_NtAcceptConnectPort_fn& on_func)
 {
     if(d_->observers_NtAcceptConnectPort.empty())
         if(!register_callback_with(*d_, proc, "NtAcceptConnectPort", &on_NtAcceptConnectPort))
@@ -6046,7 +6046,7 @@ bool tracer::syscalls::register_NtAcceptConnectPort(proc_t proc, const on_NtAcce
     return true;
 }
 
-bool tracer::syscalls::register_NtAccessCheckAndAuditAlarm(proc_t proc, const on_NtAccessCheckAndAuditAlarm_fn& on_func)
+bool nt::syscalls::register_NtAccessCheckAndAuditAlarm(proc_t proc, const on_NtAccessCheckAndAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtAccessCheckAndAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "NtAccessCheckAndAuditAlarm", &on_NtAccessCheckAndAuditAlarm))
@@ -6056,7 +6056,7 @@ bool tracer::syscalls::register_NtAccessCheckAndAuditAlarm(proc_t proc, const on
     return true;
 }
 
-bool tracer::syscalls::register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeAndAuditAlarm_fn& on_func)
+bool nt::syscalls::register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeAndAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtAccessCheckByTypeAndAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "NtAccessCheckByTypeAndAuditAlarm", &on_NtAccessCheckByTypeAndAuditAlarm))
@@ -6066,7 +6066,7 @@ bool tracer::syscalls::register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, co
     return true;
 }
 
-bool tracer::syscalls::register_NtAccessCheckByType(proc_t proc, const on_NtAccessCheckByType_fn& on_func)
+bool nt::syscalls::register_NtAccessCheckByType(proc_t proc, const on_NtAccessCheckByType_fn& on_func)
 {
     if(d_->observers_NtAccessCheckByType.empty())
         if(!register_callback_with(*d_, proc, "NtAccessCheckByType", &on_NtAccessCheckByType))
@@ -6076,7 +6076,7 @@ bool tracer::syscalls::register_NtAccessCheckByType(proc_t proc, const on_NtAcce
     return true;
 }
 
-bool tracer::syscalls::register_NtAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_func)
+bool nt::syscalls::register_NtAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_func)
 {
     if(d_->observers_NtAccessCheckByTypeResultListAndAuditAlarmByHandle.empty())
         if(!register_callback_with(*d_, proc, "NtAccessCheckByTypeResultListAndAuditAlarmByHandle", &on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle))
@@ -6086,7 +6086,7 @@ bool tracer::syscalls::register_NtAccessCheckByTypeResultListAndAuditAlarmByHand
     return true;
 }
 
-bool tracer::syscalls::register_NtAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarm_fn& on_func)
+bool nt::syscalls::register_NtAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtAccessCheckByTypeResultListAndAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "NtAccessCheckByTypeResultListAndAuditAlarm", &on_NtAccessCheckByTypeResultListAndAuditAlarm))
@@ -6096,7 +6096,7 @@ bool tracer::syscalls::register_NtAccessCheckByTypeResultListAndAuditAlarm(proc_
     return true;
 }
 
-bool tracer::syscalls::register_NtAccessCheckByTypeResultList(proc_t proc, const on_NtAccessCheckByTypeResultList_fn& on_func)
+bool nt::syscalls::register_NtAccessCheckByTypeResultList(proc_t proc, const on_NtAccessCheckByTypeResultList_fn& on_func)
 {
     if(d_->observers_NtAccessCheckByTypeResultList.empty())
         if(!register_callback_with(*d_, proc, "NtAccessCheckByTypeResultList", &on_NtAccessCheckByTypeResultList))
@@ -6106,7 +6106,7 @@ bool tracer::syscalls::register_NtAccessCheckByTypeResultList(proc_t proc, const
     return true;
 }
 
-bool tracer::syscalls::register_NtAccessCheck(proc_t proc, const on_NtAccessCheck_fn& on_func)
+bool nt::syscalls::register_NtAccessCheck(proc_t proc, const on_NtAccessCheck_fn& on_func)
 {
     if(d_->observers_NtAccessCheck.empty())
         if(!register_callback_with(*d_, proc, "NtAccessCheck", &on_NtAccessCheck))
@@ -6116,7 +6116,7 @@ bool tracer::syscalls::register_NtAccessCheck(proc_t proc, const on_NtAccessChec
     return true;
 }
 
-bool tracer::syscalls::register_NtAddAtom(proc_t proc, const on_NtAddAtom_fn& on_func)
+bool nt::syscalls::register_NtAddAtom(proc_t proc, const on_NtAddAtom_fn& on_func)
 {
     if(d_->observers_NtAddAtom.empty())
         if(!register_callback_with(*d_, proc, "NtAddAtom", &on_NtAddAtom))
@@ -6126,7 +6126,7 @@ bool tracer::syscalls::register_NtAddAtom(proc_t proc, const on_NtAddAtom_fn& on
     return true;
 }
 
-bool tracer::syscalls::register_NtAddBootEntry(proc_t proc, const on_NtAddBootEntry_fn& on_func)
+bool nt::syscalls::register_NtAddBootEntry(proc_t proc, const on_NtAddBootEntry_fn& on_func)
 {
     if(d_->observers_NtAddBootEntry.empty())
         if(!register_callback_with(*d_, proc, "NtAddBootEntry", &on_NtAddBootEntry))
@@ -6136,7 +6136,7 @@ bool tracer::syscalls::register_NtAddBootEntry(proc_t proc, const on_NtAddBootEn
     return true;
 }
 
-bool tracer::syscalls::register_NtAddDriverEntry(proc_t proc, const on_NtAddDriverEntry_fn& on_func)
+bool nt::syscalls::register_NtAddDriverEntry(proc_t proc, const on_NtAddDriverEntry_fn& on_func)
 {
     if(d_->observers_NtAddDriverEntry.empty())
         if(!register_callback_with(*d_, proc, "NtAddDriverEntry", &on_NtAddDriverEntry))
@@ -6146,7 +6146,7 @@ bool tracer::syscalls::register_NtAddDriverEntry(proc_t proc, const on_NtAddDriv
     return true;
 }
 
-bool tracer::syscalls::register_NtAdjustGroupsToken(proc_t proc, const on_NtAdjustGroupsToken_fn& on_func)
+bool nt::syscalls::register_NtAdjustGroupsToken(proc_t proc, const on_NtAdjustGroupsToken_fn& on_func)
 {
     if(d_->observers_NtAdjustGroupsToken.empty())
         if(!register_callback_with(*d_, proc, "NtAdjustGroupsToken", &on_NtAdjustGroupsToken))
@@ -6156,7 +6156,7 @@ bool tracer::syscalls::register_NtAdjustGroupsToken(proc_t proc, const on_NtAdju
     return true;
 }
 
-bool tracer::syscalls::register_NtAdjustPrivilegesToken(proc_t proc, const on_NtAdjustPrivilegesToken_fn& on_func)
+bool nt::syscalls::register_NtAdjustPrivilegesToken(proc_t proc, const on_NtAdjustPrivilegesToken_fn& on_func)
 {
     if(d_->observers_NtAdjustPrivilegesToken.empty())
         if(!register_callback_with(*d_, proc, "NtAdjustPrivilegesToken", &on_NtAdjustPrivilegesToken))
@@ -6166,7 +6166,7 @@ bool tracer::syscalls::register_NtAdjustPrivilegesToken(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtAlertResumeThread(proc_t proc, const on_NtAlertResumeThread_fn& on_func)
+bool nt::syscalls::register_NtAlertResumeThread(proc_t proc, const on_NtAlertResumeThread_fn& on_func)
 {
     if(d_->observers_NtAlertResumeThread.empty())
         if(!register_callback_with(*d_, proc, "NtAlertResumeThread", &on_NtAlertResumeThread))
@@ -6176,7 +6176,7 @@ bool tracer::syscalls::register_NtAlertResumeThread(proc_t proc, const on_NtAler
     return true;
 }
 
-bool tracer::syscalls::register_NtAlertThread(proc_t proc, const on_NtAlertThread_fn& on_func)
+bool nt::syscalls::register_NtAlertThread(proc_t proc, const on_NtAlertThread_fn& on_func)
 {
     if(d_->observers_NtAlertThread.empty())
         if(!register_callback_with(*d_, proc, "NtAlertThread", &on_NtAlertThread))
@@ -6186,7 +6186,7 @@ bool tracer::syscalls::register_NtAlertThread(proc_t proc, const on_NtAlertThrea
     return true;
 }
 
-bool tracer::syscalls::register_NtAllocateLocallyUniqueId(proc_t proc, const on_NtAllocateLocallyUniqueId_fn& on_func)
+bool nt::syscalls::register_NtAllocateLocallyUniqueId(proc_t proc, const on_NtAllocateLocallyUniqueId_fn& on_func)
 {
     if(d_->observers_NtAllocateLocallyUniqueId.empty())
         if(!register_callback_with(*d_, proc, "NtAllocateLocallyUniqueId", &on_NtAllocateLocallyUniqueId))
@@ -6196,7 +6196,7 @@ bool tracer::syscalls::register_NtAllocateLocallyUniqueId(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtAllocateReserveObject(proc_t proc, const on_NtAllocateReserveObject_fn& on_func)
+bool nt::syscalls::register_NtAllocateReserveObject(proc_t proc, const on_NtAllocateReserveObject_fn& on_func)
 {
     if(d_->observers_NtAllocateReserveObject.empty())
         if(!register_callback_with(*d_, proc, "NtAllocateReserveObject", &on_NtAllocateReserveObject))
@@ -6206,7 +6206,7 @@ bool tracer::syscalls::register_NtAllocateReserveObject(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtAllocateUserPhysicalPages(proc_t proc, const on_NtAllocateUserPhysicalPages_fn& on_func)
+bool nt::syscalls::register_NtAllocateUserPhysicalPages(proc_t proc, const on_NtAllocateUserPhysicalPages_fn& on_func)
 {
     if(d_->observers_NtAllocateUserPhysicalPages.empty())
         if(!register_callback_with(*d_, proc, "NtAllocateUserPhysicalPages", &on_NtAllocateUserPhysicalPages))
@@ -6216,7 +6216,7 @@ bool tracer::syscalls::register_NtAllocateUserPhysicalPages(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtAllocateUuids(proc_t proc, const on_NtAllocateUuids_fn& on_func)
+bool nt::syscalls::register_NtAllocateUuids(proc_t proc, const on_NtAllocateUuids_fn& on_func)
 {
     if(d_->observers_NtAllocateUuids.empty())
         if(!register_callback_with(*d_, proc, "NtAllocateUuids", &on_NtAllocateUuids))
@@ -6226,7 +6226,7 @@ bool tracer::syscalls::register_NtAllocateUuids(proc_t proc, const on_NtAllocate
     return true;
 }
 
-bool tracer::syscalls::register_NtAllocateVirtualMemory(proc_t proc, const on_NtAllocateVirtualMemory_fn& on_func)
+bool nt::syscalls::register_NtAllocateVirtualMemory(proc_t proc, const on_NtAllocateVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtAllocateVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "NtAllocateVirtualMemory", &on_NtAllocateVirtualMemory))
@@ -6236,7 +6236,7 @@ bool tracer::syscalls::register_NtAllocateVirtualMemory(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcAcceptConnectPort(proc_t proc, const on_NtAlpcAcceptConnectPort_fn& on_func)
+bool nt::syscalls::register_NtAlpcAcceptConnectPort(proc_t proc, const on_NtAlpcAcceptConnectPort_fn& on_func)
 {
     if(d_->observers_NtAlpcAcceptConnectPort.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcAcceptConnectPort", &on_NtAlpcAcceptConnectPort))
@@ -6246,7 +6246,7 @@ bool tracer::syscalls::register_NtAlpcAcceptConnectPort(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcCancelMessage(proc_t proc, const on_NtAlpcCancelMessage_fn& on_func)
+bool nt::syscalls::register_NtAlpcCancelMessage(proc_t proc, const on_NtAlpcCancelMessage_fn& on_func)
 {
     if(d_->observers_NtAlpcCancelMessage.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcCancelMessage", &on_NtAlpcCancelMessage))
@@ -6256,7 +6256,7 @@ bool tracer::syscalls::register_NtAlpcCancelMessage(proc_t proc, const on_NtAlpc
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcConnectPort(proc_t proc, const on_NtAlpcConnectPort_fn& on_func)
+bool nt::syscalls::register_NtAlpcConnectPort(proc_t proc, const on_NtAlpcConnectPort_fn& on_func)
 {
     if(d_->observers_NtAlpcConnectPort.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcConnectPort", &on_NtAlpcConnectPort))
@@ -6266,7 +6266,7 @@ bool tracer::syscalls::register_NtAlpcConnectPort(proc_t proc, const on_NtAlpcCo
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcCreatePort(proc_t proc, const on_NtAlpcCreatePort_fn& on_func)
+bool nt::syscalls::register_NtAlpcCreatePort(proc_t proc, const on_NtAlpcCreatePort_fn& on_func)
 {
     if(d_->observers_NtAlpcCreatePort.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcCreatePort", &on_NtAlpcCreatePort))
@@ -6276,7 +6276,7 @@ bool tracer::syscalls::register_NtAlpcCreatePort(proc_t proc, const on_NtAlpcCre
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcCreatePortSection(proc_t proc, const on_NtAlpcCreatePortSection_fn& on_func)
+bool nt::syscalls::register_NtAlpcCreatePortSection(proc_t proc, const on_NtAlpcCreatePortSection_fn& on_func)
 {
     if(d_->observers_NtAlpcCreatePortSection.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcCreatePortSection", &on_NtAlpcCreatePortSection))
@@ -6286,7 +6286,7 @@ bool tracer::syscalls::register_NtAlpcCreatePortSection(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcCreateResourceReserve(proc_t proc, const on_NtAlpcCreateResourceReserve_fn& on_func)
+bool nt::syscalls::register_NtAlpcCreateResourceReserve(proc_t proc, const on_NtAlpcCreateResourceReserve_fn& on_func)
 {
     if(d_->observers_NtAlpcCreateResourceReserve.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcCreateResourceReserve", &on_NtAlpcCreateResourceReserve))
@@ -6296,7 +6296,7 @@ bool tracer::syscalls::register_NtAlpcCreateResourceReserve(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcCreateSectionView(proc_t proc, const on_NtAlpcCreateSectionView_fn& on_func)
+bool nt::syscalls::register_NtAlpcCreateSectionView(proc_t proc, const on_NtAlpcCreateSectionView_fn& on_func)
 {
     if(d_->observers_NtAlpcCreateSectionView.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcCreateSectionView", &on_NtAlpcCreateSectionView))
@@ -6306,7 +6306,7 @@ bool tracer::syscalls::register_NtAlpcCreateSectionView(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcCreateSecurityContext(proc_t proc, const on_NtAlpcCreateSecurityContext_fn& on_func)
+bool nt::syscalls::register_NtAlpcCreateSecurityContext(proc_t proc, const on_NtAlpcCreateSecurityContext_fn& on_func)
 {
     if(d_->observers_NtAlpcCreateSecurityContext.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcCreateSecurityContext", &on_NtAlpcCreateSecurityContext))
@@ -6316,7 +6316,7 @@ bool tracer::syscalls::register_NtAlpcCreateSecurityContext(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcDeletePortSection(proc_t proc, const on_NtAlpcDeletePortSection_fn& on_func)
+bool nt::syscalls::register_NtAlpcDeletePortSection(proc_t proc, const on_NtAlpcDeletePortSection_fn& on_func)
 {
     if(d_->observers_NtAlpcDeletePortSection.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcDeletePortSection", &on_NtAlpcDeletePortSection))
@@ -6326,7 +6326,7 @@ bool tracer::syscalls::register_NtAlpcDeletePortSection(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcDeleteResourceReserve(proc_t proc, const on_NtAlpcDeleteResourceReserve_fn& on_func)
+bool nt::syscalls::register_NtAlpcDeleteResourceReserve(proc_t proc, const on_NtAlpcDeleteResourceReserve_fn& on_func)
 {
     if(d_->observers_NtAlpcDeleteResourceReserve.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcDeleteResourceReserve", &on_NtAlpcDeleteResourceReserve))
@@ -6336,7 +6336,7 @@ bool tracer::syscalls::register_NtAlpcDeleteResourceReserve(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcDeleteSectionView(proc_t proc, const on_NtAlpcDeleteSectionView_fn& on_func)
+bool nt::syscalls::register_NtAlpcDeleteSectionView(proc_t proc, const on_NtAlpcDeleteSectionView_fn& on_func)
 {
     if(d_->observers_NtAlpcDeleteSectionView.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcDeleteSectionView", &on_NtAlpcDeleteSectionView))
@@ -6346,7 +6346,7 @@ bool tracer::syscalls::register_NtAlpcDeleteSectionView(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcDeleteSecurityContext(proc_t proc, const on_NtAlpcDeleteSecurityContext_fn& on_func)
+bool nt::syscalls::register_NtAlpcDeleteSecurityContext(proc_t proc, const on_NtAlpcDeleteSecurityContext_fn& on_func)
 {
     if(d_->observers_NtAlpcDeleteSecurityContext.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcDeleteSecurityContext", &on_NtAlpcDeleteSecurityContext))
@@ -6356,7 +6356,7 @@ bool tracer::syscalls::register_NtAlpcDeleteSecurityContext(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcDisconnectPort(proc_t proc, const on_NtAlpcDisconnectPort_fn& on_func)
+bool nt::syscalls::register_NtAlpcDisconnectPort(proc_t proc, const on_NtAlpcDisconnectPort_fn& on_func)
 {
     if(d_->observers_NtAlpcDisconnectPort.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcDisconnectPort", &on_NtAlpcDisconnectPort))
@@ -6366,7 +6366,7 @@ bool tracer::syscalls::register_NtAlpcDisconnectPort(proc_t proc, const on_NtAlp
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcImpersonateClientOfPort(proc_t proc, const on_NtAlpcImpersonateClientOfPort_fn& on_func)
+bool nt::syscalls::register_NtAlpcImpersonateClientOfPort(proc_t proc, const on_NtAlpcImpersonateClientOfPort_fn& on_func)
 {
     if(d_->observers_NtAlpcImpersonateClientOfPort.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcImpersonateClientOfPort", &on_NtAlpcImpersonateClientOfPort))
@@ -6376,7 +6376,7 @@ bool tracer::syscalls::register_NtAlpcImpersonateClientOfPort(proc_t proc, const
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcOpenSenderProcess(proc_t proc, const on_NtAlpcOpenSenderProcess_fn& on_func)
+bool nt::syscalls::register_NtAlpcOpenSenderProcess(proc_t proc, const on_NtAlpcOpenSenderProcess_fn& on_func)
 {
     if(d_->observers_NtAlpcOpenSenderProcess.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcOpenSenderProcess", &on_NtAlpcOpenSenderProcess))
@@ -6386,7 +6386,7 @@ bool tracer::syscalls::register_NtAlpcOpenSenderProcess(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcOpenSenderThread(proc_t proc, const on_NtAlpcOpenSenderThread_fn& on_func)
+bool nt::syscalls::register_NtAlpcOpenSenderThread(proc_t proc, const on_NtAlpcOpenSenderThread_fn& on_func)
 {
     if(d_->observers_NtAlpcOpenSenderThread.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcOpenSenderThread", &on_NtAlpcOpenSenderThread))
@@ -6396,7 +6396,7 @@ bool tracer::syscalls::register_NtAlpcOpenSenderThread(proc_t proc, const on_NtA
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcQueryInformation(proc_t proc, const on_NtAlpcQueryInformation_fn& on_func)
+bool nt::syscalls::register_NtAlpcQueryInformation(proc_t proc, const on_NtAlpcQueryInformation_fn& on_func)
 {
     if(d_->observers_NtAlpcQueryInformation.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcQueryInformation", &on_NtAlpcQueryInformation))
@@ -6406,7 +6406,7 @@ bool tracer::syscalls::register_NtAlpcQueryInformation(proc_t proc, const on_NtA
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcQueryInformationMessage(proc_t proc, const on_NtAlpcQueryInformationMessage_fn& on_func)
+bool nt::syscalls::register_NtAlpcQueryInformationMessage(proc_t proc, const on_NtAlpcQueryInformationMessage_fn& on_func)
 {
     if(d_->observers_NtAlpcQueryInformationMessage.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcQueryInformationMessage", &on_NtAlpcQueryInformationMessage))
@@ -6416,7 +6416,7 @@ bool tracer::syscalls::register_NtAlpcQueryInformationMessage(proc_t proc, const
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcRevokeSecurityContext(proc_t proc, const on_NtAlpcRevokeSecurityContext_fn& on_func)
+bool nt::syscalls::register_NtAlpcRevokeSecurityContext(proc_t proc, const on_NtAlpcRevokeSecurityContext_fn& on_func)
 {
     if(d_->observers_NtAlpcRevokeSecurityContext.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcRevokeSecurityContext", &on_NtAlpcRevokeSecurityContext))
@@ -6426,7 +6426,7 @@ bool tracer::syscalls::register_NtAlpcRevokeSecurityContext(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcSendWaitReceivePort(proc_t proc, const on_NtAlpcSendWaitReceivePort_fn& on_func)
+bool nt::syscalls::register_NtAlpcSendWaitReceivePort(proc_t proc, const on_NtAlpcSendWaitReceivePort_fn& on_func)
 {
     if(d_->observers_NtAlpcSendWaitReceivePort.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcSendWaitReceivePort", &on_NtAlpcSendWaitReceivePort))
@@ -6436,7 +6436,7 @@ bool tracer::syscalls::register_NtAlpcSendWaitReceivePort(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtAlpcSetInformation(proc_t proc, const on_NtAlpcSetInformation_fn& on_func)
+bool nt::syscalls::register_NtAlpcSetInformation(proc_t proc, const on_NtAlpcSetInformation_fn& on_func)
 {
     if(d_->observers_NtAlpcSetInformation.empty())
         if(!register_callback_with(*d_, proc, "NtAlpcSetInformation", &on_NtAlpcSetInformation))
@@ -6446,7 +6446,7 @@ bool tracer::syscalls::register_NtAlpcSetInformation(proc_t proc, const on_NtAlp
     return true;
 }
 
-bool tracer::syscalls::register_NtApphelpCacheControl(proc_t proc, const on_NtApphelpCacheControl_fn& on_func)
+bool nt::syscalls::register_NtApphelpCacheControl(proc_t proc, const on_NtApphelpCacheControl_fn& on_func)
 {
     if(d_->observers_NtApphelpCacheControl.empty())
         if(!register_callback_with(*d_, proc, "NtApphelpCacheControl", &on_NtApphelpCacheControl))
@@ -6456,7 +6456,7 @@ bool tracer::syscalls::register_NtApphelpCacheControl(proc_t proc, const on_NtAp
     return true;
 }
 
-bool tracer::syscalls::register_NtAreMappedFilesTheSame(proc_t proc, const on_NtAreMappedFilesTheSame_fn& on_func)
+bool nt::syscalls::register_NtAreMappedFilesTheSame(proc_t proc, const on_NtAreMappedFilesTheSame_fn& on_func)
 {
     if(d_->observers_NtAreMappedFilesTheSame.empty())
         if(!register_callback_with(*d_, proc, "NtAreMappedFilesTheSame", &on_NtAreMappedFilesTheSame))
@@ -6466,7 +6466,7 @@ bool tracer::syscalls::register_NtAreMappedFilesTheSame(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtAssignProcessToJobObject(proc_t proc, const on_NtAssignProcessToJobObject_fn& on_func)
+bool nt::syscalls::register_NtAssignProcessToJobObject(proc_t proc, const on_NtAssignProcessToJobObject_fn& on_func)
 {
     if(d_->observers_NtAssignProcessToJobObject.empty())
         if(!register_callback_with(*d_, proc, "NtAssignProcessToJobObject", &on_NtAssignProcessToJobObject))
@@ -6476,7 +6476,7 @@ bool tracer::syscalls::register_NtAssignProcessToJobObject(proc_t proc, const on
     return true;
 }
 
-bool tracer::syscalls::register_NtCancelIoFileEx(proc_t proc, const on_NtCancelIoFileEx_fn& on_func)
+bool nt::syscalls::register_NtCancelIoFileEx(proc_t proc, const on_NtCancelIoFileEx_fn& on_func)
 {
     if(d_->observers_NtCancelIoFileEx.empty())
         if(!register_callback_with(*d_, proc, "NtCancelIoFileEx", &on_NtCancelIoFileEx))
@@ -6486,7 +6486,7 @@ bool tracer::syscalls::register_NtCancelIoFileEx(proc_t proc, const on_NtCancelI
     return true;
 }
 
-bool tracer::syscalls::register_NtCancelIoFile(proc_t proc, const on_NtCancelIoFile_fn& on_func)
+bool nt::syscalls::register_NtCancelIoFile(proc_t proc, const on_NtCancelIoFile_fn& on_func)
 {
     if(d_->observers_NtCancelIoFile.empty())
         if(!register_callback_with(*d_, proc, "NtCancelIoFile", &on_NtCancelIoFile))
@@ -6496,7 +6496,7 @@ bool tracer::syscalls::register_NtCancelIoFile(proc_t proc, const on_NtCancelIoF
     return true;
 }
 
-bool tracer::syscalls::register_NtCancelSynchronousIoFile(proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_func)
+bool nt::syscalls::register_NtCancelSynchronousIoFile(proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_func)
 {
     if(d_->observers_NtCancelSynchronousIoFile.empty())
         if(!register_callback_with(*d_, proc, "NtCancelSynchronousIoFile", &on_NtCancelSynchronousIoFile))
@@ -6506,7 +6506,7 @@ bool tracer::syscalls::register_NtCancelSynchronousIoFile(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtCancelTimer(proc_t proc, const on_NtCancelTimer_fn& on_func)
+bool nt::syscalls::register_NtCancelTimer(proc_t proc, const on_NtCancelTimer_fn& on_func)
 {
     if(d_->observers_NtCancelTimer.empty())
         if(!register_callback_with(*d_, proc, "NtCancelTimer", &on_NtCancelTimer))
@@ -6516,7 +6516,7 @@ bool tracer::syscalls::register_NtCancelTimer(proc_t proc, const on_NtCancelTime
     return true;
 }
 
-bool tracer::syscalls::register_NtClearEvent(proc_t proc, const on_NtClearEvent_fn& on_func)
+bool nt::syscalls::register_NtClearEvent(proc_t proc, const on_NtClearEvent_fn& on_func)
 {
     if(d_->observers_NtClearEvent.empty())
         if(!register_callback_with(*d_, proc, "NtClearEvent", &on_NtClearEvent))
@@ -6526,7 +6526,7 @@ bool tracer::syscalls::register_NtClearEvent(proc_t proc, const on_NtClearEvent_
     return true;
 }
 
-bool tracer::syscalls::register_NtClose(proc_t proc, const on_NtClose_fn& on_func)
+bool nt::syscalls::register_NtClose(proc_t proc, const on_NtClose_fn& on_func)
 {
     if(d_->observers_NtClose.empty())
         if(!register_callback_with(*d_, proc, "NtClose", &on_NtClose))
@@ -6536,7 +6536,7 @@ bool tracer::syscalls::register_NtClose(proc_t proc, const on_NtClose_fn& on_fun
     return true;
 }
 
-bool tracer::syscalls::register_NtCloseObjectAuditAlarm(proc_t proc, const on_NtCloseObjectAuditAlarm_fn& on_func)
+bool nt::syscalls::register_NtCloseObjectAuditAlarm(proc_t proc, const on_NtCloseObjectAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtCloseObjectAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "NtCloseObjectAuditAlarm", &on_NtCloseObjectAuditAlarm))
@@ -6546,7 +6546,7 @@ bool tracer::syscalls::register_NtCloseObjectAuditAlarm(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtCommitComplete(proc_t proc, const on_NtCommitComplete_fn& on_func)
+bool nt::syscalls::register_NtCommitComplete(proc_t proc, const on_NtCommitComplete_fn& on_func)
 {
     if(d_->observers_NtCommitComplete.empty())
         if(!register_callback_with(*d_, proc, "NtCommitComplete", &on_NtCommitComplete))
@@ -6556,7 +6556,7 @@ bool tracer::syscalls::register_NtCommitComplete(proc_t proc, const on_NtCommitC
     return true;
 }
 
-bool tracer::syscalls::register_NtCommitEnlistment(proc_t proc, const on_NtCommitEnlistment_fn& on_func)
+bool nt::syscalls::register_NtCommitEnlistment(proc_t proc, const on_NtCommitEnlistment_fn& on_func)
 {
     if(d_->observers_NtCommitEnlistment.empty())
         if(!register_callback_with(*d_, proc, "NtCommitEnlistment", &on_NtCommitEnlistment))
@@ -6566,7 +6566,7 @@ bool tracer::syscalls::register_NtCommitEnlistment(proc_t proc, const on_NtCommi
     return true;
 }
 
-bool tracer::syscalls::register_NtCommitTransaction(proc_t proc, const on_NtCommitTransaction_fn& on_func)
+bool nt::syscalls::register_NtCommitTransaction(proc_t proc, const on_NtCommitTransaction_fn& on_func)
 {
     if(d_->observers_NtCommitTransaction.empty())
         if(!register_callback_with(*d_, proc, "NtCommitTransaction", &on_NtCommitTransaction))
@@ -6576,7 +6576,7 @@ bool tracer::syscalls::register_NtCommitTransaction(proc_t proc, const on_NtComm
     return true;
 }
 
-bool tracer::syscalls::register_NtCompactKeys(proc_t proc, const on_NtCompactKeys_fn& on_func)
+bool nt::syscalls::register_NtCompactKeys(proc_t proc, const on_NtCompactKeys_fn& on_func)
 {
     if(d_->observers_NtCompactKeys.empty())
         if(!register_callback_with(*d_, proc, "NtCompactKeys", &on_NtCompactKeys))
@@ -6586,7 +6586,7 @@ bool tracer::syscalls::register_NtCompactKeys(proc_t proc, const on_NtCompactKey
     return true;
 }
 
-bool tracer::syscalls::register_NtCompareTokens(proc_t proc, const on_NtCompareTokens_fn& on_func)
+bool nt::syscalls::register_NtCompareTokens(proc_t proc, const on_NtCompareTokens_fn& on_func)
 {
     if(d_->observers_NtCompareTokens.empty())
         if(!register_callback_with(*d_, proc, "NtCompareTokens", &on_NtCompareTokens))
@@ -6596,7 +6596,7 @@ bool tracer::syscalls::register_NtCompareTokens(proc_t proc, const on_NtCompareT
     return true;
 }
 
-bool tracer::syscalls::register_NtCompleteConnectPort(proc_t proc, const on_NtCompleteConnectPort_fn& on_func)
+bool nt::syscalls::register_NtCompleteConnectPort(proc_t proc, const on_NtCompleteConnectPort_fn& on_func)
 {
     if(d_->observers_NtCompleteConnectPort.empty())
         if(!register_callback_with(*d_, proc, "NtCompleteConnectPort", &on_NtCompleteConnectPort))
@@ -6606,7 +6606,7 @@ bool tracer::syscalls::register_NtCompleteConnectPort(proc_t proc, const on_NtCo
     return true;
 }
 
-bool tracer::syscalls::register_NtCompressKey(proc_t proc, const on_NtCompressKey_fn& on_func)
+bool nt::syscalls::register_NtCompressKey(proc_t proc, const on_NtCompressKey_fn& on_func)
 {
     if(d_->observers_NtCompressKey.empty())
         if(!register_callback_with(*d_, proc, "NtCompressKey", &on_NtCompressKey))
@@ -6616,7 +6616,7 @@ bool tracer::syscalls::register_NtCompressKey(proc_t proc, const on_NtCompressKe
     return true;
 }
 
-bool tracer::syscalls::register_NtConnectPort(proc_t proc, const on_NtConnectPort_fn& on_func)
+bool nt::syscalls::register_NtConnectPort(proc_t proc, const on_NtConnectPort_fn& on_func)
 {
     if(d_->observers_NtConnectPort.empty())
         if(!register_callback_with(*d_, proc, "NtConnectPort", &on_NtConnectPort))
@@ -6626,7 +6626,7 @@ bool tracer::syscalls::register_NtConnectPort(proc_t proc, const on_NtConnectPor
     return true;
 }
 
-bool tracer::syscalls::register_NtContinue(proc_t proc, const on_NtContinue_fn& on_func)
+bool nt::syscalls::register_NtContinue(proc_t proc, const on_NtContinue_fn& on_func)
 {
     if(d_->observers_NtContinue.empty())
         if(!register_callback_with(*d_, proc, "NtContinue", &on_NtContinue))
@@ -6636,7 +6636,7 @@ bool tracer::syscalls::register_NtContinue(proc_t proc, const on_NtContinue_fn& 
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateDebugObject(proc_t proc, const on_NtCreateDebugObject_fn& on_func)
+bool nt::syscalls::register_NtCreateDebugObject(proc_t proc, const on_NtCreateDebugObject_fn& on_func)
 {
     if(d_->observers_NtCreateDebugObject.empty())
         if(!register_callback_with(*d_, proc, "NtCreateDebugObject", &on_NtCreateDebugObject))
@@ -6646,7 +6646,7 @@ bool tracer::syscalls::register_NtCreateDebugObject(proc_t proc, const on_NtCrea
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateDirectoryObject(proc_t proc, const on_NtCreateDirectoryObject_fn& on_func)
+bool nt::syscalls::register_NtCreateDirectoryObject(proc_t proc, const on_NtCreateDirectoryObject_fn& on_func)
 {
     if(d_->observers_NtCreateDirectoryObject.empty())
         if(!register_callback_with(*d_, proc, "NtCreateDirectoryObject", &on_NtCreateDirectoryObject))
@@ -6656,7 +6656,7 @@ bool tracer::syscalls::register_NtCreateDirectoryObject(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateEnlistment(proc_t proc, const on_NtCreateEnlistment_fn& on_func)
+bool nt::syscalls::register_NtCreateEnlistment(proc_t proc, const on_NtCreateEnlistment_fn& on_func)
 {
     if(d_->observers_NtCreateEnlistment.empty())
         if(!register_callback_with(*d_, proc, "NtCreateEnlistment", &on_NtCreateEnlistment))
@@ -6666,7 +6666,7 @@ bool tracer::syscalls::register_NtCreateEnlistment(proc_t proc, const on_NtCreat
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateEvent(proc_t proc, const on_NtCreateEvent_fn& on_func)
+bool nt::syscalls::register_NtCreateEvent(proc_t proc, const on_NtCreateEvent_fn& on_func)
 {
     if(d_->observers_NtCreateEvent.empty())
         if(!register_callback_with(*d_, proc, "NtCreateEvent", &on_NtCreateEvent))
@@ -6676,7 +6676,7 @@ bool tracer::syscalls::register_NtCreateEvent(proc_t proc, const on_NtCreateEven
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateEventPair(proc_t proc, const on_NtCreateEventPair_fn& on_func)
+bool nt::syscalls::register_NtCreateEventPair(proc_t proc, const on_NtCreateEventPair_fn& on_func)
 {
     if(d_->observers_NtCreateEventPair.empty())
         if(!register_callback_with(*d_, proc, "NtCreateEventPair", &on_NtCreateEventPair))
@@ -6686,7 +6686,7 @@ bool tracer::syscalls::register_NtCreateEventPair(proc_t proc, const on_NtCreate
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateFile(proc_t proc, const on_NtCreateFile_fn& on_func)
+bool nt::syscalls::register_NtCreateFile(proc_t proc, const on_NtCreateFile_fn& on_func)
 {
     if(d_->observers_NtCreateFile.empty())
         if(!register_callback_with(*d_, proc, "NtCreateFile", &on_NtCreateFile))
@@ -6696,7 +6696,7 @@ bool tracer::syscalls::register_NtCreateFile(proc_t proc, const on_NtCreateFile_
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateIoCompletion(proc_t proc, const on_NtCreateIoCompletion_fn& on_func)
+bool nt::syscalls::register_NtCreateIoCompletion(proc_t proc, const on_NtCreateIoCompletion_fn& on_func)
 {
     if(d_->observers_NtCreateIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "NtCreateIoCompletion", &on_NtCreateIoCompletion))
@@ -6706,7 +6706,7 @@ bool tracer::syscalls::register_NtCreateIoCompletion(proc_t proc, const on_NtCre
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateJobObject(proc_t proc, const on_NtCreateJobObject_fn& on_func)
+bool nt::syscalls::register_NtCreateJobObject(proc_t proc, const on_NtCreateJobObject_fn& on_func)
 {
     if(d_->observers_NtCreateJobObject.empty())
         if(!register_callback_with(*d_, proc, "NtCreateJobObject", &on_NtCreateJobObject))
@@ -6716,7 +6716,7 @@ bool tracer::syscalls::register_NtCreateJobObject(proc_t proc, const on_NtCreate
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateJobSet(proc_t proc, const on_NtCreateJobSet_fn& on_func)
+bool nt::syscalls::register_NtCreateJobSet(proc_t proc, const on_NtCreateJobSet_fn& on_func)
 {
     if(d_->observers_NtCreateJobSet.empty())
         if(!register_callback_with(*d_, proc, "NtCreateJobSet", &on_NtCreateJobSet))
@@ -6726,7 +6726,7 @@ bool tracer::syscalls::register_NtCreateJobSet(proc_t proc, const on_NtCreateJob
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateKeyedEvent(proc_t proc, const on_NtCreateKeyedEvent_fn& on_func)
+bool nt::syscalls::register_NtCreateKeyedEvent(proc_t proc, const on_NtCreateKeyedEvent_fn& on_func)
 {
     if(d_->observers_NtCreateKeyedEvent.empty())
         if(!register_callback_with(*d_, proc, "NtCreateKeyedEvent", &on_NtCreateKeyedEvent))
@@ -6736,7 +6736,7 @@ bool tracer::syscalls::register_NtCreateKeyedEvent(proc_t proc, const on_NtCreat
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateKey(proc_t proc, const on_NtCreateKey_fn& on_func)
+bool nt::syscalls::register_NtCreateKey(proc_t proc, const on_NtCreateKey_fn& on_func)
 {
     if(d_->observers_NtCreateKey.empty())
         if(!register_callback_with(*d_, proc, "NtCreateKey", &on_NtCreateKey))
@@ -6746,7 +6746,7 @@ bool tracer::syscalls::register_NtCreateKey(proc_t proc, const on_NtCreateKey_fn
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateKeyTransacted(proc_t proc, const on_NtCreateKeyTransacted_fn& on_func)
+bool nt::syscalls::register_NtCreateKeyTransacted(proc_t proc, const on_NtCreateKeyTransacted_fn& on_func)
 {
     if(d_->observers_NtCreateKeyTransacted.empty())
         if(!register_callback_with(*d_, proc, "NtCreateKeyTransacted", &on_NtCreateKeyTransacted))
@@ -6756,7 +6756,7 @@ bool tracer::syscalls::register_NtCreateKeyTransacted(proc_t proc, const on_NtCr
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateMailslotFile(proc_t proc, const on_NtCreateMailslotFile_fn& on_func)
+bool nt::syscalls::register_NtCreateMailslotFile(proc_t proc, const on_NtCreateMailslotFile_fn& on_func)
 {
     if(d_->observers_NtCreateMailslotFile.empty())
         if(!register_callback_with(*d_, proc, "NtCreateMailslotFile", &on_NtCreateMailslotFile))
@@ -6766,7 +6766,7 @@ bool tracer::syscalls::register_NtCreateMailslotFile(proc_t proc, const on_NtCre
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateMutant(proc_t proc, const on_NtCreateMutant_fn& on_func)
+bool nt::syscalls::register_NtCreateMutant(proc_t proc, const on_NtCreateMutant_fn& on_func)
 {
     if(d_->observers_NtCreateMutant.empty())
         if(!register_callback_with(*d_, proc, "NtCreateMutant", &on_NtCreateMutant))
@@ -6776,7 +6776,7 @@ bool tracer::syscalls::register_NtCreateMutant(proc_t proc, const on_NtCreateMut
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateNamedPipeFile(proc_t proc, const on_NtCreateNamedPipeFile_fn& on_func)
+bool nt::syscalls::register_NtCreateNamedPipeFile(proc_t proc, const on_NtCreateNamedPipeFile_fn& on_func)
 {
     if(d_->observers_NtCreateNamedPipeFile.empty())
         if(!register_callback_with(*d_, proc, "NtCreateNamedPipeFile", &on_NtCreateNamedPipeFile))
@@ -6786,7 +6786,7 @@ bool tracer::syscalls::register_NtCreateNamedPipeFile(proc_t proc, const on_NtCr
     return true;
 }
 
-bool tracer::syscalls::register_NtCreatePagingFile(proc_t proc, const on_NtCreatePagingFile_fn& on_func)
+bool nt::syscalls::register_NtCreatePagingFile(proc_t proc, const on_NtCreatePagingFile_fn& on_func)
 {
     if(d_->observers_NtCreatePagingFile.empty())
         if(!register_callback_with(*d_, proc, "NtCreatePagingFile", &on_NtCreatePagingFile))
@@ -6796,7 +6796,7 @@ bool tracer::syscalls::register_NtCreatePagingFile(proc_t proc, const on_NtCreat
     return true;
 }
 
-bool tracer::syscalls::register_NtCreatePort(proc_t proc, const on_NtCreatePort_fn& on_func)
+bool nt::syscalls::register_NtCreatePort(proc_t proc, const on_NtCreatePort_fn& on_func)
 {
     if(d_->observers_NtCreatePort.empty())
         if(!register_callback_with(*d_, proc, "NtCreatePort", &on_NtCreatePort))
@@ -6806,7 +6806,7 @@ bool tracer::syscalls::register_NtCreatePort(proc_t proc, const on_NtCreatePort_
     return true;
 }
 
-bool tracer::syscalls::register_NtCreatePrivateNamespace(proc_t proc, const on_NtCreatePrivateNamespace_fn& on_func)
+bool nt::syscalls::register_NtCreatePrivateNamespace(proc_t proc, const on_NtCreatePrivateNamespace_fn& on_func)
 {
     if(d_->observers_NtCreatePrivateNamespace.empty())
         if(!register_callback_with(*d_, proc, "NtCreatePrivateNamespace", &on_NtCreatePrivateNamespace))
@@ -6816,7 +6816,7 @@ bool tracer::syscalls::register_NtCreatePrivateNamespace(proc_t proc, const on_N
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateProcessEx(proc_t proc, const on_NtCreateProcessEx_fn& on_func)
+bool nt::syscalls::register_NtCreateProcessEx(proc_t proc, const on_NtCreateProcessEx_fn& on_func)
 {
     if(d_->observers_NtCreateProcessEx.empty())
         if(!register_callback_with(*d_, proc, "NtCreateProcessEx", &on_NtCreateProcessEx))
@@ -6826,7 +6826,7 @@ bool tracer::syscalls::register_NtCreateProcessEx(proc_t proc, const on_NtCreate
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateProcess(proc_t proc, const on_NtCreateProcess_fn& on_func)
+bool nt::syscalls::register_NtCreateProcess(proc_t proc, const on_NtCreateProcess_fn& on_func)
 {
     if(d_->observers_NtCreateProcess.empty())
         if(!register_callback_with(*d_, proc, "NtCreateProcess", &on_NtCreateProcess))
@@ -6836,7 +6836,7 @@ bool tracer::syscalls::register_NtCreateProcess(proc_t proc, const on_NtCreatePr
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateProfileEx(proc_t proc, const on_NtCreateProfileEx_fn& on_func)
+bool nt::syscalls::register_NtCreateProfileEx(proc_t proc, const on_NtCreateProfileEx_fn& on_func)
 {
     if(d_->observers_NtCreateProfileEx.empty())
         if(!register_callback_with(*d_, proc, "NtCreateProfileEx", &on_NtCreateProfileEx))
@@ -6846,7 +6846,7 @@ bool tracer::syscalls::register_NtCreateProfileEx(proc_t proc, const on_NtCreate
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateProfile(proc_t proc, const on_NtCreateProfile_fn& on_func)
+bool nt::syscalls::register_NtCreateProfile(proc_t proc, const on_NtCreateProfile_fn& on_func)
 {
     if(d_->observers_NtCreateProfile.empty())
         if(!register_callback_with(*d_, proc, "NtCreateProfile", &on_NtCreateProfile))
@@ -6856,7 +6856,7 @@ bool tracer::syscalls::register_NtCreateProfile(proc_t proc, const on_NtCreatePr
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateResourceManager(proc_t proc, const on_NtCreateResourceManager_fn& on_func)
+bool nt::syscalls::register_NtCreateResourceManager(proc_t proc, const on_NtCreateResourceManager_fn& on_func)
 {
     if(d_->observers_NtCreateResourceManager.empty())
         if(!register_callback_with(*d_, proc, "NtCreateResourceManager", &on_NtCreateResourceManager))
@@ -6866,7 +6866,7 @@ bool tracer::syscalls::register_NtCreateResourceManager(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateSection(proc_t proc, const on_NtCreateSection_fn& on_func)
+bool nt::syscalls::register_NtCreateSection(proc_t proc, const on_NtCreateSection_fn& on_func)
 {
     if(d_->observers_NtCreateSection.empty())
         if(!register_callback_with(*d_, proc, "NtCreateSection", &on_NtCreateSection))
@@ -6876,7 +6876,7 @@ bool tracer::syscalls::register_NtCreateSection(proc_t proc, const on_NtCreateSe
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateSemaphore(proc_t proc, const on_NtCreateSemaphore_fn& on_func)
+bool nt::syscalls::register_NtCreateSemaphore(proc_t proc, const on_NtCreateSemaphore_fn& on_func)
 {
     if(d_->observers_NtCreateSemaphore.empty())
         if(!register_callback_with(*d_, proc, "NtCreateSemaphore", &on_NtCreateSemaphore))
@@ -6886,7 +6886,7 @@ bool tracer::syscalls::register_NtCreateSemaphore(proc_t proc, const on_NtCreate
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateSymbolicLinkObject(proc_t proc, const on_NtCreateSymbolicLinkObject_fn& on_func)
+bool nt::syscalls::register_NtCreateSymbolicLinkObject(proc_t proc, const on_NtCreateSymbolicLinkObject_fn& on_func)
 {
     if(d_->observers_NtCreateSymbolicLinkObject.empty())
         if(!register_callback_with(*d_, proc, "NtCreateSymbolicLinkObject", &on_NtCreateSymbolicLinkObject))
@@ -6896,7 +6896,7 @@ bool tracer::syscalls::register_NtCreateSymbolicLinkObject(proc_t proc, const on
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateThreadEx(proc_t proc, const on_NtCreateThreadEx_fn& on_func)
+bool nt::syscalls::register_NtCreateThreadEx(proc_t proc, const on_NtCreateThreadEx_fn& on_func)
 {
     if(d_->observers_NtCreateThreadEx.empty())
         if(!register_callback_with(*d_, proc, "NtCreateThreadEx", &on_NtCreateThreadEx))
@@ -6906,7 +6906,7 @@ bool tracer::syscalls::register_NtCreateThreadEx(proc_t proc, const on_NtCreateT
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateThread(proc_t proc, const on_NtCreateThread_fn& on_func)
+bool nt::syscalls::register_NtCreateThread(proc_t proc, const on_NtCreateThread_fn& on_func)
 {
     if(d_->observers_NtCreateThread.empty())
         if(!register_callback_with(*d_, proc, "NtCreateThread", &on_NtCreateThread))
@@ -6916,7 +6916,7 @@ bool tracer::syscalls::register_NtCreateThread(proc_t proc, const on_NtCreateThr
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateTimer(proc_t proc, const on_NtCreateTimer_fn& on_func)
+bool nt::syscalls::register_NtCreateTimer(proc_t proc, const on_NtCreateTimer_fn& on_func)
 {
     if(d_->observers_NtCreateTimer.empty())
         if(!register_callback_with(*d_, proc, "NtCreateTimer", &on_NtCreateTimer))
@@ -6926,7 +6926,7 @@ bool tracer::syscalls::register_NtCreateTimer(proc_t proc, const on_NtCreateTime
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateToken(proc_t proc, const on_NtCreateToken_fn& on_func)
+bool nt::syscalls::register_NtCreateToken(proc_t proc, const on_NtCreateToken_fn& on_func)
 {
     if(d_->observers_NtCreateToken.empty())
         if(!register_callback_with(*d_, proc, "NtCreateToken", &on_NtCreateToken))
@@ -6936,7 +6936,7 @@ bool tracer::syscalls::register_NtCreateToken(proc_t proc, const on_NtCreateToke
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateTransactionManager(proc_t proc, const on_NtCreateTransactionManager_fn& on_func)
+bool nt::syscalls::register_NtCreateTransactionManager(proc_t proc, const on_NtCreateTransactionManager_fn& on_func)
 {
     if(d_->observers_NtCreateTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "NtCreateTransactionManager", &on_NtCreateTransactionManager))
@@ -6946,7 +6946,7 @@ bool tracer::syscalls::register_NtCreateTransactionManager(proc_t proc, const on
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateTransaction(proc_t proc, const on_NtCreateTransaction_fn& on_func)
+bool nt::syscalls::register_NtCreateTransaction(proc_t proc, const on_NtCreateTransaction_fn& on_func)
 {
     if(d_->observers_NtCreateTransaction.empty())
         if(!register_callback_with(*d_, proc, "NtCreateTransaction", &on_NtCreateTransaction))
@@ -6956,7 +6956,7 @@ bool tracer::syscalls::register_NtCreateTransaction(proc_t proc, const on_NtCrea
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateUserProcess(proc_t proc, const on_NtCreateUserProcess_fn& on_func)
+bool nt::syscalls::register_NtCreateUserProcess(proc_t proc, const on_NtCreateUserProcess_fn& on_func)
 {
     if(d_->observers_NtCreateUserProcess.empty())
         if(!register_callback_with(*d_, proc, "NtCreateUserProcess", &on_NtCreateUserProcess))
@@ -6966,7 +6966,7 @@ bool tracer::syscalls::register_NtCreateUserProcess(proc_t proc, const on_NtCrea
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateWaitablePort(proc_t proc, const on_NtCreateWaitablePort_fn& on_func)
+bool nt::syscalls::register_NtCreateWaitablePort(proc_t proc, const on_NtCreateWaitablePort_fn& on_func)
 {
     if(d_->observers_NtCreateWaitablePort.empty())
         if(!register_callback_with(*d_, proc, "NtCreateWaitablePort", &on_NtCreateWaitablePort))
@@ -6976,7 +6976,7 @@ bool tracer::syscalls::register_NtCreateWaitablePort(proc_t proc, const on_NtCre
     return true;
 }
 
-bool tracer::syscalls::register_NtCreateWorkerFactory(proc_t proc, const on_NtCreateWorkerFactory_fn& on_func)
+bool nt::syscalls::register_NtCreateWorkerFactory(proc_t proc, const on_NtCreateWorkerFactory_fn& on_func)
 {
     if(d_->observers_NtCreateWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "NtCreateWorkerFactory", &on_NtCreateWorkerFactory))
@@ -6986,7 +6986,7 @@ bool tracer::syscalls::register_NtCreateWorkerFactory(proc_t proc, const on_NtCr
     return true;
 }
 
-bool tracer::syscalls::register_NtDebugActiveProcess(proc_t proc, const on_NtDebugActiveProcess_fn& on_func)
+bool nt::syscalls::register_NtDebugActiveProcess(proc_t proc, const on_NtDebugActiveProcess_fn& on_func)
 {
     if(d_->observers_NtDebugActiveProcess.empty())
         if(!register_callback_with(*d_, proc, "NtDebugActiveProcess", &on_NtDebugActiveProcess))
@@ -6996,7 +6996,7 @@ bool tracer::syscalls::register_NtDebugActiveProcess(proc_t proc, const on_NtDeb
     return true;
 }
 
-bool tracer::syscalls::register_NtDebugContinue(proc_t proc, const on_NtDebugContinue_fn& on_func)
+bool nt::syscalls::register_NtDebugContinue(proc_t proc, const on_NtDebugContinue_fn& on_func)
 {
     if(d_->observers_NtDebugContinue.empty())
         if(!register_callback_with(*d_, proc, "NtDebugContinue", &on_NtDebugContinue))
@@ -7006,7 +7006,7 @@ bool tracer::syscalls::register_NtDebugContinue(proc_t proc, const on_NtDebugCon
     return true;
 }
 
-bool tracer::syscalls::register_NtDelayExecution(proc_t proc, const on_NtDelayExecution_fn& on_func)
+bool nt::syscalls::register_NtDelayExecution(proc_t proc, const on_NtDelayExecution_fn& on_func)
 {
     if(d_->observers_NtDelayExecution.empty())
         if(!register_callback_with(*d_, proc, "NtDelayExecution", &on_NtDelayExecution))
@@ -7016,7 +7016,7 @@ bool tracer::syscalls::register_NtDelayExecution(proc_t proc, const on_NtDelayEx
     return true;
 }
 
-bool tracer::syscalls::register_NtDeleteAtom(proc_t proc, const on_NtDeleteAtom_fn& on_func)
+bool nt::syscalls::register_NtDeleteAtom(proc_t proc, const on_NtDeleteAtom_fn& on_func)
 {
     if(d_->observers_NtDeleteAtom.empty())
         if(!register_callback_with(*d_, proc, "NtDeleteAtom", &on_NtDeleteAtom))
@@ -7026,7 +7026,7 @@ bool tracer::syscalls::register_NtDeleteAtom(proc_t proc, const on_NtDeleteAtom_
     return true;
 }
 
-bool tracer::syscalls::register_NtDeleteBootEntry(proc_t proc, const on_NtDeleteBootEntry_fn& on_func)
+bool nt::syscalls::register_NtDeleteBootEntry(proc_t proc, const on_NtDeleteBootEntry_fn& on_func)
 {
     if(d_->observers_NtDeleteBootEntry.empty())
         if(!register_callback_with(*d_, proc, "NtDeleteBootEntry", &on_NtDeleteBootEntry))
@@ -7036,7 +7036,7 @@ bool tracer::syscalls::register_NtDeleteBootEntry(proc_t proc, const on_NtDelete
     return true;
 }
 
-bool tracer::syscalls::register_NtDeleteDriverEntry(proc_t proc, const on_NtDeleteDriverEntry_fn& on_func)
+bool nt::syscalls::register_NtDeleteDriverEntry(proc_t proc, const on_NtDeleteDriverEntry_fn& on_func)
 {
     if(d_->observers_NtDeleteDriverEntry.empty())
         if(!register_callback_with(*d_, proc, "NtDeleteDriverEntry", &on_NtDeleteDriverEntry))
@@ -7046,7 +7046,7 @@ bool tracer::syscalls::register_NtDeleteDriverEntry(proc_t proc, const on_NtDele
     return true;
 }
 
-bool tracer::syscalls::register_NtDeleteFile(proc_t proc, const on_NtDeleteFile_fn& on_func)
+bool nt::syscalls::register_NtDeleteFile(proc_t proc, const on_NtDeleteFile_fn& on_func)
 {
     if(d_->observers_NtDeleteFile.empty())
         if(!register_callback_with(*d_, proc, "NtDeleteFile", &on_NtDeleteFile))
@@ -7056,7 +7056,7 @@ bool tracer::syscalls::register_NtDeleteFile(proc_t proc, const on_NtDeleteFile_
     return true;
 }
 
-bool tracer::syscalls::register_NtDeleteKey(proc_t proc, const on_NtDeleteKey_fn& on_func)
+bool nt::syscalls::register_NtDeleteKey(proc_t proc, const on_NtDeleteKey_fn& on_func)
 {
     if(d_->observers_NtDeleteKey.empty())
         if(!register_callback_with(*d_, proc, "NtDeleteKey", &on_NtDeleteKey))
@@ -7066,7 +7066,7 @@ bool tracer::syscalls::register_NtDeleteKey(proc_t proc, const on_NtDeleteKey_fn
     return true;
 }
 
-bool tracer::syscalls::register_NtDeleteObjectAuditAlarm(proc_t proc, const on_NtDeleteObjectAuditAlarm_fn& on_func)
+bool nt::syscalls::register_NtDeleteObjectAuditAlarm(proc_t proc, const on_NtDeleteObjectAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtDeleteObjectAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "NtDeleteObjectAuditAlarm", &on_NtDeleteObjectAuditAlarm))
@@ -7076,7 +7076,7 @@ bool tracer::syscalls::register_NtDeleteObjectAuditAlarm(proc_t proc, const on_N
     return true;
 }
 
-bool tracer::syscalls::register_NtDeletePrivateNamespace(proc_t proc, const on_NtDeletePrivateNamespace_fn& on_func)
+bool nt::syscalls::register_NtDeletePrivateNamespace(proc_t proc, const on_NtDeletePrivateNamespace_fn& on_func)
 {
     if(d_->observers_NtDeletePrivateNamespace.empty())
         if(!register_callback_with(*d_, proc, "NtDeletePrivateNamespace", &on_NtDeletePrivateNamespace))
@@ -7086,7 +7086,7 @@ bool tracer::syscalls::register_NtDeletePrivateNamespace(proc_t proc, const on_N
     return true;
 }
 
-bool tracer::syscalls::register_NtDeleteValueKey(proc_t proc, const on_NtDeleteValueKey_fn& on_func)
+bool nt::syscalls::register_NtDeleteValueKey(proc_t proc, const on_NtDeleteValueKey_fn& on_func)
 {
     if(d_->observers_NtDeleteValueKey.empty())
         if(!register_callback_with(*d_, proc, "NtDeleteValueKey", &on_NtDeleteValueKey))
@@ -7096,7 +7096,7 @@ bool tracer::syscalls::register_NtDeleteValueKey(proc_t proc, const on_NtDeleteV
     return true;
 }
 
-bool tracer::syscalls::register_NtDeviceIoControlFile(proc_t proc, const on_NtDeviceIoControlFile_fn& on_func)
+bool nt::syscalls::register_NtDeviceIoControlFile(proc_t proc, const on_NtDeviceIoControlFile_fn& on_func)
 {
     if(d_->observers_NtDeviceIoControlFile.empty())
         if(!register_callback_with(*d_, proc, "NtDeviceIoControlFile", &on_NtDeviceIoControlFile))
@@ -7106,7 +7106,7 @@ bool tracer::syscalls::register_NtDeviceIoControlFile(proc_t proc, const on_NtDe
     return true;
 }
 
-bool tracer::syscalls::register_NtDisplayString(proc_t proc, const on_NtDisplayString_fn& on_func)
+bool nt::syscalls::register_NtDisplayString(proc_t proc, const on_NtDisplayString_fn& on_func)
 {
     if(d_->observers_NtDisplayString.empty())
         if(!register_callback_with(*d_, proc, "NtDisplayString", &on_NtDisplayString))
@@ -7116,7 +7116,7 @@ bool tracer::syscalls::register_NtDisplayString(proc_t proc, const on_NtDisplayS
     return true;
 }
 
-bool tracer::syscalls::register_NtDrawText(proc_t proc, const on_NtDrawText_fn& on_func)
+bool nt::syscalls::register_NtDrawText(proc_t proc, const on_NtDrawText_fn& on_func)
 {
     if(d_->observers_NtDrawText.empty())
         if(!register_callback_with(*d_, proc, "NtDrawText", &on_NtDrawText))
@@ -7126,7 +7126,7 @@ bool tracer::syscalls::register_NtDrawText(proc_t proc, const on_NtDrawText_fn& 
     return true;
 }
 
-bool tracer::syscalls::register_NtDuplicateObject(proc_t proc, const on_NtDuplicateObject_fn& on_func)
+bool nt::syscalls::register_NtDuplicateObject(proc_t proc, const on_NtDuplicateObject_fn& on_func)
 {
     if(d_->observers_NtDuplicateObject.empty())
         if(!register_callback_with(*d_, proc, "NtDuplicateObject", &on_NtDuplicateObject))
@@ -7136,7 +7136,7 @@ bool tracer::syscalls::register_NtDuplicateObject(proc_t proc, const on_NtDuplic
     return true;
 }
 
-bool tracer::syscalls::register_NtDuplicateToken(proc_t proc, const on_NtDuplicateToken_fn& on_func)
+bool nt::syscalls::register_NtDuplicateToken(proc_t proc, const on_NtDuplicateToken_fn& on_func)
 {
     if(d_->observers_NtDuplicateToken.empty())
         if(!register_callback_with(*d_, proc, "NtDuplicateToken", &on_NtDuplicateToken))
@@ -7146,7 +7146,7 @@ bool tracer::syscalls::register_NtDuplicateToken(proc_t proc, const on_NtDuplica
     return true;
 }
 
-bool tracer::syscalls::register_NtEnumerateBootEntries(proc_t proc, const on_NtEnumerateBootEntries_fn& on_func)
+bool nt::syscalls::register_NtEnumerateBootEntries(proc_t proc, const on_NtEnumerateBootEntries_fn& on_func)
 {
     if(d_->observers_NtEnumerateBootEntries.empty())
         if(!register_callback_with(*d_, proc, "NtEnumerateBootEntries", &on_NtEnumerateBootEntries))
@@ -7156,7 +7156,7 @@ bool tracer::syscalls::register_NtEnumerateBootEntries(proc_t proc, const on_NtE
     return true;
 }
 
-bool tracer::syscalls::register_NtEnumerateDriverEntries(proc_t proc, const on_NtEnumerateDriverEntries_fn& on_func)
+bool nt::syscalls::register_NtEnumerateDriverEntries(proc_t proc, const on_NtEnumerateDriverEntries_fn& on_func)
 {
     if(d_->observers_NtEnumerateDriverEntries.empty())
         if(!register_callback_with(*d_, proc, "NtEnumerateDriverEntries", &on_NtEnumerateDriverEntries))
@@ -7166,7 +7166,7 @@ bool tracer::syscalls::register_NtEnumerateDriverEntries(proc_t proc, const on_N
     return true;
 }
 
-bool tracer::syscalls::register_NtEnumerateKey(proc_t proc, const on_NtEnumerateKey_fn& on_func)
+bool nt::syscalls::register_NtEnumerateKey(proc_t proc, const on_NtEnumerateKey_fn& on_func)
 {
     if(d_->observers_NtEnumerateKey.empty())
         if(!register_callback_with(*d_, proc, "NtEnumerateKey", &on_NtEnumerateKey))
@@ -7176,7 +7176,7 @@ bool tracer::syscalls::register_NtEnumerateKey(proc_t proc, const on_NtEnumerate
     return true;
 }
 
-bool tracer::syscalls::register_NtEnumerateSystemEnvironmentValuesEx(proc_t proc, const on_NtEnumerateSystemEnvironmentValuesEx_fn& on_func)
+bool nt::syscalls::register_NtEnumerateSystemEnvironmentValuesEx(proc_t proc, const on_NtEnumerateSystemEnvironmentValuesEx_fn& on_func)
 {
     if(d_->observers_NtEnumerateSystemEnvironmentValuesEx.empty())
         if(!register_callback_with(*d_, proc, "NtEnumerateSystemEnvironmentValuesEx", &on_NtEnumerateSystemEnvironmentValuesEx))
@@ -7186,7 +7186,7 @@ bool tracer::syscalls::register_NtEnumerateSystemEnvironmentValuesEx(proc_t proc
     return true;
 }
 
-bool tracer::syscalls::register_NtEnumerateTransactionObject(proc_t proc, const on_NtEnumerateTransactionObject_fn& on_func)
+bool nt::syscalls::register_NtEnumerateTransactionObject(proc_t proc, const on_NtEnumerateTransactionObject_fn& on_func)
 {
     if(d_->observers_NtEnumerateTransactionObject.empty())
         if(!register_callback_with(*d_, proc, "NtEnumerateTransactionObject", &on_NtEnumerateTransactionObject))
@@ -7196,7 +7196,7 @@ bool tracer::syscalls::register_NtEnumerateTransactionObject(proc_t proc, const 
     return true;
 }
 
-bool tracer::syscalls::register_NtEnumerateValueKey(proc_t proc, const on_NtEnumerateValueKey_fn& on_func)
+bool nt::syscalls::register_NtEnumerateValueKey(proc_t proc, const on_NtEnumerateValueKey_fn& on_func)
 {
     if(d_->observers_NtEnumerateValueKey.empty())
         if(!register_callback_with(*d_, proc, "NtEnumerateValueKey", &on_NtEnumerateValueKey))
@@ -7206,7 +7206,7 @@ bool tracer::syscalls::register_NtEnumerateValueKey(proc_t proc, const on_NtEnum
     return true;
 }
 
-bool tracer::syscalls::register_NtExtendSection(proc_t proc, const on_NtExtendSection_fn& on_func)
+bool nt::syscalls::register_NtExtendSection(proc_t proc, const on_NtExtendSection_fn& on_func)
 {
     if(d_->observers_NtExtendSection.empty())
         if(!register_callback_with(*d_, proc, "NtExtendSection", &on_NtExtendSection))
@@ -7216,7 +7216,7 @@ bool tracer::syscalls::register_NtExtendSection(proc_t proc, const on_NtExtendSe
     return true;
 }
 
-bool tracer::syscalls::register_NtFilterToken(proc_t proc, const on_NtFilterToken_fn& on_func)
+bool nt::syscalls::register_NtFilterToken(proc_t proc, const on_NtFilterToken_fn& on_func)
 {
     if(d_->observers_NtFilterToken.empty())
         if(!register_callback_with(*d_, proc, "NtFilterToken", &on_NtFilterToken))
@@ -7226,7 +7226,7 @@ bool tracer::syscalls::register_NtFilterToken(proc_t proc, const on_NtFilterToke
     return true;
 }
 
-bool tracer::syscalls::register_NtFindAtom(proc_t proc, const on_NtFindAtom_fn& on_func)
+bool nt::syscalls::register_NtFindAtom(proc_t proc, const on_NtFindAtom_fn& on_func)
 {
     if(d_->observers_NtFindAtom.empty())
         if(!register_callback_with(*d_, proc, "NtFindAtom", &on_NtFindAtom))
@@ -7236,7 +7236,7 @@ bool tracer::syscalls::register_NtFindAtom(proc_t proc, const on_NtFindAtom_fn& 
     return true;
 }
 
-bool tracer::syscalls::register_NtFlushBuffersFile(proc_t proc, const on_NtFlushBuffersFile_fn& on_func)
+bool nt::syscalls::register_NtFlushBuffersFile(proc_t proc, const on_NtFlushBuffersFile_fn& on_func)
 {
     if(d_->observers_NtFlushBuffersFile.empty())
         if(!register_callback_with(*d_, proc, "NtFlushBuffersFile", &on_NtFlushBuffersFile))
@@ -7246,7 +7246,7 @@ bool tracer::syscalls::register_NtFlushBuffersFile(proc_t proc, const on_NtFlush
     return true;
 }
 
-bool tracer::syscalls::register_NtFlushInstallUILanguage(proc_t proc, const on_NtFlushInstallUILanguage_fn& on_func)
+bool nt::syscalls::register_NtFlushInstallUILanguage(proc_t proc, const on_NtFlushInstallUILanguage_fn& on_func)
 {
     if(d_->observers_NtFlushInstallUILanguage.empty())
         if(!register_callback_with(*d_, proc, "NtFlushInstallUILanguage", &on_NtFlushInstallUILanguage))
@@ -7256,7 +7256,7 @@ bool tracer::syscalls::register_NtFlushInstallUILanguage(proc_t proc, const on_N
     return true;
 }
 
-bool tracer::syscalls::register_NtFlushInstructionCache(proc_t proc, const on_NtFlushInstructionCache_fn& on_func)
+bool nt::syscalls::register_NtFlushInstructionCache(proc_t proc, const on_NtFlushInstructionCache_fn& on_func)
 {
     if(d_->observers_NtFlushInstructionCache.empty())
         if(!register_callback_with(*d_, proc, "NtFlushInstructionCache", &on_NtFlushInstructionCache))
@@ -7266,7 +7266,7 @@ bool tracer::syscalls::register_NtFlushInstructionCache(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtFlushKey(proc_t proc, const on_NtFlushKey_fn& on_func)
+bool nt::syscalls::register_NtFlushKey(proc_t proc, const on_NtFlushKey_fn& on_func)
 {
     if(d_->observers_NtFlushKey.empty())
         if(!register_callback_with(*d_, proc, "NtFlushKey", &on_NtFlushKey))
@@ -7276,7 +7276,7 @@ bool tracer::syscalls::register_NtFlushKey(proc_t proc, const on_NtFlushKey_fn& 
     return true;
 }
 
-bool tracer::syscalls::register_NtFlushVirtualMemory(proc_t proc, const on_NtFlushVirtualMemory_fn& on_func)
+bool nt::syscalls::register_NtFlushVirtualMemory(proc_t proc, const on_NtFlushVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtFlushVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "NtFlushVirtualMemory", &on_NtFlushVirtualMemory))
@@ -7286,7 +7286,7 @@ bool tracer::syscalls::register_NtFlushVirtualMemory(proc_t proc, const on_NtFlu
     return true;
 }
 
-bool tracer::syscalls::register_NtFreeUserPhysicalPages(proc_t proc, const on_NtFreeUserPhysicalPages_fn& on_func)
+bool nt::syscalls::register_NtFreeUserPhysicalPages(proc_t proc, const on_NtFreeUserPhysicalPages_fn& on_func)
 {
     if(d_->observers_NtFreeUserPhysicalPages.empty())
         if(!register_callback_with(*d_, proc, "NtFreeUserPhysicalPages", &on_NtFreeUserPhysicalPages))
@@ -7296,7 +7296,7 @@ bool tracer::syscalls::register_NtFreeUserPhysicalPages(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtFreeVirtualMemory(proc_t proc, const on_NtFreeVirtualMemory_fn& on_func)
+bool nt::syscalls::register_NtFreeVirtualMemory(proc_t proc, const on_NtFreeVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtFreeVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "NtFreeVirtualMemory", &on_NtFreeVirtualMemory))
@@ -7306,7 +7306,7 @@ bool tracer::syscalls::register_NtFreeVirtualMemory(proc_t proc, const on_NtFree
     return true;
 }
 
-bool tracer::syscalls::register_NtFreezeRegistry(proc_t proc, const on_NtFreezeRegistry_fn& on_func)
+bool nt::syscalls::register_NtFreezeRegistry(proc_t proc, const on_NtFreezeRegistry_fn& on_func)
 {
     if(d_->observers_NtFreezeRegistry.empty())
         if(!register_callback_with(*d_, proc, "NtFreezeRegistry", &on_NtFreezeRegistry))
@@ -7316,7 +7316,7 @@ bool tracer::syscalls::register_NtFreezeRegistry(proc_t proc, const on_NtFreezeR
     return true;
 }
 
-bool tracer::syscalls::register_NtFreezeTransactions(proc_t proc, const on_NtFreezeTransactions_fn& on_func)
+bool nt::syscalls::register_NtFreezeTransactions(proc_t proc, const on_NtFreezeTransactions_fn& on_func)
 {
     if(d_->observers_NtFreezeTransactions.empty())
         if(!register_callback_with(*d_, proc, "NtFreezeTransactions", &on_NtFreezeTransactions))
@@ -7326,7 +7326,7 @@ bool tracer::syscalls::register_NtFreezeTransactions(proc_t proc, const on_NtFre
     return true;
 }
 
-bool tracer::syscalls::register_NtFsControlFile(proc_t proc, const on_NtFsControlFile_fn& on_func)
+bool nt::syscalls::register_NtFsControlFile(proc_t proc, const on_NtFsControlFile_fn& on_func)
 {
     if(d_->observers_NtFsControlFile.empty())
         if(!register_callback_with(*d_, proc, "NtFsControlFile", &on_NtFsControlFile))
@@ -7336,7 +7336,7 @@ bool tracer::syscalls::register_NtFsControlFile(proc_t proc, const on_NtFsContro
     return true;
 }
 
-bool tracer::syscalls::register_NtGetContextThread(proc_t proc, const on_NtGetContextThread_fn& on_func)
+bool nt::syscalls::register_NtGetContextThread(proc_t proc, const on_NtGetContextThread_fn& on_func)
 {
     if(d_->observers_NtGetContextThread.empty())
         if(!register_callback_with(*d_, proc, "NtGetContextThread", &on_NtGetContextThread))
@@ -7346,7 +7346,7 @@ bool tracer::syscalls::register_NtGetContextThread(proc_t proc, const on_NtGetCo
     return true;
 }
 
-bool tracer::syscalls::register_NtGetDevicePowerState(proc_t proc, const on_NtGetDevicePowerState_fn& on_func)
+bool nt::syscalls::register_NtGetDevicePowerState(proc_t proc, const on_NtGetDevicePowerState_fn& on_func)
 {
     if(d_->observers_NtGetDevicePowerState.empty())
         if(!register_callback_with(*d_, proc, "NtGetDevicePowerState", &on_NtGetDevicePowerState))
@@ -7356,7 +7356,7 @@ bool tracer::syscalls::register_NtGetDevicePowerState(proc_t proc, const on_NtGe
     return true;
 }
 
-bool tracer::syscalls::register_NtGetMUIRegistryInfo(proc_t proc, const on_NtGetMUIRegistryInfo_fn& on_func)
+bool nt::syscalls::register_NtGetMUIRegistryInfo(proc_t proc, const on_NtGetMUIRegistryInfo_fn& on_func)
 {
     if(d_->observers_NtGetMUIRegistryInfo.empty())
         if(!register_callback_with(*d_, proc, "NtGetMUIRegistryInfo", &on_NtGetMUIRegistryInfo))
@@ -7366,7 +7366,7 @@ bool tracer::syscalls::register_NtGetMUIRegistryInfo(proc_t proc, const on_NtGet
     return true;
 }
 
-bool tracer::syscalls::register_NtGetNextProcess(proc_t proc, const on_NtGetNextProcess_fn& on_func)
+bool nt::syscalls::register_NtGetNextProcess(proc_t proc, const on_NtGetNextProcess_fn& on_func)
 {
     if(d_->observers_NtGetNextProcess.empty())
         if(!register_callback_with(*d_, proc, "NtGetNextProcess", &on_NtGetNextProcess))
@@ -7376,7 +7376,7 @@ bool tracer::syscalls::register_NtGetNextProcess(proc_t proc, const on_NtGetNext
     return true;
 }
 
-bool tracer::syscalls::register_NtGetNextThread(proc_t proc, const on_NtGetNextThread_fn& on_func)
+bool nt::syscalls::register_NtGetNextThread(proc_t proc, const on_NtGetNextThread_fn& on_func)
 {
     if(d_->observers_NtGetNextThread.empty())
         if(!register_callback_with(*d_, proc, "NtGetNextThread", &on_NtGetNextThread))
@@ -7386,7 +7386,7 @@ bool tracer::syscalls::register_NtGetNextThread(proc_t proc, const on_NtGetNextT
     return true;
 }
 
-bool tracer::syscalls::register_NtGetNlsSectionPtr(proc_t proc, const on_NtGetNlsSectionPtr_fn& on_func)
+bool nt::syscalls::register_NtGetNlsSectionPtr(proc_t proc, const on_NtGetNlsSectionPtr_fn& on_func)
 {
     if(d_->observers_NtGetNlsSectionPtr.empty())
         if(!register_callback_with(*d_, proc, "NtGetNlsSectionPtr", &on_NtGetNlsSectionPtr))
@@ -7396,7 +7396,7 @@ bool tracer::syscalls::register_NtGetNlsSectionPtr(proc_t proc, const on_NtGetNl
     return true;
 }
 
-bool tracer::syscalls::register_NtGetNotificationResourceManager(proc_t proc, const on_NtGetNotificationResourceManager_fn& on_func)
+bool nt::syscalls::register_NtGetNotificationResourceManager(proc_t proc, const on_NtGetNotificationResourceManager_fn& on_func)
 {
     if(d_->observers_NtGetNotificationResourceManager.empty())
         if(!register_callback_with(*d_, proc, "NtGetNotificationResourceManager", &on_NtGetNotificationResourceManager))
@@ -7406,7 +7406,7 @@ bool tracer::syscalls::register_NtGetNotificationResourceManager(proc_t proc, co
     return true;
 }
 
-bool tracer::syscalls::register_NtGetPlugPlayEvent(proc_t proc, const on_NtGetPlugPlayEvent_fn& on_func)
+bool nt::syscalls::register_NtGetPlugPlayEvent(proc_t proc, const on_NtGetPlugPlayEvent_fn& on_func)
 {
     if(d_->observers_NtGetPlugPlayEvent.empty())
         if(!register_callback_with(*d_, proc, "NtGetPlugPlayEvent", &on_NtGetPlugPlayEvent))
@@ -7416,7 +7416,7 @@ bool tracer::syscalls::register_NtGetPlugPlayEvent(proc_t proc, const on_NtGetPl
     return true;
 }
 
-bool tracer::syscalls::register_NtGetWriteWatch(proc_t proc, const on_NtGetWriteWatch_fn& on_func)
+bool nt::syscalls::register_NtGetWriteWatch(proc_t proc, const on_NtGetWriteWatch_fn& on_func)
 {
     if(d_->observers_NtGetWriteWatch.empty())
         if(!register_callback_with(*d_, proc, "NtGetWriteWatch", &on_NtGetWriteWatch))
@@ -7426,7 +7426,7 @@ bool tracer::syscalls::register_NtGetWriteWatch(proc_t proc, const on_NtGetWrite
     return true;
 }
 
-bool tracer::syscalls::register_NtImpersonateAnonymousToken(proc_t proc, const on_NtImpersonateAnonymousToken_fn& on_func)
+bool nt::syscalls::register_NtImpersonateAnonymousToken(proc_t proc, const on_NtImpersonateAnonymousToken_fn& on_func)
 {
     if(d_->observers_NtImpersonateAnonymousToken.empty())
         if(!register_callback_with(*d_, proc, "NtImpersonateAnonymousToken", &on_NtImpersonateAnonymousToken))
@@ -7436,7 +7436,7 @@ bool tracer::syscalls::register_NtImpersonateAnonymousToken(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtImpersonateClientOfPort(proc_t proc, const on_NtImpersonateClientOfPort_fn& on_func)
+bool nt::syscalls::register_NtImpersonateClientOfPort(proc_t proc, const on_NtImpersonateClientOfPort_fn& on_func)
 {
     if(d_->observers_NtImpersonateClientOfPort.empty())
         if(!register_callback_with(*d_, proc, "NtImpersonateClientOfPort", &on_NtImpersonateClientOfPort))
@@ -7446,7 +7446,7 @@ bool tracer::syscalls::register_NtImpersonateClientOfPort(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtImpersonateThread(proc_t proc, const on_NtImpersonateThread_fn& on_func)
+bool nt::syscalls::register_NtImpersonateThread(proc_t proc, const on_NtImpersonateThread_fn& on_func)
 {
     if(d_->observers_NtImpersonateThread.empty())
         if(!register_callback_with(*d_, proc, "NtImpersonateThread", &on_NtImpersonateThread))
@@ -7456,7 +7456,7 @@ bool tracer::syscalls::register_NtImpersonateThread(proc_t proc, const on_NtImpe
     return true;
 }
 
-bool tracer::syscalls::register_NtInitializeNlsFiles(proc_t proc, const on_NtInitializeNlsFiles_fn& on_func)
+bool nt::syscalls::register_NtInitializeNlsFiles(proc_t proc, const on_NtInitializeNlsFiles_fn& on_func)
 {
     if(d_->observers_NtInitializeNlsFiles.empty())
         if(!register_callback_with(*d_, proc, "NtInitializeNlsFiles", &on_NtInitializeNlsFiles))
@@ -7466,7 +7466,7 @@ bool tracer::syscalls::register_NtInitializeNlsFiles(proc_t proc, const on_NtIni
     return true;
 }
 
-bool tracer::syscalls::register_NtInitializeRegistry(proc_t proc, const on_NtInitializeRegistry_fn& on_func)
+bool nt::syscalls::register_NtInitializeRegistry(proc_t proc, const on_NtInitializeRegistry_fn& on_func)
 {
     if(d_->observers_NtInitializeRegistry.empty())
         if(!register_callback_with(*d_, proc, "NtInitializeRegistry", &on_NtInitializeRegistry))
@@ -7476,7 +7476,7 @@ bool tracer::syscalls::register_NtInitializeRegistry(proc_t proc, const on_NtIni
     return true;
 }
 
-bool tracer::syscalls::register_NtInitiatePowerAction(proc_t proc, const on_NtInitiatePowerAction_fn& on_func)
+bool nt::syscalls::register_NtInitiatePowerAction(proc_t proc, const on_NtInitiatePowerAction_fn& on_func)
 {
     if(d_->observers_NtInitiatePowerAction.empty())
         if(!register_callback_with(*d_, proc, "NtInitiatePowerAction", &on_NtInitiatePowerAction))
@@ -7486,7 +7486,7 @@ bool tracer::syscalls::register_NtInitiatePowerAction(proc_t proc, const on_NtIn
     return true;
 }
 
-bool tracer::syscalls::register_NtIsProcessInJob(proc_t proc, const on_NtIsProcessInJob_fn& on_func)
+bool nt::syscalls::register_NtIsProcessInJob(proc_t proc, const on_NtIsProcessInJob_fn& on_func)
 {
     if(d_->observers_NtIsProcessInJob.empty())
         if(!register_callback_with(*d_, proc, "NtIsProcessInJob", &on_NtIsProcessInJob))
@@ -7496,7 +7496,7 @@ bool tracer::syscalls::register_NtIsProcessInJob(proc_t proc, const on_NtIsProce
     return true;
 }
 
-bool tracer::syscalls::register_NtListenPort(proc_t proc, const on_NtListenPort_fn& on_func)
+bool nt::syscalls::register_NtListenPort(proc_t proc, const on_NtListenPort_fn& on_func)
 {
     if(d_->observers_NtListenPort.empty())
         if(!register_callback_with(*d_, proc, "NtListenPort", &on_NtListenPort))
@@ -7506,7 +7506,7 @@ bool tracer::syscalls::register_NtListenPort(proc_t proc, const on_NtListenPort_
     return true;
 }
 
-bool tracer::syscalls::register_NtLoadDriver(proc_t proc, const on_NtLoadDriver_fn& on_func)
+bool nt::syscalls::register_NtLoadDriver(proc_t proc, const on_NtLoadDriver_fn& on_func)
 {
     if(d_->observers_NtLoadDriver.empty())
         if(!register_callback_with(*d_, proc, "NtLoadDriver", &on_NtLoadDriver))
@@ -7516,7 +7516,7 @@ bool tracer::syscalls::register_NtLoadDriver(proc_t proc, const on_NtLoadDriver_
     return true;
 }
 
-bool tracer::syscalls::register_NtLoadKey2(proc_t proc, const on_NtLoadKey2_fn& on_func)
+bool nt::syscalls::register_NtLoadKey2(proc_t proc, const on_NtLoadKey2_fn& on_func)
 {
     if(d_->observers_NtLoadKey2.empty())
         if(!register_callback_with(*d_, proc, "NtLoadKey2", &on_NtLoadKey2))
@@ -7526,7 +7526,7 @@ bool tracer::syscalls::register_NtLoadKey2(proc_t proc, const on_NtLoadKey2_fn& 
     return true;
 }
 
-bool tracer::syscalls::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_fn& on_func)
+bool nt::syscalls::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_fn& on_func)
 {
     if(d_->observers_NtLoadKeyEx.empty())
         if(!register_callback_with(*d_, proc, "NtLoadKeyEx", &on_NtLoadKeyEx))
@@ -7536,7 +7536,7 @@ bool tracer::syscalls::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_fn
     return true;
 }
 
-bool tracer::syscalls::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn& on_func)
+bool nt::syscalls::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn& on_func)
 {
     if(d_->observers_NtLoadKey.empty())
         if(!register_callback_with(*d_, proc, "NtLoadKey", &on_NtLoadKey))
@@ -7546,7 +7546,7 @@ bool tracer::syscalls::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn& on
     return true;
 }
 
-bool tracer::syscalls::register_NtLockFile(proc_t proc, const on_NtLockFile_fn& on_func)
+bool nt::syscalls::register_NtLockFile(proc_t proc, const on_NtLockFile_fn& on_func)
 {
     if(d_->observers_NtLockFile.empty())
         if(!register_callback_with(*d_, proc, "NtLockFile", &on_NtLockFile))
@@ -7556,7 +7556,7 @@ bool tracer::syscalls::register_NtLockFile(proc_t proc, const on_NtLockFile_fn& 
     return true;
 }
 
-bool tracer::syscalls::register_NtLockProductActivationKeys(proc_t proc, const on_NtLockProductActivationKeys_fn& on_func)
+bool nt::syscalls::register_NtLockProductActivationKeys(proc_t proc, const on_NtLockProductActivationKeys_fn& on_func)
 {
     if(d_->observers_NtLockProductActivationKeys.empty())
         if(!register_callback_with(*d_, proc, "NtLockProductActivationKeys", &on_NtLockProductActivationKeys))
@@ -7566,7 +7566,7 @@ bool tracer::syscalls::register_NtLockProductActivationKeys(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtLockRegistryKey(proc_t proc, const on_NtLockRegistryKey_fn& on_func)
+bool nt::syscalls::register_NtLockRegistryKey(proc_t proc, const on_NtLockRegistryKey_fn& on_func)
 {
     if(d_->observers_NtLockRegistryKey.empty())
         if(!register_callback_with(*d_, proc, "NtLockRegistryKey", &on_NtLockRegistryKey))
@@ -7576,7 +7576,7 @@ bool tracer::syscalls::register_NtLockRegistryKey(proc_t proc, const on_NtLockRe
     return true;
 }
 
-bool tracer::syscalls::register_NtLockVirtualMemory(proc_t proc, const on_NtLockVirtualMemory_fn& on_func)
+bool nt::syscalls::register_NtLockVirtualMemory(proc_t proc, const on_NtLockVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtLockVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "NtLockVirtualMemory", &on_NtLockVirtualMemory))
@@ -7586,7 +7586,7 @@ bool tracer::syscalls::register_NtLockVirtualMemory(proc_t proc, const on_NtLock
     return true;
 }
 
-bool tracer::syscalls::register_NtMakePermanentObject(proc_t proc, const on_NtMakePermanentObject_fn& on_func)
+bool nt::syscalls::register_NtMakePermanentObject(proc_t proc, const on_NtMakePermanentObject_fn& on_func)
 {
     if(d_->observers_NtMakePermanentObject.empty())
         if(!register_callback_with(*d_, proc, "NtMakePermanentObject", &on_NtMakePermanentObject))
@@ -7596,7 +7596,7 @@ bool tracer::syscalls::register_NtMakePermanentObject(proc_t proc, const on_NtMa
     return true;
 }
 
-bool tracer::syscalls::register_NtMakeTemporaryObject(proc_t proc, const on_NtMakeTemporaryObject_fn& on_func)
+bool nt::syscalls::register_NtMakeTemporaryObject(proc_t proc, const on_NtMakeTemporaryObject_fn& on_func)
 {
     if(d_->observers_NtMakeTemporaryObject.empty())
         if(!register_callback_with(*d_, proc, "NtMakeTemporaryObject", &on_NtMakeTemporaryObject))
@@ -7606,7 +7606,7 @@ bool tracer::syscalls::register_NtMakeTemporaryObject(proc_t proc, const on_NtMa
     return true;
 }
 
-bool tracer::syscalls::register_NtMapCMFModule(proc_t proc, const on_NtMapCMFModule_fn& on_func)
+bool nt::syscalls::register_NtMapCMFModule(proc_t proc, const on_NtMapCMFModule_fn& on_func)
 {
     if(d_->observers_NtMapCMFModule.empty())
         if(!register_callback_with(*d_, proc, "NtMapCMFModule", &on_NtMapCMFModule))
@@ -7616,7 +7616,7 @@ bool tracer::syscalls::register_NtMapCMFModule(proc_t proc, const on_NtMapCMFMod
     return true;
 }
 
-bool tracer::syscalls::register_NtMapUserPhysicalPages(proc_t proc, const on_NtMapUserPhysicalPages_fn& on_func)
+bool nt::syscalls::register_NtMapUserPhysicalPages(proc_t proc, const on_NtMapUserPhysicalPages_fn& on_func)
 {
     if(d_->observers_NtMapUserPhysicalPages.empty())
         if(!register_callback_with(*d_, proc, "NtMapUserPhysicalPages", &on_NtMapUserPhysicalPages))
@@ -7626,7 +7626,7 @@ bool tracer::syscalls::register_NtMapUserPhysicalPages(proc_t proc, const on_NtM
     return true;
 }
 
-bool tracer::syscalls::register_NtMapUserPhysicalPagesScatter(proc_t proc, const on_NtMapUserPhysicalPagesScatter_fn& on_func)
+bool nt::syscalls::register_NtMapUserPhysicalPagesScatter(proc_t proc, const on_NtMapUserPhysicalPagesScatter_fn& on_func)
 {
     if(d_->observers_NtMapUserPhysicalPagesScatter.empty())
         if(!register_callback_with(*d_, proc, "NtMapUserPhysicalPagesScatter", &on_NtMapUserPhysicalPagesScatter))
@@ -7636,7 +7636,7 @@ bool tracer::syscalls::register_NtMapUserPhysicalPagesScatter(proc_t proc, const
     return true;
 }
 
-bool tracer::syscalls::register_NtMapViewOfSection(proc_t proc, const on_NtMapViewOfSection_fn& on_func)
+bool nt::syscalls::register_NtMapViewOfSection(proc_t proc, const on_NtMapViewOfSection_fn& on_func)
 {
     if(d_->observers_NtMapViewOfSection.empty())
         if(!register_callback_with(*d_, proc, "NtMapViewOfSection", &on_NtMapViewOfSection))
@@ -7646,7 +7646,7 @@ bool tracer::syscalls::register_NtMapViewOfSection(proc_t proc, const on_NtMapVi
     return true;
 }
 
-bool tracer::syscalls::register_NtModifyBootEntry(proc_t proc, const on_NtModifyBootEntry_fn& on_func)
+bool nt::syscalls::register_NtModifyBootEntry(proc_t proc, const on_NtModifyBootEntry_fn& on_func)
 {
     if(d_->observers_NtModifyBootEntry.empty())
         if(!register_callback_with(*d_, proc, "NtModifyBootEntry", &on_NtModifyBootEntry))
@@ -7656,7 +7656,7 @@ bool tracer::syscalls::register_NtModifyBootEntry(proc_t proc, const on_NtModify
     return true;
 }
 
-bool tracer::syscalls::register_NtModifyDriverEntry(proc_t proc, const on_NtModifyDriverEntry_fn& on_func)
+bool nt::syscalls::register_NtModifyDriverEntry(proc_t proc, const on_NtModifyDriverEntry_fn& on_func)
 {
     if(d_->observers_NtModifyDriverEntry.empty())
         if(!register_callback_with(*d_, proc, "NtModifyDriverEntry", &on_NtModifyDriverEntry))
@@ -7666,7 +7666,7 @@ bool tracer::syscalls::register_NtModifyDriverEntry(proc_t proc, const on_NtModi
     return true;
 }
 
-bool tracer::syscalls::register_NtNotifyChangeDirectoryFile(proc_t proc, const on_NtNotifyChangeDirectoryFile_fn& on_func)
+bool nt::syscalls::register_NtNotifyChangeDirectoryFile(proc_t proc, const on_NtNotifyChangeDirectoryFile_fn& on_func)
 {
     if(d_->observers_NtNotifyChangeDirectoryFile.empty())
         if(!register_callback_with(*d_, proc, "NtNotifyChangeDirectoryFile", &on_NtNotifyChangeDirectoryFile))
@@ -7676,7 +7676,7 @@ bool tracer::syscalls::register_NtNotifyChangeDirectoryFile(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtNotifyChangeKey(proc_t proc, const on_NtNotifyChangeKey_fn& on_func)
+bool nt::syscalls::register_NtNotifyChangeKey(proc_t proc, const on_NtNotifyChangeKey_fn& on_func)
 {
     if(d_->observers_NtNotifyChangeKey.empty())
         if(!register_callback_with(*d_, proc, "NtNotifyChangeKey", &on_NtNotifyChangeKey))
@@ -7686,7 +7686,7 @@ bool tracer::syscalls::register_NtNotifyChangeKey(proc_t proc, const on_NtNotify
     return true;
 }
 
-bool tracer::syscalls::register_NtNotifyChangeMultipleKeys(proc_t proc, const on_NtNotifyChangeMultipleKeys_fn& on_func)
+bool nt::syscalls::register_NtNotifyChangeMultipleKeys(proc_t proc, const on_NtNotifyChangeMultipleKeys_fn& on_func)
 {
     if(d_->observers_NtNotifyChangeMultipleKeys.empty())
         if(!register_callback_with(*d_, proc, "NtNotifyChangeMultipleKeys", &on_NtNotifyChangeMultipleKeys))
@@ -7696,7 +7696,7 @@ bool tracer::syscalls::register_NtNotifyChangeMultipleKeys(proc_t proc, const on
     return true;
 }
 
-bool tracer::syscalls::register_NtNotifyChangeSession(proc_t proc, const on_NtNotifyChangeSession_fn& on_func)
+bool nt::syscalls::register_NtNotifyChangeSession(proc_t proc, const on_NtNotifyChangeSession_fn& on_func)
 {
     if(d_->observers_NtNotifyChangeSession.empty())
         if(!register_callback_with(*d_, proc, "NtNotifyChangeSession", &on_NtNotifyChangeSession))
@@ -7706,7 +7706,7 @@ bool tracer::syscalls::register_NtNotifyChangeSession(proc_t proc, const on_NtNo
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenDirectoryObject(proc_t proc, const on_NtOpenDirectoryObject_fn& on_func)
+bool nt::syscalls::register_NtOpenDirectoryObject(proc_t proc, const on_NtOpenDirectoryObject_fn& on_func)
 {
     if(d_->observers_NtOpenDirectoryObject.empty())
         if(!register_callback_with(*d_, proc, "NtOpenDirectoryObject", &on_NtOpenDirectoryObject))
@@ -7716,7 +7716,7 @@ bool tracer::syscalls::register_NtOpenDirectoryObject(proc_t proc, const on_NtOp
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenEnlistment(proc_t proc, const on_NtOpenEnlistment_fn& on_func)
+bool nt::syscalls::register_NtOpenEnlistment(proc_t proc, const on_NtOpenEnlistment_fn& on_func)
 {
     if(d_->observers_NtOpenEnlistment.empty())
         if(!register_callback_with(*d_, proc, "NtOpenEnlistment", &on_NtOpenEnlistment))
@@ -7726,7 +7726,7 @@ bool tracer::syscalls::register_NtOpenEnlistment(proc_t proc, const on_NtOpenEnl
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent_fn& on_func)
+bool nt::syscalls::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent_fn& on_func)
 {
     if(d_->observers_NtOpenEvent.empty())
         if(!register_callback_with(*d_, proc, "NtOpenEvent", &on_NtOpenEvent))
@@ -7736,7 +7736,7 @@ bool tracer::syscalls::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent_fn
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenEventPair(proc_t proc, const on_NtOpenEventPair_fn& on_func)
+bool nt::syscalls::register_NtOpenEventPair(proc_t proc, const on_NtOpenEventPair_fn& on_func)
 {
     if(d_->observers_NtOpenEventPair.empty())
         if(!register_callback_with(*d_, proc, "NtOpenEventPair", &on_NtOpenEventPair))
@@ -7746,7 +7746,7 @@ bool tracer::syscalls::register_NtOpenEventPair(proc_t proc, const on_NtOpenEven
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenFile(proc_t proc, const on_NtOpenFile_fn& on_func)
+bool nt::syscalls::register_NtOpenFile(proc_t proc, const on_NtOpenFile_fn& on_func)
 {
     if(d_->observers_NtOpenFile.empty())
         if(!register_callback_with(*d_, proc, "NtOpenFile", &on_NtOpenFile))
@@ -7756,7 +7756,7 @@ bool tracer::syscalls::register_NtOpenFile(proc_t proc, const on_NtOpenFile_fn& 
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenIoCompletion(proc_t proc, const on_NtOpenIoCompletion_fn& on_func)
+bool nt::syscalls::register_NtOpenIoCompletion(proc_t proc, const on_NtOpenIoCompletion_fn& on_func)
 {
     if(d_->observers_NtOpenIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "NtOpenIoCompletion", &on_NtOpenIoCompletion))
@@ -7766,7 +7766,7 @@ bool tracer::syscalls::register_NtOpenIoCompletion(proc_t proc, const on_NtOpenI
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenJobObject(proc_t proc, const on_NtOpenJobObject_fn& on_func)
+bool nt::syscalls::register_NtOpenJobObject(proc_t proc, const on_NtOpenJobObject_fn& on_func)
 {
     if(d_->observers_NtOpenJobObject.empty())
         if(!register_callback_with(*d_, proc, "NtOpenJobObject", &on_NtOpenJobObject))
@@ -7776,7 +7776,7 @@ bool tracer::syscalls::register_NtOpenJobObject(proc_t proc, const on_NtOpenJobO
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpenKeyedEvent_fn& on_func)
+bool nt::syscalls::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpenKeyedEvent_fn& on_func)
 {
     if(d_->observers_NtOpenKeyedEvent.empty())
         if(!register_callback_with(*d_, proc, "NtOpenKeyedEvent", &on_NtOpenKeyedEvent))
@@ -7786,7 +7786,7 @@ bool tracer::syscalls::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpenKey
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenKeyEx(proc_t proc, const on_NtOpenKeyEx_fn& on_func)
+bool nt::syscalls::register_NtOpenKeyEx(proc_t proc, const on_NtOpenKeyEx_fn& on_func)
 {
     if(d_->observers_NtOpenKeyEx.empty())
         if(!register_callback_with(*d_, proc, "NtOpenKeyEx", &on_NtOpenKeyEx))
@@ -7796,7 +7796,7 @@ bool tracer::syscalls::register_NtOpenKeyEx(proc_t proc, const on_NtOpenKeyEx_fn
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenKey(proc_t proc, const on_NtOpenKey_fn& on_func)
+bool nt::syscalls::register_NtOpenKey(proc_t proc, const on_NtOpenKey_fn& on_func)
 {
     if(d_->observers_NtOpenKey.empty())
         if(!register_callback_with(*d_, proc, "NtOpenKey", &on_NtOpenKey))
@@ -7806,7 +7806,7 @@ bool tracer::syscalls::register_NtOpenKey(proc_t proc, const on_NtOpenKey_fn& on
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenKeyTransactedEx(proc_t proc, const on_NtOpenKeyTransactedEx_fn& on_func)
+bool nt::syscalls::register_NtOpenKeyTransactedEx(proc_t proc, const on_NtOpenKeyTransactedEx_fn& on_func)
 {
     if(d_->observers_NtOpenKeyTransactedEx.empty())
         if(!register_callback_with(*d_, proc, "NtOpenKeyTransactedEx", &on_NtOpenKeyTransactedEx))
@@ -7816,7 +7816,7 @@ bool tracer::syscalls::register_NtOpenKeyTransactedEx(proc_t proc, const on_NtOp
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenKeyTransacted(proc_t proc, const on_NtOpenKeyTransacted_fn& on_func)
+bool nt::syscalls::register_NtOpenKeyTransacted(proc_t proc, const on_NtOpenKeyTransacted_fn& on_func)
 {
     if(d_->observers_NtOpenKeyTransacted.empty())
         if(!register_callback_with(*d_, proc, "NtOpenKeyTransacted", &on_NtOpenKeyTransacted))
@@ -7826,7 +7826,7 @@ bool tracer::syscalls::register_NtOpenKeyTransacted(proc_t proc, const on_NtOpen
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenMutant(proc_t proc, const on_NtOpenMutant_fn& on_func)
+bool nt::syscalls::register_NtOpenMutant(proc_t proc, const on_NtOpenMutant_fn& on_func)
 {
     if(d_->observers_NtOpenMutant.empty())
         if(!register_callback_with(*d_, proc, "NtOpenMutant", &on_NtOpenMutant))
@@ -7836,7 +7836,7 @@ bool tracer::syscalls::register_NtOpenMutant(proc_t proc, const on_NtOpenMutant_
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenObjectAuditAlarm(proc_t proc, const on_NtOpenObjectAuditAlarm_fn& on_func)
+bool nt::syscalls::register_NtOpenObjectAuditAlarm(proc_t proc, const on_NtOpenObjectAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtOpenObjectAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "NtOpenObjectAuditAlarm", &on_NtOpenObjectAuditAlarm))
@@ -7846,7 +7846,7 @@ bool tracer::syscalls::register_NtOpenObjectAuditAlarm(proc_t proc, const on_NtO
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenPrivateNamespace(proc_t proc, const on_NtOpenPrivateNamespace_fn& on_func)
+bool nt::syscalls::register_NtOpenPrivateNamespace(proc_t proc, const on_NtOpenPrivateNamespace_fn& on_func)
 {
     if(d_->observers_NtOpenPrivateNamespace.empty())
         if(!register_callback_with(*d_, proc, "NtOpenPrivateNamespace", &on_NtOpenPrivateNamespace))
@@ -7856,7 +7856,7 @@ bool tracer::syscalls::register_NtOpenPrivateNamespace(proc_t proc, const on_NtO
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenProcess(proc_t proc, const on_NtOpenProcess_fn& on_func)
+bool nt::syscalls::register_NtOpenProcess(proc_t proc, const on_NtOpenProcess_fn& on_func)
 {
     if(d_->observers_NtOpenProcess.empty())
         if(!register_callback_with(*d_, proc, "NtOpenProcess", &on_NtOpenProcess))
@@ -7866,7 +7866,7 @@ bool tracer::syscalls::register_NtOpenProcess(proc_t proc, const on_NtOpenProces
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenProcessTokenEx(proc_t proc, const on_NtOpenProcessTokenEx_fn& on_func)
+bool nt::syscalls::register_NtOpenProcessTokenEx(proc_t proc, const on_NtOpenProcessTokenEx_fn& on_func)
 {
     if(d_->observers_NtOpenProcessTokenEx.empty())
         if(!register_callback_with(*d_, proc, "NtOpenProcessTokenEx", &on_NtOpenProcessTokenEx))
@@ -7876,7 +7876,7 @@ bool tracer::syscalls::register_NtOpenProcessTokenEx(proc_t proc, const on_NtOpe
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenProcessToken(proc_t proc, const on_NtOpenProcessToken_fn& on_func)
+bool nt::syscalls::register_NtOpenProcessToken(proc_t proc, const on_NtOpenProcessToken_fn& on_func)
 {
     if(d_->observers_NtOpenProcessToken.empty())
         if(!register_callback_with(*d_, proc, "NtOpenProcessToken", &on_NtOpenProcessToken))
@@ -7886,7 +7886,7 @@ bool tracer::syscalls::register_NtOpenProcessToken(proc_t proc, const on_NtOpenP
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenResourceManager(proc_t proc, const on_NtOpenResourceManager_fn& on_func)
+bool nt::syscalls::register_NtOpenResourceManager(proc_t proc, const on_NtOpenResourceManager_fn& on_func)
 {
     if(d_->observers_NtOpenResourceManager.empty())
         if(!register_callback_with(*d_, proc, "NtOpenResourceManager", &on_NtOpenResourceManager))
@@ -7896,7 +7896,7 @@ bool tracer::syscalls::register_NtOpenResourceManager(proc_t proc, const on_NtOp
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenSection(proc_t proc, const on_NtOpenSection_fn& on_func)
+bool nt::syscalls::register_NtOpenSection(proc_t proc, const on_NtOpenSection_fn& on_func)
 {
     if(d_->observers_NtOpenSection.empty())
         if(!register_callback_with(*d_, proc, "NtOpenSection", &on_NtOpenSection))
@@ -7906,7 +7906,7 @@ bool tracer::syscalls::register_NtOpenSection(proc_t proc, const on_NtOpenSectio
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenSemaphore(proc_t proc, const on_NtOpenSemaphore_fn& on_func)
+bool nt::syscalls::register_NtOpenSemaphore(proc_t proc, const on_NtOpenSemaphore_fn& on_func)
 {
     if(d_->observers_NtOpenSemaphore.empty())
         if(!register_callback_with(*d_, proc, "NtOpenSemaphore", &on_NtOpenSemaphore))
@@ -7916,7 +7916,7 @@ bool tracer::syscalls::register_NtOpenSemaphore(proc_t proc, const on_NtOpenSema
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenSession(proc_t proc, const on_NtOpenSession_fn& on_func)
+bool nt::syscalls::register_NtOpenSession(proc_t proc, const on_NtOpenSession_fn& on_func)
 {
     if(d_->observers_NtOpenSession.empty())
         if(!register_callback_with(*d_, proc, "NtOpenSession", &on_NtOpenSession))
@@ -7926,7 +7926,7 @@ bool tracer::syscalls::register_NtOpenSession(proc_t proc, const on_NtOpenSessio
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenSymbolicLinkObject(proc_t proc, const on_NtOpenSymbolicLinkObject_fn& on_func)
+bool nt::syscalls::register_NtOpenSymbolicLinkObject(proc_t proc, const on_NtOpenSymbolicLinkObject_fn& on_func)
 {
     if(d_->observers_NtOpenSymbolicLinkObject.empty())
         if(!register_callback_with(*d_, proc, "NtOpenSymbolicLinkObject", &on_NtOpenSymbolicLinkObject))
@@ -7936,7 +7936,7 @@ bool tracer::syscalls::register_NtOpenSymbolicLinkObject(proc_t proc, const on_N
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenThread(proc_t proc, const on_NtOpenThread_fn& on_func)
+bool nt::syscalls::register_NtOpenThread(proc_t proc, const on_NtOpenThread_fn& on_func)
 {
     if(d_->observers_NtOpenThread.empty())
         if(!register_callback_with(*d_, proc, "NtOpenThread", &on_NtOpenThread))
@@ -7946,7 +7946,7 @@ bool tracer::syscalls::register_NtOpenThread(proc_t proc, const on_NtOpenThread_
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenThreadTokenEx(proc_t proc, const on_NtOpenThreadTokenEx_fn& on_func)
+bool nt::syscalls::register_NtOpenThreadTokenEx(proc_t proc, const on_NtOpenThreadTokenEx_fn& on_func)
 {
     if(d_->observers_NtOpenThreadTokenEx.empty())
         if(!register_callback_with(*d_, proc, "NtOpenThreadTokenEx", &on_NtOpenThreadTokenEx))
@@ -7956,7 +7956,7 @@ bool tracer::syscalls::register_NtOpenThreadTokenEx(proc_t proc, const on_NtOpen
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenThreadToken(proc_t proc, const on_NtOpenThreadToken_fn& on_func)
+bool nt::syscalls::register_NtOpenThreadToken(proc_t proc, const on_NtOpenThreadToken_fn& on_func)
 {
     if(d_->observers_NtOpenThreadToken.empty())
         if(!register_callback_with(*d_, proc, "NtOpenThreadToken", &on_NtOpenThreadToken))
@@ -7966,7 +7966,7 @@ bool tracer::syscalls::register_NtOpenThreadToken(proc_t proc, const on_NtOpenTh
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenTimer(proc_t proc, const on_NtOpenTimer_fn& on_func)
+bool nt::syscalls::register_NtOpenTimer(proc_t proc, const on_NtOpenTimer_fn& on_func)
 {
     if(d_->observers_NtOpenTimer.empty())
         if(!register_callback_with(*d_, proc, "NtOpenTimer", &on_NtOpenTimer))
@@ -7976,7 +7976,7 @@ bool tracer::syscalls::register_NtOpenTimer(proc_t proc, const on_NtOpenTimer_fn
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenTransactionManager(proc_t proc, const on_NtOpenTransactionManager_fn& on_func)
+bool nt::syscalls::register_NtOpenTransactionManager(proc_t proc, const on_NtOpenTransactionManager_fn& on_func)
 {
     if(d_->observers_NtOpenTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "NtOpenTransactionManager", &on_NtOpenTransactionManager))
@@ -7986,7 +7986,7 @@ bool tracer::syscalls::register_NtOpenTransactionManager(proc_t proc, const on_N
     return true;
 }
 
-bool tracer::syscalls::register_NtOpenTransaction(proc_t proc, const on_NtOpenTransaction_fn& on_func)
+bool nt::syscalls::register_NtOpenTransaction(proc_t proc, const on_NtOpenTransaction_fn& on_func)
 {
     if(d_->observers_NtOpenTransaction.empty())
         if(!register_callback_with(*d_, proc, "NtOpenTransaction", &on_NtOpenTransaction))
@@ -7996,7 +7996,7 @@ bool tracer::syscalls::register_NtOpenTransaction(proc_t proc, const on_NtOpenTr
     return true;
 }
 
-bool tracer::syscalls::register_NtPlugPlayControl(proc_t proc, const on_NtPlugPlayControl_fn& on_func)
+bool nt::syscalls::register_NtPlugPlayControl(proc_t proc, const on_NtPlugPlayControl_fn& on_func)
 {
     if(d_->observers_NtPlugPlayControl.empty())
         if(!register_callback_with(*d_, proc, "NtPlugPlayControl", &on_NtPlugPlayControl))
@@ -8006,7 +8006,7 @@ bool tracer::syscalls::register_NtPlugPlayControl(proc_t proc, const on_NtPlugPl
     return true;
 }
 
-bool tracer::syscalls::register_NtPowerInformation(proc_t proc, const on_NtPowerInformation_fn& on_func)
+bool nt::syscalls::register_NtPowerInformation(proc_t proc, const on_NtPowerInformation_fn& on_func)
 {
     if(d_->observers_NtPowerInformation.empty())
         if(!register_callback_with(*d_, proc, "NtPowerInformation", &on_NtPowerInformation))
@@ -8016,7 +8016,7 @@ bool tracer::syscalls::register_NtPowerInformation(proc_t proc, const on_NtPower
     return true;
 }
 
-bool tracer::syscalls::register_NtPrepareComplete(proc_t proc, const on_NtPrepareComplete_fn& on_func)
+bool nt::syscalls::register_NtPrepareComplete(proc_t proc, const on_NtPrepareComplete_fn& on_func)
 {
     if(d_->observers_NtPrepareComplete.empty())
         if(!register_callback_with(*d_, proc, "NtPrepareComplete", &on_NtPrepareComplete))
@@ -8026,7 +8026,7 @@ bool tracer::syscalls::register_NtPrepareComplete(proc_t proc, const on_NtPrepar
     return true;
 }
 
-bool tracer::syscalls::register_NtPrepareEnlistment(proc_t proc, const on_NtPrepareEnlistment_fn& on_func)
+bool nt::syscalls::register_NtPrepareEnlistment(proc_t proc, const on_NtPrepareEnlistment_fn& on_func)
 {
     if(d_->observers_NtPrepareEnlistment.empty())
         if(!register_callback_with(*d_, proc, "NtPrepareEnlistment", &on_NtPrepareEnlistment))
@@ -8036,7 +8036,7 @@ bool tracer::syscalls::register_NtPrepareEnlistment(proc_t proc, const on_NtPrep
     return true;
 }
 
-bool tracer::syscalls::register_NtPrePrepareComplete(proc_t proc, const on_NtPrePrepareComplete_fn& on_func)
+bool nt::syscalls::register_NtPrePrepareComplete(proc_t proc, const on_NtPrePrepareComplete_fn& on_func)
 {
     if(d_->observers_NtPrePrepareComplete.empty())
         if(!register_callback_with(*d_, proc, "NtPrePrepareComplete", &on_NtPrePrepareComplete))
@@ -8046,7 +8046,7 @@ bool tracer::syscalls::register_NtPrePrepareComplete(proc_t proc, const on_NtPre
     return true;
 }
 
-bool tracer::syscalls::register_NtPrePrepareEnlistment(proc_t proc, const on_NtPrePrepareEnlistment_fn& on_func)
+bool nt::syscalls::register_NtPrePrepareEnlistment(proc_t proc, const on_NtPrePrepareEnlistment_fn& on_func)
 {
     if(d_->observers_NtPrePrepareEnlistment.empty())
         if(!register_callback_with(*d_, proc, "NtPrePrepareEnlistment", &on_NtPrePrepareEnlistment))
@@ -8056,7 +8056,7 @@ bool tracer::syscalls::register_NtPrePrepareEnlistment(proc_t proc, const on_NtP
     return true;
 }
 
-bool tracer::syscalls::register_NtPrivilegeCheck(proc_t proc, const on_NtPrivilegeCheck_fn& on_func)
+bool nt::syscalls::register_NtPrivilegeCheck(proc_t proc, const on_NtPrivilegeCheck_fn& on_func)
 {
     if(d_->observers_NtPrivilegeCheck.empty())
         if(!register_callback_with(*d_, proc, "NtPrivilegeCheck", &on_NtPrivilegeCheck))
@@ -8066,7 +8066,7 @@ bool tracer::syscalls::register_NtPrivilegeCheck(proc_t proc, const on_NtPrivile
     return true;
 }
 
-bool tracer::syscalls::register_NtPrivilegedServiceAuditAlarm(proc_t proc, const on_NtPrivilegedServiceAuditAlarm_fn& on_func)
+bool nt::syscalls::register_NtPrivilegedServiceAuditAlarm(proc_t proc, const on_NtPrivilegedServiceAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtPrivilegedServiceAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "NtPrivilegedServiceAuditAlarm", &on_NtPrivilegedServiceAuditAlarm))
@@ -8076,7 +8076,7 @@ bool tracer::syscalls::register_NtPrivilegedServiceAuditAlarm(proc_t proc, const
     return true;
 }
 
-bool tracer::syscalls::register_NtPrivilegeObjectAuditAlarm(proc_t proc, const on_NtPrivilegeObjectAuditAlarm_fn& on_func)
+bool nt::syscalls::register_NtPrivilegeObjectAuditAlarm(proc_t proc, const on_NtPrivilegeObjectAuditAlarm_fn& on_func)
 {
     if(d_->observers_NtPrivilegeObjectAuditAlarm.empty())
         if(!register_callback_with(*d_, proc, "NtPrivilegeObjectAuditAlarm", &on_NtPrivilegeObjectAuditAlarm))
@@ -8086,7 +8086,7 @@ bool tracer::syscalls::register_NtPrivilegeObjectAuditAlarm(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtPropagationComplete(proc_t proc, const on_NtPropagationComplete_fn& on_func)
+bool nt::syscalls::register_NtPropagationComplete(proc_t proc, const on_NtPropagationComplete_fn& on_func)
 {
     if(d_->observers_NtPropagationComplete.empty())
         if(!register_callback_with(*d_, proc, "NtPropagationComplete", &on_NtPropagationComplete))
@@ -8096,7 +8096,7 @@ bool tracer::syscalls::register_NtPropagationComplete(proc_t proc, const on_NtPr
     return true;
 }
 
-bool tracer::syscalls::register_NtPropagationFailed(proc_t proc, const on_NtPropagationFailed_fn& on_func)
+bool nt::syscalls::register_NtPropagationFailed(proc_t proc, const on_NtPropagationFailed_fn& on_func)
 {
     if(d_->observers_NtPropagationFailed.empty())
         if(!register_callback_with(*d_, proc, "NtPropagationFailed", &on_NtPropagationFailed))
@@ -8106,7 +8106,7 @@ bool tracer::syscalls::register_NtPropagationFailed(proc_t proc, const on_NtProp
     return true;
 }
 
-bool tracer::syscalls::register_NtProtectVirtualMemory(proc_t proc, const on_NtProtectVirtualMemory_fn& on_func)
+bool nt::syscalls::register_NtProtectVirtualMemory(proc_t proc, const on_NtProtectVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtProtectVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "NtProtectVirtualMemory", &on_NtProtectVirtualMemory))
@@ -8116,7 +8116,7 @@ bool tracer::syscalls::register_NtProtectVirtualMemory(proc_t proc, const on_NtP
     return true;
 }
 
-bool tracer::syscalls::register_NtPulseEvent(proc_t proc, const on_NtPulseEvent_fn& on_func)
+bool nt::syscalls::register_NtPulseEvent(proc_t proc, const on_NtPulseEvent_fn& on_func)
 {
     if(d_->observers_NtPulseEvent.empty())
         if(!register_callback_with(*d_, proc, "NtPulseEvent", &on_NtPulseEvent))
@@ -8126,7 +8126,7 @@ bool tracer::syscalls::register_NtPulseEvent(proc_t proc, const on_NtPulseEvent_
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryAttributesFile(proc_t proc, const on_NtQueryAttributesFile_fn& on_func)
+bool nt::syscalls::register_NtQueryAttributesFile(proc_t proc, const on_NtQueryAttributesFile_fn& on_func)
 {
     if(d_->observers_NtQueryAttributesFile.empty())
         if(!register_callback_with(*d_, proc, "NtQueryAttributesFile", &on_NtQueryAttributesFile))
@@ -8136,7 +8136,7 @@ bool tracer::syscalls::register_NtQueryAttributesFile(proc_t proc, const on_NtQu
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryBootEntryOrder(proc_t proc, const on_NtQueryBootEntryOrder_fn& on_func)
+bool nt::syscalls::register_NtQueryBootEntryOrder(proc_t proc, const on_NtQueryBootEntryOrder_fn& on_func)
 {
     if(d_->observers_NtQueryBootEntryOrder.empty())
         if(!register_callback_with(*d_, proc, "NtQueryBootEntryOrder", &on_NtQueryBootEntryOrder))
@@ -8146,7 +8146,7 @@ bool tracer::syscalls::register_NtQueryBootEntryOrder(proc_t proc, const on_NtQu
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryBootOptions(proc_t proc, const on_NtQueryBootOptions_fn& on_func)
+bool nt::syscalls::register_NtQueryBootOptions(proc_t proc, const on_NtQueryBootOptions_fn& on_func)
 {
     if(d_->observers_NtQueryBootOptions.empty())
         if(!register_callback_with(*d_, proc, "NtQueryBootOptions", &on_NtQueryBootOptions))
@@ -8156,7 +8156,7 @@ bool tracer::syscalls::register_NtQueryBootOptions(proc_t proc, const on_NtQuery
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryDebugFilterState(proc_t proc, const on_NtQueryDebugFilterState_fn& on_func)
+bool nt::syscalls::register_NtQueryDebugFilterState(proc_t proc, const on_NtQueryDebugFilterState_fn& on_func)
 {
     if(d_->observers_NtQueryDebugFilterState.empty())
         if(!register_callback_with(*d_, proc, "NtQueryDebugFilterState", &on_NtQueryDebugFilterState))
@@ -8166,7 +8166,7 @@ bool tracer::syscalls::register_NtQueryDebugFilterState(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryDefaultLocale(proc_t proc, const on_NtQueryDefaultLocale_fn& on_func)
+bool nt::syscalls::register_NtQueryDefaultLocale(proc_t proc, const on_NtQueryDefaultLocale_fn& on_func)
 {
     if(d_->observers_NtQueryDefaultLocale.empty())
         if(!register_callback_with(*d_, proc, "NtQueryDefaultLocale", &on_NtQueryDefaultLocale))
@@ -8176,7 +8176,7 @@ bool tracer::syscalls::register_NtQueryDefaultLocale(proc_t proc, const on_NtQue
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryDefaultUILanguage(proc_t proc, const on_NtQueryDefaultUILanguage_fn& on_func)
+bool nt::syscalls::register_NtQueryDefaultUILanguage(proc_t proc, const on_NtQueryDefaultUILanguage_fn& on_func)
 {
     if(d_->observers_NtQueryDefaultUILanguage.empty())
         if(!register_callback_with(*d_, proc, "NtQueryDefaultUILanguage", &on_NtQueryDefaultUILanguage))
@@ -8186,7 +8186,7 @@ bool tracer::syscalls::register_NtQueryDefaultUILanguage(proc_t proc, const on_N
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryDirectoryFile(proc_t proc, const on_NtQueryDirectoryFile_fn& on_func)
+bool nt::syscalls::register_NtQueryDirectoryFile(proc_t proc, const on_NtQueryDirectoryFile_fn& on_func)
 {
     if(d_->observers_NtQueryDirectoryFile.empty())
         if(!register_callback_with(*d_, proc, "NtQueryDirectoryFile", &on_NtQueryDirectoryFile))
@@ -8196,7 +8196,7 @@ bool tracer::syscalls::register_NtQueryDirectoryFile(proc_t proc, const on_NtQue
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryDirectoryObject(proc_t proc, const on_NtQueryDirectoryObject_fn& on_func)
+bool nt::syscalls::register_NtQueryDirectoryObject(proc_t proc, const on_NtQueryDirectoryObject_fn& on_func)
 {
     if(d_->observers_NtQueryDirectoryObject.empty())
         if(!register_callback_with(*d_, proc, "NtQueryDirectoryObject", &on_NtQueryDirectoryObject))
@@ -8206,7 +8206,7 @@ bool tracer::syscalls::register_NtQueryDirectoryObject(proc_t proc, const on_NtQ
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryDriverEntryOrder(proc_t proc, const on_NtQueryDriverEntryOrder_fn& on_func)
+bool nt::syscalls::register_NtQueryDriverEntryOrder(proc_t proc, const on_NtQueryDriverEntryOrder_fn& on_func)
 {
     if(d_->observers_NtQueryDriverEntryOrder.empty())
         if(!register_callback_with(*d_, proc, "NtQueryDriverEntryOrder", &on_NtQueryDriverEntryOrder))
@@ -8216,7 +8216,7 @@ bool tracer::syscalls::register_NtQueryDriverEntryOrder(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryEaFile(proc_t proc, const on_NtQueryEaFile_fn& on_func)
+bool nt::syscalls::register_NtQueryEaFile(proc_t proc, const on_NtQueryEaFile_fn& on_func)
 {
     if(d_->observers_NtQueryEaFile.empty())
         if(!register_callback_with(*d_, proc, "NtQueryEaFile", &on_NtQueryEaFile))
@@ -8226,7 +8226,7 @@ bool tracer::syscalls::register_NtQueryEaFile(proc_t proc, const on_NtQueryEaFil
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryEvent(proc_t proc, const on_NtQueryEvent_fn& on_func)
+bool nt::syscalls::register_NtQueryEvent(proc_t proc, const on_NtQueryEvent_fn& on_func)
 {
     if(d_->observers_NtQueryEvent.empty())
         if(!register_callback_with(*d_, proc, "NtQueryEvent", &on_NtQueryEvent))
@@ -8236,7 +8236,7 @@ bool tracer::syscalls::register_NtQueryEvent(proc_t proc, const on_NtQueryEvent_
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryFullAttributesFile(proc_t proc, const on_NtQueryFullAttributesFile_fn& on_func)
+bool nt::syscalls::register_NtQueryFullAttributesFile(proc_t proc, const on_NtQueryFullAttributesFile_fn& on_func)
 {
     if(d_->observers_NtQueryFullAttributesFile.empty())
         if(!register_callback_with(*d_, proc, "NtQueryFullAttributesFile", &on_NtQueryFullAttributesFile))
@@ -8246,7 +8246,7 @@ bool tracer::syscalls::register_NtQueryFullAttributesFile(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryInformationAtom(proc_t proc, const on_NtQueryInformationAtom_fn& on_func)
+bool nt::syscalls::register_NtQueryInformationAtom(proc_t proc, const on_NtQueryInformationAtom_fn& on_func)
 {
     if(d_->observers_NtQueryInformationAtom.empty())
         if(!register_callback_with(*d_, proc, "NtQueryInformationAtom", &on_NtQueryInformationAtom))
@@ -8256,7 +8256,7 @@ bool tracer::syscalls::register_NtQueryInformationAtom(proc_t proc, const on_NtQ
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryInformationEnlistment(proc_t proc, const on_NtQueryInformationEnlistment_fn& on_func)
+bool nt::syscalls::register_NtQueryInformationEnlistment(proc_t proc, const on_NtQueryInformationEnlistment_fn& on_func)
 {
     if(d_->observers_NtQueryInformationEnlistment.empty())
         if(!register_callback_with(*d_, proc, "NtQueryInformationEnlistment", &on_NtQueryInformationEnlistment))
@@ -8266,7 +8266,7 @@ bool tracer::syscalls::register_NtQueryInformationEnlistment(proc_t proc, const 
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryInformationFile(proc_t proc, const on_NtQueryInformationFile_fn& on_func)
+bool nt::syscalls::register_NtQueryInformationFile(proc_t proc, const on_NtQueryInformationFile_fn& on_func)
 {
     if(d_->observers_NtQueryInformationFile.empty())
         if(!register_callback_with(*d_, proc, "NtQueryInformationFile", &on_NtQueryInformationFile))
@@ -8276,7 +8276,7 @@ bool tracer::syscalls::register_NtQueryInformationFile(proc_t proc, const on_NtQ
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryInformationJobObject(proc_t proc, const on_NtQueryInformationJobObject_fn& on_func)
+bool nt::syscalls::register_NtQueryInformationJobObject(proc_t proc, const on_NtQueryInformationJobObject_fn& on_func)
 {
     if(d_->observers_NtQueryInformationJobObject.empty())
         if(!register_callback_with(*d_, proc, "NtQueryInformationJobObject", &on_NtQueryInformationJobObject))
@@ -8286,7 +8286,7 @@ bool tracer::syscalls::register_NtQueryInformationJobObject(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryInformationPort(proc_t proc, const on_NtQueryInformationPort_fn& on_func)
+bool nt::syscalls::register_NtQueryInformationPort(proc_t proc, const on_NtQueryInformationPort_fn& on_func)
 {
     if(d_->observers_NtQueryInformationPort.empty())
         if(!register_callback_with(*d_, proc, "NtQueryInformationPort", &on_NtQueryInformationPort))
@@ -8296,7 +8296,7 @@ bool tracer::syscalls::register_NtQueryInformationPort(proc_t proc, const on_NtQ
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryInformationProcess(proc_t proc, const on_NtQueryInformationProcess_fn& on_func)
+bool nt::syscalls::register_NtQueryInformationProcess(proc_t proc, const on_NtQueryInformationProcess_fn& on_func)
 {
     if(d_->observers_NtQueryInformationProcess.empty())
         if(!register_callback_with(*d_, proc, "NtQueryInformationProcess", &on_NtQueryInformationProcess))
@@ -8306,7 +8306,7 @@ bool tracer::syscalls::register_NtQueryInformationProcess(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryInformationResourceManager(proc_t proc, const on_NtQueryInformationResourceManager_fn& on_func)
+bool nt::syscalls::register_NtQueryInformationResourceManager(proc_t proc, const on_NtQueryInformationResourceManager_fn& on_func)
 {
     if(d_->observers_NtQueryInformationResourceManager.empty())
         if(!register_callback_with(*d_, proc, "NtQueryInformationResourceManager", &on_NtQueryInformationResourceManager))
@@ -8316,7 +8316,7 @@ bool tracer::syscalls::register_NtQueryInformationResourceManager(proc_t proc, c
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryInformationThread(proc_t proc, const on_NtQueryInformationThread_fn& on_func)
+bool nt::syscalls::register_NtQueryInformationThread(proc_t proc, const on_NtQueryInformationThread_fn& on_func)
 {
     if(d_->observers_NtQueryInformationThread.empty())
         if(!register_callback_with(*d_, proc, "NtQueryInformationThread", &on_NtQueryInformationThread))
@@ -8326,7 +8326,7 @@ bool tracer::syscalls::register_NtQueryInformationThread(proc_t proc, const on_N
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryInformationToken(proc_t proc, const on_NtQueryInformationToken_fn& on_func)
+bool nt::syscalls::register_NtQueryInformationToken(proc_t proc, const on_NtQueryInformationToken_fn& on_func)
 {
     if(d_->observers_NtQueryInformationToken.empty())
         if(!register_callback_with(*d_, proc, "NtQueryInformationToken", &on_NtQueryInformationToken))
@@ -8336,7 +8336,7 @@ bool tracer::syscalls::register_NtQueryInformationToken(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryInformationTransaction(proc_t proc, const on_NtQueryInformationTransaction_fn& on_func)
+bool nt::syscalls::register_NtQueryInformationTransaction(proc_t proc, const on_NtQueryInformationTransaction_fn& on_func)
 {
     if(d_->observers_NtQueryInformationTransaction.empty())
         if(!register_callback_with(*d_, proc, "NtQueryInformationTransaction", &on_NtQueryInformationTransaction))
@@ -8346,7 +8346,7 @@ bool tracer::syscalls::register_NtQueryInformationTransaction(proc_t proc, const
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryInformationTransactionManager(proc_t proc, const on_NtQueryInformationTransactionManager_fn& on_func)
+bool nt::syscalls::register_NtQueryInformationTransactionManager(proc_t proc, const on_NtQueryInformationTransactionManager_fn& on_func)
 {
     if(d_->observers_NtQueryInformationTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "NtQueryInformationTransactionManager", &on_NtQueryInformationTransactionManager))
@@ -8356,7 +8356,7 @@ bool tracer::syscalls::register_NtQueryInformationTransactionManager(proc_t proc
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryInformationWorkerFactory(proc_t proc, const on_NtQueryInformationWorkerFactory_fn& on_func)
+bool nt::syscalls::register_NtQueryInformationWorkerFactory(proc_t proc, const on_NtQueryInformationWorkerFactory_fn& on_func)
 {
     if(d_->observers_NtQueryInformationWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "NtQueryInformationWorkerFactory", &on_NtQueryInformationWorkerFactory))
@@ -8366,7 +8366,7 @@ bool tracer::syscalls::register_NtQueryInformationWorkerFactory(proc_t proc, con
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryInstallUILanguage(proc_t proc, const on_NtQueryInstallUILanguage_fn& on_func)
+bool nt::syscalls::register_NtQueryInstallUILanguage(proc_t proc, const on_NtQueryInstallUILanguage_fn& on_func)
 {
     if(d_->observers_NtQueryInstallUILanguage.empty())
         if(!register_callback_with(*d_, proc, "NtQueryInstallUILanguage", &on_NtQueryInstallUILanguage))
@@ -8376,7 +8376,7 @@ bool tracer::syscalls::register_NtQueryInstallUILanguage(proc_t proc, const on_N
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryIntervalProfile(proc_t proc, const on_NtQueryIntervalProfile_fn& on_func)
+bool nt::syscalls::register_NtQueryIntervalProfile(proc_t proc, const on_NtQueryIntervalProfile_fn& on_func)
 {
     if(d_->observers_NtQueryIntervalProfile.empty())
         if(!register_callback_with(*d_, proc, "NtQueryIntervalProfile", &on_NtQueryIntervalProfile))
@@ -8386,7 +8386,7 @@ bool tracer::syscalls::register_NtQueryIntervalProfile(proc_t proc, const on_NtQ
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryIoCompletion(proc_t proc, const on_NtQueryIoCompletion_fn& on_func)
+bool nt::syscalls::register_NtQueryIoCompletion(proc_t proc, const on_NtQueryIoCompletion_fn& on_func)
 {
     if(d_->observers_NtQueryIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "NtQueryIoCompletion", &on_NtQueryIoCompletion))
@@ -8396,7 +8396,7 @@ bool tracer::syscalls::register_NtQueryIoCompletion(proc_t proc, const on_NtQuer
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryKey(proc_t proc, const on_NtQueryKey_fn& on_func)
+bool nt::syscalls::register_NtQueryKey(proc_t proc, const on_NtQueryKey_fn& on_func)
 {
     if(d_->observers_NtQueryKey.empty())
         if(!register_callback_with(*d_, proc, "NtQueryKey", &on_NtQueryKey))
@@ -8406,7 +8406,7 @@ bool tracer::syscalls::register_NtQueryKey(proc_t proc, const on_NtQueryKey_fn& 
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryLicenseValue(proc_t proc, const on_NtQueryLicenseValue_fn& on_func)
+bool nt::syscalls::register_NtQueryLicenseValue(proc_t proc, const on_NtQueryLicenseValue_fn& on_func)
 {
     if(d_->observers_NtQueryLicenseValue.empty())
         if(!register_callback_with(*d_, proc, "NtQueryLicenseValue", &on_NtQueryLicenseValue))
@@ -8416,7 +8416,7 @@ bool tracer::syscalls::register_NtQueryLicenseValue(proc_t proc, const on_NtQuer
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryMultipleValueKey(proc_t proc, const on_NtQueryMultipleValueKey_fn& on_func)
+bool nt::syscalls::register_NtQueryMultipleValueKey(proc_t proc, const on_NtQueryMultipleValueKey_fn& on_func)
 {
     if(d_->observers_NtQueryMultipleValueKey.empty())
         if(!register_callback_with(*d_, proc, "NtQueryMultipleValueKey", &on_NtQueryMultipleValueKey))
@@ -8426,7 +8426,7 @@ bool tracer::syscalls::register_NtQueryMultipleValueKey(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryMutant(proc_t proc, const on_NtQueryMutant_fn& on_func)
+bool nt::syscalls::register_NtQueryMutant(proc_t proc, const on_NtQueryMutant_fn& on_func)
 {
     if(d_->observers_NtQueryMutant.empty())
         if(!register_callback_with(*d_, proc, "NtQueryMutant", &on_NtQueryMutant))
@@ -8436,7 +8436,7 @@ bool tracer::syscalls::register_NtQueryMutant(proc_t proc, const on_NtQueryMutan
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryObject(proc_t proc, const on_NtQueryObject_fn& on_func)
+bool nt::syscalls::register_NtQueryObject(proc_t proc, const on_NtQueryObject_fn& on_func)
 {
     if(d_->observers_NtQueryObject.empty())
         if(!register_callback_with(*d_, proc, "NtQueryObject", &on_NtQueryObject))
@@ -8446,7 +8446,7 @@ bool tracer::syscalls::register_NtQueryObject(proc_t proc, const on_NtQueryObjec
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryOpenSubKeysEx(proc_t proc, const on_NtQueryOpenSubKeysEx_fn& on_func)
+bool nt::syscalls::register_NtQueryOpenSubKeysEx(proc_t proc, const on_NtQueryOpenSubKeysEx_fn& on_func)
 {
     if(d_->observers_NtQueryOpenSubKeysEx.empty())
         if(!register_callback_with(*d_, proc, "NtQueryOpenSubKeysEx", &on_NtQueryOpenSubKeysEx))
@@ -8456,7 +8456,7 @@ bool tracer::syscalls::register_NtQueryOpenSubKeysEx(proc_t proc, const on_NtQue
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQueryOpenSubKeys_fn& on_func)
+bool nt::syscalls::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQueryOpenSubKeys_fn& on_func)
 {
     if(d_->observers_NtQueryOpenSubKeys.empty())
         if(!register_callback_with(*d_, proc, "NtQueryOpenSubKeys", &on_NtQueryOpenSubKeys))
@@ -8466,7 +8466,7 @@ bool tracer::syscalls::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQuery
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryPerformanceCounter(proc_t proc, const on_NtQueryPerformanceCounter_fn& on_func)
+bool nt::syscalls::register_NtQueryPerformanceCounter(proc_t proc, const on_NtQueryPerformanceCounter_fn& on_func)
 {
     if(d_->observers_NtQueryPerformanceCounter.empty())
         if(!register_callback_with(*d_, proc, "NtQueryPerformanceCounter", &on_NtQueryPerformanceCounter))
@@ -8476,7 +8476,7 @@ bool tracer::syscalls::register_NtQueryPerformanceCounter(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryQuotaInformationFile(proc_t proc, const on_NtQueryQuotaInformationFile_fn& on_func)
+bool nt::syscalls::register_NtQueryQuotaInformationFile(proc_t proc, const on_NtQueryQuotaInformationFile_fn& on_func)
 {
     if(d_->observers_NtQueryQuotaInformationFile.empty())
         if(!register_callback_with(*d_, proc, "NtQueryQuotaInformationFile", &on_NtQueryQuotaInformationFile))
@@ -8486,7 +8486,7 @@ bool tracer::syscalls::register_NtQueryQuotaInformationFile(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtQuerySection(proc_t proc, const on_NtQuerySection_fn& on_func)
+bool nt::syscalls::register_NtQuerySection(proc_t proc, const on_NtQuerySection_fn& on_func)
 {
     if(d_->observers_NtQuerySection.empty())
         if(!register_callback_with(*d_, proc, "NtQuerySection", &on_NtQuerySection))
@@ -8496,7 +8496,7 @@ bool tracer::syscalls::register_NtQuerySection(proc_t proc, const on_NtQuerySect
     return true;
 }
 
-bool tracer::syscalls::register_NtQuerySecurityAttributesToken(proc_t proc, const on_NtQuerySecurityAttributesToken_fn& on_func)
+bool nt::syscalls::register_NtQuerySecurityAttributesToken(proc_t proc, const on_NtQuerySecurityAttributesToken_fn& on_func)
 {
     if(d_->observers_NtQuerySecurityAttributesToken.empty())
         if(!register_callback_with(*d_, proc, "NtQuerySecurityAttributesToken", &on_NtQuerySecurityAttributesToken))
@@ -8506,7 +8506,7 @@ bool tracer::syscalls::register_NtQuerySecurityAttributesToken(proc_t proc, cons
     return true;
 }
 
-bool tracer::syscalls::register_NtQuerySecurityObject(proc_t proc, const on_NtQuerySecurityObject_fn& on_func)
+bool nt::syscalls::register_NtQuerySecurityObject(proc_t proc, const on_NtQuerySecurityObject_fn& on_func)
 {
     if(d_->observers_NtQuerySecurityObject.empty())
         if(!register_callback_with(*d_, proc, "NtQuerySecurityObject", &on_NtQuerySecurityObject))
@@ -8516,7 +8516,7 @@ bool tracer::syscalls::register_NtQuerySecurityObject(proc_t proc, const on_NtQu
     return true;
 }
 
-bool tracer::syscalls::register_NtQuerySemaphore(proc_t proc, const on_NtQuerySemaphore_fn& on_func)
+bool nt::syscalls::register_NtQuerySemaphore(proc_t proc, const on_NtQuerySemaphore_fn& on_func)
 {
     if(d_->observers_NtQuerySemaphore.empty())
         if(!register_callback_with(*d_, proc, "NtQuerySemaphore", &on_NtQuerySemaphore))
@@ -8526,7 +8526,7 @@ bool tracer::syscalls::register_NtQuerySemaphore(proc_t proc, const on_NtQuerySe
     return true;
 }
 
-bool tracer::syscalls::register_NtQuerySymbolicLinkObject(proc_t proc, const on_NtQuerySymbolicLinkObject_fn& on_func)
+bool nt::syscalls::register_NtQuerySymbolicLinkObject(proc_t proc, const on_NtQuerySymbolicLinkObject_fn& on_func)
 {
     if(d_->observers_NtQuerySymbolicLinkObject.empty())
         if(!register_callback_with(*d_, proc, "NtQuerySymbolicLinkObject", &on_NtQuerySymbolicLinkObject))
@@ -8536,7 +8536,7 @@ bool tracer::syscalls::register_NtQuerySymbolicLinkObject(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtQuerySystemEnvironmentValueEx(proc_t proc, const on_NtQuerySystemEnvironmentValueEx_fn& on_func)
+bool nt::syscalls::register_NtQuerySystemEnvironmentValueEx(proc_t proc, const on_NtQuerySystemEnvironmentValueEx_fn& on_func)
 {
     if(d_->observers_NtQuerySystemEnvironmentValueEx.empty())
         if(!register_callback_with(*d_, proc, "NtQuerySystemEnvironmentValueEx", &on_NtQuerySystemEnvironmentValueEx))
@@ -8546,7 +8546,7 @@ bool tracer::syscalls::register_NtQuerySystemEnvironmentValueEx(proc_t proc, con
     return true;
 }
 
-bool tracer::syscalls::register_NtQuerySystemEnvironmentValue(proc_t proc, const on_NtQuerySystemEnvironmentValue_fn& on_func)
+bool nt::syscalls::register_NtQuerySystemEnvironmentValue(proc_t proc, const on_NtQuerySystemEnvironmentValue_fn& on_func)
 {
     if(d_->observers_NtQuerySystemEnvironmentValue.empty())
         if(!register_callback_with(*d_, proc, "NtQuerySystemEnvironmentValue", &on_NtQuerySystemEnvironmentValue))
@@ -8556,7 +8556,7 @@ bool tracer::syscalls::register_NtQuerySystemEnvironmentValue(proc_t proc, const
     return true;
 }
 
-bool tracer::syscalls::register_NtQuerySystemInformationEx(proc_t proc, const on_NtQuerySystemInformationEx_fn& on_func)
+bool nt::syscalls::register_NtQuerySystemInformationEx(proc_t proc, const on_NtQuerySystemInformationEx_fn& on_func)
 {
     if(d_->observers_NtQuerySystemInformationEx.empty())
         if(!register_callback_with(*d_, proc, "NtQuerySystemInformationEx", &on_NtQuerySystemInformationEx))
@@ -8566,7 +8566,7 @@ bool tracer::syscalls::register_NtQuerySystemInformationEx(proc_t proc, const on
     return true;
 }
 
-bool tracer::syscalls::register_NtQuerySystemInformation(proc_t proc, const on_NtQuerySystemInformation_fn& on_func)
+bool nt::syscalls::register_NtQuerySystemInformation(proc_t proc, const on_NtQuerySystemInformation_fn& on_func)
 {
     if(d_->observers_NtQuerySystemInformation.empty())
         if(!register_callback_with(*d_, proc, "NtQuerySystemInformation", &on_NtQuerySystemInformation))
@@ -8576,7 +8576,7 @@ bool tracer::syscalls::register_NtQuerySystemInformation(proc_t proc, const on_N
     return true;
 }
 
-bool tracer::syscalls::register_NtQuerySystemTime(proc_t proc, const on_NtQuerySystemTime_fn& on_func)
+bool nt::syscalls::register_NtQuerySystemTime(proc_t proc, const on_NtQuerySystemTime_fn& on_func)
 {
     if(d_->observers_NtQuerySystemTime.empty())
         if(!register_callback_with(*d_, proc, "NtQuerySystemTime", &on_NtQuerySystemTime))
@@ -8586,7 +8586,7 @@ bool tracer::syscalls::register_NtQuerySystemTime(proc_t proc, const on_NtQueryS
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryTimer(proc_t proc, const on_NtQueryTimer_fn& on_func)
+bool nt::syscalls::register_NtQueryTimer(proc_t proc, const on_NtQueryTimer_fn& on_func)
 {
     if(d_->observers_NtQueryTimer.empty())
         if(!register_callback_with(*d_, proc, "NtQueryTimer", &on_NtQueryTimer))
@@ -8596,7 +8596,7 @@ bool tracer::syscalls::register_NtQueryTimer(proc_t proc, const on_NtQueryTimer_
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryTimerResolution(proc_t proc, const on_NtQueryTimerResolution_fn& on_func)
+bool nt::syscalls::register_NtQueryTimerResolution(proc_t proc, const on_NtQueryTimerResolution_fn& on_func)
 {
     if(d_->observers_NtQueryTimerResolution.empty())
         if(!register_callback_with(*d_, proc, "NtQueryTimerResolution", &on_NtQueryTimerResolution))
@@ -8606,7 +8606,7 @@ bool tracer::syscalls::register_NtQueryTimerResolution(proc_t proc, const on_NtQ
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryValueKey(proc_t proc, const on_NtQueryValueKey_fn& on_func)
+bool nt::syscalls::register_NtQueryValueKey(proc_t proc, const on_NtQueryValueKey_fn& on_func)
 {
     if(d_->observers_NtQueryValueKey.empty())
         if(!register_callback_with(*d_, proc, "NtQueryValueKey", &on_NtQueryValueKey))
@@ -8616,7 +8616,7 @@ bool tracer::syscalls::register_NtQueryValueKey(proc_t proc, const on_NtQueryVal
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryVirtualMemory(proc_t proc, const on_NtQueryVirtualMemory_fn& on_func)
+bool nt::syscalls::register_NtQueryVirtualMemory(proc_t proc, const on_NtQueryVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtQueryVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "NtQueryVirtualMemory", &on_NtQueryVirtualMemory))
@@ -8626,7 +8626,7 @@ bool tracer::syscalls::register_NtQueryVirtualMemory(proc_t proc, const on_NtQue
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryVolumeInformationFile(proc_t proc, const on_NtQueryVolumeInformationFile_fn& on_func)
+bool nt::syscalls::register_NtQueryVolumeInformationFile(proc_t proc, const on_NtQueryVolumeInformationFile_fn& on_func)
 {
     if(d_->observers_NtQueryVolumeInformationFile.empty())
         if(!register_callback_with(*d_, proc, "NtQueryVolumeInformationFile", &on_NtQueryVolumeInformationFile))
@@ -8636,7 +8636,7 @@ bool tracer::syscalls::register_NtQueryVolumeInformationFile(proc_t proc, const 
     return true;
 }
 
-bool tracer::syscalls::register_NtQueueApcThreadEx(proc_t proc, const on_NtQueueApcThreadEx_fn& on_func)
+bool nt::syscalls::register_NtQueueApcThreadEx(proc_t proc, const on_NtQueueApcThreadEx_fn& on_func)
 {
     if(d_->observers_NtQueueApcThreadEx.empty())
         if(!register_callback_with(*d_, proc, "NtQueueApcThreadEx", &on_NtQueueApcThreadEx))
@@ -8646,7 +8646,7 @@ bool tracer::syscalls::register_NtQueueApcThreadEx(proc_t proc, const on_NtQueue
     return true;
 }
 
-bool tracer::syscalls::register_NtQueueApcThread(proc_t proc, const on_NtQueueApcThread_fn& on_func)
+bool nt::syscalls::register_NtQueueApcThread(proc_t proc, const on_NtQueueApcThread_fn& on_func)
 {
     if(d_->observers_NtQueueApcThread.empty())
         if(!register_callback_with(*d_, proc, "NtQueueApcThread", &on_NtQueueApcThread))
@@ -8656,7 +8656,7 @@ bool tracer::syscalls::register_NtQueueApcThread(proc_t proc, const on_NtQueueAp
     return true;
 }
 
-bool tracer::syscalls::register_NtRaiseException(proc_t proc, const on_NtRaiseException_fn& on_func)
+bool nt::syscalls::register_NtRaiseException(proc_t proc, const on_NtRaiseException_fn& on_func)
 {
     if(d_->observers_NtRaiseException.empty())
         if(!register_callback_with(*d_, proc, "NtRaiseException", &on_NtRaiseException))
@@ -8666,7 +8666,7 @@ bool tracer::syscalls::register_NtRaiseException(proc_t proc, const on_NtRaiseEx
     return true;
 }
 
-bool tracer::syscalls::register_NtRaiseHardError(proc_t proc, const on_NtRaiseHardError_fn& on_func)
+bool nt::syscalls::register_NtRaiseHardError(proc_t proc, const on_NtRaiseHardError_fn& on_func)
 {
     if(d_->observers_NtRaiseHardError.empty())
         if(!register_callback_with(*d_, proc, "NtRaiseHardError", &on_NtRaiseHardError))
@@ -8676,7 +8676,7 @@ bool tracer::syscalls::register_NtRaiseHardError(proc_t proc, const on_NtRaiseHa
     return true;
 }
 
-bool tracer::syscalls::register_NtReadFile(proc_t proc, const on_NtReadFile_fn& on_func)
+bool nt::syscalls::register_NtReadFile(proc_t proc, const on_NtReadFile_fn& on_func)
 {
     if(d_->observers_NtReadFile.empty())
         if(!register_callback_with(*d_, proc, "NtReadFile", &on_NtReadFile))
@@ -8686,7 +8686,7 @@ bool tracer::syscalls::register_NtReadFile(proc_t proc, const on_NtReadFile_fn& 
     return true;
 }
 
-bool tracer::syscalls::register_NtReadFileScatter(proc_t proc, const on_NtReadFileScatter_fn& on_func)
+bool nt::syscalls::register_NtReadFileScatter(proc_t proc, const on_NtReadFileScatter_fn& on_func)
 {
     if(d_->observers_NtReadFileScatter.empty())
         if(!register_callback_with(*d_, proc, "NtReadFileScatter", &on_NtReadFileScatter))
@@ -8696,7 +8696,7 @@ bool tracer::syscalls::register_NtReadFileScatter(proc_t proc, const on_NtReadFi
     return true;
 }
 
-bool tracer::syscalls::register_NtReadOnlyEnlistment(proc_t proc, const on_NtReadOnlyEnlistment_fn& on_func)
+bool nt::syscalls::register_NtReadOnlyEnlistment(proc_t proc, const on_NtReadOnlyEnlistment_fn& on_func)
 {
     if(d_->observers_NtReadOnlyEnlistment.empty())
         if(!register_callback_with(*d_, proc, "NtReadOnlyEnlistment", &on_NtReadOnlyEnlistment))
@@ -8706,7 +8706,7 @@ bool tracer::syscalls::register_NtReadOnlyEnlistment(proc_t proc, const on_NtRea
     return true;
 }
 
-bool tracer::syscalls::register_NtReadRequestData(proc_t proc, const on_NtReadRequestData_fn& on_func)
+bool nt::syscalls::register_NtReadRequestData(proc_t proc, const on_NtReadRequestData_fn& on_func)
 {
     if(d_->observers_NtReadRequestData.empty())
         if(!register_callback_with(*d_, proc, "NtReadRequestData", &on_NtReadRequestData))
@@ -8716,7 +8716,7 @@ bool tracer::syscalls::register_NtReadRequestData(proc_t proc, const on_NtReadRe
     return true;
 }
 
-bool tracer::syscalls::register_NtReadVirtualMemory(proc_t proc, const on_NtReadVirtualMemory_fn& on_func)
+bool nt::syscalls::register_NtReadVirtualMemory(proc_t proc, const on_NtReadVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtReadVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "NtReadVirtualMemory", &on_NtReadVirtualMemory))
@@ -8726,7 +8726,7 @@ bool tracer::syscalls::register_NtReadVirtualMemory(proc_t proc, const on_NtRead
     return true;
 }
 
-bool tracer::syscalls::register_NtRecoverEnlistment(proc_t proc, const on_NtRecoverEnlistment_fn& on_func)
+bool nt::syscalls::register_NtRecoverEnlistment(proc_t proc, const on_NtRecoverEnlistment_fn& on_func)
 {
     if(d_->observers_NtRecoverEnlistment.empty())
         if(!register_callback_with(*d_, proc, "NtRecoverEnlistment", &on_NtRecoverEnlistment))
@@ -8736,7 +8736,7 @@ bool tracer::syscalls::register_NtRecoverEnlistment(proc_t proc, const on_NtReco
     return true;
 }
 
-bool tracer::syscalls::register_NtRecoverResourceManager(proc_t proc, const on_NtRecoverResourceManager_fn& on_func)
+bool nt::syscalls::register_NtRecoverResourceManager(proc_t proc, const on_NtRecoverResourceManager_fn& on_func)
 {
     if(d_->observers_NtRecoverResourceManager.empty())
         if(!register_callback_with(*d_, proc, "NtRecoverResourceManager", &on_NtRecoverResourceManager))
@@ -8746,7 +8746,7 @@ bool tracer::syscalls::register_NtRecoverResourceManager(proc_t proc, const on_N
     return true;
 }
 
-bool tracer::syscalls::register_NtRecoverTransactionManager(proc_t proc, const on_NtRecoverTransactionManager_fn& on_func)
+bool nt::syscalls::register_NtRecoverTransactionManager(proc_t proc, const on_NtRecoverTransactionManager_fn& on_func)
 {
     if(d_->observers_NtRecoverTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "NtRecoverTransactionManager", &on_NtRecoverTransactionManager))
@@ -8756,7 +8756,7 @@ bool tracer::syscalls::register_NtRecoverTransactionManager(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtRegisterProtocolAddressInformation(proc_t proc, const on_NtRegisterProtocolAddressInformation_fn& on_func)
+bool nt::syscalls::register_NtRegisterProtocolAddressInformation(proc_t proc, const on_NtRegisterProtocolAddressInformation_fn& on_func)
 {
     if(d_->observers_NtRegisterProtocolAddressInformation.empty())
         if(!register_callback_with(*d_, proc, "NtRegisterProtocolAddressInformation", &on_NtRegisterProtocolAddressInformation))
@@ -8766,7 +8766,7 @@ bool tracer::syscalls::register_NtRegisterProtocolAddressInformation(proc_t proc
     return true;
 }
 
-bool tracer::syscalls::register_NtRegisterThreadTerminatePort(proc_t proc, const on_NtRegisterThreadTerminatePort_fn& on_func)
+bool nt::syscalls::register_NtRegisterThreadTerminatePort(proc_t proc, const on_NtRegisterThreadTerminatePort_fn& on_func)
 {
     if(d_->observers_NtRegisterThreadTerminatePort.empty())
         if(!register_callback_with(*d_, proc, "NtRegisterThreadTerminatePort", &on_NtRegisterThreadTerminatePort))
@@ -8776,7 +8776,7 @@ bool tracer::syscalls::register_NtRegisterThreadTerminatePort(proc_t proc, const
     return true;
 }
 
-bool tracer::syscalls::register_NtReleaseKeyedEvent(proc_t proc, const on_NtReleaseKeyedEvent_fn& on_func)
+bool nt::syscalls::register_NtReleaseKeyedEvent(proc_t proc, const on_NtReleaseKeyedEvent_fn& on_func)
 {
     if(d_->observers_NtReleaseKeyedEvent.empty())
         if(!register_callback_with(*d_, proc, "NtReleaseKeyedEvent", &on_NtReleaseKeyedEvent))
@@ -8786,7 +8786,7 @@ bool tracer::syscalls::register_NtReleaseKeyedEvent(proc_t proc, const on_NtRele
     return true;
 }
 
-bool tracer::syscalls::register_NtReleaseMutant(proc_t proc, const on_NtReleaseMutant_fn& on_func)
+bool nt::syscalls::register_NtReleaseMutant(proc_t proc, const on_NtReleaseMutant_fn& on_func)
 {
     if(d_->observers_NtReleaseMutant.empty())
         if(!register_callback_with(*d_, proc, "NtReleaseMutant", &on_NtReleaseMutant))
@@ -8796,7 +8796,7 @@ bool tracer::syscalls::register_NtReleaseMutant(proc_t proc, const on_NtReleaseM
     return true;
 }
 
-bool tracer::syscalls::register_NtReleaseSemaphore(proc_t proc, const on_NtReleaseSemaphore_fn& on_func)
+bool nt::syscalls::register_NtReleaseSemaphore(proc_t proc, const on_NtReleaseSemaphore_fn& on_func)
 {
     if(d_->observers_NtReleaseSemaphore.empty())
         if(!register_callback_with(*d_, proc, "NtReleaseSemaphore", &on_NtReleaseSemaphore))
@@ -8806,7 +8806,7 @@ bool tracer::syscalls::register_NtReleaseSemaphore(proc_t proc, const on_NtRelea
     return true;
 }
 
-bool tracer::syscalls::register_NtReleaseWorkerFactoryWorker(proc_t proc, const on_NtReleaseWorkerFactoryWorker_fn& on_func)
+bool nt::syscalls::register_NtReleaseWorkerFactoryWorker(proc_t proc, const on_NtReleaseWorkerFactoryWorker_fn& on_func)
 {
     if(d_->observers_NtReleaseWorkerFactoryWorker.empty())
         if(!register_callback_with(*d_, proc, "NtReleaseWorkerFactoryWorker", &on_NtReleaseWorkerFactoryWorker))
@@ -8816,7 +8816,7 @@ bool tracer::syscalls::register_NtReleaseWorkerFactoryWorker(proc_t proc, const 
     return true;
 }
 
-bool tracer::syscalls::register_NtRemoveIoCompletionEx(proc_t proc, const on_NtRemoveIoCompletionEx_fn& on_func)
+bool nt::syscalls::register_NtRemoveIoCompletionEx(proc_t proc, const on_NtRemoveIoCompletionEx_fn& on_func)
 {
     if(d_->observers_NtRemoveIoCompletionEx.empty())
         if(!register_callback_with(*d_, proc, "NtRemoveIoCompletionEx", &on_NtRemoveIoCompletionEx))
@@ -8826,7 +8826,7 @@ bool tracer::syscalls::register_NtRemoveIoCompletionEx(proc_t proc, const on_NtR
     return true;
 }
 
-bool tracer::syscalls::register_NtRemoveIoCompletion(proc_t proc, const on_NtRemoveIoCompletion_fn& on_func)
+bool nt::syscalls::register_NtRemoveIoCompletion(proc_t proc, const on_NtRemoveIoCompletion_fn& on_func)
 {
     if(d_->observers_NtRemoveIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "NtRemoveIoCompletion", &on_NtRemoveIoCompletion))
@@ -8836,7 +8836,7 @@ bool tracer::syscalls::register_NtRemoveIoCompletion(proc_t proc, const on_NtRem
     return true;
 }
 
-bool tracer::syscalls::register_NtRemoveProcessDebug(proc_t proc, const on_NtRemoveProcessDebug_fn& on_func)
+bool nt::syscalls::register_NtRemoveProcessDebug(proc_t proc, const on_NtRemoveProcessDebug_fn& on_func)
 {
     if(d_->observers_NtRemoveProcessDebug.empty())
         if(!register_callback_with(*d_, proc, "NtRemoveProcessDebug", &on_NtRemoveProcessDebug))
@@ -8846,7 +8846,7 @@ bool tracer::syscalls::register_NtRemoveProcessDebug(proc_t proc, const on_NtRem
     return true;
 }
 
-bool tracer::syscalls::register_NtRenameKey(proc_t proc, const on_NtRenameKey_fn& on_func)
+bool nt::syscalls::register_NtRenameKey(proc_t proc, const on_NtRenameKey_fn& on_func)
 {
     if(d_->observers_NtRenameKey.empty())
         if(!register_callback_with(*d_, proc, "NtRenameKey", &on_NtRenameKey))
@@ -8856,7 +8856,7 @@ bool tracer::syscalls::register_NtRenameKey(proc_t proc, const on_NtRenameKey_fn
     return true;
 }
 
-bool tracer::syscalls::register_NtRenameTransactionManager(proc_t proc, const on_NtRenameTransactionManager_fn& on_func)
+bool nt::syscalls::register_NtRenameTransactionManager(proc_t proc, const on_NtRenameTransactionManager_fn& on_func)
 {
     if(d_->observers_NtRenameTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "NtRenameTransactionManager", &on_NtRenameTransactionManager))
@@ -8866,7 +8866,7 @@ bool tracer::syscalls::register_NtRenameTransactionManager(proc_t proc, const on
     return true;
 }
 
-bool tracer::syscalls::register_NtReplaceKey(proc_t proc, const on_NtReplaceKey_fn& on_func)
+bool nt::syscalls::register_NtReplaceKey(proc_t proc, const on_NtReplaceKey_fn& on_func)
 {
     if(d_->observers_NtReplaceKey.empty())
         if(!register_callback_with(*d_, proc, "NtReplaceKey", &on_NtReplaceKey))
@@ -8876,7 +8876,7 @@ bool tracer::syscalls::register_NtReplaceKey(proc_t proc, const on_NtReplaceKey_
     return true;
 }
 
-bool tracer::syscalls::register_NtReplacePartitionUnit(proc_t proc, const on_NtReplacePartitionUnit_fn& on_func)
+bool nt::syscalls::register_NtReplacePartitionUnit(proc_t proc, const on_NtReplacePartitionUnit_fn& on_func)
 {
     if(d_->observers_NtReplacePartitionUnit.empty())
         if(!register_callback_with(*d_, proc, "NtReplacePartitionUnit", &on_NtReplacePartitionUnit))
@@ -8886,7 +8886,7 @@ bool tracer::syscalls::register_NtReplacePartitionUnit(proc_t proc, const on_NtR
     return true;
 }
 
-bool tracer::syscalls::register_NtReplyPort(proc_t proc, const on_NtReplyPort_fn& on_func)
+bool nt::syscalls::register_NtReplyPort(proc_t proc, const on_NtReplyPort_fn& on_func)
 {
     if(d_->observers_NtReplyPort.empty())
         if(!register_callback_with(*d_, proc, "NtReplyPort", &on_NtReplyPort))
@@ -8896,7 +8896,7 @@ bool tracer::syscalls::register_NtReplyPort(proc_t proc, const on_NtReplyPort_fn
     return true;
 }
 
-bool tracer::syscalls::register_NtReplyWaitReceivePortEx(proc_t proc, const on_NtReplyWaitReceivePortEx_fn& on_func)
+bool nt::syscalls::register_NtReplyWaitReceivePortEx(proc_t proc, const on_NtReplyWaitReceivePortEx_fn& on_func)
 {
     if(d_->observers_NtReplyWaitReceivePortEx.empty())
         if(!register_callback_with(*d_, proc, "NtReplyWaitReceivePortEx", &on_NtReplyWaitReceivePortEx))
@@ -8906,7 +8906,7 @@ bool tracer::syscalls::register_NtReplyWaitReceivePortEx(proc_t proc, const on_N
     return true;
 }
 
-bool tracer::syscalls::register_NtReplyWaitReceivePort(proc_t proc, const on_NtReplyWaitReceivePort_fn& on_func)
+bool nt::syscalls::register_NtReplyWaitReceivePort(proc_t proc, const on_NtReplyWaitReceivePort_fn& on_func)
 {
     if(d_->observers_NtReplyWaitReceivePort.empty())
         if(!register_callback_with(*d_, proc, "NtReplyWaitReceivePort", &on_NtReplyWaitReceivePort))
@@ -8916,7 +8916,7 @@ bool tracer::syscalls::register_NtReplyWaitReceivePort(proc_t proc, const on_NtR
     return true;
 }
 
-bool tracer::syscalls::register_NtReplyWaitReplyPort(proc_t proc, const on_NtReplyWaitReplyPort_fn& on_func)
+bool nt::syscalls::register_NtReplyWaitReplyPort(proc_t proc, const on_NtReplyWaitReplyPort_fn& on_func)
 {
     if(d_->observers_NtReplyWaitReplyPort.empty())
         if(!register_callback_with(*d_, proc, "NtReplyWaitReplyPort", &on_NtReplyWaitReplyPort))
@@ -8926,7 +8926,7 @@ bool tracer::syscalls::register_NtReplyWaitReplyPort(proc_t proc, const on_NtRep
     return true;
 }
 
-bool tracer::syscalls::register_NtRequestPort(proc_t proc, const on_NtRequestPort_fn& on_func)
+bool nt::syscalls::register_NtRequestPort(proc_t proc, const on_NtRequestPort_fn& on_func)
 {
     if(d_->observers_NtRequestPort.empty())
         if(!register_callback_with(*d_, proc, "NtRequestPort", &on_NtRequestPort))
@@ -8936,7 +8936,7 @@ bool tracer::syscalls::register_NtRequestPort(proc_t proc, const on_NtRequestPor
     return true;
 }
 
-bool tracer::syscalls::register_NtRequestWaitReplyPort(proc_t proc, const on_NtRequestWaitReplyPort_fn& on_func)
+bool nt::syscalls::register_NtRequestWaitReplyPort(proc_t proc, const on_NtRequestWaitReplyPort_fn& on_func)
 {
     if(d_->observers_NtRequestWaitReplyPort.empty())
         if(!register_callback_with(*d_, proc, "NtRequestWaitReplyPort", &on_NtRequestWaitReplyPort))
@@ -8946,7 +8946,7 @@ bool tracer::syscalls::register_NtRequestWaitReplyPort(proc_t proc, const on_NtR
     return true;
 }
 
-bool tracer::syscalls::register_NtResetEvent(proc_t proc, const on_NtResetEvent_fn& on_func)
+bool nt::syscalls::register_NtResetEvent(proc_t proc, const on_NtResetEvent_fn& on_func)
 {
     if(d_->observers_NtResetEvent.empty())
         if(!register_callback_with(*d_, proc, "NtResetEvent", &on_NtResetEvent))
@@ -8956,7 +8956,7 @@ bool tracer::syscalls::register_NtResetEvent(proc_t proc, const on_NtResetEvent_
     return true;
 }
 
-bool tracer::syscalls::register_NtResetWriteWatch(proc_t proc, const on_NtResetWriteWatch_fn& on_func)
+bool nt::syscalls::register_NtResetWriteWatch(proc_t proc, const on_NtResetWriteWatch_fn& on_func)
 {
     if(d_->observers_NtResetWriteWatch.empty())
         if(!register_callback_with(*d_, proc, "NtResetWriteWatch", &on_NtResetWriteWatch))
@@ -8966,7 +8966,7 @@ bool tracer::syscalls::register_NtResetWriteWatch(proc_t proc, const on_NtResetW
     return true;
 }
 
-bool tracer::syscalls::register_NtRestoreKey(proc_t proc, const on_NtRestoreKey_fn& on_func)
+bool nt::syscalls::register_NtRestoreKey(proc_t proc, const on_NtRestoreKey_fn& on_func)
 {
     if(d_->observers_NtRestoreKey.empty())
         if(!register_callback_with(*d_, proc, "NtRestoreKey", &on_NtRestoreKey))
@@ -8976,7 +8976,7 @@ bool tracer::syscalls::register_NtRestoreKey(proc_t proc, const on_NtRestoreKey_
     return true;
 }
 
-bool tracer::syscalls::register_NtResumeProcess(proc_t proc, const on_NtResumeProcess_fn& on_func)
+bool nt::syscalls::register_NtResumeProcess(proc_t proc, const on_NtResumeProcess_fn& on_func)
 {
     if(d_->observers_NtResumeProcess.empty())
         if(!register_callback_with(*d_, proc, "NtResumeProcess", &on_NtResumeProcess))
@@ -8986,7 +8986,7 @@ bool tracer::syscalls::register_NtResumeProcess(proc_t proc, const on_NtResumePr
     return true;
 }
 
-bool tracer::syscalls::register_NtResumeThread(proc_t proc, const on_NtResumeThread_fn& on_func)
+bool nt::syscalls::register_NtResumeThread(proc_t proc, const on_NtResumeThread_fn& on_func)
 {
     if(d_->observers_NtResumeThread.empty())
         if(!register_callback_with(*d_, proc, "NtResumeThread", &on_NtResumeThread))
@@ -8996,7 +8996,7 @@ bool tracer::syscalls::register_NtResumeThread(proc_t proc, const on_NtResumeThr
     return true;
 }
 
-bool tracer::syscalls::register_NtRollbackComplete(proc_t proc, const on_NtRollbackComplete_fn& on_func)
+bool nt::syscalls::register_NtRollbackComplete(proc_t proc, const on_NtRollbackComplete_fn& on_func)
 {
     if(d_->observers_NtRollbackComplete.empty())
         if(!register_callback_with(*d_, proc, "NtRollbackComplete", &on_NtRollbackComplete))
@@ -9006,7 +9006,7 @@ bool tracer::syscalls::register_NtRollbackComplete(proc_t proc, const on_NtRollb
     return true;
 }
 
-bool tracer::syscalls::register_NtRollbackEnlistment(proc_t proc, const on_NtRollbackEnlistment_fn& on_func)
+bool nt::syscalls::register_NtRollbackEnlistment(proc_t proc, const on_NtRollbackEnlistment_fn& on_func)
 {
     if(d_->observers_NtRollbackEnlistment.empty())
         if(!register_callback_with(*d_, proc, "NtRollbackEnlistment", &on_NtRollbackEnlistment))
@@ -9016,7 +9016,7 @@ bool tracer::syscalls::register_NtRollbackEnlistment(proc_t proc, const on_NtRol
     return true;
 }
 
-bool tracer::syscalls::register_NtRollbackTransaction(proc_t proc, const on_NtRollbackTransaction_fn& on_func)
+bool nt::syscalls::register_NtRollbackTransaction(proc_t proc, const on_NtRollbackTransaction_fn& on_func)
 {
     if(d_->observers_NtRollbackTransaction.empty())
         if(!register_callback_with(*d_, proc, "NtRollbackTransaction", &on_NtRollbackTransaction))
@@ -9026,7 +9026,7 @@ bool tracer::syscalls::register_NtRollbackTransaction(proc_t proc, const on_NtRo
     return true;
 }
 
-bool tracer::syscalls::register_NtRollforwardTransactionManager(proc_t proc, const on_NtRollforwardTransactionManager_fn& on_func)
+bool nt::syscalls::register_NtRollforwardTransactionManager(proc_t proc, const on_NtRollforwardTransactionManager_fn& on_func)
 {
     if(d_->observers_NtRollforwardTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "NtRollforwardTransactionManager", &on_NtRollforwardTransactionManager))
@@ -9036,7 +9036,7 @@ bool tracer::syscalls::register_NtRollforwardTransactionManager(proc_t proc, con
     return true;
 }
 
-bool tracer::syscalls::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx_fn& on_func)
+bool nt::syscalls::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx_fn& on_func)
 {
     if(d_->observers_NtSaveKeyEx.empty())
         if(!register_callback_with(*d_, proc, "NtSaveKeyEx", &on_NtSaveKeyEx))
@@ -9046,7 +9046,7 @@ bool tracer::syscalls::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx_fn
     return true;
 }
 
-bool tracer::syscalls::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn& on_func)
+bool nt::syscalls::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn& on_func)
 {
     if(d_->observers_NtSaveKey.empty())
         if(!register_callback_with(*d_, proc, "NtSaveKey", &on_NtSaveKey))
@@ -9056,7 +9056,7 @@ bool tracer::syscalls::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn& on
     return true;
 }
 
-bool tracer::syscalls::register_NtSaveMergedKeys(proc_t proc, const on_NtSaveMergedKeys_fn& on_func)
+bool nt::syscalls::register_NtSaveMergedKeys(proc_t proc, const on_NtSaveMergedKeys_fn& on_func)
 {
     if(d_->observers_NtSaveMergedKeys.empty())
         if(!register_callback_with(*d_, proc, "NtSaveMergedKeys", &on_NtSaveMergedKeys))
@@ -9066,7 +9066,7 @@ bool tracer::syscalls::register_NtSaveMergedKeys(proc_t proc, const on_NtSaveMer
     return true;
 }
 
-bool tracer::syscalls::register_NtSecureConnectPort(proc_t proc, const on_NtSecureConnectPort_fn& on_func)
+bool nt::syscalls::register_NtSecureConnectPort(proc_t proc, const on_NtSecureConnectPort_fn& on_func)
 {
     if(d_->observers_NtSecureConnectPort.empty())
         if(!register_callback_with(*d_, proc, "NtSecureConnectPort", &on_NtSecureConnectPort))
@@ -9076,7 +9076,7 @@ bool tracer::syscalls::register_NtSecureConnectPort(proc_t proc, const on_NtSecu
     return true;
 }
 
-bool tracer::syscalls::register_NtSetBootEntryOrder(proc_t proc, const on_NtSetBootEntryOrder_fn& on_func)
+bool nt::syscalls::register_NtSetBootEntryOrder(proc_t proc, const on_NtSetBootEntryOrder_fn& on_func)
 {
     if(d_->observers_NtSetBootEntryOrder.empty())
         if(!register_callback_with(*d_, proc, "NtSetBootEntryOrder", &on_NtSetBootEntryOrder))
@@ -9086,7 +9086,7 @@ bool tracer::syscalls::register_NtSetBootEntryOrder(proc_t proc, const on_NtSetB
     return true;
 }
 
-bool tracer::syscalls::register_NtSetBootOptions(proc_t proc, const on_NtSetBootOptions_fn& on_func)
+bool nt::syscalls::register_NtSetBootOptions(proc_t proc, const on_NtSetBootOptions_fn& on_func)
 {
     if(d_->observers_NtSetBootOptions.empty())
         if(!register_callback_with(*d_, proc, "NtSetBootOptions", &on_NtSetBootOptions))
@@ -9096,7 +9096,7 @@ bool tracer::syscalls::register_NtSetBootOptions(proc_t proc, const on_NtSetBoot
     return true;
 }
 
-bool tracer::syscalls::register_NtSetContextThread(proc_t proc, const on_NtSetContextThread_fn& on_func)
+bool nt::syscalls::register_NtSetContextThread(proc_t proc, const on_NtSetContextThread_fn& on_func)
 {
     if(d_->observers_NtSetContextThread.empty())
         if(!register_callback_with(*d_, proc, "NtSetContextThread", &on_NtSetContextThread))
@@ -9106,7 +9106,7 @@ bool tracer::syscalls::register_NtSetContextThread(proc_t proc, const on_NtSetCo
     return true;
 }
 
-bool tracer::syscalls::register_NtSetDebugFilterState(proc_t proc, const on_NtSetDebugFilterState_fn& on_func)
+bool nt::syscalls::register_NtSetDebugFilterState(proc_t proc, const on_NtSetDebugFilterState_fn& on_func)
 {
     if(d_->observers_NtSetDebugFilterState.empty())
         if(!register_callback_with(*d_, proc, "NtSetDebugFilterState", &on_NtSetDebugFilterState))
@@ -9116,7 +9116,7 @@ bool tracer::syscalls::register_NtSetDebugFilterState(proc_t proc, const on_NtSe
     return true;
 }
 
-bool tracer::syscalls::register_NtSetDefaultHardErrorPort(proc_t proc, const on_NtSetDefaultHardErrorPort_fn& on_func)
+bool nt::syscalls::register_NtSetDefaultHardErrorPort(proc_t proc, const on_NtSetDefaultHardErrorPort_fn& on_func)
 {
     if(d_->observers_NtSetDefaultHardErrorPort.empty())
         if(!register_callback_with(*d_, proc, "NtSetDefaultHardErrorPort", &on_NtSetDefaultHardErrorPort))
@@ -9126,7 +9126,7 @@ bool tracer::syscalls::register_NtSetDefaultHardErrorPort(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtSetDefaultLocale(proc_t proc, const on_NtSetDefaultLocale_fn& on_func)
+bool nt::syscalls::register_NtSetDefaultLocale(proc_t proc, const on_NtSetDefaultLocale_fn& on_func)
 {
     if(d_->observers_NtSetDefaultLocale.empty())
         if(!register_callback_with(*d_, proc, "NtSetDefaultLocale", &on_NtSetDefaultLocale))
@@ -9136,7 +9136,7 @@ bool tracer::syscalls::register_NtSetDefaultLocale(proc_t proc, const on_NtSetDe
     return true;
 }
 
-bool tracer::syscalls::register_NtSetDefaultUILanguage(proc_t proc, const on_NtSetDefaultUILanguage_fn& on_func)
+bool nt::syscalls::register_NtSetDefaultUILanguage(proc_t proc, const on_NtSetDefaultUILanguage_fn& on_func)
 {
     if(d_->observers_NtSetDefaultUILanguage.empty())
         if(!register_callback_with(*d_, proc, "NtSetDefaultUILanguage", &on_NtSetDefaultUILanguage))
@@ -9146,7 +9146,7 @@ bool tracer::syscalls::register_NtSetDefaultUILanguage(proc_t proc, const on_NtS
     return true;
 }
 
-bool tracer::syscalls::register_NtSetDriverEntryOrder(proc_t proc, const on_NtSetDriverEntryOrder_fn& on_func)
+bool nt::syscalls::register_NtSetDriverEntryOrder(proc_t proc, const on_NtSetDriverEntryOrder_fn& on_func)
 {
     if(d_->observers_NtSetDriverEntryOrder.empty())
         if(!register_callback_with(*d_, proc, "NtSetDriverEntryOrder", &on_NtSetDriverEntryOrder))
@@ -9156,7 +9156,7 @@ bool tracer::syscalls::register_NtSetDriverEntryOrder(proc_t proc, const on_NtSe
     return true;
 }
 
-bool tracer::syscalls::register_NtSetEaFile(proc_t proc, const on_NtSetEaFile_fn& on_func)
+bool nt::syscalls::register_NtSetEaFile(proc_t proc, const on_NtSetEaFile_fn& on_func)
 {
     if(d_->observers_NtSetEaFile.empty())
         if(!register_callback_with(*d_, proc, "NtSetEaFile", &on_NtSetEaFile))
@@ -9166,7 +9166,7 @@ bool tracer::syscalls::register_NtSetEaFile(proc_t proc, const on_NtSetEaFile_fn
     return true;
 }
 
-bool tracer::syscalls::register_NtSetEventBoostPriority(proc_t proc, const on_NtSetEventBoostPriority_fn& on_func)
+bool nt::syscalls::register_NtSetEventBoostPriority(proc_t proc, const on_NtSetEventBoostPriority_fn& on_func)
 {
     if(d_->observers_NtSetEventBoostPriority.empty())
         if(!register_callback_with(*d_, proc, "NtSetEventBoostPriority", &on_NtSetEventBoostPriority))
@@ -9176,7 +9176,7 @@ bool tracer::syscalls::register_NtSetEventBoostPriority(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtSetEvent(proc_t proc, const on_NtSetEvent_fn& on_func)
+bool nt::syscalls::register_NtSetEvent(proc_t proc, const on_NtSetEvent_fn& on_func)
 {
     if(d_->observers_NtSetEvent.empty())
         if(!register_callback_with(*d_, proc, "NtSetEvent", &on_NtSetEvent))
@@ -9186,7 +9186,7 @@ bool tracer::syscalls::register_NtSetEvent(proc_t proc, const on_NtSetEvent_fn& 
     return true;
 }
 
-bool tracer::syscalls::register_NtSetHighEventPair(proc_t proc, const on_NtSetHighEventPair_fn& on_func)
+bool nt::syscalls::register_NtSetHighEventPair(proc_t proc, const on_NtSetHighEventPair_fn& on_func)
 {
     if(d_->observers_NtSetHighEventPair.empty())
         if(!register_callback_with(*d_, proc, "NtSetHighEventPair", &on_NtSetHighEventPair))
@@ -9196,7 +9196,7 @@ bool tracer::syscalls::register_NtSetHighEventPair(proc_t proc, const on_NtSetHi
     return true;
 }
 
-bool tracer::syscalls::register_NtSetHighWaitLowEventPair(proc_t proc, const on_NtSetHighWaitLowEventPair_fn& on_func)
+bool nt::syscalls::register_NtSetHighWaitLowEventPair(proc_t proc, const on_NtSetHighWaitLowEventPair_fn& on_func)
 {
     if(d_->observers_NtSetHighWaitLowEventPair.empty())
         if(!register_callback_with(*d_, proc, "NtSetHighWaitLowEventPair", &on_NtSetHighWaitLowEventPair))
@@ -9206,7 +9206,7 @@ bool tracer::syscalls::register_NtSetHighWaitLowEventPair(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtSetInformationDebugObject(proc_t proc, const on_NtSetInformationDebugObject_fn& on_func)
+bool nt::syscalls::register_NtSetInformationDebugObject(proc_t proc, const on_NtSetInformationDebugObject_fn& on_func)
 {
     if(d_->observers_NtSetInformationDebugObject.empty())
         if(!register_callback_with(*d_, proc, "NtSetInformationDebugObject", &on_NtSetInformationDebugObject))
@@ -9216,7 +9216,7 @@ bool tracer::syscalls::register_NtSetInformationDebugObject(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtSetInformationEnlistment(proc_t proc, const on_NtSetInformationEnlistment_fn& on_func)
+bool nt::syscalls::register_NtSetInformationEnlistment(proc_t proc, const on_NtSetInformationEnlistment_fn& on_func)
 {
     if(d_->observers_NtSetInformationEnlistment.empty())
         if(!register_callback_with(*d_, proc, "NtSetInformationEnlistment", &on_NtSetInformationEnlistment))
@@ -9226,7 +9226,7 @@ bool tracer::syscalls::register_NtSetInformationEnlistment(proc_t proc, const on
     return true;
 }
 
-bool tracer::syscalls::register_NtSetInformationFile(proc_t proc, const on_NtSetInformationFile_fn& on_func)
+bool nt::syscalls::register_NtSetInformationFile(proc_t proc, const on_NtSetInformationFile_fn& on_func)
 {
     if(d_->observers_NtSetInformationFile.empty())
         if(!register_callback_with(*d_, proc, "NtSetInformationFile", &on_NtSetInformationFile))
@@ -9236,7 +9236,7 @@ bool tracer::syscalls::register_NtSetInformationFile(proc_t proc, const on_NtSet
     return true;
 }
 
-bool tracer::syscalls::register_NtSetInformationJobObject(proc_t proc, const on_NtSetInformationJobObject_fn& on_func)
+bool nt::syscalls::register_NtSetInformationJobObject(proc_t proc, const on_NtSetInformationJobObject_fn& on_func)
 {
     if(d_->observers_NtSetInformationJobObject.empty())
         if(!register_callback_with(*d_, proc, "NtSetInformationJobObject", &on_NtSetInformationJobObject))
@@ -9246,7 +9246,7 @@ bool tracer::syscalls::register_NtSetInformationJobObject(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtSetInformationKey(proc_t proc, const on_NtSetInformationKey_fn& on_func)
+bool nt::syscalls::register_NtSetInformationKey(proc_t proc, const on_NtSetInformationKey_fn& on_func)
 {
     if(d_->observers_NtSetInformationKey.empty())
         if(!register_callback_with(*d_, proc, "NtSetInformationKey", &on_NtSetInformationKey))
@@ -9256,7 +9256,7 @@ bool tracer::syscalls::register_NtSetInformationKey(proc_t proc, const on_NtSetI
     return true;
 }
 
-bool tracer::syscalls::register_NtSetInformationObject(proc_t proc, const on_NtSetInformationObject_fn& on_func)
+bool nt::syscalls::register_NtSetInformationObject(proc_t proc, const on_NtSetInformationObject_fn& on_func)
 {
     if(d_->observers_NtSetInformationObject.empty())
         if(!register_callback_with(*d_, proc, "NtSetInformationObject", &on_NtSetInformationObject))
@@ -9266,7 +9266,7 @@ bool tracer::syscalls::register_NtSetInformationObject(proc_t proc, const on_NtS
     return true;
 }
 
-bool tracer::syscalls::register_NtSetInformationProcess(proc_t proc, const on_NtSetInformationProcess_fn& on_func)
+bool nt::syscalls::register_NtSetInformationProcess(proc_t proc, const on_NtSetInformationProcess_fn& on_func)
 {
     if(d_->observers_NtSetInformationProcess.empty())
         if(!register_callback_with(*d_, proc, "NtSetInformationProcess", &on_NtSetInformationProcess))
@@ -9276,7 +9276,7 @@ bool tracer::syscalls::register_NtSetInformationProcess(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtSetInformationResourceManager(proc_t proc, const on_NtSetInformationResourceManager_fn& on_func)
+bool nt::syscalls::register_NtSetInformationResourceManager(proc_t proc, const on_NtSetInformationResourceManager_fn& on_func)
 {
     if(d_->observers_NtSetInformationResourceManager.empty())
         if(!register_callback_with(*d_, proc, "NtSetInformationResourceManager", &on_NtSetInformationResourceManager))
@@ -9286,7 +9286,7 @@ bool tracer::syscalls::register_NtSetInformationResourceManager(proc_t proc, con
     return true;
 }
 
-bool tracer::syscalls::register_NtSetInformationThread(proc_t proc, const on_NtSetInformationThread_fn& on_func)
+bool nt::syscalls::register_NtSetInformationThread(proc_t proc, const on_NtSetInformationThread_fn& on_func)
 {
     if(d_->observers_NtSetInformationThread.empty())
         if(!register_callback_with(*d_, proc, "NtSetInformationThread", &on_NtSetInformationThread))
@@ -9296,7 +9296,7 @@ bool tracer::syscalls::register_NtSetInformationThread(proc_t proc, const on_NtS
     return true;
 }
 
-bool tracer::syscalls::register_NtSetInformationToken(proc_t proc, const on_NtSetInformationToken_fn& on_func)
+bool nt::syscalls::register_NtSetInformationToken(proc_t proc, const on_NtSetInformationToken_fn& on_func)
 {
     if(d_->observers_NtSetInformationToken.empty())
         if(!register_callback_with(*d_, proc, "NtSetInformationToken", &on_NtSetInformationToken))
@@ -9306,7 +9306,7 @@ bool tracer::syscalls::register_NtSetInformationToken(proc_t proc, const on_NtSe
     return true;
 }
 
-bool tracer::syscalls::register_NtSetInformationTransaction(proc_t proc, const on_NtSetInformationTransaction_fn& on_func)
+bool nt::syscalls::register_NtSetInformationTransaction(proc_t proc, const on_NtSetInformationTransaction_fn& on_func)
 {
     if(d_->observers_NtSetInformationTransaction.empty())
         if(!register_callback_with(*d_, proc, "NtSetInformationTransaction", &on_NtSetInformationTransaction))
@@ -9316,7 +9316,7 @@ bool tracer::syscalls::register_NtSetInformationTransaction(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtSetInformationTransactionManager(proc_t proc, const on_NtSetInformationTransactionManager_fn& on_func)
+bool nt::syscalls::register_NtSetInformationTransactionManager(proc_t proc, const on_NtSetInformationTransactionManager_fn& on_func)
 {
     if(d_->observers_NtSetInformationTransactionManager.empty())
         if(!register_callback_with(*d_, proc, "NtSetInformationTransactionManager", &on_NtSetInformationTransactionManager))
@@ -9326,7 +9326,7 @@ bool tracer::syscalls::register_NtSetInformationTransactionManager(proc_t proc, 
     return true;
 }
 
-bool tracer::syscalls::register_NtSetInformationWorkerFactory(proc_t proc, const on_NtSetInformationWorkerFactory_fn& on_func)
+bool nt::syscalls::register_NtSetInformationWorkerFactory(proc_t proc, const on_NtSetInformationWorkerFactory_fn& on_func)
 {
     if(d_->observers_NtSetInformationWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "NtSetInformationWorkerFactory", &on_NtSetInformationWorkerFactory))
@@ -9336,7 +9336,7 @@ bool tracer::syscalls::register_NtSetInformationWorkerFactory(proc_t proc, const
     return true;
 }
 
-bool tracer::syscalls::register_NtSetIntervalProfile(proc_t proc, const on_NtSetIntervalProfile_fn& on_func)
+bool nt::syscalls::register_NtSetIntervalProfile(proc_t proc, const on_NtSetIntervalProfile_fn& on_func)
 {
     if(d_->observers_NtSetIntervalProfile.empty())
         if(!register_callback_with(*d_, proc, "NtSetIntervalProfile", &on_NtSetIntervalProfile))
@@ -9346,7 +9346,7 @@ bool tracer::syscalls::register_NtSetIntervalProfile(proc_t proc, const on_NtSet
     return true;
 }
 
-bool tracer::syscalls::register_NtSetIoCompletionEx(proc_t proc, const on_NtSetIoCompletionEx_fn& on_func)
+bool nt::syscalls::register_NtSetIoCompletionEx(proc_t proc, const on_NtSetIoCompletionEx_fn& on_func)
 {
     if(d_->observers_NtSetIoCompletionEx.empty())
         if(!register_callback_with(*d_, proc, "NtSetIoCompletionEx", &on_NtSetIoCompletionEx))
@@ -9356,7 +9356,7 @@ bool tracer::syscalls::register_NtSetIoCompletionEx(proc_t proc, const on_NtSetI
     return true;
 }
 
-bool tracer::syscalls::register_NtSetIoCompletion(proc_t proc, const on_NtSetIoCompletion_fn& on_func)
+bool nt::syscalls::register_NtSetIoCompletion(proc_t proc, const on_NtSetIoCompletion_fn& on_func)
 {
     if(d_->observers_NtSetIoCompletion.empty())
         if(!register_callback_with(*d_, proc, "NtSetIoCompletion", &on_NtSetIoCompletion))
@@ -9366,7 +9366,7 @@ bool tracer::syscalls::register_NtSetIoCompletion(proc_t proc, const on_NtSetIoC
     return true;
 }
 
-bool tracer::syscalls::register_NtSetLdtEntries(proc_t proc, const on_NtSetLdtEntries_fn& on_func)
+bool nt::syscalls::register_NtSetLdtEntries(proc_t proc, const on_NtSetLdtEntries_fn& on_func)
 {
     if(d_->observers_NtSetLdtEntries.empty())
         if(!register_callback_with(*d_, proc, "NtSetLdtEntries", &on_NtSetLdtEntries))
@@ -9376,7 +9376,7 @@ bool tracer::syscalls::register_NtSetLdtEntries(proc_t proc, const on_NtSetLdtEn
     return true;
 }
 
-bool tracer::syscalls::register_NtSetLowEventPair(proc_t proc, const on_NtSetLowEventPair_fn& on_func)
+bool nt::syscalls::register_NtSetLowEventPair(proc_t proc, const on_NtSetLowEventPair_fn& on_func)
 {
     if(d_->observers_NtSetLowEventPair.empty())
         if(!register_callback_with(*d_, proc, "NtSetLowEventPair", &on_NtSetLowEventPair))
@@ -9386,7 +9386,7 @@ bool tracer::syscalls::register_NtSetLowEventPair(proc_t proc, const on_NtSetLow
     return true;
 }
 
-bool tracer::syscalls::register_NtSetLowWaitHighEventPair(proc_t proc, const on_NtSetLowWaitHighEventPair_fn& on_func)
+bool nt::syscalls::register_NtSetLowWaitHighEventPair(proc_t proc, const on_NtSetLowWaitHighEventPair_fn& on_func)
 {
     if(d_->observers_NtSetLowWaitHighEventPair.empty())
         if(!register_callback_with(*d_, proc, "NtSetLowWaitHighEventPair", &on_NtSetLowWaitHighEventPair))
@@ -9396,7 +9396,7 @@ bool tracer::syscalls::register_NtSetLowWaitHighEventPair(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtSetQuotaInformationFile(proc_t proc, const on_NtSetQuotaInformationFile_fn& on_func)
+bool nt::syscalls::register_NtSetQuotaInformationFile(proc_t proc, const on_NtSetQuotaInformationFile_fn& on_func)
 {
     if(d_->observers_NtSetQuotaInformationFile.empty())
         if(!register_callback_with(*d_, proc, "NtSetQuotaInformationFile", &on_NtSetQuotaInformationFile))
@@ -9406,7 +9406,7 @@ bool tracer::syscalls::register_NtSetQuotaInformationFile(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtSetSecurityObject(proc_t proc, const on_NtSetSecurityObject_fn& on_func)
+bool nt::syscalls::register_NtSetSecurityObject(proc_t proc, const on_NtSetSecurityObject_fn& on_func)
 {
     if(d_->observers_NtSetSecurityObject.empty())
         if(!register_callback_with(*d_, proc, "NtSetSecurityObject", &on_NtSetSecurityObject))
@@ -9416,7 +9416,7 @@ bool tracer::syscalls::register_NtSetSecurityObject(proc_t proc, const on_NtSetS
     return true;
 }
 
-bool tracer::syscalls::register_NtSetSystemEnvironmentValueEx(proc_t proc, const on_NtSetSystemEnvironmentValueEx_fn& on_func)
+bool nt::syscalls::register_NtSetSystemEnvironmentValueEx(proc_t proc, const on_NtSetSystemEnvironmentValueEx_fn& on_func)
 {
     if(d_->observers_NtSetSystemEnvironmentValueEx.empty())
         if(!register_callback_with(*d_, proc, "NtSetSystemEnvironmentValueEx", &on_NtSetSystemEnvironmentValueEx))
@@ -9426,7 +9426,7 @@ bool tracer::syscalls::register_NtSetSystemEnvironmentValueEx(proc_t proc, const
     return true;
 }
 
-bool tracer::syscalls::register_NtSetSystemEnvironmentValue(proc_t proc, const on_NtSetSystemEnvironmentValue_fn& on_func)
+bool nt::syscalls::register_NtSetSystemEnvironmentValue(proc_t proc, const on_NtSetSystemEnvironmentValue_fn& on_func)
 {
     if(d_->observers_NtSetSystemEnvironmentValue.empty())
         if(!register_callback_with(*d_, proc, "NtSetSystemEnvironmentValue", &on_NtSetSystemEnvironmentValue))
@@ -9436,7 +9436,7 @@ bool tracer::syscalls::register_NtSetSystemEnvironmentValue(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtSetSystemInformation(proc_t proc, const on_NtSetSystemInformation_fn& on_func)
+bool nt::syscalls::register_NtSetSystemInformation(proc_t proc, const on_NtSetSystemInformation_fn& on_func)
 {
     if(d_->observers_NtSetSystemInformation.empty())
         if(!register_callback_with(*d_, proc, "NtSetSystemInformation", &on_NtSetSystemInformation))
@@ -9446,7 +9446,7 @@ bool tracer::syscalls::register_NtSetSystemInformation(proc_t proc, const on_NtS
     return true;
 }
 
-bool tracer::syscalls::register_NtSetSystemPowerState(proc_t proc, const on_NtSetSystemPowerState_fn& on_func)
+bool nt::syscalls::register_NtSetSystemPowerState(proc_t proc, const on_NtSetSystemPowerState_fn& on_func)
 {
     if(d_->observers_NtSetSystemPowerState.empty())
         if(!register_callback_with(*d_, proc, "NtSetSystemPowerState", &on_NtSetSystemPowerState))
@@ -9456,7 +9456,7 @@ bool tracer::syscalls::register_NtSetSystemPowerState(proc_t proc, const on_NtSe
     return true;
 }
 
-bool tracer::syscalls::register_NtSetSystemTime(proc_t proc, const on_NtSetSystemTime_fn& on_func)
+bool nt::syscalls::register_NtSetSystemTime(proc_t proc, const on_NtSetSystemTime_fn& on_func)
 {
     if(d_->observers_NtSetSystemTime.empty())
         if(!register_callback_with(*d_, proc, "NtSetSystemTime", &on_NtSetSystemTime))
@@ -9466,7 +9466,7 @@ bool tracer::syscalls::register_NtSetSystemTime(proc_t proc, const on_NtSetSyste
     return true;
 }
 
-bool tracer::syscalls::register_NtSetThreadExecutionState(proc_t proc, const on_NtSetThreadExecutionState_fn& on_func)
+bool nt::syscalls::register_NtSetThreadExecutionState(proc_t proc, const on_NtSetThreadExecutionState_fn& on_func)
 {
     if(d_->observers_NtSetThreadExecutionState.empty())
         if(!register_callback_with(*d_, proc, "NtSetThreadExecutionState", &on_NtSetThreadExecutionState))
@@ -9476,7 +9476,7 @@ bool tracer::syscalls::register_NtSetThreadExecutionState(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtSetTimerEx(proc_t proc, const on_NtSetTimerEx_fn& on_func)
+bool nt::syscalls::register_NtSetTimerEx(proc_t proc, const on_NtSetTimerEx_fn& on_func)
 {
     if(d_->observers_NtSetTimerEx.empty())
         if(!register_callback_with(*d_, proc, "NtSetTimerEx", &on_NtSetTimerEx))
@@ -9486,7 +9486,7 @@ bool tracer::syscalls::register_NtSetTimerEx(proc_t proc, const on_NtSetTimerEx_
     return true;
 }
 
-bool tracer::syscalls::register_NtSetTimer(proc_t proc, const on_NtSetTimer_fn& on_func)
+bool nt::syscalls::register_NtSetTimer(proc_t proc, const on_NtSetTimer_fn& on_func)
 {
     if(d_->observers_NtSetTimer.empty())
         if(!register_callback_with(*d_, proc, "NtSetTimer", &on_NtSetTimer))
@@ -9496,7 +9496,7 @@ bool tracer::syscalls::register_NtSetTimer(proc_t proc, const on_NtSetTimer_fn& 
     return true;
 }
 
-bool tracer::syscalls::register_NtSetTimerResolution(proc_t proc, const on_NtSetTimerResolution_fn& on_func)
+bool nt::syscalls::register_NtSetTimerResolution(proc_t proc, const on_NtSetTimerResolution_fn& on_func)
 {
     if(d_->observers_NtSetTimerResolution.empty())
         if(!register_callback_with(*d_, proc, "NtSetTimerResolution", &on_NtSetTimerResolution))
@@ -9506,7 +9506,7 @@ bool tracer::syscalls::register_NtSetTimerResolution(proc_t proc, const on_NtSet
     return true;
 }
 
-bool tracer::syscalls::register_NtSetUuidSeed(proc_t proc, const on_NtSetUuidSeed_fn& on_func)
+bool nt::syscalls::register_NtSetUuidSeed(proc_t proc, const on_NtSetUuidSeed_fn& on_func)
 {
     if(d_->observers_NtSetUuidSeed.empty())
         if(!register_callback_with(*d_, proc, "NtSetUuidSeed", &on_NtSetUuidSeed))
@@ -9516,7 +9516,7 @@ bool tracer::syscalls::register_NtSetUuidSeed(proc_t proc, const on_NtSetUuidSee
     return true;
 }
 
-bool tracer::syscalls::register_NtSetValueKey(proc_t proc, const on_NtSetValueKey_fn& on_func)
+bool nt::syscalls::register_NtSetValueKey(proc_t proc, const on_NtSetValueKey_fn& on_func)
 {
     if(d_->observers_NtSetValueKey.empty())
         if(!register_callback_with(*d_, proc, "NtSetValueKey", &on_NtSetValueKey))
@@ -9526,7 +9526,7 @@ bool tracer::syscalls::register_NtSetValueKey(proc_t proc, const on_NtSetValueKe
     return true;
 }
 
-bool tracer::syscalls::register_NtSetVolumeInformationFile(proc_t proc, const on_NtSetVolumeInformationFile_fn& on_func)
+bool nt::syscalls::register_NtSetVolumeInformationFile(proc_t proc, const on_NtSetVolumeInformationFile_fn& on_func)
 {
     if(d_->observers_NtSetVolumeInformationFile.empty())
         if(!register_callback_with(*d_, proc, "NtSetVolumeInformationFile", &on_NtSetVolumeInformationFile))
@@ -9536,7 +9536,7 @@ bool tracer::syscalls::register_NtSetVolumeInformationFile(proc_t proc, const on
     return true;
 }
 
-bool tracer::syscalls::register_NtShutdownSystem(proc_t proc, const on_NtShutdownSystem_fn& on_func)
+bool nt::syscalls::register_NtShutdownSystem(proc_t proc, const on_NtShutdownSystem_fn& on_func)
 {
     if(d_->observers_NtShutdownSystem.empty())
         if(!register_callback_with(*d_, proc, "NtShutdownSystem", &on_NtShutdownSystem))
@@ -9546,7 +9546,7 @@ bool tracer::syscalls::register_NtShutdownSystem(proc_t proc, const on_NtShutdow
     return true;
 }
 
-bool tracer::syscalls::register_NtShutdownWorkerFactory(proc_t proc, const on_NtShutdownWorkerFactory_fn& on_func)
+bool nt::syscalls::register_NtShutdownWorkerFactory(proc_t proc, const on_NtShutdownWorkerFactory_fn& on_func)
 {
     if(d_->observers_NtShutdownWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "NtShutdownWorkerFactory", &on_NtShutdownWorkerFactory))
@@ -9556,7 +9556,7 @@ bool tracer::syscalls::register_NtShutdownWorkerFactory(proc_t proc, const on_Nt
     return true;
 }
 
-bool tracer::syscalls::register_NtSignalAndWaitForSingleObject(proc_t proc, const on_NtSignalAndWaitForSingleObject_fn& on_func)
+bool nt::syscalls::register_NtSignalAndWaitForSingleObject(proc_t proc, const on_NtSignalAndWaitForSingleObject_fn& on_func)
 {
     if(d_->observers_NtSignalAndWaitForSingleObject.empty())
         if(!register_callback_with(*d_, proc, "NtSignalAndWaitForSingleObject", &on_NtSignalAndWaitForSingleObject))
@@ -9566,7 +9566,7 @@ bool tracer::syscalls::register_NtSignalAndWaitForSingleObject(proc_t proc, cons
     return true;
 }
 
-bool tracer::syscalls::register_NtSinglePhaseReject(proc_t proc, const on_NtSinglePhaseReject_fn& on_func)
+bool nt::syscalls::register_NtSinglePhaseReject(proc_t proc, const on_NtSinglePhaseReject_fn& on_func)
 {
     if(d_->observers_NtSinglePhaseReject.empty())
         if(!register_callback_with(*d_, proc, "NtSinglePhaseReject", &on_NtSinglePhaseReject))
@@ -9576,7 +9576,7 @@ bool tracer::syscalls::register_NtSinglePhaseReject(proc_t proc, const on_NtSing
     return true;
 }
 
-bool tracer::syscalls::register_NtStartProfile(proc_t proc, const on_NtStartProfile_fn& on_func)
+bool nt::syscalls::register_NtStartProfile(proc_t proc, const on_NtStartProfile_fn& on_func)
 {
     if(d_->observers_NtStartProfile.empty())
         if(!register_callback_with(*d_, proc, "NtStartProfile", &on_NtStartProfile))
@@ -9586,7 +9586,7 @@ bool tracer::syscalls::register_NtStartProfile(proc_t proc, const on_NtStartProf
     return true;
 }
 
-bool tracer::syscalls::register_NtStopProfile(proc_t proc, const on_NtStopProfile_fn& on_func)
+bool nt::syscalls::register_NtStopProfile(proc_t proc, const on_NtStopProfile_fn& on_func)
 {
     if(d_->observers_NtStopProfile.empty())
         if(!register_callback_with(*d_, proc, "NtStopProfile", &on_NtStopProfile))
@@ -9596,7 +9596,7 @@ bool tracer::syscalls::register_NtStopProfile(proc_t proc, const on_NtStopProfil
     return true;
 }
 
-bool tracer::syscalls::register_NtSuspendProcess(proc_t proc, const on_NtSuspendProcess_fn& on_func)
+bool nt::syscalls::register_NtSuspendProcess(proc_t proc, const on_NtSuspendProcess_fn& on_func)
 {
     if(d_->observers_NtSuspendProcess.empty())
         if(!register_callback_with(*d_, proc, "NtSuspendProcess", &on_NtSuspendProcess))
@@ -9606,7 +9606,7 @@ bool tracer::syscalls::register_NtSuspendProcess(proc_t proc, const on_NtSuspend
     return true;
 }
 
-bool tracer::syscalls::register_NtSuspendThread(proc_t proc, const on_NtSuspendThread_fn& on_func)
+bool nt::syscalls::register_NtSuspendThread(proc_t proc, const on_NtSuspendThread_fn& on_func)
 {
     if(d_->observers_NtSuspendThread.empty())
         if(!register_callback_with(*d_, proc, "NtSuspendThread", &on_NtSuspendThread))
@@ -9616,7 +9616,7 @@ bool tracer::syscalls::register_NtSuspendThread(proc_t proc, const on_NtSuspendT
     return true;
 }
 
-bool tracer::syscalls::register_NtSystemDebugControl(proc_t proc, const on_NtSystemDebugControl_fn& on_func)
+bool nt::syscalls::register_NtSystemDebugControl(proc_t proc, const on_NtSystemDebugControl_fn& on_func)
 {
     if(d_->observers_NtSystemDebugControl.empty())
         if(!register_callback_with(*d_, proc, "NtSystemDebugControl", &on_NtSystemDebugControl))
@@ -9626,7 +9626,7 @@ bool tracer::syscalls::register_NtSystemDebugControl(proc_t proc, const on_NtSys
     return true;
 }
 
-bool tracer::syscalls::register_NtTerminateJobObject(proc_t proc, const on_NtTerminateJobObject_fn& on_func)
+bool nt::syscalls::register_NtTerminateJobObject(proc_t proc, const on_NtTerminateJobObject_fn& on_func)
 {
     if(d_->observers_NtTerminateJobObject.empty())
         if(!register_callback_with(*d_, proc, "NtTerminateJobObject", &on_NtTerminateJobObject))
@@ -9636,7 +9636,7 @@ bool tracer::syscalls::register_NtTerminateJobObject(proc_t proc, const on_NtTer
     return true;
 }
 
-bool tracer::syscalls::register_NtTerminateProcess(proc_t proc, const on_NtTerminateProcess_fn& on_func)
+bool nt::syscalls::register_NtTerminateProcess(proc_t proc, const on_NtTerminateProcess_fn& on_func)
 {
     if(d_->observers_NtTerminateProcess.empty())
         if(!register_callback_with(*d_, proc, "NtTerminateProcess", &on_NtTerminateProcess))
@@ -9646,7 +9646,7 @@ bool tracer::syscalls::register_NtTerminateProcess(proc_t proc, const on_NtTermi
     return true;
 }
 
-bool tracer::syscalls::register_NtTerminateThread(proc_t proc, const on_NtTerminateThread_fn& on_func)
+bool nt::syscalls::register_NtTerminateThread(proc_t proc, const on_NtTerminateThread_fn& on_func)
 {
     if(d_->observers_NtTerminateThread.empty())
         if(!register_callback_with(*d_, proc, "NtTerminateThread", &on_NtTerminateThread))
@@ -9656,7 +9656,7 @@ bool tracer::syscalls::register_NtTerminateThread(proc_t proc, const on_NtTermin
     return true;
 }
 
-bool tracer::syscalls::register_NtTraceControl(proc_t proc, const on_NtTraceControl_fn& on_func)
+bool nt::syscalls::register_NtTraceControl(proc_t proc, const on_NtTraceControl_fn& on_func)
 {
     if(d_->observers_NtTraceControl.empty())
         if(!register_callback_with(*d_, proc, "NtTraceControl", &on_NtTraceControl))
@@ -9666,7 +9666,7 @@ bool tracer::syscalls::register_NtTraceControl(proc_t proc, const on_NtTraceCont
     return true;
 }
 
-bool tracer::syscalls::register_NtTraceEvent(proc_t proc, const on_NtTraceEvent_fn& on_func)
+bool nt::syscalls::register_NtTraceEvent(proc_t proc, const on_NtTraceEvent_fn& on_func)
 {
     if(d_->observers_NtTraceEvent.empty())
         if(!register_callback_with(*d_, proc, "NtTraceEvent", &on_NtTraceEvent))
@@ -9676,7 +9676,7 @@ bool tracer::syscalls::register_NtTraceEvent(proc_t proc, const on_NtTraceEvent_
     return true;
 }
 
-bool tracer::syscalls::register_NtTranslateFilePath(proc_t proc, const on_NtTranslateFilePath_fn& on_func)
+bool nt::syscalls::register_NtTranslateFilePath(proc_t proc, const on_NtTranslateFilePath_fn& on_func)
 {
     if(d_->observers_NtTranslateFilePath.empty())
         if(!register_callback_with(*d_, proc, "NtTranslateFilePath", &on_NtTranslateFilePath))
@@ -9686,7 +9686,7 @@ bool tracer::syscalls::register_NtTranslateFilePath(proc_t proc, const on_NtTran
     return true;
 }
 
-bool tracer::syscalls::register_NtUnloadDriver(proc_t proc, const on_NtUnloadDriver_fn& on_func)
+bool nt::syscalls::register_NtUnloadDriver(proc_t proc, const on_NtUnloadDriver_fn& on_func)
 {
     if(d_->observers_NtUnloadDriver.empty())
         if(!register_callback_with(*d_, proc, "NtUnloadDriver", &on_NtUnloadDriver))
@@ -9696,7 +9696,7 @@ bool tracer::syscalls::register_NtUnloadDriver(proc_t proc, const on_NtUnloadDri
     return true;
 }
 
-bool tracer::syscalls::register_NtUnloadKey2(proc_t proc, const on_NtUnloadKey2_fn& on_func)
+bool nt::syscalls::register_NtUnloadKey2(proc_t proc, const on_NtUnloadKey2_fn& on_func)
 {
     if(d_->observers_NtUnloadKey2.empty())
         if(!register_callback_with(*d_, proc, "NtUnloadKey2", &on_NtUnloadKey2))
@@ -9706,7 +9706,7 @@ bool tracer::syscalls::register_NtUnloadKey2(proc_t proc, const on_NtUnloadKey2_
     return true;
 }
 
-bool tracer::syscalls::register_NtUnloadKeyEx(proc_t proc, const on_NtUnloadKeyEx_fn& on_func)
+bool nt::syscalls::register_NtUnloadKeyEx(proc_t proc, const on_NtUnloadKeyEx_fn& on_func)
 {
     if(d_->observers_NtUnloadKeyEx.empty())
         if(!register_callback_with(*d_, proc, "NtUnloadKeyEx", &on_NtUnloadKeyEx))
@@ -9716,7 +9716,7 @@ bool tracer::syscalls::register_NtUnloadKeyEx(proc_t proc, const on_NtUnloadKeyE
     return true;
 }
 
-bool tracer::syscalls::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey_fn& on_func)
+bool nt::syscalls::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey_fn& on_func)
 {
     if(d_->observers_NtUnloadKey.empty())
         if(!register_callback_with(*d_, proc, "NtUnloadKey", &on_NtUnloadKey))
@@ -9726,7 +9726,7 @@ bool tracer::syscalls::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey_fn
     return true;
 }
 
-bool tracer::syscalls::register_NtUnlockFile(proc_t proc, const on_NtUnlockFile_fn& on_func)
+bool nt::syscalls::register_NtUnlockFile(proc_t proc, const on_NtUnlockFile_fn& on_func)
 {
     if(d_->observers_NtUnlockFile.empty())
         if(!register_callback_with(*d_, proc, "NtUnlockFile", &on_NtUnlockFile))
@@ -9736,7 +9736,7 @@ bool tracer::syscalls::register_NtUnlockFile(proc_t proc, const on_NtUnlockFile_
     return true;
 }
 
-bool tracer::syscalls::register_NtUnlockVirtualMemory(proc_t proc, const on_NtUnlockVirtualMemory_fn& on_func)
+bool nt::syscalls::register_NtUnlockVirtualMemory(proc_t proc, const on_NtUnlockVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtUnlockVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "NtUnlockVirtualMemory", &on_NtUnlockVirtualMemory))
@@ -9746,7 +9746,7 @@ bool tracer::syscalls::register_NtUnlockVirtualMemory(proc_t proc, const on_NtUn
     return true;
 }
 
-bool tracer::syscalls::register_NtUnmapViewOfSection(proc_t proc, const on_NtUnmapViewOfSection_fn& on_func)
+bool nt::syscalls::register_NtUnmapViewOfSection(proc_t proc, const on_NtUnmapViewOfSection_fn& on_func)
 {
     if(d_->observers_NtUnmapViewOfSection.empty())
         if(!register_callback_with(*d_, proc, "NtUnmapViewOfSection", &on_NtUnmapViewOfSection))
@@ -9756,7 +9756,7 @@ bool tracer::syscalls::register_NtUnmapViewOfSection(proc_t proc, const on_NtUnm
     return true;
 }
 
-bool tracer::syscalls::register_NtVdmControl(proc_t proc, const on_NtVdmControl_fn& on_func)
+bool nt::syscalls::register_NtVdmControl(proc_t proc, const on_NtVdmControl_fn& on_func)
 {
     if(d_->observers_NtVdmControl.empty())
         if(!register_callback_with(*d_, proc, "NtVdmControl", &on_NtVdmControl))
@@ -9766,7 +9766,7 @@ bool tracer::syscalls::register_NtVdmControl(proc_t proc, const on_NtVdmControl_
     return true;
 }
 
-bool tracer::syscalls::register_NtWaitForDebugEvent(proc_t proc, const on_NtWaitForDebugEvent_fn& on_func)
+bool nt::syscalls::register_NtWaitForDebugEvent(proc_t proc, const on_NtWaitForDebugEvent_fn& on_func)
 {
     if(d_->observers_NtWaitForDebugEvent.empty())
         if(!register_callback_with(*d_, proc, "NtWaitForDebugEvent", &on_NtWaitForDebugEvent))
@@ -9776,7 +9776,7 @@ bool tracer::syscalls::register_NtWaitForDebugEvent(proc_t proc, const on_NtWait
     return true;
 }
 
-bool tracer::syscalls::register_NtWaitForKeyedEvent(proc_t proc, const on_NtWaitForKeyedEvent_fn& on_func)
+bool nt::syscalls::register_NtWaitForKeyedEvent(proc_t proc, const on_NtWaitForKeyedEvent_fn& on_func)
 {
     if(d_->observers_NtWaitForKeyedEvent.empty())
         if(!register_callback_with(*d_, proc, "NtWaitForKeyedEvent", &on_NtWaitForKeyedEvent))
@@ -9786,7 +9786,7 @@ bool tracer::syscalls::register_NtWaitForKeyedEvent(proc_t proc, const on_NtWait
     return true;
 }
 
-bool tracer::syscalls::register_NtWaitForMultipleObjects32(proc_t proc, const on_NtWaitForMultipleObjects32_fn& on_func)
+bool nt::syscalls::register_NtWaitForMultipleObjects32(proc_t proc, const on_NtWaitForMultipleObjects32_fn& on_func)
 {
     if(d_->observers_NtWaitForMultipleObjects32.empty())
         if(!register_callback_with(*d_, proc, "NtWaitForMultipleObjects32", &on_NtWaitForMultipleObjects32))
@@ -9796,7 +9796,7 @@ bool tracer::syscalls::register_NtWaitForMultipleObjects32(proc_t proc, const on
     return true;
 }
 
-bool tracer::syscalls::register_NtWaitForMultipleObjects(proc_t proc, const on_NtWaitForMultipleObjects_fn& on_func)
+bool nt::syscalls::register_NtWaitForMultipleObjects(proc_t proc, const on_NtWaitForMultipleObjects_fn& on_func)
 {
     if(d_->observers_NtWaitForMultipleObjects.empty())
         if(!register_callback_with(*d_, proc, "NtWaitForMultipleObjects", &on_NtWaitForMultipleObjects))
@@ -9806,7 +9806,7 @@ bool tracer::syscalls::register_NtWaitForMultipleObjects(proc_t proc, const on_N
     return true;
 }
 
-bool tracer::syscalls::register_NtWaitForSingleObject(proc_t proc, const on_NtWaitForSingleObject_fn& on_func)
+bool nt::syscalls::register_NtWaitForSingleObject(proc_t proc, const on_NtWaitForSingleObject_fn& on_func)
 {
     if(d_->observers_NtWaitForSingleObject.empty())
         if(!register_callback_with(*d_, proc, "NtWaitForSingleObject", &on_NtWaitForSingleObject))
@@ -9816,7 +9816,7 @@ bool tracer::syscalls::register_NtWaitForSingleObject(proc_t proc, const on_NtWa
     return true;
 }
 
-bool tracer::syscalls::register_NtWaitForWorkViaWorkerFactory(proc_t proc, const on_NtWaitForWorkViaWorkerFactory_fn& on_func)
+bool nt::syscalls::register_NtWaitForWorkViaWorkerFactory(proc_t proc, const on_NtWaitForWorkViaWorkerFactory_fn& on_func)
 {
     if(d_->observers_NtWaitForWorkViaWorkerFactory.empty())
         if(!register_callback_with(*d_, proc, "NtWaitForWorkViaWorkerFactory", &on_NtWaitForWorkViaWorkerFactory))
@@ -9826,7 +9826,7 @@ bool tracer::syscalls::register_NtWaitForWorkViaWorkerFactory(proc_t proc, const
     return true;
 }
 
-bool tracer::syscalls::register_NtWaitHighEventPair(proc_t proc, const on_NtWaitHighEventPair_fn& on_func)
+bool nt::syscalls::register_NtWaitHighEventPair(proc_t proc, const on_NtWaitHighEventPair_fn& on_func)
 {
     if(d_->observers_NtWaitHighEventPair.empty())
         if(!register_callback_with(*d_, proc, "NtWaitHighEventPair", &on_NtWaitHighEventPair))
@@ -9836,7 +9836,7 @@ bool tracer::syscalls::register_NtWaitHighEventPair(proc_t proc, const on_NtWait
     return true;
 }
 
-bool tracer::syscalls::register_NtWaitLowEventPair(proc_t proc, const on_NtWaitLowEventPair_fn& on_func)
+bool nt::syscalls::register_NtWaitLowEventPair(proc_t proc, const on_NtWaitLowEventPair_fn& on_func)
 {
     if(d_->observers_NtWaitLowEventPair.empty())
         if(!register_callback_with(*d_, proc, "NtWaitLowEventPair", &on_NtWaitLowEventPair))
@@ -9846,7 +9846,7 @@ bool tracer::syscalls::register_NtWaitLowEventPair(proc_t proc, const on_NtWaitL
     return true;
 }
 
-bool tracer::syscalls::register_NtWorkerFactoryWorkerReady(proc_t proc, const on_NtWorkerFactoryWorkerReady_fn& on_func)
+bool nt::syscalls::register_NtWorkerFactoryWorkerReady(proc_t proc, const on_NtWorkerFactoryWorkerReady_fn& on_func)
 {
     if(d_->observers_NtWorkerFactoryWorkerReady.empty())
         if(!register_callback_with(*d_, proc, "NtWorkerFactoryWorkerReady", &on_NtWorkerFactoryWorkerReady))
@@ -9856,7 +9856,7 @@ bool tracer::syscalls::register_NtWorkerFactoryWorkerReady(proc_t proc, const on
     return true;
 }
 
-bool tracer::syscalls::register_NtWriteFileGather(proc_t proc, const on_NtWriteFileGather_fn& on_func)
+bool nt::syscalls::register_NtWriteFileGather(proc_t proc, const on_NtWriteFileGather_fn& on_func)
 {
     if(d_->observers_NtWriteFileGather.empty())
         if(!register_callback_with(*d_, proc, "NtWriteFileGather", &on_NtWriteFileGather))
@@ -9866,7 +9866,7 @@ bool tracer::syscalls::register_NtWriteFileGather(proc_t proc, const on_NtWriteF
     return true;
 }
 
-bool tracer::syscalls::register_NtWriteFile(proc_t proc, const on_NtWriteFile_fn& on_func)
+bool nt::syscalls::register_NtWriteFile(proc_t proc, const on_NtWriteFile_fn& on_func)
 {
     if(d_->observers_NtWriteFile.empty())
         if(!register_callback_with(*d_, proc, "NtWriteFile", &on_NtWriteFile))
@@ -9876,7 +9876,7 @@ bool tracer::syscalls::register_NtWriteFile(proc_t proc, const on_NtWriteFile_fn
     return true;
 }
 
-bool tracer::syscalls::register_NtWriteRequestData(proc_t proc, const on_NtWriteRequestData_fn& on_func)
+bool nt::syscalls::register_NtWriteRequestData(proc_t proc, const on_NtWriteRequestData_fn& on_func)
 {
     if(d_->observers_NtWriteRequestData.empty())
         if(!register_callback_with(*d_, proc, "NtWriteRequestData", &on_NtWriteRequestData))
@@ -9886,7 +9886,7 @@ bool tracer::syscalls::register_NtWriteRequestData(proc_t proc, const on_NtWrite
     return true;
 }
 
-bool tracer::syscalls::register_NtWriteVirtualMemory(proc_t proc, const on_NtWriteVirtualMemory_fn& on_func)
+bool nt::syscalls::register_NtWriteVirtualMemory(proc_t proc, const on_NtWriteVirtualMemory_fn& on_func)
 {
     if(d_->observers_NtWriteVirtualMemory.empty())
         if(!register_callback_with(*d_, proc, "NtWriteVirtualMemory", &on_NtWriteVirtualMemory))
@@ -9896,7 +9896,7 @@ bool tracer::syscalls::register_NtWriteVirtualMemory(proc_t proc, const on_NtWri
     return true;
 }
 
-bool tracer::syscalls::register_NtDisableLastKnownGood(proc_t proc, const on_NtDisableLastKnownGood_fn& on_func)
+bool nt::syscalls::register_NtDisableLastKnownGood(proc_t proc, const on_NtDisableLastKnownGood_fn& on_func)
 {
     if(d_->observers_NtDisableLastKnownGood.empty())
         if(!register_callback_with(*d_, proc, "NtDisableLastKnownGood", &on_NtDisableLastKnownGood))
@@ -9906,7 +9906,7 @@ bool tracer::syscalls::register_NtDisableLastKnownGood(proc_t proc, const on_NtD
     return true;
 }
 
-bool tracer::syscalls::register_NtEnableLastKnownGood(proc_t proc, const on_NtEnableLastKnownGood_fn& on_func)
+bool nt::syscalls::register_NtEnableLastKnownGood(proc_t proc, const on_NtEnableLastKnownGood_fn& on_func)
 {
     if(d_->observers_NtEnableLastKnownGood.empty())
         if(!register_callback_with(*d_, proc, "NtEnableLastKnownGood", &on_NtEnableLastKnownGood))
@@ -9916,7 +9916,7 @@ bool tracer::syscalls::register_NtEnableLastKnownGood(proc_t proc, const on_NtEn
     return true;
 }
 
-bool tracer::syscalls::register_NtFlushProcessWriteBuffers(proc_t proc, const on_NtFlushProcessWriteBuffers_fn& on_func)
+bool nt::syscalls::register_NtFlushProcessWriteBuffers(proc_t proc, const on_NtFlushProcessWriteBuffers_fn& on_func)
 {
     if(d_->observers_NtFlushProcessWriteBuffers.empty())
         if(!register_callback_with(*d_, proc, "NtFlushProcessWriteBuffers", &on_NtFlushProcessWriteBuffers))
@@ -9926,7 +9926,7 @@ bool tracer::syscalls::register_NtFlushProcessWriteBuffers(proc_t proc, const on
     return true;
 }
 
-bool tracer::syscalls::register_NtFlushWriteBuffer(proc_t proc, const on_NtFlushWriteBuffer_fn& on_func)
+bool nt::syscalls::register_NtFlushWriteBuffer(proc_t proc, const on_NtFlushWriteBuffer_fn& on_func)
 {
     if(d_->observers_NtFlushWriteBuffer.empty())
         if(!register_callback_with(*d_, proc, "NtFlushWriteBuffer", &on_NtFlushWriteBuffer))
@@ -9936,7 +9936,7 @@ bool tracer::syscalls::register_NtFlushWriteBuffer(proc_t proc, const on_NtFlush
     return true;
 }
 
-bool tracer::syscalls::register_NtGetCurrentProcessorNumber(proc_t proc, const on_NtGetCurrentProcessorNumber_fn& on_func)
+bool nt::syscalls::register_NtGetCurrentProcessorNumber(proc_t proc, const on_NtGetCurrentProcessorNumber_fn& on_func)
 {
     if(d_->observers_NtGetCurrentProcessorNumber.empty())
         if(!register_callback_with(*d_, proc, "NtGetCurrentProcessorNumber", &on_NtGetCurrentProcessorNumber))
@@ -9946,7 +9946,7 @@ bool tracer::syscalls::register_NtGetCurrentProcessorNumber(proc_t proc, const o
     return true;
 }
 
-bool tracer::syscalls::register_NtIsSystemResumeAutomatic(proc_t proc, const on_NtIsSystemResumeAutomatic_fn& on_func)
+bool nt::syscalls::register_NtIsSystemResumeAutomatic(proc_t proc, const on_NtIsSystemResumeAutomatic_fn& on_func)
 {
     if(d_->observers_NtIsSystemResumeAutomatic.empty())
         if(!register_callback_with(*d_, proc, "NtIsSystemResumeAutomatic", &on_NtIsSystemResumeAutomatic))
@@ -9956,7 +9956,7 @@ bool tracer::syscalls::register_NtIsSystemResumeAutomatic(proc_t proc, const on_
     return true;
 }
 
-bool tracer::syscalls::register_NtIsUILanguageComitted(proc_t proc, const on_NtIsUILanguageComitted_fn& on_func)
+bool nt::syscalls::register_NtIsUILanguageComitted(proc_t proc, const on_NtIsUILanguageComitted_fn& on_func)
 {
     if(d_->observers_NtIsUILanguageComitted.empty())
         if(!register_callback_with(*d_, proc, "NtIsUILanguageComitted", &on_NtIsUILanguageComitted))
@@ -9966,7 +9966,7 @@ bool tracer::syscalls::register_NtIsUILanguageComitted(proc_t proc, const on_NtI
     return true;
 }
 
-bool tracer::syscalls::register_NtQueryPortInformationProcess(proc_t proc, const on_NtQueryPortInformationProcess_fn& on_func)
+bool nt::syscalls::register_NtQueryPortInformationProcess(proc_t proc, const on_NtQueryPortInformationProcess_fn& on_func)
 {
     if(d_->observers_NtQueryPortInformationProcess.empty())
         if(!register_callback_with(*d_, proc, "NtQueryPortInformationProcess", &on_NtQueryPortInformationProcess))
@@ -9976,7 +9976,7 @@ bool tracer::syscalls::register_NtQueryPortInformationProcess(proc_t proc, const
     return true;
 }
 
-bool tracer::syscalls::register_NtSerializeBoot(proc_t proc, const on_NtSerializeBoot_fn& on_func)
+bool nt::syscalls::register_NtSerializeBoot(proc_t proc, const on_NtSerializeBoot_fn& on_func)
 {
     if(d_->observers_NtSerializeBoot.empty())
         if(!register_callback_with(*d_, proc, "NtSerializeBoot", &on_NtSerializeBoot))
@@ -9986,7 +9986,7 @@ bool tracer::syscalls::register_NtSerializeBoot(proc_t proc, const on_NtSerializ
     return true;
 }
 
-bool tracer::syscalls::register_NtTestAlert(proc_t proc, const on_NtTestAlert_fn& on_func)
+bool nt::syscalls::register_NtTestAlert(proc_t proc, const on_NtTestAlert_fn& on_func)
 {
     if(d_->observers_NtTestAlert.empty())
         if(!register_callback_with(*d_, proc, "NtTestAlert", &on_NtTestAlert))
@@ -9996,7 +9996,7 @@ bool tracer::syscalls::register_NtTestAlert(proc_t proc, const on_NtTestAlert_fn
     return true;
 }
 
-bool tracer::syscalls::register_NtThawRegistry(proc_t proc, const on_NtThawRegistry_fn& on_func)
+bool nt::syscalls::register_NtThawRegistry(proc_t proc, const on_NtThawRegistry_fn& on_func)
 {
     if(d_->observers_NtThawRegistry.empty())
         if(!register_callback_with(*d_, proc, "NtThawRegistry", &on_NtThawRegistry))
@@ -10006,7 +10006,7 @@ bool tracer::syscalls::register_NtThawRegistry(proc_t proc, const on_NtThawRegis
     return true;
 }
 
-bool tracer::syscalls::register_NtThawTransactions(proc_t proc, const on_NtThawTransactions_fn& on_func)
+bool nt::syscalls::register_NtThawTransactions(proc_t proc, const on_NtThawTransactions_fn& on_func)
 {
     if(d_->observers_NtThawTransactions.empty())
         if(!register_callback_with(*d_, proc, "NtThawTransactions", &on_NtThawTransactions))
@@ -10016,7 +10016,7 @@ bool tracer::syscalls::register_NtThawTransactions(proc_t proc, const on_NtThawT
     return true;
 }
 
-bool tracer::syscalls::register_NtUmsThreadYield(proc_t proc, const on_NtUmsThreadYield_fn& on_func)
+bool nt::syscalls::register_NtUmsThreadYield(proc_t proc, const on_NtUmsThreadYield_fn& on_func)
 {
     if(d_->observers_NtUmsThreadYield.empty())
         if(!register_callback_with(*d_, proc, "NtUmsThreadYield", &on_NtUmsThreadYield))
@@ -10026,7 +10026,7 @@ bool tracer::syscalls::register_NtUmsThreadYield(proc_t proc, const on_NtUmsThre
     return true;
 }
 
-bool tracer::syscalls::register_NtYieldExecution(proc_t proc, const on_NtYieldExecution_fn& on_func)
+bool nt::syscalls::register_NtYieldExecution(proc_t proc, const on_NtYieldExecution_fn& on_func)
 {
     if(d_->observers_NtYieldExecution.empty())
         if(!register_callback_with(*d_, proc, "NtYieldExecution", &on_NtYieldExecution))
@@ -10443,7 +10443,7 @@ namespace
     };
 }
 
-bool tracer::syscalls::register_all(proc_t proc, const tracer::syscalls::on_call_fn& on_call)
+bool nt::syscalls::register_all(proc_t proc, const nt::syscalls::on_call_fn& on_call)
 {
     Data::Breakpoints breakpoints;
     for(const auto it : g_names)

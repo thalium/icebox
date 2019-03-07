@@ -39,7 +39,7 @@ struct plugins::Syscalls::Data
     Data(core::Core& core);
 
     core::Core&                            core_;
-    tracer::syscalls                       syscalls_;
+    nt::syscalls                           syscalls_;
     std::shared_ptr<callstack::ICallstack> callstack_;
     std::shared_ptr<nt::ObjectNt>          objects_;
     Callsteps                              callsteps_;

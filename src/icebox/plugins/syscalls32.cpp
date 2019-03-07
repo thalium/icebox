@@ -42,15 +42,15 @@ struct plugins::Syscalls32::Data
 {
     Data(core::Core& core);
 
-    core::Core&        core_;
-    tracer::syscalls32 syscalls_;
-    ObjectsNt          objects_;
-    Callstack          callstack_;
-    Callsteps          callsteps_;
-    Triggers           triggers_;
-    json               args_;
-    proc_t             target_;
-    uint64_t           nb_triggers_;
+    core::Core&      core_;
+    nt32::syscalls32 syscalls_;
+    ObjectsNt        objects_;
+    Callstack        callstack_;
+    Callsteps        callsteps_;
+    Triggers         triggers_;
+    json             args_;
+    proc_t           target_;
+    uint64_t         nb_triggers_;
 };
 
 plugins::Syscalls32::Data::Data(core::Core& core)

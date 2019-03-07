@@ -7,7 +7,7 @@
 
 #include <functional>
 
-namespace tracer
+namespace nt
 {
     using on_RtlpAllocateHeapInternal_fn   = std::function<nt::PVOID(nt::PVOID, nt::SIZE_T)>;
     using on_RtlFreeHeap_fn                = std::function<nt::BOOLEAN(nt::PVOID, nt::ULONG, nt::PVOID)>;
@@ -35,4 +35,4 @@ namespace tracer
         struct Data;
         std::unique_ptr<Data> d_;
     };
-} // namespace tracer
+} // namespace nt

@@ -9,7 +9,7 @@ namespace
 	constexpr bool g_debug = false;
 }
 
-struct tracer::heaps::Data
+struct nt::heaps::Data
 {
     Data(core::Core& core, std::string_view module);
 
@@ -26,24 +26,24 @@ struct tracer::heaps::Data
     std::vector<on_RtlGetUserInfoHeap_fn>         observers_RtlGetUserInfoHeap;
 };
 
-tracer::heaps::Data::Data(core::Core& core, std::string_view module)
+nt::heaps::Data::Data(core::Core& core, std::string_view module)
     : core(core)
     , module(module)
 {
 }
 
-tracer::heaps::heaps(core::Core& core, std::string_view module)
+nt::heaps::heaps(core::Core& core, std::string_view module)
     : d_(std::make_unique<Data>(core, module))
 {
 }
 
-tracer::heaps::~heaps() = default;
+nt::heaps::~heaps() = default;
 
 namespace
 {
-    using Data = tracer::heaps::Data;
+    using Data = nt::heaps::Data;
 
-    static core::Breakpoint register_callback(Data& d, proc_t proc, const char* name, const tracer::heaps::on_call_fn& on_call)
+    static core::Breakpoint register_callback(Data& d, proc_t proc, const char* name, const core::Task& on_call)
     {
         const auto addr = d.core.sym.symbol(d.module, name);
         if(!addr)
@@ -76,7 +76,7 @@ namespace
         return nt::cast_to<T>(*arg);
     }
 
-    static void on_RtlpAllocateHeapInternal(tracer::heaps::Data& d)
+    static void on_RtlpAllocateHeapInternal(nt::heaps::Data& d)
     {
         const auto HeapHandle = arg<nt::PVOID>(d.core, 0);
         const auto Size       = arg<nt::SIZE_T>(d.core, 1);
@@ -88,7 +88,7 @@ namespace
             it(HeapHandle, Size);
     }
 
-    static void on_RtlFreeHeap(tracer::heaps::Data& d)
+    static void on_RtlFreeHeap(nt::heaps::Data& d)
     {
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
@@ -101,7 +101,7 @@ namespace
             it(HeapHandle, Flags, BaseAddress);
     }
 
-    static void on_RtlpReAllocateHeapInternal(tracer::heaps::Data& d)
+    static void on_RtlpReAllocateHeapInternal(nt::heaps::Data& d)
     {
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
@@ -115,7 +115,7 @@ namespace
             it(HeapHandle, Flags, BaseAddress, Size);
     }
 
-    static void on_RtlSizeHeap(tracer::heaps::Data& d)
+    static void on_RtlSizeHeap(nt::heaps::Data& d)
     {
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
@@ -128,7 +128,7 @@ namespace
             it(HeapHandle, Flags, BaseAddress);
     }
 
-    static void on_RtlSetUserValueHeap(tracer::heaps::Data& d)
+    static void on_RtlSetUserValueHeap(nt::heaps::Data& d)
     {
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
@@ -142,7 +142,7 @@ namespace
             it(HeapHandle, Flags, BaseAddress, UserValue);
     }
 
-    static void on_RtlGetUserInfoHeap(tracer::heaps::Data& d)
+    static void on_RtlGetUserInfoHeap(nt::heaps::Data& d)
     {
         const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
         const auto Flags       = arg<nt::ULONG>(d.core, 1);
@@ -160,7 +160,7 @@ namespace
 }
 
 
-bool tracer::heaps::register_RtlpAllocateHeapInternal(proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func)
+bool nt::heaps::register_RtlpAllocateHeapInternal(proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func)
 {
     if(d_->observers_RtlpAllocateHeapInternal.empty())
         if(!register_callback_with(*d_, proc, "RtlpAllocateHeapInternal", &on_RtlpAllocateHeapInternal))
@@ -170,7 +170,7 @@ bool tracer::heaps::register_RtlpAllocateHeapInternal(proc_t proc, const on_Rtlp
     return true;
 }
 
-bool tracer::heaps::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& on_func)
+bool nt::heaps::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& on_func)
 {
     if(d_->observers_RtlFreeHeap.empty())
         if(!register_callback_with(*d_, proc, "RtlFreeHeap", &on_RtlFreeHeap))
@@ -180,7 +180,7 @@ bool tracer::heaps::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& o
     return true;
 }
 
-bool tracer::heaps::register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func)
+bool nt::heaps::register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func)
 {
     if(d_->observers_RtlpReAllocateHeapInternal.empty())
         if(!register_callback_with(*d_, proc, "RtlpReAllocateHeapInternal", &on_RtlpReAllocateHeapInternal))
@@ -190,7 +190,7 @@ bool tracer::heaps::register_RtlpReAllocateHeapInternal(proc_t proc, const on_Rt
     return true;
 }
 
-bool tracer::heaps::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn& on_func)
+bool nt::heaps::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn& on_func)
 {
     if(d_->observers_RtlSizeHeap.empty())
         if(!register_callback_with(*d_, proc, "RtlSizeHeap", &on_RtlSizeHeap))
@@ -200,7 +200,7 @@ bool tracer::heaps::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn& o
     return true;
 }
 
-bool tracer::heaps::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUserValueHeap_fn& on_func)
+bool nt::heaps::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUserValueHeap_fn& on_func)
 {
     if(d_->observers_RtlSetUserValueHeap.empty())
         if(!register_callback_with(*d_, proc, "RtlSetUserValueHeap", &on_RtlSetUserValueHeap))
@@ -210,7 +210,7 @@ bool tracer::heaps::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUse
     return true;
 }
 
-bool tracer::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func)
+bool nt::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func)
 {
     if(d_->observers_RtlGetUserInfoHeap.empty())
         if(!register_callback_with(*d_, proc, "RtlGetUserInfoHeap", &on_RtlGetUserInfoHeap))
@@ -233,7 +233,7 @@ namespace
     };
 }
 
-bool tracer::heaps::register_all(proc_t proc, const tracer::heaps::on_call_fn& on_call)
+bool nt::heaps::register_all(proc_t proc, const nt::heaps::on_call_fn& on_call)
 {
     Data::Breakpoints breakpoints;
     for(const auto it : g_names)

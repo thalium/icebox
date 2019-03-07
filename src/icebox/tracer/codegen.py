@@ -35,7 +35,7 @@ def generate_header(json_data, filename, namespace, pad):
 
 #include <functional>
 
-namespace tracer
+namespace {namespace}
 {{
 {usings}
 
@@ -53,7 +53,7 @@ namespace tracer
         struct Data;
         std::unique_ptr<Data> d_;
     }};
-}} // namespace tracer
+}} // namespace {namespace}
 """.format(filename=filename, namespace=namespace,
         usings=generate_usings(json_data, namespace, pad),
         registers=generate_registers(json_data, pad))
@@ -85,8 +85,8 @@ def generate_dispatchers(json_data, filename, namespace):
     for target, (return_type, (args)) in json_data.items():
         # print prologue
         dispatchers += """
-    static void on_{target}(tracer::{filename}::Data& d)
-    {{""".format(filename=filename, target=target)
+    static void on_{target}({namespace}::{filename}::Data& d)
+    {{""".format(filename=filename, namespace=namespace, target=target)
 
         # print args
         pad = 0
@@ -116,13 +116,13 @@ def generate_dispatchers(json_data, filename, namespace):
 """.format(target=target, args=", ".join(names), fmtargs=", ".join(formats), logargs=logargs + ", ".join(names))
     return dispatchers
 
-def generate_definitions(json_data, filename, wow64):
+def generate_definitions(json_data, filename, namespace, wow64):
     definitions = ""
     for target, (return_type, (args)) in json_data.items():
         symbol_name = target if not wow64 else "_{target}@{size}".format(target=target, size=len(args)*4)
         # print prologue
         definitions += """
-bool tracer::{filename}::register_{target}(proc_t proc, const on_{target}_fn& on_func)
+bool {namespace}::{filename}::register_{target}(proc_t proc, const on_{target}_fn& on_func)
 {{
     if(d_->observers_{target}.empty())
         if(!register_callback_with(*d_, proc, "{symbol_name}", &on_{target}))
@@ -131,7 +131,7 @@ bool tracer::{filename}::register_{target}(proc_t proc, const on_{target}_fn& on
     d_->observers_{target}.push_back(on_func);
     return true;
 }}
-""".format(filename=filename, target=target, symbol_name=symbol_name)
+""".format(filename=filename, namespace=namespace, target=target, symbol_name=symbol_name)
     return definitions
 
 def generate_names(json_data, wow64):
@@ -154,7 +154,7 @@ namespace
 	constexpr bool g_debug = false;
 }}
 
-struct tracer::{filename}::Data
+struct {namespace}::{filename}::Data
 {{
     Data(core::Core& core, std::string_view module);
 
@@ -166,24 +166,24 @@ struct tracer::{filename}::Data
 {observers}
 }};
 
-tracer::{filename}::Data::Data(core::Core& core, std::string_view module)
+{namespace}::{filename}::Data::Data(core::Core& core, std::string_view module)
     : core(core)
     , module(module)
 {{
 }}
 
-tracer::{filename}::{filename}(core::Core& core, std::string_view module)
+{namespace}::{filename}::{filename}(core::Core& core, std::string_view module)
     : d_(std::make_unique<Data>(core, module))
 {{
 }}
 
-tracer::{filename}::~{filename}() = default;
+{namespace}::{filename}::~{filename}() = default;
 
 namespace
 {{
-    using Data = tracer::{filename}::Data;
+    using Data = {namespace}::{filename}::Data;
 
-    static core::Breakpoint register_callback(Data& d, proc_t proc, const char* name, const tracer::{filename}::on_call_fn& on_call)
+    static core::Breakpoint register_callback(Data& d, proc_t proc, const char* name, const core::Task& on_call)
     {{
         const auto addr = d.core.sym.symbol(d.module, name);
         if(!addr)
@@ -227,7 +227,7 @@ namespace
     }};
 }}
 
-bool tracer::{filename}::register_all(proc_t proc, const tracer::{filename}::on_call_fn& on_call)
+bool {namespace}::{filename}::register_all(proc_t proc, const {namespace}::{filename}::on_call_fn& on_call)
 {{
     Data::Breakpoints breakpoints;
     for(const auto it : g_names)
@@ -246,7 +246,7 @@ bool tracer::{filename}::register_all(proc_t proc, const tracer::{filename}::on_
         enumerates=generate_enumerates(json_data),
         observers=generate_observers(json_data, pad),
         dispatchers=generate_dispatchers(json_data, filename, namespace),
-        definitions=generate_definitions(json_data, filename, wow64),
+        definitions=generate_definitions(json_data, filename, namespace, wow64),
         names=generate_names(json_data, wow64))
 
 def read_file(filename):
