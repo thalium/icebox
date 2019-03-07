@@ -323,7 +323,7 @@ bool plugins::Syscalls32::setup(proc_t target)
         return 0;
     });
 
-    d_->syscalls_.register_all(target, [&]
+    d_->syscalls_.register_all(target, [&](const auto& /*callcfg*/)
     {
         private_get_callstack(*d_);
         d_->nb_triggers_++;

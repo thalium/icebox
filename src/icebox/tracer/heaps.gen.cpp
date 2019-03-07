@@ -222,28 +222,23 @@ bool nt::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfo
 
 namespace
 {
-    static const char g_names[][64] =
-    {
-      "RtlpAllocateHeapInternal",
-      "RtlFreeHeap",
-      "RtlpReAllocateHeapInternal",
-      "RtlSizeHeap",
-      "RtlSetUserValueHeap",
-      "RtlGetUserInfoHeap",
-    };
+	static const nt::callcfg_t g_callcfgs[] =
+	{
+        {"RtlpAllocateHeapInternal", 2, {{"PVOID", "HeapHandle"}, {"SIZE_T", "Size"}}},
+        {"RtlFreeHeap", 3, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}}},
+        {"RtlpReAllocateHeapInternal", 4, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}, {"ULONG", "Size"}}},
+        {"RtlSizeHeap", 3, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}}},
+        {"RtlSetUserValueHeap", 4, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}, {"PVOID", "UserValue"}}},
+        {"RtlGetUserInfoHeap", 5, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}, {"PVOID", "UserValue"}, {"PULONG", "UserFlags"}}},
+	};
 }
 
 bool nt::heaps::register_all(proc_t proc, const nt::heaps::on_call_fn& on_call)
 {
     Data::Breakpoints breakpoints;
-    for(const auto it : g_names)
-    {
-        const auto bp = register_callback(*d_, proc, it, on_call);
-        if(!bp)
-            continue;
-
-        breakpoints.emplace_back(bp);
-    }
+    for(const auto cfg : g_callcfgs)
+        if(const auto bp = register_callback(*d_, proc, cfg.name, [=]{ on_call(cfg); }))
+            breakpoints.emplace_back(bp);
 
     d_->breakpoints.insert(d_->breakpoints.end(), breakpoints.begin(), breakpoints.end());
     return true;

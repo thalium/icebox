@@ -410,13 +410,26 @@ namespace nt
     using on_NtUmsThreadYield_fn                                   = std::function<nt::NTSTATUS()>;
     using on_NtYieldExecution_fn                                   = std::function<nt::NTSTATUS()>;
 
+    struct argcfg_t
+    {
+        char	 type[64];
+        char	 name[64];
+    };
+
+    struct callcfg_t
+    {
+        char        name[64];
+        size_t      argc;
+        argcfg_t    args[32];
+    };
+
     struct syscalls
     {
          syscalls(core::Core& core, std::string_view module);
         ~syscalls();
 
         // register generic callback with process filtering
-        using on_call_fn = std::function<void()>;
+        using on_call_fn = std::function<void(const callcfg_t& callcfg)>;
         bool register_all(proc_t proc, const on_call_fn& on_call);
 
         bool register_NtAcceptConnectPort                               (proc_t proc, const on_NtAcceptConnectPort_fn& on_func);

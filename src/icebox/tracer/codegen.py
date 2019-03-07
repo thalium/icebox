@@ -39,13 +39,26 @@ namespace {namespace}
 {{
 {usings}
 
+    struct argcfg_t
+    {{
+        char	 type[64];
+        char	 name[64];
+    }};
+
+    struct callcfg_t
+    {{
+        char        name[64];
+        size_t      argc;
+        argcfg_t    args[32];
+    }};
+
     struct {filename}
     {{
          {filename}(core::Core& core, std::string_view module);
         ~{filename}();
 
         // register generic callback with process filtering
-        using on_call_fn = std::function<void()>;
+        using on_call_fn = std::function<void(const callcfg_t& callcfg)>;
         bool register_all(proc_t proc, const on_call_fn& on_call);
 
 {registers}
@@ -134,11 +147,13 @@ bool {namespace}::{filename}::register_{target}(proc_t proc, const on_{target}_f
 """.format(filename=filename, namespace=namespace, target=target, symbol_name=symbol_name)
     return definitions
 
-def generate_names(json_data, wow64):
+def generate_callers(json_data, wow64):
     data = ""
     lines = []
-    for target, (return_type, (args)) in json_data.items():
-        elem = "      \"{target}\",".format(target=target) if not wow64 else "      \"_{target}@{size}\",".format(target=target, size=len(args)*4)
+    for target, (_, (args)) in json_data.items():
+        name = target if not wow64 else "_{target}@{size}".format(target=target, size=len(args) * 4)
+        args = ['{{"{type}", "{name}"}}'.format(type=typeof, name=name) for name, typeof in args]
+        elem = '        {{"{name}", {argc}, {{{keys}}}}},'.format(name=name, argc=len(args), keys=", ".join(args))
         lines.append(elem)
     return data + "\n".join(lines)
 
@@ -221,23 +236,18 @@ namespace
 {definitions}
 namespace
 {{
-    static const char g_names[][64] =
-    {{
-{names}
-    }};
+	static const {namespace}::callcfg_t g_callcfgs[] =
+	{{
+{callers}
+	}};
 }}
 
 bool {namespace}::{filename}::register_all(proc_t proc, const {namespace}::{filename}::on_call_fn& on_call)
 {{
     Data::Breakpoints breakpoints;
-    for(const auto it : g_names)
-    {{
-        const auto bp = register_callback(*d_, proc, it, on_call);
-        if(!bp)
-            continue;
-
-        breakpoints.emplace_back(bp);
-    }}
+    for(const auto cfg : g_callcfgs)
+        if(const auto bp = register_callback(*d_, proc, cfg.name, [=]{{ on_call(cfg); }}))
+            breakpoints.emplace_back(bp);
 
     d_->breakpoints.insert(d_->breakpoints.end(), breakpoints.begin(), breakpoints.end());
     return true;
@@ -247,7 +257,7 @@ bool {namespace}::{filename}::register_all(proc_t proc, const {namespace}::{file
         observers=generate_observers(json_data, pad),
         dispatchers=generate_dispatchers(json_data, filename, namespace),
         definitions=generate_definitions(json_data, filename, namespace, wow64),
-        names=generate_names(json_data, wow64))
+        callers=generate_callers(json_data, wow64))
 
 def read_file(filename):
     with open(filename, "rb") as fh:

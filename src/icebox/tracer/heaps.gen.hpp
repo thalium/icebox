@@ -16,13 +16,26 @@ namespace nt
     using on_RtlSetUserValueHeap_fn        = std::function<nt::BOOLEAN(nt::PVOID, nt::ULONG, nt::PVOID, nt::PVOID)>;
     using on_RtlGetUserInfoHeap_fn         = std::function<nt::BOOLEAN(nt::PVOID, nt::ULONG, nt::PVOID, nt::PVOID, nt::PULONG)>;
 
+    struct argcfg_t
+    {
+        char	 type[64];
+        char	 name[64];
+    };
+
+    struct callcfg_t
+    {
+        char        name[64];
+        size_t      argc;
+        argcfg_t    args[32];
+    };
+
     struct heaps
     {
          heaps(core::Core& core, std::string_view module);
         ~heaps();
 
         // register generic callback with process filtering
-        using on_call_fn = std::function<void()>;
+        using on_call_fn = std::function<void(const callcfg_t& callcfg)>;
         bool register_all(proc_t proc, const on_call_fn& on_call);
 
         bool register_RtlpAllocateHeapInternal  (proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func);
