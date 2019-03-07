@@ -841,7 +841,7 @@ namespace
             if(!sym)
                 return;
 
-            os.LdrpInsertDataTableEntry = get_phy_from_sym(os, *proc, sym, "ntdll", "LdrpInsertDataTableEntry");
+            os.LdrpInsertDataTableEntry = get_phy_from_sym(os, *proc, sym, "ntdll", "LdrpProcessMappedModule");
             if(os.LdrpInsertDataTableEntry)
                 if(!listen_to(os, *os.LdrpInsertDataTableEntry, &on_LdrpInsertDataTableEntry))
                     return;
@@ -852,7 +852,7 @@ namespace
             if(!sym)
                 return;
 
-            os.LdrpInsertDataTableEntry32 = get_phy_from_sym(os, *proc, sym, "ntdll", "_LdrpInsertDataTableEntry@4");
+            os.LdrpInsertDataTableEntry32 = get_phy_from_sym(os, *proc, sym, "ntdll", "_LdrpProcessMappedModule@16");
             if(os.LdrpInsertDataTableEntry32)
                 if(!listen_to(os, *os.LdrpInsertDataTableEntry32, &on_LdrpInsertDataTableEntry))
                     return;
