@@ -536,14 +536,14 @@ namespace
     {
         const auto wowp = reader.read(proc.id + os.offsets_[EPROCESS_Wow64Process]);
         if(!wowp)
-            return FAIL(false, "unable to read EPROCESS.Wow64Process");
+            return FAIL(ext::nullopt, "unable to read EPROCESS.Wow64Process");
 
         if(!os.offsets_[EWOW64PROCESS_NtdllType])
             return wowp;
 
         const auto peb32 = reader.read(*wowp + os.offsets_[EWOW64PROCESS_Peb]);
         if(!peb32)
-            return FAIL(false, "unable to read EWOW64PROCESS.Peb");
+            return FAIL(ext::nullopt, "unable to read EWOW64PROCESS.Peb");
 
         return *peb32;
     }
