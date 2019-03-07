@@ -538,6 +538,9 @@ namespace
         if(!wowp)
             return FAIL(ext::nullopt, "unable to read EPROCESS.Wow64Process");
 
+        if(!*wowp)
+            return {};
+
         if(!os.offsets_[EWOW64PROCESS_NtdllType])
             return wowp;
 
