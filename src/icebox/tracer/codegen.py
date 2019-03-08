@@ -25,13 +25,14 @@ def generate_registers(json_data, pad):
         lines.append("        bool %s(proc_t proc, const on_%s_fn& on_func);" % (name, target))
     return data + "\n".join(lines)
 
-def generate_header(json_data, filename, namespace, pad):
+def generate_header(json_data, filename, namespace, pad, wow64):
     return """#pragma once
 
 #include "core.hpp"
 #include "types.hpp"
 
-#include "nt/{namespace}_types.hpp"
+#include "nt/nt.hpp"
+#include "nt/{namespace}.hpp"
 
 #include <functional>
 
@@ -69,7 +70,8 @@ namespace {namespace}
 }} // namespace {namespace}
 """.format(filename=filename, namespace=namespace,
         usings=generate_usings(json_data, pad),
-        registers=generate_registers(json_data, pad))
+        registers=generate_registers(json_data, pad),
+		ptr_t = "x86_t" if wow64 else "x64_t")
 
 def generate_enumerates(json_data):
     data = ""
@@ -283,6 +285,6 @@ if __name__ == '__main__':
     filename = filename.replace(".json", "")
 
     header = os.path.join(filedir, filename + ".gen.hpp")
-    write_file(header, generate_header(json_data, filename, opts.namespace, pad))
+    write_file(header, generate_header(json_data, filename, opts.namespace, pad, opts.wow64))
     implementation = os.path.join(filedir, filename + ".gen.cpp")
     write_file(implementation, generate_impl(json_data, filename, opts.namespace, pad, opts.wow64))

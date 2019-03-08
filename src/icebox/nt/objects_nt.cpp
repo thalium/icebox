@@ -4,6 +4,8 @@
 #include "log.hpp"
 
 #include "endian.hpp"
+#include "nt32.hpp"
+#include "nt64.hpp"
 #include "os.hpp"
 #include "reader.hpp"
 #include "utils/utf8.hpp"
@@ -152,7 +154,7 @@ std::shared_ptr<nt::ObjectNt> nt::make_objectnt(core::Core& core)
     return obj_nt;
 }
 
-opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
+opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt64::HANDLE handle)
 {
     // Is kernel handle
     const auto reader            = reader::make(d_->core_, proc);
@@ -222,77 +224,6 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
     return obj_t{obj_body};
 }
 
-namespace
-{
-    static opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
-    {
-        using UnicodeString = struct
-        {
-            uint16_t length;
-            uint16_t max_length;
-            uint32_t _; // padding
-            uint64_t buffer;
-        };
-        UnicodeString us;
-        auto ok = reader.read(&us, unicode_string, sizeof us);
-        if(!ok)
-            return FAIL(ext::nullopt, "unable to read UNICODE_STRING");
-
-        us.length     = read_le16(&us.length);
-        us.max_length = read_le16(&us.max_length);
-        us.buffer     = read_le64(&us.buffer);
-
-        if(us.length > us.max_length)
-            return FAIL(ext::nullopt, "corrupted UNICODE_STRING");
-
-        if(!us.length)
-            return {};
-
-        std::vector<uint8_t> buffer(us.length);
-        ok = reader.read(&buffer[0], us.buffer, us.length);
-        if(!ok)
-            return FAIL(ext::nullopt, "unable to read UNICODE_STRING.buffer");
-
-        const auto p = &buffer[0];
-        return utf8::convert(p, &p[us.length]);
-    }
-
-    namespace nt32
-    {
-        static opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
-        {
-            using UnicodeString = struct
-            {
-                uint16_t length;
-                uint16_t max_length;
-                uint32_t buffer;
-            };
-            UnicodeString us;
-            auto ok = reader.read(&us, unicode_string, sizeof us);
-            if(!ok)
-                return FAIL(ext::nullopt, "unable to read UNICODE_STRING");
-
-            us.length     = read_le16(&us.length);
-            us.max_length = read_le16(&us.max_length);
-            us.buffer     = read_le32(&us.buffer);
-
-            if(us.length > us.max_length)
-                return FAIL(ext::nullopt, "corrupted UNICODE_STRING");
-
-            if(!us.length)
-                return {};
-
-            std::vector<uint8_t> buffer(us.length);
-            ok = reader.read(&buffer[0], us.buffer, us.length);
-            if(!ok)
-                return FAIL(ext::nullopt, "unable to read UNICODE_STRING.buffer");
-
-            const auto p = &buffer[0];
-            return utf8::convert(p, &p[us.length]);
-        }
-    } // namespace nt32
-}
-
 opt<std::string> nt::ObjectNt::obj_typename(proc_t proc, nt::obj_t obj)
 {
     const auto POINTER_SIZE     = 8;
@@ -313,13 +244,13 @@ opt<std::string> nt::ObjectNt::obj_typename(proc_t proc, nt::obj_t obj)
     if(!obj_type)
         return FAIL(ext::nullopt, "unable to read object type");
 
-    return read_unicode_string(reader, *obj_type + d_->members_[OBJECT_TYPE_Name]);
+    return nt64::read_unicode_string(reader, *obj_type + d_->members_[OBJECT_TYPE_Name]);
 }
 
 opt<std::string> nt::ObjectNt::fileobj_filename(proc_t proc, nt::obj_t obj)
 {
     const auto reader = reader::make(d_->core_, proc);
-    return read_unicode_string(reader, obj.id + d_->members_[FILE_OBJECT_FileName]);
+    return nt64::read_unicode_string(reader, obj.id + d_->members_[FILE_OBJECT_FileName]);
 }
 
 opt<nt::obj_t> nt::ObjectNt::fileobj_deviceobject(proc_t proc, nt::obj_t obj)
@@ -345,7 +276,7 @@ opt<nt::obj_t> nt::ObjectNt::deviceobj_driverobject(proc_t proc, nt::obj_t obj)
 opt<std::string> nt::ObjectNt::driverobj_drivername(proc_t proc, nt::obj_t obj)
 {
     const auto reader = reader::make(d_->core_, proc);
-    return read_unicode_string(reader, obj.id + d_->members_[DRIVER_OBJECT_DriverName]);
+    return nt64::read_unicode_string(reader, obj.id + d_->members_[DRIVER_OBJECT_DriverName]);
 }
 
 opt<std::string> nt::ObjectNt::objattribute_objectname(proc_t proc, uint64_t ptr)
@@ -364,8 +295,8 @@ opt<std::string> nt::ObjectNt::objattribute_objectname(proc_t proc, uint64_t ptr
     }
 
     const auto obj_name = reader.read(ptr + d_->members_[OBJECT_ATTRIBUTES_ObjectName]);
-    if(!obj_name)
+    if(!obj_name || !*obj_name)
         return {};
 
-    return read_unicode_string(reader, *obj_name);
+    return nt64::read_unicode_string(reader, *obj_name);
 }

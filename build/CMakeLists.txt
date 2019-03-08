@@ -115,9 +115,9 @@ function(add_tracer namespace input_file)
         COMMENT "generating ${filename}.gen.cpp"
     )
 endfunction()
-add_tracer("nt"   "${tracer_dir}/syscalls.json")
+add_tracer("nt64" "${tracer_dir}/syscalls.json")
 add_tracer("nt32" "${tracer_dir}/syscalls32.json" "-w")
-add_tracer("nt"   "${tracer_dir}/heaps.json")
+add_tracer("nt64" "${tracer_dir}/heaps.json")
 
 # icebox
 set(icebox_dir "${root_dir}/src/icebox")

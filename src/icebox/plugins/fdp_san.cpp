@@ -4,7 +4,7 @@
 #include "log.hpp"
 
 #include "callstack.hpp"
-#include "nt/nt_types.hpp"
+#include "nt/nt64.hpp"
 #include "os.hpp"
 #include "reader.hpp"
 #include "tracer/heaps.gen.hpp"
@@ -30,8 +30,8 @@ namespace
 
     struct heap_ctx_t
     {
-        nt::PVOID HeapHandle;
-        nt::PVOID BaseAddress;
+        nt64::PVOID HeapHandle;
+        nt64::PVOID BaseAddress;
     };
 
     static inline bool operator==(const heap_ctx_t& a, const heap_ctx_t& b)
@@ -79,7 +79,7 @@ namespace std
 namespace
 {
     using ReturnCtx  = std::unordered_map<return_ctx_t, core::Breakpoint>;
-    using HeapCtx    = std::unordered_map<heap_ctx_t, nt::SIZE_T>;
+    using HeapCtx    = std::unordered_map<heap_ctx_t, nt64::SIZE_T>;
     using FdpSanData = plugins::FdpSan::Data;
     using Callstack  = std::shared_ptr<callstack::ICallstack>;
 
@@ -92,7 +92,7 @@ struct plugins::FdpSan::Data
     Data(core::Core& core, proc_t target);
 
     core::Core& core_;
-    nt::heaps   heap_tracer_;
+    nt64::heaps heap_tracer_;
     Callstack   callstack_;
 
     ReturnCtx      returns_;
@@ -143,7 +143,7 @@ namespace
         d.returns_.emplace(return_ctx_t{*thread, rsp}, bp);
     }
 
-    static void on_RtlpAllocateHeapInternal(FdpSanData& d, nt::PVOID HeapHandle, nt::SIZE_T Size)
+    static void on_RtlpAllocateHeapInternal(FdpSanData& d, nt64::PVOID HeapHandle, nt64::SIZE_T Size)
     {
         const auto ok = d.core_.os->write_arg(1, {ptr_prolog + Size + ptr_epilog});
         if(!ok)
@@ -164,7 +164,7 @@ namespace
         });
     }
 
-    static void on_RtlFreeHeap(FdpSanData& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
+    static void on_RtlFreeHeap(FdpSanData& d, nt64::PVOID HeapHandle, nt64::ULONG /*Flags*/, nt64::PVOID BaseAddress)
     {
         const auto it = d.heap_.find(heap_ctx_t{HeapHandle, BaseAddress});
         if(it == d.heap_.end())
@@ -174,7 +174,7 @@ namespace
         d.heap_.erase(it);
     }
 
-    static void on_RtlSizeHeap(FdpSanData& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
+    static void on_RtlSizeHeap(FdpSanData& d, nt64::PVOID HeapHandle, nt64::ULONG /*Flags*/, nt64::PVOID BaseAddress)
     {
         const auto it = d.heap_.find(heap_ctx_t{HeapHandle, BaseAddress});
         if(it == d.heap_.end())
@@ -194,7 +194,7 @@ namespace
         });
     }
 
-    static void on_RtlGetUserInfoHeap(FdpSanData& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
+    static void on_RtlGetUserInfoHeap(FdpSanData& d, nt64::PVOID HeapHandle, nt64::ULONG /*Flags*/, nt64::PVOID BaseAddress)
     {
         if(true)
             return;
@@ -206,7 +206,7 @@ namespace
             d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
     }
 
-    static void on_RtlSetUserValueHeap(FdpSanData& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
+    static void on_RtlSetUserValueHeap(FdpSanData& d, nt64::PVOID HeapHandle, nt64::ULONG /*Flags*/, nt64::PVOID BaseAddress)
     {
         const auto it = d.heap_.find(heap_ctx_t{HeapHandle, BaseAddress});
         if(it == d.heap_.end())
@@ -215,7 +215,7 @@ namespace
         d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
     }
 
-    static void on_RtlpReAllocateHeapInternal(FdpSanData& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress, nt::ULONG Size)
+    static void on_RtlpReAllocateHeapInternal(FdpSanData& d, nt64::PVOID HeapHandle, nt64::ULONG /*Flags*/, nt64::PVOID BaseAddress, nt64::ULONG Size)
     {
         const auto it = d.heap_.find(heap_ctx_t{HeapHandle, BaseAddress});
         if(it != d.heap_.end())
@@ -271,37 +271,37 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
     : d_(std::make_unique<Data>(core, target))
 {
     d_->callstack_ = callstack::make_callstack_nt(d_->core_);
-    d_->heap_tracer_.register_RtlpAllocateHeapInternal(d_->target_, [=](nt::PVOID HeapHandle, nt::SIZE_T Size)
+    d_->heap_tracer_.register_RtlpAllocateHeapInternal(d_->target_, [=](nt64::PVOID HeapHandle, nt64::SIZE_T Size)
     {
         get_callstack(*d_);
         on_RtlpAllocateHeapInternal(*d_, HeapHandle, Size);
         return 0;
     });
-    d_->heap_tracer_.register_RtlFreeHeap(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress)
+    d_->heap_tracer_.register_RtlFreeHeap(d_->target_, [=](nt64::PVOID HeapHandle, nt64::ULONG Flags, nt64::PVOID BaseAddress)
     {
         get_callstack(*d_);
         on_RtlFreeHeap(*d_, HeapHandle, Flags, BaseAddress);
         return 0;
     });
-    d_->heap_tracer_.register_RtlSizeHeap(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress)
+    d_->heap_tracer_.register_RtlSizeHeap(d_->target_, [=](nt64::PVOID HeapHandle, nt64::ULONG Flags, nt64::PVOID BaseAddress)
     {
         get_callstack(*d_);
         on_RtlSizeHeap(*d_, HeapHandle, Flags, BaseAddress);
         return 0;
     });
-    d_->heap_tracer_.register_RtlGetUserInfoHeap(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/, nt::PULONG /*UserFlags*/)
+    d_->heap_tracer_.register_RtlGetUserInfoHeap(d_->target_, [=](nt64::PVOID HeapHandle, nt64::ULONG Flags, nt64::PVOID BaseAddress, nt64::PVOID /*UserValue*/, nt64::PULONG /*UserFlags*/)
     {
         get_callstack(*d_);
         on_RtlGetUserInfoHeap(*d_, HeapHandle, Flags, BaseAddress);
         return 0;
     });
-    d_->heap_tracer_.register_RtlSetUserValueHeap(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/)
+    d_->heap_tracer_.register_RtlSetUserValueHeap(d_->target_, [=](nt64::PVOID HeapHandle, nt64::ULONG Flags, nt64::PVOID BaseAddress, nt64::PVOID /*UserValue*/)
     {
         get_callstack(*d_);
         on_RtlSetUserValueHeap(*d_, HeapHandle, Flags, BaseAddress);
         return 0;
     });
-    d_->heap_tracer_.register_RtlpReAllocateHeapInternal(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::ULONG Size)
+    d_->heap_tracer_.register_RtlpReAllocateHeapInternal(d_->target_, [=](nt64::PVOID HeapHandle, nt64::ULONG Flags, nt64::PVOID BaseAddress, nt64::ULONG Size)
     {
         get_callstack(*d_);
         on_RtlpReAllocateHeapInternal(*d_, HeapHandle, Flags, BaseAddress, Size);

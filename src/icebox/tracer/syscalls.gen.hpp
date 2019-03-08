@@ -3,11 +3,12 @@
 #include "core.hpp"
 #include "types.hpp"
 
-#include "nt/nt_types.hpp"
+#include "nt/nt.hpp"
+#include "nt/nt64.hpp"
 
 #include <functional>
 
-namespace nt
+namespace nt64
 {
     using on_NtAcceptConnectPort_fn                                = std::function<NTSTATUS(PHANDLE, PVOID, PPORT_MESSAGE, BOOLEAN, PPORT_VIEW, PREMOTE_PORT_VIEW)>;
     using on_NtAccessCheckAndAuditAlarm_fn                         = std::function<NTSTATUS(PUNICODE_STRING, PVOID, PUNICODE_STRING, PUNICODE_STRING, PSECURITY_DESCRIPTOR, ACCESS_MASK, PGENERIC_MAPPING, BOOLEAN, PACCESS_MASK, PNTSTATUS, PBOOLEAN)>;
@@ -836,4 +837,4 @@ namespace nt
         struct Data;
         std::unique_ptr<Data> d_;
     };
-} // namespace nt
+} // namespace nt64

@@ -3,11 +3,12 @@
 #include "core.hpp"
 #include "types.hpp"
 
-#include "nt/nt_types.hpp"
+#include "nt/nt.hpp"
+#include "nt/nt64.hpp"
 
 #include <functional>
 
-namespace nt
+namespace nt64
 {
     using on_RtlpAllocateHeapInternal_fn   = std::function<PVOID(PVOID, SIZE_T)>;
     using on_RtlFreeHeap_fn                = std::function<BOOLEAN(PVOID, ULONG, PVOID)>;
@@ -48,4 +49,4 @@ namespace nt
         struct Data;
         std::unique_ptr<Data> d_;
     };
-} // namespace nt
+} // namespace nt64

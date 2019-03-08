@@ -5,6 +5,7 @@
 
 #include "callstack.hpp"
 #include "endian.hpp"
+#include "nt/nt.hpp"
 #include "nt/objects_nt.hpp"
 #include "reader.hpp"
 #include "tracer/syscalls32.gen.hpp"
@@ -141,35 +142,6 @@ namespace
         d.triggers_.push_back(bp_trigger_info_t{{idx, cs_size}, d.nb_triggers_});
         return true;
     }
-
-    static opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
-    {
-        using UnicodeString = struct
-        {
-            uint16_t length;
-            uint16_t max_length;
-            uint32_t buffer;
-        };
-        UnicodeString us;
-        auto ok = reader.read(&us, unicode_string, sizeof us);
-        if(!ok)
-            return FAIL(ext::nullopt, "unable to read UNICODE_STRING");
-
-        us.length     = read_le16(&us.length);
-        us.max_length = read_le16(&us.max_length);
-        us.buffer     = read_le32(&us.buffer);
-
-        if(us.length > us.max_length)
-            return FAIL(ext::nullopt, "corrupted UNICODE_STRING");
-
-        std::vector<uint8_t> buffer(us.length);
-        ok = reader.read(&buffer[0], us.buffer, us.length);
-        if(!ok)
-            return FAIL(ext::nullopt, "unable to read UNICODE_STRING.buffer");
-
-        const auto p = &buffer[0];
-        return utf8::convert(p, &p[us.length]);
-    }
 }
 
 bool plugins::Syscalls32::setup(proc_t target)
@@ -262,10 +234,8 @@ bool plugins::Syscalls32::setup(proc_t target)
         if(!driver_name)
             return 1;
 
-        const auto ioctl_code = nt32::afd_status_dump(IoControlCode);
-
         d_->args_[d_->nb_triggers_]["Driver Name"]   = driver_name->data();
-        d_->args_[d_->nb_triggers_]["IoControlCode"] = ioctl_code.data();
+        d_->args_[d_->nb_triggers_]["IoControlCode"] = nt::ioctl_code_dump(static_cast<nt::IOCTL_CODE>(IoControlCode));
         return 0;
     });
 
@@ -293,11 +263,11 @@ bool plugins::Syscalls32::setup(proc_t target)
         // TODO get _RTL_USER_PROCESS_PARAMETERS from pdb
         // fields ImagePathName and CommandLine
         // 32 bits unicode string
-        const auto image_pathname = read_unicode_string(reader, ProcessParameters + 0x38);
+        const auto image_pathname = nt32::read_unicode_string(reader, ProcessParameters + 0x38);
         if(!image_pathname)
             return 1;
 
-        const auto command_line = read_unicode_string(reader, ProcessParameters + 0x40);
+        const auto command_line = nt32::read_unicode_string(reader, ProcessParameters + 0x40);
         if(!command_line)
             return 1;
 
@@ -316,7 +286,7 @@ bool plugins::Syscalls32::setup(proc_t target)
         if(!object_name)
             return 1;
 
-        const auto access = nt32::access_mask_dump(DesiredAccess);
+        const auto access = nt::access_mask_all(static_cast<uint32_t>(DesiredAccess));
 
         d_->args_[d_->nb_triggers_]["FileName"] = object_name->data();
         d_->args_[d_->nb_triggers_]["Access"]   = access;

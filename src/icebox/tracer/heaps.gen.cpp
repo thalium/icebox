@@ -8,7 +8,7 @@ namespace
 {
 	constexpr bool g_debug = false;
 
-	static const nt::callcfg_t g_callcfgs[] =
+	static const nt64::callcfg_t g_callcfgs[] =
 	{
         {"RtlpAllocateHeapInternal", 2, {{"PVOID", "HeapHandle"}, {"SIZE_T", "Size"}}},
         {"RtlFreeHeap", 3, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}}},
@@ -19,7 +19,7 @@ namespace
 	};
 }
 
-struct nt::heaps::Data
+struct nt64::heaps::Data
 {
     Data(core::Core& core, std::string_view module);
 
@@ -36,22 +36,22 @@ struct nt::heaps::Data
     std::vector<on_RtlGetUserInfoHeap_fn>         observers_RtlGetUserInfoHeap;
 };
 
-nt::heaps::Data::Data(core::Core& core, std::string_view module)
+nt64::heaps::Data::Data(core::Core& core, std::string_view module)
     : core(core)
     , module(module)
 {
 }
 
-nt::heaps::heaps(core::Core& core, std::string_view module)
+nt64::heaps::heaps(core::Core& core, std::string_view module)
     : d_(std::make_unique<Data>(core, module))
 {
 }
 
-nt::heaps::~heaps() = default;
+nt64::heaps::~heaps() = default;
 
 namespace
 {
-    using Data = nt::heaps::Data;
+    using Data = nt64::heaps::Data;
 
     static core::Breakpoint register_callback(Data& d, proc_t proc, const char* name, const core::Task& on_call)
     {
@@ -83,13 +83,13 @@ namespace
         if(!arg)
             return {};
 
-        return nt::cast_to<T>(*arg);
+        return nt64::cast_to<T>(*arg);
     }
 
-    static void on_RtlpAllocateHeapInternal(nt::heaps::Data& d)
+    static void on_RtlpAllocateHeapInternal(nt64::heaps::Data& d)
     {
-        const auto HeapHandle = arg<nt::PVOID>(d.core, 0);
-        const auto Size       = arg<nt::SIZE_T>(d.core, 1);
+        const auto HeapHandle = arg<nt64::PVOID>(d.core, 0);
+        const auto Size       = arg<nt64::SIZE_T>(d.core, 1);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("RtlpAllocateHeapInternal(HeapHandle:{:#x}, Size:{:#x})", HeapHandle, Size));
@@ -98,11 +98,11 @@ namespace
             it(HeapHandle, Size);
     }
 
-    static void on_RtlFreeHeap(nt::heaps::Data& d)
+    static void on_RtlFreeHeap(nt64::heaps::Data& d)
     {
-        const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
-        const auto Flags       = arg<nt::ULONG>(d.core, 1);
-        const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
+        const auto HeapHandle  = arg<nt64::PVOID>(d.core, 0);
+        const auto Flags       = arg<nt64::ULONG>(d.core, 1);
+        const auto BaseAddress = arg<nt64::PVOID>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("RtlFreeHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x})", HeapHandle, Flags, BaseAddress));
@@ -111,12 +111,12 @@ namespace
             it(HeapHandle, Flags, BaseAddress);
     }
 
-    static void on_RtlpReAllocateHeapInternal(nt::heaps::Data& d)
+    static void on_RtlpReAllocateHeapInternal(nt64::heaps::Data& d)
     {
-        const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
-        const auto Flags       = arg<nt::ULONG>(d.core, 1);
-        const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
-        const auto Size        = arg<nt::ULONG>(d.core, 3);
+        const auto HeapHandle  = arg<nt64::PVOID>(d.core, 0);
+        const auto Flags       = arg<nt64::ULONG>(d.core, 1);
+        const auto BaseAddress = arg<nt64::PVOID>(d.core, 2);
+        const auto Size        = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("RtlpReAllocateHeapInternal(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, Size:{:#x})", HeapHandle, Flags, BaseAddress, Size));
@@ -125,11 +125,11 @@ namespace
             it(HeapHandle, Flags, BaseAddress, Size);
     }
 
-    static void on_RtlSizeHeap(nt::heaps::Data& d)
+    static void on_RtlSizeHeap(nt64::heaps::Data& d)
     {
-        const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
-        const auto Flags       = arg<nt::ULONG>(d.core, 1);
-        const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
+        const auto HeapHandle  = arg<nt64::PVOID>(d.core, 0);
+        const auto Flags       = arg<nt64::ULONG>(d.core, 1);
+        const auto BaseAddress = arg<nt64::PVOID>(d.core, 2);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("RtlSizeHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x})", HeapHandle, Flags, BaseAddress));
@@ -138,12 +138,12 @@ namespace
             it(HeapHandle, Flags, BaseAddress);
     }
 
-    static void on_RtlSetUserValueHeap(nt::heaps::Data& d)
+    static void on_RtlSetUserValueHeap(nt64::heaps::Data& d)
     {
-        const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
-        const auto Flags       = arg<nt::ULONG>(d.core, 1);
-        const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
-        const auto UserValue   = arg<nt::PVOID>(d.core, 3);
+        const auto HeapHandle  = arg<nt64::PVOID>(d.core, 0);
+        const auto Flags       = arg<nt64::ULONG>(d.core, 1);
+        const auto BaseAddress = arg<nt64::PVOID>(d.core, 2);
+        const auto UserValue   = arg<nt64::PVOID>(d.core, 3);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("RtlSetUserValueHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, UserValue:{:#x})", HeapHandle, Flags, BaseAddress, UserValue));
@@ -152,13 +152,13 @@ namespace
             it(HeapHandle, Flags, BaseAddress, UserValue);
     }
 
-    static void on_RtlGetUserInfoHeap(nt::heaps::Data& d)
+    static void on_RtlGetUserInfoHeap(nt64::heaps::Data& d)
     {
-        const auto HeapHandle  = arg<nt::PVOID>(d.core, 0);
-        const auto Flags       = arg<nt::ULONG>(d.core, 1);
-        const auto BaseAddress = arg<nt::PVOID>(d.core, 2);
-        const auto UserValue   = arg<nt::PVOID>(d.core, 3);
-        const auto UserFlags   = arg<nt::PULONG>(d.core, 4);
+        const auto HeapHandle  = arg<nt64::PVOID>(d.core, 0);
+        const auto Flags       = arg<nt64::ULONG>(d.core, 1);
+        const auto BaseAddress = arg<nt64::PVOID>(d.core, 2);
+        const auto UserValue   = arg<nt64::PVOID>(d.core, 3);
+        const auto UserFlags   = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
             logg::print(logg::level_t::info, fmt::format("RtlGetUserInfoHeap(HeapHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, UserValue:{:#x}, UserFlags:{:#x})", HeapHandle, Flags, BaseAddress, UserValue, UserFlags));
@@ -170,7 +170,7 @@ namespace
 }
 
 
-bool nt::heaps::register_RtlpAllocateHeapInternal(proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func)
+bool nt64::heaps::register_RtlpAllocateHeapInternal(proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func)
 {
     if(d_->observers_RtlpAllocateHeapInternal.empty())
         if(!register_callback_with(*d_, proc, "RtlpAllocateHeapInternal", &on_RtlpAllocateHeapInternal))
@@ -180,7 +180,7 @@ bool nt::heaps::register_RtlpAllocateHeapInternal(proc_t proc, const on_RtlpAllo
     return true;
 }
 
-bool nt::heaps::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& on_func)
+bool nt64::heaps::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& on_func)
 {
     if(d_->observers_RtlFreeHeap.empty())
         if(!register_callback_with(*d_, proc, "RtlFreeHeap", &on_RtlFreeHeap))
@@ -190,7 +190,7 @@ bool nt::heaps::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& on_fu
     return true;
 }
 
-bool nt::heaps::register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func)
+bool nt64::heaps::register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func)
 {
     if(d_->observers_RtlpReAllocateHeapInternal.empty())
         if(!register_callback_with(*d_, proc, "RtlpReAllocateHeapInternal", &on_RtlpReAllocateHeapInternal))
@@ -200,7 +200,7 @@ bool nt::heaps::register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpRe
     return true;
 }
 
-bool nt::heaps::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn& on_func)
+bool nt64::heaps::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn& on_func)
 {
     if(d_->observers_RtlSizeHeap.empty())
         if(!register_callback_with(*d_, proc, "RtlSizeHeap", &on_RtlSizeHeap))
@@ -210,7 +210,7 @@ bool nt::heaps::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn& on_fu
     return true;
 }
 
-bool nt::heaps::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUserValueHeap_fn& on_func)
+bool nt64::heaps::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUserValueHeap_fn& on_func)
 {
     if(d_->observers_RtlSetUserValueHeap.empty())
         if(!register_callback_with(*d_, proc, "RtlSetUserValueHeap", &on_RtlSetUserValueHeap))
@@ -220,7 +220,7 @@ bool nt::heaps::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUserVal
     return true;
 }
 
-bool nt::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func)
+bool nt64::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func)
 {
     if(d_->observers_RtlGetUserInfoHeap.empty())
         if(!register_callback_with(*d_, proc, "RtlGetUserInfoHeap", &on_RtlGetUserInfoHeap))
@@ -231,7 +231,7 @@ bool nt::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfo
 }
 
 
-bool nt::heaps::register_all(proc_t proc, const nt::heaps::on_call_fn& on_call)
+bool nt64::heaps::register_all(proc_t proc, const nt64::heaps::on_call_fn& on_call)
 {
     Data::Breakpoints breakpoints;
     for(const auto cfg : g_callcfgs)

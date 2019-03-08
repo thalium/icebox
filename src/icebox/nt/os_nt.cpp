@@ -3,6 +3,8 @@
 #define FDP_MODULE "os_nt"
 #include "core.hpp"
 #include "log.hpp"
+#include "nt32.hpp"
+#include "nt64.hpp"
 #include "reader.hpp"
 #include "utils/fnview.hpp"
 #include "utils/hex.hpp"
@@ -15,51 +17,6 @@
 
 namespace
 {
-    namespace nt32
-    {
-        struct _LIST_ENTRY
-        {
-            uint32_t flink;
-            uint32_t blink;
-        };
-        STATIC_ASSERT_EQ(8, sizeof(_LIST_ENTRY));
-
-        struct _PEB_LDR_DATA
-        {
-            uint32_t    Length;
-            uint8_t     Initialized;
-            uint32_t    SsHandle;
-            _LIST_ENTRY InLoadOrderModuleList;
-            _LIST_ENTRY InMemoryOrderModuleList;
-            _LIST_ENTRY InInitializationOrderModuleList;
-            uint32_t    EntryInProgress;
-            uint8_t     ShutdownInProgress;
-            uint32_t    ShutdownThreadId;
-        };
-        STATIC_ASSERT_EQ(48, sizeof(_PEB_LDR_DATA));
-
-        using _UNICODE_STRING = struct
-        {
-            uint16_t length;
-            uint16_t max_length;
-            uint32_t buffer;
-        };
-        STATIC_ASSERT_EQ(8, sizeof(_UNICODE_STRING));
-
-        struct _LDR_DATA_TABLE_ENTRY
-        {
-            _LIST_ENTRY     InLoadOrderLinks;
-            _LIST_ENTRY     InMemoryOrderLinks;
-            _LIST_ENTRY     InInitializationOrderLinks;
-            uint32_t        DllBase;
-            uint32_t        EntryPoint;
-            uint32_t        SizeOfImage;
-            _UNICODE_STRING FullDllName;
-            _UNICODE_STRING BaseDllName;
-        };
-        STATIC_ASSERT_EQ(52, sizeof(_LDR_DATA_TABLE_ENTRY));
-    } // namespace nt32
-
     enum class cat_e
     {
         REQUIRED,
@@ -92,13 +49,8 @@ namespace
         KTHREAD_Process,
         KTHREAD_TrapFrame,
         KTRAP_FRAME_Rip,
-        LDR_DATA_TABLE_ENTRY_DllBase,
-        LDR_DATA_TABLE_ENTRY_FullDllName,
-        LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,
-        LDR_DATA_TABLE_ENTRY_SizeOfImage,
         OBJECT_NAME_INFORMATION_Name,
         PEB_Ldr,
-        PEB_LDR_DATA_InLoadOrderModuleList,
         PEB32_Ldr,
         SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName,
         EWOW64PROCESS_Peb,
@@ -141,13 +93,8 @@ namespace
         {cat_e::REQUIRED,   KTHREAD_Process,                              "nt", "_KTHREAD",                         "Process"},
         {cat_e::REQUIRED,   KTHREAD_TrapFrame,                            "nt", "_KTHREAD",                         "TrapFrame"},
         {cat_e::REQUIRED,   KTRAP_FRAME_Rip,                              "nt", "_KTRAP_FRAME",                     "Rip"},
-        {cat_e::REQUIRED,   LDR_DATA_TABLE_ENTRY_DllBase,                 "nt", "_LDR_DATA_TABLE_ENTRY",            "DllBase"},
-        {cat_e::REQUIRED,   LDR_DATA_TABLE_ENTRY_FullDllName,             "nt", "_LDR_DATA_TABLE_ENTRY",            "FullDllName"},
-        {cat_e::REQUIRED,   LDR_DATA_TABLE_ENTRY_InLoadOrderLinks,        "nt", "_LDR_DATA_TABLE_ENTRY",            "InLoadOrderLinks"},
-        {cat_e::REQUIRED,   LDR_DATA_TABLE_ENTRY_SizeOfImage,             "nt", "_LDR_DATA_TABLE_ENTRY",            "SizeOfImage"},
         {cat_e::REQUIRED,   OBJECT_NAME_INFORMATION_Name,                 "nt", "_OBJECT_NAME_INFORMATION",         "Name"},
         {cat_e::REQUIRED,   PEB_Ldr,                                      "nt", "_PEB",                             "Ldr"},
-        {cat_e::REQUIRED,   PEB_LDR_DATA_InLoadOrderModuleList,           "nt", "_PEB_LDR_DATA",                    "InLoadOrderModuleList"},
         {cat_e::REQUIRED,   PEB32_Ldr,                                    "nt", "_PEB32",                           "Ldr"},
         {cat_e::REQUIRED,   SE_AUDIT_PROCESS_CREATION_INFO_ImageFileName, "nt", "_SE_AUDIT_PROCESS_CREATION_INFO",  "ImageFileName"},
         {cat_e::OPTIONAL,   EWOW64PROCESS_Peb,                            "nt", "_EWOW64PROCESS",                   "Peb"},
@@ -476,62 +423,6 @@ opt<proc_t> OsNt::proc_find(uint64_t pid)
 
 namespace
 {
-    static opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
-    {
-        using _UNICODE_STRING = struct
-        {
-            uint16_t length;
-            uint16_t max_length;
-            uint32_t _; // padding
-            uint64_t buffer;
-        };
-        _UNICODE_STRING us;
-        auto ok = reader.read(&us, unicode_string, sizeof us);
-        if(!ok)
-            return FAIL(ext::nullopt, "unable to read UNICODE_STRING");
-
-        us.length     = read_le16(&us.length);
-        us.max_length = read_le16(&us.max_length);
-        us.buffer     = read_le64(&us.buffer);
-
-        if(us.length > us.max_length)
-            return FAIL(ext::nullopt, "corrupted UNICODE_STRING");
-
-        std::vector<uint8_t> buffer(us.length);
-        ok = reader.read(&buffer[0], us.buffer, us.length);
-        if(!ok)
-            return FAIL(ext::nullopt, "unable to read UNICODE_STRING.buffer");
-
-        const auto p = &buffer[0];
-        return utf8::convert(p, &p[us.length]);
-    }
-
-    namespace nt32
-    {
-        static opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t unicode_string)
-        {
-            nt32::_UNICODE_STRING us;
-            auto ok = reader.read(&us, unicode_string, sizeof us);
-            if(!ok)
-                return FAIL(ext::nullopt, "unable to read UNICODE_STRING");
-
-            us.length     = read_le16(&us.length);
-            us.max_length = read_le16(&us.max_length);
-            us.buffer     = read_le32(&us.buffer);
-
-            if(us.length > us.max_length)
-                return FAIL(ext::nullopt, "corrupted UNICODE_STRING");
-
-            std::vector<uint8_t> buffer(us.length);
-            ok = reader.read(&buffer[0], us.buffer, us.length);
-            if(!ok)
-                return FAIL(ext::nullopt, "unable to read UNICODE_STRING.buffer");
-
-            const auto p = &buffer[0];
-            return utf8::convert(p, &p[us.length]);
-        }
-    } // namespace nt32
-
     static opt<uint64_t> read_wow64_peb(const OsNt& os, const reader::Reader& reader, proc_t proc)
     {
         const auto wowp = reader.read(proc.id + os.offsets_[EPROCESS_Wow64Process]);
@@ -571,7 +462,7 @@ opt<std::string> OsNt::proc_name(proc_t proc)
     if(!image_file_name)
         return name;
 
-    const auto path = read_unicode_string(reader_, *image_file_name + offsets_[OBJECT_NAME_INFORMATION_Name]);
+    const auto path = nt64::read_unicode_string(reader_, *image_file_name + offsets_[OBJECT_NAME_INFORMATION_Name]);
     if(!path)
         return name;
 
@@ -745,7 +636,7 @@ namespace
         const auto name_addr = os.core_.regs.read(FDP_RCX_REGISTER);
 
         const auto reader   = reader::make(os.core_, proc);
-        const auto mod_name = read_unicode_string(reader, name_addr);
+        const auto mod_name = nt64::read_unicode_string(reader, name_addr);
         if(!mod_name)
             return {};
 
@@ -886,10 +777,10 @@ namespace
         if(!*ldr)
             return WALK_NEXT;
 
-        const auto head = *ldr + os.offsets_[PEB_LDR_DATA_InLoadOrderModuleList];
+        const auto head = *ldr + offsetof(nt64::_PEB_LDR_DATA, InLoadOrderModuleList);
         for(auto link = reader.read(head); link && link != head; link = reader.read(*link))
         {
-            const auto ret = on_mod({*link - os.offsets_[LDR_DATA_TABLE_ENTRY_InLoadOrderLinks], FLAGS_NONE});
+            const auto ret = on_mod({*link - offsetof(nt64::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), FLAGS_NONE});
             if(ret == WALK_STOP)
                 return ret;
         }
@@ -946,7 +837,7 @@ opt<std::string> OsNt::mod_name(proc_t proc, mod_t mod)
     if(mod.flags & FLAGS_32BIT)
         return nt32::read_unicode_string(reader, mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, FullDllName));
 
-    return read_unicode_string(reader, mod.id + offsets_[LDR_DATA_TABLE_ENTRY_FullDllName]);
+    return nt64::read_unicode_string(reader, mod.id + offsetof(nt64::_LDR_DATA_TABLE_ENTRY, FullDllName));
 }
 
 opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
@@ -985,13 +876,13 @@ flags_e OsNt::proc_flags(proc_t proc)
 
 namespace
 {
-    static opt<span_t> mod_span_64(const OsNt& os, const reader::Reader& reader, mod_t mod)
+    static opt<span_t> mod_span_64(const reader::Reader& reader, mod_t mod)
     {
-        const auto base = reader.read(mod.id + os.offsets_[LDR_DATA_TABLE_ENTRY_DllBase]);
+        const auto base = reader.read(mod.id + offsetof(nt64::_LDR_DATA_TABLE_ENTRY, DllBase));
         if(!base)
             return {};
 
-        const auto size = reader.read(mod.id + os.offsets_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
+        const auto size = reader.read(mod.id + offsetof(nt64::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
         if(!size)
             return {};
 
@@ -1018,14 +909,14 @@ opt<span_t> OsNt::mod_span(proc_t proc, mod_t mod)
     if(mod.flags & FLAGS_32BIT)
         return mod_span_32(reader, mod);
 
-    return mod_span_64(*this, reader, mod);
+    return mod_span_64(reader, mod);
 }
 
 bool OsNt::driver_list(on_driver_fn on_driver)
 {
     const auto head = symbols_[PsLoadedModuleList];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
-        if(on_driver({*link - offsets_[LDR_DATA_TABLE_ENTRY_InLoadOrderLinks]}) == WALK_STOP)
+        if(on_driver({*link - offsetof(nt64::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)}) == WALK_STOP)
             break;
     return true;
 }
@@ -1047,16 +938,16 @@ opt<driver_t> OsNt::driver_find(std::string_view name)
 
 opt<std::string> OsNt::driver_name(driver_t drv)
 {
-    return read_unicode_string(reader_, drv.id + offsets_[LDR_DATA_TABLE_ENTRY_FullDllName]);
+    return nt64::read_unicode_string(reader_, drv.id + offsetof(nt64::_LDR_DATA_TABLE_ENTRY, FullDllName));
 }
 
 opt<span_t> OsNt::driver_span(driver_t drv)
 {
-    const auto base = reader_.read(drv.id + offsets_[LDR_DATA_TABLE_ENTRY_DllBase]);
+    const auto base = reader_.read(drv.id + offsetof(nt64::_LDR_DATA_TABLE_ENTRY, DllBase));
     if(!base)
         return {};
 
-    const auto size = reader_.read(drv.id + offsets_[LDR_DATA_TABLE_ENTRY_SizeOfImage]);
+    const auto size = reader_.read(drv.id + offsetof(nt64::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
     if(!size)
         return {};
 

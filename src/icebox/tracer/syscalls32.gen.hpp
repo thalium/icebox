@@ -3,7 +3,8 @@
 #include "core.hpp"
 #include "types.hpp"
 
-#include "nt/nt32_types.hpp"
+#include "nt/nt.hpp"
+#include "nt/nt32.hpp"
 
 #include <functional>
 
