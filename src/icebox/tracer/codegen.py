@@ -4,17 +4,17 @@ import argparse
 import json
 import os
 
-def generate_usings(json_data, namespace, pad):
+def generate_usings(json_data, pad):
     data = ""
     pad += len("on__fn")
     lines = []
     for target, (return_type, args) in json_data.items():
         types = [typeof for _, typeof in args]
         if len(types):
-            types[0] = namespace + "::" + types[0]
+            types[0] = types[0]
         name = "on_%s_fn" % target
-        args_list = ", %s::" % namespace
-        lines.append("    using %s = std::function<%s::%s(%s)>;" % (name.ljust(pad), namespace, return_type, args_list.join(types)))
+        args_list = ", "
+        lines.append("    using %s = std::function<%s(%s)>;" % (name.ljust(pad), return_type, args_list.join(types)))
     return data + "\n".join(lines)
 
 def generate_registers(json_data, pad):
@@ -68,7 +68,7 @@ namespace {namespace}
     }};
 }} // namespace {namespace}
 """.format(filename=filename, namespace=namespace,
-        usings=generate_usings(json_data, namespace, pad),
+        usings=generate_usings(json_data, pad),
         registers=generate_registers(json_data, pad))
 
 def generate_enumerates(json_data):

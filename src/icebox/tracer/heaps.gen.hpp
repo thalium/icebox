@@ -9,12 +9,12 @@
 
 namespace nt
 {
-    using on_RtlpAllocateHeapInternal_fn   = std::function<nt::PVOID(nt::PVOID, nt::SIZE_T)>;
-    using on_RtlFreeHeap_fn                = std::function<nt::BOOLEAN(nt::PVOID, nt::ULONG, nt::PVOID)>;
-    using on_RtlpReAllocateHeapInternal_fn = std::function<nt::PVOID(nt::PVOID, nt::ULONG, nt::PVOID, nt::ULONG)>;
-    using on_RtlSizeHeap_fn                = std::function<nt::SIZE_T(nt::PVOID, nt::ULONG, nt::PVOID)>;
-    using on_RtlSetUserValueHeap_fn        = std::function<nt::BOOLEAN(nt::PVOID, nt::ULONG, nt::PVOID, nt::PVOID)>;
-    using on_RtlGetUserInfoHeap_fn         = std::function<nt::BOOLEAN(nt::PVOID, nt::ULONG, nt::PVOID, nt::PVOID, nt::PULONG)>;
+    using on_RtlpAllocateHeapInternal_fn   = std::function<PVOID(PVOID, SIZE_T)>;
+    using on_RtlFreeHeap_fn                = std::function<BOOLEAN(PVOID, ULONG, PVOID)>;
+    using on_RtlpReAllocateHeapInternal_fn = std::function<PVOID(PVOID, ULONG, PVOID, ULONG)>;
+    using on_RtlSizeHeap_fn                = std::function<SIZE_T(PVOID, ULONG, PVOID)>;
+    using on_RtlSetUserValueHeap_fn        = std::function<BOOLEAN(PVOID, ULONG, PVOID, PVOID)>;
+    using on_RtlGetUserInfoHeap_fn         = std::function<BOOLEAN(PVOID, ULONG, PVOID, PVOID, PULONG)>;
 
     struct argcfg_t
     {
