@@ -7,6 +7,16 @@
 namespace
 {
 	constexpr bool g_debug = false;
+
+	static const nt::callcfg_t g_callcfgs[] =
+	{
+        {"RtlpAllocateHeapInternal", 2, {{"PVOID", "HeapHandle"}, {"SIZE_T", "Size"}}},
+        {"RtlFreeHeap", 3, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}}},
+        {"RtlpReAllocateHeapInternal", 4, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}, {"ULONG", "Size"}}},
+        {"RtlSizeHeap", 3, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}}},
+        {"RtlSetUserValueHeap", 4, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}, {"PVOID", "UserValue"}}},
+        {"RtlGetUserInfoHeap", 5, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}, {"PVOID", "UserValue"}, {"PULONG", "UserFlags"}}},
+	};
 }
 
 struct nt::heaps::Data
@@ -220,18 +230,6 @@ bool nt::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfo
     return true;
 }
 
-namespace
-{
-	static const nt::callcfg_t g_callcfgs[] =
-	{
-        {"RtlpAllocateHeapInternal", 2, {{"PVOID", "HeapHandle"}, {"SIZE_T", "Size"}}},
-        {"RtlFreeHeap", 3, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}}},
-        {"RtlpReAllocateHeapInternal", 4, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}, {"ULONG", "Size"}}},
-        {"RtlSizeHeap", 3, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}}},
-        {"RtlSetUserValueHeap", 4, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}, {"PVOID", "UserValue"}}},
-        {"RtlGetUserInfoHeap", 5, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}, {"PVOID", "UserValue"}, {"PULONG", "UserFlags"}}},
-	};
-}
 
 bool nt::heaps::register_all(proc_t proc, const nt::heaps::on_call_fn& on_call)
 {

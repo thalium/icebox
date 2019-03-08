@@ -167,6 +167,11 @@ def generate_impl(json_data, filename, namespace, pad, wow64):
 namespace
 {{
 	constexpr bool g_debug = false;
+
+	static const {namespace}::callcfg_t g_callcfgs[] =
+	{{
+{callers}
+	}};
 }}
 
 struct {namespace}::{filename}::Data
@@ -234,13 +239,6 @@ namespace
 }}
 
 {definitions}
-namespace
-{{
-	static const {namespace}::callcfg_t g_callcfgs[] =
-	{{
-{callers}
-	}};
-}}
 
 bool {namespace}::{filename}::register_all(proc_t proc, const {namespace}::{filename}::on_call_fn& on_call)
 {{
