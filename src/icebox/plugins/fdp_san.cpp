@@ -31,18 +31,20 @@ namespace
 
     static inline bool operator==(const ctx_t& a, const ctx_t& b)
     {
-        return a.addr == b.addr && a.thread.id == b.thread.id;
+        return a.addr == b.addr
+               && a.thread.id == b.thread.id;
     }
 
     static inline bool operator==(const heap_ctx_t& a, const heap_ctx_t& b)
     {
-        return a.HeapHandle == b.HeapHandle && a.ctx.addr == b.ctx.addr && a.ctx.thread.id == b.ctx.thread.id;
+        return a.HeapHandle == b.HeapHandle
+               && a.ctx.addr == b.ctx.addr
+               && a.ctx.thread.id == b.ctx.thread.id;
     }
 }
 
 namespace std
 {
-
     template <>
     struct hash<ctx_t>
     {
