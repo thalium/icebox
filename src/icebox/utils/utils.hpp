@@ -37,16 +37,6 @@ namespace utils
         return Defer<T>(defer);
     }
 
-    template <typename T, typename U>
-    static void erase_if(T& c, const U& pred)
-    {
-        for(auto it = c.begin(), end = c.end(); it != end; /**/)
-            if(pred(it->second))
-                it = c.erase(it);
-            else
-                ++it;
-    }
-
     template <int WANT, int GOT>
     struct expect_eq
     {

@@ -64,10 +64,12 @@ namespace
 
     using Observer = std::shared_ptr<BreakpointObserver>;
 
+    using Targets     = std::unordered_map<phy_t, Breakpoint>;
+    using Observers   = std::multimap<phy_t, Observer>;
     using Breakpoints = struct
     {
-        std::unordered_map<phy_t, Breakpoint> targets_;
-        std::multimap<phy_t, Observer>        observers_;
+        Targets   targets_;
+        Observers observers_;
     };
 
     struct BreakState
@@ -192,6 +194,19 @@ bool core::State::single_step()
     return try_single_step(*d_);
 }
 
+namespace
+{
+    template <typename T>
+    static void lookup_observers(Observers& observers, phy_t phy, T operand)
+    {
+        // fast observer lookup while allowing current iterator deletion
+        const auto end = observers.end();
+        for(auto it = observers.lower_bound(phy); it != end && it->first == phy; /**/)
+            if(operand(it++) == walk_e::WALK_STOP)
+                break;
+    }
+}
+
 struct core::BreakpointPrivate
 {
     BreakpointPrivate(StateData& data, Observer observer)
@@ -202,13 +217,24 @@ struct core::BreakpointPrivate
 
     ~BreakpointPrivate()
     {
-        utils::erase_if(data_.breakpoints.observers_, [&](auto bp)
+        bool unique_observer = true;
+        opt<Observers::iterator> target;
+        lookup_observers(data_.breakpoints.observers_, observer_->phy, [&](auto it)
         {
-            return observer_ == bp;
+            if(observer_ == it->second)
+                target = it;
+            else
+                unique_observer = false;
+            if(target && !unique_observer)
+                return WALK_STOP;
+
+            return WALK_NEXT;
         });
-        const auto range = data_.breakpoints.observers_.equal_range(observer_->phy);
-        const auto empty = range.first == range.second;
-        if(!empty)
+        if(!target)
+            return;
+
+        data_.breakpoints.observers_.erase(*target);
+        if(!unique_observer)
             return;
 
         const auto ok = FDP_UnsetBreakpoint(&data_.shm, observer_->bpid);
@@ -234,22 +260,23 @@ namespace
         if(!(state & FDP_STATE_BREAKPOINT_HIT))
             return;
 
-        if(d.breakpoints.observers_.empty())
-            return;
-
-        const auto range = d.breakpoints.observers_.equal_range(d.breakstate.phy);
-        for(auto it = range.first; it != range.second; ++it)
+        std::vector<Observer> observers;
+        lookup_observers(d.breakpoints.observers_, d.breakstate.phy, [&](auto it)
         {
             const auto& bp = *it->second;
             if(bp.proc && bp.proc != d.breakstate.proc)
-                continue;
+                return WALK_NEXT;
 
             if(bp.thread && bp.thread != d.breakstate.thread)
-                continue;
+                return WALK_NEXT;
 
             if(bp.task)
-                bp.task();
-        }
+                observers.push_back(it->second);
+
+            return WALK_NEXT;
+        });
+        for(const auto& it : observers)
+            it->task();
     }
 
     enum check_e
@@ -334,10 +361,11 @@ namespace
         const auto bpid = try_add_breakpoint(d, phy, *bp);
 
         // update all observers breakpoint id
-        const auto range = d.breakpoints.observers_.equal_range(phy);
-        for(auto it = range.first; it != range.second; ++it)
+        lookup_observers(d.breakpoints.observers_, phy, [&](auto it)
+        {
             it->second->bpid = bpid;
-
+            return WALK_NEXT;
+        });
         return std::make_shared<core::BreakpointPrivate>(d, bp);
     }
 
