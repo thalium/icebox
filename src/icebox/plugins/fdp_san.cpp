@@ -116,10 +116,10 @@ plugins::FdpSan::~FdpSan() = default;
 
 namespace
 {
-    static bool is_present(std::unordered_set<uint64_t>& u, thread_t thread)
+    template <typename T, typename U>
+    static bool contains(const T& data, const U& arg)
     {
-        const auto it = u.find(thread.id);
-        return it != u.end();
+        return data.find(arg) != data.end();
     }
 
     static opt<uint64_t> add_to_ret_val(FdpSanData& d, int size)
@@ -218,14 +218,14 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
         if(!thread)
             return 0;
 
-        if(is_present(d_->threads_allocating, *thread))
+        if(contains(d_->threads_allocating, thread->id))
         {
             LOG(WARNING, "Reentering RtlAllocateHeap !");
             get_callstack(*d_);
             return 0;
         }
 
-        if(is_present(d_->threads_reallocating, *thread))
+        if(contains(d_->threads_reallocating, thread->id))
             return 0;
 
         d_->threads_allocating.emplace(thread->id);
