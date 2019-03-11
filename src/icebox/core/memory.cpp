@@ -17,12 +17,14 @@ struct core::Memory::Data
     Data(FDP_SHM& shm, Core& core)
         : shm(shm)
         , core(core)
+        , depth(0)
     {
     }
 
     // members
     FDP_SHM& shm;
     Core&    core;
+    int      depth;
 };
 
 using MemData = core::Memory::Data;
@@ -146,7 +148,12 @@ opt<phy_t> core::Memory::virtual_to_physical(uint64_t ptr, dtb_t dtb)
     if(!d_->core.os || !d_->core.os->can_inject_fault(ptr))
         return {};
 
+    d_->depth++;
+    if(d_->depth > 1)
+        return {};
+
     const auto ok = inject_page_fault(*d_, dtb, ptr, true);
+    d_->depth--;
     if(!ok)
         return {};
 
