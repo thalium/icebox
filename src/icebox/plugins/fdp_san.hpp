@@ -13,10 +13,8 @@ namespace plugins
 {
     struct FdpSan
     {
-         FdpSan(core::Core& core);
+         FdpSan(core::Core& core, proc_t target);
         ~FdpSan();
-
-        bool setup(proc_t target);
 
         struct Data;
         std::unique_ptr<Data> d_;

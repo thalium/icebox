@@ -15,481 +15,321 @@
 #include <unordered_map>
 #include <unordered_set>
 
+namespace std
+{
+
+} // namespace std
+
+static inline bool operator==(const proc_t& a, const proc_t& b)
+{
+    return a.id == b.id;
+}
+
 namespace
 {
+    struct ctx_t
+    {
+        uint64_t addr;
+        thread_t thread;
+    };
 
     struct heap_ctx_t
     {
-        core::Breakpoint bp;
-        thread_t         thread;
+        nt::PVOID HeapHandle;
+        ctx_t     ctx;
     };
 
-    struct heap_data_t
+    static inline bool operator==(const ctx_t& a, const ctx_t& b)
     {
-        nt::PVOID  heap_handle;
-        nt::PVOID  addr;
-        nt::SIZE_T size;
-        uint64_t   thread_id;
+        return ((a.addr == b.addr) && (a.thread.id == b.thread.id));
+    }
+
+    static inline bool operator==(const heap_ctx_t& a, const heap_ctx_t& b)
+    {
+        return ((a.HeapHandle == b.HeapHandle) && (a.ctx.addr == b.ctx.addr) && (a.ctx.thread.id == b.ctx.thread.id));
+    }
+}
+
+namespace std
+{
+
+    template <>
+    struct hash<ctx_t>
+    {
+        size_t operator()(const ctx_t& arg) const
+        {
+            return hash<uint64_t>()(hash<uint64_t>()(arg.addr) + hash<uint64_t>()(arg.thread.id));
+        }
     };
 
-    using HeapCtx    = std::multimap<uint64_t, heap_ctx_t>;
-    using HeapData   = std::unordered_map<nt::PVOID, std::vector<heap_data_t>>;
+    template <>
+    struct hash<heap_ctx_t>
+    {
+        size_t operator()(const heap_ctx_t& arg) const
+        {
+            return hash<uint64_t>()(hash<uint64_t>()(arg.HeapHandle) + hash<ctx_t>()(arg.ctx));
+        }
+    };
+} // namespace std
+
+namespace
+{
+    using RetCtx     = std::unordered_map<ctx_t, core::Breakpoint>;
+    using HeapCtx    = std::unordered_map<heap_ctx_t, nt::SIZE_T>;
     using FdpSanData = plugins::FdpSan::Data;
     using Callstack  = std::shared_ptr<callstack::ICallstack>;
 
-    static const uint64_t add_size      = 0x20;
-    static const uint64_t half_add_size = add_size / 2;
+    constexpr uint64_t add_size      = 0x20;
+    constexpr uint64_t half_add_size = add_size / 2;
 }
 
 struct plugins::FdpSan::Data
 {
-    Data(core::Core& core);
+    Data(core::Core& core, proc_t target);
 
     core::Core& core_;
     nt::heaps   heaps_;
-    Callstack   callstack_;
 
     std::unordered_set<uint64_t> threads_allocating;
-    std::unordered_set<uint64_t> threads_rellocating;
+    std::unordered_set<uint64_t> threads_reallocating;
 
-    HeapData heap_datas;
-    HeapCtx  heap_ctxs;
-    proc_t   target_;
+    HeapCtx heap_datas;
+    RetCtx  ret_ctxs;
+    proc_t  target_;
 };
 
-plugins::FdpSan::Data::Data(core::Core& core)
+plugins::FdpSan::Data::Data(core::Core& core, proc_t target)
     : core_(core)
     , heaps_(core, "ntdll")
-    , target_()
+    , target_(target)
 {
-}
-
-plugins::FdpSan::FdpSan(core::Core& core)
-    : d_(std::make_unique<Data>(core))
-{
+    threads_reallocating.clear();
+    threads_allocating.clear();
 }
 
 plugins::FdpSan::~FdpSan() = default;
 
 namespace
 {
-    static void get_callstack(FdpSanData& d)
+    static bool is_present(std::unordered_set<uint64_t>& u, thread_t thread)
     {
-        uint64_t cs_size  = 0;
-        uint64_t cs_depth = 15;
-        d.callstack_->get_callstack(d.target_, [&](callstack::callstep_t cstep)
-        {
-            auto cursor = d.core_.sym.find(cstep.addr);
-            if(!cursor)
-                cursor = sym::Cursor{"_", "_", cstep.addr};
+        const auto it = u.find(thread.id);
+        return !!(it != u.end());
+    }
 
-            LOG(INFO, "{:>3} - {:#x}- {}", cs_size, cstep.addr, sym::to_string(*cursor).data());
+    static bool change_Size(FdpSanData& d, int arg_index, nt::SIZE_T size)
+    {
+        return d.core_.os->write_arg(arg_index, {size});
+    }
 
-            cs_size++;
-            if(cs_size < cs_depth)
-                return WALK_NEXT;
+    static bool change_BaseAddress(FdpSanData& d, int arg_index, uint64_t addr)
+    {
+        return d.core_.os->write_arg(arg_index, {addr});
+    }
 
-            return WALK_STOP;
-        });
+    static opt<uint64_t> add_to_ret_val(FdpSanData& d, int size)
+    {
+        const auto ret = d.core_.regs.read(FDP_RAX_REGISTER);
+        if(!ret)
+            return {};
+
+        const auto ok = d.core_.regs.write(FDP_RAX_REGISTER, ret + size);
+        if(!ok)
+            return {};
+
+        return ret + size;
+    }
+
+    static opt<uint64_t> get_return_address(FdpSanData& d, const reader::Reader& reader)
+    {
+        const auto rsp = d.core_.regs.read(FDP_RSP_REGISTER);
+        if(!rsp)
+            return {};
+
+        return reader.read(rsp);
+    }
+
+    static bool is_addr_tracked(FdpSanData& d, const heap_ctx_t& heap_ctx)
+    {
+        return !!(d.heap_datas.find(heap_ctx) != d.heap_datas.end());
+    }
+
+    static void on_return_RtlpAllocateHeapInternal(FdpSanData& d, uint64_t addr, thread_t thread, nt::PVOID HeapHandle, nt::SIZE_T Size)
+    {
+        const auto ret_ctx = ctx_t{addr, thread};
+        auto it            = d.ret_ctxs.find(ret_ctx);
+        if(it == d.ret_ctxs.end())
+            return;
+
+        const auto alloc_addr = add_to_ret_val(d, half_add_size);
+        if(!alloc_addr)
+            return;
+
+        const auto alloc_ctx = heap_ctx_t{HeapHandle, *alloc_addr, thread};
+        d.heap_datas.emplace(alloc_ctx, Size);
+
+        // Remove BP on return address
+        d.ret_ctxs.erase(ret_ctx);
+    }
+
+    static void on_return_RtlSizeHeap(FdpSanData& d, uint64_t addr, thread_t thread)
+    {
+        const auto ret_ctx = ctx_t{addr, thread};
+        if(d.ret_ctxs.find(ret_ctx) == d.ret_ctxs.end())
+            return;
+
+        add_to_ret_val(d, add_size);
+
+        // Remove BP on return address
+        d.ret_ctxs.erase(ret_ctx);
+    }
+
+    static core::Breakpoint set_callback_on_return(FdpSanData& d, uint64_t addr, thread_t thread, const core::Task& on_ret)
+    {
+        return d.core_.state.set_breakpoint(addr, thread, on_ret);
     }
 }
 
-bool plugins::FdpSan::setup(proc_t target)
+plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
 {
-    d_->target_ = target;
-
-    d_->threads_rellocating.clear();
-    d_->threads_allocating.clear();
-
-    d_->callstack_ = callstack::make_callstack_nt(d_->core_);
-    if(!d_->callstack_)
-        return FAIL(false, "unable to create callstack object");
-
+    d_                = std::make_unique<Data>(core, target);
     const auto reader = reader::make(d_->core_, target);
+
     d_->heaps_.register_RtlpAllocateHeapInternal(d_->target_, [&](nt::PVOID HeapHandle, nt::SIZE_T Size)
     {
-        const auto thread_curr = d_->core_.os->thread_current();
-        if(!thread_curr)
+        const auto thread = d_->core_.os->thread_current();
+        if(!thread)
             return 0;
 
-        LOG(INFO, "ALLOC {:#x}, thread {:#x}", Size, thread_curr->id);
-
-        if(false)
-        {
-            get_callstack(*d_);
-        }
-
-        const auto it_thread = d_->threads_rellocating.find(thread_curr->id);
-        if(it_thread != d_->threads_rellocating.end())
+        if(is_present(d_->threads_reallocating, *thread) || is_present(d_->threads_allocating, *thread))
             return 0;
 
-        const auto it_thread_alloc = d_->threads_allocating.find(thread_curr->id);
-        if(it_thread_alloc != d_->threads_allocating.end())
-            return 0;
+        d_->threads_allocating.emplace(thread->id);
 
-        d_->threads_allocating.emplace(thread_curr->id);
-
-        auto heap_data = heap_data_t{HeapHandle, 0, Size, thread_curr->id};
-
-        const auto ok = d_->core_.os->write_arg(1, {Size + add_size});
+        const auto ok = change_Size(*d_, 1, Size + add_size);
         if(!ok)
             return 0;
 
-        const auto rsp = d_->core_.regs.read(FDP_RSP_REGISTER);
-        if(!rsp)
-            return 0;
-
-        const auto return_addr = reader.read(rsp);
+        const auto return_addr = get_return_address(*d_, reader);
         if(!return_addr)
             return 0;
 
-        const auto bp = d_->core_.state.set_breakpoint(*return_addr, *thread_curr, [=]()
+        const auto bp = set_callback_on_return(*d_, *return_addr, *thread, [=]()
         {
-            d_->threads_allocating.erase(thread_curr->id);
-
-            const auto rip = d_->core_.regs.read(FDP_RIP_REGISTER);
-            if(!rip)
-                return;
-
-            auto saved_it    = d_->heap_ctxs.end();
-            const auto range = d_->heap_ctxs.equal_range(rip);
-            for(auto it = range.first; it != range.second; ++it)
-            {
-                if(thread_curr->id != it->second.thread.id)
-                    continue;
-
-                saved_it = it;
-                break;
-            }
-
-            if(saved_it == d_->heap_ctxs.end())
-                return;
-
-            const auto ret = d_->core_.regs.read(FDP_RAX_REGISTER);
-            if(!ret)
-                return;
-
-            const auto ok_ = d_->core_.regs.write(FDP_RAX_REGISTER, ret + half_add_size);
-            if(!ok_)
-                return;
-
-            auto it = this->d_->heap_datas.find(ret + half_add_size);
-            if(it == d_->heap_datas.end())
-                it = (d_->heap_datas.emplace(ret + half_add_size, std::vector<heap_data_t>())).first;
-
-            auto hd = heap_data;
-            hd.addr = ret + half_add_size;
-            it->second.push_back(hd);
-
-            LOG(INFO, "RtlAllocateHeap handle {:#x}, size : {:#x} at addr {:#x}, thread {:#x}", HeapHandle, Size, ret + half_add_size, thread_curr->id);
-            d_->heap_ctxs.erase(saved_it);
+            d_->threads_allocating.erase(thread->id);
+            on_return_RtlpAllocateHeapInternal(*d_, *return_addr, *thread, HeapHandle, Size);
         });
 
-        d_->heap_ctxs.emplace(*return_addr, heap_ctx_t{bp, *thread_curr});
+        d_->ret_ctxs.emplace(ctx_t{*return_addr, *thread}, bp);
         return 0;
     });
 
-    d_->heaps_.register_RtlpReAllocateHeapInternal(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::SIZE_T Size)
+    d_->heaps_.register_RtlpReAllocateHeapInternal(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress, nt::SIZE_T Size)
     {
-        UNUSED(Flags);
-
-        LOG(INFO, "RtlReallocate {:#x}", BaseAddress);
-
-        if(false)
-        {
-            get_callstack(*d_);
-        }
-
-        const auto thread_curr = d_->core_.os->thread_current();
-        if(!thread_curr)
+        const auto thread = d_->core_.os->thread_current();
+        if(!thread)
             return 0;
 
-        d_->threads_rellocating.emplace(thread_curr->id);
+        d_->threads_reallocating.emplace(thread->id);
 
-        // Check if the address was previously changed by FdpSan
-        auto it = d_->heap_datas.find(BaseAddress);
-        bool b  = true;
-        int i   = -1;
-        if(it != d_->heap_datas.end())
+        const auto ctx = heap_ctx_t{HeapHandle, BaseAddress, *thread};
+        if(is_addr_tracked(*d_, ctx))
         {
-            for(const auto& it_v : it->second)
-            {
-                i++;
-                if(it_v.heap_handle != HeapHandle && it_v.thread_id != thread_curr->id)
-                    continue;
-
-                b = false;
-                break;
-            }
-        }
-
-        if(!b)
-            if(!d_->core_.os->write_arg(2, {BaseAddress - half_add_size}))
+            const auto ok = change_BaseAddress(*d_, 2, BaseAddress - half_add_size);
+            if(!ok)
                 return 0;
 
-        if(i != -1)
-            it->second.erase(it->second.begin() + i);
+            d_->heap_datas.erase(ctx);
+        }
 
-        const auto ok = d_->core_.os->write_arg(3, {Size + add_size});
+        const auto ok = change_Size(*d_, 3, Size + add_size);
         if(!ok)
             return 0;
 
-        const auto rsp = d_->core_.regs.read(FDP_RSP_REGISTER);
-        if(!rsp)
-            return 0;
-
-        const auto return_addr = reader.read(rsp);
+        const auto return_addr = get_return_address(*d_, reader);
         if(!return_addr)
             return 0;
 
-        const auto heap_data = heap_data_t{HeapHandle, 0, Size, thread_curr->id};
-        const auto bp        = d_->core_.state.set_breakpoint(*return_addr, *thread_curr, [=]()
+        const auto bp = set_callback_on_return(*d_, *return_addr, *thread, [=]()
         {
-            const auto rip = d_->core_.regs.read(FDP_RIP_REGISTER);
-            if(!rip)
-                return;
-
-            auto saved_it    = d_->heap_ctxs.end();
-            const auto range = d_->heap_ctxs.equal_range(rip);
-            for(auto it = range.first; it != range.second; ++it)
-            {
-                if(thread_curr->id != it->second.thread.id)
-                    continue;
-
-                saved_it = it;
-                break;
-            }
-
-            if(saved_it == d_->heap_ctxs.end())
-                return;
-
-            const auto ret = d_->core_.regs.read(FDP_RAX_REGISTER);
-            if(!ret)
-                return;
-
-            const auto ok_ = d_->core_.regs.write(FDP_RAX_REGISTER, ret + half_add_size);
-            if(!ok_)
-                return;
-
-            auto it_ = d_->heap_datas.find(ret + half_add_size);
-            if(it_ == d_->heap_datas.end())
-                it_ = (d_->heap_datas.emplace(ret + half_add_size, std::vector<heap_data_t>())).first;
-
-            auto hd = heap_data;
-            hd.addr = ret + half_add_size;
-            it_->second.push_back(hd);
-
-            LOG(INFO, "RtlReAllocateHeap handleheap {:#x}, memory pointer {:#x}, size : {:#x} at addr {:#x}", HeapHandle, BaseAddress, Size, ret + half_add_size);
-            d_->threads_rellocating.erase(thread_curr->id);
-            d_->heap_ctxs.erase(saved_it);
+            d_->threads_reallocating.erase(thread->id);
+            on_return_RtlpAllocateHeapInternal(*d_, *return_addr, *thread, HeapHandle, Size);
         });
 
-        d_->heap_ctxs.emplace(*return_addr, heap_ctx_t{bp, *thread_curr});
+        d_->ret_ctxs.emplace(ctx_t{*return_addr, *thread}, bp);
         return 0;
     });
 
-    d_->heaps_.register_RtlFreeHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress)
+    d_->heaps_.register_RtlFreeHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
-        UNUSED(Flags);
-        LOG(INFO, "FREE {:#x}", BaseAddress);
-
-        if(false)
-        {
-            get_callstack(*d_);
-        }
-
-        const auto thread_curr = d_->core_.os->thread_current();
-        if(!thread_curr)
+        const auto thread = d_->core_.os->thread_current();
+        if(!thread)
             return false;
 
-        // Check if the address was previously changed by FdpSan
-        const auto it = d_->heap_datas.find(BaseAddress);
-        if(it == d_->heap_datas.end())
-            return false;
+        const auto ctx = heap_ctx_t{HeapHandle, BaseAddress, *thread};
+        if(is_addr_tracked(*d_, ctx))
+            return true;
 
-        heap_data_t heap_data;
-        memset(&heap_data, 0, sizeof heap_data);
-        bool found = false;
-        int i      = -1;
-        for(const auto& it_v : it->second)
-        {
-            i++;
-            if(it_v.heap_handle != HeapHandle && it_v.thread_id != thread_curr->id)
-                continue;
-
-            heap_data = it_v;
-            found     = true;
-            break;
-        }
-
-        if(!found)
-            return false;
-
-        const auto ok = d_->core_.os->write_arg(2, {BaseAddress - half_add_size});
+        const auto ok = change_BaseAddress(*d_, 2, BaseAddress - half_add_size);
         if(!ok)
             return false;
 
-        LOG(INFO, "RtlFreeHeap handleheap {:#x}, size : {:#x} at addr {:#x}, thread {:#x}", HeapHandle, heap_data.size, BaseAddress, thread_curr->id);
-        it->second.erase(it->second.begin() + i);
-
+        d_->heap_datas.erase(ctx);
         return true;
     });
 
-    d_->heaps_.register_RtlSizeHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress)
+    d_->heaps_.register_RtlSizeHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
-        UNUSED(Flags);
-
-        LOG(INFO, "RtlSizeHeap");
-
-        if(false)
-        {
-            get_callstack(*d_);
-        }
-
-        const auto thread_curr = d_->core_.os->thread_current();
-        if(!thread_curr)
+        const auto thread = d_->core_.os->thread_current();
+        if(!thread)
             return 0;
 
-        // Check if the address was previously changed by FdpSan
-        const auto it = d_->heap_datas.find(BaseAddress);
-        if(it == d_->heap_datas.end())
+        const auto ctx = heap_ctx_t{HeapHandle, BaseAddress, *thread};
+        if(is_addr_tracked(*d_, ctx))
             return 0;
 
-        bool found = false;
-        for(const auto& it_v : it->second)
-        {
-            if(it_v.heap_handle != HeapHandle && it_v.thread_id != thread_curr->id)
-                continue;
-
-            found = true;
-            break;
-        }
-
-        if(!found)
-            return 0;
-
-        const auto ok = d_->core_.os->write_arg(2, {BaseAddress - half_add_size});
+        const auto ok = change_BaseAddress(*d_, 2, BaseAddress - half_add_size);
         if(!ok)
             return 0;
 
-        const auto rsp = d_->core_.regs.read(FDP_RSP_REGISTER);
-        if(!rsp)
-            return 0;
-
-        const auto return_addr = reader.read(rsp);
+        const auto return_addr = get_return_address(*d_, reader);
         if(!return_addr)
             return 0;
 
-        const auto bp = d_->core_.state.set_breakpoint(*return_addr, *thread_curr, [=]()
+        const auto bp = set_callback_on_return(*d_, *return_addr, *thread, [=]()
         {
-            const auto rip = d_->core_.regs.read(FDP_RIP_REGISTER);
-            if(!rip)
-                return;
-
-            auto saved_it    = d_->heap_ctxs.end();
-            const auto range = d_->heap_ctxs.equal_range(rip);
-            for(auto it = range.first; it != range.second; ++it)
-            {
-                if(thread_curr->id != it->second.thread.id)
-                    continue;
-
-                saved_it = it;
-                break;
-            }
-
-            if(saved_it == d_->heap_ctxs.end())
-                return;
-
-            const auto ret = d_->core_.regs.read(FDP_RAX_REGISTER);
-            if(!ret)
-                return;
-
-            const auto ok_ = d_->core_.regs.write(FDP_RAX_REGISTER, ret - add_size);
-            if(!ok_)
-                return;
-
-            LOG(INFO, "RtlSizeHeap at addr {:#x} - returning {:#x}", BaseAddress, ret - add_size);
-            d_->heap_ctxs.erase(saved_it);
+            on_return_RtlSizeHeap(*d_, *return_addr, *thread);
         });
 
-        d_->heap_ctxs.emplace(*return_addr, heap_ctx_t{bp, *thread_curr});
-        return 0;
+        d_->ret_ctxs.emplace(ctx_t{*return_addr, *thread}, bp);
+        return 1;
     });
 
-    d_->heaps_.register_RtlSetUserValueHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::PVOID UserValue)
+    d_->heaps_.register_RtlSetUserValueHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/)
     {
-        UNUSED(Flags);
-        UNUSED(UserValue);
+        const auto thread = d_->core_.os->thread_current();
+        if(!thread)
+            return false;
 
-        LOG(INFO, "RtlSetUserValueHeap");
+        const auto ctx = heap_ctx_t{HeapHandle, BaseAddress, *thread};
+        if(is_addr_tracked(*d_, ctx))
+            return false;
 
-        const auto thread_curr = d_->core_.os->thread_current();
-        if(!thread_curr)
-            return 0;
-
-        // Check if the address was previously changed by FdpSan
-        const auto it = d_->heap_datas.find(BaseAddress);
-        if(it == d_->heap_datas.end())
-            return 0;
-
-        bool found = false;
-        for(const auto& it_v : it->second)
-        {
-            if(it_v.heap_handle != HeapHandle && it_v.thread_id != thread_curr->id)
-                continue;
-
-            found = true;
-            break;
-        }
-
-        if(!found)
-            return 0;
-
-        const auto ok = d_->core_.os->write_arg(2, {BaseAddress - half_add_size});
-        if(!ok)
-            return 0;
-
-        LOG(INFO, "RtlSetUserValueHeap at addr {:#x}", BaseAddress);
-        return 0;
+        const auto ok = change_BaseAddress(*d_, 2, BaseAddress - half_add_size);
+        return !!(ok);
     });
 
-    d_->heaps_.register_RtlGetUserInfoHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::PVOID UserValue, nt::PULONG UserFlags)
+    d_->heaps_.register_RtlGetUserInfoHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/, nt::PULONG /*UserFlags*/)
     {
-        UNUSED(Flags);
-        UNUSED(UserValue);
-        UNUSED(UserFlags);
+        const auto thread = d_->core_.os->thread_current();
+        if(!thread)
+            return false;
 
-        LOG(INFO, "RtlGetUserValueHeap");
+        const auto ctx = heap_ctx_t{HeapHandle, BaseAddress, *thread};
+        if(is_addr_tracked(*d_, ctx))
+            return false;
 
-        const auto thread_curr = d_->core_.os->thread_current();
-        if(!thread_curr)
-            return 0;
-
-        // Check if the address was previously changed by FdpSan
-        const auto it = d_->heap_datas.find(BaseAddress);
-        if(it == d_->heap_datas.end())
-            return 0;
-
-        bool found = false;
-        for(const auto& it_v : it->second)
-        {
-            if(it_v.heap_handle != HeapHandle && it_v.thread_id != thread_curr->id)
-                continue;
-
-            found = true;
-            break;
-        }
-
-        if(!found)
-            return 0;
-
-        const auto ok = d_->core_.os->write_arg(2, {BaseAddress - half_add_size});
-        if(!ok)
-            return 0;
-
-        LOG(INFO, "RtlGetUserInfoHeap at addr {:#x}", BaseAddress);
-        return 0;
+        const auto ok = change_BaseAddress(*d_, 2, BaseAddress - half_add_size);
+        return !!(ok);
     });
-
-    return true;
 }
