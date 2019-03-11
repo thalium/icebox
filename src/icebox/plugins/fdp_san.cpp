@@ -15,16 +15,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-namespace std
-{
-
-} // namespace std
-
-static inline bool operator==(const proc_t& a, const proc_t& b)
-{
-    return a.id == b.id;
-}
-
 namespace
 {
     struct ctx_t
@@ -41,12 +31,12 @@ namespace
 
     static inline bool operator==(const ctx_t& a, const ctx_t& b)
     {
-        return ((a.addr == b.addr) && (a.thread.id == b.thread.id));
+        return a.addr == b.addr && a.thread.id == b.thread.id;
     }
 
     static inline bool operator==(const heap_ctx_t& a, const heap_ctx_t& b)
     {
-        return ((a.HeapHandle == b.HeapHandle) && (a.ctx.addr == b.ctx.addr) && (a.ctx.thread.id == b.ctx.thread.id));
+        return a.HeapHandle == b.HeapHandle && a.ctx.addr == b.ctx.addr && a.ctx.thread.id == b.ctx.thread.id;
     }
 }
 
@@ -89,6 +79,7 @@ struct plugins::FdpSan::Data
 
     core::Core& core_;
     nt::heaps   heaps_;
+    Callstack   callstack_;
 
     std::unordered_set<uint64_t> threads_allocating;
     std::unordered_set<uint64_t> threads_reallocating;
@@ -103,8 +94,6 @@ plugins::FdpSan::Data::Data(core::Core& core, proc_t target)
     , heaps_(core, "ntdll")
     , target_(target)
 {
-    threads_reallocating.clear();
-    threads_allocating.clear();
 }
 
 plugins::FdpSan::~FdpSan() = default;
@@ -114,17 +103,7 @@ namespace
     static bool is_present(std::unordered_set<uint64_t>& u, thread_t thread)
     {
         const auto it = u.find(thread.id);
-        return !!(it != u.end());
-    }
-
-    static bool change_Size(FdpSanData& d, int arg_index, nt::SIZE_T size)
-    {
-        return d.core_.os->write_arg(arg_index, {size});
-    }
-
-    static bool change_BaseAddress(FdpSanData& d, int arg_index, uint64_t addr)
-    {
-        return d.core_.os->write_arg(arg_index, {addr});
+        return it != u.end();
     }
 
     static opt<uint64_t> add_to_ret_val(FdpSanData& d, int size)
@@ -151,7 +130,7 @@ namespace
 
     static bool is_addr_tracked(FdpSanData& d, const heap_ctx_t& heap_ctx)
     {
-        return !!(d.heap_datas.find(heap_ctx) != d.heap_datas.end());
+        return d.heap_datas.find(heap_ctx) != d.heap_datas.end();
     }
 
     static void on_return_RtlpAllocateHeapInternal(FdpSanData& d, uint64_t addr, thread_t thread, nt::PVOID HeapHandle, nt::SIZE_T Size)
@@ -178,7 +157,7 @@ namespace
         if(d.ret_ctxs.find(ret_ctx) == d.ret_ctxs.end())
             return;
 
-        add_to_ret_val(d, add_size);
+        add_to_ret_val(d, -static_cast<int>(add_size));
 
         // Remove BP on return address
         d.ret_ctxs.erase(ret_ctx);
@@ -188,11 +167,33 @@ namespace
     {
         return d.core_.state.set_breakpoint(addr, thread, on_ret);
     }
+
+    static void get_callstack(FdpSanData& d)
+    {
+        uint64_t cs_size  = 0;
+        uint64_t cs_depth = 150;
+        d.callstack_->get_callstack(d.target_, [&](callstack::callstep_t cstep)
+        {
+            auto cursor = d.core_.sym.find(cstep.addr);
+            if(!cursor)
+                cursor = sym::Cursor{"_", "_", cstep.addr};
+
+            LOG(INFO, "{:>3} - {:#x}- {}", cs_size, cstep.addr, sym::to_string(*cursor).data());
+
+            cs_size++;
+            if(cs_size < cs_depth)
+                return WALK_NEXT;
+
+            return WALK_STOP;
+        });
+    }
+
 }
 
 plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
+    : d_(std::make_unique<Data>(core, target))
 {
-    d_                = std::make_unique<Data>(core, target);
+    d_->callstack_    = callstack::make_callstack_nt(d_->core_);
     const auto reader = reader::make(d_->core_, target);
 
     d_->heaps_.register_RtlpAllocateHeapInternal(d_->target_, [&](nt::PVOID HeapHandle, nt::SIZE_T Size)
@@ -201,12 +202,19 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
         if(!thread)
             return 0;
 
-        if(is_present(d_->threads_reallocating, *thread) || is_present(d_->threads_allocating, *thread))
+        if(is_present(d_->threads_allocating, *thread))
+        {
+            LOG(WARNING, "Reentering RtlAllocateHeap !");
+            get_callstack(*d_);
+            return 0;
+        }
+
+        if(is_present(d_->threads_reallocating, *thread))
             return 0;
 
         d_->threads_allocating.emplace(thread->id);
 
-        const auto ok = change_Size(*d_, 1, Size + add_size);
+        const auto ok = d_->core_.os->write_arg(1, {Size + add_size});
         if(!ok)
             return 0;
 
@@ -233,16 +241,16 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
         d_->threads_reallocating.emplace(thread->id);
 
         const auto ctx = heap_ctx_t{HeapHandle, BaseAddress, *thread};
-        if(is_addr_tracked(*d_, ctx))
+        if(!is_addr_tracked(*d_, ctx))
         {
-            const auto ok = change_BaseAddress(*d_, 2, BaseAddress - half_add_size);
+            const auto ok = d_->core_.os->write_arg(2, {BaseAddress - half_add_size});
             if(!ok)
                 return 0;
 
             d_->heap_datas.erase(ctx);
         }
 
-        const auto ok = change_Size(*d_, 3, Size + add_size);
+        const auto ok = d_->core_.os->write_arg(3, {Size + add_size});
         if(!ok)
             return 0;
 
@@ -267,10 +275,10 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
             return false;
 
         const auto ctx = heap_ctx_t{HeapHandle, BaseAddress, *thread};
-        if(is_addr_tracked(*d_, ctx))
+        if(!is_addr_tracked(*d_, ctx))
             return true;
 
-        const auto ok = change_BaseAddress(*d_, 2, BaseAddress - half_add_size);
+        const auto ok = d_->core_.os->write_arg(2, {BaseAddress - half_add_size});
         if(!ok)
             return false;
 
@@ -285,10 +293,10 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
             return 0;
 
         const auto ctx = heap_ctx_t{HeapHandle, BaseAddress, *thread};
-        if(is_addr_tracked(*d_, ctx))
+        if(!is_addr_tracked(*d_, ctx))
             return 0;
 
-        const auto ok = change_BaseAddress(*d_, 2, BaseAddress - half_add_size);
+        const auto ok = d_->core_.os->write_arg(2, {BaseAddress - half_add_size});
         if(!ok)
             return 0;
 
@@ -312,11 +320,10 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
             return false;
 
         const auto ctx = heap_ctx_t{HeapHandle, BaseAddress, *thread};
-        if(is_addr_tracked(*d_, ctx))
+        if(!is_addr_tracked(*d_, ctx))
             return false;
 
-        const auto ok = change_BaseAddress(*d_, 2, BaseAddress - half_add_size);
-        return !!(ok);
+        return d_->core_.os->write_arg(2, {BaseAddress - half_add_size});
     });
 
     d_->heaps_.register_RtlGetUserInfoHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/, nt::PULONG /*UserFlags*/)
@@ -326,10 +333,9 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
             return false;
 
         const auto ctx = heap_ctx_t{HeapHandle, BaseAddress, *thread};
-        if(is_addr_tracked(*d_, ctx))
+        if(!is_addr_tracked(*d_, ctx))
             return false;
 
-        const auto ok = change_BaseAddress(*d_, 2, BaseAddress - half_add_size);
-        return !!(ok);
+        return d_->core_.os->write_arg(2, {BaseAddress - half_add_size});
     });
 }
