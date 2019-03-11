@@ -218,7 +218,8 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
         if(!thread)
             return 0;
 
-        if(contains(d_->threads_allocating, thread->id))
+        const auto inserted = d_->threads_allocating.emplace(thread->id).second;
+        if(!inserted)
         {
             LOG(WARNING, "Reentering RtlAllocateHeap !");
             get_callstack(*d_);
@@ -227,8 +228,6 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
 
         if(contains(d_->threads_reallocating, thread->id))
             return 0;
-
-        d_->threads_allocating.emplace(thread->id);
 
         const auto ok = d_->core_.os->write_arg(1, {Size + add_size});
         if(!ok)
