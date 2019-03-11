@@ -212,7 +212,7 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
     d_->callstack_    = callstack::make_callstack_nt(d_->core_);
     const auto reader = reader::make(d_->core_, target);
 
-    d_->heaps_.register_RtlpAllocateHeapInternal(d_->target_, [&](nt::PVOID HeapHandle, nt::SIZE_T Size)
+    d_->heaps_.register_RtlpAllocateHeapInternal(d_->target_, [=](nt::PVOID HeapHandle, nt::SIZE_T Size)
     {
         const auto thread = d_->core_.os->thread_current();
         if(!thread)
@@ -237,7 +237,7 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
         if(!return_addr)
             return 0;
 
-        const auto bp = set_callback_on_return(*d_, *return_addr, *thread, [=]()
+        const auto bp = set_callback_on_return(*d_, *return_addr, *thread, [=]
         {
             d_->threads_allocating.erase(thread->id);
             on_return_RtlpAllocateHeapInternal(*d_, *return_addr, *thread, HeapHandle, Size);
@@ -247,7 +247,7 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
         return 0;
     });
 
-    d_->heaps_.register_RtlpReAllocateHeapInternal(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress, nt::SIZE_T Size)
+    d_->heaps_.register_RtlpReAllocateHeapInternal(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress, nt::SIZE_T Size)
     {
         const auto thread = d_->core_.os->thread_current();
         if(!thread)
@@ -273,7 +273,7 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
         if(!return_addr)
             return 0;
 
-        const auto bp = set_callback_on_return(*d_, *return_addr, *thread, [=]()
+        const auto bp = set_callback_on_return(*d_, *return_addr, *thread, [=]
         {
             d_->threads_reallocating.erase(thread->id);
             on_return_RtlpAllocateHeapInternal(*d_, *return_addr, *thread, HeapHandle, Size);
@@ -283,7 +283,7 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
         return 0;
     });
 
-    d_->heaps_.register_RtlFreeHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
+    d_->heaps_.register_RtlFreeHeap(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
         const auto thread = d_->core_.os->thread_current();
         if(!thread)
@@ -301,7 +301,7 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
         return true;
     });
 
-    d_->heaps_.register_RtlSizeHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
+    d_->heaps_.register_RtlSizeHeap(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
         const auto thread = d_->core_.os->thread_current();
         if(!thread)
@@ -319,7 +319,7 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
         if(!return_addr)
             return 0;
 
-        const auto bp = set_callback_on_return(*d_, *return_addr, *thread, [=]()
+        const auto bp = set_callback_on_return(*d_, *return_addr, *thread, [=]
         {
             on_return_RtlSizeHeap(*d_, *return_addr, *thread);
         });
@@ -328,7 +328,7 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
         return 1;
     });
 
-    d_->heaps_.register_RtlSetUserValueHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/)
+    d_->heaps_.register_RtlSetUserValueHeap(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/)
     {
         const auto thread = d_->core_.os->thread_current();
         if(!thread)
@@ -341,7 +341,7 @@ plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
         return d_->core_.os->write_arg(2, {BaseAddress - half_add_size});
     });
 
-    d_->heaps_.register_RtlGetUserInfoHeap(d_->target_, [&](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/, nt::PULONG /*UserFlags*/)
+    d_->heaps_.register_RtlGetUserInfoHeap(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/, nt::PULONG /*UserFlags*/)
     {
         const auto thread = d_->core_.os->thread_current();
         if(!thread)
