@@ -41,6 +41,16 @@ namespace
                && a.ctx.addr == b.ctx.addr
                && a.ctx.thread.id == b.ctx.thread.id;
     }
+
+    static inline void hash_combine(std::size_t& /*seed*/) {}
+
+    template <typename T, typename... Rest>
+    static inline void hash_combine(std::size_t& seed, const T& v, Rest... rest)
+    {
+        std::hash<T> hasher;
+        seed ^= hasher(v) + 0x9E3779B97F4A7C15 + (seed << 6) + (seed >> 2);
+        hash_combine(seed, rest...);
+    }
 }
 
 namespace std
@@ -50,7 +60,9 @@ namespace std
     {
         size_t operator()(const ctx_t& arg) const
         {
-            return hash<uint64_t>()(hash<uint64_t>()(arg.addr) + hash<uint64_t>()(arg.thread.id));
+            size_t seed = 0;
+            hash_combine(seed, arg.addr, arg.thread.id);
+            return seed;
         }
     };
 
@@ -59,7 +71,9 @@ namespace std
     {
         size_t operator()(const heap_ctx_t& arg) const
         {
-            return hash<uint64_t>()(hash<uint64_t>()(arg.HeapHandle) + hash<ctx_t>()(arg.ctx));
+            size_t seed = 0;
+            hash_combine(seed, arg.HeapHandle, arg.ctx);
+            return seed;
         }
     };
 } // namespace std
