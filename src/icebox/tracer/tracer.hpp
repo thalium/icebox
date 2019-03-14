@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+namespace core { struct Core; }
+
 namespace tracer
 {
     struct argcfg_t
@@ -17,4 +19,6 @@ namespace tracer
         size_t   argc;
         argcfg_t args[32];
     };
+
+    void log_call(core::Core& core, const callcfg_t& call);
 } // namespace tracer
