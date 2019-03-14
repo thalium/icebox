@@ -84,7 +84,9 @@ def generate_observers(json_data, pad):
 
 def generate_dispatchers(json_data, filename, namespace):
     dispatchers = ""
+    callcfg_idx = -1
     for target, (return_type, (args)) in json_data.items():
+        callcfg_idx += 1
         # print prologue
         dispatchers += """
     static void on_{target}({namespace}::{filename}::Data& d)
@@ -97,25 +99,22 @@ def generate_dispatchers(json_data, filename, namespace):
         idx = 0
         lines = []
         names = []
-        formats = []
         for name, typeof in args:
             dispatchers += "\n        const auto %s = arg<%s::%s>(d.core, %d);" % (name.ljust(pad), namespace, typeof, idx)
             idx += 1
             names.append(name)
-            formats.append("%s:{:#x}" % name)
         if idx > 0:
             dispatchers += "\n"
 
         # print epilogue
-        logargs = ", " if len(names) else ""
         dispatchers += """
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("{target}({fmtargs})"{logargs}));
+            tracer::log_call(d.core, g_callcfgs[{callcfg_idx}]);
 
         for(const auto& it : d.observers_{target})
             it({args});
     }}
-""".format(target=target, args=", ".join(names), fmtargs=", ".join(formats), logargs=logargs + ", ".join(names))
+""".format(target=target, args=", ".join(names), callcfg_idx=callcfg_idx)
     return dispatchers
 
 def generate_definitions(json_data, filename, namespace, wow64):

@@ -884,7 +884,7 @@ namespace
         const auto ClientView        = arg<nt64::PREMOTE_PORT_VIEW>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAcceptConnectPort(PortHandle:{:#x}, PortContext:{:#x}, ConnectionRequest:{:#x}, AcceptConnection:{:#x}, ServerView:{:#x}, ClientView:{:#x})", PortHandle, PortContext, ConnectionRequest, AcceptConnection, ServerView, ClientView));
+            tracer::log_call(d.core, g_callcfgs[0]);
 
         for(const auto& it : d.observers_NtAcceptConnectPort)
             it(PortHandle, PortContext, ConnectionRequest, AcceptConnection, ServerView, ClientView);
@@ -905,7 +905,7 @@ namespace
         const auto GenerateOnClose    = arg<nt64::PBOOLEAN>(d.core, 10);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAccessCheckAndAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, DesiredAccess:{:#x}, GenericMapping:{:#x}, ObjectCreation:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, DesiredAccess, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose));
+            tracer::log_call(d.core, g_callcfgs[1]);
 
         for(const auto& it : d.observers_NtAccessCheckAndAuditAlarm)
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, DesiredAccess, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
@@ -931,7 +931,7 @@ namespace
         const auto GenerateOnClose      = arg<nt64::PBOOLEAN>(d.core, 15);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAccessCheckByTypeAndAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, DesiredAccess:{:#x}, AuditType:{:#x}, Flags:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, ObjectCreation:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose));
+            tracer::log_call(d.core, g_callcfgs[2]);
 
         for(const auto& it : d.observers_NtAccessCheckByTypeAndAuditAlarm)
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
@@ -952,7 +952,7 @@ namespace
         const auto AccessStatus         = arg<nt64::PNTSTATUS>(d.core, 10);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAccessCheckByType(SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, PrivilegeSet:{:#x}, PrivilegeSetLength:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x})", SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus));
+            tracer::log_call(d.core, g_callcfgs[3]);
 
         for(const auto& it : d.observers_NtAccessCheckByType)
             it(SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
@@ -979,7 +979,7 @@ namespace
         const auto GenerateOnClose      = arg<nt64::PBOOLEAN>(d.core, 16);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAccessCheckByTypeResultListAndAuditAlarmByHandle(SubsystemName:{:#x}, HandleId:{:#x}, ClientToken:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, DesiredAccess:{:#x}, AuditType:{:#x}, Flags:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, ObjectCreation:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ClientToken, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose));
+            tracer::log_call(d.core, g_callcfgs[4]);
 
         for(const auto& it : d.observers_NtAccessCheckByTypeResultListAndAuditAlarmByHandle)
             it(SubsystemName, HandleId, ClientToken, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
@@ -1005,7 +1005,7 @@ namespace
         const auto GenerateOnClose      = arg<nt64::PBOOLEAN>(d.core, 15);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAccessCheckByTypeResultListAndAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, DesiredAccess:{:#x}, AuditType:{:#x}, Flags:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, ObjectCreation:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose));
+            tracer::log_call(d.core, g_callcfgs[5]);
 
         for(const auto& it : d.observers_NtAccessCheckByTypeResultListAndAuditAlarm)
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, PrincipalSelfSid, DesiredAccess, AuditType, Flags, ObjectTypeList, ObjectTypeListLength, GenericMapping, ObjectCreation, GrantedAccess, AccessStatus, GenerateOnClose);
@@ -1026,7 +1026,7 @@ namespace
         const auto AccessStatus         = arg<nt64::PNTSTATUS>(d.core, 10);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAccessCheckByTypeResultList(SecurityDescriptor:{:#x}, PrincipalSelfSid:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, ObjectTypeList:{:#x}, ObjectTypeListLength:{:#x}, GenericMapping:{:#x}, PrivilegeSet:{:#x}, PrivilegeSetLength:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x})", SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus));
+            tracer::log_call(d.core, g_callcfgs[6]);
 
         for(const auto& it : d.observers_NtAccessCheckByTypeResultList)
             it(SecurityDescriptor, PrincipalSelfSid, ClientToken, DesiredAccess, ObjectTypeList, ObjectTypeListLength, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
@@ -1044,7 +1044,7 @@ namespace
         const auto AccessStatus       = arg<nt64::PNTSTATUS>(d.core, 7);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAccessCheck(SecurityDescriptor:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, GenericMapping:{:#x}, PrivilegeSet:{:#x}, PrivilegeSetLength:{:#x}, GrantedAccess:{:#x}, AccessStatus:{:#x})", SecurityDescriptor, ClientToken, DesiredAccess, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus));
+            tracer::log_call(d.core, g_callcfgs[7]);
 
         for(const auto& it : d.observers_NtAccessCheck)
             it(SecurityDescriptor, ClientToken, DesiredAccess, GenericMapping, PrivilegeSet, PrivilegeSetLength, GrantedAccess, AccessStatus);
@@ -1057,7 +1057,7 @@ namespace
         const auto Atom     = arg<nt64::PRTL_ATOM>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAddAtom(AtomName:{:#x}, Length:{:#x}, Atom:{:#x})", AtomName, Length, Atom));
+            tracer::log_call(d.core, g_callcfgs[8]);
 
         for(const auto& it : d.observers_NtAddAtom)
             it(AtomName, Length, Atom);
@@ -1069,7 +1069,7 @@ namespace
         const auto Id        = arg<nt64::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAddBootEntry(BootEntry:{:#x}, Id:{:#x})", BootEntry, Id));
+            tracer::log_call(d.core, g_callcfgs[9]);
 
         for(const auto& it : d.observers_NtAddBootEntry)
             it(BootEntry, Id);
@@ -1081,7 +1081,7 @@ namespace
         const auto Id          = arg<nt64::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAddDriverEntry(DriverEntry:{:#x}, Id:{:#x})", DriverEntry, Id));
+            tracer::log_call(d.core, g_callcfgs[10]);
 
         for(const auto& it : d.observers_NtAddDriverEntry)
             it(DriverEntry, Id);
@@ -1097,7 +1097,7 @@ namespace
         const auto ReturnLength   = arg<nt64::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAdjustGroupsToken(TokenHandle:{:#x}, ResetToDefault:{:#x}, NewState:{:#x}, BufferLength:{:#x}, PreviousState:{:#x}, ReturnLength:{:#x})", TokenHandle, ResetToDefault, NewState, BufferLength, PreviousState, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[11]);
 
         for(const auto& it : d.observers_NtAdjustGroupsToken)
             it(TokenHandle, ResetToDefault, NewState, BufferLength, PreviousState, ReturnLength);
@@ -1113,7 +1113,7 @@ namespace
         const auto ReturnLength         = arg<nt64::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAdjustPrivilegesToken(TokenHandle:{:#x}, DisableAllPrivileges:{:#x}, NewState:{:#x}, BufferLength:{:#x}, PreviousState:{:#x}, ReturnLength:{:#x})", TokenHandle, DisableAllPrivileges, NewState, BufferLength, PreviousState, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[12]);
 
         for(const auto& it : d.observers_NtAdjustPrivilegesToken)
             it(TokenHandle, DisableAllPrivileges, NewState, BufferLength, PreviousState, ReturnLength);
@@ -1125,7 +1125,7 @@ namespace
         const auto PreviousSuspendCount = arg<nt64::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlertResumeThread(ThreadHandle:{:#x}, PreviousSuspendCount:{:#x})", ThreadHandle, PreviousSuspendCount));
+            tracer::log_call(d.core, g_callcfgs[13]);
 
         for(const auto& it : d.observers_NtAlertResumeThread)
             it(ThreadHandle, PreviousSuspendCount);
@@ -1136,7 +1136,7 @@ namespace
         const auto ThreadHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlertThread(ThreadHandle:{:#x})", ThreadHandle));
+            tracer::log_call(d.core, g_callcfgs[14]);
 
         for(const auto& it : d.observers_NtAlertThread)
             it(ThreadHandle);
@@ -1147,7 +1147,7 @@ namespace
         const auto Luid = arg<nt64::PLUID>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAllocateLocallyUniqueId(Luid:{:#x})", Luid));
+            tracer::log_call(d.core, g_callcfgs[15]);
 
         for(const auto& it : d.observers_NtAllocateLocallyUniqueId)
             it(Luid);
@@ -1160,7 +1160,7 @@ namespace
         const auto Type                = arg<nt64::MEMORY_RESERVE_TYPE>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAllocateReserveObject(MemoryReserveHandle:{:#x}, ObjectAttributes:{:#x}, Type:{:#x})", MemoryReserveHandle, ObjectAttributes, Type));
+            tracer::log_call(d.core, g_callcfgs[16]);
 
         for(const auto& it : d.observers_NtAllocateReserveObject)
             it(MemoryReserveHandle, ObjectAttributes, Type);
@@ -1173,7 +1173,7 @@ namespace
         const auto UserPfnArra   = arg<nt64::PULONG_PTR>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAllocateUserPhysicalPages(ProcessHandle:{:#x}, NumberOfPages:{:#x}, UserPfnArra:{:#x})", ProcessHandle, NumberOfPages, UserPfnArra));
+            tracer::log_call(d.core, g_callcfgs[17]);
 
         for(const auto& it : d.observers_NtAllocateUserPhysicalPages)
             it(ProcessHandle, NumberOfPages, UserPfnArra);
@@ -1187,7 +1187,7 @@ namespace
         const auto Seed     = arg<nt64::PCHAR>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAllocateUuids(Time:{:#x}, Range:{:#x}, Sequence:{:#x}, Seed:{:#x})", Time, Range, Sequence, Seed));
+            tracer::log_call(d.core, g_callcfgs[18]);
 
         for(const auto& it : d.observers_NtAllocateUuids)
             it(Time, Range, Sequence, Seed);
@@ -1203,7 +1203,7 @@ namespace
         const auto Protect         = arg<nt64::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAllocateVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, ZeroBits:{:#x}, RegionSize:{:#x}, AllocationType:{:#x}, Protect:{:#x})", ProcessHandle, STARBaseAddress, ZeroBits, RegionSize, AllocationType, Protect));
+            tracer::log_call(d.core, g_callcfgs[19]);
 
         for(const auto& it : d.observers_NtAllocateVirtualMemory)
             it(ProcessHandle, STARBaseAddress, ZeroBits, RegionSize, AllocationType, Protect);
@@ -1222,7 +1222,7 @@ namespace
         const auto AcceptConnection            = arg<nt64::BOOLEAN>(d.core, 8);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcAcceptConnectPort(PortHandle:{:#x}, ConnectionPortHandle:{:#x}, Flags:{:#x}, ObjectAttributes:{:#x}, PortAttributes:{:#x}, PortContext:{:#x}, ConnectionRequest:{:#x}, ConnectionMessageAttributes:{:#x}, AcceptConnection:{:#x})", PortHandle, ConnectionPortHandle, Flags, ObjectAttributes, PortAttributes, PortContext, ConnectionRequest, ConnectionMessageAttributes, AcceptConnection));
+            tracer::log_call(d.core, g_callcfgs[20]);
 
         for(const auto& it : d.observers_NtAlpcAcceptConnectPort)
             it(PortHandle, ConnectionPortHandle, Flags, ObjectAttributes, PortAttributes, PortContext, ConnectionRequest, ConnectionMessageAttributes, AcceptConnection);
@@ -1235,7 +1235,7 @@ namespace
         const auto MessageContext = arg<nt64::PALPC_CONTEXT_ATTR>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcCancelMessage(PortHandle:{:#x}, Flags:{:#x}, MessageContext:{:#x})", PortHandle, Flags, MessageContext));
+            tracer::log_call(d.core, g_callcfgs[21]);
 
         for(const auto& it : d.observers_NtAlpcCancelMessage)
             it(PortHandle, Flags, MessageContext);
@@ -1256,7 +1256,7 @@ namespace
         const auto Timeout              = arg<nt64::PLARGE_INTEGER>(d.core, 10);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcConnectPort(PortHandle:{:#x}, PortName:{:#x}, ObjectAttributes:{:#x}, PortAttributes:{:#x}, Flags:{:#x}, RequiredServerSid:{:#x}, ConnectionMessage:{:#x}, BufferLength:{:#x}, OutMessageAttributes:{:#x}, InMessageAttributes:{:#x}, Timeout:{:#x})", PortHandle, PortName, ObjectAttributes, PortAttributes, Flags, RequiredServerSid, ConnectionMessage, BufferLength, OutMessageAttributes, InMessageAttributes, Timeout));
+            tracer::log_call(d.core, g_callcfgs[22]);
 
         for(const auto& it : d.observers_NtAlpcConnectPort)
             it(PortHandle, PortName, ObjectAttributes, PortAttributes, Flags, RequiredServerSid, ConnectionMessage, BufferLength, OutMessageAttributes, InMessageAttributes, Timeout);
@@ -1269,7 +1269,7 @@ namespace
         const auto PortAttributes   = arg<nt64::PALPC_PORT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcCreatePort(PortHandle:{:#x}, ObjectAttributes:{:#x}, PortAttributes:{:#x})", PortHandle, ObjectAttributes, PortAttributes));
+            tracer::log_call(d.core, g_callcfgs[23]);
 
         for(const auto& it : d.observers_NtAlpcCreatePort)
             it(PortHandle, ObjectAttributes, PortAttributes);
@@ -1285,7 +1285,7 @@ namespace
         const auto ActualSectionSize = arg<nt64::PSIZE_T>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcCreatePortSection(PortHandle:{:#x}, Flags:{:#x}, SectionHandle:{:#x}, SectionSize:{:#x}, AlpcSectionHandle:{:#x}, ActualSectionSize:{:#x})", PortHandle, Flags, SectionHandle, SectionSize, AlpcSectionHandle, ActualSectionSize));
+            tracer::log_call(d.core, g_callcfgs[24]);
 
         for(const auto& it : d.observers_NtAlpcCreatePortSection)
             it(PortHandle, Flags, SectionHandle, SectionSize, AlpcSectionHandle, ActualSectionSize);
@@ -1299,7 +1299,7 @@ namespace
         const auto ResourceId  = arg<nt64::PALPC_HANDLE>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcCreateResourceReserve(PortHandle:{:#x}, Flags:{:#x}, MessageSize:{:#x}, ResourceId:{:#x})", PortHandle, Flags, MessageSize, ResourceId));
+            tracer::log_call(d.core, g_callcfgs[25]);
 
         for(const auto& it : d.observers_NtAlpcCreateResourceReserve)
             it(PortHandle, Flags, MessageSize, ResourceId);
@@ -1312,7 +1312,7 @@ namespace
         const auto ViewAttributes = arg<nt64::PALPC_DATA_VIEW_ATTR>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcCreateSectionView(PortHandle:{:#x}, Flags:{:#x}, ViewAttributes:{:#x})", PortHandle, Flags, ViewAttributes));
+            tracer::log_call(d.core, g_callcfgs[26]);
 
         for(const auto& it : d.observers_NtAlpcCreateSectionView)
             it(PortHandle, Flags, ViewAttributes);
@@ -1325,7 +1325,7 @@ namespace
         const auto SecurityAttribute = arg<nt64::PALPC_SECURITY_ATTR>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcCreateSecurityContext(PortHandle:{:#x}, Flags:{:#x}, SecurityAttribute:{:#x})", PortHandle, Flags, SecurityAttribute));
+            tracer::log_call(d.core, g_callcfgs[27]);
 
         for(const auto& it : d.observers_NtAlpcCreateSecurityContext)
             it(PortHandle, Flags, SecurityAttribute);
@@ -1338,7 +1338,7 @@ namespace
         const auto SectionHandle = arg<nt64::ALPC_HANDLE>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcDeletePortSection(PortHandle:{:#x}, Flags:{:#x}, SectionHandle:{:#x})", PortHandle, Flags, SectionHandle));
+            tracer::log_call(d.core, g_callcfgs[28]);
 
         for(const auto& it : d.observers_NtAlpcDeletePortSection)
             it(PortHandle, Flags, SectionHandle);
@@ -1351,7 +1351,7 @@ namespace
         const auto ResourceId = arg<nt64::ALPC_HANDLE>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcDeleteResourceReserve(PortHandle:{:#x}, Flags:{:#x}, ResourceId:{:#x})", PortHandle, Flags, ResourceId));
+            tracer::log_call(d.core, g_callcfgs[29]);
 
         for(const auto& it : d.observers_NtAlpcDeleteResourceReserve)
             it(PortHandle, Flags, ResourceId);
@@ -1364,7 +1364,7 @@ namespace
         const auto ViewBase   = arg<nt64::PVOID>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcDeleteSectionView(PortHandle:{:#x}, Flags:{:#x}, ViewBase:{:#x})", PortHandle, Flags, ViewBase));
+            tracer::log_call(d.core, g_callcfgs[30]);
 
         for(const auto& it : d.observers_NtAlpcDeleteSectionView)
             it(PortHandle, Flags, ViewBase);
@@ -1377,7 +1377,7 @@ namespace
         const auto ContextHandle = arg<nt64::ALPC_HANDLE>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcDeleteSecurityContext(PortHandle:{:#x}, Flags:{:#x}, ContextHandle:{:#x})", PortHandle, Flags, ContextHandle));
+            tracer::log_call(d.core, g_callcfgs[31]);
 
         for(const auto& it : d.observers_NtAlpcDeleteSecurityContext)
             it(PortHandle, Flags, ContextHandle);
@@ -1389,7 +1389,7 @@ namespace
         const auto Flags      = arg<nt64::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcDisconnectPort(PortHandle:{:#x}, Flags:{:#x})", PortHandle, Flags));
+            tracer::log_call(d.core, g_callcfgs[32]);
 
         for(const auto& it : d.observers_NtAlpcDisconnectPort)
             it(PortHandle, Flags);
@@ -1402,7 +1402,7 @@ namespace
         const auto Reserved    = arg<nt64::PVOID>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcImpersonateClientOfPort(PortHandle:{:#x}, PortMessage:{:#x}, Reserved:{:#x})", PortHandle, PortMessage, Reserved));
+            tracer::log_call(d.core, g_callcfgs[33]);
 
         for(const auto& it : d.observers_NtAlpcImpersonateClientOfPort)
             it(PortHandle, PortMessage, Reserved);
@@ -1418,7 +1418,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcOpenSenderProcess(ProcessHandle:{:#x}, PortHandle:{:#x}, PortMessage:{:#x}, Flags:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", ProcessHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[34]);
 
         for(const auto& it : d.observers_NtAlpcOpenSenderProcess)
             it(ProcessHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes);
@@ -1434,7 +1434,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcOpenSenderThread(ThreadHandle:{:#x}, PortHandle:{:#x}, PortMessage:{:#x}, Flags:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", ThreadHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[35]);
 
         for(const auto& it : d.observers_NtAlpcOpenSenderThread)
             it(ThreadHandle, PortHandle, PortMessage, Flags, DesiredAccess, ObjectAttributes);
@@ -1449,7 +1449,7 @@ namespace
         const auto ReturnLength         = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcQueryInformation(PortHandle:{:#x}, PortInformationClass:{:#x}, PortInformation:{:#x}, Length:{:#x}, ReturnLength:{:#x})", PortHandle, PortInformationClass, PortInformation, Length, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[36]);
 
         for(const auto& it : d.observers_NtAlpcQueryInformation)
             it(PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
@@ -1465,7 +1465,7 @@ namespace
         const auto ReturnLength            = arg<nt64::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcQueryInformationMessage(PortHandle:{:#x}, PortMessage:{:#x}, MessageInformationClass:{:#x}, MessageInformation:{:#x}, Length:{:#x}, ReturnLength:{:#x})", PortHandle, PortMessage, MessageInformationClass, MessageInformation, Length, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[37]);
 
         for(const auto& it : d.observers_NtAlpcQueryInformationMessage)
             it(PortHandle, PortMessage, MessageInformationClass, MessageInformation, Length, ReturnLength);
@@ -1478,7 +1478,7 @@ namespace
         const auto ContextHandle = arg<nt64::ALPC_HANDLE>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcRevokeSecurityContext(PortHandle:{:#x}, Flags:{:#x}, ContextHandle:{:#x})", PortHandle, Flags, ContextHandle));
+            tracer::log_call(d.core, g_callcfgs[38]);
 
         for(const auto& it : d.observers_NtAlpcRevokeSecurityContext)
             it(PortHandle, Flags, ContextHandle);
@@ -1496,7 +1496,7 @@ namespace
         const auto Timeout                  = arg<nt64::PLARGE_INTEGER>(d.core, 7);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcSendWaitReceivePort(PortHandle:{:#x}, Flags:{:#x}, SendMessage:{:#x}, SendMessageAttributes:{:#x}, ReceiveMessage:{:#x}, BufferLength:{:#x}, ReceiveMessageAttributes:{:#x}, Timeout:{:#x})", PortHandle, Flags, SendMessage, SendMessageAttributes, ReceiveMessage, BufferLength, ReceiveMessageAttributes, Timeout));
+            tracer::log_call(d.core, g_callcfgs[39]);
 
         for(const auto& it : d.observers_NtAlpcSendWaitReceivePort)
             it(PortHandle, Flags, SendMessage, SendMessageAttributes, ReceiveMessage, BufferLength, ReceiveMessageAttributes, Timeout);
@@ -1510,7 +1510,7 @@ namespace
         const auto Length               = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAlpcSetInformation(PortHandle:{:#x}, PortInformationClass:{:#x}, PortInformation:{:#x}, Length:{:#x})", PortHandle, PortInformationClass, PortInformation, Length));
+            tracer::log_call(d.core, g_callcfgs[40]);
 
         for(const auto& it : d.observers_NtAlpcSetInformation)
             it(PortHandle, PortInformationClass, PortInformation, Length);
@@ -1522,7 +1522,7 @@ namespace
         const auto buf  = arg<nt64::PVOID>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtApphelpCacheControl(type:{:#x}, buf:{:#x})", type, buf));
+            tracer::log_call(d.core, g_callcfgs[41]);
 
         for(const auto& it : d.observers_NtApphelpCacheControl)
             it(type, buf);
@@ -1534,7 +1534,7 @@ namespace
         const auto File2MappedAsFile    = arg<nt64::PVOID>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAreMappedFilesTheSame(File1MappedAsAnImage:{:#x}, File2MappedAsFile:{:#x})", File1MappedAsAnImage, File2MappedAsFile));
+            tracer::log_call(d.core, g_callcfgs[42]);
 
         for(const auto& it : d.observers_NtAreMappedFilesTheSame)
             it(File1MappedAsAnImage, File2MappedAsFile);
@@ -1546,7 +1546,7 @@ namespace
         const auto ProcessHandle = arg<nt64::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtAssignProcessToJobObject(JobHandle:{:#x}, ProcessHandle:{:#x})", JobHandle, ProcessHandle));
+            tracer::log_call(d.core, g_callcfgs[43]);
 
         for(const auto& it : d.observers_NtAssignProcessToJobObject)
             it(JobHandle, ProcessHandle);
@@ -1559,7 +1559,7 @@ namespace
         const auto IoStatusBlock     = arg<nt64::PIO_STATUS_BLOCK>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCancelIoFileEx(FileHandle:{:#x}, IoRequestToCancel:{:#x}, IoStatusBlock:{:#x})", FileHandle, IoRequestToCancel, IoStatusBlock));
+            tracer::log_call(d.core, g_callcfgs[44]);
 
         for(const auto& it : d.observers_NtCancelIoFileEx)
             it(FileHandle, IoRequestToCancel, IoStatusBlock);
@@ -1571,7 +1571,7 @@ namespace
         const auto IoStatusBlock = arg<nt64::PIO_STATUS_BLOCK>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCancelIoFile(FileHandle:{:#x}, IoStatusBlock:{:#x})", FileHandle, IoStatusBlock));
+            tracer::log_call(d.core, g_callcfgs[45]);
 
         for(const auto& it : d.observers_NtCancelIoFile)
             it(FileHandle, IoStatusBlock);
@@ -1584,7 +1584,7 @@ namespace
         const auto IoStatusBlock     = arg<nt64::PIO_STATUS_BLOCK>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCancelSynchronousIoFile(ThreadHandle:{:#x}, IoRequestToCancel:{:#x}, IoStatusBlock:{:#x})", ThreadHandle, IoRequestToCancel, IoStatusBlock));
+            tracer::log_call(d.core, g_callcfgs[46]);
 
         for(const auto& it : d.observers_NtCancelSynchronousIoFile)
             it(ThreadHandle, IoRequestToCancel, IoStatusBlock);
@@ -1596,7 +1596,7 @@ namespace
         const auto CurrentState = arg<nt64::PBOOLEAN>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCancelTimer(TimerHandle:{:#x}, CurrentState:{:#x})", TimerHandle, CurrentState));
+            tracer::log_call(d.core, g_callcfgs[47]);
 
         for(const auto& it : d.observers_NtCancelTimer)
             it(TimerHandle, CurrentState);
@@ -1607,7 +1607,7 @@ namespace
         const auto EventHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtClearEvent(EventHandle:{:#x})", EventHandle));
+            tracer::log_call(d.core, g_callcfgs[48]);
 
         for(const auto& it : d.observers_NtClearEvent)
             it(EventHandle);
@@ -1618,7 +1618,7 @@ namespace
         const auto Handle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtClose(Handle:{:#x})", Handle));
+            tracer::log_call(d.core, g_callcfgs[49]);
 
         for(const auto& it : d.observers_NtClose)
             it(Handle);
@@ -1631,7 +1631,7 @@ namespace
         const auto GenerateOnClose = arg<nt64::BOOLEAN>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCloseObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, GenerateOnClose));
+            tracer::log_call(d.core, g_callcfgs[50]);
 
         for(const auto& it : d.observers_NtCloseObjectAuditAlarm)
             it(SubsystemName, HandleId, GenerateOnClose);
@@ -1643,7 +1643,7 @@ namespace
         const auto TmVirtualClock   = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCommitComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            tracer::log_call(d.core, g_callcfgs[51]);
 
         for(const auto& it : d.observers_NtCommitComplete)
             it(EnlistmentHandle, TmVirtualClock);
@@ -1655,7 +1655,7 @@ namespace
         const auto TmVirtualClock   = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCommitEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            tracer::log_call(d.core, g_callcfgs[52]);
 
         for(const auto& it : d.observers_NtCommitEnlistment)
             it(EnlistmentHandle, TmVirtualClock);
@@ -1667,7 +1667,7 @@ namespace
         const auto Wait              = arg<nt64::BOOLEAN>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCommitTransaction(TransactionHandle:{:#x}, Wait:{:#x})", TransactionHandle, Wait));
+            tracer::log_call(d.core, g_callcfgs[53]);
 
         for(const auto& it : d.observers_NtCommitTransaction)
             it(TransactionHandle, Wait);
@@ -1679,7 +1679,7 @@ namespace
         const auto KeyArray = arg<nt64::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCompactKeys(Count:{:#x}, KeyArray:{:#x})", Count, KeyArray));
+            tracer::log_call(d.core, g_callcfgs[54]);
 
         for(const auto& it : d.observers_NtCompactKeys)
             it(Count, KeyArray);
@@ -1692,7 +1692,7 @@ namespace
         const auto Equal             = arg<nt64::PBOOLEAN>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCompareTokens(FirstTokenHandle:{:#x}, SecondTokenHandle:{:#x}, Equal:{:#x})", FirstTokenHandle, SecondTokenHandle, Equal));
+            tracer::log_call(d.core, g_callcfgs[55]);
 
         for(const auto& it : d.observers_NtCompareTokens)
             it(FirstTokenHandle, SecondTokenHandle, Equal);
@@ -1703,7 +1703,7 @@ namespace
         const auto PortHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCompleteConnectPort(PortHandle:{:#x})", PortHandle));
+            tracer::log_call(d.core, g_callcfgs[56]);
 
         for(const auto& it : d.observers_NtCompleteConnectPort)
             it(PortHandle);
@@ -1714,7 +1714,7 @@ namespace
         const auto Key = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCompressKey(Key:{:#x})", Key));
+            tracer::log_call(d.core, g_callcfgs[57]);
 
         for(const auto& it : d.observers_NtCompressKey)
             it(Key);
@@ -1732,7 +1732,7 @@ namespace
         const auto ConnectionInformationLength = arg<nt64::PULONG>(d.core, 7);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtConnectPort(PortHandle:{:#x}, PortName:{:#x}, SecurityQos:{:#x}, ClientView:{:#x}, ServerView:{:#x}, MaxMessageLength:{:#x}, ConnectionInformation:{:#x}, ConnectionInformationLength:{:#x})", PortHandle, PortName, SecurityQos, ClientView, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength));
+            tracer::log_call(d.core, g_callcfgs[58]);
 
         for(const auto& it : d.observers_NtConnectPort)
             it(PortHandle, PortName, SecurityQos, ClientView, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
@@ -1744,7 +1744,7 @@ namespace
         const auto TestAlert     = arg<nt64::BOOLEAN>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtContinue(ContextRecord:{:#x}, TestAlert:{:#x})", ContextRecord, TestAlert));
+            tracer::log_call(d.core, g_callcfgs[59]);
 
         for(const auto& it : d.observers_NtContinue)
             it(ContextRecord, TestAlert);
@@ -1758,7 +1758,7 @@ namespace
         const auto Flags             = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateDebugObject(DebugObjectHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Flags:{:#x})", DebugObjectHandle, DesiredAccess, ObjectAttributes, Flags));
+            tracer::log_call(d.core, g_callcfgs[60]);
 
         for(const auto& it : d.observers_NtCreateDebugObject)
             it(DebugObjectHandle, DesiredAccess, ObjectAttributes, Flags);
@@ -1771,7 +1771,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateDirectoryObject(DirectoryHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", DirectoryHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[61]);
 
         for(const auto& it : d.observers_NtCreateDirectoryObject)
             it(DirectoryHandle, DesiredAccess, ObjectAttributes);
@@ -1789,7 +1789,7 @@ namespace
         const auto EnlistmentKey         = arg<nt64::PVOID>(d.core, 7);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateEnlistment(EnlistmentHandle:{:#x}, DesiredAccess:{:#x}, ResourceManagerHandle:{:#x}, TransactionHandle:{:#x}, ObjectAttributes:{:#x}, CreateOptions:{:#x}, NotificationMask:{:#x}, EnlistmentKey:{:#x})", EnlistmentHandle, DesiredAccess, ResourceManagerHandle, TransactionHandle, ObjectAttributes, CreateOptions, NotificationMask, EnlistmentKey));
+            tracer::log_call(d.core, g_callcfgs[62]);
 
         for(const auto& it : d.observers_NtCreateEnlistment)
             it(EnlistmentHandle, DesiredAccess, ResourceManagerHandle, TransactionHandle, ObjectAttributes, CreateOptions, NotificationMask, EnlistmentKey);
@@ -1804,7 +1804,7 @@ namespace
         const auto InitialState     = arg<nt64::BOOLEAN>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateEvent(EventHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, EventType:{:#x}, InitialState:{:#x})", EventHandle, DesiredAccess, ObjectAttributes, EventType, InitialState));
+            tracer::log_call(d.core, g_callcfgs[63]);
 
         for(const auto& it : d.observers_NtCreateEvent)
             it(EventHandle, DesiredAccess, ObjectAttributes, EventType, InitialState);
@@ -1817,7 +1817,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateEventPair(EventPairHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", EventPairHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[64]);
 
         for(const auto& it : d.observers_NtCreateEventPair)
             it(EventPairHandle, DesiredAccess, ObjectAttributes);
@@ -1838,7 +1838,7 @@ namespace
         const auto EaLength          = arg<nt64::ULONG>(d.core, 10);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateFile(FileHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, IoStatusBlock:{:#x}, AllocationSize:{:#x}, FileAttributes:{:#x}, ShareAccess:{:#x}, CreateDisposition:{:#x}, CreateOptions:{:#x}, EaBuffer:{:#x}, EaLength:{:#x})", FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions, EaBuffer, EaLength));
+            tracer::log_call(d.core, g_callcfgs[65]);
 
         for(const auto& it : d.observers_NtCreateFile)
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, AllocationSize, FileAttributes, ShareAccess, CreateDisposition, CreateOptions, EaBuffer, EaLength);
@@ -1852,7 +1852,7 @@ namespace
         const auto Count              = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateIoCompletion(IoCompletionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Count:{:#x})", IoCompletionHandle, DesiredAccess, ObjectAttributes, Count));
+            tracer::log_call(d.core, g_callcfgs[66]);
 
         for(const auto& it : d.observers_NtCreateIoCompletion)
             it(IoCompletionHandle, DesiredAccess, ObjectAttributes, Count);
@@ -1865,7 +1865,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateJobObject(JobHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", JobHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[67]);
 
         for(const auto& it : d.observers_NtCreateJobObject)
             it(JobHandle, DesiredAccess, ObjectAttributes);
@@ -1878,7 +1878,7 @@ namespace
         const auto Flags      = arg<nt64::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateJobSet(NumJob:{:#x}, UserJobSet:{:#x}, Flags:{:#x})", NumJob, UserJobSet, Flags));
+            tracer::log_call(d.core, g_callcfgs[68]);
 
         for(const auto& it : d.observers_NtCreateJobSet)
             it(NumJob, UserJobSet, Flags);
@@ -1892,7 +1892,7 @@ namespace
         const auto Flags            = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateKeyedEvent(KeyedEventHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Flags:{:#x})", KeyedEventHandle, DesiredAccess, ObjectAttributes, Flags));
+            tracer::log_call(d.core, g_callcfgs[69]);
 
         for(const auto& it : d.observers_NtCreateKeyedEvent)
             it(KeyedEventHandle, DesiredAccess, ObjectAttributes, Flags);
@@ -1909,7 +1909,7 @@ namespace
         const auto Disposition      = arg<nt64::PULONG>(d.core, 6);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateKey(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TitleIndex:{:#x}, Class:{:#x}, CreateOptions:{:#x}, Disposition:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, Disposition));
+            tracer::log_call(d.core, g_callcfgs[70]);
 
         for(const auto& it : d.observers_NtCreateKey)
             it(KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, Disposition);
@@ -1927,7 +1927,7 @@ namespace
         const auto Disposition       = arg<nt64::PULONG>(d.core, 7);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateKeyTransacted(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TitleIndex:{:#x}, Class:{:#x}, CreateOptions:{:#x}, TransactionHandle:{:#x}, Disposition:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, TransactionHandle, Disposition));
+            tracer::log_call(d.core, g_callcfgs[71]);
 
         for(const auto& it : d.observers_NtCreateKeyTransacted)
             it(KeyHandle, DesiredAccess, ObjectAttributes, TitleIndex, Class, CreateOptions, TransactionHandle, Disposition);
@@ -1945,7 +1945,7 @@ namespace
         const auto ReadTimeout        = arg<nt64::PLARGE_INTEGER>(d.core, 7);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateMailslotFile(FileHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, IoStatusBlock:{:#x}, CreateOptions:{:#x}, MailslotQuota:{:#x}, MaximumMessageSize:{:#x}, ReadTimeout:{:#x})", FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, CreateOptions, MailslotQuota, MaximumMessageSize, ReadTimeout));
+            tracer::log_call(d.core, g_callcfgs[72]);
 
         for(const auto& it : d.observers_NtCreateMailslotFile)
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, CreateOptions, MailslotQuota, MaximumMessageSize, ReadTimeout);
@@ -1959,7 +1959,7 @@ namespace
         const auto InitialOwner     = arg<nt64::BOOLEAN>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateMutant(MutantHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, InitialOwner:{:#x})", MutantHandle, DesiredAccess, ObjectAttributes, InitialOwner));
+            tracer::log_call(d.core, g_callcfgs[73]);
 
         for(const auto& it : d.observers_NtCreateMutant)
             it(MutantHandle, DesiredAccess, ObjectAttributes, InitialOwner);
@@ -1983,7 +1983,7 @@ namespace
         const auto DefaultTimeout    = arg<nt64::PLARGE_INTEGER>(d.core, 13);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateNamedPipeFile(FileHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, IoStatusBlock:{:#x}, ShareAccess:{:#x}, CreateDisposition:{:#x}, CreateOptions:{:#x}, NamedPipeType:{:#x}, ReadMode:{:#x}, CompletionMode:{:#x}, MaximumInstances:{:#x}, InboundQuota:{:#x}, OutboundQuota:{:#x}, DefaultTimeout:{:#x})", FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, CreateDisposition, CreateOptions, NamedPipeType, ReadMode, CompletionMode, MaximumInstances, InboundQuota, OutboundQuota, DefaultTimeout));
+            tracer::log_call(d.core, g_callcfgs[74]);
 
         for(const auto& it : d.observers_NtCreateNamedPipeFile)
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, CreateDisposition, CreateOptions, NamedPipeType, ReadMode, CompletionMode, MaximumInstances, InboundQuota, OutboundQuota, DefaultTimeout);
@@ -1997,7 +1997,7 @@ namespace
         const auto Priority     = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreatePagingFile(PageFileName:{:#x}, MinimumSize:{:#x}, MaximumSize:{:#x}, Priority:{:#x})", PageFileName, MinimumSize, MaximumSize, Priority));
+            tracer::log_call(d.core, g_callcfgs[75]);
 
         for(const auto& it : d.observers_NtCreatePagingFile)
             it(PageFileName, MinimumSize, MaximumSize, Priority);
@@ -2012,7 +2012,7 @@ namespace
         const auto MaxPoolUsage            = arg<nt64::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreatePort(PortHandle:{:#x}, ObjectAttributes:{:#x}, MaxConnectionInfoLength:{:#x}, MaxMessageLength:{:#x}, MaxPoolUsage:{:#x})", PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage));
+            tracer::log_call(d.core, g_callcfgs[76]);
 
         for(const auto& it : d.observers_NtCreatePort)
             it(PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage);
@@ -2026,7 +2026,7 @@ namespace
         const auto BoundaryDescriptor = arg<nt64::PVOID>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreatePrivateNamespace(NamespaceHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, BoundaryDescriptor:{:#x})", NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor));
+            tracer::log_call(d.core, g_callcfgs[77]);
 
         for(const auto& it : d.observers_NtCreatePrivateNamespace)
             it(NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
@@ -2045,7 +2045,7 @@ namespace
         const auto JobMemberLevel   = arg<nt64::ULONG>(d.core, 8);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateProcessEx(ProcessHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ParentProcess:{:#x}, Flags:{:#x}, SectionHandle:{:#x}, DebugPort:{:#x}, ExceptionPort:{:#x}, JobMemberLevel:{:#x})", ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, Flags, SectionHandle, DebugPort, ExceptionPort, JobMemberLevel));
+            tracer::log_call(d.core, g_callcfgs[78]);
 
         for(const auto& it : d.observers_NtCreateProcessEx)
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, Flags, SectionHandle, DebugPort, ExceptionPort, JobMemberLevel);
@@ -2063,7 +2063,7 @@ namespace
         const auto ExceptionPort      = arg<nt64::HANDLE>(d.core, 7);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateProcess(ProcessHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ParentProcess:{:#x}, InheritObjectTable:{:#x}, SectionHandle:{:#x}, DebugPort:{:#x}, ExceptionPort:{:#x})", ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, InheritObjectTable, SectionHandle, DebugPort, ExceptionPort));
+            tracer::log_call(d.core, g_callcfgs[79]);
 
         for(const auto& it : d.observers_NtCreateProcess)
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ParentProcess, InheritObjectTable, SectionHandle, DebugPort, ExceptionPort);
@@ -2083,7 +2083,7 @@ namespace
         const auto GroupAffinity      = arg<nt64::PGROUP_AFFINITY>(d.core, 9);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateProfileEx(ProfileHandle:{:#x}, Process:{:#x}, ProfileBase:{:#x}, ProfileSize:{:#x}, BucketSize:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, ProfileSource:{:#x}, GroupAffinityCount:{:#x}, GroupAffinity:{:#x})", ProfileHandle, Process, ProfileBase, ProfileSize, BucketSize, Buffer, BufferSize, ProfileSource, GroupAffinityCount, GroupAffinity));
+            tracer::log_call(d.core, g_callcfgs[80]);
 
         for(const auto& it : d.observers_NtCreateProfileEx)
             it(ProfileHandle, Process, ProfileBase, ProfileSize, BucketSize, Buffer, BufferSize, ProfileSource, GroupAffinityCount, GroupAffinity);
@@ -2102,7 +2102,7 @@ namespace
         const auto Affinity      = arg<nt64::KAFFINITY>(d.core, 8);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateProfile(ProfileHandle:{:#x}, Process:{:#x}, RangeBase:{:#x}, RangeSize:{:#x}, BucketSize:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, ProfileSource:{:#x}, Affinity:{:#x})", ProfileHandle, Process, RangeBase, RangeSize, BucketSize, Buffer, BufferSize, ProfileSource, Affinity));
+            tracer::log_call(d.core, g_callcfgs[81]);
 
         for(const auto& it : d.observers_NtCreateProfile)
             it(ProfileHandle, Process, RangeBase, RangeSize, BucketSize, Buffer, BufferSize, ProfileSource, Affinity);
@@ -2119,7 +2119,7 @@ namespace
         const auto Description           = arg<nt64::PUNICODE_STRING>(d.core, 6);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateResourceManager(ResourceManagerHandle:{:#x}, DesiredAccess:{:#x}, TmHandle:{:#x}, RmGuid:{:#x}, ObjectAttributes:{:#x}, CreateOptions:{:#x}, Description:{:#x})", ResourceManagerHandle, DesiredAccess, TmHandle, RmGuid, ObjectAttributes, CreateOptions, Description));
+            tracer::log_call(d.core, g_callcfgs[82]);
 
         for(const auto& it : d.observers_NtCreateResourceManager)
             it(ResourceManagerHandle, DesiredAccess, TmHandle, RmGuid, ObjectAttributes, CreateOptions, Description);
@@ -2136,7 +2136,7 @@ namespace
         const auto FileHandle            = arg<nt64::HANDLE>(d.core, 6);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateSection(SectionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, MaximumSize:{:#x}, SectionPageProtection:{:#x}, AllocationAttributes:{:#x}, FileHandle:{:#x})", SectionHandle, DesiredAccess, ObjectAttributes, MaximumSize, SectionPageProtection, AllocationAttributes, FileHandle));
+            tracer::log_call(d.core, g_callcfgs[83]);
 
         for(const auto& it : d.observers_NtCreateSection)
             it(SectionHandle, DesiredAccess, ObjectAttributes, MaximumSize, SectionPageProtection, AllocationAttributes, FileHandle);
@@ -2151,7 +2151,7 @@ namespace
         const auto MaximumCount     = arg<nt64::LONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateSemaphore(SemaphoreHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, InitialCount:{:#x}, MaximumCount:{:#x})", SemaphoreHandle, DesiredAccess, ObjectAttributes, InitialCount, MaximumCount));
+            tracer::log_call(d.core, g_callcfgs[84]);
 
         for(const auto& it : d.observers_NtCreateSemaphore)
             it(SemaphoreHandle, DesiredAccess, ObjectAttributes, InitialCount, MaximumCount);
@@ -2165,7 +2165,7 @@ namespace
         const auto LinkTarget       = arg<nt64::PUNICODE_STRING>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateSymbolicLinkObject(LinkHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, LinkTarget:{:#x})", LinkHandle, DesiredAccess, ObjectAttributes, LinkTarget));
+            tracer::log_call(d.core, g_callcfgs[85]);
 
         for(const auto& it : d.observers_NtCreateSymbolicLinkObject)
             it(LinkHandle, DesiredAccess, ObjectAttributes, LinkTarget);
@@ -2186,7 +2186,7 @@ namespace
         const auto AttributeList    = arg<nt64::PPS_ATTRIBUTE_LIST>(d.core, 10);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateThreadEx(ThreadHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ProcessHandle:{:#x}, StartRoutine:{:#x}, Argument:{:#x}, CreateFlags:{:#x}, ZeroBits:{:#x}, StackSize:{:#x}, MaximumStackSize:{:#x}, AttributeList:{:#x})", ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, StartRoutine, Argument, CreateFlags, ZeroBits, StackSize, MaximumStackSize, AttributeList));
+            tracer::log_call(d.core, g_callcfgs[86]);
 
         for(const auto& it : d.observers_NtCreateThreadEx)
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, StartRoutine, Argument, CreateFlags, ZeroBits, StackSize, MaximumStackSize, AttributeList);
@@ -2204,7 +2204,7 @@ namespace
         const auto CreateSuspended  = arg<nt64::BOOLEAN>(d.core, 7);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateThread(ThreadHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ProcessHandle:{:#x}, ClientId:{:#x}, ThreadContext:{:#x}, InitialTeb:{:#x}, CreateSuspended:{:#x})", ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, ClientId, ThreadContext, InitialTeb, CreateSuspended));
+            tracer::log_call(d.core, g_callcfgs[87]);
 
         for(const auto& it : d.observers_NtCreateThread)
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ProcessHandle, ClientId, ThreadContext, InitialTeb, CreateSuspended);
@@ -2218,7 +2218,7 @@ namespace
         const auto TimerType        = arg<nt64::TIMER_TYPE>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateTimer(TimerHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TimerType:{:#x})", TimerHandle, DesiredAccess, ObjectAttributes, TimerType));
+            tracer::log_call(d.core, g_callcfgs[88]);
 
         for(const auto& it : d.observers_NtCreateTimer)
             it(TimerHandle, DesiredAccess, ObjectAttributes, TimerType);
@@ -2241,7 +2241,7 @@ namespace
         const auto TokenSource      = arg<nt64::PTOKEN_SOURCE>(d.core, 12);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateToken(TokenHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TokenType:{:#x}, AuthenticationId:{:#x}, ExpirationTime:{:#x}, User:{:#x}, Groups:{:#x}, Privileges:{:#x}, Owner:{:#x}, PrimaryGroup:{:#x}, DefaultDacl:{:#x}, TokenSource:{:#x})", TokenHandle, DesiredAccess, ObjectAttributes, TokenType, AuthenticationId, ExpirationTime, User, Groups, Privileges, Owner, PrimaryGroup, DefaultDacl, TokenSource));
+            tracer::log_call(d.core, g_callcfgs[89]);
 
         for(const auto& it : d.observers_NtCreateToken)
             it(TokenHandle, DesiredAccess, ObjectAttributes, TokenType, AuthenticationId, ExpirationTime, User, Groups, Privileges, Owner, PrimaryGroup, DefaultDacl, TokenSource);
@@ -2257,7 +2257,7 @@ namespace
         const auto CommitStrength   = arg<nt64::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateTransactionManager(TmHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, LogFileName:{:#x}, CreateOptions:{:#x}, CommitStrength:{:#x})", TmHandle, DesiredAccess, ObjectAttributes, LogFileName, CreateOptions, CommitStrength));
+            tracer::log_call(d.core, g_callcfgs[90]);
 
         for(const auto& it : d.observers_NtCreateTransactionManager)
             it(TmHandle, DesiredAccess, ObjectAttributes, LogFileName, CreateOptions, CommitStrength);
@@ -2277,7 +2277,7 @@ namespace
         const auto Description       = arg<nt64::PUNICODE_STRING>(d.core, 9);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateTransaction(TransactionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Uow:{:#x}, TmHandle:{:#x}, CreateOptions:{:#x}, IsolationLevel:{:#x}, IsolationFlags:{:#x}, Timeout:{:#x}, Description:{:#x})", TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle, CreateOptions, IsolationLevel, IsolationFlags, Timeout, Description));
+            tracer::log_call(d.core, g_callcfgs[91]);
 
         for(const auto& it : d.observers_NtCreateTransaction)
             it(TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle, CreateOptions, IsolationLevel, IsolationFlags, Timeout, Description);
@@ -2298,7 +2298,7 @@ namespace
         const auto AttributeList           = arg<nt64::PPROCESS_ATTRIBUTE_LIST>(d.core, 10);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateUserProcess(ProcessHandle:{:#x}, ThreadHandle:{:#x}, ProcessDesiredAccess:{:#x}, ThreadDesiredAccess:{:#x}, ProcessObjectAttributes:{:#x}, ThreadObjectAttributes:{:#x}, ProcessFlags:{:#x}, ThreadFlags:{:#x}, ProcessParameters:{:#x}, CreateInfo:{:#x}, AttributeList:{:#x})", ProcessHandle, ThreadHandle, ProcessDesiredAccess, ThreadDesiredAccess, ProcessObjectAttributes, ThreadObjectAttributes, ProcessFlags, ThreadFlags, ProcessParameters, CreateInfo, AttributeList));
+            tracer::log_call(d.core, g_callcfgs[92]);
 
         for(const auto& it : d.observers_NtCreateUserProcess)
             it(ProcessHandle, ThreadHandle, ProcessDesiredAccess, ThreadDesiredAccess, ProcessObjectAttributes, ThreadObjectAttributes, ProcessFlags, ThreadFlags, ProcessParameters, CreateInfo, AttributeList);
@@ -2313,7 +2313,7 @@ namespace
         const auto MaxPoolUsage            = arg<nt64::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateWaitablePort(PortHandle:{:#x}, ObjectAttributes:{:#x}, MaxConnectionInfoLength:{:#x}, MaxMessageLength:{:#x}, MaxPoolUsage:{:#x})", PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage));
+            tracer::log_call(d.core, g_callcfgs[93]);
 
         for(const auto& it : d.observers_NtCreateWaitablePort)
             it(PortHandle, ObjectAttributes, MaxConnectionInfoLength, MaxMessageLength, MaxPoolUsage);
@@ -2333,7 +2333,7 @@ namespace
         const auto StackCommit               = arg<nt64::SIZE_T>(d.core, 9);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtCreateWorkerFactory(WorkerFactoryHandleReturn:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, CompletionPortHandle:{:#x}, WorkerProcessHandle:{:#x}, StartRoutine:{:#x}, StartParameter:{:#x}, MaxThreadCount:{:#x}, StackReserve:{:#x}, StackCommit:{:#x})", WorkerFactoryHandleReturn, DesiredAccess, ObjectAttributes, CompletionPortHandle, WorkerProcessHandle, StartRoutine, StartParameter, MaxThreadCount, StackReserve, StackCommit));
+            tracer::log_call(d.core, g_callcfgs[94]);
 
         for(const auto& it : d.observers_NtCreateWorkerFactory)
             it(WorkerFactoryHandleReturn, DesiredAccess, ObjectAttributes, CompletionPortHandle, WorkerProcessHandle, StartRoutine, StartParameter, MaxThreadCount, StackReserve, StackCommit);
@@ -2345,7 +2345,7 @@ namespace
         const auto DebugObjectHandle = arg<nt64::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDebugActiveProcess(ProcessHandle:{:#x}, DebugObjectHandle:{:#x})", ProcessHandle, DebugObjectHandle));
+            tracer::log_call(d.core, g_callcfgs[95]);
 
         for(const auto& it : d.observers_NtDebugActiveProcess)
             it(ProcessHandle, DebugObjectHandle);
@@ -2358,7 +2358,7 @@ namespace
         const auto ContinueStatus    = arg<nt64::NTSTATUS>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDebugContinue(DebugObjectHandle:{:#x}, ClientId:{:#x}, ContinueStatus:{:#x})", DebugObjectHandle, ClientId, ContinueStatus));
+            tracer::log_call(d.core, g_callcfgs[96]);
 
         for(const auto& it : d.observers_NtDebugContinue)
             it(DebugObjectHandle, ClientId, ContinueStatus);
@@ -2370,7 +2370,7 @@ namespace
         const auto DelayInterval = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDelayExecution(Alertable:{:#x}, DelayInterval:{:#x})", Alertable, DelayInterval));
+            tracer::log_call(d.core, g_callcfgs[97]);
 
         for(const auto& it : d.observers_NtDelayExecution)
             it(Alertable, DelayInterval);
@@ -2381,7 +2381,7 @@ namespace
         const auto Atom = arg<nt64::RTL_ATOM>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDeleteAtom(Atom:{:#x})", Atom));
+            tracer::log_call(d.core, g_callcfgs[98]);
 
         for(const auto& it : d.observers_NtDeleteAtom)
             it(Atom);
@@ -2392,7 +2392,7 @@ namespace
         const auto Id = arg<nt64::ULONG>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDeleteBootEntry(Id:{:#x})", Id));
+            tracer::log_call(d.core, g_callcfgs[99]);
 
         for(const auto& it : d.observers_NtDeleteBootEntry)
             it(Id);
@@ -2403,7 +2403,7 @@ namespace
         const auto Id = arg<nt64::ULONG>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDeleteDriverEntry(Id:{:#x})", Id));
+            tracer::log_call(d.core, g_callcfgs[100]);
 
         for(const auto& it : d.observers_NtDeleteDriverEntry)
             it(Id);
@@ -2414,7 +2414,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDeleteFile(ObjectAttributes:{:#x})", ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[101]);
 
         for(const auto& it : d.observers_NtDeleteFile)
             it(ObjectAttributes);
@@ -2425,7 +2425,7 @@ namespace
         const auto KeyHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDeleteKey(KeyHandle:{:#x})", KeyHandle));
+            tracer::log_call(d.core, g_callcfgs[102]);
 
         for(const auto& it : d.observers_NtDeleteKey)
             it(KeyHandle);
@@ -2438,7 +2438,7 @@ namespace
         const auto GenerateOnClose = arg<nt64::BOOLEAN>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDeleteObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, GenerateOnClose));
+            tracer::log_call(d.core, g_callcfgs[103]);
 
         for(const auto& it : d.observers_NtDeleteObjectAuditAlarm)
             it(SubsystemName, HandleId, GenerateOnClose);
@@ -2449,7 +2449,7 @@ namespace
         const auto NamespaceHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDeletePrivateNamespace(NamespaceHandle:{:#x})", NamespaceHandle));
+            tracer::log_call(d.core, g_callcfgs[104]);
 
         for(const auto& it : d.observers_NtDeletePrivateNamespace)
             it(NamespaceHandle);
@@ -2461,7 +2461,7 @@ namespace
         const auto ValueName = arg<nt64::PUNICODE_STRING>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDeleteValueKey(KeyHandle:{:#x}, ValueName:{:#x})", KeyHandle, ValueName));
+            tracer::log_call(d.core, g_callcfgs[105]);
 
         for(const auto& it : d.observers_NtDeleteValueKey)
             it(KeyHandle, ValueName);
@@ -2481,7 +2481,7 @@ namespace
         const auto OutputBufferLength = arg<nt64::ULONG>(d.core, 9);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDeviceIoControlFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, IoControlCode:{:#x}, InputBuffer:{:#x}, InputBufferLength:{:#x}, OutputBuffer:{:#x}, OutputBufferLength:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength));
+            tracer::log_call(d.core, g_callcfgs[106]);
 
         for(const auto& it : d.observers_NtDeviceIoControlFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
@@ -2492,7 +2492,7 @@ namespace
         const auto String = arg<nt64::PUNICODE_STRING>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDisplayString(String:{:#x})", String));
+            tracer::log_call(d.core, g_callcfgs[107]);
 
         for(const auto& it : d.observers_NtDisplayString)
             it(String);
@@ -2503,7 +2503,7 @@ namespace
         const auto Text = arg<nt64::PUNICODE_STRING>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDrawText(Text:{:#x})", Text));
+            tracer::log_call(d.core, g_callcfgs[108]);
 
         for(const auto& it : d.observers_NtDrawText)
             it(Text);
@@ -2520,7 +2520,7 @@ namespace
         const auto Options             = arg<nt64::ULONG>(d.core, 6);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDuplicateObject(SourceProcessHandle:{:#x}, SourceHandle:{:#x}, TargetProcessHandle:{:#x}, TargetHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, Options:{:#x})", SourceProcessHandle, SourceHandle, TargetProcessHandle, TargetHandle, DesiredAccess, HandleAttributes, Options));
+            tracer::log_call(d.core, g_callcfgs[109]);
 
         for(const auto& it : d.observers_NtDuplicateObject)
             it(SourceProcessHandle, SourceHandle, TargetProcessHandle, TargetHandle, DesiredAccess, HandleAttributes, Options);
@@ -2536,7 +2536,7 @@ namespace
         const auto NewTokenHandle      = arg<nt64::PHANDLE>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDuplicateToken(ExistingTokenHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, EffectiveOnly:{:#x}, TokenType:{:#x}, NewTokenHandle:{:#x})", ExistingTokenHandle, DesiredAccess, ObjectAttributes, EffectiveOnly, TokenType, NewTokenHandle));
+            tracer::log_call(d.core, g_callcfgs[110]);
 
         for(const auto& it : d.observers_NtDuplicateToken)
             it(ExistingTokenHandle, DesiredAccess, ObjectAttributes, EffectiveOnly, TokenType, NewTokenHandle);
@@ -2548,7 +2548,7 @@ namespace
         const auto BufferLength = arg<nt64::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtEnumerateBootEntries(Buffer:{:#x}, BufferLength:{:#x})", Buffer, BufferLength));
+            tracer::log_call(d.core, g_callcfgs[111]);
 
         for(const auto& it : d.observers_NtEnumerateBootEntries)
             it(Buffer, BufferLength);
@@ -2560,7 +2560,7 @@ namespace
         const auto BufferLength = arg<nt64::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtEnumerateDriverEntries(Buffer:{:#x}, BufferLength:{:#x})", Buffer, BufferLength));
+            tracer::log_call(d.core, g_callcfgs[112]);
 
         for(const auto& it : d.observers_NtEnumerateDriverEntries)
             it(Buffer, BufferLength);
@@ -2576,7 +2576,7 @@ namespace
         const auto ResultLength        = arg<nt64::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtEnumerateKey(KeyHandle:{:#x}, Index:{:#x}, KeyInformationClass:{:#x}, KeyInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, Index, KeyInformationClass, KeyInformation, Length, ResultLength));
+            tracer::log_call(d.core, g_callcfgs[113]);
 
         for(const auto& it : d.observers_NtEnumerateKey)
             it(KeyHandle, Index, KeyInformationClass, KeyInformation, Length, ResultLength);
@@ -2589,7 +2589,7 @@ namespace
         const auto BufferLength     = arg<nt64::PULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtEnumerateSystemEnvironmentValuesEx(InformationClass:{:#x}, Buffer:{:#x}, BufferLength:{:#x})", InformationClass, Buffer, BufferLength));
+            tracer::log_call(d.core, g_callcfgs[114]);
 
         for(const auto& it : d.observers_NtEnumerateSystemEnvironmentValuesEx)
             it(InformationClass, Buffer, BufferLength);
@@ -2604,7 +2604,7 @@ namespace
         const auto ReturnLength       = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtEnumerateTransactionObject(RootObjectHandle:{:#x}, QueryType:{:#x}, ObjectCursor:{:#x}, ObjectCursorLength:{:#x}, ReturnLength:{:#x})", RootObjectHandle, QueryType, ObjectCursor, ObjectCursorLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[115]);
 
         for(const auto& it : d.observers_NtEnumerateTransactionObject)
             it(RootObjectHandle, QueryType, ObjectCursor, ObjectCursorLength, ReturnLength);
@@ -2620,7 +2620,7 @@ namespace
         const auto ResultLength             = arg<nt64::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtEnumerateValueKey(KeyHandle:{:#x}, Index:{:#x}, KeyValueInformationClass:{:#x}, KeyValueInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, Index, KeyValueInformationClass, KeyValueInformation, Length, ResultLength));
+            tracer::log_call(d.core, g_callcfgs[116]);
 
         for(const auto& it : d.observers_NtEnumerateValueKey)
             it(KeyHandle, Index, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
@@ -2632,7 +2632,7 @@ namespace
         const auto NewSectionSize = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtExtendSection(SectionHandle:{:#x}, NewSectionSize:{:#x})", SectionHandle, NewSectionSize));
+            tracer::log_call(d.core, g_callcfgs[117]);
 
         for(const auto& it : d.observers_NtExtendSection)
             it(SectionHandle, NewSectionSize);
@@ -2648,7 +2648,7 @@ namespace
         const auto NewTokenHandle      = arg<nt64::PHANDLE>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFilterToken(ExistingTokenHandle:{:#x}, Flags:{:#x}, SidsToDisable:{:#x}, PrivilegesToDelete:{:#x}, RestrictedSids:{:#x}, NewTokenHandle:{:#x})", ExistingTokenHandle, Flags, SidsToDisable, PrivilegesToDelete, RestrictedSids, NewTokenHandle));
+            tracer::log_call(d.core, g_callcfgs[118]);
 
         for(const auto& it : d.observers_NtFilterToken)
             it(ExistingTokenHandle, Flags, SidsToDisable, PrivilegesToDelete, RestrictedSids, NewTokenHandle);
@@ -2661,7 +2661,7 @@ namespace
         const auto Atom     = arg<nt64::PRTL_ATOM>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFindAtom(AtomName:{:#x}, Length:{:#x}, Atom:{:#x})", AtomName, Length, Atom));
+            tracer::log_call(d.core, g_callcfgs[119]);
 
         for(const auto& it : d.observers_NtFindAtom)
             it(AtomName, Length, Atom);
@@ -2673,7 +2673,7 @@ namespace
         const auto IoStatusBlock = arg<nt64::PIO_STATUS_BLOCK>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFlushBuffersFile(FileHandle:{:#x}, IoStatusBlock:{:#x})", FileHandle, IoStatusBlock));
+            tracer::log_call(d.core, g_callcfgs[120]);
 
         for(const auto& it : d.observers_NtFlushBuffersFile)
             it(FileHandle, IoStatusBlock);
@@ -2685,7 +2685,7 @@ namespace
         const auto SetComittedFlag   = arg<nt64::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFlushInstallUILanguage(InstallUILanguage:{:#x}, SetComittedFlag:{:#x})", InstallUILanguage, SetComittedFlag));
+            tracer::log_call(d.core, g_callcfgs[121]);
 
         for(const auto& it : d.observers_NtFlushInstallUILanguage)
             it(InstallUILanguage, SetComittedFlag);
@@ -2698,7 +2698,7 @@ namespace
         const auto Length        = arg<nt64::SIZE_T>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFlushInstructionCache(ProcessHandle:{:#x}, BaseAddress:{:#x}, Length:{:#x})", ProcessHandle, BaseAddress, Length));
+            tracer::log_call(d.core, g_callcfgs[122]);
 
         for(const auto& it : d.observers_NtFlushInstructionCache)
             it(ProcessHandle, BaseAddress, Length);
@@ -2709,7 +2709,7 @@ namespace
         const auto KeyHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFlushKey(KeyHandle:{:#x})", KeyHandle));
+            tracer::log_call(d.core, g_callcfgs[123]);
 
         for(const auto& it : d.observers_NtFlushKey)
             it(KeyHandle);
@@ -2723,7 +2723,7 @@ namespace
         const auto IoStatus        = arg<nt64::PIO_STATUS_BLOCK>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFlushVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, IoStatus:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, IoStatus));
+            tracer::log_call(d.core, g_callcfgs[124]);
 
         for(const auto& it : d.observers_NtFlushVirtualMemory)
             it(ProcessHandle, STARBaseAddress, RegionSize, IoStatus);
@@ -2736,7 +2736,7 @@ namespace
         const auto UserPfnArra   = arg<nt64::PULONG_PTR>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFreeUserPhysicalPages(ProcessHandle:{:#x}, NumberOfPages:{:#x}, UserPfnArra:{:#x})", ProcessHandle, NumberOfPages, UserPfnArra));
+            tracer::log_call(d.core, g_callcfgs[125]);
 
         for(const auto& it : d.observers_NtFreeUserPhysicalPages)
             it(ProcessHandle, NumberOfPages, UserPfnArra);
@@ -2750,7 +2750,7 @@ namespace
         const auto FreeType        = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFreeVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, FreeType:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, FreeType));
+            tracer::log_call(d.core, g_callcfgs[126]);
 
         for(const auto& it : d.observers_NtFreeVirtualMemory)
             it(ProcessHandle, STARBaseAddress, RegionSize, FreeType);
@@ -2761,7 +2761,7 @@ namespace
         const auto TimeOutInSeconds = arg<nt64::ULONG>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFreezeRegistry(TimeOutInSeconds:{:#x})", TimeOutInSeconds));
+            tracer::log_call(d.core, g_callcfgs[127]);
 
         for(const auto& it : d.observers_NtFreezeRegistry)
             it(TimeOutInSeconds);
@@ -2773,7 +2773,7 @@ namespace
         const auto ThawTimeout   = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFreezeTransactions(FreezeTimeout:{:#x}, ThawTimeout:{:#x})", FreezeTimeout, ThawTimeout));
+            tracer::log_call(d.core, g_callcfgs[128]);
 
         for(const auto& it : d.observers_NtFreezeTransactions)
             it(FreezeTimeout, ThawTimeout);
@@ -2793,7 +2793,7 @@ namespace
         const auto OutputBufferLength = arg<nt64::ULONG>(d.core, 9);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFsControlFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, IoControlCode:{:#x}, InputBuffer:{:#x}, InputBufferLength:{:#x}, OutputBuffer:{:#x}, OutputBufferLength:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength));
+            tracer::log_call(d.core, g_callcfgs[129]);
 
         for(const auto& it : d.observers_NtFsControlFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, IoControlCode, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
@@ -2805,7 +2805,7 @@ namespace
         const auto ThreadContext = arg<nt64::PCONTEXT>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtGetContextThread(ThreadHandle:{:#x}, ThreadContext:{:#x})", ThreadHandle, ThreadContext));
+            tracer::log_call(d.core, g_callcfgs[130]);
 
         for(const auto& it : d.observers_NtGetContextThread)
             it(ThreadHandle, ThreadContext);
@@ -2817,7 +2817,7 @@ namespace
         const auto STARState = arg<nt64::DEVICE_POWER_STATE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtGetDevicePowerState(Device:{:#x}, STARState:{:#x})", Device, STARState));
+            tracer::log_call(d.core, g_callcfgs[131]);
 
         for(const auto& it : d.observers_NtGetDevicePowerState)
             it(Device, STARState);
@@ -2830,7 +2830,7 @@ namespace
         const auto Data     = arg<nt64::PVOID>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtGetMUIRegistryInfo(Flags:{:#x}, DataSize:{:#x}, Data:{:#x})", Flags, DataSize, Data));
+            tracer::log_call(d.core, g_callcfgs[132]);
 
         for(const auto& it : d.observers_NtGetMUIRegistryInfo)
             it(Flags, DataSize, Data);
@@ -2845,7 +2845,7 @@ namespace
         const auto NewProcessHandle = arg<nt64::PHANDLE>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtGetNextProcess(ProcessHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, Flags:{:#x}, NewProcessHandle:{:#x})", ProcessHandle, DesiredAccess, HandleAttributes, Flags, NewProcessHandle));
+            tracer::log_call(d.core, g_callcfgs[133]);
 
         for(const auto& it : d.observers_NtGetNextProcess)
             it(ProcessHandle, DesiredAccess, HandleAttributes, Flags, NewProcessHandle);
@@ -2861,7 +2861,7 @@ namespace
         const auto NewThreadHandle  = arg<nt64::PHANDLE>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtGetNextThread(ProcessHandle:{:#x}, ThreadHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, Flags:{:#x}, NewThreadHandle:{:#x})", ProcessHandle, ThreadHandle, DesiredAccess, HandleAttributes, Flags, NewThreadHandle));
+            tracer::log_call(d.core, g_callcfgs[134]);
 
         for(const auto& it : d.observers_NtGetNextThread)
             it(ProcessHandle, ThreadHandle, DesiredAccess, HandleAttributes, Flags, NewThreadHandle);
@@ -2876,7 +2876,7 @@ namespace
         const auto SectionSize        = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtGetNlsSectionPtr(SectionType:{:#x}, SectionData:{:#x}, ContextData:{:#x}, STARSectionPointer:{:#x}, SectionSize:{:#x})", SectionType, SectionData, ContextData, STARSectionPointer, SectionSize));
+            tracer::log_call(d.core, g_callcfgs[135]);
 
         for(const auto& it : d.observers_NtGetNlsSectionPtr)
             it(SectionType, SectionData, ContextData, STARSectionPointer, SectionSize);
@@ -2893,7 +2893,7 @@ namespace
         const auto AsynchronousContext     = arg<nt64::ULONG_PTR>(d.core, 6);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtGetNotificationResourceManager(ResourceManagerHandle:{:#x}, TransactionNotification:{:#x}, NotificationLength:{:#x}, Timeout:{:#x}, ReturnLength:{:#x}, Asynchronous:{:#x}, AsynchronousContext:{:#x})", ResourceManagerHandle, TransactionNotification, NotificationLength, Timeout, ReturnLength, Asynchronous, AsynchronousContext));
+            tracer::log_call(d.core, g_callcfgs[136]);
 
         for(const auto& it : d.observers_NtGetNotificationResourceManager)
             it(ResourceManagerHandle, TransactionNotification, NotificationLength, Timeout, ReturnLength, Asynchronous, AsynchronousContext);
@@ -2907,7 +2907,7 @@ namespace
         const auto EventBufferSize = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtGetPlugPlayEvent(EventHandle:{:#x}, Context:{:#x}, EventBlock:{:#x}, EventBufferSize:{:#x})", EventHandle, Context, EventBlock, EventBufferSize));
+            tracer::log_call(d.core, g_callcfgs[137]);
 
         for(const auto& it : d.observers_NtGetPlugPlayEvent)
             it(EventHandle, Context, EventBlock, EventBufferSize);
@@ -2924,7 +2924,7 @@ namespace
         const auto Granularity               = arg<nt64::PULONG>(d.core, 6);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtGetWriteWatch(ProcessHandle:{:#x}, Flags:{:#x}, BaseAddress:{:#x}, RegionSize:{:#x}, STARUserAddressArray:{:#x}, EntriesInUserAddressArray:{:#x}, Granularity:{:#x})", ProcessHandle, Flags, BaseAddress, RegionSize, STARUserAddressArray, EntriesInUserAddressArray, Granularity));
+            tracer::log_call(d.core, g_callcfgs[138]);
 
         for(const auto& it : d.observers_NtGetWriteWatch)
             it(ProcessHandle, Flags, BaseAddress, RegionSize, STARUserAddressArray, EntriesInUserAddressArray, Granularity);
@@ -2935,7 +2935,7 @@ namespace
         const auto ThreadHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtImpersonateAnonymousToken(ThreadHandle:{:#x})", ThreadHandle));
+            tracer::log_call(d.core, g_callcfgs[139]);
 
         for(const auto& it : d.observers_NtImpersonateAnonymousToken)
             it(ThreadHandle);
@@ -2947,7 +2947,7 @@ namespace
         const auto Message    = arg<nt64::PPORT_MESSAGE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtImpersonateClientOfPort(PortHandle:{:#x}, Message:{:#x})", PortHandle, Message));
+            tracer::log_call(d.core, g_callcfgs[140]);
 
         for(const auto& it : d.observers_NtImpersonateClientOfPort)
             it(PortHandle, Message);
@@ -2960,7 +2960,7 @@ namespace
         const auto SecurityQos        = arg<nt64::PSECURITY_QUALITY_OF_SERVICE>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtImpersonateThread(ServerThreadHandle:{:#x}, ClientThreadHandle:{:#x}, SecurityQos:{:#x})", ServerThreadHandle, ClientThreadHandle, SecurityQos));
+            tracer::log_call(d.core, g_callcfgs[141]);
 
         for(const auto& it : d.observers_NtImpersonateThread)
             it(ServerThreadHandle, ClientThreadHandle, SecurityQos);
@@ -2973,7 +2973,7 @@ namespace
         const auto DefaultCasingTableSize = arg<nt64::PLARGE_INTEGER>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtInitializeNlsFiles(STARBaseAddress:{:#x}, DefaultLocaleId:{:#x}, DefaultCasingTableSize:{:#x})", STARBaseAddress, DefaultLocaleId, DefaultCasingTableSize));
+            tracer::log_call(d.core, g_callcfgs[142]);
 
         for(const auto& it : d.observers_NtInitializeNlsFiles)
             it(STARBaseAddress, DefaultLocaleId, DefaultCasingTableSize);
@@ -2984,7 +2984,7 @@ namespace
         const auto BootCondition = arg<nt64::USHORT>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtInitializeRegistry(BootCondition:{:#x})", BootCondition));
+            tracer::log_call(d.core, g_callcfgs[143]);
 
         for(const auto& it : d.observers_NtInitializeRegistry)
             it(BootCondition);
@@ -2998,7 +2998,7 @@ namespace
         const auto Asynchronous   = arg<nt64::BOOLEAN>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtInitiatePowerAction(SystemAction:{:#x}, MinSystemState:{:#x}, Flags:{:#x}, Asynchronous:{:#x})", SystemAction, MinSystemState, Flags, Asynchronous));
+            tracer::log_call(d.core, g_callcfgs[144]);
 
         for(const auto& it : d.observers_NtInitiatePowerAction)
             it(SystemAction, MinSystemState, Flags, Asynchronous);
@@ -3010,7 +3010,7 @@ namespace
         const auto JobHandle     = arg<nt64::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtIsProcessInJob(ProcessHandle:{:#x}, JobHandle:{:#x})", ProcessHandle, JobHandle));
+            tracer::log_call(d.core, g_callcfgs[145]);
 
         for(const auto& it : d.observers_NtIsProcessInJob)
             it(ProcessHandle, JobHandle);
@@ -3022,7 +3022,7 @@ namespace
         const auto ConnectionRequest = arg<nt64::PPORT_MESSAGE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtListenPort(PortHandle:{:#x}, ConnectionRequest:{:#x})", PortHandle, ConnectionRequest));
+            tracer::log_call(d.core, g_callcfgs[146]);
 
         for(const auto& it : d.observers_NtListenPort)
             it(PortHandle, ConnectionRequest);
@@ -3033,7 +3033,7 @@ namespace
         const auto DriverServiceName = arg<nt64::PUNICODE_STRING>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtLoadDriver(DriverServiceName:{:#x})", DriverServiceName));
+            tracer::log_call(d.core, g_callcfgs[147]);
 
         for(const auto& it : d.observers_NtLoadDriver)
             it(DriverServiceName);
@@ -3046,7 +3046,7 @@ namespace
         const auto Flags      = arg<nt64::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtLoadKey2(TargetKey:{:#x}, SourceFile:{:#x}, Flags:{:#x})", TargetKey, SourceFile, Flags));
+            tracer::log_call(d.core, g_callcfgs[148]);
 
         for(const auto& it : d.observers_NtLoadKey2)
             it(TargetKey, SourceFile, Flags);
@@ -3060,7 +3060,7 @@ namespace
         const auto TrustClassKey = arg<nt64::HANDLE>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtLoadKeyEx(TargetKey:{:#x}, SourceFile:{:#x}, Flags:{:#x}, TrustClassKey:{:#x})", TargetKey, SourceFile, Flags, TrustClassKey));
+            tracer::log_call(d.core, g_callcfgs[149]);
 
         for(const auto& it : d.observers_NtLoadKeyEx)
             it(TargetKey, SourceFile, Flags, TrustClassKey);
@@ -3072,7 +3072,7 @@ namespace
         const auto SourceFile = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtLoadKey(TargetKey:{:#x}, SourceFile:{:#x})", TargetKey, SourceFile));
+            tracer::log_call(d.core, g_callcfgs[150]);
 
         for(const auto& it : d.observers_NtLoadKey)
             it(TargetKey, SourceFile);
@@ -3092,7 +3092,7 @@ namespace
         const auto ExclusiveLock   = arg<nt64::BOOLEAN>(d.core, 9);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtLockFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, ByteOffset:{:#x}, Length:{:#x}, Key:{:#x}, FailImmediately:{:#x}, ExclusiveLock:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, ByteOffset, Length, Key, FailImmediately, ExclusiveLock));
+            tracer::log_call(d.core, g_callcfgs[151]);
 
         for(const auto& it : d.observers_NtLockFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, ByteOffset, Length, Key, FailImmediately, ExclusiveLock);
@@ -3104,7 +3104,7 @@ namespace
         const auto STARpSafeMode   = arg<nt64::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtLockProductActivationKeys(STARpPrivateVer:{:#x}, STARpSafeMode:{:#x})", STARpPrivateVer, STARpSafeMode));
+            tracer::log_call(d.core, g_callcfgs[152]);
 
         for(const auto& it : d.observers_NtLockProductActivationKeys)
             it(STARpPrivateVer, STARpSafeMode);
@@ -3115,7 +3115,7 @@ namespace
         const auto KeyHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtLockRegistryKey(KeyHandle:{:#x})", KeyHandle));
+            tracer::log_call(d.core, g_callcfgs[153]);
 
         for(const auto& it : d.observers_NtLockRegistryKey)
             it(KeyHandle);
@@ -3129,7 +3129,7 @@ namespace
         const auto MapType         = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtLockVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, MapType:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, MapType));
+            tracer::log_call(d.core, g_callcfgs[154]);
 
         for(const auto& it : d.observers_NtLockVirtualMemory)
             it(ProcessHandle, STARBaseAddress, RegionSize, MapType);
@@ -3140,7 +3140,7 @@ namespace
         const auto Handle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtMakePermanentObject(Handle:{:#x})", Handle));
+            tracer::log_call(d.core, g_callcfgs[155]);
 
         for(const auto& it : d.observers_NtMakePermanentObject)
             it(Handle);
@@ -3151,7 +3151,7 @@ namespace
         const auto Handle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtMakeTemporaryObject(Handle:{:#x})", Handle));
+            tracer::log_call(d.core, g_callcfgs[156]);
 
         for(const auto& it : d.observers_NtMakeTemporaryObject)
             it(Handle);
@@ -3167,7 +3167,7 @@ namespace
         const auto STARBaseAddress = arg<nt64::PVOID>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtMapCMFModule(What:{:#x}, Index:{:#x}, CacheIndexOut:{:#x}, CacheFlagsOut:{:#x}, ViewSizeOut:{:#x}, STARBaseAddress:{:#x})", What, Index, CacheIndexOut, CacheFlagsOut, ViewSizeOut, STARBaseAddress));
+            tracer::log_call(d.core, g_callcfgs[157]);
 
         for(const auto& it : d.observers_NtMapCMFModule)
             it(What, Index, CacheIndexOut, CacheFlagsOut, ViewSizeOut, STARBaseAddress);
@@ -3180,7 +3180,7 @@ namespace
         const auto UserPfnArra    = arg<nt64::PULONG_PTR>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtMapUserPhysicalPages(VirtualAddress:{:#x}, NumberOfPages:{:#x}, UserPfnArra:{:#x})", VirtualAddress, NumberOfPages, UserPfnArra));
+            tracer::log_call(d.core, g_callcfgs[158]);
 
         for(const auto& it : d.observers_NtMapUserPhysicalPages)
             it(VirtualAddress, NumberOfPages, UserPfnArra);
@@ -3193,7 +3193,7 @@ namespace
         const auto UserPfnArray         = arg<nt64::PULONG_PTR>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtMapUserPhysicalPagesScatter(STARVirtualAddresses:{:#x}, NumberOfPages:{:#x}, UserPfnArray:{:#x})", STARVirtualAddresses, NumberOfPages, UserPfnArray));
+            tracer::log_call(d.core, g_callcfgs[159]);
 
         for(const auto& it : d.observers_NtMapUserPhysicalPagesScatter)
             it(STARVirtualAddresses, NumberOfPages, UserPfnArray);
@@ -3213,7 +3213,7 @@ namespace
         const auto Win32Protect       = arg<nt64::WIN32_PROTECTION_MASK>(d.core, 9);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtMapViewOfSection(SectionHandle:{:#x}, ProcessHandle:{:#x}, STARBaseAddress:{:#x}, ZeroBits:{:#x}, CommitSize:{:#x}, SectionOffset:{:#x}, ViewSize:{:#x}, InheritDisposition:{:#x}, AllocationType:{:#x}, Win32Protect:{:#x})", SectionHandle, ProcessHandle, STARBaseAddress, ZeroBits, CommitSize, SectionOffset, ViewSize, InheritDisposition, AllocationType, Win32Protect));
+            tracer::log_call(d.core, g_callcfgs[160]);
 
         for(const auto& it : d.observers_NtMapViewOfSection)
             it(SectionHandle, ProcessHandle, STARBaseAddress, ZeroBits, CommitSize, SectionOffset, ViewSize, InheritDisposition, AllocationType, Win32Protect);
@@ -3224,7 +3224,7 @@ namespace
         const auto BootEntry = arg<nt64::PBOOT_ENTRY>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtModifyBootEntry(BootEntry:{:#x})", BootEntry));
+            tracer::log_call(d.core, g_callcfgs[161]);
 
         for(const auto& it : d.observers_NtModifyBootEntry)
             it(BootEntry);
@@ -3235,7 +3235,7 @@ namespace
         const auto DriverEntry = arg<nt64::PEFI_DRIVER_ENTRY>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtModifyDriverEntry(DriverEntry:{:#x})", DriverEntry));
+            tracer::log_call(d.core, g_callcfgs[162]);
 
         for(const auto& it : d.observers_NtModifyDriverEntry)
             it(DriverEntry);
@@ -3254,7 +3254,7 @@ namespace
         const auto WatchTree        = arg<nt64::BOOLEAN>(d.core, 8);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtNotifyChangeDirectoryFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, CompletionFilter:{:#x}, WatchTree:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, CompletionFilter, WatchTree));
+            tracer::log_call(d.core, g_callcfgs[163]);
 
         for(const auto& it : d.observers_NtNotifyChangeDirectoryFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, CompletionFilter, WatchTree);
@@ -3274,7 +3274,7 @@ namespace
         const auto Asynchronous     = arg<nt64::BOOLEAN>(d.core, 9);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtNotifyChangeKey(KeyHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, CompletionFilter:{:#x}, WatchTree:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, Asynchronous:{:#x})", KeyHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous));
+            tracer::log_call(d.core, g_callcfgs[164]);
 
         for(const auto& it : d.observers_NtNotifyChangeKey)
             it(KeyHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
@@ -3296,7 +3296,7 @@ namespace
         const auto Asynchronous     = arg<nt64::BOOLEAN>(d.core, 11);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtNotifyChangeMultipleKeys(MasterKeyHandle:{:#x}, Count:{:#x}, SlaveObjects:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, CompletionFilter:{:#x}, WatchTree:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, Asynchronous:{:#x})", MasterKeyHandle, Count, SlaveObjects, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous));
+            tracer::log_call(d.core, g_callcfgs[165]);
 
         for(const auto& it : d.observers_NtNotifyChangeMultipleKeys)
             it(MasterKeyHandle, Count, SlaveObjects, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
@@ -3314,7 +3314,7 @@ namespace
         const auto BufferSize      = arg<nt64::ULONG>(d.core, 7);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtNotifyChangeSession(Session:{:#x}, IoStateSequence:{:#x}, Reserved:{:#x}, Action:{:#x}, IoState:{:#x}, IoState2:{:#x}, Buffer:{:#x}, BufferSize:{:#x})", Session, IoStateSequence, Reserved, Action, IoState, IoState2, Buffer, BufferSize));
+            tracer::log_call(d.core, g_callcfgs[166]);
 
         for(const auto& it : d.observers_NtNotifyChangeSession)
             it(Session, IoStateSequence, Reserved, Action, IoState, IoState2, Buffer, BufferSize);
@@ -3327,7 +3327,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenDirectoryObject(DirectoryHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", DirectoryHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[167]);
 
         for(const auto& it : d.observers_NtOpenDirectoryObject)
             it(DirectoryHandle, DesiredAccess, ObjectAttributes);
@@ -3342,7 +3342,7 @@ namespace
         const auto ObjectAttributes      = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenEnlistment(EnlistmentHandle:{:#x}, DesiredAccess:{:#x}, ResourceManagerHandle:{:#x}, EnlistmentGuid:{:#x}, ObjectAttributes:{:#x})", EnlistmentHandle, DesiredAccess, ResourceManagerHandle, EnlistmentGuid, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[168]);
 
         for(const auto& it : d.observers_NtOpenEnlistment)
             it(EnlistmentHandle, DesiredAccess, ResourceManagerHandle, EnlistmentGuid, ObjectAttributes);
@@ -3355,7 +3355,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenEvent(EventHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", EventHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[169]);
 
         for(const auto& it : d.observers_NtOpenEvent)
             it(EventHandle, DesiredAccess, ObjectAttributes);
@@ -3368,7 +3368,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenEventPair(EventPairHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", EventPairHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[170]);
 
         for(const auto& it : d.observers_NtOpenEventPair)
             it(EventPairHandle, DesiredAccess, ObjectAttributes);
@@ -3384,7 +3384,7 @@ namespace
         const auto OpenOptions      = arg<nt64::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenFile(FileHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, IoStatusBlock:{:#x}, ShareAccess:{:#x}, OpenOptions:{:#x})", FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, OpenOptions));
+            tracer::log_call(d.core, g_callcfgs[171]);
 
         for(const auto& it : d.observers_NtOpenFile)
             it(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, OpenOptions);
@@ -3397,7 +3397,7 @@ namespace
         const auto ObjectAttributes   = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenIoCompletion(IoCompletionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", IoCompletionHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[172]);
 
         for(const auto& it : d.observers_NtOpenIoCompletion)
             it(IoCompletionHandle, DesiredAccess, ObjectAttributes);
@@ -3410,7 +3410,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenJobObject(JobHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", JobHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[173]);
 
         for(const auto& it : d.observers_NtOpenJobObject)
             it(JobHandle, DesiredAccess, ObjectAttributes);
@@ -3423,7 +3423,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenKeyedEvent(KeyedEventHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", KeyedEventHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[174]);
 
         for(const auto& it : d.observers_NtOpenKeyedEvent)
             it(KeyedEventHandle, DesiredAccess, ObjectAttributes);
@@ -3437,7 +3437,7 @@ namespace
         const auto OpenOptions      = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenKeyEx(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, OpenOptions:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions));
+            tracer::log_call(d.core, g_callcfgs[175]);
 
         for(const auto& it : d.observers_NtOpenKeyEx)
             it(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions);
@@ -3450,7 +3450,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenKey(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[176]);
 
         for(const auto& it : d.observers_NtOpenKey)
             it(KeyHandle, DesiredAccess, ObjectAttributes);
@@ -3465,7 +3465,7 @@ namespace
         const auto TransactionHandle = arg<nt64::HANDLE>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenKeyTransactedEx(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, OpenOptions:{:#x}, TransactionHandle:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions, TransactionHandle));
+            tracer::log_call(d.core, g_callcfgs[177]);
 
         for(const auto& it : d.observers_NtOpenKeyTransactedEx)
             it(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions, TransactionHandle);
@@ -3479,7 +3479,7 @@ namespace
         const auto TransactionHandle = arg<nt64::HANDLE>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenKeyTransacted(KeyHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, TransactionHandle:{:#x})", KeyHandle, DesiredAccess, ObjectAttributes, TransactionHandle));
+            tracer::log_call(d.core, g_callcfgs[178]);
 
         for(const auto& it : d.observers_NtOpenKeyTransacted)
             it(KeyHandle, DesiredAccess, ObjectAttributes, TransactionHandle);
@@ -3492,7 +3492,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenMutant(MutantHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", MutantHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[179]);
 
         for(const auto& it : d.observers_NtOpenMutant)
             it(MutantHandle, DesiredAccess, ObjectAttributes);
@@ -3514,7 +3514,7 @@ namespace
         const auto GenerateOnClose    = arg<nt64::PBOOLEAN>(d.core, 11);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ObjectTypeName:{:#x}, ObjectName:{:#x}, SecurityDescriptor:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, GrantedAccess:{:#x}, Privileges:{:#x}, ObjectCreation:{:#x}, AccessGranted:{:#x}, GenerateOnClose:{:#x})", SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, ClientToken, DesiredAccess, GrantedAccess, Privileges, ObjectCreation, AccessGranted, GenerateOnClose));
+            tracer::log_call(d.core, g_callcfgs[180]);
 
         for(const auto& it : d.observers_NtOpenObjectAuditAlarm)
             it(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, ClientToken, DesiredAccess, GrantedAccess, Privileges, ObjectCreation, AccessGranted, GenerateOnClose);
@@ -3528,7 +3528,7 @@ namespace
         const auto BoundaryDescriptor = arg<nt64::PVOID>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenPrivateNamespace(NamespaceHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, BoundaryDescriptor:{:#x})", NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor));
+            tracer::log_call(d.core, g_callcfgs[181]);
 
         for(const auto& it : d.observers_NtOpenPrivateNamespace)
             it(NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
@@ -3542,7 +3542,7 @@ namespace
         const auto ClientId         = arg<nt64::PCLIENT_ID>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenProcess(ProcessHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ClientId:{:#x})", ProcessHandle, DesiredAccess, ObjectAttributes, ClientId));
+            tracer::log_call(d.core, g_callcfgs[182]);
 
         for(const auto& it : d.observers_NtOpenProcess)
             it(ProcessHandle, DesiredAccess, ObjectAttributes, ClientId);
@@ -3556,7 +3556,7 @@ namespace
         const auto TokenHandle      = arg<nt64::PHANDLE>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenProcessTokenEx(ProcessHandle:{:#x}, DesiredAccess:{:#x}, HandleAttributes:{:#x}, TokenHandle:{:#x})", ProcessHandle, DesiredAccess, HandleAttributes, TokenHandle));
+            tracer::log_call(d.core, g_callcfgs[183]);
 
         for(const auto& it : d.observers_NtOpenProcessTokenEx)
             it(ProcessHandle, DesiredAccess, HandleAttributes, TokenHandle);
@@ -3569,7 +3569,7 @@ namespace
         const auto TokenHandle   = arg<nt64::PHANDLE>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenProcessToken(ProcessHandle:{:#x}, DesiredAccess:{:#x}, TokenHandle:{:#x})", ProcessHandle, DesiredAccess, TokenHandle));
+            tracer::log_call(d.core, g_callcfgs[184]);
 
         for(const auto& it : d.observers_NtOpenProcessToken)
             it(ProcessHandle, DesiredAccess, TokenHandle);
@@ -3584,7 +3584,7 @@ namespace
         const auto ObjectAttributes      = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenResourceManager(ResourceManagerHandle:{:#x}, DesiredAccess:{:#x}, TmHandle:{:#x}, ResourceManagerGuid:{:#x}, ObjectAttributes:{:#x})", ResourceManagerHandle, DesiredAccess, TmHandle, ResourceManagerGuid, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[185]);
 
         for(const auto& it : d.observers_NtOpenResourceManager)
             it(ResourceManagerHandle, DesiredAccess, TmHandle, ResourceManagerGuid, ObjectAttributes);
@@ -3597,7 +3597,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenSection(SectionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", SectionHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[186]);
 
         for(const auto& it : d.observers_NtOpenSection)
             it(SectionHandle, DesiredAccess, ObjectAttributes);
@@ -3610,7 +3610,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenSemaphore(SemaphoreHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", SemaphoreHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[187]);
 
         for(const auto& it : d.observers_NtOpenSemaphore)
             it(SemaphoreHandle, DesiredAccess, ObjectAttributes);
@@ -3623,7 +3623,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenSession(SessionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", SessionHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[188]);
 
         for(const auto& it : d.observers_NtOpenSession)
             it(SessionHandle, DesiredAccess, ObjectAttributes);
@@ -3636,7 +3636,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenSymbolicLinkObject(LinkHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", LinkHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[189]);
 
         for(const auto& it : d.observers_NtOpenSymbolicLinkObject)
             it(LinkHandle, DesiredAccess, ObjectAttributes);
@@ -3650,7 +3650,7 @@ namespace
         const auto ClientId         = arg<nt64::PCLIENT_ID>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenThread(ThreadHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, ClientId:{:#x})", ThreadHandle, DesiredAccess, ObjectAttributes, ClientId));
+            tracer::log_call(d.core, g_callcfgs[190]);
 
         for(const auto& it : d.observers_NtOpenThread)
             it(ThreadHandle, DesiredAccess, ObjectAttributes, ClientId);
@@ -3665,7 +3665,7 @@ namespace
         const auto TokenHandle      = arg<nt64::PHANDLE>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenThreadTokenEx(ThreadHandle:{:#x}, DesiredAccess:{:#x}, OpenAsSelf:{:#x}, HandleAttributes:{:#x}, TokenHandle:{:#x})", ThreadHandle, DesiredAccess, OpenAsSelf, HandleAttributes, TokenHandle));
+            tracer::log_call(d.core, g_callcfgs[191]);
 
         for(const auto& it : d.observers_NtOpenThreadTokenEx)
             it(ThreadHandle, DesiredAccess, OpenAsSelf, HandleAttributes, TokenHandle);
@@ -3679,7 +3679,7 @@ namespace
         const auto TokenHandle   = arg<nt64::PHANDLE>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenThreadToken(ThreadHandle:{:#x}, DesiredAccess:{:#x}, OpenAsSelf:{:#x}, TokenHandle:{:#x})", ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle));
+            tracer::log_call(d.core, g_callcfgs[192]);
 
         for(const auto& it : d.observers_NtOpenThreadToken)
             it(ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
@@ -3692,7 +3692,7 @@ namespace
         const auto ObjectAttributes = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenTimer(TimerHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x})", TimerHandle, DesiredAccess, ObjectAttributes));
+            tracer::log_call(d.core, g_callcfgs[193]);
 
         for(const auto& it : d.observers_NtOpenTimer)
             it(TimerHandle, DesiredAccess, ObjectAttributes);
@@ -3708,7 +3708,7 @@ namespace
         const auto OpenOptions      = arg<nt64::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenTransactionManager(TmHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, LogFileName:{:#x}, TmIdentity:{:#x}, OpenOptions:{:#x})", TmHandle, DesiredAccess, ObjectAttributes, LogFileName, TmIdentity, OpenOptions));
+            tracer::log_call(d.core, g_callcfgs[194]);
 
         for(const auto& it : d.observers_NtOpenTransactionManager)
             it(TmHandle, DesiredAccess, ObjectAttributes, LogFileName, TmIdentity, OpenOptions);
@@ -3723,7 +3723,7 @@ namespace
         const auto TmHandle          = arg<nt64::HANDLE>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtOpenTransaction(TransactionHandle:{:#x}, DesiredAccess:{:#x}, ObjectAttributes:{:#x}, Uow:{:#x}, TmHandle:{:#x})", TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle));
+            tracer::log_call(d.core, g_callcfgs[195]);
 
         for(const auto& it : d.observers_NtOpenTransaction)
             it(TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle);
@@ -3736,7 +3736,7 @@ namespace
         const auto PnPControlDataLength = arg<nt64::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPlugPlayControl(PnPControlClass:{:#x}, PnPControlData:{:#x}, PnPControlDataLength:{:#x})", PnPControlClass, PnPControlData, PnPControlDataLength));
+            tracer::log_call(d.core, g_callcfgs[196]);
 
         for(const auto& it : d.observers_NtPlugPlayControl)
             it(PnPControlClass, PnPControlData, PnPControlDataLength);
@@ -3751,7 +3751,7 @@ namespace
         const auto OutputBufferLength = arg<nt64::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPowerInformation(InformationLevel:{:#x}, InputBuffer:{:#x}, InputBufferLength:{:#x}, OutputBuffer:{:#x}, OutputBufferLength:{:#x})", InformationLevel, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength));
+            tracer::log_call(d.core, g_callcfgs[197]);
 
         for(const auto& it : d.observers_NtPowerInformation)
             it(InformationLevel, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
@@ -3763,7 +3763,7 @@ namespace
         const auto TmVirtualClock   = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPrepareComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            tracer::log_call(d.core, g_callcfgs[198]);
 
         for(const auto& it : d.observers_NtPrepareComplete)
             it(EnlistmentHandle, TmVirtualClock);
@@ -3775,7 +3775,7 @@ namespace
         const auto TmVirtualClock   = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPrepareEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            tracer::log_call(d.core, g_callcfgs[199]);
 
         for(const auto& it : d.observers_NtPrepareEnlistment)
             it(EnlistmentHandle, TmVirtualClock);
@@ -3787,7 +3787,7 @@ namespace
         const auto TmVirtualClock   = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPrePrepareComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            tracer::log_call(d.core, g_callcfgs[200]);
 
         for(const auto& it : d.observers_NtPrePrepareComplete)
             it(EnlistmentHandle, TmVirtualClock);
@@ -3799,7 +3799,7 @@ namespace
         const auto TmVirtualClock   = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPrePrepareEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            tracer::log_call(d.core, g_callcfgs[201]);
 
         for(const auto& it : d.observers_NtPrePrepareEnlistment)
             it(EnlistmentHandle, TmVirtualClock);
@@ -3812,7 +3812,7 @@ namespace
         const auto Result             = arg<nt64::PBOOLEAN>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPrivilegeCheck(ClientToken:{:#x}, RequiredPrivileges:{:#x}, Result:{:#x})", ClientToken, RequiredPrivileges, Result));
+            tracer::log_call(d.core, g_callcfgs[202]);
 
         for(const auto& it : d.observers_NtPrivilegeCheck)
             it(ClientToken, RequiredPrivileges, Result);
@@ -3827,7 +3827,7 @@ namespace
         const auto AccessGranted = arg<nt64::BOOLEAN>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPrivilegedServiceAuditAlarm(SubsystemName:{:#x}, ServiceName:{:#x}, ClientToken:{:#x}, Privileges:{:#x}, AccessGranted:{:#x})", SubsystemName, ServiceName, ClientToken, Privileges, AccessGranted));
+            tracer::log_call(d.core, g_callcfgs[203]);
 
         for(const auto& it : d.observers_NtPrivilegedServiceAuditAlarm)
             it(SubsystemName, ServiceName, ClientToken, Privileges, AccessGranted);
@@ -3843,7 +3843,7 @@ namespace
         const auto AccessGranted = arg<nt64::BOOLEAN>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPrivilegeObjectAuditAlarm(SubsystemName:{:#x}, HandleId:{:#x}, ClientToken:{:#x}, DesiredAccess:{:#x}, Privileges:{:#x}, AccessGranted:{:#x})", SubsystemName, HandleId, ClientToken, DesiredAccess, Privileges, AccessGranted));
+            tracer::log_call(d.core, g_callcfgs[204]);
 
         for(const auto& it : d.observers_NtPrivilegeObjectAuditAlarm)
             it(SubsystemName, HandleId, ClientToken, DesiredAccess, Privileges, AccessGranted);
@@ -3857,7 +3857,7 @@ namespace
         const auto Buffer                = arg<nt64::PVOID>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPropagationComplete(ResourceManagerHandle:{:#x}, RequestCookie:{:#x}, BufferLength:{:#x}, Buffer:{:#x})", ResourceManagerHandle, RequestCookie, BufferLength, Buffer));
+            tracer::log_call(d.core, g_callcfgs[205]);
 
         for(const auto& it : d.observers_NtPropagationComplete)
             it(ResourceManagerHandle, RequestCookie, BufferLength, Buffer);
@@ -3870,7 +3870,7 @@ namespace
         const auto PropStatus            = arg<nt64::NTSTATUS>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPropagationFailed(ResourceManagerHandle:{:#x}, RequestCookie:{:#x}, PropStatus:{:#x})", ResourceManagerHandle, RequestCookie, PropStatus));
+            tracer::log_call(d.core, g_callcfgs[206]);
 
         for(const auto& it : d.observers_NtPropagationFailed)
             it(ResourceManagerHandle, RequestCookie, PropStatus);
@@ -3885,7 +3885,7 @@ namespace
         const auto OldProtect      = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtProtectVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, NewProtectWin32:{:#x}, OldProtect:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, NewProtectWin32, OldProtect));
+            tracer::log_call(d.core, g_callcfgs[207]);
 
         for(const auto& it : d.observers_NtProtectVirtualMemory)
             it(ProcessHandle, STARBaseAddress, RegionSize, NewProtectWin32, OldProtect);
@@ -3897,7 +3897,7 @@ namespace
         const auto PreviousState = arg<nt64::PLONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtPulseEvent(EventHandle:{:#x}, PreviousState:{:#x})", EventHandle, PreviousState));
+            tracer::log_call(d.core, g_callcfgs[208]);
 
         for(const auto& it : d.observers_NtPulseEvent)
             it(EventHandle, PreviousState);
@@ -3909,7 +3909,7 @@ namespace
         const auto FileInformation  = arg<nt64::PFILE_BASIC_INFORMATION>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryAttributesFile(ObjectAttributes:{:#x}, FileInformation:{:#x})", ObjectAttributes, FileInformation));
+            tracer::log_call(d.core, g_callcfgs[209]);
 
         for(const auto& it : d.observers_NtQueryAttributesFile)
             it(ObjectAttributes, FileInformation);
@@ -3921,7 +3921,7 @@ namespace
         const auto Count = arg<nt64::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryBootEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count));
+            tracer::log_call(d.core, g_callcfgs[210]);
 
         for(const auto& it : d.observers_NtQueryBootEntryOrder)
             it(Ids, Count);
@@ -3933,7 +3933,7 @@ namespace
         const auto BootOptionsLength = arg<nt64::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryBootOptions(BootOptions:{:#x}, BootOptionsLength:{:#x})", BootOptions, BootOptionsLength));
+            tracer::log_call(d.core, g_callcfgs[211]);
 
         for(const auto& it : d.observers_NtQueryBootOptions)
             it(BootOptions, BootOptionsLength);
@@ -3945,7 +3945,7 @@ namespace
         const auto Level       = arg<nt64::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryDebugFilterState(ComponentId:{:#x}, Level:{:#x})", ComponentId, Level));
+            tracer::log_call(d.core, g_callcfgs[212]);
 
         for(const auto& it : d.observers_NtQueryDebugFilterState)
             it(ComponentId, Level);
@@ -3957,7 +3957,7 @@ namespace
         const auto DefaultLocaleId = arg<nt64::PLCID>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryDefaultLocale(UserProfile:{:#x}, DefaultLocaleId:{:#x})", UserProfile, DefaultLocaleId));
+            tracer::log_call(d.core, g_callcfgs[213]);
 
         for(const auto& it : d.observers_NtQueryDefaultLocale)
             it(UserProfile, DefaultLocaleId);
@@ -3968,7 +3968,7 @@ namespace
         const auto STARDefaultUILanguageId = arg<nt64::LANGID>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryDefaultUILanguage(STARDefaultUILanguageId:{:#x})", STARDefaultUILanguageId));
+            tracer::log_call(d.core, g_callcfgs[214]);
 
         for(const auto& it : d.observers_NtQueryDefaultUILanguage)
             it(STARDefaultUILanguageId);
@@ -3989,7 +3989,7 @@ namespace
         const auto RestartScan          = arg<nt64::BOOLEAN>(d.core, 10);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryDirectoryFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x}, ReturnSingleEntry:{:#x}, FileName:{:#x}, RestartScan:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan));
+            tracer::log_call(d.core, g_callcfgs[215]);
 
         for(const auto& it : d.observers_NtQueryDirectoryFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan);
@@ -4006,7 +4006,7 @@ namespace
         const auto ReturnLength      = arg<nt64::PULONG>(d.core, 6);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryDirectoryObject(DirectoryHandle:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, RestartScan:{:#x}, Context:{:#x}, ReturnLength:{:#x})", DirectoryHandle, Buffer, Length, ReturnSingleEntry, RestartScan, Context, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[216]);
 
         for(const auto& it : d.observers_NtQueryDirectoryObject)
             it(DirectoryHandle, Buffer, Length, ReturnSingleEntry, RestartScan, Context, ReturnLength);
@@ -4018,7 +4018,7 @@ namespace
         const auto Count = arg<nt64::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryDriverEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count));
+            tracer::log_call(d.core, g_callcfgs[217]);
 
         for(const auto& it : d.observers_NtQueryDriverEntryOrder)
             it(Ids, Count);
@@ -4037,7 +4037,7 @@ namespace
         const auto RestartScan       = arg<nt64::BOOLEAN>(d.core, 8);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryEaFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, EaList:{:#x}, EaListLength:{:#x}, EaIndex:{:#x}, RestartScan:{:#x})", FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, EaList, EaListLength, EaIndex, RestartScan));
+            tracer::log_call(d.core, g_callcfgs[218]);
 
         for(const auto& it : d.observers_NtQueryEaFile)
             it(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, EaList, EaListLength, EaIndex, RestartScan);
@@ -4052,7 +4052,7 @@ namespace
         const auto ReturnLength           = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryEvent(EventHandle:{:#x}, EventInformationClass:{:#x}, EventInformation:{:#x}, EventInformationLength:{:#x}, ReturnLength:{:#x})", EventHandle, EventInformationClass, EventInformation, EventInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[219]);
 
         for(const auto& it : d.observers_NtQueryEvent)
             it(EventHandle, EventInformationClass, EventInformation, EventInformationLength, ReturnLength);
@@ -4064,7 +4064,7 @@ namespace
         const auto FileInformation  = arg<nt64::PFILE_NETWORK_OPEN_INFORMATION>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryFullAttributesFile(ObjectAttributes:{:#x}, FileInformation:{:#x})", ObjectAttributes, FileInformation));
+            tracer::log_call(d.core, g_callcfgs[220]);
 
         for(const auto& it : d.observers_NtQueryFullAttributesFile)
             it(ObjectAttributes, FileInformation);
@@ -4079,7 +4079,7 @@ namespace
         const auto ReturnLength          = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationAtom(Atom:{:#x}, InformationClass:{:#x}, AtomInformation:{:#x}, AtomInformationLength:{:#x}, ReturnLength:{:#x})", Atom, InformationClass, AtomInformation, AtomInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[221]);
 
         for(const auto& it : d.observers_NtQueryInformationAtom)
             it(Atom, InformationClass, AtomInformation, AtomInformationLength, ReturnLength);
@@ -4094,7 +4094,7 @@ namespace
         const auto ReturnLength                = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationEnlistment(EnlistmentHandle:{:#x}, EnlistmentInformationClass:{:#x}, EnlistmentInformation:{:#x}, EnlistmentInformationLength:{:#x}, ReturnLength:{:#x})", EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[222]);
 
         for(const auto& it : d.observers_NtQueryInformationEnlistment)
             it(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength, ReturnLength);
@@ -4109,7 +4109,7 @@ namespace
         const auto FileInformationClass = arg<nt64::FILE_INFORMATION_CLASS>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x})", FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass));
+            tracer::log_call(d.core, g_callcfgs[223]);
 
         for(const auto& it : d.observers_NtQueryInformationFile)
             it(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
@@ -4124,7 +4124,7 @@ namespace
         const auto ReturnLength               = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationJobObject(JobHandle:{:#x}, JobObjectInformationClass:{:#x}, JobObjectInformation:{:#x}, JobObjectInformationLength:{:#x}, ReturnLength:{:#x})", JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[224]);
 
         for(const auto& it : d.observers_NtQueryInformationJobObject)
             it(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength, ReturnLength);
@@ -4139,7 +4139,7 @@ namespace
         const auto ReturnLength         = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationPort(PortHandle:{:#x}, PortInformationClass:{:#x}, PortInformation:{:#x}, Length:{:#x}, ReturnLength:{:#x})", PortHandle, PortInformationClass, PortInformation, Length, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[225]);
 
         for(const auto& it : d.observers_NtQueryInformationPort)
             it(PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
@@ -4154,7 +4154,7 @@ namespace
         const auto ReturnLength             = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationProcess(ProcessHandle:{:#x}, ProcessInformationClass:{:#x}, ProcessInformation:{:#x}, ProcessInformationLength:{:#x}, ReturnLength:{:#x})", ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[226]);
 
         for(const auto& it : d.observers_NtQueryInformationProcess)
             it(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength);
@@ -4169,7 +4169,7 @@ namespace
         const auto ReturnLength                     = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationResourceManager(ResourceManagerHandle:{:#x}, ResourceManagerInformationClass:{:#x}, ResourceManagerInformation:{:#x}, ResourceManagerInformationLength:{:#x}, ReturnLength:{:#x})", ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[227]);
 
         for(const auto& it : d.observers_NtQueryInformationResourceManager)
             it(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength, ReturnLength);
@@ -4184,7 +4184,7 @@ namespace
         const auto ReturnLength            = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationThread(ThreadHandle:{:#x}, ThreadInformationClass:{:#x}, ThreadInformation:{:#x}, ThreadInformationLength:{:#x}, ReturnLength:{:#x})", ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[228]);
 
         for(const auto& it : d.observers_NtQueryInformationThread)
             it(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength, ReturnLength);
@@ -4199,7 +4199,7 @@ namespace
         const auto ReturnLength           = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationToken(TokenHandle:{:#x}, TokenInformationClass:{:#x}, TokenInformation:{:#x}, TokenInformationLength:{:#x}, ReturnLength:{:#x})", TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[229]);
 
         for(const auto& it : d.observers_NtQueryInformationToken)
             it(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength, ReturnLength);
@@ -4214,7 +4214,7 @@ namespace
         const auto ReturnLength                 = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationTransaction(TransactionHandle:{:#x}, TransactionInformationClass:{:#x}, TransactionInformation:{:#x}, TransactionInformationLength:{:#x}, ReturnLength:{:#x})", TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[230]);
 
         for(const auto& it : d.observers_NtQueryInformationTransaction)
             it(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength, ReturnLength);
@@ -4229,7 +4229,7 @@ namespace
         const auto ReturnLength                        = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationTransactionManager(TransactionManagerHandle:{:#x}, TransactionManagerInformationClass:{:#x}, TransactionManagerInformation:{:#x}, TransactionManagerInformationLength:{:#x}, ReturnLength:{:#x})", TransactionManagerHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[231]);
 
         for(const auto& it : d.observers_NtQueryInformationTransactionManager)
             it(TransactionManagerHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength, ReturnLength);
@@ -4244,7 +4244,7 @@ namespace
         const auto ReturnLength                   = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInformationWorkerFactory(WorkerFactoryHandle:{:#x}, WorkerFactoryInformationClass:{:#x}, WorkerFactoryInformation:{:#x}, WorkerFactoryInformationLength:{:#x}, ReturnLength:{:#x})", WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[232]);
 
         for(const auto& it : d.observers_NtQueryInformationWorkerFactory)
             it(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength, ReturnLength);
@@ -4255,7 +4255,7 @@ namespace
         const auto STARInstallUILanguageId = arg<nt64::LANGID>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryInstallUILanguage(STARInstallUILanguageId:{:#x})", STARInstallUILanguageId));
+            tracer::log_call(d.core, g_callcfgs[233]);
 
         for(const auto& it : d.observers_NtQueryInstallUILanguage)
             it(STARInstallUILanguageId);
@@ -4267,7 +4267,7 @@ namespace
         const auto Interval      = arg<nt64::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryIntervalProfile(ProfileSource:{:#x}, Interval:{:#x})", ProfileSource, Interval));
+            tracer::log_call(d.core, g_callcfgs[234]);
 
         for(const auto& it : d.observers_NtQueryIntervalProfile)
             it(ProfileSource, Interval);
@@ -4282,7 +4282,7 @@ namespace
         const auto ReturnLength                  = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryIoCompletion(IoCompletionHandle:{:#x}, IoCompletionInformationClass:{:#x}, IoCompletionInformation:{:#x}, IoCompletionInformationLength:{:#x}, ReturnLength:{:#x})", IoCompletionHandle, IoCompletionInformationClass, IoCompletionInformation, IoCompletionInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[235]);
 
         for(const auto& it : d.observers_NtQueryIoCompletion)
             it(IoCompletionHandle, IoCompletionInformationClass, IoCompletionInformation, IoCompletionInformationLength, ReturnLength);
@@ -4297,7 +4297,7 @@ namespace
         const auto ResultLength        = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryKey(KeyHandle:{:#x}, KeyInformationClass:{:#x}, KeyInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength));
+            tracer::log_call(d.core, g_callcfgs[236]);
 
         for(const auto& it : d.observers_NtQueryKey)
             it(KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength);
@@ -4312,7 +4312,7 @@ namespace
         const auto ReturnedLength = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryLicenseValue(Name:{:#x}, Type:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnedLength:{:#x})", Name, Type, Buffer, Length, ReturnedLength));
+            tracer::log_call(d.core, g_callcfgs[237]);
 
         for(const auto& it : d.observers_NtQueryLicenseValue)
             it(Name, Type, Buffer, Length, ReturnedLength);
@@ -4328,7 +4328,7 @@ namespace
         const auto RequiredBufferLength = arg<nt64::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryMultipleValueKey(KeyHandle:{:#x}, ValueEntries:{:#x}, EntryCount:{:#x}, ValueBuffer:{:#x}, BufferLength:{:#x}, RequiredBufferLength:{:#x})", KeyHandle, ValueEntries, EntryCount, ValueBuffer, BufferLength, RequiredBufferLength));
+            tracer::log_call(d.core, g_callcfgs[238]);
 
         for(const auto& it : d.observers_NtQueryMultipleValueKey)
             it(KeyHandle, ValueEntries, EntryCount, ValueBuffer, BufferLength, RequiredBufferLength);
@@ -4343,7 +4343,7 @@ namespace
         const auto ReturnLength            = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryMutant(MutantHandle:{:#x}, MutantInformationClass:{:#x}, MutantInformation:{:#x}, MutantInformationLength:{:#x}, ReturnLength:{:#x})", MutantHandle, MutantInformationClass, MutantInformation, MutantInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[239]);
 
         for(const auto& it : d.observers_NtQueryMutant)
             it(MutantHandle, MutantInformationClass, MutantInformation, MutantInformationLength, ReturnLength);
@@ -4358,7 +4358,7 @@ namespace
         const auto ReturnLength            = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryObject(Handle:{:#x}, ObjectInformationClass:{:#x}, ObjectInformation:{:#x}, ObjectInformationLength:{:#x}, ReturnLength:{:#x})", Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[240]);
 
         for(const auto& it : d.observers_NtQueryObject)
             it(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength, ReturnLength);
@@ -4372,7 +4372,7 @@ namespace
         const auto RequiredSize = arg<nt64::PULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryOpenSubKeysEx(TargetKey:{:#x}, BufferLength:{:#x}, Buffer:{:#x}, RequiredSize:{:#x})", TargetKey, BufferLength, Buffer, RequiredSize));
+            tracer::log_call(d.core, g_callcfgs[241]);
 
         for(const auto& it : d.observers_NtQueryOpenSubKeysEx)
             it(TargetKey, BufferLength, Buffer, RequiredSize);
@@ -4384,7 +4384,7 @@ namespace
         const auto HandleCount = arg<nt64::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryOpenSubKeys(TargetKey:{:#x}, HandleCount:{:#x})", TargetKey, HandleCount));
+            tracer::log_call(d.core, g_callcfgs[242]);
 
         for(const auto& it : d.observers_NtQueryOpenSubKeys)
             it(TargetKey, HandleCount);
@@ -4396,7 +4396,7 @@ namespace
         const auto PerformanceFrequency = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryPerformanceCounter(PerformanceCounter:{:#x}, PerformanceFrequency:{:#x})", PerformanceCounter, PerformanceFrequency));
+            tracer::log_call(d.core, g_callcfgs[243]);
 
         for(const auto& it : d.observers_NtQueryPerformanceCounter)
             it(PerformanceCounter, PerformanceFrequency);
@@ -4415,7 +4415,7 @@ namespace
         const auto RestartScan       = arg<nt64::BOOLEAN>(d.core, 8);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryQuotaInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnSingleEntry:{:#x}, SidList:{:#x}, SidListLength:{:#x}, StartSid:{:#x}, RestartScan:{:#x})", FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, SidList, SidListLength, StartSid, RestartScan));
+            tracer::log_call(d.core, g_callcfgs[244]);
 
         for(const auto& it : d.observers_NtQueryQuotaInformationFile)
             it(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, SidList, SidListLength, StartSid, RestartScan);
@@ -4430,7 +4430,7 @@ namespace
         const auto ReturnLength             = arg<nt64::PSIZE_T>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySection(SectionHandle:{:#x}, SectionInformationClass:{:#x}, SectionInformation:{:#x}, SectionInformationLength:{:#x}, ReturnLength:{:#x})", SectionHandle, SectionInformationClass, SectionInformation, SectionInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[245]);
 
         for(const auto& it : d.observers_NtQuerySection)
             it(SectionHandle, SectionInformationClass, SectionInformation, SectionInformationLength, ReturnLength);
@@ -4446,7 +4446,7 @@ namespace
         const auto ReturnLength       = arg<nt64::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySecurityAttributesToken(TokenHandle:{:#x}, Attributes:{:#x}, NumberOfAttributes:{:#x}, Buffer:{:#x}, Length:{:#x}, ReturnLength:{:#x})", TokenHandle, Attributes, NumberOfAttributes, Buffer, Length, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[246]);
 
         for(const auto& it : d.observers_NtQuerySecurityAttributesToken)
             it(TokenHandle, Attributes, NumberOfAttributes, Buffer, Length, ReturnLength);
@@ -4461,7 +4461,7 @@ namespace
         const auto LengthNeeded        = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySecurityObject(Handle:{:#x}, SecurityInformation:{:#x}, SecurityDescriptor:{:#x}, Length:{:#x}, LengthNeeded:{:#x})", Handle, SecurityInformation, SecurityDescriptor, Length, LengthNeeded));
+            tracer::log_call(d.core, g_callcfgs[247]);
 
         for(const auto& it : d.observers_NtQuerySecurityObject)
             it(Handle, SecurityInformation, SecurityDescriptor, Length, LengthNeeded);
@@ -4476,7 +4476,7 @@ namespace
         const auto ReturnLength               = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySemaphore(SemaphoreHandle:{:#x}, SemaphoreInformationClass:{:#x}, SemaphoreInformation:{:#x}, SemaphoreInformationLength:{:#x}, ReturnLength:{:#x})", SemaphoreHandle, SemaphoreInformationClass, SemaphoreInformation, SemaphoreInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[248]);
 
         for(const auto& it : d.observers_NtQuerySemaphore)
             it(SemaphoreHandle, SemaphoreInformationClass, SemaphoreInformation, SemaphoreInformationLength, ReturnLength);
@@ -4489,7 +4489,7 @@ namespace
         const auto ReturnedLength = arg<nt64::PULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySymbolicLinkObject(LinkHandle:{:#x}, LinkTarget:{:#x}, ReturnedLength:{:#x})", LinkHandle, LinkTarget, ReturnedLength));
+            tracer::log_call(d.core, g_callcfgs[249]);
 
         for(const auto& it : d.observers_NtQuerySymbolicLinkObject)
             it(LinkHandle, LinkTarget, ReturnedLength);
@@ -4504,7 +4504,7 @@ namespace
         const auto Attributes   = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySystemEnvironmentValueEx(VariableName:{:#x}, VendorGuid:{:#x}, Value:{:#x}, ValueLength:{:#x}, Attributes:{:#x})", VariableName, VendorGuid, Value, ValueLength, Attributes));
+            tracer::log_call(d.core, g_callcfgs[250]);
 
         for(const auto& it : d.observers_NtQuerySystemEnvironmentValueEx)
             it(VariableName, VendorGuid, Value, ValueLength, Attributes);
@@ -4518,7 +4518,7 @@ namespace
         const auto ReturnLength  = arg<nt64::PUSHORT>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySystemEnvironmentValue(VariableName:{:#x}, VariableValue:{:#x}, ValueLength:{:#x}, ReturnLength:{:#x})", VariableName, VariableValue, ValueLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[251]);
 
         for(const auto& it : d.observers_NtQuerySystemEnvironmentValue)
             it(VariableName, VariableValue, ValueLength, ReturnLength);
@@ -4534,7 +4534,7 @@ namespace
         const auto ReturnLength            = arg<nt64::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySystemInformationEx(SystemInformationClass:{:#x}, QueryInformation:{:#x}, QueryInformationLength:{:#x}, SystemInformation:{:#x}, SystemInformationLength:{:#x}, ReturnLength:{:#x})", SystemInformationClass, QueryInformation, QueryInformationLength, SystemInformation, SystemInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[252]);
 
         for(const auto& it : d.observers_NtQuerySystemInformationEx)
             it(SystemInformationClass, QueryInformation, QueryInformationLength, SystemInformation, SystemInformationLength, ReturnLength);
@@ -4548,7 +4548,7 @@ namespace
         const auto ReturnLength            = arg<nt64::PULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySystemInformation(SystemInformationClass:{:#x}, SystemInformation:{:#x}, SystemInformationLength:{:#x}, ReturnLength:{:#x})", SystemInformationClass, SystemInformation, SystemInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[253]);
 
         for(const auto& it : d.observers_NtQuerySystemInformation)
             it(SystemInformationClass, SystemInformation, SystemInformationLength, ReturnLength);
@@ -4559,7 +4559,7 @@ namespace
         const auto SystemTime = arg<nt64::PLARGE_INTEGER>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQuerySystemTime(SystemTime:{:#x})", SystemTime));
+            tracer::log_call(d.core, g_callcfgs[254]);
 
         for(const auto& it : d.observers_NtQuerySystemTime)
             it(SystemTime);
@@ -4574,7 +4574,7 @@ namespace
         const auto ReturnLength           = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryTimer(TimerHandle:{:#x}, TimerInformationClass:{:#x}, TimerInformation:{:#x}, TimerInformationLength:{:#x}, ReturnLength:{:#x})", TimerHandle, TimerInformationClass, TimerInformation, TimerInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[255]);
 
         for(const auto& it : d.observers_NtQueryTimer)
             it(TimerHandle, TimerInformationClass, TimerInformation, TimerInformationLength, ReturnLength);
@@ -4587,7 +4587,7 @@ namespace
         const auto CurrentTime = arg<nt64::PULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryTimerResolution(MaximumTime:{:#x}, MinimumTime:{:#x}, CurrentTime:{:#x})", MaximumTime, MinimumTime, CurrentTime));
+            tracer::log_call(d.core, g_callcfgs[256]);
 
         for(const auto& it : d.observers_NtQueryTimerResolution)
             it(MaximumTime, MinimumTime, CurrentTime);
@@ -4603,7 +4603,7 @@ namespace
         const auto ResultLength             = arg<nt64::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryValueKey(KeyHandle:{:#x}, ValueName:{:#x}, KeyValueInformationClass:{:#x}, KeyValueInformation:{:#x}, Length:{:#x}, ResultLength:{:#x})", KeyHandle, ValueName, KeyValueInformationClass, KeyValueInformation, Length, ResultLength));
+            tracer::log_call(d.core, g_callcfgs[257]);
 
         for(const auto& it : d.observers_NtQueryValueKey)
             it(KeyHandle, ValueName, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
@@ -4619,7 +4619,7 @@ namespace
         const auto ReturnLength            = arg<nt64::PSIZE_T>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryVirtualMemory(ProcessHandle:{:#x}, BaseAddress:{:#x}, MemoryInformationClass:{:#x}, MemoryInformation:{:#x}, MemoryInformationLength:{:#x}, ReturnLength:{:#x})", ProcessHandle, BaseAddress, MemoryInformationClass, MemoryInformation, MemoryInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[258]);
 
         for(const auto& it : d.observers_NtQueryVirtualMemory)
             it(ProcessHandle, BaseAddress, MemoryInformationClass, MemoryInformation, MemoryInformationLength, ReturnLength);
@@ -4634,7 +4634,7 @@ namespace
         const auto FsInformationClass = arg<nt64::FS_INFORMATION_CLASS>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryVolumeInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FsInformation:{:#x}, Length:{:#x}, FsInformationClass:{:#x})", FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass));
+            tracer::log_call(d.core, g_callcfgs[259]);
 
         for(const auto& it : d.observers_NtQueryVolumeInformationFile)
             it(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
@@ -4650,7 +4650,7 @@ namespace
         const auto ApcArgument3         = arg<nt64::PVOID>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueueApcThreadEx(ThreadHandle:{:#x}, UserApcReserveHandle:{:#x}, ApcRoutine:{:#x}, ApcArgument1:{:#x}, ApcArgument2:{:#x}, ApcArgument3:{:#x})", ThreadHandle, UserApcReserveHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3));
+            tracer::log_call(d.core, g_callcfgs[260]);
 
         for(const auto& it : d.observers_NtQueueApcThreadEx)
             it(ThreadHandle, UserApcReserveHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
@@ -4665,7 +4665,7 @@ namespace
         const auto ApcArgument3 = arg<nt64::PVOID>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueueApcThread(ThreadHandle:{:#x}, ApcRoutine:{:#x}, ApcArgument1:{:#x}, ApcArgument2:{:#x}, ApcArgument3:{:#x})", ThreadHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3));
+            tracer::log_call(d.core, g_callcfgs[261]);
 
         for(const auto& it : d.observers_NtQueueApcThread)
             it(ThreadHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
@@ -4678,7 +4678,7 @@ namespace
         const auto FirstChance     = arg<nt64::BOOLEAN>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRaiseException(ExceptionRecord:{:#x}, ContextRecord:{:#x}, FirstChance:{:#x})", ExceptionRecord, ContextRecord, FirstChance));
+            tracer::log_call(d.core, g_callcfgs[262]);
 
         for(const auto& it : d.observers_NtRaiseException)
             it(ExceptionRecord, ContextRecord, FirstChance);
@@ -4694,7 +4694,7 @@ namespace
         const auto Response                   = arg<nt64::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRaiseHardError(ErrorStatus:{:#x}, NumberOfParameters:{:#x}, UnicodeStringParameterMask:{:#x}, Parameters:{:#x}, ValidResponseOptions:{:#x}, Response:{:#x})", ErrorStatus, NumberOfParameters, UnicodeStringParameterMask, Parameters, ValidResponseOptions, Response));
+            tracer::log_call(d.core, g_callcfgs[263]);
 
         for(const auto& it : d.observers_NtRaiseHardError)
             it(ErrorStatus, NumberOfParameters, UnicodeStringParameterMask, Parameters, ValidResponseOptions, Response);
@@ -4713,7 +4713,7 @@ namespace
         const auto Key           = arg<nt64::PULONG>(d.core, 8);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReadFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ByteOffset:{:#x}, Key:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key));
+            tracer::log_call(d.core, g_callcfgs[264]);
 
         for(const auto& it : d.observers_NtReadFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
@@ -4732,7 +4732,7 @@ namespace
         const auto Key           = arg<nt64::PULONG>(d.core, 8);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReadFileScatter(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, SegmentArray:{:#x}, Length:{:#x}, ByteOffset:{:#x}, Key:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key));
+            tracer::log_call(d.core, g_callcfgs[265]);
 
         for(const auto& it : d.observers_NtReadFileScatter)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
@@ -4744,7 +4744,7 @@ namespace
         const auto TmVirtualClock   = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReadOnlyEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            tracer::log_call(d.core, g_callcfgs[266]);
 
         for(const auto& it : d.observers_NtReadOnlyEnlistment)
             it(EnlistmentHandle, TmVirtualClock);
@@ -4760,7 +4760,7 @@ namespace
         const auto NumberOfBytesRead = arg<nt64::PSIZE_T>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReadRequestData(PortHandle:{:#x}, Message:{:#x}, DataEntryIndex:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, NumberOfBytesRead:{:#x})", PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesRead));
+            tracer::log_call(d.core, g_callcfgs[267]);
 
         for(const auto& it : d.observers_NtReadRequestData)
             it(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesRead);
@@ -4775,7 +4775,7 @@ namespace
         const auto NumberOfBytesRead = arg<nt64::PSIZE_T>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReadVirtualMemory(ProcessHandle:{:#x}, BaseAddress:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, NumberOfBytesRead:{:#x})", ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesRead));
+            tracer::log_call(d.core, g_callcfgs[268]);
 
         for(const auto& it : d.observers_NtReadVirtualMemory)
             it(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesRead);
@@ -4787,7 +4787,7 @@ namespace
         const auto EnlistmentKey    = arg<nt64::PVOID>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRecoverEnlistment(EnlistmentHandle:{:#x}, EnlistmentKey:{:#x})", EnlistmentHandle, EnlistmentKey));
+            tracer::log_call(d.core, g_callcfgs[269]);
 
         for(const auto& it : d.observers_NtRecoverEnlistment)
             it(EnlistmentHandle, EnlistmentKey);
@@ -4798,7 +4798,7 @@ namespace
         const auto ResourceManagerHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRecoverResourceManager(ResourceManagerHandle:{:#x})", ResourceManagerHandle));
+            tracer::log_call(d.core, g_callcfgs[270]);
 
         for(const auto& it : d.observers_NtRecoverResourceManager)
             it(ResourceManagerHandle);
@@ -4809,7 +4809,7 @@ namespace
         const auto TransactionManagerHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRecoverTransactionManager(TransactionManagerHandle:{:#x})", TransactionManagerHandle));
+            tracer::log_call(d.core, g_callcfgs[271]);
 
         for(const auto& it : d.observers_NtRecoverTransactionManager)
             it(TransactionManagerHandle);
@@ -4824,7 +4824,7 @@ namespace
         const auto CreateOptions           = arg<nt64::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRegisterProtocolAddressInformation(ResourceManager:{:#x}, ProtocolId:{:#x}, ProtocolInformationSize:{:#x}, ProtocolInformation:{:#x}, CreateOptions:{:#x})", ResourceManager, ProtocolId, ProtocolInformationSize, ProtocolInformation, CreateOptions));
+            tracer::log_call(d.core, g_callcfgs[272]);
 
         for(const auto& it : d.observers_NtRegisterProtocolAddressInformation)
             it(ResourceManager, ProtocolId, ProtocolInformationSize, ProtocolInformation, CreateOptions);
@@ -4835,7 +4835,7 @@ namespace
         const auto PortHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRegisterThreadTerminatePort(PortHandle:{:#x})", PortHandle));
+            tracer::log_call(d.core, g_callcfgs[273]);
 
         for(const auto& it : d.observers_NtRegisterThreadTerminatePort)
             it(PortHandle);
@@ -4849,7 +4849,7 @@ namespace
         const auto Timeout          = arg<nt64::PLARGE_INTEGER>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReleaseKeyedEvent(KeyedEventHandle:{:#x}, KeyValue:{:#x}, Alertable:{:#x}, Timeout:{:#x})", KeyedEventHandle, KeyValue, Alertable, Timeout));
+            tracer::log_call(d.core, g_callcfgs[274]);
 
         for(const auto& it : d.observers_NtReleaseKeyedEvent)
             it(KeyedEventHandle, KeyValue, Alertable, Timeout);
@@ -4861,7 +4861,7 @@ namespace
         const auto PreviousCount = arg<nt64::PLONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReleaseMutant(MutantHandle:{:#x}, PreviousCount:{:#x})", MutantHandle, PreviousCount));
+            tracer::log_call(d.core, g_callcfgs[275]);
 
         for(const auto& it : d.observers_NtReleaseMutant)
             it(MutantHandle, PreviousCount);
@@ -4874,7 +4874,7 @@ namespace
         const auto PreviousCount   = arg<nt64::PLONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReleaseSemaphore(SemaphoreHandle:{:#x}, ReleaseCount:{:#x}, PreviousCount:{:#x})", SemaphoreHandle, ReleaseCount, PreviousCount));
+            tracer::log_call(d.core, g_callcfgs[276]);
 
         for(const auto& it : d.observers_NtReleaseSemaphore)
             it(SemaphoreHandle, ReleaseCount, PreviousCount);
@@ -4885,7 +4885,7 @@ namespace
         const auto WorkerFactoryHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReleaseWorkerFactoryWorker(WorkerFactoryHandle:{:#x})", WorkerFactoryHandle));
+            tracer::log_call(d.core, g_callcfgs[277]);
 
         for(const auto& it : d.observers_NtReleaseWorkerFactoryWorker)
             it(WorkerFactoryHandle);
@@ -4901,7 +4901,7 @@ namespace
         const auto Alertable               = arg<nt64::BOOLEAN>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRemoveIoCompletionEx(IoCompletionHandle:{:#x}, IoCompletionInformation:{:#x}, Count:{:#x}, NumEntriesRemoved:{:#x}, Timeout:{:#x}, Alertable:{:#x})", IoCompletionHandle, IoCompletionInformation, Count, NumEntriesRemoved, Timeout, Alertable));
+            tracer::log_call(d.core, g_callcfgs[278]);
 
         for(const auto& it : d.observers_NtRemoveIoCompletionEx)
             it(IoCompletionHandle, IoCompletionInformation, Count, NumEntriesRemoved, Timeout, Alertable);
@@ -4916,7 +4916,7 @@ namespace
         const auto Timeout            = arg<nt64::PLARGE_INTEGER>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRemoveIoCompletion(IoCompletionHandle:{:#x}, STARKeyContext:{:#x}, STARApcContext:{:#x}, IoStatusBlock:{:#x}, Timeout:{:#x})", IoCompletionHandle, STARKeyContext, STARApcContext, IoStatusBlock, Timeout));
+            tracer::log_call(d.core, g_callcfgs[279]);
 
         for(const auto& it : d.observers_NtRemoveIoCompletion)
             it(IoCompletionHandle, STARKeyContext, STARApcContext, IoStatusBlock, Timeout);
@@ -4928,7 +4928,7 @@ namespace
         const auto DebugObjectHandle = arg<nt64::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRemoveProcessDebug(ProcessHandle:{:#x}, DebugObjectHandle:{:#x})", ProcessHandle, DebugObjectHandle));
+            tracer::log_call(d.core, g_callcfgs[280]);
 
         for(const auto& it : d.observers_NtRemoveProcessDebug)
             it(ProcessHandle, DebugObjectHandle);
@@ -4940,7 +4940,7 @@ namespace
         const auto NewName   = arg<nt64::PUNICODE_STRING>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRenameKey(KeyHandle:{:#x}, NewName:{:#x})", KeyHandle, NewName));
+            tracer::log_call(d.core, g_callcfgs[281]);
 
         for(const auto& it : d.observers_NtRenameKey)
             it(KeyHandle, NewName);
@@ -4952,7 +4952,7 @@ namespace
         const auto ExistingTransactionManagerGuid = arg<nt64::LPGUID>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRenameTransactionManager(LogFileName:{:#x}, ExistingTransactionManagerGuid:{:#x})", LogFileName, ExistingTransactionManagerGuid));
+            tracer::log_call(d.core, g_callcfgs[282]);
 
         for(const auto& it : d.observers_NtRenameTransactionManager)
             it(LogFileName, ExistingTransactionManagerGuid);
@@ -4965,7 +4965,7 @@ namespace
         const auto OldFile      = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReplaceKey(NewFile:{:#x}, TargetHandle:{:#x}, OldFile:{:#x})", NewFile, TargetHandle, OldFile));
+            tracer::log_call(d.core, g_callcfgs[283]);
 
         for(const auto& it : d.observers_NtReplaceKey)
             it(NewFile, TargetHandle, OldFile);
@@ -4978,7 +4978,7 @@ namespace
         const auto Flags              = arg<nt64::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReplacePartitionUnit(TargetInstancePath:{:#x}, SpareInstancePath:{:#x}, Flags:{:#x})", TargetInstancePath, SpareInstancePath, Flags));
+            tracer::log_call(d.core, g_callcfgs[284]);
 
         for(const auto& it : d.observers_NtReplacePartitionUnit)
             it(TargetInstancePath, SpareInstancePath, Flags);
@@ -4990,7 +4990,7 @@ namespace
         const auto ReplyMessage = arg<nt64::PPORT_MESSAGE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReplyPort(PortHandle:{:#x}, ReplyMessage:{:#x})", PortHandle, ReplyMessage));
+            tracer::log_call(d.core, g_callcfgs[285]);
 
         for(const auto& it : d.observers_NtReplyPort)
             it(PortHandle, ReplyMessage);
@@ -5005,7 +5005,7 @@ namespace
         const auto Timeout         = arg<nt64::PLARGE_INTEGER>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReplyWaitReceivePortEx(PortHandle:{:#x}, STARPortContext:{:#x}, ReplyMessage:{:#x}, ReceiveMessage:{:#x}, Timeout:{:#x})", PortHandle, STARPortContext, ReplyMessage, ReceiveMessage, Timeout));
+            tracer::log_call(d.core, g_callcfgs[286]);
 
         for(const auto& it : d.observers_NtReplyWaitReceivePortEx)
             it(PortHandle, STARPortContext, ReplyMessage, ReceiveMessage, Timeout);
@@ -5019,7 +5019,7 @@ namespace
         const auto ReceiveMessage  = arg<nt64::PPORT_MESSAGE>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReplyWaitReceivePort(PortHandle:{:#x}, STARPortContext:{:#x}, ReplyMessage:{:#x}, ReceiveMessage:{:#x})", PortHandle, STARPortContext, ReplyMessage, ReceiveMessage));
+            tracer::log_call(d.core, g_callcfgs[287]);
 
         for(const auto& it : d.observers_NtReplyWaitReceivePort)
             it(PortHandle, STARPortContext, ReplyMessage, ReceiveMessage);
@@ -5031,7 +5031,7 @@ namespace
         const auto ReplyMessage = arg<nt64::PPORT_MESSAGE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtReplyWaitReplyPort(PortHandle:{:#x}, ReplyMessage:{:#x})", PortHandle, ReplyMessage));
+            tracer::log_call(d.core, g_callcfgs[288]);
 
         for(const auto& it : d.observers_NtReplyWaitReplyPort)
             it(PortHandle, ReplyMessage);
@@ -5043,7 +5043,7 @@ namespace
         const auto RequestMessage = arg<nt64::PPORT_MESSAGE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRequestPort(PortHandle:{:#x}, RequestMessage:{:#x})", PortHandle, RequestMessage));
+            tracer::log_call(d.core, g_callcfgs[289]);
 
         for(const auto& it : d.observers_NtRequestPort)
             it(PortHandle, RequestMessage);
@@ -5056,7 +5056,7 @@ namespace
         const auto ReplyMessage   = arg<nt64::PPORT_MESSAGE>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRequestWaitReplyPort(PortHandle:{:#x}, RequestMessage:{:#x}, ReplyMessage:{:#x})", PortHandle, RequestMessage, ReplyMessage));
+            tracer::log_call(d.core, g_callcfgs[290]);
 
         for(const auto& it : d.observers_NtRequestWaitReplyPort)
             it(PortHandle, RequestMessage, ReplyMessage);
@@ -5068,7 +5068,7 @@ namespace
         const auto PreviousState = arg<nt64::PLONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtResetEvent(EventHandle:{:#x}, PreviousState:{:#x})", EventHandle, PreviousState));
+            tracer::log_call(d.core, g_callcfgs[291]);
 
         for(const auto& it : d.observers_NtResetEvent)
             it(EventHandle, PreviousState);
@@ -5081,7 +5081,7 @@ namespace
         const auto RegionSize    = arg<nt64::SIZE_T>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtResetWriteWatch(ProcessHandle:{:#x}, BaseAddress:{:#x}, RegionSize:{:#x})", ProcessHandle, BaseAddress, RegionSize));
+            tracer::log_call(d.core, g_callcfgs[292]);
 
         for(const auto& it : d.observers_NtResetWriteWatch)
             it(ProcessHandle, BaseAddress, RegionSize);
@@ -5094,7 +5094,7 @@ namespace
         const auto Flags      = arg<nt64::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRestoreKey(KeyHandle:{:#x}, FileHandle:{:#x}, Flags:{:#x})", KeyHandle, FileHandle, Flags));
+            tracer::log_call(d.core, g_callcfgs[293]);
 
         for(const auto& it : d.observers_NtRestoreKey)
             it(KeyHandle, FileHandle, Flags);
@@ -5105,7 +5105,7 @@ namespace
         const auto ProcessHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtResumeProcess(ProcessHandle:{:#x})", ProcessHandle));
+            tracer::log_call(d.core, g_callcfgs[294]);
 
         for(const auto& it : d.observers_NtResumeProcess)
             it(ProcessHandle);
@@ -5117,7 +5117,7 @@ namespace
         const auto PreviousSuspendCount = arg<nt64::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtResumeThread(ThreadHandle:{:#x}, PreviousSuspendCount:{:#x})", ThreadHandle, PreviousSuspendCount));
+            tracer::log_call(d.core, g_callcfgs[295]);
 
         for(const auto& it : d.observers_NtResumeThread)
             it(ThreadHandle, PreviousSuspendCount);
@@ -5129,7 +5129,7 @@ namespace
         const auto TmVirtualClock   = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRollbackComplete(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            tracer::log_call(d.core, g_callcfgs[296]);
 
         for(const auto& it : d.observers_NtRollbackComplete)
             it(EnlistmentHandle, TmVirtualClock);
@@ -5141,7 +5141,7 @@ namespace
         const auto TmVirtualClock   = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRollbackEnlistment(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            tracer::log_call(d.core, g_callcfgs[297]);
 
         for(const auto& it : d.observers_NtRollbackEnlistment)
             it(EnlistmentHandle, TmVirtualClock);
@@ -5153,7 +5153,7 @@ namespace
         const auto Wait              = arg<nt64::BOOLEAN>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRollbackTransaction(TransactionHandle:{:#x}, Wait:{:#x})", TransactionHandle, Wait));
+            tracer::log_call(d.core, g_callcfgs[298]);
 
         for(const auto& it : d.observers_NtRollbackTransaction)
             it(TransactionHandle, Wait);
@@ -5165,7 +5165,7 @@ namespace
         const auto TmVirtualClock           = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtRollforwardTransactionManager(TransactionManagerHandle:{:#x}, TmVirtualClock:{:#x})", TransactionManagerHandle, TmVirtualClock));
+            tracer::log_call(d.core, g_callcfgs[299]);
 
         for(const auto& it : d.observers_NtRollforwardTransactionManager)
             it(TransactionManagerHandle, TmVirtualClock);
@@ -5178,7 +5178,7 @@ namespace
         const auto Format     = arg<nt64::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSaveKeyEx(KeyHandle:{:#x}, FileHandle:{:#x}, Format:{:#x})", KeyHandle, FileHandle, Format));
+            tracer::log_call(d.core, g_callcfgs[300]);
 
         for(const auto& it : d.observers_NtSaveKeyEx)
             it(KeyHandle, FileHandle, Format);
@@ -5190,7 +5190,7 @@ namespace
         const auto FileHandle = arg<nt64::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSaveKey(KeyHandle:{:#x}, FileHandle:{:#x})", KeyHandle, FileHandle));
+            tracer::log_call(d.core, g_callcfgs[301]);
 
         for(const auto& it : d.observers_NtSaveKey)
             it(KeyHandle, FileHandle);
@@ -5203,7 +5203,7 @@ namespace
         const auto FileHandle              = arg<nt64::HANDLE>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSaveMergedKeys(HighPrecedenceKeyHandle:{:#x}, LowPrecedenceKeyHandle:{:#x}, FileHandle:{:#x})", HighPrecedenceKeyHandle, LowPrecedenceKeyHandle, FileHandle));
+            tracer::log_call(d.core, g_callcfgs[302]);
 
         for(const auto& it : d.observers_NtSaveMergedKeys)
             it(HighPrecedenceKeyHandle, LowPrecedenceKeyHandle, FileHandle);
@@ -5222,7 +5222,7 @@ namespace
         const auto ConnectionInformationLength = arg<nt64::PULONG>(d.core, 8);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSecureConnectPort(PortHandle:{:#x}, PortName:{:#x}, SecurityQos:{:#x}, ClientView:{:#x}, RequiredServerSid:{:#x}, ServerView:{:#x}, MaxMessageLength:{:#x}, ConnectionInformation:{:#x}, ConnectionInformationLength:{:#x})", PortHandle, PortName, SecurityQos, ClientView, RequiredServerSid, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength));
+            tracer::log_call(d.core, g_callcfgs[303]);
 
         for(const auto& it : d.observers_NtSecureConnectPort)
             it(PortHandle, PortName, SecurityQos, ClientView, RequiredServerSid, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
@@ -5234,7 +5234,7 @@ namespace
         const auto Count = arg<nt64::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetBootEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count));
+            tracer::log_call(d.core, g_callcfgs[304]);
 
         for(const auto& it : d.observers_NtSetBootEntryOrder)
             it(Ids, Count);
@@ -5246,7 +5246,7 @@ namespace
         const auto FieldsToChange = arg<nt64::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetBootOptions(BootOptions:{:#x}, FieldsToChange:{:#x})", BootOptions, FieldsToChange));
+            tracer::log_call(d.core, g_callcfgs[305]);
 
         for(const auto& it : d.observers_NtSetBootOptions)
             it(BootOptions, FieldsToChange);
@@ -5258,7 +5258,7 @@ namespace
         const auto ThreadContext = arg<nt64::PCONTEXT>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetContextThread(ThreadHandle:{:#x}, ThreadContext:{:#x})", ThreadHandle, ThreadContext));
+            tracer::log_call(d.core, g_callcfgs[306]);
 
         for(const auto& it : d.observers_NtSetContextThread)
             it(ThreadHandle, ThreadContext);
@@ -5271,7 +5271,7 @@ namespace
         const auto State       = arg<nt64::BOOLEAN>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetDebugFilterState(ComponentId:{:#x}, Level:{:#x}, State:{:#x})", ComponentId, Level, State));
+            tracer::log_call(d.core, g_callcfgs[307]);
 
         for(const auto& it : d.observers_NtSetDebugFilterState)
             it(ComponentId, Level, State);
@@ -5282,7 +5282,7 @@ namespace
         const auto DefaultHardErrorPort = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetDefaultHardErrorPort(DefaultHardErrorPort:{:#x})", DefaultHardErrorPort));
+            tracer::log_call(d.core, g_callcfgs[308]);
 
         for(const auto& it : d.observers_NtSetDefaultHardErrorPort)
             it(DefaultHardErrorPort);
@@ -5294,7 +5294,7 @@ namespace
         const auto DefaultLocaleId = arg<nt64::LCID>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetDefaultLocale(UserProfile:{:#x}, DefaultLocaleId:{:#x})", UserProfile, DefaultLocaleId));
+            tracer::log_call(d.core, g_callcfgs[309]);
 
         for(const auto& it : d.observers_NtSetDefaultLocale)
             it(UserProfile, DefaultLocaleId);
@@ -5305,7 +5305,7 @@ namespace
         const auto DefaultUILanguageId = arg<nt64::LANGID>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetDefaultUILanguage(DefaultUILanguageId:{:#x})", DefaultUILanguageId));
+            tracer::log_call(d.core, g_callcfgs[310]);
 
         for(const auto& it : d.observers_NtSetDefaultUILanguage)
             it(DefaultUILanguageId);
@@ -5317,7 +5317,7 @@ namespace
         const auto Count = arg<nt64::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetDriverEntryOrder(Ids:{:#x}, Count:{:#x})", Ids, Count));
+            tracer::log_call(d.core, g_callcfgs[311]);
 
         for(const auto& it : d.observers_NtSetDriverEntryOrder)
             it(Ids, Count);
@@ -5331,7 +5331,7 @@ namespace
         const auto Length        = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetEaFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x})", FileHandle, IoStatusBlock, Buffer, Length));
+            tracer::log_call(d.core, g_callcfgs[312]);
 
         for(const auto& it : d.observers_NtSetEaFile)
             it(FileHandle, IoStatusBlock, Buffer, Length);
@@ -5342,7 +5342,7 @@ namespace
         const auto EventHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetEventBoostPriority(EventHandle:{:#x})", EventHandle));
+            tracer::log_call(d.core, g_callcfgs[313]);
 
         for(const auto& it : d.observers_NtSetEventBoostPriority)
             it(EventHandle);
@@ -5354,7 +5354,7 @@ namespace
         const auto PreviousState = arg<nt64::PLONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetEvent(EventHandle:{:#x}, PreviousState:{:#x})", EventHandle, PreviousState));
+            tracer::log_call(d.core, g_callcfgs[314]);
 
         for(const auto& it : d.observers_NtSetEvent)
             it(EventHandle, PreviousState);
@@ -5365,7 +5365,7 @@ namespace
         const auto EventPairHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetHighEventPair(EventPairHandle:{:#x})", EventPairHandle));
+            tracer::log_call(d.core, g_callcfgs[315]);
 
         for(const auto& it : d.observers_NtSetHighEventPair)
             it(EventPairHandle);
@@ -5376,7 +5376,7 @@ namespace
         const auto EventPairHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetHighWaitLowEventPair(EventPairHandle:{:#x})", EventPairHandle));
+            tracer::log_call(d.core, g_callcfgs[316]);
 
         for(const auto& it : d.observers_NtSetHighWaitLowEventPair)
             it(EventPairHandle);
@@ -5391,7 +5391,7 @@ namespace
         const auto ReturnLength                = arg<nt64::PULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationDebugObject(DebugObjectHandle:{:#x}, DebugObjectInformationClass:{:#x}, DebugInformation:{:#x}, DebugInformationLength:{:#x}, ReturnLength:{:#x})", DebugObjectHandle, DebugObjectInformationClass, DebugInformation, DebugInformationLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[317]);
 
         for(const auto& it : d.observers_NtSetInformationDebugObject)
             it(DebugObjectHandle, DebugObjectInformationClass, DebugInformation, DebugInformationLength, ReturnLength);
@@ -5405,7 +5405,7 @@ namespace
         const auto EnlistmentInformationLength = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationEnlistment(EnlistmentHandle:{:#x}, EnlistmentInformationClass:{:#x}, EnlistmentInformation:{:#x}, EnlistmentInformationLength:{:#x})", EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength));
+            tracer::log_call(d.core, g_callcfgs[318]);
 
         for(const auto& it : d.observers_NtSetInformationEnlistment)
             it(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength);
@@ -5420,7 +5420,7 @@ namespace
         const auto FileInformationClass = arg<nt64::FILE_INFORMATION_CLASS>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FileInformation:{:#x}, Length:{:#x}, FileInformationClass:{:#x})", FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass));
+            tracer::log_call(d.core, g_callcfgs[319]);
 
         for(const auto& it : d.observers_NtSetInformationFile)
             it(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
@@ -5434,7 +5434,7 @@ namespace
         const auto JobObjectInformationLength = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationJobObject(JobHandle:{:#x}, JobObjectInformationClass:{:#x}, JobObjectInformation:{:#x}, JobObjectInformationLength:{:#x})", JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength));
+            tracer::log_call(d.core, g_callcfgs[320]);
 
         for(const auto& it : d.observers_NtSetInformationJobObject)
             it(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength);
@@ -5448,7 +5448,7 @@ namespace
         const auto KeySetInformationLength = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationKey(KeyHandle:{:#x}, KeySetInformationClass:{:#x}, KeySetInformation:{:#x}, KeySetInformationLength:{:#x})", KeyHandle, KeySetInformationClass, KeySetInformation, KeySetInformationLength));
+            tracer::log_call(d.core, g_callcfgs[321]);
 
         for(const auto& it : d.observers_NtSetInformationKey)
             it(KeyHandle, KeySetInformationClass, KeySetInformation, KeySetInformationLength);
@@ -5462,7 +5462,7 @@ namespace
         const auto ObjectInformationLength = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationObject(Handle:{:#x}, ObjectInformationClass:{:#x}, ObjectInformation:{:#x}, ObjectInformationLength:{:#x})", Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength));
+            tracer::log_call(d.core, g_callcfgs[322]);
 
         for(const auto& it : d.observers_NtSetInformationObject)
             it(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength);
@@ -5476,7 +5476,7 @@ namespace
         const auto ProcessInformationLength = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationProcess(ProcessHandle:{:#x}, ProcessInformationClass:{:#x}, ProcessInformation:{:#x}, ProcessInformationLength:{:#x})", ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength));
+            tracer::log_call(d.core, g_callcfgs[323]);
 
         for(const auto& it : d.observers_NtSetInformationProcess)
             it(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength);
@@ -5490,7 +5490,7 @@ namespace
         const auto ResourceManagerInformationLength = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationResourceManager(ResourceManagerHandle:{:#x}, ResourceManagerInformationClass:{:#x}, ResourceManagerInformation:{:#x}, ResourceManagerInformationLength:{:#x})", ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength));
+            tracer::log_call(d.core, g_callcfgs[324]);
 
         for(const auto& it : d.observers_NtSetInformationResourceManager)
             it(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength);
@@ -5504,7 +5504,7 @@ namespace
         const auto ThreadInformationLength = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationThread(ThreadHandle:{:#x}, ThreadInformationClass:{:#x}, ThreadInformation:{:#x}, ThreadInformationLength:{:#x})", ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength));
+            tracer::log_call(d.core, g_callcfgs[325]);
 
         for(const auto& it : d.observers_NtSetInformationThread)
             it(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength);
@@ -5518,7 +5518,7 @@ namespace
         const auto TokenInformationLength = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationToken(TokenHandle:{:#x}, TokenInformationClass:{:#x}, TokenInformation:{:#x}, TokenInformationLength:{:#x})", TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength));
+            tracer::log_call(d.core, g_callcfgs[326]);
 
         for(const auto& it : d.observers_NtSetInformationToken)
             it(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength);
@@ -5532,7 +5532,7 @@ namespace
         const auto TransactionInformationLength = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationTransaction(TransactionHandle:{:#x}, TransactionInformationClass:{:#x}, TransactionInformation:{:#x}, TransactionInformationLength:{:#x})", TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength));
+            tracer::log_call(d.core, g_callcfgs[327]);
 
         for(const auto& it : d.observers_NtSetInformationTransaction)
             it(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength);
@@ -5546,7 +5546,7 @@ namespace
         const auto TransactionManagerInformationLength = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationTransactionManager(TmHandle:{:#x}, TransactionManagerInformationClass:{:#x}, TransactionManagerInformation:{:#x}, TransactionManagerInformationLength:{:#x})", TmHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength));
+            tracer::log_call(d.core, g_callcfgs[328]);
 
         for(const auto& it : d.observers_NtSetInformationTransactionManager)
             it(TmHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength);
@@ -5560,7 +5560,7 @@ namespace
         const auto WorkerFactoryInformationLength = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetInformationWorkerFactory(WorkerFactoryHandle:{:#x}, WorkerFactoryInformationClass:{:#x}, WorkerFactoryInformation:{:#x}, WorkerFactoryInformationLength:{:#x})", WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength));
+            tracer::log_call(d.core, g_callcfgs[329]);
 
         for(const auto& it : d.observers_NtSetInformationWorkerFactory)
             it(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength);
@@ -5572,7 +5572,7 @@ namespace
         const auto Source   = arg<nt64::KPROFILE_SOURCE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetIntervalProfile(Interval:{:#x}, Source:{:#x})", Interval, Source));
+            tracer::log_call(d.core, g_callcfgs[330]);
 
         for(const auto& it : d.observers_NtSetIntervalProfile)
             it(Interval, Source);
@@ -5588,7 +5588,7 @@ namespace
         const auto IoStatusInformation       = arg<nt64::ULONG_PTR>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetIoCompletionEx(IoCompletionHandle:{:#x}, IoCompletionReserveHandle:{:#x}, KeyContext:{:#x}, ApcContext:{:#x}, IoStatus:{:#x}, IoStatusInformation:{:#x})", IoCompletionHandle, IoCompletionReserveHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation));
+            tracer::log_call(d.core, g_callcfgs[331]);
 
         for(const auto& it : d.observers_NtSetIoCompletionEx)
             it(IoCompletionHandle, IoCompletionReserveHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
@@ -5603,7 +5603,7 @@ namespace
         const auto IoStatusInformation = arg<nt64::ULONG_PTR>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetIoCompletion(IoCompletionHandle:{:#x}, KeyContext:{:#x}, ApcContext:{:#x}, IoStatus:{:#x}, IoStatusInformation:{:#x})", IoCompletionHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation));
+            tracer::log_call(d.core, g_callcfgs[332]);
 
         for(const auto& it : d.observers_NtSetIoCompletion)
             it(IoCompletionHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
@@ -5619,7 +5619,7 @@ namespace
         const auto Entry1Hi  = arg<nt64::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetLdtEntries(Selector0:{:#x}, Entry0Low:{:#x}, Entry0Hi:{:#x}, Selector1:{:#x}, Entry1Low:{:#x}, Entry1Hi:{:#x})", Selector0, Entry0Low, Entry0Hi, Selector1, Entry1Low, Entry1Hi));
+            tracer::log_call(d.core, g_callcfgs[333]);
 
         for(const auto& it : d.observers_NtSetLdtEntries)
             it(Selector0, Entry0Low, Entry0Hi, Selector1, Entry1Low, Entry1Hi);
@@ -5630,7 +5630,7 @@ namespace
         const auto EventPairHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetLowEventPair(EventPairHandle:{:#x})", EventPairHandle));
+            tracer::log_call(d.core, g_callcfgs[334]);
 
         for(const auto& it : d.observers_NtSetLowEventPair)
             it(EventPairHandle);
@@ -5641,7 +5641,7 @@ namespace
         const auto EventPairHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetLowWaitHighEventPair(EventPairHandle:{:#x})", EventPairHandle));
+            tracer::log_call(d.core, g_callcfgs[335]);
 
         for(const auto& it : d.observers_NtSetLowWaitHighEventPair)
             it(EventPairHandle);
@@ -5655,7 +5655,7 @@ namespace
         const auto Length        = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetQuotaInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x})", FileHandle, IoStatusBlock, Buffer, Length));
+            tracer::log_call(d.core, g_callcfgs[336]);
 
         for(const auto& it : d.observers_NtSetQuotaInformationFile)
             it(FileHandle, IoStatusBlock, Buffer, Length);
@@ -5668,7 +5668,7 @@ namespace
         const auto SecurityDescriptor  = arg<nt64::PSECURITY_DESCRIPTOR>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetSecurityObject(Handle:{:#x}, SecurityInformation:{:#x}, SecurityDescriptor:{:#x})", Handle, SecurityInformation, SecurityDescriptor));
+            tracer::log_call(d.core, g_callcfgs[337]);
 
         for(const auto& it : d.observers_NtSetSecurityObject)
             it(Handle, SecurityInformation, SecurityDescriptor);
@@ -5683,7 +5683,7 @@ namespace
         const auto Attributes   = arg<nt64::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetSystemEnvironmentValueEx(VariableName:{:#x}, VendorGuid:{:#x}, Value:{:#x}, ValueLength:{:#x}, Attributes:{:#x})", VariableName, VendorGuid, Value, ValueLength, Attributes));
+            tracer::log_call(d.core, g_callcfgs[338]);
 
         for(const auto& it : d.observers_NtSetSystemEnvironmentValueEx)
             it(VariableName, VendorGuid, Value, ValueLength, Attributes);
@@ -5695,7 +5695,7 @@ namespace
         const auto VariableValue = arg<nt64::PUNICODE_STRING>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetSystemEnvironmentValue(VariableName:{:#x}, VariableValue:{:#x})", VariableName, VariableValue));
+            tracer::log_call(d.core, g_callcfgs[339]);
 
         for(const auto& it : d.observers_NtSetSystemEnvironmentValue)
             it(VariableName, VariableValue);
@@ -5708,7 +5708,7 @@ namespace
         const auto SystemInformationLength = arg<nt64::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetSystemInformation(SystemInformationClass:{:#x}, SystemInformation:{:#x}, SystemInformationLength:{:#x})", SystemInformationClass, SystemInformation, SystemInformationLength));
+            tracer::log_call(d.core, g_callcfgs[340]);
 
         for(const auto& it : d.observers_NtSetSystemInformation)
             it(SystemInformationClass, SystemInformation, SystemInformationLength);
@@ -5721,7 +5721,7 @@ namespace
         const auto Flags          = arg<nt64::ULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetSystemPowerState(SystemAction:{:#x}, MinSystemState:{:#x}, Flags:{:#x})", SystemAction, MinSystemState, Flags));
+            tracer::log_call(d.core, g_callcfgs[341]);
 
         for(const auto& it : d.observers_NtSetSystemPowerState)
             it(SystemAction, MinSystemState, Flags);
@@ -5733,7 +5733,7 @@ namespace
         const auto PreviousTime = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetSystemTime(SystemTime:{:#x}, PreviousTime:{:#x})", SystemTime, PreviousTime));
+            tracer::log_call(d.core, g_callcfgs[342]);
 
         for(const auto& it : d.observers_NtSetSystemTime)
             it(SystemTime, PreviousTime);
@@ -5745,7 +5745,7 @@ namespace
         const auto STARPreviousFlags = arg<nt64::EXECUTION_STATE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetThreadExecutionState(esFlags:{:#x}, STARPreviousFlags:{:#x})", esFlags, STARPreviousFlags));
+            tracer::log_call(d.core, g_callcfgs[343]);
 
         for(const auto& it : d.observers_NtSetThreadExecutionState)
             it(esFlags, STARPreviousFlags);
@@ -5759,7 +5759,7 @@ namespace
         const auto TimerSetInformationLength = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetTimerEx(TimerHandle:{:#x}, TimerSetInformationClass:{:#x}, TimerSetInformation:{:#x}, TimerSetInformationLength:{:#x})", TimerHandle, TimerSetInformationClass, TimerSetInformation, TimerSetInformationLength));
+            tracer::log_call(d.core, g_callcfgs[344]);
 
         for(const auto& it : d.observers_NtSetTimerEx)
             it(TimerHandle, TimerSetInformationClass, TimerSetInformation, TimerSetInformationLength);
@@ -5776,7 +5776,7 @@ namespace
         const auto PreviousState   = arg<nt64::PBOOLEAN>(d.core, 6);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetTimer(TimerHandle:{:#x}, DueTime:{:#x}, TimerApcRoutine:{:#x}, TimerContext:{:#x}, WakeTimer:{:#x}, Period:{:#x}, PreviousState:{:#x})", TimerHandle, DueTime, TimerApcRoutine, TimerContext, WakeTimer, Period, PreviousState));
+            tracer::log_call(d.core, g_callcfgs[345]);
 
         for(const auto& it : d.observers_NtSetTimer)
             it(TimerHandle, DueTime, TimerApcRoutine, TimerContext, WakeTimer, Period, PreviousState);
@@ -5789,7 +5789,7 @@ namespace
         const auto ActualTime    = arg<nt64::PULONG>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetTimerResolution(DesiredTime:{:#x}, SetResolution:{:#x}, ActualTime:{:#x})", DesiredTime, SetResolution, ActualTime));
+            tracer::log_call(d.core, g_callcfgs[346]);
 
         for(const auto& it : d.observers_NtSetTimerResolution)
             it(DesiredTime, SetResolution, ActualTime);
@@ -5800,7 +5800,7 @@ namespace
         const auto Seed = arg<nt64::PCHAR>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetUuidSeed(Seed:{:#x})", Seed));
+            tracer::log_call(d.core, g_callcfgs[347]);
 
         for(const auto& it : d.observers_NtSetUuidSeed)
             it(Seed);
@@ -5816,7 +5816,7 @@ namespace
         const auto DataSize   = arg<nt64::ULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetValueKey(KeyHandle:{:#x}, ValueName:{:#x}, TitleIndex:{:#x}, Type:{:#x}, Data:{:#x}, DataSize:{:#x})", KeyHandle, ValueName, TitleIndex, Type, Data, DataSize));
+            tracer::log_call(d.core, g_callcfgs[348]);
 
         for(const auto& it : d.observers_NtSetValueKey)
             it(KeyHandle, ValueName, TitleIndex, Type, Data, DataSize);
@@ -5831,7 +5831,7 @@ namespace
         const auto FsInformationClass = arg<nt64::FS_INFORMATION_CLASS>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSetVolumeInformationFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, FsInformation:{:#x}, Length:{:#x}, FsInformationClass:{:#x})", FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass));
+            tracer::log_call(d.core, g_callcfgs[349]);
 
         for(const auto& it : d.observers_NtSetVolumeInformationFile)
             it(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
@@ -5842,7 +5842,7 @@ namespace
         const auto Action = arg<nt64::SHUTDOWN_ACTION>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtShutdownSystem(Action:{:#x})", Action));
+            tracer::log_call(d.core, g_callcfgs[350]);
 
         for(const auto& it : d.observers_NtShutdownSystem)
             it(Action);
@@ -5854,7 +5854,7 @@ namespace
         const auto STARPendingWorkerCount = arg<nt64::LONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtShutdownWorkerFactory(WorkerFactoryHandle:{:#x}, STARPendingWorkerCount:{:#x})", WorkerFactoryHandle, STARPendingWorkerCount));
+            tracer::log_call(d.core, g_callcfgs[351]);
 
         for(const auto& it : d.observers_NtShutdownWorkerFactory)
             it(WorkerFactoryHandle, STARPendingWorkerCount);
@@ -5868,7 +5868,7 @@ namespace
         const auto Timeout      = arg<nt64::PLARGE_INTEGER>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSignalAndWaitForSingleObject(SignalHandle:{:#x}, WaitHandle:{:#x}, Alertable:{:#x}, Timeout:{:#x})", SignalHandle, WaitHandle, Alertable, Timeout));
+            tracer::log_call(d.core, g_callcfgs[352]);
 
         for(const auto& it : d.observers_NtSignalAndWaitForSingleObject)
             it(SignalHandle, WaitHandle, Alertable, Timeout);
@@ -5880,7 +5880,7 @@ namespace
         const auto TmVirtualClock   = arg<nt64::PLARGE_INTEGER>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSinglePhaseReject(EnlistmentHandle:{:#x}, TmVirtualClock:{:#x})", EnlistmentHandle, TmVirtualClock));
+            tracer::log_call(d.core, g_callcfgs[353]);
 
         for(const auto& it : d.observers_NtSinglePhaseReject)
             it(EnlistmentHandle, TmVirtualClock);
@@ -5891,7 +5891,7 @@ namespace
         const auto ProfileHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtStartProfile(ProfileHandle:{:#x})", ProfileHandle));
+            tracer::log_call(d.core, g_callcfgs[354]);
 
         for(const auto& it : d.observers_NtStartProfile)
             it(ProfileHandle);
@@ -5902,7 +5902,7 @@ namespace
         const auto ProfileHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtStopProfile(ProfileHandle:{:#x})", ProfileHandle));
+            tracer::log_call(d.core, g_callcfgs[355]);
 
         for(const auto& it : d.observers_NtStopProfile)
             it(ProfileHandle);
@@ -5913,7 +5913,7 @@ namespace
         const auto ProcessHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSuspendProcess(ProcessHandle:{:#x})", ProcessHandle));
+            tracer::log_call(d.core, g_callcfgs[356]);
 
         for(const auto& it : d.observers_NtSuspendProcess)
             it(ProcessHandle);
@@ -5925,7 +5925,7 @@ namespace
         const auto PreviousSuspendCount = arg<nt64::PULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSuspendThread(ThreadHandle:{:#x}, PreviousSuspendCount:{:#x})", ThreadHandle, PreviousSuspendCount));
+            tracer::log_call(d.core, g_callcfgs[357]);
 
         for(const auto& it : d.observers_NtSuspendThread)
             it(ThreadHandle, PreviousSuspendCount);
@@ -5941,7 +5941,7 @@ namespace
         const auto ReturnLength       = arg<nt64::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSystemDebugControl(Command:{:#x}, InputBuffer:{:#x}, InputBufferLength:{:#x}, OutputBuffer:{:#x}, OutputBufferLength:{:#x}, ReturnLength:{:#x})", Command, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[358]);
 
         for(const auto& it : d.observers_NtSystemDebugControl)
             it(Command, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength, ReturnLength);
@@ -5953,7 +5953,7 @@ namespace
         const auto ExitStatus = arg<nt64::NTSTATUS>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtTerminateJobObject(JobHandle:{:#x}, ExitStatus:{:#x})", JobHandle, ExitStatus));
+            tracer::log_call(d.core, g_callcfgs[359]);
 
         for(const auto& it : d.observers_NtTerminateJobObject)
             it(JobHandle, ExitStatus);
@@ -5965,7 +5965,7 @@ namespace
         const auto ExitStatus    = arg<nt64::NTSTATUS>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtTerminateProcess(ProcessHandle:{:#x}, ExitStatus:{:#x})", ProcessHandle, ExitStatus));
+            tracer::log_call(d.core, g_callcfgs[360]);
 
         for(const auto& it : d.observers_NtTerminateProcess)
             it(ProcessHandle, ExitStatus);
@@ -5977,7 +5977,7 @@ namespace
         const auto ExitStatus   = arg<nt64::NTSTATUS>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtTerminateThread(ThreadHandle:{:#x}, ExitStatus:{:#x})", ThreadHandle, ExitStatus));
+            tracer::log_call(d.core, g_callcfgs[361]);
 
         for(const auto& it : d.observers_NtTerminateThread)
             it(ThreadHandle, ExitStatus);
@@ -5993,7 +5993,7 @@ namespace
         const auto ReturnLength = arg<nt64::PULONG>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtTraceControl(FunctionCode:{:#x}, InBuffer:{:#x}, InBufferLen:{:#x}, OutBuffer:{:#x}, OutBufferLen:{:#x}, ReturnLength:{:#x})", FunctionCode, InBuffer, InBufferLen, OutBuffer, OutBufferLen, ReturnLength));
+            tracer::log_call(d.core, g_callcfgs[362]);
 
         for(const auto& it : d.observers_NtTraceControl)
             it(FunctionCode, InBuffer, InBufferLen, OutBuffer, OutBufferLen, ReturnLength);
@@ -6007,7 +6007,7 @@ namespace
         const auto Fields      = arg<nt64::PVOID>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtTraceEvent(TraceHandle:{:#x}, Flags:{:#x}, FieldSize:{:#x}, Fields:{:#x})", TraceHandle, Flags, FieldSize, Fields));
+            tracer::log_call(d.core, g_callcfgs[363]);
 
         for(const auto& it : d.observers_NtTraceEvent)
             it(TraceHandle, Flags, FieldSize, Fields);
@@ -6021,7 +6021,7 @@ namespace
         const auto OutputFilePathLength = arg<nt64::PULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtTranslateFilePath(InputFilePath:{:#x}, OutputType:{:#x}, OutputFilePath:{:#x}, OutputFilePathLength:{:#x})", InputFilePath, OutputType, OutputFilePath, OutputFilePathLength));
+            tracer::log_call(d.core, g_callcfgs[364]);
 
         for(const auto& it : d.observers_NtTranslateFilePath)
             it(InputFilePath, OutputType, OutputFilePath, OutputFilePathLength);
@@ -6032,7 +6032,7 @@ namespace
         const auto DriverServiceName = arg<nt64::PUNICODE_STRING>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtUnloadDriver(DriverServiceName:{:#x})", DriverServiceName));
+            tracer::log_call(d.core, g_callcfgs[365]);
 
         for(const auto& it : d.observers_NtUnloadDriver)
             it(DriverServiceName);
@@ -6044,7 +6044,7 @@ namespace
         const auto Flags     = arg<nt64::ULONG>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtUnloadKey2(TargetKey:{:#x}, Flags:{:#x})", TargetKey, Flags));
+            tracer::log_call(d.core, g_callcfgs[366]);
 
         for(const auto& it : d.observers_NtUnloadKey2)
             it(TargetKey, Flags);
@@ -6056,7 +6056,7 @@ namespace
         const auto Event     = arg<nt64::HANDLE>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtUnloadKeyEx(TargetKey:{:#x}, Event:{:#x})", TargetKey, Event));
+            tracer::log_call(d.core, g_callcfgs[367]);
 
         for(const auto& it : d.observers_NtUnloadKeyEx)
             it(TargetKey, Event);
@@ -6067,7 +6067,7 @@ namespace
         const auto TargetKey = arg<nt64::POBJECT_ATTRIBUTES>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtUnloadKey(TargetKey:{:#x})", TargetKey));
+            tracer::log_call(d.core, g_callcfgs[368]);
 
         for(const auto& it : d.observers_NtUnloadKey)
             it(TargetKey);
@@ -6082,7 +6082,7 @@ namespace
         const auto Key           = arg<nt64::ULONG>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtUnlockFile(FileHandle:{:#x}, IoStatusBlock:{:#x}, ByteOffset:{:#x}, Length:{:#x}, Key:{:#x})", FileHandle, IoStatusBlock, ByteOffset, Length, Key));
+            tracer::log_call(d.core, g_callcfgs[369]);
 
         for(const auto& it : d.observers_NtUnlockFile)
             it(FileHandle, IoStatusBlock, ByteOffset, Length, Key);
@@ -6096,7 +6096,7 @@ namespace
         const auto MapType         = arg<nt64::ULONG>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtUnlockVirtualMemory(ProcessHandle:{:#x}, STARBaseAddress:{:#x}, RegionSize:{:#x}, MapType:{:#x})", ProcessHandle, STARBaseAddress, RegionSize, MapType));
+            tracer::log_call(d.core, g_callcfgs[370]);
 
         for(const auto& it : d.observers_NtUnlockVirtualMemory)
             it(ProcessHandle, STARBaseAddress, RegionSize, MapType);
@@ -6108,7 +6108,7 @@ namespace
         const auto BaseAddress   = arg<nt64::PVOID>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtUnmapViewOfSection(ProcessHandle:{:#x}, BaseAddress:{:#x})", ProcessHandle, BaseAddress));
+            tracer::log_call(d.core, g_callcfgs[371]);
 
         for(const auto& it : d.observers_NtUnmapViewOfSection)
             it(ProcessHandle, BaseAddress);
@@ -6120,7 +6120,7 @@ namespace
         const auto ServiceData = arg<nt64::PVOID>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtVdmControl(Service:{:#x}, ServiceData:{:#x})", Service, ServiceData));
+            tracer::log_call(d.core, g_callcfgs[372]);
 
         for(const auto& it : d.observers_NtVdmControl)
             it(Service, ServiceData);
@@ -6134,7 +6134,7 @@ namespace
         const auto WaitStateChange   = arg<nt64::PDBGUI_WAIT_STATE_CHANGE>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWaitForDebugEvent(DebugObjectHandle:{:#x}, Alertable:{:#x}, Timeout:{:#x}, WaitStateChange:{:#x})", DebugObjectHandle, Alertable, Timeout, WaitStateChange));
+            tracer::log_call(d.core, g_callcfgs[373]);
 
         for(const auto& it : d.observers_NtWaitForDebugEvent)
             it(DebugObjectHandle, Alertable, Timeout, WaitStateChange);
@@ -6148,7 +6148,7 @@ namespace
         const auto Timeout          = arg<nt64::PLARGE_INTEGER>(d.core, 3);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWaitForKeyedEvent(KeyedEventHandle:{:#x}, KeyValue:{:#x}, Alertable:{:#x}, Timeout:{:#x})", KeyedEventHandle, KeyValue, Alertable, Timeout));
+            tracer::log_call(d.core, g_callcfgs[374]);
 
         for(const auto& it : d.observers_NtWaitForKeyedEvent)
             it(KeyedEventHandle, KeyValue, Alertable, Timeout);
@@ -6163,7 +6163,7 @@ namespace
         const auto Timeout   = arg<nt64::PLARGE_INTEGER>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWaitForMultipleObjects32(Count:{:#x}, Handles:{:#x}, WaitType:{:#x}, Alertable:{:#x}, Timeout:{:#x})", Count, Handles, WaitType, Alertable, Timeout));
+            tracer::log_call(d.core, g_callcfgs[375]);
 
         for(const auto& it : d.observers_NtWaitForMultipleObjects32)
             it(Count, Handles, WaitType, Alertable, Timeout);
@@ -6178,7 +6178,7 @@ namespace
         const auto Timeout   = arg<nt64::PLARGE_INTEGER>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWaitForMultipleObjects(Count:{:#x}, Handles:{:#x}, WaitType:{:#x}, Alertable:{:#x}, Timeout:{:#x})", Count, Handles, WaitType, Alertable, Timeout));
+            tracer::log_call(d.core, g_callcfgs[376]);
 
         for(const auto& it : d.observers_NtWaitForMultipleObjects)
             it(Count, Handles, WaitType, Alertable, Timeout);
@@ -6191,7 +6191,7 @@ namespace
         const auto Timeout   = arg<nt64::PLARGE_INTEGER>(d.core, 2);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWaitForSingleObject(Handle:{:#x}, Alertable:{:#x}, Timeout:{:#x})", Handle, Alertable, Timeout));
+            tracer::log_call(d.core, g_callcfgs[377]);
 
         for(const auto& it : d.observers_NtWaitForSingleObject)
             it(Handle, Alertable, Timeout);
@@ -6203,7 +6203,7 @@ namespace
         const auto MiniPacket          = arg<nt64::PFILE_IO_COMPLETION_INFORMATION>(d.core, 1);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWaitForWorkViaWorkerFactory(WorkerFactoryHandle:{:#x}, MiniPacket:{:#x})", WorkerFactoryHandle, MiniPacket));
+            tracer::log_call(d.core, g_callcfgs[378]);
 
         for(const auto& it : d.observers_NtWaitForWorkViaWorkerFactory)
             it(WorkerFactoryHandle, MiniPacket);
@@ -6214,7 +6214,7 @@ namespace
         const auto EventPairHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWaitHighEventPair(EventPairHandle:{:#x})", EventPairHandle));
+            tracer::log_call(d.core, g_callcfgs[379]);
 
         for(const auto& it : d.observers_NtWaitHighEventPair)
             it(EventPairHandle);
@@ -6225,7 +6225,7 @@ namespace
         const auto EventPairHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWaitLowEventPair(EventPairHandle:{:#x})", EventPairHandle));
+            tracer::log_call(d.core, g_callcfgs[380]);
 
         for(const auto& it : d.observers_NtWaitLowEventPair)
             it(EventPairHandle);
@@ -6236,7 +6236,7 @@ namespace
         const auto WorkerFactoryHandle = arg<nt64::HANDLE>(d.core, 0);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWorkerFactoryWorkerReady(WorkerFactoryHandle:{:#x})", WorkerFactoryHandle));
+            tracer::log_call(d.core, g_callcfgs[381]);
 
         for(const auto& it : d.observers_NtWorkerFactoryWorkerReady)
             it(WorkerFactoryHandle);
@@ -6255,7 +6255,7 @@ namespace
         const auto Key           = arg<nt64::PULONG>(d.core, 8);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWriteFileGather(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, SegmentArray:{:#x}, Length:{:#x}, ByteOffset:{:#x}, Key:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key));
+            tracer::log_call(d.core, g_callcfgs[382]);
 
         for(const auto& it : d.observers_NtWriteFileGather)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
@@ -6274,7 +6274,7 @@ namespace
         const auto Key           = arg<nt64::PULONG>(d.core, 8);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWriteFile(FileHandle:{:#x}, Event:{:#x}, ApcRoutine:{:#x}, ApcContext:{:#x}, IoStatusBlock:{:#x}, Buffer:{:#x}, Length:{:#x}, ByteOffset:{:#x}, Key:{:#x})", FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key));
+            tracer::log_call(d.core, g_callcfgs[383]);
 
         for(const auto& it : d.observers_NtWriteFile)
             it(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
@@ -6290,7 +6290,7 @@ namespace
         const auto NumberOfBytesWritten = arg<nt64::PSIZE_T>(d.core, 5);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWriteRequestData(PortHandle:{:#x}, Message:{:#x}, DataEntryIndex:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, NumberOfBytesWritten:{:#x})", PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesWritten));
+            tracer::log_call(d.core, g_callcfgs[384]);
 
         for(const auto& it : d.observers_NtWriteRequestData)
             it(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesWritten);
@@ -6305,7 +6305,7 @@ namespace
         const auto NumberOfBytesWritten = arg<nt64::PSIZE_T>(d.core, 4);
 
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtWriteVirtualMemory(ProcessHandle:{:#x}, BaseAddress:{:#x}, Buffer:{:#x}, BufferSize:{:#x}, NumberOfBytesWritten:{:#x})", ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesWritten));
+            tracer::log_call(d.core, g_callcfgs[385]);
 
         for(const auto& it : d.observers_NtWriteVirtualMemory)
             it(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesWritten);
@@ -6314,7 +6314,7 @@ namespace
     static void on_NtDisableLastKnownGood(nt64::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtDisableLastKnownGood()"));
+            tracer::log_call(d.core, g_callcfgs[386]);
 
         for(const auto& it : d.observers_NtDisableLastKnownGood)
             it();
@@ -6323,7 +6323,7 @@ namespace
     static void on_NtEnableLastKnownGood(nt64::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtEnableLastKnownGood()"));
+            tracer::log_call(d.core, g_callcfgs[387]);
 
         for(const auto& it : d.observers_NtEnableLastKnownGood)
             it();
@@ -6332,7 +6332,7 @@ namespace
     static void on_NtFlushProcessWriteBuffers(nt64::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFlushProcessWriteBuffers()"));
+            tracer::log_call(d.core, g_callcfgs[388]);
 
         for(const auto& it : d.observers_NtFlushProcessWriteBuffers)
             it();
@@ -6341,7 +6341,7 @@ namespace
     static void on_NtFlushWriteBuffer(nt64::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtFlushWriteBuffer()"));
+            tracer::log_call(d.core, g_callcfgs[389]);
 
         for(const auto& it : d.observers_NtFlushWriteBuffer)
             it();
@@ -6350,7 +6350,7 @@ namespace
     static void on_NtGetCurrentProcessorNumber(nt64::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtGetCurrentProcessorNumber()"));
+            tracer::log_call(d.core, g_callcfgs[390]);
 
         for(const auto& it : d.observers_NtGetCurrentProcessorNumber)
             it();
@@ -6359,7 +6359,7 @@ namespace
     static void on_NtIsSystemResumeAutomatic(nt64::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtIsSystemResumeAutomatic()"));
+            tracer::log_call(d.core, g_callcfgs[391]);
 
         for(const auto& it : d.observers_NtIsSystemResumeAutomatic)
             it();
@@ -6368,7 +6368,7 @@ namespace
     static void on_NtIsUILanguageComitted(nt64::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtIsUILanguageComitted()"));
+            tracer::log_call(d.core, g_callcfgs[392]);
 
         for(const auto& it : d.observers_NtIsUILanguageComitted)
             it();
@@ -6377,7 +6377,7 @@ namespace
     static void on_NtQueryPortInformationProcess(nt64::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtQueryPortInformationProcess()"));
+            tracer::log_call(d.core, g_callcfgs[393]);
 
         for(const auto& it : d.observers_NtQueryPortInformationProcess)
             it();
@@ -6386,7 +6386,7 @@ namespace
     static void on_NtSerializeBoot(nt64::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtSerializeBoot()"));
+            tracer::log_call(d.core, g_callcfgs[394]);
 
         for(const auto& it : d.observers_NtSerializeBoot)
             it();
@@ -6395,7 +6395,7 @@ namespace
     static void on_NtTestAlert(nt64::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtTestAlert()"));
+            tracer::log_call(d.core, g_callcfgs[395]);
 
         for(const auto& it : d.observers_NtTestAlert)
             it();
@@ -6404,7 +6404,7 @@ namespace
     static void on_NtThawRegistry(nt64::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtThawRegistry()"));
+            tracer::log_call(d.core, g_callcfgs[396]);
 
         for(const auto& it : d.observers_NtThawRegistry)
             it();
@@ -6413,7 +6413,7 @@ namespace
     static void on_NtThawTransactions(nt64::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtThawTransactions()"));
+            tracer::log_call(d.core, g_callcfgs[397]);
 
         for(const auto& it : d.observers_NtThawTransactions)
             it();
@@ -6422,7 +6422,7 @@ namespace
     static void on_NtUmsThreadYield(nt64::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtUmsThreadYield()"));
+            tracer::log_call(d.core, g_callcfgs[398]);
 
         for(const auto& it : d.observers_NtUmsThreadYield)
             it();
@@ -6431,7 +6431,7 @@ namespace
     static void on_NtYieldExecution(nt64::syscalls::Data& d)
     {
         if constexpr(g_debug)
-            logg::print(logg::level_t::info, fmt::format("NtYieldExecution()"));
+            tracer::log_call(d.core, g_callcfgs[399]);
 
         for(const auto& it : d.observers_NtYieldExecution)
             it();
