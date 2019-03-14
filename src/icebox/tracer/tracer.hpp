@@ -6,8 +6,9 @@ namespace tracer
 {
     struct argcfg_t
     {
-        char type[64];
-        char name[64];
+        char   type[64];
+        char   name[64];
+        size_t size;
     };
 
     struct callcfg_t

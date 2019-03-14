@@ -136,12 +136,12 @@ bool {namespace}::{filename}::register_{target}(proc_t proc, const on_{target}_f
 """.format(filename=filename, namespace=namespace, target=target, symbol_name=symbol_name)
     return definitions
 
-def generate_callers(json_data, wow64):
+def generate_callers(json_data, namespace, wow64):
     data = ""
     lines = []
     for target, (_, (args)) in json_data.items():
         name = target if not wow64 else "_{target}@{size}".format(target=target, size=len(args) * 4)
-        args = ['{{"{type}", "{name}"}}'.format(type=typeof, name=name) for name, typeof in args]
+        args = ['{{"{type}", "{name}", sizeof({namespace}::{type})}}'.format(type=typeof, name=name, namespace=namespace) for name, typeof in args]
         elem = '        {{"{name}", {argc}, {{{keys}}}}},'.format(name=name, argc=len(args), keys=", ".join(args))
         lines.append(elem)
     return data + "\n".join(lines)
@@ -244,7 +244,7 @@ bool {namespace}::{filename}::register_all(proc_t proc, const {namespace}::{file
         observers=generate_observers(json_data, pad),
         dispatchers=generate_dispatchers(json_data, filename, namespace),
         definitions=generate_definitions(json_data, filename, namespace, wow64),
-        callers=generate_callers(json_data, wow64))
+        callers=generate_callers(json_data, namespace, wow64))
 
 def read_file(filename):
     with open(filename, "rb") as fh:

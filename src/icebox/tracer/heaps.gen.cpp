@@ -10,12 +10,12 @@ namespace
 
 	static const tracer::callcfg_t g_callcfgs[] =
 	{
-        {"RtlpAllocateHeapInternal", 2, {{"PVOID", "HeapHandle"}, {"SIZE_T", "Size"}}},
-        {"RtlFreeHeap", 3, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}}},
-        {"RtlpReAllocateHeapInternal", 4, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}, {"ULONG", "Size"}}},
-        {"RtlSizeHeap", 3, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}}},
-        {"RtlSetUserValueHeap", 4, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}, {"PVOID", "UserValue"}}},
-        {"RtlGetUserInfoHeap", 5, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}, {"PVOID", "UserValue"}, {"PULONG", "UserFlags"}}},
+        {"RtlpAllocateHeapInternal", 2, {{"PVOID", "HeapHandle", sizeof(nt64::PVOID)}, {"SIZE_T", "Size", sizeof(nt64::SIZE_T)}}},
+        {"RtlFreeHeap", 3, {{"PVOID", "HeapHandle", sizeof(nt64::PVOID)}, {"ULONG", "Flags", sizeof(nt64::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt64::PVOID)}}},
+        {"RtlpReAllocateHeapInternal", 4, {{"PVOID", "HeapHandle", sizeof(nt64::PVOID)}, {"ULONG", "Flags", sizeof(nt64::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt64::PVOID)}, {"ULONG", "Size", sizeof(nt64::ULONG)}}},
+        {"RtlSizeHeap", 3, {{"PVOID", "HeapHandle", sizeof(nt64::PVOID)}, {"ULONG", "Flags", sizeof(nt64::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt64::PVOID)}}},
+        {"RtlSetUserValueHeap", 4, {{"PVOID", "HeapHandle", sizeof(nt64::PVOID)}, {"ULONG", "Flags", sizeof(nt64::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt64::PVOID)}, {"PVOID", "UserValue", sizeof(nt64::PVOID)}}},
+        {"RtlGetUserInfoHeap", 5, {{"PVOID", "HeapHandle", sizeof(nt64::PVOID)}, {"ULONG", "Flags", sizeof(nt64::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt64::PVOID)}, {"PVOID", "UserValue", sizeof(nt64::PVOID)}, {"PULONG", "UserFlags", sizeof(nt64::PULONG)}}},
 	};
 }
 
