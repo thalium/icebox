@@ -30,7 +30,7 @@ def generate_header(json_data, filename, namespace, pad, wow64):
 
 #include "core.hpp"
 #include "types.hpp"
-
+#include "tracer.hpp"
 #include "nt/nt.hpp"
 #include "nt/{namespace}.hpp"
 
@@ -40,26 +40,13 @@ namespace {namespace}
 {{
 {usings}
 
-    struct argcfg_t
-    {{
-        char	 type[64];
-        char	 name[64];
-    }};
-
-    struct callcfg_t
-    {{
-        char        name[64];
-        size_t      argc;
-        argcfg_t    args[32];
-    }};
-
     struct {filename}
     {{
          {filename}(core::Core& core, std::string_view module);
         ~{filename}();
 
         // register generic callback with process filtering
-        using on_call_fn = std::function<void(const callcfg_t& callcfg)>;
+        using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;
         bool register_all(proc_t proc, const on_call_fn& on_call);
 
 {registers}
@@ -170,7 +157,7 @@ namespace
 {{
 	constexpr bool g_debug = false;
 
-	static const {namespace}::callcfg_t g_callcfgs[] =
+	static const tracer::callcfg_t g_callcfgs[] =
 	{{
 {callers}
 	}};

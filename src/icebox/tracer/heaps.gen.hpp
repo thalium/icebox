@@ -2,7 +2,7 @@
 
 #include "core.hpp"
 #include "types.hpp"
-
+#include "tracer.hpp"
 #include "nt/nt.hpp"
 #include "nt/nt64.hpp"
 
@@ -17,26 +17,13 @@ namespace nt64
     using on_RtlSetUserValueHeap_fn        = std::function<BOOLEAN(PVOID, ULONG, PVOID, PVOID)>;
     using on_RtlGetUserInfoHeap_fn         = std::function<BOOLEAN(PVOID, ULONG, PVOID, PVOID, PULONG)>;
 
-    struct argcfg_t
-    {
-        char	 type[64];
-        char	 name[64];
-    };
-
-    struct callcfg_t
-    {
-        char        name[64];
-        size_t      argc;
-        argcfg_t    args[32];
-    };
-
     struct heaps
     {
          heaps(core::Core& core, std::string_view module);
         ~heaps();
 
         // register generic callback with process filtering
-        using on_call_fn = std::function<void(const callcfg_t& callcfg)>;
+        using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;
         bool register_all(proc_t proc, const on_call_fn& on_call);
 
         bool register_RtlpAllocateHeapInternal  (proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func);

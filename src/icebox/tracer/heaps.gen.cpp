@@ -8,7 +8,7 @@ namespace
 {
 	constexpr bool g_debug = false;
 
-	static const nt64::callcfg_t g_callcfgs[] =
+	static const tracer::callcfg_t g_callcfgs[] =
 	{
         {"RtlpAllocateHeapInternal", 2, {{"PVOID", "HeapHandle"}, {"SIZE_T", "Size"}}},
         {"RtlFreeHeap", 3, {{"PVOID", "HeapHandle"}, {"ULONG", "Flags"}, {"PVOID", "BaseAddress"}}},

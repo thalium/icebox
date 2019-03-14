@@ -2,7 +2,7 @@
 
 #include "core.hpp"
 #include "types.hpp"
-
+#include "tracer.hpp"
 #include "nt/nt.hpp"
 #include "nt/nt32.hpp"
 
@@ -410,26 +410,13 @@ namespace nt32
     using on_ZwUmsThreadYield_fn                                   = std::function<NTSTATUS(PVOID)>;
     using on_ZwYieldExecution_fn                                   = std::function<NTSTATUS()>;
 
-    struct argcfg_t
-    {
-        char	 type[64];
-        char	 name[64];
-    };
-
-    struct callcfg_t
-    {
-        char        name[64];
-        size_t      argc;
-        argcfg_t    args[32];
-    };
-
     struct syscalls32
     {
          syscalls32(core::Core& core, std::string_view module);
         ~syscalls32();
 
         // register generic callback with process filtering
-        using on_call_fn = std::function<void(const callcfg_t& callcfg)>;
+        using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;
         bool register_all(proc_t proc, const on_call_fn& on_call);
 
         bool register_NtAcceptConnectPort                               (proc_t proc, const on_NtAcceptConnectPort_fn& on_func);

@@ -8,7 +8,7 @@ namespace
 {
 	constexpr bool g_debug = false;
 
-	static const nt64::callcfg_t g_callcfgs[] =
+	static const tracer::callcfg_t g_callcfgs[] =
 	{
         {"NtAcceptConnectPort", 6, {{"PHANDLE", "PortHandle"}, {"PVOID", "PortContext"}, {"PPORT_MESSAGE", "ConnectionRequest"}, {"BOOLEAN", "AcceptConnection"}, {"PPORT_VIEW", "ServerView"}, {"PREMOTE_PORT_VIEW", "ClientView"}}},
         {"NtAccessCheckAndAuditAlarm", 11, {{"PUNICODE_STRING", "SubsystemName"}, {"PVOID", "HandleId"}, {"PUNICODE_STRING", "ObjectTypeName"}, {"PUNICODE_STRING", "ObjectName"}, {"PSECURITY_DESCRIPTOR", "SecurityDescriptor"}, {"ACCESS_MASK", "DesiredAccess"}, {"PGENERIC_MAPPING", "GenericMapping"}, {"BOOLEAN", "ObjectCreation"}, {"PACCESS_MASK", "GrantedAccess"}, {"PNTSTATUS", "AccessStatus"}, {"PBOOLEAN", "GenerateOnClose"}}},
