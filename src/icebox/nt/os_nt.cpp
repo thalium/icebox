@@ -727,9 +727,22 @@ namespace
     }
 }
 
-opt<bpid_t> OsNt::listen_mod_create(const on_mod_event_fn& on_load)
+opt<bpid_t> OsNt::listen_mod_create(const on_mod_event_fn& on_mod)
 {
-    return register_listener(*this, symbols_[PsCallImageNotifyRoutines], on_load, &on_PsCallImageNotifyRoutines);
+    const auto bpid = ++last_bpid_;
+    size_t count    = 0;
+    if(LdrpInsertDataTableEntry)
+        if(listen_to(*this, bpid, *LdrpInsertDataTableEntry, on_mod, &on_LdrpInsertDataTableEntry))
+            ++count;
+
+    if(LdrpInsertDataTableEntry32)
+        if(listen_to(*this, bpid, *LdrpInsertDataTableEntry32, on_mod, &on_LdrpInsertDataTableEntry))
+            ++count;
+
+    if(count == 2)
+        return bpid;
+
+    return listen_to(*this, bpid, symbols_[PsCallImageNotifyRoutines], on_mod, &on_PsCallImageNotifyRoutines);
 }
 
 size_t OsNt::unlisten(bpid_t bpid)
