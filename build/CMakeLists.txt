@@ -106,13 +106,13 @@ function(add_tracer namespace input_file)
     add_custom_command(
         COMMAND ${PYTHON_EXECUTABLE}
             "${tracer_dir}/codegen.py" -n ${namespace} -i "${input_file}" ${ARGV2}
+        COMMENT "generating ${filename}.gen.cpp"
         OUTPUT
             "${directory}/${filename}.gen.hpp"
             "${directory}/${filename}.gen.cpp"
         DEPENDS
             "${tracer_dir}/codegen.py"
             ${input_file}
-        COMMENT "generating ${filename}.gen.cpp"
     )
 endfunction()
 add_tracer("nt64" "${tracer_dir}/syscalls.json")
