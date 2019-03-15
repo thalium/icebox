@@ -62,15 +62,9 @@ namespace
         int           bpid;
     };
 
-    using Observer = std::shared_ptr<BreakpointObserver>;
-
-    using Targets     = std::unordered_map<phy_t, Breakpoint>;
-    using Observers   = std::multimap<phy_t, Observer>;
-    using Breakpoints = struct
-    {
-        Targets   targets_;
-        Observers observers_;
-    };
+    using Breakers  = std::unordered_map<phy_t, Breakpoint>;
+    using Observer  = std::shared_ptr<BreakpointObserver>;
+    using Observers = std::multimap<phy_t, Observer>;
 
     struct BreakState
     {
@@ -90,10 +84,11 @@ struct core::State::Data
     {
     }
 
-    FDP_SHM&    shm;
-    Core&       core;
-    Breakpoints breakpoints;
-    BreakState  breakstate;
+    FDP_SHM&   shm;
+    Core&      core;
+    Breakers   targets;
+    Observers  observers;
+    BreakState breakstate;
 };
 
 using StateData = core::State::Data;
@@ -219,7 +214,7 @@ struct core::BreakpointPrivate
     {
         bool unique_observer = true;
         opt<Observers::iterator> target;
-        lookup_observers(data_.breakpoints.observers_, observer_->phy, [&](auto it)
+        lookup_observers(data_.observers, observer_->phy, [&](auto it)
         {
             if(observer_ == it->second)
                 target = it;
@@ -233,7 +228,7 @@ struct core::BreakpointPrivate
         if(!target)
             return;
 
-        data_.breakpoints.observers_.erase(*target);
+        data_.observers.erase(*target);
         if(!unique_observer)
             return;
 
@@ -241,7 +236,7 @@ struct core::BreakpointPrivate
         if(!ok)
             LOG(ERROR, "unable to remove breakpoint {}", observer_->bpid);
 
-        data_.breakpoints.targets_.erase(observer_->phy);
+        data_.targets.erase(observer_->phy);
     }
 
     StateData& data_;
@@ -261,7 +256,7 @@ namespace
             return;
 
         std::vector<Observer> observers;
-        lookup_observers(d.breakpoints.observers_, d.breakstate.phy, [&](auto it)
+        lookup_observers(d.observers, d.breakstate.phy, [&](auto it)
         {
             const auto& bp = *it->second;
             if(bp.proc && bp.proc != d.breakstate.proc)
@@ -326,7 +321,7 @@ namespace
 
     static int try_add_breakpoint(StateData& d, phy_t phy, const BreakpointObserver& bp)
     {
-        auto& targets = d.breakpoints.targets_;
+        auto& targets = d.targets;
         auto dtb      = get_dtb_filter(d, bp);
         const auto it = targets.find(phy);
         if(it != targets.end())
@@ -357,11 +352,11 @@ namespace
     static core::Breakpoint set_breakpoint(StateData& d, phy_t phy, const opt<proc_t>& proc, const opt<thread_t>& thread, const core::Task& task)
     {
         const auto bp = std::make_shared<BreakpointObserver>(task, phy, proc, thread);
-        d.breakpoints.observers_.emplace(phy, bp);
+        d.observers.emplace(phy, bp);
         const auto bpid = try_add_breakpoint(d, phy, *bp);
 
         // update all observers breakpoint id
-        lookup_observers(d.breakpoints.observers_, phy, [&](auto it)
+        lookup_observers(d.observers, phy, [&](auto it)
         {
             it->second->bpid = bpid;
             return WALK_NEXT;
