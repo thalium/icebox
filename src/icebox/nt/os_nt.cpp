@@ -1020,12 +1020,25 @@ namespace
         const auto rip = os.core_.regs.read(FDP_RCX_REGISTER);
         os.core_.state.run_to(proc, rip);
     }
+
+    static bool is_user_mode(uint64_t cs)
+    {
+        return !!(cs & 3);
+    }
 }
 
 void OsNt::proc_join(proc_t proc, os::join_e join)
 {
+    const auto current   = proc_current();
+    const auto same_proc = current && current->id == proc.id;
+    if(join == os::JOIN_ANY_MODE && same_proc)
+        return;
+
     if(join == os::JOIN_ANY_MODE)
         return proc_join_kernel(*this, proc);
+
+    if(same_proc && is_user_mode(core_.regs.read(FDP_CS_REGISTER)))
+        return;
 
     return proc_join_user(*this, proc);
 }
@@ -1037,14 +1050,6 @@ opt<phy_t> OsNt::proc_resolve(proc_t proc, uint64_t ptr)
         return phy;
 
     return core_.mem.virtual_to_physical(ptr, reader_.kdtb_);
-}
-
-namespace
-{
-    static bool is_user_mode(uint64_t cs)
-    {
-        return !!(cs & 3);
-    }
 }
 
 bool OsNt::is_kernel_address(uint64_t ptr)
