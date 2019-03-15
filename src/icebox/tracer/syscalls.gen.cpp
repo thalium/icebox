@@ -13,224 +13,223 @@ namespace
 	static const tracer::callcfg_t g_callcfgs[] =
 	{
         {"NtAcceptConnectPort", 6, {{"PHANDLE", "PortHandle", sizeof(nt::PHANDLE)}, {"PVOID", "PortContext", sizeof(nt::PVOID)}, {"PPORT_MESSAGE", "ConnectionRequest", sizeof(nt::PPORT_MESSAGE)}, {"BOOLEAN", "AcceptConnection", sizeof(nt::BOOLEAN)}, {"PPORT_VIEW", "ServerView", sizeof(nt::PPORT_VIEW)}, {"PREMOTE_PORT_VIEW", "ClientView", sizeof(nt::PREMOTE_PORT_VIEW)}}},
-        {"NtAccessCheckAndAuditAlarm", 11, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"PUNICODE_STRING", "ObjectTypeName", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "ObjectName", sizeof(nt::PUNICODE_STRING)}, {"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(nt::PGENERIC_MAPPING)}, {"BOOLEAN", "ObjectCreation", sizeof(nt::BOOLEAN)}, {"PACCESS_MASK", "GrantedAccess", sizeof(nt::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(nt::PNTSTATUS)}, {"PBOOLEAN", "GenerateOnClose", sizeof(nt::PBOOLEAN)}}},
-        {"NtAccessCheckByTypeAndAuditAlarm", 16, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"PUNICODE_STRING", "ObjectTypeName", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "ObjectName", sizeof(nt::PUNICODE_STRING)}, {"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"PSID", "PrincipalSelfSid", sizeof(nt::PSID)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"AUDIT_EVENT_TYPE", "AuditType", sizeof(nt::AUDIT_EVENT_TYPE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"POBJECT_TYPE_LIST", "ObjectTypeList", sizeof(nt::POBJECT_TYPE_LIST)}, {"ULONG", "ObjectTypeListLength", sizeof(nt::ULONG)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(nt::PGENERIC_MAPPING)}, {"BOOLEAN", "ObjectCreation", sizeof(nt::BOOLEAN)}, {"PACCESS_MASK", "GrantedAccess", sizeof(nt::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(nt::PNTSTATUS)}, {"PBOOLEAN", "GenerateOnClose", sizeof(nt::PBOOLEAN)}}},
-        {"NtAccessCheckByType", 11, {{"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"PSID", "PrincipalSelfSid", sizeof(nt::PSID)}, {"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_TYPE_LIST", "ObjectTypeList", sizeof(nt::POBJECT_TYPE_LIST)}, {"ULONG", "ObjectTypeListLength", sizeof(nt::ULONG)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(nt::PGENERIC_MAPPING)}, {"PPRIVILEGE_SET", "PrivilegeSet", sizeof(nt::PPRIVILEGE_SET)}, {"PULONG", "PrivilegeSetLength", sizeof(nt::PULONG)}, {"PACCESS_MASK", "GrantedAccess", sizeof(nt::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(nt::PNTSTATUS)}}},
-        {"NtAccessCheckByTypeResultListAndAuditAlarmByHandle", 17, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"PUNICODE_STRING", "ObjectTypeName", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "ObjectName", sizeof(nt::PUNICODE_STRING)}, {"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"PSID", "PrincipalSelfSid", sizeof(nt::PSID)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"AUDIT_EVENT_TYPE", "AuditType", sizeof(nt::AUDIT_EVENT_TYPE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"POBJECT_TYPE_LIST", "ObjectTypeList", sizeof(nt::POBJECT_TYPE_LIST)}, {"ULONG", "ObjectTypeListLength", sizeof(nt::ULONG)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(nt::PGENERIC_MAPPING)}, {"BOOLEAN", "ObjectCreation", sizeof(nt::BOOLEAN)}, {"PACCESS_MASK", "GrantedAccess", sizeof(nt::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(nt::PNTSTATUS)}, {"PBOOLEAN", "GenerateOnClose", sizeof(nt::PBOOLEAN)}}},
-        {"NtAccessCheckByTypeResultListAndAuditAlarm", 16, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"PUNICODE_STRING", "ObjectTypeName", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "ObjectName", sizeof(nt::PUNICODE_STRING)}, {"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"PSID", "PrincipalSelfSid", sizeof(nt::PSID)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"AUDIT_EVENT_TYPE", "AuditType", sizeof(nt::AUDIT_EVENT_TYPE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"POBJECT_TYPE_LIST", "ObjectTypeList", sizeof(nt::POBJECT_TYPE_LIST)}, {"ULONG", "ObjectTypeListLength", sizeof(nt::ULONG)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(nt::PGENERIC_MAPPING)}, {"BOOLEAN", "ObjectCreation", sizeof(nt::BOOLEAN)}, {"PACCESS_MASK", "GrantedAccess", sizeof(nt::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(nt::PNTSTATUS)}, {"PBOOLEAN", "GenerateOnClose", sizeof(nt::PBOOLEAN)}}},
-        {"NtAccessCheckByTypeResultList", 11, {{"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"PSID", "PrincipalSelfSid", sizeof(nt::PSID)}, {"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_TYPE_LIST", "ObjectTypeList", sizeof(nt::POBJECT_TYPE_LIST)}, {"ULONG", "ObjectTypeListLength", sizeof(nt::ULONG)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(nt::PGENERIC_MAPPING)}, {"PPRIVILEGE_SET", "PrivilegeSet", sizeof(nt::PPRIVILEGE_SET)}, {"PULONG", "PrivilegeSetLength", sizeof(nt::PULONG)}, {"PACCESS_MASK", "GrantedAccess", sizeof(nt::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(nt::PNTSTATUS)}}},
-        {"NtAccessCheck", 8, {{"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(nt::PGENERIC_MAPPING)}, {"PPRIVILEGE_SET", "PrivilegeSet", sizeof(nt::PPRIVILEGE_SET)}, {"PULONG", "PrivilegeSetLength", sizeof(nt::PULONG)}, {"PACCESS_MASK", "GrantedAccess", sizeof(nt::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(nt::PNTSTATUS)}}},
-        {"NtAddAtom", 3, {{"PWSTR", "AtomName", sizeof(nt::PWSTR)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PRTL_ATOM", "Atom", sizeof(nt::PRTL_ATOM)}}},
-        {"NtAddBootEntry", 2, {{"PBOOT_ENTRY", "BootEntry", sizeof(nt::PBOOT_ENTRY)}, {"PULONG", "Id", sizeof(nt::PULONG)}}},
+        {"ZwAccessCheckAndAuditAlarm", 11, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"PUNICODE_STRING", "ObjectTypeName", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "ObjectName", sizeof(nt::PUNICODE_STRING)}, {"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(nt::PGENERIC_MAPPING)}, {"BOOLEAN", "ObjectCreation", sizeof(nt::BOOLEAN)}, {"PACCESS_MASK", "GrantedAccess", sizeof(nt::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(nt::PNTSTATUS)}, {"PBOOLEAN", "GenerateOnClose", sizeof(nt::PBOOLEAN)}}},
+        {"ZwAccessCheckByTypeAndAuditAlarm", 16, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"PUNICODE_STRING", "ObjectTypeName", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "ObjectName", sizeof(nt::PUNICODE_STRING)}, {"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"PSID", "PrincipalSelfSid", sizeof(nt::PSID)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"AUDIT_EVENT_TYPE", "AuditType", sizeof(nt::AUDIT_EVENT_TYPE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"POBJECT_TYPE_LIST", "ObjectTypeList", sizeof(nt::POBJECT_TYPE_LIST)}, {"ULONG", "ObjectTypeListLength", sizeof(nt::ULONG)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(nt::PGENERIC_MAPPING)}, {"BOOLEAN", "ObjectCreation", sizeof(nt::BOOLEAN)}, {"PACCESS_MASK", "GrantedAccess", sizeof(nt::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(nt::PNTSTATUS)}, {"PBOOLEAN", "GenerateOnClose", sizeof(nt::PBOOLEAN)}}},
+        {"ZwAccessCheckByType", 11, {{"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"PSID", "PrincipalSelfSid", sizeof(nt::PSID)}, {"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_TYPE_LIST", "ObjectTypeList", sizeof(nt::POBJECT_TYPE_LIST)}, {"ULONG", "ObjectTypeListLength", sizeof(nt::ULONG)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(nt::PGENERIC_MAPPING)}, {"PPRIVILEGE_SET", "PrivilegeSet", sizeof(nt::PPRIVILEGE_SET)}, {"PULONG", "PrivilegeSetLength", sizeof(nt::PULONG)}, {"PACCESS_MASK", "GrantedAccess", sizeof(nt::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(nt::PNTSTATUS)}}},
+        {"ZwAccessCheckByTypeResultListAndAuditAlarmByHandle", 17, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"PUNICODE_STRING", "ObjectTypeName", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "ObjectName", sizeof(nt::PUNICODE_STRING)}, {"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"PSID", "PrincipalSelfSid", sizeof(nt::PSID)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"AUDIT_EVENT_TYPE", "AuditType", sizeof(nt::AUDIT_EVENT_TYPE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"POBJECT_TYPE_LIST", "ObjectTypeList", sizeof(nt::POBJECT_TYPE_LIST)}, {"ULONG", "ObjectTypeListLength", sizeof(nt::ULONG)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(nt::PGENERIC_MAPPING)}, {"BOOLEAN", "ObjectCreation", sizeof(nt::BOOLEAN)}, {"PACCESS_MASK", "GrantedAccess", sizeof(nt::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(nt::PNTSTATUS)}, {"PBOOLEAN", "GenerateOnClose", sizeof(nt::PBOOLEAN)}}},
+        {"ZwAccessCheckByTypeResultListAndAuditAlarm", 16, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"PUNICODE_STRING", "ObjectTypeName", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "ObjectName", sizeof(nt::PUNICODE_STRING)}, {"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"PSID", "PrincipalSelfSid", sizeof(nt::PSID)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"AUDIT_EVENT_TYPE", "AuditType", sizeof(nt::AUDIT_EVENT_TYPE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"POBJECT_TYPE_LIST", "ObjectTypeList", sizeof(nt::POBJECT_TYPE_LIST)}, {"ULONG", "ObjectTypeListLength", sizeof(nt::ULONG)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(nt::PGENERIC_MAPPING)}, {"BOOLEAN", "ObjectCreation", sizeof(nt::BOOLEAN)}, {"PACCESS_MASK", "GrantedAccess", sizeof(nt::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(nt::PNTSTATUS)}, {"PBOOLEAN", "GenerateOnClose", sizeof(nt::PBOOLEAN)}}},
+        {"ZwAccessCheckByTypeResultList", 11, {{"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"PSID", "PrincipalSelfSid", sizeof(nt::PSID)}, {"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_TYPE_LIST", "ObjectTypeList", sizeof(nt::POBJECT_TYPE_LIST)}, {"ULONG", "ObjectTypeListLength", sizeof(nt::ULONG)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(nt::PGENERIC_MAPPING)}, {"PPRIVILEGE_SET", "PrivilegeSet", sizeof(nt::PPRIVILEGE_SET)}, {"PULONG", "PrivilegeSetLength", sizeof(nt::PULONG)}, {"PACCESS_MASK", "GrantedAccess", sizeof(nt::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(nt::PNTSTATUS)}}},
+        {"ZwAccessCheck", 8, {{"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"PGENERIC_MAPPING", "GenericMapping", sizeof(nt::PGENERIC_MAPPING)}, {"PPRIVILEGE_SET", "PrivilegeSet", sizeof(nt::PPRIVILEGE_SET)}, {"PULONG", "PrivilegeSetLength", sizeof(nt::PULONG)}, {"PACCESS_MASK", "GrantedAccess", sizeof(nt::PACCESS_MASK)}, {"PNTSTATUS", "AccessStatus", sizeof(nt::PNTSTATUS)}}},
+        {"ZwAddAtom", 3, {{"PWSTR", "AtomName", sizeof(nt::PWSTR)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PRTL_ATOM", "Atom", sizeof(nt::PRTL_ATOM)}}},
+        {"ZwAddBootEntry", 2, {{"PBOOT_ENTRY", "BootEntry", sizeof(nt::PBOOT_ENTRY)}, {"PULONG", "Id", sizeof(nt::PULONG)}}},
         {"NtAddDriverEntry", 2, {{"PEFI_DRIVER_ENTRY", "DriverEntry", sizeof(nt::PEFI_DRIVER_ENTRY)}, {"PULONG", "Id", sizeof(nt::PULONG)}}},
         {"NtAdjustGroupsToken", 6, {{"HANDLE", "TokenHandle", sizeof(nt::HANDLE)}, {"BOOLEAN", "ResetToDefault", sizeof(nt::BOOLEAN)}, {"PTOKEN_GROUPS", "NewState", sizeof(nt::PTOKEN_GROUPS)}, {"ULONG", "BufferLength", sizeof(nt::ULONG)}, {"PTOKEN_GROUPS", "PreviousState", sizeof(nt::PTOKEN_GROUPS)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtAdjustPrivilegesToken", 6, {{"HANDLE", "TokenHandle", sizeof(nt::HANDLE)}, {"BOOLEAN", "DisableAllPrivileges", sizeof(nt::BOOLEAN)}, {"PTOKEN_PRIVILEGES", "NewState", sizeof(nt::PTOKEN_PRIVILEGES)}, {"ULONG", "BufferLength", sizeof(nt::ULONG)}, {"PTOKEN_PRIVILEGES", "PreviousState", sizeof(nt::PTOKEN_PRIVILEGES)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
-        {"NtAlertResumeThread", 2, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"PULONG", "PreviousSuspendCount", sizeof(nt::PULONG)}}},
+        {"ZwAlertResumeThread", 2, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"PULONG", "PreviousSuspendCount", sizeof(nt::PULONG)}}},
         {"NtAlertThread", 1, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}}},
-        {"NtAllocateLocallyUniqueId", 1, {{"PLUID", "Luid", sizeof(nt::PLUID)}}},
+        {"ZwAllocateLocallyUniqueId", 1, {{"PLUID", "Luid", sizeof(nt::PLUID)}}},
         {"NtAllocateReserveObject", 3, {{"PHANDLE", "MemoryReserveHandle", sizeof(nt::PHANDLE)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"MEMORY_RESERVE_TYPE", "Type", sizeof(nt::MEMORY_RESERVE_TYPE)}}},
-        {"NtAllocateUserPhysicalPages", 3, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PULONG_PTR", "NumberOfPages", sizeof(nt::PULONG_PTR)}, {"PULONG_PTR", "UserPfnArra", sizeof(nt::PULONG_PTR)}}},
-        {"NtAllocateUuids", 4, {{"PULARGE_INTEGER", "Time", sizeof(nt::PULARGE_INTEGER)}, {"PULONG", "Range", sizeof(nt::PULONG)}, {"PULONG", "Sequence", sizeof(nt::PULONG)}, {"PCHAR", "Seed", sizeof(nt::PCHAR)}}},
-        {"NtAllocateVirtualMemory", 6, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}, {"ULONG_PTR", "ZeroBits", sizeof(nt::ULONG_PTR)}, {"PSIZE_T", "RegionSize", sizeof(nt::PSIZE_T)}, {"ULONG", "AllocationType", sizeof(nt::ULONG)}, {"ULONG", "Protect", sizeof(nt::ULONG)}}},
-        {"NtAlpcAcceptConnectPort", 9, {{"PHANDLE", "PortHandle", sizeof(nt::PHANDLE)}, {"HANDLE", "ConnectionPortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PALPC_PORT_ATTRIBUTES", "PortAttributes", sizeof(nt::PALPC_PORT_ATTRIBUTES)}, {"PVOID", "PortContext", sizeof(nt::PVOID)}, {"PPORT_MESSAGE", "ConnectionRequest", sizeof(nt::PPORT_MESSAGE)}, {"PALPC_MESSAGE_ATTRIBUTES", "ConnectionMessageAttributes", sizeof(nt::PALPC_MESSAGE_ATTRIBUTES)}, {"BOOLEAN", "AcceptConnection", sizeof(nt::BOOLEAN)}}},
+        {"ZwAllocateUserPhysicalPages", 3, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PULONG_PTR", "NumberOfPages", sizeof(nt::PULONG_PTR)}, {"PULONG_PTR", "UserPfnArra", sizeof(nt::PULONG_PTR)}}},
+        {"ZwAllocateUuids", 4, {{"PULARGE_INTEGER", "Time", sizeof(nt::PULARGE_INTEGER)}, {"PULONG", "Range", sizeof(nt::PULONG)}, {"PULONG", "Sequence", sizeof(nt::PULONG)}, {"PCHAR", "Seed", sizeof(nt::PCHAR)}}},
+        {"ZwAllocateVirtualMemory", 6, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}, {"ULONG_PTR", "ZeroBits", sizeof(nt::ULONG_PTR)}, {"PSIZE_T", "RegionSize", sizeof(nt::PSIZE_T)}, {"ULONG", "AllocationType", sizeof(nt::ULONG)}, {"ULONG", "Protect", sizeof(nt::ULONG)}}},
+        {"ZwAlpcAcceptConnectPort", 9, {{"PHANDLE", "PortHandle", sizeof(nt::PHANDLE)}, {"HANDLE", "ConnectionPortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PALPC_PORT_ATTRIBUTES", "PortAttributes", sizeof(nt::PALPC_PORT_ATTRIBUTES)}, {"PVOID", "PortContext", sizeof(nt::PVOID)}, {"PPORT_MESSAGE", "ConnectionRequest", sizeof(nt::PPORT_MESSAGE)}, {"PALPC_MESSAGE_ATTRIBUTES", "ConnectionMessageAttributes", sizeof(nt::PALPC_MESSAGE_ATTRIBUTES)}, {"BOOLEAN", "AcceptConnection", sizeof(nt::BOOLEAN)}}},
         {"NtAlpcCancelMessage", 3, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PALPC_CONTEXT_ATTR", "MessageContext", sizeof(nt::PALPC_CONTEXT_ATTR)}}},
         {"NtAlpcConnectPort", 11, {{"PHANDLE", "PortHandle", sizeof(nt::PHANDLE)}, {"PUNICODE_STRING", "PortName", sizeof(nt::PUNICODE_STRING)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PALPC_PORT_ATTRIBUTES", "PortAttributes", sizeof(nt::PALPC_PORT_ATTRIBUTES)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PSID", "RequiredServerSid", sizeof(nt::PSID)}, {"PPORT_MESSAGE", "ConnectionMessage", sizeof(nt::PPORT_MESSAGE)}, {"PULONG", "BufferLength", sizeof(nt::PULONG)}, {"PALPC_MESSAGE_ATTRIBUTES", "OutMessageAttributes", sizeof(nt::PALPC_MESSAGE_ATTRIBUTES)}, {"PALPC_MESSAGE_ATTRIBUTES", "InMessageAttributes", sizeof(nt::PALPC_MESSAGE_ATTRIBUTES)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
         {"NtAlpcCreatePort", 3, {{"PHANDLE", "PortHandle", sizeof(nt::PHANDLE)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PALPC_PORT_ATTRIBUTES", "PortAttributes", sizeof(nt::PALPC_PORT_ATTRIBUTES)}}},
-        {"NtAlpcCreatePortSection", 6, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"HANDLE", "SectionHandle", sizeof(nt::HANDLE)}, {"SIZE_T", "SectionSize", sizeof(nt::SIZE_T)}, {"PALPC_HANDLE", "AlpcSectionHandle", sizeof(nt::PALPC_HANDLE)}, {"PSIZE_T", "ActualSectionSize", sizeof(nt::PSIZE_T)}}},
-        {"NtAlpcCreateResourceReserve", 4, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"SIZE_T", "MessageSize", sizeof(nt::SIZE_T)}, {"PALPC_HANDLE", "ResourceId", sizeof(nt::PALPC_HANDLE)}}},
+        {"ZwAlpcCreatePortSection", 6, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"HANDLE", "SectionHandle", sizeof(nt::HANDLE)}, {"SIZE_T", "SectionSize", sizeof(nt::SIZE_T)}, {"PALPC_HANDLE", "AlpcSectionHandle", sizeof(nt::PALPC_HANDLE)}, {"PSIZE_T", "ActualSectionSize", sizeof(nt::PSIZE_T)}}},
+        {"ZwAlpcCreateResourceReserve", 4, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"SIZE_T", "MessageSize", sizeof(nt::SIZE_T)}, {"PALPC_HANDLE", "ResourceId", sizeof(nt::PALPC_HANDLE)}}},
         {"NtAlpcCreateSectionView", 3, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PALPC_DATA_VIEW_ATTR", "ViewAttributes", sizeof(nt::PALPC_DATA_VIEW_ATTR)}}},
         {"NtAlpcCreateSecurityContext", 3, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PALPC_SECURITY_ATTR", "SecurityAttribute", sizeof(nt::PALPC_SECURITY_ATTR)}}},
         {"NtAlpcDeletePortSection", 3, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"ALPC_HANDLE", "SectionHandle", sizeof(nt::ALPC_HANDLE)}}},
         {"NtAlpcDeleteResourceReserve", 3, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"ALPC_HANDLE", "ResourceId", sizeof(nt::ALPC_HANDLE)}}},
-        {"NtAlpcDeleteSectionView", 3, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "ViewBase", sizeof(nt::PVOID)}}},
-        {"NtAlpcDeleteSecurityContext", 3, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"ALPC_HANDLE", "ContextHandle", sizeof(nt::ALPC_HANDLE)}}},
+        {"ZwAlpcDeleteSectionView", 3, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "ViewBase", sizeof(nt::PVOID)}}},
+        {"ZwAlpcDeleteSecurityContext", 3, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"ALPC_HANDLE", "ContextHandle", sizeof(nt::ALPC_HANDLE)}}},
         {"NtAlpcDisconnectPort", 2, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}}},
         {"NtAlpcImpersonateClientOfPort", 3, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "PortMessage", sizeof(nt::PPORT_MESSAGE)}, {"PVOID", "Reserved", sizeof(nt::PVOID)}}},
         {"NtAlpcOpenSenderProcess", 6, {{"PHANDLE", "ProcessHandle", sizeof(nt::PHANDLE)}, {"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "PortMessage", sizeof(nt::PPORT_MESSAGE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
         {"NtAlpcOpenSenderThread", 6, {{"PHANDLE", "ThreadHandle", sizeof(nt::PHANDLE)}, {"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "PortMessage", sizeof(nt::PPORT_MESSAGE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
-        {"NtAlpcQueryInformation", 5, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ALPC_PORT_INFORMATION_CLASS", "PortInformationClass", sizeof(nt::ALPC_PORT_INFORMATION_CLASS)}, {"PVOID", "PortInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
-        {"NtAlpcQueryInformationMessage", 6, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "PortMessage", sizeof(nt::PPORT_MESSAGE)}, {"ALPC_MESSAGE_INFORMATION_CLASS", "MessageInformationClass", sizeof(nt::ALPC_MESSAGE_INFORMATION_CLASS)}, {"PVOID", "MessageInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
+        {"ZwAlpcQueryInformation", 5, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ALPC_PORT_INFORMATION_CLASS", "PortInformationClass", sizeof(nt::ALPC_PORT_INFORMATION_CLASS)}, {"PVOID", "PortInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
+        {"ZwAlpcQueryInformationMessage", 6, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "PortMessage", sizeof(nt::PPORT_MESSAGE)}, {"ALPC_MESSAGE_INFORMATION_CLASS", "MessageInformationClass", sizeof(nt::ALPC_MESSAGE_INFORMATION_CLASS)}, {"PVOID", "MessageInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtAlpcRevokeSecurityContext", 3, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"ALPC_HANDLE", "ContextHandle", sizeof(nt::ALPC_HANDLE)}}},
-        {"NtAlpcSendWaitReceivePort", 8, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PPORT_MESSAGE", "SendMessage", sizeof(nt::PPORT_MESSAGE)}, {"PALPC_MESSAGE_ATTRIBUTES", "SendMessageAttributes", sizeof(nt::PALPC_MESSAGE_ATTRIBUTES)}, {"PPORT_MESSAGE", "ReceiveMessage", sizeof(nt::PPORT_MESSAGE)}, {"PULONG", "BufferLength", sizeof(nt::PULONG)}, {"PALPC_MESSAGE_ATTRIBUTES", "ReceiveMessageAttributes", sizeof(nt::PALPC_MESSAGE_ATTRIBUTES)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwAlpcSendWaitReceivePort", 8, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PPORT_MESSAGE", "SendMessage", sizeof(nt::PPORT_MESSAGE)}, {"PALPC_MESSAGE_ATTRIBUTES", "SendMessageAttributes", sizeof(nt::PALPC_MESSAGE_ATTRIBUTES)}, {"PPORT_MESSAGE", "ReceiveMessage", sizeof(nt::PPORT_MESSAGE)}, {"PULONG", "BufferLength", sizeof(nt::PULONG)}, {"PALPC_MESSAGE_ATTRIBUTES", "ReceiveMessageAttributes", sizeof(nt::PALPC_MESSAGE_ATTRIBUTES)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
         {"NtAlpcSetInformation", 4, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"ALPC_PORT_INFORMATION_CLASS", "PortInformationClass", sizeof(nt::ALPC_PORT_INFORMATION_CLASS)}, {"PVOID", "PortInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}}},
         {"NtApphelpCacheControl", 2, {{"APPHELPCOMMAND", "type", sizeof(nt::APPHELPCOMMAND)}, {"PVOID", "buf", sizeof(nt::PVOID)}}},
-        {"NtAreMappedFilesTheSame", 2, {{"PVOID", "File1MappedAsAnImage", sizeof(nt::PVOID)}, {"PVOID", "File2MappedAsFile", sizeof(nt::PVOID)}}},
+        {"ZwAreMappedFilesTheSame", 2, {{"PVOID", "File1MappedAsAnImage", sizeof(nt::PVOID)}, {"PVOID", "File2MappedAsFile", sizeof(nt::PVOID)}}},
         {"NtAssignProcessToJobObject", 2, {{"HANDLE", "JobHandle", sizeof(nt::HANDLE)}, {"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}}},
-        {"NtCancelIoFileEx", 3, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoRequestToCancel", sizeof(nt::PIO_STATUS_BLOCK)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}}},
-        {"NtCancelIoFile", 2, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}}},
-        {"NtCancelSynchronousIoFile", 3, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoRequestToCancel", sizeof(nt::PIO_STATUS_BLOCK)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}}},
+        {"ZwCancelIoFileEx", 3, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoRequestToCancel", sizeof(nt::PIO_STATUS_BLOCK)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}}},
+        {"ZwCancelIoFile", 2, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}}},
+        {"ZwCancelSynchronousIoFile", 3, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoRequestToCancel", sizeof(nt::PIO_STATUS_BLOCK)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}}},
         {"NtCancelTimer", 2, {{"HANDLE", "TimerHandle", sizeof(nt::HANDLE)}, {"PBOOLEAN", "CurrentState", sizeof(nt::PBOOLEAN)}}},
         {"NtClearEvent", 1, {{"HANDLE", "EventHandle", sizeof(nt::HANDLE)}}},
         {"NtClose", 1, {{"HANDLE", "Handle", sizeof(nt::HANDLE)}}},
-        {"NtCloseObjectAuditAlarm", 3, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"BOOLEAN", "GenerateOnClose", sizeof(nt::BOOLEAN)}}},
+        {"ZwCloseObjectAuditAlarm", 3, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"BOOLEAN", "GenerateOnClose", sizeof(nt::BOOLEAN)}}},
         {"NtCommitComplete", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtCommitEnlistment", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtCommitTransaction", 2, {{"HANDLE", "TransactionHandle", sizeof(nt::HANDLE)}, {"BOOLEAN", "Wait", sizeof(nt::BOOLEAN)}}},
+        {"ZwCommitEnlistment", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwCommitTransaction", 2, {{"HANDLE", "TransactionHandle", sizeof(nt::HANDLE)}, {"BOOLEAN", "Wait", sizeof(nt::BOOLEAN)}}},
         {"NtCompactKeys", 2, {{"ULONG", "Count", sizeof(nt::ULONG)}, {"HANDLE", "KeyArray", sizeof(nt::HANDLE)}}},
-        {"NtCompareTokens", 3, {{"HANDLE", "FirstTokenHandle", sizeof(nt::HANDLE)}, {"HANDLE", "SecondTokenHandle", sizeof(nt::HANDLE)}, {"PBOOLEAN", "Equal", sizeof(nt::PBOOLEAN)}}},
+        {"ZwCompareTokens", 3, {{"HANDLE", "FirstTokenHandle", sizeof(nt::HANDLE)}, {"HANDLE", "SecondTokenHandle", sizeof(nt::HANDLE)}, {"PBOOLEAN", "Equal", sizeof(nt::PBOOLEAN)}}},
         {"NtCompleteConnectPort", 1, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}}},
         {"NtCompressKey", 1, {{"HANDLE", "Key", sizeof(nt::HANDLE)}}},
-        {"NtConnectPort", 8, {{"PHANDLE", "PortHandle", sizeof(nt::PHANDLE)}, {"PUNICODE_STRING", "PortName", sizeof(nt::PUNICODE_STRING)}, {"PSECURITY_QUALITY_OF_SERVICE", "SecurityQos", sizeof(nt::PSECURITY_QUALITY_OF_SERVICE)}, {"PPORT_VIEW", "ClientView", sizeof(nt::PPORT_VIEW)}, {"PREMOTE_PORT_VIEW", "ServerView", sizeof(nt::PREMOTE_PORT_VIEW)}, {"PULONG", "MaxMessageLength", sizeof(nt::PULONG)}, {"PVOID", "ConnectionInformation", sizeof(nt::PVOID)}, {"PULONG", "ConnectionInformationLength", sizeof(nt::PULONG)}}},
-        {"NtContinue", 2, {{"PCONTEXT", "ContextRecord", sizeof(nt::PCONTEXT)}, {"BOOLEAN", "TestAlert", sizeof(nt::BOOLEAN)}}},
+        {"ZwConnectPort", 8, {{"PHANDLE", "PortHandle", sizeof(nt::PHANDLE)}, {"PUNICODE_STRING", "PortName", sizeof(nt::PUNICODE_STRING)}, {"PSECURITY_QUALITY_OF_SERVICE", "SecurityQos", sizeof(nt::PSECURITY_QUALITY_OF_SERVICE)}, {"PPORT_VIEW", "ClientView", sizeof(nt::PPORT_VIEW)}, {"PREMOTE_PORT_VIEW", "ServerView", sizeof(nt::PREMOTE_PORT_VIEW)}, {"PULONG", "MaxMessageLength", sizeof(nt::PULONG)}, {"PVOID", "ConnectionInformation", sizeof(nt::PVOID)}, {"PULONG", "ConnectionInformationLength", sizeof(nt::PULONG)}}},
+        {"ZwContinue", 2, {{"PCONTEXT", "ContextRecord", sizeof(nt::PCONTEXT)}, {"BOOLEAN", "TestAlert", sizeof(nt::BOOLEAN)}}},
         {"NtCreateDebugObject", 4, {{"PHANDLE", "DebugObjectHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "Flags", sizeof(nt::ULONG)}}},
         {"NtCreateDirectoryObject", 3, {{"PHANDLE", "DirectoryHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
         {"NtCreateEnlistment", 8, {{"PHANDLE", "EnlistmentHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"HANDLE", "ResourceManagerHandle", sizeof(nt::HANDLE)}, {"HANDLE", "TransactionHandle", sizeof(nt::HANDLE)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}, {"NOTIFICATION_MASK", "NotificationMask", sizeof(nt::NOTIFICATION_MASK)}, {"PVOID", "EnlistmentKey", sizeof(nt::PVOID)}}},
-        {"NtCreateEvent", 5, {{"PHANDLE", "EventHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"EVENT_TYPE", "EventType", sizeof(nt::EVENT_TYPE)}, {"BOOLEAN", "InitialState", sizeof(nt::BOOLEAN)}}},
-        {"NtCreateEventPair", 3, {{"PHANDLE", "EventPairHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
-        {"NtCreateFile", 11, {{"PHANDLE", "FileHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PLARGE_INTEGER", "AllocationSize", sizeof(nt::PLARGE_INTEGER)}, {"ULONG", "FileAttributes", sizeof(nt::ULONG)}, {"ULONG", "ShareAccess", sizeof(nt::ULONG)}, {"ULONG", "CreateDisposition", sizeof(nt::ULONG)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}, {"PVOID", "EaBuffer", sizeof(nt::PVOID)}, {"ULONG", "EaLength", sizeof(nt::ULONG)}}},
+        {"ZwCreateEvent", 5, {{"PHANDLE", "EventHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"EVENT_TYPE", "EventType", sizeof(nt::EVENT_TYPE)}, {"BOOLEAN", "InitialState", sizeof(nt::BOOLEAN)}}},
+        {"ZwCreateEventPair", 3, {{"PHANDLE", "EventPairHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
+        {"ZwCreateFile", 11, {{"PHANDLE", "FileHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PLARGE_INTEGER", "AllocationSize", sizeof(nt::PLARGE_INTEGER)}, {"ULONG", "FileAttributes", sizeof(nt::ULONG)}, {"ULONG", "ShareAccess", sizeof(nt::ULONG)}, {"ULONG", "CreateDisposition", sizeof(nt::ULONG)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}, {"PVOID", "EaBuffer", sizeof(nt::PVOID)}, {"ULONG", "EaLength", sizeof(nt::ULONG)}}},
         {"NtCreateIoCompletion", 4, {{"PHANDLE", "IoCompletionHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "Count", sizeof(nt::ULONG)}}},
-        {"NtCreateJobObject", 3, {{"PHANDLE", "JobHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
-        {"NtCreateJobSet", 3, {{"ULONG", "NumJob", sizeof(nt::ULONG)}, {"PJOB_SET_ARRAY", "UserJobSet", sizeof(nt::PJOB_SET_ARRAY)}, {"ULONG", "Flags", sizeof(nt::ULONG)}}},
-        {"NtCreateKeyedEvent", 4, {{"PHANDLE", "KeyedEventHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "Flags", sizeof(nt::ULONG)}}},
-        {"NtCreateKey", 7, {{"PHANDLE", "KeyHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "TitleIndex", sizeof(nt::ULONG)}, {"PUNICODE_STRING", "Class", sizeof(nt::PUNICODE_STRING)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}, {"PULONG", "Disposition", sizeof(nt::PULONG)}}},
-        {"NtCreateKeyTransacted", 8, {{"PHANDLE", "KeyHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "TitleIndex", sizeof(nt::ULONG)}, {"PUNICODE_STRING", "Class", sizeof(nt::PUNICODE_STRING)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}, {"HANDLE", "TransactionHandle", sizeof(nt::HANDLE)}, {"PULONG", "Disposition", sizeof(nt::PULONG)}}},
-        {"NtCreateMailslotFile", 8, {{"PHANDLE", "FileHandle", sizeof(nt::PHANDLE)}, {"ULONG", "DesiredAccess", sizeof(nt::ULONG)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}, {"ULONG", "MailslotQuota", sizeof(nt::ULONG)}, {"ULONG", "MaximumMessageSize", sizeof(nt::ULONG)}, {"PLARGE_INTEGER", "ReadTimeout", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwCreateJobObject", 3, {{"PHANDLE", "JobHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
+        {"ZwCreateJobSet", 3, {{"ULONG", "NumJob", sizeof(nt::ULONG)}, {"PJOB_SET_ARRAY", "UserJobSet", sizeof(nt::PJOB_SET_ARRAY)}, {"ULONG", "Flags", sizeof(nt::ULONG)}}},
+        {"ZwCreateKeyedEvent", 4, {{"PHANDLE", "KeyedEventHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "Flags", sizeof(nt::ULONG)}}},
+        {"ZwCreateKey", 7, {{"PHANDLE", "KeyHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "TitleIndex", sizeof(nt::ULONG)}, {"PUNICODE_STRING", "Class", sizeof(nt::PUNICODE_STRING)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}, {"PULONG", "Disposition", sizeof(nt::PULONG)}}},
+        {"ZwCreateKeyTransacted", 8, {{"PHANDLE", "KeyHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "TitleIndex", sizeof(nt::ULONG)}, {"PUNICODE_STRING", "Class", sizeof(nt::PUNICODE_STRING)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}, {"HANDLE", "TransactionHandle", sizeof(nt::HANDLE)}, {"PULONG", "Disposition", sizeof(nt::PULONG)}}},
+        {"ZwCreateMailslotFile", 8, {{"PHANDLE", "FileHandle", sizeof(nt::PHANDLE)}, {"ULONG", "DesiredAccess", sizeof(nt::ULONG)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}, {"ULONG", "MailslotQuota", sizeof(nt::ULONG)}, {"ULONG", "MaximumMessageSize", sizeof(nt::ULONG)}, {"PLARGE_INTEGER", "ReadTimeout", sizeof(nt::PLARGE_INTEGER)}}},
         {"NtCreateMutant", 4, {{"PHANDLE", "MutantHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"BOOLEAN", "InitialOwner", sizeof(nt::BOOLEAN)}}},
         {"NtCreateNamedPipeFile", 14, {{"PHANDLE", "FileHandle", sizeof(nt::PHANDLE)}, {"ULONG", "DesiredAccess", sizeof(nt::ULONG)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"ULONG", "ShareAccess", sizeof(nt::ULONG)}, {"ULONG", "CreateDisposition", sizeof(nt::ULONG)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}, {"ULONG", "NamedPipeType", sizeof(nt::ULONG)}, {"ULONG", "ReadMode", sizeof(nt::ULONG)}, {"ULONG", "CompletionMode", sizeof(nt::ULONG)}, {"ULONG", "MaximumInstances", sizeof(nt::ULONG)}, {"ULONG", "InboundQuota", sizeof(nt::ULONG)}, {"ULONG", "OutboundQuota", sizeof(nt::ULONG)}, {"PLARGE_INTEGER", "DefaultTimeout", sizeof(nt::PLARGE_INTEGER)}}},
         {"NtCreatePagingFile", 4, {{"PUNICODE_STRING", "PageFileName", sizeof(nt::PUNICODE_STRING)}, {"PLARGE_INTEGER", "MinimumSize", sizeof(nt::PLARGE_INTEGER)}, {"PLARGE_INTEGER", "MaximumSize", sizeof(nt::PLARGE_INTEGER)}, {"ULONG", "Priority", sizeof(nt::ULONG)}}},
-        {"NtCreatePort", 5, {{"PHANDLE", "PortHandle", sizeof(nt::PHANDLE)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "MaxConnectionInfoLength", sizeof(nt::ULONG)}, {"ULONG", "MaxMessageLength", sizeof(nt::ULONG)}, {"ULONG", "MaxPoolUsage", sizeof(nt::ULONG)}}},
-        {"NtCreatePrivateNamespace", 4, {{"PHANDLE", "NamespaceHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PVOID", "BoundaryDescriptor", sizeof(nt::PVOID)}}},
-        {"NtCreateProcessEx", 9, {{"PHANDLE", "ProcessHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"HANDLE", "ParentProcess", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"HANDLE", "SectionHandle", sizeof(nt::HANDLE)}, {"HANDLE", "DebugPort", sizeof(nt::HANDLE)}, {"HANDLE", "ExceptionPort", sizeof(nt::HANDLE)}, {"ULONG", "JobMemberLevel", sizeof(nt::ULONG)}}},
+        {"ZwCreatePort", 5, {{"PHANDLE", "PortHandle", sizeof(nt::PHANDLE)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "MaxConnectionInfoLength", sizeof(nt::ULONG)}, {"ULONG", "MaxMessageLength", sizeof(nt::ULONG)}, {"ULONG", "MaxPoolUsage", sizeof(nt::ULONG)}}},
+        {"ZwCreatePrivateNamespace", 4, {{"PHANDLE", "NamespaceHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PVOID", "BoundaryDescriptor", sizeof(nt::PVOID)}}},
+        {"ZwCreateProcessEx", 9, {{"PHANDLE", "ProcessHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"HANDLE", "ParentProcess", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"HANDLE", "SectionHandle", sizeof(nt::HANDLE)}, {"HANDLE", "DebugPort", sizeof(nt::HANDLE)}, {"HANDLE", "ExceptionPort", sizeof(nt::HANDLE)}, {"ULONG", "JobMemberLevel", sizeof(nt::ULONG)}}},
         {"NtCreateProcess", 8, {{"PHANDLE", "ProcessHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"HANDLE", "ParentProcess", sizeof(nt::HANDLE)}, {"BOOLEAN", "InheritObjectTable", sizeof(nt::BOOLEAN)}, {"HANDLE", "SectionHandle", sizeof(nt::HANDLE)}, {"HANDLE", "DebugPort", sizeof(nt::HANDLE)}, {"HANDLE", "ExceptionPort", sizeof(nt::HANDLE)}}},
-        {"NtCreateProfileEx", 10, {{"PHANDLE", "ProfileHandle", sizeof(nt::PHANDLE)}, {"HANDLE", "Process", sizeof(nt::HANDLE)}, {"PVOID", "ProfileBase", sizeof(nt::PVOID)}, {"SIZE_T", "ProfileSize", sizeof(nt::SIZE_T)}, {"ULONG", "BucketSize", sizeof(nt::ULONG)}, {"PULONG", "Buffer", sizeof(nt::PULONG)}, {"ULONG", "BufferSize", sizeof(nt::ULONG)}, {"KPROFILE_SOURCE", "ProfileSource", sizeof(nt::KPROFILE_SOURCE)}, {"ULONG", "GroupAffinityCount", sizeof(nt::ULONG)}, {"PGROUP_AFFINITY", "GroupAffinity", sizeof(nt::PGROUP_AFFINITY)}}},
-        {"NtCreateProfile", 9, {{"PHANDLE", "ProfileHandle", sizeof(nt::PHANDLE)}, {"HANDLE", "Process", sizeof(nt::HANDLE)}, {"PVOID", "RangeBase", sizeof(nt::PVOID)}, {"SIZE_T", "RangeSize", sizeof(nt::SIZE_T)}, {"ULONG", "BucketSize", sizeof(nt::ULONG)}, {"PULONG", "Buffer", sizeof(nt::PULONG)}, {"ULONG", "BufferSize", sizeof(nt::ULONG)}, {"KPROFILE_SOURCE", "ProfileSource", sizeof(nt::KPROFILE_SOURCE)}, {"KAFFINITY", "Affinity", sizeof(nt::KAFFINITY)}}},
+        {"ZwCreateProfileEx", 10, {{"PHANDLE", "ProfileHandle", sizeof(nt::PHANDLE)}, {"HANDLE", "Process", sizeof(nt::HANDLE)}, {"PVOID", "ProfileBase", sizeof(nt::PVOID)}, {"SIZE_T", "ProfileSize", sizeof(nt::SIZE_T)}, {"ULONG", "BucketSize", sizeof(nt::ULONG)}, {"PULONG", "Buffer", sizeof(nt::PULONG)}, {"ULONG", "BufferSize", sizeof(nt::ULONG)}, {"KPROFILE_SOURCE", "ProfileSource", sizeof(nt::KPROFILE_SOURCE)}, {"ULONG", "GroupAffinityCount", sizeof(nt::ULONG)}, {"PGROUP_AFFINITY", "GroupAffinity", sizeof(nt::PGROUP_AFFINITY)}}},
+        {"ZwCreateProfile", 9, {{"PHANDLE", "ProfileHandle", sizeof(nt::PHANDLE)}, {"HANDLE", "Process", sizeof(nt::HANDLE)}, {"PVOID", "RangeBase", sizeof(nt::PVOID)}, {"SIZE_T", "RangeSize", sizeof(nt::SIZE_T)}, {"ULONG", "BucketSize", sizeof(nt::ULONG)}, {"PULONG", "Buffer", sizeof(nt::PULONG)}, {"ULONG", "BufferSize", sizeof(nt::ULONG)}, {"KPROFILE_SOURCE", "ProfileSource", sizeof(nt::KPROFILE_SOURCE)}, {"KAFFINITY", "Affinity", sizeof(nt::KAFFINITY)}}},
         {"NtCreateResourceManager", 7, {{"PHANDLE", "ResourceManagerHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"HANDLE", "TmHandle", sizeof(nt::HANDLE)}, {"LPGUID", "RmGuid", sizeof(nt::LPGUID)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}, {"PUNICODE_STRING", "Description", sizeof(nt::PUNICODE_STRING)}}},
         {"NtCreateSection", 7, {{"PHANDLE", "SectionHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PLARGE_INTEGER", "MaximumSize", sizeof(nt::PLARGE_INTEGER)}, {"ULONG", "SectionPageProtection", sizeof(nt::ULONG)}, {"ULONG", "AllocationAttributes", sizeof(nt::ULONG)}, {"HANDLE", "FileHandle", sizeof(nt::HANDLE)}}},
         {"NtCreateSemaphore", 5, {{"PHANDLE", "SemaphoreHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"LONG", "InitialCount", sizeof(nt::LONG)}, {"LONG", "MaximumCount", sizeof(nt::LONG)}}},
-        {"NtCreateSymbolicLinkObject", 4, {{"PHANDLE", "LinkHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PUNICODE_STRING", "LinkTarget", sizeof(nt::PUNICODE_STRING)}}},
+        {"ZwCreateSymbolicLinkObject", 4, {{"PHANDLE", "LinkHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PUNICODE_STRING", "LinkTarget", sizeof(nt::PUNICODE_STRING)}}},
         {"NtCreateThreadEx", 11, {{"PHANDLE", "ThreadHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "StartRoutine", sizeof(nt::PVOID)}, {"PVOID", "Argument", sizeof(nt::PVOID)}, {"ULONG", "CreateFlags", sizeof(nt::ULONG)}, {"ULONG_PTR", "ZeroBits", sizeof(nt::ULONG_PTR)}, {"SIZE_T", "StackSize", sizeof(nt::SIZE_T)}, {"SIZE_T", "MaximumStackSize", sizeof(nt::SIZE_T)}, {"PPS_ATTRIBUTE_LIST", "AttributeList", sizeof(nt::PPS_ATTRIBUTE_LIST)}}},
         {"NtCreateThread", 8, {{"PHANDLE", "ThreadHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PCLIENT_ID", "ClientId", sizeof(nt::PCLIENT_ID)}, {"PCONTEXT", "ThreadContext", sizeof(nt::PCONTEXT)}, {"PINITIAL_TEB", "InitialTeb", sizeof(nt::PINITIAL_TEB)}, {"BOOLEAN", "CreateSuspended", sizeof(nt::BOOLEAN)}}},
-        {"NtCreateTimer", 4, {{"PHANDLE", "TimerHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"TIMER_TYPE", "TimerType", sizeof(nt::TIMER_TYPE)}}},
+        {"ZwCreateTimer", 4, {{"PHANDLE", "TimerHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"TIMER_TYPE", "TimerType", sizeof(nt::TIMER_TYPE)}}},
         {"NtCreateToken", 13, {{"PHANDLE", "TokenHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"TOKEN_TYPE", "TokenType", sizeof(nt::TOKEN_TYPE)}, {"PLUID", "AuthenticationId", sizeof(nt::PLUID)}, {"PLARGE_INTEGER", "ExpirationTime", sizeof(nt::PLARGE_INTEGER)}, {"PTOKEN_USER", "User", sizeof(nt::PTOKEN_USER)}, {"PTOKEN_GROUPS", "Groups", sizeof(nt::PTOKEN_GROUPS)}, {"PTOKEN_PRIVILEGES", "Privileges", sizeof(nt::PTOKEN_PRIVILEGES)}, {"PTOKEN_OWNER", "Owner", sizeof(nt::PTOKEN_OWNER)}, {"PTOKEN_PRIMARY_GROUP", "PrimaryGroup", sizeof(nt::PTOKEN_PRIMARY_GROUP)}, {"PTOKEN_DEFAULT_DACL", "DefaultDacl", sizeof(nt::PTOKEN_DEFAULT_DACL)}, {"PTOKEN_SOURCE", "TokenSource", sizeof(nt::PTOKEN_SOURCE)}}},
-        {"NtCreateTransactionManager", 6, {{"PHANDLE", "TmHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PUNICODE_STRING", "LogFileName", sizeof(nt::PUNICODE_STRING)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}, {"ULONG", "CommitStrength", sizeof(nt::ULONG)}}},
+        {"ZwCreateTransactionManager", 6, {{"PHANDLE", "TmHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PUNICODE_STRING", "LogFileName", sizeof(nt::PUNICODE_STRING)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}, {"ULONG", "CommitStrength", sizeof(nt::ULONG)}}},
         {"NtCreateTransaction", 10, {{"PHANDLE", "TransactionHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"LPGUID", "Uow", sizeof(nt::LPGUID)}, {"HANDLE", "TmHandle", sizeof(nt::HANDLE)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}, {"ULONG", "IsolationLevel", sizeof(nt::ULONG)}, {"ULONG", "IsolationFlags", sizeof(nt::ULONG)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}, {"PUNICODE_STRING", "Description", sizeof(nt::PUNICODE_STRING)}}},
         {"NtCreateUserProcess", 11, {{"PHANDLE", "ProcessHandle", sizeof(nt::PHANDLE)}, {"PHANDLE", "ThreadHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "ProcessDesiredAccess", sizeof(nt::ACCESS_MASK)}, {"ACCESS_MASK", "ThreadDesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ProcessObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"POBJECT_ATTRIBUTES", "ThreadObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "ProcessFlags", sizeof(nt::ULONG)}, {"ULONG", "ThreadFlags", sizeof(nt::ULONG)}, {"PRTL_USER_PROCESS_PARAMETERS", "ProcessParameters", sizeof(nt::PRTL_USER_PROCESS_PARAMETERS)}, {"PPROCESS_CREATE_INFO", "CreateInfo", sizeof(nt::PPROCESS_CREATE_INFO)}, {"PPROCESS_ATTRIBUTE_LIST", "AttributeList", sizeof(nt::PPROCESS_ATTRIBUTE_LIST)}}},
         {"NtCreateWaitablePort", 5, {{"PHANDLE", "PortHandle", sizeof(nt::PHANDLE)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "MaxConnectionInfoLength", sizeof(nt::ULONG)}, {"ULONG", "MaxMessageLength", sizeof(nt::ULONG)}, {"ULONG", "MaxPoolUsage", sizeof(nt::ULONG)}}},
         {"NtCreateWorkerFactory", 10, {{"PHANDLE", "WorkerFactoryHandleReturn", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"HANDLE", "CompletionPortHandle", sizeof(nt::HANDLE)}, {"HANDLE", "WorkerProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "StartRoutine", sizeof(nt::PVOID)}, {"PVOID", "StartParameter", sizeof(nt::PVOID)}, {"ULONG", "MaxThreadCount", sizeof(nt::ULONG)}, {"SIZE_T", "StackReserve", sizeof(nt::SIZE_T)}, {"SIZE_T", "StackCommit", sizeof(nt::SIZE_T)}}},
         {"NtDebugActiveProcess", 2, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"HANDLE", "DebugObjectHandle", sizeof(nt::HANDLE)}}},
         {"NtDebugContinue", 3, {{"HANDLE", "DebugObjectHandle", sizeof(nt::HANDLE)}, {"PCLIENT_ID", "ClientId", sizeof(nt::PCLIENT_ID)}, {"NTSTATUS", "ContinueStatus", sizeof(nt::NTSTATUS)}}},
-        {"NtDelayExecution", 2, {{"BOOLEAN", "Alertable", sizeof(nt::BOOLEAN)}, {"PLARGE_INTEGER", "DelayInterval", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwDelayExecution", 2, {{"BOOLEAN", "Alertable", sizeof(nt::BOOLEAN)}, {"PLARGE_INTEGER", "DelayInterval", sizeof(nt::PLARGE_INTEGER)}}},
         {"NtDeleteAtom", 1, {{"RTL_ATOM", "Atom", sizeof(nt::RTL_ATOM)}}},
         {"NtDeleteBootEntry", 1, {{"ULONG", "Id", sizeof(nt::ULONG)}}},
-        {"NtDeleteDriverEntry", 1, {{"ULONG", "Id", sizeof(nt::ULONG)}}},
+        {"ZwDeleteDriverEntry", 1, {{"ULONG", "Id", sizeof(nt::ULONG)}}},
         {"NtDeleteFile", 1, {{"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
         {"NtDeleteKey", 1, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}}},
-        {"NtDeleteObjectAuditAlarm", 3, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"BOOLEAN", "GenerateOnClose", sizeof(nt::BOOLEAN)}}},
+        {"ZwDeleteObjectAuditAlarm", 3, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"BOOLEAN", "GenerateOnClose", sizeof(nt::BOOLEAN)}}},
         {"NtDeletePrivateNamespace", 1, {{"HANDLE", "NamespaceHandle", sizeof(nt::HANDLE)}}},
-        {"NtDeleteValueKey", 2, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"PUNICODE_STRING", "ValueName", sizeof(nt::PUNICODE_STRING)}}},
+        {"ZwDeleteValueKey", 2, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"PUNICODE_STRING", "ValueName", sizeof(nt::PUNICODE_STRING)}}},
         {"NtDeviceIoControlFile", 10, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"ULONG", "IoControlCode", sizeof(nt::ULONG)}, {"PVOID", "InputBuffer", sizeof(nt::PVOID)}, {"ULONG", "InputBufferLength", sizeof(nt::ULONG)}, {"PVOID", "OutputBuffer", sizeof(nt::PVOID)}, {"ULONG", "OutputBufferLength", sizeof(nt::ULONG)}}},
-        {"NtDisplayString", 1, {{"PUNICODE_STRING", "String", sizeof(nt::PUNICODE_STRING)}}},
+        {"ZwDisplayString", 1, {{"PUNICODE_STRING", "String", sizeof(nt::PUNICODE_STRING)}}},
         {"NtDrawText", 1, {{"PUNICODE_STRING", "Text", sizeof(nt::PUNICODE_STRING)}}},
-        {"NtDuplicateObject", 7, {{"HANDLE", "SourceProcessHandle", sizeof(nt::HANDLE)}, {"HANDLE", "SourceHandle", sizeof(nt::HANDLE)}, {"HANDLE", "TargetProcessHandle", sizeof(nt::HANDLE)}, {"PHANDLE", "TargetHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"ULONG", "HandleAttributes", sizeof(nt::ULONG)}, {"ULONG", "Options", sizeof(nt::ULONG)}}},
+        {"ZwDuplicateObject", 7, {{"HANDLE", "SourceProcessHandle", sizeof(nt::HANDLE)}, {"HANDLE", "SourceHandle", sizeof(nt::HANDLE)}, {"HANDLE", "TargetProcessHandle", sizeof(nt::HANDLE)}, {"PHANDLE", "TargetHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"ULONG", "HandleAttributes", sizeof(nt::ULONG)}, {"ULONG", "Options", sizeof(nt::ULONG)}}},
         {"NtDuplicateToken", 6, {{"HANDLE", "ExistingTokenHandle", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"BOOLEAN", "EffectiveOnly", sizeof(nt::BOOLEAN)}, {"TOKEN_TYPE", "TokenType", sizeof(nt::TOKEN_TYPE)}, {"PHANDLE", "NewTokenHandle", sizeof(nt::PHANDLE)}}},
         {"NtEnumerateBootEntries", 2, {{"PVOID", "Buffer", sizeof(nt::PVOID)}, {"PULONG", "BufferLength", sizeof(nt::PULONG)}}},
-        {"NtEnumerateDriverEntries", 2, {{"PVOID", "Buffer", sizeof(nt::PVOID)}, {"PULONG", "BufferLength", sizeof(nt::PULONG)}}},
+        {"ZwEnumerateDriverEntries", 2, {{"PVOID", "Buffer", sizeof(nt::PVOID)}, {"PULONG", "BufferLength", sizeof(nt::PULONG)}}},
         {"NtEnumerateKey", 6, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"ULONG", "Index", sizeof(nt::ULONG)}, {"KEY_INFORMATION_CLASS", "KeyInformationClass", sizeof(nt::KEY_INFORMATION_CLASS)}, {"PVOID", "KeyInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ResultLength", sizeof(nt::PULONG)}}},
         {"NtEnumerateSystemEnvironmentValuesEx", 3, {{"ULONG", "InformationClass", sizeof(nt::ULONG)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"PULONG", "BufferLength", sizeof(nt::PULONG)}}},
         {"NtEnumerateTransactionObject", 5, {{"HANDLE", "RootObjectHandle", sizeof(nt::HANDLE)}, {"KTMOBJECT_TYPE", "QueryType", sizeof(nt::KTMOBJECT_TYPE)}, {"PKTMOBJECT_CURSOR", "ObjectCursor", sizeof(nt::PKTMOBJECT_CURSOR)}, {"ULONG", "ObjectCursorLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
-        {"NtEnumerateValueKey", 6, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"ULONG", "Index", sizeof(nt::ULONG)}, {"KEY_VALUE_INFORMATION_CLASS", "KeyValueInformationClass", sizeof(nt::KEY_VALUE_INFORMATION_CLASS)}, {"PVOID", "KeyValueInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ResultLength", sizeof(nt::PULONG)}}},
+        {"ZwEnumerateValueKey", 6, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"ULONG", "Index", sizeof(nt::ULONG)}, {"KEY_VALUE_INFORMATION_CLASS", "KeyValueInformationClass", sizeof(nt::KEY_VALUE_INFORMATION_CLASS)}, {"PVOID", "KeyValueInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ResultLength", sizeof(nt::PULONG)}}},
         {"NtExtendSection", 2, {{"HANDLE", "SectionHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "NewSectionSize", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtFilterToken", 6, {{"HANDLE", "ExistingTokenHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PTOKEN_GROUPS", "SidsToDisable", sizeof(nt::PTOKEN_GROUPS)}, {"PTOKEN_PRIVILEGES", "PrivilegesToDelete", sizeof(nt::PTOKEN_PRIVILEGES)}, {"PTOKEN_GROUPS", "RestrictedSids", sizeof(nt::PTOKEN_GROUPS)}, {"PHANDLE", "NewTokenHandle", sizeof(nt::PHANDLE)}}},
-        {"NtFindAtom", 3, {{"PWSTR", "AtomName", sizeof(nt::PWSTR)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PRTL_ATOM", "Atom", sizeof(nt::PRTL_ATOM)}}},
-        {"NtFlushBuffersFile", 2, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}}},
+        {"ZwFilterToken", 6, {{"HANDLE", "ExistingTokenHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PTOKEN_GROUPS", "SidsToDisable", sizeof(nt::PTOKEN_GROUPS)}, {"PTOKEN_PRIVILEGES", "PrivilegesToDelete", sizeof(nt::PTOKEN_PRIVILEGES)}, {"PTOKEN_GROUPS", "RestrictedSids", sizeof(nt::PTOKEN_GROUPS)}, {"PHANDLE", "NewTokenHandle", sizeof(nt::PHANDLE)}}},
+        {"ZwFindAtom", 3, {{"PWSTR", "AtomName", sizeof(nt::PWSTR)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PRTL_ATOM", "Atom", sizeof(nt::PRTL_ATOM)}}},
+        {"ZwFlushBuffersFile", 2, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}}},
         {"NtFlushInstallUILanguage", 2, {{"LANGID", "InstallUILanguage", sizeof(nt::LANGID)}, {"ULONG", "SetComittedFlag", sizeof(nt::ULONG)}}},
         {"NtFlushInstructionCache", 3, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"SIZE_T", "Length", sizeof(nt::SIZE_T)}}},
-        {"NtFlushKey", 1, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}}},
-        {"NtFlushVirtualMemory", 4, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}, {"PSIZE_T", "RegionSize", sizeof(nt::PSIZE_T)}, {"PIO_STATUS_BLOCK", "IoStatus", sizeof(nt::PIO_STATUS_BLOCK)}}},
-        {"NtFreeUserPhysicalPages", 3, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PULONG_PTR", "NumberOfPages", sizeof(nt::PULONG_PTR)}, {"PULONG_PTR", "UserPfnArra", sizeof(nt::PULONG_PTR)}}},
-        {"NtFreeVirtualMemory", 4, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}, {"PSIZE_T", "RegionSize", sizeof(nt::PSIZE_T)}, {"ULONG", "FreeType", sizeof(nt::ULONG)}}},
+        {"ZwFlushKey", 1, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}}},
+        {"ZwFlushVirtualMemory", 4, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}, {"PSIZE_T", "RegionSize", sizeof(nt::PSIZE_T)}, {"PIO_STATUS_BLOCK", "IoStatus", sizeof(nt::PIO_STATUS_BLOCK)}}},
+        {"ZwFreeUserPhysicalPages", 3, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PULONG_PTR", "NumberOfPages", sizeof(nt::PULONG_PTR)}, {"PULONG_PTR", "UserPfnArra", sizeof(nt::PULONG_PTR)}}},
+        {"ZwFreeVirtualMemory", 4, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}, {"PSIZE_T", "RegionSize", sizeof(nt::PSIZE_T)}, {"ULONG", "FreeType", sizeof(nt::ULONG)}}},
         {"NtFreezeRegistry", 1, {{"ULONG", "TimeOutInSeconds", sizeof(nt::ULONG)}}},
-        {"NtFreezeTransactions", 2, {{"PLARGE_INTEGER", "FreezeTimeout", sizeof(nt::PLARGE_INTEGER)}, {"PLARGE_INTEGER", "ThawTimeout", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtFsControlFile", 10, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"ULONG", "IoControlCode", sizeof(nt::ULONG)}, {"PVOID", "InputBuffer", sizeof(nt::PVOID)}, {"ULONG", "InputBufferLength", sizeof(nt::ULONG)}, {"PVOID", "OutputBuffer", sizeof(nt::PVOID)}, {"ULONG", "OutputBufferLength", sizeof(nt::ULONG)}}},
-        {"NtGetContextThread", 2, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"PCONTEXT", "ThreadContext", sizeof(nt::PCONTEXT)}}},
-        {"NtGetDevicePowerState", 2, {{"HANDLE", "Device", sizeof(nt::HANDLE)}, {"DEVICE_POWER_STATE", "STARState", sizeof(nt::DEVICE_POWER_STATE)}}},
-        {"NtGetMUIRegistryInfo", 3, {{"ULONG", "Flags", sizeof(nt::ULONG)}, {"PULONG", "DataSize", sizeof(nt::PULONG)}, {"PVOID", "Data", sizeof(nt::PVOID)}}},
+        {"ZwFreezeTransactions", 2, {{"PLARGE_INTEGER", "FreezeTimeout", sizeof(nt::PLARGE_INTEGER)}, {"PLARGE_INTEGER", "ThawTimeout", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwFsControlFile", 10, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"ULONG", "IoControlCode", sizeof(nt::ULONG)}, {"PVOID", "InputBuffer", sizeof(nt::PVOID)}, {"ULONG", "InputBufferLength", sizeof(nt::ULONG)}, {"PVOID", "OutputBuffer", sizeof(nt::PVOID)}, {"ULONG", "OutputBufferLength", sizeof(nt::ULONG)}}},
+        {"ZwGetContextThread", 2, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"PCONTEXT", "ThreadContext", sizeof(nt::PCONTEXT)}}},
+        {"ZwGetDevicePowerState", 2, {{"HANDLE", "Device", sizeof(nt::HANDLE)}, {"DEVICE_POWER_STATE", "STARState", sizeof(nt::DEVICE_POWER_STATE)}}},
+        {"ZwGetMUIRegistryInfo", 3, {{"ULONG", "Flags", sizeof(nt::ULONG)}, {"PULONG", "DataSize", sizeof(nt::PULONG)}, {"PVOID", "Data", sizeof(nt::PVOID)}}},
         {"NtGetNextProcess", 5, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"ULONG", "HandleAttributes", sizeof(nt::ULONG)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PHANDLE", "NewProcessHandle", sizeof(nt::PHANDLE)}}},
-        {"NtGetNextThread", 6, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"ULONG", "HandleAttributes", sizeof(nt::ULONG)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PHANDLE", "NewThreadHandle", sizeof(nt::PHANDLE)}}},
-        {"NtGetNlsSectionPtr", 5, {{"ULONG", "SectionType", sizeof(nt::ULONG)}, {"ULONG", "SectionData", sizeof(nt::ULONG)}, {"PVOID", "ContextData", sizeof(nt::PVOID)}, {"PVOID", "STARSectionPointer", sizeof(nt::PVOID)}, {"PULONG", "SectionSize", sizeof(nt::PULONG)}}},
+        {"ZwGetNextThread", 6, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"ULONG", "HandleAttributes", sizeof(nt::ULONG)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PHANDLE", "NewThreadHandle", sizeof(nt::PHANDLE)}}},
+        {"ZwGetNlsSectionPtr", 5, {{"ULONG", "SectionType", sizeof(nt::ULONG)}, {"ULONG", "SectionData", sizeof(nt::ULONG)}, {"PVOID", "ContextData", sizeof(nt::PVOID)}, {"PVOID", "STARSectionPointer", sizeof(nt::PVOID)}, {"PULONG", "SectionSize", sizeof(nt::PULONG)}}},
         {"NtGetNotificationResourceManager", 7, {{"HANDLE", "ResourceManagerHandle", sizeof(nt::HANDLE)}, {"PTRANSACTION_NOTIFICATION", "TransactionNotification", sizeof(nt::PTRANSACTION_NOTIFICATION)}, {"ULONG", "NotificationLength", sizeof(nt::ULONG)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}, {"ULONG", "Asynchronous", sizeof(nt::ULONG)}, {"ULONG_PTR", "AsynchronousContext", sizeof(nt::ULONG_PTR)}}},
-        {"NtGetPlugPlayEvent", 4, {{"HANDLE", "EventHandle", sizeof(nt::HANDLE)}, {"PVOID", "Context", sizeof(nt::PVOID)}, {"PPLUGPLAY_EVENT_BLOCK", "EventBlock", sizeof(nt::PPLUGPLAY_EVENT_BLOCK)}, {"ULONG", "EventBufferSize", sizeof(nt::ULONG)}}},
-        {"NtGetWriteWatch", 7, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"SIZE_T", "RegionSize", sizeof(nt::SIZE_T)}, {"PVOID", "STARUserAddressArray", sizeof(nt::PVOID)}, {"PULONG_PTR", "EntriesInUserAddressArray", sizeof(nt::PULONG_PTR)}, {"PULONG", "Granularity", sizeof(nt::PULONG)}}},
-        {"NtImpersonateAnonymousToken", 1, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}}},
-        {"NtImpersonateClientOfPort", 2, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "Message", sizeof(nt::PPORT_MESSAGE)}}},
-        {"NtImpersonateThread", 3, {{"HANDLE", "ServerThreadHandle", sizeof(nt::HANDLE)}, {"HANDLE", "ClientThreadHandle", sizeof(nt::HANDLE)}, {"PSECURITY_QUALITY_OF_SERVICE", "SecurityQos", sizeof(nt::PSECURITY_QUALITY_OF_SERVICE)}}},
+        {"ZwGetWriteWatch", 7, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"SIZE_T", "RegionSize", sizeof(nt::SIZE_T)}, {"PVOID", "STARUserAddressArray", sizeof(nt::PVOID)}, {"PULONG_PTR", "EntriesInUserAddressArray", sizeof(nt::PULONG_PTR)}, {"PULONG", "Granularity", sizeof(nt::PULONG)}}},
+        {"ZwImpersonateAnonymousToken", 1, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}}},
+        {"ZwImpersonateClientOfPort", 2, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "Message", sizeof(nt::PPORT_MESSAGE)}}},
+        {"ZwImpersonateThread", 3, {{"HANDLE", "ServerThreadHandle", sizeof(nt::HANDLE)}, {"HANDLE", "ClientThreadHandle", sizeof(nt::HANDLE)}, {"PSECURITY_QUALITY_OF_SERVICE", "SecurityQos", sizeof(nt::PSECURITY_QUALITY_OF_SERVICE)}}},
         {"NtInitializeNlsFiles", 3, {{"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}, {"PLCID", "DefaultLocaleId", sizeof(nt::PLCID)}, {"PLARGE_INTEGER", "DefaultCasingTableSize", sizeof(nt::PLARGE_INTEGER)}}},
         {"NtInitializeRegistry", 1, {{"USHORT", "BootCondition", sizeof(nt::USHORT)}}},
         {"NtInitiatePowerAction", 4, {{"POWER_ACTION", "SystemAction", sizeof(nt::POWER_ACTION)}, {"SYSTEM_POWER_STATE", "MinSystemState", sizeof(nt::SYSTEM_POWER_STATE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"BOOLEAN", "Asynchronous", sizeof(nt::BOOLEAN)}}},
         {"NtIsProcessInJob", 2, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"HANDLE", "JobHandle", sizeof(nt::HANDLE)}}},
         {"NtListenPort", 2, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "ConnectionRequest", sizeof(nt::PPORT_MESSAGE)}}},
-        {"NtLoadDriver", 1, {{"PUNICODE_STRING", "DriverServiceName", sizeof(nt::PUNICODE_STRING)}}},
-        {"NtLoadKey2", 3, {{"POBJECT_ATTRIBUTES", "TargetKey", sizeof(nt::POBJECT_ATTRIBUTES)}, {"POBJECT_ATTRIBUTES", "SourceFile", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "Flags", sizeof(nt::ULONG)}}},
+        {"ZwLoadDriver", 1, {{"PUNICODE_STRING", "DriverServiceName", sizeof(nt::PUNICODE_STRING)}}},
+        {"ZwLoadKey2", 3, {{"POBJECT_ATTRIBUTES", "TargetKey", sizeof(nt::POBJECT_ATTRIBUTES)}, {"POBJECT_ATTRIBUTES", "SourceFile", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "Flags", sizeof(nt::ULONG)}}},
         {"NtLoadKeyEx", 4, {{"POBJECT_ATTRIBUTES", "TargetKey", sizeof(nt::POBJECT_ATTRIBUTES)}, {"POBJECT_ATTRIBUTES", "SourceFile", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"HANDLE", "TrustClassKey", sizeof(nt::HANDLE)}}},
         {"NtLoadKey", 2, {{"POBJECT_ATTRIBUTES", "TargetKey", sizeof(nt::POBJECT_ATTRIBUTES)}, {"POBJECT_ATTRIBUTES", "SourceFile", sizeof(nt::POBJECT_ATTRIBUTES)}}},
-        {"NtLockFile", 10, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PLARGE_INTEGER", "ByteOffset", sizeof(nt::PLARGE_INTEGER)}, {"PLARGE_INTEGER", "Length", sizeof(nt::PLARGE_INTEGER)}, {"ULONG", "Key", sizeof(nt::ULONG)}, {"BOOLEAN", "FailImmediately", sizeof(nt::BOOLEAN)}, {"BOOLEAN", "ExclusiveLock", sizeof(nt::BOOLEAN)}}},
+        {"ZwLockFile", 10, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PLARGE_INTEGER", "ByteOffset", sizeof(nt::PLARGE_INTEGER)}, {"PLARGE_INTEGER", "Length", sizeof(nt::PLARGE_INTEGER)}, {"ULONG", "Key", sizeof(nt::ULONG)}, {"BOOLEAN", "FailImmediately", sizeof(nt::BOOLEAN)}, {"BOOLEAN", "ExclusiveLock", sizeof(nt::BOOLEAN)}}},
         {"NtLockProductActivationKeys", 2, {{"ULONG", "STARpPrivateVer", sizeof(nt::ULONG)}, {"ULONG", "STARpSafeMode", sizeof(nt::ULONG)}}},
-        {"NtLockRegistryKey", 1, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}}},
+        {"ZwLockRegistryKey", 1, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}}},
         {"NtLockVirtualMemory", 4, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}, {"PSIZE_T", "RegionSize", sizeof(nt::PSIZE_T)}, {"ULONG", "MapType", sizeof(nt::ULONG)}}},
         {"NtMakePermanentObject", 1, {{"HANDLE", "Handle", sizeof(nt::HANDLE)}}},
         {"NtMakeTemporaryObject", 1, {{"HANDLE", "Handle", sizeof(nt::HANDLE)}}},
         {"NtMapCMFModule", 6, {{"ULONG", "What", sizeof(nt::ULONG)}, {"ULONG", "Index", sizeof(nt::ULONG)}, {"PULONG", "CacheIndexOut", sizeof(nt::PULONG)}, {"PULONG", "CacheFlagsOut", sizeof(nt::PULONG)}, {"PULONG", "ViewSizeOut", sizeof(nt::PULONG)}, {"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}}},
         {"NtMapUserPhysicalPages", 3, {{"PVOID", "VirtualAddress", sizeof(nt::PVOID)}, {"ULONG_PTR", "NumberOfPages", sizeof(nt::ULONG_PTR)}, {"PULONG_PTR", "UserPfnArra", sizeof(nt::PULONG_PTR)}}},
-        {"NtMapUserPhysicalPagesScatter", 3, {{"PVOID", "STARVirtualAddresses", sizeof(nt::PVOID)}, {"ULONG_PTR", "NumberOfPages", sizeof(nt::ULONG_PTR)}, {"PULONG_PTR", "UserPfnArray", sizeof(nt::PULONG_PTR)}}},
-        {"NtMapViewOfSection", 10, {{"HANDLE", "SectionHandle", sizeof(nt::HANDLE)}, {"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}, {"ULONG_PTR", "ZeroBits", sizeof(nt::ULONG_PTR)}, {"SIZE_T", "CommitSize", sizeof(nt::SIZE_T)}, {"PLARGE_INTEGER", "SectionOffset", sizeof(nt::PLARGE_INTEGER)}, {"PSIZE_T", "ViewSize", sizeof(nt::PSIZE_T)}, {"SECTION_INHERIT", "InheritDisposition", sizeof(nt::SECTION_INHERIT)}, {"ULONG", "AllocationType", sizeof(nt::ULONG)}, {"WIN32_PROTECTION_MASK", "Win32Protect", sizeof(nt::WIN32_PROTECTION_MASK)}}},
+        {"ZwMapUserPhysicalPagesScatter", 3, {{"PVOID", "STARVirtualAddresses", sizeof(nt::PVOID)}, {"ULONG_PTR", "NumberOfPages", sizeof(nt::ULONG_PTR)}, {"PULONG_PTR", "UserPfnArray", sizeof(nt::PULONG_PTR)}}},
+        {"ZwMapViewOfSection", 10, {{"HANDLE", "SectionHandle", sizeof(nt::HANDLE)}, {"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}, {"ULONG_PTR", "ZeroBits", sizeof(nt::ULONG_PTR)}, {"SIZE_T", "CommitSize", sizeof(nt::SIZE_T)}, {"PLARGE_INTEGER", "SectionOffset", sizeof(nt::PLARGE_INTEGER)}, {"PSIZE_T", "ViewSize", sizeof(nt::PSIZE_T)}, {"SECTION_INHERIT", "InheritDisposition", sizeof(nt::SECTION_INHERIT)}, {"ULONG", "AllocationType", sizeof(nt::ULONG)}, {"WIN32_PROTECTION_MASK", "Win32Protect", sizeof(nt::WIN32_PROTECTION_MASK)}}},
         {"NtModifyBootEntry", 1, {{"PBOOT_ENTRY", "BootEntry", sizeof(nt::PBOOT_ENTRY)}}},
-        {"NtModifyDriverEntry", 1, {{"PEFI_DRIVER_ENTRY", "DriverEntry", sizeof(nt::PEFI_DRIVER_ENTRY)}}},
+        {"ZwModifyDriverEntry", 1, {{"PEFI_DRIVER_ENTRY", "DriverEntry", sizeof(nt::PEFI_DRIVER_ENTRY)}}},
         {"NtNotifyChangeDirectoryFile", 9, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"ULONG", "CompletionFilter", sizeof(nt::ULONG)}, {"BOOLEAN", "WatchTree", sizeof(nt::BOOLEAN)}}},
-        {"NtNotifyChangeKey", 10, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"ULONG", "CompletionFilter", sizeof(nt::ULONG)}, {"BOOLEAN", "WatchTree", sizeof(nt::BOOLEAN)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "BufferSize", sizeof(nt::ULONG)}, {"BOOLEAN", "Asynchronous", sizeof(nt::BOOLEAN)}}},
+        {"ZwNotifyChangeKey", 10, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"ULONG", "CompletionFilter", sizeof(nt::ULONG)}, {"BOOLEAN", "WatchTree", sizeof(nt::BOOLEAN)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "BufferSize", sizeof(nt::ULONG)}, {"BOOLEAN", "Asynchronous", sizeof(nt::BOOLEAN)}}},
         {"NtNotifyChangeMultipleKeys", 12, {{"HANDLE", "MasterKeyHandle", sizeof(nt::HANDLE)}, {"ULONG", "Count", sizeof(nt::ULONG)}, {"POBJECT_ATTRIBUTES", "SlaveObjects", sizeof(nt::POBJECT_ATTRIBUTES)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"ULONG", "CompletionFilter", sizeof(nt::ULONG)}, {"BOOLEAN", "WatchTree", sizeof(nt::BOOLEAN)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "BufferSize", sizeof(nt::ULONG)}, {"BOOLEAN", "Asynchronous", sizeof(nt::BOOLEAN)}}},
         {"NtNotifyChangeSession", 8, {{"HANDLE", "Session", sizeof(nt::HANDLE)}, {"ULONG", "IoStateSequence", sizeof(nt::ULONG)}, {"PVOID", "Reserved", sizeof(nt::PVOID)}, {"ULONG", "Action", sizeof(nt::ULONG)}, {"IO_SESSION_STATE", "IoState", sizeof(nt::IO_SESSION_STATE)}, {"IO_SESSION_STATE", "IoState2", sizeof(nt::IO_SESSION_STATE)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "BufferSize", sizeof(nt::ULONG)}}},
-        {"NtOpenDirectoryObject", 3, {{"PHANDLE", "DirectoryHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
+        {"ZwOpenDirectoryObject", 3, {{"PHANDLE", "DirectoryHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
         {"NtOpenEnlistment", 5, {{"PHANDLE", "EnlistmentHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"HANDLE", "ResourceManagerHandle", sizeof(nt::HANDLE)}, {"LPGUID", "EnlistmentGuid", sizeof(nt::LPGUID)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
         {"NtOpenEvent", 3, {{"PHANDLE", "EventHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
-        {"NtOpenEventPair", 3, {{"PHANDLE", "EventPairHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
+        {"ZwOpenEventPair", 3, {{"PHANDLE", "EventPairHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
         {"NtOpenFile", 6, {{"PHANDLE", "FileHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"ULONG", "ShareAccess", sizeof(nt::ULONG)}, {"ULONG", "OpenOptions", sizeof(nt::ULONG)}}},
         {"NtOpenIoCompletion", 3, {{"PHANDLE", "IoCompletionHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
         {"NtOpenJobObject", 3, {{"PHANDLE", "JobHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
         {"NtOpenKeyedEvent", 3, {{"PHANDLE", "KeyedEventHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
         {"NtOpenKeyEx", 4, {{"PHANDLE", "KeyHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "OpenOptions", sizeof(nt::ULONG)}}},
         {"NtOpenKey", 3, {{"PHANDLE", "KeyHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
-        {"NtOpenKeyTransactedEx", 5, {{"PHANDLE", "KeyHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "OpenOptions", sizeof(nt::ULONG)}, {"HANDLE", "TransactionHandle", sizeof(nt::HANDLE)}}},
-        {"NtOpenKeyTransacted", 4, {{"PHANDLE", "KeyHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"HANDLE", "TransactionHandle", sizeof(nt::HANDLE)}}},
+        {"ZwOpenKeyTransactedEx", 5, {{"PHANDLE", "KeyHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "OpenOptions", sizeof(nt::ULONG)}, {"HANDLE", "TransactionHandle", sizeof(nt::HANDLE)}}},
+        {"ZwOpenKeyTransacted", 4, {{"PHANDLE", "KeyHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"HANDLE", "TransactionHandle", sizeof(nt::HANDLE)}}},
         {"NtOpenMutant", 3, {{"PHANDLE", "MutantHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
-        {"NtOpenObjectAuditAlarm", 12, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"PUNICODE_STRING", "ObjectTypeName", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "ObjectName", sizeof(nt::PUNICODE_STRING)}, {"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"ACCESS_MASK", "GrantedAccess", sizeof(nt::ACCESS_MASK)}, {"PPRIVILEGE_SET", "Privileges", sizeof(nt::PPRIVILEGE_SET)}, {"BOOLEAN", "ObjectCreation", sizeof(nt::BOOLEAN)}, {"BOOLEAN", "AccessGranted", sizeof(nt::BOOLEAN)}, {"PBOOLEAN", "GenerateOnClose", sizeof(nt::PBOOLEAN)}}},
+        {"ZwOpenObjectAuditAlarm", 12, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"PUNICODE_STRING", "ObjectTypeName", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "ObjectName", sizeof(nt::PUNICODE_STRING)}, {"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"ACCESS_MASK", "GrantedAccess", sizeof(nt::ACCESS_MASK)}, {"PPRIVILEGE_SET", "Privileges", sizeof(nt::PPRIVILEGE_SET)}, {"BOOLEAN", "ObjectCreation", sizeof(nt::BOOLEAN)}, {"BOOLEAN", "AccessGranted", sizeof(nt::BOOLEAN)}, {"PBOOLEAN", "GenerateOnClose", sizeof(nt::PBOOLEAN)}}},
         {"NtOpenPrivateNamespace", 4, {{"PHANDLE", "NamespaceHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PVOID", "BoundaryDescriptor", sizeof(nt::PVOID)}}},
         {"NtOpenProcess", 4, {{"PHANDLE", "ProcessHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PCLIENT_ID", "ClientId", sizeof(nt::PCLIENT_ID)}}},
         {"NtOpenProcessTokenEx", 4, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"ULONG", "HandleAttributes", sizeof(nt::ULONG)}, {"PHANDLE", "TokenHandle", sizeof(nt::PHANDLE)}}},
         {"NtOpenProcessToken", 3, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"PHANDLE", "TokenHandle", sizeof(nt::PHANDLE)}}},
         {"NtOpenResourceManager", 5, {{"PHANDLE", "ResourceManagerHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"HANDLE", "TmHandle", sizeof(nt::HANDLE)}, {"LPGUID", "ResourceManagerGuid", sizeof(nt::LPGUID)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
         {"NtOpenSection", 3, {{"PHANDLE", "SectionHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
-        {"NtOpenSemaphore", 3, {{"PHANDLE", "SemaphoreHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
-        {"NtOpenSession", 3, {{"PHANDLE", "SessionHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
-        {"NtOpenSymbolicLinkObject", 3, {{"PHANDLE", "LinkHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
-        {"NtOpenThread", 4, {{"PHANDLE", "ThreadHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PCLIENT_ID", "ClientId", sizeof(nt::PCLIENT_ID)}}},
+        {"ZwOpenSemaphore", 3, {{"PHANDLE", "SemaphoreHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
+        {"ZwOpenSession", 3, {{"PHANDLE", "SessionHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
+        {"ZwOpenSymbolicLinkObject", 3, {{"PHANDLE", "LinkHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
+        {"ZwOpenThread", 4, {{"PHANDLE", "ThreadHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PCLIENT_ID", "ClientId", sizeof(nt::PCLIENT_ID)}}},
         {"NtOpenThreadTokenEx", 5, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"BOOLEAN", "OpenAsSelf", sizeof(nt::BOOLEAN)}, {"ULONG", "HandleAttributes", sizeof(nt::ULONG)}, {"PHANDLE", "TokenHandle", sizeof(nt::PHANDLE)}}},
         {"NtOpenThreadToken", 4, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"BOOLEAN", "OpenAsSelf", sizeof(nt::BOOLEAN)}, {"PHANDLE", "TokenHandle", sizeof(nt::PHANDLE)}}},
-        {"NtOpenTimer", 3, {{"PHANDLE", "TimerHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
+        {"ZwOpenTimer", 3, {{"PHANDLE", "TimerHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}}},
         {"NtOpenTransactionManager", 6, {{"PHANDLE", "TmHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PUNICODE_STRING", "LogFileName", sizeof(nt::PUNICODE_STRING)}, {"LPGUID", "TmIdentity", sizeof(nt::LPGUID)}, {"ULONG", "OpenOptions", sizeof(nt::ULONG)}}},
-        {"NtOpenTransaction", 5, {{"PHANDLE", "TransactionHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"LPGUID", "Uow", sizeof(nt::LPGUID)}, {"HANDLE", "TmHandle", sizeof(nt::HANDLE)}}},
-        {"NtPlugPlayControl", 3, {{"PLUGPLAY_CONTROL_CLASS", "PnPControlClass", sizeof(nt::PLUGPLAY_CONTROL_CLASS)}, {"PVOID", "PnPControlData", sizeof(nt::PVOID)}, {"ULONG", "PnPControlDataLength", sizeof(nt::ULONG)}}},
+        {"ZwOpenTransaction", 5, {{"PHANDLE", "TransactionHandle", sizeof(nt::PHANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"LPGUID", "Uow", sizeof(nt::LPGUID)}, {"HANDLE", "TmHandle", sizeof(nt::HANDLE)}}},
+        {"ZwPlugPlayControl", 3, {{"PLUGPLAY_CONTROL_CLASS", "PnPControlClass", sizeof(nt::PLUGPLAY_CONTROL_CLASS)}, {"PVOID", "PnPControlData", sizeof(nt::PVOID)}, {"ULONG", "PnPControlDataLength", sizeof(nt::ULONG)}}},
         {"NtPowerInformation", 5, {{"POWER_INFORMATION_LEVEL", "InformationLevel", sizeof(nt::POWER_INFORMATION_LEVEL)}, {"PVOID", "InputBuffer", sizeof(nt::PVOID)}, {"ULONG", "InputBufferLength", sizeof(nt::ULONG)}, {"PVOID", "OutputBuffer", sizeof(nt::PVOID)}, {"ULONG", "OutputBufferLength", sizeof(nt::ULONG)}}},
-        {"NtPrepareComplete", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtPrepareEnlistment", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtPrePrepareComplete", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwPrepareComplete", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwPrepareEnlistment", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwPrePrepareComplete", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
         {"NtPrePrepareEnlistment", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtPrivilegeCheck", 3, {{"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"PPRIVILEGE_SET", "RequiredPrivileges", sizeof(nt::PPRIVILEGE_SET)}, {"PBOOLEAN", "Result", sizeof(nt::PBOOLEAN)}}},
-        {"NtPrivilegedServiceAuditAlarm", 5, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "ServiceName", sizeof(nt::PUNICODE_STRING)}, {"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"PPRIVILEGE_SET", "Privileges", sizeof(nt::PPRIVILEGE_SET)}, {"BOOLEAN", "AccessGranted", sizeof(nt::BOOLEAN)}}},
+        {"ZwPrivilegeCheck", 3, {{"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"PPRIVILEGE_SET", "RequiredPrivileges", sizeof(nt::PPRIVILEGE_SET)}, {"PBOOLEAN", "Result", sizeof(nt::PBOOLEAN)}}},
+        {"ZwPrivilegedServiceAuditAlarm", 5, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "ServiceName", sizeof(nt::PUNICODE_STRING)}, {"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"PPRIVILEGE_SET", "Privileges", sizeof(nt::PPRIVILEGE_SET)}, {"BOOLEAN", "AccessGranted", sizeof(nt::BOOLEAN)}}},
         {"NtPrivilegeObjectAuditAlarm", 6, {{"PUNICODE_STRING", "SubsystemName", sizeof(nt::PUNICODE_STRING)}, {"PVOID", "HandleId", sizeof(nt::PVOID)}, {"HANDLE", "ClientToken", sizeof(nt::HANDLE)}, {"ACCESS_MASK", "DesiredAccess", sizeof(nt::ACCESS_MASK)}, {"PPRIVILEGE_SET", "Privileges", sizeof(nt::PPRIVILEGE_SET)}, {"BOOLEAN", "AccessGranted", sizeof(nt::BOOLEAN)}}},
         {"NtPropagationComplete", 4, {{"HANDLE", "ResourceManagerHandle", sizeof(nt::HANDLE)}, {"ULONG", "RequestCookie", sizeof(nt::ULONG)}, {"ULONG", "BufferLength", sizeof(nt::ULONG)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}}},
         {"NtPropagationFailed", 3, {{"HANDLE", "ResourceManagerHandle", sizeof(nt::HANDLE)}, {"ULONG", "RequestCookie", sizeof(nt::ULONG)}, {"NTSTATUS", "PropStatus", sizeof(nt::NTSTATUS)}}},
-        {"NtProtectVirtualMemory", 5, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}, {"PSIZE_T", "RegionSize", sizeof(nt::PSIZE_T)}, {"WIN32_PROTECTION_MASK", "NewProtectWin32", sizeof(nt::WIN32_PROTECTION_MASK)}, {"PULONG", "OldProtect", sizeof(nt::PULONG)}}},
-        {"NtPulseEvent", 2, {{"HANDLE", "EventHandle", sizeof(nt::HANDLE)}, {"PLONG", "PreviousState", sizeof(nt::PLONG)}}},
-        {"NtQueryAttributesFile", 2, {{"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PFILE_BASIC_INFORMATION", "FileInformation", sizeof(nt::PFILE_BASIC_INFORMATION)}}},
-        {"NtQueryBootEntryOrder", 2, {{"PULONG", "Ids", sizeof(nt::PULONG)}, {"PULONG", "Count", sizeof(nt::PULONG)}}},
+        {"ZwProtectVirtualMemory", 5, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}, {"PSIZE_T", "RegionSize", sizeof(nt::PSIZE_T)}, {"WIN32_PROTECTION_MASK", "NewProtectWin32", sizeof(nt::WIN32_PROTECTION_MASK)}, {"PULONG", "OldProtect", sizeof(nt::PULONG)}}},
+        {"ZwPulseEvent", 2, {{"HANDLE", "EventHandle", sizeof(nt::HANDLE)}, {"PLONG", "PreviousState", sizeof(nt::PLONG)}}},
+        {"ZwQueryAttributesFile", 2, {{"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PFILE_BASIC_INFORMATION", "FileInformation", sizeof(nt::PFILE_BASIC_INFORMATION)}}},
+        {"ZwQueryBootEntryOrder", 2, {{"PULONG", "Ids", sizeof(nt::PULONG)}, {"PULONG", "Count", sizeof(nt::PULONG)}}},
         {"NtQueryBootOptions", 2, {{"PBOOT_OPTIONS", "BootOptions", sizeof(nt::PBOOT_OPTIONS)}, {"PULONG", "BootOptionsLength", sizeof(nt::PULONG)}}},
-        {"NtQueryDebugFilterState", 2, {{"ULONG", "ComponentId", sizeof(nt::ULONG)}, {"ULONG", "Level", sizeof(nt::ULONG)}}},
+        {"ZwQueryDebugFilterState", 2, {{"ULONG", "ComponentId", sizeof(nt::ULONG)}, {"ULONG", "Level", sizeof(nt::ULONG)}}},
         {"NtQueryDefaultLocale", 2, {{"BOOLEAN", "UserProfile", sizeof(nt::BOOLEAN)}, {"PLCID", "DefaultLocaleId", sizeof(nt::PLCID)}}},
-        {"NtQueryDefaultUILanguage", 1, {{"LANGID", "STARDefaultUILanguageId", sizeof(nt::LANGID)}}},
+        {"ZwQueryDefaultUILanguage", 1, {{"LANGID", "STARDefaultUILanguageId", sizeof(nt::LANGID)}}},
         {"NtQueryDirectoryFile", 11, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "FileInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"FILE_INFORMATION_CLASS", "FileInformationClass", sizeof(nt::FILE_INFORMATION_CLASS)}, {"BOOLEAN", "ReturnSingleEntry", sizeof(nt::BOOLEAN)}, {"PUNICODE_STRING", "FileName", sizeof(nt::PUNICODE_STRING)}, {"BOOLEAN", "RestartScan", sizeof(nt::BOOLEAN)}}},
-        {"NtQueryDirectoryObject", 7, {{"HANDLE", "DirectoryHandle", sizeof(nt::HANDLE)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"BOOLEAN", "ReturnSingleEntry", sizeof(nt::BOOLEAN)}, {"BOOLEAN", "RestartScan", sizeof(nt::BOOLEAN)}, {"PULONG", "Context", sizeof(nt::PULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
+        {"ZwQueryDirectoryObject", 7, {{"HANDLE", "DirectoryHandle", sizeof(nt::HANDLE)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"BOOLEAN", "ReturnSingleEntry", sizeof(nt::BOOLEAN)}, {"BOOLEAN", "RestartScan", sizeof(nt::BOOLEAN)}, {"PULONG", "Context", sizeof(nt::PULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtQueryDriverEntryOrder", 2, {{"PULONG", "Ids", sizeof(nt::PULONG)}, {"PULONG", "Count", sizeof(nt::PULONG)}}},
-        {"NtQueryEaFile", 9, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"BOOLEAN", "ReturnSingleEntry", sizeof(nt::BOOLEAN)}, {"PVOID", "EaList", sizeof(nt::PVOID)}, {"ULONG", "EaListLength", sizeof(nt::ULONG)}, {"PULONG", "EaIndex", sizeof(nt::PULONG)}, {"BOOLEAN", "RestartScan", sizeof(nt::BOOLEAN)}}},
+        {"ZwQueryEaFile", 9, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"BOOLEAN", "ReturnSingleEntry", sizeof(nt::BOOLEAN)}, {"PVOID", "EaList", sizeof(nt::PVOID)}, {"ULONG", "EaListLength", sizeof(nt::ULONG)}, {"PULONG", "EaIndex", sizeof(nt::PULONG)}, {"BOOLEAN", "RestartScan", sizeof(nt::BOOLEAN)}}},
         {"NtQueryEvent", 5, {{"HANDLE", "EventHandle", sizeof(nt::HANDLE)}, {"EVENT_INFORMATION_CLASS", "EventInformationClass", sizeof(nt::EVENT_INFORMATION_CLASS)}, {"PVOID", "EventInformation", sizeof(nt::PVOID)}, {"ULONG", "EventInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtQueryFullAttributesFile", 2, {{"POBJECT_ATTRIBUTES", "ObjectAttributes", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PFILE_NETWORK_OPEN_INFORMATION", "FileInformation", sizeof(nt::PFILE_NETWORK_OPEN_INFORMATION)}}},
         {"NtQueryInformationAtom", 5, {{"RTL_ATOM", "Atom", sizeof(nt::RTL_ATOM)}, {"ATOM_INFORMATION_CLASS", "InformationClass", sizeof(nt::ATOM_INFORMATION_CLASS)}, {"PVOID", "AtomInformation", sizeof(nt::PVOID)}, {"ULONG", "AtomInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
@@ -240,178 +239,178 @@ namespace
         {"NtQueryInformationPort", 5, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PORT_INFORMATION_CLASS", "PortInformationClass", sizeof(nt::PORT_INFORMATION_CLASS)}, {"PVOID", "PortInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtQueryInformationProcess", 5, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PROCESSINFOCLASS", "ProcessInformationClass", sizeof(nt::PROCESSINFOCLASS)}, {"PVOID", "ProcessInformation", sizeof(nt::PVOID)}, {"ULONG", "ProcessInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtQueryInformationResourceManager", 5, {{"HANDLE", "ResourceManagerHandle", sizeof(nt::HANDLE)}, {"RESOURCEMANAGER_INFORMATION_CLASS", "ResourceManagerInformationClass", sizeof(nt::RESOURCEMANAGER_INFORMATION_CLASS)}, {"PVOID", "ResourceManagerInformation", sizeof(nt::PVOID)}, {"ULONG", "ResourceManagerInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
-        {"NtQueryInformationThread", 5, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"THREADINFOCLASS", "ThreadInformationClass", sizeof(nt::THREADINFOCLASS)}, {"PVOID", "ThreadInformation", sizeof(nt::PVOID)}, {"ULONG", "ThreadInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
+        {"ZwQueryInformationThread", 5, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"THREADINFOCLASS", "ThreadInformationClass", sizeof(nt::THREADINFOCLASS)}, {"PVOID", "ThreadInformation", sizeof(nt::PVOID)}, {"ULONG", "ThreadInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtQueryInformationToken", 5, {{"HANDLE", "TokenHandle", sizeof(nt::HANDLE)}, {"TOKEN_INFORMATION_CLASS", "TokenInformationClass", sizeof(nt::TOKEN_INFORMATION_CLASS)}, {"PVOID", "TokenInformation", sizeof(nt::PVOID)}, {"ULONG", "TokenInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
-        {"NtQueryInformationTransaction", 5, {{"HANDLE", "TransactionHandle", sizeof(nt::HANDLE)}, {"TRANSACTION_INFORMATION_CLASS", "TransactionInformationClass", sizeof(nt::TRANSACTION_INFORMATION_CLASS)}, {"PVOID", "TransactionInformation", sizeof(nt::PVOID)}, {"ULONG", "TransactionInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
+        {"ZwQueryInformationTransaction", 5, {{"HANDLE", "TransactionHandle", sizeof(nt::HANDLE)}, {"TRANSACTION_INFORMATION_CLASS", "TransactionInformationClass", sizeof(nt::TRANSACTION_INFORMATION_CLASS)}, {"PVOID", "TransactionInformation", sizeof(nt::PVOID)}, {"ULONG", "TransactionInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtQueryInformationTransactionManager", 5, {{"HANDLE", "TransactionManagerHandle", sizeof(nt::HANDLE)}, {"TRANSACTIONMANAGER_INFORMATION_CLASS", "TransactionManagerInformationClass", sizeof(nt::TRANSACTIONMANAGER_INFORMATION_CLASS)}, {"PVOID", "TransactionManagerInformation", sizeof(nt::PVOID)}, {"ULONG", "TransactionManagerInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
-        {"NtQueryInformationWorkerFactory", 5, {{"HANDLE", "WorkerFactoryHandle", sizeof(nt::HANDLE)}, {"WORKERFACTORYINFOCLASS", "WorkerFactoryInformationClass", sizeof(nt::WORKERFACTORYINFOCLASS)}, {"PVOID", "WorkerFactoryInformation", sizeof(nt::PVOID)}, {"ULONG", "WorkerFactoryInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
+        {"ZwQueryInformationWorkerFactory", 5, {{"HANDLE", "WorkerFactoryHandle", sizeof(nt::HANDLE)}, {"WORKERFACTORYINFOCLASS", "WorkerFactoryInformationClass", sizeof(nt::WORKERFACTORYINFOCLASS)}, {"PVOID", "WorkerFactoryInformation", sizeof(nt::PVOID)}, {"ULONG", "WorkerFactoryInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtQueryInstallUILanguage", 1, {{"LANGID", "STARInstallUILanguageId", sizeof(nt::LANGID)}}},
         {"NtQueryIntervalProfile", 2, {{"KPROFILE_SOURCE", "ProfileSource", sizeof(nt::KPROFILE_SOURCE)}, {"PULONG", "Interval", sizeof(nt::PULONG)}}},
         {"NtQueryIoCompletion", 5, {{"HANDLE", "IoCompletionHandle", sizeof(nt::HANDLE)}, {"IO_COMPLETION_INFORMATION_CLASS", "IoCompletionInformationClass", sizeof(nt::IO_COMPLETION_INFORMATION_CLASS)}, {"PVOID", "IoCompletionInformation", sizeof(nt::PVOID)}, {"ULONG", "IoCompletionInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
-        {"NtQueryKey", 5, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"KEY_INFORMATION_CLASS", "KeyInformationClass", sizeof(nt::KEY_INFORMATION_CLASS)}, {"PVOID", "KeyInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ResultLength", sizeof(nt::PULONG)}}},
-        {"NtQueryLicenseValue", 5, {{"PUNICODE_STRING", "Name", sizeof(nt::PUNICODE_STRING)}, {"PULONG", "Type", sizeof(nt::PULONG)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ReturnedLength", sizeof(nt::PULONG)}}},
-        {"NtQueryMultipleValueKey", 6, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"PKEY_VALUE_ENTRY", "ValueEntries", sizeof(nt::PKEY_VALUE_ENTRY)}, {"ULONG", "EntryCount", sizeof(nt::ULONG)}, {"PVOID", "ValueBuffer", sizeof(nt::PVOID)}, {"PULONG", "BufferLength", sizeof(nt::PULONG)}, {"PULONG", "RequiredBufferLength", sizeof(nt::PULONG)}}},
-        {"NtQueryMutant", 5, {{"HANDLE", "MutantHandle", sizeof(nt::HANDLE)}, {"MUTANT_INFORMATION_CLASS", "MutantInformationClass", sizeof(nt::MUTANT_INFORMATION_CLASS)}, {"PVOID", "MutantInformation", sizeof(nt::PVOID)}, {"ULONG", "MutantInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
-        {"NtQueryObject", 5, {{"HANDLE", "Handle", sizeof(nt::HANDLE)}, {"OBJECT_INFORMATION_CLASS", "ObjectInformationClass", sizeof(nt::OBJECT_INFORMATION_CLASS)}, {"PVOID", "ObjectInformation", sizeof(nt::PVOID)}, {"ULONG", "ObjectInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
+        {"ZwQueryKey", 5, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"KEY_INFORMATION_CLASS", "KeyInformationClass", sizeof(nt::KEY_INFORMATION_CLASS)}, {"PVOID", "KeyInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ResultLength", sizeof(nt::PULONG)}}},
+        {"ZwQueryLicenseValue", 5, {{"PUNICODE_STRING", "Name", sizeof(nt::PUNICODE_STRING)}, {"PULONG", "Type", sizeof(nt::PULONG)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ReturnedLength", sizeof(nt::PULONG)}}},
+        {"ZwQueryMultipleValueKey", 6, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"PKEY_VALUE_ENTRY", "ValueEntries", sizeof(nt::PKEY_VALUE_ENTRY)}, {"ULONG", "EntryCount", sizeof(nt::ULONG)}, {"PVOID", "ValueBuffer", sizeof(nt::PVOID)}, {"PULONG", "BufferLength", sizeof(nt::PULONG)}, {"PULONG", "RequiredBufferLength", sizeof(nt::PULONG)}}},
+        {"ZwQueryMutant", 5, {{"HANDLE", "MutantHandle", sizeof(nt::HANDLE)}, {"MUTANT_INFORMATION_CLASS", "MutantInformationClass", sizeof(nt::MUTANT_INFORMATION_CLASS)}, {"PVOID", "MutantInformation", sizeof(nt::PVOID)}, {"ULONG", "MutantInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
+        {"ZwQueryObject", 5, {{"HANDLE", "Handle", sizeof(nt::HANDLE)}, {"OBJECT_INFORMATION_CLASS", "ObjectInformationClass", sizeof(nt::OBJECT_INFORMATION_CLASS)}, {"PVOID", "ObjectInformation", sizeof(nt::PVOID)}, {"ULONG", "ObjectInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtQueryOpenSubKeysEx", 4, {{"POBJECT_ATTRIBUTES", "TargetKey", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "BufferLength", sizeof(nt::ULONG)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"PULONG", "RequiredSize", sizeof(nt::PULONG)}}},
         {"NtQueryOpenSubKeys", 2, {{"POBJECT_ATTRIBUTES", "TargetKey", sizeof(nt::POBJECT_ATTRIBUTES)}, {"PULONG", "HandleCount", sizeof(nt::PULONG)}}},
         {"NtQueryPerformanceCounter", 2, {{"PLARGE_INTEGER", "PerformanceCounter", sizeof(nt::PLARGE_INTEGER)}, {"PLARGE_INTEGER", "PerformanceFrequency", sizeof(nt::PLARGE_INTEGER)}}},
         {"NtQueryQuotaInformationFile", 9, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"BOOLEAN", "ReturnSingleEntry", sizeof(nt::BOOLEAN)}, {"PVOID", "SidList", sizeof(nt::PVOID)}, {"ULONG", "SidListLength", sizeof(nt::ULONG)}, {"PULONG", "StartSid", sizeof(nt::PULONG)}, {"BOOLEAN", "RestartScan", sizeof(nt::BOOLEAN)}}},
         {"NtQuerySection", 5, {{"HANDLE", "SectionHandle", sizeof(nt::HANDLE)}, {"SECTION_INFORMATION_CLASS", "SectionInformationClass", sizeof(nt::SECTION_INFORMATION_CLASS)}, {"PVOID", "SectionInformation", sizeof(nt::PVOID)}, {"SIZE_T", "SectionInformationLength", sizeof(nt::SIZE_T)}, {"PSIZE_T", "ReturnLength", sizeof(nt::PSIZE_T)}}},
-        {"NtQuerySecurityAttributesToken", 6, {{"HANDLE", "TokenHandle", sizeof(nt::HANDLE)}, {"PUNICODE_STRING", "Attributes", sizeof(nt::PUNICODE_STRING)}, {"ULONG", "NumberOfAttributes", sizeof(nt::ULONG)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
+        {"ZwQuerySecurityAttributesToken", 6, {{"HANDLE", "TokenHandle", sizeof(nt::HANDLE)}, {"PUNICODE_STRING", "Attributes", sizeof(nt::PUNICODE_STRING)}, {"ULONG", "NumberOfAttributes", sizeof(nt::ULONG)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtQuerySecurityObject", 5, {{"HANDLE", "Handle", sizeof(nt::HANDLE)}, {"SECURITY_INFORMATION", "SecurityInformation", sizeof(nt::SECURITY_INFORMATION)}, {"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "LengthNeeded", sizeof(nt::PULONG)}}},
-        {"NtQuerySemaphore", 5, {{"HANDLE", "SemaphoreHandle", sizeof(nt::HANDLE)}, {"SEMAPHORE_INFORMATION_CLASS", "SemaphoreInformationClass", sizeof(nt::SEMAPHORE_INFORMATION_CLASS)}, {"PVOID", "SemaphoreInformation", sizeof(nt::PVOID)}, {"ULONG", "SemaphoreInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
+        {"ZwQuerySemaphore", 5, {{"HANDLE", "SemaphoreHandle", sizeof(nt::HANDLE)}, {"SEMAPHORE_INFORMATION_CLASS", "SemaphoreInformationClass", sizeof(nt::SEMAPHORE_INFORMATION_CLASS)}, {"PVOID", "SemaphoreInformation", sizeof(nt::PVOID)}, {"ULONG", "SemaphoreInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtQuerySymbolicLinkObject", 3, {{"HANDLE", "LinkHandle", sizeof(nt::HANDLE)}, {"PUNICODE_STRING", "LinkTarget", sizeof(nt::PUNICODE_STRING)}, {"PULONG", "ReturnedLength", sizeof(nt::PULONG)}}},
         {"NtQuerySystemEnvironmentValueEx", 5, {{"PUNICODE_STRING", "VariableName", sizeof(nt::PUNICODE_STRING)}, {"LPGUID", "VendorGuid", sizeof(nt::LPGUID)}, {"PVOID", "Value", sizeof(nt::PVOID)}, {"PULONG", "ValueLength", sizeof(nt::PULONG)}, {"PULONG", "Attributes", sizeof(nt::PULONG)}}},
         {"NtQuerySystemEnvironmentValue", 4, {{"PUNICODE_STRING", "VariableName", sizeof(nt::PUNICODE_STRING)}, {"PWSTR", "VariableValue", sizeof(nt::PWSTR)}, {"USHORT", "ValueLength", sizeof(nt::USHORT)}, {"PUSHORT", "ReturnLength", sizeof(nt::PUSHORT)}}},
         {"NtQuerySystemInformationEx", 6, {{"SYSTEM_INFORMATION_CLASS", "SystemInformationClass", sizeof(nt::SYSTEM_INFORMATION_CLASS)}, {"PVOID", "QueryInformation", sizeof(nt::PVOID)}, {"ULONG", "QueryInformationLength", sizeof(nt::ULONG)}, {"PVOID", "SystemInformation", sizeof(nt::PVOID)}, {"ULONG", "SystemInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtQuerySystemInformation", 4, {{"SYSTEM_INFORMATION_CLASS", "SystemInformationClass", sizeof(nt::SYSTEM_INFORMATION_CLASS)}, {"PVOID", "SystemInformation", sizeof(nt::PVOID)}, {"ULONG", "SystemInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
-        {"NtQuerySystemTime", 1, {{"PLARGE_INTEGER", "SystemTime", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtQueryTimer", 5, {{"HANDLE", "TimerHandle", sizeof(nt::HANDLE)}, {"TIMER_INFORMATION_CLASS", "TimerInformationClass", sizeof(nt::TIMER_INFORMATION_CLASS)}, {"PVOID", "TimerInformation", sizeof(nt::PVOID)}, {"ULONG", "TimerInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
-        {"NtQueryTimerResolution", 3, {{"PULONG", "MaximumTime", sizeof(nt::PULONG)}, {"PULONG", "MinimumTime", sizeof(nt::PULONG)}, {"PULONG", "CurrentTime", sizeof(nt::PULONG)}}},
+        {"ZwQuerySystemTime", 1, {{"PLARGE_INTEGER", "SystemTime", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwQueryTimer", 5, {{"HANDLE", "TimerHandle", sizeof(nt::HANDLE)}, {"TIMER_INFORMATION_CLASS", "TimerInformationClass", sizeof(nt::TIMER_INFORMATION_CLASS)}, {"PVOID", "TimerInformation", sizeof(nt::PVOID)}, {"ULONG", "TimerInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
+        {"ZwQueryTimerResolution", 3, {{"PULONG", "MaximumTime", sizeof(nt::PULONG)}, {"PULONG", "MinimumTime", sizeof(nt::PULONG)}, {"PULONG", "CurrentTime", sizeof(nt::PULONG)}}},
         {"NtQueryValueKey", 6, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"PUNICODE_STRING", "ValueName", sizeof(nt::PUNICODE_STRING)}, {"KEY_VALUE_INFORMATION_CLASS", "KeyValueInformationClass", sizeof(nt::KEY_VALUE_INFORMATION_CLASS)}, {"PVOID", "KeyValueInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PULONG", "ResultLength", sizeof(nt::PULONG)}}},
-        {"NtQueryVirtualMemory", 6, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"MEMORY_INFORMATION_CLASS", "MemoryInformationClass", sizeof(nt::MEMORY_INFORMATION_CLASS)}, {"PVOID", "MemoryInformation", sizeof(nt::PVOID)}, {"SIZE_T", "MemoryInformationLength", sizeof(nt::SIZE_T)}, {"PSIZE_T", "ReturnLength", sizeof(nt::PSIZE_T)}}},
-        {"NtQueryVolumeInformationFile", 5, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "FsInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"FS_INFORMATION_CLASS", "FsInformationClass", sizeof(nt::FS_INFORMATION_CLASS)}}},
+        {"ZwQueryVirtualMemory", 6, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"MEMORY_INFORMATION_CLASS", "MemoryInformationClass", sizeof(nt::MEMORY_INFORMATION_CLASS)}, {"PVOID", "MemoryInformation", sizeof(nt::PVOID)}, {"SIZE_T", "MemoryInformationLength", sizeof(nt::SIZE_T)}, {"PSIZE_T", "ReturnLength", sizeof(nt::PSIZE_T)}}},
+        {"ZwQueryVolumeInformationFile", 5, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "FsInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"FS_INFORMATION_CLASS", "FsInformationClass", sizeof(nt::FS_INFORMATION_CLASS)}}},
         {"NtQueueApcThreadEx", 6, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"HANDLE", "UserApcReserveHandle", sizeof(nt::HANDLE)}, {"PPS_APC_ROUTINE", "ApcRoutine", sizeof(nt::PPS_APC_ROUTINE)}, {"PVOID", "ApcArgument1", sizeof(nt::PVOID)}, {"PVOID", "ApcArgument2", sizeof(nt::PVOID)}, {"PVOID", "ApcArgument3", sizeof(nt::PVOID)}}},
         {"NtQueueApcThread", 5, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"PPS_APC_ROUTINE", "ApcRoutine", sizeof(nt::PPS_APC_ROUTINE)}, {"PVOID", "ApcArgument1", sizeof(nt::PVOID)}, {"PVOID", "ApcArgument2", sizeof(nt::PVOID)}, {"PVOID", "ApcArgument3", sizeof(nt::PVOID)}}},
-        {"NtRaiseException", 3, {{"PEXCEPTION_RECORD", "ExceptionRecord", sizeof(nt::PEXCEPTION_RECORD)}, {"PCONTEXT", "ContextRecord", sizeof(nt::PCONTEXT)}, {"BOOLEAN", "FirstChance", sizeof(nt::BOOLEAN)}}},
+        {"ZwRaiseException", 3, {{"PEXCEPTION_RECORD", "ExceptionRecord", sizeof(nt::PEXCEPTION_RECORD)}, {"PCONTEXT", "ContextRecord", sizeof(nt::PCONTEXT)}, {"BOOLEAN", "FirstChance", sizeof(nt::BOOLEAN)}}},
         {"NtRaiseHardError", 6, {{"NTSTATUS", "ErrorStatus", sizeof(nt::NTSTATUS)}, {"ULONG", "NumberOfParameters", sizeof(nt::ULONG)}, {"ULONG", "UnicodeStringParameterMask", sizeof(nt::ULONG)}, {"PULONG_PTR", "Parameters", sizeof(nt::PULONG_PTR)}, {"ULONG", "ValidResponseOptions", sizeof(nt::ULONG)}, {"PULONG", "Response", sizeof(nt::PULONG)}}},
         {"NtReadFile", 9, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PLARGE_INTEGER", "ByteOffset", sizeof(nt::PLARGE_INTEGER)}, {"PULONG", "Key", sizeof(nt::PULONG)}}},
-        {"NtReadFileScatter", 9, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PFILE_SEGMENT_ELEMENT", "SegmentArray", sizeof(nt::PFILE_SEGMENT_ELEMENT)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PLARGE_INTEGER", "ByteOffset", sizeof(nt::PLARGE_INTEGER)}, {"PULONG", "Key", sizeof(nt::PULONG)}}},
-        {"NtReadOnlyEnlistment", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwReadFileScatter", 9, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PFILE_SEGMENT_ELEMENT", "SegmentArray", sizeof(nt::PFILE_SEGMENT_ELEMENT)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PLARGE_INTEGER", "ByteOffset", sizeof(nt::PLARGE_INTEGER)}, {"PULONG", "Key", sizeof(nt::PULONG)}}},
+        {"ZwReadOnlyEnlistment", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
         {"NtReadRequestData", 6, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "Message", sizeof(nt::PPORT_MESSAGE)}, {"ULONG", "DataEntryIndex", sizeof(nt::ULONG)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"SIZE_T", "BufferSize", sizeof(nt::SIZE_T)}, {"PSIZE_T", "NumberOfBytesRead", sizeof(nt::PSIZE_T)}}},
-        {"NtReadVirtualMemory", 5, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"SIZE_T", "BufferSize", sizeof(nt::SIZE_T)}, {"PSIZE_T", "NumberOfBytesRead", sizeof(nt::PSIZE_T)}}},
-        {"NtRecoverEnlistment", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PVOID", "EnlistmentKey", sizeof(nt::PVOID)}}},
-        {"NtRecoverResourceManager", 1, {{"HANDLE", "ResourceManagerHandle", sizeof(nt::HANDLE)}}},
+        {"ZwReadVirtualMemory", 5, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"SIZE_T", "BufferSize", sizeof(nt::SIZE_T)}, {"PSIZE_T", "NumberOfBytesRead", sizeof(nt::PSIZE_T)}}},
+        {"ZwRecoverEnlistment", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PVOID", "EnlistmentKey", sizeof(nt::PVOID)}}},
+        {"ZwRecoverResourceManager", 1, {{"HANDLE", "ResourceManagerHandle", sizeof(nt::HANDLE)}}},
         {"NtRecoverTransactionManager", 1, {{"HANDLE", "TransactionManagerHandle", sizeof(nt::HANDLE)}}},
         {"NtRegisterProtocolAddressInformation", 5, {{"HANDLE", "ResourceManager", sizeof(nt::HANDLE)}, {"PCRM_PROTOCOL_ID", "ProtocolId", sizeof(nt::PCRM_PROTOCOL_ID)}, {"ULONG", "ProtocolInformationSize", sizeof(nt::ULONG)}, {"PVOID", "ProtocolInformation", sizeof(nt::PVOID)}, {"ULONG", "CreateOptions", sizeof(nt::ULONG)}}},
         {"NtRegisterThreadTerminatePort", 1, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}}},
         {"NtReleaseKeyedEvent", 4, {{"HANDLE", "KeyedEventHandle", sizeof(nt::HANDLE)}, {"PVOID", "KeyValue", sizeof(nt::PVOID)}, {"BOOLEAN", "Alertable", sizeof(nt::BOOLEAN)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtReleaseMutant", 2, {{"HANDLE", "MutantHandle", sizeof(nt::HANDLE)}, {"PLONG", "PreviousCount", sizeof(nt::PLONG)}}},
-        {"NtReleaseSemaphore", 3, {{"HANDLE", "SemaphoreHandle", sizeof(nt::HANDLE)}, {"LONG", "ReleaseCount", sizeof(nt::LONG)}, {"PLONG", "PreviousCount", sizeof(nt::PLONG)}}},
+        {"ZwReleaseMutant", 2, {{"HANDLE", "MutantHandle", sizeof(nt::HANDLE)}, {"PLONG", "PreviousCount", sizeof(nt::PLONG)}}},
+        {"ZwReleaseSemaphore", 3, {{"HANDLE", "SemaphoreHandle", sizeof(nt::HANDLE)}, {"LONG", "ReleaseCount", sizeof(nt::LONG)}, {"PLONG", "PreviousCount", sizeof(nt::PLONG)}}},
         {"NtReleaseWorkerFactoryWorker", 1, {{"HANDLE", "WorkerFactoryHandle", sizeof(nt::HANDLE)}}},
-        {"NtRemoveIoCompletionEx", 6, {{"HANDLE", "IoCompletionHandle", sizeof(nt::HANDLE)}, {"PFILE_IO_COMPLETION_INFORMATION", "IoCompletionInformation", sizeof(nt::PFILE_IO_COMPLETION_INFORMATION)}, {"ULONG", "Count", sizeof(nt::ULONG)}, {"PULONG", "NumEntriesRemoved", sizeof(nt::PULONG)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}, {"BOOLEAN", "Alertable", sizeof(nt::BOOLEAN)}}},
-        {"NtRemoveIoCompletion", 5, {{"HANDLE", "IoCompletionHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARKeyContext", sizeof(nt::PVOID)}, {"PVOID", "STARApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtRemoveProcessDebug", 2, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"HANDLE", "DebugObjectHandle", sizeof(nt::HANDLE)}}},
+        {"ZwRemoveIoCompletionEx", 6, {{"HANDLE", "IoCompletionHandle", sizeof(nt::HANDLE)}, {"PFILE_IO_COMPLETION_INFORMATION", "IoCompletionInformation", sizeof(nt::PFILE_IO_COMPLETION_INFORMATION)}, {"ULONG", "Count", sizeof(nt::ULONG)}, {"PULONG", "NumEntriesRemoved", sizeof(nt::PULONG)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}, {"BOOLEAN", "Alertable", sizeof(nt::BOOLEAN)}}},
+        {"ZwRemoveIoCompletion", 5, {{"HANDLE", "IoCompletionHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARKeyContext", sizeof(nt::PVOID)}, {"PVOID", "STARApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwRemoveProcessDebug", 2, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"HANDLE", "DebugObjectHandle", sizeof(nt::HANDLE)}}},
         {"NtRenameKey", 2, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"PUNICODE_STRING", "NewName", sizeof(nt::PUNICODE_STRING)}}},
         {"NtRenameTransactionManager", 2, {{"PUNICODE_STRING", "LogFileName", sizeof(nt::PUNICODE_STRING)}, {"LPGUID", "ExistingTransactionManagerGuid", sizeof(nt::LPGUID)}}},
         {"NtReplaceKey", 3, {{"POBJECT_ATTRIBUTES", "NewFile", sizeof(nt::POBJECT_ATTRIBUTES)}, {"HANDLE", "TargetHandle", sizeof(nt::HANDLE)}, {"POBJECT_ATTRIBUTES", "OldFile", sizeof(nt::POBJECT_ATTRIBUTES)}}},
         {"NtReplacePartitionUnit", 3, {{"PUNICODE_STRING", "TargetInstancePath", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "SpareInstancePath", sizeof(nt::PUNICODE_STRING)}, {"ULONG", "Flags", sizeof(nt::ULONG)}}},
         {"NtReplyPort", 2, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "ReplyMessage", sizeof(nt::PPORT_MESSAGE)}}},
-        {"NtReplyWaitReceivePortEx", 5, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARPortContext", sizeof(nt::PVOID)}, {"PPORT_MESSAGE", "ReplyMessage", sizeof(nt::PPORT_MESSAGE)}, {"PPORT_MESSAGE", "ReceiveMessage", sizeof(nt::PPORT_MESSAGE)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtReplyWaitReceivePort", 4, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARPortContext", sizeof(nt::PVOID)}, {"PPORT_MESSAGE", "ReplyMessage", sizeof(nt::PPORT_MESSAGE)}, {"PPORT_MESSAGE", "ReceiveMessage", sizeof(nt::PPORT_MESSAGE)}}},
+        {"ZwReplyWaitReceivePortEx", 5, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARPortContext", sizeof(nt::PVOID)}, {"PPORT_MESSAGE", "ReplyMessage", sizeof(nt::PPORT_MESSAGE)}, {"PPORT_MESSAGE", "ReceiveMessage", sizeof(nt::PPORT_MESSAGE)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwReplyWaitReceivePort", 4, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARPortContext", sizeof(nt::PVOID)}, {"PPORT_MESSAGE", "ReplyMessage", sizeof(nt::PPORT_MESSAGE)}, {"PPORT_MESSAGE", "ReceiveMessage", sizeof(nt::PPORT_MESSAGE)}}},
         {"NtReplyWaitReplyPort", 2, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "ReplyMessage", sizeof(nt::PPORT_MESSAGE)}}},
         {"NtRequestPort", 2, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "RequestMessage", sizeof(nt::PPORT_MESSAGE)}}},
-        {"NtRequestWaitReplyPort", 3, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "RequestMessage", sizeof(nt::PPORT_MESSAGE)}, {"PPORT_MESSAGE", "ReplyMessage", sizeof(nt::PPORT_MESSAGE)}}},
-        {"NtResetEvent", 2, {{"HANDLE", "EventHandle", sizeof(nt::HANDLE)}, {"PLONG", "PreviousState", sizeof(nt::PLONG)}}},
-        {"NtResetWriteWatch", 3, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"SIZE_T", "RegionSize", sizeof(nt::SIZE_T)}}},
+        {"ZwRequestWaitReplyPort", 3, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "RequestMessage", sizeof(nt::PPORT_MESSAGE)}, {"PPORT_MESSAGE", "ReplyMessage", sizeof(nt::PPORT_MESSAGE)}}},
+        {"ZwResetEvent", 2, {{"HANDLE", "EventHandle", sizeof(nt::HANDLE)}, {"PLONG", "PreviousState", sizeof(nt::PLONG)}}},
+        {"ZwResetWriteWatch", 3, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"SIZE_T", "RegionSize", sizeof(nt::SIZE_T)}}},
         {"NtRestoreKey", 3, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}}},
-        {"NtResumeProcess", 1, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}}},
-        {"NtResumeThread", 2, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"PULONG", "PreviousSuspendCount", sizeof(nt::PULONG)}}},
-        {"NtRollbackComplete", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwResumeProcess", 1, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}}},
+        {"ZwResumeThread", 2, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"PULONG", "PreviousSuspendCount", sizeof(nt::PULONG)}}},
+        {"ZwRollbackComplete", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
         {"NtRollbackEnlistment", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtRollbackTransaction", 2, {{"HANDLE", "TransactionHandle", sizeof(nt::HANDLE)}, {"BOOLEAN", "Wait", sizeof(nt::BOOLEAN)}}},
+        {"ZwRollbackTransaction", 2, {{"HANDLE", "TransactionHandle", sizeof(nt::HANDLE)}, {"BOOLEAN", "Wait", sizeof(nt::BOOLEAN)}}},
         {"NtRollforwardTransactionManager", 2, {{"HANDLE", "TransactionManagerHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
         {"NtSaveKeyEx", 3, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"ULONG", "Format", sizeof(nt::ULONG)}}},
         {"NtSaveKey", 2, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"HANDLE", "FileHandle", sizeof(nt::HANDLE)}}},
-        {"NtSaveMergedKeys", 3, {{"HANDLE", "HighPrecedenceKeyHandle", sizeof(nt::HANDLE)}, {"HANDLE", "LowPrecedenceKeyHandle", sizeof(nt::HANDLE)}, {"HANDLE", "FileHandle", sizeof(nt::HANDLE)}}},
+        {"ZwSaveMergedKeys", 3, {{"HANDLE", "HighPrecedenceKeyHandle", sizeof(nt::HANDLE)}, {"HANDLE", "LowPrecedenceKeyHandle", sizeof(nt::HANDLE)}, {"HANDLE", "FileHandle", sizeof(nt::HANDLE)}}},
         {"NtSecureConnectPort", 9, {{"PHANDLE", "PortHandle", sizeof(nt::PHANDLE)}, {"PUNICODE_STRING", "PortName", sizeof(nt::PUNICODE_STRING)}, {"PSECURITY_QUALITY_OF_SERVICE", "SecurityQos", sizeof(nt::PSECURITY_QUALITY_OF_SERVICE)}, {"PPORT_VIEW", "ClientView", sizeof(nt::PPORT_VIEW)}, {"PSID", "RequiredServerSid", sizeof(nt::PSID)}, {"PREMOTE_PORT_VIEW", "ServerView", sizeof(nt::PREMOTE_PORT_VIEW)}, {"PULONG", "MaxMessageLength", sizeof(nt::PULONG)}, {"PVOID", "ConnectionInformation", sizeof(nt::PVOID)}, {"PULONG", "ConnectionInformationLength", sizeof(nt::PULONG)}}},
-        {"NtSetBootEntryOrder", 2, {{"PULONG", "Ids", sizeof(nt::PULONG)}, {"ULONG", "Count", sizeof(nt::ULONG)}}},
+        {"ZwSetBootEntryOrder", 2, {{"PULONG", "Ids", sizeof(nt::PULONG)}, {"ULONG", "Count", sizeof(nt::ULONG)}}},
         {"NtSetBootOptions", 2, {{"PBOOT_OPTIONS", "BootOptions", sizeof(nt::PBOOT_OPTIONS)}, {"ULONG", "FieldsToChange", sizeof(nt::ULONG)}}},
         {"NtSetContextThread", 2, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"PCONTEXT", "ThreadContext", sizeof(nt::PCONTEXT)}}},
-        {"NtSetDebugFilterState", 3, {{"ULONG", "ComponentId", sizeof(nt::ULONG)}, {"ULONG", "Level", sizeof(nt::ULONG)}, {"BOOLEAN", "State", sizeof(nt::BOOLEAN)}}},
+        {"ZwSetDebugFilterState", 3, {{"ULONG", "ComponentId", sizeof(nt::ULONG)}, {"ULONG", "Level", sizeof(nt::ULONG)}, {"BOOLEAN", "State", sizeof(nt::BOOLEAN)}}},
         {"NtSetDefaultHardErrorPort", 1, {{"HANDLE", "DefaultHardErrorPort", sizeof(nt::HANDLE)}}},
         {"NtSetDefaultLocale", 2, {{"BOOLEAN", "UserProfile", sizeof(nt::BOOLEAN)}, {"LCID", "DefaultLocaleId", sizeof(nt::LCID)}}},
-        {"NtSetDefaultUILanguage", 1, {{"LANGID", "DefaultUILanguageId", sizeof(nt::LANGID)}}},
+        {"ZwSetDefaultUILanguage", 1, {{"LANGID", "DefaultUILanguageId", sizeof(nt::LANGID)}}},
         {"NtSetDriverEntryOrder", 2, {{"PULONG", "Ids", sizeof(nt::PULONG)}, {"ULONG", "Count", sizeof(nt::ULONG)}}},
-        {"NtSetEaFile", 4, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}}},
-        {"NtSetEventBoostPriority", 1, {{"HANDLE", "EventHandle", sizeof(nt::HANDLE)}}},
-        {"NtSetEvent", 2, {{"HANDLE", "EventHandle", sizeof(nt::HANDLE)}, {"PLONG", "PreviousState", sizeof(nt::PLONG)}}},
+        {"ZwSetEaFile", 4, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}}},
+        {"ZwSetEventBoostPriority", 1, {{"HANDLE", "EventHandle", sizeof(nt::HANDLE)}}},
+        {"ZwSetEvent", 2, {{"HANDLE", "EventHandle", sizeof(nt::HANDLE)}, {"PLONG", "PreviousState", sizeof(nt::PLONG)}}},
         {"NtSetHighEventPair", 1, {{"HANDLE", "EventPairHandle", sizeof(nt::HANDLE)}}},
-        {"NtSetHighWaitLowEventPair", 1, {{"HANDLE", "EventPairHandle", sizeof(nt::HANDLE)}}},
+        {"ZwSetHighWaitLowEventPair", 1, {{"HANDLE", "EventPairHandle", sizeof(nt::HANDLE)}}},
         {"NtSetInformationDebugObject", 5, {{"HANDLE", "DebugObjectHandle", sizeof(nt::HANDLE)}, {"DEBUGOBJECTINFOCLASS", "DebugObjectInformationClass", sizeof(nt::DEBUGOBJECTINFOCLASS)}, {"PVOID", "DebugInformation", sizeof(nt::PVOID)}, {"ULONG", "DebugInformationLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtSetInformationEnlistment", 4, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"ENLISTMENT_INFORMATION_CLASS", "EnlistmentInformationClass", sizeof(nt::ENLISTMENT_INFORMATION_CLASS)}, {"PVOID", "EnlistmentInformation", sizeof(nt::PVOID)}, {"ULONG", "EnlistmentInformationLength", sizeof(nt::ULONG)}}},
-        {"NtSetInformationFile", 5, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "FileInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"FILE_INFORMATION_CLASS", "FileInformationClass", sizeof(nt::FILE_INFORMATION_CLASS)}}},
-        {"NtSetInformationJobObject", 4, {{"HANDLE", "JobHandle", sizeof(nt::HANDLE)}, {"JOBOBJECTINFOCLASS", "JobObjectInformationClass", sizeof(nt::JOBOBJECTINFOCLASS)}, {"PVOID", "JobObjectInformation", sizeof(nt::PVOID)}, {"ULONG", "JobObjectInformationLength", sizeof(nt::ULONG)}}},
-        {"NtSetInformationKey", 4, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"KEY_SET_INFORMATION_CLASS", "KeySetInformationClass", sizeof(nt::KEY_SET_INFORMATION_CLASS)}, {"PVOID", "KeySetInformation", sizeof(nt::PVOID)}, {"ULONG", "KeySetInformationLength", sizeof(nt::ULONG)}}},
+        {"ZwSetInformationFile", 5, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "FileInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"FILE_INFORMATION_CLASS", "FileInformationClass", sizeof(nt::FILE_INFORMATION_CLASS)}}},
+        {"ZwSetInformationJobObject", 4, {{"HANDLE", "JobHandle", sizeof(nt::HANDLE)}, {"JOBOBJECTINFOCLASS", "JobObjectInformationClass", sizeof(nt::JOBOBJECTINFOCLASS)}, {"PVOID", "JobObjectInformation", sizeof(nt::PVOID)}, {"ULONG", "JobObjectInformationLength", sizeof(nt::ULONG)}}},
+        {"ZwSetInformationKey", 4, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"KEY_SET_INFORMATION_CLASS", "KeySetInformationClass", sizeof(nt::KEY_SET_INFORMATION_CLASS)}, {"PVOID", "KeySetInformation", sizeof(nt::PVOID)}, {"ULONG", "KeySetInformationLength", sizeof(nt::ULONG)}}},
         {"NtSetInformationObject", 4, {{"HANDLE", "Handle", sizeof(nt::HANDLE)}, {"OBJECT_INFORMATION_CLASS", "ObjectInformationClass", sizeof(nt::OBJECT_INFORMATION_CLASS)}, {"PVOID", "ObjectInformation", sizeof(nt::PVOID)}, {"ULONG", "ObjectInformationLength", sizeof(nt::ULONG)}}},
         {"NtSetInformationProcess", 4, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PROCESSINFOCLASS", "ProcessInformationClass", sizeof(nt::PROCESSINFOCLASS)}, {"PVOID", "ProcessInformation", sizeof(nt::PVOID)}, {"ULONG", "ProcessInformationLength", sizeof(nt::ULONG)}}},
         {"NtSetInformationResourceManager", 4, {{"HANDLE", "ResourceManagerHandle", sizeof(nt::HANDLE)}, {"RESOURCEMANAGER_INFORMATION_CLASS", "ResourceManagerInformationClass", sizeof(nt::RESOURCEMANAGER_INFORMATION_CLASS)}, {"PVOID", "ResourceManagerInformation", sizeof(nt::PVOID)}, {"ULONG", "ResourceManagerInformationLength", sizeof(nt::ULONG)}}},
         {"NtSetInformationThread", 4, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"THREADINFOCLASS", "ThreadInformationClass", sizeof(nt::THREADINFOCLASS)}, {"PVOID", "ThreadInformation", sizeof(nt::PVOID)}, {"ULONG", "ThreadInformationLength", sizeof(nt::ULONG)}}},
         {"NtSetInformationToken", 4, {{"HANDLE", "TokenHandle", sizeof(nt::HANDLE)}, {"TOKEN_INFORMATION_CLASS", "TokenInformationClass", sizeof(nt::TOKEN_INFORMATION_CLASS)}, {"PVOID", "TokenInformation", sizeof(nt::PVOID)}, {"ULONG", "TokenInformationLength", sizeof(nt::ULONG)}}},
         {"NtSetInformationTransaction", 4, {{"HANDLE", "TransactionHandle", sizeof(nt::HANDLE)}, {"TRANSACTION_INFORMATION_CLASS", "TransactionInformationClass", sizeof(nt::TRANSACTION_INFORMATION_CLASS)}, {"PVOID", "TransactionInformation", sizeof(nt::PVOID)}, {"ULONG", "TransactionInformationLength", sizeof(nt::ULONG)}}},
-        {"NtSetInformationTransactionManager", 4, {{"HANDLE", "TmHandle", sizeof(nt::HANDLE)}, {"TRANSACTIONMANAGER_INFORMATION_CLASS", "TransactionManagerInformationClass", sizeof(nt::TRANSACTIONMANAGER_INFORMATION_CLASS)}, {"PVOID", "TransactionManagerInformation", sizeof(nt::PVOID)}, {"ULONG", "TransactionManagerInformationLength", sizeof(nt::ULONG)}}},
+        {"ZwSetInformationTransactionManager", 4, {{"HANDLE", "TmHandle", sizeof(nt::HANDLE)}, {"TRANSACTIONMANAGER_INFORMATION_CLASS", "TransactionManagerInformationClass", sizeof(nt::TRANSACTIONMANAGER_INFORMATION_CLASS)}, {"PVOID", "TransactionManagerInformation", sizeof(nt::PVOID)}, {"ULONG", "TransactionManagerInformationLength", sizeof(nt::ULONG)}}},
         {"NtSetInformationWorkerFactory", 4, {{"HANDLE", "WorkerFactoryHandle", sizeof(nt::HANDLE)}, {"WORKERFACTORYINFOCLASS", "WorkerFactoryInformationClass", sizeof(nt::WORKERFACTORYINFOCLASS)}, {"PVOID", "WorkerFactoryInformation", sizeof(nt::PVOID)}, {"ULONG", "WorkerFactoryInformationLength", sizeof(nt::ULONG)}}},
         {"NtSetIntervalProfile", 2, {{"ULONG", "Interval", sizeof(nt::ULONG)}, {"KPROFILE_SOURCE", "Source", sizeof(nt::KPROFILE_SOURCE)}}},
-        {"NtSetIoCompletionEx", 6, {{"HANDLE", "IoCompletionHandle", sizeof(nt::HANDLE)}, {"HANDLE", "IoCompletionReserveHandle", sizeof(nt::HANDLE)}, {"PVOID", "KeyContext", sizeof(nt::PVOID)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"NTSTATUS", "IoStatus", sizeof(nt::NTSTATUS)}, {"ULONG_PTR", "IoStatusInformation", sizeof(nt::ULONG_PTR)}}},
-        {"NtSetIoCompletion", 5, {{"HANDLE", "IoCompletionHandle", sizeof(nt::HANDLE)}, {"PVOID", "KeyContext", sizeof(nt::PVOID)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"NTSTATUS", "IoStatus", sizeof(nt::NTSTATUS)}, {"ULONG_PTR", "IoStatusInformation", sizeof(nt::ULONG_PTR)}}},
-        {"NtSetLdtEntries", 6, {{"ULONG", "Selector0", sizeof(nt::ULONG)}, {"ULONG", "Entry0Low", sizeof(nt::ULONG)}, {"ULONG", "Entry0Hi", sizeof(nt::ULONG)}, {"ULONG", "Selector1", sizeof(nt::ULONG)}, {"ULONG", "Entry1Low", sizeof(nt::ULONG)}, {"ULONG", "Entry1Hi", sizeof(nt::ULONG)}}},
-        {"NtSetLowEventPair", 1, {{"HANDLE", "EventPairHandle", sizeof(nt::HANDLE)}}},
-        {"NtSetLowWaitHighEventPair", 1, {{"HANDLE", "EventPairHandle", sizeof(nt::HANDLE)}}},
-        {"NtSetQuotaInformationFile", 4, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}}},
+        {"ZwSetIoCompletionEx", 6, {{"HANDLE", "IoCompletionHandle", sizeof(nt::HANDLE)}, {"HANDLE", "IoCompletionReserveHandle", sizeof(nt::HANDLE)}, {"PVOID", "KeyContext", sizeof(nt::PVOID)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"NTSTATUS", "IoStatus", sizeof(nt::NTSTATUS)}, {"ULONG_PTR", "IoStatusInformation", sizeof(nt::ULONG_PTR)}}},
+        {"ZwSetIoCompletion", 5, {{"HANDLE", "IoCompletionHandle", sizeof(nt::HANDLE)}, {"PVOID", "KeyContext", sizeof(nt::PVOID)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"NTSTATUS", "IoStatus", sizeof(nt::NTSTATUS)}, {"ULONG_PTR", "IoStatusInformation", sizeof(nt::ULONG_PTR)}}},
+        {"ZwSetLdtEntries", 6, {{"ULONG", "Selector0", sizeof(nt::ULONG)}, {"ULONG", "Entry0Low", sizeof(nt::ULONG)}, {"ULONG", "Entry0Hi", sizeof(nt::ULONG)}, {"ULONG", "Selector1", sizeof(nt::ULONG)}, {"ULONG", "Entry1Low", sizeof(nt::ULONG)}, {"ULONG", "Entry1Hi", sizeof(nt::ULONG)}}},
+        {"ZwSetLowEventPair", 1, {{"HANDLE", "EventPairHandle", sizeof(nt::HANDLE)}}},
+        {"ZwSetLowWaitHighEventPair", 1, {{"HANDLE", "EventPairHandle", sizeof(nt::HANDLE)}}},
+        {"ZwSetQuotaInformationFile", 4, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}}},
         {"NtSetSecurityObject", 3, {{"HANDLE", "Handle", sizeof(nt::HANDLE)}, {"SECURITY_INFORMATION", "SecurityInformation", sizeof(nt::SECURITY_INFORMATION)}, {"PSECURITY_DESCRIPTOR", "SecurityDescriptor", sizeof(nt::PSECURITY_DESCRIPTOR)}}},
-        {"NtSetSystemEnvironmentValueEx", 5, {{"PUNICODE_STRING", "VariableName", sizeof(nt::PUNICODE_STRING)}, {"LPGUID", "VendorGuid", sizeof(nt::LPGUID)}, {"PVOID", "Value", sizeof(nt::PVOID)}, {"ULONG", "ValueLength", sizeof(nt::ULONG)}, {"ULONG", "Attributes", sizeof(nt::ULONG)}}},
-        {"NtSetSystemEnvironmentValue", 2, {{"PUNICODE_STRING", "VariableName", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "VariableValue", sizeof(nt::PUNICODE_STRING)}}},
-        {"NtSetSystemInformation", 3, {{"SYSTEM_INFORMATION_CLASS", "SystemInformationClass", sizeof(nt::SYSTEM_INFORMATION_CLASS)}, {"PVOID", "SystemInformation", sizeof(nt::PVOID)}, {"ULONG", "SystemInformationLength", sizeof(nt::ULONG)}}},
-        {"NtSetSystemPowerState", 3, {{"POWER_ACTION", "SystemAction", sizeof(nt::POWER_ACTION)}, {"SYSTEM_POWER_STATE", "MinSystemState", sizeof(nt::SYSTEM_POWER_STATE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}}},
-        {"NtSetSystemTime", 2, {{"PLARGE_INTEGER", "SystemTime", sizeof(nt::PLARGE_INTEGER)}, {"PLARGE_INTEGER", "PreviousTime", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwSetSystemEnvironmentValueEx", 5, {{"PUNICODE_STRING", "VariableName", sizeof(nt::PUNICODE_STRING)}, {"LPGUID", "VendorGuid", sizeof(nt::LPGUID)}, {"PVOID", "Value", sizeof(nt::PVOID)}, {"ULONG", "ValueLength", sizeof(nt::ULONG)}, {"ULONG", "Attributes", sizeof(nt::ULONG)}}},
+        {"ZwSetSystemEnvironmentValue", 2, {{"PUNICODE_STRING", "VariableName", sizeof(nt::PUNICODE_STRING)}, {"PUNICODE_STRING", "VariableValue", sizeof(nt::PUNICODE_STRING)}}},
+        {"ZwSetSystemInformation", 3, {{"SYSTEM_INFORMATION_CLASS", "SystemInformationClass", sizeof(nt::SYSTEM_INFORMATION_CLASS)}, {"PVOID", "SystemInformation", sizeof(nt::PVOID)}, {"ULONG", "SystemInformationLength", sizeof(nt::ULONG)}}},
+        {"ZwSetSystemPowerState", 3, {{"POWER_ACTION", "SystemAction", sizeof(nt::POWER_ACTION)}, {"SYSTEM_POWER_STATE", "MinSystemState", sizeof(nt::SYSTEM_POWER_STATE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}}},
+        {"ZwSetSystemTime", 2, {{"PLARGE_INTEGER", "SystemTime", sizeof(nt::PLARGE_INTEGER)}, {"PLARGE_INTEGER", "PreviousTime", sizeof(nt::PLARGE_INTEGER)}}},
         {"NtSetThreadExecutionState", 2, {{"EXECUTION_STATE", "esFlags", sizeof(nt::EXECUTION_STATE)}, {"EXECUTION_STATE", "STARPreviousFlags", sizeof(nt::EXECUTION_STATE)}}},
-        {"NtSetTimerEx", 4, {{"HANDLE", "TimerHandle", sizeof(nt::HANDLE)}, {"TIMER_SET_INFORMATION_CLASS", "TimerSetInformationClass", sizeof(nt::TIMER_SET_INFORMATION_CLASS)}, {"PVOID", "TimerSetInformation", sizeof(nt::PVOID)}, {"ULONG", "TimerSetInformationLength", sizeof(nt::ULONG)}}},
-        {"NtSetTimer", 7, {{"HANDLE", "TimerHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "DueTime", sizeof(nt::PLARGE_INTEGER)}, {"PTIMER_APC_ROUTINE", "TimerApcRoutine", sizeof(nt::PTIMER_APC_ROUTINE)}, {"PVOID", "TimerContext", sizeof(nt::PVOID)}, {"BOOLEAN", "WakeTimer", sizeof(nt::BOOLEAN)}, {"LONG", "Period", sizeof(nt::LONG)}, {"PBOOLEAN", "PreviousState", sizeof(nt::PBOOLEAN)}}},
+        {"ZwSetTimerEx", 4, {{"HANDLE", "TimerHandle", sizeof(nt::HANDLE)}, {"TIMER_SET_INFORMATION_CLASS", "TimerSetInformationClass", sizeof(nt::TIMER_SET_INFORMATION_CLASS)}, {"PVOID", "TimerSetInformation", sizeof(nt::PVOID)}, {"ULONG", "TimerSetInformationLength", sizeof(nt::ULONG)}}},
+        {"ZwSetTimer", 7, {{"HANDLE", "TimerHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "DueTime", sizeof(nt::PLARGE_INTEGER)}, {"PTIMER_APC_ROUTINE", "TimerApcRoutine", sizeof(nt::PTIMER_APC_ROUTINE)}, {"PVOID", "TimerContext", sizeof(nt::PVOID)}, {"BOOLEAN", "WakeTimer", sizeof(nt::BOOLEAN)}, {"LONG", "Period", sizeof(nt::LONG)}, {"PBOOLEAN", "PreviousState", sizeof(nt::PBOOLEAN)}}},
         {"NtSetTimerResolution", 3, {{"ULONG", "DesiredTime", sizeof(nt::ULONG)}, {"BOOLEAN", "SetResolution", sizeof(nt::BOOLEAN)}, {"PULONG", "ActualTime", sizeof(nt::PULONG)}}},
         {"NtSetUuidSeed", 1, {{"PCHAR", "Seed", sizeof(nt::PCHAR)}}},
-        {"NtSetValueKey", 6, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"PUNICODE_STRING", "ValueName", sizeof(nt::PUNICODE_STRING)}, {"ULONG", "TitleIndex", sizeof(nt::ULONG)}, {"ULONG", "Type", sizeof(nt::ULONG)}, {"PVOID", "Data", sizeof(nt::PVOID)}, {"ULONG", "DataSize", sizeof(nt::ULONG)}}},
-        {"NtSetVolumeInformationFile", 5, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "FsInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"FS_INFORMATION_CLASS", "FsInformationClass", sizeof(nt::FS_INFORMATION_CLASS)}}},
-        {"NtShutdownSystem", 1, {{"SHUTDOWN_ACTION", "Action", sizeof(nt::SHUTDOWN_ACTION)}}},
-        {"NtShutdownWorkerFactory", 2, {{"HANDLE", "WorkerFactoryHandle", sizeof(nt::HANDLE)}, {"LONG", "STARPendingWorkerCount", sizeof(nt::LONG)}}},
-        {"NtSignalAndWaitForSingleObject", 4, {{"HANDLE", "SignalHandle", sizeof(nt::HANDLE)}, {"HANDLE", "WaitHandle", sizeof(nt::HANDLE)}, {"BOOLEAN", "Alertable", sizeof(nt::BOOLEAN)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtSinglePhaseReject", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtStartProfile", 1, {{"HANDLE", "ProfileHandle", sizeof(nt::HANDLE)}}},
-        {"NtStopProfile", 1, {{"HANDLE", "ProfileHandle", sizeof(nt::HANDLE)}}},
-        {"NtSuspendProcess", 1, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}}},
+        {"ZwSetValueKey", 6, {{"HANDLE", "KeyHandle", sizeof(nt::HANDLE)}, {"PUNICODE_STRING", "ValueName", sizeof(nt::PUNICODE_STRING)}, {"ULONG", "TitleIndex", sizeof(nt::ULONG)}, {"ULONG", "Type", sizeof(nt::ULONG)}, {"PVOID", "Data", sizeof(nt::PVOID)}, {"ULONG", "DataSize", sizeof(nt::ULONG)}}},
+        {"ZwSetVolumeInformationFile", 5, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "FsInformation", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"FS_INFORMATION_CLASS", "FsInformationClass", sizeof(nt::FS_INFORMATION_CLASS)}}},
+        {"ZwShutdownSystem", 1, {{"SHUTDOWN_ACTION", "Action", sizeof(nt::SHUTDOWN_ACTION)}}},
+        {"ZwShutdownWorkerFactory", 2, {{"HANDLE", "WorkerFactoryHandle", sizeof(nt::HANDLE)}, {"LONG", "STARPendingWorkerCount", sizeof(nt::LONG)}}},
+        {"ZwSignalAndWaitForSingleObject", 4, {{"HANDLE", "SignalHandle", sizeof(nt::HANDLE)}, {"HANDLE", "WaitHandle", sizeof(nt::HANDLE)}, {"BOOLEAN", "Alertable", sizeof(nt::BOOLEAN)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwSinglePhaseReject", 2, {{"HANDLE", "EnlistmentHandle", sizeof(nt::HANDLE)}, {"PLARGE_INTEGER", "TmVirtualClock", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwStartProfile", 1, {{"HANDLE", "ProfileHandle", sizeof(nt::HANDLE)}}},
+        {"ZwStopProfile", 1, {{"HANDLE", "ProfileHandle", sizeof(nt::HANDLE)}}},
+        {"ZwSuspendProcess", 1, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}}},
         {"NtSuspendThread", 2, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"PULONG", "PreviousSuspendCount", sizeof(nt::PULONG)}}},
-        {"NtSystemDebugControl", 6, {{"SYSDBG_COMMAND", "Command", sizeof(nt::SYSDBG_COMMAND)}, {"PVOID", "InputBuffer", sizeof(nt::PVOID)}, {"ULONG", "InputBufferLength", sizeof(nt::ULONG)}, {"PVOID", "OutputBuffer", sizeof(nt::PVOID)}, {"ULONG", "OutputBufferLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
+        {"ZwSystemDebugControl", 6, {{"SYSDBG_COMMAND", "Command", sizeof(nt::SYSDBG_COMMAND)}, {"PVOID", "InputBuffer", sizeof(nt::PVOID)}, {"ULONG", "InputBufferLength", sizeof(nt::ULONG)}, {"PVOID", "OutputBuffer", sizeof(nt::PVOID)}, {"ULONG", "OutputBufferLength", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtTerminateJobObject", 2, {{"HANDLE", "JobHandle", sizeof(nt::HANDLE)}, {"NTSTATUS", "ExitStatus", sizeof(nt::NTSTATUS)}}},
-        {"NtTerminateProcess", 2, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"NTSTATUS", "ExitStatus", sizeof(nt::NTSTATUS)}}},
+        {"ZwTerminateProcess", 2, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"NTSTATUS", "ExitStatus", sizeof(nt::NTSTATUS)}}},
         {"NtTerminateThread", 2, {{"HANDLE", "ThreadHandle", sizeof(nt::HANDLE)}, {"NTSTATUS", "ExitStatus", sizeof(nt::NTSTATUS)}}},
         {"NtTraceControl", 6, {{"ULONG", "FunctionCode", sizeof(nt::ULONG)}, {"PVOID", "InBuffer", sizeof(nt::PVOID)}, {"ULONG", "InBufferLen", sizeof(nt::ULONG)}, {"PVOID", "OutBuffer", sizeof(nt::PVOID)}, {"ULONG", "OutBufferLen", sizeof(nt::ULONG)}, {"PULONG", "ReturnLength", sizeof(nt::PULONG)}}},
         {"NtTraceEvent", 4, {{"HANDLE", "TraceHandle", sizeof(nt::HANDLE)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"ULONG", "FieldSize", sizeof(nt::ULONG)}, {"PVOID", "Fields", sizeof(nt::PVOID)}}},
         {"NtTranslateFilePath", 4, {{"PFILE_PATH", "InputFilePath", sizeof(nt::PFILE_PATH)}, {"ULONG", "OutputType", sizeof(nt::ULONG)}, {"PFILE_PATH", "OutputFilePath", sizeof(nt::PFILE_PATH)}, {"PULONG", "OutputFilePathLength", sizeof(nt::PULONG)}}},
-        {"NtUnloadDriver", 1, {{"PUNICODE_STRING", "DriverServiceName", sizeof(nt::PUNICODE_STRING)}}},
+        {"ZwUnloadDriver", 1, {{"PUNICODE_STRING", "DriverServiceName", sizeof(nt::PUNICODE_STRING)}}},
         {"NtUnloadKey2", 2, {{"POBJECT_ATTRIBUTES", "TargetKey", sizeof(nt::POBJECT_ATTRIBUTES)}, {"ULONG", "Flags", sizeof(nt::ULONG)}}},
-        {"NtUnloadKeyEx", 2, {{"POBJECT_ATTRIBUTES", "TargetKey", sizeof(nt::POBJECT_ATTRIBUTES)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}}},
+        {"ZwUnloadKeyEx", 2, {{"POBJECT_ATTRIBUTES", "TargetKey", sizeof(nt::POBJECT_ATTRIBUTES)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}}},
         {"NtUnloadKey", 1, {{"POBJECT_ATTRIBUTES", "TargetKey", sizeof(nt::POBJECT_ATTRIBUTES)}}},
-        {"NtUnlockFile", 5, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PLARGE_INTEGER", "ByteOffset", sizeof(nt::PLARGE_INTEGER)}, {"PLARGE_INTEGER", "Length", sizeof(nt::PLARGE_INTEGER)}, {"ULONG", "Key", sizeof(nt::ULONG)}}},
-        {"NtUnlockVirtualMemory", 4, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}, {"PSIZE_T", "RegionSize", sizeof(nt::PSIZE_T)}, {"ULONG", "MapType", sizeof(nt::ULONG)}}},
+        {"ZwUnlockFile", 5, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PLARGE_INTEGER", "ByteOffset", sizeof(nt::PLARGE_INTEGER)}, {"PLARGE_INTEGER", "Length", sizeof(nt::PLARGE_INTEGER)}, {"ULONG", "Key", sizeof(nt::ULONG)}}},
+        {"ZwUnlockVirtualMemory", 4, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "STARBaseAddress", sizeof(nt::PVOID)}, {"PSIZE_T", "RegionSize", sizeof(nt::PSIZE_T)}, {"ULONG", "MapType", sizeof(nt::ULONG)}}},
         {"NtUnmapViewOfSection", 2, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}}},
-        {"NtVdmControl", 2, {{"VDMSERVICECLASS", "Service", sizeof(nt::VDMSERVICECLASS)}, {"PVOID", "ServiceData", sizeof(nt::PVOID)}}},
-        {"NtWaitForDebugEvent", 4, {{"HANDLE", "DebugObjectHandle", sizeof(nt::HANDLE)}, {"BOOLEAN", "Alertable", sizeof(nt::BOOLEAN)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}, {"PDBGUI_WAIT_STATE_CHANGE", "WaitStateChange", sizeof(nt::PDBGUI_WAIT_STATE_CHANGE)}}},
+        {"ZwVdmControl", 2, {{"VDMSERVICECLASS", "Service", sizeof(nt::VDMSERVICECLASS)}, {"PVOID", "ServiceData", sizeof(nt::PVOID)}}},
+        {"ZwWaitForDebugEvent", 4, {{"HANDLE", "DebugObjectHandle", sizeof(nt::HANDLE)}, {"BOOLEAN", "Alertable", sizeof(nt::BOOLEAN)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}, {"PDBGUI_WAIT_STATE_CHANGE", "WaitStateChange", sizeof(nt::PDBGUI_WAIT_STATE_CHANGE)}}},
         {"NtWaitForKeyedEvent", 4, {{"HANDLE", "KeyedEventHandle", sizeof(nt::HANDLE)}, {"PVOID", "KeyValue", sizeof(nt::PVOID)}, {"BOOLEAN", "Alertable", sizeof(nt::BOOLEAN)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtWaitForMultipleObjects32", 5, {{"ULONG", "Count", sizeof(nt::ULONG)}, {"LONG", "Handles", sizeof(nt::LONG)}, {"WAIT_TYPE", "WaitType", sizeof(nt::WAIT_TYPE)}, {"BOOLEAN", "Alertable", sizeof(nt::BOOLEAN)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
+        {"ZwWaitForMultipleObjects32", 5, {{"ULONG", "Count", sizeof(nt::ULONG)}, {"LONG", "Handles", sizeof(nt::LONG)}, {"WAIT_TYPE", "WaitType", sizeof(nt::WAIT_TYPE)}, {"BOOLEAN", "Alertable", sizeof(nt::BOOLEAN)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
         {"NtWaitForMultipleObjects", 5, {{"ULONG", "Count", sizeof(nt::ULONG)}, {"HANDLE", "Handles", sizeof(nt::HANDLE)}, {"WAIT_TYPE", "WaitType", sizeof(nt::WAIT_TYPE)}, {"BOOLEAN", "Alertable", sizeof(nt::BOOLEAN)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
         {"NtWaitForSingleObject", 3, {{"HANDLE", "Handle", sizeof(nt::HANDLE)}, {"BOOLEAN", "Alertable", sizeof(nt::BOOLEAN)}, {"PLARGE_INTEGER", "Timeout", sizeof(nt::PLARGE_INTEGER)}}},
-        {"NtWaitForWorkViaWorkerFactory", 2, {{"HANDLE", "WorkerFactoryHandle", sizeof(nt::HANDLE)}, {"PFILE_IO_COMPLETION_INFORMATION", "MiniPacket", sizeof(nt::PFILE_IO_COMPLETION_INFORMATION)}}},
-        {"NtWaitHighEventPair", 1, {{"HANDLE", "EventPairHandle", sizeof(nt::HANDLE)}}},
+        {"ZwWaitForWorkViaWorkerFactory", 2, {{"HANDLE", "WorkerFactoryHandle", sizeof(nt::HANDLE)}, {"PFILE_IO_COMPLETION_INFORMATION", "MiniPacket", sizeof(nt::PFILE_IO_COMPLETION_INFORMATION)}}},
+        {"ZwWaitHighEventPair", 1, {{"HANDLE", "EventPairHandle", sizeof(nt::HANDLE)}}},
         {"NtWaitLowEventPair", 1, {{"HANDLE", "EventPairHandle", sizeof(nt::HANDLE)}}},
         {"NtWorkerFactoryWorkerReady", 1, {{"HANDLE", "WorkerFactoryHandle", sizeof(nt::HANDLE)}}},
-        {"NtWriteFileGather", 9, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PFILE_SEGMENT_ELEMENT", "SegmentArray", sizeof(nt::PFILE_SEGMENT_ELEMENT)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PLARGE_INTEGER", "ByteOffset", sizeof(nt::PLARGE_INTEGER)}, {"PULONG", "Key", sizeof(nt::PULONG)}}},
+        {"ZwWriteFileGather", 9, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PFILE_SEGMENT_ELEMENT", "SegmentArray", sizeof(nt::PFILE_SEGMENT_ELEMENT)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PLARGE_INTEGER", "ByteOffset", sizeof(nt::PLARGE_INTEGER)}, {"PULONG", "Key", sizeof(nt::PULONG)}}},
         {"NtWriteFile", 9, {{"HANDLE", "FileHandle", sizeof(nt::HANDLE)}, {"HANDLE", "Event", sizeof(nt::HANDLE)}, {"PIO_APC_ROUTINE", "ApcRoutine", sizeof(nt::PIO_APC_ROUTINE)}, {"PVOID", "ApcContext", sizeof(nt::PVOID)}, {"PIO_STATUS_BLOCK", "IoStatusBlock", sizeof(nt::PIO_STATUS_BLOCK)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"ULONG", "Length", sizeof(nt::ULONG)}, {"PLARGE_INTEGER", "ByteOffset", sizeof(nt::PLARGE_INTEGER)}, {"PULONG", "Key", sizeof(nt::PULONG)}}},
-        {"NtWriteRequestData", 6, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "Message", sizeof(nt::PPORT_MESSAGE)}, {"ULONG", "DataEntryIndex", sizeof(nt::ULONG)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"SIZE_T", "BufferSize", sizeof(nt::SIZE_T)}, {"PSIZE_T", "NumberOfBytesWritten", sizeof(nt::PSIZE_T)}}},
+        {"ZwWriteRequestData", 6, {{"HANDLE", "PortHandle", sizeof(nt::HANDLE)}, {"PPORT_MESSAGE", "Message", sizeof(nt::PPORT_MESSAGE)}, {"ULONG", "DataEntryIndex", sizeof(nt::ULONG)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"SIZE_T", "BufferSize", sizeof(nt::SIZE_T)}, {"PSIZE_T", "NumberOfBytesWritten", sizeof(nt::PSIZE_T)}}},
         {"NtWriteVirtualMemory", 5, {{"HANDLE", "ProcessHandle", sizeof(nt::HANDLE)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"PVOID", "Buffer", sizeof(nt::PVOID)}, {"SIZE_T", "BufferSize", sizeof(nt::SIZE_T)}, {"PSIZE_T", "NumberOfBytesWritten", sizeof(nt::PSIZE_T)}}},
         {"NtDisableLastKnownGood", 0, {}},
         {"NtEnableLastKnownGood", 0, {}},
-        {"NtFlushProcessWriteBuffers", 0, {}},
+        {"ZwFlushProcessWriteBuffers", 0, {}},
         {"NtFlushWriteBuffer", 0, {}},
-        {"NtGetCurrentProcessorNumber", 0, {}},
-        {"NtIsSystemResumeAutomatic", 0, {}},
+        {"ZwGetCurrentProcessorNumber", 0, {}},
+        {"ZwIsSystemResumeAutomatic", 0, {}},
         {"NtIsUILanguageComitted", 0, {}},
         {"NtQueryPortInformationProcess", 0, {}},
-        {"NtSerializeBoot", 0, {}},
-        {"NtTestAlert", 0, {}},
-        {"NtThawRegistry", 0, {}},
-        {"NtThawTransactions", 0, {}},
-        {"NtUmsThreadYield", 0, {}},
-        {"NtYieldExecution", 0, {}},
+        {"ZwSerializeBoot", 0, {}},
+        {"ZwTestAlert", 0, {}},
+        {"ZwThawRegistry", 0, {}},
+        {"ZwThawTransactions", 0, {}},
+        {"ZwUmsThreadYield", 0, {}},
+        {"ZwYieldExecution", 0, {}},
 	};
 
     using id_t      = nt::syscalls::id_t;
@@ -492,9 +491,9 @@ opt<id_t> nt::syscalls::register_NtAcceptConnectPort(proc_t proc, const on_NtAcc
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAccessCheckAndAuditAlarm(proc_t proc, const on_NtAccessCheckAndAuditAlarm_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAccessCheckAndAuditAlarm(proc_t proc, const on_ZwAccessCheckAndAuditAlarm_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAccessCheckAndAuditAlarm", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAccessCheckAndAuditAlarm", [=]
     {
         auto& core = d_->core;
         
@@ -517,9 +516,9 @@ opt<id_t> nt::syscalls::register_NtAccessCheckAndAuditAlarm(proc_t proc, const o
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeAndAuditAlarm_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAccessCheckByTypeAndAuditAlarm(proc_t proc, const on_ZwAccessCheckByTypeAndAuditAlarm_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAccessCheckByTypeAndAuditAlarm", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAccessCheckByTypeAndAuditAlarm", [=]
     {
         auto& core = d_->core;
         
@@ -547,9 +546,9 @@ opt<id_t> nt::syscalls::register_NtAccessCheckByTypeAndAuditAlarm(proc_t proc, c
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAccessCheckByType(proc_t proc, const on_NtAccessCheckByType_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAccessCheckByType(proc_t proc, const on_ZwAccessCheckByType_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAccessCheckByType", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAccessCheckByType", [=]
     {
         auto& core = d_->core;
         
@@ -572,9 +571,9 @@ opt<id_t> nt::syscalls::register_NtAccessCheckByType(proc_t proc, const on_NtAcc
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle(proc_t proc, const on_ZwAccessCheckByTypeResultListAndAuditAlarmByHandle_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAccessCheckByTypeResultListAndAuditAlarmByHandle", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAccessCheckByTypeResultListAndAuditAlarmByHandle", [=]
     {
         auto& core = d_->core;
         
@@ -603,9 +602,9 @@ opt<id_t> nt::syscalls::register_NtAccessCheckByTypeResultListAndAuditAlarmByHan
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_NtAccessCheckByTypeResultListAndAuditAlarm_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAccessCheckByTypeResultListAndAuditAlarm(proc_t proc, const on_ZwAccessCheckByTypeResultListAndAuditAlarm_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAccessCheckByTypeResultListAndAuditAlarm", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAccessCheckByTypeResultListAndAuditAlarm", [=]
     {
         auto& core = d_->core;
         
@@ -633,9 +632,9 @@ opt<id_t> nt::syscalls::register_NtAccessCheckByTypeResultListAndAuditAlarm(proc
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAccessCheckByTypeResultList(proc_t proc, const on_NtAccessCheckByTypeResultList_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAccessCheckByTypeResultList(proc_t proc, const on_ZwAccessCheckByTypeResultList_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAccessCheckByTypeResultList", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAccessCheckByTypeResultList", [=]
     {
         auto& core = d_->core;
         
@@ -658,9 +657,9 @@ opt<id_t> nt::syscalls::register_NtAccessCheckByTypeResultList(proc_t proc, cons
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAccessCheck(proc_t proc, const on_NtAccessCheck_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAccessCheck(proc_t proc, const on_ZwAccessCheck_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAccessCheck", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAccessCheck", [=]
     {
         auto& core = d_->core;
         
@@ -680,9 +679,9 @@ opt<id_t> nt::syscalls::register_NtAccessCheck(proc_t proc, const on_NtAccessChe
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAddAtom(proc_t proc, const on_NtAddAtom_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAddAtom(proc_t proc, const on_ZwAddAtom_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAddAtom", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAddAtom", [=]
     {
         auto& core = d_->core;
         
@@ -697,9 +696,9 @@ opt<id_t> nt::syscalls::register_NtAddAtom(proc_t proc, const on_NtAddAtom_fn& o
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAddBootEntry(proc_t proc, const on_NtAddBootEntry_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAddBootEntry(proc_t proc, const on_ZwAddBootEntry_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAddBootEntry", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAddBootEntry", [=]
     {
         auto& core = d_->core;
         
@@ -769,9 +768,9 @@ opt<id_t> nt::syscalls::register_NtAdjustPrivilegesToken(proc_t proc, const on_N
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAlertResumeThread(proc_t proc, const on_NtAlertResumeThread_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAlertResumeThread(proc_t proc, const on_ZwAlertResumeThread_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAlertResumeThread", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAlertResumeThread", [=]
     {
         auto& core = d_->core;
         
@@ -800,9 +799,9 @@ opt<id_t> nt::syscalls::register_NtAlertThread(proc_t proc, const on_NtAlertThre
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAllocateLocallyUniqueId(proc_t proc, const on_NtAllocateLocallyUniqueId_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAllocateLocallyUniqueId(proc_t proc, const on_ZwAllocateLocallyUniqueId_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAllocateLocallyUniqueId", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAllocateLocallyUniqueId", [=]
     {
         auto& core = d_->core;
         
@@ -832,9 +831,9 @@ opt<id_t> nt::syscalls::register_NtAllocateReserveObject(proc_t proc, const on_N
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAllocateUserPhysicalPages(proc_t proc, const on_NtAllocateUserPhysicalPages_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAllocateUserPhysicalPages(proc_t proc, const on_ZwAllocateUserPhysicalPages_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAllocateUserPhysicalPages", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAllocateUserPhysicalPages", [=]
     {
         auto& core = d_->core;
         
@@ -849,9 +848,9 @@ opt<id_t> nt::syscalls::register_NtAllocateUserPhysicalPages(proc_t proc, const 
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAllocateUuids(proc_t proc, const on_NtAllocateUuids_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAllocateUuids(proc_t proc, const on_ZwAllocateUuids_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAllocateUuids", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAllocateUuids", [=]
     {
         auto& core = d_->core;
         
@@ -867,9 +866,9 @@ opt<id_t> nt::syscalls::register_NtAllocateUuids(proc_t proc, const on_NtAllocat
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAllocateVirtualMemory(proc_t proc, const on_NtAllocateVirtualMemory_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAllocateVirtualMemory(proc_t proc, const on_ZwAllocateVirtualMemory_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAllocateVirtualMemory", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAllocateVirtualMemory", [=]
     {
         auto& core = d_->core;
         
@@ -887,9 +886,9 @@ opt<id_t> nt::syscalls::register_NtAllocateVirtualMemory(proc_t proc, const on_N
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAlpcAcceptConnectPort(proc_t proc, const on_NtAlpcAcceptConnectPort_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAlpcAcceptConnectPort(proc_t proc, const on_ZwAlpcAcceptConnectPort_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAlpcAcceptConnectPort", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAlpcAcceptConnectPort", [=]
     {
         auto& core = d_->core;
         
@@ -969,9 +968,9 @@ opt<id_t> nt::syscalls::register_NtAlpcCreatePort(proc_t proc, const on_NtAlpcCr
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAlpcCreatePortSection(proc_t proc, const on_NtAlpcCreatePortSection_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAlpcCreatePortSection(proc_t proc, const on_ZwAlpcCreatePortSection_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAlpcCreatePortSection", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAlpcCreatePortSection", [=]
     {
         auto& core = d_->core;
         
@@ -989,9 +988,9 @@ opt<id_t> nt::syscalls::register_NtAlpcCreatePortSection(proc_t proc, const on_N
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAlpcCreateResourceReserve(proc_t proc, const on_NtAlpcCreateResourceReserve_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAlpcCreateResourceReserve(proc_t proc, const on_ZwAlpcCreateResourceReserve_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAlpcCreateResourceReserve", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAlpcCreateResourceReserve", [=]
     {
         auto& core = d_->core;
         
@@ -1075,9 +1074,9 @@ opt<id_t> nt::syscalls::register_NtAlpcDeleteResourceReserve(proc_t proc, const 
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAlpcDeleteSectionView(proc_t proc, const on_NtAlpcDeleteSectionView_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAlpcDeleteSectionView(proc_t proc, const on_ZwAlpcDeleteSectionView_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAlpcDeleteSectionView", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAlpcDeleteSectionView", [=]
     {
         auto& core = d_->core;
         
@@ -1092,9 +1091,9 @@ opt<id_t> nt::syscalls::register_NtAlpcDeleteSectionView(proc_t proc, const on_N
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAlpcDeleteSecurityContext(proc_t proc, const on_NtAlpcDeleteSecurityContext_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAlpcDeleteSecurityContext(proc_t proc, const on_ZwAlpcDeleteSecurityContext_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAlpcDeleteSecurityContext", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAlpcDeleteSecurityContext", [=]
     {
         auto& core = d_->core;
         
@@ -1182,9 +1181,9 @@ opt<id_t> nt::syscalls::register_NtAlpcOpenSenderThread(proc_t proc, const on_Nt
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAlpcQueryInformation(proc_t proc, const on_NtAlpcQueryInformation_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAlpcQueryInformation(proc_t proc, const on_ZwAlpcQueryInformation_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAlpcQueryInformation", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAlpcQueryInformation", [=]
     {
         auto& core = d_->core;
         
@@ -1201,9 +1200,9 @@ opt<id_t> nt::syscalls::register_NtAlpcQueryInformation(proc_t proc, const on_Nt
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAlpcQueryInformationMessage(proc_t proc, const on_NtAlpcQueryInformationMessage_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAlpcQueryInformationMessage(proc_t proc, const on_ZwAlpcQueryInformationMessage_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAlpcQueryInformationMessage", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAlpcQueryInformationMessage", [=]
     {
         auto& core = d_->core;
         
@@ -1238,9 +1237,9 @@ opt<id_t> nt::syscalls::register_NtAlpcRevokeSecurityContext(proc_t proc, const 
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAlpcSendWaitReceivePort(proc_t proc, const on_NtAlpcSendWaitReceivePort_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAlpcSendWaitReceivePort(proc_t proc, const on_ZwAlpcSendWaitReceivePort_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAlpcSendWaitReceivePort", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAlpcSendWaitReceivePort", [=]
     {
         auto& core = d_->core;
         
@@ -1294,9 +1293,9 @@ opt<id_t> nt::syscalls::register_NtApphelpCacheControl(proc_t proc, const on_NtA
     });
 }
 
-opt<id_t> nt::syscalls::register_NtAreMappedFilesTheSame(proc_t proc, const on_NtAreMappedFilesTheSame_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwAreMappedFilesTheSame(proc_t proc, const on_ZwAreMappedFilesTheSame_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtAreMappedFilesTheSame", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwAreMappedFilesTheSame", [=]
     {
         auto& core = d_->core;
         
@@ -1326,9 +1325,9 @@ opt<id_t> nt::syscalls::register_NtAssignProcessToJobObject(proc_t proc, const o
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCancelIoFileEx(proc_t proc, const on_NtCancelIoFileEx_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCancelIoFileEx(proc_t proc, const on_ZwCancelIoFileEx_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCancelIoFileEx", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCancelIoFileEx", [=]
     {
         auto& core = d_->core;
         
@@ -1343,9 +1342,9 @@ opt<id_t> nt::syscalls::register_NtCancelIoFileEx(proc_t proc, const on_NtCancel
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCancelIoFile(proc_t proc, const on_NtCancelIoFile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCancelIoFile(proc_t proc, const on_ZwCancelIoFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCancelIoFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCancelIoFile", [=]
     {
         auto& core = d_->core;
         
@@ -1359,9 +1358,9 @@ opt<id_t> nt::syscalls::register_NtCancelIoFile(proc_t proc, const on_NtCancelIo
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCancelSynchronousIoFile(proc_t proc, const on_NtCancelSynchronousIoFile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCancelSynchronousIoFile(proc_t proc, const on_ZwCancelSynchronousIoFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCancelSynchronousIoFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCancelSynchronousIoFile", [=]
     {
         auto& core = d_->core;
         
@@ -1422,9 +1421,9 @@ opt<id_t> nt::syscalls::register_NtClose(proc_t proc, const on_NtClose_fn& on_fu
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCloseObjectAuditAlarm(proc_t proc, const on_NtCloseObjectAuditAlarm_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCloseObjectAuditAlarm(proc_t proc, const on_ZwCloseObjectAuditAlarm_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCloseObjectAuditAlarm", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCloseObjectAuditAlarm", [=]
     {
         auto& core = d_->core;
         
@@ -1455,9 +1454,9 @@ opt<id_t> nt::syscalls::register_NtCommitComplete(proc_t proc, const on_NtCommit
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCommitEnlistment(proc_t proc, const on_NtCommitEnlistment_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCommitEnlistment(proc_t proc, const on_ZwCommitEnlistment_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCommitEnlistment", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCommitEnlistment", [=]
     {
         auto& core = d_->core;
         
@@ -1471,9 +1470,9 @@ opt<id_t> nt::syscalls::register_NtCommitEnlistment(proc_t proc, const on_NtComm
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCommitTransaction(proc_t proc, const on_NtCommitTransaction_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCommitTransaction(proc_t proc, const on_ZwCommitTransaction_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCommitTransaction", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCommitTransaction", [=]
     {
         auto& core = d_->core;
         
@@ -1503,9 +1502,9 @@ opt<id_t> nt::syscalls::register_NtCompactKeys(proc_t proc, const on_NtCompactKe
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCompareTokens(proc_t proc, const on_NtCompareTokens_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCompareTokens(proc_t proc, const on_ZwCompareTokens_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCompareTokens", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCompareTokens", [=]
     {
         auto& core = d_->core;
         
@@ -1550,9 +1549,9 @@ opt<id_t> nt::syscalls::register_NtCompressKey(proc_t proc, const on_NtCompressK
     });
 }
 
-opt<id_t> nt::syscalls::register_NtConnectPort(proc_t proc, const on_NtConnectPort_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwConnectPort(proc_t proc, const on_ZwConnectPort_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtConnectPort", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwConnectPort", [=]
     {
         auto& core = d_->core;
         
@@ -1572,9 +1571,9 @@ opt<id_t> nt::syscalls::register_NtConnectPort(proc_t proc, const on_NtConnectPo
     });
 }
 
-opt<id_t> nt::syscalls::register_NtContinue(proc_t proc, const on_NtContinue_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwContinue(proc_t proc, const on_ZwContinue_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtContinue", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwContinue", [=]
     {
         auto& core = d_->core;
         
@@ -1645,9 +1644,9 @@ opt<id_t> nt::syscalls::register_NtCreateEnlistment(proc_t proc, const on_NtCrea
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateEvent(proc_t proc, const on_NtCreateEvent_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateEvent(proc_t proc, const on_ZwCreateEvent_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateEvent", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateEvent", [=]
     {
         auto& core = d_->core;
         
@@ -1664,9 +1663,9 @@ opt<id_t> nt::syscalls::register_NtCreateEvent(proc_t proc, const on_NtCreateEve
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateEventPair(proc_t proc, const on_NtCreateEventPair_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateEventPair(proc_t proc, const on_ZwCreateEventPair_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateEventPair", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateEventPair", [=]
     {
         auto& core = d_->core;
         
@@ -1681,9 +1680,9 @@ opt<id_t> nt::syscalls::register_NtCreateEventPair(proc_t proc, const on_NtCreat
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateFile(proc_t proc, const on_NtCreateFile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateFile(proc_t proc, const on_ZwCreateFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateFile", [=]
     {
         auto& core = d_->core;
         
@@ -1724,9 +1723,9 @@ opt<id_t> nt::syscalls::register_NtCreateIoCompletion(proc_t proc, const on_NtCr
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateJobObject(proc_t proc, const on_NtCreateJobObject_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateJobObject(proc_t proc, const on_ZwCreateJobObject_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateJobObject", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateJobObject", [=]
     {
         auto& core = d_->core;
         
@@ -1741,9 +1740,9 @@ opt<id_t> nt::syscalls::register_NtCreateJobObject(proc_t proc, const on_NtCreat
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateJobSet(proc_t proc, const on_NtCreateJobSet_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateJobSet(proc_t proc, const on_ZwCreateJobSet_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateJobSet", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateJobSet", [=]
     {
         auto& core = d_->core;
         
@@ -1758,9 +1757,9 @@ opt<id_t> nt::syscalls::register_NtCreateJobSet(proc_t proc, const on_NtCreateJo
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateKeyedEvent(proc_t proc, const on_NtCreateKeyedEvent_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateKeyedEvent(proc_t proc, const on_ZwCreateKeyedEvent_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateKeyedEvent", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateKeyedEvent", [=]
     {
         auto& core = d_->core;
         
@@ -1776,9 +1775,9 @@ opt<id_t> nt::syscalls::register_NtCreateKeyedEvent(proc_t proc, const on_NtCrea
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateKey(proc_t proc, const on_NtCreateKey_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateKey(proc_t proc, const on_ZwCreateKey_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateKey", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateKey", [=]
     {
         auto& core = d_->core;
         
@@ -1797,9 +1796,9 @@ opt<id_t> nt::syscalls::register_NtCreateKey(proc_t proc, const on_NtCreateKey_f
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateKeyTransacted(proc_t proc, const on_NtCreateKeyTransacted_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateKeyTransacted(proc_t proc, const on_ZwCreateKeyTransacted_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateKeyTransacted", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateKeyTransacted", [=]
     {
         auto& core = d_->core;
         
@@ -1819,9 +1818,9 @@ opt<id_t> nt::syscalls::register_NtCreateKeyTransacted(proc_t proc, const on_NtC
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateMailslotFile(proc_t proc, const on_NtCreateMailslotFile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateMailslotFile(proc_t proc, const on_ZwCreateMailslotFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateMailslotFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateMailslotFile", [=]
     {
         auto& core = d_->core;
         
@@ -1905,9 +1904,9 @@ opt<id_t> nt::syscalls::register_NtCreatePagingFile(proc_t proc, const on_NtCrea
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreatePort(proc_t proc, const on_NtCreatePort_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreatePort(proc_t proc, const on_ZwCreatePort_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreatePort", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreatePort", [=]
     {
         auto& core = d_->core;
         
@@ -1924,9 +1923,9 @@ opt<id_t> nt::syscalls::register_NtCreatePort(proc_t proc, const on_NtCreatePort
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreatePrivateNamespace(proc_t proc, const on_NtCreatePrivateNamespace_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreatePrivateNamespace(proc_t proc, const on_ZwCreatePrivateNamespace_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreatePrivateNamespace", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreatePrivateNamespace", [=]
     {
         auto& core = d_->core;
         
@@ -1942,9 +1941,9 @@ opt<id_t> nt::syscalls::register_NtCreatePrivateNamespace(proc_t proc, const on_
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateProcessEx(proc_t proc, const on_NtCreateProcessEx_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateProcessEx(proc_t proc, const on_ZwCreateProcessEx_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateProcessEx", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateProcessEx", [=]
     {
         auto& core = d_->core;
         
@@ -1987,9 +1986,9 @@ opt<id_t> nt::syscalls::register_NtCreateProcess(proc_t proc, const on_NtCreateP
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateProfileEx(proc_t proc, const on_NtCreateProfileEx_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateProfileEx(proc_t proc, const on_ZwCreateProfileEx_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateProfileEx", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateProfileEx", [=]
     {
         auto& core = d_->core;
         
@@ -2011,9 +2010,9 @@ opt<id_t> nt::syscalls::register_NtCreateProfileEx(proc_t proc, const on_NtCreat
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateProfile(proc_t proc, const on_NtCreateProfile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateProfile(proc_t proc, const on_ZwCreateProfile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateProfile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateProfile", [=]
     {
         auto& core = d_->core;
         
@@ -2095,9 +2094,9 @@ opt<id_t> nt::syscalls::register_NtCreateSemaphore(proc_t proc, const on_NtCreat
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateSymbolicLinkObject(proc_t proc, const on_NtCreateSymbolicLinkObject_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateSymbolicLinkObject(proc_t proc, const on_ZwCreateSymbolicLinkObject_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateSymbolicLinkObject", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateSymbolicLinkObject", [=]
     {
         auto& core = d_->core;
         
@@ -2160,9 +2159,9 @@ opt<id_t> nt::syscalls::register_NtCreateThread(proc_t proc, const on_NtCreateTh
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateTimer(proc_t proc, const on_NtCreateTimer_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateTimer(proc_t proc, const on_ZwCreateTimer_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateTimer", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateTimer", [=]
     {
         auto& core = d_->core;
         
@@ -2205,9 +2204,9 @@ opt<id_t> nt::syscalls::register_NtCreateToken(proc_t proc, const on_NtCreateTok
     });
 }
 
-opt<id_t> nt::syscalls::register_NtCreateTransactionManager(proc_t proc, const on_NtCreateTransactionManager_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwCreateTransactionManager(proc_t proc, const on_ZwCreateTransactionManager_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtCreateTransactionManager", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwCreateTransactionManager", [=]
     {
         auto& core = d_->core;
         
@@ -2350,9 +2349,9 @@ opt<id_t> nt::syscalls::register_NtDebugContinue(proc_t proc, const on_NtDebugCo
     });
 }
 
-opt<id_t> nt::syscalls::register_NtDelayExecution(proc_t proc, const on_NtDelayExecution_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwDelayExecution(proc_t proc, const on_ZwDelayExecution_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtDelayExecution", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwDelayExecution", [=]
     {
         auto& core = d_->core;
         
@@ -2396,9 +2395,9 @@ opt<id_t> nt::syscalls::register_NtDeleteBootEntry(proc_t proc, const on_NtDelet
     });
 }
 
-opt<id_t> nt::syscalls::register_NtDeleteDriverEntry(proc_t proc, const on_NtDeleteDriverEntry_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwDeleteDriverEntry(proc_t proc, const on_ZwDeleteDriverEntry_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtDeleteDriverEntry", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwDeleteDriverEntry", [=]
     {
         auto& core = d_->core;
         
@@ -2441,9 +2440,9 @@ opt<id_t> nt::syscalls::register_NtDeleteKey(proc_t proc, const on_NtDeleteKey_f
     });
 }
 
-opt<id_t> nt::syscalls::register_NtDeleteObjectAuditAlarm(proc_t proc, const on_NtDeleteObjectAuditAlarm_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwDeleteObjectAuditAlarm(proc_t proc, const on_ZwDeleteObjectAuditAlarm_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtDeleteObjectAuditAlarm", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwDeleteObjectAuditAlarm", [=]
     {
         auto& core = d_->core;
         
@@ -2473,9 +2472,9 @@ opt<id_t> nt::syscalls::register_NtDeletePrivateNamespace(proc_t proc, const on_
     });
 }
 
-opt<id_t> nt::syscalls::register_NtDeleteValueKey(proc_t proc, const on_NtDeleteValueKey_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwDeleteValueKey(proc_t proc, const on_ZwDeleteValueKey_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtDeleteValueKey", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwDeleteValueKey", [=]
     {
         auto& core = d_->core;
         
@@ -2513,9 +2512,9 @@ opt<id_t> nt::syscalls::register_NtDeviceIoControlFile(proc_t proc, const on_NtD
     });
 }
 
-opt<id_t> nt::syscalls::register_NtDisplayString(proc_t proc, const on_NtDisplayString_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwDisplayString(proc_t proc, const on_ZwDisplayString_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtDisplayString", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwDisplayString", [=]
     {
         auto& core = d_->core;
         
@@ -2543,9 +2542,9 @@ opt<id_t> nt::syscalls::register_NtDrawText(proc_t proc, const on_NtDrawText_fn&
     });
 }
 
-opt<id_t> nt::syscalls::register_NtDuplicateObject(proc_t proc, const on_NtDuplicateObject_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwDuplicateObject(proc_t proc, const on_ZwDuplicateObject_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtDuplicateObject", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwDuplicateObject", [=]
     {
         auto& core = d_->core;
         
@@ -2600,9 +2599,9 @@ opt<id_t> nt::syscalls::register_NtEnumerateBootEntries(proc_t proc, const on_Nt
     });
 }
 
-opt<id_t> nt::syscalls::register_NtEnumerateDriverEntries(proc_t proc, const on_NtEnumerateDriverEntries_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwEnumerateDriverEntries(proc_t proc, const on_ZwEnumerateDriverEntries_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtEnumerateDriverEntries", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwEnumerateDriverEntries", [=]
     {
         auto& core = d_->core;
         
@@ -2672,9 +2671,9 @@ opt<id_t> nt::syscalls::register_NtEnumerateTransactionObject(proc_t proc, const
     });
 }
 
-opt<id_t> nt::syscalls::register_NtEnumerateValueKey(proc_t proc, const on_NtEnumerateValueKey_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwEnumerateValueKey(proc_t proc, const on_ZwEnumerateValueKey_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtEnumerateValueKey", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwEnumerateValueKey", [=]
     {
         auto& core = d_->core;
         
@@ -2708,9 +2707,9 @@ opt<id_t> nt::syscalls::register_NtExtendSection(proc_t proc, const on_NtExtendS
     });
 }
 
-opt<id_t> nt::syscalls::register_NtFilterToken(proc_t proc, const on_NtFilterToken_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwFilterToken(proc_t proc, const on_ZwFilterToken_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtFilterToken", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwFilterToken", [=]
     {
         auto& core = d_->core;
         
@@ -2728,9 +2727,9 @@ opt<id_t> nt::syscalls::register_NtFilterToken(proc_t proc, const on_NtFilterTok
     });
 }
 
-opt<id_t> nt::syscalls::register_NtFindAtom(proc_t proc, const on_NtFindAtom_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwFindAtom(proc_t proc, const on_ZwFindAtom_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtFindAtom", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwFindAtom", [=]
     {
         auto& core = d_->core;
         
@@ -2745,9 +2744,9 @@ opt<id_t> nt::syscalls::register_NtFindAtom(proc_t proc, const on_NtFindAtom_fn&
     });
 }
 
-opt<id_t> nt::syscalls::register_NtFlushBuffersFile(proc_t proc, const on_NtFlushBuffersFile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwFlushBuffersFile(proc_t proc, const on_ZwFlushBuffersFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtFlushBuffersFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwFlushBuffersFile", [=]
     {
         auto& core = d_->core;
         
@@ -2794,9 +2793,9 @@ opt<id_t> nt::syscalls::register_NtFlushInstructionCache(proc_t proc, const on_N
     });
 }
 
-opt<id_t> nt::syscalls::register_NtFlushKey(proc_t proc, const on_NtFlushKey_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwFlushKey(proc_t proc, const on_ZwFlushKey_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtFlushKey", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwFlushKey", [=]
     {
         auto& core = d_->core;
         
@@ -2809,9 +2808,9 @@ opt<id_t> nt::syscalls::register_NtFlushKey(proc_t proc, const on_NtFlushKey_fn&
     });
 }
 
-opt<id_t> nt::syscalls::register_NtFlushVirtualMemory(proc_t proc, const on_NtFlushVirtualMemory_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwFlushVirtualMemory(proc_t proc, const on_ZwFlushVirtualMemory_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtFlushVirtualMemory", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwFlushVirtualMemory", [=]
     {
         auto& core = d_->core;
         
@@ -2827,9 +2826,9 @@ opt<id_t> nt::syscalls::register_NtFlushVirtualMemory(proc_t proc, const on_NtFl
     });
 }
 
-opt<id_t> nt::syscalls::register_NtFreeUserPhysicalPages(proc_t proc, const on_NtFreeUserPhysicalPages_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwFreeUserPhysicalPages(proc_t proc, const on_ZwFreeUserPhysicalPages_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtFreeUserPhysicalPages", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwFreeUserPhysicalPages", [=]
     {
         auto& core = d_->core;
         
@@ -2844,9 +2843,9 @@ opt<id_t> nt::syscalls::register_NtFreeUserPhysicalPages(proc_t proc, const on_N
     });
 }
 
-opt<id_t> nt::syscalls::register_NtFreeVirtualMemory(proc_t proc, const on_NtFreeVirtualMemory_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwFreeVirtualMemory(proc_t proc, const on_ZwFreeVirtualMemory_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtFreeVirtualMemory", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwFreeVirtualMemory", [=]
     {
         auto& core = d_->core;
         
@@ -2877,9 +2876,9 @@ opt<id_t> nt::syscalls::register_NtFreezeRegistry(proc_t proc, const on_NtFreeze
     });
 }
 
-opt<id_t> nt::syscalls::register_NtFreezeTransactions(proc_t proc, const on_NtFreezeTransactions_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwFreezeTransactions(proc_t proc, const on_ZwFreezeTransactions_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtFreezeTransactions", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwFreezeTransactions", [=]
     {
         auto& core = d_->core;
         
@@ -2893,9 +2892,9 @@ opt<id_t> nt::syscalls::register_NtFreezeTransactions(proc_t proc, const on_NtFr
     });
 }
 
-opt<id_t> nt::syscalls::register_NtFsControlFile(proc_t proc, const on_NtFsControlFile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwFsControlFile(proc_t proc, const on_ZwFsControlFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtFsControlFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwFsControlFile", [=]
     {
         auto& core = d_->core;
         
@@ -2917,9 +2916,9 @@ opt<id_t> nt::syscalls::register_NtFsControlFile(proc_t proc, const on_NtFsContr
     });
 }
 
-opt<id_t> nt::syscalls::register_NtGetContextThread(proc_t proc, const on_NtGetContextThread_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwGetContextThread(proc_t proc, const on_ZwGetContextThread_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtGetContextThread", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwGetContextThread", [=]
     {
         auto& core = d_->core;
         
@@ -2933,9 +2932,9 @@ opt<id_t> nt::syscalls::register_NtGetContextThread(proc_t proc, const on_NtGetC
     });
 }
 
-opt<id_t> nt::syscalls::register_NtGetDevicePowerState(proc_t proc, const on_NtGetDevicePowerState_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwGetDevicePowerState(proc_t proc, const on_ZwGetDevicePowerState_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtGetDevicePowerState", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwGetDevicePowerState", [=]
     {
         auto& core = d_->core;
         
@@ -2949,9 +2948,9 @@ opt<id_t> nt::syscalls::register_NtGetDevicePowerState(proc_t proc, const on_NtG
     });
 }
 
-opt<id_t> nt::syscalls::register_NtGetMUIRegistryInfo(proc_t proc, const on_NtGetMUIRegistryInfo_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwGetMUIRegistryInfo(proc_t proc, const on_ZwGetMUIRegistryInfo_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtGetMUIRegistryInfo", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwGetMUIRegistryInfo", [=]
     {
         auto& core = d_->core;
         
@@ -2985,9 +2984,9 @@ opt<id_t> nt::syscalls::register_NtGetNextProcess(proc_t proc, const on_NtGetNex
     });
 }
 
-opt<id_t> nt::syscalls::register_NtGetNextThread(proc_t proc, const on_NtGetNextThread_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwGetNextThread(proc_t proc, const on_ZwGetNextThread_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtGetNextThread", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwGetNextThread", [=]
     {
         auto& core = d_->core;
         
@@ -3005,9 +3004,9 @@ opt<id_t> nt::syscalls::register_NtGetNextThread(proc_t proc, const on_NtGetNext
     });
 }
 
-opt<id_t> nt::syscalls::register_NtGetNlsSectionPtr(proc_t proc, const on_NtGetNlsSectionPtr_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwGetNlsSectionPtr(proc_t proc, const on_ZwGetNlsSectionPtr_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtGetNlsSectionPtr", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwGetNlsSectionPtr", [=]
     {
         auto& core = d_->core;
         
@@ -3045,27 +3044,9 @@ opt<id_t> nt::syscalls::register_NtGetNotificationResourceManager(proc_t proc, c
     });
 }
 
-opt<id_t> nt::syscalls::register_NtGetPlugPlayEvent(proc_t proc, const on_NtGetPlugPlayEvent_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwGetWriteWatch(proc_t proc, const on_ZwGetWriteWatch_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtGetPlugPlayEvent", [=]
-    {
-        auto& core = d_->core;
-        
-        const auto EventHandle     = arg<nt::HANDLE>(core, 0);
-        const auto Context         = arg<nt::PVOID>(core, 1);
-        const auto EventBlock      = arg<nt::PPLUGPLAY_EVENT_BLOCK>(core, 2);
-        const auto EventBufferSize = arg<nt::ULONG>(core, 3);
-
-        if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[137]);
-
-        on_func(EventHandle, Context, EventBlock, EventBufferSize);
-    });
-}
-
-opt<id_t> nt::syscalls::register_NtGetWriteWatch(proc_t proc, const on_NtGetWriteWatch_fn& on_func)
-{
-    return register_callback(*d_, ++d_->last_id, proc, "NtGetWriteWatch", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwGetWriteWatch", [=]
     {
         auto& core = d_->core;
         
@@ -3078,30 +3059,30 @@ opt<id_t> nt::syscalls::register_NtGetWriteWatch(proc_t proc, const on_NtGetWrit
         const auto Granularity               = arg<nt::PULONG>(core, 6);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[138]);
+            tracer::log_call(core, g_callcfgs[137]);
 
         on_func(ProcessHandle, Flags, BaseAddress, RegionSize, STARUserAddressArray, EntriesInUserAddressArray, Granularity);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtImpersonateAnonymousToken(proc_t proc, const on_NtImpersonateAnonymousToken_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwImpersonateAnonymousToken(proc_t proc, const on_ZwImpersonateAnonymousToken_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtImpersonateAnonymousToken", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwImpersonateAnonymousToken", [=]
     {
         auto& core = d_->core;
         
         const auto ThreadHandle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[139]);
+            tracer::log_call(core, g_callcfgs[138]);
 
         on_func(ThreadHandle);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtImpersonateClientOfPort(proc_t proc, const on_NtImpersonateClientOfPort_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwImpersonateClientOfPort(proc_t proc, const on_ZwImpersonateClientOfPort_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtImpersonateClientOfPort", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwImpersonateClientOfPort", [=]
     {
         auto& core = d_->core;
         
@@ -3109,15 +3090,15 @@ opt<id_t> nt::syscalls::register_NtImpersonateClientOfPort(proc_t proc, const on
         const auto Message    = arg<nt::PPORT_MESSAGE>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[140]);
+            tracer::log_call(core, g_callcfgs[139]);
 
         on_func(PortHandle, Message);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtImpersonateThread(proc_t proc, const on_NtImpersonateThread_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwImpersonateThread(proc_t proc, const on_ZwImpersonateThread_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtImpersonateThread", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwImpersonateThread", [=]
     {
         auto& core = d_->core;
         
@@ -3126,7 +3107,7 @@ opt<id_t> nt::syscalls::register_NtImpersonateThread(proc_t proc, const on_NtImp
         const auto SecurityQos        = arg<nt::PSECURITY_QUALITY_OF_SERVICE>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[141]);
+            tracer::log_call(core, g_callcfgs[140]);
 
         on_func(ServerThreadHandle, ClientThreadHandle, SecurityQos);
     });
@@ -3143,7 +3124,7 @@ opt<id_t> nt::syscalls::register_NtInitializeNlsFiles(proc_t proc, const on_NtIn
         const auto DefaultCasingTableSize = arg<nt::PLARGE_INTEGER>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[142]);
+            tracer::log_call(core, g_callcfgs[141]);
 
         on_func(STARBaseAddress, DefaultLocaleId, DefaultCasingTableSize);
     });
@@ -3158,7 +3139,7 @@ opt<id_t> nt::syscalls::register_NtInitializeRegistry(proc_t proc, const on_NtIn
         const auto BootCondition = arg<nt::USHORT>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[143]);
+            tracer::log_call(core, g_callcfgs[142]);
 
         on_func(BootCondition);
     });
@@ -3176,7 +3157,7 @@ opt<id_t> nt::syscalls::register_NtInitiatePowerAction(proc_t proc, const on_NtI
         const auto Asynchronous   = arg<nt::BOOLEAN>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[144]);
+            tracer::log_call(core, g_callcfgs[143]);
 
         on_func(SystemAction, MinSystemState, Flags, Asynchronous);
     });
@@ -3192,7 +3173,7 @@ opt<id_t> nt::syscalls::register_NtIsProcessInJob(proc_t proc, const on_NtIsProc
         const auto JobHandle     = arg<nt::HANDLE>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[145]);
+            tracer::log_call(core, g_callcfgs[144]);
 
         on_func(ProcessHandle, JobHandle);
     });
@@ -3208,30 +3189,30 @@ opt<id_t> nt::syscalls::register_NtListenPort(proc_t proc, const on_NtListenPort
         const auto ConnectionRequest = arg<nt::PPORT_MESSAGE>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[146]);
+            tracer::log_call(core, g_callcfgs[145]);
 
         on_func(PortHandle, ConnectionRequest);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtLoadDriver(proc_t proc, const on_NtLoadDriver_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwLoadDriver(proc_t proc, const on_ZwLoadDriver_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtLoadDriver", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwLoadDriver", [=]
     {
         auto& core = d_->core;
         
         const auto DriverServiceName = arg<nt::PUNICODE_STRING>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[147]);
+            tracer::log_call(core, g_callcfgs[146]);
 
         on_func(DriverServiceName);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtLoadKey2(proc_t proc, const on_NtLoadKey2_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwLoadKey2(proc_t proc, const on_ZwLoadKey2_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtLoadKey2", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwLoadKey2", [=]
     {
         auto& core = d_->core;
         
@@ -3240,7 +3221,7 @@ opt<id_t> nt::syscalls::register_NtLoadKey2(proc_t proc, const on_NtLoadKey2_fn&
         const auto Flags      = arg<nt::ULONG>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[148]);
+            tracer::log_call(core, g_callcfgs[147]);
 
         on_func(TargetKey, SourceFile, Flags);
     });
@@ -3258,7 +3239,7 @@ opt<id_t> nt::syscalls::register_NtLoadKeyEx(proc_t proc, const on_NtLoadKeyEx_f
         const auto TrustClassKey = arg<nt::HANDLE>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[149]);
+            tracer::log_call(core, g_callcfgs[148]);
 
         on_func(TargetKey, SourceFile, Flags, TrustClassKey);
     });
@@ -3274,15 +3255,15 @@ opt<id_t> nt::syscalls::register_NtLoadKey(proc_t proc, const on_NtLoadKey_fn& o
         const auto SourceFile = arg<nt::POBJECT_ATTRIBUTES>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[150]);
+            tracer::log_call(core, g_callcfgs[149]);
 
         on_func(TargetKey, SourceFile);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtLockFile(proc_t proc, const on_NtLockFile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwLockFile(proc_t proc, const on_ZwLockFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtLockFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwLockFile", [=]
     {
         auto& core = d_->core;
         
@@ -3298,7 +3279,7 @@ opt<id_t> nt::syscalls::register_NtLockFile(proc_t proc, const on_NtLockFile_fn&
         const auto ExclusiveLock   = arg<nt::BOOLEAN>(core, 9);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[151]);
+            tracer::log_call(core, g_callcfgs[150]);
 
         on_func(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, ByteOffset, Length, Key, FailImmediately, ExclusiveLock);
     });
@@ -3314,22 +3295,22 @@ opt<id_t> nt::syscalls::register_NtLockProductActivationKeys(proc_t proc, const 
         const auto STARpSafeMode   = arg<nt::ULONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[152]);
+            tracer::log_call(core, g_callcfgs[151]);
 
         on_func(STARpPrivateVer, STARpSafeMode);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtLockRegistryKey(proc_t proc, const on_NtLockRegistryKey_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwLockRegistryKey(proc_t proc, const on_ZwLockRegistryKey_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtLockRegistryKey", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwLockRegistryKey", [=]
     {
         auto& core = d_->core;
         
         const auto KeyHandle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[153]);
+            tracer::log_call(core, g_callcfgs[152]);
 
         on_func(KeyHandle);
     });
@@ -3347,7 +3328,7 @@ opt<id_t> nt::syscalls::register_NtLockVirtualMemory(proc_t proc, const on_NtLoc
         const auto MapType         = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[154]);
+            tracer::log_call(core, g_callcfgs[153]);
 
         on_func(ProcessHandle, STARBaseAddress, RegionSize, MapType);
     });
@@ -3362,7 +3343,7 @@ opt<id_t> nt::syscalls::register_NtMakePermanentObject(proc_t proc, const on_NtM
         const auto Handle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[155]);
+            tracer::log_call(core, g_callcfgs[154]);
 
         on_func(Handle);
     });
@@ -3377,7 +3358,7 @@ opt<id_t> nt::syscalls::register_NtMakeTemporaryObject(proc_t proc, const on_NtM
         const auto Handle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[156]);
+            tracer::log_call(core, g_callcfgs[155]);
 
         on_func(Handle);
     });
@@ -3397,7 +3378,7 @@ opt<id_t> nt::syscalls::register_NtMapCMFModule(proc_t proc, const on_NtMapCMFMo
         const auto STARBaseAddress = arg<nt::PVOID>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[157]);
+            tracer::log_call(core, g_callcfgs[156]);
 
         on_func(What, Index, CacheIndexOut, CacheFlagsOut, ViewSizeOut, STARBaseAddress);
     });
@@ -3414,15 +3395,15 @@ opt<id_t> nt::syscalls::register_NtMapUserPhysicalPages(proc_t proc, const on_Nt
         const auto UserPfnArra    = arg<nt::PULONG_PTR>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[158]);
+            tracer::log_call(core, g_callcfgs[157]);
 
         on_func(VirtualAddress, NumberOfPages, UserPfnArra);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtMapUserPhysicalPagesScatter(proc_t proc, const on_NtMapUserPhysicalPagesScatter_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwMapUserPhysicalPagesScatter(proc_t proc, const on_ZwMapUserPhysicalPagesScatter_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtMapUserPhysicalPagesScatter", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwMapUserPhysicalPagesScatter", [=]
     {
         auto& core = d_->core;
         
@@ -3431,15 +3412,15 @@ opt<id_t> nt::syscalls::register_NtMapUserPhysicalPagesScatter(proc_t proc, cons
         const auto UserPfnArray         = arg<nt::PULONG_PTR>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[159]);
+            tracer::log_call(core, g_callcfgs[158]);
 
         on_func(STARVirtualAddresses, NumberOfPages, UserPfnArray);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtMapViewOfSection(proc_t proc, const on_NtMapViewOfSection_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwMapViewOfSection(proc_t proc, const on_ZwMapViewOfSection_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtMapViewOfSection", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwMapViewOfSection", [=]
     {
         auto& core = d_->core;
         
@@ -3455,7 +3436,7 @@ opt<id_t> nt::syscalls::register_NtMapViewOfSection(proc_t proc, const on_NtMapV
         const auto Win32Protect       = arg<nt::WIN32_PROTECTION_MASK>(core, 9);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[160]);
+            tracer::log_call(core, g_callcfgs[159]);
 
         on_func(SectionHandle, ProcessHandle, STARBaseAddress, ZeroBits, CommitSize, SectionOffset, ViewSize, InheritDisposition, AllocationType, Win32Protect);
     });
@@ -3470,22 +3451,22 @@ opt<id_t> nt::syscalls::register_NtModifyBootEntry(proc_t proc, const on_NtModif
         const auto BootEntry = arg<nt::PBOOT_ENTRY>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[161]);
+            tracer::log_call(core, g_callcfgs[160]);
 
         on_func(BootEntry);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtModifyDriverEntry(proc_t proc, const on_NtModifyDriverEntry_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwModifyDriverEntry(proc_t proc, const on_ZwModifyDriverEntry_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtModifyDriverEntry", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwModifyDriverEntry", [=]
     {
         auto& core = d_->core;
         
         const auto DriverEntry = arg<nt::PEFI_DRIVER_ENTRY>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[162]);
+            tracer::log_call(core, g_callcfgs[161]);
 
         on_func(DriverEntry);
     });
@@ -3508,15 +3489,15 @@ opt<id_t> nt::syscalls::register_NtNotifyChangeDirectoryFile(proc_t proc, const 
         const auto WatchTree        = arg<nt::BOOLEAN>(core, 8);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[163]);
+            tracer::log_call(core, g_callcfgs[162]);
 
         on_func(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, CompletionFilter, WatchTree);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtNotifyChangeKey(proc_t proc, const on_NtNotifyChangeKey_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwNotifyChangeKey(proc_t proc, const on_ZwNotifyChangeKey_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtNotifyChangeKey", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwNotifyChangeKey", [=]
     {
         auto& core = d_->core;
         
@@ -3532,7 +3513,7 @@ opt<id_t> nt::syscalls::register_NtNotifyChangeKey(proc_t proc, const on_NtNotif
         const auto Asynchronous     = arg<nt::BOOLEAN>(core, 9);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[164]);
+            tracer::log_call(core, g_callcfgs[163]);
 
         on_func(KeyHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
     });
@@ -3558,7 +3539,7 @@ opt<id_t> nt::syscalls::register_NtNotifyChangeMultipleKeys(proc_t proc, const o
         const auto Asynchronous     = arg<nt::BOOLEAN>(core, 11);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[165]);
+            tracer::log_call(core, g_callcfgs[164]);
 
         on_func(MasterKeyHandle, Count, SlaveObjects, Event, ApcRoutine, ApcContext, IoStatusBlock, CompletionFilter, WatchTree, Buffer, BufferSize, Asynchronous);
     });
@@ -3580,15 +3561,15 @@ opt<id_t> nt::syscalls::register_NtNotifyChangeSession(proc_t proc, const on_NtN
         const auto BufferSize      = arg<nt::ULONG>(core, 7);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[166]);
+            tracer::log_call(core, g_callcfgs[165]);
 
         on_func(Session, IoStateSequence, Reserved, Action, IoState, IoState2, Buffer, BufferSize);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtOpenDirectoryObject(proc_t proc, const on_NtOpenDirectoryObject_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwOpenDirectoryObject(proc_t proc, const on_ZwOpenDirectoryObject_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtOpenDirectoryObject", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwOpenDirectoryObject", [=]
     {
         auto& core = d_->core;
         
@@ -3597,7 +3578,7 @@ opt<id_t> nt::syscalls::register_NtOpenDirectoryObject(proc_t proc, const on_NtO
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[167]);
+            tracer::log_call(core, g_callcfgs[166]);
 
         on_func(DirectoryHandle, DesiredAccess, ObjectAttributes);
     });
@@ -3616,7 +3597,7 @@ opt<id_t> nt::syscalls::register_NtOpenEnlistment(proc_t proc, const on_NtOpenEn
         const auto ObjectAttributes      = arg<nt::POBJECT_ATTRIBUTES>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[168]);
+            tracer::log_call(core, g_callcfgs[167]);
 
         on_func(EnlistmentHandle, DesiredAccess, ResourceManagerHandle, EnlistmentGuid, ObjectAttributes);
     });
@@ -3633,15 +3614,15 @@ opt<id_t> nt::syscalls::register_NtOpenEvent(proc_t proc, const on_NtOpenEvent_f
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[169]);
+            tracer::log_call(core, g_callcfgs[168]);
 
         on_func(EventHandle, DesiredAccess, ObjectAttributes);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtOpenEventPair(proc_t proc, const on_NtOpenEventPair_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwOpenEventPair(proc_t proc, const on_ZwOpenEventPair_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtOpenEventPair", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwOpenEventPair", [=]
     {
         auto& core = d_->core;
         
@@ -3650,7 +3631,7 @@ opt<id_t> nt::syscalls::register_NtOpenEventPair(proc_t proc, const on_NtOpenEve
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[170]);
+            tracer::log_call(core, g_callcfgs[169]);
 
         on_func(EventPairHandle, DesiredAccess, ObjectAttributes);
     });
@@ -3670,7 +3651,7 @@ opt<id_t> nt::syscalls::register_NtOpenFile(proc_t proc, const on_NtOpenFile_fn&
         const auto OpenOptions      = arg<nt::ULONG>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[171]);
+            tracer::log_call(core, g_callcfgs[170]);
 
         on_func(FileHandle, DesiredAccess, ObjectAttributes, IoStatusBlock, ShareAccess, OpenOptions);
     });
@@ -3687,7 +3668,7 @@ opt<id_t> nt::syscalls::register_NtOpenIoCompletion(proc_t proc, const on_NtOpen
         const auto ObjectAttributes   = arg<nt::POBJECT_ATTRIBUTES>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[172]);
+            tracer::log_call(core, g_callcfgs[171]);
 
         on_func(IoCompletionHandle, DesiredAccess, ObjectAttributes);
     });
@@ -3704,7 +3685,7 @@ opt<id_t> nt::syscalls::register_NtOpenJobObject(proc_t proc, const on_NtOpenJob
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[173]);
+            tracer::log_call(core, g_callcfgs[172]);
 
         on_func(JobHandle, DesiredAccess, ObjectAttributes);
     });
@@ -3721,7 +3702,7 @@ opt<id_t> nt::syscalls::register_NtOpenKeyedEvent(proc_t proc, const on_NtOpenKe
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[174]);
+            tracer::log_call(core, g_callcfgs[173]);
 
         on_func(KeyedEventHandle, DesiredAccess, ObjectAttributes);
     });
@@ -3739,7 +3720,7 @@ opt<id_t> nt::syscalls::register_NtOpenKeyEx(proc_t proc, const on_NtOpenKeyEx_f
         const auto OpenOptions      = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[175]);
+            tracer::log_call(core, g_callcfgs[174]);
 
         on_func(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions);
     });
@@ -3756,15 +3737,15 @@ opt<id_t> nt::syscalls::register_NtOpenKey(proc_t proc, const on_NtOpenKey_fn& o
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[176]);
+            tracer::log_call(core, g_callcfgs[175]);
 
         on_func(KeyHandle, DesiredAccess, ObjectAttributes);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtOpenKeyTransactedEx(proc_t proc, const on_NtOpenKeyTransactedEx_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwOpenKeyTransactedEx(proc_t proc, const on_ZwOpenKeyTransactedEx_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtOpenKeyTransactedEx", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwOpenKeyTransactedEx", [=]
     {
         auto& core = d_->core;
         
@@ -3775,15 +3756,15 @@ opt<id_t> nt::syscalls::register_NtOpenKeyTransactedEx(proc_t proc, const on_NtO
         const auto TransactionHandle = arg<nt::HANDLE>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[177]);
+            tracer::log_call(core, g_callcfgs[176]);
 
         on_func(KeyHandle, DesiredAccess, ObjectAttributes, OpenOptions, TransactionHandle);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtOpenKeyTransacted(proc_t proc, const on_NtOpenKeyTransacted_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwOpenKeyTransacted(proc_t proc, const on_ZwOpenKeyTransacted_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtOpenKeyTransacted", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwOpenKeyTransacted", [=]
     {
         auto& core = d_->core;
         
@@ -3793,7 +3774,7 @@ opt<id_t> nt::syscalls::register_NtOpenKeyTransacted(proc_t proc, const on_NtOpe
         const auto TransactionHandle = arg<nt::HANDLE>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[178]);
+            tracer::log_call(core, g_callcfgs[177]);
 
         on_func(KeyHandle, DesiredAccess, ObjectAttributes, TransactionHandle);
     });
@@ -3810,15 +3791,15 @@ opt<id_t> nt::syscalls::register_NtOpenMutant(proc_t proc, const on_NtOpenMutant
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[179]);
+            tracer::log_call(core, g_callcfgs[178]);
 
         on_func(MutantHandle, DesiredAccess, ObjectAttributes);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtOpenObjectAuditAlarm(proc_t proc, const on_NtOpenObjectAuditAlarm_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwOpenObjectAuditAlarm(proc_t proc, const on_ZwOpenObjectAuditAlarm_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtOpenObjectAuditAlarm", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwOpenObjectAuditAlarm", [=]
     {
         auto& core = d_->core;
         
@@ -3836,7 +3817,7 @@ opt<id_t> nt::syscalls::register_NtOpenObjectAuditAlarm(proc_t proc, const on_Nt
         const auto GenerateOnClose    = arg<nt::PBOOLEAN>(core, 11);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[180]);
+            tracer::log_call(core, g_callcfgs[179]);
 
         on_func(SubsystemName, HandleId, ObjectTypeName, ObjectName, SecurityDescriptor, ClientToken, DesiredAccess, GrantedAccess, Privileges, ObjectCreation, AccessGranted, GenerateOnClose);
     });
@@ -3854,7 +3835,7 @@ opt<id_t> nt::syscalls::register_NtOpenPrivateNamespace(proc_t proc, const on_Nt
         const auto BoundaryDescriptor = arg<nt::PVOID>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[181]);
+            tracer::log_call(core, g_callcfgs[180]);
 
         on_func(NamespaceHandle, DesiredAccess, ObjectAttributes, BoundaryDescriptor);
     });
@@ -3872,7 +3853,7 @@ opt<id_t> nt::syscalls::register_NtOpenProcess(proc_t proc, const on_NtOpenProce
         const auto ClientId         = arg<nt::PCLIENT_ID>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[182]);
+            tracer::log_call(core, g_callcfgs[181]);
 
         on_func(ProcessHandle, DesiredAccess, ObjectAttributes, ClientId);
     });
@@ -3890,7 +3871,7 @@ opt<id_t> nt::syscalls::register_NtOpenProcessTokenEx(proc_t proc, const on_NtOp
         const auto TokenHandle      = arg<nt::PHANDLE>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[183]);
+            tracer::log_call(core, g_callcfgs[182]);
 
         on_func(ProcessHandle, DesiredAccess, HandleAttributes, TokenHandle);
     });
@@ -3907,7 +3888,7 @@ opt<id_t> nt::syscalls::register_NtOpenProcessToken(proc_t proc, const on_NtOpen
         const auto TokenHandle   = arg<nt::PHANDLE>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[184]);
+            tracer::log_call(core, g_callcfgs[183]);
 
         on_func(ProcessHandle, DesiredAccess, TokenHandle);
     });
@@ -3926,7 +3907,7 @@ opt<id_t> nt::syscalls::register_NtOpenResourceManager(proc_t proc, const on_NtO
         const auto ObjectAttributes      = arg<nt::POBJECT_ATTRIBUTES>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[185]);
+            tracer::log_call(core, g_callcfgs[184]);
 
         on_func(ResourceManagerHandle, DesiredAccess, TmHandle, ResourceManagerGuid, ObjectAttributes);
     });
@@ -3943,15 +3924,15 @@ opt<id_t> nt::syscalls::register_NtOpenSection(proc_t proc, const on_NtOpenSecti
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[186]);
+            tracer::log_call(core, g_callcfgs[185]);
 
         on_func(SectionHandle, DesiredAccess, ObjectAttributes);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtOpenSemaphore(proc_t proc, const on_NtOpenSemaphore_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwOpenSemaphore(proc_t proc, const on_ZwOpenSemaphore_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtOpenSemaphore", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwOpenSemaphore", [=]
     {
         auto& core = d_->core;
         
@@ -3960,15 +3941,15 @@ opt<id_t> nt::syscalls::register_NtOpenSemaphore(proc_t proc, const on_NtOpenSem
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[187]);
+            tracer::log_call(core, g_callcfgs[186]);
 
         on_func(SemaphoreHandle, DesiredAccess, ObjectAttributes);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtOpenSession(proc_t proc, const on_NtOpenSession_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwOpenSession(proc_t proc, const on_ZwOpenSession_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtOpenSession", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwOpenSession", [=]
     {
         auto& core = d_->core;
         
@@ -3977,15 +3958,15 @@ opt<id_t> nt::syscalls::register_NtOpenSession(proc_t proc, const on_NtOpenSessi
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[188]);
+            tracer::log_call(core, g_callcfgs[187]);
 
         on_func(SessionHandle, DesiredAccess, ObjectAttributes);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtOpenSymbolicLinkObject(proc_t proc, const on_NtOpenSymbolicLinkObject_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwOpenSymbolicLinkObject(proc_t proc, const on_ZwOpenSymbolicLinkObject_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtOpenSymbolicLinkObject", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwOpenSymbolicLinkObject", [=]
     {
         auto& core = d_->core;
         
@@ -3994,15 +3975,15 @@ opt<id_t> nt::syscalls::register_NtOpenSymbolicLinkObject(proc_t proc, const on_
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[189]);
+            tracer::log_call(core, g_callcfgs[188]);
 
         on_func(LinkHandle, DesiredAccess, ObjectAttributes);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtOpenThread(proc_t proc, const on_NtOpenThread_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwOpenThread(proc_t proc, const on_ZwOpenThread_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtOpenThread", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwOpenThread", [=]
     {
         auto& core = d_->core;
         
@@ -4012,7 +3993,7 @@ opt<id_t> nt::syscalls::register_NtOpenThread(proc_t proc, const on_NtOpenThread
         const auto ClientId         = arg<nt::PCLIENT_ID>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[190]);
+            tracer::log_call(core, g_callcfgs[189]);
 
         on_func(ThreadHandle, DesiredAccess, ObjectAttributes, ClientId);
     });
@@ -4031,7 +4012,7 @@ opt<id_t> nt::syscalls::register_NtOpenThreadTokenEx(proc_t proc, const on_NtOpe
         const auto TokenHandle      = arg<nt::PHANDLE>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[191]);
+            tracer::log_call(core, g_callcfgs[190]);
 
         on_func(ThreadHandle, DesiredAccess, OpenAsSelf, HandleAttributes, TokenHandle);
     });
@@ -4049,15 +4030,15 @@ opt<id_t> nt::syscalls::register_NtOpenThreadToken(proc_t proc, const on_NtOpenT
         const auto TokenHandle   = arg<nt::PHANDLE>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[192]);
+            tracer::log_call(core, g_callcfgs[191]);
 
         on_func(ThreadHandle, DesiredAccess, OpenAsSelf, TokenHandle);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtOpenTimer(proc_t proc, const on_NtOpenTimer_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwOpenTimer(proc_t proc, const on_ZwOpenTimer_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtOpenTimer", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwOpenTimer", [=]
     {
         auto& core = d_->core;
         
@@ -4066,7 +4047,7 @@ opt<id_t> nt::syscalls::register_NtOpenTimer(proc_t proc, const on_NtOpenTimer_f
         const auto ObjectAttributes = arg<nt::POBJECT_ATTRIBUTES>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[193]);
+            tracer::log_call(core, g_callcfgs[192]);
 
         on_func(TimerHandle, DesiredAccess, ObjectAttributes);
     });
@@ -4086,15 +4067,15 @@ opt<id_t> nt::syscalls::register_NtOpenTransactionManager(proc_t proc, const on_
         const auto OpenOptions      = arg<nt::ULONG>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[194]);
+            tracer::log_call(core, g_callcfgs[193]);
 
         on_func(TmHandle, DesiredAccess, ObjectAttributes, LogFileName, TmIdentity, OpenOptions);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtOpenTransaction(proc_t proc, const on_NtOpenTransaction_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwOpenTransaction(proc_t proc, const on_ZwOpenTransaction_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtOpenTransaction", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwOpenTransaction", [=]
     {
         auto& core = d_->core;
         
@@ -4105,15 +4086,15 @@ opt<id_t> nt::syscalls::register_NtOpenTransaction(proc_t proc, const on_NtOpenT
         const auto TmHandle          = arg<nt::HANDLE>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[195]);
+            tracer::log_call(core, g_callcfgs[194]);
 
         on_func(TransactionHandle, DesiredAccess, ObjectAttributes, Uow, TmHandle);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtPlugPlayControl(proc_t proc, const on_NtPlugPlayControl_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwPlugPlayControl(proc_t proc, const on_ZwPlugPlayControl_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtPlugPlayControl", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwPlugPlayControl", [=]
     {
         auto& core = d_->core;
         
@@ -4122,7 +4103,7 @@ opt<id_t> nt::syscalls::register_NtPlugPlayControl(proc_t proc, const on_NtPlugP
         const auto PnPControlDataLength = arg<nt::ULONG>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[196]);
+            tracer::log_call(core, g_callcfgs[195]);
 
         on_func(PnPControlClass, PnPControlData, PnPControlDataLength);
     });
@@ -4141,15 +4122,31 @@ opt<id_t> nt::syscalls::register_NtPowerInformation(proc_t proc, const on_NtPowe
         const auto OutputBufferLength = arg<nt::ULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[197]);
+            tracer::log_call(core, g_callcfgs[196]);
 
         on_func(InformationLevel, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtPrepareComplete(proc_t proc, const on_NtPrepareComplete_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwPrepareComplete(proc_t proc, const on_ZwPrepareComplete_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtPrepareComplete", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwPrepareComplete", [=]
+    {
+        auto& core = d_->core;
+        
+        const auto EnlistmentHandle = arg<nt::HANDLE>(core, 0);
+        const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(core, 1);
+
+        if constexpr(g_debug)
+            tracer::log_call(core, g_callcfgs[197]);
+
+        on_func(EnlistmentHandle, TmVirtualClock);
+    });
+}
+
+opt<id_t> nt::syscalls::register_ZwPrepareEnlistment(proc_t proc, const on_ZwPrepareEnlistment_fn& on_func)
+{
+    return register_callback(*d_, ++d_->last_id, proc, "ZwPrepareEnlistment", [=]
     {
         auto& core = d_->core;
         
@@ -4163,9 +4160,9 @@ opt<id_t> nt::syscalls::register_NtPrepareComplete(proc_t proc, const on_NtPrepa
     });
 }
 
-opt<id_t> nt::syscalls::register_NtPrepareEnlistment(proc_t proc, const on_NtPrepareEnlistment_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwPrePrepareComplete(proc_t proc, const on_ZwPrePrepareComplete_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtPrepareEnlistment", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwPrePrepareComplete", [=]
     {
         auto& core = d_->core;
         
@@ -4174,22 +4171,6 @@ opt<id_t> nt::syscalls::register_NtPrepareEnlistment(proc_t proc, const on_NtPre
 
         if constexpr(g_debug)
             tracer::log_call(core, g_callcfgs[199]);
-
-        on_func(EnlistmentHandle, TmVirtualClock);
-    });
-}
-
-opt<id_t> nt::syscalls::register_NtPrePrepareComplete(proc_t proc, const on_NtPrePrepareComplete_fn& on_func)
-{
-    return register_callback(*d_, ++d_->last_id, proc, "NtPrePrepareComplete", [=]
-    {
-        auto& core = d_->core;
-        
-        const auto EnlistmentHandle = arg<nt::HANDLE>(core, 0);
-        const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(core, 1);
-
-        if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[200]);
 
         on_func(EnlistmentHandle, TmVirtualClock);
     });
@@ -4205,15 +4186,15 @@ opt<id_t> nt::syscalls::register_NtPrePrepareEnlistment(proc_t proc, const on_Nt
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[201]);
+            tracer::log_call(core, g_callcfgs[200]);
 
         on_func(EnlistmentHandle, TmVirtualClock);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtPrivilegeCheck(proc_t proc, const on_NtPrivilegeCheck_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwPrivilegeCheck(proc_t proc, const on_ZwPrivilegeCheck_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtPrivilegeCheck", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwPrivilegeCheck", [=]
     {
         auto& core = d_->core;
         
@@ -4222,15 +4203,15 @@ opt<id_t> nt::syscalls::register_NtPrivilegeCheck(proc_t proc, const on_NtPrivil
         const auto Result             = arg<nt::PBOOLEAN>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[202]);
+            tracer::log_call(core, g_callcfgs[201]);
 
         on_func(ClientToken, RequiredPrivileges, Result);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtPrivilegedServiceAuditAlarm(proc_t proc, const on_NtPrivilegedServiceAuditAlarm_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwPrivilegedServiceAuditAlarm(proc_t proc, const on_ZwPrivilegedServiceAuditAlarm_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtPrivilegedServiceAuditAlarm", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwPrivilegedServiceAuditAlarm", [=]
     {
         auto& core = d_->core;
         
@@ -4241,7 +4222,7 @@ opt<id_t> nt::syscalls::register_NtPrivilegedServiceAuditAlarm(proc_t proc, cons
         const auto AccessGranted = arg<nt::BOOLEAN>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[203]);
+            tracer::log_call(core, g_callcfgs[202]);
 
         on_func(SubsystemName, ServiceName, ClientToken, Privileges, AccessGranted);
     });
@@ -4261,7 +4242,7 @@ opt<id_t> nt::syscalls::register_NtPrivilegeObjectAuditAlarm(proc_t proc, const 
         const auto AccessGranted = arg<nt::BOOLEAN>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[204]);
+            tracer::log_call(core, g_callcfgs[203]);
 
         on_func(SubsystemName, HandleId, ClientToken, DesiredAccess, Privileges, AccessGranted);
     });
@@ -4279,7 +4260,7 @@ opt<id_t> nt::syscalls::register_NtPropagationComplete(proc_t proc, const on_NtP
         const auto Buffer                = arg<nt::PVOID>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[205]);
+            tracer::log_call(core, g_callcfgs[204]);
 
         on_func(ResourceManagerHandle, RequestCookie, BufferLength, Buffer);
     });
@@ -4296,15 +4277,15 @@ opt<id_t> nt::syscalls::register_NtPropagationFailed(proc_t proc, const on_NtPro
         const auto PropStatus            = arg<nt::NTSTATUS>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[206]);
+            tracer::log_call(core, g_callcfgs[205]);
 
         on_func(ResourceManagerHandle, RequestCookie, PropStatus);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtProtectVirtualMemory(proc_t proc, const on_NtProtectVirtualMemory_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwProtectVirtualMemory(proc_t proc, const on_ZwProtectVirtualMemory_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtProtectVirtualMemory", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwProtectVirtualMemory", [=]
     {
         auto& core = d_->core;
         
@@ -4315,15 +4296,15 @@ opt<id_t> nt::syscalls::register_NtProtectVirtualMemory(proc_t proc, const on_Nt
         const auto OldProtect      = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[207]);
+            tracer::log_call(core, g_callcfgs[206]);
 
         on_func(ProcessHandle, STARBaseAddress, RegionSize, NewProtectWin32, OldProtect);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtPulseEvent(proc_t proc, const on_NtPulseEvent_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwPulseEvent(proc_t proc, const on_ZwPulseEvent_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtPulseEvent", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwPulseEvent", [=]
     {
         auto& core = d_->core;
         
@@ -4331,15 +4312,15 @@ opt<id_t> nt::syscalls::register_NtPulseEvent(proc_t proc, const on_NtPulseEvent
         const auto PreviousState = arg<nt::PLONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[208]);
+            tracer::log_call(core, g_callcfgs[207]);
 
         on_func(EventHandle, PreviousState);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryAttributesFile(proc_t proc, const on_NtQueryAttributesFile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryAttributesFile(proc_t proc, const on_ZwQueryAttributesFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryAttributesFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryAttributesFile", [=]
     {
         auto& core = d_->core;
         
@@ -4347,15 +4328,15 @@ opt<id_t> nt::syscalls::register_NtQueryAttributesFile(proc_t proc, const on_NtQ
         const auto FileInformation  = arg<nt::PFILE_BASIC_INFORMATION>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[209]);
+            tracer::log_call(core, g_callcfgs[208]);
 
         on_func(ObjectAttributes, FileInformation);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryBootEntryOrder(proc_t proc, const on_NtQueryBootEntryOrder_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryBootEntryOrder(proc_t proc, const on_ZwQueryBootEntryOrder_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryBootEntryOrder", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryBootEntryOrder", [=]
     {
         auto& core = d_->core;
         
@@ -4363,7 +4344,7 @@ opt<id_t> nt::syscalls::register_NtQueryBootEntryOrder(proc_t proc, const on_NtQ
         const auto Count = arg<nt::PULONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[210]);
+            tracer::log_call(core, g_callcfgs[209]);
 
         on_func(Ids, Count);
     });
@@ -4379,15 +4360,15 @@ opt<id_t> nt::syscalls::register_NtQueryBootOptions(proc_t proc, const on_NtQuer
         const auto BootOptionsLength = arg<nt::PULONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[211]);
+            tracer::log_call(core, g_callcfgs[210]);
 
         on_func(BootOptions, BootOptionsLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryDebugFilterState(proc_t proc, const on_NtQueryDebugFilterState_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryDebugFilterState(proc_t proc, const on_ZwQueryDebugFilterState_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryDebugFilterState", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryDebugFilterState", [=]
     {
         auto& core = d_->core;
         
@@ -4395,7 +4376,7 @@ opt<id_t> nt::syscalls::register_NtQueryDebugFilterState(proc_t proc, const on_N
         const auto Level       = arg<nt::ULONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[212]);
+            tracer::log_call(core, g_callcfgs[211]);
 
         on_func(ComponentId, Level);
     });
@@ -4411,22 +4392,22 @@ opt<id_t> nt::syscalls::register_NtQueryDefaultLocale(proc_t proc, const on_NtQu
         const auto DefaultLocaleId = arg<nt::PLCID>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[213]);
+            tracer::log_call(core, g_callcfgs[212]);
 
         on_func(UserProfile, DefaultLocaleId);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryDefaultUILanguage(proc_t proc, const on_NtQueryDefaultUILanguage_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryDefaultUILanguage(proc_t proc, const on_ZwQueryDefaultUILanguage_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryDefaultUILanguage", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryDefaultUILanguage", [=]
     {
         auto& core = d_->core;
         
         const auto STARDefaultUILanguageId = arg<nt::LANGID>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[214]);
+            tracer::log_call(core, g_callcfgs[213]);
 
         on_func(STARDefaultUILanguageId);
     });
@@ -4451,15 +4432,15 @@ opt<id_t> nt::syscalls::register_NtQueryDirectoryFile(proc_t proc, const on_NtQu
         const auto RestartScan          = arg<nt::BOOLEAN>(core, 10);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[215]);
+            tracer::log_call(core, g_callcfgs[214]);
 
         on_func(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, FileInformation, Length, FileInformationClass, ReturnSingleEntry, FileName, RestartScan);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryDirectoryObject(proc_t proc, const on_NtQueryDirectoryObject_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryDirectoryObject(proc_t proc, const on_ZwQueryDirectoryObject_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryDirectoryObject", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryDirectoryObject", [=]
     {
         auto& core = d_->core;
         
@@ -4472,7 +4453,7 @@ opt<id_t> nt::syscalls::register_NtQueryDirectoryObject(proc_t proc, const on_Nt
         const auto ReturnLength      = arg<nt::PULONG>(core, 6);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[216]);
+            tracer::log_call(core, g_callcfgs[215]);
 
         on_func(DirectoryHandle, Buffer, Length, ReturnSingleEntry, RestartScan, Context, ReturnLength);
     });
@@ -4488,15 +4469,15 @@ opt<id_t> nt::syscalls::register_NtQueryDriverEntryOrder(proc_t proc, const on_N
         const auto Count = arg<nt::PULONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[217]);
+            tracer::log_call(core, g_callcfgs[216]);
 
         on_func(Ids, Count);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryEaFile(proc_t proc, const on_NtQueryEaFile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryEaFile(proc_t proc, const on_ZwQueryEaFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryEaFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryEaFile", [=]
     {
         auto& core = d_->core;
         
@@ -4511,7 +4492,7 @@ opt<id_t> nt::syscalls::register_NtQueryEaFile(proc_t proc, const on_NtQueryEaFi
         const auto RestartScan       = arg<nt::BOOLEAN>(core, 8);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[218]);
+            tracer::log_call(core, g_callcfgs[217]);
 
         on_func(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, EaList, EaListLength, EaIndex, RestartScan);
     });
@@ -4530,7 +4511,7 @@ opt<id_t> nt::syscalls::register_NtQueryEvent(proc_t proc, const on_NtQueryEvent
         const auto ReturnLength           = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[219]);
+            tracer::log_call(core, g_callcfgs[218]);
 
         on_func(EventHandle, EventInformationClass, EventInformation, EventInformationLength, ReturnLength);
     });
@@ -4546,7 +4527,7 @@ opt<id_t> nt::syscalls::register_NtQueryFullAttributesFile(proc_t proc, const on
         const auto FileInformation  = arg<nt::PFILE_NETWORK_OPEN_INFORMATION>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[220]);
+            tracer::log_call(core, g_callcfgs[219]);
 
         on_func(ObjectAttributes, FileInformation);
     });
@@ -4565,7 +4546,7 @@ opt<id_t> nt::syscalls::register_NtQueryInformationAtom(proc_t proc, const on_Nt
         const auto ReturnLength          = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[221]);
+            tracer::log_call(core, g_callcfgs[220]);
 
         on_func(Atom, InformationClass, AtomInformation, AtomInformationLength, ReturnLength);
     });
@@ -4584,7 +4565,7 @@ opt<id_t> nt::syscalls::register_NtQueryInformationEnlistment(proc_t proc, const
         const auto ReturnLength                = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[222]);
+            tracer::log_call(core, g_callcfgs[221]);
 
         on_func(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength, ReturnLength);
     });
@@ -4603,7 +4584,7 @@ opt<id_t> nt::syscalls::register_NtQueryInformationFile(proc_t proc, const on_Nt
         const auto FileInformationClass = arg<nt::FILE_INFORMATION_CLASS>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[223]);
+            tracer::log_call(core, g_callcfgs[222]);
 
         on_func(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
     });
@@ -4622,7 +4603,7 @@ opt<id_t> nt::syscalls::register_NtQueryInformationJobObject(proc_t proc, const 
         const auto ReturnLength               = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[224]);
+            tracer::log_call(core, g_callcfgs[223]);
 
         on_func(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength, ReturnLength);
     });
@@ -4641,7 +4622,7 @@ opt<id_t> nt::syscalls::register_NtQueryInformationPort(proc_t proc, const on_Nt
         const auto ReturnLength         = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[225]);
+            tracer::log_call(core, g_callcfgs[224]);
 
         on_func(PortHandle, PortInformationClass, PortInformation, Length, ReturnLength);
     });
@@ -4660,7 +4641,7 @@ opt<id_t> nt::syscalls::register_NtQueryInformationProcess(proc_t proc, const on
         const auto ReturnLength             = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[226]);
+            tracer::log_call(core, g_callcfgs[225]);
 
         on_func(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength, ReturnLength);
     });
@@ -4679,15 +4660,15 @@ opt<id_t> nt::syscalls::register_NtQueryInformationResourceManager(proc_t proc, 
         const auto ReturnLength                     = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[227]);
+            tracer::log_call(core, g_callcfgs[226]);
 
         on_func(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength, ReturnLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryInformationThread(proc_t proc, const on_NtQueryInformationThread_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryInformationThread(proc_t proc, const on_ZwQueryInformationThread_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryInformationThread", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryInformationThread", [=]
     {
         auto& core = d_->core;
         
@@ -4698,7 +4679,7 @@ opt<id_t> nt::syscalls::register_NtQueryInformationThread(proc_t proc, const on_
         const auto ReturnLength            = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[228]);
+            tracer::log_call(core, g_callcfgs[227]);
 
         on_func(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength, ReturnLength);
     });
@@ -4717,15 +4698,15 @@ opt<id_t> nt::syscalls::register_NtQueryInformationToken(proc_t proc, const on_N
         const auto ReturnLength           = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[229]);
+            tracer::log_call(core, g_callcfgs[228]);
 
         on_func(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength, ReturnLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryInformationTransaction(proc_t proc, const on_NtQueryInformationTransaction_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryInformationTransaction(proc_t proc, const on_ZwQueryInformationTransaction_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryInformationTransaction", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryInformationTransaction", [=]
     {
         auto& core = d_->core;
         
@@ -4736,7 +4717,7 @@ opt<id_t> nt::syscalls::register_NtQueryInformationTransaction(proc_t proc, cons
         const auto ReturnLength                 = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[230]);
+            tracer::log_call(core, g_callcfgs[229]);
 
         on_func(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength, ReturnLength);
     });
@@ -4755,15 +4736,15 @@ opt<id_t> nt::syscalls::register_NtQueryInformationTransactionManager(proc_t pro
         const auto ReturnLength                        = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[231]);
+            tracer::log_call(core, g_callcfgs[230]);
 
         on_func(TransactionManagerHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength, ReturnLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryInformationWorkerFactory(proc_t proc, const on_NtQueryInformationWorkerFactory_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryInformationWorkerFactory(proc_t proc, const on_ZwQueryInformationWorkerFactory_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryInformationWorkerFactory", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryInformationWorkerFactory", [=]
     {
         auto& core = d_->core;
         
@@ -4774,7 +4755,7 @@ opt<id_t> nt::syscalls::register_NtQueryInformationWorkerFactory(proc_t proc, co
         const auto ReturnLength                   = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[232]);
+            tracer::log_call(core, g_callcfgs[231]);
 
         on_func(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength, ReturnLength);
     });
@@ -4789,7 +4770,7 @@ opt<id_t> nt::syscalls::register_NtQueryInstallUILanguage(proc_t proc, const on_
         const auto STARInstallUILanguageId = arg<nt::LANGID>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[233]);
+            tracer::log_call(core, g_callcfgs[232]);
 
         on_func(STARInstallUILanguageId);
     });
@@ -4805,7 +4786,7 @@ opt<id_t> nt::syscalls::register_NtQueryIntervalProfile(proc_t proc, const on_Nt
         const auto Interval      = arg<nt::PULONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[234]);
+            tracer::log_call(core, g_callcfgs[233]);
 
         on_func(ProfileSource, Interval);
     });
@@ -4824,15 +4805,15 @@ opt<id_t> nt::syscalls::register_NtQueryIoCompletion(proc_t proc, const on_NtQue
         const auto ReturnLength                  = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[235]);
+            tracer::log_call(core, g_callcfgs[234]);
 
         on_func(IoCompletionHandle, IoCompletionInformationClass, IoCompletionInformation, IoCompletionInformationLength, ReturnLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryKey(proc_t proc, const on_NtQueryKey_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryKey(proc_t proc, const on_ZwQueryKey_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryKey", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryKey", [=]
     {
         auto& core = d_->core;
         
@@ -4843,15 +4824,15 @@ opt<id_t> nt::syscalls::register_NtQueryKey(proc_t proc, const on_NtQueryKey_fn&
         const auto ResultLength        = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[236]);
+            tracer::log_call(core, g_callcfgs[235]);
 
         on_func(KeyHandle, KeyInformationClass, KeyInformation, Length, ResultLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryLicenseValue(proc_t proc, const on_NtQueryLicenseValue_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryLicenseValue(proc_t proc, const on_ZwQueryLicenseValue_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryLicenseValue", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryLicenseValue", [=]
     {
         auto& core = d_->core;
         
@@ -4862,15 +4843,15 @@ opt<id_t> nt::syscalls::register_NtQueryLicenseValue(proc_t proc, const on_NtQue
         const auto ReturnedLength = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[237]);
+            tracer::log_call(core, g_callcfgs[236]);
 
         on_func(Name, Type, Buffer, Length, ReturnedLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryMultipleValueKey(proc_t proc, const on_NtQueryMultipleValueKey_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryMultipleValueKey(proc_t proc, const on_ZwQueryMultipleValueKey_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryMultipleValueKey", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryMultipleValueKey", [=]
     {
         auto& core = d_->core;
         
@@ -4882,15 +4863,15 @@ opt<id_t> nt::syscalls::register_NtQueryMultipleValueKey(proc_t proc, const on_N
         const auto RequiredBufferLength = arg<nt::PULONG>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[238]);
+            tracer::log_call(core, g_callcfgs[237]);
 
         on_func(KeyHandle, ValueEntries, EntryCount, ValueBuffer, BufferLength, RequiredBufferLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryMutant(proc_t proc, const on_NtQueryMutant_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryMutant(proc_t proc, const on_ZwQueryMutant_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryMutant", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryMutant", [=]
     {
         auto& core = d_->core;
         
@@ -4901,15 +4882,15 @@ opt<id_t> nt::syscalls::register_NtQueryMutant(proc_t proc, const on_NtQueryMuta
         const auto ReturnLength            = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[239]);
+            tracer::log_call(core, g_callcfgs[238]);
 
         on_func(MutantHandle, MutantInformationClass, MutantInformation, MutantInformationLength, ReturnLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryObject(proc_t proc, const on_NtQueryObject_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryObject(proc_t proc, const on_ZwQueryObject_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryObject", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryObject", [=]
     {
         auto& core = d_->core;
         
@@ -4920,7 +4901,7 @@ opt<id_t> nt::syscalls::register_NtQueryObject(proc_t proc, const on_NtQueryObje
         const auto ReturnLength            = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[240]);
+            tracer::log_call(core, g_callcfgs[239]);
 
         on_func(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength, ReturnLength);
     });
@@ -4938,7 +4919,7 @@ opt<id_t> nt::syscalls::register_NtQueryOpenSubKeysEx(proc_t proc, const on_NtQu
         const auto RequiredSize = arg<nt::PULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[241]);
+            tracer::log_call(core, g_callcfgs[240]);
 
         on_func(TargetKey, BufferLength, Buffer, RequiredSize);
     });
@@ -4954,7 +4935,7 @@ opt<id_t> nt::syscalls::register_NtQueryOpenSubKeys(proc_t proc, const on_NtQuer
         const auto HandleCount = arg<nt::PULONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[242]);
+            tracer::log_call(core, g_callcfgs[241]);
 
         on_func(TargetKey, HandleCount);
     });
@@ -4970,7 +4951,7 @@ opt<id_t> nt::syscalls::register_NtQueryPerformanceCounter(proc_t proc, const on
         const auto PerformanceFrequency = arg<nt::PLARGE_INTEGER>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[243]);
+            tracer::log_call(core, g_callcfgs[242]);
 
         on_func(PerformanceCounter, PerformanceFrequency);
     });
@@ -4993,7 +4974,7 @@ opt<id_t> nt::syscalls::register_NtQueryQuotaInformationFile(proc_t proc, const 
         const auto RestartScan       = arg<nt::BOOLEAN>(core, 8);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[244]);
+            tracer::log_call(core, g_callcfgs[243]);
 
         on_func(FileHandle, IoStatusBlock, Buffer, Length, ReturnSingleEntry, SidList, SidListLength, StartSid, RestartScan);
     });
@@ -5012,15 +4993,15 @@ opt<id_t> nt::syscalls::register_NtQuerySection(proc_t proc, const on_NtQuerySec
         const auto ReturnLength             = arg<nt::PSIZE_T>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[245]);
+            tracer::log_call(core, g_callcfgs[244]);
 
         on_func(SectionHandle, SectionInformationClass, SectionInformation, SectionInformationLength, ReturnLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQuerySecurityAttributesToken(proc_t proc, const on_NtQuerySecurityAttributesToken_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQuerySecurityAttributesToken(proc_t proc, const on_ZwQuerySecurityAttributesToken_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQuerySecurityAttributesToken", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQuerySecurityAttributesToken", [=]
     {
         auto& core = d_->core;
         
@@ -5032,7 +5013,7 @@ opt<id_t> nt::syscalls::register_NtQuerySecurityAttributesToken(proc_t proc, con
         const auto ReturnLength       = arg<nt::PULONG>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[246]);
+            tracer::log_call(core, g_callcfgs[245]);
 
         on_func(TokenHandle, Attributes, NumberOfAttributes, Buffer, Length, ReturnLength);
     });
@@ -5051,15 +5032,15 @@ opt<id_t> nt::syscalls::register_NtQuerySecurityObject(proc_t proc, const on_NtQ
         const auto LengthNeeded        = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[247]);
+            tracer::log_call(core, g_callcfgs[246]);
 
         on_func(Handle, SecurityInformation, SecurityDescriptor, Length, LengthNeeded);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQuerySemaphore(proc_t proc, const on_NtQuerySemaphore_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQuerySemaphore(proc_t proc, const on_ZwQuerySemaphore_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQuerySemaphore", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQuerySemaphore", [=]
     {
         auto& core = d_->core;
         
@@ -5070,7 +5051,7 @@ opt<id_t> nt::syscalls::register_NtQuerySemaphore(proc_t proc, const on_NtQueryS
         const auto ReturnLength               = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[248]);
+            tracer::log_call(core, g_callcfgs[247]);
 
         on_func(SemaphoreHandle, SemaphoreInformationClass, SemaphoreInformation, SemaphoreInformationLength, ReturnLength);
     });
@@ -5087,7 +5068,7 @@ opt<id_t> nt::syscalls::register_NtQuerySymbolicLinkObject(proc_t proc, const on
         const auto ReturnedLength = arg<nt::PULONG>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[249]);
+            tracer::log_call(core, g_callcfgs[248]);
 
         on_func(LinkHandle, LinkTarget, ReturnedLength);
     });
@@ -5106,7 +5087,7 @@ opt<id_t> nt::syscalls::register_NtQuerySystemEnvironmentValueEx(proc_t proc, co
         const auto Attributes   = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[250]);
+            tracer::log_call(core, g_callcfgs[249]);
 
         on_func(VariableName, VendorGuid, Value, ValueLength, Attributes);
     });
@@ -5124,7 +5105,7 @@ opt<id_t> nt::syscalls::register_NtQuerySystemEnvironmentValue(proc_t proc, cons
         const auto ReturnLength  = arg<nt::PUSHORT>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[251]);
+            tracer::log_call(core, g_callcfgs[250]);
 
         on_func(VariableName, VariableValue, ValueLength, ReturnLength);
     });
@@ -5144,7 +5125,7 @@ opt<id_t> nt::syscalls::register_NtQuerySystemInformationEx(proc_t proc, const o
         const auto ReturnLength            = arg<nt::PULONG>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[252]);
+            tracer::log_call(core, g_callcfgs[251]);
 
         on_func(SystemInformationClass, QueryInformation, QueryInformationLength, SystemInformation, SystemInformationLength, ReturnLength);
     });
@@ -5162,30 +5143,30 @@ opt<id_t> nt::syscalls::register_NtQuerySystemInformation(proc_t proc, const on_
         const auto ReturnLength            = arg<nt::PULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[253]);
+            tracer::log_call(core, g_callcfgs[252]);
 
         on_func(SystemInformationClass, SystemInformation, SystemInformationLength, ReturnLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQuerySystemTime(proc_t proc, const on_NtQuerySystemTime_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQuerySystemTime(proc_t proc, const on_ZwQuerySystemTime_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQuerySystemTime", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQuerySystemTime", [=]
     {
         auto& core = d_->core;
         
         const auto SystemTime = arg<nt::PLARGE_INTEGER>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[254]);
+            tracer::log_call(core, g_callcfgs[253]);
 
         on_func(SystemTime);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryTimer(proc_t proc, const on_NtQueryTimer_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryTimer(proc_t proc, const on_ZwQueryTimer_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryTimer", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryTimer", [=]
     {
         auto& core = d_->core;
         
@@ -5196,15 +5177,15 @@ opt<id_t> nt::syscalls::register_NtQueryTimer(proc_t proc, const on_NtQueryTimer
         const auto ReturnLength           = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[255]);
+            tracer::log_call(core, g_callcfgs[254]);
 
         on_func(TimerHandle, TimerInformationClass, TimerInformation, TimerInformationLength, ReturnLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryTimerResolution(proc_t proc, const on_NtQueryTimerResolution_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryTimerResolution(proc_t proc, const on_ZwQueryTimerResolution_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryTimerResolution", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryTimerResolution", [=]
     {
         auto& core = d_->core;
         
@@ -5213,7 +5194,7 @@ opt<id_t> nt::syscalls::register_NtQueryTimerResolution(proc_t proc, const on_Nt
         const auto CurrentTime = arg<nt::PULONG>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[256]);
+            tracer::log_call(core, g_callcfgs[255]);
 
         on_func(MaximumTime, MinimumTime, CurrentTime);
     });
@@ -5233,15 +5214,15 @@ opt<id_t> nt::syscalls::register_NtQueryValueKey(proc_t proc, const on_NtQueryVa
         const auto ResultLength             = arg<nt::PULONG>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[257]);
+            tracer::log_call(core, g_callcfgs[256]);
 
         on_func(KeyHandle, ValueName, KeyValueInformationClass, KeyValueInformation, Length, ResultLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryVirtualMemory(proc_t proc, const on_NtQueryVirtualMemory_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryVirtualMemory(proc_t proc, const on_ZwQueryVirtualMemory_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryVirtualMemory", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryVirtualMemory", [=]
     {
         auto& core = d_->core;
         
@@ -5253,15 +5234,15 @@ opt<id_t> nt::syscalls::register_NtQueryVirtualMemory(proc_t proc, const on_NtQu
         const auto ReturnLength            = arg<nt::PSIZE_T>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[258]);
+            tracer::log_call(core, g_callcfgs[257]);
 
         on_func(ProcessHandle, BaseAddress, MemoryInformationClass, MemoryInformation, MemoryInformationLength, ReturnLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtQueryVolumeInformationFile(proc_t proc, const on_NtQueryVolumeInformationFile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwQueryVolumeInformationFile(proc_t proc, const on_ZwQueryVolumeInformationFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtQueryVolumeInformationFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwQueryVolumeInformationFile", [=]
     {
         auto& core = d_->core;
         
@@ -5272,7 +5253,7 @@ opt<id_t> nt::syscalls::register_NtQueryVolumeInformationFile(proc_t proc, const
         const auto FsInformationClass = arg<nt::FS_INFORMATION_CLASS>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[259]);
+            tracer::log_call(core, g_callcfgs[258]);
 
         on_func(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
     });
@@ -5292,7 +5273,7 @@ opt<id_t> nt::syscalls::register_NtQueueApcThreadEx(proc_t proc, const on_NtQueu
         const auto ApcArgument3         = arg<nt::PVOID>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[260]);
+            tracer::log_call(core, g_callcfgs[259]);
 
         on_func(ThreadHandle, UserApcReserveHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
     });
@@ -5311,15 +5292,15 @@ opt<id_t> nt::syscalls::register_NtQueueApcThread(proc_t proc, const on_NtQueueA
         const auto ApcArgument3 = arg<nt::PVOID>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[261]);
+            tracer::log_call(core, g_callcfgs[260]);
 
         on_func(ThreadHandle, ApcRoutine, ApcArgument1, ApcArgument2, ApcArgument3);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtRaiseException(proc_t proc, const on_NtRaiseException_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwRaiseException(proc_t proc, const on_ZwRaiseException_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtRaiseException", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwRaiseException", [=]
     {
         auto& core = d_->core;
         
@@ -5328,7 +5309,7 @@ opt<id_t> nt::syscalls::register_NtRaiseException(proc_t proc, const on_NtRaiseE
         const auto FirstChance     = arg<nt::BOOLEAN>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[262]);
+            tracer::log_call(core, g_callcfgs[261]);
 
         on_func(ExceptionRecord, ContextRecord, FirstChance);
     });
@@ -5348,7 +5329,7 @@ opt<id_t> nt::syscalls::register_NtRaiseHardError(proc_t proc, const on_NtRaiseH
         const auto Response                   = arg<nt::PULONG>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[263]);
+            tracer::log_call(core, g_callcfgs[262]);
 
         on_func(ErrorStatus, NumberOfParameters, UnicodeStringParameterMask, Parameters, ValidResponseOptions, Response);
     });
@@ -5371,15 +5352,15 @@ opt<id_t> nt::syscalls::register_NtReadFile(proc_t proc, const on_NtReadFile_fn&
         const auto Key           = arg<nt::PULONG>(core, 8);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[264]);
+            tracer::log_call(core, g_callcfgs[263]);
 
         on_func(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtReadFileScatter(proc_t proc, const on_NtReadFileScatter_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwReadFileScatter(proc_t proc, const on_ZwReadFileScatter_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtReadFileScatter", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwReadFileScatter", [=]
     {
         auto& core = d_->core;
         
@@ -5394,15 +5375,15 @@ opt<id_t> nt::syscalls::register_NtReadFileScatter(proc_t proc, const on_NtReadF
         const auto Key           = arg<nt::PULONG>(core, 8);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[265]);
+            tracer::log_call(core, g_callcfgs[264]);
 
         on_func(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtReadOnlyEnlistment(proc_t proc, const on_NtReadOnlyEnlistment_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwReadOnlyEnlistment(proc_t proc, const on_ZwReadOnlyEnlistment_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtReadOnlyEnlistment", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwReadOnlyEnlistment", [=]
     {
         auto& core = d_->core;
         
@@ -5410,7 +5391,7 @@ opt<id_t> nt::syscalls::register_NtReadOnlyEnlistment(proc_t proc, const on_NtRe
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[266]);
+            tracer::log_call(core, g_callcfgs[265]);
 
         on_func(EnlistmentHandle, TmVirtualClock);
     });
@@ -5430,15 +5411,15 @@ opt<id_t> nt::syscalls::register_NtReadRequestData(proc_t proc, const on_NtReadR
         const auto NumberOfBytesRead = arg<nt::PSIZE_T>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[267]);
+            tracer::log_call(core, g_callcfgs[266]);
 
         on_func(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesRead);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtReadVirtualMemory(proc_t proc, const on_NtReadVirtualMemory_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwReadVirtualMemory(proc_t proc, const on_ZwReadVirtualMemory_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtReadVirtualMemory", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwReadVirtualMemory", [=]
     {
         auto& core = d_->core;
         
@@ -5449,15 +5430,15 @@ opt<id_t> nt::syscalls::register_NtReadVirtualMemory(proc_t proc, const on_NtRea
         const auto NumberOfBytesRead = arg<nt::PSIZE_T>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[268]);
+            tracer::log_call(core, g_callcfgs[267]);
 
         on_func(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesRead);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtRecoverEnlistment(proc_t proc, const on_NtRecoverEnlistment_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwRecoverEnlistment(proc_t proc, const on_ZwRecoverEnlistment_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtRecoverEnlistment", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwRecoverEnlistment", [=]
     {
         auto& core = d_->core;
         
@@ -5465,22 +5446,22 @@ opt<id_t> nt::syscalls::register_NtRecoverEnlistment(proc_t proc, const on_NtRec
         const auto EnlistmentKey    = arg<nt::PVOID>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[269]);
+            tracer::log_call(core, g_callcfgs[268]);
 
         on_func(EnlistmentHandle, EnlistmentKey);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtRecoverResourceManager(proc_t proc, const on_NtRecoverResourceManager_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwRecoverResourceManager(proc_t proc, const on_ZwRecoverResourceManager_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtRecoverResourceManager", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwRecoverResourceManager", [=]
     {
         auto& core = d_->core;
         
         const auto ResourceManagerHandle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[270]);
+            tracer::log_call(core, g_callcfgs[269]);
 
         on_func(ResourceManagerHandle);
     });
@@ -5495,7 +5476,7 @@ opt<id_t> nt::syscalls::register_NtRecoverTransactionManager(proc_t proc, const 
         const auto TransactionManagerHandle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[271]);
+            tracer::log_call(core, g_callcfgs[270]);
 
         on_func(TransactionManagerHandle);
     });
@@ -5514,7 +5495,7 @@ opt<id_t> nt::syscalls::register_NtRegisterProtocolAddressInformation(proc_t pro
         const auto CreateOptions           = arg<nt::ULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[272]);
+            tracer::log_call(core, g_callcfgs[271]);
 
         on_func(ResourceManager, ProtocolId, ProtocolInformationSize, ProtocolInformation, CreateOptions);
     });
@@ -5529,7 +5510,7 @@ opt<id_t> nt::syscalls::register_NtRegisterThreadTerminatePort(proc_t proc, cons
         const auto PortHandle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[273]);
+            tracer::log_call(core, g_callcfgs[272]);
 
         on_func(PortHandle);
     });
@@ -5547,15 +5528,15 @@ opt<id_t> nt::syscalls::register_NtReleaseKeyedEvent(proc_t proc, const on_NtRel
         const auto Timeout          = arg<nt::PLARGE_INTEGER>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[274]);
+            tracer::log_call(core, g_callcfgs[273]);
 
         on_func(KeyedEventHandle, KeyValue, Alertable, Timeout);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtReleaseMutant(proc_t proc, const on_NtReleaseMutant_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwReleaseMutant(proc_t proc, const on_ZwReleaseMutant_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtReleaseMutant", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwReleaseMutant", [=]
     {
         auto& core = d_->core;
         
@@ -5563,15 +5544,15 @@ opt<id_t> nt::syscalls::register_NtReleaseMutant(proc_t proc, const on_NtRelease
         const auto PreviousCount = arg<nt::PLONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[275]);
+            tracer::log_call(core, g_callcfgs[274]);
 
         on_func(MutantHandle, PreviousCount);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtReleaseSemaphore(proc_t proc, const on_NtReleaseSemaphore_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwReleaseSemaphore(proc_t proc, const on_ZwReleaseSemaphore_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtReleaseSemaphore", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwReleaseSemaphore", [=]
     {
         auto& core = d_->core;
         
@@ -5580,7 +5561,7 @@ opt<id_t> nt::syscalls::register_NtReleaseSemaphore(proc_t proc, const on_NtRele
         const auto PreviousCount   = arg<nt::PLONG>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[276]);
+            tracer::log_call(core, g_callcfgs[275]);
 
         on_func(SemaphoreHandle, ReleaseCount, PreviousCount);
     });
@@ -5595,15 +5576,15 @@ opt<id_t> nt::syscalls::register_NtReleaseWorkerFactoryWorker(proc_t proc, const
         const auto WorkerFactoryHandle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[277]);
+            tracer::log_call(core, g_callcfgs[276]);
 
         on_func(WorkerFactoryHandle);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtRemoveIoCompletionEx(proc_t proc, const on_NtRemoveIoCompletionEx_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwRemoveIoCompletionEx(proc_t proc, const on_ZwRemoveIoCompletionEx_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtRemoveIoCompletionEx", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwRemoveIoCompletionEx", [=]
     {
         auto& core = d_->core;
         
@@ -5615,15 +5596,15 @@ opt<id_t> nt::syscalls::register_NtRemoveIoCompletionEx(proc_t proc, const on_Nt
         const auto Alertable               = arg<nt::BOOLEAN>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[278]);
+            tracer::log_call(core, g_callcfgs[277]);
 
         on_func(IoCompletionHandle, IoCompletionInformation, Count, NumEntriesRemoved, Timeout, Alertable);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtRemoveIoCompletion(proc_t proc, const on_NtRemoveIoCompletion_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwRemoveIoCompletion(proc_t proc, const on_ZwRemoveIoCompletion_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtRemoveIoCompletion", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwRemoveIoCompletion", [=]
     {
         auto& core = d_->core;
         
@@ -5634,15 +5615,15 @@ opt<id_t> nt::syscalls::register_NtRemoveIoCompletion(proc_t proc, const on_NtRe
         const auto Timeout            = arg<nt::PLARGE_INTEGER>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[279]);
+            tracer::log_call(core, g_callcfgs[278]);
 
         on_func(IoCompletionHandle, STARKeyContext, STARApcContext, IoStatusBlock, Timeout);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtRemoveProcessDebug(proc_t proc, const on_NtRemoveProcessDebug_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwRemoveProcessDebug(proc_t proc, const on_ZwRemoveProcessDebug_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtRemoveProcessDebug", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwRemoveProcessDebug", [=]
     {
         auto& core = d_->core;
         
@@ -5650,7 +5631,7 @@ opt<id_t> nt::syscalls::register_NtRemoveProcessDebug(proc_t proc, const on_NtRe
         const auto DebugObjectHandle = arg<nt::HANDLE>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[280]);
+            tracer::log_call(core, g_callcfgs[279]);
 
         on_func(ProcessHandle, DebugObjectHandle);
     });
@@ -5666,7 +5647,7 @@ opt<id_t> nt::syscalls::register_NtRenameKey(proc_t proc, const on_NtRenameKey_f
         const auto NewName   = arg<nt::PUNICODE_STRING>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[281]);
+            tracer::log_call(core, g_callcfgs[280]);
 
         on_func(KeyHandle, NewName);
     });
@@ -5682,7 +5663,7 @@ opt<id_t> nt::syscalls::register_NtRenameTransactionManager(proc_t proc, const o
         const auto ExistingTransactionManagerGuid = arg<nt::LPGUID>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[282]);
+            tracer::log_call(core, g_callcfgs[281]);
 
         on_func(LogFileName, ExistingTransactionManagerGuid);
     });
@@ -5699,7 +5680,7 @@ opt<id_t> nt::syscalls::register_NtReplaceKey(proc_t proc, const on_NtReplaceKey
         const auto OldFile      = arg<nt::POBJECT_ATTRIBUTES>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[283]);
+            tracer::log_call(core, g_callcfgs[282]);
 
         on_func(NewFile, TargetHandle, OldFile);
     });
@@ -5716,7 +5697,7 @@ opt<id_t> nt::syscalls::register_NtReplacePartitionUnit(proc_t proc, const on_Nt
         const auto Flags              = arg<nt::ULONG>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[284]);
+            tracer::log_call(core, g_callcfgs[283]);
 
         on_func(TargetInstancePath, SpareInstancePath, Flags);
     });
@@ -5732,15 +5713,15 @@ opt<id_t> nt::syscalls::register_NtReplyPort(proc_t proc, const on_NtReplyPort_f
         const auto ReplyMessage = arg<nt::PPORT_MESSAGE>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[285]);
+            tracer::log_call(core, g_callcfgs[284]);
 
         on_func(PortHandle, ReplyMessage);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtReplyWaitReceivePortEx(proc_t proc, const on_NtReplyWaitReceivePortEx_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwReplyWaitReceivePortEx(proc_t proc, const on_ZwReplyWaitReceivePortEx_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtReplyWaitReceivePortEx", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwReplyWaitReceivePortEx", [=]
     {
         auto& core = d_->core;
         
@@ -5751,15 +5732,15 @@ opt<id_t> nt::syscalls::register_NtReplyWaitReceivePortEx(proc_t proc, const on_
         const auto Timeout         = arg<nt::PLARGE_INTEGER>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[286]);
+            tracer::log_call(core, g_callcfgs[285]);
 
         on_func(PortHandle, STARPortContext, ReplyMessage, ReceiveMessage, Timeout);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtReplyWaitReceivePort(proc_t proc, const on_NtReplyWaitReceivePort_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwReplyWaitReceivePort(proc_t proc, const on_ZwReplyWaitReceivePort_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtReplyWaitReceivePort", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwReplyWaitReceivePort", [=]
     {
         auto& core = d_->core;
         
@@ -5769,7 +5750,7 @@ opt<id_t> nt::syscalls::register_NtReplyWaitReceivePort(proc_t proc, const on_Nt
         const auto ReceiveMessage  = arg<nt::PPORT_MESSAGE>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[287]);
+            tracer::log_call(core, g_callcfgs[286]);
 
         on_func(PortHandle, STARPortContext, ReplyMessage, ReceiveMessage);
     });
@@ -5785,7 +5766,7 @@ opt<id_t> nt::syscalls::register_NtReplyWaitReplyPort(proc_t proc, const on_NtRe
         const auto ReplyMessage = arg<nt::PPORT_MESSAGE>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[288]);
+            tracer::log_call(core, g_callcfgs[287]);
 
         on_func(PortHandle, ReplyMessage);
     });
@@ -5801,15 +5782,15 @@ opt<id_t> nt::syscalls::register_NtRequestPort(proc_t proc, const on_NtRequestPo
         const auto RequestMessage = arg<nt::PPORT_MESSAGE>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[289]);
+            tracer::log_call(core, g_callcfgs[288]);
 
         on_func(PortHandle, RequestMessage);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtRequestWaitReplyPort(proc_t proc, const on_NtRequestWaitReplyPort_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwRequestWaitReplyPort(proc_t proc, const on_ZwRequestWaitReplyPort_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtRequestWaitReplyPort", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwRequestWaitReplyPort", [=]
     {
         auto& core = d_->core;
         
@@ -5818,15 +5799,15 @@ opt<id_t> nt::syscalls::register_NtRequestWaitReplyPort(proc_t proc, const on_Nt
         const auto ReplyMessage   = arg<nt::PPORT_MESSAGE>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[290]);
+            tracer::log_call(core, g_callcfgs[289]);
 
         on_func(PortHandle, RequestMessage, ReplyMessage);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtResetEvent(proc_t proc, const on_NtResetEvent_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwResetEvent(proc_t proc, const on_ZwResetEvent_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtResetEvent", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwResetEvent", [=]
     {
         auto& core = d_->core;
         
@@ -5834,15 +5815,15 @@ opt<id_t> nt::syscalls::register_NtResetEvent(proc_t proc, const on_NtResetEvent
         const auto PreviousState = arg<nt::PLONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[291]);
+            tracer::log_call(core, g_callcfgs[290]);
 
         on_func(EventHandle, PreviousState);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtResetWriteWatch(proc_t proc, const on_NtResetWriteWatch_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwResetWriteWatch(proc_t proc, const on_ZwResetWriteWatch_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtResetWriteWatch", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwResetWriteWatch", [=]
     {
         auto& core = d_->core;
         
@@ -5851,7 +5832,7 @@ opt<id_t> nt::syscalls::register_NtResetWriteWatch(proc_t proc, const on_NtReset
         const auto RegionSize    = arg<nt::SIZE_T>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[292]);
+            tracer::log_call(core, g_callcfgs[291]);
 
         on_func(ProcessHandle, BaseAddress, RegionSize);
     });
@@ -5868,30 +5849,30 @@ opt<id_t> nt::syscalls::register_NtRestoreKey(proc_t proc, const on_NtRestoreKey
         const auto Flags      = arg<nt::ULONG>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[293]);
+            tracer::log_call(core, g_callcfgs[292]);
 
         on_func(KeyHandle, FileHandle, Flags);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtResumeProcess(proc_t proc, const on_NtResumeProcess_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwResumeProcess(proc_t proc, const on_ZwResumeProcess_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtResumeProcess", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwResumeProcess", [=]
     {
         auto& core = d_->core;
         
         const auto ProcessHandle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[294]);
+            tracer::log_call(core, g_callcfgs[293]);
 
         on_func(ProcessHandle);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtResumeThread(proc_t proc, const on_NtResumeThread_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwResumeThread(proc_t proc, const on_ZwResumeThread_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtResumeThread", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwResumeThread", [=]
     {
         auto& core = d_->core;
         
@@ -5899,15 +5880,15 @@ opt<id_t> nt::syscalls::register_NtResumeThread(proc_t proc, const on_NtResumeTh
         const auto PreviousSuspendCount = arg<nt::PULONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[295]);
+            tracer::log_call(core, g_callcfgs[294]);
 
         on_func(ThreadHandle, PreviousSuspendCount);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtRollbackComplete(proc_t proc, const on_NtRollbackComplete_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwRollbackComplete(proc_t proc, const on_ZwRollbackComplete_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtRollbackComplete", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwRollbackComplete", [=]
     {
         auto& core = d_->core;
         
@@ -5915,7 +5896,7 @@ opt<id_t> nt::syscalls::register_NtRollbackComplete(proc_t proc, const on_NtRoll
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[296]);
+            tracer::log_call(core, g_callcfgs[295]);
 
         on_func(EnlistmentHandle, TmVirtualClock);
     });
@@ -5931,15 +5912,15 @@ opt<id_t> nt::syscalls::register_NtRollbackEnlistment(proc_t proc, const on_NtRo
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[297]);
+            tracer::log_call(core, g_callcfgs[296]);
 
         on_func(EnlistmentHandle, TmVirtualClock);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtRollbackTransaction(proc_t proc, const on_NtRollbackTransaction_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwRollbackTransaction(proc_t proc, const on_ZwRollbackTransaction_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtRollbackTransaction", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwRollbackTransaction", [=]
     {
         auto& core = d_->core;
         
@@ -5947,7 +5928,7 @@ opt<id_t> nt::syscalls::register_NtRollbackTransaction(proc_t proc, const on_NtR
         const auto Wait              = arg<nt::BOOLEAN>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[298]);
+            tracer::log_call(core, g_callcfgs[297]);
 
         on_func(TransactionHandle, Wait);
     });
@@ -5963,7 +5944,7 @@ opt<id_t> nt::syscalls::register_NtRollforwardTransactionManager(proc_t proc, co
         const auto TmVirtualClock           = arg<nt::PLARGE_INTEGER>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[299]);
+            tracer::log_call(core, g_callcfgs[298]);
 
         on_func(TransactionManagerHandle, TmVirtualClock);
     });
@@ -5980,7 +5961,7 @@ opt<id_t> nt::syscalls::register_NtSaveKeyEx(proc_t proc, const on_NtSaveKeyEx_f
         const auto Format     = arg<nt::ULONG>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[300]);
+            tracer::log_call(core, g_callcfgs[299]);
 
         on_func(KeyHandle, FileHandle, Format);
     });
@@ -5996,15 +5977,15 @@ opt<id_t> nt::syscalls::register_NtSaveKey(proc_t proc, const on_NtSaveKey_fn& o
         const auto FileHandle = arg<nt::HANDLE>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[301]);
+            tracer::log_call(core, g_callcfgs[300]);
 
         on_func(KeyHandle, FileHandle);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSaveMergedKeys(proc_t proc, const on_NtSaveMergedKeys_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSaveMergedKeys(proc_t proc, const on_ZwSaveMergedKeys_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSaveMergedKeys", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSaveMergedKeys", [=]
     {
         auto& core = d_->core;
         
@@ -6013,7 +5994,7 @@ opt<id_t> nt::syscalls::register_NtSaveMergedKeys(proc_t proc, const on_NtSaveMe
         const auto FileHandle              = arg<nt::HANDLE>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[302]);
+            tracer::log_call(core, g_callcfgs[301]);
 
         on_func(HighPrecedenceKeyHandle, LowPrecedenceKeyHandle, FileHandle);
     });
@@ -6036,15 +6017,15 @@ opt<id_t> nt::syscalls::register_NtSecureConnectPort(proc_t proc, const on_NtSec
         const auto ConnectionInformationLength = arg<nt::PULONG>(core, 8);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[303]);
+            tracer::log_call(core, g_callcfgs[302]);
 
         on_func(PortHandle, PortName, SecurityQos, ClientView, RequiredServerSid, ServerView, MaxMessageLength, ConnectionInformation, ConnectionInformationLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetBootEntryOrder(proc_t proc, const on_NtSetBootEntryOrder_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetBootEntryOrder(proc_t proc, const on_ZwSetBootEntryOrder_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetBootEntryOrder", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetBootEntryOrder", [=]
     {
         auto& core = d_->core;
         
@@ -6052,7 +6033,7 @@ opt<id_t> nt::syscalls::register_NtSetBootEntryOrder(proc_t proc, const on_NtSet
         const auto Count = arg<nt::ULONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[304]);
+            tracer::log_call(core, g_callcfgs[303]);
 
         on_func(Ids, Count);
     });
@@ -6068,7 +6049,7 @@ opt<id_t> nt::syscalls::register_NtSetBootOptions(proc_t proc, const on_NtSetBoo
         const auto FieldsToChange = arg<nt::ULONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[305]);
+            tracer::log_call(core, g_callcfgs[304]);
 
         on_func(BootOptions, FieldsToChange);
     });
@@ -6084,15 +6065,15 @@ opt<id_t> nt::syscalls::register_NtSetContextThread(proc_t proc, const on_NtSetC
         const auto ThreadContext = arg<nt::PCONTEXT>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[306]);
+            tracer::log_call(core, g_callcfgs[305]);
 
         on_func(ThreadHandle, ThreadContext);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetDebugFilterState(proc_t proc, const on_NtSetDebugFilterState_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetDebugFilterState(proc_t proc, const on_ZwSetDebugFilterState_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetDebugFilterState", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetDebugFilterState", [=]
     {
         auto& core = d_->core;
         
@@ -6101,7 +6082,7 @@ opt<id_t> nt::syscalls::register_NtSetDebugFilterState(proc_t proc, const on_NtS
         const auto State       = arg<nt::BOOLEAN>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[307]);
+            tracer::log_call(core, g_callcfgs[306]);
 
         on_func(ComponentId, Level, State);
     });
@@ -6116,7 +6097,7 @@ opt<id_t> nt::syscalls::register_NtSetDefaultHardErrorPort(proc_t proc, const on
         const auto DefaultHardErrorPort = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[308]);
+            tracer::log_call(core, g_callcfgs[307]);
 
         on_func(DefaultHardErrorPort);
     });
@@ -6132,22 +6113,22 @@ opt<id_t> nt::syscalls::register_NtSetDefaultLocale(proc_t proc, const on_NtSetD
         const auto DefaultLocaleId = arg<nt::LCID>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[309]);
+            tracer::log_call(core, g_callcfgs[308]);
 
         on_func(UserProfile, DefaultLocaleId);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetDefaultUILanguage(proc_t proc, const on_NtSetDefaultUILanguage_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetDefaultUILanguage(proc_t proc, const on_ZwSetDefaultUILanguage_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetDefaultUILanguage", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetDefaultUILanguage", [=]
     {
         auto& core = d_->core;
         
         const auto DefaultUILanguageId = arg<nt::LANGID>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[310]);
+            tracer::log_call(core, g_callcfgs[309]);
 
         on_func(DefaultUILanguageId);
     });
@@ -6163,15 +6144,15 @@ opt<id_t> nt::syscalls::register_NtSetDriverEntryOrder(proc_t proc, const on_NtS
         const auto Count = arg<nt::ULONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[311]);
+            tracer::log_call(core, g_callcfgs[310]);
 
         on_func(Ids, Count);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetEaFile(proc_t proc, const on_NtSetEaFile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetEaFile(proc_t proc, const on_ZwSetEaFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetEaFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetEaFile", [=]
     {
         auto& core = d_->core;
         
@@ -6181,30 +6162,30 @@ opt<id_t> nt::syscalls::register_NtSetEaFile(proc_t proc, const on_NtSetEaFile_f
         const auto Length        = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[312]);
+            tracer::log_call(core, g_callcfgs[311]);
 
         on_func(FileHandle, IoStatusBlock, Buffer, Length);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetEventBoostPriority(proc_t proc, const on_NtSetEventBoostPriority_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetEventBoostPriority(proc_t proc, const on_ZwSetEventBoostPriority_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetEventBoostPriority", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetEventBoostPriority", [=]
     {
         auto& core = d_->core;
         
         const auto EventHandle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[313]);
+            tracer::log_call(core, g_callcfgs[312]);
 
         on_func(EventHandle);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetEvent(proc_t proc, const on_NtSetEvent_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetEvent(proc_t proc, const on_ZwSetEvent_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetEvent", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetEvent", [=]
     {
         auto& core = d_->core;
         
@@ -6212,7 +6193,7 @@ opt<id_t> nt::syscalls::register_NtSetEvent(proc_t proc, const on_NtSetEvent_fn&
         const auto PreviousState = arg<nt::PLONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[314]);
+            tracer::log_call(core, g_callcfgs[313]);
 
         on_func(EventHandle, PreviousState);
     });
@@ -6227,22 +6208,22 @@ opt<id_t> nt::syscalls::register_NtSetHighEventPair(proc_t proc, const on_NtSetH
         const auto EventPairHandle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[315]);
+            tracer::log_call(core, g_callcfgs[314]);
 
         on_func(EventPairHandle);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetHighWaitLowEventPair(proc_t proc, const on_NtSetHighWaitLowEventPair_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetHighWaitLowEventPair(proc_t proc, const on_ZwSetHighWaitLowEventPair_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetHighWaitLowEventPair", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetHighWaitLowEventPair", [=]
     {
         auto& core = d_->core;
         
         const auto EventPairHandle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[316]);
+            tracer::log_call(core, g_callcfgs[315]);
 
         on_func(EventPairHandle);
     });
@@ -6261,7 +6242,7 @@ opt<id_t> nt::syscalls::register_NtSetInformationDebugObject(proc_t proc, const 
         const auto ReturnLength                = arg<nt::PULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[317]);
+            tracer::log_call(core, g_callcfgs[316]);
 
         on_func(DebugObjectHandle, DebugObjectInformationClass, DebugInformation, DebugInformationLength, ReturnLength);
     });
@@ -6279,15 +6260,15 @@ opt<id_t> nt::syscalls::register_NtSetInformationEnlistment(proc_t proc, const o
         const auto EnlistmentInformationLength = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[318]);
+            tracer::log_call(core, g_callcfgs[317]);
 
         on_func(EnlistmentHandle, EnlistmentInformationClass, EnlistmentInformation, EnlistmentInformationLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetInformationFile(proc_t proc, const on_NtSetInformationFile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetInformationFile(proc_t proc, const on_ZwSetInformationFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetInformationFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetInformationFile", [=]
     {
         auto& core = d_->core;
         
@@ -6298,15 +6279,15 @@ opt<id_t> nt::syscalls::register_NtSetInformationFile(proc_t proc, const on_NtSe
         const auto FileInformationClass = arg<nt::FILE_INFORMATION_CLASS>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[319]);
+            tracer::log_call(core, g_callcfgs[318]);
 
         on_func(FileHandle, IoStatusBlock, FileInformation, Length, FileInformationClass);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetInformationJobObject(proc_t proc, const on_NtSetInformationJobObject_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetInformationJobObject(proc_t proc, const on_ZwSetInformationJobObject_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetInformationJobObject", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetInformationJobObject", [=]
     {
         auto& core = d_->core;
         
@@ -6316,15 +6297,15 @@ opt<id_t> nt::syscalls::register_NtSetInformationJobObject(proc_t proc, const on
         const auto JobObjectInformationLength = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[320]);
+            tracer::log_call(core, g_callcfgs[319]);
 
         on_func(JobHandle, JobObjectInformationClass, JobObjectInformation, JobObjectInformationLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetInformationKey(proc_t proc, const on_NtSetInformationKey_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetInformationKey(proc_t proc, const on_ZwSetInformationKey_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetInformationKey", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetInformationKey", [=]
     {
         auto& core = d_->core;
         
@@ -6334,7 +6315,7 @@ opt<id_t> nt::syscalls::register_NtSetInformationKey(proc_t proc, const on_NtSet
         const auto KeySetInformationLength = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[321]);
+            tracer::log_call(core, g_callcfgs[320]);
 
         on_func(KeyHandle, KeySetInformationClass, KeySetInformation, KeySetInformationLength);
     });
@@ -6352,7 +6333,7 @@ opt<id_t> nt::syscalls::register_NtSetInformationObject(proc_t proc, const on_Nt
         const auto ObjectInformationLength = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[322]);
+            tracer::log_call(core, g_callcfgs[321]);
 
         on_func(Handle, ObjectInformationClass, ObjectInformation, ObjectInformationLength);
     });
@@ -6370,7 +6351,7 @@ opt<id_t> nt::syscalls::register_NtSetInformationProcess(proc_t proc, const on_N
         const auto ProcessInformationLength = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[323]);
+            tracer::log_call(core, g_callcfgs[322]);
 
         on_func(ProcessHandle, ProcessInformationClass, ProcessInformation, ProcessInformationLength);
     });
@@ -6388,7 +6369,7 @@ opt<id_t> nt::syscalls::register_NtSetInformationResourceManager(proc_t proc, co
         const auto ResourceManagerInformationLength = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[324]);
+            tracer::log_call(core, g_callcfgs[323]);
 
         on_func(ResourceManagerHandle, ResourceManagerInformationClass, ResourceManagerInformation, ResourceManagerInformationLength);
     });
@@ -6406,7 +6387,7 @@ opt<id_t> nt::syscalls::register_NtSetInformationThread(proc_t proc, const on_Nt
         const auto ThreadInformationLength = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[325]);
+            tracer::log_call(core, g_callcfgs[324]);
 
         on_func(ThreadHandle, ThreadInformationClass, ThreadInformation, ThreadInformationLength);
     });
@@ -6424,7 +6405,7 @@ opt<id_t> nt::syscalls::register_NtSetInformationToken(proc_t proc, const on_NtS
         const auto TokenInformationLength = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[326]);
+            tracer::log_call(core, g_callcfgs[325]);
 
         on_func(TokenHandle, TokenInformationClass, TokenInformation, TokenInformationLength);
     });
@@ -6442,15 +6423,15 @@ opt<id_t> nt::syscalls::register_NtSetInformationTransaction(proc_t proc, const 
         const auto TransactionInformationLength = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[327]);
+            tracer::log_call(core, g_callcfgs[326]);
 
         on_func(TransactionHandle, TransactionInformationClass, TransactionInformation, TransactionInformationLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetInformationTransactionManager(proc_t proc, const on_NtSetInformationTransactionManager_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetInformationTransactionManager(proc_t proc, const on_ZwSetInformationTransactionManager_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetInformationTransactionManager", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetInformationTransactionManager", [=]
     {
         auto& core = d_->core;
         
@@ -6460,7 +6441,7 @@ opt<id_t> nt::syscalls::register_NtSetInformationTransactionManager(proc_t proc,
         const auto TransactionManagerInformationLength = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[328]);
+            tracer::log_call(core, g_callcfgs[327]);
 
         on_func(TmHandle, TransactionManagerInformationClass, TransactionManagerInformation, TransactionManagerInformationLength);
     });
@@ -6478,7 +6459,7 @@ opt<id_t> nt::syscalls::register_NtSetInformationWorkerFactory(proc_t proc, cons
         const auto WorkerFactoryInformationLength = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[329]);
+            tracer::log_call(core, g_callcfgs[328]);
 
         on_func(WorkerFactoryHandle, WorkerFactoryInformationClass, WorkerFactoryInformation, WorkerFactoryInformationLength);
     });
@@ -6494,15 +6475,15 @@ opt<id_t> nt::syscalls::register_NtSetIntervalProfile(proc_t proc, const on_NtSe
         const auto Source   = arg<nt::KPROFILE_SOURCE>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[330]);
+            tracer::log_call(core, g_callcfgs[329]);
 
         on_func(Interval, Source);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetIoCompletionEx(proc_t proc, const on_NtSetIoCompletionEx_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetIoCompletionEx(proc_t proc, const on_ZwSetIoCompletionEx_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetIoCompletionEx", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetIoCompletionEx", [=]
     {
         auto& core = d_->core;
         
@@ -6514,15 +6495,15 @@ opt<id_t> nt::syscalls::register_NtSetIoCompletionEx(proc_t proc, const on_NtSet
         const auto IoStatusInformation       = arg<nt::ULONG_PTR>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[331]);
+            tracer::log_call(core, g_callcfgs[330]);
 
         on_func(IoCompletionHandle, IoCompletionReserveHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetIoCompletion(proc_t proc, const on_NtSetIoCompletion_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetIoCompletion(proc_t proc, const on_ZwSetIoCompletion_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetIoCompletion", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetIoCompletion", [=]
     {
         auto& core = d_->core;
         
@@ -6533,15 +6514,15 @@ opt<id_t> nt::syscalls::register_NtSetIoCompletion(proc_t proc, const on_NtSetIo
         const auto IoStatusInformation = arg<nt::ULONG_PTR>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[332]);
+            tracer::log_call(core, g_callcfgs[331]);
 
         on_func(IoCompletionHandle, KeyContext, ApcContext, IoStatus, IoStatusInformation);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetLdtEntries(proc_t proc, const on_NtSetLdtEntries_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetLdtEntries(proc_t proc, const on_ZwSetLdtEntries_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetLdtEntries", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetLdtEntries", [=]
     {
         auto& core = d_->core;
         
@@ -6553,15 +6534,30 @@ opt<id_t> nt::syscalls::register_NtSetLdtEntries(proc_t proc, const on_NtSetLdtE
         const auto Entry1Hi  = arg<nt::ULONG>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[333]);
+            tracer::log_call(core, g_callcfgs[332]);
 
         on_func(Selector0, Entry0Low, Entry0Hi, Selector1, Entry1Low, Entry1Hi);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetLowEventPair(proc_t proc, const on_NtSetLowEventPair_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetLowEventPair(proc_t proc, const on_ZwSetLowEventPair_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetLowEventPair", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetLowEventPair", [=]
+    {
+        auto& core = d_->core;
+        
+        const auto EventPairHandle = arg<nt::HANDLE>(core, 0);
+
+        if constexpr(g_debug)
+            tracer::log_call(core, g_callcfgs[333]);
+
+        on_func(EventPairHandle);
+    });
+}
+
+opt<id_t> nt::syscalls::register_ZwSetLowWaitHighEventPair(proc_t proc, const on_ZwSetLowWaitHighEventPair_fn& on_func)
+{
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetLowWaitHighEventPair", [=]
     {
         auto& core = d_->core;
         
@@ -6574,24 +6570,9 @@ opt<id_t> nt::syscalls::register_NtSetLowEventPair(proc_t proc, const on_NtSetLo
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetLowWaitHighEventPair(proc_t proc, const on_NtSetLowWaitHighEventPair_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetQuotaInformationFile(proc_t proc, const on_ZwSetQuotaInformationFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetLowWaitHighEventPair", [=]
-    {
-        auto& core = d_->core;
-        
-        const auto EventPairHandle = arg<nt::HANDLE>(core, 0);
-
-        if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[335]);
-
-        on_func(EventPairHandle);
-    });
-}
-
-opt<id_t> nt::syscalls::register_NtSetQuotaInformationFile(proc_t proc, const on_NtSetQuotaInformationFile_fn& on_func)
-{
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetQuotaInformationFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetQuotaInformationFile", [=]
     {
         auto& core = d_->core;
         
@@ -6601,7 +6582,7 @@ opt<id_t> nt::syscalls::register_NtSetQuotaInformationFile(proc_t proc, const on
         const auto Length        = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[336]);
+            tracer::log_call(core, g_callcfgs[335]);
 
         on_func(FileHandle, IoStatusBlock, Buffer, Length);
     });
@@ -6618,15 +6599,15 @@ opt<id_t> nt::syscalls::register_NtSetSecurityObject(proc_t proc, const on_NtSet
         const auto SecurityDescriptor  = arg<nt::PSECURITY_DESCRIPTOR>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[337]);
+            tracer::log_call(core, g_callcfgs[336]);
 
         on_func(Handle, SecurityInformation, SecurityDescriptor);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetSystemEnvironmentValueEx(proc_t proc, const on_NtSetSystemEnvironmentValueEx_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetSystemEnvironmentValueEx(proc_t proc, const on_ZwSetSystemEnvironmentValueEx_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetSystemEnvironmentValueEx", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetSystemEnvironmentValueEx", [=]
     {
         auto& core = d_->core;
         
@@ -6637,15 +6618,15 @@ opt<id_t> nt::syscalls::register_NtSetSystemEnvironmentValueEx(proc_t proc, cons
         const auto Attributes   = arg<nt::ULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[338]);
+            tracer::log_call(core, g_callcfgs[337]);
 
         on_func(VariableName, VendorGuid, Value, ValueLength, Attributes);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetSystemEnvironmentValue(proc_t proc, const on_NtSetSystemEnvironmentValue_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetSystemEnvironmentValue(proc_t proc, const on_ZwSetSystemEnvironmentValue_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetSystemEnvironmentValue", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetSystemEnvironmentValue", [=]
     {
         auto& core = d_->core;
         
@@ -6653,15 +6634,15 @@ opt<id_t> nt::syscalls::register_NtSetSystemEnvironmentValue(proc_t proc, const 
         const auto VariableValue = arg<nt::PUNICODE_STRING>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[339]);
+            tracer::log_call(core, g_callcfgs[338]);
 
         on_func(VariableName, VariableValue);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetSystemInformation(proc_t proc, const on_NtSetSystemInformation_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetSystemInformation(proc_t proc, const on_ZwSetSystemInformation_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetSystemInformation", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetSystemInformation", [=]
     {
         auto& core = d_->core;
         
@@ -6670,15 +6651,15 @@ opt<id_t> nt::syscalls::register_NtSetSystemInformation(proc_t proc, const on_Nt
         const auto SystemInformationLength = arg<nt::ULONG>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[340]);
+            tracer::log_call(core, g_callcfgs[339]);
 
         on_func(SystemInformationClass, SystemInformation, SystemInformationLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetSystemPowerState(proc_t proc, const on_NtSetSystemPowerState_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetSystemPowerState(proc_t proc, const on_ZwSetSystemPowerState_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetSystemPowerState", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetSystemPowerState", [=]
     {
         auto& core = d_->core;
         
@@ -6687,15 +6668,15 @@ opt<id_t> nt::syscalls::register_NtSetSystemPowerState(proc_t proc, const on_NtS
         const auto Flags          = arg<nt::ULONG>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[341]);
+            tracer::log_call(core, g_callcfgs[340]);
 
         on_func(SystemAction, MinSystemState, Flags);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetSystemTime(proc_t proc, const on_NtSetSystemTime_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetSystemTime(proc_t proc, const on_ZwSetSystemTime_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetSystemTime", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetSystemTime", [=]
     {
         auto& core = d_->core;
         
@@ -6703,7 +6684,7 @@ opt<id_t> nt::syscalls::register_NtSetSystemTime(proc_t proc, const on_NtSetSyst
         const auto PreviousTime = arg<nt::PLARGE_INTEGER>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[342]);
+            tracer::log_call(core, g_callcfgs[341]);
 
         on_func(SystemTime, PreviousTime);
     });
@@ -6719,15 +6700,15 @@ opt<id_t> nt::syscalls::register_NtSetThreadExecutionState(proc_t proc, const on
         const auto STARPreviousFlags = arg<nt::EXECUTION_STATE>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[343]);
+            tracer::log_call(core, g_callcfgs[342]);
 
         on_func(esFlags, STARPreviousFlags);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetTimerEx(proc_t proc, const on_NtSetTimerEx_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetTimerEx(proc_t proc, const on_ZwSetTimerEx_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetTimerEx", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetTimerEx", [=]
     {
         auto& core = d_->core;
         
@@ -6737,15 +6718,15 @@ opt<id_t> nt::syscalls::register_NtSetTimerEx(proc_t proc, const on_NtSetTimerEx
         const auto TimerSetInformationLength = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[344]);
+            tracer::log_call(core, g_callcfgs[343]);
 
         on_func(TimerHandle, TimerSetInformationClass, TimerSetInformation, TimerSetInformationLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetTimer(proc_t proc, const on_NtSetTimer_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetTimer(proc_t proc, const on_ZwSetTimer_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetTimer", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetTimer", [=]
     {
         auto& core = d_->core;
         
@@ -6758,7 +6739,7 @@ opt<id_t> nt::syscalls::register_NtSetTimer(proc_t proc, const on_NtSetTimer_fn&
         const auto PreviousState   = arg<nt::PBOOLEAN>(core, 6);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[345]);
+            tracer::log_call(core, g_callcfgs[344]);
 
         on_func(TimerHandle, DueTime, TimerApcRoutine, TimerContext, WakeTimer, Period, PreviousState);
     });
@@ -6775,7 +6756,7 @@ opt<id_t> nt::syscalls::register_NtSetTimerResolution(proc_t proc, const on_NtSe
         const auto ActualTime    = arg<nt::PULONG>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[346]);
+            tracer::log_call(core, g_callcfgs[345]);
 
         on_func(DesiredTime, SetResolution, ActualTime);
     });
@@ -6790,15 +6771,15 @@ opt<id_t> nt::syscalls::register_NtSetUuidSeed(proc_t proc, const on_NtSetUuidSe
         const auto Seed = arg<nt::PCHAR>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[347]);
+            tracer::log_call(core, g_callcfgs[346]);
 
         on_func(Seed);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetValueKey(proc_t proc, const on_NtSetValueKey_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetValueKey(proc_t proc, const on_ZwSetValueKey_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetValueKey", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetValueKey", [=]
     {
         auto& core = d_->core;
         
@@ -6810,15 +6791,15 @@ opt<id_t> nt::syscalls::register_NtSetValueKey(proc_t proc, const on_NtSetValueK
         const auto DataSize   = arg<nt::ULONG>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[348]);
+            tracer::log_call(core, g_callcfgs[347]);
 
         on_func(KeyHandle, ValueName, TitleIndex, Type, Data, DataSize);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSetVolumeInformationFile(proc_t proc, const on_NtSetVolumeInformationFile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSetVolumeInformationFile(proc_t proc, const on_ZwSetVolumeInformationFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSetVolumeInformationFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSetVolumeInformationFile", [=]
     {
         auto& core = d_->core;
         
@@ -6829,30 +6810,30 @@ opt<id_t> nt::syscalls::register_NtSetVolumeInformationFile(proc_t proc, const o
         const auto FsInformationClass = arg<nt::FS_INFORMATION_CLASS>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[349]);
+            tracer::log_call(core, g_callcfgs[348]);
 
         on_func(FileHandle, IoStatusBlock, FsInformation, Length, FsInformationClass);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtShutdownSystem(proc_t proc, const on_NtShutdownSystem_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwShutdownSystem(proc_t proc, const on_ZwShutdownSystem_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtShutdownSystem", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwShutdownSystem", [=]
     {
         auto& core = d_->core;
         
         const auto Action = arg<nt::SHUTDOWN_ACTION>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[350]);
+            tracer::log_call(core, g_callcfgs[349]);
 
         on_func(Action);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtShutdownWorkerFactory(proc_t proc, const on_NtShutdownWorkerFactory_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwShutdownWorkerFactory(proc_t proc, const on_ZwShutdownWorkerFactory_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtShutdownWorkerFactory", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwShutdownWorkerFactory", [=]
     {
         auto& core = d_->core;
         
@@ -6860,15 +6841,15 @@ opt<id_t> nt::syscalls::register_NtShutdownWorkerFactory(proc_t proc, const on_N
         const auto STARPendingWorkerCount = arg<nt::LONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[351]);
+            tracer::log_call(core, g_callcfgs[350]);
 
         on_func(WorkerFactoryHandle, STARPendingWorkerCount);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSignalAndWaitForSingleObject(proc_t proc, const on_NtSignalAndWaitForSingleObject_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSignalAndWaitForSingleObject(proc_t proc, const on_ZwSignalAndWaitForSingleObject_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSignalAndWaitForSingleObject", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSignalAndWaitForSingleObject", [=]
     {
         auto& core = d_->core;
         
@@ -6878,15 +6859,15 @@ opt<id_t> nt::syscalls::register_NtSignalAndWaitForSingleObject(proc_t proc, con
         const auto Timeout      = arg<nt::PLARGE_INTEGER>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[352]);
+            tracer::log_call(core, g_callcfgs[351]);
 
         on_func(SignalHandle, WaitHandle, Alertable, Timeout);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSinglePhaseReject(proc_t proc, const on_NtSinglePhaseReject_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSinglePhaseReject(proc_t proc, const on_ZwSinglePhaseReject_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSinglePhaseReject", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSinglePhaseReject", [=]
     {
         auto& core = d_->core;
         
@@ -6894,15 +6875,30 @@ opt<id_t> nt::syscalls::register_NtSinglePhaseReject(proc_t proc, const on_NtSin
         const auto TmVirtualClock   = arg<nt::PLARGE_INTEGER>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[353]);
+            tracer::log_call(core, g_callcfgs[352]);
 
         on_func(EnlistmentHandle, TmVirtualClock);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtStartProfile(proc_t proc, const on_NtStartProfile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwStartProfile(proc_t proc, const on_ZwStartProfile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtStartProfile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwStartProfile", [=]
+    {
+        auto& core = d_->core;
+        
+        const auto ProfileHandle = arg<nt::HANDLE>(core, 0);
+
+        if constexpr(g_debug)
+            tracer::log_call(core, g_callcfgs[353]);
+
+        on_func(ProfileHandle);
+    });
+}
+
+opt<id_t> nt::syscalls::register_ZwStopProfile(proc_t proc, const on_ZwStopProfile_fn& on_func)
+{
+    return register_callback(*d_, ++d_->last_id, proc, "ZwStopProfile", [=]
     {
         auto& core = d_->core;
         
@@ -6915,31 +6911,16 @@ opt<id_t> nt::syscalls::register_NtStartProfile(proc_t proc, const on_NtStartPro
     });
 }
 
-opt<id_t> nt::syscalls::register_NtStopProfile(proc_t proc, const on_NtStopProfile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSuspendProcess(proc_t proc, const on_ZwSuspendProcess_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtStopProfile", [=]
-    {
-        auto& core = d_->core;
-        
-        const auto ProfileHandle = arg<nt::HANDLE>(core, 0);
-
-        if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[355]);
-
-        on_func(ProfileHandle);
-    });
-}
-
-opt<id_t> nt::syscalls::register_NtSuspendProcess(proc_t proc, const on_NtSuspendProcess_fn& on_func)
-{
-    return register_callback(*d_, ++d_->last_id, proc, "NtSuspendProcess", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSuspendProcess", [=]
     {
         auto& core = d_->core;
         
         const auto ProcessHandle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[356]);
+            tracer::log_call(core, g_callcfgs[355]);
 
         on_func(ProcessHandle);
     });
@@ -6955,15 +6936,15 @@ opt<id_t> nt::syscalls::register_NtSuspendThread(proc_t proc, const on_NtSuspend
         const auto PreviousSuspendCount = arg<nt::PULONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[357]);
+            tracer::log_call(core, g_callcfgs[356]);
 
         on_func(ThreadHandle, PreviousSuspendCount);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSystemDebugControl(proc_t proc, const on_NtSystemDebugControl_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwSystemDebugControl(proc_t proc, const on_ZwSystemDebugControl_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSystemDebugControl", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSystemDebugControl", [=]
     {
         auto& core = d_->core;
         
@@ -6975,7 +6956,7 @@ opt<id_t> nt::syscalls::register_NtSystemDebugControl(proc_t proc, const on_NtSy
         const auto ReturnLength       = arg<nt::PULONG>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[358]);
+            tracer::log_call(core, g_callcfgs[357]);
 
         on_func(Command, InputBuffer, InputBufferLength, OutputBuffer, OutputBufferLength, ReturnLength);
     });
@@ -6991,15 +6972,15 @@ opt<id_t> nt::syscalls::register_NtTerminateJobObject(proc_t proc, const on_NtTe
         const auto ExitStatus = arg<nt::NTSTATUS>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[359]);
+            tracer::log_call(core, g_callcfgs[358]);
 
         on_func(JobHandle, ExitStatus);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtTerminateProcess(proc_t proc, const on_NtTerminateProcess_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwTerminateProcess(proc_t proc, const on_ZwTerminateProcess_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtTerminateProcess", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwTerminateProcess", [=]
     {
         auto& core = d_->core;
         
@@ -7007,7 +6988,7 @@ opt<id_t> nt::syscalls::register_NtTerminateProcess(proc_t proc, const on_NtTerm
         const auto ExitStatus    = arg<nt::NTSTATUS>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[360]);
+            tracer::log_call(core, g_callcfgs[359]);
 
         on_func(ProcessHandle, ExitStatus);
     });
@@ -7023,7 +7004,7 @@ opt<id_t> nt::syscalls::register_NtTerminateThread(proc_t proc, const on_NtTermi
         const auto ExitStatus   = arg<nt::NTSTATUS>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[361]);
+            tracer::log_call(core, g_callcfgs[360]);
 
         on_func(ThreadHandle, ExitStatus);
     });
@@ -7043,7 +7024,7 @@ opt<id_t> nt::syscalls::register_NtTraceControl(proc_t proc, const on_NtTraceCon
         const auto ReturnLength = arg<nt::PULONG>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[362]);
+            tracer::log_call(core, g_callcfgs[361]);
 
         on_func(FunctionCode, InBuffer, InBufferLen, OutBuffer, OutBufferLen, ReturnLength);
     });
@@ -7061,7 +7042,7 @@ opt<id_t> nt::syscalls::register_NtTraceEvent(proc_t proc, const on_NtTraceEvent
         const auto Fields      = arg<nt::PVOID>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[363]);
+            tracer::log_call(core, g_callcfgs[362]);
 
         on_func(TraceHandle, Flags, FieldSize, Fields);
     });
@@ -7079,22 +7060,22 @@ opt<id_t> nt::syscalls::register_NtTranslateFilePath(proc_t proc, const on_NtTra
         const auto OutputFilePathLength = arg<nt::PULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[364]);
+            tracer::log_call(core, g_callcfgs[363]);
 
         on_func(InputFilePath, OutputType, OutputFilePath, OutputFilePathLength);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtUnloadDriver(proc_t proc, const on_NtUnloadDriver_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwUnloadDriver(proc_t proc, const on_ZwUnloadDriver_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtUnloadDriver", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwUnloadDriver", [=]
     {
         auto& core = d_->core;
         
         const auto DriverServiceName = arg<nt::PUNICODE_STRING>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[365]);
+            tracer::log_call(core, g_callcfgs[364]);
 
         on_func(DriverServiceName);
     });
@@ -7110,15 +7091,15 @@ opt<id_t> nt::syscalls::register_NtUnloadKey2(proc_t proc, const on_NtUnloadKey2
         const auto Flags     = arg<nt::ULONG>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[366]);
+            tracer::log_call(core, g_callcfgs[365]);
 
         on_func(TargetKey, Flags);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtUnloadKeyEx(proc_t proc, const on_NtUnloadKeyEx_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwUnloadKeyEx(proc_t proc, const on_ZwUnloadKeyEx_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtUnloadKeyEx", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwUnloadKeyEx", [=]
     {
         auto& core = d_->core;
         
@@ -7126,7 +7107,7 @@ opt<id_t> nt::syscalls::register_NtUnloadKeyEx(proc_t proc, const on_NtUnloadKey
         const auto Event     = arg<nt::HANDLE>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[367]);
+            tracer::log_call(core, g_callcfgs[366]);
 
         on_func(TargetKey, Event);
     });
@@ -7141,15 +7122,15 @@ opt<id_t> nt::syscalls::register_NtUnloadKey(proc_t proc, const on_NtUnloadKey_f
         const auto TargetKey = arg<nt::POBJECT_ATTRIBUTES>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[368]);
+            tracer::log_call(core, g_callcfgs[367]);
 
         on_func(TargetKey);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtUnlockFile(proc_t proc, const on_NtUnlockFile_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwUnlockFile(proc_t proc, const on_ZwUnlockFile_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtUnlockFile", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwUnlockFile", [=]
     {
         auto& core = d_->core;
         
@@ -7160,15 +7141,15 @@ opt<id_t> nt::syscalls::register_NtUnlockFile(proc_t proc, const on_NtUnlockFile
         const auto Key           = arg<nt::ULONG>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[369]);
+            tracer::log_call(core, g_callcfgs[368]);
 
         on_func(FileHandle, IoStatusBlock, ByteOffset, Length, Key);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtUnlockVirtualMemory(proc_t proc, const on_NtUnlockVirtualMemory_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwUnlockVirtualMemory(proc_t proc, const on_ZwUnlockVirtualMemory_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtUnlockVirtualMemory", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwUnlockVirtualMemory", [=]
     {
         auto& core = d_->core;
         
@@ -7178,7 +7159,7 @@ opt<id_t> nt::syscalls::register_NtUnlockVirtualMemory(proc_t proc, const on_NtU
         const auto MapType         = arg<nt::ULONG>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[370]);
+            tracer::log_call(core, g_callcfgs[369]);
 
         on_func(ProcessHandle, STARBaseAddress, RegionSize, MapType);
     });
@@ -7194,15 +7175,15 @@ opt<id_t> nt::syscalls::register_NtUnmapViewOfSection(proc_t proc, const on_NtUn
         const auto BaseAddress   = arg<nt::PVOID>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[371]);
+            tracer::log_call(core, g_callcfgs[370]);
 
         on_func(ProcessHandle, BaseAddress);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtVdmControl(proc_t proc, const on_NtVdmControl_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwVdmControl(proc_t proc, const on_ZwVdmControl_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtVdmControl", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwVdmControl", [=]
     {
         auto& core = d_->core;
         
@@ -7210,15 +7191,15 @@ opt<id_t> nt::syscalls::register_NtVdmControl(proc_t proc, const on_NtVdmControl
         const auto ServiceData = arg<nt::PVOID>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[372]);
+            tracer::log_call(core, g_callcfgs[371]);
 
         on_func(Service, ServiceData);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtWaitForDebugEvent(proc_t proc, const on_NtWaitForDebugEvent_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwWaitForDebugEvent(proc_t proc, const on_ZwWaitForDebugEvent_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtWaitForDebugEvent", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwWaitForDebugEvent", [=]
     {
         auto& core = d_->core;
         
@@ -7228,7 +7209,7 @@ opt<id_t> nt::syscalls::register_NtWaitForDebugEvent(proc_t proc, const on_NtWai
         const auto WaitStateChange   = arg<nt::PDBGUI_WAIT_STATE_CHANGE>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[373]);
+            tracer::log_call(core, g_callcfgs[372]);
 
         on_func(DebugObjectHandle, Alertable, Timeout, WaitStateChange);
     });
@@ -7246,15 +7227,15 @@ opt<id_t> nt::syscalls::register_NtWaitForKeyedEvent(proc_t proc, const on_NtWai
         const auto Timeout          = arg<nt::PLARGE_INTEGER>(core, 3);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[374]);
+            tracer::log_call(core, g_callcfgs[373]);
 
         on_func(KeyedEventHandle, KeyValue, Alertable, Timeout);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtWaitForMultipleObjects32(proc_t proc, const on_NtWaitForMultipleObjects32_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwWaitForMultipleObjects32(proc_t proc, const on_ZwWaitForMultipleObjects32_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtWaitForMultipleObjects32", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwWaitForMultipleObjects32", [=]
     {
         auto& core = d_->core;
         
@@ -7265,7 +7246,7 @@ opt<id_t> nt::syscalls::register_NtWaitForMultipleObjects32(proc_t proc, const o
         const auto Timeout   = arg<nt::PLARGE_INTEGER>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[375]);
+            tracer::log_call(core, g_callcfgs[374]);
 
         on_func(Count, Handles, WaitType, Alertable, Timeout);
     });
@@ -7284,7 +7265,7 @@ opt<id_t> nt::syscalls::register_NtWaitForMultipleObjects(proc_t proc, const on_
         const auto Timeout   = arg<nt::PLARGE_INTEGER>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[376]);
+            tracer::log_call(core, g_callcfgs[375]);
 
         on_func(Count, Handles, WaitType, Alertable, Timeout);
     });
@@ -7301,15 +7282,15 @@ opt<id_t> nt::syscalls::register_NtWaitForSingleObject(proc_t proc, const on_NtW
         const auto Timeout   = arg<nt::PLARGE_INTEGER>(core, 2);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[377]);
+            tracer::log_call(core, g_callcfgs[376]);
 
         on_func(Handle, Alertable, Timeout);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtWaitForWorkViaWorkerFactory(proc_t proc, const on_NtWaitForWorkViaWorkerFactory_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwWaitForWorkViaWorkerFactory(proc_t proc, const on_ZwWaitForWorkViaWorkerFactory_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtWaitForWorkViaWorkerFactory", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwWaitForWorkViaWorkerFactory", [=]
     {
         auto& core = d_->core;
         
@@ -7317,22 +7298,22 @@ opt<id_t> nt::syscalls::register_NtWaitForWorkViaWorkerFactory(proc_t proc, cons
         const auto MiniPacket          = arg<nt::PFILE_IO_COMPLETION_INFORMATION>(core, 1);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[378]);
+            tracer::log_call(core, g_callcfgs[377]);
 
         on_func(WorkerFactoryHandle, MiniPacket);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtWaitHighEventPair(proc_t proc, const on_NtWaitHighEventPair_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwWaitHighEventPair(proc_t proc, const on_ZwWaitHighEventPair_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtWaitHighEventPair", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwWaitHighEventPair", [=]
     {
         auto& core = d_->core;
         
         const auto EventPairHandle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[379]);
+            tracer::log_call(core, g_callcfgs[378]);
 
         on_func(EventPairHandle);
     });
@@ -7347,7 +7328,7 @@ opt<id_t> nt::syscalls::register_NtWaitLowEventPair(proc_t proc, const on_NtWait
         const auto EventPairHandle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[380]);
+            tracer::log_call(core, g_callcfgs[379]);
 
         on_func(EventPairHandle);
     });
@@ -7362,15 +7343,15 @@ opt<id_t> nt::syscalls::register_NtWorkerFactoryWorkerReady(proc_t proc, const o
         const auto WorkerFactoryHandle = arg<nt::HANDLE>(core, 0);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[381]);
+            tracer::log_call(core, g_callcfgs[380]);
 
         on_func(WorkerFactoryHandle);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtWriteFileGather(proc_t proc, const on_NtWriteFileGather_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwWriteFileGather(proc_t proc, const on_ZwWriteFileGather_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtWriteFileGather", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwWriteFileGather", [=]
     {
         auto& core = d_->core;
         
@@ -7385,7 +7366,7 @@ opt<id_t> nt::syscalls::register_NtWriteFileGather(proc_t proc, const on_NtWrite
         const auto Key           = arg<nt::PULONG>(core, 8);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[382]);
+            tracer::log_call(core, g_callcfgs[381]);
 
         on_func(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, SegmentArray, Length, ByteOffset, Key);
     });
@@ -7408,15 +7389,15 @@ opt<id_t> nt::syscalls::register_NtWriteFile(proc_t proc, const on_NtWriteFile_f
         const auto Key           = arg<nt::PULONG>(core, 8);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[383]);
+            tracer::log_call(core, g_callcfgs[382]);
 
         on_func(FileHandle, Event, ApcRoutine, ApcContext, IoStatusBlock, Buffer, Length, ByteOffset, Key);
     });
 }
 
-opt<id_t> nt::syscalls::register_NtWriteRequestData(proc_t proc, const on_NtWriteRequestData_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwWriteRequestData(proc_t proc, const on_ZwWriteRequestData_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtWriteRequestData", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwWriteRequestData", [=]
     {
         auto& core = d_->core;
         
@@ -7428,7 +7409,7 @@ opt<id_t> nt::syscalls::register_NtWriteRequestData(proc_t proc, const on_NtWrit
         const auto NumberOfBytesWritten = arg<nt::PSIZE_T>(core, 5);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[384]);
+            tracer::log_call(core, g_callcfgs[383]);
 
         on_func(PortHandle, Message, DataEntryIndex, Buffer, BufferSize, NumberOfBytesWritten);
     });
@@ -7447,7 +7428,7 @@ opt<id_t> nt::syscalls::register_NtWriteVirtualMemory(proc_t proc, const on_NtWr
         const auto NumberOfBytesWritten = arg<nt::PSIZE_T>(core, 4);
 
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[385]);
+            tracer::log_call(core, g_callcfgs[384]);
 
         on_func(ProcessHandle, BaseAddress, Buffer, BufferSize, NumberOfBytesWritten);
     });
@@ -7460,7 +7441,7 @@ opt<id_t> nt::syscalls::register_NtDisableLastKnownGood(proc_t proc, const on_Nt
         auto& core = d_->core;
         
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[386]);
+            tracer::log_call(core, g_callcfgs[385]);
 
         on_func();
     });
@@ -7473,20 +7454,20 @@ opt<id_t> nt::syscalls::register_NtEnableLastKnownGood(proc_t proc, const on_NtE
         auto& core = d_->core;
         
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[387]);
+            tracer::log_call(core, g_callcfgs[386]);
 
         on_func();
     });
 }
 
-opt<id_t> nt::syscalls::register_NtFlushProcessWriteBuffers(proc_t proc, const on_NtFlushProcessWriteBuffers_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwFlushProcessWriteBuffers(proc_t proc, const on_ZwFlushProcessWriteBuffers_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtFlushProcessWriteBuffers", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwFlushProcessWriteBuffers", [=]
     {
         auto& core = d_->core;
         
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[388]);
+            tracer::log_call(core, g_callcfgs[387]);
 
         on_func();
     });
@@ -7499,33 +7480,33 @@ opt<id_t> nt::syscalls::register_NtFlushWriteBuffer(proc_t proc, const on_NtFlus
         auto& core = d_->core;
         
         if constexpr(g_debug)
+            tracer::log_call(core, g_callcfgs[388]);
+
+        on_func();
+    });
+}
+
+opt<id_t> nt::syscalls::register_ZwGetCurrentProcessorNumber(proc_t proc, const on_ZwGetCurrentProcessorNumber_fn& on_func)
+{
+    return register_callback(*d_, ++d_->last_id, proc, "ZwGetCurrentProcessorNumber", [=]
+    {
+        auto& core = d_->core;
+        
+        if constexpr(g_debug)
             tracer::log_call(core, g_callcfgs[389]);
 
         on_func();
     });
 }
 
-opt<id_t> nt::syscalls::register_NtGetCurrentProcessorNumber(proc_t proc, const on_NtGetCurrentProcessorNumber_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwIsSystemResumeAutomatic(proc_t proc, const on_ZwIsSystemResumeAutomatic_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtGetCurrentProcessorNumber", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwIsSystemResumeAutomatic", [=]
     {
         auto& core = d_->core;
         
         if constexpr(g_debug)
             tracer::log_call(core, g_callcfgs[390]);
-
-        on_func();
-    });
-}
-
-opt<id_t> nt::syscalls::register_NtIsSystemResumeAutomatic(proc_t proc, const on_NtIsSystemResumeAutomatic_fn& on_func)
-{
-    return register_callback(*d_, ++d_->last_id, proc, "NtIsSystemResumeAutomatic", [=]
-    {
-        auto& core = d_->core;
-        
-        if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[391]);
 
         on_func();
     });
@@ -7538,7 +7519,7 @@ opt<id_t> nt::syscalls::register_NtIsUILanguageComitted(proc_t proc, const on_Nt
         auto& core = d_->core;
         
         if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[392]);
+            tracer::log_call(core, g_callcfgs[391]);
 
         on_func();
     });
@@ -7551,15 +7532,28 @@ opt<id_t> nt::syscalls::register_NtQueryPortInformationProcess(proc_t proc, cons
         auto& core = d_->core;
         
         if constexpr(g_debug)
+            tracer::log_call(core, g_callcfgs[392]);
+
+        on_func();
+    });
+}
+
+opt<id_t> nt::syscalls::register_ZwSerializeBoot(proc_t proc, const on_ZwSerializeBoot_fn& on_func)
+{
+    return register_callback(*d_, ++d_->last_id, proc, "ZwSerializeBoot", [=]
+    {
+        auto& core = d_->core;
+        
+        if constexpr(g_debug)
             tracer::log_call(core, g_callcfgs[393]);
 
         on_func();
     });
 }
 
-opt<id_t> nt::syscalls::register_NtSerializeBoot(proc_t proc, const on_NtSerializeBoot_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwTestAlert(proc_t proc, const on_ZwTestAlert_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtSerializeBoot", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwTestAlert", [=]
     {
         auto& core = d_->core;
         
@@ -7570,9 +7564,9 @@ opt<id_t> nt::syscalls::register_NtSerializeBoot(proc_t proc, const on_NtSeriali
     });
 }
 
-opt<id_t> nt::syscalls::register_NtTestAlert(proc_t proc, const on_NtTestAlert_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwThawRegistry(proc_t proc, const on_ZwThawRegistry_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtTestAlert", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwThawRegistry", [=]
     {
         auto& core = d_->core;
         
@@ -7583,9 +7577,9 @@ opt<id_t> nt::syscalls::register_NtTestAlert(proc_t proc, const on_NtTestAlert_f
     });
 }
 
-opt<id_t> nt::syscalls::register_NtThawRegistry(proc_t proc, const on_NtThawRegistry_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwThawTransactions(proc_t proc, const on_ZwThawTransactions_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtThawRegistry", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwThawTransactions", [=]
     {
         auto& core = d_->core;
         
@@ -7596,9 +7590,9 @@ opt<id_t> nt::syscalls::register_NtThawRegistry(proc_t proc, const on_NtThawRegi
     });
 }
 
-opt<id_t> nt::syscalls::register_NtThawTransactions(proc_t proc, const on_NtThawTransactions_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwUmsThreadYield(proc_t proc, const on_ZwUmsThreadYield_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtThawTransactions", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwUmsThreadYield", [=]
     {
         auto& core = d_->core;
         
@@ -7609,27 +7603,14 @@ opt<id_t> nt::syscalls::register_NtThawTransactions(proc_t proc, const on_NtThaw
     });
 }
 
-opt<id_t> nt::syscalls::register_NtUmsThreadYield(proc_t proc, const on_NtUmsThreadYield_fn& on_func)
+opt<id_t> nt::syscalls::register_ZwYieldExecution(proc_t proc, const on_ZwYieldExecution_fn& on_func)
 {
-    return register_callback(*d_, ++d_->last_id, proc, "NtUmsThreadYield", [=]
+    return register_callback(*d_, ++d_->last_id, proc, "ZwYieldExecution", [=]
     {
         auto& core = d_->core;
         
         if constexpr(g_debug)
             tracer::log_call(core, g_callcfgs[398]);
-
-        on_func();
-    });
-}
-
-opt<id_t> nt::syscalls::register_NtYieldExecution(proc_t proc, const on_NtYieldExecution_fn& on_func)
-{
-    return register_callback(*d_, ++d_->last_id, proc, "NtYieldExecution", [=]
-    {
-        auto& core = d_->core;
-        
-        if constexpr(g_debug)
-            tracer::log_call(core, g_callcfgs[399]);
 
         on_func();
     });

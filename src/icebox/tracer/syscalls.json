@@ -7,7 +7,7 @@
             ["ServerView","PPORT_VIEW"],
             ["ClientView","PREMOTE_PORT_VIEW"]
         ]],
-        "NtAccessCheckAndAuditAlarm" : ["NTSTATUS",[
+        "ZwAccessCheckAndAuditAlarm" : ["NTSTATUS",[
             ["SubsystemName","PUNICODE_STRING"],
             ["HandleId","PVOID"],
             ["ObjectTypeName","PUNICODE_STRING"],
@@ -20,57 +20,7 @@
             ["AccessStatus","PNTSTATUS"],
             ["GenerateOnClose","PBOOLEAN"]
         ]],
-        "NtAccessCheckByTypeAndAuditAlarm" : ["NTSTATUS",[
-            ["SubsystemName","PUNICODE_STRING"],
-            ["HandleId","PVOID"],
-            ["ObjectTypeName","PUNICODE_STRING"],
-            ["ObjectName","PUNICODE_STRING"],
-            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
-            ["PrincipalSelfSid","PSID"],
-            ["DesiredAccess","ACCESS_MASK"],
-            ["AuditType","AUDIT_EVENT_TYPE"],
-            ["Flags","ULONG"],
-            ["ObjectTypeList","POBJECT_TYPE_LIST"],
-            ["ObjectTypeListLength","ULONG"],
-            ["GenericMapping","PGENERIC_MAPPING"],
-            ["ObjectCreation","BOOLEAN"],
-            ["GrantedAccess","PACCESS_MASK"],
-            ["AccessStatus","PNTSTATUS"],
-            ["GenerateOnClose","PBOOLEAN"]
-        ]],
-        "NtAccessCheckByType" : ["NTSTATUS",[
-            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
-            ["PrincipalSelfSid","PSID"],
-            ["ClientToken","HANDLE"],
-            ["DesiredAccess","ACCESS_MASK"],
-            ["ObjectTypeList","POBJECT_TYPE_LIST"],
-            ["ObjectTypeListLength","ULONG"],
-            ["GenericMapping","PGENERIC_MAPPING"],
-            ["PrivilegeSet","PPRIVILEGE_SET"],
-            ["PrivilegeSetLength","PULONG"],
-            ["GrantedAccess","PACCESS_MASK"],
-            ["AccessStatus","PNTSTATUS"]
-        ]],
-        "NtAccessCheckByTypeResultListAndAuditAlarmByHandle" : ["NTSTATUS",[
-            ["SubsystemName","PUNICODE_STRING"],
-            ["HandleId","PVOID"],
-            ["ClientToken","HANDLE"],
-            ["ObjectTypeName","PUNICODE_STRING"],
-            ["ObjectName","PUNICODE_STRING"],
-            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
-            ["PrincipalSelfSid","PSID"],
-            ["DesiredAccess","ACCESS_MASK"],
-            ["AuditType","AUDIT_EVENT_TYPE"],
-            ["Flags","ULONG"],
-            ["ObjectTypeList","POBJECT_TYPE_LIST"],
-            ["ObjectTypeListLength","ULONG"],
-            ["GenericMapping","PGENERIC_MAPPING"],
-            ["ObjectCreation","BOOLEAN"],
-            ["GrantedAccess","PACCESS_MASK"],
-            ["AccessStatus","PNTSTATUS"],
-            ["GenerateOnClose","PBOOLEAN"]
-        ]],
-        "NtAccessCheckByTypeResultListAndAuditAlarm" : ["NTSTATUS",[
+        "ZwAccessCheckByTypeAndAuditAlarm" : ["NTSTATUS",[
             ["SubsystemName","PUNICODE_STRING"],
             ["HandleId","PVOID"],
             ["ObjectTypeName","PUNICODE_STRING"],
@@ -88,7 +38,7 @@
             ["AccessStatus","PNTSTATUS"],
             ["GenerateOnClose","PBOOLEAN"]
         ]],
-        "NtAccessCheckByTypeResultList" : ["NTSTATUS",[
+        "ZwAccessCheckByType" : ["NTSTATUS",[
             ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
             ["PrincipalSelfSid","PSID"],
             ["ClientToken","HANDLE"],
@@ -101,7 +51,57 @@
             ["GrantedAccess","PACCESS_MASK"],
             ["AccessStatus","PNTSTATUS"]
         ]],
-        "NtAccessCheck" : ["NTSTATUS",[
+        "ZwAccessCheckByTypeResultListAndAuditAlarmByHandle" : ["NTSTATUS",[
+            ["SubsystemName","PUNICODE_STRING"],
+            ["HandleId","PVOID"],
+            ["ClientToken","HANDLE"],
+            ["ObjectTypeName","PUNICODE_STRING"],
+            ["ObjectName","PUNICODE_STRING"],
+            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
+            ["PrincipalSelfSid","PSID"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["AuditType","AUDIT_EVENT_TYPE"],
+            ["Flags","ULONG"],
+            ["ObjectTypeList","POBJECT_TYPE_LIST"],
+            ["ObjectTypeListLength","ULONG"],
+            ["GenericMapping","PGENERIC_MAPPING"],
+            ["ObjectCreation","BOOLEAN"],
+            ["GrantedAccess","PACCESS_MASK"],
+            ["AccessStatus","PNTSTATUS"],
+            ["GenerateOnClose","PBOOLEAN"]
+        ]],
+        "ZwAccessCheckByTypeResultListAndAuditAlarm" : ["NTSTATUS",[
+            ["SubsystemName","PUNICODE_STRING"],
+            ["HandleId","PVOID"],
+            ["ObjectTypeName","PUNICODE_STRING"],
+            ["ObjectName","PUNICODE_STRING"],
+            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
+            ["PrincipalSelfSid","PSID"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["AuditType","AUDIT_EVENT_TYPE"],
+            ["Flags","ULONG"],
+            ["ObjectTypeList","POBJECT_TYPE_LIST"],
+            ["ObjectTypeListLength","ULONG"],
+            ["GenericMapping","PGENERIC_MAPPING"],
+            ["ObjectCreation","BOOLEAN"],
+            ["GrantedAccess","PACCESS_MASK"],
+            ["AccessStatus","PNTSTATUS"],
+            ["GenerateOnClose","PBOOLEAN"]
+        ]],
+        "ZwAccessCheckByTypeResultList" : ["NTSTATUS",[
+            ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
+            ["PrincipalSelfSid","PSID"],
+            ["ClientToken","HANDLE"],
+            ["DesiredAccess","ACCESS_MASK"],
+            ["ObjectTypeList","POBJECT_TYPE_LIST"],
+            ["ObjectTypeListLength","ULONG"],
+            ["GenericMapping","PGENERIC_MAPPING"],
+            ["PrivilegeSet","PPRIVILEGE_SET"],
+            ["PrivilegeSetLength","PULONG"],
+            ["GrantedAccess","PACCESS_MASK"],
+            ["AccessStatus","PNTSTATUS"]
+        ]],
+        "ZwAccessCheck" : ["NTSTATUS",[
             ["SecurityDescriptor","PSECURITY_DESCRIPTOR"],
             ["ClientToken","HANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
@@ -111,12 +111,12 @@
             ["GrantedAccess","PACCESS_MASK"],
             ["AccessStatus","PNTSTATUS"]
         ]],
-        "NtAddAtom" : ["NTSTATUS",[
+        "ZwAddAtom" : ["NTSTATUS",[
             ["AtomName","PWSTR"],
             ["Length","ULONG"],
             ["Atom","PRTL_ATOM"]
         ]],
-        "NtAddBootEntry" : ["NTSTATUS",[
+        "ZwAddBootEntry" : ["NTSTATUS",[
             ["BootEntry","PBOOT_ENTRY"],
             ["Id","PULONG"]
         ]],
@@ -140,14 +140,14 @@
             ["PreviousState","PTOKEN_PRIVILEGES"],
             ["ReturnLength","PULONG"]
         ]],
-        "NtAlertResumeThread" : ["NTSTATUS",[
+        "ZwAlertResumeThread" : ["NTSTATUS",[
             ["ThreadHandle","HANDLE"],
             ["PreviousSuspendCount","PULONG"]
         ]],
         "NtAlertThread" : ["NTSTATUS",[
             ["ThreadHandle","HANDLE"]
         ]],
-        "NtAllocateLocallyUniqueId" : ["NTSTATUS",[
+        "ZwAllocateLocallyUniqueId" : ["NTSTATUS",[
             ["Luid","PLUID"]
         ]],
         "NtAllocateReserveObject" : ["NTSTATUS",[
@@ -155,18 +155,18 @@
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
             ["Type","MEMORY_RESERVE_TYPE"]
         ]],
-        "NtAllocateUserPhysicalPages" : ["NTSTATUS",[
+        "ZwAllocateUserPhysicalPages" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"],
             ["NumberOfPages","PULONG_PTR"],
             ["UserPfnArra","PULONG_PTR"]
         ]],
-        "NtAllocateUuids" : ["NTSTATUS", [
+        "ZwAllocateUuids" : ["NTSTATUS", [
             ["Time","PULARGE_INTEGER"],
             ["Range","PULONG"],
             ["Sequence","PULONG"],
             ["Seed","PCHAR"]
         ]],
-        "NtAllocateVirtualMemory" : ["NTSTATUS",[
+        "ZwAllocateVirtualMemory" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"],
             ["STARBaseAddress","PVOID"],
             ["ZeroBits","ULONG_PTR"],
@@ -174,7 +174,7 @@
             ["AllocationType","ULONG"],
             ["Protect","ULONG"]
         ]],
-        "NtAlpcAcceptConnectPort" : ["NTSTATUS",[
+        "ZwAlpcAcceptConnectPort" : ["NTSTATUS",[
             ["PortHandle","PHANDLE"],
             ["ConnectionPortHandle","HANDLE"],
             ["Flags","ULONG"],
@@ -208,7 +208,7 @@
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
             ["PortAttributes","PALPC_PORT_ATTRIBUTES"]
         ]],
-        "NtAlpcCreatePortSection" : ["NTSTATUS",[
+        "ZwAlpcCreatePortSection" : ["NTSTATUS",[
             ["PortHandle","HANDLE"],
             ["Flags","ULONG"],
             ["SectionHandle","HANDLE"],
@@ -216,7 +216,7 @@
             ["AlpcSectionHandle","PALPC_HANDLE"],
             ["ActualSectionSize","PSIZE_T"]
         ]],
-        "NtAlpcCreateResourceReserve" : ["NTSTATUS",[
+        "ZwAlpcCreateResourceReserve" : ["NTSTATUS",[
             ["PortHandle","HANDLE"],
             ["Flags","ULONG"],
             ["MessageSize","SIZE_T"],
@@ -242,12 +242,12 @@
             ["Flags","ULONG"],
             ["ResourceId","ALPC_HANDLE"]
         ]],
-        "NtAlpcDeleteSectionView" : ["NTSTATUS",[
+        "ZwAlpcDeleteSectionView" : ["NTSTATUS",[
             ["PortHandle","HANDLE"],
             ["Flags","ULONG"],
             ["ViewBase","PVOID"]
         ]],
-        "NtAlpcDeleteSecurityContext" : ["NTSTATUS",[
+        "ZwAlpcDeleteSecurityContext" : ["NTSTATUS",[
             ["PortHandle","HANDLE"],
             ["Flags","ULONG"],
             ["ContextHandle","ALPC_HANDLE"]
@@ -277,14 +277,14 @@
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"]
         ]],
-        "NtAlpcQueryInformation" : ["NTSTATUS",[
+        "ZwAlpcQueryInformation" : ["NTSTATUS",[
             ["PortHandle","HANDLE"],
             ["PortInformationClass","ALPC_PORT_INFORMATION_CLASS"],
             ["PortInformation","PVOID"],
             ["Length","ULONG"],
             ["ReturnLength","PULONG"]
         ]],
-        "NtAlpcQueryInformationMessage" : ["NTSTATUS",[
+        "ZwAlpcQueryInformationMessage" : ["NTSTATUS",[
             ["PortHandle","HANDLE"],
             ["PortMessage","PPORT_MESSAGE"],
             ["MessageInformationClass","ALPC_MESSAGE_INFORMATION_CLASS"],
@@ -297,7 +297,7 @@
             ["Flags","ULONG"],
             ["ContextHandle","ALPC_HANDLE"]
         ]],
-        "NtAlpcSendWaitReceivePort" : ["NTSTATUS",[
+        "ZwAlpcSendWaitReceivePort" : ["NTSTATUS",[
             ["PortHandle","HANDLE"],
             ["Flags","ULONG"],
             ["SendMessage","PPORT_MESSAGE"],
@@ -317,7 +317,7 @@
             ["type","APPHELPCOMMAND"],
             ["buf","PVOID"]
         ]],
-        "NtAreMappedFilesTheSame" : ["NTSTATUS",[
+        "ZwAreMappedFilesTheSame" : ["NTSTATUS",[
             ["File1MappedAsAnImage","PVOID"],
             ["File2MappedAsFile","PVOID"]
         ]],
@@ -325,16 +325,16 @@
             ["JobHandle","HANDLE"],
             ["ProcessHandle","HANDLE"]
         ]],
-        "NtCancelIoFileEx" : ["NTSTATUS",[
+        "ZwCancelIoFileEx" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["IoRequestToCancel","PIO_STATUS_BLOCK"],
             ["IoStatusBlock","PIO_STATUS_BLOCK"]
         ]],
-        "NtCancelIoFile" : ["NTSTATUS",[
+        "ZwCancelIoFile" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["IoStatusBlock","PIO_STATUS_BLOCK"]
         ]],
-        "NtCancelSynchronousIoFile" : ["NTSTATUS",[
+        "ZwCancelSynchronousIoFile" : ["NTSTATUS",[
             ["ThreadHandle","HANDLE"],
             ["IoRequestToCancel","PIO_STATUS_BLOCK"],
             ["IoStatusBlock","PIO_STATUS_BLOCK"]
@@ -349,7 +349,7 @@
         "NtClose" : ["NTSTATUS",[
             ["Handle","HANDLE"]
         ]],
-        "NtCloseObjectAuditAlarm" : ["NTSTATUS",[
+        "ZwCloseObjectAuditAlarm" : ["NTSTATUS",[
             ["SubsystemName","PUNICODE_STRING"],
             ["HandleId","PVOID"],
             ["GenerateOnClose","BOOLEAN"]
@@ -358,11 +358,11 @@
             ["EnlistmentHandle","HANDLE"],
             ["TmVirtualClock","PLARGE_INTEGER"]
         ]],
-        "NtCommitEnlistment" : ["NTSTATUS",[
+        "ZwCommitEnlistment" : ["NTSTATUS",[
             ["EnlistmentHandle","HANDLE"],
             ["TmVirtualClock","PLARGE_INTEGER"]
         ]],
-        "NtCommitTransaction" : ["NTSTATUS",[
+        "ZwCommitTransaction" : ["NTSTATUS",[
             ["TransactionHandle","HANDLE"],
             ["Wait","BOOLEAN"]
         ]],
@@ -370,7 +370,7 @@
             ["Count","ULONG"],
             ["KeyArray","HANDLE"]
         ]],
-        "NtCompareTokens" : ["NTSTATUS",[
+        "ZwCompareTokens" : ["NTSTATUS",[
             ["FirstTokenHandle","HANDLE"],
             ["SecondTokenHandle","HANDLE"],
             ["Equal","PBOOLEAN"]
@@ -381,7 +381,7 @@
         "NtCompressKey" : ["NTSTATUS",[
             ["Key","HANDLE"]
         ]],
-        "NtConnectPort" : ["NTSTATUS",[
+        "ZwConnectPort" : ["NTSTATUS",[
             ["PortHandle","PHANDLE"],
             ["PortName","PUNICODE_STRING"],
             ["SecurityQos","PSECURITY_QUALITY_OF_SERVICE"],
@@ -391,7 +391,7 @@
             ["ConnectionInformation","PVOID"],
             ["ConnectionInformationLength","PULONG"]
         ]],
-        "NtContinue" : ["NTSTATUS",[
+        "ZwContinue" : ["NTSTATUS",[
             ["ContextRecord","PCONTEXT"],
             ["TestAlert","BOOLEAN"]
         ]],
@@ -416,19 +416,19 @@
             ["NotificationMask","NOTIFICATION_MASK"],
             ["EnlistmentKey","PVOID"]
         ]],
-        "NtCreateEvent" : ["NTSTATUS",[
+        "ZwCreateEvent" : ["NTSTATUS",[
             ["EventHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
             ["EventType","EVENT_TYPE"],
             ["InitialState","BOOLEAN"]
         ]],
-        "NtCreateEventPair" : ["NTSTATUS",[
+        "ZwCreateEventPair" : ["NTSTATUS",[
             ["EventPairHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"]
         ]],
-        "NtCreateFile" : ["NTSTATUS",[
+        "ZwCreateFile" : ["NTSTATUS",[
             ["FileHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
@@ -447,23 +447,23 @@
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
             ["Count","ULONG"]
         ]],
-        "NtCreateJobObject" : ["NTSTATUS",[
+        "ZwCreateJobObject" : ["NTSTATUS",[
             ["JobHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"]
         ]],
-        "NtCreateJobSet" : ["NTSTATUS",[
+        "ZwCreateJobSet" : ["NTSTATUS",[
             ["NumJob","ULONG"],
             ["UserJobSet","PJOB_SET_ARRAY"],
             ["Flags","ULONG"]
         ]],
-        "NtCreateKeyedEvent" : ["NTSTATUS",[
+        "ZwCreateKeyedEvent" : ["NTSTATUS",[
             ["KeyedEventHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
             ["Flags","ULONG"]
         ]],
-        "NtCreateKey" : ["NTSTATUS",[
+        "ZwCreateKey" : ["NTSTATUS",[
             ["KeyHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
@@ -472,7 +472,7 @@
             ["CreateOptions","ULONG"],
             ["Disposition","PULONG"]
         ]],
-        "NtCreateKeyTransacted" : ["NTSTATUS",[
+        "ZwCreateKeyTransacted" : ["NTSTATUS",[
             ["KeyHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
@@ -482,7 +482,7 @@
             ["TransactionHandle","HANDLE"],
             ["Disposition","PULONG"]
         ]],
-        "NtCreateMailslotFile" : ["NTSTATUS",[
+        "ZwCreateMailslotFile" : ["NTSTATUS",[
             ["FileHandle","PHANDLE"],
             ["DesiredAccess","ULONG"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
@@ -520,20 +520,20 @@
             ["MaximumSize","PLARGE_INTEGER"],
             ["Priority","ULONG"]
         ]],
-        "NtCreatePort" : ["NTSTATUS",[
+        "ZwCreatePort" : ["NTSTATUS",[
             ["PortHandle","PHANDLE"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
             ["MaxConnectionInfoLength","ULONG"],
             ["MaxMessageLength","ULONG"],
             ["MaxPoolUsage","ULONG"]
         ]],
-        "NtCreatePrivateNamespace" : ["NTSTATUS",[
+        "ZwCreatePrivateNamespace" : ["NTSTATUS",[
             ["NamespaceHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
             ["BoundaryDescriptor","PVOID"]
         ]],
-        "NtCreateProcessEx" : ["NTSTATUS",[
+        "ZwCreateProcessEx" : ["NTSTATUS",[
             ["ProcessHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
@@ -554,7 +554,7 @@
             ["DebugPort","HANDLE"],
             ["ExceptionPort","HANDLE"]
         ]],
-        "NtCreateProfileEx" : ["NTSTATUS",[
+        "ZwCreateProfileEx" : ["NTSTATUS",[
             ["ProfileHandle","PHANDLE"],
             ["Process","HANDLE"],
             ["ProfileBase","PVOID"],
@@ -566,7 +566,7 @@
             ["GroupAffinityCount","ULONG"],
             ["GroupAffinity","PGROUP_AFFINITY"]
         ]],
-        "NtCreateProfile" : ["NTSTATUS",[
+        "ZwCreateProfile" : ["NTSTATUS",[
             ["ProfileHandle","PHANDLE"],
             ["Process","HANDLE"],
             ["RangeBase","PVOID"],
@@ -602,7 +602,7 @@
             ["InitialCount","LONG"],
             ["MaximumCount","LONG"]
         ]],
-        "NtCreateSymbolicLinkObject" : ["NTSTATUS",[
+        "ZwCreateSymbolicLinkObject" : ["NTSTATUS",[
             ["LinkHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
@@ -631,7 +631,7 @@
             ["InitialTeb","PINITIAL_TEB"],
             ["CreateSuspended","BOOLEAN"]
         ]],
-        "NtCreateTimer" : ["NTSTATUS",[
+        "ZwCreateTimer" : ["NTSTATUS",[
             ["TimerHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
@@ -652,7 +652,7 @@
             ["DefaultDacl","PTOKEN_DEFAULT_DACL"],
             ["TokenSource","PTOKEN_SOURCE"]
         ]],
-        "NtCreateTransactionManager" : ["NTSTATUS",[
+        "ZwCreateTransactionManager" : ["NTSTATUS",[
             ["TmHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
@@ -713,7 +713,7 @@
             ["ClientId","PCLIENT_ID"],
             ["ContinueStatus","NTSTATUS"]
         ]],
-        "NtDelayExecution" : ["NTSTATUS",[
+        "ZwDelayExecution" : ["NTSTATUS",[
             ["Alertable","BOOLEAN"],
             ["DelayInterval","PLARGE_INTEGER"]
         ]],
@@ -723,7 +723,7 @@
         "NtDeleteBootEntry" : ["NTSTATUS",[
             ["Id","ULONG"]
         ]],
-        "NtDeleteDriverEntry" : ["NTSTATUS",[
+        "ZwDeleteDriverEntry" : ["NTSTATUS",[
             ["Id","ULONG"]
         ]],
         "NtDeleteFile" : ["NTSTATUS",[
@@ -732,7 +732,7 @@
         "NtDeleteKey" : ["NTSTATUS",[
             ["KeyHandle","HANDLE"]
         ]],
-        "NtDeleteObjectAuditAlarm" : ["NTSTATUS",[
+        "ZwDeleteObjectAuditAlarm" : ["NTSTATUS",[
             ["SubsystemName","PUNICODE_STRING"],
             ["HandleId","PVOID"],
             ["GenerateOnClose","BOOLEAN"]
@@ -740,7 +740,7 @@
         "NtDeletePrivateNamespace" : ["NTSTATUS",[
             ["NamespaceHandle","HANDLE"]
         ]],
-        "NtDeleteValueKey" : ["NTSTATUS",[
+        "ZwDeleteValueKey" : ["NTSTATUS",[
             ["KeyHandle","HANDLE"],
             ["ValueName","PUNICODE_STRING"]
         ]],
@@ -756,13 +756,13 @@
             ["OutputBuffer","PVOID"],
             ["OutputBufferLength","ULONG"]
         ]],
-        "NtDisplayString" : ["NTSTATUS",[
+        "ZwDisplayString" : ["NTSTATUS",[
             ["String","PUNICODE_STRING"]
         ]],
         "NtDrawText" : ["NTSTATUS",[
             ["Text","PUNICODE_STRING"]
         ]],
-        "NtDuplicateObject" : ["NTSTATUS",[
+        "ZwDuplicateObject" : ["NTSTATUS",[
             ["SourceProcessHandle","HANDLE"],
             ["SourceHandle","HANDLE"],
             ["TargetProcessHandle","HANDLE"],
@@ -783,7 +783,7 @@
             ["Buffer","PVOID"],
             ["BufferLength","PULONG"]
         ]],
-        "NtEnumerateDriverEntries" : ["NTSTATUS",[
+        "ZwEnumerateDriverEntries" : ["NTSTATUS",[
             ["Buffer","PVOID"],
             ["BufferLength","PULONG"]
         ]],
@@ -807,7 +807,7 @@
             ["ObjectCursorLength","ULONG"],
             ["ReturnLength","PULONG"]
         ]],
-        "NtEnumerateValueKey" : ["NTSTATUS",[
+        "ZwEnumerateValueKey" : ["NTSTATUS",[
             ["KeyHandle","HANDLE"],
             ["Index","ULONG"],
             ["KeyValueInformationClass","KEY_VALUE_INFORMATION_CLASS"],
@@ -819,7 +819,7 @@
             ["SectionHandle","HANDLE"],
             ["NewSectionSize","PLARGE_INTEGER"]
         ]],
-        "NtFilterToken" : ["NTSTATUS",[
+        "ZwFilterToken" : ["NTSTATUS",[
             ["ExistingTokenHandle","HANDLE"],
             ["Flags","ULONG"],
             ["SidsToDisable","PTOKEN_GROUPS"],
@@ -827,12 +827,12 @@
             ["RestrictedSids","PTOKEN_GROUPS"],
             ["NewTokenHandle","PHANDLE"]
         ]],
-        "NtFindAtom" : ["NTSTATUS",[
+        "ZwFindAtom" : ["NTSTATUS",[
             ["AtomName","PWSTR"],
             ["Length","ULONG"],
             ["Atom","PRTL_ATOM"]
         ]],
-        "NtFlushBuffersFile" : ["NTSTATUS",[
+        "ZwFlushBuffersFile" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["IoStatusBlock","PIO_STATUS_BLOCK"]
         ]],
@@ -845,21 +845,21 @@
             ["BaseAddress","PVOID"],
             ["Length","SIZE_T"]
         ]],
-        "NtFlushKey" : ["NTSTATUS",[
+        "ZwFlushKey" : ["NTSTATUS",[
             ["KeyHandle","HANDLE"]
         ]],
-        "NtFlushVirtualMemory" : ["NTSTATUS",[
+        "ZwFlushVirtualMemory" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"],
             ["STARBaseAddress","PVOID"],
             ["RegionSize","PSIZE_T"],
             ["IoStatus","PIO_STATUS_BLOCK"]
         ]],
-        "NtFreeUserPhysicalPages" : ["NTSTATUS",[
+        "ZwFreeUserPhysicalPages" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"],
             ["NumberOfPages","PULONG_PTR"],
             ["UserPfnArra","PULONG_PTR"]
         ]],
-        "NtFreeVirtualMemory" : ["NTSTATUS", [
+        "ZwFreeVirtualMemory" : ["NTSTATUS", [
             ["ProcessHandle","HANDLE"],
             ["STARBaseAddress","PVOID"],
             ["RegionSize","PSIZE_T"],
@@ -868,11 +868,11 @@
         "NtFreezeRegistry" : ["NTSTATUS",[
             ["TimeOutInSeconds","ULONG"]
         ]],
-        "NtFreezeTransactions" : ["NTSTATUS",[
+        "ZwFreezeTransactions" : ["NTSTATUS",[
             ["FreezeTimeout","PLARGE_INTEGER"],
             ["ThawTimeout","PLARGE_INTEGER"]
         ]],
-        "NtFsControlFile" : ["NTSTATUS",[
+        "ZwFsControlFile" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["Event","HANDLE"],
             ["ApcRoutine","PIO_APC_ROUTINE"],
@@ -884,15 +884,15 @@
             ["OutputBuffer","PVOID"],
             ["OutputBufferLength","ULONG"]
         ]],
-        "NtGetContextThread" : ["NTSTATUS",[
+        "ZwGetContextThread" : ["NTSTATUS",[
             ["ThreadHandle","HANDLE"],
             ["ThreadContext","PCONTEXT"]
         ]],
-        "NtGetDevicePowerState" : ["NTSTATUS",[
+        "ZwGetDevicePowerState" : ["NTSTATUS",[
             ["Device","HANDLE"],
             ["STARState","DEVICE_POWER_STATE"]
         ]],
-        "NtGetMUIRegistryInfo" : ["NTSTATUS",[
+        "ZwGetMUIRegistryInfo" : ["NTSTATUS",[
             ["Flags","ULONG"],
             ["DataSize","PULONG"],
             ["Data","PVOID"]
@@ -904,7 +904,7 @@
             ["Flags","ULONG"],
             ["NewProcessHandle","PHANDLE"]
         ]],
-        "NtGetNextThread" : ["NTSTATUS",[
+        "ZwGetNextThread" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"],
             ["ThreadHandle","HANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
@@ -912,7 +912,7 @@
             ["Flags","ULONG"],
             ["NewThreadHandle","PHANDLE"]
         ]],
-        "NtGetNlsSectionPtr" : ["NTSTATUS",[
+        "ZwGetNlsSectionPtr" : ["NTSTATUS",[
             ["SectionType","ULONG"],
             ["SectionData","ULONG"],
             ["ContextData","PVOID"],
@@ -928,13 +928,7 @@
             ["Asynchronous","ULONG"],
             ["AsynchronousContext","ULONG_PTR"]
         ]],
-        "NtGetPlugPlayEvent" : ["NTSTATUS",[
-            ["EventHandle","HANDLE"],
-            ["Context","PVOID"],
-            ["EventBlock","PPLUGPLAY_EVENT_BLOCK"],
-            ["EventBufferSize","ULONG"]
-        ]],
-        "NtGetWriteWatch" : ["NTSTATUS",[
+        "ZwGetWriteWatch" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"],
             ["Flags","ULONG"],
             ["BaseAddress","PVOID"],
@@ -943,14 +937,14 @@
             ["EntriesInUserAddressArray","PULONG_PTR"],
             ["Granularity","PULONG"]
         ]],
-        "NtImpersonateAnonymousToken" : ["NTSTATUS",[
+        "ZwImpersonateAnonymousToken" : ["NTSTATUS",[
             ["ThreadHandle","HANDLE"]
         ]],
-        "NtImpersonateClientOfPort" : ["NTSTATUS",[
+        "ZwImpersonateClientOfPort" : ["NTSTATUS",[
             ["PortHandle","HANDLE"],
             ["Message","PPORT_MESSAGE"]
         ]],
-        "NtImpersonateThread" : ["NTSTATUS",[
+        "ZwImpersonateThread" : ["NTSTATUS",[
             ["ServerThreadHandle","HANDLE"],
             ["ClientThreadHandle","HANDLE"],
             ["SecurityQos","PSECURITY_QUALITY_OF_SERVICE"]
@@ -977,10 +971,10 @@
             ["PortHandle","HANDLE"],
             ["ConnectionRequest","PPORT_MESSAGE"]
         ]],
-        "NtLoadDriver" : ["NTSTATUS",[
+        "ZwLoadDriver" : ["NTSTATUS",[
             ["DriverServiceName","PUNICODE_STRING"]
         ]],
-        "NtLoadKey2" : ["NTSTATUS",[
+        "ZwLoadKey2" : ["NTSTATUS",[
             ["TargetKey","POBJECT_ATTRIBUTES"],
             ["SourceFile","POBJECT_ATTRIBUTES"],
             ["Flags","ULONG"]
@@ -995,7 +989,7 @@
             ["TargetKey","POBJECT_ATTRIBUTES"],
             ["SourceFile","POBJECT_ATTRIBUTES"]
         ]],
-        "NtLockFile" : ["NTSTATUS",[
+        "ZwLockFile" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["Event","HANDLE"],
             ["ApcRoutine","PIO_APC_ROUTINE"],
@@ -1011,7 +1005,7 @@
             ["STARpPrivateVer","ULONG"],
             ["STARpSafeMode","ULONG"]
         ]],
-        "NtLockRegistryKey" : ["NTSTATUS",[
+        "ZwLockRegistryKey" : ["NTSTATUS",[
             ["KeyHandle","HANDLE"]
         ]],
         "NtLockVirtualMemory" : ["NTSTATUS",[
@@ -1039,12 +1033,12 @@
             ["NumberOfPages","ULONG_PTR"],
             ["UserPfnArra","PULONG_PTR"]
         ]],
-        "NtMapUserPhysicalPagesScatter" : ["NTSTATUS", [
+        "ZwMapUserPhysicalPagesScatter" : ["NTSTATUS", [
             ["STARVirtualAddresses","PVOID"],
             ["NumberOfPages","ULONG_PTR"],
             ["UserPfnArray","PULONG_PTR"]
         ]],
-        "NtMapViewOfSection" : ["NTSTATUS",[
+        "ZwMapViewOfSection" : ["NTSTATUS",[
             ["SectionHandle","HANDLE"],
             ["ProcessHandle","HANDLE"],
             ["STARBaseAddress","PVOID"],
@@ -1059,7 +1053,7 @@
         "NtModifyBootEntry" : ["NTSTATUS",[
             ["BootEntry","PBOOT_ENTRY"]
         ]],
-        "NtModifyDriverEntry" : ["NTSTATUS",[
+        "ZwModifyDriverEntry" : ["NTSTATUS",[
             ["DriverEntry","PEFI_DRIVER_ENTRY"]
         ]],
         "NtNotifyChangeDirectoryFile" : ["NTSTATUS",[
@@ -1073,7 +1067,7 @@
             ["CompletionFilter","ULONG"],
             ["WatchTree","BOOLEAN"]
         ]],
-        "NtNotifyChangeKey" : ["NTSTATUS",[
+        "ZwNotifyChangeKey" : ["NTSTATUS",[
             ["KeyHandle","HANDLE"],
             ["Event","HANDLE"],
             ["ApcRoutine","PIO_APC_ROUTINE"],
@@ -1109,7 +1103,7 @@
             ["Buffer","PVOID"],
             ["BufferSize","ULONG"]
         ]],
-        "NtOpenDirectoryObject" : ["NTSTATUS",[
+        "ZwOpenDirectoryObject" : ["NTSTATUS",[
             ["DirectoryHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"]
@@ -1126,7 +1120,7 @@
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"]
         ]],
-        "NtOpenEventPair" : ["NTSTATUS",[
+        "ZwOpenEventPair" : ["NTSTATUS",[
             ["EventPairHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"]
@@ -1165,14 +1159,14 @@
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"]
         ]],
-        "NtOpenKeyTransactedEx" : ["NTSTATUS",[
+        "ZwOpenKeyTransactedEx" : ["NTSTATUS",[
             ["KeyHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
             ["OpenOptions","ULONG"],
             ["TransactionHandle","HANDLE"]
         ]],
-        "NtOpenKeyTransacted" : ["NTSTATUS",[
+        "ZwOpenKeyTransacted" : ["NTSTATUS",[
             ["KeyHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
@@ -1183,7 +1177,7 @@
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"]
         ]],
-        "NtOpenObjectAuditAlarm" : ["NTSTATUS",[
+        "ZwOpenObjectAuditAlarm" : ["NTSTATUS",[
             ["SubsystemName","PUNICODE_STRING"],
             ["HandleId","PVOID"],
             ["ObjectTypeName","PUNICODE_STRING"],
@@ -1232,22 +1226,22 @@
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"]
         ]],
-        "NtOpenSemaphore" : ["NTSTATUS",[
+        "ZwOpenSemaphore" : ["NTSTATUS",[
             ["SemaphoreHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"]
         ]],
-        "NtOpenSession" : ["NTSTATUS",[
+        "ZwOpenSession" : ["NTSTATUS",[
             ["SessionHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"]
         ]],
-        "NtOpenSymbolicLinkObject" : ["NTSTATUS",[
+        "ZwOpenSymbolicLinkObject" : ["NTSTATUS",[
             ["LinkHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"]
         ]],
-        "NtOpenThread" : ["NTSTATUS",[
+        "ZwOpenThread" : ["NTSTATUS",[
             ["ThreadHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
@@ -1266,7 +1260,7 @@
             ["OpenAsSelf","BOOLEAN"],
             ["TokenHandle","PHANDLE"]
         ]],
-        "NtOpenTimer" : ["NTSTATUS",[
+        "ZwOpenTimer" : ["NTSTATUS",[
             ["TimerHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"]
@@ -1279,14 +1273,14 @@
             ["TmIdentity","LPGUID"],
             ["OpenOptions","ULONG"]
         ]],
-        "NtOpenTransaction" : ["NTSTATUS",[
+        "ZwOpenTransaction" : ["NTSTATUS",[
             ["TransactionHandle","PHANDLE"],
             ["DesiredAccess","ACCESS_MASK"],
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
             ["Uow","LPGUID"],
             ["TmHandle","HANDLE"]
         ]],
-        "NtPlugPlayControl" : ["NTSTATUS",[
+        "ZwPlugPlayControl" : ["NTSTATUS",[
             ["PnPControlClass","PLUGPLAY_CONTROL_CLASS"],
             ["PnPControlData","PVOID"],
             ["PnPControlDataLength","ULONG"]
@@ -1298,15 +1292,15 @@
             ["OutputBuffer","PVOID"],
             ["OutputBufferLength","ULONG"]
         ]],
-        "NtPrepareComplete" : ["NTSTATUS",[
+        "ZwPrepareComplete" : ["NTSTATUS",[
             ["EnlistmentHandle","HANDLE"],
             ["TmVirtualClock","PLARGE_INTEGER"]
         ]],
-        "NtPrepareEnlistment" : ["NTSTATUS",[
+        "ZwPrepareEnlistment" : ["NTSTATUS",[
             ["EnlistmentHandle","HANDLE"],
             ["TmVirtualClock","PLARGE_INTEGER"]
         ]],
-        "NtPrePrepareComplete" : ["NTSTATUS",[
+        "ZwPrePrepareComplete" : ["NTSTATUS",[
             ["EnlistmentHandle","HANDLE"],
             ["TmVirtualClock","PLARGE_INTEGER"]
         ]],
@@ -1314,12 +1308,12 @@
             ["EnlistmentHandle","HANDLE"],
             ["TmVirtualClock","PLARGE_INTEGER"]
         ]],
-        "NtPrivilegeCheck" : ["NTSTATUS",[
+        "ZwPrivilegeCheck" : ["NTSTATUS",[
             ["ClientToken","HANDLE"],
             ["RequiredPrivileges","PPRIVILEGE_SET"],
             ["Result","PBOOLEAN"]
         ]],
-        "NtPrivilegedServiceAuditAlarm" : ["NTSTATUS",[
+        "ZwPrivilegedServiceAuditAlarm" : ["NTSTATUS",[
             ["SubsystemName","PUNICODE_STRING"],
             ["ServiceName","PUNICODE_STRING"],
             ["ClientToken","HANDLE"],
@@ -1345,22 +1339,22 @@
             ["RequestCookie","ULONG"],
             ["PropStatus","NTSTATUS"]
         ]],
-        "NtProtectVirtualMemory" : ["NTSTATUS",[
+        "ZwProtectVirtualMemory" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"],
             ["STARBaseAddress","PVOID"],
             ["RegionSize","PSIZE_T"],
             ["NewProtectWin32","WIN32_PROTECTION_MASK"],
             ["OldProtect","PULONG"]
         ]],
-        "NtPulseEvent" : ["NTSTATUS",[
+        "ZwPulseEvent" : ["NTSTATUS",[
             ["EventHandle","HANDLE"],
             ["PreviousState","PLONG"]
         ]],
-        "NtQueryAttributesFile" : ["NTSTATUS",[
+        "ZwQueryAttributesFile" : ["NTSTATUS",[
             ["ObjectAttributes","POBJECT_ATTRIBUTES"],
             ["FileInformation","PFILE_BASIC_INFORMATION"]
         ]],
-        "NtQueryBootEntryOrder" : ["NTSTATUS",[
+        "ZwQueryBootEntryOrder" : ["NTSTATUS",[
             ["Ids","PULONG"],
             ["Count","PULONG"]
         ]],
@@ -1368,7 +1362,7 @@
             ["BootOptions","PBOOT_OPTIONS"],
             ["BootOptionsLength","PULONG"]
         ]],
-        "NtQueryDebugFilterState" : ["NTSTATUS",[
+        "ZwQueryDebugFilterState" : ["NTSTATUS",[
             ["ComponentId","ULONG"],
             ["Level","ULONG"]
         ]],
@@ -1376,7 +1370,7 @@
             ["UserProfile","BOOLEAN"],
             ["DefaultLocaleId","PLCID"]
         ]],
-        "NtQueryDefaultUILanguage" : ["NTSTATUS",[
+        "ZwQueryDefaultUILanguage" : ["NTSTATUS",[
             ["STARDefaultUILanguageId","LANGID"]
         ]],
         "NtQueryDirectoryFile" : ["NTSTATUS",[
@@ -1392,7 +1386,7 @@
             ["FileName","PUNICODE_STRING"],
             ["RestartScan","BOOLEAN"]
         ]],
-        "NtQueryDirectoryObject" : ["NTSTATUS",[
+        "ZwQueryDirectoryObject" : ["NTSTATUS",[
             ["DirectoryHandle","HANDLE"],
             ["Buffer","PVOID"],
             ["Length","ULONG"],
@@ -1405,7 +1399,7 @@
             ["Ids","PULONG"],
             ["Count","PULONG"]
         ]],
-        "NtQueryEaFile" : ["NTSTATUS",[
+        "ZwQueryEaFile" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["IoStatusBlock","PIO_STATUS_BLOCK"],
             ["Buffer","PVOID"],
@@ -1476,7 +1470,7 @@
             ["ResourceManagerInformationLength","ULONG"],
             ["ReturnLength","PULONG"]
         ]],
-        "NtQueryInformationThread" : ["NTSTATUS",[
+        "ZwQueryInformationThread" : ["NTSTATUS",[
             ["ThreadHandle","HANDLE"],
             ["ThreadInformationClass","THREADINFOCLASS"],
             ["ThreadInformation","PVOID"],
@@ -1490,7 +1484,7 @@
             ["TokenInformationLength","ULONG"],
             ["ReturnLength","PULONG"]
         ]],
-        "NtQueryInformationTransaction" : ["NTSTATUS",[
+        "ZwQueryInformationTransaction" : ["NTSTATUS",[
             ["TransactionHandle","HANDLE"],
             ["TransactionInformationClass","TRANSACTION_INFORMATION_CLASS"],
             ["TransactionInformation","PVOID"],
@@ -1504,7 +1498,7 @@
             ["TransactionManagerInformationLength","ULONG"],
             ["ReturnLength","PULONG"]
         ]],
-        "NtQueryInformationWorkerFactory" : ["NTSTATUS",[
+        "ZwQueryInformationWorkerFactory" : ["NTSTATUS",[
             ["WorkerFactoryHandle","HANDLE"],
             ["WorkerFactoryInformationClass","WORKERFACTORYINFOCLASS"],
             ["WorkerFactoryInformation","PVOID"],
@@ -1525,21 +1519,21 @@
             ["IoCompletionInformationLength","ULONG"],
             ["ReturnLength","PULONG"]
         ]],
-        "NtQueryKey" : ["NTSTATUS",[
+        "ZwQueryKey" : ["NTSTATUS",[
             ["KeyHandle","HANDLE"],
             ["KeyInformationClass","KEY_INFORMATION_CLASS"],
             ["KeyInformation","PVOID"],
             ["Length","ULONG"],
             ["ResultLength","PULONG"]
         ]],
-        "NtQueryLicenseValue" : ["NTSTATUS",[
+        "ZwQueryLicenseValue" : ["NTSTATUS",[
             ["Name","PUNICODE_STRING"],
             ["Type","PULONG"],
             ["Buffer","PVOID"],
             ["Length","ULONG"],
             ["ReturnedLength","PULONG"]
         ]],
-        "NtQueryMultipleValueKey" : ["NTSTATUS",[
+        "ZwQueryMultipleValueKey" : ["NTSTATUS",[
             ["KeyHandle","HANDLE"],
             ["ValueEntries","PKEY_VALUE_ENTRY"],
             ["EntryCount","ULONG"],
@@ -1547,14 +1541,14 @@
             ["BufferLength","PULONG"],
             ["RequiredBufferLength","PULONG"]
         ]],
-        "NtQueryMutant" : ["NTSTATUS",[
+        "ZwQueryMutant" : ["NTSTATUS",[
             ["MutantHandle","HANDLE"],
             ["MutantInformationClass","MUTANT_INFORMATION_CLASS"],
             ["MutantInformation","PVOID"],
             ["MutantInformationLength","ULONG"],
             ["ReturnLength","PULONG"]
         ]],
-        "NtQueryObject" : ["NTSTATUS",[
+        "ZwQueryObject" : ["NTSTATUS",[
             ["Handle","HANDLE"],
             ["ObjectInformationClass","OBJECT_INFORMATION_CLASS"],
             ["ObjectInformation","PVOID"],
@@ -1593,7 +1587,7 @@
             ["SectionInformationLength","SIZE_T"],
             ["ReturnLength","PSIZE_T"]
         ]],
-        "NtQuerySecurityAttributesToken" : ["NTSTATUS",[
+        "ZwQuerySecurityAttributesToken" : ["NTSTATUS",[
             ["TokenHandle","HANDLE"],
             ["Attributes","PUNICODE_STRING"],
             ["NumberOfAttributes","ULONG"],
@@ -1608,7 +1602,7 @@
             ["Length","ULONG"],
             ["LengthNeeded","PULONG"]
         ]],
-        "NtQuerySemaphore" : ["NTSTATUS",[
+        "ZwQuerySemaphore" : ["NTSTATUS",[
             ["SemaphoreHandle","HANDLE"],
             ["SemaphoreInformationClass","SEMAPHORE_INFORMATION_CLASS"],
             ["SemaphoreInformation","PVOID"],
@@ -1647,17 +1641,17 @@
             ["SystemInformationLength","ULONG"],
             ["ReturnLength","PULONG"]
         ]],
-        "NtQuerySystemTime" : ["NTSTATUS",[
+        "ZwQuerySystemTime" : ["NTSTATUS",[
             ["SystemTime","PLARGE_INTEGER"]
         ]],
-        "NtQueryTimer" : ["NTSTATUS",[
+        "ZwQueryTimer" : ["NTSTATUS",[
             ["TimerHandle","HANDLE"],
             ["TimerInformationClass","TIMER_INFORMATION_CLASS"],
             ["TimerInformation","PVOID"],
             ["TimerInformationLength","ULONG"],
             ["ReturnLength","PULONG"]
         ]],
-        "NtQueryTimerResolution" : ["NTSTATUS",[
+        "ZwQueryTimerResolution" : ["NTSTATUS",[
             ["MaximumTime","PULONG"],
             ["MinimumTime","PULONG"],
             ["CurrentTime","PULONG"]
@@ -1670,7 +1664,7 @@
             ["Length","ULONG"],
             ["ResultLength","PULONG"]
         ]],
-        "NtQueryVirtualMemory" : ["NTSTATUS",[
+        "ZwQueryVirtualMemory" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"],
             ["BaseAddress","PVOID"],
             ["MemoryInformationClass","MEMORY_INFORMATION_CLASS"],
@@ -1678,7 +1672,7 @@
             ["MemoryInformationLength","SIZE_T"],
             ["ReturnLength","PSIZE_T"]
         ]],
-        "NtQueryVolumeInformationFile" : ["NTSTATUS",[
+        "ZwQueryVolumeInformationFile" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["IoStatusBlock","PIO_STATUS_BLOCK"],
             ["FsInformation","PVOID"],
@@ -1700,7 +1694,7 @@
             ["ApcArgument2","PVOID"],
             ["ApcArgument3","PVOID"]
         ]],
-        "NtRaiseException" : ["NTSTATUS",[
+        "ZwRaiseException" : ["NTSTATUS",[
             ["ExceptionRecord","PEXCEPTION_RECORD"],
             ["ContextRecord","PCONTEXT"],
             ["FirstChance","BOOLEAN"]
@@ -1724,7 +1718,7 @@
             ["ByteOffset","PLARGE_INTEGER"],
             ["Key","PULONG"]
         ]],
-        "NtReadFileScatter" : ["NTSTATUS",[
+        "ZwReadFileScatter" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["Event","HANDLE"],
             ["ApcRoutine","PIO_APC_ROUTINE"],
@@ -1735,7 +1729,7 @@
             ["ByteOffset","PLARGE_INTEGER"],
             ["Key","PULONG"]
         ]],
-        "NtReadOnlyEnlistment" : ["NTSTATUS",[
+        "ZwReadOnlyEnlistment" : ["NTSTATUS",[
             ["EnlistmentHandle","HANDLE"],
             ["TmVirtualClock","PLARGE_INTEGER"]
         ]],
@@ -1747,18 +1741,18 @@
             ["BufferSize","SIZE_T"],
             ["NumberOfBytesRead","PSIZE_T"]
         ]],
-        "NtReadVirtualMemory" : ["NTSTATUS",[
+        "ZwReadVirtualMemory" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"],
             ["BaseAddress","PVOID"],
             ["Buffer","PVOID"],
             ["BufferSize","SIZE_T"],
             ["NumberOfBytesRead","PSIZE_T"]
         ]],
-        "NtRecoverEnlistment" : ["NTSTATUS",[
+        "ZwRecoverEnlistment" : ["NTSTATUS",[
             ["EnlistmentHandle","HANDLE"],
             ["EnlistmentKey","PVOID"]
         ]],
-        "NtRecoverResourceManager" : ["NTSTATUS",[
+        "ZwRecoverResourceManager" : ["NTSTATUS",[
             ["ResourceManagerHandle","HANDLE"]
         ]],
         "NtRecoverTransactionManager" : ["NTSTATUS",[
@@ -1780,11 +1774,11 @@
             ["Alertable","BOOLEAN"],
             ["Timeout","PLARGE_INTEGER"]
         ]],
-        "NtReleaseMutant" : ["NTSTATUS",[
+        "ZwReleaseMutant" : ["NTSTATUS",[
             ["MutantHandle","HANDLE"],
             ["PreviousCount","PLONG"]
         ]],
-        "NtReleaseSemaphore" : ["NTSTATUS",[
+        "ZwReleaseSemaphore" : ["NTSTATUS",[
             ["SemaphoreHandle","HANDLE"],
             ["ReleaseCount","LONG"],
             ["PreviousCount","PLONG"]
@@ -1792,7 +1786,7 @@
         "NtReleaseWorkerFactoryWorker" : ["NTSTATUS",[
             ["WorkerFactoryHandle","HANDLE"]
         ]],
-        "NtRemoveIoCompletionEx" : ["NTSTATUS",[
+        "ZwRemoveIoCompletionEx" : ["NTSTATUS",[
             ["IoCompletionHandle","HANDLE"],
             ["IoCompletionInformation","PFILE_IO_COMPLETION_INFORMATION"],
             ["Count","ULONG"],
@@ -1800,14 +1794,14 @@
             ["Timeout","PLARGE_INTEGER"],
             ["Alertable","BOOLEAN"]
         ]],
-        "NtRemoveIoCompletion" : ["NTSTATUS",[
+        "ZwRemoveIoCompletion" : ["NTSTATUS",[
             ["IoCompletionHandle","HANDLE"],
             ["STARKeyContext","PVOID"],
             ["STARApcContext","PVOID"],
             ["IoStatusBlock","PIO_STATUS_BLOCK"],
             ["Timeout","PLARGE_INTEGER"]
         ]],
-        "NtRemoveProcessDebug" : ["NTSTATUS",[
+        "ZwRemoveProcessDebug" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"],
             ["DebugObjectHandle","HANDLE"]
         ]],
@@ -1833,14 +1827,14 @@
             ["PortHandle","HANDLE"],
             ["ReplyMessage","PPORT_MESSAGE"]
         ]],
-        "NtReplyWaitReceivePortEx" : ["NTSTATUS",[
+        "ZwReplyWaitReceivePortEx" : ["NTSTATUS",[
             ["PortHandle","HANDLE"],
             ["STARPortContext","PVOID"],
             ["ReplyMessage","PPORT_MESSAGE"],
             ["ReceiveMessage","PPORT_MESSAGE"],
             ["Timeout","PLARGE_INTEGER"]
         ]],
-        "NtReplyWaitReceivePort" : ["NTSTATUS",[
+        "ZwReplyWaitReceivePort" : ["NTSTATUS",[
             ["PortHandle","HANDLE"],
             ["STARPortContext","PVOID"],
             ["ReplyMessage","PPORT_MESSAGE"],
@@ -1854,16 +1848,16 @@
             ["PortHandle","HANDLE"],
             ["RequestMessage","PPORT_MESSAGE"]
         ]],
-        "NtRequestWaitReplyPort" : ["NTSTATUS",[
+        "ZwRequestWaitReplyPort" : ["NTSTATUS",[
             ["PortHandle","HANDLE"],
             ["RequestMessage","PPORT_MESSAGE"],
             ["ReplyMessage","PPORT_MESSAGE"]
         ]],
-        "NtResetEvent" : ["NTSTATUS",[
+        "ZwResetEvent" : ["NTSTATUS",[
             ["EventHandle","HANDLE"],
             ["PreviousState","PLONG"]
         ]],
-        "NtResetWriteWatch" : ["NTSTATUS",[
+        "ZwResetWriteWatch" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"],
             ["BaseAddress","PVOID"],
             ["RegionSize","SIZE_T"]
@@ -1873,14 +1867,14 @@
             ["FileHandle","HANDLE"],
             ["Flags","ULONG"]
         ]],
-        "NtResumeProcess" : ["NTSTATUS",[
+        "ZwResumeProcess" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"]
         ]],
-        "NtResumeThread" : ["NTSTATUS",[
+        "ZwResumeThread" : ["NTSTATUS",[
             ["ThreadHandle","HANDLE"],
             ["PreviousSuspendCount","PULONG"]
         ]],
-        "NtRollbackComplete" : ["NTSTATUS",[
+        "ZwRollbackComplete" : ["NTSTATUS",[
             ["EnlistmentHandle","HANDLE"],
             ["TmVirtualClock","PLARGE_INTEGER"]
         ]],
@@ -1888,7 +1882,7 @@
             ["EnlistmentHandle","HANDLE"],
             ["TmVirtualClock","PLARGE_INTEGER"]
         ]],
-        "NtRollbackTransaction" : ["NTSTATUS",[
+        "ZwRollbackTransaction" : ["NTSTATUS",[
             ["TransactionHandle","HANDLE"],
             ["Wait","BOOLEAN"]
         ]],
@@ -1905,7 +1899,7 @@
             ["KeyHandle","HANDLE"],
             ["FileHandle","HANDLE"]
         ]],
-        "NtSaveMergedKeys" : ["NTSTATUS",[
+        "ZwSaveMergedKeys" : ["NTSTATUS",[
             ["HighPrecedenceKeyHandle","HANDLE"],
             ["LowPrecedenceKeyHandle","HANDLE"],
             ["FileHandle","HANDLE"]
@@ -1921,7 +1915,7 @@
             ["ConnectionInformation","PVOID"],
             ["ConnectionInformationLength","PULONG"]
         ]],
-        "NtSetBootEntryOrder" : ["NTSTATUS",[
+        "ZwSetBootEntryOrder" : ["NTSTATUS",[
             ["Ids","PULONG"],
             ["Count","ULONG"]
         ]],
@@ -1933,7 +1927,7 @@
             ["ThreadHandle","HANDLE"],
             ["ThreadContext","PCONTEXT"]
         ]],
-        "NtSetDebugFilterState" : ["NTSTATUS",[
+        "ZwSetDebugFilterState" : ["NTSTATUS",[
             ["ComponentId","ULONG"],
             ["Level","ULONG"],
             ["State","BOOLEAN"]
@@ -1945,30 +1939,30 @@
             ["UserProfile","BOOLEAN"],
             ["DefaultLocaleId","LCID"]
         ]],
-        "NtSetDefaultUILanguage" : ["NTSTATUS",[
+        "ZwSetDefaultUILanguage" : ["NTSTATUS",[
             ["DefaultUILanguageId","LANGID"]
         ]],
         "NtSetDriverEntryOrder" : ["NTSTATUS",[
             ["Ids","PULONG"],
             ["Count","ULONG"]
         ]],
-        "NtSetEaFile" : ["NTSTATUS",[
+        "ZwSetEaFile" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["IoStatusBlock","PIO_STATUS_BLOCK"],
             ["Buffer","PVOID"],
             ["Length","ULONG"]
         ]],
-        "NtSetEventBoostPriority" : ["NTSTATUS",[
+        "ZwSetEventBoostPriority" : ["NTSTATUS",[
             ["EventHandle","HANDLE"]
         ]],
-        "NtSetEvent" : ["NTSTATUS",[
+        "ZwSetEvent" : ["NTSTATUS",[
             ["EventHandle","HANDLE"],
             ["PreviousState","PLONG"]
         ]],
         "NtSetHighEventPair" : ["NTSTATUS",[
             ["EventPairHandle","HANDLE"]
         ]],
-        "NtSetHighWaitLowEventPair" : ["NTSTATUS",[
+        "ZwSetHighWaitLowEventPair" : ["NTSTATUS",[
             ["EventPairHandle","HANDLE"]
         ]],
         "NtSetInformationDebugObject" : ["NTSTATUS",[
@@ -1984,20 +1978,20 @@
             ["EnlistmentInformation","PVOID"],
             ["EnlistmentInformationLength","ULONG"]
         ]],
-        "NtSetInformationFile" : ["NTSTATUS",[
+        "ZwSetInformationFile" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["IoStatusBlock","PIO_STATUS_BLOCK"],
             ["FileInformation","PVOID"],
             ["Length","ULONG"],
             ["FileInformationClass","FILE_INFORMATION_CLASS"]
         ]],
-        "NtSetInformationJobObject" : ["NTSTATUS",[
+        "ZwSetInformationJobObject" : ["NTSTATUS",[
             ["JobHandle","HANDLE"],
             ["JobObjectInformationClass","JOBOBJECTINFOCLASS"],
             ["JobObjectInformation","PVOID"],
             ["JobObjectInformationLength","ULONG"]
         ]],
-        "NtSetInformationKey" : ["NTSTATUS",[
+        "ZwSetInformationKey" : ["NTSTATUS",[
             ["KeyHandle","HANDLE"],
             ["KeySetInformationClass","KEY_SET_INFORMATION_CLASS"],
             ["KeySetInformation","PVOID"],
@@ -2039,7 +2033,7 @@
             ["TransactionInformation","PVOID"],
             ["TransactionInformationLength","ULONG"]
         ]],
-        "NtSetInformationTransactionManager" : ["NTSTATUS",[
+        "ZwSetInformationTransactionManager" : ["NTSTATUS",[
             ["TmHandle","HANDLE"],
             ["TransactionManagerInformationClass","TRANSACTIONMANAGER_INFORMATION_CLASS"],
             ["TransactionManagerInformation","PVOID"],
@@ -2055,7 +2049,7 @@
             ["Interval","ULONG"],
             ["Source","KPROFILE_SOURCE"]
         ]],
-        "NtSetIoCompletionEx" : ["NTSTATUS",[
+        "ZwSetIoCompletionEx" : ["NTSTATUS",[
             ["IoCompletionHandle","HANDLE"],
             ["IoCompletionReserveHandle","HANDLE"],
             ["KeyContext","PVOID"],
@@ -2063,14 +2057,14 @@
             ["IoStatus","NTSTATUS"],
             ["IoStatusInformation","ULONG_PTR"]
         ]],
-        "NtSetIoCompletion" : ["NTSTATUS",[
+        "ZwSetIoCompletion" : ["NTSTATUS",[
             ["IoCompletionHandle","HANDLE"],
             ["KeyContext","PVOID"],
             ["ApcContext","PVOID"],
             ["IoStatus","NTSTATUS"],
             ["IoStatusInformation","ULONG_PTR"]
         ]],
-        "NtSetLdtEntries" : ["NTSTATUS",[
+        "ZwSetLdtEntries" : ["NTSTATUS",[
             ["Selector0","ULONG"],
             ["Entry0Low","ULONG"],
             ["Entry0Hi","ULONG"],
@@ -2078,13 +2072,13 @@
             ["Entry1Low","ULONG"],
             ["Entry1Hi","ULONG"]
         ]],
-        "NtSetLowEventPair" : ["NTSTATUS",[
+        "ZwSetLowEventPair" : ["NTSTATUS",[
             ["EventPairHandle","HANDLE"]
         ]],
-        "NtSetLowWaitHighEventPair" : ["NTSTATUS",[
+        "ZwSetLowWaitHighEventPair" : ["NTSTATUS",[
             ["EventPairHandle","HANDLE"]
         ]],
-        "NtSetQuotaInformationFile" : ["NTSTATUS",[
+        "ZwSetQuotaInformationFile" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["IoStatusBlock","PIO_STATUS_BLOCK"],
             ["Buffer","PVOID"],
@@ -2095,28 +2089,28 @@
             ["SecurityInformation","SECURITY_INFORMATION"],
             ["SecurityDescriptor","PSECURITY_DESCRIPTOR"]
         ]],
-        "NtSetSystemEnvironmentValueEx" : ["NTSTATUS",[
+        "ZwSetSystemEnvironmentValueEx" : ["NTSTATUS",[
             ["VariableName","PUNICODE_STRING"],
             ["VendorGuid","LPGUID"],
             ["Value","PVOID"],
             ["ValueLength","ULONG"],
             ["Attributes","ULONG"]
         ]],
-        "NtSetSystemEnvironmentValue" : ["NTSTATUS",[
+        "ZwSetSystemEnvironmentValue" : ["NTSTATUS",[
             ["VariableName","PUNICODE_STRING"],
             ["VariableValue","PUNICODE_STRING"]
         ]],
-        "NtSetSystemInformation" : ["NTSTATUS",[
+        "ZwSetSystemInformation" : ["NTSTATUS",[
             ["SystemInformationClass","SYSTEM_INFORMATION_CLASS"],
             ["SystemInformation","PVOID"],
             ["SystemInformationLength","ULONG"]
         ]],
-        "NtSetSystemPowerState" : ["NTSTATUS",[
+        "ZwSetSystemPowerState" : ["NTSTATUS",[
             ["SystemAction","POWER_ACTION"],
             ["MinSystemState","SYSTEM_POWER_STATE"],
             ["Flags","ULONG"]
         ]],
-        "NtSetSystemTime" : ["NTSTATUS",[
+        "ZwSetSystemTime" : ["NTSTATUS",[
             ["SystemTime","PLARGE_INTEGER"],
             ["PreviousTime","PLARGE_INTEGER"]
         ]],
@@ -2124,13 +2118,13 @@
             ["esFlags","EXECUTION_STATE"],
             ["STARPreviousFlags","EXECUTION_STATE"]
         ]],
-        "NtSetTimerEx" : ["NTSTATUS",[
+        "ZwSetTimerEx" : ["NTSTATUS",[
             ["TimerHandle","HANDLE"],
             ["TimerSetInformationClass","TIMER_SET_INFORMATION_CLASS"],
             ["TimerSetInformation","PVOID"],
             ["TimerSetInformationLength","ULONG"]
         ]],
-        "NtSetTimer" : ["NTSTATUS",[
+        "ZwSetTimer" : ["NTSTATUS",[
             ["TimerHandle","HANDLE"],
             ["DueTime","PLARGE_INTEGER"],
             ["TimerApcRoutine","PTIMER_APC_ROUTINE"],
@@ -2147,7 +2141,7 @@
         "NtSetUuidSeed" : ["NTSTATUS",[
             ["Seed","PCHAR"]
         ]],
-        "NtSetValueKey" : ["NTSTATUS",[
+        "ZwSetValueKey" : ["NTSTATUS",[
             ["KeyHandle","HANDLE"],
             ["ValueName","PUNICODE_STRING"],
             ["TitleIndex","ULONG"],
@@ -2155,44 +2149,44 @@
             ["Data","PVOID"],
             ["DataSize","ULONG"]
         ]],
-        "NtSetVolumeInformationFile" : ["NTSTATUS",[
+        "ZwSetVolumeInformationFile" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["IoStatusBlock","PIO_STATUS_BLOCK"],
             ["FsInformation","PVOID"],
             ["Length","ULONG"],
             ["FsInformationClass","FS_INFORMATION_CLASS"]
         ]],
-        "NtShutdownSystem" : ["NTSTATUS",[
+        "ZwShutdownSystem" : ["NTSTATUS",[
             ["Action","SHUTDOWN_ACTION"]
         ]],
-        "NtShutdownWorkerFactory" : ["NTSTATUS",[
+        "ZwShutdownWorkerFactory" : ["NTSTATUS",[
             ["WorkerFactoryHandle","HANDLE"],
             ["STARPendingWorkerCount","LONG"]
         ]],
-        "NtSignalAndWaitForSingleObject" : ["NTSTATUS",[
+        "ZwSignalAndWaitForSingleObject" : ["NTSTATUS",[
             ["SignalHandle","HANDLE"],
             ["WaitHandle","HANDLE"],
             ["Alertable","BOOLEAN"],
             ["Timeout","PLARGE_INTEGER"]
         ]],
-        "NtSinglePhaseReject" : ["NTSTATUS",[
+        "ZwSinglePhaseReject" : ["NTSTATUS",[
             ["EnlistmentHandle","HANDLE"],
             ["TmVirtualClock","PLARGE_INTEGER"]
         ]],
-        "NtStartProfile" : ["NTSTATUS",[
+        "ZwStartProfile" : ["NTSTATUS",[
             ["ProfileHandle","HANDLE"]
         ]],
-        "NtStopProfile" : ["NTSTATUS",[
+        "ZwStopProfile" : ["NTSTATUS",[
             ["ProfileHandle","HANDLE"]
         ]],
-        "NtSuspendProcess" : ["NTSTATUS",[
+        "ZwSuspendProcess" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"]
         ]],
         "NtSuspendThread" : ["NTSTATUS",[
             ["ThreadHandle","HANDLE"],
             ["PreviousSuspendCount","PULONG"]
         ]],
-        "NtSystemDebugControl" : ["NTSTATUS",[
+        "ZwSystemDebugControl" : ["NTSTATUS",[
             ["Command","SYSDBG_COMMAND"],
             ["InputBuffer","PVOID"],
             ["InputBufferLength","ULONG"],
@@ -2204,7 +2198,7 @@
             ["JobHandle","HANDLE"],
             ["ExitStatus","NTSTATUS"]
         ]],
-        "NtTerminateProcess" : ["NTSTATUS",[
+        "ZwTerminateProcess" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"],
             ["ExitStatus","NTSTATUS"]
         ]],
@@ -2232,28 +2226,28 @@
             ["OutputFilePath","PFILE_PATH"],
             ["OutputFilePathLength","PULONG"]
         ]],
-        "NtUnloadDriver" : ["NTSTATUS",[
+        "ZwUnloadDriver" : ["NTSTATUS",[
             ["DriverServiceName","PUNICODE_STRING"]
         ]],
         "NtUnloadKey2" : ["NTSTATUS",[
             ["TargetKey","POBJECT_ATTRIBUTES"],
             ["Flags","ULONG"]
         ]],
-        "NtUnloadKeyEx" : ["NTSTATUS",[
+        "ZwUnloadKeyEx" : ["NTSTATUS",[
             ["TargetKey","POBJECT_ATTRIBUTES"],
             ["Event","HANDLE"]
         ]],
         "NtUnloadKey" : ["NTSTATUS",[
             ["TargetKey","POBJECT_ATTRIBUTES"]
         ]],
-        "NtUnlockFile" : ["NTSTATUS",[
+        "ZwUnlockFile" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["IoStatusBlock","PIO_STATUS_BLOCK"],
             ["ByteOffset","PLARGE_INTEGER"],
             ["Length","PLARGE_INTEGER"],
             ["Key","ULONG"]
         ]],
-        "NtUnlockVirtualMemory" : ["NTSTATUS",[
+        "ZwUnlockVirtualMemory" : ["NTSTATUS",[
             ["ProcessHandle","HANDLE"],
             ["STARBaseAddress","PVOID"],
             ["RegionSize","PSIZE_T"],
@@ -2263,11 +2257,11 @@
             ["ProcessHandle","HANDLE"],
             ["BaseAddress","PVOID"]
         ]],
-        "NtVdmControl" : ["NTSTATUS",[
+        "ZwVdmControl" : ["NTSTATUS",[
             ["Service","VDMSERVICECLASS"],
             ["ServiceData","PVOID"]
         ]],
-        "NtWaitForDebugEvent" : ["NTSTATUS",[
+        "ZwWaitForDebugEvent" : ["NTSTATUS",[
             ["DebugObjectHandle","HANDLE"],
             ["Alertable","BOOLEAN"],
             ["Timeout","PLARGE_INTEGER"],
@@ -2279,7 +2273,7 @@
             ["Alertable","BOOLEAN"],
             ["Timeout","PLARGE_INTEGER"]
         ]],
-        "NtWaitForMultipleObjects32" : ["NTSTATUS",[
+        "ZwWaitForMultipleObjects32" : ["NTSTATUS",[
             ["Count","ULONG"],
             ["Handles","LONG"],
             ["WaitType","WAIT_TYPE"],
@@ -2298,11 +2292,11 @@
             ["Alertable","BOOLEAN"],
             ["Timeout","PLARGE_INTEGER"]
         ]],
-        "NtWaitForWorkViaWorkerFactory" : ["NTSTATUS",[
+        "ZwWaitForWorkViaWorkerFactory" : ["NTSTATUS",[
             ["WorkerFactoryHandle","HANDLE"],
             ["MiniPacket","PFILE_IO_COMPLETION_INFORMATION"]
         ]],
-        "NtWaitHighEventPair" : ["NTSTATUS",[
+        "ZwWaitHighEventPair" : ["NTSTATUS",[
             ["EventPairHandle","HANDLE"]
         ]],
         "NtWaitLowEventPair" : ["NTSTATUS",[
@@ -2311,7 +2305,7 @@
         "NtWorkerFactoryWorkerReady" : ["NTSTATUS",[
             ["WorkerFactoryHandle","HANDLE"]
         ]],
-        "NtWriteFileGather" : ["NTSTATUS",[
+        "ZwWriteFileGather" : ["NTSTATUS",[
             ["FileHandle","HANDLE"],
             ["Event","HANDLE"],
             ["ApcRoutine","PIO_APC_ROUTINE"],
@@ -2333,7 +2327,7 @@
             ["ByteOffset","PLARGE_INTEGER"],
             ["Key","PULONG"]
         ]],
-        "NtWriteRequestData" : ["NTSTATUS",[
+        "ZwWriteRequestData" : ["NTSTATUS",[
             ["PortHandle","HANDLE"],
             ["Message","PPORT_MESSAGE"],
             ["DataEntryIndex","ULONG"],
@@ -2350,16 +2344,16 @@
         ]],
         "NtDisableLastKnownGood": ["NTSTATUS", []],
         "NtEnableLastKnownGood": ["NTSTATUS", []],
-        "NtFlushProcessWriteBuffers": ["VOID", []],
+        "ZwFlushProcessWriteBuffers": ["VOID", []],
         "NtFlushWriteBuffer": ["NTSTATUS", []],
-        "NtGetCurrentProcessorNumber": ["ULONG", []],
-        "NtIsSystemResumeAutomatic": ["BOOLEAN", []],
+        "ZwGetCurrentProcessorNumber": ["ULONG", []],
+        "ZwIsSystemResumeAutomatic": ["BOOLEAN", []],
         "NtIsUILanguageComitted": ["NTSTATUS", []],
         "NtQueryPortInformationProcess": ["NTSTATUS", []],
-        "NtSerializeBoot": ["NTSTATUS", []],
-        "NtTestAlert": ["NTSTATUS", []],
-        "NtThawRegistry": ["NTSTATUS", []],
-        "NtThawTransactions": ["NTSTATUS", []],
-        "NtUmsThreadYield": ["NTSTATUS", []],
-        "NtYieldExecution": ["NTSTATUS", []]
+        "ZwSerializeBoot": ["NTSTATUS", []],
+        "ZwTestAlert": ["NTSTATUS", []],
+        "ZwThawRegistry": ["NTSTATUS", []],
+        "ZwThawTransactions": ["NTSTATUS", []],
+        "ZwUmsThreadYield": ["NTSTATUS", []],
+        "ZwYieldExecution": ["NTSTATUS", []]
     }
