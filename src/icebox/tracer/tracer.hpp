@@ -8,16 +8,16 @@ namespace tracer
 {
     struct argcfg_t
     {
-        char   type[64];
-        char   name[64];
-        size_t size;
+        const char* type;
+        const char* name;
+        size_t      size;
     };
 
     struct callcfg_t
     {
-        char     name[64];
-        size_t   argc;
-        argcfg_t args[32];
+        const char* name;
+        size_t      argc;
+        argcfg_t    args[20];
     };
 
     void log_call(core::Core& core, const callcfg_t& call);

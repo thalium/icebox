@@ -22,15 +22,15 @@ def generate_registers(json_data, pad):
     lines = []
     for target, _ in json_data.items():
         name = ("register_%s" % target).ljust(pad + len("register_"))
-        lines.append("        bool %s(proc_t proc, const on_%s_fn& on_func);" % (name, target))
+        lines.append("        opt<id_t> %s(proc_t proc, const on_%s_fn& on_func);" % (name, target))
     return data + "\n".join(lines)
 
 def generate_header(json_data, filename, namespace, pad, wow64):
     return """#pragma once
 
 #include "core.hpp"
-#include "types.hpp"
 #include "tracer.hpp"
+#include "types.hpp"
 #include "nt/nt.hpp"
 #include "nt/{namespace}.hpp"
 
@@ -45,11 +45,13 @@ namespace {namespace}
          {filename}(core::Core& core, std::string_view module);
         ~{filename}();
 
-        // register generic callback with process filtering
         using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;
-        bool register_all(proc_t proc, const on_call_fn& on_call);
+        using id_t       = uint64_t;
 
-{registers}
+        opt<id_t>   register_all(proc_t proc, const on_call_fn& on_call);
+        bool        unregister  (id_t id);
+
+{listens}
 
         struct Data;
         std::unique_ptr<Data> d_;
@@ -57,82 +59,44 @@ namespace {namespace}
 }} // namespace {namespace}
 """.format(filename=filename, namespace=namespace,
         usings=generate_usings(json_data, pad),
-        registers=generate_registers(json_data, pad),
+        listens=generate_registers(json_data, pad),
 		ptr_t = "x86_t" if wow64 else "x64_t")
 
-def generate_enumerates(json_data):
-    data = ""
-    lines = []
-    for target, _ in json_data.items():
-        lines.append("        %s," % target)
-    return data + "\n".join(lines)
-
-def generate_methods(json_data):
-    data = ""
-    lines = []
-    for target, _ in json_data.items():
-        lines.append("    void on_%s();" % target)
-    return data + "\n".join(lines)
-
-def generate_observers(json_data, pad):
-    data = ""
-    lines = []
-    for target, _ in json_data.items():
-        on = ("on_%s_fn>" % target).ljust(pad + len("on__fn>"))
-        lines.append("    std::vector<%s observers_%s;" % (on, target))
-    return data + "\n".join(lines)
-
-def generate_dispatchers(json_data, filename, namespace):
-    dispatchers = ""
+def generate_definitions(json_data, filename, namespace, wow64):
+    definitions = ""
     callcfg_idx = -1
     for target, (return_type, (args)) in json_data.items():
         callcfg_idx += 1
-        # print prologue
-        dispatchers += """
-    static void on_{target}({namespace}::{filename}::Data& d)
-    {{""".format(filename=filename, namespace=namespace, target=target)
+        symbol_name = target if not wow64 else "_{target}@{size}".format(target=target, size=len(args)*4)
 
         # print args
         pad = 0
         for name, typeof in args:
             pad = max(pad, len(name))
         idx = 0
-        lines = []
+        read_args = ""
         names = []
         for name, typeof in args:
-            dispatchers += "\n        const auto %s = arg<%s::%s>(d.core, %d);" % (name.ljust(pad), namespace, typeof, idx)
+            read_args += "\n        const auto %s = arg<%s::%s>(core, %d);" % (name.ljust(pad), namespace, typeof, idx)
             idx += 1
             names.append(name)
         if idx > 0:
-            dispatchers += "\n"
+            read_args += "\n"
 
-        # print epilogue
-        dispatchers += """
-        if constexpr(g_debug)
-            tracer::log_call(d.core, g_callcfgs[{callcfg_idx}]);
-
-        for(const auto& it : d.observers_{target})
-            it({args});
-    }}
-""".format(target=target, args=", ".join(names), callcfg_idx=callcfg_idx)
-    return dispatchers
-
-def generate_definitions(json_data, filename, namespace, wow64):
-    definitions = ""
-    for target, (return_type, (args)) in json_data.items():
-        symbol_name = target if not wow64 else "_{target}@{size}".format(target=target, size=len(args)*4)
-        # print prologue
         definitions += """
-bool {namespace}::{filename}::register_{target}(proc_t proc, const on_{target}_fn& on_func)
+opt<id_t> {namespace}::{filename}::register_{target}(proc_t proc, const on_{target}_fn& on_func)
 {{
-    if(d_->observers_{target}.empty())
-        if(!register_callback_with(*d_, proc, "{symbol_name}", &on_{target}))
-            return false;
+    return register_callback(*d_, ++d_->last_id, proc, "{symbol_name}", [=]
+    {{
+        auto& core = d_->core;
+        {read_args}
+        if constexpr(g_debug)
+            tracer::log_call(core, g_callcfgs[{callcfg_idx}]);
 
-    d_->observers_{target}.push_back(on_func);
-    return true;
+        on_func({names});
+    }});
 }}
-""".format(filename=filename, namespace=namespace, target=target, symbol_name=symbol_name)
+""".format(filename=filename, namespace=namespace, target=target, symbol_name=symbol_name, read_args=read_args, callcfg_idx=callcfg_idx, names=", ".join(names))
     return definitions
 
 def generate_callers(json_data, namespace, wow64):
@@ -152,6 +116,8 @@ def generate_impl(json_data, filename, namespace, pad, wow64):
 #include "log.hpp"
 #include "os.hpp"
 
+#include <map>
+
 namespace
 {{
 	constexpr bool g_debug = false;
@@ -160,23 +126,25 @@ namespace
 	{{
 {callers}
 	}};
+
+    using id_t      = {namespace}::{filename}::id_t;
+    using Listeners = std::multimap<id_t, core::Breakpoint>;
 }}
 
 struct {namespace}::{filename}::Data
 {{
     Data(core::Core& core, std::string_view module);
 
-    using Breakpoints = std::vector<core::Breakpoint>;
     core::Core& core;
     std::string module;
-    Breakpoints breakpoints;
-
-{observers}
+    Listeners   listeners;
+    uint64_t    last_id;
 }};
 
 {namespace}::{filename}::Data::Data(core::Core& core, std::string_view module)
     : core(core)
     , module(module)
+    , last_id(0)
 {{
 }}
 
@@ -191,27 +159,18 @@ namespace
 {{
     using Data = {namespace}::{filename}::Data;
 
-    static core::Breakpoint register_callback(Data& d, proc_t proc, const char* name, const core::Task& on_call)
+    static opt<id_t> register_callback(Data& d, id_t id, proc_t proc, const char* name, const core::Task& on_call)
     {{
         const auto addr = d.core.sym.symbol(d.module, name);
         if(!addr)
-            return FAIL(nullptr, "unable to find symbole {{}}!{{}}", d.module.data(), name);
+            return FAIL(ext::nullopt, "unable to find symbole {{}}!{{}}", d.module.data(), name);
 
-        return d.core.state.set_breakpoint(*addr, proc, on_call);
-    }}
-
-    static bool register_callback_with(Data& d, proc_t proc, const char* name, void (*callback)(Data&))
-    {{
-        const auto dptr = &d;
-        const auto bp = register_callback(d, proc, name, [=]
-        {{
-            callback(*dptr);
-        }});
+        const auto bp = d.core.state.set_breakpoint(*addr, proc, on_call);
         if(!bp)
-            return false;
+            return FAIL(ext::nullopt, "unable to set breakpoint");
 
-        d.breakpoints.emplace_back(bp);
-        return true;
+        d.listeners.emplace(id, bp);
+        return id;
     }}
 
     template <typename T>
@@ -223,25 +182,26 @@ namespace
 
         return {namespace}::cast_to<T>(*arg);
     }}
-{dispatchers}
+}}
+{definitions}
+opt<id_t> {namespace}::{filename}::register_all(proc_t proc, const {namespace}::{filename}::on_call_fn& on_call)
+{{
+    const auto id   = ++d_->last_id;
+    const auto size = d_->listeners.size();
+    for(const auto cfg : g_callcfgs)
+        register_callback(*d_, id, proc, cfg.name, [=]{{ on_call(cfg); }});
+
+    if(size == d_->listeners.size())
+        return {{}};
+
+    return id;
 }}
 
-{definitions}
-
-bool {namespace}::{filename}::register_all(proc_t proc, const {namespace}::{filename}::on_call_fn& on_call)
+bool {namespace}::{filename}::unregister(id_t id)
 {{
-    Data::Breakpoints breakpoints;
-    for(const auto cfg : g_callcfgs)
-        if(const auto bp = register_callback(*d_, proc, cfg.name, [=]{{ on_call(cfg); }}))
-            breakpoints.emplace_back(bp);
-
-    d_->breakpoints.insert(d_->breakpoints.end(), breakpoints.begin(), breakpoints.end());
-    return true;
+    return d_->listeners.erase(id) > 0;
 }}
 """.format(filename=filename, namespace=namespace,
-        enumerates=generate_enumerates(json_data),
-        observers=generate_observers(json_data, pad),
-        dispatchers=generate_dispatchers(json_data, filename, namespace),
         definitions=generate_definitions(json_data, filename, namespace, wow64),
         callers=generate_callers(json_data, namespace, wow64))
 
