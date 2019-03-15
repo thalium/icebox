@@ -14,42 +14,6 @@ namespace nt_namespace
     using ptr_t = uint64_t;
 #endif
 
-    struct _UNICODE_STRING
-    {
-        uint16_t Length;
-        uint16_t MaximumLength;
-        ptr_t    Buffer;
-    };
-
-    struct _LIST_ENTRY
-    {
-        ptr_t flink;
-        ptr_t blink;
-    };
-
-    struct _PEB_LDR_DATA
-    {
-        uint32_t    Length;
-        uint8_t     Initialized;
-        uint32_t    SsHandle;
-        _LIST_ENTRY InLoadOrderModuleList;
-        _LIST_ENTRY InMemoryOrderModuleList;
-    };
-
-    struct _LDR_DATA_TABLE_ENTRY
-    {
-        _LIST_ENTRY     InLoadOrderLinks;
-        _LIST_ENTRY     InMemoryOrderLinks;
-        _LIST_ENTRY     InInitializationOrderLinks;
-        ptr_t           DllBase;
-        ptr_t           EntryPoint;
-        ptr_t           SizeOfImage;
-        _UNICODE_STRING FullDllName;
-        _UNICODE_STRING BaseDllName;
-        ptr_t           _[3];
-        uint32_t        TimeDateStamp;
-    };
-
     using ACCESS_MASK                          = nt_types::ACCESS_MASK;
     using ALPC_HANDLE                          = ptr_t;
     using ALPC_MESSAGE_INFORMATION_CLASS       = ptr_t;
@@ -58,6 +22,7 @@ namespace nt_namespace
     using ATOM_INFORMATION_CLASS               = ptr_t;
     using AUDIT_EVENT_TYPE                     = uint32_t;
     using BOOLEAN                              = bool;
+    using BYTE                                 = uint8_t;
     using DEBUGOBJECTINFOCLASS                 = ptr_t;
     using DEVICE_POWER_STATE                   = uint32_t;
     using ENLISTMENT_INFORMATION_CLASS         = uint32_t;
@@ -88,6 +53,7 @@ namespace nt_namespace
     using NTSTATUS                             = uint32_t;
     using OBJECT_INFORMATION_CLASS             = uint32_t;
     using PACCESS_MASK                         = ptr_t;
+    using PAGE_ACCESS                          = nt_types::PAGE_ACCESS;
     using PALPC_CONTEXT_ATTR                   = ptr_t;
     using PALPC_DATA_VIEW_ATTR                 = ptr_t;
     using PALPC_HANDLE                         = ptr_t;
@@ -193,6 +159,51 @@ namespace nt_namespace
 
     const auto ioctl_code_dump = nt_types::ioctl_code_dump;
     const auto access_mask_all = nt_types::access_mask_all;
+    const auto page_access_all = nt_types::page_access_all;
+
+    struct _UNICODE_STRING
+    {
+        uint16_t Length;
+        uint16_t MaximumLength;
+        ptr_t    Buffer;
+    };
+
+    struct _LIST_ENTRY
+    {
+        ptr_t flink;
+        ptr_t blink;
+    };
+
+    struct _PEB_LDR_DATA
+    {
+        uint32_t    Length;
+        uint8_t     Initialized;
+        uint32_t    SsHandle;
+        _LIST_ENTRY InLoadOrderModuleList;
+        _LIST_ENTRY InMemoryOrderModuleList;
+    };
+
+    struct _LDR_DATA_TABLE_ENTRY
+    {
+        _LIST_ENTRY     InLoadOrderLinks;
+        _LIST_ENTRY     InMemoryOrderLinks;
+        _LIST_ENTRY     InInitializationOrderLinks;
+        ptr_t           DllBase;
+        ptr_t           EntryPoint;
+        ptr_t           SizeOfImage;
+        _UNICODE_STRING FullDllName;
+        _UNICODE_STRING BaseDllName;
+        ptr_t           _[3];
+        uint32_t        TimeDateStamp;
+    };
+
+    struct _RTL_USER_PROCESS_PARAMETERS
+    {
+        BYTE            Reserved1[16];
+        PVOID           Reserved2[10];
+        _UNICODE_STRING ImagePathName;
+        _UNICODE_STRING CommandLine;
+    };
 
     opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t addr);
 } // namespace nt_namespace
