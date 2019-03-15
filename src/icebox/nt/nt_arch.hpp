@@ -151,7 +151,7 @@ namespace nt_namespace
     using USHORT                               = uint16_t;
     using VDMSERVICECLASS                      = ptr_t;
     using WAIT_TYPE                            = uint32_t;
-    using WIN32_PROTECTION_MASK                = ptr_t;
+    using WIN32_PROTECTION_MASK                = uint32_t;
     using WORKERFACTORYINFOCLASS               = ptr_t;
 
     // special return types
