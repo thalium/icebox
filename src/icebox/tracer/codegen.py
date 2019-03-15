@@ -22,7 +22,7 @@ def generate_registers(json_data, pad):
     lines = []
     for target, _ in json_data.items():
         name = ("register_%s" % target).ljust(pad + len("register_"))
-        lines.append("        opt<id_t> %s(proc_t proc, const on_%s_fn& on_func);" % (name, target))
+        lines.append("        opt<bpid_t> %s(proc_t proc, const on_%s_fn& on_func);" % (name, target))
     return data + "\n".join(lines)
 
 def generate_header(json_data, filename, namespace, pad, wow64):
@@ -46,10 +46,10 @@ namespace {namespace}
         ~{filename}();
 
         using on_call_fn = std::function<void(const tracer::callcfg_t& callcfg)>;
-        using id_t       = uint64_t;
+        using bpid_t     = uint64_t;
 
-        opt<id_t>   register_all(proc_t proc, const on_call_fn& on_call);
-        bool        unregister  (id_t id);
+        opt<bpid_t> register_all(proc_t proc, const on_call_fn& on_call);
+        bool        unregister  (bpid_t id);
 
 {listens}
 
@@ -59,8 +59,7 @@ namespace {namespace}
 }} // namespace {namespace}
 """.format(filename=filename, namespace=namespace,
         usings=generate_usings(json_data, pad),
-        listens=generate_registers(json_data, pad),
-		ptr_t = "x86_t" if wow64 else "x64_t")
+        listens=generate_registers(json_data, pad))
 
 def generate_definitions(json_data, filename, namespace, wow64):
     definitions = ""
@@ -84,7 +83,7 @@ def generate_definitions(json_data, filename, namespace, wow64):
             read_args += "\n"
 
         definitions += """
-opt<id_t> {namespace}::{filename}::register_{target}(proc_t proc, const on_{target}_fn& on_func)
+opt<bpid_t> {namespace}::{filename}::register_{target}(proc_t proc, const on_{target}_fn& on_func)
 {{
     return register_callback(*d_, ++d_->last_id, proc, "{symbol_name}", [=]
     {{
@@ -127,8 +126,8 @@ namespace
 {callers}
 	}};
 
-    using id_t      = {namespace}::{filename}::id_t;
-    using Listeners = std::multimap<id_t, core::Breakpoint>;
+    using bpid_t    = {namespace}::{filename}::bpid_t;
+    using Listeners = std::multimap<bpid_t, core::Breakpoint>;
 }}
 
 struct {namespace}::{filename}::Data
@@ -138,7 +137,7 @@ struct {namespace}::{filename}::Data
     core::Core& core;
     std::string module;
     Listeners   listeners;
-    uint64_t    last_id;
+    bpid_t      last_id;
 }};
 
 {namespace}::{filename}::Data::Data(core::Core& core, std::string_view module)
@@ -157,7 +156,7 @@ struct {namespace}::{filename}::Data
 
 namespace
 {{
-    static opt<id_t> register_callback({namespace}::{filename}::Data& d, id_t id, proc_t proc, const char* name, const core::Task& on_call)
+    static opt<bpid_t> register_callback({namespace}::{filename}::Data& d, bpid_t id, proc_t proc, const char* name, const core::Task& on_call)
     {{
         const auto addr = d.core.sym.symbol(d.module, name);
         if(!addr)
@@ -185,7 +184,7 @@ namespace
     }}
 }}
 {definitions}
-opt<id_t> {namespace}::{filename}::register_all(proc_t proc, const {namespace}::{filename}::on_call_fn& on_call)
+opt<bpid_t> {namespace}::{filename}::register_all(proc_t proc, const {namespace}::{filename}::on_call_fn& on_call)
 {{
     const auto id   = ++d_->last_id;
     const auto size = d_->listeners.size();
@@ -198,7 +197,7 @@ opt<id_t> {namespace}::{filename}::register_all(proc_t proc, const {namespace}::
     return id;
 }}
 
-bool {namespace}::{filename}::unregister(id_t id)
+bool {namespace}::{filename}::unregister(bpid_t id)
 {{
     return d_->listeners.erase(id) > 0;
 }}

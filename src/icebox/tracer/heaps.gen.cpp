@@ -20,8 +20,8 @@ namespace
         {"RtlGetUserInfoHeap", 5, {{"PVOID", "HeapHandle", sizeof(nt::PVOID)}, {"ULONG", "Flags", sizeof(nt::ULONG)}, {"PVOID", "BaseAddress", sizeof(nt::PVOID)}, {"PVOID", "UserValue", sizeof(nt::PVOID)}, {"PULONG", "UserFlags", sizeof(nt::PULONG)}}},
 	};
 
-    using id_t      = nt::heaps::id_t;
-    using Listeners = std::multimap<id_t, core::Breakpoint>;
+    using bpid_t    = nt::heaps::bpid_t;
+    using Listeners = std::multimap<bpid_t, core::Breakpoint>;
 }
 
 struct nt::heaps::Data
@@ -31,7 +31,7 @@ struct nt::heaps::Data
     core::Core& core;
     std::string module;
     Listeners   listeners;
-    uint64_t    last_id;
+    bpid_t      last_id;
 };
 
 nt::heaps::Data::Data(core::Core& core, std::string_view module)
@@ -50,7 +50,7 @@ nt::heaps::~heaps() = default;
 
 namespace
 {
-    static opt<id_t> register_callback(nt::heaps::Data& d, id_t id, proc_t proc, const char* name, const core::Task& on_call)
+    static opt<bpid_t> register_callback(nt::heaps::Data& d, bpid_t id, proc_t proc, const char* name, const core::Task& on_call)
     {
         const auto addr = d.core.sym.symbol(d.module, name);
         if(!addr)
@@ -78,7 +78,7 @@ namespace
     }
 }
 
-opt<id_t> nt::heaps::register_RtlpAllocateHeapInternal(proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlpAllocateHeapInternal(proc_t proc, const on_RtlpAllocateHeapInternal_fn& on_func)
 {
     return register_callback(*d_, ++d_->last_id, proc, "RtlpAllocateHeapInternal", [=]
     {
@@ -94,7 +94,7 @@ opt<id_t> nt::heaps::register_RtlpAllocateHeapInternal(proc_t proc, const on_Rtl
     });
 }
 
-opt<id_t> nt::heaps::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& on_func)
 {
     return register_callback(*d_, ++d_->last_id, proc, "RtlFreeHeap", [=]
     {
@@ -111,7 +111,7 @@ opt<id_t> nt::heaps::register_RtlFreeHeap(proc_t proc, const on_RtlFreeHeap_fn& 
     });
 }
 
-opt<id_t> nt::heaps::register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlpReAllocateHeapInternal(proc_t proc, const on_RtlpReAllocateHeapInternal_fn& on_func)
 {
     return register_callback(*d_, ++d_->last_id, proc, "RtlpReAllocateHeapInternal", [=]
     {
@@ -129,7 +129,7 @@ opt<id_t> nt::heaps::register_RtlpReAllocateHeapInternal(proc_t proc, const on_R
     });
 }
 
-opt<id_t> nt::heaps::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn& on_func)
 {
     return register_callback(*d_, ++d_->last_id, proc, "RtlSizeHeap", [=]
     {
@@ -146,7 +146,7 @@ opt<id_t> nt::heaps::register_RtlSizeHeap(proc_t proc, const on_RtlSizeHeap_fn& 
     });
 }
 
-opt<id_t> nt::heaps::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUserValueHeap_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUserValueHeap_fn& on_func)
 {
     return register_callback(*d_, ++d_->last_id, proc, "RtlSetUserValueHeap", [=]
     {
@@ -164,7 +164,7 @@ opt<id_t> nt::heaps::register_RtlSetUserValueHeap(proc_t proc, const on_RtlSetUs
     });
 }
 
-opt<id_t> nt::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func)
+opt<bpid_t> nt::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUserInfoHeap_fn& on_func)
 {
     return register_callback(*d_, ++d_->last_id, proc, "RtlGetUserInfoHeap", [=]
     {
@@ -183,7 +183,7 @@ opt<id_t> nt::heaps::register_RtlGetUserInfoHeap(proc_t proc, const on_RtlGetUse
     });
 }
 
-opt<id_t> nt::heaps::register_all(proc_t proc, const nt::heaps::on_call_fn& on_call)
+opt<bpid_t> nt::heaps::register_all(proc_t proc, const nt::heaps::on_call_fn& on_call)
 {
     const auto id   = ++d_->last_id;
     const auto size = d_->listeners.size();
@@ -196,7 +196,7 @@ opt<id_t> nt::heaps::register_all(proc_t proc, const nt::heaps::on_call_fn& on_c
     return id;
 }
 
-bool nt::heaps::unregister(id_t id)
+bool nt::heaps::unregister(bpid_t id)
 {
     return d_->listeners.erase(id) > 0;
 }
