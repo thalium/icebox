@@ -43,7 +43,7 @@ opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flag
     if(found)
         return found;
 
-    core.os->proc_listen_create([&](proc_t proc)
+    core.os->listen_proc_create([&](proc_t proc)
     {
         const auto new_flags = core.os->proc_flags(proc);
         if(flags && !(new_flags & flags))
@@ -74,7 +74,7 @@ opt<mod_t> waiter::mod_wait(core::Core& core, proc_t proc, std::string_view mod_
     if(found)
         return found;
 
-    core.os->mod_listen_load([&](proc_t proc_loading, mod_t mod)
+    core.os->listen_mod_create([&](proc_t proc_loading, mod_t mod)
     {
         if(proc_loading.id != proc.id)
             return;

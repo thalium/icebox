@@ -39,39 +39,41 @@ namespace
         bool    can_inject_fault    (uint64_t ptr) override;
         bool    reader_setup        (reader::Reader& reader, proc_t proc) override;
 
-        bool                proc_list           (on_proc_fn on_process) override;
-        opt<proc_t>         proc_current        () override;
-        opt<proc_t>         proc_find           (std::string_view name, flags_e flags) override;
-        opt<proc_t>         proc_find           (uint64_t pid) override;
-        opt<std::string>    proc_name           (proc_t proc) override;
-        bool                proc_is_valid       (proc_t proc) override;
-        uint64_t            proc_id             (proc_t proc) override;
-        flags_e             proc_flags          (proc_t proc) override;
-        void                proc_join           (proc_t proc, os::join_e join) override;
-        opt<phy_t>          proc_resolve        (proc_t proc, uint64_t ptr) override;
-        opt<proc_t>         proc_select         (proc_t proc, uint64_t ptr) override;
-        opt<proc_t>         proc_parent         (proc_t proc) override;
-        bool                proc_listen_create  (const on_proc_event_fn& on_proc_event) override;
-        bool                proc_listen_delete  (const on_proc_event_fn& on_proc_event) override;
+        bool                proc_list       (on_proc_fn on_process) override;
+        opt<proc_t>         proc_current    () override;
+        opt<proc_t>         proc_find       (std::string_view name, flags_e flags) override;
+        opt<proc_t>         proc_find       (uint64_t pid) override;
+        opt<std::string>    proc_name       (proc_t proc) override;
+        bool                proc_is_valid   (proc_t proc) override;
+        uint64_t            proc_id         (proc_t proc) override;
+        flags_e             proc_flags      (proc_t proc) override;
+        void                proc_join       (proc_t proc, os::join_e join) override;
+        opt<phy_t>          proc_resolve    (proc_t proc, uint64_t ptr) override;
+        opt<proc_t>         proc_select     (proc_t proc, uint64_t ptr) override;
+        opt<proc_t>         proc_parent     (proc_t proc) override;
 
-        bool            thread_list         (proc_t proc, on_thread_fn on_thread) override;
-        opt<thread_t>   thread_current      () override;
-        opt<proc_t>     thread_proc         (thread_t thread) override;
-        opt<uint64_t>   thread_pc           (proc_t proc, thread_t thread) override;
-        uint64_t        thread_id           (proc_t proc, thread_t thread) override;
-        bool            thread_listen_create(const on_thread_event_fn& on_create) override;
-        bool            thread_listen_delete(const on_thread_event_fn& on_remove) override;
+        bool            thread_list     (proc_t proc, on_thread_fn on_thread) override;
+        opt<thread_t>   thread_current  () override;
+        opt<proc_t>     thread_proc     (thread_t thread) override;
+        opt<uint64_t>   thread_pc       (proc_t proc, thread_t thread) override;
+        uint64_t        thread_id       (proc_t proc, thread_t thread) override;
 
-        bool                mod_list        (proc_t proc, on_mod_fn on_module) override;
-        opt<std::string>    mod_name        (proc_t proc, mod_t mod) override;
-        opt<span_t>         mod_span        (proc_t proc, mod_t mod) override;
-        opt<mod_t>          mod_find        (proc_t proc, uint64_t addr) override;
-        bool                mod_listen_load (const on_mod_event_fn& on_load) override;
+        bool                mod_list(proc_t proc, on_mod_fn on_module) override;
+        opt<std::string>    mod_name(proc_t proc, mod_t mod) override;
+        opt<span_t>         mod_span(proc_t proc, mod_t mod) override;
+        opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
 
         bool                driver_list (on_driver_fn on_driver) override;
         opt<driver_t>       driver_find (std::string_view name) override;
         opt<std::string>    driver_name (driver_t drv) override;
         opt<span_t>         driver_span (driver_t drv) override;
+
+        opt<bpid_t> listen_proc_create  (const on_proc_event_fn& on_create) override;
+        opt<bpid_t> listen_proc_delete  (const on_proc_event_fn& on_delete) override;
+        opt<bpid_t> listen_thread_create(const on_thread_event_fn& on_create) override;
+        opt<bpid_t> listen_thread_delete(const on_thread_event_fn& on_delete) override;
+        opt<bpid_t> listen_mod_create   (const on_mod_event_fn& on_create) override;
+        size_t      unlisten            (bpid_t bpid) override;
 
         opt<arg_t>  read_stack  (size_t index) override;
         opt<arg_t>  read_arg    (size_t index) override;
@@ -241,31 +243,6 @@ opt<proc_t> OsLinux::proc_parent(proc_t /*proc*/)
     return {};
 }
 
-bool OsLinux::proc_listen_create(const on_proc_event_fn& /*on_create*/)
-{
-    return true;
-}
-
-bool OsLinux::proc_listen_delete(const on_proc_event_fn& /*on_remove*/)
-{
-    return true;
-}
-
-bool OsLinux::thread_listen_create(const on_thread_event_fn& /*on_create*/)
-{
-    return true;
-}
-
-bool OsLinux::thread_listen_delete(const on_thread_event_fn& /*on_remove*/)
-{
-    return true;
-}
-
-bool OsLinux::mod_listen_load(const on_mod_event_fn& /*on_load*/)
-{
-    return true;
-}
-
 bool OsLinux::reader_setup(reader::Reader& reader, proc_t proc)
 {
     reader.udtb_ = proc.dtb;
@@ -361,4 +338,34 @@ bool OsLinux::write_arg(size_t /*index*/, arg_t /*arg*/)
 
 void OsLinux::debug_print()
 {
+}
+
+opt<OsLinux::bpid_t> OsLinux::listen_proc_create(const on_proc_event_fn& /*on_create*/)
+{
+    return {};
+}
+
+opt<OsLinux::bpid_t> OsLinux::listen_proc_delete(const on_proc_event_fn& /*on_delete*/)
+{
+    return {};
+}
+
+opt<OsLinux::bpid_t> OsLinux::listen_thread_create(const on_thread_event_fn& /*on_create*/)
+{
+    return {};
+}
+
+opt<OsLinux::bpid_t> OsLinux::listen_thread_delete(const on_thread_event_fn& /*on_remove*/)
+{
+    return {};
+}
+
+opt<OsLinux::bpid_t> OsLinux::listen_mod_create(const on_mod_event_fn& /*on_create*/)
+{
+    return {};
+}
+
+size_t OsLinux::unlisten(bpid_t /*bpid*/)
+{
+    return {};
 }
