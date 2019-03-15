@@ -43,15 +43,15 @@ struct plugins::Syscalls32::Data
 {
     Data(core::Core& core);
 
-    core::Core&      core_;
-    nt32::syscalls32 syscalls_;
-    ObjectsNt        objects_;
-    Callstack        callstack_;
-    Callsteps        callsteps_;
-    Triggers         triggers_;
-    json             args_;
-    proc_t           target_;
-    uint64_t         nb_triggers_;
+    core::Core&       core_;
+    wow64::syscalls32 syscalls_;
+    ObjectsNt         objects_;
+    Callstack         callstack_;
+    Callsteps         callsteps_;
+    Triggers          triggers_;
+    json              args_;
+    proc_t            target_;
+    uint64_t          nb_triggers_;
 };
 
 plugins::Syscalls32::Data::Data(core::Core& core)
@@ -160,7 +160,7 @@ bool plugins::Syscalls32::setup(proc_t target)
     // Horrible workaround : Windows's 32 bit version on ntdll patches 4 bits of this function. Setting a breakpoint on this page with FDP
     // creates a glitch on the instruction that reads the patched bytes. Single stepping this instruction "simplify" the page resolution
     // and does not trigger the bug...
-    d_->syscalls_.register_ZwQueryInformationProcess(target, [=](nt32::HANDLE, nt32::PROCESSINFOCLASS, nt32::PVOID, nt32::ULONG, nt32::PULONG)
+    d_->syscalls_.register_ZwQueryInformationProcess(target, [=](wow64::HANDLE, wow64::PROCESSINFOCLASS, wow64::PVOID, wow64::ULONG, wow64::PULONG)
     {
         const auto nbr = 4;
         for(auto i = 0; i < nbr; i++)
@@ -172,9 +172,9 @@ bool plugins::Syscalls32::setup(proc_t target)
         return 0;
     });
 
-    d_->syscalls_.register_NtWriteFile(target, [=](nt32::HANDLE FileHandle, nt32::HANDLE /*Event*/, nt32::PIO_APC_ROUTINE /*ApcRoutine*/, nt32::PVOID /*ApcContext*/,
-                                                   nt32::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt32::PVOID Buffer, nt32::ULONG Length,
-                                                   nt32::PLARGE_INTEGER /*ByteOffsetm*/, nt32::PULONG /*Key*/)
+    d_->syscalls_.register_NtWriteFile(target, [=](wow64::HANDLE FileHandle, wow64::HANDLE /*Event*/, wow64::PIO_APC_ROUTINE /*ApcRoutine*/, wow64::PVOID /*ApcContext*/,
+                                                   wow64::PIO_STATUS_BLOCK /*IoStatusBlock*/, wow64::PVOID Buffer, wow64::ULONG Length,
+                                                   wow64::PLARGE_INTEGER /*ByteOffsetm*/, wow64::PULONG /*Key*/)
     {
         const auto proc = d_->target_;
         std::vector<char> buf(Length);
@@ -212,10 +212,10 @@ bool plugins::Syscalls32::setup(proc_t target)
         return 0;
     });
 
-    d_->syscalls_.register_ZwDeviceIoControlFile(target, [=](nt32::HANDLE FileHandle, nt32::HANDLE /*Event*/, nt32::PIO_APC_ROUTINE /*ApcRoutine*/,
-                                                             nt32::PVOID /*ApcContext*/, nt32::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt32::ULONG IoControlCode,
-                                                             nt32::PVOID /*InputBuffer*/, nt32::ULONG /*InputBufferLength*/, nt32::PVOID /*OutputBuffer*/,
-                                                             nt32::ULONG /*OutputBufferLength*/)
+    d_->syscalls_.register_ZwDeviceIoControlFile(target, [=](wow64::HANDLE FileHandle, wow64::HANDLE /*Event*/, wow64::PIO_APC_ROUTINE /*ApcRoutine*/,
+                                                             wow64::PVOID /*ApcContext*/, wow64::PIO_STATUS_BLOCK /*IoStatusBlock*/, wow64::ULONG IoControlCode,
+                                                             wow64::PVOID /*InputBuffer*/, wow64::ULONG /*InputBufferLength*/, wow64::PVOID /*OutputBuffer*/,
+                                                             wow64::ULONG /*OutputBufferLength*/)
     {
         const auto proc = d_->target_;
         const auto obj  = d_->objects_->get_object_ref(proc, FileHandle);
@@ -239,8 +239,8 @@ bool plugins::Syscalls32::setup(proc_t target)
         return 0;
     });
 
-    d_->syscalls_.register_NtOpenFile(target, [=](nt32::PHANDLE /*FileHandle*/, nt32::ACCESS_MASK /*DesiredAccess*/, nt32::POBJECT_ATTRIBUTES ObjectAttributes,
-                                                  nt32::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt32::ULONG /*ShareAccess*/, nt32::ULONG /*OpenOptions*/)
+    d_->syscalls_.register_NtOpenFile(target, [=](wow64::PHANDLE /*FileHandle*/, wow64::ACCESS_MASK /*DesiredAccess*/, wow64::POBJECT_ATTRIBUTES ObjectAttributes,
+                                                  wow64::PIO_STATUS_BLOCK /*IoStatusBlock*/, wow64::ULONG /*ShareAccess*/, wow64::ULONG /*OpenOptions*/)
     {
         const auto proc        = d_->target_;
         const auto object_name = d_->objects_->objattribute_objectname(proc, ObjectAttributes);
@@ -251,11 +251,11 @@ bool plugins::Syscalls32::setup(proc_t target)
         return 0;
     });
 
-    d_->syscalls_.register_NtCreateUserProcess(target, [&](nt32::PHANDLE /*ProcessHandle*/, nt32::PHANDLE /*ThreadHandle*/, nt32::ACCESS_MASK /*ProcessDesiredAccess*/,
-                                                           nt32::ACCESS_MASK /*ThreadDesiredAccess*/, nt32::POBJECT_ATTRIBUTES /*ProcessObjectAttributes*/,
-                                                           nt32::POBJECT_ATTRIBUTES /*ThreadObjectAttributes*/, nt32::ULONG /*ProcessFlags*/, nt32::ULONG /*ThreadFlags*/,
-                                                           nt32::PRTL_USER_PROCESS_PARAMETERS ProcessParameters, nt32::PPROCESS_CREATE_INFO /*CreateInfo*/,
-                                                           nt32::PPROCESS_ATTRIBUTE_LIST /*AttributeList*/)
+    d_->syscalls_.register_NtCreateUserProcess(target, [&](wow64::PHANDLE /*ProcessHandle*/, wow64::PHANDLE /*ThreadHandle*/, wow64::ACCESS_MASK /*ProcessDesiredAccess*/,
+                                                           wow64::ACCESS_MASK /*ThreadDesiredAccess*/, wow64::POBJECT_ATTRIBUTES /*ProcessObjectAttributes*/,
+                                                           wow64::POBJECT_ATTRIBUTES /*ThreadObjectAttributes*/, wow64::ULONG /*ProcessFlags*/, wow64::ULONG /*ThreadFlags*/,
+                                                           wow64::PRTL_USER_PROCESS_PARAMETERS ProcessParameters, wow64::PPROCESS_CREATE_INFO /*CreateInfo*/,
+                                                           wow64::PPROCESS_ATTRIBUTE_LIST /*AttributeList*/)
     {
         const auto proc   = d_->target_;
         const auto reader = reader::make(d_->core_, proc);
@@ -263,11 +263,11 @@ bool plugins::Syscalls32::setup(proc_t target)
         // TODO get _RTL_USER_PROCESS_PARAMETERS from pdb
         // fields ImagePathName and CommandLine
         // 32 bits unicode string
-        const auto image_pathname = nt32::read_unicode_string(reader, ProcessParameters + 0x38);
+        const auto image_pathname = wow64::read_unicode_string(reader, ProcessParameters + 0x38);
         if(!image_pathname)
             return 1;
 
-        const auto command_line = nt32::read_unicode_string(reader, ProcessParameters + 0x40);
+        const auto command_line = wow64::read_unicode_string(reader, ProcessParameters + 0x40);
         if(!command_line)
             return 1;
 
@@ -276,10 +276,10 @@ bool plugins::Syscalls32::setup(proc_t target)
         return 0;
     });
 
-    d_->syscalls_.register_NtCreateFile(target, [&](nt32::PHANDLE /*FileHandle*/, nt32::ACCESS_MASK DesiredAccess, nt32::POBJECT_ATTRIBUTES ObjectAttributes,
-                                                    nt32::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt32::PLARGE_INTEGER /*AllocationSize*/, nt32::ULONG /*FileAttributes*/,
-                                                    nt32::ULONG /*ShareAccess*/, nt32::ULONG /*CreateDisposition*/, nt32::ULONG /*CreateOptions*/, nt32::PVOID /*EaBuffer*/,
-                                                    nt32::ULONG /*EaLength*/)
+    d_->syscalls_.register_NtCreateFile(target, [&](wow64::PHANDLE /*FileHandle*/, wow64::ACCESS_MASK DesiredAccess, wow64::POBJECT_ATTRIBUTES ObjectAttributes,
+                                                    wow64::PIO_STATUS_BLOCK /*IoStatusBlock*/, wow64::PLARGE_INTEGER /*AllocationSize*/, wow64::ULONG /*FileAttributes*/,
+                                                    wow64::ULONG /*ShareAccess*/, wow64::ULONG /*CreateDisposition*/, wow64::ULONG /*CreateOptions*/, wow64::PVOID /*EaBuffer*/,
+                                                    wow64::ULONG /*EaLength*/)
     {
         const auto proc        = d_->target_;
         const auto object_name = d_->objects_->objattribute_objectname(proc, ObjectAttributes);

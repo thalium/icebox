@@ -2,7 +2,7 @@
 
 #include "core.hpp"
 
-#include "nt64.hpp"
+#include "nt.hpp"
 
 #include <memory>
 
@@ -19,7 +19,7 @@ namespace nt
         ~ObjectNt();
 
         bool                setup           ();
-        opt<obj_t>          get_object_ref  (proc_t proc, nt64::HANDLE handle);
+        opt<obj_t>          get_object_ref  (proc_t proc, nt::HANDLE handle);
         opt<std::string>    obj_typename    (proc_t proc, obj_t obj);
 
         opt<std::string>    fileobj_filename        (proc_t proc, obj_t obj);

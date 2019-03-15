@@ -3,8 +3,7 @@
 #define FDP_MODULE "os_nt"
 #include "core.hpp"
 #include "log.hpp"
-#include "nt32.hpp"
-#include "nt64.hpp"
+#include "nt.hpp"
 #include "reader.hpp"
 #include "utils/fnview.hpp"
 #include "utils/hex.hpp"
@@ -12,6 +11,7 @@
 #include "utils/pe.hpp"
 #include "utils/utf8.hpp"
 #include "utils/utils.hpp"
+#include "wow64.hpp"
 
 #include <array>
 
@@ -462,7 +462,7 @@ opt<std::string> OsNt::proc_name(proc_t proc)
     if(!image_file_name)
         return name;
 
-    const auto path = nt64::read_unicode_string(reader_, *image_file_name + offsets_[OBJECT_NAME_INFORMATION_Name]);
+    const auto path = nt::read_unicode_string(reader_, *image_file_name + offsets_[OBJECT_NAME_INFORMATION_Name]);
     if(!path)
         return name;
 
@@ -636,7 +636,7 @@ namespace
         const auto name_addr = os.core_.regs.read(FDP_RCX_REGISTER);
 
         const auto reader   = reader::make(os.core_, proc);
-        const auto mod_name = nt64::read_unicode_string(reader, name_addr);
+        const auto mod_name = nt::read_unicode_string(reader, name_addr);
         if(!mod_name)
             return {};
 
@@ -777,10 +777,10 @@ namespace
         if(!*ldr)
             return WALK_NEXT;
 
-        const auto head = *ldr + offsetof(nt64::_PEB_LDR_DATA, InLoadOrderModuleList);
+        const auto head = *ldr + offsetof(nt::_PEB_LDR_DATA, InLoadOrderModuleList);
         for(auto link = reader.read(head); link && link != head; link = reader.read(*link))
         {
-            const auto ret = on_mod({*link - offsetof(nt64::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), FLAGS_NONE});
+            const auto ret = on_mod({*link - offsetof(nt::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), FLAGS_NONE});
             if(ret == WALK_STOP)
                 return ret;
         }
@@ -806,10 +806,10 @@ namespace
         if(!*ldr32)
             return WALK_NEXT;
 
-        const auto head = *ldr32 + offsetof32(nt32::_PEB_LDR_DATA, InLoadOrderModuleList);
+        const auto head = *ldr32 + offsetof32(wow64::_PEB_LDR_DATA, InLoadOrderModuleList);
         for(auto link = reader.le32(head); link && link != head; link = reader.le32(*link))
         {
-            const auto ret = on_mod({*link - offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), FLAGS_32BIT});
+            const auto ret = on_mod({*link - offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks), FLAGS_32BIT});
             if(ret == WALK_STOP)
                 return ret;
         }
@@ -835,9 +835,9 @@ opt<std::string> OsNt::mod_name(proc_t proc, mod_t mod)
 {
     const auto reader = reader::make(core_, proc);
     if(mod.flags & FLAGS_32BIT)
-        return nt32::read_unicode_string(reader, mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, FullDllName));
+        return wow64::read_unicode_string(reader, mod.id + offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, FullDllName));
 
-    return nt64::read_unicode_string(reader, mod.id + offsetof(nt64::_LDR_DATA_TABLE_ENTRY, FullDllName));
+    return nt::read_unicode_string(reader, mod.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, FullDllName));
 }
 
 opt<mod_t> OsNt::mod_find(proc_t proc, uint64_t addr)
@@ -878,11 +878,11 @@ namespace
 {
     static opt<span_t> mod_span_64(const reader::Reader& reader, mod_t mod)
     {
-        const auto base = reader.read(mod.id + offsetof(nt64::_LDR_DATA_TABLE_ENTRY, DllBase));
+        const auto base = reader.read(mod.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, DllBase));
         if(!base)
             return {};
 
-        const auto size = reader.read(mod.id + offsetof(nt64::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
+        const auto size = reader.read(mod.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
         if(!size)
             return {};
 
@@ -891,11 +891,11 @@ namespace
 
     static opt<span_t> mod_span_32(const reader::Reader& reader, mod_t mod)
     {
-        const auto base = reader.le32(mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, DllBase));
+        const auto base = reader.le32(mod.id + offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, DllBase));
         if(!base)
             return {};
 
-        const auto size = reader.le32(mod.id + offsetof32(nt32::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
+        const auto size = reader.le32(mod.id + offsetof32(wow64::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
         if(!size)
             return {};
 
@@ -916,7 +916,7 @@ bool OsNt::driver_list(on_driver_fn on_driver)
 {
     const auto head = symbols_[PsLoadedModuleList];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
-        if(on_driver({*link - offsetof(nt64::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)}) == WALK_STOP)
+        if(on_driver({*link - offsetof(nt::_LDR_DATA_TABLE_ENTRY, InLoadOrderLinks)}) == WALK_STOP)
             break;
     return true;
 }
@@ -938,16 +938,16 @@ opt<driver_t> OsNt::driver_find(std::string_view name)
 
 opt<std::string> OsNt::driver_name(driver_t drv)
 {
-    return nt64::read_unicode_string(reader_, drv.id + offsetof(nt64::_LDR_DATA_TABLE_ENTRY, FullDllName));
+    return nt::read_unicode_string(reader_, drv.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, FullDllName));
 }
 
 opt<span_t> OsNt::driver_span(driver_t drv)
 {
-    const auto base = reader_.read(drv.id + offsetof(nt64::_LDR_DATA_TABLE_ENTRY, DllBase));
+    const auto base = reader_.read(drv.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, DllBase));
     if(!base)
         return {};
 
-    const auto size = reader_.read(drv.id + offsetof(nt64::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
+    const auto size = reader_.read(drv.id + offsetof(nt::_LDR_DATA_TABLE_ENTRY, SizeOfImage));
     if(!size)
         return {};
 

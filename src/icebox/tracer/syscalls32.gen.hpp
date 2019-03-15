@@ -4,11 +4,11 @@
 #include "tracer.hpp"
 #include "types.hpp"
 #include "nt/nt.hpp"
-#include "nt/nt32.hpp"
+#include "nt/wow64.hpp"
 
 #include <functional>
 
-namespace nt32
+namespace wow64
 {
     using on_NtAcceptConnectPort_fn                                = std::function<NTSTATUS(PHANDLE, PVOID, PPORT_MESSAGE, BOOLEAN, PPORT_VIEW, PREMOTE_PORT_VIEW)>;
     using on_ZwAccessCheckAndAuditAlarm_fn                         = std::function<NTSTATUS(PUNICODE_STRING, PVOID, PUNICODE_STRING, PUNICODE_STRING, PSECURITY_DESCRIPTOR, ACCESS_MASK, PGENERIC_MAPPING, BOOLEAN, PACCESS_MASK, PNTSTATUS, PBOOLEAN)>;
@@ -824,4 +824,4 @@ namespace nt32
         struct Data;
         std::unique_ptr<Data> d_;
     };
-} // namespace nt32
+} // namespace wow64

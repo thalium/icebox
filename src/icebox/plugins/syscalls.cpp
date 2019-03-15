@@ -39,7 +39,7 @@ struct plugins::Syscalls::Data
     Data(core::Core& core);
 
     core::Core&                            core_;
-    nt64::syscalls                         syscalls_;
+    nt::syscalls                           syscalls_;
     std::shared_ptr<callstack::ICallstack> callstack_;
     std::shared_ptr<nt::ObjectNt>          objects_;
     Callsteps                              callsteps_;
@@ -152,9 +152,9 @@ bool plugins::Syscalls::setup(proc_t target)
     if(!d_->objects_)
         return FAIL(false, "unable to create ObjectNt object");
 
-    d_->syscalls_.register_NtWriteFile(target, [=](nt64::HANDLE FileHandle, nt64::HANDLE /*Event*/, nt64::PIO_APC_ROUTINE /*ApcRoutine*/, nt64::PVOID /*ApcContext*/,
-                                                   nt64::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt64::PVOID Buffer, nt64::ULONG Length,
-                                                   nt64::PLARGE_INTEGER /*ByteOffsetm*/, nt64::PULONG /*Key*/)
+    d_->syscalls_.register_NtWriteFile(target, [=](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/, nt::PVOID /*ApcContext*/,
+                                                   nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::PVOID Buffer, nt::ULONG Length,
+                                                   nt::PLARGE_INTEGER /*ByteOffsetm*/, nt::PULONG /*Key*/)
     {
         std::vector<char> buf(Length);
         const auto proc   = d_->target_;
@@ -179,7 +179,7 @@ bool plugins::Syscalls::setup(proc_t target)
         return 0;
     });
 
-    d_->syscalls_.register_NtClose(target, [=](nt64::HANDLE paramHandle)
+    d_->syscalls_.register_NtClose(target, [=](nt::HANDLE paramHandle)
     {
         d_->args_[d_->nb_triggers_]["Handle"] = paramHandle;
         private_get_callstack(*d_);
@@ -187,10 +187,10 @@ bool plugins::Syscalls::setup(proc_t target)
         return 0;
     });
 
-    d_->syscalls_.register_NtDeviceIoControlFile(target, [=](nt64::HANDLE /*FileHandle*/, nt64::HANDLE /*Event*/, nt64::PIO_APC_ROUTINE /*ApcRoutine*/,
-                                                             nt64::PVOID /*ApcContext*/, nt64::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt64::ULONG /*IoControlCode*/,
-                                                             nt64::PVOID /*InputBuffer*/, nt64::ULONG /*InputBufferLength*/, nt64::PVOID /*OutputBuffer*/,
-                                                             nt64::ULONG /*OutputBufferLength*/)
+    d_->syscalls_.register_NtDeviceIoControlFile(target, [=](nt::HANDLE /*FileHandle*/, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,
+                                                             nt::PVOID /*ApcContext*/, nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::ULONG /*IoControlCode*/,
+                                                             nt::PVOID /*InputBuffer*/, nt::ULONG /*InputBufferLength*/, nt::PVOID /*OutputBuffer*/,
+                                                             nt::ULONG /*OutputBufferLength*/)
     {
         return 0;
     });

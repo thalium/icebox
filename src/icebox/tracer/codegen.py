@@ -157,9 +157,7 @@ struct {namespace}::{filename}::Data
 
 namespace
 {{
-    using Data = {namespace}::{filename}::Data;
-
-    static opt<id_t> register_callback(Data& d, id_t id, proc_t proc, const char* name, const core::Task& on_call)
+    static opt<id_t> register_callback({namespace}::{filename}::Data& d, id_t id, proc_t proc, const char* name, const core::Task& on_call)
     {{
         const auto addr = d.core.sym.symbol(d.module, name);
         if(!addr)
@@ -180,7 +178,10 @@ namespace
         if(!arg)
             return {{}};
 
-        return {namespace}::cast_to<T>(*arg);
+        T value = {{}};
+        static_assert(sizeof value <= sizeof arg->val, "invalid size");
+        memcpy(&value, &arg->val, sizeof value);
+        return value;
     }}
 }}
 {definitions}

@@ -4,12 +4,11 @@
 #include "log.hpp"
 
 #include "endian.hpp"
-#include "nt32.hpp"
-#include "nt64.hpp"
 #include "os.hpp"
 #include "reader.hpp"
 #include "utils/utf8.hpp"
 #include "utils/utils.hpp"
+#include "wow64.hpp"
 
 #include <array>
 
@@ -154,7 +153,7 @@ std::shared_ptr<nt::ObjectNt> nt::make_objectnt(core::Core& core)
     return obj_nt;
 }
 
-opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt64::HANDLE handle)
+opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
 {
     // Is kernel handle
     const auto reader            = reader::make(d_->core_, proc);
@@ -244,13 +243,13 @@ opt<std::string> nt::ObjectNt::obj_typename(proc_t proc, nt::obj_t obj)
     if(!obj_type)
         return FAIL(ext::nullopt, "unable to read object type");
 
-    return nt64::read_unicode_string(reader, *obj_type + d_->members_[OBJECT_TYPE_Name]);
+    return nt::read_unicode_string(reader, *obj_type + d_->members_[OBJECT_TYPE_Name]);
 }
 
 opt<std::string> nt::ObjectNt::fileobj_filename(proc_t proc, nt::obj_t obj)
 {
     const auto reader = reader::make(d_->core_, proc);
-    return nt64::read_unicode_string(reader, obj.id + d_->members_[FILE_OBJECT_FileName]);
+    return nt::read_unicode_string(reader, obj.id + d_->members_[FILE_OBJECT_FileName]);
 }
 
 opt<nt::obj_t> nt::ObjectNt::fileobj_deviceobject(proc_t proc, nt::obj_t obj)
@@ -276,7 +275,7 @@ opt<nt::obj_t> nt::ObjectNt::deviceobj_driverobject(proc_t proc, nt::obj_t obj)
 opt<std::string> nt::ObjectNt::driverobj_drivername(proc_t proc, nt::obj_t obj)
 {
     const auto reader = reader::make(d_->core_, proc);
-    return nt64::read_unicode_string(reader, obj.id + d_->members_[DRIVER_OBJECT_DriverName]);
+    return nt::read_unicode_string(reader, obj.id + d_->members_[DRIVER_OBJECT_DriverName]);
 }
 
 opt<std::string> nt::ObjectNt::objattribute_objectname(proc_t proc, uint64_t ptr)
@@ -291,12 +290,12 @@ opt<std::string> nt::ObjectNt::objattribute_objectname(proc_t proc, uint64_t ptr
         if(!obj_name || !*obj_name)
             return {};
 
-        return nt32::read_unicode_string(reader, *obj_name);
+        return wow64::read_unicode_string(reader, *obj_name);
     }
 
     const auto obj_name = reader.read(ptr + d_->members_[OBJECT_ATTRIBUTES_ObjectName]);
     if(!obj_name || !*obj_name)
         return {};
 
-    return nt64::read_unicode_string(reader, *obj_name);
+    return nt::read_unicode_string(reader, *obj_name);
 }

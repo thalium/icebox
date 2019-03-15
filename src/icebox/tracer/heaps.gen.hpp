@@ -4,11 +4,11 @@
 #include "tracer.hpp"
 #include "types.hpp"
 #include "nt/nt.hpp"
-#include "nt/nt64.hpp"
+#include "nt/nt.hpp"
 
 #include <functional>
 
-namespace nt64
+namespace nt
 {
     using on_RtlpAllocateHeapInternal_fn   = std::function<PVOID(PVOID, SIZE_T)>;
     using on_RtlFreeHeap_fn                = std::function<BOOLEAN(PVOID, ULONG, PVOID)>;
@@ -38,4 +38,4 @@ namespace nt64
         struct Data;
         std::unique_ptr<Data> d_;
     };
-} // namespace nt64
+} // namespace nt

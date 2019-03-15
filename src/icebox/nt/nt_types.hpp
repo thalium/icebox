@@ -1,205 +1,115 @@
-#ifndef nt_namespace
-#    error do not include this header directly
-#endif
+#pragma once
 
 #include "types.hpp"
+#include "utils/utils.hpp"
 
-namespace reader { struct Reader; }
-
-namespace nt_namespace
+// nt::         native types
+// wow64::      wow64 types
+// nt_types::   common types
+namespace nt_types
 {
-#ifdef NT32
-    using ptr_t = uint32_t;
-#else
-    using ptr_t = uint64_t;
-#endif
-
-    struct _UNICODE_STRING
+    // ACCESS_MASK
+    enum class ACCESS_MASK : uint32_t
     {
-        uint16_t Length;
-        uint16_t MaximumLength;
-        ptr_t    Buffer;
+        DELETE                = 0x00010000,
+        FILE_READ_DATA        = 0x00000001,
+        FILE_READ_ATTRIBUTES  = 0x00000080,
+        FILE_READ_EA          = 0x00000008,
+        READ_CONTROL          = 0x00020000,
+        FILE_WRITE_DATA       = 0x00000002,
+        FILE_WRITE_ATTRIBUTES = 0x00000100,
+        FILE_WRITE_EA         = 0x00000010,
+        FILE_APPEND_DATA      = 0x00000004,
+        WRITE_DAC             = 0x00040000,
+        WRITE_OWNER           = 0x00080000,
+        SYNCHRONIZE           = 0x00100000,
+        FILE_EXECUTE          = 0x00000020,
     };
 
-    struct _LIST_ENTRY
+    const char*                 access_mask_str (ACCESS_MASK arg);
+    std::vector<const char*>    access_mask_all (uint32_t arg);
+
+    // IOCTL_METHOD
+    enum class IOCTL_METHOD
     {
-        ptr_t flink;
-        ptr_t blink;
+        METHOD_BUFFERED   = 0,
+        METHOD_IN_DIRECT  = 1,
+        METHOD_OUT_DIRECT = 2,
+        METHOD_NEITHER    = 3,
     };
 
-    struct _PEB_LDR_DATA
+    // DEVICE_TYPE
+    enum class DEVICE_TYPE
     {
-        uint32_t    Length;
-        uint8_t     Initialized;
-        uint32_t    SsHandle;
-        _LIST_ENTRY InLoadOrderModuleList;
-        _LIST_ENTRY InMemoryOrderModuleList;
+        FILE_DEVICE_NETWORK = 0x12,
     };
 
-    struct _LDR_DATA_TABLE_ENTRY
+#define AFD_CONTROL_CODE(OPERATION, METHOD) ((static_cast<uint32_t>(DEVICE_TYPE::FILE_DEVICE_NETWORK) << 12) \
+                                             | ((OPERATION) << 2)                                            \
+                                             | static_cast<uint32_t>(METHOD))
+
+    // IOCTL_CODE
+    enum class IOCTL_CODE : uint32_t
     {
-        _LIST_ENTRY     InLoadOrderLinks;
-        _LIST_ENTRY     InMemoryOrderLinks;
-        _LIST_ENTRY     InInitializationOrderLinks;
-        ptr_t           DllBase;
-        ptr_t           EntryPoint;
-        ptr_t           SizeOfImage;
-        _UNICODE_STRING FullDllName;
-        _UNICODE_STRING BaseDllName;
-        ptr_t           _[3];
-        uint32_t        TimeDateStamp;
+        AFD_BIND                        = AFD_CONTROL_CODE(0, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_CONNECT                     = AFD_CONTROL_CODE(1, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_START_LISTEN                = AFD_CONTROL_CODE(2, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_WAIT_FOR_LISTEN             = AFD_CONTROL_CODE(3, IOCTL_METHOD::METHOD_BUFFERED),
+        AFD_ACCEPT                      = AFD_CONTROL_CODE(4, IOCTL_METHOD::METHOD_BUFFERED),
+        AFD_RECV                        = AFD_CONTROL_CODE(5, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_RECV_DATAGRAM               = AFD_CONTROL_CODE(6, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_SEND                        = AFD_CONTROL_CODE(7, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_SEND_DATAGRAM               = AFD_CONTROL_CODE(8, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_SELECT                      = AFD_CONTROL_CODE(9, IOCTL_METHOD::METHOD_BUFFERED),
+        AFD_DISCONNECT                  = AFD_CONTROL_CODE(10, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_GET_SOCK_NAME               = AFD_CONTROL_CODE(11, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_GET_PEER_NAME               = AFD_CONTROL_CODE(12, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_GET_TDI_HANDLES             = AFD_CONTROL_CODE(13, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_SET_INFO                    = AFD_CONTROL_CODE(14, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_GET_CONTEXT_SIZE            = AFD_CONTROL_CODE(15, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_GET_CONTEXT                 = AFD_CONTROL_CODE(16, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_SET_CONTEXT                 = AFD_CONTROL_CODE(17, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_SET_CONNECT_DATA            = AFD_CONTROL_CODE(18, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_SET_CONNECT_OPTIONS         = AFD_CONTROL_CODE(19, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_SET_DISCONNECT_DATA         = AFD_CONTROL_CODE(20, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_SET_DISCONNECT_OPTIONS      = AFD_CONTROL_CODE(21, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_GET_CONNECT_DATA            = AFD_CONTROL_CODE(22, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_GET_CONNECT_OPTIONS         = AFD_CONTROL_CODE(23, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_GET_DISCONNECT_DATA         = AFD_CONTROL_CODE(24, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_GET_DISCONNECT_OPTIONS      = AFD_CONTROL_CODE(25, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_SET_CONNECT_DATA_SIZE       = AFD_CONTROL_CODE(26, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_SET_CONNECT_OPTIONS_SIZE    = AFD_CONTROL_CODE(27, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_SET_DISCONNECT_DATA_SIZE    = AFD_CONTROL_CODE(28, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_SET_DISCONNECT_OPTIONS_SIZE = AFD_CONTROL_CODE(29, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_GET_INFO                    = AFD_CONTROL_CODE(30, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_EVENT_SELECT                = AFD_CONTROL_CODE(33, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_ENUM_NETWORK_EVENTS         = AFD_CONTROL_CODE(34, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_DEFER_ACCEPT                = AFD_CONTROL_CODE(35, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_GET_PENDING_CONNECT_DATA    = AFD_CONTROL_CODE(41, IOCTL_METHOD::METHOD_NEITHER),
+        AFD_VALIDATE_GROUP              = AFD_CONTROL_CODE(42, IOCTL_METHOD::METHOD_NEITHER),
     };
 
-    using ACCESS_MASK                          = nt::ACCESS_MASK;
-    using ALPC_HANDLE                          = ptr_t;
-    using ALPC_MESSAGE_INFORMATION_CLASS       = ptr_t;
-    using ALPC_PORT_INFORMATION_CLASS          = ptr_t;
-    using APPHELPCOMMAND                       = ptr_t;
-    using ATOM_INFORMATION_CLASS               = ptr_t;
-    using AUDIT_EVENT_TYPE                     = uint32_t;
-    using BOOLEAN                              = bool;
-    using DEBUGOBJECTINFOCLASS                 = ptr_t;
-    using DEVICE_POWER_STATE                   = uint32_t;
-    using ENLISTMENT_INFORMATION_CLASS         = uint32_t;
-    using EVENT_INFORMATION_CLASS              = ptr_t;
-    using EVENT_TYPE                           = uint32_t;
-    using EXECUTION_STATE                      = uint32_t;
-    using FILE_INFORMATION_CLASS               = uint32_t;
-    using FS_INFORMATION_CLASS                 = uint32_t;
-    using HANDLE                               = ptr_t;
-    using IO_COMPLETION_INFORMATION_CLASS      = ptr_t;
-    using IO_SESSION_STATE                     = uint32_t;
-    using JOBOBJECTINFOCLASS                   = uint32_t;
-    using KAFFINITY                            = ptr_t;
-    using KEY_INFORMATION_CLASS                = uint32_t;
-    using KEY_SET_INFORMATION_CLASS            = uint32_t;
-    using KEY_VALUE_INFORMATION_CLASS          = uint32_t;
-    using KPROFILE_SOURCE                      = uint32_t;
-    using KTMOBJECT_TYPE                       = uint32_t;
-    using LANGID                               = uint16_t;
-    using LCID                                 = uint32_t;
-    using LONG                                 = uint32_t;
-    using LPGUID                               = ptr_t;
-    using MEMORY_INFORMATION_CLASS             = uint32_t;
-    using MEMORY_RESERVE_TYPE                  = ptr_t;
-    using MUTANT_INFORMATION_CLASS             = ptr_t;
-    using NOTIFICATION_MASK                    = uint32_t;
-    using NTSTATUS                             = uint32_t;
-    using OBJECT_INFORMATION_CLASS             = uint32_t;
-    using PACCESS_MASK                         = ptr_t;
-    using PALPC_CONTEXT_ATTR                   = ptr_t;
-    using PALPC_DATA_VIEW_ATTR                 = ptr_t;
-    using PALPC_HANDLE                         = ptr_t;
-    using PALPC_MESSAGE_ATTRIBUTES             = ptr_t;
-    using PALPC_PORT_ATTRIBUTES                = ptr_t;
-    using PALPC_SECURITY_ATTR                  = ptr_t;
-    using PBOOLEAN                             = ptr_t;
-    using PBOOT_ENTRY                          = ptr_t;
-    using PBOOT_OPTIONS                        = ptr_t;
-    using PCHAR                                = ptr_t;
-    using PCLIENT_ID                           = ptr_t;
-    using PCONTEXT                             = ptr_t;
-    using PCRM_PROTOCOL_ID                     = ptr_t;
-    using PDBGUI_WAIT_STATE_CHANGE             = ptr_t;
-    using PEFI_DRIVER_ENTRY                    = ptr_t;
-    using PEXCEPTION_RECORD                    = ptr_t;
-    using PFILE_BASIC_INFORMATION              = ptr_t;
-    using PFILE_IO_COMPLETION_INFORMATION      = ptr_t;
-    using PFILE_NETWORK_OPEN_INFORMATION       = ptr_t;
-    using PFILE_PATH                           = ptr_t;
-    using PFILE_SEGMENT_ELEMENT                = ptr_t;
-    using PGENERIC_MAPPING                     = ptr_t;
-    using PGROUP_AFFINITY                      = ptr_t;
-    using PHANDLE                              = ptr_t;
-    using PINITIAL_TEB                         = ptr_t;
-    using PIO_APC_ROUTINE                      = ptr_t;
-    using PIO_STATUS_BLOCK                     = ptr_t;
-    using PJOB_SET_ARRAY                       = ptr_t;
-    using PKEY_VALUE_ENTRY                     = ptr_t;
-    using PKTMOBJECT_CURSOR                    = ptr_t;
-    using PLARGE_INTEGER                       = ptr_t;
-    using PLCID                                = ptr_t;
-    using PLONG                                = ptr_t;
-    using PLUGPLAY_CONTROL_CLASS               = ptr_t;
-    using PLUID                                = ptr_t;
-    using PNTSTATUS                            = ptr_t;
-    using POBJECT_ATTRIBUTES                   = ptr_t;
-    using POBJECT_TYPE_LIST                    = ptr_t;
-    using PORT_INFORMATION_CLASS               = ptr_t;
-    using POWER_ACTION                         = uint32_t;
-    using POWER_INFORMATION_LEVEL              = uint32_t;
-    using PPLUGPLAY_EVENT_BLOCK                = ptr_t;
-    using PPORT_MESSAGE                        = ptr_t;
-    using PPORT_VIEW                           = ptr_t;
-    using PPRIVILEGE_SET                       = ptr_t;
-    using PPROCESS_ATTRIBUTE_LIST              = ptr_t;
-    using PPROCESS_CREATE_INFO                 = ptr_t;
-    using PPS_APC_ROUTINE                      = ptr_t;
-    using PPS_ATTRIBUTE_LIST                   = ptr_t;
-    using PREMOTE_PORT_VIEW                    = ptr_t;
-    using PROCESSINFOCLASS                     = uint32_t;
-    using PRTL_ATOM                            = ptr_t;
-    using PRTL_USER_PROCESS_PARAMETERS         = ptr_t;
-    using PSECURITY_DESCRIPTOR                 = ptr_t;
-    using PSECURITY_QUALITY_OF_SERVICE         = ptr_t;
-    using PSID                                 = ptr_t;
-    using PSIZE_T                              = ptr_t;
-    using PTIMER_APC_ROUTINE                   = ptr_t;
-    using PTOKEN_DEFAULT_DACL                  = ptr_t;
-    using PTOKEN_GROUPS                        = ptr_t;
-    using PTOKEN_OWNER                         = ptr_t;
-    using PTOKEN_PRIMARY_GROUP                 = ptr_t;
-    using PTOKEN_PRIVILEGES                    = ptr_t;
-    using PTOKEN_SOURCE                        = ptr_t;
-    using PTOKEN_USER                          = ptr_t;
-    using PTRANSACTION_NOTIFICATION            = ptr_t;
-    using PULARGE_INTEGER                      = ptr_t;
-    using PULONG                               = ptr_t;
-    using PULONG_PTR                           = ptr_t;
-    using PUNICODE_STRING                      = ptr_t;
-    using PUSHORT                              = ptr_t;
-    using PVOID                                = ptr_t;
-    using PWSTR                                = ptr_t;
-    using RESOURCEMANAGER_INFORMATION_CLASS    = uint32_t;
-    using RTL_ATOM                             = ptr_t;
-    using SECTION_INFORMATION_CLASS            = ptr_t;
-    using SECTION_INHERIT                      = uint32_t;
-    using SECURITY_INFORMATION                 = uint32_t;
-    using SEMAPHORE_INFORMATION_CLASS          = ptr_t;
-    using SHUTDOWN_ACTION                      = ptr_t;
-    using SIZE_T                               = ptr_t;
-    using SYSDBG_COMMAND                       = ptr_t;
-    using SYSTEM_INFORMATION_CLASS             = uint32_t;
-    using SYSTEM_POWER_STATE                   = uint32_t;
-    using THREADINFOCLASS                      = uint32_t;
-    using TIMER_INFORMATION_CLASS              = ptr_t;
-    using TIMER_SET_INFORMATION_CLASS          = uint32_t;
-    using TIMER_TYPE                           = uint32_t;
-    using TOKEN_INFORMATION_CLASS              = uint32_t;
-    using TOKEN_TYPE                           = uint32_t;
-    using TRANSACTIONMANAGER_INFORMATION_CLASS = uint32_t;
-    using TRANSACTION_INFORMATION_CLASS        = uint32_t;
-    using ULONG                                = uint32_t;
-    using ULONG_PTR                            = ptr_t;
-    using USHORT                               = uint16_t;
-    using VDMSERVICECLASS                      = ptr_t;
-    using WAIT_TYPE                            = uint32_t;
-    using WIN32_PROTECTION_MASK                = ptr_t;
-    using WORKERFACTORYINFOCLASS               = ptr_t;
+    const char* ioctl_code_str  (IOCTL_CODE arg);
+    std::string ioctl_code_dump (IOCTL_CODE arg);
 
-    // special return types
-    using VOID = ptr_t;
-
-    template <typename T>
-    constexpr T cast_to(arg_t src)
+    enum class PAGE_ACCESS : uint32_t
     {
-        T value = {};
-        static_assert(sizeof value <= sizeof src.val, "invalid size");
-        memcpy(&value, &src.val, sizeof value);
-        return value;
+        PAGE_NOACCESS            = 0x1,
+        PAGE_READONLY            = 0x2,
+        PAGE_READWRITE           = 0x4,
+        PAGE_WRITECOPY           = 0x8,
+        PAGE_EXECUTE             = 0x10,
+        PAGE_EXECUTE_READ        = 0x20,
+        PAGE_EXECUTE_READWRITE   = 0x40,
+        PAGE_EXECUTE_WRITECOPY   = 0x80,
+        PAGE_GUARD               = 0x100,
+        PAGE_NOCACHE             = 0x200,
+        PAGE_WRITECOMBINE        = 0x400,
+        PAGE_REVERT_TO_FILE_MAP  = 0x80000000,
+        PAGE_TARGETS_INVALID     = 0x40000000,
+        PAGE_ENCLAVE_UNVALIDATED = 0x20000000,
+        PAGE_ENCLAVE_DECOMMIT    = 0x10000000,
     };
-
-    opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t addr);
-} // namespace nt_namespace
-#undef nt_namespace
-#undef NT32
+    const char*                 page_access_str (PAGE_ACCESS arg);
+    std::vector<const char*>    page_access_all (uint32_t arg);
+} // namespace nt_types
