@@ -16,7 +16,7 @@ namespace
 {
     static opt<mod_t> search_mod(core::Core& core, proc_t proc, std::string_view mod_name, flags_e flags)
     {
-        opt<mod_t> found = {};
+        opt<mod_t> found;
         core.os->mod_list(proc, [&](mod_t mod)
         {
             const auto name = core.os->mod_name(proc, mod);
@@ -39,10 +39,14 @@ namespace
 
 opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flags_e flags)
 {
-    auto found = core.os->proc_find(proc_name, flags);
-    if(found)
-        return found;
+    const auto proc = core.os->proc_find(proc_name, flags);
+    if(proc)
+    {
+        core.os->proc_join(*proc, os::JOIN_ANY_MODE);
+        return *proc;
+    }
 
+    opt<proc_t> found;
     const auto bpid = core.os->listen_proc_create([&](proc_t proc)
     {
         const auto new_flags = core.os->proc_flags(proc);
@@ -54,7 +58,6 @@ opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flag
             return;
 
         LOG(INFO, "proc started: {}", name->data());
-
         if(*name == proc_name)
             found = proc;
     });
@@ -72,10 +75,14 @@ opt<proc_t> waiter::proc_wait(core::Core& core, std::string_view proc_name, flag
 
 opt<mod_t> waiter::mod_wait(core::Core& core, proc_t proc, std::string_view mod_name, flags_e flags)
 {
-    auto found = search_mod(core, proc, mod_name, flags);
-    if(found)
-        return found;
+    const auto mod = search_mod(core, proc, mod_name, flags);
+    if(mod)
+    {
+        core.os->proc_join(proc, os::JOIN_USER_MODE);
+        return *mod;
+    }
 
+    opt<mod_t> found;
     const auto bpid = core.os->listen_mod_create([&](proc_t proc_loading, mod_t mod)
     {
         if(proc_loading.id != proc.id)
