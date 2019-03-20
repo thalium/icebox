@@ -31,7 +31,6 @@ def generate_header(json_data, filename, namespace, pad, wow64):
 #include "core.hpp"
 #include "tracer.hpp"
 #include "types.hpp"
-#include "nt/nt.hpp"
 #include "nt/{namespace}.hpp"
 
 #include <functional>

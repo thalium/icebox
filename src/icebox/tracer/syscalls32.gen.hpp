@@ -3,7 +3,6 @@
 #include "core.hpp"
 #include "tracer.hpp"
 #include "types.hpp"
-#include "nt/nt.hpp"
 #include "nt/wow64.hpp"
 
 #include <functional>
