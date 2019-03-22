@@ -14,7 +14,7 @@ def generate_usings(json_data, pad):
             types[0] = types[0]
         name = "on_%s_fn" % target
         args_list = ", "
-        lines.append("    using %s = std::function<%s(%s)>;" % (name.ljust(pad), return_type, args_list.join(types)))
+        lines.append("    using %s = std::function<void(%s)>;" % (name.ljust(pad), args_list.join(types)))
     return data + "\n".join(lines)
 
 def generate_registers(json_data, pad):
