@@ -13547,8 +13547,12 @@ HMVMX_EXIT_DECL hmR0VmxExitEptViolation(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTR
 
             RTSpinlockAcquire(pVM->mystate.s.PageSpinlock);
             pVCpu->mystate.s.bPageFaultOverflowGuard = true;
-            bool bWriteAccess = ((pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_DATA_WRITE) != 0);
             rc = VINF_SUCCESS;
+
+            uint64_t RIPPhys;
+            PGMPhysGCPtr2GCPhys(pVCpu, pMixedCtx->rip, &RIPPhys);
+            uint64_t RIPPhysPage = RIPPhys & ~(_4K - 1);
+            uint64_t GCPhysPage = GCPhys & ~(_4K - 1);
 
             //Execute Access
             if(pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_INSTR_FETCH)
@@ -13558,22 +13562,8 @@ HMVMX_EXIT_DECL hmR0VmxExitEptViolation(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTR
                 PGMShwNoPresent(pVCpu, GCPhys);
                 PGMShwNoWrite(pVCpu, GCPhys);
                 PGMShwExecute(pVCpu, GCPhys); //Execute !
-            }else {
-                //Read or Write Access
-                //if((pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_DATA_READ)
-                //  || (pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_DATA_WRITE))
-                //{
-                //Read, Write on OriginalPage
-                PGMShwSetHCPage(pVCpu, GCPhys, pVM->bp.l[SoftBreakpointId].breakpointOrigHCPhys);
-                PGMShwPresent(pVCpu, GCPhys); //Read !
-                PGMShwWrite(pVCpu, GCPhys); //Write !
-                PGMShwNoExecute(pVCpu, GCPhys);
-                //}
-            }
-
-            //Trash case, TODO: What is this ? Why ? Maybe "mov [rax], rcx" and rax inside the page
-            if(
-                ((pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_DATA_READ) && (pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_DATA_WRITE) && (pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_INSTR_FETCH))
+            }else if(
+                (pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_DATA_READ) && (RIPPhysPage == GCPhysPage)
             )
             { //Special case
                 //Full rights on OriginalPage
@@ -13584,16 +13574,8 @@ HMVMX_EXIT_DECL hmR0VmxExitEptViolation(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTR
                 //Invalidate the GPA
                 VMXR0InvalidatePhysPage(pVM, pVCpu, GCPhys);
 
-                //Active MTF
-                pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
-                VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
-
                 //Single Step
-                rc = hmR0VmxRunGuestCodeNormal(pVM, pVCpu, pMixedCtx);
-
-                //Disable MTF
-                pVCpu->hm.s.vmx.u32ProcCtls &= ~VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
-                VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
+                rc = hmR0VmxRunGuestCodeDebug(pVM, pVCpu, pMixedCtx);
 
                 //Execute only on ModPage
                 PGMShwSetHCPage(pVCpu, GCPhys, pVM->bp.l[SoftBreakpointId].breakpointHardwarePage->HCPhys);
@@ -13601,9 +13583,11 @@ HMVMX_EXIT_DECL hmR0VmxExitEptViolation(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTR
                 PGMShwNoWrite(pVCpu, GCPhys);
                 PGMShwExecute(pVCpu, GCPhys); //Execute !
             }else{
-                if(bWriteAccess == true){
-                    //TODO: OrignalPage, SingleStep, Copy OrignalPage to ModPage, Reinstall the HLT
-                }
+                //Read, Write on OriginalPage
+                PGMShwSetHCPage(pVCpu, GCPhys, pVM->bp.l[SoftBreakpointId].breakpointOrigHCPhys);
+                PGMShwPresent(pVCpu, GCPhys); //Read !
+                PGMShwWrite(pVCpu, GCPhys); //Write !
+                PGMShwNoExecute(pVCpu, GCPhys);
             }
 
             //Invalidate the page
