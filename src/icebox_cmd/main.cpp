@@ -257,7 +257,7 @@ int main(int argc, char* argv[])
     LOG(INFO, "starting on {}", name.data());
 
     core::Core core;
-    auto ok = core::setup(core, name);
+    const auto ok = core.setup(name);
     if(!ok)
         FAIL(-1, "unable to start core at {}", name.data());
 

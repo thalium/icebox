@@ -18,6 +18,8 @@ namespace core
          Core();
         ~Core();
 
+        bool setup(std::string_view name);
+
         // members
         Registers                    regs;
         Memory                       mem;
@@ -30,5 +32,4 @@ namespace core
         std::unique_ptr<Data> d_;
     };
 
-    bool setup(Core& core, std::string_view name);
 } // namespace core
