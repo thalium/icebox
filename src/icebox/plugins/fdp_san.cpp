@@ -78,10 +78,10 @@ namespace std
 
 namespace
 {
-    using ReturnCtx  = std::unordered_map<return_ctx_t, core::Breakpoint>;
-    using HeapCtx    = std::unordered_map<heap_ctx_t, nt::SIZE_T>;
-    using FdpSanData = plugins::FdpSan::Data;
-    using Callstack  = std::shared_ptr<callstack::ICallstack>;
+    using ReturnCtx = std::unordered_map<return_ctx_t, core::Breakpoint>;
+    using HeapCtx   = std::unordered_map<heap_ctx_t, nt::SIZE_T>;
+    using Data      = plugins::FdpSan::Data;
+    using Callstack = std::shared_ptr<callstack::ICallstack>;
 
     constexpr size_t ptr_prolog = 0x10;
     constexpr size_t ptr_epilog = 0x10;
@@ -102,7 +102,7 @@ struct plugins::FdpSan::Data
     size_t         ptr_size_;
 };
 
-plugins::FdpSan::Data::Data(core::Core& core, proc_t target)
+Data::Data(core::Core& core, proc_t target)
     : core_(core)
     , heap_tracer_(core, "ntdll")
     , target_(target)
@@ -116,7 +116,7 @@ plugins::FdpSan::~FdpSan() = default;
 namespace
 {
     template <typename T>
-    static void break_on_return(FdpSanData& d, T operand)
+    static void break_on_return(Data& d, T operand)
     {
         const auto thread      = d.core_.os->thread_current();
         const auto rsp         = d.core_.regs.read(FDP_RSP_REGISTER);
@@ -126,8 +126,8 @@ namespace
 
         struct Private
         {
-            FdpSanData& d;
-            thread_t    thread;
+            Data&    d;
+            thread_t thread;
         } p = {d, *thread};
 
         const auto bp = d.core_.state.set_breakpoint(*return_addr, *thread, [=]
@@ -143,13 +143,13 @@ namespace
         d.returns_.emplace(return_ctx_t{*thread, rsp}, bp);
     }
 
-    static void on_RtlpAllocateHeapInternal(FdpSanData& d, nt::PVOID HeapHandle, nt::SIZE_T Size)
+    static void on_RtlpAllocateHeapInternal(Data& d, nt::PVOID HeapHandle, nt::SIZE_T Size)
     {
         const auto ok = d.core_.os->write_arg(1, {ptr_prolog + Size + ptr_epilog});
         if(!ok)
             return;
 
-        break_on_return(d, [=](FdpSanData& d)
+        break_on_return(d, [=](Data& d)
         {
             const auto ptr = d.core_.regs.read(FDP_RAX_REGISTER);
             if(!ptr)
@@ -164,7 +164,7 @@ namespace
         });
     }
 
-    static void on_RtlFreeHeap(FdpSanData& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
+    static void on_RtlFreeHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
         const auto it = d.heap_.find(heap_ctx_t{HeapHandle, BaseAddress});
         if(it == d.heap_.end())
@@ -174,7 +174,7 @@ namespace
         d.heap_.erase(it);
     }
 
-    static void on_RtlSizeHeap(FdpSanData& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
+    static void on_RtlSizeHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
         const auto it = d.heap_.find(heap_ctx_t{HeapHandle, BaseAddress});
         if(it == d.heap_.end())
@@ -184,7 +184,7 @@ namespace
         if(!ok)
             return;
 
-        break_on_return(d, [=](FdpSanData& d)
+        break_on_return(d, [=](Data& d)
         {
             const auto size = d.core_.regs.read(FDP_RAX_REGISTER);
             if(!size)
@@ -194,7 +194,7 @@ namespace
         });
     }
 
-    static void on_RtlGetUserInfoHeap(FdpSanData& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
+    static void on_RtlGetUserInfoHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
         if(true)
             return;
@@ -206,7 +206,7 @@ namespace
             d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
     }
 
-    static void on_RtlSetUserValueHeap(FdpSanData& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
+    static void on_RtlSetUserValueHeap(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress)
     {
         const auto it = d.heap_.find(heap_ctx_t{HeapHandle, BaseAddress});
         if(it == d.heap_.end())
@@ -215,7 +215,7 @@ namespace
         d.core_.os->write_arg(2, {BaseAddress - ptr_prolog});
     }
 
-    static void on_RtlpReAllocateHeapInternal(FdpSanData& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress, nt::ULONG Size)
+    static void on_RtlpReAllocateHeapInternal(Data& d, nt::PVOID HeapHandle, nt::ULONG /*Flags*/, nt::PVOID BaseAddress, nt::ULONG Size)
     {
         const auto it = d.heap_.find(heap_ctx_t{HeapHandle, BaseAddress});
         if(it != d.heap_.end())
@@ -231,7 +231,7 @@ namespace
         if(!ok)
             return;
 
-        break_on_return(d, [=](FdpSanData& d)
+        break_on_return(d, [=](Data& d)
         {
             const auto ptr = d.core_.regs.read(FDP_RAX_REGISTER);
             if(!ptr)
@@ -243,7 +243,7 @@ namespace
         });
     }
 
-    static void get_callstack(FdpSanData& d)
+    static void get_callstack(Data& d)
     {
         if(true)
             return;
@@ -270,38 +270,39 @@ namespace
 plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
     : d_(std::make_unique<Data>(core, target))
 {
-    d_->callstack_ = callstack::make_callstack_nt(d_->core_);
-    d_->heap_tracer_.register_RtlpAllocateHeapInternal(d_->target_, [=](nt::PVOID HeapHandle, nt::SIZE_T Size)
+    auto& d      = *d_;
+    d.callstack_ = callstack::make_callstack_nt(d.core_);
+    d.heap_tracer_.register_RtlpAllocateHeapInternal(d.target_, [=](nt::PVOID HeapHandle, nt::SIZE_T Size)
     {
         get_callstack(*d_);
         on_RtlpAllocateHeapInternal(*d_, HeapHandle, Size);
         return 0;
     });
-    d_->heap_tracer_.register_RtlFreeHeap(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress)
+    d.heap_tracer_.register_RtlFreeHeap(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress)
     {
         get_callstack(*d_);
         on_RtlFreeHeap(*d_, HeapHandle, Flags, BaseAddress);
         return 0;
     });
-    d_->heap_tracer_.register_RtlSizeHeap(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress)
+    d.heap_tracer_.register_RtlSizeHeap(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress)
     {
         get_callstack(*d_);
         on_RtlSizeHeap(*d_, HeapHandle, Flags, BaseAddress);
         return 0;
     });
-    d_->heap_tracer_.register_RtlGetUserInfoHeap(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/, nt::PULONG /*UserFlags*/)
+    d.heap_tracer_.register_RtlGetUserInfoHeap(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/, nt::PULONG /*UserFlags*/)
     {
         get_callstack(*d_);
         on_RtlGetUserInfoHeap(*d_, HeapHandle, Flags, BaseAddress);
         return 0;
     });
-    d_->heap_tracer_.register_RtlSetUserValueHeap(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/)
+    d.heap_tracer_.register_RtlSetUserValueHeap(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::PVOID /*UserValue*/)
     {
         get_callstack(*d_);
         on_RtlSetUserValueHeap(*d_, HeapHandle, Flags, BaseAddress);
         return 0;
     });
-    d_->heap_tracer_.register_RtlpReAllocateHeapInternal(d_->target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::ULONG Size)
+    d.heap_tracer_.register_RtlpReAllocateHeapInternal(d.target_, [=](nt::PVOID HeapHandle, nt::ULONG Flags, nt::PVOID BaseAddress, nt::ULONG Size)
     {
         get_callstack(*d_);
         on_RtlpReAllocateHeapInternal(*d_, HeapHandle, Flags, BaseAddress, Size);
