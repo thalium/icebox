@@ -156,9 +156,15 @@ set_target_output_directory(icebox_cmd "")
 target_link_libraries(icebox_cmd PRIVATE icebox)
 
 # samples/vm_resume
-add_target(vm_resume samples "${root_dir}/src/icebox/samples/vm_resume" OPTIONS executable fmt tidy)
-set_target_output_directory(vm_resume "")
-target_link_libraries(vm_resume PRIVATE icebox)
+foreach(sample IN ITEMS
+    vm_resume
+    nt_writefile
+)
+    add_target(${sample} samples "${root_dir}/src/icebox/samples/${sample}" OPTIONS executable fmt tidy)
+    set_target_output_directory(${sample} "")
+    target_compile_definitions(${sample} PRIVATE _CRT_SECURE_NO_WARNINGS)
+    target_link_libraries(${sample} PRIVATE icebox)
+endforeach()
 
 if(WIN32)
     # winbagility
