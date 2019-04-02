@@ -74,15 +74,15 @@ target_link_libraries(test_fdp PRIVATE
 endif()
 
 # fmtlib
-set(fmt_dir "${root_dir}/deps/fmt")
-add_target(fmtlib deps "${fmt_dir}/src" "${fmt_dir}/include" OPTIONS recurse external)
+set(fmt_dir "${root_dir}/third_party/fmt")
+add_target(fmtlib third_party "${fmt_dir}/src" "${fmt_dir}/include" OPTIONS recurse external)
 target_include_directories(fmtlib PUBLIC
     "${fmt_dir}/include"
 )
 
 # loguru
-set(loguru_dir "${root_dir}/deps/loguru-2.0.0")
-add_target(loguru deps "${loguru_dir}" OPTIONS external)
+set(loguru_dir "${root_dir}/third_party/loguru-2.0.0")
+add_target(loguru third_party "${loguru_dir}" OPTIONS external)
 target_compile_definitions(loguru PRIVATE
     _CRT_SECURE_NO_WARNINGS
 )
@@ -91,8 +91,8 @@ target_include_directories(loguru PUBLIC
 )
 
 # pdbparser
-set(retdec_dir "${root_dir}/deps/retdec-3.2")
-add_target(pdbparser deps "${retdec_dir}/src/pdbparser" "${retdec_dir}/include/retdec/pdbparser" OPTIONS external)
+set(retdec_dir "${root_dir}/third_party/retdec-3.2")
+add_target(pdbparser third_party "${retdec_dir}/src/pdbparser" "${retdec_dir}/include/retdec/pdbparser" OPTIONS external)
 target_include_directories(pdbparser PUBLIC
     "${retdec_dir}/include"
 )
@@ -126,8 +126,8 @@ target_include_directories(icebox
     PUBLIC
     "${icebox_dir}"
     PRIVATE
-    "${root_dir}/deps/expected-lite/include"
-    "${root_dir}/deps/nlohmann_json/include"
+    "${root_dir}/third_party/expected-lite/include"
+    "${root_dir}/third_party/nlohmann_json/include"
 )
 target_compile_definitions(icebox PRIVATE
     _CRT_SECURE_NO_WARNINGS
