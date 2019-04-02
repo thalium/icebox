@@ -149,7 +149,7 @@ namespace
             buffer.resize(debug->size);
             const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
             if(!ok)
-                FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
+                return FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
 
             const auto filename = path::filename(*name).replace_extension("").generic_string();
             const auto inserted = core.sym.insert(filename.data(), *span, &buffer[0], buffer.size());
@@ -250,7 +250,7 @@ int main(int argc, char* argv[])
 {
     logg::init(argc, argv);
     if(argc != 2)
-        FAIL(-1, "usage: icebox <name>");
+        return FAIL(-1, "usage: icebox <name>");
 
     const auto name = std::string{argv[1]};
     LOG(INFO, "starting on {}", name.data());
@@ -258,7 +258,7 @@ int main(int argc, char* argv[])
     core::Core core;
     const auto ok = core.setup(name);
     if(!ok)
-        FAIL(-1, "unable to start core at {}", name.data());
+        return FAIL(-1, "unable to start core at {}", name.data());
 
     // core.state.resume();
     core.state.pause();
