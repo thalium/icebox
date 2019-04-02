@@ -98,7 +98,8 @@ target_include_directories(pdbparser PUBLIC
 )
 
 # tracer code generator
-set(tracer_dir "${root_dir}/src/icebox/tracer")
+set(icebox_dir "${root_dir}/src/icebox/icebox")
+set(tracer_dir "${icebox_dir}/tracer")
 function(add_tracer namespace input_file)
     find_package(PythonInterp 3.6 QUIET REQUIRED)
     get_filename_component(directory ${input_file} DIRECTORY)
@@ -120,7 +121,6 @@ add_tracer("wow64"  "${tracer_dir}/syscalls32.json" "-w")
 add_tracer("nt"     "${tracer_dir}/heaps.json")
 
 # icebox
-set(icebox_dir "${root_dir}/src/icebox")
 add_target(icebox libs ${icebox_dir} OPTIONS fmt recurse tidy)
 target_include_directories(icebox
     PUBLIC
@@ -150,7 +150,7 @@ endif()
 set_property(TARGET icebox PROPERTY CXX_STANDARD 17)
 
 # icebox_cmd
-add_target(icebox_cmd apps "${root_dir}/src/icebox_cmd" OPTIONS executable fmt tidy)
+add_target(icebox_cmd apps "${root_dir}/src/icebox/icebox_cmd" OPTIONS executable fmt tidy)
 set_target_output_directory(icebox_cmd "")
 target_link_libraries(icebox_cmd PRIVATE icebox)
 
