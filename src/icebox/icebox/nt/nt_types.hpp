@@ -1,7 +1,7 @@
 #pragma once
 
-#include "types.hpp"
-#include "utils/utils.hpp"
+#include "icebox/types.hpp"
+#include "icebox/utils/utils.hpp"
 
 // nt::         native types
 // wow64::      wow64 types

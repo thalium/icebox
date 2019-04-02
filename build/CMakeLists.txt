@@ -124,8 +124,9 @@ add_tracer("nt"     "${tracer_dir}/heaps.json")
 add_target(icebox libs ${icebox_dir} OPTIONS fmt recurse tidy)
 target_include_directories(icebox
     PUBLIC
-    "${icebox_dir}"
+    "${root_dir}/src/icebox"
     PRIVATE
+    "${icebox_dir}"
     "${root_dir}/third_party/expected-lite/include"
     "${root_dir}/third_party/nlohmann_json/include"
 )

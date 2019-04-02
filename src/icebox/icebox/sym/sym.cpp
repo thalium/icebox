@@ -1,7 +1,7 @@
 #include "sym.hpp"
 
-#include "utils/fnview.hpp"
-#include "utils/hex.hpp"
+#include "icebox/utils/fnview.hpp"
+#include "icebox/utils/hex.hpp"
 
 #include <unordered_map>
 

@@ -1,10 +1,12 @@
 #pragma once
 
-#include "core.hpp"
+#include "icebox/types.hpp"
 
 #include "nt.hpp"
 
 #include <memory>
+
+namespace core { struct Core; }
 
 namespace nt
 {

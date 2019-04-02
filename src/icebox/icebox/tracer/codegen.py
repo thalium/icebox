@@ -28,10 +28,10 @@ def generate_registers(json_data, pad):
 def generate_header(json_data, filename, namespace, pad, wow64):
     return """#pragma once
 
-#include "core.hpp"
+#include "icebox/core.hpp"
+#include "icebox/nt/{namespace}.hpp"
+#include "icebox/types.hpp"
 #include "tracer.hpp"
-#include "types.hpp"
-#include "nt/{namespace}.hpp"
 
 #include <functional>
 

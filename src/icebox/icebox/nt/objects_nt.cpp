@@ -3,6 +3,7 @@
 #define FDP_MODULE "objects_nt"
 #include "log.hpp"
 
+#include "core.hpp"
 #include "endian.hpp"
 #include "os.hpp"
 #include "reader.hpp"

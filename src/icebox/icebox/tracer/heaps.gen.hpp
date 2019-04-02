@@ -1,9 +1,9 @@
 #pragma once
 
-#include "core.hpp"
+#include "icebox/core.hpp"
+#include "icebox/nt/nt.hpp"
+#include "icebox/types.hpp"
 #include "tracer.hpp"
-#include "types.hpp"
-#include "nt/nt.hpp"
 
 #include <functional>
 

@@ -1,15 +1,14 @@
-#include "callstack.hpp"
-#include "core.hpp"
-
 #define FDP_MODULE "main"
-#include <log.hpp>
-#include <os.hpp>
-#include <plugins/syscalls.hpp>
-#include <reader.hpp>
-#include <utils/fnview.hpp>
-#include <utils/path.hpp>
-#include <utils/pe.hpp>
-#include <waiter.hpp>
+#include <icebox/callstack.hpp>
+#include <icebox/core.hpp>
+#include <icebox/log.hpp>
+#include <icebox/os.hpp>
+#include <icebox/plugins/syscalls.hpp>
+#include <icebox/reader.hpp>
+#include <icebox/utils/fnview.hpp>
+#include <icebox/utils/path.hpp>
+#include <icebox/utils/pe.hpp>
+#include <icebox/waiter.hpp>
 
 #include <chrono>
 #include <thread>

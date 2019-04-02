@@ -2,7 +2,7 @@
 #    error do not include this header directly
 #endif
 
-#include "types.hpp"
+#include "icebox/types.hpp"
 
 namespace reader { struct Reader; }
 

@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 
-#include "endian.hpp"
+#include "icebox/endian.hpp"
 #include "utils.hpp"
 
 namespace hex
