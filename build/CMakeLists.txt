@@ -155,6 +155,11 @@ add_target(icebox_cmd apps "${root_dir}/src/icebox/icebox_cmd" OPTIONS executabl
 set_target_output_directory(icebox_cmd "")
 target_link_libraries(icebox_cmd PRIVATE icebox)
 
+# samples/vm_resume
+add_target(vm_resume samples "${root_dir}/src/icebox/samples/vm_resume" OPTIONS executable fmt tidy)
+set_target_output_directory(vm_resume "")
+target_link_libraries(vm_resume PRIVATE icebox)
+
 if(WIN32)
     # winbagility
     add_target(winbagility apps "${root_dir}/src/Winbagility" OPTIONS executable recurse warnings)
