@@ -187,3 +187,15 @@ if(WIN32)
         fdp
     )
 endif()
+
+# Generate BUILD.gen.md from .gitlab-ci.yml
+add_custom_target(md_doc ALL
+    COMMAND
+        ${PYTHON_EXECUTABLE}
+        "${root_dir}/build/yml2md.py"
+        -i "${root_dir}/.gitlab-ci.yml"
+        -o "${root_dir}/BUILD.gen.md"
+    DEPENDS
+        "${root_dir}/.gitlab-ci.yml"
+    COMMENT "Generating BUILD.gen.md"
+)
