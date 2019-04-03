@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 
 include(common.cmake)
 get_filename_component(root_dir     ${CMAKE_CURRENT_SOURCE_DIR}/.. ABSOLUTE)
-get_filename_component(bin_d_dir    ${root_dir}/bin/fdp_d_${ARCH}  ABSOLUTE)
-get_filename_component(bin_dir      ${root_dir}/bin/fdp_${ARCH}    ABSOLUTE)
+get_filename_component(bin_d_dir    ${root_dir}/bin/d_${ARCH}  ABSOLUTE)
+get_filename_component(bin_dir      ${root_dir}/bin/${ARCH}    ABSOLUTE)
 
 if(NOT MSVC)
     add_compile_options(
