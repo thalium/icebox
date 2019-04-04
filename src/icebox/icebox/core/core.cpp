@@ -96,8 +96,14 @@ bool core::Core::setup(std::string_view name)
     for(const auto& h : g_os_modules)
     {
         os = h.make(*this);
-        if(os)
+        if(!os)
+            continue;
+
+        ok = os->setup();
+        if(ok)
             break;
+
+        os.reset();
     }
     if(!os)
         return false;

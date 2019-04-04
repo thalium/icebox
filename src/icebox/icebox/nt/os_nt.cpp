@@ -152,10 +152,8 @@ namespace
     {
         OsNt(core::Core& core);
 
-        // methods
-        bool setup();
-
         // os::IModule
+        bool    setup               () override;
         bool    is_kernel_address   (uint64_t ptr) override;
         bool    can_inject_fault    (uint64_t ptr) override;
         bool    reader_setup        (reader::Reader& reader, proc_t proc) override;
@@ -258,8 +256,12 @@ bool OsNt::setup()
         return FAIL(false, "unable to find kernel");
 
     LOG(INFO, "kernel: {:#x} - {:#x} ({} {:#x})", kernel->addr, kernel->addr + kernel->size, kernel->size, kernel->size);
-    std::vector<uint8_t> buffer(kernel->size);
-    auto ok = core_.mem.read_virtual(&buffer[0], kernel->addr, kernel->size);
+    const auto debug = pe::find_debug_codeview(reader_, *kernel);
+    if(!debug)
+        return FAIL(false, "unable to find kernel debug section");
+
+    std::vector<uint8_t> buffer(debug->size);
+    auto ok = core_.mem.read_virtual(&buffer[0], debug->addr, debug->size);
     if(!ok)
         return FAIL(false, "unable to read kernel module");
 
@@ -332,15 +334,7 @@ bool OsNt::setup()
 
 std::unique_ptr<os::IModule> os::make_nt(core::Core& core)
 {
-    auto nt = std::make_unique<OsNt>(core);
-    if(!nt)
-        return nullptr;
-
-    const auto ok = nt->setup();
-    if(!ok)
-        return nullptr;
-
-    return nt;
+    return std::make_unique<OsNt>(core);
 }
 
 namespace

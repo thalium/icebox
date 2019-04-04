@@ -31,10 +31,8 @@ namespace
     {
         OsLinux(core::Core& core);
 
-        // methods
-        bool setup();
-
         // os::IModule
+        bool    setup               () override;
         bool    is_kernel_address   (uint64_t ptr) override;
         bool    can_inject_fault    (uint64_t ptr) override;
         bool    reader_setup        (reader::Reader& reader, proc_t proc) override;
@@ -105,15 +103,7 @@ bool OsLinux::setup()
 
 std::unique_ptr<os::IModule> os::make_linux(core::Core& core)
 {
-    auto oslinux = std::make_unique<OsLinux>(core);
-    if(!oslinux)
-        return nullptr;
-
-    const auto ok = oslinux->setup();
-    if(!ok)
-        return nullptr;
-
-    return oslinux;
+    return std::make_unique<OsLinux>(core);
 }
 
 bool OsLinux::proc_list(on_proc_fn on_process)
