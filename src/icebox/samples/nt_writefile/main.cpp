@@ -2,82 +2,36 @@
 #include <icebox/core.hpp>
 #include <icebox/log.hpp>
 #include <icebox/nt/objects_nt.hpp>
-#include <icebox/os.hpp>
+#include <icebox/plugins/sym_loader.hpp>
 #include <icebox/reader.hpp>
 #include <icebox/tracer/syscalls.gen.hpp>
 #include <icebox/utils/path.hpp>
-#include <icebox/utils/pe.hpp>
 #include <icebox/waiter.hpp>
 
 namespace
 {
-    static std::vector<uint8_t> load_module_buffer(core::Core& core, proc_t proc, span_t span)
-    {
-        std::vector<uint8_t> invalid(1);
-        const auto reader = reader::make(core, proc);
-        const auto debug  = pe::find_debug_codeview(reader, span);
-        if(!debug)
-            return invalid;
-
-        std::vector<uint8_t> buffer;
-        buffer.resize(debug->size);
-        auto ok = reader.read(&buffer[0], debug->addr, debug->size);
-        if(!ok)
-            return invalid;
-
-        return buffer;
-    }
-
-    static opt<std::string> load_module(core::Core& core, sym::Symbols& syms, proc_t proc, mod_t mod)
-    {
-        const auto name = core.os->mod_name(proc, mod);
-        if(!name)
-            return {};
-
-        LOG(INFO, "loading module {}", *name);
-        const auto span = core.os->mod_span(proc, mod);
-        if(!span)
-            return {};
-
-        LOG(INFO, "{} loaded at {:x}:{:x}", *name, span->addr, span->addr + span->size);
-        const auto buffer   = load_module_buffer(core, proc, *span);
-        const auto filename = path::filename(*name).replace_extension();
-        const auto inserted = syms.insert(filename.generic_string(), *span, &buffer[0], buffer.size());
-        if(!inserted)
-            return {};
-
-        return *name;
-    }
-
     static int listen_writefile(core::Core& core, std::string_view target)
     {
         LOG(INFO, "waiting for {}...", target);
-        const auto try_proc = waiter::proc_wait(core, target, FLAGS_NONE);
-        if(!try_proc)
+        const auto proc = waiter::proc_wait(core, target, FLAGS_NONE);
+        if(!proc)
             return FAIL(-1, "unable to wait for {}", target);
 
         LOG(INFO, "process {} active", target);
-        const auto proc  = *try_proc;
-        const auto ntdll = waiter::mod_wait(core, proc, "ntdll.dll", FLAGS_NONE);
+        const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
         if(!ntdll)
             return FAIL(-1, "unable to load ntdll.dll");
 
-        LOG(INFO, "loading ntdll module...");
-        sym::Symbols syms;
-        const auto loaded = load_module(core, syms, proc, *ntdll);
-        if(!loaded)
-            return FAIL(-1, "unable to load ntdll.dll symbols");
-
         LOG(INFO, "ntdll module loaded");
-        nt::ObjectNt objects{core, proc};
-
-        int idx = -1;
-        nt::syscalls tracer{core, syms, "ntdll"};
-        std::vector<uint8_t> buf;
-        const auto reader = reader::make(core, proc);
-        const auto bp     = tracer.register_NtWriteFile(proc, [&](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,
-                                                              nt::PVOID /*ApcContext*/, nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::PVOID Buffer,
-                                                              nt::ULONG Length, nt::PLARGE_INTEGER /*ByteOffset*/, nt::PULONG /*Key*/)
+        int idx           = -1;
+        auto loader       = sym::Loader{core, *proc};
+        auto objects      = nt::ObjectNt{core, *proc};
+        auto tracer       = nt::syscalls{core, loader.symbols(), "ntdll"};
+        auto buffer       = std::vector<uint8_t>{};
+        const auto reader = reader::make(core, *proc);
+        const auto bp     = tracer.register_NtWriteFile(*proc, [&](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,
+                                                               nt::PVOID /*ApcContext*/, nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::PVOID Buffer,
+                                                               nt::ULONG Length, nt::PLARGE_INTEGER /*ByteOffset*/, nt::PULONG /*Key*/)
         {
             ++idx;
             if(Length > 64 * 1024 * 1024)
@@ -101,8 +55,8 @@ namespace
             }
 
             LOG(INFO, "{}: {} byte(s)", *filename, Length);
-            buf.resize(Length);
-            const auto ok = reader.read(&buf[0], Buffer, Length);
+            buffer.resize(Length);
+            const auto ok = reader.read(&buffer[0], Buffer, Length);
             if(!ok)
             {
                 LOG(ERROR, "unable to read range:{:#x}-{:#x}", Buffer, Buffer + Length);
@@ -116,10 +70,10 @@ namespace
             if(!fh)
                 return;
 
-            const auto n = fwrite(&buf[0], 1, buf.size(), fh);
+            const auto n = fwrite(&buffer[0], 1, buffer.size(), fh);
             fclose(fh);
-            if(n != buf.size())
-                LOG(ERROR, "unable to write {}/{} byte(s)", n, buf.size());
+            if(n != buffer.size())
+                LOG(ERROR, "unable to write {}/{} byte(s)", n, buffer.size());
         });
 
         LOG(INFO, "listening NtWriteFile events...");
