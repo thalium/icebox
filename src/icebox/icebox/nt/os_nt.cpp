@@ -282,10 +282,9 @@ bool OsNt::setup()
             if(sym.e_cat == cat_e::REQUIRED)
                 LOG(ERROR, "unable to read {}!{} symbol offset", sym.module, sym.name);
             else
-                LOG(WARNING, "unable to read {}!{} symbol offset", sym.module, sym.name);
+                LOG(WARNING, "unable to read optional {}!{} symbol offset", sym.module, sym.name);
             continue;
         }
-
         symbols_[i] = *addr;
     }
 
@@ -301,7 +300,7 @@ bool OsNt::setup()
             if(off.e_cat == cat_e::REQUIRED)
                 LOG(ERROR, "unable to read {}!{}.{} member offset", off.module, off.struc, off.member);
             else
-                LOG(WARNING, "unable to read {}!{}.{} member offset", off.module, off.struc, off.member);
+                LOG(WARNING, "unable to read optional {}!{}.{} member offset", off.module, off.struc, off.member);
             continue;
         }
         offsets_[i] = *offset;
