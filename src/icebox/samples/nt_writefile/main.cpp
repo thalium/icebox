@@ -5,11 +5,43 @@
 #include <icebox/plugins/sym_loader.hpp>
 #include <icebox/reader.hpp>
 #include <icebox/tracer/syscalls.gen.hpp>
+#include <icebox/utils/file.hpp>
 #include <icebox/utils/path.hpp>
 #include <icebox/waiter.hpp>
 
 namespace
 {
+    static bool read_file(std::vector<uint8_t>& dst, const reader::Reader& reader, nt::PVOID Buffer, nt::ULONG Length)
+    {
+        if(Length > 64 * 1024 * 1024)
+            return FAIL(false, "buffer too big size:{}", Length);
+
+        dst.resize(Length);
+        const auto ok = reader.read(&dst[0], Buffer, Length);
+        if(!ok)
+            return FAIL(false, "unable to read range:{:#x}-{:#x}", Buffer, Buffer + Length);
+
+        return true;
+    }
+
+    static opt<std::string> read_filename(nt::ObjectNt& objects, nt::HANDLE FileHandle)
+    {
+        const auto file = objects.file_read(FileHandle);
+        if(!file)
+            return FAIL(ext::nullopt, "unable to read object {:#x}", FileHandle);
+
+        const auto filename = objects.file_name(*file);
+        if(!filename)
+            return FAIL(ext::nullopt, "unable to read filename from object {:#x}", file->id);
+
+        return *filename;
+    }
+
+    static bool is_ntdll(mod_t /*mod*/, const std::string& name)
+    {
+        return path::filename(name) == "ntdll.dll";
+    }
+
     static int listen_writefile(core::Core& core, std::string_view target)
     {
         LOG(INFO, "waiting for {}...", target);
@@ -18,15 +50,15 @@ namespace
             return FAIL(-1, "unable to wait for {}", target);
 
         LOG(INFO, "process {} active", target);
+        auto loader      = std::make_unique<sym::Loader>(core, *proc, &is_ntdll);
         const auto ntdll = waiter::mod_wait(core, *proc, "ntdll.dll", FLAGS_NONE);
         if(!ntdll)
             return FAIL(-1, "unable to load ntdll.dll");
 
         LOG(INFO, "ntdll module loaded");
         int idx           = -1;
-        auto loader       = sym::Loader{core, *proc};
         auto objects      = nt::ObjectNt{core, *proc};
-        auto tracer       = nt::syscalls{core, loader.symbols(), "ntdll"};
+        auto tracer       = nt::syscalls{core, loader->symbols(), "ntdll"};
         auto buffer       = std::vector<uint8_t>{};
         const auto reader = reader::make(core, *proc);
         const auto bp     = tracer.register_NtWriteFile(*proc, [&](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,
@@ -34,46 +66,16 @@ namespace
                                                                nt::ULONG Length, nt::PLARGE_INTEGER /*ByteOffset*/, nt::PULONG /*Key*/)
         {
             ++idx;
-            if(Length > 64 * 1024 * 1024)
-            {
-                LOG(ERROR, "buffer too big size:{}", Length);
+            const auto filename = read_filename(objects, FileHandle);
+            const auto read     = read_file(buffer, reader, Buffer, Length);
+            if(!filename || !read)
                 return;
-            }
-
-            const auto file = objects.file_read(FileHandle);
-            if(!file)
-            {
-                LOG(ERROR, "unable to read object {:#x}", FileHandle);
-                return;
-            }
-
-            const auto filename = objects.file_name(*file);
-            if(!filename)
-            {
-                LOG(ERROR, "unable to read filename from object {:#x}", file->id);
-                return;
-            }
 
             LOG(INFO, "{}: {} byte(s)", *filename, Length);
-            buffer.resize(Length);
-            const auto ok = reader.read(&buffer[0], Buffer, Length);
-            if(!ok)
-            {
-                LOG(ERROR, "unable to read range:{:#x}-{:#x}", Buffer, Buffer + Length);
-                return;
-            }
-
             const auto ext = fs::path(*filename).extension().generic_string();
             const auto dst = path::filename(*filename).replace_extension(std::to_string(idx) + ext);
-            const auto fh  = fopen(dst.generic_string().data(), "wb");
-            LOG(INFO, "dumping {}: {} byte(s)", dst.generic_string(), Length);
-            if(!fh)
-                return;
-
-            const auto n = fwrite(&buffer[0], 1, buffer.size(), fh);
-            fclose(fh);
-            if(n != buffer.size())
-                LOG(ERROR, "unable to write {}/{} byte(s)", n, buffer.size());
+            LOG(INFO, "dumping {}: {} byte(s)...", dst.generic_string(), buffer.size());
+            file::write(dst, &buffer[0], buffer.size());
         });
 
         LOG(INFO, "listening NtWriteFile events...");
