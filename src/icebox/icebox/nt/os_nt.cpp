@@ -211,8 +211,6 @@ namespace
         reader::Reader reader_;
         bpid_t         last_bpid_;
         Breakpoints    breakpoints_;
-        opt<phy_t>     LdrpInsertDataTableEntry;
-        opt<phy_t>     LdrpInsertDataTableEntry32;
     };
 }
 
@@ -472,8 +470,8 @@ uint64_t OsNt::proc_id(proc_t proc)
 
 namespace
 {
-    template <typename T, typename U>
-    static opt<bpid_t> listen_to(OsNt& os, bpid_t bpid, T addr, const U& on_value, void (*callback)(OsNt&, bpid_t, const U&))
+    template <typename T, typename U, typename V>
+    static opt<bpid_t> listen_to(OsNt& os, bpid_t bpid, T addr, const U& on_value, V callback)
     {
         const auto osptr = &os;
         const auto bp    = os.core_.state.set_breakpoint(addr, [=]
@@ -550,27 +548,6 @@ opt<bpid_t> OsNt::listen_thread_delete(const on_thread_event_fn& on_delete)
 
 namespace
 {
-    static std::shared_ptr<sym::Symbols> insert_pdb(const reader::Reader& reader, span_t span, const std::string& name)
-    {
-        std::shared_ptr<sym::Symbols> sym;
-        const auto debug = pe::find_debug_codeview(reader, span);
-        if(!debug)
-            return sym;
-
-        std::vector<uint8_t> buffer(debug->size);
-        const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
-        if(!ok)
-            return sym;
-
-        auto tmp            = std::make_shared<sym::Symbols>();
-        const auto inserted = tmp->insert(name, span, &buffer[0], buffer.size());
-        if(!inserted)
-            return sym;
-
-        sym = std::move(tmp);
-        return sym;
-    }
-
     static opt<span_t> get_ntdll_span(OsNt& os, proc_t proc, bool is_32bit)
     {
         opt<span_t> found;
@@ -644,9 +621,9 @@ namespace
         return span;
     }
 
-    static opt<phy_t> get_phy_from_sym(OsNt& os, proc_t proc, const std::shared_ptr<sym::Symbols>& sym, const std::string& mod_name, const std::string& sym_name)
+    static opt<phy_t> get_phy_from_sym(OsNt& os, proc_t proc, sym::Symbols& sym, const std::string& mod_name, const std::string& sym_name)
     {
-        const auto addr = sym->symbol(mod_name, sym_name);
+        const auto addr = sym.symbol(mod_name, sym_name);
         if(!addr)
             return {};
 
@@ -671,73 +648,84 @@ namespace
         on_mod(*proc, {mod_addr, flags});
     }
 
-    // Wait for kernel notification
-    static void on_PsCallImageNotifyRoutines(OsNt& os, bpid_t bpid, const OsNt::on_mod_event_fn& on_mod)
+    struct KernelModCreateCtx
     {
-        if(os.LdrpInsertDataTableEntry && os.LdrpInsertDataTableEntry32)
+        opt<phy_t> entry;
+        bool       is_32bit;
+        bool       done;
+    };
+
+    static opt<phy_t> load_ntdll_symbol(OsNt& os, proc_t proc, bool is_32bit, const char* mod, const char* name)
+    {
+        const auto phy = get_phy_from_sym(os, proc, os.syms_, mod, name);
+        if(phy)
+            return phy;
+
+        const auto ntdll = try_get_ntdll_span(os, proc, is_32bit);
+        if(!ntdll)
+            return {};
+
+        os.proc_join(proc, os::JOIN_USER_MODE);
+        const auto reader = reader::make(os.core_, proc);
+        const auto debug  = pe::find_debug_codeview(reader, *ntdll);
+        if(!debug)
+            return {};
+
+        std::vector<uint8_t> buffer(debug->size);
+        const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
+        if(!ok)
+            return {};
+
+        const auto inserted = os.syms_.insert(mod, *ntdll, &buffer[0], buffer.size());
+        if(!inserted)
+            return {};
+
+        return get_phy_from_sym(os, proc, os.syms_, mod, name);
+    }
+
+    static void on_PsCallImageNotifyRoutines(OsNt& os, KernelModCreateCtx& ctx, bpid_t bpid, const OsNt::on_mod_event_fn& on_mod)
+    {
+        if(ctx.done)
             return;
 
         const auto proc = os.proc_current();
         if(!proc)
             return;
 
-        opt<span_t> ntdll;
-        opt<span_t> ntdll32;
-        if(!os.LdrpInsertDataTableEntry)
-            ntdll = try_get_ntdll_span(os, *proc, false);
-
-        const auto flags = os.proc_flags(*proc);
-        if(!os.LdrpInsertDataTableEntry32)
-            if(flags & FLAGS_32BIT)
-                ntdll32 = try_get_ntdll_span(os, *proc, true);
-
-        if(!ntdll && !ntdll32)
+        const auto mod  = ctx.is_32bit ? "ntdll32" : "ntdll";
+        const auto name = ctx.is_32bit ? "_LdrpProcessMappedModule@16" : "LdrpProcessMappedModule";
+        ctx.entry       = load_ntdll_symbol(os, *proc, ctx.is_32bit, mod, name);
+        if(!ctx.entry)
             return;
 
-        os.proc_join(*proc, os::JOIN_USER_MODE);
+        if(!listen_to(os, bpid, *ctx.entry, on_mod, &on_LdrpInsertDataTableEntry))
+            return;
 
-        const auto reader = reader::make(os.core_, *proc);
-        if(!os.LdrpInsertDataTableEntry && ntdll)
-        {
-            const auto sym = insert_pdb(reader, *ntdll, "ntdll");
-            if(!sym)
-                return;
-
-            os.LdrpInsertDataTableEntry = get_phy_from_sym(os, *proc, sym, "ntdll", "LdrpProcessMappedModule");
-            if(os.LdrpInsertDataTableEntry)
-                if(!listen_to(os, bpid, *os.LdrpInsertDataTableEntry, on_mod, &on_LdrpInsertDataTableEntry))
-                    return;
-        }
-        if(!os.LdrpInsertDataTableEntry32 && ntdll32)
-        {
-            const auto sym = insert_pdb(reader, *ntdll32, "ntdll");
-            if(!sym)
-                return;
-
-            os.LdrpInsertDataTableEntry32 = get_phy_from_sym(os, *proc, sym, "ntdll", "_LdrpProcessMappedModule@16");
-            if(os.LdrpInsertDataTableEntry32)
-                if(!listen_to(os, bpid, *os.LdrpInsertDataTableEntry32, on_mod, &on_LdrpInsertDataTableEntry))
-                    return;
-        }
+        ctx.done = true;
     }
 }
 
 opt<bpid_t> OsNt::listen_mod_create(const on_mod_event_fn& on_mod)
 {
     const auto bpid = ++last_bpid_;
-    size_t count    = 0;
-    if(LdrpInsertDataTableEntry)
-        if(listen_to(*this, bpid, *LdrpInsertDataTableEntry, on_mod, &on_LdrpInsertDataTableEntry))
-            ++count;
+    const auto ctx  = std::make_shared<KernelModCreateCtx>();
+    auto ok         = listen_to(*this, bpid, symbols_[PsCallImageNotifyRoutines], on_mod, [=](OsNt& os, bpid_t bpid, const auto& on_mod)
+    {
+        on_PsCallImageNotifyRoutines(os, *ctx, bpid, on_mod);
+    });
+    if(!ok)
+        return {};
 
-    if(LdrpInsertDataTableEntry32)
-        if(listen_to(*this, bpid, *LdrpInsertDataTableEntry32, on_mod, &on_LdrpInsertDataTableEntry))
-            ++count;
+    const auto ctx32 = std::make_shared<KernelModCreateCtx>();
+    ctx32->is_32bit  = true;
+    ok               = listen_to(*this, bpid, symbols_[PsCallImageNotifyRoutines], on_mod, [=](OsNt& os, bpid_t bpid, const auto& on_mod)
+    {
+        on_PsCallImageNotifyRoutines(os, *ctx32, bpid, on_mod);
+    });
+    if(!ok)
+        return {};
 
-    if(count == 2)
-        return bpid;
-
-    return listen_to(*this, bpid, symbols_[PsCallImageNotifyRoutines], on_mod, &on_PsCallImageNotifyRoutines);
+    return bpid;
 }
 
 size_t OsNt::unlisten(bpid_t bpid)
