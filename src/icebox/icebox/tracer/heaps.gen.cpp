@@ -26,23 +26,25 @@ namespace
 
 struct nt::heaps::Data
 {
-    Data(core::Core& core, std::string_view module);
+    Data(core::Core& core, sym::Symbols& syms, std::string_view module);
 
-    core::Core& core;
-    std::string module;
-    Listeners   listeners;
-    bpid_t      last_id;
+    core::Core&   core;
+    sym::Symbols& syms;
+    std::string   module;
+    Listeners     listeners;
+    bpid_t        last_id;
 };
 
-nt::heaps::Data::Data(core::Core& core, std::string_view module)
+nt::heaps::Data::Data(core::Core& core, sym::Symbols& syms, std::string_view module)
     : core(core)
+    , syms(syms)
     , module(module)
     , last_id(0)
 {
 }
 
-nt::heaps::heaps(core::Core& core, std::string_view module)
-    : d_(std::make_unique<Data>(core, module))
+nt::heaps::heaps(core::Core& core, sym::Symbols& syms, std::string_view module)
+    : d_(std::make_unique<Data>(core, syms, module))
 {
 }
 
@@ -52,9 +54,9 @@ namespace
 {
     static opt<bpid_t> register_callback(nt::heaps::Data& d, bpid_t id, proc_t proc, const char* name, const core::Task& on_call)
     {
-        const auto addr = d.core.sym.symbol(d.module, name);
+        const auto addr = d.syms.symbol(d.module, name);
         if(!addr)
-            return FAIL(ext::nullopt, "unable to find symbole {}!{}", d.module.data(), name);
+            return FAIL(ext::nullopt, "unable to find symbole {}!{}", d.module, name);
 
         const auto bp = d.core.state.set_breakpoint(*addr, proc, on_call);
         if(!bp)

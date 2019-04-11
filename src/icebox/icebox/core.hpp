@@ -24,7 +24,6 @@ namespace core
         Registers                    regs;
         Memory                       mem;
         State                        state;
-        sym::Symbols                 sym;
         std::unique_ptr<os::IModule> os;
 
         // private data

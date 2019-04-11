@@ -28,46 +28,51 @@ namespace
         uint64_t          args_idx;
     };
 
-    using json        = nlohmann::json;
-    using Callsteps   = std::vector<callstack::callstep_t>;
-    using Triggers    = std::vector<bp_trigger_info_t>;
-    using SyscallData = plugins::Syscalls::Data;
+    using json      = nlohmann::json;
+    using Callsteps = std::vector<callstack::callstep_t>;
+    using Triggers  = std::vector<bp_trigger_info_t>;
+    using Data      = plugins::Syscalls::Data;
 }
 
 struct plugins::Syscalls::Data
 {
-    Data(core::Core& core);
+    Data(core::Core& core, sym::Symbols& syms, proc_t proc);
+
+    bool setup();
 
     core::Core&                            core_;
+    sym::Symbols&                          syms_;
+    proc_t                                 proc_;
     nt::syscalls                           syscalls_;
     nt::ObjectNt                           objects_;
     std::shared_ptr<callstack::ICallstack> callstack_;
     Callsteps                              callsteps_;
     Triggers                               triggers_;
     json                                   args_;
-    proc_t                                 target_;
     uint64_t                               nb_triggers_;
 };
 
-plugins::Syscalls::Data::Data(core::Core& core)
+plugins::Syscalls::Data::Data(core::Core& core, sym::Symbols& syms, proc_t proc)
     : core_(core)
-    , syscalls_(core, "ntdll")
-    , objects_(core)
-    , target_()
+    , syms_(syms)
+    , proc_(proc)
+    , syscalls_(core, syms, "ntdll")
+    , objects_(core, proc)
     , nb_triggers_()
 {
 }
 
-plugins::Syscalls::Syscalls(core::Core& core)
-    : d_(std::make_unique<Data>(core))
+plugins::Syscalls::Syscalls(core::Core& core, sym::Symbols& syms, proc_t proc)
+    : d_(std::make_unique<Data>(core, syms, proc))
 {
+    d_->setup();
 }
 
 plugins::Syscalls::~Syscalls() = default;
 
 namespace
 {
-    static json create_calltree(core::Core& core, Triggers& triggers, json& args, proc_t target, const Callsteps& callsteps)
+    static json create_calltree(core::Core& core, sym::Symbols& syms, Triggers& triggers, json& args, proc_t target, const Callsteps& callsteps)
     {
         using TriggersHash = std::unordered_map<uint64_t, Triggers>;
         json         calltree;
@@ -94,11 +99,11 @@ namespace
         // Call function recursively to create subtrees
         for(auto& it : intermediate_tree)
         {
-            auto cursor = core.sym.find(it.first);
+            auto cursor = syms.find(it.first);
             if(!cursor)
                 cursor = sym::Cursor{"_", "_>", it.first};
 
-            calltree[sym::to_string(*cursor).data()] = create_calltree(core, it.second, args, target, callsteps);
+            calltree[sym::to_string(*cursor).data()] = create_calltree(core, syms, it.second, args, target, callsteps);
         }
 
         // Place args (contained in a json that was made by the observer) on end nodes
@@ -109,19 +114,19 @@ namespace
         return calltree;
     }
 
-    static bool private_get_callstack(SyscallData& d)
+    static bool private_get_callstack(Data& d)
     {
         constexpr size_t cs_max_depth = 70;
 
         const auto idx = d.callsteps_.size();
         size_t cs_size = 0;
-        d.callstack_->get_callstack(d.target_, [&](callstack::callstep_t cstep)
+        d.callstack_->get_callstack(d.proc_, [&](callstack::callstep_t cstep)
         {
             d.callsteps_.push_back(cstep);
 
             if(false)
             {
-                auto cursor = d.core_.sym.find(cstep.addr);
+                auto cursor = d.syms_.find(cstep.addr);
                 if(!cursor)
                     cursor = sym::Cursor{"_", "_", cstep.addr};
 
@@ -140,55 +145,53 @@ namespace
     }
 }
 
-bool plugins::Syscalls::setup(proc_t target)
+bool Data::setup()
 {
-    d_->target_      = target;
-    d_->nb_triggers_ = 0;
+    nb_triggers_ = 0;
 
-    d_->callstack_ = callstack::make_callstack_nt(d_->core_);
-    if(!d_->callstack_)
+    callstack_ = callstack::make_callstack_nt(core_);
+    if(!callstack_)
         return FAIL(false, "unable to create callstack object");
 
-    d_->syscalls_.register_NtWriteFile(target, [=](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/, nt::PVOID /*ApcContext*/,
-                                                   nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::PVOID Buffer, nt::ULONG Length,
-                                                   nt::PLARGE_INTEGER /*ByteOffsetm*/, nt::PULONG /*Key*/)
+    syscalls_.register_NtWriteFile(proc_, [=](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/, nt::PVOID /*ApcContext*/,
+                                              nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::PVOID Buffer, nt::ULONG Length,
+                                              nt::PLARGE_INTEGER /*ByteOffsetm*/, nt::PULONG /*Key*/)
     {
         std::vector<char> buf(Length);
-        const auto proc   = d_->target_;
-        const auto reader = reader::make(d_->core_, proc);
+        const auto reader = reader::make(core_, proc_);
         const auto ok     = reader.read(&buf[0], Buffer, Length);
         if(!ok)
             return 1;
 
         buf[Length - 1]         = 0;
-        const auto obj          = d_->objects_.obj_read(proc, FileHandle);
-        const auto obj_typename = d_->objects_.obj_type(proc, *obj);
-        const auto file         = d_->objects_.file_read(proc, FileHandle);
-        const auto obj_filename = d_->objects_.file_name(proc, *file);
-        const auto device_obj   = d_->objects_.file_device(proc, *file);
-        const auto driver_obj   = d_->objects_.device_driver(proc, *device_obj);
-        const auto driver_name  = d_->objects_.driver_name(proc, *driver_obj);
+        const auto obj          = objects_.obj_read(FileHandle);
+        const auto obj_typename = objects_.obj_type(*obj);
+        const auto file         = objects_.file_read(FileHandle);
+        const auto obj_filename = objects_.file_name(*file);
+        const auto device_obj   = objects_.file_device(*file);
+        const auto driver_obj   = objects_.device_driver(*device_obj);
+        const auto driver_name  = objects_.driver_name(*driver_obj);
         LOG(INFO, " File handle; {:#x}, typename : {}, filename : {}, driver_name : {}", FileHandle, obj_typename->data(), obj_filename->data(), driver_name->data());
 
-        d_->args_[d_->nb_triggers_]["FileName"] = obj_filename->data();
-        d_->args_[d_->nb_triggers_]["Buffer"]   = buf;
-        private_get_callstack(*d_);
-        d_->nb_triggers_++;
+        args_[nb_triggers_]["FileName"] = obj_filename->data();
+        args_[nb_triggers_]["Buffer"]   = buf;
+        private_get_callstack(*this);
+        nb_triggers_++;
         return 0;
     });
 
-    d_->syscalls_.register_NtClose(target, [=](nt::HANDLE paramHandle)
+    syscalls_.register_NtClose(proc_, [=](nt::HANDLE paramHandle)
     {
-        d_->args_[d_->nb_triggers_]["Handle"] = paramHandle;
-        private_get_callstack(*d_);
-        d_->nb_triggers_++;
+        args_[nb_triggers_]["Handle"] = paramHandle;
+        private_get_callstack(*this);
+        nb_triggers_++;
         return 0;
     });
 
-    d_->syscalls_.register_NtDeviceIoControlFile(target, [=](nt::HANDLE /*FileHandle*/, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,
-                                                             nt::PVOID /*ApcContext*/, nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::ULONG /*IoControlCode*/,
-                                                             nt::PVOID /*InputBuffer*/, nt::ULONG /*InputBufferLength*/, nt::PVOID /*OutputBuffer*/,
-                                                             nt::ULONG /*OutputBufferLength*/)
+    syscalls_.register_NtDeviceIoControlFile(proc_, [=](nt::HANDLE /*FileHandle*/, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,
+                                                        nt::PVOID /*ApcContext*/, nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::ULONG /*IoControlCode*/,
+                                                        nt::PVOID /*InputBuffer*/, nt::ULONG /*InputBufferLength*/, nt::PVOID /*OutputBuffer*/,
+                                                        nt::ULONG /*OutputBufferLength*/)
     {
         return 0;
     });
@@ -198,7 +201,8 @@ bool plugins::Syscalls::setup(proc_t target)
 
 bool plugins::Syscalls::generate(const fs::path& file_name)
 {
-    const auto output = create_calltree(d_->core_, d_->triggers_, d_->args_, d_->target_, d_->callsteps_);
+    auto& d           = *d_;
+    const auto output = create_calltree(d.core_, d.syms_, d.triggers_, d.args_, d.proc_, d.callsteps_);
     const auto dump   = output.dump();
     const auto ok     = file::write(file_name, dump.data(), dump.size());
     return !!ok;

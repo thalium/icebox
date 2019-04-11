@@ -4,16 +4,14 @@
 
 #include <memory>
 
-namespace core
-{
-    struct Core;
-};
+namespace core { struct Core; }
+namespace sym { struct Symbols; }
 
 namespace plugins
 {
     struct FdpSan
     {
-         FdpSan(core::Core& core, proc_t target);
+         FdpSan(core::Core& core, sym::Symbols& syms, proc_t target);
         ~FdpSan();
 
         struct Data;

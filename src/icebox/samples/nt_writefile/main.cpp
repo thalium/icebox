@@ -28,7 +28,7 @@ namespace
         return buffer;
     }
 
-    static opt<std::string> load_module(core::Core& core, proc_t proc, mod_t mod)
+    static opt<std::string> load_module(core::Core& core, sym::Symbols& syms, proc_t proc, mod_t mod)
     {
         const auto name = core.os->mod_name(proc, mod);
         if(!name)
@@ -42,7 +42,7 @@ namespace
         LOG(INFO, "{} loaded at {:x}:{:x}", *name, span->addr, span->addr + span->size);
         const auto buffer   = load_module_buffer(core, proc, *span);
         const auto filename = path::filename(*name).replace_extension();
-        const auto inserted = core.sym.insert(filename.generic_string(), *span, &buffer[0], buffer.size());
+        const auto inserted = syms.insert(filename.generic_string(), *span, &buffer[0], buffer.size());
         if(!inserted)
             return {};
 
@@ -63,15 +63,16 @@ namespace
             return FAIL(-1, "unable to load ntdll.dll");
 
         LOG(INFO, "loading ntdll module...");
-        const auto loaded = load_module(core, proc, *ntdll);
+        sym::Symbols syms;
+        const auto loaded = load_module(core, syms, proc, *ntdll);
         if(!loaded)
             return FAIL(-1, "unable to load ntdll.dll symbols");
 
         LOG(INFO, "ntdll module loaded");
-        nt::ObjectNt objects{core};
+        nt::ObjectNt objects{core, proc};
 
         int idx = -1;
-        nt::syscalls tracer{core, "ntdll"};
+        nt::syscalls tracer{core, syms, "ntdll"};
         std::vector<uint8_t> buf;
         const auto reader = reader::make(core, proc);
         const auto bp     = tracer.register_NtWriteFile(proc, [&](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/,
@@ -85,14 +86,14 @@ namespace
                 return;
             }
 
-            const auto file = objects.file_read(proc, FileHandle);
+            const auto file = objects.file_read(FileHandle);
             if(!file)
             {
                 LOG(ERROR, "unable to read object {:#x}", FileHandle);
                 return;
             }
 
-            const auto filename = objects.file_name(proc, *file);
+            const auto filename = objects.file_name(*file);
             if(!filename)
             {
                 LOG(ERROR, "unable to read filename from object {:#x}", file->id);

@@ -12,12 +12,8 @@
 #include "utils/pe.hpp"
 #include "utils/utils.hpp"
 
-#include <algorithm>
 #include <array>
 #include <map>
-#include <string>
-#include <unordered_map>
-#include <vector>
 
 namespace std
 {
@@ -402,23 +398,6 @@ namespace
 
             const auto modname = c.core_.os->mod_name(proc, *mod);
             const auto span    = c.core_.os->mod_span(proc, *mod);
-
-            // Load PDB
-            if(false)
-            {
-                const auto debug = pe::find_debug_codeview(reader, *span);
-                if(!debug)
-                    return WALK_NEXT;
-
-                buffer.resize(debug->size);
-                const auto ok = reader.read(&buffer[0], debug->addr, debug->size);
-                if(!ok)
-                    return FAIL(WALK_NEXT, "unable to read IMAGE_CODEVIEW (RSDS)");
-
-                const auto filename = path::filename(*modname).replace_extension("").generic_string();
-                const auto inserted = c.core_.sym.insert(filename.data(), *span, &buffer[0], buffer.size());
-                UNUSED(inserted);
-            }
 
             // Get function table of the module
             const auto function_table = c.get_mod_functiontable(proc, *modname, *span);

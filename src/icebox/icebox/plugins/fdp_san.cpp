@@ -89,12 +89,12 @@ namespace
 
 struct plugins::FdpSan::Data
 {
-    Data(core::Core& core, proc_t target);
+    Data(core::Core& core, sym::Symbols& syms, proc_t target);
 
-    core::Core& core_;
-    nt::heaps   heap_tracer_;
-    Callstack   callstack_;
-
+    core::Core&    core_;
+    sym::Symbols&  symbols_;
+    nt::heaps      heap_tracer_;
+    Callstack      callstack_;
     ReturnCtx      returns_;
     HeapCtx        heap_;
     proc_t         target_;
@@ -102,9 +102,10 @@ struct plugins::FdpSan::Data
     size_t         ptr_size_;
 };
 
-Data::Data(core::Core& core, proc_t target)
+Data::Data(core::Core& core, sym::Symbols& syms, proc_t target)
     : core_(core)
-    , heap_tracer_(core, "ntdll")
+    , symbols_(syms)
+    , heap_tracer_(core, syms, "ntdll")
     , target_(target)
     , reader_(reader::make(core, target))
     , ptr_size_(core.os->proc_flags(target) & flags_e::FLAGS_32BIT ? 4 : 8)
@@ -252,7 +253,7 @@ namespace
         uint64_t cs_depth = 150;
         d.callstack_->get_callstack(d.target_, [&](callstack::callstep_t cstep)
         {
-            auto cursor = d.core_.sym.find(cstep.addr);
+            auto cursor = d.symbols_.find(cstep.addr);
             if(!cursor)
                 cursor = sym::Cursor{"_", "_", cstep.addr};
 
@@ -267,8 +268,8 @@ namespace
     }
 }
 
-plugins::FdpSan::FdpSan(core::Core& core, proc_t target)
-    : d_(std::make_unique<Data>(core, target))
+plugins::FdpSan::FdpSan(core::Core& core, sym::Symbols& syms, proc_t target)
+    : d_(std::make_unique<Data>(core, syms, target))
 {
     auto& d      = *d_;
     d.callstack_ = callstack::make_callstack_nt(d.core_);

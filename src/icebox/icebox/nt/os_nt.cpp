@@ -153,10 +153,11 @@ namespace
         OsNt(core::Core& core);
 
         // os::IModule
-        bool    setup               () override;
-        bool    is_kernel_address   (uint64_t ptr) override;
-        bool    can_inject_fault    (uint64_t ptr) override;
-        bool    reader_setup        (reader::Reader& reader, proc_t proc) override;
+        bool            setup               () override;
+        bool            is_kernel_address   (uint64_t ptr) override;
+        bool            can_inject_fault    (uint64_t ptr) override;
+        bool            reader_setup        (reader::Reader& reader, proc_t proc) override;
+        sym::Symbols&   kernel_symbols      () override;
 
         bool                proc_list       (on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
@@ -202,6 +203,7 @@ namespace
 
         // members
         core::Core&    core_;
+        sym::Symbols   syms_;
         NtOffsets      offsets_;
         NtSymbols      symbols_;
         std::string    last_dump_;
@@ -265,7 +267,7 @@ bool OsNt::setup()
     if(!ok)
         return FAIL(false, "unable to read kernel module");
 
-    ok = core_.sym.insert("nt", *kernel, &buffer[0], buffer.size());
+    ok = syms_.insert("nt", *kernel, &buffer[0], buffer.size());
     if(!ok)
         return FAIL(false, "unable to load symbols from kernel module");
 
@@ -275,7 +277,7 @@ bool OsNt::setup()
     for(const auto& sym : g_symbols)
     {
         fail |= sym.e_id != ++i;
-        const auto addr = core_.sym.symbol(sym.module, sym.name);
+        const auto addr = syms_.symbol(sym.module, sym.name);
         if(!addr)
         {
             fail |= sym.e_cat == cat_e::REQUIRED;
@@ -293,7 +295,7 @@ bool OsNt::setup()
     for(const auto& off : g_offsets)
     {
         fail |= off.e_id != ++i;
-        const auto offset = core_.sym.struc_offset(off.module, off.struc, off.member);
+        const auto offset = syms_.struc_offset(off.module, off.struc, off.member);
         if(!offset)
         {
             fail |= off.e_cat == cat_e::REQUIRED;
@@ -1095,6 +1097,11 @@ bool OsNt::reader_setup(reader::Reader& reader, proc_t proc)
     return true;
 }
 
+sym::Symbols& OsNt::kernel_symbols()
+{
+    return syms_;
+}
+
 namespace
 {
     static opt<arg_t> to_arg(opt<uint64_t> arg)
@@ -1224,7 +1231,7 @@ void OsNt::debug_print()
     const auto cs     = core_.regs.read(FDP_CS_REGISTER);
     const auto rip    = core_.regs.read(FDP_RIP_REGISTER);
     const auto cr3    = core_.regs.read(FDP_CR3_REGISTER);
-    const auto ripcur = core_.sym.find(rip);
+    const auto ripcur = syms_.find(rip);
     const auto ripsym = ripcur ? sym::to_string(*ripcur) : "";
     const auto thread = thread_current();
     const auto proc   = thread_proc(*thread);

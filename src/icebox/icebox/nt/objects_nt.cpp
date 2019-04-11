@@ -85,14 +85,20 @@ namespace
 
 struct nt::ObjectNt::Data
 {
-    Data(core::Core& core)
-        : core_(core)
+    Data(core::Core& core, proc_t proc)
+        : core(core)
+        , syms(core.os->kernel_symbols())
+        , proc(proc)
+        , reader(reader::make(core, proc))
     {
     }
 
-    core::Core&   core_;
-    MemberOffsets members_;
-    SymbolOffsets symbols_;
+    core::Core&    core;
+    sym::Symbols&  syms;
+    proc_t         proc;
+    reader::Reader reader;
+    MemberOffsets  members;
+    SymbolOffsets  symbols;
 };
 
 using Data = nt::ObjectNt::Data;
@@ -104,7 +110,7 @@ namespace
         bool fail = false;
         for(size_t i = 0; i < SYMBOL_OFFSET_COUNT; ++i)
         {
-            const auto addr = d.core_.sym.symbol(g_symbol_offsets[i].module, g_symbol_offsets[i].name);
+            const auto addr = d.syms.symbol(g_symbol_offsets[i].module, g_symbol_offsets[i].name);
             if(!addr)
             {
                 fail = true;
@@ -112,44 +118,44 @@ namespace
                 continue;
             }
 
-            d.symbols_[i] = *addr;
+            d.symbols[i] = *addr;
         }
         for(size_t i = 0; i < MEMBER_OFFSET_COUNT; ++i)
         {
-            const auto offset = d.core_.sym.struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
+            const auto offset = d.syms.struc_offset(g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
             if(!offset)
             {
                 fail = true;
                 LOG(INFO, "unable to read {}!{}.{} member offset", g_member_offsets[i].module, g_member_offsets[i].struc, g_member_offsets[i].member);
                 continue;
             }
-            d.members_[i] = *offset;
+            d.members[i] = *offset;
         }
         return !fail;
     }
 }
 
-nt::ObjectNt::ObjectNt(core::Core& core)
-    : d_(std::make_unique<Data>(core))
+nt::ObjectNt::ObjectNt(core::Core& core, proc_t proc)
+    : d_(std::make_unique<Data>(core, proc))
 {
     setup(*d_);
 }
 
 nt::ObjectNt::~ObjectNt() = default;
 
-opt<nt::obj_t> nt::ObjectNt::obj_read(proc_t proc, nt::HANDLE handle)
+opt<nt::obj_t> nt::ObjectNt::obj_read(nt::HANDLE handle)
 {
     // Is kernel handle
-    const auto reader            = reader::make(d_->core_, proc);
-    const auto handle_table_addr = handle & 0x80000000 ? d_->symbols_[ObpKernelHandleTable] : proc.id + d_->members_[EPROCESS_ObjectTable];
+    auto& d                      = *d_;
+    const auto handle_table_addr = handle & 0x80000000 ? d.symbols[ObpKernelHandleTable] : d.proc.id + d.members[EPROCESS_ObjectTable];
     if(handle & 0x80000000)
         handle = ((handle << 32) >> 32) & ~0xffffffff80000000;
 
-    const auto handle_table = reader.read(handle_table_addr);
+    const auto handle_table = d.reader.read(handle_table_addr);
     if(!handle_table)
         return FAIL(ext::nullopt, "unable to read handle table");
 
-    auto handle_table_code = reader.read(*handle_table + d_->members_[HANDLE_TABLE_TableCode]);
+    auto handle_table_code = d.reader.read(*handle_table + d.members[HANDLE_TABLE_TableCode]);
     if(!handle_table_code)
         return FAIL(ext::nullopt, "unable to read handle table code");
 
@@ -173,7 +179,7 @@ opt<nt::obj_t> nt::ObjectNt::obj_read(proc_t proc, nt::HANDLE handle)
             handle -= i;
             j = handle / (((PAGE_SIZE / HANDLE_TABLE_ENTRY_SIZE) * HANDLE_VALUE_INC) / POINTER_SIZE);
 
-            handle_table_code = reader.read(*handle_table_code + j);
+            handle_table_code = d.reader.read(*handle_table_code + j);
             // handle_table_code = *handle_table_code + j;
             break;
 
@@ -185,8 +191,8 @@ opt<nt::obj_t> nt::ObjectNt::obj_read(proc_t proc, nt::HANDLE handle)
             k -= j;
             k /= (PAGE_SIZE / POINTER_SIZE);
 
-            handle_table_code = reader.read(*handle_table_code + k);
-            handle_table_code = reader.read(*handle_table_code + j);
+            handle_table_code = d.reader.read(*handle_table_code + k);
+            handle_table_code = d.reader.read(*handle_table_code + j);
             break;
 
         default:
@@ -195,7 +201,7 @@ opt<nt::obj_t> nt::ObjectNt::obj_read(proc_t proc, nt::HANDLE handle)
     if(!*handle_table_code)
         return {};
 
-    const auto handle_table_entry = reader.read(*handle_table_code + i * (HANDLE_TABLE_ENTRY_SIZE / HANDLE_VALUE_INC));
+    const auto handle_table_entry = d.reader.read(*handle_table_code + i * (HANDLE_TABLE_ENTRY_SIZE / HANDLE_VALUE_INC));
     if(!handle_table_entry)
         return FAIL(ext::nullopt, "unable to read table entry");
 
@@ -203,74 +209,74 @@ opt<nt::obj_t> nt::ObjectNt::obj_read(proc_t proc, nt::HANDLE handle)
     uint64_t p                = 0xffff;
     const uint64_t obj_header = (((*handle_table_entry >> 16) | (p << 48)) >> 4) << 4;
 
-    const auto obj_body = obj_header + d_->members_[OBJECT_HEADER_Body];
+    const auto obj_body = obj_header + d.members[OBJECT_HEADER_Body];
     return obj_t{obj_body};
 }
 
-opt<std::string> nt::ObjectNt::obj_type(proc_t proc, nt::obj_t obj)
+opt<std::string> nt::ObjectNt::obj_type(nt::obj_t obj)
 {
     const auto POINTER_SIZE     = 8;
-    const auto reader           = reader::make(d_->core_, proc);
-    const auto obj_header       = obj.id - d_->members_[OBJECT_HEADER_Body];
-    const auto encoded_type_idx = reader.byte(obj_header + d_->members_[OBJECT_HEADER_TypeIndex]);
+    auto& d                     = *d_;
+    const auto obj_header       = obj.id - d.members[OBJECT_HEADER_Body];
+    const auto encoded_type_idx = d.reader.byte(obj_header + d.members[OBJECT_HEADER_TypeIndex]);
     if(!encoded_type_idx)
         return FAIL(ext::nullopt, "unable to read encoded type index");
 
-    const auto header_cookie = reader.byte(d_->symbols_[ObHeaderCookie]);
+    const auto header_cookie = d.reader.byte(d.symbols[ObHeaderCookie]);
     if(!header_cookie)
         return FAIL(ext::nullopt, "unable to read ObHeaderCookie");
 
     const uint8_t obj_addr_cookie = ((obj_header >> 8) & 0xff);
     const auto type_idx           = *encoded_type_idx ^ *header_cookie ^ obj_addr_cookie;
 
-    const auto obj_type = reader.read(d_->symbols_[ObTypeIndexTable] + type_idx * POINTER_SIZE);
+    const auto obj_type = d.reader.read(d.symbols[ObTypeIndexTable] + type_idx * POINTER_SIZE);
     if(!obj_type)
         return FAIL(ext::nullopt, "unable to read object type");
 
-    return nt::read_unicode_string(reader, *obj_type + d_->members_[OBJECT_TYPE_Name]);
+    return nt::read_unicode_string(d.reader, *obj_type + d.members[OBJECT_TYPE_Name]);
 }
 
-opt<nt::file_t> nt::ObjectNt::file_read(proc_t proc, HANDLE handle)
+opt<nt::file_t> nt::ObjectNt::file_read(HANDLE handle)
 {
-    const auto obj = obj_read(proc, handle);
+    const auto obj = obj_read(handle);
     if(!obj)
         return {};
 
-    const auto type = obj_type(proc, *obj);
+    const auto type = obj_type(*obj);
     if(*type != "File")
         return {};
 
     return file_t{obj->id};
 }
 
-opt<std::string> nt::ObjectNt::file_name(proc_t proc, file_t file)
+opt<std::string> nt::ObjectNt::file_name(file_t file)
 {
-    const auto reader = reader::make(d_->core_, proc);
-    return nt::read_unicode_string(reader, file.id + d_->members_[FILE_OBJECT_FileName]);
+    auto& d = *d_;
+    return nt::read_unicode_string(d.reader, file.id + d.members[FILE_OBJECT_FileName]);
 }
 
-opt<nt::device_t> nt::ObjectNt::file_device(proc_t proc, file_t file)
+opt<nt::device_t> nt::ObjectNt::file_device(file_t file)
 {
-    const auto reader     = reader::make(d_->core_, proc);
-    const auto device_obj = reader.read(file.id + d_->members_[FILE_OBJECT_DeviceObject]);
-    if(!device_obj)
+    auto& d        = *d_;
+    const auto dev = d.reader.read(file.id + d.members[FILE_OBJECT_DeviceObject]);
+    if(!dev)
         return {};
 
-    return device_t{*device_obj};
+    return device_t{*dev};
 }
 
-opt<nt::driver_t> nt::ObjectNt::device_driver(proc_t proc, device_t device)
+opt<nt::driver_t> nt::ObjectNt::device_driver(device_t device)
 {
-    const auto reader     = reader::make(d_->core_, proc);
-    const auto driver_obj = reader.read(device.id + d_->members_[DEVICE_OBJECT_DriverObject]);
-    if(!driver_obj)
+    auto& d        = *d_;
+    const auto drv = d.reader.read(device.id + d.members[DEVICE_OBJECT_DriverObject]);
+    if(!drv)
         return {};
 
-    return driver_t{*driver_obj};
+    return driver_t{*drv};
 }
 
-opt<std::string> nt::ObjectNt::driver_name(proc_t proc, driver_t driver)
+opt<std::string> nt::ObjectNt::driver_name(driver_t driver)
 {
-    const auto reader = reader::make(d_->core_, proc);
-    return nt::read_unicode_string(reader, driver.id + d_->members_[DRIVER_OBJECT_DriverName]);
+    auto& d = *d_;
+    return nt::read_unicode_string(d.reader, driver.id + d.members[DRIVER_OBJECT_DriverName]);
 }

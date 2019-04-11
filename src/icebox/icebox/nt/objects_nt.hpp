@@ -32,19 +32,19 @@ namespace nt
 
     struct ObjectNt
     {
-         ObjectNt(core::Core& core);
+         ObjectNt(core::Core& core, proc_t proc);
         ~ObjectNt();
 
-        opt<obj_t>          obj_read(proc_t proc, nt::HANDLE handle);
-        opt<std::string>    obj_type(proc_t proc, obj_t obj);
+        opt<obj_t>          obj_read(nt::HANDLE handle);
+        opt<std::string>    obj_type(obj_t obj);
 
-        opt<file_t>         file_read   (proc_t proc, nt::HANDLE handle);
-        opt<std::string>    file_name   (proc_t proc, file_t file);
-        opt<device_t>       file_device (proc_t proc, file_t file);
+        opt<file_t>         file_read   (nt::HANDLE handle);
+        opt<std::string>    file_name   (file_t file);
+        opt<device_t>       file_device (file_t file);
 
-        opt<driver_t> device_driver(proc_t proc, device_t device);
+        opt<driver_t> device_driver(device_t device);
 
-        opt<std::string> driver_name(proc_t proc, driver_t driver);
+        opt<std::string> driver_name(driver_t driver);
 
         struct Data;
         std::unique_ptr<Data> d_;

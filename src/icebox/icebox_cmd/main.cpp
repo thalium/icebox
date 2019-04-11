@@ -16,10 +16,9 @@
 namespace
 {
     template <typename T>
-    void test_tracer(core::Core& core, proc_t target)
+    void test_tracer(core::Core& core, sym::Symbols& syms, proc_t target)
     {
-        T syscall_plugin(core);
-        syscall_plugin.setup(target);
+        T syscall_plugin(core, syms, target);
 
         LOG(INFO, "Everything is set up ! Please trigger some syscalls");
 
@@ -36,7 +35,6 @@ namespace
     void test_wait_and_trace(core::Core& core, std::string_view proc_target)
     {
         LOG(INFO, "searching for 32 bits {} process", proc_target);
-        plugins::Syscalls32 syscalls(core);
         const auto target = waiter::proc_wait(core, proc_target, FLAGS_32BIT);
         if(!target)
             return;
@@ -63,14 +61,12 @@ namespace
         if(!ok)
             return;
 
-        const auto inserted = core.sym.insert("ntdll32", *span, &buffer[0], buffer.size());
+        sym::Symbols symbols;
+        const auto inserted = symbols.insert("ntdll32", *span, &buffer[0], buffer.size());
         if(!inserted)
             return;
 
-        ok = syscalls.setup(*target);
-        if(!ok)
-            return;
-
+        plugins::Syscalls32 syscalls(core, symbols, *target);
         LOG(INFO, "Every thing is ready ! Please trigger some syscalls");
 
         for(size_t i = 0; i < 3000; ++i)
@@ -131,6 +127,7 @@ namespace
             return WALK_NEXT;
         });
         size_t modi = 0;
+        sym::Symbols syms;
         core.os->mod_list(*target, [&](mod_t mod)
         {
             const auto name = core.os->mod_name(*target, mod);
@@ -152,7 +149,7 @@ namespace
                 return FAIL(WALK_NEXT, "Unable to read IMAGE_CODEVIEW (RSDS)");
 
             const auto filename = path::filename(*name).replace_extension("").generic_string();
-            const auto inserted = core.sym.insert(filename.data(), *span, &buffer[0], buffer.size());
+            const auto inserted = syms.insert(filename.data(), *span, &buffer[0], buffer.size());
             if(!inserted)
                 return WALK_NEXT;
 
@@ -165,14 +162,14 @@ namespace
             if(!rip)
                 return WALK_NEXT;
 
-            const auto name = core.sym.find(*rip);
+            const auto name = syms.find(*rip);
             LOG(INFO, "thread: {:#x} {:#x}{}", thread.id, *rip, name ? (" " + name->module + "!" + name->symbol + "+" + std::to_string(name->offset)).data() : "");
             return WALK_NEXT;
         });
 
         // check breakpoints
         {
-            const auto ptr = core.sym.symbol("nt", "SwapContext");
+            const auto ptr = syms.symbol("nt", "SwapContext");
             const auto bp  = core.state.set_breakpoint(*ptr, [&]
             {
                 const auto rip = core.regs.read(FDP_RIP_REGISTER);
@@ -184,7 +181,7 @@ namespace
                 const auto thread   = core.os->thread_current();
                 const auto tid      = core.os->thread_id(*proc, *thread);
                 const auto procname = proc ? core.os->proc_name(*proc) : ext::nullopt;
-                const auto sym      = core.sym.find(rip);
+                const auto sym      = syms.find(rip);
                 LOG(INFO, "BREAK! rip: {:#x} {} {} pid:{} tid:{}",
                     rip, sym ? sym::to_string(*sym).data() : "", procname ? procname->data() : "", pid, tid);
             });
@@ -201,7 +198,7 @@ namespace
             const auto cs_depth  = 40;
             const auto pdb_name  = "ntdll";
             const auto func_name = "RtlAllocateHeap";
-            const auto func_addr = core.sym.symbol(pdb_name, func_name);
+            const auto func_addr = syms.symbol(pdb_name, func_name);
             LOG(INFO, "{} = {:#x}", func_name, func_addr ? *func_addr : 0);
 
             const auto bp = core.state.set_breakpoint(*func_addr, *target, [&]
@@ -209,7 +206,7 @@ namespace
                 int k = 0;
                 callstack->get_callstack(*target, [&](callstack::callstep_t callstep)
                 {
-                    auto cursor = core.sym.find(callstep.addr);
+                    auto cursor = syms.find(callstep.addr);
                     if(!cursor)
                         cursor = sym::Cursor{"_", "_", callstep.addr};
 
@@ -232,9 +229,9 @@ namespace
         // test syscall plugin
         {
             if(is_32bit)
-                test_tracer<plugins::Syscalls32>(core, *target);
+                test_tracer<plugins::Syscalls32>(core, syms, *target);
             else
-                test_tracer<plugins::Syscalls>(core, *target);
+                test_tracer<plugins::Syscalls>(core, syms, *target);
         }
 
         {

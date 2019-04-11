@@ -32,10 +32,11 @@ namespace
         OsLinux(core::Core& core);
 
         // os::IModule
-        bool    setup               () override;
-        bool    is_kernel_address   (uint64_t ptr) override;
-        bool    can_inject_fault    (uint64_t ptr) override;
-        bool    reader_setup        (reader::Reader& reader, proc_t proc) override;
+        bool            setup               () override;
+        bool            is_kernel_address   (uint64_t ptr) override;
+        bool            can_inject_fault    (uint64_t ptr) override;
+        bool            reader_setup        (reader::Reader& reader, proc_t proc) override;
+        sym::Symbols&   kernel_symbols      () override;
 
         bool                proc_list       (on_proc_fn on_process) override;
         opt<proc_t>         proc_current    () override;
@@ -80,9 +81,10 @@ namespace
         void debug_print() override;
 
         // members
-        core::Core& core_;
-        os_offsets  members_;
-        uint64_t    init_task_addr_;
+        core::Core&  core_;
+        sym::Symbols syms_;
+        os_offsets   members_;
+        uint64_t     init_task_addr_;
     };
 }
 
@@ -238,6 +240,11 @@ bool OsLinux::reader_setup(reader::Reader& reader, proc_t proc)
     reader.udtb_ = proc.dtb;
     reader.kdtb_ = proc.dtb;
     return true;
+}
+
+sym::Symbols& OsLinux::kernel_symbols()
+{
+    return syms_;
 }
 
 bool OsLinux::thread_list(proc_t /*proc*/, on_thread_fn on_thread)
