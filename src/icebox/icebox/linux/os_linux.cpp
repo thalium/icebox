@@ -26,6 +26,15 @@ namespace
             0x50,
     };
 
+    static const os_offsets linux_4_15_0_47_offsets =
+        {
+            0xa50,
+            0x7a8,
+            0x7f8,
+            0x8a8,
+            0x50,
+    };
+
     struct OsLinux
         : public os::IModule
     {
@@ -103,10 +112,10 @@ OsLinux::OsLinux(core::Core& core)
 
 bool OsLinux::setup()
 {
-    members_ = linux_4_15_0_39_offsets;
+    members_ = linux_4_15_0_47_offsets;
 
     // Get this from System.map and deal with KASLR (look at pyrebox)
-    init_task_addr_ = 0xffffffff9e612480;
+    init_task_addr_ = 0xffffffff96412480;
 
     return true;
 }
