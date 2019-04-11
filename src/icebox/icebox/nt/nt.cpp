@@ -44,6 +44,9 @@ opt<std::string> nt::read_unicode_string(const reader::Reader& reader, uint64_t 
 STATIC_ASSERT_EQ(sizeof(wow64::_UNICODE_STRING), 8);
 STATIC_ASSERT_EQ(sizeof(nt::_UNICODE_STRING), 16);
 
+STATIC_ASSERT_EQ(sizeof(wow64::_OBJECT_ATTRIBUTES), 24);
+STATIC_ASSERT_EQ(sizeof(nt::_OBJECT_ATTRIBUTES), 48);
+
 const char* nt_types::access_mask_str(nt::ACCESS_MASK arg)
 {
     switch(arg)
@@ -230,6 +233,7 @@ STATIC_ASSERT_EQ(sizeof(nt::_UNICODE_STRING), sizeof(_UNICODE_STRING));
 STATIC_ASSERT_EQ(sizeof(nt::_LIST_ENTRY), sizeof(_LIST_ENTRY));
 STATIC_ASSERT_EQ(sizeof(nt::_PEB_LDR_DATA), sizeof(_PEB_LDR_DATA));
 STATIC_ASSERT_EQ(sizeof(nt::_LDR_DATA_TABLE_ENTRY), sizeof(_LDR_DATA_TABLE_ENTRY));
+STATIC_ASSERT_EQ(sizeof(nt::_OBJECT_ATTRIBUTES), sizeof(_OBJECT_ATTRIBUTES));
 
 STATIC_ASSERT_EQ(static_cast<uint32_t>(all_ACCESS_MASK[0]), DELETE);
 STATIC_ASSERT_EQ(static_cast<uint32_t>(all_ACCESS_MASK[1]), FILE_READ_DATA);

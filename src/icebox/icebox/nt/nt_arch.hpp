@@ -205,6 +205,16 @@ namespace nt_namespace
         _UNICODE_STRING CommandLine;
     };
 
+    struct _OBJECT_ATTRIBUTES
+    {
+        uint32_t Length;
+        ptr_t    RootDirectory;
+        ptr_t    ObjectName;
+        uint32_t Attributes;
+        ptr_t    SecurityDescriptor;
+        ptr_t    SecurityQualityOfService;
+    };
+
     opt<std::string> read_unicode_string(const reader::Reader& reader, uint64_t addr);
 } // namespace nt_namespace
 #undef nt_namespace

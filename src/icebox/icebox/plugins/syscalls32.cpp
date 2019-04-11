@@ -36,7 +36,6 @@ namespace
     using Triggers    = std::vector<bp_trigger_info_t>;
     using SyscallData = plugins::Syscalls32::Data;
     using Callstack   = std::shared_ptr<callstack::ICallstack>;
-    using ObjectsNt   = std::shared_ptr<nt::ObjectNt>;
 }
 
 struct plugins::Syscalls32::Data
@@ -45,7 +44,7 @@ struct plugins::Syscalls32::Data
 
     core::Core&       core_;
     wow64::syscalls32 syscalls_;
-    ObjectsNt         objects_;
+    nt::ObjectNt      objects_;
     Callstack         callstack_;
     Callsteps         callsteps_;
     Triggers          triggers_;
@@ -57,6 +56,7 @@ struct plugins::Syscalls32::Data
 plugins::Syscalls32::Data::Data(core::Core& core)
     : core_(core)
     , syscalls_(core, "ntdll32")
+    , objects_(core)
     , target_()
     , nb_triggers_()
 {
@@ -153,10 +153,6 @@ bool plugins::Syscalls32::setup(proc_t target)
     if(!d_->callstack_)
         return FAIL(false, "unable to create callstack object");
 
-    d_->objects_ = nt::make_objectnt(d_->core_);
-    if(!d_->objects_)
-        return FAIL(false, "Unable to create ObjectNt object");
-
     // Horrible workaround : Windows's 32 bit version on ntdll patches 4 bits of this function. Setting a breakpoint on this page with FDP
     // creates a glitch on the instruction that reads the patched bytes. Single stepping this instruction "simplify" the page resolution
     // and does not trigger the bug...
@@ -184,23 +180,23 @@ bool plugins::Syscalls32::setup(proc_t target)
             return 1;
 
         buf[Length - 1] = 0;
-        const auto obj  = d_->objects_->get_object_ref(proc, FileHandle);
-        if(!obj)
+        const auto file = d_->objects_.file_read(proc, FileHandle);
+        if(!file)
             return 1;
 
-        const auto obj_filename = d_->objects_->fileobj_filename(proc, *obj);
+        const auto obj_filename = d_->objects_.file_name(proc, *file);
         if(!obj_filename)
             return 1;
 
-        const auto device_obj = d_->objects_->fileobj_deviceobject(proc, *obj);
+        const auto device_obj = d_->objects_.file_device(proc, *file);
         if(!device_obj)
             return 1;
 
-        const auto driver_obj = d_->objects_->deviceobj_driverobject(proc, *device_obj);
+        const auto driver_obj = d_->objects_.device_driver(proc, *device_obj);
         if(!driver_obj)
             return 1;
 
-        const auto driver_name = d_->objects_->driverobj_drivername(proc, *driver_obj);
+        const auto driver_name = d_->objects_.driver_name(proc, *driver_obj);
         if(!driver_name)
             return 1;
 
@@ -218,19 +214,19 @@ bool plugins::Syscalls32::setup(proc_t target)
                                                              wow64::ULONG /*OutputBufferLength*/)
     {
         const auto proc = d_->target_;
-        const auto obj  = d_->objects_->get_object_ref(proc, FileHandle);
+        const auto obj  = d_->objects_.file_read(proc, FileHandle);
         if(!obj)
             return 1;
 
-        const auto device_obj = d_->objects_->fileobj_deviceobject(proc, *obj);
+        const auto device_obj = d_->objects_.file_device(proc, *obj);
         if(!device_obj)
             return 1;
 
-        const auto driver_obj = d_->objects_->deviceobj_driverobject(proc, *device_obj);
+        const auto driver_obj = d_->objects_.device_driver(proc, *device_obj);
         if(!driver_obj)
             return 1;
 
-        const auto driver_name = d_->objects_->driverobj_drivername(proc, *driver_obj);
+        const auto driver_name = d_->objects_.driver_name(proc, *driver_obj);
         if(!driver_name)
             return 1;
 
@@ -242,8 +238,17 @@ bool plugins::Syscalls32::setup(proc_t target)
     d_->syscalls_.register_NtOpenFile(target, [=](wow64::PHANDLE /*FileHandle*/, wow64::ACCESS_MASK /*DesiredAccess*/, wow64::POBJECT_ATTRIBUTES ObjectAttributes,
                                                   wow64::PIO_STATUS_BLOCK /*IoStatusBlock*/, wow64::ULONG /*ShareAccess*/, wow64::ULONG /*OpenOptions*/)
     {
-        const auto proc        = d_->target_;
-        const auto object_name = d_->objects_->objattribute_objectname(proc, ObjectAttributes);
+        wow64::_OBJECT_ATTRIBUTES attr;
+        const auto proc   = d_->target_;
+        const auto reader = reader::make(d_->core_, proc);
+        const auto ok     = reader.read(&attr, ObjectAttributes, sizeof attr);
+        if(!ok)
+            return 1;
+
+        if(!attr.ObjectName)
+            return 1;
+
+        const auto object_name = wow64::read_unicode_string(reader, attr.ObjectName);
         if(!object_name)
             return 1;
 
@@ -281,8 +286,17 @@ bool plugins::Syscalls32::setup(proc_t target)
                                                     wow64::ULONG /*ShareAccess*/, wow64::ULONG /*CreateDisposition*/, wow64::ULONG /*CreateOptions*/, wow64::PVOID /*EaBuffer*/,
                                                     wow64::ULONG /*EaLength*/)
     {
-        const auto proc        = d_->target_;
-        const auto object_name = d_->objects_->objattribute_objectname(proc, ObjectAttributes);
+        wow64::_OBJECT_ATTRIBUTES attr;
+        const auto proc   = d_->target_;
+        const auto reader = reader::make(d_->core_, proc);
+        const auto ok     = reader.read(&attr, ObjectAttributes, sizeof attr);
+        if(!ok)
+            return 1;
+
+        if(!attr.ObjectName)
+            return 1;
+
+        const auto object_name = wow64::read_unicode_string(reader, attr.ObjectName);
         if(!object_name)
             return 1;
 

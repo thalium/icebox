@@ -40,8 +40,8 @@ struct plugins::Syscalls::Data
 
     core::Core&                            core_;
     nt::syscalls                           syscalls_;
+    nt::ObjectNt                           objects_;
     std::shared_ptr<callstack::ICallstack> callstack_;
-    std::shared_ptr<nt::ObjectNt>          objects_;
     Callsteps                              callsteps_;
     Triggers                               triggers_;
     json                                   args_;
@@ -52,6 +52,7 @@ struct plugins::Syscalls::Data
 plugins::Syscalls::Data::Data(core::Core& core)
     : core_(core)
     , syscalls_(core, "ntdll")
+    , objects_(core)
     , target_()
     , nb_triggers_()
 {
@@ -148,10 +149,6 @@ bool plugins::Syscalls::setup(proc_t target)
     if(!d_->callstack_)
         return FAIL(false, "unable to create callstack object");
 
-    d_->objects_ = nt::make_objectnt(d_->core_);
-    if(!d_->objects_)
-        return FAIL(false, "unable to create ObjectNt object");
-
     d_->syscalls_.register_NtWriteFile(target, [=](nt::HANDLE FileHandle, nt::HANDLE /*Event*/, nt::PIO_APC_ROUTINE /*ApcRoutine*/, nt::PVOID /*ApcContext*/,
                                                    nt::PIO_STATUS_BLOCK /*IoStatusBlock*/, nt::PVOID Buffer, nt::ULONG Length,
                                                    nt::PLARGE_INTEGER /*ByteOffsetm*/, nt::PULONG /*Key*/)
@@ -164,12 +161,13 @@ bool plugins::Syscalls::setup(proc_t target)
             return 1;
 
         buf[Length - 1]         = 0;
-        const auto obj          = d_->objects_->get_object_ref(proc, FileHandle);
-        const auto obj_typename = d_->objects_->obj_typename(proc, *obj);
-        const auto obj_filename = d_->objects_->fileobj_filename(proc, *obj);
-        const auto device_obj   = d_->objects_->fileobj_deviceobject(proc, *obj);
-        const auto driver_obj   = d_->objects_->deviceobj_driverobject(proc, *device_obj);
-        const auto driver_name  = d_->objects_->driverobj_drivername(proc, *driver_obj);
+        const auto obj          = d_->objects_.obj_read(proc, FileHandle);
+        const auto obj_typename = d_->objects_.obj_type(proc, *obj);
+        const auto file         = d_->objects_.file_read(proc, FileHandle);
+        const auto obj_filename = d_->objects_.file_name(proc, *file);
+        const auto device_obj   = d_->objects_.file_device(proc, *file);
+        const auto driver_obj   = d_->objects_.device_driver(proc, *device_obj);
+        const auto driver_name  = d_->objects_.driver_name(proc, *driver_obj);
         LOG(INFO, " File handle; {:#x}, typename : {}, filename : {}, driver_name : {}", FileHandle, obj_typename->data(), obj_filename->data(), driver_name->data());
 
         d_->args_[d_->nb_triggers_]["FileName"] = obj_filename->data();

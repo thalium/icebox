@@ -97,13 +97,6 @@ struct nt::ObjectNt::Data
 
 using Data = nt::ObjectNt::Data;
 
-nt::ObjectNt::ObjectNt(core::Core& core)
-    : d_(std::make_unique<Data>(core))
-{
-}
-
-nt::ObjectNt::~ObjectNt() = default;
-
 namespace
 {
     static bool setup(Data& d)
@@ -136,31 +129,21 @@ namespace
     }
 }
 
-bool nt::ObjectNt::setup()
+nt::ObjectNt::ObjectNt(core::Core& core)
+    : d_(std::make_unique<Data>(core))
 {
-    return ::setup(*d_);
+    setup(*d_);
 }
 
-std::shared_ptr<nt::ObjectNt> nt::make_objectnt(core::Core& core)
-{
-    auto obj_nt = std::make_shared<nt::ObjectNt>(core);
-    if(!obj_nt)
-        return nullptr;
+nt::ObjectNt::~ObjectNt() = default;
 
-    const auto ok = obj_nt->setup();
-    if(!ok)
-        return nullptr;
-
-    return obj_nt;
-}
-
-opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
+opt<nt::obj_t> nt::ObjectNt::obj_read(proc_t proc, nt::HANDLE handle)
 {
     // Is kernel handle
     const auto reader            = reader::make(d_->core_, proc);
-    const auto handle_table_addr = (handle & 0x80000000) ? d_->symbols_[ObpKernelHandleTable] : proc.id + d_->members_[EPROCESS_ObjectTable];
+    const auto handle_table_addr = handle & 0x80000000 ? d_->symbols_[ObpKernelHandleTable] : proc.id + d_->members_[EPROCESS_ObjectTable];
     if(handle & 0x80000000)
-        handle = (((handle << 32) >> 32) & ~0xffffffff80000000);
+        handle = ((handle << 32) >> 32) & ~0xffffffff80000000;
 
     const auto handle_table = reader.read(handle_table_addr);
     if(!handle_table)
@@ -224,7 +207,7 @@ opt<nt::obj_t> nt::ObjectNt::get_object_ref(proc_t proc, nt::HANDLE handle)
     return obj_t{obj_body};
 }
 
-opt<std::string> nt::ObjectNt::obj_typename(proc_t proc, nt::obj_t obj)
+opt<std::string> nt::ObjectNt::obj_type(proc_t proc, nt::obj_t obj)
 {
     const auto POINTER_SIZE     = 8;
     const auto reader           = reader::make(d_->core_, proc);
@@ -247,56 +230,47 @@ opt<std::string> nt::ObjectNt::obj_typename(proc_t proc, nt::obj_t obj)
     return nt::read_unicode_string(reader, *obj_type + d_->members_[OBJECT_TYPE_Name]);
 }
 
-opt<std::string> nt::ObjectNt::fileobj_filename(proc_t proc, nt::obj_t obj)
+opt<nt::file_t> nt::ObjectNt::file_read(proc_t proc, HANDLE handle)
 {
-    const auto reader = reader::make(d_->core_, proc);
-    return nt::read_unicode_string(reader, obj.id + d_->members_[FILE_OBJECT_FileName]);
+    const auto obj = obj_read(proc, handle);
+    if(!obj)
+        return {};
+
+    const auto type = obj_type(proc, *obj);
+    if(*type != "File")
+        return {};
+
+    return file_t{obj->id};
 }
 
-opt<nt::obj_t> nt::ObjectNt::fileobj_deviceobject(proc_t proc, nt::obj_t obj)
+opt<std::string> nt::ObjectNt::file_name(proc_t proc, file_t file)
+{
+    const auto reader = reader::make(d_->core_, proc);
+    return nt::read_unicode_string(reader, file.id + d_->members_[FILE_OBJECT_FileName]);
+}
+
+opt<nt::device_t> nt::ObjectNt::file_device(proc_t proc, file_t file)
 {
     const auto reader     = reader::make(d_->core_, proc);
-    const auto device_obj = reader.read(obj.id + d_->members_[FILE_OBJECT_DeviceObject]);
+    const auto device_obj = reader.read(file.id + d_->members_[FILE_OBJECT_DeviceObject]);
     if(!device_obj)
         return {};
 
-    return obj_t{*device_obj};
+    return device_t{*device_obj};
 }
 
-opt<nt::obj_t> nt::ObjectNt::deviceobj_driverobject(proc_t proc, nt::obj_t obj)
+opt<nt::driver_t> nt::ObjectNt::device_driver(proc_t proc, device_t device)
 {
     const auto reader     = reader::make(d_->core_, proc);
-    const auto driver_obj = reader.read(obj.id + d_->members_[DEVICE_OBJECT_DriverObject]);
+    const auto driver_obj = reader.read(device.id + d_->members_[DEVICE_OBJECT_DriverObject]);
     if(!driver_obj)
         return {};
 
-    return obj_t{*driver_obj};
+    return driver_t{*driver_obj};
 }
 
-opt<std::string> nt::ObjectNt::driverobj_drivername(proc_t proc, nt::obj_t obj)
+opt<std::string> nt::ObjectNt::driver_name(proc_t proc, driver_t driver)
 {
     const auto reader = reader::make(d_->core_, proc);
-    return nt::read_unicode_string(reader, obj.id + d_->members_[DRIVER_OBJECT_DriverName]);
-}
-
-opt<std::string> nt::ObjectNt::objattribute_objectname(proc_t proc, uint64_t ptr)
-{
-    const auto reader   = reader::make(d_->core_, proc);
-    const auto cs       = d_->core_.regs.read(FDP_CS_REGISTER);
-    const auto is_32bit = cs == 0x23;
-    if(is_32bit)
-    {
-        // TODO get offset in 32 bits ntdll version's pdb
-        const auto obj_name = reader.le32(ptr + 8);
-        if(!obj_name || !*obj_name)
-            return {};
-
-        return wow64::read_unicode_string(reader, *obj_name);
-    }
-
-    const auto obj_name = reader.read(ptr + d_->members_[OBJECT_ATTRIBUTES_ObjectName]);
-    if(!obj_name || !*obj_name)
-        return {};
-
-    return nt::read_unicode_string(reader, *obj_name);
+    return nt::read_unicode_string(reader, driver.id + d_->members_[DRIVER_OBJECT_DriverName]);
 }

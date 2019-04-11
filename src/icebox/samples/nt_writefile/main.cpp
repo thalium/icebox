@@ -69,9 +69,6 @@ namespace
 
         LOG(INFO, "ntdll module loaded");
         nt::ObjectNt objects{core};
-        const auto ok = objects.setup();
-        if(!ok)
-            return FAIL(-1, "unable to load objects helper");
 
         int idx = -1;
         nt::syscalls tracer{core, "ntdll"};
@@ -88,17 +85,17 @@ namespace
                 return;
             }
 
-            const auto obj = objects.get_object_ref(proc, FileHandle);
-            if(!obj)
+            const auto file = objects.file_read(proc, FileHandle);
+            if(!file)
             {
                 LOG(ERROR, "unable to read object {:#x}", FileHandle);
                 return;
             }
 
-            const auto filename = objects.fileobj_filename(proc, *obj);
+            const auto filename = objects.file_name(proc, *file);
             if(!filename)
             {
-                LOG(ERROR, "unable to read filename from object {:#x}", obj->id);
+                LOG(ERROR, "unable to read filename from object {:#x}", file->id);
                 return;
             }
 
