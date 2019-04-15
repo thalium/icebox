@@ -10,30 +10,34 @@ namespace
 {
     struct os_offsets
     {
-        uint64_t name;
-        uint64_t tasks;
-        uint64_t mm;
-        uint64_t pid;
-        uint64_t pgd;
-    };
-
-    static const os_offsets linux_4_15_0_39_offsets =
-        {
-            0xa50,
-            0x7a8,
-            0x7f8,
-            0x8a8,
-            0x50,
+        uint64_t CURRENT_TASK;
+        uint64_t TASK_STRUCT_COMM;
+        uint64_t TASK_STRUCT_CRED;
+        uint64_t TASK_STRUCT_PID;
+        uint64_t TASK_STRUCT_TGID;
+        uint64_t TASK_STRUCT_REALPARENT;
+        uint64_t TASK_STRUCT_PARENT;
+        uint64_t TASK_STRUCT_TASKS;
+        uint64_t TASK_STRUCT_MM;
+        uint64_t TASK_STRUCT_ACTIVE_MM;
+        uint64_t MM_PGD;
+        uint64_t CRED_UID;
     };
 
     static const os_offsets linux_4_15_0_47_offsets =
         {
-            0xa50,
-            0x7a8,
-            0x7f8,
-            0x8a8,
-            0x50,
-    };
+            0x15c00,
+            2640,
+            2632,
+            2216,
+            2220,
+            2232,
+            2240,
+            1960,
+            2040,
+            2048,
+            80,
+            4};
 
     struct OsLinux
         : public os::IModule
@@ -98,25 +102,22 @@ namespace
         void debug_print() override;
 
         // members
-        core::Core&  core_;
-        sym::Symbols syms_;
-        os_offsets   members_;
-        uint64_t     init_task_addr_;
+        core::Core&    core_;
+        sym::Symbols   syms_;
+        os_offsets     members_;
+        reader::Reader reader_;
     };
 }
 
 OsLinux::OsLinux(core::Core& core)
     : core_(core)
+    , reader_(reader::make(core))
 {
 }
 
 bool OsLinux::setup()
 {
     members_ = linux_4_15_0_47_offsets;
-
-    // Get this from System.map and deal with KASLR (look at pyrebox)
-    init_task_addr_ = 0xffffffff96412480;
-
     return true;
 }
 
@@ -127,20 +128,23 @@ std::unique_ptr<os::IModule> os::make_linux(core::Core& core)
 
 bool OsLinux::proc_list(on_proc_fn on_process)
 {
-    const auto proc = core_.os->proc_current();
-    if(!proc)
+    const auto init_proc = core_.os->proc_current();
+    if(!init_proc)
         return false;
 
-    const auto head   = init_task_addr_ + members_.tasks;
-    const auto reader = reader::make(core_, *proc);
-    for(auto link = reader.read(head); link != head; link = reader.read(*link))
+    const auto head = init_proc->id + members_.TASK_STRUCT_TASKS;
+    for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
     {
-        const auto task_struc = *link - members_.tasks;
-        const auto pgd        = reader.read(task_struc + members_.pgd);
+        const auto task_struc = *link - members_.TASK_STRUCT_TASKS;
+        auto pgd              = reader_.read(task_struc + members_.TASK_STRUCT_MM + members_.MM_PGD);
         if(!pgd)
         {
-            LOG(ERROR, "unable to read task_struct.mm_struct.pgd from {:#x}", task_struc);
-            continue;
+            pgd = reader_.read(task_struc + members_.TASK_STRUCT_ACTIVE_MM + members_.MM_PGD);
+            if(!pgd)
+            {
+                LOG(ERROR, "unable to read task_struct.mm_struct.pgd from {:#x}", task_struc);
+                continue;
+            }
         }
 
         const auto err = on_process({task_struc, {*pgd}});
@@ -150,9 +154,18 @@ bool OsLinux::proc_list(on_proc_fn on_process)
     return true;
 }
 
-opt<proc_t> OsLinux::proc_current()
+opt<proc_t> OsLinux::proc_current() // proc init either ?
 {
-    return {};
+    auto kpcr = core_.regs.read(MSR_GS_BASE);
+    /*if (!is_kernel(kpcr))
+		kpcr_ = core_.regs.read(MSR_KERNEL_GS_BASE);
+	if (!is_kernel(kpcr_))
+		return FAIL(false, "unable to read KPCR");*/
+
+    const auto addr = kpcr + members_.CURRENT_TASK;
+
+    const auto proc_id = reader_.read(addr);
+    return proc_t{*proc_id, reader_.kdtb_}; // proc located at init_task
 }
 
 opt<proc_t> OsLinux::proc_find(std::string_view name, flags_e /*flags*/)
@@ -187,32 +200,29 @@ opt<proc_t> OsLinux::proc_find(uint64_t pid)
 
 opt<std::string> OsLinux::proc_name(proc_t proc)
 {
-    char buffer[14 + 1];
-    const auto reader         = reader::make(core_, proc);
-    const auto ok             = reader.read(buffer, proc.id + members_.name, sizeof buffer);
+    char buffer[20 + 1];
+    const auto ok             = reader_.read(buffer, proc.id + members_.TASK_STRUCT_COMM, sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
         return {};
 
     const auto name = std::string{buffer};
-    if(name.size() < sizeof buffer - 1)
-        return name;
+    if(name.size() == sizeof buffer - 1)
+        LOG(ERROR, "Process name buffer is too small");
 
     return name;
 }
 
 uint64_t OsLinux::proc_id(proc_t proc)
 {
-    // pid is a uin32_t on linux
-    const auto reader = reader::make(core_, proc);
-    const auto pid    = reader.le32(proc.id + members_.pid);
+    const auto reader = reader::make(core_);
+    const auto pid    = reader.le32(proc.id + members_.TASK_STRUCT_PID);
     if(!pid)
         return 0;
 
     return 0x0000000000000000 | *pid;
 }
 
-// DON'T USE THESE FUNCTIONS UNTIL YOU REWRITE THEM
 bool OsLinux::proc_is_valid(proc_t /*proc*/)
 {
     return true;
@@ -220,7 +230,7 @@ bool OsLinux::proc_is_valid(proc_t /*proc*/)
 
 bool OsLinux::is_kernel_address(uint64_t /*ptr*/)
 {
-    return false;
+    return true;
 }
 
 bool OsLinux::can_inject_fault(uint64_t /*ptr*/)
@@ -274,14 +284,17 @@ bool OsLinux::thread_list(proc_t /*proc*/, on_thread_fn on_thread)
     return true;
 }
 
+/*
+ * Threads are really just processes on Linux.
+ */
 opt<thread_t> OsLinux::thread_current()
 {
-    return {};
+    return thread_t{proc_current()->id};
 }
 
-opt<proc_t> OsLinux::thread_proc(thread_t /*thread*/)
+opt<proc_t> OsLinux::thread_proc(thread_t thread)
 {
-    return {};
+    return proc_t{thread.id, {}};
 }
 
 opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t /*thread*/)
