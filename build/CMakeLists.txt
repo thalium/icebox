@@ -152,10 +152,12 @@ target_compile_definitions(icebox PRIVATE
     _CRT_SECURE_NO_WARNINGS
     _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 )
-target_link_libraries(icebox PRIVATE
+target_link_libraries(icebox
+  PRIVATE
     loguru
     pdbparser
-    PUBLIC
+    libdwarf
+  PUBLIC
     fdp_static
     fmtlib
 )
