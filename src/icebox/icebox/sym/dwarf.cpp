@@ -12,7 +12,7 @@ namespace
     struct Dwarf
         : public sym::IMod
     {
-         Dwarf(fs::path filename, span_t span);
+         Dwarf(fs::path filename);
         ~Dwarf();
 
         // methods
@@ -35,16 +35,14 @@ namespace
 
         // members
         const fs::path filename_;
-        const span_t   span_;
         Dwarf_Debug dbg = nullptr;
         Dwarf_Error err = nullptr;
         std::vector<Dwarf_Die> structures; // buffer of all references of structures
     };
 }
 
-Dwarf::Dwarf(fs::path filename, span_t span)
+Dwarf::Dwarf(fs::path filename)
     : filename_(std::move(filename))
-    , span_(span)
 {
 }
 
@@ -56,13 +54,18 @@ Dwarf::~Dwarf()
     }
 }
 
-std::unique_ptr<sym::IMod> sym::make_dwarf(span_t span, const void* /*data*/, const size_t /*data_size*/)
+std::unique_ptr<sym::IMod> sym::make_dwarf()
+{
+    return make_dwarf({}, {}, {});
+}
+
+std::unique_ptr<sym::IMod> sym::make_dwarf(span_t /*span*/, const void* /*data*/, const size_t /*data_size*/)
 {
     const auto path = getenv("_LINUX_SYMBOL_PATH");
     if(!path)
         return nullptr;
 
-    auto ptr      = std::make_unique<Dwarf>(fs::path(path) / "kernel.ko", span);
+    auto ptr      = std::make_unique<Dwarf>(fs::path(path) / "kernel.ko");
     const auto ok = ptr->setup();
     if(!ok)
         return nullptr;
@@ -190,7 +193,7 @@ bool Dwarf::read_children(const Dwarf_Die& parent, std::vector<Dwarf_Die>& child
 
 span_t Dwarf::span()
 {
-    return span_;
+    return {};
 }
 
 opt<uint64_t> Dwarf::symbol(const std::string& /*symbol*/)
