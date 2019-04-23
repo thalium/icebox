@@ -19,7 +19,13 @@ int main(int argc, char** argv)
         return FAIL(-1, "unable to start core at {}", name.data());*/
 
     // lit le .dwarf
-    sym::make_dwarf({}, {}, {});
+    const auto ptr = sym::make_dwarf({}, {}, {});
+
+    const auto size = ptr->struc_size("task_struct");
+    LOG(INFO, "task_struct size : {} bytes", size ? *size : -1);
+
+    const auto offest_mm = ptr->struc_offset("task_struct", "mm");
+    LOG(INFO, "offset of mm in task_struct : {:#x}", offest_mm ? *offest_mm : -1);
 
     // liste les processus
     /*core.state.pause();
