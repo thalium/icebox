@@ -6,8 +6,9 @@
 
 int main(int argc, char** argv)
 {
+    // core initialization
     logg::init(argc, argv);
-    /*if(argc != 2)
+    if(argc != 2)
         return FAIL(-1, "usage: linux <name>");
 
     const auto name = std::string{argv[1]};
@@ -16,10 +17,11 @@ int main(int argc, char** argv)
     core::Core core;
     const auto ok = core.setup(name);
     if(!ok)
-        return FAIL(-1, "unable to start core at {}", name.data());*/
+        return FAIL(-1, "unable to start core at {}", name.data());
 
-    // lit le .dwarf
-    const auto ptr = sym::make_dwarf({}, {}, {});
+    // test reading dwarf file
+    LOG(INFO, "");
+    const auto ptr = sym::make_dwarf();
 
     const auto size = ptr->struc_size("task_struct");
     LOG(INFO, "task_struct size : {} bytes", size ? *size : -1);
@@ -27,9 +29,9 @@ int main(int argc, char** argv)
     const auto offest_mm = ptr->struc_offset("task_struct", "mm");
     LOG(INFO, "offset of mm in task_struct : {:#x}", offest_mm ? *offest_mm : -1);
 
-    // liste les processus
-    /*core.state.pause();
-    LOG(INFO, "processes:");
+    // get list of processes
+    core.state.pause();
+    LOG(INFO, "");
     core.os->proc_list([&](proc_t proc)
     {
         const auto proc_pid  = core.os->proc_id(proc);
@@ -38,10 +40,10 @@ int main(int argc, char** argv)
         return WALK_NEXT;
     });
     core.state.resume();
-    return 0;*/
 
-    // Affiche le proc current a chaque appui de touche
-    /*while(true)
+    // get the current process pressing a key
+    /*LOG(INFO, "");
+    while(true)
     {
         core.state.pause();
         const auto proc = core.os->proc_current();
@@ -52,6 +54,7 @@ int main(int argc, char** argv)
         }
         core.state.resume();
         system("pause");
-    }
-    return 0;*/
+    }*/
+
+    return 0;
 }

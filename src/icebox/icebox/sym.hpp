@@ -28,6 +28,7 @@ namespace sym
     std::unique_ptr<IMod>   make_pdb    (span_t span, const std::string& module, const std::string& guid);
     std::unique_ptr<IMod>   make_pdb    (span_t span, const void* data, const size_t data_size);
     std::unique_ptr<IMod>   make_dwarf  (span_t span, const void* data, const size_t data_size);
+    std::unique_ptr<IMod>   make_dwarf  ();
     std::unique_ptr<IMod>   make_empty  (span_t span, const void* data, const size_t data_size);
 
     struct Cursor

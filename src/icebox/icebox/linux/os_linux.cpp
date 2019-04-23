@@ -5,26 +5,80 @@
 #include "log.hpp"
 #include "reader.hpp"
 #include "utils/fnview.hpp"
+#include "utils/utils.hpp"
+
+#include <array>
 
 namespace
 {
-    struct os_offsets
+    enum class cat_e
     {
-        uint64_t CURRENT_TASK;
-        uint64_t TASK_STRUCT_COMM;
-        uint64_t TASK_STRUCT_CRED;
-        uint64_t TASK_STRUCT_PID;
-        uint64_t TASK_STRUCT_TGID;
-        uint64_t TASK_STRUCT_REALPARENT;
-        uint64_t TASK_STRUCT_PARENT;
-        uint64_t TASK_STRUCT_TASKS;
-        uint64_t TASK_STRUCT_MM;
-        uint64_t TASK_STRUCT_ACTIVE_MM;
-        uint64_t MM_PGD;
-        uint64_t CRED_UID;
+        REQUIRED,
+        OPTIONAL,
     };
 
-    static const os_offsets linux_4_15_0_47_offsets =
+    enum offset_e
+    {
+        TASKSTRUCT_COMM,
+        TASKSTRUCT_CRED,
+        TASKSTRUCT_PID,
+        TASKSTRUCT_TGID,
+        TASKSTRUCT_REALPARENT,
+        TASKSTRUCT_PARENT,
+        TASKSTRUCT_TASKS,
+        TASKSTRUCT_MM,
+        TASKSTRUCT_ACTIVEMM,
+        MMSTRUCT_PGD,
+        CRED_UID,
+        OFFSET_COUNT,
+    };
+
+    struct LinuxOffset
+    {
+        cat_e      e_cat;
+        offset_e   e_id;
+        const char module[16];
+        const char struc[32];
+        const char member[32];
+    };
+
+    const LinuxOffset g_offsets[] =
+    {
+            {cat_e::REQUIRED, TASKSTRUCT_COMM, "dwarf", "task_struct", "comm"},
+            {cat_e::REQUIRED, TASKSTRUCT_CRED, "dwarf", "task_struct", "cred"},
+            {cat_e::REQUIRED, TASKSTRUCT_PID, "dwarf", "task_struct", "pid"},
+            {cat_e::REQUIRED, TASKSTRUCT_TGID, "dwarf", "task_struct", "tgid"},
+            {cat_e::REQUIRED, TASKSTRUCT_REALPARENT, "dwarf", "task_struct", "real_parent"},
+            {cat_e::REQUIRED, TASKSTRUCT_PARENT, "dwarf", "task_struct", "parent"},
+            {cat_e::REQUIRED, TASKSTRUCT_TASKS, "dwarf", "task_struct", "tasks"},
+            {cat_e::REQUIRED, TASKSTRUCT_MM, "dwarf", "task_struct", "mm"},
+            {cat_e::REQUIRED, TASKSTRUCT_ACTIVEMM, "dwarf", "task_struct", "active_mm"},
+            {cat_e::REQUIRED, MMSTRUCT_PGD, "dwarf", "mm_struct", "pgd"},
+            {cat_e::REQUIRED, CRED_UID, "dwarf", "cred", "uid"},
+    };
+    static_assert(COUNT_OF(g_offsets) == OFFSET_COUNT, "invalid offsets");
+
+    enum symbol_e
+    {
+        CURRENT_TASK,
+        SYMBOL_COUNT,
+    };
+
+    struct LinuxSymbol
+    {
+        cat_e      e_cat;
+        symbol_e   e_id;
+        const char module[16];
+        const char name[32];
+    };
+
+    const LinuxSymbol g_symbols[] =
+    {
+            {cat_e::REQUIRED, CURRENT_TASK, "dwarf", "current_task"},
+    };
+    static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
+
+    /*static const os_offsets linux_4_15_0_47_offsets =
         {
             0x15c00,
             2640,
@@ -37,7 +91,10 @@ namespace
             2040,
             2048,
             80,
-            4};
+            4};*/
+
+    using LinuxOffsets = std::array<uint64_t, OFFSET_COUNT>;
+    using LinuxSymbols = std::array<uint64_t, SYMBOL_COUNT>;
 
     struct OsLinux
         : public os::IModule
@@ -104,8 +161,9 @@ namespace
         // members
         core::Core&    core_;
         sym::Symbols   syms_;
-        os_offsets     members_;
         reader::Reader reader_;
+        LinuxOffsets   offsets_;
+        LinuxSymbols   symbols_;
     };
 }
 
@@ -117,7 +175,53 @@ OsLinux::OsLinux(core::Core& core)
 
 bool OsLinux::setup()
 {
-    members_ = linux_4_15_0_47_offsets;
+    const auto ok = syms_.insert("dwarf", {}, {}, {});
+    if(!ok)
+        return FAIL(false, "unable to read dwarf file");
+
+    bool fail = false;
+    int i     = -1;
+    memset(&symbols_[0], 0, sizeof symbols_);
+    for(const auto& sym : g_symbols)
+    {
+        fail |= sym.e_id != ++i;
+        opt<uint64_t> addr;
+        if(sym.e_id == CURRENT_TASK)
+            addr = 0x15c00;
+        else
+            addr = {};
+        if(!addr)
+        {
+            fail |= sym.e_cat == cat_e::REQUIRED;
+            if(sym.e_cat == cat_e::REQUIRED)
+                LOG(ERROR, "unable to read {}!{} symbol offset", sym.module, sym.name);
+            else
+                LOG(WARNING, "unable to read optional {}!{} symbol offset", sym.module, sym.name);
+            continue;
+        }
+        symbols_[i] = *addr;
+    }
+
+    i = -1;
+    memset(&offsets_[0], 0, sizeof offsets_);
+    for(const auto& off : g_offsets)
+    {
+        fail |= off.e_id != ++i;
+        const auto offset = syms_.struc_offset(off.module, off.struc, off.member);
+        if(!offset)
+        {
+            fail |= off.e_cat == cat_e::REQUIRED;
+            if(off.e_cat == cat_e::REQUIRED)
+                LOG(ERROR, "unable to read {}!{}.{} member offset", off.module, off.struc, off.member);
+            else
+                LOG(WARNING, "unable to read optional {}!{}.{} member offset", off.module, off.struc, off.member);
+            continue;
+        }
+        offsets_[i] = *offset;
+    }
+    if(fail)
+        return false;
+
     return true;
 }
 
@@ -132,14 +236,14 @@ bool OsLinux::proc_list(on_proc_fn on_process)
     if(!init_proc)
         return false;
 
-    const auto head = init_proc->id + members_.TASK_STRUCT_TASKS;
+    const auto head = init_proc->id + offsets_[TASKSTRUCT_TASKS];
     for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
     {
-        const auto task_struc = *link - members_.TASK_STRUCT_TASKS;
-        auto pgd              = reader_.read(task_struc + members_.TASK_STRUCT_MM + members_.MM_PGD);
+        const auto task_struc = *link - offsets_[TASKSTRUCT_TASKS];
+        auto pgd              = reader_.read(task_struc + offsets_[TASKSTRUCT_MM] + offsets_[MMSTRUCT_PGD]);
         if(!pgd)
         {
-            pgd = reader_.read(task_struc + members_.TASK_STRUCT_ACTIVE_MM + members_.MM_PGD);
+            pgd = reader_.read(task_struc + offsets_[TASKSTRUCT_ACTIVEMM] + offsets_[MMSTRUCT_PGD]);
             if(!pgd)
             {
                 LOG(ERROR, "unable to read task_struct.mm_struct.pgd from {:#x}", task_struc);
@@ -162,7 +266,7 @@ opt<proc_t> OsLinux::proc_current() // proc init either ?
 	if (!is_kernel(kpcr_))
 		return FAIL(false, "unable to read KPCR");*/
 
-    const auto addr = kpcr + members_.CURRENT_TASK;
+    const auto addr = kpcr + symbols_[CURRENT_TASK];
 
     const auto proc_id = reader_.read(addr);
     return proc_t{*proc_id, reader_.kdtb_}; // proc located at init_task
@@ -201,7 +305,7 @@ opt<proc_t> OsLinux::proc_find(uint64_t pid)
 opt<std::string> OsLinux::proc_name(proc_t proc)
 {
     char buffer[20 + 1];
-    const auto ok             = reader_.read(buffer, proc.id + members_.TASK_STRUCT_COMM, sizeof buffer);
+    const auto ok             = reader_.read(buffer, proc.id + offsets_[TASKSTRUCT_COMM], sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
         return {};
@@ -216,7 +320,7 @@ opt<std::string> OsLinux::proc_name(proc_t proc)
 uint64_t OsLinux::proc_id(proc_t proc)
 {
     const auto reader = reader::make(core_);
-    const auto pid    = reader.le32(proc.id + members_.TASK_STRUCT_PID);
+    const auto pid    = reader.le32(proc.id + offsets_[TASKSTRUCT_PID]);
     if(!pid)
         return 0;
 
