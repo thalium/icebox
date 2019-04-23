@@ -72,6 +72,7 @@ namespace
         opt<bpid_t> listen_thread_create(const on_thread_event_fn& on_create) override;
         opt<bpid_t> listen_thread_delete(const on_thread_event_fn& on_delete) override;
         opt<bpid_t> listen_mod_create   (const on_mod_event_fn& on_create) override;
+        opt<bpid_t> listen_drv_create   (const on_drv_event_fn& on_drv) override;
         size_t      unlisten            (bpid_t bpid) override;
 
         opt<arg_t>  read_stack  (size_t index) override;
@@ -358,6 +359,11 @@ opt<OsLinux::bpid_t> OsLinux::listen_thread_delete(const on_thread_event_fn& /*o
 }
 
 opt<OsLinux::bpid_t> OsLinux::listen_mod_create(const on_mod_event_fn& /*on_create*/)
+{
+    return {};
+}
+
+opt<OsLinux::bpid_t> OsLinux::listen_drv_create(const on_drv_event_fn&)
 {
     return {};
 }

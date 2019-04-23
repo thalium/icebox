@@ -115,6 +115,7 @@ namespace
         PspInsertThread,
         PspExitProcess,
         PspExitThread,
+        MiProcessLoaderEntry,
         SYMBOL_COUNT,
     };
 
@@ -137,6 +138,7 @@ namespace
         {cat_e::REQUIRED, PspInsertThread,                     "nt", "PspInsertThread"},
         {cat_e::REQUIRED, PspExitProcess,                      "nt", "PspExitProcess"},
         {cat_e::REQUIRED, PspExitThread,                       "nt", "PspExitThread"},
+        {cat_e::REQUIRED, MiProcessLoaderEntry,                "nt", "MiProcessLoaderEntry"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
@@ -193,6 +195,7 @@ namespace
         opt<bpid_t> listen_thread_create(const on_thread_event_fn& on_thread_event) override;
         opt<bpid_t> listen_thread_delete(const on_thread_event_fn& on_thread_event) override;
         opt<bpid_t> listen_mod_create   (const on_mod_event_fn& on_load) override;
+        opt<bpid_t> listen_drv_create   (const on_drv_event_fn& on_drv) override;
         size_t      unlisten            (bpid_t bpid) override;
 
         opt<arg_t>  read_stack  (size_t index) override;
@@ -725,6 +728,21 @@ opt<bpid_t> OsNt::listen_mod_create(const on_mod_event_fn& on_mod)
     ok               = listen_to(*this, bpid, symbols_[PsCallImageNotifyRoutines], on_mod, [=](OsNt& os, bpid_t bpid, const auto& on_mod)
     {
         on_PsCallImageNotifyRoutines(os, *ctx32, bpid, on_mod);
+    });
+    if(!ok)
+        return {};
+
+    return bpid;
+}
+
+opt<bpid_t> OsNt::listen_drv_create(const on_drv_event_fn& on_drv)
+{
+    const auto bpid = ++last_bpid_;
+    const auto ok   = listen_to(*this, bpid, symbols_[MiProcessLoaderEntry], on_drv, [](OsNt& os, bpid_t /*bpid*/, const auto& on_drv)
+    {
+        const auto drv_addr   = os.core_.regs.read(FDP_RCX_REGISTER);
+        const auto drv_loaded = os.core_.regs.read(FDP_RDX_REGISTER);
+        on_drv({drv_addr}, drv_loaded);
     });
     if(!ok)
         return {};

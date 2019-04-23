@@ -31,6 +31,7 @@ namespace os
         using on_proc_event_fn   = std::function<void(proc_t)>;
         using on_thread_event_fn = std::function<void(thread_t)>;
         using on_mod_event_fn    = std::function<void(proc_t, mod_t)>;
+        using on_drv_event_fn    = std::function<void(driver_t, bool load)>;
 
         virtual bool            setup               () = 0;
         virtual bool            is_kernel_address   (uint64_t ptr) = 0;
@@ -72,6 +73,7 @@ namespace os
         virtual opt<bpid_t> listen_thread_create(const on_thread_event_fn& on_thread_event) = 0;
         virtual opt<bpid_t> listen_thread_delete(const on_thread_event_fn& on_thread_event) = 0;
         virtual opt<bpid_t> listen_mod_create   (const on_mod_event_fn& on_load) = 0;
+        virtual opt<bpid_t> listen_drv_create   (const on_drv_event_fn& on_load) = 0;
         virtual size_t      unlisten            (bpid_t bpid) = 0;
 
         virtual opt<arg_t>  read_stack  (size_t index) = 0;
