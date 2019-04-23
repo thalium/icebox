@@ -41,21 +41,22 @@ namespace
         const char struc[32];
         const char member[32];
     };
-
+    // clang-format off
     const LinuxOffset g_offsets[] =
     {
-            {cat_e::REQUIRED, TASKSTRUCT_COMM, "dwarf", "task_struct", "comm"},
-            {cat_e::REQUIRED, TASKSTRUCT_CRED, "dwarf", "task_struct", "cred"},
-            {cat_e::REQUIRED, TASKSTRUCT_PID, "dwarf", "task_struct", "pid"},
-            {cat_e::REQUIRED, TASKSTRUCT_TGID, "dwarf", "task_struct", "tgid"},
-            {cat_e::REQUIRED, TASKSTRUCT_REALPARENT, "dwarf", "task_struct", "real_parent"},
-            {cat_e::REQUIRED, TASKSTRUCT_PARENT, "dwarf", "task_struct", "parent"},
-            {cat_e::REQUIRED, TASKSTRUCT_TASKS, "dwarf", "task_struct", "tasks"},
-            {cat_e::REQUIRED, TASKSTRUCT_MM, "dwarf", "task_struct", "mm"},
-            {cat_e::REQUIRED, TASKSTRUCT_ACTIVEMM, "dwarf", "task_struct", "active_mm"},
-            {cat_e::REQUIRED, MMSTRUCT_PGD, "dwarf", "mm_struct", "pgd"},
-            {cat_e::REQUIRED, CRED_UID, "dwarf", "cred", "uid"},
+            {cat_e::REQUIRED,	TASKSTRUCT_COMM,			"dwarf",	"task_struct",		"comm"},
+            {cat_e::REQUIRED,	TASKSTRUCT_CRED,			"dwarf",	"task_struct",		"cred"},
+            {cat_e::REQUIRED,	TASKSTRUCT_PID,				"dwarf",	"task_struct",		"pid"},
+            {cat_e::REQUIRED,	TASKSTRUCT_TGID,			"dwarf",	"task_struct",		"tgid"},
+            {cat_e::REQUIRED,	TASKSTRUCT_REALPARENT,		"dwarf",	"task_struct",		"real_parent"},
+            {cat_e::REQUIRED,	TASKSTRUCT_PARENT,			"dwarf",	"task_struct",		"parent"},
+            {cat_e::REQUIRED,	TASKSTRUCT_TASKS,			"dwarf",	"task_struct",		"tasks"},
+            {cat_e::REQUIRED,	TASKSTRUCT_MM,				"dwarf",	"task_struct",		"mm"},
+            {cat_e::REQUIRED,	TASKSTRUCT_ACTIVEMM,		"dwarf",	"task_struct",		"active_mm"},
+            {cat_e::REQUIRED,	MMSTRUCT_PGD,				"dwarf",	"mm_struct",		"pgd"},
+            {cat_e::REQUIRED,	CRED_UID,					"dwarf",	"cred",				"uid"},
     };
+    // clang-format on
     static_assert(COUNT_OF(g_offsets) == OFFSET_COUNT, "invalid offsets");
 
     enum symbol_e
@@ -71,27 +72,13 @@ namespace
         const char module[16];
         const char name[32];
     };
-
+    // clang-format off
     const LinuxSymbol g_symbols[] =
     {
-            {cat_e::REQUIRED, CURRENT_TASK, "dwarf", "current_task"},
+            {cat_e::REQUIRED,	CURRENT_TASK,				"dwarf",	"current_task"},
     };
+    // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
-
-    /*static const os_offsets linux_4_15_0_47_offsets =
-        {
-            0x15c00,
-            2640,
-            2632,
-            2216,
-            2220,
-            2232,
-            2240,
-            1960,
-            2040,
-            2048,
-            80,
-            4};*/
 
     using LinuxOffsets = std::array<uint64_t, OFFSET_COUNT>;
     using LinuxSymbols = std::array<uint64_t, SYMBOL_COUNT>;
