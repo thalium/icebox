@@ -7,6 +7,8 @@
 #include "utils/fnview.hpp"
 #include "utils/utils.hpp"
 
+#include "map.hpp"
+
 #include <array>
 
 namespace
@@ -162,9 +164,12 @@ OsLinux::OsLinux(core::Core& core)
 
 bool OsLinux::setup()
 {
-    const auto ok = syms_.insert("dwarf", {}, {}, {});
-    if(!ok)
+    if(!syms_.insert("dwarf", {}, {}, {}))
         return FAIL(false, "unable to read dwarf file");
+
+    auto system_map = sym::Map();
+    if(!system_map.setup())
+        return FAIL(false, "unable to read System.map file");
 
     bool fail = false;
     int i     = -1;
@@ -172,11 +177,7 @@ bool OsLinux::setup()
     for(const auto& sym : g_symbols)
     {
         fail |= sym.e_id != ++i;
-        opt<uint64_t> addr;
-        if(sym.e_id == CURRENT_TASK)
-            addr = 0x15c00;
-        else
-            addr = {};
+        const auto addr = system_map.symbol(sym.name);
         if(!addr)
         {
             fail |= sym.e_cat == cat_e::REQUIRED;
