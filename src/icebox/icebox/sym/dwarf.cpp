@@ -90,7 +90,7 @@ bool Dwarf::setup()
     }
 
     if(structures.empty())
-        FAIL(false, "no structures found in file {}", filename_.generic_string());
+        return FAIL(false, "no structures found in file {}", filename_.generic_string());
 
     return true;
 }
@@ -113,10 +113,10 @@ bool Dwarf::open_file()
     );
 
     if(ok == DW_DLV_ERROR)
-        FAIL(false, "libdwarf error {} when initializing dwarf file : {}", dwarf_errno(err), dwarf_errmsg(err));
+        return FAIL(false, "libdwarf error {} when initializing dwarf file : {}", dwarf_errno(err), dwarf_errmsg(err));
 
     if(ok == DW_DLV_NO_ENTRY)
-        FAIL(false, "unfound file or dwarf information in file '{}'", filename_.generic_string());
+        return FAIL(false, "unfound file or dwarf information in file '{}'", filename_.generic_string());
 
     return true;
 }
@@ -146,7 +146,7 @@ opt<std::vector<Dwarf_Die>> Dwarf::read_cu()
         );
 
         if(ok == DW_DLV_ERROR)
-            FAIL(ext::nullopt, "libdwarf error {} when reading dwarf file : {}", dwarf_errno(err), dwarf_errmsg(err));
+            return FAIL(ext::nullopt, "libdwarf error {} when reading dwarf file : {}", dwarf_errno(err), dwarf_errmsg(err));
 
         if(ok == DW_DLV_NO_ENTRY)
             break;
@@ -158,13 +158,13 @@ opt<std::vector<Dwarf_Die>> Dwarf::read_cu()
             continue;
 
         if(ok == DW_DLV_ERROR)
-            FAIL(ext::nullopt, "libdwarf error {} when reading dwarf file : {}", dwarf_errno(err), dwarf_errmsg(err));
+            return FAIL(ext::nullopt, "libdwarf error {} when reading dwarf file : {}", dwarf_errno(err), dwarf_errmsg(err));
 
         cu.get()->push_back(*die.get());
     }
 
     if(cu.get()->empty())
-        FAIL(false, "no compilation unit found in file {}", filename_.generic_string());
+        return FAIL(ext::nullopt, "no compilation unit found in file {}", filename_.generic_string());
 
     return *cu.get();
 }
@@ -181,7 +181,7 @@ bool Dwarf::read_children(const Dwarf_Die& parent, std::vector<Dwarf_Die>& child
         if(ok == DW_DLV_ERROR)
         {
             children.clear();
-            FAIL(false, "libdwarf error {} when reading dwarf file : {}", dwarf_errno(err), dwarf_errmsg(err));
+            return FAIL(false, "libdwarf error {} when reading dwarf file : {}", dwarf_errno(err), dwarf_errmsg(err));
         }
         children.push_back(*child.get());
 
@@ -239,20 +239,20 @@ opt<uint64_t> Dwarf::get_attr_member_location(const Dwarf_Die& die)
     const auto ok   = dwarf_attr(die, DW_AT_data_member_location, attr.get(), &err);
 
     if(ok == DW_DLV_ERROR)
-        FAIL(ext::nullopt, "libdwarf error {} when reading attributes of a DIE : {}", dwarf_errno(err), dwarf_errmsg(err));
+        return FAIL(ext::nullopt, "libdwarf error {} when reading attributes of a DIE : {}", dwarf_errno(err), dwarf_errmsg(err));
 
     if(ok == DW_DLV_NO_ENTRY)
-        FAIL(ext::nullopt, "die member has not DW_AT_data_member_location attribute");
+        return FAIL(ext::nullopt, "die member has not DW_AT_data_member_location attribute");
 
     Dwarf_Half form;
     if(dwarf_whatform(*attr.get(), &form, &err) != DW_DLV_OK)
-        FAIL(ext::nullopt, "libdwarf error {} when reading form of DW_AT_data_member_location attribute : {}", dwarf_errno(err), dwarf_errmsg(err));
+        return FAIL(ext::nullopt, "libdwarf error {} when reading form of DW_AT_data_member_location attribute : {}", dwarf_errno(err), dwarf_errmsg(err));
 
     if(form == DW_FORM_data1 || form == DW_FORM_data2 || form == DW_FORM_data4 || form == DW_FORM_data8 || form == DW_FORM_udata)
     {
         Dwarf_Unsigned offset;
         if(dwarf_formudata(*attr.get(), &offset, &err) != DW_DLV_OK)
-            FAIL(ext::nullopt, "libdwarf error {} when reading DW_AT_data_member_location attribute : {}", dwarf_errno(err), dwarf_errmsg(err));
+            return FAIL(ext::nullopt, "libdwarf error {} when reading DW_AT_data_member_location attribute : {}", dwarf_errno(err), dwarf_errmsg(err));
 
         return (uint64_t) offset;
     }
@@ -260,10 +260,10 @@ opt<uint64_t> Dwarf::get_attr_member_location(const Dwarf_Die& die)
     {
         Dwarf_Signed soffset;
         if(dwarf_formsdata(*attr.get(), &soffset, &err) != DW_DLV_OK)
-            FAIL(ext::nullopt, "libdwarf error {} when reading DW_AT_data_member_location attribute : {}", dwarf_errno(err), dwarf_errmsg(err));
+            return FAIL(ext::nullopt, "libdwarf error {} when reading DW_AT_data_member_location attribute : {}", dwarf_errno(err), dwarf_errmsg(err));
 
         if(soffset < 0)
-            FAIL(ext::nullopt, "unsupported negative offset for DW_AT_data_member_location attribute");
+            return FAIL(ext::nullopt, "unsupported negative offset for DW_AT_data_member_location attribute");
 
         return (uint64_t) soffset;
     }
@@ -274,13 +274,13 @@ opt<uint64_t> Dwarf::get_attr_member_location(const Dwarf_Die& die)
         if(dwarf_loclist_n(*attr.get(), &llbuf, &listlen, &err) != DW_DLV_OK)
         {
             dwarf_dealloc(dbg, &llbuf, DW_DLA_LOCDESC);
-            FAIL(ext::nullopt, "unsupported member offset in DW_AT_data_member_location attribute");
+            return FAIL(ext::nullopt, "unsupported member offset in DW_AT_data_member_location attribute");
         }
 
         if(listlen != 1 || llbuf[0]->ld_cents != 1 || (llbuf[0]->ld_s[0]).lr_atom != DW_OP_plus_uconst)
         {
             dwarf_dealloc(dbg, &llbuf, DW_DLA_LOCDESC);
-            FAIL(ext::nullopt, "unsupported location expression in DW_AT_data_member_location attribute");
+            return FAIL(ext::nullopt, "unsupported location expression in DW_AT_data_member_location attribute");
         }
 
         const auto offset = llbuf[0]->ld_s[0].lr_number;
@@ -325,10 +325,10 @@ opt<size_t> Dwarf::struc_size(const Dwarf_Die& struc)
     const auto ok = dwarf_bytesize(struc, &size, &err);
 
     if(ok == DW_DLV_ERROR)
-        FAIL(ext::nullopt, "libdwarf error {} when reading size of a DIE : {}", dwarf_errno(err), dwarf_errmsg(err));
+        return FAIL(ext::nullopt, "libdwarf error {} when reading size of a DIE : {}", dwarf_errno(err), dwarf_errmsg(err));
 
     if(ok == DW_DLV_NO_ENTRY)
-        FAIL(ext::nullopt, "die has not DW_AT_byte_size attribute");
+        return FAIL(ext::nullopt, "die has not DW_AT_byte_size attribute");
 
     return size;
 }
