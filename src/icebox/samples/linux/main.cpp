@@ -4,11 +4,14 @@
 #include <icebox/os.hpp>
 #include <icebox/utils/fnview.hpp>
 
+#include <icebox/linux/map.hpp>
+
 int main(int argc, char** argv)
 {
-    // core initialization
     logg::init(argc, argv);
-    if(argc != 2)
+
+    // core initialization
+    /*if(argc != 2)
         return FAIL(-1, "usage: linux <name>");
 
     const auto name = std::string{argv[1]};
@@ -17,20 +20,30 @@ int main(int argc, char** argv)
     core::Core core;
     const auto ok = core.setup(name);
     if(!ok)
-        return FAIL(-1, "unable to start core at {}", name.data());
+        return FAIL(-1, "unable to start core at {}", name.data());*/
 
-    // test reading dwarf file
+    // test reading map file
     LOG(INFO, "");
-    const auto ptr = sym::make_dwarf();
+    auto map = sym::Map();
+    map.setup();
 
-    const auto size = ptr->struc_size("task_struct");
-    LOG(INFO, "task_struct size : {} bytes", size ? *size : -1);
+    const auto cursor = map.symbol(0xffffffff82412480);
+    if(cursor)
+    {
+        assert((*cursor).offset == 0xffffffff82412480);
+        LOG(INFO, "@0xffffffff82412480 : {}", (*cursor).symbol);
+    }
+    else
+        LOG(ERROR, "0xffffffff82412480 address unfound");
 
-    const auto offest_mm = ptr->struc_offset("task_struct", "mm");
-    LOG(INFO, "offset of mm in task_struct : {:#x}", offest_mm ? *offest_mm : -1);
+    const auto offset = map.symbol("current_task");
+    if(offset)
+        LOG(INFO, "current_task -> @{:#x}", *offset);
+    else
+        LOG(ERROR, "current_task unfound");
 
     // get list of processes
-    core.state.pause();
+    /*core.state.pause();
     LOG(INFO, "");
     core.os->proc_list([&](proc_t proc)
     {
@@ -39,7 +52,7 @@ int main(int argc, char** argv)
         LOG(INFO, "proc: {:#x} pid:{} '{}'", proc.id, proc_pid ? proc_pid : 0, proc_name ? proc_name->data() : "<noname>");
         return WALK_NEXT;
     });
-    core.state.resume();
+    core.state.resume();*/
 
     // get the current process pressing a key
     /*LOG(INFO, "");
