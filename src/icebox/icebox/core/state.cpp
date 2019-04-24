@@ -462,6 +462,6 @@ void core::State::run_to(dtb_t dtb, uint64_t ptr)
     const auto bp = ::set_breakpoint(d, ptr, {}, {}, {});
     run_until(d, [&]
     {
-        return d.breakstate.dtb == dtb;
+        return d.breakstate.dtb == dtb && d.breakstate.rip == ptr;
     });
 }
