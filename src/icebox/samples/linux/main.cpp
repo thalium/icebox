@@ -11,7 +11,7 @@ int main(int argc, char** argv)
     logg::init(argc, argv);
 
     // core initialization
-    /*if(argc != 2)
+    if(argc != 2)
         return FAIL(-1, "usage: linux <name>");
 
     const auto name = std::string{argv[1]};
@@ -20,31 +20,10 @@ int main(int argc, char** argv)
     core::Core core;
     const auto ok = core.setup(name);
     if(!ok)
-        return FAIL(-1, "unable to start core at {}", name.data());*/
-
-    // test reading map file
-    LOG(INFO, "");
-    auto map = sym::Map();
-    map.setup();
-
-    const auto cursor = map.symbol(0xffffffff82412480);
-    if(cursor)
-    {
-        assert((*cursor).offset == 0xffffffff82412480);
-        LOG(INFO, "@0xffffffff82412480 : {}", (*cursor).symbol);
-    }
-    else
-        LOG(ERROR, "0xffffffff82412480 address unfound");
-
-    const auto offset = map.symbol("current_task");
-    if(offset)
-        LOG(INFO, "current_task -> @{:#x}", *offset);
-    else
-        LOG(ERROR, "current_task unfound");
+        return FAIL(-1, "unable to start core at {}", name.data());
 
     // get list of processes
-    /*core.state.pause();
-    LOG(INFO, "");
+    core.state.pause();
     core.os->proc_list([&](proc_t proc)
     {
         const auto proc_pid  = core.os->proc_id(proc);
@@ -52,7 +31,7 @@ int main(int argc, char** argv)
         LOG(INFO, "proc: {:#x} pid:{} '{}'", proc.id, proc_pid ? proc_pid : 0, proc_name ? proc_name->data() : "<noname>");
         return WALK_NEXT;
     });
-    core.state.resume();*/
+    core.state.resume();
 
     // get the current process pressing a key
     /*LOG(INFO, "");
