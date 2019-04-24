@@ -64,7 +64,7 @@ namespace os
         virtual opt<mod_t>          mod_find(proc_t proc, uint64_t addr) = 0;
 
         virtual bool                driver_list (on_driver_fn on_driver) = 0;
-        virtual opt<driver_t>       driver_find (std::string_view name) = 0;
+        virtual opt<driver_t>       driver_find (uint64_t addr) = 0;
         virtual opt<std::string>    driver_name (driver_t drv) = 0;
         virtual opt<span_t>         driver_span (driver_t drv) = 0;
 

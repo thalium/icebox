@@ -63,7 +63,7 @@ namespace
         opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
 
         bool                driver_list (on_driver_fn on_driver) override;
-        opt<driver_t>       driver_find (std::string_view name) override;
+        opt<driver_t>       driver_find (uint64_t addr) override;
         opt<std::string>    driver_name (driver_t drv) override;
         opt<span_t>         driver_span (driver_t drv) override;
 
@@ -304,7 +304,7 @@ bool OsLinux::driver_list(on_driver_fn on_driver)
     return true;
 }
 
-opt<driver_t> OsLinux::driver_find(std::string_view /*name*/)
+opt<driver_t> OsLinux::driver_find(uint64_t /*addr*/)
 {
     return {};
 }

@@ -186,7 +186,7 @@ namespace
         opt<mod_t>          mod_find(proc_t proc, uint64_t addr) override;
 
         bool                driver_list (on_driver_fn on_driver) override;
-        opt<driver_t>       driver_find (std::string_view name) override;
+        opt<driver_t>       driver_find (uint64_t addr) override;
         opt<std::string>    driver_name (driver_t drv) override;
         opt<span_t>         driver_span (driver_t drv) override;
 
@@ -919,16 +919,19 @@ bool OsNt::driver_list(on_driver_fn on_driver)
     return true;
 }
 
-opt<driver_t> OsNt::driver_find(std::string_view name)
+opt<driver_t> OsNt::driver_find(uint64_t addr)
 {
     opt<driver_t> found;
-    driver_list([&](driver_t driver)
+    driver_list([&](driver_t drv)
     {
-        const auto got = driver_name(driver);
-        if(*got != name)
+        const auto span = core_.os->driver_span(drv);
+        if(!span)
             return WALK_NEXT;
 
-        found = driver;
+        if(!(span->addr <= addr && addr <= span->addr + span->size))
+            return WALK_NEXT;
+
+        found = drv;
         return WALK_STOP;
     });
     return found;
