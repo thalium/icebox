@@ -38,23 +38,20 @@ bool sym::Map::setup()
     if(!d.filestream)
         return FAIL(false, "unable to open {}", d.filename.generic_string());
 
-    std::string    row;
-    std::string    str_offset;
-    sym::ModCursor cursor;
-    char           type;
-    while(std::getline(d.filestream, row))
-    {
-        if(!(std::istringstream(row) >> str_offset >> type >> cursor.symbol))
-            return FAIL(false, "unable to parse row '{}' in file {}", row, d.filename.generic_string());
-
-        std::istringstream iss_offset(str_offset);
-        iss_offset >> std::hex;
-        if(!(iss_offset >> cursor.offset))
-            return FAIL(false, "unable to parse hex '{}' in file {}", str_offset, d.filename.generic_string());
-    }
-
     d.settedup = true;
     return true;
+}
+
+bool sym::Map::check_file()
+{
+    auto& d = *d_;
+    if(!d.settedup)
+        return FAIL(false, "map parser has not been set up");
+
+    return sym_list([&](std::string /*name*/, uint64_t /*offset*/)
+    {
+        return WALK_NEXT;
+    });
 }
 
 span_t sym::Map::span()
@@ -85,23 +82,26 @@ bool sym::Map::sym_list(sym::on_sym_fn on_sym)
     if(!d.settedup)
         return FAIL(false, "map parser has not been set up");
 
-    std::string str_offset;
-    uint64_t    offset;
-    char        type;
-    std::string name;
-
-    d.filestream.clear();
-    d.filestream.seekg(0, std::ios::beg);
-    while(d.filestream >> str_offset >> type >> name)
+    std::string    row;
+    std::string    str_offset;
+    sym::ModCursor cursor;
+    char           type;
+    while(std::getline(d.filestream, row))
     {
-        std::istringstream(str_offset) >> std::hex >> offset;
+        if(!(std::istringstream(row) >> str_offset >> type >> cursor.symbol))
+            return FAIL(false, "unable to parse row '{}' in file {}", row, d.filename.generic_string());
 
-        const auto err = on_sym(name, offset);
-        if(err == WALK_STOP)
+        std::istringstream iss_offset(str_offset);
+        iss_offset >> std::hex;
+        if(!(iss_offset >> cursor.offset))
+            return FAIL(false, "unable to parse hex '{}' in file {}", str_offset, d.filename.generic_string());
+
+        const auto ret = on_sym(cursor.symbol, cursor.offset);
+        if(ret == WALK_STOP)
             return true;
     }
 
-    return false;
+    return true;
 }
 
 opt<uint64_t> sym::Map::struc_offset(const std::string& /*struc*/, const std::string& /*member*/)
