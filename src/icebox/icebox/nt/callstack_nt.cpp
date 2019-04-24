@@ -134,6 +134,7 @@ namespace
     };
 
     using Modules       = std::map<uint64_t, mod_t>;
+    using Drivers       = std::map<uint64_t, driver_t>;
     using AllModules    = std::unordered_map<proc_t, Modules>;
     using ExceptionDirs = std::unordered_map<std::string, FunctionTable>;
     using Offsets       = std::array<uint64_t, OFFSET_COUNT>;
@@ -150,11 +151,13 @@ namespace
         opt<FunctionTable>      get_mod_functiontable   (proc_t proc, const std::string& name, const span_t module);
         opt<FunctionTable>      insert                  (proc_t proc, const std::string& name, const span_t module);
         opt<mod_t>              find_mod                (proc_t proc, uint64_t addr);
+        opt<driver_t>           find_drv                (uint64_t addr);
         opt<FunctionTable>      parse_exception_dir     (proc_t proc, const void* src, uint64_t mod_base_addr, span_t exception_dir);
         const function_entry_t* lookup_function_entry   (uint32_t offset_in_mod, const FunctionEntries& function_entries);
 
         // members
         core::Core&   core_;
+        Drivers       all_drivers_;
         AllModules    all_modules_;
         ExceptionDirs exception_dirs_;
         opt<Offsets>  offsets64_;
@@ -200,23 +203,24 @@ namespace
         return {};
     }
 
-    static opt<mod_t> find_prev(const uint64_t addr, const Modules& modules)
+    template <typename T1, typename T2>
+    static opt<T1> find_prev(const uint64_t addr, const T2& mods)
     {
-        if(modules.empty())
+        if(mods.empty())
             return {};
 
         // lower bound returns first item greater or equal
-        auto it        = modules.lower_bound(addr);
-        const auto end = modules.end();
+        auto it        = mods.lower_bound(addr);
+        const auto end = mods.end();
         if(it == end)
-            return modules.rbegin()->second;
+            return mods.rbegin()->second;
 
         // equal
         if(it->first == addr)
             return it->second;
 
         // stricly greater, go to previous item
-        if(it == modules.begin())
+        if(it == mods.begin())
             return {};
 
         --it;
@@ -235,7 +239,7 @@ namespace
 opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
 {
     auto& modules = get_modules(all_modules_, proc);
-    auto mod      = find_prev(addr, modules);
+    auto mod      = find_prev<mod_t, Modules>(addr, modules);
     if(mod)
     {
         const auto span = core_.os->mod_span(proc, *mod);
@@ -250,6 +254,25 @@ opt<mod_t> CallstackNt::find_mod(proc_t proc, uint64_t addr)
     const auto span = core_.os->mod_span(proc, *mod);
     modules.emplace(span->addr, *mod);
     return mod;
+}
+
+opt<driver_t> CallstackNt::find_drv(uint64_t addr)
+{
+    auto drv = find_prev<driver_t, Drivers>(addr, all_drivers_);
+    if(drv)
+    {
+        const auto span = core_.os->driver_span(*drv);
+        if(addr <= span->addr + span->size)
+            return drv;
+    }
+
+    drv = core_.os->driver_find(addr);
+    if(!drv)
+        return {};
+
+    const auto span = core_.os->driver_span(*drv);
+    all_drivers_.emplace(span->addr, *drv);
+    return drv;
 }
 
 opt<FunctionTable> CallstackNt::insert(proc_t proc, const std::string& name, const span_t span)
@@ -362,7 +385,7 @@ namespace
         return offsets[off];
     }
 
-    static opt<span_t> get_stack(CallstackNt& c, proc_t proc, bool is_32bit)
+    static opt<span_t> get_user_stack(CallstackNt& c, proc_t proc, bool is_32bit)
     {
         const auto reader = reader::make(c.core_, proc);
         if(!read_offsets(c, proc, is_32bit))
@@ -378,32 +401,63 @@ namespace
         return span_t{*limit, *base - *limit};
     }
 
+    static opt<span_t> get_kernel_stack(CallstackNt& /*c*/)
+    {
+        // TODO: get kernel stack boundaries
+        return span_t{(size_t) 0, (size_t) -1};
+    }
+
+    static opt<span_t> get_stack(CallstackNt& c, proc_t proc, const context_t& ctxt, bool is_32bits)
+    {
+        if(c.core_.os->is_kernel_address(ctxt.ip))
+            return get_kernel_stack(c);
+        else
+            return get_user_stack(c, proc, is_32bits);
+    }
+
     static bool get_callstack64(CallstackNt& c, proc_t proc, const context_t& first, const callstack::on_callstep_fn& on_callstep)
     {
         std::vector<uint8_t> buffer;
         constexpr auto reg_size = 8;
         const auto max_cs_depth = size_t(150);
         const auto reader       = reader::make(c.core_, proc);
-        const auto stack        = get_stack(c, proc, false);
+        const auto stack        = get_stack(c, proc, first, false);
         if(!stack)
             return false;
 
         auto ctx = first;
         for(size_t i = 0; i < max_cs_depth; ++i)
         {
+            opt<std::string> name;
+            opt<span_t>      span;
             // Get module from address
-            const auto mod = c.find_mod(proc, ctx.ip);
-            if(!mod)
-                return false;
+            if(c.core_.os->is_kernel_address(ctx.ip))
+            {
+                const auto drv = c.find_drv(ctx.ip);
+                if(!drv)
+                    return false;
 
-            const auto modname = c.core_.os->mod_name(proc, *mod);
-            const auto span    = c.core_.os->mod_span(proc, *mod);
+                name = c.core_.os->driver_name(*drv);
+                span = c.core_.os->driver_span(*drv);
+            }
+            else
+            {
+                const auto mod = c.find_mod(proc, ctx.ip);
+                if(!mod)
+                    return false;
 
+                name = c.core_.os->mod_name(proc, *mod);
+                span = c.core_.os->mod_span(proc, *mod);
+            }
             // Get function table of the module
-            const auto function_table = c.get_mod_functiontable(proc, *modname, *span);
+            const auto function_table = c.get_mod_functiontable(proc, *name, *span);
             if(!function_table)
-                return FAIL(false, "unable to get function table of {}", modname->c_str());
+            {
+                if(on_callstep(callstack::callstep_t{ctx.ip}) == WALK_STOP)
+                    return true;
 
+                return FAIL(false, "unable to get function table of {}", name->c_str());
+            }
             const auto off_in_mod     = static_cast<uint32_t>(ctx.ip - span->addr);
             const auto function_entry = c.lookup_function_entry(off_in_mod, function_table->function_entries);
             if(!function_entry)
@@ -457,7 +511,7 @@ namespace
         constexpr auto reg_size = 4;
         const auto max_cs_depth = size_t(150);
         const auto reader       = reader::make(c.core_, proc);
-        const auto stack        = get_stack(c, proc, true);
+        const auto stack        = get_stack(c, proc, first, true);
         if(!stack)
             return false;
 
