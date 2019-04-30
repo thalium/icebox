@@ -33,20 +33,39 @@ int main(int argc, char** argv)
     });
     core.state.resume();
 
-    // get the current process pressing a key
-    /*LOG(INFO, "");
+    // get current thread and current process pressing a key
     while(true)
     {
+        system("pause");
         core.state.pause();
+        const auto thread = core.os->thread_current();
+        if(thread)
+        {
+            const auto thread_id = core.os->thread_id({}, *thread);
+
+            LOG(INFO, "current thread: {:#x} id:{}",
+                (*thread).id,
+                (thread_id <= 4194304) ? std::to_string(thread_id) : "no");
+        }
+        else
+            LOG(ERROR, "no current thread");
+
         const auto proc = core.os->proc_current();
         if(proc)
         {
-            const auto proc_pid = core.os->proc_id(*proc);
-            LOG(INFO, "current proc: {:#x} pid:{}", (*proc).id, proc_pid ? proc_pid : 0);
-        }
-        core.state.resume();
-        system("pause");
-    }*/
+            const auto proc_pid  = core.os->proc_id(*proc);
+            const auto proc_name = core.os->proc_name(*proc);
 
+            LOG(INFO, "current proc: {:#x} pid:{} '{}'",
+                (*proc).id,
+                (proc_pid <= 4194304) ? std::to_string(proc_pid) : "no",
+                (proc_name) ? *proc_name : "<noname>");
+        }
+        else
+            LOG(ERROR, "no current proc");
+        core.state.resume();
+    }
+
+    core.state.resume();
     return 0;
 }
