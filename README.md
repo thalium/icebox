@@ -20,7 +20,7 @@ Files which might be helpful:
 ## Getting Started
 Some sample have been written in [samples folder](/src/icebox/samples).
 
-You can build them with these [instructions](/BUILD.gen.md#stage-build).
+You can build them with these [instructions](/doc/BUILD.gen.md#stage-build) after you installed the [requirements](/doc/BUILD.md#requirements-to-compile-icebox).
 
 If your using a Windows guest you might want to set the environement variable **_NT_SYMBOL_PATH** to a folder that contains your guest's pdb. **Please note that icebox setup will fail if it does not find your guest's kernel's pdb.**
 

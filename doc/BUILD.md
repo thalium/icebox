@@ -1,6 +1,36 @@
-# Virtualbox for windows prerequisites
+# Requirements to compile icebox
+## Linux
+Install the following packages:
+```bash
+sudo apt install            \
+            cmake           \
+            python3         \
+            gcc-8           \
+            g++-8           \
+            clang-format
+```
 
-- Install Windows WDK 7.1: 
+*Note: the use of the command **update-alternatives** might be useful to set python3, gcc-8 and g++-8 as default*
+
+## Windows
+Install:
+```
+Visual Studio 15 2017 Win64
+cmake
+python3
+clang-format
+```
+
+*Note: the easiest way to install clang-format is to install llvm http://releases.llvm.org/download.html*
+
+# Build instructions
+Find all the build instructions [here](/doc/BUILD.gen.md).
+
+# Requirements to compile virtualbox
+## Linux
+Find the requirements [here](/doc/BUILD.gen.md#job-gcc-1).
+## Windows
+- Install Windows WDK 7.1:
     - SHA1: de6abdb8eb4e08942add4aa270c763ed4e3d8242 *GRMWDK_EN_7600_1.ISO
 
 - Install Visual Studio Express 2010:
