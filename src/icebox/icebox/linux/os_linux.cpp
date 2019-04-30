@@ -24,6 +24,7 @@ namespace
         TASKSTRUCT_COMM,
         TASKSTRUCT_PID,
         TASKSTRUCT_GROUPLEADER,
+        TASKSTRUCT_THREADGROUP,
         TASKSTRUCT_TASKS,
         TASKSTRUCT_MM,
         TASKSTRUCT_ACTIVEMM,
@@ -46,6 +47,7 @@ namespace
             {cat_e::REQUIRED,	TASKSTRUCT_COMM,			"dwarf",	"task_struct",		"comm"},
             {cat_e::REQUIRED,	TASKSTRUCT_PID,				"dwarf",	"task_struct",		"pid"},
             {cat_e::REQUIRED,	TASKSTRUCT_GROUPLEADER,		"dwarf",	"task_struct",		"group_leader"},
+			{cat_e::REQUIRED,	TASKSTRUCT_THREADGROUP,		"dwarf",	"task_struct",		"thread_group"},
             {cat_e::REQUIRED,	TASKSTRUCT_TASKS,			"dwarf",	"task_struct",		"tasks"},
             {cat_e::REQUIRED,	TASKSTRUCT_MM,				"dwarf",	"task_struct",		"mm"},
             {cat_e::REQUIRED,	TASKSTRUCT_ACTIVEMM,		"dwarf",	"task_struct",		"active_mm"},
@@ -59,8 +61,9 @@ namespace
     {
         PER_CPU_START,
         CURRENT_TASK,
-        // STARTUP_64,
-        // INIT_TASK,
+        STARTUP_64,
+        INIT_TASK,
+        // SYS_CALL_TABLE,
         SYMBOL_COUNT,
     };
 
@@ -76,8 +79,9 @@ namespace
     {
             {cat_e::REQUIRED,	PER_CPU_START,				"system_map",	"__per_cpu_start"},
 			{cat_e::REQUIRED,	CURRENT_TASK,				"system_map",	"current_task"},
-			// {cat_e::REQUIRED,	STARTUP_64,					"system_map",	"startup_64"},
-			// {cat_e::REQUIRED,	INIT_TASK,					"system_map",	"init_task"},
+			{cat_e::REQUIRED,	STARTUP_64,					"system_map",	"startup_64"},
+			{cat_e::REQUIRED,	INIT_TASK,					"system_map",	"init_task"},
+			// {cat_e::REQUIRED,	SYS_CALL_TABLE,				"system_map",	"sys_call_table"}
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
@@ -185,16 +189,16 @@ bool OsLinux::setup()
     if(!sysmap_.setup())
         return FAIL(false, "unable to read System.map file");
 
-    bool success = true;
-    int i        = -1;
+    bool fail = false;
+    int i     = -1;
     memset(&symbols_[0], 0, sizeof symbols_);
     for(const auto& sym : g_symbols)
     {
-        success &= sym.e_id == ++i;
+        fail |= sym.e_id != ++i;
         const auto addr = sysmap_.symbol(sym.name);
         if(!addr)
         {
-            success &= sym.e_cat != cat_e::REQUIRED;
+            fail |= sym.e_cat == cat_e::REQUIRED;
             if(sym.e_cat == cat_e::REQUIRED)
                 LOG(ERROR, "unable to read {}!{} symbol offset", sym.module, sym.name);
             else
@@ -208,11 +212,11 @@ bool OsLinux::setup()
     memset(&offsets_[0], 0, sizeof offsets_);
     for(const auto& off : g_offsets)
     {
-        success &= off.e_id == ++i;
+        fail |= off.e_id != ++i;
         const auto offset = dwarf_.struc_offset(off.module, off.struc, off.member);
         if(!offset)
         {
-            success &= off.e_cat != cat_e::REQUIRED;
+            fail |= off.e_cat == cat_e::REQUIRED;
             if(off.e_cat == cat_e::REQUIRED)
                 LOG(ERROR, "unable to read {}!{}.{} member offset", off.module, off.struc, off.member);
             else
@@ -221,11 +225,14 @@ bool OsLinux::setup()
         }
         offsets_[i] = *offset;
     }
+    if(fail)
+        return false;
 
     if(!find_kernel())
         return FAIL(false, "unable to find kernel addresses");
 
-    return success;
+    //LOG(INFO, "kernel found at {:#x} (kaslr = {:#x})", kernel_rand_.kernel, kernel_rand_.kaslr);
+    return true;
 }
 
 bool OsLinux::find_kernel()
@@ -245,6 +252,7 @@ bool OsLinux::find_kernel()
 
     // test LSTAR -> sys_call_table -> kaslr
     const auto lstar = core_.regs.read(MSR_LSTAR);
+    // kernel_rand_.kaslr = lstar - symbols_[SYS_CALL_TABLE];
 
     return true;
 }
@@ -387,12 +395,19 @@ sym::Symbols& OsLinux::kernel_symbols() // structure either
     return dwarf_;
 }
 
-bool OsLinux::thread_list(proc_t /*proc*/, on_thread_fn on_thread) // todo
+bool OsLinux::thread_list(proc_t proc, on_thread_fn on_thread)
 {
-    LOG(ERROR, "thread_list unimplemented");
+    const auto head    = proc.id + offsets_[TASKSTRUCT_THREADGROUP];
+    opt<uint64_t> link = head;
+    do
+    {
+        on_thread(thread_t{*link - offsets_[TASKSTRUCT_THREADGROUP]});
 
-    thread_t dummy_thread = {0};
-    on_thread(dummy_thread);
+        link = reader_.read(*link);
+        if(!link)
+            return FAIL(false, "unable to read next thread address");
+    } while(link != head);
+
     return true;
 }
 
