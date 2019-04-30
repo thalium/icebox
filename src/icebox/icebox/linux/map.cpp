@@ -86,6 +86,9 @@ bool sym::Map::sym_list(sym::on_sym_fn on_sym)
     std::string    str_offset;
     sym::ModCursor cursor;
     char           type;
+
+    d.filestream.clear();
+    d.filestream.seekg(0, std::ios::beg);
     while(std::getline(d.filestream, row))
     {
         if(!(std::istringstream(row) >> str_offset >> type >> cursor.symbol))
