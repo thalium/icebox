@@ -22,11 +22,8 @@ namespace
     enum offset_e
     {
         TASKSTRUCT_COMM,
-        TASKSTRUCT_CRED,
         TASKSTRUCT_PID,
-        TASKSTRUCT_TGID,
-        TASKSTRUCT_REALPARENT,
-        TASKSTRUCT_PARENT,
+        TASKSTRUCT_GROUPLEADER,
         TASKSTRUCT_TASKS,
         TASKSTRUCT_MM,
         TASKSTRUCT_ACTIVEMM,
@@ -47,11 +44,8 @@ namespace
     const LinuxOffset g_offsets[] =
     {
             {cat_e::REQUIRED,	TASKSTRUCT_COMM,			"dwarf",	"task_struct",		"comm"},
-            {cat_e::REQUIRED,	TASKSTRUCT_CRED,			"dwarf",	"task_struct",		"cred"},
             {cat_e::REQUIRED,	TASKSTRUCT_PID,				"dwarf",	"task_struct",		"pid"},
-            {cat_e::REQUIRED,	TASKSTRUCT_TGID,			"dwarf",	"task_struct",		"tgid"},
-            {cat_e::REQUIRED,	TASKSTRUCT_REALPARENT,		"dwarf",	"task_struct",		"real_parent"},
-            {cat_e::REQUIRED,	TASKSTRUCT_PARENT,			"dwarf",	"task_struct",		"parent"},
+            {cat_e::REQUIRED,	TASKSTRUCT_GROUPLEADER,		"dwarf",	"task_struct",		"group_leader"},
             {cat_e::REQUIRED,	TASKSTRUCT_TASKS,			"dwarf",	"task_struct",		"tasks"},
             {cat_e::REQUIRED,	TASKSTRUCT_MM,				"dwarf",	"task_struct",		"mm"},
             {cat_e::REQUIRED,	TASKSTRUCT_ACTIVEMM,		"dwarf",	"task_struct",		"active_mm"},
@@ -63,7 +57,10 @@ namespace
 
     enum symbol_e
     {
+        PER_CPU_START,
         CURRENT_TASK,
+        // STARTUP_64,
+        // INIT_TASK,
         SYMBOL_COUNT,
     };
 
@@ -77,7 +74,10 @@ namespace
     // clang-format off
     const LinuxSymbol g_symbols[] =
     {
-            {cat_e::REQUIRED,	CURRENT_TASK,				"dwarf",	"current_task"},
+            {cat_e::REQUIRED,	PER_CPU_START,				"system_map",	"__per_cpu_start"},
+			{cat_e::REQUIRED,	CURRENT_TASK,				"system_map",	"current_task"},
+			// {cat_e::REQUIRED,	STARTUP_64,					"system_map",	"startup_64"},
+			// {cat_e::REQUIRED,	INIT_TASK,					"system_map",	"init_task"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
@@ -85,10 +85,22 @@ namespace
     using LinuxOffsets = std::array<uint64_t, OFFSET_COUNT>;
     using LinuxSymbols = std::array<uint64_t, SYMBOL_COUNT>;
 
+    struct KernelRandomization
+    {
+        uint64_t per_cpu;
+        uint64_t kaslr;
+        uint64_t kernel;
+        uint64_t kpgd;
+    };
+
     struct OsLinux
         : public os::IModule
     {
         OsLinux(core::Core& core);
+
+        // methods
+        bool            find_kernel ();
+        opt<thread_t>   thread_find (uint32_t pid);
 
         // os::IModule
         bool            setup               () override;
@@ -148,39 +160,41 @@ namespace
         void debug_print() override;
 
         // members
-        core::Core&    core_;
-        sym::Symbols   syms_;
-        reader::Reader reader_;
-        LinuxOffsets   offsets_;
-        LinuxSymbols   symbols_;
+        core::Core&         core_;
+        sym::Symbols        dwarf_;
+        sym::Map            sysmap_;
+        reader::Reader      reader_;
+        LinuxOffsets        offsets_;
+        LinuxSymbols        symbols_;
+        KernelRandomization kernel_rand_;
     };
 }
 
 OsLinux::OsLinux(core::Core& core)
     : core_(core)
     , reader_(reader::make(core))
+    , sysmap_()
 {
 }
 
 bool OsLinux::setup()
 {
-    if(!syms_.insert("dwarf", {}, {}, {}))
+    if(!dwarf_.insert("dwarf", {}, {}, {}))
         return FAIL(false, "unable to read dwarf file");
 
-    auto system_map = sym::Map();
-    if(!system_map.setup())
+    if(!sysmap_.setup())
         return FAIL(false, "unable to read System.map file");
 
-    bool fail = false;
-    int i     = -1;
+    bool success = true;
+    int i        = -1;
     memset(&symbols_[0], 0, sizeof symbols_);
     for(const auto& sym : g_symbols)
     {
-        fail |= sym.e_id != ++i;
-        const auto addr = system_map.symbol(sym.name);
+        success &= sym.e_id == ++i;
+        const auto addr = sysmap_.symbol(sym.name);
         if(!addr)
         {
-            fail |= sym.e_cat == cat_e::REQUIRED;
+            success &= sym.e_cat != cat_e::REQUIRED;
             if(sym.e_cat == cat_e::REQUIRED)
                 LOG(ERROR, "unable to read {}!{} symbol offset", sym.module, sym.name);
             else
@@ -194,11 +208,11 @@ bool OsLinux::setup()
     memset(&offsets_[0], 0, sizeof offsets_);
     for(const auto& off : g_offsets)
     {
-        fail |= off.e_id != ++i;
-        const auto offset = syms_.struc_offset(off.module, off.struc, off.member);
+        success &= off.e_id == ++i;
+        const auto offset = dwarf_.struc_offset(off.module, off.struc, off.member);
         if(!offset)
         {
-            fail |= off.e_cat == cat_e::REQUIRED;
+            success &= off.e_cat != cat_e::REQUIRED;
             if(off.e_cat == cat_e::REQUIRED)
                 LOG(ERROR, "unable to read {}!{}.{} member offset", off.module, off.struc, off.member);
             else
@@ -207,8 +221,30 @@ bool OsLinux::setup()
         }
         offsets_[i] = *offset;
     }
-    if(fail)
-        return false;
+
+    if(!find_kernel())
+        return FAIL(false, "unable to find kernel addresses");
+
+    return success;
+}
+
+bool OsLinux::find_kernel()
+{
+    // kpgd
+    kernel_rand_.kpgd = core_.regs.read(FDP_CR3_REGISTER);
+    kernel_rand_.kpgd &= ~0x1fffull;
+    reader_setup(reader_, proc_t{NULL, dtb_t{NULL}});
+
+    // per_cpu address
+    auto per_cpu = core_.regs.read(MSR_GS_BASE);
+    if(!is_kernel_address(per_cpu))
+        per_cpu = core_.regs.read(MSR_KERNEL_GS_BASE);
+    if(!is_kernel_address(per_cpu))
+        return FAIL(false, "unable to find per_cpu address");
+    kernel_rand_.per_cpu = per_cpu;
+
+    // test LSTAR -> sys_call_table -> kaslr
+    const auto lstar = core_.regs.read(MSR_LSTAR);
 
     return true;
 }
@@ -220,44 +256,35 @@ std::unique_ptr<os::IModule> os::make_linux(core::Core& core)
 
 bool OsLinux::proc_list(on_proc_fn on_process)
 {
-    const auto init_proc = core_.os->proc_current();
-    if(!init_proc)
+    const auto current = proc_current();
+    if(!current)
         return false;
 
-    const auto head = init_proc->id + offsets_[TASKSTRUCT_TASKS];
-    for(auto link = reader_.read(head); link != head; link = reader_.read(*link))
+    const auto head    = (*current).id + offsets_[TASKSTRUCT_TASKS];
+    opt<uint64_t> link = head;
+    do
     {
-        const auto task_struc = *link - offsets_[TASKSTRUCT_TASKS];
-        auto pgd              = reader_.read(task_struc + offsets_[TASKSTRUCT_MM] + offsets_[MMSTRUCT_PGD]);
-        if(!pgd)
-        {
-            pgd = reader_.read(task_struc + offsets_[TASKSTRUCT_ACTIVEMM] + offsets_[MMSTRUCT_PGD]);
-            if(!pgd)
-            {
-                LOG(ERROR, "unable to read task_struct.mm_struct.pgd from {:#x}", task_struc);
-                continue;
-            }
-        }
+        const auto thread = thread_t{*link - offsets_[TASKSTRUCT_TASKS]};
+        const auto proc   = thread_proc(thread);
+        if(proc)
+            if(on_process(*proc) == WALK_STOP)
+                return true;
 
-        const auto err = on_process({task_struc, {*pgd}});
-        if(err == WALK_STOP)
-            break;
-    }
+        link = reader_.read(*link);
+        if(!link)
+            return FAIL(false, "unable to read next process address");
+    } while(link != head);
+
     return true;
 }
 
-opt<proc_t> OsLinux::proc_current() // proc init either ?
+opt<proc_t> OsLinux::proc_current()
 {
-    auto kpcr = core_.regs.read(MSR_GS_BASE);
-    /*if (!is_kernel(kpcr))
-		kpcr_ = core_.regs.read(MSR_KERNEL_GS_BASE);
-	if (!is_kernel(kpcr_))
-		return FAIL(false, "unable to read KPCR");*/
+    const auto thread = thread_current();
+    if(!thread)
+        return {};
 
-    const auto addr = kpcr + symbols_[CURRENT_TASK];
-
-    const auto proc_id = reader_.read(addr);
-    return proc_t{*proc_id, reader_.kdtb_}; // proc located at init_task
+    return thread_proc(*thread);
 }
 
 opt<proc_t> OsLinux::proc_find(std::string_view name, flags_e /*flags*/)
@@ -277,42 +304,36 @@ opt<proc_t> OsLinux::proc_find(std::string_view name, flags_e /*flags*/)
 
 opt<proc_t> OsLinux::proc_find(uint64_t pid)
 {
-    opt<proc_t> found;
+    opt<proc_t> ret;
     proc_list([&](proc_t proc)
     {
         const auto got = proc_id(proc);
+        if(got > 4194304)
+            return FAIL(WALK_NEXT, "unable to find the pid of proc {:#x}", proc.id);
+
         if(got != pid)
             return WALK_NEXT;
 
-        found = proc;
+        ret = proc;
         return WALK_STOP;
     });
-    return found;
+    return ret;
 }
 
 opt<std::string> OsLinux::proc_name(proc_t proc)
 {
-    char buffer[20 + 1];
+    char buffer[14 + 1];
     const auto ok             = reader_.read(buffer, proc.id + offsets_[TASKSTRUCT_COMM], sizeof buffer);
     buffer[sizeof buffer - 1] = 0;
     if(!ok)
         return {};
 
-    const auto name = std::string{buffer};
-    if(name.size() == sizeof buffer - 1)
-        LOG(ERROR, "Process name buffer is too small");
-
-    return name;
+    return std::string{buffer};
 }
 
 uint64_t OsLinux::proc_id(proc_t proc)
 {
-    const auto reader = reader::make(core_);
-    const auto pid    = reader.le32(proc.id + offsets_[TASKSTRUCT_PID]);
-    if(!pid)
-        return 0;
-
-    return 0x0000000000000000 | *pid;
+    return thread_id({}, thread_t{proc.id});
 }
 
 bool OsLinux::proc_is_valid(proc_t /*proc*/)
@@ -320,9 +341,9 @@ bool OsLinux::proc_is_valid(proc_t /*proc*/)
     return true;
 }
 
-bool OsLinux::is_kernel_address(uint64_t /*ptr*/)
+bool OsLinux::is_kernel_address(uint64_t ptr)
 {
-    return true;
+    return (ptr > 0x7fffffffffffffff);
 }
 
 bool OsLinux::can_inject_fault(uint64_t /*ptr*/)
@@ -356,37 +377,67 @@ opt<proc_t> OsLinux::proc_parent(proc_t /*proc*/)
 
 bool OsLinux::reader_setup(reader::Reader& reader, opt<proc_t> proc)
 {
-    if(!proc)
-        return true;
-
-    reader.udtb_ = proc->dtb;
-    reader.kdtb_ = proc->dtb;
+    reader.udtb_ = (proc) ? proc->dtb : dtb_t{0};
+    reader.kdtb_ = dtb_t{kernel_rand_.kpgd};
     return true;
 }
 
-sym::Symbols& OsLinux::kernel_symbols()
+sym::Symbols& OsLinux::kernel_symbols() // structure either
 {
-    return syms_;
+    return dwarf_;
 }
 
-bool OsLinux::thread_list(proc_t /*proc*/, on_thread_fn on_thread)
+bool OsLinux::thread_list(proc_t /*proc*/, on_thread_fn on_thread) // todo
 {
+    LOG(ERROR, "thread_list unimplemented");
+
     thread_t dummy_thread = {0};
     on_thread(dummy_thread);
     return true;
 }
 
-/*
- * Threads are really just processes on Linux.
- */
 opt<thread_t> OsLinux::thread_current()
 {
-    return thread_t{proc_current()->id};
+    const auto addr = reader_.read(kernel_rand_.per_cpu + symbols_[CURRENT_TASK] - symbols_[PER_CPU_START]);
+    if(!addr)
+        return FAIL(ext::nullopt, "unable to read current_task in per_cpu area");
+
+    return thread_t{*addr};
+}
+
+opt<thread_t> OsLinux::thread_find(uint32_t pid)
+{
+    opt<thread_t> ret = {};
+
+    thread_list({}, [&](thread_t thread)
+    {
+        const auto got = thread_id({}, thread);
+        if(got > 4194304)
+            return FAIL(WALK_NEXT, "unable to find the pid of thread {:#x}", thread.id);
+
+        if(got != pid)
+            return WALK_NEXT;
+
+        ret = thread;
+        return WALK_STOP;
+    });
+
+    return ret;
 }
 
 opt<proc_t> OsLinux::thread_proc(thread_t thread)
 {
-    return proc_t{thread.id, {}};
+    const auto proc_id = reader_.read(thread.id + offsets_[TASKSTRUCT_GROUPLEADER]);
+    if(!proc_id)
+        return FAIL(ext::nullopt, "unable to find the leader of thread {:#x}", thread.id);
+
+    auto pgd = reader_.read(*proc_id + offsets_[TASKSTRUCT_MM] + offsets_[MMSTRUCT_PGD]);
+    if(!pgd || is_kernel_address(*pgd))
+        pgd = reader_.read(*proc_id + offsets_[TASKSTRUCT_ACTIVEMM] + offsets_[MMSTRUCT_PGD]); // for kernel threads
+    if(!pgd || is_kernel_address(*pgd))
+        return FAIL(ext::nullopt, "unable to read pgd in task_struct.mm or task_struct.active_mm for process {:#x}", *proc_id);
+
+    return proc_t{*proc_id, dtb_t{*pgd}};
 }
 
 opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t /*thread*/)
@@ -394,9 +445,13 @@ opt<uint64_t> OsLinux::thread_pc(proc_t /*proc*/, thread_t /*thread*/)
     return {};
 }
 
-uint64_t OsLinux::thread_id(proc_t /*proc*/, thread_t /*thread*/)
+uint64_t OsLinux::thread_id(proc_t /*proc*/, thread_t thread) // return opt ?, remove proc ?
 {
-    return 0;
+    const auto pid = reader_.le32(thread.id + offsets_[TASKSTRUCT_PID]);
+    if(!pid)
+        return 0xffffffffffffffff; // opt<uint64_t> either ? (0 is a valid pid for an iddle task in linux)
+
+    return *pid;
 }
 
 bool OsLinux::mod_list(proc_t /*proc*/, on_mod_fn on_module)
