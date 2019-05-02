@@ -63,8 +63,9 @@ namespace
         CURRENT_TASK,
         STARTUP_64,
         INIT_TASK,
-        // SYS_CALL_TABLE,
+        SYS_CALL_TABLE,
         SYMBOL_COUNT,
+        // linux_banner
     };
 
     struct LinuxSymbol
@@ -81,7 +82,8 @@ namespace
 			{cat_e::REQUIRED,	CURRENT_TASK,				"system_map",	"current_task"},
 			{cat_e::REQUIRED,	STARTUP_64,					"system_map",	"startup_64"},
 			{cat_e::REQUIRED,	INIT_TASK,					"system_map",	"init_task"},
-			// {cat_e::REQUIRED,	SYS_CALL_TABLE,				"system_map",	"sys_call_table"}
+			{cat_e::REQUIRED,	SYS_CALL_TABLE,				"system_map",	"sys_call_table"},
+
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
@@ -91,10 +93,10 @@ namespace
 
     struct KernelRandomization
     {
-        uint64_t per_cpu;
-        uint64_t kaslr;
-        uint64_t kernel;
-        uint64_t kpgd;
+        uint64_t per_cpu = 0;
+        uint64_t kaslr   = 0;
+        uint64_t kernel  = 0;
+        uint64_t kpgd    = 0;
     };
 
     struct OsLinux
@@ -103,8 +105,8 @@ namespace
         OsLinux(core::Core& core);
 
         // methods
-        bool            find_kernel ();
-        opt<thread_t>   thread_find (uint32_t pid);
+        bool    find_kernel ();
+        bool    find_kaslr  ();
 
         // os::IModule
         bool            setup               () override;
@@ -231,17 +233,12 @@ bool OsLinux::setup()
     if(!find_kernel())
         return FAIL(false, "unable to find kernel addresses");
 
-    //LOG(INFO, "kernel found at {:#x} (kaslr = {:#x})", kernel_rand_.kernel, kernel_rand_.kaslr);
+    LOG(INFO, "kernel found at {:#x} (kaslr = {:#x})", kernel_rand_.kernel, kernel_rand_.kaslr);
     return true;
 }
 
 bool OsLinux::find_kernel()
 {
-    // kpgd
-    kernel_rand_.kpgd = core_.regs.read(FDP_CR3_REGISTER);
-    kernel_rand_.kpgd &= ~0x1fffull;
-    reader_setup(reader_, proc_t{NULL, dtb_t{NULL}});
-
     // per_cpu address
     auto per_cpu = core_.regs.read(MSR_GS_BASE);
     if(!is_kernel_address(per_cpu))
@@ -250,10 +247,41 @@ bool OsLinux::find_kernel()
         return FAIL(false, "unable to find per_cpu address");
     kernel_rand_.per_cpu = per_cpu;
 
-    // test LSTAR -> sys_call_table -> kaslr
-    const auto lstar = core_.regs.read(MSR_LSTAR);
-    // kernel_rand_.kaslr = lstar - symbols_[SYS_CALL_TABLE];
+    // kpgd
+    kernel_rand_.kpgd = core_.regs.read(FDP_CR3_REGISTER);
+    kernel_rand_.kpgd &= ~0x1fffull; // clear 12th bits due to meltdown patch
+    reader_setup(reader_, proc_t{NULL, dtb_t{NULL}});
 
+    // break kaslr
+    if(!find_kaslr())
+    {
+        kernel_rand_.kpgd |= 0x1000ull; // try with orginal CR3 if system is not meltdown patched
+        reader_setup(reader_, proc_t{NULL, dtb_t{NULL}});
+        if(!find_kaslr())
+            return FAIL(false, "unable fo find a valid kernel page directory and/or the kernel ASLR");
+    }
+
+    // set kernel address
+    kernel_rand_.kernel = symbols_[STARTUP_64] + kernel_rand_.kaslr;
+
+    return true;
+}
+
+bool OsLinux::find_kaslr()
+{
+    opt<proc_t> init_task = {};
+    proc_list([&](proc_t proc)
+    {
+        if(proc_id(proc) != 0)
+            return WALK_NEXT;
+
+        init_task = proc;
+        return WALK_STOP;
+    });
+    if(!init_task)
+        return FAIL(false, "unable to find the swaper process (pid=0)");
+
+    kernel_rand_.kaslr = (*init_task).id - symbols_[INIT_TASK];
     return true;
 }
 
@@ -418,26 +446,6 @@ opt<thread_t> OsLinux::thread_current()
         return FAIL(ext::nullopt, "unable to read current_task in per_cpu area");
 
     return thread_t{*addr};
-}
-
-opt<thread_t> OsLinux::thread_find(uint32_t pid)
-{
-    opt<thread_t> ret = {};
-
-    thread_list({}, [&](thread_t thread)
-    {
-        const auto got = thread_id({}, thread);
-        if(got > 4194304)
-            return FAIL(WALK_NEXT, "unable to find the pid of thread {:#x}", thread.id);
-
-        if(got != pid)
-            return WALK_NEXT;
-
-        ret = thread;
-        return WALK_STOP;
-    });
-
-    return ret;
 }
 
 opt<proc_t> OsLinux::thread_proc(thread_t thread)
