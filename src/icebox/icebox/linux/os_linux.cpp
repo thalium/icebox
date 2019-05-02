@@ -64,8 +64,8 @@ namespace
         STARTUP_64,
         INIT_TASK,
         SYS_CALL_TABLE,
+        LINUX_BANNER,
         SYMBOL_COUNT,
-        // linux_banner
     };
 
     struct LinuxSymbol
@@ -83,7 +83,7 @@ namespace
 			{cat_e::REQUIRED,	STARTUP_64,					"system_map",	"startup_64"},
 			{cat_e::REQUIRED,	INIT_TASK,					"system_map",	"init_task"},
 			{cat_e::REQUIRED,	SYS_CALL_TABLE,				"system_map",	"sys_call_table"},
-
+			{cat_e::REQUIRED,	LINUX_BANNER,				"system_map",	"linux_banner"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
@@ -97,6 +97,7 @@ namespace
         uint64_t kaslr   = 0;
         uint64_t kernel  = 0;
         uint64_t kpgd    = 0;
+        std::string version;
     };
 
     struct OsLinux
@@ -105,8 +106,9 @@ namespace
         OsLinux(core::Core& core);
 
         // methods
-        bool    find_kernel ();
-        bool    find_kaslr  ();
+        bool                find_kernel ();
+        bool                find_kaslr  ();
+        opt<std::string>    uname       ();
 
         // os::IModule
         bool            setup               () override;
@@ -183,6 +185,30 @@ OsLinux::OsLinux(core::Core& core)
 {
 }
 
+opt<std::string> OsLinux::uname()
+{
+    std::string ret;
+    char buffer[50 + 1];
+    int offset = 0;
+
+    do
+    {
+        const auto ok = reader_.read(buffer, symbols_[LINUX_BANNER] + kernel_rand_.kaslr + offset, sizeof buffer - 1);
+        if(!ok)
+            return FAIL(ext::nullopt, "unable to read at linux_banner address ({:#x})", symbols_[LINUX_BANNER] + kernel_rand_.kaslr);
+
+        buffer[sizeof buffer - 1] = 0;
+        ret.append(buffer);
+        offset += sizeof buffer - 1;
+
+    } while(strlen(buffer) >= sizeof buffer - 1);
+
+    if(!ret.empty() && ret.back() == '\n')
+        ret.pop_back();
+
+    return ret;
+}
+
 bool OsLinux::setup()
 {
     if(!dwarf_.insert("dwarf", {}, {}, {}))
@@ -234,6 +260,8 @@ bool OsLinux::setup()
         return FAIL(false, "unable to find kernel addresses");
 
     LOG(INFO, "kernel found at {:#x} (kaslr = {:#x})", kernel_rand_.kernel, kernel_rand_.kaslr);
+    LOG(INFO, "{}", kernel_rand_.version);
+
     return true;
 }
 
@@ -263,6 +291,12 @@ bool OsLinux::find_kernel()
 
     // set kernel address
     kernel_rand_.kernel = symbols_[STARTUP_64] + kernel_rand_.kaslr;
+
+    // read linux version
+    const auto version = uname();
+    if(!version)
+        return FAIL(false, "unable to get linux kernel version");
+    kernel_rand_.version = *version;
 
     return true;
 }
@@ -358,12 +392,12 @@ opt<proc_t> OsLinux::proc_find(uint64_t pid)
 
 opt<std::string> OsLinux::proc_name(proc_t proc)
 {
-    char buffer[14 + 1];
-    const auto ok             = reader_.read(buffer, proc.id + offsets_[TASKSTRUCT_COMM], sizeof buffer);
-    buffer[sizeof buffer - 1] = 0;
+    char buffer[14];
+    const auto ok = reader_.read(buffer, proc.id + offsets_[TASKSTRUCT_COMM], sizeof buffer);
     if(!ok)
         return {};
 
+    buffer[sizeof buffer - 1] = 0;
     return std::string{buffer};
 }
 
