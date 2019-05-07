@@ -235,7 +235,7 @@ namespace
         while(true)
         {
             const auto rsds = search(&src[0], &src[src_size], rsds_pattern);
-            if(!rsds)
+            if(rsds == &src[src_size])
                 return FAIL(ext::nullopt, "unable to find RSDS pattern into kernel module");
 
             const auto size = std::distance(rsds, &src[src_size]);
