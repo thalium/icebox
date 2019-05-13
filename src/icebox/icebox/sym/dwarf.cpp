@@ -54,23 +54,23 @@ Dwarf::~Dwarf()
     }
 }
 
-std::unique_ptr<sym::IMod> sym::make_dwarf()
-{
-    return make_dwarf({}, {}, {});
-}
-
-std::unique_ptr<sym::IMod> sym::make_dwarf(span_t /*span*/, const void* /*data*/, const size_t /*data_size*/)
+std::unique_ptr<sym::IMod> sym::make_dwarf(span_t /*span*/, const std::string& module, const std::string& guid)
 {
     const auto path = getenv("_LINUX_SYMBOL_PATH");
     if(!path)
         return nullptr;
 
-    auto ptr      = std::make_unique<Dwarf>(fs::path(path) / "kernel.ko");
-    const auto ok = ptr->setup();
-    if(!ok)
+    auto ptr = std::make_unique<Dwarf>(fs::path(path) / module / guid / "headers.ko");
+    if(!ptr->setup())
         return nullptr;
 
     return ptr;
+}
+
+std::unique_ptr<sym::IMod> sym::make_dwarf(span_t /*span*/, const void* /*data*/, const size_t /*data_size*/)
+{
+    LOG(ERROR, "make_dwarf(span, data, data_size) not implemented");
+    return nullptr;
 }
 
 bool Dwarf::setup()

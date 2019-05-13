@@ -12,13 +12,13 @@ struct sym::Map::Data
     // members
     fs::path      filename;
     std::ifstream filestream;
-    bool          settedup;
+    bool settedup = false;
 };
 
-sym::Map::Map()
+sym::Map::Map(fs::path filename)
     : d_(std::make_unique<Data>())
 {
-    d_->settedup = false;
+    d_->filename = std::move(filename);
 }
 
 sym::Map::~Map()
@@ -27,12 +27,7 @@ sym::Map::~Map()
 
 bool sym::Map::setup()
 {
-    auto& d         = *d_;
-    const auto path = getenv("_LINUX_SYMBOL_PATH");
-    if(!path)
-        return FAIL(false, "unable to find _LINUX_SYMBOL_PATH");
-
-    d.filename = fs::path(fs::path(path) / "System.map");
+    auto& d = *d_;
 
     d.filestream = std::ifstream(d.filename.generic_string().data());
     if(!d.filestream)
@@ -40,6 +35,19 @@ bool sym::Map::setup()
 
     d.settedup = true;
     return true;
+}
+
+std::unique_ptr<sym::IMod> sym::make_map(span_t /*span*/, const std::string& module, const std::string& guid)
+{
+    const auto path = getenv("_LINUX_SYMBOL_PATH");
+    if(!path)
+        return nullptr;
+
+    auto ptr = std::make_unique<Map>(fs::path(path) / module / guid / "System.map");
+    if(!ptr->setup())
+        return nullptr;
+
+    return ptr;
 }
 
 bool sym::Map::check_file()

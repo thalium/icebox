@@ -4,10 +4,12 @@
 
 namespace sym
 {
+    std::unique_ptr<IMod> make_map(span_t span, const std::string& module, const std::string& guid);
+
     struct Map
         : public sym::IMod
     {
-         Map();
+         Map(fs::path filename);
         ~Map();
 
         // methods

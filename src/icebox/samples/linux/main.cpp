@@ -54,6 +54,7 @@ int main(int argc, char** argv)
 
     core::Core core;
     const auto ok = core.setup(name);
+    core.state.resume();
     if(!ok)
         return FAIL(-1, "unable to start core at {}", name.data());
 

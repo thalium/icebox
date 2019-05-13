@@ -8,8 +8,19 @@
 #include "utils/utils.hpp"
 
 #include "map.hpp"
+#include "mbedtls/sha1.h"
+#include "sym.hpp"
 
 #include <array>
+#include <sstream>
+
+#ifdef _MSC_VER
+#    define search                  std::search
+#    define boyer_moore_searcher    std::boyer_moore_searcher
+#else
+#    define search                  std::experimental::search
+#    define boyer_moore_searcher    std::experimental::make_boyer_moore_searcher
+#endif
 
 namespace
 {
@@ -78,12 +89,12 @@ namespace
     // clang-format off
     const LinuxSymbol g_symbols[] =
     {
-            {cat_e::REQUIRED,	PER_CPU_START,				"system_map",	"__per_cpu_start"},
-			{cat_e::REQUIRED,	CURRENT_TASK,				"system_map",	"current_task"},
-			{cat_e::REQUIRED,	STARTUP_64,					"system_map",	"startup_64"},
-			{cat_e::REQUIRED,	INIT_TASK,					"system_map",	"init_task"},
-			{cat_e::REQUIRED,	SYS_CALL_TABLE,				"system_map",	"sys_call_table"},
-			{cat_e::REQUIRED,	LINUX_BANNER,				"system_map",	"linux_banner"},
+            {cat_e::REQUIRED,	PER_CPU_START,				"sysmap",	"__per_cpu_start"},
+			{cat_e::REQUIRED,	CURRENT_TASK,				"sysmap",	"current_task"},
+			{cat_e::REQUIRED,	STARTUP_64,					"sysmap",	"startup_64"},
+			{cat_e::REQUIRED,	INIT_TASK,					"sysmap",	"init_task"},
+			{cat_e::REQUIRED,	SYS_CALL_TABLE,				"sysmap",	"sys_call_table"},
+			{cat_e::REQUIRED,	LINUX_BANNER,				"sysmap",	"linux_banner"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
@@ -94,21 +105,14 @@ namespace
     struct KernelRandomization
     {
         uint64_t per_cpu = 0;
-        uint64_t kaslr   = 0;
-        uint64_t kernel  = 0;
         uint64_t kpgd    = 0;
-        std::string version;
+        uint64_t kaslr   = 0;
     };
 
     struct OsLinux
         : public os::IModule
     {
         OsLinux(core::Core& core);
-
-        // methods
-        bool                find_kernel ();
-        bool                find_kaslr  ();
-        opt<std::string>    uname       ();
 
         // os::IModule
         bool            setup               () override;
@@ -169,153 +173,272 @@ namespace
 
         // members
         core::Core&         core_;
-        sym::Symbols        dwarf_;
-        sym::Map            sysmap_;
+        sym::Symbols        syms_;
         reader::Reader      reader_;
         LinuxOffsets        offsets_;
         LinuxSymbols        symbols_;
-        KernelRandomization kernel_rand_;
+        KernelRandomization kernel_;
     };
 }
 
 OsLinux::OsLinux(core::Core& core)
     : core_(core)
     , reader_(reader::make(core))
-    , sysmap_()
 {
 }
 
-opt<std::string> OsLinux::uname()
+namespace
 {
-    std::string ret;
-    char buffer[50 + 1];
-    int offset = 0;
-
-    do
+    // dmesg -t | grep -i "Linux version" | sha1sum | cut -c1-40
+    static opt<std::string> read_str(reader::Reader& reader, const uint64_t& addr, const unsigned int& buffer_size)
     {
-        const auto ok = reader_.read(buffer, symbols_[LINUX_BANNER] + kernel_rand_.kaslr + offset, sizeof buffer - 1);
-        if(!ok)
-            return FAIL(ext::nullopt, "unable to read at linux_banner address ({:#x})", symbols_[LINUX_BANNER] + kernel_rand_.kaslr);
+        std::string ret;
+        std::vector<char> buffer(buffer_size + 1);
+        uint64_t offset = 0;
 
-        buffer[sizeof buffer - 1] = 0;
-        ret.append(buffer);
-        offset += sizeof buffer - 1;
+        do
+        {
+            const auto ok = reader.read(&buffer[0], addr + offset, buffer_size);
+            if(!ok)
+                return FAIL(ext::nullopt, "unable to read {} bytes at address ({:#x})", buffer_size, addr + offset);
 
-    } while(strlen(buffer) >= sizeof buffer - 1);
+            buffer.back() = 0;
+            ret.append(&buffer[0]);
+            offset += buffer_size;
 
-    if(!ret.empty() && ret.back() == '\n')
-        ret.pop_back();
+        } while(strlen(&buffer[0]) >= buffer_size);
 
-    return ret;
+        return ret;
+    }
+}
+
+namespace
+{
+    static bool set_per_cpu(OsLinux& p)
+    {
+        auto per_cpu = p.core_.regs.read(MSR_GS_BASE);
+        if(!p.is_kernel_address(per_cpu))
+        {
+            per_cpu = p.core_.regs.read(MSR_KERNEL_GS_BASE);
+            if(!p.is_kernel_address(per_cpu))
+                return FAIL(false, "unable to find per_cpu address");
+        }
+
+        p.kernel_.per_cpu = per_cpu;
+        return true;
+    }
+
+    static bool set_kernel_page_dir(OsLinux& p, std::function<bool(uint64_t)> check)
+    {
+        auto kpgd = p.core_.regs.read(FDP_CR3_REGISTER);
+        kpgd &= ~0x1fffull; // clear 12th bits due to meltdown patch
+        if(!check(kpgd))
+        {
+            kpgd |= 0x1000ull; // try with orginal CR3 in case system is not meltdown patched
+            if(!check(kpgd))
+                return FAIL(false, "unable to find a valid kernel page directory");
+        }
+
+        p.kernel_.kpgd      = kpgd;
+        p.reader_.kdtb_.val = kpgd;
+        return true;
+    }
+
+    static bool find_linux_banner(OsLinux& p, fn::view<walk_e(uint64_t)> on_candidate)
+    {
+        if(!p.kernel_.kpgd)
+            return FAIL(false, "finding linux_banner requires a kernel page directory");
+
+        const char target[] = {'L', 'i', 'n', 'u', 'x', ' ', 'v', 'e', 'r', 's', 'i', 'o', 'n'};
+        const auto pattern  = boyer_moore_searcher(std::begin(target), std::end(target));
+
+        std::vector<char> buffer(PAGE_SIZE + sizeof target);
+
+        uint64_t offset = 0xffffffff80000000;
+        while(offset <= 0xffffffffff000000)
+        {
+            if(p.reader_.read(&buffer[sizeof target], offset, PAGE_SIZE))
+            {
+                const auto match = search(&buffer[0], &buffer[buffer.size() - 1], pattern);
+                if(match != &buffer[buffer.size() - 1])
+                    if(on_candidate((offset + (match - &buffer[0])) - sizeof target) == WALK_STOP)
+                        return true;
+                std::memcpy(&buffer[0], &buffer[buffer.size() - sizeof target], sizeof target);
+            }
+            else
+                buffer[sizeof target - 1] = 0;
+            offset += PAGE_SIZE;
+        }
+
+        return false;
+    }
+
+    static bool set_kernel_aslr(OsLinux& p, uint64_t linux_banner)
+    {
+        if(!linux_banner | !p.symbols_[LINUX_BANNER])
+            return false;
+
+        p.kernel_.kaslr = linux_banner - p.symbols_[LINUX_BANNER];
+        return true;
+    }
+
+    static bool check_setup(OsLinux& p)
+    {
+        if(!p.kernel_.kpgd | !p.kernel_.kaslr | !p.kernel_.per_cpu)
+            return false;
+
+        opt<proc_t> init_task = {};
+        p.proc_list([&](proc_t proc)
+        {
+            if(p.proc_id(proc) != 0)
+                return WALK_NEXT;
+
+            init_task = proc;
+            return WALK_STOP;
+        });
+        if(!init_task)
+            return false;
+
+        const auto name = p.proc_name(*init_task);
+        if(!name)
+            return false;
+
+        return ((*name).substr(0, 7) == "swapper");
+    }
+}
+
+namespace
+{
+    static std::string bytesToStr(const std::vector<unsigned char>& in)
+    {
+        auto from = in.cbegin();
+        auto to   = in.cend();
+        std::ostringstream oss;
+        for(; from != to; ++from)
+            oss << std::hex << std::setw(2) << std::setfill('0') << static_cast<int>(*from);
+        return oss.str();
+    }
+
+    static opt<std::string> guid(reader::Reader reader, uint64_t addr) // to simplify
+    {
+        auto str = read_str(reader, addr, 256);
+        if(!str)
+            return {};
+
+        if(!(*str).empty() && (*str).back() == '\n')
+            (*str).pop_back();
+
+        std::vector<unsigned char> vstr((*str).data(), (*str).data() + (*str).length());
+        unsigned char hash[20];
+        mbedtls_sha1(vstr.data(), vstr.size(), hash);
+
+        std::vector<unsigned char>  vhash       (hash, hash + 20);
+        return bytesToStr  (vhash);
+    }
+}
+
+namespace
+{
+    static bool make_symbols(sym::Symbols& syms, std::string guid)
+    {
+        syms.remove("dwarf");
+        syms.remove("sysmap");
+
+        auto dwarf = sym::make_dwarf({}, "kernel", guid);
+        if(!dwarf || !syms.insert("dwarf", dwarf))
+            return FAIL(false, "unable to read dwarf file");
+
+        auto sysmap = sym::make_map({}, "kernel", guid);
+        if(!sysmap || !syms.insert("sysmap", sysmap))
+            return FAIL(false, "unable to read System.map file");
+
+        return true;
+    }
+
+    static bool loadOffsets(sym::Symbols& syms, LinuxOffsets& offsets)
+    {
+        bool fail = false;
+        int i     = -1;
+        memset(&offsets[0], 0, sizeof offsets);
+        for(const auto& off : g_offsets)
+        {
+            fail |= off.e_id != ++i;
+            const auto offset = syms.struc_offset(off.module, off.struc, off.member);
+            if(!offset)
+            {
+                fail |= off.e_cat == cat_e::REQUIRED;
+                if(off.e_cat == cat_e::REQUIRED)
+                    LOG(ERROR, "unable to read {}!{}.{} member offset", off.module, off.struc, off.member);
+                else
+                    LOG(WARNING, "unable to read optional {}!{}.{} member offset", off.module, off.struc, off.member);
+                continue;
+            }
+            offsets[i] = *offset;
+        }
+        return !fail;
+    }
+
+    static bool loadSymbols(sym::Symbols& syms, LinuxSymbols& symbols)
+    {
+        bool fail = false;
+        int i     = -1;
+        memset(&symbols[0], 0, sizeof symbols);
+        for(const auto& sym : g_symbols)
+        {
+            fail |= sym.e_id != ++i;
+            const auto addr = syms.symbol(sym.module, sym.name);
+            if(!addr)
+            {
+                fail |= sym.e_cat == cat_e::REQUIRED;
+                if(sym.e_cat == cat_e::REQUIRED)
+                    LOG(ERROR, "unable to read {}!{} symbol offset", sym.module, sym.name);
+                else
+                    LOG(WARNING, "unable to read optional {}!{} symbol offset", sym.module, sym.name);
+                continue;
+            }
+            symbols[i] = *addr;
+        }
+        return !fail;
+    }
 }
 
 bool OsLinux::setup()
 {
-    if(!dwarf_.insert("dwarf", {}, {}, {}))
-        return FAIL(false, "unable to read dwarf file");
-
-    if(!sysmap_.setup())
-        return FAIL(false, "unable to read System.map file");
-
-    bool fail = false;
-    int i     = -1;
-    memset(&symbols_[0], 0, sizeof symbols_);
-    for(const auto& sym : g_symbols)
-    {
-        fail |= sym.e_id != ++i;
-        const auto addr = sysmap_.symbol(sym.name);
-        if(!addr)
-        {
-            fail |= sym.e_cat == cat_e::REQUIRED;
-            if(sym.e_cat == cat_e::REQUIRED)
-                LOG(ERROR, "unable to read {}!{} symbol offset", sym.module, sym.name);
-            else
-                LOG(WARNING, "unable to read optional {}!{} symbol offset", sym.module, sym.name);
-            continue;
-        }
-        symbols_[i] = *addr;
-    }
-
-    i = -1;
-    memset(&offsets_[0], 0, sizeof offsets_);
-    for(const auto& off : g_offsets)
-    {
-        fail |= off.e_id != ++i;
-        const auto offset = dwarf_.struc_offset(off.module, off.struc, off.member);
-        if(!offset)
-        {
-            fail |= off.e_cat == cat_e::REQUIRED;
-            if(off.e_cat == cat_e::REQUIRED)
-                LOG(ERROR, "unable to read {}!{}.{} member offset", off.module, off.struc, off.member);
-            else
-                LOG(WARNING, "unable to read optional {}!{}.{} member offset", off.module, off.struc, off.member);
-            continue;
-        }
-        offsets_[i] = *offset;
-    }
-    if(fail)
+    if(!set_per_cpu(*this))
         return false;
 
-    if(!find_kernel())
-        return FAIL(false, "unable to find kernel addresses");
-
-    LOG(INFO, "kernel found at {:#x} (kaslr = {:#x})", kernel_rand_.kernel, kernel_rand_.kaslr);
-    LOG(INFO, "{}", kernel_rand_.version);
-
-    return true;
-}
-
-bool OsLinux::find_kernel()
-{
-    // per_cpu address
-    auto per_cpu = core_.regs.read(MSR_GS_BASE);
-    if(!is_kernel_address(per_cpu))
-        per_cpu = core_.regs.read(MSR_KERNEL_GS_BASE);
-    if(!is_kernel_address(per_cpu))
-        return FAIL(false, "unable to find per_cpu address");
-    kernel_rand_.per_cpu = per_cpu;
-
-    // kpgd
-    kernel_rand_.kpgd = core_.regs.read(FDP_CR3_REGISTER);
-    kernel_rand_.kpgd &= ~0x1fffull; // clear 12th bits due to meltdown patch
-    reader_setup(reader_, proc_t{NULL, dtb_t{NULL}});
-
-    // break kaslr
-    if(!find_kaslr())
+    auto ok = set_kernel_page_dir(*this, [&](uint64_t kpgd)
     {
-        kernel_rand_.kpgd |= 0x1000ull; // try with orginal CR3 if system is not meltdown patched
-        reader_setup(reader_, proc_t{NULL, dtb_t{NULL}});
-        if(!find_kaslr())
-            return FAIL(false, "unable fo find a valid kernel page directory and/or the kernel ASLR");
-    }
+        auto reader      = reader::make(core_);
+        reader.kdtb_.val = kpgd;
+        return (!!reader.read(kernel_.per_cpu));
+    });
 
-    // set kernel address
-    kernel_rand_.kernel = symbols_[STARTUP_64] + kernel_rand_.kaslr;
-
-    // read linux version
-    const auto version = uname();
-    if(!version)
-        return FAIL(false, "unable to get linux kernel version");
-    kernel_rand_.version = *version;
-
-    return true;
-}
-
-bool OsLinux::find_kaslr()
-{
-    opt<proc_t> init_task = {};
-    proc_list([&](proc_t proc)
+    ok = find_linux_banner(*this, [&](uint64_t candidate)
     {
-        if(proc_id(proc) != 0)
+        const auto hash = guid(reader_, candidate);
+        if(!hash)
             return WALK_NEXT;
 
-        init_task = proc;
+        if(!make_symbols(syms_, *hash))
+            return WALK_NEXT;
+
+        if(!loadOffsets(syms_, offsets_) | !loadSymbols(syms_, symbols_))
+            return WALK_NEXT;
+
+        if(!set_kernel_aslr(*this, candidate))
+            return WALK_NEXT;
+
+        if(!check_setup(*this))
+            return WALK_NEXT;
+
         return WALK_STOP;
     });
-    if(!init_task)
-        return FAIL(false, "unable to find the swaper process (pid=0)");
 
-    kernel_rand_.kaslr = (*init_task).id - symbols_[INIT_TASK];
+    if(!ok)
+        return FAIL(false, "unable to find kernel");
+
+    LOG(INFO, "kernel loaded with kaslr {:#x}", kernel_.kaslr);
     return true;
 }
 
@@ -392,13 +515,7 @@ opt<proc_t> OsLinux::proc_find(uint64_t pid)
 
 opt<std::string> OsLinux::proc_name(proc_t proc)
 {
-    char buffer[14];
-    const auto ok = reader_.read(buffer, proc.id + offsets_[TASKSTRUCT_COMM], sizeof buffer);
-    if(!ok)
-        return {};
-
-    buffer[sizeof buffer - 1] = 0;
-    return std::string{buffer};
+    return read_str(reader_, proc.id + offsets_[TASKSTRUCT_COMM], 14);
 }
 
 uint64_t OsLinux::proc_id(proc_t proc)
@@ -448,13 +565,13 @@ opt<proc_t> OsLinux::proc_parent(proc_t /*proc*/)
 bool OsLinux::reader_setup(reader::Reader& reader, opt<proc_t> proc)
 {
     reader.udtb_ = (proc) ? proc->dtb : dtb_t{0};
-    reader.kdtb_ = dtb_t{kernel_rand_.kpgd};
+    reader.kdtb_ = dtb_t{kernel_.kpgd};
     return true;
 }
 
 sym::Symbols& OsLinux::kernel_symbols() // structure either
 {
-    return dwarf_;
+    return syms_;
 }
 
 bool OsLinux::thread_list(proc_t proc, on_thread_fn on_thread)
@@ -475,7 +592,7 @@ bool OsLinux::thread_list(proc_t proc, on_thread_fn on_thread)
 
 opt<thread_t> OsLinux::thread_current()
 {
-    const auto addr = reader_.read(kernel_rand_.per_cpu + symbols_[CURRENT_TASK] - symbols_[PER_CPU_START]);
+    const auto addr = reader_.read(kernel_.per_cpu + symbols_[CURRENT_TASK] - symbols_[PER_CPU_START]);
     if(!addr)
         return FAIL(ext::nullopt, "unable to read current_task in per_cpu area");
 
