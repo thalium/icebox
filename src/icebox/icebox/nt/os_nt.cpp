@@ -692,6 +692,10 @@ namespace
         if(!proc)
             return;
 
+        const auto is_32bit = os.proc_flags(*proc) & FLAGS_32BIT;
+        if(ctx.is_32bit && !is_32bit)
+            return;
+
         const auto mod  = ctx.is_32bit ? "ntdll32" : "ntdll";
         const auto name = ctx.is_32bit ? "_LdrpProcessMappedModule@16" : "LdrpProcessMappedModule";
         ctx.entry       = load_ntdll_symbol(os, *proc, ctx.is_32bit, mod, name);
