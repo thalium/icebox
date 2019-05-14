@@ -55,15 +55,15 @@ namespace
     // clang-format off
     const LinuxOffset g_offsets[] =
     {
-            {cat_e::REQUIRED,	TASKSTRUCT_COMM,			"dwarf",	"task_struct",		"comm"},
-            {cat_e::REQUIRED,	TASKSTRUCT_PID,				"dwarf",	"task_struct",		"pid"},
-            {cat_e::REQUIRED,	TASKSTRUCT_GROUPLEADER,		"dwarf",	"task_struct",		"group_leader"},
-			{cat_e::REQUIRED,	TASKSTRUCT_THREADGROUP,		"dwarf",	"task_struct",		"thread_group"},
-            {cat_e::REQUIRED,	TASKSTRUCT_TASKS,			"dwarf",	"task_struct",		"tasks"},
-            {cat_e::REQUIRED,	TASKSTRUCT_MM,				"dwarf",	"task_struct",		"mm"},
-            {cat_e::REQUIRED,	TASKSTRUCT_ACTIVEMM,		"dwarf",	"task_struct",		"active_mm"},
-            {cat_e::REQUIRED,	MMSTRUCT_PGD,				"dwarf",	"mm_struct",		"pgd"},
-            {cat_e::REQUIRED,	CRED_UID,					"dwarf",	"cred",				"uid"},
+            {cat_e::REQUIRED,	TASKSTRUCT_COMM,			"kernel_struct",	"task_struct",		"comm"},
+            {cat_e::REQUIRED,	TASKSTRUCT_PID,				"kernel_struct",	"task_struct",		"pid"},
+            {cat_e::REQUIRED,	TASKSTRUCT_GROUPLEADER,		"kernel_struct",	"task_struct",		"group_leader"},
+			{cat_e::REQUIRED,	TASKSTRUCT_THREADGROUP,		"kernel_struct",	"task_struct",		"thread_group"},
+            {cat_e::REQUIRED,	TASKSTRUCT_TASKS,			"kernel_struct",	"task_struct",		"tasks"},
+            {cat_e::REQUIRED,	TASKSTRUCT_MM,				"kernel_struct",	"task_struct",		"mm"},
+            {cat_e::REQUIRED,	TASKSTRUCT_ACTIVEMM,		"kernel_struct",	"task_struct",		"active_mm"},
+            {cat_e::REQUIRED,	MMSTRUCT_PGD,				"kernel_struct",	"mm_struct",		"pgd"},
+            {cat_e::REQUIRED,	CRED_UID,					"kernel_struct",	"cred",				"uid"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_offsets) == OFFSET_COUNT, "invalid offsets");
@@ -89,12 +89,12 @@ namespace
     // clang-format off
     const LinuxSymbol g_symbols[] =
     {
-            {cat_e::REQUIRED,	PER_CPU_START,				"sysmap",	"__per_cpu_start"},
-			{cat_e::REQUIRED,	CURRENT_TASK,				"sysmap",	"current_task"},
-			{cat_e::REQUIRED,	STARTUP_64,					"sysmap",	"startup_64"},
-			{cat_e::REQUIRED,	INIT_TASK,					"sysmap",	"init_task"},
-			{cat_e::REQUIRED,	SYS_CALL_TABLE,				"sysmap",	"sys_call_table"},
-			{cat_e::REQUIRED,	LINUX_BANNER,				"sysmap",	"linux_banner"},
+            {cat_e::REQUIRED,	PER_CPU_START,				"kernel_sym",	"__per_cpu_start"},
+			{cat_e::REQUIRED,	CURRENT_TASK,				"kernel_sym",	"current_task"},
+			{cat_e::REQUIRED,	STARTUP_64,					"kernel_sym",	"startup_64"},
+			{cat_e::REQUIRED,	INIT_TASK,					"kernel_sym",	"init_task"},
+			{cat_e::REQUIRED,	SYS_CALL_TABLE,				"kernel_sym",	"sys_call_table"},
+			{cat_e::REQUIRED,	LINUX_BANNER,				"kernel_sym",	"linux_banner"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
@@ -183,7 +183,7 @@ namespace
 
 OsLinux::OsLinux(core::Core& core)
     : core_(core)
-    , reader_(reader::make(core))
+    , reader_(reader::make(core)) // kernel page directory is setted up later during setup()
 {
 }
 
@@ -254,8 +254,8 @@ namespace
 
         std::vector<char> buffer(PAGE_SIZE + sizeof target);
 
-        uint64_t offset = 0xffffffff80000000;
-        while(offset <= 0xffffffffff000000)
+        uint64_t offset = 0xffffffff80000000; // start kernel area - todo check old compatibility
+        while(offset <= 0xffffffffff000000)   // end kernel area
         {
             if(p.reader_.read(&buffer[sizeof target], offset, PAGE_SIZE))
             {
@@ -319,9 +319,9 @@ namespace
         return oss.str();
     }
 
-    static opt<std::string> guid(reader::Reader reader, uint64_t addr) // to simplify
+    static opt<std::string> guid(reader::Reader reader, uint64_t addr) // todo - simplify
     {
-        auto str = read_str(reader, addr, 256);
+        auto str = read_str(reader, addr, 256); // for recent ubuntu, linux_banner length is about 180 bytes
         if(!str)
             return {};
 
@@ -329,7 +329,7 @@ namespace
             (*str).pop_back();
 
         std::vector<unsigned char> vstr((*str).data(), (*str).data() + (*str).length());
-        unsigned char hash[20];
+        unsigned char hash[20]; // sha1 length
         mbedtls_sha1(vstr.data(), vstr.size(), hash);
 
         std::vector<unsigned char>  vhash       (hash, hash + 20);
@@ -341,15 +341,15 @@ namespace
 {
     static bool make_symbols(sym::Symbols& syms, std::string guid)
     {
-        syms.remove("dwarf");
-        syms.remove("sysmap");
+        syms.remove("kernel_struct");
+        syms.remove("kernel_sym");
 
         auto dwarf = sym::make_dwarf({}, "kernel", guid);
-        if(!dwarf || !syms.insert("dwarf", dwarf))
+        if(!dwarf || !syms.insert("kernel_struct", dwarf))
             return FAIL(false, "unable to read dwarf file");
 
         auto sysmap = sym::make_map({}, "kernel", guid);
-        if(!sysmap || !syms.insert("sysmap", sysmap))
+        if(!sysmap || !syms.insert("kernel_sym", sysmap))
             return FAIL(false, "unable to read System.map file");
 
         return true;
@@ -501,7 +501,7 @@ opt<proc_t> OsLinux::proc_find(uint64_t pid)
     proc_list([&](proc_t proc)
     {
         const auto got = proc_id(proc);
-        if(got > 4194304)
+        if(got > 4194304) // PID <= 4194304 for linux
             return FAIL(WALK_NEXT, "unable to find the pid of proc {:#x}", proc.id);
 
         if(got != pid)
@@ -515,7 +515,12 @@ opt<proc_t> OsLinux::proc_find(uint64_t pid)
 
 opt<std::string> OsLinux::proc_name(proc_t proc)
 {
-    return read_str(reader_, proc.id + offsets_[TASKSTRUCT_COMM], 14);
+    return read_str(reader_, proc.id + offsets_[TASKSTRUCT_COMM], 16);
+    // 16 is COMM member length
+    // todo
+    //   -> create a member_size() in sym::IMod
+    //   -> or set the buffer length to 1 (read_str will iterate until \x00)
+    //   -> or set a bigger buffer to avoid multiple FDP calls
 }
 
 uint64_t OsLinux::proc_id(proc_t proc)
@@ -530,7 +535,7 @@ bool OsLinux::proc_is_valid(proc_t /*proc*/)
 
 bool OsLinux::is_kernel_address(uint64_t ptr)
 {
-    return (ptr > 0x7fffffffffffffff);
+    return (ptr > 0x7fffffffffffffff); // middle of 64bits address space, under -> user space, upper -> kernel space
 }
 
 bool OsLinux::can_inject_fault(uint64_t /*ptr*/)
