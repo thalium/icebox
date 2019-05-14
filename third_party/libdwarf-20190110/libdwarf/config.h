@@ -150,4 +150,7 @@
 // added for icebox
 
 #define __LIBELF_INTERNAL__ 1 // to find libelf includes
+
+#ifdef _MSC_VER
 typedef long long ssize_t;
+#endif

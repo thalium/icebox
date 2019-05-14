@@ -112,7 +112,7 @@ filter_out(libdwarf_files "dwarf_test_errmsg_list\.c")
 make_target(libdwarf third_party/libdwarf ${libdwarf_files} OPTIONS external)
 target_link_libraries(libdwarf PRIVATE libelf)
 target_include_directories(libdwarf PUBLIC
-	"${libdwarf_dir}"
+    "${libdwarf_dir}"
 )
 
 # mbedtls

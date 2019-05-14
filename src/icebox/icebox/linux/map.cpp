@@ -23,6 +23,7 @@ sym::Map::Map(fs::path filename)
 
 sym::Map::~Map()
 {
+    d_->filestream.close();
 }
 
 bool sym::Map::setup()
@@ -48,18 +49,6 @@ std::unique_ptr<sym::IMod> sym::make_map(span_t /*span*/, const std::string& mod
         return nullptr;
 
     return ptr;
-}
-
-bool sym::Map::check_file()
-{
-    auto& d = *d_;
-    if(!d.settedup)
-        return FAIL(false, "map parser has not been set up");
-
-    return sym_list([&](std::string /*name*/, uint64_t /*offset*/)
-    {
-        return WALK_NEXT;
-    });
 }
 
 span_t sym::Map::span()

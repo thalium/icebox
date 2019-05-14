@@ -13,8 +13,7 @@ namespace sym
         ~Map();
 
         // methods
-        bool    setup       ();
-        bool    check_file  ();
+        bool setup();
 
         // IModule methods
         span_t              span        () override;
