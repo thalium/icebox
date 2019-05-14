@@ -7,44 +7,65 @@
 #include <fstream>
 #include <sstream>
 
-struct sym::Map::Data
+namespace
 {
-    // members
     fs::path      filename;
     std::ifstream filestream;
     bool settedup = false;
-};
 
-sym::Map::Map(fs::path filename)
-    : d_(std::make_unique<Data>())
+    uint64_t aslr = 0;
+    bool is_aslr  = false;
+}
+
+sym::Map::Map(fs::path path)
 {
-    d_->filename = std::move(filename);
+    filename = std::move(path);
 }
 
 sym::Map::~Map()
 {
-    d_->filestream.close();
+    filestream.close();
 }
 
 bool sym::Map::setup()
 {
-    auto& d = *d_;
+    filestream = std::ifstream(filename.generic_string().data());
+    if(!filestream)
+        return FAIL(false, "unable to open {}", filename.generic_string());
 
-    d.filestream = std::ifstream(d.filename.generic_string().data());
-    if(!d.filestream)
-        return FAIL(false, "unable to open {}", d.filename.generic_string());
-
-    d.settedup = true;
+    settedup = true;
     return true;
 }
 
-std::unique_ptr<sym::IMod> sym::make_map(span_t /*span*/, const std::string& module, const std::string& guid)
+bool sym::Map::set_aslr(const std::string& strSymbol, const uint64_t addr)
+{
+    is_aslr               = true;
+    const auto addrSymbol = symbol(strSymbol);
+    if(!addrSymbol)
+    {
+        is_aslr = false;
+        return FAIL(false, "unable to find symbol {}", strSymbol);
+    }
+
+    aslr = addr - *addrSymbol;
+    return true;
+}
+
+opt<uint64_t> sym::Map::get_aslr()
+{
+    if(is_aslr)
+        return aslr;
+    else
+        return {};
+}
+
+std::unique_ptr<sym::Map> sym::make_map(span_t /*span*/, const std::string& module, const std::string& guid)
 {
     const auto path = getenv("_LINUX_SYMBOL_PATH");
     if(!path)
         return nullptr;
 
-    auto ptr = std::make_unique<Map>(fs::path(path) / module / guid / "System.map");
+    auto ptr = std::make_unique<sym::Map>(fs::path(path) / module / guid / "System.map");
     if(!ptr->setup())
         return nullptr;
 
@@ -75,28 +96,30 @@ opt<uint64_t> sym::Map::symbol(const std::string& symbol)
 
 bool sym::Map::sym_list(sym::on_sym_fn on_sym)
 {
-    auto& d = *d_;
-    if(!d.settedup)
+    if(!settedup)
         return FAIL(false, "map parser has not been set up");
+
+    if(!is_aslr)
+        LOG(WARNING, "Symbol address is required whereas ASLR was not setted");
 
     std::string    row;
     std::string    str_offset;
     sym::ModCursor cursor;
     char           type;
 
-    d.filestream.clear();
-    d.filestream.seekg(0, std::ios::beg);
-    while(std::getline(d.filestream, row))
+    filestream.clear();
+    filestream.seekg(0, std::ios::beg);
+    while(std::getline(filestream, row))
     {
         if(!(std::istringstream(row) >> str_offset >> type >> cursor.symbol))
-            return FAIL(false, "unable to parse row '{}' in file {}", row, d.filename.generic_string());
+            return FAIL(false, "unable to parse row '{}' in file {}", row, filename.generic_string());
 
         std::istringstream iss_offset(str_offset);
         iss_offset >> std::hex;
         if(!(iss_offset >> cursor.offset))
-            return FAIL(false, "unable to parse hex '{}' in file {}", str_offset, d.filename.generic_string());
+            return FAIL(false, "unable to parse hex '{}' in file {}", str_offset, filename.generic_string());
 
-        const auto ret = on_sym(cursor.symbol, cursor.offset);
+        const auto ret = on_sym(cursor.symbol, cursor.offset + aslr);
         if(ret == WALK_STOP)
             return true;
     }

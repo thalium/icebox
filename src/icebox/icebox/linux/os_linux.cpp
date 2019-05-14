@@ -40,7 +40,6 @@ namespace
         TASKSTRUCT_MM,
         TASKSTRUCT_ACTIVEMM,
         MMSTRUCT_PGD,
-        CRED_UID,
         OFFSET_COUNT,
     };
 
@@ -63,7 +62,6 @@ namespace
             {cat_e::REQUIRED,	TASKSTRUCT_MM,				"kernel_struct",	"task_struct",		"mm"},
             {cat_e::REQUIRED,	TASKSTRUCT_ACTIVEMM,		"kernel_struct",	"task_struct",		"active_mm"},
             {cat_e::REQUIRED,	MMSTRUCT_PGD,				"kernel_struct",	"mm_struct",		"pgd"},
-            {cat_e::REQUIRED,	CRED_UID,					"kernel_struct",	"cred",				"uid"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_offsets) == OFFSET_COUNT, "invalid offsets");
@@ -72,10 +70,6 @@ namespace
     {
         PER_CPU_START,
         CURRENT_TASK,
-        STARTUP_64,
-        INIT_TASK,
-        SYS_CALL_TABLE,
-        LINUX_BANNER,
         SYMBOL_COUNT,
     };
 
@@ -91,23 +85,12 @@ namespace
     {
             {cat_e::REQUIRED,	PER_CPU_START,				"kernel_sym",	"__per_cpu_start"},
 			{cat_e::REQUIRED,	CURRENT_TASK,				"kernel_sym",	"current_task"},
-			{cat_e::REQUIRED,	STARTUP_64,					"kernel_sym",	"startup_64"},
-			{cat_e::REQUIRED,	INIT_TASK,					"kernel_sym",	"init_task"},
-			{cat_e::REQUIRED,	SYS_CALL_TABLE,				"kernel_sym",	"sys_call_table"},
-			{cat_e::REQUIRED,	LINUX_BANNER,				"kernel_sym",	"linux_banner"},
     };
     // clang-format on
     static_assert(COUNT_OF(g_symbols) == SYMBOL_COUNT, "invalid symbols");
 
     using LinuxOffsets = std::array<uint64_t, OFFSET_COUNT>;
     using LinuxSymbols = std::array<uint64_t, SYMBOL_COUNT>;
-
-    struct KernelRandomization
-    {
-        uint64_t per_cpu = 0;
-        uint64_t kpgd    = 0;
-        uint64_t kaslr   = 0;
-    };
 
     struct OsLinux
         : public os::IModule
@@ -172,12 +155,13 @@ namespace
         void debug_print() override;
 
         // members
-        core::Core&         core_;
-        sym::Symbols        syms_;
-        reader::Reader      reader_;
-        LinuxOffsets        offsets_;
-        LinuxSymbols        symbols_;
-        KernelRandomization kernel_;
+        core::Core&    core_;
+        sym::Symbols   syms_;
+        reader::Reader reader_;
+        LinuxOffsets   offsets_;
+        LinuxSymbols   symbols_;
+        uint64_t per_cpu = 0;
+        uint64_t kpgd    = 0;
     };
 }
 
@@ -224,7 +208,7 @@ namespace
                 return FAIL(false, "unable to find per_cpu address");
         }
 
-        p.kernel_.per_cpu = per_cpu;
+        p.per_cpu = per_cpu;
         return true;
     }
 
@@ -239,14 +223,14 @@ namespace
                 return FAIL(false, "unable to find a valid kernel page directory");
         }
 
-        p.kernel_.kpgd      = kpgd;
+        p.kpgd              = kpgd;
         p.reader_.kdtb_.val = kpgd;
         return true;
     }
 
     static bool find_linux_banner(OsLinux& p, fn::view<walk_e(uint64_t)> on_candidate)
     {
-        if(!p.kernel_.kpgd)
+        if(!p.kpgd)
             return FAIL(false, "finding linux_banner requires a kernel page directory");
 
         const char target[] = {'L', 'i', 'n', 'u', 'x', ' ', 'v', 'e', 'r', 's', 'i', 'o', 'n'};
@@ -273,18 +257,9 @@ namespace
         return false;
     }
 
-    static bool set_kernel_aslr(OsLinux& p, uint64_t linux_banner)
-    {
-        if(!linux_banner | !p.symbols_[LINUX_BANNER])
-            return false;
-
-        p.kernel_.kaslr = linux_banner - p.symbols_[LINUX_BANNER];
-        return true;
-    }
-
     static bool check_setup(OsLinux& p)
     {
-        if(!p.kernel_.kpgd | !p.kernel_.kaslr | !p.kernel_.per_cpu)
+        if(!p.kpgd | !p.per_cpu)
             return false;
 
         opt<proc_t> init_task = {};
@@ -339,20 +314,26 @@ namespace
 
 namespace
 {
-    static bool make_symbols(sym::Symbols& syms, std::string guid)
+    static opt<uint64_t> make_symbols(sym::Symbols& syms, const std::string& guid, const std::string& strSymbol, const uint64_t& addrSymbol)
     {
         syms.remove("kernel_struct");
         syms.remove("kernel_sym");
 
         auto dwarf = sym::make_dwarf({}, "kernel", guid);
         if(!dwarf || !syms.insert("kernel_struct", dwarf))
-            return FAIL(false, "unable to read dwarf file");
+            return FAIL(ext::nullopt, "unable to read dwarf file");
 
         auto sysmap = sym::make_map({}, "kernel", guid);
-        if(!sysmap || !syms.insert("kernel_sym", sysmap))
-            return FAIL(false, "unable to read System.map file");
+        if(!sysmap || !(*sysmap).set_aslr(strSymbol, addrSymbol))
+            return FAIL(ext::nullopt, "unable to read System.map file");
 
-        return true;
+        const auto kaslr = (*sysmap).get_aslr();
+
+        std::unique_ptr<sym::IMod> sysmap_imod = std::move(sysmap);
+        if(!syms.insert("kernel_sym", sysmap_imod))
+            return FAIL(ext::nullopt, "unable to read System.map file");
+
+        return kaslr;
     }
 
     static bool loadOffsets(sym::Symbols& syms, LinuxOffsets& offsets)
@@ -411,7 +392,7 @@ bool OsLinux::setup()
     {
         auto reader      = reader::make(core_);
         reader.kdtb_.val = kpgd;
-        return (!!reader.read(kernel_.per_cpu));
+        return (!!reader.read(per_cpu));
     });
 
     ok = find_linux_banner(*this, [&](uint64_t candidate)
@@ -420,25 +401,23 @@ bool OsLinux::setup()
         if(!hash)
             return WALK_NEXT;
 
-        if(!make_symbols(syms_, *hash))
+        const auto kaslr = make_symbols(syms_, *hash, "linux_banner", candidate);
+        if(!kaslr)
             return WALK_NEXT;
 
         if(!loadOffsets(syms_, offsets_) | !loadSymbols(syms_, symbols_))
             return WALK_NEXT;
 
-        if(!set_kernel_aslr(*this, candidate))
-            return WALK_NEXT;
-
         if(!check_setup(*this))
             return WALK_NEXT;
 
+        LOG(INFO, "kernel loaded with kaslr {:#x}", *kaslr);
         return WALK_STOP;
     });
 
     if(!ok)
         return FAIL(false, "unable to find kernel");
 
-    LOG(INFO, "kernel loaded with kaslr {:#x}", kernel_.kaslr);
     return true;
 }
 
@@ -570,11 +549,11 @@ opt<proc_t> OsLinux::proc_parent(proc_t /*proc*/)
 bool OsLinux::reader_setup(reader::Reader& reader, opt<proc_t> proc)
 {
     reader.udtb_ = (proc) ? proc->dtb : dtb_t{0};
-    reader.kdtb_ = dtb_t{kernel_.kpgd};
+    reader.kdtb_ = dtb_t{kpgd};
     return true;
 }
 
-sym::Symbols& OsLinux::kernel_symbols() // structure either
+sym::Symbols& OsLinux::kernel_symbols()
 {
     return syms_;
 }
@@ -597,7 +576,7 @@ bool OsLinux::thread_list(proc_t proc, on_thread_fn on_thread)
 
 opt<thread_t> OsLinux::thread_current()
 {
-    const auto addr = reader_.read(kernel_.per_cpu + symbols_[CURRENT_TASK] - symbols_[PER_CPU_START]);
+    const auto addr = reader_.read(per_cpu + symbols_[CURRENT_TASK] - symbols_[PER_CPU_START]);
     if(!addr)
         return FAIL(ext::nullopt, "unable to read current_task in per_cpu area");
 
