@@ -260,6 +260,18 @@ namespace
         return false;
     }
 
+    static opt<std::string> get_linux_banner(reader::Reader reader, uint64_t addr)
+    {
+        auto str = read_str(reader, addr, 256); // for recent ubuntu, linux_banner length is about 180 bytes
+        if(!str)
+            return {};
+
+        if(!(*str).empty() && (*str).back() == '\n')
+            (*str).pop_back();
+
+        return str;
+    }
+
     static bool check_setup(OsLinux& p)
     {
         if(!p.kpgd | !p.per_cpu)
@@ -297,16 +309,9 @@ namespace
         return oss.str();
     }
 
-    static opt<std::string> guid(reader::Reader reader, uint64_t addr) // todo - simplify
+    static std::string guid(const std::string str) // todo - simplify
     {
-        auto str = read_str(reader, addr, 256); // for recent ubuntu, linux_banner length is about 180 bytes
-        if(!str)
-            return {};
-
-        if(!(*str).empty() && (*str).back() == '\n')
-            (*str).pop_back();
-
-        std::vector<unsigned char> vstr((*str).data(), (*str).data() + (*str).length());
+        std::vector<unsigned char> vstr(str.data(), str.data() + str.length());
         unsigned char hash[20]; // sha1 length
         mbedtls_sha1(vstr.data(), vstr.size(), hash);
 
@@ -324,11 +329,11 @@ namespace
 
         auto dwarf = sym::make_dwarf({}, "kernel", guid);
         if(!dwarf || !syms.insert("kernel_struct", dwarf))
-            return FAIL(ext::nullopt, "unable to read dwarf file");
+            return FAIL(ext::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/{}/elf", guid);
 
         auto sysmap = sym::make_map({}, "kernel", guid);
         if(!sysmap || !(*sysmap).set_aslr(strSymbol, addrSymbol))
-            return FAIL(ext::nullopt, "unable to read System.map file");
+            return FAIL(ext::nullopt, "unable to read _LINUX_SYMBOL_PATH/kernel/{}/System.map file", guid);
 
         const auto kaslr = (*sysmap).get_aslr();
 
@@ -398,13 +403,21 @@ bool OsLinux::setup()
         return (!!reader.read(per_cpu));
     });
 
-    ok = find_linux_banner(*this, [&](uint64_t candidate)
+    bool firstattempt = true;
+    ok                = find_linux_banner(*this, [&](uint64_t candidate)
     {
-        const auto hash = guid(reader_, candidate);
-        if(!hash)
-            return WALK_NEXT;
+        if(firstattempt)
+            firstattempt = false;
+        else
+            LOG(INFO, "try with next linux banner...");
 
-        const auto kaslr = make_symbols(syms_, *hash, "linux_banner", candidate);
+        const auto linux_banner = get_linux_banner(reader_, candidate);
+        if(!linux_banner)
+            return WALK_NEXT;
+        LOG(INFO, "linux banner found '{}'", *linux_banner);
+
+        const auto hash  = guid(*linux_banner);
+        const auto kaslr = make_symbols(syms_, hash, "linux_banner", candidate);
         if(!kaslr)
             return WALK_NEXT;
 
