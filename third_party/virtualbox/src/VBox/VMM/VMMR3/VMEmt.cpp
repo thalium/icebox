@@ -1644,9 +1644,9 @@ VMMR3_INT_DECL(bool) VMR3RemoveBreakpoint(PUVM pUVM, int BreakpointId)
             }
             case FDP_SOFTHBP:
             {
+                uint64_t GCPhys = pTempBreakpointEntrie->breakpointGCPhysAreaTable[0].Start;
                 pTempBreakpointEntrie->breakpointHardwarePage->ReferenceCount--;
                 if(pTempBreakpointEntrie->breakpointHardwarePage->ReferenceCount == 0){
-                    uint64_t GCPhys = pTempBreakpointEntrie->breakpointGCPhysAreaTable[0].Start;
                     LogRelDebug(("[WDEBUG] HardwarePage->ReferenceCount == 0\n"));
                     //No more breakpoint use this HardwarePage !
                     //Restore Original page
@@ -1658,6 +1658,11 @@ VMMR3_INT_DECL(bool) VMR3RemoveBreakpoint(PUVM pUVM, int BreakpointId)
                     PGMShwSetBreakable(pVCpu, GCPhys, false);
 
                     PGMShwInvalidate(pVCpu, GCPhys);
+                }
+                else
+                {
+                    HardwarePage_t* pHwPage = pTempBreakpointEntrie->breakpointHardwarePage;
+                    pHwPage->R3Ptr[GCPhys & (pHwPage->PageSize-1)] = pTempBreakpointEntrie->breakpointOriginalByte;
                 }
                 break;
             }
