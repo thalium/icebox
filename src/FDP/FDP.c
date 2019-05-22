@@ -869,10 +869,10 @@ uint8_t FDP_Test(FDP_SHM* pFDP)
         return false;
     }
     uint8_t DebuggeState;
-    FDP_GET_STATE_PKT_REQ* tmpPkt = (FDP_GET_STATE_PKT_REQ*) pFDP->OutputBuffer;
-    tmpPkt->Type                  = FDPCMD_TEST;
     LockSHM(pFDP->pSharedFDPSHM);
     {
+        FDP_GET_STATE_PKT_REQ* tmpPkt = (FDP_GET_STATE_PKT_REQ*) pFDP->OutputBuffer;
+        tmpPkt->Type                  = FDPCMD_TEST;
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, pFDP->OutputBuffer, sizeof *tmpPkt);
         ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &DebuggeState); // TODO: return success/fail !
     }
@@ -887,11 +887,11 @@ bool FDP_GetFxState64(FDP_SHM* pFDP, uint32_t CpuId, FDP_XSAVE_FORMAT64_T* pFxSt
     {
         return false;
     }
-    FDP_GET_STATE_PKT_REQ* TempPkt = (FDP_GET_STATE_PKT_REQ*) pFDP->OutputBuffer;
-    TempPkt->Type                  = FDPCMD_GET_FXSTATE;
-    TempPkt->CpuId                 = CpuId;
     LockSHM(pFDP->pSharedFDPSHM);
     {
+        FDP_GET_STATE_PKT_REQ* TempPkt = (FDP_GET_STATE_PKT_REQ*) pFDP->OutputBuffer;
+        TempPkt->Type                  = FDPCMD_GET_FXSTATE;
+        TempPkt->CpuId                 = CpuId;
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, pFDP->OutputBuffer, sizeof *TempPkt);
         ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) pFxState); // TODO: return success/fail !
     }
@@ -906,13 +906,13 @@ bool FDP_SetFxState64(FDP_SHM* pFDP, uint32_t CpuId, FDP_XSAVE_FORMAT64_T* pFxSt
     {
         return false;
     }
-    bool bReturnValue             = false;
-    FDP_SET_FX_STATE_REQ* TempPkt = (FDP_SET_FX_STATE_REQ*) pFDP->OutputBuffer;
-    TempPkt->Type                 = FDPCMD_SET_FXSTATE;
-    TempPkt->CpuId                = CpuId;
-    memcpy(&TempPkt->FxState64, pFxState64, sizeof *pFxState64);
+    bool bReturnValue = false;
     LockSHM(pFDP->pSharedFDPSHM);
     {
+        FDP_SET_FX_STATE_REQ* TempPkt = (FDP_SET_FX_STATE_REQ*) pFDP->OutputBuffer;
+        TempPkt->Type                 = FDPCMD_SET_FXSTATE;
+        TempPkt->CpuId                = CpuId;
+        memcpy(&TempPkt->FxState64, pFxState64, sizeof *pFxState64);
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, pFDP->OutputBuffer, sizeof *TempPkt);
         ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue); // TODO: return success/fail !
     }
@@ -1060,15 +1060,15 @@ bool FDP_InjectInterrupt(FDP_SHM* pFDP, uint32_t CpuId, uint32_t uInterruptionCo
     {
         return false;
     }
-    bool bReturnValue                    = false;
-    FDP_INJECT_INTERRUPT_PKT_REQ* tmpPkt = (FDP_INJECT_INTERRUPT_PKT_REQ*) pFDP->OutputBuffer;
-    tmpPkt->Type                         = FDPCMD_INJECT_INTERRUPT;
-    tmpPkt->CpuId                        = CpuId;
-    tmpPkt->Cr2Value                     = Cr2Value;
-    tmpPkt->ErrorCode                    = uErrorCode;
-    tmpPkt->InterruptionCode             = uInterruptionCode;
+    bool bReturnValue = false;
     LockSHM(pFDP->pSharedFDPSHM);
     {
+        FDP_INJECT_INTERRUPT_PKT_REQ* tmpPkt = (FDP_INJECT_INTERRUPT_PKT_REQ*) pFDP->OutputBuffer;
+        tmpPkt->Type                         = FDPCMD_INJECT_INTERRUPT;
+        tmpPkt->CpuId                        = CpuId;
+        tmpPkt->Cr2Value                     = Cr2Value;
+        tmpPkt->ErrorCode                    = uErrorCode;
+        tmpPkt->InterruptionCode             = uInterruptionCode;
         WriteFDPData(&pFDP->pSharedFDPSHM->ClientToServer, pFDP->OutputBuffer, sizeof *tmpPkt);
         ReadFDPData(&pFDP->pSharedFDPSHM->ServerToClient, (uint8_t*) &bReturnValue); // TODO: return success/fail !
     }
