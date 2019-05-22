@@ -16,7 +16,7 @@ namespace
         if(!arg)
             return {};
 
-        return arg->val & ~(~uint64_t(0) << (size * 8));
+        return arg->val & (~uint64_t(0) >> (64 - size * 8));
     }
 
     static std::string join(const std::vector<std::string>& args, const std::string& sep)
@@ -38,6 +38,6 @@ void tracer::log_call(core::Core& core, const tracer::callcfg_t& call)
     std::vector<std::string> args;
     args.reserve(call.argc);
     for(size_t i = 0; i < call.argc; ++i)
-        args.emplace_back(fmt::format("{}:{:#x}", call.args->name[i], read_arg(core, i, call.args->size)));
+        args.emplace_back(fmt::format("{}:{:#x}", call.args[i].name, read_arg(core, i, call.args[i].size)));
     LOG(INFO, "{}({})", call.name, join(args, ", "));
 }
