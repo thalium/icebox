@@ -420,10 +420,12 @@ typedef struct HM
     bool                        fIbpbOnVmExit;
     /** Set if indirect branch prediction barrier on VM entry. */
     bool                        fIbpbOnVmEntry;
+    /** Set if level 1 data cache should be flushed on VM entry. */
+    bool                        fL1dFlushOnVmEntry;
+    /** Set if level 1 data cache should be flushed on EMT scheduling. */
+    bool                        fL1dFlushOnSched;
     /** Set if host manages speculation control settings. */
     bool                        fSpecCtrlByHost;
-    /** Explicit padding. */
-    bool                        afPadding[2];
 
     /** Maximum ASID allowed. */
     uint32_t                    uMaxAsid;

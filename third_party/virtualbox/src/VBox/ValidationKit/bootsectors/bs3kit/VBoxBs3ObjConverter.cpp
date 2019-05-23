@@ -1860,6 +1860,7 @@ static bool convertElfSectionsToLeDataAndFixupps(POMFWRITER pThis, PCELFDETAILS 
                         fSelfRel = false;
                         RT_FALL_THRU();
                     case R_X86_64_PC32:
+                    case R_X86_64_PLT32: /* binutils commit 451875b4f976a527395e9303224c7881b65e12ed feature/regression. */
                     {
                         /* defaults are ok, just handle the addend. */
                         int32_t iAddend = paRelocs[iReloc].r_addend;
@@ -1877,7 +1878,6 @@ static bool convertElfSectionsToLeDataAndFixupps(POMFWRITER pThis, PCELFDETAILS 
                         continue; /* Ignore this one */
 
                     case R_X86_64_GOT32:
-                    case R_X86_64_PLT32:
                     case R_X86_64_COPY:
                     case R_X86_64_GLOB_DAT:
                     case R_X86_64_JMP_SLOT:
@@ -5472,7 +5472,7 @@ int main(int argc, char **argv)
                         break;
 
                     case 'V':
-                        printf("%s\n", "$Revision: 118412 $");
+                        printf("%s\n", "$Revision: 123660 $");
                         return 0;
 
                     case '?':

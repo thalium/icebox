@@ -522,8 +522,6 @@ if !defined(VBOX_ONLY_EXTPACKS)         # Goes on almost to the end of the file.
   VBoxDD_SOURCES        += \
   	Storage/DrvDiskIntegrity.cpp \
   	Storage/DrvRamDisk.cpp
-  VBoxDD_LIBS           += \
- 	$(PATH_STAGE_LIB)/StorageDbgLib$(VBOX_SUFF_LIB)
  endif
 
  ifdef VBOX_WITH_EFI
@@ -678,7 +676,6 @@ if !defined(VBOX_ONLY_EXTPACKS)         # Goes on almost to the end of the file.
        $(if $(VBOX_WITH_SLIRP_MEMORY_CHECK),RTMEM_WRAP_TO_EF_APIS,) \
        $(if $(VBOX_WITH_DEBUG_NAT_SOCKETS),VBOX_WITH_DEBUG_NAT_SOCKETS,)	\
        $(if $(VBOX_WITH_DNSMAPPING_IN_HOSTRESOLVER),VBOX_WITH_DNSMAPPING_IN_HOSTRESOLVER,)	\
-       $(if $(VBOX_WITH_NAT_UDP_SOCKET_CLONE),VBOX_WITH_NAT_UDP_SOCKET_CLONE,)	\
        $(if $(VBOX_WITH_NAT_SEND2HOME),VBOX_WITH_NAT_SEND2HOME,)	\
        $(if $(VBOX_WITH_HIDDEN_TCPTEMPLATE),VBOX_WITH_HIDDEN_TCPTEMPLATE,)	\
        $(if $(VBOX_WITH_SLIRP_MT),VBOX_WITH_SLIRP_MT,)

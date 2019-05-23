@@ -393,10 +393,10 @@ void UIHotKeyEditor::handleKeyPress(QKeyEvent *pKeyEvent)
     }
 }
 
-void UIHotKeyEditor::handleKeyRelease(QKeyEvent* /*pKeyEvent*/)
+void UIHotKeyEditor::handleKeyRelease(QKeyEvent *pKeyEvent)
 {
     /* If full sequence was taken already and no modifiers are currently held: */
-    if (m_fSequenceTaken && (QApplication::keyboardModifiers() == Qt::NoModifier))
+    if (m_fSequenceTaken && (pKeyEvent->modifiers() == Qt::NoModifier))
     {
         /* Reset taken sequence: */
         m_fSequenceTaken = false;

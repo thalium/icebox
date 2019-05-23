@@ -41,7 +41,7 @@
 #include <iprt/string.h>
 #include <iprt/mem.h>
 
-#include "VBoxPciInternal.h"
+#include "../VBoxPciInternal.h"
 
 #ifdef VBOX_WITH_IOMMU
 # include <linux/dmar.h>

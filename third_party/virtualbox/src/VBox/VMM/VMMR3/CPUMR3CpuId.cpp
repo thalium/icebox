@@ -1749,18 +1749,15 @@ int cpumR3CpuIdExplodeFeatures(PCCPUMCPUIDLEAF paLeaves, uint32_t cLeaves, PCPUM
             pFeatures->fIbpb                = RT_BOOL(pSxfLeaf0->uEdx & X86_CPUID_STEXT_FEATURE_EDX_IBRS_IBPB);
             pFeatures->fIbrs                = pFeatures->fIbpb;
             pFeatures->fStibp               = RT_BOOL(pSxfLeaf0->uEdx & X86_CPUID_STEXT_FEATURE_EDX_STIBP);
-#if 0   // Disabled until IA32_ARCH_CAPABILITIES support can be tested
+            pFeatures->fFlushCmd            = RT_BOOL(pSxfLeaf0->uEdx & X86_CPUID_STEXT_FEATURE_EDX_FLUSH_CMD);
             pFeatures->fArchCap             = RT_BOOL(pSxfLeaf0->uEdx & X86_CPUID_STEXT_FEATURE_EDX_ARCHCAP);
-#endif
         }
 
         /* MWAIT/MONITOR leaf. */
         PCCPUMCPUIDLEAF const pMWaitLeaf = cpumR3CpuIdFindLeaf(paLeaves, cLeaves, 5);
         if (pMWaitLeaf)
-        {
             pFeatures->fMWaitExtensions = (pMWaitLeaf->uEcx & (X86_CPUID_MWAIT_ECX_EXT | X86_CPUID_MWAIT_ECX_BREAKIRQIF0))
-                                                           == (X86_CPUID_MWAIT_ECX_EXT | X86_CPUID_MWAIT_ECX_BREAKIRQIF0);
-        }
+                                        ==                    (X86_CPUID_MWAIT_ECX_EXT | X86_CPUID_MWAIT_ECX_BREAKIRQIF0);
 
         /* Extended features. */
         PCCPUMCPUIDLEAF const pExtLeaf  = cpumR3CpuIdFindLeaf(paLeaves, cLeaves, 0x80000001);
@@ -2344,6 +2341,7 @@ typedef struct CPUMCPUIDCONFIG
     CPUMISAEXTCFG   enmFsGsBase;
     CPUMISAEXTCFG   enmPcid;
     CPUMISAEXTCFG   enmInvpcid;
+    CPUMISAEXTCFG   enmFlushCmdMsr;
 
     CPUMISAEXTCFG   enmAbm;
     CPUMISAEXTCFG   enmSse4A;
@@ -3137,6 +3135,7 @@ static int cpumR3CpuIdSanitize(PVM pVM, PCPUM pCpum, PCPUMCPUIDCONFIG pConfig)
                 pCurLeaf->uEdx &= 0
                                //| X86_CPUID_STEXT_FEATURE_EDX_IBRS_IBPB         RT_BIT(26)
                                //| X86_CPUID_STEXT_FEATURE_EDX_STIBP             RT_BIT(27)
+                               | (pConfig->enmFlushCmdMsr ? X86_CPUID_STEXT_FEATURE_EDX_FLUSH_CMD : 0)
                                //| X86_CPUID_STEXT_FEATURE_EDX_ARCHCAP           RT_BIT(29)
                                ;
 
@@ -3165,6 +3164,7 @@ static int cpumR3CpuIdSanitize(PVM pVM, PCPUM pCpum, PCPUMCPUIDCONFIG pConfig)
                     PORTABLE_DISABLE_FEATURE_BIT(    1, pCurLeaf->uEbx, SMAP,       X86_CPUID_STEXT_FEATURE_EBX_SMAP);
                     PORTABLE_DISABLE_FEATURE_BIT(    1, pCurLeaf->uEbx, SHA,        X86_CPUID_STEXT_FEATURE_EBX_SHA);
                     PORTABLE_DISABLE_FEATURE_BIT(    1, pCurLeaf->uEcx, PREFETCHWT1, X86_CPUID_STEXT_FEATURE_ECX_PREFETCHWT1);
+                    PORTABLE_DISABLE_FEATURE_BIT_CFG(3, pCurLeaf->uEdx, FLUSH_CMD,  X86_CPUID_STEXT_FEATURE_EDX_FLUSH_CMD, pConfig->enmFlushCmdMsr);
                 }
 
                 /* Force standard feature bits. */
@@ -3178,6 +3178,8 @@ static int cpumR3CpuIdSanitize(PVM pVM, PCPUM pCpum, PCPUMCPUIDCONFIG pConfig)
                     pCurLeaf->uEbx |= X86_CPUID_STEXT_FEATURE_EBX_CLFLUSHOPT;
                 if (pConfig->enmInvpcid == CPUMISAEXTCFG_ENABLED_ALWAYS)
                     pCurLeaf->uEbx |= X86_CPUID_STEXT_FEATURE_EBX_INVPCID;
+                if (pConfig->enmFlushCmdMsr == CPUMISAEXTCFG_ENABLED_ALWAYS)
+                    pCurLeaf->uEdx |= X86_CPUID_STEXT_FEATURE_EDX_FLUSH_CMD;
                 break;
             }
 
@@ -3947,6 +3949,7 @@ static int cpumR3CpuIdReadConfig(PVM pVM, PCPUMCPUIDCONFIG pConfig, PCFGMNODE pC
                                   "|FSGSBASE"
                                   "|PCID"
                                   "|INVPCID"
+                                  "|FlushCmdMsr"
                                   "|ABM"
                                   "|SSE4A"
                                   "|MISALNSSE"
@@ -4102,6 +4105,12 @@ static int cpumR3CpuIdReadConfig(PVM pVM, PCPUMCPUIDCONFIG pConfig, PCFGMNODE pC
     rc = cpumR3CpuIdReadIsaExtCfg(pVM, pIsaExts, "INVPCID", &pConfig->enmInvpcid, pConfig->enmFsGsBase);
     AssertLogRelRCReturn(rc, rc);
 
+    /** @cfgm{/CPUM/IsaExts/FlushCmdMsr, isaextcfg, true}
+     * Whether to expose the IA32_FLUSH_CMD MSR to the guest.
+     */
+    rc = cpumR3CpuIdReadIsaExtCfg(pVM, pIsaExts, "FlushCmdMsr", &pConfig->enmFlushCmdMsr, CPUMISAEXTCFG_ENABLED_SUPPORTED);
+    AssertLogRelRCReturn(rc, rc);
+
 
     /* AMD: */
 
@@ -4245,6 +4254,12 @@ int cpumR3InitCpuIdAndMsrs(PVM pVM)
         }
     }
 
+    /*
+     * Setup MSRs introduced in microcode updates or that are otherwise not in
+     * the CPU profile, but are advertised in the CPUID info we just sanitized.
+     */
+    if (RT_SUCCESS(rc))
+        rc = cpumR3MsrReconcileWithCpuId(pVM);
     /*
      * MSR fudging.
      */
@@ -4637,6 +4652,7 @@ VMMR3_INT_DECL(void) CPUMR3SetGuestCpuIdFeature(PVM pVM, CPUMCPUIDFEATURE enmFea
                     pMsrRange = cpumLookupMsrRange(pVM, MSR_IA32_PRED_CMD);
                     if (!pMsrRange)
                     {
+                        /** @todo incorrect fWrGpMask. */
                         static CPUMMSRRANGE const s_SpecCtrl =
                         {
                             /*.uFirst =*/ MSR_IA32_PRED_CMD, /*.uLast =*/ MSR_IA32_PRED_CMD,
@@ -4650,7 +4666,8 @@ VMMR3_INT_DECL(void) CPUMR3SetGuestCpuIdFeature(PVM pVM, CPUMCPUIDFEATURE enmFea
 
                 }
 
-                if (pVM->cpum.s.HostFeatures.fArchCap) {
+                if (pVM->cpum.s.HostFeatures.fArchCap)
+                {
                     pLeaf->uEdx |= X86_CPUID_STEXT_FEATURE_EDX_ARCHCAP;
 
                     /* Install the architectural capabilities MSR. */
@@ -4831,7 +4848,8 @@ VMMR3_INT_DECL(void) CPUMR3ClearGuestCpuIdFeature(PVM pVM, CPUMCPUIDFEATURE enmF
         case CPUMCPUIDFEATURE_SPEC_CTRL:
             pLeaf = cpumR3CpuIdGetExactLeaf(&pVM->cpum.s, UINT32_C(0x00000007), 0);
             if (pLeaf)
-                /*pVM->cpum.s.aGuestCpuIdPatmStd[7].uEdx =*/ pLeaf->uEdx &= ~(X86_CPUID_STEXT_FEATURE_EDX_IBRS_IBPB | X86_CPUID_STEXT_FEATURE_EDX_STIBP | X86_CPUID_STEXT_FEATURE_EDX_ARCHCAP);
+                pLeaf->uEdx &= ~(  X86_CPUID_STEXT_FEATURE_EDX_IBRS_IBPB | X86_CPUID_STEXT_FEATURE_EDX_STIBP
+                                 | X86_CPUID_STEXT_FEATURE_EDX_ARCHCAP);
             pVM->cpum.s.GuestFeatures.fSpeculationControl = 0;
             Log(("CPUM: ClearGuestCpuIdFeature: Disabled speculation control!\n"));
             break;
@@ -6146,6 +6164,7 @@ static DBGFREGSUBFIELD const g_aLeaf7Sub0EdxSubFields[] =
 {
     DBGFREGSUBFIELD_RO("IBRS_IBPB\0"    "IA32_SPEC_CTRL.IBRS and IA32_PRED_CMD.IBPB",   26, 1, 0),
     DBGFREGSUBFIELD_RO("STIBP\0"        "Supports IA32_SPEC_CTRL.STIBP",                27, 1, 0),
+    DBGFREGSUBFIELD_RO("FLUSH_CMD\0"    "Supports IA32_FLUSH_CMD",                      28, 1, 0),
     DBGFREGSUBFIELD_RO("ARCHCAP\0"      "Supports IA32_ARCH_CAP",                       29, 1, 0),
     DBGFREGSUBFIELD_TERMINATOR()
 };

@@ -714,8 +714,9 @@
       <para>If your host's CPU supports the <emphasis role="bold">nested
       paging</emphasis> (AMD-V) or <emphasis role="bold">EPT</emphasis> (Intel
       VT-x) features, then you can expect a significant performance increase
-      by enabling nested paging in addition to hardware virtualization. For
-      technical details, see <xref linkend="nestedpaging" />.</para>
+      by enabling nested paging in addition to hardware virtualization.  For
+      technical details, see <xref linkend="nestedpaging" />. For Intel EPT
+      security recommendations, see <xref linkend="sec-rec-cve-2018-3646" />.</para>
 
       <para>Starting with version 5.0, VirtualBox provides paravirtualization
       interfaces to improve time-keeping accuracy and performance of guest

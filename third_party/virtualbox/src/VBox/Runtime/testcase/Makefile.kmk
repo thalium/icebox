@@ -134,6 +134,7 @@ PROGRAMS += \
 	tstRTThreadPoke \
 	tstRTThreadExecutionTime \
 	tstRTTime \
+	tstRTTraceLog \
 	tstTime-2 \
 	tstTime-3 \
 	tstTime-4 \
@@ -659,6 +660,9 @@ tstRTThreadExecutionTime_SOURCES = tstRTThreadExecutionTime.cpp
 
 tstRTTime_TEMPLATE = VBOXR3TSTEXE
 tstRTTime_SOURCES = tstRTTime.cpp
+
+tstRTTraceLog_TEMPLATE = VBOXR3TSTEXE
+tstRTTraceLog_SOURCES = tstRTTraceLog.cpp
 
 tstTime-2_TEMPLATE = VBOXR3TSTEXE
 tstTime-2_SOURCES = tstTime-2.cpp

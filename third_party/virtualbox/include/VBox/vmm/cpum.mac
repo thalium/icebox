@@ -285,6 +285,8 @@ endstruc
 
 %define CPUMCTX_WSF_IBPB_EXIT           RT_BIT_32(0)
 %define CPUMCTX_WSF_IBPB_ENTRY          RT_BIT_32(1)
+%define CPUMCTX_WSF_L1D_ENTRY           RT_BIT_32(2)
+
 
 %define CPUMSELREG_FLAGS_VALID      0x0001
 %define CPUMSELREG_FLAGS_STALE      0x0002

@@ -1217,13 +1217,13 @@ static int rtTestSubTestReport(PRTTESTINT pTest)
             {
                 rtTestXmlElem(pTest, "Passed", NULL);
                 rtTestXmlElemEnd(pTest, "Test");
-                cch += RTTestPrintfNl(pTest, RTTESTLVL_SUB_TEST, "%-50s: PASSED\n", pTest->pszSubTest);
+                cch += RTTestPrintfNl(pTest, RTTESTLVL_SUB_TEST, "%-60s: PASSED\n", pTest->pszSubTest);
             }
             else
             {
                 rtTestXmlElem(pTest, "Skipped", NULL);
                 rtTestXmlElemEnd(pTest, "Test");
-                cch += RTTestPrintfNl(pTest, RTTESTLVL_SUB_TEST, "%-50s: SKIPPED\n", pTest->pszSubTest);
+                cch += RTTestPrintfNl(pTest, RTTESTLVL_SUB_TEST, "%-60s: SKIPPED\n", pTest->pszSubTest);
             }
         }
         else
@@ -1231,7 +1231,7 @@ static int rtTestSubTestReport(PRTTESTINT pTest)
             pTest->cSubTestsFailed++;
             rtTestXmlElem(pTest, "Failed", "errors=\"%u\"", cErrors);
             rtTestXmlElemEnd(pTest, "Test");
-            cch += RTTestPrintfNl(pTest, RTTESTLVL_SUB_TEST, "%-50s: FAILED (%u errors)\n",
+            cch += RTTestPrintfNl(pTest, RTTESTLVL_SUB_TEST, "%-60s: FAILED (%u errors)\n",
                                   pTest->pszSubTest, cErrors);
         }
     }
@@ -1609,7 +1609,7 @@ RTR3DECL(int) RTTestValue(RTTEST hTest, const char *pszName, uint64_t u64Value, 
     RTCritSectLeave(&pTest->Lock);
 
     RTCritSectEnter(&pTest->OutputLock);
-    rtTestPrintf(pTest, "  %-48s: %'16llu %s\n", pszName, u64Value, pszUnit);
+    rtTestPrintf(pTest, "  %-58s: %'16llu %s\n", pszName, u64Value, pszUnit);
     RTCritSectLeave(&pTest->OutputLock);
 
     return VINF_SUCCESS;

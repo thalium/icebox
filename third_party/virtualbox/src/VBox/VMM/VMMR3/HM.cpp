@@ -455,6 +455,8 @@ VMMR3_INT_DECL(int) HMR3Init(PVM pVM)
                               "|IBPBOnVMExit"
                               "|IBPBOnVMEntry"
                               "|SpecCtrlByHost"
+                              "|L1DFlushOnSched"
+                              "|L1DFlushOnVMEntry"
                               "|TPRPatchingEnabled"
                               "|64bitEnabled"
                               "|VmxPleGap"
@@ -610,6 +612,20 @@ VMMR3_INT_DECL(int) HMR3Init(PVM pVM)
      * Costly paranoia setting. */
     rc = CFGMR3QueryBoolDef(pCfgHm, "IBPBOnVMEntry", &pVM->hm.s.fIbpbOnVmEntry, false);
     AssertLogRelRCReturn(rc, rc);
+
+    /** @cfgm{/HM/L1DFlushOnSched, bool, true}
+     * CVS-2018-3646 workaround, ignored on CPUs that aren't affected. */
+    rc = CFGMR3QueryBoolDef(pCfgHm, "L1DFlushOnSched", &pVM->hm.s.fL1dFlushOnSched, true);
+    AssertLogRelRCReturn(rc, rc);
+
+    /** @cfgm{/HM/L1DFlushOnVMEntry, bool}
+     * CVS-2018-3646 workaround, ignored on CPUs that aren't affected. */
+    rc = CFGMR3QueryBoolDef(pCfgHm, "L1DFlushOnVMEntry", &pVM->hm.s.fL1dFlushOnVmEntry, false);
+    AssertLogRelRCReturn(rc, rc);
+
+    /* Disable L1DFlushOnSched if L1DFlushOnVMEntry is enabled. */
+    if (pVM->hm.s.fL1dFlushOnVmEntry)
+        pVM->hm.s.fL1dFlushOnSched = false;
 
     /** @cfgm{/HM/SpecCtrlByHost, bool}
      * Another expensive paranoia setting. */
@@ -1169,6 +1185,16 @@ static int hmR3InitFinalizeR0(PVM pVM)
     }
 
     /*
+     * Check if L1D flush is needed/possible.
+     */
+    if (   !pVM->cpum.ro.HostFeatures.fFlushCmd
+        || pVM->cpum.ro.HostFeatures.enmMicroarch <  kCpumMicroarch_Intel_Core7_Nehalem
+        || pVM->cpum.ro.HostFeatures.enmMicroarch >= kCpumMicroarch_Intel_Core7_End
+        || pVM->cpum.ro.HostFeatures.fArchVmmNeedNotFlushL1d
+        || pVM->cpum.ro.HostFeatures.fArchRdclNo)
+        pVM->hm.s.fL1dFlushOnSched = pVM->hm.s.fL1dFlushOnVmEntry = false;
+
+    /*
      * Sync options.
      */
     /** @todo Move this out of of CPUMCTX and into some ring-0 only HM structure.
@@ -1185,9 +1211,12 @@ static int hmR3InitFinalizeR0(PVM pVM)
             if (pVM->hm.s.fIbpbOnVmEntry)
                 pCpuCtx->fWorldSwitcher |= CPUMCTX_WSF_IBPB_ENTRY;
         }
+        if (pVM->cpum.ro.HostFeatures.fFlushCmd && pVM->hm.s.fL1dFlushOnVmEntry)
+            pCpuCtx->fWorldSwitcher |= CPUMCTX_WSF_L1D_ENTRY;
         if (iCpu == 0)
-            LogRel(("HM: fWorldSwitcher=%#x (fIbpbOnVmExit=%d fIbpbOnVmEntry=%d)\n",
-                    pCpuCtx->fWorldSwitcher, pVM->hm.s.fIbpbOnVmExit, pVM->hm.s.fIbpbOnVmEntry));
+            LogRel(("HM: fWorldSwitcher=%#x (fIbpbOnVmExit=%d fIbpbOnVmEntry=%d fL1dFlushOnVmEntry=%d); fL1dFlushOnSched=%d\n",
+                    pCpuCtx->fWorldSwitcher, pVM->hm.s.fIbpbOnVmExit, pVM->hm.s.fIbpbOnVmEntry, pVM->hm.s.fL1dFlushOnVmEntry,
+                    pVM->hm.s.fL1dFlushOnSched));
     }
 
     /*

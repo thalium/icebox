@@ -6735,7 +6735,6 @@ static uint32_t rtFsIsoMakerOutFile_GenerateDirRecDirect(PRTFSISOMAKERNAME pName
             pCurDirRec->offExtent.le = RT_H2LE_U32(offExtent);
 
             cbReturn += cbOne;
-            iDirRec++;
         }
         Assert(cbReturn <= pName->cbDirRecTotal);
 

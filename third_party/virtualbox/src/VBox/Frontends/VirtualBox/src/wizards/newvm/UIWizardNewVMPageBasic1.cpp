@@ -81,6 +81,8 @@ static const osTypePattern gs_OSTypePattern[] =
     /* Set Windows 7 as default for "Windows". */
     { QRegExp(  "Wi.*64",                         Qt::CaseInsensitive), "Windows7_64" },
     { QRegExp(  "Wi.*32",                         Qt::CaseInsensitive), "Windows7" },
+    /* ReactOS wants to be considered as Windows 2003 */
+    { QRegExp(  "Reac.*",                         Qt::CaseInsensitive), "Windows2003" },
 
     /* Solaris: */
     { QRegExp("Sol.*11",                                                  Qt::CaseInsensitive), "Solaris11_64" },

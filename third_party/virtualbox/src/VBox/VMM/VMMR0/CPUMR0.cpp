@@ -215,7 +215,7 @@ VMMR0_INT_DECL(int) CPUMR0InitVM(PVM pVM)
          */
         uint32_t u32CpuVersion;
         uint32_t u32Dummy;
-        uint32_t fFeatures;
+        uint32_t fFeatures; /* (Used further down to check for MSRs, so don't clobber.) */
         ASMCpuId(1, &u32CpuVersion, &u32Dummy, &u32Dummy, &fFeatures);
         uint32_t const u32Family   = u32CpuVersion >> 8;
         uint32_t const u32Model    = (u32CpuVersion >> 4) & 0xF;
@@ -265,6 +265,31 @@ VMMR0_INT_DECL(int) CPUMR0InitVM(PVM pVM)
                     }
                 }
             }
+        }
+
+        /*
+         * Copy MSR_IA32_ARCH_CAPABILITIES bits over into the host feature structure.
+         */
+        pVM->cpum.s.HostFeatures.fArchRdclNo             = 0;
+        pVM->cpum.s.HostFeatures.fArchIbrsAll            = 0;
+        pVM->cpum.s.HostFeatures.fArchRsbOverride        = 0;
+        pVM->cpum.s.HostFeatures.fArchVmmNeedNotFlushL1d = 0;
+        uint32_t const cStdRange = ASMCpuId_EAX(0);
+        if (   ASMIsValidStdRange(cStdRange)
+            && cStdRange >= 7)
+        {
+            uint32_t fEdxFeatures = ASMCpuId_EDX(7);
+            if (   (fEdxFeatures & X86_CPUID_STEXT_FEATURE_EDX_ARCHCAP)
+                && (fFeatures & X86_CPUID_FEATURE_EDX_MSR))
+            {
+                uint64_t const fArchVal = ASMRdMsr(MSR_IA32_ARCH_CAPABILITIES);
+                pVM->cpum.s.HostFeatures.fArchRdclNo             = RT_BOOL(fArchVal & MSR_IA32_ARCH_CAP_F_RDCL_NO);
+                pVM->cpum.s.HostFeatures.fArchIbrsAll            = RT_BOOL(fArchVal & MSR_IA32_ARCH_CAP_F_IBRS_ALL);
+                pVM->cpum.s.HostFeatures.fArchRsbOverride        = RT_BOOL(fArchVal & MSR_IA32_ARCH_CAP_F_RSBO);
+                pVM->cpum.s.HostFeatures.fArchVmmNeedNotFlushL1d = RT_BOOL(fArchVal & MSR_IA32_ARCH_CAP_F_VMM_NEED_NOT_FLUSH_L1D);
+            }
+            else
+                pVM->cpum.s.HostFeatures.fArchCap = 0;
         }
 
         /*

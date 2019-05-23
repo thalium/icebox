@@ -48,22 +48,6 @@ ifeq ($(wildcard rpm/rules),)
 $(error call rpm/rules from src/VBox/Installer/linux)
 endif
 
-ifneq ($(wildcard /usr/lib/rpm/find-requires.ksyms),)
-# don't allow to check for kernel syms, otherwise we depend on specific kernel versions!
-$(error /usr/lib/rpm/find-requires.ksyms must not be installed)
-endif
-ifneq ($(wildcard /usr/lib/rpm/find-supplements.ksyms),)
-# same for openSUSE
-$(error /usr/lib/rpm/find-supplements.ksyms must not be installed)
-endif
-ifeq ($(shell if grep -q '^/usr/lib/virtualbox' /etc/permissions* 2>/dev/null; then echo yes; fi),yes)
-# make sure openSUSE permissions fixes don't interfere with us
-$(error Fix /etc/permissions*)
-endif
-ifeq ($(shell if grep -q '^%disttag' /usr/lib/rpm/macros.d/mandriva 2>/dev/null; then echo yes; fi),yes)
-$(error Fix /usr/lib/rpm/macros.d/mandriva)
-endif
-
 verpkg   := VirtualBox-5.2
 current  := $(shell pwd)
 vboxroot := $(shell while ! test -r configure && ! test "$PWD" = "/"; do cd ..; done; pwd)
@@ -84,11 +68,8 @@ STAGEDISO ?= $(if $(wildcard $(vboxroot)/prebuild/VBoxGuestAdditions.iso),$(vbox
 NOWINE   := $(if $(NODOCS),$(if $(STAGEDISO),1,),)$(ose)
 
 ifneq ($(MAKECMDGOALS),clean)
- rpmrel   := $(subst ol,el,$(subst rhel,el,$(subst centos,el,$(shell cat /etc/distname))))
- ifeq ($(rpmrel),)
  # look for fedora
-  rpmrel  := $(shell cat /etc/fedora-release 2> /dev/null | sed -e 's/^Fedora  *release  *\([1-9][0-9]*\) .*/fedora\1/')
- endif
+ rpmrel  := $(shell cat /etc/fedora-release 2> /dev/null | sed -e 's/^Fedora  *release  *\([1-9][0-9]*\) .*/fedora\1/')
  ifeq ($(rpmrel),)
  # look for OL
   rpmrel  := $(shell cat /etc/enterprise-release 2> /dev/null | sed -ne 's/^Enterprise Linux[a-zA-Z ]*\([1-9][0-9]*\).*/el\1/p')
@@ -102,7 +83,11 @@ ifneq ($(MAKECMDGOALS),clean)
   rpmrel  := $(shell cat /etc/redhat-release 2> /dev/null | sed -ne 's/^Red Hat[a-zA-Z ]*\([1-9][0-9]*\).*/el\1/p')
  endif
  ifeq ($(rpmrel),)
-  $(error failed to detect the release type. Add /etc/distname or hack the detection.)
+ # look for openSUSE
+  rpmrel  := $(shell cat /etc/SUSE-brand 2> /dev/null | sed -ne 's/^VERSION *= *\([0-9]*\)\.\([0-9]*\)/openSUSE\1\2/p')
+ endif
+ ifeq ($(rpmrel),)
+  $(error failed to detect the release type.  Hack the detection.)
  endif
 
  rpmdist := $(strip $(shell grep $(rpmrel) $(current)/distributions_rpm | cut -d'=' -f2))
@@ -113,7 +98,7 @@ ifneq ($(MAKECMDGOALS),clean)
  ifeq ($(filter-out el5 el6 el7 fedora18 fedora19 fedora20 fedora21 fedora22 fedora24 fedora25 fedora26,$(rpmrel)),)
   rpmspec := rpm_redhat
  endif
- ifeq ($(filter-out openSUSE110 openSUSE111 openSUSE112 openSUSE113 openSUSE114 openSUSE123 openSUSE131 openSUSE132,$(rpmrel)),)
+ ifeq ($(filter-out openSUSE110 openSUSE111 openSUSE112 openSUSE113 openSUSE114 openSUSE123 openSUSE131 openSUSE132 openSUSE150,$(rpmrel)),)
   rpmspec := rpm_suse
  endif
  ifeq ($(rpmspec),)
@@ -152,6 +137,7 @@ endif
 cfg_flags := $(if $(NOQT),--disable-qt,) \
 	     $(if $(NOSDL),--disable-vboxsdl,) \
 	     $(if $(filter el5 el6,$(rpmrel)),--build-libvpx,) \
+	     $(if $(filter el5 el6,$(rpmrel)),--build-libopus,) \
 	     $(if $(filter el5,$(rpmrel)),--build-libcurl,) \
 	     $(if $(filter el5,$(rpmrel)),--disable-sdl-ttf,) \
 	     $(if $(filter el5,$(rpmrel)),--disable-pulse,) \
@@ -172,7 +158,8 @@ bld_flags := AUTOCFG=$(current)/rpm/AutoConfig.kmk \
 	     $(if $(filter el5 el6,$(rpmrel)),,VBOX_WITH_VMSVGA3D=1) \
 	     VBOX_DO_STRIP= \
 	     $(if $(filter el5,$(rpmrel)),VBOX_BLD_PYTHON=$(strip \
-		$(firstword $(wildcard /usr/local/bin/python2.7) $(wildcard /usr/bin/python))),) \
+		$(firstword $(wildcard /usr/local/bin/python2.7) \
+		$(wildcard /usr/bin/python2.6) $(wildcard /usr/bin/python))),) \
 	     $(doc_dir) \
 	     $(if $(ose),,VBOX_WITH_DOCS_CHM=1) \
 	     VBOX_PACKAGE_DIST=$(rpmdist) \

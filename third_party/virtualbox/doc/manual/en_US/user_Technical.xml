@@ -943,6 +943,10 @@
           <computeroutput>VBoxManage modifyvm
           </computeroutput><computeroutput>--largepages</computeroutput>
           command; see <xref linkend="vboxmanage-modifyvm" />.</para>
+
+          <para>If you have an Intel CPU with EPT, please consult
+          <xref linkend="sec-rec-cve-2018-3646" /> for security concerns
+          regarding EPT.</para>
         </listitem>
 
         <listitem>

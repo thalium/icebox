@@ -450,6 +450,8 @@ RuntimeR3_SOURCES       = \
 	common/log/logformat.cpp \
 	common/log/tracebuf.cpp \
 	common/log/tracedefault.cpp \
+	common/log/tracelogreader.cpp \
+	common/log/tracelogwriter.cpp \
 	common/math/bignum.cpp \
 	common/misc/RTAssertMsg1Weak.cpp \
 	common/misc/RTAssertMsg2.cpp \

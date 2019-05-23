@@ -514,6 +514,8 @@ void printUsage(USAGECATEGORY fCategory, uint32_t fSubCategory, PRTSTREAM pStrm)
                      "                            [--ibpb-on-vm-exit on|off]\n"
                      "                            [--ibpb-on-vm-entry on|off]\n"
                      "                            [--spec-ctrl on|off]\n"
+                     "                            [--l1d-flush-on-sched on|off]\n"
+                     "                            [--l1d-flush-on-vm-entry on|off]\n"
                      "                            [--cpu-profile \"host|Intel 80[86|286|386]\"]\n"
                      "                            [--cpuid-portability-level <0..3>\n"
                      "                            [--cpuid-set <leaf[:subleaf]> <eax> <ebx> <ecx> <edx>]\n"

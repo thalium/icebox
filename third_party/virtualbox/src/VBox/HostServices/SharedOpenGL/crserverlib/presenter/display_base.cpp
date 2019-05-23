@@ -326,9 +326,9 @@ int CrFbDisplayBase::fbCleanupRemoveAllEntries()
             WARN(("err"));
             break;
         }
-
-        CrFbVisitCreatedEntries(mpFb, entriesDestroyCb, this);
     }
+
+    CrFbVisitCreatedEntries(mpFb, entriesDestroyCb, this);
 
     return rc;
 }

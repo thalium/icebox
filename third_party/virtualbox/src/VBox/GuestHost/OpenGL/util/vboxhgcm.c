@@ -1078,6 +1078,25 @@ static void _crVBoxHGCMReceiveMessage(CRConnection *conn)
     CRASSERT(conn->pBuffer);
 
 #ifndef IN_GUEST
+    /* Expect only CR_MESSAGE_OPCODES from the guest. */
+    AssertPtrReturnVoid(conn->pBuffer);
+
+    if (   conn->cbBuffer >= sizeof(CRMessageHeader)
+        && ((CRMessageHeader*) (conn->pBuffer))->type == CR_MESSAGE_OPCODES)
+    {
+        /* Looks good. */
+    }
+    else
+    {
+        AssertFailed();
+        /** @todo Find out if this is the expected cleanup. */
+        conn->cbBuffer = 0;
+        conn->pBuffer  = NULL;
+        return;
+    }
+#endif
+
+#ifndef IN_GUEST
     if (conn->allow_redir_ptr)
     {
 #endif

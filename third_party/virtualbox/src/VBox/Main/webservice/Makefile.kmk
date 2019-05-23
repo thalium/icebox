@@ -475,7 +475,7 @@ $$(VBOX_JWS_JAR): $(VBOX_JWS_GEN)/jwsglue.list $(VBOXWEB_WSDL) $(VBOXWEBSERVICE_
 	$(QUIET)$(RM) -Rf $(VBOX_JWS_JDEST)
 	$(QUIET)$(MKDIR) -p $(VBOX_JWS_JDEST)
 	$(call MSG_L1,Compiling bridge code)
-	$(VBOX_JAVAC) $(VBOX_JAVAC_OPTS) \
+	$(VBOX_JAVAC) $(VBOX_JAVAC_OPTS) $(VBOX_JAVA_WS_OPTS) \
                 @$(VBOX_JWS_GEN)/jwsglue.list \
 		-d $(VBOX_JWS_JDEST) -classpath $(VBOX_JWS_JDEST)
 	$(QUIET)$(SED) -e "s/vboxweb.wsdl/vboxweb$(VBOX_API_SUFFIX).wsdl/" <  $(VBOXWEBSERVICE_WSDL) > $(VBOX_JWS_JDEST)/vboxwebService$(VBOX_API_SUFFIX).wsdl
@@ -498,7 +498,7 @@ $$(VBOX_JWSDOC_JAR): $(VBOX_JWS_GEN)/jwsglue.list $$(VBoxJWs-inst-jar_GENERATEDS
 	$(QUIET)$(RM) -Rf $(VBOX_JWSDOC_JDEST)
 	$(QUIET)$(MKDIR) -p $(VBOX_JWSDOC_JDEST)
 	$(call MSG_L1,Generating javadoc html documentation)
-	$(VBOX_JAVADOC) $(VBOX_JAVADOC_OPTS) -quiet \
+	$(VBOX_JAVADOC) $(VBOX_JAVADOC_OPTS) $(VBOX_JAVA_WS_OPTS) -quiet \
 		-sourcepath $(VBOX_JWS_GEN)/java org.virtualbox$(VBOX_API_SUFFIX) \
 		-d $(VBOX_JWSDOC_JDEST)
 	$(call MSG_LINK,$(notdir $@),$@)

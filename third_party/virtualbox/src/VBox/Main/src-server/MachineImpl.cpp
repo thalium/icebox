@@ -198,6 +198,8 @@ Machine::HWData::HWData()
     mIBPBOnVMEntry = false;
     mSpecCtrl = false;
     mSpecCtrlByHost = false;
+    mL1DFlushOnSched = true;
+    mL1DFlushOnVMEntry = false;
     mHPETEnabled = false;
     mCpuExecutionCap = 100; /* Maximum CPU execution cap by default. */
     mCpuIdPortabilityLevel = 0;
@@ -2274,6 +2276,14 @@ HRESULT Machine::getCPUProperty(CPUPropertyType_T aProperty, BOOL *aValue)
             *aValue = mHWData->mSpecCtrlByHost;
             break;
 
+        case CPUPropertyType_L1DFlushOnEMTScheduling:
+            *aValue = mHWData->mL1DFlushOnSched;
+            break;
+
+        case CPUPropertyType_L1DFlushOnVMEntry:
+            *aValue = mHWData->mL1DFlushOnVMEntry;
+            break;
+
         default:
             return E_INVALIDARG;
     }
@@ -2345,6 +2355,18 @@ HRESULT Machine::setCPUProperty(CPUPropertyType_T aProperty, BOOL aValue)
             i_setModified(IsModified_MachineData);
             mHWData.backup();
             mHWData->mSpecCtrlByHost = !!aValue;
+            break;
+
+        case CPUPropertyType_L1DFlushOnEMTScheduling:
+            i_setModified(IsModified_MachineData);
+            mHWData.backup();
+            mHWData->mL1DFlushOnSched = !!aValue;
+            break;
+
+        case CPUPropertyType_L1DFlushOnVMEntry:
+            i_setModified(IsModified_MachineData);
+            mHWData.backup();
+            mHWData->mL1DFlushOnVMEntry = !!aValue;
             break;
 
         default:
@@ -4475,15 +4497,41 @@ HRESULT Machine::passthroughDevice(const com::Utf8Str &aName, LONG aControllerPo
 
     AutoWriteLock alock(this COMMA_LOCKVAL_SRC_POS);
 
-    HRESULT rc = i_checkStateDependency(MutableStateDep);
+    HRESULT rc = i_checkStateDependency(MutableOrRunningStateDep);
     if (FAILED(rc)) return rc;
 
     AssertReturn(mData->mMachineState != MachineState_Saved, E_FAIL);
 
-    if (Global::IsOnlineOrTransient(mData->mMachineState))
+    /* Check for an existing controller. */
+    ComObjPtr<StorageController> ctl;
+    rc = i_getStorageControllerByName(aName, ctl, true /* aSetError */);
+    if (FAILED(rc)) return rc;
+
+    StorageControllerType_T ctrlType;
+    rc = ctl->COMGETTER(ControllerType)(&ctrlType);
+    if (FAILED(rc))
+        return setError(E_FAIL,
+                        tr("Could not get type of controller '%s'"),
+                        aName.c_str());
+
+    bool fSilent = false;
+    Utf8Str strReconfig;
+
+    /* Check whether the flag to allow silent storage attachment reconfiguration is set. */
+    strReconfig = i_getExtraData(Utf8Str("VBoxInternal2/SilentReconfigureWhilePaused"));
+    if (   mData->mMachineState == MachineState_Paused
+        && strReconfig == "1")
+        fSilent = true;
+
+    /* Check that the controller can do hotplugging if we detach the device while the VM is running. */
+    bool fHotplug = false;
+    if (!fSilent && Global::IsOnlineOrTransient(mData->mMachineState))
+        fHotplug = true;
+
+    if (fHotplug && !i_isControllerHotplugCapable(ctrlType))
         return setError(VBOX_E_INVALID_VM_STATE,
-                        tr("Invalid machine state: %s"),
-                        Global::stringifyMachineState(mData->mMachineState));
+                        tr("Controller '%s' does not support hotplugging which is required to change the passthrough setting while the VM is running"),
+                        aName.c_str());
 
     MediumAttachment *pAttach = i_findAttachment(*mMediumAttachments.data(),
                                                  aName,
@@ -4506,7 +4554,11 @@ HRESULT Machine::passthroughDevice(const com::Utf8Str &aName, LONG aControllerPo
                         aDevice, aControllerPort, aName.c_str());
     pAttach->i_updatePassthrough(!!aPassthrough);
 
-    return S_OK;
+    attLock.release();
+    alock.release();
+    rc = i_onStorageDeviceChange(pAttach, FALSE /* aRemove */, FALSE /* aSilent */);
+
+    return rc;
 }
 
 HRESULT Machine::temporaryEjectDevice(const com::Utf8Str &aName, LONG aControllerPort,
@@ -8946,6 +8998,8 @@ HRESULT Machine::i_loadHardware(const Guid *puuidRegistry,
         mHWData->mIBPBOnVMEntry               = data.fIBPBOnVMEntry;
         mHWData->mSpecCtrl                    = data.fSpecCtrl;
         mHWData->mSpecCtrlByHost              = data.fSpecCtrlByHost;
+        mHWData->mL1DFlushOnSched             = data.fL1DFlushOnSched;
+        mHWData->mL1DFlushOnVMEntry           = data.fL1DFlushOnVMEntry;
         mHWData->mCPUCount                    = data.cCPUs;
         mHWData->mCPUHotPlugEnabled           = data.fCpuHotPlug;
         mHWData->mCpuExecutionCap             = data.ulCpuExecutionCap;
@@ -10273,6 +10327,8 @@ HRESULT Machine::i_saveHardware(settings::Hardware &data, settings::Debugging *p
         data.fIBPBOnVMEntry         = !!mHWData->mIBPBOnVMEntry;
         data.fSpecCtrl              = !!mHWData->mSpecCtrl;
         data.fSpecCtrlByHost        = !!mHWData->mSpecCtrlByHost;
+        data.fL1DFlushOnSched       = !!mHWData->mL1DFlushOnSched;
+        data.fL1DFlushOnVMEntry     = !!mHWData->mL1DFlushOnVMEntry;
         data.cCPUs                  = mHWData->mCPUCount;
         data.fCpuHotPlug            = !!mHWData->mCPUHotPlugEnabled;
         data.ulCpuExecutionCap      = mHWData->mCpuExecutionCap;

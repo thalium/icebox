@@ -270,6 +270,14 @@ udp_input(PNATState pData, register struct mbuf *m, int iphlen)
             Log2(("NAT: IP(id: %hd) failed to create socket\n", ip->ip_id));
             goto bad_free_mbuf;
         }
+
+        /*
+         * Setup fields
+         */
+        so->so_laddr = ip->ip_src;
+        so->so_lport = uh->uh_sport;
+        so->so_iptos = ip->ip_tos;
+
         if (udp_attach(pData, so) <= 0)
         {
             Log2(("NAT: IP(id: %hd) udp_attach errno = %d (%s)\n",
@@ -278,15 +286,7 @@ udp_input(PNATState pData, register struct mbuf *m, int iphlen)
             goto bad_free_mbuf;
         }
 
-        /*
-         * Setup fields
-         */
         /* udp_last_so = so; */
-        so->so_laddr = ip->ip_src;
-        so->so_lport = uh->uh_sport;
-
-        so->so_iptos = ip->ip_tos;
-
         /*
          * XXXXX Here, check if it's in udpexec_list,
          * and if it is, do the fork_exec() etc.
@@ -467,9 +467,7 @@ int udp_output(PNATState pData, struct socket *so, struct mbuf *m,
                struct sockaddr_in *addr)
 {
     struct sockaddr_in saddr, daddr;
-#ifdef VBOX_WITH_NAT_UDP_SOCKET_CLONE
-    struct socket *pSocketClone = NULL;
-#endif
+
     Assert(so->so_type == IPPROTO_UDP);
     LogFlowFunc(("ENTER: so = %R[natsock], m = %p, saddr = %RTnaipv4\n", so, m, addr->sin_addr.s_addr));
 
@@ -508,17 +506,7 @@ int udp_output(PNATState pData, struct socket *so, struct mbuf *m,
                 saddr.sin_addr.s_addr = alias_addr.s_addr;
             else
                 saddr.sin_addr.s_addr = addr->sin_addr.s_addr;
-            /* we shouldn't override initial socket */
-#ifdef VBOX_WITH_NAT_UDP_SOCKET_CLONE
-            if (so->so_cCloneCounter)
-                pSocketClone = soLookUpClonedUDPSocket(pData, so, addr->sin_addr.s_addr);
-            if (!pSocketClone)
-                pSocketClone = soCloneUDPSocketWithForegnAddr(pData, false, so, addr->sin_addr.s_addr);
-            Assert((pSocketClone));
-            so = pSocketClone;
-#else
             so->so_faddr.s_addr = addr->sin_addr.s_addr;
-#endif
         }
     }
 
@@ -537,62 +525,49 @@ int udp_output(PNATState pData, struct socket *so, struct mbuf *m,
 int
 udp_attach(PNATState pData, struct socket *so)
 {
-    struct sockaddr_in *addr;
     struct sockaddr sa_addr;
     socklen_t socklen = sizeof(struct sockaddr);
     int status;
     int opt = 1;
 
-    /* We attaching some olready attched socket ??? */
-    Assert(so->so_type == 0);
-    if ((so->s = socket(AF_INET, SOCK_DGRAM, 0)) == -1)
+    AssertReturn(so->so_type == 0, -1);
+    so->so_type = IPPROTO_UDP;
+
+    so->s = socket(AF_INET, SOCK_DGRAM, 0);
+    if (so->s == -1)
         goto error;
+    fd_nonblock(so->s);
+
     so->so_sottl = 0;
     so->so_sotos = 0;
     so->so_sodf = -1;
-    /*
-     * Here, we bind() the socket.  Although not really needed
-     * (sendto() on an unbound socket will bind it), it's done
-     * here so that emulation of ytalk etc. don't have to do it
-     */
-    memset(&sa_addr, 0, sizeof(struct sockaddr));
-    addr = (struct sockaddr_in *)&sa_addr;
-#ifdef RT_OS_DARWIN
-    addr->sin_len = sizeof(struct sockaddr_in);
-#endif
-    addr->sin_family = AF_INET;
-    addr->sin_addr.s_addr = pData->bindIP.s_addr;
-    fd_nonblock(so->s);
-    if (bind(so->s, &sa_addr, sizeof(struct sockaddr_in)) < 0)
-    {
-        int lasterrno = errno;
-        closesocket(so->s);
-        so->s = -1;
-#ifdef RT_OS_WINDOWS
-        WSASetLastError(lasterrno);
-#else
-        errno = lasterrno;
-#endif
-        goto error;
-    }
+
+    status = sobind(pData, so);
+    if (status != 0)
+        return status;
+
     /* success, insert in queue */
     so->so_expire = curtime + SO_EXPIRE;
+
     /* enable broadcast for later use */
     setsockopt(so->s, SOL_SOCKET, SO_BROADCAST, (const char *)&opt, sizeof(opt));
+
     status = getsockname(so->s, &sa_addr, &socklen);
-    Assert(status == 0 && sa_addr.sa_family == AF_INET);
-    so->so_hlport = ((struct sockaddr_in *)&sa_addr)->sin_port;
-    so->so_hladdr.s_addr = ((struct sockaddr_in *)&sa_addr)->sin_addr.s_addr;
+    if (status == 0)
+    {
+        Assert(sa_addr.sa_family == AF_INET);
+        so->so_hlport = ((struct sockaddr_in *)&sa_addr)->sin_port;
+        so->so_hladdr.s_addr = ((struct sockaddr_in *)&sa_addr)->sin_addr.s_addr;
+    }
 
     SOCKET_LOCK_CREATE(so);
     QSOCKET_LOCK(udb);
     insque(pData, so, &udb);
     NSOCK_INC();
     QSOCKET_UNLOCK(udb);
-    so->so_type = IPPROTO_UDP;
     return so->s;
 error:
-    Log2(("NAT: can't create datagramm socket\n"));
+    Log2(("NAT: can't create datagram socket\n"));
     return -1;
 }
 
@@ -605,16 +580,6 @@ udp_detach(PNATState pData, struct socket *so)
         QSOCKET_LOCK(udb);
         SOCKET_LOCK(so);
         QSOCKET_UNLOCK(udb);
-#ifdef VBOX_WITH_NAT_UDP_SOCKET_CLONE
-        if (so->so_cloneOf)
-            so->so_cloneOf->so_cCloneCounter--;
-        else if (so->so_cCloneCounter > 0)
-        {
-            /* we can't close socket yet */
-            SOCKET_UNLOCK(so);
-            return;
-        }
-#endif
         closesocket(so->s);
         sofree(pData, so);
         SOCKET_UNLOCK(so);
