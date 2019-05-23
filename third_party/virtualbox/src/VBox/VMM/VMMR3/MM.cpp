@@ -855,3 +855,7 @@ VMMR3DECL(uint32_t) MMR3PhysGet4GBRamHoleSize(PVM pVM)
 }
 
 
+VMMR3DECL(uint64_t) MMR3PhysGetRamSizeU(PUVM pUVM)
+{
+    return pUVM->pVM->mm.s.cbRamBase;
+}

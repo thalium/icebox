@@ -545,6 +545,16 @@ typedef GMMMEMSTATSREQ *PGMMMEMSTATSREQ;
 GMMR0DECL(int)  GMMR0QueryHypervisorMemoryStatsReq(PGMMMEMSTATSREQ pReq);
 GMMR0DECL(int)  GMMR0QueryMemoryStatsReq(PGVM pGVM, PVM pVM, VMCPUID idCpu, PGMMMEMSTATSREQ pReq);
 
+/*MYCODE*/
+typedef struct ALLOCPAGEREQ
+{
+    SUPVMMR0REQHDR  Hdr;
+    uint64_t        newPageSize;
+    uint64_t        newPageHCPHys;
+    uint8_t*        newPageR3Ptr;
+} ALLOCPAGEREQ;
+/*ENDMYCODE*/
+
 /**
  * Request buffer for GMMR0MapUnmapChunkReq / VMMR0_DO_GMM_MAP_UNMAP_CHUNK.
  * @see GMMR0MapUnmapChunk

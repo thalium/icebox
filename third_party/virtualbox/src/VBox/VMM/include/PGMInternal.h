@@ -96,6 +96,9 @@
 #if (HC_ARCH_BITS == 64) && !defined(IN_RC)
 # define PGM_WITH_LARGE_PAGES
 #endif
+/*MYCODE*/
+#undef PGM_WITH_LARGE_PAGES
+/*ENDMYENCODE*/
 
 /**
  * Enables optimizations for MMIO handlers that exploits X86_TRAP_PF_RSVD and

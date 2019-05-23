@@ -3288,14 +3288,16 @@ static DECLCALLBACK(void) e1kTxDelayTimer(PPDMDEVINS pDevIns, PTMTIMER pTimer, v
     PE1KSTATE pThis = (PE1KSTATE )pvUser;
     Assert(PDMCritSectIsOwner(&pThis->csTx));
 
-    E1K_INC_ISTAT_CNT(pThis->uStatTxDelayExp);
+    E1K_INC_ISTAT_CNT(pThis->uStatTxDelayExp)
 #  ifdef E1K_INT_STATS
     uint64_t u64Elapsed = RTTimeNanoTS() - pThis->u64ArmedAt;
     if (u64Elapsed > pThis->uStatMaxTxDelay)
         pThis->uStatMaxTxDelay = u64Elapsed;
 #  endif
     int rc = e1kXmitPending(pThis, false /*fOnWorkerThread*/);
-    AssertMsg(RT_SUCCESS(rc) || rc == VERR_TRY_AGAIN, ("%Rrc\n", rc));
+    /*MYCODE*/
+    //AssertMsg(RT_SUCCESS(rc) || rc == VERR_TRY_AGAIN, ("%Rrc\n", rc));
+    /*ENDMYCODE*/
 }
 # endif /* E1K_TX_DELAY */
 

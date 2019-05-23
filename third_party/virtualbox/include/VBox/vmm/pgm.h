@@ -421,6 +421,23 @@ VMMDECL(int)            PGMShwMakePageNotPresent(PVMCPU pVCpu, RTGCPTR GCPtr, ui
 /** The page is an MMIO2. */
 #define PGM_MK_PG_IS_MMIO2           RT_BIT(1)
 /** @}*/
+
+/*MYCODE*/
+VMMDECL(int)        PGMShwGetHCPage(PVMCPU pVCpu, uint64_t GCPhys, uint64_t *HCPhys);
+VMMDECL(int)        PGMShwSetHCPage(PVMCPU pVCpu, uint64_t GCPhys, uint64_t HCPhys);
+VMMDECL(int)        PGMShwSaveRights(PVMCPU pVCpu, uint64_t GCPhys);
+VMMDECL(int)        PGMShwRestoreRights(PVMCPU pVCpu, uint64_t GCPhys);
+VMMDECL(int)        PGMShwPresent(PVMCPU pVCpu, uint64_t GCPhys);
+VMMDECL(int)        PGMShwNoPresent(PVMCPU pVCpu, uint64_t GCPhys);
+VMMDECL(int)        PGMShwWrite(PVMCPU pVCpu, uint64_t GCPhys);
+VMMDECL(int)        PGMShwNoWrite(PVMCPU pVCpu, uint64_t GCPhys);
+VMMDECL(int)        PGMShwExecute(PVMCPU pVCpu, uint64_t GCPhys);
+VMMDECL(int)        PGMShwNoExecute(PVMCPU pVCpu, uint64_t GCPhys);
+VMMDECL(int)        PGMShwInvalidate(PVMCPU pVCpu, uint64_t GCPhys);
+VMMDECL(int)        PGMShwSetBreakable(PVMCPU pVCpu, uint64_t GCPhys, bool Breakable);
+VMMDECL(bool)       PGMShwIsBreakable(PVMCPU pVCpu, uint64_t GCPhys);
+/*ENDMYCODE*/
+
 VMMDECL(int)        PGMGstGetPage(PVMCPU pVCpu, RTGCPTR GCPtr, uint64_t *pfFlags, PRTGCPHYS pGCPhys);
 VMMDECL(bool)       PGMGstIsPagePresent(PVMCPU pVCpu, RTGCPTR GCPtr);
 VMMDECL(int)        PGMGstSetPage(PVMCPU pVCpu, RTGCPTR GCPtr, size_t cb, uint64_t fFlags);
@@ -629,6 +646,7 @@ VMMDECL(VBOXSTRICTRC) PGMPhysReadGCPtr(PVMCPU pVCpu, void *pvDst, RTGCPTR GCPtrS
 VMMDECL(VBOXSTRICTRC) PGMPhysWriteGCPtr(PVMCPU pVCpu, RTGCPTR GCPtrDst, const void *pvSrc, size_t cb, PGMACCESSORIGIN enmOrigin);
 
 VMMDECL(int)        PGMPhysSimpleReadGCPhys(PVM pVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb);
+VMMDECL(int)        PGMPhysSimpleReadGCPhys2(PUVM pUVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb);
 VMMDECL(int)        PGMPhysSimpleWriteGCPhys(PVM pVM, RTGCPHYS GCPhysDst, const void *pvSrc, size_t cb);
 VMMDECL(int)        PGMPhysSimpleReadGCPtr(PVMCPU pVCpu, void *pvDst, RTGCPTR GCPtrSrc, size_t cb);
 VMMDECL(int)        PGMPhysSimpleWriteGCPtr(PVMCPU pVCpu, RTGCPTR GCPtrDst, const void *pvSrc, size_t cb);
@@ -698,6 +716,7 @@ VMMR0_INT_DECL(int) PGMR0PhysSetupIoMmu(PGVM pGVM, PVM pVM);
 VMMR0DECL(int)      PGMR0SharedModuleCheck(PVM pVM, PGVM pGVM, VMCPUID idCpu, PGMMSHAREDMODULE pModule, PCRTGCPTR64 paRegionsGCPtrs);
 VMMR0DECL(int)      PGMR0Trap0eHandlerNestedPaging(PVM pVM, PVMCPU pVCpu, PGMMODE enmShwPagingMode, RTGCUINT uErr, PCPUMCTXCORE pRegFrame, RTGCPHYS pvFault);
 VMMR0DECL(VBOXSTRICTRC) PGMR0Trap0eHandlerNPMisconfig(PVM pVM, PVMCPU pVCpu, PGMMODE enmShwPagingMode, PCPUMCTXCORE pRegFrame, RTGCPHYS GCPhysFault, uint32_t uErr);
+VMMR0DECL(VBOXSTRICTRC) PGMR0PhysSimpleReadGCPhys(PVM pVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb);
 # ifdef VBOX_WITH_2X_4GB_ADDR_SPACE
 VMMR0DECL(int)      PGMR0DynMapInit(void);
 VMMR0DECL(void)     PGMR0DynMapTerm(void);
@@ -728,6 +747,7 @@ VMMR3_INT_DECL(void)    PGMR3MemSetup(PVM pVM, bool fReset);
 VMMR3DECL(int)      PGMR3Term(PVM pVM);
 VMMR3DECL(int)      PGMR3LockCall(PVM pVM);
 VMMR3DECL(int)      PGMR3ChangeMode(PVM pVM, PVMCPU pVCpu, PGMMODE enmGuestMode);
+VMMR3DECL(int)      PGMR3ChangeMode2(PUVM pUVM, PVMCPU pVCpu, PGMMODE enmGuestMode);
 
 VMMR3DECL(int)      PGMR3PhysRegisterRam(PVM pVM, RTGCPHYS GCPhys, RTGCPHYS cb, const char *pszDesc);
 VMMR3DECL(int)      PGMR3PhysChangeMemBalloon(PVM pVM, bool fInflate, unsigned cPages, RTGCPHYS *paPhysPage);
@@ -832,6 +852,10 @@ VMMR3DECL(int)      PGMR3PhysGCPhys2CCPtrReadOnlyExternal(PVM pVM, RTGCPHYS GCPh
 VMMR3DECL(int)      PGMR3PhysChunkMap(PVM pVM, uint32_t idChunk);
 VMMR3DECL(void)     PGMR3PhysChunkInvalidateTLB(PVM pVM);
 VMMR3DECL(int)      PGMR3PhysAllocateHandyPages(PVM pVM);
+/*MYCODE*/
+VMMR3DECL(int)      PGMR3PhysAllocateLargeHandyPage2(PVM pVM);
+VMMR3_INT_DECL(int) PGMR3DbgScanPhysicalU(PUVM pUVM, RTGCPHYS GCPhys, RTGCPHYS cbRange, RTGCPHYS GCPhysAlign, const uint8_t *pabNeedle, size_t cbNeedle, PRTGCPHYS pGCPhysHit);
+/*ENDMYCODE*/
 VMMR3DECL(int)      PGMR3PhysAllocateLargeHandyPage(PVM pVM, RTGCPHYS GCPhys);
 
 VMMR3DECL(int)      PGMR3CheckIntegrity(PVM pVM);

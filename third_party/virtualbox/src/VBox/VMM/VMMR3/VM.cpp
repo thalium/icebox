@@ -92,6 +92,11 @@
 #include <iprt/thread.h>
 #include <iprt/uuid.h>
 
+/*MYCODE*/
+#include <iprt/spinlock.h>
+#include <FDP/include/FDP.h>
+#include <FDP/include/FDP_structs.h>
+/*ENDMYCODE*/
 
 /*********************************************************************************************************************************
 *   Internal Functions                                                                                                           *
@@ -643,6 +648,19 @@ static int vmR3CreateU(PUVM pUVM, uint32_t cCpus, PFNCFGMCONSTRUCTOR pfnCFGMCons
             rc = vmR3ReadBaseConfig(pVM, pUVM, cCpus);
             if (RT_SUCCESS(rc))
             {
+                /*MYCODE*/
+                //This spinlock is created in Ring-0!
+                strcpy(pVM->mystate.s.PageSpinLockName, "PAGELOCK_");
+                strcat(pVM->mystate.s.PageSpinLockName, VMR3GetName(pUVM));
+
+                //Create CpuSpinLock
+                char CpuSpinLockName[256];
+                strcpy(CpuSpinLockName, "CPULOCK_");
+                strcat(CpuSpinLockName, VMR3GetName(pUVM));
+                pVM->mystate.s.CpuLock = NIL_RTSPINLOCK;
+                RTSpinlockCreate(&pVM->mystate.s.CpuLock, RTSPINLOCK_FLAGS_INTERRUPT_UNSAFE, CpuSpinLockName);
+                /*ENDMYCODE*/
+
                 /*
                  * Init the ring-3 components and ring-3 per cpu data, finishing it off
                  * by a relocation round (intermediate context finalization will do this).
@@ -1469,6 +1487,12 @@ static DECLCALLBACK(VBOXSTRICTRC) vmR3Resume(PVM pVM, PVMCPU pVCpu, void *pvUser
 {
     VMRESUMEREASON enmReason = (VMRESUMEREASON)(uintptr_t)pvUser;
     LogFlow(("vmR3Resume: pVM=%p pVCpu=%p/#%u enmReason=%d\n", pVM, pVCpu, pVCpu->idCpu, enmReason));
+
+    /*MYCODE*/
+    if(pVCpu->mystate.s.bRestoreRequired == true){
+        pVCpu->mystate.s.bPauseRequired = true;
+    }
+    /*ENDMYCODE*/
 
     /*
      * The first thread thru here tries to change the state.  We shouldn't be
@@ -2369,6 +2393,28 @@ static DECLCALLBACK(VBOXSTRICTRC) vmR3PowerOff(PVM pVM, PVMCPU pVCpu, void *pvUs
  */
 VMMR3DECL(int)   VMR3PowerOff(PUVM pUVM)
 {
+
+    /*MYCODE*/
+    PVMCPU pVCpu = &pUVM->pVM->aCpus[0];
+    //Do this only if the vCpu is Paused
+    if(pVCpu->mystate.s.bPauseRequired == true){
+        //Avoid freeze
+        //VMR3Break(pUVM);
+        //Clear All Breakpoint
+        for(int BreakpointId=0; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
+            VMR3RemoveBreakpoint(pUVM, BreakpointId);
+        }
+        CPUMSetGuestDR7(pVCpu, 0x400);
+        //Continue
+        //VMR3Continue(pUVM);*/
+        pVCpu->mystate.s.bPauseRequired = false;
+
+        //Stop FDP Debugger
+        FDP_SHM *pFdpShm = (FDP_SHM *)pUVM->pVM->mystate.s.pFdpShm;
+        pFdpShm->pFdpServer->bIsRunning = false;
+    }
+    /*ENDMYCODE*/
+
     LogFlow(("VMR3PowerOff: pUVM=%p\n", pUVM));
     UVM_ASSERT_VALID_EXT_RETURN(pUVM, VERR_INVALID_VM_HANDLE);
     PVM pVM = pUVM->pVM;

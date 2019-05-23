@@ -1141,6 +1141,12 @@ VMMR3DECL(int) CPUMR3Term(PVM pVM)
  */
 VMMR3DECL(void) CPUMR3ResetCpu(PVM pVM, PVMCPU pVCpu)
 {
+
+    /*MYCODE*/
+    pVCpu->mystate.s.bRestoreRequired = false;
+    pVCpu->mystate.s.bPauseRequired = false;
+    /*ENDMYCODE*/
+
     /** @todo anything different for VCPU > 0? */
     PCPUMCTX pCtx = &pVCpu->cpum.s.Guest;
 

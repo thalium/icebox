@@ -1404,7 +1404,11 @@ VMMR3_INT_DECL(int) VMMR3HmRunGC(PVM pVM, PVMCPU pVCpu)
             if (RT_LIKELY(rc == VINF_SUCCESS))
                 rc = pVCpu->vmm.s.iLastGZRc;
 #endif
-        } while (rc == VINF_EM_RAW_INTERRUPT_HYPER);
+        /*MYCODE*/
+        if(pVCpu->mystate.s.bPauseRequired == true)
+            break;
+        /*ENDMYCODE*/
+       } while (rc == VINF_EM_RAW_INTERRUPT_HYPER);
 
 #if 0 /** @todo triggers too often */
         Assert(!VMCPU_FF_IS_SET(pVCpu, VMCPU_FF_TO_R3));

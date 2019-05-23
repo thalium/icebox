@@ -288,6 +288,11 @@ VMMR3_INT_DECL(int)             EMR3NotifyResume(PVM pVM);
 VMMR3_INT_DECL(int)             EMR3NotifySuspend(PVM pVM);
 VMMR3_INT_DECL(VBOXSTRICTRC)    EMR3HmSingleInstruction(PVM pVM, PVMCPU pVCpu, uint32_t fFlags);
 
+/*MYCODE*/
+VMMR3_INT_DECL(void)            EMR3ResetU(PUVM pUVM);
+VMMR3_INT_DECL(int)             EMR3ProcessForcedAction(PVM pVM, PVMCPU pVCpu, int rc);
+/*ENDMYCODE*/
+
 /** @} */
 #endif /* IN_RING3 */
 

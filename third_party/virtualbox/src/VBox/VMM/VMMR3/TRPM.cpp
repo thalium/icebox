@@ -1496,6 +1496,15 @@ VMMR3DECL(bool) TRPMR3IsGateHandler(PVM pVM, RTRCPTR GCPtr)
  */
 VMMR3DECL(int) TRPMR3InjectEvent(PVM pVM, PVMCPU pVCpu, TRPMEVENT enmEvent)
 {
+    /*MYCODE*/
+    //Avoid interrupt during restore or pause
+    if(pVCpu->mystate.s.bRestoreRequired
+    || pVCpu->mystate.s.bPauseRequired
+    || pVCpu->mystate.s.bDisableInterrupt){
+        return VINF_EM_RESCHEDULE_HM;
+    }
+    /*ENDMYCODE*/
+
 #ifdef VBOX_WITH_RAW_MODE
     PCPUMCTX pCtx = CPUMQueryGuestCtxPtr(pVCpu);
     Assert(!PATMIsPatchGCAddr(pVM, pCtx->eip));

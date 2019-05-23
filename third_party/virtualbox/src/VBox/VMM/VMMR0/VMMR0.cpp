@@ -56,6 +56,13 @@
 #include <iprt/thread.h>
 #include <iprt/timer.h>
 
+/*MYCODE*/
+#include <iprt/memobj.h>
+#include <iprt/mem.h>
+#include <VBox/vmm/mm.h>
+#include <VBox/vmm/pgm.h>
+/*ENDMYCODE*/
+
 #include "dtrace/VBoxVMM.h"
 
 
@@ -1966,6 +1973,37 @@ static int vmmR0EntryExWorker(PGVM pGVM, PVM pVM, VMCPUID idCpu, VMMR0OPERATION 
             VMM_CHECK_SMAP_CHECK2(pVM, RT_NOTHING);
             break;
 #endif
+        /*MYCODE*/
+        case VMMR0_DO_ALLOC_HCPHYS:
+        {
+            ALLOCPAGEREQ* pReq = (ALLOCPAGEREQ*)pReqHdr;
+            if(pReq == NULL){
+                return -1;
+            }
+            int rc = 0;
+            RTR0MEMOBJ hMemObjMod;
+            //Allocates a new physical page
+            rc = RTR0MemObjAllocPhysEx(&hMemObjMod, pReq->newPageSize, NIL_RTHCPHYS, pReq->newPageSize);
+            if(RT_SUCCESS(rc)){
+                //Maps the new page in ring-0 address space
+                RTR0MEMOBJ hMapObjMod;
+                rc = RTR0MemObjMapKernel(&hMapObjMod, hMemObjMod, (void *)-1, 0, RTMEM_PROT_READ | RTMEM_PROT_WRITE);
+                //Maps the new page in ring-3 address space
+                int rc2 = RTR0MemObjMapUser(&hMapObjMod, hMemObjMod, (RTR3PTR)-1, 0, RTMEM_PROT_READ | RTMEM_PROT_WRITE, NIL_RTR0PROCESS);
+                if(RT_SUCCESS(rc) && RT_SUCCESS(rc2)){
+                    //Gets the ring-0 address of the new page
+                    //pVM->args.allochcphysreq.R0Ptr = (uint8_t*)RTR0MemObjAddress(hMapObjMod);
+                    //Gets the ring-3 address of the new page
+                    pReq->newPageR3Ptr = (uint8_t*)RTR0MemObjAddressR3(hMapObjMod);
+                    //Gets the physical address of the new page
+                    pReq->newPageHCPHys = RTR0MemObjGetPagePhysAddr(hMapObjMod, 0);
+                    return 0;
+                }
+            }
+            return -1;
+        }
+        return VERR_NOT_SUPPORTED;
+        /*ENMYCODE*/
         default:
             /*
              * We're returning VERR_NOT_SUPPORT here so we've got something else

@@ -1104,7 +1104,9 @@ void VBoxSDLFB::repaint()
 {
     AssertMsg(gSdlNativeThread == RTThreadNativeSelf(), ("Wrong thread! SDL is not threadsafe!\n"));
     LogFlow(("VBoxSDLFB::repaint\n"));
-    update(0, 0, mScreen->w, mScreen->h, false /* fGuestRelative */);
+    if (mScreen != NULL) {
+        update(0, 0, mScreen->w, mScreen->h, false /* fGuestRelative */);
+    }
 }
 
 /**

@@ -71,6 +71,9 @@
 #include <iprt/stream.h>
 #include <iprt/thread.h>
 
+/*MYCODE*/
+#include <FDP/include/FDP.h>
+/*ENDMYCODE*/
 
 /*********************************************************************************************************************************
 *   Defined Constants And Macros                                                                                                 *
@@ -146,6 +149,11 @@ VMMR3_INT_DECL(int) EMR3Init(PVM pVM)
         LogRel(("EM: Overriding /EM/TripleFaultReset, must be false on SMP.\n"));
         pVM->em.s.fGuruOnTripleFault = true;
     }
+
+    /*MYCODE*/
+    //Dont Guru on Triple Fault... This is annoying !
+    pVM->em.s.fGuruOnTripleFault = false;
+    /*ENDMYCODE*/
 
     Log(("EMR3Init: fRecompileUser=%RTbool fRecompileSupervisor=%RTbool fRawRing1Enabled=%RTbool fIemExecutesAll=%RTbool fGuruOnTripleFault=%RTbool\n",
          pVM->fRecompileUser, pVM->fRecompileSupervisor, pVM->fRawRing1Enabled, pVM->em.s.fIemExecutesAll, pVM->em.s.fGuruOnTripleFault));
@@ -844,7 +852,9 @@ static VBOXSTRICTRC emR3Debug(PVM pVM, PVMCPU pVCpu, VBOXSTRICTRC rc)
              * Simple events: stepped, breakpoint, stop/assertion.
              */
             case VINF_EM_DBG_STEPPED:
-                rc = DBGFR3Event(pVM, DBGFEVENT_STEPPED);
+                /*MYCODE*/
+                //rc = DBGFR3Event(pVM, DBGFEVENT_STEPPED);
+                /*ENDMYCODE*/
                 break;
 
             case VINF_EM_DBG_BREAKPOINT:
@@ -2291,6 +2301,28 @@ VMMR3_INT_DECL(int) EMR3ExecuteVM(PVM pVM, PVMCPU pVCpu)
             else if (fFFDone)
                 fFFDone = false;
 
+            /*MYCODE*/
+            if(pVCpu->mystate.s.bPauseRequired){
+                //Set the active CPU as STATE_PAUSED
+                pVCpu->mystate.s.u8StateBitmap |= FDP_STATE_PAUSED;
+                //LogRel(("[WDEBUG] CPU[%d] Entering PAUSE in EM!\n", pVCpu->idCpu));
+                VMR3EnterPause(pVM, pVCpu);
+                //LogRel(("[WDEBUG] CPU[%d] Leaving PAUSE in EM!\n", pVCpu->idCpu));
+                rc = VINF_SUCCESS;
+            }
+            pVCpu->mystate.s.u8StateBitmap &= ~FDP_STATE_PAUSED;
+            pVCpu->mystate.s.u64TickCount++;
+            if(pVCpu->mystate.s.bRebootRequired){
+                rc = VINF_EM_TRIPLE_FAULT;
+                pVM->em.s.fGuruOnTripleFault = false;
+                pVCpu->mystate.s.bRebootRequired = false;
+            }
+            if(pVCpu->mystate.s.bSuspendRequired){
+                rc = VINF_EM_SUSPEND;
+                pVCpu->mystate.s.bSuspendRequired = false;
+            }
+            /*MYCODE*/
+
             /*
              * Now what to do?
              */
@@ -2804,6 +2836,21 @@ VMMR3_INT_DECL(int) EMR3ExecuteVM(PVM pVM, PVMCPU pVCpu)
 
     /* not reached */
 }
+
+/*MYCODE*/
+VMMR3_INT_DECL(int) EMR3ProcessForcedAction(PVM pVM, PVMCPU pVCpu, int rc)
+{
+    rc = emR3ForcedActions(pVM, pVCpu, rc);
+    VBOXVMM_EM_FF_ALL_RET(pVCpu, rc);
+
+    EMSTATE enmState = emR3Reschedule(pVM, pVCpu, pVCpu->em.s.pCtx);
+    //LogRel(("EMR3ExecuteVM: VINF_EM_RESCHEDULE: %d -> %d (%s)\n", 0, enmState, "emR3GetStateName(enmState)"));
+    if (pVCpu->em.s.enmState != enmState && enmState == EMSTATE_IEM_THEN_REM)
+        pVCpu->em.s.cIemThenRemInstructions = 0;
+    pVCpu->em.s.enmState = enmState;
+    return rc;
+}
+/*ENDMYCODE*/
 
 /**
  * Notify EM of a state change (used by FTM)

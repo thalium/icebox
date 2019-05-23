@@ -921,6 +921,23 @@ GVMMR0DECL(int) GVMMR0CreateVM(PSUPDRVSESSION pSession, uint32_t cCpus, PVM *ppV
                             AssertCompileMemberAlignment(VM, tm, 64);
                             AssertCompileMemberAlignment(VM, aCpus, PAGE_SIZE);
 
+                            /*MYCODE*/
+                            RTR0MEMOBJ PfnTableMemObj;
+                            rc = RTR0MemObjAllocPage(&PfnTableMemObj, sizeof(PfnEntrie_t)*512*1024, false /* fExecutable */);
+                            if (RT_SUCCESS(rc)){
+                                pVM->mystate.s.pPfnTableR0 = (PfnEntrie_t*)RTR0MemObjAddress(PfnTableMemObj);
+                                RTR0MEMOBJ PfnTableMapObj;
+                                rc = RTR0MemObjMapUser(&PfnTableMapObj, PfnTableMemObj, (RTR3PTR)-1, 0, RTMEM_PROT_READ | RTMEM_PROT_WRITE, NIL_RTR0PROCESS);
+                                if (RT_SUCCESS(rc)) {
+                                    pVM->mystate.s.pPfnTableR3 = (PfnEntrie_t*)RTR0MemObjAddressR3(PfnTableMapObj);
+                                }else{
+                                    return -1;
+                                }
+                            }else{
+                                return -1;
+                            }
+                            /*ENDMYCODE*/
+
                             rc = RTR0MemObjAllocPage(&pGVM->gvmm.s.VMPagesMemObj, cPages * sizeof(SUPPAGE), false /* fExecutable */);
                             if (RT_SUCCESS(rc))
                             {

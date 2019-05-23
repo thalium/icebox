@@ -481,3 +481,48 @@ VMM_INT_DECL(void) VMMHypercallsDisable(PVMCPU pVCpu)
 #endif
 }
 
+/*MYCODE*/
+VMM_INT_DECL(bool) VMMMatchBreakpointId(PVM pVM, int BreakpointId, RTGCPHYS GCPhys, uint8_t BreakpointType, int BreakpointAccess)
+{
+    if(BreakpointId >= 0
+    || BreakpointId < MAX_BREAKPOINT_ID){
+        BreakpointEntrie_t *TempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+        if(TempBreakpointEntrie->breakpointActivated
+        && TempBreakpointEntrie->breakpointType == BreakpointType
+        && (TempBreakpointEntrie->breakpointAccessType & BreakpointAccess)){
+            for(int j=0; j<TempBreakpointEntrie->breakpointGCPhysAreaCount; j++){
+                if(GCPhys >= TempBreakpointEntrie->breakpointGCPhysAreaTable[j].Start
+                && GCPhys < TempBreakpointEntrie->breakpointGCPhysAreaTable[j].End){
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+VMM_INT_DECL(int) VMMGetBreakpointId(PVM pVM, RTGCPHYS GCPhys, uint8_t BreakpointType, int BreakpointAccess)
+{
+    for(int i=0; i<MAX_BREAKPOINT_ID; i++){
+        if(VMMMatchBreakpointId(pVM, i, GCPhys, BreakpointType, BreakpointAccess))
+            return i;
+    }
+    return -1;
+}
+
+VMM_INT_DECL(int) VMMGetBreakpointIdFromPage(PVM pVM, RTGCPHYS GCPhys, uint8_t BreakpointType)
+{
+    GCPhys = GCPhys & ~(_4K-1);
+    for(int i=0; i<MAX_BREAKPOINT_ID; i++){
+        if(pVM->bp.l[i].breakpointActivated
+        && pVM->bp.l[i].breakpointType == BreakpointType){
+            for(int j=0; j<pVM->bp.l[i].breakpointGCPhysAreaCount; j++){
+                if((GCPhys & ~(_4K-1)) == (pVM->bp.l[i].breakpointGCPhysAreaTable[j].Start & ~(_4K-1))){
+                    return i;
+                }
+            }
+        }
+    }
+    return -1;
+}
+/*ENDMYCODE*/

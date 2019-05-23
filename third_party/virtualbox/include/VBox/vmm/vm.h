@@ -47,6 +47,61 @@
  * @{
  */
 
+/*MYCODE*/
+typedef struct HardwarePage_t{
+    int            ReferenceCount; //Number of breakpoint using this page
+    uint64_t    PageSize;        //Size of the page
+    uint64_t    HCPhys;            //Host-Context physical address of the page
+    uint8_t*    R3Ptr;            //Ring-3 virtual address of the page
+}HardwarePage_t;
+
+typedef struct GCPhysArea_t{
+    uint64_t    Start;
+    uint64_t    End;
+}GCPhysArea_t;
+
+typedef struct PfnEntrie_t{
+    uint8_t n;
+    struct{
+        bool u1Present;
+        bool u1Write;
+        bool u1Execute;
+        bool u1Breakable;
+    }u;
+}PfnEntrie_t;
+
+typedef struct BreakpointEntrie_t{
+            //Is the breakpoint activated or free
+            bool        breakpointActivated;
+            //Tag the breakpoint to know if the breakpoint changed...
+            uint64_t    breakpointTag;
+            //Kind of breakpoint PAGEHBP, HARDHBP, SOFTHBP
+            uint8_t        breakpointType;
+            //Guest virtual address of the breakpoint or start of the breakpoint
+            uint64_t    breakpointGCPtr;
+            //Guest physical address of the breakpoint or start of the breakpoint
+            uint64_t    breakpointGCPhys;
+            //Lengt of the breakpoint (PAGEHBP only)
+            uint64_t    breakpointLength;
+            //EXECUTE_BP, READ_BP, WRITE_BP
+            uint8_t        breakpointAccessType;
+            //Size of the page where the breakpoint is
+            uint64_t    breakpointPageSize;
+            //Original host physical page
+            uint64_t    breakpointOrigHCPhys;
+            //Original opcode byte
+            uint8_t        breakpointOriginalByte;
+            //Pointer to HardwarePage
+            HardwarePage_t* breakpointHardwarePage;
+            uint64_t        breakpointGCPhysAreaCount;
+            GCPhysArea_t*    breakpointGCPhysAreaTable;
+            //Condition
+            uint64_t    breakpointCr3;
+}BreakpointEntrie_t;
+
+#define MAX_BREAKPOINT_ID 255
+/*ENDMYCODE*/
+
 /**
  * The state of a Virtual CPU.
  *
@@ -148,6 +203,34 @@ typedef struct VMCPU
 #endif
         uint8_t             padding[18496];     /* multiple of 64 */
     } iem;
+
+    /*MYCODE*/
+    union
+    {
+        struct{
+            volatile uint8_t    u8StateBitmap;
+            volatile bool        bSingleStepRequired;
+            volatile bool        bPauseRequired;
+            volatile bool        bDisableInterrupt;
+            volatile bool        bRebootRequired;
+            volatile bool        bSuspendRequired;
+            volatile bool        bRestoreRequired;
+            volatile bool        bPageFaultOverflowGuard;
+
+            volatile bool        bHardHyperBreakPointHitted;
+            volatile bool        bPageHyperBreakPointHitted;
+            volatile bool        bSoftHyperBreakPointHitted;
+            volatile bool        bMsrHyperBreakPointHitted;
+            volatile bool        bCrHyperBreakPointHitted;
+            volatile bool        bInstallDrBreakpointRequired;
+            //Fake Debug registers to keep "legit-guest" values
+            uint64_t            aGuestDr[8];
+            volatile uint64_t   u64TickCount;
+            void*               pCpuShm;
+        }s;
+        uint8_t             padding[4096];      /* multiple of 4096 */
+    } mystate;
+    /*ENDMYCODE*/
 
     /** HM part. */
     union VMCPUUNIONHM
@@ -1109,6 +1192,28 @@ typedef struct VM
 #endif
         uint8_t     padding[1600];      /* multiple of 64 */
     } vmm;
+
+    /*MYCODE*/
+    union{
+        BreakpointEntrie_t  l[MAX_BREAKPOINT_ID+1];
+        uint8_t             padding[4096*32];      /* Must be page aligned ! */
+    }bp;
+
+    union{
+        struct{
+            void                *pFdpShm;
+            uint32_t            u32HardwarePageTableCount;
+            HardwarePage_t      aHardwarePageTable[64];
+            volatile uint8_t    u8StateBitmap;
+            char                PageSpinLockName[256];
+            RTSPINLOCK          PageSpinlock;
+            PfnEntrie_t         *pPfnTableR3;
+            PfnEntrie_t         *pPfnTableR0;
+            RTSPINLOCK          CpuLock;
+        }s;
+        uint8_t     padding[4096];      /* Must be page aligned ! */
+    }mystate;
+    /*ENDMYCODE*/
 
     /** PGM part. */
     union

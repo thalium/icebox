@@ -2037,7 +2037,7 @@ DECLINLINE(int) pdmR3ResumeDev(PPDMDEVINS pDevIns)
  */
 VMMR3_INT_DECL(void) PDMR3Resume(PVM pVM)
 {
-    LogFlow(("PDMR3Resume:\n"));
+    LogRel(("PDMR3Resume:\n"));
 
     /*
      * Iterate thru the device instances and USB device instances,

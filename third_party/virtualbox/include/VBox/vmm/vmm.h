@@ -289,6 +289,11 @@ VMM_INT_DECL(int)           VMMPatchHypercall(PVM pVM, void *pvBuf, size_t cbBuf
 VMM_INT_DECL(void)          VMMHypercallsEnable(PVMCPU pVCpu);
 VMM_INT_DECL(void)          VMMHypercallsDisable(PVMCPU pVCpu);
 
+/*MYCODE*/
+VMM_INT_DECL(bool)          VMMMatchBreakpointId(PVM pVM, int BreakpointId, RTGCPHYS GCPhys, uint8_t BreakpointType, int BreakpointAccess);
+VMM_INT_DECL(int)           VMMGetBreakpointId(PVM pVM, RTGCPHYS GCPhys, uint8_t BreakpointType, int BreakpointAccess);
+VMM_INT_DECL(int)           VMMGetBreakpointIdFromPage(PVM pVM, RTGCPHYS GCPhys, uint8_t BreakpointType);
+/*ENDMYCODE*/
 
 #if defined(IN_RING3) || defined(DOXYGEN_RUNNING)
 /** @defgroup grp_vmm_api_r3    The VMM Host Context Ring 3 API
@@ -504,6 +509,8 @@ typedef enum VMMR0OPERATION
     VMMR0_DO_TESTS,
     /** Test the 32->64 bits switcher. */
     VMMR0_DO_TEST_SWITCHER3264,
+
+    VMMR0_DO_ALLOC_HCPHYS,
 
     /** The usual 32-bit type blow up. */
     VMMR0_DO_32BIT_HACK = 0x7fffffff

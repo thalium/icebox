@@ -497,6 +497,12 @@ int emR3HmExecute(PVM pVM, PVMCPU pVCpu, bool *pfFFDone)
                 break;
             }
         }
+
+        /*MYCODE*/
+        if(pVCpu->mystate.s.bPauseRequired)
+            break;
+        /*ENDMYCODE*/
+
     }
 
     /*

@@ -40,6 +40,11 @@
 #include "HMVMXR0.h"
 #include "dtrace/VBoxVMM.h"
 
+/*MYCODE*/
+#include "FDP/include/FDP.h"
+#include <iprt/spinlock.h>
+/*ENDMYCODE*/
+
 #define HMVMX_USE_IEM_EVENT_REFLECTION
 #ifdef DEBUG_ramshankar
 # define HMVMX_ALWAYS_SAVE_GUEST_RFLAGS
@@ -53,6 +58,10 @@
 # define HMVMX_ALWAYS_SWAP_EFER
 #endif
 
+
+/*MYCODE*/
+# define HMVMX_ALWAYS_TRAP_ALL_XCPTS
+/*ENDMYCODE*/
 
 /*********************************************************************************************************************************
 *   Defined Constants And Macros                                                                                                 *
@@ -937,6 +946,11 @@ static void hmR0VmxStructsFree(PVM pVM)
  */
 static int hmR0VmxStructsAlloc(PVM pVM)
 {
+    /*MYCODE*/
+    pVM->mystate.s.PageSpinlock = NIL_RTSPINLOCK;
+    RTSpinlockCreate(&pVM->mystate.s.PageSpinlock, RTSPINLOCK_FLAGS_INTERRUPT_SAFE, pVM->mystate.s.PageSpinLockName);
+    /*ENDMYCODE*/
+
     /*
      * Initialize members up-front so we can cleanup properly on allocation failure.
      */
@@ -4156,8 +4170,10 @@ static int hmR0VmxLoadSharedDebugState(PVMCPU pVCpu, PCPUMCTX pMixedCtx)
     if (pVCpu->hm.s.vmx.u32EntryCtls & VMX_VMCS_CTRL_ENTRY_LOAD_DEBUG)
     {
         /* Validate. Intel spec. 17.2 "Debug Registers", recompiler paranoia checks. */
-        Assert((pMixedCtx->dr[7] & (X86_DR7_MBZ_MASK | X86_DR7_RAZ_MASK)) == 0);  /* Bits 63:32, 15, 14, 12, 11 are reserved. */
-        Assert((pMixedCtx->dr[7] & X86_DR7_RA1_MASK) == X86_DR7_RA1_MASK);        /* Bit 10 is reserved (RA1). */
+        /*MYCODE*/
+        //Assert((pMixedCtx->dr[7] & (X86_DR7_MBZ_MASK | X86_DR7_RAZ_MASK)) == 0);  /* Bits 63:32, 15, 14, 12, 11 are reserved. */
+        //Assert((pMixedCtx->dr[7] & X86_DR7_RA1_MASK) == X86_DR7_RA1_MASK);        /* Bit 10 is reserved (RA1). */
+        /*ENDMYCODE*/
     }
 #endif
 
@@ -4262,12 +4278,23 @@ static int hmR0VmxLoadSharedDebugState(PVMCPU pVCpu, PCPUMCTX pMixedCtx)
             fInterceptMovDRx = true;
         }
 
+        /*MYCODE*/
+        //Always intercept MovDRx
+        fInterceptMovDRx = true;
+        /*ENDMYCODE*/
+
         /* Update guest DR7. */
         rc = VMXWriteVmcs32(VMX_VMCS_GUEST_DR7, pMixedCtx->dr[7]);
         AssertRCReturn(rc, rc);
 
         pVCpu->hm.s.fUsingHyperDR7 = false;
     }
+
+    /*MYCODE*/
+    //Always intercept DB
+    pVCpu->hm.s.vmx.u32XcptBitmap |= RT_BIT(X86_XCPT_DB);
+    HMCPU_CF_SET(pVCpu, HM_CHANGED_GUEST_XCPT_INTERCEPTS);
+    /*ENDMYCODE*/
 
     /*
      * Update the processor-based VM-execution controls regarding intercepting MOV DRx instructions.
@@ -4276,6 +4303,16 @@ static int hmR0VmxLoadSharedDebugState(PVMCPU pVCpu, PCPUMCTX pMixedCtx)
         pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_MOV_DR_EXIT;
     else
         pVCpu->hm.s.vmx.u32ProcCtls &= ~VMX_VMCS_CTRL_PROC_EXEC_MOV_DR_EXIT;
+
+    /*MYCODE*/
+    //Always Intercept MovDrx
+    pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_MOV_DR_EXIT;
+    pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_CR3_LOAD_EXIT;
+    pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_CR3_STORE_EXIT;
+    pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_CR8_LOAD_EXIT;
+    pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_CR8_STORE_EXIT;
+    /*ENDCODE*/
+
     rc = VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
     AssertRCReturn(rc, rc);
 
@@ -10489,6 +10526,11 @@ static VBOXSTRICTRC hmR0VmxRunGuestCodeDebug(PVM pVM, PVMCPU pVCpu, PCPUMCTX pCt
         STAM_PROFILE_ADV_STOP(&pVCpu->hm.s.StatExit2, x);
         if (rcStrict != VINF_SUCCESS)
             break;
+        /*MYCODE*/
+        if(pVCpu->mystate.s.bPauseRequired){
+            break;
+        }
+        /*ENDMYCODE*/
         if (cLoops > pVM->hm.s.cMaxResumeLoops)
         {
             STAM_COUNTER_INC(&pVCpu->hm.s.StatSwitchMaxResumeLoops);
@@ -12358,6 +12400,19 @@ HMVMX_EXIT_DECL hmR0VmxExitRdmsr(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIENT
     }
 #endif
 
+    /*MYCODE*/
+    for(int iBreakpointId=0; iBreakpointId<MAX_BREAKPOINT_ID; iBreakpointId++){
+        BreakpointEntrie_t *pTempBreakpointEntrie = &pVCpu->CTX_SUFF(pVM)->bp.l[iBreakpointId];
+        if(pTempBreakpointEntrie->breakpointActivated == true
+        && pTempBreakpointEntrie->breakpointType == FDP_MSRHBP
+        && pTempBreakpointEntrie->breakpointAccessType == FDP_READ_BP
+        && (pTempBreakpointEntrie->breakpointGCPtr == pMixedCtx->ecx || pTempBreakpointEntrie->breakpointGCPtr == 0)){
+            pVCpu->mystate.s.bMsrHyperBreakPointHitted = true;
+            return VINF_EM_HALT;
+        }
+    }
+    /*ENDMYCODE*/
+
     PVM pVM = pVCpu->CTX_SUFF(pVM);
     rc = EMInterpretRdmsr(pVM, pVCpu, CPUMCTX2CORE(pMixedCtx));
     AssertMsg(rc == VINF_SUCCESS || rc == VERR_EM_INTERPRETER,
@@ -12392,6 +12447,19 @@ HMVMX_EXIT_DECL hmR0VmxExitWrmsr(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIENT
     }
     AssertRCReturn(rc, rc);
     Log4(("ecx=%#RX32 edx:eax=%#RX32:%#RX32\n", pMixedCtx->ecx, pMixedCtx->edx, pMixedCtx->eax));
+
+    /*MYCODE*/
+    for(int iBreakpointId=0; iBreakpointId<MAX_BREAKPOINT_ID; iBreakpointId++){
+        BreakpointEntrie_t *pTempBreakpointEntrie = &pVCpu->CTX_SUFF(pVM)->bp.l[iBreakpointId];
+        if(pTempBreakpointEntrie->breakpointActivated == true
+        && pTempBreakpointEntrie->breakpointType == FDP_MSRHBP
+        && pTempBreakpointEntrie->breakpointAccessType == FDP_WRITE_BP
+        && (pTempBreakpointEntrie->breakpointGCPtr == pMixedCtx->ecx || pTempBreakpointEntrie->breakpointGCPtr == 0)){
+            pVCpu->mystate.s.bMsrHyperBreakPointHitted = true;
+            return VINF_EM_HALT;
+        }
+    }
+    /*ENDMYCODE*/
 
     rc = EMInterpretWrmsr(pVM, pVCpu, CPUMCTX2CORE(pMixedCtx));
     AssertMsg(rc == VINF_SUCCESS || rc == VERR_EM_INTERPRETER, ("hmR0VmxExitWrmsr: failed, invalid error code %Rrc\n", rc));
@@ -12564,6 +12632,9 @@ HMVMX_EXIT_DECL hmR0VmxExitMovCRx(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIEN
     PVM pVM                              = pVCpu->CTX_SUFF(pVM);
     VBOXSTRICTRC rcStrict;
     rc = hmR0VmxSaveGuestRegsForIemExec(pVCpu, pMixedCtx, false /*fMemory*/, true /*fNeedRsp*/);
+    /*MYCODE*/
+    bool bBreakpointHitted = false;
+    /*ENDMYCODE*/
     switch (uAccessType)
     {
         case VMX_EXIT_QUALIFICATION_CRX_ACCESS_WRITE:       /* MOV to CRx */
@@ -12606,6 +12677,21 @@ HMVMX_EXIT_DECL hmR0VmxExitMovCRx(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIEN
             }
 
             STAM_COUNTER_INC(&pVCpu->hm.s.StatExitCRxWrite[VMX_EXIT_QUALIFICATION_CRX_REGISTER(uExitQualification)]);
+
+            /*MYCODE*/
+            //Looking for a matching breakpoint
+            for(int iBreakpointId=0; iBreakpointId<MAX_BREAKPOINT_ID; iBreakpointId++){
+                BreakpointEntrie_t *pTempBreakpointEntrie = &pVCpu->CTX_SUFF(pVM)->bp.l[iBreakpointId];
+                if(pTempBreakpointEntrie->breakpointActivated == true
+                && pTempBreakpointEntrie->breakpointType == FDP_CRHBP
+                && pTempBreakpointEntrie->breakpointAccessType == FDP_WRITE_BP
+                && (pTempBreakpointEntrie->breakpointGCPtr == VMX_EXIT_QUALIFICATION_CRX_REGISTER(uExitQualification))){
+                    bBreakpointHitted = true;
+                    break;
+                }
+            }
+            /*ENDMYCODE*/
+
             break;
         }
 
@@ -12664,6 +12750,14 @@ HMVMX_EXIT_DECL hmR0VmxExitMovCRx(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIEN
 
     HMCPU_CF_SET(pVCpu, rcStrict != VINF_IEM_RAISED_XCPT ? HM_CHANGED_GUEST_RIP | HM_CHANGED_GUEST_RFLAGS : HM_CHANGED_ALL_GUEST);
     STAM_PROFILE_ADV_STOP(&pVCpu->hm.s.StatExitMovCRx, y2);
+
+    /*MYCODE*/
+    if(bBreakpointHitted == true){
+        pVCpu->mystate.s.bCrHyperBreakPointHitted = true;
+        return VINF_EM_HALT;
+    }
+    /*ENDMYCODE*/
+
     NOREF(pVM);
     return rcStrict;
 }
@@ -13066,6 +13160,97 @@ HMVMX_EXIT_DECL hmR0VmxExitApicAccess(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRAN
  */
 HMVMX_EXIT_DECL hmR0VmxExitMovDRx(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIENT pVmxTransient)
 {
+
+    /*MYCODE*/
+    {
+        int rc2;
+        rc2  = hmR0VmxReadExitQualificationVmcs(pVCpu, pVmxTransient);
+        rc2 |= hmR0VmxSaveGuestSegmentRegs(pVCpu, pMixedCtx);
+        rc2 |= hmR0VmxSaveGuestDR7(pVCpu, pMixedCtx);
+        AssertRCReturn(rc2, rc2);
+
+        bool DRxWrite = false;
+        if (VMX_EXIT_QUALIFICATION_DRX_DIRECTION(pVmxTransient->uExitQualification) == VMX_EXIT_QUALIFICATION_DRX_DIRECTION_WRITE){
+            DRxWrite = true;
+        }
+
+        PVM pVM2 = pVCpu->CTX_SUFF(pVM);
+
+        //Save the fakeDR to compare after the instruction
+        uint64_t aOldVisibleDr[8];
+        aOldVisibleDr[0] = pVCpu->mystate.s.aGuestDr[0];
+        aOldVisibleDr[1] = pVCpu->mystate.s.aGuestDr[1];
+        aOldVisibleDr[2] = pVCpu->mystate.s.aGuestDr[2];
+        aOldVisibleDr[3] = pVCpu->mystate.s.aGuestDr[3];
+        aOldVisibleDr[7] = pVCpu->mystate.s.aGuestDr[7];
+
+        //TODO: not needed, we need to save the value when FDP_WriteRegister()
+        //Save Invisble Debug Register values used by HardHyperBreakpoint
+        uint64_t uInvisibleDr0 = ASMGetDR0();
+        uint64_t uInvisibleDr1 = ASMGetDR1();
+        uint64_t uInvisibleDr2 = ASMGetDR2();
+        uint64_t uInvisibleDr3 = ASMGetDR3();
+        uint64_t uInvisibleDr6 = ASMGetDR6();
+        uint64_t uInvisibleDr7 = CPUMGetGuestDR7(pVCpu);
+
+        //Load fake DR Values
+        CPUMSetHyperDR0(pVCpu, pVCpu->mystate.s.aGuestDr[0]);
+        CPUMSetHyperDR1(pVCpu, pVCpu->mystate.s.aGuestDr[1]);
+        CPUMSetHyperDR2(pVCpu, pVCpu->mystate.s.aGuestDr[2]);
+        CPUMSetHyperDR3(pVCpu, pVCpu->mystate.s.aGuestDr[3]);
+        CPUMSetHyperDR6(pVCpu, pVCpu->mystate.s.aGuestDr[6]);
+        VMXWriteVmcs32(VMX_VMCS_GUEST_DR7, (uint32_t)pVCpu->mystate.s.aGuestDr[7]);
+
+        //Disable #MovDRx
+        pVCpu->hm.s.vmx.u32ProcCtls &= ~VMX_VMCS_CTRL_PROC_EXEC_MOV_DR_EXIT;
+        //Enable MTF
+        pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
+        rc2 = VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
+
+        //Single Step
+        hmR0VmxRunGuestCodeNormal(pVM2, pVCpu, pMixedCtx);
+        rc2  = hmR0VmxReadExitQualificationVmcs(pVCpu, pVmxTransient);
+        rc2 |= hmR0VmxSaveGuestSegmentRegs(pVCpu, pMixedCtx);
+        rc2 |= hmR0VmxSaveGuestDR7(pVCpu, pMixedCtx);
+
+        //Disable MTF
+        pVCpu->hm.s.vmx.u32ProcCtls &= ~VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
+        //Enable #MovDrx
+        pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_MOV_DR_EXIT;
+        rc2 = VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
+
+        //Save new Visible Debug Register values (Usefull only on write)
+        pVCpu->mystate.s.aGuestDr[0] = ASMGetDR0();
+        pVCpu->mystate.s.aGuestDr[1] = ASMGetDR1();
+        pVCpu->mystate.s.aGuestDr[2] = ASMGetDR2();
+        pVCpu->mystate.s.aGuestDr[3] = ASMGetDR3();
+        pVCpu->mystate.s.aGuestDr[6] = ASMGetDR6();
+        pVCpu->mystate.s.aGuestDr[7] = pMixedCtx->dr[7];
+
+        //Restore Invisible Debug Register values
+        CPUMSetHyperDR0(pVCpu, uInvisibleDr0);
+        CPUMSetHyperDR1(pVCpu, uInvisibleDr1);
+        CPUMSetHyperDR2(pVCpu, uInvisibleDr2);
+        CPUMSetHyperDR3(pVCpu, uInvisibleDr3);
+        CPUMSetHyperDR6(pVCpu, uInvisibleDr6);
+        CPUMSetGuestDR7(pVCpu, (uint32_t)uInvisibleDr7);
+        VMXWriteVmcs32(VMX_VMCS_GUEST_DR7, (uint32_t)uInvisibleDr7);
+
+        //If a Visible Debug Register changed go to ring-3 install/remove a breakpoint
+        if (aOldVisibleDr[0] != pVCpu->mystate.s.aGuestDr[0]
+        ||  aOldVisibleDr[1] != pVCpu->mystate.s.aGuestDr[1]
+        ||  aOldVisibleDr[2] != pVCpu->mystate.s.aGuestDr[2]
+        ||  aOldVisibleDr[3] != pVCpu->mystate.s.aGuestDr[3]
+        ||  aOldVisibleDr[7] != pVCpu->mystate.s.aGuestDr[7]){
+            pVCpu->mystate.s.bInstallDrBreakpointRequired = true;
+            return VINF_EM_HALT;
+        }
+        //Go !
+        return VINF_SUCCESS;
+    }
+    /*ENDMYCODE*/
+
+
     HMVMX_VALIDATE_EXIT_HANDLER_PARAMS();
 
     /* We should -not- get this VM-exit if the guest's debug registers were active. */
@@ -13272,6 +13457,174 @@ HMVMX_EXIT_DECL hmR0VmxExitEptViolation(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTR
     VBOXSTRICTRC rcStrict2 = PGMR0Trap0eHandlerNestedPaging(pVM, pVCpu, PGMMODE_EPT, uErrorCode, CPUMCTX2CORE(pMixedCtx), GCPhys);
     TRPMResetTrap(pVCpu);
 
+    /*MYCODE*/
+    if(PGMShwIsBreakable(pVCpu, GCPhys) == true){
+#ifdef IN_RING0
+        PHMGLOBALCPUINFO pCpu = hmR0GetCurrentCpu();
+#endif
+        STAM_COUNTER_INC(&pVCpu->hm.s.StatExitGuestDE);
+        if(VMMGetBreakpointIdFromPage(pVM, GCPhys, FDP_PAGEHBP) >= 0){ //FDP_PAGEHBP
+            HMCPU_CF_SET(pVCpu,  HM_CHANGED_GUEST_RIP
+                               | HM_CHANGED_GUEST_RSP
+                               | HM_CHANGED_GUEST_RFLAGS);
+
+            int tmpAccess = 0x00;
+            if(pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_DATA_READ)
+                tmpAccess |= (int)FDP_READ_BP;
+            if(pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_DATA_WRITE)
+                tmpAccess |= (int)FDP_WRITE_BP;
+            if(pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_INSTR_FETCH)
+                tmpAccess |= (int)FDP_EXECUTE_BP;
+
+
+            STAM_COUNTER_INC(&pVCpu->hm.s.StatExitGuestDE);
+            //If it is one of our breakpoints, go to VMMR3 !
+            int PageBreakpointId = VMMGetBreakpointId(pVM, GCPhys, FDP_PAGEHBP, tmpAccess);
+            if(PageBreakpointId >= (int)(4*pVM->cCpus)){
+                //This is a host page breakpoint !
+                pVCpu->mystate.s.bPageHyperBreakPointHitted = true;
+
+                //RTSpinlockAcquire(pVM->mystate.s.PageSpinlock);
+                PGMShwRestoreRights(pVCpu, GCPhys);
+                VMXR0InvalidatePhysPage(pVM, pVCpu, GCPhys);
+                //RTSpinlockRelease(pVM->mystate.s.PageSpinlock);
+
+                return VINF_EM_HALT;
+            }
+
+            if(PageBreakpointId >= 0
+            && PageBreakpointId < (int)(4*pVM->cCpus)){
+                STAM_COUNTER_INC(&pVCpu->hm.s.StatExitGuestGP);
+                //This is a Guest Hardware Breakpoint !
+                //Update the guest dr6
+                pMixedCtx->dr[6] = pVCpu->mystate.s.aGuestDr[6];
+                for(int i=0; i<4; i++){
+                    if(VMMMatchBreakpointId(pVM, i, GCPhys, FDP_PAGEHBP, tmpAccess)){
+                        pMixedCtx->dr[6] = pMixedCtx->dr[6] | ((uint64_t)(0x1 << (i)));
+                    }
+                }
+                ASMSetDR6(pMixedCtx->dr[6]);
+
+                //Inject a INT1 into the guest
+                hmR0VmxSetPendingXcptDB(pVCpu, pMixedCtx);
+                return VINF_SUCCESS;
+            }
+
+            //If it not the breakpoint then continue !
+            RTSpinlockAcquire(pVM->mystate.s.PageSpinlock);
+            PGMShwPresent(pVCpu, GCPhys);
+            PGMShwWrite(pVCpu, GCPhys);
+            PGMShwExecute(pVCpu, GCPhys);
+            //Flush TLB
+#ifdef IN_RING0
+            hmR0VmxFlushTaggedTlb(pVCpu, pCpu);
+#endif
+
+            //Active MTF
+            pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
+            int rc3 = VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
+
+            //Single Step
+            hmR0VmxRunGuestCodeNormal(pVM, pVCpu, pMixedCtx);
+
+            //Disable MTF
+            pVCpu->hm.s.vmx.u32ProcCtls &= ~VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
+            rc3 = VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
+
+            //TODO: restoreOldFlags
+            PGMShwRestoreRights(pVCpu, GCPhys);
+            //Flush TLB
+            VMXR0InvalidatePhysPage(pVM, pVCpu, GCPhys);
+            RTSpinlockRelease(pVM->mystate.s.PageSpinlock);
+
+            return VINF_SUCCESS;
+        }
+        int SoftBreakpointId = VMMGetBreakpointIdFromPage(pVM, GCPhys, FDP_SOFTHBP);
+        if(SoftBreakpointId > 0){
+            //FDP_SOFTHBP
+            HMCPU_CF_SET(pVCpu,  HM_CHANGED_GUEST_RIP
+                               | HM_CHANGED_GUEST_RSP
+                               | HM_CHANGED_GUEST_RFLAGS);
+
+            //Avoid stack overflow when Fault inside fault !
+            if(pVCpu->mystate.s.bPageFaultOverflowGuard){
+                STAM_COUNTER_INC(&pVCpu->hm.s.StatExitGuestGP);
+                return VINF_SUCCESS;
+            }
+
+            RTSpinlockAcquire(pVM->mystate.s.PageSpinlock);
+            pVCpu->mystate.s.bPageFaultOverflowGuard = true;
+            bool bWriteAccess = ((pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_DATA_WRITE) != 0);
+            rc = VINF_SUCCESS;
+
+            //Execute Access
+            if(pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_INSTR_FETCH)
+            {
+                //Execute only on ModPage
+                PGMShwSetHCPage(pVCpu, GCPhys, pVM->bp.l[SoftBreakpointId].breakpointHardwarePage->HCPhys);
+                PGMShwNoPresent(pVCpu, GCPhys);
+                PGMShwNoWrite(pVCpu, GCPhys);
+                PGMShwExecute(pVCpu, GCPhys); //Execute !
+            }else {
+                //Read or Write Access
+                //if((pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_DATA_READ)
+                //  || (pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_DATA_WRITE))
+                //{
+                //Read, Write on OriginalPage
+                PGMShwSetHCPage(pVCpu, GCPhys, pVM->bp.l[SoftBreakpointId].breakpointOrigHCPhys);
+                PGMShwPresent(pVCpu, GCPhys); //Read !
+                PGMShwWrite(pVCpu, GCPhys); //Write !
+                PGMShwNoExecute(pVCpu, GCPhys);
+                //}
+            }
+
+            //Trash case, TODO: What is this ? Why ? Maybe "mov [rax], rcx" and rax inside the page
+            if(
+                ((pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_DATA_READ) && (pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_DATA_WRITE) && (pVmxTransient->uExitQualification & VMX_EXIT_QUALIFICATION_EPT_INSTR_FETCH))
+            )
+            { //Special case
+                //Full rights on OriginalPage
+                PGMShwSetHCPage(pVCpu, GCPhys, pVM->bp.l[SoftBreakpointId].breakpointOrigHCPhys);
+                PGMShwPresent(pVCpu, GCPhys);
+                PGMShwWrite(pVCpu, GCPhys);
+                PGMShwExecute(pVCpu, GCPhys);
+                //Invalidate the GPA
+                VMXR0InvalidatePhysPage(pVM, pVCpu, GCPhys);
+
+                //Active MTF
+                pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
+                VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
+
+                //Single Step
+                rc = hmR0VmxRunGuestCodeNormal(pVM, pVCpu, pMixedCtx);
+
+                //Disable MTF
+                pVCpu->hm.s.vmx.u32ProcCtls &= ~VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
+                VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
+
+                //Execute only on ModPage
+                PGMShwSetHCPage(pVCpu, GCPhys, pVM->bp.l[SoftBreakpointId].breakpointHardwarePage->HCPhys);
+                PGMShwNoPresent(pVCpu, GCPhys);
+                PGMShwNoWrite(pVCpu, GCPhys);
+                PGMShwExecute(pVCpu, GCPhys); //Execute !
+            }else{
+                if(bWriteAccess == true){
+                    //TODO: OrignalPage, SingleStep, Copy OrignalPage to ModPage, Reinstall the HLT
+                }
+            }
+
+            //Invalidate the page
+            VMXR0InvalidatePhysPage(pVM, pVCpu, GCPhys);
+
+            pVCpu->mystate.s.bPageFaultOverflowGuard = false;
+            RTSpinlockRelease(pVM->mystate.s.PageSpinlock);
+
+            return rc;
+        }
+    }
+    /*ENDMYCODE*/
+
+
     /* Same case as PGMR0Trap0eHandlerNPMisconfig(). See comment above, @bugref{6043}. */
     if (   rcStrict2 == VINF_SUCCESS
         || rcStrict2 == VERR_PAGE_TABLE_NOT_PRESENT
@@ -13342,6 +13695,55 @@ static int hmR0VmxExitXcptBP(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIENT pVm
     int rc = hmR0VmxSaveGuestState(pVCpu, pMixedCtx);
     AssertRCReturn(rc, rc);
 
+    /*MYCODE*/
+    {
+        int rc2  = hmR0VmxReadExitIntInfoVmcs(pVmxTransient);
+        rc2 |= hmR0VmxReadExitIntErrorCodeVmcs(pVmxTransient);
+        rc2 |= hmR0VmxReadExitInstrLenVmcs(pVmxTransient);
+        rc2 |= hmR0VmxSaveGuestState(pVCpu, pMixedCtx);
+        PVM pVM = pVCpu->CTX_SUFF(pVM);
+        uint64_t GCPhys;
+        PGMPhysGCPtr2GCPhys(pVCpu, pMixedCtx->rip, &GCPhys);
+        int SoftBreakpointId = VMMGetBreakpointId(pVM, GCPhys, FDP_SOFTHBP, FDP_EXECUTE_BP);
+        if(SoftBreakpointId >= 0){
+            if(pVM->bp.l[SoftBreakpointId].breakpointCr3 == 0
+            || pVM->bp.l[SoftBreakpointId].breakpointCr3 == CPUMGetGuestCR3(pVCpu)){
+                pVCpu->mystate.s.bSoftHyperBreakPointHitted = true;
+                return VINF_EM_HALT;
+            }else{
+                //This breakpoint is filtered
+                //Full rights on OriginalPage
+                PGMShwSetHCPage(pVCpu, GCPhys, pVM->bp.l[SoftBreakpointId].breakpointOrigHCPhys);
+                PGMShwPresent(pVCpu, GCPhys);
+                PGMShwWrite(pVCpu, GCPhys);
+                PGMShwExecute(pVCpu, GCPhys);
+                //Invalidate the GPA
+                VMXR0InvalidatePhysPage(pVM, pVCpu, GCPhys);
+
+                //Enable MTF
+                pVCpu->hm.s.vmx.u32ProcCtls |= VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
+                rc2 = VMXWriteVmcs32(VMX_VMCS32_CTRL_PROC_EXEC, pVCpu->hm.s.vmx.u32ProcCtls);
+
+                //Single Step
+                hmR0VmxRunGuestCodeNormal(pVM, pVCpu, pMixedCtx);
+                rc2  = hmR0VmxReadExitQualificationVmcs(pVCpu, pVmxTransient);
+                rc2 |= hmR0VmxSaveGuestSegmentRegs(pVCpu, pMixedCtx);
+                rc2 |= hmR0VmxSaveGuestDR7(pVCpu, pMixedCtx);
+
+                //Disable MTF
+                pVCpu->hm.s.vmx.u32ProcCtls &= ~VMX_VMCS_CTRL_PROC_EXEC_MONITOR_TRAP_FLAG;
+
+                //Execute only on ModPage
+                PGMShwSetHCPage(pVCpu, GCPhys, pVM->bp.l[SoftBreakpointId].breakpointHardwarePage->HCPhys);
+                PGMShwNoPresent(pVCpu, GCPhys);
+                PGMShwNoWrite(pVCpu, GCPhys);
+                PGMShwExecute(pVCpu, GCPhys); //Execute !
+                return VINF_SUCCESS;
+            }
+        }
+    }
+    /*ENDMYCODE*/
+
     PVM pVM = pVCpu->CTX_SUFF(pVM);
     rc = DBGFRZTrap03Handler(pVM, pVCpu, CPUMCTX2CORE(pMixedCtx));
     if (rc == VINF_EM_RAW_GUEST_TRAP)
@@ -13402,6 +13804,28 @@ static int hmR0VmxExitXcptDB(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRANSIENT pVm
     uint64_t uDR6 = X86_DR6_INIT_VAL;
     uDR6         |= (  pVmxTransient->uExitQualification
                      & (X86_DR6_B0 | X86_DR6_B1 | X86_DR6_B2 | X86_DR6_B3 | X86_DR6_BD | X86_DR6_BS));
+
+    /*MYCODE*/
+    {
+        //If it is a breakpoint we handle it
+        if((uDR6 & (X86_DR6_B0 | X86_DR6_B1 | X86_DR6_B2 | X86_DR6_B3))){
+            //Update DR6 !
+            VMMRZCallRing3Disable(pVCpu);
+            HM_DISABLE_PREEMPT();
+
+            pMixedCtx->dr[6] &= ~X86_DR6_B_MASK;
+            pMixedCtx->dr[6] |= uDR6;
+            if (CPUMIsGuestDebugStateActive(pVCpu))
+                ASMSetDR6(pMixedCtx->dr[6]);
+
+            HM_RESTORE_PREEMPT();
+            VMMRZCallRing3Enable(pVCpu);
+
+            pVCpu->mystate.s.bHardHyperBreakPointHitted = true;
+            return VINF_EM_HALT;
+        }
+    }
+    /*ENDMYCODE*/
 
     rc = DBGFRZTrap01Handler(pVCpu->CTX_SUFF(pVM), pVCpu, CPUMCTX2CORE(pMixedCtx), uDR6, pVCpu->hm.s.fSingleInstruction);
     if (rc == VINF_EM_RAW_GUEST_TRAP)

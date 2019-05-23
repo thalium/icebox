@@ -173,6 +173,9 @@ VMM_INT_DECL(void)              HMSvmNstGstVmExitNotify(PVMCPU pVCpu, PSVMVMCB p
 #ifndef IN_RC
 VMM_INT_DECL(int)               HMFlushTLB(PVMCPU pVCpu);
 VMM_INT_DECL(int)               HMFlushTLBOnAllVCpus(PVM pVM);
+/*MYCODE*/
+VMM_INT_DECL(int)               HMFlushTLBOnAllVCpus2(PVM pVM);
+/*ENCODE*/
 VMM_INT_DECL(int)               HMInvalidatePageOnAllVCpus(PVM pVM, RTGCPTR GCVirt);
 VMM_INT_DECL(int)               HMInvalidatePhysPage(PVM pVM, RTGCPHYS GCPhys);
 VMM_INT_DECL(bool)              HMIsNestedPagingActive(PVM pVM);
@@ -194,6 +197,7 @@ VMM_INT_DECL(PGMMODE)           HMGetShwPagingMode(PVM pVM);
  * @{
  */
 VMMR0_INT_DECL(int)             HMR0Init(void);
+VMMR0_INT_DECL(int)             HMR0FlushEPT(PVM pVM, PVMCPU pVCpu);
 VMMR0_INT_DECL(int)             HMR0Term(void);
 VMMR0_INT_DECL(int)             HMR0InitVM(PVM pVM);
 VMMR0_INT_DECL(int)             HMR0TermVM(PVM pVM);

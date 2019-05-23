@@ -42,6 +42,12 @@
 #include <iprt/thread.h>
 #include <iprt/time.h>
 
+/*MYCODE*/
+#include <VBox/vmm/iem.h>
+#include <FDP/include/FDP.h>
+#include <FDP/include/FDP_structs.h>
+#include <iprt/spinlock.h>
+/*ENDMYCODE*/
 
 /*********************************************************************************************************************************
 *   Internal Functions                                                                                                           *
@@ -373,11 +379,22 @@ static DECLCALLBACK(int) vmR3HaltOldDoHalt(PUVMCPU pUVCpu, const uint32_t fMask,
         if (    VM_FF_IS_PENDING(pVM, VM_FF_EXTERNAL_HALTED_MASK)
             ||  VMCPU_FF_IS_PENDING(pVCpu, fMask))
             break;
+
+        /*MYCODE*/
+        if(pVCpu->mystate.s.bPauseRequired == true)
+            break;
+        /*ENDMYCODE*/
+
         uint64_t u64NanoTS;
         TMTimerPollGIP(pVM, pVCpu, &u64NanoTS);
         if (    VM_FF_IS_PENDING(pVM, VM_FF_EXTERNAL_HALTED_MASK)
             ||  VMCPU_FF_IS_PENDING(pVCpu, fMask))
             break;
+
+        /*MYCODE*/
+        if(pVCpu->mystate.s.bPauseRequired == true)
+            break;
+        /*ENDMYCODE*/
 
         /*
          * Wait for a while. Someone will wake us up or interrupt the call if
@@ -722,6 +739,11 @@ static DECLCALLBACK(int) vmR3HaltGlobal1Halt(PUVMCPU pUVCpu, const uint32_t fMas
             ||  VMCPU_FF_IS_PENDING(pVCpu, fMask))
             break;
 
+        /*MYCODE*/
+        if(pVCpu->mystate.s.bPauseRequired == true)
+            break;
+        /*ENDMYCODE*/
+
         /*
          * Estimate time left to the next event.
          */
@@ -731,6 +753,11 @@ static DECLCALLBACK(int) vmR3HaltGlobal1Halt(PUVMCPU pUVCpu, const uint32_t fMas
         if (    VM_FF_IS_PENDING(pVM, VM_FF_EXTERNAL_HALTED_MASK)
             ||  VMCPU_FF_IS_PENDING(pVCpu, fMask))
             break;
+
+        /*MYCODE*/
+        if(pVCpu->mystate.s.bPauseRequired == true)
+            break;
+        /*ENDMYCODE*/
 
         /*
          * Block if we're not spinning and the interval isn't all that small.
@@ -1069,6 +1096,921 @@ VMMR3_INT_DECL(void) VMR3NotifyCpuFFU(PUVMCPU pUVCpu, uint32_t fFlags)
     g_aHaltMethods[pUVM->vm.s.iHaltMethod].pfnNotifyCpuFF(pUVCpu, fFlags);
 }
 
+/*MYCODE*/
+//TODO: include with DBGTcp.cpp
+#define DEBUG_LEVEL 0
+
+#if DEBUG_LEVEL > 0
+#define LogRelDebug(x) LogRel(x)
+#else
+#define LogRelDebug(x)
+#endif
+
+
+//TODO: Add Cs, Ds, Es, Fs, Gs, SS, ...
+void VMR3UpdateFdpCpuCtx(PVMCPU pVCpu)
+{
+    PCCPUMCTXCORE pCtxCore = CPUMGetGuestCtxCore(pVCpu);
+    FDP_CPU_CTX* pFdpCpuCtx = (FDP_CPU_CTX *)pVCpu->mystate.s.pCpuShm;
+
+    pFdpCpuCtx->rip = pCtxCore->rip;
+    pFdpCpuCtx->rax = pCtxCore->rax;
+    pFdpCpuCtx->rcx = pCtxCore->rcx;
+    pFdpCpuCtx->rdx = pCtxCore->rdx;
+    pFdpCpuCtx->rbx = pCtxCore->rbx;
+    pFdpCpuCtx->rsp = pCtxCore->rsp;
+    pFdpCpuCtx->rbp = pCtxCore->rbp;
+    pFdpCpuCtx->rsi = pCtxCore->rsi;
+    pFdpCpuCtx->rdi = pCtxCore->rdi;
+    pFdpCpuCtx->r8 = pCtxCore->r8;
+    pFdpCpuCtx->r9 = pCtxCore->r9;
+    pFdpCpuCtx->r10 = pCtxCore->r10;
+    pFdpCpuCtx->r11 = pCtxCore->r11;
+    pFdpCpuCtx->r12 = pCtxCore->r12;
+    pFdpCpuCtx->r13 = pCtxCore->r13;
+    pFdpCpuCtx->r14 = pCtxCore->r14;
+    pFdpCpuCtx->r15 = pCtxCore->r15;
+    pFdpCpuCtx->cr0 = CPUMGetGuestCR0(pVCpu);
+    pFdpCpuCtx->cr2 = CPUMGetGuestCR2(pVCpu);
+    pFdpCpuCtx->cr3 = CPUMGetGuestCR3(pVCpu);
+    pFdpCpuCtx->cr4 = CPUMGetGuestCR4(pVCpu);
+
+}
+
+HardwarePage_t* VMR3GetAllocatedHardwarePage(PUVM pUVM, uint64_t GCPhys)
+{
+    //Look for a breakpoint already using a convient page
+    int BreakpointId = VMMGetBreakpointIdFromPage(pUVM->pVM, GCPhys, FDP_SOFTHBP);
+    if(BreakpointId >= 0
+    && BreakpointId < MAX_BREAKPOINT_ID){
+        //A breakpoint using a convient page exists
+        pUVM->pVM->bp.l[BreakpointId].breakpointHardwarePage->ReferenceCount++;
+        return pUVM->pVM->bp.l[BreakpointId].breakpointHardwarePage;
+    }
+
+    //Look in the Free HardwarePage table
+    for(uint32_t i=0; i<pUVM->pVM->mystate.s.u32HardwarePageTableCount; i++){
+        if(pUVM->pVM->mystate.s.aHardwarePageTable[i].ReferenceCount == 0
+        && pUVM->pVM->mystate.s.aHardwarePageTable[i].HCPhys != 0
+        && pUVM->pVM->mystate.s.aHardwarePageTable[i].R3Ptr != NULL){
+            pUVM->pVM->mystate.s.aHardwarePageTable[i].ReferenceCount = 1;
+            return &pUVM->pVM->mystate.s.aHardwarePageTable[i];
+        }
+    }
+
+    LogRelDebug(("Allocate a new HardwarePage for %p !\n", GCPhys));
+    //None are free, allocate a new one !
+    ALLOCPAGEREQ Req;
+    Req.Hdr.u32Magic = SUPVMMR0REQHDR_MAGIC;
+    Req.Hdr.cbReq    = sizeof(Req);
+    Req.newPageSize = _4K;
+    int rc = SUPR3CallVMMR0Ex(pUVM->pVM->pVMR0, NIL_VMCPUID, VMMR0_DO_ALLOC_HCPHYS, 0, &Req.Hdr);
+    if(rc != 0){
+        LogRelDebug(("Failed to allocate a new HardwarePage\n"));
+        return NULL;
+    }
+
+    HardwarePage_t* TmpHardwarePage = &pUVM->pVM->mystate.s.aHardwarePageTable[pUVM->pVM->mystate.s.u32HardwarePageTableCount];
+
+    TmpHardwarePage->PageSize = _4K;
+    TmpHardwarePage->HCPhys = Req.newPageHCPHys;
+    TmpHardwarePage->R3Ptr = Req.newPageR3Ptr;
+    TmpHardwarePage->ReferenceCount = 1;
+
+    pUVM->pVM->mystate.s.u32HardwarePageTableCount++;
+
+    return TmpHardwarePage;
+}
+
+
+/*
+ * @brief: Restore all Original HCPhys for SoftHyperBreakpointed GCPhys
+ */
+VMMR3_INT_DECL(int)    VMR3RestoreAllOriginalPage(PUVM pUVM, bool bIsRead, bool bIsWrite, bool bIsExecute)
+{
+    PVM pVM = pUVM->pVM;
+    PVMCPU pVCpu = &pVM->aCpus[0];
+    BreakpointEntrie_t *pTempBreakpointEntrie = NULL;
+    for(uint8_t BreakpointId=4*pVM->cCpus; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
+        pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+        //Check if Breakpoint is Activated and if it is a SoftWareBreakpoint
+        if(pTempBreakpointEntrie->breakpointActivated == true &&
+           pTempBreakpointEntrie->breakpointType == FDP_SOFTHBP &&
+           pTempBreakpointEntrie->breakpointOrigHCPhys != 0x0 &&
+           pTempBreakpointEntrie->breakpointGCPhysAreaTable[0].Start != 0x0){
+            //Set Original Page as Read and Write
+            uint64_t GCPhys = pTempBreakpointEntrie->breakpointGCPhysAreaTable[0].Start;
+            PGMShwSetHCPage(pVCpu, GCPhys, pTempBreakpointEntrie->breakpointOrigHCPhys);
+            if(bIsRead == true){
+                PGMShwPresent(pVCpu, GCPhys);
+            }else{
+                PGMShwNoPresent(pVCpu, GCPhys);
+            }
+            if(bIsWrite == true){
+                PGMShwWrite(pVCpu, GCPhys);
+            }else{
+                PGMShwNoWrite(pVCpu, GCPhys);
+            }
+            if(bIsExecute == true){
+                PGMShwExecute(pVCpu, GCPhys);
+            }else{
+                PGMShwNoExecute(pVCpu, GCPhys);
+            }
+            //Set page as breakable !
+            PGMShwSetBreakable(pVCpu, GCPhys, true);
+            //Invalidate the page !
+            PGMShwInvalidate(pVCpu, GCPhys);
+        }
+    }
+    return 0;
+}
+
+VMMR3_INT_DECL(int)    VMR3AddMsrBreakpoint(PUVM pUVM, uint8_t BreakpointAccessType, uint64_t BreakpointAddress)
+{
+    PVM pVM = pUVM->pVM;
+    //Look for a free breakpoint
+    for(int BreakpointId=4*pUVM->pVM->cCpus; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
+        BreakpointEntrie_t *pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+        if(pTempBreakpointEntrie->breakpointActivated == false){
+            pTempBreakpointEntrie->breakpointActivated = true;
+            pTempBreakpointEntrie->breakpointGCPtr = BreakpointAddress;
+            pTempBreakpointEntrie->breakpointOrigHCPhys = 0x0;
+            pTempBreakpointEntrie->breakpointType = FDP_MSRHBP;
+            pTempBreakpointEntrie->breakpointLength = 1;
+            pTempBreakpointEntrie->breakpointAccessType = BreakpointAccessType;
+            pTempBreakpointEntrie->breakpointPageSize = 0x0;
+            pTempBreakpointEntrie->breakpointHardwarePage = NULL;
+            pTempBreakpointEntrie->breakpointGCPhysAreaCount = 0;
+            pTempBreakpointEntrie->breakpointGCPhysAreaTable = NULL;
+
+            return BreakpointId;
+        }
+    }
+    return -1;
+}
+
+VMMR3_INT_DECL(int)    VMR3AddCrBreakpoint(PUVM pUVM, uint8_t BreakpointAccessType, uint64_t BreakpointAddress)
+{
+    PVM pVM = pUVM->pVM;
+    //Look for a free breakpoint
+    for(int BreakpointId=4*pUVM->pVM->cCpus; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
+        BreakpointEntrie_t *pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+        if(pTempBreakpointEntrie->breakpointActivated == false){
+            pTempBreakpointEntrie->breakpointActivated = true;
+            pTempBreakpointEntrie->breakpointGCPtr = BreakpointAddress;
+            pTempBreakpointEntrie->breakpointOrigHCPhys = 0x0;
+            pTempBreakpointEntrie->breakpointType = FDP_CRHBP;
+            pTempBreakpointEntrie->breakpointLength = 1;
+            pTempBreakpointEntrie->breakpointAccessType = BreakpointAccessType;
+            pTempBreakpointEntrie->breakpointPageSize = 0x0;
+            pTempBreakpointEntrie->breakpointHardwarePage = NULL;
+            pTempBreakpointEntrie->breakpointGCPhysAreaCount = 0;
+            pTempBreakpointEntrie->breakpointGCPhysAreaTable = NULL;
+
+            return BreakpointId;
+        }
+    }
+    return -1;
+}
+
+VMMR3_INT_DECL(int)    VMR3AddSoftBreakpoint(PUVM pUVM, PVMCPU pVCpu, uint8_t BreakpointAddressType, uint64_t BreakpointAddress, uint64_t BreakpointCr3)
+{ //TODO: Move it to VMMAll !
+
+    VMR3RestoreAllOriginalPage(pUVM, true, true, false);
+
+    PVM pVM = pUVM->pVM;
+
+    //Convert GCPtr to GCPhys if needed
+    uint64_t GCPhys;
+    uint64_t GCPtr = 0;
+    if(BreakpointAddressType == 0x1){//Virtual
+        GCPtr = BreakpointAddress;
+        PGMPhysGCPtr2GCPhys(pVCpu, BreakpointAddress, &GCPhys);
+    }else{ //Physical
+        GCPhys = BreakpointAddress;
+    }
+
+    //Look for an already existing SoftHyperBreakpoint with same GCPhys
+    for(int BreakpointId=4*pUVM->pVM->cCpus; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
+        BreakpointEntrie_t *pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+        if(pTempBreakpointEntrie->breakpointActivated == true &&
+           pTempBreakpointEntrie->breakpointType == FDP_SOFTHBP &&
+           pTempBreakpointEntrie->breakpointGCPhysAreaTable[0].Start == GCPhys){
+               //We found one !
+               return BreakpointId;
+        }
+    }
+
+    for(int BreakpointId=4*pUVM->pVM->cCpus; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
+        BreakpointEntrie_t *pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+
+        //Find a free breakpoint
+        if(pTempBreakpointEntrie->breakpointActivated == false){
+            //Get Original HCPhys
+            uint64_t origHCPhys;
+            //It is the OriginalPage because we called VMR3RestoreAllOriginalPage(pUVM);
+            PGMShwGetHCPage(pVCpu, GCPhys, &origHCPhys);
+            //After restore EPTPTE are not initilized
+            if(origHCPhys < 0x100){
+                return -1;
+            }
+
+            //Get a HardwarePage
+            HardwarePage_t* pTempHardwarePage = VMR3GetAllocatedHardwarePage(pUVM, GCPhys);
+            if(pTempHardwarePage != NULL){
+                if(pTempHardwarePage->ReferenceCount == 1){
+                    //This is the first breakpoint using this hardware page
+                    //Copy original page content to new page only if the page is new
+                    LogRelDebug(("[WDEBUG] Copy OrignalPage to ModificatedPage\n"));
+                    PGMPhysSimpleReadGCPhys(pUVM->pVM, (void*)pTempHardwarePage->R3Ptr, (RTGCPHYS)(GCPhys & ~(pTempHardwarePage->PageSize-1)), pTempHardwarePage->PageSize);
+                }
+
+                LogRelDebug(("[WDEBUG] SoftHyperBreakpoint installation : \n"));
+                LogRelDebug(("[WDEBUG] Original page HCPhys: 0x%p\n", origHCPhys));
+                LogRelDebug(("[WDEBUG] GCPhys: 0x%p\n", GCPhys));
+                LogRelDebug(("[WDEBUG] pTempHardwarePage: %p\n", pTempHardwarePage));
+                LogRelDebug(("[WDEBUG] Modificated page HCPhys:  0x%p\n", pTempHardwarePage->HCPhys));
+                LogRelDebug(("[WDEBUG] Modificated page R3Ptr:  0x%p\n", pTempHardwarePage->R3Ptr));
+                LogRelDebug(("[WDEBUG] HardwarePage Reference Count: %d\n", pTempHardwarePage->ReferenceCount));
+                LogRelDebug(("[WDEBUG] \n"));
+
+                pTempBreakpointEntrie->breakpointActivated = true;
+                pTempBreakpointEntrie->breakpointGCPtr = GCPtr;
+                pTempBreakpointEntrie->breakpointOrigHCPhys = origHCPhys;
+                pTempBreakpointEntrie->breakpointType = FDP_SOFTHBP;
+                pTempBreakpointEntrie->breakpointLength = 1;
+                pTempBreakpointEntrie->breakpointCr3 = BreakpointCr3;
+                pTempBreakpointEntrie->breakpointAccessType = FDP_EXECUTE_BP;
+                pTempBreakpointEntrie->breakpointPageSize = pTempHardwarePage->PageSize;
+                pTempBreakpointEntrie->breakpointHardwarePage = pTempHardwarePage;
+                //Save the original byte
+                pTempBreakpointEntrie->breakpointOriginalByte = pTempHardwarePage->R3Ptr[(GCPhys & (pTempHardwarePage->PageSize-1))]; //TODO change % to &
+                //Install a HLT in the new page
+                pTempHardwarePage->R3Ptr[(GCPhys & (pTempHardwarePage->PageSize-1))] = 0xCC;
+                pTempBreakpointEntrie->breakpointGCPhysAreaCount = 1;
+                pTempBreakpointEntrie->breakpointGCPhysAreaTable = (GCPhysArea_t*)malloc(1 * sizeof(GCPhysArea_t));
+                pTempBreakpointEntrie->breakpointGCPhysAreaTable[0].Start = GCPhys;
+                pTempBreakpointEntrie->breakpointGCPhysAreaTable[0].End = GCPhys+1;
+
+                //Set page as original and read/write
+                PGMShwSetHCPage(pVCpu, GCPhys, origHCPhys);
+                PGMShwPresent(pVCpu, GCPhys);
+                PGMShwWrite(pVCpu, GCPhys);
+                PGMShwNoExecute(pVCpu, GCPhys);
+                //Set page as breakable !
+                PGMShwSetBreakable(pVCpu, GCPhys, true);
+                //Invalidate the page !
+                PGMShwInvalidate(pVCpu, GCPhys);
+
+                return BreakpointId;
+            }else{
+                return -1;
+            }
+        }
+    }
+    return -1;
+}
+
+void ApplyBreakpointOnPage(PVM pVM, PVMCPU pVCpu, uint64_t GCPhys, uint8_t BreakpointAccessType)
+{
+    //No access at all for FDP_READ_BP
+    if(BreakpointAccessType & FDP_READ_BP){
+        PGMShwNoPresent(pVCpu, GCPhys);
+        PGMShwNoWrite(pVCpu, GCPhys);
+        PGMShwNoExecute(pVCpu, GCPhys);
+    }
+    if(BreakpointAccessType & FDP_WRITE_BP)
+        PGMShwNoWrite(pVCpu, GCPhys);
+    if(BreakpointAccessType & FDP_EXECUTE_BP)
+        PGMShwNoExecute(pVCpu, GCPhys);
+
+    //Set the page as Breakable page
+    PGMShwSetBreakable(pVCpu, GCPhys, true);
+    //Save the final page rights
+    PGMShwSaveRights(pVCpu, GCPhys);
+    //Invalidate the page !
+    PGMShwInvalidate(pVCpu, GCPhys);
+}
+
+void DisableBreakpointOnPage(PVM pVM, PVMCPU pVCpu, uint64_t GCPhys)
+{
+    PGMShwPresent(pVCpu, GCPhys);
+    PGMShwWrite(pVCpu, GCPhys);
+    PGMShwExecute(pVCpu, GCPhys);
+
+    //Set the page as Standard page
+    PGMShwSetBreakable(pVCpu, GCPhys, false);
+    //Save the final page rights
+    PGMShwSaveRights(pVCpu, GCPhys);
+    //Invalidate the page !
+    PGMShwInvalidate(pVCpu, GCPhys);
+}
+
+#define MIN(a,b) (((a)<(b))?(a):(b))
+
+
+void AddGCPhysAreaInBreakpoint(BreakpointEntrie_t *pTempBreakpointEntrie, uint64_t Start, uint64_t End)
+{
+    if(pTempBreakpointEntrie){
+        int CurrentGCPhysAreaIndex = pTempBreakpointEntrie->breakpointGCPhysAreaCount;
+        //LogRel(("[WDEBUG] %d. %p->%p\n", CurrentGCPhysAreaIndex, Start, End));
+        pTempBreakpointEntrie->breakpointGCPhysAreaTable[CurrentGCPhysAreaIndex].Start = Start;
+        pTempBreakpointEntrie->breakpointGCPhysAreaTable[CurrentGCPhysAreaIndex].End = End;
+        pTempBreakpointEntrie->breakpointGCPhysAreaCount++;
+    }
+}
+
+void DisableAllPageBreakpoint(PVM pVM, PVMCPU pVCpu)
+{
+    //Restore all rights for pages in breakpoint
+    for(int BreakpointId=0; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
+        BreakpointEntrie_t *pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+        if(pTempBreakpointEntrie->breakpointActivated == true
+        && pTempBreakpointEntrie->breakpointType == FDP_PAGEHBP
+        && pTempBreakpointEntrie->breakpointGCPhysAreaTable){
+            for(int j=0; j<pTempBreakpointEntrie->breakpointGCPhysAreaCount; j++){
+                DisableBreakpointOnPage(pVM, pVCpu, pTempBreakpointEntrie->breakpointGCPhysAreaTable[j].Start);
+            }
+        }
+    }
+}
+
+void EnableAllPageBreakpoint(PVM pVM, PVMCPU pVCpu)
+{
+    //Restore all rights for pages in breakpoint
+    for(int BreakpointId=0; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
+        BreakpointEntrie_t *pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+        if(pTempBreakpointEntrie->breakpointActivated == true
+        && pTempBreakpointEntrie->breakpointType == FDP_PAGEHBP
+        && pTempBreakpointEntrie->breakpointGCPhysAreaTable){
+            //Apply on pages
+            for(int j=0; j<pTempBreakpointEntrie->breakpointGCPhysAreaCount; j++){
+                ApplyBreakpointOnPage(pVM, pVCpu, pTempBreakpointEntrie->breakpointGCPhysAreaTable[j].Start, pTempBreakpointEntrie->breakpointAccessType);
+            }
+        }
+    }
+}
+
+void InstallAllPageBreakpoint(PVM pVM, PVMCPU pVCpu)
+{
+    //Restore all rights for pages in breakpoint
+    for(int BreakpointId=0; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
+        BreakpointEntrie_t *pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+        if(pTempBreakpointEntrie->breakpointActivated == true
+        && pTempBreakpointEntrie->breakpointType == FDP_PAGEHBP
+        && pTempBreakpointEntrie->breakpointGCPhysAreaTable){
+            for(int j=0; j<pTempBreakpointEntrie->breakpointGCPhysAreaCount; j++){
+                DisableBreakpointOnPage(pVM, pVCpu, pTempBreakpointEntrie->breakpointGCPhysAreaTable[j].Start);
+            }
+            if(pTempBreakpointEntrie->breakpointGCPhysAreaTable)
+                free(pTempBreakpointEntrie->breakpointGCPhysAreaTable);
+            pTempBreakpointEntrie->breakpointGCPhysAreaCount = 0;
+            pTempBreakpointEntrie->breakpointGCPhysAreaTable = NULL;
+        }
+    }
+
+    //Remove rights for pages in breakpoint
+    for(int BreakpointId=0; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
+        BreakpointEntrie_t *pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+        if(pTempBreakpointEntrie->breakpointActivated == true
+        && pTempBreakpointEntrie->breakpointType == FDP_PAGEHBP){
+            uint64_t BreakpointLength = pTempBreakpointEntrie->breakpointLength;
+            if(pTempBreakpointEntrie->breakpointGCPtr > 0){ //VirtualAddress Breakpoint
+                uint64_t GCPhys;
+                uint64_t GCPtr = pTempBreakpointEntrie->breakpointGCPtr;
+                int MaxGCPhysAreaCount = (BreakpointLength/_4K) + 1;
+                pTempBreakpointEntrie->breakpointGCPhysAreaTable = (GCPhysArea_t*)malloc(MaxGCPhysAreaCount * sizeof(GCPhysArea_t));
+
+                //First chunk Page
+                int rc = PGMPhysGCPtr2GCPhys(pVCpu, GCPtr, &GCPhys);
+                uint64_t GCPhysPageEnd = (GCPhys & 0xFFFFFFFFFFFFF000) + _4K;
+                uint64_t AlreadyBreakpointSize = MIN(GCPhysPageEnd - GCPhys, BreakpointLength);
+                if(RT_SUCCESS(rc)){
+                    AddGCPhysAreaInBreakpoint(pTempBreakpointEntrie, GCPhys, GCPhys+AlreadyBreakpointSize);
+                }
+                //Intermediate complete page
+                int64_t LeftToBreakpoint = BreakpointLength - AlreadyBreakpointSize;
+                while (LeftToBreakpoint >= _4K){ //More than 1 page to breakpoint !
+                    rc = PGMPhysGCPtr2GCPhys(pVCpu, GCPtr + AlreadyBreakpointSize, &GCPhys);
+                    if(RT_SUCCESS(rc)){
+                        AddGCPhysAreaInBreakpoint(pTempBreakpointEntrie, GCPhys, GCPhys+_4K);
+                    }
+                    LeftToBreakpoint = LeftToBreakpoint - _4K;
+                    AlreadyBreakpointSize = AlreadyBreakpointSize + _4K;
+                }
+
+                //Last chunk page
+                if (LeftToBreakpoint > 0){ //Left breakpoint bytes
+                    rc = PGMPhysGCPtr2GCPhys(pVCpu, GCPtr + AlreadyBreakpointSize, &GCPhys);
+                    if(RT_SUCCESS(rc)){
+                        AddGCPhysAreaInBreakpoint(pTempBreakpointEntrie, GCPhys, GCPhys+LeftToBreakpoint);
+                    }
+                }
+            }else{ //PhysicalAddress Breakpoint
+                uint64_t LeftToBreakpoint = 0;
+                int MaxGCPhysAreaCount = (BreakpointLength/_4K) + 1;
+                pTempBreakpointEntrie->breakpointGCPhysAreaTable = (GCPhysArea_t*)malloc(MaxGCPhysAreaCount * sizeof(GCPhysArea_t));
+                uint64_t GCPhysPageEnd = (pTempBreakpointEntrie->breakpointGCPhys & ~(_4K-1)) + _4K;
+                uint64_t LastPageEnd = MIN(GCPhysPageEnd, pTempBreakpointEntrie->breakpointGCPhys+BreakpointLength);
+                LeftToBreakpoint = BreakpointLength - (LastPageEnd - pTempBreakpointEntrie->breakpointGCPhys);
+                AddGCPhysAreaInBreakpoint(pTempBreakpointEntrie, pTempBreakpointEntrie->breakpointGCPhys, LastPageEnd);
+                while(LeftToBreakpoint >= _4K){
+                    AddGCPhysAreaInBreakpoint(pTempBreakpointEntrie, LastPageEnd, LastPageEnd+_4K);
+                    LeftToBreakpoint -= _4K;
+                    LastPageEnd += _4K;
+                }
+                if(LeftToBreakpoint > 0){
+                    AddGCPhysAreaInBreakpoint(pTempBreakpointEntrie, LastPageEnd, LastPageEnd+LeftToBreakpoint);
+                }
+            }
+
+
+            //Apply on pages
+            for(int j=0; j<pTempBreakpointEntrie->breakpointGCPhysAreaCount; j++){
+                ApplyBreakpointOnPage(pVM, pVCpu, pTempBreakpointEntrie->breakpointGCPhysAreaTable[j].Start, pTempBreakpointEntrie->breakpointAccessType);
+            }
+        }
+    }
+
+    return;
+}
+
+
+bool IsOneCPURunning(PUVM pUVM)
+{
+    for(uint32_t i=0; i<VMR3GetCPUCount(pUVM); i++){
+        if(!(pUVM->pVM->aCpus[i].mystate.s.u8StateBitmap & FDP_STATE_PAUSED)){
+            return true;
+        }
+    }
+    return false;
+}
+
+
+
+
+VMMR3_INT_DECL(int)    VMR3AddPageBreakpoint(PUVM pUVM, PVMCPU pVCpu, uint8_t BreakpointId, uint8_t BreakpointAccessType, uint8_t BreakpointAddressType, uint64_t BreakpointAddress, uint64_t BreakpointLength)
+{ //TODO: Move it to VMMAll !
+    if(IsOneCPURunning(pUVM) == true){
+        //NO WAY !!!!!!
+        return -1;
+    }
+
+    PVM pVM = pUVM->pVM;
+
+    BreakpointEntrie_t *pTempBreakpointEntrie = NULL;
+    //If not a reserved to the guest breakpoint
+    if(BreakpointId < 0 || BreakpointId > 3){
+        bool BreakpointIdFound = false;
+        for(BreakpointId=4*pVM->cCpus; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
+            pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+            //Find a free breakpoint
+            if(pTempBreakpointEntrie->breakpointActivated == false){
+                break;
+            }
+        }
+    }else{
+        pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+    }
+
+    if(pTempBreakpointEntrie != NULL
+    && pTempBreakpointEntrie->breakpointActivated == false){
+        uint64_t GCPhys;
+        uint64_t GCPtr = 0;
+        if(BreakpointAddressType == FDP_VIRTUAL_ADDRESS){//Virtual
+            GCPtr = BreakpointAddress;
+            int rc = PGMPhysGCPtr2GCPhys(pVCpu, BreakpointAddress, &GCPhys);
+            if(RT_FAILURE(rc)){
+                //LogRel(("Fail to convert GCPtr(%p) -> GCphys\n", BreakpointAddress));
+                return -1;
+            }
+        }else{ //Physical
+            GCPhys = BreakpointAddress;
+        }
+
+        pVM->bp.l[BreakpointId].breakpointActivated = true;
+        pVM->bp.l[BreakpointId].breakpointGCPtr = GCPtr;
+        pVM->bp.l[BreakpointId].breakpointGCPhys = GCPhys;
+        pVM->bp.l[BreakpointId].breakpointType = FDP_PAGEHBP;
+        pVM->bp.l[BreakpointId].breakpointLength = BreakpointLength;
+        pVM->bp.l[BreakpointId].breakpointAccessType = BreakpointAccessType;
+        pVM->bp.l[BreakpointId].breakpointPageSize = _4K;
+
+        InstallAllPageBreakpoint(pVM, pVCpu);
+        return BreakpointId;
+    }
+    return -1;
+}
+
+//TODO: Move it to VMMAll !
+VMMR3_INT_DECL(bool) VMR3RemoveBreakpoint(PUVM pUVM, int BreakpointId)
+{
+
+    if(BreakpointId < 0 || BreakpointId > MAX_BREAKPOINT_ID){
+        return false;
+    }
+
+    //If one Cpu is running, we can't remove a breakpoint !
+    if(IsOneCPURunning(pUVM) == true){
+        return false;
+    }
+
+    PVM pVM = pUVM->pVM;
+    PVMCPU pVCpu = &pVM->aCpus[0];
+
+    //Restore OriginalPage for all SoftHyperBreakpoint
+    VMR3RestoreAllOriginalPage(pVM->pUVM, true, true, false);
+
+    BreakpointEntrie_t *pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+
+    if(pTempBreakpointEntrie->breakpointActivated == true){
+        //Set the breakpoint as disabled
+        pTempBreakpointEntrie->breakpointActivated = false;
+
+        switch(pTempBreakpointEntrie->breakpointType)
+        {
+            case FDP_PAGEHBP:
+            {
+                //Enable all rights for page in this breakpoint
+                for(int j=0; j<pTempBreakpointEntrie->breakpointGCPhysAreaCount; j++){
+                    DisableBreakpointOnPage(pVM, pVCpu, pTempBreakpointEntrie->breakpointGCPhysAreaTable[j].Start);
+                }
+                //Enable all other page Breakpoint
+                InstallAllPageBreakpoint(pVM, pVCpu);
+                break;
+            }
+            case FDP_SOFTHBP:
+            {
+                pTempBreakpointEntrie->breakpointHardwarePage->ReferenceCount--;
+                if(pTempBreakpointEntrie->breakpointHardwarePage->ReferenceCount == 0){
+                    uint64_t GCPhys = pTempBreakpointEntrie->breakpointGCPhysAreaTable[0].Start;
+                    LogRelDebug(("[WDEBUG] HardwarePage->ReferenceCount == 0\n"));
+                    //No more breakpoint use this HardwarePage !
+                    //Restore Original page
+                    PGMShwSetHCPage(pVCpu, GCPhys, pTempBreakpointEntrie->breakpointOrigHCPhys);
+                    PGMShwPresent(pVCpu, GCPhys);
+                    PGMShwWrite(pVCpu, GCPhys);
+                    PGMShwExecute(pVCpu, GCPhys);
+
+                    PGMShwSetBreakable(pVCpu, GCPhys, false);
+
+                    PGMShwInvalidate(pVCpu, GCPhys);
+                }
+                break;
+            }
+            default:
+                break;
+        }
+
+        pTempBreakpointEntrie->breakpointTag = 0;
+        pTempBreakpointEntrie->breakpointGCPtr = 0;
+        pTempBreakpointEntrie->breakpointType = 0;
+        pTempBreakpointEntrie->breakpointLength = 0;
+        pTempBreakpointEntrie->breakpointAccessType = 0x0;
+        pTempBreakpointEntrie->breakpointOrigHCPhys = 0x0;
+        pTempBreakpointEntrie->breakpointOriginalByte = 0x0;
+        pTempBreakpointEntrie->breakpointHardwarePage = NULL;
+        pTempBreakpointEntrie->breakpointPageSize = 0x0;
+
+        if(pTempBreakpointEntrie->breakpointGCPhysAreaTable){
+            free(pTempBreakpointEntrie->breakpointGCPhysAreaTable);
+        }
+
+        pTempBreakpointEntrie->breakpointGCPhysAreaCount = 0;
+        pTempBreakpointEntrie->breakpointGCPhysAreaTable = NULL;
+        return true;
+    }
+    return false;
+}
+
+VMMDECL(int) VMR3PhysSimpleReadGCPhysU(PUVM pUVM, void *pvDst, RTGCPHYS GCPhysSrc, size_t cb)
+{
+    return PGMPhysSimpleReadGCPhys(pUVM->pVM, pvDst, GCPhysSrc, cb);
+}
+
+VMMDECL(int) VMR3PhysSimpleWriteGCPhysU(PUVM pUVM, const void *pvBuf, RTGCPHYS GCPhys, size_t cbWrite)
+{
+    return PGMPhysSimpleWriteGCPhys(pUVM->pVM, GCPhys, pvBuf, cbWrite);
+}
+
+VMMDECL(int) VMR3SingleStep(PUVM pUVM, PVMCPU pVCpu)
+{
+    //Dont try to single step on a running
+    if(pVCpu->mystate.s.u8StateBitmap & FDP_STATE_PAUSED){
+        pVCpu->mystate.s.bSingleStepRequired = true;
+        while(pVCpu->mystate.s.bSingleStepRequired){
+            //Yield
+            RTThreadSleep(0);
+        }
+        return 0;
+    }
+    return -1;
+}
+
+VMMDECL(int) VMR3BreakNoLock(PUVM pUVM)
+{
+    //LogRel(("[WDEBUG] BREAK !\n"));
+
+    //Wait for all cpu paused
+    for(uint32_t i=0; i<VMR3GetCPUCount(pUVM); i++){
+        pUVM->pVM->aCpus[i].mystate.s.bPauseRequired = true;
+
+        //Inject a IPI
+        SUPR3CallVMMR0Ex(pUVM->pVM->pVMR0, pUVM->pVM->aCpus[i].idCpu, VMMR0_DO_GVMM_SCHED_WAKE_UP, 0, NULL);
+        SUPR3CallVMMR0Ex(pUVM->pVM->pVMR0, pUVM->pVM->aCpus[i].idCpu, VMMR0_DO_GVMM_SCHED_POKE, 0, NULL);
+
+        do{
+            //LogRel(("[WDEBUG] Waiting for CPU[%d] to pause state %02x\n", i, pUVM->pVM->aCpus[i].mystate.s.u8StateBitmap));
+            //RTThreadSleep(10);
+        }while(!(pUVM->pVM->aCpus[i].mystate.s.u8StateBitmap & FDP_STATE_PAUSED));
+        //LogRel(("[WDEBUG] CPU[%d] is paused !\n", i));
+    }
+
+    //LogRel(("[WDEBUG] All Cpus are PAUSED !\n"));
+    return 0;
+}
+
+VMMDECL(int) VMR3Break(PUVM pUVM)
+{
+    RTSpinlockAcquire(pUVM->pVM->mystate.s.CpuLock);
+
+    VMR3BreakNoLock(pUVM);
+
+    RTSpinlockRelease(pUVM->pVM->mystate.s.CpuLock);
+    return 0;
+}
+
+VMMDECL(int) VMR3ContinueNoWaitNoLock(PUVM pUVM)
+{
+    //LogRel(("[WDEBUG] VMR3ContinueNoWaitNoLock !\n"));
+
+    pUVM->pVM->mystate.s.u8StateBitmap &= ~FDP_STATE_DEBUGGER_ALERTED;
+
+    //Wait for all CPUs resumed
+    for(uint32_t i=0; i<VMR3GetCPUCount(pUVM); i++){
+        PVMCPU pVCpu = &pUVM->pVM->aCpus[i];
+        uint64_t oldu64TickCount = pVCpu->mystate.s.u64TickCount;
+        pVCpu->mystate.s.bPauseRequired = false;
+        VMCPU_FF_SET(pVCpu, VMCPU_FF_EXTERNAL_SUSPENDED_MASK);
+    }
+
+    return 0;
+}
+
+VMMDECL(int) VMR3ContinueWaitNoLock(PUVM pUVM)
+{
+    //LogRel(("[WDEBUG] VMR3ContinueWaitNoLock !\n"));
+
+    pUVM->pVM->mystate.s.u8StateBitmap &= ~FDP_STATE_DEBUGGER_ALERTED;
+
+    //Wait for all CPUs resumed
+    for(uint32_t i=0; i<VMR3GetCPUCount(pUVM); i++){
+        PVMCPU pVCpu = &pUVM->pVM->aCpus[i];
+        uint64_t oldu64TickCount = pVCpu->mystate.s.u64TickCount;
+        pVCpu->mystate.s.bPauseRequired = false;
+        VMCPU_FF_SET(pVCpu, VMCPU_FF_EXTERNAL_SUSPENDED_MASK);
+        while(oldu64TickCount == pVCpu->mystate.s.u64TickCount){
+            //Yield
+            RTThreadSleep(0);
+        }
+    }
+
+    return 0;
+}
+
+VMMDECL(int) VMR3Continue(PUVM pUVM)
+{
+    RTSpinlockAcquire(pUVM->pVM->mystate.s.CpuLock);
+
+    VMR3ContinueWaitNoLock(pUVM);
+
+    RTSpinlockRelease(pUVM->pVM->mystate.s.CpuLock);
+    return 0;
+}
+
+VMMDECL(uint8_t) VMR3GetFDPState(PUVM pUVM)
+{
+    uint8_t u8OldState = 0;
+    bool bIsPaused = true;
+    bool bIsBreakpointHitted = false;
+    for(uint32_t i=0; i<VMR3GetCPUCount(pUVM); i++){
+        //If one CPU is Running not in pause
+        if(!(pUVM->pVM->aCpus[i].mystate.s.u8StateBitmap & FDP_STATE_PAUSED)){
+            bIsPaused = false;
+        }
+        //If one CPU hit a breakpoint
+        if(pUVM->pVM->aCpus[i].mystate.s.u8StateBitmap & FDP_STATE_BREAKPOINT_HIT){
+            bIsBreakpointHitted = true;
+        }
+    }
+
+    if(bIsPaused){
+        u8OldState |= FDP_STATE_PAUSED;
+        if(bIsBreakpointHitted){
+            u8OldState |= FDP_STATE_BREAKPOINT_HIT;
+        }
+    }
+
+    if(pUVM->pVM->mystate.s.u8StateBitmap & FDP_STATE_DEBUGGER_ALERTED){
+        u8OldState |= FDP_STATE_DEBUGGER_ALERTED;
+    }
+    if(u8OldState & FDP_STATE_BREAKPOINT_HIT){
+        pUVM->pVM->mystate.s.u8StateBitmap |= FDP_STATE_DEBUGGER_ALERTED;
+    }
+    return u8OldState;
+}
+
+VMMDECL(bool) VMR3DisableAllMsrBreakpoint(PVM pVM)
+{
+    for(int BreakpointId=4*pVM->cCpus; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
+        BreakpointEntrie_t *pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+        if(pTempBreakpointEntrie->breakpointActivated == true
+            && pTempBreakpointEntrie->breakpointType == FDP_MSRHBP){
+                pTempBreakpointEntrie->breakpointActivated = false;
+        }
+    }
+    return 0;
+}
+
+VMMDECL(bool) VMR3EnableAllMsrBreakpoint(PVM pVM)
+{
+    for(int BreakpointId=4*pVM->cCpus; BreakpointId<MAX_BREAKPOINT_ID; BreakpointId++){
+        BreakpointEntrie_t *pTempBreakpointEntrie = &pVM->bp.l[BreakpointId];
+        if(pTempBreakpointEntrie->breakpointType == FDP_MSRHBP){
+                pTempBreakpointEntrie->breakpointActivated = true;
+        }
+    }
+    return 0;
+}
+
+VMMDECL(bool) VMR3HandleSingleStep(PVM pVM, PVMCPU pVCpu)
+{
+    //Check if Single step is required !
+    if(pVCpu->mystate.s.bSingleStepRequired){
+
+        TMR3NotifyResume(pVM, pVCpu);
+
+        LogRelDebug(("[WDEBUG] CPU[%d] bSingleStepRequired !\n", pVCpu->idCpu));
+
+        //Restore Original Page with Execute right, avoid Breakpoint in SingleStep
+        VMR3RestoreAllOriginalPage(pVM->pUVM, true, true, true);
+        //Disable All Msr Breakpoint, avoid Breakpoint in Breakpoint
+        VMR3DisableAllMsrBreakpoint(pVM);
+        //Disable PageHyperBreapoint
+        DisableAllPageBreakpoint(pVM, pVCpu);
+        //Disable Debug Register
+        uint64_t OldDr7 = CPUMGetGuestDR7(pVCpu);
+        CPUMSetGuestDR7(pVCpu, 0x400);
+
+        int rc = 0;
+        //First call is for instruction that jump on self "jmp -2 (ebfe)"
+        rc = EMR3HmSingleInstruction(pVM, pVCpu, 0);
+
+        LogRelDebug(("[WDEBUG] CPU[%d] Single Step => %d!\n", pVCpu->idCpu, rc));
+
+        if(VM_FF_IS_PENDING(pVM, VM_FF_ALL_REM_MASK)
+        || VMCPU_FF_IS_PENDING(pVCpu, VMCPU_FF_ALL_REM_MASK)){
+            EMR3ProcessForcedAction(pVM, pVCpu, rc);
+        }
+
+        //If rc == 0 then it failed, we have to call SingleInstruction whith RIP_CHANGE
+        if(rc == 0){
+            rc = EMR3HmSingleInstruction(pVM, pVCpu, EM_ONE_INS_FLAGS_RIP_CHANGE);
+
+            LogRelDebug(("[WDEBUG] CPU[%d] Single Step => %d!\n", pVCpu->idCpu, rc));
+
+            if(VM_FF_IS_PENDING(pVM, VM_FF_ALL_REM_MASK)
+            || VMCPU_FF_IS_PENDING(pVCpu, VMCPU_FF_ALL_REM_MASK)){
+                EMR3ProcessForcedAction(pVM, pVCpu, rc);
+            }
+        }
+
+        //Restore Original Page, avoid VirtualBox being crazy with unknown HCPhys on SoftHyperBreakpoint
+        VMR3RestoreAllOriginalPage(pVM->pUVM, true, true, false);
+        //Enable All Msr Breakpoint
+        VMR3EnableAllMsrBreakpoint(pVM);
+        //Enable All PageHyperBreakpoint
+        EnableAllPageBreakpoint(pVM, pVCpu);
+        //Enable Debug Register
+        CPUMSetGuestDR7(pVCpu, OldDr7);
+
+        TMR3NotifySuspend(pVM, pVCpu);
+
+        pVCpu->mystate.s.bSingleStepRequired = false; //Single step no more required !
+        return true;
+    }
+    return false;
+}
+
+VMMDECL(int) VMR3InjectInterrupt(PVM pVM, PVMCPU pVCpu, uint32_t enmXcpt, uint32_t uErr, uint64_t Cr2)
+{
+    return TRPMRaiseXcptErrCR2(pVCpu, NULL, (X86XCPT)enmXcpt, uErr, Cr2);
+}
+
+#include <VBox/vmm/pdmusb.h>
+
+VMMDECL(int) VMR3ClearInterrupt(PUVM pUVM, PVMCPU pVCpu)
+{
+    //return PDMR3UsbHasHub(pUVM);
+    PDMR3PowerOn(pUVM->pVM);
+    return 0;
+}
+
+VMMDECL(void) VMR3SetFDPShm(PUVM pUVM, void *pFdpShm)
+{
+    pUVM->pVM->mystate.s.pFdpShm = pFdpShm;
+}
+
+VMMDECL(bool) VMR3EnterPause(PVM pVM, PVMCPU pVCpu)
+{
+    if(pVCpu->idCpu == 0){
+        //Update FDP_CPU_CTX
+        VMR3UpdateFdpCpuCtx(pVCpu);
+        TMR3NotifySuspend(pVM, pVCpu);
+
+        //Active wait
+        uint32_t u32WaitCount = 0;
+        while(pVCpu->mystate.s.bPauseRequired == true){
+            if(VMR3HandleSingleStep(pVM, pVCpu) == true){
+                //Update FDP_CPU_CTX
+                VMR3UpdateFdpCpuCtx(pVCpu);
+                u32WaitCount = 0;
+            }
+            //Powersaving :)
+            if((u32WaitCount & 0xFFFFFF) == 0xFFFFFF){
+                RTThreadSleep(5);
+            }else{
+                u32WaitCount++;
+            }
+        }
+
+        TMR3NotifyResume(pVM, pVCpu);
+
+        //ProcessForcedAction avoid freeze in CLI...BP...SAVE...STI
+        if(VM_FF_IS_PENDING(pVM, VM_FF_ALL_REM_MASK)
+            || VMCPU_FF_IS_PENDING(pVCpu, VMCPU_FF_ALL_REM_MASK)){
+            EMR3ProcessForcedAction(pVM, pVCpu, 0);
+        }
+
+
+        //Update FDP_CPU_CTX
+        VMR3UpdateFdpCpuCtx(pVCpu);
+    }
+    return true;
+}
+
+#include "VMMInternal.h"
+
+
+#define DR0_ENABLED 0x3
+#define DR1_ENABLED 0xC
+#define DR2_ENABLED 0x30
+#define DR3_ENABLED 0xC0
+
+#define DR_READ 0x03
+#define DR_WRITE 0x01
+#define DR_EXECUTE 0x00
+
+/*
+* @brief Convert a Debug Register Breakpoint Type to FDP Breakpoint Type
+*
+*/
+int GetDrType(uint64_t DrType)
+{
+    switch(DrType){
+        case DR_READ:
+            return FDP_READ_BP;
+        case DR_WRITE:
+            return FDP_WRITE_BP;
+        case DR_EXECUTE:
+            return FDP_EXECUTE_BP;
+    }
+    return 0;
+}
+
+/*
+ * @brief Get the Breakpoint Lenght from Debug Register Breakpoint Lenght
+ */
+uint64_t GetDrLength(uint64_t DrLength)
+{
+    switch(DrLength){
+        case 0:
+            return 1;
+        case 1:
+            return 2;
+        case 2:
+            return 8;
+        case 3:
+            return 4;
+    }
+    return 1;
+}
+
+VMMR3DECL(uint32_t) VMR3GetCPUCount(PUVM pUVM)
+{
+    return pUVM->pVM->cCpus;
+}
+
 
 /**
  * Halted VM Wait.
@@ -1085,6 +2027,122 @@ VMMR3_INT_DECL(void) VMR3NotifyCpuFFU(PUVMCPU pUVCpu, uint32_t fFlags)
  */
 VMMR3_INT_DECL(int) VMR3WaitHalted(PVM pVM, PVMCPU pVCpu, bool fIgnoreInterrupts)
 {
+
+    /*MYCODE*/
+    if(pVCpu->mystate.s.bInstallDrBreakpointRequired){
+        LogRelDebug(("[WDEBUG] CPU[%d] Entering bInstallDrBreakpointRequired !!\n", pVCpu->idCpu));
+        pVCpu->mystate.s.u8StateBitmap |= FDP_STATE_PAUSED;
+
+        //Break all CPUs
+        VMR3Break(pVM->pUVM);
+
+        //Remove all breakpoint
+        int BreakpointId = 0;
+        for(int BreakpointId = (0+(pVCpu->idCpu*4)); BreakpointId<(int)(4+(pVCpu->idCpu*4)); BreakpointId++){
+            VMR3RemoveBreakpoint(pVM->pUVM, BreakpointId);
+        }
+
+        //Install all breakpoint
+        LogRelDebug(("[WDEBUG] CPU[%d] aGuestDr[0] %p\n", pVCpu->idCpu, pVCpu->mystate.s.aGuestDr[0]));
+        LogRelDebug(("[WDEBUG] CPU[%d] aGuestDr[1] %p\n", pVCpu->idCpu, pVCpu->mystate.s.aGuestDr[1]));
+        LogRelDebug(("[WDEBUG] CPU[%d] aGuestDr[2] %p\n", pVCpu->idCpu, pVCpu->mystate.s.aGuestDr[2]));
+        LogRelDebug(("[WDEBUG] CPU[%d] aGuestDr[3] %p\n", pVCpu->idCpu, pVCpu->mystate.s.aGuestDr[3]));
+        LogRelDebug(("[WDEBUG] CPU[%d] aGuestDr[7] %p\n", pVCpu->idCpu, pVCpu->mystate.s.aGuestDr[7]));
+
+        //Update Guest Breakpoint
+        for(uint8_t i=0; i<4; i++){
+            if(pVCpu->mystate.s.aGuestDr[7] & (0x3<< (i*2))){
+                uint8_t TEMP_DRX_LENGTH = (pVCpu->mystate.s.aGuestDr[7] & (0x3 << (18+i*4))) >> (18+i*4);
+                uint8_t DRX_LENGTH = GetDrLength(TEMP_DRX_LENGTH);
+                uint8_t TEMP_DRX_TYPE = (pVCpu->mystate.s.aGuestDr[7] & (0x3 << (16+i*4))) >> (16+i*4);
+                int DRX_TYPE = GetDrType(TEMP_DRX_TYPE);
+
+                int BreakpointId = -1;
+                if(DRX_TYPE > 0){
+                    BreakpointId = VMR3AddPageBreakpoint(pVM->pUVM, pVCpu, i+(pVCpu->idCpu*4), DRX_TYPE, FDP_VIRTUAL_ADDRESS, pVCpu->mystate.s.aGuestDr[i], DRX_LENGTH);
+                }
+                //LogRel(("INSTALL DR[%d] %d\n", i, BreakpointId));
+            }
+        }
+
+
+        pVCpu->mystate.s.u8StateBitmap &= ~FDP_STATE_PAUSED;
+        pVCpu->mystate.s.bPauseRequired = false;
+        pVCpu->mystate.s.bInstallDrBreakpointRequired = false;
+
+        //Continue all CPUs
+        VMR3ContinueNoWaitNoLock(pVM->pUVM);
+
+        LogRelDebug(("[WDEBUG] CPU[%d] Leaving bInstallDrBreakpointRequired !!\n", pVCpu->idCpu));
+        return VINF_EM_RESCHEDULE;
+    }
+
+    if(pVCpu->mystate.s.bHardHyperBreakPointHitted
+    || pVCpu->mystate.s.bPageHyperBreakPointHitted
+    || pVCpu->mystate.s.bSoftHyperBreakPointHitted
+    || pVCpu->mystate.s.bMsrHyperBreakPointHitted
+    || pVCpu->mystate.s.bCrHyperBreakPointHitted){
+
+        //Update FDP_CPU_CTX
+        VMR3UpdateFdpCpuCtx(pVCpu);
+
+        if(pVCpu->mystate.s.bPageHyperBreakPointHitted){
+            LogRelDebug(("[WDEBUG] CPU[%d] bPageHyperBreakPointHitted !!\n", pVCpu->idCpu));
+        }
+        if(pVCpu->mystate.s.bSoftHyperBreakPointHitted){
+            LogRelDebug(("[WDEBUG] CPU[%d] bSoftHyperBreakPointHitted !!\n", pVCpu->idCpu));
+        }
+        if(pVCpu->mystate.s.bHardHyperBreakPointHitted){
+            LogRelDebug(("[WDEBUG] CPU[%d] bHardHyperBreakPointHitted !!\n", pVCpu->idCpu));
+            pVCpu->mystate.s.u8StateBitmap |= FDP_STATE_HARD_BREAKPOINT_HIT;
+        }
+        if(pVCpu->mystate.s.bMsrHyperBreakPointHitted){
+            LogRelDebug(("[WDEBUG] CPU[%d] bMsrHyperBreakPointHitted !!\n", pVCpu->idCpu));
+        }
+        if(pVCpu->mystate.s.bCrHyperBreakPointHitted){
+            LogRelDebug(("[WDEBUG] CPU[%d] bCrHyperBreakPointHitted !!\n", pVCpu->idCpu));
+        }
+
+
+        //Restore OriginalPage for all SoftHyperBreakpoint
+        VMR3RestoreAllOriginalPage(pVM->pUVM, true, true, false);
+
+        //Set the CPU as PAUSED and BREAKPOINT_HITTED
+        pVCpu->mystate.s.u8StateBitmap |= FDP_STATE_BREAKPOINT_HIT;
+        pVCpu->mystate.s.u8StateBitmap |= FDP_STATE_PAUSED;
+
+        //Break all CPUs
+        VMR3Break(pVM->pUVM);
+
+        //TODO: Protect this !
+        FDP_SHM *pFdpShm = (FDP_SHM *)pVM->mystate.s.pFdpShm;
+        FDP_SetStateChanged(pFdpShm);
+
+        //Waiting for debugger resume !
+        VMR3EnterPause(pVM, pVCpu);
+
+        bool bMsrHyperBreakpointHitted = pVCpu->mystate.s.bMsrHyperBreakPointHitted;
+
+        //We are ready to go !
+        pVCpu->mystate.s.bHardHyperBreakPointHitted = false;
+        pVCpu->mystate.s.bPageHyperBreakPointHitted = false;
+        pVCpu->mystate.s.bSoftHyperBreakPointHitted = false;
+        pVCpu->mystate.s.bMsrHyperBreakPointHitted = false;
+        pVCpu->mystate.s.bCrHyperBreakPointHitted = false;
+        pVCpu->mystate.s.u8StateBitmap = 0;
+
+        //Single step for MsrBreakpoint... Maybe this stuff should be done in Winbagility...
+        if(bMsrHyperBreakpointHitted == true){
+            pVCpu->mystate.s.bSingleStepRequired = true;
+            VMR3HandleSingleStep(pVM, pVCpu);
+            pVCpu->mystate.s.bSingleStepRequired = false;
+        }
+
+        LogRelDebug(("[WDEBUG] CPU[%d] Leaving Breakpoint !\n", pVCpu->idCpu));
+        return VINF_EM_RESCHEDULE;
+    }
+    /*ENDMYCODE*/
+
     LogFlow(("VMR3WaitHalted: fIgnoreInterrupts=%d\n", fIgnoreInterrupts));
 
     /*

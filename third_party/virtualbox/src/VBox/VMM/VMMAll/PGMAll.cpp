@@ -1335,6 +1335,272 @@ static int pgmShwGetEPTPDPtr(PVMCPU pVCpu, RTGCPTR64 GCPtr, PEPTPDPT *ppPdpt, PE
     return VINF_SUCCESS;
 }
 
+/*MYCODE*/
+VMMDECL(int) PGMShwGetHCPage(PVMCPU pVCpu, uint64_t GCPhys, uint64_t *HCPhys)
+{
+    PEPTPDPT ppPdpt;
+    PEPTPD pShwPD;
+    int rc;
+    PVM pVM = pVCpu->CTX_SUFF(pVM);
+    pgmLock(pVM);
+
+    const unsigned  iPd = ((GCPhys >> SHW_PD_SHIFT) & SHW_PD_MASK);
+    rc =  pgmShwGetEPTPDPtr(pVCpu, GCPhys, &ppPdpt, &pShwPD);
+    EPTPDE    *Pde;
+    Pde = &pShwPD->a[iPd];
+
+    if(Pde->n.u1Size == 1)
+    { //2M
+        uint64_t test = *((uint64_t*)&Pde->b);
+        *HCPhys = (test & 0xFFFFFFFFFFE00000);
+    }else
+    { //4K
+        PSHWPT          pPT;
+        rc = PGM_HCPHYS_2_PTR(pVM, pVCpu, Pde->u & SHW_PDE_PG_MASK, &pPT);
+        if (RT_SUCCESS(rc))
+        {
+            const unsigned iPt = (GCPhys >> SHW_PT_SHIFT) & SHW_PT_MASK;
+            EPTPTE *Pte = &pPT->a[iPt];
+
+            uint64_t test = *((uint64_t*)&Pte->n);
+            *HCPhys = (test & 0xFFFFFFFFFFFFF000);
+        }
+    }
+    pgmUnlock(pVM);
+    return rc;
+}
+
+void logRelPDE(EPTPDE *Pde)
+{
+    LogRel(("Pde->b.u1Present %p\n", Pde->b.u1Present));
+    LogRel(("Pde->b.u1Write %p\n", Pde->b.u1Write));
+    LogRel(("Pde->b.u1Execute %p\n", Pde->b.u1Execute));
+    LogRel(("Pde->b.u3EMT %p\n", Pde->b.u3EMT));
+    LogRel(("Pde->b.u1IgnorePAT %p\n", Pde->b.u1IgnorePAT));
+    LogRel(("Pde->b.u1Size %p\n", Pde->b.u1Size));
+    LogRel(("Pde->b.u4Available %p\n", Pde->b.u4Available));
+    LogRel(("Pde->b.u9Reserved %p\n", Pde->b.u9Reserved));
+    LogRel(("Pde->b.u31PhysAddr %p\n", Pde->b.u31PhysAddr));
+    LogRel(("Pde->b.u12Available %p\n", Pde->b.u12Available));
+}
+
+void logRelPTE(EPTPTE *Pte)
+{
+    LogRel(("------------------------------------\n"));
+    LogRel(("Pte->n.u1Present %p\n", Pte->n.u1Present));
+    LogRel(("Pte->n.u1Write %p\n", Pte->n.u1Write));
+    LogRel(("Pte->n.u1Execute %p\n", Pte->n.u1Execute));
+    LogRel(("------------------------------------\n"));
+}
+
+VMMDECL(int) PGMShwSetHCPage(PVMCPU pVCpu, uint64_t GCPhys, uint64_t HCPhys)
+{
+    PEPTPDPT ppPdpt;
+    PEPTPD pShwPD;
+    int rc;
+    PVM pVM = pVCpu->CTX_SUFF(pVM);
+    pgmLock(pVM);
+
+    const unsigned  iPd = ((GCPhys >> SHW_PD_SHIFT) & SHW_PD_MASK);
+    rc =  pgmShwGetEPTPDPtr(pVCpu, GCPhys, &ppPdpt, &pShwPD);
+    EPTPDE    *Pde;
+    Pde = &pShwPD->a[iPd];
+
+    if(Pde->n.u1Size == 1){ //2M
+        Pde->au64[0] = (Pde->au64[0] & 0x1FFFFF) | (HCPhys & 0xFFFFFFFFFFE00000);
+    }else{ //4K
+        PSHWPT          pPT;
+        rc = PGM_HCPHYS_2_PTR(pVM, pVCpu, Pde->u & SHW_PDE_PG_MASK, &pPT);
+        if (RT_SUCCESS(rc)){
+            const unsigned iPt = (GCPhys >> SHW_PT_SHIFT) & SHW_PT_MASK;
+            EPTPTE *Pte = &pPT->a[iPt];
+
+            Pte->au64[0] = (Pte->au64[0] & 0xFFF) | (HCPhys & 0xFFFFFFFFFFFFF000);
+        }
+    }
+
+    pgmUnlock(pVM);
+    return rc;
+}
+
+VMMDECL(int) PGMShwChangeFlags(PVMCPU pVCpu, uint64_t GCPhys, uint8_t orPresent, uint8_t andPresent, uint8_t orWrite, uint8_t andWrite, uint8_t orExecute, uint8_t andExecute)
+{
+    PEPTPDPT ppPdpt;
+    PEPTPD pShwPD;
+    int rc;
+    PVM pVM = pVCpu->CTX_SUFF(pVM);
+    pgmLock(pVM);
+
+    const unsigned  iPd = ((GCPhys >> SHW_PD_SHIFT) & SHW_PD_MASK);
+    rc =  pgmShwGetEPTPDPtr(pVCpu, GCPhys, &ppPdpt, &pShwPD);
+    EPTPDE    *Pde;
+    Pde = &pShwPD->a[iPd];
+
+    if(Pde->n.u1Size == 1){ //2M
+        Pde->b.u1Present = (Pde->b.u1Present | orPresent) & andPresent;
+        Pde->b.u1Write = (Pde->b.u1Write | orWrite) & andWrite;
+        Pde->b.u1Execute = (Pde->b.u1Execute | orExecute) & andExecute;
+    }else{ //4K
+        PSHWPT          pPT;
+        rc = PGM_HCPHYS_2_PTR(pVM, pVCpu, Pde->u & SHW_PDE_PG_MASK, &pPT);
+        if (RT_SUCCESS(rc)){
+            const unsigned iPt = (GCPhys >> SHW_PT_SHIFT) & SHW_PT_MASK;
+            EPTPTE *Pte = &pPT->a[iPt];
+
+            Pte->n.u1Present = (Pte->n.u1Present | orPresent) & andPresent;
+            Pte->n.u1Write = (Pte->n.u1Write | orWrite) & andWrite;
+            Pte->n.u1Execute = (Pte->n.u1Execute | orExecute) & andExecute;
+        }
+    }
+
+    pgmUnlock(pVM);
+    return rc;
+}
+
+#define MEMORY_SIZE 0x80000000
+
+VMMDECL(int) PGMShwSaveRights(PVMCPU pVCpu, uint64_t GCPhys)
+{
+    PEPTPDPT ppPdpt;
+    PEPTPD pShwPD;
+    int returnFlags = 0;
+    PVM pVM = pVCpu->CTX_SUFF(pVM);
+    pgmLock(pVM);
+
+    const unsigned  iPd = ((GCPhys >> SHW_PD_SHIFT) & SHW_PD_MASK);
+    int rc =  pgmShwGetEPTPDPtr(pVCpu, GCPhys, &ppPdpt, &pShwPD);
+    EPTPDE    *Pde;
+    Pde = &pShwPD->a[iPd];
+
+    if(Pde->n.u1Size == 1){ //2M
+        //TODO !!!!
+    }else{    //4K
+        PSHWPT pPT;
+        rc = PGM_HCPHYS_2_PTR(pVM, pVCpu, Pde->u & SHW_PDE_PG_MASK, &pPT);
+        if (RT_SUCCESS(rc)){
+            const unsigned iPt = (GCPhys >> SHW_PT_SHIFT) & SHW_PT_MASK;
+            EPTPTE *pPte = &pPT->a[iPt];
+
+            uint32_t PfnIndex = ((GCPhys & X86_PAGE_4K_BASE_MASK) >> X86_PAGE_4K_SHIFT);
+
+            PfnEntrie_t* pTmpPfnEntrie;
+#ifdef IN_RING0
+            pTmpPfnEntrie = pVM->mystate.s.pPfnTableR0;
+#else
+            pTmpPfnEntrie = pVM->mystate.s.pPfnTableR3;
+#endif
+            pTmpPfnEntrie[PfnIndex].u.u1Present = pPte->n.u1Present;
+            pTmpPfnEntrie[PfnIndex].u.u1Write  = pPte->n.u1Write;
+            pTmpPfnEntrie[PfnIndex].u.u1Execute  = pPte->n.u1Execute;
+
+            //logRelPTE(Pte);
+        }
+    }
+
+    pgmUnlock(pVM);
+    return rc;
+}
+
+VMMDECL(int) PGMShwRestoreRights(PVMCPU pVCpu, uint64_t GCPhys)
+{
+    if(GCPhys < MEMORY_SIZE)
+    {
+        PVM pVM = pVCpu->CTX_SUFF(pVM);
+        uint32_t PfnIndex = ((GCPhys & X86_PAGE_4K_BASE_MASK) >> X86_PAGE_4K_SHIFT);
+
+
+        PfnEntrie_t* tmpPfnEntrie;
+#ifdef IN_RING0
+        tmpPfnEntrie = pVM->mystate.s.pPfnTableR0;
+#else
+        tmpPfnEntrie = pVM->mystate.s.pPfnTableR3;
+#endif
+        PGMShwChangeFlags(pVCpu, GCPhys,
+            tmpPfnEntrie[PfnIndex].u.u1Present,tmpPfnEntrie[PfnIndex].u.u1Present,
+            tmpPfnEntrie[PfnIndex].u.u1Write, tmpPfnEntrie[PfnIndex].u.u1Write,
+            tmpPfnEntrie[PfnIndex].u.u1Execute, tmpPfnEntrie[PfnIndex].u.u1Execute);
+    }
+
+    return VINF_SUCCESS;
+}
+
+VMMDECL(int) PGMShwSetBreakable(PVMCPU pVCpu, uint64_t GCPhys, bool Breakable)
+{
+    if(GCPhys < MEMORY_SIZE){
+        PVM pVM = pVCpu->CTX_SUFF(pVM);
+        uint32_t PfnIndex = ((GCPhys & X86_PAGE_4K_BASE_MASK) >> X86_PAGE_4K_SHIFT);
+
+        PfnEntrie_t* tmpPfnEntrie;
+#ifdef IN_RING0
+        tmpPfnEntrie = pVM->mystate.s.pPfnTableR0;
+#else
+        tmpPfnEntrie = pVM->mystate.s.pPfnTableR3;
+#endif
+        tmpPfnEntrie[PfnIndex].u.u1Breakable = Breakable;
+        //LogRel(("PGMShwSetBreakable %p PfnTable[%d].u1Breakable %s\n", GCPhys, PfnIndex, Breakable ? "true" : "false"));
+    }
+    return VINF_SUCCESS;
+}
+
+
+VMMDECL(bool) PGMShwIsBreakable(PVMCPU pVCpu, uint64_t GCPhys)
+{
+    PVM pVM = pVCpu->CTX_SUFF(pVM);
+    if(GCPhys < MEMORY_SIZE){
+        uint32_t PfnIndex = ((GCPhys & X86_PAGE_4K_BASE_MASK) >> X86_PAGE_4K_SHIFT);
+        PfnEntrie_t* tmpPfnEntrie;
+#ifdef IN_RING0
+        tmpPfnEntrie = pVM->mystate.s.pPfnTableR0;
+#else
+        tmpPfnEntrie = pVM->mystate.s.pPfnTableR3;
+#endif
+        //LogRel(("PGMShwIsBreakable %p PfnTable[%d].u1Breakable %s\n", GCPhys, PfnIndex, tmpPfnEntrie[PfnIndex].u.u1Breakable ? "true" : "false"));
+        return tmpPfnEntrie[PfnIndex].u.u1Breakable;
+    }
+    return false;
+}
+
+VMMDECL(int) PGMShwNoPresent(PVMCPU pVCpu, uint64_t GCPhys)
+{
+    return PGMShwChangeFlags(pVCpu, GCPhys, 0, 0, 0, 1, 0, 1);
+}
+
+VMMDECL(int) PGMShwPresent(PVMCPU pVCpu, uint64_t GCPhys)
+{
+    return PGMShwChangeFlags(pVCpu, GCPhys, 1, 1, 0, 1, 0, 1);
+}
+
+VMMDECL(int) PGMShwNoWrite(PVMCPU pVCpu, uint64_t GCPhys)
+{
+    return PGMShwChangeFlags(pVCpu, GCPhys, 0, 1, 0, 0, 0, 1);
+}
+
+VMMDECL(int) PGMShwWrite(PVMCPU pVCpu, uint64_t GCPhys)
+{
+    return PGMShwChangeFlags(pVCpu, GCPhys, 0, 1, 1, 1, 0, 1);
+}
+
+VMMDECL(int) PGMShwNoExecute(PVMCPU pVCpu, uint64_t GCPhys)
+{
+    return PGMShwChangeFlags(pVCpu, GCPhys, 0, 1, 0, 1, 0, 0);
+}
+
+VMMDECL(int) PGMShwExecute(PVMCPU pVCpu, uint64_t GCPhys)
+{
+    return PGMShwChangeFlags(pVCpu, GCPhys, 0, 1, 0, 1, 1, 1);
+}
+
+VMMDECL(int) PGMShwInvalidate(PVMCPU pVCpu, uint64_t GCPhys)
+{
+#ifndef IN_RING0
+    PVM pVM = pVCpu->CTX_SUFF(pVM);
+    HMFlushTLBOnAllVCpus2(pVM);
+#endif
+    return VINF_SUCCESS;
+}
+/*ENDMYCODE*/
+
+
 #endif /* IN_RC */
 
 #ifdef IN_RING0
