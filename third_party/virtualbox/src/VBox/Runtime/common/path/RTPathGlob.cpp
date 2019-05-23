@@ -1474,7 +1474,7 @@ DECL_NO_INLINE(static, int) rtPathGlobAddResult(PRTPATHGLOB pGlob, size_t cchPat
 {
     if (pGlob->cResults < RTPATHGLOB_MAX_RESULTS)
     {
-        PRTPATHGLOBENTRY pEntry = (PRTPATHGLOBENTRY)RTMemAlloc(RT_OFFSETOF(RTPATHGLOBENTRY, szPath[cchPath + 1]));
+        PRTPATHGLOBENTRY pEntry = (PRTPATHGLOBENTRY)RTMemAlloc(RT_UOFFSETOF_DYN(RTPATHGLOBENTRY, szPath[cchPath + 1]));
         if (pEntry)
         {
             pEntry->uType   = uType;
@@ -1514,7 +1514,7 @@ DECL_NO_INLINE(static, int) rtPathGlobAddResult2(PRTPATHGLOB pGlob, size_t cchPa
 {
     if (pGlob->cResults < RTPATHGLOB_MAX_RESULTS)
     {
-        PRTPATHGLOBENTRY pEntry = (PRTPATHGLOBENTRY)RTMemAlloc(RT_OFFSETOF(RTPATHGLOBENTRY, szPath[cchPath + cchName + 1]));
+        PRTPATHGLOBENTRY pEntry = (PRTPATHGLOBENTRY)RTMemAlloc(RT_UOFFSETOF_DYN(RTPATHGLOBENTRY, szPath[cchPath + cchName + 1]));
         if (pEntry)
         {
             pEntry->uType   = uType;
@@ -1558,7 +1558,7 @@ DECL_NO_INLINE(static, int) rtPathGlobAlmostAddResult(PRTPATHGLOB pGlob, size_t 
 {
     if (pGlob->cResults < RTPATHGLOB_MAX_RESULTS)
     {
-        PRTPATHGLOBENTRY pEntry = (PRTPATHGLOBENTRY)RTMemAlloc(RT_OFFSETOF(RTPATHGLOBENTRY, szPath[cchPath + cchName + 1]));
+        PRTPATHGLOBENTRY pEntry = (PRTPATHGLOBENTRY)RTMemAlloc(RT_UOFFSETOF_DYN(RTPATHGLOBENTRY, szPath[cchPath + cchName + 1]));
         if (pEntry)
         {
             pEntry->uType   = uType;
@@ -2082,13 +2082,13 @@ RTDECL(int) RTPathGlob(const char *pszPattern, uint32_t fFlags, PPCRTPATHGLOBENT
     /*
      * Parse the path.
      */
-    size_t        cbParsed = RT_OFFSETOF(RTPATHPARSED, aComps[1]); /** @todo 16 after testing */
+    size_t        cbParsed = RT_UOFFSETOF(RTPATHPARSED, aComps[1]); /** @todo 16 after testing */
     PRTPATHPARSED pParsed = (PRTPATHPARSED)RTMemTmpAlloc(cbParsed);
     AssertReturn(pParsed, VERR_NO_MEMORY);
     int rc = RTPathParse(pszPattern, pParsed, cbParsed, RTPATH_STR_F_STYLE_HOST);
     if (rc == VERR_BUFFER_OVERFLOW)
     {
-        cbParsed = RT_OFFSETOF(RTPATHPARSED, aComps[pParsed->cComps + 1]);
+        cbParsed = RT_UOFFSETOF_DYN(RTPATHPARSED, aComps[pParsed->cComps + 1]);
         RTMemTmpFree(pParsed);
         pParsed = (PRTPATHPARSED)RTMemTmpAlloc(cbParsed);
         AssertReturn(pParsed, VERR_NO_MEMORY);
@@ -2111,7 +2111,7 @@ RTDECL(int) RTPathGlob(const char *pszPattern, uint32_t fFlags, PPCRTPATHGLOBENT
             /*
              * Allocate and initialize the glob state data structure.
              */
-            size_t      cbGlob = RT_OFFSETOF(RTPATHGLOB, aComps[pParsed->cComps + 1]);
+            size_t      cbGlob = RT_UOFFSETOF_DYN(RTPATHGLOB, aComps[pParsed->cComps + 1]);
             PRTPATHGLOB pGlob  = (PRTPATHGLOB)RTMemTmpAllocZ(cbGlob);
             if (pGlob)
             {

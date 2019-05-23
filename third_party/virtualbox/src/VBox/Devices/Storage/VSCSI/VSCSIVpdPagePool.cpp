@@ -83,7 +83,7 @@ int vscsiVpdPagePoolAllocNewPage(PVSCSIVPDPOOL pVScsiVpdPool, uint8_t uPage, siz
             return VERR_ALREADY_EXISTS;
     }
 
-    pPage = (PVSCSIVPDPAGE)RTMemAllocZ(RT_OFFSETOF(VSCSIVPDPAGE, abPage[cbPage]));
+    pPage = (PVSCSIVPDPAGE)RTMemAllocZ(RT_UOFFSETOF_DYN(VSCSIVPDPAGE, abPage[cbPage]));
     if (pPage)
     {
         pPage->cbPage    = cbPage;

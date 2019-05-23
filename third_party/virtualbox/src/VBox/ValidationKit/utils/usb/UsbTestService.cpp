@@ -207,7 +207,7 @@ static const char *utsClientStateStringify(UTSCLIENTSTATE enmState)
 static int utsSendPkt(PUTSCLIENT pClient, PUTSPKTHDR pPkt)
 {
     Assert(pPkt->cb >= sizeof(*pPkt));
-    pPkt->uCrc32 = RTCrc32(pPkt->achOpcode, pPkt->cb - RT_OFFSETOF(UTSPKTHDR, achOpcode));
+    pPkt->uCrc32 = RTCrc32(pPkt->achOpcode, pPkt->cb - RT_UOFFSETOF(UTSPKTHDR, achOpcode));
     if (pPkt->cb != RT_ALIGN_32(pPkt->cb, UTSPKT_ALIGNMENT))
         memset((uint8_t *)pPkt + pPkt->cb, '\0', RT_ALIGN_32(pPkt->cb, UTSPKT_ALIGNMENT) - pPkt->cb);
 
@@ -266,7 +266,7 @@ static int utsRecvPkt(PUTSCLIENT pClient, PPUTSPKTHDR ppPktHdr, bool fAutoRetryO
                       "%.*Rhxd\n",
                       pPktHdr, pPktHdr->cb, pPktHdr->uCrc32, pPktHdr->achOpcode, RT_MIN(pPktHdr->cb, 256), pPktHdr));
                 uint32_t uCrc32Calc = pPktHdr->uCrc32 != 0
-                                    ? RTCrc32(&pPktHdr->achOpcode[0], pPktHdr->cb - RT_OFFSETOF(UTSPKTHDR, achOpcode))
+                                    ? RTCrc32(&pPktHdr->achOpcode[0], pPktHdr->cb - RT_UOFFSETOF(UTSPKTHDR, achOpcode))
                                     : 0;
                 if (pPktHdr->uCrc32 == uCrc32Calc)
                 {
@@ -1551,7 +1551,7 @@ static RTEXITCODE utsParseArgv(int argc, char **argv, bool *pfExit)
             }
 
             case 'V':
-                RTPrintf("$Revision: 118412 $\n");
+                RTPrintf("$Revision: 125570 $\n");
                 *pfExit = true;
                 return RTEXITCODE_SUCCESS;
 

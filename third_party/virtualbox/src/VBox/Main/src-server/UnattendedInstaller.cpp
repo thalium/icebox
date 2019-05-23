@@ -465,7 +465,7 @@ HRESULT UnattendedInstaller::prepareAuxIsoImage(bool fOverwrite)
                 vecArgs.append() = "--file-mode=0444";
                 vecArgs.append() = "--dir-mode=0555";
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &)
             {
                 hrc = E_OUTOFMEMORY;
             }
@@ -542,7 +542,7 @@ HRESULT UnattendedInstaller::addScriptToIsoMaker(BaseTextScript *pEditor, RTFSIS
             strDstNameBuf.append(pEditor->getDefaultTemplateFilename());
             pszDstFilename = strDstNameBuf.c_str();
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc &)
         {
             return E_OUTOFMEMORY;
         }
@@ -679,7 +679,7 @@ HRESULT UnattendedInstaller::addFilesToAuxVisoVectors(RTCList<RTCString> &rVecAr
                 rVecArgs.append() = "--pop";
             }
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc &)
         {
             hrc = E_OUTOFMEMORY;
         }
@@ -699,7 +699,7 @@ HRESULT UnattendedInstaller::addScriptToVisoVectors(BaseTextScript *pEditor, RTC
         strScriptName = mpParent->i_getAuxiliaryBasePath();
         strScriptName.append(pEditor->getDefaultFilename());
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         return E_OUTOFMEMORY;
     }
@@ -718,7 +718,7 @@ HRESULT UnattendedInstaller::addScriptToVisoVectors(BaseTextScript *pEditor, RTC
             rVecArgs.append().append('/').append(pEditor->getDefaultFilename()).append('=').append(strScriptName);
             rVecFiles.append(strScriptName);
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc &)
         {
             RTFileDelete(strScriptName.c_str());
             hrc = E_OUTOFMEMORY;
@@ -895,7 +895,7 @@ HRESULT UnattendedLinuxInstaller::editIsoLinuxCfg(GeneralTextScript *pEditor)
                 }
         }
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         return E_OUTOFMEMORY;
     }
@@ -945,7 +945,7 @@ HRESULT UnattendedDebianInstaller::addFilesToAuxVisoVectors(RTCList<RTCString> &
         strTxtCfg.append("isolinux-txt.cfg");
         rVecArgs.append().append("isolinux/txt.cfg=").append(strTxtCfg);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         return E_OUTOFMEMORY;
     }
@@ -967,7 +967,7 @@ HRESULT UnattendedDebianInstaller::addFilesToAuxVisoVectors(RTCList<RTCString> &
                 {
                     rVecFiles.append(strIsoLinuxCfg);
                 }
-                catch (std::bad_alloc)
+                catch (std::bad_alloc &)
                 {
                     RTFileDelete(strIsoLinuxCfg.c_str());
                     hrc = E_OUTOFMEMORY;
@@ -995,7 +995,7 @@ HRESULT UnattendedDebianInstaller::addFilesToAuxVisoVectors(RTCList<RTCString> &
                 {
                     rVecFiles.append(strTxtCfg);
                 }
-                catch (std::bad_alloc)
+                catch (std::bad_alloc &)
                 {
                     RTFileDelete(strTxtCfg.c_str());
                     hrc = E_OUTOFMEMORY;
@@ -1042,7 +1042,7 @@ HRESULT UnattendedDebianInstaller::editDebianTxtCfg(GeneralTextScript *pEditor)
             }
         }
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         return E_OUTOFMEMORY;
     }
@@ -1111,7 +1111,7 @@ HRESULT UnattendedRhel6And7Installer::addFilesToAuxVisoVectors(RTCList<RTCString
         rVecArgs.append() = "--boot-catalog=/isolinux/vboxboot.cat";
 #endif
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         return E_OUTOFMEMORY;
     }
@@ -1133,7 +1133,7 @@ HRESULT UnattendedRhel6And7Installer::addFilesToAuxVisoVectors(RTCList<RTCString
                 {
                     rVecFiles.append(strIsoLinuxCfg);
                 }
-                catch (std::bad_alloc)
+                catch (std::bad_alloc &)
                 {
                     RTFileDelete(strIsoLinuxCfg.c_str());
                     hrc = E_OUTOFMEMORY;

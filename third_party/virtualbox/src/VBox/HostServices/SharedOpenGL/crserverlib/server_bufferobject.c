@@ -25,13 +25,27 @@ crServerDispatchUnmapBufferARB( GLenum target )
 void SERVER_DISPATCH_APIENTRY
 crServerDispatchGenBuffersARB(GLsizei n, GLuint *buffers)
 {
-	GLuint *local_buffers = (GLuint *) crAlloc( n * sizeof(*local_buffers) );
-	(void) buffers;
+    GLuint *local_buffers;
+    (void) buffers;
 
-	crStateGenBuffersARB(n, local_buffers);
+    if (n >= INT32_MAX / sizeof(GLuint))
+    {
+        crError("crServerDispatchGenBuffersARB: parameter 'n' is out of range");
+        return;
+    }
 
-	crServerReturnValue( local_buffers, n * sizeof(*local_buffers) );
-	crFree( local_buffers );
+    local_buffers = (GLuint *)crCalloc(n * sizeof(*local_buffers));
+
+    if (!local_buffers)
+    {
+        crError("crServerDispatchGenBuffersARB: out of memory");
+        return;
+    }
+
+    crStateGenBuffersARB(n, local_buffers);
+
+    crServerReturnValue( local_buffers, n * sizeof(*local_buffers) );
+    crFree( local_buffers );
 }
 
 void SERVER_DISPATCH_APIENTRY crServerDispatchDeleteBuffersARB( GLsizei n, const GLuint * buffer )
@@ -49,21 +63,20 @@ crServerDispatchGetBufferPointervARB(GLenum target, GLenum pname, GLvoid **param
 }
 
 void SERVER_DISPATCH_APIENTRY
-crServerDispatchGetBufferSubDataARB(GLenum target, GLintptrARB offset,
-																		GLsizeiptrARB size, void * data)
+crServerDispatchGetBufferSubDataARB(GLenum target, GLintptrARB offset, GLsizeiptrARB size, void * data)
 {
-	void *b;
+    void *b;
 
-	b = crAlloc(size);
-	if (b) {
-		cr_server.head_spu->dispatch_table.GetBufferSubDataARB( target, offset, size, b );
+    b = crCalloc(size);
+    if (b) {
+        cr_server.head_spu->dispatch_table.GetBufferSubDataARB( target, offset, size, b );
 
-		crServerReturnValue( b, size );
-		crFree( b );
-	}
-	else {
-		crError("Out of memory in crServerDispatchGetBufferSubDataARB");
-	}
+        crServerReturnValue( b, size );
+        crFree( b );
+    }
+    else {
+        crError("Out of memory in crServerDispatchGetBufferSubDataARB");
+    }
 }
 
 void SERVER_DISPATCH_APIENTRY

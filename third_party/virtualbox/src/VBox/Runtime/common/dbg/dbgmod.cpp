@@ -1441,7 +1441,7 @@ RTDECL(int) RTDbgModCreateFromMachOImage(PRTDBGMOD phDbgMod, const char *pszFile
                      */
                     PRTDBGMODDEFERRED pDeferred;
                     rc = rtDbgModDeferredCreate(pDbgMod, rtDbgModFromMachOImageDeferredCallback, cbImage, hDbgCfg,
-                                                RT_OFFSETOF(RTDBGMODDEFERRED, u.MachO.aSegs[cSegs]),
+                                                RT_UOFFSETOF_DYN(RTDBGMODDEFERRED, u.MachO.aSegs[cSegs]),
                                                 &pDeferred);
                     if (RT_SUCCESS(rc))
                     {

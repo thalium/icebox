@@ -3586,9 +3586,9 @@ IEM_STATIC VBOXSTRICTRC iemRaiseLoadStackFromTss64(PVMCPU pVCpu, PCCPUMCTX pCtx,
 
     uint32_t off;
     if (uIst)
-        off = (uIst - 1) * sizeof(uint64_t) + RT_OFFSETOF(X86TSS64, ist1);
+        off = (uIst - 1) * sizeof(uint64_t) + RT_UOFFSETOF(X86TSS64, ist1);
     else
-        off = uCpl * sizeof(uint64_t) + RT_OFFSETOF(X86TSS64, rsp0);
+        off = uCpl * sizeof(uint64_t) + RT_UOFFSETOF(X86TSS64, rsp0);
     if (off + sizeof(uint64_t) > pCtx->tr.u32Limit)
     {
         Log(("iemRaiseLoadStackFromTss64: out of bounds! uCpl=%d uIst=%d, u32Limit=%#x\n", uCpl, uIst, pCtx->tr.u32Limit));
@@ -4027,8 +4027,8 @@ iemTaskSwitch(PVMCPU          pVCpu,
          * See Intel spec. 7.2.1 "Task-State Segment (TSS)" for static and dynamic fields.
          */
         void    *pvCurTSS32;
-        uint32_t offCurTSS = RT_OFFSETOF(X86TSS32, eip);
-        uint32_t cbCurTSS  = RT_OFFSETOF(X86TSS32, selLdt) - RT_OFFSETOF(X86TSS32, eip);
+        uint32_t offCurTSS = RT_UOFFSETOF(X86TSS32, eip);
+        uint32_t cbCurTSS  = RT_UOFFSETOF(X86TSS32, selLdt) - RT_UOFFSETOF(X86TSS32, eip);
         AssertCompile(RTASSERT_OFFSET_OF(X86TSS32, selLdt) - RTASSERT_OFFSET_OF(X86TSS32, eip) == 64);
         rcStrict = iemMemMap(pVCpu, &pvCurTSS32, cbCurTSS, UINT8_MAX, GCPtrCurTSS + offCurTSS, IEM_ACCESS_SYS_RW);
         if (rcStrict != VINF_SUCCESS)
@@ -4071,8 +4071,8 @@ iemTaskSwitch(PVMCPU          pVCpu,
          * Verify that the current TSS (16-bit) can be accessed. Again, only the minimum required size.
          */
         void    *pvCurTSS16;
-        uint32_t offCurTSS = RT_OFFSETOF(X86TSS16, ip);
-        uint32_t cbCurTSS  = RT_OFFSETOF(X86TSS16, selLdt) - RT_OFFSETOF(X86TSS16, ip);
+        uint32_t offCurTSS = RT_UOFFSETOF(X86TSS16, ip);
+        uint32_t cbCurTSS  = RT_UOFFSETOF(X86TSS16, selLdt) - RT_UOFFSETOF(X86TSS16, ip);
         AssertCompile(RTASSERT_OFFSET_OF(X86TSS16, selLdt) - RTASSERT_OFFSET_OF(X86TSS16, ip) == 28);
         rcStrict = iemMemMap(pVCpu, &pvCurTSS16, cbCurTSS, UINT8_MAX, GCPtrCurTSS + offCurTSS, IEM_ACCESS_SYS_RW);
         if (rcStrict != VINF_SUCCESS)
@@ -4768,7 +4768,7 @@ iemRaiseXcptOrIntInProtMode(PVMCPU      pVCpu,
         }
 
         /* Do the actual task switch. */
-        return iemTaskSwitch(pVCpu, pCtx, IEMTASKSWITCH_INT_XCPT, pCtx->eip, fFlags, uErr, uCr2, SelTSS, &DescTSS);
+        return iemTaskSwitch(pVCpu, pCtx, IEMTASKSWITCH_INT_XCPT, (fFlags & IEM_XCPT_FLAGS_T_SOFT_INT) ? pVCpu->cpum.GstCtx.eip + cbInstr : pVCpu->cpum.GstCtx.eip, fFlags, uErr, uCr2, SelTSS, &DescTSS);
     }
 
     /* A null CS is bad. */

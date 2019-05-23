@@ -265,7 +265,7 @@ DECLINLINE(int) tftpSessionOptionParse(PTFTPSESSION pTftpSession, PCTFTPIPHDR pc
     LogFlowFunc(("pTftpSession:%p, pcTftpIpHeader:%p\n", pTftpSession, pcTftpIpHeader));
 
     pszTftpRRQRaw = (char *)&pcTftpIpHeader->Core;
-    cbTftpRRQRaw = RT_H2N_U16(pcTftpIpHeader->UdpHdr.uh_ulen) + sizeof(struct ip) - RT_OFFSETOF(TFTPIPHDR, Core);
+    cbTftpRRQRaw = RT_H2N_U16(pcTftpIpHeader->UdpHdr.uh_ulen) + sizeof(struct ip) - RT_UOFFSETOF(TFTPIPHDR, Core);
     while (cbTftpRRQRaw)
     {
         idxTftpRRQRaw = RTStrNLen(pszTftpRRQRaw, 512 - idxTftpRRQRaw) + 1;

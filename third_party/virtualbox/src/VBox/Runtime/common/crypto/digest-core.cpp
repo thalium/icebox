@@ -96,7 +96,7 @@ RTDECL(int) RTCrDigestCreate(PRTCRDIGEST phDigest, PCRTCRDIGESTDESC pDesc, void 
     uint32_t const offHash = RT_ALIGN_32(pDesc->cbState, 8);
     AssertReturn(pDesc->pfnNew || offHash, VERR_INVALID_PARAMETER);
     AssertReturn(!pDesc->pfnNew || (pDesc->pfnFree && pDesc->pfnInit && pDesc->pfnClone), VERR_INVALID_PARAMETER);
-    PRTCRDIGESTINT pThis = (PRTCRDIGESTINT)RTMemAllocZ(RT_OFFSETOF(RTCRDIGESTINT, abState[offHash + pDesc->cbHash]));
+    PRTCRDIGESTINT pThis = (PRTCRDIGESTINT)RTMemAllocZ(RT_UOFFSETOF_DYN(RTCRDIGESTINT, abState[offHash + pDesc->cbHash]));
     if (pThis)
     {
         if (pDesc->pfnNew)
@@ -139,7 +139,7 @@ RTDECL(int) RTCrDigestClone(PRTCRDIGEST phDigest, RTCRDIGEST hSrc)
 
     int rc = VINF_SUCCESS;
     uint32_t const offHash = hSrc->offHash;
-    PRTCRDIGESTINT pThis = (PRTCRDIGESTINT)RTMemAllocZ(RT_OFFSETOF(RTCRDIGESTINT, abState[offHash + hSrc->pDesc->cbHash]));
+    PRTCRDIGESTINT pThis = (PRTCRDIGESTINT)RTMemAllocZ(RT_UOFFSETOF_DYN(RTCRDIGESTINT, abState[offHash + hSrc->pDesc->cbHash]));
     if (pThis)
     {
         if (hSrc->pDesc->pfnNew)

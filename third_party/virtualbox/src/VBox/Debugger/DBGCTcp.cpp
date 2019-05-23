@@ -50,7 +50,7 @@ typedef struct DBGCTCP
 typedef DBGCTCP *PDBGCTCP;
 
 /** Converts a pointer to DBGCTCP::Back to a pointer to DBGCTCP. */
-#define DBGCTCP_BACK2DBGCTCP(pBack) ( (PDBGCTCP)((char *)pBack - RT_OFFSETOF(DBGCTCP, Back)) )
+#define DBGCTCP_BACK2DBGCTCP(pBack) ( (PDBGCTCP)((char *)(pBack) - RT_UOFFSETOF(DBGCTCP, Back)) )
 
 
 /*********************************************************************************************************************************

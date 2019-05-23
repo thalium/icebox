@@ -150,9 +150,9 @@ typedef struct PARALLELPORT
 
 #ifndef VBOX_DEVICE_STRUCT_TESTCASE
 
-#define PDMIHOSTPARALLELPORT_2_PARALLELPORT(pInstance) ( (PARALLELPORT *)((uintptr_t)(pInterface) - RT_OFFSETOF(PARALLELPORT, IHostParallelPort)) )
-#define PDMIHOSTDEVICEPORT_2_PARALLELPORT(pInstance)   ( (PARALLELPORT *)((uintptr_t)(pInterface) - RT_OFFSETOF(PARALLELPORT, IHostDevicePort)) )
-#define PDMIBASE_2_PARALLELPORT(pInstance)             ( (PARALLELPORT *)((uintptr_t)(pInterface) - RT_OFFSETOF(PARALLELPORT, IBase)) )
+#define PDMIHOSTPARALLELPORT_2_PARALLELPORT(pInstance) ( (PARALLELPORT *)((uintptr_t)(pInterface) - RT_UOFFSETOF(PARALLELPORT, IHostParallelPort)) )
+#define PDMIHOSTDEVICEPORT_2_PARALLELPORT(pInstance)   ( (PARALLELPORT *)((uintptr_t)(pInterface) - RT_UOFFSETOF(PARALLELPORT, IHostDevicePort)) )
+#define PDMIBASE_2_PARALLELPORT(pInstance)             ( (PARALLELPORT *)((uintptr_t)(pInterface) - RT_UOFFSETOF(PARALLELPORT, IBase)) )
 
 
 /*********************************************************************************************************************************

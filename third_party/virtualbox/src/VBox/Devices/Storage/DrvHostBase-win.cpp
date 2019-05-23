@@ -286,11 +286,11 @@ DECLHIDDEN(int) drvHostBaseScsiCmdOs(PDRVHOSTBASE pThis, const uint8_t *pbCmd, s
     Req.spt.TimeOutValue = (cTimeoutMillies + 999) / 1000; /* Convert to seconds */
     Assert(cbSense <= sizeof(Req.aSense));
     Req.spt.SenseInfoLength = (UCHAR)RT_MIN(sizeof(Req.aSense), cbSense);
-    Req.spt.SenseInfoOffset = RT_OFFSETOF(struct _REQ, aSense);
+    Req.spt.SenseInfoOffset = RT_UOFFSETOF(struct _REQ, aSense);
     if (DeviceIoControl((HANDLE)RTFileToNative(pThis->Os.hFileDevice), IOCTL_SCSI_PASS_THROUGH_DIRECT,
                         &Req, sizeof(Req), &Req, sizeof(Req), &cbReturned, NULL))
     {
-        if (cbReturned > RT_OFFSETOF(struct _REQ, aSense))
+        if (cbReturned > RT_UOFFSETOF(struct _REQ, aSense))
             memcpy(pbSense, Req.aSense, cbSense);
         else
             memset(pbSense, '\0', cbSense);

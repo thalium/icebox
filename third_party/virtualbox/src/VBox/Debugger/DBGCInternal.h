@@ -235,7 +235,7 @@ typedef struct DBGC
 typedef DBGC *PDBGC;
 
 /** Converts a Command Helper pointer to a pointer to DBGC instance data. */
-#define DBGC_CMDHLP2DBGC(pCmdHlp)   ( (PDBGC)((uintptr_t)(pCmdHlp) - RT_OFFSETOF(DBGC, CmdHlp)) )
+#define DBGC_CMDHLP2DBGC(pCmdHlp)   ( (PDBGC)((uintptr_t)(pCmdHlp) - RT_UOFFSETOF(DBGC, CmdHlp)) )
 
 
 /**

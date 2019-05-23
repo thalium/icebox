@@ -121,7 +121,7 @@ typedef RTFILEAIOREQINTERNAL *PRTFILEAIOREQINTERNAL;
 /** Id for the wakeup event. */
 #define AIO_CONTEXT_WAKEUP_EVENT 1
 /** Converts a pointer to an OVERLAPPED structure to a internal request. */
-#define OVERLAPPED_2_RTFILEAIOREQINTERNAL(pOverlapped) ( (PRTFILEAIOREQINTERNAL)((uintptr_t)(pOverlapped) - RT_OFFSETOF(RTFILEAIOREQINTERNAL, Overlapped)) )
+#define OVERLAPPED_2_RTFILEAIOREQINTERNAL(pOverlapped) ( (PRTFILEAIOREQINTERNAL)((uintptr_t)(pOverlapped) - RT_UOFFSETOF(RTFILEAIOREQINTERNAL, Overlapped)) )
 
 RTR3DECL(int) RTFileAioGetLimits(PRTFILEAIOLIMITS pAioLimits)
 {

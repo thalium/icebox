@@ -583,7 +583,7 @@ tcp_listen_input(struct tcp_pcb_listen *pcb, struct pbuf *syn)
        * new pcb.  The latter should be set by the client along with
        * other callbacks if necessary.
        */
-      accept_syn = (tcp_accept_syn_fn)npcb->accept;
+      accept_syn = (tcp_accept_syn_fn)(uintptr_t)npcb->accept;
       npcb->accept = tcp_accept_null;
 
       /* TCP_EVENT_ACCEPT_SYN */

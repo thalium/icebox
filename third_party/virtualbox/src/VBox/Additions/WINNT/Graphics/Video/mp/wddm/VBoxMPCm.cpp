@@ -75,7 +75,7 @@ typedef struct VBOXVIDEOCM_SESSION
     bool bEventNeeded;
 } VBOXVIDEOCM_SESSION, *PVBOXVIDEOCM_SESSION;
 
-#define VBOXCMENTRY_2_CMD(_pE) ((PVBOXVIDEOCM_CMD_DR)((uint8_t*)(_pE) - RT_OFFSETOF(VBOXVIDEOCM_CMD_DR, QueueList)))
+#define VBOXCMENTRY_2_CMD(_pE) ((PVBOXVIDEOCM_CMD_DR)((uint8_t*)(_pE) - RT_UOFFSETOF(VBOXVIDEOCM_CMD_DR, QueueList)))
 
 void* vboxVideoCmCmdReinitForContext(void *pvCmd, PVBOXVIDEOCM_CTX pContext)
 {
@@ -426,7 +426,7 @@ NTSTATUS vboxVideoCmSessionCreateLocked(PVBOXVIDEOCM_MGR pMgr, PVBOXVIDEOCM_SESS
     return Status;
 }
 
-#define VBOXCMENTRY_2_SESSION(_pE) ((PVBOXVIDEOCM_SESSION)((uint8_t*)(_pE) - RT_OFFSETOF(VBOXVIDEOCM_SESSION, QueueEntry)))
+#define VBOXCMENTRY_2_SESSION(_pE) ((PVBOXVIDEOCM_SESSION)((uint8_t*)(_pE) - RT_UOFFSETOF(VBOXVIDEOCM_SESSION, QueueEntry)))
 
 NTSTATUS vboxVideoCmCtxAdd(PVBOXVIDEOCM_MGR pMgr, PVBOXVIDEOCM_CTX pContext, HANDLE hUmEvent, uint64_t u64UmData)
 {

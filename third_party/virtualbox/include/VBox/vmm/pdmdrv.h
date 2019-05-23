@@ -412,22 +412,22 @@ typedef struct PDMDRVINS
 #define PDM_DRVINS_VERSION                      PDM_VERSION_MAKE(0xf0fe, 2, 0)
 
 /** Converts a pointer to the PDMDRVINS::IBase to a pointer to PDMDRVINS. */
-#define PDMIBASE_2_PDMDRV(pInterface)   ( (PPDMDRVINS)((char *)(pInterface) - RT_OFFSETOF(PDMDRVINS, IBase)) )
+#define PDMIBASE_2_PDMDRV(pInterface)   ( (PPDMDRVINS)((char *)(pInterface) - RT_UOFFSETOF(PDMDRVINS, IBase)) )
 
 /** @def PDMDRVINS_2_RCPTR
  * Converts a PDM Driver instance pointer a RC PDM Driver instance pointer.
  */
-#define PDMDRVINS_2_RCPTR(pDrvIns)      ( (RCPTRTYPE(PPDMDRVINS))((RTGCUINTPTR)(pDrvIns)->pvInstanceDataRC - RT_OFFSETOF(PDMDRVINS, achInstanceData)) )
+#define PDMDRVINS_2_RCPTR(pDrvIns)      ( (RCPTRTYPE(PPDMDRVINS))((RTRCUINTPTR)(pDrvIns)->pvInstanceDataRC - (RTRCUINTPTR)RT_UOFFSETOF(PDMDRVINS, achInstanceData)) )
 
 /** @def PDMDRVINS_2_R3PTR
  * Converts a PDM Driver instance pointer a R3 PDM Driver instance pointer.
  */
-#define PDMDRVINS_2_R3PTR(pDrvIns)      ( (R3PTRTYPE(PPDMDRVINS))((RTHCUINTPTR)(pDrvIns)->pvInstanceDataR3 - RT_OFFSETOF(PDMDRVINS, achInstanceData)) )
+#define PDMDRVINS_2_R3PTR(pDrvIns)      ( (R3PTRTYPE(PPDMDRVINS))((RTHCUINTPTR)(pDrvIns)->pvInstanceDataR3 - RT_UOFFSETOF(PDMDRVINS, achInstanceData)) )
 
 /** @def PDMDRVINS_2_R0PTR
  * Converts a PDM Driver instance pointer a R0 PDM Driver instance pointer.
  */
-#define PDMDRVINS_2_R0PTR(pDrvIns)      ( (R0PTRTYPE(PPDMDRVINS))((RTR0UINTPTR)(pDrvIns)->pvInstanceDataR0 - RT_OFFSETOF(PDMDRVINS, achInstanceData)) )
+#define PDMDRVINS_2_R0PTR(pDrvIns)      ( (R0PTRTYPE(PPDMDRVINS))((RTR0UINTPTR)(pDrvIns)->pvInstanceDataR0 - RT_UOFFSETOF(PDMDRVINS, achInstanceData)) )
 
 
 

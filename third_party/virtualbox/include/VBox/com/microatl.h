@@ -109,7 +109,7 @@ public: \
     { &__uuidof(c), (DWORD_PTR)(static_cast<c *>(static_cast<c2 *>((_ComClass *)8)))-8, COM_SIMPLEMAPENTRY },
 
 #define COM_INTERFACE_ENTRY_AGGREGATE(iid, pUnk) \
-    { &iid, (DWORD_PTR)RT_OFFSETOF(_ComClass, pUnk), _Delegate},
+    { &iid, (DWORD_PTR)RT_UOFFSETOF(_ComClass, pUnk), _Delegate},
 
 #define END_COM_MAP() \
             { NULL, 0, NULL} \

@@ -2780,15 +2780,24 @@
  *  reachable, audio hardware is not available or similar.  We should use the
  *  NULL audio driver. */
 #define VERR_AUDIO_BACKEND_INIT_FAILED              (-6600)
+/** No host backend attached / available. */
+#define VERR_AUDIO_BACKEND_NOT_ATTACHED             (-6601)
 /** No free input streams.  */
-#define VERR_AUDIO_NO_FREE_INPUT_STREAMS            (-6601)
+#define VERR_AUDIO_NO_FREE_INPUT_STREAMS            (-6602)
 /** No free output streams.  */
-#define VERR_AUDIO_NO_FREE_OUTPUT_STREAMS           (-6602)
+#define VERR_AUDIO_NO_FREE_OUTPUT_STREAMS           (-6603)
 /** Pending stream disable operation in progress.  */
-#define VERR_AUDIO_STREAM_PENDING_DISABLE           (-6603)
+#define VERR_AUDIO_STREAM_PENDING_DISABLE           (-6604)
 /** There is more data available.
  *  This can happen due to a buffer wraparound of a buffer read/write operation. */
-#define VINF_AUDIO_MORE_DATA_AVAILABLE              (6604)
+#define VINF_AUDIO_MORE_DATA_AVAILABLE              (6605)
+/** Stream is not ready for requested operation.  */
+#define VERR_AUDIO_STREAM_NOT_READY                 (-6605)
+/** Stream could not be created.
+ *  This might due to missing host (backend) drivers or a host not having the
+ *  required hardware, or that the requested stream configuration
+ *  is not supported by the host backend. */
+#define VERR_AUDIO_STREAM_COULD_NOT_CREATE          (-6606)
 /** @} */
 
 

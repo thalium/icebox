@@ -94,7 +94,7 @@ static int rtKrnlModWinQueryKrnlMods(PRTL_PROCESS_MODULES *ppKrnlMods)
     NTSTATUS rcNt = NtQuerySystemInformation(SystemModuleInformation, &KrnlModsSize, sizeof(KrnlModsSize), NULL);
     if (NT_SUCCESS(rcNt) || rcNt == STATUS_INFO_LENGTH_MISMATCH)
     {
-        ULONG cbKrnlMods = RT_OFFSETOF(RTL_PROCESS_MODULES, Modules[KrnlModsSize.NumberOfModules]);
+        ULONG cbKrnlMods = RT_UOFFSETOF_DYN(RTL_PROCESS_MODULES, Modules[KrnlModsSize.NumberOfModules]);
         PRTL_PROCESS_MODULES pKrnlMods = (PRTL_PROCESS_MODULES)RTMemAllocZ(cbKrnlMods);
         if (RT_LIKELY(pKrnlMods))
         {
@@ -126,7 +126,7 @@ static int rtKrnlModWinInfoCreate(PRTL_PROCESS_MODULE_INFORMATION pModInfo, PRTK
     int rc = VINF_SUCCESS;
     RT_NOREF2(pModInfo, phKrnlModInfo);
     size_t cchFilePath = strlen((const char *)&pModInfo->FullPathName[0]) + 1;
-    PRTKRNLMODINFOINT pThis = (PRTKRNLMODINFOINT)RTMemAllocZ(RT_OFFSETOF(RTKRNLMODINFOINT, achFilePath[cchFilePath]));
+    PRTKRNLMODINFOINT pThis = (PRTKRNLMODINFOINT)RTMemAllocZ(RT_UOFFSETOF_DYN(RTKRNLMODINFOINT, achFilePath[cchFilePath]));
     if (RT_LIKELY(pThis))
     {
         memcpy(&pThis->achFilePath[0], &pModInfo->FullPathName[0], cchFilePath);

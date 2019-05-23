@@ -975,8 +975,8 @@ static DECLCALLBACK(bool) CidetAppCbSetupCodeBuf(PCIDETCORE pThis, PCIDETBUF pBu
         *pbDst++ = 0x36;
         *pbDst++ = 0x8f;
         *pbDst++ = 0x41;
-        *pbDst++ = RT_OFFSETOF(CIDETCPUCTX, aGRegs[X86_GREG_xCX]);
-        Assert(RT_OFFSETOF(CIDETCPUCTX, aGRegs[X86_GREG_xCX]) < 0x7f);
+        *pbDst++ = RT_UOFFSETOF(CIDETCPUCTX, aGRegs[X86_GREG_xCX]);
+        Assert(RT_UOFFSETOF(CIDETCPUCTX, aGRegs[X86_GREG_xCX]) < 0x7f);
 
         /* mov      [ss:rcx + ActualCtx.aGRegs[X86_GREG_xDX]], rdx */
         *pbDst++ = 0x36;
@@ -985,14 +985,14 @@ static DECLCALLBACK(bool) CidetAppCbSetupCodeBuf(PCIDETCORE pThis, PCIDETBUF pBu
 #endif
         *pbDst++ = 0x89;
         *pbDst++ = 0x51;
-        *pbDst++ = RT_OFFSETOF(CIDETCPUCTX, aGRegs[X86_GREG_xDX]);
-        Assert(RT_OFFSETOF(CIDETCPUCTX, aGRegs[X86_GREG_xDX]) < 0x7f);
+        *pbDst++ = RT_UOFFSETOF(CIDETCPUCTX, aGRegs[X86_GREG_xDX]);
+        Assert(RT_UOFFSETOF(CIDETCPUCTX, aGRegs[X86_GREG_xDX]) < 0x7f);
 
         /* mov      [ss:rcx + ActualCtx.aSRegs[X86_GREG_DS]], ds */
         *pbDst++ = 0x36;
         *pbDst++ = 0x8c;
         *pbDst++ = 0x99;
-        *(uint32_t *)pbDst = RT_OFFSETOF(CIDETCPUCTX, aSRegs[X86_SREG_DS]);
+        *(uint32_t *)pbDst = RT_UOFFSETOF(CIDETCPUCTX, aSRegs[X86_SREG_DS]);
         pbDst += sizeof(uint32_t);
 
         /* mov      edx, 0XXYYh */

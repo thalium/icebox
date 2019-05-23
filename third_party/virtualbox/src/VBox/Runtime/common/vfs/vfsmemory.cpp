@@ -420,7 +420,7 @@ static PRTVFSMEMEXTENT rtVfsMemFile_AllocExtent(PRTVFSMEMFILE pThis, uint64_t of
     /*
      * Allocate, initialize and insert the new extent.
      */
-    PRTVFSMEMEXTENT pNew = (PRTVFSMEMEXTENT)RTMemAllocZ(RT_OFFSETOF(RTVFSMEMEXTENT, abData[cbExtent]));
+    PRTVFSMEMEXTENT pNew = (PRTVFSMEMEXTENT)RTMemAllocZ(RT_UOFFSETOF_DYN(RTVFSMEMEXTENT, abData[cbExtent]));
     if (pNew)
     {
         pNew->off = offExtent;
@@ -727,7 +727,7 @@ DECL_HIDDEN_CONST(const RTVFSFILEOPS) g_rtVfsMemFileOps =
     /*RTVFSIOFILEOPS_FEAT_NO_AT_OFFSET*/ 0,
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
-        RT_OFFSETOF(RTVFSFILEOPS, Stream.Obj) - RT_OFFSETOF(RTVFSFILEOPS, ObjSet),
+        RT_UOFFSETOF(RTVFSFILEOPS, ObjSet) - RT_UOFFSETOF(RTVFSFILEOPS, Stream.Obj),
         rtVfsMemFile_SetMode,
         rtVfsMemFile_SetTimes,
         rtVfsMemFile_SetOwner,

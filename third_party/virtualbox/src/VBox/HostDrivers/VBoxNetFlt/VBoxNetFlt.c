@@ -277,7 +277,7 @@
 *   Defined Constants And Macros                                                                                                 *
 *********************************************************************************************************************************/
 #define IFPORT_2_VBOXNETFLTINS(pIfPort) \
-    ( (PVBOXNETFLTINS)((uint8_t *)pIfPort - RT_OFFSETOF(VBOXNETFLTINS, MyPort)) )
+    ( (PVBOXNETFLTINS)((uint8_t *)(pIfPort) - RT_UOFFSETOF(VBOXNETFLTINS, MyPort)) )
 
 
 AssertCompileMemberSize(VBOXNETFLTINS, enmState, sizeof(uint32_t));
@@ -998,7 +998,7 @@ static int vboxNetFltNewInstance(PVBOXNETFLTGLOBALS pGlobals, const char *pszNam
      */
     int             rc;
     size_t const    cchName = strlen(pszName);
-    PVBOXNETFLTINS  pNew = (PVBOXNETFLTINS)RTMemAllocZ(RT_OFFSETOF(VBOXNETFLTINS, szName[cchName + 1]));
+    PVBOXNETFLTINS  pNew = (PVBOXNETFLTINS)RTMemAllocZ(RT_UOFFSETOF_DYN(VBOXNETFLTINS, szName[cchName + 1]));
     if (!pNew)
         return VERR_INTNET_FLT_IF_FAILED;
     pNew->pNext                         = NULL;
@@ -1238,7 +1238,7 @@ static DECLCALLBACK(int) vboxNetFltFactoryCreateAndConnect(PINTNETTRUNKFACTORY p
                                                            PINTNETTRUNKSWPORT pSwitchPort, uint32_t fFlags,
                                                            PINTNETTRUNKIFPORT *ppIfPort)
 {
-    PVBOXNETFLTGLOBALS pGlobals = (PVBOXNETFLTGLOBALS)((uint8_t *)pIfFactory - RT_OFFSETOF(VBOXNETFLTGLOBALS, TrunkFactory));
+    PVBOXNETFLTGLOBALS pGlobals = (PVBOXNETFLTGLOBALS)((uint8_t *)pIfFactory - RT_UOFFSETOF(VBOXNETFLTGLOBALS, TrunkFactory));
     PVBOXNETFLTINS pCur;
     int rc;
 
@@ -1325,7 +1325,7 @@ static DECLCALLBACK(int) vboxNetFltFactoryCreateAndConnect(PINTNETTRUNKFACTORY p
  */
 static DECLCALLBACK(void) vboxNetFltFactoryRelease(PINTNETTRUNKFACTORY pIfFactory)
 {
-    PVBOXNETFLTGLOBALS pGlobals = (PVBOXNETFLTGLOBALS)((uint8_t *)pIfFactory - RT_OFFSETOF(VBOXNETFLTGLOBALS, TrunkFactory));
+    PVBOXNETFLTGLOBALS pGlobals = (PVBOXNETFLTGLOBALS)((uint8_t *)pIfFactory - RT_UOFFSETOF(VBOXNETFLTGLOBALS, TrunkFactory));
 
     int32_t cRefs = ASMAtomicDecS32(&pGlobals->cFactoryRefs);
     Assert(cRefs >= 0); NOREF(cRefs);
@@ -1345,7 +1345,7 @@ static DECLCALLBACK(void) vboxNetFltFactoryRelease(PINTNETTRUNKFACTORY pIfFactor
 static DECLCALLBACK(void *) vboxNetFltQueryFactoryInterface(PCSUPDRVFACTORY pSupDrvFactory, PSUPDRVSESSION pSession,
                                                             const char *pszInterfaceUuid)
 {
-    PVBOXNETFLTGLOBALS pGlobals = (PVBOXNETFLTGLOBALS)((uint8_t *)pSupDrvFactory - RT_OFFSETOF(VBOXNETFLTGLOBALS, SupDrvFactory));
+    PVBOXNETFLTGLOBALS pGlobals = (PVBOXNETFLTGLOBALS)((uint8_t *)pSupDrvFactory - RT_UOFFSETOF(VBOXNETFLTGLOBALS, SupDrvFactory));
 
     /*
      * Convert the UUID strings and compare them.

@@ -40,15 +40,15 @@ DECLHIDDEN(bool) vboxNetFltWinMatchPacketAndSG(PNDIS_PACKET pPacket, PINTNETSG p
 
 
 #define LIST_ENTRY_2_PACKET_INFO(pListEntry) \
-    ( (PVBOXNETFLT_PACKET_INFO)((uint8_t *)(pListEntry) - RT_OFFSETOF(VBOXNETFLT_PACKET_INFO, ListEntry)) )
+    ( (PVBOXNETFLT_PACKET_INFO)((uint8_t *)(pListEntry) - RT_UOFFSETOF(VBOXNETFLT_PACKET_INFO, ListEntry)) )
 
 #if !defined(VBOX_LOOPBACK_USEFLAGS) || defined(DEBUG_NETFLT_PACKETS)
 
 #define VBOX_SLE_2_PKTRSVD_PT(_pEntry) \
-    ( (PVBOXNETFLT_PKTRSVD_PT)((uint8_t *)(_pEntry) - RT_OFFSETOF(VBOXNETFLT_PKTRSVD_PT, ListEntry)) )
+    ( (PVBOXNETFLT_PKTRSVD_PT)((uint8_t *)(_pEntry) - RT_UOFFSETOF(VBOXNETFLT_PKTRSVD_PT, ListEntry)) )
 
 #define VBOX_SLE_2_SENDPACKET(_pEntry) \
-    ( (PNDIS_PACKET)((uint8_t *)(VBOX_SLE_2_PKTRSVD_PT(_pEntry)) - RT_OFFSETOF(NDIS_PACKET, ProtocolReserved)) )
+    ( (PNDIS_PACKET)((uint8_t *)(VBOX_SLE_2_PKTRSVD_PT(_pEntry)) - RT_UOFFSETOF(NDIS_PACKET, ProtocolReserved)) )
 
 #endif
 /**

@@ -1239,7 +1239,7 @@ static void buslogicR3SendIncomingMailbox(PBUSLOGIC pBusLogic, RTGCPHYS GCPhysAd
         pCCBGuest->c.uDeviceStatus      = uDeviceStatus;
         /* Rewrite CCB up to the CDB; perhaps more than necessary. */
         PDMDevHlpPCIPhysWrite(pBusLogic->CTX_SUFF(pDevIns), GCPhysAddrCCB,
-                              pCCBGuest, RT_OFFSETOF(CCBC, abCDB));
+                              pCCBGuest, RT_UOFFSETOF(CCBC, abCDB));
     }
 
 # ifdef RT_STRICT

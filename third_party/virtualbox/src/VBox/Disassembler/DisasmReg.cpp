@@ -339,7 +339,7 @@ DISDECL(uint8_t) DISQuerySegPrefixByte(PCDISSTATE pDis)
  */
 DISDECL(int) DISFetchReg8(PCCPUMCTXCORE pCtx, unsigned reg8, uint8_t *pVal)
 {
-    AssertReturn(reg8 < RT_ELEMENTS(g_aReg8Index), VERR_INVALID_PARAMETER);
+    AssertReturnStmt(reg8 < RT_ELEMENTS(g_aReg8Index), *pVal = 0, VERR_INVALID_PARAMETER);
 
     *pVal = DIS_READ_REG8(pCtx, reg8);
     return VINF_SUCCESS;
@@ -351,7 +351,7 @@ DISDECL(int) DISFetchReg8(PCCPUMCTXCORE pCtx, unsigned reg8, uint8_t *pVal)
  */
 DISDECL(int) DISFetchReg16(PCCPUMCTXCORE pCtx, unsigned reg16, uint16_t *pVal)
 {
-    AssertReturn(reg16 < RT_ELEMENTS(g_aReg16Index), VERR_INVALID_PARAMETER);
+    AssertReturnStmt(reg16 < RT_ELEMENTS(g_aReg16Index), *pVal = 0, VERR_INVALID_PARAMETER);
 
     *pVal = DIS_READ_REG16(pCtx, reg16);
     return VINF_SUCCESS;
@@ -363,7 +363,7 @@ DISDECL(int) DISFetchReg16(PCCPUMCTXCORE pCtx, unsigned reg16, uint16_t *pVal)
  */
 DISDECL(int) DISFetchReg32(PCCPUMCTXCORE pCtx, unsigned reg32, uint32_t *pVal)
 {
-    AssertReturn(reg32 < RT_ELEMENTS(g_aReg32Index), VERR_INVALID_PARAMETER);
+    AssertReturnStmt(reg32 < RT_ELEMENTS(g_aReg32Index), *pVal = 0, VERR_INVALID_PARAMETER);
 
     *pVal = DIS_READ_REG32(pCtx, reg32);
     return VINF_SUCCESS;
@@ -375,7 +375,7 @@ DISDECL(int) DISFetchReg32(PCCPUMCTXCORE pCtx, unsigned reg32, uint32_t *pVal)
  */
 DISDECL(int) DISFetchReg64(PCCPUMCTXCORE pCtx, unsigned reg64, uint64_t *pVal)
 {
-    AssertReturn(reg64 < RT_ELEMENTS(g_aReg64Index), VERR_INVALID_PARAMETER);
+    AssertReturnStmt(reg64 < RT_ELEMENTS(g_aReg64Index), *pVal = 0, VERR_INVALID_PARAMETER);
 
     *pVal = DIS_READ_REG64(pCtx, reg64);
     return VINF_SUCCESS;
@@ -387,7 +387,7 @@ DISDECL(int) DISFetchReg64(PCCPUMCTXCORE pCtx, unsigned reg64, uint64_t *pVal)
  */
 DISDECL(int) DISPtrReg8(PCPUMCTXCORE pCtx, unsigned reg8, uint8_t **ppReg)
 {
-    AssertReturn(reg8 < RT_ELEMENTS(g_aReg8Index), VERR_INVALID_PARAMETER);
+    AssertReturnStmt(reg8 < RT_ELEMENTS(g_aReg8Index), *ppReg = NULL, VERR_INVALID_PARAMETER);
 
     *ppReg = DIS_PTR_REG8(pCtx, reg8);
     return VINF_SUCCESS;
@@ -399,7 +399,7 @@ DISDECL(int) DISPtrReg8(PCPUMCTXCORE pCtx, unsigned reg8, uint8_t **ppReg)
  */
 DISDECL(int) DISPtrReg16(PCPUMCTXCORE pCtx, unsigned reg16, uint16_t **ppReg)
 {
-    AssertReturn(reg16 < RT_ELEMENTS(g_aReg16Index), VERR_INVALID_PARAMETER);
+    AssertReturnStmt(reg16 < RT_ELEMENTS(g_aReg16Index), *ppReg = NULL, VERR_INVALID_PARAMETER);
 
     *ppReg = DIS_PTR_REG16(pCtx, reg16);
     return VINF_SUCCESS;
@@ -407,11 +407,10 @@ DISDECL(int) DISPtrReg16(PCPUMCTXCORE pCtx, unsigned reg16, uint16_t **ppReg)
 
 /**
  * Returns the pointer to the specified 32 bits general purpose register
- *
  */
 DISDECL(int) DISPtrReg32(PCPUMCTXCORE pCtx, unsigned reg32, uint32_t **ppReg)
 {
-    AssertReturn(reg32 < RT_ELEMENTS(g_aReg32Index), VERR_INVALID_PARAMETER);
+    AssertReturnStmt(reg32 < RT_ELEMENTS(g_aReg32Index), *ppReg = NULL, VERR_INVALID_PARAMETER);
 
     *ppReg = DIS_PTR_REG32(pCtx, reg32);
     return VINF_SUCCESS;
@@ -419,11 +418,10 @@ DISDECL(int) DISPtrReg32(PCPUMCTXCORE pCtx, unsigned reg32, uint32_t **ppReg)
 
 /**
  * Returns the pointer to the specified 64 bits general purpose register
- *
  */
 DISDECL(int) DISPtrReg64(PCPUMCTXCORE pCtx, unsigned reg64, uint64_t **ppReg)
 {
-    AssertReturn(reg64 < RT_ELEMENTS(g_aReg64Index), VERR_INVALID_PARAMETER);
+    AssertReturnStmt(reg64 < RT_ELEMENTS(g_aReg64Index), *ppReg = NULL, VERR_INVALID_PARAMETER);
 
     *ppReg = DIS_PTR_REG64(pCtx, reg64);
     return VINF_SUCCESS;
@@ -431,7 +429,6 @@ DISDECL(int) DISPtrReg64(PCPUMCTXCORE pCtx, unsigned reg64, uint64_t **ppReg)
 
 /**
  * Returns the value of the specified segment register
- *
  */
 DISDECL(int) DISFetchRegSeg(PCCPUMCTXCORE pCtx, DISSELREG sel, RTSEL *pVal)
 {

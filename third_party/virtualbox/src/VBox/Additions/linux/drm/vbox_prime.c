@@ -50,7 +50,7 @@ struct sg_table *vbox_gem_prime_get_sg_table(struct drm_gem_object *obj)
 }
 
 struct drm_gem_object *vbox_gem_prime_import_sg_table(struct drm_device *dev,
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0) && !defined(RHEL_73)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0) && !defined(RHEL_72)
 						      size_t size,
 #else
 						      struct dma_buf_attachment

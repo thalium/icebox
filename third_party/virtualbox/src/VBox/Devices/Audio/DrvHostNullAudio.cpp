@@ -88,6 +88,8 @@ static DECLCALLBACK(int) drvHostNullAudioGetConfig(PPDMIHOSTAUDIO pInterface, PP
     NOREF(pInterface);
     AssertPtrReturn(pBackendCfg, VERR_INVALID_POINTER);
 
+    RTStrPrintf2(pBackendCfg->szName, sizeof(pBackendCfg->szName), "NULL audio driver");
+
     pBackendCfg->cbStreamOut    = sizeof(NULLAUDIOSTREAM);
     pBackendCfg->cbStreamIn     = sizeof(NULLAUDIOSTREAM);
 
@@ -161,8 +163,11 @@ static DECLCALLBACK(int) drvHostNullAudioStreamCapture(PPDMIHOSTAUDIO pInterface
 {
     RT_NOREF(pInterface, pStream);
 
+    PNULLAUDIOSTREAM pStreamNull = (PNULLAUDIOSTREAM)pStream;
+
     /* Return silence. */
-    RT_BZERO(pvBuf, cxBuf);
+    Assert(pStreamNull->pCfg);
+    DrvAudioHlpClearBuf(&pStreamNull->pCfg->Props, pvBuf, cxBuf, PDMAUDIOPCMPROPS_B2F(&pStreamNull->pCfg->Props, cxBuf));
 
     if (pcxRead)
         *pcxRead = cxBuf;
@@ -173,10 +178,7 @@ static DECLCALLBACK(int) drvHostNullAudioStreamCapture(PPDMIHOSTAUDIO pInterface
 
 static int nullCreateStreamIn(PNULLAUDIOSTREAM pStreamNull, PPDMAUDIOSTREAMCFG pCfgReq, PPDMAUDIOSTREAMCFG pCfgAcq)
 {
-    RT_NOREF(pStreamNull, pCfgReq);
-
-    if (pCfgAcq)
-        pCfgAcq->cFrameBufferHint = _1K;
+    RT_NOREF(pStreamNull, pCfgReq, pCfgAcq);
 
     return VINF_SUCCESS;
 }
@@ -184,10 +186,7 @@ static int nullCreateStreamIn(PNULLAUDIOSTREAM pStreamNull, PPDMAUDIOSTREAMCFG p
 
 static int nullCreateStreamOut(PNULLAUDIOSTREAM pStreamNull, PPDMAUDIOSTREAMCFG pCfgReq, PPDMAUDIOSTREAMCFG pCfgAcq)
 {
-    RT_NOREF(pStreamNull, pCfgReq);
-
-    if (pCfgAcq)
-        pCfgAcq->cFrameBufferHint = _1K; /** @todo Make this configurable. */
+    RT_NOREF(pStreamNull, pCfgReq, pCfgAcq);
 
     return VINF_SUCCESS;
 }

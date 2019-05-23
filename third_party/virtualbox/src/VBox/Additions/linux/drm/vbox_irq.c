@@ -199,7 +199,7 @@ int vbox_irq_init(struct vbox_private *vbox)
 	int ret;
 
 	vbox_update_mode_hints(vbox);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 16, 0) || defined(RHEL_73)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 16, 0) || defined(RHEL_71)
 	ret = drm_irq_install(vbox->dev, vbox->dev->pdev->irq);
 #else
 	ret = drm_irq_install(vbox->dev);

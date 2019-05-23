@@ -108,7 +108,7 @@ DECLHIDDEN(int) utsGadgetHostCreate(UTSGADGETHOSTTYPE enmType, PCUTSGADGETCFGITE
 
     if (RT_LIKELY(pIf))
     {
-        PUTSGADGETHOSTINT pThis = (PUTSGADGETHOSTINT)RTMemAllocZ(RT_OFFSETOF(UTSGADGETHOSTINT, abIfInst[pIf->cbIf]));
+        PUTSGADGETHOSTINT pThis = (PUTSGADGETHOSTINT)RTMemAllocZ(RT_UOFFSETOF_DYN(UTSGADGETHOSTINT, abIfInst[pIf->cbIf]));
         if (RT_LIKELY(pThis))
         {
             pThis->cRefs = 1;

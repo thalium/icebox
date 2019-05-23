@@ -897,7 +897,7 @@ int GuestProcess::i_readData(uint32_t uHandle, uint32_t uSize, uint32_t uTimeout
 
         vrc = registerWaitEvent(eventTypes, &pEvent);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         vrc = VERR_NO_MEMORY;
     }
@@ -1024,7 +1024,7 @@ int GuestProcess::i_startProcess(uint32_t cMsTimeout, int *pGuestRc)
         eventTypes.push_back(VBoxEventType_OnGuestProcessStateChanged);
         vrc = registerWaitEvent(eventTypes, &pEvent);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         vrc = VERR_NO_MEMORY;
     }
@@ -1243,7 +1243,7 @@ int GuestProcess::i_terminateProcess(uint32_t uTimeoutMS, int *pGuestRc)
 
                 vrc = registerWaitEvent(eventTypes, &pEvent);
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &)
             {
                 vrc = VERR_NO_MEMORY;
             }
@@ -1429,7 +1429,7 @@ int GuestProcess::i_waitFor(uint32_t fWaitFlags, ULONG uTimeoutMS,
 
         vrc = registerWaitEvent(eventTypes, &pEvent);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         vrc = VERR_NO_MEMORY;
     }
@@ -1718,7 +1718,7 @@ int GuestProcess::i_writeData(uint32_t uHandle, uint32_t uFlags,
 
         vrc = registerWaitEvent(eventTypes, &pEvent);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         vrc = VERR_NO_MEMORY;
     }
@@ -2174,7 +2174,7 @@ int GuestProcessTool::i_runExErrorInfo(      GuestSession              *pGuestSe
                 if (paStrmOutObjects)
                     paStrmOutObjects->push_back(strmBlk);
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &)
             {
                 vrc = VERR_NO_MEMORY;
             }

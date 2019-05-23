@@ -48,12 +48,12 @@ BS3_CMN_DEF(uint16_t, Bs3ExtCtxGetSize,(uint64_t BS3_FAR *pfFlags))
             && fEcx < _32K)
         {
             *pfFlags = fEax | ((uint64_t)fEdx << 32);
-            return RT_OFFSETOF(BS3EXTCTX, Ctx) + RT_ALIGN(fEcx, 256);
+            return RT_UOFFSETOF(BS3EXTCTX, Ctx) + RT_ALIGN(fEcx, 256);
         }
     }
 #endif
     if (fEdx & X86_CPUID_FEATURE_EDX_FXSR)
-        return RT_OFFSETOF(BS3EXTCTX, Ctx) + sizeof(X86FXSTATE);
-    return RT_OFFSETOF(BS3EXTCTX, Ctx) + sizeof(X86FPUSTATE);
+        return RT_UOFFSETOF(BS3EXTCTX, Ctx) + sizeof(X86FXSTATE);
+    return RT_UOFFSETOF(BS3EXTCTX, Ctx) + sizeof(X86FPUSTATE);
 }
 

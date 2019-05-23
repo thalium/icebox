@@ -2264,35 +2264,34 @@
 /** @def RT_OFFSETOF
  * Our own special offsetof() variant, returns a signed result.
  *
- * This differs from the usual offsetof() in that it's not relying on builtin
- * compiler stuff and thus can use variables in arrays the structure may
- * contain. This is useful to determine the sizes of structures ending
- * with a variable length field. For gcc >= 4.4 see @bugref{7775}.
- *
  * @returns offset into the structure of the specified member. signed.
  * @param   type    Structure type.
  * @param   member  Member.
+ *
+ * @remarks Only use this for static offset calculations. Please
+ *          use RT_UOFFSETOF_DYN for dynamic ones (i.e. involves
+ *          non-constant array indexing).
+ *
  */
-#if defined(__cplusplus) && RT_GNUC_PREREQ(4, 4)
-# define RT_OFFSETOF(type, member)              ( (int)(uintptr_t)&( ((type *)(void *)0x1000)->member) - 0x1000 )
+#if RT_GNUC_PREREQ(4, 0)
+# define RT_OFFSETOF(type, member)              ( (int)__builtin_offsetof(type, member) )
 #else
-# define RT_OFFSETOF(type, member)              ( (int)(uintptr_t)&( ((type *)(void *)0)->member) )
+# define RT_OFFSETOF(type, member)              ( (int)(intptr_t)&( ((type *)(void *)0)->member) )
 #endif
 
 /** @def RT_UOFFSETOF
- * Our own special offsetof() variant, returns an unsigned result.
- *
- * This differs from the usual offsetof() in that it's not relying on builtin
- * compiler stuff and thus can use variables in arrays the structure may
- * contain. This is useful to determine the sizes of structures ending
- * with a variable length field. For gcc >= 4.4 see @bugref{7775}.
+ * Our own offsetof() variant, returns an unsigned result.
  *
  * @returns offset into the structure of the specified member. unsigned.
  * @param   type    Structure type.
  * @param   member  Member.
+ *
+ * @remarks Only use this for static offset calculations. Please
+ *          use RT_UOFFSETOF_DYN for dynamic ones (i.e. involves
+ *          non-constant array indexing).
  */
-#if defined(__cplusplus) && RT_GNUC_PREREQ(4, 4)
-# define RT_UOFFSETOF(type, member)             ( (uintptr_t)&( ((type *)(void *)0x1000)->member) - 0x1000 )
+#if RT_GNUC_PREREQ(4, 0)
+# define RT_UOFFSETOF(type, member)             ( (uintptr_t)__builtin_offsetof(type, member) )
 #else
 # define RT_UOFFSETOF(type, member)             ( (uintptr_t)&( ((type *)(void *)0)->member) )
 #endif
@@ -2304,6 +2303,8 @@
  * @param   type    Structure type.
  * @param   member  Member.
  * @param   addend  The addend to add to the offset.
+ *
+ * @remarks Only use this for static offset calculations.
  */
 #define RT_OFFSETOF_ADD(type, member, addend)   ( (int)RT_UOFFSETOF_ADD(type, member, addend) )
 
@@ -2314,8 +2315,29 @@
  * @param   type    Structure type.
  * @param   member  Member.
  * @param   addend  The addend to add to the offset.
+ *
+ * @remarks Only use this for static offset calculations.
  */
-#define RT_UOFFSETOF_ADD(type, member, addend)  ( (uintptr_t)&( ((type *)(void *)(uintptr_t)(addend))->member) )
+#if RT_GNUC_PREREQ(4, 0)
+# define RT_UOFFSETOF_ADD(type, member, addend)  ( (uintptr_t)(__builtin_offsetof(type, member) + (addend)))
+#else
+# define RT_UOFFSETOF_ADD(type, member, addend)  ( (uintptr_t)&( ((type *)(void *)(uintptr_t)(addend))->member) )
+#endif
+
+/** @def RT_UOFFSETOF_DYN
+ * Dynamic (runtime) structure offset calculations, involving
+ * indexing of array members via variable.
+ *
+ * @returns offset into the structure of the specified member. signed.
+ * @param   type        Structure type.
+ * @param   memberarray Member.
+ */
+#if defined(__cplusplus) && RT_GNUC_PREREQ(4, 4)
+# define RT_UOFFSETOF_DYN(type, memberarray)    ( (uintptr_t)&( ((type *)(void *)0x1000)->memberarray) - 0x1000 )
+#else
+# define RT_UOFFSETOF_DYN(type, memberarray)    ( (uintptr_t)&( ((type *)(void *)0)->memberarray) )
+#endif
+
 
 /** @def RT_SIZEOFMEMB
  * Get the size of a structure member.
@@ -2362,6 +2384,17 @@
 #else
 # define RT_FROM_CPP_MEMBER(pMem, Type, Member) RT_FROM_MEMBER(pMem, Type, Member)
 #endif
+
+/** @def RT_FROM_MEMBER_DYN
+ * Convert a pointer to a structure member into a pointer to the structure.
+ *
+ * @returns pointer to the structure.
+ * @param   pMem    Pointer to the member.
+ * @param   Type    Structure type.
+ * @param   Member  Member name dynamic size (some array is index by
+ *                  non-constant value).
+ */
+#define RT_FROM_MEMBER_DYN(pMem, Type, Member)  ( (Type *) ((uint8_t *)(void *)(pMem) - RT_UOFFSETOF_DYN(Type, Member)) )
 
 /** @def RT_ELEMENTS
  * Calculates the number of elements in a statically sized array.

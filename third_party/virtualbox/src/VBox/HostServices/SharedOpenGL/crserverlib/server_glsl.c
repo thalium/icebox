@@ -181,7 +181,7 @@ void SERVER_DISPATCH_APIENTRY crServerDispatchDeleteProgramsARB(GLsizei n, const
     GLuint *pLocalProgs;
     GLint i;
 
-    if (n >= UINT32_MAX / sizeof(GLuint))
+    if (n >= INT32_MAX / sizeof(GLuint))
     {
         crError("crServerDispatchDeleteProgramsARB: parameter 'n' is out of range");
         return;
@@ -217,18 +217,38 @@ GLboolean SERVER_DISPATCH_APIENTRY
 crServerDispatchAreProgramsResidentNV(GLsizei n, const GLuint *programs,
                                                                             GLboolean *residences)
 {
-    GLboolean retval;
-    GLboolean *res = (GLboolean *) crAlloc(n * sizeof(GLboolean));
+    GLboolean retval = GL_FALSE;
+    GLboolean *res;
     GLsizei i;
-
     (void) residences;
 
+    if (n >= INT32_MAX / sizeof(GLuint))
+    {
+        crError("crServerDispatchAreProgramsResidentNV: parameter 'n' is out of range");
+        return GL_FALSE;
+    }
+
+    res = (GLboolean *)crCalloc(n * sizeof(GLboolean));
+
+    if (!res) {
+        crError("crServerDispatchAreProgramsResidentNV: out of memory");
+        return GL_FALSE;
+    }
+
     if (!cr_server.sharedTextureObjects) {
-        GLuint *programs2 = (GLuint *) crAlloc(n * sizeof(GLuint));
-        for (i = 0; i < n; i++)
-            programs2[i] = crServerTranslateProgramID(programs[i]);
-        retval = cr_server.head_spu->dispatch_table.AreProgramsResidentNV(n, programs2, res);
-        crFree(programs2);
+        GLuint *programs2 = (GLuint *) crCalloc(n * sizeof(GLuint));
+        if (programs2)
+        {
+            for (i = 0; i < n; i++)
+                programs2[i] = crServerTranslateProgramID(programs[i]);
+
+            retval = cr_server.head_spu->dispatch_table.AreProgramsResidentNV(n, programs2, res);
+            crFree(programs2);
+        }
+        else
+        {
+            crError("crServerDispatchAreProgramsResidentNV: out of memory");
+        }
     }
     else {
         retval = cr_server.head_spu->dispatch_table.AreProgramsResidentNV(n, programs, res);

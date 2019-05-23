@@ -3929,7 +3929,7 @@ typedef OMFDETAILS const *PCOMFDETAILS;
  */
 static void *omfDetails_Alloc(POMFDETAILS pOmfStuff, size_t cbNeeded)
 {
-    POMFDETAILSALLOC pAlloc = (POMFDETAILSALLOC)malloc(RT_OFFSETOF(OMFDETAILSALLOC, abData[cbNeeded]));
+    POMFDETAILSALLOC pAlloc = (POMFDETAILSALLOC)malloc(RT_UOFFSETOF_DYN(OMFDETAILSALLOC, abData[cbNeeded]));
     if (pAlloc)
     {
         pAlloc->pNext = pOmfStuff->pAllocHead;
@@ -4919,13 +4919,13 @@ static bool convertOmfWriteDebugData(POMFWRITER pThis, POMFDETAILS pOmfStuff)
             }
 
             /* Fixup #1: segment offset - IMAGE_REL_AMD64_SECREL. */
-            if (!omfWriter_LEDataAddFixupNoDisp(pThis, 4 + 4 + RT_OFFSETOF(RTCV8LINESHDR, offSection), OMF_FIX_LOC_32BIT_OFFSET,
+            if (!omfWriter_LEDataAddFixupNoDisp(pThis, 4 + 4 + RT_UOFFSETOF(RTCV8LINESHDR, offSection), OMF_FIX_LOC_32BIT_OFFSET,
                                                 bFrame, idxFrame, OMF_FIX_T_SEGDEF_NO_DISP, pSegLines->idxSeg))
                 return false;
 
 
             /* Fixup #2: segment number - IMAGE_REL_AMD64_SECTION. */
-            if (!omfWriter_LEDataAddFixupNoDisp(pThis, 4 + 4 + RT_OFFSETOF(RTCV8LINESHDR, iSection), OMF_FIX_LOC_16BIT_SEGMENT,
+            if (!omfWriter_LEDataAddFixupNoDisp(pThis, 4 + 4 + RT_UOFFSETOF(RTCV8LINESHDR, iSection), OMF_FIX_LOC_16BIT_SEGMENT,
                                                 bFrame, idxFrame, OMF_FIX_T_SEGDEF_NO_DISP, pSegLines->idxSeg))
                 return false;
 
@@ -5472,7 +5472,7 @@ int main(int argc, char **argv)
                         break;
 
                     case 'V':
-                        printf("%s\n", "$Revision: 123660 $");
+                        printf("%s\n", "$Revision: 125570 $");
                         return 0;
 
                     case '?':

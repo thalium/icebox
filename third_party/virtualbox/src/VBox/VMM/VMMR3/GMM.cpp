@@ -77,7 +77,7 @@ GMMR3DECL(int)  GMMR3UpdateReservation(PVM pVM, uint64_t cBasePages, uint32_t cS
  */
 GMMR3DECL(int) GMMR3AllocatePagesPrepare(PVM pVM, PGMMALLOCATEPAGESREQ *ppReq, uint32_t cPages, GMMACCOUNT enmAccount)
 {
-    uint32_t cb = RT_OFFSETOF(GMMALLOCATEPAGESREQ, aPages[cPages]);
+    uint32_t cb = RT_UOFFSETOF_DYN(GMMALLOCATEPAGESREQ, aPages[cPages]);
     PGMMALLOCATEPAGESREQ pReq = (PGMMALLOCATEPAGESREQ)RTMemTmpAllocZ(cb);
     if (!pReq)
         return VERR_NO_TMP_MEMORY;
@@ -159,7 +159,7 @@ GMMR3DECL(void) GMMR3AllocatePagesCleanup(PGMMALLOCATEPAGESREQ pReq)
  */
 GMMR3DECL(int) GMMR3FreePagesPrepare(PVM pVM, PGMMFREEPAGESREQ *ppReq, uint32_t cPages, GMMACCOUNT enmAccount)
 {
-    uint32_t cb = RT_OFFSETOF(GMMFREEPAGESREQ, aPages[cPages]);
+    uint32_t cb = RT_UOFFSETOF_DYN(GMMFREEPAGESREQ, aPages[cPages]);
     PGMMFREEPAGESREQ pReq = (PGMMFREEPAGESREQ)RTMemTmpAllocZ(cb);
     if (!pReq)
         return VERR_NO_TMP_MEMORY;
@@ -188,7 +188,7 @@ GMMR3DECL(int) GMMR3FreePagesPrepare(PVM pVM, PGMMFREEPAGESREQ *ppReq, uint32_t 
 GMMR3DECL(void) GMMR3FreePagesRePrep(PVM pVM, PGMMFREEPAGESREQ pReq, uint32_t cPages, GMMACCOUNT enmAccount)
 {
     Assert(pReq->Hdr.u32Magic == SUPVMMR0REQHDR_MAGIC);
-    pReq->Hdr.cbReq     = RT_OFFSETOF(GMMFREEPAGESREQ, aPages[cPages]);
+    pReq->Hdr.cbReq     = RT_UOFFSETOF_DYN(GMMFREEPAGESREQ, aPages[cPages]);
     pReq->enmAccount    = enmAccount;
     pReq->cPages        = cPages;
     NOREF(pVM);
@@ -215,7 +215,7 @@ GMMR3DECL(int) GMMR3FreePagesPerform(PVM pVM, PGMMFREEPAGESREQ pReq, uint32_t cA
         if (!cActualPages)
             return VINF_SUCCESS;
         pReq->cPages = cActualPages;
-        pReq->Hdr.cbReq = RT_OFFSETOF(GMMFREEPAGESREQ, aPages[cActualPages]);
+        pReq->Hdr.cbReq = RT_UOFFSETOF_DYN(GMMFREEPAGESREQ, aPages[cActualPages]);
     }
 
     /*
@@ -251,7 +251,7 @@ GMMR3DECL(void) GMMR3FreePagesCleanup(PGMMFREEPAGESREQ pReq)
  */
 GMMR3DECL(void) GMMR3FreeAllocatedPages(PVM pVM, GMMALLOCATEPAGESREQ const *pAllocReq)
 {
-    uint32_t cb = RT_OFFSETOF(GMMFREEPAGESREQ, aPages[pAllocReq->cPages]);
+    uint32_t cb = RT_UOFFSETOF_DYN(GMMFREEPAGESREQ, aPages[pAllocReq->cPages]);
     PGMMFREEPAGESREQ pReq = (PGMMFREEPAGESREQ)RTMemTmpAllocZ(cb);
     AssertLogRelReturnVoid(pReq);
 
@@ -392,7 +392,7 @@ GMMR3DECL(int)  GMMR3SeedChunk(PVM pVM, RTR3PTR pvR3)
 GMMR3DECL(int) GMMR3RegisterSharedModule(PVM pVM, PGMMREGISTERSHAREDMODULEREQ pReq)
 {
     pReq->Hdr.u32Magic  = SUPVMMR0REQHDR_MAGIC;
-    pReq->Hdr.cbReq     = RT_OFFSETOF(GMMREGISTERSHAREDMODULEREQ, aRegions[pReq->cRegions]);
+    pReq->Hdr.cbReq     = RT_UOFFSETOF_DYN(GMMREGISTERSHAREDMODULEREQ, aRegions[pReq->cRegions]);
     int rc = VMMR3CallR0(pVM, VMMR0_DO_GMM_REGISTER_SHARED_MODULE, 0, &pReq->Hdr);
     if (rc == VINF_SUCCESS)
         rc = pReq->rc;

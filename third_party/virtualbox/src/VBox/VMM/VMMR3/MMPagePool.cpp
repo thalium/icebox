@@ -231,7 +231,7 @@ DECLINLINE(void *) mmR3PagePoolAlloc(PMMPAGEPOOL pPool)
     unsigned        cPages = !pPool->fLow ? 128 : 32;
     PMMPAGESUBPOOL  pSub;
     int rc = MMHyperAlloc(pPool->pVM,
-                          RT_OFFSETOF(MMPAGESUBPOOL, auBitmap[cPages / (sizeof(pSub->auBitmap[0]) * 8)])
+                          RT_UOFFSETOF_DYN(MMPAGESUBPOOL, auBitmap[cPages / (sizeof(pSub->auBitmap[0]) * 8)])
                           + (sizeof(SUPPAGE) + sizeof(MMPPLOOKUPHCPHYS)) * cPages
                           + sizeof(MMPPLOOKUPHCPTR),
                           0,

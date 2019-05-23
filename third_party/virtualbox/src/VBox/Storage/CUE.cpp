@@ -275,7 +275,7 @@ static int cueEnsureRegionListSize(PCUEIMAGE pThis, uint32_t cTracksMax)
     if (pThis->cTracksMax < cTracksMax)
     {
         PVDREGIONLIST pRegionListNew = (PVDREGIONLIST)RTMemRealloc(pThis->pRegionList,
-                                                                   RT_UOFFSETOF(VDREGIONLIST, aRegions[cTracksMax]));
+                                                                   RT_UOFFSETOF_DYN(VDREGIONLIST, aRegions[cTracksMax]));
         if (pRegionListNew)
         {
             /* Init all the new allocated tracks. */

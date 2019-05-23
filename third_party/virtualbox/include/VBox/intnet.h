@@ -169,10 +169,10 @@ typedef INTNETBUF const *PCINTNETBUF;
         AssertPtr(pBuf); \
         Assert((pBuf)->u32Magic == INTNETBUF_MAGIC); \
         { \
-            uint32_t const offRecvStart = (pBuf)->Recv.offStart + RT_OFFSETOF(INTNETBUF, Recv); \
-            uint32_t const offRecvEnd   = (pBuf)->Recv.offStart + RT_OFFSETOF(INTNETBUF, Recv); \
-            uint32_t const offSendStart = (pBuf)->Send.offStart + RT_OFFSETOF(INTNETBUF, Send); \
-            uint32_t const offSendEnd   = (pBuf)->Send.offStart + RT_OFFSETOF(INTNETBUF, Send); \
+            uint32_t const offRecvStart = (pBuf)->Recv.offStart + RT_UOFFSETOF(INTNETBUF, Recv); \
+            uint32_t const offRecvEnd   = (pBuf)->Recv.offStart + RT_UOFFSETOF(INTNETBUF, Recv); \
+            uint32_t const offSendStart = (pBuf)->Send.offStart + RT_UOFFSETOF(INTNETBUF, Send); \
+            uint32_t const offSendEnd   = (pBuf)->Send.offStart + RT_UOFFSETOF(INTNETBUF, Send); \
             \
             Assert(offRecvEnd > offRecvStart); \
             Assert(offRecvEnd - offRecvStart == (pBuf)->cbRecv); \

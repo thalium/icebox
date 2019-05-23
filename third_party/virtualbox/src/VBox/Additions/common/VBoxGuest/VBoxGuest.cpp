@@ -109,7 +109,7 @@ static int      vgdrvDispatchEventsLocked(PVBOXGUESTDEVEXT pDevExt, uint32_t fEv
 /*********************************************************************************************************************************
 *   Global Variables                                                                                                             *
 *********************************************************************************************************************************/
-static const uint32_t g_cbChangeMemBalloonReq = RT_OFFSETOF(VMMDevChangeMemBalloon, aPhysPage[VMMDEV_MEMORY_BALLOON_CHUNK_PAGES]);
+static const uint32_t g_cbChangeMemBalloonReq = RT_UOFFSETOF(VMMDevChangeMemBalloon, aPhysPage[VMMDEV_MEMORY_BALLOON_CHUNK_PAGES]);
 
 #if defined(RT_OS_DARWIN) || defined(RT_OS_SOLARIS)
 /**

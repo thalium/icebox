@@ -73,7 +73,7 @@ static RTRAND g_hRand;
 static PTRACKER TrackerCreate(uint32_t MaxKey)
 {
     uint32_t cbBitmap = (MaxKey + sizeof(uint32_t) * sizeof(uint8_t) - 1) / sizeof(uint8_t);
-    PTRACKER pTracker = (PTRACKER)RTMemAllocZ(RT_OFFSETOF(TRACKER, abBitmap[cbBitmap]));
+    PTRACKER pTracker = (PTRACKER)RTMemAllocZ(RT_UOFFSETOF_DYN(TRACKER, abBitmap[cbBitmap]));
     if (pTracker)
     {
         pTracker->MaxKey = MaxKey;

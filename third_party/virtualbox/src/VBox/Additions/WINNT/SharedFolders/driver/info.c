@@ -242,7 +242,7 @@ NTSTATUS VBoxMRxQueryDirectory(IN OUT PRX_CONTEXT RxContext)
 
     while ((*pLengthRemaining) && (cFiles > 0) && (pDirEntry != NULL))
     {
-        int cbEntry = RT_OFFSETOF(SHFLDIRINFO, name.String) + pDirEntry->name.u16Size;
+        int cbEntry = RT_UOFFSETOF(SHFLDIRINFO, name.String) + pDirEntry->name.u16Size;
 
         if (cbEntry > cbHGCMBuffer)
         {

@@ -76,7 +76,7 @@ crServerDispatchGetTexImage(GLenum target, GLint level, GLenum format,
     }
 #endif
 
-    if (size && (buffer = crAlloc(size))) {
+    if (size && (buffer = crCalloc(size))) {
         /* Note, the other pixel PACK parameters (default values) should
          * be OK at this point.
          */
@@ -117,7 +117,7 @@ crServerDispatchGetCompressedTexImageARB(GLenum target, GLint level,
 
     cr_server.head_spu->dispatch_table.GetTexLevelParameteriv(target, level, GL_TEXTURE_COMPRESSED_IMAGE_SIZE, &size);
 
-    if (size && (buffer = crAlloc(size))) {
+    if (size && (buffer = crCalloc(size))) {
         /* XXX the pixel PACK parameter should be OK at this point */
         cr_server.head_spu->dispatch_table.GetCompressedTexImageARB(target, level, buffer);
         crServerReturnValue( buffer, size );
@@ -147,6 +147,8 @@ void SERVER_DISPATCH_APIENTRY crServerDispatchGetPolygonStipple( GLubyte * mask 
 #endif
     {    
         GLubyte local_mask[128];
+
+        memset(local_mask, 0, sizeof(local_mask));
 
         cr_server.head_spu->dispatch_table.GetPolygonStipple( local_mask );
         crServerReturnValue( &(local_mask[0]), 128*sizeof(GLubyte) );

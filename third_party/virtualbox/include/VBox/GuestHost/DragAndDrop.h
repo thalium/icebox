@@ -182,6 +182,9 @@ protected:
     } u;
 };
 
+/** Mask of all valid DnD URI list flags. */
+#define DNDURILIST_FLAGS_VALID_MASK             UINT32_C(0xF)
+
 class DnDURIList
 {
 public:

@@ -283,7 +283,7 @@ int pdmR3UsbLoadModules(PVM pVM)
 {
     LogFlow(("pdmR3UsbLoadModules:\n"));
 
-    AssertRelease(!(RT_OFFSETOF(PDMUSBINS, achInstanceData) & 15));
+    AssertRelease(!(RT_UOFFSETOF(PDMUSBINS, achInstanceData) & 15));
     AssertRelease(sizeof(pVM->pdm.s.pUsbInstances->Internal.s) <= sizeof(pVM->pdm.s.pUsbInstances->Internal.padding));
 
     /*
@@ -575,7 +575,7 @@ static int pdmR3UsbCreateDevice(PVM pVM, PPDMUSBHUB pHub, PPDMUSB pUsbDev, int i
     /*
      * Allocate the device instance.
      */
-    size_t cb = RT_OFFSETOF(PDMUSBINS, achInstanceData[pUsbDev->pReg->cbInstance]);
+    size_t cb = RT_UOFFSETOF_DYN(PDMUSBINS, achInstanceData[pUsbDev->pReg->cbInstance]);
     cb = RT_ALIGN_Z(cb, 16);
     PPDMUSBINS pUsbIns;
     rc = MMR3HeapAllocZEx(pVM, MM_TAG_PDM_USB, cb, (void **)&pUsbIns);

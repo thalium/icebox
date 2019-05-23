@@ -103,7 +103,7 @@ VBGLR3DECL(int) VbglR3SetPointerShape(uint32_t fFlags, uint32_t xHot, uint32_t y
     VMMDevReqMousePointer *pReq;
     size_t cbReq = vmmdevGetMousePointerReqSize(cx, cy);
     AssertReturn(   !pvImg
-                 || cbReq == RT_OFFSETOF(VMMDevReqMousePointer, pointerData) + cbImg,
+                 || cbReq == RT_UOFFSETOF(VMMDevReqMousePointer, pointerData) + cbImg,
                  VERR_INVALID_PARAMETER);
     int rc = vbglR3GRAlloc((VMMDevRequestHeader **)&pReq, cbReq, VMMDevReq_SetPointerShape);
     if (RT_SUCCESS(rc))

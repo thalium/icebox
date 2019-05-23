@@ -4,7 +4,7 @@
 #
 
 #
-# Copyright (C) 2004-2017 Oracle Corporation
+# Copyright (C) 2004-2018 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -346,7 +346,7 @@ VBoxSVC_DEFS = \
 	$(if $(VBOX_WITH_AUDIO_VALIDATIONKIT),VBOX_WITH_AUDIO_VALIDATIONKIT,) \
 	$(if $(VBOX_WITH_AUDIO_VIDEOREC),VBOX_WITH_AUDIO_VIDEOREC,) \
 	$(if $(VBOX_WITH_VIDEOREC),VBOX_WITH_VIDEOREC,) \
-	$(if $(VBOX_WITH_VRDE_AUDIO),VBOX_WITH_VRDE_AUDIO,) \
+	$(if $(VBOX_WITH_AUDIO_VRDE),VBOX_WITH_AUDIO_VRDE,) \
 	$(if $(VBOX_WITH_E1000),VBOX_WITH_E1000,) \
 	$(if $(VBOX_WITH_VIRTIO),VBOX_WITH_VIRTIO,) \
 	$(if $(VBOX_WITH_AHCI),VBOX_WITH_AHCI,) \
@@ -746,7 +746,7 @@ VBoxC_DEFS = \
 	$(if $(VBOX_WITH_AUDIO_VALIDATIONKIT),VBOX_WITH_AUDIO_VALIDATIONKIT,) \
 	$(if $(VBOX_WITH_AUDIO_VIDEOREC),VBOX_WITH_AUDIO_VIDEOREC,) \
 	$(if $(VBOX_WITH_VIDEOREC),VBOX_WITH_VIDEOREC,) \
-	$(if $(VBOX_WITH_VRDE_AUDIO),VBOX_WITH_VRDE_AUDIO,) \
+	$(if $(VBOX_WITH_AUDIO_VRDE),VBOX_WITH_AUDIO_VRDE,) \
 	$(if $(VBOX_WITH_E1000),VBOX_WITH_E1000,) \
 	$(if $(VBOX_WITH_VIRTIO),VBOX_WITH_VIRTIO,) \
 	$(if $(VBOX_WITH_EFI),VBOX_WITH_EFI,) \
@@ -911,7 +911,8 @@ VBoxC_SOURCES += \
 VBoxC_SOURCES += \
 	../Devices/Audio/AudioMixBuffer.cpp \
 	../Devices/Audio/DrvAudioCommon.cpp \
-	$(if $(VBOX_WITH_VRDE_AUDIO),src-client/DrvAudioVRDE.cpp,) \
+	src-client/AudioDriver.cpp \
+	$(if $(VBOX_WITH_AUDIO_VRDE),src-client/DrvAudioVRDE.cpp,) \
 	$(if $(VBOX_WITH_AUDIO_VIDEOREC),src-client/DrvAudioVideoRec.cpp,)
 
 VBoxC_SOURCES.win = \

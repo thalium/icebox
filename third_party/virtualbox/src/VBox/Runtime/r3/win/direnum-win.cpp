@@ -81,9 +81,8 @@ int rtDirNativeOpen(PRTDIRINTERNAL pDir, char *pszPathBuf, uintptr_t hRelativeDi
     /*
      * Attempt opening the search.
      */
-    int rc = VINF_SUCCESS;
     PRTUTF16 pwszName;
-    rc = RTStrToUtf16(pszPathBuf, &pwszName);
+    int rc = RTPathWinFromUtf8(pwszPathBuf, &pwszName, 0 /*fFlags*/);
     if (RT_SUCCESS(rc))
     {
         pDir->hDir = FindFirstFileW((LPCWSTR)pwszName, &pDir->Data);
@@ -99,7 +98,7 @@ int rtDirNativeOpen(PRTDIRINTERNAL pDir, char *pszPathBuf, uintptr_t hRelativeDi
             else
                 rc = RTErrConvertFromWin32(GetLastError());
         }
-        RTUtf16Free(pwszName);
+        RTPathWinFree(pwszName);
     }
 
     return rc;
@@ -160,7 +159,7 @@ RTDECL(int) RTDirRead(RTDIR hDir, PRTDIRENTRY pDirEntry, size_t *pcbDirEntry)
         cbDirEntry = *pcbDirEntry;
         if (cbDirEntry < RT_UOFFSETOF(RTDIRENTRY, szName[2]))
         {
-            AssertMsgFailed(("Invalid *pcbDirEntry=%d (min %d)\n", *pcbDirEntry, RT_OFFSETOF(RTDIRENTRY, szName[2])));
+            AssertMsgFailed(("Invalid *pcbDirEntry=%zu (min %zu)\n", *pcbDirEntry, RT_UOFFSETOF(RTDIRENTRY, szName[2])));
             return VERR_INVALID_PARAMETER;
         }
     }
@@ -202,7 +201,7 @@ RTDECL(int) RTDirRead(RTDIR hDir, PRTDIRENTRY pDirEntry, size_t *pcbDirEntry)
      */
     const char  *pszName    = pDir->pszName;
     const size_t cchName    = pDir->cchName;
-    const size_t cbRequired = RT_OFFSETOF(RTDIRENTRY, szName[1]) + cchName;
+    const size_t cbRequired = RT_UOFFSETOF(RTDIRENTRY, szName[1]) + cchName;
     if (pcbDirEntry)
         *pcbDirEntry = cbRequired;
     if (cbRequired > cbDirEntry)
@@ -254,7 +253,7 @@ RTDECL(int) RTDirReadEx(RTDIR hDir, PRTDIRENTRYEX pDirEntry, size_t *pcbDirEntry
         cbDirEntry = *pcbDirEntry;
         if (cbDirEntry < RT_UOFFSETOF(RTDIRENTRYEX, szName[2]))
         {
-            AssertMsgFailed(("Invalid *pcbDirEntry=%d (min %d)\n", *pcbDirEntry, RT_OFFSETOF(RTDIRENTRYEX, szName[2])));
+            AssertMsgFailed(("Invalid *pcbDirEntry=%zu (min %zu)\n", *pcbDirEntry, RT_UOFFSETOF(RTDIRENTRYEX, szName[2])));
             return VERR_INVALID_PARAMETER;
         }
     }
@@ -296,7 +295,7 @@ RTDECL(int) RTDirReadEx(RTDIR hDir, PRTDIRENTRYEX pDirEntry, size_t *pcbDirEntry
      */
     const char  *pszName    = pDir->pszName;
     const size_t cchName    = pDir->cchName;
-    const size_t cbRequired = RT_OFFSETOF(RTDIRENTRYEX, szName[1]) + cchName;
+    const size_t cbRequired = RT_UOFFSETOF(RTDIRENTRYEX, szName[1]) + cchName;
     if (pcbDirEntry)
         *pcbDirEntry = cbRequired;
     if (cbRequired > cbDirEntry)

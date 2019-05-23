@@ -812,7 +812,10 @@ int VBoxDnDWnd::OnHgEnter(const RTCList<RTCString> &lstFormats, uint32_t uAllAct
     reset();
     setMode(HG);
 
-    int rc = VINF_SUCCESS;
+    /* Check if the VM session has changed and reconnect to the HGCM service if necessary. */
+    int rc = checkForSessionChange();
+    if (RT_FAILURE(rc))
+        return rc;
 
     try
     {
@@ -1168,21 +1171,26 @@ int VBoxDnDWnd::OnGhIsDnDPending(uint32_t uScreenID)
     int rc;
     if (mState == Initialized)
     {
-        rc = makeFullscreen();
+        /* Check if the VM session has changed and reconnect to the HGCM service if necessary. */
+        rc = checkForSessionChange();
         if (RT_SUCCESS(rc))
         {
-            /*
-             * We have to release the left mouse button to
-             * get into our (invisible) proxy window.
-             */
-            mouseRelease();
+            rc = makeFullscreen();
+            if (RT_SUCCESS(rc))
+            {
+                /*
+                 * We have to release the left mouse button to
+                 * get into our (invisible) proxy window.
+                 */
+                mouseRelease();
 
-            /*
-             * Even if we just released the left mouse button
-             * we're still in the dragging state to handle our
-             * own drop target (for the host).
-             */
-            mState = Dragging;
+                /*
+                 * Even if we just released the left mouse button
+                 * we're still in the dragging state to handle our
+                 * own drop target (for the host).
+                 */
+                mState = Dragging;
+            }
         }
     }
     else
@@ -1241,7 +1249,7 @@ int VBoxDnDWnd::OnGhIsDnDPending(uint32_t uScreenID)
         else
         {
             strFormats = "unknown"; /* Prevent VERR_IO_GEN_FAILURE for IOCTL. */
-            LogFlowFunc(("No format data available yet\n"));
+            LogFlowFunc(("No format data from proxy window available yet\n"));
         }
 
         /** @todo Support more than one action at a time. */
@@ -1397,6 +1405,32 @@ int VBoxDnDWnd::ProcessEvent(PVBOXDNDEVENT pEvent)
     }
 
     return VINF_SUCCESS;
+}
+
+/**
+ * Checks if the VM session has changed (can happen when restoring the VM from a saved state)
+ * and do a reconnect to the DnD HGCM service.
+ *
+ * @returns IPRT status code.
+ */
+int VBoxDnDWnd::checkForSessionChange(void)
+{
+    uint64_t uSessionID;
+    int rc = VbglR3GetSessionId(&uSessionID);
+    if (   RT_SUCCESS(rc)
+        && uSessionID != mDnDCtx.uSessionID)
+    {
+        LogFlowThisFunc(("VM session has changed to %RU64\n", uSessionID));
+
+        rc = VbglR3DnDDisconnect(&mDnDCtx);
+        AssertRC(rc);
+
+        rc = VbglR3DnDConnect(&mDnDCtx);
+        AssertRC(rc);
+    }
+
+    LogFlowFuncLeaveRC(rc);
+    return rc;
 }
 
 /**

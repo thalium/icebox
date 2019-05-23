@@ -94,7 +94,7 @@ RTDECL(int) RTLdrOpenWithReader(PRTLDRREADER pReader, uint32_t fFlags, RTLDRARCH
     uint32_t offHdr = 0;
     if (uSign.au16[0] == IMAGE_DOS_SIGNATURE)
     {
-        rc = pReader->pfnRead(pReader, &offHdr, sizeof(offHdr), RT_OFFSETOF(IMAGE_DOS_HEADER, e_lfanew));
+        rc = pReader->pfnRead(pReader, &offHdr, sizeof(offHdr), RT_UOFFSETOF(IMAGE_DOS_HEADER, e_lfanew));
         if (RT_FAILURE(rc))
             return rc;
 

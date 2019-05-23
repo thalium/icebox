@@ -731,11 +731,11 @@ static void rtFsIsoImportProcessIso9660TreeWorkerParseRockRidge(PRTFSISOMKIMPORT
                     || pUnion->Hdr.bVersion != ISO9660SUSPSP_VER
                     || pUnion->SP.bCheck1   != ISO9660SUSPSP_CHECK1
                     || pUnion->SP.bCheck2   != ISO9660SUSPSP_CHECK2
-                    || pUnion->SP.cbSkip > UINT8_MAX - RT_OFFSETOF(ISO9660DIRREC, achFileId[1]))
+                    || pUnion->SP.cbSkip > UINT8_MAX - RT_UOFFSETOF(ISO9660DIRREC, achFileId[1]))
                     LogRel(("rtFsIsoImport/Rock: Malformed 'SP' entry: cbEntry=%#x (vs %#x), bVersion=%#x (vs %#x), bCheck1=%#x (vs %#x), bCheck2=%#x (vs %#x), cbSkip=%#x (vs max %#x)\n",
                             pUnion->Hdr.cbEntry, ISO9660SUSPSP_LEN, pUnion->Hdr.bVersion, ISO9660SUSPSP_VER,
                             pUnion->SP.bCheck1, ISO9660SUSPSP_CHECK1, pUnion->SP.bCheck2, ISO9660SUSPSP_CHECK2,
-                            pUnion->SP.cbSkip, UINT8_MAX - RT_OFFSETOF(ISO9660DIRREC, achFileId[1]) ));
+                            pUnion->SP.cbSkip, UINT8_MAX - RT_UOFFSETOF(ISO9660DIRREC, achFileId[1]) ));
                 else if (!fIsFirstDirRec)
                     LogRel(("rtFsIsoImport/Rock: Ignorining 'SP' entry in non-root directory record\n"));
                 else if (pThis->fSuspSeenSP)
@@ -749,7 +749,7 @@ static void rtFsIsoImportProcessIso9660TreeWorkerParseRockRidge(PRTFSISOMKIMPORT
                 break;
 
             case MAKE_SIG(ISO9660SUSPER_SIG1, ISO9660SUSPER_SIG2): /* ER */
-                if (   pUnion->Hdr.cbEntry >   RT_OFFSETOF(ISO9660SUSPER, achPayload) + (uint32_t)pUnion->ER.cchIdentifier
+                if (   pUnion->Hdr.cbEntry >   RT_UOFFSETOF(ISO9660SUSPER, achPayload) + (uint32_t)pUnion->ER.cchIdentifier
                                              + (uint32_t)pUnion->ER.cchDescription   + (uint32_t)pUnion->ER.cchSource
                     || pUnion->Hdr.bVersion != ISO9660SUSPER_VER)
                     LogRel(("rtFsIsoImport/Rock: Malformed 'ER' entry: cbEntry=%#x bVersion=%#x (vs %#x) cchIdentifier=%#x cchDescription=%#x cchSource=%#x\n",
@@ -913,11 +913,11 @@ static void rtFsIsoImportProcessIso9660TreeWorkerParseRockRidge(PRTFSISOMKIMPORT
 
             case MAKE_SIG(ISO9660RRIPSL_SIG1, ISO9660RRIPSL_SIG2): /* SL */
                 if (   pUnion->SL.Hdr.bVersion != ISO9660RRIPSL_VER
-                    || pUnion->SL.Hdr.cbEntry < RT_OFFSETOF(ISO9660RRIPSL, abComponents[2])
+                    || pUnion->SL.Hdr.cbEntry < RT_UOFFSETOF(ISO9660RRIPSL, abComponents[2])
                     || (pUnion->SL.fFlags & ~ISO9660RRIP_SL_F_CONTINUE)
                     || (pUnion->SL.abComponents[0] & ISO9660RRIP_SL_C_RESERVED_MASK) )
                     LogRel(("rtFsIsoImport/Rock: Malformed 'SL' entry: cbEntry=%#x (vs %#x), bVersion=%#x (vs %#x) fFlags=%#x comp[0].fFlags=%#x\n",
-                            pUnion->SL.Hdr.cbEntry, RT_OFFSETOF(ISO9660RRIPSL, abComponents[2]),
+                            pUnion->SL.Hdr.cbEntry, RT_UOFFSETOF(ISO9660RRIPSL, abComponents[2]),
                             pUnion->SL.Hdr.bVersion, ISO9660RRIPSL_VER, pUnion->SL.fFlags, pUnion->SL.abComponents[0]));
                 else if (pThis->fSeenLastSL)
                     LogRel(("rtFsIsoImport/Rock: Unexpected 'SL!' entry\n"));
@@ -927,7 +927,7 @@ static void rtFsIsoImportProcessIso9660TreeWorkerParseRockRidge(PRTFSISOMKIMPORT
 
                     size_t         offDst    = strlen(pThis->szRockSymlinkTargetBuf);
                     uint8_t const *pbSrc     = &pUnion->SL.abComponents[0];
-                    uint8_t        cbSrcLeft = pUnion->SL.Hdr.cbEntry - RT_OFFSETOF(ISO9660RRIPSL, abComponents);
+                    uint8_t        cbSrcLeft = pUnion->SL.Hdr.cbEntry - RT_UOFFSETOF(ISO9660RRIPSL, abComponents);
                     while (cbSrcLeft >= 2)
                     {
                         uint8_t const fFlags  = pbSrc[0];
@@ -1018,12 +1018,12 @@ static void rtFsIsoImportProcessIso9660TreeWorkerParseRockRidge(PRTFSISOMKIMPORT
 
             case MAKE_SIG(ISO9660RRIPNM_SIG1, ISO9660RRIPNM_SIG2): /* NM */
                 if (   pUnion->NM.Hdr.bVersion != ISO9660RRIPNM_VER
-                    || pUnion->NM.Hdr.cbEntry < RT_OFFSETOF(ISO9660RRIPNM, achName)
+                    || pUnion->NM.Hdr.cbEntry < RT_UOFFSETOF(ISO9660RRIPNM, achName)
                     || (pUnion->NM.fFlags & ISO9660RRIP_NM_F_RESERVED_MASK) )
                     LogRel(("rtFsIsoImport/Rock: Malformed 'NM' entry: cbEntry=%#x (vs %#x), bVersion=%#x (vs %#x) fFlags=%#x %.*Rhxs\n",
-                            pUnion->NM.Hdr.cbEntry, RT_OFFSETOF(ISO9660RRIPNM, achName),
+                            pUnion->NM.Hdr.cbEntry, RT_UOFFSETOF(ISO9660RRIPNM, achName),
                             pUnion->NM.Hdr.bVersion, ISO9660RRIPNM_VER, pUnion->NM.fFlags,
-                            pUnion->NM.Hdr.cbEntry - RT_MIN(pUnion->NM.Hdr.cbEntry, RT_OFFSETOF(ISO9660RRIPNM, achName)),
+                            pUnion->NM.Hdr.cbEntry - RT_MIN(pUnion->NM.Hdr.cbEntry, RT_UOFFSETOF(ISO9660RRIPNM, achName)),
                             &pUnion->NM.achName[0] ));
                 else if (pThis->fSeenLastNM)
                     LogRel(("rtFsIsoImport/Rock: Unexpected 'NM' entry!\n"));
@@ -1031,7 +1031,7 @@ static void rtFsIsoImportProcessIso9660TreeWorkerParseRockRidge(PRTFSISOMKIMPORT
                 {
                     pThis->fSeenLastNM = !(pUnion->NM.fFlags & ISO9660RRIP_NM_F_CONTINUE);
 
-                    uint8_t const cchName = pUnion->NM.Hdr.cbEntry - (uint8_t)RT_OFFSETOF(ISO9660RRIPNM, achName);
+                    uint8_t const cchName = pUnion->NM.Hdr.cbEntry - (uint8_t)RT_UOFFSETOF(ISO9660RRIPNM, achName);
                     if (pUnion->NM.fFlags & (ISO9660RRIP_NM_F_CURRENT | ISO9660RRIP_NM_F_PARENT))
                     {
                         if (cchName == 0 && pThis->szRockNameBuf[0] == '\0')
@@ -1162,10 +1162,10 @@ static int rtFsIsoImportValidateDirRec(PRTFSISOMKIMPORTER pThis, PCISO9660DIRREC
                                "Invalid dir rec extent: %#RX32, max %#RX32",
                                ISO9660_GET_ENDIAN(&pDirRec->offExtent), pThis->cBlocksInPrimaryVolumeSpace);
 
-    if (pDirRec->cbDirRec < RT_OFFSETOF(ISO9660DIRREC, achFileId) + pDirRec->bFileIdLength)
+    if (pDirRec->cbDirRec < RT_UOFFSETOF(ISO9660DIRREC, achFileId) + pDirRec->bFileIdLength)
         return rtFsIsoImpError(pThis, VERR_ISOMK_IMPORT_BAD_DIR_REC_LENGTH,
                                "Dir record size is too small: %#x (min %#x)",
-                               pDirRec->cbDirRec, RT_OFFSETOF(ISO9660DIRREC, achFileId) + pDirRec->bFileIdLength);
+                               pDirRec->cbDirRec, RT_UOFFSETOF(ISO9660DIRREC, achFileId) + pDirRec->bFileIdLength);
     if (pDirRec->cbDirRec > cbMax)
         return rtFsIsoImpError(pThis, VERR_ISOMK_IMPORT_BAD_DIR_REC_LENGTH,
                                "Dir record size is too big: %#x (max %#x)", pDirRec->cbDirRec, cbMax);
@@ -1829,10 +1829,10 @@ static int rtFsIsoImportValidateRootDirRec(PRTFSISOMKIMPORTER pThis, PCISO9660DI
                                "Invalid root dir extent: %#RX32, max %#RX32",
                                ISO9660_GET_ENDIAN(&pDirRec->offExtent), pThis->cBlocksInPrimaryVolumeSpace);
 
-    if (pDirRec->cbDirRec < RT_OFFSETOF(ISO9660DIRREC, achFileId))
+    if (pDirRec->cbDirRec < RT_UOFFSETOF(ISO9660DIRREC, achFileId))
         return rtFsIsoImpError(pThis, VERR_ISOMK_IMPORT_BAD_ROOT_DIR_REC_LENGTH,
                                "Root dir record size is too small: %#x (min %#x)",
-                               pDirRec->cbDirRec, RT_OFFSETOF(ISO9660DIRREC, achFileId));
+                               pDirRec->cbDirRec, RT_UOFFSETOF(ISO9660DIRREC, achFileId));
 
     if (!(pDirRec->fFileFlags & ISO9660_FILE_FLAGS_DIRECTORY))
         return rtFsIsoImpError(pThis, VERR_ISOMK_IMPORT_ROOT_DIR_WITHOUT_DIR_FLAG,

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2013-2017 Oracle Corporation
+ * Copyright (C) 2013-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -58,6 +58,8 @@ typedef struct DRVAUDIOVRDE
     ConsoleVRDPServer   *pConsoleVRDPServer;
     /** Pointer to the DrvAudio port interface that is above us. */
     PPDMIAUDIOCONNECTOR  pDrvAudio;
+    /** Number of connected clients to this VRDE instance. */
+    uint32_t             cClients;
 } DRVAUDIOVRDE, *PDRVAUDIOVRDE;
 
 typedef struct VRDESTREAM
@@ -68,19 +70,9 @@ typedef struct VRDESTREAM
     {
         struct
         {
-            /** Number of audio frames this stream can handle at once. */
-            uint32_t    cfMax;
             /** Circular buffer for holding the recorded audio frames from the host. */
             PRTCIRCBUF  pCircBuf;
         } In;
-        struct
-        {
-            /** Timestamp (in virtual time ticks) of the last audio playback (of the VRDP server). */
-            uint64_t    ticksPlayedLast;
-            /** Internal counter (in audio frames) to track if and how much we can write to the VRDP server
-             *  for the current time period. */
-            uint64_t    cfToWrite;
-        } Out;
     };
 } VRDESTREAM, *PVRDESTREAM;
 
@@ -89,23 +81,34 @@ AssertCompileSize(PDMAUDIOFRAME, sizeof(int64_t) * 2 /* st_sample_t using by VRD
 
 static int vrdeCreateStreamIn(PVRDESTREAM pStreamVRDE, PPDMAUDIOSTREAMCFG pCfgReq, PPDMAUDIOSTREAMCFG pCfgAcq)
 {
-    pStreamVRDE->In.cfMax = _1K; /** @todo Make this configurable. */
+    RT_NOREF(pCfgReq);
+    AssertPtrReturn(pCfgAcq, VERR_INVALID_POINTER);
 
-    int rc = RTCircBufCreate(&pStreamVRDE->In.pCircBuf, pStreamVRDE->In.cfMax * (pCfgReq->Props.cBits / 8) /* Bytes */);
+    pCfgAcq->Props.uHz         = 22050; /* The VRDP server's internal frequency. */
+    pCfgAcq->Props.cChannels   = 2;
+    pCfgAcq->Props.cBytes      = 2; /* 16 bit. */
+    pCfgAcq->Props.fSigned     = true;
+    pCfgAcq->Props.fSwapEndian = false;
+    pCfgAcq->Props.cShift      = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(pCfgAcq->Props.cBytes, pCfgAcq->Props.cChannels);
+
+    /* According to the VRDP docs, the VRDP server stores audio in 200ms chunks. */
+    const uint32_t cfVRDPServer = DrvAudioHlpMilliToFrames(200  /* ms */, &pCfgAcq->Props);
+
+    int rc = RTCircBufCreate(&pStreamVRDE->In.pCircBuf, DrvAudioHlpFramesToBytes(cfVRDPServer, &pCfgAcq->Props));
     if (RT_SUCCESS(rc))
     {
-        if (pCfgAcq)
-        {
-            /*
-             * Because of historical reasons the VRDP server operates on st_sample_t structures internally,
-             * which is 2 * int64_t for left/right (stereo) channels.
-             *
-             * As the audio connector also uses this format, set the layout to "raw" and just let pass through
-             * the data without any layout modification needed.
-             */
-            pCfgAcq->enmLayout        = PDMAUDIOSTREAMLAYOUT_RAW;
-            pCfgAcq->cFrameBufferHint = pStreamVRDE->In.cfMax;
-        }
+        /*
+         * Because of historical reasons the VRDP server operates on st_sample_t structures internally,
+         * which is 2 * int64_t for left/right (stereo) channels.
+         *
+         * As the audio connector also uses this format, set the layout to "raw" and just let pass through
+         * the data without any layout modification needed.
+         */
+        pCfgAcq->enmLayout        = PDMAUDIOSTREAMLAYOUT_RAW;
+
+        pCfgAcq->Backend.cfPeriod     = cfVRDPServer;
+        pCfgAcq->Backend.cfBufferSize = pCfgAcq->Backend.cfPeriod * 2; /* Use "double buffering". */
+        pCfgAcq->Backend.cfPreBuf     = pCfgAcq->Backend.cfPeriod;
     }
 
     return rc;
@@ -125,8 +128,18 @@ static int vrdeCreateStreamOut(PVRDESTREAM pStreamVRDE, PPDMAUDIOSTREAMCFG pCfgR
          * As the audio connector also uses this format, set the layout to "raw" and just let pass through
          * the data without any layout modification needed.
          */
-        pCfgAcq->enmLayout         = PDMAUDIOSTREAMLAYOUT_RAW;
-        pCfgAcq->cFrameBufferHint = _4K; /** @todo Make this configurable. */
+        pCfgAcq->enmLayout = PDMAUDIOSTREAMLAYOUT_RAW;
+
+        pCfgAcq->Props.uHz       = 22050; /* The VRDP server's internal frequency. */
+        pCfgAcq->Props.cChannels = 2;
+        pCfgAcq->Props.cBytes    = 2; /* 16 bit. */
+        pCfgAcq->Props.fSigned   = true;
+        pCfgAcq->Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(pCfgAcq->Props.cBytes, pCfgAcq->Props.cChannels);
+
+        /* According to the VRDP docs, the VRDP server stores audio in 200ms chunks. */
+        pCfgAcq->Backend.cfPeriod     = DrvAudioHlpMilliToFrames(20  /* ms */, &pCfgAcq->Props);
+        pCfgAcq->Backend.cfBufferSize = DrvAudioHlpMilliToFrames(100 /* ms */, &pCfgAcq->Props);
+        pCfgAcq->Backend.cfPreBuf     = pCfgAcq->Backend.cfPeriod * 2;
     }
 
     return VINF_SUCCESS;
@@ -157,12 +170,13 @@ static int vrdeControlStreamIn(PDRVAUDIOVRDE pDrv, PVRDESTREAM pStreamVRDE, PDMA
     {
         case PDMAUDIOSTREAMCMD_ENABLE:
         {
-            rc = pDrv->pConsoleVRDPServer->SendAudioInputBegin(NULL, pStreamVRDE, pStreamVRDE->In.cfMax,
+            rc = pDrv->pConsoleVRDPServer->SendAudioInputBegin(NULL, pStreamVRDE,
+                                                               DrvAudioHlpMilliToFrames(200 /* ms */, &pStreamVRDE->pCfg->Props),
                                                                pStreamVRDE->pCfg->Props.uHz, pStreamVRDE->pCfg->Props.cChannels,
-                                                               pStreamVRDE->pCfg->Props.cBits);
+                                                               pStreamVRDE->pCfg->Props.cBytes * 8 /* Bit */);
             if (rc == VERR_NOT_SUPPORTED)
             {
-                LogFunc(("No RDP client connected, so no input recording supported\n"));
+                LogRel2(("Audio: No VRDE client connected, so no input recording available\n"));
                 rc = VINF_SUCCESS;
             }
 
@@ -276,12 +290,12 @@ static DECLCALLBACK(int) drvAudioVRDEStreamPlay(PPDMIHOSTAUDIO pInterface, PPDMA
 
     VRDEAUDIOFORMAT format = VRDE_AUDIO_FMT_MAKE(pProps->uHz,
                                                  pProps->cChannels,
-                                                 pProps->cBits,
+                                                 pProps->cBytes * 8 /* Bit */,
                                                  pProps->fSigned);
 
     /* Use the internal counter to track if we (still) can write to the VRDP server
      * or if we need to wait another round (time slot). */
-    uint32_t cfToWrite = pStreamVRDE->Out.cfToWrite;
+    uint32_t cfToWrite = cfLive;
 
     Log3Func(("cfLive=%RU32, cfToWrite=%RU32\n", cfLive, cfToWrite));
 
@@ -318,13 +332,6 @@ static DECLCALLBACK(int) drvAudioVRDEStreamPlay(PPDMIHOSTAUDIO pInterface, PPDMA
 
     if (RT_SUCCESS(rc))
     {
-        /* Subtract written frames from the counter. */
-        Assert(pStreamVRDE->Out.cfToWrite >= cfWritten);
-        pStreamVRDE->Out.cfToWrite      -= cfWritten;
-
-        /* Remember when frames were consumed. */
-        pStreamVRDE->Out.ticksPlayedLast = PDMDrvHlpTMGetVirtualTime(pDrv->pDrvIns);
-
         /* Return frames instead of bytes here
          * (since we specified PDMAUDIOSTREAMLAYOUT_RAW as the audio data layout). */
         if (pcxWritten)
@@ -366,6 +373,8 @@ static DECLCALLBACK(int) drvAudioVRDEGetConfig(PPDMIHOSTAUDIO pInterface, PPDMAU
     RT_NOREF(pInterface);
     AssertPtrReturn(pBackendCfg, VERR_INVALID_POINTER);
 
+    RTStrPrintf2(pBackendCfg->szName, sizeof(pBackendCfg->szName), "VRDE audio driver");
+
     pBackendCfg->cbStreamOut    = sizeof(VRDESTREAM);
     pBackendCfg->cbStreamIn     = sizeof(VRDESTREAM);
     pBackendCfg->cMaxStreamsIn  = UINT32_MAX;
@@ -393,8 +402,10 @@ static DECLCALLBACK(void) drvAudioVRDEShutdown(PPDMIHOSTAUDIO pInterface)
  */
 static DECLCALLBACK(PDMAUDIOBACKENDSTS) drvAudioVRDEGetStatus(PPDMIHOSTAUDIO pInterface, PDMAUDIODIR enmDir)
 {
+    PDRVAUDIOVRDE pDrv = RT_FROM_MEMBER(pInterface, DRVAUDIOVRDE, IHostAudio);
+    AssertPtrReturn(pDrv, PDMAUDIOBACKENDSTS_ERROR);
+
     RT_NOREF(enmDir);
-    AssertPtrReturn(pInterface, PDMAUDIOBACKENDSTS_UNKNOWN);
 
     return PDMAUDIOBACKENDSTS_RUNNING;
 }
@@ -515,18 +526,16 @@ static DECLCALLBACK(uint32_t) drvAudioVRDEStreamGetWritable(PPDMIHOSTAUDIO pInte
     PDRVAUDIOVRDE pDrv        = RT_FROM_MEMBER(pInterface, DRVAUDIOVRDE, IHostAudio);
     PVRDESTREAM   pStreamVRDE = (PVRDESTREAM)pStream;
 
-    const uint64_t ticksNow     = PDMDrvHlpTMGetVirtualTime(pDrv->pDrvIns);
-    const uint64_t ticksElapsed = ticksNow  - pStreamVRDE->Out.ticksPlayedLast;
-    const uint64_t ticksPerSec  = PDMDrvHlpTMGetVirtualFreq(pDrv->pDrvIns);
-
     PPDMAUDIOPCMPROPS pProps  = &pStreamVRDE->pCfg->Props;
 
-    /* Minimize the rounding error: frames = int((ticks * freq) / ticks_per_second + 0.5). */
-    pStreamVRDE->Out.cfToWrite = (int)((2 * ticksElapsed * pProps->uHz + ticksPerSec) / ticksPerSec / 2);
+    RT_NOREF(pDrv,  pProps);
 
     /* Return frames instead of bytes here
      * (since we specified PDMAUDIOSTREAMLAYOUT_RAW as the audio data layout). */
-    return pStreamVRDE->Out.cfToWrite;
+    if (pDrv->cClients)
+        return _16K; /** @todo Find some sane value here. We probably need a VRDE API VRDE to specify this. */
+
+    return 0;
 }
 
 
@@ -535,9 +544,15 @@ static DECLCALLBACK(uint32_t) drvAudioVRDEStreamGetWritable(PPDMIHOSTAUDIO pInte
  */
 static DECLCALLBACK(PDMAUDIOSTREAMSTS) drvAudioVRDEStreamGetStatus(PPDMIHOSTAUDIO pInterface, PPDMAUDIOBACKENDSTREAM pStream)
 {
-    RT_NOREF(pInterface, pStream);
+    PDRVAUDIOVRDE pDrv = RT_FROM_MEMBER(pInterface, DRVAUDIOVRDE, IHostAudio);
+    RT_NOREF(pStream);
 
-    return (PDMAUDIOSTREAMSTS_FLAG_INITIALIZED | PDMAUDIOSTREAMSTS_FLAG_ENABLED);
+    PDMAUDIOSTREAMSTS streamSts = PDMAUDIOSTREAMSTS_FLAG_INITIALIZED;
+
+    if (pDrv->cClients) /* If any clients are connected, flag the stream as enabled. */
+       streamSts |= PDMAUDIOSTREAMSTS_FLAG_ENABLED;
+
+    return streamSts;
 }
 
 
@@ -569,8 +584,8 @@ static DECLCALLBACK(void *) drvAudioVRDEQueryInterface(PPDMIBASE pInterface, con
 
 
 AudioVRDE::AudioVRDE(Console *pConsole)
-    : mpDrv(NULL),
-      mParent(pConsole)
+    : AudioDriver(pConsole)
+    , mpDrv(NULL)
 {
 }
 
@@ -582,6 +597,39 @@ AudioVRDE::~AudioVRDE(void)
         mpDrv->pAudioVRDE = NULL;
         mpDrv = NULL;
     }
+}
+
+
+/**
+ * @copydoc AudioDriver::configureDriver
+ */
+int AudioVRDE::configureDriver(PCFGMNODE pLunCfg)
+{
+    CFGMR3InsertInteger(pLunCfg, "Object", (uintptr_t)this);
+    CFGMR3InsertInteger(pLunCfg, "ObjectVRDPServer", (uintptr_t)mpConsole->i_consoleVRDPServer());
+
+    return VINF_SUCCESS;
+}
+
+
+void AudioVRDE::onVRDEClientConnect(uint32_t uClientID)
+{
+    RT_NOREF(uClientID);
+
+    LogRel2(("Audio: VRDE client connected\n"));
+    if (mpDrv)
+        mpDrv->cClients++;
+}
+
+
+void AudioVRDE::onVRDEClientDisconnect(uint32_t uClientID)
+{
+    RT_NOREF(uClientID);
+
+    LogRel2(("Audio: VRDE client disconnected\n"));
+    Assert(mpDrv->cClients);
+    if (mpDrv)
+        mpDrv->cClients--;
 }
 
 
@@ -706,6 +754,7 @@ DECLCALLBACK(int) AudioVRDE::drvConstruct(PPDMDRVINS pDrvIns, PCFGMNODE pCfg, ui
 
     /* CFGM tree saves the pointer to ConsoleVRDPServer in the Object node of AudioVRDE. */
     pThis->pConsoleVRDPServer = (ConsoleVRDPServer *)pvUser;
+    pThis->cClients = 0;
 
     /*
      * Get the AudioVRDE object pointer.
@@ -749,6 +798,30 @@ DECLCALLBACK(void) AudioVRDE::drvDestruct(PPDMDRVINS pDrvIns)
     }
 }
 
+/**
+ * @interface_method_impl{PDMDRVREG,pfnAttach}
+ */
+/* static */
+DECLCALLBACK(int) AudioVRDE::drvAttach(PPDMDRVINS pDrvIns, uint32_t fFlags)
+{
+    RT_NOREF(pDrvIns, fFlags);
+
+    LogFlowFuncEnter();
+
+    return VINF_SUCCESS;
+}
+
+/**
+ * @interface_method_impl{PDMDRVREG,pfnDetach}
+ */
+/* static */
+DECLCALLBACK(void) AudioVRDE::drvDetach(PPDMDRVINS pDrvIns, uint32_t fFlags)
+{
+    RT_NOREF(pDrvIns, fFlags);
+
+    LogFlowFuncEnter();
+}
+
 
 /**
  * VRDE audio driver registration record.
@@ -789,9 +862,9 @@ const PDMDRVREG AudioVRDE::DrvReg =
     /* pfnResume */
     NULL,
     /* pfnAttach */
-    NULL,
+    AudioVRDE::drvAttach,
     /* pfnDetach */
-    NULL,
+    AudioVRDE::drvDetach,
     /* pfnPowerOff */
     NULL,
     /* pfnSoftReset */

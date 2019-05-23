@@ -106,7 +106,8 @@ RTDECL(int) RTCrPkixSignatureCreate(PRTCRPKIXSIGNATURE phSignature, PCRTCRPKIXSI
      * Instantiate the algorithm for the given operation.
      */
     int rc = VINF_SUCCESS;
-    PRTCRPKIXSIGNATUREINT pThis = (PRTCRPKIXSIGNATUREINT)RTMemAllocZ(RT_OFFSETOF(RTCRPKIXSIGNATUREINT, abState[pDesc->cbState]));
+    PRTCRPKIXSIGNATUREINT pThis = (PRTCRPKIXSIGNATUREINT)RTMemAllocZ(RT_UOFFSETOF_DYN(RTCRPKIXSIGNATUREINT,
+                                                                                      abState[pDesc->cbState]));
     if (pThis)
     {
         pThis->u32Magic     = RTCRPKIXSIGNATUREINT_MAGIC;
@@ -159,7 +160,7 @@ RTDECL(uint32_t) RTCrPkixSignatureRelease(RTCRPKIXSIGNATURE hSignature)
         if (pThis->pDesc->pfnDelete)
             pThis->pDesc->pfnDelete(pThis->pDesc, pThis->abState, pThis->fSigning);
 
-        size_t cbToWipe = RT_OFFSETOF(RTCRPKIXSIGNATUREINT, abState[pThis->pDesc->cbState]);
+        size_t cbToWipe = RT_UOFFSETOF_DYN(RTCRPKIXSIGNATUREINT, abState[pThis->pDesc->cbState]);
         RTMemWipeThoroughly(pThis, cbToWipe, 6);
 
         RTMemFree(pThis);

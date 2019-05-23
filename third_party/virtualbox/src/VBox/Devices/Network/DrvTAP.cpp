@@ -133,7 +133,7 @@ typedef struct DRVTAP
 
 
 /** Converts a pointer to TAP::INetworkUp to a PRDVTAP. */
-#define PDMINETWORKUP_2_DRVTAP(pInterface) ( (PDRVTAP)((uintptr_t)pInterface - RT_OFFSETOF(DRVTAP, INetworkUp)) )
+#define PDMINETWORKUP_2_DRVTAP(pInterface) ( (PDRVTAP)((uintptr_t)pInterface - RT_UOFFSETOF(DRVTAP, INetworkUp)) )
 
 
 /*********************************************************************************************************************************

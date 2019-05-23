@@ -735,7 +735,7 @@ static int dbgfR3TypeParseBufferByType(PUVM pUVM, PDBGFTYPE pType, uint8_t *pbBu
     int rc = VINF_SUCCESS;
     uint32_t cEntries = pType->pReg ? pType->pReg->cMembers : 1;
     PDBGFTYPEVAL pVal = (PDBGFTYPEVAL)MMR3HeapAllocZU(pUVM, MM_TAG_DBGF_TYPE,
-                                                      RT_OFFSETOF(DBGFTYPEVAL, aEntries[cEntries]));
+                                                      RT_UOFFSETOF_DYN(DBGFTYPEVAL, aEntries[cEntries]));
     if (RT_LIKELY(pVal))
     {
         size_t cbParsed = 0;

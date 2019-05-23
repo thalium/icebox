@@ -953,7 +953,7 @@ static int supdrvTracerRegisterVtgObj(PSUPDRVDEVEXT pDevExt, PVTGOBJHDR pVtgHdr,
         const char      *pszName = supdrvVtgGetString(pVtgHdr, pDesc->offName);
         size_t const     cchName = strlen(pszName) + (pUmod ? 16 : 0);
 
-        pProv = (PSUPDRVTPPROVIDER)RTMemAllocZ(RT_OFFSETOF(SUPDRVTPPROVIDER, szName[cchName + 1 + cchModName + 1]));
+        pProv = (PSUPDRVTPPROVIDER)RTMemAllocZ(RT_UOFFSETOF_DYN(SUPDRVTPPROVIDER, szName[cchName + 1 + cchModName + 1]));
         if (pProv)
         {
             pProv->Core.pszName         = &pProv->szName[0];
@@ -1726,7 +1726,7 @@ static int supdrvVtgCreateObjectCopy(PSUPDRVDEVEXT pDevExt, PCVTGOBJHDR pVtgHdr,
     uint32_t const  cbProbeLocs  = cProbeLocs * sizeof(VTGPROBELOC);
     uint32_t const  offProbeLocs = RT_ALIGN(pVtgHdr->cbObj, 8);
     size_t const    cb           = offProbeLocs + cbProbeLocs + cbStrTab + 1;
-    PSUPDRVVTGCOPY  pThis = (PSUPDRVVTGCOPY)RTMemAlloc(RT_OFFSETOF(SUPDRVVTGCOPY, Hdr) + cb);
+    PSUPDRVVTGCOPY  pThis = (PSUPDRVVTGCOPY)RTMemAlloc(RT_UOFFSETOF(SUPDRVVTGCOPY, Hdr) + cb);
     if (!pThis)
         return VERR_NO_MEMORY;
 
@@ -2018,7 +2018,7 @@ int  VBOXCALL   supdrvIOCtl_TracerUmodRegister(PSUPDRVDEVEXT pDevExt, PSUPDRVSES
     /*
      * Allocate the tracker data we keep in the session.
      */
-    pUmod = (PSUPDRVTRACERUMOD)RTMemAllocZ(  RT_OFFSETOF(SUPDRVTRACERUMOD, aProbeLocs[cProbeLocs])
+    pUmod = (PSUPDRVTRACERUMOD)RTMemAllocZ(  RT_UOFFSETOF_DYN(SUPDRVTRACERUMOD, aProbeLocs[cProbeLocs])
                                            + (Hdr.cbProbeEnabled / sizeof(uint32_t) * sizeof(SUPDRVPROBEINFO)) );
     if (!pUmod)
         return VERR_NO_MEMORY;

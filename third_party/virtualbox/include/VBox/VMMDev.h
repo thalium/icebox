@@ -386,7 +386,7 @@ AssertCompileSize(VMMDevReqMousePointer, 24+24);
  */
 DECLINLINE(size_t) vmmdevGetMousePointerReqSize(uint32_t width, uint32_t height)
 {
-    size_t cbBase = RT_OFFSETOF(VMMDevReqMousePointer, pointerData[0]);
+    size_t cbBase = RT_UOFFSETOF(VMMDevReqMousePointer, pointerData[0]);
     size_t cbMask = (width + 7) / 8 * height;
     size_t cbArgb = width * height * 4;
     return RT_MAX(cbBase + ((cbMask + 3) & ~3) + cbArgb,

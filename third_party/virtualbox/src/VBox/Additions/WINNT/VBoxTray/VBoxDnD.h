@@ -352,6 +352,7 @@ public:
 
 protected:
 
+    int checkForSessionChange(void);
     int makeFullscreen(void);
     int mouseMove(int x, int y, DWORD dwMouseInputFlags);
     int mouseRelease(void);

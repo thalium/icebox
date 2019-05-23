@@ -2142,7 +2142,7 @@ VMMR0DECL(void) vmmR0LoggerFlush(PRTLOGGER pLogger)
      * Convert the pLogger into a VM handle and 'call' back to Ring-3.
      * (This is a bit paranoid code.)
      */
-    PVMMR0LOGGER pR0Logger = (PVMMR0LOGGER)((uintptr_t)pLogger - RT_OFFSETOF(VMMR0LOGGER, Logger));
+    PVMMR0LOGGER pR0Logger = (PVMMR0LOGGER)((uintptr_t)pLogger - RT_UOFFSETOF(VMMR0LOGGER, Logger));
     if (    !VALID_PTR(pR0Logger)
         ||  !VALID_PTR(pR0Logger + 1)
         ||  pLogger->u32Magic != RTLOGGER_MAGIC)

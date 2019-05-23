@@ -9,7 +9,7 @@
  */
 
 /*
- * Copyright (C) 2006-2017 Oracle Corporation
+ * Copyright (C) 2006-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -121,6 +121,12 @@
 # endif
 #endif /* VBOX_WITH_NETFLT */
 
+#ifdef VBOX_WITH_AUDIO_VRDE
+# include "DrvAudioVRDE.h"
+#endif
+#ifdef VBOX_WITH_AUDIO_VIDEOREC
+# include "DrvAudioVideoRec.h"
+#endif
 #include "NetworkServiceRunner.h"
 #include "BusAssignmentManager.h"
 #ifdef VBOX_WITH_EXTPACK
@@ -2817,6 +2823,9 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
             Utf8Str strDebugPathOut;
             GetExtraDataBoth(virtualBox, pMachine, "VBoxInternal2/Audio/Debug/PathOut", &strDebugPathOut);
 
+            /** @todo Implement an audio device class, similar to the audio backend class, to construct the common stuff
+             *        without duplicating (more) code. */
+
             switch (audioController)
             {
                 case AudioControllerType_AC97:
@@ -2839,6 +2848,8 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
                             break;
                         default: AssertFailedBreak();
                     }
+                    InsertConfigInteger(pCfg, "DebugEnabled", fDebugEnabled);
+                    InsertConfigString (pCfg, "DebugPathOut", strDebugPathOut);
                     break;
                 }
                 case AudioControllerType_SB16:
@@ -2867,14 +2878,15 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
                     InsertConfigInteger(pInst,    "Trusted",               1); /* boolean */
                     hrc = pBusMgr->assignPCIDevice(strAudioDevice.c_str(), pInst);          H();
                     InsertConfigNode   (pInst,    "Config",                &pCfg);
-
-                        InsertConfigInteger(pCfg, "DebugEnabled", fDebugEnabled);
-                        InsertConfigString (pCfg, "DebugPathOut", strDebugPathOut);
+                    InsertConfigInteger(pCfg,     "DebugEnabled",          fDebugEnabled);
+                    InsertConfigString (pCfg,     "DebugPathOut",          strDebugPathOut);
+                    break;
                 }
+                default: AssertFailedBreak();
             }
 
-            PCFGMNODE pCfgAudioSettings = NULL;
-            InsertConfigNode(pInst, "AudioConfig", &pCfgAudioSettings);
+            PCFGMNODE pCfgAudioAdapter = NULL;
+            InsertConfigNode(pInst, "AudioConfig", &pCfgAudioAdapter);
             SafeArray<BSTR> audioProps;
             hrc = audioAdapter->COMGETTER(PropertiesList)(ComSafeArrayAsOutParam(audioProps));  H();
 
@@ -2885,7 +2897,7 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
                 audioPropertyNamesList.push_back(Utf8Str(audioProps[i]));
                 hrc = audioAdapter->GetProperty(audioProps[i], bstrValue.asOutParam());
                 Utf8Str strKey(audioProps[i]);
-                InsertConfigString(pCfgAudioSettings, strKey.c_str(), bstrValue);
+                InsertConfigString(pCfgAudioAdapter, strKey.c_str(), bstrValue);
             }
 
             /*
@@ -2962,86 +2974,40 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
 
             unsigned uAudioLUN = 0;
 
-            BOOL fAudioEnabledIn = FALSE;
-            hrc = audioAdapter->COMGETTER(EnabledIn)(&fAudioEnabledIn);                     H();
-            BOOL fAudioEnabledOut = FALSE;
-            hrc = audioAdapter->COMGETTER(EnabledOut)(&fAudioEnabledOut);                   H();
+            CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", uAudioLUN);
+            rc = i_configAudioDriver(audioAdapter, virtualBox, pMachine, pLunL0,
+                                     strAudioDriver.c_str());
+            if (RT_SUCCESS(rc))
+                uAudioLUN++;
 
-            CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", uAudioLUN++);
-            InsertConfigString(pLunL0, "Driver", "AUDIO");
-
-            InsertConfigNode(pLunL0,   "Config", &pCfg);
-                InsertConfigString (pCfg, "DriverName",    strAudioDriver.c_str());
-                InsertConfigInteger(pCfg, "InputEnabled",  fAudioEnabledIn);
-                InsertConfigInteger(pCfg, "OutputEnabled", fAudioEnabledOut);
-                InsertConfigInteger(pCfg, "DebugEnabled",  fDebugEnabled);
-                InsertConfigString (pCfg, "DebugPathOut",  strDebugPathOut);
-
-                InsertConfigNode(pLunL0, "AttachedDriver", &pLunL1);
-
-                    InsertConfigNode(pLunL1, "Config", &pCfg);
-
-                        hrc = pMachine->COMGETTER(Name)(bstr.asOutParam());                     H();
-                        InsertConfigString(pCfg, "StreamName", bstr);
-
-                    InsertConfigString(pLunL1, "Driver", strAudioDriver.c_str());
-
-#ifdef VBOX_WITH_VRDE_AUDIO
-            /*
-             * The VRDE audio backend driver.
-             */
-            CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", uAudioLUN++);
-            InsertConfigString(pLunL0, "Driver", "AUDIO");
-
-            InsertConfigNode(pLunL0,   "Config", &pCfg);
-                InsertConfigString (pCfg, "DriverName",    "AudioVRDE");
-                InsertConfigInteger(pCfg, "InputEnabled",  fAudioEnabledIn);
-                InsertConfigInteger(pCfg, "OutputEnabled", fAudioEnabledOut);
-                InsertConfigInteger(pCfg, "DebugEnabled",  fDebugEnabled);
-                InsertConfigString (pCfg, "DebugPathOut",  strDebugPathOut);
-
-            InsertConfigNode(pLunL0, "AttachedDriver", &pLunL1);
-                InsertConfigString(pLunL1, "Driver", "AudioVRDE");
-
-                InsertConfigNode(pLunL1, "Config", &pCfg);
-                    InsertConfigString (pCfg, "StreamName", bstr);
-                    InsertConfigInteger(pCfg, "Object", (uintptr_t)mAudioVRDE);
-                    InsertConfigInteger(pCfg, "ObjectVRDPServer", (uintptr_t)mConsoleVRDPServer);
-#endif /* VBOX_WITH_VRDE_AUDIO */
+#ifdef VBOX_WITH_AUDIO_VRDE
+            /* Insert dummy audio driver to have the LUN configured. */
+            CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", uAudioLUN);
+                InsertConfigString(pLunL0, "Driver", "AUDIO");
+            AudioDriverCfg DrvCfgVRDE(strAudioDevice, 0 /* Instance */, uAudioLUN, "AudioVRDE");
+            rc = mAudioVRDE->InitializeConfig(&DrvCfgVRDE);
+            if (RT_SUCCESS(rc))
+                uAudioLUN++;
+#endif /* VBOX_WITH_AUDIO_VRDE */
 
 #ifdef VBOX_WITH_AUDIO_VIDEOREC
-            Display *pDisplay = i_getDisplay();
-            if (pDisplay)
-            {
-                /* Note: Don't do any driver attaching (fAttachDetach) here, as this will
-                 *       be done automatically as part of the VM startup process. */
-                rc = pDisplay->i_videoRecConfigure(pDisplay, pDisplay->i_videoRecGetConfig(), false /* fAttachDetach */,
-                                                   &uAudioLUN);
-                if (RT_SUCCESS(rc)) /* Successfully configured, use next LUN for drivers below. */
-                    uAudioLUN++;
-            }
+            /* Insert dummy audio driver to have the LUN configured. */
+            CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", uAudioLUN);
+                InsertConfigString(pLunL0, "Driver", "AUDIO");
+            AudioDriverCfg DrvCfgVideoRec(strAudioDevice, 0 /* Instance */, uAudioLUN, "AudioVideoRec");
+            rc = mAudioVideoRec->InitializeConfig(&DrvCfgVideoRec);
+            if (RT_SUCCESS(rc))
+                uAudioLUN++;
 #endif /* VBOX_WITH_AUDIO_VIDEOREC */
 
             if (fDebugEnabled)
             {
 #ifdef VBOX_WITH_AUDIO_DEBUG
-                /*
-                 * The audio debugging backend.
-                 */
-                CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", uAudioLUN++);
-                InsertConfigString(pLunL0, "Driver", "AUDIO");
-
-                InsertConfigNode(pLunL0,   "Config", &pCfg);
-                    InsertConfigString (pCfg, "DriverName",    "DebugAudio");
-                    InsertConfigInteger(pCfg, "InputEnabled",  fAudioEnabledIn);
-                    InsertConfigInteger(pCfg, "OutputEnabled", fAudioEnabledOut);
-                    InsertConfigInteger(pCfg, "DebugEnabled",  fDebugEnabled);
-                    InsertConfigString (pCfg, "DebugPathOut",  strDebugPathOut);
-
-                InsertConfigNode(pLunL0, "AttachedDriver", &pLunL1);
-
-                    InsertConfigString(pLunL1, "Driver", "DebugAudio");
-                    InsertConfigNode  (pLunL1, "Config", &pCfg);
+                CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", uAudioLUN);
+                rc = i_configAudioDriver(audioAdapter, virtualBox, pMachine, pLunL0,
+                                         "DebugAudio");
+                if (RT_SUCCESS(rc))
+                    uAudioLUN++;
 #endif /* VBOX_WITH_AUDIO_DEBUG */
 
                 /*
@@ -3066,20 +3032,11 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
             /*
              * The ValidationKit backend.
              */
-            CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", uAudioLUN++);
-            InsertConfigString(pLunL0, "Driver", "AUDIO");
-            InsertConfigNode(pLunL0,   "Config", &pCfg);
-                InsertConfigString (pCfg, "DriverName",    "ValidationKitAudio");
-                InsertConfigInteger(pCfg, "InputEnabled",  fAudioEnabledIn);
-                InsertConfigInteger(pCfg, "OutputEnabled", fAudioEnabledOut);
-                InsertConfigInteger(pCfg, "DebugEnabled",  fDebugEnabled);
-                InsertConfigString (pCfg, "DebugPathOut",  strDebugPathOut);
-
-            InsertConfigNode(pLunL0, "AttachedDriver", &pLunL1);
-
-                InsertConfigString(pLunL1, "Driver", "ValidationKitAudio");
-                InsertConfigNode  (pLunL1, "Config", &pCfg);
-                    InsertConfigString(pCfg, "StreamName", bstr);
+            CFGMR3InsertNodeF(pInst, &pLunL0, "LUN#%RU8", uAudioLUN);
+            rc = i_configAudioDriver(audioAdapter, virtualBox, pMachine, pLunL0,
+                                     "ValidationKitAudio");
+            if (RT_SUCCESS(rc))
+                uAudioLUN++;
 #endif /* VBOX_WITH_AUDIO_VALIDATIONKIT */
         }
 
@@ -3484,6 +3441,108 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
     LogFlowFuncLeave();
 
     return rc;
+}
+
+/**
+ * Retrieves an uint32_t value from the audio driver's extra data branch
+ * (VBoxInternal2/Audio/DriverName/Value), or, if not found, use global branch
+ * (VBoxInternal2/Audio/Value).
+ *
+ * The driver branch always supersedes the global branch.
+ * If both branches are not found (empty), return the given default value.
+ *
+ * @return VBox status code.
+ * @param  pVirtualBox          Pointer to IVirtualBox instance.
+ * @param  pMachine             Pointer to IMachine instance.
+ * @param  pszDriverName        Audio driver name to retrieve value for.
+ * @param  pszValue             Value name to retrieve.
+ * @param  uDefault             Default value to return if value not found / invalid.
+ */
+uint32_t Console::i_getAudioDriverValU32(IVirtualBox *pVirtualBox, IMachine *pMachine,
+                                         const char *pszDriverName, const char *pszValue, uint32_t uDefault)
+{
+    Utf8Str strTmp;
+
+    Utf8StrFmt strPathDrv("VBoxInternal2/Audio/%s/%s", pszDriverName, pszValue);
+    GetExtraDataBoth(pVirtualBox, pMachine, strPathDrv.c_str(), &strTmp);
+    if (strTmp.isEmpty())
+    {
+        Utf8StrFmt strPathGlobal("VBoxInternal2/Audio/%s", pszValue);
+        GetExtraDataBoth(pVirtualBox, pMachine, strPathGlobal.c_str(), &strTmp);
+        if (strTmp.isNotEmpty())
+            return strTmp.toUInt32();
+    }
+    else /* Return driver-specific value. */
+        return strTmp.toUInt32();
+
+    return uDefault;
+}
+
+/**
+ * Configures an audio driver via CFGM by getting (optional) values from extra data.
+ *
+ * @return VBox status code.
+ * @param  pAudioAdapter        Pointer to audio adapter instance. Needed for the driver's input / output configuration.
+ * @param  pVirtualBox          Pointer to IVirtualBox instance.
+ * @param  pMachine             Pointer to IMachine instance.
+ * @param  pLUN                 Pointer to CFGM node of LUN (the driver) to configure.
+ * @param  pszDrvName           Name of the driver to configure.
+ */
+int Console::i_configAudioDriver(IAudioAdapter *pAudioAdapter, IVirtualBox *pVirtualBox, IMachine *pMachine,
+                                 PCFGMNODE pLUN, const char *pszDrvName)
+{
+#define H()         AssertLogRelMsgReturn(!FAILED(hrc), ("hrc=%Rhrc\n", hrc), VERR_MAIN_CONFIG_CONSTRUCTOR_COM_ERROR)
+
+    HRESULT hrc;
+
+    Utf8Str strTmp;
+    GetExtraDataBoth(pVirtualBox, pMachine, "VBoxInternal2/Audio/Debug/Enabled", &strTmp);
+    const uint64_t fDebugEnabled = (strTmp.equalsIgnoreCase("true") || strTmp.equalsIgnoreCase("1")) ? 1 : 0;
+
+    BOOL fAudioEnabledIn = FALSE;
+    hrc = pAudioAdapter->COMGETTER(EnabledIn)(&fAudioEnabledIn);                             H();
+    BOOL fAudioEnabledOut = FALSE;
+    hrc = pAudioAdapter->COMGETTER(EnabledOut)(&fAudioEnabledOut);
+
+    InsertConfigString(pLUN, "Driver", "AUDIO");
+
+    PCFGMNODE pCfg;
+    InsertConfigNode(pLUN,   "Config", &pCfg);
+        InsertConfigString (pCfg, "DriverName",    pszDrvName);
+        InsertConfigInteger(pCfg, "InputEnabled",  fAudioEnabledIn);
+        InsertConfigInteger(pCfg, "OutputEnabled", fAudioEnabledOut);
+
+        if (fDebugEnabled)
+        {
+            InsertConfigInteger(pCfg, "DebugEnabled",  fDebugEnabled);
+
+            Utf8Str strDebugPathOut;
+            GetExtraDataBoth(pVirtualBox, pMachine, "VBoxInternal2/Audio/Debug/PathOut", &strDebugPathOut);
+            InsertConfigString(pCfg, "DebugPathOut",  strDebugPathOut.c_str());
+        }
+
+        InsertConfigInteger(pCfg, "PeriodSizeMs",
+                            i_getAudioDriverValU32(pVirtualBox, pMachine, pszDrvName, "PeriodSizeMs", 0 /* Default */));
+        InsertConfigInteger(pCfg, "BufferSizeMs",
+                            i_getAudioDriverValU32(pVirtualBox, pMachine, pszDrvName, "BufferSizeMs", 0 /* Default */));
+        InsertConfigInteger(pCfg, "PreBufferSizeMs",
+                            i_getAudioDriverValU32(pVirtualBox, pMachine, pszDrvName, "PreBufferSizeMs", UINT32_MAX /* Default */));
+
+    PCFGMNODE pLunL1;
+    InsertConfigNode(pLUN, "AttachedDriver", &pLunL1);
+
+        InsertConfigNode(pLunL1, "Config", &pCfg);
+
+            Bstr bstrTmp;
+            hrc = pMachine->COMGETTER(Name)(bstrTmp.asOutParam());                           H();
+            InsertConfigString(pCfg, "StreamName", bstrTmp);
+
+        InsertConfigString(pLunL1, "Driver", pszDrvName);
+
+    LogFlowFunc(("szDrivName=%s, hrc=%Rhrc\n", pszDrvName, hrc));
+    return hrc;
+
+#undef H
 }
 
 /**
@@ -5246,7 +5305,7 @@ int Console::i_configNetwork(const char *pszDevice,
 
 # if defined(RT_OS_DARWIN)
                 /* The name is on the form 'ifX: long name', chop it off at the colon. */
-                char szTrunk[8];
+                char szTrunk[INTNET_MAX_TRUNK_NAME];
                 RTStrCopy(szTrunk, sizeof(szTrunk), pszBridgedIfName);
                 char *pszColon = (char *)memchr(szTrunk, ':', sizeof(szTrunk));
 // Quick fix for @bugref{5633}

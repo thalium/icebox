@@ -407,13 +407,13 @@ static int patmReinit(PVM pVM)
     /*
      * Assert alignment and sizes.
      */
-    AssertRelease(!(RT_OFFSETOF(VM, patm.s) & 31));
+    AssertRelease(!(RT_UOFFSETOF(VM, patm.s) & 31));
     AssertRelease(sizeof(pVM->patm.s) <= sizeof(pVM->patm.padding));
 
     /*
      * Setup any fixed pointers and offsets.
      */
-    pVM->patm.s.offVM = RT_OFFSETOF(VM, patm);
+    pVM->patm.s.offVM = RT_UOFFSETOF(VM, patm);
 
 #ifndef RT_ARCH_AMD64 /* would be nice if this was changed everywhere. was driving me crazy on AMD64. */
 #ifndef PATM_DISABLE_ALL
@@ -6835,7 +6835,7 @@ static void patmPrintStat(PVM pVM, void *pvSample, char *pszBuf, size_t cchBuf)
 RTRCPTR patmPatchQueryStatAddress(PVM pVM, PPATCHINFO pPatch)
 {
     Assert(pPatch->uPatchIdx != PATM_STAT_INDEX_NONE);
-    return pVM->patm.s.pStatsGC + sizeof(STAMRATIOU32) * pPatch->uPatchIdx + RT_OFFSETOF(STAMRATIOU32, u32A);
+    return pVM->patm.s.pStatsGC + sizeof(STAMRATIOU32) * pPatch->uPatchIdx + RT_UOFFSETOF(STAMRATIOU32, u32A);
 }
 
 #endif /* VBOX_WITH_STATISTICS */

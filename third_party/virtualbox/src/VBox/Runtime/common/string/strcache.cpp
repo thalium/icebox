@@ -667,7 +667,7 @@ static PRTSTRCACHEENTRY rtStrCacheAllocHeapEntry(PRTSTRCACHEINT pThis, uint32_t 
      * Allocate a heap block for storing the string. We do some size aligning
      * here to encourage the heap to give us optimal alignment.
      */
-    size_t              cbEntry   = RT_UOFFSETOF(RTSTRCACHEBIGENTRY, Core.szString[cchString + 1]);
+    size_t              cbEntry   = RT_UOFFSETOF_DYN(RTSTRCACHEBIGENTRY, Core.szString[cchString + 1]);
     PRTSTRCACHEBIGENTRY pBigEntry = (PRTSTRCACHEBIGENTRY)RTMemAlloc(RT_ALIGN_Z(cbEntry, RTSTRCACHE_HEAP_ENTRY_SIZE_ALIGN));
     if (!pBigEntry)
         return NULL;
@@ -682,8 +682,10 @@ static PRTSTRCACHEENTRY rtStrCacheAllocHeapEntry(PRTSTRCACHEINT pThis, uint32_t 
     pBigEntry->Core.cRefs       = 1;
     pBigEntry->Core.uHash       = (uint16_t)uHash;
     pBigEntry->Core.cchString   = RTSTRCACHEENTRY_BIG_LEN;
-    memcpy(pBigEntry->Core.szString, pchString, cchString);
-    pBigEntry->Core.szString[cchString] = '\0';
+    /* The following is to try avoid gcc warnings/errors regarding array bounds: */
+    char *pszDst = (char *)memcpy(pBigEntry->Core.szString, pchString, cchString);
+    pszDst[cchString] = '\0';
+    ASMCompilerBarrier();
 
     return &pBigEntry->Core;
 }
@@ -779,7 +781,7 @@ static PRTSTRCACHEENTRY rtStrCacheLookUp(PRTSTRCACHEINT pThis, uint32_t uHashLen
     *piFreeHashTabEntry = UINT32_MAX;
     *pcCollisions = 0;
 
-    uint16_t cchStringFirst = RT_UOFFSETOF(RTSTRCACHEENTRY, szString[cchString + 1]) < RTSTRCACHE_HEAP_THRESHOLD
+    uint16_t cchStringFirst = RT_UOFFSETOF_DYN(RTSTRCACHEENTRY, szString[cchString + 1]) < RTSTRCACHE_HEAP_THRESHOLD
                             ? (uint16_t)cchString : RTSTRCACHEENTRY_BIG_LEN;
     uint32_t iHash          = uHashLen % pThis->cHashTab;
     for (;;)
@@ -1133,7 +1135,7 @@ static uint32_t rtStrCacheFreeEntry(PRTSTRCACHEINT pThis, PRTSTRCACHEENTRY pStr)
         /* Big string. */
         PRTSTRCACHEBIGENTRY pBigStr = RT_FROM_MEMBER(pStr, RTSTRCACHEBIGENTRY, Core);
         RTListNodeRemove(&pBigStr->ListEntry);
-        pThis->cbBigEntries -= RT_ALIGN_32(RT_UOFFSETOF(RTSTRCACHEBIGENTRY, Core.szString[cchString + 1]),
+        pThis->cbBigEntries -= RT_ALIGN_32(RT_UOFFSETOF_DYN(RTSTRCACHEBIGENTRY, Core.szString[cchString + 1]),
                                            RTSTRCACHE_HEAP_ENTRY_SIZE_ALIGN);
 
         RTSTRCACHE_CHECK(pThis);

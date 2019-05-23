@@ -197,7 +197,7 @@ RTDECL(int) RTDbgAsCreate(PRTDBGAS phDbgAs, RTUINTPTR FirstAddr, RTUINTPTR LastA
      * Allocate memory for the instance data.
      */
     size_t cchName = strlen(pszName);
-    PRTDBGASINT pDbgAs = (PRTDBGASINT)RTMemAllocVar(RT_OFFSETOF(RTDBGASINT, szName[cchName + 1]));
+    PRTDBGASINT pDbgAs = (PRTDBGASINT)RTMemAllocVar(RT_UOFFSETOF_DYN(RTDBGASINT, szName[cchName + 1]));
     if (!pDbgAs)
         return VERR_NO_MEMORY;
 

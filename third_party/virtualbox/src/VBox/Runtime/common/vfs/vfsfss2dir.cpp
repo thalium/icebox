@@ -221,7 +221,7 @@ static DECLCALLBACK(int) rtVfsFssToDir_PushFile(void *pvThis, const char *pszPat
          */
         size_t const            cbRelativePath = strlen(pszPath);
         PRTVFSFSSWRITE2DIRENTRY pEntry;
-        pEntry = (PRTVFSFSSWRITE2DIRENTRY)RTMemAllocVar(RT_UOFFSETOF(RTVFSFSSWRITE2DIRENTRY, szName[cbRelativePath]));
+        pEntry = (PRTVFSFSSWRITE2DIRENTRY)RTMemAllocVar(RT_UOFFSETOF_DYN(RTVFSFSSWRITE2DIRENTRY, szName[cbRelativePath]));
         if (pEntry)
         {
             if (cObjInfo)
@@ -368,7 +368,7 @@ RTDECL(int) RTVfsFsStrmToNormalDir(const char *pszBaseDir, uint32_t fFlags, PRTV
                 size_t const            cbBaseDir = strlen(szAbsPath) + 1;
                 PRTVFSFSSWRITE2DIR      pThis;
                 RTVFSFSSTREAM           hVfsFss;
-                rc = RTVfsNewFsStream(&g_rtVfsFssToDirOps, RT_UOFFSETOF(RTVFSFSSWRITE2DIR, szBaseDir[cbBaseDir]),
+                rc = RTVfsNewFsStream(&g_rtVfsFssToDirOps, RT_UOFFSETOF_DYN(RTVFSFSSWRITE2DIR, szBaseDir[cbBaseDir]),
                                       NIL_RTVFS, NIL_RTVFSLOCK, false /*fReadOnly*/, &hVfsFss, (void **)&pThis);
                 if (RT_SUCCESS(rc))
                 {

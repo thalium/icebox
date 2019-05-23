@@ -276,6 +276,8 @@ void AudioMixBufFinish(PPDMAUDIOMIXBUF pMixBuf, uint32_t cFramesToClear)
     AUDMIXBUF_LOG(("%s: offRead=%RU32, cUsed=%RU32\n",
                    pMixBuf->pszName, pMixBuf->offRead, pMixBuf->cUsed));
 
+    AssertStmt(cFramesToClear <= pMixBuf->cFrames, cFramesToClear = pMixBuf->cFrames);
+
     PPDMAUDIOMIXBUF pIter;
     RTListForEach(&pMixBuf->lstChildren, pIter, PDMAUDIOMIXBUF, Node)
     {
@@ -285,8 +287,6 @@ void AudioMixBufFinish(PPDMAUDIOMIXBUF pMixBuf, uint32_t cFramesToClear)
         pIter->cMixed -= RT_MIN(pIter->cMixed, cFramesToClear);
         /* Note: Do not increment pIter->cUsed here, as this gets done when reading from that buffer using AudioMixBufReadXXX. */
     }
-
-    Assert(cFramesToClear <= pMixBuf->cFrames);
 
     uint32_t cClearOff;
     uint32_t cClearLen;
@@ -843,7 +843,7 @@ int AudioMixBufInit(PPDMAUDIOMIXBUF pMixBuf, const char *pszName, PPDMAUDIOPCMPR
 
     pMixBuf->AudioFmt = AUDMIXBUF_AUDIO_FMT_MAKE(pProps->uHz,
                                                  pProps->cChannels,
-                                                 pProps->cBits,
+                                                 pProps->cBytes * 8 /* Bit */,
                                                  pProps->fSigned);
 
     pMixBuf->pfnConvFrom = audioMixBufConvFromLookup(pMixBuf->AudioFmt);
@@ -1407,7 +1407,7 @@ void AudioMixBufDbgPrint(PPDMAUDIOMIXBUF pMixBuf)
 #endif /* DEBUG */
 
 /**
- * Returns the total number of frames used.
+ * Returns the total number of audio frames used.
  *
  * @return  uint32_t
  * @param   pMixBuf
@@ -1416,6 +1416,18 @@ uint32_t AudioMixBufUsed(PPDMAUDIOMIXBUF pMixBuf)
 {
     AssertPtrReturn(pMixBuf, 0);
     return pMixBuf->cUsed;
+}
+
+/**
+ * Returns the total number of bytes used.
+ *
+ * @return  uint32_t
+ * @param   pMixBuf
+ */
+uint32_t AudioMixBufUsedBytes(PPDMAUDIOMIXBUF pMixBuf)
+{
+    AssertPtrReturn(pMixBuf, 0);
+    return AUDIOMIXBUF_F2B(pMixBuf, pMixBuf->cUsed);
 }
 
 /**

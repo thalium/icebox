@@ -136,7 +136,7 @@ VBOXDISPMPLOGGER_DECL(void) VBoxDispMpLoggerLog(const char *pszString)
     if (hr == S_OK)
     {
         uint32_t cbString = (uint32_t)strlen(pszString) + 1;
-        uint32_t cbCmd = RT_OFFSETOF(VBOXDISPIFESCAPE_DBGPRINT, aStringBuf[cbString]);
+        uint32_t cbCmd = RT_UOFFSETOF_DYN(VBOXDISPIFESCAPE_DBGPRINT, aStringBuf[cbString]);
         PVBOXDISPIFESCAPE_DBGPRINT pCmd = (PVBOXDISPIFESCAPE_DBGPRINT)RTMemAllocZ(cbCmd);
         if (pCmd)
         {
@@ -197,7 +197,7 @@ static void vboxDispMpLoggerDumpBuf(void *pvBuf, uint32_t cbBuf, VBOXDISPIFESCAP
     HRESULT hr = vboxDispKmtOpenAdapter(&pLogger->KmtCallbacks, &Adapter);
     if (hr == S_OK)
     {
-        uint32_t cbCmd = RT_OFFSETOF(VBOXDISPIFESCAPE_DBGDUMPBUF, aBuf[cbBuf]);
+        uint32_t cbCmd = RT_UOFFSETOF_DYN(VBOXDISPIFESCAPE_DBGDUMPBUF, aBuf[cbBuf]);
         PVBOXDISPIFESCAPE_DBGDUMPBUF pCmd = (PVBOXDISPIFESCAPE_DBGDUMPBUF)RTMemAllocZ(cbCmd);
         if (pCmd)
         {

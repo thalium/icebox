@@ -353,6 +353,9 @@ void UIMachineWindowFullscreen::placeOnScreen()
     /* Resize window to the appropriate size on ML and next if it's screen has no own user-space: */
     else if (!pFullscreenLogic->screensHaveSeparateSpaces() && m_uScreenId != 0)
         resize(workingArea.size());
+    /* Resize the window if we are already in the full screen mode. This covers cases like host-resolution changes while in full screen mode: */
+    else if(darwinIsInFullscreenMode(this))
+        resize(workingArea.size());
     else
     {
         /* Load normal geometry first of all: */

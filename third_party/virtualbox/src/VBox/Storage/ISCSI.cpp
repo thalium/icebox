@@ -1611,7 +1611,7 @@ static int iscsiLogin(PISCSIIMAGE pImage)
                                     substate = 0;
                                     break;
                                 }
-                                else if (targetCSG == 1 && targetNSG == 1 && !targetTransit)
+                                else if (targetCSG == 1 && (targetNSG == 1 || !targetTransit))
                                 {
                                     /* Target wants to negotiate certain parameters and
                                      * stay in login operational negotiation. */
@@ -2771,7 +2771,7 @@ static int iscsiPDUTxPrepare(PISCSIIMAGE pImage, PISCSICMD pIScsiCmd)
      * The additional segment is for the BHS.
      */
     size_t cI2TSegs = 2*(pScsiReq->cI2TSegs + 1);
-    pIScsiPDU = (PISCSIPDUTX)RTMemAllocZ(RT_OFFSETOF(ISCSIPDUTX, aISCSIReq[cI2TSegs]));
+    pIScsiPDU = (PISCSIPDUTX)RTMemAllocZ(RT_UOFFSETOF_DYN(ISCSIPDUTX, aISCSIReq[cI2TSegs]));
     if (!pIScsiPDU)
         return VERR_NO_MEMORY;
 
@@ -4835,7 +4835,7 @@ static DECLCALLBACK(int) iscsiRead(void *pBackendData, uint64_t uOffset, size_t 
                                                    NULL, &cT2ISegs, cbToRead);
     Assert(cbSegs == cbToRead);
 
-    PSCSIREQ pReq = (PSCSIREQ)RTMemAllocZ(RT_OFFSETOF(SCSIREQ, aSegs[cT2ISegs]));
+    PSCSIREQ pReq = (PSCSIREQ)RTMemAllocZ(RT_UOFFSETOF_DYN(SCSIREQ, aSegs[cT2ISegs]));
     if (RT_LIKELY(pReq))
     {
         uint64_t lba;
@@ -4962,7 +4962,7 @@ static DECLCALLBACK(int) iscsiWrite(void *pBackendData, uint64_t uOffset, size_t
                                                    NULL, &cI2TSegs, cbToWrite);
     Assert(cbSegs == cbToWrite);
 
-    PSCSIREQ pReq = (PSCSIREQ)RTMemAllocZ(RT_OFFSETOF(SCSIREQ, aSegs[cI2TSegs]));
+    PSCSIREQ pReq = (PSCSIREQ)RTMemAllocZ(RT_UOFFSETOF_DYN(SCSIREQ, aSegs[cI2TSegs]));
     if (RT_LIKELY(pReq))
     {
         uint64_t lba;

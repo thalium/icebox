@@ -13,9 +13,25 @@
 void SERVER_DISPATCH_APIENTRY
 crServerDispatchGenQueriesARB(GLsizei n, GLuint *queries)
 {
-	GLuint *local_queries = (GLuint *) crAlloc( n * sizeof(*local_queries) );
-	(void) queries;
-	cr_server.head_spu->dispatch_table.GenQueriesARB( n, local_queries );
-	crServerReturnValue( local_queries, n * sizeof(*local_queries) );
-	crFree( local_queries );
+    GLuint *local_queries;
+    (void) queries;
+
+    if (n >= INT32_MAX / sizeof(GLuint))
+    {
+        crError("crServerDispatchGenQueriesARB: parameter 'n' is out of range");
+        return;
+    }
+
+    local_queries = (GLuint *)crCalloc(n * sizeof(*local_queries));
+
+    if (!local_queries)
+    {
+        crError("crServerDispatchGenQueriesARB: out of memory");
+        return;
+    }
+
+    cr_server.head_spu->dispatch_table.GenQueriesARB( n, local_queries );
+
+    crServerReturnValue( local_queries, n * sizeof(*local_queries) );
+    crFree( local_queries );
 }

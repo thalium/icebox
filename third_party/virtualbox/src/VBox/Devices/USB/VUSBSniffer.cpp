@@ -149,7 +149,7 @@ DECLHIDDEN(int) VUSBSnifferCreate(PVUSBSNIFFER phSniffer, uint32_t fFlags,
     if (!pFmt)
         return VERR_NOT_FOUND;
 
-    pThis = (PVUSBSNIFFERINT)RTMemAllocZ(RT_OFFSETOF(VUSBSNIFFERINT, abFmt[pFmt->cbFmt]));
+    pThis = (PVUSBSNIFFERINT)RTMemAllocZ(RT_UOFFSETOF_DYN(VUSBSNIFFERINT, abFmt[pFmt->cbFmt]));
     if (pThis)
     {
         pThis->hFile         = NIL_RTFILE;

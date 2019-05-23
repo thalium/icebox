@@ -2544,7 +2544,7 @@ static int vboxVDMACmdExecBlt(PVBOXVDMAHOST pVdma, const VBOXVDMACMD_DMA_PRESENT
     RT_UNTRUSTED_NONVOLATILE_COPY_FENCE();
 
     AssertReturn(BltSafe.cDstSubRects < _8M, VERR_INVALID_PARAMETER);
-    uint32_t const cbBlt = RT_UOFFSETOF(VBOXVDMACMD_DMA_PRESENT_BLT, aDstSubRects[BltSafe.cDstSubRects]);
+    uint32_t const cbBlt = RT_UOFFSETOF_DYN(VBOXVDMACMD_DMA_PRESENT_BLT, aDstSubRects[BltSafe.cDstSubRects]);
     AssertReturn(cbBuffer >= cbBlt, VERR_INVALID_PARAMETER);
 
     /*

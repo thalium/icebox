@@ -4118,7 +4118,7 @@ typedef struct PDMDEVINS
 #define PDM_DEVINS_VERSION                      PDM_VERSION_MAKE(0xffe4, 3, 0)
 
 /** Converts a pointer to the PDMDEVINS::IBase to a pointer to PDMDEVINS. */
-#define PDMIBASE_2_PDMDEV(pInterface) ( (PPDMDEVINS)((char *)(pInterface) - RT_OFFSETOF(PDMDEVINS, IBase)) )
+#define PDMIBASE_2_PDMDEV(pInterface) ( (PPDMDEVINS)((char *)(pInterface) - RT_UOFFSETOF(PDMDEVINS, IBase)) )
 
 /**
  * Checks the structure versions of the device instance and device helpers,
@@ -4224,17 +4224,17 @@ typedef struct PDMDEVINS
 /** @def PDMDEVINS_2_RCPTR
  * Converts a PDM Device instance pointer a RC PDM Device instance pointer.
  */
-#define PDMDEVINS_2_RCPTR(pDevIns)  ( (RCPTRTYPE(PPDMDEVINS))((RTGCUINTPTR)(pDevIns)->pvInstanceDataRC - RT_OFFSETOF(PDMDEVINS, achInstanceData)) )
+#define PDMDEVINS_2_RCPTR(pDevIns)  ( (RCPTRTYPE(PPDMDEVINS))((RTRCUINTPTR)(pDevIns)->pvInstanceDataRC - (RTRCUINTPTR)RT_UOFFSETOF(PDMDEVINS, achInstanceData)) )
 
 /** @def PDMDEVINS_2_R3PTR
  * Converts a PDM Device instance pointer a R3 PDM Device instance pointer.
  */
-#define PDMDEVINS_2_R3PTR(pDevIns)  ( (R3PTRTYPE(PPDMDEVINS))((RTHCUINTPTR)(pDevIns)->pvInstanceDataR3 - RT_OFFSETOF(PDMDEVINS, achInstanceData)) )
+#define PDMDEVINS_2_R3PTR(pDevIns)  ( (R3PTRTYPE(PPDMDEVINS))((RTHCUINTPTR)(pDevIns)->pvInstanceDataR3 - RT_UOFFSETOF(PDMDEVINS, achInstanceData)) )
 
 /** @def PDMDEVINS_2_R0PTR
  * Converts a PDM Device instance pointer a R0 PDM Device instance pointer.
  */
-#define PDMDEVINS_2_R0PTR(pDevIns)  ( (R0PTRTYPE(PPDMDEVINS))((RTR0UINTPTR)(pDevIns)->pvInstanceDataR0 - RT_OFFSETOF(PDMDEVINS, achInstanceData)) )
+#define PDMDEVINS_2_R0PTR(pDevIns)  ( (R0PTRTYPE(PPDMDEVINS))((RTR0UINTPTR)(pDevIns)->pvInstanceDataR0 - RT_UOFFSETOF(PDMDEVINS, achInstanceData)) )
 
 
 #ifdef IN_RING3

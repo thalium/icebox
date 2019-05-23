@@ -63,6 +63,7 @@ int AudioMixBufMixToParentEx(PPDMAUDIOMIXBUF pMixBuf, uint32_t cSrcOffset, uint3
 int AudioMixBufPeek(PPDMAUDIOMIXBUF pMixBuf, uint32_t cFramesToRead, PPDMAUDIOFRAME paSampleBuf, uint32_t cSampleBuf, uint32_t *pcFramesRead);
 int AudioMixBufPeekMutable(PPDMAUDIOMIXBUF pMixBuf, uint32_t cFramesToRead, PPDMAUDIOFRAME *ppvSamples, uint32_t *pcFramesRead);
 uint32_t AudioMixBufUsed(PPDMAUDIOMIXBUF pMixBuf);
+uint32_t AudioMixBufUsedBytes(PPDMAUDIOMIXBUF pMixBuf);
 int AudioMixBufReadAt(PPDMAUDIOMIXBUF pMixBuf, uint32_t offSamples, void *pvBuf, uint32_t cbBuf, uint32_t *pcbRead);
 int AudioMixBufReadAtEx(PPDMAUDIOMIXBUF pMixBuf, PDMAUDIOMIXBUFFMT enmFmt, uint32_t offSamples, void *pvBuf, uint32_t cbBuf, uint32_t *pcbRead);
 int AudioMixBufAcquireReadBlock(PPDMAUDIOMIXBUF pMixBuf, void *pvBuf, uint32_t cbBuf, uint32_t *pcBlock);

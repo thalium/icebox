@@ -2949,7 +2949,7 @@ DECLHIDDEN(int) VDScriptCtxCallbacksRegister(VDSCRIPTCTX hScriptCtx, PCVDSCRIPTC
             break;
         }
 
-        pFn = (PVDSCRIPTFN)RTMemAllocZ(RT_OFFSETOF(VDSCRIPTFN, aenmArgTypes[paCallbacks->cArgs]));
+        pFn = (PVDSCRIPTFN)RTMemAllocZ(RT_UOFFSETOF_DYN(VDSCRIPTFN, aenmArgTypes[paCallbacks->cArgs]));
         if (!pFn)
         {
             rc = VERR_NO_MEMORY;

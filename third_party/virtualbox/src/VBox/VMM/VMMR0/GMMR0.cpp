@@ -3003,8 +3003,8 @@ GMMR0DECL(int) GMMR0AllocatePagesReq(PGVM pGVM, PVM pVM, VMCPUID idCpu, PGMMALLO
     AssertMsgReturn(pReq->Hdr.cbReq >= RT_UOFFSETOF(GMMALLOCATEPAGESREQ, aPages[0]),
                     ("%#x < %#x\n", pReq->Hdr.cbReq, RT_UOFFSETOF(GMMALLOCATEPAGESREQ, aPages[0])),
                     VERR_INVALID_PARAMETER);
-    AssertMsgReturn(pReq->Hdr.cbReq == RT_UOFFSETOF(GMMALLOCATEPAGESREQ, aPages[pReq->cPages]),
-                    ("%#x != %#x\n", pReq->Hdr.cbReq, RT_UOFFSETOF(GMMALLOCATEPAGESREQ, aPages[pReq->cPages])),
+    AssertMsgReturn(pReq->Hdr.cbReq == RT_UOFFSETOF_DYN(GMMALLOCATEPAGESREQ, aPages[pReq->cPages]),
+                    ("%#x != %#x\n", pReq->Hdr.cbReq, RT_UOFFSETOF_DYN(GMMALLOCATEPAGESREQ, aPages[pReq->cPages])),
                     VERR_INVALID_PARAMETER);
 
     return GMMR0AllocatePages(pGVM, pVM, idCpu, pReq->cPages, &pReq->aPages[0], pReq->enmAccount);
@@ -3626,8 +3626,8 @@ GMMR0DECL(int) GMMR0FreePagesReq(PGVM pGVM, PVM pVM, VMCPUID idCpu, PGMMFREEPAGE
     AssertMsgReturn(pReq->Hdr.cbReq >= RT_UOFFSETOF(GMMFREEPAGESREQ, aPages[0]),
                     ("%#x < %#x\n", pReq->Hdr.cbReq, RT_UOFFSETOF(GMMFREEPAGESREQ, aPages[0])),
                     VERR_INVALID_PARAMETER);
-    AssertMsgReturn(pReq->Hdr.cbReq == RT_UOFFSETOF(GMMFREEPAGESREQ, aPages[pReq->cPages]),
-                    ("%#x != %#x\n", pReq->Hdr.cbReq, RT_UOFFSETOF(GMMFREEPAGESREQ, aPages[pReq->cPages])),
+    AssertMsgReturn(pReq->Hdr.cbReq == RT_UOFFSETOF_DYN(GMMFREEPAGESREQ, aPages[pReq->cPages]),
+                    ("%#x != %#x\n", pReq->Hdr.cbReq, RT_UOFFSETOF_DYN(GMMFREEPAGESREQ, aPages[pReq->cPages])),
                     VERR_INVALID_PARAMETER);
 
     return GMMR0FreePages(pGVM, pVM, idCpu, pReq->cPages, &pReq->aPages[0], pReq->enmAccount);
@@ -4406,7 +4406,7 @@ static int gmmR0ShModNewGlobal(PGMM pGMM, uint32_t uHash, uint32_t cbModule, VBO
         return VERR_GMM_TOO_MANY_GLOBAL_MODULES;
     }
 
-    PGMMSHAREDMODULE pGblMod = (PGMMSHAREDMODULE)RTMemAllocZ(RT_OFFSETOF(GMMSHAREDMODULE, aRegions[cRegions]));
+    PGMMSHAREDMODULE pGblMod = (PGMMSHAREDMODULE)RTMemAllocZ(RT_UOFFSETOF_DYN(GMMSHAREDMODULE, aRegions[cRegions]));
     if (!pGblMod)
     {
         Log(("gmmR0ShModNewGlobal: No memory\n"));
@@ -4476,7 +4476,7 @@ static int gmmR0ShModNewPerVM(PGVM pGVM, RTGCPTR GCBaseAddr, uint32_t cRegions, 
         return VERR_GMM_TOO_MANY_PER_VM_MODULES;
 
     PGMMSHAREDMODULEPERVM pRecVM;
-    pRecVM = (PGMMSHAREDMODULEPERVM)RTMemAllocZ(RT_OFFSETOF(GMMSHAREDMODULEPERVM, aRegionsGCPtrs[cRegions]));
+    pRecVM = (PGMMSHAREDMODULEPERVM)RTMemAllocZ(RT_UOFFSETOF_DYN(GMMSHAREDMODULEPERVM, aRegionsGCPtrs[cRegions]));
     if (!pRecVM)
         return VERR_NO_MEMORY;
 
@@ -4688,7 +4688,7 @@ GMMR0DECL(int) GMMR0RegisterSharedModuleReq(PGVM pGVM, PVM pVM, VMCPUID idCpu, P
      */
     AssertPtrReturn(pReq, VERR_INVALID_POINTER);
     AssertMsgReturn(   pReq->Hdr.cbReq >= sizeof(*pReq)
-                    && pReq->Hdr.cbReq == RT_UOFFSETOF(GMMREGISTERSHAREDMODULEREQ, aRegions[pReq->cRegions]),
+                    && pReq->Hdr.cbReq == RT_UOFFSETOF_DYN(GMMREGISTERSHAREDMODULEREQ, aRegions[pReq->cRegions]),
                     ("%#x != %#x\n", pReq->Hdr.cbReq, sizeof(*pReq)), VERR_INVALID_PARAMETER);
 
     /* Pass back return code in the request packet to preserve informational codes. (VMMR3CallR0 chokes on them) */

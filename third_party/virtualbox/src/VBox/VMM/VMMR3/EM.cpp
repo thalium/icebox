@@ -115,7 +115,7 @@ VMMR3_INT_DECL(int) EMR3Init(PVM pVM)
     /*
      * Init the structure.
      */
-    pVM->em.s.offVM = RT_OFFSETOF(VM, em.s);
+    pVM->em.s.offVM = RT_UOFFSETOF(VM, em.s);
     PCFGMNODE pCfgRoot = CFGMR3GetRoot(pVM);
     PCFGMNODE pCfgEM = CFGMR3GetChild(pCfgRoot, "EM");
 

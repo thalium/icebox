@@ -62,7 +62,7 @@ int dbgcBpAdd(PDBGC pDbgc, RTUINT iBp, const char *pszCmd)
     if (pszCmd)
         pszCmd = RTStrStripL(pszCmd);
     size_t cchCmd = pszCmd ? strlen(pszCmd) : 0;
-    pBp = (PDBGCBP)RTMemAlloc(RT_OFFSETOF(DBGCBP, szCmd[cchCmd + 1]));
+    pBp = (PDBGCBP)RTMemAlloc(RT_UOFFSETOF_DYN(DBGCBP, szCmd[cchCmd + 1]));
     if (!pBp)
         return VERR_NO_MEMORY;
     if (cchCmd)

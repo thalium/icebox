@@ -887,7 +887,7 @@ VMMR3DECL(int) CPUMR3Init(PVM pVM)
      */
 
     /* Calculate the offset from CPUM to CPUMCPU for the first CPU. */
-    pVM->cpum.s.offCPUMCPU0 = RT_OFFSETOF(VM, aCpus[0].cpum) - RT_OFFSETOF(VM, cpum);
+    pVM->cpum.s.offCPUMCPU0 = RT_UOFFSETOF(VM, aCpus[0].cpum) - RT_UOFFSETOF(VM, cpum);
     Assert((uintptr_t)&pVM->cpum + pVM->cpum.s.offCPUMCPU0 == (uintptr_t)&pVM->aCpus[0].cpum);
 
 
@@ -896,7 +896,7 @@ VMMR3DECL(int) CPUMR3Init(PVM pVM)
     {
         PVMCPU pVCpu = &pVM->aCpus[i];
 
-        pVCpu->cpum.s.offCPUM = RT_OFFSETOF(VM, aCpus[i].cpum) - RT_OFFSETOF(VM, cpum);
+        pVCpu->cpum.s.offCPUM = RT_UOFFSETOF_DYN(VM, aCpus[i].cpum) - RT_UOFFSETOF(VM, cpum);
         Assert((uintptr_t)&pVCpu->cpum - pVCpu->cpum.s.offCPUM == (uintptr_t)&pVM->cpum);
     }
 
@@ -1151,7 +1151,7 @@ VMMR3DECL(void) CPUMR3ResetCpu(PVM pVM, PVMCPU pVCpu)
 
     AssertCompile(RTASSERT_OFFSET_OF(CPUMCTX, pXStateR0) < RTASSERT_OFFSET_OF(CPUMCTX, pXStateR3));
     AssertCompile(RTASSERT_OFFSET_OF(CPUMCTX, pXStateR0) < RTASSERT_OFFSET_OF(CPUMCTX, pXStateRC));
-    memset(pCtx, 0, RT_OFFSETOF(CPUMCTX, pXStateR0));
+    memset(pCtx, 0, RT_UOFFSETOF(CPUMCTX, pXStateR0));
 
     pVCpu->cpum.s.fUseFlags         = fUseFlags;
 
@@ -1225,7 +1225,7 @@ VMMR3DECL(void) CPUMR3ResetCpu(PVM pVM, PVMCPU pVCpu)
     pFpuCtx->MXCSR_MASK             = pVM->cpum.s.GuestInfo.fMxCsrMask; /** @todo check if REM messes this up... */
 
     pCtx->aXcr[0]                   = XSAVE_C_X87;
-    if (pVM->cpum.s.HostFeatures.cbMaxExtendedState >= RT_OFFSETOF(X86XSAVEAREA, Hdr))
+    if (pVM->cpum.s.HostFeatures.cbMaxExtendedState >= RT_UOFFSETOF(X86XSAVEAREA, Hdr))
     {
         /* The entire FXSAVE state needs loading when we switch to XSAVE/XRSTOR
            as we don't know what happened before.  (Bother optimize later?) */
@@ -2100,7 +2100,7 @@ static void cpumR3InfoOne(PVM pVM, PCPUMCTX pCtx, PCCPUMCTXCORE pCtxCore, PCDBGF
                 for (unsigned i = 0; i < RT_ELEMENTS(pFpuCtx->au32RsrvdRest); i++)
                     if (pFpuCtx->au32RsrvdRest[i])
                         pHlp->pfnPrintf(pHlp, "%sRsrvdRest[%u]=%RX32 (offset=%#x)\n",
-                                        pszPrefix, i, pFpuCtx->au32RsrvdRest[i], RT_OFFSETOF(X86FXSTATE, au32RsrvdRest[i]) );
+                                        pszPrefix, i, pFpuCtx->au32RsrvdRest[i], RT_UOFFSETOF_DYN(X86FXSTATE, au32RsrvdRest[i]) );
             }
 
             pHlp->pfnPrintf(pHlp,

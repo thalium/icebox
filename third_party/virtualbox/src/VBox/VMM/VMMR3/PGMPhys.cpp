@@ -1559,7 +1559,7 @@ static int pgmR3PhysRegisterHighRamChunk(PVM pVM, RTGCPHYS GCPhys, uint32_t cRam
     /*
      * Allocate memory for the new chunk.
      */
-    size_t const cChunkPages  = RT_ALIGN_Z(RT_UOFFSETOF(PGMRAMRANGE, aPages[cRamPages]), PAGE_SIZE) >> PAGE_SHIFT;
+    size_t const cChunkPages  = RT_ALIGN_Z(RT_UOFFSETOF_DYN(PGMRAMRANGE, aPages[cRamPages]), PAGE_SIZE) >> PAGE_SHIFT;
     PSUPPAGE     paChunkPages = (PSUPPAGE)RTMemTmpAllocZ(sizeof(SUPPAGE) * cChunkPages);
     AssertReturn(paChunkPages, VERR_NO_TMP_MEMORY);
     RTR0PTR      R0PtrChunk   = NIL_RTR0PTR;
@@ -1712,7 +1712,7 @@ VMMR3DECL(int) PGMR3PhysRegisterRam(PVM pVM, RTGCPHYS GCPhys, RTGCPHYS cb, const
             cPagesPerChunk = 261616; /* max ~261627 */
             AssertCompile(sizeof(PGMRAMRANGE) + sizeof(PGMPAGE) * 261616  <  4U*_1M - PAGE_SIZE * 2);
         }
-        AssertRelease(RT_UOFFSETOF(PGMRAMRANGE, aPages[cPagesPerChunk]) + PAGE_SIZE * 2 <= cbChunk);
+        AssertRelease(RT_UOFFSETOF_DYN(PGMRAMRANGE, aPages[cPagesPerChunk]) + PAGE_SIZE * 2 <= cbChunk);
 
         RTGCPHYS cPagesLeft  = cPages;
         RTGCPHYS GCPhysChunk = GCPhys;
@@ -1737,7 +1737,7 @@ VMMR3DECL(int) PGMR3PhysRegisterRam(PVM pVM, RTGCPHYS GCPhys, RTGCPHYS cb, const
         /*
          * Allocate, initialize and link the new RAM range.
          */
-        const size_t cbRamRange = RT_OFFSETOF(PGMRAMRANGE, aPages[cPages]);
+        const size_t cbRamRange = RT_UOFFSETOF_DYN(PGMRAMRANGE, aPages[cPages]);
         PPGMRAMRANGE pNew;
         rc = MMR3HyperAllocOnceNoRel(pVM, cbRamRange, 0, MM_TAG_PGM_PHYS, (void **)&pNew);
         AssertLogRelMsgRCReturn(rc, ("cbRamRange=%zu\n", cbRamRange), rc);
@@ -2263,8 +2263,8 @@ VMMR3DECL(int) PGMR3PhysMMIORegister(PVM pVM, RTGCPHYS GCPhys, RTGCPHYS cb, PGMP
         Log(("PGMR3PhysMMIORegister: Adding ad hoc MMIO range for %RGp-%RGp %s\n", GCPhys, GCPhysLast, pszDesc));
 
         const uint32_t cPages = cb >> PAGE_SHIFT;
-        const size_t cbRamRange = RT_OFFSETOF(PGMRAMRANGE, aPages[cPages]);
-        rc = MMHyperAlloc(pVM, RT_OFFSETOF(PGMRAMRANGE, aPages[cPages]), 16, MM_TAG_PGM_PHYS, (void **)&pNew);
+        const size_t cbRamRange = RT_UOFFSETOF_DYN(PGMRAMRANGE, aPages[cPages]);
+        rc = MMHyperAlloc(pVM, RT_UOFFSETOF_DYN(PGMRAMRANGE, aPages[cPages]), 16, MM_TAG_PGM_PHYS, (void **)&pNew);
         AssertLogRelMsgRCReturnStmt(rc, ("cbRamRange=%zu\n", cbRamRange), pgmUnlock(pVM), rc);
 
         /* Initialize the range. */
@@ -2533,7 +2533,7 @@ static uint16_t pgmR3PhysMMIOExCalcChunkCount(PVM pVM, RTGCPHYS cb, uint32_t *pc
         AssertCompile(sizeof(PGMREGMMIORANGE) + sizeof(PGMPAGE) * 261616  <  4U*_1M - PAGE_SIZE * 2);
     }
     AssertRelease(cPagesPerChunk <= PGM_MMIO2_MAX_PAGE_COUNT); /* See above note. */
-    AssertRelease(RT_UOFFSETOF(PGMREGMMIORANGE, RamRange.aPages[cPagesPerChunk]) + PAGE_SIZE * 2 <= cbChunk);
+    AssertRelease(RT_UOFFSETOF_DYN(PGMREGMMIORANGE, RamRange.aPages[cPagesPerChunk]) + PAGE_SIZE * 2 <= cbChunk);
     if (pcbChunk)
         *pcbChunk = cbChunk;
     if (pcPagesPerChunk)
@@ -2594,7 +2594,7 @@ static int pgmR3PhysMMIOExCreate(PVM pVM, PPDMDEVINS pDevIns, uint32_t iSubDev, 
          * as we will be running into SUPR3PageAllocEx limitations and such.
          */
         const uint32_t   cPagesTrackedByChunk = RT_MIN(cPagesLeft, cPagesPerChunk);
-        const size_t     cbRange = RT_OFFSETOF(PGMREGMMIORANGE, RamRange.aPages[cPagesTrackedByChunk]);
+        const size_t     cbRange = RT_UOFFSETOF_DYN(PGMREGMMIORANGE, RamRange.aPages[cPagesTrackedByChunk]);
         PPGMREGMMIORANGE pNew    = NULL;
         if (   iChunk + 1 < cChunks
             || cbRange >= _1M)
@@ -2632,7 +2632,7 @@ static int pgmR3PhysMMIOExCreate(PVM pVM, PPDMDEVINS pDevIns, uint32_t iSubDev, 
 
             pNew = (PPGMREGMMIORANGE)pvChunk;
             pNew->RamRange.fFlags   = PGM_RAM_RANGE_FLAGS_FLOATING;
-            pNew->RamRange.pSelfR0  = R0PtrChunk + RT_OFFSETOF(PGMREGMMIORANGE, RamRange);
+            pNew->RamRange.pSelfR0  = R0PtrChunk + RT_UOFFSETOF(PGMREGMMIORANGE, RamRange);
 
             /*
              * If we might end up in raw-mode, make a HMA mapping of the range,
@@ -2658,7 +2658,7 @@ static int pgmR3PhysMMIOExCreate(PVM pVM, PPDMDEVINS pDevIns, uint32_t iSubDev, 
                     SUPR3PageFreeEx(pvChunk, cChunkPages);
                     break;
                 }
-                pNew->RamRange.pSelfRC  = GCPtrChunk + RT_OFFSETOF(PGMREGMMIORANGE, RamRange);
+                pNew->RamRange.pSelfRC  = GCPtrChunk + RT_UOFFSETOF(PGMREGMMIORANGE, RamRange);
             }
         }
         /*
@@ -2725,7 +2725,7 @@ static int pgmR3PhysMMIOExCreate(PVM pVM, PPDMDEVINS pDevIns, uint32_t iSubDev, 
 
         if (pFree->RamRange.fFlags & PGM_RAM_RANGE_FLAGS_FLOATING)
         {
-            const size_t    cbRange     = RT_OFFSETOF(PGMREGMMIORANGE, RamRange.aPages[pFree->RamRange.cb >> X86_PAGE_SHIFT]);
+            const size_t    cbRange     = RT_UOFFSETOF_DYN(PGMREGMMIORANGE, RamRange.aPages[pFree->RamRange.cb >> X86_PAGE_SHIFT]);
             size_t const    cChunkPages = RT_ALIGN_Z(cbRange, PAGE_SIZE) >> PAGE_SHIFT;
             SUPR3PageFreeEx(pFree, cChunkPages);
         }
@@ -2779,7 +2779,7 @@ static void pgmR3PhysMMIOExLink(PVM pVM, PPGMREGMMIORANGE pNew)
             Assert(pVM->pgm.s.apMmio2RangesR3[idMmio2 - 1] == NULL);
             Assert(pVM->pgm.s.apMmio2RangesR0[idMmio2 - 1] == NIL_RTR0PTR);
             pVM->pgm.s.apMmio2RangesR3[idMmio2 - 1] = pNew;
-            pVM->pgm.s.apMmio2RangesR0[idMmio2 - 1] = pNew->RamRange.pSelfR0 - RT_OFFSETOF(PGMREGMMIORANGE, RamRange);
+            pVM->pgm.s.apMmio2RangesR0[idMmio2 - 1] = pNew->RamRange.pSelfR0 - RT_UOFFSETOF(PGMREGMMIORANGE, RamRange);
             if (pNew->fFlags & PGMREGMMIORANGE_F_LAST_CHUNK)
                 break;
             pNew = pNew->pNextR3;
@@ -2914,7 +2914,7 @@ VMMR3DECL(int) PGMR3PhysMMIOExPreRegister(PVM pVM, PPDMDEVINS pDevIns, uint32_t 
 
                 if (pFree->RamRange.fFlags & PGM_RAM_RANGE_FLAGS_FLOATING)
                 {
-                    const size_t    cbRange     = RT_OFFSETOF(PGMREGMMIORANGE, RamRange.aPages[pFree->RamRange.cb >> X86_PAGE_SHIFT]);
+                    const size_t    cbRange     = RT_UOFFSETOF_DYN(PGMREGMMIORANGE, RamRange.aPages[pFree->RamRange.cb >> X86_PAGE_SHIFT]);
                     size_t const    cChunkPages = RT_ALIGN_Z(cbRange, PAGE_SIZE) >> PAGE_SHIFT;
                     SUPR3PageFreeEx(pFree, cChunkPages);
                 }
@@ -3192,7 +3192,7 @@ VMMR3DECL(int) PGMR3PhysMMIOExDeregister(PVM pVM, PPDMDEVINS pDevIns, uint32_t i
             const bool fIsMmio2 = RT_BOOL(pCur->fFlags & PGMREGMMIORANGE_F_MMIO2);
             if (pCur->RamRange.fFlags & PGM_RAM_RANGE_FLAGS_FLOATING)
             {
-                const size_t    cbRange     = RT_OFFSETOF(PGMREGMMIORANGE, RamRange.aPages[cPages]);
+                const size_t    cbRange     = RT_UOFFSETOF_DYN(PGMREGMMIORANGE, RamRange.aPages[cPages]);
                 size_t const    cChunkPages = RT_ALIGN_Z(cbRange, PAGE_SIZE) >> PAGE_SHIFT;
                 SUPR3PageFreeEx(pCur, cChunkPages);
             }
@@ -4023,12 +4023,12 @@ static int pgmR3PhysRomRegister(PVM pVM, PPDMDEVINS pDevIns, RTGCPHYS GCPhys, RT
      * Allocate the new ROM range and RAM range (if necessary).
      */
     PPGMROMRANGE pRomNew;
-    rc = MMHyperAlloc(pVM, RT_OFFSETOF(PGMROMRANGE, aPages[cPages]), 0, MM_TAG_PGM_PHYS, (void **)&pRomNew);
+    rc = MMHyperAlloc(pVM, RT_UOFFSETOF_DYN(PGMROMRANGE, aPages[cPages]), 0, MM_TAG_PGM_PHYS, (void **)&pRomNew);
     if (RT_SUCCESS(rc))
     {
         PPGMRAMRANGE pRamNew = NULL;
         if (!fRamExists)
-            rc = MMHyperAlloc(pVM, RT_OFFSETOF(PGMRAMRANGE, aPages[cPages]), sizeof(PGMPAGE), MM_TAG_PGM_PHYS, (void **)&pRamNew);
+            rc = MMHyperAlloc(pVM, RT_UOFFSETOF_DYN(PGMRAMRANGE, aPages[cPages]), sizeof(PGMPAGE), MM_TAG_PGM_PHYS, (void **)&pRamNew);
         if (RT_SUCCESS(rc))
         {
             /*

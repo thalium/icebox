@@ -45,7 +45,7 @@
 
 /** Makes DRVHOSTOSSAUDIO out of PDMIHOSTAUDIO. */
 #define PDMIHOSTAUDIO_2_DRVHOSTOSSAUDIO(pInterface) \
-    ( (PDRVHOSTOSSAUDIO)((uintptr_t)pInterface - RT_OFFSETOF(DRVHOSTOSSAUDIO, IHostAudio)) )
+    ( (PDRVHOSTOSSAUDIO)((uintptr_t)pInterface - RT_UOFFSETOF(DRVHOSTOSSAUDIO, IHostAudio)) )
 
 
 /*********************************************************************************************************************************
@@ -157,27 +157,27 @@ static int ossOSSToAudioProps(int fmt, PPDMAUDIOPCMPROPS pProps)
     switch (fmt)
     {
         case AFMT_S8:
-            pProps->cBits   = 8;
+            pProps->cBytes  = 1;
             pProps->fSigned = true;
             break;
 
         case AFMT_U8:
-            pProps->cBits   = 8;
+            pProps->cBytes  = 1;
             pProps->fSigned = false;
             break;
 
         case AFMT_S16_LE:
-            pProps->cBits   = 16;
+            pProps->cBytes  = 2;
             pProps->fSigned = true;
             break;
 
         case AFMT_U16_LE:
-            pProps->cBits   = 16;
+            pProps->cBytes  = 2;
             pProps->fSigned = false;
             break;
 
        case AFMT_S16_BE:
-            pProps->cBits   = 16;
+           pProps->cBytes  = 2;
             pProps->fSigned = true;
 #ifdef RT_LITTLE_ENDIAN
             pProps->fSwapEndian = true;
@@ -185,7 +185,7 @@ static int ossOSSToAudioProps(int fmt, PPDMAUDIOPCMPROPS pProps)
             break;
 
         case AFMT_U16_BE:
-            pProps->cBits   = 16;
+            pProps->cBytes  = 2;
             pProps->fSigned = false;
 #ifdef RT_LITTLE_ENDIAN
             pProps->fSwapEndian = true;
@@ -224,7 +224,7 @@ static int ossStreamClose(int *phFile)
 
 static int ossStreamOpen(const char *pszDev, int fOpen, POSSAUDIOSTREAMCFG pOSSReq, POSSAUDIOSTREAMCFG pOSSAcq, int *phFile)
 {
-    int rc = VINF_SUCCESS;
+    int rc = VERR_AUDIO_STREAM_COULD_NOT_CREATE;
 
     int hFile = -1;
     do
@@ -233,23 +233,22 @@ static int ossStreamOpen(const char *pszDev, int fOpen, POSSAUDIOSTREAMCFG pOSSR
         if (hFile == -1)
         {
             LogRel(("OSS: Failed to open %s: %s (%d)\n", pszDev, strerror(errno), errno));
-            rc = RTErrConvertFromErrno(errno);
             break;
         }
 
         int iFormat;
-        switch (pOSSReq->Props.cBits)
+        switch (pOSSReq->Props.cBytes)
         {
-            case 8:
+            case 1:
                 iFormat = pOSSReq->Props.fSigned ? AFMT_S8 : AFMT_U8;
                 break;
 
-            case 16:
+            case 2:
                 iFormat = pOSSReq->Props.fSigned ? AFMT_S16_LE : AFMT_U16_LE;
                 break;
 
             default:
-                rc = VERR_NOT_SUPPORTED;
+                rc = VERR_AUDIO_STREAM_COULD_NOT_CREATE;
                 break;
         }
 
@@ -259,7 +258,6 @@ static int ossStreamOpen(const char *pszDev, int fOpen, POSSAUDIOSTREAMCFG pOSSR
         if (ioctl(hFile, SNDCTL_DSP_SAMPLESIZE, &iFormat))
         {
             LogRel(("OSS: Failed to set audio format to %ld: %s (%d)\n", iFormat, strerror(errno), errno));
-            rc = RTErrConvertFromErrno(errno);
             break;
         }
 
@@ -268,7 +266,6 @@ static int ossStreamOpen(const char *pszDev, int fOpen, POSSAUDIOSTREAMCFG pOSSR
         {
             LogRel(("OSS: Failed to set number of audio channels (%RU8): %s (%d)\n",
                     pOSSReq->Props.cChannels, strerror(errno), errno));
-            rc = RTErrConvertFromErrno(errno);
             break;
         }
 
@@ -276,7 +273,6 @@ static int ossStreamOpen(const char *pszDev, int fOpen, POSSAUDIOSTREAMCFG pOSSR
         if (ioctl(hFile, SNDCTL_DSP_SPEED, &freq))
         {
             LogRel(("OSS: Failed to set audio frequency (%dHZ): %s (%d)\n", pOSSReq->Props.uHz, strerror(errno), errno));
-            rc = RTErrConvertFromErrno(errno);
             break;
         }
 
@@ -285,7 +281,6 @@ static int ossStreamOpen(const char *pszDev, int fOpen, POSSAUDIOSTREAMCFG pOSSR
         if (ioctl(hFile, SNDCTL_DSP_NONBLOCK))
         {
             LogRel(("OSS: Failed to set non-blocking mode: %s (%d)\n", strerror(errno), errno));
-            rc = RTErrConvertFromErrno(errno);
             break;
         }
 #endif
@@ -301,7 +296,6 @@ static int ossStreamOpen(const char *pszDev, int fOpen, POSSAUDIOSTREAMCFG pOSSR
         {
             LogRel(("OSS: Failed to set %RU16 fragments to %RU32 bytes each: %s (%d)\n",
                     pOSSReq->cFragments, pOSSReq->cbFragmentSize, strerror(errno), errno));
-            rc = RTErrConvertFromErrno(errno);
             break;
         }
 
@@ -309,7 +303,6 @@ static int ossStreamOpen(const char *pszDev, int fOpen, POSSAUDIOSTREAMCFG pOSSR
         if (ioctl(hFile, fIn ? SNDCTL_DSP_GETISPACE : SNDCTL_DSP_GETOSPACE, &abinfo))
         {
             LogRel(("OSS: Failed to retrieve %s buffer length: %s (%d)\n", fIn ? "input" : "output", strerror(errno), errno));
-            rc = RTErrConvertFromErrno(errno);
             break;
         }
 
@@ -318,7 +311,7 @@ static int ossStreamOpen(const char *pszDev, int fOpen, POSSAUDIOSTREAMCFG pOSSR
         {
             pOSSAcq->Props.cChannels = cChannels;
             pOSSAcq->Props.uHz       = freq;
-            pOSSAcq->Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(pOSSAcq->Props.cBits, pOSSAcq->Props.cChannels);
+            pOSSAcq->Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(pOSSAcq->Props.cBytes, pOSSAcq->Props.cChannels);
 
             pOSSAcq->cFragments      = abinfo.fragstotal;
             pOSSAcq->cbFragmentSize  = abinfo.fragsize;
@@ -385,8 +378,7 @@ static int ossControlStreamOut(PPDMAUDIOBACKENDSTREAM pStream, PDMAUDIOSTREAMCMD
         }
 
         default:
-            AssertMsgFailed(("Invalid command %ld\n", enmStreamCmd));
-            rc = VERR_INVALID_PARAMETER;
+            rc = VERR_NOT_SUPPORTED;
             break;
     }
 
@@ -560,6 +552,8 @@ static DECLCALLBACK(int) drvHostOSSAudioGetConfig(PPDMIHOSTAUDIO pInterface, PPD
 {
     RT_NOREF(pInterface);
 
+    RTStrPrintf2(pBackendCfg->szName, sizeof(pBackendCfg->szName), "OSS audio driver");
+
     pBackendCfg->cbStreamIn  = sizeof(OSSAUDIOSTREAM);
     pBackendCfg->cbStreamOut = sizeof(OSSAUDIOSTREAM);
 
@@ -615,6 +609,9 @@ static DECLCALLBACK(int) drvHostOSSAudioGetConfig(PPDMIHOSTAUDIO pInterface, PPD
     else
         LogRel(("OSS: No devices found, audio is not available\n"));
 
+    if (hFile != -1)
+        close(hFile);
+
     return VINF_SUCCESS;
 }
 
@@ -634,6 +631,7 @@ static int ossCreateStreamIn(POSSAUDIOSTREAM pStreamOSS, PPDMAUDIOSTREAMCFG pCfg
         ossReq.cbFragmentSize = s_OSSConf.fragsize;
 
         OSSAUDIOSTREAMCFG ossAcq;
+        RT_ZERO(ossAcq);
 
         rc = ossStreamOpen(s_OSSConf.devpath_in, O_RDONLY | O_NONBLOCK, &ossReq, &ossAcq, &hFile);
         if (RT_SUCCESS(rc))
@@ -646,13 +644,9 @@ static int ossCreateStreamIn(POSSAUDIOSTREAM pStreamOSS, PPDMAUDIOSTREAMCFG pCfg
                         ossAcq.cFragments * ossAcq.cbFragmentSize, pStreamOSS->uAlign + 1));
             }
 
-            uint32_t cSamples = PDMAUDIOSTREAMCFG_B2F(pCfgAcq, ossAcq.cFragments * ossAcq.cbFragmentSize);
-            if (!cSamples)
-                rc = VERR_INVALID_PARAMETER;
-
             if (RT_SUCCESS(rc))
             {
-                size_t cbBuf = PDMAUDIOSTREAMCFG_F2B(pCfgAcq, cSamples);
+                size_t cbBuf = PDMAUDIOSTREAMCFG_F2B(pCfgAcq, ossAcq.cFragments * ossAcq.cbFragmentSize);
                 void  *pvBuf = RTMemAlloc(cbBuf);
                 if (!pvBuf)
                 {
@@ -664,7 +658,9 @@ static int ossCreateStreamIn(POSSAUDIOSTREAM pStreamOSS, PPDMAUDIOSTREAMCFG pCfg
                 pStreamOSS->pvBuf = pvBuf;
                 pStreamOSS->cbBuf = cbBuf;
 
-                pCfgAcq->cFrameBufferHint = cSamples;
+                pCfgAcq->Backend.cfPeriod     = PDMAUDIOSTREAMCFG_B2F(pCfgAcq, ossAcq.cbFragmentSize);
+                pCfgAcq->Backend.cfBufferSize = pCfgAcq->Backend.cfPeriod * 2; /* Use "double buffering". */
+                /** @todo Pre-buffering required? */
             }
         }
 
@@ -685,9 +681,11 @@ static int ossCreateStreamOut(POSSAUDIOSTREAM pStreamOSS, PPDMAUDIOSTREAMCFG pCf
 
     do
     {
-        uint32_t cSamples;
+        OSSAUDIOSTREAMCFG reqStream;
+        RT_ZERO(reqStream);
 
-        OSSAUDIOSTREAMCFG reqStream, obtStream;
+        OSSAUDIOSTREAMCFG obtStream;
+        RT_ZERO(obtStream);
 
         memcpy(&reqStream.Props, &pCfgReq->Props, sizeof(PDMAUDIOPCMPROPS));
 
@@ -698,8 +696,6 @@ static int ossCreateStreamOut(POSSAUDIOSTREAM pStreamOSS, PPDMAUDIOSTREAMCFG pCf
         if (RT_SUCCESS(rc))
         {
             memcpy(&pCfgAcq->Props, &obtStream.Props, sizeof(PDMAUDIOPCMPROPS));
-
-            cSamples = PDMAUDIOSTREAMCFG_B2F(pCfgAcq, obtStream.cFragments * obtStream.cbFragmentSize);
 
             if (obtStream.cFragments * obtStream.cbFragmentSize & pStreamOSS->uAlign)
             {
@@ -712,7 +708,7 @@ static int ossCreateStreamOut(POSSAUDIOSTREAM pStreamOSS, PPDMAUDIOSTREAMCFG pCf
         {
             pStreamOSS->Out.fMMIO = false;
 
-            size_t cbBuf = PDMAUDIOSTREAMCFG_F2B(pCfgAcq, cSamples);
+            size_t cbBuf = PDMAUDIOSTREAMCFG_F2B(pCfgAcq, obtStream.cFragments * obtStream.cbFragmentSize);
             Assert(cbBuf);
 
 #ifndef RT_OS_L4
@@ -769,7 +765,7 @@ static int ossCreateStreamOut(POSSAUDIOSTREAM pStreamOSS, PPDMAUDIOSTREAMCFG pCf
                 void *pvBuf = RTMemAlloc(cbBuf);
                 if (!pvBuf)
                 {
-                    LogRel(("OSS: Failed allocating playback buffer with %RU32 samples (%zu bytes)\n", cSamples, cbBuf));
+                    LogRel(("OSS: Failed allocating playback buffer with %zu bytes\n", cbBuf));
                     rc = VERR_NO_MEMORY;
                     break;
                 }
@@ -780,7 +776,8 @@ static int ossCreateStreamOut(POSSAUDIOSTREAM pStreamOSS, PPDMAUDIOSTREAMCFG pCf
 #ifndef RT_OS_L4
             }
 #endif
-            pCfgAcq->cFrameBufferHint = cSamples;
+            pCfgAcq->Backend.cfPeriod     = PDMAUDIOSTREAMCFG_B2F(pCfgAcq, obtStream.cbFragmentSize);
+            pCfgAcq->Backend.cfBufferSize = pCfgAcq->Backend.cfPeriod * 2; /* Use "double buffering" */
         }
 
     } while (0);

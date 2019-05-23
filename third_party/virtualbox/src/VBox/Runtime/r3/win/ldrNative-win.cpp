@@ -68,6 +68,7 @@ int rtldrNativeLoad(const char *pszFilename, uintptr_t *phHandle, uint32_t fFlag
     /*
      * Convert to UTF-16 and make sure it got a .DLL suffix.
      */
+    /** @todo Implement long path support for native DLL loading on windows. @bugref{9248} */
     int rc;
     RTUTF16 *pwszNative = NULL;
     if (RTPathHasSuffix(pszFilename))

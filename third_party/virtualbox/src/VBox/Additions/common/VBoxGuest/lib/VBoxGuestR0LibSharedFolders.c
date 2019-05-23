@@ -320,7 +320,7 @@ DECLVBGL(int) VbglR0SfReadPageList(PVBGLSFCLIENT pClient, PVBGLSFMAP pMap, SHFLH
                                    uint16_t offFirstPage, uint16_t cPages, RTGCPHYS64 *paPages)
 {
     uint32_t            cbToRead  = *pcbBuffer;
-    uint32_t            cbData    = (uint32_t)(sizeof(VBoxSFRead) + RT_UOFFSETOF(HGCMPageListInfo, aPages[cPages]));
+    uint32_t            cbData    = (uint32_t)(sizeof(VBoxSFRead) + RT_UOFFSETOF_DYN(HGCMPageListInfo, aPages[cPages]));
     VBoxSFRead         *pData     = (VBoxSFRead *)RTMemTmpAlloc(cbData);
     HGCMPageListInfo   *pPgLst    = (HGCMPageListInfo *)(pData + 1);
     uint16_t            iPage;
@@ -398,7 +398,7 @@ DECLVBGL(int) VbglR0SfWritePhysCont(PVBGLSFCLIENT pClient, PVBGLSFMAP pMap, SHFL
 {
     uint32_t            cbToWrite = *pcbBuffer;
     uint32_t            cPages    = RT_ALIGN_32((PhysBuffer & PAGE_OFFSET_MASK) + cbToWrite, PAGE_SIZE) >> PAGE_SHIFT;
-    uint32_t            cbData    = (uint32_t)(sizeof(VBoxSFWrite) + RT_UOFFSETOF(HGCMPageListInfo, aPages[cPages]));
+    uint32_t            cbData    = (uint32_t)(sizeof(VBoxSFWrite) + RT_UOFFSETOF_DYN(HGCMPageListInfo, aPages[cPages]));
     VBoxSFWrite        *pData     = (VBoxSFWrite *)RTMemTmpAlloc(cbData);
     HGCMPageListInfo   *pPgLst    = (HGCMPageListInfo *)(pData + 1);
     uint32_t            iPage;
@@ -446,7 +446,7 @@ DECLVBGL(int) VbglR0SfWritePageList(PVBGLSFCLIENT pClient, PVBGLSFMAP pMap, SHFL
                                     uint16_t offFirstPage, uint16_t cPages, RTGCPHYS64 *paPages)
 {
     uint32_t            cbToWrite = *pcbBuffer;
-    uint32_t            cbData    = (uint32_t)(sizeof(VBoxSFWrite) + RT_UOFFSETOF(HGCMPageListInfo, aPages[cPages]));
+    uint32_t            cbData    = (uint32_t)(sizeof(VBoxSFWrite) + RT_UOFFSETOF_DYN(HGCMPageListInfo, aPages[cPages]));
     VBoxSFWrite        *pData     = (VBoxSFWrite *)RTMemTmpAlloc(cbData);
     HGCMPageListInfo   *pPgLst    = (HGCMPageListInfo *)(pData + 1);
     uint16_t            iPage;

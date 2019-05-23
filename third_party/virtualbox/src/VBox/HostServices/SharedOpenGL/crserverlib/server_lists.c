@@ -229,7 +229,7 @@ TranslateListIDs(GLsizei n, GLenum type, const GLvoid *lists, GLuint *newLists)
 void SERVER_DISPATCH_APIENTRY
 crServerDispatchCallLists( GLsizei n, GLenum type, const GLvoid *lists )
 {
-    if (n >= UINT32_MAX / sizeof(GLuint))
+    if (n >= INT32_MAX / sizeof(GLuint))
     {
         crError("crServerDispatchCallLists: parameter 'n' is out of range");
         return;

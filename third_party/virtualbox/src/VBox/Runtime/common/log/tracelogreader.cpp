@@ -819,7 +819,7 @@ static DECLCALLBACK(int) rtTraceLogRdrEvtDescRecvd(PRTTRACELOGRDRINT pThis, RTTR
         if (RT_LIKELY(enmSeverity != RTTRACELOGEVTSEVERITY_INVALID))
         {
             /* Allocate new internal event descriptor state. */
-            size_t cbEvtDesc = RT_OFFSETOF(RTTRACELOGRDREVTDESC, aEvtItemDesc[pEvtDesc->cEvtItems]);
+            size_t cbEvtDesc = RT_UOFFSETOF_DYN(RTTRACELOGRDREVTDESC, aEvtItemDesc[pEvtDesc->cEvtItems]);
             PRTTRACELOGRDREVTDESC pEvtDescInt = (PRTTRACELOGRDREVTDESC)RTMemAllocZ(cbEvtDesc);
             if (RT_LIKELY(pEvtDesc))
             {
@@ -998,7 +998,7 @@ static DECLCALLBACK(int) rtTraceLogRdrEvtMarkerRecvd(PRTTRACELOGRDRINT pThis, RT
                 && pEvtStrm->cbEvtData >= pEvtDesc->cbEvtData
                 && pEvtStrm->cRawEvtDataSz == pEvtDesc->cRawDataNonStatic))
         {
-            size_t cbEvt = RT_OFFSETOF(RTTRACELOGRDREVTINT, abEvtData[pEvtStrm->cbEvtData]);
+            size_t cbEvt = RT_UOFFSETOF_DYN(RTTRACELOGRDREVTINT, abEvtData[pEvtStrm->cbEvtData]);
             cbEvt += pEvtDesc->cRawDataNonStatic * sizeof(size_t);
             PRTTRACELOGRDREVTINT pEvt = (PRTTRACELOGRDREVTINT)RTMemAllocZ(cbEvt);
             if (RT_LIKELY(pEvt))

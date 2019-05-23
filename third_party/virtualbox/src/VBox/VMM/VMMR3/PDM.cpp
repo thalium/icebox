@@ -393,7 +393,7 @@ VMMR3_INT_DECL(int) PDMR3Init(PVM pVM)
     /*
      * Assert alignment and sizes.
      */
-    AssertRelease(!(RT_OFFSETOF(VM, pdm.s) & 31));
+    AssertRelease(!(RT_UOFFSETOF(VM, pdm.s) & 31));
     AssertRelease(sizeof(pVM->pdm.s) <= sizeof(pVM->pdm.padding));
     AssertCompileMemberAlignment(PDM, CritSect, sizeof(uintptr_t));
 
@@ -676,7 +676,7 @@ static void pdmR3TermLuns(PVM pVM, PPDMLUN pLun, const char *pszDevice, unsigned
 #endif
 
             /* Clear the driver struture to catch sloppy code. */
-            ASMMemFill32(pDrvIns, RT_OFFSETOF(PDMDRVINS, achInstanceData[pDrvIns->pReg->cbInstance]), 0xdeadd0d0);
+            ASMMemFill32(pDrvIns, RT_UOFFSETOF_DYN(PDMDRVINS, achInstanceData[pDrvIns->pReg->cbInstance]), 0xdeadd0d0);
 
             pDrvIns = pDrvNext;
         }

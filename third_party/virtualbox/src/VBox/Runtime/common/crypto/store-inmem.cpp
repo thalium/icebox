@@ -119,7 +119,7 @@ static int rtCrStoreInMemCreateCertEntry(PRTCRSTOREINMEM pThis, uint32_t fEnc, u
                                          PRTERRINFO pErrInfo, PRTCRSTOREINMEMCERT *ppEntry)
 {
     int                 rc;
-    PRTCRSTOREINMEMCERT pEntry    = (PRTCRSTOREINMEMCERT)RTMemAllocZ(RT_UOFFSETOF(RTCRSTOREINMEMCERT, abEncoded[cbSrc]));
+    PRTCRSTOREINMEMCERT pEntry    = (PRTCRSTOREINMEMCERT)RTMemAllocZ(RT_UOFFSETOF_DYN(RTCRSTOREINMEMCERT, abEncoded[cbSrc]));
     if (pEntry)
     {
         memcpy(pEntry->abEncoded, pbSrc, cbSrc);

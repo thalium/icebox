@@ -5227,7 +5227,7 @@ static int dbgcEventUpdate(PDBGCEVTCFG *ppEvtCfg, const char *pszCmd, DBGCEVTSTA
             if (!pEvtCfg || pEvtCfg->cchCmd < cchCmd)
             {
                 RTMemFree(pEvtCfg);
-                *ppEvtCfg = pEvtCfg = (PDBGCEVTCFG)RTMemAlloc(RT_OFFSETOF(DBGCEVTCFG, szCmd[cchCmd + 1]));
+                *ppEvtCfg = pEvtCfg = (PDBGCEVTCFG)RTMemAlloc(RT_UOFFSETOF_DYN(DBGCEVTCFG, szCmd[cchCmd + 1]));
                 if (!pEvtCfg)
                     return VERR_NO_MEMORY;
             }

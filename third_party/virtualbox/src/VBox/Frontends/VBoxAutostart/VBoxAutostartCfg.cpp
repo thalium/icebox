@@ -555,7 +555,7 @@ static int autostartConfigParseValue(PCFGTOKENIZER pCfgTokenizer, const char *ps
     {
         PCFGAST pCfgAst = NULL;
 
-        pCfgAst = (PCFGAST)RTMemAllocZ(RT_OFFSETOF(CFGAST, u.KeyValue.aszValue[pToken->u.Id.cchToken + 1]));
+        pCfgAst = (PCFGAST)RTMemAllocZ(RT_UOFFSETOF_DYN(CFGAST, u.KeyValue.aszValue[pToken->u.Id.cchToken + 1]));
         if (!pCfgAst)
             return VERR_NO_MEMORY;
 
@@ -592,7 +592,7 @@ static int autostartConfigParseCompoundNode(PCFGTOKENIZER pCfgTokenizer, const c
                                             PCFGAST *ppCfgAst)
 {
     unsigned cAstNodesMax = 10;
-    PCFGAST pCfgAst = (PCFGAST)RTMemAllocZ(RT_OFFSETOF(CFGAST, u.Compound.apAstNodes[cAstNodesMax]));
+    PCFGAST pCfgAst = (PCFGAST)RTMemAllocZ(RT_UOFFSETOF_DYN(CFGAST, u.Compound.apAstNodes[cAstNodesMax]));
     if (!pCfgAst)
         return VERR_NO_MEMORY;
 
@@ -652,7 +652,7 @@ static int autostartConfigParseCompoundNode(PCFGTOKENIZER pCfgTokenizer, const c
             {
                 cAstNodesMax += 10;
 
-                PCFGAST pCfgAstNew = (PCFGAST)RTMemRealloc(pCfgAst, RT_OFFSETOF(CFGAST, u.Compound.apAstNodes[cAstNodesMax]));
+                PCFGAST pCfgAstNew = (PCFGAST)RTMemRealloc(pCfgAst, RT_UOFFSETOF_DYN(CFGAST, u.Compound.apAstNodes[cAstNodesMax]));
                 if (!pCfgAstNew)
                     rc = VERR_NO_MEMORY;
                 else

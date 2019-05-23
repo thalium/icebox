@@ -108,7 +108,7 @@ DECLHIDDEN(int) utsGadgetCreate(UTSGADGETHOST hGadgetHost, UTSGADGETCLASS enmCla
 
     if (RT_LIKELY(pClassIf))
     {
-        PUTSGADGETINT pThis = (PUTSGADGETINT)RTMemAllocZ(RT_OFFSETOF(UTSGADGETINT, abClassInst[pClassIf->cbClass]));
+        PUTSGADGETINT pThis = (PUTSGADGETINT)RTMemAllocZ(RT_UOFFSETOF_DYN(UTSGADGETINT, abClassInst[pClassIf->cbClass]));
         if (RT_LIKELY(pThis))
         {
             pThis->cRefs       = 1;

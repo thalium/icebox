@@ -415,7 +415,7 @@ DECL_HIDDEN_CONST(const RTVFSFILEOPS) g_rtVfsStdFileOps =
     0,
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
-        RT_OFFSETOF(RTVFSFILEOPS, Stream.Obj) - RT_OFFSETOF(RTVFSFILEOPS, ObjSet),
+        RT_UOFFSETOF(RTVFSFILEOPS, ObjSet) - RT_UOFFSETOF(RTVFSFILEOPS, Stream.Obj),
         rtVfsStdFile_SetMode,
         rtVfsStdFile_SetTimes,
         rtVfsStdFile_SetOwner,

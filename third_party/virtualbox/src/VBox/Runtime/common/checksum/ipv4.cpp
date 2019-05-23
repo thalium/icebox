@@ -662,23 +662,23 @@ RTDECL(bool) RTNetIPv4IsDHCPValid(PCRTNETUDP pUdpHdr, PCRTNETBOOTP pDhcp, size_t
     /*
      * Validate all the header fields we're able to...
      */
-    if (cbDhcp < RT_OFFSETOF(RTNETBOOTP, bp_op) + sizeof(pDhcp->bp_op))
+    if (cbDhcp < RT_UOFFSETOF(RTNETBOOTP, bp_op) + sizeof(pDhcp->bp_op))
         return true;
     if (RT_UNLIKELY(    pDhcp->bp_op != RTNETBOOTP_OP_REQUEST
                     &&  pDhcp->bp_op != RTNETBOOTP_OP_REPLY))
         return false;
 
-    if (cbDhcp < RT_OFFSETOF(RTNETBOOTP, bp_htype) + sizeof(pDhcp->bp_htype))
+    if (cbDhcp < RT_UOFFSETOF(RTNETBOOTP, bp_htype) + sizeof(pDhcp->bp_htype))
         return true;
     if (RT_UNLIKELY(pDhcp->bp_htype != RTNET_ARP_ETHER))
         return false;
 
-    if (cbDhcp < RT_OFFSETOF(RTNETBOOTP, bp_hlen) + sizeof(pDhcp->bp_hlen))
+    if (cbDhcp < RT_UOFFSETOF(RTNETBOOTP, bp_hlen) + sizeof(pDhcp->bp_hlen))
         return true;
     if (RT_UNLIKELY(pDhcp->bp_hlen != sizeof(RTMAC)))
         return false;
 
-    if (cbDhcp < RT_OFFSETOF(RTNETBOOTP, bp_flags) + sizeof(pDhcp->bp_flags))
+    if (cbDhcp < RT_UOFFSETOF(RTNETBOOTP, bp_flags) + sizeof(pDhcp->bp_flags))
         return true;
     if (RT_UNLIKELY(RT_BE2H_U16(pDhcp->bp_flags) & ~(RTNET_DHCP_FLAGS_NO_BROADCAST)))
         return false;
@@ -687,7 +687,7 @@ RTDECL(bool) RTNetIPv4IsDHCPValid(PCRTNETUDP pUdpHdr, PCRTNETBOOTP pDhcp, size_t
      * Check the DHCP cookie and make sure it isn't followed by an END option
      * (because that seems to be indicating that it's BOOTP and not DHCP).
      */
-    cbLeft = (ssize_t)cbDhcp - RT_OFFSETOF(RTNETBOOTP, bp_vend.Dhcp.dhcp_cookie) + sizeof(pDhcp->bp_vend.Dhcp.dhcp_cookie);
+    cbLeft = (ssize_t)cbDhcp - RT_UOFFSETOF(RTNETBOOTP, bp_vend.Dhcp.dhcp_cookie) + sizeof(pDhcp->bp_vend.Dhcp.dhcp_cookie);
     if (cbLeft < 0)
         return true;
     if (RT_UNLIKELY(RT_BE2H_U32(pDhcp->bp_vend.Dhcp.dhcp_cookie) != RTNET_DHCP_COOKIE))

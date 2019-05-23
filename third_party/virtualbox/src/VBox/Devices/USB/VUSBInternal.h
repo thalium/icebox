@@ -479,7 +479,7 @@ AssertCompileMemberAlignment(VUSBROOTHUB, Total, 8);
 #endif
 
 /** Converts a pointer to VUSBROOTHUB::IRhConnector to a PVUSBROOTHUB. */
-#define VUSBIROOTHUBCONNECTOR_2_VUSBROOTHUB(pInterface) (PVUSBROOTHUB)( (uintptr_t)(pInterface) - RT_OFFSETOF(VUSBROOTHUB, IRhConnector) )
+#define VUSBIROOTHUBCONNECTOR_2_VUSBROOTHUB(pInterface) (PVUSBROOTHUB)( (uintptr_t)(pInterface) - RT_UOFFSETOF(VUSBROOTHUB, IRhConnector) )
 
 /**
  * URB cancellation modes

@@ -4877,6 +4877,11 @@ static int e1kXmitDesc(PE1KSTATE pThis, E1KTXDESC *pDesc, RTGCPHYS addr,
             if (pDesc->data.cmd.u20DTALEN == 0 || pDesc->data.u64BufAddr == 0)
             {
                 E1kLog2(("% Empty data descriptor, skipped.\n", pThis->szPrf));
+                if (pDesc->data.cmd.fEOP)
+                {
+                    e1kTransmitFrame(pThis, fOnWorkerThread);
+                    pThis->u16TxPktLen = 0;
+                }
             }
             else
             {

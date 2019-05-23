@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2005-2017 Oracle Corporation
+ * Copyright (C) 2005-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -199,6 +199,10 @@ public:
     EventSource *i_getEventSource() { return mEventSource; }
 #ifdef VBOX_WITH_USB_CARDREADER
     UsbCardReader *i_getUsbCardReader() { return mUsbCardReader; }
+#endif
+
+#ifdef VBOX_WITH_VIDEOREC
+    int i_videoCaptureEnable(BOOL fEnable, util::AutoWriteLock *pAutoLock);
 #endif
 
     int i_VRDPClientLogon(uint32_t u32ClientId, const char *pszUser, const char *pszPassword, const char *pszDomain);
@@ -619,7 +623,12 @@ private:
     HRESULT i_suspendBeforeConfigChange(PUVM pUVM, AutoWriteLock *pAlock, bool *pfResume);
     void    i_resumeAfterConfigChange(PUVM pUVM);
 
+    uint32_t i_getAudioDriverValU32(IVirtualBox *pVirtualBox, IMachine *pMachine,
+                                    const char *pszDriverName, const char *pszValue, uint32_t uDefault);
+
     static DECLCALLBACK(int) i_configConstructor(PUVM pUVM, PVM pVM, void *pvConsole);
+    int i_configAudioDriver(IAudioAdapter *pAudioAdapter, IVirtualBox *pVirtualBox, IMachine *pMachine,
+                            PCFGMNODE pLUN, const char *pszDriverName);
     int i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock);
     int i_configCfgmOverlay(PCFGMNODE pRoot, IVirtualBox *pVirtualBox, IMachine *pMachine);
     int i_configDumpAPISettingsTweaks(IVirtualBox *pVirtualBox, IMachine *pMachine);

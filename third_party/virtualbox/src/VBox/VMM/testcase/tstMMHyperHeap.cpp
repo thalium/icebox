@@ -64,7 +64,6 @@ extern "C" DECLEXPORT(int) TrustedMain(int argc, char **argv, char **envp)
         RTPrintf("Fatal error: SUP Failure! rc=%Rrc\n", rc);
         return 1;
     }
-    memset(pVM, 0, sizeof(*pVM)); /* wtf? */
     pVM->paVMPagesR3 = aPages;
     pVM->pVMR0 = pvR0;
 
@@ -74,7 +73,7 @@ extern "C" DECLEXPORT(int) TrustedMain(int argc, char **argv, char **envp)
     pVM->pUVM = pUVM;
 
     pVM->cCpus = NUM_CPUS;
-    pVM->cbSelf = RT_UOFFSETOF(VM, aCpus[pVM->cCpus]);
+    pVM->cbSelf = RT_UOFFSETOF_DYN(VM, aCpus[pVM->cCpus]);
 
     rc = STAMR3InitUVM(pUVM);
     if (RT_FAILURE(rc))

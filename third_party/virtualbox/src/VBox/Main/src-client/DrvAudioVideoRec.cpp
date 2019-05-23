@@ -263,7 +263,7 @@ typedef struct DRVAUDIOVIDEOREC
     /** Pointer to host audio interface. */
     PDMIHOSTAUDIO        IHostAudio;
     /** Pointer to the console object. */
-    ComObjPtr<Console>   pConsole;
+    ComPtr<Console>      pConsole;
     /** Pointer to the DrvAudio port interface that is above us. */
     PPDMIAUDIOCONNECTOR  pDrvAudio;
     /** The driver's sink for writing output to. */
@@ -271,8 +271,8 @@ typedef struct DRVAUDIOVIDEOREC
 } DRVAUDIOVIDEOREC, *PDRVAUDIOVIDEOREC;
 
 /** Makes DRVAUDIOVIDEOREC out of PDMIHOSTAUDIO. */
-#define PDMIHOSTAUDIO_2_DRVAUDIOVIDEOREC(pInterface) \
-    ( (PDRVAUDIOVIDEOREC)((uintptr_t)pInterface - RT_OFFSETOF(DRVAUDIOVIDEOREC, IHostAudio)) )
+#define PDMIHOSTAUDIO_2_DRVAUDIOVIDEOREC(pInterface) /* (clang doesn't think it is a POD, thus _DYN.) */ \
+    ( (PDRVAUDIOVIDEOREC)((uintptr_t)pInterface - RT_UOFFSETOF_DYN(DRVAUDIOVIDEOREC, IHostAudio)) )
 
 /**
  * Initializes a recording sink.
@@ -391,7 +391,7 @@ static int avRecSinkInit(PDRVAUDIOVIDEOREC pThis, PAVRECSINK pSink, PAVRECCONTAI
                 break;
         }
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
 #ifdef VBOX_AUDIO_DEBUG_DUMP_PCM_DATA
         rc = VERR_NO_MEMORY;
@@ -497,9 +497,6 @@ static int avRecCreateStreamOut(PDRVAUDIOVIDEOREC pThis, PAVRECSTREAM pStreamAV,
     {
         AssertFailed();
 
-        if (pCfgAcq)
-            pCfgAcq->cFrameBufferHint = 0;
-
         LogRel2(("VideoRec: Support for surround audio not implemented yet\n"));
         return VERR_NOT_SUPPORTED;
     }
@@ -523,8 +520,10 @@ static int avRecCreateStreamOut(PDRVAUDIOVIDEOREC pThis, PAVRECSTREAM pStreamAV,
             /* Make sure to let the driver backend know that we need the audio data in
              * a specific sampling rate Opus is optimized for. */
             pCfgAcq->Props.uHz         = pSink->Codec.Parms.uHz;
-            pCfgAcq->Props.cShift      = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(pCfgAcq->Props.cBits, pCfgAcq->Props.cChannels);
-            pCfgAcq->cFrameBufferHint = _4K; /** @todo Make this configurable. */
+            pCfgAcq->Props.cShift      = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(pCfgAcq->Props.cBytes, pCfgAcq->Props.cChannels);
+
+            /* Every Opus frame marks a period for now. Optimize this later. */
+            pCfgAcq->Backend.cfPeriod  = DrvAudioHlpMilliToFrames(pSink->Codec.Opus.msFrame, &pCfgAcq->Props); /** @todo Make this configurable. */
         }
     }
 #else
@@ -571,6 +570,8 @@ static int avRecControlStreamOut(PDRVAUDIOVIDEOREC pThis,
 {
     RT_NOREF(pThis, pStreamAV);
 
+    int rc = VINF_SUCCESS;
+
     switch (enmStreamCmd)
     {
         case PDMAUDIOSTREAMCMD_ENABLE:
@@ -580,11 +581,11 @@ static int avRecControlStreamOut(PDRVAUDIOVIDEOREC pThis,
             break;
 
         default:
-            AssertMsgFailed(("Invalid command %ld\n", enmStreamCmd));
+            rc = VERR_NOT_SUPPORTED;
             break;
     }
 
-    return VINF_SUCCESS;
+    return rc;
 }
 
 
@@ -833,6 +834,8 @@ static DECLCALLBACK(int) drvAudioVideoRecGetConfig(PPDMIHOSTAUDIO pInterface, PP
     RT_NOREF(pInterface);
     AssertPtrReturn(pBackendCfg, VERR_INVALID_POINTER);
 
+    RTStrPrintf2(pBackendCfg->szName, sizeof(pBackendCfg->szName), "Video recording audio driver");
+
     pBackendCfg->cbStreamOut    = sizeof(AVRECSTREAM);
     pBackendCfg->cbStreamIn     = 0;
     pBackendCfg->cMaxStreamsIn  = 0;
@@ -1015,8 +1018,8 @@ static DECLCALLBACK(void *) drvAudioVideoRecQueryInterface(PPDMIBASE pInterface,
 
 
 AudioVideoRec::AudioVideoRec(Console *pConsole)
-    : mpDrv(NULL)
-    , mpConsole(pConsole)
+    : AudioDriver(pConsole)
+    , mpDrv(NULL)
 {
 }
 
@@ -1028,6 +1031,18 @@ AudioVideoRec::~AudioVideoRec(void)
         mpDrv->pAudioVideoRec = NULL;
         mpDrv = NULL;
     }
+}
+
+
+/**
+ * @copydoc AudioDriver::configureDriver
+ */
+int AudioVideoRec::configureDriver(PCFGMNODE pLunCfg)
+{
+    CFGMR3InsertInteger(pLunCfg, "Object",        (uintptr_t)mpConsole->i_getAudioVideoRec());
+    CFGMR3InsertInteger(pLunCfg, "ObjectConsole", (uintptr_t)mpConsole);
+
+    return VINF_SUCCESS;
 }
 
 

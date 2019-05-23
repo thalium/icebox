@@ -393,11 +393,10 @@ static int vbglR3DnDHGRecvURIData(PVBGLR3GUESTDNDCMDCTX pCtx, PVBOXDNDSNDDATAHDR
     /* Anything to do at all? */
     if (fDoAccounting)
     {
-        if (   !cbToRecvBytes
-            && !cToRecvObjs)
-        {
+        /* Note: Do not check for cbToRecvBytes == 0 here, as this might be just
+         *       a bunch of 0-byte files to be transferred. */
+        if (!cToRecvObjs)
             return VINF_SUCCESS;
-        }
     }
 
     /*
@@ -1326,15 +1325,7 @@ VBGLR3DECL(int) VbglR3DnDRecvNextMsg(PVBGLR3GUESTDNDCMDCTX pCtx, CPVBGLR3DNDHGCM
         if (   RT_SUCCESS(rc2)
             && (uSessionID != pCtx->uSessionID))
         {
-            LogFlowFunc(("VM session ID changed to %RU64, doing reconnect\n", uSessionID));
-
-            /* Try a reconnect to the DnD service. */
-            rc2 = VbglR3DnDDisconnect(pCtx);
-            AssertRC(rc2);
-            rc2 = VbglR3DnDConnect(pCtx);
-            AssertRC(rc2);
-
-            /* At this point we continue processing the messsages with the new client ID. */
+            LogFlowFunc(("VM session ID changed to %RU64\n", uSessionID));
         }
     }
 

@@ -450,23 +450,23 @@ VMMR3DECL(int) TRPMR3Init(PVM pVM)
     /*
      * Assert sizes and alignments.
      */
-    AssertRelease(!(RT_OFFSETOF(VM, trpm.s) & 31));
-    AssertRelease(!(RT_OFFSETOF(VM, trpm.s.aIdt) & 15));
+    AssertRelease(!(RT_UOFFSETOF(VM, trpm.s) & 31));
+    AssertRelease(!(RT_UOFFSETOF(VM, trpm.s.aIdt) & 15));
     AssertRelease(sizeof(pVM->trpm.s) <= sizeof(pVM->trpm.padding));
     AssertRelease(RT_ELEMENTS(pVM->trpm.s.aGuestTrapHandler) == sizeof(pVM->trpm.s.au32IdtPatched)*8);
 
     /*
      * Initialize members.
      */
-    pVM->trpm.s.offVM              = RT_OFFSETOF(VM, trpm);
-    pVM->trpm.s.offTRPMCPU         = RT_OFFSETOF(VM, aCpus[0].trpm) - RT_OFFSETOF(VM, trpm);
+    pVM->trpm.s.offVM              = RT_UOFFSETOF(VM, trpm);
+    pVM->trpm.s.offTRPMCPU         = RT_UOFFSETOF(VM, aCpus[0].trpm) - RT_UOFFSETOF(VM, trpm);
 
     for (VMCPUID i = 0; i < pVM->cCpus; i++)
     {
         PVMCPU pVCpu = &pVM->aCpus[i];
 
-        pVCpu->trpm.s.offVM         = RT_OFFSETOF(VM, aCpus[i].trpm);
-        pVCpu->trpm.s.offVMCpu      = RT_OFFSETOF(VMCPU, trpm);
+        pVCpu->trpm.s.offVM         = RT_UOFFSETOF_DYN(VM, aCpus[i].trpm);
+        pVCpu->trpm.s.offVMCpu      = RT_UOFFSETOF(VMCPU, trpm);
         pVCpu->trpm.s.uActiveVector = ~0U;
     }
 

@@ -134,7 +134,7 @@ RTDECL(int) RTMemPoolCreate(PRTMEMPOOL phMemPool, const char *pszName)
     Assert(*pszName);
 
     size_t          cchName  = strlen(pszName);
-    PRTMEMPOOLINT   pMemPool = (PRTMEMPOOLINT)RTMemAlloc(RT_OFFSETOF(RTMEMPOOLINT, szName[cchName + 1]));
+    PRTMEMPOOLINT   pMemPool = (PRTMEMPOOLINT)RTMemAlloc(RT_UOFFSETOF_DYN(RTMEMPOOLINT, szName[cchName + 1]));
     if (!pMemPool)
         return VERR_NO_MEMORY;
     int rc = RTSpinlockCreate(&pMemPool->hSpinLock, RTSPINLOCK_FLAGS_INTERRUPT_UNSAFE, "RTMemPoolCreate");

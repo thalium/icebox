@@ -215,7 +215,7 @@ VMM_INT_DECL(int) TMR3Init(PVM pVM)
     pVM->tm.s.paTimerQueuesR0 = MMHyperR3ToR0(pVM, pv);
     pVM->tm.s.paTimerQueuesRC = MMHyperR3ToRC(pVM, pv);
 
-    pVM->tm.s.offVM = RT_OFFSETOF(VM, tm.s);
+    pVM->tm.s.offVM = RT_UOFFSETOF(VM, tm.s);
     pVM->tm.s.idTimerCpu = pVM->cCpus - 1; /* The last CPU. */
     pVM->tm.s.paTimerQueuesR3[TMCLOCK_VIRTUAL].enmClock        = TMCLOCK_VIRTUAL;
     pVM->tm.s.paTimerQueuesR3[TMCLOCK_VIRTUAL].u64Expire       = INT64_MAX;

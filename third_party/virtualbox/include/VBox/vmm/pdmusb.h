@@ -841,7 +841,7 @@ typedef struct PDMUSBINS
 
 
 /** Converts a pointer to the PDMUSBINS::IBase to a pointer to PDMUSBINS. */
-#define PDMIBASE_2_PDMUSB(pInterface) ( (PPDMUSBINS)((char *)(pInterface) - RT_OFFSETOF(PDMUSBINS, IBase)) )
+#define PDMIBASE_2_PDMUSB(pInterface) ( (PPDMUSBINS)((char *)(pInterface) - RT_UOFFSETOF(PDMUSBINS, IBase)) )
 
 
 /** @def PDMUSB_ASSERT_EMT

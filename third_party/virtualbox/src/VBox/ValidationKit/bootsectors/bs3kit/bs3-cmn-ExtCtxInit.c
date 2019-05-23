@@ -36,13 +36,13 @@
 BS3_CMN_DEF(PBS3EXTCTX, Bs3ExtCtxInit,(PBS3EXTCTX pExtCtx, uint16_t cbExtCtx, uint64_t fFlags))
 {
     Bs3MemSet(pExtCtx, 0, cbExtCtx);
-    if (cbExtCtx >= RT_OFFSETOF(BS3EXTCTX, Ctx) + sizeof(X86FXSTATE) + sizeof(X86XSAVEHDR))
+    if (cbExtCtx >= RT_UOFFSETOF(BS3EXTCTX, Ctx) + sizeof(X86FXSTATE) + sizeof(X86XSAVEHDR))
     {
         BS3_ASSERT(fFlags & XSAVE_C_X87);
         pExtCtx->enmMethod = BS3EXTCTXMETHOD_XSAVE;
         pExtCtx->Ctx.x.Hdr.bmXState = fFlags;
     }
-    else if (cbExtCtx >= RT_OFFSETOF(BS3EXTCTX, Ctx) + sizeof(X86FXSTATE))
+    else if (cbExtCtx >= RT_UOFFSETOF(BS3EXTCTX, Ctx) + sizeof(X86FXSTATE))
     {
         BS3_ASSERT(fFlags == 0);
         pExtCtx->enmMethod = BS3EXTCTXMETHOD_FXSAVE;
@@ -50,7 +50,7 @@ BS3_CMN_DEF(PBS3EXTCTX, Bs3ExtCtxInit,(PBS3EXTCTX pExtCtx, uint16_t cbExtCtx, ui
     else
     {
         BS3_ASSERT(fFlags == 0);
-        BS3_ASSERT(cbExtCtx >= RT_OFFSETOF(BS3EXTCTX, Ctx) + sizeof(X86FPUSTATE));
+        BS3_ASSERT(cbExtCtx >= RT_UOFFSETOF(BS3EXTCTX, Ctx) + sizeof(X86FPUSTATE));
         pExtCtx->enmMethod = BS3EXTCTXMETHOD_ANCIENT;
     }
     pExtCtx->cb             = cbExtCtx;

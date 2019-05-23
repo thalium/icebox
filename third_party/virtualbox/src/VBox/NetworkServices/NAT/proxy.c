@@ -32,6 +32,7 @@
 #include <sys/poll.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #include <fcntl.h>
 #include <stdio.h>
@@ -358,6 +359,22 @@ proxy_create_socket(int sdom, int stype)
         }
     }
 #endif
+
+    /*
+     * Disable the Nagle algorithm. Otherwise the host may hold back
+     * packets that the guest wants to go out, causing potentially
+     * horrible performance. The guest is already applying the Nagle
+     * algorithm (or not) the way it wants.
+     */
+    if (stype == SOCK_STREAM) {
+        int on = 1;
+        const socklen_t onlen = sizeof(on);
+
+        status = setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char *)&on, onlen);
+        if (status < 0) {
+            DPRINTF(("TCP_NODELAY: %R[sockerr]\n", SOCKERRNO()));
+        }
+    }
 
 #if defined(RT_OS_WINDOWS)
     /*

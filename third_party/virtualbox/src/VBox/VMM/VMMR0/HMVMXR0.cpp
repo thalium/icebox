@@ -5324,7 +5324,7 @@ VMMR0DECL(int) VMXR0Execute64BitsHandler(PVM pVM, PVMCPU pVCpu, PCPUMCTX pCtx, H
     STAM_PROFILE_ADV_START(&pVCpu->hm.s.StatWorldSwitch3264, z);
 
     /* Call the switcher. */
-    int rc = pVM->hm.s.pfnHost32ToGuest64R0(pVM, RT_OFFSETOF(VM, aCpus[pVCpu->idCpu].cpum) - RT_OFFSETOF(VM, cpum));
+    int rc = pVM->hm.s.pfnHost32ToGuest64R0(pVM, RT_UOFFSETOF_DYN(VM, aCpus[pVCpu->idCpu].cpum) - RT_UOFFSETOF(VM, cpum));
     STAM_PROFILE_ADV_STOP(&pVCpu->hm.s.StatWorldSwitch3264, z);
 
     /** @todo replace with hmR0VmxEnterRootMode() and hmR0VmxLeaveRootMode(). */
@@ -9214,8 +9214,8 @@ static void hmR0VmxPostRunGuest(PVM pVM, PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXT
     int rc  = VMXReadVmcs32(VMX_VMCS32_RO_EXIT_REASON, &uExitReason);
     rc     |= hmR0VmxReadEntryIntInfoVmcs(pVmxTransient);
     AssertRC(rc);
-    pVmxTransient->uExitReason    = (uint16_t)VMX_EXIT_REASON_BASIC(uExitReason);
-    pVmxTransient->fVMEntryFailed = VMX_ENTRY_INTERRUPTION_INFO_IS_VALID(pVmxTransient->uEntryIntInfo);
+    pVmxTransient->uExitReason    = VMX_EXIT_REASON_BASIC(uExitReason);
+    pVmxTransient->fVMEntryFailed = VMX_EXIT_REASON_HAS_ENTRY_FAILED(uExitReason);
 
     /* If the VMLAUNCH/VMRESUME failed, we can bail out early. This does -not- cover VMX_EXIT_ERR_*. */
     if (RT_UNLIKELY(rcVMRun != VINF_SUCCESS))
@@ -12932,8 +12932,11 @@ HMVMX_EXIT_DECL hmR0VmxExitTaskSwitch(PVMCPU pVCpu, PCPUMCTX pMixedCtx, PVMXTRAN
             else
                 GCPtrFaultAddress = 0;
 
+            rc = hmR0VmxReadExitInstrLenVmcs(pVmxTransient);
+            AssertRCReturn(rc, rc);
+
             hmR0VmxSetPendingEvent(pVCpu, VMX_ENTRY_INT_INFO_FROM_EXIT_IDT_INFO(pVmxTransient->uIdtVectoringInfo),
-                                   0 /* cbInstr */, uErrCode, GCPtrFaultAddress);
+                                   pVmxTransient->cbInstr, uErrCode, GCPtrFaultAddress);
 
             Log4(("Pending event on TaskSwitch uIntType=%#x uVector=%#x\n", uIntType, uVector));
             STAM_COUNTER_INC(&pVCpu->hm.s.StatExitTaskSwitch);

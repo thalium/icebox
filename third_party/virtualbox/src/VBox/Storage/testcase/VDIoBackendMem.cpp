@@ -155,7 +155,7 @@ int VDIoBackendMemTransfer(PVDIOBACKENDMEM pIoBackend, PVDMEMDISK pMemDisk,
     if (enmTxDir != VDIOTXDIR_FLUSH)
         RTSgBufSegArrayCreate(pSgBuf, NULL, &cSegs, cbTransfer);
 
-    pReq = (PVDIOBACKENDREQ)RTMemAlloc(RT_OFFSETOF(VDIOBACKENDREQ, aSegs[cSegs]));
+    pReq = (PVDIOBACKENDREQ)RTMemAlloc(RT_UOFFSETOF_DYN(VDIOBACKENDREQ, aSegs[cSegs]));
     if (!pReq)
         return VERR_NO_MEMORY;
 

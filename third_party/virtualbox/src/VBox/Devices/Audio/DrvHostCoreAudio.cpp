@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2017 Oracle Corporation
+ * Copyright (C) 2010-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -39,11 +39,6 @@
 #include <AudioToolbox/AudioToolbox.h>
 
 
-/* Audio Queue buffer configuration. */
-#define AQ_BUF_COUNT    32      /* Number of buffers. */
-#define AQ_BUF_SIZE     512     /* Size of each buffer in bytes. */
-#define AQ_BUF_TOTAL    (AQ_BUF_COUNT * AQ_BUF_SIZE)
-#define AQ_BUF_SAMPLES  (AQ_BUF_TOTAL / 4)  /* Hardcoded 4 bytes per sample! */
 
 /* Enables utilizing the Core Audio converter unit for converting
  * input / output from/to our requested formats. That might be more
@@ -187,7 +182,7 @@ static void coreAudioPCMPropsToASBD(PDMAUDIOPCMPROPS *pPCMProps, AudioStreamBasi
     pASBD->mFramesPerPacket  = 1; /* For uncompressed audio, set this to 1. */
     pASBD->mSampleRate       = (Float64)pPCMProps->uHz;
     pASBD->mChannelsPerFrame = pPCMProps->cChannels;
-    pASBD->mBitsPerChannel   = pPCMProps->cBits;
+    pASBD->mBitsPerChannel   = pPCMProps->cBytes * 8;
     if (pPCMProps->fSigned)
         pASBD->mFormatFlags |= kAudioFormatFlagIsSignedInteger;
     pASBD->mBytesPerFrame    = pASBD->mChannelsPerFrame * (pASBD->mBitsPerChannel / 8);
@@ -202,9 +197,9 @@ static int coreAudioASBDToStreamCfg(AudioStreamBasicDescription *pASBD, PPDMAUDI
 
     pCfg->Props.cChannels = pASBD->mChannelsPerFrame;
     pCfg->Props.uHz       = (uint32_t)pASBD->mSampleRate;
-    pCfg->Props.cBits     = pASBD->mBitsPerChannel;
+    pCfg->Props.cBytes    = pASBD->mBitsPerChannel / 8;
     pCfg->Props.fSigned   = RT_BOOL(pASBD->mFormatFlags & kAudioFormatFlagIsSignedInteger);
-    pCfg->Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(pCfg->Props.cBits, pCfg->Props.cChannels);
+    pCfg->Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(pCfg->Props.cBytes, pCfg->Props.cChannels);
 
     return VINF_SUCCESS;
 }
@@ -378,7 +373,7 @@ typedef struct COREAUDIOSTREAM
     /** The actual audio queue being used. */
     AudioQueueRef               audioQueue;
     /** The audio buffers which are used with the above audio queue. */
-    AudioQueueBufferRef         audioBuffer[AQ_BUF_COUNT];
+    AudioQueueBufferRef         audioBuffer[2];
     /** The acquired (final) audio format for this stream. */
     AudioStreamBasicDescription asbdStream;
     /** The audio unit for this stream. */
@@ -1273,9 +1268,9 @@ static DECLCALLBACK(int) coreAudioQueueThread(RTTHREAD hThreadSelf, void *pvUser
     AssertPtr(pCAStream);
     AssertPtr(pCAStream->pCfg);
 
-    LogFunc(("Starting pCAStream=%p\n", pCAStream));
-
     const bool fIn = pCAStream->pCfg->enmDir == PDMAUDIODIR_IN;
+
+    LogFunc(("Thread started for pCAStream=%p, fIn=%RTbool\n", pCAStream, fIn));
 
     /*
      * Create audio queue.
@@ -1302,7 +1297,7 @@ static DECLCALLBACK(int) coreAudioQueueThread(RTTHREAD hThreadSelf, void *pvUser
     if (err != noErr)
         return VERR_GENERAL_FAILURE; /** @todo Fudge! */
 
-    const size_t cbBufSize = AQ_BUF_SIZE; /** @todo Make this configurable! */
+    const size_t cbBufSize = DrvAudioHlpFramesToBytes(pCAStream->pCfg->Backend.cfPeriod, &pCAStream->pCfg->Props);
 
     /*
      * Allocate audio buffers.
@@ -1348,7 +1343,7 @@ static DECLCALLBACK(int) coreAudioQueueThread(RTTHREAD hThreadSelf, void *pvUser
 
     AudioQueueDispose(pCAStream->audioQueue, 1);
 
-    LogFunc(("Ended pCAStream=%p\n", pCAStream));
+    LogFunc(("Thread ended for pCAStream=%p, fIn=%RTbool\n", pCAStream, fIn));
     return VINF_SUCCESS;
 }
 
@@ -1370,7 +1365,7 @@ int coreAudioInputQueueProcBuffer(PCOREAUDIOSTREAM pCAStream, AudioQueueBufferRe
     size_t cbWritten = 0;
 
     size_t cbToWrite = audioBuffer->mAudioDataByteSize;
-    size_t cbLeft    = cbToWrite;
+    size_t cbLeft    = RT_MIN(cbToWrite, RTCircBufFree(pCircBuf));
 
     while (cbLeft)
     {
@@ -1525,6 +1520,8 @@ static DECLCALLBACK(void) coreAudioOutputQueueCb(void *pvUser, AudioQueueRef aud
 static int coreAudioStreamInvalidateQueue(PCOREAUDIOSTREAM pCAStream)
 {
     int rc = VINF_SUCCESS;
+
+    Log3Func(("pCAStream=%p\n", pCAStream));
 
     for (size_t i = 0; i < RT_ELEMENTS(pCAStream->audioBuffer); i++)
     {
@@ -2184,13 +2181,18 @@ static DECLCALLBACK(int) drvHostCoreAudioGetConfig(PPDMIHOSTAUDIO pInterface, PP
     AssertPtrReturn(pInterface,  VERR_INVALID_POINTER);
     AssertPtrReturn(pBackendCfg, VERR_INVALID_POINTER);
 
+    PDRVHOSTCOREAUDIO pThis = PDMIHOSTAUDIO_2_DRVHOSTCOREAUDIO(pInterface);
+
     RT_BZERO(pBackendCfg, sizeof(PDMAUDIOBACKENDCFG));
+
+    RTStrPrintf2(pBackendCfg->szName, sizeof(pBackendCfg->szName), "Core Audio driver");
 
     pBackendCfg->cbStreamIn  = sizeof(COREAUDIOSTREAM);
     pBackendCfg->cbStreamOut = sizeof(COREAUDIOSTREAM);
 
-    pBackendCfg->cMaxStreamsIn  = UINT32_MAX;
-    pBackendCfg->cMaxStreamsOut = UINT32_MAX;
+    /* For Core Audio we provide one stream per device for now. */
+    pBackendCfg->cMaxStreamsIn  = DrvAudioHlpDeviceEnumGetDeviceCount(&pThis->Devices, PDMAUDIODIR_IN);
+    pBackendCfg->cMaxStreamsOut = DrvAudioHlpDeviceEnumGetDeviceCount(&pThis->Devices, PDMAUDIODIR_OUT);
 
     LogFlowFunc(("Returning %Rrc\n", VINF_SUCCESS));
     return VINF_SUCCESS;
@@ -2327,10 +2329,6 @@ static DECLCALLBACK(int) drvHostCoreAudioStreamCreate(PPDMIHOSTAUDIO pInterface,
             rc = coreAudioStreamInitQueue(pCAStream, pCfgReq, pCfgAcq);
             if (RT_SUCCESS(rc))
             {
-                pCfgAcq->cFrameBufferHint = AQ_BUF_SAMPLES; /** @todo Make this configurable. */
-            }
-            if (RT_SUCCESS(rc))
-            {
                 ASMAtomicXchgU32(&pCAStream->enmStatus, COREAUDIOSTATUS_INIT);
             }
             else
@@ -2345,7 +2343,7 @@ static DECLCALLBACK(int) drvHostCoreAudioStreamCreate(PPDMIHOSTAUDIO pInterface,
         }
     }
     else
-        rc = VERR_NOT_AVAILABLE;
+        rc = VERR_AUDIO_STREAM_COULD_NOT_CREATE;
 
     LogFunc(("Returning %Rrc\n", rc));
     return rc;
@@ -2371,7 +2369,6 @@ static DECLCALLBACK(int) drvHostCoreAudioStreamDestroy(PPDMIHOSTAUDIO pInterface
 #endif
           ))
     {
-        AssertFailed();
         return VINF_SUCCESS;
     }
 
@@ -2457,24 +2454,26 @@ static DECLCALLBACK(uint32_t) drvHostCoreAudioStreamGetWritable(PPDMIHOSTAUDIO p
 
     PCOREAUDIOSTREAM pCAStream = (PCOREAUDIOSTREAM)pStream;
 
-    if (ASMAtomicReadU32(&pCAStream->enmStatus) != COREAUDIOSTATUS_INIT)
-        return 0;
+    uint32_t cbWritable = 0;
 
-    AssertPtr(pCAStream->pCfg);
-    AssertPtr(pCAStream->pCircBuf);
-
-    switch (pCAStream->pCfg->enmDir)
+    if (ASMAtomicReadU32(&pCAStream->enmStatus) == COREAUDIOSTATUS_INIT)
     {
-        case PDMAUDIODIR_OUT:
-            return (uint32_t)RTCircBufFree(pCAStream->pCircBuf);
+        AssertPtr(pCAStream->pCfg);
+        AssertPtr(pCAStream->pCircBuf);
 
-        case PDMAUDIODIR_IN:
-        default:
-            AssertFailed();
-            break;
+        switch (pCAStream->pCfg->enmDir)
+        {
+            case PDMAUDIODIR_OUT:
+                cbWritable = (uint32_t)RTCircBufFree(pCAStream->pCircBuf);
+                break;
+
+            default:
+                break;
+        }
     }
 
-    return 0;
+    LogFlowFunc(("cbWritable=%RU32\n", cbWritable));
+    return cbWritable;
 }
 
 

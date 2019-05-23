@@ -307,7 +307,7 @@ int CollectorSolaris::getProcessMemoryUsage(RTPROCESS process, ULONG *used)
     {
         /* psinfo_t keeps growing, so only read what we need to maximize
          * cross-version compatibility. The structures are compatible. */
-        ssize_t cb = RT_OFFSETOF(psinfo_t, pr_rssize) + RT_SIZEOFMEMB(psinfo_t, pr_rssize);
+        ssize_t cb = RT_UOFFSETOF(psinfo_t, pr_rssize) + RT_SIZEOFMEMB(psinfo_t, pr_rssize);
         AssertCompile(RTASSERT_OFFSET_OF(psinfo_t, pr_rssize) > RTASSERT_OFFSET_OF(psinfo_t, pr_pid));
         if (read(h, &psinfo, cb) == cb)
         {

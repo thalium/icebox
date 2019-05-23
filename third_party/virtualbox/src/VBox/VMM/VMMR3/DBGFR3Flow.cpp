@@ -283,7 +283,7 @@ static RTGCUINTPTR dbgfR3FlowAddrGetDistance(PDBGFADDRESS pAddr1, PDBGFADDRESS p
 static PDBGFFLOWBBINT dbgfR3FlowBbCreate(PDBGFFLOWINT pThis, PDBGFADDRESS pAddrStart, uint32_t fFlowBbFlags,
                                          uint32_t cInstrMax)
 {
-    PDBGFFLOWBBINT pFlowBb = (PDBGFFLOWBBINT)RTMemAllocZ(RT_OFFSETOF(DBGFFLOWBBINT, aInstr[cInstrMax]));
+    PDBGFFLOWBBINT pFlowBb = (PDBGFFLOWBBINT)RTMemAllocZ(RT_UOFFSETOF_DYN(DBGFFLOWBBINT, aInstr[cInstrMax]));
     if (RT_LIKELY(pFlowBb))
     {
         RTListInit(&pFlowBb->NdFlowBb);
@@ -314,9 +314,11 @@ static PDBGFFLOWBBINT dbgfR3FlowBbCreate(PDBGFFLOWINT pThis, PDBGFADDRESS pAddrS
  * @param   idxGenRegBase       The general register index holding the base address.
  * @param   cSlots              Number of slots the table has.
  */
-static PDBGFFLOWBRANCHTBLINT dbgfR3FlowBranchTblCreate(PDBGFFLOWINT pThis, PDBGFADDRESS pAddrStart, uint8_t idxGenRegBase, uint32_t cSlots)
+static PDBGFFLOWBRANCHTBLINT
+dbgfR3FlowBranchTblCreate(PDBGFFLOWINT pThis, PDBGFADDRESS pAddrStart, uint8_t idxGenRegBase,  uint32_t cSlots)
 {
-    PDBGFFLOWBRANCHTBLINT pBranchTbl = (PDBGFFLOWBRANCHTBLINT)RTMemAllocZ(RT_OFFSETOF(DBGFFLOWBRANCHTBLINT, aAddresses[cSlots]));
+    PDBGFFLOWBRANCHTBLINT pBranchTbl = (PDBGFFLOWBRANCHTBLINT)RTMemAllocZ(RT_UOFFSETOF_DYN(DBGFFLOWBRANCHTBLINT,
+                                                                                           aAddresses[cSlots]));
     if (RT_LIKELY(pBranchTbl))
     {
         RTListInit(&pBranchTbl->NdBranchTbl);
@@ -1163,7 +1165,8 @@ static int dbgfR3FlowBbProcess(PUVM pUVM, VMCPUID idCpu, PDBGFFLOWINT pThis, PDB
             {
                 /* Reallocate. */
                 RTListNodeRemove(&pFlowBb->NdFlowBb);
-                PDBGFFLOWBBINT pFlowBbNew = (PDBGFFLOWBBINT)RTMemRealloc(pFlowBb, RT_OFFSETOF(DBGFFLOWBBINT, aInstr[pFlowBb->cInstrMax + 10]));
+                PDBGFFLOWBBINT pFlowBbNew = (PDBGFFLOWBBINT)RTMemRealloc(pFlowBb,
+                                                                         RT_UOFFSETOF_DYN(DBGFFLOWBBINT, aInstr[pFlowBb->cInstrMax + 10]));
                 if (pFlowBbNew)
                 {
                     pFlowBbNew->cInstrMax += 10;
@@ -2036,7 +2039,7 @@ VMMR3DECL(int) DBGFR3FlowItCreate(DBGFFLOW hFlow, DBGFFLOWITORDER enmOrder, PDBG
                  VERR_INVALID_PARAMETER);
     AssertReturn(enmOrder < DBGFFLOWITORDER_DEPTH_FRIST, VERR_NOT_IMPLEMENTED); /** @todo */
 
-    PDBGFFLOWITINT pIt = (PDBGFFLOWITINT)RTMemAllocZ(RT_OFFSETOF(DBGFFLOWITINT, apBb[pFlow->cBbs]));
+    PDBGFFLOWITINT pIt = (PDBGFFLOWITINT)RTMemAllocZ(RT_UOFFSETOF_DYN(DBGFFLOWITINT, apBb[pFlow->cBbs]));
     if (RT_LIKELY(pIt))
     {
         DBGFR3FlowRetain(hFlow);
@@ -2173,7 +2176,8 @@ VMMR3DECL(int) DBGFR3FlowBranchTblItCreate(DBGFFLOW hFlow, DBGFFLOWITORDER enmOr
                  VERR_INVALID_PARAMETER);
     AssertReturn(enmOrder < DBGFFLOWITORDER_DEPTH_FRIST, VERR_NOT_SUPPORTED);
 
-    PDBGFFLOWBRANCHTBLITINT pIt = (PDBGFFLOWBRANCHTBLITINT)RTMemAllocZ(RT_OFFSETOF(DBGFFLOWBRANCHTBLITINT, apBranchTbl[pFlow->cBranchTbls]));
+    PDBGFFLOWBRANCHTBLITINT pIt = (PDBGFFLOWBRANCHTBLITINT)RTMemAllocZ(RT_UOFFSETOF_DYN(DBGFFLOWBRANCHTBLITINT,
+                                                                                        apBranchTbl[pFlow->cBranchTbls]));
     if (RT_LIKELY(pIt))
     {
         DBGFR3FlowRetain(hFlow);

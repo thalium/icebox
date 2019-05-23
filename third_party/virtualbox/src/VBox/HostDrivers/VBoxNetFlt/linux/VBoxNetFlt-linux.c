@@ -652,7 +652,7 @@ DECLINLINE(uint32_t) vboxNetFltLinuxFrameSize(PINTNETSG pSG)
         u16Type = RT_BE2H_U16(((PCRTNETETHERHDR)pSG->aSegs[0].pv)->EtherType);
     else if (pSG->cbTotal >= sizeof(RTNETETHERHDR))
     {
-        uint32_t off = RT_OFFSETOF(RTNETETHERHDR, EtherType);
+        uint32_t off = RT_UOFFSETOF(RTNETETHERHDR, EtherType);
         uint32_t i;
         for (i = 0; i < pSG->cSegsUsed; ++i)
         {
@@ -767,15 +767,15 @@ static struct sk_buff *vboxNetFltLinuxSkBufFromSG(PVBOXNETFLTINS pThis, PINTNETS
 # if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 22)
         pPkt->csum_start = skb_headroom(pPkt) + pSG->GsoCtx.offHdr2;
         if (fGsoType & (SKB_GSO_TCPV4 | SKB_GSO_TCPV6))
-            pPkt->csum_offset = RT_OFFSETOF(RTNETTCP, th_sum);
+            pPkt->csum_offset = RT_UOFFSETOF(RTNETTCP, th_sum);
         else
-            pPkt->csum_offset = RT_OFFSETOF(RTNETUDP, uh_sum);
+            pPkt->csum_offset = RT_UOFFSETOF(RTNETUDP, uh_sum);
 # else
         pPkt->h.raw = pPkt->data + pSG->GsoCtx.offHdr2;
         if (fGsoType & (SKB_GSO_TCPV4 | SKB_GSO_TCPV6))
-            pPkt->csum = RT_OFFSETOF(RTNETTCP, th_sum);
+            pPkt->csum = RT_UOFFSETOF(RTNETTCP, th_sum);
         else
-            pPkt->csum = RT_OFFSETOF(RTNETUDP, uh_sum);
+            pPkt->csum = RT_UOFFSETOF(RTNETUDP, uh_sum);
 # endif
         if (!fDstWire)
             PDMNetGsoPrepForDirectUse(&pSG->GsoCtx, pPkt->data, pSG->cbTotal, PDMNETCSUMTYPE_PSEUDO);
@@ -1456,7 +1456,7 @@ static int vboxNetFltLinuxForwardAsGso(PVBOXNETFLTINS pThis, struct sk_buff *pSk
     int         rc;
     unsigned    cbExtra;
     unsigned    cSegs = vboxNetFltLinuxCalcSGSegments(pSkb, &cbExtra);
-    PINTNETSG pSG = (PINTNETSG)alloca(RT_OFFSETOF(INTNETSG, aSegs[cSegs]) + cbExtra);
+    PINTNETSG pSG = (PINTNETSG)alloca(RT_UOFFSETOF_DYN(INTNETSG, aSegs[cSegs]) + cbExtra);
     if (RT_LIKELY(pSG))
     {
         vboxNetFltLinuxSkBufToSG(pThis, pSkb, pSG, cbExtra, cSegs, fSrc, pGsoCtx);
@@ -1490,7 +1490,7 @@ static int vboxNetFltLinuxForwardSegment(PVBOXNETFLTINS pThis, struct sk_buff *p
     int         rc;
     unsigned    cbExtra;
     unsigned    cSegs = vboxNetFltLinuxCalcSGSegments(pBuf, &cbExtra);
-    PINTNETSG pSG = (PINTNETSG)alloca(RT_OFFSETOF(INTNETSG, aSegs[cSegs]) + cbExtra);
+    PINTNETSG pSG = (PINTNETSG)alloca(RT_UOFFSETOF_DYN(INTNETSG, aSegs[cSegs]) + cbExtra);
     if (RT_LIKELY(pSG))
     {
         vboxNetFltLinuxSkBufToSG(pThis, pBuf, pSG, cbExtra, cSegs, fSrc, NULL /*pGsoCtx*/);

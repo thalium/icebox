@@ -316,7 +316,7 @@ dtrace_enable_nullop(void)
 static dtrace_pops_t	dtrace_provider_ops = {
 	(void (*)(void *, const dtrace_probedesc_t *))dtrace_nullop,
 	(void (*)(void *, struct modctl *))dtrace_nullop,
-	(int (*)(void *, dtrace_id_t, void *))dtrace_enable_nullop,
+	(int (*)(void *, dtrace_id_t, void *))(uintptr_t)dtrace_enable_nullop,
 	(void (*)(void *, dtrace_id_t, void *))dtrace_nullop,
 	(void (*)(void *, dtrace_id_t, void *))dtrace_nullop,
 	(void (*)(void *, dtrace_id_t, void *))dtrace_nullop,
@@ -7382,7 +7382,7 @@ dtrace_unregister(dtrace_provider_id_t id)
 	dtrace_probe_t *probe, *first = NULL;
 
 	if (old->dtpv_pops.dtps_enable ==
-	    (int (*)(void *, dtrace_id_t, void *))dtrace_enable_nullop) {
+	    (int (*)(void *, dtrace_id_t, void *))(uintptr_t)dtrace_enable_nullop) {
 		/*
 		 * If DTrace itself is the provider, we're called with locks
 		 * already held.
@@ -7532,7 +7532,7 @@ dtrace_invalidate(dtrace_provider_id_t id)
 	dtrace_provider_t *pvp = (dtrace_provider_t *)id;
 
 	ASSERT(pvp->dtpv_pops.dtps_enable !=
-	    (int (*)(void *, dtrace_id_t, void *))dtrace_enable_nullop);
+	    (int (*)(void *, dtrace_id_t, void *))(uintptr_t)dtrace_enable_nullop);
 
 	mutex_enter(&dtrace_provider_lock);
 	mutex_enter(&dtrace_lock);
@@ -7573,7 +7573,7 @@ dtrace_condense(dtrace_provider_id_t id)
 	 * Make sure this isn't the dtrace provider itself.
 	 */
 	ASSERT(prov->dtpv_pops.dtps_enable !=
-	    (int (*)(void *, dtrace_id_t, void *))dtrace_enable_nullop);
+	    (int (*)(void *, dtrace_id_t, void *))(uintptr_t)dtrace_enable_nullop);
 
 	mutex_enter(&dtrace_provider_lock);
 	mutex_enter(&dtrace_lock);

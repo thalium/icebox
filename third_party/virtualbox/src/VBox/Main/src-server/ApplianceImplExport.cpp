@@ -2017,7 +2017,7 @@ HRESULT Appliance::i_writeFSOVF(TaskOVF *pTask, AutoWriteLockBase& writeLock)
         else
             hrc = setErrorVrc(vrc, tr("Failed to open directory '%s' (%Rrc)"), strTargetDir.c_str(), vrc);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         hrc = E_OUTOFMEMORY;
     }
@@ -2240,7 +2240,7 @@ HRESULT Appliance::i_writeFSOPC(TaskOVF *pTask, AutoWriteLockBase &writeLock)
                             lstTarballs.push_back(strTarballPath.c_str());
                             strTarballPath.setNull();
                         }
-                        catch (std::bad_alloc)
+                        catch (std::bad_alloc &)
                         { hrc = E_OUTOFMEMORY; }
                     }
                     else

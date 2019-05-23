@@ -191,7 +191,7 @@ VMMR3_INT_DECL(int) VMMR3Init(PVM pVM)
     /*
      * Init basic VM VMM members.
      */
-    pVM->vmm.s.offVM = RT_OFFSETOF(VM, vmm);
+    pVM->vmm.s.offVM = RT_UOFFSETOF(VM, vmm);
     pVM->vmm.s.pahEvtRendezvousEnterOrdered     = NULL;
     pVM->vmm.s.hEvtRendezvousEnterOneByOne      = NIL_RTSEMEVENT;
     pVM->vmm.s.hEvtMulRendezvousEnterAllAtOnce  = NIL_RTSEMEVENTMULTI;
@@ -379,7 +379,7 @@ static int vmmR3InitStacks(PVM pVM)
 static int vmmR3InitLoggers(PVM pVM)
 {
     int rc;
-#define RTLogCalcSizeForR0(cGroups, fFlags) (RT_OFFSETOF(VMMR0LOGGER, Logger.afGroups[cGroups]) + PAGE_SIZE)
+#define RTLogCalcSizeForR0(cGroups, fFlags) (RT_UOFFSETOF_DYN(VMMR0LOGGER, Logger.afGroups[cGroups]) + PAGE_SIZE)
 
     /*
      * Allocate RC & R0 Logger instances (they are finalized in the relocator).
@@ -390,7 +390,7 @@ static int vmmR3InitLoggers(PVM pVM)
     {
         if (!HMIsEnabled(pVM))
         {
-            pVM->vmm.s.cbRCLogger = RT_OFFSETOF(RTLOGGERRC, afGroups[pLogger->cGroups]);
+            pVM->vmm.s.cbRCLogger = RT_UOFFSETOF_DYN(RTLOGGERRC, afGroups[pLogger->cGroups]);
             rc = MMR3HyperAllocOnceNoRel(pVM, pVM->vmm.s.cbRCLogger, 0, MM_TAG_VMM, (void **)&pVM->vmm.s.pRCLoggerR3);
             if (RT_FAILURE(rc))
                 return rc;
@@ -424,7 +424,7 @@ static int vmmR3InitLoggers(PVM pVM)
         PRTLOGGER pRelLogger = RTLogRelGetDefaultInstance();
         if (pRelLogger)
         {
-            pVM->vmm.s.cbRCRelLogger = RT_OFFSETOF(RTLOGGERRC, afGroups[pRelLogger->cGroups]);
+            pVM->vmm.s.cbRCRelLogger = RT_UOFFSETOF_DYN(RTLOGGERRC, afGroups[pRelLogger->cGroups]);
             rc = MMR3HyperAllocOnceNoRel(pVM, pVM->vmm.s.cbRCRelLogger, 0, MM_TAG_VMM, (void **)&pVM->vmm.s.pRCRelLoggerR3);
             if (RT_FAILURE(rc))
                 return rc;
@@ -997,7 +997,7 @@ VMMR3_INT_DECL(int) VMMR3UpdateLoggers(PVM pVM)
                 AssertReleaseMsgRCReturn(rc, ("vmmR0LoggerFlush not found! rc=%Rra\n", rc), rc);
 
                 rc = RTLogCreateForR0(&pR0LoggerR3->Logger, pR0LoggerR3->cbLogger,
-                                      pVCpu->vmm.s.pR0LoggerR0 + RT_OFFSETOF(VMMR0LOGGER, Logger),
+                                      pVCpu->vmm.s.pR0LoggerR0 + RT_UOFFSETOF(VMMR0LOGGER, Logger),
                                       pfnLoggerWrapper, pfnLoggerFlush,
                                       RTLOGFLAGS_BUFFERED, RTLOGDEST_DUMMY);
                 AssertReleaseMsgRCReturn(rc, ("RTLogCreateForR0 failed! rc=%Rra\n", rc), rc);
@@ -1006,7 +1006,7 @@ VMMR3_INT_DECL(int) VMMR3UpdateLoggers(PVM pVM)
                 rc = PDMR3LdrGetSymbolR0(pVM, VMMR0_MAIN_MODULE_NAME, "vmmR0LoggerPrefix", &pfnLoggerPrefix);
                 AssertReleaseMsgRCReturn(rc, ("vmmR0LoggerPrefix not found! rc=%Rra\n", rc), rc);
                 rc = RTLogSetCustomPrefixCallbackForR0(&pR0LoggerR3->Logger,
-                                                       pVCpu->vmm.s.pR0LoggerR0 + RT_OFFSETOF(VMMR0LOGGER, Logger),
+                                                       pVCpu->vmm.s.pR0LoggerR0 + RT_UOFFSETOF(VMMR0LOGGER, Logger),
                                                        pfnLoggerPrefix, NIL_RTR0PTR);
                 AssertReleaseMsgRCReturn(rc, ("RTLogSetCustomPrefixCallback failed! rc=%Rra\n", rc), rc);
 
@@ -1016,7 +1016,7 @@ VMMR3_INT_DECL(int) VMMR3UpdateLoggers(PVM pVM)
 
             }
 
-            rc = RTLogCopyGroupsAndFlagsForR0(&pR0LoggerR3->Logger, pVCpu->vmm.s.pR0LoggerR0 + RT_OFFSETOF(VMMR0LOGGER, Logger),
+            rc = RTLogCopyGroupsAndFlagsForR0(&pR0LoggerR3->Logger, pVCpu->vmm.s.pR0LoggerR0 + RT_UOFFSETOF(VMMR0LOGGER, Logger),
                                               pDefault, RTLOGFLAGS_BUFFERED, UINT32_MAX);
             AssertRC(rc);
         }

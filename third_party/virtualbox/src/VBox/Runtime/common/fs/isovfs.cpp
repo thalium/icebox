@@ -1227,7 +1227,7 @@ static int rtFsIsoCore_InitFromUdfIcbExFileEntry(PRTFSISOCORE pCore, PCUDFEXFILE
     /*
      * Basic sanity checking of what we use.
      */
-    if (     RT_OFFSETOF(UDFFILEENTRY, abExtAttribs) + pFileEntry->cbExtAttribs + pFileEntry->cbAllocDescs
+    if (     RT_UOFFSETOF(UDFFILEENTRY, abExtAttribs) + pFileEntry->cbExtAttribs + pFileEntry->cbAllocDescs
            > pVol->Udf.VolInfo.cbBlock
         || (pFileEntry->cbExtAttribs & 3) != 0
         || pFileEntry->cbExtAttribs >= pVol->Udf.VolInfo.cbBlock
@@ -1273,7 +1273,7 @@ static int rtFsIsoCore_InitFromUdfIcbExFileEntry(PRTFSISOCORE pCore, PCUDFEXFILE
                                                 pFileEntry->IcbTag.fFlags,
                                                 idxDefaultPart,
                                                   ((uint64_t)pFileEntry->Tag.offTag << pVol->Udf.VolInfo.cShiftBlock)
-                                                + RT_OFFSETOF(UDFFILEENTRY, abExtAttribs) + pFileEntry->cbExtAttribs,
+                                                + RT_UOFFSETOF(UDFFILEENTRY, abExtAttribs) + pFileEntry->cbExtAttribs,
                                                 pVol);
         if (RT_SUCCESS(rc))
         {
@@ -1379,7 +1379,7 @@ static int rtFsIsoCore_InitFromUdfIcbFileEntry(PRTFSISOCORE pCore, PCUDFFILEENTR
     /*
      * Basic sanity checking of what we use.
      */
-    if (     RT_OFFSETOF(UDFFILEENTRY, abExtAttribs) + pFileEntry->cbExtAttribs + pFileEntry->cbAllocDescs
+    if (     RT_UOFFSETOF(UDFFILEENTRY, abExtAttribs) + pFileEntry->cbExtAttribs + pFileEntry->cbAllocDescs
            > pVol->Udf.VolInfo.cbBlock
         || (pFileEntry->cbExtAttribs & 3) != 0
         || pFileEntry->cbExtAttribs >= pVol->Udf.VolInfo.cbBlock
@@ -1429,7 +1429,7 @@ static int rtFsIsoCore_InitFromUdfIcbFileEntry(PRTFSISOCORE pCore, PCUDFFILEENTR
                                                 pFileEntry->IcbTag.fFlags,
                                                 idxDefaultPart,
                                                   ((uint64_t)pFileEntry->Tag.offTag << pVol->Udf.VolInfo.cShiftBlock)
-                                                + RT_OFFSETOF(UDFFILEENTRY, abExtAttribs) + pFileEntry->cbExtAttribs,
+                                                + RT_UOFFSETOF(UDFFILEENTRY, abExtAttribs) + pFileEntry->cbExtAttribs,
                                                 pVol);
         if (RT_SUCCESS(rc))
         {
@@ -2192,7 +2192,7 @@ DECL_HIDDEN_CONST(const RTVFSFILEOPS) g_rtFsIsoFileOps =
     0,
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
-        RT_OFFSETOF(RTVFSFILEOPS, Stream.Obj) - RT_OFFSETOF(RTVFSFILEOPS, ObjSet),
+        RT_UOFFSETOF(RTVFSFILEOPS, ObjSet) - RT_UOFFSETOF(RTVFSFILEOPS, Stream.Obj),
         rtFsIsoFile_SetMode,
         rtFsIsoFile_SetTimes,
         rtFsIsoFile_SetOwner,
@@ -3647,7 +3647,7 @@ static const RTVFSDIROPS g_rtFsIsoDirOps =
     0,
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
-        RT_OFFSETOF(RTVFSDIROPS, Obj) - RT_OFFSETOF(RTVFSDIROPS, ObjSet),
+        RT_UOFFSETOF(RTVFSDIROPS, ObjSet) - RT_UOFFSETOF(RTVFSDIROPS, Obj),
         rtFsIsoDir_SetMode,
         rtFsIsoDir_SetTimes,
         rtFsIsoDir_SetOwner,
@@ -3765,7 +3765,8 @@ static void rtFsIsoDirShrd_Log9660Content(PRTFSISODIRSHRD pThis)
                   ISO9660_GET_ENDIAN(&pDirRec->VolumeSeqNo),
                   wszName));
 
-            uint32_t offSysUse = RT_OFFSETOF(ISO9660DIRREC, achFileId[pDirRec->bFileIdLength]) + !(pDirRec->bFileIdLength & 1);
+            uint32_t offSysUse = RT_UOFFSETOF_DYN(ISO9660DIRREC, achFileId[pDirRec->bFileIdLength])
+                               + !(pDirRec->bFileIdLength & 1);
             if (offSysUse < pDirRec->cbDirRec)
             {
                 Log2(("ISO9660:       system use (%#x bytes):\n%.*RhxD\n", pDirRec->cbDirRec - offSysUse,
@@ -3847,7 +3848,7 @@ static void rtFsIsoDirShrd_LogUdfContent(PRTFSISODIRSHRD pThis)
     if (LogIs2Enabled())
     {
         uint32_t offDesc = 0;
-        while (offDesc + RT_OFFSETOF(UDFFILEIDDESC, abImplementationUse) < pThis->cbDir)
+        while (offDesc + RT_UOFFSETOF(UDFFILEIDDESC, abImplementationUse) < pThis->cbDir)
         {
             PCUDFFILEIDDESC pFid  = (PCUDFFILEIDDESC)&pThis->pbDir[offDesc];
             uint32_t const  cbFid = UDFFILEIDDESC_GET_SIZE(pFid);
@@ -5584,7 +5585,7 @@ static void rtFsIsoVolLogPrimarySupplementaryVolDesc(PCISO9660SUPVOLDESC pVolDes
         Log2(("ISO9660:  RootDir.RecTime.VolumeSeqNo:        {%#RX16,%#RX16}\n", RT_BE2H_U16(pVolDesc->RootDir.DirRec.VolumeSeqNo.be), RT_LE2H_U16(pVolDesc->RootDir.DirRec.VolumeSeqNo.le)));
         Log2(("ISO9660:  RootDir.RecTime.bFileIdLength:      %RX8\n", pVolDesc->RootDir.DirRec.bFileIdLength));
         Log2(("ISO9660:  RootDir.RecTime.achFileId:          '%.*s'\n", pVolDesc->RootDir.DirRec.bFileIdLength, pVolDesc->RootDir.DirRec.achFileId));
-        uint32_t offSysUse = RT_OFFSETOF(ISO9660DIRREC, achFileId[pVolDesc->RootDir.DirRec.bFileIdLength])
+        uint32_t offSysUse = RT_UOFFSETOF_DYN(ISO9660DIRREC, achFileId[pVolDesc->RootDir.DirRec.bFileIdLength])
                            + !(pVolDesc->RootDir.DirRec.bFileIdLength & 1);
         if (offSysUse < pVolDesc->RootDir.DirRec.cbDirRec)
         {
@@ -5608,9 +5609,9 @@ static void rtFsIsoVolLogPrimarySupplementaryVolDesc(PCISO9660SUPVOLDESC pVolDes
 static int rtFsIsoVolHandleRootDir(PRTFSISOVOL pThis, PCISO9660DIRREC pRootDir,
                                    PISO9660DIRREC pDstRootDir, PRTERRINFO pErrInfo)
 {
-    if (pRootDir->cbDirRec < RT_OFFSETOF(ISO9660DIRREC, achFileId))
+    if (pRootDir->cbDirRec < RT_UOFFSETOF(ISO9660DIRREC, achFileId))
         return RTERRINFO_LOG_SET_F(pErrInfo, VERR_VFS_BOGUS_FORMAT, "Root dir record size is too small: %#x (min %#x)",
-                                   pRootDir->cbDirRec, RT_OFFSETOF(ISO9660DIRREC, achFileId));
+                                   pRootDir->cbDirRec, RT_UOFFSETOF(ISO9660DIRREC, achFileId));
 
     if (!(pRootDir->fFileFlags & ISO9660_FILE_FLAGS_DIRECTORY))
         return RTERRINFO_LOG_SET_F(pErrInfo, VERR_VFS_BOGUS_FORMAT,
@@ -5710,7 +5711,7 @@ static int rtFsIsoVolHandlePrimaryVolDesc(PRTFSISOVOL pThis, PCISO9660PRIMARYVOL
     /*
      * ... and the root directory record.
      */
-    *poffRootDirRec = offVolDesc + RT_OFFSETOF(ISO9660PRIMARYVOLDESC, RootDir.DirRec);
+    *poffRootDirRec = offVolDesc + RT_UOFFSETOF(ISO9660PRIMARYVOLDESC, RootDir.DirRec);
     return rtFsIsoVolHandleRootDir(pThis, &pVolDesc->RootDir.DirRec, pRootDir, pErrInfo);
 }
 
@@ -5787,7 +5788,7 @@ static int rtFsIsoVolHandleSupplementaryVolDesc(PRTFSISOVOL pThis, PCISO9660SUPV
     int rc = rtFsIsoVolHandleRootDir(pThis, &pVolDesc->RootDir.DirRec, pRootDir, pErrInfo);
     if (RT_SUCCESS(rc))
     {
-        *poffRootDirRec = offVolDesc + RT_OFFSETOF(ISO9660SUPVOLDESC, RootDir.DirRec);
+        *poffRootDirRec = offVolDesc + RT_UOFFSETOF(ISO9660SUPVOLDESC, RootDir.DirRec);
         *pbUcs2Level    = pVolDesc->abEscapeSequences[2] == ISO9660_JOLIET_ESC_SEQ_2_LEVEL_1 ? 1
                         : pVolDesc->abEscapeSequences[2] == ISO9660_JOLIET_ESC_SEQ_2_LEVEL_2 ? 2 : 3;
         Log(("ISO9660: Joliet with UCS-2 level %u\n", *pbUcs2Level));

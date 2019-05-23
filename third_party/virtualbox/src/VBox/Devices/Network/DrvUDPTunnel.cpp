@@ -100,7 +100,7 @@ typedef struct DRVUDPTUNNEL
 
 
 /** Converts a pointer to UDPTUNNEL::INetworkUp to a PRDVUDPTUNNEL. */
-#define PDMINETWORKUP_2_DRVUDPTUNNEL(pInterface) ( (PDRVUDPTUNNEL)((uintptr_t)pInterface - RT_OFFSETOF(DRVUDPTUNNEL, INetworkUp)) )
+#define PDMINETWORKUP_2_DRVUDPTUNNEL(pInterface) ( (PDRVUDPTUNNEL)((uintptr_t)pInterface - RT_UOFFSETOF(DRVUDPTUNNEL, INetworkUp)) )
 
 
 /*********************************************************************************************************************************

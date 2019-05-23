@@ -563,7 +563,7 @@ void vusbMsgResetExtraData(PVUSBCTRLEXTRA pExtra)
 static DECLCALLBACK(void) vusbMsgFreeUrb(PVUSBURB pUrb)
 {
     vusbUrbAssert(pUrb);
-    PVUSBCTRLEXTRA pExtra = (PVUSBCTRLEXTRA)((uint8_t *)pUrb - RT_OFFSETOF(VUSBCTRLEXTRA, Urb));
+    PVUSBCTRLEXTRA pExtra = (PVUSBCTRLEXTRA)((uint8_t *)pUrb - RT_UOFFSETOF(VUSBCTRLEXTRA, Urb));
     if (    pUrb->enmState == VUSBURBSTATE_CANCELLED
         &&  !pUrb->pVUsb->pvFreeCtx)
     {
@@ -611,7 +611,7 @@ static PVUSBCTRLEXTRA vusbMsgAllocExtraData(PVUSBURB pUrb)
 /** @todo reuse these? */
     PVUSBCTRLEXTRA pExtra;
     const size_t cbMax = sizeof(VUSBURBVUSBINT) + sizeof(pExtra->Urb.abData) + sizeof(VUSBSETUP);
-    pExtra = (PVUSBCTRLEXTRA)RTMemAllocZ(RT_OFFSETOF(VUSBCTRLEXTRA, Urb.abData[cbMax]));
+    pExtra = (PVUSBCTRLEXTRA)RTMemAllocZ(RT_UOFFSETOF_DYN(VUSBCTRLEXTRA, Urb.abData[cbMax]));
     if (pExtra)
     {
         pExtra->enmStage = CTLSTAGE_SETUP;
@@ -681,10 +681,10 @@ static bool vusbMsgSetup(PVUSBPIPE pPipe, const void *pvBuf, uint32_t cbBuf)
      */
     if (pExtra->Urb.enmState == VUSBURBSTATE_CANCELLED)
     {
-        void *pvNew = RTMemDup(pExtra, RT_OFFSETOF(VUSBCTRLEXTRA, Urb.abData[pExtra->cbMax]));
+        void *pvNew = RTMemDup(pExtra, RT_UOFFSETOF_DYN(VUSBCTRLEXTRA, Urb.abData[pExtra->cbMax]));
         if (!pvNew)
         {
-            Log(("vusbMsgSetup: out of memory!!! cbReq=%u\n", RT_OFFSETOF(VUSBCTRLEXTRA, Urb.abData[pExtra->cbMax])));
+            Log(("vusbMsgSetup: out of memory!!! cbReq=%zu\n", RT_UOFFSETOF_DYN(VUSBCTRLEXTRA, Urb.abData[pExtra->cbMax])));
             return false;
         }
         pExtra->Urb.pVUsb->pvFreeCtx = NULL;
@@ -703,11 +703,11 @@ static bool vusbMsgSetup(PVUSBPIPE pPipe, const void *pvBuf, uint32_t cbBuf)
     if (pExtra->cbMax < cbBuf + pSetupIn->wLength + sizeof(VUSBURBVUSBINT))
     {
         uint32_t cbReq = RT_ALIGN_32(cbBuf + pSetupIn->wLength + sizeof(VUSBURBVUSBINT), 1024);
-        PVUSBCTRLEXTRA pNew = (PVUSBCTRLEXTRA)RTMemRealloc(pExtra, RT_OFFSETOF(VUSBCTRLEXTRA, Urb.abData[cbReq]));
+        PVUSBCTRLEXTRA pNew = (PVUSBCTRLEXTRA)RTMemRealloc(pExtra, RT_UOFFSETOF_DYN(VUSBCTRLEXTRA, Urb.abData[cbReq]));
         if (!pNew)
         {
-            Log(("vusbMsgSetup: out of memory!!! cbReq=%u %u\n",
-                 cbReq, RT_OFFSETOF(VUSBCTRLEXTRA, Urb.abData[cbReq])));
+            Log(("vusbMsgSetup: out of memory!!! cbReq=%u %zu\n",
+                 cbReq, RT_UOFFSETOF_DYN(VUSBCTRLEXTRA, Urb.abData[cbReq])));
             return false;
         }
         if (pExtra != pNew)

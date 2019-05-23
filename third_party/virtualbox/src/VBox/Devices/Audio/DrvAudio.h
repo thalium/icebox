@@ -74,6 +74,34 @@ typedef struct DRVAUDIOSTATS
 #endif
 
 /**
+ * Audio driver configuration data, tweakable via CFGM.
+ */
+typedef struct DRVAUDIOCFG
+{
+    /** Configures the period size (in ms).
+     *  This value reflects the time in between each hardware interrupt on the
+     *  backend (host) side. */
+    uint32_t             uPeriodSizeMs;
+    /** Configures the (ring) buffer size (in ms). Often is a multiple of uPeriodMs. */
+    uint32_t             uBufferSizeMs;
+    /** Configures the pre-buffering size (in ms).
+     *  Time needed in buffer before the stream becomes active (pre buffering).
+     *  The bigger this value is, the more latency for the stream will occur.
+     *  Set to 0 to disable pre-buffering completely.
+     *  By default set to UINT32_MAX if not set to a custom value. */
+    uint32_t             uPreBufSizeMs;
+    /** The driver's debugging configuration. */
+    struct
+    {
+        /** Whether audio debugging is enabled or not. */
+        bool             fEnabled;
+        /** Where to store the debugging files.
+         *  Defaults to VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH if not set. */
+        char             szPathOut[RTPATH_MAX + 1];
+    } Dbg;
+} DRVAUDIOCFG, *PDRVAUDIOCFG;
+
+/**
  * Audio driver instance data.
  *
  * @implements PDMIAUDIOCONNECTOR
@@ -92,10 +120,10 @@ typedef struct DRVAUDIO
     PPDMDRVINS              pDrvIns;
     /** Pointer to audio driver below us. */
     PPDMIHOSTAUDIO          pHostDrvAudio;
-    /** List of host input/output audio streams. */
-    RTLISTANCHOR            lstHstStreams;
-    /** List of guest input/output audio streams. */
-    RTLISTANCHOR            lstGstStreams;
+    /** Pointer to CFGM configuration node of this driver. */
+    PCFGMNODE               pCFGMNode;
+    /** List of audio streams. */
+    RTLISTANCHOR            lstStreams;
 #ifdef VBOX_WITH_AUDIO_ENUM
     /** Flag indicating to perform an (re-)enumeration of the host audio devices. */
     bool                    fEnumerateDevices;
@@ -117,6 +145,8 @@ typedef struct DRVAUDIO
 #ifdef VBOX_WITH_AUDIO_CALLBACKS
         RTLISTANCHOR        lstCB;
 #endif
+        /** The driver's input confguration (tweakable via CFGM). */
+        DRVAUDIOCFG         Cfg;
     } In;
     struct
     {
@@ -129,51 +159,84 @@ typedef struct DRVAUDIO
 #ifdef VBOX_WITH_AUDIO_CALLBACKS
         RTLISTANCHOR        lstCB;
 #endif
+        /** The driver's output confguration (tweakable via CFGM). */
+        DRVAUDIOCFG         Cfg;
     } Out;
-    struct
-    {
-        /** Whether audio debugging is enabled or not. */
-        bool                    fEnabled;
-        /** Where to store the debugging files.
-         *  Defaults to VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH if not set. */
-        char                    szPathOut[RTPATH_MAX + 1];
-    } Dbg;
 } DRVAUDIO, *PDRVAUDIO;
 
 /** Makes a PDRVAUDIO out of a PPDMIAUDIOCONNECTOR. */
 #define PDMIAUDIOCONNECTOR_2_DRVAUDIO(pInterface) \
-    ( (PDRVAUDIO)((uintptr_t)pInterface - RT_OFFSETOF(DRVAUDIO, IAudioConnector)) )
+    ( (PDRVAUDIO)((uintptr_t)pInterface - RT_UOFFSETOF(DRVAUDIO, IAudioConnector)) )
 
-
+/** @name Audio format helper methods.
+ * @{ */
+const char *DrvAudioHlpAudDirToStr(PDMAUDIODIR enmDir);
+const char *DrvAudioHlpAudFmtToStr(PDMAUDIOFMT enmFmt);
 bool DrvAudioHlpAudFmtIsSigned(PDMAUDIOFMT enmFmt);
 uint8_t DrvAudioHlpAudFmtToBits(PDMAUDIOFMT enmFmt);
-const char *DrvAudioHlpAudFmtToStr(PDMAUDIOFMT enmFmt);
+/** @}  */
+
+/** @name Audio calculation helper methods.
+ * @{ */
 void DrvAudioHlpClearBuf(const PPDMAUDIOPCMPROPS pPCMInfo, void *pvBuf, size_t cbBuf, uint32_t cFrames);
 uint32_t DrvAudioHlpCalcBitrate(uint8_t cBits, uint32_t uHz, uint8_t cChannels);
 uint32_t DrvAudioHlpCalcBitrate(const PPDMAUDIOPCMPROPS pProps);
-uint32_t DrvAudioHlpMsToBytes(const PPDMAUDIOPCMPROPS pProps, uint32_t uMs);
+uint32_t DrvAudioHlpBytesAlign(uint32_t cbSize, const PPDMAUDIOPCMPROPS pProps);
+bool     DrvAudioHlpBytesIsAligned(uint32_t cbSize, const PPDMAUDIOPCMPROPS pProps);
+uint32_t DrvAudioHlpBytesToFrames(uint32_t cbBytes, const PPDMAUDIOPCMPROPS pProps);
+uint64_t DrvAudioHlpBytesToMilli(uint32_t cbBytes, const PPDMAUDIOPCMPROPS pProps);
+uint64_t DrvAudioHlpBytesToNano(uint32_t cbBytes, const PPDMAUDIOPCMPROPS pProps);
+uint32_t DrvAudioHlpFramesToBytes(uint32_t cFrames, const PPDMAUDIOPCMPROPS pProps);
+uint64_t DrvAudioHlpFramesToMilli(uint32_t cFrames, const PPDMAUDIOPCMPROPS pProps);
+uint64_t DrvAudioHlpFramesToNano(uint32_t cFrames, const PPDMAUDIOPCMPROPS pProps);
+uint32_t DrvAudioHlpMilliToBytes(uint64_t uMs, const PPDMAUDIOPCMPROPS pProps);
+uint32_t DrvAudioHlpNanoToBytes(uint64_t uNs, const PPDMAUDIOPCMPROPS pProps);
+uint32_t DrvAudioHlpMilliToFrames(uint64_t uMs, const PPDMAUDIOPCMPROPS pProps);
+uint32_t DrvAudioHlpNanoToFrames(uint64_t uNs, const PPDMAUDIOPCMPROPS pProps);
+/** @}  */
+
+/** @name Audio PCM properties helper methods.
+ * @{ */
 bool DrvAudioHlpPCMPropsAreEqual(const PPDMAUDIOPCMPROPS pPCMProps1, const PPDMAUDIOPCMPROPS pPCMProps2);
 bool DrvAudioHlpPCMPropsAreEqual(const PPDMAUDIOPCMPROPS pPCMProps, const PPDMAUDIOSTREAMCFG pCfg);
 bool DrvAudioHlpPCMPropsAreValid(const PPDMAUDIOPCMPROPS pProps);
+uint32_t DrvAudioHlpPCMPropsBytesPerFrame(const PPDMAUDIOPCMPROPS pProps);
 void DrvAudioHlpPCMPropsPrint(const PPDMAUDIOPCMPROPS pProps);
 int DrvAudioHlpPCMPropsToStreamCfg(const PPDMAUDIOPCMPROPS pPCMProps, PPDMAUDIOSTREAMCFG pCfg);
-const char *DrvAudioHlpPlaybackDstToStr(const PDMAUDIOPLAYBACKDEST enmPlaybackDst);
-const char *DrvAudioHlpRecSrcToStr(const PDMAUDIORECSOURCE enmRecSource);
+/** @}  */
+
+/** @name Audio stream helper methods.
+ * @{ */
 void DrvAudioHlpStreamCfgPrint(const PPDMAUDIOSTREAMCFG pCfg);
 bool DrvAudioHlpStreamCfgIsValid(const PPDMAUDIOSTREAMCFG pCfg);
 int DrvAudioHlpStreamCfgCopy(PPDMAUDIOSTREAMCFG pDstCfg, const PPDMAUDIOSTREAMCFG pSrcCfg);
 PPDMAUDIOSTREAMCFG DrvAudioHlpStreamCfgDup(const PPDMAUDIOSTREAMCFG pCfg);
 void DrvAudioHlpStreamCfgFree(PPDMAUDIOSTREAMCFG pCfg);
 const char *DrvAudioHlpStreamCmdToStr(PDMAUDIOSTREAMCMD enmCmd);
-PDMAUDIOFMT DrvAudioHlpStrToAudFmt(const char *pszFmt);
+/** @}  */
 
-int DrvAudioHlpSanitizeFileName(char *pszPath, size_t cbPath);
-int DrvAudioHlpGetFileName(char *pszFile, size_t cchFile, const char *pszPath, const char *pszName, uint32_t uInstance, PDMAUDIOFILETYPE enmType, PDMAUDIOFILENAMEFLAGS fFlags);
+/** @name Audio stream helper methods.
+ * @{ */
+bool DrvAudioHlpStreamStatusCanRead(PDMAUDIOSTREAMSTS enmStatus);
+bool DrvAudioHlpStreamStatusCanWrite(PDMAUDIOSTREAMSTS enmStatus);
+bool DrvAudioHlpStreamStatusIsReady(PDMAUDIOSTREAMSTS enmStatus);
+/** @}  */
 
+/** @name Audio file (name) helper methods.
+ * @{ */
+int DrvAudioHlpFileNameSanitize(char *pszPath, size_t cbPath);
+int DrvAudioHlpFileNameGet(char *pszFile, size_t cchFile, const char *pszPath, const char *pszName, uint32_t uInstance, PDMAUDIOFILETYPE enmType, PDMAUDIOFILENAMEFLAGS fFlags);
+/** @}  */
+
+/** @name Audio device methods.
+ * @{ */
 PPDMAUDIODEVICE DrvAudioHlpDeviceAlloc(size_t cbData);
 void DrvAudioHlpDeviceFree(PPDMAUDIODEVICE pDev);
 PPDMAUDIODEVICE DrvAudioHlpDeviceDup(const PPDMAUDIODEVICE pDev, bool fCopyUserData);
+/** @}  */
 
+/** @name Audio device enumartion methods.
+ * @{ */
 int DrvAudioHlpDeviceEnumInit(PPDMAUDIODEVICEENUM pDevEnm);
 void DrvAudioHlpDeviceEnumFree(PPDMAUDIODEVICEENUM pDevEnm);
 int DrvAudioHlpDeviceEnumAdd(PPDMAUDIODEVICEENUM pDevEnm, PPDMAUDIODEVICE pDev);
@@ -183,12 +246,21 @@ PPDMAUDIODEVICEENUM DrvAudioHlpDeviceEnumDup(const PPDMAUDIODEVICEENUM pDevEnm);
 int DrvAudioHlpDeviceEnumCopy(PPDMAUDIODEVICEENUM pDstDevEnm, const PPDMAUDIODEVICEENUM pSrcDevEnm);
 int DrvAudioHlpDeviceEnumCopyEx(PPDMAUDIODEVICEENUM pDstDevEnm, const PPDMAUDIODEVICEENUM pSrcDevEnm, PDMAUDIODIR enmUsage, bool fCopyUserData);
 PPDMAUDIODEVICE DrvAudioHlpDeviceEnumGetDefaultDevice(const PPDMAUDIODEVICEENUM pDevEnm, PDMAUDIODIR enmDir);
+uint16_t DrvAudioHlpDeviceEnumGetDeviceCount(const PPDMAUDIODEVICEENUM pDevEnm, PDMAUDIODIR enmUsage);
 void DrvAudioHlpDeviceEnumPrint(const char *pszDesc, const PPDMAUDIODEVICEENUM pDevEnm);
+/** @}  */
 
-const char *DrvAudioHlpAudDirToStr(PDMAUDIODIR enmDir);
+/** @name Audio string-ify methods.
+ * @{ */
 const char *DrvAudioHlpAudMixerCtlToStr(PDMAUDIOMIXERCTL enmMixerCtl);
+const char *DrvAudioHlpPlaybackDstToStr(const PDMAUDIOPLAYBACKDEST enmPlaybackDst);
+const char *DrvAudioHlpRecSrcToStr(const PDMAUDIORECSOURCE enmRecSource);
+PDMAUDIOFMT DrvAudioHlpStrToAudFmt(const char *pszFmt);
 char *DrvAudioHlpAudDevFlagsToStrA(PDMAUDIODEVFLAG fFlags);
+/** @}  */
 
+/** @name Audio file methods.
+ * @{ */
 int DrvAudioHlpFileCreate(PDMAUDIOFILETYPE enmType, const char *pszFile, PDMAUDIOFILEFLAGS fFlags, PPDMAUDIOFILE *ppFile);
 void DrvAudioHlpFileDestroy(PPDMAUDIOFILE pFile);
 int DrvAudioHlpFileOpen(PPDMAUDIOFILE pFile, uint32_t fOpen, const PPDMAUDIOPCMPROPS pProps);
@@ -197,6 +269,7 @@ int DrvAudioHlpFileDelete(PPDMAUDIOFILE pFile);
 size_t DrvAudioHlpFileGetDataSize(PPDMAUDIOFILE pFile);
 bool DrvAudioHlpFileIsOpen(PPDMAUDIOFILE pFile);
 int DrvAudioHlpFileWrite(PPDMAUDIOFILE pFile, const void *pvBuf, size_t cbBuf, uint32_t fFlags);
+/** @}  */
 
 #define AUDIO_MAKE_FOURCC(c0, c1, c2, c3) RT_H2LE_U32_C(RT_MAKE_U32_FROM_U8(c0, c1, c2, c3))
 

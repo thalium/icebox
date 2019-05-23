@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2011-2017 Oracle Corporation
+ * Copyright (C) 2011-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -495,18 +495,21 @@ public:
     bool waitForX11Msg(XEvent &evX, int iType, RTMSINTERVAL uTimeoutMS = 100);
     bool waitForX11ClientMsg(XClientMessageEvent &evMsg, Atom aType, RTMSINTERVAL uTimeoutMS = 100);
 
+    /* Session handling. */
+    int checkForSessionChange(void);
+
+#ifdef VBOX_WITH_DRAG_AND_DROP_GH
+    /* Guest -> Host handling. */
+    int ghIsDnDPending(void);
+    int ghDropped(const RTCString &strFormat, uint32_t dndActionRequested);
+#endif
+
     /* Host -> Guest handling. */
     int hgEnter(const RTCList<RTCString> &formats, uint32_t actions);
     int hgLeave(void);
     int hgMove(uint32_t u32xPos, uint32_t u32yPos, uint32_t uDefaultAction);
     int hgDrop(uint32_t u32xPos, uint32_t u32yPos, uint32_t uDefaultAction);
     int hgDataReceived(const void *pvData, uint32_t cData);
-
-#ifdef VBOX_WITH_DRAG_AND_DROP_GH
-    /* Guest -> Host handling. */
-    int ghIsDnDPending(void);
-    int ghDropped(const RTCString &strFormat, uint32_t action);
-#endif
 
     /* X11 helpers. */
     int  mouseCursorFakeMove(void) const;
@@ -1608,6 +1611,11 @@ int DragInstance::hgEnter(const RTCList<RTCString> &lstFormats, uint32_t uAction
 
     do
     {
+        /* Check if the VM session has changed and reconnect to the HGCM service if necessary. */
+        rc = checkForSessionChange();
+        if (RT_FAILURE(rc))
+            break;
+
         rc = toAtomList(lstFormats, m_lstFormats);
         if (RT_FAILURE(rc))
             break;
@@ -1976,6 +1984,32 @@ int DragInstance::hgDataReceived(const void *pvData, uint32_t cbData)
     return rc;
 }
 
+/**
+ * Checks if the VM session has changed (can happen when restoring the VM from a saved state)
+ * and do a reconnect to the DnD HGCM service.
+ *
+ * @returns IPRT status code.
+ */
+int DragInstance::checkForSessionChange(void)
+{
+    uint64_t uSessionID;
+    int rc = VbglR3GetSessionId(&uSessionID);
+    if (   RT_SUCCESS(rc)
+        && uSessionID != m_dndCtx.uSessionID)
+    {
+        LogFlowThisFunc(("VM session has changed to %RU64\n", uSessionID));
+
+        rc = VbglR3DnDDisconnect(&m_dndCtx);
+        AssertRC(rc);
+
+        rc = VbglR3DnDConnect(&m_dndCtx);
+        AssertRC(rc);
+    }
+
+    LogFlowFuncLeaveRC(rc);
+    return rc;
+}
+
 #ifdef VBOX_WITH_DRAG_AND_DROP_GH
 /**
  * Guest -> Host: Event signalling that the host is asking whether there is a pending
@@ -2007,14 +2041,16 @@ int DragInstance::ghIsDnDPending(void)
     }
     else
     {
-        rc = VINF_SUCCESS;
+        /* Check if the VM session has changed and reconnect to the HGCM service if necessary. */
+        rc = checkForSessionChange();
 
         /* Determine the current window which currently has the XdndSelection set. */
         Window wndSelection = XGetSelectionOwner(m_pDisplay, xAtom(XA_XdndSelection));
         LogFlowThisFunc(("wndSelection=%#x, wndProxy=%#x, wndCur=%#x\n", wndSelection, m_wndProxy.hWnd, m_wndCur));
 
         /* Is this another window which has a Xdnd selection and not our proxy window? */
-        if (   wndSelection
+        if (   RT_SUCCESS(rc)
+            && wndSelection
             && wndSelection != m_wndCur)
         {
             char *pszWndName = wndX11GetNameA(wndSelection);
@@ -3125,7 +3161,16 @@ int DragAndDropService::run(bool fDaemonised /* = false */)
                         rc = m_pCurDnD->hgDrop(e.hgcm.u.a.uXpos, e.hgcm.u.a.uYpos, e.hgcm.u.a.uDefAction);
                         break;
                     }
-                    case DragAndDropSvc::HOST_DND_HG_SND_DATA:
+                    /* Note: VbglR3DnDRecvNextMsg() will return HOST_DND_HG_SND_DATA_HDR when
+                     *       the host has finished copying over all the data to the guest.
+                     *
+                     *       The actual data transfer (and message processing for it) will be done
+                     *       internally by VbglR3DnDRecvNextMsg() to not duplicate any code for different
+                     *       platforms.
+                     *
+                     *       The data header now will contain all the (meta) data the guest needs in
+                     *       order to complete the DnD operation. */
+                    case DragAndDropSvc::HOST_DND_HG_SND_DATA_HDR:
                     {
                         rc = m_pCurDnD->hgDataReceived(e.hgcm.u.b.pvData, e.hgcm.u.b.cbData);
                         break;
@@ -3311,8 +3356,7 @@ DECLCALLBACK(int) DragAndDropService::hgcmEventThread(RTTHREAD hThread, void *pv
 
         /* Wait for new events. */
         rc = VbglR3DnDRecvNextMsg(&dndCtx, &e.hgcm);
-        if (   RT_SUCCESS(rc)
-            || rc == VERR_CANCELLED)
+        if (RT_SUCCESS(rc))
         {
             cMsgSkippedInvalid = 0; /* Reset skipped messages count. */
             pThis->m_eventQueue.append(e);
@@ -3328,9 +3372,7 @@ DECLCALLBACK(int) DragAndDropService::hgcmEventThread(RTTHREAD hThread, void *pv
             /* Old(er) hosts either are broken regarding DnD support or otherwise
              * don't support the stuff we do on the guest side, so make sure we
              * don't process invalid messages forever. */
-            if (rc == VERR_INVALID_PARAMETER)
-                cMsgSkippedInvalid++;
-            if (cMsgSkippedInvalid > 32)
+            if (cMsgSkippedInvalid++ > 32)
             {
                 LogRel(("DnD: Too many invalid/skipped messages from host, exiting ...\n"));
                 break;

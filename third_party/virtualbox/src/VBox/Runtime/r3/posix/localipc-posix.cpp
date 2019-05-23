@@ -176,7 +176,7 @@ static int rtLocalIpcPosixConstructName(struct sockaddr_un *pAddr, uint8_t *pcbA
 #ifdef RT_OS_OS2 /* Size must be exactly right on OS/2. */
             *pcbAddr = sizeof(*pAddr);
 #else
-            *pcbAddr = RT_OFFSETOF(struct sockaddr_un, sun_path) + (uint8_t)cbFull;
+            *pcbAddr = RT_UOFFSETOF(struct sockaddr_un, sun_path) + (uint8_t)cbFull;
 #endif
 #ifdef HAVE_SUN_LEN_MEMBER
             pAddr->sun_len     = *pcbAddr;

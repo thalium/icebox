@@ -590,7 +590,7 @@ static void vmmR3SwitcherGenericRelocate(PVM pVM, PVMMSWITCHERDEF pSwitcher,
             {
                 uint32_t offCPUM = *u.pu32++;
                 Assert(offCPUM < sizeof(pVM->cpum));
-                *uSrc.pu32 = (uint32_t)pVM->pVMR0 + RT_OFFSETOF(VM, cpum) + offCPUM;
+                *uSrc.pu32 = (uint32_t)pVM->pVMR0 + RT_UOFFSETOF(VM, cpum) + offCPUM;
                 break;
             }
 
@@ -780,7 +780,7 @@ static void vmmR3SwitcherGenericRelocate(PVM pVM, PVMMSWITCHERDEF pSwitcher,
             case FIX_HC_64BIT_CPUM:
             {
                 Assert(offSrc < pSwitcher->cbCode);
-                *uSrc.pu64 = pVM->pVMR0 + RT_OFFSETOF(VM, cpum);
+                *uSrc.pu64 = pVM->pVMR0 + RT_UOFFSETOF(VM, cpum);
                 break;
             }
 # endif

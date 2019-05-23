@@ -24,19 +24,25 @@ void crServerReturnValue( const void *payload, unsigned int payload_len )
     if (!cr_server.fProcessingPendedCommands)
     { 
         CRMessageReadback *rb;
-        int msg_len = sizeof( *rb ) + payload_len;
-    
+        int msg_len;
+
         /* Don't reply to client if we're loading VM snapshot*/
         if (cr_server.bIsInLoadingState)
             return;
-    
+
         if (cr_server.curClient->conn->type == CR_FILE)
         {
             return;
         }
-    
+
+        if (payload_len >= INT32_MAX - sizeof( *rb ))
+        {
+            return;
+        }
+
+        msg_len = sizeof( *rb ) + payload_len;
         rb = (CRMessageReadback *) crAlloc( msg_len );
-    
+
         rb->header.type = CR_MESSAGE_READBACK;
         CRDBGPTR_PRINTRB(cr_server.curClient->conn->u32ClientID, &cr_server.writeback_ptr);
         CRDBGPTR_CHECKNZ(&cr_server.writeback_ptr);

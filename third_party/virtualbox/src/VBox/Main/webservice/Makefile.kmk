@@ -227,7 +227,7 @@ ifdef VBOX_GSOAP_INSTALLED
   vboxsoap_CXXFLAGS.win += -bigobj
   vboxsoap_CXXFLAGS.win += -wd4702 # soapc-4.cpp(16) : warning C4702: unreachable code
   ifn1of ($(KBUILD_TARGET), win)
-   vboxsoap_CXXFLAGS += -Wno-shadow -Wno-parentheses $(VBOX_GCC_Wno-literal-suffix)
+   vboxsoap_CXXFLAGS += -Wno-shadow -Wno-parentheses $(VBOX_GCC_Wno-literal-suffix) $(VBOX_GCC_Wno-stringop-overflow) $(VBOX_GCC_Wno-stringop-truncation)
   endif
   vboxsoap_INCS := \
   	$(VBOX_GSOAP_INCS) \

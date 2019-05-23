@@ -1548,7 +1548,7 @@ PDARWINDVD DarwinGetDVDDrives(void)
 
                 /* Create the device. */
                 size_t cbName = strlen(szName) + 1;
-                PDARWINDVD pNew = (PDARWINDVD)RTMemAlloc(RT_OFFSETOF(DARWINDVD, szName[cbName]));
+                PDARWINDVD pNew = (PDARWINDVD)RTMemAlloc(RT_UOFFSETOF_DYN(DARWINDVD, szName[cbName]));
                 if (pNew)
                 {
                     pNew->pNext = NULL;
@@ -1776,7 +1776,7 @@ PDARWINETHERNIC DarwinGetEthernetControllers(void)
                                           szBSDName, &Mac, fWireless, fAirPort, fBuiltin, fPrimaryIf, fUSB));
 
                         size_t cchName = strlen(szTmp);
-                        PDARWINETHERNIC pNew = (PDARWINETHERNIC)RTMemAlloc(RT_OFFSETOF(DARWINETHERNIC, szName[cchName + 1]));
+                        PDARWINETHERNIC pNew = (PDARWINETHERNIC)RTMemAlloc(RT_UOFFSETOF_DYN(DARWINETHERNIC, szName[cchName + 1]));
                         if (pNew)
                         {
                             strncpy(pNew->szBSDName, szBSDName, sizeof(pNew->szBSDName)); /* the '\0' padding is intentional! */

@@ -259,7 +259,7 @@ int NetIfList(std::list <ComObjPtr<HostNetworkInterface> > &list)
         struct sockaddr_dl *pSdl = (struct sockaddr_dl *)(pIfMsg + 1);
 
         size_t cbNameLen = pSdl->sdl_nlen + 1;
-        PNETIFINFO pNew = (PNETIFINFO)RTMemAllocZ(RT_OFFSETOF(NETIFINFO, szName[cbNameLen]));
+        PNETIFINFO pNew = (PNETIFINFO)RTMemAllocZ(RT_UOFFSETOF_DYN(NETIFINFO, szName[cbNameLen]));
         if (!pNew)
         {
             rc = VERR_NO_MEMORY;

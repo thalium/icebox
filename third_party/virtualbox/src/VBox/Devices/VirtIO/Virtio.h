@@ -298,7 +298,7 @@ DECLINLINE(uint16_t) vringReadAvailIndex(PVPCISTATE pState, PVRING pVRing)
     uint16_t tmp;
 
     PDMDevHlpPhysRead(pState->CTX_SUFF(pDevIns),
-                      pVRing->addrAvail + RT_OFFSETOF(VRINGAVAIL, uNextFreeIndex),
+                      pVRing->addrAvail + RT_UOFFSETOF(VRINGAVAIL, uNextFreeIndex),
                       &tmp, sizeof(tmp));
     return tmp;
 }

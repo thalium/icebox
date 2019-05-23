@@ -3870,52 +3870,12 @@
         <translation>虛擬機器作業系統提示設成 64 位元類型。  64 位元客體需要硬體虛擬化，因此如果您確認變更這將會自動啟用。</translation>
     </message>
     <message>
-        <source>Enc&amp;ryption</source>
-        <translation type="vanished">加密(&amp;R)</translation>
-    </message>
-    <message>
-        <source>When checked, enables encryption for this virtual machine.</source>
-        <translation type="vanished">如果勾選，對此虛擬機器啟用加密。</translation>
-    </message>
-    <message>
-        <source>En&amp;able Encryption</source>
-        <translation type="vanished">啟用加密(&amp;A)</translation>
-    </message>
-    <message>
-        <source>Encryption C&amp;ipher:</source>
-        <translation type="vanished">加密 Cipher(&amp;I) :</translation>
-    </message>
-    <message>
         <source>E&amp;nter New Password:</source>
         <translation>輸入新密碼(&amp;N):</translation>
     </message>
     <message>
-        <source>Holds the password to be assigned to the virtual machine.</source>
-        <translation type="vanished">保留指派給虛擬機器的密碼。</translation>
-    </message>
-    <message>
         <source>C&amp;onfirm New Password:</source>
         <translation>確認新密碼(&amp;O):</translation>
-    </message>
-    <message>
-        <source>Confirms the password to be assigned to the virtual machine.</source>
-        <translation type="vanished">確認要指派給虛擬機器的密碼。</translation>
-    </message>
-    <message>
-        <source>You are trying to encrypt this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
-        <translation type="vanished">您正嘗試加密此虛擬機器。 然而這需要安裝 &lt;i&gt;%1&lt;/i&gt;。 從 VirtualBox 網站下載並安裝 Extension Pack。</translation>
-    </message>
-    <message>
-        <source>Encryption cipher type not specified.</source>
-        <translation type="vanished">加密 Cipher 類型未指定。</translation>
-    </message>
-    <message>
-        <source>Encryption password empty.</source>
-        <translation type="vanished">加密密碼為空。</translation>
-    </message>
-    <message>
-        <source>Encryption passwords do not match.</source>
-        <translation type="vanished">加密密碼不相符。</translation>
     </message>
     <message>
         <source>Leave Unchanged</source>
@@ -3932,43 +3892,43 @@
     </message>
     <message>
         <source>Disk Enc&amp;ryption</source>
-        <translation type="unfinished"></translation>
+        <translation>磁碟加密(&amp;R)</translation>
     </message>
     <message>
         <source>When checked, disks attached to this virtual machine will be encrypted.</source>
-        <translation type="unfinished"></translation>
+        <translation>選取時，將加密附加到此虛擬機器的磁碟。</translation>
     </message>
     <message>
         <source>En&amp;able Disk Encryption</source>
-        <translation type="unfinished"></translation>
+        <translation>啟用磁碟加密(&amp;A)</translation>
     </message>
     <message>
         <source>Disk Encryption C&amp;ipher:</source>
-        <translation type="unfinished"></translation>
+        <translation>磁碟加密 Cipher(&amp;I):</translation>
     </message>
     <message>
         <source>Holds the encryption password for disks attached to this virtual machine.</source>
-        <translation type="unfinished"></translation>
+        <translation>保留附加到此虛擬機器磁碟的加密密碼。</translation>
     </message>
     <message>
         <source>Confirms the disk encryption password.</source>
-        <translation type="unfinished"></translation>
+        <translation>確認磁碟加密密碼。</translation>
     </message>
     <message>
         <source>You are trying to enable disk encryption for this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
-        <translation type="unfinished"></translation>
+        <translation>您正在嘗試為此虛擬機器啟用磁碟加密。 但是，這需要安裝 &lt;i&gt;%1&lt;/i&gt;。 請從 VirtualBox 下載網站安裝擴充包。</translation>
     </message>
     <message>
         <source>Disk encryption cipher type not specified.</source>
-        <translation type="unfinished"></translation>
+        <translation>未指定磁碟加密 Cipher 類型。</translation>
     </message>
     <message>
         <source>Disk encryption password empty.</source>
-        <translation type="unfinished"></translation>
+        <translation>磁碟加密密碼為空。</translation>
     </message>
     <message>
         <source>Disk encryption passwords do not match.</source>
-        <translation type="unfinished"></translation>
+        <translation>磁碟加密密碼不相符。</translation>
     </message>
 </context>
 <context>
@@ -4165,7 +4125,7 @@
     </message>
     <message>
         <source>Lists all shared folders accessible to this machine. Use &apos;net use x: \\vboxsvr\share&apos; to access a shared folder named &lt;i&gt;share&lt;/i&gt; from a DOS-like OS, or &apos;mount -t vboxsf share mount_point&apos; to access it from a Linux OS. This feature requires Guest Additions.</source>
-        <translation>列出所有可存取這部機器的共用資料夾。 從類似 DOS 的作業系統使用 [net use x: \\vboxsvr\share] 存取名為 &lt;i&gt;share&lt;/i&gt; 的共用資料夾，或從 Linux 作業系統 [mount -t vboxsf share mount_point] 來存取它。 這個功能需要 Guest Additions 。</translation>
+        <translation>列出所有可存取這部機器的共用資料夾。 從類似 DOS 的作業系統使用 [net use x: \\vboxsvr\share] 存取名為 &lt;i&gt;share&lt;/i&gt; 的共用資料夾，或從 Linux 作業系統 [mount -t vboxsf share mount_point] 來存取它。 這個功能需要 Guest Additions。</translation>
     </message>
     <message>
         <source>Name</source>
@@ -4209,7 +4169,7 @@
     </message>
     <message>
         <source>Removes selected shared folder.</source>
-        <translation>移除選取的共用資料夾定。</translation>
+        <translation>移除選取的共用資料夾。</translation>
     </message>
     <message>
         <source>Shared &amp;Folders</source>

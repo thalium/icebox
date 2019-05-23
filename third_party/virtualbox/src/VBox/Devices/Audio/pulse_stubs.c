@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2017 Oracle Corporation
+ * Copyright (C) 2006-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -87,10 +87,10 @@ PROXY_STUB_VOID(pa_context_set_state_callback,
                 (pa_context *c, pa_context_notify_cb_t cb, void *userdata),
                 (c, cb, userdata))
 
-
 PROXY_STUB     (pa_frame_size, size_t,
                 (const pa_sample_spec *spec),
                 (spec))
+PROXY_STUB     (pa_get_library_version, const char *, (void), ())
 PROXY_STUB_VOID(pa_operation_unref,
                 (pa_operation *o),
                 (o))
@@ -258,6 +258,7 @@ static SHARED_FUNC SharedFuncs[] =
     ELEMENT(pa_context_set_state_callback),
 
     ELEMENT(pa_frame_size),
+    ELEMENT(pa_get_library_version),
     ELEMENT(pa_operation_unref),
     ELEMENT(pa_operation_get_state),
     ELEMENT(pa_operation_cancel),

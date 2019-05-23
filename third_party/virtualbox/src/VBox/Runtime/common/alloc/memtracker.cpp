@@ -401,7 +401,7 @@ DECLINLINE(PRTMEMTRACKERTAG) rtMemTrackerGetTag(PRTMEMTRACKERINT pTracker, PRTME
      */
     if (RT_UNLIKELY(!pTag))
     {
-        pTag = (PRTMEMTRACKERTAG)RTMemAllocZVar(RT_OFFSETOF(RTMEMTRACKERTAG, szTag[cchTag + 1]));
+        pTag = (PRTMEMTRACKERTAG)RTMemAllocZVar(RT_UOFFSETOF_DYN(RTMEMTRACKERTAG, szTag[cchTag + 1]));
         if (pTag)
         {
             pTag->Core.Key = uHash;

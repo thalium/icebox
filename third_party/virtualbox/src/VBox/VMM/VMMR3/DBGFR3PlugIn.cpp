@@ -312,7 +312,7 @@ static DECLCALLBACK(int) dbgfR3PlugInLoad(PUVM pUVM, const char *pszName, const 
      * Create a module structure and we can pass around via RTPathTraverseList if needed.
      */
     size_t cbName = strlen(pszName) + 1;
-    pPlugIn = (PDBGFPLUGIN)MMR3HeapAllocZU(pUVM, MM_TAG_DBGF, RT_UOFFSETOF(DBGFPLUGIN, szName[cbName]));
+    pPlugIn = (PDBGFPLUGIN)MMR3HeapAllocZU(pUVM, MM_TAG_DBGF, RT_UOFFSETOF_DYN(DBGFPLUGIN, szName[cbName]));
     if (RT_UNLIKELY(!pPlugIn))
     {
         DBGF_PLUG_IN_WRITE_UNLOCK(pUVM);

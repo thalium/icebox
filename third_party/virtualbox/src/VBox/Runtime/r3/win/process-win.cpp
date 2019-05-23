@@ -780,7 +780,7 @@ static int rtProcWinFigureWhichPrivilegeNotHeld2(void)
             AssertContinue(LookupPrivilegeValue(NULL, s_aPrivileges[i].pszName, &uNew.TokPriv.Privileges[0].Luid));
             uOld = uNew;
             SetLastError(NO_ERROR);
-            DWORD cbActual = RT_OFFSETOF(TOKEN_PRIVILEGES, Privileges[1]);
+            DWORD cbActual = RT_UOFFSETOF(TOKEN_PRIVILEGES, Privileges[1]);
             AdjustTokenPrivileges(hToken, FALSE /*fDisableAllPrivileges*/, &uNew.TokPriv, cbActual, &uOld.TokPriv, &cbActual);
             if (GetLastError() != NO_ERROR)
             {
@@ -1073,7 +1073,7 @@ static bool rtProcWinAddAccessAllowedAce(PACL pDstAcl, uint32_t fAceFlags, uint3
         DWORD               abPadding[128]; /* More than enough, AFAIK. */
     } AceBuf;
     RT_ZERO(AceBuf);
-    uint32_t const cbAllowedAce = RT_OFFSETOF(ACCESS_ALLOWED_ACE, SidStart) + cbSid;
+    uint32_t const cbAllowedAce = RT_UOFFSETOF(ACCESS_ALLOWED_ACE, SidStart) + cbSid;
     AssertReturn(cbAllowedAce <= sizeof(AceBuf), false);
 
     AceBuf.Core.Header.AceSize     = cbAllowedAce;
@@ -1779,7 +1779,7 @@ static void rtProcWinDupStdHandleIntoChild(HANDLE hSrcHandle, HANDLE hDstProcess
                 {
                     SIZE_T cbCopied = 0;
                     if (!ReadProcessMemory(hDstProcess,
-                                           (char *)BasicInfo.PebBaseAddress + RT_OFFSETOF(PEB_COMMON, ProcessParameters),
+                                           (char *)BasicInfo.PebBaseAddress + RT_UOFFSETOF(PEB_COMMON, ProcessParameters),
                                            ppvDstProcParamCache, sizeof(*ppvDstProcParamCache), &cbCopied))
                     {
                         AssertMsgFailed(("PebBaseAddress=%p %d\n", BasicInfo.PebBaseAddress, GetLastError()));
@@ -1937,11 +1937,11 @@ static int rtProcWinCreateAsUser1(PRTUTF16 pwszUser, PRTUTF16 pwszPassword, PRTU
                  */
                 PVOID pvDstProcParamCache = NULL;
                 rtProcWinDupStdHandleIntoChild(pStartupInfo->hStdInput, pProcInfo->hProcess,
-                                               RT_OFFSETOF(RTL_USER_PROCESS_PARAMETERS, StandardInput), &pvDstProcParamCache);
+                                               RT_UOFFSETOF(RTL_USER_PROCESS_PARAMETERS, StandardInput), &pvDstProcParamCache);
                 rtProcWinDupStdHandleIntoChild(pStartupInfo->hStdOutput, pProcInfo->hProcess,
-                                               RT_OFFSETOF(RTL_USER_PROCESS_PARAMETERS, StandardOutput), &pvDstProcParamCache);
+                                               RT_UOFFSETOF(RTL_USER_PROCESS_PARAMETERS, StandardOutput), &pvDstProcParamCache);
                 rtProcWinDupStdHandleIntoChild(pStartupInfo->hStdError,  pProcInfo->hProcess,
-                                               RT_OFFSETOF(RTL_USER_PROCESS_PARAMETERS, StandardError), &pvDstProcParamCache);
+                                               RT_UOFFSETOF(RTL_USER_PROCESS_PARAMETERS, StandardError), &pvDstProcParamCache);
 
                 if (ResumeThread(pProcInfo->hThread) != ~(DWORD)0)
                     rc = VINF_SUCCESS;
@@ -2050,9 +2050,9 @@ static int rtProcWinFindExe(uint32_t fFlags, RTENV hEnv, const char *pszExec, PR
         /*
          * Replace the executable string.
          */
-        RTUtf16Free(*ppwszExec);
+        RTPathWinFree(*ppwszExec);
         *ppwszExec = NULL;
-        rc = RTStrToUtf16(szRealExec, ppwszExec);
+        rc = RTPathWinFromUtf8(ppwszExec, szRealExec, 0 /*fFlags*/);
     }
     else if (rc == VERR_END_OF_STRING)
         rc = VERR_FILE_NOT_FOUND;
@@ -2261,7 +2261,7 @@ RTR3DECL(int)   RTProcCreateEx(const char *pszExec, const char * const *papszArg
     if (RT_SUCCESS(rc))
     {
         PRTUTF16 pwszExec;
-        rc = RTStrToUtf16(pszExec, &pwszExec);
+        rc = RTPathWinFromUtf8(&pwszExec, pszExec, 0 /*fFlags*/);
         if (RT_SUCCESS(rc))
         {
             /*
@@ -2345,7 +2345,7 @@ RTR3DECL(int)   RTProcCreateEx(const char *pszExec, const char * const *papszArg
                     CloseHandle(ProcInfo.hProcess);
                 rc = VINF_SUCCESS;
             }
-            RTUtf16Free(pwszExec);
+            RTPathWinFree(pwszExec);
         }
         RTUtf16Free(pwszCmdLine);
     }

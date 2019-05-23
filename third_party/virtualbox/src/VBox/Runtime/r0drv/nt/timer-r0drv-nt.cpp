@@ -492,7 +492,7 @@ RTDECL(int) RTTimerCreateEx(PRTTIMER *ppTimer, uint64_t u64NanoInterval, uint32_
         Assert(cSubTimers <= RTCPUSET_MAX_CPUS); /* On Windows we have a 1:1 relationship between cpuid and set index. */
     }
 
-    PRTTIMER pTimer = (PRTTIMER)RTMemAllocZ(RT_OFFSETOF(RTTIMER, aSubTimers[cSubTimers]));
+    PRTTIMER pTimer = (PRTTIMER)RTMemAllocZ(RT_UOFFSETOF_DYN(RTTIMER, aSubTimers[cSubTimers]));
     if (!pTimer)
         return VERR_NO_MEMORY;
 
