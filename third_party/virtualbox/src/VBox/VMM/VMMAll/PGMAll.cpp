@@ -1457,8 +1457,6 @@ VMMDECL(int) PGMShwChangeFlags(PVMCPU pVCpu, uint64_t GCPhys, uint8_t orPresent,
     return rc;
 }
 
-#define MEMORY_SIZE 0x80000000
-
 VMMDECL(int) PGMShwSaveRights(PVMCPU pVCpu, uint64_t GCPhys)
 {
     PEPTPDPT ppPdpt;

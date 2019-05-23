@@ -3297,7 +3297,7 @@ static DECLCALLBACK(void) e1kTxDelayTimer(PPDMDEVINS pDevIns, PTMTIMER pTimer, v
     PE1KSTATE pThis = (PE1KSTATE )pvUser;
     Assert(PDMCritSectIsOwner(&pThis->csTx));
 
-    E1K_INC_ISTAT_CNT(pThis->uStatTxDelayExp)
+    E1K_INC_ISTAT_CNT(pThis->uStatTxDelayExp);
 #  ifdef E1K_INT_STATS
     uint64_t u64Elapsed = RTTimeNanoTS() - pThis->u64ArmedAt;
     if (u64Elapsed > pThis->uStatMaxTxDelay)

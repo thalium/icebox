@@ -271,6 +271,20 @@ VMM_INT_DECL(int) HMFlushTLBOnAllVCpus(PVM pVM)
     return VINF_SUCCESS;
 }
 
+/*MYCODE*/
+//Ensure that all CPU are paused !
+VMM_INT_DECL(int) HMFlushTLBOnAllVCpus2(PVM pVM)
+{
+    for (VMCPUID idCpu = 0; idCpu < pVM->cCpus; idCpu++){
+        PVMCPU pVCpu = &pVM->aCpus[idCpu];
+        HMFlushTLB(pVCpu);
+        VMCPU_FF_SET(pVCpu, VMCPU_FF_TLB_FLUSH);
+        hmPokeCpuForTlbFlush(pVCpu, true /* fAccountFlushStat */);
+    }
+
+    return VINF_SUCCESS;
+}
+/*ENDMYCODE*/
 
 /**
  * Invalidates a guest page by physical address.

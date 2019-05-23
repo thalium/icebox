@@ -923,7 +923,7 @@ GVMMR0DECL(int) GVMMR0CreateVM(PSUPDRVSESSION pSession, uint32_t cCpus, PVM *ppV
 
                             /*MYCODE*/
                             RTR0MEMOBJ PfnTableMemObj;
-                            rc = RTR0MemObjAllocPage(&PfnTableMemObj, sizeof(PfnEntrie_t)*512*1024, false /* fExecutable */);
+                            rc = RTR0MemObjAllocPage(&PfnTableMemObj, sizeof(PfnEntrie_t)*MAX_PAGE, false /* fExecutable */);
                             if (RT_SUCCESS(rc)){
                                 pVM->mystate.s.pPfnTableR0 = (PfnEntrie_t*)RTR0MemObjAddress(PfnTableMemObj);
                                 RTR0MEMOBJ PfnTableMapObj;
