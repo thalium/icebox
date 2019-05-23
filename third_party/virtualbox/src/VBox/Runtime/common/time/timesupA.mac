@@ -883,5 +883,3 @@ ALIGNCODE(16)
 %endif  ; AMD64
 ENDPROC rtTimeNanoTSInternalAsm
 
-
-

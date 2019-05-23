@@ -4,7 +4,7 @@
 # VirtualBox linux uninstallation script
 
 #
-# Copyright (C) 2009-2015 Oracle Corporation
+# Copyright (C) 2009-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;

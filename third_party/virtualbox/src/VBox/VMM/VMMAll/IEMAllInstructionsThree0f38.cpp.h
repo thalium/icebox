@@ -306,7 +306,40 @@ FNIEMOP_STUB(iemOp_invept_Gy_Mdq);
 /** Opcode 0x66 0x0f 0x38 0x81. */
 FNIEMOP_STUB(iemOp_invvpid_Gy_Mdq);
 /** Opcode 0x66 0x0f 0x38 0x82. */
-FNIEMOP_STUB(iemOp_invpcid_Gy_Mdq);
+FNIEMOP_DEF(iemOp_invpcid_Gy_Mdq)
+{
+    IEMOP_MNEMONIC(invpcid, "invpcid Gy,Mdq");
+    IEMOP_HLP_DONE_DECODING_NO_LOCK_PREFIX();
+    uint8_t bRm; IEM_OPCODE_GET_NEXT_U8(&bRm);
+    if ((bRm & X86_MODRM_MOD_MASK) != (3 << X86_MODRM_MOD_SHIFT))
+    {
+        /* Register, memory. */
+        if (pVCpu->iem.s.enmEffOpSize == IEMMODE_64BIT)
+        {
+            IEM_MC_BEGIN(2, 0);
+            IEM_MC_ARG(uint64_t, uInvpcidType,     0);
+            IEM_MC_ARG(RTGCPTR,  GCPtrInvpcidDesc, 1);
+            IEM_MC_FETCH_GREG_U64(uInvpcidType, ((bRm >> X86_MODRM_REG_SHIFT) & X86_MODRM_REG_SMASK) | pVCpu->iem.s.uRexReg);
+            IEM_MC_CALC_RM_EFF_ADDR(GCPtrInvpcidDesc, bRm, 0);
+            IEM_MC_CALL_CIMPL_2(iemCImpl_invpcid, uInvpcidType, GCPtrInvpcidDesc);
+            IEM_MC_END();
+        }
+        else
+        {
+            IEM_MC_BEGIN(2, 0);
+            IEM_MC_ARG(uint32_t, uInvpcidType,     0);
+            IEM_MC_ARG(RTGCPTR,  GCPtrInvpcidDesc, 1);
+            IEM_MC_FETCH_GREG_U32(uInvpcidType, ((bRm >> X86_MODRM_REG_SHIFT) & X86_MODRM_REG_SMASK) | pVCpu->iem.s.uRexReg);
+            IEM_MC_CALC_RM_EFF_ADDR(GCPtrInvpcidDesc, bRm, 0);
+            IEM_MC_CALL_CIMPL_2(iemCImpl_invpcid, uInvpcidType, GCPtrInvpcidDesc);
+            IEM_MC_END();
+        }
+    }
+    Log(("iemOp_invpcid_Gy_Mdq: invalid encoding -> #UD\n"));
+    return IEMOP_RAISE_INVALID_OPCODE();
+}
+
+
 /*  Opcode 0x66 0x0f 0x38 0x83 - invalid. */
 /*  Opcode 0x66 0x0f 0x38 0x84 - invalid. */
 /*  Opcode 0x66 0x0f 0x38 0x85 - invalid. */

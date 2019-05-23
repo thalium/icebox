@@ -3,6 +3,7 @@
 # Sub-Makefile for the X11 Guest Additions.
 #
 
+#
 # Copyright (C) 2006-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
@@ -22,7 +23,7 @@ if1of ($(KBUILD_TARGET), freebsd linux netbsd openbsd solaris)
  include $(PATH_SUB_CURRENT)/VBoxClient/Makefile.kmk
  ifndef VBOX_NO_LEGACY_XORG_X11
   include $(PATH_SUB_CURRENT)/vboxvideo/Makefile.kmk
-  ifneq ($(KBUILD_TARGET), solaris)
+  ifn1of ($(KBUILD_TARGET), netbsd solaris)
    include $(PATH_SUB_CURRENT)/vboxmouse/Makefile.kmk
   endif
   # This should logically only be controlled by VBOX_NO_LEGACY_XORG_X11,

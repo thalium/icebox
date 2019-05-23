@@ -10,7 +10,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -4317,7 +4317,9 @@ static DECLCALLBACK(int) pcnetLoadExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, uint
     {
         /* restore data */
         SSMR3GetBool(pSSM, &pThis->fLinkUp);
-        SSMR3GetU32(pSSM, &pThis->u32RAP);
+        int rc = SSMR3GetU32(pSSM, &pThis->u32RAP);
+        AssertRCReturn(rc, rc);
+        AssertLogRelMsgReturn(pThis->u32RAP < RT_ELEMENTS(pThis->aCSR), ("%#x\n", pThis->u32RAP), VERR_SSM_LOAD_CONFIG_MISMATCH);
         SSMR3GetS32(pSSM, &pThis->iISR);
         SSMR3GetU32(pSSM, &pThis->u32Lnkst);
         if (   SSM_VERSION_MAJOR(uVersion) >  0
@@ -4837,8 +4839,8 @@ static DECLCALLBACK(void) pcnetRelocate(PPDMDEVINS pDevIns, RTGCINTPTR offDelta)
  */
 static DECLCALLBACK(int) pcnetDestruct(PPDMDEVINS pDevIns)
 {
-    PPCNETSTATE pThis = PDMINS_2_DATA(pDevIns, PPCNETSTATE);
     PDMDEV_CHECK_VERSIONS_RETURN_QUIET(pDevIns);
+    PPCNETSTATE pThis = PDMINS_2_DATA(pDevIns, PPCNETSTATE);
 
     if (PDMCritSectIsInitialized(&pThis->CritSect))
     {
@@ -4856,12 +4858,12 @@ static DECLCALLBACK(int) pcnetDestruct(PPDMDEVINS pDevIns)
  */
 static DECLCALLBACK(int) pcnetConstruct(PPDMDEVINS pDevIns, int iInstance, PCFGMNODE pCfg)
 {
+    PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
     PPCNETSTATE     pThis = PDMINS_2_DATA(pDevIns, PPCNETSTATE);
     PPDMIBASE       pBase;
     char            szTmp[128];
     int             rc;
 
-    PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
     Assert(RT_ELEMENTS(pThis->aBCR) == BCR_MAX_RAP);
     Assert(RT_ELEMENTS(pThis->aMII) == MII_MAX_REG);
     Assert(sizeof(pThis->abLoopBuf) == RT_ALIGN_Z(sizeof(pThis->abLoopBuf), 16));

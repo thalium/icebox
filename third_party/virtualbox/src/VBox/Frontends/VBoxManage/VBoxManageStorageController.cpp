@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -69,6 +69,7 @@ static const RTGETOPTDEF g_aStorageAttachOptions[] =
     { "--encodedlun",       'E', RTGETOPT_REQ_STRING },
     { "--username",         'U', RTGETOPT_REQ_STRING },
     { "--password",         'W', RTGETOPT_REQ_STRING },
+    { "--passwordfile",     'w', RTGETOPT_REQ_STRING },
     { "--initiator",        'N', RTGETOPT_REQ_STRING },
     { "--intnet",           'I', RTGETOPT_REQ_NOTHING },
 };
@@ -285,6 +286,15 @@ RTEXITCODE handleStorageAttach(HandlerArg *a)
                 bstrPassword = ValueUnion.psz;
                 break;
 
+            case 'w':   // --passwordFile
+            {
+                Utf8Str utf8Password;
+                RTEXITCODE rcExit = readPasswordFile(ValueUnion.psz, &utf8Password);
+                if (rcExit != RTEXITCODE_SUCCESS)
+                    rc = E_FAIL;
+                bstrPassword = utf8Password;
+                break;
+            }
             case 'N':   // --initiator
                 bstrInitiator = ValueUnion.psz;
                 break;

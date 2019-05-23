@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -80,7 +80,7 @@ static GLint packspu_GetUniformLocationUncached(GLuint program, const char * nam
 
 GLint PACKSPU_APIENTRY packspu_GetUniformLocation(GLuint program, const char * name)
 {
-    if (!crStateIsProgramUniformsCached(program))  
+    if (!crStateIsProgramUniformsCached(program))
     {
         GET_THREAD(thread);
         int writeback = 1;

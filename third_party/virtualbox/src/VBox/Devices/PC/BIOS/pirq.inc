@@ -1,43 +1,47 @@
-;;
-;; Copyright (C) 2006-2015 Oracle Corporation
-;;
-;; This file is part of VirtualBox Open Source Edition (OSE), as
-;; available from http://www.virtualbox.org. This file is free software;
-;; you can redistribute it and/or modify it under the terms of the GNU
-;; General Public License (GPL) as published by the Free Software
-;; Foundation, in version 2 as it comes in the "COPYING" file of the
-;; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
-;; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
-;; --------------------------------------------------------------------
-;;
-;; This code is based on:
-;;
-;;  ROM BIOS for use with Bochs/Plex86/QEMU emulation environment
-;;
-;;  Copyright (C) 2002  MandrakeSoft S.A.
-;;
-;;    MandrakeSoft S.A.
-;;    43, rue d'Aboukir
-;;    75002 Paris - France
-;;    http://www.linux-mandrake.com/
-;;    http://www.mandrakesoft.com/
-;;
-;;  This library is free software; you can redistribute it and/or
-;;  modify it under the terms of the GNU Lesser General Public
-;;  License as published by the Free Software Foundation; either
-;;  version 2 of the License, or (at your option) any later version.
-;;
-;;  This library is distributed in the hope that it will be useful,
-;;  but WITHOUT ANY WARRANTY; without even the implied warranty of
-;;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-;;  Lesser General Public License for more details.
-;;
-;;  You should have received a copy of the GNU Lesser General Public
-;;  License along with this library; if not, write to the Free Software
-;;  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-;;
-;;
+; $Id: pirq.inc $
+;; @file
+; ???
+;
 
+;
+; Copyright (C) 2006-2017 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+; --------------------------------------------------------------------
+;
+; This code is based on:
+;
+;  ROM BIOS for use with Bochs/Plex86/QEMU emulation environment
+;
+;  Copyright (C) 2002  MandrakeSoft S.A.
+;
+;    MandrakeSoft S.A.
+;    43, rue d'Aboukir
+;    75002 Paris - France
+;    http://www.linux-mandrake.com/
+;    http://www.mandrakesoft.com/
+;
+;  This library is free software; you can redistribute it and/or
+;  modify it under the terms of the GNU Lesser General Public
+;  License as published by the Free Software Foundation; either
+;  version 2 of the License, or (at your option) any later version.
+;
+;  This library is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;  Lesser General Public License for more details.
+;
+;  You should have received a copy of the GNU Lesser General Public
+;  License along with this library; if not, write to the Free Software
+;  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+;
+;
 
 ; Oracle LGPL Disclaimer: For the avoidance of doubt, except that if any license choice
 ; other than GPL or LGPL is available it will apply instead, Oracle elects to use only
@@ -45,6 +49,7 @@
 ; a choice of LGPL license versions is made available with the language indicating
 ; that LGPLv2 or any later version may be used, or where a choice of which version
 ; of the LGPL is applied is otherwise unspecified.
+
 
 if BX_PCIBIOS
 public _pci_routing_table

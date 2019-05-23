@@ -1,5 +1,10 @@
+' $Id: vboxinfo.vb $
+'' @file
+' ???
 '
-' Copyright (C) 2009-2010 Oracle Corporation
+
+'
+' Copyright (C) 2009-2017 Oracle Corporation
 '
 ' This file is part of VirtualBox Open Source Edition (OSE), as
 ' available from http://www.virtualbox.org. This file is free software;
@@ -9,6 +14,7 @@
 ' VirtualBox OSE distribution. VirtualBox OSE is distributed in the
 ' hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
 '
+
 Imports System
 Imports System.Drawing
 Imports System.Windows.Forms
@@ -19,9 +25,9 @@ Module Module1
         Dim vb As VirtualBox.IVirtualBox
         Dim listBox As New ListBox()
         Dim form As New Form
-        
+
         vb = CreateObject("VirtualBox.VirtualBox")
-        
+
         form.Text = "VirtualBox version " & vb.Version
         form.Size = New System.Drawing.Size(400, 320)
         form.Location = New System.Drawing.Point(10, 10)
@@ -41,3 +47,4 @@ Module Module1
     End Sub
 
 End Module
+

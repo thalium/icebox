@@ -24,12 +24,77 @@
 # terms and conditions of either the GPL or the CDDL or both.
 #
 
+--license-ose-dual
 
---filter-out-dirs  "*/r0drv/solaris/vbi/*/."
---filter-out-dirs  "*/common/math/gcc/."
 
---filter-out-files "*/testcase/soundcard.h"
---filter-out-files "*/include/internal/ldrELF*.h"
---filter-out-files "*/common/math/x86/fenv-x86.c"
---filter-out-files "*/common/checksum/md5.cpp"
+/common/asn1/oiddb.cfg: --treat-as Makefile
+
+# Skip test certificates.
+--filter-out-files /testcase/tstRTCrX509*.pem
+--filter-out-files /testcase/tstRTCrX509*.der
+
+# Skip test binaries and other output/input files.
+--filter-out-files /testcase/*.bin
+--filter-out-files /testcase/*.o
+--filter-out-files /testcase/tstRTLdrMachORelocs-1.o
+--filter-out-files /testcase/tstRTLdrMachORelocs-1.S
+--filter-out-files /testcase/tstRTLdrMachORelocs-1.disas
+
+# external code
+/r0drv/freebsd/alloc-r0drv-freebsd.c           : --external-copyright
+/r0drv/freebsd/assert-r0drv-freebsd.c          : --external-copyright
+/r0drv/freebsd/initterm-r0drv-freebsd.c        : --external-copyright
+/r0drv/freebsd/memobj-r0drv-freebsd.c          : --external-copyright
+/r0drv/freebsd/process-r0drv-freebsd.c         : --external-copyright
+/r0drv/freebsd/semevent-r0drv-freebsd.c        : --external-copyright
+/r0drv/freebsd/semeventmulti-r0drv-freebsd.c   : --external-copyright
+/r0drv/freebsd/semfastmutex-r0drv-freebsd.c    : --external-copyright
+/r0drv/freebsd/spinlock-r0drv-freebsd.c        : --external-copyright
+/r0drv/freebsd/the-freebsd-kernel.h            : --external-copyright
+/r0drv/freebsd/thread2-r0drv-freebsd.c         : --external-copyright
+/r0drv/freebsd/time-r0drv-freebsd.c            : --external-copyright
+/r0drv/freebsd/timer-r0drv-freebsd.c           : --external-copyright
+
+/r0drv/netbsd/assert-r0drv-netbsd.c            : --external-copyright
+/r0drv/netbsd/initterm-r0drv-netbsd.c          : --external-copyright
+/r0drv/netbsd/memobj-r0drv-netbsd.c            : --external-copyright
+/r0drv/netbsd/process-r0drv-netbsd.c           : --external-copyright
+/r0drv/netbsd/semevent-r0drv-netbsd.c          : --external-copyright
+/r0drv/netbsd/semeventmulti-r0drv-netbsd.c     : --external-copyright
+/r0drv/netbsd/semfastmutex-r0drv-netbsd.c      : --external-copyright
+/r0drv/netbsd/spinlock-r0drv-netbsd.c          : --external-copyright
+/r0drv/netbsd/the-netbsd-kernel.h              : --external-copyright
+/r0drv/netbsd/thread2-r0drv-netbsd.c           : --external-copyright
+/r0drv/netbsd/time-r0drv-netbsd.c              : --external-copyright
+
+/r0drv/os2/alloc-r0drv-os2.cpp                 : --external-copyright
+/r0drv/os2/assert-r0drv-os2.cpp                : --external-copyright
+/r0drv/os2/assertA-r0drv-os2.asm               : --external-copyright
+/r0drv/os2/initterm-r0drv-os2.cpp              : --external-copyright
+/r0drv/os2/memobj-r0drv-os2.cpp                : --external-copyright
+/r0drv/os2/process-r0drv-os2.cpp               : --external-copyright
+/r0drv/os2/RTR0AssertPanicSystem-r0drv-os2.asm : --external-copyright
+/r0drv/os2/RTR0Os2DHQueryDOSVar.asm            : --external-copyright
+/r0drv/os2/RTR0Os2DHVMGlobalToProcess.asm      : --external-copyright
+/r0drv/os2/semevent-r0drv-os2.cpp              : --external-copyright
+/r0drv/os2/semeventmulti-r0drv-os2.cpp         : --external-copyright
+/r0drv/os2/semfastmutex-r0drv-os2.cpp          : --external-copyright
+/r0drv/os2/spinlock-r0drv-os2.cpp              : --external-copyright
+/r0drv/os2/the-os2-kernel.h                    : --external-copyright
+/r0drv/os2/thread-r0drv-os2.cpp                : --external-copyright
+/r0drv/os2/thread2-r0drv-os2.cpp               : --external-copyright
+/r0drv/os2/time-r0drv-os2.cpp                  : --external-copyright
+/r0drv/os2/timer-r0drv-os2.cpp                 : --external-copyright
+/r0drv/os2/timerA-r0drv-os2.asm                : --external-copyright
+
+/r3/os2/time-os2.cpp                           : --external-copyright
+/r0drv/os2/os2imports.imp                      : --external-copyright --treat-as .def
+
+/r3/win/VBoxRT-msvcp100-win32.def              : --external-copyright
+/r3/win/VBoxRT-msvcr100-win32.def              : --external-copyright
+
+/common/math/x86/fenv-x86.c                    : --external-copyright --no-convert-tabs
+
+/common/math/gcc/*                             : --external-copyright --no-convert-tabs --dont-set-svn-keywords
+/common/math/gcc/udivmoddi4.c                  : --no-external-copyright --convert-tabs --set-svn-keywords
 

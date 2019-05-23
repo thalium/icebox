@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2008-2016 Oracle Corporation
+ * Copyright (C) 2008-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -617,7 +617,7 @@ static void _crVBoxHGSMIWriteExact(CRConnection *conn, PCRVBOXHGSMI_CLIENT pClie
         if (RT_SUCCESS(rc))
         {
             _crVBoxHGSMIWaitCmd(pClient);
-                /* @todo: do we need to wait for completion actually?
+                /** @todo do we need to wait for completion actually?
                  * NOTE: in case we do not need completion,
                  * we MUST specify bDoNotSignalCompletion flag for the command buffer */
 //                CRVBOXHGSMI_BUF_WAIT(pClient->pCmdBuffer);
@@ -651,7 +651,7 @@ static void _crVBoxHGSMIWriteExact(CRConnection *conn, PCRVBOXHGSMI_CLIENT pClie
         if (RT_SUCCESS(rc))
         {
             _crVBoxHGSMIWaitCmd(pClient);
-                /* @todo: do we need to wait for completion actually?
+                /** @todo do we need to wait for completion actually?
                  * NOTE: in case we do not need completion,
                  * we MUST specify bDoNotSignalCompletion flag for the command buffer */
 //                CRVBOXHGSMI_BUF_WAIT(pClient->pCmdBuffer);
@@ -923,7 +923,7 @@ static void crVBoxHGSMISend(CRConnection *conn, void **bufp,
     {
         pClient = _crVBoxHGSMIClientGet();
 #ifndef IN_GUEST
-            //@todo remove temp buffer allocation in unpacker
+            /// @todo remove temp buffer allocation in unpacker
             /* we're at the host side, so just store data until guest polls us */
             _crVBoxHGCMWriteBytes(conn, start, len);
 #else
@@ -1009,7 +1009,7 @@ static void _crVBoxHGSMIFree(CRConnection *conn, void *buf)
     }
     else
     {
-        /*@todo wrong len for redir buffers*/
+        /** @todo wrong len for redir buffers*/
         conn->recv_credits += hgsmi_buffer->u32Len;
 
 #ifdef CHROMIUM_THREADSAFE
@@ -1244,7 +1244,7 @@ static int crVBoxHGSMIDoConnect( CRConnection *conn )
 #endif
 }
 
-/*@todo same, replace DeviceIoControl with vbglR3DoIOCtl */
+/** @todo same, replace DeviceIoControl with vbglR3DoIOCtl */
 static void crVBoxHGSMIDoDisconnect( CRConnection *conn )
 {
     VBOXCRHGSMIPROFILE_FUNC_PROLOGUE();
@@ -1260,7 +1260,7 @@ static void crVBoxHGSMIDoDisconnect( CRConnection *conn )
     conn->pBuffer = NULL;
     conn->cbBuffer = 0;
 
-    //@todo hold lock here?
+    /// @todo hold lock here?
     if (conn->type == CR_VBOXHGCM)
     {
         --g_crvboxhgsmi.num_conns;
@@ -1347,7 +1347,7 @@ static DECLCALLBACK(void) _crVBoxHGSMIClientDestroy(HVBOXCRHGSMI_CLIENT hClient)
 {
     Assert(0);
 
-    /* @todo */
+    /** @todo */
 }
 
 
@@ -1394,7 +1394,7 @@ bool crVBoxHGSMIInit(CRNetReceiveFuncList *rfl, CRNetCloseFuncList *cfl, unsigne
     g_crvboxhgsmi.mempool = crBufferPoolInit(16);
 
     /* Can't open VBox guest driver here, because it gets called for host side as well */
-    /*@todo as we have 2 dll versions, can do it now.*/
+    /** @todo as we have 2 dll versions, can do it now.*/
 
 #ifdef RT_OS_WINDOWS
     g_crvboxhgsmi.hGuestDrv = INVALID_HANDLE_VALUE;
@@ -1482,7 +1482,7 @@ void crVBoxHGSMIConnection(CRConnection *conn)
     conn->cbBuffer = 0;
     conn->allow_redir_ptr = 1;
 
-    //@todo remove this crap at all later
+    /// @todo remove this crap at all later
     conn->cbHostBufferAllocated = 0;//2*1024;
     conn->pHostBuffer = NULL;//(uint8_t*) crAlloc(conn->cbHostBufferAllocated);
 //    CRASSERT(conn->pHostBuffer);

@@ -22,10 +22,11 @@ extern "C" {
 extern SPUDispatchTable cr_unpackDispatch;
 /*extern DLLDATA(const unsigned char *) cr_unpackData;*/
 extern DECLEXPORT(const unsigned char *) cr_unpackData;
+extern DECLEXPORT(const unsigned char *) cr_unpackDataEnd;
 
 DECLEXPORT(void) crUnpackSetReturnPointer( CRNetworkPointer *ptr );
 DECLEXPORT(void) crUnpackSetWritebackPointer( CRNetworkPointer *ptr );
-DECLEXPORT(void) crUnpack( const void *data, const void *opcodes, unsigned int num_opcodes, SPUDispatchTable *table );
+DECLEXPORT(void) crUnpack( const void *data, const void *data_end, const void *opcodes, unsigned int num_opcodes, SPUDispatchTable *table );
 DECLEXPORT(void) crUnpackPush(void);
 DECLEXPORT(void) crUnpackPop(void);
 
@@ -66,6 +67,9 @@ DECLEXPORT(double) crReadUnalignedDouble( const void *buffer );
 /* XXX make this const */
 #define DATA_POINTER( offset, type ) \
     ( (type *) (cr_unpackData + (offset)) )
+
+#define DATA_POINTER_CHECK( offset ) \
+    ( (cr_unpackDataEnd ? cr_unpackData + (offset) < cr_unpackDataEnd : true) )
 
 #define INCR_DATA_PTR( delta ) \
     cr_unpackData += (delta)

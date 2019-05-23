@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1964,14 +1964,14 @@ HRESULT ExtPackManager::initExtPackManager(VirtualBox *a_pVirtualBox, VBOXEXTPAC
      * that exceed the max name length in RTDIRENTRYEX.
      */
     HRESULT hrc = S_OK;
-    PRTDIR pDir;
-    int vrc = RTDirOpen(&pDir, szBaseDir);
+    RTDIR   hDir;
+    int vrc = RTDirOpen(&hDir, szBaseDir);
     if (RT_SUCCESS(vrc))
     {
         for (;;)
         {
             RTDIRENTRYEX Entry;
-            vrc = RTDirReadEx(pDir, &Entry, NULL /*pcbDirEntry*/, RTFSOBJATTRADD_NOTHING, RTPATH_F_ON_LINK);
+            vrc = RTDirReadEx(hDir, &Entry, NULL /*pcbDirEntry*/, RTFSOBJATTRADD_NOTHING, RTPATH_F_ON_LINK);
             if (RT_FAILURE(vrc))
             {
                 AssertLogRelMsg(vrc == VERR_NO_MORE_FILES, ("%Rrc\n", vrc));
@@ -2012,7 +2012,7 @@ HRESULT ExtPackManager::initExtPackManager(VirtualBox *a_pVirtualBox, VBOXEXTPAC
                     hrc = E_UNEXPECTED;
             }
         }
-        RTDirClose(pDir);
+        RTDirClose(hDir);
     }
     /* else: ignore, the directory probably does not exist or something. */
 
@@ -2540,14 +2540,14 @@ HRESULT ExtPackManager::i_refreshExtPack(const char *a_pszName, bool a_fUnusable
         bool fExists = RT_SUCCESS(vrc) && RTFS_IS_DIRECTORY(ObjInfo.Attr.fMode);
         if (!fExists)
         {
-            PRTDIR pDir;
-            vrc = RTDirOpen(&pDir, m->strBaseDir.c_str());
+            RTDIR hDir;
+            vrc = RTDirOpen(&hDir, m->strBaseDir.c_str());
             if (RT_SUCCESS(vrc))
             {
                 const char *pszMangledName = RTPathFilename(szDir);
                 for (;;)
                 {
-                    vrc = RTDirReadEx(pDir, &Entry, NULL /*pcbDirEntry*/, RTFSOBJATTRADD_NOTHING, RTPATH_F_ON_LINK);
+                    vrc = RTDirReadEx(hDir, &Entry, NULL /*pcbDirEntry*/, RTFSOBJATTRADD_NOTHING, RTPATH_F_ON_LINK);
                     if (RT_FAILURE(vrc))
                     {
                         AssertLogRelMsg(vrc == VERR_NO_MORE_FILES, ("%Rrc\n", vrc));
@@ -2561,13 +2561,13 @@ HRESULT ExtPackManager::i_refreshExtPack(const char *a_pszName, bool a_fUnusable
                          * Update the name and directory variables.
                          */
                         vrc = RTPathJoin(szDir, sizeof(szDir), m->strBaseDir.c_str(), Entry.szName); /* not really necessary */
-                        AssertLogRelRCReturnStmt(vrc, RTDirClose(pDir), E_UNEXPECTED);
+                        AssertLogRelRCReturnStmt(vrc, RTDirClose(hDir), E_UNEXPECTED);
                         a_pszName = Entry.szName;
                         fExists   = true;
                         break;
                     }
                 }
-                RTDirClose(pDir);
+                RTDirClose(hDir);
             }
         }
         if (fExists)

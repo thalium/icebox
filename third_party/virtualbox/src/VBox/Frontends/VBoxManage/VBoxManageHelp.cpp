@@ -511,6 +511,9 @@ void printUsage(USAGECATEGORY fCategory, uint32_t fSubCategory, PRTSTREAM pStrm)
                      "                            [--vtxux on|off]\n"
                      "                            [--pae on|off]\n"
                      "                            [--longmode on|off]\n"
+                     "                            [--ibpb-on-vm-exit on|off]\n"
+                     "                            [--ibpb-on-vm-entry on|off]\n"
+                     "                            [--spec-ctrl on|off]\n"
                      "                            [--cpu-profile \"host|Intel 80[86|286|386]\"]\n"
                      "                            [--cpuid-portability-level <0..3>\n"
                      "                            [--cpuid-set <leaf[:subleaf]> <eax> <ebx> <ecx> <edx>]\n"
@@ -863,7 +866,7 @@ void printUsage(USAGECATEGORY fCategory, uint32_t fSubCategory, PRTSTREAM pStrm)
                      "                            edit <uuid|snapname>|--current\n"
                      "                                 [--name <name>]\n"
                      "                                 [--description <desc>] |\n"
-                     "                            list [--details|--machinereadable]\n"
+                     "                            list [--details|--machinereadable] |\n"
                      "                            showvminfo <uuid|snapname>\n"
                      "\n", SEP);
 
@@ -901,6 +904,7 @@ void printUsage(USAGECATEGORY fCategory, uint32_t fSubCategory, PRTSTREAM pStrm)
                      "                            [--encodedlun <lun>]\n"
                      "                            [--username <username>]\n"
                      "                            [--password <password>]\n"
+                     "                            [--passwordfile <file>]\n"
                      "                            [--initiator <initiator>]\n"
                      "                            [--intnet]\n"
                      "\n", SEP);

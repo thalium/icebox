@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -19,38 +19,39 @@
 #include <iprt/semaphore.h>
 
 /* SHGSMI */
-DECLINLINE(void) vboxSHGSMICommandRetain(PVBOXSHGSMIHEADER pCmd)
+DECLINLINE(void) vboxSHGSMICommandRetain(VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pCmd)
 {
     ASMAtomicIncU32(&pCmd->cRefs);
 }
 
-void vboxSHGSMICommandFree(PVBOXSHGSMI pHeap, PVBOXSHGSMIHEADER pCmd)
+void vboxSHGSMICommandFree(PVBOXSHGSMI pHeap, VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pCmd)
 {
     VBoxSHGSMIHeapFree(pHeap, pCmd);
 }
 
-DECLINLINE(void) vboxSHGSMICommandRelease(PVBOXSHGSMI pHeap, PVBOXSHGSMIHEADER pCmd)
+DECLINLINE(void) vboxSHGSMICommandRelease(PVBOXSHGSMI pHeap, VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pCmd)
 {
     uint32_t cRefs = ASMAtomicDecU32(&pCmd->cRefs);
     Assert(cRefs < UINT32_MAX / 2);
     if(!cRefs)
-        vboxSHGSMICommandFree (pHeap, pCmd);
+        vboxSHGSMICommandFree(pHeap, pCmd);
 }
 
-static DECLCALLBACK(void) vboxSHGSMICompletionSetEvent(PVBOXSHGSMI pHeap, void *pvCmd, void *pvContext)
+static DECLCALLBACK(void) vboxSHGSMICompletionSetEvent(PVBOXSHGSMI pHeap, void RT_UNTRUSTED_VOLATILE_HOST *pvCmd, void *pvContext)
 {
     RT_NOREF(pHeap, pvCmd);
     RTSemEventSignal((RTSEMEVENT)pvContext);
 }
 
-DECLCALLBACK(void) vboxSHGSMICompletionCommandRelease(PVBOXSHGSMI pHeap, void *pvCmd, void *pvContext)
+DECLCALLBACK(void) vboxSHGSMICompletionCommandRelease(PVBOXSHGSMI pHeap, void RT_UNTRUSTED_VOLATILE_HOST *pvCmd, void *pvContext)
 {
     RT_NOREF(pvContext);
     vboxSHGSMICommandRelease(pHeap, VBoxSHGSMIBufferHeader(pvCmd));
 }
 
 /* do not wait for completion */
-DECLINLINE(const VBOXSHGSMIHEADER *) vboxSHGSMICommandPrepAsynch(PVBOXSHGSMI pHeap, PVBOXSHGSMIHEADER pHeader)
+DECLINLINE(const VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *)
+vboxSHGSMICommandPrepAsynch(PVBOXSHGSMI pHeap, VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pHeader)
 {
     RT_NOREF(pHeap);
     /* ensure the command is not removed until we're processing it */
@@ -58,7 +59,7 @@ DECLINLINE(const VBOXSHGSMIHEADER *) vboxSHGSMICommandPrepAsynch(PVBOXSHGSMI pHe
     return pHeader;
 }
 
-DECLINLINE(void) vboxSHGSMICommandDoneAsynch(PVBOXSHGSMI pHeap, const VBOXSHGSMIHEADER* pHeader)
+DECLINLINE(void) vboxSHGSMICommandDoneAsynch(PVBOXSHGSMI pHeap, const VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pHeader)
 {
     if(!(ASMAtomicReadU32((volatile uint32_t *)&pHeader->fFlags) & VBOXSHGSMI_FLAG_HG_ASYNCH))
     {
@@ -70,9 +71,10 @@ DECLINLINE(void) vboxSHGSMICommandDoneAsynch(PVBOXSHGSMI pHeap, const VBOXSHGSMI
     vboxSHGSMICommandRelease(pHeap, (PVBOXSHGSMIHEADER)pHeader);
 }
 
-const VBOXSHGSMIHEADER* VBoxSHGSMICommandPrepAsynchEvent(PVBOXSHGSMI pHeap, PVOID pvBuff, RTSEMEVENT hEventSem)
+const VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *
+VBoxSHGSMICommandPrepAsynchEvent(PVBOXSHGSMI pHeap, void RT_UNTRUSTED_VOLATILE_HOST *pvBuff, RTSEMEVENT hEventSem)
 {
-    PVBOXSHGSMIHEADER pHeader = VBoxSHGSMIBufferHeader(pvBuff);
+    VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pHeader = VBoxSHGSMIBufferHeader(pvBuff);
     pHeader->u64Info1 = (uint64_t)vboxSHGSMICompletionSetEvent;
     pHeader->u64Info2 = (uintptr_t)hEventSem;
     pHeader->fFlags   = VBOXSHGSMI_FLAG_GH_ASYNCH_IRQ;
@@ -80,7 +82,8 @@ const VBOXSHGSMIHEADER* VBoxSHGSMICommandPrepAsynchEvent(PVBOXSHGSMI pHeap, PVOI
     return vboxSHGSMICommandPrepAsynch(pHeap, pHeader);
 }
 
-const VBOXSHGSMIHEADER* VBoxSHGSMICommandPrepSynch(PVBOXSHGSMI pHeap, PVOID pCmd)
+const VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *VBoxSHGSMICommandPrepSynch(PVBOXSHGSMI pHeap,
+                                                                              void  RT_UNTRUSTED_VOLATILE_HOST *pCmd)
 {
     RTSEMEVENT hEventSem;
     int rc = RTSemEventCreate(&hEventSem);
@@ -92,12 +95,12 @@ const VBOXSHGSMIHEADER* VBoxSHGSMICommandPrepSynch(PVBOXSHGSMI pHeap, PVOID pCmd
     return NULL;
 }
 
-void VBoxSHGSMICommandDoneAsynch(PVBOXSHGSMI pHeap, const VBOXSHGSMIHEADER * pHeader)
+void VBoxSHGSMICommandDoneAsynch(PVBOXSHGSMI pHeap, const VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pHeader)
 {
     vboxSHGSMICommandDoneAsynch(pHeap, pHeader);
 }
 
-int VBoxSHGSMICommandDoneSynch(PVBOXSHGSMI pHeap, const VBOXSHGSMIHEADER* pHeader)
+int VBoxSHGSMICommandDoneSynch(PVBOXSHGSMI pHeap, const VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pHeader)
 {
     VBoxSHGSMICommandDoneAsynch(pHeap, pHeader);
     RTSEMEVENT hEventSem = (RTSEMEVENT)pHeader->u64Info2;
@@ -108,48 +111,50 @@ int VBoxSHGSMICommandDoneSynch(PVBOXSHGSMI pHeap, const VBOXSHGSMIHEADER* pHeade
     return rc;
 }
 
-void VBoxSHGSMICommandCancelAsynch(PVBOXSHGSMI pHeap, const VBOXSHGSMIHEADER* pHeader)
+void VBoxSHGSMICommandCancelAsynch(PVBOXSHGSMI pHeap, const VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pHeader)
 {
     vboxSHGSMICommandRelease(pHeap, (PVBOXSHGSMIHEADER)pHeader);
 }
 
-void VBoxSHGSMICommandCancelSynch (PVBOXSHGSMI pHeap, const VBOXSHGSMIHEADER* pHeader)
+void VBoxSHGSMICommandCancelSynch(PVBOXSHGSMI pHeap, const VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pHeader)
 {
-    VBoxSHGSMICommandCancelAsynch (pHeap, pHeader);
+    VBoxSHGSMICommandCancelAsynch(pHeap, pHeader);
     RTSEMEVENT hEventSem = (RTSEMEVENT)pHeader->u64Info2;
     RTSemEventDestroy(hEventSem);
 }
 
-const VBOXSHGSMIHEADER* VBoxSHGSMICommandPrepAsynch(PVBOXSHGSMI pHeap, PVOID pvBuff, PFNVBOXSHGSMICMDCOMPLETION pfnCompletion,
-                                                    PVOID pvCompletion, uint32_t fFlags)
+const VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *
+VBoxSHGSMICommandPrepAsynch(PVBOXSHGSMI pHeap, void RT_UNTRUSTED_VOLATILE_HOST *pvBuff,
+                            PFNVBOXSHGSMICMDCOMPLETION pfnCompletion,
+                            void RT_UNTRUSTED_VOLATILE_HOST *pvCompletion, uint32_t fFlags)
 {
     fFlags &= ~VBOXSHGSMI_FLAG_GH_ASYNCH_CALLBACK_IRQ;
-    PVBOXSHGSMIHEADER pHeader = VBoxSHGSMIBufferHeader (pvBuff);
+    VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pHeader = VBoxSHGSMIBufferHeader(pvBuff);
     pHeader->u64Info1 = (uintptr_t)pfnCompletion;
     pHeader->u64Info2 = (uintptr_t)pvCompletion;
     pHeader->fFlags = fFlags;
 
-    return vboxSHGSMICommandPrepAsynch (pHeap, pHeader);
+    return vboxSHGSMICommandPrepAsynch(pHeap, pHeader);
 }
 
-const VBOXSHGSMIHEADER* VBoxSHGSMICommandPrepAsynchIrq(PVBOXSHGSMI pHeap, PVOID pvBuff,
-                                                       PFNVBOXSHGSMICMDCOMPLETION_IRQ pfnCompletion, PVOID pvCompletion,
-                                                       uint32_t fFlags)
+const VBOXSHGSMIHEADER  RT_UNTRUSTED_VOLATILE_HOST *
+VBoxSHGSMICommandPrepAsynchIrq(PVBOXSHGSMI pHeap, void RT_UNTRUSTED_VOLATILE_HOST *pvBuff,
+                               PFNVBOXSHGSMICMDCOMPLETION_IRQ pfnCompletion, PVOID pvCompletion, uint32_t fFlags)
 {
     fFlags |= VBOXSHGSMI_FLAG_GH_ASYNCH_CALLBACK_IRQ | VBOXSHGSMI_FLAG_GH_ASYNCH_IRQ;
-    PVBOXSHGSMIHEADER pHeader = VBoxSHGSMIBufferHeader (pvBuff);
+    VBOXSHGSMIHEADER  RT_UNTRUSTED_VOLATILE_HOST *pHeader = VBoxSHGSMIBufferHeader(pvBuff);
     pHeader->u64Info1 = (uintptr_t)pfnCompletion;
     pHeader->u64Info2 = (uintptr_t)pvCompletion;
     /* we must assign rather than or because flags field does not get zeroed on command creation */
     pHeader->fFlags = fFlags;
 
-    return vboxSHGSMICommandPrepAsynch (pHeap, pHeader);
+    return vboxSHGSMICommandPrepAsynch(pHeap, pHeader);
 }
 
-void* VBoxSHGSMIHeapAlloc(PVBOXSHGSMI pHeap, HGSMISIZE cbData, uint8_t u8Channel, uint16_t u16ChannelInfo)
+void RT_UNTRUSTED_VOLATILE_HOST *VBoxSHGSMIHeapAlloc(PVBOXSHGSMI pHeap, HGSMISIZE cbData, uint8_t u8Channel, uint16_t u16ChannelInfo)
 {
     KIRQL OldIrql;
-    void* pvData;
+    void RT_UNTRUSTED_VOLATILE_HOST *pvData;
     Assert(KeGetCurrentIrql() <= DISPATCH_LEVEL);
     KeAcquireSpinLock(&pHeap->HeapLock, &OldIrql);
     pvData = HGSMIHeapAlloc(&pHeap->Heap, cbData, u8Channel, u16ChannelInfo);
@@ -159,7 +164,7 @@ void* VBoxSHGSMIHeapAlloc(PVBOXSHGSMI pHeap, HGSMISIZE cbData, uint8_t u8Channel
     return pvData;
 }
 
-void VBoxSHGSMIHeapFree(PVBOXSHGSMI pHeap, void *pvBuffer)
+void VBoxSHGSMIHeapFree(PVBOXSHGSMI pHeap, void RT_UNTRUSTED_VOLATILE_HOST *pvBuffer)
 {
     KIRQL OldIrql;
     Assert(KeGetCurrentIrql() <= DISPATCH_LEVEL);
@@ -168,10 +173,10 @@ void VBoxSHGSMIHeapFree(PVBOXSHGSMI pHeap, void *pvBuffer)
     KeReleaseSpinLock(&pHeap->HeapLock, OldIrql);
 }
 
-void* VBoxSHGSMIHeapBufferAlloc(PVBOXSHGSMI pHeap, HGSMISIZE cbData)
+void RT_UNTRUSTED_VOLATILE_HOST *VBoxSHGSMIHeapBufferAlloc(PVBOXSHGSMI pHeap, HGSMISIZE cbData)
 {
     KIRQL OldIrql;
-    void* pvData;
+    void RT_UNTRUSTED_VOLATILE_HOST * pvData;
     Assert(KeGetCurrentIrql() <= DISPATCH_LEVEL);
     KeAcquireSpinLock(&pHeap->HeapLock, &OldIrql);
     pvData = HGSMIHeapBufferAlloc(&pHeap->Heap, cbData);
@@ -181,7 +186,7 @@ void* VBoxSHGSMIHeapBufferAlloc(PVBOXSHGSMI pHeap, HGSMISIZE cbData)
     return pvData;
 }
 
-void VBoxSHGSMIHeapBufferFree(PVBOXSHGSMI pHeap, void *pvBuffer)
+void VBoxSHGSMIHeapBufferFree(PVBOXSHGSMI pHeap, void RT_UNTRUSTED_VOLATILE_HOST *pvBuffer)
 {
     KIRQL OldIrql;
     Assert(KeGetCurrentIrql() <= DISPATCH_LEVEL);
@@ -202,11 +207,13 @@ void VBoxSHGSMITerm(PVBOXSHGSMI pHeap)
     HGSMIHeapDestroy(&pHeap->Heap);
 }
 
-void* VBoxSHGSMICommandAlloc(PVBOXSHGSMI pHeap, HGSMISIZE cbData, uint8_t u8Channel, uint16_t u16ChannelInfo)
+void RT_UNTRUSTED_VOLATILE_HOST *VBoxSHGSMICommandAlloc(PVBOXSHGSMI pHeap, HGSMISIZE cbData, uint8_t u8Channel,
+                                                        uint16_t u16ChannelInfo)
 {
     /* Issue the flush command. */
-    PVBOXSHGSMIHEADER pHeader = (PVBOXSHGSMIHEADER)VBoxSHGSMIHeapAlloc(pHeap, cbData + sizeof (VBOXSHGSMIHEADER), u8Channel,
-                                                                       u16ChannelInfo);
+    VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pHeader =
+        (VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *)VBoxSHGSMIHeapAlloc(pHeap, cbData + sizeof(VBOXSHGSMIHEADER),
+                                                                           u8Channel, u16ChannelInfo);
     Assert(pHeader);
     if (pHeader)
     {
@@ -216,16 +223,16 @@ void* VBoxSHGSMICommandAlloc(PVBOXSHGSMI pHeap, HGSMISIZE cbData, uint8_t u8Chan
     return NULL;
 }
 
-void VBoxSHGSMICommandFree(PVBOXSHGSMI pHeap, void *pvBuffer)
+void VBoxSHGSMICommandFree(PVBOXSHGSMI pHeap, void RT_UNTRUSTED_VOLATILE_HOST *pvBuffer)
 {
-    PVBOXSHGSMIHEADER pHeader = VBoxSHGSMIBufferHeader(pvBuffer);
-    vboxSHGSMICommandRelease (pHeap, pHeader);
+    VBOXSHGSMIHEADER RT_UNTRUSTED_VOLATILE_HOST *pHeader = VBoxSHGSMIBufferHeader(pvBuffer);
+    vboxSHGSMICommandRelease(pHeap, pHeader);
 }
 
 #define VBOXSHGSMI_CMD2LISTENTRY(_pCmd) ((PVBOXVTLIST_ENTRY)&(_pCmd)->pvNext)
 #define VBOXSHGSMI_LISTENTRY2CMD(_pEntry) ( (PVBOXSHGSMIHEADER)((uint8_t *)(_pEntry) - RT_OFFSETOF(VBOXSHGSMIHEADER, pvNext)) )
 
-int VBoxSHGSMICommandProcessCompletion (PVBOXSHGSMI pHeap, VBOXSHGSMIHEADER* pCur, bool bIrq, PVBOXVTLIST pPostProcessList)
+int VBoxSHGSMICommandProcessCompletion(PVBOXSHGSMI pHeap, VBOXSHGSMIHEADER *pCur, bool bIrq, PVBOXVTLIST pPostProcessList)
 {
     int rc = VINF_SUCCESS;
 

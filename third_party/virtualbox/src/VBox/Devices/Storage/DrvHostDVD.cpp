@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -52,9 +52,12 @@ typedef struct DRVHOSTDVD
     PTRACKLIST              pTrackList;
     /** ATAPI sense data. */
     uint8_t                 abATAPISense[ATAPI_SENSE_SIZE];
+    /** Flag whether to overwrite the inquiry data with our emulated settings. */
+    bool                    fInquiryOverwrite;
 } DRVHOSTDVD;
 /** Pointer to the host DVD driver instance data. */
 typedef DRVHOSTDVD *PDRVHOSTDVD;
+
 
 /*********************************************************************************************************************************
 *   Internal Functions                                                                                                           *
@@ -345,17 +348,28 @@ static DECLCALLBACK(int) drvHostDvdIoReqSendScsiCmd(PPDMIMEDIAEX pInterface, PDM
             {
                Assert(cbXferCur <= cbXfer);
 
-                if (pbCdb[0] == SCSI_INQUIRY)
+                if (   pbCdb[0] == SCSI_INQUIRY
+                    && pThis->fInquiryOverwrite)
                 {
+                    const char *pszInqVendorId  = "VBOX";
+                    const char *pszInqProductId = "CD-ROM";
+                    const char *pszInqRevision  = "1.0";
+
+                    if (pThis->Core.pDrvMediaPort->pfnQueryScsiInqStrings)
+                    {
+                        rc = pThis->Core.pDrvMediaPort->pfnQueryScsiInqStrings(pThis->Core.pDrvMediaPort, &pszInqVendorId,
+                                                                               &pszInqProductId, &pszInqRevision);
+                        AssertRC(rc);
+                    }
                     /* Make sure that the real drive cannot be identified.
                      * Motivation: changing the VM configuration should be as
                      *             invisible as possible to the guest. */
                     if (cbXferCur >= 8 + 8)
-                        scsiPadStr((uint8_t *)pvBuf + 8, "VBOX", 8);
+                        scsiPadStr((uint8_t *)pvBuf + 8, pszInqVendorId, 8);
                     if (cbXferCur >= 16 + 16)
-                        scsiPadStr((uint8_t *)pvBuf + 16, "CD-ROM", 16);
+                        scsiPadStr((uint8_t *)pvBuf + 16, pszInqProductId, 16);
                     if (cbXferCur >= 32 + 4)
-                        scsiPadStr((uint8_t *)pvBuf + 32, "1.0", 4);
+                        scsiPadStr((uint8_t *)pvBuf + 32, pszInqRevision, 4);
                 }
 
                 if (cbXferCur)
@@ -431,8 +445,13 @@ static DECLCALLBACK(int) drvHostDvdConstruct(PPDMDRVINS pDrvIns, PCFGMNODE pCfg,
     PDRVHOSTDVD pThis = PDMINS_2_DATA(pDrvIns, PDRVHOSTDVD);
     LogFlow(("drvHostDvdConstruct: iInstance=%d\n", pDrvIns->iInstance));
 
+    int rc = CFGMR3QueryBoolDef(pCfg, "InquiryOverwrite", &pThis->fInquiryOverwrite, true);
+    if (RT_FAILURE(rc))
+        return PDMDRV_SET_ERROR(pDrvIns, rc,
+                                N_("HostDVD configuration error: failed to read \"InquiryOverwrite\" as boolean"));
+
     bool fPassthrough;
-    int rc = CFGMR3QueryBool(pCfg, "Passthrough", &fPassthrough);
+    rc = CFGMR3QueryBool(pCfg, "Passthrough", &fPassthrough);
     if (RT_SUCCESS(rc) && fPassthrough)
     {
         pThis->Core.IMedia.pfnSendCmd            = drvHostDvdSendCmd;
@@ -446,7 +465,7 @@ static DECLCALLBACK(int) drvHostDvdConstruct(PPDMDRVINS pDrvIns, PCFGMNODE pCfg,
     /*
      * Init instance data.
      */
-    rc = DRVHostBaseInit(pDrvIns, pCfg, "Path\0Interval\0Locked\0BIOSVisible\0AttachFailError\0Passthrough\0",
+    rc = DRVHostBaseInit(pDrvIns, pCfg, "Path\0Interval\0Locked\0BIOSVisible\0AttachFailError\0Passthrough\0InquiryOverwrite\0",
                          PDMMEDIATYPE_DVD);
     LogFlow(("drvHostDvdConstruct: returns %Rrc\n", rc));
     return rc;

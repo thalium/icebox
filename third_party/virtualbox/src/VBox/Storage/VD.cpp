@@ -3507,7 +3507,8 @@ static int vdMetaXferCompleted(PVDIOSTORAGE pIoStorage, PFNVDXFERCOMPLETED pfnCo
                                PVDMETAXFER pMetaXfer, int rcReq)
 {
     PVDISK pDisk = pIoStorage->pVDIo->pDisk;
-    RTLISTNODE ListIoCtxWaiting;
+    RTLISTANCHOR ListIoCtxWaiting;
+    RTListInit(&ListIoCtxWaiting);
     bool fFlush;
 
     LogFlowFunc(("pIoStorage=%#p pfnComplete=%#p pvUser=%#p pMetaXfer=%#p rcReq=%Rrc\n",
@@ -4907,7 +4908,7 @@ static void vdFixupPCHSGeometry(PVDGEOMETRY pPCHS, uint64_t cbSize)
 }
 
 /**
- * internal: adjust PCHS geometry
+ * internal: adjust LCHS geometry
  */
 static void vdFixupLCHSGeometry(PVDGEOMETRY pLCHS, uint64_t cbSize)
 {
@@ -7158,6 +7159,7 @@ VBOXDDU_DECL(int) VDMerge(PVDISK pDisk, unsigned nImageFrom,
             /* Merge child state into parent. This means writing all blocks
              * which are allocated in the image up to the source image to the
              * destination image. */
+            unsigned uProgressOld = 0;
             uint64_t uOffset = 0;
             uint64_t cbRemaining = cbSize;
             do
@@ -7212,16 +7214,20 @@ VBOXDDU_DECL(int) VDMerge(PVDISK pDisk, unsigned nImageFrom,
                 uOffset += cbThisRead;
                 cbRemaining -= cbThisRead;
 
-                if (pIfProgress && pIfProgress->pfnProgress)
+                unsigned uProgressNew = uOffset * 99 / cbSize;
+                if (uProgressNew != uProgressOld)
                 {
-                    /** @todo r=klaus: this can update the progress to the same
-                     * percentage over and over again if the image format makes
-                     * relatively small increments. */
-                    rc = pIfProgress->pfnProgress(pIfProgress->Core.pvUser,
-                                                  uOffset * 99 / cbSize);
-                    if (RT_FAILURE(rc))
-                        break;
+                    uProgressOld = uProgressNew;
+
+                    if (pIfProgress && pIfProgress->pfnProgress)
+                    {
+                        rc = pIfProgress->pfnProgress(pIfProgress->Core.pvUser,
+                                                      uProgressOld);
+                        if (RT_FAILURE(rc))
+                            break;
+                    }
                 }
+
             } while (uOffset < cbSize);
 
             /* In case we set up a "write proxy" image above we must clear

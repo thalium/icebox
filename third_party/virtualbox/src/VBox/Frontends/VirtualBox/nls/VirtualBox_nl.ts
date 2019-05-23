@@ -1287,7 +1287,7 @@
     </message>
     <message>
         <source>&lt;b&gt;The appliance is signed by an unverified certificate issued to &apos;%1&apos;. We recommend to only proceed with the importing if you are sure you should trust this entity.&lt;/b&gt;</source>
-        <translation>&lt;b&gt;De appliance is getekend door een ongeverifieerd certificaat uitgegeven door &apos;%1&apos;. We raden aan alleen met importeren door te gaan als je echt weet met wie je te maken hebt.&lt;/b&gt;</translation>
+        <translation>&lt;b&gt;De appliance is getekend door een ongeverifieerd certificaat uitgegeven door &apos;%1&apos;. We raden aan alleen met importeren door te gaan als u echt weet met wie u te maken hebt.&lt;/b&gt;</translation>
     </message>
     <message>
         <source>True</source>
@@ -1429,27 +1429,27 @@
     <message>
         <source>Result&amp;nbsp;Code: </source>
         <comment>error info</comment>
-        <translation type="unfinished">Resultaatcode:</translation>
+        <translation>Resultaatcode:</translation>
     </message>
     <message>
         <source>Component: </source>
         <comment>error info</comment>
-        <translation type="unfinished">Component:</translation>
+        <translation>Component:</translation>
     </message>
     <message>
         <source>Interface: </source>
         <comment>error info</comment>
-        <translation type="unfinished">Interface:</translation>
+        <translation>Interface:</translation>
     </message>
     <message>
         <source>Callee: </source>
         <comment>error info</comment>
-        <translation type="unfinished">Callee:</translation>
+        <translation>Callee:</translation>
     </message>
     <message>
         <source>Callee&amp;nbsp;RC: </source>
         <comment>error info</comment>
-        <translation type="unfinished">Callee&amp;nbsp;RC: </translation>
+        <translation>Callee&amp;nbsp;RC: </translation>
     </message>
 </context>
 <context>
@@ -2686,7 +2686,7 @@
     </message>
     <message>
         <source>Supports &amp;DHCP</source>
-        <translation>Ondersteunt &amp;DCPH</translation>
+        <translation>Ondersteunt &amp;DHCP</translation>
     </message>
     <message>
         <source>Supports &amp;IPv6</source>
@@ -3292,11 +3292,11 @@
     </message>
     <message>
         <source>Adding network...</source>
-        <translation type="unfinished"></translation>
+        <translation>Toevoegen netwerk...</translation>
     </message>
     <message>
         <source>Removing network...</source>
-        <translation type="unfinished"></translation>
+        <translation>Verwijderen netwerk...</translation>
     </message>
 </context>
 <context>
@@ -4327,11 +4327,11 @@
     </message>
     <message>
         <source>When checked, VirtualBox will record the audio stream to video file as well.</source>
-        <translation type="unfinished"></translation>
+        <translation>Als dit is ingesteld zal VirtualBox ook het geluid van de video opnemen.</translation>
     </message>
     <message>
         <source>&amp;Record Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Geluid opnemen</translation>
     </message>
 </context>
 <context>
@@ -4382,19 +4382,19 @@
     </message>
     <message>
         <source>Enc&amp;ryption</source>
-        <translation>Ve&amp;rsleuteling</translation>
+        <translation type="vanished">Ve&amp;rsleuteling</translation>
     </message>
     <message>
         <source>When checked, enables encryption for this virtual machine.</source>
-        <translation>Als dit is ingesteld wordt versleuteling van deze machine ingeschakeld.</translation>
+        <translation type="vanished">Als dit is ingesteld wordt versleuteling van deze machine ingeschakeld.</translation>
     </message>
     <message>
         <source>En&amp;able Encryption</source>
-        <translation>Insch&amp;akelen versleuteling</translation>
+        <translation type="vanished">Insch&amp;akelen versleuteling</translation>
     </message>
     <message>
         <source>Encryption C&amp;ipher:</source>
-        <translation>Versleutelingscoder&amp;ing:</translation>
+        <translation type="vanished">Versleutelingscoder&amp;ing:</translation>
     </message>
     <message>
         <source>E&amp;nter New Password:</source>
@@ -4402,7 +4402,7 @@
     </message>
     <message>
         <source>Holds the password to be assigned to the virtual machine.</source>
-        <translation>Bevat het wachtwoord dat aan de virtuele machine moet worden toegewezen.</translation>
+        <translation type="vanished">Bevat het wachtwoord dat aan de virtuele machine moet worden toegewezen.</translation>
     </message>
     <message>
         <source>C&amp;onfirm New Password:</source>
@@ -4410,23 +4410,23 @@
     </message>
     <message>
         <source>Confirms the password to be assigned to the virtual machine.</source>
-        <translation>Bevestigd het wachtwoord dat aan de virtuele machine moet worden toegewezen.</translation>
+        <translation type="vanished">Bevestigd het wachtwoord dat aan de virtuele machine moet worden toegewezen.</translation>
     </message>
     <message>
         <source>You are trying to encrypt this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
-        <translation>U probeert deze virtuele machine te versleutelen. Hiervoor moet &lt;i&gt;%1&lt;/i&gt; zijn ge:installeerd. Installeer het Extention Pack van de downloadsite van VirtalBox.</translation>
+        <translation type="vanished">U probeert deze virtuele machine te versleutelen. Hiervoor moet &lt;i&gt;%1&lt;/i&gt; zijn ge:installeerd. Installeer het Extention Pack van de downloadsite van VirtalBox.</translation>
     </message>
     <message>
         <source>Encryption cipher type not specified.</source>
-        <translation>Versleutelingscoderingstype is niet gespecificeerd.</translation>
+        <translation type="vanished">Versleutelingscoderingstype is niet gespecificeerd.</translation>
     </message>
     <message>
         <source>Encryption password empty.</source>
-        <translation>Versleutelingswachtwoord is leeg.</translation>
+        <translation type="vanished">Versleutelingswachtwoord is leeg.</translation>
     </message>
     <message>
         <source>Encryption passwords do not match.</source>
-        <translation>Versleutelingswachtwoorden komen niet overeen.</translation>
+        <translation type="vanished">Versleutelingswachtwoorden komen niet overeen.</translation>
     </message>
     <message>
         <source>Leave Unchanged</source>
@@ -4440,6 +4440,46 @@
     <message>
         <source>Holds the path where snapshots of this virtual machine will be stored. Be aware that snapshots can take quite a lot of storage space.</source>
         <translation>Bevat het pad waar snapshots van deze virtuele machine worden opgeslagen. Wees er wel van bewust dat snapshots erg veel ruimte op de harde schijf kunnen innemen.</translation>
+    </message>
+    <message>
+        <source>Disk Enc&amp;ryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>When checked, disks attached to this virtual machine will be encrypted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>En&amp;able Disk Encryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk Encryption C&amp;ipher:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Holds the encryption password for disks attached to this virtual machine.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirms the disk encryption password.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are trying to enable disk encryption for this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption cipher type not specified.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption password empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption passwords do not match.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5753,6 +5793,38 @@
         <source>Cannot change medium size from &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt; as storage shrinking is currently not implemented.</source>
         <translation>Kan mediumgrootte niet veranderen van &lt;b&gt;%1&lt;/b&gt; naar &lt;b&gt;%2&lt;/b&gt; aangezien opslagverkleining momenteel niet geïmplementeerd is.</translation>
     </message>
+    <message>
+        <source>Choose Medium Location</source>
+        <translation>Mediumlocatie kiezen</translation>
+    </message>
+    <message>
+        <source>Location can not be empty.</source>
+        <translation>Locatie mag niet leeg zijn.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
+        <translation>Dit type medium is direct of indirect gekoppeld en wordt bewaard bij het nemen van snapshots.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
+        <translation>Dit type medium is indirect gekoppeld; bij de volgende start van de virtuele machine zijn alle veranderingen verdwenen.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, ignored when taking snapshots.</source>
+        <translation>Dit type medium is direct gekoppeld en wordt genegeerd bij het nemen van snapshots.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
+        <translation>Dit type medium is direct gekoppeld; diverse machines mogen tegelijkertijd dit medium gebruiken.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, and can be used by several machines.</source>
+        <translation>Dit type medium is direct gekoppeld en kan door diverse machines worden gebruikt.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
+        <translation>Dit type medium is indirect gekoppeld. Hierdoor kan één basismedium worden gebruikt voor diverse VMs met ieder hun eigen differencingmachine om modificaties op te slaan.</translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManager</name>
@@ -5820,7 +5892,7 @@
     </message>
     <message>
         <source>Copy selected disk image file</source>
-        <translation>Kopiëer geselecteerd disk-imagebestand</translation>
+        <translation>Kopiëren geselecteerd disk-imagebestand</translation>
     </message>
     <message>
         <source>&amp;Remove...</source>
@@ -5920,30 +5992,50 @@
     </message>
     <message>
         <source>Copy Disk Image File (%1)</source>
-        <translation type="unfinished">Kopiëer disk-imagebestand (%1)</translation>
+        <translation>Kopiëren disk-imagebestand (%1)</translation>
     </message>
     <message>
         <source>Remove Disk Image File (%1)</source>
-        <translation type="unfinished">Verwijderen disk-imagebestand (%1)</translation>
+        <translation>Verwijderen disk-imagebestand (%1)</translation>
     </message>
     <message>
         <source>Release Disk Image File (%1)</source>
-        <translation type="unfinished">Vrijgeven disk-imagebestand (%1)</translation>
+        <translation>Vrijgeven disk-imagebestand (%1)</translation>
     </message>
     <message>
         <source>Open Disk Image File Properties (%1)</source>
-        <translation type="unfinished">Openen disk-imagebestand-eigenschappen(%1)</translation>
+        <translation>Openen disk-imagebestand-eigenschappen(%1)</translation>
     </message>
     <message>
         <source>Refresh Disk Image Files (%1)</source>
-        <translation type="unfinished">Verversen disk-imagebestanden (%1)</translation>
+        <translation>Verversen disk-imagebestanden (%1)</translation>
+    </message>
+    <message>
+        <source>Current extension (*.%1)</source>
+        <translation>Huidige extensie (*.%1)</translation>
+    </message>
+    <message>
+        <source>Choose the location of this medium</source>
+        <translation>De locatie van dit medium kiezen</translation>
+    </message>
+    <message>
+        <source>&amp;Move...</source>
+        <translation>&amp;Verplaatsen...</translation>
+    </message>
+    <message>
+        <source>Move Disk Image File (%1)</source>
+        <translation>Verplaatsen disk-imagebestand (%1)</translation>
+    </message>
+    <message>
+        <source>Move selected disk image file</source>
+        <translation>Verplaatsen geselecteerd disk-imagebestand</translation>
     </message>
 </context>
 <context>
     <name>UIMediumManagerWidget</name>
     <message>
         <source>Copy Disk Image File (%1)</source>
-        <translation type="vanished">Kopiëer disk-imagebestand (%1)</translation>
+        <translation type="vanished">Kopiëren disk-imagebestand (%1)</translation>
     </message>
     <message>
         <source>Remove Disk Image File (%1)</source>
@@ -5977,40 +6069,40 @@
     <name>UIMediumTypeChangeDialog</name>
     <message>
         <source>Modify medium attributes</source>
-        <translation>Bewerk mediumattributen</translation>
+        <translation type="vanished">Bewerk mediumattributen</translation>
     </message>
     <message>
         <source>&lt;p&gt;You are about to change the settings of the disk image file &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Please choose one of the following modes and press &lt;b&gt;%2&lt;/b&gt; to proceed or &lt;b&gt;%3&lt;/b&gt; otherwise.&lt;/p&gt;</source>
         <translatorcomment>%2=de knop OK  %3=de knop CANCEL</translatorcomment>
-        <translation>&lt;p&gt;U staat op het punt de attributen van de virtuele schijf op plek &lt;b&gt;%1&lt;/b&gt; te veranderen.&lt;/p&gt;&lt;p&gt;Kies hieronder een mediumtype en druk op &lt;b&gt;%2&lt;/b&gt; om door te gaan, of &lt;b&gt;%3&lt;/b&gt;.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;U staat op het punt de attributen van de virtuele schijf op plek &lt;b&gt;%1&lt;/b&gt; te veranderen.&lt;/p&gt;&lt;p&gt;Kies hieronder een mediumtype en druk op &lt;b&gt;%2&lt;/b&gt; om door te gaan, of &lt;b&gt;%3&lt;/b&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose mode:</source>
-        <translation>Kies mediumtype:</translation>
+        <translation type="vanished">Kies mediumtype:</translation>
     </message>
     <message>
         <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
-        <translation>Dit type medium is direct of indirect gekoppeld en wordt bewaard bij het nemen van snapshots.</translation>
+        <translation type="vanished">Dit type medium is direct of indirect gekoppeld en wordt bewaard bij het nemen van snapshots.</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
-        <translation>Dit type medium is direct gekoppeld; bij de volgende start van de virtuele machine zijn alle veranderingen verdwenen.</translation>
+        <translation type="vanished">Dit type medium is direct gekoppeld; bij de volgende start van de virtuele machine zijn alle veranderingen verdwenen.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, ignored when taking snapshots.</source>
-        <translation>Dit type medium is direct gekoppeld en wordt genegeerd bij het nemen van snapshots.</translation>
+        <translation type="vanished">Dit type medium is direct gekoppeld en wordt genegeerd bij het nemen van snapshots.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
-        <translation>Dit type medium is direct gekoppeld; diverse machines mogen tegelijkertijd dit medium gebruiken.</translation>
+        <translation type="vanished">Dit type medium is direct gekoppeld; diverse machines mogen tegelijkertijd dit medium gebruiken.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, and can be used by several machines.</source>
-        <translation>Dit type medium is direct gekoppeld en kan door diverse machines worden gebruikt.</translation>
+        <translation type="vanished">Dit type medium is direct gekoppeld en kan door diverse machines worden gebruikt.</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
-        <translation>Dit type medium is indirect gekoppeld. Hierdoor kan één basismedium worden gebruikt voor diverse VMs met ieder hun eigen differencingmachine om modificaties op te slaan.</translation>
+        <translation type="vanished">Dit type medium is indirect gekoppeld. Hierdoor kan één basismedium worden gebruikt voor diverse VMs met ieder hun eigen differencingmachine om modificaties op te slaan.</translation>
     </message>
 </context>
 <context>
@@ -6207,7 +6299,7 @@
     </message>
     <message>
         <source>&lt;p&gt;A fatal error has occurred during virtual machine execution! The virtual machine will be powered off. Please copy the following error message using the clipboard to help diagnose the problem:&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Een fatale fout is opgetreden tijdens de werking van de virtuele machine! De virtuele machine zal worden uitgezet. Het is zinvol om de volgende foutboodschap naar het klembord te kopieren, wat helpt bij diagnose van het probleem:&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Een fatale fout is opgetreden tijdens de werking van de virtuele machine! De virtuele machine zal worden uitgezet. Het is zinvol om de volgende foutboodschap naar het klembord te kopiëren, wat helpt bij diagnose van het probleem:&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An error has occurred during virtual machine execution! The error details are shown below. You may try to correct the error and resume the virtual machine execution.&lt;/p&gt;</source>
@@ -6311,7 +6403,7 @@
     <message>
         <source>You are already running the most recent version of VirtualBox.</source>
         <translatorcomment>Tekst zo ivm uitvullen in mededelingschermpje, is terugmelding als je handmatig controleert op updates</translatorcomment>
-        <translation>U hebt de meest recente versie van VirtualBox.</translation>
+        <translation>U heeft de meest recente versie van VirtualBox.</translation>
     </message>
     <message>
         <source>&lt;p&gt;You have &lt;b&gt;clicked the mouse&lt;/b&gt; inside the Virtual Machine display or pressed the &lt;b&gt;host key&lt;/b&gt;. This will cause the Virtual Machine to &lt;b&gt;capture&lt;/b&gt; the host mouse pointer (only if the mouse pointer integration is not currently supported by the guest OS) and the keyboard, which will make them unavailable to other applications running on your host machine.&lt;/p&gt;&lt;p&gt;You can press the &lt;b&gt;host key&lt;/b&gt; at any time to &lt;b&gt;uncapture&lt;/b&gt; the keyboard and mouse (if it is captured) and return them to normal operation. The currently assigned host key is shown on the status bar at the bottom of the Virtual Machine window, next to the&amp;nbsp;&lt;img src=:/hostkey_16px.png/&gt;&amp;nbsp;icon. This icon, together with the mouse icon placed nearby, indicate the current keyboard and mouse capture state.&lt;/p&gt;</source>
@@ -7221,7 +7313,15 @@
     </message>
     <message>
         <source>Failed to change the snapshot &lt;b&gt;%1&lt;/b&gt; of the virtual machine &lt;b&gt;%2&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kan snapshot &lt;b&gt;%1&lt;/b&gt; van virtuele machine &lt;b&gt;%2&lt;/b&gt;.niet veranderen.</translation>
+    </message>
+    <message>
+        <source>Failed to create the virtual disk image storage &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</source>
+        <translation>Het is niet gelukt de virtuele schijf-image-opslag &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; aan te maken</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Voor de veranderingen die u wilt aanbrengen moet deze schijf worden losgekoppeld van de machines waar het aan gekoppeld zit.&lt;/p&gt;&lt;p&gt;Weet u zeker dat u schijf-imagebestand &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; wilt loskoppelen?&lt;/p&gt;&lt;p&gt;Het betreft de volgende virtuele machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -7715,7 +7815,7 @@
     <name>UISnapshotDetailsWidget</name>
     <message>
         <source>&lt;p&gt;You have the &lt;b&gt;Current State&lt;/b&gt; item selected.&lt;br&gt;Press the &lt;b&gt;Take&lt;/b&gt; button if you wish to take a new snapshot.&lt;/p&gt;</source>
-        <translation type="vanished">&lt;p&gt;U heeft &lt;b&gt;Huidige Status&lt;/b&gt; geselecteerd.&lt;br&gt;Klik op de &lt;b&gt;Neem&lt;/b&gt;-knop als u een nieuw snapshot wilt nemen.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;U heeft &lt;b&gt;Huidige Status&lt;/b&gt; geselecteerd.&lt;br&gt;Klik op de &lt;b&gt;Nemen&lt;/b&gt;-knop als u een nieuw snapshot wilt nemen.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&amp;Attributes</source>
@@ -7775,23 +7875,23 @@
     </message>
     <message>
         <source>Enter a name for the new snapshot...</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestandsnaam voor nieuw snapshot...</translation>
     </message>
     <message>
         <source>Enter a name for this snapshot...</source>
-        <translation type="unfinished"></translation>
+        <translation>Bestandsnaam voor dit snapshot...</translation>
     </message>
     <message>
         <source>Take</source>
-        <translation type="unfinished"></translation>
+        <translation>Nemen</translation>
     </message>
     <message>
         <source>Take snapshot on the basis of current machine state</source>
-        <translation type="unfinished"></translation>
+        <translation>Snapshot maken van huidige staat van virtuele machine</translation>
     </message>
     <message>
         <source>Take Snapshot (%1)</source>
-        <translation type="unfinished">Neem snapshot (%1)</translation>
+        <translation>Snapshot nemen (%1)</translation>
     </message>
 </context>
 <context>
@@ -7855,7 +7955,7 @@
     </message>
     <message>
         <source>&amp;Take...</source>
-        <translation>&amp;Neem...</translation>
+        <translation>&amp;Nemen...</translation>
     </message>
     <message>
         <source>&amp;Delete</source>
@@ -7875,7 +7975,7 @@
     </message>
     <message>
         <source>Take Snapshot (%1)</source>
-        <translation>Neem snapshot (%1)</translation>
+        <translation>Snapshot nemen (%1)</translation>
     </message>
     <message>
         <source>Delete Snapshot (%1)</source>
@@ -8000,7 +8100,7 @@
     </message>
     <message>
         <source>Tool to observe virtual storage media. Reflects all the chains of &lt;u&gt;virtual disks&lt;/u&gt; you have registered (per each storage type) within your virtual machines and allows for media operations like &lt;u&gt;copy&lt;/u&gt;, &lt;u&gt;remove&lt;/u&gt;, &lt;u&gt;release&lt;/u&gt; (detach it from VMs where it is currently attached to) and observe their properties. Allows to &lt;u&gt;edit&lt;/u&gt; medium attributes like &lt;u&gt;type&lt;/u&gt;, &lt;u&gt;location/name&lt;/u&gt;, &lt;u&gt;description&lt;/u&gt; and &lt;u&gt;size&lt;/u&gt; (for dynamical storages only).</source>
-        <translation>Om virtuele opslagmedia mee te bekijken. Toont alle ketens van &lt;u&gt;virtuele schijven&lt;/u&gt; die je hebt geregistreerd (per opslagtype) binnen de virtuele machines en maakt mediabewerkingen als &lt;u&gt;kopiëren&lt;/u&gt;, &lt;u&gt;verwijderen&lt;/u&gt;, &lt;u&gt;vrijgeven&lt;/u&gt; (afkoppelen van VMs waar het op dat moment aan verbonden was) en het bekijken van hun eigenschappen mogenlijk. Steld in staat media-attributen te &lt;u&gt;bewerken&lt;/u&gt; als &lt;u&gt;type&lt;/u&gt;, &lt;u&gt;locatie/naam&lt;/u&gt;, &lt;u&gt;beschrijving&lt;/u&gt; en &lt;u&gt;grootte&lt;/u&gt; (alleen bij dynamische opslag).</translation>
+        <translation>Om virtuele opslagmedia mee te bekijken. Toont alle ketens van &lt;u&gt;virtuele schijven&lt;/u&gt; die u heeft geregistreerd (per opslagtype) binnen de virtuele machines en maakt mediabewerkingen als &lt;u&gt;kopiëren&lt;/u&gt;, &lt;u&gt;verwijderen&lt;/u&gt;, &lt;u&gt;vrijgeven&lt;/u&gt; (afkoppelen van VMs waar het op dat moment aan verbonden was) en het bekijken van hun eigenschappen mogenlijk. Steld in staat media-attributen te &lt;u&gt;bewerken&lt;/u&gt; als &lt;u&gt;type&lt;/u&gt;, &lt;u&gt;locatie/naam&lt;/u&gt;, &lt;u&gt;beschrijving&lt;/u&gt; en &lt;u&gt;grootte&lt;/u&gt; (alleen bij dynamische opslag).</translation>
     </message>
     <message>
         <source>Tool to control host-only network interfaces. Reflects &lt;u&gt;host-only networks&lt;/u&gt;, their DHCP servers and allows for operations on the networks like possibility to &lt;u&gt;create&lt;/u&gt;, &lt;u&gt;remove&lt;/u&gt; and observe their properties. Allows to &lt;u&gt;edit&lt;/u&gt; various &lt;u&gt;attributes&lt;/u&gt; for host-only interface and corresponding DHCP server.</source>
@@ -8412,31 +8512,31 @@
     <message>
         <source>%1_copy</source>
         <comment>copied virtual hard drive name</comment>
-        <translation>%1_copy</translation>
+        <translation type="vanished">%1_kopie</translation>
     </message>
     <message>
         <source>Copy Virtual Hard Disk</source>
-        <translation>Kopieer Virtuele Schijf</translation>
+        <translation type="vanished">Kopiëren Virtuele Schijf</translation>
     </message>
     <message>
         <source>Hard disk to copy</source>
-        <translation>Te kopiëren harde schijf</translation>
+        <translation type="vanished">Te kopiëren harde schijf</translation>
     </message>
     <message>
         <source>&lt;p&gt;Please select the virtual hard disk file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Kies een virtuele schijf om te kopiëren als u deze nog niet geselecteerd hebt. U kunt een schijf kiezen uit de lijst of door op de mappenicoon naast de lijst te klikken en daar een schijfbestand te kiezen.&lt;p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Kies een virtuele schijf om te kopiëren als u deze nog niet geselecteerd hebt. U kunt een schijf kiezen uit de lijst of door op de mappenicoon naast de lijst te klikken en daar een schijfbestand te kiezen.&lt;p&gt;</translation>
     </message>
     <message>
         <source>Choose a virtual hard disk file to copy...</source>
-        <translation>Kies een te kopiëren virtuele harde schijf bestand...</translation>
+        <translation type="vanished">Kies een te kopiëren virtuele harde schijf bestand...</translation>
     </message>
     <message>
         <source>Hard disk file type</source>
-        <translation>Bestandstype harde schijf</translation>
+        <translation type="vanished">Bestandstype harde schijf</translation>
     </message>
     <message>
         <source>Please choose the type of file that you would like to use for the new virtual hard disk. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
-        <translation>Kies het bestandstype dat u voor deze nieuwe virtuele schijf wilt gebruiken. Indien u niet van plan bent deze virtuele schijf met andersoortige virtualisatiesoftware te gebruiken kunt u deze instelling onveranderd laten.</translation>
+        <translation type="vanished">Kies het bestandstype dat u voor deze nieuwe virtuele schijf wilt gebruiken. Indien u niet van plan bent deze virtuele schijf met andersoortige virtualisatiesoftware te gebruiken kunt u deze instelling onveranderd laten.</translation>
     </message>
     <message>
         <source>Storage on physical hard disk</source>
@@ -8444,47 +8544,120 @@
     </message>
     <message>
         <source>Please choose whether the new virtual hard disk file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
-        <translation>Kies of het nieuwe virtuele schijf bestand naar de maximale grootte moet groeien door gebruik (dynamisch gealloceerd) of dat het op de maximale grootte moet worden aangemaakt (gefixeerde grootte).</translation>
+        <translation type="vanished">Kies of het nieuwe virtuele schijf bestand naar de maximale grootte moet groeien door gebruik (dynamisch gealloceerd) of dat het op de maximale grootte moet worden aangemaakt (gefixeerde grootte).</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; hard disk file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Een &lt;b&gt;dynamisch gealloceerd&lt;/b&gt; virtuele schijf bestand zal tijdens gebruik tot de aangegeven maximale grootte groeien (tot een maximum &lt;b&gt;gefixeerde grootte&lt;/b&gt;).Het schijfbestand zal echter niet automatisch krimpen wanneer ruimte wordt vrijgemaakt.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Een &lt;b&gt;dynamisch gealloceerd&lt;/b&gt; virtuele schijf bestand zal tijdens gebruik tot de aangegeven maximale grootte groeien (tot een maximum &lt;b&gt;gefixeerde grootte&lt;/b&gt;).Het schijfbestand zal echter niet automatisch krimpen wanneer ruimte wordt vrijgemaakt.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; hard disk file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Aanmaken van een virtuele schijf bestand van &lt;b&gt;gefixeerde grootte&lt;/b&gt; kan op sommige systemen langer duren, maar is vaak sneller in het gebruik.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Aanmaken van een virtuele schijf bestand van &lt;b&gt;gefixeerde grootte&lt;/b&gt; kan op sommige systemen langer duren, maar is vaak sneller in het gebruik.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the hard disk file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
-        <translation>&lt;p&gt;U kunt er ook voor kiezen het virtueel schijfbestand &lt;b&gt;te splitsen&lt;/b&gt; in meerdere bestanden van maximaal twee gigabytes elk. Dit is hoofdzakelijk handig indien u de virtuele machine wilt opslaan op verwijderbare USB-apparaten of op oudere systemen, waarvan sommige niet kunnen omgaan met erg grote bestanden.</translation>
+        <translation type="vanished">&lt;p&gt;U kunt er ook voor kiezen het virtueel schijfbestand &lt;b&gt;te splitsen&lt;/b&gt; in meerdere bestanden van maximaal twee gigabytes elk. Dit is hoofdzakelijk handig indien u de virtuele machine wilt opslaan op verwijderbare USB-apparaten of op oudere systemen, waarvan sommige niet kunnen omgaan met erg grote bestanden.</translation>
     </message>
     <message>
         <source>Please choose a location for new virtual hard disk file</source>
-        <translation>Kies een lokatie voor het nieuwe virtuele harde schijf bestand</translation>
+        <translation type="vanished">Kies een lokatie voor het nieuwe virtuele harde schijf bestand</translation>
     </message>
     <message>
         <source>New hard disk to create</source>
-        <translation>Nieuw aan te maken harde schijf</translation>
+        <translation type="vanished">Nieuw aan te maken harde schijf</translation>
     </message>
     <message>
         <source>Please type the name of the new virtual hard disk file into the box below or click on the folder icon to select a different folder to create the file in.</source>
-        <translation>Typ de naam van de nieuwe virtuele schijf in de ruimte beneden of klik op het mapicoontje, kies een andere map en maak daar het bestand in aan.</translation>
+        <translation type="vanished">Typ de naam van de nieuwe virtuele schijf in de ruimte beneden of klik op het mapicoontje, kies een andere map en maak daar het bestand in aan.</translation>
     </message>
     <message>
         <source>Choose a location for new virtual hard disk file...</source>
-        <translation>Kies een lokatie voor het nieuwe virtuele harde schijf bestand...</translation>
+        <translation type="vanished">Kies een lokatie voor het nieuwe virtuele harde schijf bestand...</translation>
     </message>
     <message>
         <source>Hard disk to &amp;copy</source>
-        <translation>Te kopieren harde s&amp;chijf</translation>
+        <translation type="vanished">Te kopiëren harde s&amp;chijf</translation>
     </message>
     <message>
         <source>&amp;New hard disk to create</source>
-        <translation>&amp;Nieuw aan te maken harde schijf</translation>
+        <translation type="vanished">&amp;Nieuw aan te maken harde schijf</translation>
     </message>
     <message>
         <source>Hard disk file &amp;type</source>
-        <translation>Bestands&amp;type harde schijf</translation>
+        <translation type="vanished">Bestands&amp;type harde schijf</translation>
+    </message>
+    <message>
+        <source>Copy Virtual Disk Image</source>
+        <translation>Kopiëren Virtueel Schijfbestand</translation>
+    </message>
+    <message>
+        <source>Disk image to copy</source>
+        <translation>Te kopiëren schijf-image</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Please select the virtual disk image file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Kies een virtueel schijfbestand om te kopiëren als u deze nog niet geselecteerd heeft. U kunt een schijfbestand kiezen uit de lijst of door op de mappenicoon naast de lijst te klikken en daar een schijfbestand te kiezen.&lt;p&gt;</translation>
+    </message>
+    <message>
+        <source>Choose a virtual disk image file to copy...</source>
+        <translation>Kies een te kopiëren virtueel harde schijf-imagebestand...</translation>
+    </message>
+    <message>
+        <source>Disk image file type</source>
+        <translation>Bestandstype schijf-image</translation>
+    </message>
+    <message>
+        <source>Please choose the type of file that you would like to use for the new virtual disk image. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
+        <translation>Kies het bestandstype dat u voor deze nieuwe virtuele schijf-image wilt gebruiken. Indien u niet van plan bent deze virtuele schijf-image met andersoortige virtualisatiesoftware te gebruiken kunt u deze instelling onveranderd laten.</translation>
+    </message>
+    <message>
+        <source>Please choose whether the new virtual disk image file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
+        <translation>Kies of het nieuwe virtuele schijf-imagebestand naar de maximale grootte moet groeien door gebruik (dynamisch gealloceerd) of dat het op de maximale grootte moet worden aangemaakt (gefixeerde grootte).</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; disk image file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Een &lt;b&gt;dynamisch gealloceerd&lt;/b&gt; virtuele schijf-imagebestand zal tijdens gebruik tot de aangegeven maximale grootte groeien (tot een maximum &lt;b&gt;gefixeerde grootte&lt;/b&gt;).Het schijf-imagebestand zal echter niet automatisch krimpen wanneer ruimte wordt vrijgemaakt.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; disk image file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Aanmaken van een virtuele schijf-imagebestand van &lt;b&gt;gefixeerde grootte&lt;/b&gt; kan op sommige systemen langer duren, maar is vaak sneller in het gebruik.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the disk image file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
+        <translation>&lt;p&gt;U kunt er ook voor kiezen het virtueel schijf-imagebestand &lt;b&gt;te splitsen&lt;/b&gt; in meerdere bestanden van maximaal twee gigabytes elk. Dit is hoofdzakelijk handig indien u de virtuele machine wilt opslaan op verwijderbare USB-apparaten of op oudere systemen, waarvan sommige niet kunnen omgaan met erg grote bestanden.</translation>
+    </message>
+    <message>
+        <source>Please choose a location for new virtual disk image file</source>
+        <translation>Kies een lokatie voor het nieuwe virtuele harde schijf-imagebestand</translation>
+    </message>
+    <message>
+        <source>New disk image to create</source>
+        <translation>Nieuw aan te maken schijf-image</translation>
+    </message>
+    <message>
+        <source>Please type the name of the new virtual disk image file into the box below or click on the folder icon to select a different folder to create the file in.</source>
+        <translation>Typ de naam van het nieuwe virtuele schijf-imagebestand in de ruimte beneden of klik op het mapicoontje, kies een andere map en maak daar het bestand in aan.</translation>
+    </message>
+    <message>
+        <source>Choose a location for new virtual disk image file...</source>
+        <translation>Kies een lokatie voor het nieuwe virtuele harde schijf-imagebestand...</translation>
+    </message>
+    <message>
+        <source>%1_copy</source>
+        <comment>copied virtual disk image name</comment>
+        <translation>%1_kopie</translation>
+    </message>
+    <message>
+        <source>Disk image to &amp;copy</source>
+        <translation>Te &amp;kopiëren schijf-image</translation>
+    </message>
+    <message>
+        <source>&amp;New disk image to create</source>
+        <translation>&amp;Nieuw aan te maken schijf-image</translation>
+    </message>
+    <message>
+        <source>Disk image file &amp;type</source>
+        <translation>Bestands&amp;type schijf-image</translation>
     </message>
 </context>
 <context>
@@ -8937,7 +9110,7 @@
     </message>
     <message>
         <source>Create Virtual Hard Disk</source>
-        <translation>Maak een nieuwe virtuele schijf</translation>
+        <translation>Nieuwe virtuele schijf aanmaken</translation>
     </message>
     <message>
         <source>Hard disk file type</source>

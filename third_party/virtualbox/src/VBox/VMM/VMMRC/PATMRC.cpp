@@ -46,17 +46,12 @@
  * @callback_method_impl{FNPGMRZPHYSPFHANDLER,
  *      PATM all access handler callback.}
  *
- * @remarks The @a pvUser argument is the base address of the page being
- *          monitored.
+ * @remarks pvUser is NULL.
  */
 DECLEXPORT(VBOXSTRICTRC) patmRCVirtPagePfHandler(PVM pVM, PVMCPU pVCpu, RTGCUINT uErrorCode, PCPUMCTXCORE pCtxCore,
                                                  RTGCPTR pvFault, RTGCPTR pvRange, uintptr_t offRange, void *pvUser)
 {
     NOREF(pVCpu); NOREF(uErrorCode); NOREF(pCtxCore); NOREF(pvFault); NOREF(pvRange); NOREF(offRange); RT_NOREF_PV(pvUser);
-
-    Assert(pvUser);
-    Assert(!((uintptr_t)pvUser & PAGE_OFFSET_MASK));
-    Assert(((uintptr_t)pvUser + (pvFault & PAGE_OFFSET_MASK)) == pvRange + offRange);
 
     pVM->patm.s.pvFaultMonitor = (RTRCPTR)(pvRange + offRange);
     return VINF_PATM_CHECK_PATCH_PAGE;

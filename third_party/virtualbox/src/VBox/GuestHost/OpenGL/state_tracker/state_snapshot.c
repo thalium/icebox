@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2008-2016 Oracle Corporation
+ * Copyright (C) 2008-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -37,11 +37,11 @@
  * The drawback is we have to deal with all the pointers around those structures,
  * we'd have to update this code if we'd change state tracking.
  * On the bright side it's fast, though it's not really needed as it's not that often operation.
- * It could also worth to split those functions into appropriate parts, 
+ * It could also worth to split those functions into appropriate parts,
  * similar to the way context creation is being done.
  *
  * Second way would be to implement full dispatch api table and substitute diff_api during saving/loading.
- * Then if we implement that api in a similar way to packer/unpacker with a change to store/load 
+ * Then if we implement that api in a similar way to packer/unpacker with a change to store/load
  * via provided pSSM handle instead of pack buffer,
  * saving state could be done by simple diffing against empty "dummy" context.
  * Restoring state in such case would look like unpacking commands from pSSM instead of network buffer.
@@ -399,7 +399,7 @@ static int32_t crStateSaveTextureObjData(CRTextureObj *pTexture, PSSMHANDLE pSSM
 {
     int32_t rc, face, i;
     GLint bound = 0;
-    
+
     CRASSERT(pTexture && pSSM);
 
     crDebug("crStateSaveTextureObjData %u. START", pTexture->id);
@@ -418,7 +418,7 @@ static int32_t crStateSaveTextureObjData(CRTextureObj *pTexture, PSSMHANDLE pSSM
                 AssertRCReturn(rc, rc);
             }
 #ifdef CR_STATE_NO_TEXTURE_IMAGE_STORE
-            /* Note, this is not a bug. 
+            /* Note, this is not a bug.
              * Even with CR_STATE_NO_TEXTURE_IMAGE_STORE defined, it's possible that ptl->img!=NULL.
              * For ex. we're saving snapshot right after it was loaded
              * and some context hasn't been used by the guest application yet
@@ -514,7 +514,7 @@ static int32_t crStateSaveTextureObjData(CRTextureObj *pTexture, PSSMHANDLE pSSM
                     }
 #endif
 
-                    /*@todo: ugly workaround for crashes inside ati driver,
+                    /** @todo ugly workaround for crashes inside ati driver,
                      *       they overwrite their own allocated memory in cases where texlevel >=4
                              and width or height <=2.
                      */
@@ -558,7 +558,7 @@ static int32_t crStateSaveTextureObjData(CRTextureObj *pTexture, PSSMHANDLE pSSM
 static int32_t crStateLoadTextureObjData(CRTextureObj *pTexture, PSSMHANDLE pSSM)
 {
     int32_t rc, face, i;
-    
+
     CRASSERT(pTexture && pSSM);
 
     for (face = 0; face < 6; face++) {
@@ -622,7 +622,7 @@ static int32_t crStateSaveMatrixStack(CRMatrixStack *pStack, PSSMHANDLE pSSM)
 static int32_t crStateLoadMatrixStack(CRMatrixStack *pStack, PSSMHANDLE pSSM)
 {
     int32_t rc;
-    
+
     CRASSERT(pStack && pSSM);
 
     rc = SSMR3GetMem(pSSM, pStack->stack, sizeof(CRmatrix) * pStack->maxDepth);
@@ -1220,7 +1220,7 @@ static void crStateSaveGLSLProgramCB(unsigned long key, void *data1, void *data2
                 CRASSERT(rc == VINF_SUCCESS);
 
                 crStateSaveString(name, pSSM);
-            
+
                 if (crStateIsIntUniform(type))
                 {
                     diff_api.GetUniformiv(pProgram->hwid, location, &idata[0]);
@@ -1596,7 +1596,7 @@ int32_t crStateSaveContext(CRContext *pContext, PSSMHANDLE pSSM)
     AssertRCReturn(rc, rc);
 
     /* Save attrib stack*/
-    /*@todo could go up to used stack depth here?*/
+    /** @todo could go up to used stack depth here?*/
     for ( i = 0 ; i < CR_MAX_ATTRIB_STACK_DEPTH ; i++)
     {
         if (pContext->attrib.enableStack[i].clip)
@@ -2111,12 +2111,12 @@ int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRST
 # endif
 #endif /*CR_ARB_vertex_buffer_object*/
 
-    /*@todo CR_NV_vertex_program*/
+    /** @todo CR_NV_vertex_program*/
     crStateCopyEvalPtrs1D(pTmpContext->eval.eval1D, pContext->eval.eval1D);
     crStateCopyEvalPtrs2D(pTmpContext->eval.eval2D, pContext->eval.eval2D);
-    
-    SLC_COPYPTR(feedback.buffer);  /*@todo*/
-    SLC_COPYPTR(selection.buffer); /*@todo*/
+
+    SLC_COPYPTR(feedback.buffer);  /** @todo */
+    SLC_COPYPTR(selection.buffer); /** @todo */
 
     SLC_COPYPTR(lighting.light);
 
@@ -2124,7 +2124,7 @@ int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRST
     SLC_COPYPTR(limits.extensions);
 
 #if CR_ARB_occlusion_query
-    SLC_COPYPTR(occlusion.objects); /*@todo*/
+    SLC_COPYPTR(occlusion.objects); /** @todo */
 #endif
 
     SLC_COPYPTR(program.errorString);
@@ -2386,7 +2386,7 @@ int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRST
             pBufferObj->data = crAlloc(pBufferObj->size);
             rc = SSMR3GetMem(pSSM, pBufferObj->data, pBufferObj->size);
             AssertRCReturn(rc, rc);
-        } 
+        }
         else if (pBufferObj->id!=0 && pBufferObj->size>0)
         {
             rc = SSMR3GetMem(pSSM, &pBufferObj->data, sizeof(pBufferObj->data));
@@ -2402,7 +2402,7 @@ int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRST
 
 
         if (key!=0)
-            crHashtableAdd(pContext->shared->buffersTable, key, pBufferObj);        
+            crHashtableAdd(pContext->shared->buffersTable, key, pBufferObj);
     }
     /* Load pointers */
 #define CRS_GET_BO(name) (((name)==0) ? (pContext->bufferobject.nullBuffer) : crHashtableSearch(pContext->shared->buffersTable, name))
@@ -2457,7 +2457,7 @@ int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRST
         AssertRCReturn(rc, rc);
         crHashtableAdd(pContext->program.programHash, pProgram->id, pProgram);
         //DIRTY(pProgram->dirtyProgram, pContext->neg_bitid);
-        
+
     }
     /* Load Pointers */
     rc = SSMR3GetU32(pSSM, &ui);
@@ -2527,17 +2527,17 @@ int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRST
 
     rc = SSMR3GetU32(pSSM, &ui);
     AssertRCReturn(rc, rc);
-    pContext->framebufferobject.drawFB = ui==0 ? NULL 
+    pContext->framebufferobject.drawFB = ui==0 ? NULL
                                                : crHashtableSearch(pContext->shared->fbTable, ui);
 
     rc = SSMR3GetU32(pSSM, &ui);
     AssertRCReturn(rc, rc);
-    pContext->framebufferobject.readFB = ui==0 ? NULL 
+    pContext->framebufferobject.readFB = ui==0 ? NULL
                                                : crHashtableSearch(pContext->shared->fbTable, ui);
 
     rc = SSMR3GetU32(pSSM, &ui);
     AssertRCReturn(rc, rc);
-    pContext->framebufferobject.renderbuffer = ui==0 ? NULL 
+    pContext->framebufferobject.renderbuffer = ui==0 ? NULL
                                                      : crHashtableSearch(pContext->shared->rbTable, ui);
 
     /* Mark FBOs/RBOs for resending to GPU */
@@ -2590,7 +2590,7 @@ int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRST
             crHashtableAdd(pProgram->currentState.attachedShaders, key, crHashtableSearch(pContext->glsl.shaders, key));
         }
 
-        if (pProgram->activeState.attachedShaders)  
+        if (pProgram->activeState.attachedShaders)
         {
             pProgram->activeState.attachedShaders = crAllocHashtable();
 
@@ -2605,7 +2605,7 @@ int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRST
             }
         }
 
-        if (pProgram->currentState.cAttribs) 
+        if (pProgram->currentState.cAttribs)
             pProgram->currentState.pAttribs = (CRGLSLAttrib*) crAlloc(pProgram->currentState.cAttribs*sizeof(CRGLSLAttrib));
         for (k=0; k<pProgram->currentState.cAttribs; ++k)
         {
@@ -2614,7 +2614,7 @@ int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRST
             pProgram->currentState.pAttribs[k].name = crStateLoadString(pSSM);
         }
 
-        if (pProgram->activeState.cAttribs) 
+        if (pProgram->activeState.cAttribs)
             pProgram->activeState.pAttribs = (CRGLSLAttrib*) crAlloc(pProgram->activeState.cAttribs*sizeof(CRGLSLAttrib));
         for (k=0; k<pProgram->activeState.cAttribs; ++k)
         {

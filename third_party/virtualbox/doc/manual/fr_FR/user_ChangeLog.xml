@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-  "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+  "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter id="ChangeLog">
   <title>Historique des changements</title>
 
@@ -83,7 +83,7 @@
       </listitem>
 
       <listitem>
-        <para>VMM : correction d'une Guru Meditation <emphasis>VERR_INVALID_RPL</emphasis> 
+        <para>VMM : correction d'une Guru Meditation <emphasis>VERR_INVALID_RPL</emphasis>
           lors du démarrage de certains invités (bogue #11350)</para>
       </listitem>
 
@@ -109,7 +109,7 @@
       </listitem>
 
       <listitem>
-        <para>GUI : on s'assure qu'un inviqé minimisé (en utilisant la mini 
+        <para>GUI : on s'assure qu'un inviqé minimisé (en utilisant la mini
           barre d'outils en mode plein écran ou transparent) reste minimisé (bogue #12199)</para>
       </listitem>
 
@@ -200,7 +200,7 @@
       </listitem>
 
       <listitem>
-        <para>OVF : correction de la lecture de l'élément de section d'OVF 0.9 
+        <para>OVF : correction de la lecture de l'élément de section d'OVF 0.9
           (régression 4.3 ; bogue #12345)</para>
       </listitem>
 
@@ -371,9 +371,9 @@
       </listitem>
 
       <listitem>
-        <para>VMM correction d'une erreur a <emphasis>VERR_SSM_STRUCTURE_MAGIC</emphasis> 
+        <para>VMM correction d'une erreur a <emphasis>VERR_SSM_STRUCTURE_MAGIC</emphasis>
           quand on essaie de charger un état sauvegardé établi par VBox 4.3.4
-          quand VT-x/AMD-V est désactivé. Malheureusement, 
+          quand VT-x/AMD-V est désactivé. Malheureusement,
           VBox 4.3.4 produisait des états sauvegardé cassés dans cette
           configuration, donc vous devez désactiver ces états (bogue #12414)</para>
       </listitem>
@@ -420,7 +420,7 @@
 
       <listitem>
         <para>Stockage : correction d'erreurs à l'exécution de
-        <emphasis>BLKCACHE_IOERR</emphasis> 
+        <emphasis>BLKCACHE_IOERR</emphasis>
           dans de rares circonstances (bogue #11030)</para>
       </listitem>
 
@@ -480,7 +480,7 @@
 
       <listitem>
         <para>VMM : correction de l'activation d'un correctif TPR pour les
-        invités 32 bits même quand le type d'invité choisi était un 32 bit 
+        invités 32 bits même quand le type d'invité choisi était un 32 bit
         (régression 4.3.0 ; AMD-V seulement)</para>
       </listitem>
 
@@ -562,7 +562,7 @@
 
       <listitem>
         <para>Accélération graphique 2D : correction de plantages lors des
-        changements de modes d'affichage 
+        changements de modes d'affichage
           (bogue #9194)</para>
       </listitem>
 
@@ -587,7 +587,7 @@
       </listitem>
       <listitem>
         <para>OVF : correction d'une logique importation pour les applicatifs OVF
-        contenant plusieurs 
+        contenant plusieurs
           VMs</para>
       </listitem>
 
@@ -628,7 +628,7 @@
 
       <listitem>
         <para>Hôtes Windows : nouvelle tentative de correction de la forte latence
-        DPC 
+        DPC
           (bogue #6242)</para>
       </listitem>
 
@@ -708,7 +708,7 @@
           mieux contenter l'invité sur certains hôtes</para>
        </listitem>
       <listitem>
-        <para>VMM : correction de la détection de VT-x sur certaines machines 
+        <para>VMM : correction de la détection de VT-x sur certaines machines
         où le BIOS ne définirait pas le bit de la fonction VMX LOCK, ce qui
         concernait les paramètres de la VM dans la GUI</para>
       </listitem>
@@ -742,7 +742,7 @@
 
       <listitem>
         <para>GUI : désactivation de la synchronisation de la LED du défilement
-        par rapport à la synchronisation des LEDs HID 
+        par rapport à la synchronisation des LEDs HID
           (hôtes Mac OS X seulement)</para>
       </listitem>
 
@@ -788,7 +788,7 @@
 
       <listitem>
         <para>Stockage : correction d'un accroc du processus de VM quand le disque
-        est plein dans certaines 
+        est plein dans certaines
           circonstances</para>
       </listitem>
 
@@ -897,7 +897,7 @@
       </listitem>
 
       <listitem>
-        <para>Contrôle de l'invité : les sessions de l'invité s'exécutent 
+        <para>Contrôle de l'invité : les sessions de l'invité s'exécutent
         maintenant dans des processus de sessions dédiés et individualisés (avec
         les supplément invité au moins 4.3 installés)</para>
       </listitem>
@@ -930,7 +930,7 @@
       </listitem>
 
       <listitem>
-        <para>VMM : changement de l'ordre des actions dans la bascule de l'émulated 
+        <para>VMM : changement de l'ordre des actions dans la bascule de l'émulated
         de tâches (bogue #10532)</para>
       </listitem>
       <listitem>
@@ -962,7 +962,7 @@
         l'invité</para>
       </listitem>
       <listitem>
-        <para>Instantanés : les instantanés en direct fonctionnent de nouveau 
+        <para>Instantanés : les instantanés en direct fonctionnent de nouveau
         (bogue #9255)</para>
       </listitem>
 
@@ -1006,7 +1006,7 @@
       <listitem>
         <para>Principal : élimination des sémaphores SysV sur tous les OS hôtes
         autres que Windows, à savoir Linux, Solaris et Mac OS X, d'où il s'ensuit
-        qu'aucune reconfiguration du système n'est nécessaire pour lancer 
+        qu'aucune reconfiguration du système n'est nécessaire pour lancer
         environ plus de 100 VMs</para>
       </listitem>
       <listitem>
@@ -1022,7 +1022,7 @@
       </listitem>
       <listitem>
         <para>VBoxManage : listage de davantage d'informations sur le disque
-        dur//DVD/amovible et support de l'option 
+        dur//DVD/amovible et support de l'option
           <computeroutput>--long</computeroutput> pour afficher véritablement
           tous les détails disponibles</para>
       </listitem>
@@ -1072,7 +1072,7 @@
       <listitem>
         <para>Support 3D : plusieurs corrections pour les hôtes Mac OS X</para>
        </listitem>
- 
+
        <listitem>
         <para>OVF : plusieurs corrections</para>
       </listitem>
@@ -1117,7 +1117,7 @@
          sur certains hôtes ; a encore besoin d'améliorations ; bogue #6242)</para>
        </listitem>
        <listitem>
-         <para>Hôtes Windows : prise en compte des liens symboliques dans la 
+         <para>Hôtes Windows : prise en compte des liens symboliques dans la
          récupération des informations sur le volume (bogue #11962)</para>
        </listitem>
 
@@ -1133,7 +1133,7 @@
          (bogue #12072)</para>
        </listitem>
        <listitem>
-         <para>Invités Windows : possibilité de repérer les moments d'inactivité 
+         <para>Invités Windows : possibilité de repérer les moments d'inactivité
          de l'utilisateur dans l'invité grâce à l'événement
          IGuestUserStateChangedEvent, introduit récemment.</para>
        </listitem>
@@ -1156,7 +1156,7 @@
     <itemizedlist>
 
       <listitem>
-        <para>GUI : hôte Mac OS X : introduction de la donnée externe "GUI/HidLedsSync" 
+        <para>GUI : hôte Mac OS X : introduction de la donnée externe "GUI/HidLedsSync"
         destinée à activer la synchronisation des LEDs HID (fonction désactivée
         par défaut)</para>
       </listitem>
@@ -1177,7 +1177,7 @@
       </listitem>
 
       <listitem>
-        <para>Stockage : correction d'erreurs <emphasis>BLKCACHE_IOERR</emphasis> 
+        <para>Stockage : correction d'erreurs <emphasis>BLKCACHE_IOERR</emphasis>
           à l'exécution dans de rares circonstances (bogue #11030)</para>
       </listitem>
 
@@ -1235,7 +1235,7 @@
     <itemizedlist>
 
       <listitem>
-        <para>GUI : on signale toujours les résolutions recommandées pour tous 
+        <para>GUI : on signale toujours les résolutions recommandées pour tous
         les écrans (craa ne se faisait pas toujours depuis la 4.2.12)</para>
       </listitem>
 
@@ -1250,7 +1250,7 @@
       </listitem>
 
       <listitem>
-        <para>NAT : ne tombe pas en boucle infinie si l'hôte ne peut pas 
+        <para>NAT : ne tombe pas en boucle infinie si l'hôte ne peut pas
           accéder à un serveur de DNS (régression 4.3.0 ; bogue #12300)</para>
       </listitem>
 
@@ -1260,7 +1260,7 @@
       </listitem>
 
       <listitem>
-        <para>Principal : sauvegarde correcte du drapeau <emphasis>passthrough</emphasis> 
+        <para>Principal : sauvegarde correcte du drapeau <emphasis>passthrough</emphasis>
           pour les lecteurs DVD sans média inséré</para>
       </listitem>
 
@@ -1366,7 +1366,7 @@
       </listitem>
 
       <listitem>
-        <para>Suppléments Linux : correction de la compilation avec Linux 3.11 
+        <para>Suppléments Linux : correction de la compilation avec Linux 3.11
         pour les dossiers partagés (bogues #11946, #12128)</para>
       </listitem>
 
@@ -1524,7 +1524,7 @@
 
   <sect1>
     <title>Version 4.2.16 (04-07-2013)</title>
- 
+
     <para>C'est une version de maintenance. Les éléments suivants ont été
     corrigés et/ou ajoutés :</para>
 
@@ -1625,7 +1625,7 @@
       </listitem>
 
       <listitem>
-        <para>USB : correction d'un accroc lors d'un transfert asynchrone avec 
+        <para>USB : correction d'un accroc lors d'un transfert asynchrone avec
         certains périphériques (régression 4.1 ; hôtes Windows seulement ; bogues #11839)</para>
       </listitem>
 
@@ -1680,7 +1680,7 @@
       </listitem>
 
       <listitem>
-        <para>Principal/propriétés : n'oublie pas de rendre permanentes les 
+        <para>Principal/propriétés : n'oublie pas de rendre permanentes les
         propriéés après l'extinction d'une VM (bogue #11719)</para>
       </listitem>
 
@@ -1717,7 +1717,7 @@
 
       <listitem>
         <para>VBoxManage : correction de la définition de l'UUID parent sur
-        les images de différenciation qui utilisent 
+        les images de différenciation qui utilisent
           <emphasis>sethdparentuuid</emphasis></para>
       </listitem>
 
@@ -1744,12 +1744,12 @@
       </listitem>
 
       <listitem>
-        <para>Suppléments Windows : corrections du mode transparent et du 
+        <para>Suppléments Windows : corrections du mode transparent et du
         redimensionnement automatique</para>
       </listitem>
 
       <listitem>
-        <para>Suppléments Windows : correction de la tentative de récupération 
+        <para>Suppléments Windows : correction de la tentative de récupération
         des nouvelles autorisations d'identification automatique si celles actuelles
         n'étaient pas encore traitées</para>
       </listitem>
@@ -1762,8 +1762,8 @@
 
       <listitem>
         <para>Suppléments Linux : correction du paramétrage du délai maximale
-        propre et des textes annulés 
-          dans les informations d'étiquette du greeter 
+        propre et des textes annulés
+          dans les informations d'étiquette du greeter
       lightdm</para>
       </listitem>
 
@@ -1917,7 +1917,7 @@
       </listitem>
 
       <listitem>
-        <para>VBoxHeadless : ne filtre pas les événements de propriétés invité 
+        <para>VBoxHeadless : ne filtre pas les événements de propriétés invité
         car cela toucherait tous les clients (bogue #11644)</para>
       </listitem>
 
@@ -1927,7 +1927,7 @@
       </listitem>
 
       <listitem>
-        <para>Hôtes / invités Linux : correction d'erreurs de construction sur 
+        <para>Hôtes / invités Linux : correction d'erreurs de construction sur
         les noyaux Linux 3.5 et plus récent si on a activé l'option de configuration
         <emphasis>CONFIG_UIDGID_STRICT_TYPE_CHECKS</emphasis> (bogue #11664)</para>
       </listitem>
@@ -1948,7 +1948,7 @@
 
       <listitem>
         <para>Suppléments Linux : ajout du support de l'identification automatique
-        pour les invités Linux qui utilisent 
+        pour les invités Linux qui utilisent
           LightDM comme gestionnaire d'affichage</para>
       </listitem>
 
@@ -2063,7 +2063,7 @@
       </listitem>
 
       <listitem>
-        <para>Principal/Affichage : correction d'une violation d'accès dans 
+        <para>Principal/Affichage : correction d'une violation d'accès dans
         certaines conditions avec des configurations multiécrans (bogue #10539)</para>
       </listitem>
 
@@ -2095,12 +2095,12 @@
       </listitem>
 
       <listitem>
-        <para>Stockage : correction d'une incompatibilité des images de 
+        <para>Stockage : correction d'une incompatibilité des images de
           différenciation VHD avec Hyper-V (bogue #5990)</para>
       </listitem>
 
       <listitem>
-        <para>Réseau bridgé : correction du calcul de la somme de contrôle d'une pseudo 
+        <para>Réseau bridgé : correction du calcul de la somme de contrôle d'une pseudo
         en-tête TCP pour IPv6 (bogue #9380)</para>
       </listitem>
 
@@ -2124,13 +2124,13 @@
       </listitem>
 
       <listitem>
-        <para>Hôtes Linux : contournement du bogue 55940 de gcc qui pourrait 
+        <para>Hôtes Linux : contournement du bogue 55940 de gcc qui pourrait
         conduire à un faux code de module de noyau si on utilise gcc 4.7 pour
         compiler le noyau 32 bits de l'hôte Linux (bogue #11035)</para>
       </listitem>
 
       <listitem>
-        <para>Hôtes Linux : correction d'un état de verrouillage incohérent et 
+        <para>Hôtes Linux : correction d'un état de verrouillage incohérent et
         d'avertissements deadlock de la charge du module et au démarrage de la VM
         quand CONFIG_PROVE_LOCKING est activé (bogue #11318)</para>
       </listitem>
@@ -2179,7 +2179,7 @@
 
       <listitem>
         <para>Suppléments X11 : correction des SIGALRM bloqués dans les sessions
-        du bureau 3D 
+        du bureau 3D
           (bogue #10987)</para>
       </listitem>
 
@@ -2313,7 +2313,7 @@
       </listitem>
 
      <listitem>
-        <para>Dossiers partagés : si l'association d'un dossier de l'hôte à un 
+        <para>Dossiers partagés : si l'association d'un dossier de l'hôte à un
         dossier partagé n'existe pas, on le laisse actif mais on le note comme
         invalide pour empêcher une incohérence des états sauvegardés (bogue #11147)</para>
       </listitem>
@@ -2358,7 +2358,7 @@
       </listitem>
 
       <listitem>
-        <para>OVF : correction de l'imroqtation de fichiers OVF créés par 
+        <para>OVF : correction de l'imroqtation de fichiers OVF créés par
         un VMware récent (bogue #10905)</para>
       </listitem>
 
@@ -2403,7 +2403,7 @@
       </listitem>
 
       <listitem>
-        <para>Suppléments Windows : correction du démarrage des suppléments 
+        <para>Suppléments Windows : correction du démarrage des suppléments
         invité sur les invités Windows 2000 (bogue #11253)</para>
       </listitem>
 
@@ -2452,7 +2452,7 @@
       </listitem>
 
       <listitem>
-        <para>EFI : correction de la perte de la élection du mode graphique au 
+        <para>EFI : correction de la perte de la élection du mode graphique au
         redémarrage de la VM (#10983)</para>
       </listitem>
 
@@ -2564,7 +2564,7 @@
       </listitem>
 
       <listitem>
-        <para>Souris USB : garantie que le dernier événement de souris ne se perde pa 
+        <para>Souris USB : garantie que le dernier événement de souris ne se perde pa
           si aucune adresse n'est disponible</para>
       </listitem>
 
@@ -2691,7 +2691,7 @@
 
       <listitem>
         <para>Contrôle des ressources : ajout du support de la limitation
-        de la bande passante E/S du réseau virtuel ; voir <xref linkend="network_bandwidth_limit" /> 
+        de la bande passante E/S du réseau virtuel ; voir <xref linkend="network_bandwidth_limit" />
         (bogue #3653)</para>
       </listitem>
 
@@ -2746,7 +2746,7 @@
       </listitem>
 
       <listitem>
-        <para>VMM : ajout du support des fonctions <emphasis>FlushByASID</emphasis> 
+        <para>VMM : ajout du support des fonctions <emphasis>FlushByASID</emphasis>
         des processeurs AMD (Bulldozer et plus récents)</para>
       </listitem>
 
@@ -2820,7 +2820,7 @@
 
       <listitem>
         <para>GUI : prise en compte des valeurs DPI échelonnées lors de l'affichage
-        des polices sur des hôtes Windows 
+        des polices sur des hôtes Windows
           (bogue #9864)</para>
       </listitem>
 
@@ -2832,7 +2832,7 @@
 
       <listitem>
         <para>Instantanés : correction d'un plantage lors de la restauration d'un
-        ancien instantané au moment de l'extinction d'une VM (bogues 
+        ancien instantané au moment de l'extinction d'une VM (bogues
           #9364, #9604, #10491)</para>
       </listitem>
 
@@ -2843,7 +2843,7 @@
       </listitem>
 
       <listitem>
-        <para>Paramètres : mettoyage du nom des dossiers de VMs et du fichier 
+        <para>Paramètres : mettoyage du nom des dossiers de VMs et du fichier
         des paramètres (bogue #10549)</para>
       </listitem>
 
@@ -2866,7 +2866,7 @@
       </listitem>
 
       <listitem>
-        <para>Stockage : implémentation de la gravure de CDs audio en mode 
+        <para>Stockage : implémentation de la gravure de CDs audio en mode
         passthrough</para>
       </listitem>
 
@@ -2877,7 +2877,7 @@
 
       <listitem>
         <para>Stockage : implémentation du support de la désactivation des
-        blocs inusités d'une image via TRIM pour SATA et IDE, et via UNMAP 
+        blocs inusités d'une image via TRIM pour SATA et IDE, et via UNMAP
         pour SCSI lorsqu'on utilise des images VDI</para>
       </listitem>
 
@@ -2973,7 +2973,7 @@
       <listitem>
         <para>Hôtes Linux / Réseau bridgé : correction du problème de déchargement
         du pilote de périphérique sur les noyaux 3.2.18 et supérieur, du fait
-        d'un compteur de références invalide 
+        d'un compteur de références invalide
           (bogue #10624)</para>
       </listitem>
 
@@ -3027,13 +3027,13 @@
       </listitem>
 
       <listitem>
-        <para>Support 3D : plusieurs corrections de plantages des pilotes 
+        <para>Support 3D : plusieurs corrections de plantages des pilotes
         graphiques WDDM de Windows</para>
       </listitem>
 
       <listitem>
         <para>NAT : correction d'un plantage quand on essaie de traiter des
-        diagrammes (datagram) ICMP dans certaines 
+        diagrammes (datagram) ICMP dans certaines
           circonstances (bogue #10527)</para>
       </listitem>
 
@@ -3113,7 +3113,7 @@
     <itemizedlist>
 
       <listitem>
-        <para>Réseau : correction du problème avec les paquets plus gres que 
+        <para>Réseau : correction du problème avec les paquets plus gres que
         MTU-4 quand PCnet ou PRO/1000 ont été reliés à certains types d'adaptateurs
         sur les hôtes OS X
           (bogue #3783)</para>
@@ -3194,7 +3194,7 @@
       </listitem>
 
       <listitem>
-        <para>VBoxManage : renvoi du bon code d'erreur si 
+        <para>VBoxManage : renvoi du bon code d'erreur si
           <emphasis>controlvm savestate</emphasis> a échoué (bogue #10134)</para>
       </listitem>
 
@@ -3230,7 +3230,7 @@
     <itemizedlist>
 
       <listitem>
-        <para>GUI : si le support 3D n'est pas disponible sur l'hôte pour une 
+        <para>GUI : si le support 3D n'est pas disponible sur l'hôte pour une
         raison quelconque, non seulement on désactive ce paramètre de la VM,
         mais on décoche aussi la case</para>
       </listitem>
@@ -3241,8 +3241,8 @@
       </listitem>
 
       <listitem>
-        <para>VMM : correction d'un problème potentiel de corruption de la 
-        mémoire de l'invité 
+        <para>VMM : correction d'un problème potentiel de corruption de la
+        mémoire de l'invité
         avec la fusion de page</para>
       </listitem>
 
@@ -3259,7 +3259,7 @@
 
       <listitem>
         <para>Principal : pas de dépendance du mot de passe pour certaines
-        opérations de contrôle de l'invité 
+        opérations de contrôle de l'invité
           (bogue #10030)</para>
       </listitem>
 
@@ -3274,7 +3274,7 @@
       </listitem>
 
       <listitem>
-        <para>Support 3D : correction de problèmes de l'état 
+        <para>Support 3D : correction de problèmes de l'état
         sauvegardé (régression de la 4.1.8 ; bogue #10126)</para>
       </listitem>
 
@@ -3459,7 +3459,7 @@
       </listitem>
 
       <listitem>
-        <para>VBoxSVC : correction d'un plantage dans de rares circonstances 
+        <para>VBoxSVC : correction d'un plantage dans de rares circonstances
         (comme un plantage du client)</para>
       </listitem>
 
@@ -3488,7 +3488,7 @@
         les cartes ATI (bogue #9775), de l'affichage dans
           Windows Media Player avec le support Direct3D basé sur XPDM (bogue# 8341).
           Plusieurs corrections du support 3D basé sur XPDM et WDDM pour
-          les invités Windows et pour le support 3D en 
+          les invités Windows et pour le support 3D en
           général</para>
       </listitem>
 
@@ -3589,7 +3589,7 @@
       </listitem>
 
       <listitem>
-        <para>Suppléments Solaris : ajout des options directory, file mode et 
+        <para>Suppléments Solaris : ajout des options directory, file mode et
         mask pour les dossiers partagés</para>
       </listitem>
 
@@ -3616,7 +3616,7 @@
 
       <listitem>
         <para>VMM : correction du PAE sur l'invité sur des hôtes 32 bits (régression
-        4.0 ; 
+        4.0 ;
           bogue #9458)</para>
       </listitem>
 
@@ -3703,7 +3703,7 @@
       </listitem>
 
       <listitem>
-        <para>Principal : correction du non détachement du stockage virtuel 
+        <para>Principal : correction du non détachement du stockage virtuel
         après la restauration d'un instantané
           (bogue #8296)</para>
       </listitem>
@@ -3752,7 +3752,7 @@
 
       <listitem>
         <para>Hôtes Mac OS X : correction de problèmes d'installation lors d'une
-        installation en tant qu'administrateur 
+        installation en tant qu'administrateur
           (bogue #1578)</para>
       </listitem>
 
@@ -3770,7 +3770,7 @@
 
       <listitem>
         <para>Hôtes Solaris : correction du démarrage des invités EFI à cause
-        de fichiers ROM EFI manquants 
+        de fichiers ROM EFI manquants
           (bogue #9535)</para>
       </listitem>
 
@@ -3807,7 +3807,7 @@
       </listitem>
 
       <listitem>
-        <para>Suppléments Linux : suppression d'un message d'erreur incorrect 
+        <para>Suppléments Linux : suppression d'un message d'erreur incorrect
         et possibilité de monter un dossier partagé à plusieurs endroits
            (bogue #9627)
           </para>
@@ -3857,7 +3857,7 @@
       </listitem>
 
       <listitem>
-        <para>Suppléments Windows : correction d'accrocs de l'invité quand 
+        <para>Suppléments Windows : correction d'accrocs de l'invité quand
 on quitte le mode plein écran avec des
           applications en mode texte (bogue #9636)</para>
       </listitem>
@@ -3889,7 +3889,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>GUI : correction de la vérification d'erreurs lors du changement 
+        <para>GUI : correction de la vérification d'erreurs lors du changement
         des paraçtres du contrôleur de la VM (régression 4.1.0 ; bogue #9246)</para>
       </listitem>
 
@@ -3954,7 +3954,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VBoxManage : possibilité de démarrer plusieurs VMs avec 
+        <para>VBoxManage : possibilité de démarrer plusieurs VMs avec
           <emphasis>startvm</emphasis></para>
       </listitem>
 
@@ -3981,7 +3981,7 @@ on quitte le mode plein écran avec des
       <listitem>
         <para>USB : correction de problèmes de reconnaissance de périphérique
         (bogues #9299) et correction de plusieurs problèmes de captation du
-        périphérique (hôtes 
+        périphérique (hôtes
         Windows ; bogue #9299)</para>
       </listitem>
 
@@ -4047,7 +4047,7 @@ on quitte le mode plein écran avec des
   <sect1>
     <title>Version 4.1.0 (19-07-2011)</title>
 
-    <para>Cette version est une mise à jour majeure. Les nouvelles fonctions 
+    <para>Cette version est une mise à jour majeure. Les nouvelles fonctions
     majeures suivantes ont été ajoutées :</para>
 
     <itemizedlist>
@@ -4078,7 +4078,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Support expérimental du passthrough PCI pour les hôtes Linux, 
+        <para>Support expérimental du passthrough PCI pour les hôtes Linux,
         voir <xref linkend="pcipassthrough"/></para>
       </listitem>
 
@@ -4152,14 +4152,14 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>GUI : ajout d'un paramètre pour les règles du mode promiscuous 
+        <para>GUI : ajout d'un paramètre pour les règles du mode promiscuous
         pour les réseaux interne, bridgé et host-only</para>
       </listitem>
 
       <listitem>
         <para>GUI : ajout d'une glissière pour régler le volume d'exécution du
         processeur, permettant de limiter la quantité de temps processeur consacrée
-        à l'exécution de l'invité, voir 
+        à l'exécution de l'invité, voir
           <xref linkend="settings-processor"/></para>
       </listitem>
 
@@ -4190,7 +4190,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>VBoxManage : modification de la syntaxe du groupe de commande
-        <emphasis>guestcontrol</emphasis>, correction de divers bogues, 
+        <emphasis>guestcontrol</emphasis>, correction de divers bogues,
         suppression d'options obsolètes</para>
       </listitem>
 
@@ -4237,7 +4237,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Stockage : correction d'une corruption possible des données dans
-        certaines circonstances avec VDE et les images parallèles 
+        certaines circonstances avec VDE et les images parallèles
           (bogue #9150)</para>
       </listitem>
 
@@ -4247,7 +4247,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Stockage : correction du code de détection pour gérer des 
+        <para>Stockage : correction du code de détection pour gérer des
         fichiers vides pour le format VDI et VMDK</para>
       </listitem>
 
@@ -4320,7 +4320,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VBoxSVC : correction d'une régression quand plusieurs clients 
+        <para>VBoxSVC : correction d'une régression quand plusieurs clients
         démarrent en décalé automatiquement et simultanément</para>
       </listitem>
 
@@ -4512,7 +4512,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Hôtes Mac OS X : correction de problèmes d'installation lorsqu'on
-        installe en tant qu'administrateur 
+        installe en tant qu'administrateur
           (bogue #1578)</para>
       </listitem>
 
@@ -4572,7 +4572,7 @@ on quitte le mode plein écran avec des
         <para>VBoxManage : configuration plus pratique des connexions des
         contrôleurs de stockage en déterminant automatiquement le paramètre du
         port et du périphérique quand un contrôleur de stockage n'a qu'un port
-        ou qu'un périphérique par port 
+        ou qu'un périphérique par port
           (bogue #9188)</para>
       </listitem>
 
@@ -4647,7 +4647,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Instantanés : aucune connexion de disque dur ne doit être rattachée 
+        <para>Instantanés : aucune connexion de disque dur ne doit être rattachée
         à une autre VM en mode normal lors de la création d'un instantané</para>
       </listitem>
 
@@ -4657,7 +4657,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>USB : détection correcte de périphérique sur les invités RHEL/OEL/CentOS 5 
+        <para>USB : détection correcte de périphérique sur les invités RHEL/OEL/CentOS 5
           (correction partielle du bogue #8978)</para>
       </listitem>
 
@@ -4677,7 +4677,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>OVF : dans de rares circonstances, certaines données en fin 
+        <para>OVF : dans de rares circonstances, certaines données en fin
         de fichier VMDK ne s'écrivait pas à l'export</para>
       </listitem>
 
@@ -4995,7 +4995,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>NAT : correction du traitement des annonces ARP pour les invités 
+        <para>NAT : correction du traitement des annonces ARP pour les invités
         ayant des IPs affectées de façon statiques (bogue #8609)</para>
       </listitem>
 
@@ -5006,7 +5006,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Dossiers partagés : n'échoue pas le démarrage d'une VM si un
-        chemin n'est pas absolu, par exemple lors de l'importation d'une OVF 
+        chemin n'est pas absolu, par exemple lors de l'importation d'une OVF
         d'un hôte différent (bogue #7941)</para>
       </listitem>
 
@@ -5038,19 +5038,19 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>rdesktop-vrdp : correction d'une déclaration décalée dans 
+        <para>rdesktop-vrdp : correction d'une déclaration décalée dans
         certaines conditions
           (bogue #8593)</para>
       </listitem>
 
       <listitem>
-        <para>Hôtes Windows : correction d'accrocs occasionnels à l'extinction de 
+        <para>Hôtes Windows : correction d'accrocs occasionnels à l'extinction de
         la VM du fait que, parfois, COM n'était pas bien désinitialisé</para>
       </listitem>
 
       <listitem>
         <para>Hôtes Mac OS X : on empêche la souris de quitter la fenêtre de la
-        VM lorsqu'elle est 
+        VM lorsqu'elle est
           capturée</para>
       </listitem>
 
@@ -5088,7 +5088,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Suppléments Windows : correction de la gestion du paramètre 
+        <para>Suppléments Windows : correction de la gestion du paramètre
         Sysprep</para>
       </listitem>
 
@@ -5252,12 +5252,12 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Principal : amélioration de la vérification de propreté lorsqu'on
-        prend une impression écran de la VM 
+        prend une impression écran de la VM
           (bogue #7966)</para>
       </listitem>
 
       <listitem>
-        <para>Principal : correction d'un plantage dans de rares circonstances 
+        <para>Principal : correction d'un plantage dans de rares circonstances
         si une VM n'a pas pu démarrer</para>
       </listitem>
 
@@ -5314,7 +5314,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Stockage : correction d'erreurs d'écriture d'instantanés si le
-        cache de l'hôte est désactivé (régression 4.0 ; 
+        cache de l'hôte est désactivé (régression 4.0 ;
           bogue #8221)</para>
       </listitem>
 
@@ -5374,7 +5374,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Suppléments Windows : correction de la gestion de Security 
+        <para>Suppléments Windows : correction de la gestion de Security
         Attention Sequence (SAS) avec VBoxGINA</para>
       </listitem>
 
@@ -5391,7 +5391,7 @@ on quitte le mode plein écran avec des
     <itemizedlist>
 
       <listitem>
-        <para>GUI : ne plante pas si un lecteur amovible de l'hôte auquel se 
+        <para>GUI : ne plante pas si un lecteur amovible de l'hôte auquel se
         réfère les paramètres de la VM a disparu</para>
       </listitem>
 
@@ -5417,13 +5417,13 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>PackExt : amélioration de l'expérience utilisateur sur Vista / Windows 7 
+        <para>PackExt : amélioration de l'expérience utilisateur sur Vista / Windows 7
         lors de l'installation d'un pack d'extension</para>
       </listitem>
 
       <listitem>
-        <para>PackExt : correction d'un problème avec les caractères non ascii 
-        dans des noms de chemins au moment de l'installation d'un pack 
+        <para>PackExt : correction d'un problème avec les caractères non ascii
+        dans des noms de chemins au moment de l'installation d'un pack
           d'extension (bogue #9717)</para>
       </listitem>
 
@@ -5509,7 +5509,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Principal : correction de problèmes avec les instantanés et les
-        caractères non ASCII dans les chemins de la 
+        caractères non ASCII dans les chemins de la
           machine (bogue #8024)</para>
       </listitem>
 
@@ -5526,7 +5526,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Paramètres : correction d'un problème où le changement de nom ou 
+        <para>Paramètres : correction d'un problème où le changement de nom ou
         de description des instantanés n'était pas enregistré dans le XML de
         la machine</para>
       </listitem>
@@ -5550,7 +5550,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Hôtes Linux : tentative de compliquer un peu l'affectation de
-        mémoire (bogue #8035 ; 
+        mémoire (bogue #8035 ;
           régression 4.0)</para>
       </listitem>
 
@@ -5688,7 +5688,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Stockage : support du redimensionnement des images VDI et VHD ; 
+        <para>Stockage : support du redimensionnement des images VDI et VHD ;
         voir <xref linkend="vboxmanage-modifyvdi" /></para>
       </listitem>
 
@@ -5710,7 +5710,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>VMM : Activation par défaut du support des grandes pages sur les
-        hôtes 64 bits (cela s'applique seulement à la pagination 
+        hôtes 64 bits (cela s'applique seulement à la pagination
         imbriquée)</para>
       </listitem>
 
@@ -5770,7 +5770,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Support 3D : corruption de la pile d'application de l'invité
-        lors de l'utilisation de 
+        lors de l'utilisation de
           glGetVertexAttrib[ifd]v (bogue #7395)</para>
       </listitem>
 
@@ -5848,12 +5848,12 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Support USB avec hôte Linux : introduction d'une manière moins
-        intrusive d'accéder aux périphériques USB en brut 
+        intrusive d'accéder aux périphériques USB en brut
            (bogues #1093, #5345, #7759)</para>
        </listitem>
 
        <listitem>
-         <para>Hôtes Linux : support des noyaux Linux récents avec 
+         <para>Hôtes Linux : support des noyaux Linux récents avec
            <emphasis>CONFIG_DEbogue_SET_MODULE_RONX</emphasis> activé</para>
        </listitem>
 
@@ -5864,7 +5864,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Suppléments Linux : Les dossiers partagés supportent maintenant 
+        <para>Suppléments Linux : Les dossiers partagés supportent maintenant
         les liens symboliques (bogue #818)</para>
       </listitem>
 
@@ -5897,7 +5897,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VMM : correction de redémarrages de l'hôte dans de rares circonstances 
+        <para>VMM : correction de redémarrages de l'hôte dans de rares circonstances
         du fait du retardement de NMIs par des mesureurs de performance actifs
         (hôtes Linux en mode non-VT-x/AMD-V seulement ; bogue #4529)</para>
       </listitem>
@@ -5953,7 +5953,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Souris : n'envoie pas d'événements de souris relatifs en même temps 
+        <para>Souris : n'envoie pas d'événements de souris relatifs en même temps
         que des çvénements absolus (régression 3.2.10 ; bogue #7571)</para>
       </listitem>
 
@@ -5987,7 +5987,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>USB : correction d'un plantage dans de rares circonstances (bogue #7409 ; 
+        <para>USB : correction d'un plantage dans de rares circonstances (bogue #7409 ;
         hôtes Windows seulement)</para>
       </listitem>
 
@@ -6010,12 +6010,12 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Accélération graphique 2D : correction d'un deadlock potentiel 
+        <para>Accélération graphique 2D : correction d'un deadlock potentiel
         lors de la sauvegarde de l'état d''une VM (bogue #4124)</para>
       </listitem>
 
        <listitem>
-         <para>Hôtes Windows : autre correction de BSODs dans certaines circonstances 
+         <para>Hôtes Windows : autre correction de BSODs dans certaines circonstances
          dans VBoxNetFlt.sys (bogue #7601)</para>
        </listitem>
 
@@ -6091,7 +6091,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VMM : améliorations de performance des VMs ayant plus de 
+        <para>VMM : améliorations de performance des VMs ayant plus de
           2Go de RAM (bogue #6928)</para>
       </listitem>
 
@@ -6152,7 +6152,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>SATA : meilleure gestion de l'espace disque et des conditions 
+        <para>SATA : meilleure gestion de l'espace disque et des conditions
         équivalentes</para>
       </listitem>
 
@@ -6187,7 +6187,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>NAT : dans de rares conditions, le moteur NAT consommait 100% 
+        <para>NAT : dans de rares conditions, le moteur NAT consommait 100%
         de la charge processeur (hôtes non Windows seulement)</para>
       </listitem>
 
@@ -6210,7 +6210,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VBoxHeadless : correction de problèmes de traitement de la queue 
+        <para>VBoxHeadless : correction de problèmes de traitement de la queue
         d'événements qui provoquait des accrocs si la VM ne réussissait pas à
         démarrer</para>
       </listitem>
@@ -6255,7 +6255,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>OVF : correction d'un bogue lors de l'exportation d'une VM avec
-        plusieurs disques connectés 
+        plusieurs disques connectés
           (bogue #7366)</para>
       </listitem>
 
@@ -6289,7 +6289,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Son : correction d'une corruption de mémoire de l'invité lors
-        d'une capture à partir de la fondation audio 
+        d'une capture à partir de la fondation audio
           NULL (bogue #6911)</para>
       </listitem>
 
@@ -6363,7 +6363,7 @@ on quitte le mode plein écran avec des
        </listitem>
 
        <listitem>
-         <para>Hôtes Windows : correction d'un BSOD dans certaines circonstances 
+         <para>Hôtes Windows : correction d'un BSOD dans certaines circonstances
          dans VBoxNetFlt.sys (bogue #7448)</para>
        </listitem>
 
@@ -6405,7 +6405,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>GUI : n'utilise pas les boîtes de dialogue de fichier natives sur
-        les hôtes KDE (hôtes Linux seulement ; 
+        les hôtes KDE (hôtes Linux seulement ;
           bogue #6809)</para>
       </listitem>
 
@@ -6474,7 +6474,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Disques durs : correction d'une réinitialisation automatique d'un
-        disque immuable au démarrage de la VM 
+        disque immuable au démarrage de la VM
           (bogue #6832)</para>
       </listitem>
 
@@ -6568,7 +6568,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>VMM : correction d'un plantage de l'hôte lors de l'exécution d'invités
-        64 bits sur des hôtes 32 bits avec certains processeurs Intel (VT-x 
+        64 bits sur des hôtes 32 bits avec certains processeurs Intel (VT-x
         seulement ; bogue #6166) </para>
       </listitem>
 
@@ -6654,7 +6654,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Stockage : correction des disques bruts sur les hôtes Windows 
+        <para>Stockage : correction des disques bruts sur les hôtes Windows
         (régression 3.2.0 ; bogue #6987)</para>
       </listitem>
 
@@ -6714,7 +6714,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>OVF : mise à jour des définitions des types d'OS vers CIM 2.25.0 
+        <para>OVF : mise à jour des définitions des types d'OS vers CIM 2.25.0
         pour que Windows 7 et d'autres OS soient marqués correctement lors de
         l'exportation</para>
       </listitem>
@@ -6780,7 +6780,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Suppléments Windows : l'identification automatique sur Windows Vista/Windows 7 
+        <para>Suppléments Windows : l'identification automatique sur Windows Vista/Windows 7
         est maintenant capable de gérer les comptes utilisateur renommés et
         principaux ; ajout de diverses corrections de bogues</para>
       </listitem>
@@ -6942,7 +6942,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Stockage : correction d'un accroc sporadique des invités SMP 
+        <para>Stockage : correction d'un accroc sporadique des invités SMP
         utilisant SATA ou LSI Logic SCSI et les E/S asynchrones</para>
       </listitem>
 
@@ -7043,7 +7043,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>OVF : correction d'une régression 3.2.0 dans l'importation de 
+        <para>OVF : correction d'une régression 3.2.0 dans l'importation de
         fichiers OVF 0.9 primitifs</para>
       </listitem>
 
@@ -7101,7 +7101,7 @@ on quitte le mode plein écran avec des
         hôtes 64 bits, l'utilisation de grandes pages peut améliorer les
         performances (voir <xref linkend="imbriquéepaging"/>) ; en outre, sur
           VT-x, l'exécution sans restriction de l'invité est maintenant supportée
-          (si la pagination imbriquée est activée avec VT-x, le mode réel et le mode 
+          (si la pagination imbriquée est activée avec VT-x, le mode réel et le mode
           protégé sans code de pagination fonctionnent plus vite, ce qui accélère
           considérablement le démarrage de l'OS invité)</para>
       </listitem>
@@ -7142,7 +7142,7 @@ on quitte le mode plein écran avec des
       <listitem>
         <para>Suppléments invité : ajout du support de l'exécuting des applications
         invitées depuis le système hôte (remplace la fonction de préparation
-        automatique du système ; voir 
+        automatique du système ; voir
         <xref linkend="guestadd-guestcontrol" />)</para>
       </listitem>
 
@@ -7175,7 +7175,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>GUI : ajout d'un paramètre de VM pour que le temps passe en UTC
-        et ne passe pas l'heure de l'hôte locale à l'invité 
+        et ne passe pas l'heure de l'hôte locale à l'invité
           (bogue #1310)</para>
       </listitem>
 
@@ -7210,12 +7210,12 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Mac OS X : réécriture du pilote CoreAudio et ajout du support 
+        <para>Mac OS X : réécriture du pilote CoreAudio et ajout du support
         de l'entrée audio (bogue #5869)</para>
       </listitem>
 
       <listitem>
-        <para>Mac OS X : support du module 'authentification externe VRDP 
+        <para>Mac OS X : support du module 'authentification externe VRDP
         (bogue #3106)</para>
       </listitem>
 
@@ -7364,7 +7364,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>ATA : correction de plantages sporadiques avec les invités Linux 
+        <para>ATA : correction de plantages sporadiques avec les invités Linux
         lorsqu'il y a un disque dur et un lecteur DVD sur le même canal
         (bogue #6079)</para>
       </listitem>
@@ -7385,7 +7385,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>SCSI : correction de plantages de l'invité dans certaines circonstances 
+        <para>SCSI : correction de plantages de l'invité dans certaines circonstances
         quand on démarre à partir de périphériques SCSI</para>
       </listitem>
 
@@ -7533,13 +7533,13 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>VMM : correction d'une guru meditation
-        <emphasis>PGMDynMapHCPage</emphasis> 
+        <emphasis>PGMDynMapHCPage</emphasis>
           (Mac OS X ; VT-x seulement ; bogue #6095)</para>
       </listitem>
 
       <listitem>
         <para>VMM : correction d'une guru meditation
-        <emphasis>pgmPoolTrackFlushGCPhysPTInt</emphasis> 
+        <emphasis>pgmPoolTrackFlushGCPhysPTInt</emphasis>
           (Mac OS X ; VT-x seulement ; bogues #6095 &amp; #6125)</para>
       </listitem>
 
@@ -7571,7 +7571,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Support 3D : correction d'erreurs de l'éditeur de liens lors de
-        l'exécution avec les bibliothèques OpenQL de l'invité 
+        l'exécution avec les bibliothèques OpenQL de l'invité
           (bogue #5297)</para>
       </listitem>
 
@@ -7785,7 +7785,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>GUI : correction du bouton "Recharger" cassé qui recharge le XML 
+        <para>GUI : correction du bouton "Recharger" cassé qui recharge le XML
         de la machine lorsqu'une machine est inaccessible</para>
       </listitem>
 
@@ -7898,7 +7898,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>USB : correction d'un écran bleu à l'ex!inction (hôtes Windows 
+        <para>USB : correction d'un écran bleu à l'ex!inction (hôtes Windows
         Seulement ; bogue #5885)</para>
       </listitem>
 
@@ -7933,7 +7933,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Suppléments invité : correction d'un mauvais ajustement de l'heure
-        de l'invité si l'horloge de l'invité est en avance (régression 3.1 ; 
+        de l'invité si l'horloge de l'invité est en avance (régression 3.1 ;
         invités non Windows seulement)</para>
       </listitem>
 
@@ -8060,7 +8060,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Installeur sur hôtes Windows : correction du démarrage de VBox 
+        <para>Installeur sur hôtes Windows : correction du démarrage de VBox
         avec de mauvais privilèges juste après l'installation (bogue #4162)</para>
       </listitem>
 
@@ -8170,7 +8170,7 @@ on quitte le mode plein écran avec des
   <sect1>
     <title>Version 3.1.0 (30-11-2009)</title>
 
-    <para>Cette version est une mise à jour majeure. Les nouvelles fonctions 
+    <para>Cette version est une mise à jour majeure. Les nouvelles fonctions
     majeures suivantes ont été ajoutées :</para>
 
     <itemizedlist>
@@ -8195,7 +8195,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Connexions de stockage plus flexible : les lecteurs CD/DVD peuvent
-        désormais être connectés aux contrôleurs de stockage de votre choix et 
+        désormais être connectés aux contrôleurs de stockage de votre choix et
         il peut y en avoir plusieurs (<xref linkend="storage" />)</para>
       </listitem>
 
@@ -8301,7 +8301,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>NAT : ajout du proxy DNS du résolveur de l'hôte 
+        <para>NAT : ajout du proxy DNS du résolveur de l'hôte
           (voir <xref linkend="nat_host_resolver_proxy" />)</para>
       </listitem>
 
@@ -8335,7 +8335,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Périphérique de souris : cinq boutons sont désormais passés à 
+        <para>Périphérique de souris : cinq boutons sont désormais passés à
         l'invité (bogue #3773)</para>
       </listitem>
 
@@ -8430,7 +8430,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Dossiers partagés et invités Linux : possibilité de monter un 
+        <para>Dossiers partagés et invités Linux : possibilité de monter un
         dossier partagé si un fichier du même nom que le dossier existe dans
         le répertoire actuel (bogue #928)</para>
       </listitem>
@@ -8520,12 +8520,12 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Suppléments Linux : correction de l'écriture dans des fichiers 
+        <para>Suppléments Linux : correction de l'écriture dans des fichiers
         ouverts en mode <emphasis>O_APPEND</emphasis> (bogue #3805)</para>
       </listitem>
 
       <listitem>
-        <para>Suppléments Solaris : correction d'une régression dans le pilote 
+        <para>Suppléments Solaris : correction d'une régression dans le pilote
         des suppléments invité qui provoquait, entre autres, la perte des mises
         à jour des propriétés invité et des messages d'erreur périodiques dans
         les journaux système</para>
@@ -8606,7 +8606,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Hôtes Linux : correction de la  compilation du module dans 
+        <para>Hôtes Linux : correction de la  compilation du module dans
         Linux 2.6.32rc4 et supérieur</para>
       </listitem>
 
@@ -8637,7 +8637,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Suppléments Linux : <emphasis>sendfile()</emphasis> renvoyait 
+        <para>Suppléments Linux : <emphasis>sendfile()</emphasis> renvoyait
           <emphasis>-EOVERFLOW</emphasis> lorsqu'il était exécuté sur un
           dossier partagé (bogue #2921)</para>
       </listitem>
@@ -8893,7 +8893,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VMM : petites améliorations de performances sur Solaris/OpenSolaris 
+        <para>VMM : petites améliorations de performances sur Solaris/OpenSolaris
         (VT-x seulement) </para>
       </listitem>
 
@@ -8903,7 +8903,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VMM : accrocs du CD de NetBSD 5.0.1 lors du démarrage (VT-x 
+        <para>VMM : accrocs du CD de NetBSD 5.0.1 lors du démarrage (VT-x
         seulement ; bogue #3947) </para>
       </listitem>
 
@@ -9075,7 +9075,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Réseau HostOnly : correction du problème de listage des 
+        <para>Réseau HostOnly : correction du problème de listage des
           interfaces host-only sur Mac OS X quand toutes les interfaces physiques
           sont inactives (bogues #4698, #4790)</para>
       </listitem>
@@ -9105,7 +9105,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Réseau bridgé : correction d'un problème dans la queue des paquets
-        qui pourrait causer des BSOD 
+        qui pourrait causer des BSOD
           DRIVER_POWER_STATE_FAILURE pour les hôtes Windows (bogue #4821)</para>
       </listitem>
 
@@ -9262,7 +9262,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Dossiers partagés : correction de la sélection d'un répertoire 
+        <para>Dossiers partagés : correction de la sélection d'un répertoire
         racine du lecteur comme chemin d'hôte du dossier partagé dans VirtualBox
         (hôte Windows seulement)</para>
       </listitem>
@@ -9298,7 +9298,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Hôtes Solaris et Linux : contournement des problèmes de gestion 
+        <para>Hôtes Solaris et Linux : contournement des problèmes de gestion
         des couleurs dans Qt (bogue #4353)</para>
       </listitem>
 
@@ -9560,7 +9560,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VMM : correction d'un accroc et de processus de VM non tuables 
+        <para>VMM : correction d'un accroc et de processus de VM non tuables
         (bogue #4040)</para>
       </listitem>
 
@@ -9570,7 +9570,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VMM : améliorations des performances pour l'E/S réseau (VT-x/AMD-V 
+        <para>VMM : améliorations des performances pour l'E/S réseau (VT-x/AMD-V
         seulement)</para>
       </listitem>
 
@@ -9670,7 +9670,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>VBoxManage : correction d'une mauvaise destion de la table de
-       partitions lors de la création de fichiers VMDK, donnant un accès brut 
+       partitions lors de la création de fichiers VMDK, donnant un accès brut
        aux partitions (bogue #3510)</para>
       </listitem>
 
@@ -9849,7 +9849,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VMM : la restauration d'un état sauvegardé échouait parfois 
+        <para>VMM : la restauration d'un état sauvegardé échouait parfois
           (bogues #3984 et #2742)</para>
       </listitem>
 
@@ -10031,7 +10031,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>VMM : correction d'une guru meditation liée à la gestion de la
-        mémoire 
+        mémoire
               (virtualisation logicielle seulement)
         </para>
       </listitem>
@@ -10047,7 +10047,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>GUI : affichage correct de la boîte de dialogue détaillée des 
+        <para>GUI : affichage correct de la boîte de dialogue détaillée des
        paramètres des réseaux NAT (bogue #3702)</para>
       </listitem>
 
@@ -10226,7 +10226,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VMM : correction IOPL en mode réel pour des invités DOS (VT-x 
+        <para>VMM : correction IOPL en mode réel pour des invités DOS (VT-x
         seulement) </para>
       </listitem>
 
@@ -10271,7 +10271,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Disque dur : support de davantage de variantes de fichiers VMDK 
+        <para>Disque dur : support de davantage de variantes de fichiers VMDK
         (y compris les images de serveur ESX à taille fixe)</para>
       </listitem>
 
@@ -10458,7 +10458,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>PXE : correction d'accrocs au démarrage quand la virtualisation 
+        <para>PXE : correction d'accrocs au démarrage quand la virtualisation
         matérielle est utilisée (bogue #2536)</para>
       </listitem>
 
@@ -10509,7 +10509,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Hôtes Linux : déplacement des règles udev de redirection USB 
+        <para>Hôtes Linux : déplacement des règles udev de redirection USB
         pour qu'elles n'écrasent pas celles existantes sur le système (bogue #3143)</para>
       </listitem>
 
@@ -10572,7 +10572,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>GUI : suppress,on des événements de relâche des touches 
+        <para>GUI : suppress,on des événements de relâche des touches
         supplémentaires envoyés par les hôtes X11 quand les touches se répètent
         automatiquement (bogue #1296)</para>
       </listitem>
@@ -10597,7 +10597,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>NAT : correction de téléchargements tronqués (hôtes Windows 
+        <para>NAT : correction de téléchargements tronqués (hôtes Windows
         seulement, bogue #3257)</para>
       </listitem>
 
@@ -10768,7 +10768,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VMM : correction d'une corruption occasionnelle de l'état XMM 
+        <para>VMM : correction d'une corruption occasionnelle de l'état XMM
         avec les invités 64 bits </para>
       </listitem>
 
@@ -10828,7 +10828,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Réseau : correction de kernel panics à cuse d'un déréférencement 
+        <para>Réseau : correction de kernel panics à cuse d'un déréférencement
         du pointeur NULL dans les noyaux Linux kernels &lt; 2.6.20 (hôtes Linux seulement ; bogue #2827)</para>
       </listitem>
 
@@ -10928,7 +10928,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VBoxManage <computeroutput>guestproperty</computeroutput>: 
+        <para>VBoxManage <computeroutput>guestproperty</computeroutput>:
         correction de l'énumération des propriétés (mauvais paramètres/exception)</para>
       </listitem>
 
@@ -10977,7 +10977,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Hôtes Mac OS X : ajout d'une option graphique pour désactiver 
+        <para>Hôtes Mac OS X : ajout d'une option graphique pour désactiver
         l'icône système de la vue du temps réel dans l'interface graphique, afin
         de diminuer la charge du processeur de vhôte quand l'invité fait de la 3D</para>
       </listitem>
@@ -11007,7 +11007,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Installeur des suppléments Windows : ajout de l'option /extract 
+        <para>Installeur des suppléments Windows : ajout de l'option /extract
         pour n'extraire (sans installer) que les fichiers dans un répertoire (on
         peut la spécifier avec /D=chemin)</para>
       </listitem>
@@ -11070,7 +11070,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-       <para>Ajout du support des améliorations de virtualisation d'Intel 
+       <para>Ajout du support des améliorations de virtualisation d'Intel
        Nehalem (EPT et VPID ; voir <xref linkend="hwvirt" />)</para>
       </listitem>
 
@@ -11088,7 +11088,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Nouveau moteur NAT avec des performances beaucoup plus appréciables,
-        une meilleure fiabilité et le support de l'écho (ping) ICMP 
+        une meilleure fiabilité et le support de l'écho (ping) ICMP
           (bogues #1046, #2438, #2223, #1247)</para>
       </listitem>
 
@@ -11155,7 +11155,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VMM : correction d'un écran noir au démarrage d'OS/2 1.x (AMD-V 
+        <para>VMM : correction d'un écran noir au démarrage d'OS/2 1.x (AMD-V
         seulement) </para>
       </listitem>
 
@@ -11303,7 +11303,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>ATA : correction d'un verrou quand on met une VM en pause, à cause
-        de problèmes de disque virtuel (comme le disque plein, cible iSCSI 
+        de problèmes de disque virtuel (comme le disque plein, cible iSCSI
         indisponilable)</para>
       </listitem>
 
@@ -11319,7 +11319,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>VBoxHeadless : ne démarre véritablement pas les services X11
-        (service presse-papier, accélération 3D ; hôtes Solaris &amp; Darwin 
+        (service presse-papier, accélération 3D ; hôtes Solaris &amp; Darwin
         seulement ; bogue #3199)</para>
       </listitem>
 
@@ -11434,7 +11434,7 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Hôtes Linux : correction d'une déclaration assertion sur les
-        fortes charges réseaux (hôtes AMD64 correction pour les distributions 
+        fortes charges réseaux (hôtes AMD64 correction pour les distributions
         Linux ayant glibc 2.6 et supérieur (bogue #616)</para>
       </listitem>
 
@@ -11569,7 +11569,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Hôtes Solaris : ajout du support de l'utilisation d'interfaces 
+        <para>Hôtes Solaris : ajout du support de l'utilisation d'interfaces
         réseaux non actives et des Crossbow Virtual
           Network Interfaces (VNICs) avec l'interface réseau de l'hôte</para>
       </listitem>
@@ -11595,7 +11595,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>Suppléments Windows : correction du code d'erreur de 
+        <para>Suppléments Windows : correction du code d'erreur de
           <computeroutput>MoveFile()</computeroutput> si la cible existe (bogue #2350)</para>
       </listitem>
 
@@ -11688,7 +11688,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>GUI : correction des entrées de menu standards pour les versions 
+        <para>GUI : correction des entrées de menu standards pour les versions
         NLS (hôtes Mac OS X seulement)</para>
       </listitem>
 
@@ -11698,7 +11698,7 @@ on quitte le mode plein écran avec des
       </listitem>
 
       <listitem>
-        <para>VBoxManage : correction d'un plantage pendant 
+        <para>VBoxManage : correction d'un plantage pendant
           <computeroutput>internalcommands createrawvmdk</computeroutput>
           (bogue #2184)</para>
       </listitem>
@@ -11736,13 +11736,13 @@ on quitte le mode plein écran avec des
 
       <listitem>
         <para>Hôtes Linux : correction d'un bogue dans vboxdrv.ko qui
-       pourrait corrompre la mémoire du noyau et entraîner un kernel panic 
+       pourrait corrompre la mémoire du noyau et entraîner un kernel panic
        (bogue #2078)
         </para>
       </listitem>
 
       <listitem>
-        <para>Hôtes Linux : corrections de compilation du module du noyau sur 
+        <para>Hôtes Linux : corrections de compilation du module du noyau sur
         Linux 2.6.27</para>
       </listitem>
 
@@ -11871,7 +11871,7 @@ on quitte le mode plein écran avec des
         </listitem>
 
         <listitem>
-          <para>Ajout de l'E/S asynchrone SATA (NCQ: Native Command Queuing) 
+          <para>Ajout de l'E/S asynchrone SATA (NCQ: Native Command Queuing)
           lors de l'accès à des disques/partitions bruts (gain majeur de
           performances)</para>
         </listitem>

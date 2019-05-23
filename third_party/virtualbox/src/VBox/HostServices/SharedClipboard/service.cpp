@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -196,10 +196,22 @@ static bool vboxSvcClipboardReturnMsg (VBOXCLIPBOARDCLIENTDATA *pClient, VBOXHGC
     }
     else if (pClient->fMsgReadData)
     {
+        uint32_t fFormat = 0;
+
         LogRelFlow(("vboxSvcClipboardReturnMsg: ReadData %02X\n", pClient->u32RequestedFormat));
+        if (pClient->u32RequestedFormat & VBOX_SHARED_CLIPBOARD_FMT_UNICODETEXT)
+            fFormat = VBOX_SHARED_CLIPBOARD_FMT_UNICODETEXT;
+        else if (pClient->u32RequestedFormat & VBOX_SHARED_CLIPBOARD_FMT_BITMAP)
+            fFormat = VBOX_SHARED_CLIPBOARD_FMT_BITMAP;
+        else if (pClient->u32RequestedFormat & VBOX_SHARED_CLIPBOARD_FMT_HTML)
+            fFormat = VBOX_SHARED_CLIPBOARD_FMT_HTML;
+        else
+            AssertStmt(pClient->u32RequestedFormat == 0, pClient->u32RequestedFormat = 0);
+        pClient->u32RequestedFormat &= ~fFormat;
         VBoxHGCMParmUInt32Set (&paParms[0], VBOX_SHARED_CLIPBOARD_HOST_MSG_READ_DATA);
-        VBoxHGCMParmUInt32Set (&paParms[1], pClient->u32RequestedFormat);
-        pClient->fMsgReadData = false;
+        VBoxHGCMParmUInt32Set (&paParms[1], fFormat);
+        if (pClient->u32RequestedFormat == 0)
+            pClient->fMsgReadData = false;
     }
     else if (pClient->fMsgFormats)
     {

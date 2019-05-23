@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -628,13 +628,36 @@ DECLINLINE(int) vscsiLunReqTransferEnqueue(PVSCSILUNINT pVScsiLun, PVSCSIIOREQIN
  *
  * @returns VBox status code.
  * @param   pVScsiLun   The LUN.
- * @param   pVScsiIoReq The I/O request to enqueue.
+ * @param   pfFeatures  Where to sthre supported flags on success.
  */
 DECLINLINE(int) vscsiLunGetFeatureFlags(PVSCSILUNINT pVScsiLun, uint64_t *pfFeatures)
 {
     return pVScsiLun->pVScsiLunIoCallbacks->pfnVScsiLunGetFeatureFlags(pVScsiLun,
                                                                        pVScsiLun->pvVScsiLunUser,
                                                                        pfFeatures);
+}
+
+/**
+ * Wrapper for the query INQUIRY strings I/O callback.
+ *
+ * @returns VBox status code.
+ * @param   pVScsiLun   The LUN.
+ * @param   ppszVendorId     Where to store the pointer to the vendor ID string to report.
+ * @param   ppszProductId    Where to store the pointer to the product ID string to report.
+ * @param   ppszProductLevel Where to store the pointer to the revision string to report.
+ */
+DECLINLINE(int) vscsiLunQueryInqStrings(PVSCSILUNINT pVScsiLun, const char **ppszVendorId,
+                                        const char **ppszProductId, const char **ppszProductLevel)
+{
+    if (pVScsiLun->pVScsiLunIoCallbacks->pfnVScsiLunQueryInqStrings)
+    {
+        return pVScsiLun->pVScsiLunIoCallbacks->pfnVScsiLunQueryInqStrings(pVScsiLun,
+                                                                           pVScsiLun->pvVScsiLunUser,
+                                                                           ppszVendorId, ppszProductId,
+                                                                           ppszProductLevel);
+    }
+
+    return VERR_NOT_FOUND;
 }
 
 /**

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -77,7 +77,7 @@ void UIWizardCloneVDPage3::setMediumVariant(qulonglong uMediumVariant)
     m_pSplitBox->setChecked(uMediumVariant & (qulonglong)KMediumVariant_VmdkSplit2G);
 }
 
-UIWizardCloneVDPageBasic3::UIWizardCloneVDPageBasic3()
+UIWizardCloneVDPageBasic3::UIWizardCloneVDPageBasic3(KDeviceType enmDeviceType)
 {
     /* Create widgets: */
     QVBoxLayout *pMainLayout = new QVBoxLayout(this);
@@ -91,11 +91,18 @@ UIWizardCloneVDPageBasic3::UIWizardCloneVDPageBasic3()
             m_pVariantButtonGroup = new QButtonGroup(this);
             {
                 m_pDynamicalButton = new QRadioButton(this);
+                if (enmDeviceType == KDeviceType_HardDisk)
                 {
                     m_pDynamicalButton->click();
                     m_pDynamicalButton->setFocus();
                 }
                 m_pFixedButton = new QRadioButton(this);
+                if (   enmDeviceType == KDeviceType_DVD
+                    || enmDeviceType == KDeviceType_Floppy)
+                {
+                    m_pFixedButton->click();
+                    m_pFixedButton->setFocus();
+                }
                 m_pVariantButtonGroup->addButton(m_pDynamicalButton, 0);
                 m_pVariantButtonGroup->addButton(m_pFixedButton, 1);
             }
@@ -126,14 +133,14 @@ void UIWizardCloneVDPageBasic3::retranslateUi()
     setTitle(UIWizardCloneVD::tr("Storage on physical hard disk"));
 
     /* Translate widgets: */
-    m_pDescriptionLabel->setText(UIWizardCloneVD::tr("Please choose whether the new virtual hard disk file should grow as it is used "
+    m_pDescriptionLabel->setText(UIWizardCloneVD::tr("Please choose whether the new virtual disk image file should grow as it is used "
                                                      "(dynamically allocated) or if it should be created at its maximum size (fixed size)."));
-    m_pDynamicLabel->setText(UIWizardCloneVD::tr("<p>A <b>dynamically allocated</b> hard disk file will only use space "
+    m_pDynamicLabel->setText(UIWizardCloneVD::tr("<p>A <b>dynamically allocated</b> disk image file will only use space "
                                                  "on your physical hard disk as it fills up (up to a maximum <b>fixed size</b>), "
                                                  "although it will not shrink again automatically when space on it is freed.</p>"));
-    m_pFixedLabel->setText(UIWizardCloneVD::tr("<p>A <b>fixed size</b> hard disk file may take longer to create on some "
+    m_pFixedLabel->setText(UIWizardCloneVD::tr("<p>A <b>fixed size</b> disk image file may take longer to create on some "
                                                "systems but is often faster to use.</p>"));
-    m_pSplitLabel->setText(UIWizardCloneVD::tr("<p>You can also choose to <b>split</b> the hard disk file into several files "
+    m_pSplitLabel->setText(UIWizardCloneVD::tr("<p>You can also choose to <b>split</b> the disk image file into several files "
                                                "of up to two gigabytes each. This is mainly useful if you wish to store the "
                                                "virtual machine on removable USB devices or old systems, some of which cannot "
                                                "handle very large files."));

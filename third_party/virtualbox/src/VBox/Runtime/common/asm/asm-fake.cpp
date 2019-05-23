@@ -450,6 +450,15 @@ RTDECL(unsigned) ASMBitLastSetU32(uint32_t u32)
     return 0;
 }
 
+RTDECL(unsigned) ASMBitFirstSetU64(uint64_t u64)
+{
+    uint32_t iBit;
+    for (iBit = 0; iBit < 64; iBit++)
+        if (u64 & RT_BIT_64(iBit))
+            return iBit + 1;
+    return 0;
+}
+
 RTDECL(uint16_t) ASMByteSwapU16(uint16_t u16)
 {
     return RT_MAKE_U16(RT_HIBYTE(u16), RT_LOBYTE(u16));

@@ -114,4 +114,3 @@ BS3_PROC_BEGIN_CMN Bs3SwitchHlpConvProtModeRetfPopBpDecBpAndReturn, BS3_PBC_NEAR
 %endif
 BS3_PROC_END_CMN   Bs3SwitchHlpConvProtModeRetfPopBpDecBpAndReturn
 
-

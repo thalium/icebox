@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -96,8 +96,8 @@ static int vbsfCorrectCasing(SHFLCLIENTDATA *pClient, char *pszFullPath, char *p
     AssertRC(rc);
     if (RT_SUCCESS(rc))
     {
-        PRTDIR hSearch = NULL;
-        rc = RTDirOpenFiltered(&hSearch, pDirEntry->szName, RTDIRFILTER_WINNT, 0);
+        RTDIR hSearch = NULL;
+        rc = RTDirOpenFiltered(&hSearch, pDirEntry->szName, RTDIRFILTER_WINNT, 0 /*fFlags*/);
         if (RT_SUCCESS(rc))
         {
             for (;;)

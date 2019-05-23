@@ -372,5 +372,21 @@ void renderspuSetVBoxConfiguration( RenderSPU *render_spu )
 #if defined(GLX)
     render_spu->sync = 0;
 #endif
+
+    /* Config of "render force present main thread" (currently implemented by glx and wgl). */
+    {
+        const char *forcePresent = crGetenv("CR_RENDER_FORCE_PRESENT_MAIN_THREAD");
+        if (forcePresent)
+            render_spu->force_present_main_thread = crStrToInt(forcePresent) ? 1 : 0;
+        else
+        {
+#if defined(GLX)
+            /* Customer needed this for avoiding system 3D driver bugs. */
+            render_spu->force_present_main_thread = 1;
+#else
+            render_spu->force_present_main_thread = 0;
+#endif
+        }
+    }
 }
 

@@ -448,7 +448,7 @@ static int default_dbg_vprintf( const char *format, va_list args )
     static int first_time = 1;
 
     if (first_time)
-    {   
+    {
         first_time = 0;
         output = fopen( "winelog.txt", "w" );
     }

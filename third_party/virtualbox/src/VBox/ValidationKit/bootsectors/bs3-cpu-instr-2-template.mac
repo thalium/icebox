@@ -167,4 +167,3 @@ times (348) db 0cch ; fudge to avoid 'rderr' during boot.
 
 %include "bs3kit-template-footer.mac"   ; reset environment
 
-

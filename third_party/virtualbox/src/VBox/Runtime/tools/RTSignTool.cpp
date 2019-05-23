@@ -25,9 +25,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #include <iprt/assert.h>
 #include <iprt/buildconfig.h>
 #include <iprt/err.h>
@@ -59,9 +59,9 @@
 #endif
 
 
-/*******************************************************************************
-*   Structures and Typedefs                                                    *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Structures and Typedefs                                                                                                      *
+*********************************************************************************************************************************/
 /** Help detail levels. */
 typedef enum RTSIGNTOOLHELP
 {
@@ -124,9 +124,9 @@ typedef struct SHOWEXEPKCS7 : public SIGNTOOLPKCS7EXE
 typedef SHOWEXEPKCS7 *PSHOWEXEPKCS7;
 
 
-/*******************************************************************************
-*   Internal Functions                                                         *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Internal Functions                                                                                                           *
+*********************************************************************************************************************************/
 static RTEXITCODE HandleHelp(int cArgs, char **papszArgs);
 static RTEXITCODE HelpHelp(PRTSTREAM pStrm, RTSIGNTOOLHELP enmLevel);
 static RTEXITCODE HandleVersion(int cArgs, char **papszArgs);
@@ -341,8 +341,11 @@ static RTEXITCODE SignToolPkcs7_Encode(PSIGNTOOLPKCS7 pThis, unsigned cVerbosity
  * @param   pThis               The signature to modify.
  * @param   pSrc                The signature to add as nested.
  * @param   cVerbosity          The verbosity.
+ * @param   fPrepend            Whether to prepend (true) or append (false) the
+ *                              source signature to the nested attribute.
  */
-static RTEXITCODE SignToolPkcs7_AddNestedSignature(PSIGNTOOLPKCS7 pThis, PSIGNTOOLPKCS7 pSrc, unsigned cVerbosity)
+static RTEXITCODE SignToolPkcs7_AddNestedSignature(PSIGNTOOLPKCS7 pThis, PSIGNTOOLPKCS7 pSrc,
+                                                   unsigned cVerbosity, bool fPrepend)
 {
     PRTCRPKCS7SIGNERINFO pSignerInfo = pThis->pSignedData->SignerInfos.papItems[0];
     int rc;
@@ -369,64 +372,78 @@ static RTEXITCODE SignToolPkcs7_AddNestedSignature(PSIGNTOOLPKCS7 pThis, PSIGNTO
                                      sizeof(**pSignerInfo->UnauthenticatedAttributes.papItems));
     }
 
-    int32_t iPos = RTCrPkcs7Attributes_Append(&pSignerInfo->UnauthenticatedAttributes);
-    if (iPos >= 0)
-    {
-        if (cVerbosity >= 3)
-            RTMsgInfo("Adding UnauthenticatedAttribute #%u...", iPos);
-        Assert((uint32_t)iPos < pSignerInfo->UnauthenticatedAttributes.cItems);
-
-        PRTCRPKCS7ATTRIBUTE pAttr = pSignerInfo->UnauthenticatedAttributes.papItems[iPos];
-        rc = RTAsn1ObjId_InitFromString(&pAttr->Type, RTCR_PKCS9_ID_MS_NESTED_SIGNATURE, pAttr->Allocation.pAllocator);
-        if (RT_SUCCESS(rc))
+    /*
+     * Find or add an unauthenticated attribute for nested signatures.
+     */
+    rc = VERR_NOT_FOUND;
+    PRTCRPKCS7ATTRIBUTE pAttr = NULL;
+    int32_t iPos = pSignerInfo->UnauthenticatedAttributes.cItems;
+    while (iPos-- > 0)
+        if (pSignerInfo->UnauthenticatedAttributes.papItems[iPos]->enmType == RTCRPKCS7ATTRIBUTETYPE_MS_NESTED_SIGNATURE)
         {
-            /** @todo Generalize the Type + enmType DYN stuff and generate setters. */
-            Assert(pAttr->enmType == RTCRPKCS7ATTRIBUTETYPE_NOT_PRESENT);
-            Assert(pAttr->uValues.pContentInfos == NULL);
-            pAttr->enmType = RTCRPKCS7ATTRIBUTETYPE_MS_NESTED_SIGNATURE;
-            rc = RTAsn1MemAllocZ(&pAttr->Allocation, (void **)&pAttr->uValues.pContentInfos,
-                                 sizeof(*pAttr->uValues.pContentInfos));
+            pAttr = pSignerInfo->UnauthenticatedAttributes.papItems[iPos];
+            rc = VINF_SUCCESS;
+            break;
+        }
+    if (iPos < 0)
+    {
+        iPos = RTCrPkcs7Attributes_Append(&pSignerInfo->UnauthenticatedAttributes);
+        if (iPos >= 0)
+        {
+            if (cVerbosity >= 3)
+                RTMsgInfo("Adding UnauthenticatedAttribute #%u...", iPos);
+            Assert((uint32_t)iPos < pSignerInfo->UnauthenticatedAttributes.cItems);
+
+            pAttr = pSignerInfo->UnauthenticatedAttributes.papItems[iPos];
+            rc = RTAsn1ObjId_InitFromString(&pAttr->Type, RTCR_PKCS9_ID_MS_NESTED_SIGNATURE, pAttr->Allocation.pAllocator);
             if (RT_SUCCESS(rc))
             {
-                rc = RTCrPkcs7SetOfContentInfos_Init(pAttr->uValues.pContentInfos, pAttr->Allocation.pAllocator);
+                /** @todo Generalize the Type + enmType DYN stuff and generate setters. */
+                Assert(pAttr->enmType == RTCRPKCS7ATTRIBUTETYPE_NOT_PRESENT);
+                Assert(pAttr->uValues.pContentInfos == NULL);
+                pAttr->enmType = RTCRPKCS7ATTRIBUTETYPE_MS_NESTED_SIGNATURE;
+                rc = RTAsn1MemAllocZ(&pAttr->Allocation, (void **)&pAttr->uValues.pContentInfos,
+                                     sizeof(*pAttr->uValues.pContentInfos));
                 if (RT_SUCCESS(rc))
                 {
-                    iPos = RTCrPkcs7SetOfContentInfos_Append(pAttr->uValues.pContentInfos);
-                    Assert(iPos == 0);
-                    if (iPos >= 0)
-                    {
-                        PRTCRPKCS7CONTENTINFO pCntInfo = pAttr->uValues.pContentInfos->papItems[iPos];
-                        rc = RTCrPkcs7ContentInfo_Clone(pCntInfo, &pSrc->ContentInfo, pAttr->Allocation.pAllocator);
-                        if (RT_SUCCESS(rc))
-                        {
-                            if (cVerbosity > 0)
-                                RTMsgInfo("Added nested signature");
-                            if (cVerbosity >= 3)
-                            {
-                                RTMsgInfo("SingerInfo dump after change:");
-                                RTAsn1Dump(RTCrPkcs7SignerInfo_GetAsn1Core(pSignerInfo), 0, 2, RTStrmDumpPrintfV, g_pStdOut);
-                            }
-
-                            return RTEXITCODE_SUCCESS;
-                        }
-
-                        RTMsgError("RTCrPkcs7ContentInfo_Clone failed: %Rrc", iPos);
-                    }
-                    else
-                        RTMsgError("RTCrPkcs7ContentInfos_Append failed: %Rrc", iPos);
+                    rc = RTCrPkcs7SetOfContentInfos_Init(pAttr->uValues.pContentInfos, pAttr->Allocation.pAllocator);
+                    if (!RT_SUCCESS(rc))
+                        RTMsgError("RTCrPkcs7ContentInfos_Init failed: %Rrc", rc);
                 }
                 else
-                    RTMsgError("RTCrPkcs7ContentInfos_Init failed: %Rrc", rc);
+                    RTMsgError("RTAsn1MemAllocZ failed: %Rrc", rc);
             }
             else
-                RTMsgError("RTAsn1MemAllocZ failed: %Rrc", rc);
+                RTMsgError("RTAsn1ObjId_InitFromString failed: %Rrc", rc);
         }
         else
-            RTMsgError("RTAsn1ObjId_InitFromString failed: %Rrc", rc);
+            RTMsgError("RTCrPkcs7Attributes_Append failed: %Rrc", iPos);
     }
-    else
-        RTMsgError("RTCrPkcs7Attributes_Append failed: %Rrc", iPos);
-    NOREF(cVerbosity);
+    else if (cVerbosity >= 2)
+        RTMsgInfo("Found UnauthenticatedAttribute #%u...", iPos);
+    if (RT_SUCCESS(rc))
+    {
+        /*
+         * Append/prepend the signature.
+         */
+        uint32_t iActualPos = UINT32_MAX;
+        iPos = fPrepend ? 0 : pAttr->uValues.pContentInfos->cItems;
+        rc = RTCrPkcs7SetOfContentInfos_InsertEx(pAttr->uValues.pContentInfos, iPos, &pSrc->ContentInfo,
+                                                 pAttr->Allocation.pAllocator, &iActualPos);
+        if (RT_SUCCESS(rc))
+        {
+            if (cVerbosity > 0)
+                RTMsgInfo("Added nested signature (#%u)", iActualPos);
+            if (cVerbosity >= 3)
+            {
+                RTMsgInfo("SingerInfo dump after change:");
+                RTAsn1Dump(RTCrPkcs7SignerInfo_GetAsn1Core(pSignerInfo), 0, 2, RTStrmDumpPrintfV, g_pStdOut);
+            }
+            return RTEXITCODE_SUCCESS;
+        }
+
+        RTMsgError("RTCrPkcs7ContentInfos_InsertEx failed: %Rrc", rc);
+    }
     return RTEXITCODE_FAILURE;
 }
 
@@ -1002,12 +1019,17 @@ static RTEXITCODE HandleExtractExeSignerCert(int cArgs, char **papszArgs)
 static RTEXITCODE HelpAddNestedExeSignature(PRTSTREAM pStrm, RTSIGNTOOLHELP enmLevel)
 {
     RT_NOREF_PV(enmLevel);
-    RTStrmPrintf(pStrm, "add-nested-exe-signature [-v|--verbose] [-d|--debug] <destination-exe> <source-exe>\n");
+    RTStrmPrintf(pStrm, "add-nested-exe-signature [-v|--verbose] [-d|--debug] [-p|--prepend] <destination-exe> <source-exe>\n");
     if (enmLevel == RTSIGNTOOLHELP_FULL)
         RTStrmPrintf(pStrm,
                      "\n"
                      "The --debug option allows the source-exe to be omitted in order to test the\n"
-                     "encoding and PE file modification.\n");
+                     "encoding and PE file modification.\n"
+                     "\n"
+                     "The --prepend option puts the nested signature first rather than appending it\n"
+                     "to the end of of the nested signature set.  Windows reads nested signatures in\n"
+                     "reverse order, so --prepend will logically putting it last.\n"
+                     );
     return RTEXITCODE_SUCCESS;
 }
 
@@ -1019,6 +1041,7 @@ static RTEXITCODE HandleAddNestedExeSignature(int cArgs, char **papszArgs)
      */
     static const RTGETOPTDEF s_aOptions[] =
     {
+        { "--prepend", 'p', RTGETOPT_REQ_NOTHING },
         { "--verbose", 'v', RTGETOPT_REQ_NOTHING },
         { "--debug",   'd', RTGETOPT_REQ_NOTHING },
     };
@@ -1027,6 +1050,7 @@ static RTEXITCODE HandleAddNestedExeSignature(int cArgs, char **papszArgs)
     const char *pszSrc     = NULL;
     unsigned    cVerbosity = 0;
     bool        fDebug     = false;
+    bool        fPrepend   = false;
 
     RTGETOPTSTATE GetState;
     int rc = RTGetOptInit(&GetState, cArgs, papszArgs, s_aOptions, RT_ELEMENTS(s_aOptions), 1, RTGETOPTINIT_FLAGS_OPTS_FIRST);
@@ -1039,6 +1063,7 @@ static RTEXITCODE HandleAddNestedExeSignature(int cArgs, char **papszArgs)
         {
             case 'v':   cVerbosity++; break;
             case 'd':   fDebug = pszSrc == NULL; break;
+            case 'p':   fPrepend = true; break;
             case 'V':   return HandleVersion(cArgs, papszArgs);
             case 'h':   return HelpAddNestedExeSignature(g_pStdOut, RTSIGNTOOLHELP_FULL);
 
@@ -1078,7 +1103,7 @@ static RTEXITCODE HandleAddNestedExeSignature(int cArgs, char **papszArgs)
         {
             /* Do the signature manipulation. */
             if (pszSrc)
-                rcExit = SignToolPkcs7_AddNestedSignature(&Dst, &Src, cVerbosity);
+                rcExit = SignToolPkcs7_AddNestedSignature(&Dst, &Src, cVerbosity, fPrepend);
             if (rcExit == RTEXITCODE_SUCCESS)
                 rcExit = SignToolPkcs7_Encode(&Dst, cVerbosity);
 
@@ -1102,12 +1127,17 @@ static RTEXITCODE HandleAddNestedExeSignature(int cArgs, char **papszArgs)
 static RTEXITCODE HelpAddNestedCatSignature(PRTSTREAM pStrm, RTSIGNTOOLHELP enmLevel)
 {
     RT_NOREF_PV(enmLevel);
-    RTStrmPrintf(pStrm, "add-nested-cat-signature [-v|--verbose] <destination-cat> <source-cat>\n");
+    RTStrmPrintf(pStrm, "add-nested-cat-signature [-v|--verbose] [-d|--debug] [-p|--prepend] <destination-cat> <source-cat>\n");
     if (enmLevel == RTSIGNTOOLHELP_FULL)
         RTStrmPrintf(pStrm,
                      "\n"
                      "The --debug option allows the source-cat to be omitted in order to test the\n"
-                     "ASN.1 re-encoding of the destination catalog file.\n");
+                     "ASN.1 re-encoding of the destination catalog file.\n"
+                     "\n"
+                     "The --prepend option puts the nested signature first rather than appending it\n"
+                     "to the end of of the nested signature set.  Windows reads nested signatures in\n"
+                     "reverse order, so --prepend will logically putting it last.\n"
+                     );
     return RTEXITCODE_SUCCESS;
 }
 
@@ -1119,6 +1149,7 @@ static RTEXITCODE HandleAddNestedCatSignature(int cArgs, char **papszArgs)
      */
     static const RTGETOPTDEF s_aOptions[] =
     {
+        { "--prepend", 'p', RTGETOPT_REQ_NOTHING },
         { "--verbose", 'v', RTGETOPT_REQ_NOTHING },
         { "--debug",   'd', RTGETOPT_REQ_NOTHING },
     };
@@ -1127,6 +1158,7 @@ static RTEXITCODE HandleAddNestedCatSignature(int cArgs, char **papszArgs)
     const char *pszSrc     = NULL;
     unsigned    cVerbosity = 0;
     bool        fDebug     = false;
+    bool        fPrepend   = false;
 
     RTGETOPTSTATE GetState;
     int rc = RTGetOptInit(&GetState, cArgs, papszArgs, s_aOptions, RT_ELEMENTS(s_aOptions), 1, RTGETOPTINIT_FLAGS_OPTS_FIRST);
@@ -1139,6 +1171,7 @@ static RTEXITCODE HandleAddNestedCatSignature(int cArgs, char **papszArgs)
         {
             case 'v':   cVerbosity++; break;
             case 'd':   fDebug = pszSrc == NULL; break;
+            case 'p':   fPrepend = true;  break;
             case 'V':   return HandleVersion(cArgs, papszArgs);
             case 'h':   return HelpAddNestedCatSignature(g_pStdOut, RTSIGNTOOLHELP_FULL);
 
@@ -1178,7 +1211,7 @@ static RTEXITCODE HandleAddNestedCatSignature(int cArgs, char **papszArgs)
         {
             /* Do the signature manipulation. */
             if (pszSrc)
-                rcExit = SignToolPkcs7_AddNestedSignature(&Dst, &Src, cVerbosity);
+                rcExit = SignToolPkcs7_AddNestedSignature(&Dst, &Src, cVerbosity, fPrepend);
             if (rcExit == RTEXITCODE_SUCCESS)
                 rcExit = SignToolPkcs7_Encode(&Dst, cVerbosity);
 
@@ -2591,5 +2624,4 @@ int main(int argc, char **argv)
 
     return RTEXITCODE_SYNTAX;
 }
-
 

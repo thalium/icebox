@@ -4,7 +4,6 @@
  */
 
 /*
- *
  * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as

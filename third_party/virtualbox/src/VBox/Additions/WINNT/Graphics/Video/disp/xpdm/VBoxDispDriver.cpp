@@ -1,11 +1,10 @@
 /* $Id: VBoxDispDriver.cpp $ */
-
 /** @file
  * VBox XPDM Display driver interface functions
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -237,7 +236,7 @@ static int VBoxDispInitDevice(PVBOXDISPDEV pDev, DEVMODEW *pdm, GDIINFO *pGdiInf
     pDev->mode.ulWidth = selectedMode.VisScreenWidth;
     pDev->mode.ulHeight = selectedMode.VisScreenHeight;
     pDev->mode.ulBitsPerPel = selectedMode.BitsPerPlane * selectedMode.NumberOfPlanes;
-    pDev->mode.lScanlineStride = selectedMode.ScreenStride;
+    pDev->mode.lScanlineStride = RT_ALIGN_32(selectedMode.ScreenStride, 4);
     pDev->mode.flMaskR = selectedMode.RedMask;
     pDev->mode.flMaskG = selectedMode.GreenMask;
     pDev->mode.flMaskB = selectedMode.BlueMask;

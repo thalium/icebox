@@ -84,7 +84,7 @@ struct fsw_posix_volume * fsw_posix_mount(const char *path, struct fsw_fstype_ta
     pvol->fd = -1;
 
     // open underlying file/device
-    pvol->fd = open(path, O_RDONLY, 0);
+    pvol->fd = open(path, O_RDONLY | O_BINARY, 0);
     if (pvol->fd < 0) {
         fprintf(stderr, "fsw_posix_mount: %s: %s\n", path, strerror(errno));
         fsw_free(pvol);
@@ -225,11 +225,11 @@ struct fsw_posix_dir * fsw_posix_opendir(struct fsw_posix_volume *pvol, const ch
  * Read the next entry from a directory.
  */
 
-struct dirent * fsw_posix_readdir(struct fsw_posix_dir *dir)
+struct fsw_posix_dirent * fsw_posix_readdir(struct fsw_posix_dir *dir)
 {
-    fsw_status_t        status;
-    struct fsw_dnode    *dno;
-    static struct dirent dent;
+    fsw_status_t                    status;
+    struct fsw_dnode                *dno;
+    static struct fsw_posix_dirent  dent;
 
     // get next entry from file system
     status = fsw_dnode_dir_read(&dir->shand, &dno);
@@ -247,7 +247,7 @@ struct dirent * fsw_posix_readdir(struct fsw_posix_dir *dir)
 
     // fill dirent structure
     dent.d_fileno = dno->dnode_id;
-    dent.d_reclen = 8 + dno->name.size + 1;
+    //dent.d_reclen = 8 + dno->name.size + 1;
     switch (dno->type) {
         case FSW_DNODE_TYPE_FILE:
             dent.d_type = DT_REG;
@@ -373,11 +373,15 @@ fsw_status_t fsw_posix_read_block(struct fsw_volume *vol, fsw_u32 phys_bno, void
     // read from disk
     block_offset = (off_t)phys_bno * vol->phys_blocksize;
     seek_result = lseek(pvol->fd, block_offset, SEEK_SET);
-    if (seek_result != block_offset)
+    if (seek_result != block_offset) {
+        fprintf(stderr, "fsw_posix_read_block: failed to seek to block %u (offset %u)\n", phys_bno, block_offset);
         return FSW_IO_ERROR;
+    }
     read_result = read(pvol->fd, buffer, vol->phys_blocksize);
-    if (read_result != vol->phys_blocksize)
+    if (read_result != vol->phys_blocksize) {
+        fprintf(stderr, "fsw_posix_read_block: failed to read %u bytes at %u\n", vol->phys_blocksize, block_offset);
         return FSW_IO_ERROR;
+    }
 
     return FSW_SUCCESS;
 }

@@ -1,0 +1,135 @@
+# $Id: .scm-settings $
+## @file
+# Source code massager settings for EFI.
+#
+
+#
+# Copyright (C) 2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+
+/DevEFI.h: --license-ose-dual
+
+/Firmware/*:     --external-copyright --dont-set-svn-keywords --no-convert-tabs --no-strip-trailing-blanks \
+                 --strip-no-trailing-lines --no-force-final-eol --no-fix-todos
+/Firmware/*.kmk: --no-external-copyright --set-svn-keywords --convert-tabs --strip-trailing-blanks --strip-trailing-lines \
+                 --force-final-eol --fix-todos --license-ose-dual
+
+/Firmware/MdeModulePkg/Universal/Disk/PartitionDxe/Apple.c: \
+                 --no-external-copyright --set-svn-keywords --convert-tabs --strip-trailing-blanks --strip-trailing-lines \
+                 --force-final-eol --fix-todos --license-ose-dual
+
+/Firmware/VBox*: --no-external-copyright --set-svn-keywords --convert-tabs --strip-trailing-blanks --strip-trailing-lines \
+                 --force-final-eol --fix-todos --license-ose-dual
+
+
+# Build related files using '#' for comments.
+/Firmware/*.dec:        --treat-as Makefile
+/Firmware/*.dsc:        --treat-as Makefile
+/Firmware/*.fdf:        --treat-as Makefile
+/Firmware/*.inf:        --treat-as Makefile
+/Firmware/BaseTools/Conf/build_rule.template:   --treat-as Makefile
+/Firmware/BaseTools/Conf/target.template:       --treat-as Makefile
+/Firmware/BaseTools/Conf/tools_def.template:    --treat-as Makefile
+
+# IASL sources.
+/Firmware/*.asl:        --treat-as *.h
+/Firmware/*.aslc:       --treat-as *.h
+
+# NASM source.
+/Firmware/*.nasm:       --treat-as .asm
+/Firmware/*.nasmb:      --treat-as .asm
+/Firmware/*.asm16:      --treat-as .asm
+
+# cpp processed assembly files.
+/Firmware/*.s:          --treat-as .h
+/Firmware/*.i:          --treat-as .h
+
+# GAS assembly files w/o preprocessing.
+/Firmware/*.S:          --treat-as Makefile
+
+# Not quite sure what this is, uses C++ comment style.
+/Firmware/*.vfr:        --treat-as .h
+/Firmware/*.Vfr:        --treat-as .h
+
+# Linker scripts.
+/Firmware/*-ld-script:  --treat-as .h
+
+# Grammar files. Treat as C for now.
+/Firmware/*.g:          --treat-as .c
+
+# Not entirely sure what the .dlg files are, but they seems to contain C like license headers.
+/Firmware/*.dlg:        --treat-as .h
+
+# Misc.
+*.xsd:                  --treat-as .xml
+/Firmware/*.ini:        --treat-as Makefile
+/Firmware/BaseTools/Conf/FrameworkDatabase.template:    --treat-as .xml
+/Firmware/BaseTools/Source/C/VfrCompile/Pccts/*.r:      --treat-as .h
+/Firmware/BaseTools/BuildEnv:                           --treat-as .sh
+
+# Some normal makefiles (external code, convenience, ...)
+/Firmware/*.mak:        --treat-as Makefile
+/Firmware/*/makefile1:  --treat-as Makefile
+/Firmware/*/makefile.cygwin:                            --treat-as Makefile
+/Firmware/*/makefile.old:                               --treat-as Makefile
+/Firmware/BaseTools/Source/C/Makefiles/*.makefile:      --treat-as Makefile
+/Firmware/BaseTools/Source/C/Makefiles/ms.*:            --treat-as Makefile
+
+# Ignore text files, usually no license stuff there.
+--filter-out-files *.txt
+--filter-out-files *.rtf
+--filter-out-files *.1
+--filter-out-files /Firmware/*/README
+--filter-out-files /Firmware/BaseTools/Source/C/VfrCompile/Pccts/MPW_Read_Me
+--filter-out-files /Firmware/BaseTools/Source/C/VfrCompile/Pccts/NOTES.bcc
+--filter-out-files /Firmware/BaseTools/Source/C/VfrCompile/Pccts/NOTES.msvc
+--filter-out-files /Firmware/BaseTools/Source/C/VfrCompile/Pccts/RIGHTS
+--filter-out-files /Firmware/ReadMe.vbox
+
+# Ignore binary files.
+--filter-out-files *.raw
+--filter-out-files *.efi
+--filter-out-files *.bin
+--filter-out-files *.obj
+--filter-out-files *.dll
+--filter-out-files *.docx
+--filter-out-files /FirmwareBin/*.fd
+
+# The .uni files are UTF-16LE encoded and scm doesn't grok that yet.
+--filter-out-files *.uni
+
+# Ignore patches.
+--filter-out-files *.patch
+
+# Ignore visual C++ project stuff.
+--filter-out-files *.sln
+--filter-out-files *.suo
+--filter-out-files *.vcproj
+
+# Misc
+--filter-out-files */.gitignore
+--filter-out-files *.ps
+--filter-out-files /Firmware/BaseTools/Source/Python/Rsa2048Sha256Sign/TestSigningPrivateKey.pem
+--filter-out-dirs  /Firmware/StdLib/Efi/StdLib/etc/.
+
+#
+# VBoxPkg
+#
+/Firmware/VBoxPkg/VBoxFsDxe/test/*: --external-copyright --no-strip-trailing-blanks --no-fix-todos --strip-no-trailing-lines
+/Firmware/VBoxPkg/VBoxVgaMiniPortDxe/VBoxVgaFont*.h: --external-copyright
+
+
+#/src/VBox/Devices/EFI/Firmware2/VBoxPkg/VBoxVgaDxe/Edid.c: --no-convert-tabs
+#/src/VBox/Devices/EFI/Firmware2/VBoxPkg/VBoxFsDxe/*.*: --no-convert-tabs
+#/src/VBox/Devices/EFI/Firmware2/VBoxPkg/VBoxVgaDxe/Edid.c: --dont-set-svn-keywords
+#/src/VBox/Devices/EFI/Firmware2/VBoxPkg/VBoxFsDxe/*.*: --dont-set-svn-keywords
+

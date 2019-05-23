@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -21,7 +21,7 @@
 typedef void (WINAPI *DebugSetMuteProc)(void);
 typedef IDirect3D9* (WINAPI *Direct3DCreate9Proc)(UINT SDKVersion);
 typedef HRESULT (WINAPI *Direct3DCreate9ExProc)(UINT SDKVersion, IDirect3D9Ex **direct3d9ex);
-/* @todo: this does not return a value according to MSDN */
+/** @todo this does not return a value according to MSDN */
 typedef void* (WINAPI *Direct3DShaderValidatorCreate9Proc)(void);
 typedef int (WINAPI *D3DPERF_BeginEventProc)(D3DCOLOR color, LPCWSTR name);
 typedef int (WINAPI *D3DPERF_EndEventProc)(void);
@@ -127,10 +127,10 @@ void FillD3DExports(HANDLE hDLL)
     SW_FILLPROC(g_swd3d9, hDLL, D3DPERF_SetRegion);
 }
 
-void WINAPI DebugSetMute(void) 
+void WINAPI DebugSetMute(void)
 {
     SW_CHECKCALL(g_swd3d9, DebugSetMute);
-    g_swd3d9.pDebugSetMute();    
+    g_swd3d9.pDebugSetMute();
 }
 
 IDirect3D9* WINAPI Direct3DCreate9(UINT SDKVersion)

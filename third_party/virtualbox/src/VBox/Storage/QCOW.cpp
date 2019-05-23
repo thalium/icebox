@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1288,7 +1288,7 @@ static int qcowCreateImage(PQCOWIMAGE pImage, uint64_t cbSize,
                 pImage->cL1TableEntries    = cbSize / (pImage->cbCluster * pImage->cL2TableEntries);
                 if (cbSize % (pImage->cbCluster * pImage->cL2TableEntries))
                     pImage->cL1TableEntries++;
-                pImage->cbL1Table          = pImage->cL1TableEntries * sizeof(uint64_t);
+                pImage->cbL1Table          = RT_ALIGN_64(pImage->cL1TableEntries * sizeof(uint64_t), pImage->cbCluster);
                 pImage->offL1Table         = QCOW_V1_HDR_SIZE;
                 pImage->cbBackingFilename  = 0;
                 pImage->offBackingFilename = 0;
@@ -1589,7 +1589,7 @@ static DECLCALLBACK(int) qcowCreate(const char *pszFilename, uint64_t cbSize,
                                     void **ppBackendData)
 {
     RT_NOREF1(pUuid);
-    LogFlowFunc(("pszFilename=\"%s\" cbSize=%llu uImageFlags=%#x pszComment=\"%s\" pPCHSGeometry=%#p pLCHSGeometry=%#p Uuid=%RTuuid uOpenFlags=%#x uPercentStart=%u uPercentSpan=%u pVDIfsDisk=%#p pVDIfsImage=%#p pVDIfsOperation=%#p enmType=%u ppBackendData=%#p",
+    LogFlowFunc(("pszFilename=\"%s\" cbSize=%llu uImageFlags=%#x pszComment=\"%s\" pPCHSGeometry=%#p pLCHSGeometry=%#p Uuid=%RTuuid uOpenFlags=%#x uPercentStart=%u uPercentSpan=%u pVDIfsDisk=%#p pVDIfsImage=%#p pVDIfsOperation=%#p enmType=%u ppBackendData=%#p\n",
                  pszFilename, cbSize, uImageFlags, pszComment, pPCHSGeometry, pLCHSGeometry, pUuid, uOpenFlags, uPercentStart, uPercentSpan, pVDIfsDisk, pVDIfsImage, pVDIfsOperation, enmType, ppBackendData));
     int rc;
 

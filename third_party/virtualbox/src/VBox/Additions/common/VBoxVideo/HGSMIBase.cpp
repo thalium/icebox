@@ -6,22 +6,25 @@
 /*
  * Copyright (C) 2006-2017 Oracle Corporation
  *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
- * THE COPYRIGHT HOLDER(S) OR AUTHOR(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR
- * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
@@ -56,11 +59,11 @@ DECLHIDDEN(bool) VBoxHGSMIIsSupported(void)
  */
 DECLHIDDEN(int) VBoxHGSMIReportFlagsLocation(PHGSMIGUESTCOMMANDCONTEXT pCtx, HGSMIOFFSET offLocation)
 {
-    HGSMIBUFFERLOCATION *p;
 
     /* Allocate the IO buffer. */
-    p = (HGSMIBUFFERLOCATION *)VBoxHGSMIBufferAlloc(pCtx, sizeof(*p), HGSMI_CH_HGSMI,
-                                                    HGSMI_CC_HOST_FLAGS_LOCATION);
+    HGSMIBUFFERLOCATION RT_UNTRUSTED_VOLATILE_HOST *p =
+        (HGSMIBUFFERLOCATION RT_UNTRUSTED_VOLATILE_HOST *)VBoxHGSMIBufferAlloc(pCtx, sizeof(*p), HGSMI_CH_HGSMI,
+                                                                               HGSMI_CC_HOST_FLAGS_LOCATION);
     if (!p)
         return VERR_NO_MEMORY;
 
@@ -86,10 +89,10 @@ DECLHIDDEN(int) VBoxHGSMIReportFlagsLocation(PHGSMIGUESTCOMMANDCONTEXT pCtx, HGS
  */
 DECLHIDDEN(int) VBoxHGSMISendCapsInfo(PHGSMIGUESTCOMMANDCONTEXT pCtx, uint32_t fCaps)
 {
-    VBVACAPS *p;
 
     /* Allocate the IO buffer. */
-    p = (VBVACAPS *)VBoxHGSMIBufferAlloc(pCtx, sizeof(*p), HGSMI_CH_VBVA, VBVA_INFO_CAPS);
+    VBVACAPS RT_UNTRUSTED_VOLATILE_HOST *p =
+        (VBVACAPS RT_UNTRUSTED_VOLATILE_HOST *)VBoxHGSMIBufferAlloc(pCtx, sizeof(*p), HGSMI_CH_VBVA, VBVA_INFO_CAPS);
 
     if (!p)
         return VERR_NO_MEMORY;
@@ -161,8 +164,7 @@ DECLHIDDEN(int) VBoxQueryConfHGSMI(PHGSMIGUESTCOMMANDCONTEXT pCtx, uint32_t u32I
     VBVACONF32 *p;
 
     /* Allocate the IO buffer. */
-    p = (VBVACONF32 *)VBoxHGSMIBufferAlloc(pCtx, sizeof(*p), HGSMI_CH_VBVA,
-                                           VBVA_QUERY_CONF32);
+    p = (VBVACONF32 *)VBoxHGSMIBufferAlloc(pCtx, sizeof(*p), HGSMI_CH_VBVA, VBVA_QUERY_CONF32);
     if (!p)
         return VERR_NO_MEMORY;
 

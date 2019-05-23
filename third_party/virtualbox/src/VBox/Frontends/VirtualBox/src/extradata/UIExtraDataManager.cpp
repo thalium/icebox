@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -244,7 +244,7 @@ void UIExtraDataEventHandler::sltPreprocessExtraDataCanChange(QString strMachine
         if (strKey.startsWith("GUI/"))
         {
             /* Check whether global extra-data property can be applied: */
-            // TODO: Here can be various extra-data flags handling.
+            /// @todo Here can be various extra-data flags handling.
             //       Generally we should check whether one or another flag feats some rule (like reg-exp).
             //       For each required strValue we should set fVeto = true; and fill strVetoReason = "with some text".
         }
@@ -259,7 +259,7 @@ void UIExtraDataEventHandler::sltPreprocessExtraDataChange(QString strMachineID,
         if (strKey.startsWith("GUI/"))
         {
             /* Apply global extra-data property: */
-            // TODO: Here can be various extra-data flags handling.
+            /// @todo Here can be various extra-data flags handling.
             //       Generally we should push one or another flag to various instances which want to handle
             //       those flags independently from UIExtraDataManager. Remember to process each required strValue
             //       from under the m_mutex lock (since we are in another thread) and unlock that m_mutex afterwards.
@@ -416,7 +416,7 @@ void UIChooserPaneDelegate::fetchPixmapInfo(const QModelIndex &index, QPixmap &p
     {
         /* For global ID we return static pixmap/size: */
         const QIcon icon = UIIconPool::iconSet(":/edataglobal_32px.png");
-        pixmapSize = icon.availableSizes().first();
+        pixmapSize = icon.availableSizes().value(0, QSize(32, 32));
         pixmap = icon.pixmap(pixmapSize);
     }
 }
@@ -1444,8 +1444,11 @@ void UIExtraDataManagerWindow::prepareCentralWidget()
             m_pMainLayout->insertSpacing(0, 10);
 #else /* !VBOX_WS_MAC */
             /* Set spacing/margin like in the selector window: */
-            m_pMainLayout->setSpacing(5);
-            m_pMainLayout->setContentsMargins(5, 5, 5, 5);
+            const int iL = qApp->style()->pixelMetric(QStyle::PM_LayoutLeftMargin) / 2;
+            const int iT = qApp->style()->pixelMetric(QStyle::PM_LayoutTopMargin) / 2;
+            const int iR = qApp->style()->pixelMetric(QStyle::PM_LayoutRightMargin) / 2;
+            const int iB = qApp->style()->pixelMetric(QStyle::PM_LayoutBottomMargin) / 2;
+            m_pMainLayout->setContentsMargins(iL, iT, iR, iB);
 #endif /* !VBOX_WS_MAC */
             /* Prepare tool-bar: */
             prepareToolBar();
@@ -1535,7 +1538,8 @@ void UIExtraDataManagerWindow::preparePaneChooser()
                          pLayout == m_pPaneOfChooser->layout());
         {
             /* Configure layout: */
-            pLayout->setContentsMargins(0, 0, 3, 0);
+            const int iR = qApp->style()->pixelMetric(QStyle::PM_LayoutRightMargin) / 3;
+            pLayout->setContentsMargins(0, 0, iR, 0);
             /* Create chooser-filter: */
             m_pFilterOfChooser = new QLineEdit;
             {
@@ -1600,7 +1604,8 @@ void UIExtraDataManagerWindow::preparePaneData()
                          pLayout == m_pPaneOfData->layout());
         {
             /* Configure layout: */
-            pLayout->setContentsMargins(3, 0, 0, 0);
+            const int iL = qApp->style()->pixelMetric(QStyle::PM_LayoutLeftMargin) / 3;
+            pLayout->setContentsMargins(iL, 0, 0, 0);
             /* Create data-filter: */
             m_pFilterOfData = new QLineEdit;
             {
@@ -1981,6 +1986,7 @@ QStringList UIExtraDataManagerWindow::knownExtraDataKeys()
            << GUI_Fullscreen << GUI_Seamless << GUI_Scale
 #ifdef VBOX_WS_X11
            << GUI_Fullscreen_LegacyMode
+           << GUI_DistinguishMachineWindowGroups
 #endif /* VBOX_WS_X11 */
            << GUI_AutoresizeGuest << GUI_LastVisibilityStatusForGuestScreen << GUI_LastGuestSizeHint
            << GUI_VirtualScreenToHostScreen << GUI_AutomountGuestScreens
@@ -2293,8 +2299,8 @@ void UIExtraDataManager::incrementApplicationUpdateCheckCounter()
 
 bool UIExtraDataManager::legacyProgressHandlingRequested()
 {
-    /* 'True' unless feature restricted: */
-    return !isFeatureRestricted(GUI_Progress_LegacyMode);
+    /* 'False' unless feature allowed: */
+    return isFeatureAllowed(GUI_Progress_LegacyMode);
 }
 
 bool UIExtraDataManager::guiFeatureEnabled(GUIFeatureType enmFeature)
@@ -2595,16 +2601,16 @@ QRect UIExtraDataManager::selectorWindowGeometry(QWidget *pWidget)
     }
     while (0);
 
+    /* Get available-geometry [of screen with point (iX, iY) if possible]: */
+    const QRect availableGeometry = fOk ? gpDesktop->availableGeometry(QPoint(iX, iY)) :
+                                          gpDesktop->availableGeometry();
+
     /* Use geometry (loaded or default): */
-    QRect geometry = fOk ? QRect(iX, iY, iW, iH) : QRect(0, 0, 770, 550);
+    QRect geometry = fOk ? QRect(iX, iY, iW, iH) : QRect(QPoint(0, 0), availableGeometry.size() * .50 /* % */);
 
     /* Take hint-widget into account: */
     if (pWidget)
         geometry.setSize(geometry.size().expandedTo(pWidget->minimumSizeHint()));
-
-    /* Get available-geometry [of screen with point (iX, iY) if possible]: */
-    const QRect availableGeometry = fOk ? gpDesktop->availableGeometry(QPoint(iX, iY)) :
-                                          gpDesktop->availableGeometry();
 
     /* In Windows Qt fails to reposition out of screen window properly, so doing it ourselves: */
 #ifdef VBOX_WS_WIN
@@ -3556,6 +3562,18 @@ bool UIExtraDataManager::legacyFullscreenModeRequested()
     /* 'False' unless feature allowed: */
     return isFeatureAllowed(GUI_Fullscreen_LegacyMode);
 }
+
+bool UIExtraDataManager::distinguishMachineWindowGroups(const QString &strID)
+{
+    /* 'False' unless feature allowed: */
+    return isFeatureAllowed(GUI_DistinguishMachineWindowGroups, strID);
+}
+
+void UIExtraDataManager::setDistinguishMachineWindowGroups(const QString &strID, bool fEnabled)
+{
+    /* 'True' if feature allowed, null-string otherwise: */
+    setExtraDataString(GUI_DistinguishMachineWindowGroups, toFeatureAllowed(fEnabled), strID);
+}
 #endif /* VBOX_WS_X11 */
 
 bool UIExtraDataManager::guestScreenAutoResizeEnabled(const QString &strID)
@@ -3973,16 +3991,16 @@ QRect UIExtraDataManager::informationWindowGeometry(QWidget *pWidget, QWidget *p
     }
     while (0);
 
+    /* Get available-geometry [of screen with point (iX, iY) if possible]: */
+    const QRect availableGeometry = fOk ? gpDesktop->availableGeometry(QPoint(iX, iY)) :
+                                          gpDesktop->availableGeometry();
+
     /* Use geometry (loaded or default): */
-    QRect geometry = fOk ? QRect(iX, iY, iW, iH) : QRect(0, 0, 600, 450);
+    QRect geometry = fOk ? QRect(iX, iY, iW, iH) : QRect(QPoint(0, 0), availableGeometry.size() * .33 /* % */);
 
     /* Take hint-widget into account: */
     if (pWidget)
         geometry.setSize(geometry.size().expandedTo(pWidget->minimumSizeHint()));
-
-    /* Get available-geometry [of screen with point (iX, iY) if possible]: */
-    const QRect availableGeometry = fOk ? gpDesktop->availableGeometry(QPoint(iX, iY)) :
-                                          gpDesktop->availableGeometry();
 
     /* In Windows Qt fails to reposition out of screen window properly, so doing it ourselves: */
 #ifdef VBOX_WS_WIN

@@ -49,12 +49,33 @@
 #include <linux/string.h>
 
 #if defined(RHEL_MAJOR) && defined(RHEL_MINOR)
+# if RHEL_MAJOR == 7 && RHEL_MINOR >= 5
+#  define RHEL_75
+# endif
 # if RHEL_MAJOR == 7 && RHEL_MINOR >= 4
-#  define RHEL_73
 #  define RHEL_74
-# elif RHEL_MAJOR == 7 && RHEL_MINOR >= 3
+# endif
+# if RHEL_MAJOR == 7 && RHEL_MINOR >= 3
 #  define RHEL_73
 # endif
+# if RHEL_MAJOR == 7 && RHEL_MINOR >= 1
+#  define RHEL_71
+# endif
+#endif
+
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 14, 0) || defined(RHEL_71)
+#define U8_MAX          ((u8)~0U)
+#define S8_MAX          ((s8)(U8_MAX>>1))
+#define S8_MIN          ((s8)(-S8_MAX - 1))
+#define U16_MAX         ((u16)~0U)
+#define S16_MAX         ((s16)(U16_MAX>>1))
+#define S16_MIN         ((s16)(-S16_MAX - 1))
+#define U32_MAX         ((u32)~0U)
+#define S32_MAX         ((s32)(U32_MAX>>1))
+#define S32_MIN         ((s32)(-S32_MAX - 1))
+#define U64_MAX         ((u64)~0ULL)
+#define S64_MAX         ((s64)(U64_MAX>>1))
+#define S64_MIN         ((s64)(-S64_MAX - 1))
 #endif
 
 #include <drm/drmP.h>
@@ -62,7 +83,7 @@
 #include <drm/drm_gem.h>
 #endif
 #include <drm/drm_fb_helper.h>
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0) || defined(RHEL_75)
 #include <drm/drm_encoder.h>
 #endif
 
@@ -159,7 +180,7 @@ struct vbox_private {
 #undef CURSOR_DATA_SIZE
 
 int vbox_driver_load(struct drm_device *dev, unsigned long flags);
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 11, 0) || defined(RHEL_75)
 void vbox_driver_unload(struct drm_device *dev);
 #else
 int vbox_driver_unload(struct drm_device *dev);
@@ -252,7 +273,6 @@ int vbox_framebuffer_init(struct drm_device *dev,
 int vbox_fbdev_init(struct drm_device *dev);
 void vbox_fbdev_fini(struct drm_device *dev);
 void vbox_fbdev_set_suspend(struct drm_device *dev, int state);
-void vbox_fbdev_set_base(struct vbox_private *vbox, unsigned long gpu_addr);
 
 struct vbox_bo {
 	struct ttm_buffer_object bo;

@@ -277,6 +277,12 @@
         <file alias="vm_start_disabled_32px_hidpi.png">images/hidpi/vm_start_disabled_32px_hidpi.png</file>
         <file alias="vm_start_headless_16px_hidpi.png">images/hidpi/vm_start_headless_16px_hidpi.png</file>
         <file alias="vm_start_separate_16px_hidpi.png">images/hidpi/vm_start_separate_16px_hidpi.png</file>
+        <file alias="vmw_clone_hidpi.png">images/hidpi/vmw_clone_hidpi.png</file>
+        <file alias="vmw_first_run_hidpi.png">images/hidpi/vmw_first_run_hidpi.png</file>
+        <file alias="vmw_new_harddisk_hidpi.png">images/hidpi/vmw_new_harddisk_hidpi.png</file>
+        <file alias="vmw_new_welcome_hidpi.png">images/hidpi/vmw_new_welcome_hidpi.png</file>
+        <file alias="vmw_ovf_export_hidpi.png">images/hidpi/vmw_ovf_export_hidpi.png</file>
+        <file alias="vmw_ovf_import_hidpi.png">images/hidpi/vmw_ovf_import_hidpi.png</file>
         <file alias="vrdp_16px_hidpi.png">images/hidpi/vrdp_16px_hidpi.png</file>
         <file alias="vrdp_24px_hidpi.png">images/hidpi/vrdp_24px_hidpi.png</file>
         <file alias="vrdp_32px_hidpi.png">images/hidpi/vrdp_32px_hidpi.png</file>

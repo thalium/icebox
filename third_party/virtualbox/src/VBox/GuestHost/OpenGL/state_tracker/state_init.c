@@ -435,7 +435,7 @@ crStateCreateContextId(int i, const CRLimitsState *limits, GLint visBits, CRCont
     return ctx;
 }
 
-/*@todo crStateAttribDestroy*/
+/** @todo crStateAttribDestroy*/
 static void
 crStateFreeContext(CRContext *ctx)
 {

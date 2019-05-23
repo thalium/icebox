@@ -327,6 +327,9 @@ VMMR3/SSM.cpp_DEFS +=	\
 	KBUILD_TARGET=\"$(KBUILD_TARGET)\" \
 	KBUILD_TARGET_ARCH=\"$(KBUILD_TARGET_ARCH)\"
 
+ifdef VBOX_WITH_GCC_SANITIZER
+ VMMR3/PGMPool.cpp_CXXFLAGS.linux += -fno-sanitize=address
+endif
 
 #ifdef VBOX_WITH_PDM_ASYNC_COMPLETION
 # ifeq ($(KBUILD_HOST), linux)

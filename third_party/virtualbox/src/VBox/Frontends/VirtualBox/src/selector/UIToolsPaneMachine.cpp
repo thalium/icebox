@@ -271,12 +271,6 @@ void UIToolsPaneMachine::prepare()
 {
     /* Create stacked-layout: */
     m_pLayout = new QStackedLayout(this);
-    AssertPtrReturnVoid(m_pLayout);
-    {
-        /* Configure layout: */
-        m_pLayout->setSpacing(0);
-        m_pLayout->setContentsMargins(3, 4, 5, 0);
-    }
 
     /* Create desktop pane: */
     openTool(ToolTypeMachine_Desktop);

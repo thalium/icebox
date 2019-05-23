@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2007-2016 Oracle Corporation
+ * Copyright (C) 2007-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -299,7 +299,8 @@ static DECLCALLBACK(void) vgsvcLogHeaderFooter(PRTLOGGER pLoggerRelease, RTLOGPH
  * Pass NULL to disabled logging.
  *
  * @return  IPRT status code.
- * @param   pszLogFile      Filename for log output.  NULL disables logging.
+ * @param   pszLogFile      Filename for log output.  NULL disables logging
+ *                          (r=bird: No, it doesn't!).
  */
 int VGSvcLogCreate(const char *pszLogFile)
 {
@@ -309,7 +310,6 @@ int VGSvcLogCreate(const char *pszLogFile)
 #if defined(RT_OS_WINDOWS) || defined(RT_OS_OS2)
     fFlags |= RTLOGFLAGS_USECRLF;
 #endif
-    char szError[RTPATH_MAX + 128] = "";
     int rc = RTLogCreateEx(&g_pLoggerRelease, fFlags, "all",
 #ifdef DEBUG
                            "VBOXSERVICE_LOG",
@@ -319,7 +319,7 @@ int VGSvcLogCreate(const char *pszLogFile)
                            RT_ELEMENTS(s_apszGroups), s_apszGroups,
                            RTLOGDEST_STDOUT | RTLOGDEST_USER,
                            vgsvcLogHeaderFooter, g_cHistory, g_uHistoryFileSize, g_uHistoryFileTime,
-                           szError, sizeof(szError), pszLogFile);
+                           NULL /*pErrInfo*/, "%s", pszLogFile ? pszLogFile : "");
     if (RT_SUCCESS(rc))
     {
         /* register this logger as the release logger */
@@ -333,6 +333,36 @@ int VGSvcLogCreate(const char *pszLogFile)
 }
 
 
+/**
+ * Logs a verbose message.
+ *
+ * @param   pszFormat   The message text.
+ * @param   va          Format arguments.
+ */
+void VGSvcLogV(const char *pszFormat, va_list va)
+{
+#ifdef DEBUG
+    int rc = RTCritSectEnter(&g_csLog);
+    if (RT_SUCCESS(rc))
+    {
+#endif
+        char *psz = NULL;
+        RTStrAPrintfV(&psz, pszFormat, va);
+
+        AssertPtr(psz);
+        LogRel(("%s", psz));
+
+        RTStrFree(psz);
+#ifdef DEBUG
+        RTCritSectLeave(&g_csLog);
+    }
+#endif
+}
+
+
+/**
+ * Destroys the currently active logging instance.
+ */
 void VGSvcLogDestroy(void)
 {
     RTLogDestroy(RTLogRelSetDefaultInstance(NULL));
@@ -414,7 +444,8 @@ RTEXITCODE VGSvcError(const char *pszFormat, ...)
 
 
 /**
- * Displays a verbose message.
+ * Displays a verbose message based on the currently
+ * set global verbosity level.
  *
  * @param   iLevel      Minimum log level required to display this message.
  * @param   pszFormat   The message text.
@@ -424,25 +455,10 @@ void VGSvcVerbose(unsigned iLevel, const char *pszFormat, ...)
 {
     if (iLevel <= g_cVerbosity)
     {
-#ifdef DEBUG
-        int rc = RTCritSectEnter(&g_csLog);
-        if (RT_SUCCESS(rc))
-        {
-#endif
-            va_list args;
-            va_start(args, pszFormat);
-            char *psz = NULL;
-            RTStrAPrintfV(&psz, pszFormat, args);
-            va_end(args);
-
-            AssertPtr(psz);
-            LogRel(("%s", psz));
-
-            RTStrFree(psz);
-#ifdef DEBUG
-            RTCritSectLeave(&g_csLog);
-        }
-#endif
+        va_list va;
+        va_start(va, pszFormat);
+        VGSvcLogV(pszFormat, va);
+        va_end(va);
     }
 }
 

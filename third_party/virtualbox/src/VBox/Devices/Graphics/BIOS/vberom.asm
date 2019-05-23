@@ -39,19 +39,19 @@
 include vgadefs.inc
 include commondefs.inc
 
-public	_vga_compat_setup
-public	dispi_set_enable_
-public	dispi_set_bank_
-public	_dispi_set_bank_farcall
+public  _vga_compat_setup
+public  dispi_set_enable_
+public  dispi_set_bank_
+public  _dispi_set_bank_farcall
 public  _dispi_get_max_bpp
 public  _vbe_has_vbe_display
 
-public	vbe_biosfn_return_current_mode
-public	vbe_biosfn_display_window_control
-public	vbe_biosfn_set_get_display_start
-public	vbe_biosfn_set_get_dac_palette_format
-public	vbe_biosfn_set_get_palette_data
-public	vbe_biosfn_return_protected_mode_interface
+public  vbe_biosfn_return_current_mode
+public  vbe_biosfn_display_window_control
+public  vbe_biosfn_set_get_display_start
+public  vbe_biosfn_set_get_dac_palette_format
+public  vbe_biosfn_set_get_palette_data
+public  vbe_biosfn_return_protected_mode_interface
 
 VGAROM  segment public 'CODE'
 
@@ -62,8 +62,8 @@ VBE_BYTEWISE_IO EQU 1
 ;; Bytewise in/out
 ifdef VBE_BYTEWISE_IO
 
-public	do_out_dx_ax
-public	do_in_ax_dx
+public  do_out_dx_ax
+public  do_in_ax_dx
 
 do_out_dx_ax:
   xchg ah, al

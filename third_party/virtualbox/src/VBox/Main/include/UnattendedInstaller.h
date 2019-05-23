@@ -92,13 +92,18 @@ public:
      * Instantiates the appropriate child class.
      *
      * @returns Pointer to the new instance, NULL if no appropriate installer.
-     * @param   enmOsType       The guest OS type value.
-     * @param   strGuestOsType  The guest OS type string
-     * @param   pParent         The parent object.  Used for setting errors and
-     *                          querying attributes.
+     * @param   enmOsType               The guest OS type value.
+     * @param   strGuestOsType          The guest OS type string
+     * @param   strDetectedOSVersion    The detected guest OS version.
+     * @param   strDetectedOSFlavor     The detected guest OS flavor.
+     * @param   strDetectedOSHints      Hints about the detected guest OS.
+     * @param   pParent                 The parent object.  Used for setting errors
+     *                                  and querying attributes.
      * @throws  std::bad_alloc
      */
-    static UnattendedInstaller *createInstance(VBOXOSTYPE enmOsType, const Utf8Str &strGuestOsType, Unattended *pParent);
+    static UnattendedInstaller *createInstance(VBOXOSTYPE enmOsType, const Utf8Str &strGuestOsType,
+                                               const Utf8Str &strDetectedOSVersion, const Utf8Str &strDetectedOSFlavor,
+                                               const Utf8Str &strDetectedOSHints, Unattended *pParent);
 
     /**
      * Initialize the installer.
@@ -481,17 +486,17 @@ public:
 
 
 /**
- * RedHat 6/7 installer.
+ * RHEL 6 and 7 installer.
  *
  * This serves as a base for the kickstart based installers.
  */
-class UnattendedRedHat67Installer : public UnattendedLinuxInstaller
+class UnattendedRhel6And7Installer : public UnattendedLinuxInstaller
 {
 public:
-    UnattendedRedHat67Installer(Unattended *pParent,
-                                const char *pszMainScriptTemplateName = "redhat67_ks.cfg",
-                                const char *pszPostScriptTemplateName = "redhat_postinstall.sh",
-                                const char *pszMainScriptFilename     = "ks.cfg")
+    UnattendedRhel6And7Installer(Unattended *pParent,
+                                 const char *pszMainScriptTemplateName = "redhat67_ks.cfg",
+                                 const char *pszPostScriptTemplateName = "redhat_postinstall.sh",
+                                 const char *pszMainScriptFilename     = "ks.cfg")
           : UnattendedLinuxInstaller(pParent, pszMainScriptTemplateName, pszPostScriptTemplateName, pszMainScriptFilename)
     {
         Assert(!isOriginalIsoNeeded()); Assert(isAuxiliaryIsoNeeded());
@@ -499,7 +504,7 @@ public:
         mStrDefaultExtraInstallKernelParameters.assign(" ks=cdrom:/").append(pszMainScriptFilename).append(' ');
         mArrStrRemoveInstallKernelParameters.append("rd.live.check"); /* Disables the checkisomd5 step. Required for VISO. */
     }
-    ~UnattendedRedHat67Installer() {}
+    ~UnattendedRhel6And7Installer() {}
 
     bool isAuxiliaryIsoIsVISO()             { return true; }
     bool isOriginalIsoNeeded() const        { return false; }
@@ -511,26 +516,59 @@ protected:
 
 
 /**
- * Fedora installer (same as RedHat 6/7, except for the template).
+ * RHEL 5 installer (same as RHEL 6 & 7, except for the kickstart template).
  */
-class UnattendedFedoraInstaller : public UnattendedRedHat67Installer
+class UnattendedRhel5Installer : public UnattendedRhel6And7Installer
+{
+public:
+    UnattendedRhel5Installer(Unattended *pParent) : UnattendedRhel6And7Installer(pParent, "rhel5_ks.cfg") {}
+    ~UnattendedRhel5Installer() {}
+};
+
+
+/**
+ * RHEL 4 installer (same as RHEL 6 & 7, except for the kickstart template).
+ */
+class UnattendedRhel4Installer : public UnattendedRhel6And7Installer
+{
+public:
+    UnattendedRhel4Installer(Unattended *pParent) : UnattendedRhel6And7Installer(pParent, "rhel4_ks.cfg") {}
+    ~UnattendedRhel4Installer() {}
+};
+
+
+/**
+ * RHEL 3 installer (same as RHEL 6 & 7, except for the kickstart template).
+ */
+class UnattendedRhel3Installer : public UnattendedRhel6And7Installer
+{
+public:
+    UnattendedRhel3Installer(Unattended *pParent) : UnattendedRhel6And7Installer(pParent, "rhel3_ks.cfg") {}
+    ~UnattendedRhel3Installer() {}
+};
+
+
+/**
+ * Fedora installer (same as RHEL 6 & 7, except for the template).
+ */
+class UnattendedFedoraInstaller : public UnattendedRhel6And7Installer
 {
 public:
     UnattendedFedoraInstaller(Unattended *pParent)
-        : UnattendedRedHat67Installer(pParent, "fedora_ks.cfg")
+        : UnattendedRhel6And7Installer(pParent, "fedora_ks.cfg")
     { Assert(!isOriginalIsoNeeded()); Assert(isAuxiliaryIsoNeeded()); Assert(!isAuxiliaryFloppyNeeded()); Assert(isAuxiliaryIsoIsVISO()); }
     ~UnattendedFedoraInstaller() {}
 };
 
 
 /**
- * Oracle Linux installer (same as RedHat 6/7, except for the template).
+ * Oracle Linux installer (same as RHEL 6 & 7, except for the template).
  */
-class UnattendedOracleLinuxInstaller : public UnattendedRedHat67Installer
+class UnattendedOracleLinuxInstaller : public UnattendedRhel6And7Installer
 {
 public:
     UnattendedOracleLinuxInstaller(Unattended *pParent)
-        : UnattendedRedHat67Installer(pParent, "ol_ks.cfg")
+        : UnattendedRhel6And7Installer(pParent, "ol_ks.cfg")
     { Assert(!isOriginalIsoNeeded()); Assert(isAuxiliaryIsoNeeded()); Assert(!isAuxiliaryFloppyNeeded()); Assert(isAuxiliaryIsoIsVISO()); }
     ~UnattendedOracleLinuxInstaller() {}
 };

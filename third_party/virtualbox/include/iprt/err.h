@@ -2078,6 +2078,9 @@ RT_C_DECLS_END
 #define VERR_VFS_CHAIN_TYPE_MISMATCH_PATH_ONLY      (-22156)
 /** VFS chain doesn't end with a path only element. */
 #define VERR_VFS_CHAIN_NOT_PATH_ONLY                (-22157)
+/** The path only element at the end of the VFS chain is too short to make out
+ *  the parent directory. */
+#define VERR_VFS_CHAIN_TOO_SHORT_FOR_PARENT         (-22158)
 /** @} */
 
 /** @name RTDvm status codes
@@ -2349,6 +2352,8 @@ RT_C_DECLS_END
 #define VERR_ASN1_TOO_DEEPLY_NESTED                 (-22855)
 /** Generic unexpected object ID error. */
 #define VERR_ASN1_UNEXPECTED_OBJ_ID                 (-22856)
+/** Invalid ASN.1 INTEGER encoding. */
+#define VERR_ASN1_INVALID_INTEGER_ENCODING          (-22857)
 
 /** ANS.1 internal error 1. */
 #define VERR_ASN1_INTERNAL_ERROR_1                  (-22895)

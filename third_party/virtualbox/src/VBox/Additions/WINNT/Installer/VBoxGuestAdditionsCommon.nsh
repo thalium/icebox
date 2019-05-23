@@ -1,10 +1,10 @@
-; $Id$
-; @file
+; $Id: VBoxGuestAdditionsCommon.nsh $
+;; @file
 ; VBoxGuestAdditionsCommon.nsh - Common / shared utility functions.
 ;
 
 ;
-; Copyright (C) 2006-2014 Oracle Corporation
+; Copyright (C) 2006-2017 Oracle Corporation
 ;
 ; This file is part of VirtualBox Open Source Edition (OSE), as
 ; available from http://www.virtualbox.org. This file is free software;
@@ -897,14 +897,14 @@ Function ${un}PrepareWRPFile
       ${CmdExecute} "$\"$g_strSystemDir\takeown.exe$\" /A /F $\"$0$\"" "true"
       Pop $1
       ${LogVerbose} "WRP: Changing ownership for $\"$0$\" returned: $1"
-    
+
       ${CmdExecute} "icacls.exe $\"$0$\" /grant *S-1-5-32-544:F" "true"
       Pop $1
       ${LogVerbose} "WRP: Changing DACL for $\"$0$\" returned: $1"
-    
+
       Sleep 1000 ; TrustedInstaller needs some time to forget about the file
   ${EndSwitch}
-  
+
 !if $%VBOX_WITH_GUEST_INSTALL_HELPER% == "1"
   !ifdef WFP_FILE_EXCEPTION
     VBoxGuestInstallHelper::DisableWFP "$0"

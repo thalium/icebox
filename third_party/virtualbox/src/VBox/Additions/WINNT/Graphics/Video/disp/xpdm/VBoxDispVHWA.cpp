@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -20,17 +20,18 @@
 #include <iprt/asm.h>
 #include <iprt/asm-amd64-x86.h>
 
-static void VBoxDispVHWACommandFree(PVBOXDISPDEV pDev, VBOXVHWACMD* pCmd)
+static void VBoxDispVHWACommandFree(PVBOXDISPDEV pDev, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd)
 {
     VBoxHGSMIBufferFree(&pDev->hgsmi.ctx, pCmd);
 }
 
-static void VBoxDispVHWACommandRetain(VBOXVHWACMD* pCmd)
+static void VBoxDispVHWACommandRetain(VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd)
 {
     ASMAtomicIncU32(&pCmd->cRefs);
 }
 
-static void VBoxDispVHWACommandSubmitAsynchByEvent(PVBOXDISPDEV pDev, VBOXVHWACMD* pCmd, VBOXPEVENT pEvent)
+static void VBoxDispVHWACommandSubmitAsynchByEvent(PVBOXDISPDEV pDev, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd,
+                                                   VBOXPEVENT pEvent)
 {
     pCmd->GuestVBVAReserved1 = (uintptr_t)pEvent;
     pCmd->GuestVBVAReserved2 = 0;
@@ -50,31 +51,30 @@ static void VBoxDispVHWACommandSubmitAsynchByEvent(PVBOXDISPDEV pDev, VBOXVHWACM
     VBoxDispVHWACommandRelease(pDev, pCmd);
 }
 
-static void VBoxDispVHWAHanldeVHWACmdCompletion(PVBOXDISPDEV pDev, VBVAHOSTCMD * pHostCmd)
+static void VBoxDispVHWAHanldeVHWACmdCompletion(PVBOXDISPDEV pDev, VBVAHOSTCMD RT_UNTRUSTED_VOLATILE_HOST *pHostCmd)
 {
-    VBVAHOSTCMDVHWACMDCOMPLETE * pComplete = VBVAHOSTCMD_BODY(pHostCmd, VBVAHOSTCMDVHWACMDCOMPLETE);
-    VBOXVHWACMD* pComplCmd = (VBOXVHWACMD*)HGSMIOffsetToPointer(&pDev->hgsmi.ctx.heapCtx.area, pComplete->offCmd);
-    PFNVBOXVHWACMDCOMPLETION pfnCompletion = (PFNVBOXVHWACMDCOMPLETION)pComplCmd->GuestVBVAReserved1;
-    void *pContext = (void *)pComplCmd->GuestVBVAReserved2;
+    VBVAHOSTCMDVHWACMDCOMPLETE RT_UNTRUSTED_VOLATILE_HOST *pComplete = VBVAHOSTCMD_BODY(pHostCmd, VBVAHOSTCMDVHWACMDCOMPLETE);
+    VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST                *pComplCmd =
+        (VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *)HGSMIOffsetToPointer(&pDev->hgsmi.ctx.heapCtx.area, pComplete->offCmd);
+
+    PFNVBOXVHWACMDCOMPLETION pfnCompletion = (PFNVBOXVHWACMDCOMPLETION)(uintptr_t)pComplCmd->GuestVBVAReserved1;
+    void                    *pContext      = (void *)(uintptr_t)pComplCmd->GuestVBVAReserved2;
 
     pfnCompletion(pDev, pComplCmd, pContext);
 
     VBoxDispVBVAHostCommandComplete(pDev, pHostCmd);
 }
 
-static void VBoxVHWAHostCommandHandler(PVBOXDISPDEV pDev, VBVAHOSTCMD * pCmd)
+static void VBoxVHWAHostCommandHandler(PVBOXDISPDEV pDev, VBVAHOSTCMD RT_UNTRUSTED_VOLATILE_HOST *pCmd)
 {
-    switch(pCmd->customOpCode)
+    switch (pCmd->customOpCode)
     {
         case VBVAHG_DCUSTOM_VHWA_CMDCOMPLETE:
-        {
             VBoxDispVHWAHanldeVHWACmdCompletion(pDev, pCmd);
             break;
-        }
+
         default:
-        {
             VBoxDispVBVAHostCommandComplete(pDev, pCmd);
-        }
     }
 }
 
@@ -95,45 +95,40 @@ void VBoxDispVHWAInit(PVBOXDISPDEV pDev)
 int VBoxDispVHWAEnable(PVBOXDISPDEV pDev)
 {
     int rc = VERR_GENERAL_FAILURE;
-    VBOXVHWACMD* pCmd;
 
     if (!pDev->hgsmi.bSupported)
     {
         return VERR_NOT_SUPPORTED;
     }
 
-    pCmd = VBoxDispVHWACommandCreate(pDev, VBOXVHWACMD_TYPE_ENABLE, 0);
+    VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd = VBoxDispVHWACommandCreate(pDev, VBOXVHWACMD_TYPE_ENABLE, 0);
     if (!pCmd)
     {
         WARN(("VBoxDispVHWACommandCreate failed"));
         return rc;
     }
 
-    if(VBoxDispVHWACommandSubmit(pDev, pCmd))
-    {
-        if(RT_SUCCESS(pCmd->rc))
-        {
+    if (VBoxDispVHWACommandSubmit(pDev, pCmd))
+        if (RT_SUCCESS(pCmd->rc))
             rc = VINF_SUCCESS;
-        }
-    }
 
     VBoxDispVHWACommandRelease(pDev, pCmd);
     return rc;
 }
 
-VBOXVHWACMD* VBoxDispVHWACommandCreate(PVBOXDISPDEV pDev, VBOXVHWACMD_TYPE enmCmd, VBOXVHWACMD_LENGTH cbCmd)
+VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *
+VBoxDispVHWACommandCreate(PVBOXDISPDEV pDev, VBOXVHWACMD_TYPE enmCmd, VBOXVHWACMD_LENGTH cbCmd)
 {
-    VBOXVHWACMD* pHdr = (VBOXVHWACMD*)VBoxHGSMIBufferAlloc(&pDev->hgsmi.ctx,
-                              cbCmd + VBOXVHWACMD_HEADSIZE(),
-                              HGSMI_CH_VBVA,
-                              VBVA_VHWA_CMD);
+    uint32_t                                cbTotal = cbCmd + VBOXVHWACMD_HEADSIZE();
+    VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pHdr
+        = (VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *)VBoxHGSMIBufferAlloc(&pDev->hgsmi.ctx, cbTotal, HGSMI_CH_VBVA, VBVA_VHWA_CMD);
     if (!pHdr)
     {
         WARN(("HGSMIHeapAlloc failed"));
     }
     else
     {
-        memset(pHdr, 0, sizeof(VBOXVHWACMD));
+        memset((void *)pHdr, 0, cbTotal); /* always clear the whole body so caller doesn't need to */
         pHdr->iDisplay = pDev->iDevice;
         pHdr->rc = VERR_GENERAL_FAILURE;
         pHdr->enmCmd = enmCmd;
@@ -146,17 +141,15 @@ VBOXVHWACMD* VBoxDispVHWACommandCreate(PVBOXDISPDEV pDev, VBOXVHWACMD_TYPE enmCm
     return pHdr;
 }
 
-void VBoxDispVHWACommandRelease(PVBOXDISPDEV pDev, VBOXVHWACMD* pCmd)
+void VBoxDispVHWACommandRelease(PVBOXDISPDEV pDev, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd)
 {
     uint32_t cRefs = ASMAtomicDecU32(&pCmd->cRefs);
     Assert(cRefs < UINT32_MAX / 2);
-    if(!cRefs)
-    {
+    if (!cRefs)
         VBoxDispVHWACommandFree(pDev, pCmd);
-    }
 }
 
-BOOL VBoxDispVHWACommandSubmit(PVBOXDISPDEV pDev, VBOXVHWACMD* pCmd)
+BOOL VBoxDispVHWACommandSubmit(PVBOXDISPDEV pDev, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd)
 {
     VBOXPEVENT pEvent;
     VBOXVP_STATUS rc = pDev->vpAPI.VideoPortProcs.pfnCreateEvent(pDev->vpAPI.pContext, VBOXNOTIFICATION_EVENT, NULL, &pEvent);
@@ -180,15 +173,16 @@ BOOL VBoxDispVHWACommandSubmit(PVBOXDISPDEV pDev, VBOXVHWACMD* pCmd)
 
 void VBoxDispVHWACommandCheckHostCmds(PVBOXDISPDEV pDev)
 {
-    VBVAHOSTCMD *pCmd, *pNextCmd;
+    VBVAHOSTCMD RT_UNTRUSTED_VOLATILE_HOST *pCmd;
     int rc = pDev->hgsmi.mp.pfnRequestCommandsHandler(pDev->hgsmi.mp.hContext, HGSMI_CH_VBVA, pDev->iDevice, &pCmd);
     /* don't assert here, otherwise NT4 will be unhappy */
-    if(RT_SUCCESS(rc))
+    if (RT_SUCCESS(rc))
     {
-        for(;pCmd; pCmd = pNextCmd)
+        while (pCmd)
         {
-            pNextCmd = pCmd->u.pNext;
+            VBVAHOSTCMD RT_UNTRUSTED_VOLATILE_HOST *pNextCmd = pCmd->u.pNext;
             VBoxVHWAHostCommandHandler(pDev, pCmd);
+            pCmd = pNextCmd;
         }
     }
 }
@@ -202,7 +196,8 @@ static DECLCALLBACK(void) VBoxDispVHWACommandCompletionCallbackEvent(PVBOXDISPDE
 }
 
 /* do not wait for completion */
-void VBoxDispVHWACommandSubmitAsynch (PVBOXDISPDEV pDev, VBOXVHWACMD* pCmd, PFNVBOXVHWACMDCOMPLETION pfnCompletion, void * pContext)
+void VBoxDispVHWACommandSubmitAsynch(PVBOXDISPDEV pDev, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd,
+                                     PFNVBOXVHWACMDCOMPLETION pfnCompletion, void * pContext)
 {
     pCmd->GuestVBVAReserved1 = (uintptr_t)pfnCompletion;
     pCmd->GuestVBVAReserved2 = (uintptr_t)pContext;
@@ -219,13 +214,14 @@ void VBoxDispVHWACommandSubmitAsynch (PVBOXDISPDEV pDev, VBOXVHWACMD* pCmd, PFNV
     VBoxDispVHWACommandRelease(pDev, pCmd);
 }
 
-static DECLCALLBACK(void) VBoxDispVHWAFreeCmdCompletion(PVBOXDISPDEV pDev, VBOXVHWACMD *pCmd, void *pvContext)
+static DECLCALLBACK(void) VBoxDispVHWAFreeCmdCompletion(PVBOXDISPDEV pDev, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd,
+                                                        void *pvContext)
 {
     RT_NOREF(pvContext);
     VBoxDispVHWACommandRelease(pDev, pCmd);
 }
 
-void VBoxDispVHWACommandSubmitAsynchAndComplete (PVBOXDISPDEV pDev, VBOXVHWACMD* pCmd)
+void VBoxDispVHWACommandSubmitAsynchAndComplete (PVBOXDISPDEV pDev, VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd)
 {
     pCmd->GuestVBVAReserved1 = (uintptr_t)VBoxDispVHWAFreeCmdCompletion;
 
@@ -235,8 +231,9 @@ void VBoxDispVHWACommandSubmitAsynchAndComplete (PVBOXDISPDEV pDev, VBOXVHWACMD*
 
     VBoxHGSMIBufferSubmit(&pDev->hgsmi.ctx, pCmd);
 
-    if(!(pCmd->Flags & VBOXVHWACMD_FLAG_HG_ASYNCH)
-            || pCmd->Flags & VBOXVHWACMD_FLAG_HG_ASYNCH_RETURNED)
+    uint32_t const fCmdFlags = pCmd->Flags;
+    if (   !(fCmdFlags & VBOXVHWACMD_FLAG_HG_ASYNCH)
+        || (fCmdFlags & VBOXVHWACMD_FLAG_HG_ASYNCH_RETURNED))
     {
         /* the command is completed */
         VBoxDispVHWAFreeCmdCompletion(pDev, pCmd, NULL);
@@ -245,29 +242,29 @@ void VBoxDispVHWACommandSubmitAsynchAndComplete (PVBOXDISPDEV pDev, VBOXVHWACMD*
     VBoxDispVHWACommandRelease(pDev, pCmd);
 }
 
-void VBoxDispVHWAFreeHostInfo1(PVBOXDISPDEV pDev, VBOXVHWACMD_QUERYINFO1* pInfo)
+void VBoxDispVHWAFreeHostInfo1(PVBOXDISPDEV pDev, VBOXVHWACMD_QUERYINFO1 RT_UNTRUSTED_VOLATILE_HOST *pInfo)
 {
-    VBOXVHWACMD* pCmd = VBOXVHWACMD_HEAD(pInfo);
+    VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd = VBOXVHWACMD_HEAD(pInfo);
     VBoxDispVHWACommandRelease(pDev, pCmd);
 }
 
-void VBoxDispVHWAFreeHostInfo2(PVBOXDISPDEV pDev, VBOXVHWACMD_QUERYINFO2* pInfo)
+void VBoxDispVHWAFreeHostInfo2(PVBOXDISPDEV pDev, VBOXVHWACMD_QUERYINFO2 RT_UNTRUSTED_VOLATILE_HOST *pInfo)
 {
-    VBOXVHWACMD* pCmd = VBOXVHWACMD_HEAD(pInfo);
+    VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd = VBOXVHWACMD_HEAD(pInfo);
     VBoxDispVHWACommandRelease(pDev, pCmd);
 }
 
-VBOXVHWACMD_QUERYINFO1* VBoxDispVHWAQueryHostInfo1(PVBOXDISPDEV pDev)
+static VBOXVHWACMD_QUERYINFO1 RT_UNTRUSTED_VOLATILE_HOST *VBoxDispVHWAQueryHostInfo1(PVBOXDISPDEV pDev)
 {
-    VBOXVHWACMD* pCmd = VBoxDispVHWACommandCreate (pDev, VBOXVHWACMD_TYPE_QUERY_INFO1, sizeof(VBOXVHWACMD_QUERYINFO1));
-    VBOXVHWACMD_QUERYINFO1 *pInfo1;
+    VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd = VBoxDispVHWACommandCreate(pDev, VBOXVHWACMD_TYPE_QUERY_INFO1,
+                                                                             sizeof(VBOXVHWACMD_QUERYINFO1));
     if (!pCmd)
     {
         WARN(("VBoxDispVHWACommandCreate failed"));
         return NULL;
     }
 
-    pInfo1 = VBOXVHWACMD_BODY(pCmd, VBOXVHWACMD_QUERYINFO1);
+    VBOXVHWACMD_QUERYINFO1 RT_UNTRUSTED_VOLATILE_HOST *pInfo1= VBOXVHWACMD_BODY(pCmd, VBOXVHWACMD_QUERYINFO1);
     pInfo1->u.in.guestVersion.maj = VBOXVHWA_VERSION_MAJ;
     pInfo1->u.in.guestVersion.min = VBOXVHWA_VERSION_MIN;
     pInfo1->u.in.guestVersion.bld = VBOXVHWA_VERSION_BLD;
@@ -285,29 +282,22 @@ VBOXVHWACMD_QUERYINFO1* VBoxDispVHWAQueryHostInfo1(PVBOXDISPDEV pDev)
     return NULL;
 }
 
-VBOXVHWACMD_QUERYINFO2* VBoxDispVHWAQueryHostInfo2(PVBOXDISPDEV pDev, uint32_t numFourCC)
+static VBOXVHWACMD_QUERYINFO2 RT_UNTRUSTED_VOLATILE_HOST *VBoxDispVHWAQueryHostInfo2(PVBOXDISPDEV pDev, uint32_t numFourCC)
 {
-    VBOXVHWACMD* pCmd = VBoxDispVHWACommandCreate (pDev, VBOXVHWACMD_TYPE_QUERY_INFO2, VBOXVHWAINFO2_SIZE(numFourCC));
-    VBOXVHWACMD_QUERYINFO2 *pInfo2;
+    VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd = VBoxDispVHWACommandCreate(pDev, VBOXVHWACMD_TYPE_QUERY_INFO2,
+                                                                             VBOXVHWAINFO2_SIZE(numFourCC));
     if (!pCmd)
     {
         WARN(("VBoxDispVHWACommandCreate failed"));
         return NULL;
     }
 
-    pInfo2 = VBOXVHWACMD_BODY(pCmd, VBOXVHWACMD_QUERYINFO2);
+    VBOXVHWACMD_QUERYINFO2 RT_UNTRUSTED_VOLATILE_HOST *pInfo2 = VBOXVHWACMD_BODY(pCmd, VBOXVHWACMD_QUERYINFO2);
     pInfo2->numFourCC = numFourCC;
-
-    if(VBoxDispVHWACommandSubmit (pDev, pCmd))
-    {
-        if(RT_SUCCESS(pCmd->rc))
-        {
-            if(pInfo2->numFourCC == numFourCC)
-            {
+    if (VBoxDispVHWACommandSubmit(pDev, pCmd))
+        if (RT_SUCCESS(pCmd->rc))
+            if (pInfo2->numFourCC == numFourCC)
                 return pInfo2;
-            }
-        }
-    }
 
     VBoxDispVHWACommandRelease(pDev, pCmd);
     return NULL;
@@ -315,12 +305,11 @@ VBOXVHWACMD_QUERYINFO2* VBoxDispVHWAQueryHostInfo2(PVBOXDISPDEV pDev, uint32_t n
 
 int VBoxDispVHWAInitHostInfo1(PVBOXDISPDEV pDev)
 {
-    VBOXVHWACMD_QUERYINFO1* pInfo;
 
     if (!pDev->hgsmi.bSupported)
         return VERR_NOT_SUPPORTED;
 
-    pInfo = VBoxDispVHWAQueryHostInfo1(pDev);
+    VBOXVHWACMD_QUERYINFO1 RT_UNTRUSTED_VOLATILE_HOST *pInfo = VBoxDispVHWAQueryHostInfo1(pDev);
     if(!pInfo)
     {
         pDev->vhwa.bEnabled = false;
@@ -335,28 +324,25 @@ int VBoxDispVHWAInitHostInfo1(PVBOXDISPDEV pDev)
     pDev->vhwa.numOverlays = pInfo->u.out.numOverlays;
     pDev->vhwa.numFourCC = pInfo->u.out.numFourCC;
     pDev->vhwa.bEnabled = (pInfo->u.out.cfgFlags & VBOXVHWA_CFG_ENABLED);
+
     VBoxDispVHWAFreeHostInfo1(pDev, pInfo);
     return VINF_SUCCESS;
 }
 
 int VBoxDispVHWAInitHostInfo2(PVBOXDISPDEV pDev, DWORD *pFourCC)
 {
-    VBOXVHWACMD_QUERYINFO2* pInfo;
     int rc = VINF_SUCCESS;
 
     if (!pDev->hgsmi.bSupported)
         return VERR_NOT_SUPPORTED;
 
-    pInfo = VBoxDispVHWAQueryHostInfo2(pDev, pDev->vhwa.numFourCC);
-
+    VBOXVHWACMD_QUERYINFO2 RT_UNTRUSTED_VOLATILE_HOST *pInfo = VBoxDispVHWAQueryHostInfo2(pDev, pDev->vhwa.numFourCC);
     Assert(pInfo);
     if(!pInfo)
         return VERR_OUT_OF_RESOURCES;
 
-    if(pDev->vhwa.numFourCC)
-    {
-        memcpy(pFourCC, pInfo->FourCC, pDev->vhwa.numFourCC * sizeof(pFourCC[0]));
-    }
+    if (pDev->vhwa.numFourCC)
+        memcpy(pFourCC, (void const *)pInfo->FourCC, pDev->vhwa.numFourCC * sizeof(pFourCC[0]));
     else
     {
         Assert(0);
@@ -371,25 +357,20 @@ int VBoxDispVHWAInitHostInfo2(PVBOXDISPDEV pDev, DWORD *pFourCC)
 int VBoxDispVHWADisable(PVBOXDISPDEV pDev)
 {
     int rc = VERR_GENERAL_FAILURE;
-    VBOXVHWACMD* pCmd;
 
     if (!pDev->hgsmi.bSupported)
         return VERR_NOT_SUPPORTED;
 
-    pCmd = VBoxDispVHWACommandCreate (pDev, VBOXVHWACMD_TYPE_DISABLE, 0);
+    VBOXVHWACMD RT_UNTRUSTED_VOLATILE_HOST *pCmd = VBoxDispVHWACommandCreate(pDev, VBOXVHWACMD_TYPE_DISABLE, 0);
     if (!pCmd)
     {
         WARN(("VBoxDispVHWACommandCreate failed"));
         return rc;
     }
 
-    if(VBoxDispVHWACommandSubmit (pDev, pCmd))
-    {
+    if (VBoxDispVHWACommandSubmit(pDev, pCmd))
         if(RT_SUCCESS(pCmd->rc))
-        {
             rc = VINF_SUCCESS;
-        }
-    }
 
     VBoxDispVHWACommandRelease(pDev, pCmd);
 
@@ -651,20 +632,20 @@ uint32_t VBoxDispVHWAFromDDBLTs(uint32_t caps)
     return caps;
 }
 
-void VBoxDispVHWAFromDDCOLORKEY(VBOXVHWA_COLORKEY *pVHWACKey, DDCOLORKEY  *pDdCKey)
+void VBoxDispVHWAFromDDCOLORKEY(VBOXVHWA_COLORKEY RT_UNTRUSTED_VOLATILE_HOST *pVHWACKey, DDCOLORKEY  *pDdCKey)
 {
     pVHWACKey->low = pDdCKey->dwColorSpaceLowValue;
     pVHWACKey->high = pDdCKey->dwColorSpaceHighValue;
 }
 
-void VBoxDispVHWAFromDDOVERLAYFX(VBOXVHWA_OVERLAYFX *pVHWAOverlay, DDOVERLAYFX *pDdOverlay)
+void VBoxDispVHWAFromDDOVERLAYFX(VBOXVHWA_OVERLAYFX RT_UNTRUSTED_VOLATILE_HOST *pVHWAOverlay, DDOVERLAYFX *pDdOverlay)
 {
     /// @todo fxFlags
     VBoxDispVHWAFromDDCOLORKEY(&pVHWAOverlay->DstCK, &pDdOverlay->dckDestColorkey);
     VBoxDispVHWAFromDDCOLORKEY(&pVHWAOverlay->SrcCK, &pDdOverlay->dckSrcColorkey);
 }
 
-void VBoxDispVHWAFromDDBLTFX(VBOXVHWA_BLTFX *pVHWABlt, DDBLTFX *pDdBlt)
+void VBoxDispVHWAFromDDBLTFX(VBOXVHWA_BLTFX RT_UNTRUSTED_VOLATILE_HOST *pVHWABlt, DDBLTFX *pDdBlt)
 {
     pVHWABlt->fillColor = pDdBlt->dwFillColor;
 
@@ -672,7 +653,7 @@ void VBoxDispVHWAFromDDBLTFX(VBOXVHWA_BLTFX *pVHWABlt, DDBLTFX *pDdBlt)
     VBoxDispVHWAFromDDCOLORKEY(&pVHWABlt->SrcCK, &pDdBlt->ddckSrcColorkey);
 }
 
-int VBoxDispVHWAFromDDPIXELFORMAT(VBOXVHWA_PIXELFORMAT *pVHWAFormat, DDPIXELFORMAT *pDdFormat)
+int VBoxDispVHWAFromDDPIXELFORMAT(VBOXVHWA_PIXELFORMAT RT_UNTRUSTED_VOLATILE_HOST *pVHWAFormat, DDPIXELFORMAT *pDdFormat)
 {
     uint32_t unsup = VBoxDispVHWAUnsupportedDDPFS(pDdFormat->dwFlags);
     Assert(!unsup);
@@ -688,7 +669,7 @@ int VBoxDispVHWAFromDDPIXELFORMAT(VBOXVHWA_PIXELFORMAT *pVHWAFormat, DDPIXELFORM
     return VINF_SUCCESS;
 }
 
-int VBoxDispVHWAFromDDSURFACEDESC(VBOXVHWA_SURFACEDESC *pVHWADesc, DDSURFACEDESC *pDdDesc)
+int VBoxDispVHWAFromDDSURFACEDESC(VBOXVHWA_SURFACEDESC RT_UNTRUSTED_VOLATILE_HOST *pVHWADesc, DDSURFACEDESC *pDdDesc)
 {
     uint32_t unsupds = VBoxDispVHWAUnsupportedDSS(pDdDesc->dwFlags);
     Assert(!unsupds);
@@ -756,7 +737,15 @@ int VBoxDispVHWAFromDDSURFACEDESC(VBOXVHWA_SURFACEDESC *pVHWADesc, DDSURFACEDESC
     return VINF_SUCCESS;
 }
 
-void VBoxDispVHWAFromRECTL(VBOXVHWA_RECTL *pDst, RECTL *pSrc)
+void VBoxDispVHWAFromRECTL(VBOXVHWA_RECTL *pDst, RECTL const *pSrc)
+{
+    pDst->left = pSrc->left;
+    pDst->top = pSrc->top;
+    pDst->right = pSrc->right;
+    pDst->bottom = pSrc->bottom;
+}
+
+void VBoxDispVHWAFromRECTL(VBOXVHWA_RECTL RT_UNTRUSTED_VOLATILE_HOST *pDst, RECTL const *pSrc)
 {
     pDst->left = pSrc->left;
     pDst->top = pSrc->top;

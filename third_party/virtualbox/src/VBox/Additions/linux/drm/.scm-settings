@@ -1,0 +1,25 @@
+# $Id: .scm-settings $
+## @file
+# Source code massager settings for linux drm driver.
+#
+
+#
+# Copyright (C) 2010-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+
+#Sources are MIT licensed for simplier upstreaming, several files are external.
+/*.c|/*.h:     --license-based-on-mit --no-convert-tabs
+/vbox_hgsmi.c: --license-mit
+/Makefile.module.kms: --treat-as Makefile
+
+--filter-out-files /README.testing
+

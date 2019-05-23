@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -24,9 +24,34 @@
 #include <VBox/types.h>
 #include <iprt/x86.h>
 
-
 #define VBOX_WITH_HGCM                  /* grumble */
 #define VBOX_DEVICE_STRUCT_TESTCASE
+
+/* Check that important preprocessor macros does not get redefined: */
+#include <VBox/cdefs.h>
+#include <VBox/log.h>
+#ifdef DEBUG
+# define VBOX_DEVICE_STRUCT_TESTCASE_CHECK_DEBUG
+#else
+# undef  VBOX_DEVICE_STRUCT_TESTCASE_CHECK_DEBUG
+#endif
+#ifdef LOG_ENABLED
+# define VBOX_DEVICE_STRUCT_TESTCASE_CHECK_LOG_ENABLED
+#else
+# undef  VBOX_DEVICE_STRUCT_TESTCASE_CHECK_LOG_ENABLED
+#endif
+#ifdef VBOX_STRICT
+# define VBOX_DEVICE_STRUCT_TESTCASE_CHECK_VBOX_STRICT
+#else
+# undef  VBOX_DEVICE_STRUCT_TESTCASE_CHECK_VBOX_STRICT
+#endif
+#ifdef RT_STRICT
+# define VBOX_DEVICE_STRUCT_TESTCASE_CHECK_RT_STRICT
+#else
+# undef  VBOX_DEVICE_STRUCT_TESTCASE_CHECK_RT_STRICT
+#endif
+
+/* The structures we're checking: */
 #undef LOG_GROUP
 #include "../Bus/DevPciInternal.h"
 #undef LOG_GROUP
@@ -109,10 +134,26 @@
 
 #include <VBox/vmm/pdmaudioifs.h>
 
-# undef LOG_GROUP
-# include "../Audio/DevIchAc97.cpp"
-# undef LOG_GROUP
-# include "../Audio/DevHDA.cpp"
+#undef LOG_GROUP
+#include "../Audio/DevIchAc97.cpp"
+#undef LOG_GROUP
+#include "../Audio/DevHDA.cpp"
+
+
+/* Check that important preprocessor macros didn't get redefined: */
+#if defined(DEBUG)       != defined(VBOX_DEVICE_STRUCT_TESTCASE_CHECK_DEBUG)
+# error "DEBUG was modified!  This may throw off structure tests."
+#endif
+#if defined(LOG_ENABLED) != defined(VBOX_DEVICE_STRUCT_TESTCASE_CHECK_LOG_ENABLED)
+# error "LOG_ENABLED was modified!  This may throw off structure tests."
+#endif
+#if defined(RT_STRICT)   != defined(VBOX_DEVICE_STRUCT_TESTCASE_CHECK_RT_STRICT)
+# error "RT_STRICT was modified!  This may throw off structure tests."
+#endif
+#if defined(VBOX_STRICT) != defined(VBOX_DEVICE_STRUCT_TESTCASE_CHECK_VBOX_STRICT)
+# error "VBOX_STRICT was modified!  This may throw off structure tests."
+#endif
+
 
 #include <stdio.h>
 
@@ -148,7 +189,7 @@
         if (size != sizeof(type)) \
         { \
             printf("tstDeviceStructSize: Error! sizeof(%s): %#x (%d)  Size wrong by %d (should be %d -- but is %d)\n", \
-                   #type, (int)sizeof(type), (int)sizeof(type), (int)(sizeof(type) - size), (int)size, (int)sizeof(type)); \
+                   #type, (int)sizeof(type), (int)sizeof(type), (int)sizeof(type) - (int)size, (int)size, (int)sizeof(type)); \
             rc++; \
         } \
         else \
@@ -278,6 +319,8 @@ int main()
     /*
      * Misc alignment checks (keep this somewhat alphabetical).
      */
+    CHECK_MEMBER_ALIGNMENT(AC97STATE, CritSect, 8);
+
     CHECK_MEMBER_ALIGNMENT(AHCI, lock, 8);
     CHECK_MEMBER_ALIGNMENT(AHCI, ahciPort[0], 8);
 

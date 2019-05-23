@@ -1,0 +1,37 @@
+# $Id: .scm-settings $
+## @file
+# Source code massager settings for the x11 guest addition components.
+#
+
+#
+# Copyright (C) 2010-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+--filter-out-files /undefined_*
+
+# x11include
+--filter-out-files /x11include/*README
+/x11include/*: --external-copyright --no-convert-tabs --strip-no-trailing-lines --no-strip-trailing-blanks --no-fix-flower-box-markers --no-convert-eol --no-force-final-eol --dont-set-svn-eol --dont-set-svn-keywords
+/x11include/*h.in: --treat-as .h
+
+# vboxvideo
+--filter-out-files /vboxvideo/README.testing
+/vboxvideo/*.c|/vboxvideo/*.h: --license-mit
+/vboxvideo/vboxvideo*.c|/vboxvideo/vboxvideo*.h: --license-based-on-mit --no-convert-tabs --dont-set-svn-keywords
+/vboxvideo/edid.c: --license-based-on-mit
+/vboxvideo/setmode.c: --license-based-on-mit
+
+# Installer
+/Installer/98vboxadd-xclient: --treat-as .sh
+--filter-out-files /Installer/vboxvideo.ids
+--filter-out-files /Installer/linux_xorg_suse11.conf
+--filter-out-files /Installer/solaris_xorg.conf
+--filter-out-files /Installer/solaris_xorg_modeless.conf

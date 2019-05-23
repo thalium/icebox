@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2013-2016 Oracle Corporation
+ * Copyright (C) 2013-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -24,6 +24,7 @@
 # include <QVBoxLayout>
 # include <QScrollArea>
 # include <QScrollBar>
+# include <QStyle>
 # include <QCheckBox>
 # include <QPainter>
 
@@ -67,7 +68,11 @@ void UIFilmContainer::setValue(const QVector<BOOL> &value)
         {
             /* Configure viewport layout: */
             pWidgetLayout->setMargin(0);
-            pWidgetLayout->setSpacing(4);
+#ifdef VBOX_WS_MAC
+            pWidgetLayout->setSpacing(5);
+#else
+            pWidgetLayout->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) / 2);
+#endif
             /* Create new widgets according passed vector: */
             for (int iScreenIndex = 0; iScreenIndex < value.size(); ++iScreenIndex)
             {
@@ -168,9 +173,7 @@ void UIFilm::prepareLayout()
     /* Configure layout: */
 #ifdef VBOX_WS_MAC
     m_pMainLayout->setContentsMargins(10, 10, 15, 10);
-#else /* VBOX_WS_MAC */
-    m_pMainLayout->setContentsMargins(10, 10, 10, 10);
-#endif /* !VBOX_WS_MAC */
+#endif /* VBOX_WS_MAC */
 
     /* Add strech: */
     m_pMainLayout->addStretch();

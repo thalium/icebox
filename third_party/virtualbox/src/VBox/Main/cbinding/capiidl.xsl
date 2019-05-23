@@ -1625,7 +1625,7 @@ typedef PCVBOXCAPI (*PFNVBOXGETXPCOMCFUNCTIONS)(unsigned uVersion);
   <xsl:call-template name="xsltprocNewlineOutputHack"/>
   <!-- all enums go first -->
   <xsl:apply-templates select="application/enum | application/if/enum"/>
-  <!-- everything else but result codes and enums 
+  <!-- everything else but result codes and enums
   <xsl:apply-templates select="*[not(self::result or self::enum) and
                                  not(self::if[result] or self::if[enum])]"/> -->
     <!-- the modules (i.e. everything else) -->

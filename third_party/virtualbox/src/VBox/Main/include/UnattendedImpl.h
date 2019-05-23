@@ -211,6 +211,15 @@ private:
      * @param   hVfsIso     The ISO file system handle.
      */
     HRESULT i_innerDetectIsoOS(RTVFS hVfsIso);
+    typedef union DETECTBUFFER
+    {
+        char        sz[4096];
+        char        ach[4096];
+        uint8_t     ab[4096];
+        uint32_t    au32[1024];
+    } DETECTBUFFER;
+    HRESULT i_innerDetectIsoOSWindows(RTVFS hVfsIso, DETECTBUFFER *puBuf, VBOXOSTYPE *penmOsType);
+    HRESULT i_innerDetectIsoOSLinux(RTVFS hVfsIso, DETECTBUFFER *puBuf, VBOXOSTYPE *penmOsType);
 
     /**
      * Worker for reconfigureVM().

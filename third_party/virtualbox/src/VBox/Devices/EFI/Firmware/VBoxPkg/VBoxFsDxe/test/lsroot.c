@@ -47,10 +47,10 @@ int main(int argc, char **argv)
 {
     struct fsw_posix_volume *vol;
     struct fsw_posix_dir *dir;
-    struct dirent *dent;
+    struct fsw_posix_dirent *dent;
 
-    if (argc != 2) {
-        printf("Usage: lsroot <file/device>\n");
+    if (argc != 3) {
+        printf("Usage: lsroot <file/device> <directory>\n");
         return 1;
     }
 
@@ -62,13 +62,13 @@ int main(int argc, char **argv)
         return 1;
     }
     //dir = fsw_posix_opendir(vol, "/drivers/net/");
-    dir = fsw_posix_opendir(vol, "/");
+    dir = fsw_posix_opendir(vol, argv[2]);
     if (dir == NULL) {
         printf("opendir call failed.\n");
         return 1;
     }
     while ((dent = fsw_posix_readdir(dir)) != NULL) {
-        printf("- %s\n", dent->d_name);
+        printf("%c %s\n", dent->d_type, dent->d_name);
     }
     fsw_posix_closedir(dir);
     fsw_posix_unmount(vol);

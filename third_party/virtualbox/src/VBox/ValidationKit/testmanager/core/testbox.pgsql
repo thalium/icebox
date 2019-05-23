@@ -623,4 +623,3 @@ CREATE OR REPLACE function TestBoxLogic_setCommand(a_uidAuthor          INTEGER,
     END;
 $$ LANGUAGE plpgsql;
 
-

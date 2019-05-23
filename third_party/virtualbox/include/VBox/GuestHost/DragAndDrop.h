@@ -76,7 +76,7 @@ protected:
     /** Open flags. */
     uint32_t                     m_fOpen;
     /** Directory handle for drop directory. */
-    PRTDIR                       m_hDir;
+    RTDIR                        m_hDir;
     /** Absolute path to drop directory. */
     RTCString                    m_strPathAbs;
     /** List for holding created directories in the case of a rollback. */

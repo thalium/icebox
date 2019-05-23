@@ -658,7 +658,7 @@ RTDECL(int) RTCrStoreCertAddFromDir(RTCRSTORE hStore, uint32_t fFlags, const cha
             /*
              * Enumerate the directory.
              */
-            PRTDIR hDir;
+            RTDIR hDir;
             rc = RTDirOpen(&hDir, pszDir);
             if (RT_SUCCESS(rc))
             {
@@ -766,7 +766,7 @@ RTDECL(int) RTCrStoreCertAddWantedFromDir(RTCRSTORE hStore, uint32_t fFlags,
             /*
              * Enumerate the directory.
              */
-            PRTDIR hDir;
+            RTDIR hDir;
             rc = RTDirOpen(&hDir, pszDir);
             if (RT_SUCCESS(rc))
             {

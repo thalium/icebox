@@ -142,6 +142,31 @@ RT_C_DECLS_END
 #define RT_BZERO(pv, cb)    do { memset((pv), 0, cb); } while (0)
 
 
+/**
+ * For copying a volatile variable to a non-volatile one.
+ * @param   a_Dst           The non-volatile destination variable.
+ * @param   a_VolatileSrc   The volatile source variable / dereferenced pointer.
+ */
+#define RT_COPY_VOLATILE(a_Dst, a_VolatileSrc) \
+    do { \
+        void const volatile *a_pvVolatileSrc_BCopy_Volatile = &(a_VolatileSrc); \
+        AssertCompile(sizeof(a_Dst) == sizeof(a_VolatileSrc)); \
+        memcpy(&(a_Dst), (void const *)a_pvVolatileSrc_BCopy_Volatile, sizeof(a_Dst)); \
+    } while (0)
+
+/**
+ * For copy a number of bytes from a volatile buffer to a non-volatile one.
+ *
+ * @param   a_pDst          Pointer to the destination buffer.
+ * @param   a_pVolatileSrc  Pointer to the volatile source buffer.
+ * @param   a_cbToCopy      Number of bytes to copy.
+ */
+#define RT_BCOPY_VOLATILE(a_pDst, a_pVolatileSrc, a_cbToCopy) \
+    do { \
+        void const volatile *a_pvVolatileSrc_BCopy_Volatile = (a_pVolatileSrc); \
+        memcpy((a_pDst), (void const *)a_pvVolatileSrc_BCopy_Volatile, (a_cbToCopy)); \
+    } while (0)
+
 
 /** @defgroup grp_rt_str    RTStr - String Manipulation
  * Mostly UTF-8 related helpers where the standard string functions won't do.

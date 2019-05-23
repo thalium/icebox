@@ -401,7 +401,6 @@ DECLASM(int) TRPMGCHyperTrap01Handler(PTRPMCPU pTrpmCpu, PCPUMCTXCORE pRegFrame)
      * Now leave the rest to the DBGF.
      */
     int rc = DBGFRZTrap01Handler(pVM, pVCpu, pRegFrame, uDr6, false /*fAltStepping*/);
-    AssertStmt(rc != VINF_EM_RAW_GUEST_TRAP, rc = VERR_TRPM_IPE_1);
     if (rc == VINF_EM_DBG_STEPPED)
         pRegFrame->eflags.Bits.u1TF = 0;
 

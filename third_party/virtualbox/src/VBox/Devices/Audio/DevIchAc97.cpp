@@ -55,58 +55,58 @@
 /** Maximum FIFO size (in bytes). */
 #define AC97_FIFO_MAX       256
 
-#define AC97_SR_FIFOE RT_BIT(4)          /* rwc, FIFO error. */
-#define AC97_SR_BCIS  RT_BIT(3)          /* rwc, Buffer completion interrupt status. */
-#define AC97_SR_LVBCI RT_BIT(2)          /* rwc, Last valid buffer completion interrupt. */
-#define AC97_SR_CELV  RT_BIT(1)          /* ro,  Current equals last valid. */
-#define AC97_SR_DCH   RT_BIT(0)          /* ro,  Controller halted. */
-#define AC97_SR_VALID_MASK (RT_BIT(5) - 1)
+#define AC97_SR_FIFOE RT_BIT(4)          /**< rwc, FIFO error. */
+#define AC97_SR_BCIS  RT_BIT(3)          /**< rwc, Buffer completion interrupt status. */
+#define AC97_SR_LVBCI RT_BIT(2)          /**< rwc, Last valid buffer completion interrupt. */
+#define AC97_SR_CELV  RT_BIT(1)          /**< ro,  Current equals last valid. */
+#define AC97_SR_DCH   RT_BIT(0)          /**< ro,  Controller halted. */
+#define AC97_SR_VALID_MASK  (RT_BIT(5) - 1)
 #define AC97_SR_WCLEAR_MASK (AC97_SR_FIFOE | AC97_SR_BCIS | AC97_SR_LVBCI)
-#define AC97_SR_RO_MASK (AC97_SR_DCH | AC97_SR_CELV)
-#define AC97_SR_INT_MASK (AC97_SR_FIFOE | AC97_SR_BCIS | AC97_SR_LVBCI)
+#define AC97_SR_RO_MASK     (AC97_SR_DCH | AC97_SR_CELV)
+#define AC97_SR_INT_MASK    (AC97_SR_FIFOE | AC97_SR_BCIS | AC97_SR_LVBCI)
 
-#define AC97_CR_IOCE  RT_BIT(4)         /* rw,   Interrupt On Completion Enable. */
-#define AC97_CR_FEIE  RT_BIT(3)         /* rw    FIFO Error Interrupt Enable. */
-#define AC97_CR_LVBIE RT_BIT(2)         /* rw    Last Valid Buffer Interrupt Enable. */
-#define AC97_CR_RR    RT_BIT(1)         /* rw    Reset Registers. */
-#define AC97_CR_RPBM  RT_BIT(0)         /* rw    Run/Pause Bus Master. */
+#define AC97_CR_IOCE  RT_BIT(4)         /**< rw,   Interrupt On Completion Enable. */
+#define AC97_CR_FEIE  RT_BIT(3)         /**< rw    FIFO Error Interrupt Enable. */
+#define AC97_CR_LVBIE RT_BIT(2)         /**< rw    Last Valid Buffer Interrupt Enable. */
+#define AC97_CR_RR    RT_BIT(1)         /**< rw    Reset Registers. */
+#define AC97_CR_RPBM  RT_BIT(0)         /**< rw    Run/Pause Bus Master. */
 #define AC97_CR_VALID_MASK (RT_BIT(5) - 1)
 #define AC97_CR_DONT_CLEAR_MASK (AC97_CR_IOCE | AC97_CR_FEIE | AC97_CR_LVBIE)
 
-#define AC97_GC_WR    4                 /* rw    Warm reset. */
-#define AC97_GC_CR    2                 /* rw    Cold reset. */
+#define AC97_GC_WR    4                 /**< rw    Warm reset. */
+#define AC97_GC_CR    2                 /**< rw    Cold reset. */
 #define AC97_GC_VALID_MASK (RT_BIT(6) - 1)
 
-#define AC97_GS_MD3   RT_BIT(17)        /* rw */
-#define AC97_GS_AD3   RT_BIT(16)        /* rw */
-#define AC97_GS_RCS   RT_BIT(15)        /* rwc */
-#define AC97_GS_B3S12 RT_BIT(14)        /* ro */
-#define AC97_GS_B2S12 RT_BIT(13)        /* ro */
-#define AC97_GS_B1S12 RT_BIT(12)        /* ro */
-#define AC97_GS_S1R1  RT_BIT(11)        /* rwc */
-#define AC97_GS_S0R1  RT_BIT(10)        /* rwc */
-#define AC97_GS_S1CR  RT_BIT(9)         /* ro */
-#define AC97_GS_S0CR  RT_BIT(8)         /* ro */
-#define AC97_GS_MINT  RT_BIT(7)         /* ro */
-#define AC97_GS_POINT RT_BIT(6)         /* ro */
-#define AC97_GS_PIINT RT_BIT(5)         /* ro */
-#define AC97_GS_RSRVD (RT_BIT(4)|RT_BIT(3))
-#define AC97_GS_MOINT RT_BIT(2)         /* ro */
-#define AC97_GS_MIINT RT_BIT(1)         /* ro */
-#define AC97_GS_GSCI  RT_BIT(0)         /* rwc */
-#define AC97_GS_RO_MASK (AC97_GS_B3S12 |                   \
-                         AC97_GS_B2S12 |                   \
-                         AC97_GS_B1S12 |                   \
-                         AC97_GS_S1CR  |                   \
-                         AC97_GS_S0CR  |                   \
-                         AC97_GS_MINT  |                   \
-                         AC97_GS_POINT |                   \
-                         AC97_GS_PIINT |                   \
-                         AC97_GS_RSRVD |                   \
-                         AC97_GS_MOINT |                   \
-                         AC97_GS_MIINT)
+#define AC97_GS_MD3   RT_BIT(17)        /**< rw */
+#define AC97_GS_AD3   RT_BIT(16)        /**< rw */
+#define AC97_GS_RCS   RT_BIT(15)        /**< rwc */
+#define AC97_GS_B3S12 RT_BIT(14)        /**< ro */
+#define AC97_GS_B2S12 RT_BIT(13)        /**< ro */
+#define AC97_GS_B1S12 RT_BIT(12)        /**< ro */
+#define AC97_GS_S1R1  RT_BIT(11)        /**< rwc */
+#define AC97_GS_S0R1  RT_BIT(10)        /**< rwc */
+#define AC97_GS_S1CR  RT_BIT(9)         /**< ro */
+#define AC97_GS_S0CR  RT_BIT(8)         /**< ro */
+#define AC97_GS_MINT  RT_BIT(7)         /**< ro */
+#define AC97_GS_POINT RT_BIT(6)         /**< ro */
+#define AC97_GS_PIINT RT_BIT(5)         /**< ro */
+#define AC97_GS_RSRVD (RT_BIT(4) | RT_BIT(3))
+#define AC97_GS_MOINT RT_BIT(2)         /**< ro */
+#define AC97_GS_MIINT RT_BIT(1)         /**< ro */
+#define AC97_GS_GSCI  RT_BIT(0)         /**< rwc */
+#define AC97_GS_RO_MASK (  AC97_GS_B3S12 \
+                         | AC97_GS_B2S12 \
+                         | AC97_GS_B1S12 \
+                         | AC97_GS_S1CR \
+                         | AC97_GS_S0CR \
+                         | AC97_GS_MINT \
+                         | AC97_GS_POINT \
+                         | AC97_GS_PIINT \
+                         | AC97_GS_RSRVD \
+                         | AC97_GS_MOINT \
+                         | AC97_GS_MIINT)
 #define AC97_GS_VALID_MASK (RT_BIT(18) - 1)
-#define AC97_GS_WCLEAR_MASK (AC97_GS_RCS|AC97_GS_S1R1|AC97_GS_S0R1|AC97_GS_GSCI)
+#define AC97_GS_WCLEAR_MASK (AC97_GS_RCS | AC97_GS_S1R1 | AC97_GS_S0R1 | AC97_GS_GSCI)
 
 /** @name Buffer Descriptor (BD).
  * @{ */
@@ -187,16 +187,16 @@ enum
 /* Codec models. */
 typedef enum
 {
-    AC97_CODEC_STAC9700 = 0,     /* SigmaTel STAC9700 */
-    AC97_CODEC_AD1980,           /* Analog Devices AD1980 */
-    AC97_CODEC_AD1981B           /* Analog Devices AD1981B */
+    AC97_CODEC_STAC9700 = 0,     /**< SigmaTel STAC9700 */
+    AC97_CODEC_AD1980,           /**< Analog Devices AD1980 */
+    AC97_CODEC_AD1981B           /**< Analog Devices AD1981B */
 } AC97CODEC;
 
 /* Analog Devices miscellaneous regiter bits used in AD1980. */
-#define AC97_AD_MISC_LOSEL       RT_BIT(5)   /* Surround (rear) goes to line out outputs. */
-#define AC97_AD_MISC_HPSEL       RT_BIT(10)  /* PCM (front) goes to headphone outputs. */
+#define AC97_AD_MISC_LOSEL       RT_BIT(5)   /**< Surround (rear) goes to line out outputs. */
+#define AC97_AD_MISC_HPSEL       RT_BIT(10)  /**< PCM (front) goes to headphone outputs. */
 
-#define ICHAC97STATE_2_DEVINS(a_pAC97)   ((a_pAC97)->pDevInsR3)
+#define ICHAC97STATE_2_DEVINS(a_pAC97)   ((a_pAC97)->CTX_SUFF(pDevIns))
 
 enum
 {
@@ -204,7 +204,8 @@ enum
     BUP_LAST = RT_BIT(1)
 };
 
-/** Emits registers for a specific (Native Audio Bus Master BAR) NABMBAR. */
+/** Emits registers for a specific (Native Audio Bus Master BAR) NABMBAR.
+ * @todo This totally messes with grepping for identifiers and tagging.  */
 #define AC97_NABMBAR_REGS(prefix, off)                                    \
     enum {                                                                \
         prefix ## _BDBAR = off,      /* Buffer Descriptor Base Address */ \
@@ -219,10 +220,10 @@ enum
 #ifndef VBOX_DEVICE_STRUCT_TESTCASE
 typedef enum
 {
-    AC97SOUNDSOURCE_PI_INDEX = 0, /** PCM in */
-    AC97SOUNDSOURCE_PO_INDEX,     /** PCM out */
-    AC97SOUNDSOURCE_MC_INDEX,     /** Mic in */
-    AC97SOUNDSOURCE_LAST_INDEX
+    AC97SOUNDSOURCE_PI_INDEX = 0, /**< PCM in */
+    AC97SOUNDSOURCE_PO_INDEX,     /**< PCM out */
+    AC97SOUNDSOURCE_MC_INDEX,     /**< Mic in */
+    AC97SOUNDSOURCE_END_INDEX
 } AC97SOUNDSOURCE;
 
 AC97_NABMBAR_REGS(PI, AC97SOUNDSOURCE_PI_INDEX * 16);
@@ -268,9 +269,12 @@ typedef struct AC97BMREGS
     uint16_t picb;              /** ro 0, Position in current buffer (in samples). */
     uint8_t  piv;               /** ro 0, Prefetched index value. */
     uint8_t  cr;                /** rw 0, Control register. */
-    int      bd_valid;          /** Whether current BDLE is initialized or not. */
+    int32_t  bd_valid;          /** Whether current BDLE is initialized or not. */
     AC97BDLE bd;                /** Current Buffer Descriptor List Entry (BDLE). */
-} AC97BMREGS, *PAC97BMREGS;
+} AC97BMREGS;
+AssertCompileSizeAlignment(AC97BMREGS, 8);
+/** Pointer to the BM registers of an audio stream. */
+typedef AC97BMREGS *PAC97BMREGS;
 
 #ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
 /**
@@ -299,18 +303,23 @@ typedef struct AC97STREAMSTATEAIO
  */
 typedef struct AC97STREAMSTATE
 {
-    /** Circular buffer (FIFO) for holding DMA'ed data. */
-    R3PTRTYPE(PRTCIRCBUF) pCircBuf;
     /** Criticial section for this stream. */
     RTCRITSECT            CritSect;
-    /** The stream's current configuration. */
-    PDMAUDIOSTREAMCFG     Cfg;
+    /** Circular buffer (FIFO) for holding DMA'ed data. */
+    R3PTRTYPE(PRTCIRCBUF) pCircBuf;
+#if HC_ARCH_BITS == 32
     uint32_t              Padding;
+#endif
+    /** The stream's current configuration. */
+    PDMAUDIOSTREAMCFG     Cfg; //+96
 #ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
     /** Asynchronous I/O state members. */
     AC97STREAMSTATEAIO    AIO;
 #endif
-} AC97STREAMSTATE, *PAC97STREAMSTATE;
+} AC97STREAMSTATE;
+AssertCompileSizeAlignment(AC97STREAMSTATE, 8);
+/** Pointer to internal state of an AC'97 stream. */
+typedef AC97STREAMSTATE *PAC97STREAMSTATE;
 
 /**
  * Structure for an AC'97 stream.
@@ -319,11 +328,15 @@ typedef struct AC97STREAM
 {
     /** Stream number (SDn). */
     uint8_t         u8SD;
+    uint8_t         abPadding[7];
     /** Bus master registers of this stream. */
     AC97BMREGS      Regs;
     /** Internal state of this stream. */
     AC97STREAMSTATE State;
 } AC97STREAM, *PAC97STREAM;
+AssertCompileSizeAlignment(AC97STREAM, 8);
+/** Pointer to an AC'97 stream (registers + state). */
+typedef AC97STREAM *PAC97STREAM;
 
 typedef struct AC97STATE *PAC97STATE;
 #ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
@@ -392,10 +405,17 @@ typedef struct AC97STATE
 {
     /** The PCI device state. */
     PDMPCIDEV               PciDev;
-    /** R3 Pointer to the device instance. */
-    PPDMDEVINSR3            pDevInsR3;
     /** Critical section protecting the AC'97 state. */
     PDMCRITSECT             CritSect;
+    /** R3 pointer to the device instance. */
+    PPDMDEVINSR3            pDevInsR3;
+    /** R0 pointer to the device instance. */
+    PPDMDEVINSR0            pDevInsR0;
+    /** RC pointer to the device instance. */
+    PPDMDEVINSRC            pDevInsRC;
+    /** Set if R0/RC is enabled. */
+    bool                    fRZEnabled;
+    bool                    afPadding0[3];
     /** Global Control (Bus Master Control Register). */
     uint32_t                glob_cnt;
     /** Global Status (Bus Master Control Register). */
@@ -413,14 +433,15 @@ typedef struct AC97STATE
     /** Number of active (running) SDn streams. */
     uint8_t                 cStreamsActive;
 #ifndef VBOX_WITH_AUDIO_AC97_CALLBACKS
-    /** The timer for pumping data thru the attached LUN drivers. */
-    PTMTIMERR3              pTimer;
-# if HC_ARCH_BITS == 32
-    uint32_t                Padding0;
-# endif
     /** Flag indicating whether the timer is active or not. */
     bool                    fTimerActive;
-    uint8_t                 u8Padding1[7];
+    uint8_t                 u8Padding1[2];
+    /** The timer for pumping data thru the attached LUN drivers - RCPtr. */
+    PTMTIMERRC              pTimerRC;
+    /** The timer for pumping data thru the attached LUN drivers - R3Ptr. */
+    PTMTIMERR3              pTimerR3;
+    /** The timer for pumping data thru the attached LUN drivers - R0Ptr. */
+    PTMTIMERR0              pTimerR0;
     /** The timer interval for pumping data thru the LUN drivers in timer ticks. */
     uint64_t                cTimerTicks;
     /** Timestamp of the last timer callback (ac97Timer).
@@ -435,7 +456,7 @@ typedef struct AC97STATE
     STAMCOUNTER             StatBytesWritten;
 #endif
     /** List of associated LUN drivers (AC97DRIVER). */
-    RTLISTANCHOR            lstDrv;
+    RTLISTANCHORR3          lstDrv;
     /** The device's software mixer. */
     R3PTRTYPE(PAUDIOMIXER)  pMixer;
     /** Audio sink for PCM output. */
@@ -445,14 +466,20 @@ typedef struct AC97STATE
     /** Audio sink for microphone input. */
     R3PTRTYPE(PAUDMIXSINK)  pSinkMicIn;
     uint8_t                 silence[128];
-    int                     bup_flag;
-    /** The base interface for LUN\#0. */
-    PDMIBASE                IBase;
+    int32_t                 bup_flag;
     /** Base port of the I/O space region. */
     RTIOPORT                IOPortBase[2];
     /** Codec model. */
     uint32_t                uCodecModel;
-} AC97STATE, *PAC97STATE;
+#if HC_ARCH_BITS == 64
+    uint32_t                uPadding2;
+#endif
+    /** The base interface for LUN\#0. */
+    PDMIBASE                IBase;
+} AC97STATE;
+AssertCompileMemberAlignment(AC97STATE, StreamLineIn, 8);
+/** Pointer to a AC'97 state. */
+typedef AC97STATE *PAC97STATE;
 
 /**
  * Acquires the AC'97 lock.
@@ -500,7 +527,7 @@ typedef struct AC97STATE
  */
 #define DEVAC97_LOCK_BOTH_RETURN_VOID(a_pThis) \
     do { \
-        int rcLock = TMTimerLock((a_pThis)->pTimer, VERR_IGNORED); \
+        int rcLock = TMTimerLock((a_pThis)->CTX_SUFF(pTimer), VERR_IGNORED); \
         if (rcLock != VINF_SUCCESS) \
         { \
             AssertRC(rcLock); \
@@ -510,7 +537,7 @@ typedef struct AC97STATE
         if (rcLock != VINF_SUCCESS) \
         { \
             AssertRC(rcLock); \
-            TMTimerUnlock((a_pThis)->pTimer); \
+            TMTimerUnlock((a_pThis)->CTX_SUFF(pTimer)); \
             return; \
         } \
     } while (0)
@@ -520,14 +547,14 @@ typedef struct AC97STATE
  */
 #define DEVAC97_LOCK_BOTH_RETURN(a_pThis, a_rcBusy) \
     do { \
-        int rcLock = TMTimerLock((a_pThis)->pTimer, (a_rcBusy)); \
+        int rcLock = TMTimerLock((a_pThis)->CTX_SUFF(pTimer), (a_rcBusy)); \
         if (rcLock != VINF_SUCCESS) \
             return rcLock; \
         rcLock = PDMCritSectEnter(&(a_pThis)->CritSect, (a_rcBusy)); \
         if (rcLock != VINF_SUCCESS) \
         { \
             AssertRC(rcLock); \
-            TMTimerUnlock((a_pThis)->pTimer); \
+            TMTimerUnlock((a_pThis)->CTX_SUFF(pTimer)); \
             return rcLock; \
         } \
     } while (0)
@@ -538,7 +565,7 @@ typedef struct AC97STATE
 #define DEVAC97_UNLOCK_BOTH(a_pThis) \
     do { \
         PDMCritSectLeave(&(a_pThis)->CritSect); \
-        TMTimerUnlock((a_pThis)->pTimer); \
+        TMTimerUnlock((a_pThis)->CTX_SUFF(pTimer)); \
     } while (0)
 
 #ifdef VBOX_WITH_STATISTICS
@@ -549,45 +576,51 @@ AssertCompileMemberAlignment(AC97STATE, StatBytesWritten, 8);
 
 #ifndef VBOX_DEVICE_STRUCT_TESTCASE
 
-DECLINLINE(PAC97STREAM)   ichac97GetStreamFromIdx(PAC97STATE pThis, uint32_t uIdx);
-static int                ichac97StreamCreate(PAC97STATE pThis, PAC97STREAM pStream, uint8_t u8Strm);
-static void               ichac97StreamDestroy(PAC97STATE pThis, PAC97STREAM pStream);
-static int                ichac97StreamOpen(PAC97STATE pThis, PAC97STREAM pStream);
-static int                ichac97StreamReOpen(PAC97STATE pThis, PAC97STREAM pStream);
-static int                ichac97StreamClose(PAC97STATE pThis, PAC97STREAM pStream);
-static void               ichac97StreamReset(PAC97STATE pThis, PAC97STREAM pStream);
-static void               ichac97StreamLock(PAC97STREAM pStream);
-static void               ichac97StreamUnlock(PAC97STREAM pStream);
-static uint32_t           ichac97StreamGetUsed(PAC97STREAM pStream);
-static uint32_t           ichac97StreamGetFree(PAC97STREAM pStream);
-static int                ichac97StreamTransfer(PAC97STATE pThis, PAC97STREAM pStream, uint32_t cbToProcessMax);
-static void               ichac97StreamUpdate(PAC97STATE pThis, PAC97STREAM pStream, bool fInTimer);
 
-static DECLCALLBACK(void) ichac97Reset(PPDMDEVINS pDevIns);
-#ifndef VBOX_WITH_AUDIO_AC97_CALLBACKS
-static int                ichac97TimerStart(PAC97STATE pThis);
-static int                ichac97TimerMaybeStart(PAC97STATE pThis);
-static int                ichac97TimerStop(PAC97STATE pThis);
-static int                ichac97TimerMaybeStop(PAC97STATE pThis);
-static void               ichac97TimerMain(PAC97STATE pThis);
-static DECLCALLBACK(void) ichac97Timer(PPDMDEVINS pDevIns, PTMTIMER pTimer, void *pvUser);
-#endif
-static void               ichac97DoTransfers(PAC97STATE pThis);
+/*********************************************************************************************************************************
+*   Internal Functions                                                                                                           *
+*********************************************************************************************************************************/
+#ifdef IN_RING3
+static int                ichac97R3StreamCreate(PAC97STATE pThis, PAC97STREAM pStream, uint8_t u8Strm);
+static void               ichac97R3StreamDestroy(PAC97STATE pThis, PAC97STREAM pStream);
+static int                ichac97R3StreamOpen(PAC97STATE pThis, PAC97STREAM pStream);
+static int                ichac97R3StreamReOpen(PAC97STATE pThis, PAC97STREAM pStream);
+static int                ichac97R3StreamClose(PAC97STATE pThis, PAC97STREAM pStream);
+static void               ichac97R3StreamReset(PAC97STATE pThis, PAC97STREAM pStream);
+static void               ichac97R3StreamLock(PAC97STREAM pStream);
+static void               ichac97R3StreamUnlock(PAC97STREAM pStream);
+static uint32_t           ichac97R3StreamGetUsed(PAC97STREAM pStream);
+static uint32_t           ichac97R3StreamGetFree(PAC97STREAM pStream);
+static int                ichac97R3StreamTransfer(PAC97STATE pThis, PAC97STREAM pStream, uint32_t cbToProcessMax);
+static void               ichac97R3StreamUpdate(PAC97STATE pThis, PAC97STREAM pStream, bool fInTimer);
 
-static int                ichac97MixerAddDrvStream(PAC97STATE pThis, PAUDMIXSINK pMixSink, PPDMAUDIOSTREAMCFG pCfg, PAC97DRIVER pDrv);
-static int                ichac97MixerAddDrvStreams(PAC97STATE pThis, PAUDMIXSINK pMixSink, PPDMAUDIOSTREAMCFG pCfg);
-static void               ichac97MixerRemoveDrvStream(PAC97STATE pThis, PAUDMIXSINK pMixSink, PDMAUDIODIR enmDir, PDMAUDIODESTSOURCE dstSrc, PAC97DRIVER pDrv);
-static void               ichac97MixerRemoveDrvStreams(PAC97STATE pThis, PAUDMIXSINK pMixSink, PDMAUDIODIR enmDir, PDMAUDIODESTSOURCE dstSrc);
+static DECLCALLBACK(void) ichac97R3Reset(PPDMDEVINS pDevIns);
+# ifndef VBOX_WITH_AUDIO_AC97_CALLBACKS
+static int                ichac97R3TimerStart(PAC97STATE pThis);
+static int                ichac97R3TimerMaybeStart(PAC97STATE pThis);
+static int                ichac97R3TimerStop(PAC97STATE pThis);
+static int                ichac97R3TimerMaybeStop(PAC97STATE pThis);
+static void               ichac97R3TimerMain(PAC97STATE pThis);
+static DECLCALLBACK(void) ichac97R3Timer(PPDMDEVINS pDevIns, PTMTIMER pTimer, void *pvUser);
+# endif
+static void               ichac97R3DoTransfers(PAC97STATE pThis);
 
-#ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
-static DECLCALLBACK(int)  ichac97StreamAsyncIOThread(RTTHREAD hThreadSelf, void *pvUser);
-static int                ichac97StreamAsyncIOCreate(PAC97STATE pThis, PAC97STREAM pStream);
-static int                ichac97StreamAsyncIODestroy(PAC97STATE pThis, PAC97STREAM pStream);
-static int                ichac97StreamAsyncIONotify(PAC97STATE pThis, PAC97STREAM pStream);
-static void               ichac97StreamAsyncIOLock(PAC97STREAM pStream);
-static void               ichac97StreamAsyncIOUnlock(PAC97STREAM pStream);
-static void               ichac97StreamAsyncIOEnable(PAC97STREAM pStream, bool fEnable);
-#endif
+static int                ichac97R3MixerAddDrvStream(PAC97STATE pThis, PAUDMIXSINK pMixSink, PPDMAUDIOSTREAMCFG pCfg, PAC97DRIVER pDrv);
+static int                ichac97R3MixerAddDrvStreams(PAC97STATE pThis, PAUDMIXSINK pMixSink, PPDMAUDIOSTREAMCFG pCfg);
+static void               ichac97R3MixerRemoveDrvStream(PAC97STATE pThis, PAUDMIXSINK pMixSink, PDMAUDIODIR enmDir, PDMAUDIODESTSOURCE dstSrc, PAC97DRIVER pDrv);
+static void               ichac97R3MixerRemoveDrvStreams(PAC97STATE pThis, PAUDMIXSINK pMixSink, PDMAUDIODIR enmDir, PDMAUDIODESTSOURCE dstSrc);
+
+# ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
+static DECLCALLBACK(int)  ichac97R3StreamAsyncIOThread(RTTHREAD hThreadSelf, void *pvUser);
+static int                ichac97R3StreamAsyncIOCreate(PAC97STATE pThis, PAC97STREAM pStream);
+static int                ichac97R3StreamAsyncIODestroy(PAC97STATE pThis, PAC97STREAM pStream);
+static int                ichac97R3StreamAsyncIONotify(PAC97STATE pThis, PAC97STREAM pStream);
+static void               ichac97R3StreamAsyncIOLock(PAC97STREAM pStream);
+static void               ichac97R3StreamAsyncIOUnlock(PAC97STREAM pStream);
+static void               ichac97R3StreamAsyncIOEnable(PAC97STREAM pStream, bool fEnable);
+# endif
+#endif /* IN_RING3 */
+
 
 static void ichac97WarmReset(PAC97STATE pThis)
 {
@@ -599,6 +632,8 @@ static void ichac97ColdReset(PAC97STATE pThis)
     NOREF(pThis);
 }
 
+#ifdef IN_RING3
+
 /**
  * Retrieves the audio mixer sink of a corresponding AC'97 stream index.
  *
@@ -606,16 +641,16 @@ static void ichac97ColdReset(PAC97STATE pThis)
  * @param   pThis               AC'97 state.
  * @param   uIndex              Stream index to get audio mixer sink for.
  */
-DECLINLINE(PAUDMIXSINK) ichac97IndexToSink(PAC97STATE pThis, uint8_t uIndex)
+DECLINLINE(PAUDMIXSINK) ichac97R3IndexToSink(PAC97STATE pThis, uint8_t uIndex)
 {
     AssertPtrReturn(pThis, NULL);
 
     switch (uIndex)
     {
-        case AC97SOUNDSOURCE_PI_INDEX: return pThis->pSinkLineIn; break;
-        case AC97SOUNDSOURCE_PO_INDEX: return pThis->pSinkOut;    break;
-        case AC97SOUNDSOURCE_MC_INDEX: return pThis->pSinkMicIn;  break;
-        default:                                                  break;
+        case AC97SOUNDSOURCE_PI_INDEX: return pThis->pSinkLineIn;
+        case AC97SOUNDSOURCE_PO_INDEX: return pThis->pSinkOut;
+        case AC97SOUNDSOURCE_MC_INDEX: return pThis->pSinkMicIn;
+        default: break;
     }
 
     AssertMsgFailed(("Wrong index %RU8\n", uIndex));
@@ -631,7 +666,7 @@ DECLINLINE(PAUDMIXSINK) ichac97IndexToSink(PAC97STATE pThis, uint8_t uIndex)
  *
  * @remark  Uses CIV as BDLE index.
  */
-static void ichac97StreamFetchBDLE(PAC97STATE pThis, PAC97STREAM pStream)
+static void ichac97R3StreamFetchBDLE(PAC97STATE pThis, PAC97STREAM pStream)
 {
     PPDMDEVINS  pDevIns = ICHAC97STATE_2_DEVINS(pThis);
     PAC97BMREGS pRegs   = &pStream->Regs;
@@ -640,18 +675,20 @@ static void ichac97StreamFetchBDLE(PAC97STATE pThis, PAC97STREAM pStream)
 
     PDMDevHlpPhysRead(pDevIns, pRegs->bdbar + pRegs->civ * 8, &u32[0], sizeof(u32));
     pRegs->bd_valid   = 1;
-#if !defined(RT_ARCH_X86) && !defined(RT_ARCH_AMD64)
-# error Please adapt the code (audio buffers are little endian)!
-#else
+# ifndef RT_LITTLE_ENDIAN
+#  error "Please adapt the code (audio buffers are little endian)!"
+# else
     pRegs->bd.addr    = RT_H2LE_U32(u32[0] & ~3);
     pRegs->bd.ctl_len = RT_H2LE_U32(u32[1]);
-#endif
+# endif
     pRegs->picb       = pRegs->bd.ctl_len & AC97_BD_LEN_MASK;
     LogFlowFunc(("bd %2d addr=%#x ctl=%#06x len=%#x(%d bytes)\n",
                   pRegs->civ, pRegs->bd.addr, pRegs->bd.ctl_len >> 16,
                   pRegs->bd.ctl_len & AC97_BD_LEN_MASK,
                  (pRegs->bd.ctl_len & AC97_BD_LEN_MASK) << 1)); /** @todo r=andy Assumes 16bit samples. */
 }
+
+#endif /* IN_RING3 */
 
 /**
  * Updates the status register (SR) of an AC'97 audio stream.
@@ -670,8 +707,6 @@ static void ichac97StreamUpdateSR(PAC97STATE pThis, PAC97STREAM pStream, uint32_
 
     uint32_t new_mask = new_sr & AC97_SR_INT_MASK;
     uint32_t old_mask = pRegs->sr  & AC97_SR_INT_MASK;
-
-    static uint32_t const masks[] = { AC97_GS_PIINT, AC97_GS_POINT, AC97_GS_MINT };
 
     if (new_mask ^ old_mask)
     {
@@ -700,15 +735,18 @@ static void ichac97StreamUpdateSR(PAC97STATE pThis, PAC97STREAM pStream, uint32_
 
     if (fSignal)
     {
+        static uint32_t const s_aMasks[] = { AC97_GS_PIINT, AC97_GS_POINT, AC97_GS_MINT };
         if (iIRQL)
-            pThis->glob_sta |=  masks[pStream->u8SD];
+            pThis->glob_sta |=  s_aMasks[pStream->u8SD];
         else
-            pThis->glob_sta &= ~masks[pStream->u8SD];
+            pThis->glob_sta &= ~s_aMasks[pStream->u8SD];
 
         LogFlowFunc(("Setting IRQ level=%d\n", iIRQL));
         PDMDevHlpPCISetIrq(pDevIns, 0, iIRQL);
     }
 }
+
+#ifdef IN_RING3
 
 /**
  * Returns whether an AC'97 stream is enabled or not.
@@ -717,12 +755,12 @@ static void ichac97StreamUpdateSR(PAC97STATE pThis, PAC97STREAM pStream, uint32_
  * @param   pThis               AC'97 device state.
  * @param   pStream             Stream to return status for.
  */
-static bool ichac97StreamIsEnabled(PAC97STATE pThis, PAC97STREAM pStream)
+static bool ichac97R3StreamIsEnabled(PAC97STATE pThis, PAC97STREAM pStream)
 {
     AssertPtrReturn(pThis,   false);
     AssertPtrReturn(pStream, false);
 
-    PAUDMIXSINK pSink = ichac97IndexToSink(pThis, pStream->u8SD);
+    PAUDMIXSINK pSink = ichac97R3IndexToSink(pThis, pStream->u8SD);
     bool fIsEnabled = RT_BOOL(AudioMixerSinkGetStatus(pSink) & AUDMIXSINK_STS_RUNNING);
 
     LogFunc(("[SD%RU8] fIsEnabled=%RTbool\n", pStream->u8SD, fIsEnabled));
@@ -738,56 +776,56 @@ static bool ichac97StreamIsEnabled(PAC97STATE pThis, PAC97STREAM pStream)
  * @param   fEnable             Whether to enable or disable the stream.
  *
  */
-static int ichac97StreamEnable(PAC97STATE pThis, PAC97STREAM pStream, bool fEnable)
+static int ichac97R3StreamEnable(PAC97STATE pThis, PAC97STREAM pStream, bool fEnable)
 {
     AssertPtrReturn(pThis,   VERR_INVALID_POINTER);
     AssertPtrReturn(pStream, VERR_INVALID_POINTER);
 
-    ichac97StreamLock(pStream);
+    ichac97R3StreamLock(pStream);
 
     int rc = VINF_SUCCESS;
 
-#ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
+# ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
     if (fEnable)
-        rc = ichac97StreamAsyncIOCreate(pThis, pStream);
+        rc = ichac97R3StreamAsyncIOCreate(pThis, pStream);
     if (RT_SUCCESS(rc))
     {
-        ichac97StreamAsyncIOLock(pStream);
-        ichac97StreamAsyncIOEnable(pStream, fEnable);
+        ichac97R3StreamAsyncIOLock(pStream);
+        ichac97R3StreamAsyncIOEnable(pStream, fEnable);
     }
-#endif
+# endif
 
     if (fEnable)
     {
         if (pStream->State.pCircBuf)
             RTCircBufReset(pStream->State.pCircBuf);
 
-        rc = ichac97StreamOpen(pThis, pStream);
+        rc = ichac97R3StreamOpen(pThis, pStream);
     }
     else
-        rc = ichac97StreamClose(pThis, pStream);
+        rc = ichac97R3StreamClose(pThis, pStream);
 
     if (RT_SUCCESS(rc))
     {
         /* First, enable or disable the stream and the stream's sink, if any. */
-        rc = AudioMixerSinkCtl(ichac97IndexToSink(pThis, pStream->u8SD),
+        rc = AudioMixerSinkCtl(ichac97R3IndexToSink(pThis, pStream->u8SD),
                                fEnable ? AUDMIXSINKCMD_ENABLE : AUDMIXSINKCMD_DISABLE);
     }
 
-#ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
-    ichac97StreamAsyncIOUnlock(pStream);
-#endif
+# ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
+    ichac97R3StreamAsyncIOUnlock(pStream);
+# endif
 
     /* Make sure to leave the lock before (eventually) starting the timer. */
-    ichac97StreamUnlock(pStream);
+    ichac97R3StreamUnlock(pStream);
 
-#ifndef VBOX_WITH_AUDIO_AC97_CALLBACKS
+# ifndef VBOX_WITH_AUDIO_AC97_CALLBACKS
     /* Second, see if we need to start or stop the timer. */
     if (!fEnable)
-        ichac97TimerMaybeStop(pThis);
+        ichac97R3TimerMaybeStop(pThis);
     else
-        ichac97TimerMaybeStart(pThis);
-#endif
+        ichac97R3TimerMaybeStart(pThis);
+# endif
 
     LogFunc(("[SD%RU8] cStreamsActive=%RU8, fEnable=%RTbool, rc=%Rrc\n", pStream->u8SD, pThis->cStreamsActive, fEnable, rc));
     return rc;
@@ -800,12 +838,12 @@ static int ichac97StreamEnable(PAC97STATE pThis, PAC97STREAM pStream, bool fEnab
  * @param   pStream             AC'97 stream to reset.
  *
  */
-static void ichac97StreamReset(PAC97STATE pThis, PAC97STREAM pStream)
+static void ichac97R3StreamReset(PAC97STATE pThis, PAC97STREAM pStream)
 {
     AssertPtrReturnVoid(pThis);
     AssertPtrReturnVoid(pStream);
 
-    ichac97StreamLock(pStream);
+    ichac97R3StreamLock(pStream);
 
     LogFunc(("[SD%RU8]\n", pStream->u8SD));
 
@@ -825,7 +863,7 @@ static void ichac97StreamReset(PAC97STATE pThis, PAC97STREAM pStream)
 
     RT_ZERO(pThis->silence);
 
-    ichac97StreamUnlock(pStream);
+    ichac97R3StreamUnlock(pStream);
 }
 
 /**
@@ -836,7 +874,7 @@ static void ichac97StreamReset(PAC97STATE pThis, PAC97STREAM pStream)
  * @param   pStream             AC'97 stream to create.
  * @param   u8Strm              Stream ID to assign AC'97 stream to.
  */
-static int ichac97StreamCreate(PAC97STATE pThis, PAC97STREAM pStream, uint8_t u8Strm)
+static int ichac97R3StreamCreate(PAC97STATE pThis, PAC97STREAM pStream, uint8_t u8Strm)
 {
     RT_NOREF(pThis);
     AssertPtrReturn(pStream, VERR_INVALID_PARAMETER);
@@ -844,6 +882,7 @@ static int ichac97StreamCreate(PAC97STATE pThis, PAC97STREAM pStream, uint8_t u8
 
     LogFunc(("[SD%RU8] pStream=%p\n", u8Strm, pStream));
 
+    Assert(u8Strm < 3);
     pStream->u8SD = u8Strm;
 
     int rc = RTCritSectInit(&pStream->State.CritSect);
@@ -860,7 +899,7 @@ static int ichac97StreamCreate(PAC97STATE pThis, PAC97STREAM pStream, uint8_t u8
  * @param   pThis               AC'97 state.
  * @param   pStream             AC'97 stream to destroy.
  */
-static void ichac97StreamDestroy(PAC97STATE pThis, PAC97STREAM pStream)
+static void ichac97R3StreamDestroy(PAC97STATE pThis, PAC97STREAM pStream)
 {
     LogFlowFunc(("[SD%RU8]\n", pStream->u8SD));
 
@@ -873,12 +912,12 @@ static void ichac97StreamDestroy(PAC97STATE pThis, PAC97STREAM pStream)
         pStream->State.pCircBuf = NULL;
     }
 
-#ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
-    rc2 = ichac97StreamAsyncIODestroy(pThis, pStream);
+# ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
+    rc2 = ichac97R3StreamAsyncIODestroy(pThis, pStream);
     AssertRC(rc2);
-#else
+# else
     RT_NOREF(pThis);
-#endif
+# endif
 
     LogFlowFuncLeave();
 }
@@ -888,7 +927,7 @@ static void ichac97StreamDestroy(PAC97STATE pThis, PAC97STREAM pStream)
  *
  * @param   pThis               AC'97 state.
  */
-static void ichac97StreamsDestroy(PAC97STATE pThis)
+static void ichac97R3StreamsDestroy(PAC97STATE pThis)
 {
     LogFlowFuncEnter();
 
@@ -896,9 +935,9 @@ static void ichac97StreamsDestroy(PAC97STATE pThis)
      * Destroy all AC'97 streams.
      */
 
-    ichac97StreamDestroy(pThis, &pThis->StreamLineIn);
-    ichac97StreamDestroy(pThis, &pThis->StreamMicIn);
-    ichac97StreamDestroy(pThis, &pThis->StreamOut);
+    ichac97R3StreamDestroy(pThis, &pThis->StreamLineIn);
+    ichac97R3StreamDestroy(pThis, &pThis->StreamMicIn);
+    ichac97R3StreamDestroy(pThis, &pThis->StreamOut);
 
     /*
      * Destroy all sinks.
@@ -908,7 +947,7 @@ static void ichac97StreamsDestroy(PAC97STATE pThis)
     if (pThis->pSinkLineIn)
     {
         dstSrc.Source = PDMAUDIORECSOURCE_LINE;
-        ichac97MixerRemoveDrvStreams(pThis, pThis->pSinkLineIn, PDMAUDIODIR_IN, dstSrc);
+        ichac97R3MixerRemoveDrvStreams(pThis, pThis->pSinkLineIn, PDMAUDIODIR_IN, dstSrc);
 
         AudioMixerSinkDestroy(pThis->pSinkLineIn);
         pThis->pSinkLineIn = NULL;
@@ -917,7 +956,7 @@ static void ichac97StreamsDestroy(PAC97STATE pThis)
     if (pThis->pSinkMicIn)
     {
         dstSrc.Source = PDMAUDIORECSOURCE_MIC;
-        ichac97MixerRemoveDrvStreams(pThis, pThis->pSinkMicIn, PDMAUDIODIR_IN, dstSrc);
+        ichac97R3MixerRemoveDrvStreams(pThis, pThis->pSinkMicIn, PDMAUDIODIR_IN, dstSrc);
 
         AudioMixerSinkDestroy(pThis->pSinkMicIn);
         pThis->pSinkMicIn = NULL;
@@ -926,7 +965,7 @@ static void ichac97StreamsDestroy(PAC97STATE pThis)
     if (pThis->pSinkOut)
     {
         dstSrc.Dest = PDMAUDIOPLAYBACKDEST_FRONT;
-        ichac97MixerRemoveDrvStreams(pThis, pThis->pSinkOut, PDMAUDIODIR_OUT, dstSrc);
+        ichac97R3MixerRemoveDrvStreams(pThis, pThis->pSinkOut, PDMAUDIODIR_OUT, dstSrc);
 
         AudioMixerSinkDestroy(pThis->pSinkOut);
         pThis->pSinkOut = NULL;
@@ -943,8 +982,8 @@ static void ichac97StreamsDestroy(PAC97STATE pThis)
  * @param   cbToWrite           Number of bytes to write.
  * @param   pcbWritten          Number of bytes written. Optional.
  */
-static int ichac97StreamWrite(PAC97STATE pThis, PAC97STREAM pDstStream, PAUDMIXSINK pSrcMixSink, uint32_t cbToWrite,
-                              uint32_t *pcbWritten)
+static int ichac97R3StreamWrite(PAC97STATE pThis, PAC97STREAM pDstStream, PAUDMIXSINK pSrcMixSink, uint32_t cbToWrite,
+                                uint32_t *pcbWritten)
 {
     RT_NOREF(pThis);
     AssertPtrReturn(pDstStream,  VERR_INVALID_POINTER);
@@ -967,13 +1006,13 @@ static int ichac97StreamWrite(PAC97STATE pThis, PAC97STREAM pDstStream, PAUDMIXS
         int rc2 = AudioMixerSinkRead(pSrcMixSink, AUDMIXOP_COPY, pvDst, (uint32_t)cbDst, &cbRead);
         AssertRC(rc2);
 
-#ifdef VBOX_AUDIO_DEBUG_DUMP_PCM_DATA
+# ifdef VBOX_AUDIO_DEBUG_DUMP_PCM_DATA
         RTFILE fh;
         RTFileOpen(&fh, VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH "ichac97StreamWrite.pcm",
                    RTFILE_O_OPEN_CREATE | RTFILE_O_APPEND | RTFILE_O_WRITE | RTFILE_O_DENY_NONE);
         RTFileWrite(fh, pvDst, cbRead, NULL);
         RTFileClose(fh);
-#endif
+# endif
     }
 
     RTCircBufReleaseWriteBlock(pCircBuf, cbRead);
@@ -994,8 +1033,8 @@ static int ichac97StreamWrite(PAC97STATE pThis, PAC97STREAM pDstStream, PAUDMIXS
  * @param   cbToRead            Number of bytes to read.
  * @param   pcbRead             Number of bytes read. Optional.
  */
-static int ichac97StreamRead(PAC97STATE pThis, PAC97STREAM pSrcStream, PAUDMIXSINK pDstMixSink, uint32_t cbToRead,
-                             uint32_t *pcbRead)
+static int ichac97R3StreamRead(PAC97STATE pThis, PAC97STREAM pSrcStream, PAUDMIXSINK pDstMixSink, uint32_t cbToRead,
+                               uint32_t *pcbRead)
 {
     RT_NOREF(pThis);
     AssertPtrReturn(pSrcStream,  VERR_INVALID_POINTER);
@@ -1021,13 +1060,13 @@ static int ichac97StreamRead(PAC97STATE pThis, PAC97STREAM pSrcStream, PAUDMIXSI
 
         if (cbSrc)
         {
-#ifdef VBOX_AUDIO_DEBUG_DUMP_PCM_DATA
+# ifdef VBOX_AUDIO_DEBUG_DUMP_PCM_DATA
             RTFILE fh;
             RTFileOpen(&fh, VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH "ac97StreamRead.pcm",
                        RTFILE_O_OPEN_CREATE | RTFILE_O_APPEND | RTFILE_O_WRITE | RTFILE_O_DENY_NONE);
             RTFileWrite(fh, pvSrc, cbSrc, NULL);
             RTFileClose(fh);
-#endif
+# endif
             rc = AudioMixerSinkWrite(pDstMixSink, AUDMIXOP_COPY, pvSrc, (uint32_t)cbSrc, &cbWritten);
             if (RT_SUCCESS(rc))
             {
@@ -1056,7 +1095,8 @@ static int ichac97StreamRead(PAC97STATE pThis, PAC97STREAM pSrcStream, PAUDMIXSI
     return rc;
 }
 
-#ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
+# ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
+
 /**
  * Asynchronous I/O thread for an AC'97 stream.
  * This will do the heavy lifting work for us as soon as it's getting notified by another thread.
@@ -1065,7 +1105,7 @@ static int ichac97StreamRead(PAC97STATE pThis, PAC97STREAM pSrcStream, PAUDMIXSI
  * @param   hThreadSelf         Thread handle.
  * @param   pvUser              User argument. Must be of type PAC97STREAMTHREADCTX.
  */
-static DECLCALLBACK(int) ichac97StreamAsyncIOThread(RTTHREAD hThreadSelf, void *pvUser)
+static DECLCALLBACK(int) ichac97R3StreamAsyncIOThread(RTTHREAD hThreadSelf, void *pvUser)
 {
     PAC97STREAMTHREADCTX pCtx = (PAC97STREAMTHREADCTX)pvUser;
     AssertPtr(pCtx);
@@ -1081,7 +1121,7 @@ static DECLCALLBACK(int) ichac97StreamAsyncIOThread(RTTHREAD hThreadSelf, void *
     PRTCIRCBUF pCircBuf = pStream->State.pCircBuf;
     AssertPtr(pCircBuf);
 
-    PAUDMIXSINK pMixSink = ichac97IndexToSink(pThis, pStream->u8SD);
+    PAUDMIXSINK pMixSink = ichac97R3IndexToSink(pThis, pStream->u8SD);
     AssertPtr(pMixSink);
 
     ASMAtomicXchgBool(&pAIO->fStarted, true);
@@ -1110,7 +1150,7 @@ static DECLCALLBACK(int) ichac97StreamAsyncIOThread(RTTHREAD hThreadSelf, void *
                 continue;
             }
 
-            ichac97StreamUpdate(pThis, pStream, false /* fInTimer */);
+            ichac97R3StreamUpdate(pThis, pStream, false /* fInTimer */);
 
             int rc3 = RTCritSectLeave(&pAIO->CritSect);
             AssertRC(rc3);
@@ -1133,7 +1173,7 @@ static DECLCALLBACK(int) ichac97StreamAsyncIOThread(RTTHREAD hThreadSelf, void *
  * @param   pThis               AC'97 state.
  * @param   pStream             AC'97 audio stream to create the async I/O thread for.
  */
-static int ichac97StreamAsyncIOCreate(PAC97STATE pThis, PAC97STREAM pStream)
+static int ichac97R3StreamAsyncIOCreate(PAC97STATE pThis, PAC97STREAM pStream)
 {
     PAC97STREAMSTATEAIO pAIO = &pStream->State.AIO;
 
@@ -1175,7 +1215,7 @@ static int ichac97StreamAsyncIOCreate(PAC97STATE pThis, PAC97STREAM pStream)
  * @param   pThis               AC'97 state.
  * @param   pStream             AC'97 audio stream to destroy the async I/O thread for.
  */
-static int ichac97StreamAsyncIODestroy(PAC97STATE pThis, PAC97STREAM pStream)
+static int ichac97R3StreamAsyncIODestroy(PAC97STATE pThis, PAC97STREAM pStream)
 {
     PAC97STREAMSTATEAIO pAIO = &pStream->State.AIO;
 
@@ -1184,7 +1224,7 @@ static int ichac97StreamAsyncIODestroy(PAC97STATE pThis, PAC97STREAM pStream)
 
     ASMAtomicWriteBool(&pAIO->fShutdown, true);
 
-    int rc = ichac97StreamAsyncIONotify(pThis, pStream);
+    int rc = ichac97R3StreamAsyncIONotify(pThis, pStream);
     AssertRC(rc);
 
     int rcThread;
@@ -1215,7 +1255,7 @@ static int ichac97StreamAsyncIODestroy(PAC97STATE pThis, PAC97STREAM pStream)
  * @param   pThis               AC'97 state.
  * @param   pStream             AC'97 stream to notify async I/O thread for.
  */
-static int ichac97StreamAsyncIONotify(PAC97STATE pThis, PAC97STREAM pStream)
+static int ichac97R3StreamAsyncIONotify(PAC97STATE pThis, PAC97STREAM pStream)
 {
     RT_NOREF(pThis);
 
@@ -1228,7 +1268,7 @@ static int ichac97StreamAsyncIONotify(PAC97STATE pThis, PAC97STREAM pStream)
  *
  * @param   pStream             AC'97 stream to lock async I/O thread for.
  */
-static void ichac97StreamAsyncIOLock(PAC97STREAM pStream)
+static void ichac97R3StreamAsyncIOLock(PAC97STREAM pStream)
 {
     PAC97STREAMSTATEAIO pAIO = &pStream->State.AIO;
 
@@ -1244,7 +1284,7 @@ static void ichac97StreamAsyncIOLock(PAC97STREAM pStream)
  *
  * @param   pStream             AC'97 stream to unlock async I/O thread for.
  */
-static void ichac97StreamAsyncIOUnlock(PAC97STREAM pStream)
+static void ichac97R3StreamAsyncIOUnlock(PAC97STREAM pStream)
 {
     PAC97STREAMSTATEAIO pAIO = &pStream->State.AIO;
 
@@ -1263,12 +1303,13 @@ static void ichac97StreamAsyncIOUnlock(PAC97STREAM pStream)
  *
  * @remarks Does not do locking.
  */
-static void ichac97StreamAsyncIOEnable(PAC97STREAM pStream, bool fEnable)
+static void ichac97R3StreamAsyncIOEnable(PAC97STREAM pStream, bool fEnable)
 {
     PAC97STREAMSTATEAIO pAIO = &pStream->State.AIO;
     ASMAtomicXchgBool(&pAIO->fEnabled, fEnable);
 }
-#endif /* VBOX_WITH_AUDIO_AC97_ASYNC_IO */
+
+# endif /* VBOX_WITH_AUDIO_AC97_ASYNC_IO */
 
 /**
  * Updates an AC'97 stream by doing its required data transfers.
@@ -1281,9 +1322,9 @@ static void ichac97StreamAsyncIOEnable(PAC97STREAM pStream, bool fEnable)
  * @param   fInTimer            Whether to this function was called from the timer
  *                              context or an asynchronous I/O stream thread (if supported).
  */
-static void ichac97StreamUpdate(PAC97STATE pThis, PAC97STREAM pStream, bool fInTimer)
+static void ichac97R3StreamUpdate(PAC97STATE pThis, PAC97STREAM pStream, bool fInTimer)
 {
-    PAUDMIXSINK pSink = ichac97IndexToSink(pThis, pStream->u8SD);
+    PAUDMIXSINK pSink = ichac97R3IndexToSink(pThis, pStream->u8SD);
     AssertPtr(pSink);
 
     if (!AudioMixerSinkIsActive(pSink)) /* No sink available? Bail out. */
@@ -1294,7 +1335,7 @@ static void ichac97StreamUpdate(PAC97STATE pThis, PAC97STREAM pStream, bool fInT
     if (pStream->u8SD == AC97SOUNDSOURCE_PO_INDEX) /* Output (SDO). */
     {
         /* Is the AC'97 stream ready to be written (guest output data) to? If so, by how much? */
-        const uint32_t cbFree = ichac97StreamGetFree(pStream);
+        const uint32_t cbFree = ichac97R3StreamGetFree(pStream);
 
         if (   fInTimer
             && cbFree)
@@ -1302,23 +1343,23 @@ static void ichac97StreamUpdate(PAC97STATE pThis, PAC97STREAM pStream, bool fInT
             Log3Func(("[SD%RU8] cbFree=%RU32\n", pStream->u8SD, cbFree));
 
             /* Do the DMA transfer. */
-            rc2 = ichac97StreamTransfer(pThis, pStream, cbFree);
+            rc2 = ichac97R3StreamTransfer(pThis, pStream, cbFree);
             AssertRC(rc2);
         }
 
         /* How much (guest output) data is available at the moment for the AC'97 stream? */
-        uint32_t cbUsed = ichac97StreamGetUsed(pStream);
+        uint32_t cbUsed = ichac97R3StreamGetUsed(pStream);
 
-#ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
+# ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
         if (   fInTimer
             && cbUsed)
         {
-            rc2 = ichac97StreamAsyncIONotify(pThis, pStream);
+            rc2 = ichac97R3StreamAsyncIONotify(pThis, pStream);
             AssertRC(rc2);
         }
         else
+# endif
         {
-#endif
             const uint32_t cbSinkWritable = AudioMixerSinkGetWritable(pSink);
 
             /* Do not write more than the sink can hold at the moment.
@@ -1330,7 +1371,7 @@ static void ichac97StreamUpdate(PAC97STATE pThis, PAC97STREAM pStream, bool fInT
             {
                 /* Read (guest output) data and write it to the stream's sink. */
                 uint32_t cbRead;
-                rc2 = ichac97StreamRead(pThis, pStream, pSink, cbUsed, &cbRead);
+                rc2 = ichac97R3StreamRead(pThis, pStream, pSink, cbUsed, &cbRead);
                 AssertRC(rc2);
 
                 AssertMsg(cbUsed == cbRead, ("[SD%RU8] %RU32 bytes announced to be ready to read but %RU32 bytes read\n",
@@ -1342,21 +1383,19 @@ static void ichac97StreamUpdate(PAC97STATE pThis, PAC97STREAM pStream, bool fInT
             rc2 = AudioMixerSinkUpdate(pSink);
             AssertRC(rc2);
 
-#ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
         }
-#endif
     }
     else /* Input (SDI). */
     {
-#ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
+# ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
         if (fInTimer)
         {
-            rc2 = ichac97StreamAsyncIONotify(pThis, pStream);
+            rc2 = ichac97R3StreamAsyncIONotify(pThis, pStream);
             AssertRC(rc2);
         }
         else
+# endif
         {
-#endif
             rc2 = AudioMixerSinkUpdate(pSink);
             AssertRC(rc2);
 
@@ -1364,7 +1403,7 @@ static void ichac97StreamUpdate(PAC97STATE pThis, PAC97STREAM pStream, bool fInT
             const uint32_t cbReadable = AudioMixerSinkGetReadable(pSink);
 
             /* How much (guest input) data is free at the moment? */
-            uint32_t cbFree = ichac97StreamGetFree(pStream);
+            uint32_t cbFree = ichac97R3StreamGetFree(pStream);
 
             Log3Func(("[SD%RU8] cbReadable=%RU32, cbFree=%RU32\n", pStream->u8SD, cbReadable, cbFree));
 
@@ -1376,30 +1415,28 @@ static void ichac97StreamUpdate(PAC97STATE pThis, PAC97STREAM pStream, bool fInT
             if (cbFree)
             {
                 /* Write (guest input) data to the stream which was read from stream's sink before. */
-                rc2 = ichac97StreamWrite(pThis, pStream, pSink, cbFree, NULL /* pcbWritten */);
+                rc2 = ichac97R3StreamWrite(pThis, pStream, pSink, cbFree, NULL /* pcbWritten */);
                 AssertRC(rc2);
             }
-#ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
         }
-#endif
 
-#ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
+# ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
         if (fInTimer)
+# endif
         {
-#endif
-            const uint32_t cbToTransfer = ichac97StreamGetUsed(pStream);
+            const uint32_t cbToTransfer = ichac97R3StreamGetUsed(pStream);
             if (cbToTransfer)
             {
                 /* When running synchronously, do the DMA data transfers here.
                  * Otherwise this will be done in the stream's async I/O thread. */
-                rc2 = ichac97StreamTransfer(pThis, pStream, cbToTransfer);
+                rc2 = ichac97R3StreamTransfer(pThis, pStream, cbToTransfer);
                 AssertRC(rc2);
             }
-#ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
         }
-#endif
     }
 }
+
+#endif /* IN_RING3 */
 
 /**
  * Sets a AC'97 mixer control to a specific value.
@@ -1411,12 +1448,8 @@ static void ichac97StreamUpdate(PAC97STATE pThis, PAC97STREAM pStream, bool fInT
  */
 static void ichac97MixerSet(PAC97STATE pThis, uint8_t uMixerIdx, uint16_t uVal)
 {
-    if (size_t(uMixerIdx + 2) > sizeof(pThis->mixer_data))
-    {
-        AssertMsgFailed(("Index %RU8 out of bounds(%zu)\n", uMixerIdx, sizeof(pThis->mixer_data)));
-        return;
-    }
-
+    AssertMsgReturnVoid(uMixerIdx + 2U <= sizeof(pThis->mixer_data),
+                         ("Index %RU8 out of bounds (%zu)\n", uMixerIdx, sizeof(pThis->mixer_data)));
     pThis->mixer_data[uMixerIdx + 0] = RT_LO_U8(uVal);
     pThis->mixer_data[uMixerIdx + 1] = RT_HI_U8(uVal);
 }
@@ -1430,18 +1463,13 @@ static void ichac97MixerSet(PAC97STATE pThis, uint8_t uMixerIdx, uint16_t uVal)
  */
 static uint16_t ichac97MixerGet(PAC97STATE pThis, uint32_t uMixerIdx)
 {
-    uint16_t uVal;
-
-    if (size_t(uMixerIdx + 2) > sizeof(pThis->mixer_data))
-    {
-        AssertMsgFailed(("Index %RU8 out of bounds (%zu)\n", uMixerIdx, sizeof(pThis->mixer_data)));
-        uVal = UINT16_MAX;
-    }
-    else
-        uVal = RT_MAKE_U16(pThis->mixer_data[uMixerIdx + 0], pThis->mixer_data[uMixerIdx + 1]);
-
-    return uVal;
+    AssertMsgReturn(uMixerIdx + 2U <= sizeof(pThis->mixer_data),
+                         ("Index %RU8 out of bounds (%zu)\n", uMixerIdx, sizeof(pThis->mixer_data)),
+                    UINT16_MAX);
+    return RT_MAKE_U16(pThis->mixer_data[uMixerIdx + 0], pThis->mixer_data[uMixerIdx + 1]);
 }
+
+#ifdef IN_RING3
 
 /**
  * Retrieves a specific driver stream of a AC'97 driver.
@@ -1452,8 +1480,8 @@ static uint16_t ichac97MixerGet(PAC97STATE pThis, uint32_t uMixerIdx)
  * @param   enmDir              Stream direction to retrieve.
  * @param   dstSrc              Stream destination / source to retrieve.
  */
-static PAC97DRIVERSTREAM ichac97MixerGetDrvStream(PAC97STATE pThis, PAC97DRIVER pDrv,
-                                                  PDMAUDIODIR enmDir, PDMAUDIODESTSOURCE dstSrc)
+static PAC97DRIVERSTREAM ichac97R3MixerGetDrvStream(PAC97STATE pThis, PAC97DRIVER pDrv,
+                                                    PDMAUDIODIR enmDir, PDMAUDIODESTSOURCE dstSrc)
 {
     RT_NOREF(pThis);
 
@@ -1505,7 +1533,7 @@ static PAC97DRIVERSTREAM ichac97MixerGetDrvStream(PAC97STATE pThis, PAC97DRIVER 
  * @param   pCfg                Stream configuration to use.
  * @param   pDrv                Driver stream to add.
  */
-static int ichac97MixerAddDrvStream(PAC97STATE pThis, PAUDMIXSINK pMixSink, PPDMAUDIOSTREAMCFG pCfg, PAC97DRIVER pDrv)
+static int ichac97R3MixerAddDrvStream(PAC97STATE pThis, PAUDMIXSINK pMixSink, PPDMAUDIOSTREAMCFG pCfg, PAC97DRIVER pDrv)
 {
     AssertPtrReturn(pThis,    VERR_INVALID_POINTER);
     AssertPtrReturn(pMixSink, VERR_INVALID_POINTER);
@@ -1525,7 +1553,7 @@ static int ichac97MixerAddDrvStream(PAC97STATE pThis, PAUDMIXSINK pMixSink, PPDM
 
     int rc;
 
-    PAC97DRIVERSTREAM pDrvStream = ichac97MixerGetDrvStream(pThis, pDrv, pStreamCfg->enmDir, pStreamCfg->DestSource);
+    PAC97DRIVERSTREAM pDrvStream = ichac97R3MixerGetDrvStream(pThis, pDrv, pStreamCfg->enmDir, pStreamCfg->DestSource);
     if (pDrvStream)
     {
         AssertMsg(pDrvStream->pMixStrm == NULL, ("[LUN#%RU8] Driver stream already present when it must not\n", pDrv->uLUN));
@@ -1562,7 +1590,7 @@ static int ichac97MixerAddDrvStream(PAC97STATE pThis, PAUDMIXSINK pMixSink, PPDM
  * @param   pMixSink            Mixer sink to add stream to.
  * @param   pCfg                Stream configuration to use.
  */
-static int ichac97MixerAddDrvStreams(PAC97STATE pThis, PAUDMIXSINK pMixSink, PPDMAUDIOSTREAMCFG pCfg)
+static int ichac97R3MixerAddDrvStreams(PAC97STATE pThis, PAUDMIXSINK pMixSink, PPDMAUDIOSTREAMCFG pCfg)
 {
     AssertPtrReturn(pThis,    VERR_INVALID_POINTER);
     AssertPtrReturn(pMixSink, VERR_INVALID_POINTER);
@@ -1578,7 +1606,7 @@ static int ichac97MixerAddDrvStreams(PAC97STATE pThis, PAUDMIXSINK pMixSink, PPD
     PAC97DRIVER pDrv;
     RTListForEach(&pThis->lstDrv, pDrv, AC97DRIVER, Node)
     {
-        int rc2 = ichac97MixerAddDrvStream(pThis, pMixSink, pCfg, pDrv);
+        int rc2 = ichac97R3MixerAddDrvStream(pThis, pMixSink, pCfg, pDrv);
         if (RT_SUCCESS(rc))
             rc = rc2;
     }
@@ -1596,13 +1624,13 @@ static int ichac97MixerAddDrvStreams(PAC97STATE pThis, PAUDMIXSINK pMixSink, PPD
  * @param   dstSrc              Stream destination / source to remove.
  * @param   pDrv                Driver stream to remove.
  */
-static void ichac97MixerRemoveDrvStream(PAC97STATE pThis, PAUDMIXSINK pMixSink,
-                                        PDMAUDIODIR enmDir, PDMAUDIODESTSOURCE dstSrc, PAC97DRIVER pDrv)
+static void ichac97R3MixerRemoveDrvStream(PAC97STATE pThis, PAUDMIXSINK pMixSink,
+                                          PDMAUDIODIR enmDir, PDMAUDIODESTSOURCE dstSrc, PAC97DRIVER pDrv)
 {
     AssertPtrReturnVoid(pThis);
     AssertPtrReturnVoid(pMixSink);
 
-    PAC97DRIVERSTREAM pDrvStream = ichac97MixerGetDrvStream(pThis, pDrv, enmDir, dstSrc);
+    PAC97DRIVERSTREAM pDrvStream = ichac97R3MixerGetDrvStream(pThis, pDrv, enmDir, dstSrc);
     if (pDrvStream)
     {
         if (pDrvStream->pMixStrm)
@@ -1623,15 +1651,17 @@ static void ichac97MixerRemoveDrvStream(PAC97STATE pThis, PAUDMIXSINK pMixSink,
  * @param   enmDir              Stream direction to remove.
  * @param   dstSrc              Stream destination / source to remove.
  */
-static void ichac97MixerRemoveDrvStreams(PAC97STATE pThis, PAUDMIXSINK pMixSink,
-                                         PDMAUDIODIR enmDir, PDMAUDIODESTSOURCE dstSrc)
+static void ichac97R3MixerRemoveDrvStreams(PAC97STATE pThis, PAUDMIXSINK pMixSink,
+                                           PDMAUDIODIR enmDir, PDMAUDIODESTSOURCE dstSrc)
 {
     AssertPtrReturnVoid(pThis);
     AssertPtrReturnVoid(pMixSink);
 
     PAC97DRIVER pDrv;
     RTListForEach(&pThis->lstDrv, pDrv, AC97DRIVER, Node)
-        ichac97MixerRemoveDrvStream(pThis, pMixSink, enmDir, dstSrc, pDrv);
+    {
+        ichac97R3MixerRemoveDrvStream(pThis, pMixSink, enmDir, dstSrc, pDrv);
+    }
 }
 
 /**
@@ -1644,7 +1674,7 @@ static void ichac97MixerRemoveDrvStreams(PAC97STATE pThis, PAUDMIXSINK pMixSink,
  * @param   pThis               AC'97 state.
  * @param   pStream             AC'97 Stream to open.
  */
-static int ichac97StreamOpen(PAC97STATE pThis, PAC97STREAM pStream)
+static int ichac97R3StreamOpen(PAC97STATE pThis, PAC97STREAM pStream)
 {
     int rc = VINF_SUCCESS;
 
@@ -1654,6 +1684,7 @@ static int ichac97StreamOpen(PAC97STATE pThis, PAC97STREAM pStream)
 
     PPDMAUDIOSTREAMCFG pCfg     = &pStream->State.Cfg;
     PAUDMIXSINK        pMixSink = NULL;
+    AssertCompile(sizeof(pCfg->szName) >= 8);
 
     switch (pStream->u8SD)
     {
@@ -1663,8 +1694,7 @@ static int ichac97StreamOpen(PAC97STATE pThis, PAC97STREAM pStream)
             pCfg->enmDir            = PDMAUDIODIR_IN;
             pCfg->DestSource.Source = PDMAUDIORECSOURCE_LINE;
             pCfg->enmLayout         = PDMAUDIOSTREAMLAYOUT_NON_INTERLEAVED;
-
-            RTStrPrintf2(pCfg->szName, sizeof(pCfg->szName), "Line-In");
+            strcpy(pCfg->szName, "Line-In");
 
             pMixSink                = pThis->pSinkLineIn;
             break;
@@ -1676,8 +1706,7 @@ static int ichac97StreamOpen(PAC97STATE pThis, PAC97STREAM pStream)
             pCfg->enmDir            = PDMAUDIODIR_IN;
             pCfg->DestSource.Source = PDMAUDIORECSOURCE_MIC;
             pCfg->enmLayout         = PDMAUDIOSTREAMLAYOUT_NON_INTERLEAVED;
-
-            RTStrPrintf2(pCfg->szName, sizeof(pCfg->szName), "Mic-In");
+            strcpy(pCfg->szName, "Mic-In");
 
             pMixSink                = pThis->pSinkMicIn;
             break;
@@ -1689,8 +1718,7 @@ static int ichac97StreamOpen(PAC97STATE pThis, PAC97STREAM pStream)
             pCfg->enmDir            = PDMAUDIODIR_OUT;
             pCfg->DestSource.Dest   = PDMAUDIOPLAYBACKDEST_FRONT;
             pCfg->enmLayout         = PDMAUDIOSTREAMLAYOUT_NON_INTERLEAVED;
-
-            RTStrPrintf2(pCfg->szName, sizeof(pCfg->szName), "Output");
+            strcpy(pCfg->szName, "Output");
 
             pMixSink                = pThis->pSinkOut;
             break;
@@ -1703,7 +1731,7 @@ static int ichac97StreamOpen(PAC97STATE pThis, PAC97STREAM pStream)
 
     if (RT_SUCCESS(rc))
     {
-        ichac97MixerRemoveDrvStreams(pThis, pMixSink, pCfg->enmDir, pCfg->DestSource);
+        ichac97R3MixerRemoveDrvStreams(pThis, pMixSink, pCfg->enmDir, pCfg->DestSource);
 
         if (pCfg->Props.uHz)
         {
@@ -1714,7 +1742,7 @@ static int ichac97StreamOpen(PAC97STATE pThis, PAC97STREAM pStream)
             pCfg->Props.fSigned   = true;
             pCfg->Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(pCfg->Props.cBits, pCfg->Props.cChannels);
 
-            rc = ichac97MixerAddDrvStreams(pThis, pMixSink, pCfg);
+            rc = ichac97R3MixerAddDrvStreams(pThis, pMixSink, pCfg);
         }
     }
 
@@ -1729,7 +1757,7 @@ static int ichac97StreamOpen(PAC97STATE pThis, PAC97STREAM pStream)
  * @param   pThis               AC'97 state.
  * @param   pStream             AC'97 stream to close.
  */
-static int ichac97StreamClose(PAC97STATE pThis, PAC97STREAM pStream)
+static int ichac97R3StreamClose(PAC97STATE pThis, PAC97STREAM pStream)
 {
     RT_NOREF(pThis);
     RT_NOREF(pStream);
@@ -1747,13 +1775,13 @@ static int ichac97StreamClose(PAC97STATE pThis, PAC97STREAM pStream)
  * @param   pThis               AC'97 device state.
  * @param   pStream             AC'97 stream to re-open.
  */
-static int ichac97StreamReOpen(PAC97STATE pThis, PAC97STREAM pStream)
+static int ichac97R3StreamReOpen(PAC97STATE pThis, PAC97STREAM pStream)
 {
     LogFlowFunc(("[SD%RU8]\n", pStream->u8SD));
 
-    int rc = ichac97StreamClose(pThis, pStream);
+    int rc = ichac97R3StreamClose(pThis, pStream);
     if (RT_SUCCESS(rc))
-        rc = ichac97StreamOpen(pThis, pStream);
+        rc = ichac97R3StreamOpen(pThis, pStream);
 
     return rc;
 }
@@ -1764,7 +1792,7 @@ static int ichac97StreamReOpen(PAC97STATE pThis, PAC97STREAM pStream)
  * @returns IPRT status code.
  * @param   pStream             AC'97 stream to lock.
  */
-static void ichac97StreamLock(PAC97STREAM pStream)
+static void ichac97R3StreamLock(PAC97STREAM pStream)
 {
     AssertPtrReturnVoid(pStream);
     int rc2 = RTCritSectEnter(&pStream->State.CritSect);
@@ -1777,7 +1805,7 @@ static void ichac97StreamLock(PAC97STREAM pStream)
  * @returns IPRT status code.
  * @param   pStream             AC'97 stream to unlock.
  */
-static void ichac97StreamUnlock(PAC97STREAM pStream)
+static void ichac97R3StreamUnlock(PAC97STREAM pStream)
 {
     AssertPtrReturnVoid(pStream);
     int rc2 = RTCritSectLeave(&pStream->State.CritSect);
@@ -1790,7 +1818,7 @@ static void ichac97StreamUnlock(PAC97STREAM pStream)
  * @returns Available data (in bytes).
  * @param   pStream             AC'97 stream to retrieve size for.
  */
-static uint32_t ichac97StreamGetUsed(PAC97STREAM pStream)
+static uint32_t ichac97R3StreamGetUsed(PAC97STREAM pStream)
 {
     AssertPtrReturn(pStream, 0);
 
@@ -1806,7 +1834,7 @@ static uint32_t ichac97StreamGetUsed(PAC97STREAM pStream)
  * @returns Free data (in bytes).
  * @param   pStream             AC'97 stream to retrieve size for.
  */
-static uint32_t ichac97StreamGetFree(PAC97STREAM pStream)
+static uint32_t ichac97R3StreamGetFree(PAC97STREAM pStream)
 {
     AssertPtrReturn(pStream, 0);
 
@@ -1827,7 +1855,7 @@ static uint32_t ichac97StreamGetFree(PAC97STREAM pStream)
  * @param   enmMixerCtl         Corresponding audio mixer sink.
  * @param   uVal                Volume value to set.
  */
-static int ichac97MixerSetVolume(PAC97STATE pThis, int index, PDMAUDIOMIXERCTL enmMixerCtl, uint32_t uVal)
+static int ichac97R3MixerSetVolume(PAC97STATE pThis, int index, PDMAUDIOMIXERCTL enmMixerCtl, uint32_t uVal)
 {
     /*
      * From AC'97 SoundMax Codec AD1981A/AD1981B:
@@ -1853,11 +1881,11 @@ static int ichac97MixerSetVolume(PAC97STATE pThis, int index, PDMAUDIOMIXERCTL e
      */
     if (index != AC97_Master_Volume_Mute && index != AC97_Headphone_Volume_Mute)
     {
-#ifndef VBOX_WITH_AC97_GAIN_SUPPORT
+# ifndef VBOX_WITH_AC97_GAIN_SUPPORT
         /* NB: Currently there is no gain support, only attenuation. */
         uCtlAttLeft  = uCtlAttLeft  < 8 ? 0 : uCtlAttLeft  - 8;
         uCtlAttRight = uCtlAttRight < 8 ? 0 : uCtlAttRight - 8;
-#endif
+# endif
     }
     Assert(uCtlAttLeft  <= 255 / AC97_DB_FACTOR);
     Assert(uCtlAttRight <= 255 / AC97_DB_FACTOR);
@@ -1924,7 +1952,7 @@ static int ichac97MixerSetVolume(PAC97STATE pThis, int index, PDMAUDIOMIXERCTL e
  * @returns PDM audio recording source.
  * @param   uIdx                AC'97 index to convert.
  */
-static PDMAUDIORECSOURCE ichac97IdxToRecSource(uint8_t uIdx)
+static PDMAUDIORECSOURCE ichac97R3IdxToRecSource(uint8_t uIdx)
 {
     switch (uIdx)
     {
@@ -1948,7 +1976,7 @@ static PDMAUDIORECSOURCE ichac97IdxToRecSource(uint8_t uIdx)
  * @returns AC'97 recording source index.
  * @param   enmRecSrc           PDM audio recording source to convert.
  */
-static uint8_t ichac97RecSourceToIdx(PDMAUDIORECSOURCE enmRecSrc)
+static uint8_t ichac97R3RecSourceToIdx(PDMAUDIORECSOURCE enmRecSrc)
 {
     switch (enmRecSrc)
     {
@@ -1966,6 +1994,8 @@ static uint8_t ichac97RecSourceToIdx(PDMAUDIORECSOURCE enmRecSrc)
     return AC97_REC_MIC;
 }
 
+#endif /* IN_RING3 */
+
 /**
  * Retrieves an AC'97 audio stream from an AC'97 stream index.
  *
@@ -1980,11 +2010,12 @@ DECLINLINE(PAC97STREAM) ichac97GetStreamFromIdx(PAC97STATE pThis, uint32_t uIdx)
         case AC97SOUNDSOURCE_PI_INDEX: return &pThis->StreamLineIn;
         case AC97SOUNDSOURCE_MC_INDEX: return &pThis->StreamMicIn;
         case AC97SOUNDSOURCE_PO_INDEX: return &pThis->StreamOut;
-        default:                       break;
+        default:                       return NULL;
     }
 
-    return NULL;
 }
+
+#ifdef IN_RING3
 
 /**
  * Performs an AC'97 mixer record select to switch to a different recording
@@ -1993,14 +2024,14 @@ DECLINLINE(PAC97STREAM) ichac97GetStreamFromIdx(PAC97STATE pThis, uint32_t uIdx)
  * @param   pThis               AC'97 state.
  * @param   val                 AC'97 recording source index to set.
  */
-static void ichac97MixerRecordSelect(PAC97STATE pThis, uint32_t val)
+static void ichac97R3MixerRecordSelect(PAC97STATE pThis, uint32_t val)
 {
     uint8_t rs = val & AC97_REC_MASK;
     uint8_t ls = (val >> 8) & AC97_REC_MASK;
-    PDMAUDIORECSOURCE ars = ichac97IdxToRecSource(rs);
-    PDMAUDIORECSOURCE als = ichac97IdxToRecSource(ls);
-    rs = ichac97RecSourceToIdx(ars);
-    ls = ichac97RecSourceToIdx(als);
+    PDMAUDIORECSOURCE ars = ichac97R3IdxToRecSource(rs);
+    PDMAUDIORECSOURCE als = ichac97R3IdxToRecSource(ls);
+    rs = ichac97R3RecSourceToIdx(ars);
+    ls = ichac97R3RecSourceToIdx(als);
     ichac97MixerSet(pThis, AC97_Record_Select, rs | (ls << 8));
 }
 
@@ -2010,7 +2041,7 @@ static void ichac97MixerRecordSelect(PAC97STATE pThis, uint32_t val)
  * @returns IPRT status code.
  * @param   pThis               AC'97 state.
  */
-static int ichac97MixerReset(PAC97STATE pThis)
+static int ichac97R3MixerReset(PAC97STATE pThis)
 {
     AssertPtrReturn(pThis, VERR_INVALID_PARAMETER);
 
@@ -2061,22 +2092,21 @@ static int ichac97MixerReset(PAC97STATE pThis)
         ichac97MixerSet(pThis, AC97_Vendor_ID1              , 0x8384);
         ichac97MixerSet(pThis, AC97_Vendor_ID2              , 0x7600); /* 7608 */
     }
-    ichac97MixerRecordSelect(pThis, 0);
+    ichac97R3MixerRecordSelect(pThis, 0);
 
     /* The default value is 8000h, which corresponds to 0 dB attenuation with mute on. */
-    ichac97MixerSetVolume(pThis, AC97_Master_Volume_Mute,  PDMAUDIOMIXERCTL_VOLUME_MASTER, 0x8000);
+    ichac97R3MixerSetVolume(pThis, AC97_Master_Volume_Mute,  PDMAUDIOMIXERCTL_VOLUME_MASTER, 0x8000);
 
     /* The default value for stereo registers is 8808h, which corresponds to 0 dB gain with mute on.*/
-    ichac97MixerSetVolume(pThis, AC97_PCM_Out_Volume_Mute, PDMAUDIOMIXERCTL_FRONT,         0x8808);
-    ichac97MixerSetVolume(pThis, AC97_Line_In_Volume_Mute, PDMAUDIOMIXERCTL_LINE_IN,       0x8808);
-    ichac97MixerSetVolume(pThis, AC97_Mic_Volume_Mute,     PDMAUDIOMIXERCTL_MIC_IN,        0x8808);
+    ichac97R3MixerSetVolume(pThis, AC97_PCM_Out_Volume_Mute, PDMAUDIOMIXERCTL_FRONT,         0x8808);
+    ichac97R3MixerSetVolume(pThis, AC97_Line_In_Volume_Mute, PDMAUDIOMIXERCTL_LINE_IN,       0x8808);
+    ichac97R3MixerSetVolume(pThis, AC97_Mic_Volume_Mute,     PDMAUDIOMIXERCTL_MIC_IN,        0x8808);
 
     return VINF_SUCCESS;
 }
 
-/* Unused */
-#if 0
-static void ichac97WriteBUP(PAC97STATE pThis, uint32_t cbElapsed)
+# if 0 /* Unused */
+static void ichac97R3WriteBUP(PAC97STATE pThis, uint32_t cbElapsed)
 {
     LogFlowFunc(("cbElapsed=%RU32\n", cbElapsed));
 
@@ -2114,22 +2144,23 @@ static void ichac97WriteBUP(PAC97STATE pThis, uint32_t cbElapsed)
         cbElapsed -= cbToWrite;
     }
 }
-#endif /* Unused */
+# endif /* Unused */
 
-#ifndef VBOX_WITH_AUDIO_AC97_CALLBACKS
+# ifndef VBOX_WITH_AUDIO_AC97_CALLBACKS
+
 /**
  * Starts the internal audio device timer.
  *
  * @return  IPRT status code.
  * @param   pThis               AC'97 state.
  */
-static int  ichac97TimerStart(PAC97STATE pThis)
+static int  ichac97R3TimerStart(PAC97STATE pThis)
 {
     LogFlowFuncEnter();
 
     DEVAC97_LOCK_BOTH_RETURN(pThis, VINF_IOM_R3_MMIO_WRITE);
 
-    AssertPtr(pThis->pTimer);
+    AssertPtr(pThis->CTX_SUFF(pTimer));
 
     if (!pThis->fTimerActive)
     {
@@ -2138,7 +2169,7 @@ static int  ichac97TimerStart(PAC97STATE pThis)
         pThis->fTimerActive = true;
 
         /* Start transfers. */
-        ichac97TimerMain(pThis);
+        ichac97R3TimerMain(pThis);
     }
 
     DEVAC97_UNLOCK_BOTH(pThis);
@@ -2152,18 +2183,18 @@ static int  ichac97TimerStart(PAC97STATE pThis)
  * @return  IPRT status code.
  * @param   pThis               AC'97 state.
  */
-static int ichac97TimerMaybeStart(PAC97STATE pThis)
+static int ichac97R3TimerMaybeStart(PAC97STATE pThis)
 {
     LogFlowFuncEnter();
 
-    if (!pThis->pTimer)
+    if (!pThis->CTX_SUFF(pTimer))
         return VERR_WRONG_ORDER;
 
     pThis->cStreamsActive++;
 
     /* Only start the timer at the first active stream. */
     if (pThis->cStreamsActive == 1)
-        return ichac97TimerStart(pThis);
+        return ichac97R3TimerStart(pThis);
 
     return VINF_SUCCESS;
 }
@@ -2174,11 +2205,11 @@ static int ichac97TimerMaybeStart(PAC97STATE pThis)
  * @return  IPRT status code.
  * @param   pThis               AC'97 state.
  */
-static int ichac97TimerStop(PAC97STATE pThis)
+static int ichac97R3TimerStop(PAC97STATE pThis)
 {
     LogFlowFuncEnter();
 
-    if (!pThis->pTimer) /* Only can happen on device construction time, so no locking needed here. */
+    if (!pThis->CTX_SUFF(pTimer)) /* Only can happen on device construction time, so no locking needed here. */
         return VINF_SUCCESS;
 
     DEVAC97_LOCK_BOTH_RETURN(pThis, VINF_IOM_R3_MMIO_WRITE);
@@ -2207,11 +2238,11 @@ static int ichac97TimerStop(PAC97STATE pThis)
  * @return  IPRT status code.
  * @param   pThis               AC'97 state.
  */
-static int ichac97TimerMaybeStop(PAC97STATE pThis)
+static int ichac97R3TimerMaybeStop(PAC97STATE pThis)
 {
     LogFlowFuncEnter();
 
-    if (!pThis->pTimer)
+    if (!pThis->CTX_SUFF(pTimer))
         return VERR_WRONG_ORDER;
 
     if (pThis->cStreamsActive) /* Function can be called mupltiple times. */
@@ -2219,7 +2250,7 @@ static int ichac97TimerMaybeStop(PAC97STATE pThis)
         pThis->cStreamsActive--;
 
         if (pThis->cStreamsActive == 0)
-            return ichac97TimerStop(pThis);
+            return ichac97R3TimerStop(pThis);
     }
 
     return VINF_SUCCESS;
@@ -2230,37 +2261,37 @@ static int ichac97TimerMaybeStop(PAC97STATE pThis)
  *
  * @param   pThis               AC'97 state.
  */
-static void ichac97TimerMain(PAC97STATE pThis)
+static void ichac97R3TimerMain(PAC97STATE pThis)
 {
     STAM_PROFILE_START(&pThis->StatTimer, a);
 
     DEVAC97_LOCK_BOTH_RETURN_VOID(pThis);
 
-    uint64_t cTicksNow = TMTimerGet(pThis->pTimer);
+    uint64_t cTicksNow = TMTimerGet(pThis->CTX_SUFF(pTimer));
 
     /* Update current time timestamp. */
     pThis->uTimerTS = cTicksNow;
 
-    /* Flag indicating whether to kick the timer again for the next DMA transfer or sink processing. */
-    bool fKickTimer = false;
+    /* Flag indicating whether to arm the timer again for the next DMA transfer or sink processing. */
+    bool fArmTimer = false;
 
-    ichac97DoTransfers(pThis);
+    ichac97R3DoTransfers(pThis);
 
-    /* Do we need to kick the timer again? */
-    if (   AudioMixerSinkIsActive(ichac97IndexToSink(pThis, pThis->StreamLineIn.u8SD))
-        || AudioMixerSinkIsActive(ichac97IndexToSink(pThis, pThis->StreamMicIn.u8SD))
-        || AudioMixerSinkIsActive(ichac97IndexToSink(pThis, pThis->StreamOut.u8SD)))
+    /* Do we need to arm the timer again? */
+    if (   AudioMixerSinkIsActive(ichac97R3IndexToSink(pThis, pThis->StreamLineIn.u8SD))
+        || AudioMixerSinkIsActive(ichac97R3IndexToSink(pThis, pThis->StreamMicIn.u8SD))
+        || AudioMixerSinkIsActive(ichac97R3IndexToSink(pThis, pThis->StreamOut.u8SD)))
     {
-        fKickTimer = true;
+        fArmTimer = true;
     }
 
-    if (   ASMAtomicReadBool(&pThis->fTimerActive)
-        || fKickTimer)
+    if (   ASMAtomicReadBool(&pThis->fTimerActive) /** @todo r=bird: totally unnecessary to do atomic read here, isn't it? */
+        || fArmTimer)
     {
-        /* Kick the timer again. */
+        /* Arm the timer again. */
         uint64_t cTicks = pThis->cTimerTicks;
         /** @todo adjust cTicks down by now much cbOutMin represents. */
-        TMTimerSet(pThis->pTimer, cTicksNow + cTicks);
+        TMTimerSet(pThis->CTX_SUFF(pTimer), cTicksNow + cTicks);
     }
     else
         LogRel2(("AC97: Stopped transfers\n"));
@@ -2277,17 +2308,17 @@ static void ichac97TimerMain(PAC97STATE pThis)
  * @param   pTimer              Timer which was used when calling this.
  * @param   pvUser              User argument as PAC97STATE.
  */
-static DECLCALLBACK(void) ichac97Timer(PPDMDEVINS pDevIns, PTMTIMER pTimer, void *pvUser)
+static DECLCALLBACK(void) ichac97R3Timer(PPDMDEVINS pDevIns, PTMTIMER pTimer, void *pvUser)
 {
     RT_NOREF(pDevIns, pTimer);
 
     PAC97STATE pThis = (PAC97STATE)pvUser;
     Assert(pThis == PDMINS_2_DATA(pDevIns, PAC97STATE));
-    AssertPtr(pThis);
 
-    ichac97TimerMain(pThis);
+    ichac97R3TimerMain(pThis);
 }
-#endif /* !VBOX_WITH_AUDIO_AC97_CALLBACKS */
+
+# endif /* !VBOX_WITH_AUDIO_AC97_CALLBACKS */
 
 /**
  * Main routine to perform the actual audio data transfers from the AC'97 streams
@@ -2295,13 +2326,13 @@ static DECLCALLBACK(void) ichac97Timer(PPDMDEVINS pDevIns, PTMTIMER pTimer, void
  *
  * @param   pThis               AC'97 state.
  */
-static void ichac97DoTransfers(PAC97STATE pThis)
+static void ichac97R3DoTransfers(PAC97STATE pThis)
 {
     AssertPtrReturnVoid(pThis);
 
-    ichac97StreamUpdate(pThis, &pThis->StreamLineIn, true /* fInTimer */);
-    ichac97StreamUpdate(pThis, &pThis->StreamMicIn,  true /* fInTimer */);
-    ichac97StreamUpdate(pThis, &pThis->StreamOut,    true /* fInTimer */);
+    ichac97R3StreamUpdate(pThis, &pThis->StreamLineIn, true /* fInTimer */);
+    ichac97R3StreamUpdate(pThis, &pThis->StreamMicIn,  true /* fInTimer */);
+    ichac97R3StreamUpdate(pThis, &pThis->StreamOut,    true /* fInTimer */);
 }
 
 /**
@@ -2318,13 +2349,13 @@ static void ichac97DoTransfers(PAC97STATE pThis)
  * @param   pStream             AC'97 stream to update.
  * @param   cbToProcessMax      Maximum of data (in bytes) to process.
  */
-static int ichac97StreamTransfer(PAC97STATE pThis, PAC97STREAM pStream, uint32_t cbToProcessMax)
+static int ichac97R3StreamTransfer(PAC97STATE pThis, PAC97STREAM pStream, uint32_t cbToProcessMax)
 {
     AssertPtrReturn(pThis,       VERR_INVALID_POINTER);
     AssertPtrReturn(pStream,     VERR_INVALID_POINTER);
     AssertReturn(cbToProcessMax, VERR_INVALID_PARAMETER);
 
-    ichac97StreamLock(pStream);
+    ichac97R3StreamLock(pStream);
 
     PAC97BMREGS pRegs = &pStream->Regs;
 
@@ -2335,7 +2366,7 @@ static int ichac97StreamTransfer(PAC97STATE pThis, PAC97STREAM pStream, uint32_t
             switch (pStream->u8SD)
             {
                 case AC97SOUNDSOURCE_PO_INDEX:
-                    /*ichac97WriteBUP(pThis, cbToProcess);*/
+                    /*ichac97R3WriteBUP(pThis, cbToProcess);*/
                     break;
 
                 default:
@@ -2343,7 +2374,7 @@ static int ichac97StreamTransfer(PAC97STATE pThis, PAC97STREAM pStream, uint32_t
             }
         }
 
-        ichac97StreamUnlock(pStream);
+        ichac97R3StreamUnlock(pStream);
         return VINF_SUCCESS;
     }
 
@@ -2352,7 +2383,7 @@ static int ichac97StreamTransfer(PAC97STATE pThis, PAC97STREAM pStream, uint32_t
     {
         Log3Func(("[SD%RU8] BCIS set\n", pStream->u8SD));
 
-        ichac97StreamUnlock(pStream);
+        ichac97R3StreamUnlock(pStream);
         return VINF_SUCCESS;
     }
 
@@ -2371,7 +2402,7 @@ static int ichac97StreamTransfer(PAC97STATE pThis, PAC97STREAM pStream, uint32_t
         if (!pRegs->bd_valid)
         {
             Log3Func(("Invalid buffer descriptor, fetching next one ...\n"));
-            ichac97StreamFetchBDLE(pThis, pStream);
+            ichac97R3StreamFetchBDLE(pThis, pStream);
         }
 
         if (!pRegs->picb) /* Got a new buffer descriptor, that is, the position is 0? */
@@ -2391,7 +2422,7 @@ static int ichac97StreamTransfer(PAC97STATE pThis, PAC97STREAM pStream, uint32_t
             pRegs->civ = pRegs->piv;
             pRegs->piv = (pRegs->piv + 1) % AC97_MAX_BDLE;
 
-            ichac97StreamFetchBDLE(pThis, pStream);
+            ichac97R3StreamFetchBDLE(pThis, pStream);
             continue;
         }
 
@@ -2412,13 +2443,13 @@ static int ichac97StreamTransfer(PAC97STATE pThis, PAC97STREAM pStream, uint32_t
                     int rc2 = PDMDevHlpPhysRead(pThis->CTX_SUFF(pDevIns), pRegs->bd.addr, (uint8_t *)pvDst, cbDst);
                     AssertRC(rc2);
 
-#ifdef VBOX_AUDIO_DEBUG_DUMP_PCM_DATA
+# ifdef VBOX_AUDIO_DEBUG_DUMP_PCM_DATA
                     RTFILE fh;
                     RTFileOpen(&fh,  VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH "ac97DMARead.pcm",
                                RTFILE_O_OPEN_CREATE | RTFILE_O_APPEND | RTFILE_O_WRITE | RTFILE_O_DENY_NONE);
                     RTFileWrite(fh, pvDst, cbDst, NULL);
                     RTFileClose(fh);
-#endif
+# endif
                 }
 
                 RTCircBufReleaseWriteBlock(pCircBuf, cbDst);
@@ -2437,16 +2468,18 @@ static int ichac97StreamTransfer(PAC97STATE pThis, PAC97STREAM pStream, uint32_t
 
                 if (cbSrc)
                 {
+/** @todo r=bird: Just curious, DevHDA uses PDMDevHlpPCIPhysWrite here.  So,
+ *        is AC97 not subject to PCI busmaster enable/disable? */
                     int rc2 = PDMDevHlpPhysWrite(pThis->CTX_SUFF(pDevIns), pRegs->bd.addr, (uint8_t *)pvSrc, cbSrc);
                     AssertRC(rc2);
 
-#ifdef VBOX_AUDIO_DEBUG_DUMP_PCM_DATA
+# ifdef VBOX_AUDIO_DEBUG_DUMP_PCM_DATA
                     RTFILE fh;
                     RTFileOpen(&fh,  VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH "ac97DMAWrite.pcm",
                                RTFILE_O_OPEN_CREATE | RTFILE_O_APPEND | RTFILE_O_WRITE | RTFILE_O_DENY_NONE);
                     RTFileWrite(fh, pvSrc, cbSrc, NULL);
                     RTFileClose(fh);
-#endif
+# endif
                 }
 
                 RTCircBufReleaseReadBlock(pCircBuf, cbSrc);
@@ -2502,7 +2535,7 @@ static int ichac97StreamTransfer(PAC97STATE pThis, PAC97STREAM pStream, uint32_t
             {
                 pRegs->civ = pRegs->piv;
                 pRegs->piv = (pRegs->piv + 1) % AC97_MAX_BDLE;
-                ichac97StreamFetchBDLE(pThis, pStream);
+                ichac97R3StreamFetchBDLE(pThis, pStream);
             }
 
             ichac97StreamUpdateSR(pThis, pStream, new_sr);
@@ -2517,11 +2550,14 @@ static int ichac97StreamTransfer(PAC97STATE pThis, PAC97STREAM pStream, uint32_t
         }
     }
 
-    ichac97StreamUnlock(pStream);
+    ichac97R3StreamUnlock(pStream);
 
     LogFlowFuncLeaveRC(rc);
     return rc;
 }
+
+#endif /* IN_RING3 */
+
 
 /**
  * Port I/O Handler for IN operations.
@@ -2535,16 +2571,13 @@ static int ichac97StreamTransfer(PAC97STATE pThis, PAC97STREAM pStream, uint32_t
  * @param   pu32Val     Where to store the result.  This is always a 32-bit
  *                      variable regardless of what @a cbVal might say.
  * @param   cbVal       Number of bytes read.
- * @remarks Caller enters the device critical section.
  */
-static DECLCALLBACK(int) ichac97IOPortNABMRead(PPDMDEVINS pDevIns, void *pvUser, RTIOPORT uPort,
-                                               uint32_t *pu32Val, unsigned cbVal)
+PDMBOTHCBDECL(int) ichac97IOPortNABMRead(PPDMDEVINS pDevIns, void *pvUser, RTIOPORT uPort, uint32_t *pu32Val, unsigned cbVal)
 {
-    RT_NOREF(pDevIns);
+    PAC97STATE pThis = PDMINS_2_DATA(pDevIns, PAC97STATE);
+    RT_NOREF(pvUser);
 
-    PAC97STATE pThis = (PAC97STATE)pvUser;
-
-    DEVAC97_LOCK(pThis);
+    DEVAC97_LOCK_RETURN(pThis, VINF_IOM_R3_IOPORT_READ);
 
     /* Get the index of the NABMBAR port. */
     const uint32_t uPortIdx = uPort - pThis->IOPortBase[1];
@@ -2709,14 +2742,11 @@ static DECLCALLBACK(int) ichac97IOPortNABMRead(PPDMDEVINS pDevIns, void *pvUser,
  * @param   uPort       Port number used for the OUT operation.
  * @param   u32Val      The value to output.
  * @param   cbVal       The value size in bytes.
- * @remarks Caller enters the device critical section.
  */
-static DECLCALLBACK(int) ichac97IOPortNABMWrite(PPDMDEVINS pDevIns, void *pvUser, RTIOPORT uPort,
-                                                uint32_t u32Val, unsigned cbVal)
+PDMBOTHCBDECL(int) ichac97IOPortNABMWrite(PPDMDEVINS pDevIns, void *pvUser, RTIOPORT uPort, uint32_t u32Val, unsigned cbVal)
 {
-    RT_NOREF(pDevIns);
-
-    PAC97STATE pThis = (PAC97STATE)pvUser;
+    PAC97STATE pThis = PDMINS_2_DATA(pDevIns, PAC97STATE);
+    RT_NOREF(pvUser);
 
     DEVAC97_LOCK_BOTH_RETURN(pThis, VINF_IOM_R3_IOPORT_WRITE);
 
@@ -2729,6 +2759,7 @@ static DECLCALLBACK(int) ichac97IOPortNABMWrite(PPDMDEVINS pDevIns, void *pvUser
     if (pStream) /* Can be NULL, depending on the index (port). */
         pRegs = &pStream->Regs;
 
+    int rc = VINF_SUCCESS;
     switch (cbVal)
     {
         case 1:
@@ -2745,11 +2776,15 @@ static DECLCALLBACK(int) ichac97IOPortNABMWrite(PPDMDEVINS pDevIns, void *pvUser
                     if (   (pRegs->cr & AC97_CR_RPBM)
                         && (pRegs->sr & AC97_SR_DCH))
                     {
+#ifdef IN_RING3
                         pRegs->sr &= ~(AC97_SR_DCH | AC97_SR_CELV);
                         pRegs->civ = pRegs->piv;
                         pRegs->piv = (pRegs->piv + 1) % AC97_MAX_BDLE;
 
-                        ichac97StreamFetchBDLE(pThis, pStream);
+                        ichac97R3StreamFetchBDLE(pThis, pStream);
+#else
+                        rc = VINF_IOM_R3_IOPORT_WRITE;
+#endif
                     }
                     pRegs->lvi = u32Val % AC97_MAX_BDLE;
                     Log3Func(("[SD%RU8] LVI <- %#x\n", pStream->u8SD, u32Val));
@@ -2763,8 +2798,8 @@ static DECLCALLBACK(int) ichac97IOPortNABMWrite(PPDMDEVINS pDevIns, void *pvUser
                 case PO_CR:
                 case MC_CR:
                 {
+#ifdef IN_RING3
                     Log3Func(("[SD%RU8] CR <- %#x (cr %#x)\n", pStream->u8SD, u32Val, pRegs->cr));
-
                     if (u32Val & AC97_CR_RR) /* Busmaster reset. */
                     {
                         Log3Func(("[SD%RU8] Reset\n", pStream->u8SD));
@@ -2772,8 +2807,8 @@ static DECLCALLBACK(int) ichac97IOPortNABMWrite(PPDMDEVINS pDevIns, void *pvUser
                         /* Make sure that Run/Pause Bus Master bit (RPBM) is cleared (0). */
                         Assert((pRegs->cr & AC97_CR_RPBM) == 0);
 
-                        ichac97StreamEnable(pThis, pStream, false /* fEnable */);
-                        ichac97StreamReset(pThis, pStream);
+                        ichac97R3StreamEnable(pThis, pStream, false /* fEnable */);
+                        ichac97R3StreamReset(pThis, pStream);
 
                         ichac97StreamUpdateSR(pThis, pStream, AC97_SR_DCH); /** @todo Do we need to do that? */
                     }
@@ -2785,7 +2820,7 @@ static DECLCALLBACK(int) ichac97IOPortNABMWrite(PPDMDEVINS pDevIns, void *pvUser
                         {
                             Log3Func(("[SD%RU8] Disable\n", pStream->u8SD));
 
-                            ichac97StreamEnable(pThis, pStream, false /* fEnable */);
+                            ichac97R3StreamEnable(pThis, pStream, false /* fEnable */);
 
                             pRegs->sr |= AC97_SR_DCH;
                         }
@@ -2799,11 +2834,14 @@ static DECLCALLBACK(int) ichac97IOPortNABMWrite(PPDMDEVINS pDevIns, void *pvUser
                             pRegs->sr &= ~AC97_SR_DCH;
 
                             /* Fetch the initial BDLE descriptor. */
-                            ichac97StreamFetchBDLE(pThis, pStream);
+                            ichac97R3StreamFetchBDLE(pThis, pStream);
 
-                            ichac97StreamEnable(pThis, pStream, true /* fEnable */);
+                            ichac97R3StreamEnable(pThis, pStream, true /* fEnable */);
                         }
                     }
+#else /* !IN_RING3 */
+                    rc = VINF_IOM_R3_IOPORT_WRITE;
+#endif
                     break;
                 }
 
@@ -2887,7 +2925,7 @@ static DECLCALLBACK(int) ichac97IOPortNABMWrite(PPDMDEVINS pDevIns, void *pvUser
 
     DEVAC97_UNLOCK_BOTH(pThis);
 
-    return VINF_SUCCESS;
+    return rc;
 }
 
 /**
@@ -2902,18 +2940,18 @@ static DECLCALLBACK(int) ichac97IOPortNABMWrite(PPDMDEVINS pDevIns, void *pvUser
  * @param   pu32Val     Where to store the result.  This is always a 32-bit
  *                      variable regardless of what @a cbVal might say.
  * @param   cbVal       Number of bytes read.
- * @remarks Caller enters the device critical section.
  */
-static DECLCALLBACK(int) ichac97IOPortNAMRead(PPDMDEVINS pDevIns, void *pvUser, RTIOPORT uPort, uint32_t *pu32Val, unsigned cbVal)
+PDMBOTHCBDECL(int) ichac97IOPortNAMRead(PPDMDEVINS pDevIns, void *pvUser, RTIOPORT uPort, uint32_t *pu32Val, unsigned cbVal)
 {
-    RT_NOREF(pDevIns);
-    PAC97STATE pThis = (PAC97STATE)pvUser;
+    PAC97STATE pThis = PDMINS_2_DATA(pDevIns, PAC97STATE);
+    RT_NOREF(pvUser);
 
-    DEVAC97_LOCK(pThis);
+    DEVAC97_LOCK_RETURN(pThis, VINF_IOM_R3_IOPORT_READ);
 
     int rc = VINF_SUCCESS;
 
     uint32_t index = uPort - pThis->IOPortBase[0];
+    Assert(index < 256);
 
     switch (cbVal)
     {
@@ -2927,15 +2965,8 @@ static DECLCALLBACK(int) ichac97IOPortNAMRead(PPDMDEVINS pDevIns, void *pvUser, 
 
         case 2:
         {
-            *pu32Val = UINT32_MAX;
             pThis->cas = 0;
-
-            switch (index)
-            {
-                default:
-                    *pu32Val = ichac97MixerGet(pThis, index);
-                    break;
-            }
+            *pu32Val = ichac97MixerGet(pThis, index);
             break;
         }
 
@@ -2971,16 +3002,15 @@ static DECLCALLBACK(int) ichac97IOPortNAMRead(PPDMDEVINS pDevIns, void *pvUser, 
  * @param   cbVal       The value size in bytes.
  * @remarks Caller enters the device critical section.
  */
-static DECLCALLBACK(int) ichac97IOPortNAMWrite(PPDMDEVINS pDevIns, void *pvUser, RTIOPORT uPort,
-                                               uint32_t u32Val, unsigned cbVal)
+PDMBOTHCBDECL(int) ichac97IOPortNAMWrite(PPDMDEVINS pDevIns, void *pvUser, RTIOPORT uPort, uint32_t u32Val, unsigned cbVal)
 {
-    RT_NOREF(pDevIns);
-    PAC97STATE pThis = (PAC97STATE)pvUser;
+    PAC97STATE pThis = PDMINS_2_DATA(pDevIns, PAC97STATE);
+    RT_NOREF(pvUser);
 
     DEVAC97_LOCK_BOTH_RETURN(pThis, VINF_IOM_R3_IOPORT_WRITE);
 
     uint32_t uPortIdx = uPort - pThis->IOPortBase[0];
-
+    int rc = VINF_SUCCESS;
     switch (cbVal)
     {
         case 1:
@@ -2996,7 +3026,11 @@ static DECLCALLBACK(int) ichac97IOPortNAMWrite(PPDMDEVINS pDevIns, void *pvUser,
             switch (uPortIdx)
             {
                 case AC97_Reset:
-                    ichac97Reset(pThis->CTX_SUFF(pDevIns));
+#ifdef IN_RING3
+                    ichac97R3Reset(pThis->CTX_SUFF(pDevIns));
+#else
+                    rc = VINF_IOM_R3_IOPORT_WRITE;
+#endif
                     break;
                 case AC97_Powerdown_Ctrl_Stat:
                     u32Val &= ~0xf;
@@ -3009,7 +3043,11 @@ static DECLCALLBACK(int) ichac97IOPortNAMWrite(PPDMDEVINS pDevIns, void *pvUser,
                         if (ichac97MixerGet(pThis, AC97_AD_Misc) & AC97_AD_MISC_LOSEL)
                             break; /* Register controls surround (rear), do nothing. */
                     }
-                    ichac97MixerSetVolume(pThis, uPortIdx, PDMAUDIOMIXERCTL_VOLUME_MASTER, u32Val);
+#ifdef IN_RING3
+                    ichac97R3MixerSetVolume(pThis, uPortIdx, PDMAUDIOMIXERCTL_VOLUME_MASTER, u32Val);
+#else
+                    rc = VINF_IOM_R3_IOPORT_WRITE;
+#endif
                     break;
                 case AC97_Headphone_Volume_Mute:
                     if (pThis->uCodecModel == AC97_CODEC_AD1980)
@@ -3017,27 +3055,51 @@ static DECLCALLBACK(int) ichac97IOPortNAMWrite(PPDMDEVINS pDevIns, void *pvUser,
                         if (ichac97MixerGet(pThis, AC97_AD_Misc) & AC97_AD_MISC_HPSEL)
                         {
                             /* Register controls PCM (front) outputs. */
-                            ichac97MixerSetVolume(pThis, uPortIdx, PDMAUDIOMIXERCTL_VOLUME_MASTER, u32Val);
+#ifdef IN_RING3
+                            ichac97R3MixerSetVolume(pThis, uPortIdx, PDMAUDIOMIXERCTL_VOLUME_MASTER, u32Val);
+#else
+                            rc = VINF_IOM_R3_IOPORT_WRITE;
+#endif
                         }
                     }
                     break;
                 case AC97_PCM_Out_Volume_Mute:
-                    ichac97MixerSetVolume(pThis, uPortIdx, PDMAUDIOMIXERCTL_FRONT, u32Val);
+#ifdef IN_RING3
+                    ichac97R3MixerSetVolume(pThis, uPortIdx, PDMAUDIOMIXERCTL_FRONT, u32Val);
+#else
+                    rc = VINF_IOM_R3_IOPORT_WRITE;
+#endif
                     break;
                 case AC97_Line_In_Volume_Mute:
-                    ichac97MixerSetVolume(pThis, uPortIdx, PDMAUDIOMIXERCTL_LINE_IN, u32Val);
+#ifdef IN_RING3
+                    ichac97R3MixerSetVolume(pThis, uPortIdx, PDMAUDIOMIXERCTL_LINE_IN, u32Val);
+#else
+                    rc = VINF_IOM_R3_IOPORT_WRITE;
+#endif
                     break;
                 case AC97_Record_Select:
-                    ichac97MixerRecordSelect(pThis, u32Val);
+#ifdef IN_RING3
+                    ichac97R3MixerRecordSelect(pThis, u32Val);
+#else
+                    rc = VINF_IOM_R3_IOPORT_WRITE;
+#endif
                     break;
                 case AC97_Record_Gain_Mute:
+#ifdef IN_RING3
                     /* Newer Ubuntu guests rely on that when controlling gain and muting
                      * the recording (capturing) levels. */
-                    ichac97MixerSetVolume(pThis, uPortIdx, PDMAUDIOMIXERCTL_LINE_IN, u32Val);
+                    ichac97R3MixerSetVolume(pThis, uPortIdx, PDMAUDIOMIXERCTL_LINE_IN, u32Val);
+#else
+                    rc = VINF_IOM_R3_IOPORT_WRITE;
+#endif
                     break;
                 case AC97_Record_Gain_Mic_Mute:
+#ifdef IN_RING3
                     /* Ditto; see note above. */
-                    ichac97MixerSetVolume(pThis, uPortIdx, PDMAUDIOMIXERCTL_MIC_IN,  u32Val);
+                    ichac97R3MixerSetVolume(pThis, uPortIdx, PDMAUDIOMIXERCTL_MIC_IN,  u32Val);
+#else
+                    rc = VINF_IOM_R3_IOPORT_WRITE;
+#endif
                     break;
                 case AC97_Vendor_ID1:
                 case AC97_Vendor_ID2:
@@ -3047,13 +3109,14 @@ static DECLCALLBACK(int) ichac97IOPortNAMWrite(PPDMDEVINS pDevIns, void *pvUser,
                     LogFunc(("Attempt to write extended audio ID to %#x\n", u32Val));
                     break;
                 case AC97_Extended_Audio_Ctrl_Stat:
+#ifdef IN_RING3
                     if (!(u32Val & AC97_EACS_VRA))
                     {
                         ichac97MixerSet(pThis, AC97_PCM_Front_DAC_Rate, 48000);
-                        ichac97StreamReOpen(pThis, &pThis->StreamOut);
+                        ichac97R3StreamReOpen(pThis, &pThis->StreamOut);
 
                         ichac97MixerSet(pThis, AC97_PCM_LR_ADC_Rate,    48000);
-                        ichac97StreamReOpen(pThis, &pThis->StreamLineIn);
+                        ichac97R3StreamReOpen(pThis, &pThis->StreamLineIn);
                     }
                     else
                         LogRel2(("AC97: Variable rate audio (VRA) is not supported\n"));
@@ -3061,20 +3124,27 @@ static DECLCALLBACK(int) ichac97IOPortNAMWrite(PPDMDEVINS pDevIns, void *pvUser,
                     if (!(u32Val & AC97_EACS_VRM))
                     {
                         ichac97MixerSet(pThis, AC97_MIC_ADC_Rate,       48000);
-                        ichac97StreamReOpen(pThis, &pThis->StreamMicIn);
+                        ichac97R3StreamReOpen(pThis, &pThis->StreamMicIn);
                     }
                     else
                         LogRel2(("AC97: Variable rate microphone audio (VRM) is not supported\n"));
 
                     LogFunc(("Setting extended audio control to %#x\n", u32Val));
                     ichac97MixerSet(pThis, AC97_Extended_Audio_Ctrl_Stat, u32Val);
+#else
+                    rc = VINF_IOM_R3_IOPORT_WRITE;
+#endif
                     break;
                 case AC97_PCM_Front_DAC_Rate:
                     if (ichac97MixerGet(pThis, AC97_Extended_Audio_Ctrl_Stat) & AC97_EACS_VRA)
                     {
+#ifdef IN_RING3
                         ichac97MixerSet(pThis, uPortIdx, u32Val);
                         LogFunc(("Set front DAC rate to %RU32\n", u32Val));
-                        ichac97StreamReOpen(pThis, &pThis->StreamOut);
+                        ichac97R3StreamReOpen(pThis, &pThis->StreamOut);
+#else
+                        rc = VINF_IOM_R3_IOPORT_WRITE;
+#endif
                     }
                     else
                         AssertMsgFailed(("Attempt to set front DAC rate to %RU32, but VRA is not set\n", u32Val));
@@ -3082,9 +3152,13 @@ static DECLCALLBACK(int) ichac97IOPortNAMWrite(PPDMDEVINS pDevIns, void *pvUser,
                 case AC97_MIC_ADC_Rate:
                     if (ichac97MixerGet(pThis, AC97_Extended_Audio_Ctrl_Stat) & AC97_EACS_VRM)
                     {
+#ifdef IN_RING3
                         ichac97MixerSet(pThis, uPortIdx, u32Val);
                         LogFunc(("Set MIC ADC rate to %RU32\n", u32Val));
-                        ichac97StreamReOpen(pThis, &pThis->StreamMicIn);
+                        ichac97R3StreamReOpen(pThis, &pThis->StreamMicIn);
+#else
+                        rc = VINF_IOM_R3_IOPORT_WRITE;
+#endif
                     }
                     else
                         AssertMsgFailed(("Attempt to set MIC ADC rate to %RU32, but VRM is not set\n", u32Val));
@@ -3092,9 +3166,13 @@ static DECLCALLBACK(int) ichac97IOPortNAMWrite(PPDMDEVINS pDevIns, void *pvUser,
                 case AC97_PCM_LR_ADC_Rate:
                     if (ichac97MixerGet(pThis, AC97_Extended_Audio_Ctrl_Stat) & AC97_EACS_VRA)
                     {
+#ifdef IN_RING3
                         ichac97MixerSet(pThis, uPortIdx, u32Val);
                         LogFunc(("Set front LR ADC rate to %RU32\n", u32Val));
-                        ichac97StreamReOpen(pThis, &pThis->StreamLineIn);
+                        ichac97R3StreamReOpen(pThis, &pThis->StreamLineIn);
+#else
+                        rc = VINF_IOM_R3_IOPORT_WRITE;
+#endif
                     }
                     else
                         AssertMsgFailed(("Attempt to set LR ADC rate to %RU32, but VRA is not set\n", u32Val));
@@ -3121,15 +3199,16 @@ static DECLCALLBACK(int) ichac97IOPortNAMWrite(PPDMDEVINS pDevIns, void *pvUser,
 
     DEVAC97_UNLOCK_BOTH(pThis);
 
-    return VINF_SUCCESS;
+    return rc;
 }
 
+#ifdef IN_RING3
 
 /**
  * @callback_method_impl{FNPCIIOREGIONMAP}
  */
-static DECLCALLBACK(int) ichac97IOPortMap(PPDMDEVINS pDevIns, PPDMPCIDEV pPciDev, uint32_t iRegion,
-                                          RTGCPHYS GCPhysAddress, RTGCPHYS cb, PCIADDRESSSPACE enmType)
+static DECLCALLBACK(int) ichac97R3IOPortMap(PPDMDEVINS pDevIns, PPDMPCIDEV pPciDev, uint32_t iRegion,
+                                            RTGCPHYS GCPhysAddress, RTGCPHYS cb, PCIADDRESSSPACE enmType)
 {
     RT_NOREF(cb, enmType);
 
@@ -3144,21 +3223,42 @@ static DECLCALLBACK(int) ichac97IOPortMap(PPDMDEVINS pDevIns, PPDMPCIDEV pPciDev
 
     int rc;
     if (iRegion == 0)
-        rc = PDMDevHlpIOPortRegister(pDevIns, Port, 256, pThis,
-                                     ichac97IOPortNAMWrite, ichac97IOPortNAMRead,
+    {
+        rc = PDMDevHlpIOPortRegister(pDevIns, Port, 256, NULL, ichac97IOPortNAMWrite, ichac97IOPortNAMRead,
                                      NULL, NULL, "ICHAC97 NAM");
+        AssertRCReturn(rc, rc);
+        if (pThis->fRZEnabled)
+        {
+            rc = PDMDevHlpIOPortRegisterR0(pDevIns, Port, 256, NIL_RTR0PTR, "ichac97IOPortNAMWrite", "ichac97IOPortNAMRead",
+                                           NULL, NULL, "ICHAC97 NAM");
+            AssertRCReturn(rc, rc);
+            rc = PDMDevHlpIOPortRegisterRC(pDevIns, Port, 256, NIL_RTRCPTR, "ichac97IOPortNAMWrite", "ichac97IOPortNAMRead",
+                                           NULL, NULL, "ICHAC97 NAM");
+            AssertRCReturn(rc, rc);
+        }
+    }
     else
-        rc = PDMDevHlpIOPortRegister(pDevIns, Port, 64, pThis,
-                                     ichac97IOPortNABMWrite, ichac97IOPortNABMRead,
+    {
+        rc = PDMDevHlpIOPortRegister(pDevIns, Port, 64, NULL, ichac97IOPortNABMWrite, ichac97IOPortNABMRead,
                                      NULL, NULL, "ICHAC97 NABM");
-    if (RT_FAILURE(rc))
-        return rc;
+        AssertRCReturn(rc, rc);
+        if (pThis->fRZEnabled)
+        {
+            rc = PDMDevHlpIOPortRegisterR0(pDevIns, Port, 64, NIL_RTR0PTR, "ichac97IOPortNABMWrite", "ichac97IOPortNABMRead",
+                                           NULL, NULL, "ICHAC97 NABM");
+            AssertRCReturn(rc, rc);
+            rc = PDMDevHlpIOPortRegisterRC(pDevIns, Port, 64, NIL_RTRCPTR, "ichac97IOPortNABMWrite", "ichac97IOPortNABMRead",
+                                           NULL, NULL, "ICHAC97 NABM");
+            AssertRCReturn(rc, rc);
+
+        }
+    }
 
     pThis->IOPortBase[iRegion] = Port;
     return VINF_SUCCESS;
 }
 
-#ifdef IN_RING3
+
 /**
  * Saves (serializes) an AC'97 stream using SSM.
  *
@@ -3167,7 +3267,7 @@ static DECLCALLBACK(int) ichac97IOPortMap(PPDMDEVINS pDevIns, PPDMPCIDEV pPciDev
  * @param   pSSM                Saved state manager (SSM) handle to use.
  * @param   pStream             AC'97 stream to save.
  */
-static int ichac97SaveStream(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, PAC97STREAM pStream)
+static int ichac97R3SaveStream(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, PAC97STREAM pStream)
 {
     RT_NOREF(pDevIns);
     PAC97BMREGS pRegs = &pStream->Regs;
@@ -3189,7 +3289,7 @@ static int ichac97SaveStream(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, PAC97STREAM pS
 /**
  * @callback_method_impl{FNSSMDEVSAVEEXEC}
  */
-static DECLCALLBACK(int) ichac97SaveExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM)
+static DECLCALLBACK(int) ichac97R3SaveExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM)
 {
     PAC97STATE pThis = PDMINS_2_DATA(pDevIns, PAC97STATE);
 
@@ -3201,20 +3301,20 @@ static DECLCALLBACK(int) ichac97SaveExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM)
 
     /** @todo r=andy For the next saved state version, add unique stream identifiers and a stream count. */
     /* Note: The order the streams are saved here is critical, so don't touch. */
-    int rc2 = ichac97SaveStream(pDevIns, pSSM, &pThis->StreamLineIn);
+    int rc2 = ichac97R3SaveStream(pDevIns, pSSM, &pThis->StreamLineIn);
     AssertRC(rc2);
-    rc2 = ichac97SaveStream(pDevIns, pSSM, &pThis->StreamOut);
+    rc2 = ichac97R3SaveStream(pDevIns, pSSM, &pThis->StreamOut);
     AssertRC(rc2);
-    rc2 = ichac97SaveStream(pDevIns, pSSM, &pThis->StreamMicIn);
+    rc2 = ichac97R3SaveStream(pDevIns, pSSM, &pThis->StreamMicIn);
     AssertRC(rc2);
 
     SSMR3PutMem(pSSM, pThis->mixer_data, sizeof(pThis->mixer_data));
 
-    uint8_t active[AC97SOUNDSOURCE_LAST_INDEX];
+    uint8_t active[AC97SOUNDSOURCE_END_INDEX];
 
-    active[AC97SOUNDSOURCE_PI_INDEX] = ichac97StreamIsEnabled(pThis, &pThis->StreamLineIn) ? 1 : 0;
-    active[AC97SOUNDSOURCE_PO_INDEX] = ichac97StreamIsEnabled(pThis, &pThis->StreamOut)    ? 1 : 0;
-    active[AC97SOUNDSOURCE_MC_INDEX] = ichac97StreamIsEnabled(pThis, &pThis->StreamMicIn)  ? 1 : 0;
+    active[AC97SOUNDSOURCE_PI_INDEX] = ichac97R3StreamIsEnabled(pThis, &pThis->StreamLineIn) ? 1 : 0;
+    active[AC97SOUNDSOURCE_PO_INDEX] = ichac97R3StreamIsEnabled(pThis, &pThis->StreamOut)    ? 1 : 0;
+    active[AC97SOUNDSOURCE_MC_INDEX] = ichac97R3StreamIsEnabled(pThis, &pThis->StreamMicIn)  ? 1 : 0;
 
     SSMR3PutMem(pSSM, active, sizeof(active));
 
@@ -3226,13 +3326,11 @@ static DECLCALLBACK(int) ichac97SaveExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM)
  * Loads an AC'97 stream from SSM.
  *
  * @returns IPRT status code.
- * @param   pDevIns             Device instance.
  * @param   pSSM                Saved state manager (SSM) handle to use.
  * @param   pStream             AC'97 stream to load.
  */
-static int ichac97LoadStream(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, PAC97STREAM pStream)
+static int ichac97R3LoadStream(PSSMHANDLE pSSM, PAC97STREAM pStream)
 {
-    RT_NOREF(pDevIns);
     PAC97BMREGS pRegs = &pStream->Regs;
 
     SSMR3GetU32(pSSM, &pRegs->bdbar);
@@ -3244,15 +3342,13 @@ static int ichac97LoadStream(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, PAC97STREAM pS
     SSMR3GetU8( pSSM, &pRegs->cr);
     SSMR3GetS32(pSSM, &pRegs->bd_valid);
     SSMR3GetU32(pSSM, &pRegs->bd.addr);
-    SSMR3GetU32(pSSM, &pRegs->bd.ctl_len);
-
-    return VINF_SUCCESS;
+    return SSMR3GetU32(pSSM, &pRegs->bd.ctl_len);
 }
 
 /**
  * @callback_method_impl{FNSSMDEVLOADEXEC}
  */
-static DECLCALLBACK(int) ichac97LoadExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, uint32_t uVersion, uint32_t uPass)
+static DECLCALLBACK(int) ichac97R3LoadExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, uint32_t uVersion, uint32_t uPass)
 {
     PAC97STATE pThis = PDMINS_2_DATA(pDevIns, PAC97STATE);
 
@@ -3267,21 +3363,22 @@ static DECLCALLBACK(int) ichac97LoadExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, ui
 
     /** @todo r=andy For the next saved state version, add unique stream identifiers and a stream count. */
     /* Note: The order the streams are loaded here is critical, so don't touch. */
-    int rc2 = ichac97LoadStream(pDevIns, pSSM, &pThis->StreamLineIn);
-    AssertRC(rc2);
-    rc2 = ichac97LoadStream(pDevIns, pSSM, &pThis->StreamOut);
-    AssertRC(rc2);
-    rc2 = ichac97LoadStream(pDevIns, pSSM, &pThis->StreamMicIn);
-    AssertRC(rc2);
+    int rc2 = ichac97R3LoadStream(pSSM, &pThis->StreamLineIn);
+    AssertRCReturn(rc2, rc2);
+    rc2 = ichac97R3LoadStream(pSSM, &pThis->StreamOut);
+    AssertRCReturn(rc2, rc2);
+    rc2 = ichac97R3LoadStream(pSSM, &pThis->StreamMicIn);
+    AssertRCReturn(rc2, rc2);
 
     SSMR3GetMem(pSSM, pThis->mixer_data, sizeof(pThis->mixer_data));
 
     /** @todo r=andy Stream IDs are hardcoded to certain streams. */
-    uint8_t uaStrmsActive[AC97SOUNDSOURCE_LAST_INDEX];
-    SSMR3GetMem(pSSM, uaStrmsActive, sizeof(uaStrmsActive));
+    uint8_t uaStrmsActive[AC97SOUNDSOURCE_END_INDEX];
+    rc2 = SSMR3GetMem(pSSM, uaStrmsActive, sizeof(uaStrmsActive));
+    AssertRCReturn(rc2, rc2);
 
-    ichac97MixerRecordSelect(pThis, ichac97MixerGet(pThis, AC97_Record_Select));
-# define V_(a, b) ichac97MixerSetVolume(pThis, a, b, ichac97MixerGet(pThis, a))
+    ichac97R3MixerRecordSelect(pThis, ichac97MixerGet(pThis, AC97_Record_Select));
+# define V_(a, b) ichac97R3MixerSetVolume(pThis, a, b, ichac97MixerGet(pThis, a))
     V_(AC97_Master_Volume_Mute,  PDMAUDIOMIXERCTL_VOLUME_MASTER);
     V_(AC97_PCM_Out_Volume_Mute, PDMAUDIOMIXERCTL_FRONT);
     V_(AC97_Line_In_Volume_Mute, PDMAUDIOMIXERCTL_LINE_IN);
@@ -3289,15 +3386,15 @@ static DECLCALLBACK(int) ichac97LoadExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, ui
 # undef V_
     if (pThis->uCodecModel == AC97_CODEC_AD1980)
         if (ichac97MixerGet(pThis, AC97_AD_Misc) & AC97_AD_MISC_HPSEL)
-            ichac97MixerSetVolume(pThis, AC97_Headphone_Volume_Mute, PDMAUDIOMIXERCTL_VOLUME_MASTER,
-                             ichac97MixerGet(pThis, AC97_Headphone_Volume_Mute));
+            ichac97R3MixerSetVolume(pThis, AC97_Headphone_Volume_Mute, PDMAUDIOMIXERCTL_VOLUME_MASTER,
+                                    ichac97MixerGet(pThis, AC97_Headphone_Volume_Mute));
 
     /** @todo r=andy Stream IDs are hardcoded to certain streams. */
-    rc2 = ichac97StreamEnable(pThis, &pThis->StreamLineIn,    RT_BOOL(uaStrmsActive[AC97SOUNDSOURCE_PI_INDEX]));
+    rc2 = ichac97R3StreamEnable(pThis, &pThis->StreamLineIn,    RT_BOOL(uaStrmsActive[AC97SOUNDSOURCE_PI_INDEX]));
     if (RT_SUCCESS(rc2))
-        rc2 = ichac97StreamEnable(pThis, &pThis->StreamMicIn, RT_BOOL(uaStrmsActive[AC97SOUNDSOURCE_MC_INDEX]));
+        rc2 = ichac97R3StreamEnable(pThis, &pThis->StreamMicIn, RT_BOOL(uaStrmsActive[AC97SOUNDSOURCE_MC_INDEX]));
     if (RT_SUCCESS(rc2))
-        rc2 = ichac97StreamEnable(pThis, &pThis->StreamOut,   RT_BOOL(uaStrmsActive[AC97SOUNDSOURCE_PO_INDEX]));
+        rc2 = ichac97R3StreamEnable(pThis, &pThis->StreamOut,   RT_BOOL(uaStrmsActive[AC97SOUNDSOURCE_PO_INDEX]));
 
     pThis->bup_flag  = 0;
     pThis->last_samp = 0;
@@ -3309,7 +3406,7 @@ static DECLCALLBACK(int) ichac97LoadExec(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, ui
 /**
  * @interface_method_impl{PDMIBASE,pfnQueryInterface}
  */
-static DECLCALLBACK(void *) ichac97QueryInterface(struct PDMIBASE *pInterface, const char *pszIID)
+static DECLCALLBACK(void *) ichac97R3QueryInterface(struct PDMIBASE *pInterface, const char *pszIID)
 {
     PAC97STATE pThis = RT_FROM_MEMBER(pInterface, AC97STATE, IBase);
     Assert(&pThis->IBase == pInterface);
@@ -3324,18 +3421,18 @@ static DECLCALLBACK(void *) ichac97QueryInterface(struct PDMIBASE *pInterface, c
  *
  * @param   pDevIns             Device instance to power off.
  */
-static DECLCALLBACK(void) ichac97PowerOff(PPDMDEVINS pDevIns)
+static DECLCALLBACK(void) ichac97R3PowerOff(PPDMDEVINS pDevIns)
 {
     PAC97STATE pThis = PDMINS_2_DATA(pDevIns, PAC97STATE);
 
     LogRel2(("AC97: Powering off ...\n"));
 
     /* Note: Involves mixer stream / sink destruction, so also do this here
-     *       instead of in ichac97Destruct(). */
-    ichac97StreamsDestroy(pThis);
+     *       instead of in ichac97R3Destruct(). */
+    ichac97R3StreamsDestroy(pThis);
 
     /**
-     * Note: Destroy the mixer while powering off and *not* in ichac97Destruct,
+     * Note: Destroy the mixer while powering off and *not* in ichac97R3Destruct,
      *       giving the mixer the chance to release any references held to
      *       PDM audio streams it maintains.
      */
@@ -3353,7 +3450,7 @@ static DECLCALLBACK(void) ichac97PowerOff(PPDMDEVINS pDevIns)
  * @remarks The original sources didn't install a reset handler, but it seems to
  *          make sense to me so we'll do it.
  */
-static DECLCALLBACK(void) ichac97Reset(PPDMDEVINS pDevIns)
+static DECLCALLBACK(void) ichac97R3Reset(PPDMDEVINS pDevIns)
 {
     PAC97STATE pThis = PDMINS_2_DATA(pDevIns, PAC97STATE);
 
@@ -3364,24 +3461,24 @@ static DECLCALLBACK(void) ichac97Reset(PPDMDEVINS pDevIns)
      * this. At least it wants to read the vendor id before it resets
      * the codec manually.
      */
-    ichac97MixerReset(pThis);
+    ichac97R3MixerReset(pThis);
 
     /*
      * Reset all streams.
      */
-    ichac97StreamEnable(pThis, &pThis->StreamLineIn, false /* fEnable */);
-    ichac97StreamReset(pThis, &pThis->StreamLineIn);
+    ichac97R3StreamEnable(pThis, &pThis->StreamLineIn, false /* fEnable */);
+    ichac97R3StreamReset(pThis, &pThis->StreamLineIn);
 
-    ichac97StreamEnable(pThis, &pThis->StreamMicIn, false /* fEnable */);
-    ichac97StreamReset(pThis, &pThis->StreamMicIn);
+    ichac97R3StreamEnable(pThis, &pThis->StreamMicIn, false /* fEnable */);
+    ichac97R3StreamReset(pThis, &pThis->StreamMicIn);
 
-    ichac97StreamEnable(pThis, &pThis->StreamOut, false /* fEnable */);
-    ichac97StreamReset(pThis, &pThis->StreamOut);
+    ichac97R3StreamEnable(pThis, &pThis->StreamOut, false /* fEnable */);
+    ichac97R3StreamReset(pThis, &pThis->StreamOut);
 
     /*
      * Reset mixer sinks.
      *
-     * Do the reset here instead of in ichac97StreamReset();
+     * Do the reset here instead of in ichac97R3StreamReset();
      * the mixer sink(s) might still have data to be processed when an audio stream gets reset.
      */
     AudioMixerSinkReset(pThis->pSinkLineIn);
@@ -3392,33 +3489,10 @@ static DECLCALLBACK(void) ichac97Reset(PPDMDEVINS pDevIns)
     /*
      * Stop the timer, if any.
      */
-    ichac97TimerStop(pThis);
+    ichac97R3TimerStop(pThis);
 
     pThis->cStreamsActive = 0;
 # endif
-}
-
-
-/**
- * @interface_method_impl{PDMDEVREG,pfnDestruct}
- */
-static DECLCALLBACK(int) ichac97Destruct(PPDMDEVINS pDevIns)
-{
-    PAC97STATE pThis = PDMINS_2_DATA(pDevIns, PAC97STATE);
-
-    LogFlowFuncEnter();
-
-    PAC97DRIVER pDrv, pDrvNext;
-    RTListForEachSafe(&pThis->lstDrv, pDrv, pDrvNext, AC97DRIVER, Node)
-    {
-        RTListNodeRemove(&pDrv->Node);
-        RTMemFree(pDrv);
-    }
-
-    /* Sanity. */
-    Assert(RTListIsEmpty(&pThis->lstDrv));
-
-    return VINF_SUCCESS;
 }
 
 
@@ -3435,7 +3509,7 @@ static DECLCALLBACK(int) ichac97Destruct(PPDMDEVINS pDevIns)
  * @param   fFlags      Flags, combination of the PDMDEVATT_FLAGS_* \#defines.
  * @param   ppDrv       Attached driver instance on success. Optional.
  */
-static int ichac97AttachInternal(PAC97STATE pThis, unsigned uLUN, uint32_t fFlags, PAC97DRIVER *ppDrv)
+static int ichac97R3AttachInternal(PAC97STATE pThis, unsigned uLUN, uint32_t fFlags, PAC97DRIVER *ppDrv)
 {
     RT_NOREF(fFlags);
 
@@ -3507,7 +3581,7 @@ static int ichac97AttachInternal(PAC97STATE pThis, unsigned uLUN, uint32_t fFlag
  * @param   pDrv        Driver to detach device from.
  * @param   fFlags      Flags, combination of the PDMDEVATT_FLAGS_* \#defines.
  */
-static int ichac97DetachInternal(PAC97STATE pThis, PAC97DRIVER pDrv, uint32_t fFlags)
+static int ichac97R3DetachInternal(PAC97STATE pThis, PAC97DRIVER pDrv, uint32_t fFlags)
 {
     RT_NOREF(fFlags);
 
@@ -3532,7 +3606,7 @@ static int ichac97DetachInternal(PAC97STATE pThis, PAC97DRIVER pDrv, uint32_t fF
 /**
  * @interface_method_impl{PDMDEVREG,pfnAttach}
  */
-static DECLCALLBACK(int) ichac97Attach(PPDMDEVINS pDevIns, unsigned uLUN, uint32_t fFlags)
+static DECLCALLBACK(int) ichac97R3Attach(PPDMDEVINS pDevIns, unsigned uLUN, uint32_t fFlags)
 {
     PAC97STATE pThis = PDMINS_2_DATA(pDevIns, PAC97STATE);
 
@@ -3541,17 +3615,17 @@ static DECLCALLBACK(int) ichac97Attach(PPDMDEVINS pDevIns, unsigned uLUN, uint32
     DEVAC97_LOCK(pThis);
 
     PAC97DRIVER pDrv;
-    int rc2 = ichac97AttachInternal(pThis, uLUN, fFlags, &pDrv);
+    int rc2 = ichac97R3AttachInternal(pThis, uLUN, fFlags, &pDrv);
     if (RT_SUCCESS(rc2))
     {
         if (DrvAudioHlpStreamCfgIsValid(&pThis->StreamLineIn.State.Cfg))
-            ichac97MixerAddDrvStream(pThis, pThis->pSinkLineIn, &pThis->StreamLineIn.State.Cfg, pDrv);
+            ichac97R3MixerAddDrvStream(pThis, pThis->pSinkLineIn, &pThis->StreamLineIn.State.Cfg, pDrv);
 
         if (DrvAudioHlpStreamCfgIsValid(&pThis->StreamMicIn.State.Cfg))
-            ichac97MixerAddDrvStream(pThis, pThis->pSinkMicIn,  &pThis->StreamMicIn.State.Cfg, pDrv);
+            ichac97R3MixerAddDrvStream(pThis, pThis->pSinkMicIn,  &pThis->StreamMicIn.State.Cfg, pDrv);
 
         if (DrvAudioHlpStreamCfgIsValid(&pThis->StreamOut.State.Cfg))
-            ichac97MixerAddDrvStream(pThis, pThis->pSinkOut,    &pThis->StreamOut.State.Cfg, pDrv);
+            ichac97R3MixerAddDrvStream(pThis, pThis->pSinkOut,    &pThis->StreamOut.State.Cfg, pDrv);
     }
 
     DEVAC97_UNLOCK(pThis);
@@ -3562,7 +3636,7 @@ static DECLCALLBACK(int) ichac97Attach(PPDMDEVINS pDevIns, unsigned uLUN, uint32
 /**
  * @interface_method_impl{PDMDEVREG,pfnDetach}
  */
-static DECLCALLBACK(void) ichac97Detach(PPDMDEVINS pDevIns, unsigned uLUN, uint32_t fFlags)
+static DECLCALLBACK(void) ichac97R3Detach(PPDMDEVINS pDevIns, unsigned uLUN, uint32_t fFlags)
 {
     PAC97STATE pThis = PDMINS_2_DATA(pDevIns, PAC97STATE);
 
@@ -3575,7 +3649,7 @@ static DECLCALLBACK(void) ichac97Detach(PPDMDEVINS pDevIns, unsigned uLUN, uint3
     {
         if (pDrv->uLUN == uLUN)
         {
-            int rc2 = ichac97DetachInternal(pThis, pDrv, fFlags);
+            int rc2 = ichac97R3DetachInternal(pThis, pDrv, fFlags);
             if (RT_SUCCESS(rc2))
             {
                 RTMemFree(pDrv);
@@ -3600,7 +3674,7 @@ static DECLCALLBACK(void) ichac97Detach(PPDMDEVINS pDevIns, unsigned uLUN, uint3
  * @param   uLUN        The logical unit which is being re-detached.
  * @param   pszDriver   New driver name to attach.
  */
-static int ichac97ReattachInternal(PAC97STATE pThis, PAC97DRIVER pDrv, uint8_t uLUN, const char *pszDriver)
+static int ichac97R3ReattachInternal(PAC97STATE pThis, PAC97DRIVER pDrv, uint8_t uLUN, const char *pszDriver)
 {
     AssertPtrReturn(pThis,     VERR_INVALID_POINTER);
     AssertPtrReturn(pszDriver, VERR_INVALID_POINTER);
@@ -3609,7 +3683,7 @@ static int ichac97ReattachInternal(PAC97STATE pThis, PAC97DRIVER pDrv, uint8_t u
 
     if (pDrv)
     {
-        rc = ichac97DetachInternal(pThis, pDrv, 0 /* fFlags */);
+        rc = ichac97R3DetachInternal(pThis, pDrv, 0 /* fFlags */);
         if (RT_SUCCESS(rc))
             rc = PDMDevHlpDriverDetach(pThis->pDevInsR3, PDMIBASE_2_PDMDRV(pDrv->pDrvBase), 0 /* fFlags */);
 
@@ -3626,7 +3700,7 @@ static int ichac97ReattachInternal(PAC97STATE pThis, PAC97DRIVER pDrv, uint8_t u
     /* Remove LUN branch. */
     CFGMR3RemoveNode(CFGMR3GetChildF(pDev0, "LUN#%u/", uLUN));
 
-#define RC_CHECK() if (RT_FAILURE(rc)) { AssertReleaseRC(rc); break; }
+# define RC_CHECK() if (RT_FAILURE(rc)) { AssertReleaseRC(rc); break; }
 
     do
     {
@@ -3645,33 +3719,74 @@ static int ichac97ReattachInternal(PAC97STATE pThis, PAC97DRIVER pDrv, uint8_t u
     } while (0);
 
     if (RT_SUCCESS(rc))
-        rc = ichac97AttachInternal(pThis, uLUN, 0 /* fFlags */, NULL /* ppDrv */);
+        rc = ichac97R3AttachInternal(pThis, uLUN, 0 /* fFlags */, NULL /* ppDrv */);
 
     LogFunc(("pThis=%p, uLUN=%u, pszDriver=%s, rc=%Rrc\n", pThis, uLUN, pszDriver, rc));
 
-#undef RC_CHECK
+# undef RC_CHECK
 
     return rc;
 }
 
 /**
- * @interface_method_impl{PDMDEVREG,pfnConstruct}
+ * @interface_method_impl{PDMDEVREG,pfnRelocate}
  */
-static DECLCALLBACK(int) ichac97Construct(PPDMDEVINS pDevIns, int iInstance, PCFGMNODE pCfg)
+static DECLCALLBACK(void) ichac97R3Relocate(PPDMDEVINS pDevIns, RTGCINTPTR offDelta)
 {
-    RT_NOREF(iInstance);
+    NOREF(offDelta);
+    PAC97STATE pThis = PDMINS_2_DATA(pDevIns, PAC97STATE);
+    pThis->pDevInsRC = PDMDEVINS_2_RCPTR(pDevIns);
+# ifndef VBOX_WITH_AUDIO_AC97_CALLBACKS
+    pThis->pTimerRC = TMTimerRCPtr(pThis->pTimerR3);
+# endif
+}
+
+/**
+ * @interface_method_impl{PDMDEVREG,pfnDestruct}
+ */
+static DECLCALLBACK(int) ichac97R3Destruct(PPDMDEVINS pDevIns)
+{
+    PDMDEV_CHECK_VERSIONS_RETURN_QUIET(pDevIns); /* this shall come first */
     PAC97STATE pThis = PDMINS_2_DATA(pDevIns, PAC97STATE);
 
-    /* NB: This must be done *before* any possible failure (and running the destructor). */
-    RTListInit(&pThis->lstDrv);
+    LogFlowFuncEnter();
 
-    Assert(iInstance == 0);
-    PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
+    PAC97DRIVER pDrv, pDrvNext;
+    RTListForEachSafe(&pThis->lstDrv, pDrv, pDrvNext, AC97DRIVER, Node)
+    {
+        RTListNodeRemove(&pDrv->Node);
+        RTMemFree(pDrv);
+    }
+
+    /* Sanity. */
+    Assert(RTListIsEmpty(&pThis->lstDrv));
+
+    return VINF_SUCCESS;
+}
+
+/**
+ * @interface_method_impl{PDMDEVREG,pfnConstruct}
+ */
+static DECLCALLBACK(int) ichac97R3Construct(PPDMDEVINS pDevIns, int iInstance, PCFGMNODE pCfg)
+{
+    PDMDEV_CHECK_VERSIONS_RETURN(pDevIns); /* this shall come first */
+    PAC97STATE pThis = PDMINS_2_DATA(pDevIns, PAC97STATE);
+    Assert(iInstance == 0); RT_NOREF(iInstance);
+
+    /*
+     * Initialize data so we can run the destructor without scewing up.
+     */
+    pThis->pDevInsR3                = pDevIns;
+    pThis->pDevInsR0                = PDMDEVINS_2_R0PTR(pDevIns);
+    pThis->pDevInsRC                = PDMDEVINS_2_RCPTR(pDevIns);
+    pThis->IBase.pfnQueryInterface  = ichac97R3QueryInterface;
+    RTListInit(&pThis->lstDrv);
 
     /*
      * Validations.
      */
     if (!CFGMR3AreValuesValid(pCfg,
+                              "RZEnabled\0"
                               "Codec\0"
                               "TimerHz\0"))
         return PDMDEV_SET_ERROR(pDevIns, VERR_PDM_DEVINS_UNKNOWN_CFG_VALUES,
@@ -3680,19 +3795,24 @@ static DECLCALLBACK(int) ichac97Construct(PPDMDEVINS pDevIns, int iInstance, PCF
     /*
      * Read config data.
      */
+    int rc = CFGMR3QueryBoolDef(pCfg, "RZEnabled", &pThis->fRZEnabled, true);
+    if (RT_FAILURE(rc))
+        return PDMDEV_SET_ERROR(pDevIns, rc,
+                                N_("HDA configuration error: failed to read RCEnabled as boolean"));
+
     char szCodec[20];
-    int rc = CFGMR3QueryStringDef(pCfg, "Codec", &szCodec[0], sizeof(szCodec), "STAC9700");
+    rc = CFGMR3QueryStringDef(pCfg, "Codec", &szCodec[0], sizeof(szCodec), "STAC9700");
     if (RT_FAILURE(rc))
         return PDMDEV_SET_ERROR(pDevIns, VERR_PDM_DEVINS_UNKNOWN_CFG_VALUES,
                                 N_("AC'97 configuration error: Querying \"Codec\" as string failed"));
 
-#ifndef VBOX_WITH_AUDIO_AC97_CALLBACKS
+# ifndef VBOX_WITH_AUDIO_AC97_CALLBACKS
     uint16_t uTimerHz;
     rc = CFGMR3QueryU16Def(pCfg, "TimerHz", &uTimerHz, AC97_TIMER_HZ /* Default value, if not set. */);
     if (RT_FAILURE(rc))
         return PDMDEV_SET_ERROR(pDevIns, rc,
                                 N_("AC'97 configuration error: failed to read Hertz (Hz) rate as unsigned integer"));
-#endif
+# endif
 
     /*
      * The AD1980 codec (with corresponding PCI subsystem vendor ID) is whitelisted
@@ -3706,11 +3826,8 @@ static DECLCALLBACK(int) ichac97Construct(PPDMDEVINS pDevIns, int iInstance, PCF
     else if (!strcmp(szCodec, "AD1981B"))
         pThis->uCodecModel = AC97_CODEC_AD1981B;
     else
-    {
         return PDMDevHlpVMSetError(pDevIns, VERR_PDM_DEVINS_UNKNOWN_CFG_VALUES, RT_SRC_POS,
-                                   N_("AC'97 configuration error: The \"Codec\" value \"%s\" is unsupported"),
-                                   szCodec);
-    }
+                                   N_("AC'97 configuration error: The \"Codec\" value \"%s\" is unsupported"), szCodec);
 
     /*
      * Use an own critical section for the device instead of the default
@@ -3726,26 +3843,22 @@ static DECLCALLBACK(int) ichac97Construct(PPDMDEVINS pDevIns, int iInstance, PCF
     /*
      * Initialize data (most of it anyway).
      */
-    pThis->pDevInsR3                = pDevIns;
-    /* IBase */
-    pThis->IBase.pfnQueryInterface  = ichac97QueryInterface;
-
     /* PCI Device */
-    PCIDevSetVendorId         (&pThis->PciDev, 0x8086); /* 00 ro - intel. */               Assert(pThis->PciDev.abConfig[0x00] == 0x86); Assert(pThis->PciDev.abConfig[0x01] == 0x80);
-    PCIDevSetDeviceId         (&pThis->PciDev, 0x2415); /* 02 ro - 82801 / 82801aa(?). */  Assert(pThis->PciDev.abConfig[0x02] == 0x15); Assert(pThis->PciDev.abConfig[0x03] == 0x24);
-    PCIDevSetCommand          (&pThis->PciDev, 0x0000); /* 04 rw,ro - pcicmd. */           Assert(pThis->PciDev.abConfig[0x04] == 0x00); Assert(pThis->PciDev.abConfig[0x05] == 0x00);
-    PCIDevSetStatus           (&pThis->PciDev, VBOX_PCI_STATUS_DEVSEL_MEDIUM |  VBOX_PCI_STATUS_FAST_BACK); /* 06 rwc?,ro? - pcists. */      Assert(pThis->PciDev.abConfig[0x06] == 0x80); Assert(pThis->PciDev.abConfig[0x07] == 0x02);
-    PCIDevSetRevisionId       (&pThis->PciDev, 0x01);   /* 08 ro - rid. */                 Assert(pThis->PciDev.abConfig[0x08] == 0x01);
-    PCIDevSetClassProg        (&pThis->PciDev, 0x00);   /* 09 ro - pi. */                  Assert(pThis->PciDev.abConfig[0x09] == 0x00);
-    PCIDevSetClassSub         (&pThis->PciDev, 0x01);   /* 0a ro - scc; 01 == Audio. */    Assert(pThis->PciDev.abConfig[0x0a] == 0x01);
-    PCIDevSetClassBase        (&pThis->PciDev, 0x04);   /* 0b ro - bcc; 04 == multimedia. */ Assert(pThis->PciDev.abConfig[0x0b] == 0x04);
-    PCIDevSetHeaderType       (&pThis->PciDev, 0x00);   /* 0e ro - headtyp. */             Assert(pThis->PciDev.abConfig[0x0e] == 0x00);
-    PCIDevSetBaseAddress      (&pThis->PciDev, 0,       /* 10 rw - nambar - native audio mixer base. */
-                               true /* fIoSpace */, false /* fPrefetchable */, false /* f64Bit */, 0x00000000); Assert(pThis->PciDev.abConfig[0x10] == 0x01); Assert(pThis->PciDev.abConfig[0x11] == 0x00); Assert(pThis->PciDev.abConfig[0x12] == 0x00); Assert(pThis->PciDev.abConfig[0x13] == 0x00);
-    PCIDevSetBaseAddress      (&pThis->PciDev, 1,       /* 14 rw - nabmbar - native audio bus mastering. */
-                               true /* fIoSpace */, false /* fPrefetchable */, false /* f64Bit */, 0x00000000); Assert(pThis->PciDev.abConfig[0x14] == 0x01); Assert(pThis->PciDev.abConfig[0x15] == 0x00); Assert(pThis->PciDev.abConfig[0x16] == 0x00); Assert(pThis->PciDev.abConfig[0x17] == 0x00);
-    PCIDevSetInterruptLine    (&pThis->PciDev, 0x00);   /* 3c rw. */                       Assert(pThis->PciDev.abConfig[0x3c] == 0x00);
-    PCIDevSetInterruptPin     (&pThis->PciDev, 0x01);   /* 3d ro - INTA#. */               Assert(pThis->PciDev.abConfig[0x3d] == 0x01);
+    PCIDevSetVendorId     (&pThis->PciDev, 0x8086); /* 00 ro - intel. */               Assert(pThis->PciDev.abConfig[0x00] == 0x86); Assert(pThis->PciDev.abConfig[0x01] == 0x80);
+    PCIDevSetDeviceId     (&pThis->PciDev, 0x2415); /* 02 ro - 82801 / 82801aa(?). */  Assert(pThis->PciDev.abConfig[0x02] == 0x15); Assert(pThis->PciDev.abConfig[0x03] == 0x24);
+    PCIDevSetCommand      (&pThis->PciDev, 0x0000); /* 04 rw,ro - pcicmd. */           Assert(pThis->PciDev.abConfig[0x04] == 0x00); Assert(pThis->PciDev.abConfig[0x05] == 0x00);
+    PCIDevSetStatus       (&pThis->PciDev, VBOX_PCI_STATUS_DEVSEL_MEDIUM |  VBOX_PCI_STATUS_FAST_BACK); /* 06 rwc?,ro? - pcists. */  Assert(pThis->PciDev.abConfig[0x06] == 0x80); Assert(pThis->PciDev.abConfig[0x07] == 0x02);
+    PCIDevSetRevisionId   (&pThis->PciDev, 0x01);   /* 08 ro - rid. */                 Assert(pThis->PciDev.abConfig[0x08] == 0x01);
+    PCIDevSetClassProg    (&pThis->PciDev, 0x00);   /* 09 ro - pi. */                  Assert(pThis->PciDev.abConfig[0x09] == 0x00);
+    PCIDevSetClassSub     (&pThis->PciDev, 0x01);   /* 0a ro - scc; 01 == Audio. */    Assert(pThis->PciDev.abConfig[0x0a] == 0x01);
+    PCIDevSetClassBase    (&pThis->PciDev, 0x04);   /* 0b ro - bcc; 04 == multimedia.*/Assert(pThis->PciDev.abConfig[0x0b] == 0x04);
+    PCIDevSetHeaderType   (&pThis->PciDev, 0x00);   /* 0e ro - headtyp. */             Assert(pThis->PciDev.abConfig[0x0e] == 0x00);
+    PCIDevSetBaseAddress  (&pThis->PciDev, 0,       /* 10 rw - nambar - native audio mixer base. */
+                           true /* fIoSpace */, false /* fPrefetchable */, false /* f64Bit */, 0x00000000); Assert(pThis->PciDev.abConfig[0x10] == 0x01); Assert(pThis->PciDev.abConfig[0x11] == 0x00); Assert(pThis->PciDev.abConfig[0x12] == 0x00); Assert(pThis->PciDev.abConfig[0x13] == 0x00);
+    PCIDevSetBaseAddress  (&pThis->PciDev, 1,       /* 14 rw - nabmbar - native audio bus mastering. */
+                           true /* fIoSpace */, false /* fPrefetchable */, false /* f64Bit */, 0x00000000); Assert(pThis->PciDev.abConfig[0x14] == 0x01); Assert(pThis->PciDev.abConfig[0x15] == 0x00); Assert(pThis->PciDev.abConfig[0x16] == 0x00); Assert(pThis->PciDev.abConfig[0x17] == 0x00);
+    PCIDevSetInterruptLine(&pThis->PciDev, 0x00);   /* 3c rw. */                       Assert(pThis->PciDev.abConfig[0x3c] == 0x00);
+    PCIDevSetInterruptPin (&pThis->PciDev, 0x01);   /* 3d ro - INTA#. */               Assert(pThis->PciDev.abConfig[0x3d] == 0x01);
 
     if (pThis->uCodecModel == AC97_CODEC_AD1980)
     {
@@ -3771,21 +3884,21 @@ static DECLCALLBACK(int) ichac97Construct(PPDMDEVINS pDevIns, int iInstance, PCF
     if (RT_FAILURE(rc))
         return rc;
 
-    rc = PDMDevHlpPCIIORegionRegister(pDevIns, 0, 256, PCI_ADDRESS_SPACE_IO, ichac97IOPortMap);
+    rc = PDMDevHlpPCIIORegionRegister(pDevIns, 0, 256, PCI_ADDRESS_SPACE_IO, ichac97R3IOPortMap);
     if (RT_FAILURE(rc))
         return rc;
 
-    rc = PDMDevHlpPCIIORegionRegister(pDevIns, 1, 64, PCI_ADDRESS_SPACE_IO, ichac97IOPortMap);
+    rc = PDMDevHlpPCIIORegionRegister(pDevIns, 1, 64, PCI_ADDRESS_SPACE_IO, ichac97R3IOPortMap);
     if (RT_FAILURE(rc))
         return rc;
 
-    rc = PDMDevHlpSSMRegister(pDevIns, AC97_SSM_VERSION, sizeof(*pThis), ichac97SaveExec, ichac97LoadExec);
+    rc = PDMDevHlpSSMRegister(pDevIns, AC97_SSM_VERSION, sizeof(*pThis), ichac97R3SaveExec, ichac97R3LoadExec);
     if (RT_FAILURE(rc))
         return rc;
 
-#ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
+# ifdef VBOX_WITH_AUDIO_AC97_ASYNC_IO
     LogRel(("AC97: Asynchronous I/O enabled\n"));
-#endif
+# endif
 
     /*
      * Attach driver.
@@ -3794,14 +3907,14 @@ static DECLCALLBACK(int) ichac97Construct(PPDMDEVINS pDevIns, int iInstance, PCF
     for (uLUN = 0; uLUN < UINT8_MAX; ++uLUN)
     {
         LogFunc(("Trying to attach driver for LUN #%RU8 ...\n", uLUN));
-        rc = ichac97AttachInternal(pThis, uLUN, 0 /* fFlags */, NULL /* ppDrv */);
+        rc = ichac97R3AttachInternal(pThis, uLUN, 0 /* fFlags */, NULL /* ppDrv */);
         if (RT_FAILURE(rc))
         {
             if (rc == VERR_PDM_NO_ATTACHED_DRIVER)
                 rc = VINF_SUCCESS;
             else if (rc == VERR_AUDIO_BACKEND_INIT_FAILED)
             {
-                ichac97ReattachInternal(pThis, NULL /* pDrv */, uLUN, "NullAudio");
+                ichac97R3ReattachInternal(pThis, NULL /* pDrv */, uLUN, "NullAudio");
                 PDMDevHlpVMSetRuntimeError(pDevIns, 0 /*fFlags*/, "HostAudioNotResponding",
                         N_("Host audio backend initialization has failed. Selecting the NULL audio backend "
                             "with the consequence that no sound is audible"));
@@ -3833,15 +3946,15 @@ static DECLCALLBACK(int) ichac97Construct(PPDMDEVINS pDevIns, int iInstance, PCF
         /*
          * Create all hardware streams.
          */
-        rc = ichac97StreamCreate(pThis, &pThis->StreamLineIn, AC97SOUNDSOURCE_PI_INDEX);
+        rc = ichac97R3StreamCreate(pThis, &pThis->StreamLineIn, AC97SOUNDSOURCE_PI_INDEX);
         if (RT_SUCCESS(rc))
         {
-            rc = ichac97StreamCreate(pThis, &pThis->StreamMicIn, AC97SOUNDSOURCE_MC_INDEX);
+            rc = ichac97R3StreamCreate(pThis, &pThis->StreamMicIn, AC97SOUNDSOURCE_MC_INDEX);
             if (RT_SUCCESS(rc))
-                rc = ichac97StreamCreate(pThis, &pThis->StreamOut, AC97SOUNDSOURCE_PO_INDEX);
+                rc = ichac97R3StreamCreate(pThis, &pThis->StreamOut, AC97SOUNDSOURCE_PO_INDEX);
         }
 
-#ifdef VBOX_WITH_AUDIO_AC97_ONETIME_INIT
+# ifdef VBOX_WITH_AUDIO_AC97_ONETIME_INIT
         PAC97DRIVER pDrv;
         RTListForEach(&pThis->lstDrv, pDrv, AC97DRIVER, Node)
         {
@@ -3865,8 +3978,8 @@ static DECLCALLBACK(int) ichac97Construct(PPDMDEVINS pDevIns, int iInstance, PCF
             {
                 LogRel(("AC97: Falling back to NULL backend (no sound audible)\n"));
 
-                ichac97Reset(pDevIns);
-                ichac97ReattachInternal(pThis, pDrv, pDrv->uLUN, "NullAudio");
+                ichac97R3Reset(pDevIns);
+                ichac97R3ReattachInternal(pThis, pDrv, pDrv->uLUN, "NullAudio");
 
                 PDMDevHlpVMSetRuntimeError(pDevIns, 0 /*fFlags*/, "HostAudioNotResponding",
                     N_("No audio devices could be opened. Selecting the NULL audio backend "
@@ -3936,13 +4049,13 @@ static DECLCALLBACK(int) ichac97Construct(PPDMDEVINS pDevIns, int iInstance, PCF
                 }
             }
         }
-#endif /* VBOX_WITH_AUDIO_AC97_ONETIME_INIT */
+# endif /* VBOX_WITH_AUDIO_AC97_ONETIME_INIT */
     }
 
     if (RT_SUCCESS(rc))
-        ichac97Reset(pDevIns);
+        ichac97R3Reset(pDevIns);
 
-#ifndef VBOX_WITH_AUDIO_AC97_CALLBACKS
+# ifndef VBOX_WITH_AUDIO_AC97_CALLBACKS
     if (RT_SUCCESS(rc))
     {
         /* Create the emulation timer.
@@ -3951,20 +4064,22 @@ static DECLCALLBACK(int) ichac97Construct(PPDMDEVINS pDevIns, int iInstance, PCF
          *        relies on exact (virtual) DMA timing and uses DMA Position Buffers
          *        instead of the LPIB registers.
          */
-        rc = PDMDevHlpTMTimerCreate(pDevIns, TMCLOCK_VIRTUAL_SYNC, ichac97Timer, pThis,
-                                    TMTIMER_FLAGS_NO_CRIT_SECT, "AC'97 Timer", &pThis->pTimer);
+        rc = PDMDevHlpTMTimerCreate(pDevIns, TMCLOCK_VIRTUAL_SYNC, ichac97R3Timer, pThis,
+                                    TMTIMER_FLAGS_NO_CRIT_SECT, "AC'97 Timer", &pThis->pTimerR3);
         AssertRCReturn(rc, rc);
+        pThis->pTimerR0 = TMTimerR0Ptr(pThis->pTimerR3);
+        pThis->pTimerRC = TMTimerRCPtr(pThis->pTimerR3);
 
         /* Use our own critcal section for the device timer.
          * That way we can control more fine-grained when to lock what. */
-        rc = TMR3TimerSetCritSect(pThis->pTimer, &pThis->CritSect);
+        rc = TMR3TimerSetCritSect(pThis->pTimerR3, &pThis->CritSect);
         AssertRCReturn(rc, rc);
 
-        pThis->cTimerTicks = TMTimerGetFreq(pThis->pTimer) / uTimerHz;
-        pThis->uTimerTS    = TMTimerGet(pThis->pTimer);
+        pThis->cTimerTicks = TMTimerGetFreq(pThis->pTimerR3) / uTimerHz;
+        pThis->uTimerTS    = TMTimerGet(pThis->pTimerR3);
         LogFunc(("Timer ticks=%RU64 (%RU16 Hz)\n", pThis->cTimerTicks, uTimerHz));
     }
-#else /* !VBOX_WITH_AUDIO_AC97_CALLBACKS */
+# else /* !VBOX_WITH_AUDIO_AC97_CALLBACKS */
     if (RT_SUCCESS(rc))
     {
         PAC97DRIVER pDrv;
@@ -3994,9 +4109,9 @@ static DECLCALLBACK(int) ichac97Construct(PPDMDEVINS pDevIns, int iInstance, PCF
                 break;
         }
     }
-#endif /* VBOX_WITH_AUDIO_AC97_CALLBACKS */
+# endif /* VBOX_WITH_AUDIO_AC97_CALLBACKS */
 
-#ifdef VBOX_WITH_STATISTICS
+# ifdef VBOX_WITH_STATISTICS
     if (RT_SUCCESS(rc))
     {
         /*
@@ -4008,14 +4123,14 @@ static DECLCALLBACK(int) ichac97Construct(PPDMDEVINS pDevIns, int iInstance, PCF
         PDMDevHlpSTAMRegister(pDevIns, &pThis->StatBytesRead,    STAMTYPE_COUNTER, "/Devices/AC97/BytesRead"   , STAMUNIT_BYTES,          "Bytes read from AC97 emulation.");
         PDMDevHlpSTAMRegister(pDevIns, &pThis->StatBytesWritten, STAMTYPE_COUNTER, "/Devices/AC97/BytesWritten", STAMUNIT_BYTES,          "Bytes written to AC97 emulation.");
     }
-#endif
+# endif
 
-#ifdef VBOX_AUDIO_DEBUG_DUMP_PCM_DATA
+# ifdef VBOX_AUDIO_DEBUG_DUMP_PCM_DATA
     RTFileDelete(VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH "ac97DMARead.pcm");
     RTFileDelete(VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH "ac97DMAWrite.pcm");
     RTFileDelete(VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH "ac97StreamRead.pcm");
     RTFileDelete(VBOX_AUDIO_DEBUG_DUMP_PCM_DATA_PATH "ac97StreamWrite.pcm");
-#endif
+# endif
 
     LogFlowFuncLeaveRC(rc);
     return rc;
@@ -4031,13 +4146,13 @@ const PDMDEVREG g_DeviceICHAC97 =
     /* szName */
     "ichac97",
     /* szRCMod */
-    "",
+    "VBoxDDRC.rc",
     /* szR0Mod */
-    "",
+    "VBoxDDR0.r0",
     /* pszDescription */
     "ICH AC'97 Audio Controller",
     /* fFlags */
-    PDM_DEVREG_FLAGS_DEFAULT_BITS,
+    PDM_DEVREG_FLAGS_DEFAULT_BITS | PDM_DEVREG_FLAGS_RC | PDM_DEVREG_FLAGS_R0,
     /* fClass */
     PDM_DEVREG_CLASS_AUDIO,
     /* cMaxInstances */
@@ -4045,31 +4160,31 @@ const PDMDEVREG g_DeviceICHAC97 =
     /* cbInstance */
     sizeof(AC97STATE),
     /* pfnConstruct */
-    ichac97Construct,
+    ichac97R3Construct,
     /* pfnDestruct */
-    ichac97Destruct,
+    ichac97R3Destruct,
     /* pfnRelocate */
-    NULL,
+    ichac97R3Relocate,
     /* pfnMemSetup */
     NULL,
     /* pfnPowerOn */
     NULL,
     /* pfnReset */
-    ichac97Reset,
+    ichac97R3Reset,
     /* pfnSuspend */
     NULL,
     /* pfnResume */
     NULL,
     /* pfnAttach */
-    ichac97Attach,
+    ichac97R3Attach,
     /* pfnDetach */
-    ichac97Detach,
+    ichac97R3Detach,
     /* pfnQueryInterface. */
     NULL,
     /* pfnInitComplete */
     NULL,
     /* pfnPowerOff */
-    ichac97PowerOff,
+    ichac97R3PowerOff,
     /* pfnSoftReset */
     NULL,
     /* u32VersionEnd */

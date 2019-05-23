@@ -101,6 +101,8 @@ typedef enum LOGGROUP
     LOG_GROUP_DEV_EHCI,
     /** Floppy Controller Device group. */
     LOG_GROUP_DEV_FDC,
+    /** Flash Device group. */
+    LOG_GROUP_DEV_FLASH,
     /** Guest Interface Manager Device group. */
     LOG_GROUP_DEV_GIM,
     /** HDA Device group. */
@@ -633,6 +635,8 @@ typedef enum LOGGROUP
     LOG_GROUP_MAIN_USBDEVICESTATECHANGEDEVENT,
     /** Main group, IUSBProxyBackend. */
     LOG_GROUP_MAIN_USBPROXYBACKEND,
+    /** Main group, IVBoxSVC. */
+    LOG_GROUP_MAIN_VBOXSVC,
     /** Main group, IVBoxSVCAvailabilityChangedEvent. */
     LOG_GROUP_MAIN_VBOXSVCAVAILABILITYCHANGEDEVENT,
     /** Main group, IVetoEvent. */
@@ -847,6 +851,7 @@ typedef enum LOGGROUP
     "DEV_EFI",      \
     "DEV_EHCI",     \
     "DEV_FDC",      \
+    "DEV_FLASH",    \
     "DEV_GIM",      \
     "DEV_HDA",      \
     "DEV_HDA_CODEC", \
@@ -1113,6 +1118,7 @@ typedef enum LOGGROUP
     "MAIN_USBDEVICEFILTERS", \
     "MAIN_USBDEVICESTATECHANGEDEVENT", \
     "MAIN_USBPROXYBACKEND", \
+    "MAIN_VBOXSVC", \
     "MAIN_VBOXSVCAVAILABILITYCHANGEDEVENT", \
     "MAIN_VETOEVENT", \
     "MAIN_VFSEXPLORER", \

@@ -971,4 +971,3 @@ segment DATA32
 g_pfnDos16Write:
     dd  DOS16WRITE  ; flat
 
-

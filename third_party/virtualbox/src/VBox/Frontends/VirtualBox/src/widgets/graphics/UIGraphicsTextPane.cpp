@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -30,6 +30,7 @@
 /* GUI includes: */
 # include "UIGraphicsTextPane.h"
 # include "UIRichTextString.h"
+# include "VBoxGlobal.h"
 
 /* Other VBox includes: */
 # include <iprt/assert.h>
@@ -82,7 +83,7 @@ public:
         AssertPtrReturn(parent(), QRect());
 
         /* Return the parent's rect for now: */
-        // TODO: Return sub-rect.
+        /// @todo Return sub-rect.
         return parent()->rect();
     }
 
@@ -389,9 +390,9 @@ void UIGraphicsTextPane::updateHoverStuff()
 {
     /* Update mouse-cursor: */
     if (m_strHoveredAnchor.isNull())
-        unsetCursor();
+        VBoxGlobal::unsetCursor(this);
     else
-        setCursor(Qt::PointingHandCursor);
+        VBoxGlobal::setCursor(this, Qt::PointingHandCursor);
 
     /* Update text-layout: */
     updateTextLayout();
@@ -521,4 +522,3 @@ QString UIGraphicsTextPane::searchForHoveredAnchor(QPaintDevice *pPaintDevice, c
     /* Null string by default: */
     return QString();
 }
-

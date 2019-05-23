@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2007-2016 Oracle Corporation
+ * Copyright (C) 2007-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -2085,11 +2085,7 @@ static int usbHidHandleDefaultPipe(PUSBHID pThis, PUSBHIDEP pEp, PVUSBURB pUrb)
                             memcpy(&pUrb->abData[sizeof(*pSetup)], &wRet, sizeof(wRet));
                             return usbHidCompleteOk(pThis, pUrb, sizeof(wRet) + sizeof(*pSetup));
                         }
-                        else
-                        {
-                            LogRelFlow(("usbHid: GET_STATUS (interface) invalid, wIndex=%#x\n",
-                                        pSetup->wIndex));
-                        }
+                        LogRelFlow(("usbHid: GET_STATUS (interface) invalid, wIndex=%#x\n", pSetup->wIndex));
                         break;
                     }
 
@@ -2101,11 +2097,7 @@ static int usbHidHandleDefaultPipe(PUSBHID pThis, PUSBHIDEP pEp, PVUSBURB pUrb)
                             memcpy(&pUrb->abData[sizeof(*pSetup)], &wRet, sizeof(wRet));
                             return usbHidCompleteOk(pThis, pUrb, sizeof(wRet) + sizeof(*pSetup));
                         }
-                        else
-                        {
-                            LogRelFlow(("usbHid: GET_STATUS (endpoint) invalid, wIndex=%#x\n",
-                                        pSetup->wIndex));
-                        }
+                        LogRelFlow(("usbHid: GET_STATUS (endpoint) invalid, wIndex=%#x\n", pSetup->wIndex));
                         break;
                     }
 
@@ -2286,6 +2278,9 @@ static DECLCALLBACK(int) usbHidUsbReset(PPDMUSBINS pUsbIns, bool fResetOnLinux)
     PUSBHID pThis = PDMINS_2_DATA(pUsbIns, PUSBHID);
     LogRelFlow(("usbHidUsbReset/#%u:\n", pUsbIns->iInstance));
     RTCritSectEnter(&pThis->CritSect);
+
+    /* We can not handle any input until device is configured again. */
+    pThis->Lun0.pDrv->pfnReportModes(pThis->Lun0.pDrv, false, false, false);
 
     int rc = usbHidResetWorker(pThis, NULL, false /*fSetConfig*/);
 

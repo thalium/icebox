@@ -34,6 +34,11 @@
 #include <iprt/test.h>
 
 
+/*********************************************************************************************************************************
+*   Global Variables                                                                                                             *
+*********************************************************************************************************************************/
+const char *g_pszTestKernel = "/no-such-file";
+
 
 static void dotest(void)
 {
@@ -65,13 +70,21 @@ static void dotest(void)
 }
 
 
-int main()
+int main(int argc, char **argv)
 {
     RTTEST hTest;
     RTEXITCODE rcExit = RTTestInitAndCreate("tstRTDarwinMachKernel", &hTest);
     if (rcExit != RTEXITCODE_SUCCESS)
         return rcExit;
     RTTestBanner(hTest);
+
+    /* Optional kernel path as argument. */
+    if (argc == 2)
+        g_pszTestKernel = argv[1];
+#ifndef RT_OS_DARWIN
+    else
+        return RTTestSkipAndDestroy(hTest, "not on darwin");
+#endif
 
     dotest();
 

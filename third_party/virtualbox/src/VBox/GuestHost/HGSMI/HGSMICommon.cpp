@@ -6,22 +6,25 @@
 /*
  * Copyright (C) 2006-2017 Oracle Corporation
  *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
- * THE COPYRIGHT HOLDER(S) OR AUTHOR(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR
- * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
@@ -85,9 +88,7 @@ static uint32_t hgsmiHashBegin(void)
     return 0;
 }
 
-static uint32_t hgsmiHashProcess(uint32_t hash,
-                                 const void *pvData,
-                                 size_t cbData)
+static uint32_t hgsmiHashProcess(uint32_t hash, const void RT_UNTRUSTED_VOLATILE_HSTGST *pvData, size_t cbData)
 {
     const uint8_t *pu8Data = (const uint8_t *)pvData;
 
@@ -110,9 +111,8 @@ static uint32_t hgsmiHashEnd(uint32_t hash)
     return hash;
 }
 
-uint32_t HGSMIChecksum(HGSMIOFFSET offBuffer,
-                       const HGSMIBUFFERHEADER *pHeader,
-                       const HGSMIBUFFERTAIL *pTail)
+uint32_t HGSMIChecksum(HGSMIOFFSET offBuffer, const HGSMIBUFFERHEADER RT_UNTRUSTED_VOLATILE_HSTGST *pHeader,
+                       const HGSMIBUFFERTAIL RT_UNTRUSTED_VOLATILE_HSTGST *pTail)
 {
     uint32_t u32Checksum = hgsmiHashBegin();
 
@@ -123,10 +123,7 @@ uint32_t HGSMIChecksum(HGSMIOFFSET offBuffer,
     return hgsmiHashEnd(u32Checksum);
 }
 
-int HGSMIAreaInitialize(HGSMIAREA *pArea,
-                        void *pvBase,
-                        HGSMISIZE cbArea,
-                        HGSMIOFFSET offBase)
+int HGSMIAreaInitialize(HGSMIAREA *pArea, void *pvBase, HGSMISIZE cbArea, HGSMIOFFSET offBase)
 {
     uint8_t *pu8Base = (uint8_t *)pvBase;
 
@@ -194,18 +191,14 @@ HGSMIOFFSET HGSMIBufferInitializeSingle(const HGSMIAREA *pArea,
     pHeader->u16ChannelInfo = u16ChannelInfo;
     RT_ZERO(pHeader->u.au8Union);
 
-    HGSMIBUFFERTAIL *pTail = HGSMIBufferTailFromPtr(pHeader, u32DataSize);
+    HGSMIBUFFERTAIL RT_UNTRUSTED_VOLATILE_HSTGST *pTail = HGSMIBufferTailFromPtr(pHeader, u32DataSize);
     pTail->u32Reserved = 0;
     pTail->u32Checksum = HGSMIChecksum(offBuffer, pHeader, pTail);
 
     return offBuffer;
 }
 
-int HGSMIHeapSetup(HGSMIHEAP *pHeap,
-                   void *pvBase,
-                   HGSMISIZE cbArea,
-                   HGSMIOFFSET offBase,
-                   const HGSMIENV *pEnv)
+int HGSMIHeapSetup(HGSMIHEAP *pHeap, void *pvBase, HGSMISIZE cbArea, HGSMIOFFSET offBase, const HGSMIENV *pEnv)
 {
     HGSMI_ASSERT_PTR_RETURN(pHeap, VERR_INVALID_PARAMETER);
     HGSMI_ASSERT_PTR_RETURN(pvBase, VERR_INVALID_PARAMETER);
@@ -232,10 +225,10 @@ void HGSMIHeapDestroy(HGSMIHEAP *pHeap)
     }
 }
 
-void *HGSMIHeapAlloc(HGSMIHEAP *pHeap,
-                     HGSMISIZE cbData,
-                     uint8_t u8Channel,
-                     uint16_t u16ChannelInfo)
+void RT_UNTRUSTED_VOLATILE_HOST *HGSMIHeapAlloc(HGSMIHEAP *pHeap,
+                                                HGSMISIZE cbData,
+                                                uint8_t u8Channel,
+                                                uint16_t u16ChannelInfo)
 {
     HGSMISIZE cbAlloc = HGSMIBufferRequiredSize(cbData);
     HGSMIBUFFERHEADER *pHeader = (HGSMIBUFFERHEADER *)HGSMIHeapBufferAlloc(pHeap, cbAlloc);
@@ -253,34 +246,33 @@ void *HGSMIHeapAlloc(HGSMIHEAP *pHeap,
     return pHeader? HGSMIBufferDataFromPtr(pHeader): NULL;
 }
 
-void HGSMIHeapFree(HGSMIHEAP *pHeap,
-                   void *pvData)
+void HGSMIHeapFree(HGSMIHEAP *pHeap, void RT_UNTRUSTED_VOLATILE_GUEST *pvData)
 {
     if (pvData)
     {
-        HGSMIBUFFERHEADER *pHeader = HGSMIBufferHeaderFromData(pvData);
+        HGSMIBUFFERHEADER RT_UNTRUSTED_VOLATILE_HOST *pHeader = HGSMIBufferHeaderFromData(pvData);
         HGSMIHeapBufferFree(pHeap, pHeader);
     }
 }
 
-void *HGSMIHeapBufferAlloc(HGSMIHEAP *pHeap,
-                           HGSMISIZE cbBuffer)
+void RT_UNTRUSTED_VOLATILE_HSTGST *HGSMIHeapBufferAlloc(HGSMIHEAP *pHeap, HGSMISIZE cbBuffer)
 {
-    void *pvBuf = HGSMIMAAlloc(&pHeap->ma, cbBuffer);
-    return pvBuf;
+    return HGSMIMAAlloc(&pHeap->ma, cbBuffer);
 }
 
-void HGSMIHeapBufferFree(HGSMIHEAP *pHeap,
-                         void *pvBuf)
+void HGSMIHeapBufferFree(HGSMIHEAP *pHeap, void RT_UNTRUSTED_VOLATILE_GUEST *pvBuf)
 {
     HGSMIMAFree(&pHeap->ma, pvBuf);
 }
 
 typedef struct HGSMIBUFFERCONTEXT
 {
-    const HGSMIBUFFERHEADER *pHeader; /* The original buffer header. */
-    void *pvData;                     /* Payload data in the buffer./ */
-    uint32_t cbData;                  /* Size of data  */
+    /** The original buffer header. */
+    const HGSMIBUFFERHEADER RT_UNTRUSTED_VOLATILE_HSTGST *pHeader;
+    /** Payload data in the buffer. */
+    void RT_UNTRUSTED_VOLATILE_HSTGST *pvData;
+    /** Size of data  */
+    uint32_t cbData;
 } HGSMIBUFFERCONTEXT;
 
 /** Verify that the given offBuffer points to a valid buffer, which is within the area.
@@ -290,9 +282,7 @@ typedef struct HGSMIBUFFERCONTEXT
  * @param offBuffer      The buffer location in the area.
  * @param pBufferContext Where to write information about the buffer.
  */
-static int hgsmiVerifyBuffer(const HGSMIAREA *pArea,
-                             HGSMIOFFSET offBuffer,
-                             HGSMIBUFFERCONTEXT *pBufferContext)
+static int hgsmiVerifyBuffer(const HGSMIAREA *pArea, HGSMIOFFSET offBuffer, HGSMIBUFFERCONTEXT *pBufferContext)
 {
     // LogFlowFunc(("buffer 0x%x, area %p %x [0x%x;0x%x]\n",
     //              offBuffer, pArea->pu8Base, pArea->cbArea, pArea->offBase, pArea->offLast));
@@ -309,8 +299,10 @@ static int hgsmiVerifyBuffer(const HGSMIAREA *pArea,
     }
     else
     {
-        void *pvBuffer = HGSMIOffsetToPointer(pArea, offBuffer);
-        HGSMIBUFFERHEADER header = *HGSMIBufferHeaderFromPtr(pvBuffer);
+        void RT_UNTRUSTED_VOLATILE_HSTGST *pvBuffer = HGSMIOffsetToPointer(pArea, offBuffer);
+        HGSMIBUFFERHEADER header;
+        memcpy(&header, (void *)HGSMIBufferHeaderFromPtr(pvBuffer), sizeof(header));
+        ASMCompilerBarrier();
 
         /* Quick check of the data size, it should be less than the maximum
          * data size for the buffer at this offset.
@@ -320,7 +312,9 @@ static int hgsmiVerifyBuffer(const HGSMIAREA *pArea,
 
         if (header.u32DataSize <= pArea->offLast - offBuffer)
         {
-            HGSMIBUFFERTAIL tail = *HGSMIBufferTailFromPtr(pvBuffer, header.u32DataSize);
+            HGSMIBUFFERTAIL tail;
+            memcpy(&tail, (void *)HGSMIBufferTailFromPtr(pvBuffer, header.u32DataSize), sizeof(tail));
+            ASMCompilerBarrier();
 
             /* At least both header and tail structures are in the area. Check the checksum. */
             uint32_t u32Checksum = HGSMIChecksum(offBuffer, &header, &tail);

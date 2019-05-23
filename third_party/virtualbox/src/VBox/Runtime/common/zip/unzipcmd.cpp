@@ -424,7 +424,7 @@ RTDECL(RTEXITCODE) RTZipUnzipCmd(unsigned cArgs, char **papszArgs)
                     return RTMsgErrorExit(RTEXITCODE_SYNTAX,
                                           "Conflicting unzip operation (%s already set, now %s)",
                                           Opts.pszOperation, ValueUnion.pDef->pszLong);
-                Opts.iOperation   = rc;
+                Opts.iOperation   = 'l';
                 Opts.pszOperation = ValueUnion.pDef->pszLong;
                 break;
 

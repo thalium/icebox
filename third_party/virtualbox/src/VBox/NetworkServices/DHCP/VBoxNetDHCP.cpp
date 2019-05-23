@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -642,6 +642,16 @@ int VBoxNetDhcp::hostDnsServers(const ComHostPtr& host,
         rc = RTNetStrToIPv4Addr(com::Utf8Str(strs[i]).c_str(), &addr);
         if (RT_FAILURE(rc))
             continue;
+
+        if (addr.u == INADDR_ANY)
+        {
+            /*
+             * This doesn't seem to be very well documented except for
+             * RTFS of res_init.c, but INADDR_ANY is a valid value for
+             * for "nameserver".
+             */
+            addr.u = RT_H2N_U32_C(INADDR_LOOPBACK);
+        }
 
         if (addr.au8[0] == 127)
         {

@@ -955,35 +955,42 @@ static int alsaStreamResume(snd_pcm_t *phPCM)
 }
 
 
-static int drvHostALSAAudioStreamCtl(snd_pcm_t *phPCM, bool fPause)
+static int drvHostALSAAudioStreamCtl(PALSAAUDIOSTREAM pStreamALSA, bool fPause)
 {
     int rc = VINF_SUCCESS;
+
+    const bool fInput = pStreamALSA->pCfg->enmDir == PDMAUDIODIR_IN;
 
     int err;
     if (fPause)
     {
-        err = snd_pcm_drop(phPCM);
+        err = snd_pcm_drop(pStreamALSA->phPCM);
         if (err < 0)
         {
-            LogRel(("ALSA: Error stopping stream %p: %s\n", phPCM, snd_strerror(err)));
+            LogRel(("ALSA: Error stopping %s stream: %s\n", fInput ? "input" : "output", snd_strerror(err)));
             rc = VERR_ACCESS_DENIED; /** @todo Find a better rc. */
         }
     }
     else
     {
-        err = snd_pcm_prepare(phPCM);
+        err = snd_pcm_prepare(pStreamALSA->phPCM);
         if (err < 0)
         {
-            LogRel(("ALSA: Error preparing stream %p: %s\n", phPCM, snd_strerror(err)));
+            LogRel(("ALSA: Error preparing %s stream: %s\n", fInput ? "input" : "output", snd_strerror(err)));
             rc = VERR_ACCESS_DENIED; /** @todo Find a better rc. */
         }
         else
         {
-            err = snd_pcm_start(phPCM);
-            if (err < 0)
+            Assert(snd_pcm_state(pStreamALSA->phPCM) == SND_PCM_STATE_PREPARED);
+
+            if (fInput) /* Only start the PCM stream for input streams. */
             {
-                LogRel(("ALSA: Error starting stream %p: %s\n", phPCM, snd_strerror(err)));
-                rc = VERR_ACCESS_DENIED; /** @todo Find a better rc. */
+                err = snd_pcm_start(pStreamALSA->phPCM);
+                if (err < 0)
+                {
+                    LogRel(("ALSA: Error starting input stream: %s\n", snd_strerror(err)));
+                    rc = VERR_ACCESS_DENIED; /** @todo Find a better rc. */
+                }
             }
         }
     }
@@ -1421,12 +1428,12 @@ static int alsaControlStreamIn(PALSAAUDIOSTREAM pStreamALSA, PDMAUDIOSTREAMCMD e
     {
         case PDMAUDIOSTREAMCMD_ENABLE:
         case PDMAUDIOSTREAMCMD_RESUME:
-            rc = drvHostALSAAudioStreamCtl(pStreamALSA->phPCM, false /* fStop */);
+            rc = drvHostALSAAudioStreamCtl(pStreamALSA, false /* fStop */);
             break;
 
         case PDMAUDIOSTREAMCMD_DISABLE:
         case PDMAUDIOSTREAMCMD_PAUSE:
-            rc = drvHostALSAAudioStreamCtl(pStreamALSA->phPCM, true /* fStop */);
+            rc = drvHostALSAAudioStreamCtl(pStreamALSA, true /* fStop */);
             break;
 
         default:
@@ -1446,12 +1453,12 @@ static int alsaControlStreamOut(PALSAAUDIOSTREAM pStreamALSA, PDMAUDIOSTREAMCMD 
     {
         case PDMAUDIOSTREAMCMD_ENABLE:
         case PDMAUDIOSTREAMCMD_RESUME:
-            rc = drvHostALSAAudioStreamCtl(pStreamALSA->phPCM, false /* fStop */);
+            rc = drvHostALSAAudioStreamCtl(pStreamALSA, false /* fStop */);
             break;
 
         case PDMAUDIOSTREAMCMD_DISABLE:
         case PDMAUDIOSTREAMCMD_PAUSE:
-            rc = drvHostALSAAudioStreamCtl(pStreamALSA->phPCM, true /* fStop */);
+            rc = drvHostALSAAudioStreamCtl(pStreamALSA, true /* fStop */);
             break;
 
         default:

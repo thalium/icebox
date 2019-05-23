@@ -339,7 +339,7 @@ static void packspuZvaDisable(CR_ZVA_RESTORE_CTX *pRestoreCtx)
 void PACKSPU_APIENTRY
 packspu_ArrayElement( GLint index )
 {
-/*@todo cash guest/host pointers calculation and use appropriate path here without crStateUseServerArrays call*/
+/** @todo cash guest/host pointers calculation and use appropriate path here without crStateUseServerArrays call*/
 #if 1
     GLboolean serverArrays = GL_FALSE;
     GLuint cZvaValues = 0;
@@ -856,7 +856,7 @@ GLboolean PACKSPU_APIENTRY packspu_IsEnabled(GLenum cap)
 {
     GLboolean res = crStateIsEnabled(cap);
 #ifdef DEBUG
-    {    
+    {
     	GET_THREAD(thread);
 	    int writeback = 1;
 	    GLboolean return_val = (GLboolean) 0;
@@ -892,7 +892,7 @@ void PACKSPU_APIENTRY packspu_LockArraysEXT(GLint first, GLint count)
           so we'd pass data to host right before the glDrawSomething or glBegin call.
         */
         /*crPackLockArraysEXT(first, count);*/
-    } 
+    }
     else crDebug("Ignoring packspu_LockArraysEXT: first:%i, count:%i", first, count);
 }
 

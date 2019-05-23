@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -45,7 +45,7 @@ UIGDetailsElement::UIGDetailsElement(UIGDetailsSet *pParent, DetailsElementType 
     : UIGDetailsItem(pParent)
     , m_pSet(pParent)
     , m_type(type)
-    , m_iCornerRadius(10)
+    , m_iCornerRadius(QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 2)
     , m_iMinimumHeaderWidth(0)
     , m_iMinimumHeaderHeight(0)
     , m_pButton(0)
@@ -215,9 +215,8 @@ QVariant UIGDetailsElement::data(int iKey) const
     switch (iKey)
     {
         /* Hints: */
-        case ElementData_Margin: return 5;
-        case ElementData_Spacing: return 10;
-        case ElementData_MinimumTextColumnWidth: return 100;
+        case ElementData_Margin: return QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 4;
+        case ElementData_Spacing: return QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 2;
         /* Default: */
         default: break;
     }
@@ -681,9 +680,9 @@ void UIGDetailsElement::handleHoverEvent(QGraphicsSceneHoverEvent *pEvent)
 void UIGDetailsElement::updateNameHoverLink()
 {
     if (m_fNameHovered)
-        setCursor(Qt::PointingHandCursor);
+        VBoxGlobal::setCursor(this, Qt::PointingHandCursor);
     else
-        unsetCursor();
+        VBoxGlobal::unsetCursor(this);
     update();
 }
 
@@ -699,4 +698,3 @@ void UIGDetailsElement::updateAnimationParameters()
         m_iAdditionalHeight = iAdditionalHeight;
     m_pButton->setAnimationRange(0, iAdditionalHeight);
 }
-

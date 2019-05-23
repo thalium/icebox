@@ -478,7 +478,7 @@ static void ARRAYSPU_APIENTRY arrayspu_DrawElements(GLenum mode, GLsizei count,
     }
 #endif
     //crDebug("arrayspu_DrawElements mode:0x%x, count:%d, type:0x%x", mode, count, type);
-    
+
 
     array_spu.self.Begin(mode);
     switch (type)
@@ -663,7 +663,7 @@ static void ARRAYSPU_APIENTRY arrayspu_Disable(GLenum cap)
      array_spu.child.Disable(cap);
 }
 
-/*@todo: it's a hack, as GLSL shouldn't blindly reuse this bit from nv_vertex_program*/
+/** @todo it's a hack, as GLSL shouldn't blindly reuse this bit from nv_vertex_program*/
 static void ARRAYSPU_APIENTRY arrayspu_UseProgram(GLuint program)
 {
     crStateGetCurrent()->program.vpEnabled = program>0;
@@ -671,7 +671,7 @@ static void ARRAYSPU_APIENTRY arrayspu_UseProgram(GLuint program)
 }
 
 static void ARRAYSPU_APIENTRY
-arrayspu_VertexAttribPointerARB(GLuint index, GLint size, GLenum type, 
+arrayspu_VertexAttribPointerARB(GLuint index, GLint size, GLenum type,
                                 GLboolean normalized, GLsizei stride,
                                 const GLvoid *pointer)
 {
@@ -844,7 +844,7 @@ arrayspu_MakeCurrent( GLint window, GLint nativeWindow, GLint ctx )
 
         crStateMakeCurrent(array_spu.context[slot].clientState);
     }
-    else 
+    else
     {
         crStateMakeCurrent(NULL);
     }

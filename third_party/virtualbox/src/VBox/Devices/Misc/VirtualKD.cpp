@@ -7,7 +7,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -218,9 +218,7 @@ static DECLCALLBACK(int) vkdConstruct(PPDMDEVINS pDevIns, int iInstance, PCFGMNO
         return VINF_SUCCESS;
     }
 
-    PDMDevHlpIOPortRegister(pDevIns, 0x5658, 2, NULL, vkdPortWrite, vkdPortRead, NULL, NULL, "VirtualKD");
-
-    return VINF_SUCCESS;
+    return PDMDevHlpIOPortRegister(pDevIns, 0x5658, 2, NULL, vkdPortWrite, vkdPortRead, NULL, NULL, "VirtualKD");
 }
 
 

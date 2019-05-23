@@ -7,7 +7,7 @@
  */
 
 /*
- * Copyright (C) 2006-2017 Oracle Corporation
+ * Copyright (C) 2006-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -17,6 +17,7 @@
  * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
+
 
 /*********************************************************************************************************************************
 *   Header Files                                                                                                                 *
@@ -193,6 +194,28 @@ void DrvAudioHlpClearBuf(const PPDMAUDIOPCMPROPS pPCMProps, void *pvBuf, size_t 
             }
         }
     }
+}
+
+/**
+ * Returns an unique file name for this given audio connector instance.
+ *
+ * @return  Allocated file name. Must be free'd using RTStrFree().
+ * @param   uInstance           Driver / device instance.
+ * @param   pszPath             Path name of the file to delete. The path must exist.
+ * @param   pszSuffix           File name suffix to use.
+ */
+char *DrvAudioDbgGetFileNameA(uint8_t uInstance, const char *pszPath, const char *pszSuffix)
+{
+    char szFileName[64];
+    RTStrPrintf(szFileName, sizeof(szFileName), "drvAudio%RU8-%s", uInstance, pszSuffix);
+
+    char szFilePath[RTPATH_MAX];
+    int rc2 = RTStrCopy(szFilePath, sizeof(szFilePath), pszPath);
+    AssertRC(rc2);
+    rc2 = RTPathAppend(szFilePath, sizeof(szFilePath), szFileName);
+    AssertRC(rc2);
+
+    return RTStrDup(szFilePath);
 }
 
 /**
@@ -595,6 +618,28 @@ char *DrvAudioHlpAudDevFlagsToStrA(PDMAUDIODEVFLAG fFlags)
 #undef APPEND_FLAG_TO_STR
 
     return pszFlags;
+}
+
+/**
+ * Converts a playback destination enumeration to a string.
+ *
+ * @returns Stringified playback destination, or "Unknown", if not found.
+ * @param   enmPlaybackDst      Playback destination to convert.
+ */
+const char *DrvAudioHlpPlaybackDstToStr(const PDMAUDIOPLAYBACKDEST enmPlaybackDst)
+{
+    switch (enmPlaybackDst)
+    {
+        case PDMAUDIOPLAYBACKDEST_UNKNOWN:    return "Unknown";
+        case PDMAUDIOPLAYBACKDEST_FRONT:      return "Front";
+        case PDMAUDIOPLAYBACKDEST_CENTER_LFE: return "Center / LFE";
+        case PDMAUDIOPLAYBACKDEST_REAR:       return "Rear";
+        default:
+            break;
+    }
+
+    AssertMsgFailed(("Invalid playback destination %ld\n", enmPlaybackDst));
+    return "Unknown";
 }
 
 /**
@@ -1007,6 +1052,23 @@ uint32_t DrvAudioHlpCalcBitrate(const PPDMAUDIOPCMPROPS pProps)
 }
 
 /**
+ * Returns the amount of bytes for a given time (in ms) and PCM properties.
+ *
+ * @return  uint32_t            Calculated amount of bytes.
+ * @param   pProps              PCM properties to calculate amount of bytes for.
+ * @param   uMs                 Time (in ms) to calculate amount of bytes for.
+ */
+uint32_t DrvAudioHlpMsToBytes(const PPDMAUDIOPCMPROPS pProps, uint32_t uMs)
+{
+    AssertPtrReturn(pProps, 0);
+
+    if (!uMs)
+        return 0;
+
+    return float(((pProps->cBits / 8) * pProps->cChannels * pProps->uHz) / 1000) * uMs;
+}
+
+/**
  * Sanitizes the file name component so that unsupported characters
  * will be replaced by an underscore ("_").
  *
@@ -1050,22 +1112,26 @@ int DrvAudioHlpSanitizeFileName(char *pszPath, size_t cbPath)
  * @param   pszFile             Where to store the constructed file name.
  * @param   cchFile             Size (in characters) of the file name buffer.
  * @param   pszPath             Base path to use.
- * @param   pszName             A name for better identifying the file. Optional.
+ * @param   pszName             A name for better identifying the file.
+ * @param   uInstance           Device / driver instance which is using this file.
  * @param   enmType             Audio file type to construct file name for.
+ * @param   fFlags              File naming flags.
  */
-int DrvAudioHlpGetFileName(char *pszFile, size_t cchFile, const char *pszPath, const char *pszName, PDMAUDIOFILETYPE enmType)
+int DrvAudioHlpGetFileName(char *pszFile, size_t cchFile, const char *pszPath, const char *pszName,
+                           uint32_t uInstance, PDMAUDIOFILETYPE enmType, PDMAUDIOFILENAMEFLAGS fFlags)
 {
     AssertPtrReturn(pszFile, VERR_INVALID_POINTER);
     AssertReturn(cchFile,    VERR_INVALID_PARAMETER);
     AssertPtrReturn(pszPath, VERR_INVALID_POINTER);
-    /* pszName is optional. */
+    AssertPtrReturn(pszName, VERR_INVALID_POINTER);
+    /** @todo Validate fFlags. */
 
     int rc;
 
     do
     {
-        char szFilePath[RTPATH_MAX];
-        RTStrPrintf(szFilePath, sizeof(szFilePath), "%s", pszPath);
+        char szFilePath[RTPATH_MAX + 1];
+        RTStrPrintf2(szFilePath, sizeof(szFilePath), "%s", pszPath);
 
         /* Create it when necessary. */
         if (!RTDirExists(szFilePath))
@@ -1075,49 +1141,64 @@ int DrvAudioHlpGetFileName(char *pszFile, size_t cchFile, const char *pszPath, c
                 break;
         }
 
-        /* The actually drop directory consist of the current time stamp and a
-         * unique number when necessary. */
-        char pszTime[64];
-        RTTIMESPEC time;
-        if (!RTTimeSpecToString(RTTimeNow(&time), pszTime, sizeof(pszTime)))
+        char szFileName[RTPATH_MAX + 1];
+        szFileName[0] = '\0';
+
+        if (fFlags & PDMAUDIOFILENAME_FLAG_TS)
         {
-            rc = VERR_BUFFER_OVERFLOW;
-            break;
-        }
+            RTTIMESPEC time;
+            if (!RTTimeSpecToString(RTTimeNow(&time), szFileName, sizeof(szFileName)))
+            {
+                rc = VERR_BUFFER_OVERFLOW;
+                break;
+            }
 
-        rc = DrvAudioHlpSanitizeFileName(pszTime, sizeof(pszTime));
-        if (RT_FAILURE(rc))
-            break;
-
-        rc = RTPathAppend(szFilePath, sizeof(szFilePath), pszTime);
-        if (RT_FAILURE(rc))
-            break;
-
-        if (pszName) /* Optional name given? */
-        {
-            rc = RTStrCat(szFilePath, sizeof(szFilePath), "-");
+            rc = DrvAudioHlpSanitizeFileName(szFileName, sizeof(szFileName));
             if (RT_FAILURE(rc))
                 break;
 
-            rc = RTStrCat(szFilePath, sizeof(szFilePath), pszName);
+            rc = RTStrCat(szFileName, sizeof(szFileName), "-");
             if (RT_FAILURE(rc))
                 break;
         }
+
+        rc = RTStrCat(szFileName, sizeof(szFileName), pszName);
+        if (RT_FAILURE(rc))
+            break;
+
+        rc = RTStrCat(szFileName, sizeof(szFileName), "-");
+        if (RT_FAILURE(rc))
+            break;
+
+        char szInst[16];
+        RTStrPrintf2(szInst, sizeof(szInst), "%RU32", uInstance);
+        rc = RTStrCat(szFileName, sizeof(szFileName), szInst);
+        if (RT_FAILURE(rc))
+            break;
 
         switch (enmType)
         {
+            case PDMAUDIOFILETYPE_RAW:
+                rc = RTStrCat(szFileName, sizeof(szFileName), ".pcm");
+                break;
+
             case PDMAUDIOFILETYPE_WAV:
-                rc = RTStrCat(szFilePath, sizeof(szFilePath), ".wav");
+                rc = RTStrCat(szFileName, sizeof(szFileName), ".wav");
                 break;
 
             default:
                 AssertFailedStmt(rc = VERR_NOT_IMPLEMENTED);
+                break;
         }
 
         if (RT_FAILURE(rc))
             break;
 
-        RTStrPrintf(pszFile, cchFile, "%s", szFilePath);
+        rc = RTPathAppend(szFilePath, sizeof(szFilePath), szFileName);
+        if (RT_FAILURE(rc))
+            break;
+
+        RTStrPrintf2(pszFile, cchFile, "%s", szFilePath);
 
     } while (0);
 
@@ -1126,135 +1207,288 @@ int DrvAudioHlpGetFileName(char *pszFile, size_t cchFile, const char *pszPath, c
 }
 
 /**
- * Opens or creates a wave (.WAV) file.
+ * Creates an audio file.
  *
  * @returns IPRT status code.
- * @param   pFile               Pointer to audio file handle to use.
+ * @param   enmType             Audio file type to open / create.
  * @param   pszFile             File path of file to open or create.
- * @param   fOpen               Open flags.
- * @param   pProps              PCM properties to use.
  * @param   fFlags              Audio file flags.
+ * @param   ppFile              Where to store the created audio file handle.
+ *                              Needs to be destroyed with DrvAudioHlpFileDestroy().
  */
-int DrvAudioHlpWAVFileOpen(PPDMAUDIOFILE pFile, const char *pszFile, uint32_t fOpen, const PPDMAUDIOPCMPROPS pProps,
-                           PDMAUDIOFILEFLAGS fFlags)
+int DrvAudioHlpFileCreate(PDMAUDIOFILETYPE enmType, const char *pszFile, PDMAUDIOFILEFLAGS fFlags, PPDMAUDIOFILE *ppFile)
 {
-    AssertPtrReturn(pFile,   VERR_INVALID_POINTER);
     AssertPtrReturn(pszFile, VERR_INVALID_POINTER);
-    /** @todo Validate fOpen flags. */
-    AssertPtrReturn(pProps,  VERR_INVALID_POINTER);
-    RT_NOREF(fFlags); /** @todo Validate fFlags flags. */
+    /** @todo Validate fFlags. */
 
-    Assert(pProps->cChannels);
-    Assert(pProps->uHz);
-    Assert(pProps->cBits);
-
-    pFile->pvData = (PAUDIOWAVFILEDATA)RTMemAllocZ(sizeof(AUDIOWAVFILEDATA));
-    if (!pFile->pvData)
+    PPDMAUDIOFILE pFile = (PPDMAUDIOFILE)RTMemAlloc(sizeof(PDMAUDIOFILE));
+    if (!pFile)
         return VERR_NO_MEMORY;
-    pFile->cbData = sizeof(PAUDIOWAVFILEDATA);
 
-    PAUDIOWAVFILEDATA pData = (PAUDIOWAVFILEDATA)pFile->pvData;
-    AssertPtr(pData);
+    int rc = VINF_SUCCESS;
 
-    /* Header. */
-    pData->Hdr.u32RIFF          = AUDIO_MAKE_FOURCC('R','I','F','F');
-    pData->Hdr.u32Size          = 36;
-    pData->Hdr.u32WAVE          = AUDIO_MAKE_FOURCC('W','A','V','E');
-
-    pData->Hdr.u32Fmt           = AUDIO_MAKE_FOURCC('f','m','t',' ');
-    pData->Hdr.u32Size1         = 16; /* Means PCM. */
-    pData->Hdr.u16AudioFormat   = 1;  /* PCM, linear quantization. */
-    pData->Hdr.u16NumChannels   = pProps->cChannels;
-    pData->Hdr.u32SampleRate    = pProps->uHz;
-    pData->Hdr.u32ByteRate      = DrvAudioHlpCalcBitrate(pProps->cBits, pProps->uHz, pProps->cChannels) / 8;
-    pData->Hdr.u16BlockAlign    = pProps->cChannels * pProps->cBits / 8;
-    pData->Hdr.u16BitsPerSample = pProps->cBits;
-
-    /* Data chunk. */
-    pData->Hdr.u32ID2           = AUDIO_MAKE_FOURCC('d','a','t','a');
-    pData->Hdr.u32Size2         = 0;
-
-    int rc = RTFileOpen(&pFile->hFile, pszFile, fOpen);
-    if (RT_SUCCESS(rc))
+    switch (enmType)
     {
-        rc = RTFileWrite(pFile->hFile, &pData->Hdr, sizeof(pData->Hdr), NULL);
-        if (RT_FAILURE(rc))
-        {
-            RTFileClose(pFile->hFile);
-            pFile->hFile = NIL_RTFILE;
-        }
+        case PDMAUDIOFILETYPE_RAW:
+        case PDMAUDIOFILETYPE_WAV:
+            pFile->enmType = enmType;
+            break;
+
+        default:
+            rc = VERR_INVALID_PARAMETER;
+            break;
     }
 
     if (RT_SUCCESS(rc))
     {
-        pFile->enmType = PDMAUDIOFILETYPE_WAV;
-
         RTStrPrintf(pFile->szName, RT_ELEMENTS(pFile->szName), "%s", pszFile);
-    }
-    else
-    {
-        RTMemFree(pFile->pvData);
+        pFile->hFile  = NIL_RTFILE;
+        pFile->fFlags = fFlags;
         pFile->pvData = NULL;
         pFile->cbData = 0;
     }
+
+    if (RT_FAILURE(rc))
+    {
+        RTMemFree(pFile);
+        pFile = NULL;
+    }
+    else
+        *ppFile = pFile;
 
     return rc;
 }
 
 /**
- * Closes a wave (.WAV) audio file.
+ * Destroys a formerly created audio file.
+ *
+ * @param   pFile               Audio file (object) to destroy.
+ */
+void DrvAudioHlpFileDestroy(PPDMAUDIOFILE pFile)
+{
+    if (!pFile)
+        return;
+
+    DrvAudioHlpFileClose(pFile);
+
+    RTMemFree(pFile);
+    pFile = NULL;
+}
+
+/**
+ * Opens or creates an audio file.
+ *
+ * @returns IPRT status code.
+ * @param   pFile               Pointer to audio file handle to use.
+ * @param   fOpen               Open flags.
+ *                              Use PDMAUDIOFILE_DEFAULT_OPEN_FLAGS for the default open flags.
+ * @param   pProps              PCM properties to use.
+ */
+int DrvAudioHlpFileOpen(PPDMAUDIOFILE pFile, uint32_t fOpen, const PPDMAUDIOPCMPROPS pProps)
+{
+    AssertPtrReturn(pFile,   VERR_INVALID_POINTER);
+    /** @todo Validate fOpen flags. */
+    AssertPtrReturn(pProps,  VERR_INVALID_POINTER);
+
+    int rc;
+
+    if (pFile->enmType == PDMAUDIOFILETYPE_RAW)
+    {
+        rc = RTFileOpen(&pFile->hFile, pFile->szName, fOpen);
+    }
+    else if (pFile->enmType == PDMAUDIOFILETYPE_WAV)
+    {
+        Assert(pProps->cChannels);
+        Assert(pProps->uHz);
+        Assert(pProps->cBits);
+
+        pFile->pvData = (PAUDIOWAVFILEDATA)RTMemAllocZ(sizeof(AUDIOWAVFILEDATA));
+        if (pFile->pvData)
+        {
+            pFile->cbData = sizeof(PAUDIOWAVFILEDATA);
+
+            PAUDIOWAVFILEDATA pData = (PAUDIOWAVFILEDATA)pFile->pvData;
+            AssertPtr(pData);
+
+            /* Header. */
+            pData->Hdr.u32RIFF          = AUDIO_MAKE_FOURCC('R','I','F','F');
+            pData->Hdr.u32Size          = 36;
+            pData->Hdr.u32WAVE          = AUDIO_MAKE_FOURCC('W','A','V','E');
+
+            pData->Hdr.u32Fmt           = AUDIO_MAKE_FOURCC('f','m','t',' ');
+            pData->Hdr.u32Size1         = 16; /* Means PCM. */
+            pData->Hdr.u16AudioFormat   = 1;  /* PCM, linear quantization. */
+            pData->Hdr.u16NumChannels   = pProps->cChannels;
+            pData->Hdr.u32SampleRate    = pProps->uHz;
+            pData->Hdr.u32ByteRate      = DrvAudioHlpCalcBitrate(pProps->cBits, pProps->uHz, pProps->cChannels) / 8;
+            pData->Hdr.u16BlockAlign    = pProps->cChannels * pProps->cBits / 8;
+            pData->Hdr.u16BitsPerSample = pProps->cBits;
+
+            /* Data chunk. */
+            pData->Hdr.u32ID2           = AUDIO_MAKE_FOURCC('d','a','t','a');
+            pData->Hdr.u32Size2         = 0;
+
+            rc = RTFileOpen(&pFile->hFile, pFile->szName, fOpen);
+            if (RT_SUCCESS(rc))
+            {
+                rc = RTFileWrite(pFile->hFile, &pData->Hdr, sizeof(pData->Hdr), NULL);
+                if (RT_FAILURE(rc))
+                {
+                    RTFileClose(pFile->hFile);
+                    pFile->hFile = NIL_RTFILE;
+                }
+            }
+
+            if (RT_FAILURE(rc))
+            {
+                RTMemFree(pFile->pvData);
+                pFile->pvData = NULL;
+                pFile->cbData = 0;
+            }
+        }
+        else
+            rc = VERR_NO_MEMORY;
+    }
+    else
+        rc = VERR_INVALID_PARAMETER;
+
+    if (RT_SUCCESS(rc))
+    {
+        LogRel2(("Audio: Opened file '%s'\n", pFile->szName));
+    }
+    else
+        LogRel(("Audio: Failed opening file '%s', rc=%Rrc\n", pFile->szName, rc));
+
+    return rc;
+}
+
+/**
+ * Closes an audio file.
  *
  * @returns IPRT status code.
  * @param   pFile               Audio file handle to close.
  */
-int DrvAudioHlpWAVFileClose(PPDMAUDIOFILE pFile)
+int DrvAudioHlpFileClose(PPDMAUDIOFILE pFile)
 {
     AssertPtrReturn(pFile, VERR_INVALID_POINTER);
 
-    Assert(pFile->enmType == PDMAUDIOFILETYPE_WAV);
+    size_t cbSize = DrvAudioHlpFileGetDataSize(pFile);
 
-    if (pFile->hFile != NIL_RTFILE)
+    int rc = VINF_SUCCESS;
+
+    if (pFile->enmType == PDMAUDIOFILETYPE_RAW)
     {
-        PAUDIOWAVFILEDATA pData = (PAUDIOWAVFILEDATA)pFile->pvData;
-        AssertPtr(pData);
+        if (RTFileIsValid(pFile->hFile))
+            rc = RTFileClose(pFile->hFile);
+    }
+    else if (pFile->enmType == PDMAUDIOFILETYPE_WAV)
+    {
+        if (RTFileIsValid(pFile->hFile))
+        {
+            PAUDIOWAVFILEDATA pData = (PAUDIOWAVFILEDATA)pFile->pvData;
+            if (pData) /* The .WAV file data only is valid when a file actually has been created. */
+            {
+                /* Update the header with the current data size. */
+                RTFileWriteAt(pFile->hFile, 0, &pData->Hdr, sizeof(pData->Hdr), NULL);
+            }
 
-        /* Update the header with the current data size. */
-        RTFileWriteAt(pFile->hFile, 0, &pData->Hdr, sizeof(pData->Hdr), NULL);
+            rc = RTFileClose(pFile->hFile);
+        }
 
-        RTFileClose(pFile->hFile);
+        if (pFile->pvData)
+        {
+            RTMemFree(pFile->pvData);
+            pFile->pvData = NULL;
+        }
+    }
+    else
+        AssertFailedStmt(rc = VERR_NOT_IMPLEMENTED);
+
+    if (   RT_SUCCESS(rc)
+        && !cbSize
+        && !(pFile->fFlags & PDMAUDIOFILE_FLAG_KEEP_IF_EMPTY))
+    {
+        rc = DrvAudioHlpFileDelete(pFile);
+    }
+
+    pFile->cbData = 0;
+
+    if (RT_SUCCESS(rc))
+    {
         pFile->hFile = NIL_RTFILE;
+        LogRel2(("Audio: Closed file '%s' (%zu bytes)\n", pFile->szName, cbSize));
     }
+    else
+        LogRel(("Audio: Failed closing file '%s', rc=%Rrc\n", pFile->szName, rc));
 
-    if (pFile->pvData)
-    {
-        RTMemFree(pFile->pvData);
-        pFile->pvData = NULL;
-    }
-
-    pFile->cbData  = 0;
-    pFile->enmType = PDMAUDIOFILETYPE_UNKNOWN;
-
-    return VINF_SUCCESS;
+    return rc;
 }
 
 /**
- * Returns the raw PCM audio data size of a wave file.
- * This does *not* include file headers and other data which does
- * not belong to the actual PCM audio data.
+ * Deletes an audio file.
+ *
+ * @returns IPRT status code.
+ * @param   pFile               Audio file handle to delete.
+ */
+int DrvAudioHlpFileDelete(PPDMAUDIOFILE pFile)
+{
+    AssertPtrReturn(pFile, VERR_INVALID_POINTER);
+
+    int rc = RTFileDelete(pFile->szName);
+    if (RT_SUCCESS(rc))
+    {
+        LogRel2(("Audio: Deleted file '%s'\n", pFile->szName));
+    }
+    else if (rc == VERR_FILE_NOT_FOUND) /* Don't bitch if the file is not around (anymore). */
+        rc = VINF_SUCCESS;
+
+    if (RT_FAILURE(rc))
+        LogRel(("Audio: Failed deleting file '%s', rc=%Rrc\n", pFile->szName, rc));
+
+    return rc;
+}
+
+/**
+ * Returns the raw audio data size of an audio file.
+ *
+ * Note: This does *not* include file headers and other data which does
+ *       not belong to the actual PCM audio data.
  *
  * @returns Size (in bytes) of the raw PCM audio data.
  * @param   pFile               Audio file handle to retrieve the audio data size for.
  */
-size_t DrvAudioHlpWAVFileGetDataSize(PPDMAUDIOFILE pFile)
+size_t DrvAudioHlpFileGetDataSize(PPDMAUDIOFILE pFile)
 {
     AssertPtrReturn(pFile, 0);
 
-    Assert(pFile->enmType == PDMAUDIOFILETYPE_WAV);
+    size_t cbSize = 0;
 
-    PAUDIOWAVFILEDATA pData = (PAUDIOWAVFILEDATA)pFile->pvData;
-    AssertPtr(pData);
+    if (pFile->enmType == PDMAUDIOFILETYPE_RAW)
+    {
+        cbSize = RTFileTell(pFile->hFile);
+    }
+    else if (pFile->enmType == PDMAUDIOFILETYPE_WAV)
+    {
+        PAUDIOWAVFILEDATA pData = (PAUDIOWAVFILEDATA)pFile->pvData;
+        if (pData) /* The .WAV file data only is valid when a file actually has been created. */
+            cbSize = pData->Hdr.u32Size2;
+    }
 
-    return pData->Hdr.u32Size2;
+    return cbSize;
+}
+
+/**
+ * Returns whether the given audio file is open and in use or not.
+ *
+ * @return  bool                True if open, false if not.
+ * @param   pFile               Audio file handle to check open status for.
+ */
+bool DrvAudioHlpFileIsOpen(PPDMAUDIOFILE pFile)
+{
+    if (!pFile)
+        return false;
+
+    return RTFileIsValid(pFile->hFile);
 }
 
 /**
@@ -1266,27 +1500,38 @@ size_t DrvAudioHlpWAVFileGetDataSize(PPDMAUDIOFILE pFile)
  * @param   cbBuf               Size (in bytes) of audio data to write.
  * @param   fFlags              Additional write flags. Not being used at the moment and must be 0.
  */
-int DrvAudioHlpWAVFileWrite(PPDMAUDIOFILE pFile, const void *pvBuf, size_t cbBuf, uint32_t fFlags)
+int DrvAudioHlpFileWrite(PPDMAUDIOFILE pFile, const void *pvBuf, size_t cbBuf, uint32_t fFlags)
 {
     AssertPtrReturn(pFile, VERR_INVALID_POINTER);
     AssertPtrReturn(pvBuf, VERR_INVALID_POINTER);
 
     AssertReturn(fFlags == 0, VERR_INVALID_PARAMETER); /** @todo fFlags are currently not implemented. */
 
-    Assert(pFile->enmType == PDMAUDIOFILETYPE_WAV);
-
     if (!cbBuf)
         return VINF_SUCCESS;
 
-    PAUDIOWAVFILEDATA pData = (PAUDIOWAVFILEDATA)pFile->pvData;
-    AssertPtr(pData);
+    AssertReturn(RTFileIsValid(pFile->hFile), VERR_WRONG_ORDER);
 
-    int rc = RTFileWrite(pFile->hFile, pvBuf, cbBuf, NULL);
-    if (RT_SUCCESS(rc))
+    int rc;
+
+    if (pFile->enmType == PDMAUDIOFILETYPE_RAW)
     {
-        pData->Hdr.u32Size  += (uint32_t)cbBuf;
-        pData->Hdr.u32Size2 += (uint32_t)cbBuf;
+        rc = RTFileWrite(pFile->hFile, pvBuf, cbBuf, NULL);
     }
+    else if (pFile->enmType == PDMAUDIOFILETYPE_WAV)
+    {
+        PAUDIOWAVFILEDATA pData = (PAUDIOWAVFILEDATA)pFile->pvData;
+        AssertPtr(pData);
+
+        rc = RTFileWrite(pFile->hFile, pvBuf, cbBuf, NULL);
+        if (RT_SUCCESS(rc))
+        {
+            pData->Hdr.u32Size  += (uint32_t)cbBuf;
+            pData->Hdr.u32Size2 += (uint32_t)cbBuf;
+        }
+    }
+    else
+        rc = VERR_NOT_SUPPORTED;
 
     return rc;
 }

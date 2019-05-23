@@ -40,14 +40,14 @@ int main(int argc, char **argv)
     for (int i = 1; i < argc; i++)
     {
         /* open */
-        PRTDIR pDir;
-        int rc = RTDirOpenFiltered(&pDir, argv[i], RTDIRFILTER_WINNT, 0);
+        RTDIR hDir;
+        int rc = RTDirOpenFiltered(&hDir, argv[i], RTDIRFILTER_WINNT, 0 /*fFlags*/);
         if (RT_SUCCESS(rc))
         {
             for (;;)
             {
                 RTDIRENTRY DirEntry;
-                rc = RTDirRead(pDir, &DirEntry, NULL);
+                rc = RTDirRead(hDir, &DirEntry, NULL);
                 if (RT_FAILURE(rc))
                     break;
                 switch (DirEntry.enmType)
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
             }
 
             /* close up */
-            rc = RTDirClose(pDir);
+            rc = RTDirClose(hDir);
             if (RT_FAILURE(rc))
             {
                 RTPrintf("tstDir-2: Failed to close dir! rc=%Rrc\n", rc);

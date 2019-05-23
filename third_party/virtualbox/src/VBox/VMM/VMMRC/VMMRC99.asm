@@ -3,6 +3,7 @@
 ; VMMRC99 - The last object module in the link.
 ;
 
+;
 ; Copyright (C) 2006-2017 Oracle Corporation
 ;
 ; This file is part of VirtualBox Open Source Edition (OSE), as

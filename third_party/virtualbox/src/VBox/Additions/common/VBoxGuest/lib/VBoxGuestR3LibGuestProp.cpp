@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2007-2016 Oracle Corporation
+ * Copyright (C) 2007-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -863,9 +863,9 @@ VBGLR3DECL(int) VbglR3GuestPropWait(HGCMCLIENTID idClient,
     VBGL_HGCM_HDR_INIT_TIMED(&Msg.hdr, idClient, GET_NOTIFICATION, 4, cMillies);
 
     VbglHGCMParmPtrSetString(&Msg.patterns, pszPatterns);
-    Msg.buffer.SetPtr(pvBuf, cbBuf);
-    Msg.timestamp.SetUInt64(u64Timestamp);
-    Msg.size.SetUInt32(0);
+    VbglHGCMParmPtrSet(&Msg.buffer, pvBuf, cbBuf);
+    VbglHGCMParmUInt64Set(&Msg.timestamp, u64Timestamp);
+    VbglHGCMParmUInt32Set(&Msg.size, 0);
 
     int rc = VbglR3HGCMCall(&Msg.hdr, sizeof(Msg));
 

@@ -426,6 +426,20 @@ RTDECL(char **) RTGetOptNonOptionArrayPtr(PRTGETOPTSTATE pState);
 RTDECL(RTEXITCODE) RTGetOptPrintError(int ch, PCRTGETOPTUNION pValueUnion);
 
 /**
+ * Formats error messages for a RTGetOpt default case.
+ *
+ * @returns On success, positive count of formatted character excluding the
+ *          terminator.  On buffer overflow, negative number giving the required
+ *          buffer size (including terminator char).  (RTStrPrintf2 style.)
+ *
+ * @param   pszBuf      The buffer to format into.
+ * @param   cbBuf       The size of the buffer @a pszBuf points to.
+ * @param   ch          The RTGetOpt return value.
+ * @param   pValueUnion The value union returned by RTGetOpt.
+ */
+RTDECL(ssize_t) RTGetOptFormatError(char *pszBuf, size_t cbBuf, int ch, PCRTGETOPTUNION pValueUnion);
+
+/**
  * Parses the @a pszCmdLine string into an argv array.
  *
  * This is useful for converting a response file or similar to an argument

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-  "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+  "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <appendix id="privacy">
   <title>Informations sur la confidentialité de VirtualBox</title>
 
@@ -11,7 +11,7 @@
    s'applique à vos données personnelles recueillies et utilisées par Oracle.
    Les informations suivantes décrivent en détails les informations qui sont
    échangées entre l'application VirtualBox et Oracle et celles recueillies par le site Internet virtualbox.org.</para>
-   
+
   <para><emphasis role="bold">Â§ 1 virtualbox.org.</emphasis> Le site Internet
   "virtualbox.org" enregistre les informations d'utilisation anonymes telles
   que votre adresse IP, votre situation géographique, votre navigateur, l'endroit

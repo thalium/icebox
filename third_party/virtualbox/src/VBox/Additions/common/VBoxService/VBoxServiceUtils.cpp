@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -42,7 +42,7 @@
  * @param   u32ClientId         The HGCM client ID for the guest property session.
  * @param   pszPropName         The property name.
  * @param   ppszValue           Where to return the value.  This is always set
- *                              to NULL.  Free it using RTStrFree().
+ *                              to NULL.  Free it using RTStrFree().  Optional.
  * @param   ppszFlags           Where to return the value flags. Free it
  *                              using RTStrFree().  Optional.
  * @param   puTimestamp         Where to return the timestamp.  This is only set
@@ -51,13 +51,13 @@
 int VGSvcReadProp(uint32_t u32ClientId, const char *pszPropName, char **ppszValue, char **ppszFlags, uint64_t *puTimestamp)
 {
     AssertPtrReturn(pszPropName, VERR_INVALID_POINTER);
-    AssertPtrReturn(ppszValue, VERR_INVALID_POINTER);
 
     uint32_t    cbBuf = _1K;
     void       *pvBuf = NULL;
     int         rc    = VINF_SUCCESS;  /* MSC can't figure out the loop */
 
-    *ppszValue = NULL;
+    if (ppszValue)
+        *ppszValue = NULL;
 
     for (unsigned cTries = 0; cTries < 10; cTries++)
     {
@@ -92,12 +92,15 @@ int VGSvcReadProp(uint32_t u32ClientId, const char *pszPropName, char **ppszValu
         }
 
         VGSvcVerbose(2, "Guest Property: Read '%s' = '%s', timestamp %RU64n\n", pszPropName, pszValue, uTimestamp);
-        *ppszValue = RTStrDup(pszValue);
-        if (!*ppszValue)
+        if (ppszValue)
         {
-            VGSvcError("Guest Property: RTStrDup failed for '%s'\n", pszValue);
-            rc = VERR_NO_MEMORY;
-            break;
+            *ppszValue = RTStrDup(pszValue);
+            if (!*ppszValue)
+            {
+                VGSvcError("Guest Property: RTStrDup failed for '%s'\n", pszValue);
+                rc = VERR_NO_MEMORY;
+                break;
+            }
         }
 
         if (puTimestamp)
@@ -138,6 +141,21 @@ int VGSvcReadPropUInt32(uint32_t u32ClientId, const char *pszPropName, uint32_t 
         RTStrFree(pszValue);
     }
     return rc;
+}
+
+/**
+ * Checks if @a pszPropName exists.
+ *
+ * @returns VBox status code.
+ * @retval  VINF_SUCCESS if it exists.
+ * @retval  VERR_NOT_FOUND if not found.
+ *
+ * @param   u32ClientId         The HGCM client ID for the guest property session.
+ * @param   pszPropName         The property name.
+ */
+int VGSvcCheckPropExist(uint32_t u32ClientId, const char *pszPropName)
+{
+    return VGSvcReadProp(u32ClientId, pszPropName, NULL /*ppszValue*/, NULL /* ppszFlags */, NULL /* puTimestamp */);
 }
 
 

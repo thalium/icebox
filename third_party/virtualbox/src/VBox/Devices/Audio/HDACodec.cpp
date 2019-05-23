@@ -2407,17 +2407,17 @@ static DECLCALLBACK(int) vrbProcSetStreamId(PHDACODEC pThis, uint32_t cmd, uint6
             /** @todo Check if non-interleaved streams need a different channel / SDn? */
 
             /* Propagate to the controller. */
-            pThis->pfnCbMixerSetStream(pThis->pHDAState, PDMAUDIOMIXERCTL_FRONT,      uSD, uChannel);
+            pThis->pfnCbMixerControl(pThis->pHDAState, PDMAUDIOMIXERCTL_FRONT,      uSD, uChannel);
 #ifdef VBOX_WITH_AUDIO_HDA_51_SURROUND
-            pThis->pfnCbMixerSetStream(pThis->pHDAState, PDMAUDIOMIXERCTL_CENTER_LFE, uSD, uChannel);
-            pThis->pfnCbMixerSetStream(pThis->pHDAState, PDMAUDIOMIXERCTL_REAR,       uSD, uChannel);
+            pThis->pfnCbMixerControl(pThis->pHDAState, PDMAUDIOMIXERCTL_CENTER_LFE, uSD, uChannel);
+            pThis->pfnCbMixerControl(pThis->pHDAState, PDMAUDIOMIXERCTL_REAR,       uSD, uChannel);
 #endif
         }
         else if (enmDir == PDMAUDIODIR_IN)
         {
-            pThis->pfnCbMixerSetStream(pThis->pHDAState, PDMAUDIOMIXERCTL_LINE_IN,    uSD, uChannel);
+            pThis->pfnCbMixerControl(pThis->pHDAState, PDMAUDIOMIXERCTL_LINE_IN,    uSD, uChannel);
 #ifdef VBOX_WITH_AUDIO_HDA_MIC_IN
-            pThis->pfnCbMixerSetStream(pThis->pHDAState, PDMAUDIOMIXERCTL_MIC_IN,     uSD, uChannel);
+            pThis->pfnCbMixerControl(pThis->pHDAState, PDMAUDIOMIXERCTL_MIC_IN,     uSD, uChannel);
 #endif
         }
     }
@@ -3282,81 +3282,6 @@ int hdaCodecConstruct(PPDMDEVINS pDevIns, PHDACODEC pThis,
     pThis->paNodes[STAC9220_NID_AFG].afg.node.au32F00_param[0x5] = CODEC_MAKE_F00_05(1, CODEC_F00_05_AFG);
     pThis->paNodes[STAC9220_NID_AFG].afg.node.au32F00_param[0xA] = CODEC_F00_0A_44_1KHZ | CODEC_F00_0A_16_BIT;
     pThis->paNodes[STAC9220_NID_AFG].afg.u32F20_param = CODEC_MAKE_F20(pThis->u16VendorId, pThis->u8BSKU, pThis->u8AssemblyId);
-
-    do
-    {
-        /* Initialize the streams to some default values (44.1 kHz, 16-bit signed, 2 channels).
-         * The codec's (fixed) delivery rate is 48kHz, so a frame will be delivered every 20.83us. */
-        PDMAUDIOSTREAMCFG strmCfg;
-        RT_ZERO(strmCfg);
-
-        /* Note: Adding the default input/output streams is *not* critical for the overall
-         *       codec construction result. */
-
-        /*
-         * Output streams.
-         */
-        strmCfg.enmDir    = PDMAUDIODIR_OUT;
-        strmCfg.enmLayout = PDMAUDIOSTREAMLAYOUT_NON_INTERLEAVED;
-
-        strmCfg.Props.cBits     = 16;
-        strmCfg.Props.fSigned   = true;
-        strmCfg.Props.cChannels = 2;
-        strmCfg.Props.uHz       = 44100;
-        strmCfg.Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(strmCfg.Props.cBits, strmCfg.Props.cChannels);
-
-        /* Front. */
-        RTStrPrintf(strmCfg.szName, RT_ELEMENTS(strmCfg.szName), "Front");
-        strmCfg.DestSource.Dest = PDMAUDIOPLAYBACKDEST_FRONT;
-        int rc2 = hdaCodecAddStream(pThis, PDMAUDIOMIXERCTL_FRONT, &strmCfg);
-        if (RT_FAILURE(rc2))
-            LogRel2(("HDA: Failed to add front output stream: %Rrc\n", rc2));
-
-#ifdef VBOX_WITH_AUDIO_HDA_51_SURROUND
-        /* Center / LFE. */
-        RTStrPrintf(strmCfg.szName, RT_ELEMENTS(strmCfg.szName), "Center / LFE");
-        strmCfg.DestSource.Dest = PDMAUDIOPLAYBACKDEST_CENTER_LFE;
-        /** @todo Handle mono channel if only center *or* LFE is available? */
-        rc2 = hdaCodecAddStream(pThis, PDMAUDIOMIXERCTL_CENTER_LFE, &strmCfg);
-        if (RT_FAILURE(rc2))
-            LogRel2(("HDA: Failed to add center/LFE output stream: %Rrc\n", rc2));
-
-        /* Rear. */
-        RTStrPrintf(strmCfg.szName, RT_ELEMENTS(strmCfg.szName), "Rear");
-        strmCfg.DestSource.Dest = PDMAUDIOPLAYBACKDEST_REAR;
-        rc2 = hdaCodecAddStream(pThis, PDMAUDIOMIXERCTL_REAR, &strmCfg);
-        if (RT_FAILURE(rc2))
-            LogRel2(("HDA: Failed to add rear output stream: %Rrc\n", rc2));
-#endif
-
-        /*
-         * Input streams.
-         */
-        RT_ZERO(strmCfg);
-
-        strmCfg.enmDir    = PDMAUDIODIR_IN;
-        strmCfg.enmLayout = PDMAUDIOSTREAMLAYOUT_NON_INTERLEAVED;
-
-        strmCfg.Props.cBits     = 16;
-        strmCfg.Props.fSigned   = true;
-        strmCfg.Props.cChannels = 2;
-        strmCfg.Props.uHz       = 44100;
-        strmCfg.Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(strmCfg.Props.cBits, strmCfg.Props.cChannels);
-
-#ifdef VBOX_WITH_AUDIO_HDA_MIC_IN
-        RTStrPrintf(strmCfg.szName, RT_ELEMENTS(strmCfg.szName), "Microphone In");
-        strmCfg.DestSource.Source = PDMAUDIORECSOURCE_MIC;
-        rc2 = hdaCodecAddStream(pThis, PDMAUDIOMIXERCTL_MIC_IN, &strmCfg);
-        if (RT_FAILURE(rc2))
-            LogRel2(("HDA: Failed to add microphone input stream: %Rrc\n", rc2));
-#endif
-        RTStrPrintf(strmCfg.szName, RT_ELEMENTS(strmCfg.szName), "Line In");
-        strmCfg.DestSource.Source = PDMAUDIORECSOURCE_LINE;
-        rc2 = hdaCodecAddStream(pThis, PDMAUDIOMIXERCTL_LINE_IN, &strmCfg);
-        if (RT_FAILURE(rc2))
-            LogRel2(("HDA: Failed to add line input stream: %Rrc\n", rc2));
-
-    } while (0);
 
     /*
      * Set initial volume.

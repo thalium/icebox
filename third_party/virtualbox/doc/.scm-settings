@@ -1,0 +1,39 @@
+# $Id: .scm-settings $
+## @file
+# Source code massager settings for the docs.
+#
+
+#
+# Copyright (C) 2010-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+/*.html: --treat-as plaintext
+/*.rtf:  --treat-as binary
+/*.doc:  --treat-as binary
+/*.odt:  --treat-as binary
+/*.ods:  --treat-as binary
+/*.odg:  --treat-as binary
+/*.sxi:  --treat-as binary
+/*.vpp:  --treat-as binary
+
+# Abusing --external-copyright.
+/*.txvpck:                      --treat-as xml --external-copyright --no-convert-eol
+/*.txvStateDiagram20:           --treat-as xml --external-copyright --no-convert-eol
+/*.txvComponentDiagram20:       --treat-as xml --external-copyright --no-convert-eol
+/*.xmi:                         --treat-as xml --external-copyright --no-convert-eol
+/*.tpx:                         --treat-as xml --external-copyright --no-convert-eol
+/*.graphml:                     --treat-as xml --external-copyright --no-convert-eol
+
+/*.iuml:                 --treat-as plaintext --add-action copyright-tick-style
+/Changelog.2*:           --treat-as plaintext
+
+--filter-out-files /Qt/qt4.darwin.patch
+

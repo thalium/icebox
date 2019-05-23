@@ -14,6 +14,15 @@
 # VirtualBox OSE distribution. VirtualBox OSE is distributed in the
 # hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
 #
+# The contents of this file may alternatively be used under the terms
+# of the Common Development and Distribution License Version 1.0
+# (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+# VirtualBox OSE distribution, in which case the provisions of the
+# CDDL are applicable instead of those of the GPL.
+#
+# You may elect to license modified versions of this file under the
+# terms and conditions of either the GPL or the CDDL or both.
+#
 
 SUB_DEPTH = ../../..
 include $(KBUILD_PATH)/subheader.kmk
@@ -66,26 +75,12 @@ if   defined(VBOX_WITH_TESTCASES) \
  && !defined(VBOX_WITHOUT_LINUX_TEST_BUILDS) \
  && "$(KBUILD_TARGET)" == "linux" \
  && "$(KBUILD_HOST_ARCH)" == "$(KBUILD_TARGET_ARCH)"
- VBOX_LNX_MOD_TEST        = $(PATH_TARGET)/tsthost_mod
- VBOX_LNX_MOD_TEST_TARGET = $(PATH_TARGET)/tsthost_mod.run
- TESTING     += $(VBOX_LNX_MOD_TEST_TARGET)
- OTHERS      += $(VBOX_LNX_MOD_TEST_TARGET)
- OTHER_CLEAN += $(VBOX_LNX_MOD_TEST_TARGET)
- $$(VBOX_LNX_MOD_TEST_TARGET): \
- 		$$(vboxdrv-mod_2_STAGE_TARGETS) \
- 		$$(VBoxNetFlt-src_2_STAGE_TARGETS) \
- 		$$(VBoxNetAdp-src_2_STAGE_TARGETS) \
- 		$$(VBoxPci-src_2_STAGE_TARGETS) \
-		$$(HostDrivers-scripts_2_STAGE_TARGETS)
-	$(QUIET)$(call MSG_L1,Doing a test build of the host kernel modules)
-	$(QUIET)$(RM) -f -- "$@"
-	$(QUIET)$(RM) -Rf -- "$(VBOX_LNX_MOD_TEST)"
-	$(QUIET)$(MKDIR) -p -- "$(VBOX_LNX_MOD_TEST)"
-	$(QUIET)$(CP) -R -- "$(PATH_STAGE_BIN)/src/" "$(VBOX_LNX_MOD_TEST)/"
-	+ $(QUIET)make -C $(VBOX_LNX_MOD_TEST) clean
-	+ $(QUIET)make -C $(VBOX_LNX_MOD_TEST)
-	$(QUIET)$(RM) -Rf -- $(VBOX_LNX_MOD_TEST)
-	$(QUIET)$(APPEND) -t "$@" "done"
+
+ ifneq ($(KERN_DIR),)
+  $(foreach module, vboxdrv-src $(if $(VBOX_WITH_NETFLT),VBoxNetFlt-src) \
+   $(if $(VBOX_WITH_NETADP),VBoxNetAdp-src) $(if $(VBOX_WITH_PCI_PASSTHROUGH),VBoxPci-src), \
+   $(eval $(VBOX_LINUX_GENERATE_KMOD_TEST)))
+ endif
 
 endif
 

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2005-2016 Oracle Corporation
+ * Copyright (C) 2005-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -140,10 +140,8 @@ int VBoxLogRelCreate(const char *pcszEntity, const char *pcszLogFile,
                      const char *pcszEnvVarBase, uint32_t fDestFlags,
                      uint32_t cMaxEntriesPerGroup, uint32_t cHistory,
                      uint32_t uHistoryFileTime, uint64_t uHistoryFileSize,
-                     char *pszError, size_t cbError)
+                     PRTERRINFO pErrInfo)
 {
-    Assert(cbError >= RTPATH_MAX + 128);
-
     /* create release logger */
     PRTLOGGER pReleaseLogger;
     static const char * const s_apszGroups[] = VBOX_LOGGROUP_NAMES;
@@ -154,8 +152,7 @@ int VBoxLogRelCreate(const char *pcszEntity, const char *pcszLogFile,
     int vrc = RTLogCreateEx(&pReleaseLogger, fFlags, pcszGroupSettings,
                             pcszEnvVarBase, RT_ELEMENTS(s_apszGroups), s_apszGroups, fDestFlags,
                             vboxHeaderFooter, cHistory, uHistoryFileSize, uHistoryFileTime,
-                            pszError, cbError,
-                            pcszLogFile ? "%s" : NULL, pcszLogFile);
+                            pErrInfo, pcszLogFile ? "%s" : NULL, pcszLogFile);
     if (RT_SUCCESS(vrc))
     {
         /* make sure that we don't flood logfiles */

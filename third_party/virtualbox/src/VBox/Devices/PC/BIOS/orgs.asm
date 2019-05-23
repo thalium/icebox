@@ -1,42 +1,46 @@
-;;
-;; Copyright (C) 2006-2017 Oracle Corporation
-;;
-;; This file is part of VirtualBox Open Source Edition (OSE), as
-;; available from http://www.virtualbox.org. This file is free software;
-;; you can redistribute it and/or modify it under the terms of the GNU
-;; General Public License (GPL) as published by the Free Software
-;; Foundation, in version 2 as it comes in the "COPYING" file of the
-;; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
-;; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
-;; --------------------------------------------------------------------
-;;
-;; This code is based on:
-;;
-;;  ROM BIOS for use with Bochs/Plex86/QEMU emulation environment
-;;
-;;  Copyright (C) 2002  MandrakeSoft S.A.
-;;
-;;    MandrakeSoft S.A.
-;;    43, rue d'Aboukir
-;;    75002 Paris - France
-;;    http://www.linux-mandrake.com/
-;;    http://www.mandrakesoft.com/
-;;
-;;  This library is free software; you can redistribute it and/or
-;;  modify it under the terms of the GNU Lesser General Public
-;;  License as published by the Free Software Foundation; either
-;;  version 2 of the License, or (at your option) any later version.
-;;
-;;  This library is distributed in the hope that it will be useful,
-;;  but WITHOUT ANY WARRANTY; without even the implied warranty of
-;;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-;;  Lesser General Public License for more details.
-;;
-;;  You should have received a copy of the GNU Lesser General Public
-;;  License along with this library; if not, write to the Free Software
-;;  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
-;;
-;;
+; $Id: orgs.asm $
+;; @file
+; ???
+;
+
+;
+; Copyright (C) 2006-2017 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+; --------------------------------------------------------------------
+;
+; This code is based on:
+;
+;  ROM BIOS for use with Bochs/Plex86/QEMU emulation environment
+;
+;  Copyright (C) 2002  MandrakeSoft S.A.
+;
+;    MandrakeSoft S.A.
+;    43, rue d'Aboukir
+;    75002 Paris - France
+;    http://www.linux-mandrake.com/
+;    http://www.mandrakesoft.com/
+;
+;  This library is free software; you can redistribute it and/or
+;  modify it under the terms of the GNU Lesser General Public
+;  License as published by the Free Software Foundation; either
+;  version 2 of the License, or (at your option) any later version.
+;
+;  This library is distributed in the hope that it will be useful,
+;  but WITHOUT ANY WARRANTY; without even the implied warranty of
+;  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;  Lesser General Public License for more details.
+;
+;  You should have received a copy of the GNU Lesser General Public
+;  License along with this library; if not, write to the Free Software
+;  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
+;
 
 ; Oracle LGPL Disclaimer: For the avoidance of doubt, except that if any license choice
 ; other than GPL or LGPL is available it will apply instead, Oracle elects to use only
@@ -278,8 +282,8 @@ reset_sys:
                 mov     al, 1
                 out     92h, al
                 jmp     $               ; not strictly necessary in a VM
-                
-                
+
+
 in_real_mode:
                 ;; read the CMOS shutdown status
                 mov     al, 0Fh
@@ -322,7 +326,7 @@ cont_post:
                 jz      check_shutdown
                 cmp     al, 0Ah
                 jz      check_shutdown
-                
+
                 xor     al, al
 
                 ;; reset the DMA controllers
@@ -346,7 +350,7 @@ check_shutdown:
                 cmp     al, 9
                 jne     check_next_std
                 jmp     return_blkmove
-check_next_std:         
+check_next_std:
 
                 ;; 05h = EOI + jump through 40:67
                 cmp     al, 5
@@ -425,7 +429,7 @@ endif
                 mov     bx, 68h * 4
                 mov     cx, 10h
                 call    set_int_vects
-                
+
                 ;; base memory in K to 40:13
                 mov     ax, BASE_MEM_IN_K
                 mov     ds:[413h], ax
@@ -637,7 +641,7 @@ endif
                 mov     ax, 0C800h
                 mov     dx, 0F000h
                 call    rom_scan_
-                
+
 if VBOX_BIOS_CPU ge 80386
                 ;; The POST code does not bother preserving high bits of the
                 ;; 32-bit registers. Now is a good time to clear them so that
@@ -651,7 +655,7 @@ if VBOX_BIOS_CPU ge 80386
 endif
 
                 call    _print_bios_banner
-                
+
                 ;; El Torito floppy/hard disk emulation
                 call    _cdemu_init
 
@@ -665,7 +669,7 @@ wait_forever:
                 jmp     wait_forever
                 cli
                 hlt
-                
+
 
 ;;
 ;; Return from block move (shutdown code 09h). Care must be taken to disturb
@@ -1697,7 +1701,7 @@ int15_handler:
 if VBOX_BIOS_CPU ge 80286
                 cmp     ah, 87h
                 jne     not_blkmove
-                
+
                 ;; INT 15h/87h has semi-public interface because software
                 ;; may use CMOS shutdown status code 9 for its own purposes.
                 ;; The stack layout has to match.

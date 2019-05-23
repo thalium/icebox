@@ -691,6 +691,12 @@ void STATE_APIENTRY crStateProgramParameters4dvNV(GLenum target, GLuint index,
     }
 
     if (target == GL_VERTEX_PROGRAM_NV) {
+        if (index >= UINT32_MAX - num) {
+            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+                "glProgramParameters4dvNV(index+num) integer overflow");
+            return;
+        }
+
         if (index + num < g->limits.maxVertexProgramEnvParams) {
             GLuint i;
             for (i = 0; i < num; i++) {
@@ -731,6 +737,12 @@ void STATE_APIENTRY crStateProgramParameters4fvNV(GLenum target, GLuint index,
     }
 
     if (target == GL_VERTEX_PROGRAM_NV) {
+        if (index >= UINT32_MAX - num) {
+            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+                "glProgramParameters4dvNV(index+num) integer overflow");
+            return;
+        }
+
         if (index + num < g->limits.maxVertexProgramEnvParams) {
             GLuint i;
             for (i = 0; i < num; i++) {
@@ -849,13 +861,12 @@ void STATE_APIENTRY crStateTrackMatrixNV(GLenum target, GLuint address,
                                  "glGetTrackMatrixivNV called in Begin/End");
         return;
     }
-    
+
     if (target == GL_VERTEX_PROGRAM_NV) {
-        if (address & 0x3) {
-      /* addr must be multiple of four */
-      crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
+        if (address & 0x3 || address >= g->limits.maxVertexProgramEnvParams) {
+            crStateError(__LINE__, __FILE__, GL_INVALID_VALUE,
                                      "glTrackMatrixNV(address)");
-      return;
+            return;
         }
 
         switch (matrix) {
@@ -2305,7 +2316,7 @@ crStateProgramSwitch(CRProgramBits *b, CRbitvalue *bitID,
     }
 }
 
-/*@todo support NVprograms and add some data validity checks*/
+/** @todo support NVprograms and add some data validity checks*/
 static void
 DiffProgramCallback(unsigned long key, void *pProg, void *pCtx)
 {

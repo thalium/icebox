@@ -1,5 +1,10 @@
+# $Id: Makefile.webtest $
+## @files
+# ???
 #
-# Copyright (C) 2016 Oracle Corporation
+
+#
+# Copyright (C) 2016-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -55,7 +60,7 @@ stdsoap2.o: $(PATH_GSOAP)/stdsoap2.cpp
 gsoapH_from_xslt.h:
 	$(XSLTPROC) -o $@ $(WEBSRVWSDL2GSOAPH) $(VBOXWEBWSDL)
 
-vboxwebsrv.nsmap: 
+vboxwebsrv.nsmap:
 	$(XSLTPROC) -o $@ $(WEBSRVNSMAPXSL) $(VBOXWEBIDLSRC)
 
 $(subst soapC,%,$(SOAPCCPP)): split-soapC %.cpp
@@ -76,3 +81,4 @@ clean:
 	rm -f soapClient.o stdsoap2.o
 	rm -f webtest.o webtest
 	rm -f soapC-split-done
+

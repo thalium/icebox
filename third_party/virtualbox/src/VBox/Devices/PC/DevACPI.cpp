@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -41,7 +41,6 @@
 #ifdef LOG_ENABLED
 # define DEBUG_ACPI
 #endif
-
 
 
 /*********************************************************************************************************************************
@@ -2546,6 +2545,8 @@ static DECLCALLBACK(int) acpiR3LoadState(PPDMDEVINS pDevIns, PSSMHANDLE pSSM, ui
     }
     if (RT_SUCCESS(rc))
     {
+        AssertLogRelMsgReturn(pThis->u8SMBusBlkIdx < RT_ELEMENTS(pThis->au8SMBusBlkDat),
+                              ("%#x\n", pThis->u8SMBusBlkIdx), VERR_SSM_LOAD_CONFIG_MISMATCH);
         rc = acpiR3RegisterPmHandlers(pThis);
         if (RT_FAILURE(rc))
             return rc;
@@ -3535,6 +3536,7 @@ static DECLCALLBACK(void) acpiR3Relocate(PPDMDEVINS pDevIns, RTGCINTPTR offDelta
  */
 static DECLCALLBACK(int) acpiR3Destruct(PPDMDEVINS pDevIns)
 {
+    PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
     ACPIState *pThis = PDMINS_2_DATA(pDevIns, ACPIState *);
     if (pThis->pu8CustBin)
     {
@@ -3549,8 +3551,8 @@ static DECLCALLBACK(int) acpiR3Destruct(PPDMDEVINS pDevIns)
  */
 static DECLCALLBACK(int) acpiR3Construct(PPDMDEVINS pDevIns, int iInstance, PCFGMNODE pCfg)
 {
-    ACPIState *pThis = PDMINS_2_DATA(pDevIns, ACPIState *);
     PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
+    ACPIState *pThis = PDMINS_2_DATA(pDevIns, ACPIState *);
 
     /*
      * Init data and set defaults.

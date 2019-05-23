@@ -1,10 +1,10 @@
-/* $Id:  $ */
+/* $Id: VBoxDisplay.h $ */
 /** @file
  * VBoxSeamless - Display notifications
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -32,4 +32,4 @@ static bool isVBoxDisplayDriverActive(void);
  * so it is moved to VBoxDisplay.cpp */
 #endif
 
-#endif /* __VBOXSERVICEDISPLAY__H */
+#endif /* !__VBOXSERVICEDISPLAY__H */

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1308,12 +1308,11 @@ static DECLCALLBACK(void) hpetR3Reset(PPDMDEVINS pDevIns)
  */
 static DECLCALLBACK(int) hpetR3Construct(PPDMDEVINS pDevIns, int iInstance, PCFGMNODE pCfg)
 {
-    RT_NOREF(iInstance);
     PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
-    HPET   *pThis = PDMINS_2_DATA(pDevIns, HPET *);
+    HPET *pThis = PDMINS_2_DATA(pDevIns, HPET *);
 
     /* Only one HPET device now, as we use fixed MMIO region. */
-    Assert(iInstance == 0);
+    Assert(iInstance == 0); RT_NOREF(iInstance);
 
     /*
      * Initialize the device state.

@@ -796,7 +796,7 @@ RTDECL(int) RTPipeWrite(RTPIPE hPipe, const void *pvBuf, size_t cbToWrite, size_
                     if (WriteFile(pThis->hPipe, pThis->pbBounceBuf, (DWORD)pThis->cbBounceBufUsed,
                                   &cbWritten, &pThis->Overlapped))
                     {
-                        *pcbWritten = cbWritten;
+                        *pcbWritten = RT_MIN(cbWritten, cbToWrite); /* paranoia^3 */
                         rc = VINF_SUCCESS;
                     }
                     else if (GetLastError() == ERROR_IO_PENDING)
@@ -878,9 +878,8 @@ RTDECL(int) RTPipeWriteBlocking(RTPIPE hPipe, const void *pvBuf, size_t cbToWrit
                     RTCritSectLeave(&pThis->CritSect);
 
                     DWORD cbWritten = 0;
-                    if (WriteFile(pThis->hPipe, pvBuf,
-                                  cbToWrite <= ~(DWORD)0 ? (DWORD)cbToWrite : ~(DWORD)0,
-                                  &cbWritten, &pThis->Overlapped))
+                    DWORD const cbToWriteInThisIteration = cbToWrite <= ~(DWORD)0 ? (DWORD)cbToWrite : ~(DWORD)0;
+                    if (WriteFile(pThis->hPipe, pvBuf, cbToWriteInThisIteration, &cbWritten, &pThis->Overlapped))
                         rc = VINF_SUCCESS;
                     else if (GetLastError() == ERROR_IO_PENDING)
                     {
@@ -901,6 +900,8 @@ RTDECL(int) RTPipeWriteBlocking(RTPIPE hPipe, const void *pvBuf, size_t cbToWrit
                         break;
 
                     /* advance */
+                    if (cbWritten > cbToWriteInThisIteration) /* paranoia^3 */
+                        cbWritten = cbToWriteInThisIteration;
                     pvBuf           = (char const *)pvBuf + cbWritten;
                     cbTotalWritten += cbWritten;
                     cbToWrite      -= cbWritten;

@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2017 Oracle Corporation
+ * Copyright (C) 2017-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -42,6 +42,9 @@ VBoxMMNotificationClient::~VBoxMMNotificationClient(void)
 {
 }
 
+/**
+ * Uninitializes the mulitmedia notification client implementation.
+ */
 void VBoxMMNotificationClient::Dispose(void)
 {
     DetachFromEndpoint();
@@ -54,6 +57,11 @@ void VBoxMMNotificationClient::Dispose(void)
     }
 }
 
+/**
+ * Initializes the mulitmedia notification client implementation.
+ *
+ * @return  HRESULT
+ */
 HRESULT VBoxMMNotificationClient::Initialize(void)
 {
     HRESULT hr = CoCreateInstance(__uuidof(MMDeviceEnumerator), 0, CLSCTX_ALL, __uuidof(IMMDeviceEnumerator),
@@ -63,6 +71,8 @@ HRESULT VBoxMMNotificationClient::Initialize(void)
         hr = m_pEnum->RegisterEndpointNotificationCallback(this);
         if (SUCCEEDED(hr))
         {
+            m_fRegisteredClient = true;
+
             hr = AttachToDefaultEndpoint();
         }
     }
@@ -71,6 +81,13 @@ HRESULT VBoxMMNotificationClient::Initialize(void)
     return hr;
 }
 
+/**
+ * Registration callback implementation for storing our (required) contexts.
+ *
+ * @return  IPRT status code.
+ * @param   pDrvIns             Driver instance to register the notification client to.
+ * @param   pfnCallback         Audio callback to call by the notification client in case of new events.
+ */
 int VBoxMMNotificationClient::RegisterCallback(PPDMDRVINS pDrvIns, PFNPDMHOSTAUDIOCALLBACK pfnCallback)
 {
     this->m_pDrvIns     = pDrvIns;
@@ -79,22 +96,42 @@ int VBoxMMNotificationClient::RegisterCallback(PPDMDRVINS pDrvIns, PFNPDMHOSTAUD
     return VINF_SUCCESS;
 }
 
+/**
+ * Unregistration callback implementation for cleaning up our mess when we're done handling
+ * with notifications.
+ */
 void VBoxMMNotificationClient::UnregisterCallback(void)
 {
     this->m_pDrvIns     = NULL;
     this->m_pfnCallback = NULL;
 }
 
+/**
+ * Stub being called when attaching to the default audio endpoint.
+ * Does nothing at the moment.
+ */
 HRESULT VBoxMMNotificationClient::AttachToDefaultEndpoint(void)
 {
     return S_OK;
 }
 
+/**
+ * Stub being called when detaching from the default audio endpoint.
+ * Does nothing at the moment.
+ */
 void VBoxMMNotificationClient::DetachFromEndpoint(void)
 {
 
 }
 
+/**
+ * Handler implementation which is called when an audio device state
+ * has been changed.
+ *
+ * @return  HRESULT
+ * @param   pwstrDeviceId       Device ID the state is announced for.
+ * @param   dwNewState          New state the device is now in.
+ */
 STDMETHODIMP VBoxMMNotificationClient::OnDeviceStateChanged(LPCWSTR pwstrDeviceId, DWORD dwNewState)
 {
     char *pszState = "unknown";
@@ -130,6 +167,12 @@ STDMETHODIMP VBoxMMNotificationClient::OnDeviceStateChanged(LPCWSTR pwstrDeviceI
     return S_OK;
 }
 
+/**
+ * Handler implementation which is called when a new audio device has been added.
+ *
+ * @return  HRESULT
+ * @param   pwstrDeviceId       Device ID which has been added.
+ */
 STDMETHODIMP VBoxMMNotificationClient::OnDeviceAdded(LPCWSTR pwstrDeviceId)
 {
     RT_NOREF(pwstrDeviceId);
@@ -137,6 +180,12 @@ STDMETHODIMP VBoxMMNotificationClient::OnDeviceAdded(LPCWSTR pwstrDeviceId)
     return S_OK;
 }
 
+/**
+ * Handler implementation which is called when an audio device has been removed.
+ *
+ * @return  HRESULT
+ * @param   pwstrDeviceId       Device ID which has been removed.
+ */
 STDMETHODIMP VBoxMMNotificationClient::OnDeviceRemoved(LPCWSTR pwstrDeviceId)
 {
     RT_NOREF(pwstrDeviceId);
@@ -144,6 +193,15 @@ STDMETHODIMP VBoxMMNotificationClient::OnDeviceRemoved(LPCWSTR pwstrDeviceId)
     return S_OK;
 }
 
+/**
+ * Handler implementation which is called when the device audio device has been
+ * changed.
+ *
+ * @return  HRESULT
+ * @param   eFlow                     Flow direction of the new default device.
+ * @param   eRole                     Role of the new default device.
+ * @param   pwstrDefaultDeviceId      ID of the new default device.
+ */
 STDMETHODIMP VBoxMMNotificationClient::OnDefaultDeviceChanged(EDataFlow eFlow, ERole eRole, LPCWSTR pwstrDefaultDeviceId)
 {
     RT_NOREF(eFlow, eRole, pwstrDefaultDeviceId);

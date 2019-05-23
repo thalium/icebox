@@ -48,6 +48,12 @@ RT_C_DECLS_END
 # include <stdio.h> /* for printf */
 #endif
 
+#if !defined(IN_RING0) && !defined(DOXYGEN_RUNNING) /* A linking tweak for the testcase: */
+# include <iprt/cdefs.h>
+# undef  RTR0DECL
+# define RTR0DECL(type) DECLHIDDEN(type) RTCALL
+#endif
+
 #include "internal/iprt.h"
 #include <iprt/dbg.h>
 
@@ -116,6 +122,10 @@ RT_C_DECLS_END
 /** @} */
 
 #define VERR_LDR_UNEXPECTED     (-641)
+
+#ifndef RT_OS_DARWIN
+# define MAC_OS_X_VERSION_MIN_REQUIRED 1050
+#endif
 
 
 /*********************************************************************************************************************************
@@ -562,8 +572,9 @@ static int rtR0DbgKrnlDarwinCheckStandardSymbols(RTDBGKRNLINFOINT *pThis)
  *
  * @returns IPRT status code.
  * @param   pThis               The internal scratch data.
+ * @param   pszKernelFile       The name of the kernel file.
  */
-static int rtR0DbgKrnlDarwinLoadSymTab(RTDBGKRNLINFOINT *pThis)
+static int rtR0DbgKrnlDarwinLoadSymTab(RTDBGKRNLINFOINT *pThis, const char *pszKernelFile)
 {
     /*
      * Load the tables.
@@ -601,7 +612,11 @@ static int rtR0DbgKrnlDarwinLoadSymTab(RTDBGKRNLINFOINT *pThis)
     for (uint32_t iSym = 0; iSym < cSyms; iSym++, pSym++)
     {
         if ((uint32_t)pSym->n_un.n_strx >= pThis->cbStrTab)
+        {
+            printf("RTR0DbgKrnlInfoOpen: %s: Symbol #%u has a bad string table index: %#x vs cbStrTab=%#x\n",
+                   pszKernelFile, iSym, pSym->n_un.n_strx, pThis->cbStrTab);
             RETURN_VERR_BAD_EXE_FORMAT;
+        }
         const char *pszSym = &pThis->pachStrTab[(uint32_t)pSym->n_un.n_strx];
 #ifdef IN_RING3
         RTAssertMsg2("%05i: %02x:%08llx %02x %04x %s\n", iSym, pSym->n_sect, (uint64_t)pSym->n_value, pSym->n_type, pSym->n_desc, pszSym);
@@ -616,42 +631,76 @@ static int rtR0DbgKrnlDarwinLoadSymTab(RTDBGKRNLINFOINT *pThis)
             {
                 case MACHO_N_SECT:
                     if (pSym->n_sect == MACHO_NO_SECT)
+                    {
+                        printf("RTR0DbgKrnlInfoOpen: %s: Symbol #%u '%s' problem: n_sect = MACHO_NO_SECT\n",
+                               pszKernelFile, iSym, pszSym);
                         RETURN_VERR_BAD_EXE_FORMAT;
+                    }
                     if (pSym->n_sect > pThis->cSections)
+                    {
+                        printf("RTR0DbgKrnlInfoOpen: %s: Symbol #%u '%s' problem: n_sect (%u) is higher than cSections (%u)\n",
+                               pszKernelFile, iSym, pszSym, pSym->n_sect, pThis->cSections);
                         RETURN_VERR_BAD_EXE_FORMAT;
-                    if (pSym->n_desc & ~(REFERENCED_DYNAMICALLY))
+                    }
+                    if (pSym->n_desc & ~(REFERENCED_DYNAMICALLY | N_WEAK_DEF))
+                    {
+                        printf("RTR0DbgKrnlInfoOpen: %s: Symbol #%u '%s' problem: Unexpected value n_desc=%#x\n",
+                               pszKernelFile, iSym, pszSym, pSym->n_desc);
                         RETURN_VERR_BAD_EXE_FORMAT;
+                    }
                     if (   pSym->n_value < pThis->apSections[pSym->n_sect - 1]->addr
                         && strcmp(pszSym, "__mh_execute_header"))    /* in 10.8 it's no longer absolute (PIE?). */
+                    {
+                        printf("RTR0DbgKrnlInfoOpen: %s: Symbol #%u '%s' problem: n_value (%#llx) < section addr (%#llx)\n",
+                               pszKernelFile, iSym, pszSym, pSym->n_value, pThis->apSections[pSym->n_sect - 1]->addr);
                         RETURN_VERR_BAD_EXE_FORMAT;
+                    }
                     if (      pSym->n_value - pThis->apSections[pSym->n_sect - 1]->addr
                            > pThis->apSections[pSym->n_sect - 1]->size
                         && strcmp(pszSym, "__mh_execute_header"))    /* see above. */
+                    {
+                        printf("RTR0DbgKrnlInfoOpen: %s: Symbol #%u '%s' problem: n_value (%#llx) >= end of section (%#llx + %#llx)\n",
+                               pszKernelFile, iSym, pszSym, pSym->n_value, pThis->apSections[pSym->n_sect - 1]->addr,
+                               pThis->apSections[pSym->n_sect - 1]->size);
                         RETURN_VERR_BAD_EXE_FORMAT;
+                    }
                     break;
 
                 case MACHO_N_ABS:
                     if (   pSym->n_sect != MACHO_NO_SECT
                         && (   strcmp(pszSym, "__mh_execute_header") /* n_sect=1 in 10.7/amd64 */
                             || pSym->n_sect > pThis->cSections) )
+                    {
+                        printf("RTR0DbgKrnlInfoOpen: %s: Abs symbol #%u '%s' problem: n_sect (%u) is not MACHO_NO_SECT (cSections is %u)\n",
+                               pszKernelFile, iSym, pszSym, pSym->n_sect, pThis->cSections);
                         RETURN_VERR_BAD_EXE_FORMAT;
-                    if (pSym->n_desc & ~(REFERENCED_DYNAMICALLY))
+                    }
+                    if (pSym->n_desc & ~(REFERENCED_DYNAMICALLY | N_WEAK_DEF))
+                    {
+                        printf("RTR0DbgKrnlInfoOpen: %s: Abs symbol #%u '%s' problem: Unexpected value n_desc=%#x\n",
+                               pszKernelFile, iSym, pszSym, pSym->n_desc);
                         RETURN_VERR_BAD_EXE_FORMAT;
+                    }
                     break;
 
                 case MACHO_N_UNDF:
                     /* No undefined or common symbols in the kernel. */
+                    printf("RTR0DbgKrnlInfoOpen: %s: Unexpected undefined symbol #%u '%s'\n", pszKernelFile, iSym, pszSym);
                     RETURN_VERR_BAD_EXE_FORMAT;
 
                 case MACHO_N_INDR:
                     /* No indirect symbols in the kernel. */
+                    printf("RTR0DbgKrnlInfoOpen: %s: Unexpected indirect symbol #%u '%s'\n", pszKernelFile, iSym, pszSym);
                     RETURN_VERR_BAD_EXE_FORMAT;
 
                 case MACHO_N_PBUD:
                     /* No prebound symbols in the kernel. */
+                    printf("RTR0DbgKrnlInfoOpen: %s: Unexpected prebound symbol #%u '%s'\n", pszKernelFile, iSym, pszSym);
                     RETURN_VERR_BAD_EXE_FORMAT;
 
                 default:
+                    printf("RTR0DbgKrnlInfoOpen: %s: Unexpected symbol n_type %#x for symbol #%u '%s'\n",
+                           pszKernelFile, pSym->n_type, iSym, pszSym);
                     RETURN_VERR_BAD_EXE_FORMAT;
             }
         }
@@ -848,6 +897,13 @@ static int rtR0DbgKrnlDarwinLoadCommands(RTDBGKRNLINFOINT *pThis)
             case LC_MAIN:
             case LC_DATA_IN_CODE:
             case LC_SOURCE_VERSION:
+            case LC_ENCRYPTION_INFO_64:
+            case LC_LINKER_OPTION:
+            case LC_LINKER_OPTIMIZATION_HINT:
+            case LC_VERSION_MIN_TVOS:
+            case LC_VERSION_MIN_WATCHOS:
+            case LC_NOTE:
+            case LC_BUILD_VERSION:
                 break;
 
             /* not observed */
@@ -1045,7 +1101,7 @@ static int rtR0DbgKrnlDarwinOpen(PRTDBGKRNLINFO phKrnlInfo, const char *pszKerne
     if (RT_SUCCESS(rc))
         rc = rtR0DbgKrnlDarwinLoadCommands(pThis);
     if (RT_SUCCESS(rc))
-        rc = rtR0DbgKrnlDarwinLoadSymTab(pThis);
+        rc = rtR0DbgKrnlDarwinLoadSymTab(pThis, pszKernelFile);
     if (RT_SUCCESS(rc))
     {
 #ifdef IN_RING0
@@ -1085,18 +1141,24 @@ RTR0DECL(int) RTR0DbgKrnlInfoOpen(PRTDBGKRNLINFO phKrnlInfo, uint32_t fFlags)
      * Note! We should try fish kcsuffix out of bootargs or somewhere one day.
      */
     static bool s_fFirstCall = true;
+#ifdef IN_RING3
+    extern const char *g_pszTestKernel;
+#endif
     struct
     {
         const char *pszLocation;
         int         rc;
     } aKernels[] =
     {
+#ifdef IN_RING3
+        { g_pszTestKernel, VERR_WRONG_ORDER },
+#endif
         { "/System/Library/Kernels/kernel", VERR_WRONG_ORDER },
         { "/System/Library/Kernels/kernel.development", VERR_WRONG_ORDER },
         { "/System/Library/Kernels/kernel.debug", VERR_WRONG_ORDER },
         { "/mach_kernel", VERR_WRONG_ORDER },
     };
-    int rc;
+    int rc = VERR_WRONG_ORDER; /* shut up stupid MSC */
     for (uint32_t i = 0; i < RT_ELEMENTS(aKernels); i++)
     {
         aKernels[i].rc = rc = rtR0DbgKrnlDarwinOpen(phKrnlInfo, aKernels[i].pszLocation);

@@ -5,28 +5,28 @@
       <comment xml:lang="en">VirtualBox Machine Definition</comment>
       <glob pattern="*.vbox"/>
       <icon name="virtualbox-vbox"/>
-   </mime-type> 
+   </mime-type>
 
    <mime-type type="application/x-virtualbox-vbox-extpack">
       <comment>VirtualBox Extension Pack</comment>
       <comment xml:lang="en">VirtualBox Extension Pack</comment>
       <glob pattern="*.vbox-extpack"/>
       <icon name="virtualbox-vbox-extpack"/>
-   </mime-type> 
+   </mime-type>
 
    <mime-type type="application/x-virtualbox-ovf">
       <comment>Open Virtualization Format</comment>
       <comment xml:lang="en">Open Virtualization Format</comment>
       <glob pattern="*.ovf"/>
       <icon name="virtualbox-ovf"/>
-   </mime-type> 
+   </mime-type>
 
    <mime-type type="application/x-virtualbox-ova">
       <comment>Open Virtualization Format Archive</comment>
       <comment xml:lang="en">Open Virtualization Format Archive</comment>
       <glob pattern="*.ova"/>
       <icon name="virtualbox-ova"/>
-   </mime-type> 
+   </mime-type>
 
    <mime-type type="application/x-virtualbox-vdi">
       <comment>Virtual Disk Image</comment>

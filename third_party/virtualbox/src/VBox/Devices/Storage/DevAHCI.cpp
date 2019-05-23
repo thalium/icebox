@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -127,6 +127,9 @@
 #define AHCI_SERIAL_NUMBER_LENGTH            20
 #define AHCI_FIRMWARE_REVISION_LENGTH         8
 #define AHCI_MODEL_NUMBER_LENGTH             40
+#define AHCI_ATAPI_INQUIRY_VENDOR_ID_LENGTH   8
+#define AHCI_ATAPI_INQUIRY_PRODUCT_ID_LENGTH 16
+#define AHCI_ATAPI_INQUIRY_REVISION_LENGTH    4
 
 /** ATAPI sense info size. */
 #define ATAPI_SENSE_SIZE 64
@@ -412,9 +415,7 @@ typedef struct AHCIPort
     /** The status LED state for this drive. */
     PDMLED                          Led;
 
-#if HC_ARCH_BITS == 64
     uint32_t                        u32Alignment3;
-#endif
 
     /** Async IO Thread. */
     R3PTRTYPE(PPDMTHREAD)           pAsyncIOThread;
@@ -430,6 +431,12 @@ typedef struct AHCIPort
     char                            szFirmwareRevision[AHCI_FIRMWARE_REVISION_LENGTH+1]; /** < one extra byte for termination */
     /** The model number to use for IDENTIFY DEVICE commands. */
     char                            szModelNumber[AHCI_MODEL_NUMBER_LENGTH+1]; /** < one extra byte for termination */
+    /** The vendor identification string for SCSI INQUIRY commands. */
+    char                            szInquiryVendorId[AHCI_ATAPI_INQUIRY_VENDOR_ID_LENGTH+1];
+    /** The product identification string for SCSI INQUIRY commands. */
+    char                            szInquiryProductId[AHCI_ATAPI_INQUIRY_PRODUCT_ID_LENGTH+1];
+    /** The revision string for SCSI INQUIRY commands. */
+    char                            szInquiryRevision[AHCI_ATAPI_INQUIRY_REVISION_LENGTH+1];
     /** Error counter */
     uint32_t                        cErrors;
 
@@ -2614,6 +2621,23 @@ static DECLCALLBACK(int) ahciR3PortQueryDeviceLocation(PPDMIMEDIAPORT pInterface
     *piInstance = pDevIns->iInstance;
     *piLUN = pAhciPort->iLUN;
 
+    return VINF_SUCCESS;
+}
+
+/**
+ * @interface_method_impl{PDMIMEDIAPORT,pfnQueryScsiInqStrings}
+ */
+static DECLCALLBACK(int) ahciR3PortQueryScsiInqStrings(PPDMIMEDIAPORT pInterface, const char **ppszVendorId,
+                                                       const char **ppszProductId, const char **ppszRevision)
+{
+    PAHCIPort pAhciPort = PDMIMEDIAPORT_2_PAHCIPORT(pInterface);
+
+    if (ppszVendorId)
+        *ppszVendorId = &pAhciPort->szInquiryVendorId[0];
+    if (ppszProductId)
+        *ppszProductId = &pAhciPort->szInquiryProductId[0];
+    if (ppszRevision)
+        *ppszRevision = &pAhciPort->szInquiryRevision[0];
     return VINF_SUCCESS;
 }
 
@@ -5387,6 +5411,13 @@ static void ahciR3SuspendOrPowerOff(PPDMDEVINS pDevIns)
         PDMDevHlpSetAsyncNotification(pDevIns, ahciR3IsAsyncSuspendOrPowerOffDone);
     else
         ASMAtomicWriteBool(&pThis->fSignalIdle, false);
+
+    for (uint32_t i = 0; i < RT_ELEMENTS(pThis->ahciPort); i++)
+    {
+        PAHCIPort pThisPort = &pThis->ahciPort[i];
+        if (pThisPort->pDrvMediaEx)
+            pThisPort->pDrvMediaEx->pfnNotifySuspend(pThisPort->pDrvMediaEx);
+    }
 }
 
 /**
@@ -5508,6 +5539,43 @@ static int ahciR3VpdInit(PPDMDEVINS pDevIns, PAHCIPort pAhciPort, const char *ps
     if (pAhciPort->cLogSectorsPerPhysicalExp >= 16)
         return PDMDEV_SET_ERROR(pDevIns, rc,
                     N_("AHCI configuration error: \"LogicalSectorsPerPhysical\" must be between 0 and 15"));
+
+    /* There are three other identification strings for CD drives used for INQUIRY */
+    if (pAhciPort->fATAPI)
+    {
+        rc = CFGMR3QueryStringDef(pCfgNode, "ATAPIVendorId", pAhciPort->szInquiryVendorId, sizeof(pAhciPort->szInquiryVendorId),
+                                  "VBOX");
+        if (RT_FAILURE(rc))
+        {
+            if (rc == VERR_CFGM_NOT_ENOUGH_SPACE)
+                return PDMDEV_SET_ERROR(pDevIns, VERR_INVALID_PARAMETER,
+                                N_("AHCI configuration error: \"ATAPIVendorId\" is longer than 16 bytes"));
+            return PDMDEV_SET_ERROR(pDevIns, rc,
+                    N_("AHCI configuration error: failed to read \"ATAPIVendorId\" as string"));
+        }
+
+        rc = CFGMR3QueryStringDef(pCfgNode, "ATAPIProductId", pAhciPort->szInquiryProductId, sizeof(pAhciPort->szInquiryProductId),
+                                  "CD-ROM");
+        if (RT_FAILURE(rc))
+        {
+            if (rc == VERR_CFGM_NOT_ENOUGH_SPACE)
+                return PDMDEV_SET_ERROR(pDevIns, VERR_INVALID_PARAMETER,
+                                N_("AHCI configuration error: \"ATAPIProductId\" is longer than 16 bytes"));
+            return PDMDEV_SET_ERROR(pDevIns, rc,
+                    N_("AHCI configuration error: failed to read \"ATAPIProductId\" as string"));
+        }
+
+        rc = CFGMR3QueryStringDef(pCfgNode, "ATAPIRevision", pAhciPort->szInquiryRevision, sizeof(pAhciPort->szInquiryRevision),
+                                  "1.0");
+        if (RT_FAILURE(rc))
+        {
+            if (rc == VERR_CFGM_NOT_ENOUGH_SPACE)
+                return PDMDEV_SET_ERROR(pDevIns, VERR_INVALID_PARAMETER,
+                                N_("AHCI configuration error: \"ATAPIRevision\" is longer than 4 bytes"));
+            return PDMDEV_SET_ERROR(pDevIns, rc,
+                    N_("AHCI configuration error: failed to read \"ATAPIRevision\" as string"));
+        }
+    }
 
     return rc;
 }
@@ -6051,6 +6119,7 @@ static DECLCALLBACK(int) ahciR3Construct(PPDMDEVINS pDevIns, int iInstance, PCFG
         pAhciPort->IMediaExPort.pfnIoReqStateChanged       = ahciR3IoReqStateChanged;
         pAhciPort->IMediaExPort.pfnMediumEjected           = ahciR3MediumEjected;
         pAhciPort->IPort.pfnQueryDeviceLocation            = ahciR3PortQueryDeviceLocation;
+        pAhciPort->IPort.pfnQueryScsiInqStrings            = ahciR3PortQueryScsiInqStrings;
         pAhciPort->fWrkThreadSleeping                      = true;
 
         /* Query per port configuration options if available. */

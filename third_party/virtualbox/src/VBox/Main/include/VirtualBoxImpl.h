@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -58,6 +58,12 @@ namespace settings
     struct MediaRegistry;
 }
 
+
+#if defined(VBOX_WITH_SDS) && !defined(VBOX_WITH_XPCOM)
+class VirtualBoxClassFactory; /* See ../src-server/win/svcmain.cpp  */
+#endif
+
+
 class ATL_NO_VTABLE VirtualBox :
     public VirtualBoxWrap
 #ifdef RT_OS_WINDOWS
@@ -73,7 +79,13 @@ public:
     class CallbackEvent;
     friend class CallbackEvent;
 
+#ifndef VBOX_WITH_XPCOM
+# ifdef VBOX_WITH_SDS
+    DECLARE_CLASSFACTORY_EX(VirtualBoxClassFactory)
+# else
     DECLARE_CLASSFACTORY_SINGLETON(VirtualBox)
+# endif
+#endif
 
     // Do not use any ATL registry support.
     //DECLARE_REGISTRY_RESOURCEID(IDR_VIRTUALBOX)

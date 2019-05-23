@@ -628,7 +628,7 @@ EOF
 #define CTX_SUFF(var)                   var##R3
 #define CTXAllSUFF(var)                 var##R3
 #define CTXSUFF(var)                    var##HC
-#define OTHERCTXSUFF(var)  	        var##GC
+#define OTHERCTXSUFF(var)               var##GC
 #define CTXALLMID(first, last)          first##R3##last
 #define CTXMID(first, last)             first##HC##last
 #define OTHERCTXMID(first, last)        first##GC##last
@@ -695,8 +695,8 @@ EOF
 #define PGM_BTH_NAME_EPT_AMD64(name)    PGM_CTX3(pgm,Bth,name)
 #define PGM_BTH_DECL(type, name)        type PGM_BTH_NAME(name)
 
-#define FNIEMOP_STUB(a_Name)        	   VBOXSTRICTRC a_Name(PIEMCPU pIemCpu) { return VERR_NOT_IMPLEMENTED; }
-#define FNIEMOP_DEF(a_Name)        	   VBOXSTRICTRC a_Name(PIEMCPU pIemCpu)
+#define FNIEMOP_STUB(a_Name)               VBOXSTRICTRC a_Name(PIEMCPU pIemCpu) { return VERR_NOT_IMPLEMENTED; }
+#define FNIEMOP_DEF(a_Name)                VBOXSTRICTRC a_Name(PIEMCPU pIemCpu)
 #define FNIEMOP_DEF_1(a_Name, a_Type0, a_Name0) static VBOXSTRICTRC a_Name(PIEMCPU pIemCpu, a_Type0 a_Name0)
 #define FNIEMOP_DEF_2(a_Name, a_Type0, a_Name0, a_Type1, a_Name1) static VBOXSTRICTRC a_Name(PIEMCPU pIemCpu, a_Type0 a_Name0, a_Type1 a_Name1)
 #define IEM_CIMPL_DEF_0(a_Name)         static VBOXSTRICTRC a_Name(PIEMCPU pIemCpu)
@@ -1170,8 +1170,8 @@ my_generate_project "bldprogs"      "src/bldprogs"                          --be
 my_generate_project "zlib"          "src/libs/zlib-1.2.8"                   --begin-incs "include"                                          --end-includes "src/libs/zlib-1.2.8/*.c" "src/libs/zlib-1.2.8/*.h"
 my_generate_project "liblzf"        "src/libs/liblzf-3.4"                   --begin-incs "include"                                          --end-includes "src/libs/liblzf-3.4"
 my_generate_project "libpng"        "src/libs/libpng-1.2.54"                --begin-incs "include"                                          --end-includes "src/libs/libpng-1.2.54/*.c" "src/libs/libpng-1.2.54/*.h"
-my_generate_project "openssl"       "src/libs/openssl-1.1.0f"               --begin-incs "include" "src/libs/openssl-1.1.0f/crypto"         --end-includes "src/libs/openssl-1.1.0f"
-my_generate_project "curl"          "src/libs/curl-7.50.3"                  --begin-incs "include" "src/libs/curl-7.50.3/include"           --end-includes "src/libs/curl-7.50.3"
+my_generate_project "openssl"       "src/libs/openssl-1.1.0h"               --begin-incs "include" "src/libs/openssl-1.1.0h/crypto"         --end-includes "src/libs/openssl-1.1.0h"
+my_generate_project "curl"          "src/libs/curl-7.57.0"                  --begin-incs "include" "src/libs/curl-7.57.0/include"           --end-includes "src/libs/curl-7.57.0"
 my_generate_project "kStuff"        "src/libs/kStuff"                       --begin-incs "include" "src/libs/kStuff/kStuff/include"         --end-includes "src/libs/kStuff"
 
 

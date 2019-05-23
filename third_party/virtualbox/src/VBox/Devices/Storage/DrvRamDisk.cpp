@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2016 Oracle Corporation
+ * Copyright (C) 2016-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -39,6 +39,7 @@
 
 #include "VBoxDD.h"
 #include "IOBufMgmt.h"
+
 
 /*********************************************************************************************************************************
 *   Structures and Typedefs                                                                                                      *
@@ -503,6 +504,7 @@ static int drvramdiskDiscardRecords(PDRVRAMDISK pThis, PCRTRANGE paRanges, unsig
 
 /* -=-=-=-=- IMedia -=-=-=-=- */
 
+
 /*********************************************************************************************************************************
 *   Media interface methods                                                                                                      *
 *********************************************************************************************************************************/
@@ -720,7 +722,7 @@ DECLINLINE(int) drvramdiskMediaExIoReqBufSync(PDRVRAMDISK pThis, PPDMMEDIAEXIORE
  */
 DECLINLINE(unsigned) drvramdiskMediaExIoReqIdHash(PDMMEDIAEXIOREQID uIoReqId)
 {
-    return uIoReqId % DRVVD_VDIOREQ_ALLOC_BINS; /** @todo: Find something better? */
+    return uIoReqId % DRVVD_VDIOREQ_ALLOC_BINS; /** @todo Find something better? */
 }
 
 /**

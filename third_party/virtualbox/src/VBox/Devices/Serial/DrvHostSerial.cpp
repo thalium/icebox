@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -336,7 +336,8 @@ static DECLCALLBACK(int) drvHostSerialSetParameters(PPDMICHARCONNECTOR pInterfac
      * modem irqs and so the monitor thread never gets released. The workaround
      * is to send a signal after each tcsetattr.
      */
-    RTThreadPoke(pThis->pMonitorThread->Thread);
+    if (RT_LIKELY(pThis->pMonitorThread != NULL))
+        RTThreadPoke(pThis->pMonitorThread->Thread);
 #endif
 
 #elif defined(RT_OS_WINDOWS)
@@ -951,9 +952,10 @@ static DECLCALLBACK(int) drvHostSerialMonitorThread(PPDMDRVINS pDrvIns, PPDMTHRE
         if (!fPoll)
         {
             rcPsx = ioctl(RTFileToNative(pThis->hDeviceFile), TIOCMIWAIT, uStatusLinesToCheck);
-            if (rcPsx < 0)
+            if (rcPsx < 0 && errno != EINTR)
             {
-                LogRel(("Serial#%u: Failed to wait for status line change, switch to polling\n", pDrvIns->iInstance));
+                LogRel(("Serial#%u: Failed to wait for status line change with rcPsx=%d errno=%d, switch to polling\n",
+                        pDrvIns->iInstance, rcPsx, errno));
                 fPoll = true;
                 pThis->fStatusLines = statusLines;
             }

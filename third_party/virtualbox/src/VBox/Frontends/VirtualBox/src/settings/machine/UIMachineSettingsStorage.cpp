@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -3449,6 +3449,8 @@ void UIMachineSettingsStorage::prepare()
         /* We need a little more space for the focus rect: */
         mLtStorage->setContentsMargins(3, 0, 3, 0);
         mLtStorage->setSpacing(3);
+#else
+        mLtStorage->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing) / 3);
 #endif
 
         /* Prepare storage tree: */

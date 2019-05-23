@@ -74,3 +74,62 @@ TEMPLATE_VBoxBios32Lib_CXXFLAGS   = $(TEMPLATE_VBoxBios32_CFLAGS)
 TEMPLATE_VBoxBios32Lib_LNK_DEPS   = $(NO_SUCH_VARIABLE)
 TEMPLATE_VBoxBios32Lib_POST_CMDS  = $(NO_SUCH_VARIABLE)
 
+
+#
+# Audio configuration.
+# This must live here because of testcase/
+#
+VBOX_AUDIO_DEFS :=
+if 0 # Not stable yet.
+ # Enable microphone-in support for HDA. Otherwise only line-in is supported.
+ VBOX_AUDIO_DEFS += VBOX_WITH_AUDIO_HDA_MIC_IN
+
+ # Enable interleavig streams support for HDA. Needed for 5.1 surround support.
+ VBOX_AUDIO_DEFS  += VBOX_WITH_AUDIO_HDA_INTERLEAVING_STREAMS_SUPPORT
+
+ # Enable 5.1 surround support (Front, Center/LFE, Rear) for HDA.
+ # Without this, only stereo output (Front) is supported.
+ VBOX_AUDIO_DEFS += VBOX_WITH_AUDIO_HDA_51_SURROUND
+endif
+
+# Enable backend-independent device enumeration support.
+VBOX_AUDIO_DEFS  += VBOX_WITH_AUDIO_ENUM
+
+# Enable backend callback support.
+VBOX_AUDIO_DEFS += VBOX_WITH_AUDIO_CALLBACKS
+
+# Disable one-time audio stream initialization at device creation (VM startup) instead
+# of creating the stream when needed at some later point in time.
+#
+# This was the default behavior ever since.
+#
+# We now go with the new behavior by default now.
+#VBOX_AUDIO_DEFS += VBOX_WITH_AUDIO_SB16_ONETIME_INIT
+
+ifdef VBOX_WITH_HP_HDA
+ VBOX_AUDIO_DEFS += VBOX_WITH_HP_HDA
+endif
+ifdef VBOX_WITH_INTEL_HDA
+ VBOX_AUDIO_DEFS += VBOX_WITH_INTEL_HDA
+endif
+ifdef VBOX_WITH_NVIDIA_HDA
+ VBOX_AUDIO_DEFS += VBOX_WITH_NVIDIA_HDA
+endif
+
+#
+# Enables asynchronous audio data handling
+# to speed up the actual DMA data routines and keeping up
+# audio processing out of EMT as much as possible.
+#
+# Disabled for AC'97 for now.
+#VBOX_AUDIO_DEFS  += VBOX_WITH_AUDIO_AC97_ASYNC_IO
+VBOX_AUDIO_DEFS += VBOX_WITH_AUDIO_HDA_ASYNC_IO
+
+# Not yet enabled: Callbacks for the device emulation to let the backends
+#                  tell the emulation when and how to process data.
+if 0
+ VBOX_AUDIO_DEFS  += VBOX_WITH_AUDIO_SB16_CALLBACKS
+ VBOX_AUDIO_DEFS  += VBOX_WITH_AUDIO_AC97_CALLBACKS
+ VBOX_AUDIO_DEFS  += VBOX_WITH_AUDIO_HDA_CALLBACKS
+endif
+

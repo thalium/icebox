@@ -2596,7 +2596,7 @@ static int pgmR3PhysMMIOExCreate(PVM pVM, PPDMDEVINS pDevIns, uint32_t iSubDev, 
         const uint32_t   cPagesTrackedByChunk = RT_MIN(cPagesLeft, cPagesPerChunk);
         const size_t     cbRange = RT_OFFSETOF(PGMREGMMIORANGE, RamRange.aPages[cPagesTrackedByChunk]);
         PPGMREGMMIORANGE pNew    = NULL;
-        if (   cPagesTrackedByChunk > cPagesLeft /**< @todo r=klaus the first part of the condition is guaranteed false due to RT_MIN above */
+        if (   iChunk + 1 < cChunks
             || cbRange >= _1M)
         {
             /*
@@ -2642,7 +2642,7 @@ static int pgmR3PhysMMIOExCreate(PVM pVM, PPDMDEVINS pDevIns, uint32_t iSubDev, 
                 pNew->RamRange.pSelfRC  = NIL_RTRCPTR;
             else
             {
-                RTGCPTR         GCPtrChunkMap = pVM->pgm.s.GCPtrPrevRamRangeMapping - cbChunk;
+                RTGCPTR         GCPtrChunkMap = pVM->pgm.s.GCPtrPrevRamRangeMapping - RT_ALIGN_Z(cbChunk, _4M);
                 RTGCPTR const   GCPtrChunk    = GCPtrChunkMap + PAGE_SIZE;
                 rc = PGMR3MapPT(pVM, GCPtrChunkMap, (uint32_t)cbChunk, 0 /*fFlags*/, pgmR3PhysMMIOExRangeRelocate, pNew, pszDesc);
                 if (RT_SUCCESS(rc))
@@ -2650,7 +2650,7 @@ static int pgmR3PhysMMIOExCreate(PVM pVM, PPDMDEVINS pDevIns, uint32_t iSubDev, 
                     pVM->pgm.s.GCPtrPrevRamRangeMapping = GCPtrChunkMap;
 
                     RTGCPTR GCPtrPage  = GCPtrChunk;
-                    for (uint32_t iPage = 0; iPage < cPagesTrackedByChunk && RT_SUCCESS(rc); iPage++, GCPtrPage += PAGE_SIZE)
+                    for (uint32_t iPage = 0; iPage < cChunkPages && RT_SUCCESS(rc); iPage++, GCPtrPage += PAGE_SIZE)
                         rc = PGMMap(pVM, GCPtrPage, paChunkPages[iPage].Phys, PAGE_SIZE, 0);
                 }
                 if (RT_FAILURE(rc))

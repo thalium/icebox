@@ -144,7 +144,7 @@ CR_PROC CR_APIENTRY crGetProcAddress( const char *name )
     if (!crStrcmp(name, "wglGetPixelFormatAttribfvARB")) return (CR_PROC) wglGetPixelFormatAttribfvEXT;
 
     if (!crStrcmp(name, "wglSwapIntervalEXT")) return (CR_PROC) wglSwapIntervalEXT;
-    
+
     crDebug("Returning GetProcAddress:NULL for %s", name);
     return NULL;
 }

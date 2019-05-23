@@ -27,7 +27,7 @@ CDDL are applicable instead of those of the GPL.
 You may elect to license modified versions of this file under the
 terms and conditions of either the GPL or the CDDL or both.
 """
-__version__ = "$Revision: 118412 $"
+__version__ = "$Revision: 118928 $"
 
 
 # Standard Python imports.
@@ -40,6 +40,8 @@ import win32con;            # pylint: disable=import-error
 import win32console;        # pylint: disable=import-error
 import win32event;          # pylint: disable=import-error
 import win32process;        # pylint: disable=import-error
+import winerror;            # pylint: disable=import-error
+import pywintypes;          # pylint: disable=import-error
 
 # Validation Kit imports.
 from testdriver import reporter;
@@ -102,7 +104,7 @@ def processTerminate(uPid):
             fRc = True;
         except:
             reporter.logXcpt('uPid=%s' % (uPid,));
-        win32api.CloseHandle(hProcess)
+        hProcess.Close(); #win32api.CloseHandle(hProcess)
     return fRc;
 
 def processKill(uPid):
@@ -111,16 +113,22 @@ def processKill(uPid):
 
 def processExists(uPid):
     """ The Windows version of base.processExists """
-    # pylint: disable=no-member
-    fRc = False;
+    # We try open the process for waiting since this is generally only forbidden in a very few cases.
     try:
-        hProcess = win32api.OpenProcess(win32con.PROCESS_QUERY_INFORMATION, False, uPid);
-    except:
+        hProcess = win32api.OpenProcess(win32con.SYNCHRONIZE, False, uPid);     # pylint: disable=no-member
+    except pywintypes.error as oXcpt:                                           # pylint: disable=no-member
+        if oXcpt.winerror == winerror.ERROR_INVALID_PARAMETER:
+            return False;
+        if oXcpt.winerror != winerror.ERROR_ACCESS_DENIED:
+            reporter.logXcpt('uPid=%s oXcpt=%s' % (uPid, oXcpt));
+            return False;
+        reporter.logXcpt('uPid=%s oXcpt=%s' % (uPid, oXcpt));
+    except Exception as oXcpt:
         reporter.logXcpt('uPid=%s' % (uPid,));
+        return False;
     else:
-        win32api.CloseHandle(hProcess)
-        fRc = True;
-    return fRc;
+        hProcess.Close(); #win32api.CloseHandle(hProcess)
+    return True;
 
 def processCheckPidAndName(uPid, sName):
     """ The Windows version of base.processCheckPidAndName """
@@ -186,7 +194,7 @@ def processCreate(sName, asArgs):
 
     # Dispense with the thread handle.
     try:
-        win32api.CloseHandle(hThread);
+        hThread.Close(); # win32api.CloseHandle(hThread);
     except:
         reporter.logXcpt();
 
@@ -202,7 +210,7 @@ def processCreate(sName, asArgs):
             | win32con.DELETE,
             False,
             0);
-        win32api.CloseHandle(hProcess);
+        hProcess.Close(); # win32api.CloseHandle(hProcess);
         hProcess = hProcessFullAccess;
     except:
         reporter.logXcpt();
@@ -269,5 +277,42 @@ def logMemoryStats():
     reporter.log('Memory statistics:');
     for sField, _ in MemoryStatusEx.kaFields:
         reporter.log('  %32s: %s' % (sField, getattr(oStats, sField)));
+    return True;
+
+def checkProcessHeap():
+    """
+    Calls HeapValidate(GetProcessHeap(), 0, NULL);
+    """
+
+    # Get the process heap.
+    try:
+        hHeap = ctypes.windll.kernel32.GetProcessHeap();
+    except:
+        reporter.logXcpt();
+        return False;
+
+    # Check it.
+    try:
+        fIsOkay = ctypes.windll.kernel32.HeapValidate(hHeap, 0, None);
+    except:
+        reporter.logXcpt();
+        return False;
+
+    if fIsOkay == 0:
+        reporter.log('HeapValidate failed!');
+
+        # Try trigger a dump using c:\utils\procdump64.exe.
+        from common import utils;
+
+        iPid = os.getpid();
+        asArgs = [ 'e:\\utils\\procdump64.exe', '-ma', '%s' % (iPid,), 'c:\\CrashDumps\\python.exe-%u-heap.dmp' % (iPid,)];
+        if utils.getHostArch() != 'amd64':
+            asArgs[0] = 'c:\\utils\\procdump.exe'
+        reporter.log('Trying to dump this process using: %s' % (asArgs,));
+        utils.processCall(asArgs);
+
+        # Generate a crash exception.
+        ctypes.windll.msvcrt.strcpy(None, None, 1024);
+
     return True;
 

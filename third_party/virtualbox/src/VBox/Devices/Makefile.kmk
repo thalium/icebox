@@ -145,6 +145,7 @@ if !defined(VBOX_ONLY_EXTPACKS)         # Goes on almost to the end of the file.
  	Bus/MsiCommon.cpp \
  	Bus/MsixCommon.cpp \
 	EFI/DevSmc.cpp \
+	EFI/DevFlash.cpp \
  	Graphics/DevVGA.cpp \
  	Storage/DevATA.cpp \
  	PC/DevPit-i8254.cpp \
@@ -548,53 +549,9 @@ if !defined(VBOX_ONLY_EXTPACKS)         # Goes on almost to the end of the file.
   VBoxDD_DEFS           += VBOX_WITH_DYNAMIC_DSDT
  endif
 
- # --- Audio bits. ---
+ # --- Audio bits (see also VBOX_AUDIO_DEFS in ./Config.kmk). ---
 
- if 0 # Not stable yet.
-  # Enable microphone-in support for HDA. Otherwise only line-in is supported.
-  VBoxDD_DEFS += VBOX_WITH_AUDIO_HDA_MIC_IN
-
-  # Enable interleavig streams support for HDA. Needed for 5.1 surround support.
-  VBoxDD_DEFS += VBOX_WITH_AUDIO_HDA_INTERLEAVING_STREAMS_SUPPORT
-
-  # Enable 5.1 surround support (Front, Center/LFE, Rear) for HDA.
-  # Without this, only stereo output (Front) is supported.
-  VBoxDD_DEFS += VBOX_WITH_AUDIO_HDA_51_SURROUND
- endif
-
- # Enable backend-independent device enumeration support.
- VBoxDD_DEFS  += VBOX_WITH_AUDIO_ENUM
-
- # Enable backend callback support.
- VBoxDD_DEFS  += VBOX_WITH_AUDIO_CALLBACKS
-
- # Disable one-time audio stream initialization at device creation (VM startup) instead
- # of creating the stream when needed at some later point in time.
- #
- # This was the default behavior ever since.
- #
- # We now go with the new behavior by default now.
- #VBoxDD_DEFS  += VBOX_WITH_AUDIO_SB16_ONETIME_INIT
- #VBoxDD_DEFS  += VBOX_WITH_AUDIO_AC97_ONETIME_INIT
- #VBoxDD_DEFS  += VBOX_WITH_AUDIO_HDA_ONETIME_INIT
-
- #
- # Enables asynchronous audio data handling
- # to speed up the actual DMA data routines and keeping up
- # audio processing out of EMT as much as possible.
- #
- # Disabled for AC'97 for now.
- #VBoxDD_DEFS  += VBOX_WITH_AUDIO_AC97_ASYNC_IO
- VBoxDD_DEFS  += VBOX_WITH_AUDIO_HDA_ASYNC_IO
-
- # Not yet enabled: Callbacks for the device emulation to let the backends
- #                  tell the emulation when and how to process data.
- if 0
-  VBOX_DEFS   += VBOX_WITH_AUDIO_SB16_CALLBACKS
-  VBOX_DEFS   += VBOX_WITH_AUDIO_AC97_CALLBACKS
-  VBOX_DEFS   += VBOX_WITH_AUDIO_HDA_CALLBACKS
- endif
-
+ VBoxDD_DEFS += $(VBOX_AUDIO_DEFS)
  VBoxDD_SOURCES         += \
 	Audio/DevIchAc97.cpp \
 	Audio/DevSB16.cpp \
@@ -858,37 +815,42 @@ if !defined(VBOX_ONLY_EXTPACKS)         # Goes on almost to the end of the file.
   VBoxDD_CLEAN       += \
  	$(VBoxDD_0_OUTDIR)/vboxaml.hex \
  	$(VBoxDD_0_OUTDIR)/vboxaml.aml \
- 	$(VBoxDD_0_OUTDIR)/vboxssdt-standard.hex \
- 	$(VBoxDD_0_OUTDIR)/vboxssdt-standard.aml \
- 	$(VBoxDD_0_OUTDIR)/vboxssdt-standard.aml.tmp \
- 	$(VBoxDD_0_OUTDIR)/vboxssdt-cpuhotplug.hex \
- 	$(VBoxDD_0_OUTDIR)/vboxssdt-cpuhotplug.aml \
- 	$(VBoxDD_0_OUTDIR)/vboxssdt-cpuhotplug.aml.tmp \
- 	$(VBoxDD_0_OUTDIR)/vboxssdt-cpuhotplug.aml.pre
+ 	$(VBoxDD_0_OUTDIR)/vboxaml.aml.tmp \
+ 	$(VBoxDD_0_OUTDIR)/vboxssdt_standard.hex \
+ 	$(VBoxDD_0_OUTDIR)/vboxssdt_standard.aml \
+ 	$(VBoxDD_0_OUTDIR)/vboxssdt_standard.aml.tmp \
+ 	$(VBoxDD_0_OUTDIR)/vboxssdt_cpuhotplug.hex \
+ 	$(VBoxDD_0_OUTDIR)/vboxssdt_cpuhotplug.aml \
+ 	$(VBoxDD_0_OUTDIR)/vboxssdt_cpuhotplug.aml.tmp \
+ 	$(VBoxDD_0_OUTDIR)/vboxssdt_cpuhotplug.aml.pre
   PC/ACPI/VBoxAcpi.cpp_DEPS = \
  	$(VBoxDD_0_OUTDIR)/vboxaml.hex \
- 	$(VBoxDD_0_OUTDIR)/vboxssdt-standard.hex \
- 	$(VBoxDD_0_OUTDIR)/vboxssdt-cpuhotplug.hex
+ 	$(VBoxDD_0_OUTDIR)/vboxssdt_standard.hex \
+ 	$(VBoxDD_0_OUTDIR)/vboxssdt_cpuhotplug.hex
 
   $$(VBoxDD_0_OUTDIR)/vboxaml.hex: $(PATH_SUB_CURRENT)/PC/vbox.dsl | $$(dir $$@)
 	$(call MSG_TOOL,iasl,VBoxDD,$<,$@)
 	$(QUIET)$(VBOX_IASLCMD) -tc -vs -p $@ $<
+	$(QUIET)$(MV) -f $@ $@.tmp
+	$(QUIET)$(SED) -e "s/vboxaml_aml_code/AmlCode/g" \
+		--output $@ $@.tmp
+	$(QUIET)$(RM) -f $@.tmp
 
   vboxaml.hex:: $$(VBoxDD_0_OUTDIR)/vboxaml.hex
 
-  $$(VBoxDD_0_OUTDIR)/vboxssdt-standard.hex: $(PATH_SUB_CURRENT)/PC/vbox-standard.dsl | $$(dir $$@)
+  $$(VBoxDD_0_OUTDIR)/vboxssdt_standard.hex: $(PATH_SUB_CURRENT)/PC/vbox-standard.dsl | $$(dir $$@)
 	$(call MSG_TOOL,iasl,VBoxDD,$<,$@)
 	$(QUIET)$(RM) -f $@ $@.tmp
 	$(QUIET)$(VBOX_IASLCMD) -tc -vs -p $@ $<
 	$(QUIET)$(MV) -f $@ $@.tmp
-	$(QUIET)$(SED) -e "s/AmlCode/AmlCodeSsdtStandard/g" \
+	$(QUIET)$(SED) -e "s/AmlCode\|vboxssdt_standard_aml_code/AmlCodeSsdtStandard/g" \
 		--output $@ $@.tmp
 	$(QUIET)$(RM) -f $@.tmp
 
 
-  vboxssdt-standard.hex:: $$(VBoxDD_0_OUTDIR)/vboxssdt-standard.hex
+  vboxssdt_standard.hex:: $$(VBoxDD_0_OUTDIR)/vboxssdt_standard.hex
 
-  $$(VBoxDD_0_OUTDIR)/vboxssdt-cpuhotplug.hex: $(PATH_SUB_CURRENT)/PC/vbox-cpuhotplug.dsl | $$(dir $$@)
+  $$(VBoxDD_0_OUTDIR)/vboxssdt_cpuhotplug.hex: $(PATH_SUB_CURRENT)/PC/vbox-cpuhotplug.dsl | $$(dir $$@)
 	$(call MSG_TOOL,iasl,VBoxDD,$<,$@)
 	$(QUIET)$(RM) -f $@ $@.tmp $@.pre
 	$(QUIET)$(TOOL_$(VBOX_GCC_TOOL)_CC) -E -P -x c -o $@.pre $<
@@ -896,12 +858,12 @@ if !defined(VBOX_ONLY_EXTPACKS)         # Goes on almost to the end of the file.
 		--output $@.pre1 $@.pre
 	$(QUIET)$(VBOX_IASLCMD) -tc -vs -p $@ $@.pre1
 	$(QUIET)$(MV) -f $@ $@.tmp
-	$(QUIET)$(SED) -e "s/AmlCode/AmlCodeSsdtCpuHotPlug/g" \
+	$(QUIET)$(SED) -e "s/AmlCode\|vboxssdt_cpuhotplug_aml_code/AmlCodeSsdtCpuHotPlug/g" \
 		--output $@ $@.tmp
 	$(QUIET)$(RM) -f $@.tmp $@.pre $@.pre1
 
 
-  vboxssdt-cpuhotplug.hex:: $$(VBoxDD_0_OUTDIR)/vboxssdt-cpuhotplug.hex
+  vboxssdt_cpuhotplug.hex:: $$(VBoxDD_0_OUTDIR)/vboxssdt_cpuhotplug.hex
 
  endif # !VBOX_WITH_DYNAMIC_DSDT
  PC/ACPI/VBoxAcpi.cpp_INCS = $(VBoxDD_0_OUTDIR)
@@ -952,9 +914,16 @@ if !defined(VBOX_ONLY_EXTPACKS)         # Goes on almost to the end of the file.
   	Parallel/DevParallel.cpp \
   	VMMDev/VMMDevTesting.cpp
 
+  VBoxDDRC_DEFS         += $(VBOX_AUDIO_DEFS)
   VBoxDDRC_SOURCES      += \
  	Audio/DevHDA.cpp \
- 	Audio/DevHDACommon.cpp
+ 	Audio/DevHDACommon.cpp \
+	Audio/DevIchAc97.cpp
+
+  VBoxDDRC_DEFS         += \
+	$(if $(VBOX_WITH_HP_HDA),VBOX_WITH_HP_HDA,) \
+	$(if $(VBOX_WITH_INTEL_HDA),VBOX_WITH_INTEL_HDA,) \
+	$(if $(VBOX_WITH_NVIDIA_HDA),VBOX_WITH_NVIDIA_HDA,)
 
   ifdef VBOX_WITH_E1000
    VBoxDDRC_DEFS        += VBOX_WITH_E1000
@@ -1114,9 +1083,7 @@ if !defined(VBOX_ONLY_EXTPACKS)         # Goes on almost to the end of the file.
  	Parallel/DevParallel.cpp \
  	VMMDev/VMMDevTesting.cpp \
  	Network/DrvIntNet.cpp \
- 	Network/DrvDedicatedNic.cpp \
- 	Audio/DevHDA.cpp \
- 	Audio/DevHDACommon.cpp
+ 	Network/DrvDedicatedNic.cpp
 
  VBoxDDR0_SOURCES.win += Parallel/DrvHostParallel.cpp
 
@@ -1126,7 +1093,16 @@ if !defined(VBOX_ONLY_EXTPACKS)         # Goes on almost to the end of the file.
 	$(if $(VBOX_WITH_VDMA),VBOX_WITH_VDMA,) \
 	$(if $(VBOX_WITH_CRHGSMI),VBOX_WITH_CRHGSMI,) \
 	$(if $(VBOXWDDM_WITH_VBVA),VBOXWDDM_WITH_VBVA,) \
-	$(if $(VBOX_VDMA_WITH_WATCHDOG),VBOX_VDMA_WITH_WATCHDOG,)
+	$(if $(VBOX_VDMA_WITH_WATCHDOG),VBOX_VDMA_WITH_WATCHDOG,) \
+	$(if $(VBOX_WITH_HP_HDA),VBOX_WITH_HP_HDA,) \
+	$(if $(VBOX_WITH_INTEL_HDA),VBOX_WITH_INTEL_HDA,) \
+	$(if $(VBOX_WITH_NVIDIA_HDA),VBOX_WITH_NVIDIA_HDA,)
+
+ VBoxDDR0_DEFS += $(VBOX_AUDIO_DEFS)
+ VBoxDDR0_SOURCES += \
+ 	Audio/DevHDA.cpp \
+ 	Audio/DevHDACommon.cpp \
+	Audio/DevIchAc97.cpp
 
  ifdef VBOX_WITH_E1000
   VBoxDDR0_DEFS         += VBOX_WITH_E1000
@@ -1333,6 +1309,34 @@ if !defined(VBOX_ONLY_EXTPACKS)         # Goes on almost to the end of the file.
   VBoxSmcUtil-darwin_TEMPLATE = VBOXR3TSTEXE
   VBoxSmcUtil-darwin_SOURCES = EFI/VBoxSmcUtil-darwin.cpp
   VBoxSmcUtil-darwin_LDFLAGS = -framework IOKit
+ endif
+
+ #
+ # PDM device testcase framework.
+ #
+ ifdef VBOX_WITH_TESTCASES_TSTDEV
+  DLLS += tstDeviceVBoxVMMStubs
+  tstDeviceVBoxVMMStubs_TEMPLATE      = VBoxR3DllNoPic
+  tstDeviceVBoxVMMStubs_SONAME.linux  = tstDeviceVBoxVMMStubs.so
+  tstDeviceVBoxVMMStubs_SONAME.darwin = tstDeviceVBoxVMMStubs.dylib
+  tstDeviceVBoxVMMStubs_DEFS          = IN_VMM_R3 IN_DIS IN_GMM_R3 IN_DBG $(VMM_COMMON_DEFS)
+  tstDeviceVBoxVMMStubs_LIBS          = $(LIB_RUNTIME)
+
+  tstDeviceVBoxVMMStubs_SOURCES  = \
+ 	testcase/tstDeviceVMMStubs.cpp
+
+  PROGRAMS += tstDevice
+  tstDevice_TEMPLATE    = VBOXR3TSTEXE
+  tstDevice_DEFS        += IN_SUP_R3
+  tstDevice_LIBS.linux  = $(PATH_STAGE_BIN)/tstDeviceVBoxVMMStubs.so
+  tstDevice_LIBS.darwin = $(PATH_STAGE_BIN)/tstDeviceVBoxVMMStubs.dylib
+  # Required on OS X to prevent resolving symbols in the real VBoxVMM.dylib when VBoxDD.dylib is loaded
+  tstDevice_LDFLAGS.darwin += -force_flat_namespace
+  tstDevice_SOURCES     = \
+ 	testcase/tstDevice.cpp \
+ 	testcase/tstDevicePdmDevHlp.cpp \
+ 	testcase/tstDeviceVMM.cpp \
+ 	testcase/tstDeviceSUP.cpp
  endif
 
 endif # !VBOX_ONLY_EXTPACKS

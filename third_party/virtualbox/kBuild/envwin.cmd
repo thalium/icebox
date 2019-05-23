@@ -1,5 +1,5 @@
 @echo off
-REM $Id: envwin.cmd 2413 2010-09-11 17:43:04Z bird $
+REM $Id: envwin.cmd 3113 2017-10-29 17:16:03Z bird $
 REM REM @file
 REM Environment setup script.
 REM
@@ -47,7 +47,7 @@ set _KBUILD_OVERRIDE_TARGET_ARCH=0
 REM
 REM Parse the arguments.
 REM
-REM Note: The 0 argument must be safed as it is also shifted.
+REM Note: The 0 argument must be saved as it is also shifted.
 REM
 set _KBUILD_SELF=%0
 set _KBUILD_OPT_FULL=0

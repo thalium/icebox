@@ -55,7 +55,7 @@ void crStateAttribInit (CRAttribState *a)
     a->viewportStackDepth = 0;
 }
 
-/*@todo check if NV rect needed too*/
+/** @todo check if NV rect needed too*/
 static void
 copy_texunit(CRTextureUnit *dest, const CRTextureUnit *src)
 {

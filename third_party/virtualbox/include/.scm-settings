@@ -1,0 +1,52 @@
+# $Id: .scm-settings $
+## @file
+# Source code massager settings for the includes.
+#
+
+#
+# Copyright (C) 2010-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+
+# Default license for headers is dual GPL and CDDL.
+--license-ose-dual
+
+# Only the headers should be dual.
+/Makefile.kmk:  --license-ose-gpl
+/.scm-settings: --license-ose-gpl
+
+# These three have no Oracle license or copyright stuff for some reason.
+/iprt/formats/elf-amd64.h:  --no-update-license  --no-update-copyright-year
+/iprt/formats/elf-common.h: --no-update-license  --no-update-copyright-year
+/iprt/formats/elf-i386.h:   --no-update-license  --no-update-copyright-year
+/iprt/formats/elf-i386.h:   --no-update-license  --no-update-copyright-year
+
+# TODO: This is using LGPL with Oracle disclaimer. Implement.
+/VBox/VBoxKeyboard.h: --external-copyright --lgpl-disclaimer
+
+# Some of the graphics stuff is using MIT.
+/VBox/Graphics/HGSMI.h:                 --license-mit
+/VBox/Graphics/HGSMIBase.h:             --license-mit
+/VBox/Graphics/HGSMIChannels.h:         --license-mit
+/VBox/Graphics/HGSMIChSetup.h:          --license-mit
+/VBox/Graphics/HGSMIContext.h:          --license-mit
+/VBox/Graphics/HGSMIDefs.h:             --license-mit
+/VBox/Graphics/VBoxVideo.h:             --license-mit
+/VBox/Graphics/VBoxVideoErr.h:          --license-mit
+/VBox/Graphics/VBoxVideoGuest.h:        --license-mit
+/VBox/Graphics/VBoxVideoVBE.h:          --license-mit
+/VBox/Graphics/VBoxVideoVBEPrivate.h:   --license-mit
+
+
+/VBox/HostServices/glext.h:             --external-copyright --no-convert-tabs --no-strip-trailing-blanks
+/VBox/HostServices/glxext.h:            --external-copyright --no-convert-tabs --no-strip-trailing-blanks
+/VBox/HostServices/wglext.h:            --external-copyright --no-convert-tabs --no-strip-trailing-blanks
+

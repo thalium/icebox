@@ -185,7 +185,7 @@ void STATE_APIENTRY crStatePolygonStipple (const GLubyte *p)
         return;
     }
 
-    /*@todo track mask if buffer is bound?*/
+    /** @todo track mask if buffer is bound?*/
     if (!crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB))
     {
         crMemcpy((char*)poly->stipple, (char*)p, 128);

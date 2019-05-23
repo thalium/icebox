@@ -28,6 +28,9 @@ ifdef VBOX_WITH_UNATTENDED
  VBoxUnattendedTemplates_SOURCES = \
  	debian_preseed.cfg \
  	ubuntu_preseed.cfg \
+ 	rhel3_ks.cfg \
+ 	rhel4_ks.cfg \
+ 	rhel5_ks.cfg \
  	redhat67_ks.cfg \
  	ol_ks.cfg \
  	fedora_ks.cfg \

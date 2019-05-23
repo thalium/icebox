@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -13,6 +13,15 @@
  * Foundation, in version 2 as it comes in the "COPYING" file of the
  * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ *
+ * The contents of this file may alternatively be used under the terms
+ * of the Common Development and Distribution License Version 1.0
+ * (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+ * VirtualBox OSE distribution, in which case the provisions of the
+ * CDDL are applicable instead of those of the GPL.
+ *
+ * You may elect to license modified versions of this file under the
+ * terms and conditions of either the GPL or the CDDL or both.
  */
 
 
@@ -80,7 +89,14 @@ MODULE_VERSION(VBOX_VERSION_STRING " r" RT_XSTR(VBOX_SVN_REV));
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2, 6, 20)
 # define PCI_DEV_GET(v,d,p)            pci_get_device(v,d,p)
 # define PCI_DEV_PUT(x)                pci_dev_put(x)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 17, 0)
+/* assume the domain number to be zero - exactly the same assumption of
+ * pci_get_bus_and_slot()
+ */
+# define PCI_DEV_GET_SLOT(bus, devfn)  pci_get_domain_bus_and_slot(0, bus, devfn)
+#else
 # define PCI_DEV_GET_SLOT(bus, devfn)  pci_get_bus_and_slot(bus, devfn)
+#endif
 #else
 # define PCI_DEV_GET(v,d,p)            pci_find_device(v,d,p)
 # define PCI_DEV_PUT(x)                do { } while (0)
@@ -357,7 +373,11 @@ static int vboxPciFileWrite(struct file* file, unsigned long long offset, unsign
 
     fs_save = get_fs();
     set_fs(get_ds());
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)
+    ret = kernel_write(file, data, size, &offset);
+#else
     ret = vfs_write(file, data, size, &offset);
+#endif
     set_fs(fs_save);
     if (ret < 0)
         printk(KERN_DEBUG "vboxPciFileWrite: error %d\n", ret);

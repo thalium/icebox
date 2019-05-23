@@ -42,7 +42,7 @@
 #include <errno.h>
 #include <dirent.h>
 #else  /* VBOX */
-# include "../../../../../../Runtime/include/internal/ldrELF32.h"
+# include <iprt/formats/elf32.h>
 # ifdef _MSC_VER
 #  include <process.h>
 #  define getuid() 0

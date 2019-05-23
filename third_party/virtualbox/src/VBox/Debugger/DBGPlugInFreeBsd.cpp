@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2016 Oracle Corporation
+ * Copyright (C) 2016-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -89,7 +89,7 @@ typedef union FBSDMSGBUF
         uint32_t        msg_wseq;
         /** Read sequence number. */
         uint32_t        msg_rseq;
-        /** @todo: More fields which are not required atm. */
+        /** @todo More fields which are not required atm. */
     } Hdr32;
     /** 64bit version. */
     struct
@@ -104,7 +104,7 @@ typedef union FBSDMSGBUF
         uint32_t        msg_wseq;
         /** Read sequence number. */
         uint32_t        msg_rseq;
-        /** @todo: More fields which are not required atm. */
+        /** @todo More fields which are not required atm. */
     } Hdr64;
 } FBSDMSGBUF;
 /** Pointer to a message buffer structure. */
@@ -174,10 +174,12 @@ typedef DBGDIGGERFBSD *PDBGDIGGERFBSD;
 /** Versioned and bitness wrapper. */
 #define FBSD_UNION(a_pThis, a_pUnion, a_Member)  ((a_pThis)->f64Bit ? (a_pUnion)->Hdr64. a_Member : (a_pUnion)->Hdr32. a_Member )
 
+
 /*********************************************************************************************************************************
 *   Internal Functions                                                                                                           *
 *********************************************************************************************************************************/
 static DECLCALLBACK(int)  dbgDiggerFreeBsdInit(PUVM pUVM, void *pvData);
+
 
 /*********************************************************************************************************************************
 *   Global Variables                                                                                                             *

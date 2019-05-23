@@ -39,6 +39,10 @@
         <file alias="cd_modify_22px_hidpi.png">images/hidpi/cd_modify_22px_hidpi.png</file>
         <file alias="cd_modify_disabled_16px_hidpi.png">images/hidpi/cd_modify_disabled_16px_hidpi.png</file>
         <file alias="cd_modify_disabled_22px_hidpi.png">images/hidpi/cd_modify_disabled_22px_hidpi.png</file>
+        <file alias="cd_move_16px_hidpi.png">images/hidpi/cd_move_16px_hidpi.png</file>
+        <file alias="cd_move_22px_hidpi.png">images/hidpi/cd_move_22px_hidpi.png</file>
+        <file alias="cd_move_disabled_16px_hidpi.png">images/hidpi/cd_move_disabled_16px_hidpi.png</file>
+        <file alias="cd_move_disabled_22px_hidpi.png">images/hidpi/cd_move_disabled_22px_hidpi.png</file>
         <file alias="cd_read_16px_hidpi.png">images/hidpi/cd_read_16px_hidpi.png</file>
         <file alias="cd_release_16px_hidpi.png">images/hidpi/cd_release_16px_hidpi.png</file>
         <file alias="cd_release_22px_hidpi.png">images/hidpi/cd_release_22px_hidpi.png</file>
@@ -62,13 +66,13 @@
         <file alias="commit_host_iface_22px_hidpi.png">images/hidpi/commit_host_iface_22px_hidpi.png</file>
         <file alias="commit_host_iface_disabled_22px_hidpi.png">images/hidpi/commit_host_iface_disabled_22px_hidpi.png</file>
         <file alias="connect_16px_hidpi.png">images/hidpi/connect_16px_hidpi.png</file>
+        <file alias="connect_on_16px_hidpi.png">images/hidpi/connect_on_16px_hidpi.png</file>
         <file alias="controller_add_16px_hidpi.png">images/hidpi/controller_add_16px_hidpi.png</file>
         <file alias="controller_add_disabled_16px_hidpi.png">images/hidpi/controller_add_disabled_16px_hidpi.png</file>
         <file alias="controller_remove_16px_hidpi.png">images/hidpi/controller_remove_16px_hidpi.png</file>
         <file alias="controller_remove_disabled_16px_hidpi.png">images/hidpi/controller_remove_disabled_16px_hidpi.png</file>
         <file alias="cpu_16px_hidpi.png">images/hidpi/cpu_16px_hidpi.png</file>
         <file alias="description_16px_hidpi.png">images/hidpi/description_16px_hidpi.png</file>
-        <file alias="disconnect_16px_hidpi.png">images/hidpi/disconnect_16px_hidpi.png</file>
         <file alias="diskimage_16px_hidpi.png">images/hidpi/diskimage_16px_hidpi.png</file>
         <file alias="diskimage_22px_hidpi.png">images/hidpi/diskimage_22px_hidpi.png</file>
         <file alias="diskimage_32px_hidpi.png">images/hidpi/diskimage_32px_hidpi.png</file>
@@ -128,6 +132,10 @@
         <file alias="fd_modify_22px_hidpi.png">images/hidpi/fd_modify_22px_hidpi.png</file>
         <file alias="fd_modify_disabled_16px_hidpi.png">images/hidpi/fd_modify_disabled_16px_hidpi.png</file>
         <file alias="fd_modify_disabled_22px_hidpi.png">images/hidpi/fd_modify_disabled_22px_hidpi.png</file>
+        <file alias="fd_move_16px_hidpi.png">images/hidpi/fd_move_16px_hidpi.png</file>
+        <file alias="fd_move_22px_hidpi.png">images/hidpi/fd_move_22px_hidpi.png</file>
+        <file alias="fd_move_disabled_16px_hidpi.png">images/hidpi/fd_move_disabled_16px_hidpi.png</file>
+        <file alias="fd_move_disabled_22px_hidpi.png">images/hidpi/fd_move_disabled_22px_hidpi.png</file>
         <file alias="fd_read_16px_hidpi.png">images/hidpi/fd_read_16px_hidpi.png</file>
         <file alias="fd_release_16px_hidpi.png">images/hidpi/fd_release_16px_hidpi.png</file>
         <file alias="fd_release_22px_hidpi.png">images/hidpi/fd_release_22px_hidpi.png</file>
@@ -167,6 +175,10 @@
         <file alias="hd_modify_22px_hidpi.png">images/hidpi/hd_modify_22px_hidpi.png</file>
         <file alias="hd_modify_disabled_16px_hidpi.png">images/hidpi/hd_modify_disabled_16px_hidpi.png</file>
         <file alias="hd_modify_disabled_22px_hidpi.png">images/hidpi/hd_modify_disabled_22px_hidpi.png</file>
+        <file alias="hd_move_16px_hidpi.png">images/hidpi/hd_move_16px_hidpi.png</file>
+        <file alias="hd_move_22px_hidpi.png">images/hidpi/hd_move_22px_hidpi.png</file>
+        <file alias="hd_move_disabled_16px_hidpi.png">images/hidpi/hd_move_disabled_16px_hidpi.png</file>
+        <file alias="hd_move_disabled_22px_hidpi.png">images/hidpi/hd_move_disabled_22px_hidpi.png</file>
         <file alias="hd_new_16px_hidpi.png">images/hidpi/hd_new_16px_hidpi.png</file>
         <file alias="hd_new_disabled_16px_hidpi.png">images/hidpi/hd_new_disabled_16px_hidpi.png</file>
         <file alias="hd_read_16px_hidpi.png">images/hidpi/hd_read_16px_hidpi.png</file>

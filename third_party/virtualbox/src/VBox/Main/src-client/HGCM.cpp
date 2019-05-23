@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -104,8 +104,8 @@ class HGCMService
 
         VBOXHGCMSVCFNTABLE m_fntable;
 
-        int m_cClients;
-        int m_cClientsAllocated;
+        uint32_t m_cClients;
+        uint32_t m_cClientsAllocated;
 
         uint32_t *m_paClientIds;
 
@@ -1200,7 +1200,7 @@ void HGCMService::ReleaseService(void)
          * a global state to be saved: only per client info is relevant.
          * The global state of a service is configured during VM startup.
          */
-        int i;
+        uint32_t i;
 
         for (i = 0; i < pSvc->m_cClients; i++)
         {
@@ -1375,10 +1375,31 @@ int HGCMService::CreateAndConnectClient(uint32_t *pu32ClientIdOut, uint32_t u32C
                 /* Add the client Id to the array. */
                 if (m_cClients == m_cClientsAllocated)
                 {
-                    m_paClientIds = (uint32_t *)RTMemRealloc(m_paClientIds, (m_cClientsAllocated + 64) *
-                                                             sizeof(m_paClientIds[0]));
-                    Assert(m_paClientIds);
-                    m_cClientsAllocated += 64;
+                    const uint32_t cDelta = 64;
+
+                    /* Guards against integer overflow on 32bit arch and also limits size of m_paClientIds array to 4GB*/
+                    if (m_cClientsAllocated < UINT32_MAX / sizeof(m_paClientIds[0]) - cDelta)
+                    {
+                        uint32_t *paClientIdsNew;
+
+                        paClientIdsNew = (uint32_t *)RTMemRealloc(m_paClientIds, (m_cClientsAllocated + cDelta) *
+                            sizeof(m_paClientIds[0]));
+                        Assert(paClientIdsNew);
+
+                        if (paClientIdsNew)
+                        {
+                            m_paClientIds = paClientIdsNew;
+                            m_cClientsAllocated += cDelta;
+                        }
+                        else
+                        {
+                            rc = VERR_NO_MEMORY;
+                        }
+                    }
+                    else
+                    {
+                        rc = VERR_NO_MEMORY;
+                    }
                 }
 
                 m_paClientIds[m_cClients] = handle;
@@ -1442,7 +1463,7 @@ int HGCMService::DisconnectClient(uint32_t u32ClientId, bool fFromService)
     }
 
     /* Remove the client id from the array in any case, rc does not matter. */
-    int i;
+    uint32_t i;
 
     for (i = 0; i < m_cClients; i++)
     {

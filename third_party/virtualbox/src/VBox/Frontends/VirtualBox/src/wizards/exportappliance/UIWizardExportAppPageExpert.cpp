@@ -46,8 +46,6 @@ UIWizardExportAppPageExpert::UIWizardExportAppPageExpert(const QStringList &sele
     /* Create widgets: */
     QGridLayout *pMainLayout = new QGridLayout(this);
     {
-        pMainLayout->setContentsMargins(8, 6, 8, 6);
-        pMainLayout->setSpacing(10);
         m_pSelectorCnt = new QGroupBox(this);
         {
             QVBoxLayout *pSelectorCntLayout = new QVBoxLayout(m_pSelectorCnt);

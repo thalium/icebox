@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter id="TechnicalBackground">
   <title>Sous-bassements techniques</title>
 
@@ -61,7 +61,7 @@
       <para>Par exemple, quand vous créez une machine virtuelle qui s'appelle
       "VM Exemple", vous verrez que VirtualBox crée<orderedlist>
           <listitem>
-            <para>le dossier <computeroutput>$HOME/VirtualBox VMs/VM Exemple/</computeroutput> 
+            <para>le dossier <computeroutput>$HOME/VirtualBox VMs/VM Exemple/</computeroutput>
             et, dans ce dossier,</para>
           </listitem>
 
@@ -78,7 +78,7 @@
       une nouvelle machine virtuelle" comme décrit au <xref linkend="gui-createvm" />. Une fois que
       vous commencez à travailler avec la VM, des fichiers supplémentaires
       apparaîtront&#xA0;: vous trouverez des fichiers journaux dans un
-      sous-dossier qui s'appelle 
+      sous-dossier qui s'appelle
       <computeroutput>Logs</computeroutput>, et une fois que vous aurez pris
       des instantanés, ils apparaîtront dans un sous-dossier
       <computeroutput>Snapshots</computeroutput>. Pour chaque VM, vous pouvez
@@ -99,7 +99,7 @@
       <para>Si vous avez mis à jour vers VirtualBox 4.0 en partant d'une ancienne
       version de VirtualBox, vous aurez probablement vos fichiers de paramètres
       et les disques selon l'organisation du système de fichiers d'alors.</para>
-      
+
       <para>Avant la version 4.0, VirtualBox séparait les fichiers de
       paramètrage de la machine des images de disque virtuel. Les fichiers de
       paramétrage de la machine avaient une extension
@@ -120,7 +120,7 @@
             d'un hôte à l'autre car les fichiers concernés ne se trouvaient pas
             dans le même dossier. De plus, les médias virtuels de toutes les
             machines étaient enregistrés avec un registre global dans le
-            fichier des paramètres transversaux de VirtualBox. 
+            fichier des paramètres transversaux de VirtualBox.
             (<computeroutput>$HOME/.VirtualBox/VirtualBox.xml</computeroutput>).</para>
 
             <para>Pour déplacer une machine sur un autre hôte, il n'était donc
@@ -134,14 +134,14 @@
 
           <listitem>
             <para>Le stockage des images de disque virtuel, qui peuvent beaucoup
-            grossir, sous le répertoire caché 
+            grossir, sous le répertoire caché
             <computeroutput>.VirtualBox</computeroutput> (au moins sur les hôtes
             Linux et Solaris) amenait de nombreux utilisateurs à se demander
             ce qu'était devenu leur espace disque.</para>
           </listitem>
         </orderedlist></para>
 
-      <para>Si les nouvelles VMs créées avec VirtualBox 4.0 ou supérieur 
+      <para>Si les nouvelles VMs créées avec VirtualBox 4.0 ou supérieur
       respectent la nouvelle organisation, pour une compatibilité maximum, les
       anciennes VMs <emphasis>ne sont pas</emphasis> converties en nouvelle
       organisation. Sans cela, les paramètres de la machine seraient immanquablement
@@ -169,9 +169,9 @@
       fichier des paramètres globaux de <computeroutput>VirtualBox.xml</computeroutput>
       pointe vers tous les autres fichiers de configuration, ce qui permet
       de naviguer entre plusieurs configurations de VirtualBox.</para>
-      
+
       <para>VirtualBox stocke essentiellement dans ce répertoire son fichier
-      de paramètres globaux, un autre fichier XML appelé 
+      de paramètres globaux, un autre fichier XML appelé
       <computeroutput>VirtualBox.xml</computeroutput>. Cela comprend des
        options de configuration globales et la liste des machines virtuelles
        enregistrées avec des pointeurs vers leurs fichiers de paramètres XML.
@@ -183,14 +183,14 @@
       fichier de paramètres. Par compatibilité, ce registre de médias existe
       toujours si vous mettez à jour VirtualBox et s'il y a des médias
       issus de machines créées avec une version inférieure à 4.0. Si vous
-      n'avez pas de telles machines, il n'y aura pas de registre de médias 
+      n'avez pas de telles machines, il n'y aura pas de registre de médias
      global&#xA0;; avec VirtualBox 4.0, chaque fichier XML d'une machine a
      son propre registre de médias.</para>
 
       <para>De même, avant VirtualBox 4.0, le dossier "Machines" par défaut
       et le dossier "HardDisks" par défaut se trouvaient dans le répertoire de
       configuration de VirtualBox (par exemple, <computeroutput>$HOME/.VirtualBox/Machines</computeroutput>
-      sur Linux). Si vous mettez à jour à partir d'une version de VirtualBox 
+      sur Linux). Si vous mettez à jour à partir d'une version de VirtualBox
       inférieure à la 4.0, les fichiers de ce répertoire ne sont pas déplacés
       automatiquement afin de ne pas casser la rétro compatibilité.</para>
     </sect2>
@@ -263,7 +263,7 @@
     <sect2>
       <title>Fichiers XML de VirtualBox</title>
 
-      <para>VirtualBox utilise l'XML tant pour les fichiers des paramètres 
+      <para>VirtualBox utilise l'XML tant pour les fichiers des paramètres
       de la machine que pour le fichier de configuration global,
       <computeroutput>VirtualBox.xml</computeroutput>.</para>
 
@@ -288,20 +288,20 @@
           ou sur un slot SATA. Si vous avez un fichier de paramètres d'une
           machine d'une ancienne version et si vous mettez à jour
           VirtualBox vers la 3.1 et si vous déplacez le lecteur DVD de sa
-          position par défaut, on ne peut pas l'exprimer dans l'ancien format 
+          position par défaut, on ne peut pas l'exprimer dans l'ancien format
           des paramètres&#xA0;; le fichier XML de la machine serait écrit dans
-          le nouveau format et une copie de sauvegarde de l'ancien format serait 
+          le nouveau format et une copie de sauvegarde de l'ancien format serait
           gardée.</para>
         </footnote> Dans ces cas-là, VirtualBox sauvegarde le fichier des anciens
         paramètres dans le répertoire de configuration de la machine virtuelle.
-        Si vous avez besoin de revenir à une ancienne version de VirtualBox, 
+        Si vous avez besoin de revenir à une ancienne version de VirtualBox,
         vous devrez recopier à la main ces fichiers de sauvegarde.</para>
 
       <para>Nous ne documentons volontairement pas les spécifications des fichiers
       XML de VirtualBox car nous nous réservons le droit de les modifier à l'avenir.
       Nous vous suggérons donc fortement de ne pas éditer ces fichiers à la main.
       VirtualBox offre un accès complet à ses données de configuration par son
-      outil en ligne de commande <computeroutput>VBoxManage</computeroutput> 
+      outil en ligne de commande <computeroutput>VBoxManage</computeroutput>
       (voir le <xref linkend="vboxmanage" />) et son API (voir le <xref
       linkend="VirtualBoxAPI" />).</para>
     </sect2>
@@ -338,9 +338,9 @@
           <para>Le processus de la GUI,, <computeroutput>VirtualBox</computeroutput>,
           une application client basée sur la bibliothèque multiplateformes
           Qt. Lancée sans l'option <computeroutput>--startvm</computeroutput>,
-          cette application agit comme un gestionnaire de VirtualBox, en 
+          cette application agit comme un gestionnaire de VirtualBox, en
           affichant les VMs et leurs paramètres. Elle communique alors les
-          paramètres et les changements d'état à <computeroutput>VBoxSVC</computeroutput> 
+          paramètres et les changements d'état à <computeroutput>VBoxSVC</computeroutput>
           et elle répercute les changements subis par d'autres moyens comme
           <computeroutput>VBoxManage</computeroutput>.</para>
         </listitem>
@@ -360,7 +360,7 @@
     être utilisés pour mettre en pause la VM en fonction, les autres composants
     reflèteront toujours le changement d'état.</para>
 
-    <para>La GUI de VirtualBox n'est qu'une des nombreuses interfaces (client) 
+    <para>La GUI de VirtualBox n'est qu'une des nombreuses interfaces (client)
     disponibles. La liste complète comprise dans VirtualBox est&#xA0;:<orderedlist>
         <listitem>
           <para><computeroutput>VirtualBox</computeroutput>, l'interface Qt
@@ -382,7 +382,7 @@
         <listitem>
           <para><computeroutput>VBoxHeadless</computeroutput>, une interface de
           VM qui ne fournit pas directement de sortie graphique et d'entrée
-          clavier/souris, 
+          clavier/souris,
           mais qui permet une redirection par VirtualBox Remote Desktop Extension;
           voir <xref linkend="vboxheadless" />.</para>
         </listitem>
@@ -488,7 +488,7 @@
         compatibles PC et sont largement supportés par les systèmes d'exploitation
         invités. Pour les périphériques réseaux et de stockage en particulier,
         il existe plusieurs options pour que les périphériques émulés accèdent
-        au matériel sous-jacent. Ces périphériques sont gérés par 
+        au matériel sous-jacent. Ces périphériques sont gérés par
         PDM.</para>
       </listitem>
 
@@ -533,7 +533,7 @@
     décrit ci-dessus, est difficile. Il existe deux façons de faire cela&#xA0;:<itemizedlist>
         <listitem>
           <para>Depuis 2006, les processeurs Intel et AMD supportent ce qu'on
-          appelle la <emphasis role="bold">"virtualisation matérielle"</emphasis>. 
+          appelle la <emphasis role="bold">"virtualisation matérielle"</emphasis>.
           Cela signifie que ces processeurs peuvent aider VirtualBox à intercepter
           des opérations potentiellement dangereuses que pourrait essayer de
           faire le système d'exploitation invité et ils facilitent la présentation
@@ -554,7 +554,7 @@
         <listitem>
           <para>Contrairement aux autres logiciels de virtualisation, pour
           de nombreux scénari d'utilisation, VirtualBox <emphasis>n'exige pas</emphasis>
-          que les fonctions de virtualisation matérielle soient présentes. 
+          que les fonctions de virtualisation matérielle soient présentes.
           Par des techniques sophistiquées, VirtualBox virtualise beaucoup
           de systèmes d'exploitation invités complets de manière
           <emphasis role="bold">logicielle</emphasis>. Cela signifie que vous
@@ -577,8 +577,8 @@
           <para>Le support des invités 64 bits de VirtualBox (ajouté avec la
           version 2.0) et le multiprocessing (SMP, ajouté avec la version 3.0)
           exigent tous deux l'activation de la virtualisation matérielle (ce n'est
-          tout de même pas une grosse limite vu l'immense majorité des processeurs 
-          64 bits et multi c&#x153;urs actuels incluant lavirtualisation matérielle&#xA0;; 
+          tout de même pas une grosse limite vu l'immense majorité des processeurs
+          64 bits et multi c&#x153;urs actuels incluant lavirtualisation matérielle&#xA0;;
           les exceptions à cette règle étant par exemple les anciens processeurs
           Intel Celeron et AMD Opteron.)</para>
         </listitem>
@@ -587,7 +587,7 @@
     <warning>
       <para>Ne lancez pas d'autres hyperviseurs (produits de virtualisation
       open-source ou propriétaires) en même temps que VirtualBox&#xA0;! Si
-      plusieurs hyperviseurs peuvent, en principe, être <emphasis>installés</emphasis> 
+      plusieurs hyperviseurs peuvent, en principe, être <emphasis>installés</emphasis>
       en parallèle, n'essayez pas de <emphasis>lancer</emphasis> plusieurs
       machines virtuelles à partir d'hyperviseurs concurrents en même temps.
       VirtualBox ne peut pas savoir ce qu'un autre hyperviseur essaie de faire
@@ -621,7 +621,7 @@
     (le mode V86, utilisé par la "DOS Box" de Windows 3.x et d'OS/2 2.x), aucun
     port n'existait pour virtualiser toute l'architecture.</para>
 
-    <para>En théorie, la virtualisation logicielle n'est pas complexe en soi. 
+    <para>En théorie, la virtualisation logicielle n'est pas complexe en soi.
     Outre les quatre niveaux de privilèges ("rings") fournis par le matériel
     (dont en général on n'utilise que deux&#xA0;: ring 0 pour le mode noyau et ring 3
     pour le mode utilisateur), il faut faire la différence entre le "contexte
@@ -639,7 +639,7 @@
     sur la manière d'intercepter ce que fait le noyau de l'invité.</para>
 
     <para>Il y a plusieurs solutions possibles à ces problèmes. Une approche
-    est l'émulation logicielle totale, ce qui implique généralement une recompilation. 
+    est l'émulation logicielle totale, ce qui implique généralement une recompilation.
     A savoir que tout le code qui doit être exécuté par l'invité est analysé,
     transformé sous une forme qui n'autorisera pas l'invité à modifier et à
     voir l'état réel du processeur, lequel l'exécutera simplement. Ce processus
@@ -673,7 +673,7 @@
         <listitem>
           <para>Le code invité ring 3 s'exécute sans modifications, à pleine
           vitesse, autant que possible. Le nombre d'erreurs sera généralement
-          faible (sauf si l'invité autorise l'E/S du port depuis ring 3, 
+          faible (sauf si l'invité autorise l'E/S du port depuis ring 3,
           chose que nous ne pouvons pas faire car nous ne voulons pas que
           l'invité puisse accéder aux ports réels). On parle aussi de "mode brut",
           car le code ring-3 de l'invité s'exécute sans modifications.</para>
@@ -701,7 +701,7 @@
           on y reviendra (dans ces situations, VirtualBox analyse en fait le
           code invité en utilisant son propre désassembleur). De plus, certaines
           instructions privilégiées telles que LIDT doivent être gérées à part.
-          Enfin, tout le code en mode réel ou protégé (comme le code du BIOS, 
+          Enfin, tout le code en mode réel ou protégé (comme le code du BIOS,
           un invité DOS ou un démarrage de système d'exploitation) se lance
           complètement dans un recompilateur.</para>
         </listitem>
@@ -767,12 +767,12 @@
       </orderedlist></para>
 
     <para>Pour corriger ces problèmes de performances et de sécurité, VirtualBox
-    contient un gestionnaire d'analyse et de scan de code 
+    contient un gestionnaire d'analyse et de scan de code
     (Code Scanning and Analysis Manager (CSAM)), qui désassemble le code invité,
     et un gestionnaire de correctifs (Patch Manager (PATM)), qui peut le remplacer
     pendant l'exécution.</para>
 
-    <para>Avant d'exécuter du code ring 0, CSAM le scanne de manière récursive 
+    <para>Avant d'exécuter du code ring 0, CSAM le scanne de manière récursive
     pour trouver des instructions problématiques. PATM le corrige <emphasis>in-situ
     </emphasis>, c'est-à-dire qu'il remplace l'instruction par un passage à la
     mémoire de l'hyperviseur, où un générateur intégré a mis une implémentation
@@ -804,7 +804,7 @@
         </listitem>
 
         <listitem>
-          <para>En mode non-racine, le fonctionnement du processeur est très 
+          <para>En mode non-racine, le fonctionnement du processeur est très
           différent. Il y a toujours quatre niveaux de privilèges et le même
           jeu d'instructions, mais une nouvelle structure, qui s'appelle VMCS
           (Virtual Machine Control Structure), contrôle désormais le fonctionnement
@@ -822,7 +822,7 @@
 
     <para>Les VMCS permettent un contrôle très fin via ce que les invités
     peuvent et ne peuvent pas faire. Par exemple, un hyperviseur peut autoriser
-    un invité à écrire certains bits dans des registres de contrôle protégés, 
+    un invité à écrire certains bits dans des registres de contrôle protégés,
     mais pas dans d'autres. Cela permet une virtualisation efficace dans des cas
     où les invités peuvent être autorisés à écrire des bits de contrôle sans
     gêner l'hyperviseur, tout en les empêchant de modifier les bits de contrôle
@@ -862,7 +862,7 @@
     relativement élevée. Cela pose des problèmes aux périphériques dont l'émulation
     requiet un grand nombre de captures (traps). Par exemple, avec le périphérique
     VGA en mode 16 couleurs, mon seulement tous les accès au port en E/S, mais
-    aussi tous les accès à la mémoire tampon (framebuffer) doivent être 
+    aussi tous les accès à la mémoire tampon (framebuffer) doivent être
     capturés.</para>
   </sect1>
 
@@ -883,10 +883,10 @@
 
           <para>Avec la pagination imbriquée, le matériel fournit un autre niveau
           d'indirection en passant du linéaire aux adresses physiques. Les
-          tables de page fonctionnent comme avant mais les adresses linéaires 
+          tables de page fonctionnent comme avant mais les adresses linéaires
           sont désormais d'abord traduites en adresses physiques de "l'invité"
           et pas directement en adresses physiques. Il existe maintenant un
-          nouveau jeu de registres de pagination sous le mécanisme de pagination 
+          nouveau jeu de registres de pagination sous le mécanisme de pagination
           traditionnel et qui traduit les adresses physiques invitées en adresses
           physiques de l'hôte, qui sont utilisées pour accéder à la mémoire.</para>
 
@@ -896,7 +896,7 @@
           n'intervienne. La pagination imbriquée améliore ainsi substantiellement
           les performances de virtualisation.</para>
 
-          <para>Sur les processeurs AMD, la pagination imbriquée est disponible 
+          <para>Sur les processeurs AMD, la pagination imbriquée est disponible
           depuis l'architecture Barcelona (K10) -- on l'appelle maintenant la
           "rapid virtualization indexing" (RVI). Intel a ajouté le support de
           la pagination imbriquée, qu'ils appellent la "extended page tables" (EPT),

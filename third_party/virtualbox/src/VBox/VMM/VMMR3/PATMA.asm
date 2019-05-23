@@ -3,6 +3,7 @@
 ; PATM Assembly Routines.
 ;
 
+;
 ; Copyright (C) 2006-2017 Oracle Corporation
 ;
 ; This file is part of VirtualBox Open Source Edition (OSE), as

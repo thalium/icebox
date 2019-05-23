@@ -14,15 +14,6 @@
 # VirtualBox OSE distribution. VirtualBox OSE is distributed in the
 # hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
 #
-# The contents of this file may alternatively be used under the terms
-# of the Common Development and Distribution License Version 1.0
-# (CDDL) only, as it comes in the "COPYING.CDDL" file of the
-# VirtualBox OSE distribution, in which case the provisions of the
-# CDDL are applicable instead of those of the GPL.
-#
-# You may elect to license modified versions of this file under the
-# terms and conditions of either the GPL or the CDDL or both.
-#
 
 ifndef VBOX_DOC_MANUAL_CONFIG_KMK_INCLUDED
 VBOX_DOC_MANUAL_CONFIG_KMK_INCLUDED = 1
@@ -186,7 +177,6 @@ ifdef VBOX_XML_CATALOG
 		'<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">' \
 		'  <public publicId="-//OASIS//ELEMENTS DocBook XML Information Pool V4.3//EN"          uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/dbpoolx.mod"/>' \
 		'  <public publicId="-//OASIS//DTD DocBook XML V4.3//EN"                                uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/docbookx.dtd"/>' \
-		'  <public publicId="-//OASIS//DTD DocBook XML V4.4//EN"                                uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/docbookx.dtd"/>' \
 		'  <public publicId="-//OASIS//ENTITIES DocBook XML Character Entities V4.3//EN"        uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/dbcentx.mod"/>' \
 		'  <public publicId="-//OASIS//ENTITIES DocBook XML Notations V4.3//EN"                 uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/dbnotnx.mod"/>' \
 		'  <public publicId="-//OASIS//ENTITIES DocBook XML Additional General Entities V4.3//EN" uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/dbgenent.mod"/>' \
@@ -195,8 +185,6 @@ ifdef VBOX_XML_CATALOG
 		'  <public publicId="-//OASIS//DTD DocBook XML CALS Table Model V4.3//EN"               uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/calstblx.dtd"/>' \
 		'  <rewriteSystem systemIdStartString="http://www.oasis-open.org/docbook/xml/4.3" rewritePrefix="file:///$(VBOX_PATH_DOCBOOK_DTD)"/>' \
 		'  <rewriteURI         uriStartString="http://www.oasis-open.org/docbook/xml/4.3" rewritePrefix="file:///$(VBOX_PATH_DOCBOOK_DTD)"/>' \
-		'  <rewriteSystem systemIdStartString="http://www.oasis-open.org/docbook/xml/4.4" rewritePrefix="file:///$(VBOX_PATH_DOCBOOK_DTD)"/>' \
-		'  <rewriteURI         uriStartString="http://www.oasis-open.org/docbook/xml/4.4" rewritePrefix="file:///$(VBOX_PATH_DOCBOOK_DTD)"/>' \
 		'  <public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Arrow Relations//EN"   uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-amsa.ent"/>' \
 		'  <public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Binary Operators//EN"  uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-amsb.ent"/>' \
 		'  <public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Delimiters//EN"        uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-amsc.ent"/>' \

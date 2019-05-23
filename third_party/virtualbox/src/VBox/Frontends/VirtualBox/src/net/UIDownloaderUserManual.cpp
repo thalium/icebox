@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -30,6 +30,7 @@
 # include "VBoxGlobal.h"
 # include "UIMessageCenter.h"
 # include "UIModalWindowManager.h"
+# include "UIVersion.h"
 
 #endif /* !VBOX_WITH_PRECOMPILED_HEADERS */
 
@@ -57,13 +58,18 @@ UIDownloaderUserManual::UIDownloaderUserManual()
     if (!m_spInstance)
         m_spInstance = this;
 
+    /* Get version number and adjust it for test and trunk builds. The server only has official releases. */
+    const QString strVersion = UIVersion(vboxGlobal().vboxVersionStringNormalized()).effectiveRelasedVersion().toString();
+
     /* Compose User Manual filename: */
     QString strUserManualFullFileName = vboxGlobal().helpFile();
     QString strUserManualShortFileName = QFileInfo(strUserManualFullFileName).fileName();
 
     /* Add sources: */
-    addSource(QString("http://download.virtualbox.org/virtualbox/%1/").arg(vboxGlobal().vboxVersionStringNormalized()) + strUserManualShortFileName);
-    addSource(QString("http://download.virtualbox.org/virtualbox/") + strUserManualShortFileName);
+    QString strSource1 = QString("https://download.virtualbox.org/virtualbox/%1/").arg(strVersion) + strUserManualShortFileName;
+    QString strSource2 = QString("https://download.virtualbox.org/virtualbox/") + strUserManualShortFileName;
+    addSource(strSource1);
+    addSource(strSource2);
 
     /* Set target: */
     QString strUserManualDestination = QDir(vboxGlobal().homeFolder()).absoluteFilePath(strUserManualShortFileName);

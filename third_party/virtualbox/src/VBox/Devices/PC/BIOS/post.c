@@ -1,3 +1,4 @@
+/* $Id: post.c $ */
 /** @file
  * BIOS POST routines. Used only during initialization.
  */

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -265,7 +265,7 @@ void UISettingsSerializerProgress::prepare()
                 {
                     /* Configure label: */
                     const QIcon icon = UIIconPool::iconSet(":/progress_settings_90px.png");
-                    pLabelPixmap->setPixmap(icon.pixmap(icon.availableSizes().first()));
+                    pLabelPixmap->setPixmap(icon.pixmap(icon.availableSizes().value(0, QSize(90, 90))));
                     /* Add label into layout: */
                     pLayoutPixmap->addWidget(pLabelPixmap);
                 }

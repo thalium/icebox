@@ -2,7 +2,7 @@
 <!DOCTYPE service_bundle SYSTEM "/usr/share/lib/xml/dtd/service_bundle.dtd.1">
 <!--
 # Solaris SMF service manifest for VirtualBox webservice server.
-# $Id$
+# $Id: virtualbox-webservice.xml $
 
     Copyright (C) 2008-2015 Oracle Corporation
 

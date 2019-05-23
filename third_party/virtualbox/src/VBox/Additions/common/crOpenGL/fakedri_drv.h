@@ -1,12 +1,10 @@
 /* $Id: fakedri_drv.h $ */
-
 /** @file
- *
  * VirtualBox guest OpenGL DRI header
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -118,5 +116,5 @@ extern void VBOXGLXENTRYTAG(glXSelectEvent)(Display *dpy, GLXDrawable draw, unsi
 # undef GLXAPI_ENTRY
 #endif
 
-#endif /* ___CROPENGL_FAKEDRIDRV_H */
+#endif /* !___CROPENGL_FAKEDRIDRV_H */
 

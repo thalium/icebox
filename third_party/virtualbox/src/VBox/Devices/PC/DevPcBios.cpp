@@ -1077,9 +1077,9 @@ static DECLCALLBACK(void) pcbiosMemSetup(PPDMDEVINS pDevIns, PDMDEVMEMSETUPCTX e
  */
 static DECLCALLBACK(int) pcbiosDestruct(PPDMDEVINS pDevIns)
 {
+    PDMDEV_CHECK_VERSIONS_RETURN_QUIET(pDevIns);
     PDEVPCBIOS  pThis = PDMINS_2_DATA(pDevIns, PDEVPCBIOS);
     LogFlow(("pcbiosDestruct:\n"));
-    PDMDEV_CHECK_VERSIONS_RETURN_QUIET(pDevIns);
 
     /*
      * Free MM heap pointers.
@@ -1179,13 +1179,11 @@ static int pcbiosBootFromCfg(PPDMDEVINS pDevIns, PCFGMNODE pCfg, const char *psz
  */
 static DECLCALLBACK(int)  pcbiosConstruct(PPDMDEVINS pDevIns, int iInstance, PCFGMNODE pCfg)
 {
-    RT_NOREF1(iInstance);
+    PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
     PDEVPCBIOS  pThis = PDMINS_2_DATA(pDevIns, PDEVPCBIOS);
     int         rc;
     int         cb;
-
-    Assert(iInstance == 0);
-    PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
+    Assert(iInstance == 0); RT_NOREF(iInstance);
 
     /*
      * Validate configuration.

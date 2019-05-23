@@ -15,6 +15,9 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
+#ifdef LOG_GROUP
+# undef LOG_GROUP
+#endif
 #define LOG_GROUP LOG_GROUP_MAIN_DISPLAY
 #include "LoggingNew.h"
 
@@ -31,7 +34,7 @@
 
 #include <VBox/com/VirtualBox.h>
 
-#include "EbmlWriter.h"
+#include "WebMWriter.h"
 #include "VideoRec.h"
 
 #ifdef VBOX_WITH_LIBVPX
@@ -203,6 +206,8 @@ typedef struct VIDEORECSTREAM
         VIDEORECVIDEOFRAME  Frame;
         bool                fHasVideoData;
 #endif
+        /** Number of failed attempts to encode the current video frame in a row. */
+        uint16_t            cFailedEncodingFrames;
     } Video;
 } VIDEORECSTREAM, *PVIDEORECSTREAM;
 
@@ -222,8 +227,8 @@ typedef struct VIDEORECCONTEXT
     RTCRITSECT          CritSect;
     /** Semaphore to signal the encoding worker thread. */
     RTSEMEVENT          WaitEvent;
-    /** Whether this conext is enabled or not. */
-    bool                fEnabled;
+    /** Whether this conext is in started state or not. */
+    bool                fStarted;
     /** Shutdown indicator. */
     bool                fShutdown;
     /** Worker thread. */
@@ -716,6 +721,7 @@ int VideoRecContextCreate(uint32_t cScreens, PVIDEORECCFG pVideoRecCfg, PVIDEORE
     {
         pCtx->tsStartMs = RTTimeMilliTS();
         pCtx->enmState  = VIDEORECSTS_UNINITIALIZED;
+        pCtx->fStarted  = false;
         pCtx->fShutdown = false;
 
         /* Copy the configuration to our context. */
@@ -733,7 +739,7 @@ int VideoRecContextCreate(uint32_t cScreens, PVIDEORECCFG pVideoRecCfg, PVIDEORE
         if (RT_SUCCESS(rc))
         {
             pCtx->enmState = VIDEORECSTS_INITIALIZED;
-            pCtx->fEnabled = true;
+            pCtx->fStarted = true;
 
             if (ppCtx)
                 *ppCtx = pCtx;
@@ -759,9 +765,6 @@ int VideoRecContextDestroy(PVIDEORECCONTEXT pCtx)
     if (!pCtx)
         return VINF_SUCCESS;
 
-    /* First, disable the context. */
-    ASMAtomicWriteBool(&pCtx->fEnabled, false);
-
     if (pCtx->enmState == VIDEORECSTS_INITIALIZED)
     {
         /* Set shutdown indicator. */
@@ -773,6 +776,9 @@ int VideoRecContextDestroy(PVIDEORECCONTEXT pCtx)
         int rc = RTThreadWait(pCtx->Thread, 10 * 1000 /* 10s timeout */, NULL);
         if (RT_FAILURE(rc))
             return rc;
+
+        /* Disable the context. */
+        ASMAtomicWriteBool(&pCtx->fStarted, false);
 
         rc = RTSemEventDestroy(pCtx->WaitEvent);
         AssertRC(rc);
@@ -940,12 +946,8 @@ static int videoRecStreamOpenFile(PVIDEORECSTREAM pStream, PVIDEORECCFG pCfg)
     AssertPtrReturn(pszAbsPath, VERR_NO_MEMORY);
 
     RTPathStripSuffix(pszAbsPath);
-    AssertPtrReturn(pszAbsPath, VERR_INVALID_PARAMETER);
 
-    char *pszSuff    = RTPathSuffix(pszAbsPath);
-    if (!pszSuff)
-        pszSuff = RTStrDup(".webm");
-
+    char *pszSuff = RTStrDup(".webm");
     if (!pszSuff)
     {
         RTStrFree(pszAbsPath);
@@ -955,7 +957,7 @@ static int videoRecStreamOpenFile(PVIDEORECSTREAM pStream, PVIDEORECCFG pCfg)
     char *pszFile = NULL;
 
     int rc;
-    if (pStream->uScreenID > 1)
+    if (pCfg->aScreens.size() > 1)
         rc = RTStrAPrintf(&pszFile, "%s-%u%s", pszAbsPath, pStream->uScreenID + 1, pszSuff);
     else
         rc = RTStrAPrintf(&pszFile, "%s%s", pszAbsPath, pszSuff);
@@ -963,31 +965,56 @@ static int videoRecStreamOpenFile(PVIDEORECSTREAM pStream, PVIDEORECCFG pCfg)
     if (RT_SUCCESS(rc))
     {
         uint64_t fOpen = RTFILE_O_WRITE | RTFILE_O_DENY_WRITE;
-#ifdef DEBUG
-        fOpen |= RTFILE_O_CREATE_REPLACE;
-#else
+
         /* Play safe: the file must not exist, overwriting is potentially
          * hazardous as nothing prevents the user from picking a file name of some
          * other important file, causing unintentional data loss. */
         fOpen |= RTFILE_O_CREATE;
-#endif
+
         RTFILE hFile;
         rc = RTFileOpen(&hFile, pszFile, fOpen);
+        if (rc == VERR_ALREADY_EXISTS)
+        {
+            RTStrFree(pszFile);
+            pszFile = NULL;
+
+            RTTIMESPEC ts;
+            RTTimeNow(&ts);
+            RTTIME time;
+            RTTimeExplode(&time, &ts);
+
+            if (pCfg->aScreens.size() > 1)
+                rc = RTStrAPrintf(&pszFile, "%s-%04d-%02u-%02uT%02u-%02u-%02u-%09uZ-%u%s",
+                                  pszAbsPath, time.i32Year, time.u8Month, time.u8MonthDay,
+                                  time.u8Hour, time.u8Minute, time.u8Second, time.u32Nanosecond,
+                                  pStream->uScreenID + 1, pszSuff);
+            else
+                rc = RTStrAPrintf(&pszFile, "%s-%04d-%02u-%02uT%02u-%02u-%02u-%09uZ%s",
+                                  pszAbsPath, time.i32Year, time.u8Month, time.u8MonthDay,
+                                  time.u8Hour, time.u8Minute, time.u8Second, time.u32Nanosecond,
+                                  pszSuff);
+
+            if (RT_SUCCESS(rc))
+                rc = RTFileOpen(&hFile, pszFile, fOpen);
+        }
+
         if (RT_SUCCESS(rc))
         {
             pStream->enmDst       = VIDEORECDEST_FILE;
             pStream->File.hFile   = hFile;
             pStream->File.pszFile = pszFile; /* Assign allocated string to our stream's config. */
         }
-        else
-            RTStrFree(pszFile);
     }
 
     RTStrFree(pszSuff);
     RTStrFree(pszAbsPath);
 
     if (RT_FAILURE(rc))
-        LogRel(("VideoRec: Failed to open file for screen %RU32, rc=%Rrc\n", pStream->uScreenID, rc));
+    {
+        LogRel(("VideoRec: Failed to open file '%s' for screen %RU32, rc=%Rrc\n",
+                pszFile ? pszFile : "<Unnamed>", pStream->uScreenID, rc));
+        RTStrFree(pszFile);
+    }
 
     return rc;
 }
@@ -1039,10 +1066,12 @@ int VideoRecStreamInit(PVIDEORECCONTEXT pCtx, uint32_t uScreen)
 
     PVIDEORECCFG pCfg = &pCtx->Cfg;
 
-    pStream->pCtx          = pCtx;
+    pStream->pCtx = pCtx;
+
     /** @todo Make the following parameters configurable on a per-stream basis? */
-    pStream->Video.uWidth  = pCfg->Video.uWidth;
-    pStream->Video.uHeight = pCfg->Video.uHeight;
+    pStream->Video.uWidth                = pCfg->Video.uWidth;
+    pStream->Video.uHeight               = pCfg->Video.uHeight;
+    pStream->Video.cFailedEncodingFrames = 0;
 
 #ifndef VBOX_VIDEOREC_WITH_QUEUE
     /* When not using a queue, we only use one frame per stream at once.
@@ -1076,13 +1105,13 @@ int VideoRecStreamInit(PVIDEORECCONTEXT pCtx, uint32_t uScreen)
     {
         case VIDEORECDEST_FILE:
         {
-            rc = pStream->File.pWEBM->CreateEx(pStream->File.pszFile, &pStream->File.hFile,
+            rc = pStream->File.pWEBM->OpenEx(pStream->File.pszFile, &pStream->File.hFile,
 #ifdef VBOX_WITH_AUDIO_VIDEOREC
-                                               pCfg->Audio.fEnabled ? WebMWriter::AudioCodec_Opus : WebMWriter::AudioCodec_None,
+                                             pCfg->Audio.fEnabled ? WebMWriter::AudioCodec_Opus : WebMWriter::AudioCodec_None,
 #else
-                                               WebMWriter::AudioCodec_None,
+                                             WebMWriter::AudioCodec_None,
 #endif
-                                               pCfg->Video.fEnabled ? WebMWriter::VideoCodec_VP8 : WebMWriter::VideoCodec_None);
+                                             pCfg->Video.fEnabled ? WebMWriter::VideoCodec_VP8 : WebMWriter::VideoCodec_None);
             if (RT_FAILURE(rc))
             {
                 LogRel(("VideoRec: Failed to create the capture output file '%s' (%Rrc)\n", pStream->File.pszFile, rc));
@@ -1101,7 +1130,7 @@ int VideoRecStreamInit(PVIDEORECCONTEXT pCtx, uint32_t uScreen)
                     break;
                 }
 
-                LogRel(("VideoRec: Recording screen #%u with %RU32x%RU32 @ %RU32 kbps, %u FPS\n",
+                LogRel(("VideoRec: Recording screen #%u with %RU32x%RU32 @ %RU32 kbps, %RU32 FPS\n",
                         uScreen, pCfg->Video.uWidth, pCfg->Video.uHeight, pCfg->Video.uRate, pCfg->Video.uFPS));
             }
 
@@ -1170,13 +1199,13 @@ int VideoRecStreamInit(PVIDEORECCONTEXT pCtx, uint32_t uScreen)
     rcv = vpx_codec_enc_init(&pVC->VPX.Ctx, DEFAULTCODEC, &pVC->VPX.Cfg, 0);
     if (rcv != VPX_CODEC_OK)
     {
-        LogFlow(("Failed to initialize VP8 encoder: %s\n", vpx_codec_err_to_string(rcv)));
+        LogRel(("VideoRec: Failed to initialize VP8 encoder: %s\n", vpx_codec_err_to_string(rcv)));
         return VERR_INVALID_PARAMETER;
     }
 
     if (!vpx_img_alloc(&pVC->VPX.RawImage, VPX_IMG_FMT_I420, pCfg->Video.uWidth, pCfg->Video.uHeight, 1))
     {
-        LogFlow(("Failed to allocate image %RU32x%RU32\n", pCfg->Video.uWidth, pCfg->Video.uHeight));
+        LogRel(("VideoRec: Failed to allocate image %RU32x%RU32\n", pCfg->Video.uWidth, pCfg->Video.uHeight));
         return VERR_NO_MEMORY;
     }
 
@@ -1194,13 +1223,10 @@ int VideoRecStreamInit(PVIDEORECCONTEXT pCtx, uint32_t uScreen)
  * @returns Enabled video recording features.
  * @param   pCfg                Pointer to recording configuration.
  */
-VIDEORECFEATURES VideoRecGetEnabled(PVIDEORECCFG pCfg)
+VIDEORECFEATURES VideoRecGetFeatures(PVIDEORECCFG pCfg)
 {
-    if (   !pCfg
-        || !pCfg->fEnabled)
-    {
+    if (!pCfg)
         return VIDEORECFEATURE_NONE;
-    }
 
     VIDEORECFEATURES fFeatures = VIDEORECFEATURE_NONE;
 
@@ -1246,17 +1272,17 @@ bool VideoRecIsReady(PVIDEORECCONTEXT pCtx, uint32_t uScreen, uint64_t uTimeStam
 }
 
 /**
- * Returns whether video recording for a given recording context is active or not.
+ * Returns whether a given recording context has been started or not.
  *
  * @returns true if active, false if not.
  * @param   pCtx                 Pointer to video recording context.
  */
-bool VideoRecIsActive(PVIDEORECCONTEXT pCtx)
+bool VideoRecIsStarted(PVIDEORECCONTEXT pCtx)
 {
     if (!pCtx)
         return false;
 
-    return ASMAtomicReadBool(&pCtx->fEnabled);
+    return ASMAtomicReadBool(&pCtx->fStarted);
 }
 
 /**
@@ -1296,7 +1322,7 @@ bool VideoRecIsLimitReached(PVIDEORECCONTEXT pCtx, uint32_t uScreen, uint64_t ts
 
         /* Check for available free disk space */
         if (   pStream->File.pWEBM
-            && pStream->File.pWEBM->GetAvailableSpace() < 0x100000) /**@todo r=andy WTF? Fix this. */
+            && pStream->File.pWEBM->GetAvailableSpace() < 0x100000) /** @todo r=andy WTF? Fix this. */
         {
             LogRel(("VideoRec: Not enough free storage space available, stopping video capture\n"));
             return true;
@@ -1334,9 +1360,14 @@ static int videoRecEncodeAndWrite(PVIDEORECSTREAM pStream, PVIDEORECVIDEOFRAME p
                                            pCfg->Video.Codec.VPX.uEncoderDeadline /* Quality setting */);
     if (rcv != VPX_CODEC_OK)
     {
-        LogFunc(("Failed to encode video frame: %s\n", vpx_codec_err_to_string(rcv)));
-        return VERR_GENERAL_FAILURE;
+        if (pStream->Video.cFailedEncodingFrames++ < 64)
+        {
+            LogRel(("VideoRec: Failed to encode video frame: %s\n", vpx_codec_err_to_string(rcv)));
+            return VERR_GENERAL_FAILURE;
+        }
     }
+
+    pStream->Video.cFailedEncodingFrames = 0;
 
     vpx_codec_iter_t iter = NULL;
     rc = VERR_NO_DATA;

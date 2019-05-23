@@ -1,0 +1,42 @@
+# $Id: .scm-settings $
+## @file
+# Source code massager settings for the SharedOpenGL host service.
+#
+
+#
+# Copyright (C) 2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+
+# The basic config here is external copyright, however there are lots of exceptions
+/*.h:                                      --external-copyright --no-convert-tabs --no-strip-trailing-blanks
+/crserverlib/presenter/server_presenter.h: --no-external-copyright --convert-tabs --strip-trailing-blanks
+/render/renderspu_cocoa_helper.h:          --no-external-copyright --convert-tabs --strip-trailing-blanks
+
+/*.c:                                      --external-copyright --no-convert-tabs --no-strip-trailing-blanks
+/crserverlib/server_framebuffer.c:         --no-external-copyright --convert-tabs --strip-trailing-blanks
+/crserverlib/server_getshaders.c:          --no-external-copyright --convert-tabs --strip-trailing-blanks
+/crserverlib/server_glsl.c:                --no-external-copyright --convert-tabs --strip-trailing-blanks
+/crserverlib/server_texture.c:             --no-external-copyright --convert-tabs --strip-trailing-blanks
+/dlm/dlm_lists.c:                          --no-external-copyright --convert-tabs --strip-trailing-blanks
+/dlm/dlm_state.c:                          --no-external-copyright --convert-tabs --strip-trailing-blanks
+/expando/expandospu.c:                     --no-external-copyright --convert-tabs --strip-trailing-blanks
+/render/renderspu_cocoa.c:                 --no-external-copyright --convert-tabs --strip-trailing-blanks
+/unpacker/unpack_framebuffer.c:            --no-external-copyright --convert-tabs --strip-trailing-blanks
+/unpacker/unpack_shaders.c:                --no-external-copyright --convert-tabs --strip-trailing-blanks
+/unpacker/unpack_visibleregion.c:          --no-external-copyright --convert-tabs --strip-trailing-blanks
+
+/*.def:                                    --external-copyright
+/*.py:                                     --external-copyright --no-convert-tabs --no-strip-trailing-blanks
+
+--filter-out-files *_special
+--filter-out-files /LICENSE
+

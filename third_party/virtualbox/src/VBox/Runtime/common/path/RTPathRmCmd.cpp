@@ -1,10 +1,10 @@
 /* $Id: RTPathRmCmd.cpp $ */
 /** @file
- * IPRT - TAR Command.
+ * IPRT - RM Command.
  */
 
 /*
- * Copyright (C) 2013-2017 Oracle Corporation
+ * Copyright (C) 2013-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -269,7 +269,7 @@ static int rtPathRmRecursive(PRTPATHRMCMDOPTS pOpts, char *pszPath, size_t cchPa
     /*
      * Traverse the directory.
      */
-    PRTDIR hDir;
+    RTDIR hDir;
     int rc = RTDirOpen(&hDir, pszPath);
     if (RT_FAILURE(rc))
         return rtPathRmError(pOpts, pszPath, rc, "Error opening directory '%s': %Rrc", pszPath, rc);
@@ -567,7 +567,6 @@ RTDECL(RTEXITCODE) RTPathRmCmd(unsigned cArgs, char **papszArgs)
                 Opts.fVerbose = true;
                 break;
 
-
             case RTPATHRMCMD_OPT_MACHINE_READABLE:
                 Opts.fMachineReadable = true;
                 break;
@@ -609,9 +608,9 @@ RTDECL(RTEXITCODE) RTPathRmCmd(unsigned cArgs, char **papszArgs)
      */
     if (Opts.fMachineReadable)
     {
-        rc = RTStrmSetMode(g_pStdOut, true /*fBinary*/, false /*fCurrentCodeSet*/);
-        if (RT_FAILURE(rc))
-            return RTMsgErrorExit(RTEXITCODE_FAILURE, "RTStrmSetMode failed: %Rrc.\n", rc);
+        int rc2 = RTStrmSetMode(g_pStdOut, true /*fBinary*/, false /*fCurrentCodeSet*/);
+        if (RT_FAILURE(rc2))
+            return RTMsgErrorExit(RTEXITCODE_FAILURE, "RTStrmSetMode failed: %Rrc.\n", rc2);
         static const char s_achHeader[] = "hdr_id=rm\0hdr_ver=1";
         RTStrmWrite(g_pStdOut, s_achHeader, sizeof(s_achHeader));
     }

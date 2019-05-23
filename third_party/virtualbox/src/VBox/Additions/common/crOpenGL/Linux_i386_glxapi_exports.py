@@ -1,5 +1,8 @@
+from __future__ import print_function
+
+__copyright__ = \
 """
-Copyright (C) 2009-2016 Oracle Corporation
+Copyright (C) 2009-2017 Oracle Corporation
 
 This file is part of VirtualBox Open Source Edition (OSE), as
 available from http://www.virtualbox.org. This file is free software;
@@ -10,7 +13,6 @@ VirtualBox OSE distribution. VirtualBox OSE is distributed in the
 hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
 """
 
-from __future__ import print_function
 import sys
 
 #Note, this should match the fakedri_glxfuncsList.h order
@@ -88,6 +90,8 @@ print("%else ; X86")
 print("extern glxim")
 print("%endif")
 print("")
+
+## r=bird: This could all be done with macros in the assembler.
 
 for index in range(len(glx_functions)):
     func_name = glx_functions[index]

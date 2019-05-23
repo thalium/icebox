@@ -6,7 +6,7 @@
 #
 
 #
-# Copyright (C) 2006-2012 Oracle Corporation
+# Copyright (C) 2006-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -61,6 +61,7 @@ TRANSLATIONS = \
 	nls/VirtualBox_fr.ts \
 	nls/VirtualBox_gl.ts \
 	nls/VirtualBox_he.ts \
+	nls/VirtualBox_hr_HR.ts \
 	nls/VirtualBox_hu.ts \
 	nls/VirtualBox_id.ts \
 	nls/VirtualBox_it.ts \

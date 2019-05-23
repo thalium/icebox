@@ -4,7 +4,6 @@
 #
 
 #
-#
 # Copyright (C) 2006-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
@@ -69,6 +68,7 @@ MOD_OBJS = \
 	common/checksum/ipv6.o \
 	common/err/RTErrConvertFromErrno.o \
 	common/err/RTErrConvertToErrno.o \
+	common/err/errinfo.o \
 	common/log/log.o \
 	common/log/logellipsis.o \
 	common/log/logrel.o \
@@ -86,6 +86,7 @@ MOD_OBJS = \
 	common/misc/handletable.o \
 	common/misc/handletablectx.o \
 	common/misc/thread.o \
+	common/string/RTStrCat.o \
 	common/string/RTStrCopy.o \
 	common/string/RTStrCopyEx.o \
 	common/string/RTStrCopyP.o \

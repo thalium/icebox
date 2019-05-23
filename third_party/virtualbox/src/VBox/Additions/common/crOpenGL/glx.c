@@ -1,11 +1,10 @@
-/* $Id: dri_drv.c $ */
-
+/* $Id: glx.c $ */
 /** @file
  * VBox OpenGL GLX implementation
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -39,12 +38,12 @@
 /* Force full pixmap update if there're more damaged regions than this number*/
 #define CR_MAX_DAMAGE_REGIONS_TRACKED 50
 
-/* Force "bigger" update (full or clip) if it's reducing number of regions updated 
+/* Force "bigger" update (full or clip) if it's reducing number of regions updated
  * but doesn't increase updated area more than given number
  */
 #define CR_MIN_DAMAGE_PROFIT_SIZE 64*64
 
-/*@todo combine it in some other place*/
+/** @todo combine it in some other place*/
 /* Size of pack spu buffer - some delta for commands packing, see pack/packspu_config.c*/
 
 /** Ramshankar: Solaris compiz fix */
@@ -217,7 +216,7 @@ VBOXGLXTAG(glXChooseVisual)( Display *dpy, int screen, int *attribList )
     searchvis.visualid = XVisualIDFromVisual(DefaultVisual(dpy, screen));
     pret = XGetVisualInfo(dpy, VisualIDMask, &searchvis, &nvisuals);
     XUNLOCK(dpy);
-      
+
     if (nvisuals!=1) crWarning("glXChooseVisual: XGetVisualInfo returned %i visuals for %x", nvisuals, (unsigned int) searchvis.visualid);
     if (pret)
       crDebug("glXChooseVisual returned %x depth=%i", (unsigned int)pret->visualid, pret->depth);
@@ -231,7 +230,7 @@ err_exit:
 /**
  **  There is a problem with glXCopyContext.
  ** IRIX and Mesa both define glXCopyContext
- ** to have the mask argument being a 
+ ** to have the mask argument being a
  ** GLuint.  XFree 4 and oss.sgi.com
  ** define it to be an unsigned long.
  ** Solution: We don't support
@@ -239,7 +238,7 @@ err_exit:
  ** \#ifdef out the code.
  */
 DECLEXPORT(void)
-VBOXGLXTAG(glXCopyContext)( Display *dpy, GLXContext src, GLXContext dst, 
+VBOXGLXTAG(glXCopyContext)( Display *dpy, GLXContext src, GLXContext dst,
 #if defined(AIX) || defined(PLAYSTATION2)
 GLuint mask
 #elif defined(SunOS)
@@ -376,7 +375,7 @@ DECLEXPORT(Bool) VBOXGLXTAG(glXMakeCurrent)( Display *dpy, GLXDrawable drawable,
 
         if (pGlxPixmap)
         {
-            /*@todo*/
+            /** @todo */
             crWarning("Unimplemented glxMakeCurrent call with GLXPixmap passed, unexpected things might happen.");
         }
     }
@@ -522,14 +521,14 @@ DECLEXPORT(int) VBOXGLXTAG(glXGetConfig)( Display *dpy, XVisualInfo *vis, int at
             break;
 #if defined(SunOS) || 1
         /*
-          I don't think this is even a valid attribute for glxGetConfig. 
+          I don't think this is even a valid attribute for glxGetConfig.
           No idea why this gets called under SunOS but we simply ignore it
           -- jw
         */
         case GLX_X_VISUAL_TYPE:
           crWarning ("Ignoring Unsupported GLX Call: glxGetConfig with attrib 0x%x", attrib);
           break;
-#endif 
+#endif
 
         case GLX_TRANSPARENT_TYPE:
             *value = GLX_NONE_EXT;
@@ -678,7 +677,7 @@ DECLEXPORT(const char *) VBOXGLXTAG(glXGetClientString)( Display *dpy, int name 
             break;
 
         case GLX_EXTENSIONS:
-            /*@todo should be a screen not a name...but it's not used anyway*/
+            /** @todo should be a screen not a name...but it's not used anyway*/
             retval  = glXQueryExtensionsString(dpy, name);
             break;
 
@@ -729,7 +728,7 @@ DECLEXPORT(CR_GLXFuncPtr) VBOXGLXTAG(glXGetProcAddress)( const GLubyte *name )
 
 #if GLX_EXTRAS
 
-DECLEXPORT(GLXPbufferSGIX) 
+DECLEXPORT(GLXPbufferSGIX)
 VBOXGLXTAG(glXCreateGLXPbufferSGIX)(Display *dpy, GLXFBConfigSGIX config,
                                     unsigned int width, unsigned int height,
                                     int *attrib_list)
@@ -781,14 +780,14 @@ DECLEXPORT(int) VBOXGLXTAG(glXGetFBConfigAttribSGIX)(Display *dpy, GLXFBConfig c
     return VBOXGLXTAG(glXGetFBConfigAttrib)(dpy, config, attribute, value);
 }
 
-DECLEXPORT(GLXFBConfigSGIX *) 
+DECLEXPORT(GLXFBConfigSGIX *)
 VBOXGLXTAG(glXChooseFBConfigSGIX)(Display *dpy, int screen,
                                   int *attrib_list, int *nelements)
 {
     return VBOXGLXTAG(glXChooseFBConfig)(dpy, screen, attrib_list, nelements);
 }
 
-DECLEXPORT(GLXPixmap) 
+DECLEXPORT(GLXPixmap)
 VBOXGLXTAG(glXCreateGLXPixmapWithConfigSGIX)(Display *dpy,
                                              GLXFBConfig config,
                                              Pixmap pixmap)
@@ -796,7 +795,7 @@ VBOXGLXTAG(glXCreateGLXPixmapWithConfigSGIX)(Display *dpy,
     return VBOXGLXTAG(glXCreatePixmap)(dpy, config, pixmap, NULL);
 }
 
-DECLEXPORT(GLXContext) 
+DECLEXPORT(GLXContext)
 VBOXGLXTAG(glXCreateContextWithConfigSGIX)(Display *dpy, GLXFBConfig config,
                                            int render_type,
                                            GLXContext share_list,
@@ -811,7 +810,7 @@ VBOXGLXTAG(glXCreateContextWithConfigSGIX)(Display *dpy, GLXFBConfig config,
     return VBOXGLXTAG(glXCreateContext)(dpy, NULL, share_list, direct);
 }
 
-DECLEXPORT(XVisualInfo *) 
+DECLEXPORT(XVisualInfo *)
 VBOXGLXTAG(glXGetVisualFromFBConfigSGIX)(Display *dpy,
                                          GLXFBConfig config)
 {
@@ -968,7 +967,7 @@ err_exit:
     return NULL;
 }
 
-DECLEXPORT(GLXContext) 
+DECLEXPORT(GLXContext)
 VBOXGLXTAG(glXCreateNewContext)(Display *dpy, GLXFBConfig config, int render_type, GLXContext share_list, Bool direct)
 {
     (void) dpy;
@@ -986,7 +985,7 @@ VBOXGLXTAG(glXCreateNewContext)(Display *dpy, GLXFBConfig config, int render_typ
     return VBOXGLXTAG(glXCreateContext)(dpy, NULL, share_list, direct);
 }
 
-DECLEXPORT(GLXPbuffer) 
+DECLEXPORT(GLXPbuffer)
 VBOXGLXTAG(glXCreatePbuffer)(Display *dpy, GLXFBConfig config, ATTRIB_TYPE *attrib_list)
 {
     (void) dpy;
@@ -999,7 +998,7 @@ VBOXGLXTAG(glXCreatePbuffer)(Display *dpy, GLXFBConfig config, ATTRIB_TYPE *attr
 /* Note: there're examples where glxpixmaps are created without current context, so can't do much of the work here.
  * Instead we'd do necessary initialization on first use of those pixmaps.
  */
-DECLEXPORT(GLXPixmap) 
+DECLEXPORT(GLXPixmap)
 VBOXGLXTAG(glXCreatePixmap)(Display *dpy, GLXFBConfig config, Pixmap pixmap, ATTRIB_TYPE *attrib_list)
 {
     ATTRIB_TYPE *attrib;
@@ -1084,7 +1083,7 @@ VBOXGLXTAG(glXCreatePixmap)(Display *dpy, GLXFBConfig config, Pixmap pixmap, ATT
     return (GLXPixmap) pixmap;
 }
 
-DECLEXPORT(GLXWindow) 
+DECLEXPORT(GLXWindow)
 VBOXGLXTAG(glXCreateWindow)(Display *dpy, GLXFBConfig config, Window win, ATTRIB_TYPE *attrib_list)
 {
     GLXFBConfig *realcfg;
@@ -1293,7 +1292,7 @@ DECLEXPORT(int) VBOXGLXTAG(glXGetFBConfigAttrib)(Display *dpy, GLXFBConfig confi
             *value = 0;
             break;
         default:
-            crDebug("glXGetFBConfigAttrib: unknown attribute=0x%x", attribute); 
+            crDebug("glXGetFBConfigAttrib: unknown attribute=0x%x", attribute);
             return GLX_BAD_ATTRIBUTE;
     }
 
@@ -1439,7 +1438,7 @@ static void stubInitXSharedMemory(Display *dpy)
     stub.bShmInitFailed = GL_FALSE;
     crInfo("Using XSHM for GLX_EXT_texture_from_pixmap");
 
-    /*Anyway mark to be deleted when our process detaches it, in case of segfault etc*/   
+    /*Anyway mark to be deleted when our process detaches it, in case of segfault etc*/
 
 /* Ramshankar: Solaris compiz fix */
 #ifndef RT_OS_SOLARIS
@@ -1452,7 +1451,7 @@ void stubQueryXDamageExtension(Display *dpy, ContextInfo *pContext)
     int erb, vma, vmi;
 
     CRASSERT(pContext);
-    
+
     if (pContext->damageQueryFailed)
         return;
 
@@ -1478,7 +1477,7 @@ static void stubFetchDamageOnDrawable(Display *dpy, GLX_Pixmap_t *pGlxPixmap)
         XRectangle *returnRects;
         int        nReturnRects;
 
-        /* Get the damage region as a server region */ 
+        /* Get the damage region as a server region */
         XserverRegion serverDamageRegion = XFixesCreateRegion (dpy, NULL, 0);
 
         /* Unite damage region with server region and clear damage region */
@@ -1609,7 +1608,7 @@ static GLX_Pixmap_t* stubInitGlxPixmap(GLX_Pixmap_t* pCreateInfoPixmap, Display 
         xgcv.subwindow_mode = IncludeInferiors;
         pGlxPixmap->gc = XCreateGC(dpy, (Pixmap)draw, GCGraphicsExposures|GCSubwindowMode, &xgcv);
 
-        pGlxPixmap->hShmPixmap = XShmCreatePixmap(dpy, pGlxPixmap->root, stub.xshmSI.shmaddr, &stub.xshmSI, 
+        pGlxPixmap->hShmPixmap = XShmCreatePixmap(dpy, pGlxPixmap->root, stub.xshmSI.shmaddr, &stub.xshmSI,
                                                   pGlxPixmap->w, pGlxPixmap->h, pGlxPixmap->depth);
     }
     else
@@ -1640,12 +1639,12 @@ static GLX_Pixmap_t* stubInitGlxPixmap(GLX_Pixmap_t* pCreateInfoPixmap, Display 
         pGlxPixmap->pDamageRegion = NULL;
     }
 
-    /* glTexSubImage2D generates GL_INVALID_OP if texture array hasn't been defined by a call to glTexImage2D first. 
+    /* glTexSubImage2D generates GL_INVALID_OP if texture array hasn't been defined by a call to glTexImage2D first.
      * It's fine for small textures which would be updated in stubXshmUpdateWholeImage, but we'd never call glTexImage2D for big ones.
      * Note that we're making empty texture by passing NULL as pixels pointer, so there's no overhead transferring data to host.*/
     if (CR_MAX_TRANSFER_SIZE < 4*pGlxPixmap->w*pGlxPixmap->h)
     {
-        stub.spu->dispatch_table.TexImage2D(pGlxPixmap->target, 0, pGlxPixmap->format, pGlxPixmap->w, pGlxPixmap->h, 0, 
+        stub.spu->dispatch_table.TexImage2D(pGlxPixmap->target, 0, pGlxPixmap->format, pGlxPixmap->w, pGlxPixmap->h, 0,
                                             GL_BGRA, GL_UNSIGNED_BYTE, NULL);
     }
 
@@ -1659,7 +1658,7 @@ static void stubXshmUpdateWholeImage(Display *dpy, GLXDrawable draw, GLX_Pixmap_
 {
     /* To limit the size of transferring buffer, split bigger texture into regions
      * which fit into connection buffer. Could be done in hgcm or packspu but implementation in this place allows to avoid
-     * unnecessary memcpy. 
+     * unnecessary memcpy.
      * This also workarounds guest driver failures when sending 6+mb texture buffers on linux.
      */
     if (CR_MAX_TRANSFER_SIZE < 4*pGlxPixmap->w*pGlxPixmap->h)
@@ -1690,19 +1689,19 @@ static void stubXshmUpdateWholeImage(Display *dpy, GLXDrawable draw, GLX_Pixmap_
         CRPixelPackState unpackState;
 
         XLOCK(dpy);
-        XCopyArea(dpy, (Pixmap)draw, pGlxPixmap->hShmPixmap, pGlxPixmap->gc, 
+        XCopyArea(dpy, (Pixmap)draw, pGlxPixmap->hShmPixmap, pGlxPixmap->gc,
                   pGlxPixmap->x, pGlxPixmap->y, pGlxPixmap->w, pGlxPixmap->h, 0, 0);
         /* Have to make sure XCopyArea is processed */
         XSync(dpy, False);
         XUNLOCK(dpy);
-        
+
         stubGetUnpackState(&unpackState);
         stubSetUnpackState(&defaultPacking);
-        stub.spu->dispatch_table.TexImage2D(pGlxPixmap->target, 0, pGlxPixmap->format, pGlxPixmap->w, pGlxPixmap->h, 0, 
+        stub.spu->dispatch_table.TexImage2D(pGlxPixmap->target, 0, pGlxPixmap->format, pGlxPixmap->w, pGlxPixmap->h, 0,
                                             GL_BGRA, GL_UNSIGNED_BYTE, stub.xshmSI.shmaddr);
         stubSetUnpackState(&unpackState);
-        /*crDebug("Sync texture for drawable 0x%x(dmg handle 0x%x) [%i,%i,%i,%i]", 
-                  (unsigned int) draw, (unsigned int)pGlxPixmap->hDamage, 
+        /*crDebug("Sync texture for drawable 0x%x(dmg handle 0x%x) [%i,%i,%i,%i]",
+                  (unsigned int) draw, (unsigned int)pGlxPixmap->hDamage,
                   pGlxPixmap->x, pGlxPixmap->y, pGlxPixmap->w, pGlxPixmap->h);*/
     }
 }
@@ -1738,7 +1737,7 @@ static void stubXshmUpdateImageRect(Display *dpy, GLXDrawable draw, GLX_Pixmap_t
         CRPixelPackState unpackState;
 
         XLOCK(dpy);
-        XCopyArea(dpy, (Pixmap)draw, pGlxPixmap->hShmPixmap, pGlxPixmap->gc, 
+        XCopyArea(dpy, (Pixmap)draw, pGlxPixmap->hShmPixmap, pGlxPixmap->gc,
                   pRect->x, pRect->y, pRect->width, pRect->height, 0, 0);
         /* Have to make sure XCopyArea is processed */
         XSync(dpy, False);
@@ -1750,12 +1749,12 @@ static void stubXshmUpdateImageRect(Display *dpy, GLXDrawable draw, GLX_Pixmap_t
         {
             stub.spu->dispatch_table.PixelStorei(GL_UNPACK_ROW_LENGTH, pGlxPixmap->w);
         }
-        stub.spu->dispatch_table.TexSubImage2D(pGlxPixmap->target, 0, pRect->x, pRect->y, pRect->width, pRect->height, 
+        stub.spu->dispatch_table.TexSubImage2D(pGlxPixmap->target, 0, pRect->x, pRect->y, pRect->width, pRect->height,
                                                GL_BGRA, GL_UNSIGNED_BYTE, stub.xshmSI.shmaddr);
         stubSetUnpackState(&unpackState);
 
-        /*crDebug("Region sync texture for drawable 0x%x(dmg handle 0x%x) [%i,%i,%i,%i]", 
-                (unsigned int) draw, (unsigned int)pGlxPixmap->hDamage, 
+        /*crDebug("Region sync texture for drawable 0x%x(dmg handle 0x%x) [%i,%i,%i,%i]",
+                (unsigned int) draw, (unsigned int)pGlxPixmap->hDamage,
                 pRect->x, pRect->y, pRect->width, pRect->height);*/
     }
 }
@@ -1768,7 +1767,7 @@ Bool checkevents(Display *display, XEvent *event, XPointer arg)
     {
         ContextInfo *context = stubGetCurrentContext();
         XDamageNotifyEvent *e = (XDamageNotifyEvent *) event;
-        /* we're interested in pixmaps only...and those have e->drawable set to 0 or other strange value for some odd reason 
+        /* we're interested in pixmaps only...and those have e->drawable set to 0 or other strange value for some odd reason
          * so have to walk glxpixmaps hashtable to find if we have damage event handle assigned to some pixmap
          */
         /*crDebug("Event: Damage for drawable 0x%x, handle 0x%x (level=%i) [%i,%i,%i,%i]",
@@ -1781,7 +1780,7 @@ Bool checkevents(Display *display, XEvent *event, XPointer arg)
 }
 #endif
 
-/*@todo check what error codes could we throw for failures here*/
+/** @todo check what error codes could we throw for failures here*/
 DECLEXPORT(void) VBOXGLXTAG(glXBindTexImageEXT)(Display *dpy, GLXDrawable draw, int buffer, const int *attrib_list)
 {
     ContextInfo *context = stubGetCurrentContext();
@@ -1825,7 +1824,7 @@ DECLEXPORT(void) VBOXGLXTAG(glXBindTexImageEXT)(Display *dpy, GLXDrawable draw, 
     /* No shared memory? Rollback to use slow x protocol then */
     if (stub.xshmSI.shmid<0)
     {
-        /*@todo add damage support here too*/
+        /** @todo add damage support here too*/
         XImage *pxim;
         CRPixelPackState unpackState;
 
@@ -1859,7 +1858,7 @@ DECLEXPORT(void) VBOXGLXTAG(glXBindTexImageEXT)(Display *dpy, GLXDrawable draw, 
 
         stubGetUnpackState(&unpackState);
         stubSetUnpackState(&defaultPacking);
-        stub.spu->dispatch_table.TexImage2D(pGlxPixmap->target, 0, pGlxPixmap->format, pxim->width, pxim->height, 0, 
+        stub.spu->dispatch_table.TexImage2D(pGlxPixmap->target, 0, pGlxPixmap->format, pxim->width, pxim->height, 0,
                                             GL_BGRA, GL_UNSIGNED_BYTE, (void*)(&(pxim->data[0])));
         stubSetUnpackState(&unpackState);
         XDestroyImage(pxim);
@@ -1899,7 +1898,7 @@ DECLEXPORT(void) VBOXGLXTAG(glXBindTexImageEXT)(Display *dpy, GLXDrawable draw, 
                     if (damageArea>clipdamageArea || clipdamageArea>fullArea)
                     {
                         crWarning("glXBindTexImageEXT, damage regions seems to be broken, forcing full update");
-                        /*crDebug("**FULL** update for 0x%x, numRect=%li, *FS*=%li, CS=%li, DS=%li", 
+                        /*crDebug("**FULL** update for 0x%x, numRect=%li, *FS*=%li, CS=%li, DS=%li",
                                 (unsigned int)draw, pGlxPixmap->pDamageRegion->numRects, fullArea, clipdamageArea, damageArea);*/
                         stubXshmUpdateWholeImage(dpy, draw, pGlxPixmap);
                     }
@@ -1907,25 +1906,25 @@ DECLEXPORT(void) VBOXGLXTAG(glXBindTexImageEXT)(Display *dpy, GLXDrawable draw, 
                     {
                         if (CR_MIN_DAMAGE_PROFIT_SIZE > (fullArea-damageArea))
                         {
-                            /*crDebug("**FULL** update for 0x%x, numRect=%li, *FS*=%li, CS=%li, DS=%li", 
+                            /*crDebug("**FULL** update for 0x%x, numRect=%li, *FS*=%li, CS=%li, DS=%li",
                                     (unsigned int)draw, pGlxPixmap->pDamageRegion->numRects, fullArea, clipdamageArea, damageArea);*/
                             stubXshmUpdateWholeImage(dpy, draw, pGlxPixmap);
                         }
                         else if (CR_MIN_DAMAGE_PROFIT_SIZE > (clipdamageArea-damageArea))
                         {
-                            /*crDebug("**PARTIAL** update for 0x%x, numRect=%li, FS=%li, *CS*=%li, DS=%li", 
+                            /*crDebug("**PARTIAL** update for 0x%x, numRect=%li, FS=%li, *CS*=%li, DS=%li",
                                     (unsigned int)draw, pGlxPixmap->pDamageRegion->numRects, fullArea, clipdamageArea, damageArea);*/
                             stubXshmUpdateImageRect(dpy, draw, pGlxPixmap, &damageClipBox);
                         }
                         else
                         {
-                            /*crDebug("**PARTIAL** update for 0x%x, numRect=*%li*, FS=%li, CS=%li, *DS*=%li", 
+                            /*crDebug("**PARTIAL** update for 0x%x, numRect=*%li*, FS=%li, CS=%li, *DS*=%li",
                                     (unsigned int)draw, pGlxPixmap->pDamageRegion->numRects, fullArea, clipdamageArea, damageArea);*/
                             for (i=0; i<pGlxPixmap->pDamageRegion->numRects; ++i)
                             {
                                 XRectangle rect;
                                 BoxPtr pBox = &pGlxPixmap->pDamageRegion->rects[i];
-                                
+
                                 rect.x = pBox->x1;
                                 rect.y = pBox->y1;
                                 rect.width = pBox->x2-pBox->x1;

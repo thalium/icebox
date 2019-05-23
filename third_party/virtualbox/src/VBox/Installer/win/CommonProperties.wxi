@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    VirtualBox Windows Installation Script (WiX), common properties (private).
+
+    Copyright (C) 2014-2018 Oracle Corporation
+
+    This file is part of VirtualBox Open Source Edition (OSE), as
+    available from http://www.virtualbox.org. This file is free software;
+    you can redistribute it and/or modify it under the terms of the GNU
+    General Public License (GPL) as published by the Free Software
+    Foundation, in version 2 as it comes in the "COPYING" file of the
+    VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+    hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+-->
+
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wix"
+         xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+  <!-- MSI is soo messed up wrt NT versioning on Windows 10.  msiexec runs in
+       Windows 8.1 compatibility mode, so everything returns 6.3 as the
+       version.  This unfortunately include all system DLLs.  Fortunately,
+       the build number is left as-is, so we ASSUME build numbers above 10000
+       means its Windows 10.
+       Note! "HKLM\Software\Microsoft\Windows NT\CurrentVersion\CurrentBuild" could
+             probably be read here as well (CurrentVersion is "6.3" of course). -->
+  <Property Id="VBOX_IS_WINDOWS_10" >
+    <DirectorySearch Id="DirSearchForWindows10NtDll" Path="[SystemFolder]" >
+      <FileSearch Name="kernelbase.dll" MinVersion="6.3.10000.000" />
+    </DirectorySearch>
+  </Property>
+
+</Include>
+

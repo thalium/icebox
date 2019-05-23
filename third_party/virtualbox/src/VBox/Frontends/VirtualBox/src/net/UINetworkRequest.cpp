@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -77,58 +77,76 @@ void UINetworkRequest::sltHandleNetworkReplyFinish()
     if (!m_pReply)
         return;
 
+    /* If network-reply has no errors: */
+    if (m_pReply->error() == UINetworkReply::NoError)
+    {
+        /* Notify own network-request listeners: */
+        emit sigFinished();
+        /* Notify common network-request listeners: */
+        emit sigFinished(m_uuid);
+    }
     /* If network-request was canceled: */
-    if (m_pReply->error() == UINetworkReply::OperationCanceledError)
+    else if (m_pReply->error() == UINetworkReply::OperationCanceledError)
     {
         /* Notify network-manager: */
         emit sigCanceled(m_uuid);
     }
-    /* If network-reply has no errors: */
-    else if (m_pReply->error() == UINetworkReply::NoError)
-    {
-        /* Check if redirection required: */
-        QUrl redirect = m_pReply->attribute(UINetworkReply::RedirectionTargetAttribute).toUrl();
-        if (redirect.isValid())
-        {
-            /* Cleanup current network-reply first: */
-            cleanupNetworkReply();
-
-            /* Choose redirect-source as current url: */
-            m_url = redirect;
-
-            /* Create new network-reply finally: */
-            prepareNetworkReply();
-        }
-        else
-        {
-            /* Notify own network-request listeners: */
-            emit sigFinished();
-            /* Notify common network-request listeners: */
-            emit sigFinished(m_uuid);
-        }
-    }
-    /* If some error occured: */
+    /* If some other error occured: */
     else
     {
-        /* Check if we have other urls in queue: */
-        if (m_iUrlIndex < m_urls.size() - 1)
+        /* Check if we are able to handle error: */
+        bool fErrorHandled = false;
+
+        /* Handle redirection: */
+        switch (m_pReply->error())
         {
-            /* Cleanup current network-reply first: */
-            cleanupNetworkReply();
+            case UINetworkReply::ContentReSendError:
+            {
+                /* Check whether redirection link was acquired: */
+                const QString strRedirect = m_pReply->header(UINetworkReply::LocationHeader).toString();
+                if (!strRedirect.isEmpty())
+                {
+                    /* Cleanup current network-reply first: */
+                    cleanupNetworkReply();
 
-            /* Choose next url as current: */
-            ++m_iUrlIndex;
-            m_url = m_urls.at(m_iUrlIndex);
+                    /* Choose redirect-source as current url: */
+                    m_url = strRedirect;
 
-            /* Create new network-reply finally: */
-            prepareNetworkReply();
+                    /* Create new network-reply finally: */
+                    prepareNetworkReply();
+
+                    /* Mark this error handled: */
+                    fErrorHandled = true;
+                }
+                break;
+            }
+            default:
+                break;
         }
-        else
+
+        /* If error still unhandled: */
+        if (!fErrorHandled)
         {
-            /* Notify own network-request listeners: */
-            emit sigFailed(m_pReply->errorString());
-            /* Notify common network-request listeners: */
-            emit sigFailed(m_uuid, m_pReply->errorString());
+            /* Check if we have other urls in queue: */
+            if (m_iUrlIndex < m_urls.size() - 1)
+            {
+                /* Cleanup current network-reply first: */
+                cleanupNetworkReply();
+
+                /* Choose next url as current: */
+                ++m_iUrlIndex;
+                m_url = m_urls.at(m_iUrlIndex);
+
+                /* Create new network-reply finally: */
+                prepareNetworkReply();
+            }
+            else
+            {
+                /* Notify own network-request listeners: */
+                emit sigFailed(m_pReply->errorString());
+                /* Notify common network-request listeners: */
+                emit sigFailed(m_uuid, m_pReply->errorString());
+            }
         }
     }
 }
@@ -161,8 +179,8 @@ void UINetworkRequest::sltCancel()
 void UINetworkRequest::prepare()
 {
     /* Prepare listeners for network-manager: */
-    connect(manager(), SIGNAL(sigCancelNetworkRequests()),
-            this, SLOT(sltCancel()), Qt::QueuedConnection);
+    connect(manager(), &UINetworkManager::sigCancelNetworkRequests,
+            this, &UINetworkRequest::sltCancel, Qt::QueuedConnection);
 
     /* Choose first url as current: */
     m_iUrlIndex = 0;
@@ -182,9 +200,10 @@ void UINetworkRequest::prepareNetworkReply()
     AssertPtrReturnVoid(m_pReply.data());
     {
         /* Prepare network-reply: */
-        connect(m_pReply, SIGNAL(downloadProgress(qint64, qint64)),
-                this, SLOT(sltHandleNetworkReplyProgress(qint64, qint64)));
-        connect(m_pReply, SIGNAL(finished()), this, SLOT(sltHandleNetworkReplyFinish()));
+        connect(m_pReply.data(), &UINetworkReply::downloadProgress,
+                this, &UINetworkRequest::sltHandleNetworkReplyProgress);
+        connect(m_pReply.data(), &UINetworkReply::finished,
+                this, &UINetworkRequest::sltHandleNetworkReplyFinish);
 
         /* Mark network-reply as running: */
         m_fRunning = true;

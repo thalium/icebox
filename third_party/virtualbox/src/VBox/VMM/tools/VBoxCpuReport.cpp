@@ -16,9 +16,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #include <iprt/asm.h>
 #include <iprt/asm-amd64-x86.h>
 #include <iprt/buildconfig.h>
@@ -39,10 +39,12 @@
 #include <VBox/vmm/cpum.h>
 #include <VBox/sup.h>
 
+#include "VBoxCpuReport.h"
 
-/*******************************************************************************
-*   Structures and Typedefs                                                    *
-*******************************************************************************/
+
+/*********************************************************************************************************************************
+*   Structures and Typedefs                                                                                                      *
+*********************************************************************************************************************************/
 /** Write only register. */
 #define VBCPUREPMSR_F_WRITE_ONLY      RT_BIT(0)
 
@@ -57,9 +59,9 @@ typedef struct VBCPUREPMSR
 } VBCPUREPMSR;
 
 
-/*******************************************************************************
-*   Global Variables                                                           *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Global Variables                                                                                                             *
+*********************************************************************************************************************************/
 /** The CPU vendor.  Used by the MSR code. */
 static CPUMCPUVENDOR    g_enmVendor = CPUMCPUVENDOR_INVALID;
 /** The CPU microarchitecture.  Used by the MSR code. */
@@ -76,8 +78,12 @@ static bool             g_fNoMsrs = false;
 /** Snooping info storage for vbCpuRepGuessScalableBusFrequencyName. */
 static uint64_t         g_uMsrIntelP6FsbFrequency = UINT64_MAX;
 
+/** The MSR accessors interface. */
+static VBCPUREPMSRACCESSORS g_MsrAcc;
 
-static void vbCpuRepDebug(const char *pszMsg, ...)
+
+
+void vbCpuRepDebug(const char *pszMsg, ...)
 {
     va_list va;
 
@@ -101,7 +107,7 @@ static void vbCpuRepDebug(const char *pszMsg, ...)
 }
 
 
-static void vbCpuRepPrintf(const char *pszMsg, ...)
+void vbCpuRepPrintf(const char *pszMsg, ...)
 {
     va_list va;
 
@@ -218,7 +224,7 @@ static bool vbCpuRepSupportsX2Apic(void)
 static bool msrProberWrite(uint32_t uMsr, uint64_t uValue)
 {
     bool fGp;
-    int rc = SUPR3MsrProberWrite(uMsr, NIL_RTCPUID, uValue, &fGp);
+    int rc = g_MsrAcc.pfnMsrWrite(uMsr, NIL_RTCPUID, uValue, &fGp);
     AssertRC(rc);
     return RT_SUCCESS(rc) && !fGp;
 }
@@ -229,7 +235,7 @@ static bool msrProberRead(uint32_t uMsr, uint64_t *puValue)
 {
     *puValue = 0;
     bool fGp;
-    int rc = SUPR3MsrProberRead(uMsr, NIL_RTCPUID, puValue, &fGp);
+    int rc = g_MsrAcc.pfnMsrProberRead(uMsr, NIL_RTCPUID, puValue, &fGp);
     AssertRC(rc);
     return RT_SUCCESS(rc) && !fGp;
 }
@@ -239,7 +245,7 @@ static bool msrProberRead(uint32_t uMsr, uint64_t *puValue)
 static bool msrProberModifyNoChange(uint32_t uMsr)
 {
     SUPMSRPROBERMODIFYRESULT Result;
-    int rc = SUPR3MsrProberModify(uMsr, NIL_RTCPUID, UINT64_MAX, 0, &Result);
+    int rc = g_MsrAcc.pfnMsrProberModify(uMsr, NIL_RTCPUID, UINT64_MAX, 0, &Result);
     return RT_SUCCESS(rc)
         && !Result.fBeforeGp
         && !Result.fModifyGp
@@ -252,7 +258,7 @@ static bool msrProberModifyNoChange(uint32_t uMsr)
 static bool msrProberModifyZero(uint32_t uMsr)
 {
     SUPMSRPROBERMODIFYRESULT Result;
-    int rc = SUPR3MsrProberModify(uMsr, NIL_RTCPUID, 0, 0, &Result);
+    int rc = g_MsrAcc.pfnMsrProberModify(uMsr, NIL_RTCPUID, 0, 0, &Result);
     return RT_SUCCESS(rc)
         && !Result.fBeforeGp
         && !Result.fModifyGp
@@ -280,15 +286,15 @@ static int msrProberModifyBitChanges(uint32_t uMsr, uint64_t *pfIgnMask, uint64_
 
         /* Set it. */
         SUPMSRPROBERMODIFYRESULT ResultSet;
-        int rc = SUPR3MsrProberModify(uMsr, NIL_RTCPUID, ~fBitMask, fBitMask, &ResultSet);
+        int rc = g_MsrAcc.pfnMsrProberModify(uMsr, NIL_RTCPUID, ~fBitMask, fBitMask, &ResultSet);
         if (RT_FAILURE(rc))
-            return RTMsgErrorRc(rc, "SUPR3MsrProberModify(%#x,,%#llx,%#llx,): %Rrc", uMsr, ~fBitMask, fBitMask, rc);
+            return RTMsgErrorRc(rc, "pfnMsrProberModify(%#x,,%#llx,%#llx,): %Rrc", uMsr, ~fBitMask, fBitMask, rc);
 
         /* Clear it. */
         SUPMSRPROBERMODIFYRESULT ResultClear;
-        rc = SUPR3MsrProberModify(uMsr, NIL_RTCPUID, ~fBitMask, 0, &ResultClear);
+        rc = g_MsrAcc.pfnMsrProberModify(uMsr, NIL_RTCPUID, ~fBitMask, 0, &ResultClear);
         if (RT_FAILURE(rc))
-            return RTMsgErrorRc(rc, "SUPR3MsrProberModify(%#x,,%#llx,%#llx,): %Rrc", uMsr, ~fBitMask, 0, rc);
+            return RTMsgErrorRc(rc, "pfnMsrProberModify(%#x,,%#llx,%#llx,): %Rrc", uMsr, ~fBitMask, 0, rc);
 
         if (ResultSet.fModifyGp || ResultClear.fModifyGp)
             *pfGpMask |= fBitMask;
@@ -323,15 +329,15 @@ static int msrProberModifyBit(uint32_t uMsr, unsigned iBit)
 
     /* Set it. */
     SUPMSRPROBERMODIFYRESULT ResultSet;
-    int rc = SUPR3MsrProberModify(uMsr, NIL_RTCPUID, ~fBitMask, fBitMask, &ResultSet);
+    int rc = g_MsrAcc.pfnMsrProberModify(uMsr, NIL_RTCPUID, ~fBitMask, fBitMask, &ResultSet);
     if (RT_FAILURE(rc))
-        return RTMsgErrorRc(-2, "SUPR3MsrProberModify(%#x,,%#llx,%#llx,): %Rrc", uMsr, ~fBitMask, fBitMask, rc);
+        return RTMsgErrorRc(-2, "pfnMsrProberModify(%#x,,%#llx,%#llx,): %Rrc", uMsr, ~fBitMask, fBitMask, rc);
 
     /* Clear it. */
     SUPMSRPROBERMODIFYRESULT ResultClear;
-    rc = SUPR3MsrProberModify(uMsr, NIL_RTCPUID, ~fBitMask, 0, &ResultClear);
+    rc = g_MsrAcc.pfnMsrProberModify(uMsr, NIL_RTCPUID, ~fBitMask, 0, &ResultClear);
     if (RT_FAILURE(rc))
-        return RTMsgErrorRc(-2, "SUPR3MsrProberModify(%#x,,%#llx,%#llx,): %Rrc", uMsr, ~fBitMask, 0, rc);
+        return RTMsgErrorRc(-2, "pfnMsrProberModify(%#x,,%#llx,%#llx,): %Rrc", uMsr, ~fBitMask, 0, rc);
 
     if (ResultSet.fModifyGp || ResultClear.fModifyGp)
         return -1;
@@ -362,10 +368,10 @@ static int msrProberModifyBit(uint32_t uMsr, unsigned iBit)
 static bool msrProberModifySimpleGp(uint32_t uMsr, uint64_t fAndMask, uint64_t fOrMask)
 {
     SUPMSRPROBERMODIFYRESULT Result;
-    int rc = SUPR3MsrProberModify(uMsr, NIL_RTCPUID, fAndMask, fOrMask, &Result);
+    int rc = g_MsrAcc.pfnMsrProberModify(uMsr, NIL_RTCPUID, fAndMask, fOrMask, &Result);
     if (RT_FAILURE(rc))
     {
-        RTMsgError("SUPR3MsrProberModify(%#x,,%#llx,%#llx,): %Rrc", uMsr, fAndMask, fOrMask, rc);
+        RTMsgError("g_MsrAcc.pfnMsrProberModify(%#x,,%#llx,%#llx,): %Rrc", uMsr, fAndMask, fOrMask, rc);
         return false;
     }
     return !Result.fBeforeGp
@@ -530,12 +536,12 @@ static int findMsrs(VBCPUREPMSR **ppaMsrs, uint32_t *pcMsrs, uint32_t fMsrMask)
                 /* Read probing normally does it. */
                 uint64_t uValue = 0;
                 bool     fGp    = true;
-                int rc = SUPR3MsrProberRead(uMsr, NIL_RTCPUID, &uValue, &fGp);
+                int rc = g_MsrAcc.pfnMsrProberRead(uMsr, NIL_RTCPUID, &uValue, &fGp);
                 if (RT_FAILURE(rc))
                 {
                     RTMemFree(*ppaMsrs);
                     *ppaMsrs = NULL;
-                    return RTMsgErrorRc(rc, "SUPR3MsrProberRead failed on %#x: %Rrc\n", uMsr, rc);
+                    return RTMsgErrorRc(rc, "pfnMsrProberRead failed on %#x: %Rrc\n", uMsr, rc);
                 }
 
                 uint32_t fFlags;
@@ -561,12 +567,12 @@ static int findMsrs(VBCPUREPMSR **ppaMsrs, uint32_t *pcMsrs, uint32_t fMsrMask)
                     }
 #endif
                     fGp = true;
-                    rc = SUPR3MsrProberWrite(uMsr, NIL_RTCPUID, 0, &fGp);
+                    rc = g_MsrAcc.pfnMsrProberWrite(uMsr, NIL_RTCPUID, 0, &fGp);
                     if (RT_FAILURE(rc))
                     {
                         RTMemFree(*ppaMsrs);
                         *ppaMsrs = NULL;
-                        return RTMsgErrorRc(rc, "SUPR3MsrProberWrite failed on %#x: %Rrc\n", uMsr, rc);
+                        return RTMsgErrorRc(rc, "pfnMsrProberWrite failed on %#x: %Rrc\n", uMsr, rc);
                     }
                     uValue = 0;
                     fFlags = VBCPUREPMSR_F_WRITE_ONLY;
@@ -2539,9 +2545,48 @@ static VBCPUREPBADNESS queryMsrWriteBadness(uint32_t uMsr)
                 return VBCPUREPBADNESS_MIGHT_BITE;
             break;
 
+        /* KVM MSRs that are unsafe to touch. */
+        case 0x00000011: /* KVM */
+        case 0x00000012: /* KVM */
+            return VBCPUREPBADNESS_BOND_VILLAIN;
+
+        /*
+         * The TSC is tricky -- writing it isn't a problem, but if we put back the original
+         * value, we'll throw it out of whack. If we're on an SMP OS that uses the TSC for timing,
+         * we'll likely kill it, especially if we can't do the modification very quickly.
+         */
+        case 0x00000010: /* IA32_TIME_STAMP_COUNTER */
+            if (!g_MsrAcc.fAtomic)
+                return VBCPUREPBADNESS_BOND_VILLAIN;
+            break;
+
+        /*
+         * The following MSRs are not safe to modify in a typical OS if we can't do it atomically,
+         * i.e. read/modify/restore without allowing any other code to execute. Everything related
+         * to syscalls will blow up in our face if we go back to userland with modified MSRs.
+         */
+//        case 0x0000001b: /* IA32_APIC_BASE */
+        case 0xc0000081: /* MSR_K6_STAR */
+        case 0xc0000082: /* AMD64_STAR64 */
+        case 0xc0000083: /* AMD64_STARCOMPAT */
+        case 0xc0000084: /* AMD64_SYSCALL_FLAG_MASK */
+        case 0xc0000100: /* AMD64_FS_BASE */
+        case 0xc0000101: /* AMD64_GS_BASE */
+        case 0xc0000102: /* AMD64_KERNEL_GS_BASE */
+            if (!g_MsrAcc.fAtomic)
+                return VBCPUREPBADNESS_MIGHT_BITE;
+            break;
+
         case 0x000001a0: /* IA32_MISC_ENABLE */
         case 0x00000199: /* IA32_PERF_CTL */
             return VBCPUREPBADNESS_MIGHT_BITE;
+
+        case 0x000005a0: /* C2_PECI_CTL */
+        case 0x000005a1: /* C2_UNK_0000_05a1 */
+            if (g_enmVendor == CPUMCPUVENDOR_INTEL)
+                return VBCPUREPBADNESS_MIGHT_BITE;
+            break;
+
         case 0x00002000: /* P6_CR0. */
         case 0x00002003: /* P6_CR3. */
         case 0x00002004: /* P6_CR4. */
@@ -3315,6 +3360,11 @@ static int reportMsr_Ia32ApicBase(uint32_t uMsr, uint64_t uValue)
     /* For some reason, twiddling this bit kills a Tualatin PIII-S. */
     if (g_enmMicroarch == kCpumMicroarch_Intel_P6_III)
         fSkipMask |= RT_BIT(9);
+
+    /* If the OS uses the APIC, we have to be super careful. */
+    if (!g_MsrAcc.fAtomic)
+        fSkipMask |= UINT64_C(0x0000000ffffff000);
+
     return reportMsr_GenFunctionEx(uMsr, "Ia32ApicBase", uValue, fSkipMask, 0, NULL);
 }
 
@@ -3340,6 +3390,10 @@ static int reportMsr_Ia32MiscEnable(uint32_t uMsr, uint64_t uValue)
         vbCpuRepPrintf("WARNING: IA32_MISC_ENABLE probing needs hacking on this CPU!\n");
         RTThreadSleep(128);
     }
+
+    /* If the OS is using MONITOR/MWAIT we'd better not disable it! */
+    if (!g_MsrAcc.fAtomic)
+        fSkipMask |= RT_BIT(18);
 
     /* The no execute related flag is deadly if clear.  */
     if (   !(uValue & MSR_IA32_MISC_ENABLE_XD_DISABLE)
@@ -3634,7 +3688,11 @@ static int reportMsr_Amd64Efer(uint32_t uMsr, uint64_t uValue)
 {
     uint64_t fSkipMask = 0;
     if (vbCpuRepSupportsLongMode())
+    {
         fSkipMask |= MSR_K6_EFER_LME;
+        if (!g_MsrAcc.fAtomic && (uValue & MSR_K6_EFER_SCE))
+            fSkipMask |= MSR_K6_EFER_SCE;
+    }
     if (   (uValue & MSR_K6_EFER_NXE)
         || vbCpuRepSupportsNX())
         fSkipMask |= MSR_K6_EFER_NXE;
@@ -4342,24 +4400,32 @@ static int probeMsrs(bool fHacking, const char *pszNameC, const char *pszCpuDesc
     }
 
     /*
-     * Initialize the support library and check if we can read MSRs.
+     * First try the the support library (also checks if we can really read MSRs).
      */
-    int rc = SUPR3Init(NULL);
+    int rc = VbCpuRepMsrProberInitSupDrv(&g_MsrAcc);
     if (RT_FAILURE(rc))
     {
-        vbCpuRepDebug("warning: Unable to initialize the support library (%Rrc), skipping MSR detection.\n", rc);
-        return VINF_SUCCESS;
+#ifdef VBCR_HAVE_PLATFORM_MSR_PROBER
+        /* Next try a platform-specific interface. */
+        rc = VbCpuRepMsrProberInitPlatform(&g_MsrAcc);
+#endif
+        if (RT_FAILURE(rc))
+        {
+            vbCpuRepDebug("warning: Unable to initialize any MSR access interface (%Rrc), skipping MSR detection.\n", rc);
+            return VINF_SUCCESS;
+        }
     }
+
     uint64_t uValue;
     bool     fGp;
-    rc = SUPR3MsrProberRead(MSR_IA32_TSC, NIL_RTCPUID, &uValue, &fGp);
+    rc = g_MsrAcc.pfnMsrProberRead(MSR_IA32_TSC, NIL_RTCPUID, &uValue, &fGp);
     if (RT_FAILURE(rc))
     {
         vbCpuRepDebug("warning: MSR probing not supported by the support driver (%Rrc), skipping MSR detection.\n", rc);
         return VINF_SUCCESS;
     }
     vbCpuRepDebug("MSR_IA32_TSC: %#llx fGp=%RTbool\n", uValue, fGp);
-    rc = SUPR3MsrProberRead(0xdeadface, NIL_RTCPUID, &uValue, &fGp);
+    rc = g_MsrAcc.pfnMsrProberRead(0xdeadface, NIL_RTCPUID, &uValue, &fGp);
     vbCpuRepDebug("0xdeadface: %#llx fGp=%RTbool rc=%Rrc\n", uValue, fGp, rc);
 
     /*
@@ -4417,6 +4483,9 @@ static int probeMsrs(bool fHacking, const char *pszNameC, const char *pszCpuDesc
         RTMemFree(paMsrs);
         paMsrs = NULL;
     }
+    if (g_MsrAcc.pfnTerm)
+        g_MsrAcc.pfnTerm();
+    RT_ZERO(g_MsrAcc);
     return rc;
 }
 

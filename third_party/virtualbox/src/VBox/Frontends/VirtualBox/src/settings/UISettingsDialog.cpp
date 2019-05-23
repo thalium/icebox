@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -102,7 +102,6 @@ UISettingsDialog::UISettingsDialog(QWidget *pParent)
     m_pSelector = new UISettingsSelectorTreeView(this);
     pMainLayout->addWidget(m_pSelector->widget(), 0, 0, 2, 1);
     m_pSelector->widget()->setFocus();
-    pMainLayout->setSpacing(10);
 #endif /* VBOX_GUI_WITH_TOOLBAR_SETTINGS */
     connect(m_pSelector, SIGNAL(sigCategoryChanged(int)), this, SLOT(sltCategoryChanged(int)));
 

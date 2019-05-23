@@ -6867,19 +6867,19 @@
     </message>
     <message>
         <source>Enc&amp;ryption</source>
-        <translation>Şif&amp;releme</translation>
+        <translation type="vanished">Şif&amp;releme</translation>
     </message>
     <message>
         <source>When checked, enables encryption for this virtual machine.</source>
-        <translation>İşaretlendiğinde, bu sanal makine için şifrelemeyi etkinleştirir.</translation>
+        <translation type="vanished">İşaretlendiğinde, bu sanal makine için şifrelemeyi etkinleştirir.</translation>
     </message>
     <message>
         <source>En&amp;able Encryption</source>
-        <translation>Şifrelemeyi &amp;etkinleştir</translation>
+        <translation type="vanished">Şifrelemeyi &amp;etkinleştir</translation>
     </message>
     <message>
         <source>Encryption C&amp;ipher:</source>
-        <translation>Şifreleme Ş&amp;ifreleyici:</translation>
+        <translation type="vanished">Şifreleme Ş&amp;ifreleyicisi:</translation>
     </message>
     <message>
         <source>Holds the cipher to be used for encrypting the virtual machine disks.</source>
@@ -6891,7 +6891,7 @@
     </message>
     <message>
         <source>Holds the password to be assigned to the virtual machine.</source>
-        <translation>Sanal makineye atanacak olan parolayı tutar.</translation>
+        <translation type="vanished">Sanal makineye atanacak olan parolayı tutar.</translation>
     </message>
     <message>
         <source>C&amp;onfirm New Password:</source>
@@ -6899,23 +6899,23 @@
     </message>
     <message>
         <source>Confirms the password to be assigned to the virtual machine.</source>
-        <translation>Sanal makineye atanacak olan parolayı onaylar.</translation>
+        <translation type="vanished">Sanal makineye atanacak olan parolayı onaylar.</translation>
     </message>
     <message>
         <source>You are trying to encrypt this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
-        <translation>Bu sanal makineyi şifrelemeye çalışıyorsunuz. Ancak bu, &lt;i&gt;%1&lt;/i&gt; yüklenmesini gerektirir. Lütfen VirtualBox indirme sitesinden Genişletme Paketini yükleyin.</translation>
+        <translation type="vanished">Bu sanal makineyi şifrelemeye çalışıyorsunuz. Ancak bu, &lt;i&gt;%1&lt;/i&gt; yüklenmesini gerektirir. Lütfen VirtualBox indirme sitesinden Genişletme Paketini yükleyin.</translation>
     </message>
     <message>
         <source>Encryption cipher type not specified.</source>
-        <translation>Şifreleme şifreleyicisi türü belirlenmemiş.</translation>
+        <translation type="vanished">Şifreleme şifreleyicisi türü belirtilmemiş.</translation>
     </message>
     <message>
         <source>Encryption password empty.</source>
-        <translation>Şifreleme parolası boş.</translation>
+        <translation type="vanished">Şifreleme parolası boş.</translation>
     </message>
     <message>
         <source>Encryption passwords do not match.</source>
-        <translation>Şifreleme parolaları eşleşmiyor.</translation>
+        <translation type="vanished">Şifreleme parolaları eşleşmiyor.</translation>
     </message>
     <message>
         <source>Leave Unchanged</source>
@@ -6929,6 +6929,46 @@
     <message>
         <source>Holds the path where snapshots of this virtual machine will be stored. Be aware that snapshots can take quite a lot of storage space.</source>
         <translation>Bu sanal makinenin anlık görüntülerinin saklanacağı yerin yolunu tutar. Anlık görüntülerin oldukça depolama alanı kaplayabileceğinden haberiniz olsun.</translation>
+    </message>
+    <message>
+        <source>Disk Enc&amp;ryption</source>
+        <translation>Disk Şif&amp;releme</translation>
+    </message>
+    <message>
+        <source>When checked, disks attached to this virtual machine will be encrypted.</source>
+        <translation>İşaretlendiğinde, bu sanal makineye takılı diskler şifrelenecektir.</translation>
+    </message>
+    <message>
+        <source>En&amp;able Disk Encryption</source>
+        <translation>Disk Şifrelemeyi &amp;etkinleştir</translation>
+    </message>
+    <message>
+        <source>Disk Encryption C&amp;ipher:</source>
+        <translation>Disk Şifreleme Ş&amp;ifreleyicisi:</translation>
+    </message>
+    <message>
+        <source>Holds the encryption password for disks attached to this virtual machine.</source>
+        <translation>Bu sanal makineye takılı diskler için şifreleme parolasını tutar.</translation>
+    </message>
+    <message>
+        <source>Confirms the disk encryption password.</source>
+        <translation>Disk şifreleme parolasını onaylar.</translation>
+    </message>
+    <message>
+        <source>You are trying to enable disk encryption for this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
+        <translation>Bu sanal makine için disk şifrelemeyi etkinleştirmeye çalışıyorsunuz. Ancak bu, &lt;i&gt;%1&lt;/i&gt; yüklenmesini gerektirir. Lütfen VirtualBox indirme sitesinden Genişletme Paketini yükleyin.</translation>
+    </message>
+    <message>
+        <source>Disk encryption cipher type not specified.</source>
+        <translation>Disk şifreleme şifreleyicisi türü belirtilmemiş.</translation>
+    </message>
+    <message>
+        <source>Disk encryption password empty.</source>
+        <translation>Disk şifreleme parolası boş.</translation>
+    </message>
+    <message>
+        <source>Disk encryption passwords do not match.</source>
+        <translation>Disk şifreleme parolaları eşleşmiyor.</translation>
     </message>
 </context>
 <context>
@@ -8995,6 +9035,38 @@
         <source>Cannot change medium size from &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt; as storage shrinking is currently not implemented.</source>
         <translation>Ortam boyutu, depolama küçültme şu anda uygulanmadığından &lt;b&gt;%1&lt;/b&gt; boyutundan &lt;b&gt;%2&lt;/b&gt; boyutuna değiştirilemiyor.</translation>
     </message>
+    <message>
+        <source>Choose Medium Location</source>
+        <translation>Ortam Konumunu Seçin</translation>
+    </message>
+    <message>
+        <source>Location can not be empty.</source>
+        <translation>Konum boş olamaz.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
+        <translation>Bu tür ortam doğrudan ya da dolaylı olarak takılır, anlık görüntüler alınırken korunur.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
+        <translation>Bu tür ortam dolaylı olarak takılır, bir dahaki sefere sanal makine başlatıldığında değişiklikler silinir.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, ignored when taking snapshots.</source>
+        <translation>Bu tür ortam doğrudan takılır, anlık görüntüler alınırken yoksayılır.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
+        <translation>Bu tür ortam doğrudan takılır, birkaç makine tarafından aynı zamanda kullanılmasına izin verilir.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, and can be used by several machines.</source>
+        <translation>Bu tür ortam doğrudan takılır, ve birkaç makine tarafından kullanılabilir.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
+        <translation>Bu tür ortam dolaylı olarak takılır, böylece bir ana ortam kendi değişikliklerini saklayamak için kendi ayrımlama ortamına sahip birkaç VM için kullanılabilir.</translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManager</name>
@@ -9192,6 +9264,26 @@
         <source>Refresh Disk Image Files (%1)</source>
         <translation>Disk Kalıbı Dosyasını Yenile (%1)</translation>
     </message>
+    <message>
+        <source>Current extension (*.%1)</source>
+        <translation>Şu anki genişletme (*.%1)</translation>
+    </message>
+    <message>
+        <source>Choose the location of this medium</source>
+        <translation>Bu ortamın konumunu seçin</translation>
+    </message>
+    <message>
+        <source>&amp;Move...</source>
+        <translation>&amp;Taşı...</translation>
+    </message>
+    <message>
+        <source>Move Disk Image File (%1)</source>
+        <translation>Disk Kalıbı Dosyasını Taşı (%1)</translation>
+    </message>
+    <message>
+        <source>Move selected disk image file</source>
+        <translation>Seçilen disk kalıbı dosyasını taşı</translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManagerWidget</name>
@@ -9231,39 +9323,39 @@
     <name>UIMediumTypeChangeDialog</name>
     <message>
         <source>Modify medium attributes</source>
-        <translation>Ortam özniteliklerini değiştir</translation>
+        <translation type="vanished">Ortam özniteliklerini değiştir</translation>
     </message>
     <message>
         <source>&lt;p&gt;You are about to change the settings of the disk image file &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Please choose one of the following modes and press &lt;b&gt;%2&lt;/b&gt; to proceed or &lt;b&gt;%3&lt;/b&gt; otherwise.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; disk kalıbı dosyasının ayarlarını değiştirmek üzeresiniz.&lt;/p&gt;&lt;p&gt;Lütfen aşağıdaki kiplerden birini seçin ve ilerlemek için &lt;b&gt;%2&lt;/b&gt; düğmesine ya da aksi takdirde &lt;b&gt;%3&lt;/b&gt; düğmesine basın.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;%1&lt;/b&gt; disk kalıbı dosyasının ayarlarını değiştirmek üzeresiniz.&lt;/p&gt;&lt;p&gt;Lütfen aşağıdaki kiplerden birini seçin ve ilerlemek için &lt;b&gt;%2&lt;/b&gt; düğmesine ya da aksi takdirde &lt;b&gt;%3&lt;/b&gt; düğmesine basın.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose mode:</source>
-        <translation>Kipi seçin:</translation>
+        <translation type="vanished">Kipi seçin:</translation>
     </message>
     <message>
         <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
-        <translation>Bu tür ortam doğrudan ya da dolaylı olarak takılır, anlık görüntüler alınırken korunur.</translation>
+        <translation type="vanished">Bu tür ortam doğrudan ya da dolaylı olarak takılır, anlık görüntüler alınırken korunur.</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
-        <translation>Bu tür ortam dolaylı olarak takılır, bir dahaki sefere sanal makine başlatıldığında değişiklikler silinir.</translation>
+        <translation type="vanished">Bu tür ortam dolaylı olarak takılır, bir dahaki sefere sanal makine başlatıldığında değişiklikler silinir.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, ignored when taking snapshots.</source>
-        <translation>Bu tür ortam doğrudan takılır, anlık görüntüler alınırken yoksayılır.</translation>
+        <translation type="vanished">Bu tür ortam doğrudan takılır, anlık görüntüler alınırken yoksayılır.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
-        <translation>Bu tür ortam doğrudan takılır, birkaç makine tarafından aynı zamanda kullanılmasına izin verilir.</translation>
+        <translation type="vanished">Bu tür ortam doğrudan takılır, birkaç makine tarafından aynı zamanda kullanılmasına izin verilir.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, and can be used by several machines.</source>
-        <translation>Bu tür ortam doğrudan takılır, ve birkaç makine tarafından kullanılabilir.</translation>
+        <translation type="vanished">Bu tür ortam doğrudan takılır, ve birkaç makine tarafından kullanılabilir.</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
-        <translation>Bu tür ortam dolaylı olarak takılır, böylece bir ana ortam kendi değişikliklerini saklayan kendi ayrımlama ortamına sahip birkaç VM için kullanılabilir.</translation>
+        <translation type="vanished">Bu tür ortam dolaylı olarak takılır, böylece bir ana ortam kendi değişikliklerini saklayan kendi ayrımlama ortamına sahip birkaç VM için kullanılabilir.</translation>
     </message>
 </context>
 <context>
@@ -10989,7 +11081,7 @@
     </message>
     <message>
         <source>&lt;p&gt;A new version of VirtualBox has been released! Version &lt;b&gt;%1&lt;/b&gt; is available at &lt;a href=&quot;https://www.virtualbox.org/&quot;&gt;virtualbox.org&lt;/a&gt;.&lt;/p&gt;&lt;p&gt;You can download this version using the link:&lt;/p&gt;&lt;p&gt;&lt;a href=%2&gt;%3&lt;/a&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;VirtualBox&apos;ın yeni bir sürümü yayımlandı! Sürüm &lt;b&gt;%1&lt;/b&gt; &lt;a href=&quot;https://www.virtualbox.org/&quot;&gt;virtualbox.org&lt;/a&gt; adresinde mevcuttur.&lt;/p&gt;&lt;p&gt;Şu bağlantıyı kullanarak bu sürümü indirebilirsiniz:&lt;/p&gt;&lt;p&gt;&lt;a href=%2&gt;%3&lt;/a&gt;&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;VirtualBox&apos;ın yeni bir sürümü yayımlandı! Sürüm &lt;b&gt;%1&lt;/b&gt; &lt;a href=&quot;https://www.virtualbox.org/&quot;&gt;virtualbox.org&lt;/a&gt; adresinde mevcuttur.&lt;/p&gt;&lt;p&gt;Aşağıdaki bağlantıyı kullanarak bu sürümü indirebilirsiniz:&lt;/p&gt;&lt;p&gt;&lt;a href=%2&gt;%3&lt;/a&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Drag and drop operation from host to guest failed.</source>
@@ -11191,6 +11283,14 @@
     <message>
         <source>Failed to change the snapshot &lt;b&gt;%1&lt;/b&gt; of the virtual machine &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation>&lt;b&gt;%2&lt;/b&gt; sanal makinesinin &lt;b&gt;%1&lt;/b&gt; anlık görüntüsünü değiştirme başarısız.</translation>
+    </message>
+    <message>
+        <source>Failed to create the virtual disk image storage &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</source>
+        <translation>&lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; sanal disk kalıbı depolamasını oluşturma başarısız.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;İstediğiniz değişiklikler, bu diskin takılı olduğu makinelerden serbest bırakılmasını gerektirir.&lt;/p&gt;&lt;p&gt;&lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; disk kalıbı dosyasını serbest bırakmak istediğinize emin misiniz?&lt;/p&gt;&lt;p&gt;Bu işlem kalıbı şurada belirtilen sanal makine(ler)den ayıracak: &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -13300,7 +13400,7 @@ bu basamağı atlayarak sabit diskleri Sanal Makine Ayarları penceresinden ekle
     <message>
         <source>%1_copy</source>
         <comment>copied virtual hard drive name</comment>
-        <translation>%1_copy</translation>
+        <translation type="vanished">%1_kopyası</translation>
     </message>
     <message>
         <source>Hard drive to &amp;copy</source>
@@ -13316,27 +13416,27 @@ bu basamağı atlayarak sabit diskleri Sanal Makine Ayarları penceresinden ekle
     </message>
     <message>
         <source>Copy Virtual Hard Disk</source>
-        <translation>Sanal Sabit Diski Kopyala</translation>
+        <translation type="vanished">Sanal Sabit Diski Kopyala</translation>
     </message>
     <message>
         <source>Hard disk to copy</source>
-        <translation>Kopyalamak için sabit disk</translation>
+        <translation type="vanished">Kopyalamak için sabit disk</translation>
     </message>
     <message>
         <source>&lt;p&gt;Please select the virtual hard disk file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Lütfen kopyalamak istediğiniz sanal sabit disk dosyası zaten seçilmediyse seçin. Ya listeden birisini seçebilirsiniz ya da birini seçmek için listenin yanındaki klasör simgesini kullanabilirsiniz.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Lütfen kopyalamak istediğiniz sanal sabit disk dosyası zaten seçilmediyse seçin. Ya listeden birisini seçebilirsiniz ya da birini seçmek için listenin yanındaki klasör simgesini kullanabilirsiniz.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose a virtual hard disk file to copy...</source>
-        <translation>Kopyalamak için sanal sabit disk dosyasını seçin...</translation>
+        <translation type="vanished">Kopyalamak için sanal bir sabit disk dosyası seçin...</translation>
     </message>
     <message>
         <source>Hard disk file type</source>
-        <translation>Sabit disk dosyası türü</translation>
+        <translation type="vanished">Sabit disk dosyası türü</translation>
     </message>
     <message>
         <source>Please choose the type of file that you would like to use for the new virtual hard disk. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
-        <translation>Lütfen yeni sanal sabit disk için kullanmak istediğiniz dosyanın türünü seçin. Eğer diğer sanallaştırma yazılımları ile kullanmaya ihtiyacınız yoksa bu ayarı değiştirmeden bırakabilirsiniz.</translation>
+        <translation type="vanished">Lütfen yeni sanal sabit disk için kullanmak istediğiniz dosyanın türünü seçin. Eğer diğer sanallaştırma yazılımları ile kullanmaya ihtiyacınız yoksa bu ayarı değiştirmeden bırakabilirsiniz.</translation>
     </message>
     <message>
         <source>Storage on physical hard disk</source>
@@ -13344,47 +13444,120 @@ bu basamağı atlayarak sabit diskleri Sanal Makine Ayarları penceresinden ekle
     </message>
     <message>
         <source>Please choose whether the new virtual hard disk file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
-        <translation>Lütfen yeni sanal sabit disk dosyasının kullanılmasına göre (değişken olarak ayrılan) büyüyüp büyümemesini ya da en fazla boyutunda (sabitlenmiş boyut) oluşturulup oluşturulmamasını seçin.</translation>
+        <translation type="vanished">Lütfen yeni sanal sabit disk dosyasının kullanılmasına göre (değişken olarak ayrılan) büyüyüp büyümemesini ya da en fazla boyutunda (sabitlenmiş boyut) oluşturulup oluşturulmamasını seçin.</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; hard disk file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;Değişken olarak ayrılan&lt;/b&gt; sabit disk dosyası yalnızca fiziksel sabit sürücünüzdeki alanı doldurarak (en fazla &lt;b&gt;sabitlenmiş boyuta&lt;/b&gt; kadar) kullanacak olmasına rağmen alan serbest kaldığında otomatik olarak yeniden küçülmeyecektir.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;Değişken olarak ayrılan&lt;/b&gt; sabit disk dosyası yalnızca fiziksel sabit sürücünüzdeki alanı doldurarak (en fazla &lt;b&gt;sabitlenmiş boyuta&lt;/b&gt; kadar) kullanacak olmasına rağmen alan serbest kaldığında otomatik olarak yeniden küçülmeyecektir.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; hard disk file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;&lt;b&gt;Sabitlenmiş boyutlu&lt;/b&gt; sabit disk dosyasını oluşturmak bazı sistemlerde uzun sürebilir ama kullanması çoğu kez en hızlı olandır.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;&lt;b&gt;Sabitlenmiş boyutlu&lt;/b&gt; sabit disk dosyasını oluşturmak bazı sistemlerde uzun sürebilir ama kullanması çoğu kez en hızlı olandır.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the hard disk file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
-        <translation>&lt;p&gt;Ayrıca sabit disk dosyasını her biri iki gigabayta kadar birkaç dosyaya &lt;b&gt;bölmeyi&lt;/b&gt; seçebilirsiniz. Bu çoğunlukla eğer sanal makineyi kaldırılabilir USB aygıtlarda veya çok büyük dosyalarla başa çıkamayan bazı eski sistemlerde depolamak isterseniz faydalıdır.</translation>
+        <translation type="vanished">&lt;p&gt;Ayrıca sabit disk dosyasını her biri iki gigabayta kadar birkaç dosyaya &lt;b&gt;bölmeyi&lt;/b&gt; seçebilirsiniz. Bu çoğunlukla eğer sanal makineyi kaldırılabilir USB aygıtlarda veya çok büyük dosyalarla başa çıkamayan bazı eski sistemlerde depolamak isterseniz faydalıdır.</translation>
     </message>
     <message>
         <source>Please choose a location for new virtual hard disk file</source>
-        <translation>Lütfen yeni sanal sabit disk dosyası için bir yer seçin</translation>
+        <translation type="vanished">Lütfen yeni sanal sabit disk dosyası için bir yer seçin</translation>
     </message>
     <message>
         <source>New hard disk to create</source>
-        <translation>Oluşturmak için yeni sabit disk</translation>
+        <translation type="vanished">Oluşturmak için yeni sabit disk</translation>
     </message>
     <message>
         <source>Please type the name of the new virtual hard disk file into the box below or click on the folder icon to select a different folder to create the file in.</source>
-        <translation>Lütfen aşağıdaki kutuya yeni sanal sabit disk dosyasının adını yazın ya da dosyanın içinde oluşturulacağı farklı bir klasörü seçmek için klasör simgesine tıklayın.</translation>
+        <translation type="vanished">Lütfen aşağıdaki kutuya yeni sanal sabit disk dosyasının adını yazın ya da dosyanın içinde oluşturulacağı farklı bir klasörü seçmek için klasör simgesine tıklayın.</translation>
     </message>
     <message>
         <source>Choose a location for new virtual hard disk file...</source>
-        <translation>Yeni sanal sabit disk dosyası için bir yer seçin...</translation>
+        <translation type="vanished">Yeni sanal sabit disk dosyası için bir yer seçin...</translation>
     </message>
     <message>
         <source>Hard disk to &amp;copy</source>
-        <translation>&amp;Kopyalamak için sabit disk</translation>
+        <translation type="vanished">&amp;Kopyalamak için sabit disk</translation>
     </message>
     <message>
         <source>&amp;New hard disk to create</source>
-        <translation>Oluşturmak için &amp;yeni sabit disk</translation>
+        <translation type="vanished">Oluşturmak için &amp;yeni sabit disk</translation>
     </message>
     <message>
         <source>Hard disk file &amp;type</source>
-        <translation>Sabit disk dosyası &amp;türü</translation>
+        <translation type="vanished">Sabit disk dosyası &amp;türü</translation>
+    </message>
+    <message>
+        <source>Copy Virtual Disk Image</source>
+        <translation>Sanal Disk Kalıbını Kopyala</translation>
+    </message>
+    <message>
+        <source>Disk image to copy</source>
+        <translation>Kopyalamak için disk kalıbı</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Please select the virtual disk image file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Lütfen kopyalamak istediğiniz sanal disk kalıbı dosyası zaten seçilmediyse seçin. Ya listeden birisini seçebilirsiniz ya da birini seçmek için listenin yanındaki klasör simgesini kullanabilirsiniz.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Choose a virtual disk image file to copy...</source>
+        <translation>Kopyalamak için sanal bir disk kalıbı dosyası seçin...</translation>
+    </message>
+    <message>
+        <source>Disk image file type</source>
+        <translation>Disk kalıbı dosyası türü</translation>
+    </message>
+    <message>
+        <source>Please choose the type of file that you would like to use for the new virtual disk image. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
+        <translation>Lütfen yeni sanal disk kalıbı için kullanmak istediğiniz dosyanın türünü seçin. Eğer diğer sanallaştırma yazılımları ile kullanmaya ihtiyacınız yoksa bu ayarı değiştirmeden bırakabilirsiniz.</translation>
+    </message>
+    <message>
+        <source>Please choose whether the new virtual disk image file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
+        <translation>Lütfen yeni sanal disk kalıbı dosyasının kullanılmasına göre (değişken olarak ayrılan) büyüyüp büyümemesini ya da en fazla boyutunda (sabitlenmiş boyut) oluşturulup oluşturulmamasını seçin.</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; disk image file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;&lt;b&gt;Değişken olarak ayrılan&lt;/b&gt; disk kalıbı dosyası yalnızca fiziksel sabit sürücünüzdeki alanı doldurarak (en fazla &lt;b&gt;sabitlenmiş boyuta&lt;/b&gt; kadar) kullanacak olmasına rağmen alan serbest kaldığında otomatik olarak yeniden küçülmeyecektir.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; disk image file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;&lt;b&gt;Sabitlenmiş boyutlu&lt;/b&gt; disk kalıbı dosyasını oluşturmak bazı sistemlerde uzun sürebilir ama kullanması çoğu kez en hızlı olandır.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the disk image file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
+        <translation>&lt;p&gt;Ayrıca disk kalıbı dosyasını her biri iki gigabayta kadar birkaç dosyaya &lt;b&gt;bölmeyi&lt;/b&gt; seçebilirsiniz. Bu çoğunlukla eğer sanal makineyi kaldırılabilir USB aygıtlarda veya çok büyük dosyalarla başa çıkamayan bazı eski sistemlerde depolamak isterseniz faydalıdır.</translation>
+    </message>
+    <message>
+        <source>Please choose a location for new virtual disk image file</source>
+        <translation>Lütfen yeni sanal disk kalıbı dosyası için bir yer seçin</translation>
+    </message>
+    <message>
+        <source>New disk image to create</source>
+        <translation>Oluşturmak için yeni disk kalıbı</translation>
+    </message>
+    <message>
+        <source>Please type the name of the new virtual disk image file into the box below or click on the folder icon to select a different folder to create the file in.</source>
+        <translation>Lütfen aşağıdaki kutuya yeni sanal disk kalıbı dosyasının adını yazın ya da dosyanın içinde oluşturulacağı farklı bir klasörü seçmek için klasör simgesine tıklayın.</translation>
+    </message>
+    <message>
+        <source>Choose a location for new virtual disk image file...</source>
+        <translation>Yeni sanal disk kalıbı dosyası için bir yer seçin...</translation>
+    </message>
+    <message>
+        <source>%1_copy</source>
+        <comment>copied virtual disk image name</comment>
+        <translation>%1_kopyası</translation>
+    </message>
+    <message>
+        <source>Disk image to &amp;copy</source>
+        <translation>&amp;Kopyalamak için disk kalıbı</translation>
+    </message>
+    <message>
+        <source>&amp;New disk image to create</source>
+        <translation>Oluşturmak için &amp;yeni disk kalıbı</translation>
+    </message>
+    <message>
+        <source>Disk image file &amp;type</source>
+        <translation>Disk kalıbı dosyası &amp;türü</translation>
     </message>
 </context>
 <context>

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -245,6 +245,7 @@ UIRoundRectSegmentedButton::UIRoundRectSegmentedButton(QWidget *pParent, int aCo
     m_pSignalMapper = new QSignalMapper(this);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
+    layout->setContentsMargins(0, 0, 0, 0);
     for (int i=0; i < aCount; ++i)
     {
         QIToolButton *button = new QIToolButton(this);

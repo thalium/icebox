@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2014-2016 Oracle Corporation
+ * Copyright (C) 2014-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -873,18 +873,21 @@ void UIMenuBarEditorWidget::prepare()
         /* Configure main-layout: */
         int iLeft, iTop, iRight, iBottom;
         m_pMainLayout->getContentsMargins(&iLeft, &iTop, &iRight, &iBottom);
-        /* Standard margins should not be too big: */
-        iLeft   = qMin(iLeft,   10);
-        iTop    = qMin(iTop,    10);
-        iRight  = qMin(iRight,  10);
-        iBottom = qMin(iBottom, 10);
+        /* Acquire metric: */
+        const int iStandardMetric = QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 2;
+        const int iMinimumMetric = QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 4;
+        /* Standard margins should not be too small/large: */
+        iLeft   = iStandardMetric;
+        iTop    = iStandardMetric;
+        iRight  = iStandardMetric;
+        iBottom = iStandardMetric;
         /* Top margin should be smaller for the common case: */
-        if (iTop >= 5)
-            iTop -= 5;
+        if (iTop >= iMinimumMetric)
+            iTop -= iMinimumMetric;
 #ifndef VBOX_WS_MAC
         /* Right margin should be bigger for the settings case: */
         if (m_fStartedFromVMSettings)
-            iRight += 5;
+            iRight += iMinimumMetric;
 #endif /* !VBOX_WS_MAC */
         /* Apply margins/spacing finally: */
         m_pMainLayout->setContentsMargins(iLeft, iTop, iRight, iBottom);
@@ -1324,54 +1327,60 @@ void UIMenuBarEditorWidget::paintEvent(QPaintEvent*)
     QColor color3 = pal.color(QPalette::Window).darker(120);
 #endif /* VBOX_WS_WIN || VBOX_WS_X11 */
 
+    /* Acquire metric: */
+    const int iMetric = QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 4;
+
     /* Left corner: */
-    QRadialGradient grad1(QPointF(5, height() - 5), 5);
+    QRadialGradient grad1(QPointF(iMetric, height() - iMetric), iMetric);
     {
         grad1.setColorAt(0, color2);
         grad1.setColorAt(1, color1);
     }
     /* Right corner: */
-    QRadialGradient grad2(QPointF(width() - 5, height() - 5), 5);
+    QRadialGradient grad2(QPointF(width() - iMetric, height() - iMetric), iMetric);
     {
         grad2.setColorAt(0, color2);
         grad2.setColorAt(1, color1);
     }
     /* Bottom line: */
-    QLinearGradient grad3(QPointF(5, height()), QPointF(5, height() - 5));
+    QLinearGradient grad3(QPointF(iMetric, height()), QPointF(iMetric, height() - iMetric));
     {
         grad3.setColorAt(0, color1);
         grad3.setColorAt(1, color2);
     }
     /* Left line: */
-    QLinearGradient grad4(QPointF(0, height() - 5), QPointF(5, height() - 5));
+    QLinearGradient grad4(QPointF(0, height() - iMetric), QPointF(iMetric, height() - iMetric));
     {
         grad4.setColorAt(0, color1);
         grad4.setColorAt(1, color2);
     }
     /* Right line: */
-    QLinearGradient grad5(QPointF(width(), height() - 5), QPointF(width() - 5, height() - 5));
+    QLinearGradient grad5(QPointF(width(), height() - iMetric), QPointF(width() - iMetric, height() - iMetric));
     {
         grad5.setColorAt(0, color1);
         grad5.setColorAt(1, color2);
     }
 
     /* Paint shape/shadow: */
-    painter.fillRect(QRect(5, 0, width() - 5 * 2, height() - 5), color0); // background
-    painter.fillRect(QRect(0,           height() - 5, 5, 5), grad1); // left corner
-    painter.fillRect(QRect(width() - 5, height() - 5, 5, 5), grad2); // right corner
-    painter.fillRect(QRect(5, height() - 5, width() - 5 * 2, 5), grad3); // bottom line
-    painter.fillRect(QRect(0,           0, 5, height() - 5), grad4); // left line
-    painter.fillRect(QRect(width() - 5, 0, 5, height() - 5), grad5); // right line
+    painter.fillRect(QRect(iMetric, 0, width() - iMetric * 2, height() - iMetric), color0); // background
+    painter.fillRect(QRect(0,                 height() - iMetric, iMetric, iMetric), grad1); // left corner
+    painter.fillRect(QRect(width() - iMetric, height() - iMetric, iMetric, iMetric), grad2); // right corner
+    painter.fillRect(QRect(iMetric,           height() - iMetric, width() - iMetric * 2, iMetric), grad3); // bottom line
+    painter.fillRect(QRect(0,                 0, iMetric, height() - iMetric), grad4); // left line
+    painter.fillRect(QRect(width() - iMetric, 0, iMetric, height() - iMetric), grad5); // right line
 
 #if defined(VBOX_WS_WIN) || defined(VBOX_WS_X11)
     /* Paint frames: */
     painter.save();
     painter.setPen(color3);
-    painter.drawLine(QLine(QPoint(5 + 1, 0),                                  QPoint(5 + 1, height() - 1 - 5 - 1)));
-    painter.drawLine(QLine(QPoint(5 + 1, height() - 1 - 5 - 1),               QPoint(width() - 1 - 5 - 1, height() - 1 - 5 - 1)));
-    painter.drawLine(QLine(QPoint(width() - 1 - 5 - 1, height() - 1 - 5 - 1), QPoint(width() - 1 - 5 - 1, 0)));
+    painter.drawLine(QLine(QPoint(iMetric + 1,               0),
+                           QPoint(iMetric + 1,               height() - 1 - iMetric - 1)));
+    painter.drawLine(QLine(QPoint(iMetric + 1,               height() - 1 - iMetric - 1),
+                           QPoint(width() - 1 - iMetric - 1, height() - 1 - iMetric - 1)));
+    painter.drawLine(QLine(QPoint(width() - 1 - iMetric - 1, height() - 1 - iMetric - 1),
+                           QPoint(width() - 1 - iMetric - 1, 0)));
     if (m_fStartedFromVMSettings)
-        painter.drawLine(QLine(QPoint(width() - 1 - 5 - 1, 0), QPoint(5 + 1, 0)));
+        painter.drawLine(QLine(QPoint(width() - 1 - iMetric - 1, 0), QPoint(iMetric + 1, 0)));
     painter.restore();
 #endif /* VBOX_WS_WIN || VBOX_WS_X11 */
 }

@@ -245,6 +245,21 @@ typedef struct VSCSILUNIOCALLBACKS
      */
     DECLR3CALLBACKMEMBER(int, pfnVScsiLunGetFeatureFlags,(VSCSILUN hVScsiLun, void *pvScsiLunUser, uint64_t *pfFeatures));
 
+    /**
+     * Queries the vendor and product ID and revision to report for INQUIRY commands of the given LUN.
+     *
+     * @returns VBox status status code.
+     * @retval  VERR_NOT_FOUND if the data is not available and some defaults should be sued instead.
+     * @param   hVScsiLun        Virtual SCSI LUN handle.
+     * @param   pvScsiLunUser    Opaque user data which may be used to identify the
+     *                           medium.
+     * @param   ppszVendorId     Where to store the pointer to the vendor ID string to report.
+     * @param   ppszProductId    Where to store the pointer to the product ID string to report.
+     * @param   ppszProductLevel Where to store the pointer to the product level string to report.
+     */
+    DECLR3CALLBACKMEMBER(int, pfnVScsiLunQueryInqStrings, (VSCSILUN hVScsiLun, void *pvScsiLunUser, const char **ppszVendorId,
+                                                           const char **ppszProductId, const char **ppszProductLevel));
+
 } VSCSILUNIOCALLBACKS;
 /** Pointer to a virtual SCSI LUN I/O callback table. */
 typedef VSCSILUNIOCALLBACKS *PVSCSILUNIOCALLBACKS;

@@ -988,7 +988,7 @@
     </message>
     <message>
         <source>Display virtual machine settings window to configure video capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Atveria virtualios mašinos vaizdo įrašymo konfigūracijos langą</translation>
     </message>
     <message>
         <source>Enable guest display video capture</source>
@@ -1008,7 +1008,7 @@
     </message>
     <message>
         <source>Display window to configure menu-bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Atveria langą meniu juostos konfigūravimui</translation>
     </message>
     <message>
         <source>Show Menu &amp;Bar</source>
@@ -1028,7 +1028,7 @@
     </message>
     <message>
         <source>Display window to configure status-bar</source>
-        <translation type="unfinished"></translation>
+        <translation>Atveria langą būsenos juostos konfigūravimui</translation>
     </message>
     <message>
         <source>Show Status &amp;Bar</source>
@@ -1501,10 +1501,10 @@
     <message numerus="yes">
         <source>This virtual machine is password protected. Please enter the %n encryption password(s) below.</source>
         <comment>This text is never used with n == 0. Feel free to drop the %n where possible, we only included it because of problems with Qt Linguist (but the user can see how many passwords are in the list and doesn&apos;t need to be told).</comment>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Ši mašina apsaugota slaptažodžiu. Prašome įvesti %n šifravimo slaptažodį.</numerusform>
+            <numerusform>Ši mašina apsaugota slaptažodžiais. Prašome įvesti %n šifravimo slaptažodžius.</numerusform>
+            <numerusform>Ši mašina apsaugota slaptažodžiais. Prašome įvesti %n šifravimo slaptažodžių.</numerusform>
         </translation>
     </message>
 </context>
@@ -1646,7 +1646,7 @@
     </message>
     <message>
         <source>Detailed list of all components of all virtual machines of the current appliance</source>
-        <translation type="unfinished"></translation>
+        <translation>Išsamus visų virtualių mašinų visų komponentų sąrašas</translation>
     </message>
 </context>
 <context>
@@ -1702,7 +1702,7 @@
     </message>
     <message>
         <source>Issuer</source>
-        <translation type="unfinished"></translation>
+        <translation>Išdavė</translation>
     </message>
     <message>
         <source>Subject</source>
@@ -1710,11 +1710,11 @@
     </message>
     <message>
         <source>Not Valid Before</source>
-        <translation type="unfinished"></translation>
+        <translation>Galioja nuo</translation>
     </message>
     <message>
         <source>Not Valid After</source>
-        <translation type="unfinished"></translation>
+        <translation>Galioja iki</translation>
     </message>
     <message>
         <source>Serial Number</source>
@@ -1730,7 +1730,7 @@
     </message>
     <message>
         <source>Public Algorithm</source>
-        <translation type="unfinished"></translation>
+        <translation>Viešasis algoritmas</translation>
     </message>
     <message>
         <source>%1 (%2)</source>
@@ -2413,7 +2413,7 @@
     <name>UIDnDHandler</name>
     <message>
         <source>Dropping data ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Atmetami duomenys...</translation>
     </message>
     <message>
         <source>Retrieving data ...</source>
@@ -2488,22 +2488,22 @@
     <message>
         <source>Result&amp;nbsp;Code: </source>
         <comment>error info</comment>
-        <translation type="unfinished">Rezultato&amp;nbsp;kodas: </translation>
+        <translation>Rezultato&amp;nbsp;kodas: </translation>
     </message>
     <message>
         <source>Component: </source>
         <comment>error info</comment>
-        <translation type="unfinished">Elementas:</translation>
+        <translation>Elementas:</translation>
     </message>
     <message>
         <source>Interface: </source>
         <comment>error info</comment>
-        <translation type="unfinished">Sąsaja: </translation>
+        <translation>Sąsaja: </translation>
     </message>
     <message>
         <source>Callee: </source>
         <comment>error info</comment>
-        <translation type="unfinished">Iššaukė: </translation>
+        <translation>Iššaukė: </translation>
     </message>
     <message>
         <source>Callee&amp;nbsp;RC: </source>
@@ -2775,11 +2775,11 @@
     </message>
     <message>
         <source>Holds the folder path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Atitinka katalogo kelią.</translation>
     </message>
     <message>
         <source>Holds the file path.</source>
-        <translation type="unfinished"></translation>
+        <translation>Atitinka rinkmenos kelią.</translation>
     </message>
 </context>
 <context>
@@ -2964,7 +2964,7 @@
     <name>UIGChooserView</name>
     <message>
         <source>Contains a tree of Virtual Machines and their groups</source>
-        <translation type="unfinished"></translation>
+        <translation>Talpina virtualių mašinų medį ir jų grupes</translation>
     </message>
 </context>
 <context>
@@ -3631,7 +3631,7 @@
     <name>UIGDetailsView</name>
     <message>
         <source>Contains a list of Virtual Machine details</source>
-        <translation type="unfinished"></translation>
+        <translation>Išsami informacija apue virtualias mašinas</translation>
     </message>
 </context>
 <context>
@@ -5102,11 +5102,11 @@
     </message>
     <message>
         <source>Adding network...</source>
-        <translation type="unfinished"></translation>
+        <translation>Pridedamas tinklas...</translation>
     </message>
     <message>
         <source>Removing network...</source>
-        <translation type="unfinished"></translation>
+        <translation>Šalinamas tinklas...</translation>
     </message>
 </context>
 <context>
@@ -6577,7 +6577,7 @@
     </message>
     <message>
         <source>&amp;Record Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Į&amp;rašinėti garsą</translation>
     </message>
 </context>
 <context>
@@ -6688,19 +6688,11 @@
     </message>
     <message>
         <source>Enc&amp;ryption</source>
-        <translation>Šif&amp;ravimas</translation>
-    </message>
-    <message>
-        <source>When checked, enables encryption for this virtual machine.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Šif&amp;ravimas</translation>
     </message>
     <message>
         <source>En&amp;able Encryption</source>
-        <translation>Įga&amp;linti šifravimą</translation>
-    </message>
-    <message>
-        <source>Encryption C&amp;ipher:</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Įga&amp;linti šifravimą</translation>
     </message>
     <message>
         <source>Selects the cipher to be used for encrypting the virtual machine disks.</source>
@@ -6711,32 +6703,12 @@
         <translation>Įveskite &amp;naują slaptažodį:</translation>
     </message>
     <message>
-        <source>Holds the password to be assigned to the virtual machine.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>C&amp;onfirm New Password:</source>
         <translation>Pakart&amp;otinai įveskite slaptažodį:</translation>
     </message>
     <message>
-        <source>Confirms the password to be assigned to the virtual machine.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>You are trying to encrypt this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Encryption cipher type not specified.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Encryption password empty.</source>
-        <translation>Šifravimo slaptažodis tuščias.</translation>
-    </message>
-    <message>
-        <source>Encryption passwords do not match.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Šifravimo slaptažodis tuščias.</translation>
     </message>
     <message>
         <source>Holds the path where snapshots of this virtual machine will be stored. Be aware that snapshots can take quite a lot of storage space.</source>
@@ -6746,6 +6718,46 @@
         <source>Leave Unchanged</source>
         <comment>cipher type</comment>
         <translation>Nekeisti</translation>
+    </message>
+    <message>
+        <source>Disk Enc&amp;ryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>When checked, disks attached to this virtual machine will be encrypted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>En&amp;able Disk Encryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk Encryption C&amp;ipher:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Holds the encryption password for disks attached to this virtual machine.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirms the disk encryption password.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are trying to enable disk encryption for this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption cipher type not specified.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption password empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption passwords do not match.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7774,7 +7786,7 @@
     </message>
     <message>
         <source>&amp;Storage Devices</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Atminties įtaisai</translation>
     </message>
 </context>
 <context>
@@ -8414,7 +8426,7 @@
     <name>UIMediumDetailsWidget</name>
     <message>
         <source>&amp;Attributes</source>
-        <translation type="unfinished">&amp;Atributai</translation>
+        <translation>&amp;Atributai</translation>
     </message>
     <message>
         <source>&amp;Information</source>
@@ -8426,7 +8438,7 @@
     </message>
     <message>
         <source>&amp;Location:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Vieta:</translation>
     </message>
     <message>
         <source>&amp;Description:</source>
@@ -8478,6 +8490,38 @@
     </message>
     <message>
         <source>Cannot change medium size from &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt; as storage shrinking is currently not implemented.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose Medium Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Location can not be empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, ignored when taking snapshots.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, and can be used by several machines.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8655,15 +8699,15 @@
     </message>
     <message>
         <source>Copy Disk Image File (%1)</source>
-        <translation type="unfinished">Kopijuoti disko atvaizdžio rinkmeną (%1)</translation>
+        <translation>Kopijuoti disko atvaizdžio rinkmeną (%1)</translation>
     </message>
     <message>
         <source>Remove Disk Image File (%1)</source>
-        <translation type="unfinished">Pašalinti disko atvaizdžio rinkmeną (%1)</translation>
+        <translation>Pašalinti disko atvaizdžio rinkmeną (%1)</translation>
     </message>
     <message>
         <source>Release Disk Image File (%1)</source>
-        <translation type="unfinished">Atlaisvinti disko atvaizdžio rinkmeną (%1)</translation>
+        <translation>Atlaisvinti disko atvaizdžio rinkmeną (%1)</translation>
     </message>
     <message>
         <source>Open Disk Image File Properties (%1)</source>
@@ -8671,7 +8715,27 @@
     </message>
     <message>
         <source>Refresh Disk Image Files (%1)</source>
-        <translation type="unfinished">Atnaujinti disko atvaizdžio rinkmeną (%1)</translation>
+        <translation>Atnaujinti disko atvaizdžio rinkmeną (%1)</translation>
+    </message>
+    <message>
+        <source>Current extension (*.%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose the location of this medium</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Move...</source>
+        <translation>&amp;Perkelti...</translation>
+    </message>
+    <message>
+        <source>Move Disk Image File (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move selected disk image file</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8708,39 +8772,15 @@
     <name>UIMediumTypeChangeDialog</name>
     <message>
         <source>Modify medium attributes</source>
-        <translation>Keisti laikmenos atributus</translation>
+        <translation type="vanished">Keisti laikmenos atributus</translation>
     </message>
     <message>
         <source>&lt;p&gt;You are about to change the settings of the disk image file &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Please choose one of the following modes and press &lt;b&gt;%2&lt;/b&gt; to proceed or &lt;b&gt;%3&lt;/b&gt; otherwise.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Keistumėte &lt;b&gt;%1&lt;/b&gt; virtualaus disko atributus.&lt;/p&gt;&lt;p&gt;Pasirinkite laikmenos tipą ir norėdami tęsti spauskite &lt;b&gt;%2&lt;/b&gt;, priešingu atveju – &lt;b&gt;%3&lt;/b&gt;.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Keistumėte &lt;b&gt;%1&lt;/b&gt; virtualaus disko atributus.&lt;/p&gt;&lt;p&gt;Pasirinkite laikmenos tipą ir norėdami tęsti spauskite &lt;b&gt;%2&lt;/b&gt;, priešingu atveju – &lt;b&gt;%3&lt;/b&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose mode:</source>
-        <translation>Pasirinkite laikmenos tipą:</translation>
-    </message>
-    <message>
-        <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>This type of medium is attached directly, ignored when taking snapshots.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>This type of medium is attached directly, and can be used by several machines.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Pasirinkite laikmenos tipą:</translation>
     </message>
 </context>
 <context>
@@ -10639,19 +10679,19 @@
     </message>
     <message>
         <source>&lt;p&gt;You are about to install a VirtualBox extension pack. Extension packs complement the functionality of VirtualBox and can contain system level software that could be potentially harmful to your system. Please review the description below and only proceed if you have obtained the extension pack from a trusted source.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;Ketinate įdiegti VirtualBox papildinių paketą. Papildinių paketai papildo esamas VirtualBox funkcijas, bet juose esanti sisteminio lygio programinė įranga gali padaryti žalos visai sistemai. Peržiūrėkite žemiau pateiktą papildinių paketų aprašą ir tęskite tik tuomet, jei papildinių paketą gavote iš patikimų šaltinių.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Pavadinimas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versija:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Aprašas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {0 ?} {5&gt;?} {1&lt;?} {2&lt;?} {3&lt;?}</translation>
+        <translation type="unfinished">&lt;p&gt;Ketinate įdiegti VirtualBox papildinių paketą. Papildinių paketai papildo esamas VirtualBox funkcijas, bet juose esanti sisteminio lygio programinė įranga gali padaryti žalos visai sistemai. Peržiūrėkite žemiau pateiktą papildinių paketų aprašą ir tęskite tik tuomet, jei papildinių paketą gavote iš patikimų šaltinių.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Pavadinimas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versija:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Aprašas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An older version of the extension pack is already installed, would you like to upgrade? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;New Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Current Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;Jau yra įdiegta senesnė papildinių paketo versija. Atnaujinti? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Pavadinimas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Nauja versija:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Dabartinė versija:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Aprašas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?} {5&lt;?}</translation>
+        <translation type="unfinished">&lt;p&gt;Jau yra įdiegta senesnė papildinių paketo versija. Atnaujinti? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Pavadinimas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Nauja versija:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Dabartinė versija:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Aprašas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An newer version of the extension pack is already installed, would you like to downgrade? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;New Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Current Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;Jau yra įdiegta naujesnė papildinių paketo versija. Pakeisti į senesnę versiją? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Pavadinimas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Nauja versija:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Dabartinė versija:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Aprašas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?} {5&lt;?}</translation>
+        <translation type="unfinished">&lt;p&gt;Jau yra įdiegta naujesnė papildinių paketo versija. Pakeisti į senesnę versiją? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Pavadinimas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Nauja versija:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Dabartinė versija:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Aprašas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The extension pack is already installed with the same version, would you like reinstall it? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;Jau yra įdiegta tokia pati papildinių paketo versija. Iš naujo įdiegti? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Pavadinimas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versija:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Aprašas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?}</translation>
+        <translation type="unfinished">&lt;p&gt;Jau yra įdiegta tokia pati papildinių paketo versija. Iš naujo įdiegti? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Pavadinimas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versija:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Aprašas:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Failed to enable the audio adapter output for the virtual machine &lt;b&gt;%1&lt;/b&gt;.</source>
@@ -10687,6 +10727,14 @@
     </message>
     <message>
         <source>Failed to change the snapshot &lt;b&gt;%1&lt;/b&gt; of the virtual machine &lt;b&gt;%2&lt;/b&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to create the virtual disk image storage &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -11864,7 +11912,7 @@
     </message>
     <message>
         <source>Take</source>
-        <translation type="unfinished"></translation>
+        <translation>Sukurti</translation>
     </message>
     <message>
         <source>Take snapshot on the basis of current machine state</source>
@@ -11872,7 +11920,7 @@
     </message>
     <message>
         <source>Take Snapshot (%1)</source>
-        <translation type="unfinished">Sukurti dabartinio būvio kopiją (%1)</translation>
+        <translation>Sukurti dabartinio būvio kopiją (%1)</translation>
     </message>
 </context>
 <context>
@@ -12263,7 +12311,7 @@
     </message>
     <message>
         <source>&amp;Continue running in the background</source>
-        <translation type="unfinished"></translation>
+        <translation>Tęsti veikimą &amp;fone</translation>
     </message>
     <message>
         <source>&lt;p&gt;Close the virtual machine windows but keep the virtual machine running.&lt;/p&gt;&lt;p&gt;You can use the VirtualBox Manager to return to running the virtual machine in a window.&lt;/p&gt;</source>
@@ -12601,79 +12649,120 @@
     <message>
         <source>%1_copy</source>
         <comment>copied virtual hard drive name</comment>
-        <translation>%1_kopija</translation>
+        <translation type="vanished">%1_kopija</translation>
     </message>
     <message>
         <source>Copy Virtual Hard Disk</source>
-        <translation>Kopijuoti virtualų standųjį diską</translation>
+        <translation type="vanished">Kopijuoti virtualų standųjį diską</translation>
     </message>
     <message>
         <source>Hard disk to copy</source>
-        <translation>Kopijuotinas virtualus standusis diskas</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;Please select the virtual hard disk file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Kopijuotinas virtualus standusis diskas</translation>
     </message>
     <message>
         <source>Choose a virtual hard disk file to copy...</source>
-        <translation>Pasirinkti kopijuotiną virtualaus standžiojo disko rinkmeną...</translation>
+        <translation type="vanished">Pasirinkti kopijuotiną virtualaus standžiojo disko rinkmeną...</translation>
     </message>
     <message>
         <source>Hard disk file type</source>
-        <translation>Standžiojo disko rinkmenos tipas</translation>
-    </message>
-    <message>
-        <source>Please choose the type of file that you would like to use for the new virtual hard disk. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Standžiojo disko rinkmenos tipas</translation>
     </message>
     <message>
         <source>Storage on physical hard disk</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Please choose whether the new virtual hard disk file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; hard disk file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; hard disk file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the hard disk file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please choose a location for new virtual hard disk file</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>New hard disk to create</source>
-        <translation>Naujai sukurtinas standusis diskas</translation>
-    </message>
-    <message>
-        <source>Please type the name of the new virtual hard disk file into the box below or click on the folder icon to select a different folder to create the file in.</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Naujai sukurtinas standusis diskas</translation>
     </message>
     <message>
         <source>Choose a location for new virtual hard disk file...</source>
-        <translation>Nurodykite naujo virtualaus standžiojo disko rinkmenos saugojimo vietą...</translation>
+        <translation type="vanished">Nurodykite naujo virtualaus standžiojo disko rinkmenos saugojimo vietą...</translation>
     </message>
     <message>
         <source>Hard disk to &amp;copy</source>
-        <translation>&amp;Kopijuotinas virtualus standusis diskas</translation>
+        <translation type="vanished">&amp;Kopijuotinas virtualus standusis diskas</translation>
     </message>
     <message>
         <source>&amp;New hard disk to create</source>
-        <translation>&amp;Naujai sukurtinas standusis diskas</translation>
+        <translation type="vanished">&amp;Naujai sukurtinas standusis diskas</translation>
     </message>
     <message>
         <source>Hard disk file &amp;type</source>
-        <translation>Standžiojo disko rinkmenos &amp;tipas</translation>
+        <translation type="vanished">Standžiojo disko rinkmenos &amp;tipas</translation>
+    </message>
+    <message>
+        <source>Copy Virtual Disk Image</source>
+        <translation>Kopijuoti virtualaus disko atvaizdį</translation>
+    </message>
+    <message>
+        <source>Disk image to copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Please select the virtual disk image file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a virtual disk image file to copy...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image file type</source>
+        <translation>Disko atvaizdžio rinkmenos tipas</translation>
+    </message>
+    <message>
+        <source>Please choose the type of file that you would like to use for the new virtual disk image. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please choose whether the new virtual disk image file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; disk image file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; disk image file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the disk image file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please choose a location for new virtual disk image file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New disk image to create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please type the name of the new virtual disk image file into the box below or click on the folder icon to select a different folder to create the file in.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a location for new virtual disk image file...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1_copy</source>
+        <comment>copied virtual disk image name</comment>
+        <translation>%1_kopija</translation>
+    </message>
+    <message>
+        <source>Disk image to &amp;copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New disk image to create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image file &amp;type</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -14954,49 +15043,49 @@ IPv6.</translation>
     <message numerus="yes">
         <source>%n year(s)</source>
         <translation>
-            <numerusform>%n metai</numerusform>
-            <numerusform>%n metai</numerusform>
-            <numerusform>%n metų</numerusform>
+            <numerusform>%n m.</numerusform>
+            <numerusform>%n m.</numerusform>
+            <numerusform>%n m.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n month(s)</source>
         <translation>
-            <numerusform>%n mėnuo</numerusform>
-            <numerusform>%n menesiai</numerusform>
-            <numerusform>%n mėnesių</numerusform>
+            <numerusform>%n mėn.</numerusform>
+            <numerusform>%n mėn.</numerusform>
+            <numerusform>%n mėn.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n day(s)</source>
         <translation>
-            <numerusform>%n diena</numerusform>
-            <numerusform>%n dienos</numerusform>
-            <numerusform>%n dienų</numerusform>
+            <numerusform>%n d.</numerusform>
+            <numerusform>%n d.</numerusform>
+            <numerusform>%n d.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n hour(s)</source>
         <translation>
-            <numerusform>%n valanda</numerusform>
-            <numerusform>%n valandos</numerusform>
-            <numerusform>%n valandų</numerusform>
+            <numerusform>%n val.</numerusform>
+            <numerusform>%n val.</numerusform>
+            <numerusform>%n val.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n minute(s)</source>
         <translation>
-            <numerusform>%n minutė</numerusform>
-            <numerusform>%n minutės</numerusform>
-            <numerusform>%n minučių</numerusform>
+            <numerusform>%n min.</numerusform>
+            <numerusform>%n min.</numerusform>
+            <numerusform>%n min.</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%n second(s)</source>
         <translation>
-            <numerusform>%n secondė</numerusform>
-            <numerusform>%n secondės</numerusform>
-            <numerusform>%n sekundžių</numerusform>
+            <numerusform>%n sek.</numerusform>
+            <numerusform>%n sek.</numerusform>
+            <numerusform>%n sek.</numerusform>
         </translation>
     </message>
     <message>

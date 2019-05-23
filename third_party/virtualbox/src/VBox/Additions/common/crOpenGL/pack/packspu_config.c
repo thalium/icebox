@@ -36,10 +36,10 @@ static void set_swapbuffer_sync( void *foo, const char *response )
 
 
 
-/* No SPU options yet. Well.. not really.. 
+/* No SPU options yet. Well.. not really..
  */
 SPUOptions packSPUOptions[] = {
-    { "emit_GATHER_POST_SWAPBUFFERS", CR_BOOL, 1, "0", NULL, NULL, 
+    { "emit_GATHER_POST_SWAPBUFFERS", CR_BOOL, 1, "0", NULL, NULL,
       "Emit a parameter after SwapBuffers", (SPUOptionCB)set_emit },
 
     { "swapbuffer_sync", CR_BOOL, 1, "1", NULL, NULL,

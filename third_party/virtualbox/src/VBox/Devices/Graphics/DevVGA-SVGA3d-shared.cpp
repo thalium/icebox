@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2013-2016 Oracle Corporation
+ * Copyright (C) 2013-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -274,20 +274,30 @@ static LONG WINAPI vmsvga3dWndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 
 
 /**
- * Calculate the size of one pixel
+ * Calculate the size and dimensions of one block.
  */
-uint32_t vmsvga3dSurfaceFormatSize(SVGA3dSurfaceFormat format)
+uint32_t vmsvga3dSurfaceFormatSize(SVGA3dSurfaceFormat format,
+                                   uint32_t *pcxBlock,
+                                   uint32_t *pcyBlock)
 {
+    uint32_t u32 = 0;
+    if (!pcxBlock) pcxBlock = &u32;
+    if (!pcyBlock) pcyBlock = &u32;
+
     switch (format)
     {
     case SVGA3D_X8R8G8B8:
     case SVGA3D_A8R8G8B8:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 4;
 
     case SVGA3D_R5G6B5:
     case SVGA3D_X1R5G5B5:
     case SVGA3D_A1R5G5B5:
     case SVGA3D_A4R4G4B4:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 2;
 
     case SVGA3D_Z_D32:
@@ -295,65 +305,99 @@ uint32_t vmsvga3dSurfaceFormatSize(SVGA3dSurfaceFormat format)
     case SVGA3D_Z_D24X8:
     case SVGA3D_Z_DF24:
     case SVGA3D_Z_D24S8_INT:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 4;
 
     case SVGA3D_Z_D16:
     case SVGA3D_Z_DF16:
     case SVGA3D_Z_D15S1:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 2;
 
     case SVGA3D_LUMINANCE8:
     case SVGA3D_LUMINANCE4_ALPHA4:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 1;
 
     case SVGA3D_LUMINANCE16:
     case SVGA3D_LUMINANCE8_ALPHA8:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 2;
 
     case SVGA3D_DXT1:
     case SVGA3D_DXT2:
+        *pcxBlock = 4;
+        *pcyBlock = 4;
         return 8;
 
     case SVGA3D_DXT3:
     case SVGA3D_DXT4:
     case SVGA3D_DXT5:
+        *pcxBlock = 4;
+        *pcyBlock = 4;
         return 16;
 
     case SVGA3D_BUMPU8V8:
     case SVGA3D_BUMPL6V5U5:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 2;
 
     case SVGA3D_BUMPX8L8V8U8:
     case SVGA3D_Q8W8V8U8:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 4;
 
     case SVGA3D_V8U8:
     case SVGA3D_CxV8U8:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 2;
 
     case SVGA3D_X8L8V8U8:
     case SVGA3D_A2W10V10U10:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 4;
 
     case SVGA3D_ARGB_S10E5:   /* 16-bit floating-point ARGB */
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 2;
     case SVGA3D_ARGB_S23E8:   /* 32-bit floating-point ARGB */
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 4;
 
     case SVGA3D_A2R10G10B10:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 4;
 
     case SVGA3D_ALPHA8:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 1;
 
     case SVGA3D_R_S10E5:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 2;
 
     case SVGA3D_R_S23E8:
     case SVGA3D_RG_S10E5:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 4;
 
     case SVGA3D_RG_S23E8:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 8;
 
     /*
@@ -362,20 +406,41 @@ uint32_t vmsvga3dSurfaceFormatSize(SVGA3dSurfaceFormat format)
      * expressly for index or vertex data.
      */
     case SVGA3D_BUFFER:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 1;
 
     case SVGA3D_NV12:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 1;
 
     case SVGA3D_V16U16:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 4;
 
     case SVGA3D_G16R16:
-        return 32;
+        *pcxBlock = 1;
+        *pcyBlock = 1;
+        return 4;
     case SVGA3D_A16B16G16R16:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         return 8;
+    case SVGA3D_R8G8B8A8_UNORM:
+    case SVGA3D_R8G8B8A8_SNORM:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
+        return 4;
+    case SVGA3D_R16G16_UNORM:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
+        return 4;
 
     default:
+        *pcxBlock = 1;
+        *pcyBlock = 1;
         AssertFailedReturn(4);
     }
 }

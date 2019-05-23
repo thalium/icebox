@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -30,6 +30,7 @@
 # include "VBoxGlobal.h"
 # include "UIMessageCenter.h"
 # include "UIModalWindowManager.h"
+# include "UIVersion.h"
 
 #endif /* !VBOX_WITH_PRECOMPILED_HEADERS */
 
@@ -60,18 +61,16 @@ UIDownloaderExtensionPack::UIDownloaderExtensionPack()
     if (!m_spInstance)
         m_spInstance = this;
 
+    /* Get version number and adjust it for test and trunk builds. The server only has official releases. */
+    const QString strVersion = UIVersion(vboxGlobal().vboxVersionStringNormalized()).effectiveRelasedVersion().toString();
+
     /* Prepare source/target: */
-    QString strVersion = vboxGlobal().vboxVersionStringNormalized();
-    QString strExtPackUnderscoredName(QString(GUI_ExtPackName).replace(' ', '_'));
-    QString strTemplateSourcePath("http://download.virtualbox.org/virtualbox/%1/");
-    QString strTemplateSourceName(QString("%1-%2.vbox-extpack").arg(strExtPackUnderscoredName));
-    QString strSourcePath(strTemplateSourcePath.arg(strVersion));
-    QString strSourceName(strTemplateSourceName.arg(strVersion));
-    QString strSource(strSourcePath + strSourceName);
-    QString strPathSHA256SumsFile = QString("https://www.virtualbox.org/download/hashes/%1/SHA256SUMS").arg(strVersion);
-    QString strTargetPath(vboxGlobal().homeFolder());
-    QString strTargetName(strSourceName);
-    QString strTarget(QDir(strTargetPath).absoluteFilePath(strTargetName));
+    const QString strUnderscoredName = QString(GUI_ExtPackName).replace(' ', '_');
+    const QString strSourceName = QString("%1-%2.vbox-extpack").arg(strUnderscoredName, strVersion);
+    const QString strSourcePath = QString("https://download.virtualbox.org/virtualbox/%1/").arg(strVersion);
+    const QString strSource = strSourcePath + strSourceName;
+    const QString strPathSHA256SumsFile = QString("https://www.virtualbox.org/download/hashes/%1/SHA256SUMS").arg(strVersion);
+    const QString strTarget = QDir(vboxGlobal().homeFolder()).absoluteFilePath(strSourceName);
 
     /* Set source/target: */
     setSource(strSource);

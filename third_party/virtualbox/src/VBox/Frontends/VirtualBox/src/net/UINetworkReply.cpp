@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -89,8 +89,6 @@ public:
         const QByteArray& readAll() const { return m_reply; }
         /** Returns value for the cached reply header of the passed @a type. */
         QString header(UINetworkReply::KnownHeader type) const;
-        /** Returns value for the cached reply attribute of the passed @a code. */
-        QVariant attribute(UINetworkReply::KnownAttribute code) const { /** @todo r=dsen: Fix that. */ Q_UNUSED(code); return QVariant(); }
 
         /** Returns short descriptive context of thread's current operation. */
         const QString context() const { return m_strContext; }
@@ -264,8 +262,6 @@ public:
     QByteArray readAll() const { return m_pThread->readAll(); }
     /** Returns value for the cached reply header of the passed @a type. */
     QString header(UINetworkReply::KnownHeader type) const { return m_pThread->header(type); }
-    /** Returns value for the cached reply attribute of the passed @a code. */
-    QVariant attribute(UINetworkReply::KnownAttribute code) const { return m_pThread->attribute(code); }
 
 private slots:
 
@@ -368,6 +364,7 @@ QString UINetworkReplyPrivateThread::header(UINetworkReply::KnownHeader type) co
         case UINetworkReply::ContentTypeHeader:   return m_headers.value("Content-Type");
         case UINetworkReply::ContentLengthHeader: return m_headers.value("Content-Length");
         case UINetworkReply::LastModifiedHeader:  return m_headers.value("Last-Modified");
+        case UINetworkReply::LocationHeader:      return m_headers.value("Location");
         default: break;
     }
     /* Return null-string by default: */
@@ -548,6 +545,17 @@ int UINetworkReplyPrivateThread::performMainRequest()
                 const QStringList values = strHeader.split(": ", QString::SkipEmptyParts);
                 if (values.size() > 1)
                     m_headers[values.at(0)] = values.at(1);
+            }
+
+            /* Special handling of redirection header: */
+            if (rc == VERR_HTTP_REDIRECTED)
+            {
+                char *pszBuf = 0;
+                const int rrc = RTHttpGetRedirLocation(m_hHttp, &pszBuf);
+                if (RT_SUCCESS(rrc))
+                    m_headers["Location"] = QString(pszBuf);
+                if (pszBuf)
+                    RTMemFree(pszBuf);
             }
 
             break;
@@ -930,9 +938,10 @@ UINetworkReplyPrivate::UINetworkReplyPrivate(UINetworkRequestType type, const QU
 
     /* Create and run reply thread: */
     m_pThread = new UINetworkReplyPrivateThread(type, url, requestHeaders);
-    connect(m_pThread, SIGNAL(sigDownloadProgress(qint64, qint64)),
-            this, SIGNAL(downloadProgress(qint64, qint64)), Qt::QueuedConnection);
-    connect(m_pThread, SIGNAL(finished()), this, SLOT(sltFinished()));
+    connect(m_pThread, &UINetworkReplyPrivateThread::sigDownloadProgress,
+            this, &UINetworkReplyPrivate::downloadProgress, Qt::QueuedConnection);
+    connect(m_pThread, &UINetworkReplyPrivateThread::finished,
+            this, &UINetworkReplyPrivate::sltFinished);
     m_pThread->start();
 }
 
@@ -1000,8 +1009,8 @@ UINetworkReply::UINetworkReply(UINetworkRequestType type, const QUrl &url, const
     : m_pReply(new UINetworkReplyPrivate(type, url, requestHeaders))
 {
     /* Prepare network-reply object connections: */
-    connect(m_pReply, SIGNAL(downloadProgress(qint64, qint64)), this, SIGNAL(downloadProgress(qint64, qint64)));
-    connect(m_pReply, SIGNAL(finished()), this, SIGNAL(finished()));
+    connect(m_pReply, &UINetworkReplyPrivate::downloadProgress, this, &UINetworkReply::downloadProgress);
+    connect(m_pReply, &UINetworkReplyPrivate::finished,         this, &UINetworkReply::finished);
 }
 
 UINetworkReply::~UINetworkReply()
@@ -1042,11 +1051,6 @@ QByteArray UINetworkReply::readAll() const
 QVariant UINetworkReply::header(UINetworkReply::KnownHeader header) const
 {
     return m_pReply->header(header);
-}
-
-QVariant UINetworkReply::attribute(UINetworkReply::KnownAttribute code) const
-{
-    return m_pReply->attribute(code);
 }
 
 #include "UINetworkReply.moc"

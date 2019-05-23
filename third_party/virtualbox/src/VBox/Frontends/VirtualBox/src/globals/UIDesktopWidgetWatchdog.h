@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2015-2016 Oracle Corporation
+ * Copyright (C) 2015-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -104,6 +104,11 @@ public:
     /** Qt5: X11: Returns whether no or fake screen detected. */
     bool isFakeScreenDetected() const;
 #endif
+
+    /** Returns device-pixel-ratio of the host-screen with @a iHostScreenIndex. */
+    double devicePixelRatio(int iHostScreenIndex = -1);
+    /** Returns device-pixel-ratio of the host-screen which contains @a pWidget. */
+    double devicePixelRatio(QWidget *pWidget);
 
 private slots:
 

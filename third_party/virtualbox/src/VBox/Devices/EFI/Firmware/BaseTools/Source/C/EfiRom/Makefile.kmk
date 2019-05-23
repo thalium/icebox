@@ -33,5 +33,3 @@ EfiRom_SOURCES = EfiRom.c
 
 include $(FILE_KBUILD_SUB_FOOTER)
 
-
-

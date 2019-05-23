@@ -98,8 +98,9 @@ int GetVBoxUserHomeDirectory(char *aDir, size_t aDirLen, bool fCreateDir = true)
  *  @param cHistory         Number of old log files to keep.
  *  @param uHistoryFileTime Maximum amount of time to put in a log file.
  *  @param uHistoryFileSize Maximum size of a log file before rotating.
- *  @param pszError         In case of creation failure: buffer for error message.
- *  @param cbError          Size of error message buffer.
+ *  @param pErrInfo         Where to return extended error information.
+ *                          Optional.
+ *
  *  @return         VBox status code.
  */
 int VBoxLogRelCreate(const char *pcszEntity, const char *pcszLogFile,
@@ -107,7 +108,7 @@ int VBoxLogRelCreate(const char *pcszEntity, const char *pcszLogFile,
                      const char *pcszEnvVarBase, uint32_t fDestFlags,
                      uint32_t cMaxEntriesPerGroup, uint32_t cHistory,
                      uint32_t uHistoryFileTime, uint64_t uHistoryFileSize,
-                     char *pszError, size_t cbError);
+                     PRTERRINFO pErrInfo);
 
 } /* namespace com */
 

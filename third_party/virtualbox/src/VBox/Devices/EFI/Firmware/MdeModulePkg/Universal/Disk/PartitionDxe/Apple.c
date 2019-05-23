@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -96,7 +96,7 @@ PartitionInstallAppleChildHandles (
   EFI_BLOCK_IO_MEDIA       *Media;
   VOID                     *Block;
   //UINTN                   MaxIndex;
-  /** @todo: wrong, as this PT can be on both HDD or CD */
+  /** @todo wrong, as this PT can be on both HDD or CD */
   CDROM_DEVICE_PATH         CdDev;
   //EFI_DEVICE_PATH_PROTOCOL  Dev;
   EFI_STATUS                Found;

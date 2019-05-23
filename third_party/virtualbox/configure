@@ -3,7 +3,7 @@
 # libraries VBox OSE depends on.
 
 #
-# Copyright (C) 2006-2016 Oracle Corporation
+# Copyright (C) 2006-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -1766,31 +1766,7 @@ EOF
     fail
   else
     if test_execute; then
-      cat > $ODIR.tmp_src.c << EOF
-#include <linux/version.h>
-int printf(const char *format, ...);
-int main(void)
-{
-  return LINUX_VERSION_CODE >= KERNEL_VERSION(4,9,0) ? 1 : 0;
-}
-EOF
-      echo "compiling the following source file:" >> $LOG
-      cat $ODIR.tmp_src.c >> $LOG
-      echo "using the following command line:" >> $LOG
-      echo "$CC -O -Wall -o $ODIR.tmp_out $ODIR.tmp_src.c -nostdinc -I$LINUX/include " \
-          "-I$LINUX/include/generated/uapi" >> $LOG
-      $CC -O -Wall -o $ODIR.tmp_out $ODIR.tmp_src.c -nostdinc -I$LINUX/include \
-          -I$LINUX/include/generated/uapi >> $LOG 2>&1
-      if [ $? -eq 0 ]; then
-        $ODIR.tmp_out
-        if [ $? -ne 0 ]; then
-          cnf_append "VBOX_WITH_VBOXDRV" ""
-          cnf_append "VBOX_WITH_ADDITION_DRIVERS" ""
-          echo "Detected Linux >= 4.8 -- disabling compiling of Linux kernel modules."
-        else
-          cnf_append "VBOX_LINUX_SRC" "`cd $LINUX ; pwd`"
-        fi
-      fi
+      cnf_append "VBOX_LINUX_SRC" "`cd $LINUX ; pwd`"
     fi
   fi
 }
@@ -2822,8 +2798,7 @@ if [ "$OS" = "linux" ]; then
     check_linux
   else
     cnf_append "VBOX_LINUX_SRC" ""
-    cnf_append "VBOX_WITH_VBOXDRV" ""
-    cnf_append "VBOX_WITH_ADDITION_DRIVERS" ""
+    cnf_append "VBOX_WITHOUT_LINUX_TEST_BUILDS" "1"
   fi
   if [ $ONLY_ADDITIONS -eq 0 ]; then
     if [ $WITH_ALSA -eq 1 ]; then

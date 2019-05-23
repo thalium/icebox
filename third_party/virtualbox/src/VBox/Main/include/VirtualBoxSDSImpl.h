@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2015-2015 Oracle Corporation
+ * Copyright (C) 2015-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -18,122 +18,86 @@
 #ifndef ____H_VIRTUALBOXSDSIMPL
 #define ____H_VIRTUALBOXSDSIMPL
 
-#include "VirtualBoxSDSWrap.h"
-#include "TokenWrap.h"
+#include "VirtualBoxBase.h"
 
-#ifdef RT_OS_WINDOWS
-# include "win/resource.h"
-#endif
 
- /**
- * The MediumLockToken class automates cleanup of a Medium lock.
+class VBoxSDSPerUserData; /* See VirtualBoxSDSImpl.cpp. */
+
+/**
+ * The IVirtualBoxSDS implementation.
+ *
+ * This class helps different VBoxSVC processes make sure a user only have a
+ * single VirtualBox instance.
+ *
+ * @note This is a simple internal class living in a privileged process.  So, we
+ *       do not use the API wrappers as they add complexity.  In particular,
+ *       they add the auto caller logic, which is an excellent tool to create
+ *       unkillable processes.  If an API method during development or product
+ *       for instance triggers an NT exception like STATUS_ACCESS_VIOLATION, the
+ *       caller will be unwound without releasing the caller.  When uninit is
+ *       called during COM shutdown/whatever, the thread gets stuck waiting for
+ *       the long gone caller and cannot be killed (Windows 10, build 16299),
+ *       requiring a reboot to continue.
+ *
+ * @todo Would be very nice to get rid of the ATL cruft too here.
  */
-class ATL_NO_VTABLE VirtualBoxToken :
-    public TokenWrap
-{
-public:
-
-    DECLARE_EMPTY_CTOR_DTOR(VirtualBoxToken)
-
-    HRESULT FinalConstruct();
-    void FinalRelease();
-
-    // public initializer/uninitializer for internal purposes only
-    HRESULT init(const std::wstring& wstrUserName);
-    void uninit();
-
-    /**
-    * Fabrique method to create and initialize COM token object.
-    *
-    * @param aToken         Pointer to result Token COM object.
-    * @param wstrUserName   User name of client for that we create the token
-    */
-    static HRESULT CreateToken(ComPtr<IToken>& aToken, const std::wstring& wstrUserName);
-
-    // Trace COM reference counting in debug mode
-#ifdef RT_STRICT
-    virtual ULONG InternalAddRef();
-    virtual ULONG InternalRelease();
-#endif
-
-private:
-
-    // wrapped IToken methods
-    HRESULT abandon(AutoCaller &aAutoCaller);
-    HRESULT dummy();
-
-    // data
-    struct Data
-    {
-        std::wstring wstrUserName;
-    };
-
-    Data m;
-};
-
-class ATL_NO_VTABLE VirtualBoxSDS :
-    public VirtualBoxSDSWrap
-#ifdef RT_OS_WINDOWS
+class VirtualBoxSDS
+    : public IVirtualBoxSDS
+    , public ATL::CComObjectRootEx<ATL::CComMultiThreadModel>
     , public ATL::CComCoClass<VirtualBoxSDS, &CLSID_VirtualBoxSDS>
-#endif
 {
+private:
+    typedef std::map<com::Utf8Str, VBoxSDSPerUserData *> UserDataMap_T;
+    /** Per user data map (key is SID string).
+     * This is an insert-only map! */
+    UserDataMap_T       m_UserDataMap;
+    /** Lock protecting m_UserDataMap.*/
+    RTCRITSECTRW        m_MapCritSect;
+
 public:
-
     DECLARE_CLASSFACTORY_SINGLETON(VirtualBoxSDS)
-
-    //DECLARE_REGISTRY_RESOURCEID(IDR_VIRTUALBOX)
-
-    // Kind of redundant (VirtualBoxSDSWrap declares itself not aggregatable
-    // and CComCoClass<VirtualBoxSDS, &CLSID_VirtualBoxSDS> as aggregatable,
-    // the former is the first inheritance), but the C multiple inheritance
-    // rules and the class factory in VBoxSDS.cpp needs this to disambiguate.
     DECLARE_NOT_AGGREGATABLE(VirtualBoxSDS)
+    DECLARE_PROTECT_FINAL_CONSTRUCT()
+
+    BEGIN_COM_MAP(VirtualBoxSDS)
+        COM_INTERFACE_ENTRY(IVirtualBoxSDS)
+    END_COM_MAP()
 
     DECLARE_EMPTY_CTOR_DTOR(VirtualBoxSDS)
 
     HRESULT FinalConstruct();
-    void FinalRelease();
-
-    // public initializers/uninitializers for internal purposes only
-    HRESULT init();
-    void uninit();
+    void    FinalRelease();
 
 private:
 
-    // Wrapped IVirtualBoxSDS properties
+    // IVirtualBoxSDS methods
+    HRESULT RegisterVBoxSVC(IVBoxSVCRegistration *aVBoxSVC, LONG aPid, IUnknown **aExistingVirtualBox);
+    HRESULT DeregisterVBoxSVC(IVBoxSVCRegistration *aVBoxSVC, LONG aPid);
+
+
+    // Private methods
 
     /**
-    *    Returns the instance of VirtualBox for client.
-    *    It impersonates client and returns his VirtualBox instance
-    *    either from cahce or makes new one.
-    */
-    HRESULT getVirtualBox(ComPtr<IVirtualBox> &aVirtualBox, ComPtr<IToken> &aToken);
-
-    // Wrapped IVirtualBoxSDS methods
-
-    // Inner methods
+     * Gets the client user SID of the
+     */
+    static bool i_getClientUserSid(com::Utf8Str *a_pStrSid, com::Utf8Str *a_pStrUsername);
 
     /**
-    *  Gets the current user name of current thread
-    */
-    int GetCurrentUserName(std::wstring& wstrUserName);
+     * Looks up the given user.
+     *
+     * @returns Pointer to the LOCKED per user data.  NULL if not found.
+     * @param   a_rStrUserSid   The user SID.
+     */
+    VBoxSDSPerUserData *i_lookupPerUserData(com::Utf8Str const &a_rStrUserSid);
 
     /**
-    *  Prints current user name of this thread to the log
-    *  @param prefix    string fragment that will be inserted at the beginning
-    *                   of the logging line
-    */
-    void LogUserName(char *prefix);
-
-    /**
-    *  Thread that periodically checks items in cache and cleans obsolete items
-    */
-    static DWORD WINAPI CheckCacheThread(LPVOID);
-
-    // data fields
-    class VirtualBoxCache;
-    static VirtualBoxCache m_cache;
-    friend VirtualBoxToken;
+     * Looks up the given user, creating it if not found
+     *
+     * @returns Pointer to the LOCKED per user data.  NULL on allocation error.
+     * @param   a_rStrUserSid   The user SID.
+     * @param   a_rStrUsername  The user name if available.
+     */
+    VBoxSDSPerUserData *i_lookupOrCreatePerUserData(com::Utf8Str const &a_rStrUserSid, com::Utf8Str const &a_rStrUsername);
 };
 
 

@@ -4,7 +4,7 @@
 #
 
 #
-# Copyright (C) 2007-2012 Oracle Corporation
+# Copyright (C) 2007-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -23,7 +23,9 @@ done
 
 if ! test -c /dev/vboxguest 2>/dev/null; then
    # Do not start if the kernel module is not present.
-   notify-send "VBoxClient: the VirtualBox kernel service is not running.  Exiting."
+   # Execute notify-send in the back-ground to avoid racing with sddm,
+   # as notify-send may wait for sddm to start while it waits for us to exit.
+   notify-send "VBoxClient: the VirtualBox kernel service is not running.  Exiting." &
 elif test -z "${SSH_CONNECTION}"; then
    # This script can also be triggered by a connection over SSH, which is not
    # what we had in mind, so we do not start VBoxClient in that case.  We do

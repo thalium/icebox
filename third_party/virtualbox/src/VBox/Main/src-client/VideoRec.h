@@ -57,8 +57,7 @@ typedef enum VIDEORECPROFILE
 typedef struct VIDEORECCFG
 {
     VIDEORECCFG(void)
-        : fEnabled(false)
-        , enmDst(VIDEORECDEST_INVALID)
+        :  enmDst(VIDEORECDEST_INVALID)
         , uMaxTimeS(0)
     {
 #ifdef VBOX_WITH_AUDIO_VIDEOREC
@@ -67,8 +66,6 @@ typedef struct VIDEORECCFG
         RT_ZERO(Video);
     }
 
-    /** Whether recording is enabled or not (as a whole). */
-    bool                    fEnabled;
     /** Array of all screens containing whether they're enabled
      *  for recording or not.  */
     com::SafeArray<BOOL>    aScreens;
@@ -95,6 +92,8 @@ typedef struct VIDEORECCFG
     {
         /** Whether audio recording is enabled or not. */
         bool                fEnabled;
+        /** The device LUN the audio driver is attached / configured to. */
+        unsigned            uLUN;
         /** Hertz (Hz) rate. */
         uint16_t            uHz;
         /** Bits per sample. */
@@ -140,8 +139,6 @@ typedef struct VIDEORECCFG
 
     VIDEORECCFG& operator=(const VIDEORECCFG &that)
     {
-        fEnabled = that.fEnabled;
-
         aScreens.resize(that.aScreens.size());
         for (size_t i = 0; i < that.aScreens.size(); ++i)
             aScreens[i] = that.aScreens[i];
@@ -176,7 +173,7 @@ int VideoRecContextDestroy(PVIDEORECCONTEXT pCtx);
 int VideoRecStreamInit(PVIDEORECCONTEXT pCtx, uint32_t uScreen);
 int VideoRecStreamUninit(PVIDEORECCONTEXT pCtx, uint32_t uScreen);
 
-VIDEORECFEATURES VideoRecGetEnabled(PVIDEORECCFG pCfg);
+VIDEORECFEATURES VideoRecGetFeatures(PVIDEORECCFG pCfg);
 
 int VideoRecSendAudioFrame(PVIDEORECCONTEXT pCtx, const void *pvData, size_t cbData, uint64_t uTimestampMs);
 int VideoRecSendVideoFrame(PVIDEORECCONTEXT pCtx, uint32_t uScreen,
@@ -184,7 +181,7 @@ int VideoRecSendVideoFrame(PVIDEORECCONTEXT pCtx, uint32_t uScreen,
                             uint32_t uBytesPerLine, uint32_t uSrcWidth, uint32_t uSrcHeight,
                             uint8_t *puSrcData, uint64_t uTimeStampMs);
 bool VideoRecIsReady(PVIDEORECCONTEXT pCtx, uint32_t uScreen, uint64_t uTimeStampMs);
-bool VideoRecIsActive(PVIDEORECCONTEXT pCtx);
+bool VideoRecIsStarted(PVIDEORECCONTEXT pCtx);
 bool VideoRecIsLimitReached(PVIDEORECCONTEXT pCtx, uint32_t uScreen, uint64_t tsNowMs);
 
 #endif /* !____H_VIDEOREC */

@@ -1,11 +1,10 @@
 /* $Id: fakedri_drv.c $ */
-
 /** @file
  * VBox OpenGL DRI driver functions
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -40,24 +39,24 @@
 
 /** X server message type definitions. */
 typedef enum {
-    X_PROBED,			/* Value was probed */
-    X_CONFIG,			/* Value was given in the config file */
-    X_DEFAULT,			/* Value is a default */
-    X_CMDLINE,			/* Value was given on the command line */
-    X_NOTICE,			/* Notice */
-    X_ERROR,			/* Error message */
-    X_WARNING,			/* Warning message */
-    X_INFO,			/* Informational message */
-    X_NONE,			/* No prefix */
-    X_NOT_IMPLEMENTED,		/* Not implemented */
-    X_UNKNOWN = -1		/* unknown -- this must always be last */
+    X_PROBED,                   /* Value was probed */
+    X_CONFIG,                   /* Value was given in the config file */
+    X_DEFAULT,                  /* Value is a default */
+    X_CMDLINE,                  /* Value was given on the command line */
+    X_NOTICE,                   /* Notice */
+    X_ERROR,                    /* Error message */
+    X_WARNING,                  /* Warning message */
+    X_INFO,                     /* Informational message */
+    X_NONE,                     /* No prefix */
+    X_NOT_IMPLEMENTED,          /* Not implemented */
+    X_UNKNOWN = -1              /* unknown -- this must always be last */
 } MessageType;
 
 #define VBOX_NO_MESA_PATCH_REPORTS
 
 //#define DEBUG_DRI_CALLS
 
-//@todo this could be different...
+/// @todo this could be different...
 #ifdef RT_ARCH_AMD64
 # ifdef RT_OS_FREEBSD
 #  define DRI_DEFAULT_DRIVER_DIR "/usr/local/lib/dri"
@@ -218,7 +217,7 @@ vboxApplyPatch(const char* psFuncName, void *pDst, const void *pSrc, unsigned lo
 
     crMemcpy(pDst, pSrc, size);
 
-    /*@todo Restore the protection, probably have to check what was it before us...*/
+    /** @todo Restore the protection, probably have to check what was it before us...*/
     rv = RTMemProtect(alPatch, pDst-alPatch+size, RTMEM_PROT_READ|RTMEM_PROT_EXEC);
     if (RT_FAILURE(rv))
     {
@@ -231,79 +230,79 @@ vboxApplyPatch(const char* psFuncName, void *pDst, const void *pSrc, unsigned lo
 #if defined(RT_OS_FREEBSD)
 /* Provide basic dladdr1 flags */
 enum {
-	RTLD_DL_SYMENT	= 1
+        RTLD_DL_SYMENT  = 1
 };
 
 /* Provide a minimal local version of dladdr1 */
 static int
 dladdr1(const void *address, Dl_info *dlip, void **info, int flags)
 {
-	static DRI_ELFSYM desym;
-	GElf_Sym sym;
-	GElf_Shdr shdr;
-	Elf *elf;
-	Elf_Scn *scn;
-	Elf_Data *data;
-	int ret, fd, count, i;
+        static DRI_ELFSYM desym;
+        GElf_Sym sym;
+        GElf_Shdr shdr;
+        Elf *elf;
+        Elf_Scn *scn;
+        Elf_Data *data;
+        int ret, fd, count, i;
 
-	/* Initialize variables */
-	fd = -1;
-	elf = NULL;
+        /* Initialize variables */
+        fd = -1;
+        elf = NULL;
 
-	/* Call dladdr first */
-	ret = dladdr(address, dlip);
-	if (ret == 0) goto err_exit;
+        /* Call dladdr first */
+        ret = dladdr(address, dlip);
+        if (ret == 0) goto err_exit;
 
-	/* Check for supported flags */
-	if (flags != RTLD_DL_SYMENT) return 1;
+        /* Check for supported flags */
+        if (flags != RTLD_DL_SYMENT) return 1;
 
-	/* Open shared library's ELF file */
-	if (elf_version(EV_CURRENT) == EV_NONE) goto err_exit;
-	fd = open(dlip->dli_fname, O_RDONLY);
-	if (fd < 0) goto err_exit;
-	elf = elf_begin(fd, ELF_C_READ, NULL);
-	if (elf == NULL) goto err_exit;
+        /* Open shared library's ELF file */
+        if (elf_version(EV_CURRENT) == EV_NONE) goto err_exit;
+        fd = open(dlip->dli_fname, O_RDONLY);
+        if (fd < 0) goto err_exit;
+        elf = elf_begin(fd, ELF_C_READ, NULL);
+        if (elf == NULL) goto err_exit;
 
-	/* Find the '.dynsym' section */
-	scn = elf_nextscn(elf, NULL);
-	while (scn != NULL) {
-		if (gelf_getshdr(scn, &shdr) == NULL) goto err_exit;
-		if (shdr.sh_type == SHT_DYNSYM) break;
-		scn = elf_nextscn(elf, scn);
-	}
-	if (scn == NULL) goto err_exit;
+        /* Find the '.dynsym' section */
+        scn = elf_nextscn(elf, NULL);
+        while (scn != NULL) {
+                if (gelf_getshdr(scn, &shdr) == NULL) goto err_exit;
+                if (shdr.sh_type == SHT_DYNSYM) break;
+                scn = elf_nextscn(elf, scn);
+        }
+        if (scn == NULL) goto err_exit;
 
-	/* Search for the requested symbol by name and offset */
-	data = elf_getdata(scn, NULL);
-	count = shdr.sh_size / shdr.sh_entsize;
-	for (i = 0; i < count; i++) {
-		gelf_getsym(data, i, &sym);
-		if ((strcmp(dlip->dli_sname,
-		        elf_strptr(elf, shdr.sh_link, sym.st_name)) == 0) &&
-		    (sym.st_value == (dlip->dli_saddr - dlip->dli_fbase))) {
-			break;
-		}
-	}
+        /* Search for the requested symbol by name and offset */
+        data = elf_getdata(scn, NULL);
+        count = shdr.sh_size / shdr.sh_entsize;
+        for (i = 0; i < count; i++) {
+                gelf_getsym(data, i, &sym);
+                if ((strcmp(dlip->dli_sname,
+                        elf_strptr(elf, shdr.sh_link, sym.st_name)) == 0) &&
+                    (sym.st_value == (dlip->dli_saddr - dlip->dli_fbase))) {
+                        break;
+                }
+        }
 
-	/* Close ELF file */
-	elf_end(elf);
-	close(fd);
+        /* Close ELF file */
+        elf_end(elf);
+        close(fd);
 
-	/* Return symbol entry in native format */
-	desym.st_name = sym.st_name;
-	desym.st_info = sym.st_info;
-	desym.st_other = sym.st_other;
-	desym.st_shndx = sym.st_shndx;
-	desym.st_value = sym.st_value;
-	desym.st_size = sym.st_size;
-	*info = &desym;
-	return 1;
+        /* Return symbol entry in native format */
+        desym.st_name = sym.st_name;
+        desym.st_info = sym.st_info;
+        desym.st_other = sym.st_other;
+        desym.st_shndx = sym.st_shndx;
+        desym.st_value = sym.st_value;
+        desym.st_size = sym.st_size;
+        *info = &desym;
+        return 1;
 
-	/* Error handler */
+        /* Error handler */
 err_exit:
-	if (elf != NULL) elf_end(elf);
-	if (fd >= 0) close(fd);
-	return 0;
+        if (elf != NULL) elf_end(elf);
+        if (fd >= 0) close(fd);
+        return 0;
 }
 #endif
 
@@ -372,9 +371,9 @@ vboxPatchMesaExport(const char* psFuncName, const void *pStart, const void *pEnd
 #endif
         /* Try to insert 5 bytes jmp/jmpq to our stub code */
 
-    	if (sym->st_size<5)
+        if (sym->st_size<5)
         {
-            /*@todo we don't really know the size of targeted static function, but it's long enough in practice. We will also patch same place twice, but it's ok.*/
+            /** @todo we don't really know the size of targeted static function, but it's long enough in practice. We will also patch same place twice, but it's ok.*/
             if (!crStrcmp(psFuncName, "glXDestroyContext") || !crStrcmp(psFuncName, "glXFreeContextEXT"))
             {
                 if (((unsigned char*)dlip.dli_saddr)[0]==0xEB)
@@ -391,7 +390,7 @@ vboxPatchMesaExport(const char* psFuncName, const void *pStart, const void *pEnd
             }
             else if (!crStrcmp(psFuncName, "glXCreateGLXPixmapMESA"))
             {
-                /*@todo it's just a return 0, which we're fine with for now*/
+                /** @todo it's just a return 0, which we're fine with for now*/
                 return;
             }
             else
@@ -439,7 +438,7 @@ vboxPatchMesaExport(const char* psFuncName, const void *pStart, const void *pEnd
                 pNode->pDstStart = dlip.dli_saddr;
                 pNode->pDstEnd = dlip.dli_saddr+sym->st_size;
                 pNode->pSrcStart = pStart;
-                pNode->pSrcEnd = pEnd; 
+                pNode->pSrcEnd = pEnd;
                 pNode->pNext = g_pRepatchList;
                 g_pRepatchList = pNode;
                 return;
@@ -469,7 +468,7 @@ vboxPatchMesaExport(const char* psFuncName, const void *pStart, const void *pEnd
         {
                 pNode->psFuncName = psFuncName;
                 pNode->pDstStart = dlip.dli_saddr+(pEnd-pStart);
-                pNode->pDstEnd = dlip.dli_saddr+sym->st_size; 
+                pNode->pDstEnd = dlip.dli_saddr+sym->st_size;
                 pNode->pSrcStart = dlip.dli_saddr;
                 pNode->pSrcEnd = NULL;
                 pNode->pNext = g_pFreeList;
@@ -522,7 +521,7 @@ vboxRepatchMesaExports(void)
         patch[0] = 0xE9;
         crMemcpy(&patch[1], &offset, 4);
 # ifndef VBOX_NO_MESA_PATCH_REPORTS
-        crDebug("Adding jmp from mesa %s to mesa %s+%#lx", pPatchNode->psFuncName, pFreeNode->psFuncName, 
+        crDebug("Adding jmp from mesa %s to mesa %s+%#lx", pPatchNode->psFuncName, pFreeNode->psFuncName,
                 pFreeNode->pDstStart-pFreeNode->pSrcStart);
 # endif
         vboxApplyPatch(pPatchNode->psFuncName, pPatchNode->pDstStart, &patch[0], 5);
@@ -603,15 +602,15 @@ bool vbox_load_sw_dri()
         libPaths = DRI_DEFAULT_DRIVER_DIR;
 
     handle = NULL;
-    for (p = libPaths; *p; p = next) 
+    for (p = libPaths; *p; p = next)
     {
         next = strchr(p, ':');
-        if (next == NULL) 
+        if (next == NULL)
         {
             len = strlen(p);
             next = p + len;
-        } 
-        else 
+        }
+        else
         {
             len = next - p;
             next++;
@@ -634,7 +633,7 @@ bool vbox_load_sw_dri()
     }
     crDebug("loaded %s", realDriverName);
 
-    for (i = 0; gppSwDriExternsion[i]; i++) 
+    for (i = 0; gppSwDriExternsion[i]; i++)
     {
         if (strcmp(gppSwDriExternsion[i]->name, __DRI_CORE) == 0)
             gpSwDriCoreExternsion = (__DRIcoreExtension *) gppSwDriExternsion[i];
@@ -715,7 +714,7 @@ vboxdriCreateNewScreen(int screen, int fd, unsigned int sarea_handle,
     SWDRI_SAFERET_SWRAST(createNewScreen, screen, extensions, driverConfigs, loaderPrivate);
 }
 
-static void 
+static void
 vboxdriDestroyScreen(__DRIscreen *screen)
 {
     SWDRI_SAFECALL_CORE(destroyScreen, screen);
@@ -754,7 +753,7 @@ vboxdriCreateNewDrawable(__DRIscreen *screen,
     SWDRI_SAFERET_SWRAST(createNewDrawable, screen, config, loaderPrivate);
 }
 
-static void 
+static void
 vboxdriDestroyDrawable(__DRIdrawable *drawable)
 {
     SWDRI_SAFECALL_CORE(destroyDrawable, drawable);
@@ -775,7 +774,7 @@ vboxdriCreateNewContext(__DRIscreen *screen,
     SWDRI_SAFERET_CORE(createNewContext, screen, config, shared, loaderPrivate);
 }
 
-static int 
+static int
 vboxdriCopyContext(__DRIcontext *dest,
                    __DRIcontext *src,
                    unsigned long mask)
@@ -783,13 +782,13 @@ vboxdriCopyContext(__DRIcontext *dest,
     SWDRI_SAFERET_CORE(copyContext, dest, src, mask);
 }
 
-static void 
+static void
 vboxdriDestroyContext(__DRIcontext *context)
 {
     SWDRI_SAFECALL_CORE(destroyContext, context);
 }
 
-static int 
+static int
 vboxdriBindContext(__DRIcontext *ctx,
                    __DRIdrawable *pdraw,
                    __DRIdrawable *pread)
@@ -797,7 +796,7 @@ vboxdriBindContext(__DRIcontext *ctx,
     SWDRI_SAFERET_CORE(bindContext, ctx, pdraw, pread);
 }
 
-static int 
+static int
 vboxdriUnbindContext(__DRIcontext *ctx)
 {
     SWDRI_SAFERET_CORE(unbindContext, ctx)
@@ -811,7 +810,7 @@ vboxdriCreateNewScreen_Legacy(int scrn,
                               const __DRIversion *dri_version,
                               const __DRIversion *drm_version,
                               const __DRIframebuffer *frame_buffer,
-                              drmAddress pSAREA, int fd, 
+                              drmAddress pSAREA, int fd,
                               const __DRIextension **extensions,
                               const __DRIconfig ***driver_modes,
                               void *loaderPrivate)
@@ -838,7 +837,7 @@ vboxdriCreateNewDrawable_Legacy(__DRIscreen *psp, const __DRIconfig *config,
 
 static __DRIcontext *
 vboxdriCreateNewContext_Legacy(__DRIscreen *psp, const __DRIconfig *config,
-                               int render_type, __DRIcontext *shared, 
+                               int render_type, __DRIcontext *shared,
                                drm_context_t hwContext, void *data)
 {
     (void) render_type;

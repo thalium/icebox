@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -174,7 +174,7 @@ static void crStateCheckFBOAttachments(CRFramebufferObject *pFBO, GLuint rbo, GL
     CRFBOAttachmentPoint *ap;
     int u;
 
-    if (!pFBO) 
+    if (!pFBO)
         return;
 
     for (u=0; u<CR_MAX_COLOR_ATTACHMENTS; ++u)
@@ -393,7 +393,7 @@ crStateBindFramebufferEXT(GLenum target, GLuint framebuffer)
         CR_STATE_SHAREDOBJ_USAGE_SET(pFBO, g);
     }
 
-    /* @todo: http://www.opengl.org/registry/specs/ARB/framebuffer_object.txt 
+    /** @todo http://www.opengl.org/registry/specs/ARB/framebuffer_object.txt
      * FBO status might change when binding a different FBO here...but I doubt it happens.
      * So no status reset here until a proper check.
      */
@@ -478,7 +478,7 @@ crStateDeleteFramebuffersEXT(GLsizei n, const GLuint *framebuffers)
     }
 }
 
-/*@todo: move this function somewhere else*/
+/** @todo move this function somewhere else*/
 /*return floor of base 2 log of x. log(0)==0*/
 static unsigned int crLog2Floor(unsigned int x)
 {
@@ -873,7 +873,7 @@ DECLEXPORT(void) STATE_APIENTRY
 crStateGenerateMipmapEXT(GLenum target)
 {
     (void)target;
-    /*@todo*/
+    /** @todo */
 }
 
 static void crStateSyncRenderbuffersCB(unsigned long key, void *data1, void *data2)
@@ -899,7 +899,7 @@ static void crStateSyncAP(CRFBOAttachmentPoint *pAP, GLenum ap, CRContext *ctx)
     {
         case GL_TEXTURE:
             CRASSERT(pAP->name!=0);
-            
+
             tobj = (CRTextureObj *) crHashtableSearch(ctx->shared->textureTable, pAP->name);
             if (tobj)
             {
@@ -986,8 +986,8 @@ crStateFramebufferObjectSwitch(CRContext *from, CRContext *to)
 
         diff_api.BindRenderbufferEXT(GL_RENDERBUFFER_EXT, to->framebufferobject.renderbuffer?
             to->framebufferobject.renderbuffer->hwid:0);
-    } 
-    else 
+    }
+    else
     {
         if (to->framebufferobject.drawFB!=from->framebufferobject.drawFB
             || to->framebufferobject.readFB!=from->framebufferobject.readFB)

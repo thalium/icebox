@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -480,6 +480,11 @@ public:
 #ifdef VBOX_WS_X11
         /** Returns whether legacy full-screen mode is requested. */
         bool legacyFullscreenModeRequested();
+
+        /** Returns whether internal machine-window name should be unique. */
+        bool distinguishMachineWindowGroups(const QString &strID);
+        /** Defines whether internal machine-window name should be unique. */
+        void setDistinguishMachineWindowGroups(const QString &strID, bool fEnabled);
 #endif /* VBOX_WS_X11 */
 
         /** Returns whether guest-screen auto-resize according machine-window size is enabled. */

@@ -151,4 +151,3 @@ BS3_PROC_END_CMN   Bs3SelFlatCodeToRealMode
 ;
 BS3_CMN_FAR_STUB   Bs3SelFlatCodeToRealMode, 4
 
-

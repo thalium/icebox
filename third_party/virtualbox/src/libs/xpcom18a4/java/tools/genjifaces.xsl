@@ -564,8 +564,8 @@ public interface nsILocalFile extends nsIFile
     <xsl:variable name="self_target" select="current()/ancestor::if/@target"/>
     <xsl:variable name="module" select="current()/ancestor::module/@name"/>
 
-    <!-- We don't need WSDL-specific interfaces here -->
-    <xsl:if test="not($self_target='wsdl') and not($module)">
+    <!-- We don't need WSDL-specific nor MIDL-specific interfaces here -->
+    <xsl:if test="not($self_target='wsdl') and not($self_target='midl') and not($module)">
       <xsl:call-template name="genIface">
         <xsl:with-param name="ifname" select="@name" />
         <xsl:with-param name="filename" select="concat(@name, '.java')" />

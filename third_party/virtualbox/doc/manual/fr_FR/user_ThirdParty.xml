@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-  "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+  "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <appendix id="ThirdParty">
   <title>Briques tiers et licences</title>
 
@@ -224,7 +224,7 @@
       </listitem>
 
       <listitem>
-        <para>VirtualBox contient du code du kit de développement EFI  
+        <para>VirtualBox contient du code du kit de développement EFI
           qui est soumis à la licence dans
           <xref linkend="licBsdIntel" xrefstyle="template: %n" /> et</para>
 
@@ -255,7 +255,7 @@
 
         <para>Copyright (C) 2010, 2011 Nokia Corporation et/ou sa/ses filiale(s).</para>
       </listitem>
-      
+
       <listitem>
         <para>VirtualBox contient ces morceaux du noyau FreeBSD soumis à la
         licence dans <xref linkend="licFreeBsd" xrefstyle="template: %n" />.</para>
@@ -311,7 +311,7 @@
           licence dans <xref linkend="licExpat" xrefstyle="template: %n" /> et</para>
         <para>
           Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd
-          et Clark Cooper; Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006 
+          et Clark Cooper; Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006
           Responsables d'Expat.
         </para>
       </listitem>
@@ -390,7 +390,7 @@
           licence dans <xref linkend="licExpat" xrefstyle="template: %n" /> et</para>
         <para>
           Copyright (c) 1998, 1999, 2000 Thai Open Source Software Center Ltd
-          et Clark Cooper; Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006 
+          et Clark Cooper; Copyright (c) 2001, 2002, 2003, 2004, 2005, 2006
           Responsables d'Expat.
         </para>
       </listitem>

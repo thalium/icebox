@@ -5,7 +5,7 @@
 # for Linux Guest Additions
 
 #
-# Copyright (C) 2006-2015 Oracle Corporation
+# Copyright (C) 2006-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -50,6 +50,8 @@ MODULES_STOPPED=1
 . "./$ROUTINES"
 
 check_root
+
+check_deps bzip2 tar
 
 create_log "$LOGFILE"
 
@@ -316,7 +318,7 @@ done
 # If the currently installed Additions have provided an uninstallation hook, try
 # that first.
 if test -x "${PUBLIC_UNINSTALL_HOOK}"; then
-  "${PUBLIC_UNINSTALL_HOOK}" 1>&2 || 
+  "${PUBLIC_UNINSTALL_HOOK}" 1>&2 ||
     abort "Failed to remove existing installation.  Aborting..."
 fi
 

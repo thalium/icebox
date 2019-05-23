@@ -1,9 +1,10 @@
-#
+# $Id: VirtualBox.tmpl.spec $
+## @file
 # Spec file for creating VirtualBox rpm packages
 #
 
 #
-# Copyright (C) 2006-2015 Oracle Corporation
+# Copyright (C) 2006-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -277,7 +278,7 @@ fi
 
 %preun
 # Called before the package is removed, or during upgrade after (not before)
-# the new version's "post" scriptlet. 
+# the new version's "post" scriptlet.
 # $1==0: remove the last version of the package
 # $1>=1: upgrade
 if [ "$1" = 0 ]; then

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2008-2016 Oracle Corporation
+ * Copyright (C) 2008-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1945,6 +1945,7 @@ int NetIfList(std::list<ComObjPtr<HostNetworkInterface> > &list)
                 memset(&info, 0, sizeof(info));
                 info.Uuid = (*it).guid;
                 info.enmMediumType = NETIF_T_ETHERNET;
+                info.fWireless = (*it).fWireless;
                 pAdapter = (*it).pAdapter;
                 if (pAdapter)
                 {

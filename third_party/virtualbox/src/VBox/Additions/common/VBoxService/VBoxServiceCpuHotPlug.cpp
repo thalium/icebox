@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -82,7 +82,7 @@ typedef struct SYSFSCPUPATH
     /** Number of entries in the array, excluding the terminator. */
     unsigned           cComponents;
     /** Directory handle */
-    PRTDIR             pDir;
+    RTDIR              hDir;
     /** Current directory to try. */
     char              *pszPath;
 } SYSFSCPUPATH, *PSYSFSCPUPATH;
@@ -191,11 +191,11 @@ static int vgsvcCpuHotPlugProbePath(void)
                 PCSYSFSCPUPATHCOMP pPathComponent = &pAcpiCpuPathLvl->aComponentsPossible[iCompCurr];
 
                 /* Open the directory */
-                PRTDIR pDirCurr = NULL;
+                RTDIR hDirCurr = NIL_RTDIR;
                 char *pszPathTmp = RTPathJoinA(pszPath, pPathComponent->pcszName);
                 if (pszPathTmp)
                 {
-                    rc = RTDirOpenFiltered(&pDirCurr, pszPathTmp, RTDIRFILTER_WINNT, 0);
+                    rc = RTDirOpenFiltered(&hDirCurr, pszPathTmp, RTDIRFILTER_WINNT, 0 /*fFlags*/);
                     RTStrFree(pszPathTmp);
                 }
                 else
@@ -212,7 +212,7 @@ static int vgsvcCpuHotPlugProbePath(void)
                 if (pPathComponent->fNumberedSuffix)
                     cchName--;
 
-                while (RT_SUCCESS(RTDirRead(pDirCurr, &DirFolderContent, NULL))) /* Assumption that szName has always enough space */
+                while (RT_SUCCESS(RTDirRead(hDirCurr, &DirFolderContent, NULL))) /* Assumption that szName has always enough space */
                 {
                     if (   DirFolderContent.cbName >= cchName
                         && !strncmp(DirFolderContent.szName, pPathComponent->pcszName, cchName))
@@ -231,7 +231,7 @@ static int vgsvcCpuHotPlugProbePath(void)
                         break;
                     }
                 }
-                RTDirClose(pDirCurr);
+                RTDirClose(hDirCurr);
 
                 if (fFound)
                     break;
@@ -288,7 +288,7 @@ static int vgsvcCpuHotPlugGetACPIDevicePath(char **ppszPath, uint32_t idCpuCore,
         }
 
         /* Open the directory */
-        rc = RTDirOpenFiltered(&pAcpiCpuPathLvl->pDir, pszPath, RTDIRFILTER_WINNT, 0);
+        rc = RTDirOpenFiltered(&pAcpiCpuPathLvl->hDir, pszPath, RTDIRFILTER_WINNT, 0 /*fFlags*/);
         if (RT_SUCCESS(rc))
         {
             RTStrFree(pszPath);
@@ -298,7 +298,7 @@ static int vgsvcCpuHotPlugGetACPIDevicePath(char **ppszPath, uint32_t idCpuCore,
             {
                 /* Get the next directory. */
                 RTDIRENTRY DirFolderContent;
-                rc = RTDirRead(pAcpiCpuPathLvl->pDir, &DirFolderContent, NULL);
+                rc = RTDirRead(pAcpiCpuPathLvl->hDir, &DirFolderContent, NULL);
                 if (RT_SUCCESS(rc))
                 {
                     /* Create the new path. */
@@ -360,7 +360,7 @@ static int vgsvcCpuHotPlugGetACPIDevicePath(char **ppszPath, uint32_t idCpuCore,
 
                         pAcpiCpuPathLvl = &g_aAcpiCpuPath[iLvlCurr];
 
-                        Assert(!pAcpiCpuPathLvl->pDir);
+                        Assert(pAcpiCpuPathLvl->hDir == NIL_RTDIR);
                         Assert(!pAcpiCpuPathLvl->pszPath);
                         pAcpiCpuPathLvl->pszPath = pszPathCurr;
                         PCSYSFSCPUPATHCOMP pPathComponent = &pAcpiCpuPathLvl->aComponentsPossible[pAcpiCpuPathLvl->uId];
@@ -377,7 +377,7 @@ static int vgsvcCpuHotPlugGetACPIDevicePath(char **ppszPath, uint32_t idCpuCore,
                         VGSvcVerbose(3, "New path %s\n", pszPathDir);
 
                         /* Open the directory */
-                        rc = RTDirOpenFiltered(&pAcpiCpuPathLvl->pDir, pszPathDir, RTDIRFILTER_WINNT, 0);
+                        rc = RTDirOpenFiltered(&pAcpiCpuPathLvl->hDir, pszPathDir, RTDIRFILTER_WINNT, 0 /*fFlags*/);
                         if (RT_FAILURE(rc))
                             break;
                     }
@@ -387,9 +387,9 @@ static int vgsvcCpuHotPlugGetACPIDevicePath(char **ppszPath, uint32_t idCpuCore,
                     /* Go back one level and try to get the next entry. */
                     Assert(iLvlCurr > 0);
 
-                    RTDirClose(pAcpiCpuPathLvl->pDir);
+                    RTDirClose(pAcpiCpuPathLvl->hDir);
                     RTStrFree(pAcpiCpuPathLvl->pszPath);
-                    pAcpiCpuPathLvl->pDir = NULL;
+                    pAcpiCpuPathLvl->hDir = NIL_RTDIR;
                     pAcpiCpuPathLvl->pszPath = NULL;
 
                     iLvlCurr--;
@@ -402,11 +402,11 @@ static int vgsvcCpuHotPlugGetACPIDevicePath(char **ppszPath, uint32_t idCpuCore,
         /* Cleanup */
         for (unsigned i = 0; i < RT_ELEMENTS(g_aAcpiCpuPath); i++)
         {
-            if (g_aAcpiCpuPath[i].pDir)
-                RTDirClose(g_aAcpiCpuPath[i].pDir);
+            if (g_aAcpiCpuPath[i].hDir)
+                RTDirClose(g_aAcpiCpuPath[i].hDir);
             if (g_aAcpiCpuPath[i].pszPath)
                 RTStrFree(g_aAcpiCpuPath[i].pszPath);
-            g_aAcpiCpuPath[i].pDir = NULL;
+            g_aAcpiCpuPath[i].hDir = NIL_RTDIR;
             g_aAcpiCpuPath[i].pszPath = NULL;
         }
         if (pszPathDir)
@@ -445,12 +445,12 @@ static void vgsvcCpuHotPlugHandlePlugEvent(uint32_t idCpuCore, uint32_t idCpuPac
 
     do
     {
-        PRTDIR pDirDevices = NULL;
-        int rc = RTDirOpen(&pDirDevices, SYSFS_CPU_PATH);
+        RTDIR hDirDevices = NULL;
+        int rc = RTDirOpen(&hDirDevices, SYSFS_CPU_PATH);
         if (RT_SUCCESS(rc))
         {
             RTDIRENTRY DirFolderContent;
-            while (RT_SUCCESS(RTDirRead(pDirDevices, &DirFolderContent, NULL))) /* Assumption that szName has always enough space */
+            while (RT_SUCCESS(RTDirRead(hDirDevices, &DirFolderContent, NULL))) /* Assumption that szName has always enough space */
             {
                 /** @todo r-bird: This code is bringing all CPUs online; the idCpuCore and
                  *        idCpuPackage parameters are unused!
@@ -493,6 +493,7 @@ static void vgsvcCpuHotPlugHandlePlugEvent(uint32_t idCpuCore, uint32_t idCpuPac
                                    SYSFS_CPU_PATH, DirFolderContent.szName, rc);
                 }
             }
+            RTDirClose(hDirDevices);
         }
         else
             VGSvcError("CpuHotPlug: Failed to open path %s rc=%Rrc\n", SYSFS_CPU_PATH, rc);

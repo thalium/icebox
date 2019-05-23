@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2008-2016 Oracle Corporation
+ * Copyright (C) 2008-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -144,3 +144,11 @@ void X11ScreenSaverSettingsRestore()
         DPMSEnable(display);
 }
 
+bool X11CheckExtension(const char *extensionName)
+{
+    Display *pDisplay = QX11Info::display();
+    int major_opcode;
+    int first_event;
+    int first_error;
+    return XQueryExtension(pDisplay, extensionName, &major_opcode, &first_event, &first_error);
+}

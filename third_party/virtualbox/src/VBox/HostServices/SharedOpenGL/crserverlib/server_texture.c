@@ -1,11 +1,10 @@
 /* $Id: server_texture.c $ */
-
 /** @file
- * VBox crOpenGL: teximage functions.
+ * VBox crOpenGL - teximage functions.
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -17,7 +16,7 @@
  */
 
 #include "chromium.h"
-#include "cr_error.h" 
+#include "cr_error.h"
 #include "server_dispatch.h"
 #include "server.h"
 #include "cr_mem.h"
@@ -60,7 +59,7 @@
             crWarning("UnmapBufferARB failed");                                             \
         }                                                                                   \
     }
-#else 
+#else
 #define CR_FINISHBUFFER()
 #endif
 
@@ -200,8 +199,16 @@ void SERVER_DISPATCH_APIENTRY crServerDispatchBindTexture( GLenum target, GLuint
 
 void SERVER_DISPATCH_APIENTRY crServerDispatchDeleteTextures( GLsizei n, const GLuint *textures)
 {
-    GLuint *newTextures = (GLuint *) crAlloc(n * sizeof(GLuint));
+    GLuint *newTextures;
     GLint i;
+
+    if (n >= UINT32_MAX / sizeof(GLuint))
+    {
+        crError("crServerDispatchDeleteTextures: parameter 'n' is out of range");
+        return;
+    }
+
+    newTextures = (GLuint *)crAlloc(n * sizeof(GLuint));
 
     if (!newTextures)
     {
@@ -249,7 +256,7 @@ void SERVER_DISPATCH_APIENTRY crServerDispatchPrioritizeTextures( GLsizei n, con
 }
 
 
-/*@todo will fail for textures loaded from snapshot */
+/** @todo will fail for textures loaded from snapshot */
 GLboolean SERVER_DISPATCH_APIENTRY crServerDispatchIsTexture( GLuint texture )
 {
     GLboolean retval;

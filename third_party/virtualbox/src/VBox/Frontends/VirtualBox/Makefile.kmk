@@ -135,7 +135,6 @@ VirtualBox_DEFS           += \
 	$(if $(VBOX_WITH_VIRTIO),VBOX_WITH_VIRTIO) \
 	$(if $(VBOX_WITH_WDDM),VBOX_WITH_WDDM) \
 	$(if $(VBOX_WITH_CROGL),VBOX_WITH_CROGL) \
-	$(if $(VBOX_GUI_WITH_HIDPI),VBOX_GUI_WITH_HIDPI) \
 	$(if $(VBOX_GUI_WITH_PIDFILE),VBOX_GUI_WITH_PIDFILE) \
 	$(if $(VBOX_GUI_WITH_KEYS_RESET_HANDLER),VBOX_GUI_WITH_KEYS_RESET_HANDLER) \
 	$(if $(VBOX_GUI_WITH_CUSTOMIZATIONS1),VBOX_GUI_WITH_CUSTOMIZATIONS1) \
@@ -286,7 +285,6 @@ endif
 
 # Headers containing definitions of classes that use the Q_OBJECT macro.
 VirtualBox_QT_MOCHDRS = \
-	src/UIMediumTypeChangeDialog.h \
 	src/VBoxAboutDlg.h \
 	src/VBoxLicenseViewer.h \
 	src/UITakeSnapshotDialog.h \
@@ -544,7 +542,6 @@ VirtualBox_QT_MOCSRCS = \
 	src/globals/UIMainEventListener.cpp \
 	src/globals/UIThreadPool.cpp \
 	src/medium/UIMediumEnumerator.cpp \
-	src/medium/UIMediumManager.cpp \
 	src/runtime/UIActionPoolRuntime.cpp \
 	src/runtime/UIAddDiskEncryptionPasswordDialog.cpp \
 	src/runtime/UIConsoleEventHandler.cpp \
@@ -593,7 +590,6 @@ endif
 
 VirtualBox_SOURCES = \
 	src/main.cpp \
-	src/UIMediumTypeChangeDialog.cpp \
 	src/VBoxAboutDlg.cpp \
 	src/VBoxLicenseViewer.cpp \
 	src/UITakeSnapshotDialog.cpp \
@@ -937,13 +933,6 @@ VirtualBox_SOURCES             += VirtualBox1_hidpi.qrc
 VirtualBox1_hidpi.qrc_RCCFLAGS  = -name BASIC1_HIDPI
 VirtualBox_SOURCES             += VirtualBox2_hidpi.qrc
 VirtualBox2_hidpi.qrc_RCCFLAGS  = -name BASIC2_HIDPI
-ifeq ($(KBUILD_TARGET),darwin)
- VirtualBox_SOURCES           += VirtualBoxMac.qrc
- VirtualBoxMac.qrc_RCCFLAGS    = -name MAC
-else
- VirtualBox_SOURCES += VirtualBoxOther.qrc
- VirtualBoxOther.qrc_RCCFLAGS  = -name OTHER
-endif
 VirtualBox_SOURCES += $(VBOX_VIRTUALBOX4_OUT_DIR)/VirtualBoxBrand.qrc
 $(VBOX_VIRTUALBOX4_OUT_DIR)/VirtualBoxBrand.qrc_RCCFLAGS = -name BRAND
 if defined(VBOX_WITH_VIDEOHWACCEL) || defined(VBOX_GUI_USE_QGL)

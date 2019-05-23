@@ -15,6 +15,7 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
+
 /*********************************************************************************************************************************
 *   Header Files                                                                                                                 *
 *********************************************************************************************************************************/
@@ -347,18 +348,38 @@ HRESULT Unattended::detectIsoOS()
 
 HRESULT Unattended::i_innerDetectIsoOS(RTVFS hVfsIso)
 {
-    union
+    DETECTBUFFER uBuf;
+    VBOXOSTYPE enmOsType = VBOXOSTYPE_Unknown;
+    HRESULT hrc = i_innerDetectIsoOSWindows(hVfsIso, &uBuf, &enmOsType);
+    if (hrc == S_FALSE && enmOsType == VBOXOSTYPE_Unknown)
+        hrc = i_innerDetectIsoOSLinux(hVfsIso, &uBuf, &enmOsType);
+    if (enmOsType != VBOXOSTYPE_Unknown)
     {
-        char sz[4096];
-    } uBuf;
+        try {  mStrDetectedOSTypeId = Global::OSTypeId(enmOsType); }
+        catch (std::bad_alloc) { hrc = E_OUTOFMEMORY; }
+    }
+    return hrc;
+}
 
+/**
+ * Detect Windows ISOs.
+ *
+ * @returns COM status code.
+ * @retval  S_OK if detected
+ * @retval  S_FALSE if not fully detected.
+ *
+ * @param   hVfsIso     The ISO file system.
+ * @param   pBuf        Read buffer.
+ * @param   penmOsType  Where to return the OS type.  This is initialized to
+ *                      VBOXOSTYPE_Unknown.
+ */
+HRESULT Unattended::i_innerDetectIsoOSWindows(RTVFS hVfsIso, DETECTBUFFER *pBuf, VBOXOSTYPE *penmOsType)
+{
     /** @todo The 'sources/' path can differ. */
 
     // globalinstallorder.xml - vista beta2
     // sources/idwbinfo.txt   - ditto.
     // sources/lang.ini       - ditto.
-
-    VBOXOSTYPE enmOsType = VBOXOSTYPE_Unknown;
 
     /*
      * Try look for the 'sources/idwbinfo.txt' file containing windows build info.
@@ -369,56 +390,50 @@ HRESULT Unattended::i_innerDetectIsoOS(RTVFS hVfsIso)
     int vrc = RTVfsFileOpen(hVfsIso, "sources/idwbinfo.txt", RTFILE_O_READ | RTFILE_O_DENY_NONE | RTFILE_O_OPEN, &hVfsFile);
     if (RT_SUCCESS(vrc))
     {
-        enmOsType = VBOXOSTYPE_WinNT_x64;
+        *penmOsType = VBOXOSTYPE_WinNT_x64;
 
         RTINIFILE hIniFile;
         vrc = RTIniFileCreateFromVfsFile(&hIniFile, hVfsFile, RTINIFILE_F_READONLY);
         RTVfsFileRelease(hVfsFile);
         if (RT_SUCCESS(vrc))
         {
-            vrc = RTIniFileQueryValue(hIniFile, "BUILDINFO", "BuildArch", uBuf.sz, sizeof(uBuf), NULL);
+            vrc = RTIniFileQueryValue(hIniFile, "BUILDINFO", "BuildArch", pBuf->sz, sizeof(*pBuf), NULL);
             if (RT_SUCCESS(vrc))
             {
-                LogRelFlow(("Unattended: sources/idwbinfo.txt: BuildArch=%s\n", uBuf.sz));
-                if (   RTStrNICmp(uBuf.sz, RT_STR_TUPLE("amd64")) == 0
-                    || RTStrNICmp(uBuf.sz, RT_STR_TUPLE("x64"))   == 0 /* just in case */ )
-                    enmOsType = VBOXOSTYPE_WinNT_x64;
-                else if (RTStrNICmp(uBuf.sz, RT_STR_TUPLE("x86")) == 0)
-                    enmOsType = VBOXOSTYPE_WinNT;
+                LogRelFlow(("Unattended: sources/idwbinfo.txt: BuildArch=%s\n", pBuf->sz));
+                if (   RTStrNICmp(pBuf->sz, RT_STR_TUPLE("amd64")) == 0
+                    || RTStrNICmp(pBuf->sz, RT_STR_TUPLE("x64"))   == 0 /* just in case */ )
+                    *penmOsType = VBOXOSTYPE_WinNT_x64;
+                else if (RTStrNICmp(pBuf->sz, RT_STR_TUPLE("x86")) == 0)
+                    *penmOsType = VBOXOSTYPE_WinNT;
                 else
                 {
-                    LogRel(("Unattended: sources/idwbinfo.txt: Unknown: BuildArch=%s\n", uBuf.sz));
-                    enmOsType = VBOXOSTYPE_WinNT_x64;
+                    LogRel(("Unattended: sources/idwbinfo.txt: Unknown: BuildArch=%s\n", pBuf->sz));
+                    *penmOsType = VBOXOSTYPE_WinNT_x64;
                 }
             }
 
-            vrc = RTIniFileQueryValue(hIniFile, "BUILDINFO", "BuildBranch", uBuf.sz, sizeof(uBuf), NULL);
+            vrc = RTIniFileQueryValue(hIniFile, "BUILDINFO", "BuildBranch", pBuf->sz, sizeof(*pBuf), NULL);
             if (RT_SUCCESS(vrc))
             {
-                LogRelFlow(("Unattended: sources/idwbinfo.txt: BuildBranch=%s\n", uBuf.sz));
-                if (   RTStrNICmp(uBuf.sz, RT_STR_TUPLE("vista")) == 0
-                    || RTStrNICmp(uBuf.sz, RT_STR_TUPLE("winmain_beta")) == 0)
-                    enmOsType = (VBOXOSTYPE)((enmOsType & VBOXOSTYPE_x64) | VBOXOSTYPE_WinVista);
-                else if (RTStrNICmp(uBuf.sz, RT_STR_TUPLE("win7")) == 0)
-                    enmOsType = (VBOXOSTYPE)((enmOsType & VBOXOSTYPE_x64) | VBOXOSTYPE_Win7);
-                else if (   RTStrNICmp(uBuf.sz, RT_STR_TUPLE("winblue")) == 0
-                         || RTStrNICmp(uBuf.sz, RT_STR_TUPLE("winmain_blue")) == 0
-                         || RTStrNICmp(uBuf.sz, RT_STR_TUPLE("win81")) == 0 /* not seen, but just in case its out there */ )
-                    enmOsType = (VBOXOSTYPE)((enmOsType & VBOXOSTYPE_x64) | VBOXOSTYPE_Win81);
-                else if (   RTStrNICmp(uBuf.sz, RT_STR_TUPLE("win8")) == 0
-                         || RTStrNICmp(uBuf.sz, RT_STR_TUPLE("winmain_win8")) == 0 )
-                    enmOsType = (VBOXOSTYPE)((enmOsType & VBOXOSTYPE_x64) | VBOXOSTYPE_Win8);
+                LogRelFlow(("Unattended: sources/idwbinfo.txt: BuildBranch=%s\n", pBuf->sz));
+                if (   RTStrNICmp(pBuf->sz, RT_STR_TUPLE("vista")) == 0
+                    || RTStrNICmp(pBuf->sz, RT_STR_TUPLE("winmain_beta")) == 0)
+                    *penmOsType = (VBOXOSTYPE)((*penmOsType & VBOXOSTYPE_x64) | VBOXOSTYPE_WinVista);
+                else if (RTStrNICmp(pBuf->sz, RT_STR_TUPLE("win7")) == 0)
+                    *penmOsType = (VBOXOSTYPE)((*penmOsType & VBOXOSTYPE_x64) | VBOXOSTYPE_Win7);
+                else if (   RTStrNICmp(pBuf->sz, RT_STR_TUPLE("winblue")) == 0
+                         || RTStrNICmp(pBuf->sz, RT_STR_TUPLE("winmain_blue")) == 0
+                         || RTStrNICmp(pBuf->sz, RT_STR_TUPLE("win81")) == 0 /* not seen, but just in case its out there */ )
+                    *penmOsType = (VBOXOSTYPE)((*penmOsType & VBOXOSTYPE_x64) | VBOXOSTYPE_Win81);
+                else if (   RTStrNICmp(pBuf->sz, RT_STR_TUPLE("win8")) == 0
+                         || RTStrNICmp(pBuf->sz, RT_STR_TUPLE("winmain_win8")) == 0 )
+                    *penmOsType = (VBOXOSTYPE)((*penmOsType & VBOXOSTYPE_x64) | VBOXOSTYPE_Win8);
                 else
-                    LogRel(("Unattended: sources/idwbinfo.txt: Unknown: BuildBranch=%s\n", uBuf.sz));
+                    LogRel(("Unattended: sources/idwbinfo.txt: Unknown: BuildBranch=%s\n", pBuf->sz));
             }
             RTIniFileRelease(hIniFile);
         }
-    }
-
-    if (   enmOsType != VBOXOSTYPE_Unknown
-        && enmOsType != VBOXOSTYPE_Unknown_x64)
-    {
-        mStrDetectedOSTypeId = Global::OSTypeId(enmOsType);
     }
 
     /*
@@ -439,9 +454,9 @@ HRESULT Unattended::i_innerDetectIsoOS(RTVFS hVfsIso)
             uint32_t idxPair;
             for (idxPair = 0; idxPair < 256; idxPair++)
             {
-                size_t cbHalf   = sizeof(uBuf) / 2;
-                char  *pszKey   = uBuf.sz;
-                char  *pszValue = &uBuf.sz[cbHalf];
+                size_t cbHalf   = sizeof(*pBuf) / 2;
+                char  *pszKey   = pBuf->sz;
+                char  *pszValue = &pBuf->sz[cbHalf];
                 vrc = RTIniFileQueryPair(hIniFile, "Available UI Languages", idxPair,
                                          pszKey, cbHalf, NULL, pszValue, cbHalf, NULL);
                 if (RT_SUCCESS(vrc))
@@ -467,6 +482,311 @@ HRESULT Unattended::i_innerDetectIsoOS(RTVFS hVfsIso)
         }
     }
 
+    /** @todo look at the install.wim file too, extracting the XML (easy) and
+     *        figure out the available image numbers and such.   The format is
+     *        documented.  */
+
+    return S_FALSE;
+}
+
+/**
+ * Detects linux architecture.
+ *
+ * @returns true if detected, false if not.
+ * @param   pszArch             The architecture string.
+ * @param   penmOsType          Where to return the arch and type on success.
+ * @param   enmBaseOsType       The base (x86) OS type to return.
+ */
+static bool detectLinuxArch(const char *pszArch, VBOXOSTYPE *penmOsType, VBOXOSTYPE enmBaseOsType)
+{
+    if (   RTStrNICmp(pszArch, RT_STR_TUPLE("amd64"))  == 0
+        || RTStrNICmp(pszArch, RT_STR_TUPLE("x86_64")) == 0
+        || RTStrNICmp(pszArch, RT_STR_TUPLE("x86-64")) == 0 /* just in case */
+        || RTStrNICmp(pszArch, RT_STR_TUPLE("x64"))    == 0 /* ditto */ )
+    {
+        *penmOsType = (VBOXOSTYPE)(enmBaseOsType | VBOXOSTYPE_x64);
+        return true;
+    }
+
+    if (   RTStrNICmp(pszArch, RT_STR_TUPLE("x86")) == 0
+        || RTStrNICmp(pszArch, RT_STR_TUPLE("i386")) == 0
+        || RTStrNICmp(pszArch, RT_STR_TUPLE("i486")) == 0
+        || RTStrNICmp(pszArch, RT_STR_TUPLE("i586")) == 0
+        || RTStrNICmp(pszArch, RT_STR_TUPLE("i686")) == 0
+        || RTStrNICmp(pszArch, RT_STR_TUPLE("i786")) == 0
+        || RTStrNICmp(pszArch, RT_STR_TUPLE("i886")) == 0
+        || RTStrNICmp(pszArch, RT_STR_TUPLE("i986")) == 0)
+    {
+        *penmOsType = enmBaseOsType;
+        return true;
+    }
+
+    /** @todo check for 'noarch' since source CDs have been seen to use that. */
+    return false;
+}
+
+static bool detectLinuxDistroName(const char *pszOsAndVersion, VBOXOSTYPE *penmOsType, const char **ppszNext)
+{
+    bool fRet = true;
+
+    if (    RTStrNICmp(pszOsAndVersion, RT_STR_TUPLE("Red")) == 0
+        && !RT_C_IS_ALNUM(pszOsAndVersion[3]))
+
+    {
+        pszOsAndVersion = RTStrStripL(pszOsAndVersion + 3);
+        if (   RTStrNICmp(pszOsAndVersion, RT_STR_TUPLE("Hat")) == 0
+            && !RT_C_IS_ALNUM(pszOsAndVersion[3]))
+        {
+            *penmOsType = (VBOXOSTYPE)((*penmOsType & VBOXOSTYPE_x64) | VBOXOSTYPE_RedHat);
+            pszOsAndVersion = RTStrStripL(pszOsAndVersion + 3);
+        }
+        else
+            fRet = false;
+    }
+    else if (   RTStrNICmp(pszOsAndVersion, RT_STR_TUPLE("Oracle")) == 0
+             && !RT_C_IS_ALNUM(pszOsAndVersion[6]))
+    {
+        *penmOsType = (VBOXOSTYPE)((*penmOsType & VBOXOSTYPE_x64) | VBOXOSTYPE_Oracle);
+        pszOsAndVersion = RTStrStripL(pszOsAndVersion + 6);
+    }
+    else if (   RTStrNICmp(pszOsAndVersion, RT_STR_TUPLE("CentOS")) == 0
+             && !RT_C_IS_ALNUM(pszOsAndVersion[6]))
+    {
+        *penmOsType = (VBOXOSTYPE)((*penmOsType & VBOXOSTYPE_x64) | VBOXOSTYPE_RedHat);
+        pszOsAndVersion = RTStrStripL(pszOsAndVersion + 6);
+    }
+    else if (   RTStrNICmp(pszOsAndVersion, RT_STR_TUPLE("Fedora")) == 0
+             && !RT_C_IS_ALNUM(pszOsAndVersion[6]))
+    {
+        *penmOsType = (VBOXOSTYPE)((*penmOsType & VBOXOSTYPE_x64) | VBOXOSTYPE_FedoraCore);
+        pszOsAndVersion = RTStrStripL(pszOsAndVersion + 6);
+    }
+    else
+        fRet = false;
+
+    /*
+     * Skip forward till we get a number.
+     */
+    if (ppszNext)
+    {
+        *ppszNext = pszOsAndVersion;
+        char ch;
+        for (const char *pszVersion = pszOsAndVersion; (ch = *pszVersion) != '\0'; pszVersion++)
+            if (RT_C_IS_DIGIT(ch))
+            {
+                *ppszNext = pszVersion;
+                break;
+            }
+    }
+    return fRet;
+}
+
+
+/**
+ * Detect Linux distro ISOs.
+ *
+ * @returns COM status code.
+ * @retval  S_OK if detected
+ * @retval  S_FALSE if not fully detected.
+ *
+ * @param   hVfsIso     The ISO file system.
+ * @param   pBuf        Read buffer.
+ * @param   penmOsType  Where to return the OS type.  This is initialized to
+ *                      VBOXOSTYPE_Unknown.
+ */
+HRESULT Unattended::i_innerDetectIsoOSLinux(RTVFS hVfsIso, DETECTBUFFER *pBuf, VBOXOSTYPE *penmOsType)
+{
+    /*
+     * Redhat and derivatives may have a .treeinfo (ini-file style) with useful info
+     * or at least a barebone .discinfo file.
+     */
+
+    /*
+     * Start with .treeinfo: https://release-engineering.github.io/productmd/treeinfo-1.0.html
+     */
+    RTVFSFILE hVfsFile;
+    int vrc = RTVfsFileOpen(hVfsIso, ".treeinfo", RTFILE_O_READ | RTFILE_O_DENY_NONE | RTFILE_O_OPEN, &hVfsFile);
+    if (RT_SUCCESS(vrc))
+    {
+        RTINIFILE hIniFile;
+        vrc = RTIniFileCreateFromVfsFile(&hIniFile, hVfsFile, RTINIFILE_F_READONLY);
+        RTVfsFileRelease(hVfsFile);
+        if (RT_SUCCESS(vrc))
+        {
+            /* Try figure the architecture first (like with windows). */
+            vrc = RTIniFileQueryValue(hIniFile, "tree", "arch", pBuf->sz, sizeof(*pBuf), NULL);
+            if (RT_FAILURE(vrc) || !pBuf->sz[0])
+                vrc = RTIniFileQueryValue(hIniFile, "general", "arch", pBuf->sz, sizeof(*pBuf), NULL);
+            if (RT_SUCCESS(vrc))
+            {
+                LogRelFlow(("Unattended: .treeinfo: arch=%s\n", pBuf->sz));
+                if (!detectLinuxArch(pBuf->sz, penmOsType, VBOXOSTYPE_RedHat))
+                    LogRel(("Unattended: .treeinfo: Unknown: arch='%s'\n", pBuf->sz));
+            }
+            else
+                LogRel(("Unattended: .treeinfo: No 'arch' property.\n"));
+
+            /* Try figure the release name, it doesn't have to be redhat. */
+            vrc = RTIniFileQueryValue(hIniFile, "release", "name", pBuf->sz, sizeof(*pBuf), NULL);
+            if (RT_FAILURE(vrc) || !pBuf->sz[0])
+                vrc = RTIniFileQueryValue(hIniFile, "product", "name", pBuf->sz, sizeof(*pBuf), NULL);
+            if (RT_FAILURE(vrc) || !pBuf->sz[0])
+                vrc = RTIniFileQueryValue(hIniFile, "general", "family", pBuf->sz, sizeof(*pBuf), NULL);
+            if (RT_SUCCESS(vrc))
+            {
+                LogRelFlow(("Unattended: .treeinfo: name/family=%s\n", pBuf->sz));
+                if (!detectLinuxDistroName(pBuf->sz, penmOsType, NULL))
+                {
+                    LogRel(("Unattended: .treeinfo: Unknown: name/family='%s', assuming Red Hat\n", pBuf->sz));
+                    *penmOsType = (VBOXOSTYPE)((*penmOsType & VBOXOSTYPE_x64) | VBOXOSTYPE_RedHat);
+                }
+            }
+
+            /* Try figure the version. */
+            vrc = RTIniFileQueryValue(hIniFile, "release", "version", pBuf->sz, sizeof(*pBuf), NULL);
+            if (RT_FAILURE(vrc) || !pBuf->sz[0])
+                vrc = RTIniFileQueryValue(hIniFile, "product", "version", pBuf->sz, sizeof(*pBuf), NULL);
+            if (RT_FAILURE(vrc) || !pBuf->sz[0])
+                vrc = RTIniFileQueryValue(hIniFile, "general", "version", pBuf->sz, sizeof(*pBuf), NULL);
+            if (RT_SUCCESS(vrc))
+            {
+                LogRelFlow(("Unattended: .treeinfo: version=%s\n", pBuf->sz));
+                try { mStrDetectedOSVersion = RTStrStrip(pBuf->sz); }
+                catch (std::bad_alloc) { return E_OUTOFMEMORY; }
+            }
+
+            RTIniFileRelease(hIniFile);
+        }
+
+        if (*penmOsType != VBOXOSTYPE_Unknown)
+            return S_FALSE;
+    }
+
+    /*
+     * Try .discinfo next: https://release-engineering.github.io/productmd/discinfo-1.0.html
+     * We will probably need additional info here...
+     */
+    vrc = RTVfsFileOpen(hVfsIso, ".discinfo", RTFILE_O_READ | RTFILE_O_DENY_NONE | RTFILE_O_OPEN, &hVfsFile);
+    if (RT_SUCCESS(vrc))
+    {
+        RT_ZERO(*pBuf);
+        size_t cchIgn;
+        RTVfsFileRead(hVfsFile, pBuf->sz, sizeof(*pBuf) - 1, &cchIgn);
+        pBuf->sz[sizeof(*pBuf) - 1] = '\0';
+        RTVfsFileRelease(hVfsFile);
+
+        /* Parse and strip the first 5 lines. */
+        const char *apszLines[5];
+        char       *psz = pBuf->sz;
+        for (unsigned i = 0; i < RT_ELEMENTS(apszLines); i++)
+        {
+            apszLines[i] = psz;
+            if (*psz)
+            {
+                char *pszEol = (char *)strchr(psz, '\n');
+                if (!pszEol)
+                    psz = strchr(psz, '\0');
+                else
+                {
+                    *pszEol = '\0';
+                    apszLines[i] = RTStrStrip(psz);
+                    psz = pszEol + 1;
+                }
+            }
+        }
+
+        /* Do we recognize the architecture? */
+        LogRelFlow(("Unattended: .discinfo: arch=%s\n", apszLines[2]));
+        if (!detectLinuxArch(apszLines[2], penmOsType, VBOXOSTYPE_RedHat))
+            LogRel(("Unattended: .discinfo: Unknown: arch='%s'\n", apszLines[2]));
+
+        /* Do we recognize the release string? */
+        LogRelFlow(("Unattended: .discinfo: product+version=%s\n", apszLines[1]));
+        const char *pszVersion = NULL;
+        if (!detectLinuxDistroName(apszLines[1], penmOsType, &pszVersion))
+            LogRel(("Unattended: .discinfo: Unknown: release='%s'\n", apszLines[1]));
+
+        if (*pszVersion)
+        {
+            LogRelFlow(("Unattended: .discinfo: version=%s\n", pszVersion));
+            try { mStrDetectedOSVersion = RTStrStripL(pszVersion); }
+            catch (std::bad_alloc) { return E_OUTOFMEMORY; }
+
+            /* CentOS likes to call their release 'Final' without mentioning the actual version
+               number (e.g. CentOS-4.7-x86_64-binDVD.iso), so we need to go look elsewhere.
+               This is only important for centos 4.x and 3.x releases. */
+            if (RTStrNICmp(pszVersion, RT_STR_TUPLE("Final")) == 0)
+            {
+                static const char * const s_apszDirs[] = { "CentOS/RPMS/", "RedHat/RPMS", "Server", "Workstation" };
+                for (unsigned iDir = 0; iDir < RT_ELEMENTS(s_apszDirs); iDir++)
+                {
+                    RTVFSDIR hVfsDir;
+                    vrc = RTVfsDirOpen(hVfsIso, s_apszDirs[iDir], 0, &hVfsDir);
+                    if (RT_FAILURE(vrc))
+                        continue;
+                    char szRpmDb[128];
+                    char szReleaseRpm[128];
+                    szRpmDb[0] = '\0';
+                    szReleaseRpm[0] = '\0';
+                    for (;;)
+                    {
+                        RTDIRENTRYEX DirEntry;
+                        size_t       cbDirEntry = sizeof(DirEntry);
+                        vrc = RTVfsDirReadEx(hVfsDir, &DirEntry, &cbDirEntry, RTFSOBJATTRADD_NOTHING);
+                        if (RT_FAILURE(vrc))
+                            break;
+
+                        /* redhat-release-4WS-2.4.i386.rpm
+                           centos-release-4-7.x86_64.rpm, centos-release-4-4.3.i386.rpm
+                           centos-release-5-3.el5.centos.1.x86_64.rpm */
+                        if (   (psz = strstr(DirEntry.szName, "-release-")) != NULL
+                            || (psz = strstr(DirEntry.szName, "-RELEASE-")) != NULL)
+                        {
+                            psz += 9;
+                            if (RT_C_IS_DIGIT(*psz))
+                                RTStrCopy(szReleaseRpm, sizeof(szReleaseRpm), psz);
+                        }
+                        /* rpmdb-redhat-4WS-2.4.i386.rpm,
+                           rpmdb-CentOS-4.5-0.20070506.i386.rpm,
+                           rpmdb-redhat-3.9-0.20070703.i386.rpm. */
+                        else if (   (   RTStrStartsWith(DirEntry.szName, "rpmdb-")
+                                     || RTStrStartsWith(DirEntry.szName, "RPMDB-"))
+                                 && RT_C_IS_DIGIT(DirEntry.szName[6]) )
+                            RTStrCopy(szRpmDb, sizeof(szRpmDb), &DirEntry.szName[6]);
+                    }
+                    RTVfsDirRelease(hVfsDir);
+
+                    /* Did we find anything relvant? */
+                    psz = szRpmDb;
+                    if (!RT_C_IS_DIGIT(*psz))
+                        psz = szReleaseRpm;
+                    if (RT_C_IS_DIGIT(*psz))
+                    {
+                        /* Convert '-' to '.' and strip stuff which doesn't look like a version string. */
+                        char *pszCur = psz + 1;
+                        for (char ch = *pszCur; ch != '\0'; ch = *++pszCur)
+                            if (ch == '-')
+                                *pszCur = '.';
+                            else if (ch != '.' && !RT_C_IS_DIGIT(ch))
+                            {
+                                *pszCur = '\0';
+                                break;
+                            }
+                        while (&pszCur[-1] != psz && pszCur[-1] == '.')
+                            *--pszCur = '\0';
+
+                        /* Set it and stop looking. */
+                        try { mStrDetectedOSVersion = psz; }
+                        catch (std::bad_alloc) { return E_OUTOFMEMORY; }
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (*penmOsType != VBOXOSTYPE_Unknown)
+            return S_FALSE;
+    }
 
     return S_FALSE;
 }
@@ -656,7 +976,8 @@ HRESULT Unattended::prepare()
     uint32_t   const idxOSType = Global::getOSTypeIndexFromId(mStrGuestOsTypeId.c_str());
     meGuestOsType     = idxOSType < Global::cOSTypes ? Global::sOSTypes[idxOSType].osType : VBOXOSTYPE_Unknown;
 
-    mpInstaller = UnattendedInstaller::createInstance(meGuestOsType, mStrGuestOsTypeId, this);
+    mpInstaller = UnattendedInstaller::createInstance(meGuestOsType, mStrGuestOsTypeId, mStrDetectedOSVersion,
+                                                      mStrDetectedOSFlavor, mStrDetectedOSHints, this);
     if (mpInstaller != NULL)
     {
         hrc = mpInstaller->initInstaller();

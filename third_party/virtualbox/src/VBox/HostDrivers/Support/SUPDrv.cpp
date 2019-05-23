@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -203,6 +203,7 @@ static SUPFUNC g_aFunctions[] =
     { "SUPR0GetPagingMode",                     (void *)(uintptr_t)SUPR0GetPagingMode },
     { "SUPR0GetSvmUsability",                   (void *)(uintptr_t)SUPR0GetSvmUsability },
     { "SUPR0GetVmxUsability",                   (void *)(uintptr_t)SUPR0GetVmxUsability },
+    { "SUPR0GetRawModeUsability",               (void *)(uintptr_t)SUPR0GetRawModeUsability },
     { "SUPR0LockMem",                           (void *)(uintptr_t)SUPR0LockMem },
     { "SUPR0LowAlloc",                          (void *)(uintptr_t)SUPR0LowAlloc },
     { "SUPR0LowFree",                           (void *)(uintptr_t)SUPR0LowFree },
@@ -505,6 +506,17 @@ int VBOXCALL supdrvInitDevExt(PSUPDRVDEVEXT pDevExt, size_t cbSession)
         RTLogRelSetDefaultInstance(pRelLogger);
     /** @todo Add native hook for getting logger config parameters and setting
      *        them. On linux we should use the module parameter stuff... */
+#endif
+
+#if (defined(RT_ARCH_AMD64) || defined(RT_ARCH_X86)) && !defined(VBOX_WITH_OLD_CPU_SUPPORT)
+    /*
+     * Require SSE2 to be present.
+     */
+    if (!(ASMCpuId_EDX(1) & X86_CPUID_FEATURE_EDX_SSE2))
+    {
+        SUPR0Printf("vboxdrv: Requires SSE2 (cpuid(0).EDX=%#x)\n", ASMCpuId_EDX(1));
+        return VERR_UNSUPPORTED_CPU;
+    }
 #endif
 
     /*
@@ -2257,7 +2269,7 @@ static int supdrvIOCtlInnerUnrestricted(uintptr_t uIOCtl, PSUPDRVDEVEXT pDevExt,
             REQ_CHECK_SIZES(SUP_IOCTL_VT_CAPS);
 
             /* execute */
-            pReq->Hdr.rc = SUPR0QueryVTCaps(pSession, &pReq->u.Out.Caps);
+            pReq->Hdr.rc = SUPR0QueryVTCaps(pSession, &pReq->u.Out.fCaps);
             if (RT_FAILURE(pReq->Hdr.rc))
                 pReq->Hdr.cbOut = sizeof(pReq->Hdr);
             return 0;
@@ -2389,14 +2401,14 @@ static int supdrvIOCtlInnerUnrestricted(uintptr_t uIOCtl, PSUPDRVDEVEXT pDevExt,
             /* validate */
             PSUPUCODEREV pReq = (PSUPUCODEREV)pReqHdr;
             REQ_CHECK_SIZES(SUP_IOCTL_UCODE_REV);
-    
+
             /* execute */
             pReq->Hdr.rc = SUPR0QueryUcodeRev(pSession, &pReq->u.Out.MicrocodeRev);
             if (RT_FAILURE(pReq->Hdr.rc))
                 pReq->Hdr.cbOut = sizeof(pReq->Hdr);
             return 0;
         }
-    
+
         default:
             Log(("Unknown IOCTL %#lx\n", (long)uIOCtl));
             break;
@@ -2476,7 +2488,7 @@ static int supdrvIOCtlInnerRestricted(uintptr_t uIOCtl, PSUPDRVDEVEXT pDevExt, P
             REQ_CHECK_SIZES(SUP_IOCTL_VT_CAPS);
 
             /* execute */
-            pReq->Hdr.rc = SUPR0QueryVTCaps(pSession, &pReq->u.Out.Caps);
+            pReq->Hdr.rc = SUPR0QueryVTCaps(pSession, &pReq->u.Out.fCaps);
             if (RT_FAILURE(pReq->Hdr.rc))
                 pReq->Hdr.cbOut = sizeof(pReq->Hdr);
             return 0;
@@ -3598,8 +3610,7 @@ SUPR0DECL(int) SUPR0PageAllocEx(PSUPDRVSESSION pSession, uint32_t cPages, uint32
     {
         int rc2;
         if (ppvR3)
-            rc = RTR0MemObjMapUser(&Mem.MapObjR3, Mem.MemObj, (RTR3PTR)-1, 0,
-                                   RTMEM_PROT_EXEC | RTMEM_PROT_WRITE | RTMEM_PROT_READ, NIL_RTR0PROCESS);
+            rc = RTR0MemObjMapUser(&Mem.MapObjR3, Mem.MemObj, (RTR3PTR)-1, 0, RTMEM_PROT_WRITE | RTMEM_PROT_READ, NIL_RTR0PROCESS);
         else
             Mem.MapObjR3 = NIL_RTR0MEMOBJ;
         if (RT_SUCCESS(rc))
@@ -4061,6 +4072,26 @@ SUPR0DECL(int) SUPR0GetCurrentGdtRw(RTHCUINTPTR *pGdtRw)
 
 
 /**
+ * Checks if raw-mode is usable on this system.
+ *
+ * The reasons why raw-mode isn't safe to use are host specific.  For example on
+ * Windows the Hyper-V root partition may perhapse not allow important bits in
+ * CR4 to be changed, which would make it impossible to do a world switch.
+ *
+ * @returns VBox status code.
+ */
+SUPR0DECL(int) SUPR0GetRawModeUsability(void)
+{
+#ifdef RT_OS_WINDOWS
+    return supdrvOSGetRawModeUsability();
+#else
+    return VINF_SUCCESS;
+#endif
+}
+
+
+
+/**
  * Checks if Intel VT-x feature is usable on this CPU.
  *
  * @returns VBox status code.
@@ -4076,7 +4107,7 @@ SUPR0DECL(int) SUPR0GetCurrentGdtRw(RTHCUINTPTR *pGdtRw)
  */
 SUPR0DECL(int) SUPR0GetVmxUsability(bool *pfIsSmxModeAmbiguous)
 {
-    uint64_t   u64FeatMsr;
+    uint64_t   fFeatMsr;
     bool       fMaybeSmxMode;
     bool       fMsrLocked;
     bool       fSmxVmxAllowed;
@@ -4086,11 +4117,11 @@ SUPR0DECL(int) SUPR0GetVmxUsability(bool *pfIsSmxModeAmbiguous)
 
     Assert(!RTThreadPreemptIsEnabled(NIL_RTTHREAD));
 
-    u64FeatMsr          = ASMRdMsr(MSR_IA32_FEATURE_CONTROL);
+    fFeatMsr            = ASMRdMsr(MSR_IA32_FEATURE_CONTROL);
     fMaybeSmxMode       = RT_BOOL(ASMGetCR4() & X86_CR4_SMXE);
-    fMsrLocked          = RT_BOOL(u64FeatMsr & MSR_IA32_FEATURE_CONTROL_LOCK);
-    fSmxVmxAllowed      = RT_BOOL(u64FeatMsr & MSR_IA32_FEATURE_CONTROL_SMX_VMXON);
-    fVmxAllowed         = RT_BOOL(u64FeatMsr & MSR_IA32_FEATURE_CONTROL_VMXON);
+    fMsrLocked          = RT_BOOL(fFeatMsr & MSR_IA32_FEATURE_CONTROL_LOCK);
+    fSmxVmxAllowed      = RT_BOOL(fFeatMsr & MSR_IA32_FEATURE_CONTROL_SMX_VMXON);
+    fVmxAllowed         = RT_BOOL(fFeatMsr & MSR_IA32_FEATURE_CONTROL_VMXON);
     fIsSmxModeAmbiguous = false;
     rc                  = VERR_INTERNAL_ERROR_5;
 
@@ -4148,31 +4179,29 @@ SUPR0DECL(int) SUPR0GetVmxUsability(bool *pfIsSmxModeAmbiguous)
             && (fFeaturesECX & X86_CPUID_FEATURE_ECX_SMX))
             fSmxVmxHwSupport = true;
 
-        u64FeatMsr |= MSR_IA32_FEATURE_CONTROL_LOCK
-                    | MSR_IA32_FEATURE_CONTROL_VMXON;
+        fFeatMsr |= MSR_IA32_FEATURE_CONTROL_LOCK
+                 |  MSR_IA32_FEATURE_CONTROL_VMXON;
         if (fSmxVmxHwSupport)
-            u64FeatMsr |= MSR_IA32_FEATURE_CONTROL_SMX_VMXON;
+            fFeatMsr |= MSR_IA32_FEATURE_CONTROL_SMX_VMXON;
 
         /*
          * Commit.
          */
-        ASMWrMsr(MSR_IA32_FEATURE_CONTROL, u64FeatMsr);
+        ASMWrMsr(MSR_IA32_FEATURE_CONTROL, fFeatMsr);
 
         /*
          * Verify.
          */
-        u64FeatMsr = ASMRdMsr(MSR_IA32_FEATURE_CONTROL);
-        fMsrLocked = RT_BOOL(u64FeatMsr & MSR_IA32_FEATURE_CONTROL_LOCK);
+        fFeatMsr = ASMRdMsr(MSR_IA32_FEATURE_CONTROL);
+        fMsrLocked = RT_BOOL(fFeatMsr & MSR_IA32_FEATURE_CONTROL_LOCK);
         if (fMsrLocked)
         {
-            fSmxVmxAllowed = RT_BOOL(u64FeatMsr & MSR_IA32_FEATURE_CONTROL_SMX_VMXON);
-            fVmxAllowed    = RT_BOOL(u64FeatMsr & MSR_IA32_FEATURE_CONTROL_VMXON);
+            fSmxVmxAllowed = RT_BOOL(fFeatMsr & MSR_IA32_FEATURE_CONTROL_SMX_VMXON);
+            fVmxAllowed    = RT_BOOL(fFeatMsr & MSR_IA32_FEATURE_CONTROL_VMXON);
             if (   fVmxAllowed
                 && (   !fSmxVmxHwSupport
                     || fSmxVmxAllowed))
-            {
                 rc = VINF_SUCCESS;
-            }
             else
                 rc = !fSmxVmxHwSupport ? VERR_VMX_MSR_VMX_ENABLE_FAILED : VERR_VMX_MSR_SMX_VMX_ENABLE_FAILED;
         }
@@ -4421,7 +4450,7 @@ int VBOXCALL supdrvQueryUcodeRev(uint32_t *puRevision)
                     *puRevision = RT_HIDWORD(uRevMsr);
                     rc = VINF_SUCCESS;
                 }
-            } 
+            }
             else if (ASMIsAmdCpuEx(uVendorEBX, uVendorECX, uVendorEDX))
             {
                 /* Not well documented, but at least all AMD64 CPUs support this. */

@@ -1251,9 +1251,6 @@ void UIMachineSettingsNetworkPage::prepare()
     QVBoxLayout *pMainLayout = new QVBoxLayout(this);
     AssertPtrReturnVoid(pMainLayout);
     {
-        /* Configure layout: */
-        pMainLayout->setContentsMargins(0, 5, 0, 5);
-
         /* Creating tab-widget: */
         m_pTabWidget = new QITabWidget;
         AssertPtrReturnVoid(m_pTabWidget);

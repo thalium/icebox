@@ -28,6 +28,7 @@ VBOX_APPROVED_GUI_LANGUAGES := \
 	eu    \
 	fa    \
 	fr    \
+	hr_HR \
 	hu    \
 	id    \
 	it    \

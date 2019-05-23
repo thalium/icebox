@@ -29,7 +29,7 @@
 /*#include "namespace.h"
 #include <sys/cdefs.h>
 #include <sys/types.h>
-#include <machine/npx.h> 
+#include <machine/npx.h>
 #include "fenv.h"*/
 #include <iprt/types.h>
 #include <iprt/nocrt/fenv.h>
@@ -44,7 +44,7 @@ const fenv_t __fe_dfl_env = {
 	{ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff }
 };
-#endif 
+#endif
 
 enum __sse_support __has_sse =
 #ifdef __SSE__

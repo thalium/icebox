@@ -1,21 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter id="KnownIssues">
   <title>Known limitations</title>
     <sect1 id="ExperimentalFeatures">
         <title>Experimental Features</title>
-        <para>Some VirtualBox features are labeled as experimental. Such 
-            features are provided on an "as-is" basis and are not formally 
-            supported. However, feedback and suggestions about such features are 
+        <para>Some VirtualBox features are labeled as experimental. Such
+            features are provided on an "as-is" basis and are not formally
+            supported. However, feedback and suggestions about such features are
             welcome. A comprehensive list of experimental features follows:</para>
         <itemizedlist>
             <listitem>
-                <para>Hardware 3D acceleration support for Windows, Linux, and Solaris 
+                <para>Hardware 3D acceleration support for Windows, Linux, and Solaris
                 guests</para>
             </listitem>
             <listitem>
-                <para>Hardware 2D video playback acceleration support for Windows 
+                <para>Hardware 2D video playback acceleration support for Windows
                 guests</para>
             </listitem>
             <listitem>
@@ -43,7 +43,7 @@
       <para>The following section describes known problems with VirtualBox
       @VBOX_VERSION_STRING@. Unless marked otherwise, these issues are planned to
       be fixed in later releases.</para>
-    
+
       <itemizedlist>
         <listitem>
           <para>The following <emphasis role="bold">Guest SMP (multiprocessor)
@@ -55,7 +55,7 @@
                 solved in 3.0.6 for 32 bits Windows NT, 2000, XP and 2003 guests.
                 Requires 3.0.6 or higher Guest Additions to be installed.</para>
               </listitem>
-    
+
               <listitem>
                 <para><emphasis role="bold">Poor performance</emphasis> with
                 32-bit guests on certain Intel CPU models that do not include
@@ -74,7 +74,7 @@
           or guests running on 32-bit hosts with PAE enabled and requires that
           hardware virtualization be enabled.</para>
         </listitem>
-    
+
         <listitem>
           <para>For <emphasis role="bold">basic Direct3D support in Windows
           guests</emphasis> to work, the Guest Additions must be installed in
@@ -88,14 +88,14 @@
           shipped with VirtualBox 4.1.</para>
           </note></para>
         </listitem>
-    
+
         <listitem>
           <para><emphasis role="bold">Guest control.</emphasis> On Windows guests,
           a process lauched via the guest control execute support will not be able
           to display a graphical user interface <emphasis>unless</emphasis> the
           user account under which it is running is currently logged in and has a
           desktop session.</para>
-    
+
           <para>Also, to use accounts without or with an empty password, the
           guest's group policy must be changed. To do so, open the group policy
           editor on the command line by typing
@@ -105,7 +105,7 @@
           of <emphasis>Accounts: Limit local account use of blank passwords to
           console logon only</emphasis> to <emphasis>Disabled</emphasis>.</para>
         </listitem>
-    
+
         <listitem>
           <para><emphasis role="bold">Compacting virtual disk images is limited to
           VDI files.</emphasis> The <code>VBoxManage modifyhd --compact</code>
@@ -114,68 +114,68 @@
           (VMDK, VHD) is to clone the image and then use the cloned image in the
           VM configuration.</para>
         </listitem>
-    
+
         <listitem>
           <para><emphasis role="bold">OVF import/export:</emphasis><itemizedlist>
               <listitem>
                 <para>OVF localization (multiple languages in one OVF file) is not
                 yet supported.</para>
               </listitem>
-    
+
               <listitem>
                 <para>Some OVF sections like StartupSection,
                 DeploymentOptionSection and InstallSection are ignored.</para>
               </listitem>
-    
+
               <listitem>
                 <para>OVF environment documents, including their property sections
                 and appliance configuration with ISO images, are not yet
                 supported.</para>
               </listitem>
-    
+
               <listitem>
                 <para>Remote files via HTTP or other mechanisms are not yet
                 supported.</para>
               </listitem>
             </itemizedlist></para>
         </listitem>
-    
+
         <listitem>
           <para>Neither <emphasis role="bold">scale mode</emphasis> nor <emphasis
           role="bold">seamless mode</emphasis> work correctly with guests using
           OpenGL 3D features (such as with compiz-enabled window managers).</para>
         </listitem>
-    
+
         <listitem>
           <para>The RDP server in the VirtualBox extension pack supports only
           audio streams in format 22.05kHz stereo 16 bit. If the RDP client
           requests any other audio format there will be no audio.</para>
         </listitem>
-    
+
         <listitem>
           <para>Preserving the aspect ratio in scale mode works only on Windows
           hosts and on Mac OS X hosts.</para>
         </listitem>
-    
+
         <listitem>
           <para>On <emphasis role="bold">Mac OS X hosts,</emphasis> the following
           features are not yet implemented:</para>
-    
+
           <para><itemizedlist>
               <listitem>
                 <para>Numlock emulation</para>
               </listitem>
-    
+
               <listitem>
                 <para>CPU frequency metric</para>
               </listitem>
-    
+
               <listitem>
                 <para>Memory ballooning</para>
               </listitem>
             </itemizedlist></para>
         </listitem>
-    
+
         <listitem>
           <para><emphasis role="bold">Mac OS X guests:</emphasis>
           <itemizedlist>
@@ -185,31 +185,31 @@
                 see <xref linkend="intro-macosxguests" /> and check the Apple
                 software license conditions.</para>
               </listitem>
-    
+
               <listitem>
                 <para>VirtualBox does not provide Guest Additions for Mac OS X
                 at this time.</para>
               </listitem>
-    
+
               <listitem>
                 <para>The graphics resolution currently defaults to 1024x768 as
                 Mac OS X falls back to the built-in EFI display support. See
                 <xref linkend="efividmode" /> for more information on how to
                 change EFI video modes.</para>
               </listitem>
-    
+
               <listitem>
                 <para>Mac OS X guests only work with one CPU assigned to the
                 VM. Support for SMP will be provided in a future release.</para>
               </listitem>
-    
+
               <listitem>
                 <para>Depending on your system and version of Mac OS X, you
                 might experience guest hangs after some time. This can be fixed
                 by turning off energy saving (set timeout to "Never") in the
                 system preferences.</para>
               </listitem>
-    
+
               <listitem>
                 <para>By default, the VirtualBox EFI enables debug output of the
                 Mac OS X kernel to help you diagnose boot problems. Note that
@@ -225,14 +225,14 @@
               </listitem>
             </itemizedlist></para>
         </listitem>
-    
+
         <listitem>
           <para><emphasis role="bold">Solaris hosts:</emphasis> <itemizedlist>
               <listitem>
                 <para>There is no support for USB devices connected to Solaris 10
                 hosts.</para>
               </listitem>
-    
+
               <listitem>
                 <para>USB support on Solaris hosts requires Solaris 11 version
                 snv_124 or higher. Webcams and other isochronous devices are known
@@ -244,17 +244,17 @@
                 20 frames per second due to limitations in the Solaris V4L2 API.
                 This may be addressed in a future Solaris release.</para>
               </listitem>
-    
+
               <listitem>
                 <para>No ACPI information (battery status, power source) is
                 reported to the guest.</para>
               </listitem>
-    
+
               <listitem>
                 <para>No support for using wireless adapters with bridged
                 networking.</para>
               </listitem>
-    
+
               <listitem>
                 <para>Crossbow-based bridged networking on Solaris 11 hosts does
                 not work directly with aggregate links. However, you can manually
@@ -264,25 +264,25 @@
               </listitem>
             </itemizedlist></para>
         </listitem>
-        
+
         <listitem>
           <para><emphasis role="bold">Guest Additions of version 4.1, 4.1.2 and 4.1.4 for Windows</emphasis>
-          Thus VirtualBox WDDM Video driver may be installed and kept in guest system 
-          if Guest additions uninstallation is performed. 
+          Thus VirtualBox WDDM Video driver may be installed and kept in guest system
+          if Guest additions uninstallation is performed.
           This is caused by a bug in Guest Additions uninstaller.
           <note>
-            <para>This does <emphasis role="bold">not</emphasis> apply to Guest Additions update, 
+            <para>This does <emphasis role="bold">not</emphasis> apply to Guest Additions update,
             i.e. installing a one version of Guest Additions on top of another works correctly.</para>
           </note>
           To solve this problem, one should uninstall the VirtualBox WDDM Video driver manually.
-          To do that open Device Manager, and check whether the Display Adapter is named 
-          "VirtualBox Graphics Adapter ..". If no - there is nothing to be done. If yes - right-click 
+          To do that open Device Manager, and check whether the Display Adapter is named
+          "VirtualBox Graphics Adapter ..". If no - there is nothing to be done. If yes - right-click
           the VirtualBox Graphics Adapter in Device Manager, select "Uninstall", check "Delete the driver software for this device"
-          and click "OK". Once uninstallation is done - in Device Manager go to menu "Action" and select 
+          and click "OK". Once uninstallation is done - in Device Manager go to menu "Action" and select
           "Scan for hardware changes" to make the propper (Windows default) driver be picked up for the Graphics adapter.
           </para>
         </listitem>
-    
+
         <listitem>
           <para>Neither <emphasis>virtio</emphasis> nor <emphasis>Intel PRO/1000
             </emphasis> drivers for <emphasis role="bold">Windows XP guests
@@ -291,7 +291,7 @@
             guest types. Refer to MS Knowledge base article 842264 for additional
             information.</para>
         </listitem>
-    
+
         <listitem>
           <para><emphasis role="bold">Guest Additions for OS/2.</emphasis> Shared
           folders are not yet supported with OS/2 guests. In addition, seamless

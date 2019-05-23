@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -15,8 +15,8 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-#ifndef __UIWizardCloneVDPageBasic2_h__
-#define __UIWizardCloneVDPageBasic2_h__
+#ifndef ___UIWizardCloneVDPageBasic2_h___
+#define ___UIWizardCloneVDPageBasic2_h___
 
 /* GUI includes: */
 #include "UIWizardPage.h"
@@ -31,28 +31,42 @@ class QButtonGroup;
 class QRadioButton;
 class QIRichTextLabel;
 
-/* 2nd page of the Clone Virtual Hard Drive wizard (base part): */
+
+/** 2nd page of the Clone Virtual Disk Image wizard (base part): */
 class UIWizardCloneVDPage2 : public UIWizardPageBase
 {
 protected:
 
-    /* Constructor: */
+    /** Constructs page basis. */
     UIWizardCloneVDPage2();
 
-    /* Helping stuff: */
-    void addFormatButton(QWidget *pParent, QVBoxLayout *pFormatsLayout, CMediumFormat medFormat, bool fPreferred = false);
+    /** Adds format button.
+      * @param  pParent          Brings the parent to add button to.
+      * @param  pFormatsLayout   Brings the layout to insert button to.
+      * @param  enmDeviceType    Brings the device type all buttons should be restricted to.
+      * @param  comMediumFormat  Brings the medium format object to acquire format from.
+      * @param  fPreferred       Brings whether curretn format is preferred or not. */
+    void addFormatButton(QWidget *pParent,
+                         QVBoxLayout *pFormatsLayout,
+                         KDeviceType enmDeviceType,
+                         CMediumFormat comMediumFormat,
+                         bool fPreferred = false);
 
-    /* Stuff for 'mediumFormat' field: */
+    /** Returns 'mediumFormat' field value. */
     CMediumFormat mediumFormat() const;
-    void setMediumFormat(const CMediumFormat &mediumFormat);
+    /** Defines 'mediumFormat' field value. */
+    void setMediumFormat(const CMediumFormat &comMediumFormat);
 
-    /* Variables: */
-    QButtonGroup *m_pFormatButtonGroup;
-    QList<CMediumFormat> m_formats;
-    QStringList m_formatNames;
+    /** Holds the format button-group instance. */
+    QButtonGroup         *m_pFormatButtonGroup;
+    /** Holds the format description list. */
+    QList<CMediumFormat>  m_formats;
+    /** Holds the format name list. */
+    QStringList           m_formatNames;
 };
 
-/* 2nd page of the Clone Virtual Hard Drive wizard (basic extension): */
+
+/** 2nd page of the Clone Virtual Disk Image wizard (basic extension): */
 class UIWizardCloneVDPageBasic2 : public UIWizardPage, public UIWizardCloneVDPage2
 {
     Q_OBJECT;
@@ -60,26 +74,27 @@ class UIWizardCloneVDPageBasic2 : public UIWizardPage, public UIWizardCloneVDPag
 
 public:
 
-    /* Constructor: */
-    UIWizardCloneVDPageBasic2();
+    /** Constructs basic page.
+      * @param  enmDeviceType  Brings the device type to limit format to. */
+    UIWizardCloneVDPageBasic2(KDeviceType enmDeviceType);
 
 private:
 
-    /* Translation stuff: */
-    void retranslateUi();
+    /** Handles translation event. */
+    virtual void retranslateUi() /* override */;
 
-    /* Prepare stuff: */
-    void initializePage();
+    /** Prepares the page. */
+    virtual void initializePage() /* override */;
 
-    /* Validation stuff: */
-    bool isComplete() const;
+    /** Returns whether the page is complete. */
+    virtual bool isComplete() const /* override */;
 
-    /* Navigation stuff: */
-    int nextId() const;
+    /** Returns the ID of the next page to traverse to. */
+    virtual int nextId() const /* override */;
 
-    /* Widgets: */
+    /** Holds the description label instance. */
     QIRichTextLabel *m_pLabel;
 };
 
-#endif // __UIWizardCloneVDPageBasic2_h__
+#endif /* !___UIWizardCloneVDPageBasic2_h___ */
 

@@ -10,7 +10,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -31,6 +31,7 @@
 #include <iprt/assert.h>
 #include <iprt/poll.h>
 #include <iprt/stream.h>
+#include <iprt/critsect.h>
 #include <iprt/semaphore.h>
 #include <iprt/uuid.h>
 
@@ -72,6 +73,8 @@ typedef struct DRVCHAR
     PPDMTHREAD                  pThrdRead;
     /** Event semaphore for the read relay thread. */
     RTSEMEVENT                  hEvtSemRead;
+    /** Critical section protection the send part. */
+    RTCRITSECT                  CritSectSend;
 
     /** Internal send FIFO queue */
     uint8_t volatile            u8SendByte;
@@ -119,19 +122,26 @@ static DECLCALLBACK(int) drvCharWrite(PPDMICHARCONNECTOR pInterface, const void 
 {
     PDRVCHAR pThis = RT_FROM_MEMBER(pInterface, DRVCHAR, ICharConnector);
     const char *pbBuffer = (const char *)pvBuf;
+    int rc = VINF_SUCCESS;
 
     LogFlow(("%s: pvBuf=%#p cbWrite=%d\n", __FUNCTION__, pvBuf, cbWrite));
 
-    for (uint32_t i = 0; i < cbWrite; i++)
-    {
-        if (ASMAtomicXchgBool(&pThis->fSending, true))
-            return VERR_BUFFER_OVERFLOW;
+    RTCritSectEnter(&pThis->CritSectSend);
 
-        pThis->u8SendByte = pbBuffer[i];
-        pThis->pDrvStream->pfnPollInterrupt(pThis->pDrvStream);
-        STAM_COUNTER_INC(&pThis->StatBytesWritten);
+    for (uint32_t i = 0; i < cbWrite && RT_SUCCESS(rc); i++)
+    {
+        if (!ASMAtomicXchgBool(&pThis->fSending, true))
+        {
+            pThis->u8SendByte = pbBuffer[i];
+            pThis->pDrvStream->pfnPollInterrupt(pThis->pDrvStream);
+            STAM_COUNTER_INC(&pThis->StatBytesWritten);
+        }
+        else
+            rc = VERR_BUFFER_OVERFLOW;
     }
-    return VINF_SUCCESS;
+
+    RTCritSectLeave(&pThis->CritSectSend);
+    return rc;
 }
 
 
@@ -181,6 +191,7 @@ static DECLCALLBACK(int) drvCharIoLoop(PPDMDRVINS pDrvIns, PPDMTHREAD pThread)
         {
             if (fEvtsRecv & RTPOLL_EVT_WRITE)
             {
+                RTCritSectEnter(&pThis->CritSectSend);
                 Assert(pThis->fSending);
 
                 size_t cbProcessed = 1;
@@ -205,6 +216,7 @@ static DECLCALLBACK(int) drvCharIoLoop(PPDMDRVINS pDrvIns, PPDMTHREAD pThread)
                     LogRel(("Write failed with %Rrc; skipping\n", rc));
                     break;
                 }
+                RTCritSectLeave(&pThis->CritSectSend);
             }
 
             if (fEvtsRecv & RTPOLL_EVT_READ)
@@ -357,6 +369,9 @@ static DECLCALLBACK(void) drvCharDestruct(PPDMDRVINS pDrvIns)
     LogFlow(("%s: iInstance=%d\n", __FUNCTION__, pDrvIns->iInstance));
     PDMDRV_CHECK_VERSIONS_RETURN_VOID(pDrvIns);
 
+    if (RTCritSectIsInitialized(&pThis->CritSectSend))
+        RTCritSectDelete(&pThis->CritSectSend);
+
     if (pThis->hEvtSemRead != NIL_RTSEMEVENT)
     {
         RTSemEventDestroy(pThis->hEvtSemRead);
@@ -392,6 +407,11 @@ static DECLCALLBACK(int) drvCharConstruct(PPDMDRVINS pDrvIns, PCFGMNODE pCfg, ui
     pThis->ICharConnector.pfnSetModemLines  = drvCharSetModemLines;
     pThis->ICharConnector.pfnSetBreak       = drvCharSetBreak;
 
+    int rc = RTCritSectInit(&pThis->CritSectSend);
+    if (RT_FAILURE(rc))
+        return PDMDrvHlpVMSetError(pDrvIns, rc, RT_SRC_POS,
+                                   N_("Char#%d: Failed to create critical section"), pDrvIns->iInstance);
+
     /*
      * Get the ICharPort interface of the above driver/device.
      */
@@ -403,7 +423,7 @@ static DECLCALLBACK(int) drvCharConstruct(PPDMDRVINS pDrvIns, PCFGMNODE pCfg, ui
      * Attach driver below and query its stream interface.
      */
     PPDMIBASE pBase;
-    int rc = PDMDrvHlpAttach(pDrvIns, fFlags, &pBase);
+    rc = PDMDrvHlpAttach(pDrvIns, fFlags, &pBase);
     if (RT_FAILURE(rc))
         return rc; /* Don't call PDMDrvHlpVMSetError here as we assume that the driver already set an appropriate error */
     pThis->pDrvStream = PDMIBASE_QUERY_INTERFACE(pBase, PDMISTREAM);

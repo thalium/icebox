@@ -44,7 +44,7 @@ static SPUFunctions *arraySPUInit( int id, SPU *child, SPU *self,
     arrayspuSetVBoxConfiguration();
 
     crStateInit();
-/*@todo seems default context ain't needed at all*/
+/** @todo seems default context ain't needed at all*/
     array_spu.defaultctx = crStateCreateContext( NULL, 0, NULL );
 #ifdef CR_ARB_vertex_buffer_object
     array_spu.defaultctx->bufferobject.retainBufferData = GL_TRUE;
@@ -81,6 +81,6 @@ int SPULoad( char **name, char **super, SPUInitFuncPtr *init,
     *cleanup = arraySPUCleanup;
     *options = arraySPUOptions;
     *flags = (SPU_NO_PACKER|SPU_NOT_TERMINAL|SPU_MAX_SERVERS_ZERO);
-    
+
     return 1;
 }

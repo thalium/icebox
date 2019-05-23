@@ -1,11 +1,10 @@
 /* $Id: server_framebuffer.c $ */
-
 /** @file
  * VBox OpenGL: EXT_framebuffer_object
  */
 
 /*
- * Copyright (C) 2009-2016 Oracle Corporation
+ * Copyright (C) 2009-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -70,7 +69,7 @@ void SERVER_DISPATCH_APIENTRY crServerDispatchBindFramebufferEXT(GLenum target, 
 #ifdef DEBUG_misha
     GLint rfb = 0, dfb = 0;
 #endif
-	crStateBindFramebufferEXT(target, framebuffer);
+        crStateBindFramebufferEXT(target, framebuffer);
 
     if (0==framebuffer)
     {
@@ -159,35 +158,35 @@ void SERVER_DISPATCH_APIENTRY crServerDispatchBindFramebufferEXT(GLenum target, 
 
 void SERVER_DISPATCH_APIENTRY crServerDispatchBindRenderbufferEXT(GLenum target, GLuint renderbuffer)
 {
-	crStateBindRenderbufferEXT(target, renderbuffer);
-	cr_server.head_spu->dispatch_table.BindRenderbufferEXT(target, crStateGetRenderbufferHWID(renderbuffer));
+        crStateBindRenderbufferEXT(target, renderbuffer);
+        cr_server.head_spu->dispatch_table.BindRenderbufferEXT(target, crStateGetRenderbufferHWID(renderbuffer));
 }
 
 void SERVER_DISPATCH_APIENTRY crServerDispatchDeleteFramebuffersEXT(GLsizei n, const GLuint * framebuffers)
 {
-	crStateDeleteFramebuffersEXT(n, framebuffers);
+        crStateDeleteFramebuffersEXT(n, framebuffers);
 }
 
 void SERVER_DISPATCH_APIENTRY crServerDispatchDeleteRenderbuffersEXT(GLsizei n, const GLuint * renderbuffers)
 {
-	crStateDeleteRenderbuffersEXT(n, renderbuffers);
+        crStateDeleteRenderbuffersEXT(n, renderbuffers);
 }
 
 void SERVER_DISPATCH_APIENTRY
 crServerDispatchFramebufferRenderbufferEXT(GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer)
 {
-	crStateFramebufferRenderbufferEXT(target, attachment, renderbuffertarget, renderbuffer);
-	cr_server.head_spu->dispatch_table.FramebufferRenderbufferEXT(target, attachment, renderbuffertarget, crStateGetRenderbufferHWID(renderbuffer));
+        crStateFramebufferRenderbufferEXT(target, attachment, renderbuffertarget, renderbuffer);
+        cr_server.head_spu->dispatch_table.FramebufferRenderbufferEXT(target, attachment, renderbuffertarget, crStateGetRenderbufferHWID(renderbuffer));
 }
 
 void SERVER_DISPATCH_APIENTRY
 crServerDispatchGetFramebufferAttachmentParameterivEXT(GLenum target, GLenum attachment, GLenum pname, GLint * params)
 {
-	GLint local_params[1];
-	(void) params;
-	crStateGetFramebufferAttachmentParameterivEXT(target, attachment, pname, local_params);
+        GLint local_params[1];
+        (void) params;
+        crStateGetFramebufferAttachmentParameterivEXT(target, attachment, pname, local_params);
 
-	crServerReturnValue(&(local_params[0]), 1*sizeof(GLint));
+        crServerReturnValue(&(local_params[0]), 1*sizeof(GLint));
 }
 
 GLboolean SERVER_DISPATCH_APIENTRY crServerDispatchIsFramebufferEXT( GLuint framebuffer )

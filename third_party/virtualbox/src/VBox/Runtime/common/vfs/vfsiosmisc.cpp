@@ -169,6 +169,7 @@ RTDECL(int) RTVfsIoStrmReadAll(RTVFSIOSTREAM hVfsIos, void **ppvBuf, size_t *pcb
 
                 void *pvNew = RTMemRealloc(pvBuf, cbAllocated);
                 AssertBreakStmt(pvNew, rc = VERR_NO_MEMORY);
+                pvBuf = pvNew;
 
                 cbToRead = cbAllocated - off - READ_ALL_HEADER_SIZE - 1;
             }

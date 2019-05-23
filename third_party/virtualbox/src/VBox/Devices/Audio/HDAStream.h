@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2017 Oracle Corporation
+ * Copyright (C) 2017-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -23,9 +23,6 @@
 #include "HDAStreamMap.h"
 #include "HDAStreamPeriod.h"
 
-/*********************************************************************************************************************************
-*   Prototypes                                                                                                                   *
-*********************************************************************************************************************************/
 
 typedef struct HDAMIXERSINK *PHDAMIXERSINK;
 
@@ -51,12 +48,33 @@ typedef struct HDASTREAMSTATEAIO
 } HDASTREAMSTATEAIO, *PHDASTREAMSTATEAIO;
 #endif
 
-#if defined (DEBUG) || defined(HDA_USE_DMA_ACCESS_HANDLER)
+/**
+ * Structure containing HDA stream debug stuff, configurable at runtime.
+ */
+typedef struct HDASTREAMDBGINFORT
+{
+    /** Whether debugging is enabled or not. */
+    bool                     fEnabled;
+    uint8_t                  Padding[7];
+    /** File for dumping stream reads / writes.
+     *  For input streams, this dumps data being written to the device FIFO,
+     *  whereas for output streams this dumps data being read from the device FIFO. */
+    R3PTRTYPE(PPDMAUDIOFILE) pFileStream;
+    /** File for dumping DMA reads / writes.
+     *  For input streams, this dumps data being written to the device DMA,
+     *  whereas for output streams this dumps data being read from the device DMA. */
+    R3PTRTYPE(PPDMAUDIOFILE) pFileDMA;
+} HDASTREAMDBGINFORT, *PHDASTREAMDBGINFORT;
+
+/**
+ * Structure containing HDA stream debug information.
+ */
 typedef struct HDASTREAMDBGINFO
 {
+#ifdef DEBUG
     /** Critical section to serialize access if needed. */
     RTCRITSECT              CritSect;
-    uint32_t                Padding1[2];
+    uint32_t                Padding0[2];
     /** Number of total read accesses. */
     uint64_t                cReadsTotal;
     /** Number of total DMA bytes read. */
@@ -80,8 +98,10 @@ typedef struct HDASTREAMDBGINFO
     /** How many bytes to skip in an audio stream before detecting silence.
      *  (useful for intros and silence at the beginning of a song). */
     uint64_t                cbSilenceReadMin;
+#endif
+    /** Runtime debug info. */
+    HDASTREAMDBGINFORT      Runtime;
 } HDASTREAMDBGINFO ,*PHDASTREAMDBGINFO;
-#endif /* defined (DEBUG) || defined(HDA_USE_DMA_ACCESS_HANDLER) */
 
 /**
  * Internal state of a HDA stream.
@@ -94,10 +114,10 @@ typedef struct HDASTREAMSTATE
     /** Flag indicating whether this stream currently is
      *  in reset mode and therefore not acccessible by the guest. */
     volatile bool           fInReset;
+    /** Flag indicating if the stream is in running state or not. */
+    volatile bool           fRunning;
     /** Unused, padding. */
-    uint32_t                Padding0;
-    /** Critical section to serialize access. */
-    RTCRITSECT              CritSect;
+    uint8_t                 Padding0[4];
 #ifdef VBOX_WITH_AUDIO_HDA_ASYNC_IO
     /** Asynchronous I/O state members. */
     HDASTREAMSTATEAIO       AIO;
@@ -108,9 +128,37 @@ typedef struct HDASTREAMSTATE
     HDABDLE                 BDLE;
     /** Circular buffer (FIFO) for holding DMA'ed data. */
     R3PTRTYPE(PRTCIRCBUF)   pCircBuf;
-    /** Timestamp of the last success DMA data transfer.
-     *  Used to calculate the time actually elapsed between two transfers. */
-    uint64_t                uTimerTS;
+#if HC_ARCH_BITS == 32
+    RTR3PTR                 Padding1;
+#endif
+    /** Timestamp of the last DMA data transfer. */
+    uint64_t                tsTransferLast;
+    /** Timestamp of the next DMA data transfer.
+     *  Next for determining the next scheduling window.
+     *  Can be 0 if no next transfer is scheduled. */
+    uint64_t                tsTransferNext;
+    /** Total transfer size (in bytes) of a transfer period. */
+    uint32_t                cbTransferSize;
+    /** Transfer chunk size (in bytes) of a transfer period. */
+    uint32_t                cbTransferChunk;
+    /** How many bytes already have been processed in within
+     *  the current transfer period. */
+    uint32_t                cbTransferProcessed;
+    /** How many interrupts are pending due to
+     *  BDLE interrupt-on-completion (IOC) bits set. */
+    uint8_t                 cTransferPendingInterrupts;
+    /** The stream's current audio frame size (in bytes). */
+    uint32_t                cbFrameSize;
+    /** How many audio data frames are left to be processed
+     *  for the position adjustment handling.
+     *
+     *  0 if position adjustment handling is done or inactive. */
+    uint16_t                cPosAdjustFramesLeft;
+    uint8_t                 Padding2[2];
+    /** (Virtual) clock ticks per byte. */
+    uint64_t                cTicksPerByte;
+    /** (Virtual) clock ticks per transfer. */
+    uint64_t                cTransferTicks;
     /** The stream's period. Need for timing. */
     HDASTREAMPERIOD         Period;
     /** The stream's current configuration.
@@ -120,9 +168,16 @@ typedef struct HDASTREAMSTATE
     /** List of DMA handlers. */
     RTLISTANCHORR3          lstDMAHandlers;
 #endif
+    /** How much DMA data from a previous transfer is left to be processed (in bytes).
+     *  This can happen if the stream's frame size is bigger (e.g. 16 bytes) than
+     *  the current DMA FIFO can hold (e.g. 10 bytes). Mostly needed for more complex
+     *  stuff like interleaved surround streams. */
+    uint16_t                cbDMALeft;
     /** Unused, padding. */
-    uint8_t                 Padding1[3];
-} HDASTREAMSTATE, *PHDASTREAMSTATE;
+    uint8_t                 abPadding3[2+4];
+} HDASTREAMSTATE;
+AssertCompileSizeAlignment(HDASTREAMSTATE, 8);
+typedef HDASTREAMSTATE *PHDASTREAMSTATE;
 
 /**
  * Structure for keeping a HDA stream (SDI / SDO).
@@ -142,7 +197,10 @@ typedef struct HDASTREAM
 {
     /** Stream descriptor number (SDn). */
     uint8_t                  u8SD;
-    uint8_t                  Padding0[7];
+    /** Current channel index.
+     *  For a stereo stream, this is u8Channel + 1. */
+    uint8_t                  u8Channel;
+    uint8_t                  Padding0[6];
     /** DMA base address (SDnBDPU - SDnBDPL). */
     uint64_t                 u64BDLBase;
     /** Cyclic Buffer Length (SDnCBL).
@@ -163,12 +221,14 @@ typedef struct HDASTREAM
     R3PTRTYPE(PHDASTATE)     pHDAState;
     /** Pointer to HDA sink this stream is attached to. */
     R3PTRTYPE(PHDAMIXERSINK) pMixSink;
+    /** The stream'S critical section to serialize access. */
+    RTCRITSECT               CritSect;
+    /** Pointer to the stream's timer. */
+    PTMTIMERR3               pTimer;
     /** Internal state of this stream. */
     HDASTREAMSTATE           State;
-#ifdef DEBUG
     /** Debug information. */
     HDASTREAMDBGINFO         Dbg;
-#endif
 } HDASTREAM, *PHDASTREAM;
 
 #ifdef VBOX_WITH_AUDIO_HDA_ASYNC_IO
@@ -187,41 +247,50 @@ typedef struct HDASTREAMTHREADCTX
 /** @name Stream functions.
  * @{
  */
-int               hdaStreamCreate(PHDASTREAM pStream, PHDASTATE pThis);
-void              hdaStreamDestroy(PHDASTREAM pStream);
-int               hdaStreamInit(PHDASTREAM pStream, uint8_t uSD);
-void              hdaStreamReset(PHDASTATE pThis, PHDASTREAM pStream, uint8_t uSD);
-int               hdaStreamEnable(PHDASTREAM pStream, bool fEnable);
-uint32_t          hdaStreamGetUsed(PHDASTREAM pStream);
-uint32_t          hdaStreamGetFree(PHDASTREAM pStream);
-int               hdaStreamTransfer(PHDASTREAM pStream, uint32_t cbToProcessMax);
-uint32_t          hdaStreamUpdateLPIB(PHDASTREAM pStream, uint32_t u32LPIB);
-void              hdaStreamLock(PHDASTREAM pStream);
-void              hdaStreamUnlock(PHDASTREAM pStream);
-int               hdaStreamRead(PHDASTREAM pStream, uint32_t cbToRead, uint32_t *pcbRead);
-int               hdaStreamWrite(PHDASTREAM pStream, uint32_t cbToWrite, uint32_t *pcbWritten);
-void              hdaStreamUpdate(PHDASTREAM pStream, bool fAsync);
+int               hdaR3StreamCreate(PHDASTREAM pStream, PHDASTATE pThis, uint8_t u8SD);
+void              hdaR3StreamDestroy(PHDASTREAM pStream);
+int               hdaR3StreamInit(PHDASTREAM pStream, uint8_t uSD);
+void              hdaR3StreamReset(PHDASTATE pThis, PHDASTREAM pStream, uint8_t uSD);
+int               hdaR3StreamEnable(PHDASTREAM pStream, bool fEnable);
+uint32_t          hdaR3StreamGetPosition(PHDASTATE pThis, PHDASTREAM pStream);
+void              hdaR3StreamSetPosition(PHDASTREAM pStream, uint32_t u32LPIB);
+uint32_t          hdaR3StreamGetFree(PHDASTREAM pStream);
+uint32_t          hdaR3StreamGetUsed(PHDASTREAM pStream);
+bool              hdaR3StreamTransferIsScheduled(PHDASTREAM pStream);
+uint64_t          hdaR3StreamTransferGetNext(PHDASTREAM pStream);
+int               hdaR3StreamTransfer(PHDASTREAM pStream, uint32_t cbToProcessMax);
+void              hdaR3StreamLock(PHDASTREAM pStream);
+void              hdaR3StreamUnlock(PHDASTREAM pStream);
+int               hdaR3StreamRead(PHDASTREAM pStream, uint32_t cbToRead, uint32_t *pcbRead);
+int               hdaR3StreamWrite(PHDASTREAM pStream, const void *pvBuf, uint32_t cbBuf, uint32_t *pcbWritten);
+void              hdaR3StreamUpdate(PHDASTREAM pStream, bool fAsync);
 # ifdef HDA_USE_DMA_ACCESS_HANDLER
-bool              hdaStreamRegisterDMAHandlers(PHDASTREAM pStream);
-void              hdaStreamUnregisterDMAHandlers(PHDASTREAM pStream);
+bool              hdaR3StreamRegisterDMAHandlers(PHDASTREAM pStream);
+void              hdaR3StreamUnregisterDMAHandlers(PHDASTREAM pStream);
 # endif /* HDA_USE_DMA_ACCESS_HANDLER */
 /** @} */
+
+/** @name Timer functions.
+ * @{
+ */
+DECLCALLBACK(void) hdaR3StreamTimer(PPDMDEVINS pDevIns, PTMTIMER pTimer, void *pvUser);
+/** @} */
+
 
 /** @name Async I/O stream functions.
  * @{
  */
 # ifdef VBOX_WITH_AUDIO_HDA_ASYNC_IO
-DECLCALLBACK(int) hdaStreamAsyncIOThread(RTTHREAD hThreadSelf, void *pvUser);
-int               hdaStreamAsyncIOCreate(PHDASTREAM pStream);
-int               hdaStreamAsyncIODestroy(PHDASTREAM pStream);
-int               hdaStreamAsyncIONotify(PHDASTREAM pStream);
-void              hdaStreamAsyncIOLock(PHDASTREAM pStream);
-void              hdaStreamAsyncIOUnlock(PHDASTREAM pStream);
-void              hdaStreamAsyncIOEnable(PHDASTREAM pStream, bool fEnable);
+DECLCALLBACK(int) hdaR3StreamAsyncIOThread(RTTHREAD hThreadSelf, void *pvUser);
+int               hdaR3StreamAsyncIOCreate(PHDASTREAM pStream);
+int               hdaR3StreamAsyncIODestroy(PHDASTREAM pStream);
+int               hdaR3StreamAsyncIONotify(PHDASTREAM pStream);
+void              hdaR3StreamAsyncIOLock(PHDASTREAM pStream);
+void              hdaR3StreamAsyncIOUnlock(PHDASTREAM pStream);
+void              hdaR3StreamAsyncIOEnable(PHDASTREAM pStream, bool fEnable);
 # endif /* VBOX_WITH_AUDIO_HDA_ASYNC_IO */
 /** @} */
 
 #endif /* IN_RING3 */
-
 #endif /* !HDA_STREAM_H */
 

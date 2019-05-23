@@ -19,16 +19,16 @@
 ;; Switches back to default CPU mode.
 SET_DEFAULT_CPU macro
  if VBOX_BIOS_CPU eq 8086
-		.8086
+        .8086
  elseif VBOX_BIOS_CPU eq 80186
-		.186
+        .186
  elseif VBOX_BIOS_CPU eq 80286
-		.286
+        .286
  elseif VBOX_BIOS_CPU eq 80386
-		.386
+        .386
  else
   .errnz 1, Unsupported target CPU value: VBOX_BIOS_CPU
-		.386
+        .386
  endif
 endm
 
@@ -36,11 +36,11 @@ endm
 ;; Switches back to default CPU mode, max 286.
 SET_DEFAULT_CPU_286 macro
  if VBOX_BIOS_CPU eq 8086
-		.8086
+        .8086
  elseif VBOX_BIOS_CPU eq 80186
-		.186
+        .186
  else
-		.286
+        .286
  endif
 endm
 
@@ -231,12 +231,11 @@ endm
 BIOSORG_CHECK macro addr
 public biosorg_check_at_&addr
 biosorg_check_at_&addr:
-		endm
+        endm
 
 ;; Adds a special label that will have its address checked after linking.
 BIOSORG_CHECK_BEFORE macro addr
-public	biosorg_check_before_or_at_&addr
+public biosorg_check_before_or_at_&addr
 biosorg_check_before_or_at_&addr:
-		endm
-
+        endm
 

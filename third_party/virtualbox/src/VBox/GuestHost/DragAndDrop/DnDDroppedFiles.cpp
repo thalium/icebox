@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2014-2016 Oracle Corporation
+ * Copyright (C) 2014-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -151,11 +151,11 @@ int DnDDroppedFiles::OpenEx(const char *pszPath, uint32_t fFlags)
         rc = RTDirCreateUniqueNumbered(pszDropDir, sizeof(pszDropDir), RTFS_UNIX_IRWXU, 3, '-');
         if (RT_SUCCESS(rc))
         {
-            PRTDIR phDir;
-            rc = RTDirOpen(&phDir, pszDropDir);
+            RTDIR hDir;
+            rc = RTDirOpen(&hDir, pszDropDir);
             if (RT_SUCCESS(rc))
             {
-                this->m_hDir       = phDir;
+                this->m_hDir       = hDir;
                 this->m_strPathAbs = pszDropDir;
                 this->m_fOpen      = fFlags;
             }

@@ -5513,28 +5513,38 @@ HRESULT Console::i_onVideoCaptureChange()
             Display *pDisplay = mDisplay;
             AssertPtr(pDisplay);
 
-            /* Release lock because the call scheduled on EMT may also try to take it. */
-            alock.release();
+            BOOL fEnabled;
+            rc = mMachine->COMGETTER(VideoCaptureEnabled)(&fEnabled);
+            AssertComRCReturnRC(rc);
 
-            int vrc = VMR3ReqCallWaitU(ptrVM.rawUVM(), VMCPUID_ANY /*idDstCpu*/,
-                                       (PFNRT)Display::i_videoRecConfigure, 3,
-                                       pDisplay, pDisplay->i_videoRecGetConfig(), true /* fAttachDetach */);
-            if (RT_SUCCESS(vrc))
+            if (fEnabled)
             {
-                /* Make sure to acquire the lock again after we're done running in EMT. */
-                alock.acquire();
+	            const PVIDEORECCFG pCfg = pDisplay->i_videoRecGetConfig();
+# ifdef VBOX_WITH_AUDIO_VIDEOREC
+	            const unsigned     uLUN = pCfg->Audio.uLUN; /* Get the currently configured LUN. */
+# else
+	            const unsigned     uLUN = 0;
+# endif
+	            /* Release lock because the call scheduled on EMT may also try to take it. */
+	            alock.release();
 
-                if (!mDisplay->i_videoRecStarted())
-                {
+	            int vrc = VMR3ReqCallWaitU(ptrVM.rawUVM(), VMCPUID_ANY /*idDstCpu*/,
+	                                       (PFNRT)Display::i_videoRecConfigure, 4,
+	                                       pDisplay, pCfg, true /* fAttachDetach */, &uLUN);
+	            if (RT_SUCCESS(vrc))
+	            {
+	                /* Make sure to acquire the lock again after we're done running in EMT. */
+	                alock.acquire();
+
                     vrc = mDisplay->i_videoRecStart();
                     if (RT_FAILURE(vrc))
                         rc = setError(E_FAIL, tr("Unable to start video capturing (%Rrc)"), vrc);
-                }
-                else
-                    mDisplay->i_videoRecStop();
-            }
-            else
-                rc = setError(E_FAIL, tr("Unable to set screens for capturing (%Rrc)"), vrc);
+	            }
+	            else
+	                rc = setError(E_FAIL, tr("Unable to set screens for capturing (%Rrc)"), vrc);
+	    	}
+	    	else
+	    	    mDisplay->i_videoRecStop();
         }
 
         ptrVM.release();
@@ -7216,17 +7226,16 @@ HRESULT Console::i_consoleInitReleaseLog(const ComPtr<IMachine> aMachine)
         }
     }
 
-    char szError[RTPATH_MAX + 128];
+    RTERRINFOSTATIC ErrInfo;
     int vrc = com::VBoxLogRelCreate("VM", logFile.c_str(),
                                     RTLOGFLAGS_PREFIX_TIME_PROG | RTLOGFLAGS_RESTRICT_GROUPS,
                                     "all all.restrict -default.restrict",
                                     "VBOX_RELEASE_LOG", RTLOGDEST_FILE,
                                     32768 /* cMaxEntriesPerGroup */,
                                     0 /* cHistory */, 0 /* uHistoryFileTime */,
-                                    0 /* uHistoryFileSize */, szError, sizeof(szError));
+                                    0 /* uHistoryFileSize */, RTErrInfoInitStatic(&ErrInfo));
     if (RT_FAILURE(vrc))
-        hrc = setError(E_FAIL, tr("Failed to open release log (%s, %Rrc)"),
-                       szError, vrc);
+        hrc = setError(E_FAIL, tr("Failed to open release log (%s, %Rrc)"), ErrInfo.Core.pszMsg, vrc);
 
     /* If we've made any directory changes, flush the directory to increase
        the likelihood that the log file will be usable after a system panic.

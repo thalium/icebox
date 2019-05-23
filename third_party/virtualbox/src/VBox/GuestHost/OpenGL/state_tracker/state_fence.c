@@ -48,4 +48,3 @@ void APIENTRY crStateGetFenceivNV(GLuint fence, GLenum pname, GLint *params)
     (void)fence; (void)pname; (void)params;
 }
 
-

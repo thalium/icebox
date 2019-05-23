@@ -119,7 +119,7 @@ sect_hsize equ $ - sect_hdr1
  dd 0                  ; sh_info
  DNAT 8                ; sh_addralign
  DNAT 0                ; sh_entsize
- 
+
 shstrtab:
 str_shstrtab equ $ - shstrtab
  db ".shstrtab", 0

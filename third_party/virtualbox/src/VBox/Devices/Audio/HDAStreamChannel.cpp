@@ -34,7 +34,7 @@
  * @param   pChanData           Channel data to initialize.
  * @param   fFlags
  */
-int hdaStreamChannelDataInit(PPDMAUDIOSTREAMCHANNELDATA pChanData, uint32_t fFlags)
+int hdaR3StreamChannelDataInit(PPDMAUDIOSTREAMCHANNELDATA pChanData, uint32_t fFlags)
 {
     int rc = RTCircBufCreate(&pChanData->pCircBuf, 256); /** @todo Make this configurable? */
     if (RT_SUCCESS(rc))
@@ -50,7 +50,7 @@ int hdaStreamChannelDataInit(PPDMAUDIOSTREAMCHANNELDATA pChanData, uint32_t fFla
  *
  * @param   pChanData           Channel data to destroy.
  */
-void hdaStreamChannelDataDestroy(PPDMAUDIOSTREAMCHANNELDATA pChanData)
+void hdaR3StreamChannelDataDestroy(PPDMAUDIOSTREAMCHANNELDATA pChanData)
 {
     if (!pChanData)
         return;
@@ -72,7 +72,7 @@ void hdaStreamChannelDataDestroy(PPDMAUDIOSTREAMCHANNELDATA pChanData)
  * @param   pvBuf               Buffer of audio data to extract.
  * @param   cbBuf               Size (in bytes) of audio data to extract.
  */
-int hdaStreamChannelExtract(PPDMAUDIOSTREAMCHANNEL pChan, const void *pvBuf, size_t cbBuf)
+int hdaR3StreamChannelExtract(PPDMAUDIOSTREAMCHANNEL pChan, const void *pvBuf, size_t cbBuf)
 {
     AssertPtrReturn(pChan, VERR_INVALID_POINTER);
     AssertPtrReturn(pvBuf, VERR_INVALID_POINTER);
@@ -129,7 +129,7 @@ int hdaStreamChannelExtract(PPDMAUDIOSTREAMCHANNEL pChan, const void *pvBuf, siz
  *
  * @remark  Currently not used / implemented.
  */
-int hdaStreamChannelAdvance(PPDMAUDIOSTREAMCHANNEL pChan, size_t cbAdv)
+int hdaR3StreamChannelAdvance(PPDMAUDIOSTREAMCHANNEL pChan, size_t cbAdv)
 {
     AssertPtrReturn(pChan, VERR_INVALID_POINTER);
 
@@ -141,14 +141,14 @@ int hdaStreamChannelAdvance(PPDMAUDIOSTREAMCHANNEL pChan, size_t cbAdv)
 
 /**
  * Acquires (reads) audio channel data.
- * Must be released when done with hdaStreamChannelReleaseData().
+ * Must be released when done with hdaR3StreamChannelReleaseData().
  *
  * @returns IPRT status code.
  * @param   pChanData           Channel data to acquire audio channel data from.
  * @param   ppvData             Where to store the pointer to the acquired data.
  * @param   pcbData             Size (in bytes) of acquired data.
  */
-int hdaStreamChannelAcquireData(PPDMAUDIOSTREAMCHANNELDATA pChanData, void **ppvData, size_t *pcbData)
+int hdaR3StreamChannelAcquireData(PPDMAUDIOSTREAMCHANNELDATA pChanData, void **ppvData, size_t *pcbData)
 {
     AssertPtrReturn(pChanData, VERR_INVALID_POINTER);
     AssertPtrReturn(ppvData,   VERR_INVALID_POINTER);
@@ -161,12 +161,12 @@ int hdaStreamChannelAcquireData(PPDMAUDIOSTREAMCHANNELDATA pChanData, void **ppv
 }
 
 /**
- * Releases formerly acquired data by hdaStreamChannelAcquireData().
+ * Releases formerly acquired data by hdaR3StreamChannelAcquireData().
  *
  * @returns IPRT status code.
  * @param   pChanData           Channel data to release formerly acquired data for.
  */
-int hdaStreamChannelReleaseData(PPDMAUDIOSTREAMCHANNELDATA pChanData)
+int hdaR3StreamChannelReleaseData(PPDMAUDIOSTREAMCHANNELDATA pChanData)
 {
     AssertPtrReturn(pChanData, VERR_INVALID_POINTER);
     RTCircBufReleaseReadBlock(pChanData->pCircBuf, pChanData->cbAcq);

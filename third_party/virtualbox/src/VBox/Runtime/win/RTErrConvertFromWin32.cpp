@@ -429,6 +429,8 @@ RTR3DECL(int)  RTErrConvertFromWin32(unsigned uNativeCode)
 
         case NTE_BAD_ALGID:         return VERR_CR_PKIX_UNKNOWN_DIGEST_TYPE;
 
+        case ERROR_SERVICE_DOES_NOT_EXIST: return VERR_NOT_FOUND;
+
 #ifndef STATUS_ELEVATION_REQUIRED
 # define STATUS_ELEVATION_REQUIRED 0xc000042c
 #endif

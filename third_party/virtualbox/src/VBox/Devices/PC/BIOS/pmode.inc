@@ -1,18 +1,19 @@
+; $Id: pmode.inc $
 ;; @file
-;; Enter and exit a minimal protected-mode environment.
-;;
+; Enter and exit a minimal protected-mode environment.
+;
 
-;;
-;; Copyright (C) 2004-2015 Oracle Corporation
-;;
-;; This file is part of VirtualBox Open Source Edition (OSE), as
-;; available from http://www.virtualbox.org. This file is free software;
-;; you can redistribute it and/or modify it under the terms of the GNU
-;; General Public License (GPL) as published by the Free Software
-;; Foundation, in version 2 as it comes in the "COPYING" file of the
-;; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
-;; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
-;;
+;
+; Copyright (C) 2004-2017 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
 
 ;; Caveats: May only be called from the F000 segment (16-bit). Does not
 ;; switch stacks. Must be run with disabled interrupts(!), any exceptions
@@ -77,3 +78,4 @@ pmbios_gdt:
 		dw 0, 0, 0, 0
 		dw 0, 0, 0, 0
 		dw 0ffffh, 400h, 9300h, 0000h   ; 16-bit data, base=0x40
+

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -57,8 +57,6 @@ VBoxLicenseViewer::VBoxLicenseViewer(QWidget *pParent /* = 0 */)
     connect (mDisagreeButton, SIGNAL (clicked()), SLOT (reject()));
 
     QVBoxLayout *mainLayout = new QVBoxLayout (this);
-    mainLayout->setSpacing (10);
-    mainLayout->setContentsMargins(10, 10, 10, 10);
     mainLayout->addWidget (mLicenseText);
     mainLayout->addWidget (dbb);
 

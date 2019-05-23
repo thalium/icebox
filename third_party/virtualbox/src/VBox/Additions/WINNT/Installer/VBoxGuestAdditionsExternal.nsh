@@ -1,11 +1,10 @@
 ; $Id: VBoxGuestAdditionsExternal.nsh $
 ;; @file
-; VBoxGuestAdditionExternal.nsh - Utility function for invoking external
-;                                 applications.
+; VBoxGuestAdditionExternal.nsh - Utility function for invoking external applications.
 ;
 
 ;
-; Copyright (C) 2013 Oracle Corporation
+; Copyright (C) 2013-2017 Oracle Corporation
 ;
 ; This file is part of VirtualBox Open Source Edition (OSE), as
 ; available from http://www.virtualbox.org. This file is free software;

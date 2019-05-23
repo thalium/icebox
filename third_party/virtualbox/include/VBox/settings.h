@@ -904,6 +904,10 @@ struct Hardware
                         fPAE,
                         fAPIC,                  // requires settings version 1.16 (VirtualBox 5.1)
                         fX2APIC;                // requires settings version 1.16 (VirtualBox 5.1)
+    bool                fIBPBOnVMExit;          //< added out of cycle, after 1.16 was out.
+    bool                fIBPBOnVMEntry;         //< added out of cycle, after 1.16 was out.
+    bool                fSpecCtrl;              //< added out of cycle, after 1.16 was out.
+    bool                fSpecCtrlByHost;        //< added out of cycle, after 1.16 was out.
     typedef enum LongModeType { LongMode_Enabled, LongMode_Disabled, LongMode_Legacy } LongModeType;
     LongModeType        enmLongMode;
     uint32_t            cCPUs;

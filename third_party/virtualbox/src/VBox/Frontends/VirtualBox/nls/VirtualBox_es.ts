@@ -7666,19 +7666,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Enc&amp;ryption</source>
-        <translation>&amp;Cifrado</translation>
+        <translation type="vanished">&amp;Cifrado</translation>
     </message>
     <message>
         <source>When checked, enables encryption for this virtual machine.</source>
-        <translation>Seleccionado, habilita el cifrado para esta máquina virtual.</translation>
+        <translation type="vanished">Seleccionado, habilita el cifrado para esta máquina virtual.</translation>
     </message>
     <message>
         <source>En&amp;able Encryption</source>
-        <translation>Habilitar &amp;cifrado</translation>
+        <translation type="vanished">Habilitar &amp;cifrado</translation>
     </message>
     <message>
         <source>Encryption C&amp;ipher:</source>
-        <translation>&amp;Algoritmo de cifrado:</translation>
+        <translation type="vanished">&amp;Algoritmo de cifrado:</translation>
     </message>
     <message>
         <source>E&amp;nter New Password:</source>
@@ -7686,7 +7686,7 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Holds the password to be assigned to the virtual machine.</source>
-        <translation>Contiene la contraseña a asignar a la máquina virtual.</translation>
+        <translation type="vanished">Contiene la contraseña a asignar a la máquina virtual.</translation>
     </message>
     <message>
         <source>C&amp;onfirm New Password:</source>
@@ -7694,23 +7694,23 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Confirms the password to be assigned to the virtual machine.</source>
-        <translation>Confirma la contraseña a asignar a la máquina virtual.</translation>
+        <translation type="vanished">Confirma la contraseña a asignar a la máquina virtual.</translation>
     </message>
     <message>
         <source>You are trying to encrypt this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
-        <translation>Está intentando cifrar esta máquina virtual. Sin embargo, requere que &lt;i&gt;%1&lt;/i&gt; esté instalado. Instale el «Extension Pack» desde el sitio de descargas de VirtualBox.</translation>
+        <translation type="vanished">Está intentando cifrar esta máquina virtual. Sin embargo, requere que &lt;i&gt;%1&lt;/i&gt; esté instalado. Instale el «Extension Pack» desde el sitio de descargas de VirtualBox.</translation>
     </message>
     <message>
         <source>Encryption cipher type not specified.</source>
-        <translation>Algoritmo de cifrado no especificado.</translation>
+        <translation type="vanished">Algoritmo de cifrado no especificado.</translation>
     </message>
     <message>
         <source>Encryption password empty.</source>
-        <translation>Contraseña de cifrado vacía.</translation>
+        <translation type="vanished">Contraseña de cifrado vacía.</translation>
     </message>
     <message>
         <source>Encryption passwords do not match.</source>
-        <translation>Contraseñas de cifrado no coinciden.</translation>
+        <translation type="vanished">Contraseñas de cifrado no coinciden.</translation>
     </message>
     <message>
         <source>Leave Unchanged</source>
@@ -7724,6 +7724,46 @@ p, li { white-space: pre-wrap; }
     <message>
         <source>Holds the path where snapshots of this virtual machine will be stored. Be aware that snapshots can take quite a lot of storage space.</source>
         <translation>Contiene la ruta donde serán almacenadas las instantáneas de esta máquina virtual. Tenga en cuenta que las instantáneas pueden ocupar mucho espacio en disco.</translation>
+    </message>
+    <message>
+        <source>Disk Enc&amp;ryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>When checked, disks attached to this virtual machine will be encrypted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>En&amp;able Disk Encryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk Encryption C&amp;ipher:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Holds the encryption password for disks attached to this virtual machine.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirms the disk encryption password.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are trying to enable disk encryption for this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption cipher type not specified.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption password empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption passwords do not match.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9903,6 +9943,38 @@ p, li { white-space: pre-wrap; }
         <source>Cannot change medium size from &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt; as storage shrinking is currently not implemented.</source>
         <translation>No se puede cambiar el tamaño del medio de &lt;b&gt;%1&lt;/b&gt; a &lt;b&gt;%2&lt;/b&gt; debido a que la reducción no está actualmente implementada.</translation>
     </message>
+    <message>
+        <source>Choose Medium Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Location can not be empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
+        <translation type="unfinished">Este tipo de medio está conectado directa o indirectamente, preservado al tomar instantáneas.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
+        <translation type="unfinished">Este tipo de medio está conectado indirectamente, los cambios son borrados la siguiente vez que la máquina virtual sea iniciada.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, ignored when taking snapshots.</source>
+        <translation type="unfinished">Este tipo de medio está conectado directamente, ignorado al tomar instantáneas.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
+        <translation type="unfinished">Este tipo de medio está conectado directamente, está permitido ser usado concurrentemente por varias máquinas.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, and can be used by several machines.</source>
+        <translation type="unfinished">Este tipo de medio está conectado directamente, y puede ser usado por varias máquinas.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
+        <translation type="unfinished">Este tipo de medio está conectado indirectamente, de modo que un medio base puede ser usado por varias MVs que tienen su propio medio diferenciado para almacenar sus modificaciones.</translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManager</name>
@@ -10100,6 +10172,26 @@ p, li { white-space: pre-wrap; }
         <source>Refresh Disk Image Files (%1)</source>
         <translation type="unfinished">Actualizar archivos de imagen de discos (%1)</translation>
     </message>
+    <message>
+        <source>Current extension (*.%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose the location of this medium</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Move...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Disk Image File (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move selected disk image file</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManagerWidget</name>
@@ -10139,7 +10231,7 @@ p, li { white-space: pre-wrap; }
     <name>UIMediumTypeChangeDialog</name>
     <message>
         <source>Modify medium attributes</source>
-        <translation>Modificar atributos del medio</translation>
+        <translation type="vanished">Modificar atributos del medio</translation>
     </message>
     <message>
         <source>&lt;p&gt;You are about to change the attributes of the virtual disk located in &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Please choose one of the following medium types and press &lt;b&gt;%2&lt;/b&gt; to proceed or &lt;b&gt;%3&lt;/b&gt; otherwise.&lt;/p&gt;</source>
@@ -10151,35 +10243,35 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&lt;p&gt;You are about to change the settings of the disk image file &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Please choose one of the following modes and press &lt;b&gt;%2&lt;/b&gt; to proceed or &lt;b&gt;%3&lt;/b&gt; otherwise.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Está a punto de cambiar los atributos del disco virtual localizados en &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Seleccione uno de los siguientes tipos de medios y presione &lt;b&gt;%2&lt;/b&gt; para proceder o &lt;b&gt;%3&lt;/b&gt; en caso contrario.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Está a punto de cambiar los atributos del disco virtual localizados en &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Seleccione uno de los siguientes tipos de medios y presione &lt;b&gt;%2&lt;/b&gt; para proceder o &lt;b&gt;%3&lt;/b&gt; en caso contrario.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose mode:</source>
-        <translation>Seleccione un modo:</translation>
+        <translation type="vanished">Seleccione un modo:</translation>
     </message>
     <message>
         <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
-        <translation>Este tipo de medio está conectado directa o indirectamente, preservado al tomar instantáneas.</translation>
+        <translation type="vanished">Este tipo de medio está conectado directa o indirectamente, preservado al tomar instantáneas.</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
-        <translation>Este tipo de medio está conectado indirectamente, los cambios son borrados la siguiente vez que la máquina virtual sea iniciada.</translation>
+        <translation type="vanished">Este tipo de medio está conectado indirectamente, los cambios son borrados la siguiente vez que la máquina virtual sea iniciada.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, ignored when taking snapshots.</source>
-        <translation>Este tipo de medio está conectado directamente, ignorado al tomar instantáneas.</translation>
+        <translation type="vanished">Este tipo de medio está conectado directamente, ignorado al tomar instantáneas.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
-        <translation>Este tipo de medio está conectado directamente, está permitido ser usado concurrentemente por varias máquinas.</translation>
+        <translation type="vanished">Este tipo de medio está conectado directamente, está permitido ser usado concurrentemente por varias máquinas.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, and can be used by several machines.</source>
-        <translation>Este tipo de medio está conectado directamente, y puede ser usado por varias máquinas.</translation>
+        <translation type="vanished">Este tipo de medio está conectado directamente, y puede ser usado por varias máquinas.</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
-        <translation>Este tipo de medio está conectado indirectamente, de modo que un medio base puede ser usado por varias MVs que tienen su propio medio diferenciado para almacenar sus modificaciones.</translation>
+        <translation type="vanished">Este tipo de medio está conectado indirectamente, de modo que un medio base puede ser usado por varias MVs que tienen su propio medio diferenciado para almacenar sus modificaciones.</translation>
     </message>
 </context>
 <context>
@@ -12332,19 +12424,19 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>&lt;p&gt;You are about to install a VirtualBox extension pack. Extension packs complement the functionality of VirtualBox and can contain system level software that could be potentially harmful to your system. Please review the description below and only proceed if you have obtained the extension pack from a trusted source.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Está a punto de instalar un paquete de extensión de VirtualBox. Los paquetes de extensión complementan la funcionalidad de VirtualBox y pueden contener software a nivel de sistema que puede ser potencialmente dañino para su sistema. Revise la descripción y proceda solo si ha obtenido el paquete de extensión de una fuente de confianza.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Nombre:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versión:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Descripción:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {0 ?} {5&gt;?} {1&lt;?} {2&lt;?} {3&lt;?}</translation>
+        <translation>&lt;p&gt;Está a punto de instalar un paquete de extensión de VirtualBox. Los paquetes de extensión complementan la funcionalidad de VirtualBox y pueden contener software a nivel de sistema que puede ser potencialmente dañino para su sistema. Revise la descripción y proceda solo si ha obtenido el paquete de extensión de una fuente de confianza.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Nombre:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versión:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Descripción:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An older version of the extension pack is already installed, would you like to upgrade? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;New Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Current Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Está instalada una versión más antigua del paquete de extensión. ¿Desea actualizar? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Nombre:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versión nueva:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versión actual:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Descripción:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Está instalada una versión más antigua del paquete de extensión. ¿Desea actualizar? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Nombre:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versión nueva:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versión actual:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Descripción:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An newer version of the extension pack is already installed, would you like to downgrade? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;New Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Current Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Está instalada una versión más nueva del paquete de extensión. ¿Desea desactualizar? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Nombre:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versión nueva:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versión actual:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Descripción:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Está instalada una versión más nueva del paquete de extensión. ¿Desea desactualizar? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Nombre:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versión nueva:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versión actual:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Descripción:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The extension pack is already installed with the same version, would you like reinstall it? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;El paquete de extensión ya está instalado con la misma versión. ¿Desea reinstalarlo? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Nombre:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versión:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Descripción:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;El paquete de extensión ya está instalado con la misma versión. ¿Desea reinstalarlo? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Nombre:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Versión:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Descripción:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Failed to enable the audio adapter output for the virtual machine &lt;b&gt;%1&lt;/b&gt;.</source>
@@ -12368,6 +12460,14 @@ p, li { white-space: pre-wrap; }
     </message>
     <message>
         <source>Failed to change the snapshot &lt;b&gt;%1&lt;/b&gt; of the virtual machine &lt;b&gt;%2&lt;/b&gt;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to create the virtual disk image storage &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -14915,7 +15015,7 @@ este paso y luego conectar los Discos Duros desde el diálogo de Configuración 
     <message>
         <source>%1_copy</source>
         <comment>copied virtual hard drive name</comment>
-        <translation>%1_copiado</translation>
+        <translation type="vanished">%1_copiado</translation>
     </message>
     <message>
         <source>Hard drive to &amp;copy</source>
@@ -14931,27 +15031,27 @@ este paso y luego conectar los Discos Duros desde el diálogo de Configuración 
     </message>
     <message>
         <source>Copy Virtual Hard Disk</source>
-        <translation>Copiar disco duro virtual</translation>
+        <translation type="vanished">Copiar disco duro virtual</translation>
     </message>
     <message>
         <source>Hard disk to copy</source>
-        <translation>Disco duro a copiar</translation>
+        <translation type="vanished">Disco duro a copiar</translation>
     </message>
     <message>
         <source>&lt;p&gt;Please select the virtual hard disk file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Seleccione el archivo del disco duro que quiere copiar si no está seleccionado. Puede seleccionar uno de la lista o usar el icono de carpeta al lado de la lista para seleccionar uno.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Seleccione el archivo del disco duro que quiere copiar si no está seleccionado. Puede seleccionar uno de la lista o usar el icono de carpeta al lado de la lista para seleccionar uno.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose a virtual hard disk file to copy...</source>
-        <translation>Seleccione un archivo de disco duro virtual a copiar...</translation>
+        <translation type="vanished">Seleccione un archivo de disco duro virtual a copiar...</translation>
     </message>
     <message>
         <source>Hard disk file type</source>
-        <translation>Tipo de archivo de disco duro</translation>
+        <translation type="vanished">Tipo de archivo de disco duro</translation>
     </message>
     <message>
         <source>Please choose the type of file that you would like to use for the new virtual hard disk. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
-        <translation>Seleccione el tipo de archivo que quiere usar para el nuevo disco duro virtual. Si no necesita usarlo con otro software de virtualización puede dejar esta preferencia sin modificar.</translation>
+        <translation type="vanished">Seleccione el tipo de archivo que quiere usar para el nuevo disco duro virtual. Si no necesita usarlo con otro software de virtualización puede dejar esta preferencia sin modificar.</translation>
     </message>
     <message>
         <source>Storage on physical hard disk</source>
@@ -14959,47 +15059,120 @@ este paso y luego conectar los Discos Duros desde el diálogo de Configuración 
     </message>
     <message>
         <source>Please choose whether the new virtual hard disk file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
-        <translation>Seleccione si el nuevo archivo de unidad de disco duro virtual debería crecer según se use (reserva dinámica) o si debería ser creado con su tamaño máximo (tamaño fijo).</translation>
+        <translation type="vanished">Seleccione si el nuevo archivo de unidad de disco duro virtual debería crecer según se use (reserva dinámica) o si debería ser creado con su tamaño máximo (tamaño fijo).</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; hard disk file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Un archivo de disco duro &lt;b&gt;reservado dinámicamente&lt;/b&gt; solo usará espacio en su disco físico a medida que se llena (hasta un máximo &lt;b&gt;tamaño fijo&lt;/b&gt;), sin embargo no se reducirá de nuevo automáticamente cuando el espacio en él se libere.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Un archivo de disco duro &lt;b&gt;reservado dinámicamente&lt;/b&gt; solo usará espacio en su disco físico a medida que se llena (hasta un máximo &lt;b&gt;tamaño fijo&lt;/b&gt;), sin embargo no se reducirá de nuevo automáticamente cuando el espacio en él se libere.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; hard disk file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Un archivo de disco duro de &lt;b&gt;tamaño fijo&lt;/b&gt; puede tomar más tiempo para su creación en algunos sistemas, pero normalmente es más rápido al usarlo.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Un archivo de disco duro de &lt;b&gt;tamaño fijo&lt;/b&gt; puede tomar más tiempo para su creación en algunos sistemas, pero normalmente es más rápido al usarlo.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the hard disk file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
-        <translation>&lt;p&gt;También puede seleccionar &lt;b&gt;dividir&lt;/b&gt; el archivo de disco duro virtual en varios archivos de hasta dos gigabytes cada uno. Principalmente esto es útil si desea almacenar la máquina virtual en dispositivos USB extraíbles o en sistemas antiguos, algunos de los cuales no pueden manejar archivos muy grandes.</translation>
+        <translation type="vanished">&lt;p&gt;También puede seleccionar &lt;b&gt;dividir&lt;/b&gt; el archivo de disco duro virtual en varios archivos de hasta dos gigabytes cada uno. Principalmente esto es útil si desea almacenar la máquina virtual en dispositivos USB extraíbles o en sistemas antiguos, algunos de los cuales no pueden manejar archivos muy grandes.</translation>
     </message>
     <message>
         <source>Please choose a location for new virtual hard disk file</source>
-        <translation>Seleccione una ubicación para el nuevo archivo de disco duro virtual</translation>
+        <translation type="vanished">Seleccione una ubicación para el nuevo archivo de disco duro virtual</translation>
     </message>
     <message>
         <source>New hard disk to create</source>
-        <translation>Nuevo disco duro a crear</translation>
+        <translation type="vanished">Nuevo disco duro a crear</translation>
     </message>
     <message>
         <source>Please type the name of the new virtual hard disk file into the box below or click on the folder icon to select a different folder to create the file in.</source>
-        <translation>Escriba el nombre del archivo de disco duro virtual en el campo debajo o haga clic en el icono de carpeta para seleccionar una carpeta diferente donde crear el archivo.</translation>
+        <translation type="vanished">Escriba el nombre del archivo de disco duro virtual en el campo debajo o haga clic en el icono de carpeta para seleccionar una carpeta diferente donde crear el archivo.</translation>
     </message>
     <message>
         <source>Choose a location for new virtual hard disk file...</source>
-        <translation>Seleccione una ubicación para el archivo de disco duro virtual...</translation>
+        <translation type="vanished">Seleccione una ubicación para el archivo de disco duro virtual...</translation>
     </message>
     <message>
         <source>Hard disk to &amp;copy</source>
-        <translation>Disco duro a &amp;copiar</translation>
+        <translation type="vanished">Disco duro a &amp;copiar</translation>
     </message>
     <message>
         <source>&amp;New hard disk to create</source>
-        <translation>&amp;Nuevo disco duro a crear</translation>
+        <translation type="vanished">&amp;Nuevo disco duro a crear</translation>
     </message>
     <message>
         <source>Hard disk file &amp;type</source>
-        <translation>&amp;Tipo de archivo de disco duro</translation>
+        <translation type="vanished">&amp;Tipo de archivo de disco duro</translation>
+    </message>
+    <message>
+        <source>Copy Virtual Disk Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image to copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Please select the virtual disk image file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a virtual disk image file to copy...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image file type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please choose the type of file that you would like to use for the new virtual disk image. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please choose whether the new virtual disk image file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; disk image file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; disk image file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the disk image file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please choose a location for new virtual disk image file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New disk image to create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please type the name of the new virtual disk image file into the box below or click on the folder icon to select a different folder to create the file in.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a location for new virtual disk image file...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1_copy</source>
+        <comment>copied virtual disk image name</comment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image to &amp;copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New disk image to create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image file &amp;type</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

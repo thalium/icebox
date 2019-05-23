@@ -14,6 +14,15 @@
 # VirtualBox OSE distribution. VirtualBox OSE is distributed in the
 # hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
 #
+# The contents of this file may alternatively be used under the terms
+# of the Common Development and Distribution License Version 1.0
+# (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+# VirtualBox OSE distribution, in which case the provisions of the
+# CDDL are applicable instead of those of the GPL.
+#
+# You may elect to license modified versions of this file under the
+# terms and conditions of either the GPL or the CDDL or both.
+#
 
 SUB_DEPTH = ../../../..
 include $(KBUILD_PATH)/subheader.kmk
@@ -114,8 +123,7 @@ ifeq ($(KBUILD_TARGET),win)
 
 
  INSTALLS.win += VBoxNetAdp6-inf
- VBoxNetAdp6-inf_INST = $(INST_BIN)
- VBoxNetAdp6-inf_MODE = a+r,u+w
+ VBoxNetAdp6-inf_TEMPLATE = VBoxR0DrvInfCat
  VBoxNetAdp6-inf_SOURCES = \
  	$(PATH_TARGET)/VBoxNetAdp6Cat.dir/VBoxNetAdp6.inf
  VBoxNetAdp6-inf_CLEAN = $(VBoxNetAdp6-inf_SOURCES)
@@ -128,7 +136,8 @@ $(PATH_TARGET)/VBoxNetAdp6Cat.dir/VBoxNetAdp6.inf: $(PATH_SUB_CURRENT)/win/VBoxN
  ifdef VBOX_SIGNING_MODE
 VBoxNetAdp6-inf_SOURCES += \
 	$(PATH_TARGET)/VBoxNetAdp6Cat.dir/VBoxNetAdp6.sys \
-	$(PATH_TARGET)/VBoxNetAdp6Cat.dir/VBoxNetAdp6.cat
+	$(PATH_TARGET)/VBoxNetAdp6Cat.dir/VBoxNetAdp6.cat \
+	$(PATH_TARGET)/VBoxNetAdp6Cat.dir/VBoxNetAdp6.cat=>VBoxNetAdp6-PreW10.cat
 
 $(PATH_TARGET)/VBoxNetAdp6Cat.dir/VBoxNetAdp6.sys: $$(VBoxNetAdp6_1_TARGET) | $$(dir $$@)
 	$(INSTALL) -m 644 $< $(@D)

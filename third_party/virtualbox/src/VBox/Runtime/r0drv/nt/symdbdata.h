@@ -2956,6 +2956,28 @@ const RTNTSDBSET g_artNtSdbSets[] =
         },
     },
 # endif
+# ifdef RT_ARCH_AMD64
+    {   /* Source: s:\WinSyms\u\en_windows_10_17134_x64_symserv\ntkrnlmp.pdb\1E2C949B928244638C2A7406B9F3824A1\ntkrnlmp.pdb */
+        /*.OsVerInfo = */
+        {
+            /* .uMajorVer = */ 10,
+            /* .uMinorVer = */ 0,
+            /* .fChecked  = */ false,
+            /* .fSmp      = */ true,
+            /* .uCsdNo    = */ 0,
+            /* .uBuildNo  = */ 17134,
+        },
+        /* .KPRCB = */
+        {
+            /* .offQuantumEnd                = */ 0x2e69,
+            /* .cbQuantumEnd                 = */ 0x0001,
+            /* .offDpcQueueDepth             = */ 0x2e18,
+            /* .cbDpcQueueDepth              = */ 0x0004,
+            /* .offVendorString              = */ 0x6290,
+            /* .cbVendorString               = */ 0x000d,
+        },
+    },
+# endif
 };
 #endif /* !RTNTSDB_NO_DATA */
 

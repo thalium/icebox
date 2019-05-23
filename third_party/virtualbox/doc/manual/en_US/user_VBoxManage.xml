@@ -16,8 +16,8 @@
     VirtualBox OSE distribution. VirtualBox OSE is distributed in the
     hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  -->
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter id="vboxmanage">
   <title>VBoxManage</title>
 
@@ -624,6 +624,13 @@ UUID="457af700-bc0a-4258-aa3c-13b03da171f2"
           <listitem>
             <para><computeroutput>--longmode on|off</computeroutput>: This
             enables/disables long mode. See <xref linkend="settings-processor" />.</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>--spec-ctrl on|off</computeroutput>: This setting
+            enables/disables exposing speculation control interfaces to the guest, provided
+            they are available on the host. Depending on the host CPU and workload, enabling
+            speculation control may significantly reduce performance.</para>
           </listitem>
 
           <listitem>
@@ -1793,7 +1800,7 @@ UUID="457af700-bc0a-4258-aa3c-13b03da171f2"
       See <xref lang="" linkend="autostart" /> for more details.</para>
       <itemizedlist>
         <listitem>
-          <para><computeroutput>--autostart on|off</computeroutput>:
+          <para><computeroutput>--autostart-enabled on|off</computeroutput>:
           Enables/disables VM autostart at host system boot-up, using specified user name.</para>
         </listitem>
         <listitem>
@@ -2861,6 +2868,7 @@ Virtual system 0:
                             [--encodedlun &lt;lun&gt;]
                             [--username &lt;username&gt;]
                             [--password &lt;password&gt;]
+                            [--passwordfile &lt;file&gt;]
                             [--initiator &lt;initiator&gt;]
                             [--intnet]</screen>
 
@@ -3153,7 +3161,7 @@ Virtual system 0:
         </glossentry>
 
         <glossentry>
-          <glossterm><computeroutput>--username, --password</computeroutput></glossterm>
+          <glossterm><computeroutput>--username, --password, --passwordfile</computeroutput></glossterm>
 
           <glossdef>
             <para>Username and password (initiator secret) for target
@@ -3162,7 +3170,9 @@ Virtual system 0:
                 encryption (i.e. in clear text) in the XML machine
                 configuration file if no settings password is provided.
                 When a settings password was specified the first time,
-                the password is stored encrypted.</para>
+                the password is stored encrypted. Alternatively to providing the password
+                on the command line, a reference to a file containing the text
+                can be provided instead via the passwordfile option.</para>
               </note></para>
           </glossdef>
         </glossentry>
@@ -3588,7 +3598,7 @@ Virtual system 0:
 
                             [--format VDI|VMDK|VHD|RAW|&lt;other&gt;]
                             [--variant Standard,Fixed,Split2G,Stream,ESX]
-			    [--existing]</screen>
+                            [--existing]</screen>
 
 
     <para>The medium to clone as well as the target image must be described
@@ -3632,7 +3642,7 @@ Virtual system 0:
         </glossentry>
       </glosslist> <note>
         <para>For compatibility with earlier versions of VirtualBox, the
- 	"clonevdi" and "clonehd" commands are still supported and mapped
+        "clonevdi" and "clonehd" commands are still supported and mapped
         internally to the "clonehd disk" command.</para>
       </note></para>
   </sect1>

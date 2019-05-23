@@ -131,6 +131,14 @@ int rtPathFromNativeCopy(char *pszPath, size_t cbPath, const char *pszNativePath
 int rtPathFromNativeDup(char **ppszPath, const char *pszNativePath, const char *pszBasePath);
 
 
+#if defined(RT_OS_WINDOWS) && defined(___iprt_fs_h) && defined(UNICODE_NULL)
+DECLHIDDEN(int) rtPathNtQueryInfoWorker(HANDLE hRootDir, struct _UNICODE_STRING *pNtName, PRTFSOBJINFO pObjInfo,
+                                        RTFSOBJATTRADD enmAdditionalAttribs, uint32_t fFlags, const char *pszPath);
+DECLHIDDEN(int) rtPathNtQueryInfoFromHandle(HANDLE hFile, void *pvBuf, size_t cbBuf, PRTFSOBJINFO pObjInfo,
+                                            RTFSOBJATTRADD enmAddAttr, const char *pszPath, ULONG uReparseTag);
+#endif
+
+
 RT_C_DECLS_END
 
 #endif

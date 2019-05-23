@@ -50,7 +50,7 @@
   ;Check file and version
   ;
   IfFileExists $R4 0 replacedll.copy_${REPLACEDLL_UNIQUE}
-  
+
   ;ClearErrors
   ;  GetDLLVersionLocal "${LOCALFILE}" $R0 $R1
   ;  GetDLLVersion $R4 $R2 $R3
@@ -143,7 +143,7 @@
  ;Restore settings
 
  SetOverwrite lastused
- 
+
  !undef REPLACEDLL_UNIQUE
 
 !macroend

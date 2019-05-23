@@ -24,6 +24,7 @@
 # include <QLabel>
 # include <QLineEdit>
 # include <QPushButton>
+# include <QStyle>
 
 /* GUI includes: */
 # include "QIDialogButtonBox.h"
@@ -100,7 +101,12 @@ void UITakeSnapshotDialog::prepare()
     AssertPtrReturnVoid(pLayout);
     {
         /* Configure layout: */
+#ifdef VBOX_WS_MAC
         pLayout->setSpacing(20);
+        pLayout->setContentsMargins(40, 20, 40, 20);
+#else
+        pLayout->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutHorizontalSpacing) * 2);
+#endif
 
         /* Create sub-layout: */
         QVBoxLayout *pSubLayout1 = new QVBoxLayout;
@@ -129,7 +135,11 @@ void UITakeSnapshotDialog::prepare()
         AssertPtrReturnVoid(pSubLayout2);
         {
             /* Configure layout: */
-            pSubLayout2->setSpacing(10);
+#ifdef VBOX_WS_MAC
+            pSubLayout2->setSpacing(5);
+#else
+            pSubLayout2->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing) / 2);
+#endif
 
             /* Create name label: */
             m_pLabelName = new QLabel;
@@ -161,7 +171,11 @@ void UITakeSnapshotDialog::prepare()
         AssertPtrReturnVoid(pSubLayout3);
         {
             /* Configure layout: */
-            pSubLayout3->setSpacing(10);
+#ifdef VBOX_WS_MAC
+            pSubLayout3->setSpacing(5);
+#else
+            pSubLayout3->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing) / 2);
+#endif
 
             /* Create description label: */
             m_pLabelDescription = new QLabel;

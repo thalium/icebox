@@ -4,7 +4,7 @@
 #
 
 #
-# Copyright (C) 2010-2016 Oracle Corporation
+# Copyright (C) 2010-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -39,7 +39,7 @@
 [Sources.common]
         VBoxSysTables.c
         TableConversion.c
- 
+
 [Packages]
         MdePkg/MdePkg.dec
         MdeModulePkg/MdeModulePkg.dec
@@ -65,12 +65,12 @@
    gEfiAcpi20TableGuid
    gEfiProcessorSubClassGuid
    gEfiMpsTableGuid
-   
+
 [Protocols]
    gEfiDevicePathToTextProtocolGuid
 
 [BuildOptions.common]
 
-  GCC:*_*_*_CC_FLAGS = 
+  GCC:*_*_*_CC_FLAGS =
   INTEL:*_*_*_CC_FLAGS =
   MSFT:*_*_*_CC_FLAGS =

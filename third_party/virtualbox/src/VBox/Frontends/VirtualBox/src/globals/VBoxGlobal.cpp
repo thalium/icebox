@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -25,6 +25,7 @@
 # include <QTranslator>
 #  include <QStandardPaths>
 # include <QDesktopServices>
+# include <QGraphicsWidget>
 # include <QMutex>
 # include <QToolButton>
 # include <QProcess>
@@ -79,6 +80,7 @@
 #  ifndef VBOX_OSE
 #   include "VBoxLicenseViewer.h"
 #  endif /* VBOX_OSE */
+#  include "VBoxX11Helper.h"
 # endif /* VBOX_WS_X11 */
 # ifdef VBOX_WS_MAC
 #  include "VBoxUtils-darwin.h"
@@ -168,6 +170,7 @@
 # include <X11/Xmd.h>
 # include <X11/Xlib.h>
 # include <X11/Xatom.h>
+# include <X11/Xutil.h>
 # include <X11/extensions/Xinerama.h>
 # define BOOL PRBool
 #endif /* VBOX_WS_X11 */
@@ -279,6 +282,24 @@ uint VBoxGlobal::qtRTVersion()
     return (rt_ver_str.section ('.', 0, 0).toInt() << 16) +
            (rt_ver_str.section ('.', 1, 1).toInt() << 8) +
            rt_ver_str.section ('.', 2, 2).toInt();
+}
+
+/* static */
+uint VBoxGlobal::qtRTMajorVersion()
+{
+    return VBoxGlobal::qtRTVersionString().section ('.', 0, 0).toInt();
+}
+
+/* static */
+uint VBoxGlobal::qtRTMinorVersion()
+{
+    return VBoxGlobal::qtRTVersionString().section ('.', 1, 1).toInt();
+}
+
+/* static */
+uint VBoxGlobal::qtRTRevisionNumber()
+{
+    return VBoxGlobal::qtRTVersionString().section ('.', 2, 2).toInt();
 }
 
 /* static */
@@ -2732,6 +2753,111 @@ bool VBoxGlobal::activateWindow (WId aWId, bool aSwitchDesktop /* = true */)
     return result;
 }
 
+/* static */
+void VBoxGlobal::setCursor(QWidget *pWidget, const QCursor &cursor)
+{
+    if (!pWidget)
+        return;
+
+#ifdef VBOX_WS_X11
+    /* As reported in https://www.virtualbox.org/ticket/16348,
+     * in X11 QWidget::setCursor(..) call uses RENDER
+     * extension. Qt (before 5.11) fails to handle the case where the mentioned extension
+     * is missing. Please see https://codereview.qt-project.org/#/c/225665/ for Qt patch: */
+    if ((VBoxGlobal::qtRTMajorVersion() < 5) ||
+        (VBoxGlobal::qtRTMajorVersion() == 5 && VBoxGlobal::qtRTMinorVersion() < 11))
+    {
+        if (X11CheckExtension("RENDER"))
+            pWidget->setCursor(cursor);
+    }
+    else
+    {
+        pWidget->setCursor(cursor);
+    }
+#else
+    pWidget->setCursor(cursor);
+#endif
+}
+
+/* static */
+void VBoxGlobal::setCursor(QGraphicsWidget *pWidget, const QCursor &cursor)
+{
+
+    if (!pWidget)
+        return;
+
+#ifdef VBOX_WS_X11
+    /* As reported in https://www.virtualbox.org/ticket/16348,
+     * in X11 QGraphicsWidget::setCursor(..) call uses RENDER
+     * extension. Qt (before 5.11) fails to handle the case where the mentioned extension
+     * is missing. Please see https://codereview.qt-project.org/#/c/225665/ for Qt patch: */
+    if ((VBoxGlobal::qtRTMajorVersion() < 5) ||
+        (VBoxGlobal::qtRTMajorVersion() == 5 && VBoxGlobal::qtRTMinorVersion() < 11))
+    {
+        if (X11CheckExtension("RENDER"))
+            pWidget->setCursor(cursor);
+    }
+    else
+    {
+        pWidget->setCursor(cursor);
+    }
+#else
+    pWidget->setCursor(cursor);
+#endif
+}
+
+/* static */
+void VBoxGlobal::unsetCursor(QWidget *pWidget)
+{
+    if (!pWidget)
+        return;
+
+#ifdef VBOX_WS_X11
+    /* As reported in https://www.virtualbox.org/ticket/16348,
+     * in X11 QWidget::unsetCursor(..) call uses RENDER
+     * extension. Qt (before 5.11) fails to handle the case where the mentioned extension
+     * is missing. Please see https://codereview.qt-project.org/#/c/225665/ for Qt patch: */
+    if ((VBoxGlobal::qtRTMajorVersion() < 5) ||
+        (VBoxGlobal::qtRTMajorVersion() == 5 && VBoxGlobal::qtRTMinorVersion() < 11))
+    {
+        if (X11CheckExtension("RENDER"))
+            pWidget->unsetCursor();
+    }
+    else
+    {
+        pWidget->unsetCursor();
+    }
+#else
+    pWidget->unsetCursor();
+#endif
+}
+
+/* static */
+void VBoxGlobal::unsetCursor(QGraphicsWidget *pWidget)
+{
+    if (!pWidget)
+        return;
+
+#ifdef VBOX_WS_X11
+    /* As reported in https://www.virtualbox.org/ticket/16348,
+     * in X11 QGraphicsWidget::unsetCursor(..) call uses RENDER
+     * extension. Qt (before 5.11) fails to handle the case where the mentioned extension
+     * is missing. Please see https://codereview.qt-project.org/#/c/225665/ for Qt patch: */
+    if ((VBoxGlobal::qtRTMajorVersion() < 5) ||
+        (VBoxGlobal::qtRTMajorVersion() == 5 && VBoxGlobal::qtRTMinorVersion() < 11))
+    {
+        if (X11CheckExtension("RENDER"))
+            pWidget->unsetCursor();
+    }
+    else
+    {
+        pWidget->unsetCursor();
+    }
+#else
+    pWidget->unsetCursor();
+#endif
+}
+
 #ifdef VBOX_WS_X11
 /* This method tests whether the current X11 window manager supports full-screen mode as we need it.
  * Unfortunately the EWMH specification was not fully clear about whether we can expect to find
@@ -2741,6 +2867,7 @@ bool VBoxGlobal::activateWindow (WId aWId, bool aSwitchDesktop /* = true */)
  * xprop -root | egrep -w '_NET_WM_FULLSCREEN_MONITORS|_NET_WM_STATE|_NET_WM_STATE_FULLSCREEN'
  * in an X11 terminal window.
  * All three strings should be found under a property called "_NET_SUPPORTED(ATOM)". */
+
 /* static */
 bool VBoxGlobal::supportsFullScreenMonitorsProtocolX11()
 {
@@ -3272,27 +3399,29 @@ void VBoxGlobal::setTopLevelGeometry(QWidget *pWidget, int x, int y, int w, int 
          * unconditionally.  By calling ConfigureWindow directly, Qt will see
          * our change request as an externally triggered one on success and not
          * at all if it is rejected. */
+        const double dDPR = gpDesktop->devicePixelRatio(pWidget);
         uint16_t fMask =   XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y
                          | XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT;
-        uint32_t values[] = { (uint32_t)x, (uint32_t)y, (uint32_t)w, (uint32_t)h };
+        uint32_t values[] = { (uint32_t)(x * dDPR), (uint32_t)(y * dDPR),
+                              (uint32_t)(w * dDPR), (uint32_t)(h * dDPR) };
         xcb_configure_window(QX11Info::connection(), (xcb_window_t)pWidget->winId(),
                              fMask, values);
         xcb_size_hints_t hints;
         hints.flags =   1 /* XCB_ICCCM_SIZE_HINT_US_POSITION */
                       | 2 /* XCB_ICCCM_SIZE_HINT_US_SIZE */
                       | 512 /* XCB_ICCCM_SIZE_P_WIN_GRAVITY */;
-        hints.x           = x;
-        hints.y           = y;
-        hints.width       = w;
-        hints.height      = h;
-        hints.min_width   = pWidget->minimumSize().width();
-        hints.min_height  = pWidget->minimumSize().height();
-        hints.max_width   = pWidget->maximumSize().width();
-        hints.max_height  = pWidget->maximumSize().height();
-        hints.width_inc   = pWidget->sizeIncrement().width();
-        hints.height_inc  = pWidget->sizeIncrement().height();
-        hints.base_width  = pWidget->baseSize().width();
-        hints.base_height = pWidget->baseSize().height();
+        hints.x           = x * dDPR;
+        hints.y           = y * dDPR;
+        hints.width       = w * dDPR;
+        hints.height      = h * dDPR;
+        hints.min_width   = pWidget->minimumSize().width() * dDPR;
+        hints.min_height  = pWidget->minimumSize().height() * dDPR;
+        hints.max_width   = pWidget->maximumSize().width() * dDPR;
+        hints.max_height  = pWidget->maximumSize().height() * dDPR;
+        hints.width_inc   = pWidget->sizeIncrement().width() * dDPR;
+        hints.height_inc  = pWidget->sizeIncrement().height() * dDPR;
+        hints.base_width  = pWidget->baseSize().width() * dDPR;
+        hints.base_height = pWidget->baseSize().height() * dDPR;
         hints.win_gravity = XCB_GRAVITY_STATIC;
         if (hints.min_width > 0 || hints.min_height > 0)
             hints.flags |= 16 /* XCB_ICCCM_SIZE_HINT_P_MIN_SIZE */;
@@ -3320,6 +3449,32 @@ void VBoxGlobal::setTopLevelGeometry(QWidget *pWidget, const QRect &rect)
 {
     VBoxGlobal::setTopLevelGeometry(pWidget, rect.x(), rect.y(), rect.width(), rect.height());
 }
+
+#ifdef VBOX_WS_X11
+void VBoxGlobal::setWMClass(QWidget *pWidget, const QString &strNameString, const QString &strClassString)
+{
+    /* Make sure all arguments set: */
+    AssertReturnVoid(pWidget && !strNameString.isNull() && !strClassString.isNull());
+
+    /* Define QByteArray objects to make sure data is alive within the scope: */
+    QByteArray nameByteArray;
+    /* Check the existence of RESOURCE_NAME env. variable and override name string if necessary: */
+    const char resourceName[] = "RESOURCE_NAME";
+    if (qEnvironmentVariableIsSet(resourceName))
+        nameByteArray = qgetenv(resourceName);
+    else
+        nameByteArray = strNameString.toLatin1();
+    QByteArray classByteArray = strClassString.toLatin1();
+
+    AssertReturnVoid(nameByteArray.data() && classByteArray.data());
+
+    XClassHint windowClass;
+    windowClass.res_name = nameByteArray.data();
+    windowClass.res_class = classByteArray.data();
+    /* Set WM_CLASS of the window to passed name and class strings: */
+    XSetClassHint(QX11Info::display(), pWidget->window()->winId(), &windowClass);
+}
+#endif /* VBOX_WS_X11 */
 
 // Public slots
 ////////////////////////////////////////////////////////////////////////////////
@@ -3563,7 +3718,7 @@ void VBoxGlobal::prepare()
             msgCenter().cannotInitCOM(rc);
         return;
     }
-    
+
 #ifdef VBOX_WITH_SDS
     // setup Client COM Security to enable impersonation required by VBOX_SDS
     HRESULT hrGUICoInitializeSecurity = CoInitializeSecurity(NULL,
@@ -3837,7 +3992,6 @@ void VBoxGlobal::prepare()
         RTPathAppend(szLogFile, sizeof(szLogFile), "selectorwindow.log");
         pszLogFile = szLogFile;
         /* Create release logger, to file: */
-        char szError[RTPATH_MAX + 128];
         com::VBoxLogRelCreate("GUI VM Selector Window",
                               pszLogFile,
                               RTLOGFLAGS_PREFIX_TIME_PROG,
@@ -3848,8 +4002,7 @@ void VBoxGlobal::prepare()
                               1,
                               60 * 60,
                               _1M,
-                              szError,
-                              sizeof(szError));
+                              NULL /*pErrInfo*/);
 
         LogRel(("Qt version: %s\n", qtRTVersionString().toUtf8().constData()));
     }
@@ -4517,4 +4670,3 @@ bool VBoxGlobal::launchMachine(CMachine &machine, LaunchMode enmLaunchMode /* = 
     /* True finally: */
     return true;
 }
-

@@ -636,4 +636,3 @@ static LONG CALLBACK rtR3WinUnhandledXcptFilter(PEXCEPTION_POINTERS pPtrs)
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
-

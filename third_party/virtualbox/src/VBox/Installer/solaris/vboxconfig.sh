@@ -5,7 +5,7 @@
 #
 
 #
-# Copyright (C) 2009-2015 Oracle Corporation
+# Copyright (C) 2009-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -236,11 +236,11 @@ get_unofficial_sysinfo()
     HOST_OS_MINORVERSION="151"
 }
 
-# get_s11_4_sysinfo()
+# get_s11_4_or_newer_sysinfo()
 # cannot fail
-get_s11_4_sysinfo()
+get_s11_4_or_newer_sysinfo()
 {
-    # See check in plumb_net for why this is > 174. The alternative is we declare 11.4 as S12 with
+    # See check in plumb_net for why this is > 174. The alternative is we declare 11.4+ as S12 with
     # a more accurate minor (build) version number. For now this is sufficient to workaround the ever
     # changing version numbering policy.
     HOST_OS_MAJORVERSION="11"
@@ -253,15 +253,15 @@ get_sysinfo()
 {
     STR_OSVER=`uname -v`
     case "$STR_OSVER" in
-	# First check 'uname -v' and weed out the recognized, unofficial distros of Solaris
+        # First check 'uname -v' and weed out the recognized, unofficial distros of Solaris
         omnios*|oi_*|illumos*)
             get_unofficial_sysinfo
             return 0
             ;;
-	# Quick escape workaround for Solaris 11.4, changes the pkg FMRI (yet again). See BugDB #26494983.
-        11.4.*)
-	    get_s11_4_sysinfo
-	    return 0
+        # Quick escape workaround for Solaris 11.4+, changes the pkg FMRI (yet again). See BugDB #26494983.
+        11.4.* | 11.5.*)
+        get_s11_4_or_newer_sysinfo
+        return 0
     esac
 
     BIN_PKG=`which pkg 2> /dev/null`
@@ -1210,7 +1210,7 @@ postinstall()
     if test -d "/opt/VirtualBox/legacy/"; then
         if test "$HOST_OS_MAJORVERSION" -eq 10; then
             for lib in `ls -1 /opt/VirtualBox/legacy/`; do
-	       /usr/sbin/installf -c none $PKGINST /opt/VirtualBox/$lib=legacy/$lib s
+            /usr/sbin/installf -c none $PKGINST /opt/VirtualBox/$lib=legacy/$lib s
             done
             for lib in `ls -1 /opt/VirtualBox/amd64/legacy/`; do
                 /usr/sbin/installf -c none $PKGINST /opt/VirtualBox/amd64/$lib=legacy/$lib s

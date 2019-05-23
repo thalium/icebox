@@ -51,4 +51,3 @@ BS3_PROC_BEGIN_MODE Bs3TestDoModes, BS3_PBC_NEAR
 BS3_PROC_END_MODE   Bs3TestDoModes
 %endif
 
-

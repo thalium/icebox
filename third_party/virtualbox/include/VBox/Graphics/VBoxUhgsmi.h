@@ -42,9 +42,9 @@ typedef struct VBOXUHGSMI_BUFFER_TYPE_FLAGS
         {
             uint32_t fCommand    : 1;
             uint32_t Reserved    : 31;
-        };
+        } RT_STRUCT_NM(s);
         uint32_t Value;
-    };
+    } RT_UNION_NM(u);
 } VBOXUHGSMI_BUFFER_TYPE_FLAGS;
 
 typedef struct VBOXUHGSMI_BUFFER_LOCK_FLAGS
@@ -59,9 +59,9 @@ typedef struct VBOXUHGSMI_BUFFER_LOCK_FLAGS
             uint32_t bDiscard    : 1;
             uint32_t bLockEntire : 1;
             uint32_t Reserved    : 27;
-        };
+        } RT_STRUCT_NM(s);
         uint32_t Value;
-    };
+    } RT_UNION_NM(u);
 } VBOXUHGSMI_BUFFER_LOCK_FLAGS;
 
 typedef struct VBOXUHGSMI_BUFFER_SUBMIT_FLAGS
@@ -75,9 +75,9 @@ typedef struct VBOXUHGSMI_BUFFER_SUBMIT_FLAGS
             uint32_t bDoNotRetire           : 1; /**< the buffer will be used in a subsequent command */
             uint32_t bEntireBuffer          : 1;
             uint32_t Reserved               : 28;
-        };
+        } RT_STRUCT_NM(s);
         uint32_t Value;
-    };
+    } RT_UNION_NM(u);
 } VBOXUHGSMI_BUFFER_SUBMIT_FLAGS, *PVBOXUHGSMI_BUFFER_SUBMIT_FLAGS;
 
 /* the caller can specify NULL as a hSynch and specify a valid enmSynchType to make UHGSMI create a proper object itself,

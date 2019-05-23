@@ -2,7 +2,7 @@
 <!--
     User interface include for VirtualBox WiX script.
 
-    Copyright (C) 2006-2016 Oracle Corporation
+    Copyright (C) 2006-2018 Oracle Corporation
 
     This file is part of VirtualBox Open Source Edition (OSE), as
     available from http://www.virtualbox.org. This file is free software;
@@ -675,10 +675,13 @@
             <Control Id="Retry" Type="PushButton" X="304" Y="243" Width="56" Height="17" Default="yes" Cancel="yes" Text="!(loc.ButtonText_Retry)">
                 <Publish Event="EndDialog" Value="Retry">1</Publish>
             </Control>
+            <!-- Currently we don't want to let the users ignore a running VirtualBox installation, as this
+                 will result in an unstable mix of the old and new installation until a reboot is performed. See #9139.
             <Control Id="Ignore" Type="PushButton" X="235" Y="243" Width="56" Height="17" Text="!(loc.ButtonText_Ignore)">
                 <Publish Event="EndDialog" Value="Ignore">1</Publish>
             </Control>
-            <Control Id="Exit" Type="PushButton" X="166" Y="243" Width="56" Height="17" Text="!(loc.ButtonText_Exit)">
+            -->
+            <Control Id="Exit" Type="PushButton" X="235" Y="243" Width="56" Height="17" Text="!(loc.ButtonText_Exit)">
                 <Publish Event="EndDialog" Value="Exit">1</Publish>
             </Control>
             <Control Id="BannerBitmap" Type="Bitmap" X="0" Y="0" Width="370" Height="44" TabSkip="no" Text="[BannerBitmap]" />

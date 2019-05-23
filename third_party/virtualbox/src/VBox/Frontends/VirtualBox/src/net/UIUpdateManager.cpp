@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -113,20 +113,20 @@ public:
         if (pQueue->isEmpty())
         {
             /* Connect starting-signal of the queue to starting-slot of this step: */
-            connect(pQueue, SIGNAL(sigStartQueue()), this, SLOT(sltStartStep()), Qt::QueuedConnection);
+            connect(pQueue, &UIUpdateQueue::sigStartQueue, this, &UIUpdateStep::sltStartStep, Qt::QueuedConnection);
         }
         /* If queue has at least one step already: */
         else
         {
             /* Reconnect completion-signal of the last-step from completion-signal of the queue to starting-slot of this step: */
-            disconnect(pQueue->lastStep(), SIGNAL(sigStepComplete()), pQueue, SIGNAL(sigQueueFinished()));
-            connect(pQueue->lastStep(), SIGNAL(sigStepComplete()), this, SLOT(sltStartStep()), Qt::QueuedConnection);
+            disconnect(pQueue->lastStep(), &UIUpdateStep::sigStepComplete, pQueue, &UIUpdateQueue::sigQueueFinished);
+            connect(pQueue->lastStep(), &UIUpdateStep::sigStepComplete, this, &UIUpdateStep::sltStartStep, Qt::QueuedConnection);
         }
 
         /* Connect completion-signal of this step to the completion-signal of the queue: */
-        connect(this, SIGNAL(sigStepComplete()), pQueue, SIGNAL(sigQueueFinished()), Qt::QueuedConnection);
+        connect(this, &UIUpdateStep::sigStepComplete, pQueue, &UIUpdateQueue::sigQueueFinished, Qt::QueuedConnection);
         /* Connect completion-signal of this step to the destruction-slot of this step: */
-        connect(this, SIGNAL(sigStepComplete()), this, SLOT(deleteLater()), Qt::QueuedConnection);
+        connect(this, &UIUpdateStep::sigStepComplete, this, &UIUpdateStep::deleteLater, Qt::QueuedConnection);
 
         /* Remember this step as the last one: */
         pQueue->setLastStep(this);
@@ -365,22 +365,32 @@ private slots:
         }
 
         /* Get VirtualBox version: */
-        QString strVBoxVersion(vboxGlobal().vboxVersionStringNormalized());
-        QByteArray abVBoxVersion = strVBoxVersion.toUtf8();
-        VBoxVersion vboxVersion(strVBoxVersion);
-
+        UIVersion vboxVersion(vboxGlobal().vboxVersionStringNormalized());
         /* Get extension pack version: */
         QString strExtPackVersion(extPack.GetVersion());
         QByteArray abExtPackVersion = strExtPackVersion.toUtf8();
 
-        /* Skip the check in unstable VBox version and if the extension pack
-           is equal to or newer than VBox.
+        /* If this version being developed: */
+        if (vboxVersion.z() % 2 == 1)
+        {
+            /* If this version being developed on release branch (we use released one): */
+            if (vboxVersion.z() < 97)
+                vboxVersion.setZ(vboxVersion.z() - 1);
+            /* If this version being developed on trunk (we skip check at all): */
+            else
+            {
+                emit sigStepComplete();
+                return;
+            }
+        }
 
-           Note! Use RTStrVersionCompare for the comparison here as it takes
-                 the beta/alpha/preview/whatever tags into consideration when
-                 comparing versions. */
-        if (   vboxVersion.z() % 2 != 0
-            || RTStrVersionCompare(abExtPackVersion.constData(), abVBoxVersion.constData()) >= 0)
+        /* Get updated VirtualBox version: */
+        const QString strVBoxVersion = vboxVersion.toString();
+
+        /* Skip the check if the extension pack is equal to or newer than VBox.
+         * Note! Use RTStrVersionCompare for the comparison here as it takes the
+         *       beta/alpha/preview/whatever tags into consideration when comparing versions. */
+        if (RTStrVersionCompare(abExtPackVersion.constData(), strVBoxVersion.toUtf8().constData()) >= 0)
         {
             emit sigStepComplete();
             return;
@@ -406,10 +416,11 @@ private slots:
         /* Create and configure the Extension Pack downloader: */
         UIDownloaderExtensionPack *pDl = UIDownloaderExtensionPack::create();
         /* After downloading finished => propose to install the Extension Pack: */
-        connect(pDl, SIGNAL(sigDownloadFinished(const QString&, const QString&, QString)),
-                this, SLOT(sltHandleDownloadedExtensionPack(const QString&, const QString&, QString)));
+        connect(pDl, &UIDownloaderExtensionPack::sigDownloadFinished,
+                this, &UIUpdateStepVirtualBoxExtensionPack::sltHandleDownloadedExtensionPack);
         /* Also, destroyed downloader is a signal to finish the step: */
-        connect(pDl, SIGNAL(destroyed(QObject*)), this, SIGNAL(sigStepComplete()));
+        connect(pDl, &UIDownloaderExtensionPack::destroyed,
+                this, &UIUpdateStepVirtualBoxExtensionPack::sigStepComplete);
         /* Start downloading: */
         pDl->start();
     }
@@ -485,7 +496,7 @@ UIUpdateManager::UIUpdateManager()
         m_pInstance = this;
 
     /* Configure queue: */
-    connect(m_pQueue, SIGNAL(sigQueueFinished()), this, SLOT(sltHandleUpdateFinishing()));
+    connect(m_pQueue, &UIUpdateQueue::sigQueueFinished, this, &UIUpdateManager::sltHandleUpdateFinishing);
 
 #ifdef VBOX_WITH_UPDATE_REQUEST
     /* Ask updater to check for the first time: */

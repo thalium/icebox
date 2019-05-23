@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -49,12 +49,14 @@ public:
     /** Update routine. */
     void updateAppearance();
 
-private slots:
+public slots:
 
     /** Adds @a pNetworkRequest to network-manager state-indicators. */
     void sltAddNetworkManagerIndicatorDescription(UINetworkRequest *pNetworkRequest);
     /** Removes network-request with @a uuid from network-manager state-indicators. */
     void sldRemoveNetworkManagerIndicatorDescription(const QUuid &uuid);
+
+private slots:
 
     /* Set particular network-request progress to 'started': */
     void sltSetProgressToStarted(const QUuid &uuid);

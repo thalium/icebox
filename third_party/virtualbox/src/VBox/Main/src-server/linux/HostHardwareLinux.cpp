@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2008-2016 Oracle Corporation
+ * Copyright (C) 2008-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -751,22 +751,23 @@ int getDriveInfoFromSysfs(DriveInfoList *pList, bool isDVD, bool *pfSuccess)
     AssertPtrNullReturn(pfSuccess, VERR_INVALID_POINTER); /* Valid or Null */
     LogFlowFunc (("pList=%p, isDVD=%u, pfSuccess=%p\n",
                   pList, (unsigned) isDVD, pfSuccess));
-    PRTDIR pDir = NULL;
+    RTDIR hDir;
     int rc;
     bool fSuccess = false;
     unsigned cFound = 0;
 
     if (!RTPathExists("/sys"))
         return VINF_SUCCESS;
-    rc = RTDirOpen(&pDir, "/sys/block");
+    rc = RTDirOpen(&hDir, "/sys/block");
     /* This might mean that sysfs semantics have changed */
     AssertReturn(rc != VERR_FILE_NOT_FOUND, VINF_SUCCESS);
     fSuccess = true;
     if (RT_SUCCESS(rc))
+    {
         for (;;)
         {
             RTDIRENTRY entry;
-            rc = RTDirRead(pDir, &entry, NULL);
+            rc = RTDirRead(hDir, &entry, NULL);
             Assert(rc != VERR_BUFFER_OVERFLOW);  /* Should never happen... */
             if (RT_FAILURE(rc))  /* Including overflow and no more files */
                 break;
@@ -779,8 +780,7 @@ int getDriveInfoFromSysfs(DriveInfoList *pList, bool isDVD, bool *pfSuccess)
                 continue;
             try
             {
-                pList->push_back(DriveInfo(dev.getNode(), dev.getUdi(),
-                                           dev.getDesc()));
+                pList->push_back(DriveInfo(dev.getNode(), dev.getUdi(), dev.getDesc()));
             }
             catch(std::bad_alloc &e)
             {
@@ -789,7 +789,8 @@ int getDriveInfoFromSysfs(DriveInfoList *pList, bool isDVD, bool *pfSuccess)
             }
             ++cFound;
         }
-    RTDirClose(pDir);
+        RTDirClose(hDir);
+    }
     if (rc == VERR_NO_MORE_FILES)
         rc = VINF_SUCCESS;
     if (RT_FAILURE(rc))

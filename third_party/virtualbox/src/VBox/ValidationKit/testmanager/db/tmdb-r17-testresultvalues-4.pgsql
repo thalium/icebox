@@ -36,4 +36,3 @@ COMMIT;
 
 \d+ TestResultValues
 
-

@@ -25,18 +25,21 @@
 # include <QPushButton>
 # include <QSlider>
 # include <QStackedLayout>
+# include <QStyle>
 # include <QTextEdit>
 # include <QVBoxLayout>
 
 /* GUI includes: */
 # include "QIDialogButtonBox.h"
+# include "QIFileDialog.h"
 # include "QILabel.h"
 # include "QILineEdit.h"
 # include "QITabWidget.h"
+# include "QIToolButton.h"
 # include "UIConverter.h"
-# include "UIFilePathSelector.h"
 # include "UIIconPool.h"
 # include "UIMediumDetailsWidget.h"
+# include "UIMediumManager.h"
 # include "UIMediumSizeEditor.h"
 # include "VBoxGlobal.h"
 
@@ -46,17 +49,19 @@
 #endif /* !VBOX_WITH_PRECOMPILED_HEADERS */
 
 
-UIMediumDetailsWidget::UIMediumDetailsWidget(EmbedTo enmEmbedding, QWidget *pParent /* = 0 */)
+UIMediumDetailsWidget::UIMediumDetailsWidget(UIMediumManagerWidget *pParent, EmbedTo enmEmbedding)
     : QIWithRetranslateUI<QWidget>(pParent)
+    , m_pParent(pParent)
     , m_enmEmbedding(enmEmbedding)
     , m_oldData(UIDataMedium())
     , m_newData(UIDataMedium())
     , m_pTabWidget(0)
     , m_pLabelType(0), m_pComboBoxType(0), m_pErrorPaneType(0)
-    , m_pLabelLocation(0), m_pSelectorLocation(0), m_pErrorPaneLocation(0)
+    , m_pLabelLocation(0), m_pEditorLocation(0), m_pErrorPaneLocation(0), m_pButtonLocation(0)
     , m_pLabelDescription(0), m_pEditorDescription(0), m_pErrorPaneDescription(0)
     , m_pLabelSize(0), m_pEditorSize(0), m_pErrorPaneSize(0)
     , m_pButtonBox(0)
+    , m_pProgressBar(0)
     , m_fValid(true)
     , m_pLayoutDetails(0)
 {
@@ -83,6 +88,11 @@ void UIMediumDetailsWidget::setData(const UIDataMedium &data)
     loadDataForDetails();
 }
 
+void UIMediumDetailsWidget::setOptionsEnabled(bool fEnabled)
+{
+    m_pTabWidget->widget(0)->setEnabled(fEnabled);
+}
+
 void UIMediumDetailsWidget::retranslateUi()
 {
     /* Translate tab-widget: */
@@ -101,7 +111,8 @@ void UIMediumDetailsWidget::retranslateUi()
     m_pComboBoxType->setToolTip(tr("Holds the type of this medium."));
     for (int i = 0; i < m_pComboBoxType->count(); ++i)
         m_pComboBoxType->setItemText(i, gpConverter->toString(m_pComboBoxType->itemData(i).value<KMediumType>()));
-    m_pSelectorLocation->setToolTip(tr("Holds the location of this medium."));
+    m_pEditorLocation->setToolTip(tr("Holds the location of this medium."));
+    m_pButtonLocation->setToolTip(tr("Choose Medium Location"));
     m_pEditorDescription->setToolTip(tr("Holds the description of this medium."));
     m_pEditorSize->setToolTip(tr("Holds the size of this medium."));
 
@@ -138,6 +149,19 @@ void UIMediumDetailsWidget::sltLocationPathChanged(const QString &strPath)
     m_newData.m_options.m_strLocation = strPath;
     revalidate(m_pErrorPaneLocation);
     updateButtonStates();
+}
+
+void UIMediumDetailsWidget::sltChooseLocationPath()
+{
+    /* Open file-save dialog to choose location for current medium: */
+    const QString strFileName = QIFileDialog::getSaveFileName(m_pEditorLocation->text(),
+                                                              QApplication::translate("UIMediumManager", "Current extension (*.%1)")
+                                                                 .arg(QFileInfo(m_oldData.m_options.m_strLocation).suffix()),
+                                                              this,
+                                                              QApplication::translate("UIMediumManager", "Choose the location of this medium"),
+                                                              0, true, true);
+    if (!strFileName.isNull())
+        m_pEditorLocation->setText(QDir::toNativeSeparators(strFileName));
 }
 
 void UIMediumDetailsWidget::sltDescriptionTextChanged()
@@ -260,6 +284,7 @@ void UIMediumDetailsWidget::prepareTabOptions()
                 {
                     /* Configure editor: */
                     m_pLabelType->setBuddy(m_pComboBoxType);
+                    m_pComboBoxType->setSizeAdjustPolicy(QComboBox::AdjustToContents);
                     m_pComboBoxType->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
                     connect(m_pComboBoxType, static_cast<void(QComboBox::*)(int)>(&QComboBox::activated),
                             this, &UIMediumDetailsWidget::sltTypeIndexChanged);
@@ -307,19 +332,17 @@ void UIMediumDetailsWidget::prepareTabOptions()
                 pLayoutLocation->setContentsMargins(0, 0, 0, 0);
 
                 /* Create location editor: */
-                m_pSelectorLocation = new UIFilePathSelector;
-                AssertPtrReturnVoid(m_pSelectorLocation);
+                m_pEditorLocation = new QLineEdit;
+                AssertPtrReturnVoid(m_pEditorLocation);
                 {
                     /* Configure editor: */
-                    m_pLabelLocation->setBuddy(m_pSelectorLocation);
-                    m_pSelectorLocation->setResetEnabled(false);
-                    m_pSelectorLocation->setMode(UIFilePathSelector::Mode_File_Save);
-                    m_pSelectorLocation->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
-                    connect(m_pSelectorLocation, &UIFilePathSelector::pathChanged,
+                    m_pLabelLocation->setBuddy(m_pEditorLocation);
+                    m_pEditorLocation->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Fixed);
+                    connect(m_pEditorLocation, &QLineEdit::textChanged,
                             this, &UIMediumDetailsWidget::sltLocationPathChanged);
 
                     /* Add into layout: */
-                    pLayoutLocation->addWidget(m_pSelectorLocation);
+                    pLayoutLocation->addWidget(m_pEditorLocation);
                 }
 
                 /* Create location error pane: */
@@ -332,6 +355,22 @@ void UIMediumDetailsWidget::prepareTabOptions()
                                                     .pixmap(QSize(iIconMetric, iIconMetric)));
                     /* Add into layout: */
                     pLayoutLocation->addWidget(m_pErrorPaneLocation);
+                }
+
+                /* Create location button: */
+                m_pButtonLocation = new QIToolButton;
+                AssertPtrReturnVoid(m_pButtonLocation);
+                {
+                    /* Configure editor: */
+                    const int iIconMetric = QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize);
+                    m_pButtonLocation->setIconSize(QSize(iIconMetric, iIconMetric));
+                    m_pButtonLocation->setIcon(UIIconPool::iconSet(":/select_file_16px.png"));
+                    m_pButtonLocation->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+                    connect(m_pButtonLocation, &QIToolButton::clicked,
+                            this, &UIMediumDetailsWidget::sltChooseLocationPath);
+
+                    /* Add into layout: */
+                    pLayoutLocation->addWidget(m_pButtonLocation);
                 }
 
                 /* Add into layout: */
@@ -464,9 +503,23 @@ void UIMediumDetailsWidget::prepareTabOptions()
                 /* Create button-box: */
                 m_pButtonBox = new QIDialogButtonBox;
                 AssertPtrReturnVoid(m_pButtonBox);
-                /* Configure button-box: */
-                m_pButtonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
-                connect(m_pButtonBox, &QIDialogButtonBox::clicked, this, &UIMediumDetailsWidget::sltHandleButtonBoxClick);
+                {
+                    /* Configure button-box: */
+                    m_pButtonBox->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
+                    connect(m_pButtonBox, &QIDialogButtonBox::clicked, this, &UIMediumDetailsWidget::sltHandleButtonBoxClick);
+
+                    /* Create progress-bar: */
+                    m_pProgressBar = new UIEnumerationProgressBar;
+                    AssertPtrReturnVoid(m_pProgressBar);
+                    {
+                        /* Configure progress-bar: */
+                        m_pProgressBar->hide();
+                        /* Add progress-bar into button-box layout: */
+                        m_pButtonBox->addExtraWidget(m_pProgressBar);
+                        /* Notify parent it has progress-bar: */
+                        m_pParent->setProgressBar(m_pProgressBar);
+                    }
+                }
 
                 /* Add into layout: */
                 pLayoutOptions->addWidget(m_pButtonBox, 7, 0, 1, 2);
@@ -515,7 +568,6 @@ void UIMediumDetailsWidget::prepareInformationContainer(UIMediumType enmType, in
         {
             /* Configure layout: */
             pLayout->setVerticalSpacing(0);
-            pLayout->setContentsMargins(5, 5, 5, 5);
             pLayout->setColumnStretch(1, 1);
 
             /* Create labels & fields: */
@@ -528,6 +580,7 @@ void UIMediumDetailsWidget::prepareInformationContainer(UIMediumType enmType, in
                 AssertPtrReturnVoid(pLabel);
                 {
                     /* Configure label: */
+                    pLabel->setMargin(2);
                     pLabel->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 
                     /* Add into layout: */
@@ -540,6 +593,7 @@ void UIMediumDetailsWidget::prepareInformationContainer(UIMediumType enmType, in
                 AssertPtrReturnVoid(pField);
                 {
                     /* Configure field: */
+                    pField->setMargin(2);
                     pField->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Fixed));
                     pField->setFullSizeSelection(true);
 
@@ -573,23 +627,44 @@ void UIMediumDetailsWidget::loadDataForOptions()
         /* Populate type combo-box: */
         switch (m_newData.m_enmType)
         {
+            case UIMediumType_HardDisk:
+            {
+                /* No type changes for differencing disks: */
+                if (m_oldData.m_enmVariant & KMediumVariant_Diff)
+                    m_pComboBoxType->addItem(QString(), m_oldData.m_options.m_enmType);
+                else
+                {
+                    m_pComboBoxType->addItem(QString(), QVariant::fromValue(KMediumType_Normal));
+                    m_pComboBoxType->addItem(QString(), QVariant::fromValue(KMediumType_Immutable));
+                    if (!m_newData.m_fHasChildren)
+                    {
+                        m_pComboBoxType->addItem(QString(), QVariant::fromValue(KMediumType_Writethrough));
+                        m_pComboBoxType->addItem(QString(), QVariant::fromValue(KMediumType_Shareable));
+                    }
+                    m_pComboBoxType->addItem(QString(), QVariant::fromValue(KMediumType_MultiAttach));
+                }
+                break;
+            }
             case UIMediumType_DVD:
-            case UIMediumType_Floppy:
+            {
                 m_pComboBoxType->addItem(QString(), QVariant::fromValue(KMediumType_Readonly));
                 break;
-            case UIMediumType_HardDisk:
-                m_pComboBoxType->addItem(QString(), QVariant::fromValue(KMediumType_Normal));
-                m_pComboBoxType->addItem(QString(), QVariant::fromValue(KMediumType_Immutable));
+            }
+            case UIMediumType_Floppy:
+            {
                 m_pComboBoxType->addItem(QString(), QVariant::fromValue(KMediumType_Writethrough));
-                m_pComboBoxType->addItem(QString(), QVariant::fromValue(KMediumType_Shareable));
-                m_pComboBoxType->addItem(QString(), QVariant::fromValue(KMediumType_MultiAttach));
+                m_pComboBoxType->addItem(QString(), QVariant::fromValue(KMediumType_Readonly));
                 break;
+            }
             default:
                 break;
         }
         /* Translate type combo-box: */
         for (int i = 0; i < m_pComboBoxType->count(); ++i)
+        {
             m_pComboBoxType->setItemText(i, gpConverter->toString(m_pComboBoxType->itemData(i).value<KMediumType>()));
+            m_pComboBoxType->setItemData(i, mediumTypeTip(m_pComboBoxType->itemData(i).value<KMediumType>()), Qt::ToolTipRole);
+        }
     }
 
     /* Choose the item with required type to be the current one: */
@@ -600,9 +675,9 @@ void UIMediumDetailsWidget::loadDataForOptions()
 
     /* Load location: */
     m_pLabelLocation->setEnabled(m_newData.m_fValid);
-    m_pSelectorLocation->setEnabled(m_newData.m_fValid);
-    m_pSelectorLocation->setPath(m_newData.m_options.m_strLocation);
-    sltLocationPathChanged(m_pSelectorLocation->path());
+    m_pEditorLocation->setEnabled(m_newData.m_fValid);
+    m_pButtonLocation->setEnabled(m_newData.m_fValid);
+    m_pEditorLocation->setText(m_newData.m_options.m_strLocation);
 
     /* Load description: */
     m_pLabelDescription->setEnabled(m_newData.m_fValid);
@@ -617,6 +692,9 @@ void UIMediumDetailsWidget::loadDataForOptions()
     m_pEditorSize->setEnabled(fEnableResize);
     m_pEditorSize->setMediumSize(m_newData.m_options.m_uLogicalSize);
     sltSizeValueChanged(m_pEditorSize->mediumSize());
+
+    /* Revalidate: */
+    revalidate();
 }
 
 void UIMediumDetailsWidget::loadDataForDetails()
@@ -652,8 +730,8 @@ void UIMediumDetailsWidget::revalidate(QWidget *pWidget /* = 0 */)
     }
     if (!pWidget || pWidget == m_pErrorPaneLocation)
     {
-        /* Always valid for now: */
-        const bool fError = false;
+        /* If medium is valid itself, details are valid only is location is set: */
+        const bool fError = m_newData.m_fValid && m_newData.m_options.m_strLocation.isEmpty();
         m_pErrorPaneLocation->setVisible(fError);
         if (fError)
             m_fValid = false;
@@ -685,9 +763,8 @@ void UIMediumDetailsWidget::retranslateValidation(QWidget *pWidget /* = 0 */)
 //    if (!pWidget || pWidget == m_pErrorPaneType)
 //        m_pErrorPaneType->setToolTip(tr("Cannot change from type <b>%1</b> to <b>%2</b>.")
 //                                     .arg(m_oldData.m_options.m_enmType).arg(m_newData.m_options.m_enmType));
-//    if (!pWidget || pWidget == m_pErrorPaneLocation)
-//        m_pErrorPaneLocation->setToolTip(tr("Cannot change medium location from <b>%1</b> to <b>%2</b>.")
-//                                         .arg(m_oldData.m_options.m_strLocation).arg(m_newData.m_options.m_strLocation));
+    if (!pWidget || pWidget == m_pErrorPaneLocation)
+        m_pErrorPaneLocation->setToolTip(tr("Location can not be empty."));
 //    if (!pWidget || pWidget == m_pErrorPaneDescription)
 //        m_pErrorPaneDescription->setToolTip(tr("Cannot change medium description from <b>%1</b> to <b>%2</b>.")
 //                                               .arg(m_oldData.m_options.m_strDescription).arg(m_newData.m_options.m_strDescription));
@@ -724,6 +801,31 @@ void UIMediumDetailsWidget::updateButtonStates()
     /* Notify listeners as well: */
     emit sigRejectAllowed(m_oldData != m_newData);
     emit sigAcceptAllowed((m_oldData != m_newData) && m_fValid);
+}
+
+/* static */
+QString UIMediumDetailsWidget::mediumTypeTip(KMediumType enmType)
+{
+    switch (enmType)
+    {
+        case KMediumType_Normal:
+            return tr("This type of medium is attached directly or indirectly, preserved when taking snapshots.");
+        case KMediumType_Immutable:
+            return tr("This type of medium is attached indirectly, changes are wiped out the next time the "
+                      "virtual machine is started.");
+        case KMediumType_Writethrough:
+            return tr("This type of medium is attached directly, ignored when taking snapshots.");
+        case KMediumType_Shareable:
+            return tr("This type of medium is attached directly, allowed to be used concurrently by several machines.");
+        case KMediumType_Readonly:
+            return tr("This type of medium is attached directly, and can be used by several machines.");
+        case KMediumType_MultiAttach:
+            return tr("This type of medium is attached indirectly, so that one base medium can be used for several "
+                      "VMs which have their own differencing medium to store their modifications.");
+        default:
+            break;
+    }
+    AssertFailedReturn(QString());
 }
 
 QWidget *UIMediumDetailsWidget::infoContainer(UIMediumType enmType) const

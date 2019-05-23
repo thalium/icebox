@@ -1446,7 +1446,7 @@ static int rtPathGlobParse(PRTPATHGLOB pGlob, const char *pszPattern, PRTPATHPAR
  * @param   hDir        The directory handle.
  * @param   cbNeeded    The required entry size.
  */
-DECL_NO_INLINE(static, int) rtPathGlobSkipDirEntry(PRTDIR hDir, size_t cbNeeded)
+DECL_NO_INLINE(static, int) rtPathGlobSkipDirEntry(RTDIR hDir, size_t cbNeeded)
 {
     int rc = VERR_BUFFER_OVERFLOW;
     cbNeeded = RT_ALIGN_Z(cbNeeded, 16);
@@ -1874,7 +1874,7 @@ DECL_NO_INLINE(static, int) rtPathGlobExecRecursiveGeneric(PRTPATHGLOB pGlob, si
     /*
      * Enumerate entire directory and match each entry.
      */
-    PRTDIR hDir;
+    RTDIR hDir;
     int rc = RTDirOpen(&hDir, offPath ? pGlob->szPath : ".");
     if (RT_SUCCESS(rc))
     {

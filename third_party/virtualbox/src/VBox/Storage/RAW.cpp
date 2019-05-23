@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -355,6 +355,7 @@ static DECLCALLBACK(int) rawProbe(const char *pszFilename, PVDINTERFACE pVDIfsDi
                 /* Note that there are ISO images smaller than 1 MB; it is impossible to distinguish
                  * between raw floppy and CD images based on their size (and cannot be reliably done
                  * based on contents, either).
+                 * bird: Not sure what this comment is mumbling about, the test below is 32KB not 1MB.
                  */
                 if (cbFile % 2048)
                     rc = VERR_VD_RAW_SIZE_MODULO_2048;
@@ -405,8 +406,6 @@ static DECLCALLBACK(int) rawOpen(const char *pszFilename, unsigned uOpenFlags,
                  pszFilename, uOpenFlags, pVDIfsDisk, pVDIfsImage, enmType, ppBackendData));
     int rc;
     PRAWIMAGE pImage;
-
-    NOREF(enmType); /**< @todo r=klaus make use of the type info. */
 
     /* Check open flags. All valid flags are supported. */
     AssertReturn(!(uOpenFlags & ~VD_OPEN_FLAGS_MASK), VERR_INVALID_PARAMETER);

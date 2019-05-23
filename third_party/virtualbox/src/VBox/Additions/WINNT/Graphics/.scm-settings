@@ -1,0 +1,43 @@
+# $Id: .scm-settings $
+## @file
+# Source code massager settings for the graphics bits of the NT additions.
+#
+
+#
+# Copyright (C) 2010-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+--filter-out-files /Wine*/wined3d/wined3d.spec
+
+/Wine*/*.c:                     --external-copyright --lgpl-disclaimer --no-convert-tabs --no-fix-todos
+/Wine*/*.h:                     --external-copyright --lgpl-disclaimer --no-convert-tabs --no-fix-todos
+/Wine*/wined3d/wined3d.def:     --external-copyright
+/Wine*/wined3d/wined3dwddm.def: --external-copyright
+/Wine*/d3d8/version.rc:         --external-copyright --lgpl-disclaimer
+/Wine*/d3d9/version.rc:         --external-copyright --lgpl-disclaimer
+/Wine*/wined3d/version.rc:      --external-copyright --lgpl-disclaimer
+
+/Wine_new/switcher/d3d8_main.c: --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos
+/Wine_new/switcher/d3d9_main.c: --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos
+/Wine_new/switcher/sw_common.c: --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos
+/Wine_new/vbox/VBoxDbgGl.c:     --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos
+/Wine_new/wined3d/vboxext.c:    --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos
+/Wine*/switcher/switcher.h:     --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos
+/Wine*/vbox/VBoxDbgGl.h:        --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos
+/Wine*/vbox/VBoxWineEx.h:       --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos
+/Wine*/wined3d/vboxext.h:       --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos
+/Wine*/wined3d/vboxsharedrc.h:  --no-external-copyright --no-lgpl-disclaimer --convert-tabs --fix-todos
+
+/Wine*/vbox/libWineStub/include/config.h:          --no-lgpl-disclaimer
+/Wine*/vbox/libWineStub/include/wine/wgl.h:        --no-lgpl-disclaimer
+/Wine*/vbox/libWineStub/include/wine/wglext.h:     --no-lgpl-disclaimer
+/Wine*/vbox/libWineStub/include/wine/wgl_driver.h: --no-lgpl-disclaimer
+

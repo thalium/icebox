@@ -44,13 +44,13 @@
 #include "internal/dir.h"
 
 
-RTR3DECL(int) RTDirQueryInfo(PRTDIR pDir, PRTFSOBJINFO pObjInfo, RTFSOBJATTRADD enmAdditionalAttribs)
+RTR3DECL(int) RTDirQueryInfo(RTDIR hDir, PRTFSOBJINFO pObjInfo, RTFSOBJATTRADD enmAdditionalAttribs)
 {
     /*
      * Validate and digest input.
      */
-    if (!rtDirValidHandle(pDir))
+    if (!rtDirValidHandle(hDir))
         return VERR_INVALID_PARAMETER;
-    return RTPathQueryInfoEx(pDir->pszPath, pObjInfo, enmAdditionalAttribs, RTPATH_F_FOLLOW_LINK);
+    return RTPathQueryInfoEx(hDir->pszPath, pObjInfo, enmAdditionalAttribs, RTPATH_F_FOLLOW_LINK);
 }
 

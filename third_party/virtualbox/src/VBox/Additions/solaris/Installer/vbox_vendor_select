@@ -1,6 +1,13 @@
 #!/bin/ksh93
+# $Id: vbox_vendor_select $
+## @file
+# ???
 #
-# Based on mesa_vendor_select from Solaris 11.3 with the following copyright:
+
+#
+# Copyright (C) 2013-2017 Oracle Corporation
+#
+# This file is based on mesa_vendor_select from Solaris 11.3 with the following copyright:
 #
 # Copyright (c) 2006, 2011, Oracle and/or its affiliates. All rights reserved.
 #
@@ -22,7 +29,6 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 # DEALINGS IN THE SOFTWARE.
-#
 #
 
 LINKDIR=/system/volatile/opengl

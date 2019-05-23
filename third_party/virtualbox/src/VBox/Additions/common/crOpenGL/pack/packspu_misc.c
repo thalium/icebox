@@ -18,7 +18,7 @@ void PACKSPU_APIENTRY packspu_ChromiumParametervCR(GLenum target, GLenum type, G
     GLboolean fFlush = GL_FALSE;
     GET_THREAD(thread);
 
-    
+
     switch(target)
     {
         case GL_GATHER_PACK_CR:
@@ -103,7 +103,7 @@ GLboolean packspuSyncOnFlushes(void)
     crStateGetIntegerv(GL_DRAW_BUFFER, &buffer);
     /*Usually buffer==GL_BACK, so put this extra check to simplify boolean eval on runtime*/
     return  (buffer != GL_BACK)
-            && (buffer == GL_FRONT_LEFT 
+            && (buffer == GL_FRONT_LEFT
                 || buffer == GL_FRONT_RIGHT
                 || buffer == GL_FRONT
                 || buffer == GL_FRONT_AND_BACK
@@ -794,7 +794,7 @@ BOOL WINAPI DllMain(HINSTANCE hDLLInst, DWORD fdwReason, LPVOID lpvReserved)
 {
     (void) lpvReserved;
 
-    switch (fdwReason) 
+    switch (fdwReason)
     {
         case DLL_PROCESS_ATTACH:
         {

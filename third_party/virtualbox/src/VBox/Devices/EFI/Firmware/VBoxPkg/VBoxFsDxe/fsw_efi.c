@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -22,9 +22,7 @@
  *
  * You may elect to license modified versions of this file under the
  * terms and conditions of either the GPL or the CDDL or both.
- */
-
-/*-
+ * ---------------------------------------------------------------------------
  * This code is based on:
  *
  * Copyright (c) 2006 Christoph Pfisterer
@@ -1055,12 +1053,12 @@ EFI_STATUS fsw_efi_dnode_fill_FileInfo(IN FSW_VOLUME_DATA *Volume,
     if (EFI_ERROR(Status))
         return Status;
 
-    // TODO: check/assert that the dno's name is in UTF16
+    /// @todo check/assert that the dno's name is in UTF16
 
     // check buffer size
     RequiredSize = SIZE_OF_EFI_FILE_INFO + fsw_efi_strsize(&dno->name);
     if (*BufferSize < RequiredSize) {
-        // TODO: wind back the directory in this case
+        /// @todo wind back the directory in this case
 
 #if DEBUG_LEVEL
         Print(L"...BUFFER TOO SMALL\n");

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter>
   <title>Machines virtuelles distantes</title>
 
@@ -34,7 +34,7 @@
     <para>Même quand l'extension est installée, le serveur VRDP est désactivé par
     défaut. On peut l'activer facilement pour chaque VM, soit dans le gestionnaire
     VirtualBox des paramètres d'"Affichage" (voir <xref
-    linkend="settings-display" />), soit avec 
+    linkend="settings-display" />), soit avec
    )s <computeroutput>VBoxManage</computeroutput>:<screen>VBoxManage modifyvm "nom VM" --vrde on</screen></para>
 
     <para>Si vous utilisez <computeroutput>VBoxHeadless</computeroutput> (décrit
@@ -80,7 +80,7 @@
       distante (des exemples figurent ci-dessous). Pour que cela fonctionne, vous
       devez spécifier <emphasis role="bold">l'adresse IP</emphasis> de votre
       système <emphasis>hôte</emphasis> (pas celle de la machine virtuelle&#xA0;!)
-      l'adresse du serveur auquel se connecter, ainsi que le 
+      l'adresse du serveur auquel se connecter, ainsi que le
       <emphasis role="bold">numéro du port</emphasis> qu'utilise le serveur RDP.</para>
 
       <para>Voici des exemples de visualiseurs RDP les plus courants&#xA0;:<itemizedlist>
@@ -93,7 +93,7 @@
             -&gt; "Connexion bureau distant". Si vous utilisez la boîte de dialogue
             "Exécuter", vous pouvez y entrer des options directement&#xA0;:<screen>mstsc 1.2.3.4:3389</screen></para>
 
-            <para>Remplacez <computeroutput>1.2.3.4</computeroutput> par l'adresse IP de l'hôte et 
+            <para>Remplacez <computeroutput>1.2.3.4</computeroutput> par l'adresse IP de l'hôte et
             <computeroutput>3389</computeroutput> par un
             autre port si nécessaire.</para>
 
@@ -101,19 +101,19 @@
               <para>Il faut entourer les adresses IPv6 de crochets pour spécifier
               un port. Par exemple, <computeroutput>mstsc [fe80::1:2:3:4]:3389</computeroutput></para>
             </note>
-            
-            <note>  
+
+            <note>
               <para>Lors d'une connexion à localhost pour tester la connexion, les
               adresses <computeroutput>localhost</computeroutput> et
               <computeroutput>127.0.0.1</computeroutput> pourraient ne pas
-              fonctionner en utilisant 
+              fonctionner en utilisant
               <computeroutput>mstsc.exe</computeroutput>. L'adresse
               <computeroutput>127.0.0.2[:3389]</computeroutput> doit être utilisée à la place.</para>
             </note>
           </listitem>
 
           <listitem>
-            <para>Sur les autres systèmes, vous pouvez utiliser  le programme 
+            <para>Sur les autres systèmes, vous pouvez utiliser  le programme
             libre standard <computeroutput>rdesktop</computeroutput>. Celui-ci
             est inclu avec la plupart des distributions Linux, mais VirtualBox
             est fourni avec une variante modifiée de rdesktop pour un support de
@@ -144,7 +144,7 @@
           </listitem>
 
           <listitem>
-            <para>Avec les clients Sun Ray thin, vous pouvez utiliser 
+            <para>Avec les clients Sun Ray thin, vous pouvez utiliser
             <computeroutput>uttsc</computeroutput>,  qui fait partie du paquet
             Sun Ray Windows Connector. Voir la documentation correspondante pour
             des détails.</para>
@@ -177,7 +177,7 @@
           exécutable avec ce nom.</para>
         </footnote></para>
 
-      <para>Pour démarrer une machine virtuelle avec <computeroutput>VBoxHeadless</computeroutput>, 
+      <para>Pour démarrer une machine virtuelle avec <computeroutput>VBoxHeadless</computeroutput>,
       vous avez trois options&#xA0;:</para>
 
       <itemizedlist>
@@ -189,7 +189,7 @@
         </listitem>
 
         <listitem>
-          <para>Une alternative est d'utiliser 
+          <para>Une alternative est d'utiliser
           <computeroutput>VBoxHeadless</computeroutput> directement, comme
           suit&#xA0;:<screen>VBoxHeadless --startvm &lt;uuid|name&gt;</screen></para>
 
@@ -250,7 +250,7 @@
 
           <listitem>
             <para>Une connexion en terminal à l'hôte par lequel vous pouvez accéder
-            à une ligne de commande (par exemple via 
+            à une ligne de commande (par exemple via
             <computeroutput>ssh</computeroutput>).</para>
           </listitem>
 
@@ -268,7 +268,7 @@
 
             <screen>VBoxManage createvm --name "Windows XP" --ostype WindowsXP --register</screen>
 
-            <para>Remarquez que si vous ne spécifiez pas 
+            <para>Remarquez que si vous ne spécifiez pas
             <computeroutput>--register</computeroutput>, vous devrez utiliser
             manuellement la commande <computeroutput>registervm</computeroutput>
             plus tard.</para>
@@ -305,7 +305,7 @@
           </listitem>
 
           <listitem>
-            <para>Attachez le fichier ISO contenant l'installeur du système 
+            <para>Attachez le fichier ISO contenant l'installeur du système
             d'exploitation que vous voudrez installer plus tard sur la
             machine virtuelle, pour que la machine puisse démarrer dessus&#xA0;:<screen>VBoxManage storageattach "Windows XP" --storagectl "IDE Controller"
       --port 0 --device 1 --type dvddrive --medium /full/path/to/iso.iso</screen></para>
@@ -321,11 +321,11 @@
 
           <listitem>
             <para>Sur la machine client, ouvrez le visualiseur RDP et essayez
-            de vous connecter au serveur (voir <xref linkend="rdp-viewers" /> 
+            de vous connecter au serveur (voir <xref linkend="rdp-viewers" />
             ci-dessus pour voir comment utiliser les divers visualiseurs RDP
             classiques).</para>
 
-            <para>Vous devriez voir maintenant le processus d'installation 
+            <para>Vous devriez voir maintenant le processus d'installation
             de votre système d'exploitation invité, à distance dans le visualiseur RDP.</para>
           </listitem>
         </orderedlist></para>
@@ -335,12 +335,12 @@
       <title>USB distant</title>
 
       <para>Une fonction très spéciale du support VRDP de VirtualBox est qu'il
-      supporte les périphériques USB distants également via le réseau. C'est-à-dire que 
+      supporte les périphériques USB distants également via le réseau. C'est-à-dire que
       l'invité de VirtualBox en fonction sur l'ordinateur peut accéder à des
       périphériques USB de l'ordinateur distant sur lequel sont affichées les données
       VRDP de la même manière que des périphériques USB connectés à l'hôte actuel.
       Cela permet d'exécuter des machines virtuelles sur un hôte VirtualBox qui
-      agit comme serveur, où un client peut se connecter de n'importe où avec 
+      agit comme serveur, où un client peut se connecter de n'importe où avec
       simplement un adaptateur réseau et un dispositif d'affichage capable de
       lancer un visualiseur RDP. Quand on branche des périphériques USB
       dans le client, le serveur VirtualBox distant peut y accéder.</para>
@@ -352,10 +352,10 @@
 
       <para>L'accès à des périphériques USB n'est possible que si le client RDP
       supporte cette extension. Sur les hôtes Linux et Solaris, l'installation
-      de VirtualBox fournit un client VRDP convenable appelé 
+      de VirtualBox fournit un client VRDP convenable appelé
       <computeroutput>rdesktop-vrdp</computeroutput>. Les versions récentes de
       <computeroutput>uttsc</computeroutput>, un client taillé pour être utilisé
-      avec des clients Sun Ray thin et qui supporte l'accès aux périphériques 
+      avec des clients Sun Ray thin et qui supporte l'accès aux périphériques
       USB distants. Les clients RDP pour d'autres plateformes seront fournis dans de
       futures versions de VirtualBox.</para>
 
@@ -399,7 +399,7 @@
                   des droits de l'utilisateur sur l'hôte. Selon la plateforme hôte,
                   cela signifie&#xA0;:<itemizedlist>
                       <listitem>
-                        <para>Sur les hôtes Linux, 
+                        <para>Sur les hôtes Linux,
                         <computeroutput>VBoxAuth.so</computeroutput>
                         authentifie les utilisateurs à partir du système PAM de
                         l'hôte.</para>
@@ -413,7 +413,7 @@
                       </listitem>
 
                       <listitem>
-                        <para>Sur les hôtes Mac OS X, 
+                        <para>Sur les hôtes Mac OS X,
                         <computeroutput>VBoxAuth.dylib</computeroutput>
                         authentifie les utilisateurs à partir du service répertoire
                         de l'hôte.<footnote>
@@ -459,7 +459,7 @@
                       </listitem>
 
                       <listitem>
-                        <para>Vous devrez alors configurer les utilisateurs et 
+                        <para>Vous devrez alors configurer les utilisateurs et
                         les mots de passe en écrivant ces éléments dans les
                         extradata de la machine. Comme le fichier XML des paramètres
                         de la machine, dans lequel il faut écrire le mot de
@@ -472,7 +472,7 @@
                         ou l'UUID de la VM,
                         <computeroutput>&lt;utilisateur&gt;</computeroutput> par
                         le nom d'utilisateur qui devrait être autorisé à se connecter
-                        et 
+                        et
                         <computeroutput>&lt;hash&gt;</computeroutput> par le mot
                         de passe chiffré. Par exemple, pour avoir la valeur
                         hachée du mot de passe "secret", vous pouvez utiliser la
@@ -519,7 +519,7 @@
       <title>Chiffrement RDP</title>
 
       <para>Le chiffrement du flux de données des fonctions RDP se base sur le
-      chiffrage symétrique RC4 (avec des clés jusqu'à 128bit). Les clés RC4 
+      chiffrage symétrique RC4 (avec des clés jusqu'à 128bit). Les clés RC4
       sont remplacées à intervalles réguliers (tous les 4096 paquets).</para>
 
       <para>RDP fournit différentes méthodes d'authentification&#xA0;:<orderedlist>
@@ -553,10 +553,10 @@
             connexion. Les valeurs valides sont&#xA0;:<itemizedlist>
               <listitem>
                 <para>
-                  <computeroutput>Negotiate</computeroutput> - les connexions 
+                  <computeroutput>Negotiate</computeroutput> - les connexions
                   sécurisées améliorées (TLS) et RDP standards sont autorisées.
                   La méthode de sécurité se négocie avec le client. C'est le réglage
-                  par défaut. 
+                  par défaut.
                 </para>
               </listitem>
 
@@ -582,7 +582,7 @@
             <computeroutput>TLS</computeroutput>, le protocole TLS sera automatiquement
             utilisé par le serveur si le client supporte TLS. Cependant, pour
             utiliser TLS, le serveur doit posséder le certificat du serveur, la
-            clé privée du serveur et l'autorité du certificat (Certificate 
+            clé privée du serveur et l'autorité du certificat (Certificate
             Authority (CA)). L'exemple suivant montre comment générer un
             certificat de serveur.<orderedlist>
                 <listitem>
@@ -641,20 +641,20 @@ openssl req -new -key server_key_private.pem -out server_req.pem</screen></para>
 
       <para>Le client RDP peut sélectionner le numéro du moniteur virtuel auquel
       se connecter en utilisant le paramètre d'identification <computeroutput>domain</computeroutput>
-      (<computeroutput>-d</computeroutput>). Si le paramètre se termine par 
+      (<computeroutput>-d</computeroutput>). Si le paramètre se termine par
       <computeroutput>@</computeroutput> suivi d'un numéro, VirtualBox
-      interprète ce numéro comme l'index des écrans. On sélectionne l'écran invité 
+      interprète ce numéro comme l'index des écrans. On sélectionne l'écran invité
       primaire  avec <computeroutput>@1</computeroutput>, le premier écran secondaire
       avec <computeroutput>@2</computeroutput>, etc.</para>
 
       <para>Le client Microsoft RDP6 ne pous permet pas de sécifier un nom de
       domaine distinct. Utilisez plutôt
       <computeroutput>domaine\nom_utilisateur</computeroutput> dans le champ
-      <computeroutput>Nom d'utilisateur :</computeroutput> -- par exemple, 
+      <computeroutput>Nom d'utilisateur :</computeroutput> -- par exemple,
       <computeroutput>@2\name</computeroutput>.
       <computeroutput>nom</computeroutput> doit être renseigné et il doit être
       le nom utilisé pour vous identifier si le serveur VRDP est configuré pour
-      demander une autorisation. Sinon, vous pouvez utiliser n'importe quel texte 
+      demander une autorisation. Sinon, vous pouvez utiliser n'importe quel texte
       comme nom d'utilisateur.</para>
     </sect2>
 
@@ -662,20 +662,20 @@ openssl req -new -key server_key_private.pem -out server_req.pem</screen></para>
       <title>Redirection graphique VRDP</title>
 
       <para>À partir de VirtualBox 3.2, le serveur VRDP peut rediriger les flux
-      graphiques de l'hôte vers le client RDP. Les frames graphiques sont 
+      graphiques de l'hôte vers le client RDP. Les frames graphiques sont
       compressés en utilisant l'algorithme JPEG, ce qui permet un ratio de compression
       plus fort que les méthodes de compression bitmap RDP standards. Il est
       possible d'augmenter le ratio de compression en diminuant la qualité de l'image.</para>
 
-      <para>Le serveur VRDP détecte automatiquement les flux vidéos dans un 
+      <para>Le serveur VRDP détecte automatiquement les flux vidéos dans un
       invité au fur et à mesure que les zones rectangulaires se mettent à jour
       fréquemment. Il s'en suit que cette méthode fonctionne avec n'importe quel
       système d'exploitation invité, sans devoir installer de logiciels supplémentaires
-      dans l'invité&#xA0;; en particulier, les suppléments invité ne sont pas 
+      dans l'invité&#xA0;; en particulier, les suppléments invité ne sont pas
       requis.</para>
 
       <para>Par contre, côté client, seul le client de connexion Connexion bureau
-      à distance de Windows 7 supporte actuellement cette fonctionnalité. Si un 
+      à distance de Windows 7 supporte actuellement cette fonctionnalité. Si un
       client ne supporte pas la redirection graphique, le serveur VRDP se rabat
       sur le rafraîchissement régulier des bitmap.</para>
 
@@ -718,7 +718,7 @@ VBoxManage setextradata "nom VM" "VRDP/Feature/Client/DisableUSB" 1
 VBoxManage setextradata "nom VM" "VRDP/Feature/Client/DisableAudio" 1
 VBoxManage setextradata "nom VM" "VRDP/Feature/Client/DisableClipboard" 1</screen>
 
-      <para>Pour réactiver une fonction, utilisez une commande identique 
+      <para>Pour réactiver une fonction, utilisez une commande identique
       sans l'argument 1. Par exemple&#xA0;: <screen>VBoxManage setextradata "nom VM" "VRDP/Feature/Client/DisableDisplay"</screen></para>
     </sect2>
   </sect1>
@@ -726,7 +726,7 @@ VBoxManage setextradata "nom VM" "VRDP/Feature/Client/DisableClipboard" 1</scree
   <sect1 id="teleporting">
     <title>Téléportation</title>
 
-    <para>À partir de la version 3.1, VirtualBox supporte la "téléportation" -- 
+    <para>À partir de la version 3.1, VirtualBox supporte la "téléportation" --
     à savoir qu'il peut déplacer une machine sur un réseau d'un hôte VirtualBox
     à l'autre, pendant que la machine est en fonction. Cela fonctionne indépendamment
     du système d'exploitation hôte&#xA0;: vous pouvez téléporter des machines
@@ -741,15 +741,15 @@ VBoxManage setextradata "nom VM" "VRDP/Feature/Client/DisableClipboard" 1</scree
     un temps nimimum.</para>
 
     <para>La téléportation est possible sur n'importe quel réseau TCP/IP&#xA0;;
-    la source et la cible n'ont besoin que de s'entendre sur un port TCP/IP 
+    la source et la cible n'ont besoin que de s'entendre sur un port TCP/IP
     spécifié dans les paramètres de téléportation.</para>
 
-    <para>Cependant, pour l'instant, il y a quelques prérequis pour que cela 
+    <para>Cependant, pour l'instant, il y a quelques prérequis pour que cela
     fonctionne&#xA0;:<orderedlist>
         <listitem>
           <para>Sur l'hôte cible, vous devez configurer une machine virtuelle dans
           VirtualBox avec exactement les mêmes paramètres matériels que la machine
-          sur la source que vous voulez téléporter. Cela ne s'applique pas aux 
+          sur la source que vous voulez téléporter. Cela ne s'applique pas aux
           paramètres purement descriptifs tels que le nom de la VM, mais bien sûr,
           pour que la téléportation fonctionne, la machine cible doit avoir la
           même quantité de mémoire et les autres paramètres matériels. Sans cela,
@@ -770,7 +770,7 @@ VBoxManage setextradata "nom VM" "VRDP/Feature/Client/DisableClipboard" 1</scree
 
     <para>Puis, suivez les étapes suivantes&#xA0;:<orderedlist>
         <listitem>
-          <para>Sur l'hôte <emphasis>cible</emphasis>, configurez la machine 
+          <para>Sur l'hôte <emphasis>cible</emphasis>, configurez la machine
           virtuelle pour attendre qu'une demande de téléportation arrive quand
           elle sera démarrée, plutôt que d'essayer de démarrer réellement la machine.
           Cela se fait avec la commande VBoxManage suivante&#xA0;:<screen>VBoxManage modifyvm &lt;nomvmcible&gt; --teleporter on --teleporterport &lt;port&gt;</screen></para>
@@ -811,9 +811,9 @@ VBoxManage setextradata "nom VM" "VRDP/Feature/Client/DisableClipboard" 1</scree
         <para>Dans de rares cas, si les processeurs de la source et de la cible
         sont très différents, la téléportation peut échouer avec un message d'erreur
         ou la cible peut planter. Cela peut arriver surtout si la VM exécute des
-        logiciels très optimisés pour fonctionner sur un processeur particulier 
+        logiciels très optimisés pour fonctionner sur un processeur particulier
         sans vérifier correctement que certaines fonctions du processeur sont
-        bien présentes. VirtualBox filtre les capacités du processeur présenté 
+        bien présentes. VirtualBox filtre les capacités du processeur présenté
         au système d'exploitation invité. Les utilisateurs avancés peuvent essayer de
         restreindre les possibilités de ces processeurs virtuels avec la commande
         <computeroutput>VBoxManage --modifyvm

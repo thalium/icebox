@@ -1,11 +1,11 @@
 #!/bin/sh
 # $Id: files_vboxdrv $
 ## @file
-# Shared file between Makefile.kmk and export_modules
+# Shared file between Makefile.kmk and export_modules.sh.
 #
 
 #
-# Copyright (C) 2007-2015 Oracle Corporation
+# Copyright (C) 2007-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -100,6 +100,7 @@ FILES_VBOXDRV_NOBIN=" \
     ${PATH_ROOT}/src/VBox/Runtime/common/alloc/alloc.cpp=>alloc/alloc.c \
     ${PATH_ROOT}/src/VBox/Runtime/common/err/RTErrConvertFromErrno.cpp=>common/err/RTErrConvertFromErrno.c \
     ${PATH_ROOT}/src/VBox/Runtime/common/err/RTErrConvertToErrno.cpp=>common/err/RTErrConvertToErrno.c \
+    ${PATH_ROOT}/src/VBox/Runtime/common/err/errinfo.cpp=>common/err/errinfo.c \
     ${PATH_ROOT}/src/VBox/Runtime/common/log/log.cpp=>common/log/log.c \
     ${PATH_ROOT}/src/VBox/Runtime/common/log/logellipsis.cpp=>common/log/logellipsis.c \
     ${PATH_ROOT}/src/VBox/Runtime/common/log/logrel.cpp=>common/log/logrel.c \
@@ -120,6 +121,7 @@ FILES_VBOXDRV_NOBIN=" \
     ${PATH_ROOT}/src/VBox/Runtime/common/misc/once.cpp=>common/misc/once.c \
     ${PATH_ROOT}/src/VBox/Runtime/common/misc/term.cpp=>common/misc/term.c \
     ${PATH_ROOT}/src/VBox/Runtime/common/misc/thread.cpp=>common/misc/thread.c \
+    ${PATH_ROOT}/src/VBox/Runtime/common/string/RTStrCat.cpp=>common/string/RTStrCat.c \
     ${PATH_ROOT}/src/VBox/Runtime/common/string/RTStrCopyP.cpp=>common/string/RTStrCopyP.c \
     ${PATH_ROOT}/src/VBox/Runtime/common/string/RTStrCopy.cpp=>common/string/RTStrCopy.c \
     ${PATH_ROOT}/src/VBox/Runtime/common/string/RTStrCopyEx.cpp=>common/string/RTStrCopyEx.c \

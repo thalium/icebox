@@ -311,11 +311,17 @@ void STATE_APIENTRY crStatePixelMapfv (GLenum map, GLint mapsize, const GLfloat 
 
 void STATE_APIENTRY crStatePixelMapuiv (GLenum map, GLint mapsize, const GLuint * values)
 {
-    GLfloat fvalues[CR_MAX_PIXEL_MAP_TABLE];
-    GLint i;
+    if (mapsize < 0 || mapsize > CR_MAX_PIXEL_MAP_TABLE)
+    {
+        crError("crStatePixelMapuiv: parameter 'mapsize' is out of range");
+        return;
+    }
 
     if (!crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB))
     {
+        GLfloat fvalues[CR_MAX_PIXEL_MAP_TABLE];
+        GLint i;
+
         if (map==GL_PIXEL_MAP_I_TO_I || map==GL_PIXEL_MAP_S_TO_S) {
            for (i=0;i<mapsize;i++) {
               fvalues[i] = (GLfloat) values[i];

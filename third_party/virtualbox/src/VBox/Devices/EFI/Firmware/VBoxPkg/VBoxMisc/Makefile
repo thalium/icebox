@@ -1,10 +1,10 @@
 # $Id: Makefile $
-#* @file
+## @file
 # Makefile - assembling the iso image for experimenting with EFI.
-#/
 #
+
 #
-# Copyright (C) 2009-2015 Oracle Corporation
+# Copyright (C) 2009-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -23,10 +23,9 @@
 # You may elect to license modified versions of this file under the
 # terms and conditions of either the GPL or the CDDL or both.
 #
-#/
 
 #
-# Here we add modules to be burn on iso-image 
+# Here we add modules to be burn on iso-image
 #
 SOURCES += VBoxInterceptorDxe.efi
 SOURCES += VBoxMimicryDxe.efi
@@ -54,3 +53,4 @@ $(ISO_DIR)/%.efi:$(BUILD_DIR)/%.efi
 
 clean:
 	$(RM) -rf ${DEST} $(FILES_TO_ISO)
+

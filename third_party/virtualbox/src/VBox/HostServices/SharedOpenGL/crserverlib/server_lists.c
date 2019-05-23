@@ -229,6 +229,12 @@ TranslateListIDs(GLsizei n, GLenum type, const GLvoid *lists, GLuint *newLists)
 void SERVER_DISPATCH_APIENTRY
 crServerDispatchCallLists( GLsizei n, GLenum type, const GLvoid *lists )
 {
+    if (n >= UINT32_MAX / sizeof(GLuint))
+    {
+        crError("crServerDispatchCallLists: parameter 'n' is out of range");
+        return;
+    }
+
 #ifndef VBOX_WITH_CR_DISPLAY_LISTS
     if (!cr_server.sharedDisplayLists) {
         /* need to translate IDs */

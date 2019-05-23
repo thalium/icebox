@@ -212,7 +212,8 @@ private:
         do
         {
             iTextWidth = fm.width(strOneString);
-            if (iTextWidth + iIndentSize > cWidth)
+            if (   iTextWidth
+                && (iTextWidth + iIndentSize > cWidth))
             {
                 iStart = 0;
                 iFinish = strOneString.length();
@@ -248,7 +249,8 @@ private:
                 strOneString.remove(iPosition, 1);
             }
         }
-        while (iTextWidth + iIndentSize > cWidth);
+        while (   iTextWidth
+               && (iTextWidth + iIndentSize > cWidth));
 
         if (iPosition || m_enmFormat == FormatType_EllipsisFile)
             strOneString.insert(iPosition, "...");

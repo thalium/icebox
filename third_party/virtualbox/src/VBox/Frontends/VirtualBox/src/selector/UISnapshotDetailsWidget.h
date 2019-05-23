@@ -107,8 +107,6 @@ protected:
 
 private slots:
 
-    /** Handles snapshot name edit. */
-    void sltHandleNameEdit();
     /** Handles snapshot name change. */
     void sltHandleNameChange();
     /** Handles snapshot description change. */
@@ -235,9 +233,6 @@ private:
 
     /** Holds the details element map. */
     QMap<DetailsElementType, UISnapshotDetailsElement*> m_details;
-
-    /** Holds whether the snapshot name was edited. */
-    bool  m_fSnapshotNameEdited;
 };
 
 #endif /* !___UISnapshotDetailsWidget_h___ */

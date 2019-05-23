@@ -18,12 +18,12 @@
 #ifndef HDA_STREAMCHANNEL_H
 #define HDA_STREAMCHANNEL_H
 
-int hdaStreamChannelDataInit(PPDMAUDIOSTREAMCHANNELDATA pChanData, uint32_t fFlags);
-void hdaStreamChannelDataDestroy(PPDMAUDIOSTREAMCHANNELDATA pChanData);
-int hdaStreamChannelExtract(PPDMAUDIOSTREAMCHANNEL pChan, const void *pvBuf, size_t cbBuf);
-int hdaStreamChannelAdvance(PPDMAUDIOSTREAMCHANNEL pChan, size_t cbAdv);
-int hdaStreamChannelAcquireData(PPDMAUDIOSTREAMCHANNELDATA pChanData, void *ppvData, size_t *pcbData);
-int hdaStreamChannelReleaseData(PPDMAUDIOSTREAMCHANNELDATA pChanData);
+int  hdaR3StreamChannelDataInit(PPDMAUDIOSTREAMCHANNELDATA pChanData, uint32_t fFlags);
+void hdaR3StreamChannelDataDestroy(PPDMAUDIOSTREAMCHANNELDATA pChanData);
+int  hdaR3StreamChannelExtract(PPDMAUDIOSTREAMCHANNEL pChan, const void *pvBuf, size_t cbBuf);
+int  hdaR3StreamChannelAdvance(PPDMAUDIOSTREAMCHANNEL pChan, size_t cbAdv);
+int  hdaR3StreamChannelAcquireData(PPDMAUDIOSTREAMCHANNELDATA pChanData, void *ppvData, size_t *pcbData);
+int  hdaR3StreamChannelReleaseData(PPDMAUDIOSTREAMCHANNELDATA pChanData);
 
 #endif /* !HDA_STREAMCHANNEL_H */
 

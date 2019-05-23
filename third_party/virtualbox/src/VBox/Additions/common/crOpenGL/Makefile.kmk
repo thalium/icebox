@@ -203,9 +203,11 @@ if1of ($(KBUILD_TARGET), linux solaris)
  	$(VBOX_PATH_CROGL_GENFILES)/solaris_glxapi_exports.asm
  endif
 endif
+# VBoxOGL_LIBS = \  # VBOX_LIB_OGL_CRUTIL includes these and caused an interesting conflict.
+#	$(VBOX_LIB_IPRT_GUEST_R3_SHARED) \
+#	$(VBOX_LIB_VBGL_R3_SHARED) \
+
 VBoxOGL_LIBS = \
-	$(VBOX_LIB_IPRT_GUEST_R3_SHARED) \
-	$(VBOX_LIB_VBGL_R3_SHARED) \
 	$(VBOX_LIB_OGL_CRUTIL) \
 	$(PATH_STAGE_LIB)/additions/VBoxOGLspuload$(VBOX_SUFF_LIB)
 
@@ -725,7 +727,7 @@ VBoxEGL_SOURCES        = egl.c
 ifndef VBOX_USE_SYSTEM_GL_HEADERS
  VBoxEGL_INCS           = $(VBOX_PATH_X11_ROOT)/mesa-11.0.7
 endif
-VBoxEGL_LIBS           = $(VBOX_LIB_OGL) $(VBOX_LIB_IPRT_GUEST_R3_SHARED)
+VBoxEGL_LIBS           = $(VBOX_LIB_OGL) # $(VBOX_LIB_IPRT_GUEST_R3_SHARED)
 VBoxEGL_SONAME.linux   = libEGL.so.1
 
 include $(FILE_KBUILD_SUB_FOOTER)

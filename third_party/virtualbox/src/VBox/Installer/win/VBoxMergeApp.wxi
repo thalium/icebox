@@ -35,6 +35,16 @@
     <!-- Device driver directory -->
     <Directory Id="dir_VBoxAppDrivers" Name="drivers">
         <Directory Id="dir_VBoxAppVBoxDrv" Name="vboxdrv">
+<?if $(env.VBOX_SIGNING_MODE) != none ?>
+            <Component Id="cp_VBoxDrvCat_PreW10" Guid="673195c2-f315-42e7-ff00-5acbd91ea0bd" Win64="$(var.Property_Win64)">
+                <Condition><![CDATA[(NOT VBOX_IS_WINDOWS_10)]]></Condition>
+                <File Id="file_VBoxDrv_PreW10.cat" Name="VBoxDrv.cat" Source="$(env.PATH_OUT)\bin\VBoxDrv-PreW10.cat" />
+            </Component>
+            <Component Id="cp_VBoxDrvCat_W10" Guid="589be90d-0286-4684-503d-a1681f9587bc" Win64="$(var.Property_Win64)">
+                <Condition><![CDATA[(VBOX_IS_WINDOWS_10)]]></Condition>
+                <File Id="file_VBoxDrv.cat" Name="VBoxDrv.cat" Source="$(env.PATH_OUT)\bin\VBoxDrv.cat" />
+            </Component>
+<?endif ?>
             <Component Id="cp_VBoxDrv" Guid="D3E2F2BB-569F-46A2-836C-BDF30FF1EDF8" Win64="$(var.Property_Win64)">
                 <difxapp:Driver AddRemovePrograms="no" ForceInstall="yes" DeleteFiles="yes"
                       Legacy="$(var.Property_DriverLegacy)" Sequence="2" PlugAndPlayPrompt="no"/>
@@ -42,10 +52,6 @@
                       Source="$(env.PATH_OUT)\bin\VBoxDrv.sys"/>
                 <File Id="file_VBoxDrv.inf" Name="VBoxDrv.inf"
                       Source="$(env.PATH_OUT)\bin\VBoxDrv.inf" />
-<?if $(env.VBOX_SIGNING_MODE)!= none ?>
-                <File Id="file_VBoxDrv.cat" Name="VBoxDrv.cat"
-                      Source="$(env.PATH_OUT)\bin\VBoxDrv.cat" />
-<?endif ?>
             </Component>
         </Directory>
     </Directory> <!-- Directory "drivers" -->
@@ -81,7 +87,7 @@
         <!-- Include the auto-generated TypeLib block -->
         <?include $(env.PATH_TARGET)\VirtualBox_TypeLib.wxi ?>
 <?endif?>
-        
+
 <?if $(env.VBOX_WITH_SDS) = "yes" ?>
         <File Id="VBoxSDS" Name="VBoxSDS.exe"
               Source="$(env.PATH_OUT)\bin\VBoxSDS.exe">
@@ -123,7 +129,7 @@
 <?if $(env.VBOX_WITH_QTGUI) = "yes" ?>
     <Component Id="cp_RegisterExtensions" Guid="FEB8943E-5D60-4E2D-846F-458207019D40"
                Win64="$(var.Property_Win64)" KeyPath="yes">
-               
+
 <?if $(env.VBOX_WITH_MSM_INSTALL) = "yes" ?>
             <Condition><![CDATA[(local_VBOX_REGISTERFILEEXTENSIONS="1")]]></Condition>
 <?else ?>

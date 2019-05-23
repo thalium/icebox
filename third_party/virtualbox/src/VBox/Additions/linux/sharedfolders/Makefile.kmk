@@ -22,12 +22,12 @@ include $(KBUILD_PATH)/subheader.kmk
 #
 # Populate FILES_VBOXSF_NOBIN
 #
-INSTALLS += vboxsf-mod
+INSTALLS += vboxsf-src
 include $(PATH_SUB_CURRENT)/files_vboxsf
-vboxsf-mod_INST         = $(INST_ADDITIONS)src/vboxsf/
-vboxsf-mod_SOURCES      = \
+vboxsf-src_INST         = $(INST_ADDITIONS)src/vboxsf/
+vboxsf-src_SOURCES      = \
 	$(subst $(DQUOTE),,$(FILES_VBOXSF_NOBIN))
-vboxsf-mod_EXEC_SOURCES = \
+vboxsf-src_EXEC_SOURCES = \
 	$(subst $(DQUOTE),,$(FILES_VBOXSF_BIN))
 
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter id="installation">
   <title>Détails sur l'installation</title>
 
@@ -35,7 +35,7 @@
           <listitem>
             <para>soit en entrant <screen>VirtualBox.exe -extract</screen></para>
 
-            <para>sur la ligne de commande. Cela va extraire les deux installeurs 
+            <para>sur la ligne de commande. Cela va extraire les deux installeurs
             dans un répertoire temporaire où vous trouverez ensuite les fichiers
             .MSI habituels. Puis vous pouvez faire un
             <screen>msiexec /i VirtualBox-&lt;version&gt;-MultiArch_&lt;x86|amd64&gt;.msi</screen>
@@ -192,14 +192,14 @@
           </listitem>
 
           <listitem>
-            <para>Une fenêtre s'ouvrira, vous disant de cliquer deux fois 
+            <para>Une fenêtre s'ouvrira, vous disant de cliquer deux fois
             sur le fichier de l'installeur
             <computeroutput>VirtualBox.mpkg</computeroutput> affiché dans cette
             fenêtre.</para>
           </listitem>
 
           <listitem>
-            <para>Ceci démarrera l'installeur, qui vous permettra de 
+            <para>Ceci démarrera l'installeur, qui vous permettra de
             sélectionner où installer VirtualBox.</para>
           </listitem>
         </orderedlist></para>
@@ -256,10 +256,10 @@
 
       <note>
         <para>Pour être précis, ces paquets ne sont requis que si voulez lancer
-        les interfaces graphiques de VirtualBox. En particulier, 
+        les interfaces graphiques de VirtualBox. En particulier,
         <computeroutput>VirtualBox</computeroutput>, le gestionnaire graphique
         de VirtualBox, a besoin de Qt et de SDL&#xA0;;
-        <computeroutput>VBoxSDL</computeroutput>, notre interface graphique 
+        <computeroutput>VBoxSDL</computeroutput>, notre interface graphique
         simplifiée, exige seulement SDL. Inversement, si vous ne voulez que
         <computeroutput>VBoxHeadless</computeroutput>, ni Qt ni SDL ne sont
         requis.</para>
@@ -308,24 +308,24 @@
           </listitem>
         </itemizedlist></para>
 
-      <para>Si DKMS est disponible et installé, le module du noyau VirtualBox 
+      <para>Si DKMS est disponible et installé, le module du noyau VirtualBox
       devrait toujours fonctionner automatiquement et il sera automatiquement
       reconstruit si vous mettez à jour le noyau de votre hôte.</para>
 
       <para>Sinon, il n'y a que deux situations où vous devrez vous préoccuper
       du module noyau&#xA0;:<orderedlist>
           <listitem>
-            <para>L'installation échoue dès le départ. Cela signifie probablement 
+            <para>L'installation échoue dès le départ. Cela signifie probablement
             que votre système Linux n'est pas prêt à construire des modules noyau
             externes.</para>
 
-            <para>La plupart des distributions Linux peuvent être paramétrées 
+            <para>La plupart des distributions Linux peuvent être paramétrées
             simplement en installant les bons paquets - en principe il s'agit
             du compilateur GNU (GCC), GNU Make (make) et des paquets contenant
             les fichiers d'en-tête de votre noyau - et en s'assurant que toutes
             les mises à jour du système sont installées et que le système
             exécute le noyau le plus récent proposé par la distribution.
-            <emphasis>Les numéros de version des paquets des fichiers d'en-tête 
+            <emphasis>Les numéros de version des paquets des fichiers d'en-tête
             doivent être les mêmes que celui du noyau que vous utilisez.</emphasis></para>
 
             <itemizedlist>
@@ -334,7 +334,7 @@
                 la bonne version de
                 <computeroutput>linux-headers</computeroutput> et s'il existe,
                 le paquet <computeroutput>linux-kbuild</computeroutput>. Les
-                versions actuelles d'Ubuntu devraient avoir installé les bons 
+                versions actuelles d'Ubuntu devraient avoir installé les bons
                 paquets par défaut.</para>
               </listitem>
 
@@ -345,7 +345,7 @@
               </listitem>
 
               <listitem>
-                <para>Sur les systèmes Fedora et Redhat, le paquet est 
+                <para>Sur les systèmes Fedora et Redhat, le paquet est
                 <computeroutput>kernel-devel</computeroutput>.</para>
               </listitem>
 
@@ -369,7 +369,7 @@
 
           <listitem>
             <para>Le noyau de votre hôte Linux a été mis à jour et DKMS n'est
-            pas installé. Dans ce cas, le module du noyau devra être 
+            pas installé. Dans ce cas, le module du noyau devra être
             réinstallé en exécutant (en tant qu'administrateur)&#xA0;:</para>
 
             <screen>/etc/init.d/vboxdrv setup</screen>
@@ -382,14 +382,14 @@
 
       <para>VirtualBox est disponible de base dans un certain nombre de formats
       de paquet pour diverses distributions Linux classiques (voir <xref linkend="hostossupport" />
-      pour les détails). En outre, un installeur générique alternatif 
+      pour les détails). En outre, un installeur générique alternatif
       (.run) devrait fonctionner sur la plupart des distributions Linux.</para>
 
       <sect3>
         <title>Installer VirtualBox à partir d'un paquet Debian/Ubuntu</title>
 
         <para>Tout d'abord, téléchargez le paquet adapté à votre distribution.
-        Les exemples suivants supposent que vous installez sur un système 
+        Les exemples suivants supposent que vous installez sur un système
         Ubuntu Raring 32 bits. Utilisez <computeroutput>dpkg</computeroutput>
         pour installer le paquet Debian&#xA0;:</para>
 
@@ -413,7 +413,7 @@
         démarrera un nouvel essai de construction du module.</para>
 
         <para>Si un module de noyau convenable a été trouvé dans le paquet, ou
-        si le module a été construit avec succès, le script d'installation 
+        si le module a été construit avec succès, le script d'installation
         essaiera de charger ce module. Si ceci échoue, merci de voir <xref
         linkend="ts_linux-kernelmodule-fails-to-load" /> pour plus
         d'informations.</para>
@@ -435,7 +435,7 @@
           </listitem>
 
           <listitem>
-            <para>Il construit les modules noyau de VirtualBox 
+            <para>Il construit les modules noyau de VirtualBox
             (<computeroutput>vboxdrv</computeroutput>,
             <computeroutput>vboxnetflt</computeroutput> et
             <computeroutput>vboxnetadp</computeroutput>) et il les installe.</para>
@@ -473,7 +473,7 @@
           </listitem>
 
           <listitem>
-            <para>Il écrit le répertoire d'installation 
+            <para>Il écrit le répertoire d'installation
             <computeroutput>/etc/vbox/vbox.cfg</computeroutput>.</para>
           </listitem>
         </itemizedlist>
@@ -522,7 +522,7 @@
 
         <para>Ceci déballera tous les fichiers nécessaires à l'installation dans le
         répertoire <computeroutput>install</computeroutput> sous le répertoire
-        actuel. Les fichiers de l'application VirtualBox sont contenus dans 
+        actuel. Les fichiers de l'application VirtualBox sont contenus dans
         <computeroutput>VirtualBox.tar.bz2</computeroutput> que vous pouvez
         déballer dans n'importe quel répertoire de votre système. Par exemple&#xA0;:</para>
 
@@ -547,10 +547,10 @@ tar jxf ./install/VirtualBox.tar.bz2 -C /opt/VirtualBox</screen></para>
         <screen>make install</screen></para>
 
         <para>Le module de noyau VirtualBox a besoin d'un n&#x153;ud de périphérique
-        pour fonctionner. La commande make ci-dessus vous dira comment créer 
+        pour fonctionner. La commande make ci-dessus vous dira comment créer
         le n&#x153;ud de périphérique selon votre système Linux. La procédure
         est légèrement différente pour une installation Linux classique avec le
-        répertoire <computeroutput>/dev</computeroutput>, un système avec 
+        répertoire <computeroutput>/dev</computeroutput>, un système avec
         <computeroutput>devfs</computeroutput>, maintenant obsolète, et un
         système Linux moderne avec <computeroutput>udev</computeroutput>.</para>
 
@@ -565,7 +565,7 @@ tar jxf ./install/VirtualBox.tar.bz2 -C /opt/VirtualBox</screen></para>
         à root:root et n'être autorisé en lecture/écriture que pour l'utilisateur.</para>
 
         <para>Ensuite, vous devrez installer le script d'initialisation du système
-        pour le module du noyau&#xA0;:<screen>cp /opt/VirtualBox/vboxdrv.sh /etc/init.d/vboxdrv</screen>(en supposant que 
+        pour le module du noyau&#xA0;:<screen>cp /opt/VirtualBox/vboxdrv.sh /etc/init.d/vboxdrv</screen>(en supposant que
         vous avez installé VirtualBox dans le répertoire
         <computeroutput>/opt/VirtualBox</computeroutput>) et activé le script
         d'initialisation en utilisant la méthode adaptée à votre distribution.
@@ -584,13 +584,13 @@ ln -sf /opt/VirtualBox/VBox.sh /usr/bin/VBoxSDL</screen>
 
         <para>Avant de mettre à jour ou de désinstaller VirtualBox, vous devez
         fermer toutes les machines virtuelles actuellement en fonction et quitter
-        les applications VirtualBox ou VBoxSVC. Pour mettre à jour VirtualBox, 
+        les applications VirtualBox ou VBoxSVC. Pour mettre à jour VirtualBox,
         lancez simplement l'installeur de la version à jour. Pour désinstaller
         VirtualBox, appelez  l'installeur comme ceci&#xA0;: <screen>sudo ./VirtualBox.run uninstall</screen>
-       ou, en tant qu'administrateur<screen>./VirtualBox.run uninstall</screen>. 
+       ou, en tant qu'administrateur<screen>./VirtualBox.run uninstall</screen>.
        À partir de la version 2.2.2, vous pouvez désinstaller le paquet .run en
        appelant <screen>/opt/VirtualBox/uninstall.sh</screen>Pour désinstaller
-       VirtualBox à la main, inversez simplement les étapes de l'installation 
+       VirtualBox à la main, inversez simplement les étapes de l'installation
        manuelle.</para>
       </sect3>
 
@@ -600,7 +600,7 @@ ln -sf /opt/VirtualBox/VBox.sh /usr/bin/VBoxSDL</screen>
         <para>Les paquets Debian solliciteront une intervention de l'utilisateur
         lors de la première installation. On utilise le système debconf pour
         effectuer cette tâche. Pour empêcher toute intervention de l'utilisateur
-        pendant l'installation, vous pouvez définir des valeurs par défaut. Un 
+        pendant l'installation, vous pouvez définir des valeurs par défaut. Un
         fichier <computeroutput>vboxconf</computeroutput> peut contenir les
         paramètres de debconf suivants&#xA0;: <screen>virtualbox virtualbox/module-compilation-allowed boolean true
 virtualbox virtualbox/delete-old-modules boolean true</screen>La première ligne
@@ -609,7 +609,7 @@ virtualbox virtualbox/delete-old-modules boolean true</screen>La première ligne
        pour le noyau actuel. La deuxième ligne permet au paquet d'effacer
        les anciens modules vboxdrv compilés par des installations précédentes.</para>
 
-        <para>Ces paramètres par défaut peuvent être appliqués avec 
+        <para>Ces paramètres par défaut peuvent être appliqués avec
         <screen>debconf-set-selections vboxconf</screen> avant l'installation du
         paquet Debian VirtualBox.</para>
 
@@ -650,7 +650,7 @@ virtualbox virtualbox/delete-old-modules boolean true</screen>La première ligne
       <computeroutput>vboxusers</computeroutput> pendant l'installation. Tous les
       utilisateurs du szstème qui vont utiliser les périphériques USB depuis des
       invités VirtualBox doivent être membres de ce groupe. Un utilisateur peut
-      devenir membre du groupe 
+      devenir membre du groupe
       <computeroutput>vboxusers</computeroutput> via l'outil graphique de gestion
       des utilisateurs/groupes ou en ligne de commande avec</para>
 
@@ -665,7 +665,7 @@ virtualbox virtualbox/delete-old-modules boolean true</screen>La première ligne
       <computeroutput>VBoxManage</computeroutput>,
       <computeroutput>VBoxSDL</computeroutput> ou
       <computeroutput>VBoxHeadless</computeroutput>) à partir d'un terminal. Ce
-      sont des liens symboliques vers <computeroutput>VBox.sh</computeroutput> 
+      sont des liens symboliques vers <computeroutput>VBox.sh</computeroutput>
       qui démarrent pour vous le programme nécessaire.</para>
 
       <para>Les instructions détaillées suivantes ne devraient vous intéresser que
@@ -675,16 +675,16 @@ virtualbox virtualbox/delete-old-modules boolean true</screen>La première ligne
       le noyau Linux. VirtualBox consiste en un démon de service (<computeroutput>VBoxSVC</computeroutput>)
       et plusieurs applications. Le démon est démarré automatiquement si nécessaire.
       Toutes les applications VirtualBox communiqueront avec le démon par les
-      sockets du démon local d'Unix. Il peut y avoir plusieurs 
+      sockets du démon local d'Unix. Il peut y avoir plusieurs
       instances de démon sous différents comptes utilisateurs et les applications
       peuvent ne communiquer qu'avec le démon en fonction sous le compte utilisateur
       en tant qu'application. La socket de domaine locale réside dans un
-      sous-répertoire du répertoire des fichiers temporaires de votre ystème, 
+      sous-répertoire du répertoire des fichiers temporaires de votre ystème,
       appelé <computeroutput>.vbox-&lt;username&gt;-ipc</computeroutput>. En cas
       de problèmes de communication ou de problèmes au démarrage du serveur, vous
       pouvez essayer de supprimer ce répertoire.</para>
 
-      <para>Toutes les applications de VirtualBox 
+      <para>Toutes les applications de VirtualBox
       (<computeroutput>VirtualBox</computeroutput>,
       <computeroutput>VBoxSDL</computeroutput>,
       <computeroutput>VBoxManage</computeroutput> et
@@ -745,7 +745,7 @@ virtualbox virtualbox/delete-old-modules boolean true</screen>La première ligne
 
       <para>Une fois que le script postinstall a été exécuté, votre installation
       est maintenant terminée. Vous pouvez maintenant effacer en toute sécurité
-      de votre système le paquet décompressé et les fichiers 
+      de votre système le paquet décompressé et les fichiers
       <computeroutput>autoresponse</computeroutput>.
       VirtualBox devrait être installé dans
       <computeroutput>/opt/VirtualBox</computeroutput>.</para>
@@ -756,10 +756,10 @@ virtualbox virtualbox/delete-old-modules boolean true</screen>La première ligne
 
       <para>À partir de VirtualBox 4.1, l'installeur crée un groupe d'utilisateurs
       système <computeroutput>vboxuser</computeroutput> pendant l'installation
-      sur les hôtes Solaris qui supportent les fonctionnalités USB exigées par 
+      sur les hôtes Solaris qui supportent les fonctionnalités USB exigées par
       VirtualBox. Tous les utilisateurs système qui vont utiliser des périphériques
       USB à partir des invités dans VirtualBox doivent faire partie de ce groupe.
-      Un utilisateur peut devenir membre de ce 
+      Un utilisateur peut devenir membre de ce
       groupe avec les outils de gestion graphiques des utilisateurs/groupes ou,
       en ligne de commande, en exécutant en tant qu'administrateur&#xA0;:</para>
 
@@ -778,7 +778,7 @@ virtualbox virtualbox/delete-old-modules boolean true</screen>La première ligne
       <computeroutput>VBoxManage</computeroutput>,
       <computeroutput>VBoxSDL</computeroutput> ou
       <computeroutput>VBoxHeadless</computeroutput>) à partir d'un terminal. Ce
-      sont des liens symboliques vers <computeroutput>VBox.sh</computeroutput> 
+      sont des liens symboliques vers <computeroutput>VBox.sh</computeroutput>
       qui démarre pour vous le programme requis.</para>
 
       <para>Vous pouvez aussi appeler directement les programmes souhaités depuis
@@ -787,7 +787,7 @@ virtualbox virtualbox/delete-old-modules boolean true</screen>La première ligne
 
       <para>Vous pouvez configurer certains éléments de l'interface graphique
       <computeroutput>VirtualBox</computeroutput> en Qt tels que la police et
-      les couleurs en exécutant <computeroutput>VBoxQtconfig</computeroutput> 
+      les couleurs en exécutant <computeroutput>VBoxQtconfig</computeroutput>
       à partir du terminal.</para>
     </sect2>
 
@@ -855,7 +855,7 @@ zonecfg:vboxzone&gt;verify
 zonecfg:vboxzone&gt;exit</screen>
 
       <para>Si vous exécutez VirtualBox 2.2.0 ou supérieur sur des hôtes Solaris
-      11 ou supérieur, vous pouvez aussi ajouter un périphérique pour 
+      11 ou supérieur, vous pouvez aussi ajouter un périphérique pour
       <computeroutput>/dev/vboxusbmon</computeroutput>, identique à ce qui est
       indiqué ci-dessus. Cela ne s'applique pas aux hôtes Solaris 10 à cause de
       l'absence du support USB.</para>

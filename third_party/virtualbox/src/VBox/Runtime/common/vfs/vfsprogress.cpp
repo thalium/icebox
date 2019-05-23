@@ -517,4 +517,3 @@ RTDECL(int) RTVfsCreateProgressForFile(RTVFSFILE hVfsFile, PFNRTPROGRESS pfnProg
     return rc;
 }
 
-

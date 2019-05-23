@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -243,7 +243,7 @@ public:
     STDMETHOD(SetVisibleRegion)(BYTE *pRectangles, ULONG uCount);
 
     /** EMT callback which is not used in current implementation. */
-    STDMETHOD(ProcessVHWACommand)(BYTE *pCommand);
+    STDMETHOD(ProcessVHWACommand)(BYTE *pCommand, LONG enmCmd, BOOL fGuestCmd);
 
     /** EMT callback: Notifies frame-buffer about 3D backend event.
       * @param        uType Event type. Currently only VBOX3D_NOTIFY_EVENT_TYPE_VISIBLE_3DDATA is supported.
@@ -422,9 +422,8 @@ public:
         return S_OK;
     }
 
-    STDMETHOD(ProcessVHWACommand)(BYTE *pCommand)
+    STDMETHOD(ProcessVHWACommand)(BYTE *pCommand, LONG enmCmd, BOOL fGuestCmd)
     {
-        int rc;
         UIFrameBufferPrivate::lock();
         /* Make sure frame-buffer is used: */
         if (m_fUnused)
@@ -435,13 +434,14 @@ public:
             /* tell client to pend ProcessVHWACommand */
             return E_ACCESSDENIED;
         }
-        rc = mOverlay.onVHWACommand ((struct VBOXVHWACMD*)pCommand);
+
+        int rc = mOverlay.onVHWACommand((struct VBOXVHWACMD RT_UNTRUSTED_VOLATILE_GUEST *)pCommand, enmCmd, fGuestCmd != FALSE);
         UIFrameBufferPrivate::unlock();
         if (rc == VINF_CALLBACK_RETURN)
             return S_OK;
-        else if (RT_SUCCESS(rc))
+        if (RT_SUCCESS(rc))
             return S_FALSE;
-        else if (rc == VERR_INVALID_STATE)
+        if (rc == VERR_INVALID_STATE)
             return E_ACCESSDENIED;
         return E_FAIL;
     }
@@ -1006,9 +1006,9 @@ STDMETHODIMP UIFrameBufferPrivate::SetVisibleRegion(BYTE *pRectangles, ULONG uCo
     return S_OK;
 }
 
-STDMETHODIMP UIFrameBufferPrivate::ProcessVHWACommand(BYTE *pCommand)
+STDMETHODIMP UIFrameBufferPrivate::ProcessVHWACommand(BYTE *pCommand, LONG enmCmd, BOOL fGuestCmd)
 {
-    Q_UNUSED(pCommand);
+    RT_NOREF(pCommand, enmCmd, fGuestCmd);
     return E_NOTIMPL;
 }
 
@@ -1520,16 +1520,14 @@ void UIFrameBufferPrivate::eraseImageRect(QPainter &painter, const QRect &rect,
         }
 
 #ifdef VBOX_WS_MAC
-# ifdef VBOX_GUI_WITH_HIDPI
         /* Should we
-         * do not perform logical HiDPI scaling or
+         * not perform logical HiDPI scaling or
          * perform logical HiDPI scaling and optimize it for performance? */
         if (fUseUnscaledHiDPIOutput || hiDPIOptimizationType == HiDPIOptimizationType_Performance)
         {
             /* Mark sub-pixmap as HiDPI: */
             subPixmap.setDevicePixelRatio(dBackingScaleFactor);
         }
-# endif /* VBOX_GUI_WITH_HIDPI */
 #endif /* VBOX_WS_MAC */
     }
 
@@ -1580,16 +1578,14 @@ void UIFrameBufferPrivate::drawImageRect(QPainter &painter, const QImage &image,
         }
 
 #ifdef VBOX_WS_MAC
-# ifdef VBOX_GUI_WITH_HIDPI
         /* Should we
-         * do not perform logical HiDPI scaling or
+         * not perform logical HiDPI scaling or
          * perform logical HiDPI scaling and optimize it for performance? */
         if (fUseUnscaledHiDPIOutput || hiDPIOptimizationType == HiDPIOptimizationType_Performance)
         {
             /* Mark sub-pixmap as HiDPI: */
             subPixmap.setDevicePixelRatio(dBackingScaleFactor);
         }
-# endif /* VBOX_GUI_WITH_HIDPI */
 #endif /* VBOX_WS_MAC */
     }
 

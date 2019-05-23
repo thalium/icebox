@@ -760,7 +760,12 @@ PGM_ALL_CB2_DECL(VBOXSTRICTRC) iomMmioHandler(PVM pVM, PVMCPU pVCpu, RTGCPHYS GC
     iomMmioRetainRange(pRange);
     PPDMDEVINS pDevIns = pRange->CTX_SUFF(pDevIns);
     IOM_UNLOCK_SHARED(pVM);
+#ifdef IN_RING3
     VBOXSTRICTRC rcStrict = PDMCritSectEnter(pDevIns->CTX_SUFF(pCritSectRo), VINF_IOM_R3_MMIO_READ_WRITE);
+#else
+    VBOXSTRICTRC rcStrict = pDevIns ? PDMCritSectEnter(pDevIns->CTX_SUFF(pCritSectRo), VINF_IOM_R3_MMIO_READ_WRITE)
+                          : VINF_IOM_R3_MMIO_READ_WRITE;
+#endif
     if (rcStrict == VINF_SUCCESS)
     {
         /*

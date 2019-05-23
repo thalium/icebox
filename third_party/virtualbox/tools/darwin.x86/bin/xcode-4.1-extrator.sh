@@ -36,8 +36,8 @@ MY_LAST_PKG="MacOSX10.7.pkg"
 MY_PKGS="clang.pkg"
 MY_LAST_PKG="clang.pkg"
 declare -a MY_FULL_PKGS
-for i in $MY_PKGS;  
-do 
+for i in $MY_PKGS;
+do
     MY_FULL_PKGS[$((${#MY_FULL_PKGS[*]}))]="./Applications/Install Xcode.app/Contents/Resources/Packages/${i}"
 done
 
@@ -68,7 +68,7 @@ do
             MY_TMP_DIR="$1";
             shift;
             ;;
-        
+
         --destination|-d)
             if test $# -eq 0; then
                 echo "error: missing --tmpdir argument." 1>&2;
@@ -107,7 +107,7 @@ if [ -z "${MY_DST_DIR}" ]; then
     echo "error: missing --destination <dstdir>." 1>&2;
     my_usage 1;
 fi
-if ! mkdir -p "${MY_DST_DIR}"; then 
+if ! mkdir -p "${MY_DST_DIR}"; then
     echo "error: error creating '${MY_DST_DIR}'." 1>&2;
     exit 1;
 fi
@@ -117,7 +117,7 @@ if [ -z "${MY_TMP_DIR}" ]; then
     echo "error: empty --tmpdir <tmpdir>." 1>&2;
     my_usage 1;
 fi
-if ! mkdir -p "${MY_TMP_DIR}/x"; then 
+if ! mkdir -p "${MY_TMP_DIR}/x"; then
     echo "error: error creating '${MY_TMP_DIR}/x'." 1>&2;
     exit 1;
 fi
@@ -127,7 +127,7 @@ fi
 #
 if [ ! -f "${MY_TMP_DIR}/x/MainPayload.tar" ]; then
     echo "info: Extracting '${MY_PKG_FILE}'..."
-    if ! xar -xvf "${MY_PKG_FILE}" -C "${MY_TMP_DIR}/x"; then 
+    if ! xar -xvf "${MY_PKG_FILE}" -C "${MY_TMP_DIR}/x"; then
         echo "error: extraction error." 1>&2;
         exit 1;
     fi
@@ -138,40 +138,40 @@ if [ ! -f "${MY_TMP_DIR}/x/MainPayload.tar" ]; then
 fi
 
 #
-# Extract the sub-packages from MainPayload.tar. 
+# Extract the sub-packages from MainPayload.tar.
 #
 if [ ! -f "${MY_TMP_DIR}/x/${MY_LAST_PKG}" ]; then
     echo "info: Extracting packages from 'MainPayload.tar'..."
-    if ! tar xvf "${MY_TMP_DIR}/x/MainPayload.tar" -C "${MY_TMP_DIR}/x" "${MY_FULL_PKGS[@]}"; then 
+    if ! tar xvf "${MY_TMP_DIR}/x/MainPayload.tar" -C "${MY_TMP_DIR}/x" "${MY_FULL_PKGS[@]}"; then
         echo "error: Failure extracting sub-packages from MainPayload.tar (see above)." 1>&2;
         exit 1;
     fi
 
-    for i in $MY_PKGS;  
+    for i in $MY_PKGS;
     do
-        if ! mv -f "${MY_TMP_DIR}/x/Applications/Install Xcode.app/Contents/Resources/Packages/${i}" "${MY_TMP_DIR}/x/${i}"; then 
+        if ! mv -f "${MY_TMP_DIR}/x/Applications/Install Xcode.app/Contents/Resources/Packages/${i}" "${MY_TMP_DIR}/x/${i}"; then
             echo "error: Failed to move the package ${i}." 1>&2;
             exit 1;
         fi
-    done    
+    done
 fi
 
 #
 # Work the sub-packages, extracting their payload content into the destination directory.
 #
-for i in $MY_PKGS;  
+for i in $MY_PKGS;
 do
     rm -f -- "${MY_TMP_DIR}/x/Payload";
     echo "info: Extracting payload of sub-package ${i}...";
-    if ! xar -xvf "${MY_TMP_DIR}/x/${i}" -C "${MY_TMP_DIR}/x" Payload; then 
+    if ! xar -xvf "${MY_TMP_DIR}/x/${i}" -C "${MY_TMP_DIR}/x" Payload; then
         echo "error: Failed to extract the payload of sub-package ${i}." 1>&2;
         exit 1;
     fi
-    if ! tar xvf "${MY_TMP_DIR}/x/Payload" -C "${MY_DST_DIR}"; then 
+    if ! tar xvf "${MY_TMP_DIR}/x/Payload" -C "${MY_DST_DIR}"; then
         echo "error: Failed to extract the payload content of sub-package ${i}." 1>&2;
         exit 1;
     fi
-done    
+done
 
 #
 # Clean up.

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    VirtualBox Windows Installation Script (WiX), preprocessor defines.
+
+    Copyright (C) 2014-2016 Oracle Corporation
+
+    This file is part of VirtualBox Open Source Edition (OSE), as
+    available from http://www.virtualbox.org. This file is free software;
+    you can redistribute it and/or modify it under the terms of the GNU
+    General Public License (GPL) as published by the Free Software
+    Foundation, in version 2 as it comes in the "COPYING" file of the
+    VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+    hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+-->
+
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wix"
+         xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+  <!-- TODO: Add "VBox" prefix! -->
+  <?define Property_RegKey = "Software\$(env.VBOX_VENDOR_SHORT)\VirtualBox" ?>
+  <?define Property_RegKeyInstall = "Software\$(env.VBOX_VENDOR_SHORT)\VirtualBox\Install" ?>
+  <?define Property_Upgrade = "yes" ?>
+  <?define Property_Version = "$(env.VBOX_VERSION_STRING_RAW)" ?>
+  <?define Property_VersionExt = "$(env.VBOX_VERSION_STRING)" ?>
+
+  <?if $(env.BUILD_TARGET_ARCH) = "amd64" ?>
+      <?define Property_ProgramFiles = "ProgramFiles64Folder" ?>
+      <?define Property_Platform     = "x64" ?>
+      <?define Property_Win64        = "yes" ?>
+
+      <?if $(env.VBOX_SIGNING_MODE)!= none ?>
+          <?define Property_DriverLegacy = "no" ?>
+      <?else ?>
+          <?define Property_DriverLegacy = "yes" ?>
+      <?endif ?>
+
+  <?else ?>
+      <?define Property_ProgramFiles = "ProgramFilesFolder" ?>
+      <?define Property_Platform     = "x86" ?>
+      <?define Property_Win64        = "no" ?>
+
+      <?if $(env.VBOX_SIGNING_MODE)!= none ?>
+          <!-- Note: Settings this to 'no' breaks Windows 2000 installs (!) -->
+          <?define Property_DriverLegacy = "yes" ?>
+      <?else ?>
+          <?define Property_DriverLegacy = "yes" ?>
+      <?endif ?>
+
+  <?endif ?>
+
+  <!-- If we build a combined installer (32- and 64-bit in one installer), we
+       use two installer "disks": One for all platform-specific stuff and one which
+       contains all common (platform independent) stuff (like manuals, bitmaps etc) -->
+  <?if $(env.VBOX_WITH_COMBINED_PACKAGE) = "yes" ?>
+      <?define Property_DiskIdCommon = "2" ?>
+  <?else ?>
+      <?define Property_DiskIdCommon = "1" ?>
+  <?endif ?>
+
+</Include>

@@ -92,7 +92,7 @@ def GenerateEntrypoints():
 			print("")
 
 
-		
+
 
 GenerateEntrypoints()
 

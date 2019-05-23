@@ -14,6 +14,15 @@
 # VirtualBox OSE distribution. VirtualBox OSE is distributed in the
 # hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
 #
+# The contents of this file may alternatively be used under the terms
+# of the Common Development and Distribution License Version 1.0
+# (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+# VirtualBox OSE distribution, in which case the provisions of the
+# CDDL are applicable instead of those of the GPL.
+#
+# You may elect to license modified versions of this file under the
+# terms and conditions of either the GPL or the CDDL or both.
+#
 
 SUB_DEPTH = ../../../../..
 include $(KBUILD_PATH)/subheader.kmk
@@ -60,7 +69,7 @@ if1of ($(KBUILD_TARGET), darwin freebsd haiku netbsd os2 solaris win)
  VBoxGuest_DEFS          = VBGL_VBOXGUEST VBOX_WITH_HGCM
  VBoxGuest_INCS          = .
  VBoxGuest_INCS.freebsd  = $(VBoxGuest_0_OUTDIR) $(PATH_STAGE)/gen-sys-hdrs
- VBoxGuest_INCS.netbsd   = $(VBoxGuest_0_OUTDIR)
+ VBoxGuest_INCS.netbsd   = $(VBoxGuest_0_OUTDIR) netbsd
  ifeq ($(KBUILD_HOST),solaris)
   VBoxGuest_LDFLAGS.solaris         += -N misc/ctf
  else
@@ -201,10 +210,10 @@ ifeq ($(KBUILD_TARGET),linux)
  #
  include $(PATH_SUB_CURRENT)/linux/files_vboxguest
  # sources and stuff.
- INSTALLS += vboxguest-mod
- vboxguest-mod_INST     = $(INST_ADDITIONS)src/vboxguest/
- vboxguest-mod_MODE     = a+r,u+w
- vboxguest-mod_SOURCES  = $(subst ",,$(FILES_VBOXGUEST_NOBIN))
+ INSTALLS += vboxguest-src
+ vboxguest-src_INST     = $(INST_ADDITIONS)src/vboxguest/
+ vboxguest-src_MODE     = a+r,u+w
+ vboxguest-src_SOURCES  = $(subst ",,$(FILES_VBOXGUEST_NOBIN))
 
  INSTALLS += vboxguest-scripts
  vboxguest-scripts_INST    = $(INST_ADDITIONS)src/
@@ -225,10 +234,10 @@ ifeq ($(KBUILD_TARGET),freebsd)
  #
  include $(PATH_SUB_CURRENT)/freebsd/files_vboxguest
  # sources and stuff.
- INSTALLS += vboxguest-mod
- vboxguest-mod_INST     = $(INST_ADDITIONS)src/vboxguest/
- vboxguest-mod_MODE     = a+r,u+w
- vboxguest-mod_SOURCES  = $(subst ",,$(FILES_VBOXGUEST_NOBIN))
+ INSTALLS += vboxguest-src
+ vboxguest-src_INST     = $(INST_ADDITIONS)src/vboxguest/
+ vboxguest-src_MODE     = a+r,u+w
+ vboxguest-src_SOURCES  = $(subst ",,$(FILES_VBOXGUEST_NOBIN))
 
 endif # FreeBSD
 

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2008-2016 Oracle Corporation
+ * Copyright (C) 2008-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -241,16 +241,19 @@ public:
 
         /* Set up a per-operation progress interface, can be used freely (for
          * binary operations you can use it either on the source or target). */
-        mVDIfProgress.pfnProgress = vdProgressCall;
-        int vrc = VDInterfaceAdd(&mVDIfProgress.Core,
-                                "Medium::Task::vdInterfaceProgress",
-                                VDINTERFACETYPE_PROGRESS,
-                                mProgress,
-                                sizeof(VDINTERFACEPROGRESS),
-                                &mVDOperationIfaces);
-        AssertRC(vrc);
-        if (RT_FAILURE(vrc))
-            mRC = E_FAIL;
+        if (mProgress)
+        {
+            mVDIfProgress.pfnProgress = aProgress->i_vdProgressCallback;
+            int vrc = VDInterfaceAdd(&mVDIfProgress.Core,
+                                     "Medium::Task::vdInterfaceProgress",
+                                     VDINTERFACETYPE_PROGRESS,
+                                     mProgress,
+                                     sizeof(mVDIfProgress),
+                                     &mVDOperationIfaces);
+            AssertRC(vrc);
+            if (RT_FAILURE(vrc))
+                mRC = E_FAIL;
+        }
     }
 
     // Make all destructors virtual. Just in case.
@@ -314,8 +317,6 @@ private:
     virtual HRESULT executeTask() = 0;
 
     const ComObjPtr<Progress> mProgress;
-
-    static DECLCALLBACK(int) vdProgressCall(void *pvUser, unsigned uPercent);
 
     VDINTERFACEPROGRESS mVDIfProgress;
 
@@ -799,34 +800,6 @@ struct Medium::CryptoFilterSettings
     VDINTERFACECONFIG vdIfCfg;
     VDINTERFACECRYPTO vdIfCrypto;
 };
-
-/**
- * PFNVDPROGRESS callback handler for Task operations.
- *
- * @param pvUser      Pointer to the Progress instance.
- * @param uPercent    Completion percentage (0-100).
- */
-/*static*/
-DECLCALLBACK(int) Medium::Task::vdProgressCall(void *pvUser, unsigned uPercent)
-{
-    Progress *that = static_cast<Progress *>(pvUser);
-
-    if (that != NULL)
-    {
-        /* update the progress object, capping it at 99% as the final percent
-         * is used for additional operations like setting the UUIDs and similar. */
-        HRESULT rc = that->SetCurrentOperationProgress(uPercent * 99 / 100);
-        if (FAILED(rc))
-        {
-            if (rc == E_FAIL)
-                return VERR_CANCELLED;
-            else
-                return VERR_INVALID_STATE;
-        }
-    }
-
-    return VINF_SUCCESS;
-}
 
 /**
  * Implementation code for the "create base" task.

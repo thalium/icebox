@@ -996,7 +996,7 @@ static void crStateBufferObjectSyncCB(unsigned long key, void *data1, void *data
 
     if (pBufferObj->data)
     {
-        /*@todo http://www.opengl.org/registry/specs/ARB/pixel_buffer_object.txt
+        /** @todo http://www.opengl.org/registry/specs/ARB/pixel_buffer_object.txt
           "While it is entirely legal to create a buffer object by binding
           it to GL_ARRAY_BUFFER and loading it with data, then using it
           with the GL_PIXEL_UNPACK_BUFFER_ARB or GL_PIXEL_PACK_BUFFER_ARB
@@ -1123,5 +1123,4 @@ void crStateBufferObjectSwitch(CRBufferObjectBits *bb, CRbitvalue *bitID,
         crStateBufferObjectIntCmp(bb, bitID, fromCtx, toCtx, GL_TRUE);
     }
 }
-
 

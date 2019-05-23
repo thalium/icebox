@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1333,73 +1333,6 @@ static int handleInfo(HandlerArg *a)
 }
 
 
-static DECLCALLBACK(int) vboximgDvmRead(void *pvUser, uint64_t off, void *pvBuf, size_t cbRead)
-{
-    int rc = VINF_SUCCESS;
-    PVDISK pDisk = (PVDISK)pvUser;
-
-    /* Take shortcut if possible. */
-    if (   off % 512 == 0
-        && cbRead % 512 == 0)
-        rc = VDRead(pDisk, off, pvBuf, cbRead);
-    else
-    {
-        uint8_t *pbBuf = (uint8_t *)pvBuf;
-        uint8_t abBuf[512];
-
-        /* Unaligned access, make it aligned. */
-        if (off % 512 != 0)
-        {
-            uint64_t offAligned = off & ~(uint64_t)(512 - 1);
-            size_t cbToCopy = 512 - (off - offAligned);
-            rc = VDRead(pDisk, offAligned, abBuf, 512);
-            if (RT_SUCCESS(rc))
-            {
-                memcpy(pbBuf, &abBuf[off - offAligned], cbToCopy);
-                pbBuf  += cbToCopy;
-                off    += cbToCopy;
-                cbRead -= cbToCopy;
-            }
-        }
-
-        if (   RT_SUCCESS(rc)
-            && (cbRead & ~(uint64_t)(512 - 1)))
-        {
-            size_t cbReadAligned = cbRead & ~(uint64_t)(512 - 1);
-
-            Assert(!(off % 512));
-            rc = VDRead(pDisk, off, pbBuf, cbReadAligned);
-            if (RT_SUCCESS(rc))
-            {
-                pbBuf  += cbReadAligned;
-                off    += cbReadAligned;
-                cbRead -= cbReadAligned;
-            }
-        }
-
-        if (   RT_SUCCESS(rc)
-            && cbRead)
-        {
-            Assert(cbRead < 512);
-            Assert(!(off % 512));
-
-            rc = VDRead(pDisk, off, abBuf, 512);
-            if (RT_SUCCESS(rc))
-                memcpy(pbBuf, abBuf, cbRead);
-        }
-    }
-
-    return rc;
-}
-
-
-static DECLCALLBACK(int) vboximgDvmWrite(void *pvUser, uint64_t off, const void *pvBuf, size_t cbWrite)
-{
-    PVDISK pDisk = (PVDISK)pvUser;
-    return VDWrite(pDisk, off, pvBuf, cbWrite);
-}
-
-
 static DECLCALLBACK(int) vboximgQueryBlockStatus(void *pvUser, uint64_t off,
                                                  uint64_t cb, bool *pfAllocated)
 {
@@ -1488,29 +1421,27 @@ static int handleCompact(HandlerArg *a)
     if (   RT_SUCCESS(rc)
         && fFilesystemAware)
     {
-        uint64_t cbDisk = 0;
-
-        cbDisk = VDGetSize(pDisk, 0);
-        if (cbDisk > 0)
+        RTVFSFILE hVfsDisk;
+        rc = VDCreateVfsFileFromDisk(pDisk, 0 /*fFlags*/, &hVfsDisk);
+        if (RT_SUCCESS(rc))
         {
-            rc = RTDvmCreate(&hDvm, vboximgDvmRead, vboximgDvmWrite, cbDisk, 512,
-                             0 /* fFlags*/, pDisk);
+            rc = RTDvmCreate(&hDvm, hVfsDisk, 512 /*cbSector*/, 0 /*fFlags*/);
+            RTVfsFileRelease(hVfsDisk);
             if (RT_SUCCESS(rc))
             {
                 rc = RTDvmMapOpen(hDvm);
                 if (   RT_SUCCESS(rc)
-                    && RTDvmMapGetValidVolumes(hDvm))
+                    && RTDvmMapGetValidVolumes(hDvm) > 0)
                 {
-                    RTDVMVOLUME hVol;
-
                     /* Get all volumes and set the block query status callback. */
+                    RTDVMVOLUME hVol;
                     rc = RTDvmMapQueryFirstVolume(hDvm, &hVol);
                     AssertRC(rc);
 
-                    do
+                    while (RT_SUCCESS(rc))
                     {
                         RTVFSFILE hVfsFile;
-                        rc = RTDvmVolumeCreateVfsFile(hVol, &hVfsFile);
+                        rc = RTDvmVolumeCreateVfsFile(hVol, RTFILE_O_READWRITE, &hVfsFile);
                         if (RT_FAILURE(rc))
                             break;
 
@@ -1548,7 +1479,7 @@ static int handleCompact(HandlerArg *a)
                          */
                         RTDvmVolumeRelease(hVol);
                         hVol = hVolNext;
-                    } while (RT_SUCCESS(rc));
+                    }
 
                     if (rc == VERR_DVM_MAP_NO_VOLUME)
                         rc = VINF_SUCCESS;
@@ -1574,10 +1505,7 @@ static int handleCompact(HandlerArg *a)
                 errorRuntime("Error creating the volume manager: %Rrf (%Rrc)\n", rc, rc);
         }
         else
-        {
-            rc = VERR_INVALID_STATE;
-            errorRuntime("Error while getting the disk size\n");
-        }
+            errorRuntime("Error while creating VFS interface for the disk: %Rrf (%Rrc)\n", rc, rc);
     }
 
     if (RT_SUCCESS(rc))

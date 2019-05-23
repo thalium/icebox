@@ -20,6 +20,7 @@
 #else  /* !VBOX_WITH_PRECOMPILED_HEADERS */
 
 /* Qt includes: */
+# include <QButtonGroup>
 # include <QRegExpValidator>
 
 /* GUI includes: */

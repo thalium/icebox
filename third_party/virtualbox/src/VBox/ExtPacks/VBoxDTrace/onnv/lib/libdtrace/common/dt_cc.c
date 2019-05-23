@@ -1969,7 +1969,7 @@ dt_load_libs_dir(dtrace_hdl_t *dtp, const char *path)
 	const char *p;
 	DIR *dirp;
 #else
-	PRTDIR pDir;
+	RTDIR hDir;
 	RTDIRENTRY DirEntry;
 	const char *p;
 	int rc;
@@ -1987,7 +1987,7 @@ dt_load_libs_dir(dtrace_hdl_t *dtp, const char *path)
 		return (0);
 	}
 #else
-	rc = RTDirOpen(&pDir, path);
+	rc = RTDirOpen(&hDir, path);
 	if (RT_FAILURE(rc)) {
 		dt_dprintf("skipping lib dir %s: %s\n", path, RTErrGetShort(rc));
 		return (0);
@@ -1998,7 +1998,7 @@ dt_load_libs_dir(dtrace_hdl_t *dtp, const char *path)
 #ifndef VBOX
 	while ((dp = readdir(dirp)) != NULL) {
 #else
-	while (RT_SUCCESS(RTDirRead(pDir, &DirEntry, 0))) {
+	while (RT_SUCCESS(RTDirRead(hDir, &DirEntry, 0))) {
 		struct FakeDirEntry {
 			const char *d_name;
 		} FakeDirEntry, *dp = &FakeDirEntry;
@@ -2040,7 +2040,7 @@ dt_load_libs_dir(dtrace_hdl_t *dtp, const char *path)
 #ifndef VBOX
 	(void) closedir(dirp);
 #else
-	RTDirClose(pDir);
+	RTDirClose(hDir);
 #endif
 	/*
 	 * Finish building the graph containing the library dependencies

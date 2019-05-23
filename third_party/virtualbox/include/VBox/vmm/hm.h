@@ -166,7 +166,7 @@ VMM_INT_DECL(VBOXSTRICTRC)      HMSvmVmmcall(PVMCPU pVCpu, PCPUMCTX pCtx, bool *
  * @{
  */
 #ifdef VBOX_WITH_NESTED_HWVIRT
-VMM_INT_DECL(void)              HMSvmNstGstVmExitNotify(PVMCPU pVCpu, PSVMVMCB pVmcbNstGst);
+VMM_INT_DECL(void)              HMSvmNstGstVmExitNotify(PVMCPU pVCpu, PCPUMCTX pCtx);
 #endif
 /** @} */
 

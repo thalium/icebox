@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -74,14 +74,7 @@ public:
         ContentTypeHeader,
         ContentLengthHeader,
         LastModifiedHeader,
-    };
-
-    /** Known attribute types.
-      * Came from QtNetwork module.
-      * More to go on demand when necessary. */
-    enum KnownAttribute
-    {
-        RedirectionTargetAttribute,
+        LocationHeader,
     };
 
     /** Constructs network-reply of the passed @a type for the passed @a url and @a requestHeaders. */
@@ -104,8 +97,6 @@ public:
     QByteArray readAll() const;
     /** Returns value for the cached reply header of the passed @a type. */
     QVariant header(UINetworkReply::KnownHeader header) const;
-    /** Returns value for the cached reply attribute of the passed @a code. */
-    QVariant attribute(UINetworkReply::KnownAttribute code) const;
 
 private:
 

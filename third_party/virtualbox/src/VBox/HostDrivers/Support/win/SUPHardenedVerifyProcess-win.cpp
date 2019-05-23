@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -1088,7 +1088,7 @@ DECLHIDDEN(int) supHardNtVpThread(HANDLE hProcess, HANDLE hThread, PRTERRINFO pE
         return supHardNtVpSetInfo1(pErrInfo, VERR_SUP_VP_THREAD_NOT_ALONE,
                                    "More than one thread in process");
 
-    /** @todo Would be nice to verify the relation ship between hProcess and hThread
+    /** @todo Would be nice to verify the relationship between hProcess and hThread
      *        as well... */
     return VINF_SUCCESS;
 }

@@ -57,8 +57,8 @@ if  !defined(VBOX_ONLY_DOCS) \
   LIBRARIES       += SUPR0IdcClient
   SYSMODS.os2     += VBoxDrv
  endif
- INSTALLS.linux   += vboxdrv-mod
- INSTALLS.freebsd += vboxdrv-mod
+ INSTALLS.linux   += vboxdrv-src
+ INSTALLS.freebsd += vboxdrv-src
 
  #
  # Include sub-makefile(s).
@@ -725,19 +725,19 @@ if1of ($(KBUILD_TARGET), linux freebsd)
  #
  # Targets for installing the linux sources.
  #
- vboxdrv-mod_INST    = bin/src/vboxdrv/
- vboxdrv-mod_SOURCES = \
+ vboxdrv-src_INST    = bin/src/vboxdrv/
+ vboxdrv-src_SOURCES = \
  	$(subst $(DQUOTE),,$(FILES_VBOXDRV_NOBIN)) \
- 	$(vboxdrv-mod_0_OUTDIR)/Makefile
- vboxdrv-mod_EXEC_SOURCES  = \
+ 	$(vboxdrv-src_0_OUTDIR)/Makefile
+ vboxdrv-src_EXEC_SOURCES  = \
  	$(subst $(DQUOTE),,$(FILES_VBOXDRV_BIN))
- vboxdrv-mod_CLEAN   = \
- 	$(vboxdrv-mod_0_OUTDIR)/Makefile \
- 	$(PATH_TARGET)/vboxdrv-mod-1.dep \
+ vboxdrv-src_CLEAN   = \
+ 	$(vboxdrv-src_0_OUTDIR)/Makefile \
+ 	$(PATH_TARGET)/vboxdrv-src-1.dep \
 
  # Scripts needed for building the kernel modules
- includedep $(PATH_TARGET)/vboxdrv-mod-1.dep
- $$(vboxdrv-mod_0_OUTDIR)/Makefile: \
+ includedep $(PATH_TARGET)/vboxdrv-src-1.dep
+ $$(vboxdrv-src_0_OUTDIR)/Makefile: \
 		$(PATH_SUB_CURRENT)/$(KBUILD_TARGET)/Makefile \
 		$$(if $$(eq $$(Support/$(KBUILD_TARGET)/Makefile_VBOX_HARDENED),$$(VBOX_WITH_HARDENING)),,FORCE) \
 		| $$(dir $$@)
@@ -747,15 +747,14 @@ if1of ($(KBUILD_TARGET), linux freebsd)
 		$(if-expr ($(VBOX_VERSION_BUILD) % 2) == 0 \
 		 , -e "s;-DVBOX_WITH_EFLAGS_AC_SET_IN_VBOXDRV;;g" -e "s;-DIPRT_WITH_EFLAGS_AC_PRESERVING;;g",) \
 		--output $@ $<
-	%$(QUIET2)$(APPEND) -t '$(PATH_TARGET)/vboxdrv-mod-1.dep' \
+	%$(QUIET2)$(APPEND) -t '$(PATH_TARGET)/vboxdrv-src-1.dep' \
 		'Support/$(KBUILD_TARGET)/Makefile_VBOX_HARDENED=$(VBOX_WITH_HARDENING)'
 endif # linux freebsd
 
 
 ifeq ($(KBUILD_TARGET), win)
  INSTALLS.win += VBoxDrv-inf
- VBoxDrv-inf_INST = $(INST_BIN)
- VBoxDrv-inf_MODE = a+r,u+w
+ VBoxDrv-inf_TEMPLATE = VBoxR0DrvInfCat
  VBoxDrv-inf_SOURCES = \
  	$(PATH_TARGET)/VBoxDrvCat.dir/VBoxDrv.inf
  VBoxDrv-inf_CLEAN = $(VBoxDrv-inf_SOURCES)
@@ -768,7 +767,8 @@ ifeq ($(KBUILD_TARGET), win)
  ifdef VBOX_SIGNING_MODE
   VBoxDrv-inf_SOURCES += \
   	$(PATH_TARGET)/VBoxDrvCat.dir/VBoxDrv.sys \
-  	$(PATH_TARGET)/VBoxDrvCat.dir/VBoxDrv.cat
+  	$(PATH_TARGET)/VBoxDrvCat.dir/VBoxDrv.cat \
+  	$(PATH_TARGET)/VBoxDrvCat.dir/VBoxDrv.cat=>VBoxDrv-PreW10.cat
 
   $(PATH_TARGET)/VBoxDrvCat.dir/VBoxDrv.sys: $$(VBoxDrv_1_TARGET) | $$(dir $$@)
 	$(INSTALL) -m 644 $< $(@D)

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -50,6 +50,8 @@ typedef SCMSVNPROP *PSCMSVNPROP;
 typedef SCMSVNPROP const *PCSCMSVNPROP;
 
 
+void ScmSvnInit(void);
+void ScmSvnTerm(void);
 bool ScmSvnIsDirInWorkingCopy(const char *pszDir);
 bool ScmSvnIsInWorkingCopy(PSCMRWSTATE pState);
 int  ScmSvnQueryProperty(PSCMRWSTATE pState, const char *pszName, char **ppszValue);
@@ -57,6 +59,94 @@ int  ScmSvnSetProperty(PSCMRWSTATE pState, const char *pszName, const char *pszV
 int  ScmSvnDelProperty(PSCMRWSTATE pState, const char *pszName);
 int  ScmSvnDisplayChanges(PSCMRWSTATE pState);
 int  ScmSvnApplyChanges(PSCMRWSTATE pState);
+
+/** @} */
+
+
+/** @name Code Parsing
+ * @{  */
+
+/**
+ * Comment style.
+ */
+typedef enum SCMCOMMENTSTYLE
+{
+    kScmCommentStyle_Invalid = 0,
+    kScmCommentStyle_C,
+    kScmCommentStyle_Hash,
+    kScmCommentStyle_Python,    /**< Same as hash, except for copyright/license. */
+    kScmCommentStyle_Semicolon,
+    kScmCommentStyle_Rem_Upper,
+    kScmCommentStyle_Rem_Lower,
+    kScmCommentStyle_Rem_Camel,
+    kScmCommentStyle_Sql,
+    kScmCommentStyle_Tick,
+    kScmCommentStyle_End
+} SCMCOMMENTSTYLE;
+
+/**
+ * Comment types.
+ */
+typedef enum SCMCOMMENTTYPE
+{
+    kScmCommentType_Invalid = 0,                /**< Customary invalid zero value. */
+    kScmCommentType_Line,                       /**< Line comment. */
+    kScmCommentType_Line_JavaDoc,               /**< Line comment, JavaDoc style. */
+    kScmCommentType_Line_JavaDoc_After,         /**< Line comment, JavaDoc after-member style. */
+    kScmCommentType_Line_Qt,                    /**< Line comment, JavaDoc style. */
+    kScmCommentType_Line_Qt_After,              /**< Line comment, JavaDoc after-member style. */
+    kScmCommentType_MultiLine,                  /**< Multi-line comment (e.g. ansi C).  */
+    kScmCommentType_MultiLine_JavaDoc,          /**< Multi-line comment, JavaDoc style.  */
+    kScmCommentType_MultiLine_JavaDoc_After,    /**< Multi-line comment, JavaDoc after-member style.  */
+    kScmCommentType_MultiLine_Qt,               /**< Multi-line comment, Qt style.  */
+    kScmCommentType_MultiLine_Qt_After,         /**< Multi-line comment, Qt after-member style.  */
+    kScmCommentType_DocString,                  /**< Triple quoted python doc string. */
+    kScmCommentType_End                         /**< Customary exclusive end value. */
+} SCMCOMMENTTYPE;
+
+
+/**
+ * Comment information.
+ */
+typedef struct SCMCOMMENTINFO
+{
+    /** Comment type. */
+    SCMCOMMENTTYPE  enmType;
+    /** Start line number  (0-based). */
+    uint32_t        iLineStart;
+    /** Start line offset (0-based). */
+    uint32_t        offStart;
+    /** End line number  (0-based). */
+    uint32_t        iLineEnd;
+    /** End line offset  (0-based). */
+    uint32_t        offEnd;
+    /** Number of blank lines before the body (@a pszBody). */
+    uint32_t        cBlankLinesBefore;
+    /** Number of blank lines after the body (@a pszBody + @a cchBody). */
+    uint32_t        cBlankLinesAfter;
+    /** @todo add min/max indent. Raw length. Etc. */
+} SCMCOMMENTINFO;
+/** Pointer to comment info. */
+typedef SCMCOMMENTINFO *PSCMCOMMENTINFO;
+/** Pointer to const comment info. */
+typedef SCMCOMMENTINFO const *PCSCMCOMMENTINFO;
+
+
+/**
+ * Comment enumeration callback function.
+ *
+ * @returns IPRT style status code.  Failures causes immediate return.  While an
+ *          informational status code is saved (first one) and returned later.
+ * @param   pInfo           Additional comment info.
+ * @param   pszBody         The comment body.  This is somewhat stripped.
+ * @param   cchBody         The comment body length.
+ * @param   pvUser          User callback argument.
+ */
+typedef DECLCALLBACK(int) FNSCMCOMMENTENUMERATOR(PCSCMCOMMENTINFO pInfo, const char *pszBody, size_t cchBody, void *pvUser);
+/** Poiter to a omment enumeration callback function. */
+typedef FNSCMCOMMENTENUMERATOR *PFNSCMCOMMENTENUMERATOR;
+
+int ScmEnumerateComments(PSCMSTREAM pIn, SCMCOMMENTSTYLE enmCommentStyle, PFNSCMCOMMENTENUMERATOR pfnCallback, void *pvUser);
 
 /** @} */
 
@@ -74,10 +164,15 @@ typedef struct SCMRWSTATE
     /** Set after the printing the first verbose message about a file under
      *  rewrite. */
     bool                fFirst;
+    /** Cached ScmSvnIsInWorkingCopy response. 0 indicates not known, 1 means it
+     * is in WC, -1 means it doesn't. */
+    int8_t              fIsInSvnWorkingCopy;
     /** The number of SVN property changes. */
     size_t              cSvnPropChanges;
     /** Pointer to an array of SVN property changes. */
     struct SCMSVNPROP  *paSvnPropChanges;
+    /** For error propagation. */
+    int32_t             rc;
 } SCMRWSTATE;
 
 /**
@@ -102,12 +197,35 @@ FNSCMREWRITER rewrite_ForceLF;
 FNSCMREWRITER rewrite_ForceCRLF;
 FNSCMREWRITER rewrite_AdjustTrailingLines;
 FNSCMREWRITER rewrite_SvnNoExecutable;
+FNSCMREWRITER rewrite_SvnNoKeywords;
+FNSCMREWRITER rewrite_SvnNoEolStyle;
+FNSCMREWRITER rewrite_SvnBinary;
 FNSCMREWRITER rewrite_SvnKeywords;
+FNSCMREWRITER rewrite_Copyright_CstyleComment;
+FNSCMREWRITER rewrite_Copyright_HashComment;
+FNSCMREWRITER rewrite_Copyright_PythonComment;
+FNSCMREWRITER rewrite_Copyright_RemComment;
+FNSCMREWRITER rewrite_Copyright_SemicolonComment;
+FNSCMREWRITER rewrite_Copyright_SqlComment;
+FNSCMREWRITER rewrite_Copyright_TickComment;
 FNSCMREWRITER rewrite_Makefile_kup;
 FNSCMREWRITER rewrite_Makefile_kmk;
 FNSCMREWRITER rewrite_FixFlowerBoxMarkers;
 FNSCMREWRITER rewrite_Fix_C_and_CPP_Todos;
 FNSCMREWRITER rewrite_C_and_CPP;
+
+/**
+ * Rewriter configuration.
+ */
+typedef struct SCMREWRITERCFG
+{
+    /** The rewriter function. */
+    PFNSCMREWRITER  pfnRewriter;
+    /** The name of the rewriter. */
+    const char     *pszName;
+} SCMREWRITERCFG;
+/** Pointer to a const rewriter config. */
+typedef SCMREWRITERCFG const *PCSCMREWRITERCFG;
 
 /** @}  */
 
@@ -121,15 +239,32 @@ FNSCMREWRITER rewrite_C_and_CPP;
 typedef struct SCMCFGENTRY
 {
     /** Number of rewriters. */
-    size_t          cRewriters;
+    size_t                  cRewriters;
     /** Pointer to an array of rewriters. */
-    PFNSCMREWRITER const  *papfnRewriter;
+    PCSCMREWRITERCFG const *paRewriters;
+    /** Set if the entry handles binaries.  */
+    bool                    fBinary;
     /** File pattern (simple).  */
-    const char     *pszFilePattern;
+    const char             *pszFilePattern;
+    /** Name (for treat as).  */
+    const char             *pszName;
 } SCMCFGENTRY;
 typedef SCMCFGENTRY *PSCMCFGENTRY;
 typedef SCMCFGENTRY const *PCSCMCFGENTRY;
 
+
+/** License update options. */
+typedef enum SCMLICENSE
+{
+    kScmLicense_LeaveAlone = 0,     /**< Leave it alone. */
+    kScmLicense_OseGpl,             /**< VBox OSE GPL if public. */
+    kScmLicense_OseDualGplCddl,     /**< VBox OSE dual GPL & CDDL if public. */
+    kScmLicense_OseCddl,            /**< VBox OSE CDDL if public. */
+    kScmLicense_Lgpl,               /**< LGPL if public. */
+    kScmLicense_Mit,                /**< MIT if public. */
+    kScmLicense_BasedOnMit,         /**< Copyright us but based on someone else's MIT. */
+    kScmLicense_End
+} SCMLICENSE;
 
 /**
  * Source Code Massager Settings.
@@ -151,6 +286,15 @@ typedef struct SCMSETTINGSBASE
     /** Whether to fix C/C++ todos. */
     bool            fFixTodos;
 
+    /** Update the copyright year. */
+    bool            fUpdateCopyrightYear;
+    /** Only external copyright holders. */
+    bool            fExternalCopyright;
+    /** Whether there should be a LGPL disclaimer. */
+    bool            fLgplDisclaimer;
+    /** How to update the license. */
+    SCMLICENSE      enmUpdateLicense;
+
     /** Only process files that are part of a SVN working copy. */
     bool            fOnlySvnFiles;
     /** Only recurse into directories containing an .svn dir.  */
@@ -165,6 +309,10 @@ typedef struct SCMSETTINGSBASE
     uint8_t         cchTab;
     /** Optimal source code width. */
     uint8_t         cchWidth;
+    /** Free the treat as structure. */
+    bool            fFreeTreatAs;
+    /** Prematched config entry. */
+    PCSCMCFGENTRY   pTreatAs;
     /** Only consider files matching these patterns.  This is only applied to the
      *  base names. */
     char           *pszFilterFiles;
@@ -186,6 +334,8 @@ typedef struct SCMPATRNOPTPAIR
 {
     char *pszPattern;
     char *pszOptions;
+    char *pszRelativeTo;
+    bool  fMultiPattern;
 } SCMPATRNOPTPAIR;
 /** Pointer to a pattern + option pair. */
 typedef SCMPATRNOPTPAIR *PSCMPATRNOPTPAIR;
@@ -229,11 +379,14 @@ typedef SCMSETTINGS const *PCSCMSETTINGS;
 /** @} */
 
 
-void ScmVerbose(PSCMRWSTATE pState, int iLevel, const char *pszFormat, ...);
+void ScmVerboseBanner(PSCMRWSTATE pState, int iLevel);
+void ScmVerbose(PSCMRWSTATE pState, int iLevel, const char *pszFormat, ...) RT_IPRT_FORMAT_ATTR(3, 4);
+bool ScmError(PSCMRWSTATE pState, int rc, const char *pszFormat, ...) RT_IPRT_FORMAT_ATTR(3, 4);
 
 extern const char g_szTabSpaces[16+1];
 extern const char g_szAsterisks[255+1];
 extern const char g_szSpaces[255+1];
+extern uint32_t g_uYear;
 
 RT_C_DECLS_END
 

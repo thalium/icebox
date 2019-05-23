@@ -1,4 +1,4 @@
-# $Id
+# $Id: Makefile $
 ## @file
 # Makefile for building the VirtualBox keyboard handler library.
 #
@@ -6,7 +6,8 @@
 # Note that for reasons of convenience, VirtualBox builds this library
 # from inside its own build system rather than using this file.
 
-# Copyright (C) 2007-2010 Oracle Corporation
+#
+# Copyright (C) 2007-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;

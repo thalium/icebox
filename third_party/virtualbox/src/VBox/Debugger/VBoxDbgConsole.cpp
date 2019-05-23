@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -177,7 +177,7 @@ VBoxDbgConsoleOutput::setColorGreenOnBlack()
        When used as a trigger, the checked is done automatically by Qt. */
     if (!m_pGreenOnBlackAction->isChecked())
         m_pGreenOnBlackAction->setChecked(true);
-    
+
     /* Make this setting persistent */
     if (m_pVirtualBox)
         m_pVirtualBox->SetExtraData(com::Bstr("DbgConsole/ColorScheme").raw(), com::Bstr("GreenOnBlack").raw());
@@ -214,7 +214,7 @@ VBoxDbgConsoleOutput::setFontCourier()
 
     if (!m_pCourierFontAction->isChecked())
         m_pCourierFontAction->setChecked(true);
-    
+
     /* Make this setting persistent */
     if (m_pVirtualBox)
         m_pVirtualBox->SetExtraData(com::Bstr("DbgConsole/Font").raw(), com::Bstr("Courier").raw());

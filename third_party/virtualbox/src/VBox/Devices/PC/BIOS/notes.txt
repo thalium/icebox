@@ -100,7 +100,9 @@
   Otherwise the NT kernel will crash early during init due to confusion about
   the top of memory.
 
-
+- Darwin x86 6.0.2 ISO (darwinx86-602.iso) has a bizarre boot sector (using
+  El Torito hard disk emulation) with the first five bytes being zero. It
+  appears to be valid despite the oddity.
 
  286 BIOS
  --------

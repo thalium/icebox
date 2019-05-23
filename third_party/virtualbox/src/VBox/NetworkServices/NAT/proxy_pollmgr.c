@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2013-2016 Oracle Corporation
+ * Copyright (C) 2013-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -252,7 +252,7 @@ pollmgr_chan_send(int slot, void *buf, size_t nbytes)
 
     AssertReturn(0 <= slot && slot < POLLMGR_CHAN_COUNT, -1);
 
-    /* 
+    /*
      * XXX: Hack alert.  We only ever "sent" single pointer which was
      * simultaneously both the wakeup event for the poll and the
      * argument for the channel handler that it read from the channel.

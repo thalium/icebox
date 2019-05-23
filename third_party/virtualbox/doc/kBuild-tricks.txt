@@ -7,14 +7,14 @@ Introduction
 ------------
 
 This document is written in reStructuredText (rst) which just happens to
-be used by Python, the primary language for this revamp.  For more information 
+be used by Python, the primary language for this revamp.  For more information
 on reStructuredText: http://docutils.sourceforge.net/rst.html
 
 
 Changing the output directory
 -----------------------------
 
-When switch between different VBox build settings it can be nice to have 
+When switch between different VBox build settings it can be nice to have
 different output directories to avoid having to rebuild the whole source tree
 everything.  One typical example is hardening, another is guest additions using
 crossbuild gcc w/ SDK.  The latter is is simpler so that's the first example:

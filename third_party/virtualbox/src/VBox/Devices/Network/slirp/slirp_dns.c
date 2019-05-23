@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -178,6 +178,17 @@ static int get_dns_addr_domain(PNATState pData)
     {
         struct dns_entry *pDns;
         RTNETADDRU *address = &st.rcps_nameserver[i].uAddr;
+
+        if (address->IPv4.u == INADDR_ANY)
+        {
+            /*
+             * This doesn't seem to be very well documented except for
+             * RTFS of res_init.c, but INADDR_ANY is a valid value for
+             * for "nameserver".
+             */
+            address->IPv4.u = RT_H2N_U32_C(INADDR_LOOPBACK);
+        }
+
         if (  (address->IPv4.u & RT_H2N_U32_C(IN_CLASSA_NET))
            == RT_N2H_U32_C(INADDR_LOOPBACK & IN_CLASSA_NET))
         {

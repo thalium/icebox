@@ -7,7 +7,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -665,11 +665,11 @@ static DECLCALLBACK(void) parallelR3Relocate(PPDMDEVINS pDevIns, RTGCINTPTR offD
  */
 static DECLCALLBACK(int) parallelR3Construct(PPDMDEVINS pDevIns, int iInstance, PCFGMNODE pCfg)
 {
+    PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
     int            rc;
     PARALLELPORT *pThis = PDMINS_2_DATA(pDevIns, PARALLELPORT*);
 
     Assert(iInstance < 4);
-    PDMDEV_CHECK_VERSIONS_RETURN(pDevIns);
 
     /*
      * Init the data.
@@ -860,6 +860,5 @@ const PDMDEVREG g_DeviceParallelPort =
     PDM_DEVREG_VERSION
 };
 #endif /* IN_RING3 */
-
-
 #endif /* !VBOX_DEVICE_STRUCT_TESTCASE */
+

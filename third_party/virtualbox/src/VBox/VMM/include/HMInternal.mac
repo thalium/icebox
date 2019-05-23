@@ -68,7 +68,6 @@ struc HMCPU
         .fCheckedTLBFlush       resb    1
         .fLeaveDone             resb    1
         .fUsingHyperDR7         resb    1
-        .fPreloadGuestFpu       resb    1
         .fLoadSaveGuestXcr0     resb    1
 
         .fUseDebugLoop          resb    1

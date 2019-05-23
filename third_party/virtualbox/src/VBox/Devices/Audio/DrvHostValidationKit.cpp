@@ -35,7 +35,7 @@ typedef struct VAKITAUDIOSTREAM
     /** The stream's acquired configuration. */
     PPDMAUDIOSTREAMCFG pCfg;
     /** Audio file to dump output to or read input from. */
-    PDMAUDIOFILE       File;
+    PPDMAUDIOFILE      pFile;
     /** Text file to store timing of audio buffers submittions**/
     RTFILE             hFileTiming;
     /** Timestamp of the first play or record request**/
@@ -161,36 +161,30 @@ static int debugCreateStreamOut(PDRVHOSTVAKITAUDIO pDrv, PVAKITAUDIOSTREAM pStre
 
         if (RT_SUCCESS(rc))
         {
-            char szFile[RTPATH_MAX];
-            rc = DrvAudioHlpGetFileName(szFile, RT_ELEMENTS(szFile), szTemp, NULL, PDMAUDIOFILETYPE_WAV);
+            char szFile[RTPATH_MAX + 1];
+
+            rc = DrvAudioHlpGetFileName(szFile, RT_ELEMENTS(szFile), szTemp, "VaKit",
+                                        0 /* Instance */, PDMAUDIOFILETYPE_WAV, PDMAUDIOFILENAME_FLAG_NONE);
             if (RT_SUCCESS(rc))
             {
-                LogFlowFunc(("%s\n", szFile));
-                rc = DrvAudioHlpWAVFileOpen(&pStreamDbg->File, szFile,
-                                            RTFILE_O_WRITE | RTFILE_O_DENY_WRITE | RTFILE_O_CREATE_REPLACE,
-                                            &pCfgReq->Props, PDMAUDIOFILEFLAG_NONE);
-                if (RT_FAILURE(rc))
-                    LogRel(("VaKitAudio: Creating output file '%s' failed with %Rrc\n", szFile, rc));
+                rc = DrvAudioHlpFileCreate(PDMAUDIOFILETYPE_WAV, szFile, PDMAUDIOFILE_FLAG_NONE, &pStreamDbg->pFile);
+                if (RT_SUCCESS(rc))
+                    rc = DrvAudioHlpFileOpen(pStreamDbg->pFile, PDMAUDIOFILE_DEFAULT_OPEN_FLAGS, &pCfgReq->Props);
+            }
 
-                RTStrCat(szFile, sizeof(szFile), ".timing");
-                rc = RTFileOpen(&pStreamDbg->hFileTiming, szFile, RTFILE_O_WRITE | RTFILE_O_DENY_WRITE | RTFILE_O_CREATE_REPLACE);
-
-                if (RT_FAILURE(rc))
-                {
-                    LogRel(("VaKitAudio: Creating output file '%s' failed with %Rrc\n", szFile, rc));
-                }
-                else
-                {
-                    size_t cch;
-                    char szTimingInfo[128];
-                    cch = RTStrPrintf(szTimingInfo, sizeof(szTimingInfo), "# %dHz %dch %dbps\n",
-                        pCfgReq->Props.uHz, pCfgReq->Props.cChannels, pCfgReq->Props.cBits);
-
-                    RTFileWrite(pStreamDbg->hFileTiming, szTimingInfo, cch, NULL);
-                }
+            if (RT_FAILURE(rc))
+            {
+                LogRel(("VaKitAudio: Creating output file '%s' failed with %Rrc\n", szFile, rc));
             }
             else
-                LogRel(("VaKitAudio: Unable to build file name for temp dir '%s': %Rrc\n", szTemp, rc));
+            {
+                size_t cch;
+                char szTimingInfo[128];
+                cch = RTStrPrintf(szTimingInfo, sizeof(szTimingInfo), "# %dHz %dch %dbps\n",
+                    pCfgReq->Props.uHz, pCfgReq->Props.cChannels, pCfgReq->Props.cBits);
+
+                RTFileWrite(pStreamDbg->hFileTiming, szTimingInfo, cch, NULL);
+            }
         }
         else
             LogRel(("VaKitAudio: Unable to retrieve temp dir: %Rrc\n", rc));
@@ -276,7 +270,7 @@ static DECLCALLBACK(int) drvHostVaKitAudioStreamPlay(PPDMIHOSTAUDIO pInterface,
     /* Remember when samples were consumed. */
    // pStreamDbg->Out.tsLastPlayed = PDMDrvHlpTMGetVirtualTime(pDrv->pDrvIns);;
 
-    int rc2 = DrvAudioHlpWAVFileWrite(&pStreamDbg->File, pvBuf, cxBuf, 0 /* fFlags */);
+    int rc2 = DrvAudioHlpFileWrite(pStreamDbg->pFile, pvBuf, cxBuf, 0 /* fFlags */);
     if (RT_FAILURE(rc2))
         LogRel(("DebugAudio: Writing output failed with %Rrc\n", rc2));
 
@@ -320,32 +314,17 @@ static int debugDestroyStreamOut(PDRVHOSTVAKITAUDIO pDrv, PVAKITAUDIOSTREAM pStr
         pStreamDbg->Out.pu8PlayBuffer = NULL;
     }
 
-    size_t cbDataSize = DrvAudioHlpWAVFileGetDataSize(&pStreamDbg->File);
-
-    int rc = DrvAudioHlpWAVFileClose(&pStreamDbg->File);
-    RTFileClose(pStreamDbg->hFileTiming);
-
-    if (RT_SUCCESS(rc))
+    if (pStreamDbg->pFile)
     {
-        /* Delete the file again if nothing but the header was written to it. */
-        bool fDeleteEmptyFiles = true; /** @todo Make deletion configurable? */
+        size_t cbDataSize = DrvAudioHlpFileGetDataSize(pStreamDbg->pFile);
+        if (cbDataSize)
+            LogRel(("VaKitAudio: Created output file '%s' (%zu bytes)\n", pStreamDbg->pFile->szName, cbDataSize));
 
-        if (   !cbDataSize
-            && fDeleteEmptyFiles)
-        {
-            char szFile[RTPATH_MAX];
-
-            RTStrCopy(szFile, sizeof(szFile), pStreamDbg->File.szName);
-            RTFileDelete(szFile);
-
-            RTStrCat(szFile, sizeof(szFile), ".timing");
-            RTFileDelete(szFile);
-        }
-        else
-            LogRel(("VaKitAudio: Created output file '%s' (%zu bytes)\n", pStreamDbg->File.szName, cbDataSize));
+        DrvAudioHlpFileDestroy(pStreamDbg->pFile);
+        pStreamDbg->pFile = NULL;
     }
 
-    return rc;
+    return VINF_SUCCESS;
 }
 
 

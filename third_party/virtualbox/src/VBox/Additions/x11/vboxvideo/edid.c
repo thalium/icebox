@@ -7,7 +7,7 @@
 /*
  * Copyright (C) 2006-2017 Oracle Corporation
  *
- * This code is based on drmmode_display.c from the X.Org xf86-video-intel
+ * This file is based on drmmode_display.c from the X.Org xf86-video-intel
  * driver with the following copyright notice:
  *
  * Copyright © 2007 Red Hat, Inc.

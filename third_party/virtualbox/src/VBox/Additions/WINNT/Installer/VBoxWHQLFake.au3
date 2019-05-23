@@ -1,7 +1,11 @@
+; $Id: VBoxWHQLFake.au3 $
+;; @file
 ; VBoxFakeWHQL - Turns off / on the WHQL for installing unsigned drivers.
 ; Currently only tested with Win2K / XP!
 ;
-; Copyright (C) 2008-2010 Oracle Corporation
+
+;
+; Copyright (C) 2008-2017 Oracle Corporation
 ;
 ; This file is part of VirtualBox Open Source Edition (OSE), as
 ; available from http://www.virtualbox.org. This file is free software;
@@ -28,8 +32,8 @@ $drvsig_Title = "Treibersignaturoptionen"
 $ok_Title  = "OK"
 
 If $CmdLine[0] < 1 Then
-	MsgBox ( 0, "ERROR", "Please specify 'ignore', 'warn' or 'block' as parameter!" )
-	Exit
+    MsgBox ( 0, "ERROR", "Please specify 'ignore', 'warn' or 'block' as parameter!" )
+    Exit
 EndIf
 
 Run("control.exe sysdm.cpl")
@@ -60,5 +64,4 @@ ControlClick($drvsig_Title, "", 1)     ; 'OK' button (ID=1) of dialog 'Driver Si
 
 WinWait($sysprop_Title, "", 5)
 ControlClick($sysprop_Title, "", 1)    ; 'OK' button (ID=1) of 'System Properties'
-
 

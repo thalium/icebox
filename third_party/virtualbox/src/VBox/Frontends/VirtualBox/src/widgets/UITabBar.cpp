@@ -985,7 +985,7 @@ void UITabBar::prepare()
         m_pLayoutMain->setSpacing(0);
         m_pLayoutMain->setContentsMargins(0, 0, 0, 0);
 
-        // TODO: Workout stretch at the and as well,
+        /// @todo Workout stretch at the and as well,
         //       depending on which alignment is set.
         /* Add strech into beginning: */
         m_pLayoutMain->addStretch();

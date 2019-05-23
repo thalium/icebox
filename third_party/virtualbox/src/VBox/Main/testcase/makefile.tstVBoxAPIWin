@@ -1,8 +1,10 @@
-#
+# $Id: makefile.tstVBoxAPIWin $
+## @file
 # tstVBoxAPILinux makefile
 #
+
 #
-# Copyright (C) 2006-2016 Oracle Corporation
+# Copyright (C) 2006-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -12,6 +14,8 @@
 # VirtualBox OSE distribution. VirtualBox OSE is distributed in the
 # hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
 #
+
+#
 # Several assumptions and propositions:
 # - Visual Studio has already installed on machine or you already have nmake.exe, cl.exe, link.exe
 # - Windows SDK has already installed on machine or you already have Uuid.Lib Ole32.Lib OleAut32.Lib OleDlg.Lib
@@ -19,14 +23,14 @@
 # - nmake is a default tool that builds projects based on commands contained in this description file
 # - cl is cl.exe - Windows compiler
 # - link is link.exe - Windows linker
-# - all needed paths have been set in working environment. It means that when you type "cl" from the console, 
+# - all needed paths have been set in working environment. It means that when you type "cl" from the console,
 #   Windows shall find cl.exe by using enviroment variable PATH or something similar.
 #
-# The best way to accomplish it is to run a script vcvars32.bat located in the Visual studio "bin" directory. 
+# The best way to accomplish it is to run a script vcvars32.bat located in the Visual studio "bin" directory.
 # This script installs needed paths in your working environment.
 # Important!!!
 # Script vcvars32.bat sets up needed paths only for local console session.
-# For permanent using, needed paths must be added globally. 
+# For permanent using, needed paths must be added globally.
 #
 # Several possible examples of paths:
 # VS_INSTALL_PATH = "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\"
@@ -40,7 +44,7 @@
 CXX = cl
 LINK = link
 PATH_MSCOM     = ../../../bindings/mscom
-INCS_MSCOM     = $(PATH_MSCOM)/include 
+INCS_MSCOM     = $(PATH_MSCOM)/include
 LIBS_MSCOM     = $(PATH_MSCOM)/lib
 
 LIBS_DEPS = "Uuid.Lib" "Ole32.Lib" "OleAut32.Lib" "OleDlg.Lib"
@@ -48,7 +52,7 @@ LIBS_DEPS = "Uuid.Lib" "Ole32.Lib" "OleAut32.Lib" "OleDlg.Lib"
 tstVBoxAPIWin_SOURCES  = $(LIBS_MSCOM)/VirtualBox_i.c
 tstVBoxAPIWin_DEPS     = $(INCS_MSCOM)
 
-COMPILER_CMDLINE = /Zi /nologo /W3 /WX- /Od /Oy- /Gm /EHsc /RTC1 /GS /fp:precise /Gd /analyze- /errorReport:queue 
+COMPILER_CMDLINE = /Zi /nologo /W3 /WX- /Od /Oy- /Gm /EHsc /RTC1 /GS /fp:precise /Gd /analyze- /errorReport:queue
 
 LINKER_CMDLINE = /INCREMENTAL /DEBUG /SUBSYSTEM:CONSOLE
 
@@ -56,7 +60,7 @@ LINKER_CMDLINE = /INCREMENTAL /DEBUG /SUBSYSTEM:CONSOLE
 tstVBoxAPIWin.exe: tstVBoxAPIWin.obj VirtualBox_i.obj
 	$(LINK) /out:tstVBoxAPIWin.exe $** $(LIBS_DEPS)
 
-#   default compilation	
+#   default compilation
 tstVBoxAPIWin.obj:
 	$(CXX) /c /I$(INCS_MSCOM) tstVBoxAPIWin.cpp
 
@@ -83,5 +87,4 @@ VirtualBox_i.obj:
 #   compile with locally defined paths
 #VirtualBox_i.obj:
 #	$(CXX) /c /I$(INCS_MSCOM) /I$(WIN_SDK_INCLUDE_PATH) /I$(VS_INCLUDE_PATH) $(tstVBoxAPIWin_SOURCES)
-
 

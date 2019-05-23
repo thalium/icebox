@@ -1,4 +1,4 @@
-# $Id: header.kmk 3093 2017-10-13 13:07:39Z bird $
+# $Id: header.kmk 3111 2017-10-22 11:38:15Z bird $
 ## @file
 # kBuild - File included at top of a makefile.
 #
@@ -79,7 +79,7 @@ endif
 # The revision in which this file was last modified.
 # This can be useful when using development versions of kBuild.
 #
-KMK_REVISION := $(patsubst %:,,  $Rev: 3093 $  )
+KMK_REVISION := $(patsubst %:,,  $Rev: 3111 $  )
 
 
 #
@@ -196,10 +196,10 @@ KBUILD_BLD_TYPES := release profile debug
 # this keyword namespace is shared between OSes, architectures, cpus and
 # build types. (PORTME)
 #
-KBUILD_OSES      := darwin dos dragonfly freebsd gnukfbsd gnuknbsd haiku l4 linux netbsd nt openbsd os2 solaris win os-agnostic
-KBUILD_ARCHES    := x86 amd64 noarch alpha arm32 arm64 hppa32 hppa64 ia64 mips32 mips64 ppc32 ppc64 s390 s390x sh32 sh64 sparc32 sparc64
-KBUILD_ARCHES_64 := amd64 alpha arm64 hppa64 ia64 mips64 ppc64 s390x sh64 sparc64
-KBUILD_ARCHES_32 := x86 arm32 hppa32 mips32 ppc32 s390 sh32 sparc32
+KBUILD_OSES      := darwin dos dragonfly freebsd gnuhurd gnukfbsd gnuknbsd haiku l4 linux netbsd nt openbsd os2 solaris win os-agnostic
+KBUILD_ARCHES    := x86 amd64 noarch alpha arm32 arm64 hppa32 hppa64 ia64 m68k mips32 mips64 ppc32 ppc64 s390 s390x sh32 sh64 sparc32 sparc64 x32
+KBUILD_ARCHES_64 := amd64 alpha arm64 hppa64 ia64 mips64 ppc64 s390x sh64 sparc64 x32
+KBUILD_ARCHES_32 := x86 arm32 hppa32 m68k mips32 ppc32 s390 sh32 sparc32
 
 
 

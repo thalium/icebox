@@ -1,0 +1,62 @@
+# $Id: .scm-settings $
+## @file
+# Source code massager settings for common/crOpenGL.
+#
+
+#
+# Copyright (C) 2010-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+# Much of this is externally licensed, but not all, sigh.
+--external-copyright --no-convert-tabs
+
+/array/arrayspu.rc:             --no-external-copyright --convert-tabs
+
+/feedback/feedbackspu.rc:       --no-external-copyright --convert-tabs
+/feedback/feedback_context.c:   --no-external-copyright --convert-tabs
+
+/pack/packspu.rc:               --no-external-copyright --convert-tabs
+/pack/packspu_framebuffer.c:    --no-external-copyright --convert-tabs
+/pack/packspu_getshaders.c:     --no-external-copyright --convert-tabs
+/pack/packspu_glsl.c:           --no-external-copyright --convert-tabs
+/pack/packspu_texture.c:        --no-external-copyright --convert-tabs
+
+/passthrough/passthroughspu.rc: --no-external-copyright --convert-tabs
+
+/.scm-settings:                 --no-external-copyright --convert-tabs
+/dri_drv.c:                     --no-external-copyright --convert-tabs
+/dri_drv.h:                     --no-external-copyright --convert-tabs
+/dri_glx.h:                     --no-external-copyright --convert-tabs
+/egl.c:                         --no-external-copyright --convert-tabs
+/fakedri_drv.c:                 --no-external-copyright --convert-tabs
+/fakedri_drv.h:                 --no-external-copyright --convert-tabs
+/fakedri_glfuncsList.h:         --no-external-copyright --convert-tabs
+/fakedri_glxfuncsList.h:        --no-external-copyright --convert-tabs
+/glx.c:                         --no-external-copyright --convert-tabs
+/glx_c_exports.c:               --no-external-copyright --convert-tabs
+/glx_proto.h:                   --no-external-copyright --convert-tabs
+/icd_drv.c:                     --no-external-copyright --convert-tabs
+/icd_drv.h:                     --no-external-copyright --convert-tabs
+/Linux_i386_glxapi_exports.py:  --no-external-copyright --convert-tabs
+/Makefile.kmk:                  --no-external-copyright --convert-tabs
+/SunOS_i386_exports.py:         --no-external-copyright --convert-tabs
+/SunOS_i386_exports_dri.py:     --no-external-copyright --convert-tabs
+/SunOS_i386_glxapi_exports.py:  --no-external-copyright --convert-tabs
+/VBoxCROGL.rc:                  --no-external-copyright --convert-tabs
+/VBoxICDList.h:                 --no-external-copyright
+
+*_special: --treat-as Makefile
+
+# Ignore some stuff.
+--filter-out-files /COPYRIGHT.LLNL
+--filter-out-files /COPYRIGHT.REDHAT
+--filter-out-files /LICENSE
+

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2013-2016 Oracle Corporation
+ * Copyright (C) 2013-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -24,6 +24,7 @@
 # include <QHBoxLayout>
 # include <QLineEdit>
 # include <QKeyEvent>
+# include <QStyle>
 
 /* GUI includes; */
 # include "UIHotKeyEditor.h"
@@ -122,7 +123,11 @@ UIHotKeyEditor::UIHotKeyEditor(QWidget *pParent)
     setFocusProxy(m_pLineEdit);
 
     /* Configure layout: */
-    m_pMainLayout->setSpacing(4);
+#ifdef VBOX_WS_MAC
+    m_pMainLayout->setSpacing(5);
+#else
+    m_pMainLayout->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing) / 2);
+#endif
     m_pMainLayout->setContentsMargins(0, 0, 0, 0);
     m_pMainLayout->addWidget(m_pLineEdit);
     m_pMainLayout->addLayout(m_pButtonLayout);

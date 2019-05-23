@@ -1,4 +1,4 @@
-/* $Id: kLdrModMachO.c 102M 2017-10-17 09:35:49Z (local) $ */
+/* $Id: kLdrModMachO.c 102 2017-10-02 10:45:31Z bird $ */
 /** @file
  * kLdr - The Module Interpreter for the MACH-O format.
  */
@@ -769,7 +769,6 @@ static int  kldrModMachOPreParseLoadCommands(KU8 *pbLoadCommands, const mach_hea
                             case S_INTERPOSING: \
                             case S_GB_ZEROFILL: \
                                 KLDRMODMACHO_FAILED_RETURN(KLDR_ERR_MACHO_UNSUPPORTED_SECTION); \
-                                /* fall thru */ \
                             \
                             default: \
                                 KLDRMODMACHO_FAILED_RETURN(KLDR_ERR_MACHO_UNKNOWN_SECTION); \
@@ -1060,7 +1059,6 @@ static int  kldrModMachOPreParseLoadCommands(KU8 *pbLoadCommands, const mach_hea
             case LC_PREBIND_CKSUM:
             case LC_SYMSEG:
                 KLDRMODMACHO_FAILED_RETURN(KLDR_ERR_MACHO_UNSUPPORTED_LOAD_COMMAND);
-                /* fall thru */
 
             default:
                 KLDRMODMACHO_FAILED_RETURN(KLDR_ERR_MACHO_UNKNOWN_LOAD_COMMAND);
@@ -2891,9 +2889,6 @@ static int  kldrModMachOFixupSectionGeneric32Bit(PKLDRMODMACHO pModMachO, KU8 *p
                     case MACHO_N_INDR:
                     case MACHO_N_PBUD:
                         KLDRMODMACHO_FAILED_RETURN(KLDR_ERR_TODO);
-#if defined(__GNUC__) && __GNUC__ >= 7
-                        __attribute__((fallthrough));
-#endif
                     default:
                         KLDRMODMACHO_FAILED_RETURN(KLDR_ERR_MACHO_BAD_SYMBOL);
                 }
@@ -3086,7 +3081,6 @@ static int  kldrModMachOFixupSectionAMD64(PKLDRMODMACHO pModMachO, KU8 *pbSectBi
                         case MACHO_N_INDR:
                         case MACHO_N_PBUD:
                             KLDRMODMACHO_FAILED_RETURN(KLDR_ERR_TODO);
-                            /* fall thru */
                         default:
                             KLDRMODMACHO_FAILED_RETURN(KLDR_ERR_MACHO_BAD_SYMBOL);
                     }
@@ -3155,7 +3149,6 @@ static int  kldrModMachOFixupSectionAMD64(PKLDRMODMACHO pModMachO, KU8 *pbSectBi
                         case MACHO_N_INDR:
                         case MACHO_N_PBUD:
                             KLDRMODMACHO_FAILED_RETURN(KLDR_ERR_TODO);
-                            /* fall thru */
                         default:
                             KLDRMODMACHO_FAILED_RETURN(KLDR_ERR_MACHO_BAD_SYMBOL);
                     }
@@ -3189,7 +3182,6 @@ static int  kldrModMachOFixupSectionAMD64(PKLDRMODMACHO pModMachO, KU8 *pbSectBi
                         case MACHO_N_INDR:
                         case MACHO_N_PBUD:
                             KLDRMODMACHO_FAILED_RETURN(KLDR_ERR_TODO);
-                            /* fall thru */
                         default:
                             KLDRMODMACHO_FAILED_RETURN(KLDR_ERR_MACHO_BAD_SYMBOL);
                     }
@@ -3231,7 +3223,6 @@ static int  kldrModMachOFixupSectionAMD64(PKLDRMODMACHO pModMachO, KU8 *pbSectBi
                             case MACHO_N_INDR:
                             case MACHO_N_PBUD:
                                 KLDRMODMACHO_FAILED_RETURN(KLDR_ERR_TODO);
-                                /* fall thru */
                             default:
                                 KLDRMODMACHO_FAILED_RETURN(KLDR_ERR_MACHO_BAD_SYMBOL);
                         }

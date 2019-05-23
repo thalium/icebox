@@ -130,4 +130,3 @@ TONLY64 mov     rax, rcx
         BS3_HYBRID_RET
 BS3_PROC_END_CMN   Bs3SelFlatDataToProtFar16
 
-

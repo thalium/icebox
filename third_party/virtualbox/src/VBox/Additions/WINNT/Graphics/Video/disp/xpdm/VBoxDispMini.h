@@ -1,11 +1,10 @@
 /* $Id: VBoxDispMini.h $ */
-
 /** @file
  * VBox XPDM Display driver, helper functions which interacts with our miniport driver
  */
 
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -40,4 +39,4 @@ int VBoxDispMPShareVideoMemory(HANDLE hDriver, PVIDEO_SHARE_MEMORY pSMem, PVIDEO
 int VBoxDispMPUnshareVideoMemory(HANDLE hDriver, PVIDEO_SHARE_MEMORY pSMem);
 int VBoxDispMPQueryRegistryFlags(HANDLE hDriver, ULONG *pulFlags);
 
-#endif /*VBOXDISPMINI_H*/
+#endif /* !VBOXDISPMINI_H */

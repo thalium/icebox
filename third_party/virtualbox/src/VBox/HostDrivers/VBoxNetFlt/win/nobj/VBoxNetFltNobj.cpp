@@ -4,7 +4,7 @@
  * Used to filter Bridged Networking Driver bindings
  */
 /*
- * Copyright (C) 2011-2016 Oracle Corporation
+ * Copyright (C) 2011-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -13,6 +13,15 @@
  * Foundation, in version 2 as it comes in the "COPYING" file of the
  * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ *
+ * The contents of this file may alternatively be used under the terms
+ * of the Common Development and Distribution License Version 1.0
+ * (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+ * VirtualBox OSE distribution, in which case the provisions of the
+ * CDDL are applicable instead of those of the GPL.
+ *
+ * You may elect to license modified versions of this file under the
+ * terms and conditions of either the GPL or the CDDL or both.
  */
 #include "VBoxNetFltNobj.h"
 #include <iprt/win/ntddndis.h>
@@ -20,6 +29,8 @@
 #include <stdio.h>
 
 #include <VBoxNetFltNobjT_i.c>
+
+#include <Olectl.h>
 
 //# define VBOXNETFLTNOTIFY_DEBUG_BIND
 
@@ -574,22 +585,162 @@ STDAPI DllGetClassObject(REFCLSID rclsid, REFIID riid, LPVOID* ppv)
     return _Module.GetClassObject(rclsid, riid, ppv);
 }
 
+/*
+ * ATL::CComModule does not suport server registration/unregistration methods,
+ * so we need to do it manually. Since this is the only place we do registraton
+ * manually, we do it the quick-and-dirty way.
+ */
+
+/* Someday we may want to log errors. */
+class AdHocRegError
+{
+public:
+    AdHocRegError(LSTATUS rc) { RT_NOREF1(rc); };
+};
+
+/* A simple wrapper on Windows registry functions. */
+class AdHocRegKey
+{
+public:
+    AdHocRegKey(HKEY hKey) : m_hKey(hKey) {};
+    AdHocRegKey(LPCWSTR pcwszName, HKEY hParent = HKEY_CLASSES_ROOT);
+    ~AdHocRegKey() { RegCloseKey(m_hKey); };
+
+    AdHocRegKey *create(LPCWSTR pcwszSubkey, LPCWSTR pcwszDefaultValue = NULL);
+    void remove(LPCWSTR pcwszSubkey);
+    void setValue(LPCWSTR pcwszName, LPCWSTR pcwszValue);
+    HKEY getKey(void) { return m_hKey; };
+private:
+    HKEY m_hKey;
+};
+
+AdHocRegKey::AdHocRegKey(LPCWSTR pcwszName, HKEY hParent)
+{
+    LSTATUS rc = RegOpenKeyExW(hParent, pcwszName, 0, KEY_ALL_ACCESS, &m_hKey);
+    if (rc != ERROR_SUCCESS)
+        throw AdHocRegError(rc);
+}
+
+void AdHocRegKey::remove(LPCWSTR pcwszSubkey)
+{
+    LSTATUS rc;
+    WCHAR wszName[256];
+    DWORD dwName;
+
+    /* Remove all subkeys of subkey first */
+    AdHocRegKey *subkey = new AdHocRegKey(pcwszSubkey, m_hKey);
+    for (;;)
+    {
+        /* Always ask for the first subkey, because we remove it before calling RegEnumKeyEx again */
+        dwName = 255;
+        rc = RegEnumKeyExW(subkey->getKey(), 0, wszName, &dwName, NULL, NULL, NULL, NULL);
+        if (rc != ERROR_SUCCESS)
+            break;
+        subkey->remove(wszName);
+    }
+    delete subkey;
+
+    /* Remove the subkey itself */
+    rc = RegDeleteKeyW(m_hKey, pcwszSubkey);
+    if (rc != ERROR_SUCCESS)
+        throw AdHocRegError(rc);
+}
+
+AdHocRegKey *AdHocRegKey::create(LPCWSTR pcwszSubkey, LPCWSTR pcwszDefaultValue)
+{
+    HKEY hSubkey;
+    LSTATUS rc = RegCreateKeyExW(m_hKey, pcwszSubkey,
+                                 0 /*Reserved*/, NULL /*pszClass*/, 0 /*fOptions*/,
+                                 KEY_ALL_ACCESS, NULL /*pSecAttr*/, &hSubkey, NULL /*pdwDisposition*/);
+    if (rc != ERROR_SUCCESS)
+        throw AdHocRegError(rc);
+    AdHocRegKey *pSubkey = new AdHocRegKey(hSubkey);
+    if (pcwszDefaultValue)
+        pSubkey->setValue(NULL, pcwszDefaultValue);
+    return pSubkey;
+}
+
+void AdHocRegKey::setValue(LPCWSTR pcwszName, LPCWSTR pcwszValue)
+{
+    LSTATUS rc = RegSetValueExW(m_hKey, pcwszName, 0, REG_SZ, (const BYTE *)pcwszValue,
+                                (DWORD)((wcslen(pcwszValue) + 1) * sizeof(WCHAR)));
+    if (rc != ERROR_SUCCESS)
+        throw AdHocRegError(rc);
+}
+
+/*
+ * Auxiliary class that facilitates automatic destruction of AdHocRegKey objects
+ * allocated in heap. No reference counting here!
+ */
+class AdHocRegKeyPtr
+{
+public:
+    AdHocRegKeyPtr(AdHocRegKey *pKey) : m_pKey(pKey) {};
+    ~AdHocRegKeyPtr() { delete m_pKey; };
+
+    AdHocRegKey *create(LPCWSTR pcwszSubkey, LPCWSTR pcwszDefaultValue = NULL)
+        { return m_pKey->create(pcwszSubkey, pcwszDefaultValue); };
+    void remove(LPCWSTR pcwszSubkey)
+        { return m_pKey->remove(pcwszSubkey); };
+    void setValue(LPCWSTR pcwszName, LPCWSTR pcwszValue)
+        { return m_pKey->setValue(pcwszName, pcwszValue); };
+private:
+    AdHocRegKey *m_pKey;
+    /* Prevent copying, since we do not support reference counting */
+    AdHocRegKeyPtr(const AdHocRegKeyPtr&);
+    AdHocRegKeyPtr& operator=(const AdHocRegKeyPtr&);
+};
+
+
 STDAPI DllRegisterServer()
 {
-// this is a "just in case" conditional, which is not defined
-#ifdef VBOX_FORCE_REGISTER_SERVER
-    return _Module.RegisterServer(TRUE);
-#else
+    WCHAR wszModule[MAX_PATH + 1];
+    if (GetModuleFileNameW(GetModuleHandleW(L"VBoxNetFltNobj"), wszModule, MAX_PATH) == 0)
+        return SELFREG_E_CLASS;
+
+    try {
+        AdHocRegKey keyCLSID(L"CLSID");
+        AdHocRegKeyPtr pkeyNobjClass(keyCLSID.create(L"{f374d1a0-bf08-4bdc-9cb2-c15ddaeef955}",
+                                                     L"VirtualBox Bridged Networking Driver Notify Object v1.1"));
+        AdHocRegKeyPtr pkeyNobjSrv(pkeyNobjClass.create(L"InProcServer32", wszModule));
+        pkeyNobjSrv.setValue(L"ThreadingModel", L"Both");
+    }
+    catch (AdHocRegError)
+    {
+        return SELFREG_E_CLASS;
+    }
+
+    try {
+        AdHocRegKey keyTypeLib(L"TypeLib");
+        AdHocRegKeyPtr pkeyNobjLib(keyTypeLib.create(L"{2A0C94D1-40E1-439C-8FE8-24107CAB0840}\\1.1",
+                                                     L"VirtualBox Bridged Networking Driver Notify Object v1.1 Type Library"));
+        AdHocRegKeyPtr pkeyNobjLib0(pkeyNobjLib.create(L"0\\win64", wszModule));
+        AdHocRegKeyPtr pkeyNobjLibFlags(pkeyNobjLib.create(L"FLAGS", L"0"));
+        if (GetSystemDirectoryW(wszModule, MAX_PATH) == 0)
+            return SELFREG_E_TYPELIB;
+        AdHocRegKeyPtr pkeyNobjLibHelpDir(pkeyNobjLib.create(L"HELPDIR", wszModule));
+    }
+    catch (AdHocRegError)
+    {
+        return SELFREG_E_CLASS;
+    }
+
     return S_OK;
-#endif
 }
 
 STDAPI DllUnregisterServer()
 {
-// this is a "just in case" conditional, which is not defined
-#ifdef VBOX_FORCE_REGISTER_SERVER
-    return _Module.UnregisterServer(TRUE);
-#else
+    try {
+        AdHocRegKey keyTypeLib(L"TypeLib");
+        keyTypeLib.remove(L"{2A0C94D1-40E1-439C-8FE8-24107CAB0840}");
+    }
+    catch (AdHocRegError) { return SELFREG_E_TYPELIB; }
+    
+    try {
+        AdHocRegKey keyCLSID(L"CLSID");
+        keyCLSID.remove(L"{f374d1a0-bf08-4bdc-9cb2-c15ddaeef955}");
+    }
+    catch (AdHocRegError) { return SELFREG_E_CLASS; }
+
     return S_OK;
-#endif
 }

@@ -214,18 +214,20 @@ size_t rtDirNativeGetStructSize(const char *pszPath)
     if (cbNameMax < _XOPEN_NAME_MAX)    /* Ditto. */
         cbNameMax = _XOPEN_NAME_MAX;
 # endif
-    size_t cbDir = RT_OFFSETOF(RTDIR, Data.d_name[cbNameMax + 1]);
-    if (cbDir < sizeof(RTDIR))          /* Ditto. */
-        cbDir = sizeof(RTDIR);
+    size_t cbDir = RT_OFFSETOF(RTDIRINTERNAL, Data.d_name[cbNameMax + 1]);
+    if (cbDir < sizeof(RTDIRINTERNAL))  /* Ditto. */
+        cbDir = sizeof(RTDIRINTERNAL);
     cbDir = RT_ALIGN_Z(cbDir, 8);
 
     return cbDir;
 }
 
 
-int rtDirNativeOpen(PRTDIR pDir, char *pszPathBuf)
+int rtDirNativeOpen(PRTDIRINTERNAL pDir, char *pszPathBuf, uintptr_t hRelativeDir, void *pvNativeRelative)
 {
     NOREF(pszPathBuf); /* only used on windows */
+    NOREF(hRelativeDir);
+    NOREF(pvNativeRelative);
 
     /*
      * Convert to a native path and try opendir.
@@ -252,8 +254,10 @@ int rtDirNativeOpen(PRTDIR pDir, char *pszPathBuf)
 }
 
 
-RTDECL(int) RTDirClose(PRTDIR pDir)
+RTDECL(int) RTDirClose(RTDIR hDir)
 {
+    PRTDIRINTERNAL pDir = hDir;
+
     /*
      * Validate input.
      */
@@ -288,7 +292,7 @@ RTDECL(int) RTDirClose(PRTDIR pDir)
  * @returns IPRT status code.
  * @param   pDir        the open directory. Fully validated.
  */
-static int rtDirReadMore(PRTDIR pDir)
+static int rtDirReadMore(PRTDIRINTERNAL pDir)
 {
     /** @todo try avoid the rematching on buffer overflow errors. */
     for (;;)
@@ -374,8 +378,10 @@ static RTDIRENTRYTYPE rtDirType(int iType)
 #endif /*HAVE_DIRENT_D_TYPE */
 
 
-RTDECL(int) RTDirRead(PRTDIR pDir, PRTDIRENTRY pDirEntry, size_t *pcbDirEntry)
+RTDECL(int) RTDirRead(RTDIR hDir, PRTDIRENTRY pDirEntry, size_t *pcbDirEntry)
 {
+    PRTDIRINTERNAL pDir = hDir;
+
     /*
      * Validate and digest input.
      */
@@ -471,8 +477,11 @@ static void rtDirSetDummyInfo(PRTFSOBJINFO pInfo, RTDIRENTRYTYPE enmType)
 }
 
 
-RTDECL(int) RTDirReadEx(PRTDIR pDir, PRTDIRENTRYEX pDirEntry, size_t *pcbDirEntry, RTFSOBJATTRADD enmAdditionalAttribs, uint32_t fFlags)
+RTDECL(int) RTDirReadEx(RTDIR hDir, PRTDIRENTRYEX pDirEntry, size_t *pcbDirEntry,
+                        RTFSOBJATTRADD enmAdditionalAttribs, uint32_t fFlags)
 {
+    PRTDIRINTERNAL pDir = hDir;
+
     /*
      * Validate and digest input.
      */

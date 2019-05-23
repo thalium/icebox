@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2007-2016 Oracle Corporation
+ * Copyright (C) 2007-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -27,6 +27,7 @@
 #include <iprt/list.h>
 #include <iprt/critsect.h>
 #include <iprt/path.h> /* RTPATH_MAX */
+#include <iprt/stdarg.h>
 
 #include <VBox/VBoxGuestLib.h>
 #include <VBox/HostServices/GuestControlSvc.h>
@@ -184,6 +185,7 @@ extern RTEXITCODE               VGSvcSyntax(const char *pszFormat, ...);
 extern RTEXITCODE               VGSvcError(const char *pszFormat, ...);
 extern void                     VGSvcVerbose(unsigned iLevel, const char *pszFormat, ...);
 extern int                      VGSvcLogCreate(const char *pszLogFile);
+extern void                     VGSvcLogV(const char *pszFormat, va_list va);
 extern void                     VGSvcLogDestroy(void);
 extern int                      VGSvcArgUInt32(int argc, char **argv, const char *psz, int *pi, uint32_t *pu32,
                                                uint32_t u32Min, uint32_t u32Max);

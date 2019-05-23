@@ -2523,8 +2523,7 @@ VMMDECL(VBOXSTRICTRC) PGMPhysRead(PVM pVM, RTGCPHYS GCPhys, void *pvBuf, size_t 
                         PGM_PHYS_RW_DO_UPDATE_STRICT_RC(rcStrict, rcStrict2);
                     else
                     {
-                        if (enmOrigin == PGMACCESSORIGIN_DEVICE)    /* Questionable paranoia, should be removed. */
-                            memset(pvBuf, 0xff, cb);
+                        memset(pvBuf, 0xff, cb);
                         pgmUnlock(pVM);
                         return rcStrict2;
                     }

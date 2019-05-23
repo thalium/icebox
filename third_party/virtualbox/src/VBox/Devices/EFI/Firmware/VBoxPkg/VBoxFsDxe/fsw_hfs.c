@@ -13,7 +13,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -36,9 +36,10 @@
 #include "fsw_hfs.h"
 
 #ifdef HOST_POSIX
+#include <assert.h>
 #define DPRINT(x) printf(x)
 #define DPRINT2(x,y) printf(x,y)
-#define BP(msg)    do { printf("ERROR: %s", msg); asm("int3"); } while (0)
+#define BP(msg)    do { printf("ERROR: %s", msg); assert(0); } while (0)
 #elif defined DEBUG_LEVEL
 #define CONCAT(x,y) x##y
 #define DPRINT(x) Print(CONCAT(L,x))
@@ -654,7 +655,7 @@ static void hfs_fill_info(struct fsw_hfs_volume *vol, HFSPlusCatalogKey *file_ke
     base = (fsw_u8*)file_key + be16_to_cpu(file_key->keyLength) + 2;
     rec_type =  be16_to_cpu(*(fsw_u16*)base);
 
-    /** @todo: read additional info */
+    /** @todo read additional info */
     switch (rec_type)
     {
         case kHFSPlusFolderRecord:
@@ -663,7 +664,7 @@ static void hfs_fill_info(struct fsw_hfs_volume *vol, HFSPlusCatalogKey *file_ke
 
             file_info->id = be32_to_cpu(info->folderID);
             file_info->type = FSW_DNODE_TYPE_DIR;
-            /* @todo: return number of elements, maybe use smth else */
+            /** @todo return number of elements, maybe use smth else */
             file_info->size = be32_to_cpu(info->valence);
             file_info->used = be32_to_cpu(info->valence);
             file_info->ctime = be32_to_cpu(info->createDate);
@@ -927,17 +928,17 @@ fsw_hfs_cmpi_catkey (BTreeKey *key1, BTreeKey *key2)
 
   while(1)
   {
-    /* get next valid character from ckey1 */
+    /* get next valid (non-zero) character from ckey1 */
     for (lc = 0; lc == 0 && apos < key1Len; apos++) {
       ac = be16_to_cpu(p1[apos]);
-      lc = ac ? fsw_to_lower(ac) : 0;
+      lc = fsw_to_lower(ac);    /* NB: 0x0000 is translated to 0xffff */
     };
     ac = (fsw_u16)lc;
 
-    /* get next valid character from ckey2 */
+    /* get next valid (non-zero) character from ckey2 */
     for (lc = 0; lc == 0 && bpos < ckey2->nodeName.length; bpos++) {
       bc = p2[bpos];
-      lc = bc ? fsw_to_lower(bc) : 0;
+      lc = fsw_to_lower(bc);    /* NB: 0x0000 is translated to 0xffff */
     };
     bc = (fsw_u16)lc;
 

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2008-2016 Oracle Corporation
+ * Copyright (C) 2008-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -36,6 +36,7 @@
 #include "net_internals.h"
 #include "cr_process.h"
 
+#include <iprt/initterm.h>
 #include <iprt/thread.h>
 
 #include <VBox/VBoxGuestLib.h>
@@ -45,7 +46,7 @@
 #include <VBoxCrHgsmi.h>
 #endif
 
-/*@todo move define somewhere else, and make sure it's less than VBGLR0_MAX_HGCM_KERNEL_PARM*/
+/** @todo move define somewhere else, and make sure it's less than VBGLR0_MAX_HGCM_KERNEL_PARM*/
 /*If we fail to pass data in one chunk, send it in chunks of this size instead*/
 #define CR_HGCM_SPLIT_BUFFER_SIZE (8*_1M)
 
@@ -544,7 +545,7 @@ static bool _crVBoxHGCMReadBytes(CRConnection *conn, void *buf, uint32_t len)
 #endif
 
 #ifndef IN_GUEST
-/*@todo get rid of it*/
+/** @todo get rid of it*/
 static bool _crVBoxHGCMWriteBytes(CRConnection *conn, const void *buf, uint32_t len)
 {
     CRASSERT(conn && buf);
@@ -592,7 +593,7 @@ static int crVBoxHGCMCall(CRConnection *conn, PVBGLIOCHGCMCALL pData, unsigned c
         rc = VBoxCrHgsmiCtlConCall(pClient->pHgsmi, pData, cbData);
     else
 # endif
-    {        
+    {
         rc = VbglR3HGCMCall(pData, cbData);
         if (RT_SUCCESS(rc))
         { /* likely */ }
@@ -704,7 +705,7 @@ static void _crVBoxHGCMWriteExact(CRConnection *conn, const void *buf, unsigned 
         parms.pBuffer.u.Pointer.u.linearAddr = (uintptr_t) buf;
 
         rc = crVBoxHGCMCall(conn, &parms.hdr, sizeof(parms));
-        callRes = parms.hdr.Hdr.rc;
+        callRes = parms.hdr.Hdr.rc; /** @todo now rc == parms.hdr.Hdr.rc */
     }
     else
 #endif
@@ -718,7 +719,7 @@ static void _crVBoxHGCMWriteExact(CRConnection *conn, const void *buf, unsigned 
         parms.pBuffer.u.Pointer.u.linearAddr = (uintptr_t) buf;
 
         rc = crVBoxHGCMCall(conn, &parms.hdr, sizeof(parms));
-        callRes = parms.hdr.Hdr.rc;
+        callRes = parms.hdr.Hdr.rc; /** @todo now rc == parms.hdr.Hdr.rc */
     }
 
     if (RT_FAILURE(rc) || RT_FAILURE(callRes))
@@ -758,7 +759,7 @@ static void crVBoxHGCMReadExact( CRConnection *conn, const void *buf, unsigned i
 
     rc = crVBoxHGCMCall(conn, &parms.hdr, sizeof(parms));
 
-    if (RT_FAILURE(rc) || RT_FAILURE(parms.hdr.Hdr.rc))
+    if (RT_FAILURE(rc) || RT_FAILURE(parms.hdr.Hdr.rc) /** @todo now rc == parms.hdr.Hdr.rc */)
     {
         crWarning("SHCRGL_GUEST_FN_READ failed with %x %x\n", rc, parms.hdr.Hdr.rc);
         return;
@@ -834,7 +835,7 @@ crVBoxHGCMWriteReadExact(CRConnection *conn, const void *buf, unsigned int len, 
             crDebug("SHCRGL_GUEST_FN_WRITE_BUFFER, offset=%u, size=%u", wbParms.ui32Offset.u.value32, wbParms.pBuffer.u.Pointer.size);
 
             rc = crVBoxHGCMCall(conn, &wbParms.hdr, sizeof(wbParms));
-            if (RT_FAILURE(rc) || RT_FAILURE(wbParms.hdr.Hdr.rc))
+            if (RT_FAILURE(rc) || RT_FAILURE(wbParms.hdr.Hdr.rc) /** @todo now rc == wbParms.hdr.Hdr.rc */)
             {
                 crError("SHCRGL_GUEST_FN_WRITE_BUFFER (%i) failed with %x %x\n", wbParms.pBuffer.u.Pointer.size, rc, wbParms.hdr.Hdr.rc);
                 return;
@@ -865,10 +866,10 @@ crVBoxHGCMWriteReadExact(CRConnection *conn, const void *buf, unsigned int len, 
     }
 #endif
 
-    if (RT_FAILURE(rc) || RT_FAILURE(parms.hdr.Hdr.rc))
+    if (RT_FAILURE(rc) || RT_FAILURE(parms.hdr.Hdr.rc) /** @todo now rc == parms.hdr.Hdr.rc */)
     {
 
-        if ((VERR_BUFFER_OVERFLOW == parms.hdr.Hdr.rc) && RT_SUCCESS(rc))
+        if ((VERR_BUFFER_OVERFLOW == parms.hdr.Hdr.rc) /* && RT_SUCCESS(rc) */)
         {
             /* reallocate buffer and retry */
 
@@ -915,7 +916,7 @@ static void crVBoxHGCMSend(CRConnection *conn, void **bufp,
     if (!bufp) /* We're sending a user-allocated buffer. */
     {
 #ifndef IN_GUEST
-            /**@todo remove temp buffer allocation in unpacker*/
+            /** @todo remove temp buffer allocation in unpacker*/
             /* we're at the host side, so just store data until guest polls us */
             _crVBoxHGCMWriteBytes(conn, start, len);
 #else
@@ -990,7 +991,7 @@ static void crVBoxHGCMPollHost(CRConnection *conn)
 
     rc = crVBoxHGCMCall(conn, &parms.hdr, sizeof(parms));
 
-    if (RT_FAILURE(rc) || RT_FAILURE(parms.hdr.Hdr.rc))
+    if (RT_FAILURE(rc) || RT_FAILURE(parms.hdr.Hdr.rc) /** @todo now rc == parms.hdr.Hdr.rc */)
     {
         crDebug("SHCRGL_GUEST_FN_READ failed with %x %x\n", rc, parms.hdr.Hdr.rc);
         return;
@@ -1022,7 +1023,7 @@ static void _crVBoxHGCMFree(CRConnection *conn, void *buf)
 
     CRASSERT(hgcm_buffer->magic == CR_VBOXHGCM_BUFFER_MAGIC);
 
-    /*@todo wrong len for redir buffers*/
+    /** @todo wrong len for redir buffers*/
     conn->recv_credits += hgcm_buffer->len;
 
     switch (hgcm_buffer->kind)
@@ -1032,7 +1033,7 @@ static void _crVBoxHGCMFree(CRConnection *conn, void *buf)
             crLockMutex(&g_crvboxhgcm.mutex);
 #endif
             if (g_crvboxhgcm.bufpool) {
-                /**@todo o'rly? */
+                /** @todo o'rly? */
                 /* pool may have been deallocated just a bit earlier in response
                  * to a SIGPIPE (Broken Pipe) signal.
                  */
@@ -1193,7 +1194,7 @@ static int crVBoxHGCMSetVersion(CRConnection *conn, unsigned int vMajor, unsigne
 
     if (RT_SUCCESS(rc))
     {
-        rc =  parms.hdr.Hdr.rc;
+        rc =  parms.hdr.Hdr.rc; /** @todo now rc == parms.hdr.Hdr.rc */
         if (RT_SUCCESS(rc))
         {
             conn->vMajor = CR_PROTOCOL_VERSION_MAJOR;
@@ -1255,7 +1256,7 @@ static int crVBoxHGCMSetPID(CRConnection *conn, unsigned long long pid)
 
     rc = crVBoxHGCMCall(conn, &parms.hdr, sizeof(parms));
 
-    if (RT_FAILURE(rc) || RT_FAILURE(parms.hdr.Hdr.rc))
+    if (RT_FAILURE(rc) || RT_FAILURE(parms.hdr.Hdr.rc) /** @todo now rc == parms.hdr.Hdr.rc */)
     {
         crWarning("SHCRGL_GUEST_FN_SET_PID failed!");
         return FALSE;
@@ -1274,6 +1275,7 @@ static int crVBoxHGCMDoConnect( CRConnection *conn )
 #ifdef IN_GUEST
     int rc;
     VBOXCRHGSMIPROFILE_FUNC_PROLOGUE();
+    RTR3InitDll(RTR3INIT_FLAGS_UNOBTRUSIVE);
     rc = VbglR3InitUser();
     if (RT_SUCCESS(rc))
     {
@@ -1375,7 +1377,7 @@ static bool _crVBoxCommonDoDisconnectLocked( CRConnection *conn )
     return false;
 }
 
-/*@todo same, replace DeviceIoControl with vbglR3DoIOCtl */
+/** @todo same, replace DeviceIoControl with vbglR3DoIOCtl */
 static void crVBoxHGCMDoDisconnect( CRConnection *conn )
 {
     bool fHasActiveCons = false;
@@ -2188,7 +2190,7 @@ void crVBoxHGCMInit(CRNetReceiveFuncList *rfl, CRNetCloseFuncList *cfl, unsigned
     g_crvboxhgcm.conns     = NULL;
 
     /* Can't open VBox guest driver here, because it gets called for host side as well */
-    /*@todo as we have 2 dll versions, can do it now.*/
+    /** @todo as we have 2 dll versions, can do it now.*/
 
 #ifdef RT_OS_WINDOWS
     g_crvboxhgcm.pDirectDraw = NULL;

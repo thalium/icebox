@@ -1332,6 +1332,8 @@ EXPORTS
     RTThreadWait
     RTThreadWaitNoResume
     RTThreadYield
+    RTTimeCompare
+    RTTimeConvertToZulu
     RTTimeDbgBad
     RTTimeDbgExpired
     RTTimeDbgRaces
@@ -1341,6 +1343,7 @@ EXPORTS
     RTTimeIsLeapYear
     RTTimeLocalDeltaNano
     RTTimeLocalExplode
+    RTTimeLocalNormalize
     RTTimeLocalNow
     RTTimeMilliTS
     RTTimeNanoTS

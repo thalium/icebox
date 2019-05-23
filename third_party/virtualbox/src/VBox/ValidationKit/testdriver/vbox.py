@@ -27,7 +27,7 @@ CDDL are applicable instead of those of the GPL.
 You may elect to license modified versions of this file under the
 terms and conditions of either the GPL or the CDDL or both.
 """
-__version__ = "$Revision: 118412 $"
+__version__ = "$Revision: 118993 $"
 
 
 # Standard Python imports.
@@ -583,7 +583,7 @@ class EventHandlerBase(object):
                 else:
                     if not fPassive:
                         if sys.platform == 'win32':
-                            from win32com.server.util import unwrap # pylint: disable=F0401
+                            from win32com.server.util import unwrap # pylint: disable=import-error
                             oRet = unwrap(oRet);
                         oRet.oListener = oListener;
                     else:
@@ -841,6 +841,7 @@ class TestDriver(base.TestDriver):                                              
         print >> sys.stderr, "testdriver.vbox: sVBoxBootSectors  = '%s'" % self.sVBoxBootSectors;
         if self.oBuild is not None:
             self.oBuild.dump();
+
 
     def _detectBuild(self, fQuiet = False):
         """
@@ -1254,24 +1255,30 @@ class TestDriver(base.TestDriver):                                              
         sys.path.insert(0, self.oBuild.sInstallPath);
         if self.oBuild.sSdkPath is not None:
             sys.path.insert(0, os.path.join(self.oBuild.sSdkPath, 'installer'))
-            sys.path.insert(1, os.path.join(self.oBuild.sSdkPath, 'bindings', 'xpcom', 'python'))
+            sys.path.insert(1, os.path.join(self.oBuild.sSdkPath, 'install')); # stupid stupid windows installer!
+            sys.path.insert(2, os.path.join(self.oBuild.sSdkPath, 'bindings', 'xpcom', 'python'))
         os.environ['VBOX_PROGRAM_PATH'] = self.oBuild.sInstallPath;
         reporter.log("sys.path: %s" % (sys.path));
 
         try:
-            # pylint: disable=F0401
-            from vboxapi import VirtualBoxManager
+            from vboxapi import VirtualBoxManager # pylint: disable=import-error
+        except:
+            reporter.logXcpt('Error importing vboxapi');
+            return False;
+
+        # Exception and error hacks.
+        try:
+            # pylint: disable=import-error
             if self.sHost == 'win':
                 from pythoncom import com_error as NativeComExceptionClass  # pylint: disable=E0611
                 import winerror                 as NativeComErrorClass
             else:
                 from xpcom import Exception     as NativeComExceptionClass
                 from xpcom import nsError       as NativeComErrorClass
-            # pylint: enable=F0401
+            # pylint: enable=import-error
         except:
-            traceback.print_exc();
+            reporter.logXcpt('Error importing (XP)COM related stuff for exception hacks and errors');
             return False;
-
         __deployExceptionHacks__(NativeComExceptionClass)
         ComError.copyErrors(NativeComErrorClass);
 
@@ -1353,7 +1360,7 @@ class TestDriver(base.TestDriver):                                              
             _ = oSelf;
             if oXcpt is None: oXcpt = sys.exc_info()[1];
             if sys.platform == 'win32':
-                import winerror;                                            # pylint: disable=F0401
+                import winerror;                                            # pylint: disable=import-error
                 hrXcpt = oXcpt.hresult;
                 if hrXcpt == winerror.DISP_E_EXCEPTION:
                     hrXcpt = oXcpt.excepinfo[5];
@@ -1378,9 +1385,9 @@ class TestDriver(base.TestDriver):                                              
             _ = oSelf;
             if oXcpt is None: oXcpt = sys.exc_info()[1];
             if sys.platform == 'win32':
-                from pythoncom import com_error as NativeComExceptionClass  # pylint: disable=F0401,E0611
+                from pythoncom import com_error as NativeComExceptionClass  # pylint: disable=import-error,E0611
             else:
-                from xpcom import Exception     as NativeComExceptionClass  # pylint: disable=F0401
+                from xpcom import Exception     as NativeComExceptionClass  # pylint: disable=import-error
             return isinstance(oXcpt, NativeComExceptionClass);
 
         def _xcptIsEqual(oSelf, oXcpt, hrStatus):
@@ -1404,65 +1411,137 @@ class TestDriver(base.TestDriver):                                              
             self.oVBoxMgr.xcptToString          = types.MethodType(_xcptToString,        self.oVBoxMgr);
 
 
-    def _teardownVBoxApi(self):
+    def _teardownVBoxApi(self):  # pylint: disable=too-many-statements
         """
         Drop all VBox object references and shutdown com/xpcom.
         """
         if not self.fImportedVBoxApi:
             return True;
+        import gc;
 
+        # Drop all references we've have to COM objects.
         self.aoRemoteSessions = [];
         self.aoVMs            = [];
         self.oVBoxMgr         = None;
         self.oVBox            = None;
         vboxcon.goHackModuleClass.oVBoxMgr = None; # VBoxConstantWrappingHack.
 
+        # Do garbage collection to try get rid of those objects.
         try:
-            import gc
             gc.collect();
-            objects = gc.get_objects()
-            try:
-                try:
-                    from types import InstanceType
-                except ImportError:
-                    InstanceType = None # Python 3.x compatibility
-                for o in objects:
-                    objtype = type(o)
-                    if objtype == InstanceType: # Python 2.x codepath
-                        objtype = o.__class__
-                    if objtype.__name__ == 'VirtualBoxManager':
-                        reporter.log('actionCleanupAfter: CAUTION, there is still a VirtualBoxManager object, GC trouble')
-                        break
-            finally:
-                del objects
         except:
             reporter.logXcpt();
         self.fImportedVBoxApi = False;
 
+        # Check whether the python is still having any COM objects/interfaces around.
+        cVBoxMgrs = 0;
+        aoObjsLeftBehind = [];
         if self.sHost == 'win':
-            pass; ## TODO shutdown COM if possible/necessary?
-        else:
+            import pythoncom;                                   # pylint: disable=import-error
             try:
-                from xpcom import _xpcom as _xpcom;     # pylint: disable=F0401
-                hrc   = _xpcom.NS_ShutdownXPCOM();
-                cIfs  = _xpcom._GetInterfaceCount();    # pylint: disable=W0212
-                cObjs = _xpcom._GetGatewayCount();      # pylint: disable=W0212
+                cIfs  = pythoncom._GetInterfaceCount();         # pylint: disable=no-member,protected-access
+                cObjs = pythoncom._GetGatewayCount();           # pylint: disable=no-member,protected-access
                 if cObjs == 0 and cIfs == 0:
-                    reporter.log('actionCleanupAfter: NS_ShutdownXPCOM -> %s, nothing left behind.' % (hrc, ));
+                    reporter.log('_teardownVBoxApi: no interfaces or objects left behind.');
                 else:
-                    reporter.log('actionCleanupAfter: NS_ShutdownXPCOM -> %s, leaving %s objects and %s interfaces behind...' \
-                                 % (hrc, cObjs, cIfs));
-                    if hasattr(_xpcom, '_DumpInterfaces'):
-                        try:
-                            _xpcom._DumpInterfaces();   # pylint: disable=W0212
-                        except:
-                            reporter.logXcpt('actionCleanupAfter: _DumpInterfaces failed');
+                    reporter.log('_teardownVBoxApi: Python COM still has %s objects and %s interfaces...' % ( cObjs, cIfs));
+
+                from win32com.client import DispatchBaseClass;  # pylint: disable=import-error
+                for oObj in gc.get_objects():
+                    if isinstance(oObj, DispatchBaseClass):
+                        reporter.log('_teardownVBoxApi:   %s' % (oObj,));
+                        aoObjsLeftBehind.append(oObj);
+                    elif utils.getObjectTypeName(oObj) == 'VirtualBoxManager':
+                        reporter.log('_teardownVBoxApi:   %s' % (oObj,));
+                        cVBoxMgrs += 1;
+                        aoObjsLeftBehind.append(oObj);
+                oObj = None;
             except:
                 reporter.logXcpt();
 
+            # If not being used, we can safely uninitialize COM.
+            if cIfs == 0 and cObjs == 0 and cVBoxMgrs == 0 and len(aoObjsLeftBehind) == 0:
+                reporter.log('_teardownVBoxApi:   Calling CoUninitialize...');
+                try:    pythoncom.CoUninitialize();             # pylint: disable=no-member
+                except: reporter.logXcpt();
+                else:
+                    reporter.log('_teardownVBoxApi:   Returned from CoUninitialize.');
+        else:
+            try:
+                # XPCOM doesn't crash and burn like COM if you shut it down with interfaces and objects around.
+                # Also, it keeps a number of internal objects and interfaces around to do its job, so shutting
+                # it down before we go looking for dangling interfaces is more or less required.
+                from xpcom import _xpcom as _xpcom;             # pylint: disable=import-error
+                hrc   = _xpcom.DeinitCOM();
+                cIfs  = _xpcom._GetInterfaceCount();            # pylint: disable=W0212
+                cObjs = _xpcom._GetGatewayCount();              # pylint: disable=W0212
+
+                if cObjs == 0 and cIfs == 0:
+                    reporter.log('_teardownVBoxApi: No XPCOM interfaces or objects active. (hrc=%#x)' % (hrc,));
+                else:
+                    reporter.log('_teardownVBoxApi: %s XPCOM objects and %s interfaces still around! (hrc=%#x)'
+                                 % (cObjs, cIfs, hrc));
+                    if hasattr(_xpcom, '_DumpInterfaces'):
+                        try:    _xpcom._DumpInterfaces();       # pylint: disable=W0212
+                        except: reporter.logXcpt('_teardownVBoxApi: _DumpInterfaces failed');
+
+                from xpcom.client import Component;             # pylint: disable=import-error
+                for oObj in gc.get_objects():
+                    if isinstance(oObj, Component):
+                        reporter.log('_teardownVBoxApi:   %s' % (oObj,));
+                        aoObjsLeftBehind.append(oObj);
+                    if utils.getObjectTypeName(oObj) == 'VirtualBoxManager':
+                        reporter.log('_teardownVBoxApi:   %s' % (oObj,));
+                        cVBoxMgrs += 1;
+                        aoObjsLeftBehind.append(oObj);
+                oObj = None;
+            except:
+                reporter.logXcpt();
+
+        # Try get the referrers to (XP)COM interfaces and objects that was left behind.
+        for iObj in range(len(aoObjsLeftBehind)): # pylint: disable=consider-using-enumerate
+            try:
+                aoReferrers = gc.get_referrers(aoObjsLeftBehind[iObj]);
+                reporter.log('_teardownVBoxApi:   Found %u referrers to %s:' % (len(aoReferrers), aoObjsLeftBehind[iObj],));
+                for oReferrer in aoReferrers:
+                    oMyFrame = sys._getframe(0);  # pylint: disable=protected-access
+                    if oReferrer is oMyFrame:
+                        reporter.log('_teardownVBoxApi:     - frame of this function');
+                    elif oReferrer is aoObjsLeftBehind:
+                        reporter.log('_teardownVBoxApi:     - aoObjsLeftBehind');
+                    else:
+                        fPrinted = False;
+                        if isinstance(oReferrer, dict) or isinstance(oReferrer, list) or isinstance(oReferrer, tuple):
+                            try:
+                                aoSubReferreres = gc.get_referrers(oReferrer);
+                                for oSubRef in aoSubReferreres:
+                                    if    not isinstance(oSubRef, list) \
+                                      and not isinstance(oSubRef, dict) \
+                                      and oSubRef is not oMyFrame \
+                                      and oSubRef is not aoSubReferreres:
+                                        reporter.log('_teardownVBoxApi:     - %s :: %s:'
+                                                     % (utils.getObjectTypeName(oSubRef), utils.getObjectTypeName(oReferrer)));
+                                        fPrinted = True;
+                                        break;
+                                del aoSubReferreres;
+                            except:
+                                reporter.logXcpt('subref');
+                        if not fPrinted:
+                            reporter.log('_teardownVBoxApi:     - %s:' % (utils.getObjectTypeName(oReferrer),));
+                        try:
+                            import pprint;
+                            for sLine in pprint.pformat(oReferrer, width = 130).split('\n'):
+                                reporter.log('_teardownVBoxApi:       %s' % (sLine,));
+                        except:
+                            reporter.log('_teardownVBoxApi:       %s' % (oReferrer,));
+            except:
+                reporter.logXcpt();
+        del aoObjsLeftBehind;
+
+        # Force garbage collection again, just for good measure.
         try:
             gc.collect();
-            time.sleep(0.5); # fudge factory
+            time.sleep(0.5); # fudge factor
         except:
             reporter.logXcpt();
         return True;
@@ -2244,7 +2323,7 @@ class TestDriver(base.TestDriver):                                              
             if self.fpApiVer >= 4.0:
                 oVM = self.oVBox.findMachine(sNameOrId);
             else:
-                reporter.error('Port me!'); ## @todo Add support for older version < 4.0.
+                reporter.error('fpApiVer=%s - did you remember to initialize the API' % (self.fpApiVer,));
         except:
             reporter.errorXcpt('could not find vm "%s"' % (sNameOrId,));
             return None;

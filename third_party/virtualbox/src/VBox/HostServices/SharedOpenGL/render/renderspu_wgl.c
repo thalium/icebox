@@ -1284,33 +1284,32 @@ void renderspu_SystemShowWindow( WindowInfo *window, GLboolean showIt )
 
 void renderspu_SystemVBoxPresentComposition( WindowInfo *window, const struct VBOXVR_SCR_COMPOSITOR_ENTRY *pChangedEntry )
 {
-    /* the CR_RENDER_FORCE_PRESENT_MAIN_THREAD is actually inherited from cocoa backend impl,
-     * here it forces rendering in WinCmd thread rather than a Main thread.
-     * it is used for debugging only in any way actually.
-     * @todo: change to some more generic macro name */
-#ifndef CR_RENDER_FORCE_PRESENT_MAIN_THREAD
-    const struct VBOXVR_SCR_COMPOSITOR *pCompositor;
-    /* we do not want to be blocked with the GUI thread here, so only draw her eif we are really able to do that w/o bllocking */
-    int rc = renderspuVBoxCompositorTryAcquire(window, &pCompositor);
-    if (RT_SUCCESS(rc))
+    /* The !render_spu.force_present_main_thread code flow is actually inspired
+     * by cocoa backend impl, here it forces rendering in WndProc, i.e. main
+     * thread. It defaults to 0, because it is for debugging and working around
+     * bugs. In principle would need root cause investigation. */
+    if (!render_spu.force_present_main_thread)
     {
-        renderspuVBoxPresentCompositionGeneric(window, pCompositor, pChangedEntry, 0, false);
-        renderspuVBoxCompositorRelease(window);
+        const struct VBOXVR_SCR_COMPOSITOR *pCompositor;
+        /* we do not want to be blocked with the GUI thread here, so only draw here if we are really able to do that w/o blocking */
+        int rc = renderspuVBoxCompositorTryAcquire(window, &pCompositor);
+        if (RT_SUCCESS(rc))
+        {
+            renderspuVBoxPresentCompositionGeneric(window, pCompositor, pChangedEntry, 0, false);
+            renderspuVBoxCompositorRelease(window);
+        }
+        else if (rc != VERR_SEM_BUSY)
+        {
+            /* this is somewhat we do not expect */
+            crWarning("renderspuVBoxCompositorTryAcquire failed rc %d", rc);
+        }
     }
-    else if (rc == VERR_SEM_BUSY)
-#endif
+
     {
         render_spu.self.Flush();
         renderspuVBoxPresentBlitterEnsureCreated(window, 0);
         RedrawWindow(window->hWnd, NULL, NULL, RDW_INTERNALPAINT);
     }
-#ifndef CR_RENDER_FORCE_PRESENT_MAIN_THREAD
-    else
-    {
-        /* this is somewhat we do not expect */
-        crWarning("renderspuVBoxCompositorTryAcquire failed rc %d", rc);
-    }
-#endif
 }
 
 GLboolean renderspu_SystemCreateContext( VisualInfo *visual, ContextInfo *context, ContextInfo *sharedContext )
@@ -1390,7 +1389,7 @@ void renderspu_SystemMakeCurrent( WindowInfo *window, GLint nativeWindow, Contex
              * and re-create it with the context's visual abilities
              */
 
-            /*@todo Chromium has no correct code to remove window ids and associated info from 
+            /** @todo Chromium has no correct code to remove window ids and associated info from 
              * various tables. This is hack which just hides the root case.
              */
             crWarning("Recreating window in renderspu_SystemMakeCurrent\n");

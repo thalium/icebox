@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -15,11 +15,14 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-#ifndef __UIWizardCloneVDPageBasic3_h__
-#define __UIWizardCloneVDPageBasic3_h__
+#ifndef ___UIWizardCloneVDPageBasic3_h___
+#define ___UIWizardCloneVDPageBasic3_h___
 
-/* Local includes: */
+/* GUI includes: */
 #include "UIWizardPage.h"
+
+/* COM includes: */
+#include "COMEnums.h"
 
 /* Forward declarations: */
 class QButtonGroup;
@@ -27,26 +30,32 @@ class QRadioButton;
 class QCheckBox;
 class QIRichTextLabel;
 
-/* 3rd page of the Clone Virtual Hard Drive wizard (base part): */
+
+/** 3rd page of the Clone Virtual Disk Image wizard (base part): */
 class UIWizardCloneVDPage3 : public UIWizardPageBase
 {
 protected:
 
-    /* Constructor: */
+    /** Constructs page basis. */
     UIWizardCloneVDPage3();
 
-    /* Stuff for 'variant' field: */
+    /** Returns 'mediumVariant' field value. */
     qulonglong mediumVariant() const;
+    /** Defines 'mediumVariant' field value. */
     void setMediumVariant(qulonglong uMediumVariant);
 
-    /* Widgets: */
+    /** Holds the variant button-group instance. */
     QButtonGroup *m_pVariantButtonGroup;
+    /** Holds the 'Dynamical' button instance. */
     QRadioButton *m_pDynamicalButton;
+    /** Holds the 'Fixed' button instance. */
     QRadioButton *m_pFixedButton;
-    QCheckBox *m_pSplitBox;
+    /** Holds the 'Split to 2GB files' check-box instance. */
+    QCheckBox    *m_pSplitBox;
 };
 
-/* 3rd page of the Clone Virtual Hard Drive wizard (basic extension): */
+
+/** 3rd page of the Clone Virtual Disk Image wizard (basic extension): */
 class UIWizardCloneVDPageBasic3 : public UIWizardPage, public UIWizardCloneVDPage3
 {
     Q_OBJECT;
@@ -54,26 +63,29 @@ class UIWizardCloneVDPageBasic3 : public UIWizardPage, public UIWizardCloneVDPag
 
 public:
 
-    /* Constructor: */
-    UIWizardCloneVDPageBasic3();
+    /** Constructs basic page. */
+    UIWizardCloneVDPageBasic3(KDeviceType enmDeviceType);
 
 private:
 
-    /* Translation stuff: */
-    void retranslateUi();
+    /** Handles translation event. */
+    virtual void retranslateUi() /* override */;
 
-    /* Prepare stuff: */
-    void initializePage();
+    /** Prepares the page. */
+    virtual void initializePage() /* override */;
 
-    /* Validation stuff: */
-    bool isComplete() const;
+    /** Returns whether the page is complete. */
+    virtual bool isComplete() const /* override */;
 
-    /* Widgets: */
+    /** Holds the description label instance. */
     QIRichTextLabel *m_pDescriptionLabel;
+    /** Holds the 'Dynamic' description label instance. */
     QIRichTextLabel *m_pDynamicLabel;
+    /** Holds the 'Fixed' description label instance. */
     QIRichTextLabel *m_pFixedLabel;
+    /** Holds the 'Split to 2GB files' description label instance. */
     QIRichTextLabel *m_pSplitLabel;
 };
 
-#endif // __UIWizardCloneVDPageBasic3_h__
+#endif /* !___UIWizardCloneVDPageBasic3_h___ */
 

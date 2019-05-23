@@ -85,7 +85,9 @@
 *   Structures and Typedefs                                                                                                      *
 *********************************************************************************************************************************/
 /** Pointer to a FAT directory instance. */
-typedef struct RTFSFATDIR *PRTFSFATDIR;
+typedef struct RTFSFATDIRSHRD *PRTFSFATDIRSHRD;
+/** Pointer to a FAT volume (VFS instance data). */
+typedef struct RTFSFATVOL *PRTFSFATVOL;
 
 
 /** The number of entire in a chain part. */
@@ -122,19 +124,23 @@ typedef struct RTFSFATCHAIN
     /** List of chain parts (RTFSFATCHAINPART). */
     RTLISTANCHOR    ListParts;
 } RTFSFATCHAIN;
+/** Pointer to a FAT chain. */
 typedef RTFSFATCHAIN *PRTFSFATCHAIN;
+/** Pointer to a const FAT chain. */
 typedef RTFSFATCHAIN const *PCRTFSFATCHAIN;
 
 
 /**
- * FAT file system object (common part to files and dirs).
+ * FAT file system object (common part to files and dirs (shared)).
  */
 typedef struct RTFSFATOBJ
 {
     /** The parent directory keeps a list of open objects (RTFSFATOBJ). */
     RTLISTNODE          Entry;
+    /** Reference counter.   */
+    uint32_t volatile   cRefs;
     /** The parent directory (not released till all children are close). */
-    PRTFSFATDIR         pParentDir;
+    PRTFSFATDIRSHRD     pParentDir;
     /** The byte offset of the directory entry in the parent dir.
      * This is set to UINT32_MAX for the root directory. */
     uint32_t            offEntryInDir;
@@ -157,20 +163,37 @@ typedef struct RTFSFATOBJ
     /** Set if we've maybe dirtied the directory entry. */
     bool                fMaybeDirtyDirEnt;
 } RTFSFATOBJ;
+/** Poitner to a FAT file system object. */
 typedef RTFSFATOBJ *PRTFSFATOBJ;
 
-typedef struct RTFSFATFILE
+/**
+ * Shared FAT file data.
+ */
+typedef struct RTFSFATFILESHRD
 {
     /** Core FAT object info.  */
     RTFSFATOBJ          Core;
+} RTFSFATFILESHRD;
+/** Pointer to shared FAT file data. */
+typedef RTFSFATFILESHRD *PRTFSFATFILESHRD;
+
+
+/**
+ * Per handle data for a FAT file.
+ */
+typedef struct RTFSFATFILE
+{
+    /** Pointer to the shared data. */
+    PRTFSFATFILESHRD    pShared;
     /** The current file offset. */
     uint32_t            offFile;
 } RTFSFATFILE;
+/** Pointer to the per handle data of a FAT file. */
 typedef RTFSFATFILE *PRTFSFATFILE;
 
 
 /**
- * FAT directory.
+ * FAT shared directory structure.
  *
  * We work directories in one of two buffering modes.  If there are few entries
  * or if it's the FAT12/16 root directory, we map the whole thing into memory.
@@ -180,12 +203,10 @@ typedef RTFSFATFILE *PRTFSFATFILE;
  * files or subdirs have a parent reference for doing that.  The parent OTOH,
  * keeps a list of open children.
  */
-typedef struct RTFSFATDIR
+typedef struct RTFSFATDIRSHRD
 {
     /** Core FAT object info.  */
     RTFSFATOBJ          Core;
-    /** The VFS handle for this directory (for reference counting). */
-    RTVFSDIR            hVfsSelf;
     /** Open child objects (RTFSFATOBJ). */
     RTLISTNODE          OpenChildren;
 
@@ -219,7 +240,7 @@ typedef struct RTFSFATDIR
             uint32_t            cSectors;
             /** Number of dirty sectors. */
             uint32_t            cDirtySectors;
-            /** Dirty sector map. */
+            /** Dirty sector bitmap (one bit per sector). */
             uint8_t            *pbDirtySectors;
         } Full;
         /** The simple sector buffering.
@@ -232,8 +253,22 @@ typedef struct RTFSFATDIR
             bool                fDirty;
         } Simple;
     } u;
+} RTFSFATDIRSHRD;
+/** Pointer to a shared FAT directory instance. */
+typedef RTFSFATDIRSHRD *PRTFSFATDIRSHRD;
+
+
+/**
+ * The per handle FAT directory data.
+ */
+typedef struct RTFSFATDIR
+{
+    /** Core FAT object info.  */
+    PRTFSFATDIRSHRD     pShared;
+    /** The current directory offset. */
+    uint32_t            offDir;
 } RTFSFATDIR;
-/** Pointer to a FAT directory instance. */
+/** Pointer to a per handle FAT directory data. */
 typedef RTFSFATDIR *PRTFSFATDIR;
 
 
@@ -258,14 +293,28 @@ typedef RTFSFATCLUSTERMAPENTRY *PRTFSFATCLUSTERMAPENTRY;
  */
 typedef struct RTFSFATCLUSTERMAPCACHE
 {
-    /** Number of cache entries. */
+    /** Number of cache entries (power of two). */
     uint32_t                cEntries;
-    /** The max size of data in a cache entry. */
+    /** This shift count to use in the first step of the index calculation. */
+    uint32_t                cEntryIndexShift;
+    /** The AND mask to use in the second step of the index calculation. */
+    uint32_t                fEntryIndexMask;
+    /** The max size of data in a cache entry (power of two). */
     uint32_t                cbEntry;
+    /** The AND mask to use to get the entry offset. */
+    uint32_t                fEntryOffsetMask;
     /** Dirty bitmap shift count. */
     uint32_t                cDirtyShift;
     /** The dirty cache line size (multiple of two). */
     uint32_t                cbDirtyLine;
+    /** The FAT size. */
+    uint32_t                cbFat;
+    /** The Number of clusters in the FAT. */
+    uint32_t                cClusters;
+    /** Cluster allocation search hint. */
+    uint32_t                idxAllocHint;
+    /** Pointer to the volume (for disk access). */
+    PRTFSFATVOL             pVol;
     /** The cache name. */
     const char             *pszName;
     /** Cache entries. */
@@ -364,10 +413,8 @@ typedef struct RTFSFATVOL
     uint32_t        cRootDirEntries;
     /** The size of the root directory, rounded up to the nearest sector size. */
     uint32_t        cbRootDir;
-    /** The root directory handle. */
-    RTVFSDIR        hVfsRootDir;
-    /** The root directory instance data. */
-    PRTFSFATDIR     pRootDir;
+    /** The root directory data (shared). */
+    PRTFSFATDIRSHRD pRootDir;
 
     /** Serial number. */
     uint32_t        uSerialNo;
@@ -387,8 +434,6 @@ typedef struct RTFSFATVOL
     /** The FAT32 info sector if offFat32InfoSector isn't UINT64_MAX. */
     FAT32INFOSECTOR Fat32InfoSector;
 } RTFSFATVOL;
-/** Pointer to a FAT volume (VFS instance data). */
-typedef RTFSFATVOL *PRTFSFATVOL;
 /** Pointer to a const FAT volume (VFS instance data). */
 typedef RTFSFATVOL const *PCRTFSFATVOL;
 
@@ -405,7 +450,7 @@ typedef RTFSFATVOL const *PCRTFSFATVOL;
  * @remarks The valid first 128 entries are 1:1 with unicode.
  * @remarks Lower case characters are all marked invalid.
  */
-static RTUTF16 g_awchFatCp437Chars[] =
+static RTUTF16 g_awchFatCp437ValidChars[] =
 { /*     0,      1,      2,      3,      4,      5,      6,      7,      8,      9,      a,      b,      c,      d,      e,      f */
     0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
     0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff, 0xffff,
@@ -424,19 +469,45 @@ static RTUTF16 g_awchFatCp437Chars[] =
     0x03b1, 0x00df, 0x0393, 0x03c0, 0x03a3, 0x03c3, 0x00b5, 0x03c4, 0x03a6, 0x0398, 0x03a9, 0x03b4, 0x221e, 0x03c6, 0x03b5, 0x2229,
     0x2261, 0x00b1, 0x2265, 0x2264, 0x2320, 0x2321, 0x00f7, 0x2248, 0x00b0, 0x2219, 0x00b7, 0x221a, 0x207f, 0x00b2, 0x25a0, 0x00a0
 };
+AssertCompileSize(g_awchFatCp437ValidChars, 256*2);
+
+/**
+ * Codepage 437 translation table without invalid 8.3. character markings.
+ */
+static RTUTF16 g_awchFatCp437Chars[] =
+{ /*     0,      1,      2,      3,      4,      5,      6,      7,      8,      9,      a,      b,      c,      d,      e,      f */
+    0x0000, 0x263a, 0x263b, 0x2665, 0x2666, 0x2663, 0x2660, 0x2022, 0x25d8, 0x25cb, 0x25d9, 0x2642, 0x2640, 0x266a, 0x266b, 0x263c,
+    0x25ba, 0x25c4, 0x2195, 0x203c, 0x00b6, 0x00a7, 0x25ac, 0x21a8, 0x2191, 0x2193, 0x2192, 0x2190, 0x221f, 0x2194, 0x25b2, 0x25bc,
+    0x0020, 0x0021, 0x0022, 0x0023, 0x0024, 0x0025, 0x0026, 0x0027, 0x0028, 0x0029, 0x002a, 0x002b, 0x002c, 0x002d, 0x002e, 0x002f,
+    0x0030, 0x0031, 0x0032, 0x0033, 0x0034, 0x0035, 0x0036, 0x0037, 0x0038, 0x0039, 0x003a, 0x003b, 0x003c, 0x003d, 0x003e, 0x003f,
+    0x0040, 0x0041, 0x0042, 0x0043, 0x0044, 0x0045, 0x0046, 0x0047, 0x0048, 0x0049, 0x004a, 0x004b, 0x004c, 0x004d, 0x004e, 0x004f,
+    0x0050, 0x0051, 0x0052, 0x0053, 0x0054, 0x0055, 0x0056, 0x0057, 0x0058, 0x0059, 0x005a, 0x005b, 0x005c, 0x005d, 0x005e, 0x005f,
+    0x0060, 0x0061, 0x0062, 0x0063, 0x0064, 0x0065, 0x0066, 0x0067, 0x0068, 0x0069, 0x006a, 0x006b, 0x006c, 0x006d, 0x006e, 0x006f,
+    0x0070, 0x0071, 0x0072, 0x0073, 0x0074, 0x0075, 0x0076, 0x0077, 0x0078, 0x0079, 0x007a, 0x007b, 0x007c, 0x007d, 0x007e, 0x2302,
+    0x00c7, 0x00fc, 0x00e9, 0x00e2, 0x00e4, 0x00e0, 0x00e5, 0x00e7, 0x00ea, 0x00eb, 0x00e8, 0x00ef, 0x00ee, 0x00ec, 0x00c4, 0x00c5,
+    0x00c9, 0x00e6, 0x00c6, 0x00f4, 0x00f6, 0x00f2, 0x00fb, 0x00f9, 0x00ff, 0x00d6, 0x00dc, 0x00a2, 0x00a3, 0x00a5, 0x20a7, 0x0192,
+    0x00e1, 0x00ed, 0x00f3, 0x00fa, 0x00f1, 0x00d1, 0x00aa, 0x00ba, 0x00bf, 0x2310, 0x00ac, 0x00bd, 0x00bc, 0x00a1, 0x00ab, 0x00bb,
+    0x2591, 0x2592, 0x2593, 0x2502, 0x2524, 0x2561, 0x2562, 0x2556, 0x2555, 0x2563, 0x2551, 0x2557, 0x255d, 0x255c, 0x255b, 0x2510,
+    0x2514, 0x2534, 0x252c, 0x251c, 0x2500, 0x253c, 0x255e, 0x255f, 0x255a, 0x2554, 0x2569, 0x2566, 0x2560, 0x2550, 0x256c, 0x2567,
+    0x2568, 0x2564, 0x2565, 0x2559, 0x2558, 0x2552, 0x2553, 0x256b, 0x256a, 0x2518, 0x250c, 0x2588, 0x2584, 0x258c, 0x2590, 0x2580,
+    0x03b1, 0x00df, 0x0393, 0x03c0, 0x03a3, 0x03c3, 0x00b5, 0x03c4, 0x03a6, 0x0398, 0x03a9, 0x03b4, 0x221e, 0x03c6, 0x03b5, 0x2229,
+    0x2261, 0x00b1, 0x2265, 0x2264, 0x2320, 0x2321, 0x00f7, 0x2248, 0x00b0, 0x2219, 0x00b7, 0x221a, 0x207f, 0x00b2, 0x25a0, 0x00a0
+};
 AssertCompileSize(g_awchFatCp437Chars, 256*2);
 
 
 /*********************************************************************************************************************************
 *   Internal Functions                                                                                                           *
 *********************************************************************************************************************************/
-static void rtFsFatDir_AddOpenChild(PRTFSFATDIR pDir, PRTFSFATOBJ pChild);
-static void rtFsFatDir_RemoveOpenChild(PRTFSFATDIR pDir, PRTFSFATOBJ pChild);
-static int  rtFsFatDir_GetEntryForUpdate(PRTFSFATDIR pThis, uint32_t offEntryInDir, PFATDIRENTRY *ppDirEntry, uint32_t *puWriteLock);
-static int  rtFsFatDir_PutEntryAfterUpdate(PRTFSFATDIR pThis, PFATDIRENTRY pDirEntry, uint32_t uWriteLock);
-static int  rtFsFatDir_Flush(PRTFSFATDIR pThis);
-static int  rtFsFatDir_New(PRTFSFATVOL pThis, PRTFSFATDIR pParentDir, PCFATDIRENTRY pDirEntry, uint32_t offEntryInDir,
-                           uint32_t idxCluster, uint64_t offDisk, uint32_t cbDir, PRTVFSDIR phVfsDir, PRTFSFATDIR *ppDir);
+static PRTFSFATOBJ rtFsFatDirShrd_LookupShared(PRTFSFATDIRSHRD pThis, uint32_t offEntryInDir);
+static void rtFsFatDirShrd_AddOpenChild(PRTFSFATDIRSHRD pDir, PRTFSFATOBJ pChild);
+static void rtFsFatDirShrd_RemoveOpenChild(PRTFSFATDIRSHRD pDir, PRTFSFATOBJ pChild);
+static int  rtFsFatDirShrd_GetEntryForUpdate(PRTFSFATDIRSHRD pThis, uint32_t offEntryInDir,
+                                             PFATDIRENTRY *ppDirEntry, uint32_t *puWriteLock);
+static int  rtFsFatDirShrd_PutEntryAfterUpdate(PRTFSFATDIRSHRD pThis, PFATDIRENTRY pDirEntry, uint32_t uWriteLock);
+static int  rtFsFatDirShrd_Flush(PRTFSFATDIRSHRD pThis);
+static int  rtFsFatDir_New(PRTFSFATVOL pThis, PRTFSFATDIRSHRD pParentDir, PCFATDIRENTRY pDirEntry, uint32_t offEntryInDir,
+                           uint32_t idxCluster, uint64_t offDisk, uint32_t cbDir, PRTVFSDIR phVfsDir);
 
 
 /**
@@ -718,43 +789,69 @@ static int rtFsFatClusterMap_Create(PRTFSFATVOL pThis, uint8_t const *pbFirst512
     /*
      * Figure the cache size.  Keeping it _very_ simple for now as we just need
      * something that works, not anything the performs like crazy.
+     *
+     * Note! Lowering the max cache size below 128KB will break ASSUMPTIONS in the FAT16
+     *       and eventually FAT12 code.
      */
     uint32_t cEntries;
+    uint32_t cEntryIndexShift;
+    uint32_t fEntryIndexMask;
     uint32_t cbEntry = pThis->cbFat;
+    uint32_t fEntryOffsetMask;
     if (cbEntry <= _512K)
-        cEntries = 1;
+    {
+        cEntries         = 1;
+        cEntryIndexShift = 0;
+        fEntryIndexMask  = 0;
+        fEntryOffsetMask = UINT32_MAX;
+    }
     else
     {
         Assert(pThis->cbSector < _512K / 8);
-        cEntries = 8;
-        cbEntry  = pThis->cbSector;
+        cEntries         = 8;
+        cEntryIndexShift = 9;
+        fEntryIndexMask  = cEntries - 1;
+        AssertReturn(RT_IS_POWER_OF_TWO(cEntries), VERR_INTERNAL_ERROR_4);
+
+        cbEntry          = pThis->cbSector;
+        fEntryOffsetMask = pThis->cbSector - 1;
+        AssertReturn(RT_IS_POWER_OF_TWO(cbEntry), VERR_INTERNAL_ERROR_5);
     }
 
     /*
      * Allocate and initialize it all.
      */
-    PRTFSFATCLUSTERMAPCACHE pCache;
-    pThis->pFatCache = pCache = (PRTFSFATCLUSTERMAPCACHE)RTMemAllocZ(RT_OFFSETOF(RTFSFATCLUSTERMAPCACHE, aEntries[cEntries]));
-    if (!pCache)
+    PRTFSFATCLUSTERMAPCACHE pFatCache;
+    pThis->pFatCache = pFatCache = (PRTFSFATCLUSTERMAPCACHE)RTMemAllocZ(RT_OFFSETOF(RTFSFATCLUSTERMAPCACHE, aEntries[cEntries]));
+    if (!pFatCache)
         return RTErrInfoSet(pErrInfo, VERR_NO_MEMORY, "Failed to allocate FAT cache");
-    pCache->cEntries  = cEntries;
-    pCache->cbEntry   = cbEntry;
+    pFatCache->cEntries            = cEntries;
+    pFatCache->fEntryIndexMask     = fEntryIndexMask;
+    pFatCache->cEntryIndexShift    = cEntryIndexShift;
+    pFatCache->cbEntry             = cbEntry;
+    pFatCache->fEntryOffsetMask    = fEntryOffsetMask;
+    pFatCache->pVol                = pThis;
+    pFatCache->cbFat               = pThis->cbFat;
+    pFatCache->cClusters           = pThis->cClusters;
 
     unsigned i = cEntries;
     while (i-- > 0)
     {
-        pCache->aEntries[i].pbData = (uint8_t *)RTMemAlloc(cbEntry);
-        if (pCache->aEntries[i].pbData == NULL)
+        pFatCache->aEntries[i].pbData = (uint8_t *)RTMemAlloc(cbEntry);
+        if (pFatCache->aEntries[i].pbData == NULL)
         {
             for (i++; i < cEntries; i++)
-                RTMemFree(pCache->aEntries[i].pbData);
-            RTMemFree(pCache);
+                RTMemFree(pFatCache->aEntries[i].pbData);
+            RTMemFree(pFatCache);
             return RTErrInfoSetF(pErrInfo, VERR_NO_MEMORY, "Failed to allocate FAT cache entry (%#x bytes)", cbEntry);
         }
 
-        pCache->aEntries[i].offFat  = UINT32_MAX;
-        pCache->aEntries[i].bmDirty = 0;
+        pFatCache->aEntries[i].offFat  = UINT32_MAX;
+        pFatCache->aEntries[i].bmDirty = 0;
     }
+    Log3(("rtFsFatClusterMap_Create:       cbFat=%#RX32 cEntries=%RU32 cEntryIndexShift=%RU32 fEntryIndexMask=%#RX32\n",
+          pFatCache->cbFat, pFatCache->cEntries, pFatCache->cEntryIndexShift, pFatCache->fEntryIndexMask));
+    Log3(("rtFsFatClusterMap_Create:   cbEntries=%#RX32 fEntryOffsetMask=%#RX32\n", pFatCache->cbEntry, pFatCache->fEntryOffsetMask));
 
     /*
      * Calc the dirty shift factor.
@@ -763,29 +860,31 @@ static int rtFsFatClusterMap_Create(PRTFSFATVOL pThis, uint8_t const *pbFirst512
     if (cbEntry < pThis->cbSector)
         cbEntry = pThis->cbSector;
 
-    pCache->cDirtyShift = 1;
-    pCache->cbDirtyLine = 1;
-    while (pCache->cbDirtyLine < cbEntry)
+    pFatCache->cDirtyShift = 1;
+    pFatCache->cbDirtyLine = 1;
+    while (pFatCache->cbDirtyLine < cbEntry)
     {
-        pCache->cDirtyShift++;
-        pCache->cbDirtyLine <<= 1;
+        pFatCache->cDirtyShift++;
+        pFatCache->cbDirtyLine <<= 1;
     }
+    Assert(pFatCache->cEntries == 1 || pFatCache->cbDirtyLine == pThis->cbSector);
+    Log3(("rtFsFatClusterMap_Create: cbDirtyLine=%#RX32 cDirtyShift=%u\n", pFatCache->cbDirtyLine, pFatCache->cDirtyShift));
 
     /*
      * Fill the cache if single entry or entry size is 512.
      */
-    if (pCache->cEntries == 1 || pCache->cbEntry == 512)
+    if (pFatCache->cEntries == 1 || pFatCache->cbEntry == 512)
     {
-        memcpy(pCache->aEntries[0].pbData, pbFirst512FatBytes, RT_MIN(512, pCache->cbEntry));
-        if (pCache->cbEntry > 512)
+        memcpy(pFatCache->aEntries[0].pbData, pbFirst512FatBytes, RT_MIN(512, pFatCache->cbEntry));
+        if (pFatCache->cbEntry > 512)
         {
             int rc = RTVfsFileReadAt(pThis->hVfsBacking, pThis->aoffFats[0] + 512,
-                                     &pCache->aEntries[0].pbData[512], pCache->cbEntry - 512, NULL);
+                                     &pFatCache->aEntries[0].pbData[512], pFatCache->cbEntry - 512, NULL);
             if (RT_FAILURE(rc))
                 return RTErrInfoSet(pErrInfo, rc, "Error reading FAT into memory");
         }
-        pCache->aEntries[0].offFat  = 0;
-        pCache->aEntries[0].bmDirty = 0;
+        pFatCache->aEntries[0].offFat  = 0;
+        pFatCache->aEntries[0].bmDirty = 0;
     }
 
     return VINF_SUCCESS;
@@ -802,8 +901,7 @@ static int rtFsFatClusterMap_Create(PRTFSFATVOL pThis, uint8_t const *pbFirst512
  */
 static int rtFsFatClusterMap_FlushWorker(PRTFSFATVOL pThis, uint32_t const iFirstEntry, uint32_t const iLastEntry)
 {
-    PRTFSFATCLUSTERMAPCACHE pCache = pThis->pFatCache;
-
+    PRTFSFATCLUSTERMAPCACHE pFatCache = pThis->pFatCache;
 
     /*
      * Walk the cache entries, accumulating segments to flush.
@@ -820,20 +918,20 @@ static int rtFsFatClusterMap_FlushWorker(PRTFSFATVOL pThis, uint32_t const iFirs
     {
         for (uint32_t iEntry = iFirstEntry; iEntry <= iLastEntry; iEntry++)
         {
-            uint64_t bmDirty = pCache->aEntries[iEntry].bmDirty;
+            uint64_t bmDirty = pFatCache->aEntries[iEntry].bmDirty;
             if (   bmDirty != 0
-                && pCache->aEntries[iEntry].offFat != UINT32_MAX)
+                && pFatCache->aEntries[iEntry].offFat != UINT32_MAX)
             {
                 uint32_t offEntry   = 0;
                 uint64_t iDirtyLine = 1;
-                while (offEntry < pCache->cbEntry)
+                while (offEntry < pFatCache->cbEntry)
                 {
-                    if (pCache->aEntries[iEntry].bmDirty & iDirtyLine)
+                    if (pFatCache->aEntries[iEntry].bmDirty & iDirtyLine)
                     {
                         /*
                          * Found dirty cache line.
                          */
-                        uint64_t offDirtyLine = pThis->aoffFats[iFatCopy] + pCache->aEntries[iEntry].offFat + offEntry;
+                        uint64_t offDirtyLine = pThis->aoffFats[iFatCopy] + pFatCache->aEntries[iEntry].offFat + offEntry;
 
                         /* Can we simply extend the last segment? */
                         if (   offDirtyLine == offEdge
@@ -841,9 +939,9 @@ static int rtFsFatClusterMap_FlushWorker(PRTFSFATVOL pThis, uint32_t const iFirs
                         {
                             Assert(SgBuf.cSegs > 0);
                             Assert(   (uintptr_t)aSgSegs[SgBuf.cSegs - 1].pvSeg + aSgSegs[SgBuf.cSegs - 1].cbSeg
-                                   == (uintptr_t)&pCache->aEntries[iEntry].pbData[offEntry]);
-                            aSgSegs[SgBuf.cSegs - 1].cbSeg += pCache->cbDirtyLine;
-                            offEdge += pCache->cbDirtyLine;
+                                   == (uintptr_t)&pFatCache->aEntries[iEntry].pbData[offEntry]);
+                            aSgSegs[SgBuf.cSegs - 1].cbSeg += pFatCache->cbDirtyLine;
+                            offEdge += pFatCache->cbDirtyLine;
                         }
                         else
                         {
@@ -866,10 +964,10 @@ static int rtFsFatClusterMap_FlushWorker(PRTFSFATVOL pThis, uint32_t const iFirs
                             }
 
                             /* Append segment. */
-                            aSgSegs[SgBuf.cSegs].cbSeg = pCache->cbDirtyLine;
-                            aSgSegs[SgBuf.cSegs].pvSeg = &pCache->aEntries[iEntry].pbData[offEntry];
+                            aSgSegs[SgBuf.cSegs].cbSeg = pFatCache->cbDirtyLine;
+                            aSgSegs[SgBuf.cSegs].pvSeg = &pFatCache->aEntries[iEntry].pbData[offEntry];
                             SgBuf.cSegs++;
-                            offEdge = offDirtyLine + pCache->cbDirtyLine;
+                            offEdge = offDirtyLine + pFatCache->cbDirtyLine;
                         }
 
                         bmDirty &= ~iDirtyLine;
@@ -877,7 +975,7 @@ static int rtFsFatClusterMap_FlushWorker(PRTFSFATVOL pThis, uint32_t const iFirs
                             break;
                     }
                     iDirtyLine <<= 1;
-                    offEntry += pCache->cbDirtyLine;
+                    offEntry += pFatCache->cbDirtyLine;
                 }
                 Assert(!bmDirty);
             }
@@ -899,7 +997,7 @@ static int rtFsFatClusterMap_FlushWorker(PRTFSFATVOL pThis, uint32_t const iFirs
      */
     if (RT_SUCCESS(rc))
         for (uint32_t iEntry = iFirstEntry; iEntry <= iLastEntry; iEntry++)
-            pCache->aEntries[iEntry].bmDirty = 0;
+            pFatCache->aEntries[iEntry].bmDirty = 0;
 
     return rc;
 }
@@ -917,21 +1015,144 @@ static int rtFsFatClusterMap_Flush(PRTFSFATVOL pThis)
 }
 
 
-#if 0 /* unused */
 /**
- * Flushes out all dirty lines in the file allocation table (cluster map) cache.
+ * Flushes out all dirty lines in the file allocation table (cluster map) cache
+ * entry.
  *
  * This is typically called prior to reusing the cache entry.
  *
  * @returns IPRT status code.  On failure, we're currently kind of screwed.
- * @param   pThis       The FAT volume instance.
+ * @param   pFatCache   The FAT cache
  * @param   iEntry      The cache entry to flush.
  */
-static int rtFsFatClusterMap_FlushEntry(PRTFSFATVOL pThis, uint32_t iEntry)
+static int rtFsFatClusterMap_FlushEntry(PRTFSFATCLUSTERMAPCACHE pFatCache, uint32_t iEntry)
 {
-    return rtFsFatClusterMap_FlushWorker(pThis, iEntry, iEntry);
+    return rtFsFatClusterMap_FlushWorker(pFatCache->pVol, iEntry, iEntry);
 }
-#endif
+
+
+/**
+ * Gets a pointer to a FAT entry.
+ *
+ * @returns IPRT status code.  On failure, we're currently kind of screwed.
+ * @param   pFatCache   The FAT cache.
+ * @param   offFat      The FAT byte offset to get the entry off.
+ * @param   ppbEntry    Where to return the pointer to the entry.
+ */
+static int rtFsFatClusterMap_GetEntry(PRTFSFATCLUSTERMAPCACHE pFatCache, uint32_t offFat, uint8_t **ppbEntry)
+{
+    int rc;
+    if (offFat < pFatCache->cbFat)
+    {
+        uint32_t const iEntry      = (offFat >> pFatCache->cEntryIndexShift) & pFatCache->fEntryIndexMask;
+        uint32_t const offInEntry  = offFat & pFatCache->fEntryOffsetMask;
+        uint32_t const offFatEntry = offFat - offInEntry;
+
+        *ppbEntry = pFatCache->aEntries[iEntry].pbData + offInEntry;
+
+        /* If it's already ready, return immediately. */
+        if (pFatCache->aEntries[iEntry].offFat == offFatEntry)
+        {
+            Log3(("rtFsFatClusterMap_GetEntry: Hit entry %u for offFat=%#RX32\n", iEntry, offFat));
+            return VINF_SUCCESS;
+        }
+
+        /* Do we need to flush it? */
+        rc = VINF_SUCCESS;
+        if (   pFatCache->aEntries[iEntry].bmDirty != 0
+            && pFatCache->aEntries[iEntry].offFat != UINT32_MAX)
+        {
+            Log3(("rtFsFatClusterMap_GetEntry: Flushing entry %u for offFat=%#RX32\n", iEntry, offFat));
+            rc = rtFsFatClusterMap_FlushEntry(pFatCache, iEntry);
+        }
+        if (RT_SUCCESS(rc))
+        {
+            pFatCache->aEntries[iEntry].bmDirty = 0;
+
+            /* Read in the entry from disk */
+            rc = RTVfsFileReadAt(pFatCache->pVol->hVfsBacking, pFatCache->pVol->aoffFats[0] + offFatEntry,
+                                 pFatCache->aEntries[iEntry].pbData, pFatCache->cbEntry, NULL);
+            if (RT_SUCCESS(rc))
+            {
+                Log3(("rtFsFatClusterMap_GetEntry: Loaded entry %u for offFat=%#RX32\n", iEntry, offFat));
+                pFatCache->aEntries[iEntry].offFat = offFatEntry;
+                return VINF_SUCCESS;
+            }
+            /** @todo We can try other FAT copies here... */
+            LogRel(("rtFsFatClusterMap_GetEntry: Error loading entry %u for offFat=%#RX32 (%#64RX32 LB %#x): %Rrc\n",
+                    iEntry, offFat, pFatCache->pVol->aoffFats[0] + offFatEntry, pFatCache->cbEntry, rc));
+            pFatCache->aEntries[iEntry].offFat = UINT32_MAX;
+        }
+    }
+    else
+        rc = VERR_OUT_OF_RANGE;
+    *ppbEntry = NULL;
+    return rc;
+}
+
+
+/**
+ * Gets a pointer to a FAT entry, extended version.
+ *
+ * @returns IPRT status code.  On failure, we're currently kind of screwed.
+ * @param   pFatCache   The FAT cache.
+ * @param   offFat      The FAT byte offset to get the entry off.
+ * @param   ppbEntry    Where to return the pointer to the entry.
+ * @param   pidxEntry   Where to return the entry index.
+ */
+static int rtFsFatClusterMap_GetEntryEx(PRTFSFATCLUSTERMAPCACHE pFatCache, uint32_t offFat,
+                                        uint8_t **ppbEntry, uint32_t *pidxEntry)
+{
+    int rc;
+    if (offFat < pFatCache->cbFat)
+    {
+        uint32_t const iEntry      = (offFat >> pFatCache->cEntryIndexShift) & pFatCache->fEntryIndexMask;
+        uint32_t const offInEntry  = offFat & pFatCache->fEntryOffsetMask;
+        uint32_t const offFatEntry = offFat - offInEntry;
+
+        *ppbEntry  = pFatCache->aEntries[iEntry].pbData + offInEntry;
+        *pidxEntry = iEntry;
+
+        /* If it's already ready, return immediately. */
+        if (pFatCache->aEntries[iEntry].offFat == offFatEntry)
+        {
+            Log3(("rtFsFatClusterMap_GetEntryEx: Hit entry %u for offFat=%#RX32\n", iEntry, offFat));
+            return VINF_SUCCESS;
+        }
+
+        /* Do we need to flush it? */
+        rc = VINF_SUCCESS;
+        if (   pFatCache->aEntries[iEntry].bmDirty != 0
+            && pFatCache->aEntries[iEntry].offFat != UINT32_MAX)
+        {
+            Log3(("rtFsFatClusterMap_GetEntryEx: Flushing entry %u for offFat=%#RX32\n", iEntry, offFat));
+            rc = rtFsFatClusterMap_FlushEntry(pFatCache, iEntry);
+        }
+        if (RT_SUCCESS(rc))
+        {
+            pFatCache->aEntries[iEntry].bmDirty = 0;
+
+            /* Read in the entry from disk */
+            rc = RTVfsFileReadAt(pFatCache->pVol->hVfsBacking, pFatCache->pVol->aoffFats[0] + offFatEntry,
+                                 pFatCache->aEntries[iEntry].pbData, pFatCache->cbEntry, NULL);
+            if (RT_SUCCESS(rc))
+            {
+                Log3(("rtFsFatClusterMap_GetEntryEx: Loaded entry %u for offFat=%#RX32\n", iEntry, offFat));
+                pFatCache->aEntries[iEntry].offFat = offFatEntry;
+                return VINF_SUCCESS;
+            }
+            /** @todo We can try other FAT copies here... */
+            LogRel(("rtFsFatClusterMap_GetEntryEx: Error loading entry %u for offFat=%#RX32 (%#64RX32 LB %#x): %Rrc\n",
+                    iEntry, offFat, pFatCache->pVol->aoffFats[0] + offFatEntry, pFatCache->cbEntry, rc));
+            pFatCache->aEntries[iEntry].offFat = UINT32_MAX;
+        }
+    }
+    else
+        rc = VERR_OUT_OF_RANGE;
+    *ppbEntry  = NULL;
+    *pidxEntry = UINT32_MAX;
+    return rc;
+}
 
 
 /**
@@ -944,22 +1165,22 @@ static int rtFsFatClusterMap_FlushEntry(PRTFSFATVOL pThis, uint32_t iEntry)
  */
 static int rtFsFatClusterMap_Destroy(PRTFSFATVOL pThis)
 {
-    int                     rc     = VINF_SUCCESS;
-    PRTFSFATCLUSTERMAPCACHE pCache = pThis->pFatCache;
-    if (pCache)
+    int                     rc        = VINF_SUCCESS;
+    PRTFSFATCLUSTERMAPCACHE pFatCache = pThis->pFatCache;
+    if (pFatCache)
     {
         /* flush stuff. */
         rc = rtFsFatClusterMap_Flush(pThis);
 
         /* free everything. */
-        uint32_t i = pCache->cEntries;
+        uint32_t i = pFatCache->cEntries;
         while (i-- > 0)
         {
-            RTMemFree(pCache->aEntries[i].pbData);
-            pCache->aEntries[i].pbData = NULL;
+            RTMemFree(pFatCache->aEntries[i].pbData);
+            pFatCache->aEntries[i].pbData = NULL;
         }
-        pCache->cEntries = 0;
-        RTMemFree(pCache);
+        pFatCache->cEntries = 0;
+        RTMemFree(pFatCache);
 
         pThis->pFatCache = NULL;
     }
@@ -971,13 +1192,12 @@ static int rtFsFatClusterMap_Destroy(PRTFSFATVOL pThis)
 /**
  * Worker for rtFsFatClusterMap_ReadClusterChain handling FAT12.
  */
-static int rtFsFatClusterMap_Fat12_ReadClusterChain(PRTFSFATCLUSTERMAPCACHE pFatCache, PRTFSFATVOL pVol, uint32_t idxCluster,
-                                                    PRTFSFATCHAIN pChain)
+static int rtFsFatClusterMap_Fat12_ReadClusterChain(PRTFSFATCLUSTERMAPCACHE pFatCache, uint32_t idxCluster, PRTFSFATCHAIN pChain)
 {
     /* ASSUME that for FAT12 we cache the whole FAT in a single entry.  That
        way we don't need to deal with entries in different sectors and whatnot.  */
     AssertReturn(pFatCache->cEntries == 1, VERR_INTERNAL_ERROR_4);
-    AssertReturn(pFatCache->cbEntry == pVol->cbFat, VERR_INTERNAL_ERROR_4);
+    AssertReturn(pFatCache->cbEntry == pFatCache->cbFat, VERR_INTERNAL_ERROR_4);
     AssertReturn(pFatCache->aEntries[0].offFat == 0, VERR_INTERNAL_ERROR_4);
 
     /* Special case for empty files. */
@@ -989,7 +1209,7 @@ static int rtFsFatClusterMap_Fat12_ReadClusterChain(PRTFSFATCLUSTERMAPCACHE pFat
     for (;;)
     {
         /* Validate the cluster, checking for end of file. */
-        if (   idxCluster >= pVol->cClusters
+        if (   idxCluster >= pFatCache->cClusters
             || idxCluster <  FAT_FIRST_DATA_CLUSTER)
         {
             if (idxCluster >= FAT_FIRST_FAT12_EOC)
@@ -1017,22 +1237,76 @@ static int rtFsFatClusterMap_Fat12_ReadClusterChain(PRTFSFATCLUSTERMAPCACHE pFat
 /**
  * Worker for rtFsFatClusterMap_ReadClusterChain handling FAT16.
  */
-static int rtFsFatClusterMap_Fat16_ReadClusterChain(PRTFSFATCLUSTERMAPCACHE pFatCache, PRTFSFATVOL pVol, uint32_t idxCluster,
-                                                    PRTFSFATCHAIN pChain)
+static int rtFsFatClusterMap_Fat16_ReadClusterChain(PRTFSFATCLUSTERMAPCACHE pFatCache, uint32_t idxCluster, PRTFSFATCHAIN pChain)
 {
-    RT_NOREF(pFatCache, pVol, idxCluster, pChain);
-    return VERR_NOT_IMPLEMENTED;
+    /* ASSUME that for FAT16 we cache the whole FAT in a single entry.  That
+       way we don't need to deal with entries in different sectors and whatnot.  */
+    AssertReturn(pFatCache->cEntries == 1, VERR_INTERNAL_ERROR_4);
+    AssertReturn(pFatCache->cbEntry == pFatCache->cbFat, VERR_INTERNAL_ERROR_4);
+    AssertReturn(pFatCache->aEntries[0].offFat == 0, VERR_INTERNAL_ERROR_4);
+
+    /* Special case for empty files. */
+    if (idxCluster == 0)
+        return VINF_SUCCESS;
+
+    /* Work cluster by cluster. */
+    uint8_t const *pbFat = pFatCache->aEntries[0].pbData;
+    for (;;)
+    {
+        /* Validate the cluster, checking for end of file. */
+        if (   idxCluster >= pFatCache->cClusters
+            || idxCluster <  FAT_FIRST_DATA_CLUSTER)
+        {
+            if (idxCluster >= FAT_FIRST_FAT16_EOC)
+                return VINF_SUCCESS;
+            return VERR_VFS_BOGUS_OFFSET;
+        }
+
+        /* Add cluster to chain.  */
+        int rc = rtFsFatChain_Append(pChain, idxCluster);
+        if (RT_FAILURE(rc))
+            return rc;
+
+        /* Next cluster. */
+        idxCluster = RT_MAKE_U16(pbFat[idxCluster * 2], pbFat[idxCluster * 2 + 1]);
+    }
 }
 
 
 /**
  * Worker for rtFsFatClusterMap_ReadClusterChain handling FAT32.
  */
-static int rtFsFatClusterMap_Fat32_ReadClusterChain(PRTFSFATCLUSTERMAPCACHE pFatCache, PRTFSFATVOL pVol, uint32_t idxCluster,
-                                                    PRTFSFATCHAIN pChain)
+static int rtFsFatClusterMap_Fat32_ReadClusterChain(PRTFSFATCLUSTERMAPCACHE pFatCache, uint32_t idxCluster, PRTFSFATCHAIN pChain)
 {
-    RT_NOREF(pFatCache, pVol, idxCluster, pChain);
-    return VERR_NOT_IMPLEMENTED;
+    /* Special case for empty files. */
+    if (idxCluster == 0)
+        return VINF_SUCCESS;
+
+    /* Work cluster by cluster. */
+    for (;;)
+    {
+        /* Validate the cluster, checking for end of file. */
+        if (   idxCluster >= pFatCache->cClusters
+            || idxCluster <  FAT_FIRST_DATA_CLUSTER)
+        {
+            if (idxCluster >= FAT_FIRST_FAT32_EOC)
+                return VINF_SUCCESS;
+            return VERR_VFS_BOGUS_OFFSET;
+        }
+
+        /* Add cluster to chain.  */
+        int rc = rtFsFatChain_Append(pChain, idxCluster);
+        if (RT_FAILURE(rc))
+            return rc;
+
+        /* Get the next cluster. */
+        uint8_t *pbEntry;
+        rc = rtFsFatClusterMap_GetEntry(pFatCache, idxCluster * 4, &pbEntry);
+        if (RT_SUCCESS(rc))
+            idxCluster = RT_MAKE_U32_FROM_U8(pbEntry[0], pbEntry[1], pbEntry[2], pbEntry[3]);
+        else
+            return rc;
+    }
 }
 
 
@@ -1054,9 +1328,9 @@ static int rtFsFatClusterMap_ReadClusterChain(PRTFSFATVOL pThis, uint32_t idxFir
     RTListInit(&pChain->ListParts);
     switch (pThis->enmFatType)
     {
-        case RTFSFATTYPE_FAT12: return rtFsFatClusterMap_Fat12_ReadClusterChain(pThis->pFatCache, pThis, idxFirstCluster, pChain);
-        case RTFSFATTYPE_FAT16: return rtFsFatClusterMap_Fat16_ReadClusterChain(pThis->pFatCache, pThis, idxFirstCluster, pChain);
-        case RTFSFATTYPE_FAT32: return rtFsFatClusterMap_Fat32_ReadClusterChain(pThis->pFatCache, pThis, idxFirstCluster, pChain);
+        case RTFSFATTYPE_FAT12: return rtFsFatClusterMap_Fat12_ReadClusterChain(pThis->pFatCache, idxFirstCluster, pChain);
+        case RTFSFATTYPE_FAT16: return rtFsFatClusterMap_Fat16_ReadClusterChain(pThis->pFatCache, idxFirstCluster, pChain);
+        case RTFSFATTYPE_FAT32: return rtFsFatClusterMap_Fat32_ReadClusterChain(pThis->pFatCache, idxFirstCluster, pChain);
         default:
             AssertFailedReturn(VERR_INTERNAL_ERROR_2);
     }
@@ -1076,15 +1350,28 @@ DECLINLINE(void) rtFsFatClusterMap_SetDirtyByte(PRTFSFATCLUSTERMAPCACHE pFatCach
     pFatCache->aEntries[iEntry].bmDirty |= RT_BIT_64(iLine);
 }
 
+/**
+ * Sets bmDirty for entry @a iEntry.
+ *
+ * @param   pFatCache   The FAT cache.
+ * @param   iEntry      The cache entry.
+ * @param   pbIntoEntry Pointer into the cache entry that was dirtied.
+ */
+DECLINLINE(void) rtFsFatClusterMap_SetDirtyByteByPtr(PRTFSFATCLUSTERMAPCACHE pFatCache, uint32_t iEntry, uint8_t *pbIntoEntry)
+{
+    uintptr_t offEntry = pbIntoEntry - pFatCache->aEntries[iEntry].pbData;
+    Assert(offEntry < pFatCache->cbEntry);
+    rtFsFatClusterMap_SetDirtyByte(pFatCache, iEntry, (uint32_t)offEntry);
+}
+
 
 /** Sets a FAT12 cluster value. */
-static int rtFsFatClusterMap_SetCluster12(PRTFSFATCLUSTERMAPCACHE pFatCache, PRTFSFATVOL pVol,
-                                          uint32_t idxCluster, uint32_t uValue)
+static int rtFsFatClusterMap_SetCluster12(PRTFSFATCLUSTERMAPCACHE pFatCache, uint32_t idxCluster, uint32_t uValue)
 {
     /* ASSUME that for FAT12 we cache the whole FAT in a single entry.  That
        way we don't need to deal with entries in different sectors and whatnot.  */
     AssertReturn(pFatCache->cEntries == 1, VERR_INTERNAL_ERROR_4);
-    AssertReturn(pFatCache->cbEntry == pVol->cbFat, VERR_INTERNAL_ERROR_4);
+    AssertReturn(pFatCache->cbEntry == pFatCache->cbFat, VERR_INTERNAL_ERROR_4);
     AssertReturn(pFatCache->aEntries[0].offFat == 0, VERR_INTERNAL_ERROR_4);
     AssertReturn(uValue < 0x1000, VERR_INTERNAL_ERROR_2);
 
@@ -1111,22 +1398,49 @@ static int rtFsFatClusterMap_SetCluster12(PRTFSFATCLUSTERMAPCACHE pFatCache, PRT
 
 
 /** Sets a FAT16 cluster value. */
-static int rtFsFatClusterMap_SetCluster16(PRTFSFATCLUSTERMAPCACHE pFatCache, PRTFSFATVOL pVol,
-                                          uint32_t idxCluster, uint32_t uValue)
+static int rtFsFatClusterMap_SetCluster16(PRTFSFATCLUSTERMAPCACHE pFatCache, uint32_t idxCluster, uint32_t uValue)
 {
+    /* ASSUME that for FAT16 we cache the whole FAT in a single entry.  */
+    AssertReturn(pFatCache->cEntries == 1, VERR_INTERNAL_ERROR_4);
+    AssertReturn(pFatCache->cbEntry == pFatCache->cbFat, VERR_INTERNAL_ERROR_4);
+    AssertReturn(pFatCache->aEntries[0].offFat == 0, VERR_INTERNAL_ERROR_4);
     AssertReturn(uValue < 0x10000, VERR_INTERNAL_ERROR_2);
-    RT_NOREF(pFatCache, pVol, idxCluster, uValue);
-    return VERR_NOT_IMPLEMENTED;
+
+    /* Make the change. */
+    uint8_t *pbFat  = pFatCache->aEntries[0].pbData;
+    uint32_t offFat = idxCluster * 2;
+    pbFat[offFat]     = (uint8_t)idxCluster;
+    pbFat[offFat + 1] = (uint8_t)(idxCluster >> 8);
+
+    /* Update the dirty bits. */
+    rtFsFatClusterMap_SetDirtyByte(pFatCache, 0, offFat);
+
+    return VINF_SUCCESS;
 }
 
 
 /** Sets a FAT32 cluster value. */
-static int rtFsFatClusterMap_SetCluster32(PRTFSFATCLUSTERMAPCACHE pFatCache, PRTFSFATVOL pVol,
-                                          uint32_t idxCluster, uint32_t uValue)
+static int rtFsFatClusterMap_SetCluster32(PRTFSFATCLUSTERMAPCACHE pFatCache, uint32_t idxCluster, uint32_t uValue)
 {
     AssertReturn(uValue < 0x10000000, VERR_INTERNAL_ERROR_2);
-    RT_NOREF(pFatCache, pVol, idxCluster, uValue);
-    return VERR_NOT_IMPLEMENTED;
+
+    /* Get the fat cache entry. */
+    uint8_t *pbEntry;
+    uint32_t idxEntry;
+    int rc = rtFsFatClusterMap_GetEntryEx(pFatCache, idxCluster * 4, &pbEntry, &idxEntry);
+    if (RT_SUCCESS(rc))
+    {
+        /* Make the change. */
+        pbEntry[0] = (uint8_t)idxCluster;
+        pbEntry[1] = (uint8_t)(idxCluster >>  8);
+        pbEntry[2] = (uint8_t)(idxCluster >> 16);
+        pbEntry[3] = (uint8_t)(idxCluster >> 24);
+
+        /* Update the dirty bits. */
+        rtFsFatClusterMap_SetDirtyByteByPtr(pFatCache, idxEntry, pbEntry);
+    }
+
+    return rc;
 }
 
 
@@ -1144,9 +1458,9 @@ static int rtFsFatClusterMap_SetEndOfChain(PRTFSFATVOL pThis, uint32_t idxCluste
                     VERR_VFS_BOGUS_OFFSET);
     switch (pThis->enmFatType)
     {
-        case RTFSFATTYPE_FAT12: return rtFsFatClusterMap_SetCluster12(pThis->pFatCache, pThis, idxCluster, FAT_FIRST_FAT12_EOC);
-        case RTFSFATTYPE_FAT16: return rtFsFatClusterMap_SetCluster16(pThis->pFatCache, pThis, idxCluster, FAT_FIRST_FAT16_EOC);
-        case RTFSFATTYPE_FAT32: return rtFsFatClusterMap_SetCluster32(pThis->pFatCache, pThis, idxCluster, FAT_FIRST_FAT32_EOC);
+        case RTFSFATTYPE_FAT12: return rtFsFatClusterMap_SetCluster12(pThis->pFatCache, idxCluster, FAT_FIRST_FAT12_EOC);
+        case RTFSFATTYPE_FAT16: return rtFsFatClusterMap_SetCluster16(pThis->pFatCache, idxCluster, FAT_FIRST_FAT16_EOC);
+        case RTFSFATTYPE_FAT32: return rtFsFatClusterMap_SetCluster32(pThis->pFatCache, idxCluster, FAT_FIRST_FAT32_EOC);
         default: AssertFailedReturn(VERR_INTERNAL_ERROR_3);
     }
 }
@@ -1164,9 +1478,9 @@ static int rtFsFatClusterMap_FreeCluster(PRTFSFATVOL pThis, uint32_t idxCluster)
     AssertReturn(idxCluster < pThis->cClusters, VERR_VFS_BOGUS_OFFSET);
     switch (pThis->enmFatType)
     {
-        case RTFSFATTYPE_FAT12: return rtFsFatClusterMap_SetCluster12(pThis->pFatCache, pThis, idxCluster, 0);
-        case RTFSFATTYPE_FAT16: return rtFsFatClusterMap_SetCluster16(pThis->pFatCache, pThis, idxCluster, 0);
-        case RTFSFATTYPE_FAT32: return rtFsFatClusterMap_SetCluster32(pThis->pFatCache, pThis, idxCluster, 0);
+        case RTFSFATTYPE_FAT12: return rtFsFatClusterMap_SetCluster12(pThis->pFatCache, idxCluster, 0);
+        case RTFSFATTYPE_FAT16: return rtFsFatClusterMap_SetCluster16(pThis->pFatCache, idxCluster, 0);
+        case RTFSFATTYPE_FAT32: return rtFsFatClusterMap_SetCluster32(pThis->pFatCache, idxCluster, 0);
         default: AssertFailedReturn(VERR_INTERNAL_ERROR_3);
     }
 }
@@ -1175,13 +1489,12 @@ static int rtFsFatClusterMap_FreeCluster(PRTFSFATVOL pThis, uint32_t idxCluster)
 /**
  * Worker for rtFsFatClusterMap_AllocateCluster that handles FAT12.
  */
-static int rtFsFatClusterMap_AllocateCluster12(PRTFSFATCLUSTERMAPCACHE pFatCache, PRTFSFATVOL pVol,
-                                               uint32_t idxPrevCluster, uint32_t *pidxCluster)
+static int rtFsFatClusterMap_AllocateCluster12(PRTFSFATCLUSTERMAPCACHE pFatCache, uint32_t idxPrevCluster, uint32_t *pidxCluster)
 {
     /* ASSUME that for FAT12 we cache the whole FAT in a single entry.  That
        way we don't need to deal with entries in different sectors and whatnot.  */
     AssertReturn(pFatCache->cEntries == 1, VERR_INTERNAL_ERROR_4);
-    AssertReturn(pFatCache->cbEntry == pVol->cbFat, VERR_INTERNAL_ERROR_4);
+    AssertReturn(pFatCache->cbEntry == pFatCache->cbFat, VERR_INTERNAL_ERROR_4);
     AssertReturn(pFatCache->aEntries[0].offFat == 0, VERR_INTERNAL_ERROR_4);
 
     /*
@@ -1192,6 +1505,7 @@ static int rtFsFatClusterMap_AllocateCluster12(PRTFSFATCLUSTERMAPCACHE pFatCache
     if (idxPrevCluster != UINT32_MAX)
     {
         offFatPrev = idxPrevCluster * 3 / 2;
+        AssertReturn(offFatPrev + 1 < pFatCache->cbFat, VERR_INTERNAL_ERROR_3);
         uint32_t idxPrevValue;
         if (idxPrevCluster & 1)
             idxPrevValue = (pbFat[offFatPrev] >> 4) | ((uint32_t)pbFat[offFatPrev + 1] << 4);
@@ -1208,7 +1522,7 @@ static int rtFsFatClusterMap_AllocateCluster12(PRTFSFATCLUSTERMAPCACHE pFatCache
      */
     uint32_t idxCluster = FAT_FIRST_DATA_CLUSTER;
     uint32_t offFat     = 3;
-    while (idxCluster < pVol->cClusters)
+    while (idxCluster < pFatCache->cClusters)
     {
         if (idxCluster & 1)
         {
@@ -1243,7 +1557,7 @@ static int rtFsFatClusterMap_AllocateCluster12(PRTFSFATCLUSTERMAPCACHE pFatCache
         rtFsFatClusterMap_SetDirtyByte(pFatCache, 0, offFat);
         rtFsFatClusterMap_SetDirtyByte(pFatCache, 0, offFat + 1);
 
-        /* Chain it on the previous cluster. */
+        /* Chain it onto the previous cluster. */
         if (idxPrevCluster != UINT32_MAX)
         {
             if (idxPrevCluster & 1)
@@ -1271,22 +1585,187 @@ static int rtFsFatClusterMap_AllocateCluster12(PRTFSFATCLUSTERMAPCACHE pFatCache
 /**
  * Worker for rtFsFatClusterMap_AllocateCluster that handles FAT16.
  */
-static int rtFsFatClusterMap_AllocateCluster16(PRTFSFATCLUSTERMAPCACHE pFatCache, PRTFSFATVOL pVol,
-                                               uint32_t idxPrevCluster, uint32_t *pidxCluster)
+static int rtFsFatClusterMap_AllocateCluster16(PRTFSFATCLUSTERMAPCACHE pFatCache, uint32_t idxPrevCluster, uint32_t *pidxCluster)
 {
-    RT_NOREF(pFatCache, pVol, idxPrevCluster, pidxCluster);
-    return VERR_NOT_IMPLEMENTED;
+    /* ASSUME that for FAT16 we cache the whole FAT in a single entry. */
+    AssertReturn(pFatCache->cEntries == 1, VERR_INTERNAL_ERROR_4);
+    AssertReturn(pFatCache->cbEntry == pFatCache->cbFat, VERR_INTERNAL_ERROR_4);
+    AssertReturn(pFatCache->aEntries[0].offFat == 0, VERR_INTERNAL_ERROR_4);
+
+    /*
+     * Check that the previous cluster is a valid chain end.
+     */
+    uint8_t *pbFat      = pFatCache->aEntries[0].pbData;
+    uint32_t offFatPrev;
+    if (idxPrevCluster != UINT32_MAX)
+    {
+        offFatPrev = idxPrevCluster * 2;
+        AssertReturn(offFatPrev + 1 < pFatCache->cbFat, VERR_INTERNAL_ERROR_3);
+        uint32_t idxPrevValue = RT_MAKE_U16(pbFat[offFatPrev], pbFat[offFatPrev + 1]);
+        AssertReturn(idxPrevValue >= FAT_FIRST_FAT16_EOC, VERR_VFS_BOGUS_OFFSET);
+    }
+    else
+        offFatPrev = UINT32_MAX;
+
+    /*
+     * We start searching at idxAllocHint and continues to the end.  The next
+     * iteration starts searching from the start and up to idxAllocHint.
+     */
+    uint32_t idxCluster = RT_MIN(pFatCache->idxAllocHint, FAT_FIRST_DATA_CLUSTER);
+    uint32_t offFat     = idxCluster * 2;
+    uint32_t cClusters  = pFatCache->cClusters;
+    for (uint32_t i = 0; i < 2; i++)
+    {
+        while (idxCluster < cClusters)
+        {
+            if (   pbFat[offFat + 0] != 0x00
+                || pbFat[offFat + 1] != 0x00)
+            {
+                /* In use - advance to the next one. */
+                offFat += 2;
+                idxCluster++;
+            }
+            else
+            {
+                /*
+                 * Found one. Grab it.
+                 */
+                /* Set EOC. */
+                pbFat[offFat + 0] = 0xff;
+                pbFat[offFat + 1] = 0xff;
+                rtFsFatClusterMap_SetDirtyByte(pFatCache, 0, offFat);
+
+                /* Chain it onto the previous cluster (if any). */
+                if (idxPrevCluster != UINT32_MAX)
+                {
+                    pbFat[offFatPrev + 0] = (uint8_t)idxCluster;
+                    pbFat[offFatPrev + 1] = (uint8_t)(idxCluster >> 8);
+                    rtFsFatClusterMap_SetDirtyByte(pFatCache, 0, offFatPrev);
+                }
+
+                /* Update the allocation hint. */
+                pFatCache->idxAllocHint = idxCluster + 1;
+
+                /* Done. */
+                *pidxCluster = idxCluster;
+                return VINF_SUCCESS;
+            }
+        }
+
+        /* Wrap around to the start of the map. */
+        cClusters  = RT_MIN(pFatCache->idxAllocHint, pFatCache->cClusters);
+        idxCluster = FAT_FIRST_DATA_CLUSTER;
+        offFat     = 4;
+    }
+
+    return VERR_DISK_FULL;
 }
 
 
 /**
  * Worker for rtFsFatClusterMap_AllocateCluster that handles FAT32.
  */
-static int rtFsFatClusterMap_AllocateCluster32(PRTFSFATCLUSTERMAPCACHE pFatCache, PRTFSFATVOL pVol,
-                                               uint32_t idxPrevCluster, uint32_t *pidxCluster)
+static int rtFsFatClusterMap_AllocateCluster32(PRTFSFATCLUSTERMAPCACHE pFatCache, uint32_t idxPrevCluster, uint32_t *pidxCluster)
 {
-    RT_NOREF(pFatCache, pVol, idxPrevCluster, pidxCluster);
-    return VERR_NOT_IMPLEMENTED;
+    /*
+     * Check that the previous cluster is a valid chain end.
+     */
+    int      rc;
+    uint8_t *pbEntry;
+    if (idxPrevCluster != UINT32_MAX)
+    {
+        rc = rtFsFatClusterMap_GetEntry(pFatCache, idxPrevCluster * 4, &pbEntry);
+        if (RT_SUCCESS(rc))
+        {
+            uint32_t idxPrevValue = RT_MAKE_U32_FROM_U8(pbEntry[0], pbEntry[1], pbEntry[2], pbEntry[3]);
+            AssertReturn(idxPrevValue >= FAT_FIRST_FAT32_EOC, VERR_VFS_BOGUS_OFFSET);
+        }
+        else
+            return rc;
+    }
+
+    /*
+     * We start searching at idxAllocHint and continues to the end.  The next
+     * iteration starts searching from the start and up to idxAllocHint.
+     */
+    uint32_t idxCluster = RT_MIN(pFatCache->idxAllocHint, FAT_FIRST_DATA_CLUSTER);
+    uint32_t offFat     = idxCluster * 4;
+    uint32_t cClusters  = pFatCache->cClusters;
+    for (uint32_t i = 0; i < 2; i++)
+    {
+        while (idxCluster < cClusters)
+        {
+            /* Note! This could be done in cache entry chunks.  */
+            uint32_t idxEntry;
+            rc = rtFsFatClusterMap_GetEntryEx(pFatCache, offFat, &pbEntry, &idxEntry);
+            if (RT_SUCCESS(rc))
+            {
+                if (   pbEntry[0] != 0x00
+                    || pbEntry[1] != 0x00
+                    || pbEntry[2] != 0x00
+                    || pbEntry[3] != 0x00)
+                {
+                    /* In use - advance to the next one. */
+                    offFat += 4;
+                    idxCluster++;
+                }
+                else
+                {
+                    /*
+                     * Found one. Grab it.
+                     */
+                    /* Set EOC. */
+                    pbEntry[0] = 0xff;
+                    pbEntry[1] = 0xff;
+                    pbEntry[2] = 0xff;
+                    pbEntry[3] = 0x0f;
+                    rtFsFatClusterMap_SetDirtyByteByPtr(pFatCache, idxEntry, pbEntry);
+
+                    /* Chain it on the previous cluster (if any). */
+                    if (idxPrevCluster != UINT32_MAX)
+                    {
+                        rc = rtFsFatClusterMap_GetEntryEx(pFatCache, idxPrevCluster * 4, &pbEntry, &idxEntry);
+                        if (RT_SUCCESS(rc))
+                        {
+                            pbEntry[0] = (uint8_t)idxCluster;
+                            pbEntry[1] = (uint8_t)(idxCluster >> 8);
+                            pbEntry[2] = (uint8_t)(idxCluster >> 16);
+                            pbEntry[3] = (uint8_t)(idxCluster >> 24);
+                            rtFsFatClusterMap_SetDirtyByteByPtr(pFatCache, idxEntry, pbEntry);
+                        }
+                        else
+                        {
+                            /* Try free the cluster. */
+                            int rc2 = rtFsFatClusterMap_GetEntryEx(pFatCache, offFat, &pbEntry, &idxEntry);
+                            if (RT_SUCCESS(rc2))
+                            {
+                                pbEntry[0] = 0;
+                                pbEntry[1] = 0;
+                                pbEntry[2] = 0;
+                                pbEntry[3] = 0;
+                                rtFsFatClusterMap_SetDirtyByteByPtr(pFatCache, idxEntry, pbEntry);
+                            }
+                            return rc;
+                        }
+                    }
+
+                    /* Update the allocation hint. */
+                    pFatCache->idxAllocHint = idxCluster + 1;
+
+                    /* Done. */
+                    *pidxCluster = idxCluster;
+                    return VINF_SUCCESS;
+                }
+            }
+        }
+
+        /* Wrap around to the start of the map. */
+        cClusters  = RT_MIN(pFatCache->idxAllocHint, pFatCache->cClusters);
+        idxCluster = FAT_FIRST_DATA_CLUSTER;
+        offFat     = 4;
+    }
+
+    return VERR_DISK_FULL;
 }
 
 
@@ -1306,9 +1785,9 @@ static int rtFsFatClusterMap_AllocateCluster(PRTFSFATVOL pThis, uint32_t idxPrev
     *pidxCluster = UINT32_MAX;
     switch (pThis->enmFatType)
     {
-        case RTFSFATTYPE_FAT12: return rtFsFatClusterMap_AllocateCluster12(pThis->pFatCache, pThis, idxPrevCluster, pidxCluster);
-        case RTFSFATTYPE_FAT16: return rtFsFatClusterMap_AllocateCluster16(pThis->pFatCache, pThis, idxPrevCluster, pidxCluster);
-        case RTFSFATTYPE_FAT32: return rtFsFatClusterMap_AllocateCluster32(pThis->pFatCache, pThis, idxPrevCluster, pidxCluster);
+        case RTFSFATTYPE_FAT12: return rtFsFatClusterMap_AllocateCluster12(pThis->pFatCache, idxPrevCluster, pidxCluster);
+        case RTFSFATTYPE_FAT16: return rtFsFatClusterMap_AllocateCluster16(pThis->pFatCache, idxPrevCluster, pidxCluster);
+        case RTFSFATTYPE_FAT32: return rtFsFatClusterMap_AllocateCluster32(pThis->pFatCache, idxPrevCluster, pidxCluster);
         default: AssertFailedReturn(VERR_INTERNAL_ERROR_3);
     }
 }
@@ -1456,6 +1935,7 @@ static uint8_t rtFsFatCurrentFatDateTime(PCRTFSFATVOL pVol, uint16_t *puDate, ui
 static void rtFsFatObj_InitFromDirEntry(PRTFSFATOBJ pObj, PCFATDIRENTRY pDirEntry, uint32_t offEntryInDir, PRTFSFATVOL pVol)
 {
     RTListInit(&pObj->Entry);
+    pObj->cRefs             = 1;
     pObj->pParentDir        = NULL;
     pObj->pVol              = pVol;
     pObj->offEntryInDir     = offEntryInDir;
@@ -1484,6 +1964,7 @@ static void rtFsFatObj_InitFromDirEntry(PRTFSFATOBJ pObj, PCFATDIRENTRY pDirEntr
 static void rtFsFatObj_InitDummy(PRTFSFATOBJ pObj, uint32_t cbObject, RTFMODE fAttrib, PRTFSFATVOL pVol)
 {
     RTListInit(&pObj->Entry);
+    pObj->cRefs             = 1;
     pObj->pParentDir        = NULL;
     pObj->pVol              = pVol;
     pObj->offEntryInDir     = UINT32_MAX;
@@ -1514,7 +1995,7 @@ static int rtFsFatObj_FlushMetaData(PRTFSFATOBJ pObj)
     }
     if (pObj->fMaybeDirtyDirEnt)
     {
-        int rc2 = rtFsFatDir_Flush(pObj->pParentDir);
+        int rc2 = rtFsFatDirShrd_Flush(pObj->pParentDir);
         if (RT_SUCCESS(rc2))
             pObj->fMaybeDirtyDirEnt = false;
         else if (RT_SUCCESS(rc))
@@ -1534,28 +2015,18 @@ static int rtFsFatObj_Close(PRTFSFATOBJ pObj)
 {
     int rc = rtFsFatObj_FlushMetaData(pObj);
     if (pObj->pParentDir)
-        rtFsFatDir_RemoveOpenChild(pObj->pParentDir, pObj);
+        rtFsFatDirShrd_RemoveOpenChild(pObj->pParentDir, pObj);
     rtFsFatChain_Delete(&pObj->Clusters);
     return rc;
 }
 
 
 /**
- * @interface_method_impl{RTVFSOBJOPS,pfnClose}
+ * Worker for rtFsFatFile_QueryInfo and rtFsFatDir_QueryInfo
  */
-static DECLCALLBACK(int) rtFsFatFile_Close(void *pvThis)
+static int rtFsFatObj_QueryInfo(PRTFSFATOBJ pThis, PRTFSOBJINFO pObjInfo, RTFSOBJATTRADD enmAddAttr)
 {
-    PRTFSFATFILE pThis = (PRTFSFATFILE)pvThis;
-    return rtFsFatObj_Close(&pThis->Core);
-}
-
-
-/**
- * @interface_method_impl{RTVFSOBJOPS,pfnQueryInfo}
- */
-static DECLCALLBACK(int) rtFsFatObj_QueryInfo(void *pvThis, PRTFSOBJINFO pObjInfo, RTFSOBJATTRADD enmAddAttr)
-{
-    PRTFSFATOBJ pThis = (PRTFSFATOBJ)pvThis;
+    LogFlow(("rtFsFatObj_QueryInfo: %p fMode=%#x\n", pThis, pThis->fAttrib));
 
     pObjInfo->cbObject              = pThis->cbObject;
     pObjInfo->cbAllocated           = pThis->Clusters.cbChain;
@@ -1598,11 +2069,83 @@ static DECLCALLBACK(int) rtFsFatObj_QueryInfo(void *pvThis, PRTFSOBJINFO pObjInf
 
 
 /**
+ * Worker for rtFsFatFile_SetMode and rtFsFatDir_SetMode.
+ */
+static int rtFsFatObj_SetMode(PRTFSFATOBJ pThis, RTFMODE fMode, RTFMODE fMask)
+{
+#if 0
+    if (fMask != ~RTFS_TYPE_MASK)
+    {
+        fMode |= ~fMask & ObjInfo.Attr.fMode;
+    }
+#else
+    RT_NOREF(pThis, fMode, fMask);
+    return VERR_NOT_IMPLEMENTED;
+#endif
+}
+
+
+/**
+ * Worker for rtFsFatFile_SetTimes and rtFsFatDir_SetTimes.
+ */
+static int rtFsFatObj_SetTimes(PRTFSFATOBJ pThis, PCRTTIMESPEC pAccessTime, PCRTTIMESPEC pModificationTime,
+                               PCRTTIMESPEC pChangeTime, PCRTTIMESPEC pBirthTime)
+{
+#if 0
+    PRTFSFATFILE pThis = (PRTFSFATFILE)pvThis;
+#else
+    RT_NOREF(pThis, pAccessTime, pModificationTime, pChangeTime, pBirthTime);
+    return VERR_NOT_IMPLEMENTED;
+#endif
+}
+
+
+
+
+/**
+ * @interface_method_impl{RTVFSOBJOPS,pfnClose}
+ */
+static DECLCALLBACK(int) rtFsFatFile_Close(void *pvThis)
+{
+    PRTFSFATFILE pThis = (PRTFSFATFILE)pvThis;
+    LogFlow(("rtFsFatFile_Close(%p/%p)\n", pThis, pThis->pShared));
+
+    PRTFSFATFILESHRD pShared = pThis->pShared;
+    pThis->pShared = NULL;
+
+    int rc = VINF_SUCCESS;
+    if (pShared)
+    {
+        if (ASMAtomicDecU32(&pShared->Core.cRefs) == 0)
+        {
+            LogFlow(("rtFsFatFile_Close: Destroying shared structure %p\n", pShared));
+            rc = rtFsFatObj_Close(&pShared->Core);
+            RTMemFree(pShared);
+        }
+        else
+            rc = rtFsFatObj_FlushMetaData(&pShared->Core);
+    }
+    return rc;
+}
+
+
+/**
+ * @interface_method_impl{RTVFSOBJOPS,pfnQueryInfo}
+ */
+static DECLCALLBACK(int) rtFsFatFile_QueryInfo(void *pvThis, PRTFSOBJINFO pObjInfo, RTFSOBJATTRADD enmAddAttr)
+{
+    PRTFSFATFILE pThis = (PRTFSFATFILE)pvThis;
+    return rtFsFatObj_QueryInfo(&pThis->pShared->Core, pObjInfo, enmAddAttr);
+}
+
+
+/**
  * @interface_method_impl{RTVFSIOSTREAMOPS,pfnRead}
  */
 static DECLCALLBACK(int) rtFsFatFile_Read(void *pvThis, RTFOFF off, PCRTSGBUF pSgBuf, bool fBlocking, size_t *pcbRead)
 {
-    PRTFSFATFILE pThis = (PRTFSFATFILE)pvThis;
+    PRTFSFATFILE     pThis   = (PRTFSFATFILE)pvThis;
+    PRTFSFATFILESHRD pShared = pThis->pShared;
     AssertReturn(pSgBuf->cSegs != 0, VERR_INTERNAL_ERROR_3);
     RT_NOREF(fBlocking);
 
@@ -1611,7 +2154,7 @@ static DECLCALLBACK(int) rtFsFatFile_Read(void *pvThis, RTFOFF off, PCRTSGBUF pS
      */
     if (off == -1)
         off = pThis->offFile;
-    if ((uint64_t)off >= pThis->Core.cbObject)
+    if ((uint64_t)off >= pShared->Core.cbObject)
     {
         if (pcbRead)
         {
@@ -1625,7 +2168,7 @@ static DECLCALLBACK(int) rtFsFatFile_Read(void *pvThis, RTFOFF off, PCRTSGBUF pS
      * Do the reading cluster by cluster.
      */
     int      rc         = VINF_SUCCESS;
-    uint32_t cbFileLeft = pThis->Core.cbObject - (uint32_t)off;
+    uint32_t cbFileLeft = pShared->Core.cbObject - (uint32_t)off;
     uint32_t cbRead     = 0;
     size_t   cbLeft     = pSgBuf->paSegs[0].cbSeg;
     uint8_t *pbDst      = (uint8_t *)pSgBuf->paSegs[0].pvSeg;
@@ -1633,15 +2176,15 @@ static DECLCALLBACK(int) rtFsFatFile_Read(void *pvThis, RTFOFF off, PCRTSGBUF pS
     {
         if (cbFileLeft > 0)
         {
-            uint64_t offDisk = rtFsFatChain_FileOffsetToDiskOff(&pThis->Core.Clusters, (uint32_t)off, pThis->Core.pVol);
+            uint64_t offDisk = rtFsFatChain_FileOffsetToDiskOff(&pShared->Core.Clusters, (uint32_t)off, pShared->Core.pVol);
             if (offDisk != UINT64_MAX)
             {
-                uint32_t cbToRead = pThis->Core.Clusters.cbCluster - ((uint32_t)off & (pThis->Core.Clusters.cbCluster - 1));
+                uint32_t cbToRead = pShared->Core.Clusters.cbCluster - ((uint32_t)off & (pShared->Core.Clusters.cbCluster - 1));
                 if (cbToRead > cbLeft)
                     cbToRead = (uint32_t)cbLeft;
                 if (cbToRead > cbFileLeft)
                     cbToRead = cbFileLeft;
-                rc = RTVfsFileReadAt(pThis->Core.pVol->hVfsBacking, offDisk, pbDst, cbToRead, NULL);
+                rc = RTVfsFileReadAt(pShared->Core.pVol->hVfsBacking, offDisk, pbDst, cbToRead, NULL);
                 if (RT_SUCCESS(rc))
                 {
                     off         += cbToRead;
@@ -1736,7 +2279,7 @@ static int rtFsFatObj_SetSize(PRTFSFATOBJ pObj, uint32_t cbFile)
          */
         uint32_t     uWriteLock;
         PFATDIRENTRY pDirEntry;
-        rc = rtFsFatDir_GetEntryForUpdate(pObj->pParentDir, pObj->offEntryInDir, &pDirEntry, &uWriteLock);
+        rc = rtFsFatDirShrd_GetEntryForUpdate(pObj->pParentDir, pObj->offEntryInDir, &pDirEntry, &uWriteLock);
         if (RT_SUCCESS(rc))
         {
             pDirEntry->cbFile = cbFile;
@@ -1749,7 +2292,7 @@ static int rtFsFatObj_SetSize(PRTFSFATOBJ pObj, uint32_t cbFile)
             if (pObj->pVol->enmFatType >= RTFSFATTYPE_FAT32)
                 pDirEntry->u.idxClusterHigh = (uint16_t)(idxFirstCluster >> 16);
 
-            rc = rtFsFatDir_PutEntryAfterUpdate(pObj->pParentDir, pDirEntry, uWriteLock);
+            rc = rtFsFatDirShrd_PutEntryAfterUpdate(pObj->pParentDir, pDirEntry, uWriteLock);
             pObj->fMaybeDirtyDirEnt = true;
         }
     }
@@ -1762,8 +2305,9 @@ static int rtFsFatObj_SetSize(PRTFSFATOBJ pObj, uint32_t cbFile)
  */
 static DECLCALLBACK(int) rtFsFatFile_Write(void *pvThis, RTFOFF off, PCRTSGBUF pSgBuf, bool fBlocking, size_t *pcbWritten)
 {
-    PRTFSFATFILE pThis = (PRTFSFATFILE)pvThis;
-    PRTFSFATVOL  pVol  = pThis->Core.pVol;
+    PRTFSFATFILE     pThis   = (PRTFSFATFILE)pvThis;
+    PRTFSFATFILESHRD pShared = pThis->pShared;
+    PRTFSFATVOL      pVol    = pShared->Core.pVol;
     AssertReturn(pSgBuf->cSegs != 0, VERR_INTERNAL_ERROR_3);
     RT_NOREF(fBlocking);
 
@@ -1783,7 +2327,7 @@ static DECLCALLBACK(int) rtFsFatFile_Write(void *pvThis, RTFOFF off, PCRTSGBUF p
     while (cbLeft > 0)
     {
         /* Figure out how much we can write.  Checking for max file size and such. */
-        uint32_t cbToWrite = pThis->Core.Clusters.cbCluster - ((uint32_t)off & (pThis->Core.Clusters.cbCluster - 1));
+        uint32_t cbToWrite = pShared->Core.Clusters.cbCluster - ((uint32_t)off & (pShared->Core.Clusters.cbCluster - 1));
         if (cbToWrite > cbLeft)
             cbToWrite = (uint32_t)cbLeft;
         uint64_t offNew = (uint64_t)off + cbToWrite;
@@ -1798,9 +2342,9 @@ static DECLCALLBACK(int) rtFsFatFile_Write(void *pvThis, RTFOFF off, PCRTSGBUF p
         }
 
         /* Grow the file? */
-        if ((uint32_t)offNew > pThis->Core.cbObject)
+        if ((uint32_t)offNew > pShared->Core.cbObject)
         {
-            rc = rtFsFatObj_SetSize(&pThis->Core, (uint32_t)offNew);
+            rc = rtFsFatObj_SetSize(&pShared->Core, (uint32_t)offNew);
             if (RT_SUCCESS(rc))
             { /* likely */}
             else
@@ -1808,7 +2352,7 @@ static DECLCALLBACK(int) rtFsFatFile_Write(void *pvThis, RTFOFF off, PCRTSGBUF p
         }
 
         /* Figure the disk offset. */
-        uint64_t offDisk = rtFsFatChain_FileOffsetToDiskOff(&pThis->Core.Clusters, (uint32_t)off, pVol);
+        uint64_t offDisk = rtFsFatChain_FileOffsetToDiskOff(&pShared->Core.Clusters, (uint32_t)off, pVol);
         if (offDisk != UINT64_MAX)
         {
             rc = RTVfsFileWriteAt(pVol->hVfsBacking, offDisk, pbSrc, cbToWrite, NULL);
@@ -1842,9 +2386,10 @@ static DECLCALLBACK(int) rtFsFatFile_Write(void *pvThis, RTFOFF off, PCRTSGBUF p
  */
 static DECLCALLBACK(int) rtFsFatFile_Flush(void *pvThis)
 {
-    PRTFSFATFILE pThis = (PRTFSFATFILE)pvThis;
-    int rc1 = rtFsFatObj_FlushMetaData(&pThis->Core);
-    int rc2 = RTVfsFileFlush(pThis->Core.pVol->hVfsBacking);
+    PRTFSFATFILE     pThis   = (PRTFSFATFILE)pvThis;
+    PRTFSFATFILESHRD pShared = pThis->pShared;
+    int rc1 = rtFsFatObj_FlushMetaData(&pShared->Core);
+    int rc2 = RTVfsFileFlush(pShared->Core.pVol->hVfsBacking);
     return RT_FAILURE(rc1) ? rc1 : rc2;
 }
 
@@ -1893,40 +2438,28 @@ static DECLCALLBACK(int) rtFsFatFile_Tell(void *pvThis, PRTFOFF poffActual)
 /**
  * @interface_method_impl{RTVFSOBJSETOPS,pfnMode}
  */
-static DECLCALLBACK(int) rtFsFatObj_SetMode(void *pvThis, RTFMODE fMode, RTFMODE fMask)
+static DECLCALLBACK(int) rtFsFatFile_SetMode(void *pvThis, RTFMODE fMode, RTFMODE fMask)
 {
-#if 0
     PRTFSFATFILE pThis = (PRTFSFATFILE)pvThis;
-    if (fMask != ~RTFS_TYPE_MASK)
-    {
-        fMode |= ~fMask & ObjInfo.Attr.fMode;
-    }
-#else
-    RT_NOREF(pvThis, fMode, fMask);
-    return VERR_NOT_IMPLEMENTED;
-#endif
+    return rtFsFatObj_SetMode(&pThis->pShared->Core, fMode, fMask);
 }
 
 
 /**
  * @interface_method_impl{RTVFSOBJSETOPS,pfnSetTimes}
  */
-static DECLCALLBACK(int) rtFsFatObj_SetTimes(void *pvThis, PCRTTIMESPEC pAccessTime, PCRTTIMESPEC pModificationTime,
-                                             PCRTTIMESPEC pChangeTime, PCRTTIMESPEC pBirthTime)
+static DECLCALLBACK(int) rtFsFatFile_SetTimes(void *pvThis, PCRTTIMESPEC pAccessTime, PCRTTIMESPEC pModificationTime,
+                                              PCRTTIMESPEC pChangeTime, PCRTTIMESPEC pBirthTime)
 {
-#if 0
     PRTFSFATFILE pThis = (PRTFSFATFILE)pvThis;
-#else
-    RT_NOREF(pvThis, pAccessTime, pModificationTime, pChangeTime, pBirthTime);
-    return VERR_NOT_IMPLEMENTED;
-#endif
+    return rtFsFatObj_SetTimes(&pThis->pShared->Core, pAccessTime, pModificationTime, pChangeTime, pBirthTime);
 }
 
 
 /**
  * @interface_method_impl{RTVFSOBJSETOPS,pfnSetOwner}
  */
-static DECLCALLBACK(int) rtFsFatObj_SetOwner(void *pvThis, RTUID uid, RTGID gid)
+static DECLCALLBACK(int) rtFsFatFile_SetOwner(void *pvThis, RTUID uid, RTGID gid)
 {
     RT_NOREF(pvThis, uid, gid);
     return VERR_NOT_SUPPORTED;
@@ -1938,7 +2471,9 @@ static DECLCALLBACK(int) rtFsFatObj_SetOwner(void *pvThis, RTUID uid, RTGID gid)
  */
 static DECLCALLBACK(int) rtFsFatFile_Seek(void *pvThis, RTFOFF offSeek, unsigned uMethod, PRTFOFF poffActual)
 {
-    PRTFSFATFILE pThis = (PRTFSFATFILE)pvThis;
+    PRTFSFATFILE     pThis   = (PRTFSFATFILE)pvThis;
+    PRTFSFATFILESHRD pShared = pThis->pShared;
+
     RTFOFF offNew;
     switch (uMethod)
     {
@@ -1946,7 +2481,7 @@ static DECLCALLBACK(int) rtFsFatFile_Seek(void *pvThis, RTFOFF offSeek, unsigned
             offNew = offSeek;
             break;
         case RTFILE_SEEK_END:
-            offNew = (RTFOFF)pThis->Core.cbObject + offSeek;
+            offNew = (RTFOFF)pShared->Core.cbObject + offSeek;
             break;
         case RTFILE_SEEK_CURRENT:
             offNew = (RTFOFF)pThis->offFile + offSeek;
@@ -1973,8 +2508,9 @@ static DECLCALLBACK(int) rtFsFatFile_Seek(void *pvThis, RTFOFF offSeek, unsigned
  */
 static DECLCALLBACK(int) rtFsFatFile_QuerySize(void *pvThis, uint64_t *pcbFile)
 {
-    PRTFSFATFILE pThis = (PRTFSFATFILE)pvThis;
-    *pcbFile = pThis->Core.cbObject;
+    PRTFSFATFILE     pThis   = (PRTFSFATFILE)pvThis;
+    PRTFSFATFILESHRD pShared = pThis->pShared;
+    *pcbFile = pShared->Core.cbObject;
     return VINF_SUCCESS;
 }
 
@@ -1990,7 +2526,7 @@ DECL_HIDDEN_CONST(const RTVFSFILEOPS) g_rtFsFatFileOps =
             RTVFSOBJTYPE_FILE,
             "FatFile",
             rtFsFatFile_Close,
-            rtFsFatObj_QueryInfo,
+            rtFsFatFile_QueryInfo,
             RTVFSOBJOPS_VERSION
         },
         RTVFSIOSTREAMOPS_VERSION,
@@ -2009,9 +2545,9 @@ DECL_HIDDEN_CONST(const RTVFSFILEOPS) g_rtFsFatFileOps =
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
         RT_OFFSETOF(RTVFSFILEOPS, Stream.Obj) - RT_OFFSETOF(RTVFSFILEOPS, ObjSet),
-        rtFsFatObj_SetMode,
-        rtFsFatObj_SetTimes,
-        rtFsFatObj_SetOwner,
+        rtFsFatFile_SetMode,
+        rtFsFatFile_SetTimes,
+        rtFsFatFile_SetOwner,
         RTVFSOBJSETOPS_VERSION
     },
     rtFsFatFile_Seek,
@@ -2032,7 +2568,7 @@ DECL_HIDDEN_CONST(const RTVFSFILEOPS) g_rtFsFatFileOps =
  * @param   fOpen           RTFILE_O_XXX flags.
  * @param   phVfsFile       Where to return the file handle.
  */
-static int rtFsFatFile_New(PRTFSFATVOL pThis, PRTFSFATDIR pParentDir, PCFATDIRENTRY pDirEntry, uint32_t offEntryInDir,
+static int rtFsFatFile_New(PRTFSFATVOL pThis, PRTFSFATDIRSHRD pParentDir, PCFATDIRENTRY pDirEntry, uint32_t offEntryInDir,
                            uint64_t fOpen, PRTVFSFILE phVfsFile)
 {
     AssertPtr(pParentDir);
@@ -2043,30 +2579,52 @@ static int rtFsFatFile_New(PRTFSFATVOL pThis, PRTFSFATDIR pParentDir, PCFATDIREN
                           phVfsFile, (void **)&pNewFile);
     if (RT_SUCCESS(rc))
     {
-        /*
-         * Initialize it all so rtFsFatFile_Close doesn't trip up in anyway.
-         */
-        rtFsFatObj_InitFromDirEntry(&pNewFile->Core, pDirEntry, offEntryInDir, pThis);
         pNewFile->offFile = 0;
-        rc = rtFsFatClusterMap_ReadClusterChain(pThis, RTFSFAT_GET_CLUSTER(pDirEntry, pThis), &pNewFile->Core.Clusters);
-        if (RT_SUCCESS(rc))
-        {
-            /*
-             * Link into parent directory so we can use it to update
-             * our directory entry.
-             */
-            rtFsFatDir_AddOpenChild(pParentDir, &pNewFile->Core);
+        pNewFile->pShared = NULL;
 
-            /*
-             * Should we truncate the file or anything of that sort?
-             */
-            if (   (fOpen & RTFILE_O_TRUNCATE)
-                || (fOpen & RTFILE_O_ACTION_MASK) == RTFILE_O_CREATE_REPLACE)
-                rc = rtFsFatObj_SetSize(&pNewFile->Core, 0);
-            if (RT_SUCCESS(rc))
-                return VINF_SUCCESS;
+        /*
+         * Look for existing shared object, create a new one if necessary.
+         */
+        PRTFSFATFILESHRD pShared = (PRTFSFATFILESHRD)rtFsFatDirShrd_LookupShared(pParentDir, offEntryInDir);
+        if (pShared)
+        {
+            LogFlow(("rtFsFatFile_New: cbObject=%#RX32 \n", pShared->Core.cbObject));
+            pNewFile->pShared = pShared;
+            return VINF_SUCCESS;
         }
 
+        pShared = (PRTFSFATFILESHRD)RTMemAllocZ(sizeof(*pShared));
+        if (pShared)
+        {
+            rtFsFatObj_InitFromDirEntry(&pShared->Core, pDirEntry, offEntryInDir, pThis);
+            pNewFile->pShared = pShared;
+
+            rc = rtFsFatClusterMap_ReadClusterChain(pThis, RTFSFAT_GET_CLUSTER(pDirEntry, pThis), &pShared->Core.Clusters);
+            if (RT_SUCCESS(rc))
+            {
+                /*
+                 * Link into parent directory so we can use it to update
+                 * our directory entry.
+                 */
+                rtFsFatDirShrd_AddOpenChild(pParentDir, &pShared->Core);
+
+                /*
+                 * Should we truncate the file or anything of that sort?
+                 */
+                if (   (fOpen & RTFILE_O_TRUNCATE)
+                    || (fOpen & RTFILE_O_ACTION_MASK) == RTFILE_O_CREATE_REPLACE)
+                    rc = rtFsFatObj_SetSize(&pShared->Core, 0);
+                if (RT_SUCCESS(rc))
+                {
+                    LogFlow(("rtFsFatFile_New: cbObject=%#RX32 pShared=%p\n", pShared->Core.cbObject, pShared));
+                    return VINF_SUCCESS;
+                }
+            }
+        }
+        else
+            rc = VERR_NO_MEMORY;
+
+        /* Destroy the file object. */
         RTVfsFileRelease(*phVfsFile);
     }
     *phVfsFile = NIL_RTVFSFILE;
@@ -2074,6 +2632,27 @@ static int rtFsFatFile_New(PRTFSFATVOL pThis, PRTFSFATDIR pParentDir, PCFATDIREN
 }
 
 
+/**
+ * Looks up the shared structure for a child.
+ *
+ * @returns Referenced pointer to the shared structure, NULL if not found.
+ * @param   pThis           The directory.
+ * @param   offEntryInDir   The directory record offset of the child.
+ */
+static PRTFSFATOBJ rtFsFatDirShrd_LookupShared(PRTFSFATDIRSHRD pThis, uint32_t offEntryInDir)
+{
+    PRTFSFATOBJ pCur;
+    RTListForEach(&pThis->OpenChildren, pCur, RTFSFATOBJ, Entry)
+    {
+        if (pCur->offEntryInDir == offEntryInDir)
+        {
+            uint32_t cRefs = ASMAtomicIncU32(&pCur->cRefs);
+            Assert(cRefs > 1); RT_NOREF(cRefs);
+            return pCur;
+        }
+    }
+    return NULL;
+}
 
 
 /**
@@ -2082,19 +2661,19 @@ static int rtFsFatFile_New(PRTFSFATVOL pThis, PRTFSFATDIR pParentDir, PCFATDIREN
  * @returns IPRT status code
  * @param   pThis           The directory.
  */
-static int rtFsFatDir_FlushFullyBuffered(PRTFSFATDIR pThis)
+static int rtFsFatDirShrd_FlushFullyBuffered(PRTFSFATDIRSHRD pThis)
 {
     Assert(pThis->fFullyBuffered);
     uint32_t const  cbSector    = pThis->Core.pVol->cbSector;
     RTVFSFILE const hVfsBacking = pThis->Core.pVol->hVfsBacking;
     int             rc          = VINF_SUCCESS;
     for (uint32_t i = 0; i < pThis->u.Full.cSectors; i++)
-        if (pThis->u.Full.pbDirtySectors[i])
+        if (ASMBitTest(pThis->u.Full.pbDirtySectors, i))
         {
             int rc2 = RTVfsFileWriteAt(hVfsBacking, pThis->offEntriesOnDisk + i * cbSector,
                                        (uint8_t *)pThis->paEntries + i * cbSector, cbSector, NULL);
             if (RT_SUCCESS(rc2))
-                pThis->u.Full.pbDirtySectors[i] = false;
+                ASMBitClear(pThis->u.Full.pbDirtySectors, i);
             else if (RT_SUCCESS(rc))
                 rc = rc2;
         }
@@ -2108,7 +2687,7 @@ static int rtFsFatDir_FlushFullyBuffered(PRTFSFATDIR pThis)
  * @returns IPRT status code
  * @param   pThis           The directory.
  */
-static int rtFsFatDir_FlushSimple(PRTFSFATDIR pThis)
+static int rtFsFatDirShrd_FlushSimple(PRTFSFATDIRSHRD pThis)
 {
     Assert(!pThis->fFullyBuffered);
     int rc;
@@ -2133,18 +2712,18 @@ static int rtFsFatDir_FlushSimple(PRTFSFATDIR pThis)
  * @returns IPRT status code
  * @param   pThis           The directory.
  */
-static int rtFsFatDir_Flush(PRTFSFATDIR pThis)
+static int rtFsFatDirShrd_Flush(PRTFSFATDIRSHRD pThis)
 {
     if (pThis->fFullyBuffered)
-        return rtFsFatDir_FlushFullyBuffered(pThis);
-    return rtFsFatDir_FlushSimple(pThis);
+        return rtFsFatDirShrd_FlushFullyBuffered(pThis);
+    return rtFsFatDirShrd_FlushSimple(pThis);
 }
 
 
 /**
  * Gets one or more entires at @a offEntryInDir.
  *
- * Common worker for rtFsFatDir_GetEntriesAt and rtFsFatDir_GetEntryForUpdate
+ * Common worker for rtFsFatDirShrd_GetEntriesAt and rtFsFatDirShrd_GetEntryForUpdate
  *
  * @returns IPRT status code.
  * @param   pThis               The directory.
@@ -2155,11 +2734,11 @@ static int rtFsFatDir_Flush(PRTFSFATDIR pThis)
  * @param   pcEntries           Where to return the number of entries
  *                              @a *ppaEntries points to.
  * @param   puBufferReadLock    Where to return the buffer read lock handle.
- *                              Call rtFsFatDir_ReleaseBufferAfterReading when
+ *                              Call rtFsFatDirShrd_ReleaseBufferAfterReading when
  *                              done.
  */
-static int rtFsFatDir_GetEntriesAtCommon(PRTFSFATDIR pThis, uint32_t offEntryInDir, bool fForUpdate,
-                                         PFATDIRENTRYUNION *ppaEntries, uint32_t *pcEntries, uint32_t *puLock)
+static int rtFsFatDirShrd_GetEntriesAtCommon(PRTFSFATDIRSHRD pThis, uint32_t offEntryInDir, bool fForUpdate,
+                                             PFATDIRENTRYUNION *ppaEntries, uint32_t *pcEntries, uint32_t *puLock)
 {
     *puLock = UINT32_MAX;
 
@@ -2203,7 +2782,7 @@ static int rtFsFatDir_GetEntriesAtCommon(PRTFSFATDIR pThis, uint32_t offEntryInD
                 if (!pThis->u.Simple.fDirty)
                     rc = VINF_SUCCESS;
                 else
-                    rc = rtFsFatDir_FlushSimple(pThis);
+                    rc = rtFsFatDirShrd_FlushSimple(pThis);
                 if (RT_SUCCESS(rc))
                 {
                     off                      =  offEntryInDir &  (pVol->cbSector - 1);
@@ -2243,14 +2822,14 @@ static int rtFsFatDir_GetEntriesAtCommon(PRTFSFATDIR pThis, uint32_t offEntryInD
  * @param   pDirEntry       The directory entry.
  * @param   uWriteLock      The write lock.
  */
-static int rtFsFatDir_PutEntryAfterUpdate(PRTFSFATDIR pThis, PFATDIRENTRY pDirEntry, uint32_t uWriteLock)
+static int rtFsFatDirShrd_PutEntryAfterUpdate(PRTFSFATDIRSHRD pThis, PFATDIRENTRY pDirEntry, uint32_t uWriteLock)
 {
     Assert(uWriteLock == UINT32_C(0x80000001));
     RT_NOREF(uWriteLock);
     if (pThis->fFullyBuffered)
     {
         uint32_t idxSector = ((uintptr_t)pDirEntry - (uintptr_t)pThis->paEntries) / pThis->Core.pVol->cbSector;
-        pThis->u.Full.pbDirtySectors[idxSector] = true;
+        ASMBitSet(pThis->u.Full.pbDirtySectors, idxSector);
     }
     else
         pThis->u.Simple.fDirty = true;
@@ -2261,7 +2840,7 @@ static int rtFsFatDir_PutEntryAfterUpdate(PRTFSFATDIR pThis, PFATDIRENTRY pDirEn
 /**
  * Gets the pointer to the given directory entry for the purpose of updating it.
  *
- * Call rtFsFatDir_PutEntryAfterUpdate afterwards.
+ * Call rtFsFatDirShrd_PutEntryAfterUpdate afterwards.
  *
  * @returns IPRT status code.
  * @param   pThis           The directory.
@@ -2270,12 +2849,12 @@ static int rtFsFatDir_PutEntryAfterUpdate(PRTFSFATDIR pThis, PFATDIRENTRY pDirEn
  * @param   ppDirEntry      Where to return the pointer to the directory entry.
  * @param   puWriteLock     Where to return the write lock.
  */
-static int rtFsFatDir_GetEntryForUpdate(PRTFSFATDIR pThis, uint32_t offEntryInDir, PFATDIRENTRY *ppDirEntry,
-                                        uint32_t *puWriteLock)
+static int rtFsFatDirShrd_GetEntryForUpdate(PRTFSFATDIRSHRD pThis, uint32_t offEntryInDir, PFATDIRENTRY *ppDirEntry,
+                                            uint32_t *puWriteLock)
 {
     uint32_t cEntriesIgn;
-    return rtFsFatDir_GetEntriesAtCommon(pThis, offEntryInDir, true /*fForUpdate*/, (PFATDIRENTRYUNION *)ppDirEntry,
-                                         &cEntriesIgn, puWriteLock);
+    return rtFsFatDirShrd_GetEntriesAtCommon(pThis, offEntryInDir, true /*fForUpdate*/, (PFATDIRENTRYUNION *)ppDirEntry,
+                                             &cEntriesIgn, puWriteLock);
 }
 
 
@@ -2287,7 +2866,7 @@ static int rtFsFatDir_GetEntryForUpdate(PRTFSFATDIR pThis, uint32_t offEntryInDi
  * @param   pThis           The directory.
  * @param   uBufferReadLock The buffer lock.
  */
-static void rtFsFatDir_ReleaseBufferAfterReading(PRTFSFATDIR pThis, uint32_t uBufferReadLock)
+static void rtFsFatDirShrd_ReleaseBufferAfterReading(PRTFSFATDIRSHRD pThis, uint32_t uBufferReadLock)
 {
     RT_NOREF(pThis, uBufferReadLock);
     Assert(uBufferReadLock == 1);
@@ -2305,14 +2884,14 @@ static void rtFsFatDir_ReleaseBufferAfterReading(PRTFSFATDIR pThis, uint32_t uBu
  * @param   pcEntries           Where to return the number of entries
  *                              @a *ppaEntries points to.
  * @param   puBufferReadLock    Where to return the buffer read lock handle.
- *                              Call rtFsFatDir_ReleaseBufferAfterReading when
+ *                              Call rtFsFatDirShrd_ReleaseBufferAfterReading when
  *                              done.
  */
-static int rtFsFatDir_GetEntriesAt(PRTFSFATDIR pThis, uint32_t offEntryInDir,
-                                   PCFATDIRENTRYUNION *ppaEntries, uint32_t *pcEntries, uint32_t *puBufferReadLock)
+static int rtFsFatDirShrd_GetEntriesAt(PRTFSFATDIRSHRD pThis, uint32_t offEntryInDir,
+                                       PCFATDIRENTRYUNION *ppaEntries, uint32_t *pcEntries, uint32_t *puBufferReadLock)
 {
-    return rtFsFatDir_GetEntriesAtCommon(pThis, offEntryInDir, false /*fForUpdate*/, (PFATDIRENTRYUNION *)ppaEntries,
-                                         pcEntries, puBufferReadLock);
+    return rtFsFatDirShrd_GetEntriesAtCommon(pThis, offEntryInDir, false /*fForUpdate*/, (PFATDIRENTRYUNION *)ppaEntries,
+                                             pcEntries, puBufferReadLock);
 }
 
 
@@ -2329,7 +2908,7 @@ static uint16_t rtFsFatUnicodeCodepointToUpperCodepage(RTUNICP uc)
      */
     if (uc < 128)
     {
-        if (g_awchFatCp437Chars[uc] == uc)
+        if (g_awchFatCp437ValidChars[uc] == uc)
             return (uint16_t)uc;
         if (RT_C_IS_LOWER(uc))
             return uc - 0x20;
@@ -2342,11 +2921,11 @@ static uint16_t rtFsFatUnicodeCodepointToUpperCodepage(RTUNICP uc)
      */
     RTUNICP ucUpper = RTUniCpToUpper(uc);
     for (unsigned i = 128; i < 256; i++)
-        if (g_awchFatCp437Chars[i] == ucUpper)
+        if (g_awchFatCp437ValidChars[i] == ucUpper)
             return i;
     if (ucUpper != uc)
         for (unsigned i = 128; i < 256; i++)
-            if (g_awchFatCp437Chars[i] == uc)
+            if (g_awchFatCp437ValidChars[i] == uc)
                 return i;
     return UINT16_MAX;
 }
@@ -2456,8 +3035,8 @@ static uint8_t rtFsFatDir_CalcChecksum(PCFATDIRENTRY pDirEntry)
  * @param   pfLong          Where to return long name indicator.
  * @param   pDirEntry       Where to return a copy of the directory entry.
  */
-static int rtFsFatDir_FindEntry(PRTFSFATDIR pThis, const char *pszEntry, uint32_t *poffEntryInDir, bool *pfLong,
-                                PFATDIRENTRY pDirEntry)
+static int rtFsFatDirShrd_FindEntry(PRTFSFATDIRSHRD pThis, const char *pszEntry, uint32_t *poffEntryInDir, bool *pfLong,
+                                    PFATDIRENTRY pDirEntry)
 {
     /* Set return values. */
     *pfLong         = false;
@@ -2488,7 +3067,7 @@ static int rtFsFatDir_FindEntry(PRTFSFATDIR pThis, const char *pszEntry, uint32_
         uint32_t            uBufferLock = UINT32_MAX;
         uint32_t            cEntries    = 0;
         PCFATDIRENTRYUNION  paEntries   = NULL;
-        int rc = rtFsFatDir_GetEntriesAt(pThis, offEntryInDir, &paEntries, &cEntries, &uBufferLock);
+        int rc = rtFsFatDirShrd_GetEntriesAt(pThis, offEntryInDir, &paEntries, &cEntries, &uBufferLock);
         if (RT_FAILURE(rc))
             return rc;
 
@@ -2507,7 +3086,7 @@ static int rtFsFatDir_FindEntry(PRTFSFATDIR pThis, const char *pszEntry, uint32_
                 case FATDIRENTRY_CH0_END_OF_DIR:
                     if (pThis->Core.pVol->enmBpbVersion >= RTFSFATBPBVER_DOS_2_0)
                     {
-                        rtFsFatDir_ReleaseBufferAfterReading(pThis, uBufferLock);
+                        rtFsFatDirShrd_ReleaseBufferAfterReading(pThis, uBufferLock);
                         return VERR_FILE_NOT_FOUND;
                     }
                     cwcName = 0;
@@ -2550,30 +3129,32 @@ static int rtFsFatDir_FindEntry(PRTFSFATDIR pThis, const char *pszEntry, uint32_
              * Regular directory entry. Do the matching, first 8.3 then long name.
              */
             else if (   fIs8Dot3Name
+                     && !(paEntries[iEntry].Entry.fAttrib & FAT_ATTR_VOLUME)
                      && memcmp(paEntries[iEntry].Entry.achName, szName8Dot3, sizeof(paEntries[iEntry].Entry.achName)) == 0)
             {
                 *poffEntryInDir = offEntryInDir;
                 *pDirEntry      = paEntries[iEntry].Entry;
                 *pfLong         = false;
-                rtFsFatDir_ReleaseBufferAfterReading(pThis, uBufferLock);
+                rtFsFatDirShrd_ReleaseBufferAfterReading(pThis, uBufferLock);
                 return VINF_SUCCESS;
             }
             else if (   cwcName != 0
                      && idNextSlot == 0
+                     && !(paEntries[iEntry].Entry.fAttrib & FAT_ATTR_VOLUME)
                      && rtFsFatDir_CalcChecksum(&paEntries[iEntry].Entry) == bChecksum
                      && RTUtf16ICmpUtf8(wszName, pszEntry) == 0)
             {
                 *poffEntryInDir = offEntryInDir;
                 *pDirEntry      = paEntries[iEntry].Entry;
                 *pfLong         = true;
-                rtFsFatDir_ReleaseBufferAfterReading(pThis, uBufferLock);
+                rtFsFatDirShrd_ReleaseBufferAfterReading(pThis, uBufferLock);
                 return VINF_SUCCESS;
             }
             else
                 cwcName = 0;
         }
 
-        rtFsFatDir_ReleaseBufferAfterReading(pThis, uBufferLock);
+        rtFsFatDirShrd_ReleaseBufferAfterReading(pThis, uBufferLock);
     }
 
     return VERR_FILE_NOT_FOUND;
@@ -2581,7 +3162,7 @@ static int rtFsFatDir_FindEntry(PRTFSFATDIR pThis, const char *pszEntry, uint32_
 
 
 /**
- * Watered down version of rtFsFatDir_FindEntry that is used by the short name
+ * Watered down version of rtFsFatDirShrd_FindEntry that is used by the short name
  * generator to check for duplicates.
  *
  * @returns IPRT status code.
@@ -2590,7 +3171,7 @@ static int rtFsFatDir_FindEntry(PRTFSFATDIR pThis, const char *pszEntry, uint32_
  * @param   pThis           The directory to search.
  * @param   pszEntry        The entry to look for.
  */
-static int rtFsFatDir_FindEntryShort(PRTFSFATDIR pThis, const char *pszName8Dot3)
+static int rtFsFatDirShrd_FindEntryShort(PRTFSFATDIRSHRD pThis, const char *pszName8Dot3)
 {
     Assert(strlen(pszName8Dot3) == 8+3);
 
@@ -2607,7 +3188,7 @@ static int rtFsFatDir_FindEntryShort(PRTFSFATDIR pThis, const char *pszName8Dot3
         uint32_t            uBufferLock = UINT32_MAX;
         uint32_t            cEntries    = 0;
         PCFATDIRENTRYUNION  paEntries   = NULL;
-        int rc = rtFsFatDir_GetEntriesAt(pThis, offEntryInDir, &paEntries, &cEntries, &uBufferLock);
+        int rc = rtFsFatDirShrd_GetEntriesAt(pThis, offEntryInDir, &paEntries, &cEntries, &uBufferLock);
         if (RT_FAILURE(rc))
             return rc;
 
@@ -2625,7 +3206,7 @@ static int rtFsFatDir_FindEntryShort(PRTFSFATDIR pThis, const char *pszName8Dot3
                 case FATDIRENTRY_CH0_END_OF_DIR:
                     if (pThis->Core.pVol->enmBpbVersion >= RTFSFATBPBVER_DOS_2_0)
                     {
-                        rtFsFatDir_ReleaseBufferAfterReading(pThis, uBufferLock);
+                        rtFsFatDirShrd_ReleaseBufferAfterReading(pThis, uBufferLock);
                         return VERR_FILE_NOT_FOUND;
                     }
                     break; /* Technically a valid entry before DOS 2.0, or so some claim. */
@@ -2645,12 +3226,12 @@ static int rtFsFatDir_FindEntryShort(PRTFSFATDIR pThis, const char *pszName8Dot3
              */
             else if (memcmp(paEntries[iEntry].Entry.achName, pszName8Dot3, sizeof(paEntries[iEntry].Entry.achName)) == 0)
             {
-                rtFsFatDir_ReleaseBufferAfterReading(pThis, uBufferLock);
+                rtFsFatDirShrd_ReleaseBufferAfterReading(pThis, uBufferLock);
                 return VINF_SUCCESS;
             }
         }
 
-        rtFsFatDir_ReleaseBufferAfterReading(pThis, uBufferLock);
+        rtFsFatDirShrd_ReleaseBufferAfterReading(pThis, uBufferLock);
     }
 
     return VERR_FILE_NOT_FOUND;
@@ -2779,7 +3360,7 @@ static int rtFsFatDir_ValidateLongName(PCRTUTF16 pwszEntry, size_t cwc)
             RTUTF16 wc = pwszEntry[off];
             if (wc < 128)
             {
-                if (g_awchFatCp437Chars[wc] <= UINT16_C(0xfffe))
+                if (g_awchFatCp437ValidChars[wc] <= UINT16_C(0xfffe))
                 { /* likely */ }
                 else
                     return VERR_INVALID_NAME;
@@ -2803,7 +3384,7 @@ static int rtFsFatDir_ValidateLongName(PCRTUTF16 pwszEntry, size_t cwc)
 
 
 /**
- * Worker for rtFsFatDir_GenerateShortName.
+ * Worker for rtFsFatDirShrd_GenerateShortName.
  */
 static void rtFsFatDir_CopyShortName(char *pszDst, uint32_t cchDst, const char *pszSrc, size_t cchSrc, char chPad)
 {
@@ -2819,12 +3400,12 @@ static void rtFsFatDir_CopyShortName(char *pszDst, uint32_t cchDst, const char *
             {
                 if (uc < 128)
                 {
-                    if (g_awchFatCp437Chars[uc] != uc)
+                    if (g_awchFatCp437ValidChars[uc] != uc)
                     {
                         if (uc)
                         {
                             uc = RTUniCpToUpper(uc);
-                            if (g_awchFatCp437Chars[uc] != uc)
+                            if (g_awchFatCp437ValidChars[uc] != uc)
                                 uc = '_';
                         }
                         else
@@ -2856,7 +3437,7 @@ static void rtFsFatDir_CopyShortName(char *pszDst, uint32_t cchDst, const char *
  * @param   pszEntry        The long name (UTF-8).
  * @param   pDirEntry       Where to put the short name.
  */
-static int rtFsFatDir_GenerateShortName(PRTFSFATDIR pThis, const char *pszEntry, PFATDIRENTRY pDirEntry)
+static int rtFsFatDirShrd_GenerateShortName(PRTFSFATDIRSHRD pThis, const char *pszEntry, PFATDIRENTRY pDirEntry)
 {
     /* Do some input parsing. */
     const char  *pszExt      = RTPathSuffix(pszEntry);
@@ -2876,7 +3457,7 @@ static int rtFsFatDir_GenerateShortName(PRTFSFATDIR pThis, const char *pszEntry,
     for (uint32_t iLastDigit = 1; iLastDigit < 10; iLastDigit++)
     {
         szShortName[7] = iLastDigit + '0';
-        int rc = rtFsFatDir_FindEntryShort(pThis, szShortName);
+        int rc = rtFsFatDirShrd_FindEntryShort(pThis, szShortName);
         if (rc == VERR_FILE_NOT_FOUND)
         {
             memcpy(pDirEntry->achName, szShortName, sizeof(pDirEntry->achName));
@@ -2895,7 +3476,7 @@ static int rtFsFatDir_GenerateShortName(PRTFSFATDIR pThis, const char *pszEntry,
         {
             szShortName[6] = iFirstDigit + '0';
             szShortName[7] = iLastDigit  + '0';
-            int rc = rtFsFatDir_FindEntryShort(pThis, szShortName);
+            int rc = rtFsFatDirShrd_FindEntryShort(pThis, szShortName);
             if (rc == VERR_FILE_NOT_FOUND)
             {
                 memcpy(pDirEntry->achName, szShortName, sizeof(pDirEntry->achName));
@@ -2919,7 +3500,7 @@ static int rtFsFatDir_GenerateShortName(PRTFSFATDIR pThis, const char *pszEntry,
         szShortName[5] = szHex[cchHex - 3];
         szShortName[4] = szHex[cchHex - 4];
         szShortName[3] = szHex[cchHex - 5];
-        int rc = rtFsFatDir_FindEntryShort(pThis, szShortName);
+        int rc = rtFsFatDirShrd_FindEntryShort(pThis, szShortName);
         if (rc == VERR_FILE_NOT_FOUND)
         {
             memcpy(pDirEntry->achName, szShortName, sizeof(pDirEntry->achName));
@@ -2948,8 +3529,8 @@ static int rtFsFatDir_GenerateShortName(PRTFSFATDIR pThis, const char *pszEntry,
  *                          can hold at least FATDIRNAMESLOT_MAX_SLOTS entries.
  * @param   pcSlots         Where to return the actual number of slots used.
  */
-static int rtFsFatDir_MaybeCreateLongNameAndShortAlias(PRTFSFATDIR pThis, const char *pszEntry, bool fIs8Dot3Name,
-                                                       PFATDIRENTRY pDirEntry, PFATDIRNAMESLOT paSlots, uint32_t *pcSlots)
+static int rtFsFatDirShrd_MaybeCreateLongNameAndShortAlias(PRTFSFATDIRSHRD pThis, const char *pszEntry, bool fIs8Dot3Name,
+                                                           PFATDIRENTRY pDirEntry, PFATDIRNAMESLOT paSlots, uint32_t *pcSlots)
 {
     RT_NOREF(pThis, pDirEntry, paSlots, pszEntry);
 
@@ -2978,7 +3559,7 @@ static int rtFsFatDir_MaybeCreateLongNameAndShortAlias(PRTFSFATDIR pThis, const 
          * Generate a short name if we need to.
          */
         if (!fIs8Dot3Name)
-            rc = rtFsFatDir_GenerateShortName(pThis, pszEntry, pDirEntry);
+            rc = rtFsFatDirShrd_GenerateShortName(pThis, pszEntry, pDirEntry);
         if (RT_SUCCESS(rc))
         {
             /*
@@ -3034,7 +3615,7 @@ static int rtFsFatDir_MaybeCreateLongNameAndShortAlias(PRTFSFATDIR pThis, const 
  *                          end of the directory when VERR_DISK_FULL is
  *                          returned.
  */
-static int rtFsFatChain_FindFreeEntries(PRTFSFATDIR pThis, uint32_t cEntriesNeeded,
+static int rtFsFatChain_FindFreeEntries(PRTFSFATDIRSHRD pThis, uint32_t cEntriesNeeded,
                                         uint32_t *poffEntryInDir, uint32_t *pcFreeTail)
 {
     /* First try make gcc happy. */
@@ -3055,7 +3636,7 @@ static int rtFsFatChain_FindFreeEntries(PRTFSFATDIR pThis, uint32_t cEntriesNeed
         uint32_t            uBufferLock = UINT32_MAX;
         uint32_t            cEntries    = 0;
         PCFATDIRENTRYUNION  paEntries   = NULL;
-        int rc = rtFsFatDir_GetEntriesAt(pThis, offEntryInDir, &paEntries, &cEntries, &uBufferLock);
+        int rc = rtFsFatDirShrd_GetEntriesAt(pThis, offEntryInDir, &paEntries, &cEntries, &uBufferLock);
         if (RT_FAILURE(rc))
             return rc;
 
@@ -3079,7 +3660,7 @@ static int rtFsFatChain_FindFreeEntries(PRTFSFATDIR pThis, uint32_t cEntriesNeed
                 {
                     *pcFreeTail     = cEntriesNeeded;
                     *poffEntryInDir = offStartFreeEntries;
-                    rtFsFatDir_ReleaseBufferAfterReading(pThis, uBufferLock);
+                    rtFsFatDirShrd_ReleaseBufferAfterReading(pThis, uBufferLock);
                     return VINF_SUCCESS;
                 }
 
@@ -3087,12 +3668,12 @@ static int rtFsFatChain_FindFreeEntries(PRTFSFATDIR pThis, uint32_t cEntriesNeed
                 {
                     if (pThis->Core.pVol->enmBpbVersion >= RTFSFATBPBVER_DOS_2_0)
                     {
-                        rtFsFatDir_ReleaseBufferAfterReading(pThis, uBufferLock);
+                        rtFsFatDirShrd_ReleaseBufferAfterReading(pThis, uBufferLock);
                         *pcFreeTail = cFreeEntries = (cbDir - offStartFreeEntries) / sizeof(FATDIRENTRY);
                         if (cFreeEntries >= cEntriesNeeded)
                         {
                             *poffEntryInDir = offStartFreeEntries;
-                            rtFsFatDir_ReleaseBufferAfterReading(pThis, uBufferLock);
+                            rtFsFatDirShrd_ReleaseBufferAfterReading(pThis, uBufferLock);
                             return VINF_SUCCESS;
                         }
                         return VERR_DISK_FULL;
@@ -3105,7 +3686,7 @@ static int rtFsFatChain_FindFreeEntries(PRTFSFATDIR pThis, uint32_t cEntriesNeed
                 cFreeEntries        = 0;
             }
         }
-        rtFsFatDir_ReleaseBufferAfterReading(pThis, uBufferLock);
+        rtFsFatDirShrd_ReleaseBufferAfterReading(pThis, uBufferLock);
     }
     *pcFreeTail = cFreeEntries;
     return VERR_DISK_FULL;
@@ -3122,7 +3703,7 @@ static int rtFsFatChain_FindFreeEntries(PRTFSFATDIR pThis, uint32_t cEntriesNeed
  * @param   pThis           The directory to grow.
  * @param   cMinNewEntries  The minimum number of new entries to allocated.
  */
-static int rtFsFatChain_GrowDirectory(PRTFSFATDIR pThis, uint32_t cMinNewEntries)
+static int rtFsFatChain_GrowDirectory(PRTFSFATDIRSHRD pThis, uint32_t cMinNewEntries)
 {
     RT_NOREF(pThis, cMinNewEntries);
     return VERR_DISK_FULL;
@@ -3139,7 +3720,7 @@ static int rtFsFatChain_GrowDirectory(PRTFSFATDIR pThis, uint32_t cMinNewEntries
  * @param   cSlots          The number of long name slots.
  * @param   poffEntryInDir  Where to return the directory offset.
  */
-static int rtFsFatChain_InsertEntries(PRTFSFATDIR pThis, PCFATDIRENTRY pDirEntry, PFATDIRNAMESLOT paSlots, uint32_t cSlots,
+static int rtFsFatChain_InsertEntries(PRTFSFATDIRSHRD pThis, PCFATDIRENTRY pDirEntry, PFATDIRNAMESLOT paSlots, uint32_t cSlots,
                                       uint32_t *poffEntryInDir)
 {
     uint32_t const cTotalEntries = cSlots + 1;
@@ -3178,14 +3759,14 @@ static int rtFsFatChain_InsertEntries(PRTFSFATDIR pThis, PCFATDIRENTRY pDirEntry
         {
             uint32_t        uBufferLock;
             PFATDIRENTRY    pDstEntry;
-            rc = rtFsFatDir_GetEntryForUpdate(pThis, offCurrent, &pDstEntry, &uBufferLock);
+            rc = rtFsFatDirShrd_GetEntryForUpdate(pThis, offCurrent, &pDstEntry, &uBufferLock);
             if (RT_SUCCESS(rc))
             {
                 if (iSrcSlot < cSlots)
                     memcpy(pDstEntry, &paSlots[iSrcSlot], sizeof(*pDstEntry));
                 else
                     memcpy(pDstEntry, pDirEntry,          sizeof(*pDstEntry));
-                rc = rtFsFatDir_PutEntryAfterUpdate(pThis, pDstEntry, uBufferLock);
+                rc = rtFsFatDirShrd_PutEntryAfterUpdate(pThis, pDstEntry, uBufferLock);
                 if (RT_SUCCESS(rc))
                     continue;
 
@@ -3196,12 +3777,12 @@ static int rtFsFatChain_InsertEntries(PRTFSFATDIR pThis, PCFATDIRENTRY pDirEntry
             }
             while (iSrcSlot-- > 0)
             {
-                int rc2 = rtFsFatDir_GetEntryForUpdate(pThis, offFirstInDir + iSrcSlot * sizeof(FATDIRENTRY),
+                int rc2 = rtFsFatDirShrd_GetEntryForUpdate(pThis, offFirstInDir + iSrcSlot * sizeof(FATDIRENTRY),
                                                        &pDstEntry, &uBufferLock);
                 if (RT_SUCCESS(rc2))
                 {
                     pDstEntry->achName[0] = FATDIRENTRY_CH0_DELETED;
-                    rtFsFatDir_PutEntryAfterUpdate(pThis, pDstEntry, uBufferLock);
+                    rtFsFatDirShrd_PutEntryAfterUpdate(pThis, pDstEntry, uBufferLock);
                 }
             }
             *poffEntryInDir = UINT32_MAX;
@@ -3233,11 +3814,11 @@ static int rtFsFatChain_InsertEntries(PRTFSFATDIR pThis, PCFATDIRENTRY pDirEntry
  * @param   poffEntryInDir  Where to return the offset of the directory entry.
  * @param   pDirEntry       Where to return a copy of the directory entry.
  *
- * @remarks ASSUMES caller has already called rtFsFatDir_FindEntry to make sure
+ * @remarks ASSUMES caller has already called rtFsFatDirShrd_FindEntry to make sure
  *          the entry doesn't exist.
  */
-static int rtFsFatDir_CreateEntry(PRTFSFATDIR pThis, const char *pszEntry, uint8_t fAttrib, uint32_t cbInitial,
-                                  uint32_t *poffEntryInDir, PFATDIRENTRY pDirEntry)
+static int rtFsFatDirShrd_CreateEntry(PRTFSFATDIRSHRD pThis, const char *pszEntry, uint8_t fAttrib, uint32_t cbInitial,
+                                      uint32_t *poffEntryInDir, PFATDIRENTRY pDirEntry)
 {
     PRTFSFATVOL pVol = pThis->Core.pVol;
     *poffEntryInDir = UINT32_MAX;
@@ -3264,7 +3845,7 @@ static int rtFsFatDir_CreateEntry(PRTFSFATDIR pThis, const char *pszEntry, uint8
     uint32_t        cSlots = UINT32_MAX;
     FATDIRNAMESLOT  aSlots[FATDIRNAMESLOT_MAX_SLOTS];
     AssertCompile(RTFSFAT_MAX_LFN_CHARS < RT_ELEMENTS(aSlots) * FATDIRNAMESLOT_CHARS_PER_SLOT);
-    int rc = rtFsFatDir_MaybeCreateLongNameAndShortAlias(pThis, pszEntry, fIs8Dot3Name, pDirEntry, aSlots, &cSlots);
+    int rc = rtFsFatDirShrd_MaybeCreateLongNameAndShortAlias(pThis, pszEntry, fIs8Dot3Name, pDirEntry, aSlots, &cSlots);
     if (RT_SUCCESS(rc))
     {
         Assert(cSlots <= FATDIRNAMESLOT_MAX_SLOTS);
@@ -3307,25 +3888,112 @@ static int rtFsFatDir_CreateEntry(PRTFSFATDIR pThis, const char *pszEntry, uint8
 }
 
 
+/**
+ * Releases a reference to a shared directory structure.
+ *
+ * @param   pShared             The shared directory structure.
+ */
+static int rtFsFatDirShrd_Release(PRTFSFATDIRSHRD pShared)
+{
+    uint32_t cRefs = ASMAtomicDecU32(&pShared->Core.cRefs);
+    Assert(cRefs < UINT32_MAX / 2);
+    if (cRefs == 0)
+    {
+        LogFlow(("rtFsFatDirShrd_Release: Destroying shared structure %p\n", pShared));
+        Assert(pShared->Core.cRefs == 0);
+
+        int rc;
+        if (pShared->paEntries)
+        {
+            rc = rtFsFatDirShrd_Flush(pShared);
+            RTMemFree(pShared->paEntries);
+            pShared->paEntries = NULL;
+        }
+        else
+            rc = VINF_SUCCESS;
+
+        if (   pShared->fFullyBuffered
+            && pShared->u.Full.pbDirtySectors)
+        {
+            RTMemFree(pShared->u.Full.pbDirtySectors);
+            pShared->u.Full.pbDirtySectors = NULL;
+        }
+
+        int rc2 = rtFsFatObj_Close(&pShared->Core);
+        if (RT_SUCCESS(rc))
+            rc = rc2;
+
+        RTMemFree(pShared);
+        return rc;
+    }
+    return VINF_SUCCESS;
+}
+
+
+/**
+ * Retains a reference to a shared directory structure.
+ *
+ * @param   pShared             The shared directory structure.
+ */
+static void rtFsFatDirShrd_Retain(PRTFSFATDIRSHRD pShared)
+{
+    uint32_t cRefs = ASMAtomicIncU32(&pShared->Core.cRefs);
+    Assert(cRefs > 1); NOREF(cRefs);
+}
+
 
 /**
  * @interface_method_impl{RTVFSOBJOPS,pfnClose}
  */
 static DECLCALLBACK(int) rtFsFatDir_Close(void *pvThis)
 {
-    PRTFSFATDIR pThis = (PRTFSFATDIR)pvThis;
-    int rc;
-    if (pThis->paEntries)
-    {
-        rc = rtFsFatDir_Flush(pThis);
-        RTMemFree(pThis->paEntries);
-        pThis->paEntries = NULL;
-    }
-    else
-        rc = VINF_SUCCESS;
+    PRTFSFATDIR     pThis   = (PRTFSFATDIR)pvThis;
+    PRTFSFATDIRSHRD pShared = pThis->pShared;
+    pThis->pShared = NULL;
+    if (pShared)
+        return rtFsFatDirShrd_Release(pShared);
+    return VINF_SUCCESS;
+}
 
-    rtFsFatObj_Close(&pThis->Core);
-    return rc;
+
+/**
+ * @interface_method_impl{RTVFSOBJOPS,pfnQueryInfo}
+ */
+static DECLCALLBACK(int) rtFsFatDir_QueryInfo(void *pvThis, PRTFSOBJINFO pObjInfo, RTFSOBJATTRADD enmAddAttr)
+{
+    PRTFSFATDIR pThis = (PRTFSFATDIR)pvThis;
+    return rtFsFatObj_QueryInfo(&pThis->pShared->Core, pObjInfo, enmAddAttr);
+}
+
+
+/**
+ * @interface_method_impl{RTVFSOBJSETOPS,pfnMode}
+ */
+static DECLCALLBACK(int) rtFsFatDir_SetMode(void *pvThis, RTFMODE fMode, RTFMODE fMask)
+{
+    PRTFSFATDIR pThis = (PRTFSFATDIR)pvThis;
+    return rtFsFatObj_SetMode(&pThis->pShared->Core, fMode, fMask);
+}
+
+
+/**
+ * @interface_method_impl{RTVFSOBJSETOPS,pfnSetTimes}
+ */
+static DECLCALLBACK(int) rtFsFatDir_SetTimes(void *pvThis, PCRTTIMESPEC pAccessTime, PCRTTIMESPEC pModificationTime,
+                                             PCRTTIMESPEC pChangeTime, PCRTTIMESPEC pBirthTime)
+{
+    PRTFSFATDIR pThis = (PRTFSFATDIR)pvThis;
+    return rtFsFatObj_SetTimes(&pThis->pShared->Core, pAccessTime, pModificationTime, pChangeTime, pBirthTime);
+}
+
+
+/**
+ * @interface_method_impl{RTVFSOBJSETOPS,pfnSetOwner}
+ */
+static DECLCALLBACK(int) rtFsFatDir_SetOwner(void *pvThis, RTUID uid, RTGID gid)
+{
+    RT_NOREF(pvThis, uid, gid);
+    return VERR_NOT_SUPPORTED;
 }
 
 
@@ -3349,20 +4017,21 @@ static DECLCALLBACK(int) rtFsFatDir_TraversalOpen(void *pvThis, const char *pszE
     {
         *phVfsDir = NIL_RTVFSDIR;
 
-        PRTFSFATDIR pThis = (PRTFSFATDIR)pvThis;
-        uint32_t    offEntryInDir;
-        bool        fLong;
-        FATDIRENTRY DirEntry;
-        rc = rtFsFatDir_FindEntry(pThis, pszEntry, &offEntryInDir, &fLong, &DirEntry);
+        PRTFSFATDIR     pThis   = (PRTFSFATDIR)pvThis;
+        PRTFSFATDIRSHRD pShared = pThis->pShared;
+        uint32_t        offEntryInDir;
+        bool            fLong;
+        FATDIRENTRY     DirEntry;
+        rc = rtFsFatDirShrd_FindEntry(pShared, pszEntry, &offEntryInDir, &fLong, &DirEntry);
         if (RT_SUCCESS(rc))
         {
             switch (DirEntry.fAttrib & (FAT_ATTR_DIRECTORY | FAT_ATTR_VOLUME))
             {
                 case FAT_ATTR_DIRECTORY:
                 {
-                    rc = rtFsFatDir_New(pThis->Core.pVol, pThis, &DirEntry, offEntryInDir,
-                                        RTFSFAT_GET_CLUSTER(&DirEntry, pThis->Core.pVol), UINT64_MAX /*offDisk*/,
-                                        DirEntry.cbFile, phVfsDir, NULL /*ppDir*/);
+                    rc = rtFsFatDir_New(pShared->Core.pVol, pShared, &DirEntry, offEntryInDir,
+                                        RTFSFAT_GET_CLUSTER(&DirEntry, pShared->Core.pVol), UINT64_MAX /*offDisk*/,
+                                        DirEntry.cbFile, phVfsDir);
                     break;
                 }
                 case 0:
@@ -3378,6 +4047,7 @@ static DECLCALLBACK(int) rtFsFatDir_TraversalOpen(void *pvThis, const char *pszE
     }
     else
         rc = VERR_PATH_NOT_FOUND;
+    LogFlow(("rtFsFatDir_TraversalOpen: %s -> %Rrc\n", pszEntry, rc));
     return rc;
 }
 
@@ -3387,7 +4057,8 @@ static DECLCALLBACK(int) rtFsFatDir_TraversalOpen(void *pvThis, const char *pszE
  */
 static DECLCALLBACK(int) rtFsFatDir_OpenFile(void *pvThis, const char *pszFilename, uint32_t fOpen, PRTVFSFILE phVfsFile)
 {
-    PRTFSFATDIR pThis = (PRTFSFATDIR)pvThis;
+    PRTFSFATDIR     pThis   = (PRTFSFATDIR)pvThis;
+    PRTFSFATDIRSHRD pShared = pThis->pShared;
 
     /*
      * Try open existing file.
@@ -3395,7 +4066,7 @@ static DECLCALLBACK(int) rtFsFatDir_OpenFile(void *pvThis, const char *pszFilena
     uint32_t    offEntryInDir;
     bool        fLong;
     FATDIRENTRY DirEntry;
-    int rc = rtFsFatDir_FindEntry(pThis, pszFilename, &offEntryInDir, &fLong, &DirEntry);
+    int rc = rtFsFatDirShrd_FindEntry(pShared, pszFilename, &offEntryInDir, &fLong, &DirEntry);
     if (RT_SUCCESS(rc))
     {
         switch (DirEntry.fAttrib & (FAT_ATTR_DIRECTORY | FAT_ATTR_VOLUME))
@@ -3407,7 +4078,7 @@ static DECLCALLBACK(int) rtFsFatDir_OpenFile(void *pvThis, const char *pszFilena
                     if (   (fOpen & RTFILE_O_ACTION_MASK) == RTFILE_O_OPEN
                         || (fOpen & RTFILE_O_ACTION_MASK) == RTFILE_O_OPEN_CREATE
                         || (fOpen & RTFILE_O_ACTION_MASK) == RTFILE_O_CREATE_REPLACE)
-                        rc = rtFsFatFile_New(pThis->Core.pVol, pThis, &DirEntry, offEntryInDir, fOpen, phVfsFile);
+                        rc = rtFsFatFile_New(pShared->Core.pVol, pShared, &DirEntry, offEntryInDir, fOpen, phVfsFile);
                     else
                         rc = VERR_ALREADY_EXISTS;
                 }
@@ -3431,9 +4102,9 @@ static DECLCALLBACK(int) rtFsFatDir_OpenFile(void *pvThis, const char *pszFilena
                  || (fOpen & RTFILE_O_ACTION_MASK) == RTFILE_O_OPEN_CREATE
                  || (fOpen & RTFILE_O_ACTION_MASK) == RTFILE_O_CREATE_REPLACE) )
     {
-        rc = rtFsFatDir_CreateEntry(pThis, pszFilename, FAT_ATTR_ARCHIVE, 0 /*cbInitial*/, &offEntryInDir, &DirEntry);
+        rc = rtFsFatDirShrd_CreateEntry(pShared, pszFilename, FAT_ATTR_ARCHIVE, 0 /*cbInitial*/, &offEntryInDir, &DirEntry);
         if (RT_SUCCESS(rc))
-            rc = rtFsFatFile_New(pThis->Core.pVol, pThis, &DirEntry, offEntryInDir, fOpen, phVfsFile);
+            rc = rtFsFatFile_New(pShared->Core.pVol, pShared, &DirEntry, offEntryInDir, fOpen, phVfsFile);
     }
     return rc;
 }
@@ -3444,9 +4115,38 @@ static DECLCALLBACK(int) rtFsFatDir_OpenFile(void *pvThis, const char *pszFilena
  */
 static DECLCALLBACK(int) rtFsFatDir_OpenDir(void *pvThis, const char *pszSubDir, uint32_t fFlags, PRTVFSDIR phVfsDir)
 {
-    RT_NOREF(pvThis, pszSubDir, fFlags, phVfsDir);
-RTAssertMsg2("%s: %s\n", __FUNCTION__, pszSubDir);
-    return VERR_NOT_IMPLEMENTED;
+    PRTFSFATDIR     pThis   = (PRTFSFATDIR)pvThis;
+    PRTFSFATDIRSHRD pShared = pThis->pShared;
+    AssertReturn(!fFlags, VERR_INVALID_FLAGS);
+
+    /*
+     * Try open directory.
+     */
+    uint32_t    offEntryInDir;
+    bool        fLong;
+    FATDIRENTRY DirEntry;
+    int rc = rtFsFatDirShrd_FindEntry(pShared, pszSubDir, &offEntryInDir, &fLong, &DirEntry);
+    LogFlow(("rtFsFatDir_OpenDir: FindEntry(,%s,,,) -> %Rrc fLong=%d offEntryInDir=%#RX32\n", pszSubDir, rc, fLong, offEntryInDir));
+    if (RT_SUCCESS(rc))
+    {
+        switch (DirEntry.fAttrib & (FAT_ATTR_DIRECTORY | FAT_ATTR_VOLUME))
+        {
+            case FAT_ATTR_DIRECTORY:
+                rc = rtFsFatDir_New(pShared->Core.pVol, pShared, &DirEntry, offEntryInDir,
+                                    RTFSFAT_GET_CLUSTER(&DirEntry, pShared->Core.pVol), UINT64_MAX /*offDisk*/,
+                                    DirEntry.cbFile, phVfsDir);
+                break;
+
+            case 0:
+                rc = VERR_NOT_A_DIRECTORY;
+                break;
+
+            default:
+                rc = VERR_PATH_NOT_FOUND;
+                break;
+        }
+    }
+    return rc;
 }
 
 
@@ -3455,9 +4155,30 @@ RTAssertMsg2("%s: %s\n", __FUNCTION__, pszSubDir);
  */
 static DECLCALLBACK(int) rtFsFatDir_CreateDir(void *pvThis, const char *pszSubDir, RTFMODE fMode, PRTVFSDIR phVfsDir)
 {
-    RT_NOREF(pvThis, pszSubDir, fMode, phVfsDir);
-RTAssertMsg2("%s: %s\n", __FUNCTION__, pszSubDir);
-    return VERR_NOT_IMPLEMENTED;
+    PRTFSFATDIR     pThis   = (PRTFSFATDIR)pvThis;
+    PRTFSFATDIRSHRD pShared = pThis->pShared;
+    RT_NOREF(fMode);
+
+    /*
+     * Check if it already exists in any form.
+     */
+    uint32_t    offEntryInDir;
+    bool        fLong;
+    FATDIRENTRY DirEntry;
+    int rc = rtFsFatDirShrd_FindEntry(pShared, pszSubDir, &offEntryInDir, &fLong, &DirEntry);
+    if (rc != VERR_FILE_NOT_FOUND)
+        return RT_SUCCESS(rc) ? VERR_ALREADY_EXISTS : rc;
+
+    /*
+     * Okay, create it.
+     */
+    rc = rtFsFatDirShrd_CreateEntry(pShared, pszSubDir, FAT_ATTR_ARCHIVE | FAT_ATTR_DIRECTORY,
+                                    pShared->Core.pVol->cbCluster, &offEntryInDir, &DirEntry);
+    if (RT_SUCCESS(rc))
+        rc = rtFsFatDir_New(pShared->Core.pVol, pShared, &DirEntry, offEntryInDir,
+                            RTFSFAT_GET_CLUSTER(&DirEntry, pShared->Core.pVol), UINT64_MAX /*offDisk*/,
+                            DirEntry.cbFile, phVfsDir);
+    return rc;
 }
 
 
@@ -3467,7 +4188,6 @@ RTAssertMsg2("%s: %s\n", __FUNCTION__, pszSubDir);
 static DECLCALLBACK(int) rtFsFatDir_OpenSymlink(void *pvThis, const char *pszSymlink, PRTVFSSYMLINK phVfsSymlink)
 {
     RT_NOREF(pvThis, pszSymlink, phVfsSymlink);
-RTAssertMsg2("%s: %s\n", __FUNCTION__, pszSymlink);
     return VERR_NOT_SUPPORTED;
 }
 
@@ -3479,7 +4199,6 @@ static DECLCALLBACK(int) rtFsFatDir_CreateSymlink(void *pvThis, const char *pszS
                                                   RTSYMLINKTYPE enmType, PRTVFSSYMLINK phVfsSymlink)
 {
     RT_NOREF(pvThis, pszSymlink, pszTarget, enmType, phVfsSymlink);
-RTAssertMsg2("%s: %s\n", __FUNCTION__, pszSymlink);
     return VERR_NOT_SUPPORTED;
 }
 
@@ -3493,11 +4212,12 @@ static DECLCALLBACK(int) rtFsFatDir_QueryEntryInfo(void *pvThis, const char *psz
     /*
      * Try locate the entry.
      */
-    PRTFSFATDIR pThis = (PRTFSFATDIR)pvThis;
-    uint32_t    offEntryInDir;
-    bool        fLong;
-    FATDIRENTRY DirEntry;
-    int rc = rtFsFatDir_FindEntry(pThis, pszEntry, &offEntryInDir, &fLong, &DirEntry);
+    PRTFSFATDIR     pThis   = (PRTFSFATDIR)pvThis;
+    PRTFSFATDIRSHRD pShared = pThis->pShared;
+    uint32_t        offEntryInDir;
+    bool            fLong;
+    FATDIRENTRY     DirEntry;
+    int rc = rtFsFatDirShrd_FindEntry(pShared, pszEntry, &offEntryInDir, &fLong, &DirEntry);
     Log2(("rtFsFatDir_QueryEntryInfo: FindEntry(,%s,) -> %Rrc\n", pszEntry, rc));
     if (RT_SUCCESS(rc))
     {
@@ -3507,7 +4227,7 @@ static DECLCALLBACK(int) rtFsFatDir_QueryEntryInfo(void *pvThis, const char *psz
          */
         RTFSFATOBJ TmpObj;
         RT_ZERO(TmpObj);
-        rtFsFatObj_InitFromDirEntry(&TmpObj, &DirEntry, offEntryInDir, pThis->Core.pVol);
+        rtFsFatObj_InitFromDirEntry(&TmpObj, &DirEntry, offEntryInDir, pShared->Core.pVol);
         rc = rtFsFatObj_QueryInfo(&TmpObj, pObjInfo, enmAddAttr);
     }
     return rc;
@@ -3520,7 +4240,6 @@ static DECLCALLBACK(int) rtFsFatDir_QueryEntryInfo(void *pvThis, const char *psz
 static DECLCALLBACK(int) rtFsFatDir_UnlinkEntry(void *pvThis, const char *pszEntry, RTFMODE fType)
 {
     RT_NOREF(pvThis, pszEntry, fType);
-RTAssertMsg2("%s: %s\n", __FUNCTION__, pszEntry);
     return VERR_NOT_IMPLEMENTED;
 }
 
@@ -3531,7 +4250,6 @@ RTAssertMsg2("%s: %s\n", __FUNCTION__, pszEntry);
 static DECLCALLBACK(int) rtFsFatDir_RenameEntry(void *pvThis, const char *pszEntry, RTFMODE fType, const char *pszNewName)
 {
     RT_NOREF(pvThis, pszEntry, fType, pszNewName);
-RTAssertMsg2("%s: %s\n", __FUNCTION__, pszEntry);
     return VERR_NOT_IMPLEMENTED;
 }
 
@@ -3541,9 +4259,148 @@ RTAssertMsg2("%s: %s\n", __FUNCTION__, pszEntry);
  */
 static DECLCALLBACK(int) rtFsFatDir_RewindDir(void *pvThis)
 {
-    RT_NOREF(pvThis);
-RTAssertMsg2("%s\n", __FUNCTION__);
-    return VERR_NOT_IMPLEMENTED;
+    PRTFSFATDIR pThis = (PRTFSFATDIR)pvThis;
+    pThis->offDir = 0;
+    return VINF_SUCCESS;
+}
+
+
+/**
+ * Calculates the UTF-8 length of the name in the given directory entry.
+ *
+ * @returns The length in characters (bytes), excluding terminator.
+ * @param   pShared     The shared directory structure (for codepage).
+ * @param   pEntry      The directory entry.
+ */
+static size_t rtFsFatDir_CalcUtf8LengthForDirEntry(PRTFSFATDIRSHRD pShared, PCFATDIRENTRY pEntry)
+{
+    RT_NOREF(pShared);
+    PCRTUTF16 g_pawcMap = &g_awchFatCp437Chars[0];
+
+    /* The base name (this won't work with DBCS, but that's not a concern at the moment). */
+    size_t offSrc = 8;
+    while (offSrc > 1 && RTUniCpIsSpace(g_pawcMap[pEntry->achName[offSrc - 1]]))
+        offSrc--;
+
+    size_t cchRet = 0;
+    while (offSrc-- > 0)
+        cchRet += RTStrCpSize(g_pawcMap[pEntry->achName[offSrc]]);
+
+    /* Extension. */
+    offSrc = 11;
+    while (offSrc > 8 && RTUniCpIsSpace(g_pawcMap[pEntry->achName[offSrc - 1]]))
+        offSrc--;
+    if (offSrc > 8)
+    {
+        cchRet += 1; /* '.' */
+        while (offSrc-- > 8)
+            cchRet += RTStrCpSize(g_pawcMap[pEntry->achName[offSrc]]);
+    }
+
+    return cchRet;
+}
+
+
+/**
+ * Copies the name from the directory entry into a UTF-16 buffer.
+ *
+ * @returns Number of UTF-16 items written (excluding terminator).
+ * @param   pShared     The shared directory structure (for codepage).
+ * @param   pEntry      The directory entry.
+ * @param   pwszDst     The destination buffer.
+ * @param   cwcDst      The destination buffer size.
+ */
+static uint16_t rtFsFatDir_CopyDirEntryToUtf16(PRTFSFATDIRSHRD pShared, PCFATDIRENTRY pEntry, PRTUTF16 pwszDst, size_t cwcDst)
+{
+    Assert(cwcDst > 0);
+
+    RT_NOREF(pShared);
+    PCRTUTF16 g_pawcMap = &g_awchFatCp437Chars[0];
+
+    /* The base name (this won't work with DBCS, but that's not a concern at the moment). */
+    size_t cchSrc = 8;
+    while (cchSrc > 1 && RTUniCpIsSpace(g_pawcMap[pEntry->achName[cchSrc - 1]]))
+        cchSrc--;
+
+    size_t offDst = 0;
+    for (size_t offSrc = 0; offSrc < cchSrc; offSrc++)
+    {
+        AssertReturnStmt(offDst + 1 < cwcDst, pwszDst[cwcDst - 1] = '\0', (uint16_t)cwcDst);
+        pwszDst[offDst++] = g_pawcMap[pEntry->achName[offSrc]];
+    }
+
+    /* Extension. */
+    cchSrc = 3;
+    while (cchSrc > 0 && RTUniCpIsSpace(g_pawcMap[pEntry->achName[8 + cchSrc - 1]]))
+        cchSrc--;
+    if (cchSrc > 0)
+    {
+        AssertReturnStmt(offDst + 1 < cwcDst, pwszDst[cwcDst - 1] = '\0', (uint16_t)cwcDst);
+        pwszDst[offDst++] = '.';
+
+        for (size_t offSrc = 0; offSrc < cchSrc; offSrc++)
+        {
+            AssertReturnStmt(offDst + 1 < cwcDst, pwszDst[cwcDst - 1] = '\0', (uint16_t)cwcDst);
+            pwszDst[offDst++] = g_pawcMap[pEntry->achName[8 + offSrc]];
+        }
+    }
+
+    pwszDst[offDst] = '\0';
+    return (uint16_t)offDst;
+}
+
+
+/**
+ * Copies the name from the directory entry into a UTF-8 buffer.
+ *
+ * @returns Number of UTF-16 items written (excluding terminator).
+ * @param   pShared     The shared directory structure (for codepage).
+ * @param   pEntry      The directory entry.
+ * @param   pszDst      The destination buffer.
+ * @param   cbDst       The destination buffer size.
+ */
+static uint16_t rtFsFatDir_CopyDirEntryToUtf8(PRTFSFATDIRSHRD pShared, PCFATDIRENTRY pEntry, char *pszDst, size_t cbDst)
+{
+    Assert(cbDst > 0);
+
+    RT_NOREF(pShared);
+    PCRTUTF16 g_pawcMap = &g_awchFatCp437Chars[0];
+
+    /* The base name (this won't work with DBCS, but that's not a concern at the moment). */
+    size_t cchSrc = 8;
+    while (cchSrc > 1 && RTUniCpIsSpace(g_pawcMap[pEntry->achName[cchSrc - 1]]))
+        cchSrc--;
+
+    char * const pszDstEnd = pszDst + cbDst;
+    char *pszCurDst = pszDst;
+    for (size_t offSrc = 0; offSrc < cchSrc; offSrc++)
+    {
+        RTUNICP const uc = g_pawcMap[pEntry->achName[offSrc]];
+        size_t        cbCp = RTStrCpSize(uc);
+        AssertReturnStmt(cbCp < (size_t)(pszDstEnd - pszCurDst), *pszCurDst = '\0', (uint16_t)(pszDstEnd - pszCurDst));
+        pszCurDst = RTStrPutCp(pszCurDst, uc);
+    }
+
+    /* Extension. */
+    cchSrc = 3;
+    while (cchSrc > 0 && RTUniCpIsSpace(g_pawcMap[pEntry->achName[8 + cchSrc - 1]]))
+        cchSrc--;
+    if (cchSrc > 0)
+    {
+        AssertReturnStmt(1U < (size_t)(pszDstEnd - pszCurDst), *pszCurDst = '\0', (uint16_t)(pszDstEnd - pszCurDst));
+        *pszCurDst++ = '.';
+
+        for (size_t offSrc = 0; offSrc < cchSrc; offSrc++)
+        {
+            RTUNICP const uc = g_pawcMap[pEntry->achName[8 + offSrc]];
+            size_t        cbCp = RTStrCpSize(uc);
+            AssertReturnStmt(cbCp < (size_t)(pszDstEnd - pszCurDst), *pszCurDst = '\0', (uint16_t)(pszDstEnd - pszCurDst));
+            pszCurDst = RTStrPutCp(pszCurDst, uc);
+        }
+    }
+
+    *pszCurDst = '\0';
+    return (uint16_t)(pszDstEnd - pszCurDst);
 }
 
 
@@ -3553,14 +4410,213 @@ RTAssertMsg2("%s\n", __FUNCTION__);
 static DECLCALLBACK(int) rtFsFatDir_ReadDir(void *pvThis, PRTDIRENTRYEX pDirEntry, size_t *pcbDirEntry,
                                             RTFSOBJATTRADD enmAddAttr)
 {
-    RT_NOREF(pvThis, pDirEntry, pcbDirEntry, enmAddAttr);
-RTAssertMsg2("%s\n", __FUNCTION__);
-    return VERR_NOT_IMPLEMENTED;
+    PRTFSFATDIR     pThis   = (PRTFSFATDIR)pvThis;
+    PRTFSFATDIRSHRD pShared = pThis->pShared;
+
+    /*
+     * Fake '.' and '..' entries (required for root, we do it everywhere).
+     */
+    if (pThis->offDir < 2)
+    {
+        size_t cbNeeded = RT_OFFSETOF(RTDIRENTRYEX, szName[pThis->offDir + 2]);
+        if (cbNeeded < *pcbDirEntry)
+            *pcbDirEntry = cbNeeded;
+        else
+        {
+            *pcbDirEntry = cbNeeded;
+            return VERR_BUFFER_OVERFLOW;
+        }
+
+        int rc;
+        if (   pThis->offDir == 0
+            || pShared->Core.pParentDir == NULL)
+            rc = rtFsFatObj_QueryInfo(&pShared->Core, &pDirEntry->Info, enmAddAttr);
+        else
+            rc = rtFsFatObj_QueryInfo(&pShared->Core.pParentDir->Core, &pDirEntry->Info, enmAddAttr);
+
+        pDirEntry->cwcShortName = 0;
+        pDirEntry->wszShortName[0] = '\0';
+        pDirEntry->szName[0] = '.';
+        pDirEntry->szName[1] = '.';
+        pDirEntry->szName[++pThis->offDir] = '\0';
+        pDirEntry->cbName = pThis->offDir;
+        return rc;
+    }
+    if (   pThis->offDir == 2
+        && pShared->cEntries >= 2)
+    {
+        /* Skip '.' and '..' entries if present. */
+        uint32_t            uBufferLock = UINT32_MAX;
+        uint32_t            cEntries    = 0;
+        PCFATDIRENTRYUNION  paEntries   = NULL;
+        int rc = rtFsFatDirShrd_GetEntriesAt(pShared, 0, &paEntries, &cEntries, &uBufferLock);
+        if (RT_FAILURE(rc))
+            return rc;
+        if (   (paEntries[0].Entry.fAttrib & FAT_ATTR_DIRECTORY)
+            && memcmp(paEntries[0].Entry.achName, RT_STR_TUPLE(".          ")) == 0)
+        {
+            if (   (paEntries[1].Entry.fAttrib & FAT_ATTR_DIRECTORY)
+                && memcmp(paEntries[1].Entry.achName, RT_STR_TUPLE("..         ")) == 0)
+                pThis->offDir += sizeof(paEntries[0]) * 2;
+            else
+                pThis->offDir += sizeof(paEntries[0]);
+        }
+        rtFsFatDirShrd_ReleaseBufferAfterReading(pShared, uBufferLock);
+    }
+
+    /*
+     * Scan the directory buffer by buffer.
+     */
+    RTUTF16             wszName[260+1];
+    uint8_t             bChecksum       = UINT8_MAX;
+    uint8_t             idNextSlot      = UINT8_MAX;
+    size_t              cwcName         = 0;
+    uint32_t            offEntryInDir   = pThis->offDir - 2;
+    uint32_t const      cbDir           = pShared->Core.cbObject;
+    Assert(RT_ALIGN_32(cbDir, sizeof(*pDirEntry)) == cbDir);
+    AssertCompile(FATDIRNAMESLOT_MAX_SLOTS * FATDIRNAMESLOT_CHARS_PER_SLOT < RT_ELEMENTS(wszName));
+    wszName[260] = '\0';
+
+    while (offEntryInDir < cbDir)
+    {
+        /* Get chunk of entries starting at offEntryInDir. */
+        uint32_t            uBufferLock = UINT32_MAX;
+        uint32_t            cEntries    = 0;
+        PCFATDIRENTRYUNION  paEntries   = NULL;
+        int rc = rtFsFatDirShrd_GetEntriesAt(pShared, offEntryInDir, &paEntries, &cEntries, &uBufferLock);
+        if (RT_FAILURE(rc))
+            return rc;
+
+        /*
+         * Now work thru each of the entries.
+         */
+        for (uint32_t iEntry = 0; iEntry < cEntries; iEntry++, offEntryInDir += sizeof(FATDIRENTRY))
+        {
+            switch ((uint8_t)paEntries[iEntry].Entry.achName[0])
+            {
+                default:
+                    break;
+                case FATDIRENTRY_CH0_DELETED:
+                    cwcName = 0;
+                    continue;
+                case FATDIRENTRY_CH0_END_OF_DIR:
+                    if (pShared->Core.pVol->enmBpbVersion >= RTFSFATBPBVER_DOS_2_0)
+                    {
+                        pThis->offDir = cbDir + 2;
+                        rtFsFatDirShrd_ReleaseBufferAfterReading(pShared, uBufferLock);
+                        return VERR_NO_MORE_FILES;
+                    }
+                    cwcName = 0;
+                    break; /* Technically a valid entry before DOS 2.0, or so some claim. */
+            }
+
+            /*
+             * Check for long filename slot.
+             */
+            if (   paEntries[iEntry].Slot.fAttrib == FAT_ATTR_NAME_SLOT
+                && paEntries[iEntry].Slot.idxZero == 0
+                && paEntries[iEntry].Slot.fZero   == 0
+                && (paEntries[iEntry].Slot.idSlot & ~FATDIRNAMESLOT_FIRST_SLOT_FLAG) <= FATDIRNAMESLOT_HIGHEST_SLOT_ID
+                && (paEntries[iEntry].Slot.idSlot & ~FATDIRNAMESLOT_FIRST_SLOT_FLAG) != 0)
+            {
+                /* New slot? */
+                if (paEntries[iEntry].Slot.idSlot & FATDIRNAMESLOT_FIRST_SLOT_FLAG)
+                {
+                    idNextSlot = paEntries[iEntry].Slot.idSlot & ~FATDIRNAMESLOT_FIRST_SLOT_FLAG;
+                    bChecksum  = paEntries[iEntry].Slot.bChecksum;
+                    cwcName    = idNextSlot * FATDIRNAMESLOT_CHARS_PER_SLOT;
+                    wszName[cwcName] = '\0';
+                }
+                /* Is valid next entry? */
+                else if (   paEntries[iEntry].Slot.idSlot    == idNextSlot
+                         && paEntries[iEntry].Slot.bChecksum == bChecksum)
+                { /* likely */ }
+                else
+                    cwcName = 0;
+                if (cwcName)
+                {
+                    idNextSlot--;
+                    size_t offName = idNextSlot * FATDIRNAMESLOT_CHARS_PER_SLOT;
+                    memcpy(&wszName[offName],         paEntries[iEntry].Slot.awcName0, sizeof(paEntries[iEntry].Slot.awcName0));
+                    memcpy(&wszName[offName + 5],     paEntries[iEntry].Slot.awcName1, sizeof(paEntries[iEntry].Slot.awcName1));
+                    memcpy(&wszName[offName + 5 + 6], paEntries[iEntry].Slot.awcName2, sizeof(paEntries[iEntry].Slot.awcName2));
+                }
+            }
+            /*
+             * Got a regular directory entry.  Try return it to the caller if not volume label.
+             */
+            else if (!(paEntries[iEntry].Entry.fAttrib & FAT_ATTR_VOLUME))
+            {
+                /* Do the length calc and check for overflows. */
+                bool   fLongName = false;
+                size_t cchName = 0;
+                if (   cwcName != 0
+                    && idNextSlot == 0
+                    && rtFsFatDir_CalcChecksum(&paEntries[iEntry].Entry) == bChecksum)
+                {
+                    rc = RTUtf16CalcUtf8LenEx(wszName, cwcName, &cchName);
+                    if (RT_SUCCESS(rc))
+                        fLongName = true;
+                }
+                if (!fLongName)
+                    cchName = rtFsFatDir_CalcUtf8LengthForDirEntry(pShared, &paEntries[iEntry].Entry);
+                size_t cbNeeded = RT_OFFSETOF(RTDIRENTRYEX, szName[cchName + 1]);
+                if (cbNeeded <= *pcbDirEntry)
+                    *pcbDirEntry = cbNeeded;
+                else
+                {
+                    *pcbDirEntry = cbNeeded;
+                    return VERR_BUFFER_OVERFLOW;
+                }
+
+                /* To avoid duplicating code in rtFsFatObj_InitFromDirRec and
+                   rtFsFatObj_QueryInfo, we create a dummy RTFSFATOBJ on the stack. */
+                RTFSFATOBJ TmpObj;
+                RT_ZERO(TmpObj);
+                rtFsFatObj_InitFromDirEntry(&TmpObj, &paEntries[iEntry].Entry, offEntryInDir, pShared->Core.pVol);
+
+                rtFsFatDirShrd_ReleaseBufferAfterReading(pShared, uBufferLock);
+
+                rc = rtFsFatObj_QueryInfo(&TmpObj, &pDirEntry->Info, enmAddAttr);
+
+                /* Copy out the names. */
+                pDirEntry->cbName = (uint16_t)cchName;
+                if (fLongName)
+                {
+                    char *pszDst = &pDirEntry->szName[0];
+                    int rc2 = RTUtf16ToUtf8Ex(wszName, cwcName, &pszDst, cchName + 1, NULL);
+                    AssertRC(rc2);
+
+                    pDirEntry->cwcShortName = rtFsFatDir_CopyDirEntryToUtf16(pShared, &paEntries[iEntry].Entry,
+                                                                             pDirEntry->wszShortName,
+                                                                             RT_ELEMENTS(pDirEntry->wszShortName));
+                }
+                else
+                {
+                    rtFsFatDir_CopyDirEntryToUtf8(pShared, &paEntries[iEntry].Entry, &pDirEntry->szName[0], cchName + 1);
+                    pDirEntry->wszShortName[0] = '\0';
+                    pDirEntry->cwcShortName = 0;
+                }
+
+                if (RT_SUCCESS(rc))
+                    pThis->offDir = offEntryInDir + sizeof(paEntries[iEntry]) + 2;
+                Assert(RTStrValidateEncoding(pDirEntry->szName) == VINF_SUCCESS);
+                return rc;
+            }
+            else
+                cwcName = 0;
+        }
+
+        rtFsFatDirShrd_ReleaseBufferAfterReading(pShared, uBufferLock);
+    }
+
+    pThis->offDir = cbDir + 2;
+    return VERR_NO_MORE_FILES;
 }
 
 
 /**
- * FAT file operations.
+ * FAT directory operations.
  */
 static const RTVFSDIROPS g_rtFsFatDirOps =
 {
@@ -3569,7 +4625,7 @@ static const RTVFSDIROPS g_rtFsFatDirOps =
         RTVFSOBJTYPE_DIR,
         "FatDir",
         rtFsFatDir_Close,
-        rtFsFatObj_QueryInfo,
+        rtFsFatDir_QueryInfo,
         RTVFSOBJOPS_VERSION
     },
     RTVFSDIROPS_VERSION,
@@ -3577,9 +4633,9 @@ static const RTVFSDIROPS g_rtFsFatDirOps =
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
         RT_OFFSETOF(RTVFSDIROPS, Obj) - RT_OFFSETOF(RTVFSDIROPS, ObjSet),
-        rtFsFatObj_SetMode,
-        rtFsFatObj_SetTimes,
-        rtFsFatObj_SetOwner,
+        rtFsFatDir_SetMode,
+        rtFsFatDir_SetTimes,
+        rtFsFatDir_SetOwner,
         RTVFSOBJSETOPS_VERSION
     },
     rtFsFatDir_TraversalOpen,
@@ -3597,6 +4653,8 @@ static const RTVFSDIROPS g_rtFsFatDirOps =
 };
 
 
+
+
 /**
  * Adds an open child to the parent directory.
  *
@@ -3606,26 +4664,12 @@ static const RTVFSDIROPS g_rtFsFatDirOps =
  *
  * @param   pDir        The directory.
  * @param   pChild      The child being opened.
- * @sa      rtFsFatDir_RemoveOpenChild
+ * @sa      rtFsFatDirShrd_RemoveOpenChild
  */
-static void rtFsFatDir_AddOpenChild(PRTFSFATDIR pDir, PRTFSFATOBJ pChild)
+static void rtFsFatDirShrd_AddOpenChild(PRTFSFATDIRSHRD pDir, PRTFSFATOBJ pChild)
 {
-    /* First child that gets opened retains the parent directory.  This is
-       released by the final open child. */
-    if (RTListIsEmpty(&pDir->OpenChildren))
-    {
-        uint32_t cRefs = RTVfsDirRetain(pDir->hVfsSelf);
-        Assert(cRefs != UINT32_MAX); NOREF(cRefs);
+    rtFsFatDirShrd_Retain(pDir);
 
-        /* Root also retains the whole file system. */
-        if (pDir->Core.pVol->pRootDir == pDir)
-        {
-            Assert(pDir->Core.pVol);
-            Assert(pDir->Core.pVol == pChild->pVol);
-            cRefs = RTVfsRetain(pDir->Core.pVol->hVfsSelf);
-            Assert(cRefs != UINT32_MAX); NOREF(cRefs);
-        }
-    }
     RTListAppend(&pDir->OpenChildren, &pChild->Entry);
     pChild->pParentDir = pDir;
 }
@@ -3640,39 +4684,203 @@ static void rtFsFatDir_AddOpenChild(PRTFSFATDIR pDir, PRTFSFATOBJ pChild)
  * @remarks This is the very last thing you do as it may cause a few other
  *          objects to be released recursively (parent dir and the volume).
  *
- * @sa      rtFsFatDir_AddOpenChild
+ * @sa      rtFsFatDirShrd_AddOpenChild
  */
-static void rtFsFatDir_RemoveOpenChild(PRTFSFATDIR pDir, PRTFSFATOBJ pChild)
+static void rtFsFatDirShrd_RemoveOpenChild(PRTFSFATDIRSHRD pDir, PRTFSFATOBJ pChild)
 {
     AssertReturnVoid(pChild->pParentDir == pDir);
     RTListNodeRemove(&pChild->Entry);
     pChild->pParentDir = NULL;
 
-    /* Final child? If so, release directory. */
-    if (RTListIsEmpty(&pDir->OpenChildren))
-    {
-        bool const fIsRootDir = pDir->Core.pVol->pRootDir == pDir;
-
-        uint32_t cRefs = RTVfsDirRelease(pDir->hVfsSelf);
-        Assert(cRefs != UINT32_MAX); NOREF(cRefs);
-
-        /* Root directory releases the file system as well.  Since the volume
-           holds a reference to the root directory, it will remain valid after
-           the above release. */
-        if (fIsRootDir)
-        {
-            Assert(cRefs > 0);
-            Assert(pDir->Core.pVol);
-            Assert(pDir->Core.pVol == pChild->pVol);
-            cRefs = RTVfsRelease(pDir->Core.pVol->hVfsSelf);
-            Assert(cRefs != UINT32_MAX); NOREF(cRefs);
-        }
-    }
+    rtFsFatDirShrd_Release(pDir);
 }
 
 
 /**
- * Instantiates a new directory.
+ * Instantiates a new shared directory instance.
+ *
+ * @returns IPRT status code.
+ * @param   pThis           The FAT volume instance.
+ * @param   pParentDir      The parent directory.  This is NULL for the root
+ *                          directory.
+ * @param   pDirEntry       The parent directory entry. This is NULL for the
+ *                          root directory.
+ * @param   offEntryInDir   The byte offset of the directory entry in the parent
+ *                          directory.  UINT32_MAX if root directory.
+ * @param   idxCluster      The cluster where the directory content is to be
+ *                          found. This can be UINT32_MAX if a root FAT12/16
+ *                          directory.
+ * @param   offDisk         The disk byte offset of the FAT12/16 root directory.
+ *                          This is UINT64_MAX if idxCluster is given.
+ * @param   cbDir           The size of the directory.
+ * @param   ppSharedDir     Where to return shared FAT directory instance.
+ */
+static int rtFsFatDirShrd_New(PRTFSFATVOL pThis, PRTFSFATDIRSHRD pParentDir, PCFATDIRENTRY pDirEntry, uint32_t offEntryInDir,
+                              uint32_t idxCluster, uint64_t offDisk, uint32_t cbDir, PRTFSFATDIRSHRD *ppSharedDir)
+{
+    Assert((idxCluster == UINT32_MAX) != (offDisk == UINT64_MAX));
+    Assert((pDirEntry == NULL) == (offEntryInDir == UINT32_MAX));
+    *ppSharedDir = NULL;
+
+    int rc = VERR_NO_MEMORY;
+    PRTFSFATDIRSHRD pShared = (PRTFSFATDIRSHRD)RTMemAllocZ(sizeof(*pShared));
+    if (pShared)
+    {
+        /*
+         * Initialize it all so rtFsFatDir_Close doesn't trip up in anyway.
+         */
+        RTListInit(&pShared->OpenChildren);
+        if (pDirEntry)
+            rtFsFatObj_InitFromDirEntry(&pShared->Core, pDirEntry, offEntryInDir, pThis);
+        else
+            rtFsFatObj_InitDummy(&pShared->Core, cbDir, RTFS_TYPE_DIRECTORY | RTFS_DOS_DIRECTORY | RTFS_UNIX_ALL_PERMS, pThis);
+
+        pShared->cEntries           = cbDir / sizeof(FATDIRENTRY);
+        pShared->fIsLinearRootDir   = idxCluster == UINT32_MAX;
+        pShared->fFullyBuffered     = pShared->fIsLinearRootDir;
+        pShared->paEntries          = NULL;
+        pShared->offEntriesOnDisk   = UINT64_MAX;
+        if (pShared->fFullyBuffered)
+            pShared->cbAllocatedForEntries = RT_ALIGN_32(cbDir, pThis->cbSector);
+        else
+            pShared->cbAllocatedForEntries = pThis->cbSector;
+
+        /*
+         * If clustered backing, read the chain and see if we cannot still do the full buffering.
+         */
+        if (idxCluster != UINT32_MAX)
+        {
+            rc = rtFsFatClusterMap_ReadClusterChain(pThis, idxCluster, &pShared->Core.Clusters);
+            if (RT_SUCCESS(rc))
+            {
+                if (   pShared->Core.Clusters.cClusters >= 1
+                    && pShared->Core.Clusters.cbChain   <= _64K
+                    && rtFsFatChain_IsContiguous(&pShared->Core.Clusters))
+                {
+                    Assert(pShared->Core.Clusters.cbChain >= cbDir);
+                    pShared->cbAllocatedForEntries = pShared->Core.Clusters.cbChain;
+                    pShared->fFullyBuffered = true;
+                }
+
+                /* DOS doesn't set a size on directores, so use the cluster length instead. */
+                if (   cbDir == 0
+                    && pShared->Core.Clusters.cbChain > 0)
+                {
+                    cbDir = pShared->Core.Clusters.cbChain;
+                    pShared->Core.cbObject = cbDir;
+                    pShared->cEntries      = cbDir / sizeof(FATDIRENTRY);
+                    if (pShared->fFullyBuffered)
+                        pShared->cbAllocatedForEntries = RT_ALIGN_32(cbDir, pThis->cbSector);
+                }
+            }
+        }
+        else
+        {
+            rtFsFatChain_InitEmpty(&pShared->Core.Clusters, pThis);
+            rc = VINF_SUCCESS;
+        }
+        if (RT_SUCCESS(rc))
+        {
+            /*
+             * Allocate and initialize the buffering.  Fill the buffer.
+             */
+            pShared->paEntries = (PFATDIRENTRYUNION)RTMemAlloc(pShared->cbAllocatedForEntries);
+            if (!pShared->paEntries)
+            {
+                if (pShared->fFullyBuffered && !pShared->fIsLinearRootDir)
+                {
+                    pShared->fFullyBuffered = false;
+                    pShared->cbAllocatedForEntries = pThis->cbSector;
+                    pShared->paEntries = (PFATDIRENTRYUNION)RTMemAlloc(pShared->cbAllocatedForEntries);
+                }
+                if (!pShared->paEntries)
+                    rc = VERR_NO_MEMORY;
+            }
+
+            if (RT_SUCCESS(rc))
+            {
+                if (pShared->fFullyBuffered)
+                {
+                    pShared->u.Full.cDirtySectors   = 0;
+                    pShared->u.Full.cSectors        = pShared->cbAllocatedForEntries / pThis->cbSector;
+                    pShared->u.Full.pbDirtySectors  = (uint8_t *)RTMemAllocZ((pShared->u.Full.cSectors + 63) / 8);
+                    if (pShared->u.Full.pbDirtySectors)
+                        pShared->offEntriesOnDisk   = offDisk != UINT64_MAX ? offDisk
+                                                    : rtFsFatClusterToDiskOffset(pThis, idxCluster);
+                    else
+                        rc = VERR_NO_MEMORY;
+                }
+                else
+                {
+                    pShared->offEntriesOnDisk       = rtFsFatClusterToDiskOffset(pThis, idxCluster);
+                    pShared->u.Simple.offInDir      = 0;
+                    pShared->u.Simple.fDirty        = false;
+                }
+                if (RT_SUCCESS(rc))
+                    rc = RTVfsFileReadAt(pThis->hVfsBacking, pShared->offEntriesOnDisk,
+                                         pShared->paEntries, pShared->cbAllocatedForEntries, NULL);
+                if (RT_SUCCESS(rc))
+                {
+                    /*
+                     * Link into parent directory so we can use it to update
+                     * our directory entry.
+                     */
+                    if (pParentDir)
+                        rtFsFatDirShrd_AddOpenChild(pParentDir, &pShared->Core);
+                    *ppSharedDir = pShared;
+                    return VINF_SUCCESS;
+                }
+            }
+
+            /* Free the buffer on failure so rtFsFatDir_Close doesn't try do anything with it. */
+            RTMemFree(pShared->paEntries);
+            pShared->paEntries = NULL;
+        }
+
+        Assert(pShared->Core.cRefs == 1);
+        rtFsFatDirShrd_Release(pShared);
+    }
+    return rc;
+}
+
+
+/**
+ * Instantiates a new directory with a shared structure presupplied.
+ *
+ * @returns IPRT status code.
+ * @param   pThis           The FAT volume instance.
+ * @param   pShared         Referenced pointer to the shared structure.  The
+ *                          reference is always CONSUMED.
+ * @param   phVfsDir        Where to return the directory handle.
+ */
+static int rtFsFatDir_NewWithShared(PRTFSFATVOL pThis, PRTFSFATDIRSHRD pShared, PRTVFSDIR phVfsDir)
+{
+    /*
+     * Create VFS object around the shared structure.
+     */
+    PRTFSFATDIR pNewDir;
+    int rc = RTVfsNewDir(&g_rtFsFatDirOps, sizeof(*pNewDir), 0 /*fFlags*/, pThis->hVfsSelf,
+                         NIL_RTVFSLOCK /*use volume lock*/, phVfsDir, (void **)&pNewDir);
+    if (RT_SUCCESS(rc))
+    {
+        /*
+         * Look for existing shared object, create a new one if necessary.
+         * We CONSUME a reference to pShared here.
+         */
+        pNewDir->offDir  = 0;
+        pNewDir->pShared = pShared;
+        return VINF_SUCCESS;
+    }
+
+    rtFsFatDirShrd_Release(pShared);
+    *phVfsDir = NIL_RTVFSDIR;
+    return rc;
+}
+
+
+
+/**
+ * Instantiates a new directory VFS, creating the shared structure as necessary.
  *
  * @returns IPRT status code.
  * @param   pThis           The FAT volume instance.
@@ -3689,126 +4897,24 @@ static void rtFsFatDir_RemoveOpenChild(PRTFSFATDIR pDir, PRTFSFATOBJ pChild)
  *                          This is UINT64_MAX if idxCluster is given.
  * @param   cbDir           The size of the directory.
  * @param   phVfsDir        Where to return the directory handle.
- * @param   ppDir           Where to return the FAT directory instance data.
  */
-static int rtFsFatDir_New(PRTFSFATVOL pThis, PRTFSFATDIR pParentDir, PCFATDIRENTRY pDirEntry, uint32_t offEntryInDir,
-                          uint32_t idxCluster, uint64_t offDisk, uint32_t cbDir, PRTVFSDIR phVfsDir, PRTFSFATDIR *ppDir)
+static int  rtFsFatDir_New(PRTFSFATVOL pThis, PRTFSFATDIRSHRD pParentDir, PCFATDIRENTRY pDirEntry, uint32_t offEntryInDir,
+                           uint32_t idxCluster, uint64_t offDisk, uint32_t cbDir, PRTVFSDIR phVfsDir)
 {
-    Assert((idxCluster == UINT32_MAX) != (offDisk == UINT64_MAX));
-    Assert((pDirEntry == NULL) == (offEntryInDir == UINT32_MAX));
-    if (ppDir)
-        *ppDir = NULL;
-
-    PRTFSFATDIR pNewDir;
-    int rc = RTVfsNewDir(&g_rtFsFatDirOps, sizeof(*pNewDir), pParentDir ? 0 : RTVFSDIR_F_NO_VFS_REF,
-                         pThis->hVfsSelf, NIL_RTVFSLOCK /*use volume lock*/, phVfsDir, (void **)&pNewDir);
-    if (RT_SUCCESS(rc))
+    /*
+     * Look for existing shared object, create a new one if necessary.
+     */
+    PRTFSFATDIRSHRD pShared = (PRTFSFATDIRSHRD)rtFsFatDirShrd_LookupShared(pParentDir, offEntryInDir);
+    if (!pShared)
     {
-        /*
-         * Initialize it all so rtFsFatDir_Close doesn't trip up in anyway.
-         */
-        RTListInit(&pNewDir->OpenChildren);
-        if (pDirEntry)
-            rtFsFatObj_InitFromDirEntry(&pNewDir->Core, pDirEntry, offEntryInDir, pThis);
-        else
-            rtFsFatObj_InitDummy(&pNewDir->Core, cbDir, RTFS_TYPE_DIRECTORY | RTFS_DOS_DIRECTORY | RTFS_UNIX_ALL_PERMS, pThis);
-
-        pNewDir->hVfsSelf           = *phVfsDir;
-        pNewDir->cEntries           = cbDir / sizeof(FATDIRENTRY);
-        pNewDir->fIsLinearRootDir   = idxCluster == UINT32_MAX;
-        pNewDir->fFullyBuffered     = pNewDir->fIsLinearRootDir;
-        pNewDir->paEntries          = NULL;
-        pNewDir->offEntriesOnDisk   = UINT64_MAX;
-        if (pNewDir->fFullyBuffered)
-            pNewDir->cbAllocatedForEntries = RT_ALIGN_32(cbDir, pThis->cbSector);
-        else
-            pNewDir->cbAllocatedForEntries = pThis->cbSector;
-
-        /*
-         * If clustered backing, read the chain and see if we cannot still do the full buffering.
-         */
-        if (idxCluster != UINT32_MAX)
+        int rc = rtFsFatDirShrd_New(pThis, pParentDir, pDirEntry, offEntryInDir, idxCluster, offDisk, cbDir, &pShared);
+        if (RT_FAILURE(rc))
         {
-            rc = rtFsFatClusterMap_ReadClusterChain(pThis, idxCluster, &pNewDir->Core.Clusters);
-            if (RT_SUCCESS(rc))
-            {
-                if (   pNewDir->Core.Clusters.cClusters >= 1
-                    && pNewDir->Core.Clusters.cbChain   <= _64K
-                    && rtFsFatChain_IsContiguous(&pNewDir->Core.Clusters))
-                {
-                    Assert(pNewDir->Core.Clusters.cbChain >= cbDir);
-                    pNewDir->cbAllocatedForEntries = pNewDir->Core.Clusters.cbChain;
-                    pNewDir->fFullyBuffered = true;
-                }
-            }
+            *phVfsDir = NIL_RTVFSDIR;
+            return rc;
         }
-        else
-            rtFsFatChain_InitEmpty(&pNewDir->Core.Clusters, pThis);
-        if (RT_SUCCESS(rc))
-        {
-            /*
-             * Allocate and initialize the buffering.  Fill the buffer.
-             */
-            pNewDir->paEntries = (PFATDIRENTRYUNION)RTMemAlloc(pNewDir->cbAllocatedForEntries);
-            if (!pNewDir->paEntries)
-            {
-                if (pNewDir->fFullyBuffered && !pNewDir->fIsLinearRootDir)
-                {
-                    pNewDir->fFullyBuffered = false;
-                    pNewDir->cbAllocatedForEntries = pThis->cbSector;
-                    pNewDir->paEntries = (PFATDIRENTRYUNION)RTMemAlloc(pNewDir->cbAllocatedForEntries);
-                }
-                if (!pNewDir->paEntries)
-                    rc = VERR_NO_MEMORY;
-            }
-
-            if (RT_SUCCESS(rc))
-            {
-                if (pNewDir->fFullyBuffered)
-                {
-                    pNewDir->u.Full.cDirtySectors   = 0;
-                    pNewDir->u.Full.cSectors        = pNewDir->cbAllocatedForEntries / pThis->cbSector;
-                    pNewDir->u.Full.pbDirtySectors  = (uint8_t *)RTMemAllocZ((pNewDir->u.Full.cSectors + 63) / 8);
-                    if (pNewDir->u.Full.pbDirtySectors)
-                        pNewDir->offEntriesOnDisk   = offDisk != UINT64_MAX ? offDisk
-                                                    : rtFsFatClusterToDiskOffset(pThis, idxCluster);
-                    else
-                        rc = VERR_NO_MEMORY;
-                }
-                else
-                {
-                    pNewDir->offEntriesOnDisk       = rtFsFatClusterToDiskOffset(pThis, idxCluster);
-                    pNewDir->u.Simple.offInDir      = 0;
-                    pNewDir->u.Simple.fDirty        = false;
-                }
-                if (RT_SUCCESS(rc))
-                    rc = RTVfsFileReadAt(pThis->hVfsBacking, pNewDir->offEntriesOnDisk,
-                                         pNewDir->paEntries, pNewDir->cbAllocatedForEntries, NULL);
-                if (RT_SUCCESS(rc))
-                {
-                    /*
-                     * Link into parent directory so we can use it to update
-                     * our directory entry.
-                     */
-                    if (pParentDir)
-                        rtFsFatDir_AddOpenChild(pParentDir, &pNewDir->Core);
-                    if (ppDir)
-                        *ppDir = pNewDir;
-                    return VINF_SUCCESS;
-                }
-            }
-
-            /* Free the buffer on failure so rtFsFatDir_Close doesn't try do anything with it. */
-            RTMemFree(pNewDir->paEntries);
-            pNewDir->paEntries = NULL;
-        }
-
-        RTVfsDirRelease(*phVfsDir);
     }
-    *phVfsDir = NIL_RTVFSDIR;
-    if (ppDir)
-        *ppDir = NULL;
-    return rc;
+    return rtFsFatDir_NewWithShared(pThis, pShared, phVfsDir);
 }
 
 
@@ -3822,16 +4928,19 @@ static DECLCALLBACK(int) rtFsFatVol_Close(void *pvThis)
 {
     PRTFSFATVOL pThis = (PRTFSFATVOL)pvThis;
     LogFlow(("rtFsFatVol_Close(%p)\n", pThis));
-    int rc = rtFsFatClusterMap_Destroy(pThis);
 
-    if (pThis->hVfsRootDir != NIL_RTVFSDIR)
+    int rc = VINF_SUCCESS;
+    if (pThis->pRootDir != NULL)
     {
         Assert(RTListIsEmpty(&pThis->pRootDir->OpenChildren));
-        uint32_t cRefs = RTVfsDirRelease(pThis->hVfsRootDir);
-        Assert(cRefs == 0); NOREF(cRefs);
-        pThis->hVfsRootDir = NIL_RTVFSDIR;
-        pThis->pRootDir    = NULL;
+        Assert(pThis->pRootDir->Core.cRefs == 1);
+        rc = rtFsFatDirShrd_Release(pThis->pRootDir);
+        pThis->pRootDir = NULL;
     }
+
+    int rc2 = rtFsFatClusterMap_Destroy(pThis);
+    if (RT_SUCCESS(rc))
+        rc = rc2;
 
     RTVfsFileRelease(pThis->hVfsBacking);
     pThis->hVfsBacking = NIL_RTVFSFILE;
@@ -3851,18 +4960,14 @@ static DECLCALLBACK(int) rtFsFatVol_QueryInfo(void *pvThis, PRTFSOBJINFO pObjInf
 
 
 /**
- * @interface_method_impl{RTVFSOPS,pfnOpenRoo}
+ * @interface_method_impl{RTVFSOPS,pfnOpenRoot}
  */
 static DECLCALLBACK(int) rtFsFatVol_OpenRoot(void *pvThis, PRTVFSDIR phVfsDir)
 {
     PRTFSFATVOL pThis = (PRTFSFATVOL)pvThis;
-    uint32_t cRefs = RTVfsDirRetain(pThis->hVfsRootDir);
-    if (cRefs != UINT32_MAX)
-    {
-        *phVfsDir = pThis->hVfsRootDir;
-        return VINF_SUCCESS;
-    }
-    return VERR_INTERNAL_ERROR_5;
+
+    rtFsFatDirShrd_Retain(pThis->pRootDir); /* consumed by the next call */
+    return rtFsFatDir_NewWithShared(pThis, pThis->pRootDir, phVfsDir);
 }
 
 
@@ -4387,6 +5492,7 @@ static int rtFsFatVolTryInitDos2Plus(PRTFSFATVOL pThis, PCFATBOOTSECTOR pBootSec
     if (pbFatSector[0] != pThis->bMedia)
         return RTErrInfoSetF(pErrInfo, VERR_VFS_BOGUS_FORMAT,
                              "Media byte and FAT ID mismatch: %#x vs %#x (%.7Rhxs)", pbFatSector[0], pThis->bMedia, pbFatSector);
+    uint32_t idxOurEndOfChain;
     switch (pThis->enmFatType)
     {
         case RTFSFATTYPE_FAT12:
@@ -4394,6 +5500,7 @@ static int rtFsFatVolTryInitDos2Plus(PRTFSFATVOL pThis, PCFATBOOTSECTOR pBootSec
                 return RTErrInfoSetF(pErrInfo, VERR_VFS_BOGUS_FORMAT, "Bogus FAT ID patting (FAT12): %.3Rhxs", pbFatSector);
             pThis->idxMaxLastCluster = FAT_LAST_FAT12_DATA_CLUSTER;
             pThis->idxEndOfChain     = (pbFatSector[1] >> 4) | ((uint32_t)pbFatSector[2] << 4);
+            idxOurEndOfChain         = FAT_FIRST_FAT12_EOC | 0xf;
             break;
 
         case RTFSFATTYPE_FAT16:
@@ -4401,6 +5508,7 @@ static int rtFsFatVolTryInitDos2Plus(PRTFSFATVOL pThis, PCFATBOOTSECTOR pBootSec
                 return RTErrInfoSetF(pErrInfo, VERR_VFS_BOGUS_FORMAT, "Bogus FAT ID patting (FAT16): %.4Rhxs", pbFatSector);
             pThis->idxMaxLastCluster = FAT_LAST_FAT16_DATA_CLUSTER;
             pThis->idxEndOfChain     = RT_MAKE_U16(pbFatSector[2], pbFatSector[3]);
+            idxOurEndOfChain         = FAT_FIRST_FAT16_EOC | 0xf;
             break;
 
         case RTFSFATTYPE_FAT32:
@@ -4410,13 +5518,17 @@ static int rtFsFatVolTryInitDos2Plus(PRTFSFATVOL pThis, PCFATBOOTSECTOR pBootSec
                 return RTErrInfoSetF(pErrInfo, VERR_VFS_BOGUS_FORMAT, "Bogus FAT ID patting (FAT32): %.8Rhxs", pbFatSector);
             pThis->idxMaxLastCluster = FAT_LAST_FAT32_DATA_CLUSTER;
             pThis->idxEndOfChain     = RT_MAKE_U32_FROM_U8(pbFatSector[4], pbFatSector[5], pbFatSector[6], pbFatSector[7]);
+            idxOurEndOfChain         = FAT_FIRST_FAT32_EOC | 0xf;
             break;
 
         default: AssertFailedReturn(VERR_INTERNAL_ERROR_2);
     }
+
     if (pThis->idxEndOfChain <= pThis->idxMaxLastCluster)
-        return RTErrInfoSetF(pErrInfo, VERR_VFS_BOGUS_FORMAT, "Bogus formatter end-of-chain value: %#x, must be above %#x",
-                             pThis->idxEndOfChain, pThis->idxMaxLastCluster);
+    {
+        Log(("rtFsFatVolTryInitDos2Plus: Bogus idxEndOfChain=%#x, using %#x instead\n", pThis->idxEndOfChain, idxOurEndOfChain));
+        pThis->idxEndOfChain = idxOurEndOfChain;
+    }
 
     RT_NOREF(pbFatSector);
     return VINF_SUCCESS;
@@ -4484,7 +5596,6 @@ static int rtFsFatVolTryInit(PRTFSFATVOL pThis, RTVFS hVfsSelf, RTVFSFILE hVfsBa
     pThis->idxRootDirCluster    = UINT32_MAX;
     pThis->cRootDirEntries      = UINT32_MAX;
     pThis->cbRootDir            = 0;
-    pThis->hVfsRootDir          = NIL_RTVFSDIR;
     pThis->pRootDir             = NULL;
 
     pThis->uSerialNo            = 0;
@@ -4532,7 +5643,7 @@ static int rtFsFatVolTryInit(PRTFSFATVOL pThis, RTVFS hVfsSelf, RTVFSFILE hVfsBa
     if (Buf.BootSector.uSignature != FATBOOTSECTOR_SIGNATURE)
     {
         if (Buf.BootSector.uSignature != 0)
-            return RTErrInfoSetF(pErrInfo, rc, "No DOS bootsector signature: %#06x", Buf.BootSector.uSignature);
+            return RTErrInfoSetF(pErrInfo, VERR_VFS_UNKNOWN_FORMAT, "No DOS bootsector signature: %#06x", Buf.BootSector.uSignature);
         rc = rtFsFatVolTryInitDos1x(pThis, &Buf.BootSector, &Buf.ab[512], pErrInfo);
     }
     else
@@ -4557,13 +5668,11 @@ static int rtFsFatVolTryInit(PRTFSFATVOL pThis, RTVFS hVfsSelf, RTVFSFILE hVfsBa
      * Create the root directory fun.
      */
     if (pThis->idxRootDirCluster == UINT32_MAX)
-        rc = rtFsFatDir_New(pThis, NULL /*pParentDir*/, NULL /*pDirEntry*/, UINT32_MAX /*offEntryInDir*/,
-                            UINT32_MAX, pThis->offRootDir, pThis->cbRootDir,
-                            &pThis->hVfsRootDir, &pThis->pRootDir);
+        rc = rtFsFatDirShrd_New(pThis, NULL /*pParentDir*/, NULL /*pDirEntry*/, UINT32_MAX /*offEntryInDir*/,
+                                UINT32_MAX, pThis->offRootDir, pThis->cbRootDir, &pThis->pRootDir);
     else
-        rc = rtFsFatDir_New(pThis, NULL /*pParentDir*/, NULL /*pDirEntry*/, UINT32_MAX /*offEntryInDir*/,
-                            pThis->idxRootDirCluster, UINT64_MAX, pThis->cbRootDir,
-                            &pThis->hVfsRootDir, &pThis->pRootDir);
+        rc = rtFsFatDirShrd_New(pThis, NULL /*pParentDir*/, NULL /*pDirEntry*/, UINT32_MAX /*offEntryInDir*/,
+                                pThis->idxRootDirCluster, UINT64_MAX, pThis->cbRootDir, &pThis->pRootDir);
     return rc;
 }
 

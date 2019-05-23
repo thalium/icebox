@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2013-2016 Oracle Corporation
+ * Copyright (C) 2013-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -601,17 +601,18 @@ static int vgsvcGstCtrlSessionHandlePathRename(PVBOXSERVICECTRLSESSION pSession,
 
         if (RT_SUCCESS(rc))
         {
-/** @todo r=bird: shouldn't you use a different variable here for the IPRT flags??? */
+            unsigned fPathRenameFlags = 0;
+
             if (fFlags & PATHRENAME_FLAG_NO_REPLACE)
-                fFlags |= RTPATHRENAME_FLAGS_NO_REPLACE;
+                fPathRenameFlags |= RTPATHRENAME_FLAGS_NO_REPLACE;
 
             if (fFlags & PATHRENAME_FLAG_REPLACE)
-                fFlags |= RTPATHRENAME_FLAGS_REPLACE;
+                fPathRenameFlags |= RTPATHRENAME_FLAGS_REPLACE;
 
             if (fFlags & PATHRENAME_FLAG_NO_SYMLINKS)
-                fFlags |= RTPATHRENAME_FLAGS_NO_SYMLINKS;
+                fPathRenameFlags |= RTPATHRENAME_FLAGS_NO_SYMLINKS;
 
-            rc = RTPathRename(szSource, szDest, fFlags);
+            rc = RTPathRename(szSource, szDest, fPathRenameFlags);
         }
 
         /* Report back in any case. */

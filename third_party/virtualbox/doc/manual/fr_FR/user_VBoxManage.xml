@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter id="vboxmanage">
   <title>VBoxManage</title>
 
@@ -10,7 +10,7 @@
     <para>Comme brièvement indiqué au <xref linkend="frontends" />, VBoxManage
     est l'interface en ligne de commande de VirtualBox. Avec elle, vous pouvez
     contrôler complètement VirtualBox depuis la ligne de commandes
-    de votre système d'exploitation hôte. 
+    de votre système d'exploitation hôte.
     VBoxManage supporte toutes les fonctionnalités auxquelles vous donne accès
     l'interface graphique, mais il supporte bien plus que ça. Il ouvre vraiment
     toutes les fonctions du moteur de virtualisation, même celles auxquelles on
@@ -31,7 +31,7 @@
       </itemizedlist></para>
 
     <para>Il faut avoir en tête deux choses en utilisant
-    <computeroutput>VBoxManage</computeroutput>&#xA0;: D'abord, 
+    <computeroutput>VBoxManage</computeroutput>&#xA0;: D'abord,
     <computeroutput>VBoxManage</computeroutput> doit toujours être utilisé
     avec des "sous-commandes" spécifiques telles que "list" ou "createvm" ou
     "startvm". Toutes les sous-commandes supportées par
@@ -44,7 +44,7 @@
 
     <itemizedlist>
       <listitem>
-        <para>Vous pouvez spécifier le nom de la VM comme il s'affiche dans 
+        <para>Vous pouvez spécifier le nom de la VM comme il s'affiche dans
         l'interface graphique de VirtualBox. Remarquez que si ce nom contient des
         espaces, vous devez l'entourer de guillemets (comme cela est toujours
         le cas avec les arguments d'une ligne de commande contenant des espaces).</para>
@@ -86,7 +86,7 @@ Virtual machine 'SUSE 10.2' is created.
 UUID: c89fc351-8ec6-4f02-a048-57f4d25288e5
 Settings file: '/home/nomutilisateur/.config/VirtualBox/Machines/SUSE 10.2/SUSE 10.2.xml'</screen>
 
-        <para>Comme vous pouvez le voir dans la sortie ci-dessus, une nouvelle 
+        <para>Comme vous pouvez le voir dans la sortie ci-dessus, une nouvelle
         machine virtuelle a été créée avec le nouvel UUID et un nouveau fichier
         XML de paramètres.</para>
       </listitem>
@@ -139,7 +139,7 @@ Settings file: '/home/nomutilisateur/.config/VirtualBox/Machines/SUSE 10.2/SUSE 
 
     <para>Quand vous lancez VBoxManage sans paramètres ou si vous entrez une ligne de
     commande invalide, le diagramme de syntaxe ci-dessous s'affichera. Remarquez
-    que la sortie sera légèrement différente selon la plateforme hôte&#xA0;; 
+    que la sortie sera légèrement différente selon la plateforme hôte&#xA0;;
     en cas de doute, vérifiez la sortie de <computeroutput>VBoxManage</computeroutput>
     pour voir les commandes disponibles sur votre hôte en particulier.</para>
 
@@ -157,7 +157,7 @@ Settings file: '/home/nomutilisateur/.config/VirtualBox/Machines/SUSE 10.2/SUSE 
     <para>
       <itemizedlist>
         <listitem>
-          <para><computeroutput>--version</computeroutput>&#xA0;: affiche la 
+          <para><computeroutput>--version</computeroutput>&#xA0;: affiche la
           version de cet outil et quitte.</para>
         </listitem>
         <listitem>
@@ -175,13 +175,13 @@ Settings file: '/home/nomutilisateur/.config/VirtualBox/Machines/SUSE 10.2/SUSE 
       </itemizedlist>
       Le mot de passe des paramètres est utilisé pour certains paramètres ayant
       besoin d'être stockés et chiffrés pour des raisons de sécurité. Pour le moment,
-      le seul paramètre chiffré est l'initiateur secret iSCSI (voir 
+      le seul paramètre chiffré est l'initiateur secret iSCSI (voir
       <xref linkend="vboxmanage-storageattach" /> pour les détails). Tant
       qu'aucun mot de passe des paramètres n'a été spécifié, ces informations
       sont stockées en <emphasis role="bold">texte brut</emphasis>. Après avoir
       utilisé l'option <computeroutput>--settingspw|--settingspwfile</computeroutput>
       une fois, il faut toujours l'utiliser, sans quoi le paramètre chiffré ne peut pas
-      être chiffré. 
+      être chiffré.
     </para>
   </sect1>
 
@@ -222,7 +222,7 @@ Settings file: '/home/nomutilisateur/.config/VirtualBox/Machines/SUSE 10.2/SUSE 
           <para><computeroutput>hostdvds</computeroutput>,
           <computeroutput>hostfloppies</computeroutput>, listent respectivement
           les lecteurs DVD, amovibles, les interfaces réseaux bridgées et
-          host-only sur l'hôte, ainsi que le nom utilisé pour y accéder depuis 
+          host-only sur l'hôte, ainsi que le nom utilisé pour y accéder depuis
           VirtualBox.</para>
         </listitem>
 
@@ -258,8 +258,8 @@ Settings file: '/home/nomutilisateur/.config/VirtualBox/Machines/SUSE 10.2/SUSE 
           <para><computeroutput>hdds</computeroutput>,
           <computeroutput>dvds</computeroutput> et
           <computeroutput>floppies</computeroutput> vous donnent des informations
-          sur les images de disque virtuel actuellement utilisées par VirtualBox, 
-          y compris leurs paramètres, leurs identifiants uniques (UUIDs) 
+          sur les images de disque virtuel actuellement utilisées par VirtualBox,
+          y compris leurs paramètres, leurs identifiants uniques (UUIDs)
           associés par VirtualBox et tous leurs fichiers associés. C'est l'équivalent
           ligne de commandes du gestionnaire de médias virtuels&#xA0;; voir <xref
           linkend="vdis" />.</para>
@@ -267,7 +267,7 @@ Settings file: '/home/nomutilisateur/.config/VirtualBox/Machines/SUSE 10.2/SUSE 
 
         <listitem>
           <para><computeroutput>usbhost</computeroutput> donne des informations
-          sur les périphériques USB attachés à l'hôte, en particulier des 
+          sur les périphériques USB attachés à l'hôte, en particulier des
           informations utiles pour construire des filtres USB et s'ils sont actuellement
           utilisés par l'hôte.</para>
         </listitem>
@@ -281,7 +281,7 @@ Settings file: '/home/nomutilisateur/.config/VirtualBox/Machines/SUSE 10.2/SUSE 
 
         <listitem>
           <para><computeroutput>systemproperties</computeroutput> affiche des
-          paramètres globaux de VirtualBox, tels que la RAM minimum et maximum 
+          paramètres globaux de VirtualBox, tels que la RAM minimum et maximum
           de l'invité et la taille du disque dur virtuel, les paramètres du
           dossier et la bibliothèque d'authentification actuellement utilisée.</para>
         </listitem>
@@ -378,7 +378,7 @@ Statistics update:  disabled</screen></para>
     enregistrée dans VirtualBox et elle ne peut pas avoir de disques durs ou
     amovibles attachés. Il est recommandé de mettre le fichier de définition
     dans le répertoire des machines avant de l'enregistrer.<note>
-        <para>Lors de la création d'une nouvelle machine virtuelle avec 
+        <para>Lors de la création d'une nouvelle machine virtuelle avec
         <computeroutput>VBoxManage createvm</computeroutput> (voir ci-dessous),
         vous pouvez spécifier directement l'option
         <computeroutput>--register</computeroutput> pour éviter de devoir
@@ -419,7 +419,7 @@ Statistics update:  disabled</screen></para>
   <sect1 id="vboxmanage-createvm">
     <title>VBoxManage createvm</title>
 
-    <para>Cette commande crée un nouveau fichier de définition de machine virtuelle 
+    <para>Cette commande crée un nouveau fichier de définition de machine virtuelle
     XML.</para>
 
     <para>Le paramètre <computeroutput>--name &lt;name&gt;</computeroutput> est
@@ -499,7 +499,7 @@ Statistics update:  disabled</screen></para>
           <listitem>
             <para><computeroutput>--acpi on|off</computeroutput>&#xA0;;
             <computeroutput>--ioapic on|off</computeroutput>&#xA0;: Ces deux éléments
-            déterminent si la VM devrait supporter respectivement l'ACPI et 
+            déterminent si la VM devrait supporter respectivement l'ACPI et
             l'APIC I/O&#xA0;; voir <xref linkend="settings-motherboard" /> pour
             des détails.</para>
           </listitem>
@@ -517,7 +517,7 @@ Statistics update:  disabled</screen></para>
             Ceci définit le nombre de processeurs virtuels de la machine virtuelle
             (voir <xref linkend="settings-processor" />). Si le branchement
             à chaud des processaurs est activé (voir ci-dessous), ceci définit
-            le nombre <emphasis>maximum</emphasis> de processeurs virtuels 
+            le nombre <emphasis>maximum</emphasis> de processeurs virtuels
             qu'on peut brancher dans les machines virtuelles.</para>
           </listitem>
 
@@ -582,7 +582,7 @@ Statistics update:  disabled</screen></para>
 
           <listitem>
             <para><computeroutput>--hwvirtex on|off</computeroutput>&#xA0;: Ceci
-            active ou désactive l'utilisation des extensions du matériel de 
+            active ou désactive l'utilisation des extensions du matériel de
             virtualisation (Intel VT-x ou AMD-V) dans le processeur de votre système
             hôte&#xA0;; voir <xref linkend="hwvirt" />.</para>
           </listitem>
@@ -615,7 +615,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
             <para><computeroutput>--vtxvpid on|off</computeroutput>&#xA0;: Si
             la virtualisation matérielle est activée, pour Intel VT-x seulement,
             ce paramètre supplémentaire active ou désactive l'utilisation de la
-            fonction TLB taggçe (VPID) du processeur de votre système hôte&#xA0;; 
+            fonction TLB taggçe (VPID) du processeur de votre système hôte&#xA0;;
             voir <xref linkend="hwvirt" />.</para>
           </listitem>
 
@@ -626,7 +626,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
             sans restriction pour faire tourner votre invité.</para>
           </listitem>
           <listitem>
-            <para><computeroutput>--accelerate3d on|off</computeroutput>&#xA0;: 
+            <para><computeroutput>--accelerate3d on|off</computeroutput>&#xA0;:
             Ceci active, si vous avez installé les suppléments invité, la disponibilité
             de l'accélération 3D&#xA0;; voir <xref
             linkend="guestadd-3d" />.</para>
@@ -700,7 +700,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
 
           <listitem>
             <para><computeroutput>--guestmemoryballoon
-            &lt;taille&gt;</computeroutput> définit la taille par défaut de la 
+            &lt;taille&gt;</computeroutput> définit la taille par défaut de la
             mémoire du ballon de l'invité c'est-à-dire la mémoire affectée
             par les suppléments invité de VirtualBox à partir du système d'exploitation
             invité et rendue à l'hyperviseur pour être réutilisée par d'autres
@@ -716,7 +716,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
             <computeroutput>--lpt</computeroutput>. Cette fonction est spécifique
             au système d'exploitation.</para>
             </listitem>
-            
+
             <listitem>
               <para><computeroutput>--lpt&lt;1-N&gt;
               &lt;base E/S&gt; &lt;IRQ&gt;</computeroutput> Spécifie l'adresse
@@ -732,7 +732,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
             <para><computeroutput>--defaultfrontend
             default|&lt;nom&gt;</computeroutput>&#xA0;: Ceci vous permet de
             spécifier l'interface par défaut qui sera utilisée au démarrage de
-            cette VM&#xA0; voir 
+            cette VM&#xA0; voir
             <xref linkend="vboxmanage-startvm" /> pour des détails.</para>
           </listitem>
         </itemizedlist></para>
@@ -767,7 +767,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
           <listitem>
             <para><computeroutput>--nictype&lt;1-N&gt;
             Am79C970A|Am79C973|82540EM|82543GC|82545EM|virtio</computeroutput>&#xA0;:
-            Cela vous permet, pour chacune des cartes réseaux virtuelles de la VM, de 
+            Cela vous permet, pour chacune des cartes réseaux virtuelles de la VM, de
             spécifier le matériel réseau que VirtualBox présente à l'invité&#xA0;;
             voir <xref linkend="nichardware" />.</para>
           </listitem>
@@ -817,7 +817,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
           <listitem>
             <para><computeroutput>--intnet&lt;1-N&gt;
             network</computeroutput>&#xA0;: Si le réseau interne a été activé
-            pour une carte réseau virtuelle (voir l'option 
+            pour une carte réseau virtuelle (voir l'option
             <computeroutput>--nic</computeroutput> ci-dessus&#xA0;; sinon ce
             paramètre n'a aucun effet), utilisez cette option pour spécifier le
             nom du réseau interne (voir <xref
@@ -837,7 +837,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
             &lt;pilote fondation&gt;</computeroutput>&#xA0;: Si le réseau
             générique a été activé pour une carte réseau virtuelle (voir l'option
             <computeroutput>--nic</computeroutput> ci-dessus&#xA0;; sinon ce paramètre
-            n'a aucun effet), ce mode vous permet d'accéder à des sous-modes 
+            n'a aucun effet), ce mode vous permet d'accéder à des sous-modes
             réseaux rarement utilisés, tels que le réseau VDE ou le tunnel UDP.
             </para>
           </listitem>
@@ -847,7 +847,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
             &lt;nomparam&gt;="paramvaleur"</computeroutput>&#xA0;:
             Cette option, associée avec "nicgenericdrv", vous permet de
             passer des paramètres aux backends (fondations) réseaux rarement utilisées.</para><para>
-            Ces paramètres sont des fondations spécifiques au moteur et sont 
+            Ces paramètres sont des fondations spécifiques au moteur et sont
             différents entre les pilotes du tunnel UDP et ceux de la fondation
             VDE. Par exemple,merci de voir <xref linkend="network_udp_tunnel" />.
             </para>
@@ -887,7 +887,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
 
             <listitem>
               <para><computeroutput>--nattftpfile&lt;1-N&gt;
-              &lt;fichierdémarrage&gt;</computeroutput>&#xA0;: Cette option 
+              &lt;fichierdémarrage&gt;</computeroutput>&#xA0;: Cette option
               définit le fichier de démarrage TFT (merci de voir <xref linkend="nat-adv-tftp" />
               pour des détails).</para>
             </listitem>
@@ -931,7 +931,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
             <listitem>
               <para><computeroutput>--nataliasmode&lt;1-N&gt;
               default|[log],[proxyonly],[sameports]</computeroutput>&#xA0;: Cette
-              option définit le comportement du c&#x153;ur du moteur NAT&#xA0;: 
+              option définit le comportement du c&#x153;ur du moteur NAT&#xA0;:
               log - active la journalisation, proxyonly - switch les modes d'alias
               pour rendre NAT transparent, sameports renforce le moteur NAT pour
               envoyer des paquets via le même port qu'ils arrivent, default -
@@ -960,7 +960,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
             <para><computeroutput>--uartmode&lt;1-N&gt;
             &lt;arg&gt;</computeroutput>&#xA0;: Ce paramètre contrôle la façon
             dont VirtualBox se connecte à un port série virtuel donné (on la
-            configurait jadis avec l'option 
+            configurait jadis avec l'option
             <computeroutput>--uartX</computeroutput>, voir ci-dessus) sur l'hôte
             sur lequel fonctionne la machine virtuelle. Comme décrit en détail
             au <xref linkend="serialports" />, pour chaque port, vous pouvez
@@ -968,14 +968,14 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
             options suivantes&#xA0;:<itemizedlist>
                 <listitem>
                   <para><computeroutput>disconnected</computeroutput>&#xA0;: Même
-                  si le port série apparaît dans l'invité, il ne sert à rien -- 
+                  si le port série apparaît dans l'invité, il ne sert à rien --
                   comme un vrai port COM sans câble.</para>
                 </listitem>
 
                 <listitem>
                   <para><computeroutput>server
                   &lt;pipename&gt;</computeroutput>&#xA0;: Sur un hôte Windows,
-                  ceci dit à VirtualBox de créer un tuyau nommé sur l'hôte, 
+                  ceci dit à VirtualBox de créer un tuyau nommé sur l'hôte,
                   appelé <computeroutput>&lt;pipename&gt;</computeroutput> et de
                   connecter le port série virtuel dessus. Remarquez que Windows
                   exige que le nom d'un tuyau nommé commence par
@@ -998,9 +998,9 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
                   Si, au lieu de celui ci-dessus, le nom du périphérique du port
                   série matériel de l'hôte est spécifié, le port série virtuel est
                   connecté à ce port matériel. Sur un hôte Windows, le nom du
-                  périphérique sera un port COM tel que 
+                  périphérique sera un port COM tel que
                   <computeroutput>COM1</computeroutput>&#xA0;; sur un hôte Linux,
-                  le nom du périphérique ressemblera à 
+                  le nom du périphérique ressemblera à
                   <computeroutput>/dev/ttyS0</computeroutput>. Cela vous permet
                   de "brancher" un vrai port série à une machine virtuelle.</para>
                 </listitem>
@@ -1008,7 +1008,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
           </listitem>
 
           <listitem>
-            <para><computeroutput>--audio none|null|oss</computeroutput>&#xA0;: 
+            <para><computeroutput>--audio none|null|oss</computeroutput>&#xA0;:
             Avec cette option, vous pouvez définir si la VM supporte le son.</para>
           </listitem>
 
@@ -1016,7 +1016,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
             <para><computeroutput>--clipboard
             disabled|hosttoguest|guesttohost|bidirectional</computeroutput>&#xA0;:
             Avec ce paramètre, vous pouvez sélectionner si le presse-papier du
-            système d'exploitation invité ou de l'hôte doit être partagé avec 
+            système d'exploitation invité ou de l'hôte doit être partagé avec
             l'hôte ou l'invité et comment ; voir
             <xref linkend="generalsettings" />. Cela exige que les suppléments
             invité soient installés dans la machine virtuelle.</para>
@@ -1053,11 +1053,11 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
     <sect2 id="vboxmanage-modifyvm-vrde">
       <title>Paramètres de la machine distante</title>
 
-      <para>Les paramètres suivants concernant le comportement de la machine 
+      <para>Les paramètres suivants concernant le comportement de la machine
       distante sont disponibles avec <computeroutput>VBoxManage
       modifyvm</computeroutput>&#xA0;:<itemizedlist>
           <listitem>
-            <para><computeroutput>--vrde on|off</computeroutput>&#xA0;: Avec 
+            <para><computeroutput>--vrde on|off</computeroutput>&#xA0;: Avec
             l'interface graphique de VirtualBox, ceci active ou désactive le serveur
             VirtualBox remote desktop extension (VRDE). Remarquez que si vous
             utilisez <computeroutput>VBoxHeadless</computeroutput> (voir
@@ -1067,7 +1067,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
           <listitem>
             <para><computeroutput>--vrdeport
             default|&lt;ports&gt;</computeroutput>&#xA0;: Un port ou une plage
-            de ports que le serveur VRDE peut sonder&#xA0;; "default" ou "0" 
+            de ports que le serveur VRDE peut sonder&#xA0;; "default" ou "0"
             signifient le port 3389, le port RDP standard. Vous pouvez spécifier
             une liste de ports ou de plages de ports séparée par des virgules.
             Utilisez un tiret entre deux numéros de ports pour spécifier une plage.
@@ -1080,7 +1080,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
 
           <listitem>
             <para><computeroutput>--vrdeaddress &lt;adresse IP
-            &gt;</computeroutput>&#xA0;: L'adresse IP de l'interface réseau de 
+            &gt;</computeroutput>&#xA0;: L'adresse IP de l'interface réseau de
             l'hôte que sondera le serveur VRDE. Si vous la spécifiez, le serveur
             n'acceptra les connexions que sur l'interface de l'hôte spécifiée.</para>
             <para>On peut utiliser ce paramètre pour indiquer si le serveur
@@ -1152,7 +1152,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
             ce paramètre, vous activez ou désactivez l'attente par une machine
             d'une requête de téléportation venant du réseau lorsqu'elle est
             démarrée. Si elle est activée, quand on démarre la machine, cela ne
-            démarre pas la machine virtuelle comme cela est normalement le cas, 
+            démarre pas la machine virtuelle comme cela est normalement le cas,
             mais cela attend qu'une requête de téléportation arrive à l'adresse
             listée avec les deux options suivantes.</para>
           </listitem>
@@ -1181,7 +1181,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
 
           <listitem>
             <para><computeroutput>--teleporterfichier_mot_de_passe
-            &lt;mot_de_passe&gt;</computeroutput>&#xA0;: si vous donnez cet 
+            &lt;mot_de_passe&gt;</computeroutput>&#xA0;: si vous donnez cet
             argument facultatif, la requête de téléportation ne réussira que si
             la machine source spécifie le même mot de passe que celui spécifié
             dans le fichier donné avec cette commande. Utilisez
@@ -1197,7 +1197,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
             présenté par VirtualBox au système d'exploitation invité. Il faut
             l'exécuter à la fois sur la machine source et cible
             impliquées dans la téléportation et cela modifiera ce que l'invité
-            verra quand il exécutera l'instruction machine 
+            verra quand il exécutera l'instruction machine
             <computeroutput>CPUID</computeroutput>. Cela peut aider des applications
             présupposant à tord la présence de
             certaines capacités du processeur. La signification des paramètres
@@ -1211,7 +1211,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
   <sect1 id="vboxmanage-clonevm">
     <title>VBoxManage clonevm</title>
 
-    <para>Cette commande crée une copie complète ou liée d'une 
+    <para>Cette commande crée une copie complète ou liée d'une
     machine virtuelle existante.</para>
 
     <para>La sous-commande <computeroutput>clonevm</computeroutput> prend
@@ -1222,12 +1222,12 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
     <itemizedlist>
        <listitem>
            <para><computeroutput>--snapshot &lt;uuid&gt;|&lt;nom&gt;</computeroutput>&#xA0;:
-            Sélectionne un instantané spécifique auquel se rapporte le processus 
+            Sélectionne un instantané spécifique auquel se rapporte le processus
             de clonage. Par défaut, c'est à l'état courant qu'il se réfère.</para>
        </listitem>
        <listitem>
            <para><computeroutput>--mode machine|machineandchildren|all</computeroutput>&#xA0;:
-           Sélectionne le mode de clonage. Si 
+           Sélectionne le mode de clonage. Si
            <computeroutput>machine</computeroutput> est sélectionnée (comme par
            défaut), l'état actuel de la VM sans instantané est cloné. En mode
            <computeroutput>machineandchildren</computeroutput>, l'instantané
@@ -1253,7 +1253,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
            sont renommées.</para>
        </listitem>
        <listitem>
-           <para><computeroutput>--name &lt;name&gt;</computeroutput>&#xA0;: 
+           <para><computeroutput>--name &lt;name&gt;</computeroutput>&#xA0;:
            Sélectionne un nouveau nom pour la nouvelle machine virtuelle. Par défaut,
            il s'agit de "Nom d'origine Clone".</para>
        </listitem>
@@ -1282,7 +1282,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
 
     <para>Cette commande importe un applicatif virtuel au format OVF en copiant
     les images de disque virtuelles et en créant les machines virtuelles dans
-    VirtualBox. Voir 
+    VirtualBox. Voir
     <xref linkend="ovf" /> pour une présentation des applicatifs.</para>
 
     <para>La commande <computeroutput>import</computeroutput> prend comme
@@ -1299,7 +1299,7 @@ Certains invités échouent par une triple erreur lors de la réinitialisation
     les options facultatives en ligne de commandes pour influencer le comportement
     de l'importation.</para>
 
-    <para>Par exemple, voilà l'écran qui s'afficherait pour un applicatif modèle 
+    <para>Par exemple, voilà l'écran qui s'afficherait pour un applicatif modèle
     contenant un invité Windows XP&#xA0;:<screen>VBoxManage import WindowsXp.ovf --dry-run
 Interpreting WindowsXp.ovf...
 OK.
@@ -1333,7 +1333,7 @@ Virtual system 0:
     de commande. La sous-commande import peut être redirigée pour ignorer
     de nombreux éléments tels que ceux avec des options
     <computeroutput>--vsys X --unit Y --ignore</computeroutput>, où
-    X est le numéro du système virtuel (zéro sauf s'il y a plusieurs 
+    X est le numéro du système virtuel (zéro sauf s'il y a plusieurs
     descriptions de système virtuel dans l'applicatif) et Y le numéro de l'élément,
     tel qu'affiché à l'écran.</para>
 
@@ -1357,11 +1357,11 @@ Virtual system 0:
 
     <para>Cette commande exporte une ou plusieurs machines virtuelles à partir
     de VirtualBox vers un applicatif virtuel au format OVF, ce qui inclut la
-    copie de leurs images de disque virtuel en VMDK compressé. Voir <xref linkend="ovf" /> 
+    copie de leurs images de disque virtuel en VMDK compressé. Voir <xref linkend="ovf" />
     pour une présentation des applicatifs.</para>
 
-    <para>La commande <computeroutput>export</computeroutput> est simple à 
-    utiliser&#xA0;: affichez la machine (ou les machines) que vous voulez 
+    <para>La commande <computeroutput>export</computeroutput> est simple à
+    utiliser&#xA0;: affichez la machine (ou les machines) que vous voulez
     exporter dans un même fichier OVF et spécifiez le fichier OVF cible après
     l'option facultative <computeroutput>--output</computeroutput> ou
     <computeroutput>-o</computeroutput>. Remarquez que le répertoire du fichier
@@ -1404,8 +1404,8 @@ Virtual system 0:
     <para>Cette commande démarre une machine virtuelle qui est en état "Éteinte"
     ou "Sauvegardée".</para>
 
-    <para>Le paramètre facultatif <computeroutput>--type</computeroutput> 
-    détermine si la machine sera démarrée dans une fenêtre ou si la sortie devrait passer par 
+    <para>Le paramètre facultatif <computeroutput>--type</computeroutput>
+    détermine si la machine sera démarrée dans une fenêtre ou si la sortie devrait passer par
     <computeroutput>VBoxHeadless</computeroutput>, en activant ou pas VRDE&#xA0;;
     voir <xref linkend="vboxheadless" /> pour plus d'informations. La liste
     des types peut changer et il n'est pas garanti que tous les types soient
@@ -1421,7 +1421,7 @@ Virtual system 0:
         <glossterm><computeroutput>gui</computeroutput></glossterm>
 
         <glossdef>
-          <para>Démarre une VM en affichant une fenêtre graphique. C'est le cas 
+          <para>Démarre une VM en affichant une fenêtre graphique. C'est le cas
           par défaut.</para>
         </glossdef>
       </glossentry>
@@ -1463,7 +1463,7 @@ Virtual system 0:
     <para><itemizedlist>
         <listitem>
           <para><computeroutput>VBoxManage controlvm &lt;vm&gt;
-          pause</computeroutput> met temporairement une machine virtuelle en 
+          pause</computeroutput> met temporairement une machine virtuelle en
           attente, sans vraiment changer son état. La fenêtre de la VM sera grisée
           pour indiquer que la VM est actuellement en pause. (Cela revient à
           sélectionner l'élément "Pause" dans le menu "Machine" de l'interface
@@ -1511,19 +1511,19 @@ Virtual system 0:
           la machine" dans la boîte de dialogue.)</para>
 
           <para>Après cela, l'état de la machine sera "Sauvegardé". À partir de
-          là, vous pouvez la relancer&#xA0;; voir 
+          là, vous pouvez la relancer&#xA0;; voir
 <xref linkend="vboxmanage-startvm" />.</para>
         </listitem>
 
         <listitem>
           <para><computeroutput>VBoxManage controlvm &lt;vm&gt; teleport
           --hostname &lt;nom&gt; --port &lt;port&gt; [--passwordfile
-          &lt;fichier&gt; | --password &lt;mot_de_passe&gt;]</computeroutput> 
+          &lt;fichier&gt; | --password &lt;mot_de_passe&gt;]</computeroutput>
           passe la machine en source de téléportation et engage une téléportation
           sur la cible donnée. Voir <xref linkend="teleporting" /> pour une
           présentation. Si vous spécifiez le mot de passe facultatif, il doit
           correspondre à celui donné avec la commande
-          <computeroutput>modifyvm</computeroutput> pour la 
+          <computeroutput>modifyvm</computeroutput> pour la
           machine cible&#xA0;; voir <xref linkend="vboxmanage-modifyvm-teleport" />
           pour des détails.</para>
         </listitem>
@@ -1545,14 +1545,14 @@ Virtual system 0:
         null|nat|bridged|intnet|hostonly|generic</computeroutput>&#xA0;: Avec
         ceci, vous pouvez définir, pour chaque carte réseau virtuelle de la VM,
         le type de réseau qui devrait être disponible. Elles peuvent ne pas être
-        connectées à l'hôte 
+        connectées à l'hôte
         (<computeroutput>null</computeroutput>), utiliser network address
         translation (<computeroutput>nat</computeroutput>), le résaeau bridgé
         (<computeroutput>bridged</computeroutput>) ou communiquer avec d'autres
         machines virtuelles en utilisant le réseau interne
         (<computeroutput>intnet</computeroutput>) ou host-only
         (<computeroutput>hostonly</computeroutput>) ou accéder à des sous-modes
-        rarement utilisés 
+        rarement utilisés
         (<computeroutput>generic</computeroutput>). Ces options correspondent
         aux modes décrits en détails au <xref
         linkend="networkingmodes" />.</para>
@@ -1562,7 +1562,7 @@ Virtual system 0:
         <para>L'opération <computeroutput>guestmemoryballoon</computeroutput>
         change la taille du ballon mémoire de l'invité, c'est-à-dire la mémoire
         du système d'exploitation invité affectée par les suppléments invité de VirtualBox
-        et rendue à l'hyperviseur pour être réutilisée par d'autres 
+        et rendue à l'hyperviseur pour être réutilisée par d'autres
         machines virtuelles. Elle se spécifie en mégaoctets.  Pour des détails,
         voir <xref linkend="guestadd-balloon" />.</para>
       </listitem>
@@ -1659,7 +1659,7 @@ Virtual system 0:
     la prochaine fois que vous démarrerez. Cela revient à débrancher le câble
     d'alimentation d'une machine physique et vous devriez l'éviter si possible.</para>
   </sect1>
- 
+
   <sect1>
     <title>VBoxManage adoptstate</title>
 
@@ -1677,7 +1677,7 @@ Virtual system 0:
     <para>Cette commande est utilisée pour contrôler les instantanés en ligne de
     commande. Un instantané consiste en une copie complète des paramètres de la
     machine virtuelle, copiés à un moment où l'instantané a été pris, et éventuellement
-    un fichier d'état sauvegardé de la machine virtuelle si l'instantané a été 
+    un fichier d'état sauvegardé de la machine virtuelle si l'instantané a été
     pris alors que la machine était en fonction. Après qu'un instantané ait été pris,
     VirtualBox crée un disque dur de différenciation pour chaque disque dur normal
     associé à la machine pour que, quand on restaure un instantané, les disques durs
@@ -1687,7 +1687,7 @@ Virtual system 0:
     <para>L'opération <computeroutput>take</computeroutput> prend un instantané de
     l'état actuel de la machne viruelle. Vous devez fournir un nom pour l'instantané
     et vous pouvez éventuellement entrer une description. Le nouvel instantané est
-    inséré à l'arborescence des instantanés comme un fichier de l'instantané 
+    inséré à l'arborescence des instantanés comme un fichier de l'instantané
     actuel et il devient le nouvel instantané actuel. Le paramètre
     <computeroutput>--description</computeroutput> permet de décrire
     l'instantané. Si vous spécifiez <computeroutput>--live</computeroutput>,
@@ -1801,7 +1801,7 @@ Virtual system 0:
 
           <glossdef>
             <para>Le numéro du port du contrôleur de stockage qui doit être
-            modifié. Obligatoire, sauf si le contrôleur de stockage n'a qu'un 
+            modifié. Obligatoire, sauf si le contrôleur de stockage n'a qu'un
             seul port.</para>
           </glossdef>
         </glossentry>
@@ -1819,8 +1819,8 @@ Virtual system 0:
           <glossterm>type</glossterm>
 
           <glossdef>
-            <para>Définit le type de lecteur auquel doit être 
-            attaché/détaché/modifié un média. On ne peut se passer de cet 
+            <para>Définit le type de lecteur auquel doit être
+            attaché/détaché/modifié un média. On ne peut se passer de cet
             argument que si le type de média peut être déterminé par le média
             donné avec l'argument <computeroutput>--medium</computeroutput> argument ou
             à partir de précédents rattachements de médias</para>
@@ -1843,10 +1843,10 @@ Virtual system 0:
                   virtuel, cela fait se comporter le périphérique comme un lecteur
                   amovible dans lequel on n'a inséré aucun média.</para>
                 </listitem>
-                
+
                 <listitem>
                   <para>"additions"&#xA0;: Seulement pour un lecteur DVD virtuel,
-                  ceci connecte l'image des <emphasis>Suppléments invité de 
+                  ceci connecte l'image des <emphasis>Suppléments invité de
                   VirtualBox</emphasis> au slot de périphérique donné.</para>
                 </listitem>
 
@@ -1855,13 +1855,13 @@ Virtual system 0:
                   média de stockage déjà connu de VirtualBox (par exemple parce qu'il
                   a été attaché à une autre machine virtuelle). Voir
                   <xref linkend="vboxmanage-list" /> pour la façon de lister
-                  les médias connus. Ce média est alors attaché au slot du 
+                  les médias connus. Ce média est alors attaché au slot du
                  périphérique donné.</para>
                 </listitem>
 
                 <listitem>
                   <para>Si vous spécifiez un nom de fichier, il doit s'agir du
-                  chemin complet vers une image de disque existante (ISO, RAW, VDI, VMDK 
+                  chemin complet vers une image de disque existante (ISO, RAW, VDI, VMDK
                   ou autre), qui est donc attaché au slot du périphérique donné.</para>
                 </listitem>
 
@@ -1890,7 +1890,7 @@ Virtual system 0:
 
           <glossdef>
             <para>Définit la façon dont ce média se comporte vis-à-vis des
-            instantanés et des opérations d'écriture. Voir <xref linkend="hdimagewrites" /> 
+            instantanés et des opérations d'écriture. Voir <xref linkend="hdimagewrites" />
             pour des détails.</para>
           </glossdef>
         </glossentry>
@@ -1992,7 +1992,7 @@ Virtual system 0:
 
           <glossdef>
             <para>La chaîne du nom de la cible. Il est déterminé par la cible iSCSI
-            et il est utilisé pour identifier la ressource de stockage&#xA0;; 
+            et il est utilisé pour identifier la ressource de stockage&#xA0;;
             requis.</para>
           </glossdef>
         </glossentry>
@@ -2100,7 +2100,7 @@ Virtual system 0:
           <glossterm>sataportcount</glossterm>
 
           <glossdef>
-            <para>Ceci détermine le nombre de ports que le contrôleur SATA 
+            <para>Ceci détermine le nombre de ports que le contrôleur SATA
             devrait supporter.</para>
           </glossdef>
         </glossentry>
@@ -2137,7 +2137,7 @@ Virtual system 0:
   <sect1>
     <title>VBoxManage bandwidthctl</title>
 
-    <para>Cette commande crée/efface/modifie/affiche les groupes de bande 
+    <para>Cette commande crée/efface/modifie/affiche les groupes de bande
     passante de la machine virtuelle donnée&#xA0;:<screen>VBoxManage bandwidthctl    &lt;uuid|nomvm&gt;
                             add &lt;nom&gt; --type disk|network --limit &lt;megabytes per second&gt;[k|m|g|K|M|G] |
                             set &lt;nom&gt; --limit &lt;megabytes per second&gt;[k|m|g|K|M|G] |
@@ -2201,10 +2201,10 @@ Virtual system 0:
             que la VM est en fonction. L'unité par défaut est en mégaoctet par
               seconde. Vous pouvez modifier l'unité en spécifiant un des
               suffixes suivants&#xA0;: <computeroutput>k</computeroutput> pour
-              kilobits/s, <computeroutput>m</computeroutput> pour mégabits/s, 
+              kilobits/s, <computeroutput>m</computeroutput> pour mégabits/s,
               <computeroutput>g</computeroutput> pour gigabits/s,
-              <computeroutput>K</computeroutput> pour kilo octets/s, 
-              <computeroutput>M</computeroutput> pour méga octets/s, 
+              <computeroutput>K</computeroutput> pour kilo octets/s,
+              <computeroutput>M</computeroutput> pour méga octets/s,
               <computeroutput>G</computeroutput> pour giga octets/s.</para>
           </glossdef>
         </glossentry>
@@ -2232,8 +2232,8 @@ Virtual system 0:
         interne à la commande "showhdinfo".</para>
       </note></para>
     <para>L'image de disque doit être spécifiée soit par son UUID (si le média
-    est enregistré), soit par le nom du fichier. Les images enregistrées peuvent 
-    être listées par 
+    est enregistré), soit par le nom du fichier. Les images enregistrées peuvent
+    être listées par
       <computeroutput>VBoxManage list hdds</computeroutput> (voir <xref linkend="vboxmanage-list" />
       pour plus d'informations). Un nom de fichier doit être spécifié en tant
       que chemin valide, soit absolu soit relatif en partant du répertoire
@@ -2299,7 +2299,7 @@ Virtual system 0:
     <title>VBoxManage modifyhd</title>
 
     <para>Avec la commande <computeroutput>modifyhd</computeroutput>, vous pouvez
-    modifier les caractéristiques d'une image de disque après l'avoir 
+    modifier les caractéristiques d'une image de disque après l'avoir
     créé&#xA0;:<screen>VBoxManage modifyhd         &lt;uuid&gt;|&lt;nomfichier&gt;
                             [--type normal|writethrough|immutable|shareable|
                                     readonly|multiattach]
@@ -2314,8 +2314,8 @@ Virtual system 0:
       </note></para>
 
       <para>L'image de disque doit être spécifiée soit par son UUID (si le média
-      est enregistré), soit par le nom du fichier. Les images enregistrées peuvent 
-      être listées par 
+      est enregistré), soit par le nom du fichier. Les images enregistrées peuvent
+      être listées par
         <computeroutput>VBoxManage list hdds</computeroutput> (voir <xref linkend="vboxmanage-list" />
         pour plus d'informations). Un nom de fichier doit être spécifié en tant
         que chemin valide, soit absolu soit relatif en partant du répertoire
@@ -2340,7 +2340,7 @@ Virtual system 0:
           <para>L'option <computeroutput>--compact</computeroutput>,
           peut être utilisée pour compresser des images de disque (à savoir
           supprimer des blocs qui ne contiennent que des zéros). Cela réallègera
-          une image à taille dynamique&#xA0;; cela réduira la taille 
+          une image à taille dynamique&#xA0;; cela réduira la taille
           <emphasis>physique</emphasis> de l'image sans changer la taille logique
           du disque virtuel. La compression fonctionne aussi bien pour les images
           de base que celles de différenciation créées dans un instantané.</para>
@@ -2360,7 +2360,7 @@ Virtual system 0:
           <para>Remarquez que la compression n'est actuellement disponible que
           pour les images VDI. Vous pouvez obtenir la même chose en mettant des
           zéros sur les blocs libres et clonant le disque vers un autre format
-          dynamique. Vous pouvez utiliser ce contournement jusqu'à ce que la 
+          dynamique. Vous pouvez utiliser ce contournement jusqu'à ce que la
           compression soit supportée pour les autres formats de disque que VDI.</para>
         </listitem>
 
@@ -2405,8 +2405,8 @@ Virtual system 0:
 
       <para>L'image de disque à cloner et celle cible doivent être spécifiées
       soit par leur UUID (si le média
-      est enregistré), soit par leur nom du fichier. Les images enregistrées peuvent 
-      être listées par 
+      est enregistré), soit par leur nom du fichier. Les images enregistrées peuvent
+      être listées par
         <computeroutput>VBoxManage list hdds</computeroutput> (voir <xref linkend="vboxmanage-list" />
         pour plus d'informations). Un nom de fichier doit être spécifié en tant
         que chemin valide, soit absolu soit relatif en partant du répertoire
@@ -2425,7 +2425,7 @@ Virtual system 0:
           <glossterm><computeroutput>--variant</computeroutput></glossterm>
 
           <glossdef>
-            <para>Permet de choisir une variante de format de fichier pour le 
+            <para>Permet de choisir une variante de format de fichier pour le
             fichier de sortie. C'est une liste de drapeaux séparée par des virgules.
             Toutes les combinaisons ne sont pas supportées, spécifier des
             drapeaux incohérents donne un message d'erreur.</para>
@@ -2445,7 +2445,7 @@ Virtual system 0:
           </glossdef>
         </glossentry>
       </glosslist> <note>
-        <para>Pour être compatible avec les anciennes versions de VirtualBox, 
+        <para>Pour être compatible avec les anciennes versions de VirtualBox,
         la commande "clonevdi" est également supportée et elle a été associée
         en interne à la commande "clonehd".</para>
       </note></para>
@@ -2488,8 +2488,8 @@ VBoxManage convertfromraw   stdin &lt;fichiersortie&gt; &lt;octets&gt;
           <glossterm><computeroutput>--variant</computeroutput></glossterm>
 
           <glossdef>
-            <para>Permet de choisir une variante de format de fichier pour le 
-            fichier en sortie. C'est une liste de drapeaux séparée par des 
+            <para>Permet de choisir une variante de format de fichier pour le
+            fichier en sortie. C'est une liste de drapeaux séparée par des
             virgules. Toutes les combinaisons ne sont pas supportées, spécifier
             des drapeaux incohérents donne un message d'erreur.</para>
           </glossdef>
@@ -2549,7 +2549,7 @@ Value: 2006.01.01</screen>
   <sect1 id="vboxmanage-setproperty">
     <title>VBoxManage setproperty</title>
 
-    <para>Cette commande est utilisée pour modifier des paramètres globaux 
+    <para>Cette commande est utilisée pour modifier des paramètres globaux
     qui modifient toute l'installation de VirtualBox. Certains d'entre eux
     correspondent aux paramètres de la boîte de dialogue "Paramètres globaux" de
     l'interface graphique. Les propriétés suivantes sont disponibles&#xA0;:<glosslist>
@@ -2590,7 +2590,7 @@ Value: 2006.01.01</screen>
           <glossterm><computeroutput>websrvauthlibrary</computeroutput></glossterm>
 
           <glossdef>
-            <para>Ceci spécifie la bibliothèque utilisée par le service web 
+            <para>Ceci spécifie la bibliothèque utilisée par le service web
             pour authentifier les utilisateurs. Pour des détails sur le service
             web de VirtualBox, merci de vous reporter au manuel de référence SDK
             distinct de VirtualBox (voir <xref
@@ -2644,7 +2644,7 @@ Value: 2006.01.01</screen>
     filtres globaux sont appliqués avant les filtres spécifiques aux machines et
     ils peuvent être utilisés pour empêcher les périphériques d'être capturés par
     une machine virtuelle. Les filtres globaux s'appliquent toujours dans un
-    ordre particulier, et seul le premier filtre convenant à un périphérique est 
+    ordre particulier, et seul le premier filtre convenant à un périphérique est
     appliqué. Par exemple, si le premier filtre global dit de garder (rendre
     disponible) une carte mémoire Kingston particulière et le deuxième d'ignorer
     tous les périphériques Kingston, cette carte mémoire sera disponible pour
@@ -2657,19 +2657,19 @@ Value: 2006.01.01</screen>
     la liste. S'il y a déjà un filtre à cette place, lui-mâme et les suivants
     seront déplacés. Sinon, le nouveau filtre sera ajouté à la fin de la liste.
     Le paramètre <computeroutput>target</computeroutput> sélectionne la
-    machine virtuelle à laquelle devrait être attaché le 
+    machine virtuelle à laquelle devrait être attaché le
     filtre, sinon utilisez "global" pour l'appliquer à toutes les machines virtuelles.
     <computeroutput>name</computeroutput> est le nom du nouveau filtre et
     des filtres globaux, <computeroutput>action</computeroutput> autorise les
     machines à accéder aux périphériques correspondant à la description du
     filtre ("hold") ou ne leur donne pas accès ("ignore"). En outre, vous devriez
     spécifier des paramètres de filtrage. Vous pouvez trouver les paramètres des
-    périphériques attachés à votre système en utilisant <computeroutput>VBoxManage list usbhost</computeroutput>. 
+    périphériques attachés à votre système en utilisant <computeroutput>VBoxManage list usbhost</computeroutput>.
     Enfin, vous pouvez spécifier si le filtre devrait être actif, et pour les
     filtres globaux, s'ils concernent les périphériques locaux, à distance (par
     connexion RDP) ou autrement.</para>
 
-    <para>Quand vous modifiez un filtre USB en utilisant 
+    <para>Quand vous modifiez un filtre USB en utilisant
     <computeroutput>usbfilter modify</computeroutput>, vous devez spécifier le
     filtre par index (voir la sortie de
     <computeroutput>VBoxManage list usbfilters</computeroutput> pour voir les
@@ -2718,7 +2718,7 @@ Value: 2006.01.01</screen>
           ne peut pas être contacté, notamment car la VM n'est pa en fonction
           ou les suppléments invité ne sont pas installés.</para>
 
-          <para>Si vous spécifiez <computeroutput>--patterns 
+          <para>Si vous spécifiez <computeroutput>--patterns
           &lt;échantillon&gt;</computeroutput>, il agit comme un filtre pour ne
           lister que les propriétés correspondant à l'échantillon donné. L'échantillon
           peut contenir les caractères jokers suivants&#xA0;:<itemizedlist>
@@ -2822,7 +2822,7 @@ Value: 2006.01.01</screen>
         <listitem>
           <para><emphasis role="bold"><computeroutput>execute</computeroutput></emphasis>, qui permet d'exécuter un
           programme/script (processus) déjà installé et exécutable sur l'invité.
-          Cette commande ne fonctionne que pendant qu'une VM est active et en 
+          Cette commande ne fonctionne que pendant qu'une VM est active et en
           fonction et sa syntaxe est la suivante&#xA0;:</para>
 
           <screen>VBoxManage guestcontrol &lt;uuid|nomvm&gt; exec[ute]
@@ -2856,7 +2856,7 @@ Value: 2006.01.01</screen>
                 <glossterm><computeroutput>--username &lt;nom&gt;</computeroutput></glossterm>
 
                 <glossdef>
-                  <para>Nom de l'utilisateur sous lequel devrait se lancer le 
+                  <para>Nom de l'utilisateur sous lequel devrait se lancer le
                   processus. Cet utilisateur doit exister sur l'OS invité.</para>
                 </glossdef>
               </glossentry>
@@ -2977,7 +2977,7 @@ Value: 2006.01.01</screen>
                 <glossterm><computeroutput>[-- [&lt;argument1s&gt;] ... [&lt;argumentNs&gt;]]</computeroutput></glossterm>
 
                 <glossdef>
-                  <para>Un ou plusieurs arguments à passer au processus à 
+                  <para>Un ou plusieurs arguments à passer au processus à
                   exécuter.</para>
                   <para>Les arguments contenant des espaces doivent être entourés
                   de guillemets.</para>
@@ -2998,7 +2998,7 @@ Value: 2006.01.01</screen>
 
           <para><note>
             <para>Pour certaines commandes, il faut spécifier le nom d'utilisateur
-            d'un compte utilisateur existant sur l'invité&#xA0;; les exécutions 
+            d'un compte utilisateur existant sur l'invité&#xA0;; les exécutions
             anonymes ne sont pas supportées pour des raisons de sécurité.
             Néanmoins, le mot de passe d'un compte utilisateur est facultatif
             et dépend de la politique et des règles de l'invité. Si vous ne
@@ -3010,7 +3010,7 @@ Value: 2006.01.01</screen>
             on ne peut pas les modifier.</para>
           </note></para>
 
-          <para>À partir de VirtualBox 4.1.2 l'exécution d'un processus invité 
+          <para>À partir de VirtualBox 4.1.2 l'exécution d'un processus invité
           par défaut se limite à 5 processus invités en même temps. Si un
           nouveau processus invité est lancé et dépasserait cette limite, le
           plus ancien dans l'invité qui ne s'exécute pas sera désactivé afin de
@@ -3021,7 +3021,7 @@ Value: 2006.01.01</screen>
 
           <para>Pour augmenter ou diminuer la limite d'exécution des processus
           invité, il faut modifier soit la propriété <computeroutput>/VirtualBox/GuestAdd/VBoxService/--control-procs-max-kept</computeroutput>,
-          soit la ligne de commande ee VBoxService en spécifiant 
+          soit la ligne de commande ee VBoxService en spécifiant
           <computeroutput>--control-procs-max-kept</computeroutput>. Il faut
           ensuite redémarrer l'OS invité. Pour gérer un nombre illimité de
           processus invités, il faut définir une valeur de <computeroutput>0</computeroutput>
@@ -3072,7 +3072,7 @@ Value: 2006.01.01</screen>
                 <glossterm><computeroutput>--username &lt;nom&gt;</computeroutput></glossterm>
 
                 <glossdef>
-                  <para>Nom d'utilisateur sous lequel devrait fonctionner le 
+                  <para>Nom d'utilisateur sous lequel devrait fonctionner le
                   processus de copie. Cet utilisateur doit exister sur l'OS
                   invité.</para>
                 </glossdef>
@@ -3219,11 +3219,11 @@ Value: 2006.01.01</screen>
                 <glossterm><computeroutput>--parents</computeroutput></glossterm>
 
                 <glossdef>
-                  <para>Crée aussi les répertoires parent non encore créés 
+                  <para>Crée aussi les répertoires parent non encore créés
                   pour le répertoire spécifié, par exemple si le répertoire
                   <computeroutput>D:\Foo</computeroutput> de
                   <computeroutput>D:\Foo\Bar</computeroutput> n'existe pas encore,
-                  il sera créé. Si on ne spécifie pas 
+                  il sera créé. Si on ne spécifie pas
                   <computeroutput>--parent</computeroutput>, l'action échouerait.</para>
                 </glossdef>
               </glossentry>
@@ -3271,7 +3271,7 @@ Value: 2006.01.01</screen>
                 <glossterm><computeroutput>répertoire à supprimer dans l'invité</computeroutput></glossterm>
 
                 <glossdef>
-                  <para>Chemin absolu du/des répertoire(s) à supprimer sur 
+                  <para>Chemin absolu du/des répertoire(s) à supprimer sur
                   l'invité, par exemple <computeroutput>D:\Foo\Bar</computeroutput>.
                   L'utilisateur spécifié doit avoir les bons droits pour effacer
                   le(s) répertoire(s) de l'invité spécifié(s).</para>
@@ -3418,7 +3418,7 @@ Value: 2006.01.01</screen>
                 <glossterm><computeroutput>source</computeroutput></glossterm>
 
                 <glossdef>
-                  <para>Chemin absolu d'une ou plusieurs sources à déplacer 
+                  <para>Chemin absolu d'une ou plusieurs sources à déplacer
                   quelque part. Si vous spécifiez plus d'une source, la destination
                   doit être un répertoire existant sur la VM. L'utilisateur
                   spécifié doit avoir les bons droits d'accès aux fichiers et
@@ -3432,7 +3432,7 @@ Value: 2006.01.01</screen>
                 <glossdef>
                   <para>Chemin absolu de la destination où déplacer le/les
                   source(s). Il peut s'agir d'un répertoire ou d'un fichier, selon
-                  que vous spécifiez une ou plusieurs sources. L'utilisateur 
+                  que vous spécifiez une ou plusieurs sources. L'utilisateur
                   spécifié doit avoir les bons droits d'accès au fichier et au
                   répertoire de.</para>
                 </glossdef>
@@ -3462,7 +3462,7 @@ Value: 2006.01.01</screen>
 
                 <glossdef>
                   <para>Mot de passe du compte utilisateur spécifié avec
-                  <computeroutput>--username</computeroutput>. Si vous n'en 
+                  <computeroutput>--username</computeroutput>. Si vous n'en
                   donnez pas, on suppose un mot de passe vide.</para>
                 </glossdef>
               </glossentry>
@@ -3897,8 +3897,8 @@ Value: 2006.01.01</screen>
               <glossentry>
                 <glossterm>--wait-start</glossterm>
                 <glossdef>
-                  <para>Démarre le processus normal de mise à jour et attend 
-                  jusqu'à ce que la mise à jour des suppléments invité soit 
+                  <para>Démarre le processus normal de mise à jour et attend
+                  jusqu'à ce que la mise à jour des suppléments invité soit
                   effectivement démarrée dans l'invité. Cela peut être nécessaire
                   du fait de l'interaction nécessaire avec l'OS invité pendant
                   la phase d'installation.</para>
@@ -3968,7 +3968,7 @@ Value: 2006.01.01</screen>
           <xref linkend="ts_guest-core-format" />.</para>
 
           <para>Cela correspond à la commande
-          <computeroutput>writecore</computeroutput> du débogueur. 
+          <computeroutput>writecore</computeroutput> du débogueur.
           </para>
         </listitem>
 
@@ -4023,7 +4023,7 @@ Value: 2006.01.01</screen>
           </itemizedlist>
           La forme <computeroutput>all</computeroutput> affichera tous les
           registres (pas les sous-champs). Les noms des registres sont indifférents
-          à la casse. Quand vous interrogez un registre du processeur, vous 
+          à la casse. Quand vous interrogez un registre du processeur, vous
           pouvez ne pas mettre le réglage du registre, il sera sélectionné en
           utilisant la valeur de l'option <computeroutput>--cpu</computeroutput>
           (0 par défaut).
@@ -4051,7 +4051,7 @@ Value: 2006.01.01</screen>
 
         <listitem>
           <para>La commande <computeroutput>statistics</computeroutput> peut
-          être utilisée pour afficher des statistiques VMM sur la ligne de 
+          être utilisée pour afficher des statistiques VMM sur la ligne de
           commandes. L'option <computeroutput>--reset</computeroutput> réinitialisera
           les statistiques. Les statistiques concernées sont filtrables avec l'option
           <computeroutput>--pattern</computeroutput> qui accepte des jokers en style
@@ -4074,7 +4074,7 @@ Value: 2006.01.01</screen>
     <para>Les données de métrique sont rassemblées et stockées en interne&#xA0;;
     vous pouvez les récupérer n'importe quand avec la sous-commande
     <computeroutput>VBoxManage metric query</computeroutput>. Les données sont
-    disponibles tant que le processus en tâche de fond 
+    disponibles tant que le processus en tâche de fond
     <computeroutput>VBoxSVC</computeroutput> est vivant. Ce processus
     ce termine peu après que toutes les VMs et les interfaces ont été fermées.</para>
 
@@ -4102,7 +4102,7 @@ Value: 2006.01.01</screen>
     recueillis pour un jeu d'objets et de métriques spécifiques.</para>
 
     <para>Pour activer ou désactiver la récupération des métriques sans perdre
-    les données, vous pouvez utiliser les sous-commandes 
+    les données, vous pouvez utiliser les sous-commandes
     <computeroutput>VBoxManage metrics enable</computeroutput> et
     <computeroutput>VBoxManage metrics disable</computeroutput>. Remarquez que
     ces sous-commandes attendent en paramètres des métriques, pas des sous-métriques,
@@ -4110,7 +4110,7 @@ Value: 2006.01.01</screen>
     l'activation de <code>CPU/Load/User</code> tout en désactivant <code>CPU/Load/Kernel</code>
     n'est pas supporté.</para>
 
-    <para>L'hôte et les VMs ont différents ensembles de métriques associés. 
+    <para>L'hôte et les VMs ont différents ensembles de métriques associés.
     Vous pouvez lister les métriques disponibles avec
     <computeroutput>VBoxManage metrics
     list</computeroutput> subcommand.</para>
@@ -4132,7 +4132,7 @@ Value: 2006.01.01</screen>
     métriques relatifs à l'hôte. Pour limiter la cible à un sous-ensemble de métriques,
     utilisez une liste de noms séparés par des virgules.</para>
 
-    <para>Par exemple, pour interroger les données de métriques sur le temps 
+    <para>Par exemple, pour interroger les données de métriques sur le temps
     passé par le processeur en modes utilisateur et noyau, sur la machine virtuelle
     nommée "test", vous pouvez utiliser la commande suivante&#xA0;:</para>
 
@@ -4172,7 +4172,7 @@ Value: 2006.01.01</screen>
           <para>Cette sous-commande "réactive le recueil de données après qu'il
           ait été arrêté avec la sous-commande <code>disable</code>. Remarquez que
           la spécification de sous-métriques comme paramètres n'activera pas les
-          métriques sous-jacents. Utilisez 
+          métriques sous-jacents. Utilisez
           <computeroutput>--list</computeroutput> pour savoir si la commande a
           fait ce que vous aviez prévu.</para>
         </glossdef>
@@ -4198,7 +4198,7 @@ Value: 2006.01.01</screen>
           <para>Cette sous-commande récupère et affiche les données de métriques
           mémorisés.<note>
               <para>La sous-commande <code>query</code> ne supprime
-              pas ni ne remet à 0 les données mémorisées. Si vous interrogez 
+              pas ni ne remet à 0 les données mémorisées. Si vous interrogez
               assez souvent, vous verrez la vitesse d'évacuation graduelle des
               anciens échantillons par les nouveaux.</para>
             </note></para>
@@ -4214,7 +4214,7 @@ Value: 2006.01.01</screen>
           en interne. Les données recueillies s'affichent périodiquement jusqu'à
           ce que vous appuyiez sur Ctrl-C, sauf si vous spécifiez l'option
           <computeroutput>--detach</computeroutput>. Avec l'option
-          <computeroutput>--detach</computeroutput>, cette sous-commande agit de 
+          <computeroutput>--detach</computeroutput>, cette sous-commande agit de
           la même façon que <code>setup</code>. L'option <computeroutput>--list</computeroutput>
           affiche les métriques correspondant au filtre spécifié.</para>
         </glossdef>
@@ -4236,25 +4236,25 @@ Value: 2006.01.01</screen>
     <title>VBoxManage dhcpserver</title>
 
     <para>Les commandes de "dhcpserver" vous permettent de contrôler le serveur
-    DHCP construit dans VirtualBox. Vous pourriez trouver cela utile si vous 
-    utilisez le réseau interne ou host-only. (En théorie, vous pouvez 
+    DHCP construit dans VirtualBox. Vous pourriez trouver cela utile si vous
+    utilisez le réseau interne ou host-only. (En théorie, vous pouvez
     l'activer aussi pour un réseau bridgé, mais cela provoquera probablement des
     conflits avec d'autres serveurs DHCP de votre réseau physique.)</para>
 
     <para>Utilisez les options suivantes de la ligne de commandes&#xA0;:<itemizedlist>
         <listitem>
-          <para>Si vous utilisez le réseau interne pour l'adaptateur réseau 
+          <para>Si vous utilisez le réseau interne pour l'adaptateur réseau
           virtuel d'une machine virtuelle, utilisez <computeroutput>VBoxManage dhcpserver add
           --netname &lt;nom_réseau&gt;</computeroutput>, où
-          <computeroutput>&lt;nom_réseau&gt;</computeroutput> est le même nom 
-          de réseau que celui que vous avez utilisé avec 
+          <computeroutput>&lt;nom_réseau&gt;</computeroutput> est le même nom
+          de réseau que celui que vous avez utilisé avec
           <computeroutput>VBoxManage modifyvm
           &lt;nomvm&gt; --intnet&lt;X&gt;
           &lt;nom_réseau&gt;</computeroutput>.</para>
         </listitem>
 
         <listitem>
-          <para>Si vous utilisez le réseau interne pour l'adaptateur réseau 
+          <para>Si vous utilisez le réseau interne pour l'adaptateur réseau
           virtuel d'une machine virtuelle, utilisez plutôt <computeroutput>VBoxManage dhcpserver add
           --ifname &lt;hostonly_if_name&gt;</computeroutput>, où
           <computeroutput>&lt;hostonly_if_name&gt;</computeroutput> est le même
@@ -4306,7 +4306,7 @@ Value: 2006.01.01</screen>
 
     <para>Pour modifier les paramètres d'un serveurDHCP créé précédemment avec
     <computeroutput>VBoxManage dhcpserver add</computeroutput>, vous pouvez
-    utiliser 
+    utiliser
     <computeroutput>VBoxManage dhcpserver modify</computeroutput> pour une
     interface réseau interne ou host-only donnée.</para>
   </sect1>

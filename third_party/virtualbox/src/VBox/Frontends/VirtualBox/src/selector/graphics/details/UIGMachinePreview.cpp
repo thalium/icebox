@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -51,6 +51,7 @@ UIGMachinePreview::UIGMachinePreview(QIGraphicsWidget *pParent)
     : QIWithRetranslateUI4<QIGraphicsWidget>(pParent)
     , m_pUpdateTimer(new QTimer(this))
     , m_pUpdateTimerMenu(0)
+    , m_dRatio((double)QApplication::style()->pixelMetric(QStyle::PM_SmallIconSize) / 16)
     , m_iMargin(0)
     , m_preset(AspectRatioPreset_16x9)
     , m_pPreviewImg(0)
@@ -65,9 +66,18 @@ UIGMachinePreview::UIGMachinePreview(QIGraphicsWidget *pParent)
     const QIcon full16x10 = UIIconPool::iconSet(":/preview_full_16to10_242x167px.png");
     const QIcon full16x9 = UIIconPool::iconSet(":/preview_full_16to9_242x155px.png");
     const QIcon full4x3 = UIIconPool::iconSet(":/preview_full_4to3_242x192px.png");
-    m_sizes.insert(AspectRatioPreset_16x10, empty16x10.availableSizes().first());
-    m_sizes.insert(AspectRatioPreset_16x9, empty16x9.availableSizes().first());
-    m_sizes.insert(AspectRatioPreset_4x3, empty4x3.availableSizes().first());
+
+    // WORKAROUND:
+    // Since we don't have x3 and x4 HiDPI icons yet,
+    // and we hadn't enabled automatic up-scaling for now,
+    // we have to make sure m_dRatio is within possible bounds.
+    const QList<QSize> sizes = empty16x10.availableSizes();
+    if (sizes.size() >= 2)
+        m_dRatio = qMin(m_dRatio, (double)sizes.last().width() / sizes.first().width());
+
+    m_sizes.insert(AspectRatioPreset_16x10, QSize(242 * m_dRatio, 167 * m_dRatio));
+    m_sizes.insert(AspectRatioPreset_16x9, QSize(242 * m_dRatio, 155 * m_dRatio));
+    m_sizes.insert(AspectRatioPreset_4x3, QSize(242 * m_dRatio, 192 * m_dRatio));
     m_ratios.insert(AspectRatioPreset_16x10, (double)16/10);
     m_ratios.insert(AspectRatioPreset_16x9, (double)16/9);
     m_ratios.insert(AspectRatioPreset_4x3, (double)4/3);
@@ -466,7 +476,8 @@ void UIGMachinePreview::recalculatePreviewRectangle()
 {
     /* Contents rectangle: */
     QRect cr = contentsRect().toRect();
-    m_vRect = cr.adjusted(21 + m_iMargin, 21 + m_iMargin, -21 - m_iMargin, -21 - m_iMargin);
+    m_vRect = cr.adjusted( 21 * m_dRatio + m_iMargin,  21 * m_dRatio + m_iMargin,
+                          -21 * m_dRatio - m_iMargin, -21 * m_dRatio - m_iMargin);
 }
 
 void UIGMachinePreview::restart()

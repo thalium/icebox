@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -25,6 +25,8 @@
 # include <iprt/test.h>
 # include <VBox/VMMDevTesting.h>
 #endif
+
+#include <iprt/list.h>
 
 #define VMMDEV_WITH_ALT_TIMESYNC
 
@@ -276,14 +278,18 @@ typedef struct VMMDevState
     bool afAlignment7[1];
 
 #ifdef VBOX_WITH_HGCM
-    /** List of pending HGCM requests, used for saving the HGCM state. */
-    R3PTRTYPE(PVBOXHGCMCMD) pHGCMCmdList;
+    /** List of pending HGCM requests (VBOXHGCMCMD). */
+    RTLISTANCHORR3 listHGCMCmd;
     /** Critical section to protect the list. */
     RTCRITSECT critsectHGCMCmdList;
     /** Whether the HGCM events are already automatically enabled. */
     uint32_t u32HGCMEnabled;
+    /** Saved state version of restored commands. */
+    uint32_t u32SSMVersion;
+#if HC_ARCH_BITS == 32
     /** Alignment padding. */
     uint32_t u32Alignment7;
+#endif
 #endif /* VBOX_WITH_HGCM */
 
     /** Status LUN: Shared folders LED */
@@ -395,6 +401,22 @@ AssertCompileMemberAlignment(VMMDEV, TestingData.Value.u64Value, 8);
 
 void VMMDevNotifyGuest(VMMDEV *pVMMDevState, uint32_t u32EventMask);
 void VMMDevCtlSetGuestFilterMask(VMMDEV *pVMMDevState, uint32_t u32OrMask, uint32_t u32NotMask);
+
+/** The saved state version. */
+#define VMMDEV_SAVED_STATE_VERSION                              VMMDEV_SAVED_STATE_VERSION_HGCM_PARAMS
+/** Updated HGCM commands. */
+#define VMMDEV_SAVED_STATE_VERSION_HGCM_PARAMS                  17
+/** The saved state version with heartbeat state. */
+#define VMMDEV_SAVED_STATE_VERSION_HEARTBEAT                    16
+/** The saved state version without heartbeat state. */
+#define VMMDEV_SAVED_STATE_VERSION_NO_HEARTBEAT                 15
+/** The saved state version which is missing the guest facility statuses. */
+#define VMMDEV_SAVED_STATE_VERSION_MISSING_FACILITY_STATUSES    14
+/** The saved state version which is missing the guestInfo2 bits. */
+#define VMMDEV_SAVED_STATE_VERSION_MISSING_GUEST_INFO_2         13
+/** The saved state version used by VirtualBox 3.0.
+ *  This doesn't have the config part. */
+#define VMMDEV_SAVED_STATE_VERSION_VBOX_30                      11
 
 #endif /* !___VMMDev_VMMDevState_h */
 

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -541,6 +541,9 @@ static RTEXITCODE vgsvcToolboxCat(int argc, char **argv)
             case VERR_SHARING_VIOLATION:
                 return (RTEXITCODE)VBOXSERVICETOOLBOX_CAT_EXITCODE_SHARING_VIOLATION;
 
+            case VERR_IS_A_DIRECTORY:
+                return (RTEXITCODE)VBOXSERVICETOOLBOX_CAT_EXITCODE_IS_A_DIRECTORY;
+
             default:
 #ifdef DEBUG_andy
                 AssertMsgFailed(("Exit code for %Rrc not implemented\n", rc));
@@ -739,8 +742,8 @@ static int vgsvcToolboxLsHandleDir(const char *pszDir, uint32_t fFlags, uint32_t
         return rc;
     }
 
-    PRTDIR pDir;
-    rc = RTDirOpen(&pDir, szPathAbs);
+    RTDIR hDir;
+    rc = RTDirOpen(&hDir, szPathAbs);
     if (RT_FAILURE(rc))
     {
         if (!(fOutputFlags & VBOXSERVICETOOLBOXOUTPUTFLAG_PARSEABLE))
@@ -758,7 +761,7 @@ static int vgsvcToolboxLsHandleDir(const char *pszDir, uint32_t fFlags, uint32_t
     for (;RT_SUCCESS(rc);)
     {
         RTDIRENTRYEX DirEntry;
-        rc = RTDirReadEx(pDir, &DirEntry, NULL, RTFSOBJATTRADD_UNIX, RTPATH_F_ON_LINK);
+        rc = RTDirReadEx(hDir, &DirEntry, NULL, RTFSOBJATTRADD_UNIX, RTPATH_F_ON_LINK);
         if (RT_SUCCESS(rc))
         {
             PVBOXSERVICETOOLBOXDIRENTRY pNode = (PVBOXSERVICETOOLBOXDIRENTRY)RTMemAlloc(sizeof(VBOXSERVICETOOLBOXDIRENTRY));
@@ -775,7 +778,7 @@ static int vgsvcToolboxLsHandleDir(const char *pszDir, uint32_t fFlags, uint32_t
     if (rc == VERR_NO_MORE_FILES)
         rc = VINF_SUCCESS;
 
-    int rc2 = RTDirClose(pDir);
+    int rc2 = RTDirClose(hDir);
     if (RT_FAILURE(rc2))
     {
         if (!(fOutputFlags & VBOXSERVICETOOLBOXOUTPUTFLAG_PARSEABLE))

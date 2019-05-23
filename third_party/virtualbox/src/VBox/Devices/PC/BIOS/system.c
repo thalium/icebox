@@ -1,5 +1,10 @@
+/* $Id: system.c $ */
+/** @file
+ * PC BIOS - ???
+ */
+
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -36,6 +41,15 @@
  *  License along with this library; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301 USA
  *
+ */
+
+/*
+ * Oracle LGPL Disclaimer: For the avoidance of doubt, except that if any license choice
+ * other than GPL or LGPL is available it will apply instead, Oracle elects to use only
+ * the Lesser General Public License version 2.1 (LGPLv2) at this time for any software where
+ * a choice of LGPL license versions is made available with the language indicating
+ * that LGPLv2 or any later version may be used, or where a choice of which version
+ * of the LGPL is applied is otherwise unspecified.
  */
 
 
@@ -89,10 +103,10 @@ void pm_enter(void);
     ".386p"                         \
     "call   pentry"                 \
     "pentry:"                       \
-    "pop    di"                     \
-    "add    di, 1Bh"                \
+    "pop    ax"                     \
+    "add    ax, 1Bh"                \
     "push   20h"                    \
-    "push   di"                     \
+    "push   ax"                     \
     "lgdt   fword ptr es:[si+8]"    \
     "lidt   fword ptr cs:pmode_IDT" \
     "mov    eax, cr0"               \
@@ -218,7 +232,7 @@ void pm_copy(void);
     "xor    di, di"                 \
     "cld"                           \
     "rep    movsw"                  \
-    modify nomemory;
+    modify [di] nomemory;
 
 /* The pm_switch has a few crucial differences from pm_enter, hence
  * it is replicated here. Uses LMSW to avoid trashing high word of eax.
@@ -824,7 +838,6 @@ void BIOSCALL int15_function32(sys32_regs_t r)
 /* Function 0x87 handled separately due to specific stack layout requirements. */
 void BIOSCALL int15_blkmove(disk_regs_t r)
 {
-    bx_bool     prev_a20_enable;
     uint16_t    base15_00;
     uint8_t     base23_16;
     uint16_t    ss;
@@ -835,7 +848,7 @@ void BIOSCALL int15_blkmove(disk_regs_t r)
     // turn off interrupts
     int_disable();    /// @todo aren't they disabled already?
 
-    prev_a20_enable = set_enable_a20(1); // enable A20 line
+    set_enable_a20(1);  // enable A20 line
 
     // 128K max of transfer on 386+ ???
     // source == destination ???
@@ -891,7 +904,7 @@ void BIOSCALL int15_blkmove(disk_regs_t r)
     pm_exit();
     pm_stack_restore();
 
-    set_enable_a20(prev_a20_enable);
+    set_enable_a20(0);  // unconditionally disable A20 line
 
     // turn interrupts back on
     int_enable();

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2016-2017 Oracle Corporation
+ * Copyright (C) 2016-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -156,6 +156,7 @@ typedef enum VBOXSERVICETOOLBOX_CAT_EXITCODE
     VBOXSERVICETOOLBOX_CAT_EXITCODE_FILE_NOT_FOUND,
     VBOXSERVICETOOLBOX_CAT_EXITCODE_PATH_NOT_FOUND,
     VBOXSERVICETOOLBOX_CAT_EXITCODE_SHARING_VIOLATION,
+    VBOXSERVICETOOLBOX_CAT_EXITCODE_IS_A_DIRECTORY,
     /** The usual 32-bit type hack. */
     VBOXSERVICETOOLBOX_CAT_32BIT_HACK = 0x7fffffff
 } VBOXSERVICETOOLBOX_CAT_EXITCODE;

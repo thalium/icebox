@@ -1692,7 +1692,7 @@ void crPixelCopy3D( GLsizei width, GLsizei height, GLsizei depth,
     (void)srcFormat;
     (void)dstPacking;
 
-    /*@todo this should be implemented properly*/
+    /** @todo this should be implemented properly*/
 
 #ifndef DEBUG_misha
     crWarning( "crPixelCopy3D:  simply crMemcpy'ing from srcPtr to dstPtr" );

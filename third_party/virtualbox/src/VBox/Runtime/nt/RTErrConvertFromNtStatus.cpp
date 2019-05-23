@@ -80,6 +80,8 @@ RTDECL(int)  RTErrConvertFromNtStatus(long lNativeCode)
         case STATUS_OBJECT_PATH_SYNTAX_BAD: return VERR_INVALID_NAME;
         case STATUS_BAD_NETWORK_PATH:       return VERR_NET_PATH_NOT_FOUND;
         case STATUS_NOT_A_DIRECTORY:        return VERR_NOT_A_DIRECTORY;
+        case STATUS_DIRECTORY_NOT_EMPTY:    return VERR_DIR_NOT_EMPTY;
+        case STATUS_SHARING_VIOLATION:      return VERR_SHARING_VIOLATION;
 
         case STATUS_UNEXPECTED_NETWORK_ERROR:
                                             return VERR_NET_IO_ERROR;

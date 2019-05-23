@@ -21,7 +21,6 @@
 *********************************************************************************************************************************/
 #include <VBox/dis.h>
 #include <VBox/disopcode.h>
-#include "DisasmTables.h"
 #include "DisasmInternal.h"
 
 

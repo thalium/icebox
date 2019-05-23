@@ -558,7 +558,7 @@ static void crServerPendProcess(CRConnection *conn)
         CRMessage *msg = &pIter->Msg;
         const CRMessageOpcodes *msg_opcodes;
         int opcodeBytes;
-        const char *data_ptr;
+        const char *data_ptr, *data_ptr_end;
 
         RTListNodeRemove(&pIter->Node);
 
@@ -568,8 +568,10 @@ static void crServerPendProcess(CRConnection *conn)
         opcodeBytes = (msg_opcodes->numOpcodes + 3) & ~0x03;
 
         data_ptr = (const char *) msg_opcodes + sizeof (CRMessageOpcodes) + opcodeBytes;
+        data_ptr_end = (const char *)msg_opcodes + pIter->cbMsg;
 
         crUnpack(data_ptr,                 /* first command's operands */
+                 data_ptr_end,             /* first byte after command's operands*/
                  data_ptr - 1,             /* first command's opcode */
                  msg_opcodes->numOpcodes,  /* how many opcodes */
                  &(cr_server.dispatch));   /* the CR dispatch table */
@@ -589,7 +591,7 @@ crServerDispatchMessage(CRConnection *conn, CRMessage *msg, int cbMsg)
 {
     const CRMessageOpcodes *msg_opcodes;
     int opcodeBytes;
-    const char *data_ptr;
+    const char *data_ptr, *data_ptr_end;
 #ifdef VBOX_WITH_CRHGSMI
     PCRVBOXHGSMI_CMDDATA pCmdData = NULL;
 #endif
@@ -615,6 +617,7 @@ crServerDispatchMessage(CRConnection *conn, CRMessage *msg, int cbMsg)
 #endif
 
     data_ptr = (const char *) msg_opcodes + sizeof(CRMessageOpcodes) + opcodeBytes;
+    data_ptr_end = (const char *)msg_opcodes + cbMsg; // Pointer to the first byte after message data
 
     enmType = crUnpackGetBufferType(data_ptr - 1,             /* first command's opcode */
                 msg_opcodes->numOpcodes  /* how many opcodes */);
@@ -676,6 +679,7 @@ crServerDispatchMessage(CRConnection *conn, CRMessage *msg, int cbMsg)
     if (fUnpack)
     {
         crUnpack(data_ptr,                 /* first command's operands */
+                 data_ptr_end,             /* first byte after command's operands*/
                  data_ptr - 1,             /* first command's opcode */
                  msg_opcodes->numOpcodes,  /* how many opcodes */
                  &(cr_server.dispatch));   /* the CR dispatch table */

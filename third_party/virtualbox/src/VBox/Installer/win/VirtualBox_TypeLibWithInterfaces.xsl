@@ -89,7 +89,7 @@
   </Include>
 </xsl:template>
 
-<!-- 
+<!--
 Applications.
 -->
 <xsl:template match="application">
@@ -178,7 +178,7 @@ Applications.
   </Class>
 </xsl:template>
 
- 
+
 <!--
   Interfaces.
 -->
@@ -196,7 +196,7 @@ Applications.
   </Interface>
 </xsl:template>
 
-    
+
 
 <!--
   Count the number of methods.  This must match what midl.exe initializes

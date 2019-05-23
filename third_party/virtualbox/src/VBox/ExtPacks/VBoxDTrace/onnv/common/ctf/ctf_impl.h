@@ -35,8 +35,8 @@
 #include <sys/errno.h>
 #include <sys/sysmacros.h>
 #else  /* VBOX */
-# include "../../../../../Runtime/include/internal/ldrELF32.h"
-# include "../../../../../Runtime/include/internal/ldrELF64.h"
+# include <iprt/formats/elf32.h>
+# include <iprt/formats/elf64.h>
 # include <errno.h>
 # include "VBoxDTraceLibCWrappers.h"
 #endif /* VBOX */

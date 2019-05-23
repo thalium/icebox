@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -480,7 +480,11 @@ void UIHostComboEditor::prepare()
     QHBoxLayout *pLayout = new QHBoxLayout(this);
     {
         /* Configure layout: */
-        pLayout->setSpacing(4);
+#ifdef VBOX_WS_MAC
+        pLayout->setSpacing(5);
+#else
+        pLayout->setSpacing(qApp->style()->pixelMetric(QStyle::PM_LayoutVerticalSpacing) / 2);
+#endif
         pLayout->setContentsMargins(0, 0, 0, 0);
         /* Create UIHostComboEditorPrivate instance: */
         m_pEditor = new UIHostComboEditorPrivate;

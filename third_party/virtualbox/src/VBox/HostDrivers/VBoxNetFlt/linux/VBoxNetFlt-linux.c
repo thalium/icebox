@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -13,6 +13,15 @@
  * Foundation, in version 2 as it comes in the "COPYING" file of the
  * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ *
+ * The contents of this file may alternatively be used under the terms
+ * of the Common Development and Distribution License Version 1.0
+ * (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+ * VirtualBox OSE distribution, in which case the provisions of the
+ * CDDL are applicable instead of those of the GPL.
+ *
+ * You may elect to license modified versions of this file under the
+ * terms and conditions of either the GPL or the CDDL or both.
  */
 
 
@@ -737,9 +746,6 @@ static struct sk_buff *vboxNetFltLinuxSkBufFromSG(PVBOXNETFLTINS pThis, PINTNETS
         case PDMNETWORKGSOTYPE_IPV4_TCP:
             fGsoType = SKB_GSO_TCPV4;
             break;
-        case PDMNETWORKGSOTYPE_IPV4_UDP:
-            fGsoType = SKB_GSO_UDP;
-            break;
         case PDMNETWORKGSOTYPE_IPV6_TCP:
             fGsoType = SKB_GSO_TCPV6;
             break;
@@ -860,7 +866,8 @@ static void vboxNetFltLinuxSkBufToSG(PVBOXNETFLTINS pThis, struct sk_buff *pBuf,
         struct vlan_ethhdr *pVHdr = (struct vlan_ethhdr *)pExtra;
         Assert(ETH_ALEN * 2 + VLAN_HLEN <= cbExtra);
         memmove(pVHdr, pMac, ETH_ALEN * 2);
-        cbConsumed += ETH_ALEN * 2;
+        /* Consume whole Ethernet header: 2 addresses + EtherType (see @bugref{8599}) */
+        cbConsumed += ETH_ALEN * 2 + sizeof(uint16_t);
         pVHdr->h_vlan_proto = RT_H2N_U16(ETH_P_8021Q);
         pVHdr->h_vlan_TCI   = RT_H2N_U16(vlan_tx_tag_get(pBuf));
         pVHdr->h_vlan_encapsulated_proto = *(uint16_t*)(pMac + ETH_ALEN * 2);
@@ -891,9 +898,9 @@ static void vboxNetFltLinuxSkBufToSG(PVBOXNETFLTINS pThis, struct sk_buff *pBuf,
 #endif /* VBOXNETFLT_SG_SUPPORT */
 
     if (!pGsoCtx)
-        IntNetSgInitTempSegs(pSG, pBuf->len, cSegs, 0 /*cSegsUsed*/);
+        IntNetSgInitTempSegs(pSG, pBuf->len + cbProduced - cbConsumed, cSegs, 0 /*cSegsUsed*/);
     else
-        IntNetSgInitTempSegsGso(pSG, pBuf->len, cSegs, 0 /*cSegsUsed*/, pGsoCtx);
+        IntNetSgInitTempSegsGso(pSG, pBuf->len + cbProduced - cbConsumed, cSegs, 0 /*cSegsUsed*/, pGsoCtx);
 
     int iSeg = 0;
 #ifdef VBOXNETFLT_SG_SUPPORT
@@ -949,6 +956,21 @@ static void vboxNetFltLinuxSkBufToSG(PVBOXNETFLTINS pThis, struct sk_buff *pBuf,
 #endif
 
     pSG->cSegsUsed = iSeg;
+
+#if 0
+    if (cbProduced)
+    {
+        LogRel(("vboxNetFltLinuxSkBufToSG: original packet dump:\n%.*Rhxd\n", pBuf->len-pBuf->data_len, skb_mac_header(pBuf)));
+        LogRel(("vboxNetFltLinuxSkBufToSG: cbConsumed=%u cbProduced=%u cbExtra=%u\n", cbConsumed, cbProduced, cbExtra));
+        uint32_t offset = 0;
+        for (i = 0; i < pSG->cSegsUsed; ++i)
+        {
+            LogRel(("vboxNetFltLinuxSkBufToSG: seg#%d (%d bytes, starting at 0x%x):\n%.*Rhxd\n",
+                    i, pSG->aSegs[i].cb, offset, pSG->aSegs[i].cb, pSG->aSegs[i].pv));
+            offset += pSG->aSegs[i].cb;
+        }
+    }
+#endif
 
 #ifdef PADD_RUNT_FRAMES_FROM_HOST
     /*
@@ -1273,7 +1295,7 @@ static bool vboxNetFltLinuxCanForwardAsGso(PVBOXNETFLTINS pThis, struct sk_buff 
      * Check the GSO properties of the socket buffer and make sure it fits.
      */
     /** @todo Figure out how to handle SKB_GSO_TCP_ECN! */
-    if (RT_UNLIKELY( skb_shinfo(pSkb)->gso_type & ~(SKB_GSO_UDP | SKB_GSO_DODGY | SKB_GSO_TCPV6 | SKB_GSO_TCPV4) ))
+    if (RT_UNLIKELY( skb_shinfo(pSkb)->gso_type & ~(SKB_GSO_DODGY | SKB_GSO_TCPV6 | SKB_GSO_TCPV4) ))
     {
         Log5(("vboxNetFltLinuxCanForwardAsGso: gso_type=%#x\n", skb_shinfo(pSkb)->gso_type));
         return false;
@@ -1523,7 +1545,7 @@ static void vboxNetFltLinuxForwardToIntNetInner(PVBOXNETFLTINS pThis, struct sk_
         }
 #endif /* !VBOXNETFLT_SG_SUPPORT */
 # ifdef VBOXNETFLT_WITH_GSO_RECV
-        if (   (skb_shinfo(pBuf)->gso_type & (SKB_GSO_UDP | SKB_GSO_TCPV6 | SKB_GSO_TCPV4))
+        if (   (skb_shinfo(pBuf)->gso_type & (SKB_GSO_TCPV6 | SKB_GSO_TCPV4))
             && vboxNetFltLinuxCanForwardAsGso(pThis, pBuf, fSrc, &GsoCtx) )
             vboxNetFltLinuxForwardAsGso(pThis, pBuf, fSrc, &GsoCtx);
         else
@@ -1592,7 +1614,7 @@ static void vboxNetFltLinuxForwardToIntNetInner(PVBOXNETFLTINS pThis, struct sk_
 
 /**
  * Temporarily adjust pBuf->data so it always points to the Ethernet header,
- * then forward it to the internal network. 
+ * then forward it to the internal network.
  *
  * @param   pThis       The net filter instance.
  * @param   pBuf        The socket buffer.  This is consumed by this function.
@@ -1614,7 +1636,7 @@ static void vboxNetFltLinuxForwardToIntNet(PVBOXNETFLTINS pThis, struct sk_buff 
     }
 
     vboxNetFltLinuxForwardToIntNetInner(pThis, pBuf, fSrc);
-    
+
     /*
      * Restore the original state of skb as there are other handlers this skb
      * will be provided to.
@@ -1699,17 +1721,9 @@ static void vboxNetFltLinuxReportNicGsoCapabilities(PVBOXNETFLTINS pThis)
                 fGsoCapabilites |= RT_BIT_32(PDMNETWORKGSOTYPE_IPV4_TCP);
             if (fFeatures & NETIF_F_TSO6)
                 fGsoCapabilites |= RT_BIT_32(PDMNETWORKGSOTYPE_IPV6_TCP);
-# if 0 /** @todo GSO: Test UDP offloading (UFO) on linux. */
-            if (fFeatures & NETIF_F_UFO)
-                fGsoCapabilites |= RT_BIT_32(PDMNETWORKGSOTYPE_IPV4_UDP);
-            if (fFeatures & NETIF_F_UFO)
-                fGsoCapabilites |= RT_BIT_32(PDMNETWORKGSOTYPE_IPV6_UDP);
-# endif
             Log3(("vboxNetFltLinuxReportNicGsoCapabilities: reporting wire %s%s%s%s\n",
                   (fGsoCapabilites & RT_BIT_32(PDMNETWORKGSOTYPE_IPV4_TCP)) ? "tso " : "",
-                  (fGsoCapabilites & RT_BIT_32(PDMNETWORKGSOTYPE_IPV6_TCP)) ? "tso6 " : "",
-                  (fGsoCapabilites & RT_BIT_32(PDMNETWORKGSOTYPE_IPV4_UDP)) ? "ufo " : "",
-                  (fGsoCapabilites & RT_BIT_32(PDMNETWORKGSOTYPE_IPV6_UDP)) ? "ufo6 " : ""));
+                  (fGsoCapabilites & RT_BIT_32(PDMNETWORKGSOTYPE_IPV6_TCP)) ? "tso6 " : ""));
             pThis->pSwitchPort->pfnReportGsoCapabilities(pThis->pSwitchPort, fGsoCapabilites, INTNETTRUNKDIR_WIRE);
         }
 
@@ -2402,15 +2416,11 @@ int  vboxNetFltOsConnectIt(PVBOXNETFLTINS pThis)
      */
     /** @todo duplicate work here now? Attach */
 #if defined(VBOXNETFLT_WITH_GSO_XMIT_HOST)
-    Log3(("vboxNetFltOsConnectIt: reporting host tso tso6 ufo\n"));
+    Log3(("vboxNetFltOsConnectIt: reporting host tso tso6\n"));
     pThis->pSwitchPort->pfnReportGsoCapabilities(pThis->pSwitchPort,
                                                  0
                                                  | RT_BIT_32(PDMNETWORKGSOTYPE_IPV4_TCP)
                                                  | RT_BIT_32(PDMNETWORKGSOTYPE_IPV6_TCP)
-                                                 | RT_BIT_32(PDMNETWORKGSOTYPE_IPV4_UDP)
-# if 0 /** @todo GSO: Test UDP offloading (UFO) on linux. */
-                                                 | RT_BIT_32(PDMNETWORKGSOTYPE_IPV6_UDP)
-# endif
                                                  , INTNETTRUNKDIR_HOST);
 
 #endif

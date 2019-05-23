@@ -15,9 +15,10 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #define LOG_GROUP LOG_GROUP_VSCSI
 #include <VBox/log.h>
 #include <VBox/err.h>
@@ -181,7 +182,7 @@ static int vscsiLUNSSCReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQINT pVScsiReq)
             {
                 *pu8ReplyPos++ = 0x45;  /* Travan TR-4 density. */
                 *pu8ReplyPos++ = 0;     /* All blocks are the same. */
-                *pu8ReplyPos++ = 0;     //@todo: this calls for some macros!
+                *pu8ReplyPos++ = 0;     /// @todo this calls for some macros!
                 *pu8ReplyPos++ = 0;
                 *pu8ReplyPos++ = 0;     /* Reserved. */
                 *pu8ReplyPos++ = 0x00;  /* Block length (512). */
@@ -195,7 +196,7 @@ static int vscsiLUNSSCReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQINT pVScsiReq)
         }
         case SCSI_MODE_SELECT_6:
         {
-            /* @todo: implement!! */
+            /** @todo implement!! */
             rcReq = vscsiLunReqSenseOkSet(pVScsiLun, pVScsiReq);
             break;
         }
@@ -255,7 +256,7 @@ static int vscsiLUNSSCReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQINT pVScsiReq)
         case SCSI_VERIFY_10:
         case SCSI_LOAD_UNLOAD:
         {
-            //@todo: should load/unload do anyhting? is verify even supported?
+            /// @todo should load/unload do anyhting? is verify even supported?
             rcReq = vscsiLunReqSenseOkSet(pVScsiLun, pVScsiReq);
             break;
         }
@@ -304,16 +305,16 @@ static int vscsiLUNSSCReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQINT pVScsiReq)
             break;
         }
         case SCSI_REWIND:
-            //@todo: flush data + write EOD? immed bit? partitions?
+            /// @todo flush data + write EOD? immed bit? partitions?
             pVScsiLUNSSC->uCurPos = 0;
             rcReq = vscsiLunReqSenseOkSet(pVScsiLun, pVScsiReq);
             break;
         case SCSI_RESERVE_6:
-            //@todo: perform actual reservation
+            /// @todo perform actual reservation
             rcReq = vscsiLunReqSenseOkSet(pVScsiLun, pVScsiReq);
             break;
         case SCSI_RELEASE_6:
-            //@todo: perform actual release
+            /// @todo perform actual release
             rcReq = vscsiLunReqSenseOkSet(pVScsiLun, pVScsiReq);
             break;
         case SCSI_READ_BLOCK_LIMITS:
@@ -322,7 +323,7 @@ static int vscsiLUNSSCReqProcess(PVSCSILUNINT pVScsiLun, PVSCSIREQINT pVScsiReq)
 
             /* Report unrestricted block sizes (1-FFFFFFh). */
             memset(aReply, 0, sizeof(aReply));
-            //@todo: Helpers for big-endian 16-bit/24-bit/32-bit constants?
+            /// @todo Helpers for big-endian 16-bit/24-bit/32-bit constants?
             aReply[1] = aReply[2] = aReply[3] = 0xff;
             aReply[5] = 0x01;
             RTSgBufCopyFromBuf(&pVScsiReq->SgBuf, aReply, sizeof(aReply));

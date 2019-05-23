@@ -4405,19 +4405,19 @@
     </message>
     <message>
         <source>Enc&amp;ryption</source>
-        <translation>&amp;Verschlüsselung</translation>
+        <translation type="vanished">&amp;Verschlüsselung</translation>
     </message>
     <message>
         <source>When checked, enables encryption for this virtual machine.</source>
-        <translation>Aktiviert Verschlüsselung für diese virtuelle Maschine.</translation>
+        <translation type="vanished">Aktiviert Verschlüsselung für diese virtuelle Maschine.</translation>
     </message>
     <message>
         <source>En&amp;able Encryption</source>
-        <translation>&amp;Verschlüsselung aktivieren</translation>
+        <translation type="vanished">&amp;Verschlüsselung aktivieren</translation>
     </message>
     <message>
         <source>Encryption C&amp;ipher:</source>
-        <translation>Verschlüsselungs-C&amp;hiffre:</translation>
+        <translation type="vanished">Verschlüsselungs-C&amp;hiffre:</translation>
     </message>
     <message>
         <source>E&amp;nter New Password:</source>
@@ -4425,7 +4425,7 @@
     </message>
     <message>
         <source>Holds the password to be assigned to the virtual machine.</source>
-        <translation>Passwort für diese virtuelle Maschine.</translation>
+        <translation type="vanished">Passwort für diese virtuelle Maschine.</translation>
     </message>
     <message>
         <source>C&amp;onfirm New Password:</source>
@@ -4433,23 +4433,23 @@
     </message>
     <message>
         <source>Confirms the password to be assigned to the virtual machine.</source>
-        <translation>Bestätigt das Passwort für diese virtuelle Maschine.</translation>
+        <translation type="vanished">Bestätigt das Passwort für diese virtuelle Maschine.</translation>
     </message>
     <message>
         <source>You are trying to encrypt this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
-        <translation>Sie möchten diese virtuelle Maschine verschlüsseln. Diese Funktion benötigt die Installation des &lt;i&gt;%1&lt;/i&gt;. Bitte installieren Sie dieses Zusatzpaket von der VirtualBox-Webseite.</translation>
+        <translation type="vanished">Sie möchten diese virtuelle Maschine verschlüsseln. Diese Funktion benötigt die Installation des &lt;i&gt;%1&lt;/i&gt;. Bitte installieren Sie dieses Zusatzpaket von der VirtualBox-Webseite.</translation>
     </message>
     <message>
         <source>Encryption cipher type not specified.</source>
-        <translation>Verschlüsselungs-Chiffre nicht ausgewählt.</translation>
+        <translation type="vanished">Verschlüsselungs-Chiffre nicht ausgewählt.</translation>
     </message>
     <message>
         <source>Encryption password empty.</source>
-        <translation>Verschlüsselungspasswort nicht gesetzt.</translation>
+        <translation type="vanished">Verschlüsselungspasswort nicht gesetzt.</translation>
     </message>
     <message>
         <source>Encryption passwords do not match.</source>
-        <translation>Verschlüsselungspasswörter stimmen nicht überein.</translation>
+        <translation type="vanished">Verschlüsselungspasswörter stimmen nicht überein.</translation>
     </message>
     <message>
         <source>Leave Unchanged</source>
@@ -4463,6 +4463,46 @@
     <message>
         <source>Holds the path where snapshots of this virtual machine will be stored. Be aware that snapshots can take quite a lot of storage space.</source>
         <translation>Zeigt den Pfad an, wo Sicherungspunkte für diese virtuelle Maschine gespeichert werden. Beachten Sie, dass Sicherungspunkte viel Platz beanspruchen können.</translation>
+    </message>
+    <message>
+        <source>Disk Enc&amp;ryption</source>
+        <translation>Festplatten&amp;verschlüsselung</translation>
+    </message>
+    <message>
+        <source>When checked, disks attached to this virtual machine will be encrypted.</source>
+        <translation>Aktiviert die Verschlüsselung der Festplatten für die virtuelle Maschine.</translation>
+    </message>
+    <message>
+        <source>En&amp;able Disk Encryption</source>
+        <translation>Festplattenverschlüsselung &amp;aktivieren</translation>
+    </message>
+    <message>
+        <source>Disk Encryption C&amp;ipher:</source>
+        <translation>Festplatten-Verschlüsselungsch&amp;iffre:</translation>
+    </message>
+    <message>
+        <source>Holds the encryption password for disks attached to this virtual machine.</source>
+        <translation>Passwort für die Verschlüsselung der Festplatten dieser virtuelle Maschine.</translation>
+    </message>
+    <message>
+        <source>Confirms the disk encryption password.</source>
+        <translation>Bestätigt das Passwort für die Verschlüsselung der Festplatten.</translation>
+    </message>
+    <message>
+        <source>You are trying to enable disk encryption for this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
+        <translation>Sie möchten die Festplatten dieser virtuelle Maschine verschlüsseln. Diese Funktion benötigt die Installation des &lt;i&gt;%1&lt;/i&gt;. Bitte installieren Sie dieses Zusatzpaket von der VirtualBox-Webseite.</translation>
+    </message>
+    <message>
+        <source>Disk encryption cipher type not specified.</source>
+        <translation>Festplatten-Verschlüsselungschiffre nicht ausgewählt.</translation>
+    </message>
+    <message>
+        <source>Disk encryption password empty.</source>
+        <translation>Festplatten-Verschlüsselungspasswort nicht gesetzt.</translation>
+    </message>
+    <message>
+        <source>Disk encryption passwords do not match.</source>
+        <translation>Festplatten-Verschlüsselungspasswörter stimmen nicht überein.</translation>
     </message>
 </context>
 <context>
@@ -5767,6 +5807,38 @@
         <source>Cannot change medium size from &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt; as storage shrinking is currently not implemented.</source>
         <translation>Die Größe des Mediums kann nicht von &lt;b&gt;%1&lt;/b&gt; nach &lt;b&gt;%2&lt;/b&gt; verringert werden, weil dies nicht implementiert ist.</translation>
     </message>
+    <message>
+        <source>Choose Medium Location</source>
+        <translation>Speicherort des Mediums auswählen</translation>
+    </message>
+    <message>
+        <source>Location can not be empty.</source>
+        <translation>Speicherort darf nicht leer sein.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
+        <translation>Das Medium ist direkt oder indirekt angeschlossen und wird beim Laden von Sicherungspunkten wieder hergestellt.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
+        <translation>Änderungen von diesem indirekt angeschlossenen Medium gehen beim nächsten Start der virtuellen Maschine verloren.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, ignored when taking snapshots.</source>
+        <translation>Das Medium ist direkt angeschlossen und wird beim Speichern von Sicherungspunkten ignoriert.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
+        <translation>Das Medium ist direkt angeschlossen und kann gleichzeitig von mehreren Maschinen benutzt werden.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, and can be used by several machines.</source>
+        <translation>Das Medium ist direkt angeschlossen und kann von mehreren Maschinen benutzt werden.</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
+        <translation>Das Medium kann zugleich von mehreren VMs benutzt werden. Schreibzugriffe gehen auf jeweils gesonderte virtuelle Differenzmedien, die separat für jede VM angelegt werden.</translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManager</name>
@@ -5992,6 +6064,26 @@
         <source>Refresh Disk Image Files (%1)</source>
         <translation>Plattenabbilder aktualisieren (%1)</translation>
     </message>
+    <message>
+        <source>Current extension (*.%1)</source>
+        <translation>Aktuelle Erweiterung (*.%1)</translation>
+    </message>
+    <message>
+        <source>Choose the location of this medium</source>
+        <translation>Ort für dieses Medium auswählen</translation>
+    </message>
+    <message>
+        <source>&amp;Move...</source>
+        <translation>&amp;Verschieben...</translation>
+    </message>
+    <message>
+        <source>Move Disk Image File (%1)</source>
+        <translation>Plattenabbild verschieben (%1)</translation>
+    </message>
+    <message>
+        <source>Move selected disk image file</source>
+        <translation>Ausgewähltes Plattenabbild verschieben</translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManagerWidget</name>
@@ -6031,39 +6123,39 @@
     <name>UIMediumTypeChangeDialog</name>
     <message>
         <source>Modify medium attributes</source>
-        <translation>Mediumattribute ändern</translation>
+        <translation type="vanished">Mediumattribute ändern</translation>
     </message>
     <message>
         <source>&lt;p&gt;You are about to change the settings of the disk image file &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Please choose one of the following modes and press &lt;b&gt;%2&lt;/b&gt; to proceed or &lt;b&gt;%3&lt;/b&gt; otherwise.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Sie möchten die Attribute der virtuellen Festplatte &lt;b&gt;%1&lt;/b&gt; ändern.&lt;/p&gt;&lt;p&gt;Bitte wählen Sie einen der folgenden Medientypen und bestätigen dann mit &lt;b&gt;%2&lt;/b&gt; um fortzufahren oder verwerfen die Änderung mit &lt;b&gt;%3&lt;/b&gt;.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Sie möchten die Attribute der virtuellen Festplatte &lt;b&gt;%1&lt;/b&gt; ändern.&lt;/p&gt;&lt;p&gt;Bitte wählen Sie einen der folgenden Medientypen und bestätigen dann mit &lt;b&gt;%2&lt;/b&gt; um fortzufahren oder verwerfen die Änderung mit &lt;b&gt;%3&lt;/b&gt;.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose mode:</source>
-        <translation>Mediumtyp ändern:</translation>
+        <translation type="vanished">Mediumtyp ändern:</translation>
     </message>
     <message>
         <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
-        <translation>Das Medium wird normal an die VM gebunden und beim Laden von Sicherungspunkten ordungsgemäß wieder hergestellt.</translation>
+        <translation type="vanished">Das Medium wird normal an die VM gebunden und beim Laden von Sicherungspunkten ordungsgemäß wieder hergestellt.</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
-        <translation>Schreibzugriffe auf das Medium werden nur temporär gespeichert und gehen beim Ausschalten der VM verloren.</translation>
+        <translation type="vanished">Schreibzugriffe auf das Medium werden nur temporär gespeichert und gehen beim Ausschalten der VM verloren.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, ignored when taking snapshots.</source>
-        <translation>In diesem Modus wird immer direkt auf das virtuelle Medium geschrieben und Sicherungspunkte werden nicht berücksichtigt.</translation>
+        <translation type="vanished">In diesem Modus wird immer direkt auf das virtuelle Medium geschrieben und Sicherungspunkte werden nicht berücksichtigt.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
-        <translation>Das Medium kann zugleich von mehreren VMs benutzt werden. Die Gäste müssen gemeinsame Zugriffe auf das Medium aber untereinander koordinieren.</translation>
+        <translation type="vanished">Das Medium kann zugleich von mehreren VMs benutzt werden. Die Gäste müssen gemeinsame Zugriffe auf das Medium aber untereinander koordinieren.</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, and can be used by several machines.</source>
-        <translation>Das Medium ist direkt angeschlossen und kann von mehreren Maschinen benutzt werden.</translation>
+        <translation type="vanished">Das Medium ist direkt angeschlossen und kann von mehreren Maschinen benutzt werden.</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
-        <translation>Das Medium kann zugleich von mehreren VMs benutzt werden. Schreibzugriffe gehen auf jeweils gesonderte virtuelle Differenzmedien, die separat für jede VM angelegt werden.</translation>
+        <translation type="vanished">Das Medium kann zugleich von mehreren VMs benutzt werden. Schreibzugriffe gehen auf jeweils gesonderte virtuelle Differenzmedien, die separat für jede VM angelegt werden.</translation>
     </message>
 </context>
 <context>
@@ -6400,7 +6492,7 @@
     </message>
     <message>
         <source>Failed to create the hard disk storage &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</source>
-        <translation>Die virtuelle Festplatte &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; konnte nicht erzeugt werden.</translation>
+        <translation>Die virtuelle Festplatte konnte nicht erzeugt werden: &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</translation>
     </message>
     <message>
         <source>Failed to access the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;.</source>
@@ -6629,23 +6721,23 @@
     </message>
     <message>
         <source>Could not load the Host USB Proxy Service (VERR_FILE_NOT_FOUND). The service might not be installed on the host computer</source>
-        <translation>Der USB-Proxy-Dienst konnte nicht gestarted werden. Dieser Dienst ist möglicherweise nicht auf diesem Computer installiert.</translation>
+        <translation>Der USB-Proxy-Dienst konnte nicht gestarted werden (VERR_FILE_NOT_FOUND). Dieser Dienst ist möglicherweise nicht auf diesem Computer installiert</translation>
     </message>
     <message>
         <source>VirtualBox is not currently allowed to access USB devices.  You can change this by adding your user to the &apos;vboxusers&apos; group.  Please see the user manual for a more detailed explanation</source>
-        <translation>VirtualBox kann nicht auf USB-Geräte zugreifen. Dieses Problem kann dadurch gelöst werden, indem der aktuelle Nutzer Mitglied der Gruppe &apos;vboxusers&apos; wird. In der Dokumentation finden Sie weitere Erläuterungen.</translation>
+        <translation>VirtualBox kann nicht auf USB-Geräte zugreifen. Dieses Problem kann dadurch gelöst werden, indem der aktuelle Nutzer Mitglied der Gruppe &apos;vboxusers&apos; wird. In der Dokumentation finden Sie weitere Erläuterungen</translation>
     </message>
     <message>
         <source>VirtualBox is not currently allowed to access USB devices.  You can change this by allowing your user to access the &apos;usbfs&apos; folder and files.  Please see the user manual for a more detailed explanation</source>
-        <translation>VirtualBox kann nicht auf USB-Geräte zugreifen. Dieses Problem wird gelöst, wenn der aktuelle Nutzer auf die Dateien und Order des USB-Dateisystems (usbfs) zugreifen kann. In der Dokumentation finden Sie eine genauere Erklärung.</translation>
+        <translation>VirtualBox kann nicht auf USB-Geräte zugreifen. Dieses Problem wird gelöst, wenn der aktuelle Nutzer auf die Dateien und Order des USB-Dateisystems (usbfs) zugreifen kann. In der Dokumentation finden Sie eine genauere Erklärung</translation>
     </message>
     <message>
         <source>The USB Proxy Service has not yet been ported to this host</source>
-        <translation>Der USB-Proxy-Dienst wurde nicht auf diesen Host portiert.</translation>
+        <translation>Der USB-Proxy-Dienst wurde noch nicht auf diesen Host portiert</translation>
     </message>
     <message>
         <source>Could not load the Host USB Proxy service</source>
-        <translation>Der USB-Proxy-Dienst konnte nicht gestartet werden.</translation>
+        <translation>Der USB-Proxy-Dienst konnte nicht geladen werden</translation>
     </message>
     <message>
         <source>Failed to register the virtual machine &lt;b&gt;%1&lt;/b&gt;.</source>
@@ -7226,15 +7318,15 @@
     </message>
     <message>
         <source>&lt;p&gt;You are about to install a VirtualBox extension pack. Extension packs complement the functionality of VirtualBox and can contain system level software that could be potentially harmful to your system. Please review the description below and only proceed if you have obtained the extension pack from a trusted source.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Sie sind dabei, ein Zusatzpaket für VirtualBox zu installieren. Zusatzpakete ergänzen die Funktionalität von VirtualBox und können Systemprogramme enthalten, die Ihr System potentiell gefärden könnten. Bitte kontrollieren Sie die Beschreibung sorgfältig und fahren Sie nur fort, falls Sie das Zusatzpaket von einer vertrauenswürdigen Quelle erhalten haben.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Beschreibung:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Sie sind dabei, ein Zusatzpaket für VirtualBox zu installieren. Zusatzpakete ergänzen die Funktionalität von VirtualBox und können Systemprogramme enthalten, die Ihr System potentiell gefärden könnten. Bitte kontrollieren Sie die Beschreibung sorgfältig und fahren Sie nur fort, falls Sie das Zusatzpaket von einer vertrauenswürdigen Quelle erhalten haben.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Beschreibung:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An older version of the extension pack is already installed, would you like to upgrade? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;New Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Current Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Eine ältere Version dieses Pakets ist bereits installiert, möchten Sie das Paket aktualisieren? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Neue Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Aktuelle Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Beschreibung:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Eine ältere Version dieses Pakets ist bereits installiert, möchten Sie das Paket aktualisieren? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Neue Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Aktuelle Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Beschreibung:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An newer version of the extension pack is already installed, would you like to downgrade? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;New Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Current Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Eine neuere Version dieses Pakets ist bereits installiert, möchten Sie zur alten Version zurückkehren? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Neue Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Aktuelle Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Beschreibung:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Eine neuere Version dieses Pakets ist bereits installiert, möchten Sie zur alten Version zurückkehren? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Neue Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Aktuelle Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Beschreibung:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The extension pack is already installed with the same version, would you like reinstall it? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
@@ -7258,11 +7350,19 @@
     </message>
     <message>
         <source>&lt;p&gt;Could not insert the &lt;b&gt;%1&lt;/b&gt; disk image file into the virtual machine &lt;b&gt;%2&lt;/b&gt;, as the machine has no optical drives. Please add a drive using the storage page of the virtual machine settings window.&lt;/p&gt;</source>
-        <translation>Konnte das Abbild &lt;b&gt;%1&lt;/b&gt; nicht zur virtuellen Maschine lt;b&gt;%2&lt;/b&gt; hinzufügen, da diese kein optisches Laufwerk enthält. Bitte ein optisches Laufwerk in den VM-Einstellungen hinzufügen.</translation>
+        <translation>&lt;p&gt;Konnte das Abbild &lt;b&gt;%1&lt;/b&gt; nicht zur virtuellen Maschine lt;b&gt;%2&lt;/b&gt; hinzufügen, da diese kein optisches Laufwerk enthält. Bitte ein optisches Laufwerk in den VM-Einstellungen hinzufügen.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Failed to change the snapshot &lt;b&gt;%1&lt;/b&gt; of the virtual machine &lt;b&gt;%2&lt;/b&gt;.</source>
         <translation>Ändern des Sicherungspunktes &lt;b&gt;%1&lt;/b&gt; der virtuellen Maschine lt;b&gt;%2&lt;/b&gt; fehlgeschlagen.</translation>
+    </message>
+    <message>
+        <source>Failed to create the virtual disk image storage &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</source>
+        <translation>Die Plattenabbilddatei konnte nicht erstellt werden: &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Die Änderungen die Sie vornehmen möchten erfordern, dass diese Festplatte von der Maschine abgelöst wird.&lt;/p&gt;&lt;p&gt;Sind Sie sicher, dass Sie die Festplatte &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt; ablösen wollen?&lt;/p&gt;&lt;p&gt;Diese wird dann von den folgenden Maschinen abgelöst: &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</translation>
     </message>
 </context>
 <context>
@@ -8493,31 +8593,31 @@
     <message>
         <source>%1_copy</source>
         <comment>copied virtual hard drive name</comment>
-        <translation>%1_Kopie</translation>
+        <translation type="vanished">%1_Kopie</translation>
     </message>
     <message>
         <source>Copy Virtual Hard Disk</source>
-        <translation>Virtuelle Festplatte kopieren</translation>
+        <translation type="vanished">Virtuelle Festplatte kopieren</translation>
     </message>
     <message>
         <source>Hard disk to copy</source>
-        <translation>Zu kopierende Festplatte</translation>
+        <translation type="vanished">Zu kopierende Festplatte</translation>
     </message>
     <message>
         <source>&lt;p&gt;Please select the virtual hard disk file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Bitte wählen Sie eine virtuelle Festplatte zum Kopieren aus. Diese können Sie entweder aus der Liste oder mit Hilfe des Icons neben der Liste mittels Dateidialog auswählen.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Bitte wählen Sie eine virtuelle Festplatte zum Kopieren aus. Diese können Sie entweder aus der Liste oder mit Hilfe des Icons neben der Liste mittels Dateidialog auswählen.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose a virtual hard disk file to copy...</source>
-        <translation>Wählen Sie eine virtuelle Festplatte zum Kopieren...</translation>
+        <translation type="vanished">Wählen Sie eine virtuelle Festplatte zum Kopieren...</translation>
     </message>
     <message>
         <source>Hard disk file type</source>
-        <translation>Dateityp der Festplatte</translation>
+        <translation type="vanished">Dateityp der Festplatte</translation>
     </message>
     <message>
         <source>Please choose the type of file that you would like to use for the new virtual hard disk. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
-        <translation>Bitte wählen Sie den Typ der neuen virtuelle Festplatte. Falls Sie diese nicht mit anderer Virtualisierungssoftware verwenden, können Sie diese Einstellung unverändert lassen.</translation>
+        <translation type="vanished">Bitte wählen Sie den Typ der neuen virtuelle Festplatte. Falls Sie diese nicht mit anderer Virtualisierungssoftware verwenden, können Sie diese Einstellung unverändert lassen.</translation>
     </message>
     <message>
         <source>Storage on physical hard disk</source>
@@ -8525,46 +8625,119 @@
     </message>
     <message>
         <source>Please choose whether the new virtual hard disk file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
-        <translation>Bitte wählen Sie, ob die neue virtuelle Festplatte erst nach und nach zur Laufzeit (dynamisch) alloziert werden soll oder ob die Platte jetzt sofort vollständig alloziert werden soll (feste Größe).</translation>
+        <translation type="vanished">Bitte wählen Sie, ob die neue virtuelle Festplatte erst nach und nach zur Laufzeit (dynamisch) alloziert werden soll oder ob die Platte jetzt sofort vollständig alloziert werden soll (feste Größe).</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; hard disk file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Eine &lt;b&gt;dynamisch allozierte&lt;/b&gt; Datei einer virtuellen Platte belegt nur dann Platz auf der physischen Platte des Hosts, wenn der Gast Daten schreibt. Einmal belegter Platz wird nicht automatisch freigegeben.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Eine &lt;b&gt;dynamisch allozierte&lt;/b&gt; Datei einer virtuellen Platte belegt nur dann Platz auf der physischen Platte des Hosts, wenn der Gast Daten schreibt. Einmal belegter Platz wird nicht automatisch freigegeben.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; hard disk file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Das Erzeugen einer Datei &lt;b&gt;fester Größe&lt;/b&gt; dauert auf manchen Systemen länger aber bietet eine etwas bessere Performance.&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;Das Erzeugen einer Datei &lt;b&gt;fester Größe&lt;/b&gt; dauert auf manchen Systemen länger aber bietet eine etwas bessere Performance.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the hard disk file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
-        <translation>&lt;p&gt;Die virtuelle Platte kann ebenfalls auf mehrere Dateien mit einer maximalen Größe von 2 GB aufgeteilt werden. Dies ist sinnvoll, wenn die virtuelle Maschine auf einem USB-Gerät oder auf älteren Systemen gespeichert werden soll, die keine größeren Dateien unterstützen.</translation>
+        <translation type="vanished">&lt;p&gt;Die virtuelle Platte kann ebenfalls auf mehrere Dateien mit einer maximalen Größe von 2 GB aufgeteilt werden. Dies ist sinnvoll, wenn die virtuelle Maschine auf einem USB-Gerät oder auf älteren Systemen gespeichert werden soll, die keine größeren Dateien unterstützen.</translation>
     </message>
     <message>
         <source>Please choose a location for new virtual hard disk file</source>
-        <translation>Bitte wählen Sie einen Dateinamen für die neue virtuelle Festplatte</translation>
+        <translation type="vanished">Bitte wählen Sie einen Dateinamen für die neue virtuelle Festplatte</translation>
     </message>
     <message>
         <source>New hard disk to create</source>
-        <translation>Neue Festplatte</translation>
+        <translation type="vanished">Neue Festplatte</translation>
     </message>
     <message>
         <source>Please type the name of the new virtual hard disk file into the box below or click on the folder icon to select a different folder to create the file in.</source>
-        <translation>Bitte geben Sie den Namen der neuen Festplatte an oder wählen Sie das Ordner-Icon, um einen anderen Ordner für die Datei zu wählen.</translation>
+        <translation type="vanished">Bitte geben Sie den Namen der neuen Festplatte an oder wählen Sie das Ordner-Icon, um einen anderen Ordner für die Datei zu wählen.</translation>
     </message>
     <message>
         <source>Choose a location for new virtual hard disk file...</source>
-        <translation>Bitte wählen Sie einen Dateinamen für die neue virtuelle Festplatte...</translation>
+        <translation type="vanished">Bitte wählen Sie einen Dateinamen für die neue virtuelle Festplatte...</translation>
     </message>
     <message>
         <source>Hard disk to &amp;copy</source>
-        <translation>Zu &amp;kopierende Festplatte</translation>
+        <translation type="vanished">Zu &amp;kopierende Festplatte</translation>
     </message>
     <message>
         <source>&amp;New hard disk to create</source>
-        <translation>&amp;Neue Festplatte</translation>
+        <translation type="vanished">&amp;Neue Festplatte</translation>
     </message>
     <message>
         <source>Hard disk file &amp;type</source>
+        <translation type="vanished">Datei&amp;typ der Festplatte</translation>
+    </message>
+    <message>
+        <source>Copy Virtual Disk Image</source>
+        <translation>Plattenabbild kopieren</translation>
+    </message>
+    <message>
+        <source>Disk image to copy</source>
+        <translation>Zu kopierendes Plattenabbild</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Please select the virtual disk image file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Bitte wählen Sie eine virtuelle Festplatte zum Kopieren aus sofern noch keine gewählt ist. Diese können Sie entweder aus der Liste oder mit Hilfe des Icons neben der Liste mittels Dateidialog auswählen.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>Choose a virtual disk image file to copy...</source>
+        <translation>Wählen Sie eine virtuelle Festplatte zum Kopieren...</translation>
+    </message>
+    <message>
+        <source>Disk image file type</source>
+        <translation>Dateityp der Festplatte</translation>
+    </message>
+    <message>
+        <source>Please choose the type of file that you would like to use for the new virtual disk image. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
+        <translation>Bitte wählen Sie den Typ der neuen virtuelle Festplatte. Falls Sie diese nicht mit anderer Virtualisierungssoftware verwenden, können Sie diese Einstellung unverändert lassen.</translation>
+    </message>
+    <message>
+        <source>Please choose whether the new virtual disk image file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
+        <translation>Bitte wählen Sie, ob die neue virtuelle Festplatte erst nach und nach zur Laufzeit (dynamisch) alloziert werden soll oder ob die Platte jetzt sofort vollständig alloziert werden soll (feste Größe).</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; disk image file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Eine &lt;b&gt;dynamisch allozierte&lt;/b&gt; Datei einer virtuellen Platte belegt nur dann Platz auf der physischen Platte des Hosts, wenn der Gast Daten schreibt. Einmal belegter Platz wird nicht automatisch freigegeben.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; disk image file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
+        <translation>&lt;p&gt;Das Erzeugen einer Datei &lt;b&gt;fester Größe&lt;/b&gt; dauert auf manchen Systemen länger aber bietet eine etwas bessere Performance.&lt;/p&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the disk image file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
+        <translation>&lt;p&gt;Die virtuelle Platte kann ebenfalls auf mehrere Dateien mit einer maximalen Größe von 2 GB aufgeteilt werden. Dies ist sinnvoll, wenn die virtuelle Maschine auf einem USB-Gerät oder auf älteren Systemen gespeichert werden soll, die keine größeren Dateien unterstützen.</translation>
+    </message>
+    <message>
+        <source>Please choose a location for new virtual disk image file</source>
+        <translation>Bitte wählen Sie einen Dateinamen für die neue virtuelle Festplatte</translation>
+    </message>
+    <message>
+        <source>New disk image to create</source>
+        <translation>Neue Festplatte</translation>
+    </message>
+    <message>
+        <source>Please type the name of the new virtual disk image file into the box below or click on the folder icon to select a different folder to create the file in.</source>
+        <translation>Bitte geben Sie unten in das Feld den Namen der neuen Festplatte an oder wählen Sie das Ordner-Icon, um einen anderen Ordner für die Datei zu wählen.</translation>
+    </message>
+    <message>
+        <source>Choose a location for new virtual disk image file...</source>
+        <translation>Bitte wählen Sie einen Dateinamen für die neue virtuelle Festplatte...</translation>
+    </message>
+    <message>
+        <source>%1_copy</source>
+        <comment>copied virtual disk image name</comment>
+        <translation>%1_Kopie</translation>
+    </message>
+    <message>
+        <source>Disk image to &amp;copy</source>
+        <translation>Zu &amp;kopierendes Plattenabbild</translation>
+    </message>
+    <message>
+        <source>&amp;New disk image to create</source>
+        <translation>&amp;Neue Platte erzeugen</translation>
+    </message>
+    <message>
+        <source>Disk image file &amp;type</source>
         <translation>Datei&amp;typ der Festplatte</translation>
     </message>
 </context>

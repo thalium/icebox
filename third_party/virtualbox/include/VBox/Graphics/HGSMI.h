@@ -6,22 +6,25 @@
 /*
  * Copyright (C) 2006-2017 Oracle Corporation
  *
- * Permission is hereby granted, free of charge, to any person obtaining a
- * copy of this software and associated documentation files (the "Software"),
- * to deal in the Software without restriction, including without limitation
- * the rights to use, copy, modify, merge, publish, distribute, sublicense,
- * and/or sell copies of the Software, and to permit persons to whom the
- * Software is furnished to do so, subject to the following conditions:
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
  *
- * The above copyright notice and this permission notice shall be included in
- * all copies or substantial portions of the Software.
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
  *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
- * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL
- * THE COPYRIGHT HOLDER(S) OR AUTHOR(S) BE LIABLE FOR ANY CLAIM, DAMAGES OR
- * OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- * ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT.  IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
 
@@ -80,7 +83,8 @@ typedef struct HGSMIHEAP
 #define HGSMI_NUMBER_OF_CHANNELS 0x100
 
 /* Channel handler called when the guest submits a buffer. */
-typedef DECLCALLBACK(int) FNHGSMICHANNELHANDLER(void *pvHandler, uint16_t u16ChannelInfo, void *pvBuffer, HGSMISIZE cbBuffer);
+typedef DECLCALLBACK(int) FNHGSMICHANNELHANDLER(void *pvHandler, uint16_t u16ChannelInfo,
+                                                RT_UNTRUSTED_VOLATILE_HSTGST void *pvBuffer, HGSMISIZE cbBuffer);
 typedef FNHGSMICHANNELHANDLER *PFNHGSMICHANNELHANDLER;
 
 /* Information about a handler: pfn + context. */
@@ -109,20 +113,20 @@ typedef struct _HGSMICHANNELINFO
 
 RT_C_DECLS_BEGIN
 
-DECLINLINE(HGSMIBUFFERHEADER *) HGSMIBufferHeaderFromPtr(void *pvBuffer)
+DECLINLINE(HGSMIBUFFERHEADER *) HGSMIBufferHeaderFromPtr(void RT_UNTRUSTED_VOLATILE_HSTGST *pvBuffer)
 {
     return (HGSMIBUFFERHEADER *)pvBuffer;
 }
 
-DECLINLINE(uint8_t *) HGSMIBufferDataFromPtr(void *pvBuffer)
+DECLINLINE(uint8_t RT_UNTRUSTED_VOLATILE_HSTGST *) HGSMIBufferDataFromPtr(void RT_UNTRUSTED_VOLATILE_HSTGST *pvBuffer)
 {
-    return (uint8_t *)pvBuffer + sizeof(HGSMIBUFFERHEADER);
+    return (uint8_t RT_UNTRUSTED_VOLATILE_HSTGST *)pvBuffer + sizeof(HGSMIBUFFERHEADER);
 }
 
-DECLINLINE(HGSMIBUFFERTAIL *) HGSMIBufferTailFromPtr(void *pvBuffer,
-                                                     uint32_t u32DataSize)
+DECLINLINE(HGSMIBUFFERTAIL RT_UNTRUSTED_VOLATILE_HSTGST *)
+HGSMIBufferTailFromPtr(void RT_UNTRUSTED_VOLATILE_HSTGST *pvBuffer, uint32_t u32DataSize)
 {
-    return (HGSMIBUFFERTAIL *)(HGSMIBufferDataFromPtr(pvBuffer) + u32DataSize);
+    return (HGSMIBUFFERTAIL RT_UNTRUSTED_VOLATILE_HSTGST *)(HGSMIBufferDataFromPtr(pvBuffer) + u32DataSize);
 }
 
 DECLINLINE(HGSMISIZE) HGSMIBufferMinimumSize(void)
@@ -130,9 +134,9 @@ DECLINLINE(HGSMISIZE) HGSMIBufferMinimumSize(void)
     return sizeof(HGSMIBUFFERHEADER) + sizeof(HGSMIBUFFERTAIL);
 }
 
-DECLINLINE(HGSMIBUFFERHEADER *) HGSMIBufferHeaderFromData(const void *pvData)
+DECLINLINE(HGSMIBUFFERHEADER RT_UNTRUSTED_VOLATILE_HSTGST *) HGSMIBufferHeaderFromData(const void RT_UNTRUSTED_VOLATILE_HSTGST *pvData)
 {
-    return (HGSMIBUFFERHEADER *)((uint8_t *)pvData - sizeof(HGSMIBUFFERHEADER));
+    return (HGSMIBUFFERHEADER RT_UNTRUSTED_VOLATILE_HSTGST *)((uint8_t *)pvData - sizeof(HGSMIBUFFERHEADER));
 }
 
 DECLINLINE(HGSMISIZE) HGSMIBufferRequiredSize(uint32_t u32DataSize)
@@ -140,50 +144,42 @@ DECLINLINE(HGSMISIZE) HGSMIBufferRequiredSize(uint32_t u32DataSize)
     return HGSMIBufferMinimumSize() + u32DataSize;
 }
 
-DECLINLINE(HGSMIOFFSET) HGSMIPointerToOffset(const HGSMIAREA *pArea,
-                                             const void *pv)
+DECLINLINE(HGSMIOFFSET) HGSMIPointerToOffset(const HGSMIAREA *pArea, const void RT_UNTRUSTED_VOLATILE_HSTGST *pv)
 {
     return pArea->offBase + (HGSMIOFFSET)((uint8_t *)pv - pArea->pu8Base);
 }
 
-DECLINLINE(void *) HGSMIOffsetToPointer(const HGSMIAREA *pArea,
-                                        HGSMIOFFSET offBuffer)
+DECLINLINE(void RT_UNTRUSTED_VOLATILE_HSTGST *) HGSMIOffsetToPointer(const HGSMIAREA *pArea, HGSMIOFFSET offBuffer)
 {
     return pArea->pu8Base + (offBuffer - pArea->offBase);
 }
 
-DECLINLINE(uint8_t *) HGSMIBufferDataFromOffset(const HGSMIAREA *pArea,
-                                                HGSMIOFFSET offBuffer)
+DECLINLINE(uint8_t RT_UNTRUSTED_VOLATILE_HSTGST*) HGSMIBufferDataFromOffset(const HGSMIAREA *pArea, HGSMIOFFSET offBuffer)
 {
-    void *pvBuffer = HGSMIOffsetToPointer(pArea, offBuffer);
+    void RT_UNTRUSTED_VOLATILE_HSTGST *pvBuffer = HGSMIOffsetToPointer(pArea, offBuffer);
     return HGSMIBufferDataFromPtr(pvBuffer);
 }
 
-DECLINLINE(HGSMIOFFSET) HGSMIBufferOffsetFromData(const HGSMIAREA *pArea,
-                                                  void *pvData)
+DECLINLINE(HGSMIOFFSET) HGSMIBufferOffsetFromData(const HGSMIAREA *pArea, void RT_UNTRUSTED_VOLATILE_HSTGST *pvData)
 {
-    HGSMIBUFFERHEADER *pHeader = HGSMIBufferHeaderFromData(pvData);
+    HGSMIBUFFERHEADER RT_UNTRUSTED_VOLATILE_HSTGST *pHeader = HGSMIBufferHeaderFromData(pvData);
     return HGSMIPointerToOffset(pArea, pHeader);
 }
 
-DECLINLINE(uint8_t *) HGSMIBufferDataAndChInfoFromOffset(const HGSMIAREA *pArea,
-                                                         HGSMIOFFSET offBuffer,
-                                                         uint16_t *pu16ChannelInfo)
+DECLINLINE(uint8_t RT_UNTRUSTED_VOLATILE_HSTGST *) HGSMIBufferDataAndChInfoFromOffset(const HGSMIAREA *pArea,
+                                                                                      HGSMIOFFSET offBuffer,
+                                                                                      uint16_t *pu16ChannelInfo)
 {
-    HGSMIBUFFERHEADER *pHeader = (HGSMIBUFFERHEADER *)HGSMIOffsetToPointer(pArea, offBuffer);
+    HGSMIBUFFERHEADER RT_UNTRUSTED_VOLATILE_HSTGST *pHeader =
+        (HGSMIBUFFERHEADER RT_UNTRUSTED_VOLATILE_HSTGST *)HGSMIOffsetToPointer(pArea, offBuffer);
     *pu16ChannelInfo = pHeader->u16ChannelInfo;
     return HGSMIBufferDataFromPtr(pHeader);
 }
 
-uint32_t HGSMIChecksum(HGSMIOFFSET offBuffer,
-                       const HGSMIBUFFERHEADER *pHeader,
-                       const HGSMIBUFFERTAIL *pTail);
+uint32_t HGSMIChecksum(HGSMIOFFSET offBuffer, const HGSMIBUFFERHEADER RT_UNTRUSTED_VOLATILE_HSTGST *pHeader,
+                       const HGSMIBUFFERTAIL RT_UNTRUSTED_VOLATILE_HSTGST *pTail);
 
-int HGSMIAreaInitialize(HGSMIAREA *pArea,
-                        void *pvBase,
-                        HGSMISIZE cbArea,
-                        HGSMIOFFSET offBase);
-
+int  HGSMIAreaInitialize(HGSMIAREA *pArea, void *pvBase, HGSMISIZE cbArea, HGSMIOFFSET offBase);
 void HGSMIAreaClear(HGSMIAREA *pArea);
 
 DECLINLINE(bool) HGSMIAreaContainsOffset(const HGSMIAREA *pArea, HGSMIOFFSET off)
@@ -191,38 +187,25 @@ DECLINLINE(bool) HGSMIAreaContainsOffset(const HGSMIAREA *pArea, HGSMIOFFSET off
     return off >= pArea->offBase && off - pArea->offBase < pArea->cbArea;
 }
 
-DECLINLINE(bool) HGSMIAreaContainsPointer(const HGSMIAREA *pArea, const void *pv)
+DECLINLINE(bool) HGSMIAreaContainsPointer(const HGSMIAREA *pArea, const void RT_UNTRUSTED_VOLATILE_HSTGST *pv)
 {
-    return (uintptr_t)pv >= (uintptr_t)pArea->pu8Base && (uintptr_t)pv - (uintptr_t)pArea->pu8Base < pArea->cbArea;
+    return (uintptr_t)pv - (uintptr_t)pArea->pu8Base < pArea->cbArea;
 }
 
-HGSMIOFFSET HGSMIBufferInitializeSingle(const HGSMIAREA *pArea,
-                                        HGSMIBUFFERHEADER *pHeader,
-                                        HGSMISIZE cbBuffer,
-                                        uint8_t u8Channel,
-                                        uint16_t u16ChannelInfo);
+HGSMIOFFSET HGSMIBufferInitializeSingle(const HGSMIAREA *pArea, HGSMIBUFFERHEADER *pHeader, HGSMISIZE cbBuffer,
+                                        uint8_t u8Channel, uint16_t u16ChannelInfo);
 
-int HGSMIHeapSetup(HGSMIHEAP *pHeap,
-                   void *pvBase,
-                   HGSMISIZE cbArea,
-                   HGSMIOFFSET offBase,
-                   const HGSMIENV *pEnv);
-
+int  HGSMIHeapSetup(HGSMIHEAP *pHeap, void *pvBase, HGSMISIZE cbArea, HGSMIOFFSET offBase, const HGSMIENV *pEnv);
 void HGSMIHeapDestroy(HGSMIHEAP *pHeap);
+void RT_UNTRUSTED_VOLATILE_HSTGST *HGSMIHeapBufferAlloc(HGSMIHEAP *pHeap, HGSMISIZE cbBuffer);
+void HGSMIHeapBufferFree(HGSMIHEAP *pHeap, void RT_UNTRUSTED_VOLATILE_HSTGST *pvBuf);
 
-void *HGSMIHeapBufferAlloc(HGSMIHEAP *pHeap,
-                           HGSMISIZE cbBuffer);
+void RT_UNTRUSTED_VOLATILE_HOST *HGSMIHeapAlloc(HGSMIHEAP *pHeap,
+                                                HGSMISIZE cbData,
+                                                uint8_t u8Channel,
+                                                uint16_t u16ChannelInfo);
 
-void HGSMIHeapBufferFree(HGSMIHEAP *pHeap,
-                         void *pvBuf);
-
-void *HGSMIHeapAlloc(HGSMIHEAP *pHeap,
-                     HGSMISIZE cbData,
-                     uint8_t u8Channel,
-                     uint16_t u16ChannelInfo);
-
-void HGSMIHeapFree(HGSMIHEAP *pHeap,
-                   void *pvData);
+void HGSMIHeapFree(HGSMIHEAP *pHeap, void RT_UNTRUSTED_VOLATILE_HSTGST *pvData);
 
 DECLINLINE(const HGSMIAREA *) HGSMIHeapArea(HGSMIHEAP *pHeap)
 {
@@ -239,24 +222,16 @@ DECLINLINE(HGSMISIZE) HGSMIHeapSize(HGSMIHEAP *pHeap)
     return HGSMIHeapArea(pHeap)->cbArea;
 }
 
-DECLINLINE(HGSMIOFFSET) HGSMIHeapBufferOffset(HGSMIHEAP *pHeap,
-                                              void *pvData)
+DECLINLINE(HGSMIOFFSET) HGSMIHeapBufferOffset(HGSMIHEAP *pHeap, void RT_UNTRUSTED_VOLATILE_HOST *pvData)
 {
     return HGSMIBufferOffsetFromData(HGSMIHeapArea(pHeap), pvData);
 }
 
-HGSMICHANNEL *HGSMIChannelFindById(HGSMICHANNELINFO *pChannelInfo,
-                                   uint8_t u8Channel);
+HGSMICHANNEL *HGSMIChannelFindById(HGSMICHANNELINFO *pChannelInfo, uint8_t u8Channel);
 
-int HGSMIChannelRegister(HGSMICHANNELINFO *pChannelInfo,
-                         uint8_t u8Channel,
-                         const char *pszName,
-                         PFNHGSMICHANNELHANDLER pfnChannelHandler,
-                         void *pvChannelHandler);
-
-int HGSMIBufferProcess(const HGSMIAREA *pArea,
-                       HGSMICHANNELINFO *pChannelInfo,
-                       HGSMIOFFSET offBuffer);
+int HGSMIChannelRegister(HGSMICHANNELINFO *pChannelInfo, uint8_t u8Channel, const char *pszName,
+                         PFNHGSMICHANNELHANDLER pfnChannelHandler, void *pvChannelHandler);
+int HGSMIBufferProcess(const HGSMIAREA *pArea, HGSMICHANNELINFO *pChannelInfo, HGSMIOFFSET offBuffer);
 RT_C_DECLS_END
 
 #endif /* !___VBox_Graphics_HGSMI_h */

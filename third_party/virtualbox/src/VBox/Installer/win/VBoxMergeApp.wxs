@@ -13,10 +13,10 @@
     hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
 -->
 
-<?include Properties.wxi ?>
-
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+    <?include Properties.wxi ?>
 
     <!-- Note: GUIDs in WiX *must* be uppercase! -->
     <!-- Always include an upgrade ID or otherwise upgrade installation will not be possible. When doing
@@ -48,13 +48,14 @@
                  Platform="$(var.Property_Platform)"
                  SummaryCodepage="1252"/>
 
+        <?include CommonProperties.wxi ?>
         <?include PublicProperties.wxi ?>
 
 
-        <Property Id="local_VBOX_REGISTERFILEEXTENSIONS" Value="Empty" /> 
-        <Configuration Name="argRegesterExtensions" Format="Text" DefaultValue="Not passed"/> 
-        <Substitution Table="CustomAction" Row="registerExtensions" Column="Target" Value="[=argRegesterExtensions]"/> 
-        <CustomAction Id="registerExtensions" Property="local_VBOX_REGISTERFILEEXTENSIONS" Value="[local_VBOX_REGISTERFILEEXTENSIONS]" Execute="immediate" /> 
+        <Property Id="local_VBOX_REGISTERFILEEXTENSIONS" Value="Empty" />
+        <Configuration Name="argRegesterExtensions" Format="Text" DefaultValue="Not passed"/>
+        <Substitution Table="CustomAction" Row="registerExtensions" Column="Target" Value="[=argRegesterExtensions]"/>
+        <CustomAction Id="registerExtensions" Property="local_VBOX_REGISTERFILEEXTENSIONS" Value="[local_VBOX_REGISTERFILEEXTENSIONS]" Execute="immediate" />
 
         <!-- Here comes the file/directory list -->
         <Directory Id="TARGETDIR" Name="SourceDir">

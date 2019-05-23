@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2008-2016 Oracle Corporation
+ * Copyright (C) 2008-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -101,62 +101,62 @@ const Global::OSType Global::sOSTypes[] =
 
     { "Windows", "Microsoft Windows", "Windows2008",        "Windows 2008 (32-bit)",
       VBOXOSTYPE_Win2k8,           VBOXOSHINT_USBTABLET,
-       1024, 16, 25 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
+       1024, 16, 32 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
         StorageControllerType_IntelAhci, StorageBus_SATA, ChipsetType_PIIX3, AudioControllerType_HDA, AudioCodecType_STAC9221  },
 
     { "Windows", "Microsoft Windows", "Windows2008_64",     "Windows 2008 (64-bit)",
       VBOXOSTYPE_Win2k8_x64,      VBOXOSHINT_64BIT | VBOXOSHINT_HWVIRTEX | VBOXOSHINT_IOAPIC | VBOXOSHINT_USBTABLET,
-       2048, 16, 25 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
+       2048, 16, 32 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
         StorageControllerType_IntelAhci, StorageBus_SATA, ChipsetType_PIIX3, AudioControllerType_HDA, AudioCodecType_STAC9221  },
 
     { "Windows", "Microsoft Windows", "Windows7",           "Windows 7 (32-bit)",
       VBOXOSTYPE_Win7,             VBOXOSHINT_USBTABLET,
-       1024, 16, 25 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
+       1024, 16, 32 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
         StorageControllerType_IntelAhci, StorageBus_SATA, ChipsetType_PIIX3, AudioControllerType_HDA, AudioCodecType_STAC9221  },
 
     { "Windows", "Microsoft Windows", "Windows7_64",        "Windows 7 (64-bit)",
       VBOXOSTYPE_Win7_x64,        VBOXOSHINT_64BIT | VBOXOSHINT_HWVIRTEX | VBOXOSHINT_IOAPIC | VBOXOSHINT_USBTABLET,
-       2048, 16, 25 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
+       2048, 16, 32 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
         StorageControllerType_IntelAhci, StorageBus_SATA, ChipsetType_PIIX3, AudioControllerType_HDA, AudioCodecType_STAC9221  },
 
     { "Windows", "Microsoft Windows", "Windows8",           "Windows 8 (32-bit)",
       VBOXOSTYPE_Win8,             VBOXOSHINT_HWVIRTEX | VBOXOSHINT_IOAPIC | VBOXOSHINT_USBTABLET | VBOXOSHINT_PAE | VBOXOSHINT_USB3,
-       1024,128, 25 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
+       1024,128, 40 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
         StorageControllerType_IntelAhci, StorageBus_SATA, ChipsetType_PIIX3, AudioControllerType_HDA, AudioCodecType_STAC9221  },
 
     { "Windows", "Microsoft Windows", "Windows8_64",        "Windows 8 (64-bit)",
       VBOXOSTYPE_Win8_x64,        VBOXOSHINT_64BIT | VBOXOSHINT_HWVIRTEX | VBOXOSHINT_IOAPIC | VBOXOSHINT_USBTABLET | VBOXOSHINT_USB3,
-       2048,128, 25 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
+       2048,128, 40 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
         StorageControllerType_IntelAhci, StorageBus_SATA, ChipsetType_PIIX3, AudioControllerType_HDA, AudioCodecType_STAC9221  },
 
     { "Windows", "Microsoft Windows", "Windows81",          "Windows 8.1 (32-bit)",
       VBOXOSTYPE_Win81,            VBOXOSHINT_HWVIRTEX | VBOXOSHINT_IOAPIC | VBOXOSHINT_USBTABLET | VBOXOSHINT_PAE | VBOXOSHINT_USB3,
-       1024,128, 25 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
+       1024,128, 40 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
         StorageControllerType_IntelAhci, StorageBus_SATA, ChipsetType_PIIX3, AudioControllerType_HDA, AudioCodecType_STAC9221  },
 
     { "Windows", "Microsoft Windows", "Windows81_64",       "Windows 8.1 (64-bit)",
       VBOXOSTYPE_Win81_x64,       VBOXOSHINT_64BIT | VBOXOSHINT_HWVIRTEX | VBOXOSHINT_IOAPIC | VBOXOSHINT_USBTABLET | VBOXOSHINT_USB3,
-       2048,128, 25 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
+       2048,128, 40 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
         StorageControllerType_IntelAhci, StorageBus_SATA, ChipsetType_PIIX3, AudioControllerType_HDA, AudioCodecType_STAC9221  },
 
     { "Windows", "Microsoft Windows", "Windows2012_64",     "Windows 2012 (64-bit)",
       VBOXOSTYPE_Win2k12_x64,     VBOXOSHINT_64BIT | VBOXOSHINT_HWVIRTEX | VBOXOSHINT_IOAPIC | VBOXOSHINT_USBTABLET | VBOXOSHINT_USB3,
-       2048,128, 32 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
+       2048,128, 50 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
         StorageControllerType_IntelAhci, StorageBus_SATA, ChipsetType_PIIX3, AudioControllerType_HDA, AudioCodecType_STAC9221  },
 
     { "Windows", "Microsoft Windows", "Windows10",          "Windows 10 (32-bit)",
       VBOXOSTYPE_Win10,            VBOXOSHINT_HWVIRTEX | VBOXOSHINT_IOAPIC | VBOXOSHINT_USBTABLET | VBOXOSHINT_PAE | VBOXOSHINT_USB3,
-       1024,128, 32 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
+       1024,128, 50 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
         StorageControllerType_IntelAhci, StorageBus_SATA, ChipsetType_PIIX3, AudioControllerType_HDA, AudioCodecType_STAC9221  },
 
     { "Windows", "Microsoft Windows", "Windows10_64",       "Windows 10 (64-bit)",
       VBOXOSTYPE_Win10_x64,       VBOXOSHINT_64BIT | VBOXOSHINT_HWVIRTEX | VBOXOSHINT_IOAPIC | VBOXOSHINT_USBTABLET | VBOXOSHINT_USB3,
-       2048,128, 32 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
+       2048,128, 50 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
         StorageControllerType_IntelAhci, StorageBus_SATA, ChipsetType_PIIX3, AudioControllerType_HDA, AudioCodecType_STAC9221  },
 
     { "Windows", "Microsoft Windows", "Windows2016_64",     "Windows 2016 (64-bit)",
       VBOXOSTYPE_Win2k16_x64,     VBOXOSHINT_64BIT | VBOXOSHINT_HWVIRTEX | VBOXOSHINT_IOAPIC | VBOXOSHINT_USBTABLET | VBOXOSHINT_USB3,
-       2048,128, 32 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
+       2048,128, 50 * _1G64, NetworkAdapterType_I82540EM, 0, StorageControllerType_IntelAhci, StorageBus_SATA,
         StorageControllerType_IntelAhci, StorageBus_SATA, ChipsetType_PIIX3, AudioControllerType_HDA, AudioCodecType_STAC9221  },
 
     { "Windows", "Microsoft Windows", "WindowsNT",          "Other Windows (32-bit)",

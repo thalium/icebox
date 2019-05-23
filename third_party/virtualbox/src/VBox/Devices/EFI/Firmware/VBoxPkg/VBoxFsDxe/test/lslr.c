@@ -52,7 +52,7 @@ static struct fsw_fstype_table *fstypes[] = {
 static int listdir(struct fsw_posix_volume *vol, char *path, int level)
 {
     struct fsw_posix_dir *dir;
-    struct dirent *dent;
+    struct fsw_posix_dirent *dent;
     int i;
     char subpath[4096];
 
@@ -64,7 +64,7 @@ static int listdir(struct fsw_posix_volume *vol, char *path, int level)
     while ((dent = fsw_posix_readdir(dir)) != NULL) {
         for (i = 0; i < level*2; i++)
             fputc(' ', stdout);
-        printf("%d  %s\n", dent->d_type, dent->d_name);
+        printf("%c  %s\n", dent->d_type, dent->d_name);
 
         if (dent->d_type == DT_DIR) {
             snprintf(subpath, 4095, "%s%s/", path, dent->d_name);
@@ -122,10 +122,10 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    //listdir(vol, "/System/Library/Extensions/udf.kext/", 0);
+    listdir(vol, "/System/Library/CoreServices", 0);
     //listdir(vol, "/System/Library/Extensions/AppleACPIPlatform.kext/", 0);
     //listdir(vol, "/System/Library/Extensions/", 0);
-    catfile(vol, "/System/Library/Extensions/AppleHPET.kext/Contents/Info.plist");
+    catfile(vol, "/System/Library/CoreServices/SystemVersion.plist");
     //listdir(vol, "/", 0);
 
     fsw_posix_unmount(vol);

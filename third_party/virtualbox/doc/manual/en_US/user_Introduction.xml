@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
-"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd">
 <chapter id="Introduction">
   <title>First steps</title>
 
@@ -542,6 +542,13 @@
     operating systems. Also, any feature which is marked as  <emphasis
     role="bold">experimental</emphasis> is not supported. Feedback and
     suggestions about such features are welcome.</para>
+  </sect1>
+
+  <sect1 id="hostcpurequirements">
+    <title>Host CPU Requirements</title>
+
+    <para>SSE2 is required starting with VirtualBox version 5.2.10 and version 5.1.24.</para>
+
   </sect1>
 
   <sect1 id="intro-installing">

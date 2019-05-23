@@ -7,7 +7,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -169,6 +169,7 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
 
             /* Init IPRT. */
             RTR3InitDll(RTR3INIT_FLAGS_UNOBTRUSIVE);
+            Log12(("VBoxProxyStub[%u]/DllMain: DLL_PROCESS_ATTACH\n", GetCurrentProcessId()));
 
 #ifdef VBOX_STRICT
             {
@@ -194,6 +195,7 @@ BOOL WINAPI DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID lpReserved)
             break;
 
         case DLL_PROCESS_DETACH:
+            Log12(("VBoxProxyStub[%u]/DllMain: DLL_PROCESS_DETACH\n", GetCurrentProcessId()));
             break;
     }
 
@@ -209,6 +211,7 @@ void RPC_ENTRY GetProxyDllInfo(const ProxyFileInfo ***ppapInfo, const CLSID **pp
 {
     *ppapInfo = &g_apProxyFiles[0];
     *ppClsid  = &g_ProxyClsId;
+    Log12(("VBoxProxyStub[%u]/GetProxyDllInfo:\n", GetCurrentProcessId()));
 }
 
 
@@ -236,6 +239,8 @@ HRESULT STDAPICALLTYPE DllGetClassObject(REFCLSID rclsid, REFIID riid, void **pp
      * /target being set to NT51.
      */
     AssertLogRelMsg(hrc == S_OK, ("%Rhrc\n",  hrc));
+    Log12(("VBoxProxyStub[%u]/DllGetClassObject(%RTuuid, %RTuuid, %p): %#x + *ppv=%p\n",
+           GetCurrentProcessId(), rclsid, riid, ppv, hrc, ppv ? *ppv : NULL));
     return hrc;
 }
 
@@ -247,7 +252,9 @@ HRESULT STDAPICALLTYPE DllGetClassObject(REFCLSID rclsid, REFIID riid, void **pp
  */
 HRESULT STDAPICALLTYPE DllCanUnloadNow(void)
 {
-    return NdrDllCanUnloadNow(&g_ProxyStubFactory);                                        /* see DLLCANUNLOADNOW in RpcProxy.h */
+    HRESULT hrc = NdrDllCanUnloadNow(&g_ProxyStubFactory);                                 /* see DLLCANUNLOADNOW in RpcProxy.h */
+    Log12(("VBoxProxyStub[%u]/DllCanUnloadNow: %Rhrc\n", GetCurrentProcessId(), hrc));
+    return hrc;
 }
 
 
@@ -261,7 +268,9 @@ HRESULT STDAPICALLTYPE DllCanUnloadNow(void)
  */
 ULONG STDMETHODCALLTYPE CStdStubBuffer_Release(IRpcStubBuffer *pThis)                /* see CSTDSTUBBUFFERRELEASE in RpcProxy.h */
 {
-    return NdrCStdStubBuffer_Release(pThis, (IPSFactoryBuffer *)&g_ProxyStubFactory);
+    ULONG cRefs =  NdrCStdStubBuffer_Release(pThis, (IPSFactoryBuffer *)&g_ProxyStubFactory);
+    Log12(("VBoxProxyStub[%u]/CStdStubBuffer_Release: %p -> %#x\n", GetCurrentProcessId(), pThis, cRefs));
+    return cRefs;
 }
 
 
@@ -274,7 +283,9 @@ ULONG STDMETHODCALLTYPE CStdStubBuffer_Release(IRpcStubBuffer *pThis)           
  */
 ULONG WINAPI CStdStubBuffer2_Release(IRpcStubBuffer *pThis)                         /* see CSTDSTUBBUFFER2RELEASE in RpcProxy.h */
 {
-    return NdrCStdStubBuffer2_Release(pThis, (IPSFactoryBuffer *)&g_ProxyStubFactory);
+    ULONG cRefs = NdrCStdStubBuffer2_Release(pThis, (IPSFactoryBuffer *)&g_ProxyStubFactory);
+    Log12(("VBoxProxyStub[%u]/CStdStubBuffer2_Release: %p -> %#x\n", GetCurrentProcessId(), pThis, cRefs));
+    return cRefs;
 }
 
 
@@ -2285,183 +2296,214 @@ HRESULT STDAPICALLTYPE DllUnregisterServer(void)
 }
 
 
-BOOL IsInstalledWindowsService(const WCHAR* wszServiceName)
+#ifdef VBOX_WITH_SDS
+/**
+ * Update a SCM service.
+ *
+ * @param   pState              The state.
+ * @param   pwszVBoxDir         The VirtualBox install directory (unicode),
+ *                              trailing slash.
+ * @param   pwszModule          The service module.
+ * @param   pwszServiceName     The service name.
+ * @param   pwszDisplayName     The service display name.
+ * @param   pwszDescription     The service description.
+ */
+static void vbpsUpdateWindowsService(VBPSREGSTATE *pState, const WCHAR *pwszVBoxDir, const WCHAR *pwszModule,
+                                     const WCHAR *pwszServiceName, const WCHAR *pwszDisplayName, const WCHAR *pwszDescription)
 {
-    BOOL bResult = FALSE;
-    SC_HANDLE hSCM;
-    SC_HANDLE hService;
+    SC_HANDLE           hSCM;
 
-    hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
+    /* Configuration options that are currently standard. */
+    uint32_t const      uServiceType         = SERVICE_WIN32_OWN_PROCESS;
+    uint32_t const      uStartType           = SERVICE_DEMAND_START;
+    uint32_t const      uErrorControl        = SERVICE_ERROR_NORMAL;
+    WCHAR const * const pwszServiceStartName = L"LocalSystem";
+    static WCHAR const  wszzDependencies[]   = L"RPCSS\0";
+
+    /*
+     * Make double quoted executable file path. ASSUMES pwszVBoxDir ends with a slash!
+     */
+    WCHAR wszFilePath[MAX_PATH + 2];
+    int rc = RTUtf16CopyAscii(wszFilePath, RT_ELEMENTS(wszFilePath), "\"");
+    if (RT_SUCCESS(rc))
+        rc = RTUtf16Cat(wszFilePath, RT_ELEMENTS(wszFilePath), pwszVBoxDir);
+    if (RT_SUCCESS(rc))
+        rc = RTUtf16Cat(wszFilePath, RT_ELEMENTS(wszFilePath), pwszModule);
+    if (RT_SUCCESS(rc))
+        rc = RTUtf16CatAscii(wszFilePath, RT_ELEMENTS(wszFilePath), "\"");
+    AssertLogRelRCReturnVoid(rc);
+
+    /*
+     * Open the service manager for the purpose of checking the configuration.
+     */
+    hSCM = OpenSCManagerW(NULL, NULL, SC_MANAGER_CONNECT);
     if (hSCM != NULL)
     {
-        hService = OpenService(hSCM, wszServiceName, SERVICE_QUERY_CONFIG);
-        if (hService != NULL)
+        union
         {
-            bResult = TRUE;
+            QUERY_SERVICE_CONFIGW   Config;
+            SERVICE_STATUS          Status;
+            SERVICE_DESCRIPTION     Desc;
+            uint8_t                 abPadding[sizeof(QUERY_SERVICE_CONFIGW) + 5 * _1K];
+        } uBuf;
+        SC_HANDLE   hService;
+        bool        fCreateIt = pState->fUpdate;
+        bool        fDeleteIt = true;
+
+        /*
+         * Step #1: Open the service and validate the configuration.
+         */
+        if (pState->fUpdate)
+        {
+            hService = OpenServiceW(hSCM, pwszServiceName, SERVICE_QUERY_CONFIG);
+            if (hService != NULL)
+            {
+                DWORD cbNeeded = 0;
+                if (QueryServiceConfigW(hService, &uBuf.Config, sizeof(uBuf), &cbNeeded))
+                {
+                    if (uBuf.Config.dwErrorControl)
+                    {
+                        uint32_t cErrors = 0;
+                        if (uBuf.Config.dwServiceType != uServiceType)
+                        {
+                            LogRel(("update service '%ls': dwServiceType %u, expected %u\n",
+                                    pwszServiceName, uBuf.Config.dwServiceType, uServiceType));
+                            cErrors++;
+                        }
+                        if (uBuf.Config.dwStartType != uStartType)
+                        {
+                            LogRel(("update service '%ls': dwStartType %u, expected %u\n",
+                                    pwszServiceName, uBuf.Config.dwStartType, uStartType));
+                            cErrors++;
+                        }
+                        if (uBuf.Config.dwErrorControl != uErrorControl)
+                        {
+                            LogRel(("update service '%ls': dwErrorControl %u, expected %u\n",
+                                    pwszServiceName, uBuf.Config.dwErrorControl, uErrorControl));
+                            cErrors++;
+                        }
+                        if (RTUtf16ICmp(uBuf.Config.lpBinaryPathName, wszFilePath) != 0)
+                        {
+                            LogRel(("update service '%ls': lpBinaryPathName '%ls', expected '%ls'\n",
+                                    pwszServiceName, uBuf.Config.lpBinaryPathName, wszFilePath));
+                            cErrors++;
+                        }
+                        if (   uBuf.Config.lpServiceStartName != NULL
+                            && *uBuf.Config.lpServiceStartName != L'\0'
+                            && RTUtf16ICmp(uBuf.Config.lpServiceStartName, pwszServiceStartName) != 0)
+                        {
+                            LogRel(("update service '%ls': lpServiceStartName '%ls', expected '%ls'\n",
+                                    pwszServiceName, uBuf.Config.lpBinaryPathName, pwszServiceStartName));
+                            cErrors++;
+                        }
+
+                        fDeleteIt = fCreateIt = cErrors > 0;
+                    }
+                }
+                else
+                    AssertLogRelMsgFailed(("QueryServiceConfigW returned %u (cbNeeded=%u vs %zu)\n",
+                                           GetLastError(), cbNeeded, sizeof(uBuf)));
+            }
+            else
+            {
+                DWORD dwErr = GetLastError();
+                fDeleteIt = dwErr != ERROR_SERVICE_DOES_NOT_EXIST;
+                AssertLogRelMsg(dwErr == ERROR_SERVICE_DOES_NOT_EXIST, ("OpenServiceW('%ls') -> %u\n", pwszServiceName, dwErr));
+            }
             CloseServiceHandle(hService);
         }
-        CloseServiceHandle(hSCM);
-    }
-    return bResult;
-}
 
-
-BOOL InstallWindowsService(const WCHAR* wszVBoxDir,
-    const WCHAR* wszServiceModule,
-    const WCHAR* wszServiceName,
-    const WCHAR* wszServiceDisplayName,
-    const WCHAR* wszServiceDescription
-)
-{
-    #define QUOTES_SPACE 2
-
-    WCHAR szFilePath[MAX_PATH + QUOTES_SPACE];
-    size_t dirLen;
-    size_t moduleLen;
-    SC_HANDLE hSCM;
-    SC_HANDLE hService;
-    SERVICE_DESCRIPTION sd;
-
-    if (IsInstalledWindowsService(wszServiceName))
-        return TRUE;
-
-    // Make the executable file path
-    dirLen = RTUtf16Len(wszVBoxDir);
-    moduleLen = RTUtf16Len(wszServiceModule);
-
-    if (   dirLen + moduleLen + 2 >= MAX_PATH + QUOTES_SPACE
-        || !RT_SUCCESS(RTUtf16Copy(szFilePath + 1, MAX_PATH + QUOTES_SPACE - 1, wszVBoxDir))
-        || !RT_SUCCESS(RTUtf16Copy(szFilePath + dirLen + 1, MAX_PATH + QUOTES_SPACE - dirLen - 1, wszServiceModule)))
-    {
-        LogWarnFunc(("Error: The path to a windows service module is too long\n"));
-        return FALSE;
-    }
-
-    // Quote the FilePath before calling CreateService
-    szFilePath[0] = L'\"';
-    szFilePath[dirLen + moduleLen + 1] = L'\"';
-    szFilePath[dirLen + moduleLen + 2] = 0;
-
-    hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    if (hSCM == NULL)
-    {
-        LogWarnFunc(("Error: Could not open Service Manager\n"));
-        Assert(0);
-        return FALSE;
-    }
-
-    hService = CreateService(hSCM, wszServiceName, wszServiceDisplayName,
-                             SERVICE_ALL_ACCESS, SERVICE_WIN32_OWN_PROCESS,
-                             SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL,
-                             szFilePath, NULL, NULL, L"RPCSS\0", NULL, NULL);
-    if (hService == NULL)
-    {
-        CloseServiceHandle(hSCM);
-        LogWarnFunc(("Error: Could not start service\n"));
-        Assert(0);
-        return FALSE;
-    }
-
-    sd.lpDescription = (LPWSTR)wszServiceDescription;
-    if (!ChangeServiceConfig2(hService, SERVICE_CONFIG_DESCRIPTION, &sd))
-    {
-        LogWarnFunc(("Error: could not set service description. code: %x\n",
-                    GetLastError()));
-        Assert(0);
-    }
-
-    CloseServiceHandle(hService);
-    CloseServiceHandle(hSCM);
-    return TRUE;
-}
-
-BOOL UninstallWindowsService(const WCHAR* wszServiceName)
-{
-    SC_HANDLE hSCM;
-    SC_HANDLE hService;
-    SERVICE_STATUS status;
-    BOOL bRet;
-    BOOL bDelete;
-
-    if (!IsInstalledWindowsService(wszServiceName))
-        return TRUE;
-
-    hSCM = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
-    if (hSCM == NULL)
-    {
-        LogWarnFunc(("Error: Could not open Service Manager\n"));
-        Assert(0);
-        return FALSE;
-    }
-
-    hService = OpenService(hSCM, wszServiceName, SERVICE_STOP | DELETE);
-    if (hService == NULL)
-    {
-        CloseServiceHandle(hSCM);
-        hSCM = NULL;
-        LogWarnFunc(("Error: Could not open service\n"));
-        Assert(0);
-        return FALSE;
-    }
-
-    bRet = ControlService(hService, SERVICE_CONTROL_STOP, &status);
-    if (!bRet)
-    {
-        DWORD dwError = GetLastError();
-        if (!(   dwError == ERROR_SERVICE_NOT_ACTIVE
-              || (   dwError == ERROR_SERVICE_CANNOT_ACCEPT_CTRL
-                  && status.dwCurrentState == SERVICE_STOP_PENDING)))
+        /*
+         * Step #2: Stop and delete the service if needed.
+         *          We can do this without reopening the service manager.
+         */
+        if (fDeleteIt)
         {
-            CloseServiceHandle(hSCM);
-            hSCM = NULL;
-            LogWarnFunc(("Could not stop service\n"));
-            Assert(0);
+            hService = OpenServiceW(hSCM, pwszServiceName, SERVICE_STOP | DELETE);
+            if (hService)
+            {
+                BOOL            fRet;
+                DWORD           dwErr;
+                RT_ZERO(uBuf.Status);
+                SetLastError(ERROR_SERVICE_NOT_ACTIVE);
+                fRet = ControlService(hService, SERVICE_CONTROL_STOP, &uBuf.Status);
+                dwErr = GetLastError();
+                if (   fRet
+                    || dwErr == ERROR_SERVICE_NOT_ACTIVE
+                    || (   dwErr == ERROR_SERVICE_CANNOT_ACCEPT_CTRL
+                        && uBuf.Status.dwCurrentState == SERVICE_STOP_PENDING) )
+                {
+                    if (DeleteService(hService))
+                        LogRel(("update service '%ls': deleted\n", pwszServiceName));
+                    else
+                        AssertLogRelMsgFailed(("Failed to not delete service %ls: %u\n", pwszServiceName, GetLastError()));
+                }
+                else
+                    AssertMsg(dwErr == ERROR_ACCESS_DENIED,
+                              ("Failed to stop service %ls: %u (state=%u)\n", pwszServiceName, dwErr, uBuf.Status.dwCurrentState));
+                CloseServiceHandle(hService);
+            }
+            else
+            {
+                pState->rc = GetLastError();
+                LogRel(("Failed to not open service %ls for stop+delete: %u\n", pwszServiceName, pState->rc));
+                hService = OpenServiceW(hSCM, pwszServiceName, SERVICE_CHANGE_CONFIG);
+            }
+            CloseServiceHandle(hService);
+        }
+
+        CloseServiceHandle(hSCM);
+
+        /*
+         * Step #3: Create the service (if requested).
+         *          Need to have the SC_MANAGER_CREATE_SERVICE access right for this.
+         */
+        if (fCreateIt)
+        {
+            Assert(pState->fUpdate);
+            hSCM = OpenSCManagerW(NULL, NULL, SC_MANAGER_CREATE_SERVICE | SC_MANAGER_CONNECT);
+            if (hSCM)
+            {
+                hService = CreateServiceW(hSCM,
+                                          pwszServiceName,
+                                          pwszDisplayName,
+                                          SERVICE_ALL_ACCESS /* dwDesiredAccess */,
+                                          uServiceType,
+                                          uStartType,
+                                          uErrorControl,
+                                          wszFilePath,
+                                          NULL /* pwszLoadOrderGroup */,
+                                          NULL /* pdwTagId */,
+                                          wszzDependencies,
+                                          NULL /* pwszServiceStartName */,
+                                          NULL /* pwszPassword */);
+                if (hService != NULL)
+                {
+                    uBuf.Desc.lpDescription = (WCHAR *)pwszDescription;
+                    if (ChangeServiceConfig2W(hService, SERVICE_CONFIG_DESCRIPTION, &uBuf.Desc))
+                        LogRel(("update service '%ls': created\n", pwszServiceName));
+                    else
+                        AssertMsgFailed(("Failed to set service description for %ls: %u\n", pwszServiceName, GetLastError()));
+                    CloseServiceHandle(hService);
+                }
+                else
+                {
+                    pState->rc = GetLastError();
+                    AssertMsgFailed(("Failed to create service '%ls': %u\n", pwszServiceName, pState->rc));
+                }
+                CloseServiceHandle(hSCM);
+            }
+            else
+            {
+                pState->rc = GetLastError();
+                LogRel(("Failed to open service manager with create service access: %u\n", pState->rc));
+            }
         }
     }
-
-    bDelete = DeleteService(hService);
-    CloseServiceHandle(hService);
-    CloseServiceHandle(hSCM);
-
-    if (!bDelete)
-    {
-        LogWarnFunc(("Error: Could not delete service\n"));
-        Assert(0);
-        return FALSE;
-    }
-
-    return TRUE;
+    else
+        AssertLogRelMsgFailed(("OpenSCManagerW failed: %u\n", GetLastError()));
 }
-
-
-static void vbpsUpdateVBoxSDSWindowsService(VBPSREGSTATE* pState, const WCHAR* wszVBoxDir)
-{
-    const WCHAR* wszModuleName =            L"VBoxSDS.exe";
-    const WCHAR* wszServiceName =           L"VBoxSDS";
-    const WCHAR* wszServiceDisplayName =    L"VirtualBox system service";
-    const WCHAR* wszServiceDescription =    L"Used as a COM server for VirtualBox API.";
-
-    if (pState->fUpdate)
-    {
-        if (!InstallWindowsService(wszVBoxDir,
-            wszModuleName,
-            wszServiceName,
-            wszServiceDisplayName,
-            wszServiceDescription))
-        {
-            LogWarnFunc(("Error: Windows service '%ls' cannot be registered\n", wszServiceName));
-            pState->rc = E_FAIL;
-        }
-    }
-    else if(pState->fDelete)
-    {
-        if (!UninstallWindowsService(wszServiceName))
-        {
-            LogWarnFunc(("Error: Windows service '%ls' cannot be unregistered\n", wszServiceName));
-            pState->rc = E_FAIL;
-        }
-    }
-}
+#endif /* VBOX_WITH_SDS */
 
 
 
@@ -2502,7 +2544,8 @@ DECLEXPORT(uint32_t) VbpsUpdateRegistrations(void)
     {
 
 #ifdef VBOX_WITH_SDS
-        vbpsUpdateVBoxSDSWindowsService(&State, wszVBoxDir);
+        vbpsUpdateWindowsService(&State, wszVBoxDir, L"VBoxSDS.exe", L"VBoxSDS",
+                                 L"VirtualBox system service", L"Used as a COM server for VirtualBox API.");
 #endif
         vbpsUpdateTypeLibRegistration(&State, wszVBoxDir, fIs32On64);
         vbpsUpdateProxyStubRegistration(&State, wszVBoxDir, fIs32On64);
@@ -2524,9 +2567,6 @@ DECLEXPORT(uint32_t) VbpsUpdateRegistrations(void)
                          !fIs32On64 ? KEY_WOW64_32KEY : KEY_WOW64_64KEY);
         if (rc == ERROR_SUCCESS && !vbpsIsUpToDate(&State))
         {
-#ifdef VBOX_WITH_SDS
-            vbpsUpdateVBoxSDSWindowsService(&State, wszVBoxDir);
-#endif
             vbpsUpdateTypeLibRegistration(&State, wszVBoxDir, !fIs32On64);
             vbpsUpdateProxyStubRegistration(&State, wszVBoxDir, !fIs32On64);
             vbpsUpdateInterfaceRegistrations(&State);

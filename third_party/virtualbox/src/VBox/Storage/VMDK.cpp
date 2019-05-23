@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -513,6 +513,7 @@ typedef struct VMDKRENAMESTATE
 } VMDKRENAMESTATE;
 /** Pointer to a VMDK rename state. */
 typedef VMDKRENAMESTATE *PVMDKRENAMESTATE;
+
 
 /*********************************************************************************************************************************
 *   Static Variables                                                                                                             *
@@ -1929,7 +1930,9 @@ static int vmdkPreprocessDescriptor(PVMDKIMAGE pImage, char *pDescData,
     if (RT_SUCCESS(rc))
     {
         if (    strcmp(pDescriptor->aLines[0], "# Disk DescriptorFile")
-            &&  strcmp(pDescriptor->aLines[0], "# Disk Descriptor File"))
+            &&  strcmp(pDescriptor->aLines[0], "# Disk Descriptor File")
+            &&  strcmp(pDescriptor->aLines[0], "#Disk Descriptor File")
+            &&  strcmp(pDescriptor->aLines[0], "#Disk DescriptorFile"))
             rc = vdIfError(pImage->pIfError, VERR_VD_VMDK_INVALID_HEADER, RT_SRC_POS,
                            N_("VMDK: descriptor does not start as expected in '%s'"), pImage->pszFilename);
         else

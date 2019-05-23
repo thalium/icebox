@@ -31,8 +31,8 @@ keys = apiutil.GetDispatchedFunctions(sys.argv[1]+"/APIspec.txt")
 # make list of special functions
 for func_name in keys:
     if ("get" in apiutil.Properties(func_name) or
-        apiutil.FindSpecial( "packspu", func_name ) or 
-        apiutil.FindSpecial( "packspu_flush", func_name ) or 
+        apiutil.FindSpecial( "packspu", func_name ) or
+        apiutil.FindSpecial( "packspu_flush", func_name ) or
         apiutil.FindSpecial( "packspu_vertex", func_name )):
       pack_specials.append( func_name )
 

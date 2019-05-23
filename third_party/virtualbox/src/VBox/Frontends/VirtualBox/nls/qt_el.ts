@@ -51,7 +51,7 @@
     </message>
     <message>
         <source>About %1</source>
-        <translatorcomment>2017-09-16</translatorcomment>
+        <translatorcomment>2018-04-26</translatorcomment>
         <translation>Σχετικά με το %1</translation>
     </message>
 </context>

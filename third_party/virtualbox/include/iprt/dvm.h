@@ -48,6 +48,8 @@ typedef enum RTDVMVOLTYPE
     RTDVMVOLTYPE_UNKNOWN,
     /** Volume hosts a NTFS filesystem. */
     RTDVMVOLTYPE_NTFS,
+    /** Volume hosts a FAT12 filesystem. */
+    RTDVMVOLTYPE_FAT12,
     /** Volume hosts a FAT16 filesystem. */
     RTDVMVOLTYPE_FAT16,
     /** Volume hosts a FAT32 filesystem. */
@@ -81,12 +83,12 @@ typedef enum RTDVMVOLTYPE
 /** DVM flags - Blocks are always marked as unused if the volume has
  *              no block status callback set.
  *              The default is to mark them as used. */
-#define DVM_FLAGS_NO_STATUS_CALLBACK_MARK_AS_UNUSED    RT_BIT_32(0)
+#define DVM_FLAGS_NO_STATUS_CALLBACK_MARK_AS_UNUSED     RT_BIT_32(0)
 /** DVM flags - Space which is unused in the map will be marked as used
  *              when calling RTDvmMapQueryBlockStatus(). */
-#define DVM_FLAGS_UNUSED_SPACE_MARK_AS_USED            RT_BIT_32(1)
+#define DVM_FLAGS_UNUSED_SPACE_MARK_AS_USED             RT_BIT_32(1)
 /** Mask of all valid flags. */
-#define DVM_FLAGS_MASK (DVM_FLAGS_NO_STATUS_CALLBACK_MARK_AS_UNUSED | DVM_FLAGS_UNUSED_SPACE_MARK_AS_USED)
+#define DVM_FLAGS_VALID_MASK                            UINT32_C(0x00000003)
 /** @}  */
 
 
@@ -113,32 +115,6 @@ typedef RTDVMVOLUME                *PRTDVMVOLUME;
 #define NIL_RTDVMVOLUME             ((RTDVMVOLUME)~0)
 
 /**
- * Callback to read data from the underlying medium.
- *
- * @returns IPRT status code.
- * @param   pvUser    Opaque user data passed on creation.
- * @param   off       Offset to start reading from.
- * @param   pvBuf     Where to store the read data.
- * @param   cbRead    How many bytes to read.
- */
-typedef DECLCALLBACK(int) FNDVMREAD(void *pvUser, uint64_t off, void *pvBuf, size_t cbRead);
-/** Pointer to a read callback. */
-typedef FNDVMREAD *PFNDVMREAD;
-
-/**
- * Callback to write data to the underlying medium.
- *
- * @returns IPRT status code.
- * @param   pvUser    Opaque user data passed on creation.
- * @param   off       Offset to start writing to.
- * @param   pvBuf     The data to write.
- * @param   cbRead    How many bytes to write.
- */
-typedef DECLCALLBACK(int) FNDVMWRITE(void *pvUser, uint64_t off, const void *pvBuf, size_t cbWrite);
-/** Pointer to a read callback. */
-typedef FNDVMWRITE *PFNDVMWRITE;
-
-/**
  * Callback for querying the block allocation status of a volume.
  *
  * @returns IPRT status code.
@@ -158,19 +134,11 @@ typedef FNDVMVOLUMEQUERYBLOCKSTATUS *PFNDVMVOLUMEQUERYBLOCKSTATUS;
  * @returns IPRT status.
  * @param   phVolMgr    Where to store the handle to the volume manager on
  *                      success.
- * @param   pfnRead     Read callback for the underlying
- *                      disk/container/whatever.
- * @param   pfnWrite    Write callback for the underlying
- *                      disk/container/whatever.
- * @param   cbDisk      Size of the underlying disk in bytes.
+ * @param   hVfsFile    The disk/container/whatever.
  * @param   cbSector    Size of one sector in bytes.
  * @param   fFlags      Combination of RTDVM_FLAGS_*
- * @param   pvUser      Opaque user data passed to the callbacks.
  */
-RTDECL(int) RTDvmCreate(PRTDVM phVolMgr, PFNDVMREAD pfnRead,
-                        PFNDVMWRITE pfnWrite, uint64_t cbDisk,
-                        uint64_t cbSector, uint32_t fFlags,
-                        void *pvUser);
+RTDECL(int) RTDvmCreate(PRTDVM phVolMgr, RTVFSFILE hVfsFile, uint32_t cbSector, uint32_t fFlags);
 
 /**
  * Retain a given volume manager.
@@ -208,12 +176,39 @@ RTDECL(int) RTDvmMapOpen(RTDVM hVolMgr);
 RTDECL(int) RTDvmMapInitialize(RTDVM hVolMgr, const char *pszFmt);
 
 /**
- * Gets the currently used format of the disk map.
+ * Gets the name of the currently used format of the disk map.
  *
  * @returns Name of the format.
  * @param   hVolMgr     The volume manager handle.
  */
-RTDECL(const char *) RTDvmMapGetFormat(RTDVM hVolMgr);
+RTDECL(const char *) RTDvmMapGetFormatName(RTDVM hVolMgr);
+
+/**
+ * DVM format types.
+ */
+typedef enum RTDVMFORMATTYPE
+{
+    /** Invalid zero value. */
+    RTDVMFORMATTYPE_INVALID = 0,
+    /** Master boot record. */
+    RTDVMFORMATTYPE_MBR,
+    /** GUID partition table. */
+    RTDVMFORMATTYPE_GPT,
+    /** BSD labels. */
+    RTDVMFORMATTYPE_BSD_LABLE,
+    /** End of valid values. */
+    RTDVMFORMATTYPE_END,
+    /** 32-bit type size hack. */
+    RTDVMFORMATTYPE_32BIT_HACK = 0x7fffffff
+} RTDVMFORMATTYPE;
+
+/**
+ * Gets the format type of the current disk map.
+ *
+ * @returns Format type. RTDVMFORMATTYPE_INVALID on invalid input.
+ * @param   hVolMgr     The volume manager handle.
+ */
+RTDECL(RTDVMFORMATTYPE) RTDvmMapGetFormatType(RTDVM hVolMgr);
 
 /**
  * Gets the number of valid partitions in the map.
@@ -259,12 +254,11 @@ RTDECL(int) RTDvmMapQueryNextVolume(RTDVM hVolMgr, RTDVMVOLUME hVol, PRTDVMVOLUM
  * @param   hVolMgr         The volume manager handler.
  * @param   off             The start offset to check for.
  * @param   cb              The range in bytes to check.
- * @param   pfAllocated     Where to store the status on success.
+ * @param   pfAllocated     Where to store the in-use status on success.
  *
  * @remark This method will return true even if a part of the range is not in use.
  */
-RTDECL(int) RTDvmMapQueryBlockStatus(RTDVM hVolMgr, uint64_t off, uint64_t cb,
-                                     bool *pfAllocated);
+RTDECL(int) RTDvmMapQueryBlockStatus(RTDVM hVolMgr, uint64_t off, uint64_t cb, bool *pfAllocated);
 
 /**
  * Retains a valid volume handle.
@@ -367,9 +361,10 @@ RTDECL(const char *) RTDvmVolumeTypeGetDescr(RTDVMVOLTYPE enmVolType);
  *
  * @returns IPRT status code.
  * @param   hVol            The volume handle.
+ * @param   fOpen           RTFILE_O_XXX.
  * @param   phVfsFileOut    Where to store the VFS file handle on success.
  */
-RTDECL(int) RTDvmVolumeCreateVfsFile(RTDVMVOLUME hVol, PRTVFSFILE phVfsFileOut);
+RTDECL(int) RTDvmVolumeCreateVfsFile(RTDVMVOLUME hVol, uint64_t fOpen, PRTVFSFILE phVfsFileOut);
 
 RT_C_DECLS_END
 

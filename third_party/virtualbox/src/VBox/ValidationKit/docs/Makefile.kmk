@@ -54,4 +54,3 @@ $(foreach html,$(GENERATED_FILES), $(eval $(basename $(html)).o:: $(html)))  # e
 clean:
 	kmk_builtin_rm -f -- $(GENERATED_FILES)
 
-

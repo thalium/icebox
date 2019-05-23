@@ -327,6 +327,9 @@ icmp_proxy_input(struct pbuf *p, struct netif *inp)
 
     if (ping_proxy_accept_callback != NULL) {
       (*ping_proxy_accept_callback)(ping_proxy_accept_arg, p);
+    } else {
+      /* ignore silently */
+      pbuf_free(p);
     }
     break;
 

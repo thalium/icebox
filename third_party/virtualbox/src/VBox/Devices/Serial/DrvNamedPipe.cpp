@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -59,6 +59,7 @@
 
 # define DRVNAMEDPIPE_WAKEUP_REASON_EXTERNAL       0
 # define DRVNAMEDPIPE_WAKEUP_REASON_NEW_CONNECTION 1
+
 
 /*********************************************************************************************************************************
 *   Structures and Typedefs                                                                                                      *
@@ -218,6 +219,7 @@ static DECLCALLBACK(int) drvNamedPipePoll(PPDMISTREAM pInterface, uint32_t fEvts
             {
                 LogFlowFunc(("Read completed: cbReallyRead=%u\n", cbReallyRead));
                 pThis->fReadPending = false;
+                pThis->cbReadBufUsed = cbReallyRead;
                 *pfEvts |= RTPOLL_EVT_READ;
                 return VINF_SUCCESS;
             }

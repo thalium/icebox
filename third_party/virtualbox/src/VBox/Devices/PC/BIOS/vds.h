@@ -1,11 +1,29 @@
+/* $Id: vds.h $ */
+/** @file
+ * Utility routines for calling the Virtual DMA Services.
+ */
+
+/*
+ * Copyright (C) 2006-2017 Oracle Corporation
+ *
+ * This file is part of VirtualBox Open Source Edition (OSE), as
+ * available from http://www.virtualbox.org. This file is free software;
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License (GPL) as published by the Free Software
+ * Foundation, in version 2 as it comes in the "COPYING" file of the
+ * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ */
+
+
 /* Virtual DMA Services (VDS) */
 
 #define VDS_FLAGS_OFS   0x7B    /* Offset of VDS flag byte in BDA. */
 #define VDS_PRESENT     0x20    /* The VDS present bit. */
 
-/* The DMA descriptor data structure. */
-
-typedef struct {
+/** The DMA descriptor data structure. */
+typedef struct
+{
     uint32_t    region_size;    /* Region size in bytes. */
     uint32_t    offset;         /* Offset. */
     uint16_t    seg_sel;        /* Segment selector. */
@@ -14,25 +32,26 @@ typedef struct {
 } vds_dds;
 
 
-/* Scatter/gather descriptor entry. */
-
-typedef struct {
+/** Scatter/gather descriptor entry. */
+typedef struct
+{
     uint32_t    phys_addr;      /* Physical address. */
     uint32_t    size;           /* Entry size. */
 } vds_sg;
 
-/* The extended DDS for scatter/gather. Note that the EDDS contains either
- * S/G descriptors or x86-style PTEs.
+/** The extended DDS for scatter/gather.
+ * Note that the EDDS contains either S/G descriptors or x86-style PTEs.
  */
-
-typedef struct {
+typedef struct
+{
     uint32_t    region_size;    /* Region size in bytes. */
     uint32_t    offset;         /* Offset. */
     uint16_t    seg_sel;        /* Segment or selector. */
     uint16_t    resvd;          /* Reserved. */
     uint16_t    num_avail;      /* Number of entries available. */
     uint16_t    num_used;       /* Number of entries used. */
-    union {
+    union
+    {
         vds_sg      sg[1];      /* S/G entry array. */
         uint32_t    pte[1];     /* Page table entry array. */
     } u;
@@ -93,3 +112,4 @@ int vds_free_sg_list( vds_edds __far *edds );
 /* Helper for translating 16:16 real mode addresses to 32-bit linear. */
 
 uint32_t vds_real_to_lin( void __far *ptr );
+

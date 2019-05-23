@@ -1,11 +1,10 @@
+/* $Id: Framebuffer.cpp $ */
 /** @file
- *
- * VBox frontends: Framebuffer (FB, DirectFB):
- * Implementation of VBoxDirectFB class
+ * VBoxFB - implementation of VBoxDirectFB class.
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -347,8 +346,9 @@ NS_IMETHODIMP VBoxDirectFB::SetVisibleRegion(PRUint8 *rectangles, PRUint32 count
     return NS_OK;
 }
 
-NS_IMETHODIMP VBoxDirectFB::ProcessVHWACommand(PRUint8 *command)
+NS_IMETHODIMP VBoxDirectFB::ProcessVHWACommand(PRUint8 *command, LONG enmCmd, BOOL fGuestCmd)
 {
+    RT_NOREF(command, enmCmd, fGuestCmd);
     return NS_ERROR_NOT_IMPLEMENTED;
 }
 

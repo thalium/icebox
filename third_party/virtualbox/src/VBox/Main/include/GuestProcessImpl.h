@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2012-2016 Oracle Corporation
+ * Copyright (C) 2012-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -189,7 +189,7 @@ struct GuestProcessToolErrorInfo
     /** Return code from the guest side for executing the process tool. */
     int  guestRc;
     /** The process tool's returned exit code. */
-    LONG lExitCode;
+    int32_t iExitCode;
 };
 
 /**
@@ -228,7 +228,7 @@ public:
 
     bool i_isRunning(void);
 
-    int i_terminatedOk(LONG *plExitCode = NULL);
+    int i_terminatedOk(int32_t *piExitCode = NULL);
 
     int i_terminate(uint32_t uTimeoutMS, int *pGuestRc);
 
@@ -244,9 +244,9 @@ public:
     static int i_runExErrorInfo(GuestSession *pGuestSession, const GuestProcessStartupInfo &startupInfo,
                                 GuestCtrlStreamObjects *pStrmOutObjects, uint32_t cStrmOutObjects, GuestProcessToolErrorInfo &errorInfo);
 
-    static int i_exitCodeToRc(const GuestProcessStartupInfo &startupInfo, LONG lExitCode);
+    static int i_exitCodeToRc(const GuestProcessStartupInfo &startupInfo, int32_t iExitCode);
 
-    static int i_exitCodeToRc(const char *pszTool, LONG lExitCode);
+    static int i_exitCodeToRc(const char *pszTool, int32_t iExitCode);
 
 protected:
 

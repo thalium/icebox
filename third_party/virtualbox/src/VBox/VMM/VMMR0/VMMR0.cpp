@@ -159,6 +159,8 @@ PFNRT g_VMMR0Deps[] =
 extern "C" { char _depends_on[] = "vboxdrv"; }
 #endif
 
+/** The result of SUPR0GetRawModeUsability(), set by ModuleInit(). */
+int g_rcRawModeUsability = VINF_SUCCESS;
 
 
 /**
@@ -246,7 +248,11 @@ DECLEXPORT(int) ModuleInit(void *hMod)
                                             VMM_CHECK_SMAP_CHECK(rc = VERR_VMM_SMAP_BUT_AC_CLEAR);
                                             if (RT_SUCCESS(rc))
                                             {
-                                                LogFlow(("ModuleInit: returns success.\n"));
+                                                g_rcRawModeUsability = SUPR0GetRawModeUsability();
+                                                if (g_rcRawModeUsability != VINF_SUCCESS)
+                                                    SUPR0Printf("VMMR0!ModuleInit: SUPR0GetRawModeUsability -> %Rrc\n",
+                                                                g_rcRawModeUsability);
+                                                LogFlow(("ModuleInit: returns success\n"));
                                                 return VINF_SUCCESS;
                                             }
                                         }
@@ -1013,6 +1019,13 @@ VMMR0DECL(void) VMMR0EntryFast(PGVM pGVM, PVM pVM, VMCPUID idCpu, VMMR0OPERATION
                 break;
             }
 # endif
+            if (RT_SUCCESS(g_rcRawModeUsability))
+            { /* likely */ }
+            else
+            {
+                pVCpu->vmm.s.iLastGZRc = g_rcRawModeUsability;
+                break;
+            }
 
             /*
              * Disable preemption.
@@ -1574,6 +1587,8 @@ static int vmmR0EntryExWorker(PGVM pGVM, PVM pVM, VMCPUID idCpu, VMMR0OPERATION 
             if (RT_UNLIKELY(!PGMGetHyperCR3(pVCpu)))
                 return VERR_PGM_NO_CR3_SHADOW_ROOT;
 # endif
+            if (RT_FAILURE(g_rcRawModeUsability))
+                return g_rcRawModeUsability;
 
             /*
              * Disable interrupts.

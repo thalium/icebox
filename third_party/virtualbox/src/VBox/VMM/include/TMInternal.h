@@ -492,6 +492,12 @@ typedef struct TM
      * testing of software and similar.
      * @todo Implement warpdrive on UTC. */
     int64_t                     offUTC;
+    /** The last value TMR3UtcNow returned. */
+    int64_t volatile            nsLastUtcNow;
+    /** File to touch on UTC jump. */
+    R3PTRTYPE(char *)           pszUtcTouchFileOnJump;
+    /** Just to avoid dealing with 32-bit alignment trouble. */
+    R3PTRTYPE(char *)           pszAlignment2b;
 
     /** Timer queues for the different clock types - R3 Ptr */
     R3PTRTYPE(PTMTIMERQUEUE)    paTimerQueuesR3;

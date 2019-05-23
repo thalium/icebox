@@ -32,7 +32,7 @@
 
 RT_C_DECLS_BEGIN
 
-/** @defgroup grp_rt_kmod RTKrnlMod - Kernel module/driver userspace side API. 
+/** @defgroup grp_rt_kmod RTKrnlMod - Kernel module/driver userspace side API.
  * @ingroup grp_rt
  * @{
  */

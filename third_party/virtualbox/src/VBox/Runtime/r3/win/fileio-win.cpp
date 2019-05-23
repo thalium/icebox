@@ -495,7 +495,7 @@ RTR3DECL(int)  RTFileWrite(RTFILE hFile, const void *pvBuf, size_t cbToWrite, si
 {
     if (cbToWrite <= 0)
         return VINF_SUCCESS;
-    ULONG cbToWriteAdj = (ULONG)cbToWrite;
+    ULONG const cbToWriteAdj = (ULONG)cbToWrite;
     AssertReturn(cbToWriteAdj == cbToWrite, VERR_NUMBER_TOO_BIG);
 
     ULONG cbWritten = 0;
@@ -503,11 +503,11 @@ RTR3DECL(int)  RTFileWrite(RTFILE hFile, const void *pvBuf, size_t cbToWrite, si
     {
         if (pcbWritten)
             /* Caller can handle partial writes. */
-            *pcbWritten = cbWritten;
+            *pcbWritten = RT_MIN(cbWritten, cbToWriteAdj); /* paranoia^3 */
         else
         {
             /* Caller expects everything to be written. */
-            while (cbToWriteAdj > cbWritten)
+            while (cbWritten < cbToWriteAdj)
             {
                 ULONG cbWrittenPart = 0;
                 if (!WriteFile((HANDLE)RTFileToNative(hFile), (char*)pvBuf + cbWritten,
@@ -542,7 +542,7 @@ RTR3DECL(int)  RTFileWrite(RTFILE hFile, const void *pvBuf, size_t cbToWrite, si
             cbChunk = RT_ALIGN_32(cbChunk, 256);
 
         cbWritten = 0;
-        while (cbToWriteAdj > cbWritten)
+        while (cbWritten < cbToWriteAdj)
         {
             ULONG cbToWrite     = RT_MIN(cbChunk, cbToWriteAdj - cbWritten);
             ULONG cbWrittenPart = 0;
@@ -569,7 +569,7 @@ RTR3DECL(int)  RTFileWrite(RTFILE hFile, const void *pvBuf, size_t cbToWrite, si
                write out everything. */
             if (pcbWritten)
             {
-                *pcbWritten = cbWritten;
+                *pcbWritten = RT_MIN(cbWritten, cbToWriteAdj); /* paranoia^3 */
                 break;
             }
             if (cbWrittenPart == 0)
@@ -976,6 +976,7 @@ RTR3DECL(int) RTFileSetTimes(RTFILE hFile, PCRTTIMESPEC pAccessTime, PCRTTIMESPE
 }
 
 
+#if 0 /* RTFileSetMode is implemented by RTFileSetMode-r3-nt.cpp */
 /* This comes from a source file with a different set of system headers (DDK)
  * so it can't be declared in a common header, like internal/file.h.
  */
@@ -1002,6 +1003,7 @@ RTR3DECL(int) RTFileSetMode(RTFILE hFile, RTFMODE fMode)
     }
     return VINF_SUCCESS;
 }
+#endif
 
 
 /* RTFileQueryFsSizes is implemented by ../nt/RTFileQueryFsSizes-nt.cpp */

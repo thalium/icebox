@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2016 Oracle Corporation
+ * Copyright (C) 2010-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -403,20 +403,6 @@ static int vbsvcAutoMountSharedFolder(const char *pszShareName, const char *pszM
                     strcpy(mntinf.name, pszMountPoint + cchCWD);
                 }
                 r = mount(mntinf.name, pszMountPoint, "vboxsf", fFlags, &mntinf);
-            }
-            if (errno == EPROTO)
-            {
-                VGSvcVerbose(3, "vbsvcAutoMountWorker: Re-trying with old mounting structure ...\n");
-
-                /* New mount tool with old vboxsf module? Try again using the old
-                 * vbsf_mount_info_old structure. */
-                struct vbsf_mount_info_old mntinf_old;
-                memcpy(&mntinf_old.name, &mntinf.name, MAX_HOST_NAME);
-                memcpy(&mntinf_old.nls_name, mntinf.nls_name, MAX_NLS_NAME);
-                mntinf_old.uid = mntinf.uid;
-                mntinf_old.gid = mntinf.gid;
-                mntinf_old.ttl = mntinf.ttl;
-                r = mount(mntinf_old.name, pszMountPoint, "vboxsf", fFlags, &mntinf_old);
             }
             if (r == -1) /* Was there some error from one of the tries above? */
             {

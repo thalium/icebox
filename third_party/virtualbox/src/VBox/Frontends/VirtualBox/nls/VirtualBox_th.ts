@@ -4282,19 +4282,19 @@
     </message>
     <message>
         <source>Enc&amp;ryption</source>
-        <translation>การเ&amp;ข้ารหัสลับ</translation>
+        <translation type="vanished">การเ&amp;ข้ารหัสลับ</translation>
     </message>
     <message>
         <source>When checked, enables encryption for this virtual machine.</source>
-        <translation>เลือกที่นี่เพื่อเปิดใช้การเข้ารหัสลับสำหรับเวอร์ชวลแมชชีนนี้</translation>
+        <translation type="vanished">เลือกที่นี่เพื่อเปิดใช้การเข้ารหัสลับสำหรับเวอร์ชวลแมชชีนนี้</translation>
     </message>
     <message>
         <source>En&amp;able Encryption</source>
-        <translation>เ&amp;ปิดใช้การเข้ารหัสลับ</translation>
+        <translation type="vanished">เ&amp;ปิดใช้การเข้ารหัสลับ</translation>
     </message>
     <message>
         <source>Encryption C&amp;ipher:</source>
-        <translation>ไ&amp;ซเฟอร์สำหรับการเข้ารหัส:</translation>
+        <translation type="vanished">ไ&amp;ซเฟอร์สำหรับการเข้ารหัส:</translation>
     </message>
     <message>
         <source>E&amp;nter New Password:</source>
@@ -4302,7 +4302,7 @@
     </message>
     <message>
         <source>Holds the password to be assigned to the virtual machine.</source>
-        <translation>เก็บรหัสผ่านที่จะถูกใช้กับเวอร์ชวลแมชชีน</translation>
+        <translation type="vanished">เก็บรหัสผ่านที่จะถูกใช้กับเวอร์ชวลแมชชีน</translation>
     </message>
     <message>
         <source>C&amp;onfirm New Password:</source>
@@ -4310,23 +4310,23 @@
     </message>
     <message>
         <source>Confirms the password to be assigned to the virtual machine.</source>
-        <translation>ยืนยันรหัสผ่านใหม่ที่จะถูกใช้กับเวอร์ชวลแมชชีน</translation>
+        <translation type="vanished">ยืนยันรหัสผ่านใหม่ที่จะถูกใช้กับเวอร์ชวลแมชชีน</translation>
     </message>
     <message>
         <source>You are trying to encrypt this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
-        <translation>คุณกำลังพยายามเข้ารหัสลับเวอร์ชวลแมชชีน แต่คุณสมบัตินี้จำเป็นต้องมี &lt;i&gt;%1&lt;/i&gt; ติดตั้งไว้ กรุณาติดตั้งแพคขยายจากไซต์ดาวน์โหลดเวอร์ชวลบอกซ์</translation>
+        <translation type="vanished">คุณกำลังพยายามเข้ารหัสลับเวอร์ชวลแมชชีน แต่คุณสมบัตินี้จำเป็นต้องมี &lt;i&gt;%1&lt;/i&gt; ติดตั้งไว้ กรุณาติดตั้งแพคขยายจากไซต์ดาวน์โหลดเวอร์ชวลบอกซ์</translation>
     </message>
     <message>
         <source>Encryption cipher type not specified.</source>
-        <translation>ไม่ได้ระบุชนิดของไซเฟอร์สำหรับการเข้ารหัสลับ</translation>
+        <translation type="vanished">ไม่ได้ระบุชนิดของไซเฟอร์สำหรับการเข้ารหัสลับ</translation>
     </message>
     <message>
         <source>Encryption password empty.</source>
-        <translation>ไม่ได้ระบุรหัสผ่านสำหรับการเข้ารหัสลับ</translation>
+        <translation type="vanished">ไม่ได้ระบุรหัสผ่านสำหรับการเข้ารหัสลับ</translation>
     </message>
     <message>
         <source>Encryption passwords do not match.</source>
-        <translation>รหัสผ่านสำหรับการเข้ารหัสลับไม่ตรงกัน</translation>
+        <translation type="vanished">รหัสผ่านสำหรับการเข้ารหัสลับไม่ตรงกัน</translation>
     </message>
     <message>
         <source>Leave Unchanged</source>
@@ -4340,6 +4340,46 @@
     <message>
         <source>Holds the path where snapshots of this virtual machine will be stored. Be aware that snapshots can take quite a lot of storage space.</source>
         <translation>เก็บเส้นทางไปยังที่จัดเก็บสแนปช็อตของเวอร์ชวลแมชชีนนี้ โปรดทราบว่าสแนปช็อตอาจใช้พื้นที่จัดเก็บข้อมูลเป็นจำนวนมาก</translation>
+    </message>
+    <message>
+        <source>Disk Enc&amp;ryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>When checked, disks attached to this virtual machine will be encrypted.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>En&amp;able Disk Encryption</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk Encryption C&amp;ipher:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Holds the encryption password for disks attached to this virtual machine.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Confirms the disk encryption password.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>You are trying to enable disk encryption for this virtual machine. However, this requires the &lt;i&gt;%1&lt;/i&gt; to be installed. Please install the Extension Pack from the VirtualBox download site.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption cipher type not specified.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption password empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk encryption passwords do not match.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5644,6 +5684,38 @@
         <source>Cannot change medium size from &lt;b&gt;%1&lt;/b&gt; to &lt;b&gt;%2&lt;/b&gt; as storage shrinking is currently not implemented.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Choose Medium Location</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Location can not be empty.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
+        <translation type="unfinished">สื่อชนิดนี้เชื่อมต่อได้โดยตรงหรือโดยอ้อม และจะถูกเก็บไว้ขณะเก็บสแนปช็อต</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
+        <translation type="unfinished">สื่อชนิดนี้ถูกเชื่อมต่อโดยอ้อม ความเปลี่ยนแปลงทั้งหมดจะถูกละทิ้งเมื่อเวอร์ชวลแมชชีนเริ่มการทำงานในครั้งต่อไป</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, ignored when taking snapshots.</source>
+        <translation type="unfinished">สื่อชนิดนี้ถูกเชื่อมต่อโดยตรง และจะถูกเพิกเฉยขณะเก็บสแนปช็อต</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
+        <translation type="unfinished">สื่อชนิดนี้ถูกเชื่อมต่อโดยตรง และสามารถถูกใช้จากเวอร์ชวลแมชชีนหลายเครื่องได้พร้อมกัน</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached directly, and can be used by several machines.</source>
+        <translation type="unfinished">สื่อชนิดนี้ถูกเชื่อมต่อโดยตรง และสามารถถูกใช้จากเวอร์ชวลแมชชีนได้หลายเครื่อง</translation>
+    </message>
+    <message>
+        <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
+        <translation type="unfinished">สื่อชนิดนี้ถูกเชื่อมต่อโดยอ้อม ดังนั้นสื่อพื้นฐานหนึ่ง ๆ สามารถถูกใช้กับหลาย ๆ VM ที่มีสื่อแบบเก็บส่วนต่างของตัวเองเพื่อเก็บข้อมูลในส่วนที่เกิดการเปลี่ยนแปลง</translation>
+    </message>
 </context>
 <context>
     <name>UIMediumManager</name>
@@ -5829,6 +5901,26 @@
         <source>Refresh Disk Image Files (%1)</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Current extension (*.%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose the location of this medium</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Move...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Disk Image File (%1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move selected disk image file</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>UIMediumSizeEditor</name>
@@ -5845,39 +5937,39 @@
     <name>UIMediumTypeChangeDialog</name>
     <message>
         <source>Modify medium attributes</source>
-        <translation>เปลี่ยนลักษณะเฉพาะของมีเดีย</translation>
+        <translation type="vanished">เปลี่ยนลักษณะเฉพาะของมีเดีย</translation>
     </message>
     <message>
         <source>&lt;p&gt;You are about to change the settings of the disk image file &lt;b&gt;%1&lt;/b&gt;.&lt;/p&gt;&lt;p&gt;Please choose one of the following modes and press &lt;b&gt;%2&lt;/b&gt; to proceed or &lt;b&gt;%3&lt;/b&gt; otherwise.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;คุณกำลังจะเปลี่ยนแปลงการตั้งค่าไฟล์ดิสก์อิมเมจ &lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;&lt;p&gt;โปรดเลือกหนึ่งในโหมดต่อไปนี้แล้วกด &lt;b&gt;%2&lt;/b&gt; เพื่อดำเนินการต่อหรือกด &lt;b&gt;%3&lt;/b&gt; เพื่อยกเลิก&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;คุณกำลังจะเปลี่ยนแปลงการตั้งค่าไฟล์ดิสก์อิมเมจ &lt;b&gt;%1&lt;/b&gt;&lt;/p&gt;&lt;p&gt;โปรดเลือกหนึ่งในโหมดต่อไปนี้แล้วกด &lt;b&gt;%2&lt;/b&gt; เพื่อดำเนินการต่อหรือกด &lt;b&gt;%3&lt;/b&gt; เพื่อยกเลิก&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose mode:</source>
-        <translation>เลือกโหมด:</translation>
+        <translation type="vanished">เลือกโหมด:</translation>
     </message>
     <message>
         <source>This type of medium is attached directly or indirectly, preserved when taking snapshots.</source>
-        <translation>สื่อชนิดนี้เชื่อมต่อได้โดยตรงหรือโดยอ้อม และจะถูกเก็บไว้ขณะเก็บสแนปช็อต</translation>
+        <translation type="vanished">สื่อชนิดนี้เชื่อมต่อได้โดยตรงหรือโดยอ้อม และจะถูกเก็บไว้ขณะเก็บสแนปช็อต</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, changes are wiped out the next time the virtual machine is started.</source>
-        <translation>สื่อชนิดนี้ถูกเชื่อมต่อโดยอ้อม ความเปลี่ยนแปลงทั้งหมดจะถูกละทิ้งเมื่อเวอร์ชวลแมชชีนเริ่มการทำงานในครั้งต่อไป</translation>
+        <translation type="vanished">สื่อชนิดนี้ถูกเชื่อมต่อโดยอ้อม ความเปลี่ยนแปลงทั้งหมดจะถูกละทิ้งเมื่อเวอร์ชวลแมชชีนเริ่มการทำงานในครั้งต่อไป</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, ignored when taking snapshots.</source>
-        <translation>สื่อชนิดนี้ถูกเชื่อมต่อโดยตรง และจะถูกเพิกเฉยขณะเก็บสแนปช็อต</translation>
+        <translation type="vanished">สื่อชนิดนี้ถูกเชื่อมต่อโดยตรง และจะถูกเพิกเฉยขณะเก็บสแนปช็อต</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, allowed to be used concurrently by several machines.</source>
-        <translation>สื่อชนิดนี้ถูกเชื่อมต่อโดยตรง และสามารถถูกใช้จากเวอร์ชวลแมชชีนหลายเครื่องได้พร้อมกัน</translation>
+        <translation type="vanished">สื่อชนิดนี้ถูกเชื่อมต่อโดยตรง และสามารถถูกใช้จากเวอร์ชวลแมชชีนหลายเครื่องได้พร้อมกัน</translation>
     </message>
     <message>
         <source>This type of medium is attached directly, and can be used by several machines.</source>
-        <translation>สื่อชนิดนี้ถูกเชื่อมต่อโดยตรง และสามารถถูกใช้จากเวอร์ชวลแมชชีนได้หลายเครื่อง</translation>
+        <translation type="vanished">สื่อชนิดนี้ถูกเชื่อมต่อโดยตรง และสามารถถูกใช้จากเวอร์ชวลแมชชีนได้หลายเครื่อง</translation>
     </message>
     <message>
         <source>This type of medium is attached indirectly, so that one base medium can be used for several VMs which have their own differencing medium to store their modifications.</source>
-        <translation>สื่อชนิดนี้ถูกเชื่อมต่อโดยอ้อม ดังนั้นสื่อพื้นฐานหนึ่ง ๆ สามารถถูกใช้กับหลาย ๆ VM ที่มีสื่อแบบเก็บส่วนต่างของตัวเองเพื่อเก็บข้อมูลในส่วนที่เกิดการเปลี่ยนแปลง</translation>
+        <translation type="vanished">สื่อชนิดนี้ถูกเชื่อมต่อโดยอ้อม ดังนั้นสื่อพื้นฐานหนึ่ง ๆ สามารถถูกใช้กับหลาย ๆ VM ที่มีสื่อแบบเก็บส่วนต่างของตัวเองเพื่อเก็บข้อมูลในส่วนที่เกิดการเปลี่ยนแปลง</translation>
     </message>
 </context>
 <context>
@@ -7043,19 +7135,19 @@
     </message>
     <message>
         <source>&lt;p&gt;You are about to install a VirtualBox extension pack. Extension packs complement the functionality of VirtualBox and can contain system level software that could be potentially harmful to your system. Please review the description below and only proceed if you have obtained the extension pack from a trusted source.&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;คุณกำลังจะติดตั้งแพคขยายของเวอร์ชวลบอกซ์ แพคขยายจะช่วยเติมเต็มความสามารถของเวอร์ชวลบอกซ์และอาจมีซอฟต์แวร์ที่ต้องทำงานในระดับของระบบที่อาจเป็นอันตรายต่อระบบของคุณได้ กรุณาอ่านคำอธิบายด้านล่างโดยละเอียดและดำเนินการต่อไปก็ต่อเมื่อคุณได้รับส่วนขยายมาจากแหล่งที่เชื่อถือได้เท่านั้น&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;ชื่อ:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;รุ่น:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;คำอธิบาย:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {0 ?} {5&gt;?} {1&lt;?} {2&lt;?} {3&lt;?}</translation>
+        <translation type="unfinished">&lt;p&gt;คุณกำลังจะติดตั้งแพคขยายของเวอร์ชวลบอกซ์ แพคขยายจะช่วยเติมเต็มความสามารถของเวอร์ชวลบอกซ์และอาจมีซอฟต์แวร์ที่ต้องทำงานในระดับของระบบที่อาจเป็นอันตรายต่อระบบของคุณได้ กรุณาอ่านคำอธิบายด้านล่างโดยละเอียดและดำเนินการต่อไปก็ต่อเมื่อคุณได้รับส่วนขยายมาจากแหล่งที่เชื่อถือได้เท่านั้น&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;ชื่อ:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%1&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;รุ่น:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;คำอธิบาย:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An older version of the extension pack is already installed, would you like to upgrade? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;New Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Current Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;แพคขยายรุ่นเก่ากว่าถูกติดตั้งไว้แล้ว คุณต้องการอัพเกรดหรือไม่? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;ชื่อ:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;รุ่นใหม่:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;รุ่นปัจจุบัน:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;คำอธิบาย:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?} {5&lt;?}</translation>
+        <translation type="unfinished">&lt;p&gt;แพคขยายรุ่นเก่ากว่าถูกติดตั้งไว้แล้ว คุณต้องการอัพเกรดหรือไม่? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;ชื่อ:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;รุ่นใหม่:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;รุ่นปัจจุบัน:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;คำอธิบาย:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;An newer version of the extension pack is already installed, would you like to downgrade? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;New Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Current Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;แพคขยายรุ่นใหม่กว่าถูกติดตั้งไว้แล้ว คุณต้องการดาวน์เกรดหรือไม่? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;ชื่อ:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;รุ่นใหม่:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;รุ่นปัจจุบัน:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;คำอธิบาย:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?} {5&lt;?}</translation>
+        <translation type="unfinished">&lt;p&gt;แพคขยายรุ่นใหม่กว่าถูกติดตั้งไว้แล้ว คุณต้องการดาวน์เกรดหรือไม่? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;ชื่อ:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;รุ่นใหม่:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;รุ่นปัจจุบัน:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;คำอธิบาย:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%5&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;The extension pack is already installed with the same version, would you like reinstall it? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Name:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Version:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;Description:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</source>
-        <translation type="unfinished">&lt;p&gt;แพคขยายที่ติดตั้งอยู่เป็นรุ่นเดียวกันอยู่แล้ว, คุณต้องการติดตั้งใหม่หรือไม่? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=0&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;ชื่อ:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;รุ่น:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;คำอธิบาย:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt; {1&lt;?} {0 ?} {5&gt;?} {2&lt;?} {3&lt;?} {4&lt;?}</translation>
+        <translation type="unfinished">&lt;p&gt;แพคขยายที่ติดตั้งอยู่เป็นรุ่นเดียวกันอยู่แล้ว, คุณต้องการติดตั้งใหม่หรือไม่? &lt;p&gt;%1&lt;/p&gt;&lt;p&gt;&lt;table cellpadding=0 cellspacing=5&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;ชื่อ:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%2&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;รุ่น:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%3&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;b&gt;คำอธิบาย:&amp;nbsp;&amp;nbsp;&lt;/b&gt;&lt;/td&gt;&lt;td&gt;%4&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Failed to enable the audio adapter output for the virtual machine &lt;b&gt;%1&lt;/b&gt;.</source>
@@ -7075,6 +7167,14 @@
     </message>
     <message>
         <source>&lt;p&gt;Could not insert the &lt;b&gt;%1&lt;/b&gt; disk image file into the virtual machine &lt;b&gt;%2&lt;/b&gt;, as the machine has no optical drives. Please add a drive using the storage page of the virtual machine settings window.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to create the virtual disk image storage &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;.&lt;/nobr&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The changes you requested require this disk to be released from the machines it is attached to.&lt;/p&gt;&lt;p&gt;Are you sure you want to release the disk image file &lt;nobr&gt;&lt;b&gt;%1&lt;/b&gt;&lt;/nobr&gt;?&lt;/p&gt;&lt;p&gt;This will detach it from the following virtual machine(s): &lt;b&gt;%2&lt;/b&gt;.&lt;/p&gt;</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8257,31 +8357,31 @@
     <message>
         <source>%1_copy</source>
         <comment>copied virtual hard drive name</comment>
-        <translation>%1_สำเนา</translation>
+        <translation type="vanished">%1_สำเนา</translation>
     </message>
     <message>
         <source>Copy Virtual Hard Disk</source>
-        <translation>ทำสำเนาฮาร์ดดิสก์เสมือน</translation>
+        <translation type="vanished">ทำสำเนาฮาร์ดดิสก์เสมือน</translation>
     </message>
     <message>
         <source>Hard disk to copy</source>
-        <translation>ฮาร์ดดิสก์ที่จะทำสำเนา</translation>
+        <translation type="vanished">ฮาร์ดดิสก์ที่จะทำสำเนา</translation>
     </message>
     <message>
         <source>&lt;p&gt;Please select the virtual hard disk file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;กรุณาเลือกไฟล์ฮาร์ดดิสก์เสมือนที่คุณต้องการทำสำเนาหากยังไม่ได้เลือกไว้ คุณสามารถเลือกจากรายการที่แสดงอยู่หรือใช้ไอคอนโฟลเดอร์ด้านข้างรายการเพื่อเลือกขึ้นมาหนึ่งไฟล์&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;กรุณาเลือกไฟล์ฮาร์ดดิสก์เสมือนที่คุณต้องการทำสำเนาหากยังไม่ได้เลือกไว้ คุณสามารถเลือกจากรายการที่แสดงอยู่หรือใช้ไอคอนโฟลเดอร์ด้านข้างรายการเพื่อเลือกขึ้นมาหนึ่งไฟล์&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Choose a virtual hard disk file to copy...</source>
-        <translation>เลือกไฟล์ฮาร์ดดิสก์เสมือนเพื่อทำสำเนา...</translation>
+        <translation type="vanished">เลือกไฟล์ฮาร์ดดิสก์เสมือนเพื่อทำสำเนา...</translation>
     </message>
     <message>
         <source>Hard disk file type</source>
-        <translation>ชนิดของไฟล์ฮาร์ดดิสก์</translation>
+        <translation type="vanished">ชนิดของไฟล์ฮาร์ดดิสก์</translation>
     </message>
     <message>
         <source>Please choose the type of file that you would like to use for the new virtual hard disk. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
-        <translation>โปรดเลือกชนิดของไฟล์ที่คุณต้องการใช้สำหรับฮาร์ดดิสก์เสมือนที่จะสร้างขึ้นมาใหม่ หากคุณไม่ต้องการใช้ไฟล์นี้ร่วมกับซอฟต์แวร์เวอร์ชวลไลเซชันอื่น คุณสามารถใช้ค่านี้ได้โดยไม่ต้องเปลี่ยนแปลง</translation>
+        <translation type="vanished">โปรดเลือกชนิดของไฟล์ที่คุณต้องการใช้สำหรับฮาร์ดดิสก์เสมือนที่จะสร้างขึ้นมาใหม่ หากคุณไม่ต้องการใช้ไฟล์นี้ร่วมกับซอฟต์แวร์เวอร์ชวลไลเซชันอื่น คุณสามารถใช้ค่านี้ได้โดยไม่ต้องเปลี่ยนแปลง</translation>
     </message>
     <message>
         <source>Storage on physical hard disk</source>
@@ -8289,47 +8389,120 @@
     </message>
     <message>
         <source>Please choose whether the new virtual hard disk file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
-        <translation>โปรดเลือกว่าไฟล์ฮาร์ดดิสก์เวอร์ชวลบอกซ์ควรขยายขนาดตามการใช้งาน (จัดสรรแบบพลวัต) หรือควรสร้างโดยใช้ขนาดสูงสุด (ขนาดคงที่)</translation>
+        <translation type="vanished">โปรดเลือกว่าไฟล์ฮาร์ดดิสก์เวอร์ชวลบอกซ์ควรขยายขนาดตามการใช้งาน (จัดสรรแบบพลวัต) หรือควรสร้างโดยใช้ขนาดสูงสุด (ขนาดคงที่)</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; hard disk file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;ฮาร์ดดิสก์ที่&lt;b&gt;จัดสรรแบบพลวัต&lt;/b&gt; จะใช้พื้นที่บนฮาร์ดดิสก์กายภาพของคุณเพิ่มขึ้นตามการใช้งาน (จนถึง &lt;b&gt;ขนาดคงที่&lt;/b&gt; ที่ระบุไว้) แต่มันจะไม่ลดขนาดลงโดยอัตโนมัติแม้พื้นที่ภายในจะว่างลง&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;ฮาร์ดดิสก์ที่&lt;b&gt;จัดสรรแบบพลวัต&lt;/b&gt; จะใช้พื้นที่บนฮาร์ดดิสก์กายภาพของคุณเพิ่มขึ้นตามการใช้งาน (จนถึง &lt;b&gt;ขนาดคงที่&lt;/b&gt; ที่ระบุไว้) แต่มันจะไม่ลดขนาดลงโดยอัตโนมัติแม้พื้นที่ภายในจะว่างลง&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; hard disk file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
-        <translation>&lt;p&gt;ไฟล์ฮาร์ดดิสก์ &lt;b&gt;ขนาดคงที่&lt;/b&gt; อาจใช้เวลานานในการสร้างบนบางระบบ แต่มักทำงานได้เร็วกว่า&lt;/p&gt;</translation>
+        <translation type="vanished">&lt;p&gt;ไฟล์ฮาร์ดดิสก์ &lt;b&gt;ขนาดคงที่&lt;/b&gt; อาจใช้เวลานานในการสร้างบนบางระบบ แต่มักทำงานได้เร็วกว่า&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the hard disk file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
-        <translation>&lt;p&gt;คุณสามารถกำหนดให้&lt;b&gt;แบ่ง&lt;/b&gt;ไฟล์ฮาร์ดดิสก์ออกเป็นส่วนย่อย ๆ ส่วนละสองกิกะไบต์ การแบ่งเช่นนี้มีประโยชน์หากคุณต้องการเก็บไฟล์เวอร์ชวลแมชชีนไว้บนสื่อบันทึก USB ที่เคลื่อนย้ายได้หรือในเครื่องรุ่นเก่าที่ไม่สามารถรองรับไฟล์ขนาดใหญ่มาก ๆ ได้</translation>
+        <translation type="vanished">&lt;p&gt;คุณสามารถกำหนดให้&lt;b&gt;แบ่ง&lt;/b&gt;ไฟล์ฮาร์ดดิสก์ออกเป็นส่วนย่อย ๆ ส่วนละสองกิกะไบต์ การแบ่งเช่นนี้มีประโยชน์หากคุณต้องการเก็บไฟล์เวอร์ชวลแมชชีนไว้บนสื่อบันทึก USB ที่เคลื่อนย้ายได้หรือในเครื่องรุ่นเก่าที่ไม่สามารถรองรับไฟล์ขนาดใหญ่มาก ๆ ได้</translation>
     </message>
     <message>
         <source>Please choose a location for new virtual hard disk file</source>
-        <translation>โปรดเลือกที่ตั้งไฟล์เวอร์ชวลฮาร์ดดิสก์ที่จะสร้างขึ้นใหม่</translation>
+        <translation type="vanished">โปรดเลือกที่ตั้งไฟล์เวอร์ชวลฮาร์ดดิสก์ที่จะสร้างขึ้นใหม่</translation>
     </message>
     <message>
         <source>New hard disk to create</source>
-        <translation>ฮาร์ดดิสก์ใหม่ที่จะสร้าง</translation>
+        <translation type="vanished">ฮาร์ดดิสก์ใหม่ที่จะสร้าง</translation>
     </message>
     <message>
         <source>Please type the name of the new virtual hard disk file into the box below or click on the folder icon to select a different folder to create the file in.</source>
-        <translation>โปรดป้อนชื่อไฟล์สำหรับฮาร์ดดิสก์เสมือนที่สร้างขึ้นใหม่ลงในกล่องด้านล่าง หรือคลิกไอคอนโฟลเดอร์เพื่อเลือกโฟลเดอร์อื่นสำหรับการสร้างไฟล์</translation>
+        <translation type="vanished">โปรดป้อนชื่อไฟล์สำหรับฮาร์ดดิสก์เสมือนที่สร้างขึ้นใหม่ลงในกล่องด้านล่าง หรือคลิกไอคอนโฟลเดอร์เพื่อเลือกโฟลเดอร์อื่นสำหรับการสร้างไฟล์</translation>
     </message>
     <message>
         <source>Choose a location for new virtual hard disk file...</source>
-        <translation>เลือกที่ตั้งสำหรับไฟล์เวอร์ชวลฮาร์ดดิสก์ใหม่...</translation>
+        <translation type="vanished">เลือกที่ตั้งสำหรับไฟล์เวอร์ชวลฮาร์ดดิสก์ใหม่...</translation>
     </message>
     <message>
         <source>Hard disk to &amp;copy</source>
-        <translation>ฮาร์ดดิสก์ที่จะทำ&amp;สำเนา</translation>
+        <translation type="vanished">ฮาร์ดดิสก์ที่จะทำ&amp;สำเนา</translation>
     </message>
     <message>
         <source>&amp;New hard disk to create</source>
-        <translation>ฮาร์ดดิสก์ให&amp;ม่ที่จะสร้าง</translation>
+        <translation type="vanished">ฮาร์ดดิสก์ให&amp;ม่ที่จะสร้าง</translation>
     </message>
     <message>
         <source>Hard disk file &amp;type</source>
-        <translation>&amp;ชนิดของไฟล์ฮาร์ดดิสก์</translation>
+        <translation type="vanished">&amp;ชนิดของไฟล์ฮาร์ดดิสก์</translation>
+    </message>
+    <message>
+        <source>Copy Virtual Disk Image</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image to copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;Please select the virtual disk image file that you would like to copy if it is not already selected. You can either choose one from the list or use the folder icon beside the list to select one.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a virtual disk image file to copy...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image file type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please choose the type of file that you would like to use for the new virtual disk image. If you do not need to use it with other virtualization software you can leave this setting unchanged.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please choose whether the new virtual disk image file should grow as it is used (dynamically allocated) or if it should be created at its maximum size (fixed size).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;dynamically allocated&lt;/b&gt; disk image file will only use space on your physical hard disk as it fills up (up to a maximum &lt;b&gt;fixed size&lt;/b&gt;), although it will not shrink again automatically when space on it is freed.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;A &lt;b&gt;fixed size&lt;/b&gt; disk image file may take longer to create on some systems but is often faster to use.&lt;/p&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;You can also choose to &lt;b&gt;split&lt;/b&gt; the disk image file into several files of up to two gigabytes each. This is mainly useful if you wish to store the virtual machine on removable USB devices or old systems, some of which cannot handle very large files.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please choose a location for new virtual disk image file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New disk image to create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please type the name of the new virtual disk image file into the box below or click on the folder icon to select a different folder to create the file in.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Choose a location for new virtual disk image file...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1_copy</source>
+        <comment>copied virtual disk image name</comment>
+        <translation type="unfinished">%1_สำเนา</translation>
+    </message>
+    <message>
+        <source>Disk image to &amp;copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;New disk image to create</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Disk image file &amp;type</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

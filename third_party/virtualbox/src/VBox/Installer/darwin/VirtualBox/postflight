@@ -5,7 +5,7 @@
 #
 
 #
-# Copyright (C) 2007-2015 Oracle Corporation
+# Copyright (C) 2007-2017 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -27,14 +27,14 @@ VBOX_INSTALL_PATH=/Applications/VirtualBox.app/Contents/MacOS
 PYTHON="python python2.3 python2.5 python2.6 python2.7"
 if [ -e "${VBOX_INSTALL_PATH}/sdk/installer/vboxapisetup.py" ]; then
     for p in $PYTHON; do
-    	# Install the python bindings if python is in the path
-    	if [ "`\${p} -c 'print "test"' 2> /dev/null`" = "test" ]; then
-    		echo  1>&2 "Python found: ${p}, installing bindings..."
-    		# Pass install path via environment
-    		export VBOX_INSTALL_PATH
-    		/bin/sh -c "cd $VBOX_INSTALL_PATH/sdk/installer && ${p} vboxapisetup.py install"
-    		/bin/sh -c "cd $VBOX_INSTALL_PATH/sdk/installer && ${p} vboxapisetup.py clean --all"
-    	fi
+        # Install the python bindings if python is in the path
+        if [ "`\${p} -c 'print "test"' 2> /dev/null`" = "test" ]; then
+                echo  1>&2 "Python found: ${p}, installing bindings..."
+                # Pass install path via environment
+                export VBOX_INSTALL_PATH
+                /bin/sh -c "cd $VBOX_INSTALL_PATH/sdk/installer && ${p} vboxapisetup.py install"
+                /bin/sh -c "cd $VBOX_INSTALL_PATH/sdk/installer && ${p} vboxapisetup.py clean --all"
+        fi
     done
 fi
 

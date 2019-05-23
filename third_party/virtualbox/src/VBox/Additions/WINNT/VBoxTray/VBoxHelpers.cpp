@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -15,10 +15,10 @@
  * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
  */
 
-#include <malloc.h>
 #include <iprt/win/windows.h>
 
 #include <iprt/string.h>
+#include <iprt/alloca.h>
 #include <VBox/Log.h>
 #include <VBox/VBoxGuestLib.h>
 

@@ -27,7 +27,7 @@ CDDL are applicable instead of those of the GPL.
 You may elect to license modified versions of this file under the
 terms and conditions of either the GPL or the CDDL or both.
 """
-__version__ = "$Revision: 118412 $"
+__version__ = "$Revision: 118928 $"
 
 
 # Standard Python imports.
@@ -44,10 +44,14 @@ import unittest;
 
 if sys.platform == 'win32':
     import ctypes;
+    import msvcrt;              # pylint: disable=import-error
     import win32api;            # pylint: disable=import-error
     import win32con;            # pylint: disable=import-error
     import win32console;        # pylint: disable=import-error
+    import win32file;           # pylint: disable=import-error
     import win32process;        # pylint: disable=import-error
+    import winerror;            # pylint: disable=import-error
+    import pywintypes;          # pylint: disable=import-error
 else:
     import signal;
 
@@ -287,6 +291,71 @@ def openNoInherit(sFile, sMode = 'r'):
             if offComma < 0:
                 return open(sFile, sMode + 'N');
             return open(sFile, sMode[:offComma] + 'N' + sMode[offComma:]);
+
+        # Just in case.
+        return open(sFile, sMode);
+
+    oFile = open(sFile, sMode)
+    #try:
+    fcntl(oFile, F_SETFD, fcntl(oFile, F_GETFD) | FD_CLOEXEC);
+    #except:
+    #    pass;
+    return oFile;
+
+def openNoDenyDeleteNoInherit(sFile, sMode = 'r'):
+    """
+    Wrapper around open() that tries it's best to make sure the file isn't
+    inherited by child processes.
+
+    This is a best effort thing at the moment as it doesn't synchronizes with
+    child process spawning in any way.  Thus it can be subject to races in
+    multithreaded programs.
+    """
+
+    try:
+        from fcntl import FD_CLOEXEC, F_GETFD, F_SETFD, fcntl; # pylint: disable=F0401
+    except:
+        if getHostOs() == 'win':
+            # Need to use CreateFile directly to open the file so we can feed it FILE_SHARE_DELETE.
+            fAccess = 0;
+            fDisposition = win32file.OPEN_EXISTING;                                                 # pylint: disable=no-member
+            if 'r' in sMode or '+' in sMode:
+                fAccess |= win32file.GENERIC_READ;                                                  # pylint: disable=no-member
+            if 'a' in sMode:
+                fAccess |= win32file.GENERIC_WRITE;                                                 # pylint: disable=no-member
+                fDisposition = win32file.OPEN_ALWAYS;                                               # pylint: disable=no-member
+            elif 'w' in sMode:
+                fAccess = win32file.GENERIC_WRITE;                                                  # pylint: disable=no-member
+                if '+' in sMode:
+                    fDisposition = win32file.OPEN_ALWAYS;                                           # pylint: disable=no-member
+                    fAccess |= win32file.GENERIC_READ;                                              # pylint: disable=no-member
+                else:
+                    fDisposition = win32file.CREATE_ALWAYS;                                         # pylint: disable=no-member
+            if not fAccess:
+                fAccess |= win32file.GENERIC_READ;                                                  # pylint: disable=no-member
+            fSharing = (win32file.FILE_SHARE_READ | win32file.FILE_SHARE_WRITE                      # pylint: disable=no-member
+                        | win32file.FILE_SHARE_DELETE);                                             # pylint: disable=no-member
+            hFile = win32file.CreateFile(sFile, fAccess, fSharing, None, fDisposition, 0, None);    # pylint: disable=no-member
+            if 'a' in sMode:
+                win32file.SetFilePointer(hFile, 0, win32file.FILE_END);                             # pylint: disable=no-member
+
+            # Turn the NT handle into a CRT file descriptor.
+            hDetachedFile = hFile.Detach();
+            if fAccess == win32file.GENERIC_READ:                                                   # pylint: disable=no-member
+                fOpen = os.O_RDONLY;
+            elif fAccess == win32file.GENERIC_WRITE:                                                # pylint: disable=no-member
+                fOpen = os.O_WRONLY;
+            else:
+                fOpen = os.O_RDWR;
+            if 'a' in sMode:
+                fOpen |= os.O_APPEND;
+            if 'b' in sMode or 't' in sMode:
+                fOpen |= os.O_TEXT;                                                                 # pylint: disable=no-member
+            fdFile = msvcrt.open_osfhandle(hDetachedFile, fOpen);
+
+            # Tell python to use this handle.
+            return os.fdopen(fdFile, sMode);
+
         # Just in case.
         return open(sFile, sMode);
 
@@ -669,7 +738,7 @@ def processTerminate(uPid):
                 fRc = True;
             except:
                 pass;
-            win32api.CloseHandle(hProcess)                                                      # pylint: disable=no-member
+            hProcess.Close(); #win32api.CloseHandle(hProcess)
     else:
         try:
             os.kill(uPid, signal.SIGTERM);
@@ -715,18 +784,22 @@ def processExists(uPid):
     """
     if sys.platform == 'win32':
         fRc = False;
+        # We try open the process for waiting since this is generally only forbidden in a very few cases.
         try:
-            hProcess = win32api.OpenProcess(win32con.PROCESS_QUERY_INFORMATION, False, uPid);   # pylint: disable=no-member
-        except:
+            hProcess = win32api.OpenProcess(win32con.SYNCHRONIZE, False, uPid);     # pylint: disable=no-member
+        except pywintypes.error as oXcpt:                                           # pylint: disable=no-member
+            if oXcpt.winerror == winerror.ERROR_ACCESS_DENIED:
+                fRc = True;
+        except Exception as oXcpt:
             pass;
         else:
-            win32api.CloseHandle(hProcess);                                                     # pylint: disable=no-member
+            hProcess.Close();
             fRc = True;
     else:
         try:
             os.kill(uPid, 0);
             fRc = True;
-        except:
+        except: ## @todo check error code.
             fRc = False;
     return fRc;
 
@@ -1527,6 +1600,35 @@ def getXcptInfo(cFrames = 1):
     else:
         asRet = ['Couldn\'t find exception traceback.'];
     return asRet;
+
+
+def getObjectTypeName(oObject):
+    """
+    Get the type name of the given object.
+    """
+    if oObject is None:
+        return 'None';
+
+    # Get the type object.
+    try:
+        oType = type(oObject);
+    except:
+        return 'type-throws-exception';
+
+    # Python 2.x only: Handle old-style object wrappers.
+    if sys.version_info[0] < 3:
+        try:
+            from types import InstanceType;
+            if oType == InstanceType:
+                oType = oObject.__class__;
+        except:
+            pass;
+
+    # Get the name.
+    try:
+        return oType.__name__;
+    except:
+        return '__type__-throws-exception';
 
 
 #

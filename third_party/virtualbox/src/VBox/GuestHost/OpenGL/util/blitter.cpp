@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2013-2016 Oracle Corporation
+ * Copyright (C) 2013-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -16,9 +16,9 @@
  */
 
 
-/*******************************************************************************
-*   Header Files                                                               *
-*******************************************************************************/
+/*********************************************************************************************************************************
+*   Header Files                                                                                                                 *
+*********************************************************************************************************************************/
 #ifdef IN_VMSVGA3D
 # include <OpenGL/OpenGL.h>
 # include <OpenGL/gl3.h>
@@ -832,7 +832,7 @@ static int crBltInitOnMakeCurent(PCR_BLITTER pBlitter)
     else
         crWarning("GL_ARB_pixel_buffer_object not supported");
 
-    /* BlitFramebuffer seems to be buggy on Intel, 
+    /* BlitFramebuffer seems to be buggy on Intel,
      * try always glDrawXxx for now */
     if (!pBlitter->Flags.ForceDrawBlit && crStrstr(pszExtension, "GL_EXT_framebuffer_blit"))
     {
@@ -1000,7 +1000,7 @@ void CrBltBlitTexTex(PCR_BLITTER pBlitter, const VBOXVR_TEXTURE *pSrc, const RTR
 
     pBlitter->pDispatch->BindFramebufferEXT(GL_DRAW_FRAMEBUFFER, pBlitter->idFBO);
 
-    /* TODO: mag/min filters ? */
+    /** @todo mag/min filters ? */
 
     pBlitter->pDispatch->FramebufferTexture2DEXT(GL_DRAW_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, pDst->target, pDst->hwid, 0);
 
@@ -1160,7 +1160,7 @@ VBOXBLITTERDECL(bool) CrGlslIsSupported(CR_GLSL_CACHE *pCache)
 
     crWarning("GLSL unsuported, gl version %d", pCache->iGlVersion);
 
-    /* @todo: we could also check for GL_ARB_shader_objects and GL_ARB_fragment_shader,
+    /** @todo we could also check for GL_ARB_shader_objects and GL_ARB_fragment_shader,
      * but seems like chromium does not support properly gl*Object versions of shader functions used with those extensions */
     return false;
 }

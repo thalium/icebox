@@ -3,7 +3,7 @@
  */
 
 /*
- * Copyright (C) 2006-2016 Oracle Corporation
+ * Copyright (C) 2006-2017 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -105,9 +105,9 @@ static const char *g_apszSUBDIREntries[] =
     "z.bat",
 };
 
-int rtDirOpenFiltered(PRTDIR *ppDir, const char *pszPath, RTDIRFILTER enmFilter)
+int rtDirOpenFiltered(RTDIR *phDir, const char *pszPath, RTDIRFILTER enmFilter, uint32_t fFlags)
 {
-    RT_NOREF1(enmFilter);
+    RT_NOREF2(enmFilter, fFlags);
     if (!strcmp(pszPath, "c:\\*"))
         iDirList = 1;
     else if (!strcmp(pszPath, "c:\\test dir\\*"))
@@ -117,20 +117,20 @@ int rtDirOpenFiltered(PRTDIR *ppDir, const char *pszPath, RTDIRFILTER enmFilter)
     else
         AssertFailed();
 
-    *ppDir = (PRTDIR)1;
+    *phDir = (RTDIR)1;
     return VINF_SUCCESS;
 }
 
-int rtDirClose(PRTDIR pDir)
+int rtDirClose(RTDIR hDir)
 {
-    RT_NOREF1(pDir);
+    RT_NOREF1(hDir);
     iDirFile = 0;
     return VINF_SUCCESS;
 }
 
-int rtDirReadEx(PRTDIR pDir, PRTDIRENTRYEX pDirEntry, size_t *pcbDirEntry, RTFSOBJATTRADD enmAdditionalAttribs, uint32_t fFlags)
+int rtDirReadEx(RTDIR hDir, PRTDIRENTRYEX pDirEntry, size_t *pcbDirEntry, RTFSOBJATTRADD enmAdditionalAttribs, uint32_t fFlags)
 {
-    RT_NOREF4(pDir, pcbDirEntry, enmAdditionalAttribs, fFlags);
+    RT_NOREF4(hDir, pcbDirEntry, enmAdditionalAttribs, fFlags);
     switch (iDirList)
     {
         case 1:
@@ -199,7 +199,7 @@ static int vbsfCorrectCasing(char *pszFullPath, char *pszStartComponent)
     uint32_t       cbDirEntry;
     size_t         cbComponent;
     int            rc = VERR_FILE_NOT_FOUND;
-    PRTDIR         hSearch = 0;
+    RTDIR          hSearch = NIL_RTDIR;
     char           szWildCard[4];
 
     Log2(("vbsfCorrectCasing: %s %s\n", pszFullPath, pszStartComponent));
@@ -224,7 +224,7 @@ static int vbsfCorrectCasing(char *pszFullPath, char *pszStartComponent)
     szWildCard[2] = 0;
     strcat(pDirEntry->szName, szWildCard);
 
-    rc = RTDirOpenFiltered (&hSearch, pDirEntry->szName, RTDIRFILTER_WINNT);
+    rc = RTDirOpenFiltered(&hSearch, pDirEntry->szName, RTDIRFILTER_WINNT, 0 /*fFlags*/);
     *(pszStartComponent-1) = RTPATH_DELIMITER;
     if (RT_FAILURE(rc))
         goto end;
