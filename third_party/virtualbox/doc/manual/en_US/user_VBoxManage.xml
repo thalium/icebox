@@ -627,10 +627,30 @@ UUID="457af700-bc0a-4258-aa3c-13b03da171f2"
           </listitem>
 
           <listitem>
+            <para><computeroutput>--ibpb-on-vm-[enter|exit] on|off</computeroutput>:
+            Enables flushing of the indirect branch prediction buffers on every VM enter
+            or exit respectively.  This could be enabled by users overly worried about
+            possible spectre attacks by the VM.  Please note that these options may have
+            sever impact on performance.</para>
+          </listitem>
+
+          <listitem>
             <para><computeroutput>--spec-ctrl on|off</computeroutput>: This setting
             enables/disables exposing speculation control interfaces to the guest, provided
             they are available on the host. Depending on the host CPU and workload, enabling
             speculation control may significantly reduce performance.</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>--l1d-flush-on-sched on|off</computeroutput>:
+            Enables flushing of the level 1 data cache on scheduling EMT for guest execution.
+            See <xref linkend="sec-rec-cve-2018-3646" />.</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>--l1d-flush-on-vm-enter on|off</computeroutput>:
+            Enables flushing of the level 1 data cache on VM enter.
+            See <xref linkend="sec-rec-cve-2018-3646" />.</para>
           </listitem>
 
           <listitem>
@@ -713,8 +733,8 @@ UUID="457af700-bc0a-4258-aa3c-13b03da171f2"
             <para><computeroutput>--nestedpaging on|off</computeroutput>: If
             hardware virtualization is enabled, this additional setting
             enables or disables the use of the nested paging feature in the
-            processor of your host system; see <xref
-            linkend="hwvirt" />.</para>
+            processor of your host system; see <xref linkend="nestedpaging" />
+            and <xref linkend="sec-rec-cve-2018-3646" />.</para>
           </listitem>
 
           <listitem>
@@ -1932,6 +1952,9 @@ Virtual system 0:
     (change with "--vsys 0 --ostype &lt;type&gt;"; use "list ostypes" to list all)
  1: Suggested VM name "Windows XP Professional_1"
     (change with "--vsys 0 --vmname &lt;name&gt;")
+ 2: End-user license agreement
+    (display with "--vsys 0 --eula show";
+    accept with "--vsys 0 --eula accept")
  3: Number of CPUs: 1
     (change with "--vsys 0 --cpus &lt;n&gt;")
  4: Guest memory: 956 MB (change with "--vsys 0 --memory &lt;MB&gt;")
@@ -3759,7 +3782,7 @@ Virtual system 0:
         <listitem>
           <para>Use <computeroutput>--cipher &lt;cipher&gt;</computeroutput> to specify the cipher to use for
           encryption; this can be either <computeroutput>AES-XTS128-PLAIN64</computeroutput> or
-          <computeroutput>AES-AXTS256-PLAIN64</computeroutput>.</para>
+          <computeroutput>AES-XTS256-PLAIN64</computeroutput>.</para>
 
           <para>Use this option to change any existing encryption on the medium/image, or setup new encryption on
           it for the 1st time.</para>

@@ -176,8 +176,15 @@
 %define X86_CPUID_STEXT_FEATURE_EBX_AVX512CD          RT_BIT_32(28)
 %define X86_CPUID_STEXT_FEATURE_EBX_SHA               RT_BIT_32(29)
 %define X86_CPUID_STEXT_FEATURE_ECX_PREFETCHWT1       RT_BIT_32(0)
+%define X86_CPUID_STEXT_FEATURE_ECX_UMIP              RT_BIT_32(2)
+%define X86_CPUID_STEXT_FEATURE_ECX_PKU               RT_BIT_32(3)
+%define X86_CPUID_STEXT_FEATURE_ECX_OSPKE             RT_BIT_32(4)
+%define X86_CPUID_STEXT_FEATURE_ECX_MAWAU             0x003e0000
+%define X86_CPUID_STEXT_FEATURE_ECX_RDPID             RT_BIT_32(2)
+%define X86_CPUID_STEXT_FEATURE_ECX_SGX_LC            RT_BIT_32(30)
 %define X86_CPUID_STEXT_FEATURE_EDX_IBRS_IBPB         RT_BIT_32(26)
 %define X86_CPUID_STEXT_FEATURE_EDX_STIBP             RT_BIT_32(27)
+%define X86_CPUID_STEXT_FEATURE_EDX_FLUSH_CMD         RT_BIT_32(28)
 %define X86_CPUID_STEXT_FEATURE_EDX_ARCHCAP           RT_BIT_32(29)
 %define X86_CPUID_EXT_FEATURE_ECX_LAHF_SAHF     RT_BIT_32(0)
 %define X86_CPUID_EXT_FEATURE_EDX_SYSCALL       RT_BIT_32(11)
@@ -238,6 +245,10 @@
 %define X86_CPUID_AMD_ADVPOWER_EDX_EFRO      RT_BIT_32(10)
 %define X86_CPUID_AMD_ADVPOWER_EDX_PFI       RT_BIT_32(11)
 %define X86_CPUID_AMD_ADVPOWER_EDX_PA        RT_BIT_32(12)
+%define X86_CPUID_AMD_EFEID_EBX_CLZERO       RT_BIT_32(0)
+%define X86_CPUID_AMD_EFEID_EBX_IRPERF       RT_BIT_32(1)
+%define X86_CPUID_AMD_EFEID_EBX_XSAVE_ER_PTR RT_BIT_32(2)
+%define X86_CPUID_AMD_EFEID_EBX_IBPB         RT_BIT_32(12)
 %define X86_CPUID_SVM_FEATURE_EDX_NESTED_PAGING             RT_BIT(0)
 %define X86_CPUID_SVM_FEATURE_EDX_LBR_VIRT                  RT_BIT(1)
 %define X86_CPUID_SVM_FEATURE_EDX_SVM_LOCK                  RT_BIT(2)
@@ -291,6 +302,7 @@
 %define X86_CR4_OSXMMEEXCPT                 RT_BIT_32(10)
 %define X86_CR4_VMXE                        RT_BIT_32(13)
 %define X86_CR4_SMXE                        RT_BIT_32(14)
+%define X86_CR4_FSGSBASE                    RT_BIT_32(16)
 %define X86_CR4_PCIDE                       RT_BIT_32(17)
 %define X86_CR4_OSXSAVE                     RT_BIT_32(18)
 %define X86_CR4_SMEP                        RT_BIT_32(20)
@@ -400,9 +412,13 @@
 %define MSR_IA32_MPERF                      0xE7
 %define MSR_IA32_APERF                      0xE8
 %define MSR_IA32_MTRR_CAP                   0xFE
-%define MSR_IA32_ARCH_CAP                   0x10a
-%define MSR_IA32_ARCH_CAP_F_SPECTRE_FIX     RT_BIT_32(0)
-%define MSR_IA32_ARCH_CAP_F_BETTER_IBRS     RT_BIT_32(1)
+%define MSR_IA32_ARCH_CAPABILITIES          0x10a
+%define MSR_IA32_ARCH_CAP_F_RDCL_NO         RT_BIT_32(0)
+%define MSR_IA32_ARCH_CAP_F_IBRS_ALL        RT_BIT_32(1)
+%define MSR_IA32_ARCH_CAP_F_RSBO            RT_BIT_32(2)
+%define MSR_IA32_ARCH_CAP_F_VMM_NEED_NOT_FLUSH_L1D RT_BIT_32(3)
+%define MSR_IA32_FLUSH_CMD                  0x10b
+%define MSR_IA32_FLUSH_CMD_F_L1D            RT_BIT_32(0)
 %define MSR_BBL_CR_CTL3                     0x11e
 %ifndef MSR_IA32_SYSENTER_CS
 %define MSR_IA32_SYSENTER_CS                0x174
@@ -768,6 +784,11 @@
 %endif
 %define X86_PML4_SHIFT              39
 %define X86_PML4_MASK               0x1ff
+%define X86_INVPCID_TYPE_INDV_ADDR                  0
+%define X86_INVPCID_TYPE_SINGLE_CONTEXT             1
+%define X86_INVPCID_TYPE_ALL_CONTEXT_INCL_GLOBAL    2
+%define X86_INVPCID_TYPE_ALL_CONTEXT_EXCL_GLOBAL    3
+%define X86_INVPCID_TYPE_MAX_VALID                  X86_INVPCID_TYPE_ALL_CONTEXT_EXCL_GLOBAL
 %ifndef VBOX_FOR_DTRACE_LIB
 %endif
 %ifndef VBOX_FOR_DTRACE_LIB

@@ -739,7 +739,8 @@ crStateTexImage2D(GLenum target, GLint level, GLint internalFormat,
     CRTextureLevel *tl = NULL;
     CRStateBits *sb = GetCurrentBits();
     CRTextureBits *tb = &(sb->texture);
-    const int is_distrib = ((type == GL_TRUE) || (type == GL_FALSE));
+    // Distributed textures are not used by VBox
+    const int is_distrib = 0; // ((type == GL_TRUE) || (type == GL_FALSE));
 
     FLUSH();
 

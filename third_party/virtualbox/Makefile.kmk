@@ -1124,7 +1124,7 @@ additions-build-os2.build-it: additions-build-os2.rsync-into-vm
 additions-build-os2.rsync-out-of-vm: additions-build-os2.build-it
 	rsh -l vbox $(VBOX_BLD_VM_OS2_IP) "dir e:\\tinderbox\\$(VBOX_ADDITIONS_BUILD_SUBDIRNAME)\\out"
 	rsh -l vbox $(VBOX_BLD_VM_OS2_IP) "dir e:\\tinderbox\\$(VBOX_ADDITIONS_BUILD_SUBDIRNAME)\\out\\os2.x86"
-	$(REDIRECT) -v -r0 /dev/null -- rsync -vvvvvvv -a --delete rsync://vbox@$(VBOX_BLD_VM_OS2_IP)/tinderbox/$(VBOX_ADDITIONS_BUILD_SUBDIRNAME)/out/os2.x86 out/
+	$(VBOX_KMK_TIME) rsync -v -a --delete rsync://vbox@$(VBOX_BLD_VM_OS2_IP)/tinderbox/$(VBOX_ADDITIONS_BUILD_SUBDIRNAME)/out/os2.x86 out/
 
 .NOTPARALLEL: additions-build-os2.rsync-into-vm
 .PHONY:       additions-build-os2.rsync-into-vm additions-build-os2.rsync-out-of-vm additions-build-os2.build-it

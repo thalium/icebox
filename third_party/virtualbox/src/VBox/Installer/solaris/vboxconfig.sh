@@ -236,15 +236,24 @@ get_unofficial_sysinfo()
     HOST_OS_MINORVERSION="151"
 }
 
-# get_s11_4_or_newer_sysinfo()
+# get_s11_4_sysinfo()
 # cannot fail
-get_s11_4_or_newer_sysinfo()
+get_s11_4_sysinfo()
 {
     # See check in plumb_net for why this is > 174. The alternative is we declare 11.4+ as S12 with
     # a more accurate minor (build) version number. For now this is sufficient to workaround the ever
     # changing version numbering policy.
     HOST_OS_MAJORVERSION="11"
     HOST_OS_MINORVERSION="175"
+}
+
+# get_s11_5_or_newer_sysinfo()
+# cannot fail
+get_s11_5_or_newer_sysinfo()
+{
+    # See check in plumb_net for why this is 176.
+    HOST_OS_MAJORVERSION="11"
+    HOST_OS_MINORVERSION="176"
 }
 
 # get_sysinfo()
@@ -258,10 +267,15 @@ get_sysinfo()
             get_unofficial_sysinfo
             return 0
             ;;
-        # Quick escape workaround for Solaris 11.4+, changes the pkg FMRI (yet again). See BugDB #26494983.
-        11.4.* | 11.5.*)
-        get_s11_4_or_newer_sysinfo
-        return 0
+        # Quick escape workaround for Solaris 11.4, changes the pkg FMRI (yet again). See BugDB #26494983.
+        11.4.*)
+            get_s11_4_sysinfo
+            return 0
+            ;;
+        # Quick escape workaround for Solaris 11.5. See BugDB #26494983.
+        11.5.*)
+            get_s11_5_or_newer_sysinfo
+            return 0
     esac
 
     BIN_PKG=`which pkg 2> /dev/null`
@@ -993,8 +1007,8 @@ stop_service()
 # failure: non fatal
 plumb_net()
 {
-    # S11 175a renames vboxnet0 as 'netX', undo this and rename it back (S12+ or S11 b175+)
-    if test "$HOST_OS_MAJORVERSION" -gt 11 || (test "$HOST_OS_MAJORVERSION" -eq 11 && test "$HOST_OS_MINORVERSION" -gt 174); then
+    # S11 175a renames vboxnet0 as 'netX', undo this and rename it back (Solaris 12, Solaris 11.4 or newer)
+    if test "$HOST_OS_MAJORVERSION" -ge 12 || (test "$HOST_OS_MAJORVERSION" -eq 11 && test "$HOST_OS_MINORVERSION" -ge 175); then
         vanityname=`dladm show-phys -po link,device | grep vboxnet0 | cut -f1 -d':'`
         if test "$?" -eq 0 && test ! -z "$vanityname" && test "x$vanityname" != "xvboxnet0"; then
             dladm rename-link "$vanityname" vboxnet0
@@ -1004,8 +1018,8 @@ plumb_net()
         fi
     fi
 
-    # use ipadm for Solaris 12 and newer
-    if test "$HOST_OS_MAJORVERSION" -ge 12; then
+    # use ipadm for Solaris 12, Solaris 11.5 or newer
+    if test "$HOST_OS_MAJORVERSION" -ge 12 || (test "$HOST_OS_MAJORVERSION" -eq 11 && test "$HOST_OS_MINORVERSION" -ge 176); then
         $BIN_IPADM create-ip vboxnet0
         if test "$?" -eq 0; then
             $BIN_IPADM create-addr -T static -a local="192.168.56.1/24" "vboxnet0/v4addr"
@@ -1085,8 +1099,8 @@ plumb_net()
 unplumb_net()
 {
     inst=0
-    # use ipadm for Solaris 12 and newer
-    if test "$HOST_OS_MAJORVERSION" -ge 12; then
+    # use ipadm for Solaris 12, Solaris 11.5 or newer
+    if test "$HOST_OS_MAJORVERSION" -ge 12 || (test "$HOST_OS_MAJORVERSION" -eq 11 && test "$HOST_OS_MINORVERSION" -ge 176); then
         while test "$inst" -ne $MOD_VBOXNET_INST; do
             vboxnetup=`$BIN_IPADM show-addr -p -o addrobj vboxnet$inst >/dev/null 2>&1`
             if test "$?" -eq 0; then

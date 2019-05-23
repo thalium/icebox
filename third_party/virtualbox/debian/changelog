@@ -1,3 +1,15 @@
+virtualbox-ose (5.2.18) unstable; urgency=low
+
+  * rebuild Debian package.
+
+ -- Oracle Corporation <info@virtualbox.org>  Tue, 14 August 2018 12:00:00 +0200
+
+virtualbox-ose (5.2.16) unstable; urgency=low
+
+  * rebuild Debian package.
+
+ -- Oracle Corporation <info@virtualbox.org>  Tue, 17 July 2018 12:00:00 +0200
+
 virtualbox-ose (5.2.14) unstable; urgency=low
 
   * rebuild Debian package.

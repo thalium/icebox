@@ -727,6 +727,7 @@ typedef enum CPUMMSRWRFN
     kCpumMsrWrFn_Ia32DebugInterface,
     kCpumMsrWrFn_Ia32SpecCtrl,
     kCpumMsrWrFn_Ia32PredCmd,
+    kCpumMsrWrFn_Ia32FlushCmd,
 
     kCpumMsrWrFn_Amd64Efer,
     kCpumMsrWrFn_Amd64SyscallTarget,
@@ -1037,6 +1038,8 @@ typedef struct CPUMFEATURES
     uint32_t        fIbrs : 1;
     /** Supports IA32_SPEC_CTRL.STIBP. */
     uint32_t        fStibp : 1;
+    /** Supports IA32_FLUSH_CMD. */
+    uint32_t        fFlushCmd : 1;
     /** Supports IA32_ARCH_CAP. */
     uint32_t        fArchCap : 1;
     /** Supports PCID. */
@@ -1077,13 +1080,26 @@ typedef struct CPUMFEATURES
     /** Support for Intel VMX. */
     uint32_t        fVmx : 1;
 
-    /** Indicates that speculative execution control CPUID bits and
-     *  MSRs are exposed. The details are different for Intel and
-     * AMD but both have similar functionality. */
+    /** Indicates that speculative execution control CPUID bits and MSRs are exposed.
+     * The details are different for Intel and AMD but both have similar
+     * functionality. */
     uint32_t        fSpeculationControl : 1;
 
+    /** MSR_IA32_ARCH_CAPABILITIES: RDCL_NO (bit 0).
+     * @remarks Only safe use after CPUM ring-0 init! */
+    uint32_t        fArchRdclNo : 1;
+    /** MSR_IA32_ARCH_CAPABILITIES: IBRS_ALL (bit 1).
+     * @remarks Only safe use after CPUM ring-0 init! */
+    uint32_t        fArchIbrsAll : 1;
+    /** MSR_IA32_ARCH_CAPABILITIES: RSB Override (bit 2).
+     * @remarks Only safe use after CPUM ring-0 init! */
+    uint32_t        fArchRsbOverride : 1;
+    /** MSR_IA32_ARCH_CAPABILITIES: RSB Override (bit 3).
+     * @remarks Only safe use after CPUM ring-0 init! */
+    uint32_t        fArchVmmNeedNotFlushL1d : 1;
+
     /** Alignment padding / reserved for future use. */
-    uint32_t        fPadding : 15;
+    uint32_t        fPadding : 10;
 
     /** SVM: Supports Nested-paging. */
     uint32_t        fSvmNestedPaging : 1;

@@ -2899,6 +2899,24 @@ static void hmR0SvmPendingEventToTrpmTrap(PVMCPU pVCpu)
 
 
 /**
+ * Advances the guest RIP by the number of bytes specified in @a cb.
+ *
+ * @param   pVCpu       The cross context virtual CPU structure.
+ * @param   pCtx        Pointer to the guest-CPU context.
+ * @param   cb          RIP increment value in bytes.
+ */
+DECLINLINE(void) hmR0SvmAdvanceRip(PVMCPU pVCpu, PCPUMCTX pCtx, uint32_t cb)
+{
+    pCtx->rip += cb;
+
+    /* Update interrupt shadow. */
+    if (   VMCPU_FF_IS_PENDING(pVCpu, VMCPU_FF_INHIBIT_INTERRUPTS)
+        && pCtx->rip != EMGetInhibitInterruptsPC(pVCpu))
+        VMCPU_FF_CLEAR(pVCpu, VMCPU_FF_INHIBIT_INTERRUPTS);
+}
+
+
+/**
  * Checks if the guest (or nested-guest) has an interrupt shadow active right
  * now.
  *
@@ -5358,7 +5376,7 @@ static int hmR0SvmInterpretInvlpg(PVM pVM, PVMCPU pVCpu, PCPUMCTX pCtx)
         {
             rc = hmR0SvmInterpretInvlPgEx(pVCpu, pDis, pCtx);
             if (RT_SUCCESS(rc))
-                pCtx->rip += pDis->cbInstr;
+                hmR0SvmAdvanceRip(pVCpu, pCtx, pDis->cbInstr);
             return rc;
         }
         else
@@ -5740,43 +5758,26 @@ static int hmR0SvmCheckExitDueToEventDelivery(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMT
 
 
 /**
- * Updates interrupt shadow for the current RIP.
+ * Returns whether the NRIP_SAVE feature is supported.
+ *
+ * @return @c true if supported, @c false otherwise.
+ * @param   pVCpu       The cross context virtual CPU structure.
  */
-#define HMSVM_UPDATE_INTR_SHADOW(pVCpu, pCtx) \
-    do { \
-        /* Update interrupt shadow. */ \
-        if (   VMCPU_FF_IS_PENDING(pVCpu, VMCPU_FF_INHIBIT_INTERRUPTS) \
-            && pCtx->rip != EMGetInhibitInterruptsPC(pVCpu)) \
-            VMCPU_FF_CLEAR(pVCpu, VMCPU_FF_INHIBIT_INTERRUPTS); \
-    } while (0)
+DECLINLINE(bool) hmR0SvmSupportsNextRipSave(PVMCPU pVCpu)
+{
+    return RT_BOOL(pVCpu->CTX_SUFF(pVM)->hm.s.svm.u32Features & X86_CPUID_SVM_FEATURE_EDX_NRIP_SAVE);
+}
 
 
 /**
- * Advances the guest RIP making use of the CPU's NRIP_SAVE feature if
- * supported, otherwise advances the RIP by the number of bytes specified in
- * @a cb.
+ * Returns whether the Decode Assist feature is supported.
  *
+ * @return @c true if supported, @c false otherwise.
  * @param   pVCpu       The cross context virtual CPU structure.
- * @param   pCtx        Pointer to the guest-CPU context.
- * @param   cb          RIP increment value in bytes.
- *
- * @remarks Use this function only from \#VMEXIT's where the NRIP value is valid
- *          when NRIP_SAVE is supported by the CPU, otherwise use
- *          hmR0SvmAdvanceRipDumb!
  */
-DECLINLINE(void) hmR0SvmAdvanceRipHwAssist(PVMCPU pVCpu, PCPUMCTX pCtx, uint32_t cb)
+DECLINLINE(bool) hmR0SvmSupportsDecodeAssists(PVMCPU pVCpu)
 {
-    if (pVCpu->CTX_SUFF(pVM)->hm.s.svm.u32Features & X86_CPUID_SVM_FEATURE_EDX_NRIP_SAVE)
-    {
-        PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
-        Assert(pVmcb->ctrl.u64NextRIP);
-        AssertRelease(pVmcb->ctrl.u64NextRIP - pCtx->rip == cb);    /* temporary, remove later */
-        pCtx->rip = pVmcb->ctrl.u64NextRIP;
-    }
-    else
-        pCtx->rip += cb;
-
-    HMSVM_UPDATE_INTR_SHADOW(pVCpu, pCtx);
+    return RT_BOOL(pVCpu->CTX_SUFF(pVM)->hm.s.svm.u32Features & X86_CPUID_SVM_FEATURE_EDX_DECODE_ASSIST);
 }
 
 
@@ -5792,7 +5793,7 @@ DECLINLINE(void) hmR0SvmAdvanceRipHwAssist(PVMCPU pVCpu, PCPUMCTX pCtx, uint32_t
 DECLINLINE(uint8_t) hmR0SvmGetInstrLengthHwAssist(PVMCPU pVCpu, PCPUMCTX pCtx, uint8_t cbLikely)
 {
     Assert(cbLikely <= 15);   /* See Intel spec. 2.3.11 "AVX Instruction Length" */
-    if (pVCpu->CTX_SUFF(pVM)->hm.s.svm.u32Features & X86_CPUID_SVM_FEATURE_EDX_NRIP_SAVE)
+    if (hmR0SvmSupportsNextRipSave(pVCpu))
     {
         PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
         uint8_t const cbInstr = pVmcb->ctrl.u64NextRIP - pCtx->rip;
@@ -5802,22 +5803,6 @@ DECLINLINE(uint8_t) hmR0SvmGetInstrLengthHwAssist(PVMCPU pVCpu, PCPUMCTX pCtx, u
     return cbLikely;
 }
 #endif
-
-
-/**
- * Advances the guest RIP by the number of bytes specified in @a cb. This does
- * not make use of any hardware features to determine the instruction length.
- *
- * @param   pVCpu       The cross context virtual CPU structure.
- * @param   pCtx        Pointer to the guest-CPU context.
- * @param   cb          RIP increment value in bytes.
- */
-DECLINLINE(void) hmR0SvmAdvanceRipDumb(PVMCPU pVCpu, PCPUMCTX pCtx, uint32_t cb)
-{
-    pCtx->rip += cb;
-    HMSVM_UPDATE_INTR_SHADOW(pVCpu, pCtx);
-}
-#undef HMSVM_UPDATE_INTR_SHADOW
 
 
 /* -=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=--=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-= */
@@ -5860,9 +5845,31 @@ HMSVM_EXIT_DECL hmR0SvmExitWbinvd(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSv
 {
     HMSVM_VALIDATE_EXIT_HANDLER_PARAMS();
 
-    hmR0SvmAdvanceRipHwAssist(pVCpu, pCtx, 2);
+    int rc;
+    unsigned cbInstr;
+    if (hmR0SvmSupportsNextRipSave(pVCpu))
+    {
+        PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
+        cbInstr = pVmcb->ctrl.u64NextRIP - pCtx->rip;
+        rc = VINF_SUCCESS;
+    }
+    else
+    {
+        PDISCPUSTATE pDis = &pVCpu->hm.s.DisState;
+        rc = EMInterpretDisasCurrent(pVCpu->CTX_SUFF(pVM), pVCpu, pDis, &cbInstr);
+        if (   rc == VINF_SUCCESS
+            && pDis->pCurInstr->uOpcode == OP_WBINVD)
+            Assert(cbInstr > 0);
+        else
+        {
+            cbInstr = 0;
+            rc = VERR_EM_INTERPRETER;
+        }
+    }
+
+    if (rc == VINF_SUCCESS)
+        hmR0SvmAdvanceRip(pVCpu, pCtx, cbInstr);
     STAM_COUNTER_INC(&pVCpu->hm.s.StatExitWbinvd);
-    int rc = VINF_SUCCESS;
     HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
     return rc;
 }
@@ -5875,9 +5882,31 @@ HMSVM_EXIT_DECL hmR0SvmExitInvd(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSvmT
 {
     HMSVM_VALIDATE_EXIT_HANDLER_PARAMS();
 
-    hmR0SvmAdvanceRipHwAssist(pVCpu, pCtx, 2);
+    int rc;
+    unsigned cbInstr;
+    if (hmR0SvmSupportsNextRipSave(pVCpu))
+    {
+        PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
+        cbInstr = pVmcb->ctrl.u64NextRIP - pCtx->rip;
+        rc = VINF_SUCCESS;
+    }
+    else
+    {
+        PDISCPUSTATE pDis = &pVCpu->hm.s.DisState;
+        rc = EMInterpretDisasCurrent(pVCpu->CTX_SUFF(pVM), pVCpu, pDis, &cbInstr);
+        if (   rc == VINF_SUCCESS
+            && pDis->pCurInstr->uOpcode == OP_INVD)
+            Assert(cbInstr > 0);
+        else
+        {
+            cbInstr = 0;
+            rc = VERR_EM_INTERPRETER;
+        }
+    }
+
+    if (rc == VINF_SUCCESS)
+        hmR0SvmAdvanceRip(pVCpu, pCtx, cbInstr);
     STAM_COUNTER_INC(&pVCpu->hm.s.StatExitInvd);
-    int rc = VINF_SUCCESS;
     HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
     return rc;
 }
@@ -5890,17 +5919,38 @@ HMSVM_EXIT_DECL hmR0SvmExitCpuid(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSvm
 {
     HMSVM_VALIDATE_EXIT_HANDLER_PARAMS();
     PVM pVM = pVCpu->CTX_SUFF(pVM);
-    int rc = EMInterpretCpuId(pVM, pVCpu, CPUMCTX2CORE(pCtx));
-    if (RT_LIKELY(rc == VINF_SUCCESS))
+
+    int rc;
+    unsigned cbInstr = 0;
+    if (hmR0SvmSupportsNextRipSave(pVCpu))
     {
-        hmR0SvmAdvanceRipHwAssist(pVCpu, pCtx, 2);
-        HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
+        PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
+        cbInstr = pVmcb->ctrl.u64NextRIP - pCtx->rip;
     }
     else
     {
-        AssertMsgFailed(("hmR0SvmExitCpuid: EMInterpretCpuId failed with %Rrc\n", rc));
-        rc = VERR_EM_INTERPRETER;
+        PDISCPUSTATE pDis = &pVCpu->hm.s.DisState;
+        rc = EMInterpretDisasCurrent(pVCpu->CTX_SUFF(pVM), pVCpu, pDis, &cbInstr);
+        if (   rc == VINF_SUCCESS
+            && pDis->pCurInstr->uOpcode == OP_CPUID)
+            Assert(cbInstr > 0);
+        else
+            cbInstr = 0;
     }
+
+    if (cbInstr)
+    {
+        rc = EMInterpretCpuId(pVM, pVCpu, CPUMCTX2CORE(pCtx));
+        if (RT_LIKELY(rc == VINF_SUCCESS))
+        {
+            hmR0SvmAdvanceRip(pVCpu, pCtx, cbInstr);
+            HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
+        }
+        else
+            rc = VERR_EM_INTERPRETER;
+    }
+    else
+        rc = VERR_EM_INTERPRETER;
     STAM_COUNTER_INC(&pVCpu->hm.s.StatExitCpuid);
     return rc;
 }
@@ -5912,19 +5962,39 @@ HMSVM_EXIT_DECL hmR0SvmExitCpuid(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSvm
 HMSVM_EXIT_DECL hmR0SvmExitRdtsc(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSvmTransient)
 {
     HMSVM_VALIDATE_EXIT_HANDLER_PARAMS();
-    PVM pVM = pVCpu->CTX_SUFF(pVM);
-    int rc = EMInterpretRdtsc(pVM, pVCpu, CPUMCTX2CORE(pCtx));
-    if (RT_LIKELY(rc == VINF_SUCCESS))
+
+    int rc;
+    unsigned cbInstr = 0;
+    if (hmR0SvmSupportsNextRipSave(pVCpu))
     {
-        pSvmTransient->fUpdateTscOffsetting = true;
-        hmR0SvmAdvanceRipHwAssist(pVCpu, pCtx, 2);
-        HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
+        PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
+        cbInstr = pVmcb->ctrl.u64NextRIP - pCtx->rip;
     }
     else
     {
-        AssertMsgFailed(("hmR0SvmExitRdtsc: EMInterpretRdtsc failed with %Rrc\n", rc));
-        rc = VERR_EM_INTERPRETER;
+        PDISCPUSTATE pDis = &pVCpu->hm.s.DisState;
+        rc = EMInterpretDisasCurrent(pVCpu->CTX_SUFF(pVM), pVCpu, pDis, &cbInstr);
+        if (   rc == VINF_SUCCESS
+            && pDis->pCurInstr->uOpcode == OP_RDTSC)
+            Assert(cbInstr > 0);
+        else
+            cbInstr = 0;
     }
+
+    if (cbInstr)
+    {
+        rc = EMInterpretRdtsc(pVCpu->CTX_SUFF(pVM), pVCpu, CPUMCTX2CORE(pCtx));
+        if (RT_LIKELY(rc == VINF_SUCCESS))
+        {
+            pSvmTransient->fUpdateTscOffsetting = true;
+            hmR0SvmAdvanceRip(pVCpu, pCtx, cbInstr);
+            HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
+        }
+        else
+            rc = VERR_EM_INTERPRETER;
+    }
+    else
+        rc = VERR_EM_INTERPRETER;
     STAM_COUNTER_INC(&pVCpu->hm.s.StatExitRdtsc);
     return rc;
 }
@@ -5936,20 +6006,29 @@ HMSVM_EXIT_DECL hmR0SvmExitRdtsc(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSvm
 HMSVM_EXIT_DECL hmR0SvmExitRdtscp(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSvmTransient)
 {
     HMSVM_VALIDATE_EXIT_HANDLER_PARAMS();
-    int rc = EMInterpretRdtscp(pVCpu->CTX_SUFF(pVM), pVCpu, pCtx);
-    if (RT_LIKELY(rc == VINF_SUCCESS))
+
+    VBOXSTRICTRC rcStrict;
+    if (hmR0SvmSupportsNextRipSave(pVCpu))
     {
-        pSvmTransient->fUpdateTscOffsetting = true;
-        hmR0SvmAdvanceRipHwAssist(pVCpu, pCtx, 3);
-        HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
+        rcStrict = EMInterpretRdtscp(pVCpu->CTX_SUFF(pVM), pVCpu, pCtx);
+        if (RT_LIKELY(rcStrict == VINF_SUCCESS))
+        {
+            PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
+            uint8_t const cbInstr = pVmcb->ctrl.u64NextRIP - pCtx->rip;
+            hmR0SvmAdvanceRip(pVCpu, pCtx, cbInstr);
+            pSvmTransient->fUpdateTscOffsetting = true;
+        }
+        else
+        {
+            AssertMsgFailed(("hmR0SvmExitRdtsc: EMInterpretRdtscp failed with %Rrc\n", VBOXSTRICTRC_VAL(rcStrict)));
+            rcStrict = VERR_EM_INTERPRETER;
+        }
     }
     else
-    {
-        AssertMsgFailed(("hmR0SvmExitRdtsc: EMInterpretRdtscp failed with %Rrc\n", rc));
-        rc = VERR_EM_INTERPRETER;
-    }
+        rcStrict = EMInterpretInstruction(pVCpu, CPUMCTX2CORE(pCtx), 0 /* pvFault */);
+    HMSVM_CHECK_SINGLE_STEP(pVCpu, rcStrict);
     STAM_COUNTER_INC(&pVCpu->hm.s.StatExitRdtscp);
-    return rc;
+    return VBOXSTRICTRC_TODO(rcStrict);
 }
 
 
@@ -5959,18 +6038,38 @@ HMSVM_EXIT_DECL hmR0SvmExitRdtscp(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSv
 HMSVM_EXIT_DECL hmR0SvmExitRdpmc(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSvmTransient)
 {
     HMSVM_VALIDATE_EXIT_HANDLER_PARAMS();
-    int rc = EMInterpretRdpmc(pVCpu->CTX_SUFF(pVM), pVCpu, CPUMCTX2CORE(pCtx));
-    if (RT_LIKELY(rc == VINF_SUCCESS))
+    int rc;
+    unsigned cbInstr = 0;
+    if (hmR0SvmSupportsNextRipSave(pVCpu))
     {
-        hmR0SvmAdvanceRipHwAssist(pVCpu, pCtx, 2);
-        HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
+        PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
+        cbInstr = pVmcb->ctrl.u64NextRIP - pCtx->rip;
     }
     else
     {
-        AssertMsgFailed(("hmR0SvmExitRdpmc: EMInterpretRdpmc failed with %Rrc\n", rc));
-        rc = VERR_EM_INTERPRETER;
+        PDISCPUSTATE pDis = &pVCpu->hm.s.DisState;
+        rc = EMInterpretDisasCurrent(pVCpu->CTX_SUFF(pVM), pVCpu, pDis, &cbInstr);
+        if (   rc == VINF_SUCCESS
+            && pDis->pCurInstr->uOpcode == OP_RDPMC)
+            Assert(cbInstr > 0);
+        else
+            cbInstr = 0;
     }
-    STAM_COUNTER_INC(&pVCpu->hm.s.StatExitRdpmc);
+
+    if (cbInstr)
+    {
+        rc = EMInterpretRdpmc(pVCpu->CTX_SUFF(pVM), pVCpu, CPUMCTX2CORE(pCtx));
+        if (RT_LIKELY(rc == VINF_SUCCESS))
+        {
+            hmR0SvmAdvanceRip(pVCpu, pCtx, cbInstr);
+            HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
+        }
+        else
+            rc = VERR_EM_INTERPRETER;
+    }
+    else
+        rc = VERR_EM_INTERPRETER;
+    STAM_COUNTER_INC(&pVCpu->hm.s.StatExitRdtsc);
     return rc;
 }
 
@@ -5985,9 +6084,9 @@ HMSVM_EXIT_DECL hmR0SvmExitInvlpg(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSv
     Assert(!pVM->hm.s.fNestedPaging);
     STAM_COUNTER_INC(&pVCpu->hm.s.StatExitInvlpg);
 
-    if (pVM->hm.s.svm.u32Features & X86_CPUID_SVM_FEATURE_EDX_DECODE_ASSIST)
+    if (   hmR0SvmSupportsDecodeAssists(pVCpu)
+        && hmR0SvmSupportsNextRipSave(pVCpu))
     {
-        Assert(pVM->hm.s.svm.u32Features & X86_CPUID_SVM_FEATURE_EDX_NRIP_SAVE);
         PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
         uint8_t const cbInstr   = pVmcb->ctrl.u64NextRIP - pCtx->rip;
         RTGCPTR const GCPtrPage = pVmcb->ctrl.u64ExitInfo1;
@@ -6009,9 +6108,32 @@ HMSVM_EXIT_DECL hmR0SvmExitInvlpg(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSv
 HMSVM_EXIT_DECL hmR0SvmExitHlt(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSvmTransient)
 {
     HMSVM_VALIDATE_EXIT_HANDLER_PARAMS();
+    int rc;
+    unsigned cbInstr = 0;
+    if (hmR0SvmSupportsNextRipSave(pVCpu))
+    {
+        PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
+        cbInstr = pVmcb->ctrl.u64NextRIP - pCtx->rip;
+    }
+    else
+    {
+        PDISCPUSTATE pDis = &pVCpu->hm.s.DisState;
+        rc = EMInterpretDisasCurrent(pVCpu->CTX_SUFF(pVM), pVCpu, pDis, &cbInstr);
+        if (   rc == VINF_SUCCESS
+            && pDis->pCurInstr->uOpcode == OP_HLT)
+            Assert(cbInstr > 0);
+        else
+            cbInstr = 0;
+    }
 
-    hmR0SvmAdvanceRipHwAssist(pVCpu, pCtx, 1);
-    int rc = EMShouldContinueAfterHalt(pVCpu, pCtx) ? VINF_SUCCESS : VINF_EM_HALT;
+    if (cbInstr)
+    {
+        hmR0SvmAdvanceRip(pVCpu, pCtx, cbInstr);
+        rc = EMShouldContinueAfterHalt(pVCpu, pCtx) ? VINF_SUCCESS : VINF_EM_HALT;
+    }
+    else
+        rc = VERR_EM_INTERPRETER;
+
     HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
     STAM_COUNTER_INC(&pVCpu->hm.s.StatExitHlt);
     if (rc != VINF_SUCCESS)
@@ -6026,17 +6148,37 @@ HMSVM_EXIT_DECL hmR0SvmExitHlt(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSvmTr
 HMSVM_EXIT_DECL hmR0SvmExitMonitor(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSvmTransient)
 {
     HMSVM_VALIDATE_EXIT_HANDLER_PARAMS();
-    int rc = EMInterpretMonitor(pVCpu->CTX_SUFF(pVM), pVCpu, CPUMCTX2CORE(pCtx));
-    if (RT_LIKELY(rc == VINF_SUCCESS))
+    int rc;
+    unsigned cbInstr = 0;
+    if (hmR0SvmSupportsNextRipSave(pVCpu))
     {
-        hmR0SvmAdvanceRipHwAssist(pVCpu, pCtx, 3);
-        HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
+        PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
+        cbInstr = pVmcb->ctrl.u64NextRIP - pCtx->rip;
     }
     else
     {
-        AssertMsg(rc == VERR_EM_INTERPRETER, ("hmR0SvmExitMonitor: EMInterpretMonitor failed with %Rrc\n", rc));
-        rc = VERR_EM_INTERPRETER;
+        PDISCPUSTATE pDis = &pVCpu->hm.s.DisState;
+        rc = EMInterpretDisasCurrent(pVCpu->CTX_SUFF(pVM), pVCpu, pDis, &cbInstr);
+        if (   rc == VINF_SUCCESS
+            && pDis->pCurInstr->uOpcode == OP_MONITOR)
+            Assert(cbInstr > 0);
+        else
+            cbInstr = 0;
     }
+
+    if (cbInstr)
+    {
+        rc = EMInterpretMonitor(pVCpu->CTX_SUFF(pVM), pVCpu, CPUMCTX2CORE(pCtx));
+        if (RT_LIKELY(rc == VINF_SUCCESS))
+        {
+            hmR0SvmAdvanceRip(pVCpu, pCtx, cbInstr);
+            HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
+        }
+        else
+            rc = VERR_EM_INTERPRETER;
+    }
+    else
+        rc = VERR_EM_INTERPRETER;
     STAM_COUNTER_INC(&pVCpu->hm.s.StatExitMonitor);
     return rc;
 }
@@ -6048,29 +6190,45 @@ HMSVM_EXIT_DECL hmR0SvmExitMonitor(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pS
 HMSVM_EXIT_DECL hmR0SvmExitMwait(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSvmTransient)
 {
     HMSVM_VALIDATE_EXIT_HANDLER_PARAMS();
-    VBOXSTRICTRC rc2 = EMInterpretMWait(pVCpu->CTX_SUFF(pVM), pVCpu, CPUMCTX2CORE(pCtx));
-    int rc = VBOXSTRICTRC_VAL(rc2);
-    if (    rc == VINF_EM_HALT
-        ||  rc == VINF_SUCCESS)
+    int rc;
+    unsigned cbInstr = 0;
+    if (hmR0SvmSupportsNextRipSave(pVCpu))
     {
-        hmR0SvmAdvanceRipHwAssist(pVCpu, pCtx, 3);
-
-        if (   rc == VINF_EM_HALT
-            && EMMonitorWaitShouldContinue(pVCpu, pCtx))
-        {
-            rc = VINF_SUCCESS;
-        }
-        HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
+        PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
+        cbInstr = pVmcb->ctrl.u64NextRIP - pCtx->rip;
     }
     else
     {
-        AssertMsg(rc == VERR_EM_INTERPRETER, ("hmR0SvmExitMwait: EMInterpretMWait failed with %Rrc\n", rc));
-        rc = VERR_EM_INTERPRETER;
+        PDISCPUSTATE pDis = &pVCpu->hm.s.DisState;
+        rc = EMInterpretDisasCurrent(pVCpu->CTX_SUFF(pVM), pVCpu, pDis, &cbInstr);
+        if (   rc == VINF_SUCCESS
+            && pDis->pCurInstr->uOpcode == OP_MWAIT)
+            Assert(cbInstr > 0);
+        else
+            cbInstr = 0;
     }
-    AssertMsg(rc == VINF_SUCCESS || rc == VINF_EM_HALT || rc == VERR_EM_INTERPRETER,
-              ("hmR0SvmExitMwait: EMInterpretMWait failed rc=%Rrc\n", rc));
+
+    VBOXSTRICTRC rcStrict;
+    if (cbInstr)
+    {
+        rcStrict = EMInterpretMWait(pVCpu->CTX_SUFF(pVM), pVCpu, CPUMCTX2CORE(pCtx));
+        if (    rcStrict == VINF_EM_HALT
+            ||  rcStrict == VINF_SUCCESS)
+        {
+            hmR0SvmAdvanceRip(pVCpu, pCtx, cbInstr);
+            if (   rcStrict == VINF_EM_HALT
+                && EMMonitorWaitShouldContinue(pVCpu, pCtx))
+                rcStrict = VINF_SUCCESS;
+        }
+        else
+            rcStrict = VERR_EM_INTERPRETER;
+    }
+    else
+        rcStrict = VERR_EM_INTERPRETER;
+
+    HMSVM_CHECK_SINGLE_STEP(pVCpu, rcStrict);
     STAM_COUNTER_INC(&pVCpu->hm.s.StatExitMwait);
-    return rc;
+    return VBOXSTRICTRC_TODO(rcStrict);
 }
 
 
@@ -6107,10 +6265,9 @@ HMSVM_EXIT_DECL hmR0SvmExitReadCRx(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pS
     Log4(("hmR0SvmExitReadCRx: CS:RIP=%04x:%#RX64\n", pCtx->cs.Sel, pCtx->rip));
     STAM_COUNTER_INC(&pVCpu->hm.s.StatExitCRxRead[pSvmTransient->u64ExitCode - SVM_EXIT_READ_CR0]);
 
-    PVM pVM = pVCpu->CTX_SUFF(pVM);
-    if (pVM->hm.s.svm.u32Features & X86_CPUID_SVM_FEATURE_EDX_DECODE_ASSIST)
+    if (   hmR0SvmSupportsDecodeAssists(pVCpu)
+        && hmR0SvmSupportsNextRipSave(pVCpu))
     {
-        Assert(pVM->hm.s.svm.u32Features & X86_CPUID_SVM_FEATURE_EDX_NRIP_SAVE);
         PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
         bool const fMovCRx = RT_BOOL(pVmcb->ctrl.u64ExitInfo1 & SVM_EXIT1_MOV_CRX_MASK);
         if (fMovCRx)
@@ -6146,11 +6303,10 @@ HMSVM_EXIT_DECL hmR0SvmExitWriteCRx(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT p
     Assert(iCrReg <= 15);
 
     VBOXSTRICTRC rcStrict = VERR_SVM_IPE_5;
-    PVM pVM = pVCpu->CTX_SUFF(pVM);
     bool fDecodedInstr = false;
-    if (pVM->hm.s.svm.u32Features & X86_CPUID_SVM_FEATURE_EDX_DECODE_ASSIST)
+    if (   hmR0SvmSupportsDecodeAssists(pVCpu)
+        && hmR0SvmSupportsNextRipSave(pVCpu))
     {
-        Assert(pVM->hm.s.svm.u32Features & X86_CPUID_SVM_FEATURE_EDX_NRIP_SAVE);
         PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
         bool const fMovCRx = RT_BOOL(pVmcb->ctrl.u64ExitInfo1 & SVM_EXIT1_MOV_CRX_MASK);
         if (fMovCRx)
@@ -6182,7 +6338,7 @@ HMSVM_EXIT_DECL hmR0SvmExitWriteCRx(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT p
                 break;
 
             case 3:     /* CR3. */
-                Assert(!pVM->hm.s.fNestedPaging);
+                Assert(!pVCpu->CTX_SUFF(pVM)->hm.s.fNestedPaging);
                 HMCPU_CF_SET(pVCpu, HM_CHANGED_GUEST_CR3);
                 break;
 
@@ -6223,63 +6379,67 @@ HMSVM_EXIT_DECL hmR0SvmExitMsr(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSvmTr
         STAM_COUNTER_INC(&pVCpu->hm.s.StatExitWrmsr);
         Log4(("MSR Write: idMsr=%#RX32\n", pCtx->ecx));
 
-        /* Handle TPR patching; intercepted LSTAR write. */
-        if (   pVM->hm.s.fTPRPatchingActive
-            && pCtx->ecx == MSR_K8_LSTAR)
+        unsigned cbInstr;
+        if (hmR0SvmSupportsNextRipSave(pVCpu))
+            cbInstr = pVmcb->ctrl.u64NextRIP - pCtx->rip;
+        else
         {
-            if ((pCtx->eax & 0xff) != pSvmTransient->u8GuestTpr)
-            {
-                /* Our patch code uses LSTAR for TPR caching for 32-bit guests. */
-                int rc2 = APICSetTpr(pVCpu, pCtx->eax & 0xff);
-                AssertRC(rc2);
-                HMCPU_CF_SET(pVCpu, HM_CHANGED_SVM_GUEST_APIC_STATE);
-            }
-            rc = VINF_SUCCESS;
-            hmR0SvmAdvanceRipHwAssist(pVCpu, pCtx, 2);
-            HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
-            return rc;
+            PDISCPUSTATE pDis = &pVCpu->hm.s.DisState;
+            rc = EMInterpretDisasCurrent(pVCpu->CTX_SUFF(pVM), pVCpu, pDis, &cbInstr);
+            if (   rc == VINF_SUCCESS
+                && pDis->pCurInstr->uOpcode == OP_WRMSR)
+                Assert(cbInstr > 0);
+            else
+                cbInstr = 0;
         }
 
-        if (pVM->hm.s.svm.u32Features & X86_CPUID_SVM_FEATURE_EDX_NRIP_SAVE)
+        if (cbInstr)
         {
+            /* Handle TPR patching; intercepted LSTAR write. */
+            if (   pVM->hm.s.fTPRPatchingActive
+                && pCtx->ecx == MSR_K8_LSTAR)
+            {
+                if ((pCtx->eax & 0xff) != pSvmTransient->u8GuestTpr)
+                {
+                    /* Our patch code uses LSTAR for TPR caching for 32-bit guests. */
+                    int rc2 = APICSetTpr(pVCpu, pCtx->eax & 0xff);
+                    AssertRC(rc2);
+                    HMCPU_CF_SET(pVCpu, HM_CHANGED_SVM_GUEST_APIC_STATE);
+                }
+                rc = VINF_SUCCESS;
+                hmR0SvmAdvanceRip(pVCpu, pCtx, cbInstr);
+                HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
+                return rc;
+            }
+
+            /* Regular MSR write. */
             rc = EMInterpretWrmsr(pVM, pVCpu, CPUMCTX2CORE(pCtx));
             if (RT_LIKELY(rc == VINF_SUCCESS))
             {
-                pCtx->rip = pVmcb->ctrl.u64NextRIP;
-                HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
+                hmR0SvmAdvanceRip(pVCpu, pCtx, cbInstr);
+
+                /* If this is an X2APIC WRMSR access, update the APIC state as well. */
+                if (   pCtx->ecx >= MSR_IA32_X2APIC_START
+                    && pCtx->ecx <= MSR_IA32_X2APIC_END)
+                {
+                    /*
+                     * We've already saved the APIC related guest-state (TPR) in hmR0SvmPostRunGuest(). When full APIC register
+                     * virtualization is implemented we'll have to make sure APIC state is saved from the VMCB before
+                     * EMInterpretWrmsr() changes it.
+                     */
+                    HMCPU_CF_SET(pVCpu, HM_CHANGED_SVM_GUEST_APIC_STATE);
+                }
+                else if (pCtx->ecx == MSR_K6_EFER)
+                    HMCPU_CF_SET(pVCpu, HM_CHANGED_GUEST_EFER_MSR);
+                else if (pCtx->ecx == MSR_IA32_TSC)
+                    pSvmTransient->fUpdateTscOffsetting = true;
             }
             else
                 AssertMsg(   rc == VERR_EM_INTERPRETER
                           || rc == VINF_CPUM_R3_MSR_WRITE, ("hmR0SvmExitMsr: EMInterpretWrmsr failed rc=%Rrc\n", rc));
         }
         else
-        {
-            rc = VBOXSTRICTRC_TODO(EMInterpretInstruction(pVCpu, CPUMCTX2CORE(pCtx), 0 /* pvFault */));
-            if (RT_LIKELY(rc == VINF_SUCCESS))
-                HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);     /* RIP updated by EMInterpretInstruction(). */
-            else
-                AssertMsg(   rc == VERR_EM_INTERPRETER
-                          || rc == VINF_CPUM_R3_MSR_WRITE, ("hmR0SvmExitMsr: WrMsr. EMInterpretInstruction failed rc=%Rrc\n", rc));
-        }
-
-        if (rc == VINF_SUCCESS)
-        {
-            /* If this is an X2APIC WRMSR access, update the APIC state as well. */
-            if (   pCtx->ecx >= MSR_IA32_X2APIC_START
-                && pCtx->ecx <= MSR_IA32_X2APIC_END)
-            {
-                /*
-                 * We've already saved the APIC related guest-state (TPR) in hmR0SvmPostRunGuest(). When full APIC register
-                 * virtualization is implemented we'll have to make sure APIC state is saved from the VMCB before
-                 * EMInterpretWrmsr() changes it.
-                 */
-                HMCPU_CF_SET(pVCpu, HM_CHANGED_SVM_GUEST_APIC_STATE);
-            }
-            else if (pCtx->ecx == MSR_K6_EFER)
-                HMCPU_CF_SET(pVCpu, HM_CHANGED_GUEST_EFER_MSR);
-            else if (pCtx->ecx == MSR_IA32_TSC)
-                pSvmTransient->fUpdateTscOffsetting = true;
-        }
+            rc = VERR_EM_INTERPRETER;
     }
     else
     {
@@ -6288,32 +6448,34 @@ HMSVM_EXIT_DECL hmR0SvmExitMsr(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSvmTr
         Assert(pVmcb->ctrl.u64ExitInfo1 == SVM_EXIT1_MSR_READ);
         Log4(("MSR Read: idMsr=%#RX32\n", pCtx->ecx));
 
-        if (pVM->hm.s.svm.u32Features & X86_CPUID_SVM_FEATURE_EDX_NRIP_SAVE)
+        unsigned cbInstr;
+        if (hmR0SvmSupportsNextRipSave(pVCpu))
+            cbInstr = pVmcb->ctrl.u64NextRIP - pCtx->rip;
+        else
+        {
+            PDISCPUSTATE pDis = &pVCpu->hm.s.DisState;
+            rc = EMInterpretDisasCurrent(pVCpu->CTX_SUFF(pVM), pVCpu, pDis, &cbInstr);
+            if (   rc == VINF_SUCCESS
+                && pDis->pCurInstr->uOpcode == OP_RDMSR)
+                Assert(cbInstr > 0);
+            else
+                cbInstr = 0;
+        }
+
+        if (cbInstr)
         {
             rc = EMInterpretRdmsr(pVM, pVCpu, CPUMCTX2CORE(pCtx));
             if (RT_LIKELY(rc == VINF_SUCCESS))
-            {
-                pCtx->rip = pVmcb->ctrl.u64NextRIP;
-                HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
-            }
+                hmR0SvmAdvanceRip(pVCpu, pCtx, cbInstr);
             else
                 AssertMsg(   rc == VERR_EM_INTERPRETER
                           || rc == VINF_CPUM_R3_MSR_READ, ("hmR0SvmExitMsr: EMInterpretRdmsr failed rc=%Rrc\n", rc));
         }
         else
-        {
-            rc = VBOXSTRICTRC_TODO(EMInterpretInstruction(pVCpu, CPUMCTX2CORE(pCtx), 0));
-            if (RT_UNLIKELY(rc != VINF_SUCCESS))
-            {
-                AssertMsg(   rc == VERR_EM_INTERPRETER
-                          || rc == VINF_CPUM_R3_MSR_READ, ("hmR0SvmExitMsr: RdMsr. EMInterpretInstruction failed rc=%Rrc\n", rc));
-            }
-            /* RIP updated by EMInterpretInstruction(). */
-            HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
-        }
+            rc = VERR_EM_INTERPRETER;
     }
 
-    /* RIP has been updated by EMInterpret[Rd|Wr]msr(). */
+    HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
     return rc;
 }
 
@@ -6477,7 +6639,7 @@ HMSVM_EXIT_DECL hmR0SvmExitIOInstr(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pS
                     /* Don't know exactly how to detect whether u3SEG is valid, currently
                        only enabling it for Bulldozer and later with NRIP.  OS/2 broke on
                        2384 Opterons when only checking NRIP. */
-                    if (   (pVM->hm.s.svm.u32Features & X86_CPUID_SVM_FEATURE_EDX_NRIP_SAVE)
+                    if (   hmR0SvmSupportsNextRipSave(pVCpu)
                         && pVM->cpum.ro.GuestFeatures.enmMicroarch >= kCpumMicroarch_AMD_15h_First)
                     {
                         AssertMsg(IoExitInfo.n.u3SEG == X86_SREG_DS || cbInstr > 1U + IoExitInfo.n.u1REP,
@@ -6571,7 +6733,11 @@ HMSVM_EXIT_DECL hmR0SvmExitIOInstr(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pS
     {
         /* AMD-V saves the RIP of the instruction following the IO instruction in EXITINFO2. */
         if (!fUpdateRipAlready)
+        {
             pCtx->rip = pVmcb->ctrl.u64ExitInfo2;
+            /** @todo should probably call update interrupt-shadow here, see
+             *        hmR0SvmAdvanceRip. */
+        }
 
         /*
          * If any I/O breakpoints are armed, we need to check if one triggered
@@ -6811,22 +6977,44 @@ HMSVM_EXIT_DECL hmR0SvmExitVmmCall(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pS
     HMSVM_VALIDATE_EXIT_HANDLER_PARAMS();
     STAM_COUNTER_INC(&pVCpu->hm.s.StatExitVmcall);
 
-    bool fRipUpdated;
-    VBOXSTRICTRC rcStrict = HMSvmVmmcall(pVCpu, pCtx, &fRipUpdated);
-    if (RT_SUCCESS(rcStrict))
+    int rc = VINF_SUCCESS;
+    unsigned cbInstr;
+    if (hmR0SvmSupportsNextRipSave(pVCpu))
     {
-        /* Only update the RIP if we're continuing guest execution and not
-           in the case of say VINF_GIM_R3_HYPERCALL. */
-        if (   rcStrict == VINF_SUCCESS
-            && !fRipUpdated)
-        {
-            hmR0SvmAdvanceRipHwAssist(pVCpu, pCtx, 3 /* cbInstr */);
-        }
-
-        /* If the hypercall or TPR patching changes anything other than guest's general-purpose registers,
-           we would need to reload the guest changed bits here before VM-entry. */
-        return VBOXSTRICTRC_VAL(rcStrict);
+        PCSVMVMCB pVmcb = pVCpu->hm.s.svm.pVmcb;
+        cbInstr = pVmcb->ctrl.u64NextRIP - pCtx->rip;
+        Assert(cbInstr > 0);
     }
+    else
+    {
+        PDISCPUSTATE pDis = &pVCpu->hm.s.DisState;
+        rc = EMInterpretDisasCurrent(pVCpu->CTX_SUFF(pVM), pVCpu, pDis, &cbInstr);
+        if (   rc == VINF_SUCCESS
+            && pDis->pCurInstr->uOpcode == OP_VMMCALL)
+            Assert(cbInstr > 0);
+        else
+            cbInstr = 0;
+    }
+
+    if (cbInstr)
+    {
+        bool fRipUpdated;
+        VBOXSTRICTRC rcStrict = HMSvmVmmcall(pVCpu, pCtx, &fRipUpdated);
+        if (RT_SUCCESS(rcStrict))
+        {
+            /* Only update the RIP if we're continuing guest execution and not
+               in the case of say VINF_GIM_R3_HYPERCALL. */
+            if (   rcStrict == VINF_SUCCESS
+                && !fRipUpdated)
+                hmR0SvmAdvanceRip(pVCpu, pCtx, cbInstr);
+
+            /* If the hypercall or TPR patching changes anything other than guest's general-purpose registers,
+               we would need to reload the guest changed bits here before VM-entry. */
+            return VBOXSTRICTRC_VAL(rcStrict);
+        }
+    }
+    else
+        AssertMsgFailed(("Failed to disassemble VMMCALL rc=%Rrc\n", rc));
 
     hmR0SvmSetPendingXcptUD(pVCpu);
     return VINF_SUCCESS;
@@ -7003,7 +7191,7 @@ HMSVM_EXIT_DECL hmR0SvmExitXcptUD(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSv
         if (rcStrict == VINF_SUCCESS)
         {
             /* #UD #VMEXIT does not have valid NRIP information, manually advance RIP. See @bugref{7270#c170}. */
-            hmR0SvmAdvanceRipDumb(pVCpu, pCtx, cbInstr);
+            hmR0SvmAdvanceRip(pVCpu, pCtx, cbInstr);
             rc = VINF_SUCCESS;
             HMSVM_CHECK_SINGLE_STEP(pVCpu, rc);
         }
@@ -7052,7 +7240,7 @@ HMSVM_EXIT_DECL hmR0SvmExitXcptMF(PVMCPU pVCpu, PCPUMCTX pCtx, PSVMTRANSIENT pSv
             /* Convert a #MF into a FERR -> IRQ 13. See @bugref{6117}. */
             rc = PDMIsaSetIrq(pVCpu->CTX_SUFF(pVM), 13, 1, 0 /* uTagSrc */);
             if (RT_SUCCESS(rc))
-                pCtx->rip += cbOp;
+                hmR0SvmAdvanceRip(pVCpu, pCtx, cbOp);
         }
         else
             Log4(("hmR0SvmExitXcptMF: EMInterpretDisasCurrent returned %Rrc uOpCode=%#x\n", rc, pDis->pCurInstr->uOpcode));

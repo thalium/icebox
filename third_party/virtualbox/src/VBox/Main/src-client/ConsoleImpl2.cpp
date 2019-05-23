@@ -1168,6 +1168,14 @@ int Console::i_configConstructorInner(PUVM pUVM, PVM pVM, AutoWriteLock *pAlock)
         hrc = pMachine->GetCPUProperty(CPUPropertyType_SpecCtrlByHost, &fSpecCtrlByHost); H();
         InsertConfigInteger(pHM, "SpecCtrlByHost", fSpecCtrlByHost);
 
+        BOOL fL1DFlushOnSched = true;
+        hrc = pMachine->GetCPUProperty(CPUPropertyType_L1DFlushOnEMTScheduling, &fL1DFlushOnSched); H();
+        InsertConfigInteger(pHM, "L1DFlushOnSched", fL1DFlushOnSched);
+
+        BOOL fL1DFlushOnVMEntry = false;
+        hrc = pMachine->GetCPUProperty(CPUPropertyType_L1DFlushOnVMEntry, &fL1DFlushOnVMEntry); H();
+        InsertConfigInteger(pHM, "L1DFlushOnVMEntry", fL1DFlushOnVMEntry);
+
         /* Reset overwrite. */
         if (i_isResetTurnedIntoPowerOff())
             InsertConfigInteger(pRoot, "PowerOffInsteadOfReset", 1);

@@ -469,7 +469,7 @@ static DECLCALLBACK(int) rtManifestAttributeCompare(PRTSTRSPACECORE pStr, void *
     /*
      * Compare them.
      */
-    if (strcmp(pAttr1->pszValue, pAttr2->pszValue))
+    if (RTStrICmp(pAttr1->pszValue, pAttr2->pszValue))
     {
         if (*pEquals->pszCurEntry)
             RTStrPrintf(pEquals->pszError, pEquals->cbError,

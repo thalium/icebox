@@ -1465,13 +1465,15 @@ static DECLCALLBACK(VBOXSTRICTRC) cpumMsrRd_Ia32ArchCapabilities(PVMCPU pVCpu, u
 }
 
 
-
-
-
-
-
-
-
+/** @callback_method_impl{FNCPUMWRMSR} */
+static DECLCALLBACK(VBOXSTRICTRC) cpumMsrWr_Ia32FlushCmd(PVMCPU pVCpu, uint32_t idMsr, PCCPUMMSRRANGE pRange, uint64_t uValue, uint64_t uRawValue)
+{
+    RT_NOREF_PV(pVCpu); RT_NOREF_PV(idMsr); RT_NOREF_PV(pRange); RT_NOREF_PV(uRawValue);
+    if ((uValue & ~MSR_IA32_FLUSH_CMD_F_L1D) == 0)
+        return VINF_SUCCESS;
+    Log(("CPUM: Invalid MSR_IA32_FLUSH_CMD_ bits (trying to write %#llx)\n", uValue));
+    return VERR_CPUM_RAISE_GP_0;
+}
 
 
 
@@ -5269,6 +5271,7 @@ static const PFNCPUMWRMSR g_aCpumWrMsrFns[kCpumMsrWrFn_End] =
     cpumMsrWr_Ia32DebugInterface,
     cpumMsrWr_Ia32SpecCtrl,
     cpumMsrWr_Ia32PredCmd,
+    cpumMsrWr_Ia32FlushCmd,
 
     cpumMsrWr_Amd64Efer,
     cpumMsrWr_Amd64SyscallTarget,
@@ -5975,6 +5978,7 @@ int cpumR3MsrStrictInitChecks(void)
     CPUM_ASSERT_WR_MSR_FN(Ia32DebugInterface);
     CPUM_ASSERT_WR_MSR_FN(Ia32SpecCtrl);
     CPUM_ASSERT_WR_MSR_FN(Ia32PredCmd);
+    CPUM_ASSERT_WR_MSR_FN(Ia32FlushCmd);
 
     CPUM_ASSERT_WR_MSR_FN(Amd64Efer);
     CPUM_ASSERT_WR_MSR_FN(Amd64SyscallTarget);

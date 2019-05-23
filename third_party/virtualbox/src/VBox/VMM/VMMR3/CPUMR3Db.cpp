@@ -577,6 +577,54 @@ int cpumR3MsrRangesInsert(PVM pVM, PCPUMMSRRANGE *ppaMsrRanges, uint32_t *pcMsrR
 
 
 /**
+ * Reconciles CPUID info with MSRs (selected ones).
+ *
+ * @returns VBox status code.
+ * @param   pVM                 The cross context VM structure.
+ */
+int cpumR3MsrReconcileWithCpuId(PVM pVM)
+{
+    PCCPUMMSRRANGE papToAdd[10];
+    uint32_t      cToAdd = 0;
+
+    /*
+     * The IA32_FLUSH_CMD MSR was introduced in MCUs for CVS-2018-3646 and associates.
+     */
+    if (pVM->cpum.s.GuestFeatures.fFlushCmd && !cpumLookupMsrRange(pVM, MSR_IA32_FLUSH_CMD))
+    {
+        static CPUMMSRRANGE const s_FlushCmd =
+        {
+            /*.uFirst =*/       MSR_IA32_FLUSH_CMD,
+            /*.uLast =*/        MSR_IA32_FLUSH_CMD,
+            /*.enmRdFn =*/      kCpumMsrRdFn_WriteOnly,
+            /*.enmWrFn =*/      kCpumMsrWrFn_Ia32FlushCmd,
+            /*.offCpumCpu =*/   UINT16_MAX,
+            /*.fReserved =*/    0,
+            /*.uValue =*/       0,
+            /*.fWrIgnMask =*/   0,
+            /*.fWrGpMask =*/    ~MSR_IA32_FLUSH_CMD_F_L1D,
+            /*.szName = */      "IA32_FLUSH_CMD"
+        };
+        papToAdd[cToAdd++] = &s_FlushCmd;
+    }
+
+    /*
+     * Do the adding.
+     */
+    for (uint32_t i = 0; i < cToAdd; i++)
+    {
+        PCCPUMMSRRANGE pRange = papToAdd[i];
+        LogRel(("CPUM: MSR/CPUID reconciliation insert: %#010x %s\n", pRange->uFirst, pRange->szName));
+        int rc = cpumR3MsrRangesInsert(NULL /* pVM */, &pVM->cpum.s.GuestInfo.paMsrRangesR3, &pVM->cpum.s.GuestInfo.cMsrRanges,
+                                       pRange);
+        if (RT_FAILURE(rc))
+            return rc;
+    }
+    return VINF_SUCCESS;
+}
+
+
+/**
  * Worker for cpumR3MsrApplyFudge that applies one table.
  *
  * @returns VBox status code.

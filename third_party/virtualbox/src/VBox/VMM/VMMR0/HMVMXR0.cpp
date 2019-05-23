@@ -2477,11 +2477,14 @@ static int hmR0VmxSetupProcCtls(PVM pVM, PVMCPU pVCpu)
         }
 #endif
         /*
-         * The IA32_PRED_CMD MSR is write-only and has no state associated with it. We never need to intercept
-         * access (writes need to be executed without exiting, reds will #GP-fault anyway).
+         * The IA32_PRED_CMD and IA32_FLUSH_CMD MSRs are write-only and has no state
+         * associated with then. We never need to intercept access (writes need to
+         * be executed without exiting, reads will #GP-fault anyway).
          */
         if (pVM->cpum.ro.GuestFeatures.fIbpb)
             hmR0VmxSetMsrPermission(pVCpu, MSR_IA32_PRED_CMD,     VMXMSREXIT_PASSTHRU_READ, VMXMSREXIT_PASSTHRU_WRITE);
+        if (pVM->cpum.ro.GuestFeatures.fFlushCmd)
+            hmR0VmxSetMsrPermission(pVCpu, MSR_IA32_FLUSH_CMD,    VMXMSREXIT_PASSTHRU_READ, VMXMSREXIT_PASSTHRU_WRITE);
 
         /* Though MSR_IA32_PERF_GLOBAL_CTRL is saved/restored lazily, we want intercept reads/write to it for now. */
     }
@@ -8029,6 +8032,7 @@ DECLINLINE(void) hmR0VmxSetPendingXcptUD(PVMCPU pVCpu, PCPUMCTX pMixedCtx)
 {
     NOREF(pMixedCtx);
     uint32_t u32IntInfo = X86_XCPT_UD | VMX_EXIT_INTERRUPTION_INFO_VALID;
+    u32IntInfo         |= (VMX_EXIT_INTERRUPTION_INFO_TYPE_HW_XCPT << VMX_EXIT_INTERRUPTION_INFO_TYPE_SHIFT);
     hmR0VmxSetPendingEvent(pVCpu, u32IntInfo, 0 /* cbInstr */, 0 /* u32ErrCode */, 0 /* GCPtrFaultAddress */);
 }
 
@@ -8477,6 +8481,12 @@ VMMR0DECL(int) VMXR0Enter(PVM pVM, PVMCPU pVCpu, PHMGLOBALCPUINFO pCpu)
     pVCpu->hm.s.fLeaveDone = false;
     Log4Func(("Activated Vmcs. HostCpuId=%u\n", RTMpCpuId()));
 
+    /*
+     * Do the EMT scheduled L1D flush here if needed.
+     */
+    if (pVM->hm.s.fL1dFlushOnSched)
+        ASMWrMsr(MSR_IA32_FLUSH_CMD, MSR_IA32_FLUSH_CMD_F_L1D);
+
     return VINF_SUCCESS;
 }
 
@@ -8553,6 +8563,10 @@ VMMR0DECL(void) VMXR0ThreadCtxCallback(RTTHREADCTXEVENT enmEvent, PVMCPU pVCpu, 
                 Log4Func(("Resumed: Activated Vmcs. HostCpuId=%u\n", RTMpCpuId()));
             }
             pVCpu->hm.s.fLeaveDone = false;
+
+            /* Do the EMT scheduled L1D flush if needed. */
+            if (pVCpu->CTX_SUFF(pVM)->hm.s.fL1dFlushOnSched)
+                ASMWrMsr(MSR_IA32_FLUSH_CMD, MSR_IA32_FLUSH_CMD_F_L1D);
 
             /* Restore longjmp state. */
             VMMRZCallRing3Enable(pVCpu);

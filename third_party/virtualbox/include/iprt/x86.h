@@ -615,7 +615,8 @@ typedef const X86CPUIDFEATEDX *PCX86CPUIDFEATEDX;
 #define X86_CPUID_STEXT_FEATURE_EDX_IBRS_IBPB         RT_BIT_32(26)
 /** EDX Bit 27 - IBRS & IBPB - Supports the STIBP flag in IA32_SPEC_CTRL. */
 #define X86_CPUID_STEXT_FEATURE_EDX_STIBP             RT_BIT_32(27)
-
+/** EDX Bit 28 - FLUSH_CMD - Supports IA32_FLUSH_CMD MSR. */
+#define X86_CPUID_STEXT_FEATURE_EDX_FLUSH_CMD         RT_BIT_32(28)
 /** EDX Bit 29 - ARCHCAP - Supports the IA32_ARCH_CAPABILITIES MSR. */
 #define X86_CPUID_STEXT_FEATURE_EDX_ARCHCAP           RT_BIT_32(29)
 
@@ -1202,13 +1203,22 @@ AssertCompile(X86_DR7_ANY_RW_IO(UINT32_C(0x00040000)) == 0);
 /** MTRR Capabilities. */
 #define MSR_IA32_MTRR_CAP                   0xFE
 
-/** Architecture capabilities (bugfixes).
- * @note May move  */
+/** Architecture capabilities (bugfixes). */
 #define MSR_IA32_ARCH_CAPABILITIES          UINT32_C(0x10a)
-/** CPU is no subject to spectre problems. */
-#define MSR_IA32_ARCH_CAP_F_SPECTRE_FIX     RT_BIT_32(0)
+/** CPU is no subject to meltdown problems. */
+#define MSR_IA32_ARCH_CAP_F_RDCL_NO         RT_BIT_32(0)
 /** CPU has better IBRS and you can leave it on all the time. */
-#define MSR_IA32_ARCH_CAP_F_BETTER_IBRS     RT_BIT_32(1)
+#define MSR_IA32_ARCH_CAP_F_IBRS_ALL        RT_BIT_32(1)
+/** CPU has return stack buffer (RSB) override. */
+#define MSR_IA32_ARCH_CAP_F_RSBO            RT_BIT_32(2)
+/** Virtual machine monitors need not flush the level 1 data cache on VM entry.
+ * This is also the case when MSR_IA32_ARCH_CAP_F_RDCL_NO is set. */
+#define MSR_IA32_ARCH_CAP_F_VMM_NEED_NOT_FLUSH_L1D RT_BIT_32(3)
+
+/** Flush command register. */
+#define MSR_IA32_FLUSH_CMD                  UINT32_C(0x10b)
+/** Flush the level 1 data cache when this bit is written. */
+#define MSR_IA32_FLUSH_CMD_F_L1D            RT_BIT_32(0)
 
 /** Cache control/info. */
 #define MSR_BBL_CR_CTL3                     UINT32_C(0x11e)

@@ -291,6 +291,8 @@ public:
         BOOL                mIBPBOnVMEntry;
         BOOL                mSpecCtrl;
         BOOL                mSpecCtrlByHost;
+        BOOL                mL1DFlushOnSched;
+        BOOL                mL1DFlushOnVMEntry;
         ULONG               mCPUCount;
         BOOL                mCPUHotPlugEnabled;
         ULONG               mCpuExecutionCap;

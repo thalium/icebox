@@ -91,11 +91,18 @@ void crUnpackExtendProgramParameters4fvNV(void)
 
 void crUnpackExtendAreProgramsResidentNV(void)
 {
-	GLsizei n = READ_DATA(8, GLsizei);
-	const GLuint *programs = DATA_POINTER(12, const GLuint);
-	SET_RETURN_PTR(12 + n * sizeof(GLuint));
-	SET_WRITEBACK_PTR(20 + n * sizeof(GLuint));
-	(void) cr_unpackDispatch.AreProgramsResidentNV(n, programs, NULL);
+    GLsizei n = READ_DATA(8, GLsizei);
+    const GLuint *programs = DATA_POINTER(12, const GLuint);
+
+    if (n > UINT32_MAX / sizeof(GLuint) / 4 || !DATA_POINTER_CHECK(20 + n * sizeof(GLuint)))
+    {
+        crError("crUnpackExtendAreProgramsResidentNV: %d is out of range", n);
+        return;
+    }
+
+    SET_RETURN_PTR(12 + n * sizeof(GLuint));
+    SET_WRITEBACK_PTR(20 + n * sizeof(GLuint));
+    (void) cr_unpackDispatch.AreProgramsResidentNV(n, programs, NULL);
 }
 
 
@@ -214,22 +221,36 @@ void crUnpackExtendProgramNamedParameter4fvNV(void)
 
 void crUnpackExtendGetProgramNamedParameterdvNV(void)
 {
-	GLuint id = READ_DATA(8, GLuint);
-	GLsizei len = READ_DATA(12, GLsizei);
-	const GLubyte *name = DATA_POINTER(16, GLubyte);
-	SET_RETURN_PTR(16+len);
-	SET_WRITEBACK_PTR(16+len+8);
-	cr_unpackDispatch.GetProgramNamedParameterdvNV(id, len, name, NULL);
+    GLuint id = READ_DATA(8, GLuint);
+    GLsizei len = READ_DATA(12, GLsizei);
+    const GLubyte *name = DATA_POINTER(16, GLubyte);
+
+    if (len > UINT32_MAX / 4 || !DATA_POINTER_CHECK(16 + len + 8))
+    {
+        crError("crUnpackExtendGetProgramNamedParameterdvNV: len %d is out of range", len);
+        return;
+    }
+
+    SET_RETURN_PTR(16+len);
+    SET_WRITEBACK_PTR(16+len+8);
+    cr_unpackDispatch.GetProgramNamedParameterdvNV(id, len, name, NULL);
 }
 
 void crUnpackExtendGetProgramNamedParameterfvNV(void)
 {
-	GLuint id = READ_DATA(8, GLuint);
-	GLsizei len = READ_DATA(12, GLsizei);
-	const GLubyte *name = DATA_POINTER(16, GLubyte);
-	SET_RETURN_PTR(16+len);
-	SET_WRITEBACK_PTR(16+len+8);
-	cr_unpackDispatch.GetProgramNamedParameterfvNV(id, len, name, NULL);
+    GLuint id = READ_DATA(8, GLuint);
+    GLsizei len = READ_DATA(12, GLsizei);
+    const GLubyte *name = DATA_POINTER(16, GLubyte);
+
+    if (len > UINT32_MAX / 4 || !DATA_POINTER_CHECK(16 + len + 8))
+    {
+        crError("crUnpackExtendGetProgramNamedParameterfvNV: len %d is out of range", len);
+        return;
+    }
+
+    SET_RETURN_PTR(16+len);
+    SET_WRITEBACK_PTR(16+len+8);
+    cr_unpackDispatch.GetProgramNamedParameterfvNV(id, len, name, NULL);
 }
 
 void crUnpackExtendProgramStringARB(void)

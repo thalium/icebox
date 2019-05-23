@@ -7,6 +7,8 @@
 #include "unpacker.h"
 #include "cr_error.h"
 
+#include "state/cr_bufferobject.h"
+
 void crUnpackDrawPixels( void )
 {
     GLsizei width  = READ_DATA( sizeof( int ) + 0, GLsizei );
@@ -15,6 +17,9 @@ void crUnpackDrawPixels( void )
     GLenum type    = READ_DATA( sizeof( int ) + 12, GLenum );
     GLint noimagedata = READ_DATA( sizeof( int ) + 16, GLint );
     GLvoid *pixels;
+
+    if (noimagedata && !crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB))
+        return;
 
     if (noimagedata)
         pixels = (void*) (uintptr_t) READ_DATA( sizeof( int ) + 20, GLint);
@@ -41,6 +46,9 @@ void crUnpackBitmap( void )
     GLfloat ymove   = READ_DATA( sizeof( int ) + 20, GLfloat );
     GLuint noimagedata = READ_DATA( sizeof( int ) + 24, GLuint );
     GLubyte *bitmap;
+
+    if (noimagedata && !crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB))
+        return;
 
     if (noimagedata)
         bitmap = (void*) (uintptr_t) READ_DATA(sizeof(int) + 28, GLint);

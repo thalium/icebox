@@ -35,70 +35,11 @@
 #include <iprt/win/iphlpapi.h>
 #include <icmpapi.h>
 #endif
+#include <alias.h>
 
 #if defined(DECLARE_IOVEC) && defined(RT_OS_WINDOWS)
 AssertCompileMembersSameSizeAndOffset(struct iovec, iov_base, WSABUF, buf);
 AssertCompileMembersSameSizeAndOffset(struct iovec, iov_len,  WSABUF, len);
-#endif
-
-#ifdef VBOX_WITH_NAT_UDP_SOCKET_CLONE
-/**
- *
- */
-struct socket * soCloneUDPSocketWithForegnAddr(PNATState pData, bool fBindSocket, struct socket *pSo, uint32_t u32ForeignAddr)
-{
-    struct socket *pNewSocket = NULL;
-    LogFlowFunc(("Enter: fBindSocket:%RTbool, so:%R[natsock], u32ForeignAddr:%RTnaipv4\n", fBindSocket, pSo, u32ForeignAddr));
-    pNewSocket = socreate();
-    if (!pNewSocket)
-    {
-        LogFunc(("Can't create socket\n"));
-        LogFlowFunc(("Leave: NULL\n"));
-        return NULL;
-    }
-    if (fBindSocket)
-    {
-        if (udp_attach(pData, pNewSocket, 0) <= 0)
-        {
-            sofree(pData, pNewSocket);
-            LogFunc(("Can't attach fresh created socket\n"));
-            return NULL;
-        }
-    }
-    else
-    {
-        pNewSocket->so_cloneOf = (struct socket *)pSo;
-        pNewSocket->s = pSo->s;
-        insque(pData, pNewSocket, &udb);
-    }
-    pNewSocket->so_laddr = pSo->so_laddr;
-    pNewSocket->so_lport = pSo->so_lport;
-    pNewSocket->so_faddr.s_addr = u32ForeignAddr;
-    pNewSocket->so_fport = pSo->so_fport;
-    pSo->so_cCloneCounter++;
-    LogFlowFunc(("Leave: %R[natsock]\n", pNewSocket));
-    return pNewSocket;
-}
-
-struct socket *soLookUpClonedUDPSocket(PNATState pData, const struct socket *pcSo, uint32_t u32ForeignAddress)
-{
-    struct socket *pSoClone = NULL;
-    LogFlowFunc(("Enter: pcSo:%R[natsock], u32ForeignAddress:%RTnaipv4\n", pcSo, u32ForeignAddress));
-    for (pSoClone = udb.so_next; pSoClone != &udb; pSoClone = pSoClone->so_next)
-    {
-        if (   pSoClone->so_cloneOf
-            && pSoClone->so_cloneOf == pcSo
-            && pSoClone->so_lport == pcSo->so_lport
-            && pSoClone->so_fport == pcSo->so_fport
-            && pSoClone->so_laddr.s_addr == pcSo->so_laddr.s_addr
-            && pSoClone->so_faddr.s_addr == u32ForeignAddress)
-            goto done;
-    }
-    pSoClone = NULL;
-done:
-    LogFlowFunc(("Leave: pSoClone: %R[natsock]\n", pSoClone));
-    return pSoClone;
-}
 #endif
 
 #ifdef VBOX_WITH_NAT_SEND2HOME
@@ -229,6 +170,87 @@ sofree(PNATState pData, struct socket *so)
     RTMemFree(so);
     LogFlowFuncLeave();
 }
+
+
+/*
+ * Worker for sobind() below.
+ */
+static int
+sobindto(struct socket *so, uint32_t addr, uint16_t port)
+{
+    struct sockaddr_in self;
+    int status;
+
+    if (addr == INADDR_ANY && port == 0 && so->so_type != IPPROTO_UDP)
+    {
+        /* TCP sockets without constraints don't need to be bound */
+        Log2(("NAT: sobind: %s guest %RTnaipv4:%d - nothing to do\n",
+              so->so_type == IPPROTO_UDP ? "udp" : "tcp",
+              so->so_laddr.s_addr, ntohs(so->so_lport)));
+        return 0;
+    }
+
+    RT_ZERO(self);
+#ifdef RT_OS_DARWIN
+    self.sin_len = sizeof(self);
+#endif
+    self.sin_family = AF_INET;
+    self.sin_addr.s_addr = addr;
+    self.sin_port = port;
+
+    status = bind(so->s, (struct sockaddr *)&self, sizeof(self));
+    if (status == 0)
+    {
+        Log2(("NAT: sobind: %s guest %RTnaipv4:%d to host %RTnaipv4:%d\n",
+              so->so_type == IPPROTO_UDP ? "udp" : "tcp",
+              so->so_laddr.s_addr, ntohs(so->so_lport), addr, ntohs(port)));
+        return 0;
+    }
+
+    Log2(("NAT: sobind: %s guest %RTnaipv4:%d to host %RTnaipv4:%d error %d%s\n",
+          so->so_type == IPPROTO_UDP ? "udp" : "tcp",
+          so->so_laddr.s_addr, ntohs(so->so_lport),
+          addr, ntohs(port),
+          errno, port ? " (will retry with random port)" : ""));
+
+    if (port) /* retry without */
+        status = sobindto(so, addr, 0);
+
+    if (addr)
+        return status;
+    else
+        return 0;
+}
+
+
+/*
+ * Bind the socket to specific host address and/or port if necessary.
+ * We also always bind udp sockets to force the local port to be
+ * allocated and known in advance.
+ */
+int
+sobind(PNATState pData, struct socket *so)
+{
+    uint32_t addr = pData->bindIP.s_addr; /* may be INADDR_ANY */
+    bool fSamePorts = !!(pData->i32AliasMode & PKT_ALIAS_SAME_PORTS);
+    uint16_t port;
+    int status;
+
+    if (fSamePorts)
+    {
+        int opt = 1;
+        setsockopt(so->s, SOL_SOCKET, SO_REUSEADDR, (char *)&opt, sizeof(opt));
+        port = so->so_lport;
+    }
+    else
+    {
+        port = 0;
+    }
+
+    status = sobindto(so, addr, port);
+    return status;
+}
+
 
 /*
  * Read from so's socket into sb_snd, updating all relevant sbuf fields

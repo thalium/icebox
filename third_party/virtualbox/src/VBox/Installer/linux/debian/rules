@@ -106,7 +106,8 @@ cfg_flags := $(if $(NOQT),--disable-qt,) \
 	     $(if $(NOWINE),,--setup-wine) \
 	     $(if $(NOWEBSVC),,$(if $(ose),--enable-webservice,)) \
 	     $(if $(VNC),--enable-vnc,) \
-	     --disable-extpack
+	     --disable-extpack \
+	     $(if $(filter DEBIAN_7_0,$(debdist)),--build-libopus,)
 
 bld_flags := AUTOCFG=$(current)/debian/AutoConfig.kmk \
 	     LOCALCFG=$(current)/debian/LocalConfig.kmk \

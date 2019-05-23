@@ -114,7 +114,6 @@ YASM="yasm"
 IASL="iasl"
 XSLTPROC="xsltproc"
 GENISOIMAGE="genisoimage"
-MKISOFS="mkisofs"
 INCCRYPTO=""
 LIBCRYPTO="-lssl -lcrypto"
 LIBPTHREAD="-lpthread"
@@ -645,34 +644,6 @@ check_xsltproc()
     else
       log_success "found"
       cnf_append "VBOX_XSLTPROC" "`which_wrapper $XSLTPROC`"
-    fi
-  fi
-}
-
-
-#
-# Check for mkisofs, needed to build the CDROM image containing the additions
-#
-check_mkisofs()
-{
-  test_header mkisofs
-  if which_wrapper $GENISOIMAGE > /dev/null; then
-    mkisofs_ver=`$GENISOIMAGE --version`
-    if [ $? -ne 0 ]; then
-      log_failure "mkisofs not found"
-      fail
-    else
-      log_success "found $mkisofs_ver"
-      cnf_append "VBOX_MKISOFS" "`which_wrapper $GENISOIMAGE`"
-    fi
-  elif check_avail "$MKISOFS" MKISOFS; then
-    mkisofs_ver=`$MKISOFS --version`
-    if [ $? -ne 0 ]; then
-      log_failure "mkisofs not working"
-      fail
-    else
-      log_success "found $mkisofs_ver"
-      cnf_append "VBOX_MKISOFS" "`which_wrapper $MKISOFS`"
     fi
   fi
 }
@@ -1658,6 +1629,41 @@ EOF
 
 
 #
+# Check for libopus
+#
+check_libopus()
+{
+  if [ -z "$BUILD_LIBOPUS" ]; then
+    test_header libopus
+    if which_wrapper pkg-config > /dev/null; then
+      libopus_ver=`pkg-config opus --modversion 2>> $LOG`
+      if [ $? -eq 0 ]; then
+        FLGOPUS=`pkg-config opus --cflags`
+        INCOPUS=`strip_I "$FLGOPUS"`
+        LIBOPUS=`pkg-config opus --libs`
+      fi
+      cat > $ODIR.tmp_src.cc << EOF
+#include <cstdio>
+#include <opus/opus.h>
+extern "C" int main(void)
+{
+  OpusEncoder *test;
+  printf("found, OK.\n");
+}
+EOF
+      [ -n "$INCOPUS" ] && I_INCOPUS=`prefix_I "$INCOPUS"`
+      if test_compile "$LIBOPUS $I_INCOPUS" opus opus; then
+        if test_execute; then
+          cnf_append "SDK_VBOX_OPUS_INCS" "$INCOPUS"
+          cnf_append "SDK_VBOX_OPUS_LIBS" "`strip_l "$LIBOPUS"`"
+          fi
+      fi
+    fi
+  fi
+}
+
+
+#
 # Check for libvpx
 #
 check_vpx()
@@ -1963,7 +1969,7 @@ extern "C" int main(void)
 }
 EOF
   found=
-  SUPPYTHONLIBS="python2.7 python2.6 python3.1 python3.2 python3.3 python3.4 python3.4m python3.5 python3.5m"
+  SUPPYTHONLIBS="python2.7 python2.6 python3.1 python3.2 python3.3 python3.4 python3.4m python3.5 python3.5m python3.6 python3.6m"
   for p in $PYTHONDIR; do
     for d in $SUPPYTHONLIBS; do
       for b in lib/x86_64-linux-gnu lib/i386-linux-gnu lib64 lib/64 lib; do
@@ -2332,7 +2338,6 @@ Paths:
   --with-g++=PATH          location of the g++ compiler [$CXX]
   --with-kbuild=DIR        kbuild directory [$KBUILDDIR]
   --with-iasl=PATH         location of the iasl compiler [$IASL]
-  --with-mkisofs=PATH      location of mkisofs [$MKISOFS]
   --with-makeself=PATH     location of makeself [$MAKESELF]
 EOF
 [ "$OS"   = "darwin" ] && echo "  --with-xcode-dir=DIR     custom path to Xcode root directory; it is assumed that Xcode"
@@ -2465,9 +2470,6 @@ for option in "$@"; do
     --with-linux=*)
       LINUX=`echo $option | cut -d'=' -f2`
       ;;
-    --with-mkisofs=*)
-      MKISOFS=`echo $option | cut -d'=' -f2`
-      ;;
     --with-makeself=*)
       MAKESELF=`echo $option | cut -d'=' -f2`
       ;;
@@ -2533,6 +2535,9 @@ for option in "$@"; do
       ;;
     --enable-hardening)
       WITH_HARDENING=2
+      ;;
+    --build-libopus)
+      BUILD_LIBOPUS=1
       ;;
     --disable-udptunnel)
       WITH_UDPTUNNEL=0
@@ -2748,7 +2753,6 @@ if [ $ONLY_ADDITIONS -eq 0 ]; then
   # don't check for yasm for the time beeing as 0.40 and 0.50 both have known bugs
   # [ "$OS" != "darwin" ] && check_yasm
   [ "$OS" != "darwin"  ] && check_xsltproc
-  [ "$OS" != "darwin"  ] && check_mkisofs
 fi
 
 # the libraries
@@ -2759,6 +2763,7 @@ if [ $ONLY_ADDITIONS -eq 0 ]; then
   check_ssl
   check_curl
   [ $WITH_LIBVPX -eq 1 ] && check_vpx
+  check_libopus
  [ "$OS" != "darwin"  ] && check_z
   [ "$OS" != "darwin"  ] && check_png
   [ $OSE -eq 0 -a "$OS" = "linux" ] && check_pam

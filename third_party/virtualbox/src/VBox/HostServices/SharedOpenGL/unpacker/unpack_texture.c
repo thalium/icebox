@@ -326,6 +326,13 @@ void crUnpackExtendAreTexturesResident( void )
 {
     GLsizei n = READ_DATA( 8, GLsizei );
     const GLuint *textures = DATA_POINTER( 12, const GLuint );
+
+    if (n > UINT32_MAX / sizeof(GLuint) / 4 || !DATA_POINTER_CHECK(20 + n * sizeof(GLuint)))
+    {
+        crError("crUnpackExtendAreTexturesResident: %d is out of range", n);
+        return;
+    }
+
     SET_RETURN_PTR(12 + n * sizeof(GLuint));
     SET_WRITEBACK_PTR(20 + n * sizeof(GLuint));
     (void) cr_unpackDispatch.AreTexturesResident( n, textures, NULL );

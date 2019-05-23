@@ -150,8 +150,9 @@ ip_output0(PNATState pData, struct socket *so, struct mbuf *m0, int urg)
      */
     ip->ip_v = IPVERSION;
     ip->ip_off &= IP_DF;
-    ip->ip_id = RT_H2N_U16(ip_currid++);
+    ip->ip_id = RT_H2N_U16(ip_currid);
     ip->ip_hl = hlen >> 2;
+    ip_currid++;
     ipstat.ips_localout++;
 
     /* Current TCP/IP stack hasn't routing information at

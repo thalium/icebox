@@ -359,6 +359,7 @@ static int RTLDRELF_NAME(RelocateSectionExecDyn)(PRTLDRMODELF pModElf, Elf_Addr 
              * PC relative addressing.
              */
             case R_X86_64_PC32:
+            case R_X86_64_PLT32: /* binutils commit 451875b4f976a527395e9303224c7881b65e12ed feature/regression. */
             {
                 const Elf_Addr SourceAddr = SecAddr + paRels[iRel].r_offset + BaseAddr; /* Where the source really is. */
                 Value -= SourceAddr;
@@ -631,6 +632,7 @@ static int RTLDRELF_NAME(RelocateSection)(PRTLDRMODELF pModElf, Elf_Addr BaseAdd
              * PC relative addressing.
              */
             case R_X86_64_PC32:
+            case R_X86_64_PLT32: /* binutils commit 451875b4f976a527395e9303224c7881b65e12ed feature/regression. */
             {
                 const Elf_Addr SourceAddr = SecAddr + paRels[iRel].r_offset + BaseAddr; /* Where the source really is. */
                 const Elf_Addr Value = SymValue + paRels[iRel].r_addend - SourceAddr;

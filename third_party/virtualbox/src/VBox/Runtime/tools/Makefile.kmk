@@ -160,6 +160,11 @@ if !defined(VBOX_ONLY_BUILD)
  RTSignTool_SOURCES = RTSignTool.cpp
  RTSignTool_LIBS = $(PATH_STAGE_LIB)/SUPR3$(VBOX_SUFF_LIB)
 
+ # RTTraceLogTool - Trace log collection and dissection tool.
+ PROGRAMS += RTTraceLogTool
+ RTTraceLogTool_TEMPLATE = VBoxR3Tool
+ RTTraceLogTool_SOURCES = RTTraceLogTool.cpp
+
  if1of ($(KBUILD_TARGET), darwin linux solaris win)
   # RTKrnlModInfo - our lsmod/kextstat clone (for testing the RTKrnlMod code).
   PROGRAMS += RTKrnlModInfo

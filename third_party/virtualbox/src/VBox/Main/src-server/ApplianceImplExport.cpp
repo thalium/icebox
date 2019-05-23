@@ -2067,7 +2067,7 @@ HRESULT Appliance::i_writeFSOVA(TaskOVF *pTask, AutoWriteLockBase &writeLock)
                                      :                                          "vboxovf");
             RTZipTarFsStreamSetGroup(hVfsFssTar, VBOX_VERSION_MINOR,
                                      "vbox_v" RT_XSTR(VBOX_VERSION_MAJOR) "." RT_XSTR(VBOX_VERSION_MINOR) "."
-                                     RT_XSTR(VBOX_VERSION_PATCH) "r" RT_XSTR(VBOX_SVN_REV));
+                                     RT_XSTR(VBOX_VERSION_BUILD) "r" RT_XSTR(VBOX_SVN_REV));
 
             hrc = i_writeFSImpl(pTask, writeLock, hVfsFssTar);
             RTVfsFsStrmRelease(hVfsFssTar);
@@ -2207,7 +2207,7 @@ HRESULT Appliance::i_writeFSOPC(TaskOVF *pTask, AutoWriteLockBase &writeLock)
                 RTZipTarFsStreamSetOwner(hVfsFssTar, VBOX_VERSION_MAJOR, "vboxopc10");
                 RTZipTarFsStreamSetGroup(hVfsFssTar, VBOX_VERSION_MINOR,
                                          "vbox_v" RT_XSTR(VBOX_VERSION_MAJOR) "." RT_XSTR(VBOX_VERSION_MINOR) "."
-                                         RT_XSTR(VBOX_VERSION_PATCH) "r" RT_XSTR(VBOX_SVN_REV));
+                                         RT_XSTR(VBOX_VERSION_BUILD) "r" RT_XSTR(VBOX_SVN_REV));
 
                 /*
                  * Let the Medium code do the heavy work.

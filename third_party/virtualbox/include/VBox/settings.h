@@ -908,6 +908,8 @@ struct Hardware
     bool                fIBPBOnVMEntry;         //< added out of cycle, after 1.16 was out.
     bool                fSpecCtrl;              //< added out of cycle, after 1.16 was out.
     bool                fSpecCtrlByHost;        //< added out of cycle, after 1.16 was out.
+    bool                fL1DFlushOnSched ;      //< added out of cycle, after 1.16 was out.
+    bool                fL1DFlushOnVMEntry ;    //< added out of cycle, after 1.16 was out.
     typedef enum LongModeType { LongMode_Enabled, LongMode_Disabled, LongMode_Legacy } LongModeType;
     LongModeType        enmLongMode;
     uint32_t            cCPUs;

@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2006-2017 Oracle Corporation
+ * Copyright (C) 2006-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -412,7 +412,7 @@ RTDECL(int) RTCrStoreCertAddFromFile(RTCRSTORE hStore, uint32_t fFlags, const ch
         /*
          * No assume PEM or DER encoded binary certificate.
          */
-        else
+        else if (cbContent)
         {
             PCRTCRPEMSECTION pSectionHead;
             rc = RTCrPemParseContent(pvContent, cbContent,
@@ -441,6 +441,8 @@ RTDECL(int) RTCrStoreCertAddFromFile(RTCRSTORE hStore, uint32_t fFlags, const ch
                 RTCrPemFreeSections(pSectionHead);
             }
         }
+        else /* Will happen if proxy not set / no connection available. */
+            rc = RTErrInfoSetF(pErrInfo, VERR_EOF, "Certificate '%s' is empty", pszFilename);
         RTFileReadAllFree(pvContent, cbContent);
     }
     else
@@ -507,7 +509,7 @@ RTDECL(int) RTCrStoreCertAddWantedFromFile(RTCRSTORE hStore, uint32_t fFlags, co
         /*
          * No assume PEM or DER encoded binary certificate.  Inspect them one by one.
          */
-        else
+        else if (cbContent)
         {
             PCRTCRPEMSECTION pSectionHead;
             rc = RTCrPemParseContent(pvContent, cbContent,
@@ -592,6 +594,8 @@ RTDECL(int) RTCrStoreCertAddWantedFromFile(RTCRSTORE hStore, uint32_t fFlags, co
                 RTCrPemFreeSections(pSectionHead);
             }
         }
+        else /* Will happen if proxy not set / no connection available. */
+            rc = RTErrInfoSetF(pErrInfo, VERR_EOF, "Certificate '%s' is empty", pszFilename);
         RTFileReadAllFree(pvContent, cbContent);
     }
     else

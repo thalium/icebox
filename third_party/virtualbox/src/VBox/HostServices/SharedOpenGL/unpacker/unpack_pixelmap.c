@@ -5,6 +5,7 @@
  */
 
 #include "unpacker.h"
+#include "state/cr_bufferobject.h"
 
 void crUnpackPixelMapfv( void  )
 {
@@ -12,6 +13,9 @@ void crUnpackPixelMapfv( void  )
     GLsizei mapsize = READ_DATA( sizeof( int ) + 4, GLsizei );
     int nodata = READ_DATA( sizeof(int) + 8, int);
     GLfloat *values;
+
+    if (nodata && !crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB))
+        return;
 
     if (nodata)
         values = (GLfloat*) (uintptr_t) READ_DATA(sizeof(int) + 12, GLint);
@@ -29,6 +33,9 @@ void crUnpackPixelMapuiv( void  )
     int nodata = READ_DATA( sizeof(int) + 8, int);
     GLuint *values;
 
+    if (nodata && !crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB))
+        return;
+
     if (nodata)
         values = (GLuint*) (uintptr_t) READ_DATA(sizeof(int) + 12, GLint);
     else
@@ -44,6 +51,9 @@ void crUnpackPixelMapusv( void  )
     GLsizei mapsize = READ_DATA( sizeof( int ) + 4, GLsizei );
     int nodata = READ_DATA( sizeof(int) + 8, int);
     GLushort *values;
+
+    if (nodata && !crStateIsBufferBound(GL_PIXEL_UNPACK_BUFFER_ARB))
+        return;
 
     if (nodata)
         values = (GLushort*) (uintptr_t) READ_DATA(sizeof(int) + 12, GLint);
