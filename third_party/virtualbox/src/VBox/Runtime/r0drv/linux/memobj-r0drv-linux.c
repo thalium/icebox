@@ -295,7 +295,7 @@ static int rtR0MemObjLinuxAllocPages(PRTR0MEMOBJLNX *ppMemLnx, RTR0MEMOBJTYPE en
      * Allocate a memory object structure that's large enough to contain
      * the page pointer array.
      */
-    PRTR0MEMOBJLNX  pMemLnx = (PRTR0MEMOBJLNX)rtR0MemObjNew(RT_OFFSETOF(RTR0MEMOBJLNX, apPages[cPages]), enmType, NULL, cb);
+    PRTR0MEMOBJLNX  pMemLnx = (PRTR0MEMOBJLNX)rtR0MemObjNew(RT_UOFFSETOF_DYN(RTR0MEMOBJLNX, apPages[cPages]), enmType, NULL, cb);
     if (!pMemLnx)
         return VERR_NO_MEMORY;
     pMemLnx->cPages = cPages;
@@ -1055,7 +1055,7 @@ DECLHIDDEN(int) rtR0MemObjNativeLockUser(PPRTR0MEMOBJINTERNAL ppMem, RTR3PTR R3P
     /*
      * Allocate the memory object and a temporary buffer for the VMAs.
      */
-    pMemLnx = (PRTR0MEMOBJLNX)rtR0MemObjNew(RT_OFFSETOF(RTR0MEMOBJLNX, apPages[cPages]), RTR0MEMOBJTYPE_LOCK, (void *)R3Ptr, cb);
+    pMemLnx = (PRTR0MEMOBJLNX)rtR0MemObjNew(RT_UOFFSETOF_DYN(RTR0MEMOBJLNX, apPages[cPages]), RTR0MEMOBJTYPE_LOCK, (void *)R3Ptr, cb);
     if (!pMemLnx)
     {
         IPRT_LINUX_RESTORE_EFL_AC();
@@ -1220,7 +1220,7 @@ DECLHIDDEN(int) rtR0MemObjNativeLockKernel(PPRTR0MEMOBJINTERNAL ppMem, void *pv,
     /*
      * Allocate the memory object.
      */
-    pMemLnx = (PRTR0MEMOBJLNX)rtR0MemObjNew(RT_OFFSETOF(RTR0MEMOBJLNX, apPages[cPages]), RTR0MEMOBJTYPE_LOCK, pv, cb);
+    pMemLnx = (PRTR0MEMOBJLNX)rtR0MemObjNew(RT_UOFFSETOF_DYN(RTR0MEMOBJLNX, apPages[cPages]), RTR0MEMOBJTYPE_LOCK, pv, cb);
     if (!pMemLnx)
     {
         IPRT_LINUX_RESTORE_EFL_AC();

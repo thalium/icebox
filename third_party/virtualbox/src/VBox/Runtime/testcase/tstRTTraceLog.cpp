@@ -110,7 +110,7 @@ static RTTRACELOGEVTDESC g_EvtDesc =
  */
 static int tstRTTraceLogBufAlloc(size_t cbBuf, PTSTRTTRACELOGBUF *ppBuf)
 {
-    PTSTRTTRACELOGBUF pBuf = (PTSTRTTRACELOGBUF)RTMemAllocZ(RT_OFFSETOF(TSTRTTRACELOGBUF, abBuf[cbBuf]));
+    PTSTRTTRACELOGBUF pBuf = (PTSTRTTRACELOGBUF)RTMemAllocZ(RT_UOFFSETOF_DYN(TSTRTTRACELOGBUF, abBuf[cbBuf]));
     if (RT_LIKELY(pBuf))
     {
         pBuf->cbBuf  = cbBuf;

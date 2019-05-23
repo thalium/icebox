@@ -376,7 +376,7 @@ RTDECL(int) RTTimerCreateEx(PRTTIMER *ppTimer, uint64_t u64NanoInterval, uint32_
      * variable sized array of ticks counts, thus the size calculation.
      */
     PRTTIMER pTimer = (PRTTIMER)RTMemAllocZ(  (fFlags & RTTIMER_FLAGS_CPU_ALL) == RTTIMER_FLAGS_CPU_ALL
-                                            ? RT_OFFSETOF(RTTIMER, u.Omni.aPerCpu[RTMpGetCount()])
+                                            ? RT_UOFFSETOF_DYN(RTTIMER, u.Omni.aPerCpu[RTMpGetCount()])
                                             : sizeof(RTTIMER));
     if (!pTimer)
         return VERR_NO_MEMORY;

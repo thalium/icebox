@@ -948,7 +948,7 @@ static int pgmR0DynMapAddSeg(PPGMRZDYNMAP pThis, uint32_t cPages)
      * Allocate the segment structure and pages of memory, then touch all the pages (paranoia).
      */
     uint32_t cMaxPTs = cPages / (pThis->fLegacyMode ? X86_PG_ENTRIES : X86_PG_PAE_ENTRIES) + 2;
-    PPGMR0DYNMAPSEG pSeg = (PPGMR0DYNMAPSEG)RTMemAllocZ(RT_UOFFSETOF(PGMR0DYNMAPSEG, ahMemObjPTs[cMaxPTs]));
+    PPGMR0DYNMAPSEG pSeg = (PPGMR0DYNMAPSEG)RTMemAllocZ(RT_UOFFSETOF_DYN(PGMR0DYNMAPSEG, ahMemObjPTs[cMaxPTs]));
     if (!pSeg)
         return VERR_NO_MEMORY;
     pSeg->pNext  = NULL;

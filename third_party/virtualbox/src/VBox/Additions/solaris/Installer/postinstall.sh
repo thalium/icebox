@@ -158,12 +158,9 @@ if test ! -z "$xorgbin"; then
         # Exit as partially failed installation
         retval=2
     elif test ! -f "$vboxadditions32_path/$vboxvideo_src" && test ! -f "$vboxadditions64_path/$vboxvideo_src"; then
-        echo "*** $vboxadditions32_path/$vboxvideo_src or $vboxadditions64_path/$vboxvideo_src not found!"
-        echo "*** X.org $xorgversion not supported by this package!"
-        echo "*** Failed to install the VirtualBox X.org drivers."
-
-        # Exit as partially failed installation
-        retval=2
+        # Xorg 1.19 and later already contain a driver for vboxvideo.
+        echo "As of X.Org Server 1.19, the VirtualBox graphics driver (vboxvideo) is part"
+        echo "of Solaris.  Please install it from the package repository if necessary."
     else
         echo "Installing video driver for X.Org $xorgversion..."
 

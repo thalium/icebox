@@ -1592,7 +1592,7 @@ tcp_accept_syn(struct tcp_pcb *pcb, tcp_accept_syn_fn accept_syn)
   LWIP_ASSERT("invalid socket state for accept callback", pcb->state == LISTEN);
   lpcb = (struct tcp_pcb_listen *)pcb;
 
-  lpcb->accept = (tcp_accept_fn)accept_syn;
+  lpcb->accept = (tcp_accept_fn)(uintptr_t)accept_syn;
   lpcb->accept_on_syn = 1;
 }
 #endif /* LWIP_CONNECTION_PROXY */

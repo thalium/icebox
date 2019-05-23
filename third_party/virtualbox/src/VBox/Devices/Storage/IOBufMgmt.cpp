@@ -333,7 +333,7 @@ DECLHIDDEN(int) IOBUFMgrCreate(PIOBUFMGR phIoBufMgr, size_t cbMax, uint32_t fFla
     /* Allocate the basic structure in one go. */
     unsigned cBins = iobufMgrGetBinCount(IOBUFMGR_BIN_SIZE_MIN, IOBUFMGR_BIN_SIZE_MAX);
     uint32_t cObjs = iobufMgrGetObjCount(cbMax, cBins, IOBUFMGR_BIN_SIZE_MIN);
-    PIOBUFMGRINT pThis = (PIOBUFMGRINT)RTMemAllocZ(RT_OFFSETOF(IOBUFMGRINT, apvObj[cObjs]) + cBins * sizeof(IOBUFMGRBIN));
+    PIOBUFMGRINT pThis = (PIOBUFMGRINT)RTMemAllocZ(RT_UOFFSETOF_DYN(IOBUFMGRINT, apvObj[cObjs]) + cBins * sizeof(IOBUFMGRBIN));
     if (RT_LIKELY(pThis))
     {
         pThis->fFlags          = fFlags;
@@ -343,7 +343,7 @@ DECLHIDDEN(int) IOBUFMgrCreate(PIOBUFMGR phIoBufMgr, size_t cbMax, uint32_t fFla
         pThis->fAllocSuspended = false;
         pThis->u32OrderMin     = ASMBitLastSetU32(IOBUFMGR_BIN_SIZE_MIN) - 1;
         pThis->u32OrderMax     = ASMBitLastSetU32(IOBUFMGR_BIN_SIZE_MAX) - 1;
-        pThis->paBins = (PIOBUFMGRBIN)((uint8_t *)pThis + RT_OFFSETOF(IOBUFMGRINT, apvObj[cObjs]));
+        pThis->paBins = (PIOBUFMGRBIN)((uint8_t *)pThis + RT_UOFFSETOF_DYN(IOBUFMGRINT, apvObj[cObjs]));
 
 #ifdef IOBUFMGR_VERIFY_ALLOCATIONS
         pThis->pbmObjState = RTMemAllocZ((cbMax / IOBUFMGR_BIN_SIZE_MIN / 8) + 1);

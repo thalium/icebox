@@ -264,7 +264,7 @@ typedef RTTRACEBUFINT const *PCRTTRACEBUFINT;
     pEntry->idCpu  = RTTRACEBUF_CUR_CPU(); \
     pszBuf  = &pEntry->szMsg[0]; \
     *pszBuf = '\0'; \
-    cchBuf  = pThis->cbEntry - RT_OFFSETOF(RTTRACEBUFENTRY, szMsg) - 1; \
+    cchBuf  = pThis->cbEntry - RT_UOFFSETOF(RTTRACEBUFENTRY, szMsg) - 1; \
     rc      = VINF_SUCCESS
 
 

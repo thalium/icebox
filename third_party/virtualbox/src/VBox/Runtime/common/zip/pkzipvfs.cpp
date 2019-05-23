@@ -716,7 +716,7 @@ static int rtZipPkzipFssIosReadEocb(PRTZIPPKZIPFSSTREAM pThis)
                 if (eocd.u32Magic == RTZIPPKZIPENDOFCENTRDIRREC_MAGIC)
                 {
                     /* sanity check */
-                    if (off + RT_OFFSETOF(RTZIPPKZIPENDOFCENTRDIRREC, u8Comment) + eocd.cbComment == cbFile)
+                    if (off + RT_UOFFSETOF(RTZIPPKZIPENDOFCENTRDIRREC, u8Comment) + eocd.cbComment == cbFile)
                     {
                         pThis->offFirstCdh = eocd.offCentrDir;
                         pThis->offNextCdh = eocd.offCentrDir;

@@ -207,7 +207,7 @@ typedef struct RTLOGGERINTERNAL
 
 # ifdef IN_RING3
 /** The size of the RTLOGGERINTERNAL structure in ring-0.  */
-#  define RTLOGGERINTERNAL_R0_SIZE       RT_OFFSETOF(RTLOGGERINTERNAL, pfnPhase)
+#  define RTLOGGERINTERNAL_R0_SIZE       RT_UOFFSETOF(RTLOGGERINTERNAL, pfnPhase)
 AssertCompileMemberAlignment(RTLOGGERINTERNAL, hFile, sizeof(void *));
 AssertCompileMemberAlignment(RTLOGGERINTERNAL, cbHistoryFileMax, sizeof(uint64_t));
 # endif
@@ -803,7 +803,7 @@ RTDECL(int) RTLogCreateExV(PRTLOGGER *ppLogger, uint32_t fFlags, const char *psz
     /*
      * Allocate a logger instance.
      */
-    offInternal = RT_OFFSETOF(RTLOGGER, afGroups[cGroups]);
+    offInternal = RT_UOFFSETOF_DYN(RTLOGGER, afGroups[cGroups]);
     offInternal = RT_ALIGN_Z(offInternal, sizeof(uint64_t));
     cbLogger = offInternal + sizeof(RTLOGGERINTERNAL);
     if (fFlags & RTLOGFLAGS_RESTRICT_GROUPS)
@@ -1187,9 +1187,9 @@ RTDECL(int) RTLogCloneRC(PRTLOGGER pLogger, PRTLOGGERRC pLoggerRC, size_t cbLogg
     /*
      * Check if there's enough space for the groups.
      */
-    if (cbLoggerRC < (size_t)RT_OFFSETOF(RTLOGGERRC, afGroups[pLogger->cGroups]))
+    if (cbLoggerRC < (size_t)RT_UOFFSETOF_DYN(RTLOGGERRC, afGroups[pLogger->cGroups]))
     {
-        AssertMsgFailed(("%d req=%d cGroups=%d\n", cbLoggerRC, RT_OFFSETOF(RTLOGGERRC, afGroups[pLogger->cGroups]), pLogger->cGroups));
+        AssertMsgFailed(("%zu req=%zu cGroups=%d\n", cbLoggerRC, RT_UOFFSETOF_DYN(RTLOGGERRC, afGroups[pLogger->cGroups]), pLogger->cGroups));
         return VERR_BUFFER_OVERFLOW;
     }
     memcpy(&pLoggerRC->afGroups[0], &pLogger->afGroups[0], pLogger->cGroups * sizeof(pLoggerRC->afGroups[0]));
@@ -1336,7 +1336,7 @@ RT_EXPORT_SYMBOL(RTLogCreateForR0);
 
 RTDECL(size_t) RTLogCalcSizeForR0(uint32_t cGroups, uint32_t fFlags)
 {
-    size_t cb = RT_OFFSETOF(RTLOGGER, afGroups[cGroups]);
+    size_t cb = RT_UOFFSETOF_DYN(RTLOGGER, afGroups[cGroups]);
     cb = RT_ALIGN_Z(cb, sizeof(uint64_t));
     cb += sizeof(RTLOGGERINTERNAL);
     if (fFlags & RTLOGFLAGS_RESTRICT_GROUPS)
@@ -1381,7 +1381,7 @@ RTDECL(int) RTLogCopyGroupsAndFlagsForR0(PRTLOGGER pDstLogger, RTR0PTR pDstLogge
     if (cGroups > pDstInt->cMaxGroups)
     {
         AssertMsgFailed(("cMaxGroups=%zd cGroups=%zd (min size %d)\n", pDstInt->cMaxGroups,
-                         pSrcLogger->cGroups, RT_OFFSETOF(RTLOGGER, afGroups[pSrcLogger->cGroups]) + RTLOGGERINTERNAL_R0_SIZE));
+                         pSrcLogger->cGroups, RT_UOFFSETOF_DYN(RTLOGGER, afGroups[pSrcLogger->cGroups]) + RTLOGGERINTERNAL_R0_SIZE));
         rc = VERR_INVALID_PARAMETER;
         cGroups = pDstInt->cMaxGroups;
     }

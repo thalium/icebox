@@ -138,7 +138,7 @@ HRESULT BaseTextScript::save(const Utf8Str &rStrFilename, bool fOverwrite)
             strWithDefaultFilename.append(RTPATH_SLASH);
             strWithDefaultFilename.append(getDefaultFilename());
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc &)
         {
             return E_OUTOFMEMORY;
         }
@@ -152,7 +152,7 @@ HRESULT BaseTextScript::save(const Utf8Str &rStrFilename, bool fOverwrite)
     {
         mStrSavedPath = pszFilename;
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         return E_OUTOFMEMORY;
     }
@@ -244,7 +244,7 @@ HRESULT UnattendedScriptTemplate::saveToString(Utf8Str &rStrDst)
                 {
                     rStrDst.append(mStrScriptFullContent, offTemplate, cchToCopy);
                 }
-                catch (std::bad_alloc)
+                catch (std::bad_alloc &)
                 {
                     hrc = E_OUTOFMEMORY;
                     break;
@@ -310,7 +310,7 @@ HRESULT UnattendedScriptTemplate::saveToString(Utf8Str &rStrDst)
                         {
                             rStrDst.append(strValue);
                         }
-                        catch (std::bad_alloc)
+                        catch (std::bad_alloc &)
                         {
                             hrc = E_OUTOFMEMORY;
                             break;
@@ -464,7 +464,7 @@ HRESULT UnattendedScriptTemplate::getReplacement(const char *pachPlaceholder, si
                                     RTStrFree(pszEscaped);
                                     return S_OK;
                                 }
-                                catch (std::bad_alloc)
+                                catch (std::bad_alloc &)
                                 {
                                     hrc = E_OUTOFMEMORY;
                                 }
@@ -498,7 +498,7 @@ HRESULT UnattendedScriptTemplate::getReplacement(const char *pachPlaceholder, si
                 break;
         }
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         hrc = E_OUTOFMEMORY;
     }
@@ -655,7 +655,7 @@ HRESULT GeneralTextScript::parse()
     {
         mScriptContentByLines = mStrScriptFullContent.split("\n");
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         mScriptContentByLines.clear();
         return E_OUTOFMEMORY;
@@ -696,7 +696,7 @@ HRESULT GeneralTextScript::saveToString(Utf8Str &rStrDst)
             rStrDst.append(mScriptContentByLines[iLine]);
             rStrDst.append('\n');
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc &)
         {
             return E_OUTOFMEMORY;
         }
@@ -722,7 +722,7 @@ HRESULT GeneralTextScript::setContentOfLine(size_t idxLine, const Utf8Str &rStrN
     {
         mScriptContentByLines[idxLine] = rStrNewLine;
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         return E_OUTOFMEMORY;
     }
@@ -761,7 +761,7 @@ HRESULT GeneralTextScript::findAndReplace(size_t idxLine, const Utf8Str &rStrNee
             rDstString.append(rStrReplacement);
             rDstString.append(strAfter);
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc &)
         {
             return E_OUTOFMEMORY;
         }
@@ -779,7 +779,7 @@ HRESULT GeneralTextScript::appendToLine(size_t idxLine, const Utf8Str &rStrToApp
     {
         mScriptContentByLines[idxLine].append(rStrToAppend);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         return E_OUTOFMEMORY;
     }
@@ -801,7 +801,7 @@ HRESULT GeneralTextScript::prependToLine(size_t idxLine, const Utf8Str &rStrToPr
         rDstString = rStrToPrepend;
         rDstString.append(strCopy);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         return E_OUTOFMEMORY;
     }
@@ -837,7 +837,7 @@ HRESULT UnattendedSUSEXMLScript::parse()
                 LoopThruSections(pelmRoot);
                 hrc = S_OK;
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &)
             {
                 hrc = E_OUTOFMEMORY;
             }
@@ -863,7 +863,7 @@ HRESULT UnattendedSUSEXMLScript::setFieldInElement(xml::ElementNode *pElement, c
         {
             strProbableValue = createProbableValue(enmDataId, pElement);
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc &)
         {
             return E_OUTOFMEMORY;
         }

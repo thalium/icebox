@@ -875,7 +875,7 @@ static int vmmdevReqHandler_ReportGuestUserState(PVMMDEV pThis, VMMDevRequestHea
         /* pbDynamic marks the beginning of the struct's dynamically
          * allocated data area. */
         uint8_t *pbDynamic = (uint8_t *)&pReq->status.szUser;
-        uint32_t cbLeft    = pReqHdr->size - RT_OFFSETOF(VMMDevReportGuestUserState, status.szUser);
+        uint32_t cbLeft    = pReqHdr->size - RT_UOFFSETOF(VMMDevReportGuestUserState, status.szUser);
 
         /* The user. */
         AssertReturn(pReq->status.cbUser > 0, VERR_INVALID_PARAMETER); /* User name is required. */
@@ -1959,7 +1959,7 @@ static int vmmdevReqHandler_ChangeMemBalloon(PVMMDEV pThis, VMMDevRequestHeader 
     VMMDevChangeMemBalloon *pReq = (VMMDevChangeMemBalloon *)pReqHdr;
     AssertMsgReturn(pReq->header.size >= sizeof(*pReq), ("%u\n", pReq->header.size), VERR_INVALID_PARAMETER);
     AssertMsgReturn(pReq->cPages      == VMMDEV_MEMORY_BALLOON_CHUNK_PAGES, ("%u\n", pReq->cPages), VERR_INVALID_PARAMETER);
-    AssertMsgReturn(pReq->header.size == (uint32_t)RT_OFFSETOF(VMMDevChangeMemBalloon, aPhysPage[pReq->cPages]),
+    AssertMsgReturn(pReq->header.size == (uint32_t)RT_UOFFSETOF_DYN(VMMDevChangeMemBalloon, aPhysPage[pReq->cPages]),
                     ("%u\n", pReq->header.size), VERR_INVALID_PARAMETER);
 
     Log(("VMMDevReq_ChangeMemBalloon\n"));
@@ -2262,7 +2262,7 @@ static int vmmdevReqHandler_LogString(VMMDevRequestHeader *pReqHdr)
 {
     VMMDevReqLogString *pReq = (VMMDevReqLogString *)pReqHdr;
     AssertMsgReturn(pReq->header.size >= sizeof(*pReq), ("%u\n", pReq->header.size), VERR_INVALID_PARAMETER);
-    AssertMsgReturn(pReq->szString[pReq->header.size - RT_OFFSETOF(VMMDevReqLogString, szString) - 1] == '\0',
+    AssertMsgReturn(pReq->szString[pReq->header.size - RT_UOFFSETOF(VMMDevReqLogString, szString) - 1] == '\0',
                     ("not null terminated\n"), VERR_INVALID_PARAMETER);
 
     LogIt(RTLOGGRPFLAGS_LEVEL_1, LOG_GROUP_DEV_VMM_BACKDOOR, ("DEBUG LOG: %s", pReq->szString));
@@ -2308,7 +2308,7 @@ static int vmmdevReqHandler_RegisterSharedModule(PVMMDEV pThis, VMMDevRequestHea
     VMMDevSharedModuleRegistrationRequest *pReq = (VMMDevSharedModuleRegistrationRequest *)pReqHdr;
     AssertMsgReturn(pReq->header.size >= sizeof(VMMDevSharedModuleRegistrationRequest),
                     ("%u\n", pReq->header.size), VERR_INVALID_PARAMETER);
-    AssertMsgReturn(pReq->header.size == RT_UOFFSETOF(VMMDevSharedModuleRegistrationRequest, aRegions[pReq->cRegions]),
+    AssertMsgReturn(pReq->header.size == RT_UOFFSETOF_DYN(VMMDevSharedModuleRegistrationRequest, aRegions[pReq->cRegions]),
                     ("%u cRegions=%u\n", pReq->header.size, pReq->cRegions), VERR_INVALID_PARAMETER);
 
     AssertReturn(RTStrEnd(pReq->szName, sizeof(pReq->szName)), VERR_INVALID_PARAMETER);

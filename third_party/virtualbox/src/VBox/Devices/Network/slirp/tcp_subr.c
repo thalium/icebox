@@ -415,6 +415,8 @@ int tcp_fconnect(PNATState pData, struct socket *so)
 
         opt = 1;
         setsockopt(s, SOL_SOCKET, SO_OOBINLINE, (char *)&opt, sizeof(opt));
+        opt = 1;
+        setsockopt(s, IPPROTO_TCP, TCP_NODELAY, (char *)&opt, sizeof(opt));
 
         ret = sobind(pData, so);
         if (ret != 0)
@@ -550,10 +552,8 @@ tcp_connect(PNATState pData, struct socket *inso)
     setsockopt(s, SOL_SOCKET, SO_REUSEADDR,(char *)&opt, sizeof(int));
     opt = 1;
     setsockopt(s, SOL_SOCKET, SO_OOBINLINE,(char *)&opt, sizeof(int));
-#if 0
     opt = 1;
     setsockopt(s, IPPROTO_TCP, TCP_NODELAY,(char *)&opt, sizeof(int));
-#endif
 
     optlen = sizeof(int);
     status = getsockopt(s, SOL_SOCKET, SO_RCVBUF, (char *)&opt, &optlen);

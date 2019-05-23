@@ -1139,6 +1139,7 @@ typedef struct _VRDEENTRYPOINTS_3
 #define VRDE_QP_VIDEO_CHANNEL_QUALITY (6)
 #define VRDE_QP_VIDEO_CHANNEL_SUNFLSH (7)
 #define VRDE_QP_FEATURE           (8) /* VRDEFEATURE structure. Generic interface to query named VRDE properties. */
+#define VRDE_QP_UNIX_SOCKET_PATH  (9) /* Path to a UNIX Socket for incoming connections */
 
 #define VRDE_SP_BASE 0x1000
 #define VRDE_SP_NETWORK_BIND_PORT (VRDE_SP_BASE + 1) /* 32 bit. The port number actually used by the server.

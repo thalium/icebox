@@ -153,7 +153,7 @@ typedef enum DRVHOSTPARALLELR0OP
 } DRVHOSTPARALLELR0OP;
 
 /** Converts a pointer to DRVHOSTPARALLEL::IHostDeviceConnector to a PDRHOSTPARALLEL. */
-#define PDMIHOSTPARALLELCONNECTOR_2_DRVHOSTPARALLEL(pInterface) ( (PDRVHOSTPARALLEL)((uintptr_t)pInterface - RT_OFFSETOF(DRVHOSTPARALLEL, CTX_SUFF(IHostParallelConnector))) )
+#define PDMIHOSTPARALLELCONNECTOR_2_DRVHOSTPARALLEL(pInterface) ( (PDRVHOSTPARALLEL)((uintptr_t)pInterface - RT_UOFFSETOF(DRVHOSTPARALLEL, CTX_SUFF(IHostParallelConnector))) )
 
 
 /*********************************************************************************************************************************

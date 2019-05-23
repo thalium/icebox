@@ -27,7 +27,7 @@
 #include "Virtio.h"
 
 #define INSTANCE(pState) pState->szInstance
-#define IFACE_TO_STATE(pIface, ifaceName) ((VPCISTATE *)((char*)pIface - RT_OFFSETOF(VPCISTATE, ifaceName)))
+#define IFACE_TO_STATE(pIface, ifaceName) ((VPCISTATE *)((char*)(pIface) - RT_UOFFSETOF(VPCISTATE, ifaceName)))
 
 #ifdef LOG_ENABLED
 # define QUEUENAME(s, q) (q->pcszName)
@@ -57,7 +57,7 @@ static void vqueueInit(PVQUEUE pQueue, uint32_t uPageNumber)
     pQueue->VRing.addrAvail       = pQueue->VRing.addrDescriptors
         + sizeof(VRINGDESC) * pQueue->VRing.uSize;
     pQueue->VRing.addrUsed        = RT_ALIGN(
-        pQueue->VRing.addrAvail + RT_OFFSETOF(VRINGAVAIL, auRing[pQueue->VRing.uSize]),
+        pQueue->VRing.addrAvail + RT_UOFFSETOF_DYN(VRINGAVAIL, auRing[pQueue->VRing.uSize]),
         PAGE_SIZE); /* The used ring must start from the next page. */
     pQueue->uNextAvailIndex       = 0;
     pQueue->uNextUsedIndex        = 0;
@@ -80,7 +80,7 @@ uint16_t vringReadAvail(PVPCISTATE pState, PVRING pVRing, uint32_t uIndex)
     uint16_t tmp;
 
     PDMDevHlpPhysRead(pState->CTX_SUFF(pDevIns),
-                      pVRing->addrAvail + RT_OFFSETOF(VRINGAVAIL, auRing[uIndex % pVRing->uSize]),
+                      pVRing->addrAvail + RT_UOFFSETOF_DYN(VRINGAVAIL, auRing[uIndex % pVRing->uSize]),
                       &tmp, sizeof(tmp));
     return tmp;
 }
@@ -90,7 +90,7 @@ uint16_t vringReadAvailFlags(PVPCISTATE pState, PVRING pVRing)
     uint16_t tmp;
 
     PDMDevHlpPhysRead(pState->CTX_SUFF(pDevIns),
-                      pVRing->addrAvail + RT_OFFSETOF(VRINGAVAIL, uFlags),
+                      pVRing->addrAvail + RT_UOFFSETOF(VRINGAVAIL, uFlags),
                       &tmp, sizeof(tmp));
     return tmp;
 }
@@ -100,7 +100,7 @@ void vringSetNotification(PVPCISTATE pState, PVRING pVRing, bool fEnabled)
     uint16_t tmp;
 
     PDMDevHlpPhysRead(pState->CTX_SUFF(pDevIns),
-                      pVRing->addrUsed + RT_OFFSETOF(VRINGUSED, uFlags),
+                      pVRing->addrUsed + RT_UOFFSETOF(VRINGUSED, uFlags),
                       &tmp, sizeof(tmp));
 
     if (fEnabled)
@@ -109,7 +109,7 @@ void vringSetNotification(PVPCISTATE pState, PVRING pVRing, bool fEnabled)
         tmp |= VRINGUSED_F_NO_NOTIFY;
 
     PDMDevHlpPCIPhysWrite(pState->CTX_SUFF(pDevIns),
-                          pVRing->addrUsed + RT_OFFSETOF(VRINGUSED, uFlags),
+                          pVRing->addrUsed + RT_UOFFSETOF(VRINGUSED, uFlags),
                           &tmp, sizeof(tmp));
 }
 
@@ -196,7 +196,7 @@ uint16_t vringReadUsedIndex(PVPCISTATE pState, PVRING pVRing)
 {
     uint16_t tmp;
     PDMDevHlpPhysRead(pState->CTX_SUFF(pDevIns),
-                      pVRing->addrUsed + RT_OFFSETOF(VRINGUSED, uIndex),
+                      pVRing->addrUsed + RT_UOFFSETOF(VRINGUSED, uIndex),
                       &tmp, sizeof(tmp));
     return tmp;
 }
@@ -204,7 +204,7 @@ uint16_t vringReadUsedIndex(PVPCISTATE pState, PVRING pVRing)
 void vringWriteUsedIndex(PVPCISTATE pState, PVRING pVRing, uint16_t u16Value)
 {
     PDMDevHlpPCIPhysWrite(pState->CTX_SUFF(pDevIns),
-                          pVRing->addrUsed + RT_OFFSETOF(VRINGUSED, uIndex),
+                          pVRing->addrUsed + RT_UOFFSETOF(VRINGUSED, uIndex),
                           &u16Value, sizeof(u16Value));
 }
 
@@ -215,7 +215,7 @@ void vringWriteUsedElem(PVPCISTATE pState, PVRING pVRing, uint32_t uIndex, uint3
     elem.uId = uId;
     elem.uLen = uLen;
     PDMDevHlpPCIPhysWrite(pState->CTX_SUFF(pDevIns),
-                          pVRing->addrUsed + RT_OFFSETOF(VRINGUSED, aRing[uIndex % pVRing->uSize]),
+                          pVRing->addrUsed + RT_UOFFSETOF_DYN(VRINGUSED, aRing[uIndex % pVRing->uSize]),
                           &elem, sizeof(elem));
 }
 

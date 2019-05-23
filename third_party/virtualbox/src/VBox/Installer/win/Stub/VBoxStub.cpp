@@ -432,7 +432,7 @@ static bool PackageIsNeeded(PVBOXSTUBPKG pPackage)
 static bool AddCleanupRec(const char *pszPath, bool fFile)
 {
     size_t cchPath = strlen(pszPath); Assert(cchPath > 0);
-    PSTUBCLEANUPREC pRec = (PSTUBCLEANUPREC)RTMemAlloc(RT_OFFSETOF(STUBCLEANUPREC, szPath[cchPath + 1]));
+    PSTUBCLEANUPREC pRec = (PSTUBCLEANUPREC)RTMemAlloc(RT_UOFFSETOF_DYN(STUBCLEANUPREC, szPath[cchPath + 1]));
     if (!pRec)
     {
         ShowError("Out of memory!");

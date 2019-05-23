@@ -28,9 +28,9 @@
 
 //#define CR_SERVER_WITH_CLIENT_CALLOUTS
 
-#define PCR_FBTEX_FROM_TEX(_pTex) ((CR_FBTEX*)((uint8_t*)(_pTex) - RT_OFFSETOF(CR_FBTEX, Tex)))
-#define PCR_FRAMEBUFFER_FROM_COMPOSITOR(_pCompositor) ((CR_FRAMEBUFFER*)((uint8_t*)(_pCompositor) - RT_OFFSETOF(CR_FRAMEBUFFER, Compositor)))
-#define PCR_FBENTRY_FROM_ENTRY(_pEntry) ((CR_FRAMEBUFFER_ENTRY*)((uint8_t*)(_pEntry) - RT_OFFSETOF(CR_FRAMEBUFFER_ENTRY, Entry)))
+#define PCR_FBTEX_FROM_TEX(_pTex) ((CR_FBTEX*)((uint8_t*)(_pTex) - RT_UOFFSETOF(CR_FBTEX, Tex)))
+#define PCR_FRAMEBUFFER_FROM_COMPOSITOR(_pCompositor) ((CR_FRAMEBUFFER*)((uint8_t*)(_pCompositor) - RT_UOFFSETOF(CR_FRAMEBUFFER, Compositor)))
+#define PCR_FBENTRY_FROM_ENTRY(_pEntry) ((CR_FRAMEBUFFER_ENTRY*)((uint8_t*)(_pEntry) - RT_UOFFSETOF(CR_FRAMEBUFFER_ENTRY, Entry)))
 
 
 static int crPMgrFbConnectTargetDisplays(HCR_FRAMEBUFFER hFb, CR_FBDISPLAY_INFO *pDpInfo, uint32_t u32ModeAdd);
@@ -3388,13 +3388,13 @@ static int8_t crVBoxServerCrCmdBltPrimaryProcess(const VBOXCMDVBVA_BLT_PRIMARY *
 
     uint32_t cRects;
     const VBOXCMDVBVA_RECT *pPRects = pCmd->aRects;
-    if ((cbCmd - RT_OFFSETOF(VBOXCMDVBVA_BLT_PRIMARY, aRects)) % sizeof (VBOXCMDVBVA_RECT))
+    if ((cbCmd - RT_UOFFSETOF(VBOXCMDVBVA_BLT_PRIMARY, aRects)) % sizeof (VBOXCMDVBVA_RECT))
     {
         WARN(("invalid argument size"));
         return -1;
     }
 
-    cRects = (cbCmd - RT_OFFSETOF(VBOXCMDVBVA_BLT_PRIMARY, aRects)) / sizeof (VBOXCMDVBVA_RECT);
+    cRects = (cbCmd - RT_UOFFSETOF(VBOXCMDVBVA_BLT_PRIMARY, aRects)) / sizeof (VBOXCMDVBVA_RECT);
 
     RTRECT *pRects = crVBoxServerCrCmdBltRecsUnpack(pPRects, cRects);
     if (!pRects)
@@ -3649,13 +3649,13 @@ static int8_t crVBoxServerCrCmdBltOffIdProcess(const VBOXCMDVBVA_BLT_OFFPRIMSZFM
 {
     uint32_t cRects;
     const VBOXCMDVBVA_RECT *pPRects = pCmd->aRects;
-    if ((cbCmd - RT_OFFSETOF(VBOXCMDVBVA_BLT_OFFPRIMSZFMT_OR_ID, aRects)) % sizeof (VBOXCMDVBVA_RECT))
+    if ((cbCmd - RT_UOFFSETOF(VBOXCMDVBVA_BLT_OFFPRIMSZFMT_OR_ID, aRects)) % sizeof (VBOXCMDVBVA_RECT))
     {
         WARN(("invalid argument size"));
         return -1;
     }
 
-    cRects = (cbCmd - RT_OFFSETOF(VBOXCMDVBVA_BLT_OFFPRIMSZFMT_OR_ID, aRects)) / sizeof (VBOXCMDVBVA_RECT);
+    cRects = (cbCmd - RT_UOFFSETOF(VBOXCMDVBVA_BLT_OFFPRIMSZFMT_OR_ID, aRects)) / sizeof (VBOXCMDVBVA_RECT);
 
     RTRECT *pRects = crVBoxServerCrCmdBltRecsUnpack(pPRects, cRects);
     if (!pRects)
@@ -3697,13 +3697,13 @@ static int8_t crVBoxServerCrCmdBltSameDimOrId(const VBOXCMDVBVA_BLT_SAMEDIM_A8R8
 {
     uint32_t cRects;
     const VBOXCMDVBVA_RECT *pPRects = pCmd->aRects;
-    if ((cbCmd - RT_OFFSETOF(VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8, aRects)) % sizeof (VBOXCMDVBVA_RECT))
+    if ((cbCmd - RT_UOFFSETOF(VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8, aRects)) % sizeof (VBOXCMDVBVA_RECT))
     {
         WARN(("invalid argument size"));
         return -1;
     }
 
-    cRects = (cbCmd - RT_OFFSETOF(VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8, aRects)) / sizeof (VBOXCMDVBVA_RECT);
+    cRects = (cbCmd - RT_UOFFSETOF(VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8, aRects)) / sizeof (VBOXCMDVBVA_RECT);
 
     RTRECT *pRects = crVBoxServerCrCmdBltRecsUnpack(pPRects, cRects);
     if (!pRects)
@@ -3766,13 +3766,13 @@ static int8_t crVBoxServerCrCmdBltGenericBGRAProcess(const VBOXCMDVBVA_BLT_GENER
 {
     uint32_t cRects;
     const VBOXCMDVBVA_RECT *pPRects = pCmd->aRects;
-    if ((cbCmd - RT_OFFSETOF(VBOXCMDVBVA_BLT_GENERIC_A8R8G8B8, aRects)) % sizeof (VBOXCMDVBVA_RECT))
+    if ((cbCmd - RT_UOFFSETOF(VBOXCMDVBVA_BLT_GENERIC_A8R8G8B8, aRects)) % sizeof (VBOXCMDVBVA_RECT))
     {
         WARN(("invalid argument size"));
         return -1;
     }
 
-    cRects = (cbCmd - RT_OFFSETOF(VBOXCMDVBVA_BLT_GENERIC_A8R8G8B8, aRects)) / sizeof (VBOXCMDVBVA_RECT);
+    cRects = (cbCmd - RT_UOFFSETOF(VBOXCMDVBVA_BLT_GENERIC_A8R8G8B8, aRects)) / sizeof (VBOXCMDVBVA_RECT);
 
     RTRECT *pRects = crVBoxServerCrCmdBltRecsUnpack(pPRects, cRects);
     if (!pRects)
@@ -3861,13 +3861,13 @@ static int8_t crVBoxServerCrCmdClrFillGenericBGRAProcess(const VBOXCMDVBVA_CLRFI
 {
     uint32_t cRects;
     const VBOXCMDVBVA_RECT *pPRects = pCmd->aRects;
-    if ((cbCmd - RT_OFFSETOF(VBOXCMDVBVA_CLRFILL_GENERIC_A8R8G8B8, aRects)) % sizeof (VBOXCMDVBVA_RECT))
+    if ((cbCmd - RT_UOFFSETOF(VBOXCMDVBVA_CLRFILL_GENERIC_A8R8G8B8, aRects)) % sizeof (VBOXCMDVBVA_RECT))
     {
         WARN(("invalid argument size"));
         return -1;
     }
 
-    cRects = (cbCmd - RT_OFFSETOF(VBOXCMDVBVA_CLRFILL_GENERIC_A8R8G8B8, aRects)) / sizeof (VBOXCMDVBVA_RECT);
+    cRects = (cbCmd - RT_UOFFSETOF(VBOXCMDVBVA_CLRFILL_GENERIC_A8R8G8B8, aRects)) / sizeof (VBOXCMDVBVA_RECT);
 
     RTRECT *pRects = crVBoxServerCrCmdBltRecsUnpack(pPRects, cRects);
     if (!pRects)

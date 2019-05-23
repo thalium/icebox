@@ -57,7 +57,7 @@ RTDECL(int) RTDirCreate(const char *pszPath, RTFMODE fMode, uint32_t fCreate)
          * Convert to UTF-16.
          */
         PRTUTF16 pwszString;
-        rc = RTStrToUtf16(pszPath, &pwszString);
+        rc = RTPathWinFromUtf8(&pwszString, pszPath, 0 /*fFlags*/);
         AssertRC(rc);
         if (RT_SUCCESS(rc))
         {
@@ -88,7 +88,7 @@ RTDECL(int) RTDirCreate(const char *pszPath, RTFMODE fMode, uint32_t fCreate)
                     rc = RTErrConvertFromWin32(GetLastError());
             }
 
-            RTUtf16Free(pwszString);
+            RTPathWinFree(pwszString);
         }
     }
     else
@@ -108,7 +108,7 @@ RTDECL(int) RTDirRemove(const char *pszPath)
      * Convert to UTF-16.
      */
     PRTUTF16 pwszString;
-    int rc = RTStrToUtf16(pszPath, &pwszString);
+    int rc = RTPathWinFromUtf8(&pwszString, pszPath, 0 /*fFlags*/);
     AssertRC(rc);
     if (RT_SUCCESS(rc))
     {
@@ -120,7 +120,7 @@ RTDECL(int) RTDirRemove(const char *pszPath)
         else
             rc = RTErrConvertFromWin32(GetLastError());
 
-        RTUtf16Free(pwszString);
+        RTPathWinFree(pwszString);
     }
 
     LogFlow(("RTDirRemove(%p:{%s}): returns %Rrc\n", pszPath, pszPath, rc));

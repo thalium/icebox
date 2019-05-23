@@ -224,7 +224,7 @@ int pgmR3PoolInit(PVM pVM)
     /*
      * Allocate the data structures.
      */
-    uint32_t cb = RT_OFFSETOF(PGMPOOL, aPages[cMaxPages]);
+    uint32_t cb = RT_UOFFSETOF_DYN(PGMPOOL, aPages[cMaxPages]);
     cb += cMaxUsers * sizeof(PGMPOOLUSER);
     cb += cMaxPhysExts * sizeof(PGMPOOLPHYSEXT);
     PPGMPOOL pPool;

@@ -271,9 +271,9 @@ RTCString *VBoxExtPackLoadDesc(const char *a_pszDir, PVBOXEXTPACKDESC a_pExtPack
         {
             Parser.read(szFilePath, Doc);
         }
-        catch (xml::XmlError Err)
+        catch (xml::XmlError &rErr)
         {
-            return new RTCString(Err.what());
+            return new RTCString(rErr.what());
         }
     }
 
@@ -344,9 +344,9 @@ RTCString *VBoxExtPackLoadDescFromVfsFile(RTVFSFILE hVfsFile, PVBOXEXTPACKDESC a
         {
             Parser.read(pvFile, cbFile, strFileName, Doc);
         }
-        catch (xml::XmlError Err)
+        catch (xml::XmlError &rErr)
         {
-            pstrErr = new RTCString(Err.what());
+            pstrErr = new RTCString(rErr.what());
             rc = VERR_PARSE_ERROR;
         }
     }
@@ -861,7 +861,7 @@ static int vboxExtPackVerifyFileDigest(RTMANIFEST hFileManifest, const char *psz
                 {
                     *pStrDigest = szCalculatedDigest;
                 }
-                catch (std::bad_alloc)
+                catch (std::bad_alloc &)
                 {
                     rc = VERR_NO_MEMORY;
                 }

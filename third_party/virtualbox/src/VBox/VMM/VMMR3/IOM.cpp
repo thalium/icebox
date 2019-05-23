@@ -167,7 +167,7 @@ VMMR3_INT_DECL(int) IOMR3Init(PVM pVM)
     /*
      * Setup any fixed pointers and offsets.
      */
-    pVM->iom.s.offVM = RT_OFFSETOF(VM, iom);
+    pVM->iom.s.offVM = RT_UOFFSETOF(VM, iom);
 
     /*
      * Initialize the REM critical section.

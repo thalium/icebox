@@ -5494,6 +5494,62 @@ HRESULT Console::i_sendACPIMonitorHotPlugEvent()
     return rc;
 }
 
+#ifdef VBOX_WITH_VIDEOREC
+/**
+ * Enables or disables video (audio) capturing of a VM.
+ *
+ * @returns IPRT status code. Will return VERR_NO_CHANGE if the capturing state has not been changed.
+ * @param   fEnable             Whether to enable or disable the capturing.
+ * @param   pAutoLock           Pointer to auto write lock to use for attaching/detaching required driver(s) at runtime.
+ */
+int Console::i_videoCaptureEnable(BOOL fEnable, util::AutoWriteLock *pAutoLock)
+{
+    AssertPtrReturn(pAutoLock, VERR_INVALID_POINTER);
+
+    int vrc = VINF_SUCCESS;
+
+    Display *pDisplay = i_getDisplay();
+    if (pDisplay)
+    {
+        if (RT_BOOL(fEnable) != pDisplay->i_videoRecStarted())
+        {
+            LogRel(("VideoRec: %s\n", fEnable ? "Enabling" : "Disabling"));
+
+            pDisplay->i_videoRecInvalidate();
+
+            if (fEnable)
+            {
+# ifdef VBOX_WITH_AUDIO_VIDEOREC
+                /* Attach the video recording audio driver if required. */
+                if (   pDisplay->i_videoRecGetFeatures() & VIDEORECFEATURE_AUDIO
+                    && mAudioVideoRec)
+                    vrc = mAudioVideoRec->doAttachDriverViaEmt(mpUVM, pAutoLock);
+# endif
+                if (   RT_SUCCESS(vrc)
+                    && pDisplay->i_videoRecGetFeatures()) /* Any video recording (audio and/or video) feature enabled? */
+                {
+                    vrc = pDisplay->i_videoRecStart();
+                }
+            }
+            else
+            {
+                mDisplay->i_videoRecStop();
+# ifdef VBOX_WITH_AUDIO_VIDEOREC
+                mAudioVideoRec->doDetachDriverViaEmt(mpUVM, pAutoLock);
+# endif
+            }
+
+            if (RT_FAILURE(vrc))
+                LogRel(("VideoRec: %s failed with %Rrc\n", fEnable ? "Enabling" : "Disabling", vrc));
+        }
+        else /* Should not happen. */
+            vrc = VERR_NO_CHANGE;
+    }
+
+    return vrc;
+}
+#endif /* VBOX_WITH_VIDEOREC */
+
 HRESULT Console::i_onVideoCaptureChange()
 {
     AutoCaller autoCaller(this);
@@ -5502,61 +5558,25 @@ HRESULT Console::i_onVideoCaptureChange()
     AutoWriteLock alock(this COMMA_LOCKVAL_SRC_POS);
 
     HRESULT rc = S_OK;
-
 #ifdef VBOX_WITH_VIDEOREC
     /* Don't trigger video capture changes if the VM isn't running. */
     SafeVMPtrQuiet ptrVM(this);
     if (ptrVM.isOk())
     {
-        if (mDisplay)
+        BOOL fEnabled;
+        rc = mMachine->COMGETTER(VideoCaptureEnabled)(&fEnabled);
+        AssertComRCReturnRC(rc);
+
+        int vrc = i_videoCaptureEnable(fEnabled, &alock);
+        if (RT_SUCCESS(vrc))
         {
-            Display *pDisplay = mDisplay;
-            AssertPtr(pDisplay);
-
-            BOOL fEnabled;
-            rc = mMachine->COMGETTER(VideoCaptureEnabled)(&fEnabled);
-            AssertComRCReturnRC(rc);
-
-            if (fEnabled)
-            {
-	            const PVIDEORECCFG pCfg = pDisplay->i_videoRecGetConfig();
-# ifdef VBOX_WITH_AUDIO_VIDEOREC
-	            const unsigned     uLUN = pCfg->Audio.uLUN; /* Get the currently configured LUN. */
-# else
-	            const unsigned     uLUN = 0;
-# endif
-	            /* Release lock because the call scheduled on EMT may also try to take it. */
-	            alock.release();
-
-	            int vrc = VMR3ReqCallWaitU(ptrVM.rawUVM(), VMCPUID_ANY /*idDstCpu*/,
-	                                       (PFNRT)Display::i_videoRecConfigure, 4,
-	                                       pDisplay, pCfg, true /* fAttachDetach */, &uLUN);
-	            if (RT_SUCCESS(vrc))
-	            {
-	                /* Make sure to acquire the lock again after we're done running in EMT. */
-	                alock.acquire();
-
-                    vrc = mDisplay->i_videoRecStart();
-                    if (RT_FAILURE(vrc))
-                        rc = setError(E_FAIL, tr("Unable to start video capturing (%Rrc)"), vrc);
-	            }
-	            else
-	                rc = setError(E_FAIL, tr("Unable to set screens for capturing (%Rrc)"), vrc);
-	    	}
-	    	else
-	    	    mDisplay->i_videoRecStop();
+            alock.release();
+            fireVideoCaptureChangedEvent(mEventSource);
         }
 
         ptrVM.release();
     }
 #endif /* VBOX_WITH_VIDEOREC */
-
-    /* Notify console callbacks on success. */
-    if (SUCCEEDED(rc))
-    {
-        alock.release();
-        fireVideoCaptureChangedEvent(mEventSource);
-    }
 
     return rc;
 }
@@ -9841,6 +9861,44 @@ void Console::i_powerUpThreadTask(VMPowerUpTask *pTask)
 
         /* Enable client connections to the server. */
         pConsole->i_consoleVRDPServer()->EnableConnections();
+
+#ifdef VBOX_WITH_AUDIO_VRDE
+        /* Attach the VRDE audio driver. */
+        IVRDEServer *pVRDEServer = pConsole->i_getVRDEServer();
+        if (pVRDEServer)
+        {
+            BOOL fVRDEEnabled = FALSE;
+            rc = pVRDEServer->COMGETTER(Enabled)(&fVRDEEnabled);
+            AssertComRCReturnVoid(rc);
+
+            if (   fVRDEEnabled
+                && pConsole->mAudioVRDE)
+                pConsole->mAudioVRDE->doAttachDriverViaEmt(pConsole->mpUVM, &alock);
+        }
+#endif
+
+        /* Enable client connections to the VRDP server. */
+        pConsole->i_consoleVRDPServer()->EnableConnections();
+
+#ifdef VBOX_WITH_VIDEOREC
+        BOOL fVideoRecEnabled = FALSE;
+        rc = pConsole->mMachine->COMGETTER(VideoCaptureEnabled)(&fVideoRecEnabled);
+        AssertComRCReturnVoid(rc);
+
+        if (fVideoRecEnabled)
+        {
+            int vrc2 = pConsole->i_videoCaptureEnable(fVideoRecEnabled, &alock);
+            if (RT_SUCCESS(vrc2))
+            {
+                fireVideoCaptureChangedEvent(pConsole->mEventSource);
+            }
+            else
+               LogRel(("VideoRec: Failed with %Rrc on VM power up\n", vrc2));
+
+            /** Note: Do not use vrc here, as starting the video recording isn't critical to
+             *        powering up the VM. */
+        }
+#endif
 
         if (RT_SUCCESS(vrc))
         {

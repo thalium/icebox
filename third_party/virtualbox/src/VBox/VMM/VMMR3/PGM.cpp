@@ -1250,8 +1250,8 @@ VMMR3DECL(int) PGMR3Init(PVM pVM)
     /*
      * Init the structure.
      */
-    pVM->pgm.s.offVM       = RT_OFFSETOF(VM, pgm.s);
-    pVM->pgm.s.offVCpuPGM  = RT_OFFSETOF(VMCPU, pgm.s);
+    pVM->pgm.s.offVM       = RT_UOFFSETOF(VM, pgm.s);
+    pVM->pgm.s.offVCpuPGM  = RT_UOFFSETOF(VMCPU, pgm.s);
     /*pVM->pgm.s.fRestoreRomPagesAtReset = false;*/
 
     for (unsigned i = 0; i < RT_ELEMENTS(pVM->pgm.s.aHandyPages); i++)
@@ -1275,7 +1275,7 @@ VMMR3DECL(int) PGMR3Init(PVM pVM)
         PPGMCPU pPGM = &pVCpu->pgm.s;
 
         pPGM->offVM      = (uintptr_t)&pVCpu->pgm.s - (uintptr_t)pVM;
-        pPGM->offVCpu    = RT_OFFSETOF(VMCPU, pgm.s);
+        pPGM->offVCpu    = RT_UOFFSETOF(VMCPU, pgm.s);
         pPGM->offPGM     = (uintptr_t)&pVCpu->pgm.s - (uintptr_t)&pVM->pgm.s;
 
         pPGM->enmShadowMode    = PGMMODE_INVALID;
@@ -4128,11 +4128,11 @@ static DECLCALLBACK(int) pgmR3CheckIntegrityVirtHandlerNode(PAVLROGCPTRNODECORE 
                       pCur, pCur->Core.Key, pCur->Core.KeyLast, pCur->pszDesc));
     for (unsigned iPage = 0; iPage < pCur->cPages; iPage++)
     {
-        AssertReleaseMsg(pCur->aPhysToVirt[iPage].offVirtHandler == -RT_OFFSETOF(PGMVIRTHANDLER, aPhysToVirt[iPage]),
+        AssertReleaseMsg(pCur->aPhysToVirt[iPage].offVirtHandler == -(intptr_t)RT_UOFFSETOF_DYN(PGMVIRTHANDLER, aPhysToVirt[iPage]),
                          ("pCur=%p %RGv-%RGv %s\n"
                           "iPage=%d offVirtHandle=%#x expected %#x\n",
                           pCur, pCur->Core.Key, pCur->Core.KeyLast, pCur->pszDesc,
-                          iPage, pCur->aPhysToVirt[iPage].offVirtHandler, -RT_OFFSETOF(PGMVIRTHANDLER, aPhysToVirt[iPage])));
+                          iPage, pCur->aPhysToVirt[iPage].offVirtHandler, -(intptr_t)RT_UOFFSETOF_DYN(PGMVIRTHANDLER, aPhysToVirt[iPage])));
     }
     pArgs->pPrevVirt = pCur;
     return 0;

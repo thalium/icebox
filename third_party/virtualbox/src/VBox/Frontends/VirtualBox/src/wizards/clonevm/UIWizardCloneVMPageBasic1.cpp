@@ -64,6 +64,7 @@ UIWizardCloneVMPageBasic1::UIWizardCloneVMPageBasic1(const QString &strOriginalN
             m_pNameEditor->setText(UIWizardCloneVM::tr("%1 Clone").arg(m_strOriginalName));
         }
         m_pReinitMACsCheckBox = new QCheckBox(this);
+        m_pReinitMACsCheckBox->setChecked(true);
         pMainLayout->addWidget(m_pLabel);
         pMainLayout->addWidget(m_pNameEditor);
         pMainLayout->addWidget(m_pReinitMACsCheckBox);
@@ -103,4 +104,3 @@ bool UIWizardCloneVMPageBasic1::isComplete() const
     QString strName = m_pNameEditor->text().trimmed();
     return !strName.isEmpty() && strName != m_strOriginalName;
 }
-

@@ -28,6 +28,144 @@ are ordered as follows:
                            So, we use chapter and xpointer="xpointer(/chapter/)" with xi:include. -->
 
    <sect1>
+    <title>Version 5.2.22 (2018-11-09)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>Audio: fixed a regression in the Core Audio backend causing a hang
+          when returning from host sleep when processing input buffers</para>
+      </listitem>
+
+      <listitem>
+        <para>Audio: fixed a potential crash in the HDA emulation if a stream has
+          no valid mixer sink attached -- thanks to Rink Springer (rink@rink.nu)</para>
+      </listitem>
+
+      <listitem>
+        <para>Windows hosts: fixed an incompatibility with recent versions
+           of Windows 10 (bug #17977)</para>
+      </listitem>
+
+      <listitem>
+        <para>Windows hosts: fixed a number of brigded networking driver
+           crashes (bug #18046)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Additions: disable 3D for recent guests using Wayland
+           (bug #18116)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Additions: fix for rebuilding kernel modules for new
+           kernels on RPM guests</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Additions: further fixes for Linux 4.19</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Additions: fixed errors rebuilding initrd files
+           with dracut on EL 6 (bug 18055#)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Additions: fixed 5.2.20 regression: guests not
+           remembering the screen size after shutdown and restart
+           (bug #18078)</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
+    <title>Version 5.2.20 (2018-10-16)</title>
+
+    <para>This is a maintenance release. The following items were fixed and/or
+      added:</para>
+
+    <itemizedlist>
+
+      <listitem>
+        <para>VMM: fixed task switches triggered by INTn instruction (bug #17979)</para>
+      </listitem>
+
+      <listitem>
+        <para>Storage: fixed connecting to certain iSCSI targets (bug #17507)</para>
+      </listitem>
+
+      <listitem>
+        <para>Storage: fixed handling of flush requests when configured to be
+          ignored when the host I/O cache is used (bug #17573)</para>
+      </listitem>
+
+      <listitem>
+        <para>Drag and drop: implemented support for UNC paths (bug #17146)</para>
+      </listitem>
+
+      <listitem>
+        <para>Drag and drop: fixed resuming operation when restoring from a saved
+          state (bug #17649)</para>
+      </listitem>
+
+      <listitem>
+        <para>Drag and drop: fixed copying files with long file names (> 248 characters)
+          from guests to Windows hosts (bug #17447)</para>
+      </listitem>
+
+      <listitem>
+        <para>Drag and drop: fixed handling files with Unicode names on Windows guests
+          (bug #15501)</para>
+      </listitem>
+
+      <listitem>
+        <para>Drag and drop: fixed copying empty (0-byte) files to / from guests
+          (bugs #14863 + #17443)</para>
+      </listitem>
+
+      <listitem>
+        <para>Drag and drop: fixed copying over files from hosts to Linux guests
+          (bug #16025)</para>
+      </listitem>
+
+      <listitem>
+        <para>Networking: restore connectivity for guests bridged to host adapters that were
+          unavailable temporarily (Windows hosts, bug #17090)</para>
+      </listitem>
+
+      <listitem>
+        <para>Guest Control: fixed hang when using <computeroutput>--wait-stdout</computeroutput>
+          and/or <computeroutput>--wait-stderr</computeroutput> (bug #17386). Needs updating
+          Guest Additions</para>
+      </listitem>
+
+      <listitem>
+        <para>Video recording: fixed starting video recording on VM power up
+          (bug #17307)</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Additions: various build fixes for kernel modules on recent
+           distributions, and made sure modules end up in initramfs files</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Additions: build fixes for 4.19, thank you Larry Finger</para>
+      </listitem>
+
+      <listitem>
+        <para>Linux Additions: various small fixes for video driver</para>
+      </listitem>
+
+    </itemizedlist>
+  </sect1>
+
+  <sect1>
     <title>Version 5.2.18 (2018-08-14)</title>
 
     <para>This is a maintenance release. The following items were fixed and/or
@@ -76,7 +214,7 @@ are ordered as follows:
 
       <listitem>
         <para>Linux: various build fixes for distribution builds, thank you
-           Gianfranco Costmagna</para>
+           Gianfranco Costamagna</para>
       </listitem>
 
     </itemizedlist>

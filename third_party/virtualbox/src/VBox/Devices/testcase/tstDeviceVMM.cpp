@@ -401,7 +401,7 @@ static DECLCALLBACK(RTRCPTR) tstDevVmm_MMHyperR3ToRC(PVM pVM, RTR3PTR R3Ptr)
 
 static DECLCALLBACK(void) tstDevVmm_MMR3HeapFree(void *pv)
 {
-    PTSTDEVMMHEAPALLOC pHeapAlloc = (PTSTDEVMMHEAPALLOC)((uint8_t *)pv - RT_OFFSETOF(TSTDEVMMHEAPALLOC, abAlloc[0]));
+    PTSTDEVMMHEAPALLOC pHeapAlloc = (PTSTDEVMMHEAPALLOC)((uint8_t *)pv - RT_UOFFSETOF(TSTDEVMMHEAPALLOC, abAlloc[0]));
     PTSTDEVDUTINT pThis = pHeapAlloc->pDut;
 
     tstDevDutLockExcl(pThis);

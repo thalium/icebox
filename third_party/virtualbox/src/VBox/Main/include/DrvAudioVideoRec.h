@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2017 Oracle Corporation
+ * Copyright (C) 2017-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -22,9 +22,13 @@
 #include <VBox/vmm/pdmdrv.h>
 #include <VBox/vmm/pdmifs.h>
 
+#include "AudioDriver.h"
+
+using namespace com;
+
 class Console;
 
-class AudioVideoRec
+class AudioVideoRec : public AudioDriver
 {
 
 public:
@@ -36,8 +40,6 @@ public:
 
     static const PDMDRVREG DrvReg;
 
-    Console *getParent(void) { return mpConsole; }
-
 public:
 
     static DECLCALLBACK(int)  drvConstruct(PPDMDRVINS pDrvIns, PCFGMNODE pCfg, uint32_t fFlags);
@@ -47,10 +49,10 @@ public:
 
 private:
 
+    int configureDriver(PCFGMNODE pLunCfg);
+
     /** Pointer to the associated video recording audio driver. */
     struct DRVAUDIOVIDEOREC *mpDrv;
-    /** Pointer to parent. */
-    Console * const          mpConsole;
 };
 
 #endif /* !____H_DRVAUDIOVIDEOREC */

@@ -982,7 +982,7 @@ static int ProcReadMiscInfo(PRTSOLCORE pSolCore)
      * It's not perfect, but it should be fine unless they really mess up the structure
      * layout in the future. See @bugref{8479}.
      */
-    size_t const offZoneId = RT_OFFSETOF(psinfo_t, pr_zoneid);
+    size_t const offZoneId = RT_UOFFSETOF(psinfo_t, pr_zoneid);
     if (pSolProc->cbProcInfo < offZoneId)
     {
         CORELOGRELSYS((CORELOG_NAME "ProcReadMiscInfo: psinfo size mismatch. cbProcInfo=%u expected >= %u\n",
@@ -1034,10 +1034,10 @@ static int GetOldProcessInfo(PRTSOLCORE pSolCore, prpsinfo_t *pInfo)
      */
     PRTSOLCOREPROCESS pSolProc = &pSolCore->SolProc;
 
-    size_t offLwp         = RT_OFFSETOF(psinfo_t, pr_lwp);
+    size_t offLwp         = RT_UOFFSETOF(psinfo_t, pr_lwp);
     /* last member we care about in lwpsinfo_t is pr_bindpset which is also present on ancient Solaris version we use for
        building the additions. Should be safe enough as we don't need/access members upto or beyond that point anyway. */
-    size_t offLastOnProc  = RT_OFFSETOF(lwpsinfo_t, pr_bindpset);
+    size_t offLastOnProc  = RT_UOFFSETOF(lwpsinfo_t, pr_bindpset);
     if (pSolProc->cbProcInfo >= offLwp + offLastOnProc)
     {
         psinfo_t *pSrc = (psinfo_t *)pSolProc->pvProcInfo;

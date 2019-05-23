@@ -1655,7 +1655,9 @@ static DECLCALLBACK(int) vhdWrite(void *pBackendData, uint64_t uOffset, size_t c
                 return VERR_VD_BLOCK_FREE;
             }
 
-            PVHDIMAGEEXPAND pExpand = (PVHDIMAGEEXPAND)RTMemAllocZ(RT_OFFSETOF(VHDIMAGEEXPAND, au8Bitmap[pImage->cDataBlockBitmapSectors * VHD_SECTOR_SIZE]));
+            PVHDIMAGEEXPAND pExpand;
+            pExpand = (PVHDIMAGEEXPAND)RTMemAllocZ(RT_UOFFSETOF_DYN(VHDIMAGEEXPAND,
+                                                                    au8Bitmap[pImage->cDataBlockBitmapSectors * VHD_SECTOR_SIZE]));
             bool fIoInProgress = false;
 
             if (!pExpand)

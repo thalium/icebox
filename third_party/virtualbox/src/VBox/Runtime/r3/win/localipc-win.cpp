@@ -365,7 +365,8 @@ static int rtLocalIpcWinValidateName(const char *pszName, size_t *pcwcFullName, 
  * Constructs the full pipe name as UTF-16.
  *
  * @returns IPRT status code.
- * @param   pszName         The user supplied name.
+ * @param   pszName         The user supplied name.  ASSUMES reasonable length
+ *                          for now, so no long path prefixing needed.
  * @param   pwszFullName    The output buffer.
  * @param   cwcFullName     The output buffer size excluding the terminator.
  * @param   fNative         Whether the user supplied name is a native or
@@ -400,7 +401,7 @@ RTDECL(int) RTLocalIpcServerCreate(PRTLOCALIPCSERVER phServer, const char *pszNa
         /*
          * Allocate and initialize the instance data.
          */
-        size_t cbThis = RT_OFFSETOF(RTLOCALIPCSERVERINT, wszName[cwcFullName + 1]);
+        size_t cbThis = RT_UOFFSETOF_DYN(RTLOCALIPCSERVERINT, wszName[cwcFullName + 1]);
         PRTLOCALIPCSERVERINT pThis = (PRTLOCALIPCSERVERINT)RTMemAllocVar(cbThis);
         AssertReturn(pThis, VERR_NO_MEMORY);
 

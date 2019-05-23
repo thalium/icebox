@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2013-2017 Oracle Corporation
+ * Copyright (C) 2013-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -38,6 +38,7 @@
 #define pa_context_set_state_callback           PULSE_MANGLER(pa_context_set_state_callback)
 
 #define pa_frame_size                           PULSE_MANGLER(pa_frame_size)
+#define pa_get_library_version                  PULSE_MANGLER(pa_get_library_version)
 #define pa_operation_unref                      PULSE_MANGLER(pa_operation_unref)
 #define pa_operation_get_state                  PULSE_MANGLER(pa_operation_get_state)
 #define pa_operation_cancel                     PULSE_MANGLER(pa_operation_cancel)

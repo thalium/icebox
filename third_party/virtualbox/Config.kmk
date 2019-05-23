@@ -456,6 +456,9 @@ endif
 # Enable building debugging backend.
 # Only will be used at runtime when "VBoxInternal2/Audio/Debug/Enabled" (VM / global) is set.
 VBOX_WITH_AUDIO_DEBUG = 1
+ifdef VBOX_WITH_VALIDATIONKIT
+ VBOX_WITH_AUDIO_VALIDATIONKIT = 1
+endif
 # Enables the audio endpoint detection on Windows hosts.
 VBOX_WITH_AUDIO_MMNOTIFICATION_CLIENT = 1
 # Enable PCI passthrough support.
@@ -2729,10 +2732,16 @@ $(PATH_OUT)/DynamicConfig.kmk: \
 	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-misleading-indentation     ?= $(call VBOX_GCC_CHECK_CC,-Wno-misleading-indentation,)'
 	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-missing-field-initializers ?= $(call VBOX_GCC_CHECK_CC,-Wno-missing-field-initializers,)'
 	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-pointer-to-int-cast        ?= $(call VBOX_GCC_CHECK_CC,-Wno-pointer-to-int-cast,)'
-	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-variadic-macros   ?= $(call VBOX_GCC_CHECK_CXX,-Wno-variadic-macros,)'
-	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-vla               ?= $(call VBOX_GCC_CHECK_CXX,-Wno-vla,)'
-	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-overlength-strings?= $(call VBOX_GCC_CHECK_CC,-Wno-overlength-strings,)'
-	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-overloaded-virtual?= $(call VBOX_GCC_CHECK_CXX,-Wno-overloaded-virtual,)'
+	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-variadic-macros            ?= $(call VBOX_GCC_CHECK_CXX,-Wno-variadic-macros,)'
+	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-vla                        ?= $(call VBOX_GCC_CHECK_CXX,-Wno-vla,)'
+	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-overlength-strings         ?= $(call VBOX_GCC_CHECK_CC,-Wno-overlength-strings,)'
+	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-overloaded-virtual         ?= $(call VBOX_GCC_CHECK_CXX,-Wno-overloaded-virtual,)'
+	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-ignored-qualifiers         ?= $(call VBOX_GCC_CHECK_CXX,-Wno-ignored-qualifiers,)'
+	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-multistatement-macros      ?= $(call VBOX_GCC_CHECK_CXX,-Wno-multistatement-macros,)'
+	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-class-memaccess            ?= $(call VBOX_GCC_CHECK_CXX,-Wno-class-memaccess,)'
+	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-stringop-overflow          ?= $(call VBOX_GCC_CHECK_CXX,-Wno-stringop-overflow,)'
+	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-stringop-truncation        ?= $(call VBOX_GCC_CHECK_CXX,-Wno-stringop-truncation,)'
+	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_Wno-cast-function-type         ?= $(call VBOX_GCC_CHECK_CC,-Wno-cast-function-type,)'
 	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_fno-stack-protector   ?= $(call VBOX_GCC_CHECK_CC,-fno-stack-protector,)'
 	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_fno-dwarf2-cfi-asm    ?= $(call VBOX_GCC_CHECK_CC,-fno-dwarf2-cfi-asm,)'
 	$(QUIET)$(APPEND) '$@' 'VBOX_GCC_m64                   ?= $(call VBOX_GCC_CHECK_CC,-m64,)'
@@ -2892,6 +2901,11 @@ endif
 
 VBOX_GCC_PEDANTIC_CXX ?= -pedantic $(VBOX_GCC_WARN_PEDANTIC) $(VBOX_GCC_Wno-return-type-c-linkage) $(VBOX_GCC_Wno-overloaded-virtual)
 VBOX_GCC_PEDANTIC_C   ?= -pedantic $(VBOX_GCC_WARN_PEDANTIC) -Wmissing-prototypes -Wstrict-prototypes -Wmissing-declarations -Werror-implicit-function-declaration
+
+# Stupid problem with (__typeof__((*ppv)) casts in asm.h where volatile is involved and ignored.
+if $(VBOX_GCC_VERSION_CXX) >= 80000 && "$(VBOX_GCC_Wno-ignored-qualifiers)"
+ VBOX_GCC_PEDANTIC_CXX += $(VBOX_GCC_Wno-ignored-qualifiers)
+endif
 
 VBOX_GCC_NON_PEDANTIC_CXX ?= -Wno-sign-compare
 VBOX_GCC_NON_PEDANTIC_C   ?= -Wno-sign-compare -Werror-implicit-function-declaration
@@ -5631,7 +5645,7 @@ else # the GCC guys:
 
 TEMPLATE_VBOXMAINEXE_TOOL                = $(VBOX_GCC_TOOL)
 TEMPLATE_VBOXMAINEXE_CXXFLAGS            = -g $(VBOX_GCC_pipe) \
-	$(VBOX_GCC_PEDANTIC_CXX) $(VBOX_GCC_Wno-variadic-macros) -Wshadow \
+	$(VBOX_GCC_PEDANTIC_CXX) $(VBOX_GCC_Wno-variadic-macros) $(VBOX_GCC_Wno-multistatement-macros) $(VBOX_GCC_Wno-class-memaccess) -Wshadow \
 	-fshort-wchar -fpermissive -fexceptions -frtti $(VBOX_GCC_OPT) $(VBOX_GCC_FP) -fno-strict-aliasing \
 	$(VBOX_GCC_fvisibility-inlines-hidden) $(VBOX_GCC_fvisibility-hidden) $(VBOX_GCC_std) $(VBOX_GCC_IPRT_FMT_CHECK)
  ifdef VBOX_WITH_NO_GCC_WARNING_POLICY
@@ -6163,7 +6177,7 @@ ifdef VBOX_WITH_QTGUI
   TEMPLATE_VBOXQTGUIEXE_CXXFLAGS = \
 	-g $(VBOX_GCC_pipe) $(filter-out -Wno-unused,$(VBOX_GCC_WARN)) -frtti -fno-exceptions \
 	-Wno-long-long -fshort-wchar -fno-strict-aliasing \
-	$(VBOX_GCC_fvisibility-hidden) $(VBOX_GCC_fvisibility-inlines-hidden) \
+	$(VBOX_GCC_fvisibility-hidden) $(VBOX_GCC_fvisibility-inlines-hidden) $(VBOX_GCC_Wno-ignored-qualifiers) \
 	$(VBOX_GCC_Wno-return-type-c-linkage) $(VBOX_GCC_std) $(VBOX_GCC_IPRT_FMT_CHECK)
   ifdef VBOX_WITH_NO_GCC_WARNING_POLICY
    TEMPLATE_VBOXQTGUIEXE_CXXFLAGS += $(VBOX_GCC_WERR)
@@ -6766,6 +6780,8 @@ if1of ($(KBUILD_TARGET), dragonfly freebsd linux netbsd openbsd) # the gnu ld gu
 endif
 TEMPLATE_VBOXGUESTR3XF86MOD_CFLAGS  = $(TEMPLATE_VBOXGUESTR3EXE_CFLAGS) -fno-pie -fno-merge-constants -std=c99 -ffreestanding
 TEMPLATE_VBOXGUESTR3XF86MOD_CXXFLAGS= $(TEMPLATE_VBOXGUESTR3EXE_CXXFLAGS) -fno-pie -fno-merge-constants -ffreestanding
+TEMPLATE_VBOXGUESTR3XF86MOD_CFLAGS.linux  = $(VBOX_GCC_fno-stack-protector) # Remove symvers.h
+TEMPLATE_VBOXGUESTR3XF86MOD_CXXFLAGS.linux = $(VBOX_GCC_fno-stack-protector) # Remove symvers.h
 TEMPLATE_VBOXGUESTR3XF86MOD_SYSSUFF = .o
 TEMPLATE_VBOXGUESTR3XF86MOD_LIBS  = \
 	$(VBOX_LIB_VBGL_R3_XFREE86)
@@ -6930,7 +6946,7 @@ ifeq ($(KBUILD_TARGET),win)
  	-wd4255 -wd4296 -wd4245 -wd4668 -wd4005 -wd4057 -wd4311 -wd4312 -wd4305 -wd4306 -wd4054 -wd4189 -wd4100
 else
  TEMPLATE_VBOXCROGLR3GUESTDLL_CFLAGS          = $(filter-out -pedantic, $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS)_CFLAGS)) \
- 	$(VBOX_GCC_Wno-overlength-strings)
+ 	$(VBOX_GCC_Wno-overlength-strings) $(VBOX_GCC_Wno-cast-function-type)
  TEMPLATE_VBOXCROGLR3GUESTDLL_CXXFLAGS        = $(filter-out -pedantic, $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS)_CXXFLAGS))
 endif
 TEMPLATE_VBOXCROGLR3GUESTDLL_LDFLAGS.darwin   = $(TEMPLATE_$(TEMPLATE_VBOXCROGLR3GUESTDLL_EXTENDS)_LDFLAGS.darwin)\
@@ -7201,7 +7217,7 @@ endif
 SVN                    ?= svn$(HOSTSUFF_EXE)
 VBOX_SVN_REV_KMK        = $(PATH_OUT)/revision.kmk
 ifndef VBOX_SVN_REV
- VBOX_SVN_REV_FALLBACK := $(patsubst %:,,  $Rev: 123745 $  )
+ VBOX_SVN_REV_FALLBACK := $(patsubst %:,,  $Rev: 126257 $  )
  VBOX_SVN_DEP          := $(firstword $(wildcard $(PATH_ROOT)/.svn/wc.db $(abspath $(PATH_ROOT)/../.svn/wc.db) $(abspath $(PATH_ROOT)/../../.svn/wc.db) $(PATH_ROOT)/.svn/entries))
  ifeq ($(which $(SVN)),)
   VBOX_SVN_DEP         :=

@@ -1228,7 +1228,7 @@ int patmPatchGenMovDebug(PVM pVM, PPATCHINFO pPatch, DISCPUSTATE *pCpu)
     pPB[1] = MAKE_MODRM(mod, reg, rm);
 
     AssertReturn(dbgreg <= DISDREG_DR7, VERR_INVALID_PARAMETER);
-    offset = RT_OFFSETOF(CPUMCTX, dr[dbgreg]);
+    offset = RT_UOFFSETOF_DYN(CPUMCTX, dr[dbgreg]);
 
     *(RTRCPTR *)&pPB[2] = pVM->patm.s.pCPUMCtxGC + offset;
     patmPatchAddReloc32(pVM, pPatch, &pPB[2], FIXUP_ABSOLUTE);

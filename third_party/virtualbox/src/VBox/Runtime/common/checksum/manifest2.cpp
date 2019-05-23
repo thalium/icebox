@@ -703,7 +703,7 @@ static int rtManifestSetAttrWorker(PRTMANIFESTENTRY pEntry, const char *pszAttr,
     else
     {
         size_t const cbName = strlen(pszAttr) + 1;
-        pAttr = (PRTMANIFESTATTR)RTMemAllocVar(RT_UOFFSETOF(RTMANIFESTATTR, szName[cbName]));
+        pAttr = (PRTMANIFESTATTR)RTMemAllocVar(RT_UOFFSETOF_DYN(RTMANIFESTATTR, szName[cbName]));
         if (!pAttr)
         {
             RTStrFree(pszValueCopy);
@@ -1069,7 +1069,7 @@ RTDECL(int) RTManifestEntrySetAttr(RTMANIFEST hManifest, const char *pszEntry, c
     rc = rtManifestGetEntry(pThis, pszEntry, fNeedNormalization, cchEntry, &pEntry);
     if (rc == VERR_NOT_FOUND)
     {
-        pEntry = (PRTMANIFESTENTRY)RTMemAlloc(RT_UOFFSETOF(RTMANIFESTENTRY, szName[cchEntry + 1]));
+        pEntry = (PRTMANIFESTENTRY)RTMemAlloc(RT_UOFFSETOF_DYN(RTMANIFESTENTRY, szName[cchEntry + 1]));
         if (!pEntry)
             return VERR_NO_MEMORY;
 
@@ -1195,7 +1195,7 @@ RTDECL(int) RTManifestEntryAdd(RTMANIFEST hManifest, const char *pszEntry)
     rc = rtManifestGetEntry(pThis, pszEntry, fNeedNormalization, cchEntry, &pEntry);
     if (rc == VERR_NOT_FOUND)
     {
-        pEntry = (PRTMANIFESTENTRY)RTMemAlloc(RT_UOFFSETOF(RTMANIFESTENTRY, szName[cchEntry + 1]));
+        pEntry = (PRTMANIFESTENTRY)RTMemAlloc(RT_UOFFSETOF_DYN(RTMANIFESTENTRY, szName[cchEntry + 1]));
         if (pEntry)
         {
             pEntry->StrCore.cchString = cchEntry;

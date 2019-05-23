@@ -59,4 +59,16 @@ __asm__(".symver posix_spawn,posix_spawn@GLIBC_2.2");
 #include <features.h>
 #undef __GLIBC_MINOR__
 #define __GLIBC_MINOR__ 3
+
+/* Do not use fcntl64 */
+#include <fcntl.h>
+#ifdef fnctl
+# undef fcntl
+#endif
+#if defined(RT_ARCH_AMD64)
+__asm__(".symver fcntl64,fcntl@GLIBC_2.2.5");
+#else
+__asm__(".symver fcntl64,fcntl@GLIBC_2.0");
+#endif
+
 #endif /* ___iprt_linux_symvers_h */

@@ -1940,7 +1940,7 @@ int XmlStringWriter::write(const Document &rDoc, RTCString *pStrDst)
             {
                 pThis->m_pStrDst->append(pachBuf, (size_t)cbToWrite);
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &)
             {
                 pThis->m_fOutOfMemory = true;
                 return -1;

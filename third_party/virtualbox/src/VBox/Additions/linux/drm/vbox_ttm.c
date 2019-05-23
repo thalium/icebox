@@ -35,7 +35,7 @@
 #include "vbox_drv.h"
 #include <ttm/ttm_page_alloc.h>
 
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0) && !defined(RHEL_73)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0) && !defined(RHEL_72)
 #define PLACEMENT_FLAGS(placement) (placement)
 #else
 #define PLACEMENT_FLAGS(placement) ((placement).flags)
@@ -298,7 +298,7 @@ int vbox_mm_init(struct vbox_private *vbox)
 	ret = ttm_bo_device_init(&vbox->ttm.bdev,
 				 vbox->ttm.bo_global_ref.ref.object,
 				 &vbox_bo_driver,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0) || defined(RHEL_73)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 15, 0) || defined(RHEL_71)
 				 dev->anon_inode->i_mapping,
 #endif
 				 DRM_FILE_PAGE_OFFSET, true);
@@ -350,7 +350,7 @@ void vbox_mm_fini(struct vbox_private *vbox)
 void vbox_ttm_placement(struct vbox_bo *bo, int domain)
 {
 	u32 c = 0;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0) && !defined(RHEL_73)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 18, 0) && !defined(RHEL_72)
 	bo->placement.fpfn = 0;
 	bo->placement.lpfn = 0;
 #else
@@ -372,7 +372,7 @@ void vbox_ttm_placement(struct vbox_bo *bo, int domain)
 
 	bo->placement.num_placement = c;
 	bo->placement.num_busy_placement = c;
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0) || defined(RHEL_73)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0) || defined(RHEL_72)
 	for (i = 0; i < c; ++i) {
 		bo->placements[i].fpfn = 0;
 		bo->placements[i].lpfn = 0;
@@ -399,7 +399,7 @@ int vbox_bo_create(struct drm_device *dev, int size, int align,
 	}
 
 	vboxbo->bo.bdev = &vbox->ttm.bdev;
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0) && !defined(RHEL_73)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 15, 0) && !defined(RHEL_71)
 	vboxbo->bo.bdev->dev_mapping = dev->dev_mapping;
 #endif
 
@@ -415,7 +415,7 @@ int vbox_bo_create(struct drm_device *dev, int size, int align,
 #else
 			  align >> PAGE_SHIFT, false, acc_size,
 #endif
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0) || defined(RHEL_73)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 18, 0) || defined(RHEL_72)
 			  NULL,
 #endif
 			  NULL, vbox_bo_ttm_destroy);

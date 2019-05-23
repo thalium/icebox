@@ -223,7 +223,7 @@ HRESULT Unattended::initUnattended(VirtualBox *aParent)
         HRESULT hrc = mParent->i_getSystemProperties()->i_getDefaultAdditionsISO(mStrAdditionsIsoPath);
         ComAssertComRCRet(hrc, hrc);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         return E_OUTOFMEMORY;
     }
@@ -336,7 +336,7 @@ HRESULT Unattended::detectIsoOS()
         {
             mDetectedOSLanguages.append(szTmp);
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc &)
         {
             return E_OUTOFMEMORY;
         }
@@ -356,7 +356,7 @@ HRESULT Unattended::i_innerDetectIsoOS(RTVFS hVfsIso)
     if (enmOsType != VBOXOSTYPE_Unknown)
     {
         try {  mStrDetectedOSTypeId = Global::OSTypeId(enmOsType); }
-        catch (std::bad_alloc) { hrc = E_OUTOFMEMORY; }
+        catch (std::bad_alloc &) { hrc = E_OUTOFMEMORY; }
     }
     return hrc;
 }
@@ -465,7 +465,7 @@ HRESULT Unattended::i_innerDetectIsoOSWindows(RTVFS hVfsIso, DETECTBUFFER *pBuf,
                     {
                         mDetectedOSLanguages.append(pszKey);
                     }
-                    catch (std::bad_alloc)
+                    catch (std::bad_alloc &)
                     {
                         RTIniFileRelease(hIniFile);
                         return E_OUTOFMEMORY;
@@ -652,7 +652,7 @@ HRESULT Unattended::i_innerDetectIsoOSLinux(RTVFS hVfsIso, DETECTBUFFER *pBuf, V
             {
                 LogRelFlow(("Unattended: .treeinfo: version=%s\n", pBuf->sz));
                 try { mStrDetectedOSVersion = RTStrStrip(pBuf->sz); }
-                catch (std::bad_alloc) { return E_OUTOFMEMORY; }
+                catch (std::bad_alloc &) { return E_OUTOFMEMORY; }
             }
 
             RTIniFileRelease(hIniFile);
@@ -710,7 +710,7 @@ HRESULT Unattended::i_innerDetectIsoOSLinux(RTVFS hVfsIso, DETECTBUFFER *pBuf, V
         {
             LogRelFlow(("Unattended: .discinfo: version=%s\n", pszVersion));
             try { mStrDetectedOSVersion = RTStrStripL(pszVersion); }
-            catch (std::bad_alloc) { return E_OUTOFMEMORY; }
+            catch (std::bad_alloc &) { return E_OUTOFMEMORY; }
 
             /* CentOS likes to call their release 'Final' without mentioning the actual version
                number (e.g. CentOS-4.7-x86_64-binDVD.iso), so we need to go look elsewhere.
@@ -777,7 +777,7 @@ HRESULT Unattended::i_innerDetectIsoOSLinux(RTVFS hVfsIso, DETECTBUFFER *pBuf, V
 
                         /* Set it and stop looking. */
                         try { mStrDetectedOSVersion = psz; }
-                        catch (std::bad_alloc) { return E_OUTOFMEMORY; }
+                        catch (std::bad_alloc &) { return E_OUTOFMEMORY; }
                         break;
                     }
                 }
@@ -832,7 +832,7 @@ HRESULT Unattended::prepare()
         if (RT_FAILURE(vrc))
             return setErrorBoth(E_FAIL, vrc);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         return E_OUTOFMEMORY;
     }
@@ -965,7 +965,7 @@ HRESULT Unattended::prepare()
             mfIsDefaultAuxiliaryBasePath = true;
         }
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         return E_OUTOFMEMORY;
     }
@@ -1061,7 +1061,7 @@ HRESULT Unattended::reconfigureVM()
         {
             hrc = ptrSession.createInprocObject(CLSID_Session);
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc &)
         {
             hrc = E_OUTOFMEMORY;
         }

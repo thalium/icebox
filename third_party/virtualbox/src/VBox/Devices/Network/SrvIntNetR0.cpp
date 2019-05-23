@@ -357,6 +357,13 @@ typedef struct INTNETNETWORK
     struct INTNET          *pIntNet;
     /** The SUPR0 object id. */
     void                   *pvObj;
+    /** The trunk reconnection system thread. The thread gets started at trunk
+     * disconnection. It tries to reconnect the trunk to the bridged filter instance.
+     * The thread erases this handle right before it terminates.
+     */
+    RTTHREAD                hTrunkReconnectThread;
+    /** Trunk reconnection thread termination flag. */
+    bool volatile           fTerminateReconnectThread;
     /** Pointer to the temporary buffer that is used when snooping fragmented packets.
      * This is allocated after this structure if we're sharing the MAC address with
      * the host. The buffer is INTNETNETWORK_TMP_SIZE big and aligned on a 64-byte boundary. */
@@ -2107,7 +2114,7 @@ static INTNETSWDECISION intnetR0NetworkSwitchTrunk(PINTNETNETWORK pNetwork, uint
 DECLINLINE(int) intnetR0AllocDstTab(uint32_t cEntries, PINTNETDSTTAB *ppDstTab)
 {
     PINTNETDSTTAB pDstTab;
-    *ppDstTab = pDstTab = (PINTNETDSTTAB)RTMemAlloc(RT_OFFSETOF(INTNETDSTTAB, aIfs[cEntries]));
+    *ppDstTab = pDstTab = (PINTNETDSTTAB)RTMemAlloc(RT_UOFFSETOF_DYN(INTNETDSTTAB, aIfs[cEntries]));
     if (RT_UNLIKELY(!pDstTab))
         return VERR_NO_MEMORY;
     return VINF_SUCCESS;
@@ -2522,7 +2529,7 @@ static void intnetR0TrunkIfSnoopAddr(PINTNETNETWORK pNetwork, PCINTNETSG pSG, ui
             else
             {
                 /* check if the protocol is UDP */
-                if (    intnetR0SgReadByte(pSG, sizeof(RTNETETHERHDR) + RT_OFFSETOF(RTNETIPV4, ip_p))
+                if (    intnetR0SgReadByte(pSG, sizeof(RTNETETHERHDR) + RT_UOFFSETOF(RTNETIPV4, ip_p))
                     !=  RTNETIPV4_PROT_UDP)
                     return;
 
@@ -2546,23 +2553,23 @@ static void intnetR0TrunkIfSnoopAddr(PINTNETNETWORK pNetwork, PCINTNETSG pSG, ui
             else
             {
                 /* get the lower byte of the UDP source port number. */
-                b = intnetR0SgReadByte(pSG, sizeof(RTNETETHERHDR) + cbIpHdr + RT_OFFSETOF(RTNETUDP, uh_sport) + 1);
+                b = intnetR0SgReadByte(pSG, sizeof(RTNETETHERHDR) + cbIpHdr + RT_UOFFSETOF(RTNETUDP, uh_sport) + 1);
                 if (    b != RTNETIPV4_PORT_BOOTPS
                     &&  b != RTNETIPV4_PORT_BOOTPC)
                     return;
                 uint8_t SrcPort = b;
-                b = intnetR0SgReadByte(pSG, sizeof(RTNETETHERHDR) + cbIpHdr + RT_OFFSETOF(RTNETUDP, uh_sport));
+                b = intnetR0SgReadByte(pSG, sizeof(RTNETETHERHDR) + cbIpHdr + RT_UOFFSETOF(RTNETUDP, uh_sport));
                 if (b)
                     return;
 
                 /* get the lower byte of the UDP destination port number. */
-                b = intnetR0SgReadByte(pSG, sizeof(RTNETETHERHDR) + cbIpHdr + RT_OFFSETOF(RTNETUDP, uh_dport) + 1);
+                b = intnetR0SgReadByte(pSG, sizeof(RTNETETHERHDR) + cbIpHdr + RT_UOFFSETOF(RTNETUDP, uh_dport) + 1);
                 if (    b != RTNETIPV4_PORT_BOOTPS
                     &&  b != RTNETIPV4_PORT_BOOTPC)
                     return;
                 if (b == SrcPort)
                     return;
-                b = intnetR0SgReadByte(pSG, sizeof(RTNETETHERHDR) + cbIpHdr + RT_OFFSETOF(RTNETUDP, uh_dport));
+                b = intnetR0SgReadByte(pSG, sizeof(RTNETETHERHDR) + cbIpHdr + RT_UOFFSETOF(RTNETUDP, uh_dport));
                 if (b)
                     return;
             }
@@ -3222,7 +3229,7 @@ static bool intnetR0NetworkSharedMacDetectAndFixBroadcast(PINTNETNETWORK pNetwor
         case RT_H2N_U16_C(RTNET_ETHERTYPE_ARP):
         {
             uint16_t ar_oper;
-            if (!intnetR0SgReadPart(pSG, sizeof(RTNETETHERHDR) + RT_OFFSETOF(RTNETARPHDR, ar_oper),
+            if (!intnetR0SgReadPart(pSG, sizeof(RTNETETHERHDR) + RT_UOFFSETOF(RTNETARPHDR, ar_oper),
                                     sizeof(ar_oper), &ar_oper))
                 return false;
 
@@ -3241,7 +3248,7 @@ static bool intnetR0NetworkSharedMacDetectAndFixBroadcast(PINTNETNETWORK pNetwor
         case RT_H2N_U16_C(RTNET_ETHERTYPE_IPV4):
         {
             RTNETADDRIPV4 ip_dst;
-            if (!intnetR0SgReadPart(pSG, sizeof(RTNETETHERHDR) + RT_OFFSETOF(RTNETIPV4, ip_dst),
+            if (!intnetR0SgReadPart(pSG, sizeof(RTNETETHERHDR) + RT_UOFFSETOF(RTNETIPV4, ip_dst),
                                     sizeof(ip_dst), &ip_dst))
                 return false;
 
@@ -3271,7 +3278,7 @@ static bool intnetR0NetworkSharedMacDetectAndFixBroadcast(PINTNETNETWORK pNetwor
         case RT_H2N_U16_C(RTNET_ETHERTYPE_IPV6):
         {
             RTNETADDRIPV6 ip6_dst;
-            if (!intnetR0SgReadPart(pSG, sizeof(RTNETETHERHDR) + RT_OFFSETOF(RTNETIPV6, ip6_dst),
+            if (!intnetR0SgReadPart(pSG, sizeof(RTNETETHERHDR) + RT_UOFFSETOF(RTNETIPV6, ip6_dst),
                                     sizeof(ip6_dst), &ip6_dst))
                 return false;
 
@@ -3294,7 +3301,7 @@ static bool intnetR0NetworkSharedMacDetectAndFixBroadcast(PINTNETNETWORK pNetwor
     /*
      * Update ethernet destination in the segment.
      */
-    intnetR0SgWritePart(pSG, RT_OFFSETOF(RTNETETHERHDR, DstMac), sizeof(pEthHdr->DstMac), &pEthHdr->DstMac);
+    intnetR0SgWritePart(pSG, RT_UOFFSETOF(RTNETETHERHDR, DstMac), sizeof(pEthHdr->DstMac), &pEthHdr->DstMac);
 
     return true;
 }
@@ -3423,7 +3430,7 @@ static void intnetR0NetworkEditArpFromWire(PINTNETNETWORK pNetwork, PINTNETSG pS
                 Log6(("fw: DstMac %.6Rhxs -> %.6Rhxs\n", &pEthHdr->DstMac, &pIf->MacAddr));
                 pEthHdr->DstMac = pIf->MacAddr;
                 if ((void *)pEthHdr != pSG->aSegs[0].pv)
-                    intnetR0SgWritePart(pSG, RT_OFFSETOF(RTNETETHERHDR, DstMac), sizeof(RTMAC), &pIf->MacAddr);
+                    intnetR0SgWritePart(pSG, RT_UOFFSETOF(RTNETETHERHDR, DstMac), sizeof(RTMAC), &pIf->MacAddr);
             }
             intnetR0BusyDecIf(pIf);
 
@@ -3556,7 +3563,7 @@ static void intnetR0NetworkEditDhcpFromIntNet(PINTNETNETWORK pNetwork, PINTNETSG
 
                 Log(("intnetR0NetworkEditDhcpFromIntNet: cleared ip_tos (was %#04x); ip_sum=%#06x -> %#06x\n",
                      uTos, RT_BE2H_U16(pIpHdr->ip_sum), RT_BE2H_U16(uChecksum) ));
-                intnetR0SgWritePart(pSG, sizeof(RTNETETHERHDR) + RT_OFFSETOF(RTNETIPV4, ip_sum),
+                intnetR0SgWritePart(pSG, sizeof(RTNETETHERHDR) + RT_UOFFSETOF(RTNETIPV4, ip_sum),
                                     sizeof(pIpHdr->ip_sum), &uChecksum);
             }
 #endif
@@ -3749,7 +3756,7 @@ static INTNETSWDECISION intnetR0NetworkSharedMacFixAndSwitchUnicast(PINTNETNETWO
     switch (RT_BE2H_U16(pEthHdr->EtherType))
     {
         case RTNET_ETHERTYPE_IPV4:
-            if (RT_UNLIKELY(!intnetR0SgReadPart(pSG, sizeof(RTNETETHERHDR) + RT_OFFSETOF(RTNETIPV4, ip_dst), sizeof(Addr.IPv4), &Addr)))
+            if (RT_UNLIKELY(!intnetR0SgReadPart(pSG, sizeof(RTNETETHERHDR) + RT_UOFFSETOF(RTNETIPV4, ip_dst), sizeof(Addr.IPv4), &Addr)))
             {
                 Log(("intnetshareduni: failed to read ip_dst! cbTotal=%#x\n", pSG->cbTotal));
                 return intnetR0NetworkSwitchTrunk(pNetwork, INTNETTRUNKDIR_WIRE, pDstTab);
@@ -3760,7 +3767,7 @@ static INTNETSWDECISION intnetR0NetworkSharedMacFixAndSwitchUnicast(PINTNETNETWO
             break;
 
         case RTNET_ETHERTYPE_IPV6:
-            if (RT_UNLIKELY(!intnetR0SgReadPart(pSG, sizeof(RTNETETHERHDR) + RT_OFFSETOF(RTNETIPV6, ip6_dst), sizeof(Addr.IPv6), &Addr)))
+            if (RT_UNLIKELY(!intnetR0SgReadPart(pSG, sizeof(RTNETETHERHDR) + RT_UOFFSETOF(RTNETIPV6, ip6_dst), sizeof(Addr.IPv6), &Addr)))
             {
                 Log(("intnetshareduni: failed to read ip6_dst! cbTotal=%#x\n", pSG->cbTotal));
                 return intnetR0NetworkSwitchTrunk(pNetwork, INTNETTRUNKDIR_WIRE, pDstTab);
@@ -5052,6 +5059,9 @@ static DECLCALLBACK(void) intnetR0IfDestruct(void *pvObj, void *pvUser1, void *p
 }
 
 
+/* Forward declaration of trunk reconnection thread function. */
+static DECLCALLBACK(int) intnetR0TrunkReconnectThread(RTTHREAD hThread, void *pvUser);
+
 /**
  * Creates a new network interface.
  *
@@ -5375,6 +5385,15 @@ static DECLCALLBACK(void) intnetR0TrunkIfPortDisconnect(PINTNETTRUNKSWPORT pSwit
             RTSpinlockAcquire(pNetwork->hAddrSpinlock);
             pNetwork->MacTab.pTrunk = NULL;
             RTSpinlockRelease(pNetwork->hAddrSpinlock);
+
+            /*
+             * Create a system thread that will attempt to re-connect this trunk periodically
+             * hoping that the corresponding filter module reappears in the system. The thread
+             * will go away if it succeeds in re-connecting the trunk or if it is signalled.
+             */
+            int rc = RTThreadCreate(&pNetwork->hTrunkReconnectThread, intnetR0TrunkReconnectThread, pNetwork,
+                                    0, RTTHREADTYPE_INFREQUENT_POLLER, RTTHREADFLAGS_WAITABLE, "TRNKRECON");
+            AssertRC(rc);
 
             intnetR0TrunkIfDestroy(pThis, pNetwork);
         }
@@ -5773,7 +5792,7 @@ static int intnetR0NetworkCreateTrunkIf(PINTNETNETWORK pNetwork, PSUPDRVSESSION 
      * time calls.
      */
     RTCPUID         cCpus    = RTMpGetCount(); Assert(cCpus > 0);
-    PINTNETTRUNKIF  pTrunk = (PINTNETTRUNKIF)RTMemAllocZ(RT_OFFSETOF(INTNETTRUNKIF, apIntDstTabs[cCpus]));
+    PINTNETTRUNKIF  pTrunk = (PINTNETTRUNKIF)RTMemAllocZ(RT_UOFFSETOF_DYN(INTNETTRUNKIF, apIntDstTabs[cCpus]));
     if (!pTrunk)
         return VERR_NO_MEMORY;
 
@@ -5893,6 +5912,72 @@ static int intnetR0NetworkCreateTrunkIf(PINTNETNETWORK pNetwork, PSUPDRVSESSION 
 }
 
 
+/**
+ * Trunk reconnection thread function. It runs until signalled by another thread or by itself (upon
+ * successful trunk re-connection).
+ * 
+ * Note that this function erases pNetwork->hTrunkReconnectThread right before it terminates!
+ */
+static DECLCALLBACK(int) intnetR0TrunkReconnectThread(RTTHREAD hThread, void *pvUser)
+{
+    RT_NOREF1(hThread);
+    PINTNETNETWORK pNetwork = (PINTNETNETWORK)pvUser;
+    PINTNET pIntNet = pNetwork->pIntNet;
+    Assert(pNetwork->pIntNet);
+
+    /*
+     * We attempt to reconnect the trunk every 5 seconds until somebody signals us.
+     */
+    while (!pNetwork->fTerminateReconnectThread && RTThreadUserWait(hThread, 5 * RT_MS_1SEC) == VERR_TIMEOUT)
+    {
+        /*
+         * Make sure nobody else is modifying networks.
+         * It is essential we give up on waiting for the big mutex much earlier than intnetR0NetworkDestruct
+         * gives up on waiting for us to terminate! This is why we wait for 1 second while network destruction
+         * code waits for 5 seconds. Otherwise the network may be already gone by the time we get the mutex.
+         */
+        if (RT_FAILURE(RTSemMutexRequestNoResume(pIntNet->hMtxCreateOpenDestroy, RT_MS_1SEC)))
+            continue;
+
+        /* We need the network to have at least one interface. */
+        if (pNetwork->MacTab.cEntries)
+        {
+            PINTNETIF pAnyIf = pNetwork->MacTab.paEntries[0].pIf;
+            PSUPDRVSESSION pAnySession = pAnyIf ? pAnyIf->pSession : NULL;
+            if (pAnySession)
+            {
+                /* Attempt to re-connect trunk and if successful, terminate thread. */
+                if (RT_SUCCESS(intnetR0NetworkCreateTrunkIf(pNetwork, pAnySession)))
+                {
+                    /* The network has active interfaces, we need to activate the trunk. */
+                    if (pNetwork->cActiveIFs)
+                    {
+                        PINTNETTRUNKIF pTrunk = pNetwork->MacTab.pTrunk;
+                        /* The intnetR0NetworkCreateTrunkIf call resets fHostActive and fWireActive. */
+                        RTSpinlockAcquire(pNetwork->hAddrSpinlock);
+                        pNetwork->MacTab.fHostActive = RT_BOOL(pNetwork->fFlags & INTNET_OPEN_FLAGS_TRUNK_HOST_ENABLED);
+                        pNetwork->MacTab.fWireActive = RT_BOOL(pNetwork->fFlags & INTNET_OPEN_FLAGS_TRUNK_WIRE_ENABLED);
+                        RTSpinlockRelease(pNetwork->hAddrSpinlock);
+                        pTrunk->pIfPort->pfnSetState(pTrunk->pIfPort, INTNETTRUNKIFSTATE_ACTIVE);
+                    }
+                    pNetwork->fTerminateReconnectThread = true;
+                    RTThreadUserSignal(hThread); /* Signal ourselves, so we break the loop after releasing the mutex */
+                }
+            }
+        }
+        RTSemMutexRelease(pIntNet->hMtxCreateOpenDestroy);
+    }
+
+    /*
+     * Destroy our handle in INTNETNETWORK so everyone knows we are gone.
+     * Note that this is the only place where this handle gets wiped out.
+     */
+    pNetwork->hTrunkReconnectThread = NIL_RTTHREAD;
+
+    return VINF_SUCCESS;
+}
+
+
 
 /**
  * Object destructor callback.
@@ -5947,6 +6032,26 @@ static DECLCALLBACK(void) intnetR0NetworkDestruct(void *pvObj, void *pvUser1, vo
        removed / added since we're holding the big lock.) */
     if (pTrunk)
         intnetR0BusyWait(pNetwork, &pTrunk->cBusy);
+    else if (pNetwork->hTrunkReconnectThread != NIL_RTTHREAD)
+    {
+        /*
+         * There is no trunk and we have the trunk reconnection thread running.
+         * Signal the thread and wait for it to terminate.
+         */
+        pNetwork->fTerminateReconnectThread = true;
+        RTThreadUserSignal(pNetwork->hTrunkReconnectThread);
+        /*
+         * The tread cannot be re-connecting the trunk at the moment since we hold the big
+         * mutex, thus 5 second wait is definitely enough. Note that the wait time must
+         * exceed the time the reconnection thread waits on acquiring the big mutex, otherwise
+         * we will give up waiting for thread termination prematurely. Unfortunately it seems
+         * we have no way to terminate the thread if it failed to stop gracefully.
+         * 
+         * Note that it is ok if the thread has already wiped out hTrunkReconnectThread by now,
+         * this means we no longer need to wait for it.
+         */
+        RTThreadWait(pNetwork->hTrunkReconnectThread, 5 * RT_MS_1SEC, NULL);
+    }
 
     iIf = pNetwork->MacTab.cEntries;
     while (iIf-- > 0)
@@ -6349,6 +6454,8 @@ static int intnetR0CreateNetwork(PINTNET pIntNet, PSUPDRVSESSION pSession, const
         return VERR_NO_MEMORY;
     //pNetwork->pNext                       = NULL;
     //pNetwork->pIfs                        = NULL;
+    //pNetwork->fTerminateReconnectThread   = false;
+    pNetwork->hTrunkReconnectThread         = NIL_RTTHREAD;
     pNetwork->hAddrSpinlock                 = NIL_RTSPINLOCK;
     pNetwork->MacTab.cEntries               = 0;
     pNetwork->MacTab.cEntriesAllocated      = INTNET_GROW_DSTTAB_SIZE;

@@ -362,7 +362,7 @@ static int drvdiskintWriteRecord(PDRVDISKINTEGRITY pThis, PCRTSGSEG paSeg, unsig
             Assert(cbRange % 512 == 0);
 
             /* Create new segment */
-            pSeg = (PDRVDISKSEGMENT)RTMemAllocZ(RT_OFFSETOF(DRVDISKSEGMENT, apIoLog[cbRange / 512]));
+            pSeg = (PDRVDISKSEGMENT)RTMemAllocZ(RT_UOFFSETOF_DYN(DRVDISKSEGMENT, apIoLog[cbRange / 512]));
             if (pSeg)
             {
                 pSeg->Core.Key      = offCurr;
@@ -600,7 +600,7 @@ static int drvdiskintDiscardRecords(PDRVDISKINTEGRITY pThis, PCRTRANGE paRanges,
                     pSeg->pbSeg = (uint8_t *)RTMemRealloc(pSeg->pbSeg, cbPreLeft);
                     for (unsigned idx = (uint32_t)(cbPreLeft / 512); idx < pSeg->cIoLogEntries; idx++)
                         drvdiskintIoLogEntryRelease(pSeg->apIoLog[idx]);
-                    pSeg = (PDRVDISKSEGMENT)RTMemRealloc(pSeg, RT_OFFSETOF(DRVDISKSEGMENT, apIoLog[cbPreLeft / 512]));
+                    pSeg = (PDRVDISKSEGMENT)RTMemRealloc(pSeg, RT_UOFFSETOF_DYN(DRVDISKSEGMENT, apIoLog[cbPreLeft / 512]));
                     pSeg->Core.KeyLast = pSeg->Core.Key + cbPreLeft - 1;
                     pSeg->cbSeg = cbPreLeft;
                     pSeg->cIoLogEntries = (uint32_t)(cbPreLeft / 512);
@@ -616,7 +616,7 @@ static int drvdiskintDiscardRecords(PDRVDISKINTEGRITY pThis, PCRTRANGE paRanges,
                         drvdiskintIoLogEntryRelease(pSeg->apIoLog[idx]);
                     for (unsigned idx = 0; idx < cbPostLeft /512; idx++)
                         pSeg->apIoLog[idx] = pSeg->apIoLog[(cbRange / 512) + idx];
-                    pSeg = (PDRVDISKSEGMENT)RTMemRealloc(pSeg, RT_OFFSETOF(DRVDISKSEGMENT, apIoLog[cbPostLeft / 512]));
+                    pSeg = (PDRVDISKSEGMENT)RTMemRealloc(pSeg, RT_UOFFSETOF_DYN(DRVDISKSEGMENT, apIoLog[cbPostLeft / 512]));
                     pSeg->pbSeg = (uint8_t *)RTMemRealloc(pSeg->pbSeg, cbPostLeft);
                     pSeg->Core.Key += cbRange;
                     pSeg->cbSeg = cbPostLeft;
@@ -628,7 +628,7 @@ static int drvdiskintDiscardRecords(PDRVDISKINTEGRITY pThis, PCRTRANGE paRanges,
                 {
                     /* Split the segment into 2 new segments. */
                     LogFlowFunc(("Split segment pSeg=%#p\n", pSeg));
-                    PDRVDISKSEGMENT pSegPost = (PDRVDISKSEGMENT)RTMemAllocZ(RT_OFFSETOF(DRVDISKSEGMENT, apIoLog[cbPostLeft / 512]));
+                    PDRVDISKSEGMENT pSegPost = (PDRVDISKSEGMENT)RTMemAllocZ(RT_UOFFSETOF_DYN(DRVDISKSEGMENT, apIoLog[cbPostLeft / 512]));
                     if (pSegPost)
                     {
                         pSegPost->Core.Key      = pSeg->Core.Key + cbPreLeft + cbRange;
@@ -653,7 +653,7 @@ static int drvdiskintDiscardRecords(PDRVDISKINTEGRITY pThis, PCRTRANGE paRanges,
                     pSeg->pbSeg = (uint8_t *)RTMemRealloc(pSeg->pbSeg, cbPreLeft);
                     for (unsigned idx = (uint32_t)(cbPreLeft / 512); idx < (uint32_t)((cbPreLeft + cbRange) / 512); idx++)
                         drvdiskintIoLogEntryRelease(pSeg->apIoLog[idx]);
-                    pSeg = (PDRVDISKSEGMENT)RTMemRealloc(pSeg, RT_OFFSETOF(DRVDISKSEGMENT, apIoLog[cbPreLeft / 512]));
+                    pSeg = (PDRVDISKSEGMENT)RTMemRealloc(pSeg, RT_UOFFSETOF_DYN(DRVDISKSEGMENT, apIoLog[cbPreLeft / 512]));
                     pSeg->Core.KeyLast = pSeg->Core.Key + cbPreLeft - 1;
                     pSeg->cbSeg = cbPreLeft;
                     pSeg->cIoLogEntries = (uint32_t)(cbPreLeft / 512);
@@ -859,7 +859,7 @@ DECLINLINE(void) drvdiskintTraceLogFireEvtComplete(PDRVDISKINTEGRITY pThis, uint
 /* -=-=-=-=- IMedia -=-=-=-=- */
 
 /** Makes a PDRVDISKINTEGRITY out of a PPDMIMEDIA. */
-#define PDMIMEDIA_2_DRVDISKINTEGRITY(pInterface)        ( (PDRVDISKINTEGRITY)((uintptr_t)pInterface - RT_OFFSETOF(DRVDISKINTEGRITY, IMedia)) )
+#define PDMIMEDIA_2_DRVDISKINTEGRITY(pInterface)        ( (PDRVDISKINTEGRITY)((uintptr_t)pInterface - RT_UOFFSETOF(DRVDISKINTEGRITY, IMedia)) )
 
 
 /*********************************************************************************************************************************
@@ -1065,7 +1065,7 @@ static DECLCALLBACK(bool) drvdiskintIsNonRotational(PPDMIMEDIA pInterface)
 /* -=-=-=-=- IMediaPort -=-=-=-=- */
 
 /** Makes a PDRVBLOCK out of a PPDMIMEDIAPORT. */
-#define PDMIMEDIAPORT_2_DRVDISKINTEGRITY(pInterface)    ( (PDRVDISKINTEGRITY((uintptr_t)pInterface - RT_OFFSETOF(DRVDISKINTEGRITY, IMediaPort))) )
+#define PDMIMEDIAPORT_2_DRVDISKINTEGRITY(pInterface)    ( (PDRVDISKINTEGRITY((uintptr_t)pInterface - RT_UOFFSETOF(DRVDISKINTEGRITY, IMediaPort))) )
 
 /**
  * @interface_method_impl{PDMIMEDIAPORT,pfnQueryDeviceLocation}

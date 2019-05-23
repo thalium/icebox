@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
-<TS version="2.1" language="pt">
+<TS version="2.1" language="pt_PT">
 <context>
     <name>@@@</name>
     <message>
         <source>English</source>
         <comment>Native language name</comment>
-        <translation>Português</translation>
+        <translation>Português (Portugal)</translation>
     </message>
     <message>
         <source>--</source>
@@ -16,7 +16,7 @@
     <message>
         <source>English</source>
         <comment>Language name, in English</comment>
-        <translation>Portuguese</translation>
+        <translation>Português (Portugal)</translation>
     </message>
     <message>
         <source>--</source>
@@ -26,7 +26,7 @@
     <message>
         <source>Oracle Corporation</source>
         <comment>Comma-separated list of translators</comment>
-        <translation>José Melo &lt;mmodem00@gmail.com&gt;, Marcelo Coelho &lt;marcelocoelho@gmail.com&gt;</translation>
+        <translation>José Melo &lt;mmodem00@gmail.com&gt;, Marcelo Coelho &lt;marcelocoelho@gmail.com&gt;, Manuela Silva &lt;manuela.silva@sky.com&gt;</translation>
     </message>
 </context>
 <context>
@@ -101,11 +101,11 @@
     </message>
     <message>
         <source>&lt;html&gt;&lt;b&gt;%1 (rc=%2)&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;</source>
-        <translation></translation>
+        <translation type="unfinished">&lt;html&gt;&lt;b&gt;%1 (rc=%2)&lt;/b&gt;&lt;br/&gt;&lt;br/&gt;</translation>
     </message>
     <message>
         <source>Please try reinstalling VirtualBox.</source>
-        <translation>Reinstalar o VirtualBox poderá ajudar.</translation>
+        <translation type="unfinished">Por favor, tente reinstalar o VirtualBox.</translation>
     </message>
     <message>
         <source>The VirtualBox Linux kernel driver (vboxdrv) is either not loaded or there is a permission problem with /dev/vboxdrv. Please reinstall the kernel module by executing&lt;br/&gt;&lt;br/&gt;  &lt;font color=blue&gt;&apos;/sbin/rcvboxdrv setup&apos;&lt;/font&gt;&lt;br/&gt;&lt;br/&gt;as root. Users of Ubuntu, Fedora or Mandriva should install the DKMS package first. This package keeps track of Linux kernel changes and recompiles the vboxdrv kernel module if necessary.</source>

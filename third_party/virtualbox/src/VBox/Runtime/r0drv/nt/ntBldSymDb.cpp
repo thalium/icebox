@@ -349,7 +349,7 @@ static RTEXITCODE saveStructures(PRTNTSDBOSVER pOsVerInfo, MYARCH enmArch, const
     static size_t s_cbNeeded = 0;
     if (s_cbNeeded == 0)
     {
-        s_cbNeeded = RT_OFFSETOF(MYSET, aStructs[RT_ELEMENTS(g_aStructs)]);
+        s_cbNeeded = RT_UOFFSETOF(MYSET, aStructs[RT_ELEMENTS(g_aStructs)]);
         for (uint32_t i = 0; i < RT_ELEMENTS(g_aStructs); i++)
             s_cbNeeded += sizeof(MYMEMBER) * g_aStructs[i].cMembers;
     }
@@ -521,7 +521,7 @@ static RTEXITCODE findMembers(HANDLE hFake, uint64_t uModAddr, uint32_t idxType,
 
     MyDbgPrintf(" %s: cChildren=%u (%#x)\n", pszStructNm, cChildren);
     TI_FINDCHILDREN_PARAMS *pChildren;
-    pChildren = (TI_FINDCHILDREN_PARAMS *)alloca(RT_OFFSETOF(TI_FINDCHILDREN_PARAMS, ChildId[cChildren]));
+    pChildren = (TI_FINDCHILDREN_PARAMS *)alloca(RT_UOFFSETOF_DYN(TI_FINDCHILDREN_PARAMS, ChildId[cChildren]));
     pChildren->Start = 0;
     pChildren->Count = cChildren;
     if (!SymGetTypeInfo(hFake, uModAddr, idxType, TI_FINDCHILDREN, pChildren))
@@ -1154,7 +1154,7 @@ int main(int argc, char **argv)
                 break;
 
             case 'V':
-                RTPrintf("$Revision: 123140 $");
+                RTPrintf("$Revision: 125570 $");
                 break;
 
             case 'h':

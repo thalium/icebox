@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2010-2017 Oracle Corporation
+ * Copyright (C) 2010-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -479,7 +479,7 @@ VBGLR3DECL(int) VbglR3GuestCtrlProcGetOutput(PVBGLR3GUESTCTRLCMDCTX pCtx,
     VbglHGCMParmUInt32Set(&Msg.handle, 0);
     VbglHGCMParmUInt32Set(&Msg.flags, 0);
 
-    int rc = VbglR3HGCMCall(&Msg.hdr, sizeof(Msg));
+    int rc = VbglR3HGCMCall(&Msg.hdr, RT_UOFFSETOF(HGCMMsgProcOutput, data));
     if (RT_SUCCESS(rc))
     {
         Msg.context.GetUInt32(&pCtx->uContextID);
@@ -851,7 +851,7 @@ VBGLR3DECL(int) VbglR3GuestCtrlFileCbOpen(PVBGLR3GUESTCTRLCMDCTX pCtx,
     VbglHGCMParmUInt32Set(&Msg.rc, uRc);
     VbglHGCMParmUInt32Set(&Msg.u.open.handle, uFileHandle);
 
-    return VbglR3HGCMCall(&Msg.hdr, sizeof(Msg));
+    return VbglR3HGCMCall(&Msg.hdr, RT_UOFFSET_AFTER(HGCMReplyFileNotify, u.open));
 }
 
 
@@ -866,7 +866,7 @@ VBGLR3DECL(int) VbglR3GuestCtrlFileCbClose(PVBGLR3GUESTCTRLCMDCTX pCtx,
     VbglHGCMParmUInt32Set(&Msg.type, GUEST_FILE_NOTIFYTYPE_CLOSE);
     VbglHGCMParmUInt32Set(&Msg.rc, uRc);
 
-    return VbglR3HGCMCall(&Msg.hdr, sizeof(Msg));
+    return VbglR3HGCMCall(&Msg.hdr, RT_UOFFSETOF(HGCMReplyFileNotify, u));
 }
 
 
@@ -880,7 +880,7 @@ VBGLR3DECL(int) VbglR3GuestCtrlFileCbError(PVBGLR3GUESTCTRLCMDCTX pCtx, uint32_t
     VbglHGCMParmUInt32Set(&Msg.type, GUEST_FILE_NOTIFYTYPE_ERROR);
     VbglHGCMParmUInt32Set(&Msg.rc, uRc);
 
-    return VbglR3HGCMCall(&Msg.hdr, sizeof(Msg));
+    return VbglR3HGCMCall(&Msg.hdr, RT_UOFFSETOF(HGCMReplyFileNotify, u));
 }
 
 
@@ -897,7 +897,7 @@ VBGLR3DECL(int) VbglR3GuestCtrlFileCbRead(PVBGLR3GUESTCTRLCMDCTX pCtx,
     VbglHGCMParmUInt32Set(&Msg.rc, uRc);
     VbglHGCMParmPtrSet(&Msg.u.read.data, pvData, cbData);
 
-    return VbglR3HGCMCall(&Msg.hdr, sizeof(Msg));
+    return VbglR3HGCMCall(&Msg.hdr, RT_UOFFSET_AFTER(HGCMReplyFileNotify, u.read));
 }
 
 
@@ -913,7 +913,7 @@ VBGLR3DECL(int) VbglR3GuestCtrlFileCbWrite(PVBGLR3GUESTCTRLCMDCTX pCtx,
     VbglHGCMParmUInt32Set(&Msg.rc, uRc);
     VbglHGCMParmUInt32Set(&Msg.u.write.written, uWritten);
 
-    return VbglR3HGCMCall(&Msg.hdr, sizeof(Msg));
+    return VbglR3HGCMCall(&Msg.hdr, RT_UOFFSET_AFTER(HGCMReplyFileNotify, u.write));
 }
 
 
@@ -929,7 +929,7 @@ VBGLR3DECL(int) VbglR3GuestCtrlFileCbSeek(PVBGLR3GUESTCTRLCMDCTX pCtx,
     VbglHGCMParmUInt32Set(&Msg.rc, uRc);
     VbglHGCMParmUInt64Set(&Msg.u.seek.offset, uOffActual);
 
-    return VbglR3HGCMCall(&Msg.hdr, sizeof(Msg));
+    return VbglR3HGCMCall(&Msg.hdr, RT_UOFFSET_AFTER(HGCMReplyFileNotify, u.seek));
 }
 
 
@@ -945,7 +945,7 @@ VBGLR3DECL(int) VbglR3GuestCtrlFileCbTell(PVBGLR3GUESTCTRLCMDCTX pCtx,
     VbglHGCMParmUInt32Set(&Msg.rc, uRc);
     VbglHGCMParmUInt64Set(&Msg.u.tell.offset, uOffActual);
 
-    return VbglR3HGCMCall(&Msg.hdr, sizeof(Msg));
+    return VbglR3HGCMCall(&Msg.hdr, RT_UOFFSET_AFTER(HGCMReplyFileNotify, u.tell));
 }
 
 

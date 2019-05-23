@@ -107,7 +107,9 @@ DECLCALLBACK(int) vboxUhgsmiD3DBufferCreate(PVBOXUHGSMI pHgsmi, uint32_t cbBuf, 
     Assert(cPages);
 
     PVBOXUHGSMI_PRIVATE_D3D pPrivate = VBOXUHGSMID3D_GET(pHgsmi);
-    PVBOXUHGSMI_BUFFER_PRIVATE_DX_ALLOC_BASE pBuf = (PVBOXUHGSMI_BUFFER_PRIVATE_DX_ALLOC_BASE)RTMemAllocZ(RT_OFFSETOF(VBOXUHGSMI_BUFFER_PRIVATE_DX_ALLOC_BASE, aLockPageIndices[cPages]));
+    PVBOXUHGSMI_BUFFER_PRIVATE_DX_ALLOC_BASE pBuf;
+    pBuf = (PVBOXUHGSMI_BUFFER_PRIVATE_DX_ALLOC_BASE)RTMemAllocZ(RT_UOFFSETOF_DYN(VBOXUHGSMI_BUFFER_PRIVATE_DX_ALLOC_BASE,
+                                                                                  aLockPageIndices[cPages]));
     if (pBuf)
     {
         D3DDDICB_ALLOCATE DdiAlloc;

@@ -261,13 +261,13 @@ int main()
     CHECK_MEMBER_ALIGNMENT(VM, selm.s.Tss, 16);
     PRINT_OFFSET(VM, selm.s.Tss);
     PVM pVM = NULL; NOREF(pVM);
-    if ((RT_OFFSETOF(VM, selm.s.Tss) & PAGE_OFFSET_MASK) > PAGE_SIZE - sizeof(pVM->selm.s.Tss))
+    if ((RT_UOFFSETOF(VM, selm.s.Tss) & PAGE_OFFSET_MASK) > PAGE_SIZE - sizeof(pVM->selm.s.Tss))
     {
         printf("error! SELM:Tss is crossing a page!\n");
         rc++;
     }
     PRINT_OFFSET(VM, selm.s.TssTrap08);
-    if ((RT_OFFSETOF(VM, selm.s.TssTrap08) & PAGE_OFFSET_MASK) > PAGE_SIZE - sizeof(pVM->selm.s.TssTrap08))
+    if ((RT_UOFFSETOF(VM, selm.s.TssTrap08) & PAGE_OFFSET_MASK) > PAGE_SIZE - sizeof(pVM->selm.s.TssTrap08))
     {
         printf("error! SELM:TssTrap08 is crossing a page!\n");
         rc++;
@@ -339,7 +339,7 @@ int main()
 
 #if HC_ARCH_BITS == 32
     /* CPUMHOSTCTX - lss pair */
-    if (RT_OFFSETOF(CPUMHOSTCTX, esp) + 4 != RT_OFFSETOF(CPUMHOSTCTX, ss))
+    if (RT_UOFFSETOF(CPUMHOSTCTX, esp) + 4 != RT_UOFFSETOF(CPUMHOSTCTX, ss))
     {
         printf("error! CPUMHOSTCTX lss has been split up!\n");
         rc++;

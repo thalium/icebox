@@ -197,8 +197,8 @@ DECLCALLBACK(int) vboxUhgsmiBaseEscBufferSubmit(PVBOXUHGSMI pHgsmi, PVBOXUHGSMI_
         }
     }
 
-    int rc = vboxCrHgsmiPrivateEscape(pPrivate, &Buf.SubmitInfo, RT_OFFSETOF(VBOXDISPIFESCAPE_UHGSMI_SUBMIT, aBuffers[cBuffers]),
-                                      FALSE);
+    int rc = vboxCrHgsmiPrivateEscape(pPrivate, &Buf.SubmitInfo,
+                                      RT_UOFFSETOF_DYN(VBOXDISPIFESCAPE_UHGSMI_SUBMIT, aBuffers[cBuffers]), FALSE);
     if (RT_SUCCESS(rc))
     {
         DWORD dwResult = WaitForSingleObject(hSynch, INFINITE);

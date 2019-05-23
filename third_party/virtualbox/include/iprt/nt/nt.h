@@ -1484,13 +1484,13 @@ typedef PTEB_COMMON PTEB;
 
 #if !defined(NtCurrentTeb) && !defined(IPRT_NT_HAVE_CURRENT_TEB_MACRO)
 # ifdef RT_ARCH_X86
-DECL_FORCE_INLINE(PTEB)     RTNtCurrentTeb(void) { return (PTEB)__readfsdword(RT_OFFSETOF(TEB_COMMON, NtTib.Self)); }
-DECL_FORCE_INLINE(PPEB)     RTNtCurrentPeb(void) { return (PPEB)__readfsdword(RT_OFFSETOF(TEB_COMMON, ProcessEnvironmentBlock)); }
-DECL_FORCE_INLINE(uint32_t) RTNtCurrentThreadId(void) { return __readfsdword(RT_OFFSETOF(TEB_COMMON, ClientId.UniqueThread)); }
+DECL_FORCE_INLINE(PTEB)     RTNtCurrentTeb(void) { return (PTEB)__readfsdword(RT_UOFFSETOF(TEB_COMMON, NtTib.Self)); }
+DECL_FORCE_INLINE(PPEB)     RTNtCurrentPeb(void) { return (PPEB)__readfsdword(RT_UOFFSETOF(TEB_COMMON, ProcessEnvironmentBlock)); }
+DECL_FORCE_INLINE(uint32_t) RTNtCurrentThreadId(void) { return __readfsdword(RT_UOFFSETOF(TEB_COMMON, ClientId.UniqueThread)); }
 # elif defined(RT_ARCH_AMD64)
-DECL_FORCE_INLINE(PTEB)     RTNtCurrentTeb(void) { return (PTEB)__readgsqword(RT_OFFSETOF(TEB_COMMON, NtTib.Self)); }
-DECL_FORCE_INLINE(PPEB)     RTNtCurrentPeb(void) { return (PPEB)__readgsqword(RT_OFFSETOF(TEB_COMMON, ProcessEnvironmentBlock)); }
-DECL_FORCE_INLINE(uint32_t) RTNtCurrentThreadId(void) { return (uint32_t)__readgsqword(RT_OFFSETOF(TEB_COMMON, ClientId.UniqueThread)); }
+DECL_FORCE_INLINE(PTEB)     RTNtCurrentTeb(void) { return (PTEB)__readgsqword(RT_UOFFSETOF(TEB_COMMON, NtTib.Self)); }
+DECL_FORCE_INLINE(PPEB)     RTNtCurrentPeb(void) { return (PPEB)__readgsqword(RT_UOFFSETOF(TEB_COMMON, ProcessEnvironmentBlock)); }
+DECL_FORCE_INLINE(uint32_t) RTNtCurrentThreadId(void) { return (uint32_t)__readgsqword(RT_UOFFSETOF(TEB_COMMON, ClientId.UniqueThread)); }
 # else
 #  error "Port me"
 # endif

@@ -111,7 +111,7 @@ int pdmR3DevInit(PVM pVM)
 {
     LogFlow(("pdmR3DevInit:\n"));
 
-    AssertRelease(!(RT_OFFSETOF(PDMDEVINS, achInstanceData) & 15));
+    AssertRelease(!(RT_UOFFSETOF(PDMDEVINS, achInstanceData) & 15));
     AssertRelease(sizeof(pVM->pdm.s.pDevInstances->Internal.s) <= sizeof(pVM->pdm.s.pDevInstances->Internal.padding));
 
     /*
@@ -302,7 +302,7 @@ int pdmR3DevInit(PVM pVM)
          * Allocate the device instance and critical section.
          */
         AssertReturn(paDevs[i].pDev->cInstances < paDevs[i].pDev->pReg->cMaxInstances, VERR_PDM_TOO_MANY_DEVICE_INSTANCES);
-        size_t cb = RT_OFFSETOF(PDMDEVINS, achInstanceData[paDevs[i].pDev->pReg->cbInstance]);
+        size_t cb = RT_UOFFSETOF_DYN(PDMDEVINS, achInstanceData[paDevs[i].pDev->pReg->cbInstance]);
         cb = RT_ALIGN_Z(cb, 16);
         PPDMDEVINS pDevIns;
         if (paDevs[i].pDev->pReg->fFlags & (PDM_DEVREG_FLAGS_RC | PDM_DEVREG_FLAGS_R0))

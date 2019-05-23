@@ -123,33 +123,6 @@ static int                  vmR3SetErrorU(PUVM pUVM, int rc, RT_SRC_POS_DECL, co
 
 
 /**
- * Do global VMM init.
- *
- * @returns VBox status code.
- */
-VMMR3DECL(int)   VMR3GlobalInit(void)
-{
-    /*
-     * Only once.
-     */
-    static bool volatile s_fDone = false;
-    if (s_fDone)
-        return VINF_SUCCESS;
-
-#if defined(VBOX_WITH_DTRACE_R3) && !defined(VBOX_WITH_NATIVE_DTRACE)
-    SUPR3TracerRegisterModule(~(uintptr_t)0, "VBoxVMM", &g_VTGObjHeader, (uintptr_t)&g_VTGObjHeader,
-                              SUP_TRACER_UMOD_FLAGS_SHARED);
-#endif
-
-    /*
-     * We're done.
-     */
-    s_fDone = true;
-    return VINF_SUCCESS;
-}
-
-
-/**
  * Creates a virtual machine by calling the supplied configuration constructor.
  *
  * On successful returned the VM is powered, i.e. VMR3PowerOn() should be
@@ -207,20 +180,6 @@ VMMR3DECL(int)   VMR3Create(uint32_t cCpus, PCVMM2USERMETHODS pVmm2UserMethods,
     AssertReturn(ppVM || ppUVM, VERR_INVALID_PARAMETER);
 
     /*
-     * Because of the current hackiness of the applications
-     * we'll have to initialize global stuff from here.
-     * Later the applications will take care of this in a proper way.
-     */
-    static bool fGlobalInitDone = false;
-    if (!fGlobalInitDone)
-    {
-        int rc = VMR3GlobalInit();
-        if (RT_FAILURE(rc))
-            return rc;
-        fGlobalInitDone = true;
-    }
-
-    /*
      * Validate input.
      */
     AssertLogRelMsgReturn(cCpus > 0 && cCpus <= VMM_MAX_CPU_COUNT, ("%RU32\n", cCpus), VERR_TOO_MANY_CPUS);
@@ -243,6 +202,14 @@ VMMR3DECL(int)   VMR3Create(uint32_t cCpus, PCVMM2USERMETHODS pVmm2UserMethods,
         rc = SUPR3Init(&pUVM->vm.s.pSession);
         if (RT_SUCCESS(rc))
         {
+#if defined(VBOX_WITH_DTRACE_R3) && !defined(VBOX_WITH_NATIVE_DTRACE)
+            /* Now that we've opened the device, we can register trace probes. */
+            static bool s_fRegisteredProbes = false;
+            if (ASMAtomicCmpXchgBool(&s_fRegisteredProbes, true, false))
+                SUPR3TracerRegisterModule(~(uintptr_t)0, "VBoxVMM", &g_VTGObjHeader, (uintptr_t)&g_VTGObjHeader,
+                                          SUP_TRACER_UMOD_FLAGS_SHARED);
+#endif
+
             /*
              * Call vmR3CreateU in the EMT thread and wait for it to finish.
              *
@@ -470,7 +437,7 @@ static int vmR3CreateUVM(uint32_t cCpus, PCVMM2USERMETHODS pVmm2UserMethods, PUV
     /*
      * Create and initialize the UVM.
      */
-    PUVM pUVM = (PUVM)RTMemPageAllocZ(RT_OFFSETOF(UVM, aCpus[cCpus]));
+    PUVM pUVM = (PUVM)RTMemPageAllocZ(RT_UOFFSETOF_DYN(UVM, aCpus[cCpus]));
     AssertReturn(pUVM, VERR_NO_MEMORY);
     pUVM->u32Magic          = UVM_MAGIC;
     pUVM->cCpus             = cCpus;
@@ -570,7 +537,7 @@ static int vmR3CreateUVM(uint32_t cCpus, PCVMM2USERMETHODS pVmm2UserMethods, PUV
         }
         RTTlsFree(pUVM->vm.s.idxTLS);
     }
-    RTMemPageFree(pUVM, RT_OFFSETOF(UVM, aCpus[pUVM->cCpus]));
+    RTMemPageFree(pUVM, RT_UOFFSETOF_DYN(UVM, aCpus[pUVM->cCpus]));
     return rc;
 }
 
@@ -3193,7 +3160,7 @@ static void vmR3DoReleaseUVM(PUVM pUVM)
 
     ASMAtomicUoWriteU32(&pUVM->u32Magic, UINT32_MAX);
     RTTlsFree(pUVM->vm.s.idxTLS);
-    RTMemPageFree(pUVM, RT_OFFSETOF(UVM, aCpus[pUVM->cCpus]));
+    RTMemPageFree(pUVM, RT_UOFFSETOF_DYN(UVM, aCpus[pUVM->cCpus]));
 }
 
 

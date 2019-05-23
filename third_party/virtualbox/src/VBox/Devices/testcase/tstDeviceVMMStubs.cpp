@@ -615,7 +615,7 @@ VMMDECL(RTRCPTR) MMHyperR3ToRC(PVM pVM, RTR3PTR R3Ptr)
  */
 VMMR3DECL(void) MMR3HeapFree(void *pv)
 {
-    PTSTDEVMMHEAPALLOC pHeapAlloc = (PTSTDEVMMHEAPALLOC)((uint8_t *)pv - RT_OFFSETOF(TSTDEVMMHEAPALLOC, abAlloc[0]));
+    PTSTDEVMMHEAPALLOC pHeapAlloc = (PTSTDEVMMHEAPALLOC)((uint8_t *)pv - RT_UOFFSETOF(TSTDEVMMHEAPALLOC, abAlloc[0]));
     pHeapAlloc->pVmmCallbacks->pfnMMR3HeapFree(pv);
 }
 

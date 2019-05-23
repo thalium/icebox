@@ -235,12 +235,20 @@ void SERVER_DISPATCH_APIENTRY crServerDispatchDeleteTextures( GLsizei n, const G
 
 void SERVER_DISPATCH_APIENTRY crServerDispatchPrioritizeTextures( GLsizei n, const GLuint * textures, const GLclampf * priorities )
 {
-    GLuint *newTextures = (GLuint *) crAlloc(n * sizeof(GLuint));
+    GLuint *newTextures;
     GLint i;
+
+    if (n >= INT32_MAX / sizeof(GLuint))
+    {
+        crError("crServerDispatchPrioritizeTextures: parameter 'n' is out of range");
+        return;
+    }
+
+    newTextures = (GLuint *)crAlloc(n * sizeof(GLuint));
 
     if (!newTextures)
     {
-        crError("crServerDispatchDeleteTextures: out of memory");
+        crError("crServerDispatchPrioritizeTextures: out of memory");
         return;
     }
 
@@ -270,12 +278,33 @@ GLboolean SERVER_DISPATCH_APIENTRY
 crServerDispatchAreTexturesResident(GLsizei n, const GLuint *textures,
                                     GLboolean *residences)
 {
-    GLboolean retval;
+    GLboolean retval = GL_FALSE;
     GLsizei i;
-    GLboolean *res = (GLboolean *) crAlloc(n * sizeof(GLboolean));
-    GLuint *textures2 = (GLuint *) crAlloc(n * sizeof(GLuint));
-
+    GLboolean *res;
+    GLuint *textures2;
     (void) residences;
+
+    if (n >= INT32_MAX / sizeof(GLuint))
+    {
+        crError("crServerDispatchAreTexturesResident: parameter 'n' is out of range");
+        return GL_FALSE;
+    }
+
+    res = (GLboolean *)crCalloc(n * sizeof(GLboolean));
+    if (!res)
+    {
+        crError("crServerDispatchAreTexturesResident: out of memory");
+        return GL_FALSE;
+    }
+
+    textures2 = (GLuint *)crAlloc(n * sizeof(GLuint));
+
+    if (!textures2)
+    {
+        crError("crServerDispatchAreTexturesResident: out of memory");
+        crFree(res);
+        return GL_FALSE;
+    }
 
     for (i = 0; i < n; i++)
     {

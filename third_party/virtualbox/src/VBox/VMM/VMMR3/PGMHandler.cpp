@@ -500,7 +500,7 @@ VMMR3_INT_DECL(int) PGMR3HandlerVirtualRegister(PVM pVM, PVMCPU pVCpu, PGMVIRTHA
      */
     unsigned cPages = (RT_ALIGN(GCPtrLast + 1, PAGE_SIZE) - (GCPtr & PAGE_BASE_GC_MASK)) >> PAGE_SHIFT;
     PPGMVIRTHANDLER pNew;
-    int rc = MMHyperAlloc(pVM, RT_OFFSETOF(PGMVIRTHANDLER, aPhysToVirt[cPages]), 0, MM_TAG_PGM_HANDLERS, (void **)&pNew); /** @todo r=bird: incorrect member name PhysToVirt? */
+    int rc = MMHyperAlloc(pVM, RT_UOFFSETOF_DYN(PGMVIRTHANDLER, aPhysToVirt[cPages]), 0, MM_TAG_PGM_HANDLERS, (void **)&pNew); /** @todo r=bird: incorrect member name PhysToVirt? */
     if (RT_FAILURE(rc))
         return rc;
 
@@ -518,7 +518,7 @@ VMMR3_INT_DECL(int) PGMR3HandlerVirtualRegister(PVM pVM, PVMCPU pVCpu, PGMVIRTHA
     {
         pNew->aPhysToVirt[cPages].Core.Key = NIL_RTGCPHYS;
         pNew->aPhysToVirt[cPages].Core.KeyLast = NIL_RTGCPHYS;
-        pNew->aPhysToVirt[cPages].offVirtHandler = -RT_OFFSETOF(PGMVIRTHANDLER, aPhysToVirt[cPages]);
+        pNew->aPhysToVirt[cPages].offVirtHandler = -(int32_t)RT_UOFFSETOF_DYN(PGMVIRTHANDLER, aPhysToVirt[cPages]);
         pNew->aPhysToVirt[cPages].offNextAlias = 0;
     }
 

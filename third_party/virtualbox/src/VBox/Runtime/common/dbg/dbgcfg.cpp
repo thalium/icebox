@@ -1916,7 +1916,7 @@ static int rtDbgCfgChangeStringList(PRTDBGCFGINT pThis, RTDBGCFGOP enmOp, const 
             /*
              * We're adding a new one.
              */
-            PRTDBGCFGSTR pNew = (PRTDBGCFGSTR)RTMemAlloc(RT_OFFSETOF(RTDBGCFGSTR, sz[cchPath + 1]));
+            PRTDBGCFGSTR pNew = (PRTDBGCFGSTR)RTMemAlloc(RT_UOFFSETOF_DYN(RTDBGCFGSTR, sz[cchPath + 1]));
             if (!pNew)
                 return VERR_NO_MEMORY;
             pNew->cch = (uint16_t)cchPath;

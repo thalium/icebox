@@ -136,7 +136,8 @@ static int rtR0MemKernelCopyLnxWorker(void *pvDst, void const *pvSrc, size_t cb)
                           "2:\n\t"
                           ".section .fixup,\"ax\"\n"
                           "3:\n\t"
-                          "movl %4, %0\n"
+                          "movl %4, %0\n\t"
+                          "jmp 2b\n\t"
                           ".previous\n"
                           _ASM_EXTABLE(1b, 3b)
                           : "=r" (rc),

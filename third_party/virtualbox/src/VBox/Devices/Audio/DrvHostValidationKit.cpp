@@ -5,7 +5,7 @@
  */
 
 /*
- * Copyright (C) 2016-2017 Oracle Corporation
+ * Copyright (C) 2016-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -82,11 +82,13 @@ static DECLCALLBACK(int) drvHostVaKitAudioGetConfig(PPDMIHOSTAUDIO pInterface, P
     RT_NOREF(pInterface);
     AssertPtrReturn(pBackendCfg, VERR_INVALID_POINTER);
 
+    RTStrPrintf2(pBackendCfg->szName, sizeof(pBackendCfg->szName), "Validation Kit audio driver");
+
     pBackendCfg->cbStreamOut    = sizeof(VAKITAUDIOSTREAM);
     pBackendCfg->cbStreamIn     = sizeof(VAKITAUDIOSTREAM);
 
     pBackendCfg->cMaxStreamsOut = 1; /* Output */
-    pBackendCfg->cMaxStreamsIn  = 2; /* Line input + microphone input. */
+    pBackendCfg->cMaxStreamsIn  = 0; /* No input supported yet. */
 
     return VINF_SUCCESS;
 }
@@ -125,29 +127,26 @@ static DECLCALLBACK(PDMAUDIOBACKENDSTS) drvHostVaKitAudioGetStatus(PPDMIHOSTAUDI
 }
 
 
-static int debugCreateStreamIn(PDRVHOSTVAKITAUDIO pDrv, PVAKITAUDIOSTREAM pStreamDbg,
+static int vakitCreateStreamIn(PDRVHOSTVAKITAUDIO pDrv, PVAKITAUDIOSTREAM pStreamDbg,
                                PPDMAUDIOSTREAMCFG pCfgReq, PPDMAUDIOSTREAMCFG pCfgAcq)
 {
-    RT_NOREF(pDrv, pStreamDbg, pCfgReq);
-
-    if (pCfgAcq)
-        pCfgAcq->cFrameBufferHint = _1K;
+    RT_NOREF(pDrv, pStreamDbg, pCfgReq, pCfgAcq);
 
     return VINF_SUCCESS;
 }
 
 
-static int debugCreateStreamOut(PDRVHOSTVAKITAUDIO pDrv, PVAKITAUDIOSTREAM pStreamDbg,
+static int vakitCreateStreamOut(PDRVHOSTVAKITAUDIO pDrv, PVAKITAUDIOSTREAM pStreamDbg,
                                 PPDMAUDIOSTREAMCFG pCfgReq, PPDMAUDIOSTREAMCFG pCfgAcq)
 {
-    RT_NOREF(pDrv);
+    RT_NOREF(pDrv, pCfgAcq);
 
     int rc = VINF_SUCCESS;
 
     pStreamDbg->tsStarted = 0;
     pStreamDbg->uSamplesSinceStarted = 0;
     pStreamDbg->Out.tsLastPlayed  = 0;
-    pStreamDbg->Out.cbPlayBuffer  = 16 * _1K * PDMAUDIOSTREAMCFG_F2B(pCfgReq, 1); /** @todo Make this configurable? */
+    pStreamDbg->Out.cbPlayBuffer  = DrvAudioHlpFramesToBytes(pCfgReq->Backend.cfBufferSize, &pCfgReq->Props);
     pStreamDbg->Out.pu8PlayBuffer = (uint8_t *)RTMemAlloc(pStreamDbg->Out.cbPlayBuffer);
     if (!pStreamDbg->Out.pu8PlayBuffer)
         rc = VERR_NO_MEMORY;
@@ -163,7 +162,7 @@ static int debugCreateStreamOut(PDRVHOSTVAKITAUDIO pDrv, PVAKITAUDIOSTREAM pStre
         {
             char szFile[RTPATH_MAX + 1];
 
-            rc = DrvAudioHlpGetFileName(szFile, RT_ELEMENTS(szFile), szTemp, "VaKit",
+            rc = DrvAudioHlpFileNameGet(szFile, RT_ELEMENTS(szFile), szTemp, "VaKit",
                                         0 /* Instance */, PDMAUDIOFILETYPE_WAV, PDMAUDIOFILENAME_FLAG_NONE);
             if (RT_SUCCESS(rc))
             {
@@ -180,20 +179,14 @@ static int debugCreateStreamOut(PDRVHOSTVAKITAUDIO pDrv, PVAKITAUDIOSTREAM pStre
             {
                 size_t cch;
                 char szTimingInfo[128];
-                cch = RTStrPrintf(szTimingInfo, sizeof(szTimingInfo), "# %dHz %dch %dbps\n",
-                    pCfgReq->Props.uHz, pCfgReq->Props.cChannels, pCfgReq->Props.cBits);
+                cch = RTStrPrintf(szTimingInfo, sizeof(szTimingInfo), "# %dHz %dch %dbit\n",
+                                  pCfgReq->Props.uHz, pCfgReq->Props.cChannels, pCfgReq->Props.cBytes * 8);
 
                 RTFileWrite(pStreamDbg->hFileTiming, szTimingInfo, cch, NULL);
             }
         }
         else
             LogRel(("VaKitAudio: Unable to retrieve temp dir: %Rrc\n", rc));
-    }
-
-    if (RT_SUCCESS(rc))
-    {
-        if (pCfgAcq)
-            pCfgAcq->cFrameBufferHint = PDMAUDIOSTREAMCFG_B2F(pCfgAcq, pStreamDbg->Out.cbPlayBuffer);
     }
 
     return rc;
@@ -217,9 +210,9 @@ static DECLCALLBACK(int) drvHostVaKitAudioStreamCreate(PPDMIHOSTAUDIO pInterface
 
     int rc;
     if (pCfgReq->enmDir == PDMAUDIODIR_IN)
-        rc = debugCreateStreamIn( pDrv, pStreamDbg, pCfgReq, pCfgAcq);
+        rc = vakitCreateStreamIn( pDrv, pStreamDbg, pCfgReq, pCfgAcq);
     else
-        rc = debugCreateStreamOut(pDrv, pStreamDbg, pCfgReq, pCfgAcq);
+        rc = vakitCreateStreamOut(pDrv, pStreamDbg, pCfgReq, pCfgAcq);
 
     if (RT_SUCCESS(rc))
     {
@@ -272,7 +265,7 @@ static DECLCALLBACK(int) drvHostVaKitAudioStreamPlay(PPDMIHOSTAUDIO pInterface,
 
     int rc2 = DrvAudioHlpFileWrite(pStreamDbg->pFile, pvBuf, cxBuf, 0 /* fFlags */);
     if (RT_FAILURE(rc2))
-        LogRel(("DebugAudio: Writing output failed with %Rrc\n", rc2));
+        LogRel(("VaKitAudio: Writing output failed with %Rrc\n", rc2));
 
     *pcxWritten = cxBuf;
 
@@ -297,14 +290,14 @@ static DECLCALLBACK(int) drvHostVaKitAudioStreamCapture(PPDMIHOSTAUDIO pInterfac
 }
 
 
-static int debugDestroyStreamIn(PDRVHOSTVAKITAUDIO pDrv, PVAKITAUDIOSTREAM pStreamDbg)
+static int vakitDestroyStreamIn(PDRVHOSTVAKITAUDIO pDrv, PVAKITAUDIOSTREAM pStreamDbg)
 {
     RT_NOREF(pDrv, pStreamDbg);
     return VINF_SUCCESS;
 }
 
 
-static int debugDestroyStreamOut(PDRVHOSTVAKITAUDIO pDrv, PVAKITAUDIOSTREAM pStreamDbg)
+static int vakitDestroyStreamOut(PDRVHOSTVAKITAUDIO pDrv, PVAKITAUDIOSTREAM pStreamDbg)
 {
     RT_NOREF(pDrv);
 
@@ -340,9 +333,9 @@ static DECLCALLBACK(int) drvHostVaKitAudioStreamDestroy(PPDMIHOSTAUDIO pInterfac
 
     int rc;
     if (pStreamDbg->pCfg->enmDir == PDMAUDIODIR_IN)
-        rc = debugDestroyStreamIn (pDrv, pStreamDbg);
+        rc = vakitDestroyStreamIn (pDrv, pStreamDbg);
     else
-        rc = debugDestroyStreamOut(pDrv, pStreamDbg);
+        rc = vakitDestroyStreamOut(pDrv, pStreamDbg);
 
     if (RT_SUCCESS(rc))
     {

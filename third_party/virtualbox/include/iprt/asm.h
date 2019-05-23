@@ -552,7 +552,7 @@ DECLINLINE(void RT_FAR *) ASMAtomicXchgPtr(void RT_FAR * volatile RT_FAR *ppv, c
  * @param   pv      The pointer value to assign to *ppv.
  * @param   Type    The type of *ppv, sans volatile.
  */
-#ifdef __GNUC__
+#ifdef __GNUC__ /* 8.2.0 requires -Wno-ignored-qualifiers */
 # define ASMAtomicXchgPtrT(ppv, pv, Type) \
     __extension__ \
     ({\
@@ -731,7 +731,7 @@ DECLINLINE(bool) ASMAtomicCmpXchgU8(volatile uint8_t RT_FAR *pu8, const uint8_t 
  */
 DECLINLINE(bool) ASMAtomicCmpXchgS8(volatile int8_t RT_FAR *pi8, const int8_t i8New, const int8_t i8Old)
 {
-    return ASMAtomicCmpXchgU8((volatile uint8_t RT_FAR *)pi8, (const uint8_t)i8New, (const uint8_t)i8Old);
+    return ASMAtomicCmpXchgU8((volatile uint8_t RT_FAR *)pi8, (uint8_t)i8New, (uint8_t)i8Old);
 }
 
 
@@ -749,7 +749,7 @@ DECLINLINE(bool) ASMAtomicCmpXchgS8(volatile int8_t RT_FAR *pi8, const int8_t i8
  */
 DECLINLINE(bool) ASMAtomicCmpXchgBool(volatile bool RT_FAR *pf, const bool fNew, const bool fOld)
 {
-    return ASMAtomicCmpXchgU8((volatile uint8_t RT_FAR *)pf, (const uint8_t)fNew, (const uint8_t)fOld);
+    return ASMAtomicCmpXchgU8((volatile uint8_t RT_FAR *)pf, (uint8_t)fNew, (uint8_t)fOld);
 }
 
 
@@ -2029,7 +2029,7 @@ DECLINLINE(void RT_FAR *) ASMAtomicReadPtr(void RT_FAR * volatile RT_FAR *ppv)
  * @param   ppv     Pointer to the pointer variable to read.
  * @param   Type    The type of *ppv, sans volatile.
  */
-#ifdef __GNUC__
+#ifdef __GNUC__ /* 8.2.0 requires -Wno-ignored-qualifiers */
 # define ASMAtomicReadPtrT(ppv, Type) \
     __extension__ \
     ({\
@@ -2071,7 +2071,7 @@ DECLINLINE(void RT_FAR *) ASMAtomicUoReadPtr(void RT_FAR * volatile RT_FAR *ppv)
  * @param   ppv     Pointer to the pointer variable to read.
  * @param   Type    The type of *ppv, sans volatile.
  */
-#ifdef __GNUC__
+#ifdef __GNUC__ /* 8.2.0 requires -Wno-ignored-qualifiers */
 # define ASMAtomicUoReadPtrT(ppv, Type) \
     __extension__ \
     ({\

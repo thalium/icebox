@@ -546,7 +546,7 @@ DECL_HIDDEN_CONST(const RTVFSFILEOPS) g_VfsReadAheadFileOps =
     /*RTVFSIOFILEOPS_FEAT_NO_AT_OFFSET*/ 0,
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
-        RT_OFFSETOF(RTVFSFILEOPS, Stream.Obj) - RT_OFFSETOF(RTVFSFILEOPS, ObjSet),
+        RT_UOFFSETOF(RTVFSFILEOPS, ObjSet) - RT_UOFFSETOF(RTVFSFILEOPS, Stream.Obj),
         rtVfsReadAhead_SetMode,
         rtVfsReadAhead_SetTimes,
         rtVfsReadAhead_SetOwner,
@@ -698,7 +698,7 @@ static int rtVfsCreateReadAheadInstance(RTVFSIOSTREAM hVfsIosSrc, RTVFSFILE hVfs
         RTVFSFILE       hVfsFileReadAhead = NIL_RTVFSFILE;
         RTVFSIOSTREAM   hVfsIosReadAhead  = NIL_RTVFSIOSTREAM;
         PRTVFSREADAHEAD pThis;
-        size_t          cbThis = RT_OFFSETOF(RTVFSREADAHEAD, aBufDescs[cBuffers]);
+        size_t          cbThis = RT_UOFFSETOF_DYN(RTVFSREADAHEAD, aBufDescs[cBuffers]);
         if (hVfsFileSrc != NIL_RTVFSFILE)
             rc = RTVfsNewFile(&g_VfsReadAheadFileOps, cbThis, RTFILE_O_READ, NIL_RTVFS, NIL_RTVFSLOCK,
                               &hVfsFileReadAhead, (void **)&pThis);

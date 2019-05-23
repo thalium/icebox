@@ -368,7 +368,7 @@ int GuestFile::i_closeFile(int *pGuestRc)
 
         vrc = registerWaitEvent(eventTypes, &pEvent);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         vrc = VERR_NO_MEMORY;
     }
@@ -661,7 +661,7 @@ int GuestFile::i_openFile(uint32_t uTimeoutMS, int *pGuestRc)
 
         vrc = registerWaitEvent(eventTypes, &pEvent);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         vrc = VERR_NO_MEMORY;
     }
@@ -717,7 +717,7 @@ int GuestFile::i_readData(uint32_t uSize, uint32_t uTimeoutMS,
 
         vrc = registerWaitEvent(eventTypes, &pEvent);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         vrc = VERR_NO_MEMORY;
     }
@@ -772,7 +772,7 @@ int GuestFile::i_readDataAt(uint64_t uOffset, uint32_t uSize, uint32_t uTimeoutM
 
         vrc = registerWaitEvent(eventTypes, &pEvent);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         vrc = VERR_NO_MEMORY;
     }
@@ -829,7 +829,7 @@ int GuestFile::i_seekAt(int64_t iOffset, GUEST_FILE_SEEKTYPE eSeekType,
 
         vrc = registerWaitEvent(eventTypes, &pEvent);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         vrc = VERR_NO_MEMORY;
     }
@@ -1078,7 +1078,7 @@ int GuestFile::i_writeData(uint32_t uTimeoutMS, void *pvData, uint32_t cbData,
 
         vrc = registerWaitEvent(eventTypes, &pEvent);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         vrc = VERR_NO_MEMORY;
     }
@@ -1137,7 +1137,7 @@ int GuestFile::i_writeDataAt(uint64_t uOffset, uint32_t uTimeoutMS,
 
         vrc = registerWaitEvent(eventTypes, &pEvent);
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         vrc = VERR_NO_MEMORY;
     }

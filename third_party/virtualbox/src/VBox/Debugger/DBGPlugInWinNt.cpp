@@ -469,7 +469,7 @@ static int dbgDiggerWinNtCreateLdrMod(PDBGDIGGERWINNT pThis, PUVM pUVM, const ch
      * Allocate and create a reader instance.
      */
     uint32_t const      cShs = WINNT_UNION(pThis, pHdrs, FileHeader.NumberOfSections);
-    PDBGDIGGERWINNTRDR  pRdr = (PDBGDIGGERWINNTRDR)RTMemAlloc(RT_OFFSETOF(DBGDIGGERWINNTRDR, aMappings[cShs + 2]));
+    PDBGDIGGERWINNTRDR  pRdr = (PDBGDIGGERWINNTRDR)RTMemAlloc(RT_UOFFSETOF_DYN(DBGDIGGERWINNTRDR, aMappings[cShs + 2]));
     if (!pRdr)
         return VERR_NO_MEMORY;
 

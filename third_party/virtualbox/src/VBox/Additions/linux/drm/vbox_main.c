@@ -40,6 +40,8 @@
 #include <drm/drm_fb_helper.h>
 #include <drm/drm_crtc_helper.h>
 
+#include "hgsmi_channels.h"
+
 static void vbox_user_framebuffer_destroy(struct drm_framebuffer *fb)
 {
 	struct vbox_framebuffer *vbox_fb = to_vbox_framebuffer(fb);
@@ -108,10 +110,11 @@ void vbox_framebuffer_dirty_rectangles(struct drm_framebuffer *fb,
 	struct drm_crtc *crtc;
 	unsigned int i;
 
+	/* The user can send rectangles, we do not need the timer. */
+	vbox->need_refresh_timer = false;
 	mutex_lock(&vbox->hw_mutex);
 	list_for_each_entry(crtc, &fb->dev->mode_config.crtc_list, head) {
 		if (CRTC_FB(crtc) == fb) {
-			vbox_enable_accel(vbox);
 			for (i = 0; i < num_rects; ++i) {
 				VBVACMDHDR cmd_hdr;
 				unsigned int crtc_id =
@@ -246,9 +249,45 @@ static void vbox_accel_fini(struct vbox_private *vbox)
 	ioremap(pci_resource_start(dev, bar) + (offset), maxlen)
 #endif
 
+/**
+ * Tell the host about the views.  This design originally targeted the
+ * Windows XP driver architecture and assumed that each screen would
+ * have a dedicated frame buffer with the command buffer following it,
+ * the whole being a "view".  The host works out which screen a command
+ * buffer belongs to by checking whether it is in the first view, then
+ * whether it is in the second and so on.  The first match wins.  We
+ * cheat around this by making the first view be the managed memory
+ * plus the first command buffer, the second the same plus the second
+ * buffer and so on.
+ */
+static int vbox_set_views(struct vbox_private *vbox)
+{
+	VBVAINFOVIEW *p;
+	int i;
+
+	p = VBoxHGSMIBufferAlloc(vbox->guest_pool, sizeof(*p),
+			       HGSMI_CH_VBVA, VBVA_INFO_VIEW);
+	if (!p)
+		return -ENOMEM;
+
+	for (i = 0; i < vbox->num_crtcs; ++i) {
+		p->u32ViewIndex = i;
+		p->u32ViewOffset = 0;
+		p->u32ViewSize = vbox->available_vram_size +
+			i * VBVA_MIN_BUFFER_SIZE;
+		p->u32MaxScreenSize = vbox->available_vram_size;
+
+		VBoxHGSMIBufferSubmit(vbox->guest_pool, p);
+	}
+
+	VBoxHGSMIBufferFree(vbox->guest_pool, p);
+
+	return 0;
+}
+
 static int vbox_accel_init(struct vbox_private *vbox)
 {
-	unsigned int i;
+	unsigned int i, ret;
 
 	vbox->vbva_info = kcalloc(vbox->num_crtcs, sizeof(*vbox->vbva_info),
 				  GFP_KERNEL);
@@ -271,7 +310,16 @@ static int vbox_accel_init(struct vbox_private *vbox)
 					   i * VBVA_MIN_BUFFER_SIZE,
 					   VBVA_MIN_BUFFER_SIZE);
 
+	vbox_enable_accel(vbox);
+	ret = vbox_set_views(vbox);
+	if (ret)
+		goto err_pci_iounmap;
+
 	return 0;
+
+err_pci_iounmap:
+	pci_iounmap(vbox->dev->pdev, vbox->vbva_buffers);
+	return ret;
 }
 
 /** Do we support the 4.3 plus mode hint reporting interface? */
@@ -293,6 +341,32 @@ static bool have_hgsmi_mode_hints(struct vbox_private *vbox)
 		return false;
 
 	return have_hints == VINF_SUCCESS && have_cursor == VINF_SUCCESS;
+}
+
+/**
+ * Our refresh timer call-back.  Only used for guests without dirty rectangle
+ * support.
+ */
+static void vbox_refresh_timer(struct work_struct *work)
+{
+	struct vbox_private *vbox = container_of(work, struct vbox_private,
+												 refresh_work.work);
+	bool have_unblanked = false;
+	struct drm_crtc *crtci;
+
+	if (!vbox->need_refresh_timer)
+		return;
+	list_for_each_entry(crtci, &vbox->dev->mode_config.crtc_list, head) {
+		struct vbox_crtc *vbox_crtc = to_vbox_crtc(crtci);
+		if (crtci->enabled && !vbox_crtc->blanked)
+			have_unblanked = true;
+	}
+	if (!have_unblanked)
+		return;
+	/* This forces a full refresh. */
+	vbox_enable_accel(vbox);
+	/* Schedule the next timer iteration. */
+	schedule_delayed_work(&vbox->refresh_work, VBOX_REFRESH_PERIOD);
 }
 
 /**
@@ -341,11 +415,18 @@ static int vbox_hw_init(struct vbox_private *vbox)
 	if (!vbox->last_mode_hints)
 		return -ENOMEM;
 
-	return vbox_accel_init(vbox);
+	ret = vbox_accel_init(vbox);
+	if (ret)
+		return ret;
+	/* Set up the refresh timer for users which do not send dirty rectangles. */
+	INIT_DELAYED_WORK(&vbox->refresh_work, vbox_refresh_timer);
+	return 0;
 }
 
 static void vbox_hw_fini(struct vbox_private *vbox)
 {
+	vbox->need_refresh_timer = false;
+	cancel_delayed_work(&vbox->refresh_work);
 	vbox_accel_fini(vbox);
 	kfree(vbox->last_mode_hints);
 	vbox->last_mode_hints = NULL;
@@ -439,7 +520,7 @@ void vbox_driver_lastclose(struct drm_device *dev)
 {
 	struct vbox_private *vbox = dev->dev_private;
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 16, 0) || defined(RHEL_73)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3, 16, 0) || defined(RHEL_71)
 	if (vbox->fbdev)
 		drm_fb_helper_restore_fbdev_mode_unlocked(&vbox->fbdev->helper);
 #else
@@ -528,7 +609,7 @@ void vbox_gem_free_object(struct drm_gem_object *obj)
 
 static inline u64 vbox_bo_mmap_offset(struct vbox_bo *bo)
 {
-#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0) && !defined(RHEL_73)
+#if LINUX_VERSION_CODE < KERNEL_VERSION(3, 12, 0) && !defined(RHEL_70)
 	return bo->bo.addr_space_offset;
 #else
 	return drm_vma_node_offset_addr(&bo->bo.vma_node);

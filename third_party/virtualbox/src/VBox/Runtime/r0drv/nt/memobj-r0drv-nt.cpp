@@ -577,7 +577,7 @@ static int rtR0MemObjNtLock(PPRTR0MEMOBJINTERNAL ppMem, void *pv, size_t cb, uin
         cMdls++;
     if (cMdls >= UINT32_MAX)
         return VERR_OUT_OF_RANGE;
-    PRTR0MEMOBJNT pMemNt = (PRTR0MEMOBJNT)rtR0MemObjNew(RT_OFFSETOF(RTR0MEMOBJNT, apMdls[cMdls]),
+    PRTR0MEMOBJNT pMemNt = (PRTR0MEMOBJNT)rtR0MemObjNew(RT_UOFFSETOF_DYN(RTR0MEMOBJNT, apMdls[cMdls]),
                                                         RTR0MEMOBJTYPE_LOCK, pv, cb);
     if (!pMemNt)
         return VERR_NO_MEMORY;

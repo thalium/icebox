@@ -455,7 +455,7 @@ static RTEXITCODE handleDebugVM_SetRegisters(HandlerArg *pArgs, IMachineDebugger
                         || !aBstrValues.push_back(bstrValue.raw()))
                         throw std::bad_alloc();
                 }
-                catch (std::bad_alloc)
+                catch (std::bad_alloc &)
                 {
                     RTMsgError("Out of memory\n");
                     return RTEXITCODE_FAILURE;

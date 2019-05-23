@@ -100,7 +100,7 @@ int main(int argc, char **argv)
         {        16,          0,    NULL,  7 },
     };
     uint32_t i;
-    RTHeapOffsetDump(Heap, (PFNRTHEAPOFFSETPRINTF)RTPrintf); /** @todo Add some detail info output with a signature identical to RTPrintf. */
+    RTHeapOffsetDump(Heap, (PFNRTHEAPOFFSETPRINTF)(uintptr_t)RTPrintf); /** @todo Add some detail info output with a signature identical to RTPrintf. */
     size_t cbBefore = RTHeapOffsetGetFreeSize(Heap);
     static char const s_szFill[] = "01234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
@@ -184,7 +184,7 @@ int main(int argc, char **argv)
         RTTestIPrintf(RTTESTLVL_ALWAYS,
                       "Warning: Either we've split out an alignment chunk at the start, or we've got\n"
                       "         an alloc/free accounting bug: cbBefore=%d cbAfter=%d\n", cbBefore, cbAfter);
-        RTHeapOffsetDump(Heap, (PFNRTHEAPOFFSETPRINTF)RTPrintf);
+        RTHeapOffsetDump(Heap, (PFNRTHEAPOFFSETPRINTF)(uintptr_t)RTPrintf);
     }
 
     /* relocate and free the bits in heap2 now. */

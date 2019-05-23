@@ -668,7 +668,7 @@ int GuestBase::dispatchGeneric(PVBOXGUESTCTRLHOSTCBCTX pCtxCb, PVBOXGUESTCTRLHOS
                 break;
         }
     }
-    catch (std::bad_alloc)
+    catch (std::bad_alloc &)
     {
         vrc = VERR_NO_MEMORY;
     }

@@ -289,55 +289,55 @@ RTR3DECL(int) RTFileOpen(PRTFILE pFile, const char *pszFilename, uint64_t fOpen)
      * Open/Create the file.
      */
     PRTUTF16 pwszFilename;
-    rc = RTStrToUtf16(pszFilename, &pwszFilename);
-    if (RT_FAILURE(rc))
-        return rc;
-
-    HANDLE hFile = CreateFileW(pwszFilename,
-                               dwDesiredAccess,
-                               dwShareMode,
-                               pSecurityAttributes,
-                               dwCreationDisposition,
-                               dwFlagsAndAttributes,
-                               NULL);
-    if (hFile != INVALID_HANDLE_VALUE)
+    rc = RTPathWinFromUtf8(&pwszFilename, pszFilename, 0 /*fFlags*/);
+    if (RT_SUCCESS(rc))
     {
-        bool fCreated = dwCreationDisposition == CREATE_ALWAYS
-                     || dwCreationDisposition == CREATE_NEW
-                     || (dwCreationDisposition == OPEN_ALWAYS && GetLastError() == 0);
+        HANDLE hFile = CreateFileW(pwszFilename,
+                                   dwDesiredAccess,
+                                   dwShareMode,
+                                   pSecurityAttributes,
+                                   dwCreationDisposition,
+                                   dwFlagsAndAttributes,
+                                   NULL);
+        if (hFile != INVALID_HANDLE_VALUE)
+        {
+            bool fCreated = dwCreationDisposition == CREATE_ALWAYS
+                         || dwCreationDisposition == CREATE_NEW
+                         || (dwCreationDisposition == OPEN_ALWAYS && GetLastError() == 0);
 
-        /*
-         * Turn off indexing of directory through Windows Indexing Service.
-         */
-        if (    fCreated
-            &&  (fOpen & RTFILE_O_NOT_CONTENT_INDEXED))
-        {
-            if (!SetFileAttributesW(pwszFilename, FILE_ATTRIBUTE_NOT_CONTENT_INDEXED))
-                rc = RTErrConvertFromWin32(GetLastError());
-        }
-        /*
-         * Do we need to truncate the file?
-         */
-        else if (    !fCreated
-                 &&     (fOpen & (RTFILE_O_TRUNCATE | RTFILE_O_ACTION_MASK))
-                     == (RTFILE_O_TRUNCATE | RTFILE_O_OPEN_CREATE))
-        {
-            if (!SetEndOfFile(hFile))
-                rc = RTErrConvertFromWin32(GetLastError());
-        }
-        if (RT_SUCCESS(rc))
-        {
-            *pFile = (RTFILE)hFile;
-            Assert((HANDLE)*pFile == hFile);
-            RTUtf16Free(pwszFilename);
-            return VINF_SUCCESS;
-        }
+            /*
+             * Turn off indexing of directory through Windows Indexing Service.
+             */
+            if (    fCreated
+                &&  (fOpen & RTFILE_O_NOT_CONTENT_INDEXED))
+            {
+                if (!SetFileAttributesW(pwszFilename, FILE_ATTRIBUTE_NOT_CONTENT_INDEXED))
+                    rc = RTErrConvertFromWin32(GetLastError());
+            }
+            /*
+             * Do we need to truncate the file?
+             */
+            else if (    !fCreated
+                     &&     (fOpen & (RTFILE_O_TRUNCATE | RTFILE_O_ACTION_MASK))
+                         == (RTFILE_O_TRUNCATE | RTFILE_O_OPEN_CREATE))
+            {
+                if (!SetEndOfFile(hFile))
+                    rc = RTErrConvertFromWin32(GetLastError());
+            }
+            if (RT_SUCCESS(rc))
+            {
+                *pFile = (RTFILE)hFile;
+                Assert((HANDLE)*pFile == hFile);
+                RTPathWinFree(pwszFilename);
+                return VINF_SUCCESS;
+            }
 
-        CloseHandle(hFile);
+            CloseHandle(hFile);
+        }
+        else
+            rc = RTErrConvertFromWin32(GetLastError());
+        RTPathWinFree(pwszFilename);
     }
-    else
-        rc = RTErrConvertFromWin32(GetLastError());
-    RTUtf16Free(pwszFilename);
     return rc;
 }
 
@@ -1012,12 +1012,12 @@ RTR3DECL(int) RTFileSetMode(RTFILE hFile, RTFMODE fMode)
 RTR3DECL(int)  RTFileDelete(const char *pszFilename)
 {
     PRTUTF16 pwszFilename;
-    int rc = RTStrToUtf16(pszFilename, &pwszFilename);
+    int rc = RTPathWinFromUtf8(&pwszFilename, pszFilename, 0 /*fFlags*/);
     if (RT_SUCCESS(rc))
     {
         if (!DeleteFileW(pwszFilename))
             rc = RTErrConvertFromWin32(GetLastError());
-        RTUtf16Free(pwszFilename);
+        RTPathWinFree(pwszFilename);
     }
 
     return rc;

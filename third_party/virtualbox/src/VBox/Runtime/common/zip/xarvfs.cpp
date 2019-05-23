@@ -1162,7 +1162,7 @@ static const RTVFSFILEOPS g_rtZipXarFssFileOps =
     0,
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
-        RT_OFFSETOF(RTVFSFILEOPS, Stream.Obj) - RT_OFFSETOF(RTVFSFILEOPS, ObjSet),
+        RT_UOFFSETOF(RTVFSFILEOPS, ObjSet) - RT_UOFFSETOF(RTVFSFILEOPS, Stream.Obj),
         rtZipXarFssFile_SetMode,
         rtZipXarFssFile_SetTimes,
         rtZipXarFssFile_SetOwner,
@@ -1430,7 +1430,7 @@ static const RTVFSSYMLINKOPS g_rtZipXarFssSymOps =
     0,
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
-        RT_OFFSETOF(RTVFSSYMLINKOPS, Obj) - RT_OFFSETOF(RTVFSSYMLINKOPS, ObjSet),
+        RT_UOFFSETOF(RTVFSSYMLINKOPS, ObjSet) - RT_UOFFSETOF(RTVFSSYMLINKOPS, Obj),
         rtZipXarFssSym_SetMode,
         rtZipXarFssSym_SetTimes,
         rtZipXarFssSym_SetOwner,
@@ -1938,7 +1938,7 @@ static int rtZipXarReadAndValidateToc(RTVFSIOSTREAM hVfsIosIn, PCXARHEADER pXarH
                 {
                     Parser.read(pszOutput, cchToc, RTCString("xar-toc.xml"), *pDoc);
                 }
-                catch (xml::XmlError Err)
+                catch (xml::XmlError &)
                 {
                     rc = VERR_XAR_TOC_XML_PARSE_ERROR;
                 }

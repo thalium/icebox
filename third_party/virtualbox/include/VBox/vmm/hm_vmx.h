@@ -1551,6 +1551,7 @@ whose vector indexed a bit set in the EOI-exit bitmap. */
  * @{
  */
 #define VMX_EXIT_REASON_BASIC(a)                                ((a) & 0xffff)
+#define VMX_EXIT_REASON_HAS_ENTRY_FAILED(a)                     (((a) >> 31) & 1)
 /** @} */
 
 /** @name VMX_VMCS32_CTRL_ENTRY_INTERRUPTION_INFO

@@ -339,10 +339,10 @@ DECLHIDDEN(int) rtR0InitNative(void)
     __try /* Warning. This try/except statement may provide some false safety. */
     {
 #if defined(RT_ARCH_X86)
-        PKPCR    pPcr   = (PKPCR)__readfsdword(RT_OFFSETOF(KPCR,SelfPcr));
+        PKPCR    pPcr   = (PKPCR)__readfsdword(RT_UOFFSETOF(KPCR,SelfPcr));
         pbPrcb = (uint8_t *)pPcr->Prcb;
 #elif defined(RT_ARCH_AMD64)
-        PKPCR    pPcr   = (PKPCR)__readgsqword(RT_OFFSETOF(KPCR,Self));
+        PKPCR    pPcr   = (PKPCR)__readgsqword(RT_UOFFSETOF(KPCR,Self));
         pbPrcb = (uint8_t *)pPcr->CurrentPrcb;
 #else
 # error "port me"

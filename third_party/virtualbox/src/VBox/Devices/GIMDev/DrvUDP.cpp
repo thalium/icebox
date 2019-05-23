@@ -34,7 +34,7 @@
 *   Defined Constants And Macros                                                                                                 *
 *********************************************************************************************************************************/
 /** Converts a pointer to DRVUDP::IStream to a PDRVUDP. */
-#define PDMISTREAM_2_DRVUDP(pInterface) ( (PDRVUDP)((uintptr_t)pInterface - RT_OFFSETOF(DRVUDP, IStream)) )
+#define PDMISTREAM_2_DRVUDP(pInterface) ( (PDRVUDP)((uintptr_t)pInterface - RT_UOFFSETOF(DRVUDP, IStream)) )
 
 
 /*********************************************************************************************************************************

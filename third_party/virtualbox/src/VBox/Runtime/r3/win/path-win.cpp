@@ -62,29 +62,28 @@ RTDECL(int) RTPathReal(const char *pszPath, char *pszRealPath, size_t cchRealPat
      * Convert to UTF-16, call Win32 APIs, convert back.
      */
     PRTUTF16 pwszPath;
-    int rc = RTStrToUtf16(pszPath, &pwszPath);
-    if (!RT_SUCCESS(rc))
-        return (rc);
-
-    LPWSTR lpFile;
-    WCHAR  wsz[RTPATH_MAX];
-    rc = GetFullPathNameW((LPCWSTR)pwszPath, RT_ELEMENTS(wsz), &wsz[0], &lpFile);
-    if (rc > 0 && rc < RT_ELEMENTS(wsz))
+    int rc = RTPathWinFromUtf8(&pwszPath, pszPath, 0 /*fFlags*/);
+    if (RT_SUCCESS(rc))
     {
-        /* Check that it exists. (Use RTPathAbs() to just resolve the name.) */
-        DWORD dwAttr = GetFileAttributesW(wsz);
-        if (dwAttr != INVALID_FILE_ATTRIBUTES)
-            rc = RTUtf16ToUtf8Ex((PRTUTF16)&wsz[0], RTSTR_MAX, &pszRealPath, cchRealPath, NULL);
-        else
+        LPWSTR lpFile;
+        WCHAR  wsz[RTPATH_MAX];
+        rc = GetFullPathNameW((LPCWSTR)pwszPath, RT_ELEMENTS(wsz), &wsz[0], &lpFile);
+        if (rc > 0 && rc < RT_ELEMENTS(wsz))
+        {
+            /* Check that it exists. (Use RTPathAbs() to just resolve the name.) */
+            DWORD dwAttr = GetFileAttributesW(wsz);
+            if (dwAttr != INVALID_FILE_ATTRIBUTES)
+                rc = RTUtf16ToUtf8Ex((PRTUTF16)&wsz[0], RTSTR_MAX, &pszRealPath, cchRealPath, NULL);
+            else
+                rc = RTErrConvertFromWin32(GetLastError());
+        }
+        else if (rc <= 0)
             rc = RTErrConvertFromWin32(GetLastError());
+        else
+            rc = VERR_FILENAME_TOO_LONG;
+
+        RTPathWinFree(pwszPath);
     }
-    else if (rc <= 0)
-        rc = RTErrConvertFromWin32(GetLastError());
-    else
-        rc = VERR_FILENAME_TOO_LONG;
-
-    RTUtf16Free(pwszPath);
-
     return rc;
 }
 
@@ -441,7 +440,7 @@ RTR3DECL(int) RTPathSetTimesEx(const char *pszPath, PCRTTIMESPEC pAccessTime, PC
      * Convert the path.
      */
     PRTUTF16 pwszPath;
-    int rc = RTStrToUtf16(pszPath, &pwszPath);
+    int rc = RTPathWinFromUtf8(&pwszPath, pszPath, 0 /*fFlags*/);
     if (RT_SUCCESS(rc))
     {
         HANDLE hFile;
@@ -522,7 +521,7 @@ RTR3DECL(int) RTPathSetTimesEx(const char *pszPath, PCRTTIMESPEC pAccessTime, PC
             Log(("RTPathSetTimes('%s',,,,): failed with %Rrc and lasterr=%u\n", pszPath, rc, Err));
         }
 
-        RTUtf16Free(pwszPath);
+        RTPathWinFree(pwszPath);
     }
 
     LogFlow(("RTPathSetTimes(%p:{%s}, %p:{%RDtimespec}, %p:{%RDtimespec}, %p:{%RDtimespec}, %p:{%RDtimespec}): return %Rrc\n",
@@ -552,11 +551,11 @@ DECLHIDDEN(int) rtPathWin32MoveRename(const char *pszSrc, const char *pszDst, ui
      * Convert the strings.
      */
     PRTUTF16 pwszSrc;
-    int rc = RTStrToUtf16(pszSrc, &pwszSrc);
+    int rc = RTPathWinFromUtf8(&pwszSrc, pszSrc, 0 /*fFlags*/);
     if (RT_SUCCESS(rc))
     {
         PRTUTF16 pwszDst;
-        rc = RTStrToUtf16(pszDst, &pwszDst);
+        rc = RTPathWinFromUtf8(&pwszDst, pszDst, 0 /*fFlags*/);
         if (RT_SUCCESS(rc))
         {
             /*
@@ -585,9 +584,9 @@ DECLHIDDEN(int) rtPathWin32MoveRename(const char *pszSrc, const char *pszDst, ui
                          pszSrc, pszDst, fFlags, fFileType, rc, Err));
                 }
             }
-            RTUtf16Free(pwszDst);
+            RTPathWinFree(pwszDst);
         }
-        RTUtf16Free(pwszSrc);
+        RTPathWinFree(pwszSrc);
     }
     return rc;
 }
@@ -641,11 +640,11 @@ RTDECL(bool) RTPathExistsEx(const char *pszPath, uint32_t fFlags)
      */
     DWORD dwAttr;
     PRTUTF16 pwszPath;
-    int rc = RTStrToUtf16(pszPath, &pwszPath);
+    int rc = RTPathWinFromUtf8(&pwszPath, pszPath, 0 /*fFlags*/);
     if (RT_SUCCESS(rc))
     {
         dwAttr = GetFileAttributesW(pwszPath);
-        RTUtf16Free(pwszPath);
+        RTPathWinFree(pwszPath);
     }
     else
         dwAttr = INVALID_FILE_ATTRIBUTES;
@@ -701,7 +700,7 @@ RTDECL(int) RTPathSetCurrent(const char *pszPath)
      * This interface is almost identical to the Windows API.
      */
     PRTUTF16 pwszPath;
-    int rc = RTStrToUtf16(pszPath, &pwszPath);
+    int rc = RTPathWinFromUtf8(&pwszPath, pszPath, 0 /*fFlags*/);
     if (RT_SUCCESS(rc))
     {
         /** @todo improve the slash stripping a bit? */
@@ -715,7 +714,7 @@ RTDECL(int) RTPathSetCurrent(const char *pszPath)
         if (!SetCurrentDirectoryW(pwszPath))
             rc = RTErrConvertFromWin32(GetLastError());
 
-        RTUtf16Free(pwszPath);
+        RTPathWinFree(pwszPath);
     }
     return rc;
 }

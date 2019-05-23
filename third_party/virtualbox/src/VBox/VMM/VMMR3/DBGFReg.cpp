@@ -345,7 +345,7 @@ static int dbgfR3RegRegisterCommon(PUVM pUVM, PCDBGFREGDESC paRegisters, DBGFREG
     /*
      * Allocate a new record and all associated lookup records.
      */
-    size_t cbRegSet = RT_OFFSETOF(DBGFREGSET, szPrefix[cchPrefix + 4 + 1]);
+    size_t cbRegSet = RT_UOFFSETOF_DYN(DBGFREGSET, szPrefix[cchPrefix + 4 + 1]);
     cbRegSet = RT_ALIGN_Z(cbRegSet, 32);
     size_t const offLookupRecArray = cbRegSet;
     cbRegSet += cLookupRecs * sizeof(DBGFREGLOOKUP);

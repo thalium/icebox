@@ -1173,7 +1173,7 @@ static int ssmR3Register(PVM pVM, const char *pszName, uint32_t uInstance,
     /*
      * Allocate new node.
      */
-    pUnit = (PSSMUNIT)MMR3HeapAllocZ(pVM, MM_TAG_SSM, RT_OFFSETOF(SSMUNIT, szName[cchName + 1]));
+    pUnit = (PSSMUNIT)MMR3HeapAllocZ(pVM, MM_TAG_SSM, RT_UOFFSETOF_DYN(SSMUNIT, szName[cchName + 1]));
     if (!pUnit)
         return VERR_NO_MEMORY;
 
@@ -4419,10 +4419,10 @@ static int ssmR3LiveControlEmit(PSSMHANDLE pSSM, long double lrdPct, uint32_t uP
     UnitHdr.fFlags          = 0;
     UnitHdr.cbName          = sizeof("SSMLiveControl");
     memcpy(&UnitHdr.szName[0], "SSMLiveControl", UnitHdr.cbName);
-    UnitHdr.u32CRC          = RTCrc32(&UnitHdr, RT_OFFSETOF(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]));
+    UnitHdr.u32CRC          = RTCrc32(&UnitHdr, RT_UOFFSETOF_DYN(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]));
     Log(("SSM: Unit at %#9llx: '%s', instance %u, pass %#x, version %u\n",
          UnitHdr.offStream, UnitHdr.szName, UnitHdr.u32Instance, UnitHdr.u32Pass, UnitHdr.u32Version));
-    int rc = ssmR3StrmWrite(&pSSM->Strm, &UnitHdr, RT_OFFSETOF(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]));
+    int rc = ssmR3StrmWrite(&pSSM->Strm, &UnitHdr, RT_UOFFSETOF_DYN(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]));
     if (RT_SUCCESS(rc))
     {
         /*
@@ -4681,7 +4681,7 @@ static int ssmR3WriteDirectory(PVM pVM, PSSMHANDLE pSSM, uint32_t *pcEntries)
     /*
      * Grab some temporary memory for the dictionary.
      */
-    size_t      cbDir = RT_OFFSETOF(SSMFILEDIR, aEntries[pVM->ssm.s.cUnits]);
+    size_t      cbDir = RT_UOFFSETOF_DYN(SSMFILEDIR, aEntries[pVM->ssm.s.cUnits]);
     PSSMFILEDIR pDir  = (PSSMFILEDIR)RTMemTmpAlloc(cbDir);
     if (!pDir)
     {
@@ -4712,7 +4712,7 @@ static int ssmR3WriteDirectory(PVM pVM, PSSMHANDLE pSSM, uint32_t *pcEntries)
      * out to the stream.
      */
     *pcEntries = pDir->cEntries;
-    cbDir = RT_OFFSETOF(SSMFILEDIR, aEntries[pDir->cEntries]);
+    cbDir = RT_UOFFSETOF_DYN(SSMFILEDIR, aEntries[pDir->cEntries]);
     pDir->u32CRC = RTCrc32(pDir, cbDir);
     int rc = ssmR3StrmWrite(&pSSM->Strm, pDir, cbDir);
     RTMemTmpFree(pDir);
@@ -4746,9 +4746,9 @@ static int ssmR3SaveDoFinalization(PVM pVM, PSSMHANDLE pSSM)
     UnitHdr.u32Pass         = SSM_PASS_FINAL;
     UnitHdr.fFlags          = 0;
     UnitHdr.cbName          = 0;
-    UnitHdr.u32CRC          = RTCrc32(&UnitHdr, RT_OFFSETOF(SSMFILEUNITHDRV2, szName[0]));
+    UnitHdr.u32CRC          = RTCrc32(&UnitHdr, RT_UOFFSETOF(SSMFILEUNITHDRV2, szName[0]));
     Log(("SSM: Unit at %#9llx: END UNIT\n", UnitHdr.offStream));
-    int rc = ssmR3StrmWrite(&pSSM->Strm, &UnitHdr, RT_OFFSETOF(SSMFILEUNITHDRV2, szName[0]));
+    int rc = ssmR3StrmWrite(&pSSM->Strm, &UnitHdr, RT_UOFFSETOF(SSMFILEUNITHDRV2, szName[0]));
     if (RT_FAILURE(rc))
     {
         LogRel(("SSM: Failed writing the end unit: %Rrc\n", rc));
@@ -4867,10 +4867,10 @@ static int ssmR3SaveDoExecRun(PVM pVM, PSSMHANDLE pSSM)
         UnitHdr.fFlags          = 0;
         UnitHdr.cbName          = (uint32_t)pUnit->cchName + 1;
         memcpy(&UnitHdr.szName[0], &pUnit->szName[0], UnitHdr.cbName);
-        UnitHdr.u32CRC          = RTCrc32(&UnitHdr, RT_OFFSETOF(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]));
+        UnitHdr.u32CRC          = RTCrc32(&UnitHdr, RT_UOFFSETOF_DYN(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]));
         Log(("SSM: Unit at %#9llx: '%s', instance %u, pass %#x, version %u\n",
              UnitHdr.offStream, UnitHdr.szName, UnitHdr.u32Instance, UnitHdr.u32Pass, UnitHdr.u32Version));
-        int rc = ssmR3StrmWrite(&pSSM->Strm, &UnitHdr, RT_OFFSETOF(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]));
+        int rc = ssmR3StrmWrite(&pSSM->Strm, &UnitHdr, RT_UOFFSETOF_DYN(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]));
         if (RT_FAILURE(rc))
         {
             LogRel(("SSM: Failed to write unit header. rc=%Rrc\n", rc));
@@ -5449,10 +5449,10 @@ static int ssmR3LiveDoExecRun(PVM pVM, PSSMHANDLE pSSM, uint32_t uPass)
         UnitHdr.fFlags          = 0;
         UnitHdr.cbName          = (uint32_t)pUnit->cchName + 1;
         memcpy(&UnitHdr.szName[0], &pUnit->szName[0], UnitHdr.cbName);
-        UnitHdr.u32CRC          = RTCrc32(&UnitHdr, RT_OFFSETOF(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]));
+        UnitHdr.u32CRC          = RTCrc32(&UnitHdr, RT_UOFFSETOF_DYN(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]));
         Log(("SSM: Unit at %#9llx: '%s', instance %u, pass %#x, version %u\n",
              UnitHdr.offStream, UnitHdr.szName, UnitHdr.u32Instance, UnitHdr.u32Pass, UnitHdr.u32Version));
-        int rc = ssmR3StrmWrite(&pSSM->Strm, &UnitHdr, RT_OFFSETOF(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]));
+        int rc = ssmR3StrmWrite(&pSSM->Strm, &UnitHdr, RT_UOFFSETOF_DYN(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]));
         if (RT_FAILURE(rc))
         {
             LogRel(("SSM: Failed to write unit header. rc=%Rrc\n", rc));
@@ -7983,7 +7983,7 @@ static int ssmR3HeaderAndValidate(PSSMHANDLE pSSM, bool fChecksumIt, bool fCheck
         {
             uint32_t u32CRC;
             rc = ssmR3CalcChecksum(&pSSM->Strm,
-                                   RT_OFFSETOF(SSMFILEHDRV11, u32CRC) + sizeof(uHdr.v1_1.u32CRC),
+                                   RT_UOFFSETOF(SSMFILEHDRV11, u32CRC) + sizeof(uHdr.v1_1.u32CRC),
                                    cbFile - pSSM->u.Read.cbFileHdr,
                                    &u32CRC);
             if (RT_FAILURE(rc))
@@ -8118,7 +8118,7 @@ static int ssmR3ValidateDirectory(PSSMFILEDIR pDir, size_t cbDir, uint64_t offDi
     AssertLogRelMsgReturn(pDir->cEntries == cDirEntries,
                           ("Bad directory entry count: %#x, expected %#x (from the footer)\n", pDir->cEntries, cDirEntries),
                            VERR_SSM_INTEGRITY_DIR);
-    AssertLogRelReturn(RT_UOFFSETOF(SSMFILEDIR, aEntries[pDir->cEntries]) == cbDir, VERR_SSM_INTEGRITY_DIR);
+    AssertLogRelReturn(RT_UOFFSETOF_DYN(SSMFILEDIR, aEntries[pDir->cEntries]) == cbDir, VERR_SSM_INTEGRITY_DIR);
 
     for (uint32_t i = 0; i < pDir->cEntries; i++)
     {
@@ -8160,7 +8160,7 @@ static void ssmR3StrmLogUnitContent(PSSMHANDLE pSSM, SSMFILEUNITHDRV2 const *pUn
     /*
      * Reverse back to the start of the unit if we can.
      */
-    uint32_t cbUnitHdr = RT_UOFFSETOF(SSMFILEUNITHDRV2, szName[pUnitHdr->cbName]);
+    uint32_t cbUnitHdr = RT_UOFFSETOF_DYN(SSMFILEUNITHDRV2, szName[pUnitHdr->cbName]);
     int rc = ssmR3StrmSeek(&pSSM->Strm, offUnit/* + cbUnitHdr*/, RTFILE_SEEK_BEGIN, pUnitHdr->u32CurStreamCRC);
     if (RT_SUCCESS(rc))
     {
@@ -8325,7 +8325,7 @@ static int ssmR3LoadExecV1(PVM pVM, PSSMHANDLE pSSM)
          */
         uint64_t         offUnit = ssmR3StrmTell(&pSSM->Strm);
         SSMFILEUNITHDRV1 UnitHdr;
-        rc = ssmR3StrmRead(&pSSM->Strm, &UnitHdr, RT_OFFSETOF(SSMFILEUNITHDRV1, szName));
+        rc = ssmR3StrmRead(&pSSM->Strm, &UnitHdr, RT_UOFFSETOF(SSMFILEUNITHDRV1, szName));
         if (RT_SUCCESS(rc))
         {
             /*
@@ -8379,7 +8379,7 @@ static int ssmR3LoadExecV1(PVM pVM, PSSMHANDLE pSSM)
                         /*
                          * Call the execute handler.
                          */
-                        pSSM->cbUnitLeftV1 = UnitHdr.cbUnit - RT_OFFSETOF(SSMFILEUNITHDRV1, szName[UnitHdr.cchName]);
+                        pSSM->cbUnitLeftV1 = UnitHdr.cbUnit - RT_UOFFSETOF_DYN(SSMFILEUNITHDRV1, szName[UnitHdr.cchName]);
                         pSSM->offUnit      = 0;
                         pSSM->offUnitUser  = 0;
                         pSSM->u.Read.uCurUnitVer  = UnitHdr.u32Version;
@@ -8530,7 +8530,7 @@ static int ssmR3LoadDirectoryAndFooter(PSSMHANDLE pSSM)
      * entries and pass the combined block to the validation function.
      */
     uint64_t        off      = ssmR3StrmTell(&pSSM->Strm);
-    size_t const    cbDirHdr = RT_OFFSETOF(SSMFILEDIR, aEntries);
+    size_t const    cbDirHdr = RT_UOFFSETOF(SSMFILEDIR, aEntries);
     SSMFILEDIR      DirHdr;
     int rc = ssmR3StrmRead(&pSSM->Strm, &DirHdr, cbDirHdr);
     if (RT_FAILURE(rc))
@@ -8542,7 +8542,7 @@ static int ssmR3LoadDirectoryAndFooter(PSSMHANDLE pSSM)
                           ("Too many directory entries at %#llx (%lld): %#x\n", off, off, DirHdr.cEntries),
                           VERR_SSM_INTEGRITY_DIR);
 
-    size_t      cbDir = RT_OFFSETOF(SSMFILEDIR, aEntries[DirHdr.cEntries]);
+    size_t      cbDir = RT_UOFFSETOF_DYN(SSMFILEDIR, aEntries[DirHdr.cEntries]);
     PSSMFILEDIR pDir  = (PSSMFILEDIR)RTMemTmpAlloc(cbDir);
     if (!pDir)
         return VERR_NO_TMP_MEMORY;
@@ -8586,7 +8586,7 @@ static int ssmR3LoadExecV2(PVM pVM, PSSMHANDLE pSSM)
         uint64_t            offUnit         = ssmR3StrmTell(&pSSM->Strm);
         uint32_t            u32CurStreamCRC = ssmR3StrmCurCRC(&pSSM->Strm);
         SSMFILEUNITHDRV2    UnitHdr;
-        int rc = ssmR3StrmRead(&pSSM->Strm, &UnitHdr, RT_OFFSETOF(SSMFILEUNITHDRV2, szName));
+        int rc = ssmR3StrmRead(&pSSM->Strm, &UnitHdr, RT_UOFFSETOF(SSMFILEUNITHDRV2, szName));
         if (RT_FAILURE(rc))
             return rc;
         if (RT_UNLIKELY(    memcmp(&UnitHdr.szMagic[0], SSMFILEUNITHDR_MAGIC, sizeof(UnitHdr.szMagic))
@@ -8612,7 +8612,7 @@ static int ssmR3LoadExecV2(PVM pVM, PSSMHANDLE pSSM)
                                    offUnit, offUnit, UnitHdr.cbName, UnitHdr.szName),
                                   VERR_SSM_INTEGRITY_UNIT);
         }
-        SSM_CHECK_CRC32_RET(&UnitHdr, RT_OFFSETOF(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]),
+        SSM_CHECK_CRC32_RET(&UnitHdr, RT_UOFFSETOF_DYN(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]),
                             ("Unit at %#llx (%lld): CRC mismatch: %08x, correct is %08x\n", offUnit, offUnit, u32CRC, u32ActualCRC));
         AssertLogRelMsgReturn(UnitHdr.offStream == offUnit,
                               ("Unit at %#llx (%lld): offStream=%#llx, expected %#llx\n", offUnit, offUnit, UnitHdr.offStream, offUnit),
@@ -9221,7 +9221,7 @@ static int ssmR3FileSeekV1(PSSMHANDLE pSSM, const char *pszUnit, uint32_t iInsta
         /*
          * Read the unit header and verify it.
          */
-        int rc = ssmR3StrmPeekAt(&pSSM->Strm, off, &UnitHdr, RT_OFFSETOF(SSMFILEUNITHDRV1, szName), NULL);
+        int rc = ssmR3StrmPeekAt(&pSSM->Strm, off, &UnitHdr, RT_UOFFSETOF(SSMFILEUNITHDRV1, szName), NULL);
         AssertRCReturn(rc, rc);
         if (!memcmp(&UnitHdr.achMagic[0], SSMFILEUNITHDR_MAGIC, sizeof(SSMFILEUNITHDR_MAGIC)))
         {
@@ -9231,7 +9231,7 @@ static int ssmR3FileSeekV1(PSSMHANDLE pSSM, const char *pszUnit, uint32_t iInsta
             if (    UnitHdr.u32Instance == iInstance
                 &&  UnitHdr.cchName     == cbUnitNm)
             {
-                rc = ssmR3StrmPeekAt(&pSSM->Strm, off + RT_OFFSETOF(SSMFILEUNITHDRV1, szName), szName, cbUnitNm, NULL);
+                rc = ssmR3StrmPeekAt(&pSSM->Strm, off + RT_UOFFSETOF(SSMFILEUNITHDRV1, szName), szName, cbUnitNm, NULL);
                 AssertRCReturn(rc, rc);
                 AssertLogRelMsgReturn(!szName[UnitHdr.cchName - 1],
                                       (" Unit name '%.*s' was not properly terminated.\n", cbUnitNm, szName),
@@ -9242,8 +9242,8 @@ static int ssmR3FileSeekV1(PSSMHANDLE pSSM, const char *pszUnit, uint32_t iInsta
                  */
                 if (!memcmp(szName, pszUnit, cbUnitNm))
                 {
-                    rc = ssmR3StrmSeek(&pSSM->Strm, off + RT_OFFSETOF(SSMFILEUNITHDRV1, szName) + cbUnitNm, RTFILE_SEEK_BEGIN, 0);
-                    pSSM->cbUnitLeftV1 = UnitHdr.cbUnit - RT_OFFSETOF(SSMFILEUNITHDRV1, szName[cbUnitNm]);
+                    rc = ssmR3StrmSeek(&pSSM->Strm, off + RT_UOFFSETOF(SSMFILEUNITHDRV1, szName) + cbUnitNm, RTFILE_SEEK_BEGIN, 0);
+                    pSSM->cbUnitLeftV1 = UnitHdr.cbUnit - RT_UOFFSETOF_DYN(SSMFILEUNITHDRV1, szName[cbUnitNm]);
                     pSSM->offUnit      = 0;
                     pSSM->offUnitUser  = 0;
                     if (piVersion)
@@ -9323,13 +9323,13 @@ static int ssmR3FileSeekSubV2(PSSMHANDLE pSSM, PSSMFILEDIR pDir, size_t cbDir, u
                                   ("Bad unit header: i=%d off=%lld u32Instance=%u Dir.u32Instance=%u\n",
                                    i, pDir->aEntries[i].off, UnitHdr.u32Instance, pDir->aEntries[i].u32Instance),
                                   VERR_SSM_INTEGRITY_UNIT);
-            uint32_t cbUnitHdr = RT_UOFFSETOF(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]);
+            uint32_t cbUnitHdr = RT_UOFFSETOF_DYN(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]);
             AssertLogRelMsgReturn(   UnitHdr.cbName > 0
                                   && UnitHdr.cbName < sizeof(UnitHdr)
                                   && cbUnitHdr <= cbToRead,
                                   ("Bad unit header: i=%u off=%lld cbName=%#x cbToRead=%#x\n", i, pDir->aEntries[i].off, UnitHdr.cbName, cbToRead),
                                   VERR_SSM_INTEGRITY_UNIT);
-            SSM_CHECK_CRC32_RET(&UnitHdr, RT_OFFSETOF(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]),
+            SSM_CHECK_CRC32_RET(&UnitHdr, RT_UOFFSETOF_DYN(SSMFILEUNITHDRV2, szName[UnitHdr.cbName]),
                                 ("Bad unit header CRC: i=%u off=%lld u32CRC=%#x u32ActualCRC=%#x\n",
                                  i, pDir->aEntries[i].off, u32CRC, u32ActualCRC));
 
@@ -9376,7 +9376,7 @@ static int ssmR3FileSeekV2(PSSMHANDLE pSSM, const char *pszUnit, uint32_t iInsta
     AssertLogRelReturn(!memcmp(Footer.szMagic, SSMFILEFTR_MAGIC, sizeof(Footer.szMagic)), VERR_SSM_INTEGRITY);
     SSM_CHECK_CRC32_RET(&Footer, sizeof(Footer), ("Bad footer CRC: %08x, actual %08x\n", u32CRC, u32ActualCRC));
 
-    size_t const    cbDir = RT_OFFSETOF(SSMFILEDIR, aEntries[Footer.cDirEntries]);
+    size_t const    cbDir = RT_UOFFSETOF_DYN(SSMFILEDIR, aEntries[Footer.cDirEntries]);
     PSSMFILEDIR     pDir  = (PSSMFILEDIR)RTMemTmpAlloc(cbDir);
     if (RT_UNLIKELY(!pDir))
         return VERR_NO_TMP_MEMORY;

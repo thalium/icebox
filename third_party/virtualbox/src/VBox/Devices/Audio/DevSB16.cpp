@@ -4,7 +4,7 @@
  */
 
 /*
- * Copyright (C) 2015-2017 Oracle Corporation
+ * Copyright (C) 2015-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -219,6 +219,7 @@ typedef struct SB16STATE
 /*********************************************************************************************************************************
 *   Internal Functions                                                                                                           *
 *********************************************************************************************************************************/
+static int sb16CheckAndReOpenOut(PSB16STATE pThis);
 static int sb16OpenOut(PSB16STATE pThis, PPDMAUDIOSTREAMCFG pCfg);
 static void sb16CloseOut(PSB16STATE pThis);
 #ifndef VBOX_WITH_AUDIO_SB16_CALLBACKS
@@ -347,29 +348,7 @@ static DECLCALLBACK(void) sb16TimerIRQ(PPDMDEVINS pDevIns, PTMTIMER pTimer, void
 
 static void continue_dma8(PSB16STATE pThis)
 {
-    if (pThis->freq > 0)
-    {
-        /* At the moment we only have one stream, the output stream. */
-        PPDMAUDIOSTREAMCFG pCfg = &pThis->Out.Cfg;
-
-        pCfg->enmDir          = PDMAUDIODIR_OUT;
-        pCfg->DestSource.Dest = PDMAUDIOPLAYBACKDEST_FRONT;
-        pCfg->enmLayout       = PDMAUDIOSTREAMLAYOUT_NON_INTERLEAVED;
-
-        pCfg->Props.uHz       = pThis->freq;
-        pCfg->Props.cChannels = 1 << pThis->fmt_stereo;
-        pCfg->Props.cBits     = pThis->fmt_bits;
-        pCfg->Props.fSigned   = RT_BOOL(pThis->fmt_signed);
-        pCfg->Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(pCfg->Props.cBits, pCfg->Props.cChannels);
-
-        strcpy(pCfg->szName, "Output");
-
-        sb16CloseOut(pThis);
-
-        int rc = sb16OpenOut(pThis, pCfg);
-        AssertRC(rc);
-    }
-
+    sb16CheckAndReOpenOut(pThis);
     sb16Control(pThis, 1);
 }
 
@@ -493,29 +472,7 @@ static void dma_cmd(PSB16STATE pThis, uint8_t cmd, uint8_t d0, int dma_len)
                      pThis->block_size, pThis->align + 1));
     }
 
-    if (pThis->freq)
-    {
-        /* At the moment we only have one stream, the output stream. */
-        PPDMAUDIOSTREAMCFG pCfg = &pThis->Out.Cfg;
-
-        pCfg->enmDir          = PDMAUDIODIR_OUT;
-        pCfg->DestSource.Dest = PDMAUDIOPLAYBACKDEST_FRONT;
-        pCfg->enmLayout       = PDMAUDIOSTREAMLAYOUT_NON_INTERLEAVED;
-
-        pCfg->Props.uHz       = pThis->freq;
-        pCfg->Props.cChannels = 1 << pThis->fmt_stereo;
-        pCfg->Props.cBits     = pThis->fmt_bits;
-        pCfg->Props.fSigned   = RT_BOOL(pThis->fmt_signed);
-        pCfg->Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(pCfg->Props.cBits, pCfg->Props.cChannels);
-
-        strcpy(pCfg->szName, "Output");
-
-        sb16CloseOut(pThis);
-
-        int rc = sb16OpenOut(pThis, pCfg);
-        AssertRC(rc);
-    }
-
+    sb16CheckAndReOpenOut(pThis);
     sb16Control(pThis, 1);
     sb16SpeakerControl(pThis, 1);
 }
@@ -1052,6 +1009,9 @@ static void sb16UpdateVolume(PSB16STATE pThis)
     PSB16DRIVER pDrv;
     RTListForEach(&pThis->lstDrv, pDrv, SB16DRIVER, Node)
     {
+        if (!pDrv->Out.pStream)
+            continue;
+
         int rc2 = pDrv->pConnector->pfnStreamSetVolume(pDrv->pConnector, pDrv->Out.pStream, &VolCombined);
         AssertRC(rc2);
     }
@@ -1060,8 +1020,6 @@ static void sb16UpdateVolume(PSB16STATE pThis)
 static void sb16CmdResetLegacy(PSB16STATE pThis)
 {
     LogFlowFuncEnter();
-
-    sb16CloseOut(pThis);
 
     pThis->freq       = 11025;
     pThis->fmt_signed = 0;
@@ -1077,9 +1035,9 @@ static void sb16CmdResetLegacy(PSB16STATE pThis)
 
     pCfg->Props.uHz       = pThis->freq;
     pCfg->Props.cChannels = 1; /* Mono */
-    pCfg->Props.cBits     = 8;
+    pCfg->Props.cBytes    = 1 /* 8-bit */;
     pCfg->Props.fSigned   = false;
-    pCfg->Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(pCfg->Props.cBits, pCfg->Props.cChannels);
+    pCfg->Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(pCfg->Props.cBytes, pCfg->Props.cChannels);
 
     AssertCompile(sizeof(pCfg->szName) > sizeof("Output"));
     strcpy(pCfg->szName, "Output");
@@ -1593,20 +1551,19 @@ static int sb16WriteAudio(PSB16STATE pThis, int nchan, uint32_t dma_pos, uint32_
         PSB16DRIVER pDrv;
         RTListForEach(&pThis->lstDrv, pDrv, SB16DRIVER, Node)
         {
+            if (!pDrv->Out.pStream)
+                continue;
+
+            if (!DrvAudioHlpStreamStatusCanWrite(pDrv->pConnector->pfnStreamGetStatus(pDrv->pConnector,  pDrv->Out.pStream)))
+                continue;
+
             uint32_t cbWrittenToStream = 0;
             rc2 = pDrv->pConnector->pfnStreamWrite(pDrv->pConnector, pDrv->Out.pStream, tmpbuf, cbRead, &cbWrittenToStream);
 
             LogFlowFunc(("\tLUN#%RU8: rc=%Rrc, cbWrittenToStream=%RU32\n", pDrv->uLUN, rc2, cbWrittenToStream));
-
-            /* The primary driver sets the overall pace. */
-            if (pDrv->fFlags & PDMAUDIODRVFLAGS_PRIMARY)
-            {
-                cbWritten = cbWrittenToStream;
-
-                if (RT_FAILURE(rc2))
-                    break;
-            }
         }
+
+        cbWritten = cbRead; /* Always report everything written, as the backends need to keep up themselves. */
 
         LogFlowFunc(("\tcbToRead=%RU32, cbToWrite=%RU32, cbWritten=%RU32, cbLeft=%RU32\n",
                      cbToRead, cbToWrite, cbWritten, cbToWrite - cbWrittenTotal));
@@ -1643,28 +1600,7 @@ static DECLCALLBACK(uint32_t) sb16DMARead(PPDMDEVINS pDevIns, void *opaque, unsi
     if (pThis->left_till_irq < 0)
         pThis->left_till_irq = pThis->block_size;
 
-    uint32_t cbOutMin = UINT32_MAX;
-
-    PSB16DRIVER pDrv;
-    RTListForEach(&pThis->lstDrv, pDrv, SB16DRIVER, Node)
-    {
-        uint32_t cbOut = pDrv->pConnector->pfnStreamGetWritable(pDrv->pConnector, pDrv->Out.pStream);
-
-        if (cbOut < cbOutMin)
-            cbOutMin = cbOut;
-    }
-
-    LogFlowFunc(("cbOutMin=%RU32\n", cbOutMin));
-    if (cbOutMin == UINT32_MAX)
-    {
-        free = dma_len;
-    }
-    else
-    {
-        free = cbOutMin & ~pThis->align; /** @todo int vs. uint32. */
-        if ((free <= 0) || !dma_len)
-            return dma_pos;
-    }
+    free = dma_len;
 
     copy = free;
     till = pThis->left_till_irq;
@@ -1770,32 +1706,6 @@ static DECLCALLBACK(void) sb16TimerIO(PPDMDEVINS pDevIns, PTMTIMER pTimer, void 
         if (!pStream)
             continue;
 
-# ifdef VBOX_STRICT
-        /*
-         * Sanity. Make sure that all streams have the same configuration
-         * to get SB16's DMA transfers right.
-         *
-         * SB16 only allows one output configuration per serial data out,
-         * so check if all streams have the same configuration.
-         */
-        PSB16DRIVER pDrvPrev = RTListNodeGetPrev(&pDrv->Node, SB16DRIVER, Node);
-        if (   pDrvPrev
-            && !RTListNodeIsDummy(&pThis->lstDrv, pDrvPrev, SB16DRIVER, Node))
-        {
-            PPDMAUDIOSTREAM pStreamPrev = pDrvPrev->Out.pStream;
-            if (pStreamPrev)
-            {
-                AssertMsg(pStream->Cfg.Props.uHz       == pStreamPrev->Cfg.Props.uHz,
-                          ("%RU32Hz vs. %RU32Hz\n", pStream->Cfg.Props.uHz, pStreamPrev->Cfg.Props.uHz));
-                AssertMsg(pStream->Cfg.Props.cChannels == pStreamPrev->Cfg.Props.cChannels,
-                          ("%RU8 vs. %RU8 channels\n", pStream->Cfg.Props.cChannels, pStreamPrev->Cfg.Props.cChannels));
-                AssertMsg(pStream->Cfg.Props.cBits     == pStreamPrev->Cfg.Props.cBits,
-                          ("%d vs. %d bits\n", pStream->Cfg.Props.cBits, pStreamPrev->Cfg.Props.cBits));
-                AssertMsg(pStream->Cfg.Props.fSigned   == pStreamPrev->Cfg.Props.fSigned,
-                          ("%RTbool vs. %RTbool signed\n", pStream->Cfg.Props.fSigned, pStreamPrev->Cfg.Props.fSigned));
-            }
-        }
-# endif
         PPDMIAUDIOCONNECTOR pConn = pDrv->pConnector;
         if (!pConn)
             continue;
@@ -1803,25 +1713,15 @@ static DECLCALLBACK(void) sb16TimerIO(PPDMDEVINS pDevIns, PTMTIMER pTimer, void 
         int rc2 = pConn->pfnStreamIterate(pConn, pStream);
         if (RT_SUCCESS(rc2))
         {
-            if (pStream->enmDir == PDMAUDIODIR_IN)
+            rc2 = pConn->pfnStreamPlay(pConn, pStream, NULL /* cPlayed */);
+            if (RT_FAILURE(rc2))
             {
-                /** @todo Implement recording! */
-            }
-            else
-            {
-                rc2 = pConn->pfnStreamPlay(pConn, pStream, NULL /* cPlayed */);
-                if (RT_FAILURE(rc2))
-                {
-                    LogFlowFunc(("%s: Failed playing stream, rc=%Rrc\n", pStream->szName, rc2));
-                    continue;
-                }
+                LogFlowFunc(("%s: Failed playing stream, rc=%Rrc\n", pStream->szName, rc2));
+                continue;
             }
 
-            if (pDrv->fFlags & PDMAUDIODRVFLAGS_PRIMARY)
-            {
-                /* Only do the next DMA transfer if we're able to write the remaining data block. */
-                fDoTransfer = pConn->pfnStreamGetWritable(pConn, pStream) > (unsigned)pThis->left_till_irq;
-            }
+            /* Only do the next DMA transfer if we're able to write the remaining data block. */
+            fDoTransfer = pConn->pfnStreamGetWritable(pConn, pStream) > (unsigned)pThis->left_till_irq;
         }
 
         PDMAUDIOSTREAMSTS strmSts = pConn->pfnStreamGetStatus(pConn, pStream);
@@ -2002,43 +1902,9 @@ static int sb16Load(PSSMHANDLE pSSM, PSB16STATE pThis)
     rc = SSMR3GetMem(pSSM, pThis->mixer_regs, 256);
     AssertRCReturn(rc, rc);
 
-#if 0
-    PSB16DRIVER pDrv;
-    RTListForEach(&pThis->lstDrv, pDrv, SB16DRIVER, Node)
-    {
-        if (pDrv->Out.pStream)
-        {
-            pDrv->pConnector->pfnCloseOut(pThis->pDrv, pDrv->Out.pStream);
-            pDrv->Out.pStream = NULL;
-        }
-    }
-#endif
-
     if (pThis->dma_running)
     {
-        if (pThis->freq)
-        {
-            /* At the moment we only have one stream, the output stream. */
-            PPDMAUDIOSTREAMCFG pCfg = &pThis->Out.Cfg;
-
-            pCfg->enmDir          = PDMAUDIODIR_OUT;
-            pCfg->DestSource.Dest = PDMAUDIOPLAYBACKDEST_FRONT;
-            pCfg->enmLayout       = PDMAUDIOSTREAMLAYOUT_NON_INTERLEAVED;
-
-            pCfg->Props.uHz       = pThis->freq;
-            pCfg->Props.cChannels = 1 << pThis->fmt_stereo;
-            pCfg->Props.cBits     = pThis->fmt_bits;
-            pCfg->Props.fSigned   = RT_BOOL(pThis->fmt_signed);
-            pCfg->Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(pCfg->Props.cBits, pCfg->Props.cChannels);
-
-            strcpy(pCfg->szName, "Output");
-
-            sb16CloseOut(pThis);
-
-            rc = sb16OpenOut(pThis, pCfg);
-            AssertRC(rc);
-        }
-
+        sb16CheckAndReOpenOut(pThis);
         sb16Control(pThis, 1);
         sb16SpeakerControl(pThis, pThis->speaker);
     }
@@ -2155,6 +2021,51 @@ static void sb16DestroyDrvStream(PSB16STATE pThis, PSB16DRIVER pDrv)
     }
 }
 
+/**
+ * Checks if the output stream needs to be (re-)created and does so if needed.
+ *
+ * @return VBox status code.
+ * @param  pThis                SB16 state.
+ */
+static int sb16CheckAndReOpenOut(PSB16STATE pThis)
+{
+    AssertPtrReturn(pThis, VERR_INVALID_POINTER);
+
+    int rc = VINF_SUCCESS;
+
+    if (pThis->freq > 0)
+    {
+        /* At the moment we only have one stream, the output stream. */
+        PDMAUDIOSTREAMCFG Cfg;
+        RT_ZERO(Cfg);
+
+        Cfg.Props.uHz       = pThis->freq;
+        Cfg.Props.cChannels = 1 << pThis->fmt_stereo;
+        Cfg.Props.cBytes    = pThis->fmt_bits / 8;
+        Cfg.Props.fSigned   = RT_BOOL(pThis->fmt_signed);
+        Cfg.Props.cShift    = PDMAUDIOPCMPROPS_MAKE_SHIFT_PARMS(Cfg.Props.cBytes, Cfg.Props.cChannels);
+
+        if (!DrvAudioHlpPCMPropsAreEqual(&Cfg.Props, &pThis->Out.Cfg.Props))
+        {
+            Cfg.enmDir          = PDMAUDIODIR_OUT;
+            Cfg.DestSource.Dest = PDMAUDIOPLAYBACKDEST_FRONT;
+            Cfg.enmLayout       = PDMAUDIOSTREAMLAYOUT_NON_INTERLEAVED;
+
+            strcpy(Cfg.szName, "Output");
+
+            sb16CloseOut(pThis);
+
+            rc = sb16OpenOut(pThis, &Cfg);
+            AssertRC(rc);
+        }
+    }
+    else
+        sb16CloseOut(pThis);
+
+    LogFlowFuncLeaveRC(rc);
+    return rc;
+}
+
 static int sb16OpenOut(PSB16STATE pThis, PPDMAUDIOSTREAMCFG pCfg)
 {
     AssertPtrReturn(pThis, VERR_INVALID_POINTER);
@@ -2165,14 +2076,23 @@ static int sb16OpenOut(PSB16STATE pThis, PPDMAUDIOSTREAMCFG pCfg)
     if (!DrvAudioHlpStreamCfgIsValid(pCfg))
         return VERR_INVALID_PARAMETER;
 
-    int rc = VINF_SUCCESS;
+    int rc = DrvAudioHlpStreamCfgCopy(&pThis->Out.Cfg, pCfg);
+    if (RT_FAILURE(rc))
+        return rc;
+
+    /* Set scheduling hint (if available). */
+    if (pThis->cTimerTicksIO)
+        pThis->Out.Cfg.Device.uSchedulingHintMs = 1000 /* ms */ / (TMTimerGetFreq(pThis->pTimerIO) / pThis->cTimerTicksIO);
 
     PSB16DRIVER pDrv;
     RTListForEach(&pThis->lstDrv, pDrv, SB16DRIVER, Node)
     {
-        int rc2 = sb16CreateDrvStream(pThis, pCfg, pDrv);
-        if (RT_SUCCESS(rc))
-            rc = rc2;
+        int rc2 = sb16CreateDrvStream(pThis, &pThis->Out.Cfg, pDrv);
+        if (RT_FAILURE(rc2))
+            LogFunc(("Attaching stream failed with %Rrc\n", rc2));
+
+        /* Do not pass failure to rc here, as there might be drivers which aren't
+         * configured / ready yet. */
     }
 
     sb16UpdateVolume(pThis);
@@ -2650,6 +2570,10 @@ static DECLCALLBACK(int) sb16Construct(PPDMDEVINS pDevIns, int iInstance, PCFGMN
         AssertPtr(pCon);
 
         /** @todo No input streams available for SB16 yet. */
+
+        if (!pDrv->Out.pStream)
+            continue;
+
         bool fValidOut = pCon->pfnStreamGetStatus(pCon, pDrv->Out.pStream) & PDMAUDIOSTREAMSTS_FLAG_INITIALIZED;
         if (!fValidOut)
         {

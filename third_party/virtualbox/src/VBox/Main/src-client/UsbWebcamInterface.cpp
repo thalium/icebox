@@ -152,15 +152,11 @@ void EmWebcam::EmWebcamCbNotify(uint32_t u32Id, const void *pvData, uint32_t cbD
             uint32_t u32Version = 1;
             uint32_t fu32Capabilities = VRDE_VIDEOIN_NEGOTIATE_CAP_VOID;
 
-            if (cbData >= RT_OFFSETOF(VRDEVIDEOINNOTIFYATTACH, u32Version) + sizeof(p->u32Version))
-            {
+            if (cbData >= RT_UOFFSETOF(VRDEVIDEOINNOTIFYATTACH, u32Version) + sizeof(p->u32Version))
                 u32Version = p->u32Version;
-            }
 
-            if (cbData >= RT_OFFSETOF(VRDEVIDEOINNOTIFYATTACH, fu32Capabilities) + sizeof(p->fu32Capabilities))
-            {
+            if (cbData >= RT_UOFFSETOF(VRDEVIDEOINNOTIFYATTACH, fu32Capabilities) + sizeof(p->fu32Capabilities))
                 fu32Capabilities = p->fu32Capabilities;
-            }
 
             LogFlowFunc(("ATTACH[%d,%d] version %d, caps 0x%08X\n",
                          p->deviceHandle.u32ClientId, p->deviceHandle.u32DeviceId,

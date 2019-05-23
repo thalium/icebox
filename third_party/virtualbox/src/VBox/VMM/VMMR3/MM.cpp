@@ -235,14 +235,14 @@ VMMR3DECL(int) MMR3Init(PVM pVM)
     /*
      * Assert alignment, sizes and order.
      */
-    AssertRelease(!(RT_OFFSETOF(VM, mm.s) & 31));
+    AssertRelease(!(RT_UOFFSETOF(VM, mm.s) & 31));
     AssertRelease(sizeof(pVM->mm.s) <= sizeof(pVM->mm.padding));
     AssertMsg(pVM->mm.s.offVM == 0, ("Already initialized!\n"));
 
     /*
      * Init the structure.
      */
-    pVM->mm.s.offVM = RT_OFFSETOF(VM, mm);
+    pVM->mm.s.offVM = RT_UOFFSETOF(VM, mm);
     pVM->mm.s.offLookupHyper = NIL_OFFSET;
 
     /*

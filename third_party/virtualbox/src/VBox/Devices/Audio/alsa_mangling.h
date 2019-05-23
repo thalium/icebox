@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2013-2017 Oracle Corporation
+ * Copyright (C) 2013-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -22,41 +22,48 @@
 
 #define ALSA_MANGLER(symbol) VBox_##symbol
 
+#define snd_lib_error_set_handler               ALSA_MANGLER(snd_lib_error_set_handler)
+#define snd_strerror                            ALSA_MANGLER(snd_strerror)
+
 #define snd_device_name_hint                    ALSA_MANGLER(snd_device_name_hint)
 #define snd_device_name_get_hint                ALSA_MANGLER(snd_device_name_get_hint)
 #define snd_device_name_free_hint               ALSA_MANGLER(snd_device_name_free_hint)
 
-#define snd_pcm_hw_params_any                   ALSA_MANGLER(snd_pcm_hw_params_any)
-#define snd_pcm_close                           ALSA_MANGLER(snd_pcm_close)
 #define snd_pcm_avail_update                    ALSA_MANGLER(snd_pcm_avail_update)
-#define snd_pcm_hw_params_set_channels_near     ALSA_MANGLER(snd_pcm_hw_params_set_channels_near)
-#define snd_pcm_hw_params_set_period_time_near  ALSA_MANGLER(snd_pcm_hw_params_set_period_time_near)
-#define snd_pcm_prepare                         ALSA_MANGLER(snd_pcm_prepare)
-#define snd_pcm_sw_params_sizeof                ALSA_MANGLER(snd_pcm_sw_params_sizeof)
-#define snd_pcm_hw_params_set_period_size_near  ALSA_MANGLER(snd_pcm_hw_params_set_period_size_near)
-#define snd_pcm_hw_params_get_period_size       ALSA_MANGLER(snd_pcm_hw_params_get_period_size)
-#define snd_pcm_hw_params                       ALSA_MANGLER(snd_pcm_hw_params)
-#define snd_pcm_hw_params_sizeof                ALSA_MANGLER(snd_pcm_hw_params_sizeof)
-#define snd_pcm_state                           ALSA_MANGLER(snd_pcm_state)
-#define snd_pcm_open                            ALSA_MANGLER(snd_pcm_open)
-#define snd_lib_error_set_handler               ALSA_MANGLER(snd_lib_error_set_handler)
-#define snd_pcm_sw_params                       ALSA_MANGLER(snd_pcm_sw_params)
-#define snd_pcm_hw_params_get_period_size_min   ALSA_MANGLER(snd_pcm_hw_params_get_period_size_min)
-#define snd_pcm_writei                          ALSA_MANGLER(snd_pcm_writei)
-#define snd_pcm_readi                           ALSA_MANGLER(snd_pcm_readi)
-#define snd_strerror                            ALSA_MANGLER(snd_strerror)
-#define snd_pcm_start                           ALSA_MANGLER(snd_pcm_start)
+#define snd_pcm_close                           ALSA_MANGLER(snd_pcm_close)
+#define snd_pcm_delay                           ALSA_MANGLER(snd_pcm_delay)
+#define snd_pcm_drain                           ALSA_MANGLER(snd_pcm_drain)
 #define snd_pcm_drop                            ALSA_MANGLER(snd_pcm_drop)
+#define snd_pcm_nonblock                        ALSA_MANGLER(snd_pcm_nonblock)
+#define snd_pcm_open                            ALSA_MANGLER(snd_pcm_open)
+#define snd_pcm_prepare                         ALSA_MANGLER(snd_pcm_prepare)
+#define snd_pcm_readi                           ALSA_MANGLER(snd_pcm_readi)
 #define snd_pcm_resume                          ALSA_MANGLER(snd_pcm_resume)
+#define snd_pcm_start                           ALSA_MANGLER(snd_pcm_start)
+#define snd_pcm_state                           ALSA_MANGLER(snd_pcm_state)
+#define snd_pcm_writei                          ALSA_MANGLER(snd_pcm_writei)
+
+#define snd_pcm_hw_params                       ALSA_MANGLER(snd_pcm_hw_params)
+#define snd_pcm_hw_params_any                   ALSA_MANGLER(snd_pcm_hw_params_any)
+#define snd_pcm_hw_params_sizeof                ALSA_MANGLER(snd_pcm_hw_params_sizeof)
 #define snd_pcm_hw_params_get_buffer_size       ALSA_MANGLER(snd_pcm_hw_params_get_buffer_size)
+#define snd_pcm_hw_params_get_period_size_min   ALSA_MANGLER(snd_pcm_hw_params_get_period_size_min)
 #define snd_pcm_hw_params_set_rate_near         ALSA_MANGLER(snd_pcm_hw_params_set_rate_near)
 #define snd_pcm_hw_params_set_access            ALSA_MANGLER(snd_pcm_hw_params_set_access)
 #define snd_pcm_hw_params_set_buffer_time_near  ALSA_MANGLER(snd_pcm_hw_params_set_buffer_time_near)
 #define snd_pcm_hw_params_set_buffer_size_near  ALSA_MANGLER(snd_pcm_hw_params_set_buffer_size_near)
 #define snd_pcm_hw_params_get_buffer_size_min   ALSA_MANGLER(snd_pcm_hw_params_get_buffer_size_min)
+#define snd_pcm_hw_params_set_channels_near     ALSA_MANGLER(snd_pcm_hw_params_set_channels_near)
 #define snd_pcm_hw_params_set_format            ALSA_MANGLER(snd_pcm_hw_params_set_format)
+#define snd_pcm_hw_params_get_period_size       ALSA_MANGLER(snd_pcm_hw_params_get_period_size)
+#define snd_pcm_hw_params_set_period_size_near  ALSA_MANGLER(snd_pcm_hw_params_set_period_size_near)
+#define snd_pcm_hw_params_set_period_time_near  ALSA_MANGLER(snd_pcm_hw_params_set_period_time_near)
+
+#define snd_pcm_sw_params                       ALSA_MANGLER(snd_pcm_sw_params)
 #define snd_pcm_sw_params_current               ALSA_MANGLER(snd_pcm_sw_params_current)
-#define snd_pcm_sw_params_set_start_threshold   ALSA_MANGLER(snd_pcm_sw_params_set_start_threshold)
+#define snd_pcm_sw_params_get_start_threshold   ALSA_MANGLER(snd_pcm_sw_params_get_start_threshold)
 #define snd_pcm_sw_params_set_avail_min         ALSA_MANGLER(snd_pcm_sw_params_set_avail_min)
+#define snd_pcm_sw_params_set_start_threshold   ALSA_MANGLER(snd_pcm_sw_params_set_start_threshold)
+#define snd_pcm_sw_params_sizeof                ALSA_MANGLER(snd_pcm_sw_params_sizeof)
 
 #endif /* !AUDIO_ALSA_MANGLING_H */

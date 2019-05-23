@@ -480,14 +480,14 @@ static int csamReinit(PVM pVM)
     /*
      * Assert alignment and sizes.
      */
-    AssertRelease(!(RT_OFFSETOF(VM, csam.s) & 31));
+    AssertRelease(!(RT_UOFFSETOF(VM, csam.s) & 31));
     AssertRelease(sizeof(pVM->csam.s) <= sizeof(pVM->csam.padding));
     AssertRelease(!HMIsEnabled(pVM));
 
     /*
      * Setup any fixed pointers and offsets.
      */
-    pVM->csam.s.offVM = RT_OFFSETOF(VM, patm);
+    pVM->csam.s.offVM = RT_UOFFSETOF(VM, patm);
 
     pVM->csam.s.fGatesChecked    = false;
     pVM->csam.s.fScanningStarted = false;

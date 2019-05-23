@@ -19,14 +19,12 @@ void SERVER_DISPATCH_APIENTRY
 crServerDispatchReadPixels(GLint x, GLint y, GLsizei width, GLsizei height,
                            GLenum format, GLenum type, GLvoid *pixels)
 {
-    CRMessageReadPixels *rp;
     const GLint stride = READ_DATA( 24, GLint );
     const GLint alignment = READ_DATA( 28, GLint );
     const GLint skipRows = READ_DATA( 32, GLint );
     const GLint skipPixels = READ_DATA( 36, GLint );
     const GLint bytes_per_row = READ_DATA( 40, GLint );
     const GLint rowLength = READ_DATA( 44, GLint );
-    const int msg_len = sizeof(*rp) + bytes_per_row * height;
 
     CRASSERT(bytes_per_row > 0);
 
@@ -47,7 +45,23 @@ crServerDispatchReadPixels(GLint x, GLint y, GLsizei width, GLsizei height,
     else
 #endif
     {
+        CRMessageReadPixels *rp;
+        uint32_t msg_len;
+
+        if (bytes_per_row < 0 || bytes_per_row > UINT32_MAX / 8 || height > UINT32_MAX / 8)
+        {
+            crError("crServerDispatchReadPixels: parameters out of range");
+            return;
+        }
+
+        msg_len = sizeof(*rp) + (uint32_t)bytes_per_row * height;
+
         rp = (CRMessageReadPixels *) crAlloc( msg_len );
+        if (!rp)
+        {
+            crError("crServerDispatchReadPixels: out of memory");
+            return;
+        }
 
         /* Note: the ReadPixels data gets densely packed into the buffer
          * (no skip pixels, skip rows, etc.  It's up to the receiver (pack spu,

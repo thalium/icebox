@@ -383,7 +383,7 @@ GVMMR0DECL(int) GVMMR0Init(void)
     uint32_t cHostCpus = RTMpGetArraySize();
     AssertMsgReturn(cHostCpus > 0 && cHostCpus < _64K, ("%d", (int)cHostCpus), VERR_GVMM_HOST_CPU_RANGE);
 
-    PGVMM pGVMM = (PGVMM)RTMemAllocZ(RT_UOFFSETOF(GVMM, aHostCpus[cHostCpus]));
+    PGVMM pGVMM = (PGVMM)RTMemAllocZ(RT_UOFFSETOF_DYN(GVMM, aHostCpus[cHostCpus]));
     if (!pGVMM)
         return VERR_NO_MEMORY;
     int rc = RTCritSectInitEx(&pGVMM->CreateDestroyLock, 0, NIL_RTLOCKVALCLASS, RTLOCKVAL_SUB_CLASS_NONE,
@@ -887,7 +887,7 @@ GVMMR0DECL(int) GVMMR0CreateVM(PSUPDRVSESSION pSession, uint32_t cCpus, PVM *ppV
                     /*
                      * Allocate the global VM structure (GVM) and initialize it.
                      */
-                    PGVM pGVM = (PGVM)RTMemAllocZ(RT_UOFFSETOF(GVM, aCpus[cCpus]));
+                    PGVM pGVM = (PGVM)RTMemAllocZ(RT_UOFFSETOF_DYN(GVM, aCpus[cCpus]));
                     if (pGVM)
                     {
                         pGVM->u32Magic  = GVM_MAGIC;
@@ -902,7 +902,7 @@ GVMMR0DECL(int) GVMMR0CreateVM(PSUPDRVSESSION pSession, uint32_t cCpus, PVM *ppV
                         /*
                          * Allocate the shared VM structure and associated page array.
                          */
-                        const uint32_t  cbVM   = RT_UOFFSETOF(VM, aCpus[cCpus]);
+                        const uint32_t  cbVM   = RT_UOFFSETOF_DYN(VM, aCpus[cCpus]);
                         const uint32_t  cPages = RT_ALIGN_32(cbVM, PAGE_SIZE) >> PAGE_SHIFT;
                         rc = RTR0MemObjAllocLow(&pGVM->gvmm.s.VMMemObj, cPages << PAGE_SHIFT, false /* fExecutable */);
                         if (RT_SUCCESS(rc))
@@ -916,7 +916,7 @@ GVMMR0DECL(int) GVMMR0CreateVM(PSUPDRVSESSION pSession, uint32_t cCpus, PVM *ppV
                             pVM->cbSelf           = cbVM;
                             pVM->cCpus            = cCpus;
                             pVM->uCpuExecutionCap = 100; /* default is no cap. */
-                            pVM->offVMCPU         = RT_UOFFSETOF(VM, aCpus);
+                            pVM->offVMCPU         = RT_UOFFSETOF_DYN(VM, aCpus);
                             AssertCompileMemberAlignment(VM, cpum, 64);
                             AssertCompileMemberAlignment(VM, tm, 64);
                             AssertCompileMemberAlignment(VM, aCpus, PAGE_SIZE);

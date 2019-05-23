@@ -801,7 +801,7 @@ DECLINLINE(void) IntNetBufInit(PINTNETBUF pIntBuf, uint32_t cbBuf, uint32_t cbRe
     pIntBuf->cbSend    = cbSend;
 
     /* receive ring buffer. */
-    uint32_t offBuf = RT_ALIGN_32(sizeof(INTNETBUF), INTNETRINGBUF_ALIGNMENT) - RT_OFFSETOF(INTNETBUF, Recv);
+    uint32_t offBuf = RT_ALIGN_32(sizeof(INTNETBUF), INTNETRINGBUF_ALIGNMENT) - RT_UOFFSETOF(INTNETBUF, Recv);
     pIntBuf->Recv.offStart      = offBuf;
     pIntBuf->Recv.offReadX      = offBuf;
     pIntBuf->Recv.offWriteInt   = offBuf;
@@ -809,7 +809,7 @@ DECLINLINE(void) IntNetBufInit(PINTNETBUF pIntBuf, uint32_t cbBuf, uint32_t cbRe
     pIntBuf->Recv.offEnd        = offBuf + cbRecv;
 
     /* send ring buffer. */
-    offBuf += cbRecv + RT_OFFSETOF(INTNETBUF, Recv) - RT_OFFSETOF(INTNETBUF, Send);
+    offBuf += cbRecv + RT_UOFFSETOF(INTNETBUF, Recv) - RT_UOFFSETOF(INTNETBUF, Send);
     pIntBuf->Send.offStart      = offBuf;
     pIntBuf->Send.offReadX      = offBuf;
     pIntBuf->Send.offWriteCom   = offBuf;

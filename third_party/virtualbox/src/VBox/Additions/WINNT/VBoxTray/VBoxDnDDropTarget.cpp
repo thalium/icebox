@@ -331,12 +331,15 @@ STDMETHODIMP VBoxDnDDropTarget::Drop(IDataObject *pDataObject, DWORD grfKeyState
                 switch (mFormatEtc.cfFormat)
                 {
                     case CF_TEXT:
-                    /* Fall through is intentional. */
+                        RT_FALL_THROUGH();
                     case CF_UNICODETEXT:
                     {
                         AssertPtr(pvData);
                         size_t cbSize = GlobalSize(pvData);
-                        LogFlowFunc(("CF_TEXT/CF_UNICODETEXT 0x%p got %zu bytes\n", pvData, cbSize));
+
+                        LogRel(("DnD: Got %zu bytes of %s\n", cbSize,
+                                                                mFormatEtc.cfFormat == CF_TEXT
+                                                              ? "ANSI text" : "Unicode text"));
                         if (cbSize)
                         {
                             char *pszText = NULL;
@@ -371,10 +374,13 @@ STDMETHODIMP VBoxDnDDropTarget::Drop(IDataObject *pDataObject, DWORD grfKeyState
                         /* Convert to a string list, separated by \r\n. */
                         DROPFILES *pDropFiles = (DROPFILES *)pvData;
                         AssertPtr(pDropFiles);
-                        bool fUnicode = RT_BOOL(pDropFiles->fWide);
+
+                        /* Do we need to do Unicode stuff? */
+                        const bool fUnicode = RT_BOOL(pDropFiles->fWide);
 
                         /* Get the offset of the file list. */
                         Assert(pDropFiles->pFiles >= sizeof(DROPFILES));
+
                         /* Note: This is *not* pDropFiles->pFiles! DragQueryFile only
                          *       will work with the plain storage medium pointer! */
                         HDROP hDrop = (HDROP)(pvData);
@@ -383,34 +389,39 @@ STDMETHODIMP VBoxDnDDropTarget::Drop(IDataObject *pDataObject, DWORD grfKeyState
                         /** @todo Does this work on Windows 2000 / NT4? */
                         char *pszFiles = NULL;
                         uint32_t cchFiles = 0;
-                        UINT cFiles = DragQueryFile(hDrop, UINT32_MAX /* iFile */,
-                                                    NULL /* lpszFile */, 0 /* cchFile */);
-                        LogFlowFunc(("CF_HDROP got %RU16 file(s)\n", cFiles));
+                        UINT cFiles = DragQueryFile(hDrop, UINT32_MAX /* iFile */, NULL /* lpszFile */, 0 /* cchFile */);
+
+                        LogRel(("DnD: Got %RU16 file(s), fUnicode=%RTbool\n", cFiles, fUnicode));
 
                         for (UINT i = 0; i < cFiles; i++)
                         {
-                            UINT cch = DragQueryFile(hDrop, i /* File index */,
-                                                     NULL /* Query size first */,
-                                                     0 /* cchFile */);
-                            Assert(cch);
+                            UINT cchFile = DragQueryFile(hDrop, i /* File index */, NULL /* Query size first */, 0 /* cchFile */);
+                            Assert(cchFile);
 
                             if (RT_FAILURE(rc))
                                 break;
 
-                            char *pszFile = NULL; /* UTF-8 version. */
-                            UINT cchFile = 0;
+                            char *pszFileUtf8 = NULL; /* UTF-8 version. */
+                            UINT cchFileUtf8 = 0;
                             if (fUnicode)
                             {
                                 /* Allocate enough space (including terminator). */
-                                WCHAR *pwszFile = (WCHAR *)RTMemAlloc((cch + 1) * sizeof(WCHAR));
+                                WCHAR *pwszFile = (WCHAR *)RTMemAlloc((cchFile + 1) * sizeof(WCHAR));
                                 if (pwszFile)
                                 {
-                                    cchFile = DragQueryFileW(hDrop, i /* File index */,
-                                                             pwszFile, cch + 1 /* Include terminator */);
-                                    AssertMsg(cchFile == cch, ("cchCopied (%RU16) does not match cchFile (%RU16)\n",
-                                                               cchFile, cch));
-                                    rc = RTUtf16ToUtf8(pwszFile, &pszFile);
-                                    AssertRC(rc);
+                                    const UINT cwcFileUtf16 = DragQueryFileW(hDrop, i /* File index */,
+                                                                             pwszFile, cchFile + 1 /* Include terminator */);
+
+                                    AssertMsg(cwcFileUtf16 == cchFile, ("cchFileUtf16 (%RU16) does not match cchFile (%RU16)\n",
+                                                                        cwcFileUtf16, cchFile));
+                                    RT_NOREF(cwcFileUtf16);
+
+                                    rc = RTUtf16ToUtf8(pwszFile, &pszFileUtf8);
+                                    if (RT_SUCCESS(rc))
+                                    {
+                                        cchFileUtf8 = (UINT)strlen(pszFileUtf8);
+                                        Assert(cchFileUtf8);
+                                    }
 
                                     RTMemFree(pwszFile);
                                 }
@@ -420,13 +431,14 @@ STDMETHODIMP VBoxDnDDropTarget::Drop(IDataObject *pDataObject, DWORD grfKeyState
                             else /* ANSI */
                             {
                                 /* Allocate enough space (including terminator). */
-                                pszFile = (char *)RTMemAlloc((cch + 1) * sizeof(char));
-                                if (pszFile)
+                                pszFileUtf8 = (char *)RTMemAlloc((cchFile + 1) * sizeof(char));
+                                if (pszFileUtf8)
                                 {
-                                    cchFile = DragQueryFileA(hDrop, i /* File index */,
-                                                             pszFile, cchFile + 1 /* Include terminator */);
-                                    AssertMsg(cchFile == cch, ("cchCopied (%RU16) does not match cchFile (%RU16)\n",
-                                                               cchFile, cch));
+                                    cchFileUtf8 = DragQueryFileA(hDrop, i /* File index */,
+                                                                 pszFileUtf8, cchFile + 1 /* Include terminator */);
+
+                                    AssertMsg(cchFileUtf8 == cchFile, ("cchFileUtf8 (%RU16) does not match cchFile (%RU16)\n",
+                                                                       cchFileUtf8, cchFile));
                                 }
                                 else
                                     rc = VERR_NO_MEMORY;
@@ -434,23 +446,26 @@ STDMETHODIMP VBoxDnDDropTarget::Drop(IDataObject *pDataObject, DWORD grfKeyState
 
                             if (RT_SUCCESS(rc))
                             {
-                                LogFlowFunc(("\tFile: %s (cchFile=%RU32)\n", pszFile, cchFile));
-                                rc = RTStrAAppendExN(&pszFiles, 1 /* cPairs */,
-                                                     pszFile, cchFile);
-                                if (RT_SUCCESS(rc))
-                                    cchFiles += cchFile;
-                            }
+                                LogFlowFunc(("\tFile: %s (cchFile=%RU16)\n", pszFileUtf8, cchFileUtf8));
 
-                            if (pszFile)
-                                RTStrFree(pszFile);
+                                LogRel(("DnD: Adding guest file '%s'\n", pszFileUtf8));
+
+                                rc = RTStrAAppendExN(&pszFiles, 1 /* cPairs */, pszFileUtf8, cchFileUtf8);
+                                if (RT_SUCCESS(rc))
+                                    cchFiles += cchFileUtf8;
+                            }
+                            else
+                                LogRel(("DnD: Error handling file entry #%u, rc=%Rrc\n", i, rc));
+
+                            if (pszFileUtf8)
+                                RTStrFree(pszFileUtf8);
 
                             if (RT_FAILURE(rc))
                                 break;
 
                             /* Add separation between filenames.
                              * Note: Also do this for the last element of the list. */
-                            rc = RTStrAAppendExN(&pszFiles, 1 /* cPairs */,
-                                                 "\r\n", 2 /* Bytes */);
+                            rc = RTStrAAppendExN(&pszFiles, 1 /* cPairs */, "\r\n", 2 /* Bytes */);
                             if (RT_SUCCESS(rc))
                                 cchFiles += 2; /* Include \r\n */
                         }

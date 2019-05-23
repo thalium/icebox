@@ -170,7 +170,7 @@ static const RTVFSSYMLINKOPS g_rtVfsStdSymOps =
     0,
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
-        RT_OFFSETOF(RTVFSSYMLINKOPS, Obj) - RT_OFFSETOF(RTVFSSYMLINKOPS, ObjSet),
+        RT_UOFFSETOF(RTVFSSYMLINKOPS, ObjSet) - RT_UOFFSETOF(RTVFSSYMLINKOPS, Obj),
         rtVfsStdSym_SetMode,
         rtVfsStdSym_SetTimes,
         rtVfsStdSym_SetOwner,
@@ -383,7 +383,7 @@ static DECLCALLBACK(int) rtVfsStdDir_OpenSymlink(void *pvThis, const char *pszSy
             {
                 PRTVFSSTDSYMLINK pNewSymlink;
                 size_t           cchSymlink = strlen(pszSymlink);
-                rc = RTVfsNewSymlink(&g_rtVfsStdSymOps, RT_UOFFSETOF(RTVFSSTDSYMLINK, szSymlink[cchSymlink + 1]),
+                rc = RTVfsNewSymlink(&g_rtVfsStdSymOps, RT_UOFFSETOF_DYN(RTVFSSTDSYMLINK, szSymlink[cchSymlink + 1]),
                                      NIL_RTVFS, NIL_RTVFSLOCK, phVfsSymlink, (void **)&pNewSymlink);
                 if (RT_SUCCESS(rc))
                 {
@@ -516,7 +516,7 @@ DECL_HIDDEN_CONST(const RTVFSDIROPS) g_rtVfsStdDirOps =
     0,
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
-        RT_OFFSETOF(RTVFSDIROPS, Obj) - RT_OFFSETOF(RTVFSDIROPS, ObjSet),
+        RT_UOFFSETOF(RTVFSDIROPS, ObjSet) - RT_UOFFSETOF(RTVFSDIROPS, Obj),
         rtVfsStdDir_SetMode,
         rtVfsStdDir_SetTimes,
         rtVfsStdDir_SetOwner,

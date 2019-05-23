@@ -289,7 +289,7 @@ REMR3DECL(int) REMR3Init(PVM pVM)
      */
     AssertReleaseMsg(sizeof(pVM->rem.padding) >= sizeof(pVM->rem.s), ("%#x >= %#x; sizeof(Env)=%#x\n", sizeof(pVM->rem.padding), sizeof(pVM->rem.s), sizeof(pVM->rem.s.Env)));
     AssertReleaseMsg(sizeof(pVM->rem.s.Env) <= REM_ENV_SIZE, ("%#x == %#x\n", sizeof(pVM->rem.s.Env), REM_ENV_SIZE));
-    AssertReleaseMsg(!(RT_OFFSETOF(VM, rem) & 31), ("off=%#x\n", RT_OFFSETOF(VM, rem)));
+    AssertReleaseMsg(!(RT_UOFFSETOF(VM, rem) & 31), ("off=%#zx\n", RT_UOFFSETOF(VM, rem)));
 #if 0 /* just an annoyance at the moment. */
 #if defined(DEBUG) && !defined(RT_OS_SOLARIS) && !defined(RT_OS_FREEBSD) /// @todo fix the solaris and freebsd math stuff.
     Assert(!testmath());
@@ -299,7 +299,7 @@ REMR3DECL(int) REMR3Init(PVM pVM)
     /*
      * Init some internal data members.
      */
-    pVM->rem.s.offVM = RT_OFFSETOF(VM, rem.s);
+    pVM->rem.s.offVM = RT_UOFFSETOF(VM, rem.s);
     pVM->rem.s.Env.pVM = pVM;
 #ifdef CPU_RAW_MODE_INIT
     pVM->rem.s.state |= CPU_RAW_MODE_INIT;
@@ -696,7 +696,7 @@ static DECLCALLBACK(int) remR3Load(PVM pVM, PSSMHANDLE pSSM, uint32_t uVersion, 
     {
         /* Redundant REM CPU state has to be loaded, but can be ignored. */
         CPUX86State_Ver16 temp;
-        SSMR3GetMem(pSSM,   &temp, RT_OFFSETOF(CPUX86State_Ver16, jmp_env));
+        SSMR3GetMem(pSSM,   &temp, RT_UOFFSETOF(CPUX86State_Ver16, jmp_env));
     }
 
     rc = SSMR3GetU32(pSSM, &u32Sep);            /* separator */

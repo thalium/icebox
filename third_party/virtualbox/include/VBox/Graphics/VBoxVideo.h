@@ -650,7 +650,7 @@ typedef struct VBOXVHWACMD_QUERYINFO2
     uint32_t FourCC[1];
 } VBOXVHWACMD_QUERYINFO2;
 
-#define VBOXVHWAINFO2_SIZE(_cFourCC) RT_OFFSETOF(VBOXVHWACMD_QUERYINFO2, FourCC[_cFourCC])
+#define VBOXVHWAINFO2_SIZE(_cFourCC) RT_UOFFSETOF_DYN(VBOXVHWACMD_QUERYINFO2, FourCC[_cFourCC])
 
 typedef struct VBOXVHWACMD_SURF_CANCREATE
 {
@@ -1503,14 +1503,14 @@ typedef struct VBOXVDMACMD
 } VBOXVDMACMD;
 
 #define VBOXVDMACMD_HEADER_SIZE()                   sizeof(VBOXVDMACMD)
-#define VBOXVDMACMD_SIZE_FROMBODYSIZE(_s)           (VBOXVDMACMD_HEADER_SIZE() + (_s))
-#define VBOXVDMACMD_SIZE(_t)                        (VBOXVDMACMD_SIZE_FROMBODYSIZE(sizeof (_t)))
+#define VBOXVDMACMD_SIZE_FROMBODYSIZE(_s)           ((uint32_t)(VBOXVDMACMD_HEADER_SIZE() + (_s)))
+#define VBOXVDMACMD_SIZE(_t)                        (VBOXVDMACMD_SIZE_FROMBODYSIZE(sizeof(_t)))
 #define VBOXVDMACMD_BODY(a_pCmd, a_TypeBody)        \
     ( (a_TypeBody RT_UNTRUSTED_VOLATILE_HSTGST  *)( ((uint8_t *)(a_pCmd)) + VBOXVDMACMD_HEADER_SIZE()) )
 #define VBOXVDMACMD_BODY_SIZE(_s)                   ( (_s) - VBOXVDMACMD_HEADER_SIZE() )
 #define VBOXVDMACMD_FROM_BODY(a_pBody)                \
     ( (VBOXVDMACMD RT_UNTRUSTED_VOLATILE_HSTGST *)( ((uint8_t *)(a_pBody)) - VBOXVDMACMD_HEADER_SIZE()) )
-#define VBOXVDMACMD_BODY_FIELD_OFFSET(_ot, _t, _f)  ( (_ot)(uintptr_t)( VBOXVDMACMD_BODY(0, uint8_t) + RT_OFFSETOF(_t, _f) ) )
+#define VBOXVDMACMD_BODY_FIELD_OFFSET(_ot, _t, _f)  ( (_ot)(uintptr_t)( VBOXVDMACMD_BODY(0, uint8_t) + RT_UOFFSETOF_DYN(_t, _f) ) )
 
 typedef struct VBOXVDMACMD_DMA_PRESENT_BLT
 {
@@ -1559,10 +1559,9 @@ typedef struct VBOXVDMACMD_SYSMEMEL
     uint64_t phBuf[1];
 } VBOXVDMACMD_SYSMEMEL, *PVBOXVDMACMD_SYSMEMEL;
 
-#define VBOXVDMACMD_SYSMEMEL_NEXT(_pEl) (((_pEl)->fFlags & VBOXVDMACMD_SYSMEMEL_F_PAGELIST) ? \
-        ((PVBOXVDMACMD_SYSMEMEL)(((uint8_t*)(_pEl))+RT_OFFSETOF(VBOXVDMACMD_SYSMEMEL, phBuf[(_pEl)->cPages]))) \
-        : \
-        ((_pEl)+1)
+#define VBOXVDMACMD_SYSMEMEL_NEXT(_pEl) ( ((_pEl)->fFlags & VBOXVDMACMD_SYSMEMEL_F_PAGELIST) \
+        ? ((PVBOXVDMACMD_SYSMEMEL)(((uint8_t*)(_pEl)) + RT_UOFFSETOF_DYN(VBOXVDMACMD_SYSMEMEL, phBuf[(_pEl)->cPages]))) \
+        : ((_pEl) + 1) )
 
 #define VBOXVDMACMD_DMA_BPB_TRANSFER_VRAMSYS_SYS2VRAM 0x00000001
 

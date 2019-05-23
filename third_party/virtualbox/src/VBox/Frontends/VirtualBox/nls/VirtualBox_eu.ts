@@ -4,7 +4,7 @@
 <context>
     <name>@@@</name>
     <message>
-        <location filename="../src/globals/VBoxGlobal.cpp" line="+1563"/>
+        <location filename="../src/globals/VBoxGlobal.cpp" line="+1583"/>
         <source>English</source>
         <comment>Native language name</comment>
         <translation>Euskara</translation>
@@ -4383,7 +4383,7 @@
         <translation type="obsolete">Egiaztapenerako erabilitako sarhitza aldatzen du.</translation>
     </message>
     <message>
-        <location filename="../src/settings/global/UIGlobalSettingsProxy.cpp" line="+169"/>
+        <location filename="../src/settings/global/UIGlobalSettingsProxy.cpp" line="+170"/>
         <source>No proxy host is currently specified.</source>
         <translation>Ez dago proxy hostalaririk adierazita.</translation>
     </message>
@@ -4475,7 +4475,7 @@
 <context>
     <name>UIGraphicsTextPane</name>
     <message>
-        <location filename="../src/widgets/graphics/UIGraphicsTextPane.cpp" line="+97"/>
+        <location filename="../src/widgets/graphics/UIGraphicsTextPane.cpp" line="+98"/>
         <source>%1: %2</source>
         <comment>&apos;key: value&apos;, like &apos;Name: MyVM&apos;</comment>
         <translation type="unfinished">%1: %2</translation>
@@ -12694,7 +12694,7 @@
         <translation>%1 Klona</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+21"/>
         <source>New machine name</source>
         <translation>Makina berriaren izena</translation>
     </message>
@@ -12705,7 +12705,7 @@
     </message>
     <message>
         <location line="+3"/>
-        <location filename="../src/wizards/clonevm/UIWizardCloneVMPageExpert.cpp" line="+81"/>
+        <location filename="../src/wizards/clonevm/UIWizardCloneVMPageExpert.cpp" line="+82"/>
         <source>When checked a new unique MAC address will be assigned to all configured network cards.</source>
         <translation>Hautatutakoan MAC helbide bakarra esleituko zaie itxuratutako sare txartel guztieri.</translation>
     </message>
@@ -13391,7 +13391,7 @@
         <translation>Sortu</translation>
     </message>
     <message>
-        <location filename="../src/wizards/newvm/UIWizardNewVMPageBasic1.cpp" line="+311"/>
+        <location filename="../src/wizards/newvm/UIWizardNewVMPageBasic1.cpp" line="+313"/>
         <location filename="../src/wizards/newvm/UIWizardNewVMPageExpert.cpp" line="+225"/>
         <source>Name and operating system</source>
         <translation>Izena eta sistema eragilea</translation>
@@ -14687,7 +14687,7 @@
         <translation>Ohinarriko diska gogor hau zeharka erantsita dago hurrengo ezberdinketa diska gogorra erabiliz:</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/globals/VBoxGlobal.h" line="+246"/>
+        <location filename="../src/globals/VBoxGlobal.h" line="+252"/>
         <source>%n year(s)</source>
         <translation>
             <numerusform>%n urte</numerusform>
@@ -15597,7 +15597,7 @@
         <translation>Disketa birtual agiri guztiak (%1)</translation>
     </message>
     <message>
-        <location line="+2090"/>
+        <location line="+2196"/>
         <source>VDI (VirtualBox Disk Image)</source>
         <translation>VDI (VirtualBox Diska Irudia)</translation>
     </message>

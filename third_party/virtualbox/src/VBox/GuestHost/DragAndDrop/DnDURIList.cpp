@@ -336,17 +336,42 @@ int DnDURIList::AppendNativePathsFromList(const RTCList<RTCString> &lstNativePat
 int DnDURIList::AppendURIPath(const char *pszURI, uint32_t fFlags)
 {
     AssertPtrReturn(pszURI, VERR_INVALID_POINTER);
-
+    AssertReturn(!(fFlags & ~DNDURILIST_FLAGS_VALID_MASK), VERR_INVALID_FLAGS);
     /** @todo Check for string termination?  */
-#ifdef DEBUG_andy
-    LogFlowFunc(("pszPath=%s, fFlags=0x%x\n", pszURI, fFlags));
-#endif
-    int rc = VINF_SUCCESS;
 
-    /* Query the path component of a file URI. If this hasn't a
-     * file scheme NULL is returned. */
-    char *pszSrcPath = RTUriFilePath(pszURI);
-    if (pszSrcPath)
+    RTURIPARSED Parsed;
+    int rc = RTUriParse(pszURI, &Parsed);
+    if (RT_FAILURE(rc))
+        return rc;
+
+    char *pszSrcPath = NULL;
+
+    /* file://host.example.com/path/to/file.txt */
+    const char *pszParsedAuthority = RTUriParsedAuthority(pszURI, &Parsed);
+    if (   pszParsedAuthority
+        && pszParsedAuthority[0] != '\0') /* Authority present? */
+    {
+        const char *pszParsedPath = RTUriParsedPath(pszURI, &Parsed);
+        if (pszParsedPath)
+        {
+            /* Always use UNIXy paths internally. */
+            if (RTStrAPrintf(&pszSrcPath,  "//%s%s", pszParsedAuthority, pszParsedPath) == -1)
+                rc = VERR_NO_MEMORY;
+        }
+        else
+            rc = VERR_INVALID_PARAMETER;
+    }
+    else
+    {
+        pszSrcPath = RTUriFilePath(pszURI);
+        if (!pszSrcPath)
+            rc = VERR_INVALID_PARAMETER;
+    }
+
+    LogFlowFunc(("pszURI=%s, fFlags=0x%x -> pszParsedAuthority=%s, pszSrcPath=%s, rc=%Rrc\n",
+                 pszURI, fFlags, pszParsedAuthority ? pszParsedAuthority : "<None>", pszSrcPath, rc));
+
+    if (RT_SUCCESS(rc))
     {
         /* Add the path to our internal file list (recursive in
          * the case of a directory). */
@@ -363,7 +388,7 @@ int DnDURIList::AppendURIPath(const char *pszURI, uint32_t fFlags)
                 char *pszDstPath = &pszSrcPath[cchDstBase];
                 m_lstRoot.append(pszDstPath);
 
-                LogFlowFunc(("pszFilePath=%s, pszFileName=%s, pszRoot=%s\n",
+                LogFlowFunc(("pszSrcPath=%s, pszFileName=%s, pszRoot=%s\n",
                              pszSrcPath, pszFileName, pszDstPath));
 
                 rc = appendPathRecursive(pszSrcPath, pszSrcPath, pszSrcPath, cchDstBase, fFlags);
@@ -373,11 +398,9 @@ int DnDURIList::AppendURIPath(const char *pszURI, uint32_t fFlags)
         }
         else
             rc = VERR_INVALID_PARAMETER;
-
-        RTStrFree(pszSrcPath);
     }
-    else
-        rc = VERR_INVALID_PARAMETER;
+
+    RTStrFree(pszSrcPath);
 
     LogFlowFuncLeaveRC(rc);
     return rc;

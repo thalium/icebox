@@ -5,7 +5,7 @@
     <name>CloseButton</name>
     <message>
         <source>Close Tab</source>
-        <translation type="unfinished"></translation>
+        <translation>Fechar Separador</translation>
     </message>
 </context>
 <context>
@@ -32,7 +32,7 @@
     </message>
     <message>
         <source>Quit %1</source>
-        <translation>Encerrar %1</translation>
+        <translation>Fechar o %1</translation>
     </message>
     <message>
         <source>About %1</source>
@@ -593,11 +593,11 @@ para
     <name>QAbstractSocket</name>
     <message>
         <source>Operation on socket is not supported</source>
-        <translation type="unfinished"></translation>
+        <translation>A operação no &quot;socket&quot; não é suportada</translation>
     </message>
     <message>
         <source>Host not found</source>
-        <translation>Máquina desconhecida</translation>
+        <translation>Hospedeiro não encontrado</translation>
     </message>
     <message>
         <source>Connection refused</source>
@@ -605,23 +605,23 @@ para
     </message>
     <message>
         <source>Connection timed out</source>
-        <translation type="unfinished">Ligação expirada</translation>
+        <translation>Ligação expirou</translation>
     </message>
     <message>
         <source>Socket operation timed out</source>
-        <translation>Operação de &apos;socket&apos; expirada</translation>
+        <translation>Operação de &quot;socket&quot; expirou</translation>
     </message>
     <message>
         <source>Socket is not connected</source>
-        <translation>&apos;Socket&apos; desligado</translation>
+        <translation>&quot;Socket&quot; não está ligado</translation>
     </message>
     <message>
         <source>Network unreachable</source>
-        <translation type="unfinished">Rede inalcançável</translation>
+        <translation>Rede inalcançável</translation>
     </message>
     <message>
         <source>Trying to connect while connection is in progress</source>
-        <translation type="unfinished"></translation>
+        <translation>A tentar ligar enqunto a ligação está em progresso</translation>
     </message>
 </context>
 <context>
@@ -636,58 +636,58 @@ para
     </message>
     <message>
         <source>&amp;Select All</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecionar Tudo</translation>
     </message>
 </context>
 <context>
     <name>QAccessibleActionInterface</name>
     <message>
         <source>Press</source>
-        <translation type="unfinished">Pressionar</translation>
+        <translation>Pressionar</translation>
     </message>
     <message>
         <source>Increase</source>
-        <translation type="unfinished"></translation>
+        <translation>Aumentar</translation>
     </message>
     <message>
         <source>Decrease</source>
-        <translation type="unfinished"></translation>
+        <translation>Diminuir</translation>
     </message>
     <message>
         <source>ShowMenu</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar Menu</translation>
     </message>
     <message>
         <source>SetFocus</source>
-        <translation type="unfinished"></translation>
+        <translation>Definir Focos</translation>
     </message>
     <message>
         <source>Toggle</source>
-        <translation type="unfinished">Comutar</translation>
+        <translation>Alternar</translation>
     </message>
     <message>
         <source>Scroll Left</source>
-        <translation type="unfinished">Deslizar para Esquerda</translation>
+        <translation>Deslizar para Esquerda</translation>
     </message>
     <message>
         <source>Scroll Right</source>
-        <translation type="unfinished">Deslizar para Direita</translation>
+        <translation>Deslizar para Direita</translation>
     </message>
     <message>
         <source>Scroll Up</source>
-        <translation type="unfinished"></translation>
+        <translation>Deslizar para Cima</translation>
     </message>
     <message>
         <source>Scroll Down</source>
-        <translation type="unfinished"></translation>
+        <translation>Deslizar para Baixo</translation>
     </message>
     <message>
         <source>Previous Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Página Anterior</translation>
     </message>
     <message>
         <source>Next Page</source>
-        <translation type="unfinished"></translation>
+        <translation>Página Seguinte</translation>
     </message>
     <message>
         <source>Triggers the action</source>
@@ -703,58 +703,58 @@ para
     </message>
     <message>
         <source>Shows the menu</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostra o menu</translation>
     </message>
     <message>
         <source>Sets the focus</source>
-        <translation type="unfinished"></translation>
+        <translation>Define o focos</translation>
     </message>
     <message>
         <source>Toggles the state</source>
-        <translation type="unfinished"></translation>
+        <translation>Alterna o estado</translation>
     </message>
     <message>
         <source>Scrolls to the left</source>
-        <translation type="unfinished"></translation>
+        <translation>Desliza para a esquerda</translation>
     </message>
     <message>
         <source>Scrolls to the right</source>
-        <translation type="unfinished"></translation>
+        <translation>Desliza para a direita</translation>
     </message>
     <message>
         <source>Scrolls up</source>
-        <translation type="unfinished"></translation>
+        <translation>Desliza para cima</translation>
     </message>
     <message>
         <source>Scrolls down</source>
-        <translation type="unfinished"></translation>
+        <translation>Desliza para baixo</translation>
     </message>
     <message>
         <source>Goes back a page</source>
-        <translation type="unfinished"></translation>
+        <translation>Volta para a página anterior</translation>
     </message>
     <message>
         <source>Goes to the next page</source>
-        <translation type="unfinished"></translation>
+        <translation>Vai para a página seguinte</translation>
     </message>
 </context>
 <context>
     <name>QAndroidPlatformTheme</name>
     <message>
         <source>Yes</source>
-        <translation type="unfinished">Sim</translation>
+        <translation>Sim</translation>
     </message>
     <message>
         <source>Yes to All</source>
-        <translation type="unfinished"></translation>
+        <translation>Sim para Tudo</translation>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished">Não</translation>
+        <translation>Não</translation>
     </message>
     <message>
         <source>No to All</source>
-        <translation type="unfinished"></translation>
+        <translation>Não para Tudo</translation>
     </message>
 </context>
 <context>
@@ -819,62 +819,62 @@ para
     <name>QCocoaMenuItem</name>
     <message>
         <source>About Qt</source>
-        <translation type="unfinished">Acerca do Qt</translation>
+        <translation>Sobre o Qt</translation>
     </message>
     <message>
         <source>About</source>
-        <translation type="unfinished">Sobre</translation>
+        <translation>Sobre</translation>
     </message>
     <message>
         <source>Config</source>
-        <translation type="unfinished">Configurar</translation>
+        <translation>Configurar</translation>
     </message>
     <message>
         <source>Preference</source>
-        <translation type="unfinished">Preferências</translation>
+        <translation>Preferências</translation>
     </message>
     <message>
         <source>Options</source>
-        <translation type="unfinished">Opções</translation>
+        <translation>Opções</translation>
     </message>
     <message>
         <source>Setting</source>
-        <translation type="unfinished">Alteração</translation>
+        <translation>Configuração</translation>
     </message>
     <message>
         <source>Setup</source>
-        <translation type="unfinished">Configuração</translation>
+        <translation>Configuração</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation type="unfinished">Sair</translation>
+        <translation>Sair</translation>
     </message>
     <message>
         <source>Exit</source>
-        <translation type="unfinished">Sair</translation>
+        <translation>Fechar</translation>
     </message>
     <message>
         <source>Cut</source>
-        <translation type="unfinished"></translation>
+        <translation>Cortar</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiar</translation>
     </message>
     <message>
         <source>Paste</source>
-        <translation type="unfinished"></translation>
+        <translation>Colar</translation>
     </message>
     <message>
         <source>Select All</source>
-        <translation type="unfinished">Seleccionar Tudo</translation>
+        <translation>Selecionar Tudo</translation>
     </message>
 </context>
 <context>
     <name>QCocoaTheme</name>
     <message>
         <source>Don&apos;t Save</source>
-        <translation type="unfinished">Não Gravar</translation>
+        <translation>Não Guardar</translation>
     </message>
 </context>
 <context>
@@ -909,7 +909,7 @@ para
     </message>
     <message>
         <source>Select Color</source>
-        <translation type="unfinished"></translation>
+        <translation>Selecionar Cor</translation>
     </message>
     <message>
         <source>&amp;Basic colors</source>
@@ -917,11 +917,11 @@ para
     </message>
     <message>
         <source>&amp;Custom colors</source>
-        <translation>Cores c&amp;ustomizadas</translation>
+        <translation>Cores &amp;personalizadas</translation>
     </message>
     <message>
         <source>&amp;Add to Custom Colors</source>
-        <translation>&amp;Adicionar às Cores Customizadas</translation>
+        <translation>&amp;Adicionar às Cores Personalizadas</translation>
     </message>
     <message>
         <source>Select color</source>
@@ -941,16 +941,17 @@ para
     </message>
     <message>
         <source>&amp;HTML:</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;HTML:</translation>
     </message>
     <message>
         <source>Cursor at %1, %2
 Press ESC to cancel</source>
-        <translation type="unfinished"></translation>
+        <translation>Cursor em %1, %2
+Pressione &apos;ESC&apos; pra cancelar</translation>
     </message>
     <message>
         <source>&amp;Pick Screen Color</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Escolher Cor do Ecrã</translation>
     </message>
 </context>
 <context>
@@ -961,11 +962,11 @@ Press ESC to cancel</source>
     </message>
     <message>
         <source>False</source>
-        <translation type="unfinished">Falso</translation>
+        <translation>Falso</translation>
     </message>
     <message>
         <source>True</source>
-        <translation type="unfinished">Verdadeiro</translation>
+        <translation>Verdadeiro</translation>
     </message>
     <message>
         <source>Close</source>

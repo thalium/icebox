@@ -147,12 +147,15 @@ int WebMWriter::Close(void)
     writeFooter();
 
     WebMTracks::iterator itTrack = CurSeg.mapTracks.begin();
-    for (; itTrack != CurSeg.mapTracks.end(); ++itTrack)
+    while (itTrack != CurSeg.mapTracks.end())
     {
         WebMTrack *pTrack = itTrack->second;
+        if (pTrack) /* Paranoia. */
+            delete pTrack;
 
-        delete pTrack;
         CurSeg.mapTracks.erase(itTrack);
+
+        itTrack = CurSeg.mapTracks.begin();
     }
 
     Assert(CurSeg.queueBlocks.Map.size() == 0);

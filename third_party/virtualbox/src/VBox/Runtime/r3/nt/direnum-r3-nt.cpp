@@ -561,7 +561,7 @@ RTDECL(int) RTDirRead(RTDIR hDir, PRTDIRENTRY pDirEntry, size_t *pcbDirEntry)
     {
         cbDirEntry = *pcbDirEntry;
         AssertMsgReturn(cbDirEntry >= RT_UOFFSETOF(RTDIRENTRY, szName[2]),
-                        ("Invalid *pcbDirEntry=%d (min %d)\n", *pcbDirEntry, RT_OFFSETOF(RTDIRENTRY, szName[2])),
+                        ("Invalid *pcbDirEntry=%zu (min %zu)\n", *pcbDirEntry, RT_UOFFSETOF(RTDIRENTRY, szName[2])),
                         VERR_INVALID_PARAMETER);
     }
 
@@ -587,7 +587,7 @@ RTDECL(int) RTDirRead(RTDIR hDir, PRTDIRENTRY pDirEntry, size_t *pcbDirEntry)
      */
     const char  *pszName    = pDir->pszName;
     const size_t cchName    = pDir->cchName;
-    const size_t cbRequired = RT_OFFSETOF(RTDIRENTRY, szName[1]) + cchName;
+    const size_t cbRequired = RT_UOFFSETOF(RTDIRENTRY, szName[1]) + cchName;
     if (pcbDirEntry)
         *pcbDirEntry = cbRequired;
     if (cbRequired > cbDirEntry)
@@ -666,7 +666,7 @@ RTDECL(int) RTDirReadEx(RTDIR hDir, PRTDIRENTRYEX pDirEntry, size_t *pcbDirEntry
     {
         cbDirEntry = *pcbDirEntry;
         AssertMsgReturn(cbDirEntry >= RT_UOFFSETOF(RTDIRENTRYEX, szName[2]),
-                        ("Invalid *pcbDirEntry=%d (min %d)\n", *pcbDirEntry, RT_OFFSETOF(RTDIRENTRYEX, szName[2])),
+                        ("Invalid *pcbDirEntry=%zu (min %zu)\n", *pcbDirEntry, RT_UOFFSETOF(RTDIRENTRYEX, szName[2])),
                         VERR_INVALID_PARAMETER);
     }
 
@@ -692,7 +692,7 @@ RTDECL(int) RTDirReadEx(RTDIR hDir, PRTDIRENTRYEX pDirEntry, size_t *pcbDirEntry
      */
     const char  *pszName    = pDir->pszName;
     const size_t cchName    = pDir->cchName;
-    const size_t cbRequired = RT_OFFSETOF(RTDIRENTRYEX, szName[1]) + cchName;
+    const size_t cbRequired = RT_UOFFSETOF(RTDIRENTRYEX, szName[1]) + cchName;
     if (pcbDirEntry)
         *pcbDirEntry = cbRequired;
     if (cbRequired > cbDirEntry)

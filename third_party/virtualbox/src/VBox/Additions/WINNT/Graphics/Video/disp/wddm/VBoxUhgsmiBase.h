@@ -79,11 +79,11 @@ typedef struct VBOXUHGSMI_BUFFER_PRIVATE_DX_ALLOC_BASE
     UINT aLockPageIndices[1];
 } VBOXUHGSMI_BUFFER_PRIVATE_DX_ALLOC_BASE, *PVBOXUHGSMI_BUFFER_PRIVATE_DX_ALLOC_BASE;
 
-#define VBOXUHGSMIBASE_GET_PRIVATE(_p, _t) ((_t*)(((uint8_t*)_p) - RT_OFFSETOF(_t, Base)))
+#define VBOXUHGSMIBASE_GET_PRIVATE(_p, _t) ((_t*)(((uint8_t*)_p) - RT_UOFFSETOF(_t, Base)))
 #define VBOXUHGSMIBASE_GET(_p) VBOXUHGSMIBASE_GET_PRIVATE(_p, VBOXUHGSMI_PRIVATE_BASE)
 #define VBOXUHGSMIBASE_GET_BUFFER(_p) VBOXUHGSMIBASE_GET_PRIVATE(_p, VBOXUHGSMI_BUFFER_PRIVATE_BASE)
 
-#define VBOXUHGSMIPRIVATEBASE_GET_PRIVATE(_p, _t) ((_t*)(((uint8_t*)_p) - RT_OFFSETOF(_t, BasePrivate.Base)))
+#define VBOXUHGSMIPRIVATEBASE_GET_PRIVATE(_p, _t) ((_t*)(((uint8_t*)_p) - RT_UOFFSETOF(_t, BasePrivate.Base)))
 #define VBOXUHGSMIESCBASE_GET_BUFFER(_p) VBOXUHGSMIPRIVATEBASE_GET_PRIVATE(_p, VBOXUHGSMI_BUFFER_PRIVATE_ESC_BASE)
 #define VBOXUHGSMDXALLOCBASE_GET_BUFFER(_p) VBOXUHGSMIPRIVATEBASE_GET_PRIVATE(_p, VBOXUHGSMI_BUFFER_PRIVATE_DX_ALLOC_BASE)
 
@@ -150,7 +150,7 @@ DECLINLINE(int) vboxUhgsmiBaseDxDmaFill(PVBOXUHGSMI_BUFFER_SUBMIT aBuffers, uint
                                         D3DDDI_ALLOCATIONLIST *pAllocationList, UINT AllocationListSize,
                                         D3DDDI_PATCHLOCATIONLIST *pPatchLocationList, UINT PatchLocationListSize)
 {
-    const uint32_t cbDmaCmd = RT_OFFSETOF(VBOXWDDM_DMA_PRIVATEDATA_UM_CHROMIUM_CMD, aBufInfos[cBuffers]);
+    const uint32_t cbDmaCmd = RT_UOFFSETOF_DYN(VBOXWDDM_DMA_PRIVATEDATA_UM_CHROMIUM_CMD, aBufInfos[cBuffers]);
     RT_NOREF(pPatchLocationList, PatchLocationListSize);
 
     AssertReturn(*pCommandBufferSize >= cbDmaCmd, VERR_GENERAL_FAILURE);

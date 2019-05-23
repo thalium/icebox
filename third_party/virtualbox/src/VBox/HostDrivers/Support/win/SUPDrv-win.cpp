@@ -1721,7 +1721,7 @@ size_t VBOXCALL supdrvOSGipGetGroupTableSize(PSUPDRVDEVEXT pDevExt)
     uint32_t cMaxCpus = RTMpGetCount();
     uint32_t cGroups  = RTMpGetMaxCpuGroupCount();
 
-    return cGroups * RT_OFFSETOF(SUPGIPCPUGROUP, aiCpuSetIdxs)
+    return cGroups * RT_UOFFSETOF(SUPGIPCPUGROUP, aiCpuSetIdxs)
          + RT_SIZEOFMEMB(SUPGIPCPUGROUP, aiCpuSetIdxs[0]) * cMaxCpus;
 }
 
@@ -1739,7 +1739,7 @@ int VBOXCALL supdrvOSInitGipGroupTable(PSUPDRVDEVEXT pDevExt, PSUPGLOBALINFOPAGE
     {
         uint32_t cActive  = 0;
         uint32_t cMax     = RTMpGetCpuGroupCounts(idxGroup, &cActive);
-        uint32_t cbNeeded = RT_OFFSETOF(SUPGIPCPUGROUP, aiCpuSetIdxs[cMax]);
+        uint32_t cbNeeded = RT_UOFFSETOF_DYN(SUPGIPCPUGROUP, aiCpuSetIdxs[cMax]);
         AssertReturn(cbNeeded <= cbGipCpuGroups, VERR_INTERNAL_ERROR_3);
         AssertReturn(cActive <= cMax, VERR_INTERNAL_ERROR_4);
 
@@ -2154,7 +2154,7 @@ int  VBOXCALL   supdrvOSLdrLoad(PSUPDRVDEVEXT pDevExt, PSUPDRVLDRIMAGE pImage, c
         IMAGE_NT_HEADERS const *pNtHdrsIprt = (IMAGE_NT_HEADERS const *)(pbImageBits + offNtHdrs);
         IMAGE_NT_HEADERS const *pNtHdrsNtLd = (IMAGE_NT_HEADERS const *)((uintptr_t)pImage->pvImage + offNtHdrs);
 
-        uint32_t const  offImageBase = offNtHdrs + RT_OFFSETOF(IMAGE_NT_HEADERS, OptionalHeader.ImageBase);
+        uint32_t const  offImageBase = offNtHdrs + RT_UOFFSETOF(IMAGE_NT_HEADERS, OptionalHeader.ImageBase);
         uint32_t const  cbImageBase  = RT_SIZEOFMEMB(IMAGE_NT_HEADERS, OptionalHeader.ImageBase);
         if (   pNtHdrsNtLd->OptionalHeader.ImageBase != pNtHdrsIprt->OptionalHeader.ImageBase
             && (   pNtHdrsNtLd->OptionalHeader.ImageBase == (uintptr_t)pImage->pvImage
@@ -4293,7 +4293,7 @@ static int supdrvNtProtectRestrictHandlesToProcessAndThread(PSUPDRVNTPROTECT pNt
 
     SYSTEM_HANDLE_INFORMATION_EX const *pInfo = (SYSTEM_HANDLE_INFORMATION_EX const *)pbBuf;
     ULONG_PTR i = pInfo->NumberOfHandles;
-    AssertRelease(RT_OFFSETOF(SYSTEM_HANDLE_INFORMATION_EX, Handles[i]) == cbNeeded);
+    AssertRelease(RT_UOFFSETOF_DYN(SYSTEM_HANDLE_INFORMATION_EX, Handles[i]) == cbNeeded);
     while (i-- > 0)
     {
         const char *pszType;

@@ -213,12 +213,12 @@ SUPR3DECL(int) SUPR3InitEx(bool fUnrestricted, PSUPDRVSESSION *ppSession)
      * Perform some sanity checks.
      * (Got some trouble with compile time member alignment assertions.)
      */
-    Assert(!(RT_OFFSETOF(SUPGLOBALINFOPAGE, u64NanoTSLastUpdateHz) & 0x7));
-    Assert(!(RT_OFFSETOF(SUPGLOBALINFOPAGE, aCPUs) & 0x1f));
-    Assert(!(RT_OFFSETOF(SUPGLOBALINFOPAGE, aCPUs[1]) & 0x1f));
-    Assert(!(RT_OFFSETOF(SUPGLOBALINFOPAGE, aCPUs[0].u64NanoTS) & 0x7));
-    Assert(!(RT_OFFSETOF(SUPGLOBALINFOPAGE, aCPUs[0].u64TSC) & 0x7));
-    Assert(!(RT_OFFSETOF(SUPGLOBALINFOPAGE, aCPUs[0].u64CpuHz) & 0x7));
+    Assert(!(RT_UOFFSETOF(SUPGLOBALINFOPAGE, u64NanoTSLastUpdateHz) & 0x7));
+    Assert(!(RT_UOFFSETOF(SUPGLOBALINFOPAGE, aCPUs) & 0x1f));
+    Assert(!(RT_UOFFSETOF(SUPGLOBALINFOPAGE, aCPUs[1]) & 0x1f));
+    Assert(!(RT_UOFFSETOF(SUPGLOBALINFOPAGE, aCPUs[0].u64NanoTS) & 0x7));
+    Assert(!(RT_UOFFSETOF(SUPGLOBALINFOPAGE, aCPUs[0].u64TSC) & 0x7));
+    Assert(!(RT_UOFFSETOF(SUPGLOBALINFOPAGE, aCPUs[0].u64CpuHz) & 0x7));
 
     /*
      * Check if already initialized.
@@ -1877,7 +1877,7 @@ static PSUPDRVTRACERSTRTAB supr3TracerCreateStrTab(PVTGPROBELOC32 paProbeLocs32,
     /*
      * Allocate the string table structures.
      */
-    size_t              cbThis    = RT_OFFSETOF(SUPDRVTRACERSTRTAB, apszOrgFunctions[cProbeLocs]);
+    size_t              cbThis    = RT_UOFFSETOF_DYN(SUPDRVTRACERSTRTAB, apszOrgFunctions[cProbeLocs]);
     PSUPDRVTRACERSTRTAB pThis     = (PSUPDRVTRACERSTRTAB)RTMemAlloc(cbThis);
     if (!pThis)
         return NULL;

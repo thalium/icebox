@@ -243,7 +243,7 @@ int NetIfCreateHostOnlyNetworkInterface(VirtualBox *pVirtualBox,
                     }
 
                     size_t cbNameLen = strlen(szBuf) + 1;
-                    PNETIFINFO pInfo = (PNETIFINFO)RTMemAllocZ(RT_OFFSETOF(NETIFINFO, szName[cbNameLen]));
+                    PNETIFINFO pInfo = (PNETIFINFO)RTMemAllocZ(RT_UOFFSETOF_DYN(NETIFINFO, szName[cbNameLen]));
                     if (!pInfo)
                         rc = VERR_NO_MEMORY;
                     else

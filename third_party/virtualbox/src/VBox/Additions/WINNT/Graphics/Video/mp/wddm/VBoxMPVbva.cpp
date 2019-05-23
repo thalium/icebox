@@ -613,7 +613,7 @@ VBVAEX_DECL(bool) VBoxVBVAExOrderSupported(PVBVAEXBUFFERCONTEXT pCtx, unsigned c
 VBVAEX_DECL(void) VBoxVBVAExSetupBufferContext(PVBVAEXBUFFERCONTEXT pCtx, uint32_t offVRAMBuffer, uint32_t cbBuffer,
                                                PFNVBVAEXBUFFERFLUSH pfnFlush, void *pvFlush)
 {
-    memset(pCtx, 0, RT_OFFSETOF(VBVAEXBUFFERCONTEXT, pVBVA));
+    memset(pCtx, 0, RT_UOFFSETOF(VBVAEXBUFFERCONTEXT, pVBVA));
     pCtx->offVRAMBuffer = offVRAMBuffer;
     pCtx->cbBuffer      = cbBuffer;
     pCtx->pfnFlush = pfnFlush;
@@ -1215,7 +1215,7 @@ uint32_t VBoxCVDdiPTransferVRamSysBuildEls(VBOXCMDVBVA_PAGING_TRANSFER *pCmd, PM
     uint32_t i = 0;
     VBOXCMDVBVAPAGEIDX *pPageNumbers = pCmd->Data.aPageNumbers;
 
-    cbBuffer -= RT_OFFSETOF(VBOXCMDVBVA_PAGING_TRANSFER, Data.aPageNumbers);
+    cbBuffer -= RT_UOFFSETOF(VBOXCMDVBVA_PAGING_TRANSFER, Data.aPageNumbers);
 
     for (; i < cPages && cbBuffer >= sizeof (*pPageNumbers); ++i, cbBuffer -= sizeof (*pPageNumbers))
     {
@@ -1223,7 +1223,7 @@ uint32_t VBoxCVDdiPTransferVRamSysBuildEls(VBOXCMDVBVA_PAGING_TRANSFER *pCmd, PM
     }
 
     *pcPagesWritten = i;
-    Assert(cbInitBuffer - cbBuffer == RT_OFFSETOF(VBOXCMDVBVA_PAGING_TRANSFER, Data.aPageNumbers[i]));
+    Assert(cbInitBuffer - cbBuffer == RT_UOFFSETOF_DYN(VBOXCMDVBVA_PAGING_TRANSFER, Data.aPageNumbers[i]));
     Assert(cbInitBuffer - cbBuffer >= sizeof (VBOXCMDVBVA_PAGING_TRANSFER));
     return cbInitBuffer - cbBuffer;
 }

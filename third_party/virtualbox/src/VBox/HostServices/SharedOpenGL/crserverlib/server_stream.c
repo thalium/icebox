@@ -432,7 +432,7 @@ static int crServerPendMsg(CRConnection *conn, const CRMessage *msg, int cbMsg)
         return VERR_INVALID_PARAMETER;
     }
 
-    pMsg = (CR_SERVER_PENDING_MSG*)RTMemAlloc(cbMsg + RT_OFFSETOF(CR_SERVER_PENDING_MSG, Msg));
+    pMsg = (CR_SERVER_PENDING_MSG*)RTMemAlloc(cbMsg + RT_UOFFSETOF(CR_SERVER_PENDING_MSG, Msg));
     if (!pMsg)
     {
         WARN(("RTMemAlloc failed"));
@@ -523,7 +523,7 @@ int crServerPendLoadState(PSSMHANDLE pSSM, uint32_t u32Version)
             if (!u32)
                 break;
 
-            pMsg = (CR_SERVER_PENDING_MSG*)RTMemAlloc(u32 + RT_OFFSETOF(CR_SERVER_PENDING_MSG, Msg));
+            pMsg = (CR_SERVER_PENDING_MSG*)RTMemAlloc(u32 + RT_UOFFSETOF(CR_SERVER_PENDING_MSG, Msg));
             if (!pMsg)
             {
                 WARN(("RTMemAlloc failed"));

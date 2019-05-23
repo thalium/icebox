@@ -113,7 +113,7 @@ static DECLCALLBACK(void *)  drvMouseQueueQueryInterface(PPDMIBASE pInterface, c
 /* -=-=-=-=- IMousePort -=-=-=-=- */
 
 /** Converts a pointer to DRVMOUSEQUEUE::Port to a DRVMOUSEQUEUE pointer. */
-#define IMOUSEPORT_2_DRVMOUSEQUEUE(pInterface) ( (PDRVMOUSEQUEUE)((char *)(pInterface) - RT_OFFSETOF(DRVMOUSEQUEUE, IPort)) )
+#define IMOUSEPORT_2_DRVMOUSEQUEUE(pInterface) ( (PDRVMOUSEQUEUE)((char *)(pInterface) - RT_UOFFSETOF(DRVMOUSEQUEUE, IPort)) )
 
 
 /**
@@ -184,7 +184,7 @@ static DECLCALLBACK(int) drvMouseQueuePutEventMultiTouch(PPDMIMOUSEPORT pInterfa
 
 /* -=-=-=-=- IConnector -=-=-=-=- */
 
-#define PPDMIMOUSECONNECTOR_2_DRVMOUSEQUEUE(pInterface) ( (PDRVMOUSEQUEUE)((char *)(pInterface) - RT_OFFSETOF(DRVMOUSEQUEUE, IConnector)) )
+#define PPDMIMOUSECONNECTOR_2_DRVMOUSEQUEUE(pInterface) ( (PDRVMOUSEQUEUE)((char *)(pInterface) - RT_UOFFSETOF(DRVMOUSEQUEUE, IConnector)) )
 
 
 /**

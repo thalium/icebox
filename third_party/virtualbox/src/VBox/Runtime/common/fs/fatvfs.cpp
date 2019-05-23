@@ -822,7 +822,8 @@ static int rtFsFatClusterMap_Create(PRTFSFATVOL pThis, uint8_t const *pbFirst512
      * Allocate and initialize it all.
      */
     PRTFSFATCLUSTERMAPCACHE pFatCache;
-    pThis->pFatCache = pFatCache = (PRTFSFATCLUSTERMAPCACHE)RTMemAllocZ(RT_OFFSETOF(RTFSFATCLUSTERMAPCACHE, aEntries[cEntries]));
+    pFatCache = (PRTFSFATCLUSTERMAPCACHE)RTMemAllocZ(RT_UOFFSETOF_DYN(RTFSFATCLUSTERMAPCACHE, aEntries[cEntries]));
+    pThis->pFatCache = pFatCache;
     if (!pFatCache)
         return RTErrInfoSet(pErrInfo, VERR_NO_MEMORY, "Failed to allocate FAT cache");
     pFatCache->cEntries            = cEntries;
@@ -2544,7 +2545,7 @@ DECL_HIDDEN_CONST(const RTVFSFILEOPS) g_rtFsFatFileOps =
     0,
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
-        RT_OFFSETOF(RTVFSFILEOPS, Stream.Obj) - RT_OFFSETOF(RTVFSFILEOPS, ObjSet),
+        RT_UOFFSETOF(RTVFSFILEOPS, ObjSet) - RT_UOFFSETOF(RTVFSFILEOPS, Stream.Obj),
         rtFsFatFile_SetMode,
         rtFsFatFile_SetTimes,
         rtFsFatFile_SetOwner,
@@ -4418,7 +4419,7 @@ static DECLCALLBACK(int) rtFsFatDir_ReadDir(void *pvThis, PRTDIRENTRYEX pDirEntr
      */
     if (pThis->offDir < 2)
     {
-        size_t cbNeeded = RT_OFFSETOF(RTDIRENTRYEX, szName[pThis->offDir + 2]);
+        size_t cbNeeded = RT_UOFFSETOF_DYN(RTDIRENTRYEX, szName[pThis->offDir + 2]);
         if (cbNeeded < *pcbDirEntry)
             *pcbDirEntry = cbNeeded;
         else
@@ -4560,7 +4561,7 @@ static DECLCALLBACK(int) rtFsFatDir_ReadDir(void *pvThis, PRTDIRENTRYEX pDirEntr
                 }
                 if (!fLongName)
                     cchName = rtFsFatDir_CalcUtf8LengthForDirEntry(pShared, &paEntries[iEntry].Entry);
-                size_t cbNeeded = RT_OFFSETOF(RTDIRENTRYEX, szName[cchName + 1]);
+                size_t cbNeeded = RT_UOFFSETOF_DYN(RTDIRENTRYEX, szName[cchName + 1]);
                 if (cbNeeded <= *pcbDirEntry)
                     *pcbDirEntry = cbNeeded;
                 else
@@ -4632,7 +4633,7 @@ static const RTVFSDIROPS g_rtFsFatDirOps =
     0,
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
-        RT_OFFSETOF(RTVFSDIROPS, Obj) - RT_OFFSETOF(RTVFSDIROPS, ObjSet),
+        RT_UOFFSETOF(RTVFSDIROPS, ObjSet) - RT_UOFFSETOF(RTVFSDIROPS, Obj),
         rtFsFatDir_SetMode,
         rtFsFatDir_SetTimes,
         rtFsFatDir_SetOwner,
@@ -5034,7 +5035,7 @@ static int rtFsFatVolTryInitDos1x(PRTFSFATVOL pThis, PCFATBOOTSECTOR pBootSector
     uint32_t const offFirstZero = 2 /*jmp */ + 3 * 2 /* words */ + 9 /* date string */;
     Assert(offFirstZero >= RT_UOFFSETOF(FATBOOTSECTOR, Bpb));
     uint32_t const cbZeroPad    = RT_MIN(offJump - offFirstZero,
-                                         sizeof(pBootSector->Bpb.Bpb20) - (offFirstZero - RT_OFFSETOF(FATBOOTSECTOR, Bpb)));
+                                         sizeof(pBootSector->Bpb.Bpb20) - (offFirstZero - RT_UOFFSETOF(FATBOOTSECTOR, Bpb)));
 
     if (!ASMMemIsAllU8((uint8_t const *)pBootSector + offFirstZero, cbZeroPad, 0))
         return RTErrInfoSetF(pErrInfo, VERR_VFS_UNKNOWN_FORMAT,
@@ -5390,7 +5391,7 @@ static int rtFsFatVolTryInitDos2Plus(PRTFSFATVOL pThis, PCFATBOOTSECTOR pBootSec
     else if (   pBootSector->abJmp[0] == 0xe9
              && pBootSector->abJmp[2] <= 0x7f)
         offJmp = RT_MIN(127, RT_MAKE_U16(pBootSector->abJmp[1], pBootSector->abJmp[2]));
-    uint8_t const cbMaxBpb = offJmp - RT_OFFSETOF(FATBOOTSECTOR, Bpb);
+    uint8_t const cbMaxBpb = offJmp - RT_UOFFSETOF(FATBOOTSECTOR, Bpb);
 
     /*
      * Do the basic DOS v2.0 BPB fields.
@@ -5447,7 +5448,7 @@ static int rtFsFatVolTryInitDos2Plus(PRTFSFATVOL pThis, PCFATBOOTSECTOR pBootSec
     int rc;
     if (   (   sizeof(FAT32EBPB) <= cbMaxBpb
             && pBootSector->Bpb.Fat32Ebpb.bExtSignature == FATEBPB_SIGNATURE)
-        || (   RT_OFFSETOF(FAT32EBPB, achLabel) <= cbMaxBpb
+        || (   RT_UOFFSETOF(FAT32EBPB, achLabel) <= cbMaxBpb
             && pBootSector->Bpb.Fat32Ebpb.bExtSignature == FATEBPB_SIGNATURE_OLD) )
     {
         rc = rtFsFatVolTryInitDos2PlusFat32(pThis, pBootSector, pErrInfo);
@@ -5463,7 +5464,7 @@ static int rtFsFatVolTryInitDos2Plus(PRTFSFATVOL pThis, PCFATBOOTSECTOR pBootSec
          */
         if (   (   sizeof(FATEBPB) <= cbMaxBpb
                 && pBootSector->Bpb.Ebpb.bExtSignature == FATEBPB_SIGNATURE)
-            || (   RT_OFFSETOF(FATEBPB, achLabel) <= cbMaxBpb
+            || (   RT_UOFFSETOF(FATEBPB, achLabel) <= cbMaxBpb
                 && pBootSector->Bpb.Ebpb.bExtSignature == FATEBPB_SIGNATURE_OLD) )
         {
             rtFsFatVolInitCommonEbpbBits(pThis, pBootSector->Bpb.Ebpb.bExtSignature, pBootSector->Bpb.Ebpb.uSerialNumber,

@@ -59,7 +59,7 @@ static VBOXSTRICTRC iemHlpCheckPortIOPermissionBitmap(PVMCPU pVCpu, PCCPUMCTX pC
      */
     uint16_t offBitmap;
     VBOXSTRICTRC rcStrict = iemMemFetchSysU16(pVCpu, &offBitmap, UINT8_MAX,
-                                              pCtx->tr.u64Base + RT_OFFSETOF(X86TSS64, offIoBitmap));
+                                              pCtx->tr.u64Base + RT_UOFFSETOF(X86TSS64, offIoBitmap));
     if (rcStrict != VINF_SUCCESS)
     {
         Log(("iemHlpCheckPortIOPermissionBitmap: Error reading offIoBitmap (%Rrc)\n", VBOXSTRICTRC_VAL(rcStrict)));
@@ -1309,20 +1309,20 @@ IEM_CIMPL_DEF_4(iemCImpl_BranchCallGate, uint16_t, uSel, IEMBRANCH, enmBranch, I
             {
                 if (pCtx->tr.Attr.n.u4Type == X86_SEL_TYPE_SYS_386_TSS_BUSY)
                 {
-                    offNewStack = RT_OFFSETOF(X86TSS32, esp0) + uNewCSDpl * 8;
+                    offNewStack = RT_UOFFSETOF(X86TSS32, esp0) + uNewCSDpl * 8;
                     cbNewStack  = RT_SIZEOFMEMB(X86TSS32, esp0) + RT_SIZEOFMEMB(X86TSS32, ss0);
                 }
                 else
                 {
                     Assert(pCtx->tr.Attr.n.u4Type == X86_SEL_TYPE_SYS_286_TSS_BUSY);
-                    offNewStack = RT_OFFSETOF(X86TSS16, sp0) + uNewCSDpl * 4;
+                    offNewStack = RT_UOFFSETOF(X86TSS16, sp0) + uNewCSDpl * 4;
                     cbNewStack  = RT_SIZEOFMEMB(X86TSS16, sp0) + RT_SIZEOFMEMB(X86TSS16, ss0);
                 }
             }
             else
             {
                 Assert(pCtx->tr.Attr.n.u4Type == AMD64_SEL_TYPE_SYS_TSS_BUSY);
-                offNewStack = RT_OFFSETOF(X86TSS64, rsp0) + uNewCSDpl * RT_SIZEOFMEMB(X86TSS64, rsp0);
+                offNewStack = RT_UOFFSETOF(X86TSS64, rsp0) + uNewCSDpl * RT_SIZEOFMEMB(X86TSS64, rsp0);
                 cbNewStack  = RT_SIZEOFMEMB(X86TSS64, rsp0);
             }
 
@@ -4534,7 +4534,7 @@ IEM_CIMPL_DEF_3(iemCImpl_LarLsl_u64, uint64_t *, pu64Dst, uint16_t, uSel, bool, 
 
     bool         fDescOk = true;
     IEMSELDESC   Desc;
-    VBOXSTRICTRC rcStrict = iemCImpl_LoadDescHelper(pVCpu, uSel, false /*fAllowSysDesc*/, &Desc);
+    VBOXSTRICTRC rcStrict = iemCImpl_LoadDescHelper(pVCpu, uSel, true /*fAllowSysDesc*/, &Desc);
     if (rcStrict == VINF_SUCCESS)
     {
         /*

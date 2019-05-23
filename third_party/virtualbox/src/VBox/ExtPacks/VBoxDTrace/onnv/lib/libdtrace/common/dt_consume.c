@@ -2267,10 +2267,10 @@ dtrace_consume(dtrace_hdl_t *dtp, FILE *fp,
 #endif
 
 	if (pf == NULL)
-		pf = (dtrace_consume_probe_f *)dt_nullprobe;
+		pf = (dtrace_consume_probe_f *)(uintptr_t)dt_nullprobe;
 
 	if (rf == NULL)
-		rf = (dtrace_consume_rec_f *)dt_nullrec;
+		rf = (dtrace_consume_rec_f *)(uintptr_t)dt_nullrec;
 
 	if (buf->dtbd_data == NULL) {
 		(void) dtrace_getopt(dtp, "bufsize", &size);

@@ -4,7 +4,7 @@
 <context>
     <name>@@@</name>
     <message>
-        <location filename="../src/globals/VBoxGlobal.cpp" line="+1563"/>
+        <location filename="../src/globals/VBoxGlobal.cpp" line="+1583"/>
         <source>English</source>
         <comment>Native language name</comment>
         <translation>Slovenščina</translation>
@@ -3409,7 +3409,7 @@
         <translation>&amp;Vrata:</translation>
     </message>
     <message>
-        <location filename="../src/settings/global/UIGlobalSettingsProxy.cpp" line="+169"/>
+        <location filename="../src/settings/global/UIGlobalSettingsProxy.cpp" line="+170"/>
         <source>No proxy host is currently specified.</source>
         <translation>Trenutno ni navedenih gostiteljev posredniškega strežnika.</translation>
     </message>
@@ -3525,7 +3525,7 @@
 <context>
     <name>UIGraphicsTextPane</name>
     <message>
-        <location filename="../src/widgets/graphics/UIGraphicsTextPane.cpp" line="+97"/>
+        <location filename="../src/widgets/graphics/UIGraphicsTextPane.cpp" line="+98"/>
         <source>%1: %2</source>
         <comment>&apos;key: value&apos;, like &apos;Name: MyVM&apos;</comment>
         <translation>%1: %2</translation>
@@ -10649,7 +10649,7 @@
         <translation>Klon %1</translation>
     </message>
     <message>
-        <location line="+20"/>
+        <location line="+21"/>
         <source>New machine name</source>
         <translation>Novo ime računalnika</translation>
     </message>
@@ -10660,7 +10660,7 @@
     </message>
     <message>
         <location line="+3"/>
-        <location filename="../src/wizards/clonevm/UIWizardCloneVMPageExpert.cpp" line="+81"/>
+        <location filename="../src/wizards/clonevm/UIWizardCloneVMPageExpert.cpp" line="+82"/>
         <source>When checked a new unique MAC address will be assigned to all configured network cards.</source>
         <translation>Ko je označeno, bo vsem nastavljenim omrežnim karticam dodeljen nov edinstven naslov MAC.</translation>
     </message>
@@ -11282,7 +11282,7 @@
         <translation>Ustvari</translation>
     </message>
     <message>
-        <location filename="../src/wizards/newvm/UIWizardNewVMPageBasic1.cpp" line="+311"/>
+        <location filename="../src/wizards/newvm/UIWizardNewVMPageBasic1.cpp" line="+313"/>
         <location filename="../src/wizards/newvm/UIWizardNewVMPageExpert.cpp" line="+225"/>
         <source>Name and operating system</source>
         <translation>Ime in operacijski sistem</translation>
@@ -12336,7 +12336,7 @@
         <translation>Razlikovalen</translation>
     </message>
     <message numerus="yes">
-        <location filename="../src/globals/VBoxGlobal.h" line="+246"/>
+        <location filename="../src/globals/VBoxGlobal.h" line="+252"/>
         <source>%n year(s)</source>
         <translation>
             <numerusform>%n leto</numerusform>
@@ -12920,7 +12920,7 @@
         <translation>Vse datoteke navidezne diskete (%1)</translation>
     </message>
     <message>
-        <location line="+2090"/>
+        <location line="+2196"/>
         <source>VDI (VirtualBox Disk Image)</source>
         <translation>VDI (Odtis diska VirtualBox - angl. VirtualBox Disk Image)</translation>
     </message>
@@ -13176,7 +13176,7 @@
         <translation>Šifriran</translation>
     </message>
     <message>
-        <location filename="../src/globals/VBoxGlobal.cpp" line="-2125"/>
+        <location filename="../src/globals/VBoxGlobal.cpp" line="-2231"/>
         <source>Please choose a virtual hard disk file</source>
         <translation>Izberite datoteko navideznega trdega diska</translation>
     </message>

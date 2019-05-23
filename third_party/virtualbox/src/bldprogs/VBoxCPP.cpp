@@ -2692,7 +2692,7 @@ static RTEXITCODE vbcppMacroAddFn(PVBCPP pThis, const char *pszDefine, size_t cc
     /*
      * Allocate a structure.
      */
-    size_t    cbDef = RT_OFFSETOF(VBCPPMACRO, szValue[cchValue + 1 + cchDefine + 1 + cchArgNames])
+    size_t    cbDef = RT_UOFFSETOF_DYN(VBCPPMACRO, szValue[cchValue + 1 + cchDefine + 1 + cchArgNames])
                     + sizeof(const char *) * cArgs;
     cbDef = RT_ALIGN_Z(cbDef, sizeof(const char *));
     PVBCPPMACRO pMacro  = (PVBCPPMACRO)RTMemAlloc(cbDef);
@@ -2810,7 +2810,7 @@ static RTEXITCODE vbcppMacroAdd(PVBCPP pThis, const char *pszDefine, size_t cchD
     if (!vbcppValidateCIdentifier(pThis, pszDefine, cchDefine))
         return RTEXITCODE_FAILURE;
 
-    PVBCPPMACRO pMacro = (PVBCPPMACRO)RTMemAlloc(RT_OFFSETOF(VBCPPMACRO, szValue[cchValue + 1 + cchDefine + 1]));
+    PVBCPPMACRO pMacro = (PVBCPPMACRO)RTMemAlloc(RT_UOFFSETOF_DYN(VBCPPMACRO, szValue[cchValue + 1 + cchDefine + 1]));
     if (!pMacro)
         return RTMsgErrorExit(RTEXITCODE_FAILURE, "out of memory");
 
@@ -5228,7 +5228,7 @@ static RTEXITCODE vbcppOpenStreams(PVBCPP pThis)
         return vbcppError(pThis, "Preprocessing the standard input stream is currently not supported");
 
     size_t      cchName = strlen(pThis->pszInput);
-    PVBCPPINPUT pInput = (PVBCPPINPUT)RTMemAlloc(RT_OFFSETOF(VBCPPINPUT, szName[cchName + 1]));
+    PVBCPPINPUT pInput = (PVBCPPINPUT)RTMemAlloc(RT_UOFFSETOF_DYN(VBCPPINPUT, szName[cchName + 1]));
     if (!pInput)
         return vbcppError(pThis, "out of memory");
     pInput->pUp          = pThis->pInputStack;
@@ -5390,7 +5390,7 @@ static RTEXITCODE vbcppParseOptions(PVBCPP pThis, int argc, char **argv, bool *p
             case 'V':
             {
                 /* The following is assuming that svn does it's job here. */
-                static const char s_szRev[] = "$Revision: 118839 $";
+                static const char s_szRev[] = "$Revision: 125570 $";
                 const char *psz = RTStrStripL(strchr(s_szRev, ' '));
                 RTPrintf("r%.*s\n", strchr(psz, ' ') - psz, psz);
                 *pfExit = true;

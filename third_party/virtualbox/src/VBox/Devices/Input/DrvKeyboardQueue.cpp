@@ -201,7 +201,7 @@ static DECLCALLBACK(void *)  drvKbdQueueQueryInterface(PPDMIBASE pInterface, con
 /* -=-=-=-=- IKeyboardPort -=-=-=-=- */
 
 /** Converts a pointer to DRVKBDQUEUE::IPort to a DRVKBDQUEUE pointer. */
-#define IKEYBOARDPORT_2_DRVKBDQUEUE(pInterface) ( (PDRVKBDQUEUE)((char *)(pInterface) - RT_OFFSETOF(DRVKBDQUEUE, IPort)) )
+#define IKEYBOARDPORT_2_DRVKBDQUEUE(pInterface) ( (PDRVKBDQUEUE)((char *)(pInterface) - RT_UOFFSETOF(DRVKBDQUEUE, IPort)) )
 
 
 /**
@@ -263,7 +263,7 @@ static DECLCALLBACK(int) drvKbdQueuePutEventScan(PPDMIKEYBOARDPORT pInterface, u
 
 /* -=-=-=-=- IConnector -=-=-=-=- */
 
-#define PPDMIKEYBOARDCONNECTOR_2_DRVKBDQUEUE(pInterface) ( (PDRVKBDQUEUE)((char *)(pInterface) - RT_OFFSETOF(DRVKBDQUEUE, IConnector)) )
+#define PPDMIKEYBOARDCONNECTOR_2_DRVKBDQUEUE(pInterface) ( (PDRVKBDQUEUE)((char *)(pInterface) - RT_UOFFSETOF(DRVKBDQUEUE, IConnector)) )
 
 
 /**

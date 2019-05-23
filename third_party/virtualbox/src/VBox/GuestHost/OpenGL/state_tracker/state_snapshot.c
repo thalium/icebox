@@ -62,21 +62,21 @@ static int32_t crStateAllocAndSSMR3GetMem(PSSMHANDLE pSSM, void **pBuffer, size_
 }
 
 #define SHCROGL_GET_STRUCT_PART(_pPtr, _type, _from, _to) do { \
-            rc = SSMR3GetMem(pSSM, &(_pPtr)->_from, RT_OFFSETOF(_type, _to) - RT_OFFSETOF(_type, _from)); \
+            rc = SSMR3GetMem(pSSM, &(_pPtr)->_from, RT_UOFFSETOF(_type, _to) - RT_UOFFSETOF(_type, _from)); \
             AssertRCReturn(rc, rc); \
         } while (0)
 
 #define SHCROGL_GET_STRUCT_TAIL(_pPtr, _type, _from) do { \
-            rc = SSMR3GetMem(pSSM, &(_pPtr)->_from, sizeof (_type) - RT_OFFSETOF(_type, _from)); \
+            rc = SSMR3GetMem(pSSM, &(_pPtr)->_from, sizeof (_type) - RT_UOFFSETOF(_type, _from)); \
             AssertRCReturn(rc, rc); \
         } while (0)
 
 #define SHCROGL_GET_STRUCT_HEAD(_pPtr, _type, _to) do { \
-            rc = SSMR3GetMem(pSSM, (_pPtr), RT_OFFSETOF(_type, _to)); \
+            rc = SSMR3GetMem(pSSM, (_pPtr), RT_UOFFSETOF(_type, _to)); \
             AssertRCReturn(rc, rc); \
         } while (0)
 
-#define SHCROGL_CUT_FIELD_ALIGNMENT_SIZE(_type, _prevField, _field) (RT_OFFSETOF(_type, _field) - RT_OFFSETOF(_type, _prevField) - RT_SIZEOFMEMB(_type, _prevField))
+#define SHCROGL_CUT_FIELD_ALIGNMENT_SIZE(_type, _prevField, _field) (RT_UOFFSETOF(_type, _field) - RT_UOFFSETOF(_type, _prevField) - RT_SIZEOFMEMB(_type, _prevField))
 #define SHCROGL_CUT_FIELD_ALIGNMENT(_type, _prevField, _field) do { \
             const int32_t cbAlignment = SHCROGL_CUT_FIELD_ALIGNMENT_SIZE(_type, _prevField, _field) ; \
             /*AssertCompile(SHCROGL_CUT_FIELD_ALIGNMENT_SIZE(_type, _prevField, _field) >= 0 && SHCROGL_CUT_FIELD_ALIGNMENT_SIZE(_type, _prevField, _field) < sizeof (void*));*/ \
@@ -87,7 +87,7 @@ static int32_t crStateAllocAndSSMR3GetMem(PSSMHANDLE pSSM, void **pBuffer, size_
 
 #define SHCROGL_ROUNDBOUND(_v, _b) (((_v) + ((_b) - 1)) & ~((_b) - 1))
 #define SHCROGL_ALIGNTAILSIZE(_v, _b) (SHCROGL_ROUNDBOUND((_v),(_b)) - (_v))
-#define SHCROGL_CUT_FOR_OLD_TYPE_TO_ENSURE_ALIGNMENT_SIZE(_type, _field, _oldFieldType, _nextFieldAllignment) (SHCROGL_ALIGNTAILSIZE(((RT_OFFSETOF(_type, _field) + sizeof (_oldFieldType))), (_nextFieldAllignment)))
+#define SHCROGL_CUT_FOR_OLD_TYPE_TO_ENSURE_ALIGNMENT_SIZE(_type, _field, _oldFieldType, _nextFieldAllignment) (SHCROGL_ALIGNTAILSIZE(((RT_UOFFSETOF(_type, _field) + sizeof (_oldFieldType))), (_nextFieldAllignment)))
 #define SHCROGL_CUT_FOR_OLD_TYPE_TO_ENSURE_ALIGNMENT(_type, _field, _oldFieldType, _nextFieldAllignment)  do { \
         const int32_t cbAlignment = SHCROGL_CUT_FOR_OLD_TYPE_TO_ENSURE_ALIGNMENT_SIZE(_type, _field, _oldFieldType, _nextFieldAllignment); \
         /*AssertCompile(SHCROGL_CUT_TAIL_ALIGNMENT_SIZE(_type, _lastField) >= 0 && SHCROGL_CUT_TAIL_ALIGNMENT_SIZE(_type, _lastField) < sizeof (void*));*/ \
@@ -97,7 +97,7 @@ static int32_t crStateAllocAndSSMR3GetMem(PSSMHANDLE pSSM, void **pBuffer, size_
     } while (0)
 
 
-#define SHCROGL_CUT_TAIL_ALIGNMENT_SIZE(_type, _lastField) (sizeof (_type) - RT_OFFSETOF(_type, _lastField) - RT_SIZEOFMEMB(_type, _lastField))
+#define SHCROGL_CUT_TAIL_ALIGNMENT_SIZE(_type, _lastField) (sizeof (_type) - RT_UOFFSETOF(_type, _lastField) - RT_SIZEOFMEMB(_type, _lastField))
 #define SHCROGL_CUT_TAIL_ALIGNMENT(_type, _lastField) do { \
             const int32_t cbAlignment = SHCROGL_CUT_TAIL_ALIGNMENT_SIZE(_type, _lastField); \
             /*AssertCompile(SHCROGL_CUT_TAIL_ALIGNMENT_SIZE(_type, _lastField) >= 0 && SHCROGL_CUT_TAIL_ALIGNMENT_SIZE(_type, _lastField) < sizeof (void*));*/ \
@@ -109,7 +109,7 @@ static int32_t crStateAllocAndSSMR3GetMem(PSSMHANDLE pSSM, void **pBuffer, size_
 static int32_t crStateLoadTextureObj_v_BEFORE_CTXUSAGE_BITS(CRTextureObj *pTexture, PSSMHANDLE pSSM)
 {
     int32_t rc;
-    uint32_t cbObj = RT_OFFSETOF(CRTextureObj, ctxUsage);
+    uint32_t cbObj = RT_UOFFSETOF(CRTextureObj, ctxUsage);
     cbObj = ((cbObj + sizeof (void*) - 1) & ~(sizeof (void*) - 1));
     rc = SSMR3GetMem(pSSM, pTexture, cbObj);
     AssertRCReturn(rc, rc);
@@ -337,7 +337,7 @@ static int32_t crStateLoadBufferObject(CRBufferObject *pBufferObj, PSSMHANDLE pS
     int32_t rc;
     if (u32Version == SHCROGL_SSM_VERSION_BEFORE_CTXUSAGE_BITS)
     {
-        uint32_t cbObj = RT_OFFSETOF(CRBufferObject, ctxUsage);
+        uint32_t cbObj = RT_UOFFSETOF(CRBufferObject, ctxUsage);
         cbObj = ((cbObj + sizeof (void*) - 1) & ~(sizeof (void*) - 1));
         rc = SSMR3GetMem(pSSM, pBufferObj, cbObj);
         AssertRCReturn(rc, rc);
@@ -358,7 +358,7 @@ static int32_t crStateLoadFramebufferObject(CRFramebufferObject *pFBO, PSSMHANDL
     int32_t rc;
     if (u32Version == SHCROGL_SSM_VERSION_BEFORE_CTXUSAGE_BITS)
     {
-        uint32_t cbObj = RT_OFFSETOF(CRFramebufferObject, ctxUsage);
+        uint32_t cbObj = RT_UOFFSETOF(CRFramebufferObject, ctxUsage);
         cbObj = ((cbObj + sizeof (void*) - 1) & ~(sizeof (void*) - 1));
         rc = SSMR3GetMem(pSSM, pFBO, cbObj);
         AssertRCReturn(rc, rc);
@@ -379,7 +379,7 @@ static int32_t crStateLoadRenderbufferObject(CRRenderbufferObject *pRBO, PSSMHAN
     int32_t rc;
     if (u32Version == SHCROGL_SSM_VERSION_BEFORE_CTXUSAGE_BITS)
     {
-        uint32_t cbObj = RT_OFFSETOF(CRRenderbufferObject, ctxUsage);
+        uint32_t cbObj = RT_UOFFSETOF(CRRenderbufferObject, ctxUsage);
         cbObj = ((cbObj + sizeof (void*) - 1) & ~(sizeof (void*) - 1));
         rc = SSMR3GetMem(pSSM, pRBO, cbObj);
         AssertRCReturn(rc, rc);
@@ -1911,7 +1911,7 @@ int32_t crStateLoadContext(CRContext *pContext, CRHashTable * pCtxTable, PFNCRST
             AssertRCReturn(rc, rc);
 
             ui = VBOXTLSREFDATA_OFFSET(CRContext) + VBOXTLSREFDATA_SIZE() + sizeof (pTmpContext->bitid) + sizeof (pTmpContext->neg_bitid);
-            ui = RT_OFFSETOF(CRContext, shared) - ui;
+            ui = RT_UOFFSETOF(CRContext, shared) - ui;
         }
         else
         {

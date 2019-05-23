@@ -665,7 +665,7 @@ static DECLCALLBACK(int) vmdkFileInflateHelper(void *pvUser, void *pvBuf, size_t
         pvBuf = (uint8_t *)pvBuf + 1;
         cbBuf--;
         cbInjected = 1;
-        pInflateState->iOffset = RT_OFFSETOF(VMDKMARKER, uType);
+        pInflateState->iOffset = RT_UOFFSETOF(VMDKMARKER, uType);
     }
     if (!cbBuf)
     {
@@ -703,13 +703,13 @@ DECLINLINE(int) vmdkFileInflateSync(PVMDKIMAGE pImage, PVMDKEXTENT pExtent,
     if (!pcvMarker)
     {
         rc = vdIfIoIntFileReadSync(pImage->pIfIo, pExtent->pFile->pStorage,
-                                   uOffset, pMarker, RT_OFFSETOF(VMDKMARKER, uType));
+                                   uOffset, pMarker, RT_UOFFSETOF(VMDKMARKER, uType));
         if (RT_FAILURE(rc))
             return rc;
     }
     else
     {
-        memcpy(pMarker, pcvMarker, RT_OFFSETOF(VMDKMARKER, uType));
+        memcpy(pMarker, pcvMarker, RT_UOFFSETOF(VMDKMARKER, uType));
         /* pcvMarker endianness has already been partially transformed, fix it */
         pMarker->uSector = RT_H2LE_U64(pMarker->uSector);
         pMarker->cbSize = RT_H2LE_U32(pMarker->cbSize);
@@ -729,30 +729,30 @@ DECLINLINE(int) vmdkFileInflateSync(PVMDKIMAGE pImage, PVMDKEXTENT pExtent,
 
     /* Compressed grain marker. Data follows immediately. */
     rc = vdIfIoIntFileReadSync(pImage->pIfIo, pExtent->pFile->pStorage,
-                               uOffset + RT_OFFSETOF(VMDKMARKER, uType),
+                               uOffset + RT_UOFFSETOF(VMDKMARKER, uType),
                                 (uint8_t *)pExtent->pvCompGrain
-                              + RT_OFFSETOF(VMDKMARKER, uType),
+                              + RT_UOFFSETOF(VMDKMARKER, uType),
                                RT_ALIGN_Z(  cbCompSize
-                                          + RT_OFFSETOF(VMDKMARKER, uType),
+                                          + RT_UOFFSETOF(VMDKMARKER, uType),
                                           512)
-                               - RT_OFFSETOF(VMDKMARKER, uType));
+                               - RT_UOFFSETOF(VMDKMARKER, uType));
 
     if (puLBA)
         *puLBA = RT_LE2H_U64(pMarker->uSector);
     if (pcbMarkerData)
         *pcbMarkerData = RT_ALIGN(  cbCompSize
-                                  + RT_OFFSETOF(VMDKMARKER, uType),
+                                  + RT_UOFFSETOF(VMDKMARKER, uType),
                                   512);
 
 #ifdef VMDK_USE_BLOCK_DECOMP_API
     rc = RTZipBlockDecompress(RTZIPTYPE_ZLIB, 0 /*fFlags*/,
-                              pExtent->pvCompGrain, cbCompSize + RT_OFFSETOF(VMDKMARKER, uType), NULL,
+                              pExtent->pvCompGrain, cbCompSize + RT_UOFFSETOF(VMDKMARKER, uType), NULL,
                               pvBuf, cbToRead, &cbActuallyRead);
 #else
     VMDKCOMPRESSIO InflateState;
     InflateState.pImage = pImage;
     InflateState.iOffset = -1;
-    InflateState.cbCompGrain = cbCompSize + RT_OFFSETOF(VMDKMARKER, uType);
+    InflateState.cbCompGrain = cbCompSize + RT_UOFFSETOF(VMDKMARKER, uType);
     InflateState.pvCompGrain = pExtent->pvCompGrain;
 
     rc = RTZipDecompCreate(&pZip, &InflateState, vmdkFileInflateHelper);
@@ -781,7 +781,7 @@ static DECLCALLBACK(int) vmdkFileDeflateHelper(void *pvUser, const void *pvBuf, 
     {
         pvBuf = (const uint8_t *)pvBuf + 1;
         cbBuf--;
-        pDeflateState->iOffset = RT_OFFSETOF(VMDKMARKER, uType);
+        pDeflateState->iOffset = RT_UOFFSETOF(VMDKMARKER, uType);
     }
     if (!cbBuf)
         return VINF_SUCCESS;
@@ -841,7 +841,7 @@ DECLINLINE(int) vmdkFileDeflateSync(PVMDKIMAGE pImage, PVMDKEXTENT pExtent,
         VMDKMARKER *pMarker = (VMDKMARKER *)pExtent->pvCompGrain;
         pMarker->uSector = RT_H2LE_U64(uLBA);
         pMarker->cbSize = RT_H2LE_U32(  DeflateState.iOffset
-                                      - RT_OFFSETOF(VMDKMARKER, uType));
+                                      - RT_UOFFSETOF(VMDKMARKER, uType));
         rc = vdIfIoIntFileWriteSync(pImage->pIfIo, pExtent->pFile->pStorage,
                                     uOffset, pMarker, uSize);
         if (RT_FAILURE(rc))
@@ -2605,10 +2605,10 @@ static int vmdkReadBinaryMetaExtent(PVMDKIMAGE pImage, PVMDKEXTENT pExtent,
     {
         Header.magicNumber = RT_H2LE_U32(VMDK_SPARSE_MAGICNUMBER);
         rc = vdIfIoIntFileReadSync(pImage->pIfIo, pExtent->pFile->pStorage,
-                                   RT_OFFSETOF(SparseExtentHeader, version),
+                                   RT_UOFFSETOF(SparseExtentHeader, version),
                                    &Header.version,
                                      sizeof(Header)
-                                   - RT_OFFSETOF(SparseExtentHeader, version));
+                                   - RT_UOFFSETOF(SparseExtentHeader, version));
     }
 
     if (RT_SUCCESS(rc))
@@ -3038,7 +3038,8 @@ static int vmdkDescriptorReadSparse(PVMDKIMAGE pImage, PVMDKFILE pFile)
                          * stream optimized images in vmdkFlushImage()).
                          */
                         uint64_t u64DescSizeNew = RT_H2LE_U64(pExtent->cDescriptorSectors);
-                        rc = vdIfIoIntFileWriteSync(pImage->pIfIo, pFile->pStorage, RT_OFFSETOF(SparseExtentHeader, descriptorSize),
+                        rc = vdIfIoIntFileWriteSync(pImage->pIfIo, pFile->pStorage,
+                                                    RT_UOFFSETOF(SparseExtentHeader, descriptorSize),
                                                     &u64DescSizeNew, sizeof(u64DescSizeNew));
                         if (RT_FAILURE(rc))
                         {
@@ -5038,7 +5039,7 @@ static int vmdkStreamReadSequential(PVMDKIMAGE pImage, PVMDKEXTENT pExtent,
             RT_ZERO(Marker);
             rc = vdIfIoIntFileReadSync(pImage->pIfIo, pExtent->pFile->pStorage,
                                        VMDK_SECTOR2BYTE(uGrainSectorAbs),
-                                       &Marker, RT_OFFSETOF(VMDKMARKER, uType));
+                                       &Marker, RT_UOFFSETOF(VMDKMARKER, uType));
             if (RT_FAILURE(rc))
                 return rc;
             Marker.uSector = RT_LE2H_U64(Marker.uSector);
@@ -5049,7 +5050,7 @@ static int vmdkStreamReadSequential(PVMDKIMAGE pImage, PVMDKEXTENT pExtent,
                 /* A marker for something else than a compressed grain. */
                 rc = vdIfIoIntFileReadSync(pImage->pIfIo, pExtent->pFile->pStorage,
                                              VMDK_SECTOR2BYTE(uGrainSectorAbs)
-                                           + RT_OFFSETOF(VMDKMARKER, uType),
+                                           + RT_UOFFSETOF(VMDKMARKER, uType),
                                            &Marker.uType, sizeof(Marker.uType));
                 if (RT_FAILURE(rc))
                     return rc;
@@ -5096,7 +5097,7 @@ static int vmdkStreamReadSequential(PVMDKIMAGE pImage, PVMDKEXTENT pExtent,
                  * interested in read and decompress data. */
                 if (uSector > Marker.uSector + pExtent->cSectorsPerGrain)
                 {
-                    uGrainSectorAbs += VMDK_BYTE2SECTOR(RT_ALIGN(Marker.cbSize + RT_OFFSETOF(VMDKMARKER, uType), 512));
+                    uGrainSectorAbs += VMDK_BYTE2SECTOR(RT_ALIGN(Marker.cbSize + RT_UOFFSETOF(VMDKMARKER, uType), 512));
                     continue;
                 }
                 uint64_t uLBA = 0;

@@ -146,7 +146,7 @@ int mmR3HyperInit(PVM pVM)
         /*
          * Map the VM structure into the hypervisor space.
          */
-        AssertRelease(pVM->cbSelf == RT_UOFFSETOF(VM, aCpus[pVM->cCpus]));
+        AssertRelease(pVM->cbSelf == RT_UOFFSETOF_DYN(VM, aCpus[pVM->cCpus]));
         RTGCPTR GCPtr;
         rc = MMR3HyperMapPages(pVM, pVM, pVM->pVMR0, RT_ALIGN_Z(pVM->cbSelf, PAGE_SIZE) >> PAGE_SHIFT, pVM->paVMPagesR3, "VM",
                                &GCPtr);

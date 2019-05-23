@@ -934,7 +934,7 @@ static void crVBoxServerSaveMuralCB(unsigned long key, void *data1, void *data2)
     rc = SSMR3PutMem(pSSM, &key, sizeof(key));
     CRASSERT(rc == VINF_SUCCESS);
 
-    rc = SSMR3PutMem(pSSM, pMI, RT_OFFSETOF(CRMuralInfo, CreateInfo));
+    rc = SSMR3PutMem(pSSM, pMI, RT_UOFFSETOF(CRMuralInfo, CreateInfo));
     CRASSERT(rc == VINF_SUCCESS);
 
     if (pMI->pVisibleRects)
@@ -1386,7 +1386,7 @@ static int crVBoxServerSaveFBImage(PSSMHANDLE pSSM)
         CRFBDataElement buffer[3]; /* CRFBData::aElements[1] + buffer[3] gives 4: back, front, depth and stencil  */
     } Data;
 
-    Assert(sizeof (Data) >= RT_OFFSETOF(CRFBData, aElements[4]));
+    Assert(sizeof (Data) >= RT_UOFFSETOF(CRFBData, aElements[4]));
 
     pCtxInfo = cr_server.currentCtxInfo;
     pContext = pCtxInfo->pContext;
@@ -1937,7 +1937,7 @@ static int32_t crVBoxServerLoadMurals(CR_SERVER_LOADSTATE_READER *pReader, uint3
 
         rc = crServerLsrDataGetMem(pReader, &key, sizeof(key));
         AssertLogRelRCReturn(rc, rc);
-        rc = crServerLsrDataGetMem(pReader, &muralInfo, RT_OFFSETOF(CRMuralInfo, CreateInfo));
+        rc = crServerLsrDataGetMem(pReader, &muralInfo, RT_UOFFSETOF(CRMuralInfo, CreateInfo));
         AssertLogRelRCReturn(rc, rc);
 
         if (version <= SHCROGL_SSM_VERSION_BEFORE_FRONT_DRAW_TRACKING)
@@ -1951,7 +1951,7 @@ static int32_t crVBoxServerLoadMurals(CR_SERVER_LOADSTATE_READER *pReader, uint3
                 void * apv[1];
                 CR_SERVER_BUGGY_MURAL_DATA Data;
                 /* need to chak spuWindow, so taking the offset of filed following it*/
-                uint8_t au8[RT_OFFSETOF(CRMuralInfo, screenId)];
+                uint8_t au8[RT_UOFFSETOF(CRMuralInfo, screenId)];
                 RTRECT aVisRects[sizeof (CR_SERVER_BUGGY_MURAL_DATA) / sizeof (RTRECT)];
             } LaBuf;
 
@@ -2090,7 +2090,7 @@ static int crVBoxServerLoadFBImage(PSSMHANDLE pSSM, uint32_t version,
         CRFBDataElement buffer[3]; /* CRFBData::aElements[1] + buffer[3] gives 4: back, front, depth and stencil  */
     } Data;
 
-    Assert(sizeof (Data) >= RT_OFFSETOF(CRFBData, aElements[4]));
+    Assert(sizeof (Data) >= RT_UOFFSETOF(CRFBData, aElements[4]));
 
     if (version >= SHCROGL_SSM_VERSION_WITH_SAVED_DEPTH_STENCIL_BUFFER)
     {
@@ -2176,7 +2176,7 @@ static int crVBoxServerLoadFBImage(PSSMHANDLE pSSM, uint32_t version,
 
         if (Data.data.cElements)
         {
-            CRFBData *pLazyData = crAlloc(RT_OFFSETOF(CRFBData, aElements[Data.data.cElements]));
+            CRFBData *pLazyData = crAlloc(RT_UOFFSETOF_DYN(CRFBData, aElements[Data.data.cElements]));
             if (!RT_SUCCESS(rc))
             {
                 crVBoxServerFBImageDataTerm(&Data.data);
@@ -2184,7 +2184,7 @@ static int crVBoxServerLoadFBImage(PSSMHANDLE pSSM, uint32_t version,
                 return VERR_NO_MEMORY;
             }
 
-            crMemcpy(pLazyData, &Data.data, RT_OFFSETOF(CRFBData, aElements[Data.data.cElements]));
+            crMemcpy(pLazyData, &Data.data, RT_UOFFSETOF_DYN(CRFBData, aElements[Data.data.cElements]));
             pBuf->pFrontImg = pLazyData;
         }
     }
@@ -2901,7 +2901,7 @@ static int32_t crVBoxServerCmdVbvaCrCmdProcess(VBOXCMDVBVA_CRCMD_CMD const RT_UN
 
     cParams = cBuffers-1;
 
-    if (cbCmd < RT_OFFSETOF(VBOXCMDVBVA_CRCMD_CMD, aBuffers[cBuffers]))
+    if (cbCmd < RT_UOFFSETOF_DYN(VBOXCMDVBVA_CRCMD_CMD, aBuffers[cBuffers]))
     {
         WARN(("invalid buffer size"));
         return VERR_INVALID_PARAMETER;
@@ -3324,7 +3324,7 @@ static DECLCALLBACK(int) crVBoxCrCmdGuestCtl(HVBOXCRCMDSVR hSvr, uint8_t RT_UNTR
                 {
                     VBOXCMDVBVA_3DCTL_CMD RT_UNTRUSTED_VOLATILE_GUEST *p3DCmd
                         = (VBOXCMDVBVA_3DCTL_CMD RT_UNTRUSTED_VOLATILE_GUEST *)pbCmd;
-                    return crVBoxCrCmdCmd(NULL, &p3DCmd->Cmd, cbCmd - RT_OFFSETOF(VBOXCMDVBVA_3DCTL_CMD, Cmd));
+                    return crVBoxCrCmdCmd(NULL, &p3DCmd->Cmd, cbCmd - RT_UOFFSETOF(VBOXCMDVBVA_3DCTL_CMD, Cmd));
                 }
 
             case VBOXCMDVBVA3DCTL_TYPE_CONNECT:
@@ -3542,7 +3542,7 @@ static DECLCALLBACK(int8_t) crVBoxCrCmdCmd(HVBOXCRCMDSVR hSvr,
                 VBOXCMDVBVA_CRCMD const RT_UNTRUSTED_VOLATILE_GUEST *pCrCmdDr
                     = (VBOXCMDVBVA_CRCMD const RT_UNTRUSTED_VOLATILE_GUEST *)pCmd;
                 VBOXCMDVBVA_CRCMD_CMD const RT_UNTRUSTED_VOLATILE_GUEST *pCrCmd = &pCrCmdDr->Cmd;
-                int rc = crVBoxServerCmdVbvaCrCmdProcess(pCrCmd, cbCmd - RT_OFFSETOF(VBOXCMDVBVA_CRCMD, Cmd));
+                int rc = crVBoxServerCmdVbvaCrCmdProcess(pCrCmd, cbCmd - RT_UOFFSETOF(VBOXCMDVBVA_CRCMD, Cmd));
                 ASSERT_GUEST_LOGREL_RC_RETURN(rc, -1);
                 return 0;
             }

@@ -67,7 +67,7 @@ RT_C_DECLS_END
 #define CHECK_MEMBER_ALIGNMENT(strct, member, align) \
     do \
     { \
-        if (RT_OFFSETOF(strct, member) & ((align) - 1) ) \
+        if (RT_UOFFSETOF(strct, member) & ((align) - 1) ) \
         { \
             printf("error! %s::%s offset=%#x (%u) expected alignment %#x, meaning %#x (%u) off\n", \
                    #strct, #member, \

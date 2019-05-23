@@ -257,7 +257,7 @@ typedef struct DUMMYRAWPCIINS
 typedef struct DUMMYRAWPCIINS *PDUMMYRAWPCIINS;
 
 #define DEVPORT_2_DUMMYRAWPCIINS(pPort) \
-    ( (PDUMMYRAWPCIINS)((uint8_t *)pPort - RT_OFFSETOF(DUMMYRAWPCIINS, DevPort)) )
+    ( (PDUMMYRAWPCIINS)((uint8_t *)pPort - RT_UOFFSETOF(DUMMYRAWPCIINS, DevPort)) )
 
 static uint8_t dummyPciGetByte(PDUMMYRAWPCIINS pThis, uint32_t iRegister)
 {

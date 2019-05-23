@@ -818,7 +818,7 @@ DECL_HIDDEN_CONST(const RTVFSFILEOPS) g_rtZipTarWriterFileOps =
     0,
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
-        RT_OFFSETOF(RTVFSFILEOPS, Stream.Obj) - RT_OFFSETOF(RTVFSFILEOPS, ObjSet),
+        RT_UOFFSETOF(RTVFSFILEOPS, ObjSet) - RT_UOFFSETOF(RTVFSFILEOPS, Stream.Obj),
         rtZipTarWriterPush_SetMode,
         rtZipTarWriterPush_SetTimes,
         rtZipTarWriterPush_SetOwner,

@@ -770,7 +770,7 @@ NTSTATUS vboxWddmPickResources(PVBOXMP_DEVEXT pDevExt, PDXGK_DEVICE_INFO pDevice
                            break;
                        case CmResourceTypeMemory:
                            /* we assume there is one memory segment */
-                           Assert(pHwResources->phVRAM.QuadPart == 0);
+                           AssertBreak(pHwResources->phVRAM.QuadPart == 0);
                            pHwResources->phVRAM = pPRc->u.Memory.Start;
                            Assert(pHwResources->phVRAM.QuadPart != 0);
                            pHwResources->ulApertureSize = pPRc->u.Memory.Length;
@@ -2407,7 +2407,8 @@ NTSTATUS APIENTRY DxgkDdiCreateDevice(
 PVBOXWDDM_RESOURCE vboxWddmResourceCreate(PVBOXMP_DEVEXT pDevExt, PVBOXWDDM_RCINFO pRcInfo)
 {
     RT_NOREF(pDevExt);
-    PVBOXWDDM_RESOURCE pResource = (PVBOXWDDM_RESOURCE)vboxWddmMemAllocZero(RT_OFFSETOF(VBOXWDDM_RESOURCE, aAllocations[pRcInfo->cAllocInfos]));
+    PVBOXWDDM_RESOURCE pResource = (PVBOXWDDM_RESOURCE)vboxWddmMemAllocZero(RT_UOFFSETOF_DYN(VBOXWDDM_RESOURCE,
+                                                                                             aAllocations[pRcInfo->cAllocInfos]));
     if (!pResource)
     {
         AssertFailed();
@@ -2767,7 +2768,7 @@ NTSTATUS APIENTRY DxgkDdiCreateAllocation(
             return STATUS_INVALID_PARAMETER;
         }
 
-        pResource = (PVBOXWDDM_RESOURCE)vboxWddmMemAllocZero(RT_OFFSETOF(VBOXWDDM_RESOURCE, aAllocations[pRcInfo->cAllocInfos]));
+        pResource = (PVBOXWDDM_RESOURCE)vboxWddmMemAllocZero(RT_UOFFSETOF_DYN(VBOXWDDM_RESOURCE, aAllocations[pRcInfo->cAllocInfos]));
         if (!pResource)
         {
             WARN(("vboxWddmMemAllocZero failed for (%d) allocations", pRcInfo->cAllocInfos));
@@ -4134,7 +4135,7 @@ BOOL vboxWddmPointerCopyColorData(CONST DXGKARG_SETPOINTERSHAPE* pSetPointerShap
     /* sanity check */
     uint32_t cbData = RT_ALIGN_T(dstBytesPerLine*pPointerAttributes->Height, 4, ULONG)+
                       pPointerAttributes->Height*pPointerAttributes->WidthInBytes;
-    uint32_t cbPointerAttributes = RT_OFFSETOF(VIDEO_POINTER_ATTRIBUTES, Pixels[cbData]);
+    uint32_t cbPointerAttributes = RT_UOFFSETOF_DYN(VIDEO_POINTER_ATTRIBUTES, Pixels[cbData]);
     Assert(VBOXWDDM_POINTER_ATTRIBUTES_SIZE >= cbPointerAttributes);
     if (VBOXWDDM_POINTER_ATTRIBUTES_SIZE < cbPointerAttributes)
     {
@@ -4433,9 +4434,9 @@ DxgkDdiEscape(
                 PVBOXWDDM_CONTEXT pContext = (PVBOXWDDM_CONTEXT)pEscape->hContext;
                 PVBOXDISPIFESCAPE_UHGSMI_SUBMIT pSubmit = (PVBOXDISPIFESCAPE_UHGSMI_SUBMIT)pEscapeHdr;
                 Assert(pEscape->PrivateDriverDataSize >= sizeof (VBOXDISPIFESCAPE_UHGSMI_SUBMIT)
-                        && pEscape->PrivateDriverDataSize == RT_OFFSETOF(VBOXDISPIFESCAPE_UHGSMI_SUBMIT, aBuffers[pEscapeHdr->u32CmdSpecific]));
-                if (pEscape->PrivateDriverDataSize >= sizeof (VBOXDISPIFESCAPE_GETVBOXVIDEOCMCMD)
-                        && pEscape->PrivateDriverDataSize == RT_OFFSETOF(VBOXDISPIFESCAPE_UHGSMI_SUBMIT, aBuffers[pEscapeHdr->u32CmdSpecific]))
+                        && pEscape->PrivateDriverDataSize == RT_UOFFSETOF_DYN(VBOXDISPIFESCAPE_UHGSMI_SUBMIT, aBuffers[pEscapeHdr->u32CmdSpecific]));
+                if (   pEscape->PrivateDriverDataSize >= sizeof (VBOXDISPIFESCAPE_GETVBOXVIDEOCMCMD)
+                    && pEscape->PrivateDriverDataSize == RT_UOFFSETOF_DYN(VBOXDISPIFESCAPE_UHGSMI_SUBMIT, aBuffers[pEscapeHdr->u32CmdSpecific]))
                 {
                     Status = vboxVideoAMgrCtxAllocSubmit(pDevExt, &pContext->AllocContext, pEscapeHdr->u32CmdSpecific, pSubmit->aBuffers);
                     AssertNtStatusSuccess(Status);
@@ -4583,7 +4584,7 @@ DxgkDdiEscape(
                 /* visible regions for seamless */
                 LPRGNDATA lpRgnData = VBOXDISPIFESCAPE_DATA(pEscapeHdr, RGNDATA);
                 uint32_t cbData = VBOXDISPIFESCAPE_DATA_SIZE(pEscape->PrivateDriverDataSize);
-                uint32_t cbRects = cbData - RT_OFFSETOF(RGNDATA, Buffer);
+                uint32_t cbRects = cbData - RT_UOFFSETOF(RGNDATA, Buffer);
                 /* the lpRgnData->Buffer comes to us as RECT
                  * to avoid extra memcpy we cast it to PRTRECT assuming
                  * they are identical
@@ -5009,11 +5010,11 @@ DxgkDdiEscape(
             {
                 /* use RT_OFFSETOF instead of sizeof since sizeof will give an aligned size that might
                  * be bigger than the VBOXDISPIFESCAPE_DBGPRINT with a data containing just a few chars */
-                Assert(pEscape->PrivateDriverDataSize >= RT_OFFSETOF(VBOXDISPIFESCAPE_DBGPRINT, aStringBuf[1]));
+                Assert(pEscape->PrivateDriverDataSize >= RT_UOFFSETOF(VBOXDISPIFESCAPE_DBGPRINT, aStringBuf[1]));
                 /* only do DbgPrint when pEscape->PrivateDriverDataSize > RT_OFFSETOF(VBOXDISPIFESCAPE_DBGPRINT, aStringBuf[1])
                  * since == RT_OFFSETOF(VBOXDISPIFESCAPE_DBGPRINT, aStringBuf[1]) means the buffer contains just \0,
                  * i.e. no need to print it */
-                if (pEscape->PrivateDriverDataSize > RT_OFFSETOF(VBOXDISPIFESCAPE_DBGPRINT, aStringBuf[1]))
+                if (pEscape->PrivateDriverDataSize > RT_UOFFSETOF(VBOXDISPIFESCAPE_DBGPRINT, aStringBuf[1]))
                 {
                     PVBOXDISPIFESCAPE_DBGPRINT pDbgPrint = (PVBOXDISPIFESCAPE_DBGPRINT)pEscapeHdr;
                     /* ensure the last char is \0*/
@@ -5882,27 +5883,27 @@ DxgkDdiRenderNew(
         {
             case VBOXVDMACMD_TYPE_CHROMIUM_CMD:
             {
-                if (pRender->AllocationListSize >= (UINT32_MAX - RT_OFFSETOF(VBOXWDDM_DMA_PRIVATEDATA_UM_CHROMIUM_CMD, aBufInfos))/ RT_SIZEOFMEMB(VBOXWDDM_DMA_PRIVATEDATA_UM_CHROMIUM_CMD, aBufInfos[0]))
+                if (pRender->AllocationListSize >= (UINT32_MAX - RT_UOFFSETOF(VBOXWDDM_DMA_PRIVATEDATA_UM_CHROMIUM_CMD, aBufInfos))/ RT_SIZEOFMEMB(VBOXWDDM_DMA_PRIVATEDATA_UM_CHROMIUM_CMD, aBufInfos[0]))
                 {
                     WARN(("Invalid AllocationListSize %d", pRender->AllocationListSize));
                     return STATUS_INVALID_PARAMETER;
                 }
 
-                if (pRender->CommandLength != RT_OFFSETOF(VBOXWDDM_DMA_PRIVATEDATA_UM_CHROMIUM_CMD, aBufInfos[pRender->AllocationListSize]))
+                if (pRender->CommandLength != RT_UOFFSETOF_DYN(VBOXWDDM_DMA_PRIVATEDATA_UM_CHROMIUM_CMD, aBufInfos[pRender->AllocationListSize]))
                 {
                     WARN(("pRender->CommandLength (%d) != RT_OFFSETOF(VBOXWDDM_DMA_PRIVATEDATA_UM_CHROMIUM_CMD, aBufInfos[pRender->AllocationListSize](%d)",
-                            pRender->CommandLength, RT_OFFSETOF(VBOXWDDM_DMA_PRIVATEDATA_UM_CHROMIUM_CMD, aBufInfos[pRender->AllocationListSize])));
+                            pRender->CommandLength, (int)RT_UOFFSETOF_DYN(VBOXWDDM_DMA_PRIVATEDATA_UM_CHROMIUM_CMD, aBufInfos[pRender->AllocationListSize])));
                     return STATUS_INVALID_PARAMETER;
                 }
 
-                if (pRender->AllocationListSize >= (UINT32_MAX - RT_OFFSETOF(VBOXCMDVBVA_CRCMD, Cmd.aBuffers))/ RT_SIZEOFMEMB(VBOXCMDVBVA_CRCMD, Cmd.aBuffers[0]))
+                if (pRender->AllocationListSize >= (UINT32_MAX - RT_UOFFSETOF(VBOXCMDVBVA_CRCMD, Cmd.aBuffers))/ RT_SIZEOFMEMB(VBOXCMDVBVA_CRCMD, Cmd.aBuffers[0]))
                 {
                     WARN(("Invalid AllocationListSize %d", pRender->AllocationListSize));
                     return STATUS_INVALID_PARAMETER;
                 }
 
                 cbBuffer = VBOXWDDM_DUMMY_DMABUFFER_SIZE;
-                cbPrivateData = RT_OFFSETOF(VBOXCMDVBVA_CRCMD, Cmd.aBuffers[pRender->AllocationListSize]);
+                cbPrivateData = RT_UOFFSETOF_DYN(VBOXCMDVBVA_CRCMD, Cmd.aBuffers[pRender->AllocationListSize]);
 
                 if (pRender->DmaBufferPrivateDataSize < cbPrivateData)
                 {
@@ -5956,7 +5957,7 @@ DxgkDdiRenderNew(
                     pSubmInfo->cbBuffer = SubmUmInfo.cbData;
 
                     pPLL->AllocationIndex = i;
-                    pPLL->PatchOffset = RT_OFFSETOF(VBOXCMDVBVA_CRCMD, Cmd.aBuffers[i].offBuffer);
+                    pPLL->PatchOffset = RT_UOFFSETOF_DYN(VBOXCMDVBVA_CRCMD, Cmd.aBuffers[i].offBuffer);
                     pPLL->AllocationOffset = SubmUmInfo.offData;
                 }
 
@@ -6202,8 +6203,8 @@ static NTSTATUS vboxWddmCmCmdBltIdNotIdFill(VBOXCMDVBVA_BLT_HDR *pBltHdr, const 
         VBOXCMDVBVA_BLT_OFFPRIMSZFMT_OR_ID *pBlt = (VBOXCMDVBVA_BLT_OFFPRIMSZFMT_OR_ID*)pBltHdr;
         VBoxCVDdiFillAllocInfoOffVRAM(&pBlt->alloc, pList);
         pBlt->id = pIdAlloc->AllocData.hostID;
-        *poffPatch = RT_OFFSETOF(VBOXCMDVBVA_BLT_OFFPRIMSZFMT_OR_ID, alloc.u.offVRAM);
-        *poffRects = RT_OFFSETOF(VBOXCMDVBVA_BLT_OFFPRIMSZFMT_OR_ID, aRects);
+        *poffPatch = RT_UOFFSETOF(VBOXCMDVBVA_BLT_OFFPRIMSZFMT_OR_ID, alloc.u.offVRAM);
+        *poffRects = RT_UOFFSETOF(VBOXCMDVBVA_BLT_OFFPRIMSZFMT_OR_ID, aRects);
     }
     else
     {
@@ -6211,8 +6212,8 @@ static NTSTATUS vboxWddmCmCmdBltIdNotIdFill(VBOXCMDVBVA_BLT_HDR *pBltHdr, const 
         VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8 *pBlt = (VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8*)pBltHdr;
         VBoxCVDdiFillAllocDescOffVRAM(&pBlt->alloc1, pAlloc, pList);
         pBlt->info2.u.id = pIdAlloc->AllocData.hostID;
-        *poffPatch = RT_OFFSETOF(VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8, alloc1.Info.u.offVRAM);
-        *poffRects = RT_OFFSETOF(VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8, aRects);
+        *poffPatch = RT_UOFFSETOF(VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8, alloc1.Info.u.offVRAM);
+        *poffRects = RT_UOFFSETOF(VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8, aRects);
     }
 
     if (fToId)
@@ -6233,9 +6234,9 @@ static NTSTATUS vboxWddmCmCmdBltNotIdNotIdFill(VBOXCMDVBVA_BLT_HDR *pBltHdr, con
         VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8 *pBlt = (VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8*)pBltHdr;
         VBoxCVDdiFillAllocDescOffVRAM(&pBlt->alloc1, pDstAlloc, pDstList);
         VBoxCVDdiFillAllocInfoOffVRAM(&pBlt->info2, pSrcList);
-        *poffDstPatch = RT_OFFSETOF(VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8, alloc1.Info.u.offVRAM);
-        *poffSrcPatch = RT_OFFSETOF(VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8, info2.u.offVRAM);
-        *poffRects = RT_OFFSETOF(VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8, aRects);
+        *poffDstPatch = RT_UOFFSETOF(VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8, alloc1.Info.u.offVRAM);
+        *poffSrcPatch = RT_UOFFSETOF(VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8, info2.u.offVRAM);
+        *poffRects = RT_UOFFSETOF(VBOXCMDVBVA_BLT_SAMEDIM_A8R8G8B8, aRects);
     }
     else
     {
@@ -6243,9 +6244,9 @@ static NTSTATUS vboxWddmCmCmdBltNotIdNotIdFill(VBOXCMDVBVA_BLT_HDR *pBltHdr, con
         VBOXCMDVBVA_BLT_GENERIC_A8R8G8B8 *pBlt = (VBOXCMDVBVA_BLT_GENERIC_A8R8G8B8*)pBltHdr;
         VBoxCVDdiFillAllocDescOffVRAM(&pBlt->alloc1, pDstAlloc, pDstList);
         VBoxCVDdiFillAllocDescOffVRAM(&pBlt->alloc2, pSrcAlloc, pSrcList);
-        *poffDstPatch = RT_OFFSETOF(VBOXCMDVBVA_BLT_GENERIC_A8R8G8B8, alloc1.Info.u.offVRAM);
-        *poffSrcPatch = RT_OFFSETOF(VBOXCMDVBVA_BLT_GENERIC_A8R8G8B8, alloc2.Info.u.offVRAM);
-        *poffRects = RT_OFFSETOF(VBOXCMDVBVA_BLT_GENERIC_A8R8G8B8, aRects);
+        *poffDstPatch = RT_UOFFSETOF(VBOXCMDVBVA_BLT_GENERIC_A8R8G8B8, alloc1.Info.u.offVRAM);
+        *poffSrcPatch = RT_UOFFSETOF(VBOXCMDVBVA_BLT_GENERIC_A8R8G8B8, alloc2.Info.u.offVRAM);
+        *poffRects = RT_UOFFSETOF(VBOXCMDVBVA_BLT_GENERIC_A8R8G8B8, aRects);
     }
     return STATUS_SUCCESS;
 }
@@ -6358,7 +6359,7 @@ DxgkDdiPresentNew(
                 pHdr->u8Flags |= VBOXCMDVBVA_OPF_BLT_TYPE_OFFPRIMSZFMT_OR_ID | VBOXCMDVBVA_OPF_OPERAND1_ISID | VBOXCMDVBVA_OPF_OPERAND2_ISID;
                 pBlt->id = pDstAlloc->AllocData.hostID;
                 pBlt->alloc.u.id = pSrcAlloc->AllocData.hostID;
-                cbPrivateData = RT_OFFSETOF(VBOXCMDVBVA_BLT_OFFPRIMSZFMT_OR_ID, aRects);
+                cbPrivateData = RT_UOFFSETOF(VBOXCMDVBVA_BLT_OFFPRIMSZFMT_OR_ID, aRects);
             }
             else
             {
@@ -6439,7 +6440,7 @@ DxgkDdiPresentNew(
             WARN(("VBoxCVDdiFillAllocInfo reported no host id for flip!"));
             pHdr->u8Flags = 0;
             VBoxCVDdiFillAllocInfoOffVRAM(&pFlip->src, pSrc);
-            u32SrcPatch = RT_OFFSETOF(VBOXCMDVBVA_FLIP, src.u.offVRAM);
+            u32SrcPatch = RT_UOFFSETOF(VBOXCMDVBVA_FLIP, src.u.offVRAM);
         }
 
         cbBuffer = VBOXWDDM_DUMMY_DMABUFFER_SIZE;
@@ -6499,9 +6500,9 @@ DxgkDdiPresentNew(
             VBoxCVDdiFillAllocInfoOffVRAM(&pCFill->dst.Info, pDst);
             pCFill->dst.u16Width = (uint16_t)pDstAlloc->AllocData.SurfDesc.width;
             pCFill->dst.u16Height = (uint16_t)pDstAlloc->AllocData.SurfDesc.height;
-            u32DstPatch = RT_OFFSETOF(VBOXCMDVBVA_CLRFILL_GENERIC_A8R8G8B8, dst.Info.u.offVRAM);
+            u32DstPatch = RT_UOFFSETOF(VBOXCMDVBVA_CLRFILL_GENERIC_A8R8G8B8, dst.Info.u.offVRAM);
             paRects = pCFill->aRects;
-            cbPrivateData = RT_OFFSETOF(VBOXCMDVBVA_CLRFILL_GENERIC_A8R8G8B8, aRects);
+            cbPrivateData = RT_UOFFSETOF(VBOXCMDVBVA_CLRFILL_GENERIC_A8R8G8B8, aRects);
 
             if (fDstPrimary)
                 pCFill->Hdr.Hdr.u.u8PrimaryID = (uint8_t)pDstAlloc->AllocData.SurfDesc.VidPnSourceId;
@@ -6643,7 +6644,7 @@ DxgkDdiPresentLegacy(
         pBlt->Blt.SrcRect = pPresent->SrcRect;
         pBlt->Blt.DstRects.ContextRect = pPresent->DstRect;
         pBlt->Blt.DstRects.UpdateRects.cRects = 0;
-        UINT cbHead = RT_OFFSETOF(VBOXWDDM_DMA_PRIVATEDATA_BLT, Blt.DstRects.UpdateRects.aRects[0]);
+        UINT cbHead = RT_UOFFSETOF(VBOXWDDM_DMA_PRIVATEDATA_BLT, Blt.DstRects.UpdateRects.aRects[0]);
         Assert(pPresent->SubRectCnt > pPresent->MultipassOffset);
         UINT cbRects = (pPresent->SubRectCnt - pPresent->MultipassOffset) * sizeof (RECT);
         pPresent->pDmaBuffer = ((uint8_t*)pPresent->pDmaBuffer) + VBOXWDDM_DUMMY_DMABUFFER_SIZE;
@@ -6735,7 +6736,7 @@ DxgkDdiPresentLegacy(
 
         pCF->ClrFill.Color = pPresent->Color;
         pCF->ClrFill.Rects.cRects = 0;
-        UINT cbHead = RT_OFFSETOF(VBOXWDDM_DMA_PRIVATEDATA_CLRFILL, ClrFill.Rects.aRects[0]);
+        UINT cbHead = RT_UOFFSETOF(VBOXWDDM_DMA_PRIVATEDATA_CLRFILL, ClrFill.Rects.aRects[0]);
         Assert(pPresent->SubRectCnt > pPresent->MultipassOffset);
         UINT cbRects = (pPresent->SubRectCnt - pPresent->MultipassOffset) * sizeof (RECT);
         pPresent->pDmaBuffer = ((uint8_t*)pPresent->pDmaBuffer) + VBOXWDDM_DUMMY_DMABUFFER_SIZE;

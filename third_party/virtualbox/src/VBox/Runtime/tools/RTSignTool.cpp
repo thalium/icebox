@@ -777,7 +777,7 @@ static RTEXITCODE SignToolPkcs7Exe_WriteSignatureToFile(PSIGNTOOLPKCS7EXE pThis,
                             /*
                              * Sector align the signature portion.
                              */
-                            uint32_t const  cbWinCert = RT_OFFSETOF(WIN_CERTIFICATE, bCertificate);
+                            uint32_t const  cbWinCert = RT_UOFFSETOF(WIN_CERTIFICATE, bCertificate);
                             uint64_t        offCur    = 0;
                             rc = RTFileGetSize(hFile, &offCur);
                             if (   RT_SUCCESS(rc)

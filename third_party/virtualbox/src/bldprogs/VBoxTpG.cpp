@@ -219,7 +219,7 @@ static const char *strtabInsertN(const char *pch, size_t cch)
     /*
      * Create a new entry.
      */
-    pStr = (PVTGSTRING)RTMemAlloc(RT_OFFSETOF(VTGSTRING, szString[cch + 1]));
+    pStr = (PVTGSTRING)RTMemAlloc(RT_UOFFSETOF_DYN(VTGSTRING, szString[cch + 1]));
     if (!pStr)
         return NULL;
 
@@ -2374,7 +2374,7 @@ static RTEXITCODE parseArguments(int argc,  char **argv)
             case 'V':
             {
                 /* The following is assuming that svn does it's job here. */
-                static const char s_szRev[] = "$Revision: 118839 $";
+                static const char s_szRev[] = "$Revision: 125570 $";
                 const char *psz = RTStrStripL(strchr(s_szRev, ' '));
                 RTPrintf("r%.*s\n", strchr(psz, ' ') - psz, psz);
                 return RTEXITCODE_SUCCESS;

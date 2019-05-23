@@ -83,7 +83,7 @@ VMMR3DECL(int) PGMR3SharedModuleRegister(PVM pVM, VBOXOSFAMILY enmGuestOS, char 
      * Allocate and initialize a GMM request.
      */
     PGMMREGISTERSHAREDMODULEREQ pReq;
-    pReq = (PGMMREGISTERSHAREDMODULEREQ)RTMemAllocZ(RT_OFFSETOF(GMMREGISTERSHAREDMODULEREQ, aRegions[cRegions]));
+    pReq = (PGMMREGISTERSHAREDMODULEREQ)RTMemAllocZ(RT_UOFFSETOF_DYN(GMMREGISTERSHAREDMODULEREQ, aRegions[cRegions]));
     AssertReturn(pReq, VERR_NO_MEMORY);
 
     pReq->enmGuestOS    = enmGuestOS;
@@ -117,7 +117,7 @@ VMMR3DECL(int) PGMR3SharedModuleRegister(PVM pVM, VBOXOSFAMILY enmGuestOS, char 
                     if (g_apSharedModules[i] == NULL)
                     {
 
-                        size_t const cbSharedModule = RT_OFFSETOF(GMMREGISTERSHAREDMODULEREQ, aRegions[cRegions]);
+                        size_t const cbSharedModule = RT_UOFFSETOF_DYN(GMMREGISTERSHAREDMODULEREQ, aRegions[cRegions]);
                         g_apSharedModules[i] = (PGMMREGISTERSHAREDMODULEREQ)RTMemDup(pReq, cbSharedModule);
                         g_cSharedModules++;
                         break;

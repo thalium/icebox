@@ -505,7 +505,7 @@ static DECLCALLBACK(int) drvHostBaseIoReqAllocSizeSet(PPDMIMEDIAEX pInterface, s
 {
     PDRVHOSTBASE pThis = RT_FROM_MEMBER(pInterface, DRVHOSTBASE, IMediaEx);
 
-    pThis->cbIoReqAlloc = RT_OFFSETOF(DRVHOSTBASEREQ, abAlloc[cbIoReqAlloc]);
+    pThis->cbIoReqAlloc = RT_UOFFSETOF_DYN(DRVHOSTBASEREQ, abAlloc[cbIoReqAlloc]);
     return VINF_SUCCESS;
 }
 

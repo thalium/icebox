@@ -341,7 +341,7 @@ int NetIfList(std::list <ComObjPtr<HostNetworkInterface> > &list)
                 cbNameLen = strlen(pNIC->szName) + 1;
                 break;
             }
-        PNETIFINFO pNew = (PNETIFINFO)RTMemAllocZ(RT_OFFSETOF(NETIFINFO, szName[cbNameLen]));
+        PNETIFINFO pNew = (PNETIFINFO)RTMemAllocZ(RT_UOFFSETOF_DYN(NETIFINFO, szName[cbNameLen]));
         if (!pNew)
         {
             rc = VERR_NO_MEMORY;

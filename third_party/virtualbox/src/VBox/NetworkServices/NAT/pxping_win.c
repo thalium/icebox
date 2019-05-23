@@ -217,7 +217,7 @@ pxping_recv4(void *arg, struct pbuf *p)
         bufsize += p->tot_len;
     bufsize += 16; /* whatever that is; empirically at least XP needs it */
 
-    pong = (struct pong4 *)malloc(RT_OFFSETOF(struct pong4, buf) + bufsize);
+    pong = (struct pong4 *)malloc(RT_UOFFSETOF(struct pong4, buf) + bufsize);
     if (RT_UNLIKELY(pong == NULL)) {
         goto out;
     }
@@ -501,7 +501,7 @@ pxping_recv6(void *arg, struct pbuf *p)
         bufsize += p->tot_len;
     bufsize += 16;
 
-    pong = (struct pong6 *)malloc(RT_OFFSETOF(struct pong6, buf) + bufsize);
+    pong = (struct pong6 *)malloc(RT_UOFFSETOF(struct pong6, buf) + bufsize);
     if (RT_UNLIKELY(pong == NULL)) {
         goto out;
     }

@@ -25,29 +25,39 @@ void SERVER_DISPATCH_APIENTRY crServerDispatchGetChromiumParametervCR(GLenum tar
 {
     GLubyte local_storage[4096];
     GLint bytes = 0;
+    GLint cbType = 1; /* One byte by default. */
+
+    memset(local_storage, 0, sizeof(local_storage));
 
     switch (type) {
     case GL_BYTE:
     case GL_UNSIGNED_BYTE:
-         bytes = count * sizeof(GLbyte);
+         cbType = sizeof(GLbyte);
          break;
     case GL_SHORT:
     case GL_UNSIGNED_SHORT:
-         bytes = count * sizeof(GLshort);
+         cbType = sizeof(GLshort);
          break;
     case GL_INT:
     case GL_UNSIGNED_INT:
-         bytes = count * sizeof(GLint);
+         cbType = sizeof(GLint);
          break;
     case GL_FLOAT:
-         bytes = count * sizeof(GLfloat);
+         cbType = sizeof(GLfloat);
          break;
     case GL_DOUBLE:
-         bytes = count * sizeof(GLdouble);
+         cbType = sizeof(GLdouble);
          break;
     default:
          crError("Bad type in crServerDispatchGetChromiumParametervCR");
     }
+
+    if (count < 0) /* 'GLsizei' is usually an 'int'. */
+        count = 0;
+    else if ((size_t)count > sizeof(local_storage) / cbType)
+        count = sizeof(local_storage) / cbType;
+
+    bytes = count * cbType;
 
     CRASSERT(bytes >= 0);
     CRASSERT(bytes < 4096);

@@ -660,7 +660,7 @@ static PSTAMLOOKUP stamR3LookupNewChild(PSTAMLOOKUP pParent, const char *pchName
     /*
      * Allocate a new entry.
      */
-    PSTAMLOOKUP pNew = (PSTAMLOOKUP)RTMemAlloc(RT_OFFSETOF(STAMLOOKUP, szName[cchName + 1]));
+    PSTAMLOOKUP pNew = (PSTAMLOOKUP)RTMemAlloc(RT_UOFFSETOF_DYN(STAMLOOKUP, szName[cchName + 1]));
     if (!pNew)
         return NULL;
     pNew->pParent       = pParent;

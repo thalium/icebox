@@ -182,7 +182,7 @@ typedef VBOXNETADP_ADAPTER *PVBOXNETADP_ADAPTER;
 /* Port */
 
 #define IFPORT_2_VBOXNETADP_ADAPTER(pIfPort) \
-    ( (PVBOXNETADP_ADAPTER)((uint8_t *)pIfPort - RT_OFFSETOF(VBOXNETADP_ADAPTER, MyPort)) )
+    ( (PVBOXNETADP_ADAPTER)((uint8_t *)(pIfPort) - RT_UOFFSETOF(VBOXNETADP_ADAPTER, MyPort)) )
 
 DECLINLINE(VBOXNETADPWIN_ADAPTER_STATE) vboxNetAdpWinGetState(PVBOXNETADP_ADAPTER pThis)
 {
@@ -475,52 +475,78 @@ DECLINLINE(void) vboxNetAdpWinDestroySG(PINTNETSG pSG)
     Log4(("vboxNetAdpWinDestroySG: freed SG 0x%p\n", pSG));
 }
 
+/**
+ * Worker for vboxNetAdpWinNBtoSG() that gets the max segment count needed.
+ * @note vboxNetAdpWinNBtoSG may use fewer depending on cbPacket and offset!
+ * @note vboxNetLwfWinCalcSegments() is a copy of this code.
+ */
 DECLINLINE(ULONG) vboxNetAdpWinCalcSegments(PNET_BUFFER pNetBuf)
 {
     ULONG cSegs = 0;
     for (PMDL pMdl = NET_BUFFER_CURRENT_MDL(pNetBuf); pMdl; pMdl = NDIS_MDL_LINKAGE(pMdl))
-        cSegs++;
+    {
+        /* Skip empty MDLs (see @bugref{9233}) */
+        if (MmGetMdlByteCount(pMdl))
+            cSegs++;
+    }
     return cSegs;
 }
 
+/**
+ * @note vboxNetLwfWinNBtoSG() is a copy of this code.
+ */
 DECLHIDDEN(PINTNETSG) vboxNetAdpWinNBtoSG(PVBOXNETADP_ADAPTER pThis, PNET_BUFFER pNetBuf)
 {
     ULONG cbPacket = NET_BUFFER_DATA_LENGTH(pNetBuf);
-    UINT cSegs = vboxNetAdpWinCalcSegments(pNetBuf);
+    ULONG cSegs = vboxNetAdpWinCalcSegments(pNetBuf);
     /* Allocate and initialize SG */
     PINTNETSG pSG = (PINTNETSG)NdisAllocateMemoryWithTagPriority(pThis->hAdapter,
-                                                                 RT_OFFSETOF(INTNETSG, aSegs[cSegs]),
+                                                                 RT_UOFFSETOF_DYN(INTNETSG, aSegs[cSegs]),
                                                                  VBOXNETADP_MEM_TAG,
                                                                  NormalPoolPriority);
     AssertReturn(pSG, pSG);
     Log4(("vboxNetAdpWinNBtoSG: allocated SG 0x%p\n", pSG));
     IntNetSgInitTempSegs(pSG, cbPacket /*cbTotal*/, cSegs, cSegs /*cSegsUsed*/);
 
-    int rc = NDIS_STATUS_SUCCESS;
     ULONG uOffset = NET_BUFFER_CURRENT_MDL_OFFSET(pNetBuf);
     cSegs = 0;
     for (PMDL pMdl = NET_BUFFER_CURRENT_MDL(pNetBuf);
          pMdl != NULL && cbPacket > 0;
          pMdl = NDIS_MDL_LINKAGE(pMdl))
     {
+        ULONG cbSrc = MmGetMdlByteCount(pMdl);
+        if (cbSrc == 0)
+            continue; /* Skip empty MDLs (see @bugref{9233}) */
+
         PUCHAR pSrc = (PUCHAR)MmGetSystemAddressForMdlSafe(pMdl, LowPagePriority);
         if (!pSrc)
         {
-            rc = NDIS_STATUS_RESOURCES;
-            break;
-        }
-        ULONG cbSrc = MmGetMdlByteCount(pMdl);
-        if (uOffset)
-        {
-            Assert(uOffset < cbSrc);
-            pSrc  += uOffset;
-            cbSrc -= uOffset;
-            uOffset = 0;
+            vboxNetAdpWinDestroySG(pSG);
+            return NULL;
         }
 
+        /* Handle the offset in the current (which is the first for us) MDL */
+        if (uOffset)
+        {
+            if (uOffset < cbSrc)
+            {
+                pSrc  += uOffset;
+                cbSrc -= uOffset;
+                uOffset = 0;
+            }
+            else
+            {
+                /* This is an invalid MDL chain */
+                vboxNetAdpWinDestroySG(pSG);
+                return NULL;
+            }
+        }
+
+        /* Do not read the last MDL beyond packet's end */
         if (cbSrc > cbPacket)
             cbSrc = cbPacket;
 
+        Assert(cSegs < pSG->cSegsAlloc);
         pSG->aSegs[cSegs].pv = pSrc;
         pSG->aSegs[cSegs].cb = cbSrc;
         pSG->aSegs[cSegs].Phys = NIL_RTHCPHYS;
@@ -528,18 +554,12 @@ DECLHIDDEN(PINTNETSG) vboxNetAdpWinNBtoSG(PVBOXNETADP_ADAPTER pThis, PNET_BUFFER
         cbPacket -= cbSrc;
     }
 
-    Assert(cSegs <= pSG->cSegsAlloc);
+    Assert(cbPacket == 0);
+    Assert(cSegs <= pSG->cSegsUsed);
 
-    if (RT_FAILURE(rc))
-    {
-        vboxNetAdpWinDestroySG(pSG);
-        pSG = NULL;
-    }
-    else
-    {
-        Assert(cbPacket == 0);
-        Assert(pSG->cSegsUsed == cSegs);
-    }
+    /* Update actual segment count in case we used fewer than anticipated. */
+    pSG->cSegsUsed = (uint16_t)cSegs;
+
     return pSG;
 }
 
@@ -791,9 +811,9 @@ static DECLCALLBACK(void) vboxNetAdpWinPortDisconnectInterface(PINTNETTRUNKIFPOR
  * @param   pszInterfaceUuid    The factory interface id.
  */
 static DECLCALLBACK(void *) vboxNetAdpWinQueryFactoryInterface(PCSUPDRVFACTORY pSupDrvFactory, PSUPDRVSESSION pSession,
-                                                            const char *pszInterfaceUuid)
+                                                               const char *pszInterfaceUuid)
 {
-    PVBOXNETADPGLOBALS pGlobals = (PVBOXNETADPGLOBALS)((uint8_t *)pSupDrvFactory - RT_OFFSETOF(VBOXNETADPGLOBALS, SupDrvFactory));
+    PVBOXNETADPGLOBALS pGlobals = (PVBOXNETADPGLOBALS)((uint8_t *)pSupDrvFactory - RT_UOFFSETOF(VBOXNETADPGLOBALS, SupDrvFactory));
 
     /*
      * Convert the UUID strings and compare them.
@@ -845,7 +865,7 @@ static DECLCALLBACK(int) vboxNetAdpWinFactoryCreateAndConnect(PINTNETTRUNKFACTOR
                                                            PINTNETTRUNKSWPORT pSwitchPort, uint32_t fFlags,
                                                            PINTNETTRUNKIFPORT *ppIfPort)
 {
-    PVBOXNETADPGLOBALS pGlobals = (PVBOXNETADPGLOBALS)((uint8_t *)pIfFactory - RT_OFFSETOF(VBOXNETADPGLOBALS, TrunkFactory));
+    PVBOXNETADPGLOBALS pGlobals = (PVBOXNETADPGLOBALS)((uint8_t *)pIfFactory - RT_UOFFSETOF(VBOXNETADPGLOBALS, TrunkFactory));
 
     LogFlow(("==>vboxNetAdpWinFactoryCreateAndConnect: pszName=%p:{%s} fFlags=%#x\n", pszName, pszName, fFlags));
     Assert(pGlobals->cFactoryRefs > 0);

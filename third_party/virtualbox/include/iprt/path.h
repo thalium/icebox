@@ -1480,6 +1480,30 @@ RTR3DECL(int) RTPathUnlink(const char *pszPath, uint32_t fUnlink);
  */
 RTDECL(RTEXITCODE) RTPathRmCmd(unsigned cArgs, char **papszArgs);
 
+# ifdef RT_OS_WINDOWS
+
+/**
+ * Converts the given UTF-8 path into a native windows path.
+ *
+ * @returns IPRT status code.
+ * @param   ppwszPath           Where to return the path.  This will always be
+ *                              set to NULL on failure.  Use RTPathWinFree to
+ *                              free it when done.
+ * @param   pszPath             The UTF-8 path to convert.
+ * @param   fFlags              MBZ, reserved for future hacks.
+ * @sa      RTPathWinFree, RTNtPathFromWinUtf8, RTNtPathRelativeFromUtf8.
+ */
+RTDECL(int)  RTPathWinFromUtf8(PRTUTF16 *ppwszPath, const char *pszPath, uint32_t fFlags);
+
+/**
+ * Frees a native windows path returned by RTPathWinFromUtf8
+ *
+ * @param   pwszPath            The path to free.  NULL is ignored.
+ */
+RTDECL(void) RTPathWinFree(PRTUTF16 pwszPath);
+
+# endif /* RT_OS_WINDOWS */
+
 #endif /* IN_RING3 */
 
 /** @} */

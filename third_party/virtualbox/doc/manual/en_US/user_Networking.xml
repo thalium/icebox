@@ -233,8 +233,9 @@
     networking modes:</para>
     <table>
       <title>Overview</title>
-      <tgroup cols="5">
+      <tgroup cols="6">
         <colspec align="left" />
+        <colspec align="center" />
         <colspec align="center" />
         <colspec align="center" />
         <colspec align="center" />
@@ -242,15 +243,17 @@
         <thead valign="middle">
           <row>
             <entry></entry>
-            <entry><emphasis role="bold">VM &harr; Host</emphasis></entry>
-            <entry><emphasis role="bold">VM1 &harr; VM2</emphasis></entry>
-            <entry><emphasis role="bold">VM &rarr; Internet</emphasis></entry>
-            <entry><emphasis role="bold">VM &larr; Internet</emphasis></entry>
+            <entry><emphasis role="bold">VM&rarr;Host</emphasis></entry>
+            <entry><emphasis role="bold">VM&larr;Host</emphasis></entry>
+            <entry><emphasis role="bold">VM1&harr;VM2</emphasis></entry>
+            <entry><emphasis role="bold">VM&rarr;Net/LAN</emphasis></entry>
+            <entry><emphasis role="bold">VM&larr;Net/LAN</emphasis></entry>
           </row>
         </thead>
         <tbody valign="middle">
           <row>
             <entry>Host-only</entry>
+            <entry><emphasis role="bold">+</emphasis></entry>
             <entry><emphasis role="bold">+</emphasis></entry>
             <entry align="center"><emphasis role="bold">+</emphasis></entry>
             <entry>&ndash;</entry>
@@ -258,6 +261,7 @@
           </row>
           <row>
             <entry>Internal</entry>
+            <entry>&ndash;</entry>
             <entry>&ndash;</entry>
             <entry><emphasis role="bold">+</emphasis></entry>
             <entry>&ndash;</entry>
@@ -269,20 +273,23 @@
             <entry><emphasis role="bold">+</emphasis></entry>
             <entry><emphasis role="bold">+</emphasis></entry>
             <entry><emphasis role="bold">+</emphasis></entry>
+            <entry><emphasis role="bold">+</emphasis></entry>
           </row>
           <row>
             <entry>NAT</entry>
-            <entry>&ndash;</entry>
+            <entry><emphasis role="bold">+</emphasis></entry>
+            <entry><link linkend="natforward">Port forward</link></entry>
             <entry>&ndash;</entry>
             <entry><emphasis role="bold">+</emphasis></entry>
-            <entry><link linkend="natforward">Port forwarding</link></entry>
+            <entry><link linkend="natforward">Port forward</link></entry>
           </row>
           <row>
-            <entry>NAT Network</entry>
-            <entry>&ndash;</entry>
+            <entry>NATservice</entry>
+            <entry><emphasis role="bold">+</emphasis></entry>
+            <entry><link linkend="network_nat_service">Port forward</link></entry>
             <entry><emphasis role="bold">+</emphasis></entry>
             <entry><emphasis role="bold">+</emphasis></entry>
-            <entry><link linkend="network_nat_service">Port forwarding</link></entry>
+            <entry><link linkend="network_nat_service">Port forward</link></entry>
           </row>
         </tbody>
       </tgroup>

@@ -53,11 +53,12 @@ VBGLR3DECL(int) VbglR3RegisterSharedModule(char *pszModuleName, char *pszVersion
     /* Sanity check. */
     AssertReturn(cRegions < VMMDEVSHAREDREGIONDESC_MAX, VERR_INVALID_PARAMETER);
 
-    pReq = (VMMDevSharedModuleRegistrationRequest *)RTMemAllocZ(RT_OFFSETOF(VMMDevSharedModuleRegistrationRequest, aRegions[cRegions]));
+    pReq = (VMMDevSharedModuleRegistrationRequest *)RTMemAllocZ(RT_UOFFSETOF_DYN(VMMDevSharedModuleRegistrationRequest,
+                                                                                 aRegions[cRegions]));
     AssertReturn(pReq, VERR_NO_MEMORY);
 
     vmmdevInitRequest(&pReq->header, VMMDevReq_RegisterSharedModule);
-    pReq->header.size   = RT_OFFSETOF(VMMDevSharedModuleRegistrationRequest, aRegions[cRegions]);
+    pReq->header.size   = RT_UOFFSETOF_DYN(VMMDevSharedModuleRegistrationRequest, aRegions[cRegions]);
     pReq->GCBaseAddr    = GCBaseAddr;
     pReq->cbModule      = cbModule;
     pReq->cRegions      = cRegions;

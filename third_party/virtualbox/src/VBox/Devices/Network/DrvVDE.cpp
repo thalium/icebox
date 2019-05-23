@@ -106,7 +106,7 @@ typedef struct DRVVDE
 
 
 /** Converts a pointer to VDE::INetworkUp to a PRDVVDE. */
-#define PDMINETWORKUP_2_DRVVDE(pInterface) ( (PDRVVDE)((uintptr_t)pInterface - RT_OFFSETOF(DRVVDE, INetworkUp)) )
+#define PDMINETWORKUP_2_DRVVDE(pInterface) ( (PDRVVDE)((uintptr_t)pInterface - RT_UOFFSETOF(DRVVDE, INetworkUp)) )
 
 
 /*********************************************************************************************************************************

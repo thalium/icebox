@@ -181,7 +181,7 @@ static RTEXITCODE loadModule(const char *pszFile)
         return RTMsgErrorExit(RTEXITCODE_FAILURE, "SymLoadModuleEx failed: %u\n", GetLastError());
 
     size_t cbFullName = strlen(pszFile) + 1;
-    PRTNTDBGHELPMOD pMod = (PRTNTDBGHELPMOD)RTMemAlloc(RT_OFFSETOF(RTNTDBGHELPMOD, szFullName[cbFullName + 1]));
+    PRTNTDBGHELPMOD pMod = (PRTNTDBGHELPMOD)RTMemAlloc(RT_UOFFSETOF_DYN(RTNTDBGHELPMOD, szFullName[cbFullName + 1]));
     memcpy(pMod->szFullName, pszFile, cbFullName);
     pMod->pszName  = RTPathFilename(pMod->szFullName);
     pMod->uModAddr = uModAddrGot;
@@ -361,7 +361,7 @@ int main(int argc, char **argv)
 
 
             case 'V':
-                RTPrintf("$Revision: 118769 $");
+                RTPrintf("$Revision: 125570 $");
                 break;
 
             case 'h':

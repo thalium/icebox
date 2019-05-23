@@ -1240,7 +1240,7 @@ static int vgsvcVMInfoWriteNetwork(void)
 #  define SA_LEN(pAddr) (pAddr)->sa_len
 # endif
         /* Figure the size of the current request. */
-        size_t cbCur = RT_OFFSETOF(struct ifreq, ifr_addr)
+        size_t cbCur = RT_UOFFSETOF(struct ifreq, ifr_addr)
                      + SA_LEN(&pCur->ifr_addr);
         cbCur = RT_MAX(cbCur, sizeof(struct ifreq));
 # if defined(RT_OS_SOLARIS) || defined(RT_OS_LINUX)

@@ -103,7 +103,7 @@ RTDECL(int) RTSystemShutdown(RTMSINTERVAL cMsDelay, uint32_t fFlags, const char 
                     if (AdjustTokenPrivileges(hToken,
                                               FALSE /*DisableAllPrivileges*/,
                                               &u.TokenPriv,
-                                              RT_OFFSETOF(TOKEN_PRIVILEGES, Privileges[1]),
+                                              RT_UOFFSETOF(TOKEN_PRIVILEGES, Privileges[1]),
                                               NULL,
                                               NULL) )
                     {

@@ -6,7 +6,7 @@
  */
 
 /*
- * Copyright (C) 2016-2017 Oracle Corporation
+ * Copyright (C) 2016-2018 Oracle Corporation
  *
  * This file is part of VirtualBox Open Source Edition (OSE), as
  * available from http://www.virtualbox.org. This file is free software;
@@ -44,11 +44,6 @@ typedef struct DEBUGAUDIOSTREAM
             /** Timestamp of last captured samples. */
             uint64_t   tsLastCaptured;
         } In;
-        struct
-        {
-            uint8_t   *auPlayBuffer;
-            uint32_t   cbPlayBuffer;
-        } Out;
     };
 } DEBUGAUDIOSTREAM, *PDEBUGAUDIOSTREAM;
 
@@ -75,11 +70,13 @@ static DECLCALLBACK(int) drvHostDebugAudioGetConfig(PPDMIHOSTAUDIO pInterface, P
     RT_NOREF(pInterface);
     AssertPtrReturn(pBackendCfg, VERR_INVALID_POINTER);
 
+    RTStrPrintf2(pBackendCfg->szName, sizeof(pBackendCfg->szName), "Debug audio driver");
+
     pBackendCfg->cbStreamOut    = sizeof(DEBUGAUDIOSTREAM);
     pBackendCfg->cbStreamIn     = sizeof(DEBUGAUDIOSTREAM);
 
-    pBackendCfg->cMaxStreamsOut = 1; /* Output */
-    pBackendCfg->cMaxStreamsIn  = 2; /* Line input + microphone input. */
+    pBackendCfg->cMaxStreamsOut = 1; /* Output; writing to a file. */
+    pBackendCfg->cMaxStreamsIn  = 0; /** @todo Right now we don't support any input (capturing, injecting from a file). */
 
     return VINF_SUCCESS;
 }
@@ -121,10 +118,7 @@ static DECLCALLBACK(PDMAUDIOBACKENDSTS) drvHostDebugAudioGetStatus(PPDMIHOSTAUDI
 static int debugCreateStreamIn(PDRVHOSTDEBUGAUDIO pDrv, PDEBUGAUDIOSTREAM pStreamDbg,
                                PPDMAUDIOSTREAMCFG pCfgReq, PPDMAUDIOSTREAMCFG pCfgAcq)
 {
-    RT_NOREF(pDrv, pStreamDbg, pCfgReq);
-
-    if (pCfgAcq)
-        pCfgAcq->cFrameBufferHint = _1K;
+    RT_NOREF(pDrv, pStreamDbg, pCfgReq, pCfgAcq);
 
     return VINF_SUCCESS;
 }
@@ -133,48 +127,32 @@ static int debugCreateStreamIn(PDRVHOSTDEBUGAUDIO pDrv, PDEBUGAUDIOSTREAM pStrea
 static int debugCreateStreamOut(PDRVHOSTDEBUGAUDIO pDrv, PDEBUGAUDIOSTREAM pStreamDbg,
                                 PPDMAUDIOSTREAMCFG pCfgReq, PPDMAUDIOSTREAMCFG pCfgAcq)
 {
-    RT_NOREF(pDrv);
+    RT_NOREF(pDrv, pCfgAcq);
 
-    int rc = VINF_SUCCESS;
-
-    pStreamDbg->Out.cbPlayBuffer  = _1K * PDMAUDIOSTREAMCFG_F2B(pCfgReq, 1); /** @todo Make this configurable? */
-    pStreamDbg->Out.auPlayBuffer  = (uint8_t *)RTMemAlloc(pStreamDbg->Out.cbPlayBuffer);
-    if (!pStreamDbg->Out.auPlayBuffer)
-        rc = VERR_NO_MEMORY;
-
+    char szTemp[RTPATH_MAX];
+    int rc = RTPathTemp(szTemp, sizeof(szTemp));
     if (RT_SUCCESS(rc))
     {
-        char szTemp[RTPATH_MAX];
-        rc = RTPathTemp(szTemp, sizeof(szTemp));
+        char szFile[RTPATH_MAX];
+        rc = DrvAudioHlpFileNameGet(szFile, RT_ELEMENTS(szFile), szTemp, "DebugAudioOut",
+                                    pDrv->pDrvIns->iInstance, PDMAUDIOFILETYPE_WAV, PDMAUDIOFILENAME_FLAG_NONE);
         if (RT_SUCCESS(rc))
         {
-            char szFile[RTPATH_MAX];
-            rc = DrvAudioHlpGetFileName(szFile, RT_ELEMENTS(szFile), szTemp, "DebugAudioOut",
-                                        pDrv->pDrvIns->iInstance, PDMAUDIOFILETYPE_WAV, PDMAUDIOFILENAME_FLAG_NONE);
+            rc = DrvAudioHlpFileCreate(PDMAUDIOFILETYPE_WAV, szFile, PDMAUDIOFILE_FLAG_NONE, &pStreamDbg->pFile);
             if (RT_SUCCESS(rc))
             {
-                rc = DrvAudioHlpFileCreate(PDMAUDIOFILETYPE_WAV, szFile, PDMAUDIOFILE_FLAG_NONE, &pStreamDbg->pFile);
-                if (RT_SUCCESS(rc))
-                {
-                    rc = DrvAudioHlpFileOpen(pStreamDbg->pFile, RTFILE_O_WRITE | RTFILE_O_DENY_WRITE | RTFILE_O_CREATE_REPLACE,
-                                             &pCfgReq->Props);
-                }
-
-                if (RT_FAILURE(rc))
-                    LogRel(("DebugAudio: Creating output file '%s' failed with %Rrc\n", szFile, rc));
+                rc = DrvAudioHlpFileOpen(pStreamDbg->pFile, RTFILE_O_WRITE | RTFILE_O_DENY_WRITE | RTFILE_O_CREATE_REPLACE,
+                                         &pCfgReq->Props);
             }
-            else
-                LogRel(("DebugAudio: Unable to build file name for temp dir '%s': %Rrc\n", szTemp, rc));
+
+            if (RT_FAILURE(rc))
+                LogRel(("DebugAudio: Creating output file '%s' failed with %Rrc\n", szFile, rc));
         }
         else
-            LogRel(("DebugAudio: Unable to retrieve temp dir: %Rrc\n", rc));
+            LogRel(("DebugAudio: Unable to build file name for temp dir '%s': %Rrc\n", szTemp, rc));
     }
-
-    if (RT_SUCCESS(rc))
-    {
-        if (pCfgAcq)
-            pCfgAcq->cFrameBufferHint = PDMAUDIOSTREAMCFG_B2F(pCfgAcq, pStreamDbg->Out.cbPlayBuffer);
-    }
+    else
+        LogRel(("DebugAudio: Unable to retrieve temp dir: %Rrc\n", rc));
 
     return rc;
 }
@@ -222,30 +200,15 @@ static DECLCALLBACK(int) drvHostDebugAudioStreamPlay(PPDMIHOSTAUDIO pInterface,
     RT_NOREF(pInterface);
     PDEBUGAUDIOSTREAM  pStreamDbg = (PDEBUGAUDIOSTREAM)pStream;
 
-    uint32_t cbWrittenTotal = 0;
-
-    uint32_t cbAvail = cxBuf;
-    while (cbAvail)
+    int rc = DrvAudioHlpFileWrite(pStreamDbg->pFile, pvBuf, cxBuf, 0 /* fFlags */);
+    if (RT_FAILURE(rc))
     {
-        uint32_t cbChunk = RT_MIN(cbAvail, pStreamDbg->Out.cbPlayBuffer);
-
-        memcpy(pStreamDbg->Out.auPlayBuffer, (uint8_t *)pvBuf + cbWrittenTotal, cbChunk);
-
-        int rc2 = DrvAudioHlpFileWrite(pStreamDbg->pFile, pStreamDbg->Out.auPlayBuffer, cbChunk, 0 /* fFlags */);
-        if (RT_FAILURE(rc2))
-        {
-            LogRel(("DebugAudio: Writing output failed with %Rrc\n", rc2));
-            break;
-        }
-
-        Assert(cbAvail >= cbChunk);
-        cbAvail        -= cbChunk;
-
-        cbWrittenTotal += cbChunk;
+        LogRel(("DebugAudio: Writing output failed with %Rrc\n", rc));
+        return rc;
     }
 
     if (pcxWritten)
-        *pcxWritten = cbWrittenTotal;
+        *pcxWritten = cxBuf;
 
     return VINF_SUCCESS;
 }
@@ -277,12 +240,6 @@ static int debugDestroyStreamIn(PDRVHOSTDEBUGAUDIO pDrv, PDEBUGAUDIOSTREAM pStre
 static int debugDestroyStreamOut(PDRVHOSTDEBUGAUDIO pDrv, PDEBUGAUDIOSTREAM pStreamDbg)
 {
     RT_NOREF(pDrv);
-
-    if (pStreamDbg->Out.auPlayBuffer)
-    {
-        RTMemFree(pStreamDbg->Out.auPlayBuffer);
-        pStreamDbg->Out.auPlayBuffer = NULL;
-    }
 
     DrvAudioHlpFileDestroy(pStreamDbg->pFile);
 

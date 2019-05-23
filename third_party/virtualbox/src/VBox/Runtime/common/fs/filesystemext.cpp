@@ -211,7 +211,7 @@ static int rtFsExtLoadBlkGrpDesc(PRTFILESYSTEMEXT pThis, uint32_t iBlkGrp)
 
     if (!pBlkGrpDesc)
     {
-        size_t cbBlkDesc = RT_OFFSETOF(RTFILESYSTEMEXTBLKGRP, abBlockBitmap[cbBlockBitmap]);
+        size_t cbBlkDesc = RT_UOFFSETOF_DYN(RTFILESYSTEMEXTBLKGRP, abBlockBitmap[cbBlockBitmap]);
         pBlkGrpDesc = (PRTFILESYSTEMEXTBLKGRP)RTMemAllocZ(cbBlkDesc);
         if (!pBlkGrpDesc)
             return VERR_NO_MEMORY;

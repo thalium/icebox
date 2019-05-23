@@ -4,7 +4,7 @@
 #
 
 #
-# Copyright (C) 2006-2017 Oracle Corporation
+# Copyright (C) 2006-2018 Oracle Corporation
 #
 # This file is part of VirtualBox Open Source Edition (OSE), as
 # available from http://www.virtualbox.org. This file is free software;
@@ -849,6 +849,7 @@ RuntimeR3_SOURCES.win = \
 	r3/win/localipc-win.cpp \
 	r3/win/mp-win.cpp \
 	r3/win/path-win.cpp \
+	r3/win/pathint-win.cpp \
 	r3/win/pipe-win.cpp \
 	r3/win/process-win.cpp \
 	r3/win/RTLogWriteDebugger-win.cpp \

@@ -860,7 +860,7 @@ DECLHIDDEN(void) supR3HardenedWinVerifyCacheScheduleImports(RTLDRMOD hLdrMod, PC
                     SUP_DPRINTF(("supR3HardenedWinVerifyCacheScheduleImports: Import todo: #%u '%s'.\n", i, uBuf.szName));
                     uint32_t cbName        = (uint32_t)strlen(uBuf.szName) + 1;
                     uint32_t cbNameAligned = RT_ALIGN_32(cbName, sizeof(RTUTF16));
-                    uint32_t cbNeeded      = RT_OFFSETOF(VERIFIERCACHEIMPORT, szName[cbNameAligned])
+                    uint32_t cbNeeded      = RT_UOFFSETOF_DYN(VERIFIERCACHEIMPORT, szName[cbNameAligned])
                                            + (pawcDir ? (cwcDir + 1) * sizeof(RTUTF16) : 0);
                     PVERIFIERCACHEIMPORT pImport = (PVERIFIERCACHEIMPORT)RTMemAllocZ(cbNeeded);
                     if (pImport)

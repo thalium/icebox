@@ -238,7 +238,7 @@ typedef struct SSMFIELD
 /** Emit a SSMFIELD array entry.
  * @internal  */
 #define SSMFIELD_ENTRY_TF_INT(Type, Field, enmTransformer, uFirstVer) \
-    SSMFIELD_ENTRY_INT(#Type "::" #Field, RT_OFFSETOF(Type, Field), RT_SIZEOFMEMB(Type, Field), enmTransformer, uFirstVer)
+    SSMFIELD_ENTRY_INT(#Type "::" #Field, RT_UOFFSETOF(Type, Field), RT_SIZEOFMEMB(Type, Field), enmTransformer, uFirstVer)
 /** Emit a SSMFIELD array entry for an old field.
  * @internal  */
 #define SSMFIELD_ENTRY_OLD_INT(Field, cb, enmTransformer) \
@@ -246,7 +246,7 @@ typedef struct SSMFIELD
 /** Emit a SSMFIELD array entry for an alignment padding.
  * @internal  */
 #define SSMFIELD_ENTRY_PAD_INT(Type, Field, cb32, cb64, enmTransformer) \
-    SSMFIELD_ENTRY_INT(#Type "::" #Field, RT_OFFSETOF(Type, Field), \
+    SSMFIELD_ENTRY_INT(#Type "::" #Field, RT_UOFFSETOF(Type, Field), \
                        (RT_SIZEOFMEMB(Type, Field) << 16) | (cb32) | ((cb64) << 8), enmTransformer, 0)
 /** Emit a SSMFIELD array entry for an alignment padding.
  * @internal  */
@@ -368,7 +368,7 @@ typedef struct SSMFIELD
 
 /** Emit a SSMFIELD array entry for a field with a custom callback. */
 #define SSMFIELD_ENTRY_CALLBACK(Type, Field, pfnGetPut) \
-    { (pfnGetPut), RT_OFFSETOF(Type, Field), RT_SIZEOFMEMB(Type, Field), 0, #Type "::" #Field }
+    { (pfnGetPut), RT_UOFFSETOF(Type, Field), RT_SIZEOFMEMB(Type, Field), 0, #Type "::" #Field }
 /** Emit the terminating entry of a SSMFIELD array. */
 #define SSMFIELD_ENTRY_TERM() \
     { (PFNSSMFIELDGETPUT)(uintptr_t)SSMFIELDTRANS_INVALID, UINT32_MAX, UINT32_MAX, UINT32_MAX, NULL }

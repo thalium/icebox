@@ -226,7 +226,7 @@ static int vbglR0HGCMInternalPreprocessCall(PCVBGLIOCHGCMCALL pCallInfo, uint32_
 
                     pPgLst = (HGCMPageListInfo *)((uint8_t *)pCallInfo + off);
                     cPages = pPgLst->cPages;
-                    u32    = RT_OFFSETOF(HGCMPageListInfo, aPages[cPages]) + off;
+                    u32    = RT_UOFFSETOF_DYN(HGCMPageListInfo, aPages[cPages]) + off;
                     AssertMsgReturn(u32 <= cbCallInfo,
                                     ("u32=%#x (cPages=%#x offset=%#x) cbCallInfo=%#x\n", u32, cPages, off, cbCallInfo),
                                     VERR_INVALID_PARAMETER);
@@ -245,7 +245,7 @@ static int vbglR0HGCMInternalPreprocessCall(PCVBGLIOCHGCMCALL pCallInfo, uint32_
                                         VERR_INVALID_PARAMETER);
                     }
 
-                    *pcbExtra += RT_OFFSETOF(HGCMPageListInfo, aPages[pPgLst->cPages]);
+                    *pcbExtra += RT_UOFFSETOF_DYN(HGCMPageListInfo, aPages[pPgLst->cPages]);
                 }
                 else
                     Log4(("GstHGCMCall: parm=%u type=pglst: cb=0\n", iParm));
@@ -398,7 +398,7 @@ static int vbglR0HGCMInternalPreprocessCall(PCVBGLIOCHGCMCALL pCallInfo, uint32_
                     if (VBGLR0_CAN_USE_PHYS_PAGE_LIST(/*a_fLocked =*/ false))
                     {
                         size_t const cPages = RTR0MemObjSize(hObj) >> PAGE_SHIFT;
-                        *pcbExtra += RT_OFFSETOF(HGCMPageListInfo, aPages[cPages]);
+                        *pcbExtra += RT_UOFFSETOF_DYN(HGCMPageListInfo, aPages[cPages]);
                     }
                 }
                 else
@@ -527,7 +527,7 @@ static void vbglR0HGCMInternalInitCall(VMMDevHGCMCall *pHGCMCall, PCVBGLIOCHGCMC
                     for (iPage = 0; iPage < cPages; iPage++)
                         pDstPgLst->aPages[iPage] = pSrcPgLst->aPages[iPage];
 
-                    offExtra += RT_OFFSETOF(HGCMPageListInfo, aPages[cPages]);
+                    offExtra += RT_UOFFSETOF_DYN(HGCMPageListInfo, aPages[cPages]);
                 }
                 else
                     pDstParm->u.PageList.offset = 0;
@@ -578,7 +578,7 @@ static void vbglR0HGCMInternalInitCall(VMMDevHGCMCall *pHGCMCall, PCVBGLIOCHGCMC
                             Assert(pDstPgLst->aPages[iPage] != NIL_RTHCPHYS);
                         }
 
-                        offExtra += RT_OFFSETOF(HGCMPageListInfo, aPages[cPages]);
+                        offExtra += RT_UOFFSETOF_DYN(HGCMPageListInfo, aPages[cPages]);
                     }
                     else
                     {

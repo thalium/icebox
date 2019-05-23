@@ -630,7 +630,7 @@ HRESULT MachineDebugger::getOSName(com::Utf8Str &aOSName)
                 Bstr bstrName(szName);
                 aOSName = Utf8Str(bstrName);
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &)
             {
                 hrc = E_OUTOFMEMORY;
             }
@@ -661,7 +661,7 @@ HRESULT MachineDebugger::getOSVersion(com::Utf8Str &aOSVersion)
                 Bstr bstrVersion(szVersion);
                 aOSVersion = Utf8Str(bstrVersion);
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &)
             {
                 hrc = E_OUTOFMEMORY;
             }
@@ -968,7 +968,7 @@ HRESULT MachineDebugger::info(const com::Utf8Str &aName, const com::Utf8Str &aAr
                         Bstr bstrInfo(Hlp.pszBuf);
                         aInfo = bstrInfo;
                     }
-                    catch (std::bad_alloc)
+                    catch (std::bad_alloc &)
                     {
                         hrc = E_OUTOFMEMORY;
                     }
@@ -1098,7 +1098,7 @@ HRESULT MachineDebugger::loadPlugIn(const com::Utf8Str &aName, com::Utf8Str &aPl
                 aPlugInName = "all";
                 hrc = S_OK;
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &)
             {
                 hrc = E_OUTOFMEMORY;
             }
@@ -1115,7 +1115,7 @@ HRESULT MachineDebugger::loadPlugIn(const com::Utf8Str &aName, com::Utf8Str &aPl
                     aPlugInName = szName;
                     hrc = S_OK;
                 }
-                catch (std::bad_alloc)
+                catch (std::bad_alloc &)
                 {
                     hrc = E_OUTOFMEMORY;
                 }
@@ -1184,7 +1184,7 @@ HRESULT MachineDebugger::detectOS(com::Utf8Str &aOs)
             {
                 aOs = szName;
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &)
             {
                 hrc = E_OUTOFMEMORY;
             }
@@ -1288,7 +1288,7 @@ HRESULT MachineDebugger::getRegister(ULONG aCpuId, const com::Utf8Str &aName, co
                 if (SUCCEEDED(hrc))
                     aValue = Utf8Str(bstrValue);
             }
-            catch (std::bad_alloc)
+            catch (std::bad_alloc &)
             {
                 hrc = E_OUTOFMEMORY;
             }
@@ -1347,7 +1347,7 @@ HRESULT MachineDebugger::getRegisters(ULONG aCpuId, std::vector<com::Utf8Str> &a
                             aValues[iReg] = Utf8Str(szHex);
                         }
                     }
-                    catch (std::bad_alloc)
+                    catch (std::bad_alloc &)
                     {
                         hrc = E_OUTOFMEMORY;
                     }
@@ -1496,7 +1496,7 @@ HRESULT MachineDebugger::dumpGuestStack(ULONG aCpuId, com::Utf8Str &aStack)
                         fBitFlags = fCurBitFlags;
                     }
                 }
-                catch (std::bad_alloc)
+                catch (std::bad_alloc &)
                 {
                     hrc = E_OUTOFMEMORY;
                 }

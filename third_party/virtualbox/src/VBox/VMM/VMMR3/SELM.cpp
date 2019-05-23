@@ -128,19 +128,19 @@ VMMR3DECL(int) SELMR3Init(PVM pVM)
      * (The TSS block requires contiguous back.)
      */
     AssertCompile(sizeof(pVM->selm.s) <= sizeof(pVM->selm.padding));    AssertRelease(sizeof(pVM->selm.s) <= sizeof(pVM->selm.padding));
-    AssertCompileMemberAlignment(VM, selm.s, 32);                       AssertRelease(!(RT_OFFSETOF(VM, selm.s) & 31));
+    AssertCompileMemberAlignment(VM, selm.s, 32);                       AssertRelease(!(RT_UOFFSETOF(VM, selm.s) & 31));
 #if 0 /* doesn't work */
     AssertCompile((RT_OFFSETOF(VM, selm.s.Tss)       & PAGE_OFFSET_MASK) <= PAGE_SIZE - sizeof(pVM->selm.s.Tss));
     AssertCompile((RT_OFFSETOF(VM, selm.s.TssTrap08) & PAGE_OFFSET_MASK) <= PAGE_SIZE - sizeof(pVM->selm.s.TssTrap08));
 #endif
-    AssertRelease((RT_OFFSETOF(VM, selm.s.Tss)       & PAGE_OFFSET_MASK) <= PAGE_SIZE - sizeof(pVM->selm.s.Tss));
-    AssertRelease((RT_OFFSETOF(VM, selm.s.TssTrap08) & PAGE_OFFSET_MASK) <= PAGE_SIZE - sizeof(pVM->selm.s.TssTrap08));
+    AssertRelease((RT_UOFFSETOF(VM, selm.s.Tss)       & PAGE_OFFSET_MASK) <= PAGE_SIZE - sizeof(pVM->selm.s.Tss));
+    AssertRelease((RT_UOFFSETOF(VM, selm.s.TssTrap08) & PAGE_OFFSET_MASK) <= PAGE_SIZE - sizeof(pVM->selm.s.TssTrap08));
     AssertRelease(sizeof(pVM->selm.s.Tss.IntRedirBitmap) == 0x20);
 
     /*
      * Init the structure.
      */
-    pVM->selm.s.offVM                                = RT_OFFSETOF(VM, selm);
+    pVM->selm.s.offVM                                = RT_UOFFSETOF(VM, selm);
     pVM->selm.s.aHyperSel[SELM_HYPER_SEL_CS]         = (SELM_GDT_ELEMENTS - 0x1) << 3;
     pVM->selm.s.aHyperSel[SELM_HYPER_SEL_DS]         = (SELM_GDT_ELEMENTS - 0x2) << 3;
     pVM->selm.s.aHyperSel[SELM_HYPER_SEL_CS64]       = (SELM_GDT_ELEMENTS - 0x3) << 3;
@@ -1560,7 +1560,7 @@ VMMR3DECL(int) SELMR3SyncTSS(PVM pVM, PVMCPU pVCpu)
          */
         VBOXTSS Tss;
         uint32_t cr4 = CPUMGetGuestCR4(pVCpu);
-        rc = PGMPhysSimpleReadGCPtr(pVCpu, &Tss, GCPtrTss, RT_OFFSETOF(VBOXTSS, IntRedirBitmap));
+        rc = PGMPhysSimpleReadGCPtr(pVCpu, &Tss, GCPtrTss, RT_UOFFSETOF(VBOXTSS, IntRedirBitmap));
         if (    !(cr4 & X86_CR4_VME)
             ||   (  RT_SUCCESS(rc)
                  && Tss.offIoBitmap < sizeof(VBOXTSS) /* too small */
@@ -1591,7 +1591,7 @@ VMMR3DECL(int) SELMR3SyncTSS(PVM pVM, PVMCPU pVCpu)
         }
         else
         {
-            cbMonitoredTss = RT_OFFSETOF(VBOXTSS, IntRedirBitmap);
+            cbMonitoredTss = RT_UOFFSETOF(VBOXTSS, IntRedirBitmap);
             pVM->selm.s.offGuestIoBitmap = 0;
             /** @todo memset the bitmap? */
         }
@@ -1933,7 +1933,7 @@ VMMR3DECL(bool) SELMR3CheckTSS(PVM pVM)
     {
         VBOXTSS Tss;
         uint32_t cr4 = CPUMGetGuestCR4(pVCpu);
-        int rc = PGMPhysSimpleReadGCPtr(pVCpu, &Tss, GCPtrTss, RT_OFFSETOF(VBOXTSS, IntRedirBitmap));
+        int rc = PGMPhysSimpleReadGCPtr(pVCpu, &Tss, GCPtrTss, RT_UOFFSETOF(VBOXTSS, IntRedirBitmap));
         AssertReturn(   rc == VINF_SUCCESS
                         /* Happens early in XP boot during page table switching. */
                      || (   (rc == VERR_PAGE_TABLE_NOT_PRESENT || rc == VERR_PAGE_NOT_PRESENT)
@@ -1967,7 +1967,7 @@ VMMR3DECL(bool) SELMR3CheckTSS(PVM pVM)
                             false);
         }
         else
-            cbMonitoredTss = RT_OFFSETOF(VBOXTSS, IntRedirBitmap);
+            cbMonitoredTss = RT_UOFFSETOF(VBOXTSS, IntRedirBitmap);
 
         /*
          * Check SS0 and ESP0.

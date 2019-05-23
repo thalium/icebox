@@ -580,7 +580,7 @@ static int pic_ioport_write(PDEVPIC pThis, PPICSTATE pPic, uint32_t addr, uint32
 
 static uint32_t pic_poll_read(PPICSTATE pPic, uint32_t addr1)
 {
-    PDEVPIC pThis = RT_FROM_MEMBER(pPic, DEVPIC, aPics[pPic->idxPic]);
+    PDEVPIC pThis = RT_FROM_MEMBER_DYN(pPic, DEVPIC, aPics[pPic->idxPic]);
 
     int ret = pic_get_irq(pPic);
     if (ret >= 0)

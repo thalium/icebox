@@ -1078,7 +1078,7 @@ VMMR0DECL(int) SVMR0Execute64BitsHandler(PVM pVM, PVMCPU pVCpu, PCPUMCTX pCtx, H
 
     STAM_PROFILE_ADV_START(&pVCpu->hm.s.StatWorldSwitch3264, z);
     /* Call the switcher. */
-    int rc = pVM->hm.s.pfnHost32ToGuest64R0(pVM, RT_OFFSETOF(VM, aCpus[pVCpu->idCpu].cpum) - RT_OFFSETOF(VM, cpum));
+    int rc = pVM->hm.s.pfnHost32ToGuest64R0(pVM, RT_UOFFSETOF_DYN(VM, aCpus[pVCpu->idCpu].cpum) - RT_UOFFSETOF(VM, cpum));
     STAM_PROFILE_ADV_STOP(&pVCpu->hm.s.StatWorldSwitch3264, z);
 
     /* Restore interrupts. */

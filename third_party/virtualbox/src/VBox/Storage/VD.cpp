@@ -543,7 +543,8 @@ static PVDIMAGE vdGetImageByNumber(PVDISK pDisk, unsigned nImage)
 static int vdRegionListConv(PCVDREGIONLIST pRegionList, uint32_t fFlags, PPVDREGIONLIST ppRegionList)
 {
     int rc = VINF_SUCCESS;
-    PVDREGIONLIST pRegionListNew = (PVDREGIONLIST)RTMemDup(pRegionList, RT_UOFFSETOF(VDREGIONLIST, aRegions[pRegionList->cRegions]));
+    PVDREGIONLIST pRegionListNew = (PVDREGIONLIST)RTMemDup(pRegionList,
+                                                           RT_UOFFSETOF_DYN(VDREGIONLIST, aRegions[pRegionList->cRegions]));
     if (RT_LIKELY(pRegionListNew))
     {
         /* Do we have to convert anything? */
@@ -1185,7 +1186,7 @@ DECLINLINE(void) vdIoCtxChildReset(PVDIOCTX pIoCtx)
 
 DECLINLINE(PVDMETAXFER) vdMetaXferAlloc(PVDIOSTORAGE pIoStorage, uint64_t uOffset, size_t cb)
 {
-    PVDMETAXFER pMetaXfer = (PVDMETAXFER)RTMemAlloc(RT_OFFSETOF(VDMETAXFER, abData[cb]));
+    PVDMETAXFER pMetaXfer = (PVDMETAXFER)RTMemAlloc(RT_UOFFSETOF_DYN(VDMETAXFER, abData[cb]));
 
     if (RT_LIKELY(pMetaXfer))
     {

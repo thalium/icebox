@@ -276,7 +276,7 @@ BOOLEAN vboxWddmSwapchainAllocAdd(PVBOXMP_DEVEXT pDevExt, PVBOXWDDM_SWAPCHAIN pS
     return bRc;
 }
 
-#define VBOXSCENTRY_2_ALLOC(_pE) ((PVBOXWDDM_ALLOCATION)((uint8_t*)(_pE) - RT_OFFSETOF(VBOXWDDM_ALLOCATION, SwapchainEntry)))
+#define VBOXSCENTRY_2_ALLOC(_pE) ((PVBOXWDDM_ALLOCATION)((uint8_t*)(_pE) - RT_UOFFSETOF(VBOXWDDM_ALLOCATION, SwapchainEntry)))
 
 static VOID vboxWddmSwapchainAllocRemoveAllInternal(PVBOXMP_DEVEXT pDevExt, PVBOXWDDM_SWAPCHAIN pSwapchain, BOOLEAN bOnDestroy)
 {
@@ -398,13 +398,13 @@ VOID vboxWddmSwapchainCtxDestroyAll(PVBOXMP_DEVEXT pDevExt, PVBOXWDDM_CONTEXT pC
 NTSTATUS vboxWddmSwapchainCtxEscape(PVBOXMP_DEVEXT pDevExt, PVBOXWDDM_CONTEXT pContext,
                                     PVBOXDISPIFESCAPE_SWAPCHAININFO pSwapchainInfo, UINT cbSize)
 {
-    if (cbSize < RT_OFFSETOF(VBOXDISPIFESCAPE_SWAPCHAININFO, SwapchainInfo.ahAllocs[0]))
+    if (cbSize < RT_UOFFSETOF(VBOXDISPIFESCAPE_SWAPCHAININFO, SwapchainInfo.ahAllocs[0]))
     {
         WARN(("invalid cbSize1 %d", cbSize));
         return STATUS_INVALID_PARAMETER;
     }
 
-    if (cbSize < RT_OFFSETOF(VBOXDISPIFESCAPE_SWAPCHAININFO, SwapchainInfo.ahAllocs[pSwapchainInfo->SwapchainInfo.cAllocs]))
+    if (cbSize < RT_UOFFSETOF_DYN(VBOXDISPIFESCAPE_SWAPCHAININFO, SwapchainInfo.ahAllocs[pSwapchainInfo->SwapchainInfo.cAllocs]))
     {
         WARN(("invalid cbSize2 %d", cbSize));
         return STATUS_INVALID_PARAMETER;
@@ -1389,7 +1389,7 @@ NTSTATUS vboxVideoAMgrCtxAllocSubmit(PVBOXMP_DEVEXT pDevExt, PVBOXVIDEOCM_ALLOC_
     }
 
     NTSTATUS Status = STATUS_SUCCESS;
-    UINT cbCmd = VBOXVDMACMD_SIZE_FROMBODYSIZE(RT_OFFSETOF(VBOXVDMACMD_CHROMIUM_CMD, aBuffers[cBuffers]));
+    UINT cbCmd = VBOXVDMACMD_SIZE_FROMBODYSIZE(RT_UOFFSETOF_DYN(VBOXVDMACMD_CHROMIUM_CMD, aBuffers[cBuffers]));
 
     VBOXVDMACBUF_DR RT_UNTRUSTED_VOLATILE_HOST *pDr = vboxVdmaCBufDrCreate(&pDevExt->u.primary.Vdma, cbCmd);
     if (pDr)
@@ -1655,14 +1655,14 @@ static void vboxUmdDumpD3DCAPS9(void *pvData, PVBOXDISPIFESCAPE_DBGDUMPBUF_FLAGS
 
 NTSTATUS vboxUmdDumpBuf(PVBOXDISPIFESCAPE_DBGDUMPBUF pBuf, uint32_t cbBuffer)
 {
-    if (cbBuffer < RT_OFFSETOF(VBOXDISPIFESCAPE_DBGDUMPBUF, aBuf[0]))
+    if (cbBuffer < RT_UOFFSETOF(VBOXDISPIFESCAPE_DBGDUMPBUF, aBuf[0]))
     {
         WARN(("Buffer too small"));
         return STATUS_BUFFER_TOO_SMALL;
     }
 
     NTSTATUS Status = STATUS_SUCCESS;
-    uint32_t cbString = cbBuffer - RT_OFFSETOF(VBOXDISPIFESCAPE_DBGDUMPBUF, aBuf[0]);
+    uint32_t cbString = cbBuffer - RT_UOFFSETOF(VBOXDISPIFESCAPE_DBGDUMPBUF, aBuf[0]);
     switch (pBuf->enmType)
     {
         case VBOXDISPIFESCAPE_DBGDUMPBUF_TYPE_D3DCAPS9:

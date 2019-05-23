@@ -116,12 +116,12 @@ RTDECL(bool) RTThreadPreemptIsPending(RTTHREAD hThread)
     RTCCUINTREG     fSavedFlags  = ASMIntDisableFlags();
 
 #ifdef RT_ARCH_X86
-    PKPCR       pPcr   = (PKPCR)__readfsdword(RT_OFFSETOF(KPCR,SelfPcr));
+    PKPCR       pPcr   = (PKPCR)__readfsdword(RT_UOFFSETOF(KPCR,SelfPcr));
     uint8_t    *pbPrcb = (uint8_t *)pPcr->Prcb;
 
 #elif defined(RT_ARCH_AMD64)
     /* HACK ALERT! The offset is from windbg/vista64. */
-    PKPCR       pPcr   = (PKPCR)__readgsqword(RT_OFFSETOF(KPCR,Self));
+    PKPCR       pPcr   = (PKPCR)__readgsqword(RT_UOFFSETOF(KPCR,Self));
     uint8_t    *pbPrcb = (uint8_t *)pPcr->CurrentPrcb;
 
 #else

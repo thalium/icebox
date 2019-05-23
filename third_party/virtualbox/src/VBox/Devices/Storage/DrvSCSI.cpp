@@ -775,7 +775,7 @@ static DECLCALLBACK(int) drvscsiIoReqAllocSizeSet(PPDMIMEDIAEX pInterface, size_
 {
     PDRVSCSI pThis = RT_FROM_MEMBER(pInterface, DRVSCSI, IMediaEx);
 
-    pThis->cbIoReqAlloc = RT_OFFSETOF(DRVSCSIREQ, abAlloc[cbIoReqAlloc]);
+    pThis->cbIoReqAlloc = RT_UOFFSETOF_DYN(DRVSCSIREQ, abAlloc[cbIoReqAlloc]);
     return VINF_SUCCESS;
 }
 

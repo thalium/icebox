@@ -942,7 +942,7 @@ struct VBoxDtVMem *VBoxDtVMemCreate(const char *pszName, void *pvBase, size_t cb
     uint32_t cChunks = (uint32_t)cb / VBOXDTVMEMCHUNK_BITS;
     if (cb % VBOXDTVMEMCHUNK_BITS)
         cChunks++;
-    PVBOXDTVMEM pThis = (PVBOXDTVMEM)RTMemAllocZ(RT_OFFSETOF(VBOXDTVMEM, apChunks[cChunks]));
+    PVBOXDTVMEM pThis = (PVBOXDTVMEM)RTMemAllocZ(RT_UOFFSETOF_DYN(VBOXDTVMEM, apChunks[cChunks]));
     if (!pThis)
         return NULL;
     int rc = RTSpinlockCreate(&pThis->hSpinlock, RTSPINLOCK_FLAGS_INTERRUPT_SAFE, "VBoxDtVMem");

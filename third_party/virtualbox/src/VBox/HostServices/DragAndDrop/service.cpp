@@ -1090,7 +1090,7 @@ void DragAndDropService::guestCall(VBOXHGCMCALLHANDLE callHandle, uint32_t u32Cl
             pClient->setDeferred(callHandle, u32Function, cParms, paParms);
             m_clientQueue.push_back(u32ClientID);
         }
-        catch (std::bad_alloc)
+        catch (std::bad_alloc &)
         {
             rc = VERR_NO_MEMORY;
             /* Don't report to guest. */

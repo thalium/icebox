@@ -1758,7 +1758,7 @@ static int supdrvGipInit(PSUPDRVDEVEXT pDevExt, PSUPGLOBALINFOPAGE pGip, RTHCPHY
                          uint64_t u64NanoTS, unsigned uUpdateHz, unsigned uUpdateIntervalNS,
                          unsigned cCpus, size_t cbGipCpuGroups)
 {
-    size_t const cbGip = RT_ALIGN_Z(RT_OFFSETOF(SUPGLOBALINFOPAGE, aCPUs[cCpus]) + cbGipCpuGroups, PAGE_SIZE);
+    size_t const cbGip = RT_ALIGN_Z(RT_UOFFSETOF_DYN(SUPGLOBALINFOPAGE, aCPUs[cCpus]) + cbGipCpuGroups, PAGE_SIZE);
     unsigned i;
 #ifdef DEBUG_DARWIN_GIP
     OSDBGPRINT(("supdrvGipInit: pGip=%p HCPhys=%lx u64NanoTS=%llu uUpdateHz=%d cCpus=%u\n", pGip, (long)HCPhys, u64NanoTS, uUpdateHz, cCpus));
@@ -1874,7 +1874,7 @@ int VBOXCALL supdrvGipCreate(PSUPDRVDEVEXT pDevExt)
 #else
     cbGipCpuGroups = 0;
 #endif
-    cbGip = RT_UOFFSETOF(SUPGLOBALINFOPAGE, aCPUs[cCpus]) + cbGipCpuGroups;
+    cbGip = RT_UOFFSETOF_DYN(SUPGLOBALINFOPAGE, aCPUs[cCpus]) + cbGipCpuGroups;
     rc = RTR0MemObjAllocCont(&pDevExt->GipMemObj, cbGip, false /*fExecutable*/);
     if (RT_FAILURE(rc))
     {

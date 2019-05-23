@@ -401,74 +401,68 @@ VBOXSTRICTRC selmRCGuestTssPostWriteCheck(PVM pVM, PVMCPU pVCpu, uint32_t offGue
     VBOXSTRICTRC rcStrict = VINF_SUCCESS;
 
     /*
-     * If it's on the same page as the esp0 and ss0 fields or actually one of them,
-     * then check if any of these has changed.
+     * Check if the ring-0 or/and ring-1 stacks have been change,
+     * synchronize our ring-compressed copies of the stacks.
      */
-/** @todo just read the darn fields and put them on the stack. */
+    struct
+    {
+        uint32_t esp;
+        uint16_t ss;
+        uint16_t padding_ss;
+    } s;
+    AssertCompileSize(s, 8);
     PCVBOXTSS pGuestTss = (PVBOXTSS)(uintptr_t)pVM->selm.s.GCPtrGuestTss;
-    if (   PAGE_ADDRESS(&pGuestTss->esp0) == PAGE_ADDRESS(&pGuestTss->padding_ss0)
-        && PAGE_ADDRESS(&pGuestTss->esp0) == PAGE_ADDRESS((uint8_t *)pGuestTss + offGuestTss)
-        && (   pGuestTss->esp0 !=  pVM->selm.s.Tss.esp1
-            || pGuestTss->ss0  != (pVM->selm.s.Tss.ss1 & ~1)) /* undo raw-r0 */
-       )
+    if (   offGuestTss           < RT_UOFFSET_AFTER(VBOXTSS, ss0)
+        && offGuestTss + cbWrite > RT_UOFFSETOF(VBOXTSS, esp0))
     {
-        Log(("selmRCGuestTSSWritePfHandler: R0 stack: %RTsel:%RGv -> %RTsel:%RGv\n",
-             (RTSEL)(pVM->selm.s.Tss.ss1 & ~1), (RTGCPTR)pVM->selm.s.Tss.esp1, (RTSEL)pGuestTss->ss0, (RTGCPTR)pGuestTss->esp0));
-        pVM->selm.s.Tss.esp1 = pGuestTss->esp0;
-        pVM->selm.s.Tss.ss1  = pGuestTss->ss0 | 1;
-        STAM_COUNTER_INC(&pVM->selm.s.StatRCWriteGuestTSSHandledChanged);
-    }
-# ifdef VBOX_WITH_RAW_RING1
-    else if (   EMIsRawRing1Enabled(pVM)
-             && PAGE_ADDRESS(&pGuestTss->esp1) == PAGE_ADDRESS(&pGuestTss->padding_ss1)
-             && PAGE_ADDRESS(&pGuestTss->esp1) == PAGE_ADDRESS((uint8_t *)pGuestTss + offGuestTss)
-             && (   pGuestTss->esp1 !=  pVM->selm.s.Tss.esp2
-                 || pGuestTss->ss1  != ((pVM->selm.s.Tss.ss2 & ~2) | 1)) /* undo raw-r1 */
-            )
-    {
-        Log(("selmRCGuestTSSWritePfHandler: R1 stack: %RTsel:%RGv -> %RTsel:%RGv\n",
-             (RTSEL)((pVM->selm.s.Tss.ss2 & ~2) | 1), (RTGCPTR)pVM->selm.s.Tss.esp2, (RTSEL)pGuestTss->ss1, (RTGCPTR)pGuestTss->esp1));
-        pVM->selm.s.Tss.esp2 = pGuestTss->esp1;
-        pVM->selm.s.Tss.ss2  = (pGuestTss->ss1 & ~1) | 2;
-        STAM_COUNTER_INC(&pVM->selm.s.StatRCWriteGuestTSSHandledChanged);
-    }
-# endif
-    /* Handle misaligned TSS in a safe manner (just in case). */
-    else if (   offGuestTss >= RT_UOFFSETOF(VBOXTSS, esp0)
-             && offGuestTss < RT_UOFFSETOF(VBOXTSS, padding_ss0))
-    {
-        struct
-        {
-            uint32_t esp0;
-            uint16_t ss0;
-            uint16_t padding_ss0;
-        } s;
-        AssertCompileSize(s, 8);
         rcStrict = selmRCReadTssBits(pVM, pVCpu, &s, &pGuestTss->esp0, sizeof(s));
         if (   rcStrict == VINF_SUCCESS
-            && (    s.esp0 !=  pVM->selm.s.Tss.esp1
-                ||  s.ss0  != (pVM->selm.s.Tss.ss1 & ~1)) /* undo raw-r0 */
-           )
+            && (   s.esp !=  pVM->selm.s.Tss.esp1
+                || s.ss  != (pVM->selm.s.Tss.ss1 & ~1)) /* undo raw-r0 */)
         {
-            Log(("selmRCGuestTSSWritePfHandler: R0 stack: %RTsel:%RGv -> %RTsel:%RGv [x-page]\n",
-                 (RTSEL)(pVM->selm.s.Tss.ss1 & ~1), (RTGCPTR)pVM->selm.s.Tss.esp1, (RTSEL)s.ss0, (RTGCPTR)s.esp0));
-            pVM->selm.s.Tss.esp1 = s.esp0;
-            pVM->selm.s.Tss.ss1  = s.ss0 | 1;
+            Log(("selmRCGuestTSSWritePfHandler: R0 stack: %RTsel:%RGv -> %RTsel:%RGv\n",
+                 (RTSEL)(pVM->selm.s.Tss.ss1 & ~1), (RTGCPTR)pVM->selm.s.Tss.esp1, (RTSEL)s.ss, (RTGCPTR)s.esp));
+            pVM->selm.s.Tss.esp1 = s.esp;
+            pVM->selm.s.Tss.ss1  = s.ss | 1;
             STAM_COUNTER_INC(&pVM->selm.s.StatRCWriteGuestTSSHandledChanged);
         }
     }
+# ifdef VBOX_WITH_RAW_RING1
+    if (   EMIsRawRing1Enabled(pVM)
+        && offGuestTss           < RT_UOFFSET_AFTER(VBOXTSS, ss1)
+        && offGuestTss + cbWrite > RT_UOFFSETOF(VBOXTSS, esp1)
+        && rcStrict == VINF_SUCCESS)
+    {
+        rcStrict = selmRCReadTssBits(pVM, pVCpu, &s, &pGuestTss->esp1, sizeof(s));
+        if (   rcStrict == VINF_SUCCESS
+            && (   s.esp !=  pVM->selm.s.Tss.esp2
+                || s.ss  != ((pVM->selm.s.Tss.ss2 & ~2) | 1)) /* undo raw-r1 */)
+        {
+
+            Log(("selmRCGuestTSSWritePfHandler: R1 stack: %RTsel:%RGv -> %RTsel:%RGv\n",
+                 (RTSEL)((pVM->selm.s.Tss.ss2 & ~2) | 1), (RTGCPTR)pVM->selm.s.Tss.esp2, (RTSEL)s.ss, (RTGCPTR)s.esp));
+            pVM->selm.s.Tss.esp2 = s.esp;
+            pVM->selm.s.Tss.ss2  = (s.ss & ~1) | 2;
+            STAM_COUNTER_INC(&pVM->selm.s.StatRCWriteGuestTSSHandledChanged);
+        }
+    }
+# endif
 
     /*
      * If VME is enabled we need to check if the interrupt redirection bitmap
      * needs updating.
      */
     if (   offGuestTss >= RT_UOFFSETOF(VBOXTSS, offIoBitmap)
-        && (CPUMGetGuestCR4(pVCpu) & X86_CR4_VME))
+        && (CPUMGetGuestCR4(pVCpu) & X86_CR4_VME)
+        && rcStrict == VINF_SUCCESS)
     {
-        if (offGuestTss - RT_UOFFSETOF(VBOXTSS, offIoBitmap) < sizeof(pGuestTss->offIoBitmap))
+        if (   offGuestTss           < RT_UOFFSET_AFTER(VBOXTSS, offIoBitmap)
+            && offGuestTss + cbWrite > RT_UOFFSETOF(VBOXTSS, offIoBitmap))
         {
-            uint16_t offIoBitmap = pGuestTss->offIoBitmap;
-            if (offIoBitmap != pVM->selm.s.offGuestIoBitmap)
+            uint16_t offIoBitmap = 0;
+            rcStrict = selmRCReadTssBits(pVM, pVCpu, &offIoBitmap, &pGuestTss->offIoBitmap, sizeof(offIoBitmap));
+            if (   rcStrict != VINF_SUCCESS
+                || offIoBitmap != pVM->selm.s.offGuestIoBitmap)
             {
                 Log(("TSS offIoBitmap changed: old=%#x new=%#x -> resync in ring-3\n", pVM->selm.s.offGuestIoBitmap, offIoBitmap));
                 VMCPU_FF_SET(pVCpu, VMCPU_FF_SELM_SYNC_TSS);
@@ -477,12 +471,15 @@ VBOXSTRICTRC selmRCGuestTssPostWriteCheck(PVM pVM, PVMCPU pVCpu, uint32_t offGue
             else
                 Log(("TSS offIoBitmap: old=%#x new=%#x [unchanged]\n", pVM->selm.s.offGuestIoBitmap, offIoBitmap));
         }
-        else
+
+        if (   rcStrict == VINF_SUCCESS
+            && !VMCPU_FF_IS_PENDING(pVCpu, VMCPU_FF_SELM_SYNC_TSS)
+            && pVM->selm.s.offGuestIoBitmap != 0)
         {
             /** @todo not sure how the partial case is handled; probably not allowed */
             uint32_t offIntRedirBitmap = pVM->selm.s.offGuestIoBitmap - sizeof(pVM->selm.s.Tss.IntRedirBitmap);
-            if (   offIntRedirBitmap <= offGuestTss
-                && offIntRedirBitmap + sizeof(pVM->selm.s.Tss.IntRedirBitmap) >= offGuestTss + cbWrite
+            if (   offGuestTss           < offIntRedirBitmap + sizeof(pVM->selm.s.Tss.IntRedirBitmap)
+                && offGuestTss + cbWrite > offIntRedirBitmap
                 && offIntRedirBitmap + sizeof(pVM->selm.s.Tss.IntRedirBitmap) <= pVM->selm.s.cbGuestTss)
             {
                 Log(("TSS IntRedirBitmap Changed: offIoBitmap=%x offIntRedirBitmap=%x cbTSS=%x offGuestTss=%x cbWrite=%x\n",
@@ -504,7 +501,7 @@ VBOXSTRICTRC selmRCGuestTssPostWriteCheck(PVM pVM, PVMCPU pVCpu, uint32_t offGue
     {
         VMCPU_FF_SET(pVCpu, VMCPU_FF_SELM_SYNC_TSS);
         VMCPU_FF_SET(pVCpu, VMCPU_FF_TO_R3);
-        if (RT_SUCCESS(rcStrict))
+        if (RT_SUCCESS(rcStrict) || rcStrict == VERR_ACCESS_DENIED)
             rcStrict = VINF_SUCCESS;
     }
 

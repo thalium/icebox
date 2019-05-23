@@ -284,7 +284,7 @@ typedef struct PDMSRVINS
 #define PDM_SRVINS_VERSION                      PDM_VERSION_MAKE(0xdffe, 1, 0)
 
 /** Converts a pointer to the PDMSRVINS::IBase to a pointer to PDMSRVINS. */
-#define PDMIBASE_2_PDMSRV(pInterface) ( (PPDMSRVINS)((char *)(pInterface) - RT_OFFSETOF(PDMSRVINS, IBase)) )
+#define PDMIBASE_2_PDMSRV(pInterface) ( (PPDMSRVINS)((char *)(pInterface) - RT_UOFFSETOF(PDMSRVINS, IBase)) )
 
 
 

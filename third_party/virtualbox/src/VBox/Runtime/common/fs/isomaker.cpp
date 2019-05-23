@@ -98,7 +98,7 @@
  * @note  The root directory length is 1 (name byte is 0x00), we make sure this
  *        is the case in rtFsIsoMakerNormalizeNameForNamespace. */
 #define RTFSISOMAKER_CALC_PATHREC_SIZE(a_cbNameInDirRec) \
-    ( RT_UOFFSETOF(ISO9660PATHREC, achDirId[(a_cbNameInDirRec) + ((a_cbNameInDirRec) & 1)]) )
+    ( RT_UOFFSETOF_DYN(ISO9660PATHREC, achDirId[(a_cbNameInDirRec) + ((a_cbNameInDirRec) & 1)]) )
 
 
 
@@ -659,10 +659,10 @@ static const struct
     const char     *pszName;
 } g_aRTFsIsoNamespaces[] =
 {
-    {   RTFSISOMAKER_NAMESPACE_ISO_9660, RT_OFFSETOF(RTFSISOMAKERINT, PrimaryIso), RT_OFFSETOF(RTFSISOMAKEROBJ, pPrimaryName), "iso-9660" },
-    {   RTFSISOMAKER_NAMESPACE_JOLIET,   RT_OFFSETOF(RTFSISOMAKERINT, Joliet),     RT_OFFSETOF(RTFSISOMAKEROBJ, pJolietName),  "joliet" },
-    {   RTFSISOMAKER_NAMESPACE_UDF,      RT_OFFSETOF(RTFSISOMAKERINT, Udf),        RT_OFFSETOF(RTFSISOMAKEROBJ, pUdfName),     "udf" },
-    {   RTFSISOMAKER_NAMESPACE_HFS,      RT_OFFSETOF(RTFSISOMAKERINT, Hfs),        RT_OFFSETOF(RTFSISOMAKEROBJ, pHfsName),     "hfs" },
+    {   RTFSISOMAKER_NAMESPACE_ISO_9660, RT_UOFFSETOF(RTFSISOMAKERINT, PrimaryIso), RT_UOFFSETOF(RTFSISOMAKEROBJ, pPrimaryName), "iso-9660" },
+    {   RTFSISOMAKER_NAMESPACE_JOLIET,   RT_UOFFSETOF(RTFSISOMAKERINT, Joliet),     RT_UOFFSETOF(RTFSISOMAKEROBJ, pJolietName),  "joliet" },
+    {   RTFSISOMAKER_NAMESPACE_UDF,      RT_UOFFSETOF(RTFSISOMAKERINT, Udf),        RT_UOFFSETOF(RTFSISOMAKEROBJ, pUdfName),     "udf" },
+    {   RTFSISOMAKER_NAMESPACE_HFS,      RT_UOFFSETOF(RTFSISOMAKERINT, Hfs),        RT_UOFFSETOF(RTFSISOMAKEROBJ, pHfsName),     "hfs" },
 };
 
 /**
@@ -3610,7 +3610,7 @@ RTDECL(int) RTFsIsoMakerAddUnnamedSymlink(RTFSISOMAKER hIsoMaker, PCRTFSOBJINFO 
     /*
      * Do the adding.
      */
-    PRTFSISOMAKERSYMLINK pSymlink = (PRTFSISOMAKERSYMLINK)RTMemAllocZ(RT_UOFFSETOF(RTFSISOMAKERSYMLINK, szTarget[cchTarget + 1]));
+    PRTFSISOMAKERSYMLINK pSymlink = (PRTFSISOMAKERSYMLINK)RTMemAllocZ(RT_UOFFSETOF_DYN(RTFSISOMAKERSYMLINK, szTarget[cchTarget + 1]));
     AssertReturn(pSymlink, VERR_NO_MEMORY);
     int rc = rtFsIsoMakerInitCommonObj(pThis, &pSymlink->Core, RTFSISOMAKEROBJTYPE_SYMLINK, pObjInfo);
     if (RT_SUCCESS(rc))
@@ -5881,7 +5881,7 @@ static void rtFsIosMakerOutFile_GenerateRockRidge(PRTFSISOMAKERNAME pName, uint8
             {
                 size_t         cchThis = RT_MIN(cchSrc, ISO9660RRIPNM_MAX_NAME_LEN);
                 PISO9660RRIPNM pNM     = (PISO9660RRIPNM)pbSys;
-                Assert(cbSys >= RT_UOFFSETOF(ISO9660RRIPNM, achName[cchThis]));
+                Assert(cbSys >= RT_UOFFSETOF_DYN(ISO9660RRIPNM, achName[cchThis]));
                 pNM->Hdr.bSig1      = ISO9660RRIPNM_SIG1;
                 pNM->Hdr.bSig2      = ISO9660RRIPNM_SIG2;
                 pNM->Hdr.cbEntry    = (uint8_t)(RT_UOFFSETOF(ISO9660RRIPNM, achName) + cchThis);
@@ -7429,7 +7429,7 @@ DECL_HIDDEN_CONST(const RTVFSFILEOPS) g_rtFsIsoMakerOutputFileOps =
     0,
     { /* ObjSet */
         RTVFSOBJSETOPS_VERSION,
-        RT_OFFSETOF(RTVFSFILEOPS, Stream.Obj) - RT_OFFSETOF(RTVFSFILEOPS, ObjSet),
+        RT_UOFFSETOF(RTVFSFILEOPS, ObjSet) - RT_UOFFSETOF(RTVFSFILEOPS, Stream.Obj),
         rtFsIsoMakerOutFile_SetMode,
         rtFsIsoMakerOutFile_SetTimes,
         rtFsIsoMakerOutFile_SetOwner,

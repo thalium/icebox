@@ -118,7 +118,7 @@ uint32_t HGSMIChecksum(HGSMIOFFSET offBuffer, const HGSMIBUFFERHEADER RT_UNTRUST
 
     u32Checksum = hgsmiHashProcess(u32Checksum, &offBuffer, sizeof(offBuffer));
     u32Checksum = hgsmiHashProcess(u32Checksum, pHeader, sizeof(HGSMIBUFFERHEADER));
-    u32Checksum = hgsmiHashProcess(u32Checksum, pTail, RT_OFFSETOF(HGSMIBUFFERTAIL, u32Checksum));
+    u32Checksum = hgsmiHashProcess(u32Checksum, pTail, RT_UOFFSETOF(HGSMIBUFFERTAIL, u32Checksum));
 
     return hgsmiHashEnd(u32Checksum);
 }

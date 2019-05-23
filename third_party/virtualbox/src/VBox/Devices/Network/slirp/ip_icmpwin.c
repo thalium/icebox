@@ -154,7 +154,7 @@ icmpwin_ping(PNATState pData, struct mbuf *m, int hlen)
         bufsize += reqsize;
     bufsize += 16; /* whatever that is; empirically at least XP needs it */
 
-    pongsize = RT_OFFSETOF(struct pong, buf) + bufsize;
+    pongsize = RT_UOFFSETOF(struct pong, buf) + bufsize;
     if (pData->cbIcmpPending + pongsize > 1024 * 1024)
         return;
 
@@ -326,7 +326,7 @@ icmpwin_process(PNATState pData)
         struct pong *pong = TAILQ_FIRST(&pongs);
         size_t sz;
 
-        sz = RT_OFFSETOF(struct pong, buf) + pong->bufsize;
+        sz = RT_UOFFSETOF(struct pong, buf) + pong->bufsize;
         Assert(pData->cbIcmpPending >= sz);
         pData->cbIcmpPending -= sz;
 

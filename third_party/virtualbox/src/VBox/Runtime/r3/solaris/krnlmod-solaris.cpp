@@ -90,7 +90,7 @@ static int rtKrnlModSolInfoCreate(struct modinfo *pModInfo, PRTKRNLMODINFO phKrn
 {
     int rc = VINF_SUCCESS;
     size_t cchName = strlen(&pModInfo->mi_name[0]) + 1;
-    PRTKRNLMODINFOINT pThis = (PRTKRNLMODINFOINT)RTMemAllocZ(RT_OFFSETOF(RTKRNLMODINFOINT, achName[cchName]));
+    PRTKRNLMODINFOINT pThis = (PRTKRNLMODINFOINT)RTMemAllocZ(RT_UOFFSETOF_DYN(RTKRNLMODINFOINT, achName[cchName]));
     if (RT_LIKELY(pThis))
     {
         memcpy(&pThis->achName[0], &pModInfo->mi_name[0], cchName);

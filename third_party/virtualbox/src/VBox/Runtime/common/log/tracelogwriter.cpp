@@ -136,7 +136,7 @@ typedef RTTRACELOGWRTCP *PRTTRACELOGWRTCP;
  */
 static size_t rtTraceLogWrtEvtDescGetSz(PCRTTRACELOGEVTDESC pEvtDesc)
 {
-    size_t cbAlloc = RT_OFFSETOF(RTTRACELOGWREVTDESC, aEvtItemDesc[pEvtDesc->cEvtItems]);
+    size_t cbAlloc = RT_UOFFSETOF_DYN(RTTRACELOGWREVTDESC, aEvtItemDesc[pEvtDesc->cEvtItems]);
 
     cbAlloc += strlen(pEvtDesc->pszId) + 1;
     if (pEvtDesc->pszDesc)
