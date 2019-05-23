@@ -1,0 +1,15 @@
+<!DOCTYPE RCC><RCC version="1.0">
+ <qresource prefix="/">
+    <file alias="about.png">@VBOX_ABOUT_PNG@</file>
+    <file alias="about_hidpi.png">@VBOX_ABOUT_HIDPI_PNG@</file>
+    <file alias="about_16px.png">@VBOX_ABOUT_16PX_PNG@</file>
+    <file alias="about_16px_hidpi.png">@VBOX_ABOUT_16PX_HIDPI_PNG@</file>
+    <file alias="VirtualBox_16px.png">@VBOX_VBOX_16PX_PNG@</file>
+    <file alias="VirtualBox_20px.png">@VBOX_VBOX_20PX_PNG@</file>
+    <file alias="VirtualBox_32px.png">@VBOX_VBOX_32PX_PNG@</file>
+    <file alias="VirtualBox_40px.png">@VBOX_VBOX_40PX_PNG@</file>
+    <file alias="VirtualBox_48px.png">@VBOX_VBOX_48PX_PNG@</file>
+    <file alias="VirtualBox_64px.png">@VBOX_VBOX_64PX_PNG@</file>
+    <file alias="VirtualBox.svg">@VBOX_CUBE_SVG@</file>
+ </qresource>
+ </RCC>

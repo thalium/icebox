@@ -1,0 +1,962 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="TechnicalBackground">
+  <title>Technical background</title>
+
+  <para>The contents of this chapter are not required to use VirtualBox
+  successfully. The following is provided as additional information for
+  readers who are more familiar with computer architecture and technology and
+  wish to find out more about how VirtualBox works "under the hood".</para>
+
+  <sect1 id="vboxconfigdata">
+    <title>Where VirtualBox stores its files</title>
+
+    <para>In VirtualBox, a virtual machine and its settings are described in a
+    virtual machine settings file in XML format. In addition, most virtual
+    machine have one or more virtual hard disks, which are typically
+    represented by disk images (e.g. in VDI format). Where all these files are
+    stored depends on which version of VirtualBox created the machine.</para>
+
+    <sect2>
+      <title>Machines created by VirtualBox version 4.0 or later</title>
+
+      <para>Starting with version 4.0, by default, each virtual machine has
+      one directory on your host computer where all the files of that machine
+      are stored -- the XML settings file (with a
+      <computeroutput>.vbox</computeroutput> file extension) and its disk
+      images.</para>
+
+      <para>By default, this "machine folder" is placed in a common folder
+      called "VirtualBox VMs", which VirtualBox creates in the current system
+      user's home directory. The location of this home directory depends on
+      the conventions of the host operating system:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>On Windows, this is the location returned by the
+          <computeroutput>SHGetFolderPath</computeroutput> function of the
+          Windows system library Shell32.dll, asking for the user profile. Only
+          on very old Windows versions which don't have this function
+          or where it unexpectedly returns an error, there is a fallback based
+          on environment variables: first
+          <computeroutput>%USERPROFILE%</computeroutput> is checked, if it
+          doesn't exist then an attempt with
+          <computeroutput>%HOMEDRIVE%%HOMEPATH%</computeroutput> is made.
+          Typical value is
+          <computeroutput>C:\Users\username</computeroutput>.</para>
+        </listitem>
+
+        <listitem>
+          <para>On Linux, Mac OS X and Solaris, this is generally taken from
+          the environment variable <computeroutput>$HOME</computeroutput>,
+          except for the user
+          <computeroutput>root</computeroutput> for which it's taken from the
+          account database (as a workaround for the frequent trouble caused
+          by users using VirtualBox in combination with the tool
+          <computeroutput>sudo</computeroutput> which by default doesn't reset
+          the environment variable <computeroutput>$HOME</computeroutput>).
+          Typical value on Linux and Solaris is
+          <computeroutput>/home/username</computeroutput> and on Mac OS X
+          <computeroutput>/Users/username</computeroutput>.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>For simplicity, we will abbreviate this as
+      <computeroutput>$HOME</computeroutput> below. Using that convention, the
+      common folder for all virtual machines is
+      <computeroutput>$HOME/VirtualBox VMs</computeroutput>.</para>
+
+      <para>As an example, when you create a virtual machine called "Example
+      VM", you will find that VirtualBox creates<orderedlist>
+          <listitem>
+            <para>the folder <computeroutput>$HOME/VirtualBox VMs/Example
+            VM/</computeroutput> and, in that folder,</para>
+          </listitem>
+
+          <listitem>
+            <para>the settings file <computeroutput>Example
+            VM.vbox</computeroutput> and</para>
+          </listitem>
+
+          <listitem>
+            <para>the virtual disk image <computeroutput>Example
+            VM.vdi</computeroutput>.</para>
+          </listitem>
+        </orderedlist></para>
+
+      <para>This is the default layout if you use the "Create new virtual
+      machine" wizard as described in <xref linkend="gui-createvm" />. Once
+      you start working with the VM, additional files will show up: you will
+      find log files in a subfolder called
+      <computeroutput>Logs</computeroutput>, and once you have taken
+      snapshots, they will appear in a
+      <computeroutput>Snapshots</computeroutput> subfolder. For each VM, you
+      can change the location of its snapshots folder in the VM
+      settings.</para>
+
+      <para>You can change the default machine folder by selecting
+      "Preferences" from the "File" menu in the VirtualBox main window. Then,
+      in the window that pops up, click on the "General" tab. Alternatively,
+      use <computeroutput>VBoxManage setproperty
+      machinefolder</computeroutput>; see <xref
+      linkend="vboxmanage-setproperty" />.</para>
+    </sect2>
+
+    <sect2>
+      <title>Machines created by VirtualBox versions before 4.0</title>
+
+      <para>If you have upgraded to VirtualBox 4.0 from an earlier version of
+      VirtualBox, you probably have settings files and disks in the earlier
+      file system layout.</para>
+
+      <para>Before version 4.0, VirtualBox separated the machine settings
+      files from virtual disk images. The machine settings files had an
+      <computeroutput>.xml</computeroutput> file extension and resided in a
+      folder called "Machines" under the global VirtualBox configuration
+      directory (see the next section). So, for example, on Linux, this was
+      the hidden <computeroutput>$HOME/.VirtualBox/Machines</computeroutput>
+      directory. The default hard disks folder was called "HardDisks" and
+      resided in the <computeroutput>.VirtualBox</computeroutput> folder as
+      well. Both locations could be changed by the user in the global
+      preferences. (The concept of a "default hard disk folder" has been
+      abandoned with VirtualBox 4.0, since disk images now reside in each
+      machine's folder by default.)</para>
+
+      <para>The old layout had several severe disadvantages.<orderedlist>
+          <listitem>
+            <para>It was very difficult to move a virtual machine from one
+            host to another because the files involved did not reside in the
+            same folder. In addition, the virtual media of all machines were
+            registered with a global registry in the central VirtualBox
+            settings file
+            (<computeroutput>$HOME/.VirtualBox/VirtualBox.xml</computeroutput>).</para>
+
+            <para>To move a machine to another host, it was therefore not
+            enough to move the XML settings file and the disk images (which
+            were in different locations), but the hard disk entries from the
+            global media registry XML had to be meticulously copied as well,
+            which was close to impossible if the machine had snapshots and
+            therefore differencing images.</para>
+          </listitem>
+
+          <listitem>
+            <para>Storing virtual disk images, which can grow very large,
+            under the hidden <computeroutput>.VirtualBox</computeroutput>
+            directory (at least on Linux and Solaris hosts) made many users
+            wonder where their disk space had gone.</para>
+          </listitem>
+        </orderedlist></para>
+
+      <para>Whereas new VMs created with VirtualBox 4.0 or later will conform
+      to the new layout, for maximum compatibility, old VMs are
+      <emphasis>not</emphasis> converted to the new layout. Otherwise machine
+      settings would be irrevocably broken if a user downgraded from 4.0 back
+      to an older version of VirtualBox.</para>
+    </sect2>
+
+    <sect2>
+      <title>Global configuration data</title>
+
+      <para>In addition to the files of the virtual machines, VirtualBox
+      maintains global configuration data. On Linux and Solaris as of VirtualBox 4.3, this
+      is in the hidden directory <computeroutput>$HOME/.config/VirtualBox</computeroutput>, although <computeroutput>$HOME/.VirtualBox</computeroutput> will be used if it exists for compatibility with earlier versions; on Windows (and on Linux and Solaris with VirtualBox 4.2 and earlier) this is in <computeroutput>$HOME/.VirtualBox</computeroutput>; on a Mac it resides in
+      <computeroutput>$HOME/Library/VirtualBox</computeroutput>.</para>
+
+      <para>VirtualBox creates this configuration directory automatically if
+      necessary. Optionally, you can supply an alternate configuration
+      directory by setting the
+      <computeroutput><literal>VBOX_USER_HOME</literal></computeroutput>
+      environment variable, or additionally on Linux or Solaris by using the standard <computeroutput><literal>XDG_CONFIG_HOME</literal></computeroutput> variable. (Since the global
+      <computeroutput>VirtualBox.xml</computeroutput> settings file points to
+      all other configuration files, this allows for switching between several
+      VirtualBox configurations entirely.)</para>
+
+      <para>Most importantly, in this directory, VirtualBox stores its global
+      settings file, another XML file called
+      <computeroutput>VirtualBox.xml</computeroutput>. This includes global
+      configuration options and the list of registered virtual machines with
+      pointers to their XML settings files. (Neither the location of this file
+      nor its directory has changed with VirtualBox 4.0.)</para>
+
+      <para>Before VirtualBox 4.0, all virtual media (disk image files) were
+      also contained in a global registry in this settings file. For
+      compatibility, this media registry still exists if you upgrade
+      VirtualBox and there are media from machines which were created with a
+      version before 4.0. If you have no such machines, then there will be no
+      global media registry; with VirtualBox 4.0, each machine XML file has
+      its own media registry.</para>
+
+      <para>Also before VirtualBox 4.0, the default "Machines" folder and the
+      default "HardDisks" folder resided under the VirtualBox configuration
+      directory (e.g.
+      <computeroutput>$HOME/.VirtualBox/Machines</computeroutput> on Linux).
+      If you are upgrading from a VirtualBox version before 4.0, files in
+      these directories are not automatically moved in order not to break
+      backwards compatibility.</para>
+    </sect2>
+
+    <sect2>
+      <title>Summary of 4.0 configuration changes</title>
+
+      <para>The following table gives a brief overview of the configuration
+      changes between older versions and version 4.0 or above:</para>
+
+      <table>
+        <title>Configuration changes in version 4.0 or above</title>
+
+        <tgroup cols="3">
+          <thead>
+            <row>
+              <entry><emphasis role="bold">Setting</emphasis></entry>
+
+              <entry><emphasis role="bold">Before 4.0</emphasis></entry>
+
+              <entry><emphasis role="bold">4.0 or above</emphasis></entry>
+            </row>
+          </thead>
+          <tbody>
+            <row>
+              <entry>Default machines folder</entry>
+
+              <entry><computeroutput>$HOME/.VirtualBox/Machines</computeroutput></entry>
+
+              <entry><computeroutput>$HOME/VirtualBox
+              VMs</computeroutput></entry>
+            </row>
+
+            <row>
+              <entry>Default disk image location</entry>
+
+              <entry><computeroutput>$HOME/.VirtualBox/HardDisks</computeroutput></entry>
+
+              <entry>In each machine's folder</entry>
+            </row>
+
+            <row>
+              <entry>Machine settings file extension</entry>
+
+              <entry><computeroutput>.xml</computeroutput></entry>
+
+              <entry><computeroutput>.vbox</computeroutput></entry>
+            </row>
+
+            <row>
+              <entry>Media registry</entry>
+
+              <entry>Global <computeroutput>VirtualBox.xml</computeroutput>
+              file</entry>
+
+              <entry>Each machine settings file</entry>
+            </row>
+
+            <row>
+              <entry>Media registration</entry>
+
+              <entry>Explicit open/close required</entry>
+
+              <entry>Automatic on attach</entry>
+            </row>
+          </tbody>
+        </tgroup>
+      </table>
+    </sect2>
+
+    <sect2>
+      <title>VirtualBox XML files</title>
+
+      <para>VirtualBox uses XML for both the machine settings files and the
+      global configuration file,
+      <computeroutput>VirtualBox.xml</computeroutput>.</para>
+
+      <para>All VirtualBox XML files are versioned. When a new settings file
+      is created (e.g. because a new virtual machine is created), VirtualBox
+      automatically uses the settings format of the current VirtualBox
+      version. These files may not be readable if you downgrade to an earlier
+      version of VirtualBox. However, when VirtualBox encounters a settings
+      file from an earlier version (e.g. after upgrading VirtualBox), it
+      attempts to preserve the settings format as much as possible. It will
+      only silently upgrade the settings format if the current settings cannot
+      be expressed in the old format, for example because you enabled a
+      feature that was not present in an earlier version of
+      VirtualBox.<footnote>
+          <para>As an example, before VirtualBox 3.1, it was only possible to
+          enable or disable a single DVD drive in a virtual machine. If it was
+          enabled, then it would always be visible as the secondary master of
+          the IDE controller. With VirtualBox 3.1, DVD drives can be attached
+          to arbitrary slots of arbitrary controllers, so they could be the
+          secondary slave of an IDE controller or in a SATA slot. If you have
+          a machine settings file from an earlier version and upgrade
+          VirtualBox to 3.1 and then move the DVD drive from its default
+          position, this cannot be expressed in the old settings format; the
+          XML machine file would get written in the new format, and a backup
+          file of the old format would be kept.</para>
+        </footnote> In such cases, VirtualBox backs up the old settings file
+      in the virtual machine's configuration directory. If you need to go back
+      to the earlier version of VirtualBox, then you will need to manually
+      copy these backup files back.</para>
+
+      <para>We intentionally do not document the specifications of the
+      VirtualBox XML files, as we must reserve the right to modify them in the
+      future. We therefore strongly suggest that you do not edit these files
+      manually. VirtualBox provides complete access to its configuration data
+      through its the <computeroutput>VBoxManage</computeroutput> command line
+      tool (see <xref linkend="vboxmanage" />) and its API (see <xref
+      linkend="VirtualBoxAPI" />).</para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="technical-components">
+    <title>VirtualBox executables and components</title>
+
+    <para>VirtualBox was designed to be modular and flexible. When the
+    VirtualBox graphical user interface (GUI) is opened and a VM is started,
+    at least three processes are running:<orderedlist>
+        <listitem>
+          <para><computeroutput>VBoxSVC</computeroutput>, the VirtualBox
+          service process which always runs in the background. This process is
+          started automatically by the first VirtualBox client process (the
+          GUI, <computeroutput>VBoxManage</computeroutput>,
+          <computeroutput>VBoxHeadless</computeroutput>, the web service or
+          others) and exits a short time after the last client exits. The
+          service is responsible for bookkeeping, maintaining the state of all
+          VMs, and for providing communication between VirtualBox components.
+          This communication is implemented via COM/XPCOM.<note>
+              <para>When we refer to "clients" here, we mean the local clients
+              of a particular <computeroutput>VBoxSVC</computeroutput> server
+              process, not clients in a network. VirtualBox employs its own
+              client/server design to allow its processes to cooperate, but
+              all these processes run under the same user account on the host
+              operating system, and this is totally transparent to the
+              user.</para>
+            </note></para>
+        </listitem>
+
+        <listitem>
+          <para>The GUI process, <computeroutput>VirtualBox</computeroutput>,
+          a client application based on the cross-platform Qt library. When
+          started without the <computeroutput>--startvm</computeroutput>
+          option, this application acts as the VirtualBox manager, displaying
+          the VMs and their settings. It then communicates settings and state
+          changes to <computeroutput>VBoxSVC</computeroutput> and also
+          reflects changes effected through other means, e.g.,
+          <computeroutput>VBoxManage</computeroutput>.</para>
+        </listitem>
+
+        <listitem>
+          <para>If the <computeroutput>VirtualBox</computeroutput> client
+          application is started with the
+          <computeroutput>--startvm</computeroutput> argument, it loads the
+          VMM library which includes the actual hypervisor and then runs a
+          virtual machine and provides the input and output for the
+          guest.</para>
+        </listitem>
+      </orderedlist></para>
+
+    <para>Any VirtualBox front-end (client) will communicate with the service
+    process and can both control and reflect the current state. For example,
+    either the VM selector or the VM window or VBoxManage can be used to pause
+    the running VM, and other components will always reflect the changed
+    state.</para>
+
+    <para>The VirtualBox GUI application is only one of several available
+    front ends (clients). The complete list shipped with VirtualBox
+    is:<orderedlist>
+        <listitem>
+          <para><computeroutput>VirtualBox</computeroutput>, the Qt front end
+          implementing the manager and running VMs;</para>
+        </listitem>
+
+        <listitem>
+          <para><computeroutput>VBoxManage</computeroutput>, a less
+          user-friendly but more powerful alternative, described in <xref
+          linkend="vboxmanage" />.</para>
+        </listitem>
+
+        <listitem>
+          <para><computeroutput>VBoxSDL</computeroutput>, a simple graphical
+          front end based on the SDL library; see <xref
+          linkend="vboxsdl" />.</para>
+        </listitem>
+
+        <listitem>
+          <para><computeroutput>VBoxHeadless</computeroutput>, a VM front end
+          which does not directly provide any video output and keyboard/mouse
+          input, but allows redirection via VirtualBox Remote Desktop Extension;
+          see <xref linkend="vboxheadless" />.</para>
+        </listitem>
+
+        <listitem>
+          <para><computeroutput>vboxwebsrv</computeroutput>, the VirtualBox
+          web service process which allows for controlling a VirtualBox host
+          remotely. This is described in detail in the VirtualBox Software
+          Development Kit (SDK) reference; please see <xref
+          linkend="VirtualBoxAPI" /> for details.</para>
+        </listitem>
+
+        <listitem>
+          <para>The VirtualBox Python shell, a Python alternative to
+          VBoxManage. This is also described in the SDK reference.</para>
+        </listitem>
+      </orderedlist></para>
+
+    <para>Internally, VirtualBox consists of many more or less separate
+    components. You may encounter these when analyzing VirtualBox internal
+    error messages or log files. These include:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>IPRT, a portable runtime library which abstracts file access,
+        threading, string manipulation, etc. Whenever VirtualBox accesses host
+        operating features, it does so through this library for cross-platform
+        portability.</para>
+      </listitem>
+
+      <listitem>
+        <para>VMM (Virtual Machine Monitor), the heart of the
+        hypervisor.</para>
+      </listitem>
+
+      <listitem>
+        <para>EM (Execution Manager), controls execution of guest code.</para>
+      </listitem>
+
+      <listitem>
+        <para>REM (Recompiled Execution Monitor), provides software emulation
+        of CPU instructions.</para>
+      </listitem>
+
+      <listitem>
+        <para>TRPM (Trap Manager), intercepts and processes guest traps and
+        exceptions.</para>
+      </listitem>
+
+      <listitem>
+        <para>HM (Hardware Acceleration Manager), provides support for VT-x
+        and AMD-V.</para>
+      </listitem>
+
+      <listitem>
+        <para>GIM (Guest Interface Manager), provides support for various
+        paravirtualization interfaces to the guest.</para>
+      </listitem>
+
+      <listitem>
+        <para>PDM (Pluggable Device Manager), an abstract interface between
+        the VMM and emulated devices which separates device implementations
+        from VMM internals and makes it easy to add new emulated devices.
+        Through PDM, third-party developers can add new virtual devices to
+        VirtualBox without having to change VirtualBox itself.</para>
+      </listitem>
+
+      <listitem>
+        <para>PGM (Page Manager), a component controlling guest paging.</para>
+      </listitem>
+
+      <listitem>
+        <para>PATM (Patch Manager), patches guest code to improve and speed up
+        software virtualization.</para>
+      </listitem>
+
+      <listitem>
+        <para>TM (Time Manager), handles timers and all aspects of time inside
+        guests.</para>
+      </listitem>
+
+      <listitem>
+        <para>CFGM (Configuration Manager), provides a tree structure which
+        holds configuration settings for the VM and all emulated
+        devices.</para>
+      </listitem>
+
+      <listitem>
+        <para>SSM (Saved State Manager), saves and loads VM state.</para>
+      </listitem>
+
+      <listitem>
+        <para>VUSB (Virtual USB), a USB layer which separates emulated USB
+        controllers from the controllers on the host and from USB devices;
+        this also enables remote USB.</para>
+      </listitem>
+
+      <listitem>
+        <para>DBGF (Debug Facility), a built-in VM debugger.</para>
+      </listitem>
+
+      <listitem>
+        <para>VirtualBox emulates a number of devices to provide the hardware
+        environment that various guests need. Most of these are standard
+        devices found in many PC compatible machines and widely supported by
+        guest operating systems. For network and storage devices in
+        particular, there are several options for the emulated devices to
+        access the underlying hardware. These devices are managed by
+        PDM.</para>
+      </listitem>
+
+      <listitem>
+        <para>Guest Additions for various guest operating systems. This is
+        code that is installed from within a virtual machine; see <xref
+        linkend="guestadditions" />.</para>
+      </listitem>
+
+      <listitem>
+        <para>The "Main" component is special: it ties all the above bits
+        together and is the only public API that VirtualBox provides. All the
+        client processes listed above use only this API and never access the
+        hypervisor components directly. As a result, third-party applications
+        that use the VirtualBox Main API can rely on the fact that it is
+        always well-tested and that all capabilities of VirtualBox are fully
+        exposed. It is this API that is described in the VirtualBox SDK
+        mentioned above (again, see <xref linkend="VirtualBoxAPI" />).</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+
+  <sect1 id="hwvirt">
+    <title>Hardware vs. software virtualization</title>
+
+    <para>VirtualBox allows software in the virtual machine to run directly on
+    the processor of the host, but an array of complex techniques is employed
+    to intercept operations that would interfere with your host. Whenever the
+    guest attempts to do something that could be harmful to your computer and
+    its data, VirtualBox steps in and takes action. In particular, for lots of
+    hardware that the guest believes to be accessing, VirtualBox simulates a
+    certain "virtual" environment according to how you have configured a
+    virtual machine. For example, when the guest attempts to access a hard
+    disk, VirtualBox redirects these requests to whatever you have configured
+    to be the virtual machine's virtual hard disk -- normally, an image file
+    on your host.</para>
+
+    <para>Unfortunately, the x86 platform was never designed to be
+    virtualized. Detecting situations in which VirtualBox needs to take
+    control over the guest code that is executing, as described above, is
+    difficult. There are two ways in which to achieve this:<itemizedlist>
+        <listitem>
+          <para>Since 2006, Intel and AMD processors have had support for
+          so-called <emphasis role="bold">"hardware
+          virtualization"</emphasis>. This means that these processors can
+          help VirtualBox to intercept potentially dangerous operations that a
+          guest operating system may be attempting and also makes it easier to
+          present virtual hardware to a virtual machine.</para>
+
+          <para>These hardware features differ between Intel and AMD
+          processors. Intel named its technology <emphasis
+          role="bold">VT-x</emphasis>; AMD calls theirs <emphasis
+          role="bold">AMD-V</emphasis>. The Intel and AMD support for
+          virtualization is very different in detail, but not very different
+          in principle.<note>
+              <para>On many systems, the hardware virtualization features
+              first need to be enabled in the BIOS before VirtualBox can use
+              them.</para>
+            </note></para>
+        </listitem>
+
+        <listitem>
+          <para>As opposed to other virtualization software, for many usage
+          scenarios, VirtualBox does not <emphasis>require</emphasis> hardware
+          virtualization features to be present. Through sophisticated
+          techniques, VirtualBox virtualizes many guest operating systems
+          entirely in <emphasis role="bold">software</emphasis>. This means
+          that you can run virtual machines even on older processors which do
+          not support hardware virtualization.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>Even though VirtualBox does not always require hardware
+    virtualization, enabling it is <emphasis>required</emphasis> in the
+    following scenarios:<itemizedlist>
+        <listitem>
+          <para>Certain rare guest operating systems like OS/2 make use of
+          very esoteric processor instructions that are not supported with our
+          software virtualization. For virtual machines that are configured to
+          contain such an operating system, hardware virtualization is enabled
+          automatically.</para>
+        </listitem>
+
+        <listitem>
+          <para>VirtualBox's 64-bit guest support (added with version 2.0) and
+          multiprocessing (SMP, added with version 3.0) both require hardware
+          virtualization to be enabled. (This is not much of a limitation
+          since the vast majority of today's 64-bit and multicore CPUs ship
+          with hardware virtualization anyway; the exceptions to this rule are
+          e.g. older Intel Celeron and AMD Opteron CPUs.)</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <warning>
+      <para>Do not run other hypervisors (open-source or commercial
+      virtualization products) together with VirtualBox! While several
+      hypervisors can normally be <emphasis>installed</emphasis> in parallel,
+      do not attempt to <emphasis>run</emphasis> several virtual machines from
+      competing hypervisors at the same time. VirtualBox cannot track what
+      another hypervisor is currently attempting to do on the same host, and
+      especially if several products attempt to use hardware virtualization
+      features such as VT-x, this can crash the entire host. Also, within
+      VirtualBox, you can mix software and hardware virtualization when
+      running multiple VMs. In certain cases a small performance penalty will
+      be unavoidable when mixing VT-x and software virtualization VMs. We
+      recommend not mixing virtualization modes if maximum performance and low
+      overhead are essential. This does <emphasis>not</emphasis> apply to
+      AMD-V.</para>
+    </warning>
+  </sect1>
+
+  <sect1 id="gimproviders">
+    <title>Paravirtualization providers</title>
+
+    <para>VirtualBox allows exposing a paravirtualization interface to
+    facilitate accurate and efficient execution of software within a
+    virtual machine. These interfaces require the guest operating system
+    to recognize their presence and make use of them in order to leverage
+    the benefits of communicating with the VirtualBox hypervisor.</para>
+
+    <para>Most modern mainstream guest operating systems, including
+    Windows and Linux, ship with support for one or more paravirtualization
+    interfaces. Hence, there is typically no need to install additional software
+    in the guest to take advantage of this feature.
+    </para>
+
+    <para>Exposing a paravirtualization provider to the guest operating
+    system does not rely on the choice of host platforms. For example, the
+    <emphasis>Hyper-V</emphasis> paravirtualization provider can be
+    used for VMs to run on any host platform (supported by VirtualBox) and
+    not just Windows.</para>
+
+    <para>VirtualBox provides the following interfaces:</para>
+      <itemizedlist>
+        <listitem>
+          <para><emphasis role="bold">Minimal</emphasis>: Announces the
+          presence of a virtualized environment. Additionally, reports the
+          TSC and APIC frequency to the guest operating system. This provider
+          is mandatory for running any Mac OS X guests.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">KVM</emphasis>: Presents a Linux KVM
+          hypervisor interface which is recognized by Linux kernels starting
+          with version 2.6.25. VirtualBox's implementation currently supports
+          paravirtualized clocks and SMP spinlocks. This provider is
+          recommended for Linux guests.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Hyper-V</emphasis>: Presents a Microsoft
+          Hyper-V hypervisor interface which is recognized by Windows 7 and newer
+          operating systems. VirtualBox's implementation currently supports
+          paravirtualized clocks, APIC frequency reporting, guest debugging,
+          guest crash reporting and relaxed timer checks. This provider is
+          recommended for Windows guests.
+          </para>
+        </listitem>
+     </itemizedlist>
+  </sect1>
+
+  <sect1>
+    <title>Details about software virtualization</title>
+
+    <para>Implementing virtualization on x86 CPUs with no hardware
+    virtualization support is an extraordinarily complex task because the CPU
+    architecture was not designed to be virtualized. The problems can usually
+    be solved, but at the cost of reduced performance. Thus, there is a
+    constant clash between virtualization performance and accuracy.</para>
+
+    <para>The x86 instruction set was originally designed in the 1970s and
+    underwent significant changes with the addition of protected mode in the
+    1980s with the 286 CPU architecture and then again with the Intel 386 and
+    its 32-bit architecture. Whereas the 386 did have limited virtualization
+    support for real mode operation (V86 mode, as used by the "DOS Box" of
+    Windows 3.x and OS/2 2.x), no support was provided for virtualizing the
+    entire architecture.</para>
+
+    <para>In theory, software virtualization is not overly complex. In
+    addition to the four privilege levels ("rings") provided by the hardware
+    (of which typically only two are used: ring 0 for kernel mode and ring 3
+    for user mode), one needs to differentiate between "host context" and
+    "guest context".</para>
+
+    <para>In "host context", everything is as if no hypervisor was active.
+    This might be the active mode if another application on your host has been
+    scheduled CPU time; in that case, there is a host ring 3 mode and a host
+    ring 0 mode. The hypervisor is not involved.</para>
+
+    <para>In "guest context", however, a virtual machine is active. So long as
+    the guest code is running in ring 3, this is not much of a problem since a
+    hypervisor can set up the page tables properly and run that code natively
+    on the processor. The problems mostly lie in how to intercept what the
+    guest's kernel does.</para>
+
+    <para>There are several possible solutions to these problems. One approach
+    is full software emulation, usually involving recompilation. That is, all
+    code to be run by the guest is analyzed, transformed into a form which
+    will not allow the guest to either modify or see the true state of the
+    CPU, and only then executed. This process is obviously highly complex and
+    costly in terms of performance. (VirtualBox contains a recompiler based on
+    QEMU which can be used for pure software emulation, but the recompiler is
+    only activated in special situations, described below.)</para>
+
+    <para>Another possible solution is paravirtualization, in which only
+    specially modified guest OSes are allowed to run. This way, most of the
+    hardware access is abstracted and any functions which would normally
+    access the hardware or privileged CPU state are passed on to the
+    hypervisor instead. Paravirtualization can achieve good functionality and
+    performance on standard x86 CPUs, but it can only work if the guest OS can
+    actually be modified, which is obviously not always the case.</para>
+
+    <para>VirtualBox chooses a different approach. When starting a virtual
+    machine, through its ring-0 support kernel driver, VirtualBox has set up
+    the host system so that it can run most of the guest code natively, but it
+    has inserted itself at the "bottom" of the picture. It can then assume
+    control when needed -- if a privileged instruction is executed, the guest
+    traps (in particular because an I/O register was accessed and a device
+    needs to be virtualized) or external interrupts occur. VirtualBox may then
+    handle this and either route a request to a virtual device or possibly
+    delegate handling such things to the guest or host OS. In guest context,
+    VirtualBox can therefore be in one of three states:</para>
+
+    <para><itemizedlist>
+        <listitem>
+          <para>Guest ring 3 code is run unmodified, at full speed, as much as
+          possible. The number of faults will generally be low (unless the
+          guest allows port I/O from ring 3, something we cannot do as we
+          don't want the guest to be able to access real ports). This is also
+          referred to as "raw mode", as the guest ring-3 code runs
+          unmodified.</para>
+        </listitem>
+
+        <listitem>
+          <para>For guest code in ring 0, VirtualBox employs a nasty trick: it
+          actually reconfigures the guest so that its ring-0 code is run in
+          ring 1 instead (which is normally not used in x86 operating
+          systems). As a result, when guest ring-0 code (actually running in
+          ring 1) such as a guest device driver attempts to write to an I/O
+          register or execute a privileged instruction, the VirtualBox
+          hypervisor in "real" ring 0 can take over.</para>
+        </listitem>
+
+        <listitem>
+          <para>The hypervisor (VMM) can be active. Every time a fault occurs,
+          VirtualBox looks at the offending instruction and can relegate it to
+          a virtual device or the host OS or the guest OS or run it in the
+          recompiler.</para>
+
+          <para>In particular, the recompiler is used when guest code disables
+          interrupts and VirtualBox cannot figure out when they will be
+          switched back on (in these situations, VirtualBox actually analyzes
+          the guest code using its own disassembler). Also, certain privileged
+          instructions such as LIDT need to be handled specially. Finally, any
+          real-mode or protected-mode code (e.g. BIOS code, a DOS guest, or
+          any operating system startup) is run in the recompiler
+          entirely.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>Unfortunately this only works to a degree. Among others, the
+    following situations require special handling:</para>
+
+    <para><orderedlist>
+        <listitem>
+          <para>Running ring 0 code in ring 1 causes a lot of additional
+          instruction faults, as ring 1 is not allowed to execute any
+          privileged instructions (of which guest's ring-0 contains plenty).
+          With each of these faults, the VMM must step in and emulate the code
+          to achieve the desired behavior. While this works, emulating
+          thousands of these faults is very expensive and severely hurts the
+          performance of the virtualized guest.</para>
+        </listitem>
+
+        <listitem>
+          <para>There are certain flaws in the implementation of ring 1 in the
+          x86 architecture that were never fixed. Certain instructions that
+          <emphasis>should</emphasis> trap in ring 1 don't. This affects, for
+          example, the LGDT/SGDT, LIDT/SIDT, or POPF/PUSHF instruction pairs.
+          Whereas the "load" operation is privileged and can therefore be
+          trapped, the "store" instruction always succeed. If the guest is
+          allowed to execute these, it will see the true state of the CPU, not
+          the virtualized state. The CPUID instruction also has the same
+          problem.</para>
+        </listitem>
+
+        <listitem>
+          <para>A hypervisor typically needs to reserve some portion of the
+          guest's address space (both linear address space and selectors) for
+          its own use. This is not entirely transparent to the guest OS and
+          may cause clashes.</para>
+        </listitem>
+
+        <listitem>
+          <para>The SYSENTER instruction (used for system calls) executed by
+          an application running in a guest OS always transitions to ring 0.
+          But that is where the hypervisor runs, not the guest OS. In this
+          case, the hypervisor must trap and emulate the instruction even when
+          it is not desirable.</para>
+        </listitem>
+
+        <listitem>
+          <para>The CPU segment registers contain a "hidden" descriptor cache
+          which is not software-accessible. The hypervisor cannot read, save,
+          or restore this state, but the guest OS may use it.</para>
+        </listitem>
+
+        <listitem>
+          <para>Some resources must (and can) be trapped by the hypervisor,
+          but the access is so frequent that this creates a significant
+          performance overhead. An example is the TPR (Task Priority) register
+          in 32-bit mode. Accesses to this register must be trapped by the
+          hypervisor, but certain guest operating systems (notably Windows and
+          Solaris) write this register very often, which adversely affects
+          virtualization performance.</para>
+        </listitem>
+      </orderedlist></para>
+
+    <para>To fix these performance and security issues, VirtualBox contains a
+    Code Scanning and Analysis Manager (CSAM), which disassembles guest code,
+    and the Patch Manager (PATM), which can replace it at runtime.</para>
+
+    <para>Before executing ring 0 code, CSAM scans it recursively to discover
+    problematic instructions. PATM then performs <emphasis>in-situ
+    </emphasis>patching, i.e. it replaces the instruction with a jump to
+    hypervisor memory where an integrated code generator has placed a more
+    suitable implementation. In reality, this is a very complex task as there
+    are lots of odd situations to be discovered and handled correctly. So,
+    with its current complexity, one could argue that PATM is an advanced
+    <emphasis>in-situ</emphasis> recompiler.</para>
+
+    <para>In addition, every time a fault occurs, VirtualBox analyzes the
+    offending code to determine if it is possible to patch it in order to
+    prevent it from causing more faults in the future. This approach works
+    well in practice and dramatically improves software virtualization
+    performance.</para>
+  </sect1>
+
+  <sect1>
+    <title>Details about hardware virtualization</title>
+
+    <para>With Intel VT-x, there are two distinct modes of CPU operation: VMX
+    root mode and non-root mode.<itemizedlist>
+        <listitem>
+          <para>In root mode, the CPU operates much like older generations of
+          processors without VT-x support. There are four privilege levels
+          ("rings"), and the same instruction set is supported, with the
+          addition of several virtualization specific instruction. Root mode
+          is what a host operating system without virtualization uses, and it
+          is also used by a hypervisor when virtualization is active.</para>
+        </listitem>
+
+        <listitem>
+          <para>In non-root mode, CPU operation is significantly different.
+          There are still four privilege rings and the same instruction set,
+          but a new structure called VMCS (Virtual Machine Control Structure)
+          now controls the CPU operation and determines how certain
+          instructions behave. Non-root mode is where guest systems
+          run.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>Switching from root mode to non-root mode is called "VM entry", the
+    switch back is "VM exit". The VMCS includes a guest and host state area
+    which is saved/restored at VM entry and exit. Most importantly, the VMCS
+    controls which guest operations will cause VM exits.</para>
+
+    <para>The VMCS provides fairly fine-grained control over what the guests
+    can and can't do. For example, a hypervisor can allow a guest to write
+    certain bits in shadowed control registers, but not others. This enables
+    efficient virtualization in cases where guests can be allowed to write
+    control bits without disrupting the hypervisor, while preventing them from
+    altering control bits over which the hypervisor needs to retain full
+    control. The VMCS also provides control over interrupt delivery and
+    exceptions.</para>
+
+    <para>Whenever an instruction or event causes a VM exit, the VMCS contains
+    information about the exit reason, often with accompanying detail. For
+    example, if a write to the CR0 register causes an exit, the offending
+    instruction is recorded, along with the fact that a write access to a
+    control register caused the exit, and information about source and
+    destination register. Thus the hypervisor can efficiently handle the
+    condition without needing advanced techniques such as CSAM and PATM
+    described above.</para>
+
+    <para>VT-x inherently avoids several of the problems which software
+    virtualization faces. The guest has its own completely separate address
+    space not shared with the hypervisor, which eliminates potential clashes.
+    Additionally, guest OS kernel code runs at privilege ring 0 in VMX
+    non-root mode, obviating the problems by running ring 0 code at less
+    privileged levels. For example the SYSENTER instruction can transition to
+    ring 0 without causing problems. Naturally, even at ring 0 in VMX non-root
+    mode, any I/O access by guest code still causes a VM exit, allowing for
+    device emulation.</para>
+
+    <para>The biggest difference between VT-x and AMD-V is that AMD-V provides
+    a more complete virtualization environment. VT-x requires the VMX non-root
+    code to run with paging enabled, which precludes hardware virtualization
+    of real-mode code and non-paged protected-mode software. This typically
+    only includes firmware and OS loaders, but nevertheless complicates VT-x
+    hypervisor implementation. AMD-V does not have this restriction.</para>
+
+    <para>Of course hardware virtualization is not perfect. Compared to
+    software virtualization, the overhead of VM exits is relatively high. This
+    causes problems for devices whose emulation requires high number of traps.
+    One example is the VGA device in 16-color modes, where not only every I/O
+    port access but also every access to the framebuffer memory must be
+    trapped.</para>
+  </sect1>
+
+  <sect1 id="nestedpaging">
+    <title>Nested paging and VPIDs</title>
+
+    <para>In addition to "plain" hardware virtualization, your processor may
+    also support additional sophisticated techniques:<footnote>
+        <para>VirtualBox 2.0 added support for AMD's nested paging; support
+        for Intel's EPT and VPIDs was added with version 2.1.</para>
+      </footnote><itemizedlist>
+        <listitem>
+          <para>A newer feature called <emphasis role="bold">"nested
+          paging"</emphasis> implements some memory management in hardware,
+          which can greatly accelerate hardware virtualization since these
+          tasks no longer need to be performed by the virtualization
+          software.</para>
+
+          <para>With nested paging, the hardware provides another level of
+          indirection when translating linear to physical addresses. Page
+          tables function as before, but linear addresses are now translated
+          to "guest physical" addresses first and not physical addresses
+          directly. A new set of paging registers now exists under the
+          traditional paging mechanism and translates from guest physical
+          addresses to host physical addresses, which are used to access
+          memory.</para>
+
+          <para>Nested paging eliminates the overhead caused by VM exits and
+          page table accesses. In essence, with nested page tables the guest
+          can handle paging without intervention from the hypervisor. Nested
+          paging thus significantly improves virtualization
+          performance.</para>
+
+          <para>On AMD processors, nested paging has been available starting
+          with the Barcelona (K10) architecture -- they call it now "rapid
+          virtualization indexing" (RVI). Intel added support for nested
+          paging, which they call "extended page tables" (EPT), with their
+          Core i7 (Nehalem) processors.</para>
+
+          <para>If nested paging is enabled, the VirtualBox hypervisor can
+          also use <emphasis role="bold">large pages</emphasis> to reduce TLB
+          usage and overhead. This can yield a performance improvement of up
+          to 5%. To enable this feature for a VM, you need to use the
+          <computeroutput>VBoxManage modifyvm
+          </computeroutput><computeroutput>--largepages</computeroutput>
+          command; see <xref linkend="vboxmanage-modifyvm" />.</para>
+        </listitem>
+
+        <listitem>
+          <para>On Intel CPUs, another hardware feature called <emphasis
+          role="bold">"Virtual Processor Identifiers" (VPIDs)</emphasis> can
+          greatly accelerate context switching by reducing the need for
+          expensive flushing of the processor's Translation Lookaside Buffers
+          (TLBs).</para>
+
+          <para>To enable these features for a VM, you need to use the
+          <computeroutput>VBoxManage modifyvm --vtxvpid</computeroutput> and
+          <computeroutput>--largepages</computeroutput> commands; see <xref
+          linkend="vboxmanage-modifyvm" />.</para>
+        </listitem>
+      </itemizedlist></para>
+  </sect1>
+</chapter>

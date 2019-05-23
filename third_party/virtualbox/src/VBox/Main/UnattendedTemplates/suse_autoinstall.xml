@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE profile>
+<profile xmlns="http://www.suse.com/1.0/yast2ns" xmlns:config="http://www.suse.com/1.0/configns">
+  <general>
+    <mode>
+      <confirm config:type="boolean">false</confirm>
+    </mode>
+  </general>
+
+  <partitioning config:type="list">
+    <drive>
+      <use>all</use>
+    </drive>
+  </partitioning>
+
+  <software>
+    <!-- Those are necessray for Guest Additions -->
+    <packages config:type="list">
+      <package>gcc</package>
+      <package>automake</package>
+      <package>kernel-source</package>
+      <!-- 'smpppd' is required on openSUSE 11.4 -->
+      <package>smpppd</package>
+    </packages>
+    
+    <patterns config:type="list">
+      <pattern>apparmor</pattern>
+      <pattern>apparmor_opt</pattern>
+      <pattern>base</pattern>
+      <pattern>kde</pattern>
+      <!--pattern>Basis-Devel</pattern-->
+      <!--pattern>devel_kernel</pattern-->
+      <pattern>default</pattern>
+      <pattern>sw_management</pattern>
+      <pattern>sw_management_kde4</pattern>
+      <pattern>yast2_install_wf</pattern>
+    </patterns>
+  </software>
+
+  <configure>
+    <x11>
+      <display_manager>kdm</display_manager>
+    </x11>
+
+    <networking>
+      <interfaces config:type="list">
+        <interface>
+          <bootproto>dhcp</bootproto>
+          <device>eth0</device>
+          <startmode>auto</startmode>
+          <usercontrol>yes</usercontrol>
+        </interface>
+      </interfaces>
+    </networking>
+
+    <users config:type="list">
+      <user>
+        <fullname>root</fullname>
+        <username>root</username>
+        <encrypted config:type="boolean">false</encrypted>
+        <user_password>$password</user_password>
+      </user>
+      <user>
+        <groups>video,dialout,vboxsf</groups>
+        <fullname>$user</fullname>
+        <username>$user</username>
+        <encrypted config:type="boolean">false</encrypted>
+        <user_password>$password</user_password>
+      </user>
+    </users>
+  </configure>
+</profile>

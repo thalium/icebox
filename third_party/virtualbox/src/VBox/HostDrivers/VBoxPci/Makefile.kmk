@@ -1,0 +1,69 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the PCI passthru driver (VBoxPci).
+#
+
+#
+# Copyright (C) 2011-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+if1of ($(KBUILD_TARGET), linux)
+
+ ifdef VBOX_WITH_VBOXDRV
+  #
+  # The driver.
+  #
+  SYSMODS += VBoxPci
+  VBoxPci_TEMPLATE       = VBOXR0DRV
+  VBoxPci_INST           = $(INST_VBOXPCI)$(if $(eq $(KBUILD_TARGET),darwin),Contents/MacOS/)
+  VBoxPci_NAME.linux     = vboxpci
+  VBoxPci_DEFS           = IN_RT_R0 VBOX_SVN_REV=$(VBOX_SVN_REV) IN_SUP_STATIC
+  VBoxPci_INCS           = \
+ 	.
+  VBoxPci_SOURCES        = \
+ 	VBoxPci.c
+  VBoxPci_LIBS          += \
+ 	$(PATH_STAGE_LIB)/SUPR0IdcClient$(VBOX_SUFF_LIB)
+ endif
+
+ #
+ # Install the sources.
+ #
+ include $(PATH_SUB_CURRENT)/linux/files_vboxpci
+ INSTALLS += VBoxPci-src
+ VBoxPci-src_INST       = bin/src/vboxpci/
+ VBoxPci-src_SOURCES    = \
+	$(subst $(DQUOTE),,$(VBOX_VBOXPCI_SOURCES)) \
+ 	$(VBoxPci-src_0_OUTDIR)/Makefile
+ VBoxPci-src_CLEAN      = \
+ 	$(VBoxPci-src_0_OUTDIR)/Makefile \
+ 	$(PATH_TARGET)/VBoxPciSrc-src-1.dep \
+
+ # Generate the scripts needed for building the kernel module.
+
+ includedep $(PATH_TARGET)/VBoxPci-src-1.dep
+$$(VBoxPci-src_0_OUTDIR)/Makefile: \
+		$(PATH_SUB_CURRENT)/linux/Makefile \
+		$$(if $$(eq $$(VBoxPci/linux/Makefile_VBOX_HARDENED),$$(VBOX_WITH_HARDENING)),,FORCE) \
+		| $$(dir $$@)
+	$(QUIET)$(RM) -f -- $@
+ ifndef VBOX_WITH_HARDENING
+	$(QUIET)$(SED) -e "s;-DVBOX_WITH_HARDENING;;g" --output $@ $<
+ else
+	$(QUIET)$(CP) -f $< $@
+ endif
+	%$(QUIET2)$(APPEND) -t '$(PATH_TARGET)/VBoxPci-src-1.dep' 'VBoxPci/linux/Makefile_VBOX_HARDENED=$(VBOX_WITH_HARDENING)'
+
+endif # Supported platform.
+include $(FILE_KBUILD_SUB_FOOTER)
+

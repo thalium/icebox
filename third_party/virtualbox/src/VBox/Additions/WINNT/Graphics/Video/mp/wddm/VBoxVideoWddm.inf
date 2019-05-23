@@ -1,0 +1,147 @@
+;
+; VirtualBox Video Wddm driver
+;
+; Copyright (C) 2011-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Provider=%ORACLE%
+ClassGUID={4D36E968-E325-11CE-BFC1-08002BE10318}
+Class=Display
+DriverPackageType=PlugAndPlay
+;edit-DriverVer=02/26/2010,1.00.0000
+;cat CatalogFile = VBoxVideoWddm.cat
+
+[DestinationDirs]
+DefaultDestDir=11
+VBoxVideo.Miniport = 12 ; drivers
+VBoxVideo.Display  = 11 ; system32
+;amd64 VBoxVideo.Display_wow64  = 10,SysWow64 ; SysWow64
+VBoxVideo.GL  = 11 ; system32
+;amd64 VBoxVideo.GL_wow64  = 10,SysWow64 ; SysWow64
+
+[Manufacturer]
+;x86   %ORACLE%=Model, NTx86.6.0
+;amd64 %ORACLE%=Model, NTamd64.6.0
+
+;amd64 [Model.NTamd64.6.0]
+;x86   [Model.NTx86.6.0]
+%VBoxVideo.SvcDesc% = VBoxVideo, PCI\VEN_80EE&DEV_BEEF
+
+[VBoxVideo]
+FeatureScore = F8
+Include = msdv.inf
+;x86   CopyFiles = VBoxVideo.Miniport, VBoxVideo.Display, VBoxVideo.GL
+;amd64 CopyFiles = VBoxVideo.Miniport, VBoxVideo.Display, VBoxVideo.Display_wow64, VBoxVideo.GL, VBoxVideo.GL_wow64
+AddReg = VBoxVideo_SoftwareDeviceSettings
+;todo: clear XPDM driver settings: DelReg = VBoxVideo_RemoveDeviceSettings
+RegisterDlls = VBoxVideo_RegisterDlls
+
+[VBoxVideo.Miniport]
+VBoxVideoWddm.sys
+
+[VBoxVideo.Display]
+;dispd3d VBoxDispD3D.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+
+;amd64 [VBoxVideo.Display_wow64]
+;amd64 ;dispd3d VBoxDispD3D-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+
+[VBoxVideo.GL]
+;gl VBoxOGL.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;gl VBoxD3D9wddm.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;gl wined3dwddm.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;gl VBoxOGLarrayspu.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;gl VBoxOGLcrutil.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;gl VBoxOGLerrorspu.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;gl VBoxOGLfeedbackspu.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;gl VBoxOGLpackspu.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;gl VBoxOGLpassthroughspu.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+
+;amd64 [VBoxVideo.GL_wow64]
+;amd64 ;gl VBoxOGL-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;amd64 ;gl VBoxD3D9wddm-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;amd64 ;gl wined3dwddm-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;amd64 ;gl VBoxOGLarrayspu-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;amd64 ;gl VBoxOGLcrutil-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;amd64 ;gl VBoxOGLerrorspu-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;amd64 ;gl VBoxOGLfeedbackspu-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;amd64 ;gl VBoxOGLpackspu-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+;amd64 ;gl VBoxOGLpassthroughspu-x86.dll,,,0x00004000  ; COPYFLG_IN_USE_TRY_RENAME
+
+[VBoxVideo_SoftwareDeviceSettings]
+;dispd3d HKR,, InstalledDisplayDrivers, %REG_MULTI_SZ%, VBoxDispD3D
+;dispd3d HKR,, UserModeDriverName,    %REG_MULTI_SZ%, VBoxDispD3D.dll
+;amd64 ;dispd3d HKR,, UserModeDriverNameWow,    %REG_MULTI_SZ%, VBoxDispD3D-x86.dll
+;gl HKR,, OpenGLDriverName,    %REG_MULTI_SZ%, VBoxOGL.dll
+;amd64 ;gl HKR,, OpenGLDriverNameWoW, %REG_MULTI_SZ%, VBoxOGL-x86.dll
+;gl        HKR,, OpenGLFlags,         %REG_DWORD%,    0x00000001
+;amd64 ;gl HKR,, OpenGLFlagsWoW,      %REG_DWORD%,    0x00000001
+;gl        HKR,, OpenGLVersion,       %REG_DWORD%,    0x00000001
+;amd64 ;gl HKR,, OpenGLVersionWoW,    %REG_DWORD%,    0x00000001
+HKR,, VgaCompatible, %REG_DWORD%, 0
+
+[VBoxVideo_RegisterDlls]
+
+
+[VBoxVideo.Services]
+AddService=VBoxVideoWddm, 0x00000002, VBoxVideo_Service_Inst, VBoxVideo_EventLog_Inst
+
+[VBoxVideo_Service_Inst]
+ServiceType=1                   ; SERVICE_KERNEL_DRIVER
+StartType=3                     ; SERVICE_DEMAND_START
+ErrorControl=0                  ; SERVICE_ERROR_IGNORE
+LoadOrderGroup=Video
+ServiceBinary=%12%\VBoxVideoWddm.sys
+
+[VBoxVideo_EventLog_Inst]
+AddReg = VBoxVideo_EventLog_AddReg
+
+[VBoxVideo_EventLog_AddReg]
+HKR,,EventMessageFile,0x00020000,"%SystemRoot%\System32\IoLogMsg.dll;%SystemRoot%\System32\drivers\VBoxVideoWddm.sys"
+HKR,,TypesSupported,0x00010001,7
+
+[SourceDisksNames]
+1 = %VBoxVideo.Disk%,,,""
+
+[SourceDisksFiles]
+VBoxVideoWddm.sys = 1
+;amd64 ;dispd3d VBoxDispD3D-x86.dll = 1
+;dispd3d VBoxDispD3D.dll = 1
+;amd64 ;gl VBoxOGL-x86.dll = 1
+;gl VBoxOGL.dll = 1
+;amd64 ;gl VBoxD3D9wddm-x86.dll = 1
+;gl VBoxD3D9wddm.dll = 1
+;amd64 ;gl wined3dwddm-x86.dll = 1
+;gl wined3dwddm.dll = 1
+;amd64 ;gl VBoxOGLarrayspu-x86.dll = 1
+;gl VBoxOGLarrayspu.dll = 1
+;amd64 ;gl VBoxOGLcrutil-x86.dll = 1
+;gl VBoxOGLcrutil.dll = 1
+;amd64 ;gl VBoxOGLerrorspu-x86.dll = 1
+;gl VBoxOGLerrorspu.dll = 1
+;amd64 ;gl VBoxOGLfeedbackspu-x86.dll = 1
+;gl VBoxOGLfeedbackspu.dll = 1
+;amd64 ;gl VBoxOGLpackspu-x86.dll = 1
+;gl VBoxOGLpackspu.dll = 1
+;amd64 ;gl VBoxOGLpassthroughspu-x86.dll = 1
+;gl VBoxOGLpassthroughspu.dll = 1
+
+[Strings]
+REG_SZ = 0x00000000
+REG_MULTI_SZ = 0x00010000
+REG_EXPAND_SZ = 0x00020000
+REG_BINARY = 0x00000001
+REG_DWORD = 0x00010001
+
+ORACLE = "Oracle Corporation"
+VBoxVideo.Disk = "VirtualBox Video Driver Disk"
+VBoxVideo.SvcDesc = "VirtualBox Graphics Adapter for Windows Vista and 7"

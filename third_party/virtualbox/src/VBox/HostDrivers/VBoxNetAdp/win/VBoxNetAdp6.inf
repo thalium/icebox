@@ -1,0 +1,87 @@
+; $Id: VBoxNetAdp6.inf $
+; @file
+; VBoxNetAdp6.inf - VirtualBox NDIS6 Miniport Driver inf file
+;
+; Note: We use the same component id as the old NetAdp implementation ?
+;
+;
+; Copyright (C) 2014-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+[Version]
+Signature   = "$Windows NT$"
+;cat  CatalogFile = VBoxNetAdp6.cat
+Class       = Net
+ClassGUID   = {4D36E972-E325-11CE-BFC1-08002BE10318}
+Provider    = %Provider%
+;edit-DriverVer=10/23/2014,1.0.1.0
+
+
+[Manufacturer]
+%Provider% = VBox,NTx86,NTamd64
+
+[ControlFlags]
+
+[VBox]
+%VBoxNetAdp6_Desc% = VBoxNetAdp6.ndi, sun_VBoxNetAdp
+
+[VBox.NTx86]
+%VBoxNetAdp6_Desc% = VBoxNetAdp6.ndi, sun_VBoxNetAdp
+
+[VBox.NTamd64]
+%VBoxNetAdp6_Desc% = VBoxNetAdp6.ndi, sun_VBoxNetAdp
+
+[VBoxNetAdp6.ndi]
+AddReg             = VBoxNetAdp6.ndi.AddReg
+Characteristics    = 0x1 ; NCF_VIRTUAL
+*IfType            = 0x6 ; IF_TYPE_ETHERNET_CSMACD
+*MediaType         = 0x0 ; NdisMedium802_3
+*PhysicalMediaType = 14  ; NdisPhysicalMedium802_3
+CopyFiles          = VBoxNetAdp6.Files.Sys
+
+[VBoxNetAdp6.ndi.Services]
+AddService = VBoxNetAdp, 2, VBoxNetAdp6.AddService
+
+[VBoxNetAdp6.AddService]
+DisplayName    = %VBoxNetAdp6Service_Desc%
+ServiceType    = 1 ;SERVICE_KERNEL_DRIVER
+StartType      = 3 ;SERVICE_DEMAND_START
+ErrorControl   = 1 ;SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\VBoxNetAdp6.sys
+LoadOrderGroup = NDIS
+
+[SourceDisksNames]
+1=%DiskDescription%,"",,
+
+[SourceDisksFiles]
+VBoxNetAdp6.sys=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+VBoxNetAdp6.Files.Sys   = 12   ; %windir%\System32\drivers
+
+[VBoxNetAdp6.Files.Sys]
+VBoxNetAdp6.sys,,,2
+
+[VBoxNetAdp6.ndi.AddReg]
+HKR,    ,            *NdisDeviceType, 0x00010001, 1   ; NDIS_DEVICE_TYPE_ENDPOINT
+HKR,    ,            BusNumber,  0, "0"
+HKR, Ndi,            Service,    0, VBoxNetAdp
+HKR, Ndi,            HelpText,    , %VBoxNetAdp6_HELP%
+HKR, Ndi\Interfaces, UpperRange, 0, ndis5
+HKR, Ndi\Interfaces, LowerRange, 0, ethernet
+
+[Strings]
+Provider = "Oracle Corporation"
+DiskDescription = "VirtualBox NDIS 6.0 Miniport Driver"
+VBoxNetAdp6_Desc = "VirtualBox Host-Only Ethernet Adapter"
+VBoxNetAdp6_HELP = "VirtualBox NDIS 6.0 Miniport Driver"
+VBoxNetAdp6Service_Desc = "VirtualBox NDIS 6.0 Miniport Service"

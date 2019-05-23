@@ -1,0 +1,1915 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="guestadditions">
+  <title>Les suppléments invité</title>
+
+  <para>Le chapitre précédent traitait de la manière de commencer avec VirtualBox
+  et d'installer des systèmes d'exploitation dans une machine virtuelle. Pour une
+  utilisation interactive et sérieuse, les suppléments invité de VirtualBox vous
+  faciliteront beaucoup la vie, en offrant une intégration approfondie entre
+  l'hôte et l'invité et en améliorant la performance d'interactivité des systèmes
+  invités. Ce chapitre décrit en détail les suppléments invité.</para>
+
+  <sect1>
+    <title>Introduction</title>
+
+    <para>Comme indiqué au <xref linkend="virtintro" />, les suppléments invité
+    sont conçus pour s'installer <emphasis>à l'intérieur</emphasis> d'une
+    machine virtuelle après qu'un système d'exploitation ait été installé. Il s'agit
+    de pilotes de périphériques et d'applications système qui optimisent le
+    système d'exploitation invité pour une meilleure performance et plus
+    d'utilisabilité. Merci de voir <xref
+    linkend="guestossupport" /> pour des détails sur les systèmes d'exploitation
+    entièrement supportés avec les suppléments invité par VirtualBox.</para>
+
+    <para>Les suppléments invité de VirtualBox pour tous les systèmes d'exploitation
+    invités supportés sont fournis sous forme d'un fichier unique d'image de
+    CD-ROM qui s'appelle 
+    <computeroutput>VBoxGuestAdditions.iso</computeroutput>. Ce fichier image se
+    trouve dans le répertoire d'installation de VirtualBox. Pour installer les
+    suppléments invité sur une VM en particulier, vous montez ce fichier ISO dans
+    votre VM comme un CD-ROM virtuel et vous installez à partir de là.</para>
+
+    <para>Les suppléments invité offrent les fonctions suivantes&#xA0;:<glosslist>
+        <glossentry>
+          <glossterm>Intégration du pointeur de souris</glossterm>
+
+          <glossdef>
+            <para>Pour dépasser la limite du support de la souris décrite au
+            <xref linkend="keyb_mouse_normal" />, ceci vous offre un support
+            de la souris transparent. Vous n'aurez qu'un pointeur de souris et
+            l'appui sur la touche hôte n'est plus nécessaire pour "libérer" la
+            souris de sa capture par l'OS invité. Pour que cela fonctionne, un
+            pilote de souris spécial est installé dans l'invité pour communiquer
+            avec le pilote de la "vraie" souris de votre hôte et il déplace le
+            pointeur de la souris de l'invité en conséquence.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Dossiers partagés</glossterm>
+
+          <glossdef>
+            <para>Ceci fournit une manière facile d'échanger des fichiers entre
+            l'hôte et l'invité. Tout comme le voisinage réseau Windows ordinaire,
+            vous pouvez dire à VirtualBox de traiter un répertoire particulier
+            de l'hôte comme un dossier partagé et VirtualBox le rendra disponible
+            pour le système d'exploitation invité en tant que partage réseau,
+            que l'invité ait ou non un réseau. Pour les détails, merci de vous
+            reporter à <xref
+            linkend="sharedfolders" />.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Meilleur support graphique</glossterm>
+
+          <glossdef>
+            <para>Si la carte graphique virtuelle émulée par VirtualBox pour tous
+            les systèmes d'exploitation invités offre toutes les fonctions de
+            base, les pilotes graphiques personnalisés installés avec les suppléments
+            invité vous offrent ces modes graphiques supplémentaires élevés et
+            non standards ainsi qu'une performance graphique accélérée.</para>
+
+            <para>De plus, avec les invités Windows, Linux et Solaris, vous
+            pouvez redimensionner la fenêtre de la machine virtuelle si les suppléments
+            invité sont installés. La résolution graphique de l'invité sera
+            automatiquement ajustée (comme si vous aviez entré à la main une
+            résolution de votre choix dans les paramètres d'affichage de
+            l'invité). Merci de voir aussi <xref
+            linkend="intro-resize-window" />.</para>
+
+            <para>Enfin, si les suppléments invité sont installés, les graphismes
+            3D et 2D des applications invités peuvent être accélérés&#xA0;; voir
+            <xref linkend="guestadd-video" />.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Fenêtres transparentes</glossterm>
+
+          <glossdef>
+            <para>Avec cette fonctionnalité, les fenêtres individuelles affichées
+            sur le bureau de la machine virtuelle peuvent se placer sur le bureau
+            de l'hôte comme si l'application à leur origine fonctionnait vraiment
+            sur l'hôte. Voir <xref linkend="seamlesswindows" /> pour les 
+            détails.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Canaux de communication hôte/invité génériques</glossterm>
+
+          <glossdef>
+            <para>Les suppléments invité vous permettent de contrôler et de surveiller
+            l'exécution de l'invité autrement que comme indiqué ci-dessus. Ce
+            qu'on appelle les "propriétés invité" fournit un mécanisme générique
+            à base de chaînes pour échanger des bits de données entre un invité
+            et un hôte, certains d'entre eux ayant des significations spéciales
+            pour contrôler et surveiller l'invité&#xA0;; voir
+            <xref linkend="guestadd-guestprops" /> pour les détails.</para>
+
+            <para>En outre, des applications peuvent être démarrées dans l'invité
+            à partir de l'hôte&#xA0;; voir <xref linkend="guestadd-guestcontrol" />.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Synchronisation du temps</glossterm>
+
+          <glossdef>
+            <para>Quand les suppléments invité sont installés, VirtualBox peut
+            s'assurer que l'horloge système de l'invité est mieux synchronisée avec
+            celle de l'hôte.</para>
+
+            <para>Pour plusieurs raisons, il se peut que l'horloge de l'invité 
+            tourne à un rythme légèrement plus lent que celle de l'hôte. L'hôte
+            pourrait recevoir des mises à jour par NTP et sa propre horloge 
+            pourrait ne pas tourner de manière rectiligne. Une VM pourrait aussi
+            être mise en pause, ce qui arrête le cours du temps dans l'invité 
+            pendant une durée plus ou moins longue. Quand le temps des horloges
+            séparées entre l'invité et l'hôte ne diffère que légèrement, le service de
+            synchronisation du temps essaie d'ajuster progressivement et
+            doucement l'heure de l'invité, par petites accélérations, soit pour
+            "rattraper", soit pour "perdre" du temps. Quand la différence est trop
+            importante (par exemple si la VM a été mise en pause pendant des 
+            heures puis restaurée d'un état sauvegardé), l'heure de l'invité est
+            modifiée immédiatement sans ajustement progressif.</para>
+
+            <para>Les suppléments invité resynchroniseront l'heure régulièrement.
+            Voir <xref linkend="changetimesync" /> pour savoir comment configurer
+            les paramètres du mécanisme de synchronisation du temps.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Presse-papier partagé</glossterm>
+
+          <glossdef>
+            <para>Quand les suppléments invité sont installés, le presse-papier
+            du système d'exploitation invité peut être éventuellement partagé 
+            avec votre système d'exploitation hôte&#xA0;; voir 
+            <xref linkend="generalsettings" />.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Connexions automatiques (passer des droits)</glossterm>
+
+          <glossdef>
+            <para>Pour les détails, merci de voir <xref linkend="autologon" />.</para>
+          </glossdef>
+        </glossentry>
+      </glosslist></para>
+
+    <para>Chaque version de VirtualBox, même celles mineures, inclut sa propre
+    version des suppléments invité. Si les interfaces par lesquelles le c&#x153;ur 
+    de VirtualBox communique avec les suppléments invité sont stables pour que
+    les suppléments invité déjà installés dans une VM continuent de fonctionner,
+    quand VirtualBox est mis à jour sur l'hôte, pour de meilleurs résultats, il
+    est recommandé d'avoir des suppléments invité de la même version.</para>
+
+    <para>À partir de VirtualBox 3.1, les suppléments invité pour Windows et Linux
+    vérifient donc automatiquement s'ils doivent être mis à jour. Si l'hôte fait
+    tourner une version plus récente de VirtualBox que celle des suppléments
+    invité, une notification avec des instructions complémentaires s'affiche dans
+    l'invité.</para>
+
+    <para>Pour désactiver cette vérification des mises à jour des suppléments invité
+    dans une machine virtuelle donnée, définissez la valeur de la propriété
+    invité 
+    <computeroutput>/VirtualBox/GuestAdd/CheckHostVersion</computeroutput>
+    à <computeroutput>0</computeroutput>&#xA0;; voir <xref
+    linkend="guestadd-guestprops" /> pour des détails.</para>
+  </sect1>
+
+  <sect1>
+    <title>Installer et maintenir les suppléments invité</title>
+
+    <para>Les suppléments invité sont disponibles pour les machines virtuelles
+    faisant fonctionner Windows, Linux, Solaris ou OS/2. Les sections suivantes
+    décrivent en détail les spécificités de chaque variante.</para>
+
+    <sect2 id="additions-windows">
+      <title>Suppléments invité pour Windows</title>
+
+      <para>Les suppléments invité de VirtualBox pour Windows sont conçus
+      pour s'installer dans une machine virtuelle exécutant un système d'exploitation
+      Windows. Les versions suivantes des invités Windows sont supportées&#xA0;:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Microsoft Windows NT 4.0 (tous les packs service)</para>
+        </listitem>
+
+        <listitem>
+          <para>Microsoft Windows 2000 (tous les packs service)</para>
+        </listitem>
+
+        <listitem>
+          <para>Microsoft Windows XP (tous les packs service)</para>
+        </listitem>
+
+        <listitem>
+          <para>Microsoft Windows Server 2003 (tous les packs service)</para>
+        </listitem>
+
+        <listitem>
+          <para>Microsoft Windows Server 2008</para>
+        </listitem>
+
+        <listitem>
+          <para>Microsoft Windows Vista (toutes les éditions)</para>
+        </listitem>
+
+        <listitem>
+          <para>Microsoft Windows 7 (toutes les éditions)</para>
+        </listitem>
+
+        <listitem>
+          <para>Microsoft Windows 8 (toutes les éditions)</para>
+        </listitem>
+        
+        <listitem>
+          <para>Microsoft Windows Server 2012</para>
+        </listitem>
+
+      </itemizedlist>
+
+      <sect3 id="mountingadditionsiso">
+        <title>Installation</title>
+
+        <para>Dans le menu "Périphériques" de la barre de menu de la machine
+        virtuelle, VirtualBox a un élément de menu tout prêt nommé "Insérer l'image
+        du CD des suppléments invité", qui monte le fichier ISO des suppléments invité
+        dans votre machine virtuelle. L'invité Windows devrait alors démarrer 
+        automatiquement l'installeur des suppléments invité qui installe les
+        suppléments invité dans votre invité Windows. Les autres systèmes 
+        d'exploitation invités (ou si le démarrage automatique d'un logiciel sur
+        CD est désactivé) exigent un démarrage manuel de l'installeur.</para>
+
+        <note>
+          <para>Pour que l'accélération Direct3D de base fonctionne dans un
+          invité Windows, vous devez installer les suppléments invité en "Mode
+          sans échec". Cela <emphasis role="bold">ne vaut pas</emphasis> pour
+          le pilote graphique expérimental WDDM Direct3D disponible pour les invités
+          Vista and Windows 7, voir <xref linkend="KnownIssues" /> pour les
+          détails.<footnote><para>Le pilote expérimental WDDM a été ajouté avec
+          VirtualBox 4.1.</para></footnote></para>
+        </note>
+
+        <para>Si vous préférez monter les suppléments à la main, vous pouvez
+        suivre les étapes suivantes&#xA0;:</para>
+
+        <orderedlist>
+          <listitem>
+            <para>Démarrez la machine virtuelle dans laquelle vous avez installé
+            Windows.</para>
+          </listitem>
+
+          <listitem>
+            <para>Sélectionnez "Monter un CD/DVD-ROM" dans le menu "Périphériques"
+            de la barre de menus de la machine virtuelle, puis "image CD/DVD-ROM".
+            Ceci ouvre le gestionnaire de médias virtuels décrit au <xref
+            linkend="vdis" />.</para>
+          </listitem>
+
+          <listitem>
+            <para>Dans le gestionnaire de médias virtuels, appuyez sur le bouton
+            "Ajouter" et parcourez le système de fichiers de votre hôte pour
+            trouver le fichier
+            <computeroutput>VBoxGuestAdditions.iso</computeroutput>&#xA0;:<itemizedlist>
+                <listitem>
+                  <para>Sur un hôte Windows, vous pouvez trouver ce fichier
+                  dans le répertoire d'installation de VirtualBox (en général
+                  sous <computeroutput>C:\Program
+                  files\Oracle\VirtualBox</computeroutput> ).</para>
+                </listitem>
+
+                <listitem>
+                  <para>Sur les hôtes Mac OS X, vous pouvez trouver ce fichier
+                  dans le groupe de l'application VirtualBox. (Effectuez un clic
+                  droit sur l'icône de VirtualBox dans Finder et choisissez
+                  <emphasis>Afficher le contenu du paquet</emphasis>. S'y trouve
+                  le fichier, dans le dossier
+                  <computeroutput>Contents/MacOS</computeroutput>.)</para>
+                </listitem>
+
+                <listitem>
+                  <para>Sur un hôte Linux, vous pouvez trouver ce fichier dans
+                  le dossier
+                  <computeroutput>additions</computeroutput> sous lequel vous avez
+                  installé VirtualBox (normalement,
+                  <computeroutput>/opt/VirtualBox/</computeroutput>).</para>
+                </listitem>
+
+                <listitem>
+                  <para>Sur les hôtes Solaris, vous pouvez trouver ce fichier
+                  dans le dossier
+                  <computeroutput>additions</computeroutput> sous lequel vous avez
+                  installé VirtualBox (normalement
+                  <computeroutput>/opt/VirtualBox</computeroutput>).</para>
+                </listitem>
+              </itemizedlist></para>
+          </listitem>
+
+          <listitem>
+            <para>De retour dans le gestionnaire de médias virtuels, sélectionnez
+            ce fichier ISO et appuyez sur le bouton "Sélectionner". Ceci montera
+            le fichier ISO et le présentera à votre invité Windows comme un
+            CD-ROM.</para>
+          </listitem>
+        </orderedlist>
+
+        <para>Sauf si vous avez désactivé la fonction "Exécution automatique" de
+        votre invité Windows, Windows démarrera automatiquement le programme
+        d'installation des suppléments invité de VirtualBox depuis l'ISO
+        Additions. Si vous avez désactivé la fonction d'exécution automatique,
+        choisissez 
+        <computeroutput>VBoxWindowsAdditions.exe</computeroutput> dans le lecteur
+        CD/DVD dans l'invité pour démarrer l'installeur.</para>
+
+        <para>L'installeur ajoutera plusieurs pilotes de périphériques à la base
+        de données des pilotes Windows puis appellera l'assistant Nouveau matériel
+        détecté.</para>
+
+        <para>Selon votre configuration, il pourrait afficher des avertissements
+        selon lequel les pilotes n'ont pas de signature numérique. Vous devez
+        les confirmer afin qde continuer l'installation et d'installer correctement
+        les suppléments.</para>
+
+        <para>Après l'installation, redémarrez votre système d'exploitation 
+        invité pour activer les suppléments.</para>
+      </sect3>
+
+      <sect3>
+        <title>Mettre à jour les suppléments invité Windows</title>
+
+        <para>Les suppléments invité Windows peuvent être mis à jour en lançant
+        de nouveau le programme d'installation comme décrit précédemment. 
+        Ceci remplacera les pilotes des suppléments précédents par des versions
+        mises à jour.</para>
+
+        <para>Vous pouvez aussi ouvrir le gestionnaire de périphériques de Windows
+        et sélectionner "Mettre à jour le pilote..." pour deux périphériques&#xA0;:</para>
+
+        <orderedlist>
+          <listitem>
+            <para>l'adaptateur graphique de VirtualBox et</para>
+          </listitem>
+
+          <listitem>
+            <para>le périphérique système VirtualBox.</para>
+          </listitem>
+        </orderedlist>
+
+        <para>Pour chacun d'eux, choisissez de fournir votre propre pilote et 
+        utilisez "Vous avez un disque" pour orienter l'assistant sur le lecteur
+        de CD-ROM contenant les suppléments invité.</para>
+      </sect3>
+
+      <sect3>
+        <title>Installation silencieuse</title>
+
+        <para>Avant d'effectuer une installation sans efforts des suppléments
+        invité de VirtualBox sur un invité Windows, il doit y avoir absolument
+        des Oracle CA (Certificate Authority) installés, pour empêcher des
+        fenêtres d'intervention de l'utilisateur qui contrarieront une
+        installation silencieuse.</para>
+
+        <para><note><para>Sur certaines versions de Windows comme Windows 2000
+        et Windows XP les fenêtres d'intervention de l'utilisateur mentionnées
+        ci-dessus s'afficheront toujours, même après avoir importé les
+        certificats d'Oracle.</para></note></para>
+
+        <para>Depuis VirtualBox 4.2, vous pouvez installer ces certificats CA
+        sur un invité Windows de façon automatisée en utilisant l'outil
+        <computeroutput>VBoxCertUtil.exe</computeroutput> qui se trouve sur
+        le CD d'installation des suppléments invité dans le dossier
+        <computeroutput>cert</computeroutput>&#xA0;:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Connectez-vous en tant qu'administrateur sur l'invité.</para>
+          </listitem>
+
+          <listitem>
+            <para>Montez le .ISO des suppléments invité de VirtualBox.</para>
+          </listitem>
+
+          <listitem>
+            <para>Ouvrez une fenêtre de ligne de commande sur l'invité et rendez-vous
+            dans le dossier <computeroutput>cert</computeroutput> du CD des
+            suppléments invité de VirtualBox.</para>
+          </listitem>
+
+          <listitem>
+            <para>Faites <screen>VBoxCertUtil add-trusted-publisher oracle-vbox.cer --root oracle-vbox.cer</screen></para>
+            <para>Cela installera les certificats dans le stockage des certificats.
+            Si on installe les mêmes certificats plus d'une fois, une erreur
+            circonstanciée s'affichera.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Avant VirtualBox 4.2, il faut importer les certificats CA d'Oracle
+        de manière plus manuelle en utilisant l'outil
+        <computeroutput>certutil.exe</computeroutput> inclu depuis Windows
+        Vista. Pour des versions de Windows antérieures à Vista, vous devez
+        télécharger et installer <computeroutput>certutil.exe</computeroutput>
+        à la main. Les certificats n'étant pas sur le CD-ROM des suppléments
+        invité de VirtualBox précédant la 4.2, vous devez les extraire préalablement
+        d'un exécutable de VirtualBox signé.</para>
+
+        <para>Dans l'exemple suivant, les ertificats nécessaires seront extraits
+        de l'installeur des suppléments invité pour Windows sur le CD-ROM&#xA0;:</para>
+
+        <glosslist>
+          <glossentry>
+            <glossterm>VeriSign Code Signing CA</glossterm>
+            <glossdef>
+              <para>Dans l'explorateur Windows, faites un clic droit sur 
+              VBoxWindowsAdditions-&lt;Architecture&gt;.exe, cliquez sur 
+              "Propriétés"</para>
+              <itemizedlist>
+                <listitem>
+                  <para>Allez sur l'onglet "Signatures numériques", choisissez
+                  "Oracle Corporation" et cliquez sur "Détails"</para>
+                </listitem>
+                <listitem>
+                  <para>Dans l'onglet "Général" cliquez sur "Afficher le Certificat"</para>
+                </listitem>
+                <listitem>
+                  <para>Dans l'onglet "Chemin de Certification", sélectionnez
+                  "VeriSign Class 3 Public Primary CA"</para>
+                </listitem>
+                <listitem>
+                  <para>Cliquez sur "Afficher le certificat"</para>
+                </listitem>
+                <listitem>
+                  <para>Dans l'onglet "Détails" cliquez sur "Copier vers le fichier..."</para>
+                </listitem>
+                <listitem>
+                  <para>Dans l'assistant qui apparaît, choisissez "DER encoded binary (binaire
+                  encodé DER X.509 (.CER)" et enregistrez le fichier du certificat
+                  dans un chemin local, puis terminez l'assistant</para>
+                </listitem>
+                <listitem>
+                  <para>Fermez la boîte de dialogue du certificat "Verisign Class 3 Code Signing
+                  2010 CA"</para>
+                </listitem>
+              </itemizedlist>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Oracle Corporation</glossterm>
+            <glossdef>
+              <para>Dans l'explorateur Windows, effectuez un clic droit sur
+              VBoxWindowsAdditions-&lt;Architecture&gt;.exe, cliquez sur
+              "Propriétés"</para>
+              <itemizedlist>
+                <listitem>
+                  <para>Allez sur l'onglet "Signatures numériques", choisissez
+                  "Oracle Corporation" et cliquez sur "Détails"</para>
+                </listitem>
+                <listitem>
+                  <para>Dans l'onglet "Général", cliquez sur "Afficher le Certificat"</para>
+                </listitem>
+                <listitem>
+                  <para>Dans l'onglet "Détails" cliquez sur "Copier vers le fichier ..."</para>
+                </listitem>
+                <listitem>
+                  <para>Dans l'assistant qui apparaît, choisissez "DER encoded binary X.509 (.CER)"
+                  et enregistrez le fichier du certificat dans un chemin local, terminez
+                  l'assistant</para>
+                </listitem>
+                <listitem>
+                  <para>Fermez la boîte du dialogue du certificat "Oracle Corporation"</para>
+                </listitem>
+              </itemizedlist>
+            </glossdef>
+          </glossentry>
+        </glosslist>
+
+        <para>Après avoir exporté les deux certificats ci-dessus, vous pouvez
+        les importer dans le trousseau des certificats en utilisant l'outil
+        <computeroutput>certutil.exe</computeroutput>&#xA0;:</para>
+
+        <para><computeroutput>certutil -addstore -f Root "&lt;Chemin du fichier
+        du certificat exporté&gt;"</computeroutput></para>
+
+        <para>Afin de permettre des installations invité entièrement sans efforts,
+        vous pouvez spécifier un paramètre en ligne de commande au lanceur de
+        l'installation&#xA0;:</para>
+
+        <screen>VBoxWindowsAdditions.exe /S</screen>
+
+        <para>Ceci installe automatiquement les bons fichiers et les bons pilotes
+        pour la plateforme correspondante (32 ou 64 bits).</para>
+
+        <para><note><para>Par défaut, sur une installation sans efforts sur un invité
+        Windows 7 ou 8, un pilote graphique XPDM va s'installer. Ce pilote
+        graphique ne supporte pas Windows Aero / Direct3D de l'invité - il faut
+        donc installer à la place le pilote graphique expérimental WDDM. Pour
+        sélectionner ce pilote par défaut, ajoutez le paramètre 
+        <computeroutput>/with_wddm</computeroutput> de la ligne de commande quand
+        vous appelez l'installeur des suppléments invité Windows.</para></note></para>
+
+        <para><note><para>Pour que Windows Aero fonctionne correctement sur un invité,
+        la taille de la mémoire graphique de l'invité doit être configurée pour
+        être d'au moins 128 Mo.</para></note></para>
+
+        <para>Pour plus d'options concernant les installations d'invité sans efforts,
+        consultez l'aide en ligne de commande en utilisant la commande&#xA0;:</para>
+
+        <screen>VBoxWindowsAdditions.exe /?</screen>
+      </sect3>
+
+      <sect3 id="windows-guest-file-extraction">
+        <title>Extraction manuelle du fichier</title>
+
+        <para>Si vous souhaitez installer les fichiers et les pilotes à la main,
+        vous pouvez extraire les fichiers des suppléments invité Windows en
+        tapant&#xA0;:</para>
+
+        <screen>VBoxWindowsAdditions.exe /extract</screen>
+
+        <para>Pour extraire explicitement les suppléments invité Windows pour
+        une autre plateforme que celle où vous êtes (par exemple des fichiers 64
+        bits sur une plateforme 32 bits), vous devez exécuter l'installeur pour
+        la plateforme adéquate 
+        (<computeroutput>VBoxWindowsAdditions-x86.exe</computeroutput> ou
+        <computeroutput>VBoxWindowsAdditions-amd64.exe</computeroutput>) avec
+        le paramètre <computeroutput>/extract</computeroutput>.</para>
+      </sect3>
+
+    </sect2>
+
+    <sect2>
+      <title>Suppléments invité pour Linux</title>
+
+      <para>Comme les suppléments invité Windows, les suppléments invité de
+      VirtualBox pour Linux sont un ensemble de pilotes de périphérique et
+      d'applications système qui s'installent dans le système d'exploitation invité.</para>
+
+      <para>Les distributions Linux suivantes sont supportées officiellement&#xA0;:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Oracle Linux à partir de la version 5, y compris les noyaux UEK ;</para>
+        </listitem>
+        <listitem>
+          <para>Fedora à partir de Fedora Core 4;</para>
+        </listitem>
+
+        <listitem>
+          <para>Redhat Enterprise Linux à partir de la version 3;</para>
+        </listitem>
+
+        <listitem>
+          <para>SUSE et openSUSE Linux à partir de la version 9;</para>
+        </listitem>
+
+        <listitem>
+          <para>Ubuntu à partir de la version 5.10.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Beaucoup d'autres distributions sont connues pour fonctionner avec
+      les suppléments invité.</para>
+
+      <para>La version du noyau Linux fournie par défaut dans SUSE et
+      openSUSE 10.2, dans Ubuntu 6.10 (toutes les versions) et Ubuntu 6.06 
+      (édition serveur) contient un bogue qui peut le faire planter au démarrage
+      quand il tourne sur une machine virtuelle. Les suppléments invité fonctionnent
+      dans ces distributions.</para>
+
+      <para>Remarquez que certaines distributions Linux sont déjà fournies avec
+      tout ou partie des suppléments invité VirtualBox. Vous pouvez choisir
+      de garder la version des suppléments invité de votre distribution, mais 
+      ils sont souvent obsolètes et limités dans leurs fonctionnalités, donc nous
+      recommandons de les remplacer par les
+      suppléments invité fournis avec VirtualBox. L'installeur des suppléments 
+      invité de VirtualBox pour Linux essaie de détecter l'installation existante
+      et de les remplacer, mais selon la façon dont votre distribution intègre
+      les suppléments invité, cela peut exiger un peu d'intervention manuelle. 
+      Il est fortement 
+      recommandé de prendre un instantané de la machine virtuelle avant de
+      remplacer les suppléments invité préinstallés.</para>
+
+      <sect3>
+        <title>Installer les suppléments invité pour Linux</title>
+
+        <para>Les suppléments invité VirtualBox pour Linux sont fournis sur
+        le même fichier de CD-ROM virtuel que les suppléments invité pour Windows
+        décrits ci-dessus. Ils sont également fournis avec un programme d'installation
+        qui vous guide à travers le processus de paramétrage bien que du fait des
+        différences significatives entre les distributions Linux, l'installation
+        peut être légèrement plus complexe.</para>
+
+        <para>L'nstallation implique généralement les étapes suivantes&#xA0;:</para>
+
+        <orderedlist>
+          <listitem>
+            <para>Avant d'installer les suppléments invité, vous devrez 
+            préparer votre système invité à construire les modules externes du
+            noyau. Ceci fonctionne comme décrit au <xref
+            linkend="externalkernelmodules" />, sauf que cette étape doit être
+            maintenant effectuée dans votre <emphasis>invité</emphasis> Linux
+            et non sur un système hôte Linux&#xA0;, comme décrit ici.</para>
+
+            <para>De nouveau, comme avec les hôtes Linux, nous recommandons
+            d'utiliser DKMS s'il est disponible pour le système invité. S'il n'est
+            pas installé, utilisez cette commande pour les systèmes Ubuntu/Debian&#xA0;:
+            <screen>sudo apt-get install dkms</screen>
+            ou, pour les systèmes Fedora&#xA0;: <screen>yum install dkms</screen></para>
+
+            <para>Assurez-vous d'installer DKMS <emphasis>avant</emphasis>
+            d'installer les suppléments invité Linux. Si DKMS n'est pas disponible
+            ou pas installé, il faudra recréer à la main les modules noyau de 
+            l'invité à chaque fois que le noyau invité sera mis à jour en utilisant
+            la commande <screen>/etc/init.d/vboxadd setup</screen> en tant
+            qu'administrateur. 
+            </para>
+          </listitem>
+
+          <listitem>
+            <para>Insérez le fichier de CD
+            <computeroutput>VBoxGuestAdditions.iso</computeroutput> dans le lecteur
+            CD-ROM virtuel de votre système invité, exactement de la même façon
+            que ce qui est décrit pour un invité Windows dans <xref
+            linkend="mountingadditionsiso" />.</para>
+          </listitem>
+
+          <listitem>
+            <para>Rendez-vous dans le répertoire où est monté votre lecteur CD-ROM 
+            et exécutez, en tant qu'administrateur&#xA0;:</para>
+
+            <screen>sh ./VBoxLinuxAdditions.run</screen>
+
+          </listitem>
+        </orderedlist>
+
+        <para>Pour votre confort, nous fournissons les 
+        instructions pas à pas suivantes pour les copies fraîchement installées
+        des versions récentes des distributions Linux les plus populaires.
+        Après ces étapes préparatoires, vous pouvez 
+        exécuter l'installeur des suppléments invité VirtualBox comme décrit 
+        ci-dessus.</para>
+
+        <sect4>
+          <title>Ubuntu</title>
+
+          <para><orderedlist>
+              <listitem>
+                <para>Afin de mettre à jour complètement votre système invité, ouvrez un
+                terminal et lancez <screen>apt-get update</screen> en tant qu'administrateur
+                suivi de <screen>apt-get upgrade</screen></para>
+              </listitem>
+
+              <listitem>
+                <para>Installez DKMS en utilisant <screen>apt-get install dkms</screen></para>
+              </listitem>
+
+              <listitem>
+                <para>Redémarrez votre système invité afin d'activer les mises à
+                jour puis poursuivez comme décrit ci-dessus.</para>
+              </listitem>
+            </orderedlist></para>
+        </sect4>
+
+        <sect4>
+          <title>Fedora</title>
+
+          <para><orderedlist>
+              <listitem>
+                <para>Afin de mettre à jour complètement votre système invité, ouvrez un
+                terminal et lancez <screen>yum update</screen> en tant qu'administrateur.</para>
+              </listitem>
+
+              <listitem>
+                <para>Installez DKMS et le compilateur GNU C en utilisant
+                <screen>yum install dkms</screen> suivi de
+                <screen>yum install gcc</screen></para>
+              </listitem>
+
+              <listitem>
+                <para>Redémarrez votre système invité afin d'activer les
+                mises à jour puis poursuivez comme décrit ci-dessus.</para>
+              </listitem>
+            </orderedlist></para>
+        </sect4>
+
+        <sect4>
+          <title>openSUSE</title>
+
+          <para><orderedlist>
+              <listitem>
+                <para>Afin de mettre à jour complètement votre système invité, ouvrez un
+                terminal et lancez <screen>zypper update</screen> en tant
+                qu'administrateur.</para>
+              </listitem>
+
+              <listitem>
+                <para>Installez l'outil make et le compilateur GNU C en utilisant
+                <screen>zypper install make gcc</screen></para>
+              </listitem>
+
+              <listitem>
+                <para>Redémarrez votre système invité afin d'activer les
+                mises à jour.</para>
+              </listitem>
+
+              <listitem>
+                <para>Cherchez le noyau que vous exécutez en utilisant <screen>uname -a</screen>
+                Un exemple serait
+                <computeroutput>2.6.31.12-0.2-default</computeroutput> qui renvoie
+                au noyau "par défaut". Puis installez le bon paquet de
+                développement du noyau. Dans l'exemple ci-dessus, il s'agirait de
+                <screen>zypper install kernel-default-devel</screen></para>
+              </listitem>
+
+              <listitem>
+                <para>Assurez-vous que votre noyau actuel
+                (<computeroutput>uname -a</computeroutput>) et les paquets du
+                noyau que vous avez installés (<computeroutput>rpm -qa
+                kernel\*</computeroutput>) ont exactement le même numéro de version.
+                Continuez l'installation comme décrit ci-dessus.</para>
+              </listitem>
+            </orderedlist></para>
+        </sect4>
+
+        <sect4>
+          <title>SuSE Linux Enterprise Desktop (SLED)</title>
+
+          <para><orderedlist>
+              <listitem>
+                <para>Afin de mettre à jour complètement votre système invité, ouvrez un
+                terminal et lancez <screen>zypper update</screen> en tant
+                qu'administrateur.</para>
+              </listitem>
+
+              <listitem>
+                <para>Installez le compilateur the GNU C en utilisant 
+                <screen>zypper install gcc</screen></para>
+              </listitem>
+
+              <listitem>
+                <para>Redémarrez votre système invité afin d'activer les
+                mises à jour.</para>
+              </listitem>
+
+              <listitem>
+                <para>Cherchez le noyau que vous exécutez en utilisant <screen>uname -a</screen>
+                Un exemple serait
+                <computeroutput>2.6.27.19-5.1-default</computeroutput> qui renvoie
+                au noyau "par défaut". Puis installez le bon paquet de
+                développement du noyau. Dans l'exemple ci-dessus, il s'agirait de
+                <screen>zypper install kernel-syms kernel-source</screen></para>
+              </listitem>
+
+              <listitem>
+                <para>Assurez-vous que votre noyau actuel
+                (<computeroutput>uname -a</computeroutput>) et les paquets du
+                noyau que vous avez installés (<computeroutput>rpm -qa
+                kernel\*</computeroutput>) ont exactement le même numéro de version.
+                Continuez l'installation comme décrit ci-dessus.</para>
+              </listitem>
+            </orderedlist></para>
+        </sect4>
+
+        <sect4>
+          <title>Mandrake</title>
+
+          <para><orderedlist>
+              <listitem>
+                <para>Mandrake inclut des suppléments invité VirtualBox qui seront
+                remplacés si vous suivez ces étapes.</para>
+              </listitem>
+
+              <listitem>
+                <para>Afin de mettre à jour complètement votre système invité, ouvrez un
+                terminal et lancez <screen>urpmi --auto-update</screen>
+                en tant qu'administrateur.</para>
+              </listitem>
+
+              <listitem>
+                <para>Redémarrez le système afin d'activer les mises à jour.</para>
+              </listitem>
+
+              <listitem>
+                <para>Installez DKMS en utilisant <screen>urpmi dkms</screen> 
+                et assurez-vous de choisir le bon paquet kernel-devel quand 
+                l'installeur vous le demande (utilisez <computeroutput>uname -a</computeroutput>
+                pour comparer).</para>
+              </listitem>
+            </orderedlist></para>
+        </sect4>
+
+        <sect4>
+          <title>Oracle Linux, Red Hat Enterprise Linux et CentOS</title>
+
+          <para><orderedlist>
+              <listitem>
+                <para>Pour les versions antérieures à 6, ajoutez 
+                <computeroutput>divider=10</computeroutput> aux options de démarrage
+                du noyau dans
+                <computeroutput>/etc/grub.conf</computeroutput> pour réduire la
+                charge du processeur actif.</para>
+              </listitem>
+
+              <listitem>
+                <para>Afin de mettre à jour complètement votre système invité, ouvrez un
+                terminal et lancez <screen>yum update</screen> en tant
+                qu'administrateur.</para>
+              </listitem>
+
+              <listitem>
+                <para>Installez le compilateur GNU C et les paquets de développement
+                du noyau en utilisant <screen>yum install gcc</screen> suivi de
+                <screen>yum install kernel-devel</screen> Pour les noyaux
+                Oracle UEK, utilisez <screen>yum install kernel-uek-devel</screen>
+                pour installer les en-têtes du noyau UEK.</para>
+              </listitem>
+
+              <listitem>
+                <para>Redémarrez votre système invité afin d'activer les
+                mises à jour puis poursuivez comme décrit ci-dessus.</para>
+              </listitem>
+
+              <listitem>
+                <para>Si Oracle Linux ne trouve pas les paquets requis,
+                soit vous devez les installer à partir d'une autre source (comme
+                un DVD),  soit utilisez le serveur public Yum d'Oracle
+                qui se troupe sur <ulink
+                url="http://public-yum.oracle.com/">http://public-yum.oracle.com</ulink>.</para>
+              </listitem>
+            </orderedlist></para>
+        </sect4>
+
+        <sect4>
+          <title>Debian</title>
+
+          <para><orderedlist>
+              <listitem>
+                <para>Afin de mettre à jour complètement votre système invité, ouvrez un
+                terminal et lancez <screen>apt-get update</screen> en tant qu'administrateur
+                suivi de <screen>apt-get upgrade</screen></para>
+              </listitem>
+
+              <listitem>
+                <para>Installez l'outil make et le compilateur GNU C en utilisant
+                <screen>apt-get install make gcc</screen></para>
+              </listitem>
+
+              <listitem>
+                <para>Redémarrez votre système invité afin d'activer les
+                mises à jour.</para>
+              </listitem>
+
+              <listitem>
+                <para>Déterminez la version exacte de votre noyau en utilisant
+                <computeroutput>uname -a</computeroutput> et installez la bonne
+                version du paquete linux-headers, par exemple en utilisant
+                <screen>apt-get install linux-headers-2.6.26-2-686</screen></para>
+              </listitem>
+            </orderedlist></para>
+        </sect4>
+      </sect3>
+
+      <sect3>
+        <title>Intégration graphique de la souris</title>
+
+        <para>Dans les invités Linux et Solaris, l'intégration graphique de la
+        souris de VirtualBox passe par le système X Window.  VirtualBox peut
+        utiliser la variante X.Org du système (ou XFree86 version 4.3 qui est
+        identique à la première version de X.Org). Au cours du processus 
+        d'installation, le serveur d'affichage X.Org sera paramétré pour utiliser
+        les pilotes graphiques et de souris fournis avec les suppléments invité.</para>
+
+        <para>Après l'installation des suppléments invité dans une installation
+        neuve d'une distribution Linux ou d'un système Solaris supportés, (beaucoup
+        de systèmes non supportés fonctionneront correctement aussi), le mode
+        graphique de l'invité changera pour s'adapter à la taille de la fenêtre
+        VirtualBox et de l'hôte lorsqu'elle est redimensionnée. Vous pouvez aussi
+        demander au système invité de passer à une résolution en particulier en
+        envoyant une "suggestion de mode graphique" en utilisant l'outil
+        <computeroutput>VBoxManage</computeroutput>.</para>
+
+        <para>Plusieurs écrans invités sont supportés dans les invités utilisant
+        le serveur X.Org version 1.3 (qui fait partie de la version 7.3 du
+        système X Window version 11) ou une version supérieure. La présentation
+        des écrans invités peut être ajustée au besoin en utilisant les outils
+        fournis avec le système d'exploitation invité.</para>
+        
+        <para>Si vous voulez mieux comprendre les détails de la manière dont les pilotes
+        X.Org sont paramétrés (en particulier si vous souhaitez les utiliser dans
+        un réglage non géré correctement par notre installeur), vous devriez lire
+        <xref linkend="guestxorgsetup" />.</para>
+      </sect3>
+
+      <sect3>
+        <title>Metter à jour les suppléments invité Linux</title>
+
+        <para>Les suppléments invité peuvent être mis à jour simplement en refaisant
+        la procédure d'installation avec une image de CD-ROM mise à jour. Ceci 
+        remplacera les pilotes par des versions mises à jour. Vous devriez
+        redémarrer après avoir mis à jour les suppléments invité.</para>
+      </sect3>
+
+      <sect3>
+        <title>Désinstaller les suppléments invité Linux</title>
+
+        <para>Si vous avez une version des suppléments invité installée sur 
+        votre machine virtuelle et si vous souhaitez l'enlever sans en installer
+        d'autres, vous pouvez le faire en insérant l'image CD des suppléments 
+        invité dans le lecteur de CD-ROM virtuel comme décrit ci-dessus et en 
+        lançant l'installeur des suppléments invité actuels avec le paramètre
+        "uninstall" à partir de l'endroit où est monté l'image du CD sur 
+        l'invité&#xA0;: <screen>sh ./VBoxLinuxAdditions.run uninstall</screen></para>
+
+        <para>Si cela fonctionnera en principe sans problème, il se peut que vous
+        deviez faire certains nettoyages à la main sur l'invité (en particulier
+        du fichier XFree86Config ou xorg.conf) dans certains cas, surtout si la
+        version installée des suppléments ou le système d'exploitation invité 
+        étaient très anciens ou si vous avez fait vos propres modifications du
+        paramétrage des suppléments invité après les avoir installé.</para>
+
+        <para>À partir de la version 3.1.0, vous pouvez désinstaller les 
+        suppléments en appelant <screen>/opt/VBoxGuestAdditions-@VBOX_VERSION_STRING@/uninstall.sh</screen>Merci
+        de remplacer 
+        <computeroutput>/opt/VBoxGuestAdditions-@VBOX_VERSION_STRING@</computeroutput>
+        par le bon répertoire d'installation des suppléments invité.</para>
+      </sect3>
+    </sect2>
+
+    <sect2>
+      <title>Suppléments invité pour Solaris</title>
+
+      <para>Comme les suppléments invité pour Windows, les suppléments invité
+      de VirtualBox pour Solaris incluent un ensemble de pilotes de périphériques
+      et d'applications système qui peuvent s'installer dans le système d'exploitation
+      invité.</para>
+
+      <para>Les distributions Solaris suivantes sont officiellement
+      supportées&#xA0;:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Solaris 11 y compris Solaris 11 Express;</para>
+        </listitem>
+
+        <listitem>
+          <para>Solaris 10 (u5 et supérieur);</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Il se peut que d'autres distributions fonctionnent si elles se basent
+      sur des versions des logiciels comparables.</para>
+
+      <sect3>
+        <title>Installer les suppléments invité Solaris</title>
+
+        <para>Les suppléments invité de VirtualBox pour Solaris sont fournis
+        sur le même ISO de CD-ROM que les suppléments pour Windows et Linux 
+        décrits ci-dessus. Ils sont aussi fournis avec un programme d'installation
+        qui vous guide à travers le processus d'initialisation.</para>
+
+        <para>L'installation implique les étapes suivantes&#xA0;:</para>
+
+        <orderedlist>
+          <listitem>
+            <para>Monter le fichier
+            <computeroutput>VBoxGuestAdditions.iso</computeroutput> comme votre
+            lecteur de CD-ROM virtuel de votre invité Solaris, exactement comme
+            expliqué pour un invité Windows au <xref
+            linkend="mountingadditionsiso" />.</para>
+
+            <para>Au cas où le lecteur de CD-ROM de l'invité ne se monte pas 
+            (ce qu'on a constaté avec certaines versions de Solaris 10), exécutez
+            en tant qu'administrateur&#xA0;:</para>
+
+            <screen>svcadm restart volfs</screen>
+          </listitem>
+
+          <listitem>
+            <para>Rendez-vous dans le répertoire où votre lecteur de CD-ROM est
+            monté et exécutez en tant qu'administrateur&#xA0;:</para>
+
+            <screen>pkgadd -G -d ./VBoxSolarisAdditions.pkg</screen>
+          </listitem>
+
+          <listitem>
+            <para>Choisissez "1" et confirmez l'installation du paquet des 
+            suppléments invité. Après la fin de l'installation, reconnectez-vous
+            au serveur X de votre invité pour activer suppléments invité de X11.</para>
+          </listitem>
+        </orderedlist>
+      </sect3>
+
+      <sect3>
+        <title>Désinstaller les suppléments invité Solaris</title>
+
+        <para>Les suppléments invité Solaris peuvent être supprimés en toute
+        sécurité en retirant de l'invité le paquet. Ouvrez une session de terminal
+        administrateur et exécutez&#xA0;:</para>
+
+        <para><screen>pkgrm SUNWvboxguest</screen></para>
+      </sect3>
+
+      <sect3>
+        <title>Mettre à jour les suppléments invité</title>
+
+        <para>Les suppléments invité devraient être mis à jour en désinstallant
+        d'abord les suppléments invité existants puis en installant les nouveaux.
+        Essayer d'installer de nouveaux suppléments invité sans supprimer ceux
+        existant n'est pas possible.</para>
+      </sect3>
+    </sect2>
+
+    <sect2>
+      <title>Suppléments invité pour OS/2</title>
+
+      <para>VirtualBox inclut aussi un jeu de pilotes qui améliore l'exécution
+      d'OS/2 dans une machine virtuelle. À cause de restrictions d'OS/2 lui-même,
+      cette variante des suppléments invité a un jeu de fonctionnalités limité&#xA0;; voir <xref
+      linkend="KnownIssues" /> pour les détails.</para>
+
+      <para>Les suppléments invité OS/2 sont fournis sur la même ISO de CD-ROM
+      que ceux des autres plateformes. Donc, montez l'ISO dans OS/2 comme décrit
+      précédemment. Les suppléments invité OS/2 se trouvent dans
+      directory <computeroutput>\32bit\OS2</computeroutput>.</para>
+
+      <para>Comme on ne fournit pas pour le moment d'installeur automatique,
+      merci de vous reporter au fichier <computeroutput>readme.txt</computeroutput> 
+      de ce répertoire, qui décrit la façon d'installer les suppléments invité
+      OS/2 à la main.</para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="sharedfolders">
+    <title>Dossiers partagés</title>
+
+    <para>Avec la fonction "dossiers partagés", de VirtualBox, vous pouvez
+    accéder à des fichiers de votre système hôte depuis votre système invité.
+    Cela est identique à utiliser des partages réseau dans des réseaux Windows --
+    sauf que les dossiers partagés ne nécessitent pas de réseau mais seulement
+    les suppléments invité. Les dossiers partagés sont supportés avec les invités
+    Windows (2000 ou plus récent), Linux et Solaris.</para>
+
+    <para>Les dossiers partagés doivent être présents physiquement sur
+    <emphasis>l'hôte</emphasis> et sont alors partagés avec l'invité qui utilise
+    un pilote de système de fichiers spécial des suppléments invité pour dialoguer
+    avec l'hôte. Pour les invités Windows, les dossiers partagés sont implémentés
+    comme un redirecteur pseudo-réseau&#xA0;; pour les invités Linux et Solaris,
+    les suppléments invité fournissent un système de fichiers virtuel.</para>
+
+    <para>Pour partager un dossier hôte avec une machine virtuelle de VirtualBox,
+    indiquer le chemin vers ce dossier et choisir pour lui un "nom partagé"
+    que l'invité peut utiliser pour y accéder. D'où: créez tout d'abord le dossier
+    partagé sur l'hôte, puis dans l'invité, connectez-vous-y.</para>
+
+    <para>Il existe plusieurs façons de paramétrer des dossiers partagés pour
+    une machine virtuelle en particulier&#xA0;:<itemizedlist>
+        <listitem>
+          <para>Dans la fenêtre d'une VM en fonction, vous pouvez sélectionner
+          "Dossiers partagés" du menu "Périphériques" ou cliquer sur l'icône de
+          dossier dans la barre d'état dans le coin en bas à droite.</para>
+        </listitem>
+
+        <listitem>
+          <para>Si une VM est en fonction, vous pouvez configurer des dossiers
+          partagés dans chaque boîte de dialogue "Paramètres" d'une machine virtuelle.</para>
+        </listitem>
+
+        <listitem>
+          <para>En ligne de  commande, vous pouvez créer des dossiers partagés en
+          utilisant VBoxManage, comme suit&#xA0;: <screen>VBoxManage sharedfolder add "nom VM" --name "sharename" --hostpath "C:\test"</screen></para>
+
+          <para>Voir <xref linkend="vboxmanage-sharedfolder" /> pour les
+          détails.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>Il existe deux types de partages&#xA0;:</para>
+
+    <orderedlist>
+      <listitem>
+        <para>Les partages de VM disponibles seulement pour la VM pour laquelle
+        ils ont été définis&#xA0;;</para>
+      </listitem>
+
+      <listitem>
+        <para>Partages inter-VM, qui peuvent être ajoutés et supprimés pendant 
+        l'exécution et qui ne durent pas après l'arrêt d'une VM&#xA0;; ajoutez 
+        pour eux l'option <computeroutput>--transient</computeroutput> à la ligne
+        de commande ci-dessus.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>Les dossiers partagés donnent par défaut un accès en lecture/écriture
+    aux fichiers de l'emplacement de l'hôte. Pour restreindre l'invité à un
+    accès en lecture seule, créez un dossier partagé en lecture seule. Cela peut
+    se faire soit en interface graphique, soit mettant l'option
+    <computeroutput>--readonly</computeroutput> lors de la création du dossier
+    partagé avec VBoxManage.</para>
+
+    <para>À partir de la version 4.0, les dossiers partagés de VirtualBox supportent
+    aussi les liens symboliques (<emphasis role="bold">symlinks</emphasis>), dans
+    les conditions suivamtes&#xA0;:<orderedlist>
+        <listitem>
+          <para>Le système d'exploitation hôte doit supporter les liens symboliques
+          (donc, un hôte Mac, Linux ou Solaris est requis).</para>
+        </listitem>
+
+        <listitem>
+          <para>Actuellement, seuls les suppléments invité pour Linux et Solaris
+          supportent les liens symboliques.</para>
+        </listitem>
+        <listitem>
+          <para>Pour des raisons de sécurité, l'OS invité n'est pas autorisé par
+          défaut à créer des liens symboliques. Si vous faites confiance à l'OS
+          invité pour ne pas abuser de la fonction, vous pouvez autoriser la
+          création de liens symboliques pour "nomdupartage" avec :
+          <screen>VBoxManage setextradata "VM name" VBoxInternal2/SharedFoldersEnableSymlinksCreate/sharename 1</screen></para>
+        </listitem>
+      </orderedlist></para>
+
+    <sect2 id="sf_mount_manual">
+      <title>Montage manuel</title>
+
+      <para>Vous pouvez monter des dossiers partagés depuis l'intérieur d'une VM
+      de la même façon que vous monteriez un partage réseau ordinaire&#xA0;:</para>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>Dans un invité Windows, on peut naviguer dans les dossiers
+            partagés qui apparaissent donc dans l'explorateur Windows. Donc,
+            pour connecter un dossier partagé à votre invité Windows, ouvrez
+            l'explorateur Windows et cherchez-le dans "Favoris réseaux" -&gt; 
+            "Tout le réseau" -&gt; "Dossier partagé VirtualBox". En effectuant
+            un clic droit sur un dossier partagé et en sélectionnant "Connecter
+            un lecteur réseau" dans le menu qui apparaît, vous pouvez affecter
+            une lettre de lecteur à ce dossier partagé.</para>
+
+            <para>Sinon, sur la ligne de commande Windows, utilisez ce qui suit&#xA0;:</para>
+
+            <screen>net use x: \\vboxsvr\sharename</screen>
+
+            <para>Si <computeroutput>vboxsvr</computeroutput> est un nom figé
+            (remarquez que <computeroutput>vboxsrv</computeroutput> fonctionnerait
+            aussi), remplacez "x:" par la lettre de lecteur que vous voulez utiliser
+            pour le partage, et <computeroutput>sharename</computeroutput> par le
+            nom du partage spécifié avec <computeroutput>VBoxManage</computeroutput>.</para>
+          </listitem>
+
+          <listitem>
+            <para>Dans un invité Linux, utilisez la commande suivante&#xA0;:</para>
+
+            <screen>mount -t vboxsf [-o OPTIONS] sharename mountpoint</screen>
+
+            <para>Pour monter un dossier partagé au moment du démarrage, ajoutez
+            l'entrée suivante à /etc/fstab&#xA0;:</para>
+
+            <screen>sharename   pointmontage   vboxsf   defaults  0   0</screen>
+          </listitem>
+
+          <listitem>
+            <para>Dans un invité Solaris, utilisez la commande suivante&#xA0;:</para>
+
+            <screen>mount -F vboxfs [-o OPTIONS] nompartage mountpoint</screen>
+
+            <para>Remplacez <computeroutput>nompartage</computeroutput> (utilisez
+            des minuscules) par le nom du partage spécifié avec
+            <computeroutput>VBoxManage</computeroutput> ou par l'interface graphique,
+            et <computeroutput>pointmontage</computeroutput> par l'endroit de l'invité où
+            vous voulez monter le partage (par exemple
+            <computeroutput>/mnt/share</computeroutput>). Les règles habituelles
+            de montage s'appliquent, c'ept-à-dire créer d'abord un répertoire s'il
+            n'existe pas déjà.</para>
+
+            <para>Voici un exemple de montage d'un dossier partagé pour l'utilisateur
+            "jack" sur Solaris&#xA0;:</para>
+
+            <screen>$ id
+uid=5000(jack) gid=1(other)
+$ mkdir /export/home/jack/mount
+$ pfexec mount -F vboxfs -o uid=5000,gid=1 jackshare /export/home/jack/mount
+$ cd ~/mount
+$ ls
+sharedfile1.mp3 sharedfile2.txt
+$</screen>
+
+            <para>Par-delà les options standard fournies par la commande
+            <computeroutput>mount</computeroutput>, celles suivantes sont 
+            disponibles&#xA0;:</para>
+
+            <screen>iocharset CHARSET</screen>
+
+            <para>pour définir l'encodage utilisé pour les opérations d'E/S.
+            Remarquez que sur les invités Linux, si vous ne spécifiez pas l'option
+            "iocharset", le pilote des suppléments invité essaiera d'utiliser
+            l'encodage spécifié par l'option  CONFIG_NLS_DEFAULT du noyau.
+            Si cette option n'est pas définie, UTF-8 sera utilisé. En outre,</para>
+
+            <screen>convertcp CHARSET</screen>
+
+            <para>est disponible pour définir l'encodage utilisé pour le nom du dossier partagé
+            (utf8 par défaut) et</para>
+
+            <para>Les options de montage génériques (documentées dans la page de
+            manuel de mount) s'appliquent aussi. Celles particulièrement utiles
+            sont <computeroutput>uid</computeroutput>,
+            <computeroutput>gid</computeroutput> et
+            <computeroutput>mode</computeroutput>, car elles permettent un accès
+            par des utilisateurs ordinaires (en mode lecture/écriture selon les réglages)
+            même si l'administrateur a monté le système de fichiers.</para>
+          </listitem>
+        </itemizedlist></para>
+    </sect2>
+
+    <sect2 id="sf_mount_auto">
+      <title>Montage automatique</title>
+
+      <para>À partir de la version 4.0, VirtualBox peut monter automatiquement 
+      des dossiers partagés avec vos options. Si le montage automatique est activé
+      pour un dossier partagé spécifique, les suppléments invité monteront
+      automatiquement ce dossier dès qu'un utilisateur se connecte à l'OS invité. Les
+      détails dépendent du type d'OS invité&#xA0;:<itemizedlist>
+          <listitem>
+            <para>Avec des <emphasis role="bold">invités Windows,</emphasis>,
+            tout dossier monté automatiquement aura sa propre lettre de lecteur
+            (comme <computeroutput>E:</computeroutput>) selon les lettres de
+            lecteur disponibles dans l'invité.</para>
+
+            <para>Si aucune lettre de lecteur n'est libre, le montage automatique
+            échouera&#xA0;; donc le nombre de lecteurs montés automatiquement est
+            limité en général à 22 ou moins avec des invités Windows.</para>
+          </listitem>
+
+          <listitem>
+            <para>Avec des <emphasis role="bold">invités Linux,</emphasis>, les
+            dossiers partagés montés automatiquement sont montés dans 
+            le répertoire <computeroutput>/media</computeroutput>, avec le préfixe
+            <computeroutput>sf_</computeroutput>. Par exemple, le dossier partagé
+            <computeroutput>myfiles</computeroutput> serait monté dans
+            <computeroutput>/media/sf_myfiles</computeroutput> sur
+            Linux et dans <computeroutput>/mnt/sf_myfiles</computeroutput> sur
+            Solaris.</para>
+
+            <para>La propriété invité
+            <computeroutput>/VirtualBox/GuestAdd/SharedFolders/MountPrefix</computeroutput>
+            détermine le préfixe utilisé. Modifiez cette propriété invité en une
+            valeur différente de "sf" pour changer ce préfixe&#xA0;; voir <xref
+            linkend="guestadd-guestprops" /> pour les détails.<note>
+                <para>L'accès aux dossiers partagés montés automatiquement n'est
+                autorisé que pour le groupe utilisateur 
+                <computeroutput>vboxsf</computeroutput>, créé par l'installeur des 
+                suppléments invité de VirtualBox. Donc les utilisateurs de l'invité
+                doivent être membres de ce groupe pour avoir un accès en lecture/écriture
+                ou en lecture seule si le dossier n'est pas inscriptible.</para>
+              </note></para>
+
+            <para>Pour modifier le répertoire de montage en autre chose que
+            <computeroutput>/media</computeroutput>, vous pouvez régler la propriété
+            invité <computeroutput>/VirtualBox/GuestAdd/SharedFolders/MountDir</computeroutput>.</para>
+          </listitem>
+
+          <listitem>
+            <para>Les <emphasis role="bold">invités Solaris</emphasis> se comportent
+            comme les invités Linux, sauf que <computeroutput>/mnt</computeroutput>
+            est utilisé comme répertoire de montage par défaut au lieu de
+            <computeroutput>/media</computeroutput>.</para>
+          </listitem>
+        </itemizedlist></para>
+
+      <para>Pour effectuer des changements sur les dossiers partagés montés 
+      automatiquement pendant qu'une VM est en fonction, l'OS invité doit être 
+      relancé. (Cela ne vaut que pour les dossiers partagés montés automatiquement,
+      pas pour coux montés à la main.)</para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="guestadd-dnd">
+    <title>Glisser/Déplacer</title>
+
+    <para>À partir de la version 4.4, VirtualBox supporte le glisser/déplacer
+    d'un contenu de l'hôte à l'invité et vice versa. Pour que cela fonctionne
+    les derniers suppléments invité doivent être installés sur l'invité.</para>
+
+    <para>Le glisser/déplacer vous permet de façon transparente de copier ou
+    d'ouvrir des fichiers, des répertoires, et même certains formats de presse-papiers
+    entre eux (de l'hôte à l'invité ou de l'invité à l'hôte). Vous pouvez
+    ainsi effectuer des opérations de glisser/déplacer entre vhôte et une VM
+    comme si c'était un glisser/déplacer ordinaire sur l'OS de l'hôte.</para>
+
+    <para>Pour le moment, le glisser/déplacer est implémenté sur les systèmes Windows
+    et X-Windows, tant côté invité que côté hôtes. Comme X-Windows supporte
+    différents protocoles de glisser/déplacer, seul celui le plus utilisé, XDND,,
+    est supporté actuellement. Les applications qui utilisent d'autres protocoles
+    (telles que Motif ou OffiX) ne seront pas reconnues par VirtualBox.</para>
+
+    <para>Dans un contexte d'utilisation de glisser/déplacer, l'origine des
+    données s'appelle <emphasis role="bold">source</emphasis>, c'est-à-dire, le
+    point spécifié d'où viennent les données.  De l'autre côté, il y a la
+    <emphasis role="bold">cible</emphasis>, qui désigne là où devraient aller les
+    données de la source. Le transfert de données de la source à la cible peut
+    se faire de plusieurs manières, comme en copiant, déplaçant ou créant des
+    liens.<footnote><para>Pour le
+    moment, seule la copie de données est supportée. Le déplacement ou la création
+    de liens n'est pas encore implémenté.</para></footnote></para>
+
+    <para>Quand on transfère des données de l'hôte à l'OS invité, l'hôte est
+    dans ce cas la source, alors que l'OS invité est la cible. En revanche, quand
+    dans l'autre sens, à savoir lors d'un transfert de données de l'OS invité
+    vers l'hôte, l'OS invité devient cette fois la source et l'hôte est la cible.</para>
+
+    <para>Pour des raisons de sécurité, le glisser/déplacer peut se configurer
+    lors de l'exécution, individuellement pour chaque VM, en utilisant soit
+    l'élément "Glisser/déplacer" du menu "Périphériques" de la machine virtuelle
+    ou VBoxManage. Les quatre modes suivants sont disponibles :</para>
+
+<para><mediaobject>
+      <imageobject>
+        <imagedata align="center" fileref="images/dnd-modes.png"
+                   width="10cm" />
+        </imageobject>
+      </mediaobject></para>
+
+    <itemizedlist>
+      <listitem>
+        <para><emphasis role="bold">Disabled</emphasis> désactive complètement
+        le glisser/déplacer. C'est le réglage par défaut à la création de
+        nouvelles VMs.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Host To Guest</emphasis> active le
+        glisser/déplacer de vhôte vers l'invité seulement.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Guest To Host</emphasis> active le
+        glisser/déplacer de l'invité à l'hôte seulement.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Bidirectional</emphasis> active le
+        glisser/déplacer dans les deux sens, de l'hôte vers l'invité et
+        vice versa.</para>
+      </listitem>
+    </itemizedlist>
+
+    <note><para>Le support du glisser/déplacer dépend de l'interface
+     utilisée ; pour le moment, seule celle du gestionnaire VirtualBox offre
+    cette fonctionnalité.</para></note>
+
+    <para>Pour utiliser VBoxManage pour contrôler le mode actuel du glisser/déplacer,
+    voir <xref
+    linkend="vboxmanage" />. Les commandes <computeroutput>modifyvm</computeroutput>
+    et <computeroutput>controlvm</computeroutput> permettent de définir le mode
+    glisser/déplacer d'une VM en ligne de commande.</para>
+
+    <sect2 id="guestadd-dnd-formats">
+      <title>Formats supportés</title>
+
+      <para>Comme VirtualBox peut fonctionner sur divers OS hôtes et il supporte
+      une large gamme d'invités, certains formats de données doivent être
+      traduits après un transfert pour que l'OS cible (c'est-à-dire la partie qui
+      reçoit les données) puisse les gérer de la bonne manière.</para>
+
+      <note><para>Cependant, quand vous glissez des fichiers, on ne fait aucune
+      conversion de données, ainsi quand vous transférez un fichier d'un invité
+      Linux vers un hôte Windows, les ajouts spécifiques à Linux ne seront pas
+      convertis en ajouts Linux.</para></note>
+
+      <para>Les formats suivants sont gérés par le service glisser/déplacer de
+      VirtualBox :
+        <itemizedlist>
+          <listitem>
+            <para><emphasis role="bold">Text brut</emphasis>, issu d'applications
+            telles un éditeur de texte, des navigateurs internet et des fenêtres
+            de terminal</para>
+          </listitem>
+          <listitem>
+            <para><emphasis role="bold">Fichiers</emphasis>, issus de gestionnaires
+            de fichiers comme l'explorateur Windows, Nautilus et Finder</para>
+          </listitem>
+          <listitem>
+            <para><emphasis role="bold">Répertoires</emphasis>, où la même
+            chose que pour les fichiers s'applique</para>
+          </listitem>
+        </itemizedlist>
+      </para>
+    </sect2>
+
+  </sect1>
+
+  <sect1 id="guestadd-video">
+    <title>L'accélération graphique matérielle</title>
+
+    <sect2 id="guestadd-3d">
+      <title>Accélération 3D matérielle (OpenGL and Direct3D 8/9)</title>
+
+      <para>Les suppléments invité de VirtualBox contiennent un support 3D 
+      matériel  expérimental pour les invités Windows, Linux et Solaris.<footnote>
+          <para>Le support OpenGL pour les invités Windows a été ajouté avec
+          VirtualBox 2.1&#xA0;; le support pour Linux et Solaris a suivi avec
+          VirtualBox 2.2. Avec VirtualBox 3.0, le support Direct3D 8/9 a été
+          ajouté pour les invités Windows. OpenGL 2.0 est maintenant supporté
+          aussi. Avec VirtualBox 4.1, le support du thème Windows Aero a été ajouté
+          pour les invités Windows Vista et Windows 7 (expérimental)</para>
+        </footnote></para>
+
+      <para>Avec cette fonction, si une application de votre machine virtuelle
+      utilise des fonctions 3D via les interfaces de programmation OpenGL ou
+      Direct3D 8/9, plutôt qu'une émulation logicielle (qui serait lente),
+      VirtualBox essaiera d'utiliser le matériel 3D de votre hôte. Cela fonctionne
+      pour toutes les plateformes hôtes supportées (Windows, Mac, Linux, Solaris),
+      pourvu que votre système d'exploitation hôte puisse utiliser votre accélération
+      3D matérielle au premier plan.</para>
+
+      <para>L'accélération 3D suppose actuellement les conditions suivantes&#xA0;:<orderedlist>
+          <listitem>
+            <para>elle n'est disponible que pour certains invités Windows, Linux
+           et Solaris. En particulier&#xA0;:<itemizedlist>
+                <listitem>
+                  <para>L'accélération 3D des invités Windows exige Windows
+                  2000, Windows XP, Vista ou Windows 7. OpenGL et Direct3D 8/9 
+                  (pas avec Windows 2000) sont supportés 
+                  (expérimental).</para>
+                </listitem>
+
+                <listitem>
+                  <para>OpenGL sur Linux exige un noyau 2.6.27 et supérieur et
+                  le serveur X.org version 1.5 et supérieur. Ubuntu 10.10
+                  et Fedora 14 ont été testées et confirmées comme opérationnelles.</para>
+                </listitem>
+
+                <listitem>
+                  <para>OpenGL sur les invités Solaris exige le serveur X.org
+                  version 1.5 et supérieur.</para>
+                </listitem>
+              </itemizedlist></para>
+          </listitem>
+
+          <listitem>
+            <para>Les suppléments invité doivent être installés.<note>
+                <para>Pour l'accélération Direct3D de base fonctionne avec
+                les invités Windows, VirtualBox a besoin de remplacer des
+                fichiers système de Windows dans la machine virtuelle. Donc, le
+                programme d'installation suppléments invité offre l'accélération
+                Direct3D en option que vous devez activer explicitement. De plus,
+                vous devez installer les suppléments invité en mode "Sans échec".
+                Cela <emphasis role="bold">ne s'applique pas</emphasis> au pilote
+                graphique expérimental WDDM Direct3D disponible pour les invités
+                Vista et Windows 7, voir <xref linkend="KnownIssues" />
+                pour les détails.</para></note>
+              </para>
+          </listitem>
+
+          <listitem>
+            <para>Le support 3D étant pour l'instant expérimental, il est désactivé par
+            défaut et il faut <emphasis role="bold">l'activer à la main</emphasis> 
+            dans les paramètres de la VM (voir <xref
+            linkend="generalsettings" />).<note>
+            <para>
+              Les systèmes invité douteux ne devraient pas être autorisés à utiliser
+              les fonctions d'accélération 3D de VirtualBox tout comme les logiciels
+              douteux de l'hôte ne devraient pas être autorisés à utiliser 
+              l'accélération 3D. Les pilotes du matériel 3D sont en général trop
+              complexes pour être parfaitement sécurisés et tout logiciel 
+              autorisé à y accéder peut être en mesure de compromettre le système
+              d'exploitation qui les exécute. En outre, l'activation de l'accélération
+              3D donne à l'invité un accès direct à une grande étendue de code
+              informatique supplémentaire du processus hôte de VirtualBox, donc
+              il pourrait être concevable de l'utiliser pour planter la machine
+              virtuelle. 
+            </para>
+            </note></para>
+          </listitem>
+        </orderedlist></para>
+
+      <para>Avec VirtualBox 4.1, le support du thème Windows Aero est ajouté pour
+      les invités Windows Vista et Windows. Pour activer le support du thème 
+      Aero, le pilote graphique expérimental WDDM de VirtualBox doit être installé,
+      il est disponible avec l'installation des suppléments invité. Comme le pilote
+      graphique WDDM est pour l'instant expérimental, il n'est pas installé par
+      défaut et il faut <emphasis role="bold">le sélectionner à la main</emphasis> 
+      dans l'installeur des suppléments invité en répondant "Non" dans la boîte
+      de dialogue "Voulez-vous installer le support Direct3D de base" qui s'affiche
+      quand la fonction Direct3D est sélectionnée.</para>
+
+      <para><note><para>Contrairement au support Direct3D de base actuel, l'installation
+      du pilote graphique WDDM <emphasis role="bold">n'exige pas</emphasis> 
+      le "Mode sans échec".</para></note></para>
+
+      <para>Le thème Aero n'est pas activé par défaut. Pour l'activer
+        <itemizedlist>
+          <listitem>
+            <para>Dans l'invité Windows Vista, effectuez un clic droit sur le
+            bureau, dans le menu contextuel, sélectionnez "Personnaliser" et sélectionnez
+            "Couleur de fenêtre et Apparance" dans la fenêtre "Personnalisation",
+            dans la boîte de dialogue "Paramètres de l'apparence", sélectionnez
+            "Windows Aero" et appuyez sur "OK"</para>
+          </listitem>
+          <listitem>
+            <para>Dans l'invité Windows 7, effectuez un clic droit sur le bureau,
+            dans le menu contextuel, sélectionnez "Personnaliser" et sélectionnez
+            un thème Aero dans la fenêtre "Personnalisation"</para>
+          </listitem>
+        </itemizedlist>
+      </para>
+
+      <para>Techniquement, VirtualBox implémente cela en installant un pilote 3D
+      matériel supplémentaire dans votre invité quand les suppléments invité sont
+      installés. Ce pilote agit comme un pilote 3D matériel et signale au
+      système d'exploitation invité que le matériel (virtuel) est capable de faire
+      de l'accélération matérielle 3D. Quand une application de l'invité demande
+      alors l'accélération matérielle via les interfaces de programmation OpenGL ou
+      Direct3D, elles sont envoyées vers l'hôte par un tunnel de communication
+      spécial fourni par VirtualBox, puis <emphasis>l'hôte</emphasis> effectue
+      l'opération 3D demandée via les interfaces de programmation de l'hôte.</para>
+    </sect2>
+
+    <sect2 id="guestadd-2d">
+      <title>L'accélération matérielle 2D pour les invités Windows</title>
+
+      <para>À partir de la version 3.1, les suppléments invité de VirtualBox
+      contiennent le support expérimental de l'accélération graphique 2D matériel
+      pour les invités Windows.</para>
+
+      <para>Avec cette fonctionnalité, si une application (comme un lecteur de
+      vidéos) de votre VM Windows utilise les couches graphiques 2D pour lire un clip
+      vidéo, VirtualBox essaiera d'utiliser l'accélération graphique matérielle de 
+      votre hôte plutôt que de faire de l'interprétation de couches ni conversion
+      de couleurs dans le logiciel (ce qui serait lent). Cela fonctionne actuellement
+      avec les plateformes hôtes Windows, Linux et Mac, pourvu que votre système
+      d'exploitation hôte puisse utiliser l'accélération graphique 2D au premier plan.</para>
+
+      <para>L'accélération graphique 2D est possible aujourd'hui sous les 
+      conditions suivantes&#xA0;:<orderedlist>
+          <listitem>
+            <para>Elle n'est disponible que pour des invités Windows (XP ou
+            supérieur).</para>
+          </listitem>
+
+          <listitem>
+            <para>Les suppléments invité doivent être installés.</para>
+          </listitem>
+
+          <listitem>
+            <para>Le support 2D étant pour l'instant expérimental, il est désactivé
+            par défaut et il faut <emphasis role="bold">l'activer à la main</emphasis>
+            dans les paramètres de la VM (voir <xref
+            linkend="generalsettings" />).</para>
+          </listitem>
+        </orderedlist></para>
+
+      <para>Techniquement, VirtualBox implémente ceci en montrant les possibilités
+      DirectDraw de la couche vidéo dans le pilote graphique des suppléments invité.
+      Le pilote envoie toutes les commandes de la couche à l'hôte via un tunnel
+      de communication spécial implémenté par VirtualBox. Côté hôte, OpenGL est
+      alors utilisé pour implémenter la transformation des couleurs et l'échelonage</para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="seamlesswindows">
+    <title>Fenêtres transparentes</title>
+
+    <para>Avec la fonction "fenêtres transparentes", de VirtualBox, vous pouvez
+    afficher vos fenêtres d'une machine virtuelle côte à côte près des fenêtres
+    de votre hôte. Cette fonctionnalité est supportée pour les systèmes d'exploitation
+    invités suivants (si les suppléments invité sont installés)&#xA0;:<itemizedlist>
+        <listitem>
+          <para>Les invités Windows (support ajouté à VirtualBox 1.5);</para>
+        </listitem>
+
+        <listitem>
+          <para>Les invités supportés Linux ou Solaris exécutant le système X 
+          Window (ajouté avec VirtualBox 1.6).</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>Après que les fenêtres transparentes ait été activées (voir ci-dessous), VirtualBox
+    supprime l'affichage de l'arrière-plan du bureau de votre invité, ce qui
+    vous permet de lancer les fenêtres de votre système d'exploitation invité 
+    de manière transparente à côté des fenêtres de votre hôte&#xA0;:</para>
+
+    <para><mediaobject>
+        <imageobject>
+          <imagedata align="center" fileref="images/seamless.png" width="14cm" />
+        </imageobject>
+      </mediaobject>Pour activer le mode transparent, après avoir démarré la
+    machine virtuelle, appuyez sur Touche hôte (en principe contrôle droit) et
+    "L" simultanément. Ceci agrandira la taille de l'affichage de la VM jusqu'à
+    la taille de l'écran hôte et masquera l'arrière-plan du système d'exploitation
+    invité. Pour revenir à l'affichage normal de la VM (donc pour désactiver les
+    fenêtres transparentes), appuyez de nouveau sur Touche hôte et "L".</para>
+  </sect1>
+
+  <sect1 id="guestadd-guestprops">
+    <title>Propriétés invité</title>
+
+    <para>À partir de la version 2.1, VirtualBox permet de demander certaines
+    propriétés depuis un invité existant, si les suppléments invité de VirtualBox
+    sont installés et si la VM est en fonction. C'est intéressant pour deux
+    choses&#xA0;:<orderedlist>
+        <listitem>
+          <para>Un certain nombre de caractéristiques prédéfinies de la VM sont maintenues 
+          automatiquement par VirtualBox et peuvent être répercutées sur l'hôte,
+          par exemple, pour gérer les performances de la VM et les statistiques.</para>
+        </listitem>
+
+        <listitem>
+          <para>De plus, des chaînes de données peuvent être échangées entre l'invité
+          et l'hôte. Cela fonctionne dans les deux sens.</para>
+        </listitem>
+      </orderedlist></para>
+
+    <para>Pour faire cela, VirtualBox établit un canal de communication privé
+    entre les suppléments invité de VirtualBox et l'hôte, et les logiciels des
+    deux côtés peuvent utiliser ce canal pour échanger des chaînes de données pour
+    des objectifs de votre choix. Les propriétés invité ne sont que des clés de
+    chaîne auxquelles est rattachée une valeur. Elles peuvent être définies (donc
+    éditées) soit par l'hôte, soit par l'invité, et on peut les lire des deux
+    côtés.</para>
+
+    <para>En plus d'établir le mécanisme général de lecture et d'écriture de
+    valeurs, un ensemble de propriétés invité prédéfinies est maintenu automatiquement
+    par les suppléments invité de VirtualBox pour permettre de récupérer des données
+    intéressantes de l'invité telles que le système exact de l'invité et le niveau
+    du service pack, la version installée des suppléments invité, les utilisateurs
+    connectés à l'OS invité, les statistiques réseau et davantage. Ces propriétés
+    prédéfinies ont toutes pour préfixe 
+    <computeroutput>/VirtualBox/</computeroutput> et sont organisées en arborescence
+    hiérarchique de clés.</para>
+
+    <para>Certaines informations de l'exécution s'affichent quand vous sélectionnez
+    "Boîte de dialogue d'informations sur la session" du menu "Machine" de la
+    machine virtuelle.</para>
+
+    <para>Une manière plus flexible d'utiliser ce canal est de passer par la commande
+    <computeroutput>VBoxManage guestproperty</computeroutput>&#xA0;; voir
+    <xref linkend="vboxmanage-guestproperty" /> pour les détails. Par exemple,
+    pour voir <emphasis>toutes</emphasis> les propriétés invité disponible pour 
+    une Vm donnée en fonction, listées avec leurs valeurs respectives, utilisez
+    ceci&#xA0;:<screen>$ VBoxManage guestproperty enumerate "Windows Vista III"
+VirtualBox Command Line Management Interface Version @VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@
+(C) 2005-@VBOX_C_YEAR@ @VBOX_VENDOR@
+All rights reserved.
+
+Name: /VirtualBox/GuestInfo/OS/Product, value: Windows Vista Business Edition,
+    timestamp: 1229098278843087000, flags:
+Name: /VirtualBox/GuestInfo/OS/Release, value: 6.0.6001,
+    timestamp: 1229098278950553000, flags:
+Name: /VirtualBox/GuestInfo/OS/ServicePack, value: 1,
+    timestamp: 1229098279122627000, flags:
+Name: /VirtualBox/GuestAdd/InstallDir,
+    value: C:/Program Files/Oracle/VirtualBox
+    suppléments invité, timestamp: 1229098279269739000, flags:
+Name: /VirtualBox/GuestAdd/Revision, value: 40720,
+    timestamp: 1229098279345664000, flags:
+Name: /VirtualBox/GuestAdd/Version, value: @VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@,
+    timestamp: 1229098279479515000, flags:
+Name: /VirtualBox/GuestAdd/Components/VBoxControl.exe, value: @VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@r40720,
+    timestamp: 1229098279651731000, flags:
+Name: /VirtualBox/GuestAdd/Components/VBoxHook.dll, value: @VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@r40720,
+    timestamp: 1229098279804835000, flags:
+Name: /VirtualBox/GuestAdd/Components/VBoxDisp.dll, value: @VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@r40720,
+    timestamp: 1229098279880611000, flags:
+Name: /VirtualBox/GuestAdd/Components/VBoxMRXNP.dll, value: @VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@r40720,
+    timestamp: 1229098279882618000, flags:
+Name: /VirtualBox/GuestAdd/Components/VBoxService.exe, value: @VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@r40720,
+    timestamp: 1229098279883195000, flags:
+Name: /VirtualBox/GuestAdd/Components/VBoxTray.exe, value: @VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@r40720,
+    timestamp: 1229098279885027000, flags:
+Name: /VirtualBox/GuestAdd/Components/VBoxGuest.sys, value: @VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@r40720,
+    timestamp: 1229098279886838000, flags:
+Name: /VirtualBox/GuestAdd/Components/VBoxMouse.sys, value: @VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@r40720,
+    timestamp: 1229098279890600000, flags:
+Name: /VirtualBox/GuestAdd/Components/VBoxSF.sys, value: @VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@r40720,
+    timestamp: 1229098279893056000, flags:
+Name: /VirtualBox/GuestAdd/Components/VBoxVideo.sys, value: @VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@r40720,
+    timestamp: 1229098279895767000, flags:
+Name: /VirtualBox/GuestInfo/OS/LoggedInUsers, value: 1,
+    timestamp: 1229099826317660000, flags:
+Name: /VirtualBox/GuestInfo/OS/NoLoggedInUsers, value: false,
+    timestamp: 1229098455580553000, flags:
+Name: /VirtualBox/GuestInfo/Net/Count, value: 1,
+    timestamp: 1229099826299785000, flags:
+Name: /VirtualBox/HostInfo/GUI/LanguageID, value: C,
+    timestamp: 1229098151272771000, flags:
+Name: /VirtualBox/GuestInfo/Net/0/V4/IP, value: 192.168.2.102,
+    timestamp: 1229099826300088000, flags:
+Name: /VirtualBox/GuestInfo/Net/0/V4/Broadcast, value: 255.255.255.255,
+    timestamp: 1229099826300220000, flags:
+Name: /VirtualBox/GuestInfo/Net/0/V4/Netmask, value: 255.255.255.0,
+    timestamp: 1229099826300350000, flags:
+Name: /VirtualBox/GuestInfo/Net/0/Status, value: Up,
+    timestamp: 1229099826300524000, flags:
+Name: /VirtualBox/GuestInfo/OS/LoggedInUsersList, value: username,
+    timestamp: 1229099826317386000, flags:</screen></para>
+
+    <para>To query the value of a single property, use the "get" subcommand
+    like this:<screen>$ VBoxManage guestproperty get "Windows Vista III"
+         "/VirtualBox/GuestInfo/OS/Product"
+VirtualBox Command Line Management Interface Version @VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@
+(C) 2005-@VBOX_C_YEAR@ @VBOX_VENDOR@
+All rights reserved.
+
+Value: Windows Vista Business Edition</screen></para>
+
+    <para>Pour ajouter ou modifier des propriétés invité depuis l'invité, utilisez l'outil
+    <computeroutput>VBoxControl</computeroutput>. Cet outil est inclu dans les
+    suppléments invité de VirtualBox 2.2 ou supérieur. S'il est lancé avec un
+    invité Linux, cet outil exige les privilèges administrateur pour des raisons
+    de sécurité&#xA0;:<screen>$ sudo VBoxControl guestproperty enumerate
+VirtualBox suppléments invité Command Line Management Interface Version @VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@
+(C) 2009-@VBOX_C_YEAR@ @VBOX_VENDOR@
+All rights reserved.
+
+Name: /VirtualBox/GuestInfo/OS/Release, value: 2.6.28-18-generic,
+    timestamp: 1265813265835667000, flags: &lt;NULL&gt;
+Name: /VirtualBox/GuestInfo/OS/Version, value: #59-Ubuntu SMP Thu Jan 28 01:23:03 UTC 2010,
+    timestamp: 1265813265836305000, flags: &lt;NULL&gt;
+      ...</screen></para>
+
+    <para>Pour des besoins plus complexes, vous pouvez utiliser l'interface de 
+    programmation de VirtualBox&#xA0;; voir <xref linkend="VirtualBoxAPI" />.</para>
+  </sect1>
+
+  <sect1 id="guestadd-guestcontrol">
+    <title>Contrôle de l'invité</title>
+
+    <para>À partir de la version 3.2, les suppléments invité de VirtualBox 
+    permettent de démarrer les applications d'une VM à partir du système hôte.</para>
+
+    <para>Pour que cela fonctionne, l'application doit être installée dans l'invité&#xA0;;
+    pas besoin de logiciels supplémentaires sur l'hôte. De plus, une sortie en
+    mode texte (sur stdout et stderr) peut s'afficher sur l'hôte pour un traitement
+    ultérieur avec des options pour spécifier les droits des utilisateurs et
+    une valeur de timeout (en millisecondes) pour limiter le temps où l'application
+    peut s'exécuter.</para>
+
+    <para>Cette fonctionnalité peut être utilisée pour automatiser le déploiement
+    d'un logiciel dans l'invité.</para>
+
+    <para>À partir de la version 4.0, les suppléments invité pour Windows permettent
+    une mise à jour automatique (seulement si les suppléments invité 4.0 ou
+    supérieurs sont déjà installés). En outre, la copie de fichiers de l'hôte vers
+    l'invité ainsi que la création à distance de répertoires invités est disponible.</para>
+
+    <para>Pour utiliser ces fonctionnalités, utilisez la ligne de commande de 
+    VirtualBox, voir <xref
+    linkend="vboxmanage-guestcontrol" />.</para>
+  </sect1>
+
+  <sect1>
+    <title>Transfert de mémoire</title>
+
+    <para>Dans des environnements serveur ayant beaucoup de VMs&#xA0;; les suppléments invité
+    peuvent être utilisés pour partager de la mémoire physique de l'hôte entre 
+    plusieurs VMs, réduisant la quantité totale de mémoire utilisée par les VMs.
+    Si l'utilisation de la mémoire est le facteur limitatif et que des ressources
+    processeur sont encore disponibles, cela peut aider à empaqueter davantage
+    de VMs sur chaque hôte.</para>
+
+    <sect2 id="guestadd-balloon">
+      <title>Faire du ballon avec la mémoire</title>
+
+      <para>À partir de la version 3.2, les suppléments invité de VirtualBox
+      peuvent changer la quantité de mémoire hôte utilisée par une VM pendant
+      que la machine est en fonction. Vu comme cette fonction est implémentée,
+      elle s'appelle le "jeu de ballon de mémoire".</para>
+
+      <note>
+        <para>VirtualBox ne supporte le jeu de ballons avec la mémoire que sur 
+        les hôtes 64 bits et il n'est pas supporté sur les hôtes Mac OS X.</para>
+      </note>
+
+      <para>En principe, pour changer la quantité de mémoire affectée à une
+      machine virtuelle, il faut éteindre la machine virtuelle complètement
+      et modifier ses paramètres. Avec le jeu de ballon de mémoire, la mémoire
+      affectée à une machine virtuelle peut être donnée à une autre machine 
+      virtuelle sans devoir arrêter la machine.</para>
+
+      <para>Quand on veut faire du ballon avec la mémoire, les suppléments invité
+      de VirtualBox (qui tournent dans l'invité) affectent de la mémoire physique
+      du système d'exploitation invité au niveau noyau et il verrouille cette
+      mémoire dans l'invité. Cela garantit que l'invité n'utilisera plus cette
+      mémoire&#xA0;: aucune application de l'invité ne peut l'affecter, et le
+      noyau invité ne l'utilisera pas non plus. VirtualBox peut alors réutiliser
+      cette mémoire et la donner à une autre machine virtuelle.</para>
+
+      <para>La mémoire rendue disponible par ce jeu de ballon n'est pas disponible
+      pour être réutilisée par VirtualBox. Elle <emphasis>n'est pas</emphasis>
+      rendue sous forme de mémoire libre à l'hôte. Jouer au ballon avec la mémoire
+      à partir d'un invité en fonction n'augmentera pas la taille de la mémoire
+      libre non affectée de l'hôte. En effet, le jeu de ballon avec la mémoire
+      est donc un mécanisme de transfert de mémoire entre plusieurs machines virtuelles
+      pendant leur fonctionnement. Cela peut servir pour démarrer temporairement
+      une autre machine, ou, dans des environnements plus compliqués, pour une
+      gestion sophistiquée de la mémoire de nombreuses machines virtuelles en fonction
+      en parallèle, selon la façon dont la mémoire est utilisée par les invités.</para>
+
+      <para>Pour l'instant, le jeu de ballon avec la mémoire n'est supporté
+      que via VBoxManage. Utilisez la commande suivante pour agrandir ou réduire
+      la taille du ballon de mémoire dans une machine virtuelle en fonction où
+      les suppléments invité sont installés: <screen>VBoxManage controlvm "nom VM" guestmemoryballoon &lt;n&gt;</screen>où
+      <computeroutput>"nom VM"</computeroutput> est le nom ou l'UUID de la machine 
+      virtuelle en question et <computeroutput>&lt;n&gt;</computeroutput> est
+      la quantité de mémoire à affecté à partir de l'invité, en mégaoctets. Voir <xref
+      linkend="vboxmanage-controlvm" /> pour plus d'informations.</para>
+
+      <para>Vous pouvez aussi définir un ballon par défaut qui sera automatiquement
+      récupéré sur la VM à chaque fois qu'elle démarrera avec la commande
+      suivante&#xA0;: <screen>VBoxManage modifyvm "nom VM" --guestmemoryballoon &lt;n&gt;</screen></para>
+
+      <para>Par défaut, aucun ballon de mémoire n'est affecté. C'est un paramètre
+      de VM comme les autres paramètres de <computeroutput>modifyvm</computeroutput>
+      et donc, on ne peut les définir que quand la machine est éteinte&#xA0;; voir <xref
+      linkend="vboxmanage-modifyvm" />.</para>
+    </sect2>
+
+    <sect2 id="guestadd-pagefusion">
+      <title>Fusion de page</title>
+
+      <para>Alors que le jeu de ballon avec la mémoire réduit simplement la 
+      quantité de RAM disponible pour une VM, la fusion de page fonctionne différemment&#xA0;:
+      elle évite les doublons de mémoire entre plusieurs VMs identiques et en
+      fonction.</para>
+
+      <para>Dans un environnement serveur qui exécute plusieurs VMs identiques 
+      (comme avec des systèmes d'exploitation identiques) sur le même hôte, 
+      beaucoup de pages de mémoire sont identiques. La technologie de fusion
+      de page de VirtualBox, introduite avec VirtualBox 3.2, est une technique
+       pour identifier efficacement ces pages de mémoire identiques et les
+      nouvelle de partage entre plusieurs VMs.<note>
+          <para>VirtualBox ne supporte la fusion de page que sur des hôtes 64 bits
+          et il n'est pas supporté sur les hôtes Mac OS X. La fusion de page
+          ne fonctionne aujourd'hui qu'avec des invités Windows (2000 et
+          supérieur).</para>
+        </note></para>
+
+      <para>Plus les VMs se ressemblent sur un hôte donné, plus la fusion de page
+      peut réduire efficacement la quantité de mémoire hôte utilisée. Il fonctionne
+      donc mieux si toutes les VMs d'un hôte exécutent des systèmes d'exploitation
+      identiques (par exemple Windows XP Pack Service 2). Plutôt que d'avoir une
+      copie complète de chaque système d'exploitation dans chaque VM, la fusion de
+      page identifie les pages mémoire identiques utilisées par les systèmes
+      d'exploitation et elle élimine les doublons, partageant la mémoire de l'hôte
+      entre plusieurs machines ("deduplication"). Si une VM essaie de modifier
+      une page partagée avec d'autres VMs, une nouvelle page est de nouveau affectée
+      pour cette VM avec une copie de la page partagée ("copie à l'écriture").
+      Tout ceci est entièrement transparent pour la machine virtuelle.</para>
+
+      <para>Il se peut que vous soyez familier de ce genre de transfert de mémire
+      via d'autres produits d'hypervision qui appellent cette fonction le "partage
+      de page" ou le "fusion d'une même page". Cependant, la fusion de page est
+      très différente des autres solutions, dont les approches ont plusieurs
+      inconvénients&#xA0;:<orderedlist>
+          <listitem>
+            <para>Les hyperviseurs traditionnels analysent <emphasis>toute</emphasis> 
+            la mémoire invité et calculent les sommes de contrôle (hachages) pour
+            chaque page de mémoire individuelle. Puis ils cherchent des endroits
+            avec des hachages identiques et comparent tout le contenu
+            de ces pages&#xA0;; si deux pages donnent le même hachage, il est très
+            probable que les pages soient identiques par leur contenu. Cela peut,
+            bien sûr, prendre du temps, surtout si le système n'est pas inactif.
+            La mémoire supplémentaire ne devient donc disponibles qu'après une
+            durée importante (cela peut prendre des heures voire des jours&#xA0;!). Pire,
+            ce genre d'algorithme de partage de page consomme en général beaucoup
+            de ressources et augmente la consommation par la
+            virtualisation jusqu'à 20%.</para>
+
+            <para>La fusion de page dans VirtualBox utilise une logique des
+            suppléments invité de VirtualBox pour identifier rapidement les cellules
+            mémoire les plus vraisemblablement identiques dans les VMs. Elle peut
+            faire la plupart des sauvegardes possibles des partages de pages
+            presqu'immédiatement et avec pratiquement aucune charge.</para>
+          </listitem>
+
+          <listitem>
+            <para>La fusion de page a aussi beaucoup moins de chances d'être
+            perdue avec de la mémoire identique qu'elle éliminera, pour apprendre
+            seulement quelques secondes plus tard que la mémoire va maintenant
+            changer, devant effectuer une réaffectation très gourmande et gênant
+            souvent le service.</para>
+          </listitem>
+        </orderedlist></para>
+
+      <para>Pour l'instant, la fusion de page ne peut être contrôlée qu'avec
+      VBoxManage et pendant qu'une VM est éteinte. Pour activer la fusion de page
+      pour une VM, utilisez
+      la commande suivante:<screen>VBoxManage modifyvm "nom VM" --pagefusion on</screen></para>
+
+      <para>Vous pouvez voir l'opération de fusion de page en utilisant des 
+      métriques. 
+      <computeroutput>RAM/VMM/Shared</computeroutput> affiche la quantité totale
+      de pages fusionnées, tandis que la métrique par VM 
+      <computeroutput>Guest/RAM/Usage/Shared</computeroutput> renverra la quantité
+      de mémoire fusionnée d'une VM donnée. Merci de vous reporter à <xref
+      linkend="metrics" /> pour des informations sur la manière de demander des
+      métriques.</para>
+    </sect2>
+  </sect1>
+</chapter>

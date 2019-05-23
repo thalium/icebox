@@ -1,0 +1,29 @@
+;
+; Copyright (C) 2012-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+LIBRARY VBOXMRXNP
+
+EXPORTS
+        NPGetCaps                               @13
+        NPAddConnection                     @17
+        NPAddConnection3                    @38
+        NPCancelConnection                  @18
+        NPGetConnection                     @12
+        NPOpenEnum                              @33
+        NPEnumResource                      @34
+        NPCloseEnum                             @35
+        NPGetUniversalName                  @40
+        NPGetResourceParent                 @41
+        NPGetResourceInformation        @52
+        NPLogonNotify                       @500
+        NPPasswordChangeNotify          @501
+

@@ -1,0 +1,104 @@
+; $Id: VBoxNetFlt.inf $
+; @file
+; VBoxNetFlt.inf - VirtualBox Bridged Networking Driver inf file
+; Protocol edge
+;
+;
+; Copyright (C) 2011-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+[Version]
+Signature  = "$Windows NT$"
+;cat   CatalogFile = VBoxNetFlt.cat
+Class      = NetService
+ClassGUID  = {4D36E974-E325-11CE-BFC1-08002BE10318}
+Provider   = %Provider%
+;DriverPackageType=Network
+;DriverPackageDisplayName=%VBoxNetFlt_Desc%
+;edit-DriverVer=08/13/2008,1.1.0.1
+
+
+[Manufacturer]
+%Provider% = VBox,NTx86,NTamd64
+
+[ControlFlags]
+
+[VBox]
+%VBoxNetFlt_Desc% = VBoxNetFlt.ndi, sun_VBoxNetFlt
+
+[VBox.NTx86]
+%VBoxNetFlt_Desc% = VBoxNetFlt.ndi, sun_VBoxNetFlt
+
+[VBox.NTamd64]
+%VBoxNetFlt_Desc% = VBoxNetFlt.ndi, sun_VBoxNetFlt
+
+[VBoxNetFlt.ndi]
+AddReg          = VBoxNetFlt.ndi.AddReg, VBoxNetFlt.AddReg
+Characteristics = 0x4410 ;  NCF_FILTER | NCF_NDIS_PROTOCOL
+CopyFiles       = VBoxNetFlt.Files.DLL, VBoxNetFlt.Files.Sys
+CopyInf         = VBoxNetFltM.inf
+
+[VBoxNetFlt.ndi.Remove]
+DelFiles        = VBoxNetFlt.Files.DLL, VBoxNetFlt.Files.Sys
+
+[VBoxNetFlt.ndi.Services]
+AddService = VBoxNetFlt,, VBoxNetFlt.AddService
+
+[VBoxNetFlt.AddService]
+DisplayName    = %VBoxNetFltService_Desc%
+ServiceType    = 1 ;SERVICE_KERNEL_DRIVER
+StartType      = 3 ;SERVICE_DEMAND_START
+ErrorControl   = 1 ;SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\VBoxNetFlt.sys
+LoadOrderGroup = PNP_TDI
+AddReg         = VBoxNetFlt.AddService.AddReg
+
+
+[VBoxNetFlt.AddService.AddReg]
+
+[SourceDisksNames]
+1=%DiskDescription%,"",,
+
+[SourceDisksFiles]
+VBoxNetFlt.sys=1
+VBoxNetFltNobj.dll=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+VBoxNetFlt.Files.DLL   = 11   ; %windir%\System32
+VBoxNetFlt.Files.Sys   = 12   ; %windir%\System32\drivers
+
+[VBoxNetFlt.Files.Sys]
+VBoxNetFlt.sys,,,2
+
+[VBoxNetFlt.Files.DLL]
+VBoxNetFltNobj.dll,,,2
+
+[VBoxNetFlt.ndi.AddReg]
+HKR, Ndi, HelpText, , %VBoxNetFlt_HELP%
+HKR, Ndi,            ClsID,              0, {f374d1a0-bf08-4bdc-9cb2-c15ddaeef955}
+HKR, Ndi,            ComponentDll,        , VBoxNetFltNobj.dll
+HKR, Ndi,            FilterClass,         , failover
+HKR, Ndi,            FilterDeviceInfId,   , sun_VBoxNetFltmp
+HKR, Ndi,            Service,             , VBoxNetFlt
+HKR, Ndi\Interfaces, UpperRange,          , noupper
+HKR, Ndi\Interfaces, LowerRange,          , nolower
+HKR, Ndi\Interfaces, FilterMediaTypes,    , "ethernet, nolower"
+
+[VBoxNetFlt.AddReg]
+HKR, Parameters, Param1, 0, 4
+
+[Strings]
+Provider = "Oracle Corporation"
+DiskDescription = "VirtualBox Bridged Networking Driver"
+VBoxNetFlt_Desc = "VirtualBox Bridged Networking Driver"
+VBoxNetFlt_HELP = "VirtualBox Bridged Networking Driver"
+VBoxNetFltService_Desc = "VirtualBox Bridged Networking Service"

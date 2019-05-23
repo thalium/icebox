@@ -1,0 +1,177 @@
+<ui version="4.0">
+ <comment>
+ VBox frontends: Qt GUI ("VirtualBox"):
+
+ Copyright (C) 2008-2016 Oracle Corporation
+
+ This file is part of VirtualBox Open Source Edition (OSE), as
+ available from http://www.virtualbox.org. This file is free software;
+ you can redistribute it and/or modify it under the terms of the GNU
+ General Public License (GPL) as published by the Free Software
+ Foundation, in version 2 as it comes in the "COPYING" file of the
+ VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ </comment>
+ <class>UIMachineSettingsAudio</class>
+ <widget class="QWidget" name="UIMachineSettingsAudio">
+  <layout class="QVBoxLayout" name="m_pMainLayout">
+   <item>
+    <widget class="QWidget" name="m_pContainerAudioOptions">
+     <layout class="QGridLayout" name="m_pContainerLayoutAudioOptions">
+      <item row="0" column="0" colspan="2">
+       <widget class="QCheckBox" name="m_pCheckBoxAudio">
+        <property name="whatsThis">
+         <string>When checked, a virtual PCI audio card will be plugged into the virtual machine and will communicate with the host audio system using the specified driver.</string>
+        </property>
+        <property name="text">
+         <string>Enable &amp;Audio</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <spacer>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint">
+         <size>
+          <width>20</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="1">
+       <widget class="QWidget" name="m_pContainerAudioSubOptions">
+        <layout class="QGridLayout" name="m_pContainerLayoutAudioSubOptions">
+         <property name="margin">
+          <number>0</number>
+         </property>
+         <item row="0" column="0">
+          <widget class="QLabel" name="m_pLabelAudioDriver">
+           <property name="text">
+            <string>Host Audio &amp;Driver:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="buddy">
+            <cstring>m_pComboAudioDriver</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QComboBox" name="m_pComboAudioDriver">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="whatsThis">
+            <string>Selects the audio output driver. The &lt;b>Null Audio Driver&lt;/b> makes the guest see an audio card, however every access to it will be ignored.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="m_pLabelAudioController">
+           <property name="text">
+            <string>Audio &amp;Controller:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+           <property name="buddy">
+            <cstring>m_pComboAudioController</cstring>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QComboBox" name="m_pComboAudioController">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="whatsThis">
+            <string>Selects the type of the virtual sound card. Depending on this value, VirtualBox will provide different audio hardware to the virtual machine.</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QLabel" name="m_pLabelAudioExtended">
+           <property name="text">
+            <string>Extended Features:</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QCheckBox" name="m_pCheckBoxAudioOutput">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="whatsThis">
+            <string>When checked, output to the virtual audio device will reach the host. Otherwise the guest is muted.</string>
+           </property>
+           <property name="text">
+            <string>Enable Audio &amp;Output</string>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QCheckBox" name="m_pCheckBoxAudioInput">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+             <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="whatsThis">
+            <string>When checked, the guest will be able to capture audio input from the host. Otherwise the guest will capture only silence.</string>
+           </property>
+           <property name="text">
+            <string>Enable Audio &amp;Input</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>m_pCheckBoxAudio</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_pContainerAudioSubOptions</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+ </connections>
+</ui>

@@ -1,0 +1,32 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+:unpack:unpack.rowLength:PixelStorei,GL_UNPACK_ROW_LENGTH
+#:unpack:unpack.skipImages:PixelStorei,GL_UNPACK_SKIP_IMAGES
+:unpack:unpack.skipRows:PixelStorei,GL_UNPACK_SKIP_ROWS
+:unpack:unpack.skipPixels:PixelStorei,GL_UNPACK_SKIP_PIXELS
+#:unpack:unpack.imageHeight:PixelStorei,GL_UNPACK_IMAGE_HEIGHT
+:pack:pack.rowLength:PixelStorei,GL_PACK_ROW_LENGTH
+#:pack:pack.skipImages:PixelStorei,GL_PACK_SKIP_IMAGES
+:pack:pack.skipRows:PixelStorei,GL_PACK_SKIP_ROWS
+:pack:pack.skipPixels:PixelStorei,GL_PACK_SKIP_PIXELS
+#:pack:pack.imageHeight:PixelStorei,GL_PACK_IMAGE_HEIGHT
+#:clientPointer:v.size,v.type,v.stride,v.p:VertexPointer
+#:clientPointer:c.size,c.type,c.stride,c.p:ColorPointer
+#:clientPointer:s.size,s.type,s.stride,s.p:SecondaryColorPointerEXT
+#:clientPointer:i.type,i.stride,i.p:IndexPointer
+#:clientPointer:n.type,n.stride,n.p:NormalPointer
+#:clientPointer:t.size,t.type,t.stride,t.p:TexCoordPointer
+#:clientPointer:e.stride,e.p:EdgeFlagPointer
+#:enableClientState:*glAble able[2];
+#:enableClientState:*able[0] = diff_api.DisableClientState;
+#:enableClientState:*able[1] = diff_api.EnableClientState;
+#:enableClientState:v.enabled:*able[to->v.enabled](GL_VERTEX_ARRAY);
+#:enableClientState:c.enabled:*able[to->c.enabled](GL_COLOR_ARRAY);
+#:enableClientState:i.enabled:*able[to->i.enabled](GL_INDEX_ARRAY);
+#:enableClientState:n.enabled:*able[to->n.enabled](GL_NORMAL_ARRAY);
+#:enableClientState:t.enabled:*able[to->t.enabled](GL_TEXTURE_COORD_ARRAY);
+#:enableClientState:e.enabled:*able[to->e.enabled](GL_EDGE_FLAG_ARRAY);
+#:enableClientState:s.enabled:*able[to->s.enabled](GL_SECONDARY_COLOR_ARRAY_EXT);
+#+:element:*crError( "element in client state DiffContext!" ); /* __glclient_SendUpdates(b, bitID, from, to); */

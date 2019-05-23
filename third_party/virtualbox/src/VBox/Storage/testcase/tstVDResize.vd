@@ -1,0 +1,34 @@
+/* $Id: tstVDResize.vd $ */
+/**
+ * Storage: Resize testing for VDI.
+ */
+
+/*
+ * Copyright (C) 2013 Oracle Corporation
+ *
+ * This file is part of VirtualBox Open Source Edition (OSE), as
+ * available from http://www.virtualbox.org. This file is free software;
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License (GPL) as published by the Free Software
+ * Foundation, in version 2 as it comes in the "COPYING" file of the
+ * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ */
+
+void main()
+{
+    /* Init I/O RNG for generating random data for writes. */
+    iorngcreate(10M, "manual", 1234567890);
+
+    print("Testing VDI");
+    createdisk("test", true);
+    create("test", "base", "tst.vdi", "dynamic", "VDI", 1T, false, false);
+    io("test", false, 1, "seq", 64K, 255G, 257G, 2G, 100, "none");
+    resize("test", 1331200M);
+    io("test", false, 1, "seq", 64K, 255G, 257G, 2G,   0, "none");
+    close("test", "single", true /* fDelete */);
+    destroydisk("test");
+
+    iorngdestroy();
+}
+

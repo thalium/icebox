@@ -1,0 +1,193 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Windows USB drivers.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+LIBRARIES.win += usbd
+SYSMODS.win   += VBoxUSB VBoxUSBMon
+PROGRAMS.win  += USBInstall USBUninstall USBTest
+INSTALLS.win  += install-infs
+
+#
+# usbd
+#
+usbd_TEMPLATE       = VBOXR0DRV
+usbd_SOURCES        = usbd/usbd.def
+
+#
+# VBoxUSB
+#
+VBoxUSB_TEMPLATE    = VBOXR0DRV
+ifdef VBOX_SIGNING_MODE
+ VBoxUSB_INSTTYPE   = none
+ VBoxUSB_DEBUG_INSTTYPE = both
+endif
+VBoxUSB_SDKS        = ReorderCompilerIncs $(VBOX_WINDDK) $(VBOX_WINPSDK)INCS
+VBoxUSB_DEFS        = IN_RT_R0 IN_SUP_R0 VBOX_DBG_LOG_NAME=\"USBDev\"
+VBoxUSB_LDFLAGS.x86 = -Entry:DriverEntry@8
+VBoxUSB_LDFLAGS.amd64 = -Entry:DriverEntry
+VBoxUSB_SOURCES     = \
+	dev/VBoxUsbDev.cpp \
+	dev/VBoxUsbRt.cpp \
+	dev/VBoxUsbPnP.cpp \
+	dev/VBoxUsbPwr.cpp \
+	cmn/VBoxUsbTool.cpp \
+	cmn/VBoxDrvTool.cpp \
+	dev/VBoxUsbDev.rc
+VBoxUSB_LIBS        = \
+	$(PATH_SDK_$(VBOX_WINDDK)_LIB)/ntoskrnl.lib \
+	$(PATH_SDK_$(VBOX_WINDDK)_LIB)/hal.lib \
+	$(PATH_STAGE_LIB)/RuntimeR0Drv$(VBOX_SUFF_LIB) \
+	$(usbd_1_TARGET)
+
+#
+# VBoxUSBMon
+#
+VBoxUSBMon_TEMPLATE    = VBOXR0DRV
+ifdef VBOX_SIGNING_MODE
+ VBoxUSBMon_INSTTYPE = none
+ VBoxUSBMon_DEBUG_INSTTYPE = both
+endif
+VBoxUSBMon_INCS       := $(PATH_SUB_CURRENT)/..
+VBoxUSBMon_SDKS        = ReorderCompilerIncs $(VBOX_WINDDK) $(VBOX_WINPSDK)INCS
+VBoxUSBMon_DEFS        = IN_RT_R0 IN_SUP_R0 i386=1 STD_CALL CONDITION_HANDLING=1 NT_INST=0 \
+	WIN32=100 _NT1X_=100 WINNT=1 _WIN32_WINNT=0x0501 WINVER=0x0501 _WIN32_IE=0x0600 WIN32_LEAN_AND_MEAN=1 \
+	VBOXUSBFILTERMGR_USB_SPINLOCK VBOX_DBG_LOG_NAME=\"USBMon\"
+VBoxUSBMon_LDFLAGS.x86 = -Entry:DriverEntry@8
+VBoxUSBMon_LDFLAGS.amd64 = -Entry:DriverEntry
+ifdef VBOX_USBMON_WITH_FILTER_AUTOAPPLY
+ VBoxUSBMon_DEFS      += VBOX_USBMON_WITH_FILTER_AUTOAPPLY
+endif
+VBoxUSBMon_SOURCES     = \
+	mon/VBoxUsbMon.cpp  \
+	mon/VBoxUsbFlt.cpp  \
+	mon/VBoxUsbHook.cpp \
+	cmn/VBoxUsbTool.cpp \
+	cmn/VBoxDrvTool.cpp \
+	../USBFilter.cpp \
+	../VBoxUSBFilterMgr.cpp \
+	mon/VBoxUsbMon.rc
+VBoxUSBMon_LIBS        = \
+	$(PATH_SDK_$(VBOX_WINDDK)_LIB)/ntoskrnl.lib \
+	$(PATH_SDK_$(VBOX_WINDDK)_LIB)/hal.lib \
+	$(PATH_STAGE_LIB)/RuntimeR0Drv$(VBOX_SUFF_LIB) \
+	$(usbd_1_TARGET)
+if1of ($(KBUILD_TYPE), debug)
+VBoxUSBMon_DEFS      += LOG_ENABLED VBOX_USB_WITH_VERBOSE_LOGGING
+endif
+
+#
+# USBInstall
+#
+USBInstall_TEMPLATE = VBOXR3EXE
+USBInstall_DEFS     = IN_RT_R3
+USBInstall_SDKS     = ReorderCompilerIncs $(VBOX_WINPSDK) $(VBOX_WINDDK) VBOX_NTDLL
+USBInstall_CXXFLAGS = -Gz
+USBInstall_CFLAGS   = -Gz
+USBInstall_SOURCES  = \
+	Install/USBInstall.cpp
+USBInstall_LIBS = \
+	$(PATH_SDK_$(VBOX_WINDDK)_LIB)/newdev.lib \
+	$(LIB_RUNTIME) \
+	$(PATH_STAGE_LIB)/SUPR3$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/VBoxDrvCfg$(VBOX_SUFF_LIB)
+
+
+#
+# USBUninstall
+#
+USBUninstall_TEMPLATE = VBOXR3EXE
+USBUninstall_DEFS     = IN_RT_R3
+USBUninstall_SDKS     = ReorderCompilerIncs $(VBOX_WINPSDK) $(VBOX_WINDDK) VBOX_NTDLL
+USBUninstall_CXXFLAGS = -Gz
+USBUninstall_CFLAGS   = -Gz
+USBUninstall_SOURCES  = \
+	Install/USBUninstall.cpp
+USBUninstall_LIBS = \
+	$(PATH_SDK_$(VBOX_WINDDK)_LIB)/newdev.lib \
+	$(LIB_RUNTIME) \
+	$(PATH_STAGE_LIB)/SUPR3$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/VBoxDrvCfg$(VBOX_SUFF_LIB)
+
+#
+# USBTest
+#
+USBTest_TEMPLATE = VBOXR3EXE
+USBTest_DEFS     = IN_RT_R3
+USBTest_SDKS     = ReorderCompilerIncs $(VBOX_WINPSDK) $(VBOX_WINDDK) VBOX_NTDLL
+USBTest_CXXFLAGS = -Gz
+USBTest_CFLAGS   = -Gz
+USBTest_SOURCES  = \
+	testcase/USBTest.cpp
+USBTest_LIBS = \
+	$(PATH_SDK_$(VBOX_WINDDK)_LIB)/newdev.lib \
+	$(LIB_RUNTIME) \
+	$(PATH_STAGE_LIB)/SUPR3$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/VBoxDrvCfg$(VBOX_SUFF_LIB)
+
+#
+# Install the INF files.
+#
+install-infs_INST = bin/
+install-infs_MODE = a+r,u+w
+install-infs_SOURCES = \
+	$(PATH_TARGET)/VBoxUSBCat.dir/VBoxUSB.inf \
+	$(PATH_TARGET)/VBoxUSBMonCat.dir/VBoxUSBMon.inf
+install-infs_CLEAN = $(install-infs_SOURCES)
+install-infs_BLDDIRS = \
+	$(PATH_TARGET)/VBoxUSBCat.dir \
+	$(PATH_TARGET)/VBoxUSBMonCat.dir
+
+$(PATH_TARGET)/VBoxUSBCat.dir/VBoxUSB.inf: $(PATH_SUB_CURRENT)/dev/VBoxUSB.inf $(MAKEFILE_CURRENT) | $$(dir $$@)
+	$(call MSG_GENERATE,install-infs,$@,$<)
+	$(call VBOX_EDIT_INF_FN,$<,$@)
+
+$(PATH_TARGET)/VBoxUSBMonCat.dir/VBoxUSBMon.inf: $(PATH_SUB_CURRENT)/mon/VBoxUSBMon.inf $(MAKEFILE_CURRENT) | $$(dir $$@)
+	$(call MSG_GENERATE,install-infs,$@,$<)
+	$(call VBOX_EDIT_INF_FN,$<,$@)
+
+ifdef VBOX_SIGNING_MODE
+install-infs_SOURCES += \
+	$(PATH_TARGET)/VBoxUSBCat.dir/VBoxUSB.cat \
+	$(PATH_TARGET)/VBoxUSBCat.dir/VBoxUSB.sys \
+	$(PATH_TARGET)/VBoxUSBMonCat.dir/VBoxUSBMon.cat \
+	$(PATH_TARGET)/VBoxUSBMonCat.dir/VBoxUSBMon.sys
+
+$(PATH_TARGET)/VBoxUSBCat.dir/VBoxUSB.sys: $$(VBoxUSB_1_TARGET) | $$(dir $$@)
+	$(INSTALL) -m 644 $< $(@D)
+
+$(PATH_TARGET)/VBoxUSBCat.dir/VBoxUSB.cat: \
+		$(PATH_TARGET)/VBoxUSBCat.dir/VBoxUSB.inf \
+		$(PATH_TARGET)/VBoxUSBCat.dir/VBoxUSB.sys
+	$(call MSG_TOOL,Inf2Cat,VBoxUSB-inf,$@,$<)
+	$(call VBOX_MAKE_CAT_FN, $(@D),$@)
+
+$(PATH_TARGET)/VBoxUSBMonCat.dir/VBoxUSBMon.sys: $$(VBoxUSBMon_1_TARGET) | $$(dir $$@)
+	$(INSTALL) -m 644 $< $(@D)
+
+$(PATH_TARGET)/VBoxUSBMonCat.dir/VBoxUSBMon.cat: \
+		$(PATH_TARGET)/VBoxUSBMonCat.dir/VBoxUSBMon.inf \
+		$(PATH_TARGET)/VBoxUSBMonCat.dir/VBoxUSBMon.sys
+	$(call MSG_TOOL,Inf2Cat,VBoxUSBMon-inf,$@,$<)
+	$(call VBOX_MAKE_CAT_FN, $(@D),$@)
+
+endif # signing
+
+# generate rules
+include $(FILE_KBUILD_SUB_FOOTER)
+

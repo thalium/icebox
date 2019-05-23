@@ -1,0 +1,71 @@
+; $Id: VBoxNetFltM.inf $
+; @file
+; VBoxNetFltM.inf - VirtualBox Bridged Networking Driver inf file
+; Miniport edge
+;
+;
+; Copyright (C) 2011-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+[Version]
+signature  = "$Windows NT$"
+;cat   CatalogFile = VBoxNetFlt.cat
+Class      = Net
+ClassGUID  = {4d36e972-e325-11ce-bfc1-08002be10318}
+Provider   = %Provider%
+;DriverPackageType=NdisImMiniport
+;DriverPackageDisplayName=%VBoxNetFltMP_Desc%
+;edit-DriverVer=08/13/2008,1.1.0.1
+
+[ControlFlags]
+ExcludeFromSelect = sun_VBoxNetFltmp
+
+[DestinationDirs]
+DefaultDestDir=12
+; No files to copy
+
+[Manufacturer]
+%Provider% = VBox,NTx86,NTamd64
+
+[VBox]
+%VBoxNetFltMP_Desc% = VBoxNetFltMP.ndi, sun_VBoxNetFltmp
+
+[VBox.NTx86]
+%VBoxNetFltMP_Desc% = VBoxNetFltMP.ndi, sun_VBoxNetFltmp
+
+[VBox.NTamd64]
+%VBoxNetFltMP_Desc% = VBoxNetFltMP.ndi, sun_VBoxNetFltmp
+
+[VBoxNetFltMP.ndi]
+Characteristics = 0x29 ;NCF_NOT_USER_REMOVABLE | NCF_VIRTUAL | NCF_HIDDEN
+CopyFiles =
+
+[VBoxNetFltMP.ndi.Services]
+AddService = VBoxNetFlt,0x2, VBoxNetFltMP.AddService
+
+[VBoxNetFltMP.AddService]
+ServiceType    = 1 ;SERVICE_KERNEL_DRIVER
+StartType      = 3 ;SERVICE_DEMAND_START
+ErrorControl   = 1 ;SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\VBoxNetFlt.sys
+
+[VBoxNetFltMP.AddService.AddReg]
+
+[Strings]
+Provider = "Oracle Corporation"
+VBoxNetFltMP_Desc = "VirtualBox Bridged Networking Driver Miniport"
+
+[SourceDisksNames]
+
+[SourceDisksFiles]
+
+
+

@@ -1,0 +1,48 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the VirtualBox Windows Guest Shared Folders Network Provider.
+#
+
+#
+# Copyright (C) 2012-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+DLLS += VBoxMRXNP
+VBoxMRXNP_TEMPLATE    = VBoxGuestR3Dll
+VBoxMRXNP_DEFS        = LOG_TO_BACKDOOR UNICODE WIN32_LEAN_AND_MEAN=1
+#VBoxMRXNP_DEFS       += LOG_ENABLED
+VBoxMRXNP_SDKS        = ReorderCompilerIncs $(VBOX_WINDDK_GST_W2K)
+
+VBoxMRXNP_SOURCES     = \
+	vboxmrxnp.cpp \
+	vboxmrxnp.rc \
+	vboxmrxnp.def
+
+VBoxMRXNP_LIBS     = \
+	$(VBOX_LIB_IPRT_GUEST_R3) \
+	$(VBOX_LIB_VBGL_R3) \
+	$(VBOX_LIB_IPRT_GUEST_R3)
+
+#
+# VBoxMRXNP-x86 - x86 version of VBoxMRXNP built for amd64 build
+#
+DLLS.win.amd64 += VBoxMRXNP-x86
+VBoxMRXNP-x86_EXTENDS = VBoxMRXNP
+VBoxMRXNP-x86_BLD_TRG_ARCH = x86
+VBoxMRXNP-x86_LIBS = \
+	$(VBOX_LIB_IPRT_GUEST_R3_X86) \
+	$(VBOX_LIB_VBGL_R3_X86)
+VBoxMRXNP-x86_DEFS = $(VBoxMRXNP_DEFS) VBOX_WOW64
+
+include $(FILE_KBUILD_SUB_FOOTER)

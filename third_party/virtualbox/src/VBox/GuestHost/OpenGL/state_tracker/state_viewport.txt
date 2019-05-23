@@ -1,0 +1,14 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+:enable:scissorTest:GL_SCISSOR_TEST
+:s_dims:scissorX,scissorY,scissorW,scissorH:Scissor
+#+scissorTest:s_dims:*CRrecti p;
+#+scissorTest:s_dims:scissorX,scissorY,scissorW,scissorH:*diff_api.Scissor(p.x1, p.y1, p.x2-p.x1, p.y2-p.y1);
+#-scissorTest:s_dims:scissorX,scissorY,scissorW,scissorH:Scissor
+#+:v_dims:*CRrecti p;
+#+:v_dims:viewportX,viewportY,viewportW,viewportH:*diff_api.Viewport(p.x1, p.y1, p.x2-p.x1, p.y2-p.y1);
+:v_dims:viewportX,viewportY,viewportW,viewportH:Viewport
+#-:v_dims:viewportX,viewportY,viewportW,viewportH:Viewport
+:depth:nearClip,farClip:DepthRange

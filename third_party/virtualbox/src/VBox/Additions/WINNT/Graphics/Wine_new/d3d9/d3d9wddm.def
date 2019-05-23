@@ -1,0 +1,27 @@
+
+EXPORTS
+  Direct3DShaderValidatorCreate9
+  D3DPERF_BeginEvent
+  D3DPERF_EndEvent
+  D3DPERF_GetStatus
+  D3DPERF_QueryRepeatFrame
+  D3DPERF_SetMarker
+  D3DPERF_SetOptions
+  D3DPERF_SetRegion
+  DebugSetMute
+  Direct3DCreate9
+  Direct3DCreate9Ex
+  VBoxWineExD3DDev9Flush
+  VBoxWineExD3DDev9GetHostId
+  VBoxWineExD3DDev9Finish
+  VBoxWineExD3DDev9CreateTexture
+  VBoxWineExD3DDev9CreateCubeTexture
+  VBoxWineExD3DDev9CreateVolumeTexture
+  VBoxWineExD3DDev9Term
+  VBoxWineExD3DSwapchain9Present
+  VBoxWineExD3DDev9VolBlt
+  VBoxWineExD3DDev9VolTexBlt
+  VBoxWineExD3DSurf9GetHostId
+  VBoxWineExD3DSwapchain9GetHostWinID
+  VBoxWineExD3DSurf9SyncToHost
+  VBoxWineExD3DDev9FlushToHost

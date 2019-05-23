@@ -1,0 +1,106 @@
+; $Id: VBoxNetLwf.inf $
+; @file
+; VBoxNetLwf.inf - VirtualBox Bridged Networking Driver inf file
+;
+;
+; Copyright (C) 2014-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+[Version]
+Signature   = "$Windows NT$"
+;cat  CatalogFile = VBoxNetLwf.cat
+Class       = NetService
+ClassGUID   = {4D36E974-E325-11CE-BFC1-08002BE10318}
+Provider    = %Provider%
+;edit-DriverVer=10/23/2014,1.0.1.0
+
+
+[Manufacturer]
+%Provider% = VBox,NTx86,NTamd64
+
+[ControlFlags]
+
+[VBox]
+%VBoxNetLwf_Desc% = VBoxNetLwf.ndi, oracle_VBoxNetLwf
+
+[VBox.NTx86]
+%VBoxNetLwf_Desc% = VBoxNetLwf.ndi, oracle_VBoxNetLwf
+
+[VBox.NTamd64]
+%VBoxNetLwf_Desc% = VBoxNetLwf.ndi, oracle_VBoxNetLwf
+
+[VBoxNetLwf.ndi]
+AddReg           = VBoxNetLwf.ndi.AddReg, VBoxNetLwf.AddReg
+Characteristics  = 0x40000 ;  NCF_LW_FILTER
+CopyFiles        = VBoxNetLwf.Files.Sys
+NetCfgInstanceId = "{7af6b074-048d-4444-bfce-1ecc8bc5cb76}"
+
+[VBoxNetLwf.ndi.Remove.Services]
+DelService       = VBoxNetLwf,0x200 ; Stop the service before uninstalling
+
+[VBoxNetLwf.ndi.Services]
+AddService = VBoxNetLwf,, VBoxNetLwf.AddService, VBoxNetLwf.AddEventLog
+
+[VBoxNetLwf.AddService]
+DisplayName    = %VBoxNetLwfService_Desc%
+ServiceType    = 1 ;SERVICE_KERNEL_DRIVER
+StartType      = 1 ;SERVICE_SYSTEM_START
+ErrorControl   = 1 ;SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\VBoxNetLwf.sys
+LoadOrderGroup = NDIS
+AddReg         = VBoxNetLwf.AddService.AddReg
+
+[VBoxNetLwf.AddService.AddReg]
+
+[VBoxNetLwf.AddEventLog]
+AddReg         = VBoxNetLwf.AddEventLog.AddReg
+
+[VBoxNetLwf.AddEventLog.AddReg]
+HKR,,EventMessageFile,0x00020000,"%%SystemRoot%%\System32\IoLogMsg.dll"
+HKR,,TypesSupported,0x00010001,7
+
+
+[SourceDisksNames]
+1=%DiskDescription%,"",,
+
+[SourceDisksFiles]
+VBoxNetLwf.sys=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+VBoxNetLwf.Files.Sys   = 12   ; %windir%\System32\drivers
+
+[VBoxNetLwf.Files.Sys]
+VBoxNetLwf.sys,,,2
+
+
+[VBoxNetLwf.ndi.AddReg]
+HKR, Ndi, HelpText, , %VBoxNetLwf_HELP%
+;HKR, Ndi,            ClsID,              0, {f374d1a0-bf08-4bdc-9cb2-c15ddaeef955}
+;HKR, Ndi,            ComponentDll,        , VBoxNetLwfNobj.dll
+HKR, Ndi,            FilterClass,         , compression
+HKR, Ndi,            FilterType,   0x10001, 0x2
+HKR, Ndi,            FilterRunType,0x10001, 2 ; OPTIONAL, to prevent unbinding of protocol drivers
+HKR, Ndi,            Service,             , VBoxNetLwf
+HKR, Ndi,            CoServices,   0x10000, VBoxNetLwf
+HKR, Ndi\Interfaces, UpperRange,          , noupper
+HKR, Ndi\Interfaces, LowerRange,          , nolower
+HKR, Ndi\Interfaces, FilterMediaTypes,    , ethernet
+
+[VBoxNetLwf.AddReg]
+;HKR, Parameters, Param1, 0, 4
+
+[Strings]
+Provider = "Oracle Corporation"
+DiskDescription = "VirtualBox NDIS6 Bridged Networking Driver"
+VBoxNetLwf_Desc = "VirtualBox NDIS6 Bridged Networking Driver"
+VBoxNetLwf_HELP = "VirtualBox NDIS6 Bridged Networking Driver"
+VBoxNetLwfService_Desc = "VirtualBox NDIS6 Bridged Networking Service"

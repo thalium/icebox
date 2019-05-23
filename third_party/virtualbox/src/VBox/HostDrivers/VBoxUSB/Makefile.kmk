@@ -1,0 +1,68 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Windows USB drivers.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+# Include sub-makefiles.
+if1of ($(KBUILD_TARGET), darwin solaris win)
+ include $(PATH_SUB_CURRENT)/$(KBUILD_TARGET)/Makefile.kmk
+endif
+
+#
+# USBLib - The static USB Library for use in VBoxSVC and VBoxDD.
+#
+# Note! Drivers using USBFilter.cpp should just add ../USBFilter.cpp
+#       to their source list.
+#
+LIBRARIES += USBLib
+USBLib_TEMPLATE       = VBOXR3
+USBLib_SDKS.win       = ReorderCompilerIncs $(VBOX_WINPSDK) $(VBOX_WINDDK)
+USBLib_DEFS           = IN_USBLIB
+USBLib_DEFS.os2       = STATIC_USBCALLS
+USBLib_DEFS.win       = _WIN32_WINNT=0x0501
+USBLib_SOURCES        = \
+	USBLib.cpp \
+	USBFilter.cpp
+
+# OS specific bits if applicable.
+USBLib_SOURCES.darwin = \
+	darwin/USBLib-darwin.cpp
+USBLib_SOURCES.os2 = \
+	os2/usbcalls.c
+USBLib_SOURCES.solaris = \
+	solaris/USBLib-solaris.cpp
+USBLib_SOURCES.win = \
+	win/lib/VBoxUsbLib-win.cpp
+
+ifdef VBOX_WITH_TESTCASES
+ #
+ # USBFilter testcase.
+ #
+ PROGRAMS += tstUSBFilter
+ tstUSBFilter_TEMPLATE = VBOXR3TSTEXE
+ tstUSBFilter_DEFS = IN_USBLIB
+ tstUSBFilter_SOURCES  = \
+ 	testcase/tstUSBFilter.cpp
+ tstUSBFilter_LIBS  = \
+ 	$(USBLib_1_TARGET)
+endif # VBOX_WITH_TESTCASES
+
+
+# generate rules
+include $(FILE_KBUILD_SUB_FOOTER)
+

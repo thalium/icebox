@@ -1,0 +1,1906 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="Introduction">
+  <title>Premiers pas</title>
+
+  <para>Bienvenue à @VBOX_PRODUCT@!</para>
+
+  <para>VirtualBox est une application de virtualisation de plateformes croisées.
+  Qu'est-ce que cela veut dire&#xA0;? D'une part, il s'installe sur vos ordinateurs
+  ordinateurs existant basés sur Intel ou AMD, qu'ils soient sous les systèmes
+  d'exploitation Windows, Mac, Linux ou Solaris. D'autre part, il augmente la
+  capacité de votre ordinateur existant pour qu'il puisse lancer plusieurs
+  systèmes d'exploitation en même temps (dans plusieurs machines virtuelles).
+  Donc, vous pouvez par exemple lancer Windows et Linux sur votre Mac,
+  lancer Windows Server 2008 sur votre serveur Linux, lancer Linux sur votre
+  PC Windows et ainsi de suite pour toutes vos applications. Vous pouvez
+  installer et lancer autant de machines virtuaelles que vous voulez -- la seule
+  limite pratique étant votre espace disque et la mémoire.</para>
+
+  <para>VirtualBox est résolument simple bien que très puissant. Il peut se lancer
+  partout, depuis de petits systèmes embarqués jusqu'aux machines de bureau en
+  passant par des déploiements en datacenter ou même des environnements en nuages.</para>
+
+  <para>L'impression d'écran suivante vous montre la manière dont VirtualBox lance
+  Windows 7 dans la fenêtre d'une machine virtuelle en étant installé sur un Mac&#xA0;:</para>
+
+  <para><mediaobject>
+      <imageobject>
+        <imagedata align="center" fileref="images/vm-vista-running.png"
+                   width="14cm" />
+      </imageobject>
+    </mediaobject></para>
+
+  <para>Dans ce manuel de l'utilisateur, nous allons simplement commencer par une
+  introduction rapide à la virtualisation et sur la façon de lancer votre première
+  machine virtuelle avec l'interface graphique de VirtualBox, facile à utiliser.
+  Les chapitres suivants entreront beaucoup plus dans le détail en traitant
+  d'outils et de fonctionnalités plus puissants, mais heureusement, il n'est pas
+  nécessaire de lire tout le manuel de l'utilisateur avant de pouvoir utiliser
+  VirtualBox.</para>
+
+  <para>Vous pouvez trouver un résumé des possibilités de VirtualBox au <xref
+  linkend="features-overview" />. Pour ceux qui utilisent déjà VirtualBox et qui
+  voudraient seulement voir les nouveautés de cette version, une liste détaillée 
+  existe au <xref
+  linkend="ChangeLog" />.</para>
+
+  <sect1>
+    <title>À quoi sert la virtualisation&#xA0;?</title>
+
+    <para>Les techniques et les fonctionnalités offertes par VirtualBox servent dans    
+    plusieurs scenarii&#xA0;:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para><emphasis role="bold">Lancer plusieurs systèmes d'exploitation en
+        même temps.</emphasis> VirtualBox vous permet d'exécuter plus d'un
+        système d'exploitation en même temps. De cette façon, vous pouvez
+        lancer des logiciels écrits pour un système d'exploitation dans un autre
+        (par exemple un logiciel Windows sur Linux ou Mac) sans devoir
+        redémarrer pour l'utiliser. Comme vous pouvez 
+        configurer les types de matériels "virtuels" connectés à chaque système
+        d'exploitation, vous pouvez installer un vieux système d'exploitation tel que
+        DOS ou OS/2 même si le matériel de votre machine physique n'est plus
+        supporté par ce système d'exploitation.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Installation plus facile de logiciels.</emphasis>
+        Les éditeurs de logiciels peuvent utiliser des machines virtuelles pour
+        y mettre des configurations de logiciels. Par exemple, installation d'une
+        solution complète de serveur de messagerie sur une vraie machine peut
+        être une tâche très fastidieuse. Avec VirtualBox, vous pouvez emballer
+        une configuration aussi complexe (appelé alors souvent un environnement
+        applicatif) dans une machine virtuelle. L'installation et l'exécution
+        d'un serveur de messagerie devient aussi facile que d'importer un
+        environnement applicatif dans VirtualBox.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Tester et réparer en cas d'accident.</emphasis>
+        Une fois installés, on peut considérer une machine virtuelle et ses 
+        disques durs virtuels comme un "conteneur" qu'on peut, au choix, geler,
+        réveiller, copier, sauvegarder et transporter entre hôtes.</para>
+
+        <para>Au-delà de cela, en utilisant une autre fonctionnalité de VirtualBox
+        appelé les "instantanés", vous pouvez sauvegarder un état en particulier
+        d'une machine virtuelle et revenir à cet état si nécessaire. De cette
+        manière, vous pouvez librement essayer un environnement informatique. Si
+        quelque chose ne va pas (par exemple, si un logiciel ne se comporte pas
+        bien après l'installation ou si un invité a un virus), on peut facilement
+        revenir à un instantané récent et éviter de sauvegarder et de
+        restaurer fréquemment.</para>
+
+        <para>On peut créer autant d'instantanés que vous voulez, ce qui permet 
+        de voyager dans le temps des machines virtuelles en arrière et en avant.
+        Vous pouvez effacer des instantanés alors qu'une machine virtuelle est
+        en fonction pour gagner de l'espace disque.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Consolider une infrastructure.</emphasis>
+        La virtualisation peut réduire significativement les coûts en matériel
+        et électricité. La plupart du temps, les ordinateurs actuels n'utilisent
+        qu'une partie de leur puissance potentielle et tournent avec une faible
+        charge système moyenne. On gaspille donc beaucoup de ressources
+        matérielles et énergétiques. Au lieu de lancer autant d'ordinateurs physiques,
+        qui ne sont que partiellement utilisés, on peut emballer de nombreuses
+        machines virtuelles sur quelques hôtes puissants et équilibrer les 
+        charges entre elles.</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+
+  <sect1 id="virtintro">
+    <title>Un peu de terminologie</title>
+
+    <para>Quand on parle de virtualisation (mais aussi pour comprendre les
+    chapitres suivants de cette documentation), acquérir un peu de terminologie
+    fondamentale aide, en particulier les termes suivants&#xA0;:</para>
+
+    <glosslist>
+      <glossentry>
+        <glossterm>Système d'exploitation hôte (OS hôte).</glossterm>
+
+        <glossdef>
+          <para>C'est le système d'exploitation de l'ordinateur physique sur 
+          lequel VirtualBox a été installé. Il existe des versions de VirtualBox
+          pour des hôtes Windows, Mac OS X, Linux et Solaris&#xA0;; pour des
+          détails, merci de voir le
+          <xref linkend="hostossupport" />.</para>
+
+          <para>La plupart du temps, ce manuel de l'utilisateur traite de toutes
+          les versions de VirtualBox ensemble. Il peut y avoir des différences
+          entre les plateformes, nous les soulignerons là où il faut.</para>
+        </glossdef>
+      </glossentry>
+
+      <glossentry>
+        <glossterm>Système d'exploitation invité (OS invité).</glossterm>
+
+        <glossdef>
+          <para>C'est le système d'exploitation en fonction dans la machine
+          virtuelle. En théorie, VirtualBox peut lancer tous les systèmes
+          d'exploitation x86 (DOS, Windows, OS/2, FreeBSD, OpenBSD), mais
+          pour s'approcher le plus possible de la performance d'origine du code
+          invité sur votre machine, nous avons dû faire beaucoup d'optimisations
+          qui sont spécifiques à certains systèmes d'exploitation. Donc si votre
+          système d'exploitation favori 
+          <emphasis>peut</emphasis> être un invité, nous en supportons et optimisons
+          officiellement quelques-uns sélectionnés (cependant, cela inclut ceux
+          les plus courants).</para>
+
+          <para>Voir le <xref linkend="guestossupport" /> pour des détails.</para>
+        </glossdef>
+      </glossentry>
+
+      <glossentry>
+        <glossterm>Machine virtuelle (VM).</glossterm>
+
+        <glossdef>
+          <para>C'est l'environnement spécial créé par VirtualBox pour votre
+          système d'exploitation invité qui s'exécute. Autrement dit, vous
+          lancer votre système d'exploitation invité "dans" une VM. Normalement,
+          une VM apparaîtra sur le bureau de votre ordinateur comme une fenêtre,
+          mais elle peut être affichée en mode plein écran, ou à distance sur un
+          autre ordinateur, selon les interfaces de VirtualBox que vous utilisez.</para>
+
+          <para>De manière plus abstraite, en interne, VirtualBox conçoit une VM
+          comme un ensemble de paramètres qui déterminent son comportement.
+          Parmi eux, on a les paramètres matériels (combien de mémoire devrait 
+          avoir la VM, quels disques durs devrait virtualiser VirtualBox via
+          quels fichiers conteneurs, quels CDs, lesquels sont montés, etc.)
+          ainsi que des informations d'état (si la machine est en fonction,
+          sauvegardée, ses instantanés, etc.). Ces paramètres apparaissent dans
+          la fenêtre du gestionnaire de VirtualBox ainsi que par le programme
+          en ligne de commande
+          <computeroutput>VBoxManage</computeroutput>&#xA0;;
+          voir le <xref linkend="vboxmanage" />. Autrement dit, une VM est
+          aussi ce que vous pouvez voir dans la boîte de dialogue de ses paramètres.</para>
+        </glossdef>
+      </glossentry>
+
+      <glossentry>
+        <glossterm>Suppléments Invité.</glossterm>
+
+        <glossdef>
+          <para>Ceci renvoie aux paquets logiciels spéciaux qui sont inclus
+          avec VirtualBox mais conçus pour être installés 
+          <emphasis>à l'intérieur</emphasis> d'une VM pour améliorer les 
+          performances de l'OS invité et pour ajouter des fonctionnalités
+          supplémentaires. C'est décrit en détails au <xref
+          linkend="guestadditions" />.</para>
+        </glossdef>
+      </glossentry>
+    </glosslist>
+  </sect1>
+
+  <sect1 id="features-overview">
+    <title>Aperçu des fonctionnalités</title>
+
+    <para>Voici un bref résumé des principales fonctionnalités de VirtualBox&#xA0;:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para><emphasis role="bold">Portabilité.</emphasis> VirtualBox se
+        lance sur un grand nombre de systèmes d'exploitation hôtes 32 et 64 bits
+        (de nouveau, voir 
+        <xref linkend="hostossupport" /> pour les détails).</para>
+
+        <para>VirtualBox est ce qu'on appelle un hyperviseur "hébergé" 
+        (parfois désigné comme un hyperviseur de "type 2"). Alors qu'un hyperviseur
+        "bare-metal" ou de "type 1" se lancerait directement sur le matériel,
+        VirtualBox exige l'installation d'un système d'exploitation. Il peut alors
+        lancer toutes les applications sur cet hôte.</para>
+
+        <para>Dans une très large mesure, VirtualBox est fonctionellement
+        identique sur toutes les plateformes hôtes et on peut utiliser les mêmes
+        formats de fichiers et d'images. Ceci vous permet de lancer des machines
+        virtuelles créées sur un hôte sur un autre hôte ayant un système
+        d'exploitation hôte différent&#xA0;; par exemple, vous pouvez créer une
+        machine virtuelle sur Windows puis la lancer sous Linux.</para>
+
+        <para>En outre, on peut facilement importer et exporter des machines
+        virtuelles en utilisant le format ouvert de virtualisation (OVF, voir
+        <xref
+        linkend="ovf" />), un standard industriel créé dans ce but. Vous pouvez
+        même importer des OVFs qui ont été créés avec un logiciel de virtualisation
+        différent.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Aucune virtualisation matérielle requise.
+        </emphasis> Pour de nombreux scenarii, VirtualBox n'exige pas la construction,
+        dans le processeur, des fonctionnalités récentes du matériel telles que
+        Intel VT-x ou AMD-V. Contrairement à beaucoup d'autres solutions de
+        virtualisation, vous pouvez donc utiliser VirtualBox même sur du vieux
+        matériel où ces fonctionnalités ne sont pas présentes. Les détails techniques
+        sont expliqués a <xref
+        linkend="hwvirt" />.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Suppléments invité&#xA0;: dossiers partagés,
+        fenêtres transparentes (seamless), virtualisation 3D.</emphasis> Les
+        suppléments invité de VirtualBox sont des paquets logiciels qu'on peut
+        installer 
+        <emphasis>à l'intérieur</emphasis> des systèmes invités supportés pour
+        améliorer leurs performances et effectuer une intégration et une
+        communication accrues avec le système hôte. Après avoir installé les
+        suppléments invité, une machine virtuelle supportera l'ajustement
+        automatique des résolutions graphiques, les fenêtres transparentes,
+        la vidéo 3D accélérée et davantage. Les suppléments invité sont décrits
+        en détails au <xref
+        linkend="guestadditions" />.</para>
+
+        <para>Notamment, les suppléments invité offrent les "dossiers partagés",
+        ce qui vous permet d'accéder aux fichiers depuis l'intérieur d'une
+        machine invitée. Les dossiers partagés sont décrits au <xref
+        linkend="sharedfolders" />.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Bon support matériel.</emphasis> Entre autres,
+        VirtualBox supporte&#xA0;:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><emphasis role="bold">Le multiprocesseur invité 
+            (SMP).</emphasis> VirtualBox peut montrer jusqu'à 32 processeurs 
+            virtuels à chaque machine virtuelle, indépendamment du nombre de
+            c&#x153;urs présents sur votre hôte physiquement.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis role="bold">Support des périphériques USB.</emphasis>
+            VirtualBox implémente un contrôleur USB virtuel et vous permet de
+            connecter des périphériques USB de votre choix à vos machines 
+            virtuelles sans devoir installer de pilotes spécifiques sur l'hôte.
+            Le support USB n'est pas limité à certaines catégories de périphériques.
+            Pour des détails, voir 
+            <xref linkend="settings-usb" />.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis role="bold">compatibilité matérielle.</emphasis>
+            VirtualBox virtualise une vaste gamme de périphériques virtuels,
+            parmi lesquels beaucoup sont en général fournis par d'autres
+            plateformes de virtualisation. Ceci inclut les contrôleurs de disques
+            IDE, SCSI et SATA, plusieurs cartes son et réseau virtuelles, les
+            ports série et parallèle virtuels, ainsi qu'un contrôleur d'interruptions
+            entrée/sortie programmable avancé (I/O APIC), ce qu'on trouve dans
+            de nombreux systèmes PC modernes. Cela facilite le clonage d'images
+            de PC depuis des machines réelles et l'importation de machines virtuelles
+            tierces dans VirtualBox.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis role="bold">Support complet de l'ACPI.</emphasis>
+            L'Advanced Configuration and Power Interface (ACPI) est complètement
+            supportée par VirtualBox. Cela facilite le clonage d'images
+            de PC depuis des machines réelles et l'importation de machines virtuelles
+            tierces dans VirtualBox. Avec son
+            <emphasis role="bold">support d'état d'énergie de l'ACPI</emphasis>
+            unique, VirtualBox peut même signaler aux systèmes d'exploitation
+            supportant l'ACPI l'état de l'alimentation de l'hôte. Pour les
+            systèmes mobiles sur batterie, le système invité peut ainsi activer
+            l'économie d'énergie et signaler à l'utilisateur le temps restant 
+            (par exemple en mode plein écran).</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis role="bold">résolutions sur plusieurs écrans.</emphasis>
+            Les machines virtuelles VirtualBox supportent les résolutions d'écran
+            sur autant d'écrans que d'écrans physiques, ce qui leur permet de
+            s'étaler sur une grande variété d'écrans reliés au système hôte.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis role="bold">Support iSCSI construit en dur.</emphasis>
+            Cette fonctionnalité unique vous permet de connecter une machine
+            virtuelle directement à un serveur de stockage iSCSI sans passer par
+            le système hôte. La VM accède à la cible iSCSI directement, sans
+            l'intermédiaire requis pour virtualiser des disques virtuels dans
+            les fichiers conteneurs. Pour des détails, voir le <xref
+            linkend="storage-iscsi" />.</para>
+          </listitem>
+
+          <listitem>
+            <para><emphasis role="bold">Amorçage par le réseau PXE.</emphasis>
+            Les cartes réseaux virtuelles intégrées de VirtualBox supportent
+            complètement l'amorçage à distance via Preboot Execution Environment (PXE).</para>
+          </listitem>
+        </itemizedlist>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Multigénération d'instantanés en branches.
+        </emphasis> VirtualBox peut sauvegarder des instantanés de votre choix de
+       l'état de la machine virtuelle. Vous pouvez revenir dans le passé et 
+       rétablir l'état de la machine virtuelle à n'importe quel instantané, puis
+       démarrer une autre configuration de VM à partir de là, ce qui crée de fait
+       une arborescence d'instantanés complète. Pour les
+       détails, voir le <xref linkend="snapshots" />. Vous pouvez créer et
+       effacer des instantanés alors que la machine virtuelle est en fonction.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Groupes de VMs.</emphasis> VirtualBox offre
+        une fonction de groupes permettant à l'utilisateur d'organiser les
+        machines virtuelles en groupe ou individuellement. Outre les groupes
+        classiques, il est également possible pour une VM d'être dans plus d'un
+        groupe et pour des groupes d'être classés dans une hiérarchie - c'est-à-dire
+        des groupes de groupes. Les opérations faisables sur les groupes sont
+        généralement les mêmes que celles applicables aux VMs individuelles,
+        à savoir le démarrage, la pause, la réinitialisation, la fermeture (état sauvegardé, envoyer une extinction,
+        couper), désactiver l'état sauvegardé, afficher dans le système de
+        fichiers, trier.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Architecture propre&#xA0;; une modularité
+        sans précédent.</emphasis> VirtualBox a un aspect extrêmement modulaire
+        avec des interfaces de programmation internes bien définies et une
+        séparation propre du code client et serveur. Cela facilite son contrôle
+        par plusieurs interfaces à la fois&#xA0;: par exemple, vous pouvez
+        démarrer une VM en cliquant simplement sur un bouton de l'interface
+        graphique de VirtualBox, puis contrôler cette machine à partir de la ligne
+        de commande, voire même à distance. Voir le
+        <xref linkend="frontends" /> pour les détails.</para>
+
+        <para>Du fait de son architecture modulaire, VirtualBox peut également
+        présenter toutes ses fonctionnalités et sa flexibilité de configuration
+        dans un 
+        <emphasis role="bold">kit de développement logiciel (SDK),</emphasis>
+        cohérent qui permet d'intégrer tous les aspects de VirtualBox à d'autres
+        logiciels. Merci de voir le <xref linkend="VirtualBoxAPI" /> pour les
+        détails.</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">Affichage de machines à distance.</emphasis> La
+        VirtualBox Remote Desktop Extension (VRDE) permet un accès distant et
+        en haute performance à une machine virtuelle en fonction. Cette
+        extension supporte le protocole de bureau distant (VRDP), construit au
+        départ dans Microsoft Windows, avec des suppléments spéciaux pour
+        un support complet de l'USB sur le client.</para>
+
+        <para>Le VRDE ne se base pas sur le serveur RDP construit dans 
+        Microsoft Windows&#xA0;; mais il est inclu directement dans la couche de
+        virtualisation. Il s'en suit qu'il fonctionne avec les systèmes
+        d'exploitation hôte différents de Windows (même en mode texte) et il
+        n'a pas besoin non plus d'un support applicatif dans la machine
+        virtuelle. Le VRDE est décrit en détail au <xref linkend="vrde" />.</para>
+
+        <para>En plus de cette possibilité, VirtualBox vous
+        offre les fonctionnalités uniques&#xA0;:<itemizedlist>
+            <listitem>
+              <para><emphasis role="bold">Authentification RDP Extensible.</emphasis> 
+              VirtualBox supporte déjà Winlogon
+              sur Windows et PAM sur Linux pour l'anthentification RDP.
+              En outre, il inclut un SDK facile à utiliser qui vous permet de 
+             créer des interfaces de votre choix pour d'autres méthodes 
+             d'authentification&#xA0;; voir
+              <xref linkend="vbox-auth" /> pour des détails.</para>
+            </listitem>
+
+            <listitem>
+              <para><emphasis role="bold">USB via RDP.</emphasis> Via le support
+              RDP de canaux virtuels, VirtualBox vous permet aussi de connecter 
+              des périphériques USB de votre choix en local sur une machine
+              virtuelle en fonction à distance sur un serveur RDP VirtualBox&#xA0;;
+              voir le <xref
+              linkend="usb-over-rdp" /> pour les détails.</para>
+            </listitem>
+          </itemizedlist></para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+
+  <sect1 id="hostossupport">
+    <title>Systèmes d'exploitation hôtes supportés</title>
+
+    <para>Actuellement, VirtualBox fonctionne sur les systèmes d'exploitation 
+    hôtes suivants&#xA0;:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Hôtes <emphasis role="bold">Windows</emphasis>&#xA0;:<itemizedlist>
+            <listitem>
+              <para>Windows XP, tous les packs service (32 bits)</para>
+            </listitem>
+
+            <listitem>
+              <para>Windows Server 2003 (32 bits)</para>
+            </listitem>
+
+            <listitem>
+              <para>Windows Vista (32 bits et 64 bits<footnote>
+                  <para>Le support pour Windows 64 bits a été ajouté avec VirtualBox
+                  1.5.</para>
+                </footnote>).</para>
+            </listitem>
+
+            <listitem>
+              <para>Windows Server 2008 (32 bits et 64 bits)</para>
+            </listitem>
+            <listitem>
+              <para>Windows Server 2008 R2 (64 bits)</para>
+            </listitem>
+
+            <listitem>
+              <para>Windows 8 (32 bits et 64 bits)</para>
+            </listitem>
+
+            <listitem>
+              <para>Windows 8.1 (32 bits et 64 bits)</para>
+            </listitem>
+
+            <listitem>
+              <para>Windows Server 2012 (64 bits)</para>
+            </listitem>
+
+            <listitem>
+              <para>Windows Server 2012 R2 (64 bits)</para>
+            </listitem>
+
+          </itemizedlist></para>
+      </listitem>
+
+      <listitem>
+        <para>Hôtes <emphasis role="bold">Mac OS X</emphasis>&#xA0;:<footnote>
+            <para>Le support préliminaire de Mac OS X (étape beta) a été ajouté
+            avec VirtualBox 1.4, le support complet avec 1.6. Le support pour
+            Mac OS X 10.4 (Tiger) a été supprimé avec VirtualBox 3.1.</para>
+          </footnote></para>
+
+        <itemizedlist>
+          <listitem>
+            <para>10.6 (Snow Leopard, 32 bits et 64 bits)</para>
+          </listitem>
+
+          <listitem>
+            <para>10.7 (Lion, 32 bits et 64 bits)</para>
+          </listitem>
+
+          <listitem>
+            <para>10.8 (Mountain Lion, 64 bits)</para>
+          </listitem>
+          <listitem>
+            <para>10.9 (Mavericks, 64 bits)</para>
+          </listitem>
+
+        </itemizedlist>
+
+        <para>Du matériel Intel est requis&#xA0;; merci de voir aussi le <xref
+        linkend="KnownIssues" />.</para>
+      </listitem>
+
+      <listitem>
+        <para>Hôtes <emphasis role="bold">Linux</emphasis> (32 bits et
+        64 bits<footnote>
+            <para>Le support pour Linux 64 bits a été ajouté avec VirtualBox
+            1.4.</para>
+          </footnote>). Cela inclut entre autres&#xA0;:<itemizedlist>
+            <listitem>
+              <para>Ubuntu 10.04 ("Lucid Lynx"), 10.10 ("Maverick Meerkat),
+              11.04 ("Natty Narwhal"), 11.10 ("Oneiric Oncelot"),
+              12.04 ("Precise Pangolin"), 12.10 ("Quantal Quetzal"),
+              13.04 ("Raring Ringtail"), 13.10 ("Saucy Salamander"),
+              14.04 ("Trusty Tahr")</para>
+            </listitem>
+
+            <listitem>
+              <para>Debian GNU/Linux 6.0 ("squeeze") et 7.0 ("wheezy")</para>
+            </listitem>
+
+            <listitem>
+              <para>Oracle Enterprise Linux 5, Oracle Linux 6</para>
+            </listitem>
+
+            <listitem>
+              <para>Redhat Enterprise Linux 5 et 6</para>
+            </listitem>
+
+            <listitem>
+              <para>Fedora Core 6 à 20</para>
+            </listitem>
+
+            <listitem>
+              <para>Gentoo Linux</para>
+            </listitem>
+
+            <listitem>
+              <para>openSUSE 11.0, 11.1, 11.2, 11.3, 11.4, 12.1, 12.2, 13.1</para>
+            </listitem>
+
+            <listitem>
+              <para>Mandriva 2011</para>
+            </listitem>
+          </itemizedlist></para>
+
+        <para>On devrait pouvoir utiliser VirtualBox sur la plupart des systèmes
+        basés sur un noyau Linux 2.6 ou 3.x, soit en utilisant l'installeur de
+        VirtualBox, soit en faisant une installation manuelle&#xA0;; voir
+        le <xref linkend="install-linux-host" />. Cependant, les distributions
+        Linux formellement testées et supportées sont celles pour lesquelles
+        nous offrons un paquet dédié.</para>
+
+        <para>Remarquez qu'à partir de VirtualBox 2.1, les systèmes d'exploitation
+        hôtes Linux basés sur le noyau 2.4 ne sont plus supportés.</para>
+      </listitem>
+
+      <listitem>
+        <para>Les hôtes <emphasis role="bold">Solaris</emphasis> (64 bits seulement)
+        sont supportés avec les restrictions listées au <xref
+        linkend="KnownIssues" />&#xA0;:<itemizedlist>
+            <listitem>
+              <para>Solaris 11 y compris Solaris 11 Express</para>
+            </listitem>
+
+            <listitem>
+              <para>Solaris 10 (u8 et supérieur)</para>
+            </listitem>
+          </itemizedlist></para>
+      </listitem>
+    </itemizedlist>
+    <para>Remarquez que la liste ci-dessus est informelle. Le support Oracle
+    pour les clients ayant un contrat d'assistance est limité aux systèmes d'exploitation
+    hôtes précités. En outre, les fonctionnalités marquées comme <emphasis
+    role="bold">experimental</emphasis> ne sont pas supportées. Les retours et les
+    suggestions sur ces fonctionnalités sont bienvenues.</para>
+  </sect1>
+
+  <sect1 id="intro-installing">
+    <title>Installer VirtualBox et les packs d'extension</title>
+
+    <para>VirtualBox est fourni dans de nombreux paquets et son installation
+    dépend de votre système d'exploitation hôte. Si vous avez déjà installé ce
+    logiciel, l'installation devrait être facile&#xA0;: pour chaque plateforme hôte,
+    VirtualBox utilise la méthode d'installation la plus facile possible.
+    Si vous avez un problème ou des besoins particuliers, reportez vous à la
+    <xref linkend="installation" /> pour des détails sur les différentes
+    méthodes d'installation.</para>
+
+    <para>À partir de la version 4.0, VirtualBox est divisé en plusieurs 
+    composants.<orderedlist>
+        <listitem>
+          <para>Le paquet de base contient tous les composants libres et il est
+          sous licence GNU General Public License V2.</para>
+        </listitem>
+
+        <listitem>
+          <para>Des packs d'extension supplémentaires peuvent être téléchargés,
+          qui rajoutent des fonctionnalités au paquet de base de VirtualBox. 
+          Pour l'instant, Oracle fournit un seul pack d'extension, qu'on peut
+          trouver sur <ulink
+          url="http://www.virtualbox.org">http://www.virtualbox.org</ulink> et
+          qui offre les fonctionnalités supplémentaires suivantes&#xA0;:<orderedlist>
+              <listitem>
+                <para>Périphériques virtuels USB 2.0 (EHCI)&#xA0;; voir le <xref
+                linkend="settings-usb" />.</para>
+              </listitem>
+
+              <listitem>
+                <para>Support de VirtualBox Remote Desktop Protocol (VRDP)&#xA0;;
+                voir le 
+                <xref linkend="vrde" />.</para>
+              </listitem>
+
+              <listitem>
+                <para>Webcam hôte passthrough; voir le chapitre <xref
+                linkend="webcam-passthrough" />.</para>
+              </listitem>
+              <listitem>
+                <para>Amorçage Intel PXE ROM.</para>
+              </listitem>
+
+              <listitem>
+                <para>Support expérimental pour passthrough PCI sur les hôtes
+                Linux&#xA0;;
+                  voir le <xref linkend="pcipassthrough" />.</para>
+              </listitem>
+            </orderedlist></para>
+
+          <para>Les packs d'extension VirtualBox ont une extension de nom de fichiers
+          <computeroutput>.vbox-extpack</computeroutput>.
+          Pour installer une extension, double-cliquez simplement sur le fichier
+          du paquet et une fenêtre de gestion des opérations réseaux apparaîtra,
+          vous guidant à travers les étapes nécessaires.</para>
+
+          <para>Pour voir les paquets d'extension actuellement installés,
+          merci de démarrer le gestionnaire VirtualBox (voir la prochaine section). 
+          Dans le menu "Fichier", merci de sélectionner "Paramètres". Dans
+          la fenêtre qui apparaît, allez à la catégorie "Extensions" qui
+          affiche les extensions actuellement installées et vous permet de
+          supprimer un paquet ou d'en ajouter un.</para>
+
+          <para>Vous pouvez aussi utiliser VBoxManage en ligne de commande&#xA0;:
+          voir le
+          <xref linkend="vboxmanage-extpack" /> pour des détails.</para>
+        </listitem>
+      </orderedlist></para>
+
+    <note><para>Quand vous serez familier de l'utilisation des assistants,
+    songez à utiliser le mode expert disponible dans certains assistants. Quand
+    il est disponible, on peut le sélectionner en cliquant sur un bouton et cela
+    accélère les processus de l'utilisateur pour utiliser l'assistant.</para>
+    </note>
+
+  </sect1>
+
+  <sect1>
+    <title>Démarrer VirtualBox</title>
+
+    <para>Après l'installation, vous pouvez démarrer VirtualBox comme suit&#xA0;:<itemizedlist>
+        <listitem>
+          <para>Sur un hôte Windows, dans le menu standard "Programmes", cliquez
+          sur l'élément du groupe "VirtualBox". Sur Vista ou Windows 7, vous
+          pouvez aussi taper "VirtualBox" dans la zone de recherche du menu
+          "Démarrer".</para>
+        </listitem>
+
+        <listitem>
+          <para>Sur un hôte Mac OS X, dans la zone de recherche, cliquez deux
+          fois sur l'élément "VirtualBox" du dossier "Applications". (Il se
+          peut que vous vouliez mettre cet élément sur votre Dock.)</para>
+        </listitem>
+
+        <listitem>
+          <para>Sur un hôte Linux ou Solaris, selon votre environnement de
+          bureau, une icône "VirtualBox" peut avoir été mise soit dans le groupe
+          "Système" soit dans "Outils système" de votre menu "Applications". Sinon
+          vous pouvez taper 
+          <computeroutput>VirtualBox</computeroutput> dans un terminal.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>Quand vous démarrez VirtualBox pour la première fois, une fenêtre comme
+    celle suivante devrait apparaître&#xA0;:</para>
+
+    <para><mediaobject>
+        <imageobject>
+          <imagedata align="center" fileref="images/virtualbox-main-empty.png"
+                     width="10cm" />
+        </imageobject>
+      </mediaobject>Cette fenêtre s'appelle le <emphasis
+    role="bold">"gestionnaire VirtualBox".</emphasis>. À gauche, vous pouvez voir
+    un panneau qui listera, plus tard, toutes vos machines virtuelles. Comme vous
+    n'en avez pas créées, la liste est vide. Une ligne de boutons au-dessus
+    vous permet de créer de nouvelles VMs et de travailler sur celles existantes,
+    lorsque vous en avez. Le panneau à droite affiche les propriétés de la
+    machine virtuelle actuellement sélectionnée s'il y en a une. De nouveau, 
+    comme vous n'avez pas encore de machine, le panneau affiche un message de
+    bienvenue.</para>
+
+    <para>Pour vous donner une idée de ce à quoi pourrait ressembler VirtualBox
+    plus tard, après que vous avez créé des machines, voici un autre exemple&#xA0;:</para>
+
+    <para><mediaobject>
+        <imageobject>
+          <imagedata align="center" fileref="images/virtualbox-main.png"
+                     width="10cm" />
+        </imageobject>
+      </mediaobject></para>
+  </sect1>
+
+  <sect1 id="gui-createvm">
+    <title>Créer votre première machine virtuelle</title>
+
+    <para>Cliquez sur le bouton "Nouveau" en haut de la fenêtre du gestionnaire
+    VirtualBox. Un assistant apparaîtra pour vous guider à travers le paramétrage
+    d'une nouvelle machine virtuelle (VM)&#xA0;:</para>
+
+    <para><mediaobject>
+        <imageobject>
+          <imagedata align="center" fileref="images/create-vm-1.png"
+                     width="10cm" />
+        </imageobject>
+      </mediaobject>Sur les écrans suivants, l'assistant vous demandera le
+      minimum d'informations dont il a besoin pour créer une VM, en
+    particulier&#xA0;:<orderedlist>
+        <listitem>
+          <para>Le <emphasis role="bold">nom de la VM</emphasis> sera plus
+          tard affiché dans la liste des VMs de la fenêtre du gestionnaire
+          VirtualBox, et il sera utilisé pour les fichiers de la VM sur le disque.
+          Si vous pouvez utiliser n'importe quel nom, gardez en tête qu'après 
+          avoir créé quelques VMs, vous apprécierez d'avoir donné à vos VMs des
+          noms parlants&#xA0;; ainsi "Ma VM" serait moins utile que "Windows XP
+          SP2 avec OpenOffice".</para>
+        </listitem>
+
+        <listitem>
+          <para>Pour le <emphasis role="bold">"Type de système d'exploitation",</emphasis>
+          sélectionnez le système d'exploitation que vous voudrez installer plus
+          tard. Les systèmes d'exploitation supportés sont ici regroupés&#xA0;; 
+          si vous voulez installer une chose très rare et non listé, sélectionnez
+          "Autre". Selon votre sélection, VirtualBox activera ou désactivera
+          certains paramètres de VM dont peut avoir besoin votre système d'exploitation invité.
+          C'est particulièrement important pour les invités 64 bits (voir le <xref
+          linkend="intro-64bitguests" />). Il est donc recommandé de toujours
+          paramétrer la bonne valeur.</para>
+        </listitem>
+
+        <listitem>
+          <para>Sur la page suivante, sélectionnez la <emphasis role="bold">mémoire
+          (RAM)</emphasis> que VirtualBox devra affecter à chaque fois que la
+          machine virtuelle sera démarrée. La quantité de mémoire indiquée ici sera
+          soustraite de celle de votre machine hôte et attribuée au système d'exploitation invité,
+          lequel verra cette mémoire comme RAM installée sur l'ordinateur (virtuel).</para>
+
+          <para><note>
+              <para>Choisissez avec prudence ce paramètre&#xA0;! La mémoire
+              donnée à la VM ne sera pas disponible pour votre OS hôte pendant
+              que la VM sera en fonction, donc ne spécifiez pas plus que vous ne
+              pouvez donner. Par exemple, si votre machine hôte a 1 Go de RAM
+              et si vous entrez 512 Mo de RAM pour une machine virtuelle en
+              particulier, pendant l'exécution de cette VM, vous n'aurez plus
+              que 512 Mo pour tous les autres logiciels de votre hôte. Si vous
+              lancez deux VMs en même temps, encore plus de mémoire sera affectée
+              à la deuxième VM (qui peut même ne pas démarrer si la mémoire n'est
+              pas disponible). D'un autre côté, vous devriez spécifier autant que
+              votre système d'exploitation invité (et vos applications) ont besoin 
+              pour s'exécuter correctement.</para>
+            </note></para>
+
+          <para>Un invité Windows XP exigera au moins quelques centaines de Mo
+          de RAM pour fonctionner correctement, et Windows Vista refusera même de
+          s'installer avec moins de 512 Mo. Bien sûr, si vous voulez lancer des
+          applications gourmandes en ressources graphiques dans votre VM, vous
+          pouvez avoir besoin de plus de RAM.</para>
+
+          <para>La règle d'or est donc que si vous avez 1 Go de RAM voire plus
+          dans votre ordinateur hôte, il est sûr d'affecter 512 Mo à chaque 
+          VM. Mais dans tous les cas, assurez-vous d'avoir au moins 256 à 512
+          Mo de RAM sur votre système d'exploitation hôte. Sinon, il se peut que
+          l'OS hôte fasse un usage excessif de l'espace d'échange sur votre disque 
+          dur, ce qui peut conduire à un plantage de votre système hôte.</para>
+
+          <para>Comme avec les autres paramètres, vous pourrez modifier ce
+          réglage plus tard après avoir créé la VM.</para>
+        </listitem>
+
+        <listitem>
+          <para>Ensuite vous devez spécifier un <emphasis role="bold">disque dur
+          virtuel</emphasis> pour votre VM.</para>
+
+          <para>Il existe de nombreuses façons, potentiellement compliquées, de
+          fournir de l'espace de disque dur à une VM avec 
+          VirtualBox (voir le <xref
+          linkend="storage" /> pour les détails), mais la manière la plus
+          courante est d'utiliser un gros fichier image sur votre "vrai" disque
+          dur, dont VirtualBox présente le contenu à votre VM comme si c'était un
+          disque dur normal. Ce fichier représente un disque dur complet donc vous
+          pouvez même le copier vers un autre hôte et l'utiliser avec une autre
+          installation VirtualBox.</para>
+
+          <para>L'assistant affiche la fenêtre suivante&#xA0;:</para>
+
+          <para><mediaobject>
+              <imageobject>
+                <imagedata align="center" fileref="images/create-vm-2.png"
+                           width="10cm" />
+              </imageobject>
+            </mediaobject></para>
+
+          <para>Vous avez alors les choix suivants&#xA0;:</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>Pour créer un nouveau disque dur virtuel vierge, appuyez 
+              sur le bouton <emphasis role="bold">"Nouveau"</emphasis>.</para>
+            </listitem>
+
+            <listitem>
+              <para>Vous pouvez utiliser un fichier image de disque <emphasis
+              role="bold">existant</emphasis>.</para>
+
+              <para>La <emphasis role="bold">boîte à liste déroulante</emphasis>
+              affichée dans la fenêtre contient toutes les images de disque
+              dont se souvient VirtualBox, probablement parce qu'elles sont
+              actuellement attachées à une machine virtuelle (ou elles l'ont
+              jadis été).</para>
+
+              <para>Vous pouvez aussi cliquer sur le petit bouton<emphasis
+              role="bold">dossier</emphasis> à côté de la boîte à liste
+              déroulante pour ouvrir une boîte de dialogue de fichier standard
+              qui vous permet de choisir un fichier image de disque sur le
+              disque de votre hôte.</para>
+            </listitem>
+          </itemizedlist>
+
+          <para>Vraisemblablement, si vous utilisez VirtualBox pour la première
+          fois, vous voudrez créer une nouvelle image de disque. Appuyez donc
+          sur le bouton "Nouveau".</para>
+
+          <para>Ceci ouvre une nouvelle fenêtre, celle <emphasis
+          role="bold">"Assistant Créer un nouveau disque virtuel",</emphasis>
+          qui vous aide à créer un nouveau fichier image de disque dans le
+          dossier de la nouvelle machine virtuelle.</para>
+
+          <para>VirtualBox supporte deux types de fichiers image&#xA0;:<itemizedlist>
+              <listitem>
+                <para>Un <emphasis role="bold">fichier rempli dynamiquement
+                </emphasis> ne grossira que lorsque l'invité stockera des données
+                sur son disque dur virtuel. Il sera donc petit au départ sur le
+                disque dur hôte et ne grossira que plus tard jusqu'à la taille indiquée,
+                au fur et à mesure que des données le rempliront.</para>
+              </listitem>
+
+              <listitem>
+                <para>Un <emphasis role="bold">fichier à taille fixe</emphasis>
+                occupera immédiatement l'espace spécifié même si seule une partie
+                de l'espace disque virtuel est en réalité utilisée. Si il occupe
+                beaucoup plus de place, un fichier à taille fixe connaît moins de
+                latence et il va donc légèrement plus vite qu'un fichier rempli
+                dynamiquement.</para>
+              </listitem>
+            </itemizedlist></para>
+
+          <para>Pour des détails sur les différences, merci de vous reporter au
+          <xref
+          linkend="vdidetails" />.</para>
+
+          <para>Pour empêcher votre disque dur physique de tourner à plein,
+          VirtualBox limite la taille du fichier image. Là encore il doit y avoir
+          assez de place pour le contenu de votre système d'exploitation et les
+          applications que vous voulez installer - pour un invité Windows ou
+          Linux modernes, vous aurez probablement besoin de plusieurs gigaoctets pour
+          une utilisation sérieuse&#xA0;:</para>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata align="center" fileref="images/create-vdi-1.png"
+                         width="10cm" />
+            </imageobject>
+          </mediaobject>
+
+          <para>Après avoir sélectionné ou créé votre fichier image, appuyez de
+          nouveau sur <emphasis role="bold">"Suivant"</emphasis> pour passer à
+          la page suivante.</para>
+        </listitem>
+
+        <listitem>
+          <para>Après avoir cliqué sur <emphasis role="bold">"Créer"</emphasis>,
+          votre nouvelle machine virtuelle sera créée. Vous la verrez alors
+          dans la liste à gauche de la fenêtre du gestionnaire, avec le nom
+          que vous avez entré au départ.</para>
+        </listitem>
+      </orderedlist></para>
+  </sect1>
+
+  <sect1>
+    <title>Lancer votre machine virtuelle</title>
+
+    <para>Pour démarrer une machine virtuelle, vous avez plusieurs choix&#xA0;:<itemizedlist>
+        <listitem>
+          <para>Cliquez deux fois sur son entrée dans la liste dans la fenêtre du
+          gestionnaire ou</para>
+        </listitem>
+
+        <listitem>
+          <para>sélectionnez son entrée dans la liste de la fenêtre 
+          du gestionnaire et appuyez sur le bouton "Démarrer" en bas ou</para>
+        </listitem>
+
+        <listitem>
+          <para>pour les machines virtuelles créées avec VirtualBox 4.0 ou
+          supérieur, allez au dossier "VirtualBox VMs" dans le dossier personnel
+          de votre système, cherchez le sous-répertoire de la machine que vous
+          voulez démarrer et cliquez deux fois sur le fichier de paramètres de la
+          machine (ayant une extension de fichier
+          <computeroutput>.vbox</computeroutput>).</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>Ceci ouvre une nouvelle fenêtre et la machine virtuelle que vous avez
+    sélectionnée va démarrer. Tout ce que vous verriez sur l'écran d'un système
+    normal apparaît dans la fenêtre, comme vous pouvez le voir sur l'image du
+    <xref linkend="virtintro" />.</para>
+
+    <para>En général, vous pouvez utiliser la machine virtuelle presqu'exactement
+    comme vous utiliseriez un vrai ordinateur. Deux points gagnent à être
+    mentionnés quand même.</para>
+
+    <sect2>
+      <title>Démarrage d'une nouvelle VM pour la première fois</title>
+
+      <para>Quand on démarre une VM pour la première fois, un autre assistant
+      <emphasis role="bold">"Assistant premier démarrage"</emphasis> -- apparaîtra
+      pour vous aider à sélectionner un
+      <emphasis role="bold">média d'installation</emphasis>. Comme la VM est
+      créée vierge, agissant exactement comme un vrai ordinateur sans système
+      d'exploitation installé, elle ne fera rien et affichera un message d'erreur
+      selon lequel aucun système d'exploitation n'a été trouvé.</para>
+
+      <para>C'est pourquoi l'assistant vous aide à sélectionner un média à
+      partir duquel vous pouvez installer un système d'exploitation.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Si vous avez un CD ou un DVD physique à partir duquel vous voulez
+          installer votre système d'exploitation invité (par exemple  un CD ou un
+          DVD d'installation de Windows), mettez-le dans le lecteur CD ou DVD de
+          votre hôte.</para>
+
+          <para>Puis dans la liste déroulante des médias d'installation de
+          l'assistant, 
+          sélectionnez <emphasis role="bold">"Lecteur hôte"</emphasis> avec
+          la bonne lettre de lecteur (ou, en cas d'hôte Linux, le fichier de
+          périphérique). Ceci permettra à votre VM d'accéder au média dans votre
+          lecteur hôte et vous pouvez poursuivre l'installation à partir de là.</para>
+        </listitem>
+
+        <listitem>
+          <para>Si vous avez téléchargé un média d'installation sur Internet
+          sous forme d'un fichier image ISO (en général pour une distribution
+          Linux), vous pourriez graver ce fichier sur un CD ou un DVD
+          vierge et poursuivre comme on vient de décrire. Mais avec VirtualBox,
+          vous pouvez passer cette étape et monter le fichier ISO directement.
+          VirtualBox présentera ce fichier comme un lecteur de CD ou de DVD-ROM
+          à la machine virtuelle, comme il le fait avec une image de disque dur virtuel.</para>
+
+          <para>Dans ce cas, la liste déroulante de l'assistant contient la liste
+          des médias d'installation qui ont été précédemment utilisés avec VirtualBox.</para>
+
+          <para>Si votre média n'est pas dans la liste (surtout si vous utilisez
+          VirtualBox pour la première fois), sélectionnez la petite icône de dossier
+          à côté de la liste déroulante pour afficher une boîte de dialogue de
+          fichiers standard dans laquelle vous pouvez choisir le fichier image 
+          sur vos disques hôtes.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Dans les deux cas, après avoir fait vos choix dans l'assistant, vous
+      pourrez installer votre système d'exploitation.</para>
+    </sect2>
+
+    <sect2 id="keyb_mouse_normal">
+      <title>Capturer et rendre le clavier et la souris</title>
+
+      <para>À partir de la version 3.2, VirtualBox offre aux nouvelles machines
+      virtuelles une tablette USB virtuelle à travers laquelle les événements
+      de la souris sont transmis au système d'exploitation invité. Il s'en suit
+      que si vous lancez un système d'exploitation invité moderne qui peut gérer
+      de tels périphériques, il se peut que le support de la souris fonctionne
+      sans que la souris ne soit "capturée" comme décrit ci-dessous&#xA0;;
+      voir <xref linkend="settings-motherboard" /> pour plus
+      d'informations.</para>
+
+      <para>Sinon, si la machine virtuelle ne voit que la souris et le clavier
+      PS/2 standards, car le système d'exploitation de la machine virtuelle ne
+      "sait" pas qu'il ne fonctionne pas sur un vrai ordinateur, il attend à
+      avoir un contrôle exclusif de votre clavier et de votre souris. Ce n'est
+      cependant pas le cas puisque, sauf si vous lancez votre VM en mode plein
+      écran, votre VM doit partager le clavier et la souris avec d'autres
+      applications et éventuellement d'autres VMs sur l'hôte.</para>
+
+      <para>Il s'en suit qu'immédiatement après l'installation d'un système
+      d'exploitation invité, et avant que vous installiez les Suppléments invité
+      (nous expliquerons cela dans une minute), seule une des deux -- votre VM ou
+      le reste de votre ordinateur -- peut "détenir" le clavier et la souris.
+      Vous verrez un
+      <emphasis>deuxième</emphasis> pointeur de souris qui sera toujours enfermé
+      dans la fenêtre de la VM. De base, vous activez la VM en 
+      cliquant dedans.</para>
+
+      <para>Pour rendre le clavier et la souris à votre système d'exploitation
+      hôte, VirtualBox réserve une touche spéciale de votre clavier pour
+      lui&#xA0;: la <emphasis role="bold">"touche hôte".</emphasis> Par défaut,
+      c'est la <emphasis>touche Contrôle droit</emphasis> de votre clavier&#xA0;;
+      sur un hôte Mac, la touche hôte par défaut est la touche de commande
+      gauche. Vous pouvez modifier ce réglage par défaut dans les paramètres
+      globaux de VirtualBox, voir <xref linkend="globalsettings" />. Dans tous 
+      les cas, le paramétrage actuel de la
+      touche hôte est toujours affiché <emphasis>en bas à droite de la fenêtre
+      de la VM,</emphasis> au cas où vous l'auriez oublié&#xA0;:</para>
+
+      <para><mediaobject>
+          <imageobject>
+            <imagedata align="center" fileref="images/vm-hostkey.png"
+                       width="7cm" />
+          </imageobject>
+        </mediaobject>En détail, tout se traduit comme suit&#xA0;:</para>
+
+      <para><itemizedlist>
+          <listitem>
+            <para>Votre <emphasis role="bold">clavier</emphasis> appartient à la
+            VM si la fenêtre de la VM du bureau hôte contient le focus
+            du clavier (et si vous avez beaucoup de fenêtres ouvertes dans votre
+            système d'exploitation invité, la fenêtre contenant le focus dans votre
+            VM). Cela veut dire que si vous voulez taper quelque chose dans votre
+            VM, cliquez d'abord sur la barre de titre de la fenêtre de votre VM.</para>
+
+            <para>Pour rendre la propriété du clavier, appuyez sur la touche hôte
+            (comme expliqué ci-dessus, en général la touche Contrôle droit).</para>
+
+            <para>Remarquez que si la VM possède le clavier, certaines séquences
+            de touches (comme Alt-Tab par exemple) ne seront plus vues par l'hôte,
+            mais iront plutôt à l'invité. Après avoir appuyé sur la touche hôte
+            pour réactiver le clavier hôte, tous les appuis iront de nouveau à
+            l'hôte pour que les séquences comme Alt-Tab ne touchent plus l'invité.
+            Pour des raisons techniques, il se peut qu'il ne soit pas possible,
+            pour une VM, de récupérer toutes les entrées du clavier même si elle
+            possède ce dernier. Par exemples, la séquence Alt-Ctrl-Suppr sur les
+            hôtes Windows ou des touches uniques utilisées par certaines applications
+            sur les hôtes X11 comme la fonction "La touche Contrôle souligne le
+            pointeur de la souris" du bureau GNOME.</para>
+          </listitem>
+
+          <listitem>
+            <para>Votre <emphasis role="bold">souris</emphasis> n'appartient à
+            la VM qu'après avoir cliqué de nouveau dans la fenêtre de la VM. Le
+            pointeur de souris de l'hôte disparaîtra et votre souris maniera
+            le pointeur de l'invité au lieu de votre pointeur de souris normal.</para>
+
+            <para>Remarquez que l'appartenance de la souris ne dépend pas de
+            celle du clavier, même après avoir cliqué sur la barre de titre pour
+            pouvoir taper dans la fenêtre de la VM, votre souris n'appartient pas
+            nécessairement à la VM.</para>
+
+            <para>Pour rendre l'appartenance de votre souris à la VM, appuyez
+            sur la touche hôte.</para>
+          </listitem>
+        </itemizedlist></para>
+
+      <para>Comme ce comportement peut être gênant, VirtualBox offre un ensemble
+      d'outils et de pilotes de périphériques pour les systèmes invités, appelé
+      les "Suppléments invité VirtualBox", qui rendent beaucoup transparentes
+      les opérations du clavier et de la souris de la VM. Très important,
+      les suppléments vous débarrasserons du deuxième pointeur de souris de
+      "l'invité" et fera fonctionner la souris de votre hôte directement dans
+      l'invité.</para>
+
+      <para>On décrira ceci plus tard au <xref
+      linkend="guestadditions" />.</para>
+    </sect2>
+
+    <sect2 id="specialcharacters">
+      <title>Taper des caractères spéciaux</title>
+
+      <para>Les systèmes d'exploitation prévoient certaines combinaisons de touches
+      pour lancer certaines procédures. Certaines de ces combinaisons de touches
+      peuvent être difficiles à faire dans une machine virtuelle&#xA0;; car il y
+      a trois candidats à la réception de l'entrée clavier&#xA0;: le système
+      d'exploitation hôte, VirtualBox ou le système d'exploitation invité.
+      Le récepteur de l'appui sur les touches dépend d'un certain nombre de facteurs
+      comprenant la touche elle-même.</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>Les systèmes d'exploitation hôte réservent certaines combinaisons
+          de touches pour eux. C'est par exemple impossible de faire
+          <emphasis
+          role="bold">Ctrl+Alt+Supp</emphasis> si vous voulez redémarrer le
+          système d'exploitation invité de votre machine virtuelle, car cette
+          combinaison de touches est en général rattachée en dur à l'OS hôte
+          (Windows comme Linux l'interceptent), et l'appui sur cette  combinaison
+          de touches redémarrera donc votre <emphasis>hôte</emphasis>.</para>
+
+          <para>De plus, sur les systèmes Linux et Solaris, qui utilise le
+          système X Window, la combinaison de touches <emphasis
+          role="bold">Ctrl+Alt+Effacement</emphasis> redémarrent en général le
+          serveur X (pour relancer toute interface graphique en cas de problème).
+          Comme le serveur X intercepte cette combinaison, l'appui sur ces touches
+          relancera en général votre interface graphique <emphasis>hôte</emphasis> 
+          (et tuera tous les programmes, dont VirtualBox, dans l'opération).</para>
+
+          <para>Par ailleurs, sur les hôtes Linux qui supportent les terminaux
+          virtuels, la combinaison de touches <emphasis role="bold">Ctrl+Alt+Fx</emphasis>
+          (où Fx est une touche de fonctions entre F1 et F12) permet en principe 
+          de basculer entre des terminaux virtuels. Comme avec Ctrl+Alt+Supp, 
+          ces combinaisons sont interceptées par le système d'exploitation hôte
+          et elles basculent donc toujours entre les terminaux de
+          <emphasis>l'hôte</emphasis>.</para>
+
+          <para>Si vous voulez plutôt envoyer ces combinaisions de touches au
+          système d'exploitation <emphasis>invité</emphasis> de la machine
+          virtuelle, vous devrez utiliser une des méthodes suivantes&#xA0;:</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>Utiliser les icônes du menu "Machine" de la fenêtre de la
+              machine virtuelle. Vous y trouverez "Insérer Ctrl+Alt+Supp" et
+              "Ctrl+Alt+Effacement"&#xA0;; cette dernière n'ayant toutefois
+              d'effet qu'avec les invités Linux ou Solaris.</para>
+            </listitem>
+
+            <listitem>
+              <para>Appuyer sur des combinaisons de touches spéciales avec la
+              touche hôte (en principe, la touche contrôle droit), alors VirtualBox
+              traduira, pour la machine virtuelle&#xA0;:<itemizedlist>
+                  <listitem>
+                    <para><emphasis role="bold">Touche hôte + Supp</emphasis>
+                    envoie Ctrl+Alt+Supp pour redémarrer l'invité);</para>
+                  </listitem>
+
+                  <listitem>
+                    <para><emphasis role="bold">Touch hôte +
+                    Effacement</emphasis> pour envoyer Ctrl+Alt+Effacement (pour
+                    redémarrer l'interface graphique d'un invité Linux ou Solaris)&#xA0;;</para>
+                  </listitem>
+
+                  <listitem>
+                    <para><emphasis role="bold">Touche hôte + F1</emphasis> (ou
+                    autres touches de fonction) pour simuler Ctrl+Alt+F1 (ou
+                    d'autres touches de fonction, pour basculer entre les 
+                    terminaux virtuels d'un invité Linux).</para>
+                  </listitem>
+                </itemizedlist></para>
+            </listitem>
+          </itemizedlist>
+        </listitem>
+
+        <listitem>
+          <para>Pour d'autres combinaisons de touches telles que <emphasis
+          role="bold">Alt-Tab</emphasis> (pour basculer entre des fenêtres
+          ouvertes), VirtualBox vous permet de configurer si ces combinaisons
+          concerneront l'hôte ou l'invité, si la machine virtuelle a
+          le focus. C'est un paramètre global de toutes les machines virtuelles
+          qui se trouve dans "Fichier" -&gt; "Préférences" -&gt; "Entrée" -&gt;
+          "Capture automatique du clavier".</para>
+        </listitem>
+      </itemizedlist>
+    </sect2>
+
+    <sect2>
+      <title>Changer de média amovible</title>
+
+      <para>Pendant qu'une machine virtuelle fonctionne, vous pouvez changer de
+      média amovible dans le menu "Périphériques" de la fenêtre de la VM.
+      Vous pouvez y sélectionner en détail ce que VirtualBox présente à votre
+      VM en tant que CD, DVD, ou disquette.</para>
+
+      <para>Les paramètres sont les mêmes que ceux disponibles pour la VM dans
+      la boîte de dialogue "Paramètres" de la fenêtre principale de VirtualBox,
+      mais vu que la boîte de dialogue est désactivée quand la machine est
+      dans l'état "en fonction" ou "sauvegardée", ce menu supplémentaire vous
+      évite d'éteindre et de redémarrer la VM à chaque fois que vous voulez
+      changer de média.</para>
+
+      <para>Dès lors, dans le menu "Périphériques", VirtualBox vous permet
+      d'attacher le lecteur hôte à l'invité ou de sélectionner une image de
+      DVD ou de disquette en utilisant le gestionnaire d'images de disque, tout
+      comme décrit à la <xref
+      linkend="configbasics" />.</para>
+    </sect2>
+
+    <sect2 id="intro-resize-window">
+      <title>Redimensionner la fenêtre de la machine</title>
+
+      <para>Vous pouvez redimensionner la fenêtre de la machine virtuelle quand
+      elle fonctionne. Dans un tel cas, une des choses suivantes arrivera&#xA0;:<orderedlist>
+          <listitem>
+            <para>Si vous avez activé le <emphasis role="bold">"mode échelle"</emphasis>,
+            l'écran de la machine virtuelle sera adapté à la taille de la
+            fenêtre. Ceci peut être utile si vous avez de nombreuses machines
+            en fonction et si vous voulez les visualiser en fonction en
+            arrière-plan. Sinon, il pourrait être utile d'agrandir la fenêtre si
+            l'écran d'affichage de la fenêtre est très petit, par exemple car
+            vous y exécutez un vieux système d'exploitation.</para>
+
+            <para>Pour activer le mode échelle, appuyez sur <emphasis role="bold">touche
+            hôte + C</emphasis>, ou sélectionnez "Mode échelle" du menu "Machine"
+            dans la fenêtre de la VM. Pour désactiver le mode échelle, appuyez
+            de nouveau sur la touche hôte + C.</para>
+
+            <para>Les valeurs d'affichage de l'écran de l'invité sont préservées
+            lorsque vous redimensionnez la fenêtre. Pour ignorer ces valeurs
+            d'affichage, appuyez sur Majuscule pendant l'opération de
+            redimensionnement.</para>
+
+            <para>Merci de voir <xref linkend="KnownIssues" /> pour des
+            remarques supplémentaires.</para>
+          </listitem>
+
+          <listitem>
+            <para>Si vous avez installé les Suppléments invité et s'ils supportent
+            le <emphasis role="bold">redimensionnement</emphasis> automatique,
+            les suppléments invité ajusteront automatiquement la résolution de 
+            l'écran du système d'exploitation invité. Par exemple, si vous
+            exécutez un invité Windows avec une résolution de 1024x768 pixels et
+            si vous élargissez la fenêtre de la VM de 100 pixels, les suppléments
+            invité passeront la résolution de l'affichage de Windows en
+            1124x768.</para>
+
+            <para>Merci de voir <xref linkend="guestadditions" /> pour plus
+            d'informations sur les suppléments invité.</para>
+          </listitem>
+
+          <listitem>
+            <para>Sinon, si la fenêtre est plus haute que l'écran de la VM,
+            l'écran sera centré. Si elle est plus petite, les barres de défilement
+            seront ajoutées à la fenêtre de la machine.</para>
+          </listitem>
+        </orderedlist></para>
+    </sect2>
+
+    <sect2>
+      <title>Sauvegarder l'état de la machine</title>
+
+      <para>Quand vous cliquez sur le bouton "Fermer" de la fenêtre de votre 
+      machine virtuelle (en haut à droite de la fenêtre, exactement comme vous
+      fermeriez n'importe quelle fenêtre de votre système), VirtualBox vous
+      demande si vous voulez "sauvegarder" ou "couper" la VM. (Vous pouvez
+      appuyez sur la touche hôte et "Q" simultanément en guise de raccourci.)</para>
+
+      <para><mediaobject>
+          <imageobject>
+            <imagedata align="center" fileref="images/vm-close.png"
+                       width="11cm" />
+          </imageobject>
+        </mediaobject>La différence entre ces trois options est cruciale.
+      Elles signifient&#xA0;:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para><emphasis role="bold">Sauvegarder l'état de la machine&#xA0;:</emphasis>
+          Avec cette option, VirtualBox "gèle" la machine virtuelle en sauvegardant
+          complètement son état sur votre disque local.</para>
+
+          <para>Quand vous redémarrerez la VM plus tard, vous vous retrouverez avec
+          la VM exactement là où vous l'avez interrompue. Tous vos programmes
+          seront encore ouverts et votre ordinateur recommencera ses tâches. La
+          sauvegarde de l'état d'une machine virtuelle revient, d'une certaine
+          façon, à mettre en veille prolongée un ordinateur portable (par exemple
+          en fermant l'écran).</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Envoyer le signal Éteindre.</emphasis>
+          Ceci enverra un message d'extinction ACPI à la machine virtuelle,
+          qui a le même effet que si vous aviez appuyé sur le bouton d'alimentation
+          d'un ordinateur réel. Si la VM exécute un système d'exploitation moderne,
+          cela devrait provoquer un vrai mécanisme d'extinction de la VM.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Couper la machine&#xA0;:</emphasis> Avec
+          cette option, VirtualBox arrête aussi l'exécution de la machine virtuelle,
+          mais <emphasis>sans</emphasis> sauvegarder son état.<warning>
+              <para>Cela revient à débrancher le câble d'alimentation d'un
+              vrai ordinateur sans l'éteindre correctement. Si vous redémarrez
+              la machine après l'avoir coupée, votre système d'exploitation devra
+              redémarrer complètement et il se peut qu'il fasse une vérification
+              de ses disques systèmes (virtuels). Vous ne devriez donc pas le
+              faire car cela peut conduire à une perte de données ou à un état
+              incohérent du disque du système invité.</para>
+            </warning></para>
+
+          <para>Par exception, si votre machine virtuelle a des instantanés (voir
+          le prochain chapitre), vous pouvez utiliser cette option pour <emphasis
+          role="bold">restaurer l'instantané actuel</emphasis> de la
+          machine virtuelle rapidement. Dans ce cas, couper la machine ne dégradera
+          pas son état mais seules les modifications faites depuis que vous
+          avez pris l'instantané seront perdues.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Le bouton <emphasis role="bold">"Oublier"</emphasis> de la fenêtre
+      du gestionnaire de VirtualBox Manager désactive un état sauvegardé de la 
+      machine virtuelle. Cela a le même effet que de couper la machine, donc les
+      mêmes avertissements s'appliquent.</para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="gui-vmgroups">
+    <title>Utiliser des groupes de VMs</title>
+
+    <para>Les groupes de VMs permettent à l'utilisateur de créer des groupes ad
+    hoc de VMs, et de gérer et d'effectuer des fonctions de façon collective
+    ou individuelle sur ceux-ci. Il existe un certain nombre de fonctions liées
+    aux groupes&#xA0;:</para>
+ 
+    <orderedlist>
+        <listitem>
+          <para>
+            Créer un groupe en utilisant l'option de l'interface graphique 1) 
+            Remontez une VM au-dessus d'une autre VM. 
+          </para>
+          <para>
+            Créer un groupe en utilisant l'option 2) Sélectionnez plusieurs VMs
+            et sélectionnez "Groupe" sur le menu issu du clic droit, comme suit&#xA0;:
+          </para>
+
+          <para><mediaobject>
+          <imageobject>
+          <imagedata align="center" fileref="images/vm-groups.png"
+                     width="10cm" />
+          </imageobject>
+          </mediaobject></para>
+
+        </listitem>
+        <listitem>
+          <para>
+            Option en ligne de commande 1) Créer un groupe et y affecter une VM&#xA0;:
+            <screen>VBoxManage modifyvm "Fred" --groups "/TestGroup"</screen>
+          </para>
+          <para>
+            Option en ligne de commande 2) Retirer une VM d'un groupe et effacer
+            le groupe s'il est vide&#xA0;:
+            <screen>VBoxManage modifyvm "Fred" --groups ""</screen>
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Plusieurs groupes par exemple&#xA0;:
+            <screen>VBoxManage modifyvm "Fred" --groups "/TestGroup,/TestGroup2"</screen>
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+            Groupes nested -- hiérarchie de groupes comme&#xA0;:
+            <screen>VBoxManage modifyvm "Fred" --groups "/TestGroup/TestGroup2"</screen>
+          </para>
+        </listitem>
+        <listitem>
+          <para>
+          Résumé des commandes de groupes&#xA0;: Démarrer, mettre en pause, 
+          réinitialiser, fermer (sauvegarder l'état, envoyer un signal d'extinction,
+          couper), désactiver l'état sauvegardé, afficher dans un système de
+          fichiers, trier.
+          </para>
+        </listitem>
+      </orderedlist>
+  </sect1>
+
+  <sect1 id="snapshots">
+    <title>Instantanés</title>
+
+    <para>Avec les instantanés, vous pouvez sauvegarder un état particulier
+    d'une machine virtuelle pour une utilisation ultérieure. Plus tard, vous pourrez
+    rétablir son état même si vous pouvez avoir beaucoup modifié la VM entre temps.
+    Un instantané de la machine virtuelle est ainsi équivalent à passer une
+    machine en état "sauvegardé", comme décrit ci-dessus, mais il peut y en avoir
+    beaucoup, et ces états sauvegardés sont préservés.</para>
+
+    <para>Vous pouvez voir les instantanés d'une machine virtuelle en sélectionnant
+    d'abord une machine dans le gestionnaire VirtualBox, puis en cliquant sur
+    le bouton "Instantanés" en haut à droite. Jusqu'à ce que vous preniez un
+    instantané de la machine, la liste des instantanés restera vide sauf pour
+    l'icône "état actuel" quc représente le point "Maintenant" du temps de vie
+    de la machine virtuelle.</para>
+
+    <sect2>
+      <title>Prendre, restaurer et effacer des instantanés</title>
+
+      <para>Il existe trois opérations liées aux instantanés&#xA0;:<orderedlist>
+          <listitem>
+            <para>Vous pouvez <emphasis role="bold">prendre un instantané</emphasis>.
+            Ceci effectue une copie de l'état actuel de la machine, auquel vous pourrez
+            revenir plus tard n'importe quand..<itemizedlist>
+                <listitem>
+                  <para>Si votre VM est en fonction, sélectionnez "Prendre un
+                  instantané" dans le menu déroulant "Machine" de la fenêtre de la
+                  VM.</para>
+                </listitem>
+
+                <listitem>
+                  <para>Si votre VM est dans l'état "sauvegardée" ou "coupée",
+                  (comme indiqué à côté de la VM dans la fenêtre principale de
+                  VirtualBox), cliquez sur l'onglet "Instantanés" en haut à droite
+                  de la fenêtre principale, puis<itemizedlist>
+                      <listitem>
+                        <para>soit sur la petite icône en appareil photo (pour
+                        "Prendre un instantané"), soit</para>
+                      </listitem>
+
+                      <listitem>
+                        <para>effectuez un clic droit sur l'icône "état actuel"
+                        dans la liste et sélectionnez "Prendre un instantané"
+                        dans le menu.</para>
+                      </listitem>
+                    </itemizedlist></para>
+                </listitem>
+              </itemizedlist></para>
+
+            <para>Dans tous les cas, une fenêtre apparaîtra et vous demandera un
+            nom d'instantané. Ce nom a une finalité purement de référence pour
+            vous aider à vous souvenir de l'état de l'instantané. Par exemple, un nom utile
+            serait "Installation neuve à partir de rien, pas de suppléments 
+           invité", ou "Pack service à peine installé". Vous pouvez aussi ajouter
+           un texte plus long dans le champ "Description" si vous le voulez.</para>
+
+            <para>Votre nouvel instantané apparaîtra ensuite dans la liste des instantanés.
+            Juste dessous votre nouvel instantané, vous verrez une icône appelée
+            "état actuel", signifiant que l'état actuel de votre VM est une
+            variante basée sur l'instantané que vous avez pris précédemment. Si
+            vous prenez plus tard un autre instantané, vous verrez qu'ils seront
+            affichés en séquences et chaque instantané consécutif dérive d'un
+            précédent&#xA0;:<mediaobject>
+                <imageobject>
+                  <imagedata align="center" fileref="images/snapshots-1.png"
+                             width="12cm" />
+                </imageobject>
+              </mediaobject></para>
+
+            <para>VirtualBox n'impose aucune limite quant au nombre d'instantanés
+            que vous pouvez prendre. La seule limite pratique est l'espace disque
+            sur votre hôte&#xA0;: chaque instantané stocke l'état de la machine
+            virtuelle et occupe donc de l'espace disque (voir la prochaine section
+            pour des détails sur ce qui est stocké exactement dans un instantané.)</para>
+          </listitem>
+
+          <listitem>
+            <para>Vous pouvez <emphasis role="bold">restaurer un instantané</emphasis>
+            en effectuant un clic droit sur un instantané que vous avez pris dans la
+            liste des instantanés. En restaurant un instantané, vous revenez en arrière (ou
+            vous reculez) dans le temps&#xA0;: l'état actuel de la machine est
+            perdu et la machine est restaurée dans l'état exact où elle était
+            quand vous avez pris l'instantané.<footnote>
+                <para>La terminologie et la fonctionnalité de restauration d'instantanés
+                ont toutes deux changé avec VirtualBox 3.1. Avant cette
+                version, il n'était possible que de revenir au tout dernier instantané
+                pris -- pas à ceux antérieurs, et l'opération s'appelait "Désactiver
+                l'état actuel" et non "Restaurer le dernier instantané". La
+                limite a été dépassée avec la version 3.1. Il est maintenant
+                possible de restaurer <emphasis>n'importe quel</emphasis> instantané,
+                revenir en arrière et reculer dans le temps.</para>
+              </footnote></para>
+
+            <note>
+              <para>La restauration d'un instantané concernera également les disques
+              durs connectés à votre VM puisque l'état complet des disques durs
+              virtuels sera rétabli. Ceci signifie aussi que tous les fichiers
+              qui ont été créés depuis l'instantané et toutes les autres modifications
+              de fichiers <emphasis>seront perdues. </emphasis>Afin d'empêcher
+              une telle perte de données, tout en utilisant la fonctionnalité
+              des instantanés, il est possible d'ajouter un deuxième disque dur en mode
+              "write-through" en utilisant l'interface
+              <computeroutput>VBoxManage</computeroutput> et de l'utiliser pour
+              stocker vos données. Vu que les disques durs write-through
+              <emphasis>ne sont pas</emphasis> inclus dans les instantanés, ils restent
+              inchangés quand une machine est rétablie. Voir le <xref
+              linkend="hdimagewrites" os="" /> pour des détails.</para>
+            </note>
+
+            <para>Pour éviter de perdre l'état actuel quand vous restaurez un
+            instantané, vous pouvez créer un nouvel instantané avant la restauration.</para>
+
+            <para>En restaurant un instantané précédent et en prenant plus d'instantanés
+            à partir de là, il est même possible de créer une sorte de réalité
+            alternative et de basculer entre les différentes histoires de la
+            machine virtuelle. Cela peut donner une arborescence complète
+            d'instantanés de machine comme le montre l'impression d'écran
+            ci-dessus.</para>
+          </listitem>
+
+          <listitem>
+            <para>Vous pouvez aussi <emphasis role="bold">effacer un instantané</emphasis>,
+            ce qui ne touchera pas l'état de la machine virtuelle mais seulement
+            les fichiers du disque qu'utilisait VirtualBox pour stocker les données
+            de l'instantané, libérant ainsi de l'espace disque. Pour effacer un
+            instantané, effectuez un clic droit dessus dans l'arborescence des
+            instantanés et sélectionnez "Effacer". À partir de VirtualBox 3.2,
+            on peut même effacer des instantanés pendant qu'une machine fonctionne.<note>
+                <para>Si la prise et la restauration d'instantanés sont des 
+                opérations très rapides, l'effacement d'un instantané peut mettre
+                un temps considérable car de grandes quantité de données peuvent être
+                copiées entre plusieurs fichiers images de disques. Il se peut
+                que les fichiers de disque temporaires aient besoin de beaucoup de
+                place pendant le déroulement de l'opération.</para>
+              </note></para>
+
+            <para>Certaines situations ne peuvent pas être gérées pendant qu'une
+            VM est en fonction et vous aurez un message circonstancié selon lequel
+            vous devez effectuer cet effacement d'instantané quand la VM sera
+            éteinte.</para>
+          </listitem>
+        </orderedlist></para>
+    </sect2>
+
+    <sect2>
+      <title>Contenu d'un instantané</title>
+
+      <para>Voyez un instantané comme un marquage dans le temps que vous avez posé.
+      De façon plus formelle, un instantané consiste en trois éléments&#xA0;:<itemizedlist>
+          <listitem>
+            <para>Il contient une copie complète des paramètres de la VM y compris
+            la configuration matérielle, afin que quand vous restaurerez un instantané,
+            les paramètres de la VM soient également restaurés (par exemple, si
+            vous avez modifié la configuration du disque dur ou les paramètres
+            système de la VM, ce changement est annulé quand vous restaurez un
+            instantané.)</para>
+
+            <para>La copie de ces paramètres est stockée dans la configuration
+            de la machine, fichier texte XML, occupant ainsi très peu de place.</para>
+          </listitem>
+
+          <listitem>
+            <para>L'état complet de tous les disques virtuels attachés à la
+            machine est préservé. Le retour en arrière sur un instantané signifie 
+            que toutes les modifications faites sur les disques de la machine
+            -- fichier par fichier, bit par bit -- seront toutes annulées. Les
+            fichiers créés entre-temps disparaîtront, les fichiers effacés seront
+            restaurés, les modifications de fichiers seront inversées.</para>
+
+            <para>(À proprement parler, ceci n'est vrai que pour les disques durs
+            virtuels en mode "normal". Comme indiqué ci-dessus, vous pouvez
+            configurer des disques pour se comporter autrement avec les instantanés (voir
+            <xref
+            linkend="hdimagewrites" />. De manière encore plus précise et juste
+            techniquement, ce n'est pas le disque dur virtuel lui-même qui est
+            restauré quand on restaure un instantané. En fait, quand on prend
+            un instantané, VirtualBox crée des images de différenciation contenant
+            seulement les modifications depuis que l'instantané a été pris, puis 
+            l'instantané est restauré, VirtualBox applique cette image de différenciation,
+            revenant ainsi en arrière vers l'état précédent. Ceci est non seulement
+            plus rapide, mais cela utilise moins d'espace disque. Pour les
+            détails, qui peuvent être complexes, merci de voir le
+            <xref linkend="diffimages" />.)</para>
+
+            <para>La création d'une telle image de différenciation n'occupe pas
+            beaucoup de place dès le départ sur le disque hôte, puisque l'image
+            de différenciation sera vide au départ (et grandira plus tard de façon
+            dynamique à chaque opération d'écriture sur le disque). Par contre,
+            plus vous utiliserez la machine après avoir créé l'instantané, plus
+            l'image de différenciation grossira.</para>
+          </listitem>
+
+          <listitem>
+            <para>Enfin, si vous avez pris un instantané pendant que la machine était
+            en fonction, l'état de la mémoire de la machine est également 
+            sauvegardé dans l'instantané (tout comme la mémoire peut être sauvegardée
+            quand vous fermez la fenêtre de la VM). Quand vous restaurez un tel
+            instantané, l'exécution recommence exactement là où elle en était quand
+            vous avez pris l'instantané.</para>
+
+            <para>Le fichier de l'état de la mémoire peut être aussi gros que la
+            taille de la mémoire de la machine virtuelle et il occupera donc
+            lui aussi beaucoup de place sur le disque.</para>
+          </listitem>
+        </itemizedlist></para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="configbasics">
+    <title>Configuration d'une machine virtuelle</title>
+
+    <para>Quand vous sélectionnez une machine virtuelle dans la liste dans la
+    fenêtre du gestionnaire, vous verrez à droite un résumé des paramètres de
+    cette machine.</para>
+
+    <para>Un clic sur le bouton "Paramètres" dans la barre d'outils en haut
+    ouvre une fenêtre détaillée où vous pouvez configurer de nombreuses
+    propriétés de la VM sélectionnée. Mais attention, bien qu'il soit possible 
+    de modifier tous les paramètres de la VM après avoir installé un système
+    d'exploitation invité, certaines modifications pourraient empêcher un système
+    d'exploitation invité de fonctionner correctement après l'installation.</para>
+
+    <note>
+      <para>Le bouton "Paramètres" est désactivé par défaut quand une VM est soit
+      dans l'état "en fonction", soit "sauvegardée". Ceci simplement car la boîte
+      de dialogue des paramètres vous permet de modifier des caractéristiques
+      fondamentales de l'ordinateur virtuel créé pour votre système d'exploitation
+      invité, et ce système d'exploitation peut ne pas bien supporter cela quand,
+      par exemple, la moitié de sa mémoire lui est coupée sous les pieds. Il s'en
+      suit que si le bouton "Paramètres" est désactivé, éteignez d'abord la VM
+      actuelle.</para>
+    </note>
+
+    <para>VirtualBox offre pléthore de paramètres qu'on peut changer pour une
+    machine virtuelle. Tous les paramètres modifiables dans la fenêtre "Paramètres"
+    sont décrits en détails au <xref
+    linkend="BasicConcepts" />. Encore plus de paramètres sont disponibles avec
+    l'interface en ligne de commande de VirtualBox&#xA0;; voir <xref
+    linkend="vboxmanage" />.</para>
+  </sect1>
+
+  <sect1>
+    <title>Supprimer des machines vcrtuelles</title>
+
+    <para>Pour supprimer une machine virtuelle dont vous n'avez plus besoin,
+    effectuez un clic droit sur la liste de VMs du gestionnaire et sélectionnez
+    "Supprimer" dans le menu contextuel qui apparaît.</para>
+
+    <para>Une fenêtre de confirmation apparaîtra, vous permettant de sélectionner s'il
+    faut supprimer la machine seulement de la liste des machines ou également les
+    fichiers associés.</para>
+
+    <para>L'élément "Supprimer" est désactivé quand une machine est en fonction.</para>
+  </sect1>
+
+  <sect1 id="clone">
+    <title>Cloner des machines virtuels</title>
+
+    <para>Pour expérimenter une configuration de VM, tester différents niveaux
+    d'OS invité ou sauvegarder une VM, VirtualBox peut créer une copie complète
+    ou liée d'une VM existante.<footnote><para>Le support du clonage a été
+    introduit avec VirtualBox 4.1.</para></footnote></para>
+    
+    <para>Un assistant vous guidera dans le processus de clonage&#xA0;:</para>
+
+    <mediaobject>
+      <imageobject>
+        <imagedata align="center" fileref="images/clone-vm.png"
+                   width="10cm" />
+      </imageobject>
+    </mediaobject>
+    
+    <para>On peut appeler cet assistant à partir du menu contextuel de la liste
+    des VMs du gestionnaire (en sélectionnant "Cloner") ou de la vue "Dépôts"
+    de la VM sélectionnée. Choisissez d'abord un @ouveau nom pour le clone. Quand
+    vous sélectionnez <emphasis
+    role="bold">Réinitialiser l'adresse MAC de toutes les cartes réseaux</emphasis>,
+    toutes les cartes réseaux se voient affecter une nouvelle adresse MAC. Ceci
+    est utile quand la VM source et celle clonée doivent fonctionner sur le même
+    réseau. Si vous ne changez rien, toutes les cartes réseaux auront la même 
+    adresse MAC que celle de la VM source. Selon comment vous appelez l'assistant,
+    vous avez différents choix pour l'opération de clonage. Vous devez d'abord
+    décider si le clone devrait être lié à la VM source ou être totalement indépendant&#xA0;:</para>
+    <itemizedlist>
+      <listitem>
+         <para><emphasis role="bold">Clone complet&#xA0;:</emphasis> Dans ce mode,
+         toutes les images de disques dépendantes sont copiées dans le nouveau
+         dossier de la VM. Le clone peut fonctionner complètement sans la VM
+         d'origine.
+         </para>
+      </listitem>
+
+      <listitem>
+         <para><emphasis role="bold">Clone lié&#xA0;:</emphasis> Dans ce mode,
+         de nouvelles images de différenciation du disque sont créées là où
+         les images de disque parents se trouvent à l'origine. Si vous avez
+         sélectionné l'état actuel de la VM source comme point de clonage, un
+         nouvel instantané sera créé implicitement.
+         </para>
+      </listitem>
+    </itemizedlist>
+        
+    <para>Après avoir sélectionné le mode de clonage, vous devez décider ce que
+    vous voulez exactement cloner. Vous pouvez toujours créer un clone de
+     <emphasis role="italic">l'état actuel</emphasis> seulement, ou de
+     <emphasis role="italic">tout</emphasis>. Quand vous sélectionnez <emphasis
+        role="italic">tout</emphasis>, l'état actuel et, également, tous les
+        instantanés seront clonés. Si vous partez d'un instantané ayant des fils
+        en plus, vous pouvez également cloner <emphasis role="italic">l'état
+        actuel et tous ses fils</emphasis>. Ceci crée un clone à partir de
+        cet instantané et inclut tous les instantanés fils.</para>
+
+    <para>La durée de l'opération de clonage dépend de la taille et du nombre
+    d'images de disques attachées.  Garder aussi en tête que tout instantané a
+    des images de différenciation de disques rattachées, qu'il faut aussi
+    cloner.</para>
+
+    <para>L'icône "Cloner" est désactivée quand une machine est en fonction.</para>
+
+    <para>Pour savoir comment cloner une VM en ligne de commande, merci de voir <xref
+    linkend="vboxmanage-clonevm" />.</para>
+  </sect1>
+
+  <sect1 id="ovf">
+    <title>Importer et exporter des machines virtuelles</title>
+
+    <para>VirtualBox peut importer et exporter des machines virtuelles au
+    format du standard industriel Open Virtualization Format (OVF).<footnote>
+        <para>Le support d'OVF a été introduit à l'origine avec VirtualBox 2.2
+        et a connu des améliorations essentielles au fur et à mesure des versions
+        consécutives.</para>
+      </footnote></para>
+
+    <para>OVF est un standard de plateforme croisée supporté par de nombreux
+    produits de virtualisation, permettant de créer des machines virtuelles prêtes
+    à l'emploi importables ensuite dans un virtualiseur tel que VirtualBox. VirtualBox 
+    facilite l'exportation et l'importation d'OVF, en y donnant un accès et un
+    support depuis la fenêtre du gestionnaire et son interface en ligne de
+    commande. Cela permet d'empaqueter ce qu'on appelle des
+    <emphasis role="bold">applicatifs virtuels</emphasis>&#xA0;: des images de
+    disque et des paramètres de configuration qu'on peut distribuer facilement.
+    De cette façon, chacun peut donner des logiciels dans un paquet prêt à utiliser
+    complet (incluant système d'exploitation et applications) qui n'a pas besoin de
+    configuration ou d'installation autre que l'importation dans VirtualBox.<note>
+        <para>Le standard OVF est complexe et son support dans VirtualBox est un
+        processus évolutif. En particulier, nous ne garantissons pas que 
+        VirtualBox supporte tous les applicatifs créés par d'autres logiciels de
+        virtualisation. Pour une liste des limites connues, merci de voir le
+         <xref linkend="KnownIssues" />.</para>
+      </note></para>
+
+    <para>Les applicatifs au format OVF peut apparaître sous deux variantes&#xA0;:<orderedlist>
+        <listitem>
+          <para>Ils peuvent être fournis en plusieurs fichiers, comme une ou
+          plusieurs images de disque, en général au format universel VMDK (voir
+          <xref
+          linkend="vdidetails" />) et un fichier de description en texte, au
+          format XML avec une extension <computeroutput>.ovf</computeroutput>.
+          Ces fichiers doivent résider dans le même répertoire pour que VirtualBox
+          puisse les importer.</para>
+        </listitem>
+
+        <listitem>
+          <para>Sinon, les fichiers ci-dessus peuvent être empaquetés dans un
+          seul fichier archive, ayant en général une extension
+          <computeroutput>.ova</computeroutput>. (De tels fichiers archives
+          utilisent une variante du format d'archivage TAR et peuvent donc être
+          déballés hors de VirtualBox avec n'importe quel outil capable de déballer
+          des fichiers TAR standards.)</para>
+        </listitem>
+      </orderedlist></para>
+
+    <para>Pour <emphasis role="bold">importer</emphasis> un applicatif dans l'un des
+    formats ci-dessus, cliquez simplement deux fois sur le fichier OVF/OVA.<footnote>
+        <para>À partir de la version 4.0, VirtualBox crée des associations de
+        types de fichiers pour des fichiers OVF et OVA sur votre système
+        d'exploitation hôte.</para>
+      </footnote> Sinon, sélectionnez "Fichier" -&gt; "Importer un applicatif" 
+      à partir de la fenêtre du gestionnaire. Dans la boîte de dialogue de fichier
+      qui apparaît, allez sur le fichier ayant soit l'extension
+      <computeroutput>.ovf</computeroutput>, soit 
+    <computeroutput>.ova</computeroutput>.</para>
+
+    <para>Si VirtualBox peut gérer le fichier, une boîte de dialogue ressemblant
+    à celle suivante apparaîtra&#xA0;:</para>
+
+    <para><mediaobject>
+        <imageobject>
+          <imagedata align="center" fileref="images/ovf-import.png"
+                     width="12cm" />
+        </imageobject>
+      </mediaobject>Elle présente les machines virtuelles décrites dans le fichier
+      OVF et elle vous permet de modifier les paramètres de la machine virtuelle
+      en cliquant deux fois sur les éléments de description. Une fois que vous
+      avez cliqué sur <emphasis
+    role="bold">"Importer"</emphasis>, VirtualBox copiera les images de disque et
+    créera les machines virtuelles locales ayant les paramètres décrits dans
+    la boîte de dialogue. Elles apparaîtront alors dans la liste de machines virtuelles
+    du gestionnaire.</para>
+
+    <para>Remarquez que vu que les images de disque sont souvent grosses, et que
+    les images VMDK fournis avec les applicatifs virtuels sont en général incluses
+    dans un format compressé spécial inadapté à l'usage direct par les machines
+    virtuelles, il faudra d'abord déballer les images et les copier, ce qui peut
+    prendre quelques minutes.</para>
+
+    <para>Pour savoir comment importer une image en ligne de commande, merci de
+    voir <xref
+    linkend="vboxmanage-import" />.</para>
+
+    <para>Inversement, pour <emphasis role="bold">exporter</emphasis> des
+    machines virtuaelles déjà présentes dans VirtualBox, sélectionnez "Fichier"
+    -&gt; "Exporter application virtuelle". Une boîte de dialogue apparaîtra vous permettant de
+    mettre plusieurs machines virtuelles dans un applicatif OVF. Puis, sélectionnez
+    la destination où stocker les fichiers cibles, le processus de conversion
+    commence. Cela peut mettre aussi du temps.</para>
+
+    <para>Pour savoir comment exporter une image en ligne de commande, merci de
+    voir <xref
+    linkend="vboxmanage-export" />.<note>
+        <para>OVF ne peut pas décrire d'instantanés pris pour une 
+        machine virtuelle. Il s'en suit que lorsque vous exportez une machine
+        virtuelle avec des instantanés, seul l'état actuel de la machine sera
+        exporté et les images de disque de l'export seront dans l'état
+        "applati", identique à l'état actuel de la machine virtuelle.</para>
+      </note></para>
+  </sect1>
+
+  <sect1 id="globalsettings">
+    <title>Paramètres globaux</title>
+    <para>Vous pouvez atteindre la boîte de dialogue des paramètres globaux par
+    le menu <emphasis role="bold">Fichier</emphasis>, en sélectionnant l'élément
+    <emphasis role="bold">Préférences...</emphasis> (NdT&#xA0;: ou Paramètres selon la version). Elle offre une sélection
+    de paramètres qui s'appliquent à toutes les machines virtuelles de l'utilisateur
+    actuel ou, s'il y a des <emphasis role="bold">Extensions</emphasis>, à tout
+    le système&#xA0;:
+    <orderedlist>
+      <listitem>
+         <para><emphasis role="bold">Général</emphasis> Permet à l'utilisateur
+         de spécifier le dossier/répertoire par défaut des fichiers de la VM et
+         la bibliothèque d'Authentification à RDP.</para>
+      </listitem>
+      <listitem>
+         <para><emphasis role="bold">Entrée</emphasis> Permet à l'utilisateur de
+         spécifier la touche Hôte. Elle indique la touche qui active si le
+         curseur est sur le focus de la VM ou dans les fenêtres du système
+         d'exploitation hôte (voir <xref linkend="keyb_mouse_normal"/>) et
+         qu'on utilise aussi pour activer certaines actions sur la VM (voir
+         <xref
+         linkend="specialcharacters"/>)</para>
+      </listitem>
+      <listitem>
+         <para><emphasis role="bold">Mises à jour</emphasis> Permet à
+         l'utilisateur de spécifier divers paramètres des mises à jour
+         automatiques.</para>
+      </listitem>
+      <listitem>
+         <para><emphasis role="bold">Langue</emphasis> Permet à l'utilisateur
+         de spécifier la langue de l'interface graphique.</para>
+      </listitem>
+      <listitem>
+         <para><emphasis role="bold">Affichage</emphasis> Permet à l'utilisateur
+         de préciser la résolution de l'écran, sa hauteur et sa largeur.</para>
+      </listitem>
+      <listitem>
+         <para><emphasis role="bold">Réseau</emphasis> Permet à l'utilisateur
+         de configurer les détails des réseaux Host Only.</para>
+      </listitem>
+      <listitem>
+         <para><emphasis role="bold">Extensions</emphasis> Permet à l'utilisateur
+         de lister et de gérer les paquets d'extension installés.</para>
+      </listitem>
+      <listitem>
+         <para><emphasis role="bold">Proxy</emphasis> Permet à l'utilisateur
+         de configurer un serveur proxy HTTP.</para>
+      </listitem>
+    </orderedlist></para>
+  </sect1>
+
+  <sect1 id="frontends">
+    <title>Interfaces alternatives</title>
+
+    <para>Comme indiqué brièvement à la <xref linkend="features-overview" />,
+    VirtualBox possède un concept interne très flexible qui permet d'utiliser
+    plusieurs interfaces pour contrôler les mêmes machines virtuelles. Pour
+    illustrer, vous pouvez par exemple démarrer une machine virtuelle avec la fenêtre
+    du gestionnaire de VirtualBox puis l'arrêter en ligne de commande. Avec le
+    support de bureau distant (RDP) de VirtualBox, vous pouvez même lancer des
+    machines virtuelles à distance sur un serveur sans écran et rediriger la sortie
+    graphique sur le réseau.</para>
+
+    <para>En détails, le paquet standard de VirtualBox inclut les interfaces
+    suivantes&#xA0;:</para>
+
+    <para><orderedlist>
+        <listitem>
+          <para><computeroutput>VirtualBox</computeroutput> est le gestionnaire
+          VirtualBox. Cette interface graphique utilise l'environnement Qt&#xA0;;
+          la plupart de ce manuel de l'utilisateur est consacré à sa description.
+          S'il est le plus facile à utiliser, certaines fonctionnalités plus
+          avancées de VirtualBox n'y figurent pas pour garder sa simplicité.</para>
+        </listitem>
+
+        <listitem>
+          <para><computeroutput>VBoxManage</computeroutput> est notre interface
+          en ligne de commande pour avoir un contrôle automatisé et très détaillé
+          de tous les aspects de VirtualBox. Il est décrit au <xref
+          linkend="vboxmanage" />.</para>
+        </listitem>
+
+        <listitem>
+          <para><computeroutput>VBoxSDL</computeroutput> est une interface graphique
+          alternative simple, possédant des fonctionnalités volontairement limitées,
+          conçu pour n'afficher que des machines virtuelles contrôlées en détail
+          avec <computeroutput>VBoxManage</computeroutput>. C'est intéressant pour
+          des environnements professionnels où l'affichage de tous les gadgets
+          graphique n'est pas envisageable.
+          <computeroutput>VBoxSDL</computeroutput> est décrit au <xref
+          linkend="vboxsdl" />.</para>
+        </listitem>
+
+        <listitem>
+          <para>Enfin, <computeroutput>VBoxHeadless</computeroutput> est encore
+          une autre interface qui produit une sortie invisible sur l'hôte, mais qui
+          agit exactement comme un serveur RDP si l'extension de bureau à distance
+          de VirtualBox (VRDE) est installée. Contrairement aux autres interfaces
+          graphiques, l'interface sans affichage n'a pas besoin de support
+          graphique. Cela sert, par exemple, si vous voulez héberger vos machines
+          virtuelles sur un serveur Linux sans affichage et sans système X
+          Window installé. Pour les détails, voir <xref
+          linkend="vboxheadless" />.</para>
+        </listitem>
+      </orderedlist>Si les interfaces ci-dessus ne satisfont pas encore vos 
+      besoins particuliers, il est possible de créer d'autres interfaces avec
+      le moteur de virtualisation complexe au c&#x153;ur de VirtualBox, car le
+      c&#x153;ur de VirtualBox présente ouvertement toutes ses foncitionnalités
+      dans une API propre&#xA0;; merci de vous reporter au <xref linkend="VirtualBoxAPI" />.</para>
+  </sect1>
+</chapter>

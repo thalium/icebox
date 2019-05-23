@@ -1,0 +1,33 @@
+<ui version="4.0">
+ <comment>
+ VBox frontends: Qt GUI ("VirtualBox"):
+
+ Copyright (C) 2008-2016 Oracle Corporation
+
+ This file is part of VirtualBox Open Source Edition (OSE), as
+ available from http://www.virtualbox.org. This file is free software;
+ you can redistribute it and/or modify it under the terms of the GNU
+ General Public License (GPL) as published by the Free Software
+ Foundation, in version 2 as it comes in the "COPYING" file of the
+ VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ </comment>
+ <class>UIGlobalSettingsInput</class>
+ <widget class="QWidget" name="UIGlobalSettingsInput">
+  <layout class="QGridLayout" name="m_pMainLayout">
+   <item row="1" column="0">
+    <widget class="QCheckBox" name="m_pEnableAutoGrabCheckbox">
+     <property name="whatsThis">
+      <string>When checked, the keyboard is automatically captured every time the VM window is activated. When the keyboard is captured, all keystrokes (including system ones like Alt-Tab) are directed to the VM.</string>
+     </property>
+     <property name="text">
+      <string>&amp;Auto Capture Keyboard</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets/>
+ <resources/>
+ <connections/>
+</ui>

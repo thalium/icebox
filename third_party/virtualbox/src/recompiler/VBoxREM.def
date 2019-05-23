@@ -1,0 +1,50 @@
+; $Id: VBoxREM.def $
+;; @file
+; VBoxREM Definition File.
+;
+
+;
+; Copyright (C) 2006-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+LIBRARY VBoxREM.dll
+
+EXPORTS
+    REMR3Init
+    REMR3InitFinalize
+    REMR3Term
+    REMR3Reset
+    REMR3Step
+    REMR3BreakpointSet
+    REMR3BreakpointClear
+    REMR3Run
+    REMR3EmulateInstruction
+    REMR3State
+    REMR3StateBack
+    REMR3StateUpdate
+    REMR3A20Set
+    REMR3DisasEnableStepping
+    REMR3ReplayHandlerNotifications
+    REMR3NotifyPhysRamRegister
+    REMR3NotifyPhysRamDeregister
+    REMR3NotifyPhysRomRegister
+    REMR3NotifyHandlerPhysicalModify
+    REMR3NotifyHandlerPhysicalRegister
+    REMR3NotifyHandlerPhysicalDeregister
+    REMR3NotifyInterruptSet
+    REMR3NotifyInterruptClear
+    REMR3NotifyTimerPending
+    REMR3NotifyDmaPending
+    REMR3NotifyQueuePending
+    REMR3NotifyFF
+    REMR3NotifyCodePageChanged
+    REMR3IsPageAccessHandled
+

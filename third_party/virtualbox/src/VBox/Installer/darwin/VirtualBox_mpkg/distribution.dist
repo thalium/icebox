@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#
+# Copyright (C) 2008-2015 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+-->
+<installer-gui-script minSpecVersion="1.0">
+    <title>VirtualBox_title</title>
+    <options customize="allow" allow-external-scripts="yes" rootVolumeOnly="true" hostArchitectures="i386"/>
+    <installation-check script="checkPrerequisite()"></installation-check>
+    <domains enable_anywhere="false" enable_currentUserHome="false" enable_localSystem="true"/>
+    <script>
+//<![CDATA[
+    /* js:pkmk:start */
+    function checkPrerequisite()
+    {
+       try
+       {
+           test = system.version['ProductVersion'];
+           system.log("OS version detected: " + test);
+           result = (system.compareVersions(test, '10.9') >= 0);
+       } catch (e) { system.log(e); result = false; }
+
+       if (!result)
+       {
+           my.result.type = 'Fatal';
+           my.result.title = system.localizedString('UNSUPPORTED_OS_TLE');
+           my.result.message = system.localizedString('UNSUPPORTED_OS_MSG');
+           return result;
+       }
+
+       try
+       {
+           test = system.sysctl('hw.machine');
+           system.log("Hardware architecture detected: " + test);
+           result = (test == 'x86_64');
+       } catch (e) { system.log(e); result = false; }
+
+       if (!result)
+       {
+           my.result.type = 'Fatal';
+           my.result.title = system.localizedString('UNSUPPORTED_HW_MACHINE_TLE');
+           my.result.message = system.localizedString('UNSUPPORTED_HW_MACHINE_MSG');
+           return result;
+       }
+
+       try
+       {
+           /* The following shell script uses tools which were added in 10.8
+              (Mountain Lion) and later, in particular pgrep and pkill. */
+           if (system.compareVersions(system.version['ProductVersion'], '10.8') >= 0)
+           {
+               /* Embedded scripts are not available here. So, just do a
+                  command line checking if any VBoxXPCOMIPCD has more than one
+                  client, and if there are none, kill all the usual suspects to
+                  get a clean slate. This is done because the VirtualBox event
+                  handling had a bug which allowed no longer present passive
+                  event listeners to block VBoxSVC processes from exiting until
+                  the waiting time was elapsed. In the extreme case this was
+                  infinitely long, blocking updates. */
+               system.run('/bin/sh', '-c', 'pids=`/usr/bin/pgrep VBoxXPCOMIPCD` rc=0; [ -z "$pids" ] && rc=1; for i in $pids; do c=`/usr/sbin/lsof -p $i | /usr/bin/grep -E \'^[^ ]+ +[^ ]+ +[^ ]+ +[^ ]+ +unix\' | wc -l`; [ $c -le 2 ] || rc=1; done; if [ $rc -eq 0 ]; then /usr/bin/pkill -KILL \'^(VirtualBox)|(VBoxNetDHCP)|(VBoxNetNAT)|(VBoxHeadless)|(VBoxXPCOMIPCD)|(VBoxSVC)$\'; sleep 1; fi');
+           }
+       } catch (e) { system.log(e); }
+
+       try
+       {
+           /* Embedded scripts are not available here. So, just do a command
+              line checking for running VMs instead. */
+           rcScript = system.run('/bin/sh', '-c', '/bin/ps -e | /usr/bin/grep -E \'[V]irtualBox.*startvm|[V]BoxNetDHCP|[V]BoxNetNAT|[V]BoxHeadless|[V]BoxSVC\'');
+           result = (rcScript != 0);
+           system.log("system.run /bin/sh .. returned: " + rcScript + " result=" + result);
+       } catch (e) { system.log(e); result = false; }
+
+       if (!result)
+       {
+           /* Temporary instrumentation for finding out with some probability
+            * who keeps VBoxSVC busy (unix socket to VBoxXPCOMIPCD open). Needs
+            * very little time (unlike a full lsof) and causes bearable amount
+            * of messages to install.log so that it can stay in for a while. */
+           try
+           {
+               system.run('/usr/sbin/lsof', '-l', '-U');
+           } catch (e) { system.log(e); }
+
+           my.result.type = 'Fatal';
+           my.result.title = system.localizedString('RUNNING_VMS_TLE');
+           my.result.message = system.localizedString('RUNNING_VMS_MSG');
+           return result;
+       }
+
+       system.log("result:" + result);
+       return result;
+    }
+    /* js:pkmk:end */
+//]]>
+    </script>
+    <background file="background.tif" alignment="topleft" scaling="none"/>
+    <welcome file="Welcome.rtf" mime-type="text/rtf" uti="public.rtf"/>
+    <choices-outline>
+        <line choice="choiceVBoxKEXTs"></line>
+        <line choice="choiceVBox"></line>
+        <line choice="choiceVBoxCLI"></line>
+    </choices-outline>
+    <choice id="choiceVBoxKEXTs"   title="choiceVBoxKEXTs_title"   description="choiceVBoxKEXTs_msg"   start_selected="true" start_enabled="false" start_visible="true">
+        <pkg-ref id="org.virtualbox.pkg.vboxkexts"></pkg-ref>
+    </choice>
+    <choice id="choiceVBox"        title="choiceVBox_title"        description="choiceVBox_msg"        start_selected="true" start_enabled="false" start_visible="true">
+        <pkg-ref id="org.virtualbox.pkg.virtualbox"></pkg-ref>
+    </choice>
+    <choice id="choiceVBoxCLI"     title="choiceVBoxCLI_title"     description="choiceVBoxCLI_msg"     start_selected="true" start_enabled="true" start_visible="true">
+        <pkg-ref id="org.virtualbox.pkg.virtualboxcli"></pkg-ref>
+    </choice>
+    <pkg-ref id="org.virtualbox.pkg.vboxkexts" auth="Root">file:./Contents/Packages/VBoxKEXTs.pkg</pkg-ref>
+    <pkg-ref id="org.virtualbox.pkg.virtualbox" auth="Root">file:./Contents/Packages/VirtualBox.pkg</pkg-ref>
+    <pkg-ref id="org.virtualbox.pkg.virtualboxcli" auth="Root">file:./Contents/Packages/VirtualBoxCLI.pkg</pkg-ref>
+</installer-gui-script>
+

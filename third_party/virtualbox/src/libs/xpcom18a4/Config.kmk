@@ -1,0 +1,409 @@
+# $Id: Config.kmk $
+## @file
+# XPCOM kBuild Configuration file.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+# Include the top-level configure file.
+ifndef VBOX_ROOT_CONFIG_KMK_INCLUDED
+ include $(PATH_ROOT)/Config.kmk
+endif
+
+#
+# Globals.
+#
+VBOX_PATH_XPCOM_SRC := $(PATH_ROOT)/src/libs/xpcom18a4
+
+
+#
+# Template for building the XPCOM libraries (shared).
+#
+TEMPLATE_XPCOM                     = XPCOM libraries (shared)
+TEMPLATE_XPCOM_EXTENDS             = VBOXR3NP
+## @todo correct inheritance here to make it use all the VBOXR3NP settings instead of overriding all of them.
+TEMPLATE_XPCOM_ASTOOL              = $(TEMPLATE_VBOXR3NP_TOOL)
+TEMPLATE_XPCOM_ASFLAGS             = $(NO_SUCH_VARIABLE)
+TEMPLATE_XPCOM_ASFLAGS.x86         = -m32
+TEMPLATE_XPCOM_ASFLAGS.amd64       = -m64
+TEMPLATE_XPCOM_ASDEFS              = $(NO_SUCH_VARIABLE)
+TEMPLATE_XPCOM_CXXFLAGS            = -g -pipe -ansi -Wall -Wno-unused -Wno-non-virtual-dtor \
+	$(VBOX_GCC_Wno-invalid-offsetof) -Wno-sign-compare -Wno-unused -Wno-ctor-dtor-privacy \
+	$(VBOX_GCC_fvisibility-inlines-hidden) $(VBOX_GCC_fvisibility-hidden) \
+	$(VBOX_GCC_fdiagnostics-show-option) $(VBOX_GCC_Wno-delete-non-virtual-dtor)
+TEMPLATE_XPCOM_CXXFLAGS.x86        = -m32
+TEMPLATE_XPCOM_CXXFLAGS.amd64      = -m64
+TEMPLATE_XPCOM_CXXFLAGS.release    = -O
+TEMPLATE_XPCOM_CXXFLAGS.profile    = -O
+TEMPLATE_XPCOM_CXXFLAGS.darwin     = -fpascal-strings -fshort-wchar -fno-common -fno-rtti $(VBOX_DARWIN_DEF_SDK_CXXFLAGS)
+TEMPLATE_XPCOM_CXXFLAGS.freebsd    = -pthread
+TEMPLATE_XPCOM_CXXFLAGS.linux      = -pthread
+TEMPLATE_XPCOM_CXXFLAGS.solaris    = -fno-omit-frame-pointer # for now anyway.
+TEMPLATE_XPCOM_CFLAGS              = -g -pipe -Wall -Wno-unused -Wno-parentheses -Wno-uninitialized $(VBOX_GCC_fvisibility-hidden) \
+	$(VBOX_GCC_fdiagnostics-show-option)
+TEMPLATE_XPCOM_CFLAGS.x86          = -m32
+TEMPLATE_XPCOM_CFLAGS.amd64        = -m64
+TEMPLATE_XPCOM_CFLAGS.release      = -O
+TEMPLATE_XPCOM_CFLAGS.profile      = -O
+TEMPLATE_XPCOM_CFLAGS.freebsd      = -pthread
+TEMPLATE_XPCOM_CFLAGS.linux        = -pthread -ansi
+TEMPLATE_XPCOM_CFLAGS.solaris      = -fno-omit-frame-pointer # for now anyway.
+TEMPLATE_XPCOM_DEFS                = \
+	MOZILLA_CLIENT=1 \
+	NDEBUG=1 \
+	_IMPL_NS_COM \
+	XPCOM_DLL_BASE=\"$(basename $(notdir $(LIB_XPCOM)))\" \
+	MOZ_DLL_SUFFIX=\"$(suffix $(LIB_XPCOM))\" \
+	IN_RING3 \
+	VBOX_USE_IPRT_IN_XPCOM
+ifdef VBOX_WITH_XPCOM_NAMESPACE_CLEANUP
+ TEMPLATE_XPCOM_DEFS              += VBOX_WITH_XPCOM_NAMESPACE_CLEANUP
+endif
+TEMPLATE_XPCOM_DEFS.x86            = i386=1
+TEMPLATE_XPCOM_DEFS.amd64          = HAVE_VA_LIST_AS_ARRAY HAVE_VA_COPY VA_COPY\(a\,b\)=__builtin_va_copy\(a\,b\)
+TEMPLATE_XPCOM_DEFS.darwin         = OSTYPE=\"Darwin8.8.1\" OSARCH=\"Darwin\" XP_UNIX=1 XP_MACOSX=1 TARGET_CARBON=1 HAVE_VISIBILITY_ATTRIBUTE=1 DARWIN=1 $(TEMPLATE_VBOXR3NP_DEFS.darwin)
+TEMPLATE_XPCOM_DEFS.darwin.amd64   = VBOX_MACOSX_FOLLOWS_UNIX_IO
+TEMPLATE_XPCOM_DEFS.freebsd        = OSTYPE=\"FreeBSD5+\"   OSARCH=\"FreeBSD\" XP_UNIX=1 FREEBSD=1 HAVE_VISIBILITY_ATTRIBUTE=1
+TEMPLATE_XPCOM_DEFS.linux          = OSTYPE=\"Linux2.6\"    OSARCH=\"Linux\"  XP_UNIX=1 _GNU_SOURCE HAVE_VISIBILITY_ATTRIBUTE=1 ## @todo LINUX=1
+# Don't define BSD_SELECT because bsdselect() from kLIBC <= 0.6.3 has problems on SMP
+TEMPLATE_XPCOM_DEFS.os2            = OSTYPE=\"OS/2_4.5\"    OSARCH=\"OS/2\"   XP_OS2 XP_PC OS2=4
+TEMPLATE_XPCOM_DEFS.solaris        = OSTYPE=\"Solaris10\"   OSARCH=\"Solaris\" XP_UNIX=1 XP_SOLARIS=1 HAVE_LIBDL=1 HAVE_SENDFILEV=1 SOLARIS=1 _REENTRANT
+## @todo The LDFLAGS inheriting is being hidden here and below where -fPIC is added.
+ifdef VBOX_WITH_RUNPATH
+TEMPLATE_XPCOM_LDFLAGS            += '$(VBOX_GCC_RPATH_OPT)$(VBOX_WITH_RUNPATH)'
+else ifdef VBOX_WITH_RELATIVE_RUNPATH
+TEMPLATE_XPCOM_LDFLAGS            += '$(VBOX_GCC_RPATH_OPT)$(VBOX_WITH_RELATIVE_RUNPATH)'
+endif
+TEMPLATE_XPCOM_LDFLAGS.x86         = -m32
+TEMPLATE_XPCOM_LDFLAGS.amd64       = -m64
+TEMPLATE_XPCOM_LDFLAGS.darwin      = $(TEMPLATE_VBOXR3NP_LDFLAGS.darwin) \
+	-fshort-wchar -fno-rtti -fno-exceptions -fpascal-strings \
+	-current_version $(VBOX_VERSION_MAJOR).$(VBOX_VERSION_MINOR).$(VBOX_VERSION_BUILD) \
+	-compatibility_version $(VBOX_VERSION_MAJOR).$(VBOX_VERSION_MINOR).$(VBOX_VERSION_BUILD) \
+	-framework CoreServices \
+	-framework CoreFoundation \
+	-framework Foundation \
+	-framework AppKit \
+	-framework Carbon
+## @todo why is -fno-exceptions here.
+ifn1of ($(KBUILD_TARGET), os2 win)
+ TEMPLATE_XPCOM_CXXFLAGS          += -fPIC
+ TEMPLATE_XPCOM_CFLAGS            += -fPIC
+ TEMPLATE_XPCOM_LDFLAGS           += -fPIC
+ TEMPLATE_XPCOM_DEFS              += MOZ_PRESERVE_PIC
+endif
+TEMPLATE_XPCOM_INCS                = $(VBOX_PATH_XPCOM_SRC)/xpcom/build \
+                                     $(VBOX_PATH_XPCOM_SRC)/xpcom/ds \
+                                     $(VBOX_PATH_XPCOM_SRC)/xpcom/io \
+                                     $(VBOX_PATH_XPCOM_SRC)/xpcom/base \
+                                     $(VBOX_PATH_XPCOM_SRC)/xpcom/components \
+                                     $(VBOX_PATH_XPCOM_SRC)/xpcom/threads \
+                                     $(VBOX_PATH_XPCOM_SRC)/xpcom/proxy/src \
+                                     $(VBOX_PATH_XPCOM_SRC)/xpcom/reflect/xptcall/src \
+                                     $(VBOX_PATH_XPCOM_SRC)/ipc/ipcd/client/src \
+                                     $(VBOX_PATH_XPCOM_SRC)/ipc/ipcd/shared/src \
+                                     $(VBOX_PATH_XPCOM_SRC)/ipc/ipcd/extensions/lock/src \
+                                     $(VBOX_PATH_XPCOM_SRC)/ipc/ipcd/extensions/transmngr/src \
+                                     $(VBOX_PATH_XPCOM_SRC)/ipc/ipcd/extensions/dconnect/src \
+                                     $(VBOX_PATH_XPCOM_SRC)/ipc/ipcd/extensions/transmngr/common \
+                                     $(VBOX_PATH_SDK)/bindings/xpcom/include \
+                                     $(VBOX_PATH_SDK)/bindings/xpcom/include/nsprpub \
+                                     $(VBOX_PATH_SDK)/bindings/xpcom/include/string \
+                                     $(VBOX_PATH_SDK)/bindings/xpcom/include/xpcom \
+                                     $(VBOX_PATH_SDK)/bindings/xpcom/include/ipcd \
+                                     .
+ifn1of ($(VBOX_DEF_MACOSX_VERSION_MIN),10.4 10.5 10.6 10.7) # FlatCarbon is gone starting 10.8 (or Xcode 5.0).
+ TEMPLATE_XPCOM_DEFS.darwin       += VBOX_WITH_NEWER_OSX_SDK
+ TEMPLATE_XPCOM_INCS.darwin        = \
+ 	$(VBOX_PATH_MACOSX_SDK)/System/Library/Frameworks/CoreFoundation.framework/Versions/A/Headers/ \
+ 	$(VBOX_PATH_MACOSX_SDK)/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/Headers/ \
+ 	$(VBOX_PATH_MACOSX_SDK)/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/Headers/
+else
+ TEMPLATE_XPCOM_INCS.darwin        = $(VBOX_PATH_MACOSX_SDK)/Developer/Headers/FlatCarbon
+endif
+TEMPLATE_XPCOM_LIBS.solaris        = sendfile
+TEMPLATE_XPCOM_ORDERDEPS           = $(foreach hdrinst, $(filter %-HEADERS, $(INSTALLS)), $($(hdrinst)_1_TARGET)) \
+                                     $(PATH_TARGET)/VBox-xpcom-idl-timestamp
+ifeq ($(KBUILD_TARGET),os2)
+ ifndef USE_OS2_TOOLKIT_HEADERS
+  TEMPLATE_XPCOM_DEFS.os2         += OS2EMX_PLAIN_CHAR
+ endif
+ TEMPLATE_XPCOM_DEFS.os2          += XP_OS2_EMX OS2=4
+ # this is at least for strnicmp()
+ TEMPLATE_XPCOM_DEFS.os2          += _EMX_SOURCE
+ # @@todo shouldn't this be somehow default for ASTOOL?
+ TEMPLATE_XPCOM_ASFLAGS.os2       += -Zomf
+endif
+
+# When using IPRT in NSRP or/and using IPRT for logging, link with IPRT.
+TEMPLATE_XPCOM_LIBS               += $(LIB_RUNTIME)
+
+#
+# Template for building the XPCOM executables.
+# Used as a base template by XPCOMTSTEXE and XPCOMIPCEXE.
+#
+TEMPLATE_XPCOMEXE                  = XPCOM executable files
+TEMPLATE_XPCOMEXE_EXTENDS          = XPCOM
+## @todo undo -fPIC.
+TEMPLATE_XPCOMEXE_INCS             = ipc/ipcd/shared/src \
+                                     $(VBOX_PATH_SDK)/bindings/xpcom/include \
+                                     $(VBOX_PATH_SDK)/bindings/xpcom/include/nsprpub \
+                                     $(VBOX_PATH_SDK)/bindings/xpcom/include/string \
+                                     $(VBOX_PATH_SDK)/bindings/xpcom/include/xpcom \
+                                     $(VBOX_PATH_SDK)/bindings/xpcom/include/ipcd \
+                                     .
+TEMPLATE_XPCOMEXE_LIBS             = \
+	$(VBox-xpcom-ipcshared_1_TARGET) \
+	$(VBoxXPCOM_1_TARGET) \
+	$(TEMPLATE_XPCOM_LIBS)
+TEMPLATE_XPCOMEXE_LIBS.freebsd     = $(LIB_PTHREAD)
+TEMPLATE_XPCOMEXE_LIBS.linux       = dl $(LIB_PTHREAD)
+TEMPLATE_XPCOMEXE_LDFLAGS.darwin   = -bind_at_load $(filter-out -current_version -compatibility_version $(VBOX_VERSION_MAJOR).$(VBOX_VERSION_MINOR).$(VBOX_VERSION_BUILD),$(TEMPLATE_XPCOM_LDFLAGS.darwin))
+
+
+#
+# Template for building the XPCOM testcase executables
+#
+TEMPLATE_XPCOMTSTEXE               = XPCOM executable files (testcases)
+TEMPLATE_XPCOMTSTEXE_EXTENDS       = XPCOMEXE
+TEMPLATE_XPCOMTSTEXE_CXXFLAGS      = $(TEMPLATE_XPCOMEXE_CXXFLAGS) -Wno-format
+TEMPLATE_XPCOMTSTEXE_CFLAGS        = $(TEMPLATE_XPCOMEXE_CFLAGS)   -Wno-format
+TEMPLATE_XPCOMTSTEXE_INST          = $(INST_TESTCASE)
+ifdef VBOX_WITH_RUNPATH
+ TEMPLATE_XPCOMTSTEXE_LDFLAGS = '$(VBOX_GCC_RPATH_OPT)$(VBOX_WITH_RUNPATH)' $(TEMPLATE_XPCOMEXE_LDFLAGS)
+else ifdef VBOX_WITH_RELATIVE_RUNPATH
+ TEMPLATE_XPCOMTSTEXE_LDFLAGS = '$(VBOX_GCC_RPATH_OPT)$(VBOX_WITH_RELATIVE_RUNPATH)/..' $(TEMPLATE_XPCOMEXE_LDFLAGS)
+endif
+if "$(KBUILD_TARGET)" == "win" && defined(VBOX_SIGNING_MODE)
+ TEMPLATE_XPCOMTSTEXE_POST_CMDS =
+endif
+
+
+#
+# Template for building XPCOM executables for running at build time.
+#
+# It extends the BLDPROG template in config.kmk but overrides CFLAGS
+# and CXXFLAGS completely at the moment.
+#
+TEMPLATE_XPCOMBLDPROG                     = XPCOM Build programs executables
+TEMPLATE_XPCOMBLDPROG_EXTENDS             = VBoxBldProg
+## @todo Verify that this doesn't blow up because of template inheriance ordering. (we're assuming XPCOMEXE is expanded when this is being used.)
+TEMPLATE_XPCOMBLDPROG_DEFS                = \
+	$(TEMPLATE_VBoxBldProg_DEFS) \
+	$(filter-out VBOX_USE_IPRT_IN_XPCOM, $(TEMPLATE_XPCOMEXE_DEFS))
+TEMPLATE_XPCOMBLDPROG_DEFS.$(KBUILD_HOST) = $(TEMPLATE_VBoxBldProg_DEFS.$(KBUILD_HOST)) $(TEMPLATE_XPCOMEXE_DEFS.$(KBUILD_HOST))
+TEMPLATE_XPCOMBLDPROG_DEFS.x86            = $(TEMPLATE_VBoxBldProg_DEFS.x86)            $(TEMPLATE_XPCOMEXE_DEFS.x86)
+TEMPLATE_XPCOMBLDPROG_DEFS.amd64          = $(TEMPLATE_VBoxBldProg_DEFS.amd64)          $(TEMPLATE_XPCOMEXE_DEFS.amd64)
+TEMPLATE_XPCOMBLDPROG_INCS                = \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include/nsprpub \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include/string \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include/xpcom \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include/ipcd
+TEMPLATE_XPCOMBLDPROG_CFLAGS             = $(filter-out -pedantic -Wshadow, $(TEMPLATE_VBOX_BLDPROG_CFLAGS)) $(VBOX_GCC_Wno-int-to-pointer-cast) $(VBOX_GCC_Wno-pointer-to-int-cast) -Wno-format
+TEMPLATE_XPCOMBLDPROG_CXXFLAGS.darwin    = $(TEMPLATE_VBoxBldProg_CXXFLAGS.darwin)     -fpascal-strings -fshort-wchar -fno-common -fno-rtti
+TEMPLATE_XPCOMBLDPROG_CXXFLAGS.solaris   = $(TEMPLATE_VBoxBldProg_CXXFLAGS.solaris)    -fno-omit-frame-pointer # for now anyway.
+TEMPLATE_XPCOMBLDPROG_LDFLAGS.darwin     = $(TEMPLATE_VBoxBldProg_LDFLAGS.darwin)      -fpascal-strings -fshort-wchar -fno-rtti -fno-exceptions
+TEMPLATE_XPCOMBLDPROG_ORDERDEPS          = $(foreach hdrinst, $(filter %-HEADERS, $(INSTALLS)), $($(hdrinst)_1_TARGET))
+
+
+ifeq ($(VBOX_DEF_MACOSX_VERSION_MIN),10.4)
+ #
+ # Template for building VBoxPython against the Mac OS X 10.4 SDK.
+ # ASSUMES that the SDK bits are in the .darwin properties we're overriding below.
+ #
+ TEMPLATE_XPCOMOSX104                    = XPCOM libraries (shared) built against the Mac OS X 10.4 SDK
+ TEMPLATE_XPCOMOSX104_EXTENDS            = XPCOM
+ TEMPLATE_XPCOMOSX104_CXXFLAGS.darwin    = $(filter-out $(VBOX_DARWIN_DEF_SDK_CXXFLAGS),$(TEMPLATE_XPCOM_CXXFLAGS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_4_CXXFLAGS)
+ TEMPLATE_XPCOMOSX104_CFLAGS.darwin      = $(filter-out $(VBOX_DARWIN_DEF_SDK_CFLAGS),$(TEMPLATE_XPCOM_CFLAGS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_4_CFLAGS)
+ TEMPLATE_XPCOMOSX104_LDFLAGS.darwin     = $(filter-out $(VBOX_DARWIN_DEF_SDK_LDFLAGS),$(TEMPLATE_XPCOM_LDFLAGS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_4_LDFLAGS)
+ TEMPLATE_XPCOMOSX104_DEFS.darwin        = $(filter-out $(VBOX_DARWIN_DEF_SDK_DEFS),$(TEMPLATE_XPCOM_DEFS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_4_DEFS)
+ TEMPLATE_XPCOMOSX104_INCS.darwin        = $(VBOX_PATH_MACOSX_SDK_10_4)/Developer/Headers/FlatCarbon
+endif
+
+#
+# Template for building VBoxPython against the Mac OS X 10.5 SDK.
+# ASSUMES that the SDK bits are in the .darwin properties we're overriding below.
+#
+TEMPLATE_XPCOMOSX105                    = XPCOM libraries (shared) built against the Mac OS X 10.5 SDK
+TEMPLATE_XPCOMOSX105_EXTENDS            = XPCOM
+TEMPLATE_XPCOMOSX105_CXXFLAGS.darwin    = $(filter-out $(VBOX_DARWIN_DEF_SDK_CXXFLAGS),$(TEMPLATE_XPCOM_CXXFLAGS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_5_CXXFLAGS)
+TEMPLATE_XPCOMOSX105_CFLAGS.darwin      = $(filter-out $(VBOX_DARWIN_DEF_SDK_CFLAGS),$(TEMPLATE_XPCOM_CFLAGS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_5_CFLAGS)
+TEMPLATE_XPCOMOSX105_LDFLAGS.darwin     = $(filter-out $(VBOX_DARWIN_DEF_SDK_LDFLAGS),$(TEMPLATE_XPCOM_LDFLAGS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_5_LDFLAGS)
+TEMPLATE_XPCOMOSX105_DEFS.darwin        = $(filter-out $(VBOX_DARWIN_DEF_SDK_DEFS),$(TEMPLATE_XPCOM_DEFS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_5_DEFS)
+TEMPLATE_XPCOMOSX105_INCS.darwin        = $(VBOX_PATH_MACOSX_SDK_10_5)/Developer/Headers/FlatCarbon
+
+#
+# Template for building VBoxPython against the Mac OS X 10.6 SDK.
+# ASSUMES that the SDK bits are in the .darwin properties we're overriding below.
+#
+TEMPLATE_XPCOMOSX106                    = XPCOM libraries (shared) built against the Mac OS X 10.6 SDK
+TEMPLATE_XPCOMOSX106_EXTENDS            = XPCOM
+TEMPLATE_XPCOMOSX106_CXXFLAGS.darwin    = $(filter-out $(VBOX_DARWIN_DEF_SDK_CXXFLAGS),$(TEMPLATE_XPCOM_CXXFLAGS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_6_CXXFLAGS)
+TEMPLATE_XPCOMOSX106_CFLAGS.darwin      = $(filter-out $(VBOX_DARWIN_DEF_SDK_CFLAGS),$(TEMPLATE_XPCOM_CFLAGS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_6_CFLAGS)
+TEMPLATE_XPCOMOSX106_LDFLAGS.darwin     = $(filter-out $(VBOX_DARWIN_DEF_SDK_LDFLAGS),$(TEMPLATE_XPCOM_LDFLAGS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_6_LDFLAGS)
+TEMPLATE_XPCOMOSX106_DEFS.darwin        = $(filter-out $(VBOX_DARWIN_DEF_SDK_DEFS),$(TEMPLATE_XPCOM_DEFS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_6_DEFS)
+TEMPLATE_XPCOMOSX106_INCS.darwin        = $(VBOX_PATH_MACOSX_SDK_10_6)/Developer/Headers/FlatCarbon
+
+#
+# Template for building VBoxPython against the Mac OS X 10.7 SDK.
+# ASSUMES that the SDK bits are in the .darwin properties we're overriding below.
+#
+TEMPLATE_XPCOMOSX107                    = XPCOM libraries (shared) built against the Mac OS X 10.7 SDK
+TEMPLATE_XPCOMOSX107_EXTENDS            = XPCOM
+TEMPLATE_XPCOMOSX107_TOOL               = LLVMGXX42MACHO
+TEMPLATE_XPCOMOSX107_CXXFLAGS.darwin    = $(filter-out $(VBOX_DARWIN_DEF_SDK_CXXFLAGS),$(TEMPLATE_XPCOM_CXXFLAGS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_7_CXXFLAGS)
+TEMPLATE_XPCOMOSX107_CFLAGS.darwin      = $(filter-out $(VBOX_DARWIN_DEF_SDK_CFLAGS),$(TEMPLATE_XPCOM_CFLAGS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_7_CFLAGS)
+TEMPLATE_XPCOMOSX107_LDFLAGS.darwin     = $(filter-out $(VBOX_DARWIN_DEF_SDK_LDFLAGS),$(TEMPLATE_XPCOM_LDFLAGS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_7_LDFLAGS)
+TEMPLATE_XPCOMOSX107_DEFS.darwin        = $(filter-out $(VBOX_DARWIN_DEF_SDK_DEFS),$(TEMPLATE_XPCOM_DEFS.darwin)) $(VBOX_DARWIN_DEF_SDK_10_7_DEFS)
+TEMPLATE_XPCOMOSX107_INCS.darwin        = $(VBOX_PATH_MACOSX_SDK_10_7)/Developer/Headers/FlatCarbon
+
+
+#
+# Creates a x86 target for an XPCOM target if so desired.
+# The target is specified as the first argument: $(evalcall VBOX_XPCOM_X86,target).
+#
+ifdef VBOX_WITH_32_ON_64_MAIN_API
+ define VBOX_XPCOM_X86
+  $(1)-x86_TEMPLATE := $(strip $($(1)_TEMPLATE))-x86
+  $(1)-x86_EXTENDS  := $(1)
+ endef
+else
+ define VBOX_XPCOM_X86
+ endef
+endif
+
+# Corresponding 32-bit template(s).
+TEMPLATE_XPCOM-x86                  = 32-bit XPCOM libraries (shared)
+TEMPLATE_XPCOM-x86_EXTENDS          = XPCOM
+TEMPLATE_XPCOM-x86_BLD_TRG_ARCH     = x86
+TEMPLATE_XPCOM-x86_DEFS             = $(TEMPLATE_XPCOM_DEFS) VBOX_IN_32_ON_64_MAIN_API
+TEMPLATE_XPCOM-x86_LIBS             = $(subst $(LIB_RUNTIME),$(VBOX_LIB_RUNTIME_X86),$(TEMPLATE_XPCOM_LIBS))
+ifeq ($(KBUILD_TARGET),solaris)
+ ifdef VBOX_WITH_RUNPATH
+  TEMPLATE_XPCOM-x86_LDFLAGS = \
+	$(filter-out '$(VBOX_GCC_RPATH_OPT)$(VBOX_WITH_RUNPATH)',$(TEMPLATE_XPCOM_LDFLAGS)) \
+	'$(VBOX_GCC_RPATH_OPT)$(VBOX_PATH_APP_PRIVATE)' \
+	'$(VBOX_GCC_RPATH_OPT)$(VBOX_WITH_RUNPATH)'
+ endif
+endif
+
+
+#
+# The list of XPCOM's IDL files.
+# This is used by the java bindings as well as the XPCOM build.
+#
+XPCOM_IDLFILES = \
+	xpcom/base/nsIDebug.idl \
+	xpcom/base/nsIInterfaceRequestor.idl \
+	xpcom/base/nsIMemory.idl \
+	xpcom/base/nsIProgrammingLanguage.idl \
+	xpcom/base/nsISupports.idl \
+	xpcom/base/nsITraceRefcnt.idl \
+	xpcom/base/nsIWeakReference.idl \
+	xpcom/base/nsIConsoleMessage.idl \
+	xpcom/base/nsIConsoleService.idl \
+	xpcom/base/nsIConsoleListener.idl \
+	xpcom/base/nsIErrorService.idl \
+	xpcom/base/nsIException.idl \
+	xpcom/base/nsIExceptionService.idl \
+	xpcom/base/nsrootidl.idl \
+	xpcom/components/nsIClassInfo.idl \
+	xpcom/components/nsIComponentRegistrar.idl \
+	xpcom/components/nsIFactory.idl \
+	xpcom/components/nsIModule.idl \
+	xpcom/components/nsIServiceManager.idl \
+	xpcom/components/nsIComponentManager.idl \
+	xpcom/components/nsICategoryManager.idl \
+	xpcom/components/nsIComponentLoader.idl \
+	xpcom/components/nsINativeComponentLoader.idl \
+	xpcom/components/nsIComponentManagerObsolete.idl \
+	xpcom/components/nsIComponentLoaderManager.idl \
+	xpcom/ds/nsISupportsArray.idl \
+	xpcom/ds/nsICollection.idl \
+	xpcom/ds/nsISerializable.idl \
+	xpcom/ds/nsIEnumerator.idl \
+	xpcom/ds/nsISimpleEnumerator.idl \
+	xpcom/ds/nsIObserverService.idl \
+	xpcom/ds/nsIObserver.idl \
+	xpcom/ds/nsIAtom.idl \
+	xpcom/ds/nsIAtomService.idl \
+	xpcom/ds/nsIProperties.idl \
+	xpcom/ds/nsIPersistentProperties2.idl \
+	xpcom/ds/nsIRecyclingAllocator.idl \
+	xpcom/ds/nsIStringEnumerator.idl \
+	xpcom/ds/nsISupportsPrimitives.idl \
+	xpcom/ds/nsISupportsIterators.idl \
+	xpcom/ds/nsIVariant.idl \
+	xpcom/ds/nsITimelineService.idl \
+	xpcom/ds/nsIArray.idl \
+	xpcom/ds/nsIPropertyBag.idl \
+	xpcom/ds/nsIHashable.idl \
+	xpcom/io/nsIDirectoryService.idl \
+	xpcom/io/nsIDirectoryEnumerator.idl \
+	xpcom/io/nsIFile.idl \
+	xpcom/io/nsILocalFile.idl \
+	xpcom/io/nsILocalFileMac.idl \
+	xpcom/io/nsIInputStream.idl \
+	xpcom/io/nsIObjectInputStream.idl \
+	xpcom/io/nsIBinaryInputStream.idl \
+	xpcom/io/nsIObjectOutputStream.idl \
+	xpcom/io/nsIBinaryOutputStream.idl \
+	xpcom/io/nsIOutputStream.idl \
+	xpcom/io/nsIStreamBufferAccess.idl \
+	xpcom/io/nsIByteArrayInputStream.idl \
+	xpcom/io/nsISeekableStream.idl \
+	xpcom/io/nsIFastLoadFileControl.idl \
+	xpcom/io/nsIFastLoadService.idl \
+	xpcom/io/nsIInputStreamTee.idl \
+	xpcom/io/nsIMultiplexInputStream.idl \
+	xpcom/io/nsIPipe.idl \
+	xpcom/io/nsIAsyncInputStream.idl \
+	xpcom/io/nsIAsyncOutputStream.idl \
+	xpcom/io/nsIScriptableInputStream.idl \
+	xpcom/io/nsIStorageStream.idl \
+	xpcom/io/nsIStringStream.idl \
+	xpcom/io/nsILineInputStream.idl \
+	xpcom/proxy/public/nsIProxyObjectManager.idl \
+	xpcom/threads/nsIEventQueueService.idl \
+	xpcom/threads/nsIEventQueue.idl \
+	xpcom/threads/nsIEventTarget.idl \
+	xpcom/threads/nsIRunnable.idl \
+	xpcom/threads/nsIThread.idl \
+	xpcom/threads/nsITimer.idl \
+	xpcom/threads/nsIEnvironment.idl \
+	xpcom/threads/nsITimerInternal.idl \
+	xpcom/threads/nsITimerManager.idl \
+	xpcom/threads/nsIProcess.idl \
+	xpcom/reflect/xptinfo/public/nsIInterfaceInfo.idl \
+	xpcom/reflect/xptinfo/public/nsIInterfaceInfoManager.idl \
+	xpcom/reflect/xptinfo/public/nsIXPTLoader.idl \
+	ipc/ipcd/client/public/ipcIService.idl \
+	ipc/ipcd/client/public/ipcIMessageObserver.idl \
+	ipc/ipcd/client/public/ipcIClientObserver.idl \
+	ipc/ipcd/extensions/lock/public/ipcILockService.idl \
+	ipc/ipcd/extensions/transmngr/public/ipcITransactionService.idl \
+	ipc/ipcd/extensions/dconnect/public/ipcIDConnectService.idl \
+	ipc/ipcd/extensions/transmngr/public/ipcITransactionObserver.idl
+
+#
+# The include path for the XPCOM IDL files above.
+#
+XPIDL_INCS = \
+	-I $(VBOX_PATH_XPCOM_SRC)/xpcom/base/ \
+	-I $(VBOX_PATH_XPCOM_SRC)/xpcom/ds/ \
+	-I $(VBOX_PATH_XPCOM_SRC)/xpcom/components/ \
+	-I $(VBOX_PATH_XPCOM_SRC)/xpcom/io/ \
+	-I $(VBOX_PATH_XPCOM_SRC)/xpcom/threads/ \
+	-I $(VBOX_PATH_XPCOM_SRC)/xpcom/reflect/xptinfo/public/
+

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+  "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="VirtualBoxAPI">
+  <title>Interfaces de programmation de VirtualBox</title>
+
+  <para>VirtualBox est fourni avec un support complet pour les développeurs
+  tiers. Ce qu'on appelle "l'API principale" de VirtualBox implémente toutes
+  les fonctionnalités du moteur de virtualisation. Elle est complètement documentée
+  et disponible pour n'importe qui souhaitant contrôler VirtualBox en programmant.
+  </para>
+
+  <para>L'API principale est disponible pour des clients C++ via COM (sur les
+  hôtes Windows) ou XPCOM (sur les autres hôtes). Des passerelles existent
+  aussi avec SOAP, Java et Python.</para>
+
+  <para>Toutes les informations sur la programmation (documentation, informations
+  de référence, en-têtes et autres fichiers d'interface ainsi que des modèles) 
+  ont été mises dans un <emphasis role="bold">Software Development Kit (SDK),</emphasis>
+  distinct disponible en téléchargement sur <ulink type=""
+  url="http://www.virtualbox.org">http://www.virtualbox.org</ulink>. En
+  particulier, le SDK est fourni avec un "Guide de pogrammation et de Référence"
+  au format PDF contenant entre autres des informations qui se trouvaient jadis
+  dans ce chapitre du manuel de l'utilisateur.</para>
+</chapter>

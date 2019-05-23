@@ -1,0 +1,139 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the VirtualBox Guest Addition X11 Client.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# VBoxClient - clipboard and seamless.
+#
+PROGRAMS += VBoxClient
+
+VBoxClient_TEMPLATE = NewVBoxGuestR3Exe
+VBoxClient_DEFS += VBOX_X11_CLIPBOARD VBOX_WITH_HGCM
+ifdef VBOX_WITH_DBUS
+ VBoxClient_DEFS += VBOX_WITH_DBUS
+endif
+VBoxClient_DEFS.linux += _GNU_SOURCE
+VBoxClient_INCS = $(VBOX_GRAPHICS_INCS)
+VBoxClient_SOURCES = \
+	main.cpp
+VBoxClient_SOURCES += \
+  	$(PATH_ROOT)/src/VBox/GuestHost/SharedClipboard/clipboard-helper.cpp \
+  	$(PATH_ROOT)/src/VBox/GuestHost/SharedClipboard/x11-clipboard.cpp \
+	clipboard.cpp \
+	display-svga.cpp
+VBoxClient_LIBPATH = \
+	$(VBOX_LIBPATH32_X11)
+VBoxClient_LIBS.freebsd = \
+	iconv
+VBoxClient_LIBS.linux = \
+	dl
+VBoxClient_LIBS.solaris = \
+	dl
+VBoxClient_LIBS = \
+	X11 \
+	Xrandr \
+	Xt
+
+# XXX: -L comes from the template, but not rpath
+VBoxClient_LDFLAGS.netbsd = \
+	-Wl,-rpath /usr/X11R7/lib
+
+ifdef VBOX_WITH_DRAG_AND_DROP
+ ifdef VBOX_DND_WITH_XTEST
+ VBoxClient_DEFS += VBOX_DND_WITH_XTEST
+ VBoxClient_LIBS += \
+	Xtst
+ endif
+endif
+
+# These are static replacements for gcc-specific parts of libstdc++
+VBoxClient_LIBS += \
+	supc++ \
+	gcc_eh
+ifdef VBOX_X11_SEAMLESS_GUEST
+ VBoxClient_DEFS += SEAMLESS_GUEST DYNAMIC_RESIZE
+ VBoxClient_SOURCES += \
+	seamless.cpp \
+	seamless-x11.cpp \
+	display.cpp \
+	hostversion.cpp \
+	check3d.cpp
+ VBoxClient_LIBS += \
+	Xext Xmu
+endif
+ifdef VBOX_WITH_GUEST_PROPS
+ VBoxClient_DEFS += VBOX_WITH_GUEST_PROPS
+endif
+ifdef VBOX_WITH_DRAG_AND_DROP
+ VBoxClient_DEFS += \
+	VBOX_WITH_DRAG_AND_DROP \
+	$(if $(VBOX_WITH_DRAG_AND_DROP_GH),VBOX_WITH_DRAG_AND_DROP_GH,)
+ VBoxClient_SOURCES += \
+	draganddrop.cpp
+ VBoxClient_LIBS     += \
+	$(PATH_STAGE_LIB)/additions/VBoxDnDGuestR3Lib$(VBOX_SUFF_LIB)
+endif
+
+ifdef VBOX_X11_SEAMLESS_GUEST
+ if defined(VBOX_WITH_TESTCASES) && !defined(VBOX_ONLY_ADDITIONS) && !defined(VBOX_ONLY_SDK)
+  if1of ($(KBUILD_TARGET), freebsd linux netbsd openbsd solaris)
+
+# Set this in LocalConfig.kmk if you are working on the X11 clipboard service
+# to automatically run the unit test at build time.
+#       OTHERS += $(tstSeamlessX11-auto_0_OUTDIR)/tstSeamlessX11-auto.run
+
+   PROGRAMS += tstSeamlessX11-auto
+   tstSeamlessX11-auto_TEMPLATE = VBOXR3TSTEXE
+   tstSeamlessX11-auto_SOURCES = \
+           testcase/tstSeamlessX11-auto.cpp \
+           seamless-x11.cpp
+   tstSeamlessX11-auto_DEFS = TESTCASE
+   tstSeamlessX11-auto_LIBS = \
+           $(LIB_RUNTIME)
+
+   TESTING  += $(tstSeamlessX11-auto_0_OUTDIR)/tstSeamlessX11-auto
+$$(tstSeamlessX11-auto_0_OUTDIR)/tstSeamlessX11-auto.run: \
+        $$(tstSeamlessX11-auto_1_STAGE_TARGET)
+	export VBOX_LOG_DEST=nofile; $(tstSeamlessX11-auto_1_STAGE_TARGET) quiet
+	$(QUIET)$(APPEND) -t "$@" "done"
+
+   #
+   # Additional testcase designed to be run manually, which initiates and starts the Linux
+   # guest client part of the seamless additions in the host, faking seamless events from
+   # the host and writing information about guest events to standard output.
+   #
+   PROGRAMS += tstSeamlessX11
+   tstSeamlessX11_TEMPLATE = VBOXR3TSTEXE
+   tstSeamlessX11_SOURCES = \
+           testcase/tstSeamlessX11.cpp \
+           seamless.cpp \
+           seamless-x11.cpp
+   tstSeamlessX11_LIBPATH = \
+           $(VBOX_LIBPATH_X11)
+   tstSeamlessX11_LIBS = \
+           $(LIB_RUNTIME) \
+           Xext \
+           Xmu \
+           X11
+  endif
+ endif
+endif
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

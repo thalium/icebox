@@ -1,0 +1,5 @@
+%ifndef ___VBox_bios_h
+%define ___VBox_bios_h
+%define VBOX_BIOS_SHUTDOWN_PORT                 0x040f
+%define VBOX_BIOS_OLD_SHUTDOWN_PORT             0x8900
+%endif

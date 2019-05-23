@@ -1,0 +1,76 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+GLboolean GL_ALPHA_TEST               g->buffer.alphaTest
+GLboolean GL_AUTO_NORMAL              g->eval.autoNormal
+GLboolean GL_BLEND                    g->buffer.blend
+GLboolean GL_CULL_FACE                g->polygon.cullFace
+GLboolean GL_COLOR_MATERIAL           GL_FALSE
+GLboolean GL_CLIP_PLANE0              g->transform.clip[0]
+GLboolean GL_CLIP_PLANE1              g->transform.clip[1]
+GLboolean GL_CLIP_PLANE2              g->transform.clip[2]
+GLboolean GL_CLIP_PLANE3              g->transform.clip[3]
+GLboolean GL_CLIP_PLANE4              g->transform.clip[4]
+GLboolean GL_CLIP_PLANE5              g->transform.clip[5]
+GLboolean GL_COLOR_LOGIC_OP           g->buffer.logicOp
+GLboolean GL_DEPTH_TEST               g->buffer.depthTest
+GLboolean GL_DEPTH_WRITEMASK          g->buffer.depthMask
+GLboolean GL_DITHER                   g->buffer.dither
+GLboolean GL_FOG                      g->fog.enable
+GLboolean GL_INDEX_LOGIC_OP           g->buffer.indexLogicOp
+GLboolean GL_LIGHT0                   g->lighting.light[0].enable
+GLboolean GL_LIGHT1                   g->lighting.light[1].enable
+GLboolean GL_LIGHT2                   g->lighting.light[2].enable
+GLboolean GL_LIGHT3                   g->lighting.light[3].enable
+GLboolean GL_LIGHT4                   g->lighting.light[4].enable
+GLboolean GL_LIGHT5                   g->lighting.light[5].enable
+GLboolean GL_LIGHT6                   g->lighting.light[6].enable
+GLboolean GL_LIGHT7                   g->lighting.light[7].enable
+GLboolean GL_LIGHTING                 g->lighting.lighting
+GLboolean GL_LINE_SMOOTH              g->line.lineSmooth
+GLboolean GL_LINE_STIPPLE             g->line.lineStipple
+GLboolean GL_MAP1_COLOR_4             g->eval.enable1D[GL_MAP1_COLOR_4-GL_MAP1_COLOR_4]
+GLboolean GL_MAP1_INDEX               g->eval.enable1D[GL_MAP1_INDEX-GL_MAP1_COLOR_4]
+GLboolean GL_MAP1_NORMAL              g->eval.enable1D[GL_MAP1_NORMAL-GL_MAP1_COLOR_4]
+GLboolean GL_MAP1_TEXTURE_COORD_1    g->eval.enable1D[GL_MAP1_TEXTURE_COORD_1-GL_MAP1_COLOR_4]
+GLboolean GL_MAP1_TEXTURE_COORD_2    g->eval.enable1D[GL_MAP1_TEXTURE_COORD_2-GL_MAP1_COLOR_4]
+GLboolean GL_MAP1_TEXTURE_COORD_3    g->eval.enable1D[GL_MAP1_TEXTURE_COORD_3-GL_MAP1_COLOR_4]
+GLboolean GL_MAP1_TEXTURE_COORD_4    g->eval.enable1D[GL_MAP1_TEXTURE_COORD_4-GL_MAP1_COLOR_4]
+GLboolean GL_MAP1_VERTEX_3            g->eval.enable1D[GL_MAP1_VERTEX_3-GL_MAP1_COLOR_4]
+GLboolean GL_MAP1_VERTEX_4            g->eval.enable1D[GL_MAP1_VERTEX_4-GL_MAP1_COLOR_4]
+GLboolean GL_MAP2_COLOR_4             g->eval.enable2D[GL_MAP2_COLOR_4-GL_MAP2_COLOR_4]
+GLboolean GL_MAP2_INDEX               g->eval.enable2D[GL_MAP2_INDEX-GL_MAP2_COLOR_4]
+GLboolean GL_MAP2_NORMAL              g->eval.enable2D[GL_MAP2_NORMAL-GL_MAP2_COLOR_4]
+GLboolean GL_MAP2_TEXTURE_COORD_1    g->eval.enable2D[GL_MAP2_TEXTURE_COORD_1-GL_MAP2_COLOR_4]
+GLboolean GL_MAP2_TEXTURE_COORD_2    g->eval.enable2D[GL_MAP2_TEXTURE_COORD_2-GL_MAP2_COLOR_4]
+GLboolean GL_MAP2_TEXTURE_COORD_3    g->eval.enable2D[GL_MAP2_TEXTURE_COORD_3-GL_MAP2_COLOR_4]
+GLboolean GL_MAP2_TEXTURE_COORD_4    g->eval.enable2D[GL_MAP2_TEXTURE_COORD_4-GL_MAP2_COLOR_4]
+GLboolean GL_MAP2_VERTEX_3            g->eval.enable2D[GL_MAP2_VERTEX_3-GL_MAP2_COLOR_4]
+GLboolean GL_MAP2_VERTEX_4            g->eval.enable2D[GL_MAP2_VERTEX_4-GL_MAP2_COLOR_4]
+GLboolean GL_PACK_SWAP_BYTES          g->client.pack.swapBytes
+GLboolean GL_PACK_LSB_FIRST           g->client.pack.psLSBFirst
+GLboolean GL_POINT_SMOOTH             g->point.pointSmooth
+GLboolean GL_POLYGON_SMOOTH           g->polygon.polygonSmooth
+GLboolean GL_POLYGON_STIPPLE          g->polygon.polygonStipple
+GLboolean GL_POLYGON_OFFSET_POINT     g->polygon.polygonOffsetPoint
+GLboolean GL_POLYGON_OFFSET_LINE      g->polygon.polygonOffsetLine
+GLboolean GL_POLYGON_OFFSET_FILL      g->polygon.polygonOffsetFill
+GLboolean GL_NORMALIZE                g->transform.normalize
+GLboolean GL_RGBA_MODE                GL_TRUE
+GLboolean GL_SCISSOR_TEST             g->viewport.scissorTest
+GLboolean GL_STENCIL_TEST             g->stencil.stencilTest
+GLboolean GL_TEXTURE_GEN_S g->texture.unit[g->texture.curTextureUnit].textureGen.s
+GLboolean GL_TEXTURE_GEN_T g->texture.unit[g->texture.curTextureUnit].textureGen.t
+GLboolean GL_TEXTURE_GEN_R g->texture.unit[g->texture.curTextureUnit].textureGen.r
+GLboolean GL_TEXTURE_GEN_Q g->texture.unit[g->texture.curTextureUnit].textureGen.q
+GLboolean GL_TEXTURE_1D g->texture.unit[g->texture.curTextureUnit].enabled1D
+GLboolean GL_TEXTURE_2D g->texture.unit[g->texture.curTextureUnit].enabled2D
+# GLboolean GL_TEXTURE_3D g->texture.unit[g->texture.curTextureUnit].enabled3D
+GLboolean GL_TEXTURE_CUBE_MAP_ARB g->texture.unit[g->texture.curTextureUnit].enabledCubeMap
+
+GLboolean GL_UNPACK_SWAP_BYTES        g->client.unpack.swapBytes
+GLboolean GL_UNPACK_LSB_FIRST         g->client.unpack.psLSBFirst
+GLboolean GL_REGISTER_COMBINERS_NV    g->regcombiner.enabledRegCombiners
+GLboolean GL_PER_STAGE_CONSTANTS_NV   g->regcombiner.enabledPerStageConstants
+GLboolean GL_COLOR_SUM_EXT			  g->lighting.colorSumEXT

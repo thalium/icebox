@@ -1,0 +1,78 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Darwin VBoxUSB kernel extension.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# VBoxUSB.kext - The Darwin Kernel Extension.
+#
+
+# Leopard (x86) and Snow Leopard (x86/amd64)
+SYSMODS.darwin       += VBoxUSB
+VBoxUSB_TEMPLATE      = VBOXR0DRV
+VBoxUSB_INST          = $(INST_VBOXUSB)Contents/MacOS/
+VBoxUSB_DEBUG_INST.darwin = $(patsubst %/,%,$(INST_VBOXUSB))
+VBoxUSB_INCS          = \
+	. \
+	..
+#VBoxUSB_LDFLAGS       = -v -Wl,-whyload -Wl,-v -Wl,-whatsloaded
+VBoxUSB_SOURCES      := \
+	VBoxUSB.cpp \
+	../USBFilter.cpp \
+	../VBoxUSBFilterMgr.cpp
+
+INSTALLS += VBoxUSB.kext
+VBoxUSB.kext_INST     = $(INST_VBOXUSB)Contents/
+VBoxUSB.kext_SOURCES  = $(VBoxUSB.kext_0_OUTDIR)/Contents/Info.plist
+VBoxUSB.kext_CLEAN    = $(VBoxUSB.kext_0_OUTDIR)/Contents/Info.plist
+VBoxUSB.kext_BLDDIRS  = $(VBoxUSB.kext_0_OUTDIR)/Contents/
+
+$$(VBoxUSB.kext_0_OUTDIR)/Contents/Info.plist: $(PATH_SUB_CURRENT)/Info.plist $(VBOX_VERSION_MK) | $$(dir $$@)
+	$(call MSG_GENERATE,VBoxUSB,$@,$<)
+	$(QUIET)$(RM) -f $@
+	$(QUIET)$(SED) \
+		-e 's/@VBOX_VERSION_STRING@/$(VBOX_VERSION_STRING)/g' \
+		-e 's/@VBOX_VERSION_MAJOR@/$(VBOX_VERSION_MAJOR)/g' \
+		-e 's/@VBOX_VERSION_MINOR@/$(VBOX_VERSION_MINOR)/g' \
+		-e 's/@VBOX_VERSION_BUILD@/$(VBOX_VERSION_BUILD)/g' \
+		-e 's/@VBOX_VENDOR@/$(VBOX_VENDOR)/g' \
+		-e 's/@VBOX_PRODUCT@/$(VBOX_PRODUCT)/g' \
+		-e 's/@VBOX_C_YEAR@/$(VBOX_C_YEAR)/g' \
+		--output $@ \
+		$<
+
+$(evalcall2 VBOX_TEST_SIGN_KEXT,VBoxUSB)
+
+# Common manual loader script.
+INSTALLS += ScriptsUSB
+ScriptsUSB_INST     = $(INST_DIST)
+ScriptsUSB_EXEC_SOURCES  = \
+	loadusb.sh
+
+ifdef VBOX_WITH_TESTCASES
+#
+# Testcase for doing some manual driver testing...
+#
+PROGRAMS += tstOpenUSBDev
+tstOpenUSBDev_TEMPLATE = VBOXR3TSTEXE
+tstOpenUSBDev_SOURCES = testcase/tstOpenUSBDev.cpp
+tstOpenUSBDev_LDFLAGS = -framework CoreFoundation -framework IOKit
+endif
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

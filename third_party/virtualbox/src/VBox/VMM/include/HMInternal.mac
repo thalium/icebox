@@ -1,0 +1,94 @@
+;$Id: HMInternal.mac $
+;; @file
+; HM - Internal header file.
+;
+
+;
+; Copyright (C) 2006-2017 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+%if HC_ARCH_BITS == 32
+ %define VMX_USE_CACHED_VMCS_ACCESSES
+%endif
+
+;Maximum number of cached entries.
+%define VMCSCACHE_MAX_ENTRY                             128
+
+; Structure for storing read and write VMCS actions.
+struc VMCSCACHE
+%ifdef VBOX_WITH_CRASHDUMP_MAGIC
+    .aMagic                   resb    16
+    .uMagic                   resq    1
+    .u64TimeEntry             resq    1
+    .u64TimeSwitch            resq    1
+    .cResume                  resq    1
+    .interPD                  resq    1
+    .pSwitcher                resq    1
+    .uPos                     resd    1
+    .idCpu                    resd    1
+%endif
+    .cr2                      resq    1
+    .Write.cValidEntries      resd    1
+    .Write.uAlignment         resd    1
+    .Write.aField             resd    VMCSCACHE_MAX_ENTRY
+    .Write.aFieldVal          resq    VMCSCACHE_MAX_ENTRY
+    .Read.cValidEntries       resd    1
+    .Read.uAlignment          resd    1
+    .Read.aField              resd    VMCSCACHE_MAX_ENTRY
+    .Read.aFieldVal           resq    VMCSCACHE_MAX_ENTRY
+%ifdef VBOX_STRICT
+    .TestIn.HCPhysCpuPage     resq    1
+    .TestIn.HCPhysVmcs        resq    1
+    .TestIn.pCache            resq    1
+    .TestIn.pCtx              resq    1
+    .TestOut.HCPhysVmcs       resq    1
+    .TestOut.pCache           resq    1
+    .TestOut.pCtx             resq    1
+    .TestOut.eflags           resq    1
+    .TestOut.cr8              resq    1
+    .ScratchPad.param1        resq    1
+    .ScratchPad.param2        resq    1
+    .ScratchPad.param3        resq    1
+    .ScratchPad.param4        resq    1
+%endif
+endstruc
+
+
+struc HMCPU
+        .fForceTLBFlush         resb    1
+        .fActive                resb    1
+        .fCheckedTLBFlush       resb    1
+        .fLeaveDone             resb    1
+        .fUsingHyperDR7         resb    1
+        .fPreloadGuestFpu       resb    1
+        .fLoadSaveGuestXcr0     resb    1
+
+        .fUseDebugLoop          resb    1
+        .fUsingDebugLoop        resb    1
+        .fDebugWantRdTscExit    resb    1
+        .fSingleInstruction     resb    1
+        .fClearTrapFlag         resb    1
+
+        .fGIMTrapXcptUD         resb    1
+        .fHypercallsEnabled     resb    1
+        alignb 8
+
+        .cWorldSwitchExits      resd    1
+        .fContextUseFlags       resd    1
+        .idLastCpu              resd    1
+        .cTlbFlushes            resd    1
+        .uCurrentAsid           resd    1
+        .u32HMError             resd    1
+        alignb 8
+        .u64HostTscAux          resq    1
+
+        ; incomplete to save unnecessary pain...
+endstruc

@@ -1,0 +1,367 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-makefile for iPXE.
+#
+
+#
+# Copyright (C) 2012-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# Globals.
+#
+VBOX_PATH_IPXE_SRC := $(PATH_SUB_CURRENT)
+
+
+#
+# iPxeBiosBin - Library containing the iPXE ROM as a data blob.
+#               Will be linked into VBoxDD2.
+#
+LIBRARIES += iPxeBiosBin
+iPxeBiosBin_TEMPLATE = VBOXR3
+iPxeBiosBin_DEFS     = IN_VBOXDD2
+iPxeBiosBin_SOURCES  = $(iPxeBiosBin_0_OUTDIR)/iPxeBiosBin.c
+iPxeBiosBin_CLEAN    = \
+	$(iPxeBiosBin_0_OUTDIR)/iPxeBiosBin.c \
+
+if1of ($(KBUILD_TARGET), darwin os2 solaris win)
+ $$(iPxeBiosBin_0_OUTDIR)/iPxeBiosBin.c: $(PATH_SUB_CURRENT)/iPxeBiosBin.rom $(VBOX_BIN2C) | $$(dir $$@)
+	$(call MSG_TOOL,bin2c,iPxeBiosBin,$<,$@)
+	$(QUIET)$(VBOX_BIN2C) -min 32 -max 56 -mask 0x1ff -export NetBiosBinary $< $@
+
+else
+ iPxeBiosBin_CLEAN    += \
+	$(iPxeBiosBin_0_OUTDIR)/iPxeBiosBin.rom \
+	$(iPxeBiosBin_0_OUTDIR)/iPxeBaseBin.rom.bin \
+	$(iPxeBiosBin_0_OUTDIR)/iPxeBaseBin.rom.zinfo
+
+ $$(iPxeBiosBin_0_OUTDIR)/iPxeBiosBin.c: $$(iPxeBiosBin_0_OUTDIR)/iPxeBiosBin.rom $(VBOX_BIN2C)
+	$(call MSG_TOOL,bin2c,iPxeBiosBin,$<,$@)
+	$(QUIET)$(VBOX_BIN2C) -min 32 -max 56 -mask 0x1ff -export NetBiosBinary $< $@
+
+
+ $$(iPxeBiosBin_0_OUTDIR)/iPxeBiosBin.rom: \
+		$$(iPxeBaseBin_1_TARGET) \
+		$$(ipxezbin_1_TARGET) \
+		$(VBOX_PATH_IPXE_SRC)/src/util/padimg.pl \
+		$(VBOX_PATH_IPXE_SRC)/src/util/fixrom.pl \
+		| $$(dir $$@)
+	$(call MSG_TOOL,zbin,iPxeBiosBin,$<,$@)
+	$(TOOL_$(VBOX_GCC32_TOOL)_OBJCOPY) -O binary -R .zinfo $< $(iPxeBiosBin_0_OUTDIR)/iPxeBaseBin.rom.bin
+	$(TOOL_$(VBOX_GCC32_TOOL)_OBJCOPY) -O binary -j .zinfo $< $(iPxeBiosBin_0_OUTDIR)/iPxeBaseBin.rom.zinfo
+	$(ipxezbin_1_TARGET) \
+	    $(iPxeBiosBin_0_OUTDIR)/iPxeBaseBin.rom.bin \
+	    $(iPxeBiosBin_0_OUTDIR)/iPxeBaseBin.rom.zinfo \
+	    > $@
+	perl $(VBOX_PATH_IPXE_SRC)/src/util/padimg.pl --blksize=512 --byte=0xff $@
+	perl $(VBOX_PATH_IPXE_SRC)/src/util/fixrom.pl $@
+	$(RM) -- \
+	    $(iPxeBiosBin_0_OUTDIR)/iPxeBaseBin.rom.bin \
+	    $(iPxeBiosBin_0_OUTDIR)/iPxeBaseBin.rom.zinfo
+
+ #
+ # iPxeLinker - Linker tool used to link the ROM binary.
+ #
+ TOOL_iPxeLinker = iPXE LD tool.
+ TOOL_iPxeLinker_LINK_PROGRAM_OUTPUT =
+ TOOL_iPxeLinker_LINK_PROGRAM_OUTPUT_MAYBE = $(outbase).map
+ TOOL_iPxeLinker_LINK_PROGRAM_OUTPUT_DEBUG = $(outbase).debug
+ TOOL_iPxeLinker_LINK_PROGRAM_DEBUG_INSTALL_FN = $(2).debug=>$(basename $(3)).debug
+ TOOL_iPxeLinker_LINK_PROGRAM_DEPEND = $(foreach lib,$(libs),$(if $(findstring $(lib),$(subst /,x,$(lib))),, $(lib)))\
+	    $(filter %.def, $(othersrc))
+ TOOL_iPxeLinker_LINK_PROGRAM_DEPORD =
+ define TOOL_iPxeLinker_LINK_PROGRAM_CMDS
+	$(QUIET)ld $(flags) -o $(out) $(objs)\
+		$(foreach p,$(libpath), -L$(p))\
+		$(foreach lib,$(libs), $(if $(findstring $(lib),$(subst /,x,$(lib))), -l$(patsubst lib%,%,$(lib)), $(lib)))
+ endef
+
+ #
+ # iPXE - Template used to build the ROM binary.
+ #
+ TEMPLATE_iPxe         = iPXE code
+ TEMPLATE_iPxe_TOOL    = $(VBOX_GCC32_TOOL)
+ TEMPLATE_iPxe_LDTOOL  = iPxeLinker
+ TEMPLATE_iPxe_LDFLAGS = \
+	-N \
+	--no-check-sections \
+	--gc-sections \
+	-T $(VBOX_PATH_IPXE_SRC)/src/arch/i386/scripts/i386.lds \
+	-u _rom_start  --defsym check__rom_start=_rom_start \
+	-u obj_config  --defsym check_obj_config=obj_config \
+	--defsym pci_vendor_id=0x8086 \
+	--defsym pci_device_id=0x100E \
+	-e _rom_start
+ifeq ($(KBUILD_TARGET), freebsd)
+ TEMPLATE_iPxe_LDFLAGS += -m elf_i386_fbsd
+else
+ TEMPLATE_iPxe_LDFLAGS += -m elf_i386
+endif
+ TEMPLATE_iPxe_LNK_DEPS = $(VBOX_PATH_IPXE_SRC)/src/arch/i386/scripts/i386.lds
+ TEMPLATE_iPxe_CFLAGS  = \
+	-fno-pie \
+	-ffreestanding \
+	-ffunction-sections \
+	-march=i386 \
+	-fomit-frame-pointer \
+	-fstrength-reduce \
+	-falign-jumps=1 \
+	-falign-loops=1 \
+	-Os \
+	-falign-functions=1 \
+	-mpreferred-stack-boundary=2 \
+	-mregparm=3 \
+	-mrtd \
+	-freg-struct-return \
+	-fshort-wchar \
+	-Ui386 \
+	-Ulinux \
+	-include compiler.h \
+	-Wall \
+	-W \
+	-Wformat-nonliteral \
+	$(VBOX_GCC_fno-stack-protector) \
+	$(VBOX_GCC_fno-dwarf2-cfi-asm) \
+	$(VBOX_GCC_Wno-address)
+ TEMPLATE_iPxe_ASFLAGS = \
+	-ffreestanding \
+	-ffunction-sections \
+	-march=i386 \
+	-fomit-frame-pointer \
+	-fstrength-reduce \
+	-falign-jumps=1 \
+	-falign-loops=1 \
+	-falign-functions=1 \
+	-mpreferred-stack-boundary=2 \
+	-mregparm=3 \
+	-mrtd \
+	-freg-struct-return \
+	-fshort-wchar \
+	-Ui386 \
+	-Ulinux \
+	-include compiler.h \
+	-Wall \
+	-W \
+	-Wformat-nonliteral \
+	$(VBOX_GCC_fno-stack-protector) \
+	$(VBOX_GCC_fno-dwarf2-cfi-asm) \
+	$(VBOX_GCC_Wno-address) \
+	-DASSEMBLY
+ TEMPLATE_iPxe_DEFS = \
+	ARCH=i386 \
+	PLATFORM=pcbios \
+	VERSION_MAJOR=1 \
+	VERSION_MINOR=0 \
+	VERSION_PATCH=0 \
+	VERSION=\"1.0.0+\" \
+	_build_id=0xaffeaffe
+
+
+ #
+ # iPxeBaseBin - The iPXE ROM base binary.
+ #
+ PROGRAMS += iPxeBaseBin
+
+ iPxeBaseBin_TEMPLATE = iPxe
+
+ iPxeBaseBin_INCS = \
+	src \
+	src/include \
+	src/arch/x86/include \
+	src/arch/i386/include \
+	src/arch/i386/include/pcbios
+
+ iPxeBaseBin_SOURCES = \
+	src/arch/i386/core/basemem_packet.c \
+	src/arch/i386/core/relocate.c \
+	src/arch/i386/core/timer2.c \
+	src/arch/i386/firmware/pcbios/basemem.c \
+	src/arch/i386/firmware/pcbios/bios_console.c \
+	src/arch/i386/firmware/pcbios/hidemem.c \
+	src/arch/i386/firmware/pcbios/memmap.c \
+	src/arch/i386/hci/commands/reboot_cmd.c \
+	src/arch/i386/image/bootsector.c \
+	src/arch/i386/image/pxe_image.c \
+	src/arch/i386/interface/pcbios/bios_nap.c \
+	src/arch/i386/interface/pcbios/bios_smbios.c \
+	src/arch/i386/interface/pcbios/bios_timer.c \
+	src/arch/i386/interface/pcbios/biosint.c \
+	src/arch/i386/interface/pcbios/int13.c \
+	src/arch/i386/interface/pcbios/memtop_umalloc.c \
+	src/arch/i386/interface/pcbios/pcibios.c \
+	src/arch/i386/interface/pxe/pxe_call.c \
+	src/arch/i386/interface/pxe/pxe_file.c \
+	src/arch/i386/interface/pxe/pxe_loader.c \
+	src/arch/i386/interface/pxe/pxe_preboot.c \
+	src/arch/i386/interface/pxe/pxe_tftp.c \
+	src/arch/i386/interface/pxe/pxe_udp.c \
+	src/arch/i386/interface/pxe/pxe_undi.c \
+	src/arch/x86/core/x86_string.c \
+	src/config/config.c \
+	src/config/config_romprefix.c \
+	src/core/acpi.c \
+	src/core/ansiesc.c \
+	src/core/asprintf.c \
+	src/core/base16.c \
+	src/core/base64.c \
+	src/core/basename.c \
+	src/core/bitmap.c \
+	src/core/blockdev.c \
+	src/core/console.c \
+	src/core/ctype.c \
+	src/core/cwuri.c \
+	src/core/device.c \
+	src/core/downloader.c \
+	src/core/edd.c \
+	src/core/exec.c \
+	src/core/getkey.c \
+	src/core/getopt.c \
+	src/core/image.c \
+	src/core/init.c \
+	src/core/interface.c \
+	src/core/iobuf.c \
+	src/core/job.c \
+	src/core/linebuf.c \
+	src/core/main.c \
+	src/core/malloc.c \
+	src/core/menu.c \
+	src/core/misc.c \
+	src/core/monojob.c \
+	src/core/nvo.c \
+	src/core/open.c \
+	src/core/parseopt.c \
+	src/core/posix_io.c \
+	src/core/process.c \
+	src/core/random.c \
+	src/core/refcnt.c \
+	src/core/resolv.c \
+	src/core/settings.c \
+	src/core/string.c \
+	src/core/time.c \
+	src/core/timer.c \
+	src/core/uri.c \
+	src/core/uuid.c \
+	src/core/vsprintf.c \
+	src/core/xfer.c \
+	src/crypto/chap.c \
+	src/crypto/md5.c \
+	src/drivers/bitbash/bitbash.c \
+	src/drivers/bitbash/spi_bit.c \
+	src/drivers/block/ata.c \
+	src/drivers/block/ibft.c \
+	src/drivers/block/scsi.c \
+	src/drivers/bus/pci.c \
+	src/drivers/bus/virtio-ring.c \
+	src/drivers/bus/virtio-pci.c \
+	src/drivers/net/mii.c \
+	src/drivers/net/ne.c \
+	src/drivers/net/intel.c \
+	src/drivers/net/pcnet32.c \
+	src/drivers/net/virtio-net.c \
+	src/drivers/nvs/nvs.c \
+	src/drivers/nvs/spi.c \
+	src/drivers/nvs/threewire.c \
+	src/hci/commands/autoboot_cmd.c \
+	src/hci/commands/config_cmd.c \
+	src/hci/commands/dhcp_cmd.c \
+	src/hci/commands/ifmgmt_cmd.c \
+	src/hci/commands/image_cmd.c \
+	src/hci/commands/login_cmd.c \
+	src/hci/commands/menu_cmd.c \
+	src/hci/commands/nvo_cmd.c \
+	src/hci/commands/route_cmd.c \
+	src/hci/editstring.c \
+	src/hci/keymap/keymap_us.c \
+	src/hci/mucurses/ansi_screen.c \
+	src/hci/mucurses/clear.c \
+	src/hci/mucurses/colour.c \
+	src/hci/mucurses/mucurses.c \
+	src/hci/mucurses/print.c \
+	src/hci/mucurses/widgets/editbox.c \
+	src/hci/mucurses/winattrs.c \
+	src/hci/mucurses/wininit.c \
+	src/hci/readline.c \
+	src/hci/shell.c \
+	src/hci/strerror.c \
+	src/hci/tui/login_ui.c \
+	src/hci/tui/menu_ui.c \
+	src/hci/tui/settings_ui.c \
+	src/image/script.c \
+	src/image/segment.c \
+	src/interface/smbios/smbios.c \
+	src/interface/smbios/smbios_settings.c \
+	src/libgcc/memcpy.c \
+	src/net/arp.c \
+	src/net/dhcpopts.c \
+	src/net/dhcppkt.c \
+	src/net/eth_slow.c \
+	src/net/ethernet.c \
+	src/net/fakedhcp.c \
+	src/net/icmp.c \
+	src/net/iobpad.c \
+	src/net/ipv4.c \
+	src/net/netdev_settings.c \
+	src/net/netdevice.c \
+	src/net/nullnet.c \
+	src/net/rarp.c \
+	src/net/retry.c \
+	src/net/tcp.c \
+	src/net/tcpip.c \
+	src/net/udp.c \
+	src/net/udp/dhcp.c \
+	src/net/udp/dns.c \
+	src/net/udp/tftp.c \
+	src/net/tcp/http.c \
+	src/net/tcp/httpcore.c \
+	src/usr/autoboot.c \
+	src/usr/dhcpmgmt.c \
+	src/usr/ifmgmt.c \
+	src/usr/imgmgmt.c \
+	src/usr/prompt.c \
+	src/usr/pxemenu.c \
+	src/usr/route.c \
+	src/arch/i386/core/patch_cf.S \
+	src/arch/i386/core/setjmp.S \
+	src/arch/i386/core/stack.S \
+	src/arch/i386/core/stack16.S \
+	src/arch/i386/core/virtaddr.S \
+	src/arch/i386/firmware/pcbios/e820mangler.S \
+	src/arch/i386/interface/pxe/pxe_entry.S \
+	src/arch/i386/prefix/libprefix.S \
+	src/arch/i386/prefix/romprefix.S \
+	src/arch/i386/prefix/undiloader.S \
+	src/arch/i386/prefix/unnrv2b.S \
+	src/arch/i386/prefix/unnrv2b16.S \
+	src/arch/i386/transitions/liba20.S \
+	src/arch/i386/transitions/librm.S
+
+ define def_iPxeBaseBinDefs
+  $(file)_DEFS += OBJECT=$(subst -,_,$(basename $(notdir $(file))))
+ endef
+
+ $(foreach file,$(iPxeBaseBin_SOURCES),$(eval $(call def_iPxeBaseBinDefs)))
+
+ #
+ # ipxezbin - Compressor?
+ #
+ BLDPROGS += ipxezbin
+ ipxezbin_TEMPLATE = VBoxBldProg
+ ipxezbin_CFLAGS   = -Wno-format -Wno-unused-function
+ ipxezbin_SOURCES  = src/util/zbin.c
+
+endif
+
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

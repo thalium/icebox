@@ -1,0 +1,18 @@
+<!DOCTYPE RCC><RCC version="1.0">
+ <qresource prefix="/">
+    <file alias="cconvApplyAYUV.c">shaders/cconvApplyAYUV.c</file>
+    <file alias="cconvAYUV.c">shaders/cconvAYUV.c</file>
+    <file alias="cconvBGR.c">shaders/cconvBGR.c</file>
+    <file alias="cconvUYVY.c">shaders/cconvUYVY.c</file>
+    <file alias="cconvYUY2.c">shaders/cconvYUY2.c</file>
+    <file alias="cconvYV12.c">shaders/cconvYV12.c</file>
+    <file alias="ckeyDst_void.c">shaders/ckeyDst_void.c</file>
+    <file alias="ckeyDst.c">shaders/ckeyDst.c</file>
+    <file alias="ckeyDst2.c">shaders/ckeyDst2.c</file>
+    <file alias="mainOverlay.c">shaders/mainOverlay.c</file>
+    <file alias="mainOverlayNoCKey.c">shaders/mainOverlayNoCKey.c</file>
+    <file alias="splitBGRA.c">shaders/splitBGRA.c</file>
+    <file alias="mainOverlayNoDiscard.c">shaders/mainOverlayNoDiscard.c</file>
+    <file alias="mainOverlayNoDiscard2.c">shaders/mainOverlayNoDiscard2.c</file>
+ </qresource>
+ </RCC>

@@ -1,0 +1,9 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+:enable:enabled:GL_MULTISAMPLE_ARB
+:enable:sampleAlphaToCoverage:GL_SAMPLE_ALPHA_TO_COVERAGE_ARB
+:enable:sampleAlphaToOne:GL_SAMPLE_ALPHA_TO_ONE_ARB
+:enable:sampleCoverage:GL_SAMPLE_COVERAGE_ARB
+enabled:sampleCoverageValue:sampleCoverageValue,sampleCoverageInvert:SampleCoverageARB

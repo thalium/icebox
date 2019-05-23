@@ -1,0 +1,38 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Windows Guest Additions Installer Helper DLL.
+#
+
+#
+# Copyright (C) 2010-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# NSIS plugins always have to be compiled in 32-bit!
+#
+## @todo kBuild: This needs the WINPSDK fix to work for cross building.
+DLLS.x86 += VBoxGuestInstallHelper
+VBoxGuestInstallHelper_TEMPLATE = VBoxGuestR3Dll
+ifdef VBOX_SIGN_ADDITIONS # (See the parent makefile.)
+ VBoxGuestInstallHelper_INSTTYPE = none
+ VBoxGuestInstallHelper_DEBUG_INSTTYPE = both
+endif
+VBoxGuestInstallHelper_DEFS     = _WIN32_WINNT=0x0400 WIN32_LEAN_AND_MEAN=1
+VBoxGuestInstallHelper_BLD_TRG_ARCH = x86
+VBoxGuestInstallHelper_SOURCES  = \
+	VBoxGuestInstallHelper.cpp \
+	VBoxGuestInstallHelper.rc
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

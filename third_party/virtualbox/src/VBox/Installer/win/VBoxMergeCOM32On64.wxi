@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<!--
+    VirtualBox Windows Installation Script (WiX)
+
+    Copyright (C) 2006-2016 Oracle Corporation
+
+    This file is part of VirtualBox Open Source Edition (OSE), as
+    available from http://www.virtualbox.org. This file is free software;
+    you can redistribute it and/or modify it under the terms of the GNU
+    General Public License (GPL) as published by the Free Software
+    Foundation, in version 2 as it comes in the "COPYING" file of the
+    VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+    hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+-->
+
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wi"
+         xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+<?if $(env.VBOX_WITH_32_ON_64_MAIN_API) = "yes" ?>
+    <Directory Id="dir_VBoxCOM32On64X86" Name="x86">
+        <!-- The 32-bit client COM component (see also cp_MainCom in VBoxMergeApp.wxi) -->
+        <Component Id="cp_MainCOM_x86" Guid="B600824E-4A25-2EB3-4B44-3D8CB7F9B92D" Win64="no">
+            <!-- Note: This file ID *must not* be changed because of our typelib template generation file! -->
+    <?if $(env.VBOX_WITH_MIDL_PROXY_STUB) != "yes" ?>
+            <File Id="VBoxClient_x86" Name="VBoxClient-x86.dll"
+                  Source="$(env.PATH_OUT)\bin\x86\VBoxClient-x86.dll" KeyPath="yes"
+                  DiskId="$(var.Property_DiskIdCommon)">
+            </File>
+    <?else?>
+            <File Id="VBoxClient_x86" Name="VBoxClient-x86.dll"
+                  Source="$(env.PATH_OUT)\bin\x86\VBoxClient-x86.dll"
+                  DiskId="$(var.Property_DiskIdCommon)">
+            </File>
+            <!-- Our key path, see VBoxMergeApp.wxi. -->
+            <File Id="file_VBoxProxyStub_x86" Name="VBoxProxyStub-x86.dll" KeyPath="yes"
+                Source="$(env.PATH_OUT)\bin\x86\VBoxProxyStub-x86.dll"
+                DiskId="$(var.Property_DiskIdCommon)">
+                <Class Id="$(env.VBOX_MIDL_PROXY_CLSID)" Context="InprocServer32"
+                    Description="PSFactoryBuffer" ThreadingModel="both" />
+            </File>
+    <?endif?>
+            <File Id="file_VBoxRT_x86" Name="VBoxRT-x86.dll"
+                  Source="$(env.PATH_OUT)\bin\x86\VBoxRT-x86.dll"
+                  DiskId="$(var.Property_DiskIdCommon)">
+            </File>
+            <?include $(env.PATH_TARGET)\VirtualBox_TypeLib_x86.wxi ?>
+    <?if $(env.VBOX_VCC_TOOL_STEM) = "VCC100" ?>
+            <!-- MS C/C++ v10.0 32 bit Runtime DLL files -->
+            <File Id="file_msvcr100_x86" Name="msvcr100.dll"
+                  Source="$(env.PATH_OUT)\bin\x86\msvcr100.dll"
+                  DiskId="$(var.Property_DiskIdCommon)" />
+            <File Id="file_msvcp100_x86" Name="msvcp100.dll"
+                  Source="$(env.PATH_OUT)\bin\x86\msvcp100.dll"
+                  DiskId="$(var.Property_DiskIdCommon)" />
+    <?endif?>
+    <?if $(env.VBOX_VCC_TOOL_STEM) = "VCC110" ?>
+            <!-- MS C/C++ v11.0 Runtime DLL files -->
+            <File Id="file_msvcr110_x86" Name="msvcr110.dll"
+                  Source="$(env.PATH_OUT)\bin\x86\msvcr110.dll"
+                  DiskId="$(var.Property_DiskIdCommon)" />
+            <File Id="file_msvcp110_x86" Name="msvcp110.dll"
+                  Source="$(env.PATH_OUT)\bin\x86\msvcp110.dll"
+                  DiskId="$(var.Property_DiskIdCommon)" />
+    <?endif?>
+        </Component>
+    </Directory>
+<?endif?>
+
+</Include>

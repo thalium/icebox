@@ -1,0 +1,911 @@
+# $Id: Makefile.kmk $
+## @file
+# Makefile for the Windows installer.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+ifneq ($(KBUILD_HOST),win)
+ $(error "The Windows installer can only be built on Windows!")
+endif
+
+
+#
+# Include Sub-Makefiles.
+#
+include $(PATH_SUB_CURRENT)/InstallHelper/Makefile.kmk
+
+ifdef VBOX_WITH_BUNDLED_INSTALLER
+ ifeq ($(KBUILD_TARGET_ARCH),x86)
+  include $(PATH_SUB_CURRENT)/BundleMachine/Makefile.kmk
+ endif
+endif
+
+ifeq ($(KBUILD_TARGET_ARCH),x86)
+ include $(PATH_SUB_CURRENT)/Stub/Makefile.kmk
+ include $(PATH_SUB_CURRENT)/StubBld/Makefile.kmk
+ ifdef VBOX_BRAND_WIN_AS_MENU
+  include $(PATH_SUB_CURRENT)/AutoStartMenu/Makefile.kmk
+ endif
+endif
+
+include $(PATH_SUB_CURRENT)/Resources/Makefile.kmk
+ifdef VBOX_WITH_MSI_HACK
+ include $(PATH_SUB_CURRENT)/MsiHack/Makefile.kmk
+endif
+
+
+
+#
+# Globals.
+#
+# Tip: Use VBOX_CAB_COMPRESSION_LEVEL=none on the kmk command line when working
+#      on the installer.
+#
+VBOX_WIN_INST_MAKEFILE_DEP := $(MAKEFILE_CURRENT)
+VBOX_CAB_COMPRESSION_LEVEL := high
+
+VBOX_PATH_WIN_INST_SRC := $(PATH_SUB_CURRENT)
+VBOX_WIN_INST_OUT_DIR  := $(PATH_TARGET)/Installer/win
+
+# Note: en_US *must* come first for the dependency file generation.
+ifndef VBOX_INSTALLER_LANGUAGES
+ VBOX_INSTALLER_LANGUAGES  = en_US de_DE fr_FR it_IT zh_TW
+ VBOX_INSTALLER_LANGUAGES += $(VBOX_INSTALLER_ADD_LANGUAGES)
+endif
+
+
+#
+# List of merge modules to use.
+#
+VBOX_INSTALLER_MERGE_MODULES = App USB NetAdp NetFlt NetAdp6 NetLwf Python
+ifeq ($(KBUILD_TARGET_ARCH),amd64)
+ VBOX_INSTALLER_MERGE_MODULES += COM32On64
+endif
+
+# We only ship the merge modules in locale en_US for the moment.
+ifdef VBOX_WITH_MSM_INSTALL
+ VBOX_INSTALLER_LANGUAGES := en_US
+ VBOX_INSTALLER_MERGE_LANGUAGES = $(VBOX_INSTALLER_LANGUAGES)
+endif
+
+#
+# Language IDs.
+#
+VBOX_BRAND_en_US_LANG_ID ?= 1033
+VBOX_BRAND_de_DE_LANG_ID ?= 1031
+VBOX_BRAND_fr_FR_LANG_ID ?= 1036
+VBOX_BRAND_it_IT_LANG_ID ?= 1040
+VBOX_BRAND_zh_TW_LANG_ID ?= 1028
+
+# Standard language names (in the native language), to be extended as we go.
+# VBOX_BRAND_$(lang)_LANG_NAME must be defined for each language which occurs
+# in either VBOX_LICENSE_ADD_LANGUAGES or VBOX_MANUAL_ADD_LANGUAGES.
+VBOX_BRAND_fr_FR_LANG_NAME := Français
+
+
+#
+# We don't have the license text in another language than English yet,
+# so just define the branding targets to use the English one for now.
+# The installer generation assumes that there is a translation for each
+# of VBOX_INSTALLER_LANGUAGES.
+#
+$(foreach lang,$(VBOX_INSTALLER_LANGUAGES), \
+	$(eval VBOX_BRAND_$(lang)_LICENSE_RTF := $(VBOX_BRAND_LICENSE_RTF)))
+
+#
+# Set the codepage for all languages to 1252, covers most cases.
+#
+$(foreach lang,$(sort $(VBOX_INSTALLER_LANGUAGES) $(VBOX_LICENSE_ADD_LANGUAGES) $(VBOX_MANUAL_ADD_LANGUAGES)), \
+	$(eval VBOX_BRAND_$(lang)_LANGUAGE_CODEPAGE := 1252))
+# Exceptions:
+VBOX_BRAND_zh_TW_LANGUAGE_CODEPAGE := 950
+
+
+
+#
+# If we want to build a combined package, we separate all common stuff
+# (that is all 100% identical content between 32-/64-bit builds)
+# into an own .cab file to save space. This .cab file then gets included
+# and used by the 32-/64-bit installers.
+#
+ifdef VBOX_WITH_COMBINED_PACKAGE
+  VBOX_INSTALLER_COMMON_DISKID := 2
+else
+  VBOX_INSTALLER_COMMON_DISKID := 1
+endif
+
+## @todo VBOX_ prefixes!
+PACKAGE_BASE                := VirtualBox-$(VBOX_VERSION_STRING)
+PACKAGE_NAME_LANG           := $(PACKAGE_BASE)-r$(VBOX_SVN_REV)
+PACKAGE_NAME_FINAL          := $(PATH_STAGE_BIN)/$(PACKAGE_NAME_LANG).msi
+
+ifdef VBOX_WITH_COMBINED_PACKAGE
+ PATH_MULTIARCH_TEMP                := $(PATH_OUT_BASE)/win.x86/$(KBUILD_TYPE)/obj/Installer
+ PATH_MULTIARCH_GUEST_ADDITIONS_ISO := $(PATH_OUT_BASE)/win.amd64/$(KBUILD_TYPE)/bin/additions
+ PACKAGE_NAME_MULTIARCH             := $(PACKAGE_NAME_LANG)-MultiArch
+ PACKAGE_NAME_MULTIARCH.x86         := $(PACKAGE_NAME_MULTIARCH)_x86.msi
+ PACKAGE_NAME_MULTIARCH.amd64       := $(PACKAGE_NAME_MULTIARCH)_amd64.msi
+ PACKAGE_NAME_FINAL                 := $(PATH_MULTIARCH_TEMP)/$(PACKAGE_NAME_MULTIARCH.$(KBUILD_TARGET_ARCH))
+ PACKAGE_NAME_MULTIARCH_FINAL       := $(PACKAGE_NAME_MULTIARCH).exe
+ # Always take the common.cab from the amd64 build, as it
+ # might contain certain files for x86 compatibility such
+ # as our 32-on-64-bit COM stuff.
+ PACKAGE_NAME_MULTIARCH_COMMONCAB   := $(PATH_OUT_BASE)/win.amd64/$(KBUILD_TYPE)/obj/Installer/win/common.cab
+
+ BLDDIRS += $(PATH_MULTIARCH_TEMP)
+ PACKING += $(PACKAGE_NAME_FINAL)
+ ifeq ($(KBUILD_TARGET_ARCH),x86)
+  PACKING += $(PATH_STAGE_BIN)/$(PACKAGE_NAME_MULTIARCH_FINAL)
+ endif
+else
+ PACKING += $(PACKAGE_NAME_FINAL)
+endif
+BLDDIRS += \
+	$(VBOX_WIN_INST_OUT_DIR) \
+	$(foreach lang,$(VBOX_INSTALLER_LANGUAGES),$(VBOX_WIN_INST_OUT_DIR)/$(lang)/) \
+	$(VBOX_WIN_INST_OUT_DIR)/NLS/
+
+OTHER_CLEAN += \
+	$(VBOX_WIN_INST_OUT_DIR)/VirtualBox.wixobj \
+	$(VBOX_WIN_INST_OUT_DIR)/VirtualBox.wixobj.dep \
+	$(VBOX_WIN_INST_OUT_DIR)/VirtualBox_TypeLib.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/VirtualBox_TypeLib_x86.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/VirtualBox_ProxyStub.wxi \
+	$(if $(VBOX_WITH_QTGUI),$(VBOX_WIN_INST_OUT_DIR)/VBoxGuiNLS.wxi) \
+	$(VBOX_WIN_INST_OUT_DIR)/VBoxKey.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/VBoxUnattendedTemplateComponent.wxi \
+	$(foreach lang,$(VBOX_INSTALLER_LANGUAGES), \
+		$(VBOX_WIN_INST_OUT_DIR)/NLS/Language_$(lang).wxl \
+		$(VBOX_WIN_INST_OUT_DIR)/NLS/License_$(lang).wxl \
+		$(VBOX_WIN_INST_OUT_DIR)/$(lang)/$(lang).mst \
+		$(VBOX_WIN_INST_OUT_DIR)/$(lang)/$(PACKAGE_NAME_LANG)_$(lang).wixpdb \
+		$(VBOX_WIN_INST_OUT_DIR)/$(lang)/$(PACKAGE_NAME_LANG)_$(lang).msi \
+		$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wixobj \
+		$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wixobj.dep )\
+	$(VBOX_WIN_INST_OUT_DIR)/DirComponentsAndFiles_DTrace.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/Files_Main.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/Files_Doc.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/Files_License.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/Shortcuts_StartMenu.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/$(PACKAGE_NAME_LANG).msi \
+
+ifdef VBOX_WITH_COMBINED_PACKAGE
+ ifeq ($(KBUILD_TARGET_ARCH),x86)
+  OTHER_CLEAN += \
+  	$(PATH_STAGE_BIN)/$(PACKAGE_NAME_MULTIARCH_FINAL) \
+  	$(PATH_MULTIARCH_TEMP)/$(PACKAGE_NAME_MULTIARCH.x86)
+ else
+  OTHER_CLEAN += \
+  	$(PACKAGE_NAME_MULTIARCH_COMMONCAB)
+ endif
+else
+ OTHER_CLEAN += \
+	$(PACKAGE_NAME_FINAL)
+endif
+
+ifdef VBOX_WITH_MSM_INSTALL
+ OTHER_CLEAN += \
+  $(foreach module,$(VBOX_INSTALLER_MERGE_MODULES), \
+   $(foreach lang,$(VBOX_INSTALLER_MERGE_LANGUAGES), \
+		$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module).msm.dep \
+		$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).msm \
+		$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wixobj \
+		$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wixpdb))
+endif
+
+ifdef VBOX_WITH_BUNDLED_INSTALLER
+ ifeq ($(KBUILD_TARGET),darwin)
+  VBOX_TMP_DIR ?= /VBox
+  ZIP = /usr/bin/zip
+ else
+  VBOX_TMP_DIR ?= c:\Temp
+  ZIP = zip
+ endif
+
+ ifndef VBOX_PATH_PACK_TMP
+  VBOX_PATH_PACK_TMP := $(VBOX_WIN_INST_OUT_DIR)
+ endif
+
+ VBOX_PATH_PACK_BUNDLE_TMP = $(PATH_STAGE_BIN)/VBoxWinBundleInstaller
+ VBOX_PATH_PACK_BUNDLE_ZIP = $(PATH_STAGE_BIN)/VBoxWinBundleInstaller-$(KBUILD_TARGET_ARCH).zip
+
+ VBOX_BRAND_WIN_INST_NAME.x86   = $(PACKAGE_BASE)-Win_x86$(VBOX_BRAND_WIN_INST_EXT).msi
+ VBOX_BRAND_WIN_INST_NAME.amd64 = $(PACKAGE_BASE)-Win_amd64$(VBOX_BRAND_WIN_INST_EXT).msi
+
+ PACKING.win += $(VBOX_PATH_PACK_BUNDLE_ZIP)
+endif
+
+#
+# Suppress/skip the following ICE (Internal Consistency Evaluators):
+# - ICE64: Checks that new directories in the user profile are removed correctly in roaming scenarios.
+#          -> We don't want to remove system folders (like "Microsoft/Internet Explorer/Quick Launch").
+# - ICE69: Checks if file references are within the same component.
+#          -> We reference to files within different components, but these components are installed using
+#             the same feature, so that's fine.
+#
+VBOX_MSI_ICE_IGNORE := \
+	-ice:64 \
+	-ice:69
+
+#
+# Create intermediate XML file for languages (needed for .MSI linking).
+#
+# Note: The double escaping of $(dir $@) in the prereq/dep list is because we first have
+#       to escape the expansion of the $(eval ) argument and then the definition of the
+#       rule. The statement is finally expanded during second dependency expansion, which
+#       takes place after all makefiles has been loaded and with the @ variable defined.
+#
+define def_vbox_lang_xml
+$(VBOX_WIN_INST_OUT_DIR)/NLS/Language_$(lang).wxl: $(VBOX_PATH_WIN_INST_SRC)/NLS/$(lang).wxl | $$$$(dir $$$$@)
+	$$(call MSG_GENERATE,,$$@,$$<)
+	$(QUIET)$(INSTALL) -m 0644 $$< $$@
+endef
+
+$(foreach lang,$(VBOX_INSTALLER_LANGUAGES), \
+	$(eval $(def_vbox_lang_xml)))
+
+#
+# Create intermediate XML file for licenses (needed for .MSI linking).
+# These files are created from the original .RTF files in the /docs directory.
+#
+# Note: The redirect command below will open $$@ as stdout in append+text mode
+#       and then exec cat, thus appending the license file to the result file.
+#
+# Note: The license_file variable has to be created before def_vbox_license_xml
+#       is expanded by the 2nd eval because we rely on the that expansion
+#       replacing all $(license_file) (and $(lang)) references before evaluation.
+#
+# Note: The REDIRECT + ECHO_EXT is because WiX gets upset if there a newline
+#       between the tag and the RTF license text.
+#
+define def_vbox_license_xml
+$(VBOX_WIN_INST_OUT_DIR)/NLS/License_$(lang).wxl: $(license_file) $(VBOX_WIN_INST_MAKEFILE_DEP) | $$$$(dir $$$$@)
+	$$(call MSG_GENERATE,,$$@,$$<)
+	$(APPEND) -t $$@ '<?xml version="1.0" encoding="utf-8"?>'
+	$(APPEND) $$@ '<WixLocalization xmlns="http://schemas.microsoft.com/wix/2006/localization" Codepage="$(VBOX_BRAND_$(lang)_LANGUAGE_CODEPAGE)" Culture="$(lang)">'
+
+	$(REDIRECT) -a+to $$@ -- $(ECHO_EXT) -n '<String Id="LicenseText">'
+	$(REDIRECT) -a+to $$@ -- $(SED) -e "s|<|\&lt;|g" -e "s|>|\&gt;|g" $(license_file)
+	$(APPEND) $$@ '</String>'
+
+	$(APPEND) $$@ '<String Id="LicenseFile">$(license_file)</String>'
+	$(APPEND) $$@ '<String Id="LicenseInstallFileLong">License_$(lang).rtf</String>'
+	$(APPEND) $$@ '<String Id="LicenseInstallFileShort">L_$(lang).rtf</String>'
+
+	$(APPEND) $$@ '</WixLocalization>'
+endef
+
+$(foreach lang,$(VBOX_INSTALLER_LANGUAGES), \
+	$(eval local license_file := $(VBOX_BRAND_$(subst en_US_,,$(lang)_)LICENSE_RTF)) \
+	$(eval $(def_vbox_license_xml)))
+
+#
+# Create one intermediate WXI (Windows Installer Include) file for all installers (needed for .MSI compiling).
+# This file includes all language-specific files (PDFs, CHMs, ...) to install.
+#
+# Note: When using the -n switch, append will append a new line after each
+#       argument. The -t switch makes it truncate the file.
+#
+$(VBOX_WIN_INST_OUT_DIR)/Files_Main.wxi: $(VBOX_WIN_INST_MAKEFILE_DEP) | $$(dir $$@)
+	$(call MSG_GENERATE,,$@,$<)
+	$(APPEND) -t $@ '<?xml version="1.0" ?>'
+	$(APPEND) $@ '<Include xmlns="http://schemas.microsoft.com/wix/2006/wi">'
+ifdef VBOX_WITH_DOCS_PACKING
+	$(APPEND) $@ '	<File Id="file_VirtualBox.chm" Name="VirtualBox.chm" DiskId="$(VBOX_INSTALLER_COMMON_DISKID)" Vital="yes" Source="$(PATH_STAGE_BIN)/VirtualBox.chm"></File>'
+	$(APPEND) -n $@ $(foreach lang,$(VBOX_MANUAL_ADD_LANGUAGES), \
+		     '	<File Id="file_VirtualBox_$(lang).chm" Name="VirtualBox_$(lang).chm" DiskId="$(VBOX_INSTALLER_COMMON_DISKID)" Vital="yes" Source="$(PATH_STAGE_BIN)/VirtualBox_$(lang).chm"></File>')
+endif
+	$(APPEND) $@ '</Include>'
+
+$(VBOX_WIN_INST_OUT_DIR)/Files_Doc.wxi: $(VBOX_WIN_INST_MAKEFILE_DEP) | $$(dir $$@)
+	$(call MSG_GENERATE,,$@,$<)
+	$(APPEND) -t $@ '<?xml version="1.0" ?>'
+	$(APPEND) $@ '<Include xmlns="http://schemas.microsoft.com/wix/2006/wi">'
+ifdef VBOX_WITH_DOCS_PACKING
+	$(APPEND) $@ '	<File Id="file_UserManual.pdf" Name="UserManual.pdf" DiskId="$(VBOX_INSTALLER_COMMON_DISKID)" Vital="yes" Source="$(PATH_STAGE_BIN)/UserManual.pdf">'
+	$(APPEND) $@ '	</File>'
+	$(APPEND) -n $@ $(foreach lang,$(VBOX_MANUAL_ADD_LANGUAGES), \
+	             '	<File Id="file_UserManual_$(lang).pdf" Name="UserManual_$(lang).pdf" DiskId="$(VBOX_INSTALLER_COMMON_DISKID)" Vital="yes" Source="$(PATH_STAGE_BIN)/UserManual_$(lang).pdf">' \
+	             '	</File>')
+endif
+	$(APPEND) $@ '</Include>'
+
+$(VBOX_WIN_INST_OUT_DIR)/Files_License.wxi: $(VBOX_WIN_INST_MAKEFILE_DEP) | $$(dir $$@)
+	$(call MSG_GENERATE,,$@,$<)
+	$(APPEND) -t $@ '<?xml version="1.0" ?>'
+	$(APPEND) $@ '<Include xmlns="http://schemas.microsoft.com/wix/2006/wi">'
+	$(APPEND) $@ '	<File Id="file_License_en_US.rtf" Name="License_en_US.rtf" DiskId="$(VBOX_INSTALLER_COMMON_DISKID)" Vital="yes" Source="$(VBOX_BRAND_LICENSE_RTF)">' \
+	             '	</File>'
+	$(APPEND) -n $@ $(foreach lang,$(VBOX_LICENSE_ADD_LANGUAGES), \
+	             '	<File Id="file_License_$(lang).rtf" Name="License_$(lang).rtf" DiskId="$(VBOX_INSTALLER_COMMON_DISKID)" Vital="yes" Source="$(VBOX_BRAND_$(lang)_LICENSE_RTF)">' \
+	             '	</File>')
+	$(APPEND) $@ '</Include>'
+
+$(VBOX_WIN_INST_OUT_DIR)/DirComponentsAndFiles_DTrace.wxi: $(VBOX_WIN_INST_MAKEFILE_DEP) $(PATH_SUB_CURRENT)/../Config.kmk | $$(dir $$@)
+	$(call MSG_GENERATE,,$@,$<)
+	$(QUIET)$(APPEND) -nt "$@" \
+		'<?xml version="1.0" ?>' \
+		'<Include xmlns="http://schemas.microsoft.com/wix/2006/wi">'
+ifdef VBOX_WITH_DTRACE
+	$(QUIET)$(APPEND) -n "$@" \
+		'<Directory Id="dir_DTrace" Name="dtrace">' \
+		'  <Directory Id="dir_DTrace_lib" Name="lib">' \
+		'    <Directory Id="dir_DTrace_lib_arch" Name="$(KBUILD_TARGET_ARCH)">' \
+		'      <Component Id="cp_dir_DTrace_lib_arch" Guid="7476CDF6-4157-2E17-5CCC-FF92528D2854" Win64="$$(var.Property_Win64)">' \
+		$(foreach file, $(VBOXINST_DTRACE_LIB_ARCH_FILES) \
+                	, '        <File Id="file_dtrace_lib_arch_$(subst -,_,$(file))" Name="$(file)" Vital="yes" ' \
+			  '              Source="$(PATH_STAGE_BIN)/dtrace/lib/$(KBUILD_TARGET_ARCH)/$(file)" />' ) \
+		'      </Component>' \
+		'    </Directory>' \
+		'  </Directory>' \
+        $(if $(VBOXINST_DTRACE_TESTCASE_ARCH_FILES), \
+		'  <Directory Id="dir_DTrace_testcase" Name="testcase">' \
+		'    <Directory Id="dir_DTrace_testcase_arch" Name="$(KBUILD_TARGET_ARCH)">' \
+		'      <Component Id="cp_dir_DTrace_testcase_arch" Guid="45DF7014-4431-6C40-6DB0-35AF7C690EE1" Win64="$$(var.Property_Win64)">' \
+		$(foreach file, $(VBOXINST_DTRACE_TESTCASE_ARCH_FILES) \
+                	, '        <File Id="file_dtrace_testcase_arch_$(subst -,_,$(file))" Name="$(file)" Vital="yes" ' \
+			  '              Source="$(PATH_STAGE_BIN)/dtrace/testcase/$(KBUILD_TARGET_ARCH)/$(file)" />' ) \
+		'      </Component>' \
+		'    </Directory>' \
+		'  </Directory>') \
+        $(if $(VBOXINST_DTRACE_SCRIPTS_FILES), \
+		'  <Directory Id="dir_DTrace_scripts" Name="scripts">' \
+		'    <Component Id="cp_dir_DTrace_scripts" Guid="AE07F9D5-4FD9-ACC7-C760-E9923CE01E16" Win64="$$(var.Property_Win64)">' \
+		$(foreach file, $(VBOXINST_DTRACE_SCRIPTS_FILES) \
+                	, '      <File Id="file_dtrace_scripts_$(subst -,_,$(file))" Name="$(file)" Vital="yes" ' \
+			  '            Source="$(PATH_STAGE_BIN)/dtrace/scripts/$(file)" />' ) \
+		'    </Component>' \
+		'  </Directory>') \
+		'</Directory>'
+endif
+	$(QUIET)$(APPEND) "$@" '</Include>'
+
+
+$(VBOX_WIN_INST_OUT_DIR)/Shortcuts_StartMenu.wxi: $(VBOX_WIN_INST_MAKEFILE_DEP) | $$(dir $$@)
+	$(call MSG_GENERATE,,$@,$<)
+	$(APPEND) -t $@ '<?xml version="1.0" ?>'
+	$(APPEND) $@ '<Include xmlns="http://schemas.microsoft.com/wix/2006/wi">'
+	#
+	# Documentation (PDF/CHM)
+	#
+ifdef VBOX_WITH_DOCS_PACKING
+	$(APPEND) $@ '	<Shortcut Id="sc_StartMenu_ManualCHM_en_US" Directory="dir_StartMenuVBox" Name="!(loc.StartMenu_UserManual) (CHM, English)" Description="!(loc.StartMenu_UserManual)"' \
+	             '            Target="[INSTALLDIR]\VirtualBox.chm" WorkingDirectory="dir_Documents" Advertise="no"/>'
+	$(APPEND) -n $@ $(foreach lang,$(VBOX_MANUAL_ADD_LANGUAGES), \
+	             '	<Shortcut Id="sc_StartMenu_ManualCHM_$(lang)" Directory="dir_StartMenuVBox" Name="!(loc.StartMenu_UserManual) (CHM, $(VBOX_BRAND_$(lang)_LANG_NAME))"' \
+		     '            Description="!(loc.StartMenu_UserManual) ($(VBOX_BRAND_$(lang)_LANG_NAME))" Target="[INSTALLDIR]\VirtualBox_$(lang).chm" WorkingDirectory="dir_Documents"/>')
+endif
+	$(APPEND) $@ '	<Shortcut Id="sc_StartMenu_ManualPDF_en_US" Directory="dir_StartMenuVBox" Name="!(loc.StartMenu_UserManual) (PDF, English)" Description="!(loc.StartMenu_UserManual)"' \
+	             '            Target="[INSTALLDIR]\doc\UserManual.pdf" WorkingDirectory="dir_Documents" Advertise="no"/>'
+	$(APPEND) -n $@ $(foreach lang,$(VBOX_MANUAL_ADD_LANGUAGES), \
+	             '	<Shortcut Id="sc_StartMenu_ManualPDF_$(lang)" Directory="dir_StartMenuVBox" Name="!(loc.StartMenu_UserManual) (PDF, $(VBOX_BRAND_$(lang)_LANG_NAME))"' \
+		     '            Description="!(loc.StartMenu_UserManual) ($(VBOX_BRAND_$(lang)_LANG_NAME))" Target="[INSTALLDIR]\doc\UserManual_$(lang).pdf" WorkingDirectory="dir_Documents"/>')
+	#
+	# License(s) (RTF)
+	#
+	$(APPEND) $@ '	<Shortcut Id="sc_StartMenu_License_en_US" Directory="dir_StartMenuVBox" Name="!(loc.StartMenu_License) (English)" Description="!(loc.StartMenu_License)"' \
+	             '            Target="[INSTALLDIR]License_en_US.rtf" WorkingDirectory="INSTALLDIR" Advertise="no"/>'
+	$(APPEND) -n $@ $(foreach lang,$(VBOX_LICENSE_ADD_LANGUAGES), \
+	             '	<Shortcut Id="sc_StartMenu_License_$(lang)" Directory="dir_StartMenuVBox" Name="!(loc.StartMenu_License) ($(VBOX_BRAND_$(lang)_LANG_NAME))"' \
+		     '            Description="!(loc.StartMenu_License) ($(VBOX_BRAND_$(lang)_LANG_NAME))" Target="License_$(lang).rtf" WorkingDirectory="INSTALLDIR"/>')
+	$(APPEND) $@ '</Include>'
+
+#
+# .MSI linking of the main installer (en_US).
+#
+# Note: This will clean up any previous .msi and .wixpdb files to prevent dep
+#       build boxes from filling up with old files.
+#
+define def_vbox_link_msi
+$(VBOX_WIN_INST_OUT_DIR)/$(lang)/$(PACKAGE_NAME_LANG)_$(lang).msi \
+$(if-expr defined(VBOX_WITH_COMBINED_PACKAGE), + $(VBOX_WIN_INST_OUT_DIR)/common.cab,): \
+		$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wixobj \
+		$(VBOX_WIN_INST_OUT_DIR)/NLS/Language_$(lang).wxl \
+		$(VBOX_WIN_INST_OUT_DIR)/NLS/License_$(lang).wxl \
+		$(PATH_STAGE_BIN)/VBoxInstallHelper.dll \
+		$(VBOX_SVN_REV_KMK) \
+		$(VBOX_WIN_INST_MAKEFILE_DEP) \
+		$(if-expr defined(VBOX_WITH_MSI_HACK),$(MsiHack_0_OUTDIR)/MsiHack.dll,) \
+		$(if-expr defined(VBOX_WITH_MSI_HACK),$(MsiHack_0_OUTDIR)/MsiHackExtension.dll,) \
+		| $$$$(dir $$$$@)
+	$$(call MSG_L1,Linking installer $$@)
+	$(QUIET)$(RM) -f $$(wildcard $$(@D)/$(PACKAGE_BASE)-r*_$(lang).msi $$(@D)/$(PACKAGE_BASE)-r*_$(lang).wixpdb)
+	kmk_time $(VBOX_PATH_WIX)/light.exe -v -nologo \
+		-loc $(VBOX_WIN_INST_OUT_DIR)/NLS/Language_$(lang).wxl \
+		-loc $(VBOX_WIN_INST_OUT_DIR)/NLS/License_$(lang).wxl \
+		-ext $(VBOX_PATH_WIX)/WixUIExtension.dll \
+		-ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll \
+               $(if-expr defined(VBOX_WITH_MSI_HACK),-ext $(MsiHack_0_OUTDIR)/MsiHackExtension.dll,) \
+		$(VBOX_MSI_ICE_IGNORE) \
+		-out $$@ \
+		$$< \
+		$(VBOX_PATH_WIX)/difxapp_$(if-expr "$(KBUILD_TARGET_ARCH)" == "x86",x86,x64).wixlib
+ifdef VBOX_WITH_COMBINED_PACKAGE
+	$(MV) -f -- $$(@D)/common.cab $$(@D)/../common.cab
+endif
+endef
+
+$(foreach lang, en_US, $(eval $(def_vbox_link_msi)))
+
+
+#
+# Merge module linking (all languages).
+#
+# Note: This will clean up any previous .msm to prevent dep build boxes from
+#       filling up with old files.
+#
+define def_vbox_link_msm
+$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).msm: \
+		$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wixobj \
+		$(VBOX_WIN_INST_OUT_DIR)/NLS/Language_$(lang).wxl \
+		$(VBOX_WIN_INST_OUT_DIR)/NLS/License_$(lang).wxl \
+		$(PATH_STAGE_BIN)/VBoxInstallHelper.dll \
+		$(VBOX_SVN_REV_KMK) \
+		$(VBOX_WIN_INST_MAKEFILE_DEP) \
+		| $$$$(dir $$$$@)
+	$$(call MSG_L1,Linking installer $$@)
+	$(QUIET)$(RM) -f $$(wildcard $(VBOX_WIN_INST_OUT_DIR)/$(PACKAGE_BASE)-r*_$(lang).msi)
+	$(VBOX_PATH_WIX)/light.exe -v -nologo \
+		-loc $(VBOX_WIN_INST_OUT_DIR)/NLS/Language_$(lang).wxl \
+		-loc $(VBOX_WIN_INST_OUT_DIR)/NLS/License_$(lang).wxl \
+		-ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll \
+		$(VBOX_MSI_ICE_IGNORE) \
+		-out $$@ \
+		$$< \
+		$(VBOX_PATH_WIX)/difxapp_$(if-expr "$(KBUILD_TARGET_ARCH)" == "x86",x86,x64).wixlib
+	$(RM) -f $(VBOX_WIN_INST_OUT_DIR)/NLS/$(lang).mst
+	$(call VBOX_SIGN_FILE_FN,$$@,$(VBOX_PRODUCT) $(VBOX_VERSION_STRING)r$(VBOX_SVN_REV) ($(KBUILD_TARGET_ARCH)),,,disable-dual-signing)
+endef
+
+$(if $(VBOX_WITH_MSM_INSTALL), \
+	$(foreach module,$(VBOX_INSTALLER_MERGE_MODULES), \
+		$(foreach lang,$(VBOX_INSTALLER_MERGE_LANGUAGES), \
+			$(eval $(def_vbox_link_msm)))),)
+
+
+#
+# Add dependencies that makes sure necessary bits gets built.
+# For combined packages we always use the .ISO from the amd64 build.
+#
+ifdef VBOX_WITH_COMBINED_PACKAGE
+ VBOX_MSI_DEPENDENCIES := \
+	$(if $(VBOX_WITH_ADDITIONS_PACKING),$(PATH_MULTIARCH_GUEST_ADDITIONS_ISO)/VBoxGuestAdditions.iso)
+else
+ VBOX_MSI_DEPENDENCIES := \
+	$(if $(VBOX_WITH_ADDITIONS_PACKING),$(VBOX_PATH_ADDITIONS_ISO)/VBoxGuestAdditions.iso)
+endif
+
+#
+# A few manual dependencies to make sure everything is rebuilt when they should.
+#
+$(PATH_SUB_CURRENT)/VirtualBox.wxs: \
+	$(PATH_SUB_CURRENT)/Properties.wxi \
+	$(PATH_SUB_CURRENT)/VBoxMergeApp.wxi
+
+$(PATH_SUB_CURRENT)/VBoxMergeApp.wxi $(PATH_SUB_CURRENT)/VirtualBox.wxs: \
+	$(VBOX_WIN_INST_OUT_DIR)/Files_Doc.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/DirComponentsAndFiles_DTrace.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/Files_License.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/Files_Main.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/VBoxKey.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/VBoxGuiNLS.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/VirtualBox_TypeLib.wxi \
+	$(VBOX_WIN_INST_OUT_DIR)/VBoxUnattendedTemplateComponent.wxi
+
+#
+# MSI compile.
+#
+define def_vbox_compile_wixobj
+includedep $(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wixobj.dep
+$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wixobj: \
+			$(PATH_SUB_CURRENT)/VirtualBox.wxs \
+			$(PATH_SUB_CURRENT)/UserInterface.wxi \
+			$(if $(VBOX_WITH_MSM_INSTALL), \
+				$(foreach module,$(VBOX_INSTALLER_MERGE_MODULES), \
+					$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).msm), \
+				$(VBOX_WIN_INST_OUT_DIR)/Shortcuts_StartMenu.wxi \
+				$(VBOX_WIN_INST_OUT_DIR)/VirtualBox_TypeLib.wxi \
+				$(if $(VBOX_WITH_32_ON_64_MAIN_API),$(VBOX_WIN_INST_OUT_DIR)/VirtualBox_TypeLib_x86.wxi,) \
+				$(VBOX_WIN_INST_OUT_DIR)/VBoxKey.wxi \
+				$(VBOX_WIN_INST_OUT_DIR)/VBoxUnattendedTemplateComponent.wxi \
+				$(if $(VBOX_WITH_QTGUI),$(VBOX_WIN_INST_OUT_DIR)/VBoxGuiNLS.wxi) \
+				$(VBOX_MSI_DEPENDENCIES)) \
+			$(VBOX_VERSION_STAMP) \
+			| $$$$(dir $$$$@)
+	$(QUIET)$(RM) -f $@
+	$(REDIRECT) \
+		-E 'PATH_OUT=$(subst /,\,$(PATH_OUT))' \
+		-E 'PATH_TARGET=$(subst /,\,$(VBOX_WIN_INST_OUT_DIR))' \
+		-E 'PATH_ROOT=$(subst /,\,$(PATH_ROOT))' \
+		-E 'PATH_MULTIARCH_GUEST_ADDITIONS_ISO=$(subst /,\,$(PATH_MULTIARCH_GUEST_ADDITIONS_ISO))' \
+		-E 'VBOX_PATH_WIN_INST_SRC=$(subst /,\,$(VBOX_PATH_WIN_INST_SRC))' \
+		-E 'VBOX_BRAND_WIN_INST_DLGJPG=$(subst /,\,$(VBOX_BRAND_WIN_INST_DLGJPG))' \
+		-E 'VBOX_ADD_LANGUAGES=$(VBOX_INSTALLER_ADD_LANGUAGES)' \
+		-E 'VBOX_BRAND_LICENSE_RTF=$(subst /,\,$(VBOX_BRAND_LICENSE_RTF))' \
+		$(foreach lang,$(VBOX_INSTALLER_LANGUAGES), \
+			-E 'VBOX_BRAND_$(lang)_LICENSE_RTF=$(subst /,\,$(VBOX_BRAND_$(subst en_US_,,$(lang)_)LICENSE_RTF))') \
+		-E 'VBOX_BUILD_NR_FOR_INST=$(VBOX_VERSION_BUILD)' \
+		-E 'VBOX_VENDOR=$(VBOX_VENDOR)' \
+		-E 'VBOX_VENDOR_SHORT=$(VBOX_VENDOR_SHORT)' \
+		-E 'VBOX_PRODUCT=$(VBOX_PRODUCT)' \
+		-E 'VBOX_C_YEAR=$(VBOX_C_YEAR)' \
+		-E 'VBOX_VERSION_STRING=$(VBOX_VERSION_STRING)' \
+		-E 'VBOX_VERSION_STRING_RAW=$(VBOX_VERSION_STRING_RAW)' \
+		-E 'VBOX_VERSION_MAJOR_INST=$(VBOX_VERSION_MAJOR)' \
+		-E 'VBOX_VERSION_MINOR_INST=$(VBOX_VERSION_MINOR)' \
+		-E 'VBOX_SIGNING_MODE=$(strip $(if $(VBOX_SIGNING_MODE),$(VBOX_SIGNING_MODE),none))' \
+		-E 'VBOX_CAB_COMPRESSION_LEVEL=$(if-expr $(lang) == "en_US",$(VBOX_CAB_COMPRESSION_LEVEL),none)' \
+		-E 'VBOX_CAB_COMPRESSION_LEVEL_COMMON=$(if-expr $(lang) == "en_US" && $(KBUILD_TARGET_ARCH) == "amd64",$(VBOX_CAB_COMPRESSION_LEVEL),none)' \
+		-E 'VBOX_GUI_USE_QGL=$(if $(VBOX_GUI_USE_QGL),yes,no)' \
+		-E 'VBOX_MIDL_PROXY_CLSID=$(VBOX_MIDL_PROXY_CLSID)' \
+		$(if $(VBOX_WITH_MSM_INSTALL), \
+			$(foreach module,$(VBOX_INSTALLER_MERGE_MODULES), \
+				-E 'VBOX_WIN_INST_MERGE_$(toupper $(module))=$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).msm'),) \
+		-E 'VBOX_WINDOWS_ICON_FILE=$(subst /,\,$(VBOX_WINDOWS_ICON_FILE))' \
+		-E 'VBOX_QT_INFIX=$(VBOX_QT_INFIX)' \
+		-E 'VBOX_WITH_32_ON_64_MAIN_API=$(if $(VBOX_WITH_32_ON_64_MAIN_API),yes,no)' \
+		-E 'VBOX_WITH_ADDITIONS_PACKING=$(if $(VBOX_WITH_ADDITIONS_PACKING),yes,no)' \
+		-E 'VBOX_WITH_COMBINED_PACKAGE=$(if $(VBOX_WITH_COMBINED_PACKAGE),yes,no)' \
+		-E 'VBOX_WITH_CROGL=$(if $(VBOX_WITH_CROGL),yes,no)' \
+		-E 'VBOX_WITH_DEBUGGER_GUI=$(if-expr defined(VBOX_WITH_DEBUGGER_GUI) && defined(VBOX_WITH_QTGUI),yes,no)' \
+		-E 'VBOX_WITH_DOCS_PACKING=$(if $(VBOX_WITH_DOCS_PACKING),yes,no)' \
+		-E 'VBOX_WITH_DRAG_AND_DROP=$(if $(VBOX_WITH_DRAG_AND_DROP),yes,no)' \
+		-E 'VBOX_WITH_DTRACE=$(if $(VBOX_WITH_DTRACE),yes,no)' \
+		-E 'VBOX_WITH_EFIFW_PACKING=$(if $(VBOX_WITH_EFIFW_PACKING),yes,no)' \
+		-E 'VBOX_WITH_EXTPACK=$(if $(VBOX_WITH_EXTPACK),yes,no)' \
+		-E 'VBOX_WITH_GUEST_CONTROL=$(if $(VBOX_WITH_GUEST_CONTROL),yes,no)' \
+		-E 'VBOX_WITH_GUEST_PROPS=$(if $(VBOX_WITH_GUEST_PROPS),yes,no)' \
+		-E 'VBOX_WITH_HARDENING=$(if $(VBOX_WITH_HARDENING),yes,no)' \
+		-E 'VBOX_WITH_LICENSE_DISPLAY=$(if $(VBOX_WITH_LICENSE_DISPLAY),yes,no)' \
+		-E 'VBOX_WITH_MIDL_PROXY_STUB=$(if $(VBOX_WITH_MIDL_PROXY_STUB),yes,no)' \
+		-E 'VBOX_WITH_MSM_INSTALL=$(if $(VBOX_WITH_MSM_INSTALL),yes,no)' \
+		-E 'VBOX_WITH_NETFLT=$(if $(VBOX_WITH_NETFLT),yes,no)' \
+		-E 'VBOX_WITH_PYTHON=$(if $(VBOX_WITH_PYTHON),yes,no)' \
+		-E 'VBOX_WITH_QTGUI=$(if $(VBOX_WITH_QTGUI),yes,no)' \
+		-E 'VBOX_WITH_SECURELABEL=$(if $(VBOX_WITH_SECURELABEL),yes,no)' \
+		-E 'VBOX_WITH_SERIALNUMBER_INSTALL=$(if $(VBOX_WITH_SERIALNUMBER_INSTALL),yes,no)' \
+		-E 'VBOX_WITH_VIDEOHWACCEL=$(if $(VBOX_WITH_VIDEOHWACCEL),yes,no)' \
+		-E 'VBOX_WITH_VRDP=$(if-expr defined(VBOX_WITH_VRDP) && !defined(VBOX_WITH_EXTPACK_PUEL),yes,no)' \
+		-E 'VBOX_WITH_WEBSERVICES=$(if $(VBOX_WITH_WEBSERVICES),yes,no)' \
+		-E 'VBOX_WITH_SDS=$(if $(VBOX_WITH_SDS),yes,no)' \
+		-E 'VBOX_WITH_UNATTENDED=$(if $(VBOX_WITH_UNATTENDED),yes,no)' \
+		-E 'BUILD_TYPE=$(KBUILD_TYPE)' \
+		-E 'BUILD_TARGET_ARCH=$(KBUILD_TARGET_ARCH)' \
+		-E 'VBOX_VCC_TOOL_STEM=$(VBOX_VCC_TOOL_STEM)' \
+		-- \
+		$(VBOX_PATH_WIX)/candle.exe $(filter-out $(VBOX_VERSION_STAMP),$$<) \
+			-ext $(VBOX_PATH_WIX)/WixUIExtension.dll \
+			-ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll \
+			-out $$@
+# Generate wxi dependencies based on the sourceLineNumber references in the output.
+	$(QUIET)$(APPEND) -t '$$@.dep' '$$@: \'
+	$(QUIET)$(VBOX_XSLTPROC) $(VBOX_PATH_WIN_INST_SRC)/dep.xsl "$$@" >> "$$@.dep"
+	$(QUIET)$(VBOX_XSLTPROC) $(VBOX_PATH_WIN_INST_SRC)/dep2.xsl "$$@" | sort  | $(SED) '$!N; /^\(.*\)\n\1$$$$/!P; D' >> "$$@.dep"
+	$(QUIET)$(APPEND) -n '$$@.dep' '' ''
+endef
+
+$(foreach lang,$(VBOX_INSTALLER_LANGUAGES), \
+	$(eval $(def_vbox_compile_wixobj)))
+
+#
+# MSM (merge module) compile.
+#
+define def_vbox_compile_msm
+includedep $(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wixobj
+$(VBOX_WIN_INST_OUT_DIR)/VBoxMerge$(module)_$(lang).wixobj: \
+		$(PATH_SUB_CURRENT)/VBoxMerge$(module).wxs \
+		$(PATH_SUB_CURRENT)/VBoxMerge$(module).wxi \
+		$(PATH_SUB_CURRENT)/VBoxMerge$(module)CA.wxi \
+		$(PATH_SUB_CURRENT)/VBoxMerge$(module)Seq.wxi \
+		$(PATH_SUB_CURRENT)/UserInterface.wxi \
+		$(VBOX_WIN_INST_OUT_DIR)/Shortcuts_StartMenu.wxi \
+		$(VBOX_WIN_INST_OUT_DIR)/VirtualBox_TypeLib.wxi \
+		$(if $(VBOX_WITH_32_ON_64_MAIN_API),$(VBOX_WIN_INST_OUT_DIR)/VirtualBox_TypeLib_x86.wxi,) \
+		$(VBOX_WIN_INST_OUT_DIR)/VBoxKey.wxi \
+		$(VBOX_WIN_INST_OUT_DIR)/VBoxUnattendedTemplateComponent.wxi \
+		$(if $(VBOX_WITH_QTGUI),$(VBOX_WIN_INST_OUT_DIR)/VBoxGuiNLS.wxi) \
+		$(VBOX_MSI_DEPENDENCIES) \
+		$(VBOX_VERSION_STAMP) \
+		| $$$$(dir $$$$@)
+	$(QUIET)$(RM) -f $@
+	$(REDIRECT) \
+		-E 'PATH_OUT=$(subst /,\,$(PATH_OUT))' \
+		-E 'PATH_TARGET=$(subst /,\,$(VBOX_WIN_INST_OUT_DIR))' \
+		-E 'PATH_ROOT=$(subst /,\,$(PATH_ROOT))' \
+		-E 'PATH_MULTIARCH_GUEST_ADDITIONS_ISO=$(subst /,\,$(PATH_MULTIARCH_GUEST_ADDITIONS_ISO))' \
+		-E 'VBOX_PATH_WIN_INST_SRC=$(subst /,\,$(VBOX_PATH_WIN_INST_SRC))' \
+		-E 'VBOX_BRAND_WIN_INST_DLGJPG=$(subst /,\,$(VBOX_BRAND_WIN_INST_DLGJPG))' \
+		-E 'VBOX_ADD_LANGUAGES=$(VBOX_INSTALLER_ADD_LANGUAGES)' \
+		-E 'VBOX_BRAND_LICENSE_RTF=$(subst /,\,$(VBOX_BRAND_LICENSE_RTF))' \
+		$(foreach lang,$(VBOX_INSTALLER_LANGUAGES), \
+			-E 'VBOX_BRAND_$(lang)_LICENSE_RTF=$(subst /,\,$(VBOX_BRAND_$(subst en_US_,,$(lang)_)LICENSE_RTF))') \
+		-E 'VBOX_BUILD_NR_FOR_INST=$(VBOX_VERSION_BUILD)' \
+		-E 'VBOX_VENDOR=$(VBOX_VENDOR)' \
+		-E 'VBOX_VENDOR_SHORT=$(VBOX_VENDOR_SHORT)' \
+		-E 'VBOX_PRODUCT=$(VBOX_PRODUCT)' \
+		-E 'VBOX_C_YEAR=$(VBOX_C_YEAR)' \
+		-E 'VBOX_VERSION_STRING=$(VBOX_VERSION_STRING)' \
+		-E 'VBOX_VERSION_STRING_RAW=$(VBOX_VERSION_STRING_RAW)' \
+		-E 'VBOX_VERSION_MAJOR_INST=$(VBOX_VERSION_MAJOR)' \
+		-E 'VBOX_VERSION_MINOR_INST=$(VBOX_VERSION_MINOR)' \
+		-E 'VBOX_SIGNING_MODE=$(strip $(if $(VBOX_SIGNING_MODE),$(VBOX_SIGNING_MODE),none))' \
+		-E 'VBOX_CAB_COMPRESSION_LEVEL=$(VBOX_CAB_COMPRESSION_LEVEL)' \
+		-E 'VBOX_CAB_COMPRESSION_LEVEL_COMMON=$(VBOX_CAB_COMPRESSION_LEVEL)' \
+		-E 'VBOX_GUI_USE_QGL=$(if $(VBOX_GUI_USE_QGL),yes,no)' \
+		-E 'VBOX_MIDL_PROXY_CLSID=$(VBOX_MIDL_PROXY_CLSID)' \
+		-E 'VBOX_WINDOWS_ICON_FILE=$(subst /,\,$(VBOX_WINDOWS_ICON_FILE))' \
+		-E 'VBOX_QT_INFIX=$(VBOX_QT_INFIX)' \
+		-E 'VBOX_WITH_32_ON_64_MAIN_API=$(if $(VBOX_WITH_32_ON_64_MAIN_API),yes,no)' \
+		-E 'VBOX_WITH_ADDITIONS_PACKING=$(if $(VBOX_WITH_ADDITIONS_PACKING),yes,no)' \
+		-E 'VBOX_WITH_COMBINED_PACKAGE=$(if $(VBOX_WITH_COMBINED_PACKAGE),yes,no)' \
+		-E 'VBOX_WITH_CROGL=$(if $(VBOX_WITH_CROGL),yes,no)' \
+		-E 'VBOX_WITH_DEBUGGER_GUI=$(if-expr defined(VBOX_WITH_DEBUGGER_GUI) && defined(VBOX_WITH_QTGUI),yes,no)' \
+		-E 'VBOX_WITH_DOCS_PACKING=$(if $(VBOX_WITH_DOCS_PACKING),yes,no)' \
+		-E 'VBOX_WITH_DRAG_AND_DROP=$(if $(VBOX_WITH_DRAG_AND_DROP),yes,no)' \
+		-E 'VBOX_WITH_DTRACE=$(if $(VBOX_WITH_DTRACE),yes,no)' \
+		-E 'VBOX_WITH_EFIFW_PACKING=$(if $(VBOX_WITH_EFIFW_PACKING),yes,no)' \
+		-E 'VBOX_WITH_EXTPACK=$(if $(VBOX_WITH_EXTPACK),yes,no)' \
+		-E 'VBOX_WITH_GUEST_CONTROL=$(if $(VBOX_WITH_GUEST_CONTROL),yes,no)' \
+		-E 'VBOX_WITH_GUEST_PROPS=$(if $(VBOX_WITH_GUEST_PROPS),yes,no)' \
+		-E 'VBOX_WITH_HARDENING=$(if $(VBOX_WITH_HARDENING),yes,no)' \
+		-E 'VBOX_WITH_LICENSE_DISPLAY=$(if $(VBOX_WITH_LICENSE_DISPLAY),yes,no)' \
+		-E 'VBOX_WITH_MIDL_PROXY_STUB=$(if $(VBOX_WITH_MIDL_PROXY_STUB),yes,no)' \
+		-E 'VBOX_WITH_MSM_INSTALL=$(if $(VBOX_WITH_MSM_INSTALL),yes,no)' \
+		-E 'VBOX_WITH_NETFLT=$(if $(VBOX_WITH_NETFLT),yes,no)' \
+		-E 'VBOX_WITH_PYTHON=$(if $(VBOX_WITH_PYTHON),yes,no)' \
+		-E 'VBOX_WITH_QTGUI=$(if $(VBOX_WITH_QTGUI),yes,no)' \
+		-E 'VBOX_WITH_SECURELABEL=$(if $(VBOX_WITH_SECURELABEL),yes,no)' \
+		-E 'VBOX_WITH_SERIALNUMBER_INSTALL=$(if $(VBOX_WITH_SERIALNUMBER_INSTALL),yes,no)' \
+		-E 'VBOX_WITH_VIDEOHWACCEL=$(if $(VBOX_WITH_VIDEOHWACCEL),yes,no)' \
+		-E 'VBOX_WITH_VRDP=$(if-expr defined(VBOX_WITH_VRDP) && !defined(VBOX_WITH_EXTPACK_PUEL),yes,no)' \
+		-E 'VBOX_WITH_WEBSERVICES=$(if $(VBOX_WITH_WEBSERVICES),yes,no)' \
+		-E 'VBOX_WITH_SDS=$(if $(VBOX_WITH_SDS),yes,no)' \
+		-E 'VBOX_WITH_UNATTENDED=$(if $(VBOX_WITH_UNATTENDED),yes,no)' \
+		-E 'BUILD_TYPE=$(KBUILD_TYPE)' \
+		-E 'BUILD_TARGET_ARCH=$(KBUILD_TARGET_ARCH)' \
+		-E 'VBOX_VCC_TOOL_STEM=$(VBOX_VCC_TOOL_STEM)' \
+		-- \
+		$(VBOX_PATH_WIX)/candle.exe $(filter-out $(VBOX_VERSION_STAMP),$$<) \
+			-ext $(VBOX_PATH_WIX)/WixUIExtension.dll \
+			-ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll \
+			-out $$@
+# Generate wxi dependencies based on the sourceLineNumber references in the output.
+	$(QUIET)$(APPEND) -t '$$@.dep' '$$@: \'
+	$(QUIET)$(VBOX_XSLTPROC) $(VBOX_PATH_WIN_INST_SRC)/dep.xsl "$$@" >> "$$@.dep"
+	$(QUIET)$(VBOX_XSLTPROC) $(VBOX_PATH_WIN_INST_SRC)/dep2.xsl "$$@" | sort  | $(SED) '$!N; /^\(.*\)\n\1$$$$/!P; D' >> "$$@.dep"
+	$(QUIET)$(APPEND) -n '$$@.dep' '' ''
+endef
+
+$(foreach module,$(VBOX_INSTALLER_MERGE_MODULES), \
+	$(foreach lang,$(VBOX_INSTALLER_MERGE_LANGUAGES), \
+		$(eval $(def_vbox_compile_msm))))
+
+#
+# VirtualBox Type Library definition.
+#
+$(VBOX_WIN_INST_OUT_DIR)/VirtualBox_TypeLib.wxi: \
+		$(PATH_SUB_CURRENT)/$(if-expr defined(VBOX_WITH_MIDL_PROXY_STUB),VirtualBox_TypeLibWithInterfaces.xsl,VirtualBox_TypeLib.xsl) \
+		$(VBOX_XIDL_FILE) \
+		$(MAKEFILE) \
+		| $$(dir $$@)
+	$(VBOX_XSLTPROC) \
+		$(if-expr defined(VBOX_WITH_MIDL_PROXY_STUB),--stringparam "a_sProxyStubClsid" "$(VBOX_MIDL_PROXY_CLSID)",) \
+		$(if-expr defined(VBOX_WITH_SDS),--stringparam "a_sWithSDS" "yes",) \
+		-o $@ $< $(VBOX_XIDL_FILE)
+
+$(VBOX_WIN_INST_OUT_DIR)/VirtualBox_TypeLib_x86.wxi: \
+		$(PATH_SUB_CURRENT)/$(if-expr defined(VBOX_WITH_MIDL_PROXY_STUB),VirtualBox_TypeLibWithInterfaces.xsl,VirtualBox_TypeLib.xsl) \
+		$(VBOX_XIDL_FILE) \
+		| $$(dir $$@)
+	$(VBOX_XSLTPROC) --stringparam "a_sTarget" "VBoxClient-x86" \
+		$(if-expr defined(VBOX_WITH_MIDL_PROXY_STUB),--stringparam "a_sProxyStubClsid" "$(VBOX_MIDL_PROXY_CLSID)",) \
+		$(if-expr defined(VBOX_WITH_SDS),--stringparam "a_sWithSDS" "yes",) \
+ 		-o $@ $< $(VBOX_XIDL_FILE)
+
+#
+# Construct the list of GUI translations.
+# ('-t' -- truncate file; '-n' -- new line between arguments)
+#
+include $(PATH_ROOT)/src/VBox/Frontends/VirtualBox/nls/ApprovedLanguages.kmk
+$(call KB_FN_AUTO_CMD_DEPS,$(VBOX_WIN_INST_OUT_DIR)/VBoxGuiNLS.wxi)
+$(VBOX_WIN_INST_OUT_DIR)/VBoxGuiNLS.wxi: $(PATH_ROOT)/src/VBox/Frontends/VirtualBox/nls/ApprovedLanguages.kmk | $$(dir $$@)
+	$(APPEND) -t $@ '<?xml version="1.0" ?>'
+	$(APPEND) $@ '<Include>'
+	$(APPEND) -n $@ $(foreach lang,$(VBOX_APPROVED_GUI_LANGUAGES), \
+	             '  <File Id="nlsqt${lang}"  Name="qt_${lang}.qm"         DiskId="$(VBOX_INSTALLER_COMMON_DISKID)" Vital="yes" Source="$$(env.PATH_OUT)\bin\nls\qt_${lang}.qm"         />' \
+	             '  <File Id="nlsgui${lang}" Name="VirtualBox_${lang}.qm" DiskId="$(VBOX_INSTALLER_COMMON_DISKID)" Vital="yes" Source="$$(env.PATH_OUT)\bin\nls\VirtualBox_${lang}.qm" />')
+	$(APPEND) $@ '</Include>'
+
+#
+# Edit the version stored in the registry.
+#
+$(call KB_FN_AUTO_CMD_DEPS,$(VBOX_WIN_INST_OUT_DIR)/VBoxKey.wxi)
+$(VBOX_WIN_INST_OUT_DIR)/VBoxKey.wxi: $(PATH_SUB_CURRENT)/VBoxKey.wxi $(VBOX_VERSION_STAMP) | $$(dir $$@)
+	$(SED)	-e 's/%VER%/$(VBOX_VERSION_STRING_RAW)/' \
+		-e 's/%VER_EXT%/$(VBOX_VERSION_STRING)/' \
+		--output $@ $<
+
+#
+# Generate the list of unattended template script files.
+#
+$(call KB_FN_AUTO_CMD_DEPS,$(VBOX_WIN_INST_OUT_DIR)/VBoxUnattendedTemplateComponent.wxi)
+$(VBOX_WIN_INST_OUT_DIR)/VBoxUnattendedTemplateComponent.wxi: | $$(dir $$@)
+	$(APPEND) -t -n $@ \
+		'<?xml version="1.0" ?>' \
+		'<Include>'
+ifdef VBOX_UNATTENDED_TEMPLATES
+	$(APPEND) -n $@ \
+		'  <Directory Id="dir_VBoxUnattendedTemplates" Name="UnattendedTemplates">' \
+		'    <Component Id="cp_UnattendedTemplates" Guid="0571550d-aaa5-4723-c17b-5ddcc29f5686" Win64="$$(var.Property_Win64)">' \
+		$(foreach file,$(VBOX_UNATTENDED_TEMPLATES), \
+		'      <File Id="$(file)" Name="$(file)" Source="$$(env.PATH_OUT)\bin\UnattendedTemplates\$(file)" />') \
+		'    </Component>' \
+		'  </Directory>'
+endif
+	$(APPEND) $@ '</Include>'
+
+
+#
+# Build the multi-language version of the .MSI installer (final installer).
+#
+# This is done by creating binary .MST diffs of all the language-specific installers
+# against the en_US one, and then merging the diffs into the en_US one using tools
+# from the MS Installer SDK.
+#
+define def_vbox_create_mst
+$(VBOX_WIN_INST_OUT_DIR)/$(lang)/$(lang).mst: \
+		$(VBOX_WIN_INST_OUT_DIR)/en_US/$(PACKAGE_NAME_LANG)_en_US.msi \
+		$(VBOX_WIN_INST_OUT_DIR)/$(lang)/VirtualBox_$(lang).wixobj \
+		$(VBOX_WIN_INST_OUT_DIR)/NLS/Language_$(lang).wxl \
+		$(VBOX_WIN_INST_OUT_DIR)/NLS/License_$(lang).wxl \
+		$(PATH_STAGE_BIN)/VBoxInstallHelper.dll \
+		$(VBOX_SVN_REV_KMK) \
+		$(VBOX_WIN_INST_MAKEFILE_DEP) \
+		$(if-expr defined(VBOX_WITH_MSI_HACK),$(MsiHack_0_OUTDIR)/MsiHack.dll,) \
+		$(if-expr defined(VBOX_WITH_MSI_HACK),$(MsiHack_0_OUTDIR)/MsiHackExtension.dll,) \
+		| $$$$(dir $$$$@)
+	$(call MSG_L1,Creating language diff for $(lang))
+	kmk_time $(VBOX_PATH_WIX)/light.exe -v -nologo \
+		-loc $(VBOX_WIN_INST_OUT_DIR)/NLS/Language_$(lang).wxl \
+		-loc $(VBOX_WIN_INST_OUT_DIR)/NLS/License_$(lang).wxl \
+		-ext $(VBOX_PATH_WIX)/WixUIExtension.dll \
+		-ext $(VBOX_PATH_WIX)/WixDifxAppExtension.dll \
+               $(if-expr defined(VBOX_WITH_MSI_HACK),-ext $(MsiHack_0_OUTDIR)/MsiHackExtension.dll,) \
+		$(VBOX_MSI_ICE_IGNORE) \
+		-out $$(@D)/$(PACKAGE_NAME_LANG)_$(lang).msi \
+		$$(@D)/VirtualBox_$(lang).wixobj \
+		$(VBOX_PATH_WIX)/difxapp_$(if-expr "$(KBUILD_TARGET_ARCH)" == "x86",x86,x64).wixlib
+	$(REDIRECT) -C $$(@D) -- $(VBOX_PATH_MSITRAN) -g $$< $(PACKAGE_NAME_LANG)_$(lang).msi $(lang).mst
+	$(RM) -f -- $$(@D)/$(PACKAGE_NAME_LANG)_$(lang).msi \
+		$$(@D)/$(PACKAGE_NAME_LANG)_$(lang).wixpdb \
+		$$(@D)/common.cab
+
+endef
+
+$(foreach lang,$(filter-out en_US, $(VBOX_INSTALLER_LANGUAGES)), \
+	$(eval local lang_id := $(VBOX_BRAND_$(lang)_LANG_ID)) \
+	$(eval $(def_vbox_create_mst)))
+
+
+# Create WISUMINFO argument.
+VBOX_INS_PROD_ARCH.amd64 = x64
+VBOX_INS_PROD_ARCH.x86   = Intel
+VBOX_INS_PROD_ARCH := $(VBOX_INS_PROD_ARCH.$(KBUILD_TARGET_ARCH))
+$(if $(VBOX_INS_PROD_ARCH),,$(error VBOX_INS_PROD_ARCH is empty!))
+VBOX_INS_PROD_LANG := 7="$(VBOX_INS_PROD_ARCH);1033
+$(foreach lang, $(filter-out en_US,$(VBOX_INSTALLER_LANGUAGES))\
+	, $(eval VBOX_INS_PROD_LANG := $(VBOX_INS_PROD_LANG)$(COMMA)$(VBOX_BRAND_$(lang)_LANG_ID)))
+VBOX_INS_PROD_LANG := $(VBOX_INS_PROD_LANG)"
+
+# The multilingual installer rule.
+$(VBOX_WIN_INST_OUT_DIR)/$(PACKAGE_NAME_LANG).msi: \
+		$(VBOX_WIN_INST_OUT_DIR)/en_US/$(PACKAGE_NAME_LANG)_en_US.msi \
+		$(foreach lang,$(filter-out en_US,$(VBOX_INSTALLER_LANGUAGES)),$(VBOX_WIN_INST_OUT_DIR)/$(lang)/$(lang).mst)
+	$(call MSG_L1,Creating final multilingual MSI)
+	$(QUIET)$(RM) -f $(wildcard $(@D)/$(PACKAGE_BASE)-r*.msi)
+	$(CP) -f -- "$<" "$@"
+
+	$(foreach lang,$(filter-out en_US,$(VBOX_INSTALLER_LANGUAGES)), \
+		$(NLTAB)$(REDIRECT) -C $(@D)/$(lang) -- $(VBOX_PATH_MSIDB) -d $@ -r $(lang).mst \
+		$(NLTAB)$(REDIRECT) -C $(@D)/$(lang) -- cscript.exe /nologo $(VBOX_PATH_WISUBSTG) $@ $(lang).mst $(VBOX_BRAND_$(lang)_LANG_ID) )
+
+	$(REDIRECT) -C $(@D) -- cscript.exe /nologo $(VBOX_PATH_WISUBSTG) $(@F)
+	$(REDIRECT) -C $(@D) -- cscript.exe /nologo $(VBOX_PATH_WISUMINFO) $@ $(VBOX_INS_PROD_LANG)
+	$(call VBOX_SIGN_FILE_FN,$@,$(VBOX_PRODUCT) $(VBOX_VERSION_STRING)r$(VBOX_SVN_REV) ($(KBUILD_TARGET_ARCH)),,,disable-dual-signing)
+
+# Copy multilingual installer to bin.
+$(PACKAGE_NAME_FINAL): $(VBOX_WIN_INST_OUT_DIR)/$(PACKAGE_NAME_LANG).msi | $$(dir $$@)
+	$(QUIET)$(RM) -f $(wildcard $(@D)/$(PACKAGE_BASE)-r*$(if-expr defined(VBOX_WITH_COMBINED_PACKAGE),_$(KBUILD_TARGET_ARCH),).msi)
+	$(INSTALL_STAGING) -- $< $@
+
+
+if defined(VBOX_WITH_COMBINED_PACKAGE) && "$(KBUILD_TARGET_ARCH)" == "x86"
+#
+# Make the multi-architecture installer by calling our stub builder
+# with both platform installers (x86 and amd64) + common cab. The common
+# cab only is needed when we don't use merge modules. We only
+# need to do this once; so do it on x86 only.
+#
+$(PATH_STAGE_BIN)/$(PACKAGE_NAME_MULTIARCH_FINAL): \
+		$(PATH_MULTIARCH_TEMP)/$(PACKAGE_NAME_MULTIARCH.x86) \
+		$(PATH_MULTIARCH_TEMP)/$(PACKAGE_NAME_MULTIARCH.amd64) \
+		$(PATH_STAGE_BIN)/VBoxStub.exe \
+		$$(VBoxStubBld_1_TARGET)
+	$(call MSG_L1,Building Windows combined package)
+	$(if $(VBOX_WITH_MSM_INSTALL),,$(call VBOX_SIGN_FILE_FN,$(PACKAGE_NAME_MULTIARCH_COMMONCAB)))
+	$(REDIRECT) -C $(@D) -- \
+		$(VBoxStubBld_1_TARGET) -out $@ \
+			-target-x86 $(PATH_MULTIARCH_TEMP)/$(PACKAGE_NAME_MULTIARCH.x86) \
+			-target-amd64 $(PATH_MULTIARCH_TEMP)/$(PACKAGE_NAME_MULTIARCH.amd64) \
+			$(if $(VBOX_WITH_MSM_INSTALL),,-target-all $(PACKAGE_NAME_MULTIARCH_COMMONCAB)) \
+			-stub $(PATH_STAGE_BIN)/VBoxStub.exe
+	$(VBOX_VCC_EDITBIN) /IntegrityCheck:NO $@
+	$(call VBOX_SIGN_FILE_FN,$@)
+endif
+
+
+#
+# Make the bundle installer (for retail ISOs) (zip-file).
+#
+$(VBOX_PATH_PACK_BUNDLE_ZIP): \
+		$(PACKAGE_NAME_FINAL) \
+		$(if-expr "$(KBUILD_TARGET_ARCH)" == "x86", \
+			$(PATH_STAGE_BIN)/VBoxBundleMachine.exe \
+			$(if $(VBOX_BRAND_WIN_AS_MENU), $(PATH_STAGE_BIN)/AutoStartMenu.exe) \
+			$(if $(VBOX_WITH_COMBINED_PACKAGE), $(PATH_STAGE_BIN)/$(PACKAGE_NAME_MULTIARCH_FINAL)),)
+	$(RM) -Rf -- $(VBOX_PATH_PACK_BUNDLE_TMP)/
+	$(MKDIR) -p $(VBOX_PATH_PACK_BUNDLE_TMP)/
+ifndef VBOX_WITH_COMBINED_PACKAGE
+	$(CP) $(PACKAGE_NAME_FINAL)                 $(VBOX_PATH_PACK_BUNDLE_TMP)/$(VBOX_BRAND_WIN_INST_NAME.$(KBUILD_TARGET_ARCH))
+endif
+ifeq ($(KBUILD_TARGET_ARCH),x86)
+ ifdef VBOX_WITH_COMBINED_PACKAGE
+	$(CP) $(PATH_STAGE_BIN)/$(PACKAGE_NAME_MULTIARCH_FINAL)       $(VBOX_PATH_PACK_BUNDLE_TMP)/$(PACKAGE_NAME_MULTIARCH_FINAL)
+ endif
+	$(CP) $(PATH_STAGE_BIN)/VBoxBundleMachine.exe     $(VBOX_PATH_PACK_BUNDLE_TMP)/
+	$(CP) $(PATH_STAGE_BIN)/AutoStartMenu.exe         $(VBOX_PATH_PACK_BUNDLE_TMP)/
+ ifdef VBOX_BRAND_WIN_AS_MENU
+	$(MKDIR) -p $(VBOX_PATH_PACK_BUNDLE_TMP)/Menu/Graphics/
+	$(CP) $(VBOX_BRAND_WIN_AS_CONTENT)          $(VBOX_PATH_PACK_BUNDLE_TMP)/
+	$(CP) $(VBOX_BRAND_WIN_AS_MENU_CONTENT)     $(VBOX_PATH_PACK_BUNDLE_TMP)/Menu/
+	$(CP) $(VBOX_BRAND_WIN_AS_MENU_CONTENT_GFX) $(VBOX_PATH_PACK_BUNDLE_TMP)/Menu/Graphics/
+  ifdef VBOX_WITH_COMBINED_PACKAGE
+	$(SED) -e 's/VBOXEXE/$(PACKAGE_NAME_MULTIARCH_FINAL)/g' \
+	       --output $(VBOX_PATH_PACK_BUNDLE_TMP)/Menu/index.html \
+	       $(VBOX_BRAND_WIN_AS_MENU)/index_combined.html
+  else
+	$(SED) -e 's/VBOX32EXE/$(VBOX_BRAND_WIN_INST_NAME.x86)/g' \
+	       -e 's/VBOX64EXE/$(VBOX_BRAND_WIN_INST_NAME.amd64)/g' \
+	       --output $(VBOX_PATH_PACK_BUNDLE_TMP)/Menu/index.html \
+	       $(VBOX_BRAND_WIN_AS_MENU)/index.html
+  endif
+ endif
+endif
+ifeq ($(KBUILD_TARGET_ARCH),amd64)
+ ifndef VBOX_WITH_COMBINED_PACKAGE
+	# Only needed if *not* combined package -- otherwise the 64-bit build
+	# has nothing to do here since the one and only amd64 .MSI file is already
+	# included in the x86 combined package.
+	$(REDIRECT) -C $(VBOX_PATH_PACK_BUNDLE_TMP) -- $(ZIP) -9r $@ .
+ endif
+else
+	# Do a bundle .zip in every case on x86. On a combined package this also
+	# will include the amd64 installer we left out in the block above (see comment).
+	$(REDIRECT) -C $(VBOX_PATH_PACK_BUNDLE_TMP) -- $(ZIP) -9r $@ .
+endif
+
+include $(FILE_KBUILD_SUB_FOOTER)

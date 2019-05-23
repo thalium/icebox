@@ -1,0 +1,12 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+:lineSmooth:lineSmooth:Hint,GL_LINE_SMOOTH_HINT
+:pointSmooth:pointSmooth:Hint,GL_POINT_SMOOTH_HINT
+:polygonSmooth:polygonSmooth:Hint,GL_POLYGON_SMOOTH_HINT
+:perspectiveCorrection:perspectiveCorrection:Hint,GL_PERSPECTIVE_CORRECTION_HINT
+:fog:fog:Hint,GL_FOG_HINT
+:clipVolumeClipping:clipVolumeClipping:Hint,GL_CLIP_VOLUME_CLIPPING_HINT_EXT
+:generateMipmap:generateMipmap:Hint,GL_GENERATE_MIPMAP_HINT_SGIS
+:textureCompression:textureCompression:Hint,GL_TEXTURE_COMPRESSION_HINT_ARB

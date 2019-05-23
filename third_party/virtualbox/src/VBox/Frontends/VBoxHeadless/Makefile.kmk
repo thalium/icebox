@@ -1,0 +1,70 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the headless frontend.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+include $(PATH_SUB_CURRENT)/testcase/Makefile.kmk
+
+#
+# Targets.
+#
+ifdef VBOX_WITH_HARDENING
+ PROGRAMS += VBoxHeadlessHardened
+ DLLS += VBoxHeadless
+else
+ PROGRAMS += VBoxHeadless
+endif
+
+
+#
+# Hardened VBoxHeadless.
+#
+VBoxHeadlessHardened_TEMPLATE = VBOXR3HARDENEDEXE
+VBoxHeadlessHardened_SOURCES = VBoxHeadlessHardened.cpp
+VBoxHeadlessHardened_SOURCES.win = $(VBoxHeadless_0_OUTDIR)/VBoxHeadless-icon.rc
+VBoxHeadlessHardened_NAME = VBoxHeadless
+
+
+#
+# VBoxHeadless
+#
+VBoxHeadless_TEMPLATE  := $(if $(VBOX_WITH_HARDENING),VBOXMAINCLIENTDLL,VBOXMAINCLIENTEXE)
+VBoxHeadless_DEFS      += $(if $(VBOX_WITH_VIDEOREC),VBOX_WITH_VIDEOREC,)
+VBoxHeadless_INCS      = $(VBOX_GRAPHICS_INCS)
+VBoxHeadless_SOURCES    = VBoxHeadless.cpp
+ifdef VBOX_WITH_GUEST_PROPS
+ VBoxHeadless_DEFS     += VBOX_WITH_GUEST_PROPS
+endif
+ifdef VBOX_WITH_HARDENING
+ VBoxHeadless_LDFLAGS.darwin += -install_name $(VBOX_DYLD_EXECUTABLE_PATH)/VBoxHeadless.dylib
+endif
+
+
+ifeq ($(KBUILD_TARGET),win)
+# Icon include file.
+VBoxHeadless_SOURCES   += VBoxHeadless.rc
+VBoxHeadless.rc_INCS    = $(VBoxHeadless_0_OUTDIR)
+VBoxHeadless.rc_DEPS    = $(VBoxHeadless_0_OUTDIR)/VBoxHeadless-icon.rc
+VBoxHeadless.rc_CLEAN   = $(VBoxHeadless_0_OUTDIR)/VBoxHeadless-icon.rc
+$$(VBoxHeadless_0_OUTDIR)/VBoxHeadless-icon.rc: $(VBOX_WINDOWS_ICON_FILE) $$(VBoxHeadless_DEFPATH)/Makefile.kmk | $$(dir $$@)
+	$(RM) -f $@
+	$(APPEND) $@ 'IDI_VIRTUALBOX ICON DISCARDABLE "$(subst /,\\,$(VBOX_WINDOWS_ICON_FILE))"'
+endif # win
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

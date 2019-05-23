@@ -1,0 +1,106 @@
+; $Id: VMMRC.def $
+;; @file
+; VMM Raw-mode Context DLL - Definition file.
+
+;
+; Copyright (C) 2006-2017 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+LIBRARY VMMRC.rc
+EXPORTS
+    ; data
+
+    ; code
+    CPUMGCResumeGuest
+    CPUMGCResumeGuestV86
+    PDMCritSectEnter
+    PDMCritSectEnterDebug
+    PDMCritSectLeave
+    PDMCritSectIsOwner
+    PDMQueueAlloc
+    PDMQueueInsert
+    PGMHandlerPhysicalPageTempOff
+    PGMShwMakePageWritable
+    PGMPhysSimpleWriteGCPhys
+    PGMPhysSimpleReadGCPtr
+    PGMPhysSimpleWriteGCPtr
+    PGMPhysReadGCPtr
+    PGMPhysWriteGCPtr
+    PGMPhysSimpleDirtyWriteGCPtr
+    RTLogDefaultInstance
+    RTLogDefaultInstanceEx
+    RTLogRelGetDefaultInstance
+    RTLogRelGetDefaultInstanceEx
+    RTTimeMilliTS
+    RTTraceBufAddMsgF
+    RTTraceBufAddPos
+    RTTraceBufAddPosMsgF
+    SELMGetHyperCS
+    TMTimerFromMilli
+    TMTimerFromMicro
+    TMTimerFromNano
+    TMTimerGet
+    TMTimerGetFreq
+    TMTimerIsActive
+    TMTimerIsLockOwner
+    TMTimerLock
+    TMTimerSet
+    TMTimerSetRelative
+    TMTimerSetMillies
+    TMTimerSetMicro
+    TMTimerSetNano
+    TMTimerSetFrequencyHint
+    TMTimerStop
+    TMTimerUnlock
+    TRPMGCHandlerGeneric
+    TRPMGCHandlerInterupt
+    TRPMGCHandlerTrap08
+    TRPMGCHandlerTrap12
+    MMGCRamWriteNoTrapHandler
+    MMGCRamReadNoTrapHandler
+    VMMGetCpu
+    VMMGetSvnRev
+    VMMRCProbeFire
+    vmmGCLoggerFlush
+    vmmGCLoggerWrapper
+    vmmGCRelLoggerWrapper
+    vmmGCTestTrap0d_FaultEIP
+    vmmGCTestTrap0e_FaultEIP
+    vmmGCTestTrap3_FaultEIP
+    vmmGCTestTrap8_FaultEIP
+    VMSetError
+    VMSetErrorV
+
+    ; runtime
+    nocrt_memchr
+    nocrt_memcmp
+    nocrt_memcpy
+    memcpy=nocrt_memcpy                 ; not-os2
+    nocrt_memmove
+    nocrt_memset
+    memset=nocrt_memset                 ; not-os2
+    nocrt_strcpy
+    nocrt_strcmp
+    nocrt_strchr
+    RTAssertMsg1Weak
+    RTAssertMsg2Weak
+    RTAssertShouldPanic
+    RTLogDefaultInstance
+    RTTimeNanoTSLegacySyncInvarNoDelta
+    RTTimeNanoTSLegacySyncInvarWithDelta
+    RTTimeNanoTSLegacyAsync
+    RTTimeNanoTSLFenceSyncInvarNoDelta
+    RTTimeNanoTSLFenceSyncInvarWithDelta
+    RTTimeNanoTSLFenceAsync
+    RTTimeNanoTS
+    RTCrc32
+    ASMMultU64ByU32DivByU32             ; not-os2
+

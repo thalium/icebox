@@ -1,0 +1,105 @@
+# $Id: Makefile.kmk $
+## @file
+# Top-level makefile for the external libraries.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# Note! A number of the libs may be detected on the host system by the configure script.
+#       The usual way for testing for this is to see whether the Config.kmk default
+#       include path specific to the lib has been changed.
+#
+
+# Compression libs used by IPRT and <what was it again?>.
+include $(PATH_SUB_CURRENT)/liblzf-3.4/Makefile.kmk
+if  !defined(VBOX_ONLY_SDK) \
+ && "$(SDK_VBOX_ZLIB_INCS)" == "$(PATH_ROOT)/src/libs/zlib-1.2.8"
+ include $(PATH_SUB_CURRENT)/zlib-1.2.8/Makefile.kmk
+endif
+
+# PNG support (for screenshots).
+if  !defined(VBOX_ONLY_ADDITIONS) \
+ && !defined(VBOX_ONLY_DOCS) \
+ && !defined(VBOX_ONLY_SDK) \
+ && !defined(VBOX_ONLY_VALIDATIONKIT) \
+ && "$(SDK_VBOX_LIBPNG_INCS)" == "$(PATH_ROOT)/src/libs/libpng-1.2.54"
+ include $(PATH_SUB_CURRENT)/libpng-1.2.54/Makefile.kmk
+endif # !VBOX_ONLY_DOCS
+
+# Libcurl for inet access
+if  defined(VBOX_WITH_LIBCURL) \
+ && !defined(VBOX_ONLY_ADDITIONS) \
+ && !defined(VBOX_ONLY_EXTPACKS_USE_IMPLIBS) \
+ && !defined(VBOX_ONLY_SDK) \
+ && !defined(VBOX_ONLY_VALIDATIONKIT) \
+ && "$(SDK_VBOX_LIBCURL_INCS)" == "$(PATH_ROOT)/src/libs/curl-7.50.3/include"
+ include $(PATH_SUB_CURRENT)/curl-7.50.3/Makefile.kmk
+endif
+
+# The kStuff lib used by IPRT and the debugger.
+if defined(IPRT_WITH_KSTUFF)
+ include $(PATH_SUB_CURRENT)/kStuff/Makefile.kmk
+endif
+
+# OpenSSL.
+if  !defined(VBOX_ONLY_SDK) \
+ && (   "$(SDK_VBOX_OPENSSL_INCS)" == "$(SDK_VBOX_OPENSSL_VBOX_DEFAULT_INCS)" \
+     || defined(VBOX_WITH_EXTPACK_PUEL_BUILD))
+ include $(PATH_SUB_CURRENT)/openssl-1.1.0f/Makefile.kmk
+endif
+
+# libjpeg for VRDP video redirection and ExtPack's DrvHostWebcam
+if   (defined(VBOX_WITH_VRDP) || defined(VBOX_WITH_EXTPACK_PUEL)) \
+ && !defined(VBOX_ONLY_ADDITIONS)
+ include $(PATH_SUB_CURRENT)/jpeg-9b/Makefile.kmk
+endif
+
+# Main related things - XPCOM and XSLT.
+if defined(VBOX_WITH_MAIN) \
+ && !defined(VBOX_ONLY_ADDITIONS) \
+ && !defined(VBOX_ONLY_EXTPACKS) \
+ && !defined(VBOX_ONLY_VALIDATIONKIT)
+
+ if defined(VBOX_WITH_XPCOM) && !defined(VBOX_ONLY_DOCS)
+  include $(PATH_SUB_CURRENT)/xpcom18a4/Makefile.kmk
+ endif
+
+ # VPX for video capture.
+ if defined(VBOX_WITH_LIBVPX) && !defined(VBOX_ONLY_DOCS) && !defined(VBOX_WITH_SDK) \
+   && ("$(SDK_VBOX_VPX_INCS)" == "$(SDK_VBOX_VPX_DEFAULT_INCS)")
+  if1of ($(KBUILD_TARGET), darwin linux solaris win)
+   include $(PATH_SUB_CURRENT)/libvpx-1.1.0/Makefile.kmk
+  endif
+ endif
+
+ # Opus for supporting audio when doing video capturing.
+ if defined(VBOX_WITH_LIBOPUS) && !defined(VBOX_ONLY_DOCS) && !defined(VBOX_WITH_SDK) \
+   && ("$(SDK_VBOX_OPUS_INCS)" == "$(SDK_VBOX_OPUS_DEFAULT_INCS)")
+  include $(PATH_SUB_CURRENT)/libopus-1.2.1/Makefile.kmk
+ endif
+
+endif
+
+if  !defined(VBOX_ONLY_EXTPACKS_USE_IMPLIBS) \
+ && !defined(VBOX_ONLY_ADDITIONS)
+ ifeq ($(SDK_VBOX_LIBXML2_INCS),$(PATH_ROOT)/src/libs/libxml2-2.9.4/include)
+  include $(PATH_SUB_CURRENT)/libxml2-2.9.4/Makefile.kmk
+ endif
+endif
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

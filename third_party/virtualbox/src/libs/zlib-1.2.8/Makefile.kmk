@@ -1,0 +1,56 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for zlib.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+LIBRARIES += VBox-zlib
+if1of ($(KBUILD_TARGET),os2 win)
+ # only required for vbox-img
+ LIBRARIES += VBox-zlib-static
+endif
+VBox-zlib_TEMPLATE = VBoxR3RuntimeDllNonPedanticFast
+VBox-zlib_DEFS = verbose=-1 NO_VIZ=1
+VBox-zlib_SOURCES = \
+	adler32.c \
+	compress.c \
+	crc32.c \
+	gzclose.c \
+	gzlib.c \
+	gzread.c \
+	gzwrite.c \
+	uncompr.c \
+	deflate.c \
+	trees.c \
+	zutil.c \
+	inflate.c \
+	infback.c \
+	inftrees.c \
+	inffast.c
+
+VBox-zlib-static_TEMPLATE = VBoxR3StaticNonPedantic
+VBox-zlib-static_DEFS = $(VBox-zlib_DEFS)
+VBox-zlib-static_SOURCES = $(VBox-zlib_SOURCES)
+
+ifdef VBOX_WITH_32_ON_64_MAIN_API # 32-bit edition.
+ LIBRARIES += VBox-zlib-x86
+ VBox-zlib-x86_TEMPLATE = VBoxR3DllNonPedantic-x86
+ VBox-zlib-x86_EXTENDS = VBox-zlib
+endif
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

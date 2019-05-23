@@ -1,0 +1,75 @@
+# $Id: Makefile.kmk $
+## @file
+# Makefile for the Windows NT5+ Guest Additions Mouse Filter Driver
+#
+
+#
+# Copyright (C) 2011-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# VBoxMouse - Windows NT5+ Guest Additions Mouse Filter Driver
+#
+SYSMODS                += VBoxMouse
+VBoxMouse_TEMPLATE      = VBOXGUESTR0
+VBoxMouse_DEFS          = LOG_TO_BACKDOOR
+VBoxMouse_SDKS.x86      = ReorderCompilerIncs $(VBOX_WINDDK_GST_W2K)
+#VBoxMouse_DEFS         += LOG_ENABLED
+VBoxMouse_CXXFLAGS      = -Od
+VBoxMouse_CFLAGS        = -Od
+VBoxMouse_LDFLAGS.x86   = -Entry:DriverEntry@8
+VBoxMouse_LDFLAGS.amd64 = -Entry:DriverEntry
+VBoxMouse_SOURCES       = \
+	VBoxMFDriver.cpp \
+	VBoxMFInternal.cpp \
+	VBoxMF.rc
+VBoxMouse_LIBS.x86      = \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_W2K)_LIB)/ntoskrnl.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_W2K)_LIB)/hal.lib
+VBoxMouse_LIBS.amd64    = \
+	$(PATH_SDK_$(VBOX_WINDDK_GST)_LIB)/ntoskrnl.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST)_LIB)/hal.lib
+VBoxMouse_LIBS          = \
+	$(VBOX_LIB_IPRT_GUEST_R0) \
+	$(VBOX_LIB_VBGL_R0)
+
+#
+# Install the inf & cat.
+#
+INSTALLS += VBoxMouse-inf
+VBoxMouse-inf_INST = $(INST_ADDITIONS)
+VBoxMouse-inf_MODE = a+r,u+w
+ifndef VBOX_SIGNING_MODE
+VBoxMouse-inf_SOURCES = VBoxMouse.inf
+else
+VBoxMouse-inf_SOURCES = \
+	$(PATH_TARGET)/VBoxMouseCat.dir/VBoxMouse.inf \
+	$(PATH_TARGET)/VBoxMouseCat.dir/VBoxMouse.cat
+VBoxMouse-inf_CLEAN += \
+	$(PATH_TARGET)/VBoxMouseCat.dir/VBoxMouse.cat \
+	$(PATH_TARGET)/VBoxMouseCat.dir/VBoxMouse.sys \
+	$(PATH_TARGET)/VBoxMouseCat.dir/VBoxMouse.inf
+VBoxMouse-inf_BLDDIRS = $(PATH_TARGET)/VBoxMouseCat.dir
+
+$(PATH_TARGET)/VBoxMouseCat.dir/VBoxMouse.inf: $(PATH_SUB_CURRENT)/VBoxMouse.inf $(MAKEFILE_CURRENT) | $$(dir $$@)
+	$(call MSG_GENERATE,VBoxMouse-inf,$@,$<)
+	$(call VBOX_EDIT_INF_FN,$<,$@)
+
+$(PATH_TARGET)/VBoxMouseCat.dir/VBoxMouse.cat: $(PATH_TARGET)/VBoxMouseCat.dir/VBoxMouse.inf $$(VBoxMouse_1_TARGET)
+	$(call MSG_TOOL,Inf2Cat,VBoxMouse-inf,$@,$<)
+	$(INSTALL) -m 644 $(VBoxMouse_1_TARGET) $(@D)
+	$(call VBOX_MAKE_CAT_FN, $(@D),$@)
+endif # signing
+
+include $(FILE_KBUILD_SUB_FOOTER)

@@ -1,0 +1,413 @@
+# $Id: Makefile.kmk $
+## @file
+# VBox - rdesktop with VRDP enhancements sub-makefile.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+# Globals
+VBOX_PATH_RDESKTOP_SRC := $(PATH_SUB_CURRENT)
+VBOX_PATH_DEVICES_USB  := $(PATH_ROOT)/src/VBox/Devices/USB
+VBOX_PATH_USB_LIB      := $(PATH_ROOT)/src/VBox/HostDrivers/VBoxUSB
+VBOX_PATH_MAIN_LINUX   := $(PATH_ROOT)/src/VBox/Main/src-server/linux
+VBOX_PATH_MAIN_INCLUDE := $(PATH_ROOT)/src/VBox/Main/include
+VBOX_RDESKTOP_SRC_SUBDIR = rdesktop-1.8.3-vrdp
+
+#
+# The rdesktop-vrdp program.
+#
+PROGRAMS += rdesktop-vrdp
+rdesktop-vrdp_TEMPLATE = VBOXR3NPEXE
+rdesktop-vrdp_SDKS = VBOX_OPENSSL2
+rdesktop-vrdp_DEFS = \
+	PACKAGE_NAME=\"rdesktop-vrdp\" PACKAGE_TARNAME=\"rdesktop-vrdp\" PACKAGE_VERSION=\"1.8.3\" \
+	PACKAGE_STRING=\"rdesktop\ 1.8.3\" PACKAGE_BUGREPORT=\"\" STDC_HEADERS=1 L_ENDIAN=1 \
+	HAVE_SYS_TYPES_H=1 HAVE_SYS_STAT_H=1 HAVE_STDLIB_H=1 HAVE_STRING_H=1 HAVE_MEMORY_H=1 \
+	HAVE_STRINGS_H=1 HAVE_INTTYPES_H=1 HAVE_STDINT_H=1 HAVE_UNISTD_H=1 HAVE_SYS_SELECT_H=1 \
+	HAVE_LOCALE_H=1 HAVE_LANGINFO_H=1 HAVE_ICONV_H=1 \
+	EGD_SOCKET=\"/var/run/egd-pool\" WITH_RDPSND=1 HAVE_DIRENT_H=1 \
+	HAVE_ICONV=1 HAVE_SYS_STATVFS_H=1 \
+	HAVE_SYS_PARAM_H=1 HAVE_SYS_MOUNT_H=1 HAVE_STRUCT_STATVFS_F_NAMEMAX=1 \
+	KEYMAP_PATH=$(if $(findstring RTPATH_APP_PRIVATE,$(CDEFS)),RTPATH_APP_PRIVATE,\"/opt/VirtualBox\")\"/rdesktop-vrdp-keymaps\" \
+	RDESKTOP=1
+ifdef WITH_BIRD_VD_HACKS
+ rdesktop-vrdp_DEFS += WITH_BIRD_VD_HACKS
+endif
+
+rdesktop-vrdp_DEFS.linux = \
+	HAVE_MNTENT_H=1 HAVE_SETMNTENT=1 STAT_STATVFS=1 HAVE_SYS_VFS_H=1 HAVE_STRUCT_STATFS_F_NAMELEN=1 \
+	ICONV_CONST= RDPSND_OSS=1 WITH_RDPUSB=1 HAVE_SYS_STATFS_H=1
+# Solaris 10 doesn't have dirfd(), and as thus we go for the low tech solution.
+rdesktop-vrdp_DEFS.linux += \
+	HAVE_DIRFD=1 HAVE_DECL_DIRFD=1 VBOX_USB_WITH_SYSFS=1
+ifdef VBOX_WITH_LINUX_COMPILER_H
+ rdesktop-vrdp_DEFS.linux += VBOX_WITH_LINUX_COMPILER_H
+endif
+# @todo once rdp proxy is available on Solaris, add WITH_RDPUSB=1
+# snv_166+ dirent.h: defines dd_fd only if __USE_LEGACY_PROTOTYPES__ is defined, otherwise uses d_fd, let's just
+# define __USE_LEGACY_PROTOTYPES__ until our buildbox is updated sufficiently
+rdesktop-vrdp_DEFS.solaris = \
+	HAVE_SYS_FILIO_H=1 RDPSND_SUN=1 HAVE_ICONV_H=1 ICONV_CONST= STAT_STATVFS64=1 _FILE_OFFSET_BITS=64 \
+	DIR_FD_MEMBER_NAME=dd_fd __USE_LEGACY_PROTOTYPES__ HAVE_SYS_VFS_H=1 HAVE_SYS_STATFS_H=1
+rdesktop-vrdp_DEFS.freebsd = \
+	RDPSND_OSS=1 HAVE_ICONV_H=1 ICONV_CONST=const HAVE_SYS_STATVFS_H=1 _FILE_OFFSET_BITS=64 HAVE_DIRFD=1
+
+rdesktop-vrdp_SOURCES = \
+	tcp.c \
+	asn.c \
+	iso.c \
+	mcs.c \
+	secure.c \
+	licence.c \
+	rdp.c \
+	orders.c \
+	bitmap.c \
+	cache.c \
+	rdp5.c \
+	channels.c \
+	rdpdr.c \
+	serial.c \
+	printer.c \
+	disk.c \
+	parallel.c \
+	printercache.c \
+	mppc.c \
+	pstcache.c \
+	lspci.c \
+	seamless.c \
+	ssl.c \
+	utils.c \
+	rdesktop.c \
+	xwin.c \
+	xkeymap.c \
+	ewmhints.c \
+	xclip.c \
+	cliprdr.c \
+	ctrl.c \
+	rdpsnd.c \
+	rdpsnd_dsp.c
+rdesktop-vrdp_SOURCES.linux = \
+	rdpsnd_oss.c \
+	vrdp/rdpusb.c \
+	$(VBOX_PATH_DEVICES_USB)/linux/USBProxyDevice-linux.cpp \
+	$(VBOX_PATH_MAIN_LINUX)/USBGetDevices.cpp \
+	$(VBOX_PATH_USB_LIB)/USBLib.cpp
+rdesktop-vrdp_INCS += \
+	$(VBOX_PATH_RDESKTOP_SRC) \
+	$(VBOX_PATH_RDESKTOP_SRC)/vrdp \
+	$(VBOX_PATH_DEVICES_USB) \
+	$(VBOX_PATH_MAIN_INCLUDE) \
+	$(PATH_ROOT)/include/VBox
+## @todo implement usb proxy for Solaris
+rdesktop-vrdp_SOURCES.solaris = \
+	rdpsnd_sun.c
+rdesktop-vrdp_SOURCES.freebsd = \
+	rdpsnd_oss.c
+rdesktop-vrdp_LIBPATH = \
+	/usr/lib \
+	$(VBOX_LIBPATH_X11)
+rdesktop-vrdp_LIBS = \
+	X11 \
+	$(LIB_RUNTIME)
+rdesktop-vrdp_LIBS.solaris = \
+	nsl
+rdesktop-vrdp_LIBS.freebsd = \
+	iconv
+
+#
+# The keymaps.
+#
+INSTALLS += rdesktop-vrdp-keymaps
+rdesktop-vrdp-keymaps_INST     = $(INST_BIN)rdesktop-vrdp-keymaps/
+rdesktop-vrdp-keymaps_MODE     = 644
+rdesktop-vrdp-keymaps_DEFPATH := $(PATH_SUB_CURRENT)/keymaps
+rdesktop-vrdp-keymaps_SOURCES  = \
+	$(notdir $(wildcard $(VBOX_PATH_RDESKTOP_SRC)/keymaps/*))
+rdesktop-vrdp-keymaps_convert-map_MODE = 755
+
+
+#
+# The source tarball (further down).
+#
+INSTALLS += rdesktop-src
+rdesktop-src_INSTTYPE = stage
+rdesktop-src_INST     = misc-staging/$(VBOX_RDESKTOP_SRC_SUBDIR)/
+rdesktop-src_EXEC_SOURCES = \
+	configure \
+	config.sub \
+	config.guess \
+	bootstrap \
+	install-sh \
+	keymaps/convert-map=>keymaps/convert-map
+rdesktop-src_SOURCES = \
+	asn.c=>asn.c \
+	bitmap.c=>bitmap.c \
+	cache.c=>cache.c \
+	channels.c=>channels.c \
+	cliprdr.c=>cliprdr.c \
+	configure.ac=>configure.ac \
+	constants.h=>constants.h \
+	COPYING=>COPYING \
+	cssp.c=>cssp.c \
+	disk.c=>disk.c \
+	disk.h=>disk.h \
+	doc/TODO=>doc/TODO \
+	doc/patches.txt=>doc/patches.txt \
+	doc/ipv6.txt=>doc/ipv6.txt \
+	doc/ChangeLog=>doc/ChangeLog \
+	doc/keymap-names.txt=>doc/keymap-names.txt \
+	doc/HACKING=>doc/HACKING \
+	doc/AUTHORS=>doc/AUTHORS \
+	doc/keymapping.txt=>doc/keymapping.txt \
+	doc/rdesktop.1=>doc/rdesktop.1 \
+	doc/licensing.txt=>doc/licensing.txt \
+	doc/redirection.txt=>doc/redirection.txt \
+	ewmhints.c=>ewmhints.c \
+	iso.c=>iso.c \
+	keymaps/fr-ch=>keymaps/fr-ch \
+	keymaps/lv=>keymaps/lv \
+	keymaps/fr=>keymaps/fr \
+	keymaps/nl=>keymaps/nl \
+	keymaps/no=>keymaps/no \
+	keymaps/da=>keymaps/da \
+	keymaps/lt=>keymaps/lt \
+	keymaps/pl=>keymaps/pl \
+	keymaps/hr=>keymaps/hr \
+	keymaps/he=>keymaps/he \
+	keymaps/ja=>keymaps/ja \
+	keymaps/tr=>keymaps/tr \
+	keymaps/fo=>keymaps/fo \
+	keymaps/de=>keymaps/de \
+	keymaps/fr-be=>keymaps/fr-be \
+	keymaps/is=>keymaps/is \
+	keymaps/ko=>keymaps/ko \
+	keymaps/common=>keymaps/common \
+	keymaps/fi=>keymaps/fi \
+	keymaps/ar=>keymaps/ar \
+	keymaps/cs=>keymaps/cs \
+	keymaps/pt=>keymaps/pt \
+	keymaps/fr-ca=>keymaps/fr-ca \
+	keymaps/en-us=>keymaps/en-us \
+	keymaps/et=>keymaps/et \
+	keymaps/en-dv=>keymaps/en-dv \
+	keymaps/mk=>keymaps/mk \
+	keymaps/nl-be=>keymaps/nl-be \
+	keymaps/th=>keymaps/th \
+	keymaps/pt-br=>keymaps/pt-br \
+	keymaps/ru=>keymaps/ru \
+	keymaps/sv=>keymaps/sv \
+	keymaps/es=>keymaps/es \
+	keymaps/hu=>keymaps/hu \
+	keymaps/modifiers=>keymaps/modifiers \
+	keymaps/en-gb=>keymaps/en-gb \
+	keymaps/de-ch=>keymaps/de-ch \
+	keymaps/sl=>keymaps/sl \
+	keymaps/it=>keymaps/it \
+	licence.c=>licence.c \
+	lspci.c=>lspci.c \
+	Makefile.in=>Makefile.in \
+	mcs.c=>mcs.c \
+	mppc.c=>mppc.c \
+	orders.c=>orders.c \
+	orders.h=>orders.h \
+	parallel.c=>parallel.c \
+	parse.h=>parse.h \
+	printer.c=>printer.c \
+	printercache.c=>printercache.c \
+	proto.h=>proto.h \
+	proto.head=>proto.head \
+	proto.tail=>proto.tail \
+	pstcache.c=>pstcache.c \
+	rdesktop.c=>rdesktop.c \
+	rdesktop.h=>rdesktop.h \
+	rdesktop.spec=>rdesktop.spec \
+	rdp5.c=>rdp5.c \
+	rdp.c=>rdp.c \
+	rdpdr.c=>rdpdr.c \
+	rdpsnd.c=>rdpsnd.c \
+	rdpsnd_dsp.c=>rdpsnd_dsp.c \
+	rdpsnd_dsp.h=>rdpsnd_dsp.h \
+	rdpsnd.h=>rdpsnd.h \
+	rdpsnd_libao.c=>rdpsnd_libao.c \
+	rdpsnd_alsa.c=>rdpsnd_alsa.c \
+	rdpsnd_oss.c=>rdpsnd_oss.c \
+	rdpsnd_sgi.c=>rdpsnd_sgi.c \
+	rdpsnd_sun.c=>rdpsnd_sun.c \
+	README=>README \
+	scancodes.h=>scancodes.h \
+	scard.c=>scard.c \
+	scard.h=>scard.h \
+	seamless.c=>seamless.c \
+	seamless.h=>seamless.h \
+	secure.c=>secure.c \
+	serial.c=>serial.c \
+	ssl.c=>ssl.c \
+	ssl.h=>ssl.h \
+	tcp.c=>tcp.c \
+	types.h=>types.h \
+	utils.c=>utils.c \
+	vrdp/vrdpusb.h=>vrdp/vrdpusb.h \
+	vrdp/rdpusb.c=>vrdp/rdpusb.c \
+	xclip.c=>xclip.c \
+	ctrl.c=>ctrl.c \
+	xkeymap.c=>xkeymap.c \
+	xproto.h=>xproto.h \
+	xwin.c=>xwin.c \
+	$(PATH_OUT)/obj/Runtime/errmsgdata.h=>include/errmsgdata.h \
+	$(PATH_OUT)/obj/Runtime/errmsgvboxcomdata.h=>include/errmsgvboxcomdata.h \
+	$(PATH_OUT)/product-generated.h=>include/product-generated.h \
+	$(PATH_OUT)/version-generated.h=>include/version-generated.h \
+	$(PATH_ROOT)/include/iprt/alloca.h=>include/iprt/alloca.h \
+	$(PATH_ROOT)/include/iprt/alloc.h=>include/iprt/alloc.h \
+	$(PATH_ROOT)/include/iprt/asm-amd64-x86.h=>include/iprt/asm-amd64-x86.h \
+	$(PATH_ROOT)/include/iprt/asm.h=>include/iprt/asm.h \
+	$(PATH_ROOT)/include/iprt/asm-math.h=>include/iprt/asm-math.h \
+	$(PATH_ROOT)/include/iprt/assert.h=>include/iprt/assert.h \
+	$(PATH_ROOT)/include/iprt/avl.h=>include/iprt/avl.h \
+	$(PATH_ROOT)/include/iprt/cdefs.h=>include/iprt/cdefs.h \
+	$(PATH_ROOT)/include/iprt/cpp/autores.h=>include/iprt/cpp/autores.h \
+	$(PATH_ROOT)/include/iprt/critsect.h=>include/iprt/critsect.h \
+	$(PATH_ROOT)/include/iprt/ctype.h=>include/iprt/ctype.h \
+	$(PATH_ROOT)/include/iprt/dir.h=>include/iprt/dir.h \
+	$(PATH_ROOT)/include/iprt/env.h=>include/iprt/env.h \
+	$(PATH_ROOT)/include/iprt/err.h=>include/iprt/err.h \
+	$(PATH_ROOT)/include/iprt/errno.h=>include/iprt/errno.h \
+	$(PATH_ROOT)/include/iprt/file.h=>include/iprt/file.h \
+	$(PATH_ROOT)/include/iprt/fs.h=>include/iprt/fs.h \
+	$(PATH_ROOT)/include/iprt/latin1.h=>include/iprt/latin1.h \
+	$(PATH_ROOT)/include/iprt/linux/sysfs.h=>include/iprt/linux/sysfs.h \
+	$(PATH_ROOT)/include/iprt/list.h=>include/iprt/list.h \
+	$(PATH_ROOT)/include/iprt/lockvalidator.h=>include/iprt/lockvalidator.h \
+	$(PATH_ROOT)/include/iprt/log.h=>include/iprt/log.h \
+	$(PATH_ROOT)/include/iprt/mem.h=>include/iprt/mem.h \
+	$(PATH_ROOT)/include/iprt/net.h=>include/iprt/net.h \
+	$(PATH_ROOT)/include/iprt/param.h=>include/iprt/param.h \
+	$(PATH_ROOT)/include/iprt/path.h=>include/iprt/path.h \
+	$(PATH_ROOT)/include/iprt/pipe.h=>include/iprt/pipe.h \
+	$(PATH_ROOT)/include/iprt/poll.h=>include/iprt/poll.h \
+	$(PATH_ROOT)/include/iprt/process.h=>include/iprt/process.h \
+	$(PATH_ROOT)/include/iprt/queueatomic.h=>include/iprt/queueatomic.h \
+	$(PATH_ROOT)/include/iprt/sg.h=>include/iprt/sg.h \
+	$(PATH_ROOT)/include/iprt/stdarg.h=>include/iprt/stdarg.h \
+	$(PATH_ROOT)/include/iprt/stdint.h=>include/iprt/stdint.h \
+	$(PATH_ROOT)/include/iprt/stream.h=>include/iprt/stream.h \
+	$(PATH_ROOT)/include/iprt/string.h=>include/iprt/string.h \
+	$(PATH_ROOT)/include/iprt/symlink.h=>include/iprt/symlink.h \
+	$(PATH_ROOT)/include/iprt/thread.h=>include/iprt/thread.h \
+	$(PATH_ROOT)/include/iprt/time.h=>include/iprt/time.h \
+	$(PATH_ROOT)/include/iprt/types.h=>include/iprt/types.h \
+	$(PATH_ROOT)/include/iprt/uni.h=>include/iprt/uni.h \
+	$(PATH_ROOT)/include/iprt/utf16.h=>include/iprt/utf16.h \
+	$(PATH_ROOT)/include/iprt/x86.h=>include/iprt/x86.h \
+	$(PATH_ROOT)/include/VBox/cdefs.h=>include/VBox/cdefs.h \
+	$(PATH_ROOT)/include/VBox/err.h=>include/VBox/err.h \
+	$(PATH_ROOT)/include/VBox/log.h=>include/VBox/log.h \
+	$(PATH_ROOT)/include/VBox/sup.h=>include/VBox/sup.h \
+	$(PATH_ROOT)/include/VBox/types.h=>include/VBox/types.h \
+	$(PATH_ROOT)/include/VBox/usbfilter.h=>include/VBox/usbfilter.h \
+	$(PATH_ROOT)/include/VBox/usb.h=>include/VBox/usb.h \
+	$(PATH_ROOT)/include/VBox/usblib.h=>include/VBox/usblib.h \
+	$(PATH_ROOT)/include/VBox/version.h=>include/VBox/version.h \
+	$(PATH_ROOT)/include/VBox/vusb.h=>include/VBox/vusb.h \
+	$(PATH_ROOT)/src/VBox/Devices/USB/linux/USBProxyDevice-linux.cpp=>vrdp/linux/USBProxyDevice-linux.cpp \
+	$(PATH_ROOT)/src/VBox/Devices/USB/USBProxyDevice.h=>vrdp/USBProxyDevice.h \
+	$(PATH_ROOT)/src/VBox/HostDrivers/VBoxUSB/USBLib.cpp=>vrdp/USBLib.cpp \
+	$(PATH_ROOT)/src/VBox/Main/include/USBGetDevices.h=>vrdp/USBGetDevices.h \
+	$(PATH_ROOT)/src/VBox/Main/include/vector.h=>vrdp/vector.h \
+	$(PATH_ROOT)/src/VBox/Main/src-server/linux/USBGetDevices.cpp=>vrdp/USBGetDevices.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/alloc/alloc.cpp=>Runtime/common/alloc/alloc.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/err/errmsg.cpp=>Runtime/common/err/errmsg.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/err/errmsgxpcom.cpp=>Runtime/common/err/errmsgxpcom.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/err/RTErrConvertFromErrno.cpp=>Runtime/common/err/RTErrConvertFromErrno.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/err/RTErrConvertToErrno.cpp=>Runtime/common/err/RTErrConvertToErrno.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/misc/sg.cpp=>Runtime/common/misc/sg.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/path/RTPathAppend.cpp=>Runtime/common/path/RTPathAppend.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/path/RTPathAppendEx.cpp=>Runtime/common/path/RTPathAppendEx.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/path/RTPathCountComponents.cpp=>Runtime/common/path/RTPathCountComponents.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/path/RTPathFilename.cpp=>Runtime/common/path/RTPathFilename.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/path/rtPathRootSpecLen.cpp=>Runtime/common/path/rtPathRootSpecLen.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/path/RTPathStripFilename.cpp=>Runtime/common/path/RTPathStripFilename.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/path/RTPathStripTrailingSlash.cpp=>Runtime/common/path/RTPathStripTrailingSlash.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/path/rtPathVolumeSpecLen.cpp=>Runtime/common/path/rtPathVolumeSpecLen.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/RTStrCmp.cpp=>Runtime/common/string/RTStrCmp.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/RTStrCopy.cpp=>Runtime/common/string/RTStrCopy.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/RTStrNCmp.cpp=>Runtime/common/string/RTStrNCmp.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/RTStrNLen.cpp=>Runtime/common/string/RTStrNLen.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/straprintf.cpp=>Runtime/common/string/straprintf.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/strformat.cpp=>Runtime/common/string/strformat.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/strformatrt.cpp=>Runtime/common/string/strformatrt.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/strformattype.cpp=>Runtime/common/string/strformattype.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/stringalloc.cpp=>Runtime/common/string/stringalloc.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/strprintf.cpp=>Runtime/common/string/strprintf.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/strstrip.cpp=>Runtime/common/string/strstrip.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/strtonum.cpp=>Runtime/common/string/strtonum.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/unidata-flags.cpp=>Runtime/common/string/unidata-flags.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/unidata-lower.cpp=>Runtime/common/string/unidata-lower.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/unidata-upper.cpp=>Runtime/common/string/unidata-upper.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/utf-16.cpp=>Runtime/common/string/utf-16.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/utf-8-case.cpp=>Runtime/common/string/utf-8-case.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/string/utf-8.cpp=>Runtime/common/string/utf-8.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/common/time/timesysalias.cpp=>Runtime/common/time/timesysalias.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/generic/pathhost-generic.cpp=>Runtime/generic/pathhost-generic.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/generic/RTPathAbs-generic.cpp=>Runtime/generic/RTPathAbs-generic.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/include/internal/alignmentchecks.h=>include/internal/alignmentchecks.h \
+	$(PATH_ROOT)/src/VBox/Runtime/include/internal/dir.h=>include/internal/dir.h \
+	$(PATH_ROOT)/src/VBox/Runtime/include/internal/file.h=>include/internal/file.h \
+	$(PATH_ROOT)/src/VBox/Runtime/include/internal/fs.h=>include/internal/fs.h \
+	$(PATH_ROOT)/src/VBox/Runtime/include/internal/iprt.h=>include/internal/iprt.h \
+	$(PATH_ROOT)/src/VBox/Runtime/include/internal/lockvalidator.h=>include/internal/lockvalidator.h \
+	$(PATH_ROOT)/src/VBox/Runtime/include/internal/magics.h=>include/internal/magics.h \
+	$(PATH_ROOT)/src/VBox/Runtime/include/internal/mem.h=>include/internal/mem.h \
+	$(PATH_ROOT)/src/VBox/Runtime/include/internal/path.h=>include/internal/path.h \
+	$(PATH_ROOT)/src/VBox/Runtime/include/internal/pipe.h=>include/internal/pipe.h \
+	$(PATH_ROOT)/src/VBox/Runtime/include/internal/process.h=>include/internal/process.h \
+	$(PATH_ROOT)/src/VBox/Runtime/include/internal/string.h=>include/internal/string.h \
+	$(PATH_ROOT)/src/VBox/Runtime/include/internal/thread.h=>include/internal/thread.h \
+	$(PATH_ROOT)/src/VBox/Runtime/include/internal/time.h=>include/internal/time.h \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/alloc.cpp=>Runtime/r3/alloc.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/alloc-ef.h=>Runtime/r3/alloc-ef.h \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/dir.cpp=>Runtime/r3/dir.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/fileio.cpp=>Runtime/r3/fileio.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/fs.cpp=>Runtime/r3/fs.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/linux/sysfs.cpp=>Runtime/r3/linux/sysfs.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/linux/time-linux.cpp=>Runtime/r3/linux/time-linux.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/posix/dir-posix.cpp=>Runtime/r3/posix/dir-posix.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/posix/env-posix.cpp=>Runtime/r3/posix/env-posix.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/posix/fileio-posix.cpp=>Runtime/r3/posix/fileio-posix.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/posix/fs2-posix.cpp=>Runtime/r3/posix/fs2-posix.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/posix/fs3-posix.cpp=>Runtime/r3/posix/fs3-posix.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/posix/path2-posix.cpp=>Runtime/r3/posix/path2-posix.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/posix/path-posix.cpp=>Runtime/r3/posix/path-posix.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/posix/pipe-posix.cpp=>Runtime/r3/posix/pipe-posix.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/posix/symlink-posix.cpp=>Runtime/r3/posix/symlink-posix.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/posix/thread2-posix.cpp=>Runtime/r3/posix/thread2-posix.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/posix/utf8-posix.cpp=>Runtime/r3/posix/utf8-posix.cpp \
+	$(PATH_ROOT)/src/VBox/Runtime/r3/stream.cpp=>Runtime/r3/stream.cpp
+
+INSTALLS += rdesktop-tarball
+rdesktop-tarball_INST    = $(INST_BIN)
+rdesktop-tarball_MODE    = a+r,u+w
+rdesktop-tarball_SOURCES = $(rdesktop-tarball_0_OUTDIR)/rdesktop-vrdp.tar.gz
+rdesktop-tarball_CLEAN   = $(rdesktop-tarball_0_OUTDIR)/rdesktop-vrdp.tar.gz
+$$(rdesktop-tarball_0_OUTDIR)/rdesktop-vrdp.tar.gz: \
+		$$(rdesktop-src_1_TARGET) \
+		| $$(dir $$@)
+	$(call MSG_TOOL,tar/gzip,,$@)
+	$(QUIET)cd $(PATH_STAGE)/$(rdesktop-src_INST).. && tar -cf - $(VBOX_RDESKTOP_SRC_SUBDIR)/ | gzip - > $@
+
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

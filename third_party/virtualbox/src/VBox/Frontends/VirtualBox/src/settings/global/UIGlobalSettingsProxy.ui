@@ -1,0 +1,146 @@
+<ui version="4.0">
+ <comment>
+ VBox frontends: Qt GUI ("VirtualBox"):
+
+ Copyright (C) 2011-2016 Oracle Corporation
+
+ This file is part of VirtualBox Open Source Edition (OSE), as
+ available from http://www.virtualbox.org. This file is free software;
+ you can redistribute it and/or modify it under the terms of the GNU
+ General Public License (GPL) as published by the Free Software
+ Foundation, in version 2 as it comes in the "COPYING" file of the
+ VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ </comment>
+ <class>UIGlobalSettingsProxy</class>
+ <widget class="QWidget" name="UIGlobalSettingsProxy">
+  <layout class="QGridLayout">
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item row="0" column="0" colspan="2">
+    <widget class="QRadioButton" name="m_pRadioProxyAuto">
+     <property name="whatsThis">
+      <string>When chosen, VirtualBox will try to auto-detect host proxy settings for tasks like downloading Guest Additions from the network or checking for updates.</string>
+     </property>
+     <property name="text">
+      <string>&amp;Auto-detect Host Proxy Settings</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QRadioButton" name="m_pRadioProxyDisabled">
+     <property name="whatsThis">
+      <string>When chosen, VirtualBox will use direct Internet connection for tasks like downloading Guest Additions from the network or checking for updates.</string>
+     </property>
+     <property name="text">
+      <string>&amp;Direct Connection to the Internet</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QRadioButton" name="m_pRadioProxyEnabled">
+     <property name="whatsThis">
+      <string>When chosen, VirtualBox will use the proxy settings supplied for tasks like downloading Guest Additions from the network or checking for updates.</string>
+     </property>
+     <property name="text">
+      <string>&amp;Manual Proxy Configuration</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <spacer>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="1">
+    <widget class="QWidget" name="m_pContainerProxy">
+     <property name="sizePolicy">
+      <sizepolicy vsizetype="Minimum" hsizetype="MinimumExpanding">
+       <horstretch>1</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QHBoxLayout">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QLabel" name="m_pHostLabel">
+        <property name="text">
+         <string>Ho&amp;st:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>m_pHostEditor</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QILineEdit" name="m_pHostEditor">
+        <property name="whatsThis">
+         <string>Holds the proxy host.</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="m_pPortLabel">
+        <property name="text">
+         <string>&amp;Port:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>m_pPortEditor</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QILineEdit" name="m_pPortEditor">
+        <property name="whatsThis">
+         <string>Holds the proxy port.</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <spacer>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QILineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>QILineEdit.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

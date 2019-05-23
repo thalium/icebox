@@ -1,0 +1,94 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Shared Folders Host Service testcases.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# Structure size testcase.
+#
+PROGRAMS += tstShflSizes
+TESTING  += $(tstShflSizes_0_OUTDIR)/tstShflSizes.run
+ifndef VBOX_ONLY_SDK
+ ifeq ($(KBUILD_TARGET),$(KBUILD_HOST))
+  if1of ($(KBUILD_TARGET_ARCH).$(KBUILD_HOST_ARCH), x86.x86 amd64.amd64 x86.amd64)
+    OTHERS += $(tstShflSizes_0_OUTDIR)/tstShflSizes.run
+  endif
+ endif
+endif
+tstShflSizes_TEMPLATE = VBOXR3AUTOTST
+tstShflSizes_DEFS     = VBOX_WITH_HGCM
+tstShflSizes_SOURCES  = tstShflSizes.cpp
+tstShflSizes_CLEAN    = $(tstShflSizes_0_OUTDIR)/tstShflSizes.run
+
+$$(tstShflSizes_0_OUTDIR)/tstShflSizes.run: $$(tstShflSizes_1_STAGE_TARGET)
+	$(tstShflSizes_1_STAGE_TARGET) quiet
+	$(QUIET)$(APPEND) -t "$@" "done"
+
+
+ifdef VBOX_WITH_TESTCASES
+#
+# Case conversion testcase.
+#
+PROGRAMS += tstShflCase
+tstShflCase_TEMPLATE = VBOXR3TSTEXE
+tstShflCase_DEFS     = VBOX_WITH_HGCM
+tstShflCase_SOURCES  = tstShflCase.cpp
+tstShflCase_LIBS     = $(LIB_RUNTIME)
+
+#
+# HGCM service testcase.
+#
+
+PROGRAMS += tstSharedFolderService
+tstSharedFolderService_TEMPLATE = VBOXR3TSTEXE
+tstSharedFolderService_DEFS     = VBOX_WITH_HGCM UNITTEST
+tstSharedFolderService_INCS     = ..
+tstSharedFolderService_SOURCES  = \
+    tstSharedFolderService.cpp \
+    ../mappings.cpp \
+    ../service.cpp \
+    ../shflhandle.cpp \
+    ../vbsfpathabs.cpp \
+    ../vbsfpath.cpp \
+    ../vbsf.cpp
+tstSharedFolderService_LDFLAGS.darwin = \
+	-framework Carbon
+tstSharedFolderService_LIBS     = $(LIB_RUNTIME)
+
+if 0 # Cannot define two RT_OS_XXX macros!
+# As there are differences between the Windows build of the service and others,
+# we do an additional build with RT_OS_WINDOWS defined on non-Windows targets.
+PROGRAMS += \
+    tstSharedFolderService \
+    $(if $(eq $(KBUILD_TARGET),win),,tstSharedFolderService-win)
+tstSharedFolderService-win_TEMPLATE = $(tstSharedFolderService_TEMPLATE)
+tstSharedFolderService-win_DEFS     = \
+    $(tstSharedFolderService_DEFS) \
+    RT_OS_WINDOWS
+tstSharedFolderService-win_INCS     = $(tstSharedFolderService_INCS)
+tstSharedFolderService-win_SOURCES  = $(tstSharedFolderService_SOURCES)
+tstSharedFolderService-win_LDFLAGS.darwin = \
+    $(tstSharedFolderService_LDFLAGS.darwin)
+tstSharedFolderService-win_LIBS     = $(tstSharedFolderService_LIBS)
+endif
+
+endif # VBOX_WITH_TESTCASES
+
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

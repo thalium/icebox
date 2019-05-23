@@ -1,0 +1,1487 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="Troubleshooting">
+  <title>Dépannage</title>
+
+  <para>Ce chapitre apporte des réponses à des questions fréquemment posées. 
+  Afin d'améliorer votre expérience utilisateur avec VirtualBox, il est recommandé
+  de lire cette section pour en apprendre plus sur les soucis classiques et 
+  pour avoir les recommandations sur la manière d'utiliser le produit.</para>
+
+  <sect1>
+    <title>Procédures et outils</title>
+
+    <sect2>
+      <title>Catégoriser et isoler des problèmes</title>
+
+      <para>Le plus souvent, un invité virtualisé se comporte comme un système
+      physique. Une machine virtuelle rencontrera les mêmes problèmes que le
+      ferait une machine physique. Si, par exemple, vous perdez la connectivité
+      à Internet à cause de problèmes extérieurs, les machines virtuellas seront
+      touchées exactement comme celles physiques.</para>
+
+      <para>Si vous rencontrez un problème vraiment lié à VirtualBox, celui-ci
+      aide à le catégoriser et à l'isoler. Voici quelques questions auxquelles
+      vous devriez répondre avant de signaler un problème&#xA0;:<orderedlist>
+          <listitem>
+            <para>Le problème est-il spécifique à un OS invité en particulier&#xA0;?
+            À une version de l'OS invité&#xA0;? Surtout avec les problèmes liés
+            aux invités Linux, le problème peut être spécifique à une distribution
+            et à une version de Linux.</para>
+          </listitem>
+
+          <listitem>
+            <para>Le problème est-il spécifique à un OS hôte en particulier&#xA0;? 
+            Les problèmes ne sont généralement pas spécifiques à un OS hôte (car
+            la plupart de la base du code de VirtualBox est partagée par toutes
+            les plateformes supportées), mais, surtout en matière de réseau et
+            de support USB, il existe d'importantes différences entre les
+            plateformes hôtes. Certains problèmes liés à la GUI sont aussi spécifiques
+            à l'hôte.</para>
+          </listitem>
+
+          <listitem>
+            <para>Le problème est-il spécifique à un matériel hôte particulier&#xA0;?
+            Cette catégorie de problèmes est généralement liée au processeur de
+            l'hôte. Du fait de différences importantes entre VT-x et AMD-V, des
+            problèmes peuvent être spécifiques à l'une ou l'autre technologie.
+            Le modèle exact du processeur peut également marquer une différence
+            (même pour la virtualisation logicielle) car différents processeurs
+            supportent différentes fonctions, ce qui peut toucher 
+            certains aspects du fonctionnement du processeur invité.</para>
+          </listitem>
+
+          <listitem>
+            <para>Le problème est-il spécifique à un mode de virtualisation
+            en particulier&#xA0;? Certains problèmes peuvent n'arriver qu'en mode
+            virtualisation logicielle, d'autres peuvent être spécifiques à la
+            virtualisation matérielle.</para>
+          </listitem>
+
+          <listitem>
+            <para>Le problème est-il spécifique au SMP de l'invité&#xA0;? À
+            savoir, est-il lié au nombre de processeurs virtuels (VCPUs) de
+            l'invité&#xA0;? L'utilisation de plus d'un processeur touche de
+            façon significative le fonctionnement interne d'un OS invité.</para>
+          </listitem>
+
+          <listitem>
+            <para>Le problème est-il spécifique aux suppléments invité&#xA0;? 
+            Dans certains cas, c'est écrit (par exemple un problème de dossiers
+            partagés), dans d'autres, cela peut être moins évident (par exemple,
+            des problèmes d'affichage). Si le problème est spécifique aux
+            suppléments invité, est-il spécifique à une version en particulier
+            des suppléments invité&#xA0;?</para>
+          </listitem>
+
+          <listitem>
+            <para>Le problème est-il spécifique à un environnement particulier&#xA0;?
+            Certains problèmes sont liés à un environnement externes à la VM&#xA0;;
+            cela implique en général un paramétrage du réseau. Certaines
+            configurations de serveurs externes tels que DHCP ou PXE peuvent
+            poser des problèmes qui ne surviennent pas avec d'autres serveurs
+            identiques.</para>
+          </listitem>
+
+          <listitem>
+            <para>Le problème est-il une régression&#xA0;? Le fait de savoir qu'un
+            problème est une régression facilite beaucoup en général la recherche
+            d'une solution. Dans ce cas, il est crucial de connaître la version
+            concernée et celle qui ne l'est pas.</para>
+          </listitem>
+        </orderedlist></para>
+    </sect2>
+
+    <sect2>
+      <title>Recueillir des informations de débogage</title>
+
+      <para>Pour déterminer un problème, il est souvent important de recueillir
+      des informations de débogage que l'assistance de VirtualBox peut analyser.
+      Cette section contient des informations sur le type d'informations que
+      vous pouvez obtenir.</para>
+
+      <para>À chaque fois que VirtualBox démarre une VM, ce qu'on appelle un <emphasis
+      role="bold">"release log file"</emphasis> (fichier journal) est créé,
+      contenant beaucoup d'informations sur la configuration de la VM et les
+      événements lors de son exécution. Le fichier journal s'appelle
+      <computeroutput><literal>VBox.log</literal></computeroutput> et se trouve
+      dans le dossier du fichier journal de la VM. Il s'agira en général d'un
+      répertoire comme celui-ci&#xA0;:<screen>$HOME/VirtualBox VMs/{machinename}/Logs</screen></para>
+
+      <para>Au démarrage d'une VM, le fichier de configuration de la dernière exécution
+      sera renommé en <computeroutput>.1</computeroutput>, jusqu'à
+      <computeroutput>.3</computeroutput>. Parfois, quand il y a un problème,
+      il est utile de jeter un &#x153;il dans le journal. Quand vous demandez
+      de l'aide sur VirtualBox, le fait de fournir le fichier journal correspondant
+      est obligatoire.</para>
+
+      <para>Par commodité, pour chaque machine virtuelle, la fenêtre principale
+      de VirtualBox peut afficher ces journaux dans une fenêtre. Pour y accéder,
+      sélectionnez une machine virtuelle dans la liste à gauche et sélectionner
+      "Afficher les journaux..." dans la fenêtre "Machine".</para>
+
+      <para>Le fichier journal (VBox.log) contient une gamme d'informations
+      de diagnostic telles que le type et la version d'OS hôte, la version
+      de VirtualBox et l'architecture (32 ou 64 bits), un aperçu complet de la
+      configuration de l'invité (CFGM), des informations détaillées sur le
+      type et les fonctions supportées par le processeur, si la virtualisation
+      matérielle est activée, des informations sur le réglage VT-x/AMD-V, l'état
+      des transitions (création, exécution, en pause, éteint, etc.), les
+      messages du BIOS invité, les messages des suppléments invité, les entrées
+      du journal spécifiques aux périphériques, à la fin de l'exécution, l'état
+      final de l'invité et des statistiques consolidées.</para>
+
+      <para>En cas de plantage, il est très important de recueillir
+      <emphasis role="bold">les sorties du plantage</emphasis>. Ceci est vrai
+      tant pour les plantages de l'hôte que pour ceux de l'invité. Pour des
+      informations sur l'activation de plus de messages sur les systèmes Linux,
+      Solaris et OS X, reportez-vous à l'article sur les messages du c&#x153;ur
+      sur le site Internet de VirtualBox.<footnote>
+          <para><ulink
+          url="http://www.virtualbox.org/wiki/Core_dump">http://www.virtualbox.org/wiki/Core_dump</ulink>.</para>
+        </footnote></para>
+
+      <para>Vous pouvez àgalement utiliser <computeroutput>VBoxManage
+      debugvm</computeroutput> pour créer un journal de toute une machine
+      virtuelle&#xA0;; voir <xref linkend="vboxmanage-debugvm" />.</para>
+
+      <para>Pour des problèmes liés au réseau, il est souvent utile de récupérer
+      une trace du trafic réseau. Si le trafic est acheminé par un adaptateur
+      de l'hôte, il est possible d'utiliser Wireshark ou un outil similaire
+      pour y récupérer le trafic. Cependant, cela inclut aussi souvent beaucoup
+      de trafic indépendant de la VM.</para>
+
+      <para>VirtualBox offre la possibilité de récupérer seulement le trafic
+      réseau de l'adaptateur réseau d'une VM spécifique. Reportez-vous à l'article
+      sur le trafic réseau sur le site Internet de VirtualBox<footnote>
+          <para><ulink
+          url="http://www.virtualbox.org/wiki/Network_tips">http://www.virtualbox.org/wiki/Network_tips</ulink>.</para>
+        </footnote> pour des informations sur l'activation de cette récupération.
+        Les fichiers de trace créés par VirtualBox sont au format
+        <computeroutput>.pcap</computeroutput> et peuvent être facilement analysés
+        avec Wireshark.</para>
+    </sect2>
+
+    <sect2 id="ts_debugger">
+      <title>Le débogueur de VM intégré</title>
+
+      <para>VirtualBox inclut un débogueur de VM intégré, qui peut servir aux
+      utilisateurs avancés. Ce débogueur permet d'examiner et, dans une certaine
+      mesure, de contrôler l'état de la VM.<warning>
+          <para>L'utilisation du débogueur de VM est à vos risques et périls. 
+          Il n'existe pas d'assistance autour, la documentation suivante a été
+          rendue disponible uniquement pour les utilisateurs avancés ayant un
+          degré de familiarité très élevé du jeu d'instructions d'une machine
+          x86/AMD64, ainsi que des connaissances détaillées de l'architecture
+          PC. Une certaine familiarité avec les aspects internes de l'OS invité
+          concerné peut aussi aider.</para>
+        </warning></para>
+
+      <para>Le débogueur de VM est disponible dans toutes les versions ordinaires
+      de production de VirtualBox, mais il est désactivé par défaut car l'utilisateur
+      moyen l'utilisera très peu. Il existe deux manières d'accéder au débogueur&#xA0;:<itemizedlist>
+          <listitem>
+            <para>Une fenêtre de console du débogueur affichée à côté de la VM</para>
+          </listitem>
+
+          <listitem>
+            <para>Via le protocole <computeroutput>telnet</computeroutput> sur
+            le port 5000</para>
+          </listitem>
+        </itemizedlist></para>
+
+      <para>Vous pouvez activer le débogueur de trois façons&#xA0;:<itemizedlist>
+          <listitem>
+            <para>Démarrer la VM directement en utilisant <computeroutput>VirtualBox
+            --startvm</computeroutput>, avec, en plus, l'argument
+            <computeroutput>--dbg</computeroutput>,
+            <computeroutput>--debug</computeroutput>, ou
+            <computeroutput>--debug-command-line</computeroutput>. Voir l'aide
+            sur l'utilisation de VirtualBox pour des détails.</para>
+          </listitem>
+
+          <listitem>
+            <para>Définir la variable d'environnement
+            <computeroutput>VBOX_GUI_DBG_ENABLED</computeroutput> ou
+            <computeroutput>VBOX_GUI_DBG_AUTO_SHOW</computeroutput> avec
+            <computeroutput>true</computeroutput> avant de lancer le processus
+            de VirtualBox. Le réglage des variables (seule leur présence est
+            vérifiée) est effectif, même quand le premier processus de
+            VirtualBox est la fenêtre du sélecteur de VM. Les VMs qui se lancent
+            ensuite à partir du sélecteur auront un débogueur actif.</para>
+          </listitem>
+
+          <listitem>
+            <para>Définir la donnée supplémentaire <computeroutput>GUI/Dbg/Enabled</computeroutput>
+            sur <computeroutput>true</computeroutput> avant de lancer la VM. Vous
+            pouvez la régler de façon globale ou sur une base individuelle à
+            chaque VM.</para>
+          </listitem>
+        </itemizedlist></para>
+
+      <para>Un nouveau menu 'Débogage' sera ajoutée à l'application VirtualBox.
+      Ce menu permet à l'utilisateur d'ouvrir la console du débogueur.</para>
+
+      <para>La syntaxe des commandes du débogueur de VM est grosso modo sur
+      le même modèle que les débogueurs de Microsoft et d'IBM, utilisés sur
+      DOS, OS/2 et Windows. Les utilisateurs familiers de symdeb,
+      CodeView, ou du débogueur du noyau the OS/2 trouveront le débogueur de
+      VM de VirtualBox classique.</para>
+
+      <para>La commande la plus importante est <computeroutput>help</computeroutput>.
+      Cela affichera un message d'aide à l'utilisation rapide de toutes les commandes
+      du débogueur. L'ensemble des commandes supporté par le débogueur de VM
+      change souvent et la commande <computeroutput>help</computeroutput> est
+      toujours à jour.</para>
+
+      <para>Voici un résumé rapide des commandes souvent utilisées&#xA0;:<itemizedlist>
+          <listitem>
+            <para><computeroutput>stop</computeroutput> -- arrête l'exécution
+            de la VM et active le mono-session (single stepping)</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>g</computeroutput> -- continue l'exécution de
+            la VM</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>t</computeroutput> -- passe en mono-session
+            (single step) une instruction</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>rg/rh/r</computeroutput> -- affiche les registres
+            actuels de l'invité/hyperviseur</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>kg/kh/k</computeroutput> -- affiche la pile
+            d'appel actuelle de l'invité/hyperviseur actuel</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>da/db/dw/dd/dq</computeroutput> -- affiche
+            le contenu de la mémoire sous forme ASCII/octets/mots/dwords/qwords</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>u</computeroutput> -- désassemble la mémoire</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>dg</computeroutput> -- affiche le GDT
+            de l'invité</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>di</computeroutput> -- affiche le 
+            IDT de l'invité</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>dl</computeroutput> -- affiche le
+            LDT de l'invité</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>dt</computeroutput> -- affiche le
+            TSS de l'invité</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>dp*</computeroutput> -- affiche les structures
+            des tables de pages de l'invité</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>bp/br</computeroutput> -- définit un point de
+            rupture normal/recompilateur</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>bl</computeroutput> -- liste les points de
+            rupture</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>bc</computeroutput> -- vide les points de
+            rupture</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>writecore</computeroutput> -- écrit sur le
+            disque un fichier c&#x153;ur de VM, reportez-vous au
+            <xref linkend="ts_guest-core-format" /></para>
+          </listitem>
+        </itemizedlist></para>
+
+      <para>Voir le <computeroutput>help</computeroutput> intégré pour d'autres
+      commandes disponibles.</para>
+
+      <para>Le débogueur de VM supporte le débogage symbolique de base, même si
+      les symboles du code invité ne sont pas souvent disponibles. Pour les
+      invités Solaris, la commande <computeroutput>detect</computeroutput> 
+      détermine automatiquement la version de l'OS invité et localise les symboles
+      du noyau dans la mémoire de l'invité. Le débogage symbolique est
+      alors disponible. Pour les invités Linux, les commandes <computeroutput>detect</computeroutput>
+      déterminent également la version de l'OS invité, mais il n'y a pas de
+      symboles dans la mémoire de l'invité. Les symboles du noyau sont disponiblas
+      dans le fichier <computeroutput>/proc/kallsyms</computeroutput> des
+      invités Linux. Vous devez copier ce fichier dans l'hôte, en utilisant par
+      exemple <computeroutput>scp</computeroutput>. La commande
+      <computeroutput>loadmap</computeroutput> du débogueur peut être utilisée
+      pour rendre les informations de symbole disponibles pour le débogueur de VM.
+      Remarquez que le fichier <computeroutput>kallsyms</computeroutput> contient
+      les symboles des modules actuellement chargés&#xA0;; si la configuration de
+      l'invité change, les symboles changeront aussi et doivent être mis à
+      jour.</para>
+
+      <para>Pour tous les invités, une façon simple de vérifier que les bons
+      symboles sont chargés est la commande <computeroutput>k</computeroutput>.
+      L'invité est en principe occupé et il devrait être vidé des informations
+      symboliques que la boucle active du système d'exploitation invité exécute.</para>
+
+      <para>Un autre groupe de commandes du débogueur est 
+      <computeroutput>info</computeroutput>. L'exécution d
+    <computeroutput>info help</computeroutput> fournit ces 
+      informations d'utilisation complètes. Les commandes d'informations 
+      fournissent des données ad-hoc pertinentes sur divers périphériques émulés
+      et sur les aspects de la VMM. Il n'y a pas de lignes directrices générales
+      sur l'utilisation des commandes <computeroutput>info</computeroutput>,
+      la bonne commande à utiliser dépend beaucoup du problème à trouver.
+      Certaines commandes info sont&#xA0;:<itemizedlist>
+          <listitem>
+            <para><computeroutput>cfgm</computeroutput> -- affiche une branche
+            de l'arborescence de la configuration</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>cpuid</computeroutput> -- affiche les sorties
+            du CPUID de l'invité</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>ioport</computeroutput> -- affiche les E/S
+            des plages de ports enregistrées</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>mmio</computeroutput> -- affiche les plages
+            MMIO enregistrées</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>mode</computeroutput> -- affiche le mode de
+            pagination actuel</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>pit</computeroutput> -- affiche l'état i8254 PIT</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>pic</computeroutput> -- affiche l'état i8259A PIC</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>ohci/ehci</computeroutput> -- affiche un
+            sous-ensemble de l'état du contrôleur USB OHCI/EHCI</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>pcnet0</computeroutput> -- affiche l'état PCnet</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>vgatext</computeroutput> -- affiche le contenu
+            du tampon (framebuffer) VGA formaté en mode texte standard</para>
+          </listitem>
+
+          <listitem>
+            <para><computeroutput>timers</computeroutput> -- affiche toutes les
+            horloges de la VM</para>
+          </listitem>
+        </itemizedlist></para>
+
+      <para>La sortie des commandes <computeroutput>info</computeroutput> exige
+      généralement une connaissance approfondie du périphérique émulé et/ou des
+      aspects internes de VirtualBox VMM. Cependant, quand on les utilise correctement,
+      les informations fournies peuvent avoir une valeur inestimable.</para>
+    </sect2>
+
+    <sect2 id="ts_guest-core-format">
+      <title>Format du c&#x153;ur d'une VM</title>
+
+      <para>VirtualBox utilise le format ELF 64 bits pour les fichiers c&#x153;ur
+      de la VM créés par <computeroutput>VBoxManage debugvm</computeroutput>&#xA0;;
+      voir <xref linkend="vboxmanage-debugvm" />. Les fichiers c&#x153;ur d'une
+      VM contiennent les messages de la mémoire et du processeur de la VM et ils
+      peuvent être utiles pour déboguer votre OS invité. Vous pouvez savoir
+      les spécifications du format objet ELF 64 bits ici&#xA0;: <literal><ulink
+      url="http://downloads.openwatcom.org/ftp/devel/docs/elf-64-gen.pdf">http://downloads.openwatcom.org/ftp/devel/docs/elf-64-gen.pdf</ulink></literal>.</para>
+
+      <para>La présentation grosso modo du format du c&#x153;ur de la VM est
+      celle-ci&#xA0;:</para>
+
+      <para><screen>[ ELF 64 Header]
+[ Program Header, type PT_NOTE ]
+  -&gt; offset to COREDESCRIPTOR
+[ Program Header, type PT_LOAD ] - un par plage de mémoire physique contiguë
+  -&gt; Memory offset of range
+  -&gt; File offset
+[ Note Header, type NT_VBOXCORE ]
+[ COREDESCRIPTOR ]
+  -&gt; Magic
+  -&gt; Version du fichier c&#x153;ur de la VM
+  -&gt; Version de VBox
+  -&gt; Nombre de vprocesseurs etc.
+[ Note Header, type NT_VBOXCPU ] - un pour chaque vCPU
+[ vCPU 1 Note Header ]
+  [ CPUMCTX - vCPU 1 dump ]
+[ Remarques + données supplémentaires ] - Non utilisées aujourd'hui
+[ Memory dump ]</screen></para>
+
+      <para>Les descripteurs de mémoire contiennent les adresses physiques de
+      la mémoire liées à l'invité et pas les adresses virtuelles. Les régions de
+      la mémoire telles que les régions MMIO ne sont pas incluses dans le fichier
+      c&#x153;ur.</para>
+
+      <para>Vous pouvez trouver les structures de données et les définitions 
+      pertinentes dans les sources de VirtualBox sous les fichiers en-têtes
+      suivants&#xA0;:
+      <computeroutput>include/VBox/dbgfcorefmt.h</computeroutput>,
+      <computeroutput>include/VBox/cpumctx.h</computeroutput> et
+      <computeroutput>src/VBox/Runtime/include/internal/ldrELFCommon.h</computeroutput>.</para>
+
+      <para>Vous pouvez examiner le fichier c&#x153;ur de la VM en utilisant
+      <computeroutput>elfdump</computeroutput> et GNU
+      <computeroutput>readelf</computeroutput> ou d'autres outils similaires.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Général</title>
+
+    <sect2 id="ts_config-periodic-flush">
+      <title>L'invité affiche des erreurs IDE/SATA pour les images 
+      fichier d'un système de fichiers hôte lent</title>
+
+      <para>De temps en temps, certains systèmes de fichiers hôte offrent des
+      performances d'écriture très faibles et, par conséquent, créent des
+      timeout sur les commandes IDE/SATA de l'invité. C'est un comportement normal
+      et cela ne devrait pas provoquer de vrais problèmes, car l'invité devrait
+      répéter des commandes qui ont dépassé le timeout. Cependant, certains
+      invités (comme certaines versions
+      de Linux) ont de gros problèmes si l'écriture dans un fichier image dépasse
+      15 secondes. Or, certains systèmes de fichiers nécessitent plus d'une
+      minute pour effectuer une seule écriture, si le cache de l'hôte contient
+      beaucoup de données à écrire.</para>
+
+      <para>Le symptôme de ce problème est que l'invité ne peut plus accéder à
+      ses fichiers lors de grosses écritures, ce qui aboutit en général à un
+      accroc immédiat de l'invité.</para>
+
+      <para>Pour contourner ce problème (la vraie correction est d'utiliser un
+      système de fichier plus rapide qui n'excède pas de telles performances
+      d'écriture inacceptables), il est possible de flasher le fichier image
+      après qu'une certaine quantité de données ait été écrite. Cet intervalle est
+      en principe infini mais vous pouvez le configurer individuellement pour
+      chaque disque d'une VM.</para>
+
+      <para>Pour des disques IDE, utilisez la commande suivante&#xA0;:</para>
+
+      <screen>VBoxManage setextradata "nom VM"
+      "VBoxInternal/Devices/piix3ide/0/LUN#[x]/Config/FlushInterval" [b]</screen>
+
+      <para>Pour des disques SATA, utilisez la commande suivante&#xA0;:</para>
+
+      <screen>VBoxManage setextradata "nom VM"
+      "VBoxInternal/Devices/ahci/0/LUN#[x]/Config/FlushInterval" [b]</screen>
+
+      <para>La valeur [x] qui sélectionne le disque pour l'IDE est 0 pour le
+      périphérique maître du premier canal, 1 pour périphérique esclave du premier
+      canal, 2 pour le périphérique maître du deuxième canal, ou 3 pour le
+      périphérique esclave du deuxième canal. Pour SATA, utilisez des valeurs
+      entre 0 et 29. Seuls les disques supportent cette option de configuration&#xA0;;
+      vous ne devez pas la définir pour des lecteurs CD/DVD.</para>
+
+      <para>L'unité d'intervalle [b] est le nombre d'octets écrits depuis le
+      dernier vidage. Sa valeur doit être sélectionnée de sorte que les longs
+      délais d'écriture occasionnels ne se produisent pas. Comme la bonne valeur
+      d'intervalle de vidage dépend des performances de l'hôte et du système de
+      fichiers hôte, savoir la valeur optimum qui fait disparaître le problème 
+      nécessite d'expérimenter. Des valeurs entre 1000000 et 10000000 (1 to 10 mégaoctets)
+      sont un bon point de départ. La diminution de l'intervalle réduit la probabilité
+      du problème et les performances d'écriture de l'invité. Le test des valeurs faibles inutilement sera coûteux en
+      performances sans avantages. Un intervalle de 1 fera un vidage toutes les
+      opération d'écriture et cela devrait résoudre le problème dans tous les
+      cas, mais cela est très coûteux en performances d'écriture.</para>
+
+      <para>Fournir la valeur 0 à [b] revient à un intervalle de vidage infini
+      ce qui désactive de fait ce contournement. La suppression de la donnée
+      supplémentaire en ne spécifiant aucune valeur pour [b] aboutit au même
+      effet.</para>
+    </sect2>
+
+    <sect2>
+      <title>Réponse aux requêtes de vidage IDE/SATA de l'invité</title>
+
+      <para>Si vous le souhaitez, les images virtuelles de disque peuvent être
+      flashées quand l'invité lance une commande IDE FLUSH CACHE. Normalement ces
+      requêtes sont ignorées pour des performances améliorées. Les paramètres
+      ci-dessous sont acceptés uniquement pour les lecteurs de disque. Elles ne
+      doivent pas être définies pour des lecteurs DVD.</para>
+
+      <para>Pour activer le vidage des disques IDE, lancez la 
+      commande suivante&#xA0;:</para>
+
+      <screen>VBoxManage setextradata "nom VM" "VBoxInternal/Devices/piix3ide/0/LUN#[x]/Config/IgnoreFlush" 0</screen>
+
+      <para>La valeur [x] qui sélectionne le disque pour l'IDE est 0 pour le
+      périphérique maître du premier canal, 1 pour périphérique esclave du premier
+      canal, 2 pour le périphérique maître du deuxième canal, ou 3 pour le
+      périphérique esclave du deuxième canal.</para>
+
+      <para>Pour activer le vidage pour des disques SATA, lancez la commande
+      suivante&#xA0;:</para>
+
+      <screen>VBoxManage setextradata "nom VM" "VBoxInternal/Devices/ahci/0/LUN#[x]/Config/IgnoreFlush" 0</screen>
+
+      <para>La valeur [x] qui sélectionne le disque peut être une valeur entre
+      0 et 29.</para>
+
+      <para>Remarquez que cela ne concerne pas les vidages effectués selon la
+      configuration décrite au <xref linkend="ts_config-periodic-flush"
+      xrefstyle="template: %n" />. La restauration des paramètres par défaut
+      d'ignorance des commandes est possible en paramétrant la valeur sur 1 ou en
+      supprimant la clé.</para>
+    </sect2>
+
+    <sect2 id="ts_host-powermgmt">
+      <title>Faibles performances dues à la gestion d'énergie de l'hôte</title>
+
+      <para>Sur certaines plateformes matériel et sur certains systèmes 
+      d'exploitation, les performances de virtualisation sont touchées de manière
+      négative par la gestion d'énergie du processeur de l'hôte. Les symptômes
+      peuvent être un changement de son dans l'invité ou un comportement erratique
+      de l'horloge de l'invité.</para>
+
+      <para>Certains problèmes peuvent venir de bogues d'un firmware et/ou
+      du système d'exploitation hôte. Donc, la mise à jour du firmware et l'application
+      de correctifs au système d'exploitation est recommandée.</para>
+
+      <para>Pour des performances de virtualisation optimales, le support de
+      l'état d'énergie C1E dans le BIOS du système devrait être activé si ce
+      paramètre est disponible (tous les systèmes ne supportent pas l'état
+      d'énergie C1E). Sur les systèmes Intel, le paramètre <computeroutput>Intel C State</computeroutput>
+      devrait être désactivé. La désactivation
+      d'autres paramètres de gestion d'énergie peut aussi améliorer les 
+      performances. Toutefois, vous devez toujours faire un bilan performance 
+      consommation d'énergie.</para>
+    </sect2>
+
+    <sect2 id="ts_gui-2d-grayed-out">
+      <title>GUI&#xA0;: l'option d'accélération graphique est grisée</title>
+
+      <para>Pour utiliser l'accélération graphique 2D dans VirtualBox, la carte
+      graphique de votre hôte devrait supporter certaines extensions d'OpenGL.
+      Au démarrage, VirtualBox vérifie ces extensions et, si le test échoue, cette
+      option est grisée silencieusement.</para>
+
+      <para>Pour connaître la raison pour laquelle il a échoué, vous pouvez exécuter
+      à la main la commande suivante&#xA0;:</para>
+
+      <screen>VBoxTestOGL --log "log_file_name" --test 2D</screen>
+
+      <para>Elle listera les extensions OpenGL nécessaires une par une et elle
+      vous montrera celles où le test a échoué. Cela signifie en général que
+      vous exécutez un pilote OpenGL obsolète ou mal configuré sur votre hôte.
+      Cela peut aussi signifier que le chipset graphique manque d'une fonctionnalité
+      requise.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Invités Windows</title>
+
+    <sect2>
+      <title>Écrans bleus Windows après avoir changé la configuration d'une VM</title>
+
+      <para>La modification de certains paramètres d'une machine virtuelle peut
+      faire échouer des invités Windows au démarrage, avec un écran bleu. Cela
+      peut se produire si vous changez les paramètres d'une VM après avoir installé
+      Windows ou si vous copiez une image de disque avec un Windows installé
+      sur une VM nouvellement créée dont les paramètres diffèrent de la machine
+      d'origine.</para>
+
+      <para>Cela s'applique en particulier aux paramètres suivants&#xA0;:<itemizedlist>
+          <listitem>
+            <para>Vous ne devriez jamais modifier les paramètres ACPI et APIC 
+            E/S après avoir installé Windows. Selon la présence de ces fonctions
+            matérielles, le programme d'installation de Windows choisit des
+            versions spéciales du noyau et des pilotes de périphérique et il
+            n'arrivera pas à démarrer si on supprime ces fonctionnalités. (Leur
+            activation pour une VM Windows installé sans elles ne présente
+            aucun risque. Par contre, Windows n'utilisera pas ces fonctions dans
+            ce cas.)</para>
+          </listitem>
+
+          <listitem>
+            <para>La modification des contrôleurs de stockage aboutira à des
+            échecs au démarrage. Cela pourrait aussi s'appliquer si vous copiez
+            une image de disque d'une ancienne version de VirtualBox sur une
+            machine virtuelle créée avec une version de VirtualBox plus récente&#xA0;;
+            le sous-type de contrôleur IDE est passé de PIIX3 à PIIX4 avec
+            VirtualBox 2.2. Assurez-vous que ces paramètres sont identiques.</para>
+          </listitem>
+        </itemizedlist></para>
+    </sect2>
+
+    <sect2>
+      <title>Écran bleu sur Windows 0x101 si SMP est activé (IPI timeout)</title>
+
+      <para>Si une VM est configurée pour avoir plus d'un processeur (multiprocesseurs
+      symmétriques, SMP), certaines configurations d'invités Windows plantent avec
+      un message d'erreur 0x101 indiquant une interruption du timeout de
+      l'inter-processeur (IPIs, Interprocessor Interrupts). Ces interruptions
+      synchronisent la gestion de mémoire entre les processeurs.</para>
+
+      <para>Selon Microsoft, cela vient d'une condition concurrentielle (avec conflit)
+      dans Windows. Un correctif existe.<footnote>
+          <para>Voir <ulink
+          url="http://support.microsoft.com/kb/955076">http://support.microsoft.com/kb/955076</ulink>.</para>
+        </footnote> Si cela n'aide pas, merci de réduire le nombre de
+      processeurs virtuels à 1.</para>
+    </sect2>
+
+    <sect2>
+      <title>Échecs d'installation de Windows 2000</title>
+
+      <para>En installant des invités Windows 2000, vous pourriez rencontrer 
+      les problèmes suivants&#xA0;:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>L'nstallation redémarre, en général lors de l'enregistrement
+          d'un composant.</para>
+        </listitem>
+
+        <listitem>
+          <para>L'nstallation remplit tout le disque dur par des fichiers journaux
+          vides.</para>
+        </listitem>
+
+        <listitem>
+          <para>L'installation rapporte un échec lors de l'installation de
+          <literal>msgina.dll</literal>.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Ces problèmes viennent tous d'un bogue du pilote de disque dur de
+      Windows 2000. Après avoir sollicité une requête du disque dur, il survient
+      un conflit concurrentiel (race condition) dans le code du pilote Windows,
+      qui conduit à une corruption si l'opération se termine trop vite, donc si
+      l'interruption matérielle du contrôleur IDE survient trop tôt. Avec du
+      matériel physique, il existe un délai garanti dans la plupart des systèmes,
+      donc le problème est généralement caché (il devrait être cependant possible
+      de le reproduire aussi sur du matériel physique). Dans un environnement
+      virtuel, l'opération peut se faire immédiatement (surtout sur des systèmes
+      très rapides avec plusieurs CPU) et l'interruption est signalée
+      plus tôt que sur un système physique. La solution consiste à introduire 
+      un délai artificiel avant d'envoyer de telles interruptions. Vous pouvez
+      configurer ce délai pour une VM avec la commande suivante&#xA0;:</para>
+
+      <screen>VBoxManage setextradata "nom VM" "VBoxInternal/Devices/piix3ide/0/Config/IRQDelay" 1</screen>
+
+      <para>Ceci définit le délai à une milliseconde. Si cela n'aide pas,
+      passez-le à une valeur entre 1 et 5 millisecondes. Merci de remarquer que
+      cela ralentit les performances du disque. Après l'installation, vous devriez
+      pouvoir supprimer la clé (ou la passer à 0).</para>
+    </sect2>
+
+    <sect2>
+      <title>Comment garder les informations d'un écran bleu des invités Windows</title>
+
+      <para>Quand les invités Windows connaissent un plantage du noyau, ils affichent
+      l'horrible écran bleu. Selon la façon dont est configuré Windows, les
+      informations demeureront à l'écran jusqu'à ce que la machine soit redémarrée
+      ou qu'elle redémarre automatiquement. Pendant l'installation, Windows est
+      généralement configuré pour redémarrer automatiquement. Avec le
+      redémarrage automatique, il n'y a aucune chance d'enregistrer les informations
+      d'un écran bleu, alors qu'elles pourraient être importantes pour déterminer
+      le problème.</para>
+
+      <para>VirtualBox offre une méthode d'arrêt de l'invité quand il veut
+      redémarrer. Pour activer cette fonction, exécutez la commande suivante&#xA0;:</para>
+
+      <para><screen>VBoxManage setextradata "nom VM" "VBoxInternal/PDM/HaltOnReset" 1</screen></para>
+    </sect2>
+
+    <sect2>
+      <title>Pas de réseau dans les invités Windows Vista</title>
+
+      <para>Avec Windows Vista, Microsoft a abandonné le support de la carte
+      AMD PCNet utilisée par VirtualBox comme carte réseau virtuelle par défaut
+      avant la version 1.6.0. Pour les invités Windows Vista, VirtualBox utilise
+      maintenant par défaut une carte Intel E1000.</para>
+
+      <para>Si, pour une raison quelconque, vous voulez toujours utiliser la
+      carte AMD, vous devez télécharger le pilote de PCNet sur le site Internet
+      d'AMD (disponible seulement pour Windows 32 bits). Vous pouvez le transférer
+      dans la machine virtuelle en utilisant un dossier partagé (voir
+      <xref linkend="sharedfolders" />).</para>
+    </sect2>
+
+    <sect2>
+      <title>Les invités Windows peuvent provoquer une forte charge du processeur</title>
+
+      <para>Plusieurs applications en arrière-plan des invités Windows, en
+      particulier les anti-virus, sont connues pour augmenter considérablement la
+      charge du processeur même si l'invité semble être inactif. Nous vous
+      recommandons de désactiver les anti-virus des invités virtualisés si
+      possible.</para>
+    </sect2>
+
+    <sect2>
+      <title>Temps d'accès élevés aux dossiers partagés</title>
+
+      <para>Les performances d'accès aux dossiers partagés depuis un invité
+      Windows pourraient diminuer du fait des délais de résolution du service
+      de domaine des dossiers partagés de VirtualBox. Pour corriger ces délais, 
+      ajoutez les entrées suivante au fichier <computeroutput>\windows\system32\drivers\etc\lmhosts</computeroutput>
+      de l'invité Windows&#xA0;:</para>
+
+      <screen>255.255.255.255        VBOXSVR #PRE
+255.255.255.255        VBOXSRV #PRE</screen>
+
+      <para>Après ce changement, il faut redémarrer l'invité.</para>
+    </sect2>
+
+    <sect2>
+      <title>La tablette USB coordonne mal dans les invités Windows 98</title>
+
+      <para>Si une VM Windows 98 est configurée pour utiliser la tablette USB
+      émulée (périphérique de pointage absolu), il se peut que la traduction de
+      la coordination soit incorrecte et que le pointeur soit restreint au quart
+      en haut à gauche de l'écran de l'invité.</para>
+
+      <para>Les pilotes HID (Human Interface Device) USB de Windows 98 sont très
+      vieux et ils ne gèrent pas les tablettes de la même manière que les systèmes
+      d'exploitation récents (Windows 2000 et supérieur, Mac OS X, Solaris). Pour
+      contourner le problème, exécutez la commande suivante&#xA0;:
+      </para>
+
+      <para><screen>VBoxManage setextradata "nom VM" "VBoxInternal/USB/HidMouse/0/Config/CoordShift" 0</screen></para>
+
+      <para>Pour restaurer le comportement par défaut, supprimez la clé ou 
+      réglez sa valeur à 1. 
+      </para>
+    </sect2>
+
+    <sect2>
+      <title>Les invités Windows sont retirés du domaine Active Directory après
+      la restauration d'un instantané</title>
+
+      <para>Si un invité Windows est membre d'un domaine Active Directory et
+      que vous utilisez la fonction des instantanés de VirtualBox, il pourrait
+      se produire des pertes de cet état après la restauration d'un ancien
+      instantané.
+      </para>
+
+      <para>Ceci vient du changement automatique de mot de passe de la machine opéré
+      régulièrement par Windows pour des raisons de sécurité. Vous pouvez
+      désactiver cette fonction en suivant les instructions de <ulink
+          url="http://support.microsoft.com/kb/154501">http://support.microsoft.com/kb/154501</ulink>
+          cet article de Microsoft.
+      </para>
+    </sect2>
+
+    <sect2 id="ts_d3d8-d3d9-restore">
+      <title>Restauration de d3d8.dll et de d3d9.dll</title>
+
+      <para>Les suppléments invité de VirtualBox pour Windows et inférieurs à
+      la 4.1.8 ne sauvegardaient pas les fichiers système d'origine d3d8.dll et
+      d3d9.dll lors de l'installation du support expérimental de Direct3D. Ce
+      processus remplace ces deux fichiers système par des fichiers des suppléments
+      invité de VirtualBox gérables correctement par les appels de Direct3D. Si
+      ce problème a été corrigé avec VirtualBox 4.1.8, il n'y a aucun moyen de
+      faire réparer ces fichiers par l'installeur des suppléments invité.</para>
+
+      <para>La corruption de ces fichiers n'a pas d'implications si l'accélération
+      3D est activée et si le support de base de Direct3D est installé, à savoir
+      sans WDDM (sur Windows Vista ou supérieur) ou sur les anciens systèmes
+      Windows comme Windows XP. Avec le support Direct3D de base, toutes les
+      applications Direct3D 8.0 et Direct3D 9.0 utiliseront directement les fichiers
+          Direct3D de VirtualBox et fonctionneront ainsi comme prévu.</para>
+
+      <para>Par contre, pour le support WDDM Direct3D, les fichiers d3d8.dll et
+          d3d9.dll inclus d'origine sont nécessaires pour lancer des applications
+          Direct3D 8.0 et Direct3D 9.0. Il résulte de la corruption des fichiers
+          système ci-dessus que ces applications ne fonctionneront plus. Voir
+          ci-dessous pour une guide pas à pas sur la restauration des fichiers
+          systèmes d'origine 
+          d3d8.dll et d3d9.dll si l'installeur des suppléments invité de
+          VirtualBox a averti que ces fichiers étaient incorrects ou en cas de
+          problème en exécutant les applications Direct3D.</para>
+
+      <note><para>À partir de Windows 7 le bureau 3D (aka Aero) utilise DirectX 10
+          pour être affiché afin que les fichiers d3d8.dll et d3d9.dll corrompus
+          n'aient aucun effet sur la session en cours.</para></note>
+          
+      <para>C'est pourquoi la détection d'une telle corruption de fichier n'est
+      pas considérée comme fatale pour l'installation basique de Direct3D sur
+      tous les invités Windows supportés et pour une installation de WDDM Direct3D
+      sur les invités Windows 7 et supérieur.</para>
+
+      <para>Extraire d3d8 et d3d9.dll du CD d'installation de Windows XP&#xA0;:</para>
+
+      <orderedlist>
+        <listitem>
+          <para>Téléchargez et installez la dernière version de 7-Zip File Manager
+          <ulink url="http//www.7-zip.org">http//www.7-zip.org</ulink></para>
+        </listitem>
+
+        <listitem>
+          <para>Parcourez le CD d'installation, par exemple E:\i386 (ou AMD64 
+          pour la version 64 bits)</para>
+        </listitem>
+
+        <listitem>
+          <para>Localisez le fichier d3d8.dl_ et d3d9.dl_, cliquez deux fois
+          dessus et extrayez d3d8.dll et d3d9.dll</para>
+        </listitem>
+
+        <listitem>
+          <para>Redémarrez Windows en mode sans échec</para>
+        </listitem>
+
+        <listitem>
+          <para>Copiez d3d8.dll et d3d9.dll extraits dans C:\Windows\system32 and C:\Windows\system32\dllcache</para>
+        </listitem>
+
+        <listitem>
+          <para>Redémarrez</para>
+        </listitem>
+      </orderedlist>
+
+      <para>Extraction de d3d8 et de d3d9.dll du pack service de Windows XP </para>
+
+      <orderedlist>
+        <listitem>
+          <para>1, 3-6 Identiques au CD d'installation</para>
+        </listitem>
+        <listitem>
+          <para>Utilisez 'Ouvrir avec' pour ouvrir WindowsXP-KB936929-SP3-x86.exe
+          en tant qu'archive et parcourez le répertoire i386.</para>
+        </listitem>
+      </orderedlist>
+
+      <para>Extraction de d3d8 et de d3d9.dll du CD d'installation de Vista/Windows7 ou 
+      des images du pack Service</para>
+
+      <orderedlist>
+        <listitem>
+          <para>Téléchargez et installez la dernière version de 7-Zip File Manager <ulink
+          url="http//www.7-zip.org">http//www.7-zip.org</ulink></para>
+        </listitem>
+
+        <listitem>
+          <para>Parcourez le CD d'installation, par exemple E:\sources</para>
+        </listitem>
+
+        <listitem>
+          <para>Localisez le fichier install.wim et cliquez deux fois dessus.
+          Après l'ouverture du fichier par 7-Zip, vous verrez un certain nombre
+          de dossiers. Chaque sous-dossier numéroté représente une version
+          différente de Windows (Starter, Home Basic, and ainsi de suite)</para>
+        </listitem>
+
+        <listitem>
+          <para>Après être entré dans les dossiers numérotés adéquats, parcourez
+          le répertoire Windows\System32 (or C:\Windows\SysWOW64 pour la
+          version 64 bits) et localisez d3d8.dll et d3d9.dll puis extrayez</para>
+        </listitem>
+
+        <listitem>
+          <para>Copiez d3d8.dll et d3d9.dll extraits dans C:\Windows\system32 ou
+          C:\Windows\SysWOW64 (les fichiers de system32 devraient aller dans
+          system32, ceux de SysWOW64 dans SysWOW64)</para>
+        </listitem>
+
+        <listitem>
+          <para>Redémarrez</para>
+        </listitem>
+      </orderedlist>
+    </sect2>
+
+  </sect1>
+
+  <sect1>
+    <title>Invités Linux et X11</title>
+
+    <sect2>
+      <title>Les invités Linux peuvent entraîner une forte charge du processeur</title>
+
+      <para>Certains invités Linux peuvent entraîner une forte charge du processeur
+      même si le système invité semble inactif. Cela peut venir d'une fréquence
+      d'horloge élevée du noyau invité. Certaines distributions Linux, par exemple
+      Fedora, incluent un noyau Linux configuré pour une fréquence d'horloge de
+      <emphasis role="bold"> 1000Hz</emphasis>. Nous vous recommandons de
+      recompiler le noyau invité et de sélectionner une fréquence d'horloge de
+      100Hz.</para>
+
+      <para>Les noyaux Linux inclus avec Linux Red Hat Enterprise (RHEL) entre
+      la version 4.7 et 5.1 ainsi que les noyaux des distributions Linux associées
+      (par exemple, CentOS et Oracle Linux) supportent un paramètre
+      <emphasis>divider=N</emphasis> du noyau. D'où le fait que de tels noyaux
+      supportent une fréquence d'horloge plus faible sans recompilation. Nous
+      vous suggérons d'ajouter le paramètre <emphasis>divider=10</emphasis> du
+      noyau pour sélectionner une fréquence de l'horloge du noyau invité de
+      100Hz.</para>
+    </sect2>
+
+    <sect2>
+      <title>Processeurs AMD Barcelona</title>
+
+      <para>La plupart des invités basés sur Linux échoueront avec l'AMD Phenoms ou
+      Barcelona-level Opterons du fait d'un bogue dans le noyau Linux. Activez
+      l'APIC E/S pour contourner le problème (voir <xref
+      linkend="settings-system" />).</para>
+    </sect2>
+
+    <sect2 id="ts_linux-buggy">
+      <title>Versions buguées du noyau Linux Linux 2.6</title>
+
+      <para>Les bogues suivants des noyaux Linux les empêchent de les exécuter
+      correctement dans VirtualBox, ce qui fait planter la VM au démarrage&#xA0;:<itemizedlist>
+          <listitem>
+            <para>La version du noyau Linux 2.6.18 (et certaines versions 2.6.17)
+            ont introduit un conflit de condition (race condition) qui peut 
+            provoquer un plantage au démarrage dans VirtualBox. Merci d'utiliser
+            une version du noyau 2.6.19 ou supérieur.</para>
+          </listitem>
+
+          <listitem>
+            <para>Avec la virtualisation matérielle et l'APIC E/S activé, les
+            noyaux inférieurs au 2.6.24-rc6 peuvent planter au démarrage avec le
+            message suivant&#xA0;:<screen>Kernel panic - not syncing: IO-APIC + timer doesn't work!  Boot with
+apic=debug and send a report.  Then try booting with the 'noapic' option</screen></para>
+
+            <para>Si vous voyez ce message, soit désactivez la virtualisation 
+            matérielle, soit l'APIC E/S (voir <xref
+            linkend="settings-system" />), ou mettez à jour l'invité vers un
+            noyau plus récent.<footnote>
+                <para>Voir <ulink
+                url="http://www.mail-archive.com/git-commits-head@vger.kernel.org/msg30813.html">http://www.mail-archive.com/git-commits-head@vger.kernel.org/msg30813.html</ulink>
+                pour des détails sur le correctif du noyau.</para>
+              </footnote></para>
+          </listitem>
+        </itemizedlist></para>
+    </sect2>
+
+    <sect2>
+      <title>Presse-papier partagé, redimensionnement automatique et bureau transparent
+      dans les invités X11</title>
+
+      <para>Les services du bureau invité dans les invités exécutant le système
+      X11 window (Solaris, Linux et autres) sont fournis par un service invité
+      qui s'appelle <computeroutput>VBoxClient</computeroutput>, qui fonctionne
+      sous l'ID de l'utilisateur qui démarre la session du bureau et qui est
+      démarré automatiquement en utilisant les lignes de commande suivantes
+      <screen>VBoxClient --clipboard
+VBoxClient --display
+VBoxClient --seamless</screen> quand votre session utilisateur X11 est lancée
+si vous utilisez un environnement de bureau courant (Gnome, KDE et autres). Si
+un service du bureau particulier ne fonctionne pas bien, il vaut la peine de
+vérifier si le processus qui devrait le fournir est en fonction.</para>
+
+      <para>Les processus <computeroutput>VBoxClient</computeroutput> créent
+      des fichiers dans le dossier personnel de l'utilisateur avec des noms sous
+      la forme <computeroutput>.vboxclient-*.pid</computeroutput> quand ils
+      fonctionnent, pour empêcher un service donné de se démarrer deux fois. Il
+      peut arriver, à cause d'une mauvaise configuration, que ces fichiers
+      se créent sous la propriété de l'administrateur et ne sont pas effacés
+      quand les services s'arrêtent, ce qui les empêchera de démarrer à l'avenir.
+      Si vous ne pouvez pas démarrer les services, vous pourriez vérifier si
+      ces fichiers existent.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Invités Solaris</title>
+
+    <sect2>
+      <title>Les versions inférieures à Solaris 10 plantent en mode 64 bits</title>
+
+      <para>Les versions de Solaris 10 inférieures ou égales à Solaris 10 8/07 ("S10U4")
+          détectent mal les processeurs Intel récents fabriqués depuis 2007. Ce
+          problème fait planter ou stopper le noyau Solaris 64 bits presqu'immédiatement
+          lors du démarrage, tant dans un environnement virtualisé que physique.
+      </para>
+      <para>
+          La solution recommandée est de mettre à jour vers au moins Solaris 10 5/08 
+          ("S10U5"). D'autres solutions consistent à obliger Solaris à toujours
+          démarrer le noyau 32 bits ou à appliquer un correctif au bogue 6574102
+          (tant que Solaris utilise le noyau 32 bits).
+      </para>
+    
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Hôte Windows</title>
+
+    <sect2>
+      <title>Problème du serveur VBoxSVC out-of-process COM</title>
+
+      <para>VirtualBox utilise le Component Object Model (COM) de Microsoft pour
+      la communication inter et intra-processus. Cela permet à VirtualBox de
+      partager une configuration commune entre les processus de différentes
+      machines virtuelles et de fournir plusieurs versions de l'interface
+      utilisateur basées sur une architecture commune. Toutes les informations
+      d'état et la configuration globale sont maintenues par le processus
+      <computeroutput>VBoxSVC.exe</computeroutput>, qui est un service COM
+      hors des processus. À chaque fois que le processus de VirtualBox est démarré,
+      il demande un accès au serveur COM et Windows démarre automatiquement le
+      processus. Notez que l'utilisateur final ne devrait jamais le démarrer.</para>
+
+      <para>Quand le dernier processus se déconnecte du serveur COM, il se
+      terminera lui-même après quelques secondes. La configuration de VirtualBox
+      (fichiers XML) est maintenue et appartient au serveur COM et les fichiers
+      sont verrouillés à chaque fois que le serveur s'exécute.</para>
+
+      <para>Dans certains cas - comme quand une machine virtuelle se termine
+      de manière imprévue -, le serveur COM ne remarquera pas que le client est
+      déconnecté et il restera actif longtemps (10 minutes voire plus), gardant
+      verrouillés les fichiers de configuration. Dans de rares cas, le serveur
+      COM pourrait connaître une erreur interne et, en conséquence, les autres
+      processus pourraient ne pas pouvoir l'initialiser. Dans ces situations, il
+      est recommandé d'utiliser le gestionnaire des tâches de Windows pour tuer
+      le processus <computeroutput>VBoxSVC.exe</computeroutput>.</para>
+    </sect2>
+
+    <sect2>
+      <title>Changements de CD/DVD non reconnus</title>
+
+      <para>Si vous avez affecté un lecteur CD/DVD physique à un invité et si
+      l'invité ne remarque pas les changements de médias, assurez-vous que la
+      fonction de notification de changement de média (MCN) de Windows n'est pas
+      désactivée. Elle est représentée par la clé suivante dans le registre
+      Windows&#xA0;::<screen><literal>HKEY_LOCAL_MACHINE\System\CurrentControlSet\Services\Cdrom\Autorun</literal></screen>
+      Il se peut que certaines applications désactivent cette clé contre l'avis de
+      Microsoft. Si elle est définie à 0, passez-la à 1 et redémarrez votre système.
+      VirtualBox s'appuie sur la notification de Windows de changement de média.</para>
+    </sect2>
+
+    <sect2>
+      <title>Réponse lente en utilisant le client RDP de Microsoft</title>
+
+      <para>Si vous vous connectez à une machine virtuelle avec le client RDP de
+      Microsoft (appelé Remote Desktop Connection), il peut y avoir d'importants
+      délais entre l'entrée (le déplacement de la souris dans un menu est la situation la
+      plus évidente) et la sortie. Ceci car le client RDP récupère l'entrée pendant
+      un certain temps avant de l'envoyer au serveur RDP.</para>
+
+      <para>Vous pouvez diminuer l'intervalle en définissant une clé du registre
+      Windows sur des valeurs plus petites que celles par défaut, 100. La clé
+      n'existe pas au départ, elle doit être de type DWORD. Son unité de valeur est en millisecondes. Les valeurs autour
+      de 20 conviennent aux connexions avec faible bande passante entre le client
+      et le serveur RDP. Des valeurs autour de 4 peuvent être utilisées pour une
+      connexion Internet à 4 gigaoctets. En général, les valeurs inférieures à
+      10 donnent une performance très réduite par rapport aux périphériques
+      d'entrée locaux et à l'écran de l'hôte sur lequel fonctionne la machine
+      virtuelle.</para>
+
+      <para>Selon que le paramètre à modifier est pour un utilisateur individuel
+      ou pour le système, vous pouvez définir soit</para>
+
+      <screen>HKEY_CURRENT_USER\Software\Microsoft\Terminal Server Client\Min Send Interval</screen>
+
+      <para>soit</para>
+
+      <screen>HKEY_LOCAL_MACHINE\Software\Microsoft\Terminal Server Client\Min Send Interval</screen>
+
+      <para>correctement.</para>
+    </sect2>
+
+    <sect2>
+      <title>Lancer un initiateur et une cible iSCSI sur un seul système</title>
+
+      <para>Des verrouillages peuvent se produire sur un hôte Windows quand on essaie
+      d'accéder à une cible iSCSI en fonction dans une machine virtuelle invitée
+      avec un initiateur iSCSI (comme Microsoft iSCSI Initiator) en fonction
+      sur l'hôte. Cela vient d'un défaut dans le composant du gestionnaire de cache
+      de Windows et cela donne une réponse lente du système hôte, de plusieurs
+      minutes, suivies d'un message d'erreur "Delayed Write Failed" (délai 
+      d'écriture différé) dans la barre système ou dans une fenêtre de message
+      distincte. L'invité est bloqué pendant ce temps et il peut afficher des
+      messages d'erreur ou devenir instable.</para>
+
+      <para>La définition d'une variable d'environnement
+      <computeroutput>VBOX_DISABLE_HOST_DISK_CACHE</computeroutput> à 1 activera
+      un contournement de ce problème jusqu'à ce que Microsoft le traite.
+      Par exemple, ouvrez une fenêtre d'invite de commande et démarrez VirtualBox
+      comme ceci&#xA0;:</para>
+
+      <screen>set VBOX_DISABLE_HOST_DISK_CACHE=1
+VirtualBox</screen>
+
+      <para>Si cela réduif les performances du disque invité (surtout en écriture),
+      cela ne concerne pas les performances d'autres applications en fonction
+      sur l'hôte.</para>
+    </sect2>
+
+    <sect2>
+      <title>Adaptateurs réseaux bridgés absents</title>
+
+      <para>Si aucun adaptateur bridgé n'apparaît dans la section "Réseau" des
+      paramètres de la VM, cela signifie généralement que le pilote du réseau
+      bridgé n'a pas été installé correctement sur votre hôte. Cela pourrait venir
+      des raisons suivantes&#xA0;: <itemizedlist>
+          <listitem>
+            <para>Le nombre maximum de filtres autorisés a été atteint sur l'hôte.
+            Dans ce cas, le journal MSI indiquera le code d'erreur
+            <computeroutput>0x8004a029</computeroutput> retourné à l'installation
+            du composant réseau NetFlt&#xA0;:<screen>VBoxNetCfgWinInstallComponent: Install failed, hr (0x8004a029)</screen></para>
+
+            <para>Vous pouvez essayer d'augmenter le nombre de filtre maximum 
+            dans le registre Windows avec la clé suivante&#xA0;:<screen>HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Network\MaxNumFilters</screen>Le nombre maximum autorisé est de 14. Après le redémarrage, essayez
+            de réinstaller VirtualBox.</para>
+          </listitem>
+
+          <listitem>
+            <para>Le cache INF est corrompu. Dans ce cas, le journal d'installation
+            (<computeroutput>%windir%\inf\setupapi.log</computeroutput> sur XP
+            ou <computeroutput>%windir%\inf\setupapi.dev.log</computeroutput>
+            sur Vista ou supérieur) indiquera normalement un échec pour 
+            trouver le paquet du pilote adapté aux composants
+            <computeroutput>sun_VBoxNetFlt</computeroutput> ou
+            <computeroutput>sun_VBoxNetFltmp</computeroutput>. La solution est
+            alors de désinstaller VirtualBox, de supprimer le cache INF
+            (<computeroutput>%windir%\inf\INFCACHE.1</computeroutput>), de
+            redémarrer et d'essayer de réinstaller VirtualBox</para>
+          </listitem>
+        </itemizedlist></para>
+    </sect2>
+
+    <sect2>
+      <title>L'adaptateur réseau Host-only ne peut pas être créé</title>
+
+      <para>Si l'adaptateur host-only ne peut pas être créé (soit avec le gestionnaire
+      soit avec VBoxManage), le cache INF est probablement corrompu. Dans ce cas,
+      le journal d'installation (<computeroutput>%windir%\inf\setupapi.log</computeroutput>
+      sur XP ou <computeroutput>%windir%\inf\setupapi.dev.log</computeroutput>
+      sur Vista ou supérieur) indiquera généralement un échec pour trouver un
+      paquet de pilote adapté au composant <computeroutput>sun_VBoxNetAdp</computeroutput>.
+      De nouveau, comme pour le problème du réseau bridgé décrit ci-dessus, la
+      solution consiste à désinstaller VirtualBox, à supprimer le cache INF
+      (<computeroutput>%windir%\inf\INFCACHE.1</computeroutput>), à redémarrer
+      et à essayer de réinstaller VirtualBox.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Hôtes Linux</title>
+
+    <sect2 id="ts_linux-kernelmodule-fails-to-load">
+      <title>Le module du noyau Linux refuse de se charger</title>
+
+      <para>Si le module du noyau Linux
+      (<computeroutput>vboxdrv</computeroutput>) refuse de se charger, c'est-à-dire
+      que vous avez un message "Error inserting vboxdrv: Invalid argument",
+      vérifiez (en tant qu'administrateur) la sortie de la commande
+      <computeroutput>dmesg</computeroutput> pour trouver la raison de l'échec
+      du chargement. Probablement, le noyau n'est pas d'accord avec la version
+     de gcc utilisée pour compiler le module. Assurez-vous d'utiliser le même
+      compilateur que celui utilisé pour construire le noyau.</para>
+    </sect2>
+
+    <sect2>
+      <title>Lecteur CD/DVD de l'hôte Linux non trouvé</title>
+
+      <para>Si vous avez configuré une machine virtuelle pour utiliser le
+      lecteur CD/DVD de l'hôte, et s'il semble ne pas fonctionner, assurez-vous
+      que l'utilisateur actuel a le droit d'accéder au fichier de périphérique
+      Linux correspondant (<computeroutput>/dev/hdc</computeroutput> ou
+      <computeroutput>/dev/scd0</computeroutput> ou
+      <computeroutput>/dev/cdrom</computeroutput> ou identique). Sur la plupart
+      des distributions, l'utilisateur doit être ajouté à un groupe correspondant
+      (qui s'appelle en général <computeroutput>cdrom</computeroutput> ou
+      <computeroutput>cdrw</computeroutput>).</para>
+    </sect2>
+
+    <sect2>
+      <title>Lecteur CD/DVD non trouvé sur l'hôte Linux (distributions anciennes)</title>
+
+      <para>Sur les anciennes distributions Linux, si votre lecteur CD/DVD 
+      a un autre nom, il se peut que VirtualBox soit incapable de le trouver.
+      Sur les hôtes Linux anciens, VirtualBox suit les étapes suivantes pour
+      trouver vos lecteurs CD/DVD&#xA0;:</para>
+
+      <para><orderedlist>
+          <listitem>
+            <para>VirtualBox examine si la variable d'environnement 
+            <computeroutput>VBOX_CDROM</computeroutput> est définie (voir ci-dessous).
+            Si tel est le cas, VirtualBox ne fait pas les vérifications suivantes.</para>
+          </listitem>
+
+          <listitem>
+            <para>VirtualBox teste si
+            <computeroutput>/dev/cdrom</computeroutput> fonctionne.</para>
+          </listitem>
+
+          <listitem>
+            <para>En plus, VirtualBox vérifie si des lecteurs CD/DVD sont montés
+            en vérifiant <computeroutput>/etc/mtab</computeroutput>.</para>
+          </listitem>
+
+          <listitem>
+            <para>En outre, VirtualBox vérifie si une des entrées de
+            <computeroutput>/etc/fstab</computeroutput> pointe vers un lecteur
+             CD/DVD.</para>
+          </listitem>
+        </orderedlist></para>
+
+      <para>En d'autres termes, vous pouvez essayer de définir VBOX_CDROM pour
+      contenir vos lecteurs CD/DVD, séparés par des deux-points, par exemple
+      comme suit&#xA0;:</para>
+
+      <para><screen>export VBOX_CDROM='/dev/cdrom0:/dev/cdrom1'</screen>Sur les
+      distributions Linux modernes, VirtualBox utilise la couche d'abstraction
+      matérielle (hal) pour localiser le matériel CD et DVD.</para>
+    </sect2>
+
+    <sect2>
+      <title>Disquette non trouvée sur un hôte Linux</title>
+
+      <para>Les instructions précédentes (pour les lecteurs CD et DVD) s'appliquent
+      aussi aux disquettes, sauf que sur les distributions anciennes,
+      VirtualBox teste par défaut les périphériques <computeroutput>/dev/fd*</computeroutput>
+      ce que vous pouvez changer avec la variable d'environnement
+      <computeroutput>VBOX_FLOPPY</computeroutput>.</para>
+    </sect2>
+
+    <sect2>
+      <title>Messages d'erreur étranges de l'IDE invité lors de l'écriture sur un CD/DVD</title>
+
+      <para>Si le support expérimental d'écriture sur un CD/DVD est activé avec
+      une mauvaise configuration de l'hôte et de l'invité VirtualBox, il est
+      possible que vos efforts pour accéder à l'écriture sur CD/DVD échouent et
+      n'aboutissent qu'à des messages d'erreur du noyau invité (pour les invités
+      Linux) ou à des messages d'erreur de l'application (pour les invités
+      Windows). VirtualBox effectue les vérifications de cohérence habituelles 
+      quand une VM est allumée (en particulier, il quitte avec un message d'erreur 
+      si l'utilisateur qui démarre la VM ne peut pas écrire sur le périphérique
+      du graveur CD/DVD), mais il ne peut pas détecter toutes les mauvaises
+      configurations. La configuration de l'OS hôte et de l'invité requise n'est
+      pas spécifique à VirtualBox, mais quelques problèmes fréquents sont listés
+      ici, ils se sont produits en lien avec VirtualBox.</para>
+
+      <para>Vous devez faire très attention à utiliser le bon périphérique. Le
+      nom du fichier du lecteur CD/DVD de l'hôte configuré (dans la plupart des
+      cas, <literal>/dev/cdrom</literal>) doit pointer vers le périphérique
+      qui permet d'écrire sur l'unité CD/DVD. Pour les unités du graveur CD/DVD,
+      connecté à un contrôleur SCSI ou à un contrôleur IDE qui fait interface
+      avec le sous-système SCSI de Linux (ce qui est classique pour certains
+      contrôleurs SATA), il doit renvoyer au n&#x153;ud de périphérique SCSI
+      (comme <literal>/dev/scd0</literal>). Même pour les unités de graveurs de CD/DVD en
+      IDE, il doit renvoyer au n&#x153;ud du lecteur CD-ROM adéquat (comme
+      <literal>/dev/scd0</literal>) si le module du noyau
+      <literal>ide-scsi</literal> est chargé. Ce module est requis pour le support
+      du graveur CD/DVD avec tous les noyaux Linux 2.4 et avec certains noyaux
+      2.6 des débuts. De nombreuses distributions Linux chargent ce module à
+      chaque fois que le graveur CD/DVD est détecté dans le système, même si
+      le noyau supporterait des graveurs CD/DVD sans le module. VirtualBox supporte
+      l'utilisation des fichiers de périphérique IDE (comme 
+      <literal>/dev/hdc</literal>), pourvu que le noyau le supporte et que le
+      module <literal>ide-scsi</literal> ne soit pas chargé.</para>
+
+      <para>Des règles similaires (sauf que dans l'invité, le graveur CD/DVD 
+      est toujours un périphérique IDE) s'appliquent à la configuration de
+      l'invité. Ce paramétrage étant très classique, il est probable que la 
+      configuration par défaut de l'invité fonctionne comme prévu.</para>
+    </sect2>
+
+    <sect2>
+      <title>Problème de l'IPC VBoxSVC</title>
+
+      <para>Sur Linux, VirtualBox utilise une version personnalisée de XPCOM
+      de Mozilla (modèle d'objet du composant multi-plateformes) pour la 
+      communication inter et intra processus (IPC). Le processus
+      <computeroutput>VBoxSVC</computeroutput> sert de hub de communication 
+      entre plusieurs processus de VirtualBox et il maintient la configuration
+      globale, c'est-à-dire la base de données XML. Au démarrage d'un composant
+      de VirtualBox, les processus <computeroutput>VBoxSVC</computeroutput> et
+      <computeroutput>VirtualBoxXPCOMIPCD</computeroutput> sont lancés automatiquement.
+      Ils ne sont accessibles qu'à partir du compte utilisateur qui l'a
+      lancé. <computeroutput>VBoxSVC</computeroutput> possède la base de données
+      de la configuration de VirtualBox qui se trouve normalement dans
+      <computeroutput>~/.config/VirtualBox</computeroutput>, ou dans le répertoire
+      de configuration adéquat de votre système d'exploitation. Tant qu'il est en fonction,
+      les fichiers de configuration sont verrouillés. La communication entre les
+      composants de VirtualBox et <computeroutput>VBoxSVC</computeroutput> est
+      faite via un socket de domaine local qui se trouve dans
+      <computeroutput>/tmp/.vbox-&lt;username&gt;-ipc</computeroutput>. En cas
+      de problèmes de communication (par exemple si une application VirtualBox
+      ne peut pas communiquer avec <computeroutput>VBoxSVC</computeroutput>),
+      clôturez les démons et supprimez le répertoire du socket du domaine
+      local.</para>
+    </sect2>
+
+    <sect2 id="ts_usb-linux">
+      <title>L'USB ne fonctionne pas</title>
+
+      <para>Si l'USB ne fonctionne pas sur votre hôte Linux, assurez-vous que
+      l'utilisateur actuel fait partie du groupe 
+      <computeroutput>vboxusers</computeroutput>. Sur les hôtes anciens, vous
+      devez vous assurer que l'utilisateur a le droit d'accéder au système de
+      fichiers USB (<computeroutput>usbfs</computeroutput>), sur lequel s'appuie
+      VirtualBox pour récupérer des informations valides sur les périphériques
+      USB de votre hôte. Le reste de cette section ne s'applique qu'à ces anciens
+      systèmes.</para>
+
+      <para>Comme <computeroutput>usbfs</computeroutput> est un système de fichiers
+      virtuel, un <computeroutput>chmod</computeroutput> sur
+      <computeroutput>/proc/bus/usb</computeroutput> n'a aucun effet. Les droits
+      sur <computeroutput>usbfs</computeroutput> <emphasis>ne peuvent donc être
+      changés que</emphasis> si vous éditez le fichier
+      <computeroutput>/etc/fstab</computeroutput>.</para>
+
+      <para>Par exemple, la plupart des distributions Linux comportent un groupe
+      utilisateur qui s'appelle <computeroutput>usb</computeroutput> ou similaire,
+      dont l'utilisateur actuel doit faire partie. Pour donner à tous les
+      utilisateurs de ce groupe un accès à usbfs, assurez-vous que la ligne
+      suivante est présente&#xA0;:<screen># 85 is the USB group
+none     /proc/bus/usb     usbfs      devgid=85,devmode=664    0    0</screen>Remplacez
+      85 par l'ID du groupe correspondant à votre système (cherchez dans
+      <computeroutput>/etc/group</computeroutput> "usb" ou proche). Sinon, si
+      vous vous moquez des considérations de sécurité, donnez à tous les
+      utilisateurs l'accès à l'USB en changeant "664" en "666".</para>
+
+      <para>Les distributions sont très créatives sur le script qui monte le
+      système de fichiers <computeroutput>usbfs</computeroutput>. Parfois,
+      la commande est cachée à des endroits improbables. Pour SuSE 10.0, la
+      commande de montage fait partie du fichier de configuration udev 
+      <computeroutput>/etc/udev/rules.d/50-udev.rules</computeroutput>. Comme
+      cette distribution n'a aucun groupe d'utilisateurs appelé
+      <computeroutput>usb</computeroutput>, vous pouvez utiliser par exemple le
+      groupe <computeroutput>vboxusers</computeroutput> qui a été créé par
+      l'installeur de VirtualBox. Les numéros des groupes étant affectés de manière
+      dynamique, l'exemple suivant utilise  85 comme modèle. Modifiez la ligne
+      contenant (on a inséré un retour à la ligne pour améliorer la lisibilité)
+      <screen>DEVPATH="/module/usbcore", ACTION=="add",
+    RUN+="/bin/mount -t usbfs usbfs /proc/bus/usb"</screen> et ajoutez les
+      options nécessaires (assurez-vous que tout est sur une seule ligne)&#xA0;:
+      <screen>DEVPATH="/module/usbcore", ACTION=="add",
+    RUN+="/bin/mount -t usbfs usbfs /proc/bus/usb -o devgid=85,devmode=664"</screen></para>
+
+      <para>Debian Etch a sa commande de montage dans
+      <computeroutput>/etc/init.d/mountkernfs.sh</computeroutput>. Cette
+      distribution n'ayant pas de groupe <computeroutput>usb</computeroutput>, 
+      la solution la plus simple est d'autoriser tous les membres du
+      groupe <computeroutput>vboxusers</computeroutput> à accéder au sous-système
+      USB. Modifiez la ligne <screen>domount usbfs usbdevfs /proc/bus/usb -onoexec,nosuid,nodev</screen>
+      pour qu'elle contienne <screen>domount usbfs usbdevfs /proc/bus/usb -onoexec,nosuid,nodev,devgid=85,devmode=664</screen>
+      Comme d'habitude, remplacez 85 par le vrai numéro du groupe qui devrait
+      avoir accès aux périphériques USB.</para>
+
+      <para>D'autres distributions font des opérations identiques dans des scripts
+      stockés dans le répertoire <computeroutput>/etc/init.d</computeroutput>.</para>
+    </sect2>
+
+    <sect2>
+      <title>Noyaux PAX/grsec</title>
+
+      <para>Les noyaux Linux incluant le correctif grsec (voir <literal><ulink
+      url="http://www.grsecurity.net/">http://www.grsecurity.net/</ulink></literal>)
+      et ses dérivés doivent désactiver PAX_MPROTECT pour que les binaires VBox
+      puissent démarrer une VM. Ceci car VBox doit créer un code exécutable en
+      mémoire anonyme.</para>
+    </sect2>
+
+    <sect2>
+      <title>pool vmalloc du noyau Linux dépassé</title>
+
+      <para>Quand on exécute un grand nombre de VMs avec beaucoup de RAM sur
+      un système Linux (disons 20 VMs de 1Go de RAM chacune), les VMs supplémentaires
+      pourraient ne pas réussir à démarrer avec une erreur du noyau disant que
+      le pool vmalloc est dépassé et que vous devriez l'agrandir. Le message
+      d'erreur vous dit aussi de spécifier 
+      <computeroutput>vmalloc=256MB</computeroutput> dans votre liste des
+      paramètres du noyau. Si l'ajout de ce paramètre à votre configuration de
+      GRUB ou de LILO empêche le noyau de démarrer (avec un message d'erreur
+      bizarre tel que "failed to mount the root partition"), vous avez probablement
+      un conflit de mémoire entre votre noyau et la RAM disque initiale. Vous
+      pouvez résoudre cela en ajoutant le paramètre suivant à votre configuration
+      de GRUB&#xA0;:</para>
+
+      <screen>uppermem 524288</screen>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Hôtes Solaris</title>
+
+    <sect2>
+      <title>Ne peut pas démarrer de VM, pas assez de mémoire contiguë</title>
+
+      <para>Le système de fichiers ZFS est connu pour utiliser presque toute la
+      RAM disponible comme du cache si les paramètres système par défaut ne sont
+      pas modifiés. Cela peut conduire à une énorme fragmentation de la mémoire
+      de l'hôte, empêchant les VMS de VirtualBox de démarrer. Nous vous recommandons
+      de limiter la limite du cache ZFS en ajoutant une ligne<screen>set zfs:zfs_arc_max = xxxx</screen>
+      à /etc/system où <computeroutput>xxxx</computeroutput> octets est la quantité
+      de mémoire utilisable pour le cache ZFS.</para>
+    </sect2>
+
+    <sect2>
+      <title>La VM s'arrête avec des erreurs de dépassement de mémoire sur les hôtes
+      Solaris 10</title>
+
+      <para>Les hôtes Solaris 10 32 bits (bogue 1225025) exigent un espace d'échange
+      supérieur ou égal à la taille de la mémoire physique de l'hôte. Par exemple,
+      8 Go de mémoire physique exigerait au moins 8 Go d'échange. Vous pouvez
+      configurer cela pendant l'installation de Solaris 10 en choisissant une
+      'installation personnalisée' et en modifiant les partitions par défaut.</para>
+
+      <note>
+        <para>Cette restriction ne s'applique qu'aux hôtes Solaris 32 bits, les
+        hôtes 64 bits ne sont pas concernés&#xA0;!</para>
+      </note>
+
+      <para>Pour les installations Solaris 10 existantes, il faut monter une image
+      d'échange supplémentaire et l'utiliser comme échange. D'où le fait que si
+      vous avez un échange de 1 Go et 8 Go de mémoire physique, vous devez
+      ajouter un échange supplémentaire de 7 Go. Vous pouvez faire cela comme
+      suit&#xA0;:</para>
+
+      <para>Pour ZFS (en tant qu'administrateur)&#xA0;:</para>
+
+      <para><screen>zfs create -V 8gb /_&lt;ZFS volume&gt;_/swap
+swap -a /dev/zvol/dsk/_&lt;ZFS volume&gt;_/swap</screen></para>
+
+      <para>Pour monter le système de fichiers au démarrage, ajoutez la ligne
+      suivante à /etc/vfstab&#xA0;:</para>
+
+      <screen>/dev/zvol/dsk/_&lt;ZFS volume&gt;_/swap - - swap - no -</screen>
+
+      <para>Sinon, vous pouvez agrandir l'espace existant en utilisant&#xA0;:</para>
+
+      <screen>zfs set volsize=8G rpool/swap</screen>
+
+      <para>Et redémarrer le système pour que les changements prennent effet.</para>
+
+      <para>Pour UFS (en tant qu'administrateur)&#xA0;:</para>
+
+      <screen>mkfile 7g /path/to/swapfile.img
+swap -a /path/to/swapfile.img</screen>
+
+      <para>Pour le monter au redémarrage, ajoutez la ligne suivante à
+      /etc/vfstab&#xA0;:</para>
+
+      <screen>/path/to/swap.img - - swap - no -</screen>
+    </sect2>
+  </sect1>
+</chapter>

@@ -1,0 +1,115 @@
+; $Id: kLdr-os2.def 29 2009-07-01 20:30:29Z bird $
+;; @file
+; kLdr - The Dynamic Loader, OS/2 Linker Definition File.
+;
+
+;
+; Copyright (c) 2006-2007 Knut St. Osmundsen <bird-kStuff-spamix@anduin.net>
+;
+; Permission is hereby granted, free of charge, to any person
+; obtaining a copy of this software and associated documentation
+; files (the "Software"), to deal in the Software without
+; restriction, including without limitation the rights to use,
+; copy, modify, merge, publish, distribute, sublicense, and/or sell
+; copies of the Software, and to permit persons to whom the
+; Software is furnished to do so, subject to the following
+; conditions:
+;
+; The above copyright notice and this permission notice shall be
+; included in all copies or substantial portions of the Software.
+;
+; THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+; EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+; OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+; NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+; HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+; WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+; FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+; OTHER DEALINGS IN THE SOFTWARE.
+;
+
+LIBRARY kLdr INITINSTANCE TERMINSTANCE
+DATA MULTIPLE
+EXPORTS
+    ; The file reader API
+    _kRdrAddProvider
+    _kRdrOpen
+    _kRdrClose
+    _kRdrRead
+    _kRdrAllMap
+    _kRdrAllUnmap
+    _kRdrSize
+    _kRdrTell
+    _kRdrName
+    _kRdrPageSize
+    _kRdrMap
+    _kRdrRefresh
+    _kRdrProtect
+    _kRdrUnmap
+    _kRdrDone
+
+    ; The module interpreter API
+    _kLdrModOpen
+    _kLdrModOpenFromRdr
+    _kLdrModOpenNative
+    _kLdrModOpenNativeByHandle
+    _kLdrModClose
+    _kLdrModQuerySymbol
+    _kLdrModEnumSymbols
+    _kLdrModGetImport
+    _kLdrModNumberOfImports
+    _kLdrModCanExecuteOn
+    _kLdrModGetStackInfo
+    _kLdrModQueryMainEntrypoint
+    _kLdrModEnumDbgInfo
+    _kLdrModHasDbgInfo
+    _kLdrModMap
+    _kLdrModUnmap
+    _kLdrModAllocTLS
+    _kLdrModFreeTLS
+    _kLdrModReload
+    _kLdrModFixupMapping
+    _kLdrModCallInit
+    _kLdrModCallTerm
+    _kLdrModCallThread
+    _kLdrModSize
+    _kLdrModGetBits
+    _kLdrModRelocateBits
+
+    ; Process Bootstrapping
+    _kLdrDyldLoadExe
+
+    ; Dynamic loading
+    _kLdrDyldLoad
+    _kLdrDyldUnload
+    _kLdrDyldFindByName
+    _kLdrDyldFindByAddress
+    _kLdrDyldGetName
+    _kLdrDyldGetFilename
+    _kLdrDyldQuerySymbol
+
+
+    ; OS/2 API wrappers:
+;    kLdrLoadModule
+;    kLdrFreeModule
+;    kLdrQueryModuleHandle
+;    kLdrQueryModuleName
+;    kLdrQueryProcAddr
+;    kLdrQueryProcType
+;    kLdrQueryModFromEIP
+;    kLdrReplaceModule
+;    kLdrGetResource
+;    kLdrFreeResource
+;    kLdrQueryResourceSize
+
+    ; dlfcn API wrappers:
+;    _kLdrDlOpen
+;    _kLdrDlClose
+;    _kLdrDlError
+;    _kLdrDlSym
+;    _kLdrDlFunc
+
+    ; Error APIs:
+    _kErrStr
+
+

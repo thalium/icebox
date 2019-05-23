@@ -1,0 +1,392 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="Security">
+  <title>Guide de sécurité</title>
+
+  <sect1>
+    <title>Principes généraux de sécurité</title>
+
+    <para>Les principes suivants sont fondamentaux pour utiliser une application
+      en toute sécurité.
+      <glosslist>
+        <glossentry>
+          <glossterm>Maintenir à jour le logiciel</glossterm>
+          <glossdef>
+            <para>
+              Une des bonnes pratiques de sécurité est d'avoir des versions de
+              logiciel et des correctifs à jour. Activez la notification de
+              mise à jour de VirtualBox pour être averti quand une nouvelle
+              version de VirtualBox est disponible. Quand vous mettez à jour
+              VirtualBox, n'oubliez pas de mettre à jour aussi les suppléments
+              invité. Maintenez à jour le système d'exploitation hôte ainsi
+              que l'invité.
+            </para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Restreindre l'accès réseau des services critiques</glossterm>
+          <glossdef>
+            <para>
+              Utilisez les moyens, tels qu'un pare-feu, pour protéger votre
+              ordinateur et vo(s) invité(s) de l'extérieur. Choisir le bon mode
+              de réseau pour les VMs permet de distinguer le réseau de l'hôte
+              de l'invité et vice versa.
+            </para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Suivre le principe du privilège le plus restreint</glossterm>
+          <glossdef>
+            <para>
+              Le principe du privilège le plus restreint dispose qu'il faut
+              donner aux utilisateurs les privilèges strictement nécessaires
+              pour accomplir leurs tâches. Exécutez toujours VirtualBox en
+              tant qu'utilisateur ordinaire. Nous déconseillons fortement
+              d'exécuter VirtualBox avec des privilèges système.
+            </para>
+            <para>
+              Choisissez des droits restrictifs quand vous créez des fichiers
+              de configuration, par exemple quand vous créez
+              /etc/default/virtualbox, voir
+              <xref linkend="linux_install_opts"/>. Le mode 0600 serait
+              idéal. 
+            </para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Surveiller l'activité du système</glossterm>
+          <glossdef>
+            <para>
+              La sécurité du système repose sur trois piliers&#xA0;: de bons
+              protocoles de sécurité, une bonne configuration du système et
+              la surveillance du système. L'évaluation et la lecture des
+              fruits de l'évaluation constituent la troisième exigence. Chaque
+              composant d'un système a un certain degré de capacité à être
+              surveillé. Suivez les conseils d'évaluation de ce document et
+              surveillez régulièrement les fruits de l'évaluation.
+            </para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Garder à jour les informations de sécurité</glossterm>
+          <glossdef>
+            <para>
+              Oracle améliore en permanence ses logiciels et sa documentation.
+              Vérifiez ce passage chaque année pour trouver les révisions.
+            </para>
+          </glossdef>
+        </glossentry>
+
+      </glosslist>
+    </para>
+  </sect1>
+
+  <sect1>
+    <title>Installation et configuration sécurisées</title>
+
+    <sect2>
+      <title>Aperçu de l'installation</title>
+      <para>
+        Vous ne devriez télécharger le paquet de base de VirtualBox qu'à partir d'une
+        source de confiance, telle que le site Internet officiel 
+        <ulink url="http://www.virtualbox.org">http://www.virtualbox.org</ulink>.
+        Vous devriez vérifier l'intégrité du paquet avec la somme de contrôle 
+        SHA256 fournie sur le site officiel.
+      </para>
+      <para>
+        Vous pouvez trouver des instructions générales d'installation de VirtualBox
+        pour les hôtes supportés au <xref linkend="installation"/>.
+      </para>
+      <para>
+        Sur les hôtes Windows, l'installeur permet de désactiver le support USB,
+        le support du réseau bridgé, le support du réseau host-only et les bindings
+        du langage Python, voir <xref linkend="installation_windows"/>. Toutes ces
+        fonctionnalités sont activées par défaut mais la désactivation de certaines
+        d'entre elles pourrait être adaptée si vous n'avez pas besoin des
+        fonctionnalités correspondantes sur une machine virtuelle. Les bindings du
+        langage Python ne sont nécessaires que si vous devez utiliser l'API de
+        VirtualBox avec des applications Python externes. En particulier, le
+        support USB et le support des deux modes réseaux nécessitent d'installer
+        des pilotes du noyau Windows sur l'hôte. Donc, la désactivation de ces
+        fonctions peut non seulement permettre d'encadrer l'utilisateur dans
+        certaines fonctionnalités, mais aussi de minimiser le champ d'attaque d'un
+        pirate potentiel.</para>
+      <para>
+        En général, on installe tout le paquet VirtualBox. Il faut faire
+        l'installation avec les privilèges système. Tous les binaires de VirtualBox
+        devraient être lancés en tant qu'utilisateur ordinaire et jamais en tant
+        qu'utilisateur privilégié.
+      </para>
+      <para>
+        Le pack d'extension d'Oracle VM VirtualBox apporte des fonctionnalités
+        supplémentaires et il doit être téléchargé et installé à part, voir
+        <xref linkend="intro-installing"/>. Comme pour le paquet de base, vous devriez vérifier
+        la somme de contrôle SHA256 du pack d'extension. Comme le système d'installation
+        exige des privilèges systèmes, VirtualBox vous demandera le mot de passe
+        système pendant l'installation du pack d'extension.
+      </para>
+    </sect2>
+
+    <sect2>
+      <title>Configuration post installation</title>
+      <para>
+        Normalement, aucune configuration post installation d'un composant de
+        VirtualBox n'est nécessaire. Cependant, sur les hôtes Solaris et Linux,
+        il faut configurer les droits adaptés pour que les utilisateurs exécutent
+        des VMs et puissent accéder à certaines ressources de l'hôte. Par exemple,
+        les utilisateurs Linux doivent faire partie du groupe <emphasis>vboxusers</emphasis> 
+        pour pouvoir donner des périphériques USB à un invité. Si vous devriez
+        accéder à une interface série à partir d'une VM, il faut donner les bons
+        droits à l'utilisateur pour qu'il puisse accéder à ce périphérique. La
+        même chose s'applique à d'autres ressources comme la partition brute, les
+        lecteurs DVD/CD et les périphériques de son.
+      </para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Fonctions de sécurité</title>
+    <para>Cette section évoque les mécanismes de sécurité spécifiques à
+     VirtualBox.</para>
+
+    <sect2>
+      <title>Le modèle de sécurité</title>
+      <para>
+        Une des propriétés des gestionnaires de machines virtuels (VMMs) comme 
+        VirtualBox est d'enfermer un invité en l'exécutant dans un environnement
+        protégé, une machine virtuelle laquelle fonctionne en tant que processus
+        d'un utilisateur du système d'exploitation hôte. L'invité ne peut pas
+        communiquer directement avec le matériel hôte ou avec d'autres ordinateurs,
+        mais uniquement via le VMM. Le VMM offre des ressources physiques et des
+        périphériques émulés à l'invité, auxquels on accède par le système d'exploitation hôte pour effectuer les
+        tâches nécessaires. Les paramètres de la VM contrôlent les ressources 
+        fournies à l'invité, par exemple la quantité de mémoire de l'invité ou
+        le nombre de processeurs invités (voir <xref linkend="generalsettings"/>) 
+        et les fonctionnalités activées pour cet invité (par exemple le contrôle à distance, certains paramètres
+        d'affichage et autres).
+      </para>
+    </sect2>
+    
+    <sect2>
+      <title>Configuration sécurisée des machines virtuelles</title>
+      <para>
+        Plusieurs aspects de la configuration d'une machine virtuelle sont sujets
+        à des considérations de sécurité.</para>
+
+      <sect3>
+        <title>Le réseau</title>
+        <para>
+          Le mode réseau par défaut des VMs est NAT, ce qui signifie que la VM
+          se comporte comme un ordinateur derrière un routeur, voir
+          <xref linkend="network_nat"/>. L'invité fait partie d'un sous-réseau
+          privé appartenant à cette VM et l'adresse IP de l'invité n'est pas visible
+          de l'extérieur. Ce mode réseau fonctionne sans paramétrage supplémentaire
+          et il suffit pour la plupart des besoins. 
+        </para>
+        <para>
+          Si vous utilisez le réseau bridgé, la VM se comporte comme un ordinateur
+          dans le même réseau que l'hôte, voir <xref linkend="network_bridged"/>.
+          Dans ce cas, l'invité a un accès réseau identique à l'hôte et un
+          pare-feu pourrait être nécessaire pour protéger d'autres ordinateurs
+          du sous-réseau contre des invités malveillants potentiels et pour
+          protéger l'invité contre un accès direct par les autres ordinateurs.
+          Dans certains cas, il est intéressant de songer à utiliser une règle
+          de redirection pour un port spécifique en mode NAT, plutôt que d'utiliser
+          le réseau bridgé.
+        </para>
+        <para>
+          Certaines configurations n'ont pas besoin que la VM soit connectée au
+          réseau public. Le réseau interne (voir <xref linkend="network_internal"/>)
+          ou le réseau host-only (voir <xref linkend="network_hostonly"/>) suffisent
+          souvent pour connecter des VMs entre elles ou pour ne connecter des VMs
+          qu'à l'hôte mais pas au réseau public.
+        </para>
+      </sect3>
+
+      <sect3>
+        <title>Authentification sur un bureau distant (VRDP)</title>
+        <para>Quand on utilise le pack d'extension de VirtualBox fourni par Oracle
+        pour accéder à distance (VRDP), on peut éventuellement utiliser
+        plusieurs méthodes pour configurer l'authentification RDP. La méthode
+        "null" est très peu sûre, vous devriez l'éviter sur un réseau public.
+          Voir <xref linkend="vbox-auth" /> pour les détails.</para>
+      </sect3>
+
+      <sect3 id="security_clipboard">
+        <title>Presse-papier</title>
+        <para>
+          Le presse-papier partagé permet aux utilisateurs de partager des
+          données entre l'hôte et l'invité. L'activation du presse-papier en
+          "mode bidirectionnel" permet à l'invité de lire et d'écrire dans le
+          presse-papier de l'hôte. Le mode "hôte vers invité" et "Invité vers
+          hôte" limitent l'accès à un seul sens. Si l'invité peut accéder au
+          presse-papier de l'hôte, il peut aussi accéder potentiellement à des
+          données sensibles de l'hôte partagées dans le presse-papier.
+        </para>
+        <para>
+          Si l'invité peut lire et/ou écrire dans le presse-papier de l'hôte,
+          un utilisateur distant qui se connecte à l'invité par le réseau aura
+          également cette possibilité, ce qui peut ne pas être souhaitable. Par
+          conséquent, le presse-papier partagé est désactivé pour les nouvelles
+          machines.
+        </para>
+      </sect3>
+
+      <sect3>
+        <title>Dossiers partagés</title>
+        <para>Si un dossier de l'hôte est partagé avec l'invité, n'importe quel utilisateur
+        connecté à distance à l'invité par le réseau peut accéder aussi à ces
+        fichiers car le mécanisme de partage des dossiers ne peut pas être désactivé
+        de manière sélective pour des utilisateurs distants.
+        </para>
+      </sect3>
+
+      <sect3>
+        <title>Accélération graphique 3D</title>
+        <para>L'activation de la 3D avec les suppléments invité expose l'hôte
+        à des risques supplémentaires de sécurité&#xA0;; voir <xref
+          linkend="guestadd-3d" />.</para>
+      </sect3>
+
+      <sect3>
+        <title>CD/DVD passthrough</title>
+        <para>L'activation du CD/DVD passthrough permet à l'invité d'effectuer
+        des opérations avancées sur le lecteur CD/DVD, voir <xref linkend="storage-cds"/>.
+          Cela peut poser un problème de sécurité car un invité pourrait écraser
+          des données sur un DVD.
+        </para>
+      </sect3>
+
+      <sect3>
+        <title>USB passthrough</title>
+        <para>
+          La présentation de périphériques USB à l'invité offre à l'invité un
+          accès complet à ces périphériques, voir <xref linkend="settings-usb"/>.
+          Par exemple, outre la lecture et l'écriture du contenu des partitions
+          d'un disque USB externe, l'invité pourra également lire et écrire la
+          table de partitions et des données matérielles sur ce disque.
+        </para>
+      </sect3>
+
+    </sect2>
+
+    <sect2>
+      <title>Configurer et utiliser l'authentification</title>
+
+      <para>Les composants suivants de VirtualBox peuvent utiliser des mots de
+      passe pour l'authentification&#xA0;:<itemizedlist>
+
+        <listitem>
+          <para>Lors de l'utilisation du stockage iSCSI à distance et si le
+          serveur de stockage exige une authentification, vous pouvez fournir
+          un mot de passe d'initiateur avec la commande
+          <computeroutput>VBoxManage storageattach</computeroutput>. Tant que
+          vous ne fournissez pas de réglage de mots de passe (l'option
+          <screen>--settingspwfile</screen> en ligne de commande), ce mot
+          de passe secret est stocké <emphasis role="bold">sans chiffrement</emphasis> 
+          dans la configuration de la machine et il est donc potentiellement
+          lisible sur l'hôte. Voir <xref
+          linkend="storage-iscsi" /> et <xref
+          linkend="vboxmanage-storageattach" />.</para>
+        </listitem>
+
+        <listitem>
+          <para>Quand vous utilisez le service Web de VirtualBox pour contrôler
+          un hôte VirtualBox à distance, les connexions au service sont authentifiées
+          de plusieurs façons. Ceci est décrit en détails dans manuel de référence
+          du kit de développement logiciel de VirtualBox (SDK)&#xA0;; merci de
+          voir <xref linkend="VirtualBoxAPI" />.</para>
+        </listitem>
+      </itemizedlist></para>
+    </sect2>
+
+    <!--
+    <sect2>
+      <title>Configurer et utiliser les contrôles d'accès</title>
+    </sect2>
+
+    <sect2>
+      <title>Configurer et utiliser l'évaluation de sécurité</title>
+    </sect2>
+
+    <sect2>
+      <title>Congigurer et utiliser d'autres fonctions de sécurité</title>
+    </sect2>
+    -->
+
+    <sect2>
+    <title>Opérations potentiellement non sécurisées</title>
+
+      <para>Les fonctions suivantes de VirtualBox peuvent présenter des problèmes
+      de sécurité&#xA0;:<itemizedlist>
+        <listitem>
+          <para>L'activation de la 3D par les suppléments invité expose l'hôte
+          à des risques de sécurité supplémentaires&#xA0;; voir <xref
+          linkend="guestadd-3d" />.</para>
+        </listitem>
+
+        <listitem>
+          <para>En téléportant une machine, le flux de données par lequel passe
+          le contenu de la mémoire de la machine est transféré d'un hôte à l'autre
+          sans chiffrement. Un tiers ayant un accès au réseau par lequel les
+          données sont transférées pourrait donc intercepter ces données. On
+          pourrait utiliser un tunnel SSH pour sécuriser la connexion entre les
+          deux hôtes. Mais au moment de téléporter une VM par un réseau non fiable,
+          la première question à vous poser est celle de savoir comment les VMs
+          peuvent accéder de manière sécurisée à la/aux même(s) image(s) de disque
+          virtuel avec une performance raisonnable. </para>
+        </listitem>
+
+        <listitem>
+          <para>Quand vous utilisez le service Web de VirtualBox pour contrôler
+          un hôte VirtualBox à distance, les connexions au service (par lesquelles
+          les appels de l'API sont transférées en SOAP XML) ne sont pas chiffrées,
+          elles utilisent par défaut le HTTP en clair. C'est un risque potentiel
+          de sécurité&#xA0;! Pour des détails sur le service Web, merci de voir
+          <xref linkend="VirtualBoxAPI" />.</para>
+          <para>Les services web ne sont pas lancés par défaut. Merci de vous
+          reporter au <xref linkend="vboxwebsrv-daemon"/> pour voir comment
+          démarrer ce service et activer le support SSL/TLS. Il faut le démarrer
+          en tant qu'utilisateur ordinaire et seules les VMs de cet utilisateur
+          sont contrôlables. Par défaut, le service sonde localhost, empêchant
+          toute connexion distante.</para>
+        </listitem>
+        
+        <listitem>
+          <para>Le trafic envoyé par une connexion réseau en tunnel UDP n'est
+          pas chiffré. Vous pouvez soit le chiffrer au niveau du réseau hôte 
+          (avec IPsec), soit utiliser des protocoles chiffrés dans le réseau 
+          invité (tel que SSH). Les propriétés de sécurité sont similaires à un Ethernet bridgé.</para>
+        </listitem>
+      </itemizedlist></para>
+    </sect2>
+
+    <sect2>
+      <title>Chiffrement</title>
+
+      <para>Les composants suivants de VirtualBox utilisent le chiffrement pour
+      protéger les données sensibles&#xA0;:<itemizedlist>
+        <listitem>
+          <para>Quand on utilise le pack d'extension de VirtualBox fourni par
+          Oracle pour le support du bureau distant (VRDP), les données peuvent
+          être éventuellement chiffrées. Voir <xref linkend="vrde-crypt" /> pour
+          des détails. Seule la méthode Enhanced RDP Security (RDP5.2) avec le
+          protocole TLS offre une connexion sécurisée. La Standard RDP Security
+          (RDP4 et RDP5.1) est vulnérable à une attaque man-in-the-middle.</para>
+        </listitem>
+      </itemizedlist></para>
+    </sect2>
+  </sect1>
+
+  <!--
+  <sect1>
+    <title>Security Considerations for Developers</title>
+  </sect1>
+  -->
+
+</chapter>

@@ -1,0 +1,208 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for VBoxManage (the cli frontend).
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+include $(PATH_ROOT)/doc/manual/Config.kmk
+
+
+VBOX_COMMON_VBOXMANAGE_DEFS = \
+ 	$(if $(VBOX_WITH_AHCI), VBOX_WITH_AHCI) \
+ 	$(if $(VBOX_WITH_COPYTOGUEST),VBOX_WITH_COPYTOGUEST) \
+ 	$(if $(VBOX_WITH_E1000),VBOX_WITH_E1000) \
+ 	$(if $(VBOX_WITH_GUEST_CONTROL),VBOX_WITH_GUEST_CONTROL) \
+ 	$(if $(VBOX_WITH_GUEST_PROPS),VBOX_WITH_GUEST_PROPS) \
+ 	$(if $(VBOX_WITH_HEADLESS), VBOX_WITH_HEADLESS) \
+ 	$(if $(VBOX_WITH_HGCM), VBOX_WITH_HGCM) \
+ 	$(if $(VBOX_WITH_HOSTNETIF_API), VBOX_WITH_HOSTNETIF_API) \
+ 	$(if $(VBOX_WITH_NETFLT), VBOX_WITH_NETFLT) \
+	$(if $(VBOX_WITH_AUDIO_OSS), VBOX_WITH_AUDIO_OSS) \
+	$(if $(VBOX_WITH_AUDIO_ALSA), VBOX_WITH_AUDIO_ALSA) \
+ 	$(if $(VBOX_WITH_AUDIO_PULSE),VBOX_WITH_AUDIO_PULSE) \
+ 	$(if $(VBOX_WITH_SCSI), VBOX_WITH_SCSI) \
+ 	$(if $(VBOX_WITH_VBOXSDL), VBOX_WITH_VBOXSDL) \
+ 	$(if $(VBOX_WITH_VIDEOHWACCEL), VBOX_WITH_VIDEOHWACCEL) \
+ 	$(if $(VBOX_WITH_VIRTIO),VBOX_WITH_VIRTIO) \
+ 	$(if $(VBOX_WITH_USB_CARDREADER),VBOX_WITH_USB_CARDREADER) \
+ 	$(if $(VBOX_WITH_PCI_PASSTHROUGH),VBOX_WITH_PCI_PASSTHROUGH) \
+ 	$(if $(VBOX_WITH_VIDEOREC),VBOX_WITH_VIDEOREC) \
+	$(if $(VBOX_WITH_AUDIO_VIDEOREC),VBOX_WITH_AUDIO_VIDEOREC) \
+ 	$(if $(VBOX_WITH_NAT_SERVICE),VBOX_WITH_NAT_SERVICE) \
+ 	$(if $(VBOX_WITH_VMSVGA),VBOX_WITH_VMSVGA)
+
+
+ifdef VBOX_WITH_DOCS
+ PROGRAMS += VBoxManageHelp
+endif
+VBoxManageHelp_TEMPLATE   = VBoxAdvBldProg
+VBoxManageHelp_DEFS      += \
+	VBOX_ONLY_DOCS \
+       $(VBOX_COMMON_VBOXMANAGE_DEFS)
+VBoxManageHelp_SOURCES    = \
+	VBoxManage.cpp \
+	VBoxManageHelp.cpp \
+	$(if $(VBOX_WITH_GUEST_PROPS),VBoxManageGuestProp.cpp) \
+	$(if $(VBOX_WITH_GUEST_CONTROL),VBoxManageGuestCtrl.cpp)
+
+ifndef VBOX_ONLY_DOCS
+ PROGRAMS += VBoxManage
+ VBoxManage_TEMPLATE   = VBOXMAINCLIENTEXE
+ VBoxManage_DEFS      += $(VBOX_COMMON_VBOXMANAGE_DEFS)
+ VBoxManage_DEFS.win   = _WIN32_WINNT=0x0500
+ VBoxManage_INCS = \
+ 	$(VBoxManage_0_OUTDIR)
+ VBoxManage_INTERMEDIATES = \
+ 	$(VBoxManage_0_OUTDIR)/VBoxManageBuiltInHelp.h
+ VBoxManage_SOURCES    = \
+ 	VBoxManage.cpp \
+ 	VBoxInternalManage.cpp \
+ 	VBoxManageAppliance.cpp \
+ 	VBoxManageBandwidthControl.cpp \
+ 	VBoxManageControlVM.cpp \
+ 	VBoxManageDebugVM.cpp \
+ 	VBoxManageDHCPServer.cpp \
+ 	VBoxManageDisk.cpp \
+ 	$(if $(VBOX_WITH_GUEST_CONTROL),VBoxManageGuestCtrl.cpp) \
+ 	$(if $(VBOX_WITH_GUEST_CONTROL),VBoxManageGuestCtrlListener.cpp) \
+ 	$(if $(VBOX_WITH_GUEST_PROPS),VBoxManageGuestProp.cpp) \
+ 	VBoxManageHelp.cpp \
+	$(VBoxManage_0_OUTDIR)/VBoxManageBuiltInHelp.cpp \
+ 	VBoxManageHostonly.cpp \
+ 	VBoxManageInfo.cpp \
+ 	VBoxManageList.cpp \
+ 	VBoxManageMetrics.cpp \
+ 	VBoxManageMisc.cpp \
+ 	VBoxManageModifyVM.cpp \
+ 	VBoxManageSnapshot.cpp \
+ 	VBoxManageStorageController.cpp \
+ 	VBoxManageUSB.cpp \
+ 	$(if $(VBOX_WITH_NAT_SERVICE),VBoxManageNATNetwork.cpp,) \
+ 	$(if $(VBOX_WITH_NAT_SERVICE),../../NetworkServices/NetLib/VBoxNetPortForwardString.cpp,)
+ VBoxManage_SOURCES.win = \
+ 	VBoxManage.rc
+ VBoxManage_LIBS      += $(LIB_DDU)
+
+ # VBoxNetPortForwardString.h
+ VBoxManageNATNetwork.cpp_INCS += ../../NetworkServices/NetLib/
+
+endif # VBOX_ONLY_DOCS
+
+ifneq ($(KBUILD_TARGET),win)
+ # Workaround for buggy gcc-4.3 compilers, see
+ #
+ #   http://gcc.gnu.org/bugzilla/show_bug.cgi?id=36474
+ #
+ # Some later revisions of version 4.3.1 are known to work so we assume
+ # that version 4.3.2 or later has this bug definitely fixed.
+ VBoxManage_CXXFLAGS.release += \
+	$(if $(VBOX_GCC_VERSION_CXX),$(if-expr $(VBOX_GCC_VERSION_CXX) < 40300 || $(VBOX_GCC_VERSION_CXX) > 40301,,--param max-fields-for-field-sensitive=0),)
+ VBoxManageHelp_CXXFLAGS.release = $(VBoxManage_CXXFLAGS.release)
+endif
+
+
+#
+# VBoxManage built-in help from XML refentry in doc/manual/en_US/.
+#
+$(call KB_FN_DO_PASS0_ON_TARGET,VBoxManage)
+
+VBoxManage_CLEAN += \
+	$(VBoxManage_0_OUTDIR)/VBoxManageBuiltInHelp.cpp \
+	$(VBoxManage_0_OUTDIR)/VBoxManageBuiltInHelp.cpp.ts \
+	$(VBoxManage_0_OUTDIR)/VBoxManageBuiltInHelp.h \
+	$(VBoxManage_0_OUTDIR)/VBoxManageBuiltInHelp.h.ts \
+       $(addprefix $(VBoxManage_0_OUTDIR)/,$(filter man_VBoxManage-%,$(VBOX_MANUAL_XML_REFENTRY_FILES)))
+
+
+
+# Preprocess the xml files, applying remarks.
+$(foreach file,$(filter man_VBoxManage-%,$(VBOX_MANUAL_XML_REFENTRY_FILES)) \
+, $(evalcall2 def_vbox_refentry_preprocess_for_manpage,$(VBoxManage_0_OUTDIR),$(file),$(VBOX_PATH_MANUAL_SRC)/en_US/$(file)))
+
+
+# Generate the .cpp file.
+$(VBoxManage_0_OUTDIR)/VBoxManageBuiltInHelp.cpp.ts \
++| $(VBoxManage_0_OUTDIR)/VBoxManageBuiltInHelp.cpp: \
+		$(VBOX_DOCBOOK_REFENTRY_TO_C_HELP) \
+		$(addprefix $(VBoxManage_0_OUTDIR)/,$(filter man_VBoxManage-%,$(VBOX_MANUAL_XML_REFENTRY_FILES))) \
+		$(VBOX_XML_CATALOG) $(VBOX_XML_CATALOG_DOCBOOK) $(MAKEFILE) | $$(dir $$@)
+	$(call MSG_TOOL,xsltproc $(notdir $(firstword $(filter %.xsl,$^))),,$(filter %.xml,$^),$(patsubst %.ts,%,$@))
+	$(QUIET)$(APPEND) -tn "$@" \
+		'/* Autogenerated by $<, do not edit! */' \
+		'' \
+		'#include "VBoxManageBuiltInHelp.h"' \
+		''
+	$(foreach refentry,$(filter %.xml,$^) \
+	,$(NLTAB)$(QUIET)$(call VBOX_XSLTPROC_WITH_CAT, -a+to "$@") $< $(refentry))
+	$(QUIET)$(APPEND) -n "$@" \
+       	'' \
+		'PCRTMSGREFENTRY     g_apHelpEntries[] = ' \
+		'{'
+	$(foreach refentry,$(filter %.xml,$^) \
+		,$(NLTAB)$(QUIET)$(APPEND) -n "$@" \
+		'    &g_$(subst -,_,$(tolower $(patsubst man_%,%,$(notdir $(basename $(refentry)))))), ')
+	$(QUIET)$(APPEND) -n "$@" \
+		'};' \
+		'const uint32_t g_cHelpEntries = RT_ELEMENTS(g_apHelpEntries);' \
+               ''
+	$(QUIET)$(CP) --changed -- "$@" "$(patsubst %.ts,%,$@)"
+# The above APPEND stuff trigger some kind of problem on some boxes when not split up...
+# update: Fixed in SVN (strcpy -> memmove in new_job(), job.c - r2591). Just need to rebuild all platforms.
+
+
+$(VBoxManage_0_OUTDIR)/VBoxManageBuiltInHelp.h.ts \
++| $(VBoxManage_0_OUTDIR)/VBoxManageBuiltInHelp.h: \
+		$(VBOX_DOCBOOK_REFENTRY_TO_H_HELP) \
+		$(addprefix $(VBoxManage_0_OUTDIR)/,$(filter man_VBoxManage-%,$(VBOX_MANUAL_XML_REFENTRY_FILES))) \
+		$(VBOX_XML_CATALOG) $(VBOX_XML_CATALOG_DOCBOOK) $(MAKEFILE) | $$(dir $$@)
+	$(call MSG_TOOL,xsltproc $(notdir $(firstword $(filter %.xsl,$^))),,$(filter %.xml,$^),$(patsubst %.ts,%,$@))
+	$(QUIET)$(APPEND) -tn "$@" \
+		'/* Autogenerated by $<, do not edit! */' \
+               '' \
+               '#ifndef ___VBoxManageBuiltInHelp_h___' \
+               '#define ___VBoxManageBuiltInHelp_h___' \
+               '' \
+               '#include <iprt/message.h>' \
+               '' \
+               'RT_C_DECLS_BEGIN' \
+               '' \
+               'typedef enum HELP_CMD_VBOXMANAGE' \
+               '{' \
+               '    HELP_CMD_VBOXMANAGE_INVALID = 0,'
+	$(foreach refentry,$(filter %.xml,$^) \
+	,$(NLTAB)$(QUIET)$(call VBOX_XSLTPROC_WITH_CAT, -a+to "$@") \
+		--stringparam 'g_sMode' 'cmd' $< $(refentry))
+	$(QUIET)$(APPEND) -n "$@" \
+		'    HELP_CMD_VBOXMANAGE_END' \
+		'} HELP_CMD_VBOXMANAGE;'
+	$(foreach refentry,$(filter %.xml,$^) \
+	,$(NLTAB)$(QUIET)$(call VBOX_XSLTPROC_WITH_CAT, -a+to "$@") \
+		--stringparam 'g_sMode' 'subcmd' $< $(refentry))
+	$(QUIET)$(APPEND) -n "$@" \
+		'' \
+		'extern PCRTMSGREFENTRY g_apHelpEntries[];' \
+		'extern const uint32_t  g_cHelpEntries;' \
+		'' \
+               'RT_C_DECLS_END' \
+		'' \
+		'#endif' \
+               ''
+	$(QUIET)$(CP) --changed -- "$@" "$(patsubst %.ts,%,$@)"
+
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

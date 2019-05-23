@@ -1,0 +1,285 @@
+<ui version="4.0" >
+ <comment>
+ VBox frontends: Qt GUI ("VirtualBox"):
+
+ Copyright (C) 2008-2016 Oracle Corporation
+
+ This file is part of VirtualBox Open Source Edition (OSE), as
+ available from http://www.virtualbox.org. This file is free software;
+ you can redistribute it and/or modify it under the terms of the GNU
+ General Public License (GPL) as published by the Free Software
+ Foundation, in version 2 as it comes in the "COPYING" file of the
+ VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ </comment>
+ <class>UIMachineSettingsUSBFilterDetails</class>
+ <widget class="QDialog" name="UIMachineSettingsUSBFilterDetails" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>350</width>
+    <height>363</height>
+   </rect>
+  </property>
+  <property name="minimumSize" >
+   <size>
+    <width>350</width>
+    <height>0</height>
+   </size>
+  </property>
+  <property name="windowTitle" >
+   <string>USB Filter Details</string>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" >
+    <widget class="QLabel" name="mLbName" >
+     <property name="text" >
+      <string>&amp;Name:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy" >
+      <cstring>mLeName</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" >
+    <widget class="QLineEdit" name="mLeName" >
+     <property name="toolTip" >
+      <string>Holds the filter name.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <widget class="QLabel" name="mLbVendorID" >
+     <property name="text" >
+      <string>&amp;Vendor ID:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy" >
+      <cstring>mLeVendorID</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" >
+    <widget class="QLineEdit" name="mLeVendorID" >
+     <property name="toolTip" >
+      <string>Holds the vendor ID filter. The &lt;i>exact match&lt;/i> string format is &lt;tt>XXXX&lt;/tt> where &lt;tt>X&lt;/tt> is a hexadecimal digit. An empty string will match any value.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="0" >
+    <widget class="QLabel" name="mLbProductID" >
+     <property name="text" >
+      <string>&amp;Product ID:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy" >
+      <cstring>mLeProductID</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" >
+    <widget class="QLineEdit" name="mLeProductID" >
+     <property name="toolTip" >
+      <string>Holds the product ID filter. The &lt;i>exact match&lt;/i> string format is &lt;tt>XXXX&lt;/tt> where &lt;tt>X&lt;/tt> is a hexadecimal digit. An empty string will match any value.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" >
+    <widget class="QLabel" name="mLbRevision" >
+     <property name="text" >
+      <string>&amp;Revision:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy" >
+      <cstring>mLeRevision</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="1" >
+    <widget class="QLineEdit" name="mLeRevision" >
+     <property name="toolTip" >
+      <string>Holds the revision number filter. The &lt;i>exact match&lt;/i> string format is &lt;tt>IIFF&lt;/tt> where &lt;tt>I&lt;/tt> is a decimal digit of the integer part and &lt;tt>F&lt;/tt> is a decimal digit of the fractional part. An empty string will match any value.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0" >
+    <widget class="QLabel" name="mLbManufacturer" >
+     <property name="text" >
+      <string>&amp;Manufacturer:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy" >
+      <cstring>mLeManufacturer</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" >
+    <widget class="QLineEdit" name="mLeManufacturer" >
+     <property name="toolTip" >
+      <string>Holds the manufacturer filter as an &lt;i>exact match&lt;/i> string. An empty string will match any value.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" >
+    <widget class="QLabel" name="mLbProduct" >
+     <property name="text" >
+      <string>Pro&amp;duct:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy" >
+      <cstring>mLeProduct</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1" >
+    <widget class="QLineEdit" name="mLeProduct" >
+     <property name="toolTip" >
+      <string>Holds the product name filter as an &lt;i>exact match&lt;/i> string. An empty string will match any value.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" >
+    <widget class="QLabel" name="mLbSerialNo" >
+     <property name="text" >
+      <string>&amp;Serial No.:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy" >
+      <cstring>mLeSerialNo</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1" >
+    <widget class="QLineEdit" name="mLeSerialNo" >
+     <property name="toolTip" >
+      <string>Holds the serial number filter as an &lt;i>exact match&lt;/i> string. An empty string will match any value.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" >
+    <widget class="QLabel" name="mLbPort" >
+     <property name="text" >
+      <string>Por&amp;t:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy" >
+      <cstring>mLePort</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="1" >
+    <widget class="QLineEdit" name="mLePort" >
+     <property name="toolTip" >
+      <string>Holds the host USB port filter as an &lt;i>exact match&lt;/i> string. An empty string will match any value.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="0" >
+    <widget class="QLabel" name="mLbRemote" >
+     <property name="text" >
+      <string>R&amp;emote:</string>
+     </property>
+     <property name="alignment" >
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+     <property name="buddy" >
+      <cstring>mCbRemote</cstring>
+     </property>
+    </widget>
+   </item>
+   <item row="8" column="1" >
+    <widget class="QComboBox" name="mCbRemote" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="toolTip" >
+      <string>Holds whether this filter applies to USB devices attached locally to the host computer (&lt;i>No&lt;/i>), to a VRDP client's computer (&lt;i>Yes&lt;/i>), or both (&lt;i>Any&lt;/i>).</string>
+     </property>
+    </widget>
+   </item>
+   <item row="9" column="1" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="10" column="0" colspan="2" >
+    <widget class="QIDialogButtonBox" name="mButtonBox" >
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QIDialogButtonBox</class>
+   <extends>QDialogButtonBox</extends>
+   <header>QIDialogButtonBox.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>mButtonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>UIMachineSettingsUSBFilterDetails</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>162</x>
+     <y>339</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>162</x>
+     <y>179</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mButtonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>UIMachineSettingsUSBFilterDetails</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>162</x>
+     <y>339</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>162</x>
+     <y>179</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

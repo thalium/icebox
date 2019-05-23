@@ -1,0 +1,8 @@
+These iPXE sources were taken from git.ipxe.org.
+
+Initial commit: a33298dcda4f9b6037e1c21f3d6f056dba77ab18
+
+Manually applied 238050dfd46e3c4a87329da1d48b4d8dde5af8a1 and
+cba22d36b77da53890bd65fdadd0e63925687af0 manually to make it
+compile with recent gcc versions not allowing the ebp register
+to be clobbered.

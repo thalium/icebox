@@ -1,0 +1,393 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="Security">
+  <title>Security guide</title>
+
+  <sect1>
+    <title>General Security Principles</title>
+
+    <para>The following principles are fundamental to using any application
+      securely.
+      <glosslist>
+        <glossentry>
+          <glossterm>Keep Software Up To Date</glossterm>
+          <glossdef>
+            <para>
+              One of the principles of good security practise is to keep all
+              software versions and patches up to date. Activate the VirtualBox
+              update notification to get notified when a new VirtualBox release
+              is available. When updating VirtualBox, do not forget to update
+              the Guest Additions. Keep the host operating system as well as the
+              guest operating system up to date.
+            </para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Restrict Network Access to Critical Services</glossterm>
+          <glossdef>
+            <para>
+              Use proper means, for instance a firewall, to protect your computer
+              and your guest(s) from accesses from the outside. Choosing the proper
+              networking mode for VMs helps to separate host networking from the
+              guest and vice versa.
+            </para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Follow the Principle of Least Privilege</glossterm>
+          <glossdef>
+            <para>
+              The principle of least privilege states that users should be given the
+              least amount of privilege necessary to perform their jobs. Always execute VirtualBox
+              as a regular user. We strongly discourage anyone from executing
+              VirtualBox with system privileges.
+            </para>
+            <para>
+              Choose restrictive permissions when creating configuration files,
+              for instance when creating /etc/default/virtualbox, see
+              <xref linkend="linux_install_opts"/>. Mode 0600 would be preferred.
+            </para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Monitor System Activity</glossterm>
+          <glossdef>
+            <para>
+              System security builds on three pillars: good security protocols, proper
+              system configuration and system monitoring. Auditing and reviewing audit
+              records address the third requirement. Each component within a system
+              has some degree of monitoring capability. Follow audit advice in this
+              document and regularly monitor audit records.
+            </para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Keep Up To Date on Latest Security Information</glossterm>
+          <glossdef>
+            <para>
+              Oracle continually improves its software and documentation. Check this
+              note yearly for revisions.
+            </para>
+          </glossdef>
+        </glossentry>
+
+      </glosslist>
+    </para>
+  </sect1>
+
+  <sect1>
+    <title>Secure Installation and Configuration</title>
+
+    <sect2>
+      <title>Installation Overview</title>
+      <para>
+        The VirtualBox base package should be downloaded only from a trusted source,
+        for instance the official website
+        <ulink url="http://www.virtualbox.org">http://www.virtualbox.org</ulink>.
+        The integrity of the package should be verified with the provided SHA256
+        checksum which can be found on the official website.
+      </para>
+      <para>
+        General VirtualBox installation instructions for the supported hosts
+        can be found in <xref linkend="installation"/>.
+      </para>
+      <para>
+        On Windows hosts, the installer allows for disabling USB support, support
+        for bridged networking, support for host-only networking and the Python
+        language bindings, see <xref linkend="installation_windows"/>.
+        All these features are enabled by default but disabling some
+        of them could be appropriate if the corresponding functionality is not
+        required by any virtual machine. The Python language bindings are only
+        required if the VirtualBox API is to be used by external Python
+        applications. In particular USB support and support
+        for the two networking modes require the installation of Windows kernel
+        drivers on the host. Therefore disabling those selected features can
+        not only be used to restrict the user to certain functionality but
+        also to minimize the surface provided to a potential attacker.     </para>
+      <para>
+        The general case is to install the complete VirtualBox package. The
+        installation must be done with system privileges. All VirtualBox binaries
+        should be executed as a regular user and never as a privileged user.
+      </para>
+      <para>
+        The Oracle VM VirtualBox extension pack provides additional features
+        and must be downloaded and installed separately, see
+        <xref linkend="intro-installing"/>. As for the base package, the SHA256
+        checksum of the extension pack should be verified. As the installation
+        requires system privileges, VirtualBox will ask for the system
+        password during the installation of the extension pack.
+      </para>
+    </sect2>
+
+    <sect2>
+      <title>Post Installation Configuration</title>
+      <para>
+        Normally there is no post installation configuration of VirtualBox components
+        required. However, on Solaris and Linux hosts it is necessary to configure
+        the proper permissions for users executing VMs and who should be able to
+        access certain host resources. For instance, Linux users must be member of
+        the <emphasis>vboxusers</emphasis> group to be able to pass USB devices to a
+        guest. If a serial host interface should be accessed from a VM, the proper
+        permissions must be granted to the user to be able to access that device.
+        The same applies to other resources like raw partitions, DVD/CD drives
+        and sound devices.
+      </para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Security Features</title>
+    <para>This section outlines the specific security mechanisms offered
+      by VirtualBox.</para>
+
+    <sect2>
+      <title>The Security Model</title>
+      <para>
+        One property of virtual machine monitors (VMMs) like VirtualBox is to encapsulate
+        a guest by executing it in a protected environment, a virtual machine,
+        running as a user process on the host operating system. The guest cannot
+        communicate directly with the hardware or other computers but only through
+        the VMM. The VMM provides emulated physical resources and devices to the
+        guest which are accessed by the guest operating system to perform the required
+        tasks. The VM settings control the resources provided to the guest, for example
+        the amount of guest memory or the number of guest processors, (see
+        <xref linkend="generalsettings"/>) and the enabled features for that guest
+        (for example remote control, certain screen settings and others).
+      </para>
+    </sect2>
+
+    <sect2>
+      <title>Secure Configuration of Virtual Machines</title>
+      <para>
+        Several aspects of a virtual machine configuration are subject to security
+        considerations.</para>
+
+      <sect3>
+        <title>Networking</title>
+        <para>
+          The default networking mode for VMs is NAT which means that
+          the VM acts like a computer behind a router, see
+          <xref linkend="network_nat"/>. The guest is part of a private
+          subnet belonging to this VM and the guest IP is not visible
+          from the outside. This networking mode works without
+          any additional setup and is sufficient for many purposes.
+        </para>
+        <para>
+          If bridged networking is used, the VM acts like a computer inside
+          the same network as the host, see <xref linkend="network_bridged"/>.
+          In this case, the guest has the same network access as the host and
+          a firewall might be necessary to protect other computers on the
+          subnet from a potential malicious guest as well as to protect the
+          guest from a direct access from other computers. In some cases it is
+          worth considering using a forwarding rule for a specific port in NAT
+          mode instead of using bridged networking.
+        </para>
+        <para>
+          Some setups do not require a VM to be connected to the public network
+          at all. Internal networking (see <xref linkend="network_internal"/>)
+          or host-only networking (see <xref linkend="network_hostonly"/>)
+          are often sufficient to connect VMs among each other or to connect
+          VMs only with the host but not with the public network.
+        </para>
+      </sect3>
+
+      <sect3>
+        <title>VRDP remote desktop authentication</title>
+        <para>When using the VirtualBox extension pack provided by Oracle
+          for VRDP remote desktop support, you can optionally use various
+          methods to configure RDP authentication. The "null" method is
+          very insecure and should be avoided in a public network.
+          See <xref linkend="vbox-auth" /> for details.</para>
+      </sect3>
+
+      <sect3 id="security_clipboard">
+        <title>Clipboard</title>
+        <para>
+          The shared clipboard allows users to share data between the host and
+          the guest. Enabling the clipboard in "Bidirectional" mode allows
+          the guest to read and write the host clipboard. The "Host to guest"
+          mode and the "Guest to host" mode limit the access to one
+          direction. If the guest is able to access the host clipboard it
+          can also potentially access sensitive data from the host which is
+          shared over the clipboard.
+        </para>
+        <para>
+          If the guest is able to read from and/or write to the host clipboard
+          then a remote user connecting to the guest over the network will also
+          gain this ability, which may not be desirable. As a consequence, the
+          shared clipboard is disabled for new machines.
+        </para>
+      </sect3>
+
+      <sect3>
+        <title>Shared folders</title>
+        <para>If any host folder is shared with the guest then a remote
+          user connected to the guest over the network can access
+          these files too as the folder sharing mechanism cannot be
+          selectively disabled for remote users.
+        </para>
+      </sect3>
+
+      <sect3>
+        <title>3D graphics acceleration</title>
+        <para>Enabling 3D graphics via the Guest Additions exposes the host
+          to additional security risks; see <xref
+          linkend="guestadd-3d" />.</para>
+      </sect3>
+
+      <sect3>
+        <title>CD/DVD passthrough</title>
+        <para>Enabling CD/DVD passthrough allows the guest to perform advanced
+          operations on the CD/DVD drive, see <xref linkend="storage-cds"/>.
+          This could induce a security risk as a guest could overwrite data
+          on a CD/DVD medium.
+        </para>
+      </sect3>
+
+      <sect3>
+        <title>USB passthrough</title>
+        <para>
+          Passing USB devices to the guest provides the guest full access
+          to these devices, see <xref linkend="settings-usb"/>. For instance,
+          in addition to reading and writing the content of the partitions
+          of an external USB disk the guest will be also able to read and
+          write the partition table and hardware data of that disk.
+        </para>
+      </sect3>
+
+    </sect2>
+
+    <sect2>
+      <title>Configuring and Using Authentication</title>
+
+      <para>The following components of VirtualBox can use passwords for
+        authentication:<itemizedlist>
+
+        <listitem>
+          <para>When using remote iSCSI storage and the storage server
+          requires authentication, an initiator secret can optionally be supplied
+          with the <computeroutput>VBoxManage storageattach</computeroutput>
+          command. As long as no settings password is provided (command line
+          option <screen>--settingspwfile</screen>, this secret is
+          stored <emphasis role="bold">unencrypted</emphasis> in the machine
+          configuration and is therefore potentially readable on the host.
+          See <xref
+          linkend="storage-iscsi" /> and <xref
+          linkend="vboxmanage-storageattach" />.</para>
+        </listitem>
+
+        <listitem>
+          <para>When using the VirtualBox web service to control a VirtualBox
+          host remotely, connections to the web service are authenticated in
+          various ways. This is described in detail in the VirtualBox Software
+          Development Kit (SDK) reference; please see <xref
+          linkend="VirtualBoxAPI" />.</para>
+        </listitem>
+      </itemizedlist></para>
+    </sect2>
+
+    <!--
+    <sect2>
+      <title>Configuring and Using Access Control</title>
+    </sect2>
+
+    <sect2>
+      <title>Configuring and Using Security Audit</title>
+    </sect2>
+
+    <sect2>
+      <title>Congiguring and Using Other Security Features</title>
+    </sect2>
+    -->
+
+    <sect2 id="pot-insecure">
+    <title>Potentially insecure operations</title>
+
+      <para>The following features of VirtualBox can present security
+        problems:<itemizedlist>
+        <listitem>
+          <para>Enabling 3D graphics via the Guest Additions exposes the host
+          to additional security risks; see <xref
+          linkend="guestadd-3d" />.</para>
+        </listitem>
+
+        <listitem>
+          <para>When teleporting a machine, the data stream through which the
+          machine's memory contents are transferred from one host to another
+          is not encrypted. A third party with access to the network through
+          which the data is transferred could therefore intercept that
+          data. An SSH tunnel could be used to secure the connection between
+          the two hosts. But when considering teleporting a VM over an untrusted
+          network the first question to answer is how both VMs can securely
+          access the same virtual disk image(s) with a reasonable performance. </para>
+        </listitem>
+
+        <listitem>
+          <para>When Page Fusion (see <xref linkend="guestadd-pagefusion"/>)
+          is enabled, it is possible that a side-channel opens up that allows
+          a malicious guest to determine the address space layout (i.e. where
+          DLLs are typically loaded) of one other VM running on the same host.
+          This information leak in it self is harmless, however the malicious
+          guest may use it to optimize attack against that VM via unrelated
+          attack vectors.  It is recommended to only enable Page Fusion if you
+          do not think this is a concern in your setup.</para>
+        </listitem>
+
+        <listitem>
+          <para>When using the VirtualBox web service to control a VirtualBox
+          host remotely, connections to the web service (through which the API
+          calls are transferred via SOAP XML) are not encrypted, but use plain
+          HTTP by default. This is a potential security risk! For details about
+          the web service, please see <xref linkend="VirtualBoxAPI" />.</para>
+          <para>The web services are not started by default. Please refer to
+          <xref linkend="vboxwebsrv-daemon"/> to find out how to start this
+          service and how to enable SSL/TLS support. It has to be started as
+          a regular user and only the VMs of that user can be controlled. By
+          default, the service binds to localhost preventing any remote connection.</para>
+        </listitem>
+
+        <listitem>
+          <para>Traffic sent over a UDP Tunnel network attachment is not
+          encrypted. You can either encrypt it on the host network level (with
+          IPsec), or use encrypted protocols in the guest network (such as
+          SSH). The security properties are similar to bridged Ethernet.</para>
+        </listitem>
+
+        <listitem>
+          <para>Because of shortcomings in older Windows versions, using
+          VirtualBox on Windows versions older than Vista with Service Pack 1
+          is not recommended.</para>
+        </listitem>
+
+      </itemizedlist></para>
+    </sect2>
+
+    <sect2>
+      <title>Encryption</title>
+
+      <para>The following components of VirtualBox use encryption to protect
+        sensitive data:<itemizedlist>
+        <listitem>
+          <para>When using the VirtualBox extension pack provided by Oracle
+          for VRDP remote desktop support, RDP data can optionally be
+          encrypted. See <xref linkend="vrde-crypt" /> for details. Only
+          the Enhanced RDP Security method (RDP5.2) with TLS protocol
+          provides a secure connection. Standard RDP Security (RDP4 and
+          RDP5.1) is vulnerable to a man-in-the-middle attack.</para>
+        </listitem>
+      </itemizedlist></para>
+    </sect2>
+  </sect1>
+
+  <!--
+  <sect1>
+    <title>Security Considerations for Developers</title>
+  </sect1>
+  -->
+
+</chapter>

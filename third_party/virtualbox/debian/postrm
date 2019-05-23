@@ -1,0 +1,43 @@
+#!/bin/sh
+
+#
+# Copyright (C) 2006-2012 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+# we can be called with the following arguments (6.5 of Debian policy):
+#  remove:            (our version): remove our package
+#  purge:             (our version): purge our package
+#  upgrade:           (our version): upgrade to a new version
+#  failed-upgrade     (old version): failed to upgrade to a new version
+#  abort-install      (our version): aborted install
+#  abort-upgrade      (old version): aborted upgrade
+
+if [ "$1" = "purge" -a ! -f /etc/init.d/vboxdrv ] ; then
+  update-rc.d vboxdrv remove >/dev/null || exit $?
+fi
+if [ "$1" = "purge" -a ! -f /etc/init.d/vboxnet ] ; then
+  update-rc.d vboxnet remove >/dev/null || exit $?
+fi
+if [ "$1" = "purge" -a ! -f /etc/init.d/vboxweb-service ] ; then
+  update-rc.d vboxweb-service remove >/dev/null || exit $?
+fi
+if [ "$1" = "purge" -a ! -f /etc/init.d/vboxballoonctrl-service ] ; then
+  update-rc.d vboxballoonctrl-service remove >/dev/null || exit $?
+fi
+
+# remove installed extension packs
+if [ "$1" = "purge" ]; then
+  rm -rf /usr/lib/virtualbox/ExtensionPacks/*
+fi
+
+#DEBHELPER#
+
+exit 0

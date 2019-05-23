@@ -1,0 +1,2 @@
+%error "Use iprt/x86.mac instead! This file is just here to ease incremental build pains."
+

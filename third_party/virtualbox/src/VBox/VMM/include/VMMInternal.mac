@@ -1,0 +1,132 @@
+; $Id: VMMInternal.mac $
+;; @file
+; VMM - Internal header file.
+;
+
+;
+; Copyright (C) 2006-2017 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+%include "VBox/asmdefs.mac"
+%include "VBox/sup.mac"
+
+;
+; Determine the default stack switching unless specified explicitly.
+;
+%ifndef VMM_R0_SWITCH_STACK
+ %ifndef VMM_R0_NO_SWITCH_STACK
+  %ifdef RT_OS_DARWIN
+   %define VMM_R0_SWITCH_STACK
+  %endif
+ %endif
+%endif
+
+
+struc VMMR0JMPBUF
+%ifdef RT_ARCH_X86
+    ; traditional jmp_buf
+    .ebx            resd 1
+    .esi            resd 1
+    .edi            resd 1
+    .ebp            resd 1
+    .esp            resd 1
+    .eip            resd 1
+    .eflags         resd 1
+
+    ; additional state and stack info.
+    .fInRing3Call   resd 1
+    .cbSavedStack   resd 1
+    .pvSavedStack   resd 1
+    .SpCheck        resd 1
+    .SpResume       resd 1
+    .SavedEsp       resd 1
+    .SavedEbp       resd 1
+%endif
+%ifdef RT_ARCH_AMD64
+    ; traditional jmp_buf
+    .rbx            resq 1
+ %ifdef RT_OS_WINDOWS
+    .rsi            resq 1
+    .rdi            resq 1
+ %endif
+    .rbp            resq 1
+    .r12            resq 1
+    .r13            resq 1
+    .r14            resq 1
+    .r15            resq 1
+    .rsp            resq 1
+    .rip            resq 1
+ %ifdef RT_OS_WINDOWS
+    .xmm6           resq 2
+    .xmm7           resq 2
+    .xmm8           resq 2
+    .xmm9           resq 2
+    .xmm10          resq 2
+    .xmm11          resq 2
+    .xmm12          resq 2
+    .xmm13          resq 2
+    .xmm14          resq 2
+    .xmm15          resq 2
+ %endif
+    .rflags         resq 1
+
+    ; additional state and stack info.
+    .fInRing3Call   resd 1
+    .cbSavedStack   resd 1
+    .pvSavedStack   resq 1
+    .SpCheck        resq 1
+    .SpResume       resq 1
+    .SavedEsp       resq 1
+    .SavedEbp       resq 1
+%endif
+
+    ; Statistics
+    .cbUsedMax      resd 1
+    .cbUsedAvg      resd 1
+    .cbUsedTotal    resq 1
+    .cUsedTotal     resq 1
+endstruc
+
+
+struc VMMCPU
+
+        .offVMCPU               resd 1
+        .iLastGZRc              resd 1
+        .pbEMTStackR3           RTR3PTR_RES 1
+        .pbEMTStackRC           RTRCPTR_RES 1
+        .pbEMTStackBottomRC     RTRCPTR_RES 1
+
+        .pR0LoggerR3            RTR3PTR_RES 1
+        .pR0LoggerR0            RTR0PTR_RES 1
+
+        .hCtxHook               RTR0PTR_RES 1
+
+        .fInRendezvous          resb 1
+%if HC_ARCH_BITS == 32
+        .afPadding              resb 3+4
+%else
+        .afPadding              resb 7+8
+%endif
+
+        alignb 8
+        .TracerCtx              resb SUPDRVTRACERUSRCTX64_size
+
+        .au32Padding1           resd 3
+
+        .cCallRing3Disabled     resd 1
+        .enmCallRing3Operation  resd 1
+        .rcCallRing3            resd 1
+        .u64CallRing3Arg        resq 1
+        .pfnCallRing3CallbackR0         RTR0PTR_RES 1
+        .pvCallRing3CallbackUserR0      RTR0PTR_RES 1
+        ; .CallRing3JmpBufR0    resb no-can-do
+endstruc
+

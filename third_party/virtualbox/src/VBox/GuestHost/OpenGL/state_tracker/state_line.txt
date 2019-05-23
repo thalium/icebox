@@ -1,0 +1,8 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+:enable:lineSmooth:GL_LINE_SMOOTH
+:enable:lineStipple:GL_LINE_STIPPLE
+:width:width:LineWidth
+lineStipple:stipple:repeat,pattern:LineStipple

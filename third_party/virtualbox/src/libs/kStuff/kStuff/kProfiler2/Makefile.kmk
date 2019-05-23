@@ -1,0 +1,237 @@
+# $Id: Makefile.kmk 29 2009-07-01 20:30:29Z bird $
+## @file
+# kProfiler Mark 2, sub-makefile.
+#
+
+#
+# Copyright (c) 2006-2007 Knut St. Osmundsen <bird-kStuff-spamix@anduin.net>
+#
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation
+# files (the "Software"), to deal in the Software without
+# restriction, including without limitation the rights to use,
+# copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following
+# conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+#
+
+DEPTH ?= ..
+SUB_DEPTH = ..
+include $(PATH_KBUILD)/subheader.kmk
+
+#LIBRARIES  += kPrf2GC kPrf2R0
+DLLS       += kPrf2
+PROGRAMS   += kPrf2Read
+
+
+#
+# Our template.
+#
+TEMPLATE_kPrf2 = kProfiler Template
+if1of ($(BUILD_TARGET), win)
+TEMPLATE_kPrf2_EXTENDS = kStuff
+
+else # Eliminate these
+TEMPLATE_kPrf2_TOOL             = GCC3
+TEMPLATE_kPrf2_TOOL.os2         = GCC3OMF
+TEMPLATE_kPrf2_TOOL.win.x86     = VCC70
+TEMPLATE_kPrf2_TOOL.win.amd64   = VCC80AMD64
+TEMPLATE_kPrf2_ASTOOL           = YASM
+TEMPLATE_kPrf2_ASTOOL.os2       = NASM
+
+TEMPLATE_kPrf2_SDKS.win         = WINPSDK
+
+TEMPLATE_kPrf2_CXXFLAGS.freebsd = -g
+TEMPLATE_kPrf2_CXXFLAGS.linux   = -g
+TEMPLATE_kPrf2_CXXFLAGS.os2     = -g
+TEMPLATE_kPrf2_CXXFLAGS.win     = -Zi -Zl -W3 -GF -GR-
+TEMPLATE_kPrf2_CXXFLAGS.win.amd64 = -GS- #-FAcs
+ifneq ($(BUILD_TYPE),debug)
+TEMPLATE_kPrf2_CXXFLAGS.freebsd+= -O3
+TEMPLATE_kPrf2_CXXFLAGS.linux  += -O3
+TEMPLATE_kPrf2_CXXFLAGS.os2    += -O3
+TEMPLATE_kPrf2_CXXFLAGS.win    += -O2b2
+endif
+
+TEMPLATE_kPrf2_ASFLAGS.freebsd  = -f elf
+TEMPLATE_kPrf2_ASFLAGS.linux    = -f elf
+TEMPLATE_kPrf2_ASFLAGS.os2      = -f omf
+TEMPLATE_kPrf2_ASFLAGS.win.x86  = -f win32 -g cv8
+TEMPLATE_kPrf2_ASFLAGS.win.amd64 = -f win64 -g cv8
+
+TEMPLATE_kPrf2_INCS             = \
+	../include
+
+TEMPLATE_kPrf2_LDFLAGS.freebsd  = -g
+TEMPLATE_kPrf2_LDFLAGS.linux    = -g
+TEMPLATE_kPrf2_LDFLAGS.os2      = -g
+TEMPLATE_kPrf2_LDFLAGS.win      = /DEBUG
+
+TEMPLATE_kPrf2_LIBS.freebsd     =
+TEMPLATE_kPrf2_LIBS.linux       =
+TEMPLATE_kPrf2_LIBS.os2         =
+TEMPLATE_kPrf2_LIBS.win         = \
+	$(PATH_SDK_WINPSDK_LIB)/psapi.Lib
+TEMPLATE_kPrf2_LIBS.win.x86     = \
+	$(PATH_TOOL_VCC70_LIB)/libcmt.lib \
+	$(PATH_TOOL_VCC70_LIB)/oldnames.lib
+TEMPLATE_kPrf2_LIBS.win.amd64   = \
+	$(PATH_TOOL_VCC80AMD64_LIB)/oldnames.lib \
+	$(PATH_TOOL_VCC80AMD64_LIB)/libcmt.lib
+endif
+
+
+#
+# kPrf2 - The profiler module.
+#
+kPrf2_TEMPLATE      = kPrf2
+kPrf2_DEFS.x86      = KPRF_BITS=32
+kPrf2_DEFS.amd64    = KPRF_BITS=64
+kPrf2_LDFLAGS.win.amd64 = -Entry:DllMain
+
+kPrf2_SOURCES       = \
+	kProfileR3.cpp
+#	kProfileGC.cpp
+#	kProfileR0.cpp
+
+kPrf2_SOURCES.win = \
+	dllmain-win.cpp \
+	kPrf2WinApiWrapperHlp.c \
+	prf$(BUILD_TARGET_ARCH)msc.asm \
+	kPrf2-win-$(BUILD_TARGET_ARCH).def
+prfx86msc.asm_DEFS.win.x86 = \
+	KPRF_ENTER=_KPrfEnter \
+	KPRF_LEAVE=_KPrfLeave
+prfamd64msc.asm_DEFS.win.amd64 = \
+	KPRF_ENTER=KPrfEnter \
+	KPRF_LEAVE=KPrfLeave
+
+#
+# kPrf2Read - The read & producer of statistics.
+#
+kPrf2Read_TEMPLATE = kStuffEXE
+kPrf2Read_SOURCES  = \
+	kPrf2Read.cpp
+kPrf2Read_LIBS  = \
+	$(PATH_LIB)/kDbgStatic$(SUFF_LIB) \
+	$(PATH_LIB)/kRdrStatic$(SUFF_LIB) \
+	$(PATH_LIB)/kHlpCRTStatic$(SUFF_LIB)
+
+#
+# kPrf2WinApiWrappers
+#
+IMPORT_LIBS.win += kPrf2WinApiWrappersImp
+kPrf2WinApiWrappersImp_TEMPLATE = kStuffEXE
+kPrf2WinApiWrappersImp_SOURCES.x86   = kPrf2WinApiWrappersImp-x86.def
+kPrf2WinApiWrappersImp_SOURCES.amd64 = kPrf2WinApiWrappersImp-amd64.def
+
+DLLS.win += kPrf2WinApiWrappers
+kPrf2WinApiWrappers_TEMPLATE = kPrf2
+kPrf2WinApiWrappers_CFLAGS = -GH -Gh
+kPrf2WinApiWrappers_LDFLAGS.win.x86 = -Entry:DllMain@12
+kPrf2WinApiWrappers_LDFLAGS.win.amd64 = -Entry:DllMain
+kPrf2WinApiWrappers_SOURCES = \
+	kPrf2WinApiWrappers.c \
+	kPrf2WinApiWrappersImp-$(BUILD_TARGET_ARCH).def
+kPrf2WinApiWrappers_LIBS = \
+	$(PATH_kPrf2)/kPrf2.lib
+
+ifeq (0,1)
+kPrf2WinApiWrappers-kernel32.h:
+	$(SED) -f kPrf2WinApi-pre.sed --output $@.tmp \
+		$(PATH_SDK_WINPSDK_INC)/WinBase.h \
+		$(PATH_SDK_WINPSDK_INC)/WinCon.h \
+		$(PATH_SDK_WINPSDK_INC)/WinNLS.h \
+		$(PATH_SDK_WINPSDK_INC)/WinVer.h \
+		$(PATH_SDK_WINPSDK_INC)/WinNT.h \
+		$(PATH_SDK_WINPSDK_INC)/TlHelp32.h
+	$(APPEND) $@.tmp 'BOOL WINAPI ReplaceFile( LPCSTR lpReplacedFileName, LPCSTR lpReplacementFileName, LPCSTR lpBackupFileName, DWORD dwReplaceFlags, LPVOID lpExclude, LPVOID lpReserved );'
+	$(APPEND) $@.tmp 'BOOL WINAPI SetConsoleCursor( PVOID pvUnknown1, PVOID pvUnknown2 );'
+	$(APPEND) $@.tmp 'LPCH WINAPI GetEnvironmentStringsA( VOID );'
+	$(APPEND) $@.tmp 'BOOL WINAPI GetBinaryType( LPCSTR lpApplicationName, LPDWORD lpBinaryType );'
+	$(APPEND) $@.tmp 'WORD NTAPI RtlCaptureStackBackTrace( DWORD FramesToSkip, DWORD FramesToCapture, PVOID * BackTrace, PDWORD BackTraceHash );'
+	$(APPEND) $@.tmp 'PVOID RtlFillMemory( PVOID pv, int ch, SIZE_T cb );'
+	$(APPEND) $@.tmp 'PVOID RtlZeroMemory( PVOID pv, SIZE_T cb );'
+	$(APPEND) $@.tmp 'PVOID RtlMoveMemory( PVOID pvDst, PVOID pvSrc, SIZE_T cb );'
+	$(APPEND) $@.tmp 'VOID NTAPI RtlUnwind( PVOID TargetFrame, PVOID TargetIp, PEXCEPTION_RECORD ExceptionRecord, PVOID ReturnValue );'
+	$(APPEND) $@.tmp 'VOID NTAPI RtlUnwindEx( FRAME_POINTERS TargetFrame, PVOID TargetIp, PEXCEPTION_RECORD ExceptionRecord, PVOID ReturnValue, PCONTEXT ContextRecord, PUNWIND_HISTORY_TABLE HistoryTable );'
+	$(APPEND) $@.tmp 'ULONGLONG WINAPI RtlVirtualUnwind( ULONG HandlerType, ULONGLONG ImageBase, ULONGLONG ControlPC, PRUNTIME_FUNCTION FunctionEntry, PCONTEXT ContextRecord, PBOOLEAN InFunction, PFRAME_POINTERS EstablisherFrame, PKNONVOLATILE_CONTEXT_POINTERS ContextPointers );'
+	$(APPEND) $@.tmp 'PVOID WINAPI RtlPcToFileHeader( PVOID PcValue, PVOID * BaseOfImage );'
+	$(APPEND) $@.tmp 'PVOID WINAPI RtlLookupFunctionEntry( ULONGLONG ControlPC, PULONGLONG ImageBase, PULONGLONG TargetGp );'
+	$(APPEND) $@.tmp 'void WINAPI RtlRaiseException(PEXCEPTION_RECORD pXcpRec);'
+	$(APPEND) $@.tmp 'int WINAPI uaw_lstrcmpW( LPCUWSTR lpString1, LPCUWSTR lpString2 );'
+	$(APPEND) $@.tmp 'int WINAPI uaw_lstrcmpiW( LPCUWSTR lpString1, LPCUWSTR lpString2 );'
+	$(APPEND) $@.tmp 'int WINAPI uaw_lstrlenW( LPCUWSTR lpString );'
+	$(APPEND) $@.tmp 'LPUWSTR WINAPI uaw_wcschr( LPCUWSTR lpString, WCHAR wc );'
+	$(APPEND) $@.tmp 'LPUWSTR WINAPI uaw_wcscpy( LPUWSTR lpDst, LPCUWSTR lpSrc );'
+	$(APPEND) $@.tmp 'int WINAPI uaw_wcsicmp( LPCUWSTR lp1, LPCUWSTR lp2 );'
+	$(APPEND) $@.tmp 'SIZE_T WINAPI uaw_wcslen( LPCUWSTR lp1 );'
+	$(APPEND) $@.tmp 'LPUWSTR WINAPI uaw_wcsrchr( LPCUWSTR lpString, WCHAR wc );'
+	$(APPEND) $@.tmp 'LPSTR WINAPI lstrcat( LPSTR lpString1, LPCSTR lpString2 );'
+	$(APPEND) $@.tmp 'int WINAPI lstrcmp( LPCSTR lpString1, LPCSTR lpString2 );'
+	$(APPEND) $@.tmp 'int WINAPI lstrcmpi( LPCSTR lpString1, LPCSTR lpString2 );'
+	$(APPEND) $@.tmp 'LPSTR WINAPI lstrcpy( LPSTR lpString1, LPCSTR lpString2 );'
+	$(APPEND) $@.tmp 'LPSTR WINAPI lstrcpyn( LPSTR lpString1, LPCSTR lpString2, int iMaxLength );'
+	$(APPEND) $@.tmp 'int WINAPI lstrlen( LPCSTR lpString );'
+	$(SED) -f kPrf2WinApi-gencode.sed --output $@ $@.tmp
+	$(RM) -f $@.tmp
+
+kPrf2WinApiWrappersImp-$(KBUILD_TARGET_ARCH).def:
+	$(RM) -f $@
+	$(PATH_TOOL_$(TEMPLATE_kStuff_TOOL.win.$(BUILD_TARGET_ARCH))_BIN)/dumpbin.exe /EXPORTS /OUT:$@.tmp $(PATH_SDK_WINPSDK_LIB)/Kernel32.lib
+	$(SED) -f kPrf2WinApi-dumpbin.sed --output $@.tmp2 $@.tmp
+	$(APPEND) $@ 'LIBRARY kPrf2WinApiWrappers'
+	$(APPEND) $@ 'EXPORTS'
+	$(SED) -f kPrf2WinApi-genimp.sed --append $@ $@.tmp2
+	$(RM) -f $@.tmp $@.tmp2
+endif
+
+#
+# A simple testcase.
+#
+PROGRAMS.win.x86 += tst
+tst_TOOL = VCC70
+tst_SDKS = WINPSDK
+tst_CFLAGS = -GH -Gh -Zi -Zl -GR- -GX- -GF- -W3 -wd4244
+tst_SOURCES = tst.c
+tst.c_CFLAGS = -Od
+tst_LDFLAGS = /DEBUG
+tst_LIBS = \
+	$(PATH_TOOL_VCC70_LIB)/msvcrt.lib \
+	$(PATH_TOOL_VCC70_LIB)/msvcprt.lib \
+	$(PATH_TOOL_VCC70_LIB)/oldnames.lib \
+	$(PATH_kPrf2)/kPrf2.lib
+
+PROGRAMS += tstlongjmp
+tstlongjmp_TEMPLATE = kStuffEXE
+tstlongjmp_CFLAGS.win = -GH -Gh -Zi
+tstlongjmp_SOURCES = tstlongjmp.c
+tstlongjmp_LIBS = \
+	$(PATH_kPrf2)/kPrf2.lib
+
+# Generate the rules
+include $(PATH_KBUILD)/subfooter.kmk
+
+
+#
+# Aliases for .cpp.h files so we can more easily do syntax checking from the editor.
+#
+CORE := $(wildcard *core*.cpp.h *core*.h.h)
+$(CORE:.h=.o) $(CORE:.h=.obj) : kProfileR3.o
+
+READ := $(wildcard *read*.cpp.h *read*.h.h)
+$(READ:.h=.o) $(READ:.h=.obj) : kPrf2Read.o
+

@@ -1,0 +1,206 @@
+<ui version="4.0">
+ <comment>
+ VBox frontends: Qt GUI ("VirtualBox"):
+
+ Copyright (C) 2009-2016 Oracle Corporation
+
+ This file is part of VirtualBox Open Source Edition (OSE), as
+ available from http://www.virtualbox.org. This file is free software;
+ you can redistribute it and/or modify it under the terms of the GNU
+ General Public License (GPL) as published by the Free Software
+ Foundation, in version 2 as it comes in the "COPYING" file of the
+ VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ </comment>
+ <class>UIGlobalSettingsNetworkDetailsNAT</class>
+ <widget class="QWidget" name="UIGlobalSettingsNetworkDetailsNAT">
+  <property name="windowTitle">
+   <string>NAT Network Details</string>
+  </property>
+  <layout class="QGridLayout">
+   <item row="0" column="0">
+    <widget class="QCheckBox" name="m_pCheckboxNetwork">
+     <property name="text">
+      <string>&amp;Enable Network</string>
+     </property>
+     <property name="toolTip">
+      <string>When checked, this network will be enabled.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QWidget" name="m_pContainerOptions">
+     <layout class="QGridLayout">
+      <item row="0" column="0">
+       <spacer>
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType">
+         <enum>QSizePolicy::Fixed</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="0" column="1">
+       <widget class="QLabel" name="m_pLabelNetworkName">
+        <property name="text">
+         <string>Network &amp;Name:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>m_pEditorNetworkName</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" colspan="2">
+       <widget class="QLineEdit" name="m_pEditorNetworkName">
+        <property name="toolTip">
+         <string>Holds the name for this network.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="QLabel" name="m_pLabelNetworkCIDR">
+        <property name="text">
+         <string>Network &amp;CIDR:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>m_pEditorNetworkCIDR</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" colspan="2">
+       <widget class="QLineEdit" name="m_pEditorNetworkCIDR">
+        <property name="toolTip">
+         <string>Holds the CIDR for this network.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="1">
+       <widget class="QLabel" name="m_pLabelOptionsAdvanced">
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignTop</set>
+        </property>
+        <property name="text">
+         <string>Network Options:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="2">
+       <widget class="QCheckBox" name="m_pCheckboxSupportsDHCP">
+        <property name="text">
+         <string>Supports &amp;DHCP</string>
+        </property>
+        <property name="toolTip">
+         <string>When checked, this network will support DHCP.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2">
+       <widget class="QCheckBox" name="m_pCheckboxSupportsIPv6">
+        <property name="text">
+         <string>Supports &amp;IPv6</string>
+        </property>
+        <property name="toolTip">
+         <string>When checked, this network will support IPv6.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="2">
+       <widget class="QCheckBox" name="m_pCheckboxAdvertiseDefaultIPv6Route">
+        <property name="text">
+         <string>Advertise Default IPv6 &amp;Route</string>
+        </property>
+        <property name="toolTip">
+         <string>When checked, this network will be advertised as the default IPv6 route.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2">
+       <widget class="QPushButton" name="m_pButtonPortForwarding">
+        <property name="toolTip">
+         <string>Displays a window to configure port forwarding rules.</string>
+        </property>
+        <property name="text">
+         <string>&amp;Port Forwarding</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2">
+    <spacer>
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QIDialogButtonBox" name="m_pButtonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::NoButton|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QIDialogButtonBox</class>
+   <extends>QDialogButtonBox</extends>
+   <header>QIDialogButtonBox.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>m_pCheckboxNetwork</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_pContainerOptions</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>m_pCheckboxSupportsIPv6</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_pCheckboxAdvertiseDefaultIPv6Route</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+  <connection>
+   <sender>m_pButtonPortForwarding</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>UIGlobalSettingsNetworkDetailsNAT</receiver>
+   <slot>sltEditPortForwarding()</slot>
+  </connection>
+  <connection>
+   <sender>m_pButtonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>UIGlobalSettingsNetworkDetailsNAT</receiver>
+   <slot>accept()</slot>
+  </connection>
+  <connection>
+   <sender>m_pButtonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>UIGlobalSettingsNetworkDetailsNAT</receiver>
+   <slot>reject()</slot>
+  </connection>
+ </connections>
+</ui>
+

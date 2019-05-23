@@ -1,0 +1,36 @@
+# $Id: Version.kmk $
+## @file
+#
+# The VirtualBox version.
+#
+# This file gets included by the global Config.kmk.
+#
+
+#
+# Copyright (C) 2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+# Major version.
+VBOX_VERSION_MAJOR = 5
+# Minor version.
+VBOX_VERSION_MINOR = 2
+# This is the current build number. It should be increased every time we publish a
+# new build. The define is available in every source file. Only even build numbers
+# will be published, odd numbers are set during development.
+VBOX_VERSION_BUILD = 0
+# This can be overridden in LocalConfig.kmk or elsewhere.
+# For the convention, see checks near the end of Config.kmk.
+VBOX_BUILD_PUBLISHER =
+# Just the BETA[n],ALPHA[n],RC[n] indicators. Set to empty string for release.
+VBOX_VERSION_PRERELEASE =
+# Force a release-type build with exactly matching Additions etc, even if
+# our numbering does not say this is a release build, by setting this non-empty.
+VBOX_RELEASE_EXACT_MATCH =

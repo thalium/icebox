@@ -1,0 +1,45 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the vboxsf (linux shared folders module).
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+
+#
+# Populate FILES_VBOXSF_NOBIN
+#
+INSTALLS += vboxsf-mod
+include $(PATH_SUB_CURRENT)/files_vboxsf
+vboxsf-mod_INST         = $(INST_ADDITIONS)src/vboxsf/
+vboxsf-mod_SOURCES      = \
+	$(subst $(DQUOTE),,$(FILES_VBOXSF_NOBIN))
+vboxsf-mod_EXEC_SOURCES = \
+	$(subst $(DQUOTE),,$(FILES_VBOXSF_BIN))
+
+
+#
+# The mount util.
+#
+PROGRAMS += mount.vboxsf
+mount.vboxsf_TEMPLATE    = NewVBoxGuestR3Exe
+mount.vboxsf_DEFS        = _GNU_SOURCE
+mount.vboxsf_SOURCES     = \
+	mount.vboxsf.c \
+	vbsfmount.c
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

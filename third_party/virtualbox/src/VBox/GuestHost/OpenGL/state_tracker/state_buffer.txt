@@ -1,0 +1,34 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+#-:enable:*glAble able[2];
+#-:enable:*able[0] = diff_api.Disable;
+#-:enable:*able[1] = diff_api.Enable;
+#-:enable:*able[to->depthTest](GL_DEPTH_TEST);
+#-:enable:*FILLDIRTY(b->enable);
+#-:enable:*FILLDIRTY(b->dirty);
+#+:enable:depthTest:GL_DEPTH_TEST
+:enable:depthTest:GL_DEPTH_TEST
+:enable:blend:GL_BLEND
+:enable:alphaTest:GL_ALPHA_TEST
+:enable:logicOp:GL_COLOR_LOGIC_OP
+:enable:indexLogicOp:GL_INDEX_LOGIC_OP
+:enable:dither:GL_DITHER
+:alphaFunc:alphaTestFunc,alphaTestRef:AlphaFunc
+:depthFunc:depthFunc:DepthFunc
+:blendFunc:blendSrcRGB,blendDstRGB:BlendFunc
+:blendFuncSeparate:blendSrcRGB,blendDstRGB,blendSrcA,blendDstA:BlendFuncSeparateEXT
+:logicOp:logicOpMode:LogicOp
+:indexLogicOp:logicOpMode:LogicOp
+:drawBuffer:drawBuffer:DrawBuffer
+:readBuffer:readBuffer:ReadBuffer
+:indexMask:indexWriteMask:IndexMask
+:colorWriteMask:colorWriteMask|r,g,b,a:ColorMask
+:clearColor:colorClearValue|r,g,b,a:ClearColor
+:clearIndex:indexClearValue:ClearIndex
+:clearDepth:depthClearValue:ClearDepth
+:clearAccum:accumClearValue|r,g,b,a:ClearAccum
+:depthMask:depthMask:DepthMask
+:blendEquation:blendEquation:BlendEquationEXT
+:blendColor:blendColor|r,g,b,a:BlendColorEXT

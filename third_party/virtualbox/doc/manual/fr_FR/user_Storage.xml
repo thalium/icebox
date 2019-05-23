@@ -1,0 +1,959 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="storage">
+  <title>Le stockage virtuel</title>
+
+  <para>Comme la machine virtuelle s'attendra, la plupart du temps, à voir un
+  disque dur construit dans son ordinateur virtuel, VirtualBox doit pouvoir présenter
+  du "vrai" stockage à l'invité comme un disque dur virtuel. Il existe aujourd'hui
+  trois méthodes pour faire cela&#xA0;:</para>
+
+  <orderedlist>
+    <listitem>
+      <para>Le plus souvent, VirtualBox utilisera de gros fichiers images sur un
+      vrai disque dur et les présentera à un invité comme des disques durs virtuels.
+      Cela est décrit au <xref linkend="vdidetails" />.</para>
+    </listitem>
+
+    <listitem>
+      <para>Sinon, si vous avez des serveurs de stockage iSCSI, vous pouvez connecter
+      un tel serveur à VirtualBox comme le décrit le <xref
+      linkend="storage-iscsi" />.</para>
+    </listitem>
+
+    <listitem>
+      <para>Enfin, comme fonction avancée, vous pouvez permettre à une machine
+      virtuelle d'accéder directement à un des disques durs de votre hôte&#xA0;;
+      cette fonction avancée est décrite au <xref linkend="rawdisk" />.</para>
+    </listitem>
+  </orderedlist>
+
+  <para>Chaque périphérique virtuel (fichier image, cible iSCSI ou disque physique)
+  devra être connecté au contrôleur de disque dur virtuel présenté par VirtualBox
+  à une machine virtuelle. Ceci est expliqué à la prochaine
+  section.</para>
+
+  <sect1 id="harddiskcontrollers">
+    <title>Les contrôleurs de disque dur&#xA0;: IDE, SATA (AHCI), SCSI, SAS</title>
+
+    <para>Dans un vrai PC, les disques durs et les lecteurs de CD/DVD sont
+    connectés à un périphérique appelé le contrôleur de disque dur, qui pilote les
+    opérations du disque dur et les transferts de données. VirtualBox peut émuler
+    les quatre types contrôleurs de disque les plus courants qu'on trouve en
+    général dans les PCs d'aujourd'hui&#xA0;: IDE, SATA (AHCI), SCSI et
+    SAS.<footnote>
+        <para>Le support SATA a été ajouté avec VirtualBox 1.6&#xA0;; le support SCSI
+        expérimental a été ajouté à la 2.1 et complètement implémenté avec la
+        2.2. En général, les connexions de stockage ont été rendues beaucoup plus
+        flexibles avec VirtualBox 3.1&#xA0;; voir ci-dessous. Le support pour
+        le contrôleur LSI Logic SAS a été ajouté avec
+        VirtualBox 3.2.</para>
+      </footnote><itemizedlist>
+        <listitem>
+          <para>Les contrôleurs <emphasis role="bold">IDE (ATA)</emphasis> sont
+          une extension très avancée de la rétrocompatibilité du contrôleur de
+          disque dur dans les PC/AT IBM (1984). Au début, cette interface
+          ne fonctionnait qu'avec des disques durs mais elle a ensuite été
+          étendue aussi au support des lecteurs CD-ROM et d'autres types de
+          médias amovibles. Dans des PCs physiques, ce standard utilise des
+          nappes de  40 ou 80 fils. Chaque câble peut connecter deux périphériques
+          à un contrôleur, ce qu'on appelait traditionnellement le "maître" et "l'esclave".
+          Les PCs classiques avaient deux connecteurs par câbles, le support
+          jusqu'à quatre périphériques était donc classique.</para>
+
+          <para>Dans VirtualBox, chaque machine virtuelle peut avoir un contrôleur IDE
+          activé, ce qui vous donne jusqu'à quatre périphériques de stockage virtuels
+          connectables à la machine. (Par défaut, un des quatre -- le maître
+          secondaire -) est préconfiguré pour être le lecteur CD/DVD de la
+          machine virtuelle, mais ceci peut être modifié.<footnote>
+              <para>L'affectation du lecteur CD/DVD de la machine au maître
+              secondaire était figé avant VirtualBox 3.1&#xA0;; il est maintenant
+              modifiable et le lecteur peut être sur d'autres slots du contrôleur
+              IDE et il peut y avoir plus de deux lecteurs.</para>
+            </footnote>)</para>
+
+          <para>Donc, même si votre système d'exploitation invité ne supporte
+          pas les périphériques SCSI ou SATA, il devrait toujours pouvoir voir
+          un contrôleur IDE. 
+          </para>
+
+          <para>Vous pouvez aussi sélectionner le type exact de contrôleur IDE 
+          que VirtualBox devrait matériellement présenter à la machine virtuelle
+          (PIIX3, PIIX4 ou ICH6). Il n'y a pas de différence en termes de performance,
+          mais si vous importez une machine virtuelle d'un autre produit de 
+          virtualisation, le système d'exploitation de cette machine peut attendre
+          un type de contrôleur particulier et planter s'il n'est pas trouvé.</para>
+
+          <para>Après avoir créé une nouvelle machine virtuelle avec l'assistant
+          "Nouvelle Machine virtuelle" de l'interface graphique, vous verrez généralement
+          un contrôleur IDE dans les paramètres de "Stockage" de la machine, auquel
+          le lecteur CD/DVD sera connecté, sur un des quatre 
+          ports du contrôleur.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Serial ATA (SATA)</emphasis> est un 
+          standard récent introduit en 2003. Par rapport à l'IDE, il supporte
+          plus de périphériques par contrôleur et à bien plus haute vitesse. De
+          plus, avec du matériel physique, les périphériques peuvent être ajoutés
+          et supprimés pendant que le système fonctionne. L'interface standard
+          des contrôleurs SATA est appelé 
+          Advanced Host Controller Interface (<emphasis
+          role="bold">AHCI</emphasis>).</para>
+
+          <para>Comme un vrai contrôleur SATA, le contrôleur SATA virtuel de
+          VirtualBox travaille plus vite et consomme moins de ressources processeur
+          que le contrôleur IDE virtuel. De plus, il vous permet de connecter 
+          jusqu'à 30 disques durs virtuels à une machine au lieu de seulement 
+          trois comme avec le contrôleur IDE de VirtualBox (avec le lecteur DVD
+          déjà connecté).</para>
+
+          <para>Pour cette raison, à partir de la version 3.2 et selon le système
+          d'exploitation invité sélectionné, VirtualBox utilise SATA par défaut
+          pour les machines virtuelles nouvellement créées. Un contrôleur virtuel
+          SATA est créé par défaut et le disque par défaut créé avec une nouvelle
+          VM est connecté à ce contrôleur.<warning>
+              <para>Tout le contrôleur SATA et les disques virtuels qui s'y connectent
+              (y compris ceux en mode de compatibilité IDE) ne seront pas vus par
+              les systèmes d'exploitation n'ayant pas de support périphérique
+              pour AHCI. En particulier, <emphasis role="bold">il n'y a pas de
+              support pour AHCI dans Windows avant Windows Vista</emphasis>, donc
+              Windows XP (même SP3) ne verra pas de tels disques sauf si vous
+              installez des pilotes supplémentaires. Il est possible de passer
+              de l'IDE à SATA après l'installation en installant les pilotes SATA
+              et en changeant le type de contrôleur dans la boîte de dialogue des
+              paramètres de la VM.<footnote>
+                  <para>VirtualBox recommande les pilotes Intel Matrix Storage 
+                  qui sont téléchargeables sur <ulink
+                  url="http://downloadcenter.intel.com/Product_Filter.aspx?ProductID=2101">http://downloadcenter.intel.com/Product_Filter.aspx?ProductID=2101</ulink>.</para>
+                </footnote></para>
+            </warning></para>
+
+          <para>Pour ajouter un contrôleur SATA à une machine pour laquelle il n'a
+          pas été activé par défaut (soit parce qu'elle a été créée par une
+          version antérieure VirtualBox, soit parce que SATA n'est pas supporté 
+          par défaut par le système d'exploitation invité sélectionné), allez 
+          dans l'onglet "Stockage" de la boîte de dialogue des paramètres de la
+          machine, cliquez sur le bouton "Ajouter un contrôleur" sous la case
+          "Arborescence de stockage" puis sélectionnez "Ajouter un contrôleur
+          SATA". Après quoi, le contrôleur traditionnel apparaîtra comme un
+          périphérique PCI distinct dans la machine virtuelle et vous pouvez y ajouter
+          des disques virtuels.</para>
+
+          <para>Pour modifier les paramètres du mode de compatibilité IDE pour
+          le contrôleur SATA, merci de voir <xref
+          linkend="vboxmanage-storagectl" />.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">SCSI</emphasis> est un autre standard 
+          industriel signifiant "Small Computer System Interface".
+          SCSI a été standardisé dès 1986 comme une interface générique pour
+          transférer des données entre tous les types de périphériques, y compris
+          ceux de stockage. Aujourd'hui, SCSI est encore utilisé pour connecter
+          des disques durs et des lecteurs à bandes, mais il est généralement devenu
+          un matériel de convenance. On l'utilise encore souvent sur des stations
+          de travail et des serveurs à haute performance.</para>
+
+          <para>En priorité pour des raisons de compatibilité avec d'autres
+          logiciels de virtualisation, VirtualBox supporte en option les contrôleurs
+          LSI Logic et BusLogic SCSI, chacun d'entre eux pouvant gérer jusqu'à
+          15 disques durs virtuels.</para>
+
+          <para>Pour activer un contrôleur SCSI, sur l'onglet "Stockage" de la
+          boîte de dialogue des paramètres d'une machine virtuelle, cliquez sur
+          le bouton "Ajouter un contrôleur" sous la case "Arborescence de
+          stockage" puis sélectionnez "Ajouter un contrôleur SCSI". Après quoi,
+          le contrôleur supplémentaire apparaîtra comme périphérique PCI distinct
+          dans la machine virtuelle.<warning>
+              <para>Comme avec les autres types de contrôleurs, un contrôleur SCSI
+              ne sera vu que par les systèmes d'exploitation ayant un support
+              de ce périphérique. 
+              Windows 2003 et supérieur incluent des pilotes pour le contrôleur
+              LSI Logic, tandis que Windows NT 4.0 et Windows 2000 incluent
+              des pilotes pour le contrôleur BusLogic. Windows XP n'inclut
+              aucun pilote.</para>
+            </warning></para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Serial Attached SCSI (SAS)</emphasis> est
+          un autre standard de bus qui utilise le jeu de commandes SCSI. Mais
+          contrairement au SCSI, avec les périphériques physiques, on utilise
+          des câbles série au lieu de ceux parallèles, ce qui simplifie la
+          connexion de périphériques physiques. D'une certaine manière, SAS 
+          est donc au SCSI ce que SATA est à l'IDE: il permet des connexions
+          plus fiables et plus rapides.</para>
+
+          <para>Pour supporter des invités de haut niveau exigeant des contrôleurs
+          SAS, VirtualBox émule un contrôleur a LSI Logic SAS qui peut être
+          activé de la même façon qu'un contrôleur SCSI. Pour le moment, on
+          peut connecter jusqu'à huit périphériques au contrôleur SAS.</para>
+
+          <warning>
+            <para>Comme avec SATA, le contrôleur SAS ne sera vu que par les systèmes
+            d'exploitation supportant ce périphérique. En particulier,
+            <emphasis role="bold">il n'y a pas de support de SAS dans Windows
+            avant Windows Vista</emphasis>, donc Windows XP (même SP3) ne
+            verra pas de tels ditques, sauf si vous installez des pilotes supplémentaires.</para>
+          </warning>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>En résumé, VirtualBox vous offre les catégories de connecteur (slot) de stockage 
+    virtuels suivantes&#xA0;:<orderedlist>
+        <listitem>
+          <para>quatre slots attachés au contrôleur IDE traditionnel, qui sont
+          toujours présents (un d'eux est en général un lecteur de CD/DVD 
+          virtuel)&#xA0;;</para>
+        </listitem>
+
+        <listitem>
+          <para>30 slots attachés au contrôleur SATA s'il est activé et si votre
+          système d'exploitation invité le supporte&#xA0;;</para>
+        </listitem>
+
+        <listitem>
+          <para>15 slots attachés au contrôleur SCSI s'il est activé et si le
+          système d'exploitation invité peut le voir&#xA0;;</para>
+        </listitem>
+
+        <listitem>
+          <para>huit slots attachés au contrôleur SAS, s'il est activé et si le
+          système d'exploitation invité peut le voir&#xA0;;</para>
+        </listitem>
+      </orderedlist></para>
+
+    <para>Étant donné le vaste choix de contrôleurs de stockage, il se peut que
+    vous vous demandiez lequel choisir. En général, vous devriez éviter l'IDE,
+    à moins que ce soit le seul contrôleur
+    supporté par votre invité. Que vous utilisiez SATA, SCSI ou SAS ne présente
+    pas de vraie différence. La variété des contrôleurs n'est fournie par
+    VirtualBox que pour des raisons de compatibilité avec le matériel existant
+    et d'autres hyperviseurs.</para>
+  </sect1>
+
+  <sect1 id="vdidetails">
+    <title>Fichiers images de disque (VDI, VMDK, VHD, HDD)</title>
+
+    <para>Les fichiers images de disque résident sur le système hôte sont vus
+    par les systèmes invités comme des disques durs d'une certaine géométrie.
+    Quand un système d'exploitation invité lit ou écrit sur un disque dur,
+    VirtualBox redirige la requête vers le fichier image.</para>
+
+    <para>Comme un disque physique, un disque virtuel est d'une taille (capacité),
+    qui doit être indiquée quand le fichier image est créé. Mais contrairement
+    à un disque physique, VirtualBox vous permet d'étendre un fichier image
+    après l'avoir créé, même s'il contient déjà des données (voir <xref
+    linkend="vboxmanage-modifyvdi" /> pour les détails.<footnote>
+        <para>Le redimensionnement d'image a été ajouté avec VirtualBox 4.0.</para>
+      </footnote></para>
+
+    <para>VirtualBox supporte quatre variantes de fichiers images de disque&#xA0;:<itemizedlist>
+        <listitem>
+          <para>Normalement, VirtualBox utilise son propre format de container 
+          pour les disques durs invités -- des fichiers Virtual Disk Image (VDI).
+          En particulier,ce format sera utilisé quand vous créerez une nouvelle
+          machine virtuelle avec un nouveau
+          disque.</para>
+        </listitem>
+
+        <listitem>
+          <para>VirtualBox supporte aussi complètement le format de
+          container VMDK ouvert et populaire, utilisé par de nombreux produits
+          de virtualisation, en particulier, par VMware.<footnote>
+              <para>Le premier support du VMDK a été ajouté avec VirtualBox 1.4&#xA0;;
+              depuis la version 2.1, VirtualBox supporte complètement VMDK,
+              ce qui veut dire que vous pouvez créer des dépôts et utiliser toutes
+              les autres fonctions avancées décrites ci-dessus pour les images
+              VDI avec VMDK.</para>
+            </footnote></para>
+        </listitem>
+
+        <listitem>
+          <para>VirtualBox supporte complètement le format VHD utilisé par
+          Microsoft.</para>
+        </listitem>
+
+        <listitem>
+          <para>Les fichiers images de Parallels version 2 (format HDD) sont
+          aussi supportés.<footnote>
+              <para>Le support a été ajouté avec VirtualBox 3.1.</para>
+            </footnote> Par manque de documentation du format, les nouveaux formats
+          (3 et 4) ne sont pas supportés. Vous pouvez cependant convertir de
+          tels fichiers images à leur version 2 en utilisant des outils fournis
+          par Parallels.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>Indépendamment de la capacité et du format du disque, comme on l'a
+    brièvement indiqué au <xref linkend="gui-createvm" />, il y a deux
+    options sur la façon de créer une image de disque&#xA0;: la taille fixe ou
+    dynamique..</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Si vous créez une <emphasis role="bold">image à taille fixe
+        </emphasis>, un fichier image sera créé sur votre système hôte ayant
+        rigoureusement la même taille que la capacité du disque virtuel. Donc,
+        pour un disque de 10G, vous aurez un fichier de 10G. Remarquez que la
+        création d'une image à taille fixe peut prendre du temps selon la taille
+        de l'image et les performances d'écriture de votre disque dur.</para>
+      </listitem>
+
+      <listitem>
+        <para>Pour une gestion du stockage plus flexible, utilisez une <emphasis
+        role="bold">image dynamique</emphasis>. Elle sera très petite au départ
+        et n'occupera pas de place pour des secteurs de disque virtuel inutilisés,
+        mais elle grandira à chaque fois qu'un secteur de disque sera écrit pour
+        la première fois, jusqu'à ce que le lecteur atteigne la capacité maximale
+        choisie quand le lecteur a été créé. Si ce format prend moins de place au
+        départ, le fait que VirtualBox doit étendre le fichier image consomme
+        des ressources de calcul supplémentaires, donc jusqu'à ce que la taille
+        du fichier de disque ait été stabilisée, les opérations d'écriture peuvent
+        être plus lentes qu'avec des disques à taille fixe. Cependant, après
+        un certain temps, le taux de croissance ralentira et le handicap
+        moyen des opérations d'écriture deviendra négligeable.</para>
+      </listitem>
+    </itemizedlist>
+  </sect1>
+
+  <sect1 id="vdis">
+    <title>Le gestionnaire de médias virtuels</title>
+
+    <para>VirtualBox garde une trace de toutes les images de disque dur, de lecteur
+    CD/DVD-ROM et de disquette utilisés par les machines virtuelles. On les désigne
+    souvent comme des "médias connus" et ils proviennent de deux sources&#xA0;:<itemizedlist>
+        <listitem>
+          <para>tous les médias actuellement attachés aux machines virtuelles&#xA0;;</para>
+        </listitem>
+
+        <listitem>
+          <para>les médias "enregistrés" pour la compatibilité avec les
+          versions de VirtualBox inférieures à 4.0. Pour les détails sur les modalités
+          du changement de l'enregistrement des médias, avec la version 4.0, 
+          merci de vous reporter à <xref
+          linkend="vboxconfigdata" />.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>Vous pouvez visualiser et modifier les médias connus dans le <emphasis
+    role="bold">gestionnaire de médias virtuels</emphasis>, auquel vous
+    pouvez accéder à partir du menu "Fichier" de la fenêtre principale de
+    VirtualBox&#xA0;:</para>
+
+    <para><mediaobject>
+        <imageobject>
+          <imagedata align="center" fileref="images/virtual-disk-manager.png"
+                     width="12cm" />
+        </imageobject>
+      </mediaobject>Les médias connus sont regroupés, par commodité, dans trois
+      onglets pour les trois formats possibles. Ces formats sont&#xA0;:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>Les images de disque dur, soit au format de VirtualBox Virtual Disk
+        Image(VDI), soit dans des formats tiers listés au chapitre précédent&#xA0;;</para>
+      </listitem>
+
+      <listitem>
+        <para>Les images CD/DVD au format ISO standard&#xA0;;</para>
+      </listitem>
+
+      <listitem>
+        <para>les images de disquette au format standard RAW.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>Comme vous pouvez le voir dans l'impression d'écran ci-dessus, pour 
+    chaque image, le gestionnaire de médias Virtuels vous montre le chemin complet
+    vers le fichier image et d'autres informations, telles que la machine virtuelle
+    à laquelle est attachée l'image, s'il y en a.</para>
+
+    <para>Le gestionnaire de média virtuels vous permet de</para>
+
+    <itemizedlist>
+      <listitem>
+        <para><emphasis role="bold">supprimer</emphasis> une image du
+        registre (et effacer éventuellement le fichier image en même temps)&#xA0;;</para>
+      </listitem>
+
+      <listitem>
+        <para><emphasis role="bold">"libérer"</emphasis> une image, c'est-à-dire
+        la détacher d'une machine virtuelle si elle est rattachée actuellement à
+        une d'elles en tant que disque dur virtuel.</para>
+      </listitem>
+    </itemizedlist>
+
+    <para>À partir de la version 4.0, pour <emphasis role="bold">créer de
+    nouvelles images de disque,</emphasis> merci d'utiliser l'onglet "Stockage" 
+    dans la boîte de dialogue des paramètres d'une machine virtuelle, car les 
+    images de disque sont désormais stockées par défaut dans le dossier de chaque
+    machine.</para>
+
+    <para>Vous pouvez copier des fichiers images de disque dur entre systèmes
+    hôtes et les importer alors dans les machines virtuelles, bien que certains
+    systèmes invités (surtout Windows 2000 et XP) exigeront que la nouvelle
+    machine virtuelle soit réglée de façon identique à l'ancienne.<note>
+        <para>Ne faites pas de simples copies des images de disque dur virtuels.
+        Si vous importez une seconde copie dans une machine virtuelle, VirtualBox
+        se plaindra avec une erreur puisque VirtualBox affecte un identifiant
+        unique (UUID) à chaque image de disque pour garantir qu'elle n'est
+        utilisée qu'une fois. Voir <xref
+        linkend="cloningvdis" /> pour des instructions à ce sujet. De plus, si
+        vous voulez copier une machine virtuelle sur un autre système, VirtualBox
+        a un outil d'importation/exportation qui pourrait mieux convenir à vos besoins&#xA0;;
+        voir <xref linkend="ovf" />.</para>
+      </note></para>
+  </sect1>
+
+  <sect1 id="hdimagewrites">
+    <title>Modes spéciaux d'écriture d'images</title>
+
+    <para>Pour chaque image de disque dur virtuel supportée par VirtualBox, vous
+    pouvez déterminer distinctement la façon dont elle peut être touchée par les
+    opérations d'écriture par une machine virtuelle et les opérations de prise
+    d'instantanés. Ceci vaut pour tous les formats d'image précités (VDI, VMDK,
+    VHD ou HDD) et indépendamment du fait qu'une image soit de taille fixe
+    ou dynamique.</para>
+
+    <para>Par défaut, les images sont en mode "normal". Pour marquer une image
+    existante avec un des modes non standards listés ci-dessous, utilisez
+    <computeroutput>VBoxManage modifyhd</computeroutput>&#xA0;; voir <xref
+    linkend="vboxmanage-modifyvdi" />. Sinon, utilisez VBoxManage pour attacher
+    l'image à une VM et utilisez l'argument <computeroutput>--mtype</computeroutput>&#xA0;;
+    voir <xref linkend="vboxmanage-storageattach" />.</para>
+
+    <orderedlist>
+      <listitem>
+        <para>Avec des <emphasis role="bold">images normales</emphasis> (le
+        réglage par défaut), il n'y a aucune restriction de lecture et d'écriture
+        pour les systèmes invités.</para>
+
+        <para>Quand vous prenez un instantané de votre machine virtuelle comme
+        décrit au <xref linkend="snapshots" />, l'état d'un "disque dur normal"
+        sera enregistré avec l'instantané et, lors du retour à l'instantané,
+        son état sera complètement réinitialisé.</para>
+
+        <para>(Techniquement, pour parler rigoureusement, le fichier image lui-même
+        n'est pas "réinitialisé". Quand un instantané est pris, VirtualBox "gèle"
+        plutôt le fichier image et n'écrit plus dedans. Pour les opérations d'écriture
+        de la VM, un deuxième fichier image de "différenciation" est créé, qui
+        ne reçoit que les modifications de l'image d'origine&#xA0;; voir la section 
+        suivante pour les détails.)</para>
+
+        <para>Si vous pouvez attacher une même image "normale" à plus d'une 
+        machine virtuelle, une seule de ces machines virtuelles attachée au
+        même fichier image peut être exécuté en même temps, sans quoi il y aurait
+        des conflits si plusieurs machines écrivent dans le même fichier image.<footnote>
+            <para>Cette restriction est plus légère qu'avant 
+            VirtualBox 2.2. Jadis, chaque image de disque "normale" ne pouvait
+            être <emphasis>attachée</emphasis> qu'à une seule machine. Maintenant,
+            elle peut être attachée à plus d'une machine du moment qu'une seule
+            des machines soit en fonction.</para>
+          </footnote></para>
+      </listitem>
+
+      <listitem>
+        <para>À l'opposé, <emphasis role="bold">les disques durs write-through</emphasis>
+         ne sont absolument pas concernés par les instantanés&#xA0;: leur
+         état <emphasis>n'est pas</emphasis> sauvegardé quand on prend l'instantané,
+         et il n'est pas restauré quand on le restaure.</para>
+      </listitem>
+
+      <listitem>
+        <para>Les <emphasis role="bold">Disques durs partageables</emphasis> sont
+        des variantes des disques durs write-through. En principe, ils se
+        comportent exactement de la même façon, à savoir que leur état 
+        <emphasis>n'est pas</emphasis> sauvegardé quand on prend l'instantané
+        et il n'est pas restauré quand on le restaure. La
+        différence n'apparaît que si vous attachez de tels disques à plusieurs
+        VMs. Les disques partageables peuvent être attachés à plusieurs VMs qui
+        peuvent fonctionner en même temps. Cela les rend adaptés pour l'utilisation
+        de systèmes de fichiers cluster entre des VMs et des applications identiques
+        qui sont explicitement préparés pour accéder en même temps à un
+        disque. Seules des images de disques fixes peuvent être utilisées dans ce
+        mode, les images dynamiques sont rejetées.<warning>
+            <para>C'est une fonctionnalité pour experts, dont la mauvaise utilisation
+            peut provoquer une perte de données -- les systèmes de fichiers réguliers
+            ne sont pas préparés à gérer des modifications simultanées par
+            plusieurs éléments.</para>
+          </warning></para>
+      </listitem>
+
+      <listitem>
+        <para>Ensuite, les <emphasis role="bold">images immuables</emphasis>
+        ne se souviennent des accès en écriture que de manière temporaire pendant
+        que la machine est en fonction&#xA0;; tous les changements sont perdus
+        quand la machine virtuelle est allumée la fois d'après. Il s'en suit qu'à
+        l'inverse des images "normales", une même image immuable peut être utilisée
+        avec plusieurs machines virtuelles sans 
+        restrictions.</para>
+
+        <para>La <emphasis>création</emphasis> d'une image immuable a peu de sens
+        puisqu'elle serait vide au départ et elle perdrait son contenu à chaque
+        redémarrage de la machine (sauf si vous voulez vraiment avoir un disque
+        toujours non formaté quand la machine démarre). Du coup, normalement,
+        vous créeriez d'abord une image "normale" puis, quand vous estimez son
+        contenu utile, vous la marquez plus tard comme immuable.</para>
+
+        <para>Si vous prenez l'instantané d'une machine avec des images immuables, 
+        sur chaque machine allumée, ces images sont réinitialisées à leur état du dernier
+        instantané (actuel) (et non à l'état de l'image immuable d'origine).</para>
+
+        <note>
+          <para>En guise d'exception particulière, les images immuables
+          <emphasis>ne sont pas</emphasis> réinitialisées si elles sont attachées
+          à une machine dont le dernier instantané a été pris pendant que la machine
+          était en fonction (ce qu'on appelle un instantané "en ligne"). Il s'en
+          suit que si l'instantané actuel de la machine est "en ligne",
+          ses images immuables se comportent exactement comme les images "normales"
+          décrites précédemment. Pour réactiver la réinitialisation automatique
+          de telles images, effacez l'instantané actuel de la machine.</para>
+        </note>
+
+        <para>De nouveau, techniquement, VirtualBox n'écrit jamais directement
+        sur l'image immuable. Toutes les opérations d'écriture de la machine seront
+        envoyées dans une image de différenciation&#xA0;; la prochaine fois que
+        la VM sera allumée, l'image de différenciation sera rétablie à chaque 
+        démarrage de la machine, ses images  immuables ont exactement le même
+        contenu.<footnote>
+            <para>Ce comportement a aussi changé avec VirtualBox 2.2. Jadis,
+            les images de différenciation étaient désactivées quand la session
+            de la machine <emphasis>se terminait</emphasis>&#xA0;; maintenant,
+            elles sont désactivées à chaque fois que la machine est allumée.</para>
+          </footnote> L'image de différenciation n'est réinitialisée que lorsque
+          la machine est allumée à partir de VirtualBox, pas quand vous redémarrez
+          en demandant un redémarrage à l'intérieur de la machine. C'est
+          également pourquoi les images immuables se comportent comme décrit
+          ci-dessus quand des instantanés sont aussi présents, ce qui utilise
+          également des images de différenciation.</para>
+
+        <para>Si la désactivation automatique de l'image de différenciation au
+        démarrage d'une VM ne correspond pas à vos besoins, vous pouvez la
+        désactiver en utilisant le paramètre
+        <computeroutput>autoreset</computeroutput> de
+        <computeroutput>VBoxManage modifyhd</computeroutput>&#xA0;; voir <xref
+        linkend="vboxmanage-modifyvdi" /> pour le detail.</para>
+      </listitem>
+
+      <listitem>
+        <para>Une image en <emphasis role="bold">mode multiattachée</emphasis>
+        peut être attachée à plus d'une machine virtuelle en même temps même si
+        ces machines sont en fonction en même temps. Pour chaque
+        machine virtuelle à laquelle une image est attachée, une image de
+        différenciation est créée. Il s'en suit que les données écrites sur un
+        tel disque dur virtuel par une machine n'est pas vue par les autres machines
+        auxquelles l'image est attachée&#xA0;; chaque machine crée son propre
+        historique des écritures de l'image multiattachée.</para>
+
+        <para>Techniquement, une image "multiattachée" se comporte de la même façon
+        qu'une image "immuable", sauf que l'image de différenciation n'est pas
+        réinitialisée à chaque fois que la machine démarre.</para>
+      </listitem>
+
+      <listitem>
+        <para>Enfin, <emphasis role="bold">l'image en lecture seule</emphasis> 
+        est utilisée automatiquement pour les images de CD/DVD, vu que les
+        CDs/DVDs ne sont jamais inscriptibles.</para>
+      </listitem>
+    </orderedlist>
+
+    <para>Pour illustrer les différences entre les différents types au
+    regard des instantanés&#xA0;: supposons que avez installé votre système
+    d'exploitation hôte dans votre VM et que vous avez pris un instantané.
+    Imaginons que vous avez accidentellement infecté votre VM avec un virus et
+    vous voulez revenir à l'instantané. Avec une image de disque dur normale,
+    vous restaurez simplement l'instantané et l'état antérieur de votre image
+    de disque dur seront restaurés également (et votre infection virale sera
+    annulée). Avec un disque dur immuable, il suffit d'éteindre et de rallumer
+    votre VM et l'infection virale sera désactivée. Par contre, avec une image
+    write-through, vous ne pouvez pas annuler facilement
+    l'infection virale par la virtualisation, mais vous devrez désinfecter
+    votre machine virtuelle comme un vrai ordinateur.</para>
+
+    <para>Là encore, vous pourriez trouver les images write-through utiles si vous
+    voulez préserver des données critiques indépendamment des instantanés, et
+    comme vous pouvez attacher plus d'une imafe à une VM, vous pourriez vouloir
+    avoir une image immuable pour le système d'exploitation et une  en write-through
+    pour vos fichiers de données.</para>
+  </sect1>
+
+  <sect1 id="diffimages">
+    <title>Images de différenciation</title>
+
+    <para>La section précédente portait sur les images de différenciation et la
+    façon de les utiliser avec des instantanés, des images immuables et
+    des attachements immuables. Pour l'utilisateur curieux de VirtualBox, cette
+    section décrit avec plus de détails la façon dont elles fonctionnent.</para>
+
+    <para>Une image de différenciation est une image de disque spéciale qui ne
+    garde que les différences avec une autre image. En elle-même, une image de
+    différenciation est inutile, elle doit toujours se référer à une autre image.
+    On parle donc généralement d'une image de différenciation comme d'un "enfant"
+    qui garde les différences d'avec son 
+    "parent".</para>
+
+    <para>Quand une image de différenciation est active, elle reçoit toutes les
+    opérations d'écriture de la machine virtuelle à la place de son parent. L'image
+    de différenciation ne contient que les secteurs du disque dur virtuel qui
+    ont changé depuis que l'image de différenciation a été créée. Quand la
+    machine lit un secteur à partir d'un tel disque dur virtuel, elle regarde
+    d'abord dans l'image de différenciation. Si le secteur est présent, il est
+    renvoyé à partir de là&#xA0;; sinon VirtualBox regarde dans le parent. En
+    d'autres termes, le parent devient en lecture seule&#xA0;; on n'écrit plus jamais
+    dedans mais il est lu si un secteur n'a pas changé.</para>
+
+    <para>On peut enchaîner les images de différenciation. Si une autre image de
+    différenciation est créée pour un disque virtuel qui a déjà une image de
+    différenciation, il devient le "petit-fils" du parent d'origine. La première
+    image de différenciation devient alors également en lecture seule et les
+    opérations d'écriture ne vont que dans l'image de différenciation du second
+    niveau. Lors de la lecture à partir d'un disque virtuel, 
+    VirtualBox a besoin de regarder d'abord dans la deuxième image de différenciation,
+    puis dans la première si le secteur n'a pas été trouvé, puis dans
+    l'image d'origine.</para>
+
+    <para>Il peut y avoir un nombre illimité d'images de différenciation et
+    chaque image peut avoir plus d'un enfant. Il s'en suit que les images de
+    différenciation peuvent constituer une arborescence complexe avec des parents,
+    des "fratries" et des enfants, en fonction de la complexité de la configuration
+    de votre machine. Les opérations d'écriture vont toujours dans l'image de
+    différenciation "active" attachée à la machine, et pour les opérations de 
+    lecture, VirtualBox peut avoir besoin de regarder jusqu'aux parents dans la
+    chaîne, jusqu'à ce qu'il trouve le secteur en question. Vous pouvez regarder
+    l'arborescence dans le gestionnaire de médias virtuels&#xA0;:<mediaobject>
+        <imageobject>
+          <imagedata align="center" fileref="images/virtual-disk-manager2.png"
+                     width="12cm" />
+        </imageobject>
+      </mediaobject></para>
+
+    <para>Dans toutes ces situations, du point de vue de la machine virtuelle, 
+    le disque dur virtuel se comporte comme n'importe quel autre disque.
+    Pendant que la machine virtuelle est en fonction, il y a un léger ralentissement
+    des E/S (overhead) car il se peut que VirtualBox doive regarder des
+    secteurs plusieurs fois. Cela ne se ressent cependant pas, puisque les tables
+    d'informations des secteurs sont toujours gardées en mémoire et peuvent être
+    consultées rapidement.</para>
+
+    <para>On utilise des images de différenciation dans les situations
+    suivantes&#xA0;:<orderedlist>
+        <listitem>
+          <para><emphasis role="bold">Les instantanés.</emphasis> Quand vous
+          créez un instantané comme expliqué dans la section précédente, VirtualBox 
+          "gèle" les images attachées à la machine virtuelle et crée des
+          images de différenciation pour chacun d'eux (pour être précis, une 
+          par image qui n'est pas en mode "write-through"). Du point de vue de
+          la machine virtuelle, les disques virtuels continuent d'agir comme
+          avant, mais toutes les opérations d'écriture vont dans les images de
+          différenciation. Chaque fois que vous créez un autre instantané, pour 
+          chaque disque dur attaché, une autre image de différenciation est
+          créée et attachée, formant une chaîne ou une arborescence.</para>
+
+          <para>Dans l'impression d'écran ci-dessus, vous voyez que l'image du
+          disque d'origine est maintenant attachée à un instantané, ce qui 
+          représente l'état du disque quand on a pris l'instantané.</para>
+
+          <para>Si vous <emphasis role="bold">restaurez</emphasis> maintenant
+          un instantané -- à savoir, si vous voulez revenir à l'état exact de
+          la machine stocké dans le dépôt --, il se produit la chose suivante&#xA0;:<orderedlist>
+              <listitem>
+                <para>VirtualBox copie les paramètres de la machine virtuelle
+                mémorisés dans l'instantané vers la machine virtuelle. Du coup, si 
+                vous avez fait des modifications dans la configuration après avoir
+                pris l'instantané, elles sont annulées.</para>
+              </listitem>
+
+              <listitem>
+                <para>Si vous avez pris l'instantané quand la machine était en
+                fonction, il contient un état sauvegardé de la machine et cet état
+                est restauré également&#xA0;; après la restauration de l'instantané,
+                la machine sera en état "sauvegardé" et elle reprendra son exécution
+                là où elle avait été commencée la fois suivante. Sinon, la
+                machine sera dans l'état "éteint" et elle fera un démarrage complet.</para>
+              </listitem>
+
+              <listitem>
+                <para>Pour chaque image de disque attachée, à la machine, l'image de
+                différenciation contenant les opérations d'écriture depuis que 
+                l'instantané actuel a été pris est supprimée et l'image du parent
+                originel est réactivée. (Si vous avec restauré l'instantané "racine",
+                ce sera l'image de disque racine de tous les attachements&#xA0;; 
+                sinon ce sera d'autres images de différenciation descendantes).
+                Cela restaure de fait l'ancien état de la machine.</para>
+              </listitem>
+            </orderedlist></para>
+
+          <para>Si vous <emphasis role="bold">effacez</emphasis> plus tard un
+          instantané afin de gagner de l'espace disque, chaque attachement de
+          disque des images de différenciation devient obsolète. Dans ce cas, 
+          l'image de différenciation du disque ne peut pas être tout simplement
+          effacée. VirtualBox doit plutôt regarder chaque secteur de l'image de
+          différenciation et le copier dans le parent&#xA0;; ceci s'appelle des
+          images de "synchronisation" et cela peut être une procédure longue 
+          selon la taille de l'image de différenciation. Il se peut qu'il faille
+          temporairement une importante quantité d'espace disque supplémentaire
+          avant que l'image de différenciation rendue obsolète par l'opération 
+          de synchronisation ne soit effacée.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Les images immuables.</emphasis> Quand une
+          image passe en mode "immuable", une image de différenciation est créée
+          également. Comme avec les instantanés, l'image parent devient alors en
+          lecture seule et l'image de différenciation reçoit toutes les
+          opérations d'écriture. Chaque fois qu'on démarre la machine virtuelle,
+          toutes les images immuables qui y sont attachées voient leur image de
+          différenciation spécifique nettoyée, ce qui réinitialise de fait le
+          disque virtuel de la machine virtuelle à chaque redémarrage.</para>
+        </listitem>
+      </orderedlist></para>
+  </sect1>
+
+  <sect1 id="cloningvdis">
+    <title>Cloner des images de disque</title>
+
+    <para>Vous pouvez dupliquer des fichiers images de disque dur sur le même hôte
+    pour produire rapidement une deuxième machine virtuelle avec la même configuration
+    de système d'exploitation. Néanmoins, vous devriez ne faire des copies d'images
+    de disques durs virtuels <emphasis>que</emphasis> en utilisant l'outil fourni
+    par VirtualBox&#xA0;; voir <xref
+    linkend="vboxmanage-clonevdi" />. Ceci car VirtualBox affecte un numéro
+    d'identifiant unique (UUID) à chaque image de disque, qui est stocké dans
+    l'image et VirtualBox refusera de fonctionner avec deux images ayant le même
+    numéro. Si vous essayez, par accident, de réimporter une image de disque
+    que vous avez copiée normalement, vous pouvez faire une seconde copie en utilisant
+    l'outil de VirtualBox et l'importer à la place.</para>
+
+    <para>Remarquez que les distributions Linux récentes identifient le disque
+    dur de démarrage à partir de l'ID du disque. L'ID utilisé par VirtualBox pour
+    un lecteur est déterminé à partir de l'UUID de l'image du disque dur virtuel. 
+    Donc si vous clonez une image de disque et si vous essayez de démarrer l'image,
+    copiée il se peut que l'invité ne puisse pas déterminer son propre disque de
+    démarrage car l'UUID a changé. Dans ce cas, vous devez adapter l'ID du disque
+    dans le script de votre chargeur de démarrage (par exemple
+    <computeroutput>/boot/grub/menu.lst</computeroutput>). L'ID d'un disque
+    ressemble à ceci&#xA0;:<screen>scsi-SATA_VBOX_HARDDISK_VB5cfdb1e2-c251e503</screen></para>
+
+    <para>L'ID de l'image copiée peut être déterminée avec <screen>hdparm -i /dev/sda</screen></para>
+  </sect1>
+
+  <sect1 id="iocaching">
+    <title>Mise en cache des E/S dans l'hôte</title>
+
+    <para>À partir de la version 3.2, VirtualBox peut éventuellement désactiver
+    la mise en cache de l'E/S qu'effectuerait le système d'exploitation hôte sur
+    les fichiers images du disque.</para>
+
+    <para>Traditionnellement, VirtualBox ouvrait des fichiers images de disque
+    comme des fichiers normaux, ce qui faisait qu'ils étaient mis en cache par le
+    système d'exploitation hôte comme n'importe quel autre fichier. Le principal
+    avantage en est la vitesse&#xA0;: quand l'OS invité écrit sur le disque
+    et quand le cache de l'hôte utilise l'écriture différée, l'opération d'écriture
+    peut être déclarée terminée pour l'OS invité rapidement alors que l'OS hôte
+    peut effectuer l'opération sans synchronisation. De même, quand vous démarrez
+    une VM une deuxième fois et si vous avez assez de mémoire disponible pour que
+    l'OS l'utilise pour la mise en cache, de grandes parties du disque dur virtuel
+    peuvent aller dans la mémoire du système et la VM peut accéder plus rapidement
+    aux données.</para>
+
+    <para>Remarquez que cela ne s'applique qu'aux fichiers images&#xA0;; la
+    mise en tampon ne fonctionnait jamais pour les disques présents sur des 
+    supports iSCSI distants, ce qui est le 
+    scenario le plus classique dans les paramétrages du type enterprise (voir
+    <xref linkend="storage-iscsi" />).</para>
+
+    <para>Si la mise en tampon est un paramètre par défaut utile pour virtualiser
+    quelques machines sur un ordinateur de bureau, elle présente quelques
+    inconvénients&#xA0;:<orderedlist>
+        <listitem>
+          <para>L'écriture différée dans le cache de l'OS hôte est moins
+          sécurisée. Quand l'OS invité écrit des données, il considère que les 
+          données sont écrites même si elles ne sont pas encore arrivées sur le
+          disque physique. Si, pour une raison quelconque, l'écriture n'a pas lieu
+          (problème électrique, plantage de l'hôte), les chances de perdre des
+          données augmentent.</para>
+        </listitem>
+
+        <listitem>
+          <para>Les fichiers images de disque ont tendance à être importantes.
+          Leur mise en cache utilise donc très vite tout le cache de l'OS hôte. Selon
+          l'efficacité de la gestion du cache par l'OS hôte, cela peut ralentir
+          énormément l'hôte, surtout si plusieurs VMs fonctionnent en même temps.
+          Par exemple, sur des hôtes Linux, la mise en cache de l'hôte peut aboutir
+          à un report, par Linux, de toutes les écritures jusqu'à ce que le
+          cache de l'hôte soit presque plein, avant d'écrire tous ces changements
+          en une fois, ce qui peut suspendre l'exécution d'une VM pendant quelques
+          minutes. Cel peut donner des erreurs d'E/S dans l'invité car les requêtes
+          E/S excèderaient le timeout.</para>
+        </listitem>
+
+        <listitem>
+          <para>La mémoire physique est souvent gaspillée, car les systèmes 
+          d'exploitation hôtes ont en général leur propre système de mise en cache
+          des E/S, ce qui aboutit à la mise en cache double des données (à la fois dans
+          le cache de l'invité et de l'hôte), avec peu d'effet.
+          </para>
+        </listitem>
+      </orderedlist></para>
+
+    <para>Si vous décidez de désactiver la mise en cache des E/S dans l'hôte,
+    pour les raisons ci-dessus, VirtualBox utilise son propre petit cache pour
+    mettre les écritures en tampon, mais en général, aucune lecture de ce cache
+    n'est fait par l'OS invité. De plus, VirtualBox supporte complètement
+    l'E/S asynchrone pour ses contrôleurs SATA, SCSI et SAS virtuels via plusieurs
+    files (thread) d'E/S.</para>
+
+    <para>Les E/S asynchrones n'étant pas supportées par les contrôleurs IDE,
+    pour des raisons de performance, vous pourriez vouloir laisser la mise en 
+    cache de l'hôte pour les contrôleurs IDE virtuels de votre VM.</para>
+
+    <para>Pour cette raison, VirtualBox vous permet de configurer si la mise en cache
+    des E/S est utilisée pour chaque contrôleur E/S, indépendamment. Soit décochez
+    la case "Utiliser la mise en cache des E/S de l'hôte" des paramètres de stockage,
+    d'un contrôleur de stockage donné, soit utilisez la commande VBoxManage 
+    suivante pour désactiver la mise en cache des E/S de l'hôte pour un contrôleur 
+   de stockage virtuel&#xA0;:<screen>VBoxManage storagectl "nom VM" --name &lt;nomcontrôleur&gt; --hostiocache off</screen></para>
+
+    <para>Voir <xref linkend="vboxmanage-storagectl" /> pour les détails.</para>
+
+    <para>Également pour les raisons ci-dessus, VirtualBox utilise maintenant
+    par défaut des contrôleurs SATA pour les nouvelles machines virtuelles.</para>
+  </sect1>
+
+  <sect1 id="storage-bandwidth-limit">
+    <title>Limiter la bande passante des images de disque</title>
+
+    <para>À partir de la version 4.0, VirtualBox permet de limiter la bande
+    passante maximale utilisée pour les E/S asynchrones. De plus, il supporte
+    le partage des limites entre des groupes de bandes passantes pour plusieurs
+    images. Il est possible d'avoir plus d'une limite.</para>
+
+    <para>Les limites sont configurées via
+    <computeroutput>VBoxManage</computeroutput>. L'exemple ci-dessous crée un
+    groupe de bandes passantes nommé "Limit", et pose la limite à 20 Mo/s et
+    affecte le groupe aux disques attachés à la VM&#xA0;:<screen>VBoxManage bandwidthctl "nom VM" add Limit --type disk --limit 20M
+VBoxManage storageattach "nom VM" --storagectl "SATA" --port 0 --device 0 --type hdd
+                                   --medium disk1.vdi --bandwidthgroup Limit
+VBoxManage storageattach "nom VM" --storagectl "SATA" --port 1 --device 0 --type hdd
+                                   --medium disk2.vdi --bandwidthgroup Limit</screen></para>
+
+    <para>Tous les disques d'un groupe partagent la limite de la bande passante,
+    c'est-à-dire que dans l'exemple ci-dessus,, la bande passante des deux images
+    combinées ne peut jamais dépasser 20Mo/s. Toutefois, si un disque n'a pas
+    besoin de bande passante, l'autre peut utiliser la bande passante restante
+    dans son groupe.</para>
+
+    <para>Les limites pour chaque groupe peuvent être modifiées pendant que la
+    VM est en fonction, ce qui applique immédiatement les modifications. L'exemple
+    ci-dessous modifie le groupe créé dans l'exemple ci-dessus en 10 Mo/s:<screen>VBoxManage bandwidthctl "nom VM" set Limit --limit 10M</screen></para>
+  </sect1>
+
+  <sect1 id="storage-cds">
+    <title>Support des CD/DVD</title>
+
+    <para>Le/les lecteur(s) CD/DVD virtuels ne supportent par défaut que la 
+    lecture. Vous pouvez modifier la configuration d'un média pendant l'exécution.
+    Vous pouvez choisir entre trois options pour présenter les données d'un 
+    média&#xA0;:<itemizedlist>
+        <listitem>
+          <para><emphasis role="bold">Lecteur hôte</emphasis> définit que l'invité
+          peut lire sur un média du lecteur hôte.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Fichier image</emphasis> (en général un
+          fichier ISO) donne à l'invité un accès en lecture seule aux données de
+          l'image.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Vide</emphasis> signifie un lecteur sans
+          média dedans.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>La modification entre les situations ci-dessus, le changement de 
+    média dans le lecteur hôte ou de fichier image signalera un changement de média
+    au système d'exploitation invité, lequel peut réagir au changement (par exemple,
+    en démarrant un programme d'installation).</para>
+
+    <para>Les changements de médias peuvent être empêchés par l'invité et VirtualBox
+    répercute cela en verrouillant le lecteur hôte si besoin. Vous pouvez forcer
+    le retrait d'un média en pareilles situations via l'interface graphique de
+    VirtualBox ou l'outil en ligne de commandes VBoxManage. En fait, cela revient
+    à une éjection en urgence, ce que supportent de nombreux lecteurs CD/DVD
+    avec tous les effets colatéraux associés&#xA0;: l'OS invité peut renvoyer
+    des messages d'erreur comme sur du vrai matériel, les applications invitées peuvent
+    mal se comporter. Utilisez ceci avec précaution.<note>
+        <para>La chaîne d'identification du lecteur fournie à l'invité (qui serait
+        affichée, dans l'invité, par les outils de configuration tels que le
+        gestionnaire de périphériques de Windows) est toujours "VBOX CD-ROM", 
+        indépendamment de la configuration actuelle du lecteur virtuel. Ceci pour
+        empêcher la détection d'être faite en retard dans le système d'exploitation
+        invité à chaque fois que la configuration change.</para>
+      </note></para>
+
+    <para>L'émulation standard des CD/DVD ne permet de lire que des formats de 
+    CD et de DVD de données standards. Une possibilité supplémentaire, expérimentale,
+    est de donner un accès direct de l'invité au lecteur CD/DVD de l'hôte en
+    activant le "Mode direct" (passthrough). Selon le matériel hôte, cela peut potentiellement
+    faire marcher trois choses&#xA0;:<itemizedlist>
+        <listitem>
+          <para>L'écriture sur CD/DVD depuis l'invité, si le lecteur DVD de l'hôte
+          est un graveur de CD/DVD&#xA0;;</para>
+        </listitem>
+
+        <listitem>
+          <para>la lecture de CDs audio&#xA0;;</para>
+        </listitem>
+
+        <listitem>
+          <para>la lecture de DVDs chiffrés.</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>Il existe une case à cocher "Mode direct" dans la boîte de dialogue
+    graphique de configuration du média attaché aux contrôleurs de stockage, ou
+    vous pouvez utiliser l'option
+    <computeroutput>--passthrough</computeroutput> de
+    <computeroutput>VBoxManage storageattach</computeroutput>&#xA0;; voir <xref
+    linkend="vboxmanage-storageattach" /> pour les détails.</para>
+
+    <para>Même si passthrough est activé, les commandes non sûres telles que
+    la mise à jour du firmware du lecteur, seront bloquées. Les formats de CD
+    vidéo ne sont pas du tout supportés, même pas en mode passthrough, et on
+    ne peut pas les lire à partir d'une 
+    machine virtuelle.</para>
+
+    <para>Sur les hôtes Solaris, passthrough exige de lancer VirtualBox avec de
+    vrais droits d'administrateur du fait de mesures de sécurité renforcées par
+    l'hôte.</para>
+  </sect1>
+
+  <sect1 id="storage-iscsi">
+    <title>Serveurs iSCSI</title>
+
+    <para>iSCSI signifie "Internet SCSI" et c'est un standard qui permet d'utiliser
+    le protocole SCSI à travers des des connexions Internet. (TCP/IP). En
+    particulier, avec l'arrivée du Gigabit Ethernet, on peut désormais se permettre
+    d'attacher des serveurs de stockage iSCSI simplement comme des disques durs
+     distants à un réseau d'ordinateurs. Dans la terminologie iSCSI, le serveur
+     fournissant les ressources de stockage s'appelle la "cible iSCSI", tandis
+     que le client qui se connecte au serveur et qui accède à ses ressources 
+     s'appelle "l'initiateur iSCSIr".</para>
+
+    <para>VirtualBox peut présenter de manière transparente du stockage distant
+    iSCSI à une machine virtuelle en tant que disque dur. Le système d'exploitation
+    ne verra pas de différence entre une image de disque virtuel (fichier VDI)
+    et une cible iSCSI. Pour obtenir cela, VirtualBox comporte un initiateur iSCSI
+    intégré.</para>
+
+    <para>Le support iSCSI de VirtualBox a été développé selon le standard  iSCSI
+    et il devrait fonctionner avec toutes les cibles iSCSI conformes au standard.
+    Pour utiliser une cible iSCSI avec VirtualBox, vous devez utiliser la ligne
+    de commande&#xA0;; voir <xref linkend="vboxmanage-storageattach" />.</para>
+  </sect1>
+</chapter>

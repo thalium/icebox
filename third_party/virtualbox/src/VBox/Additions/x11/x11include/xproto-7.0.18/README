@@ -1,0 +1,10 @@
+The contents of this directory were extracted from the contents of the
+archive xproto-7.0.18.tar.bz2, as downloaded from ftp.x.org, using the
+following shell script:
+
+mkdir $PATH_VBOX/src/VBox/Additions/x11/x11include/xproto-7.0.18/X11
+cp *.h PATH_VBOX/src/VBox/Additions/x11/x11include/xproto-7.0.18/X11
+for i in *.h.in
+  do
+    cp $i src/VBox/Additions/x11/x11include/xproto-7.0.18/X11/`basename $i .in`
+  done

@@ -1,0 +1,51 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for liblzf.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+
+SUB_DEPTH = ../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+LIBRARIES += VBox-liblzf
+if1of ($(KBUILD_TARGET),os2 win)
+ # only required for vbox-img
+ LIBRARIES += VBox-liblzf-static
+endif
+VBox-liblzf_TEMPLATE = VBoxR3RuntimeDllNonPedanticFast
+VBox-liblzf_BLD_TYPE = release # WARNING! Always optimizing this lib.
+VBox-liblzf_DEFS = ULTRA_FAST=1 HLOG=12
+VBox-liblzf_DEFS.x86 = STRICT_ALIGN=0
+VBox-liblzf_DEFS.amd64 = STRICT_ALIGN=0
+VBox-liblzf_SOURCES = \
+	lzf_c.c \
+	lzf_d.c
+
+VBox-liblzf-static_TEMPLATE   = VBoxR3StaticNonPedantic
+VBox-liblzf-static_BLD_TYPE   = $(VBox-liblzf_BLD_TYPE)
+VBox-liblzf-static_DEFS       = $(VBox-liblzf_DEFS)
+VBox-liblzf-static_DEFS.x86   = $(VBox-liblzf_DEFS.x86)
+VBox-liblzf-static_DEFS.amd64 = $(VBox-liblzf_DEFS.amd64)
+VBox-liblzf-static_SOURCES    = $(VBox-liblzf_SOURCES)
+
+ifdef VBOX_WITH_32_ON_64_MAIN_API # 32-bit edition.
+ LIBRARIES += VBox-liblzf-x86
+ VBox-liblzf-x86_TEMPLATE = VBoxR3DllNonPedantic-x86
+ VBox-liblzf-x86_EXTENDS = VBox-liblzf
+endif
+
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

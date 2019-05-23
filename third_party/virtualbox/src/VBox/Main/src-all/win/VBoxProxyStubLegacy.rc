@@ -1,0 +1,24 @@
+/* $Id: VBoxProxyStubLegacy.rc $ */
+/** @file
+ * VBoxProxyStub - Resource file containing version info, icon and typelib.
+ */
+
+/*
+ * Copyright (C) 2006-2016 Oracle Corporation
+ *
+ * This file is part of VirtualBox Open Source Edition (OSE), as
+ * available from http://www.virtualbox.org. This file is free software;
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License (GPL) as published by the Free Software
+ * Foundation, in version 2 as it comes in the "COPYING" file of the
+ * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ */
+
+#define IN_FILE_DESCRIPTION "VirtualBox COM Proxy Stub and Type Library (pre Windows 7)"
+#define IN_FILE_BASENAME    "VBoxProxyStubLegacy"
+
+#include "../../../Artwork/win/TemplateDll.rc"
+
+1 TYPELIB "VirtualBox.tlb"
+

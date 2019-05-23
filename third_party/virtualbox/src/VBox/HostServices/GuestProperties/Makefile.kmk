@@ -1,0 +1,50 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Shared Info Services Host Service.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+# Include sub-makefile(s).
+include $(PATH_SUB_CURRENT)/testcase/Makefile.kmk
+
+#
+# The shared folder service DLL.
+#
+DLLS += VBoxGuestPropSvc
+VBoxGuestPropSvc_TEMPLATE  = VBOXR3
+VBoxGuestPropSvc_NAME.os2  = VBoxSIS
+VBoxGuestPropSvc_DEFS      = VBOX_WITH_HGCM
+VBoxGuestPropSvc_INCS      = $(PATH_ROOT)/src/VBox/Main/include
+VBoxGuestPropSvc_INCS.win  = \
+	$(VBOX_PATH_SDK)
+
+VBoxGuestPropSvc_SOURCES = \
+	service.cpp
+
+VBoxGuestPropSvc_SOURCES.win = \
+	VBoxGuestPropSvc.rc
+
+VBoxGuestPropSvc_LIBS = \
+	$(LIB_VMM) \
+	$(LIB_RUNTIME) \
+	$(LIB_REM)
+
+VBoxGuestPropSvc_LDFLAGS.darwin = \
+	-install_name $(VBOX_DYLD_EXECUTABLE_PATH)/VBoxGuestPropSvc.dylib
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

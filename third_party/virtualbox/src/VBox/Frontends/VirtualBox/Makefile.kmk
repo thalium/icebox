@@ -1,0 +1,1402 @@
+# $Id: Makefile.kmk $
+## @file
+# Makefile for the VirtualBox Qt GUI.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# Globals.
+#
+VBOX_VIRTUALBOX4_SRC := $(PATH_SUB_CURRENT)
+VBOX_VIRTUALBOX4_OUT_DIR := $(PATH_TARGET)/VirtualBox/misc
+
+# Show the update notifier dialog during startup. If this setting is disabled
+# the user can still update using the menu if desired.
+ifndef VBOX_OSE
+VBOX_WITH_UPDATE_REQUEST := 1
+endif
+
+#
+# The targets.
+#
+ifdef VBOX_WITH_HARDENING
+PROGRAMS += VirtualBoxHardened
+PROGRAMS.darwin += VirtualBoxVM
+DLLS += VirtualBox
+else
+PROGRAMS += VirtualBox
+endif
+
+INSTALLS += VirtualBox.nls
+
+
+#
+# Include the language lists.
+#
+include $(PATH_SUB_CURRENT)/nls/ApprovedLanguages.kmk
+
+
+#
+# Hardened VirtualBox.
+#
+VirtualBoxHardened_TEMPLATE = VBOXR3HARDENEDEXE
+VirtualBoxHardened_SOURCES = src/hardenedmain.cpp
+VirtualBoxHardened_SOURCES.win = src/platform/win/VirtualBoxHardened.rc
+VirtualBoxHardened_NAME = VirtualBox
+VirtualBoxHardened_LDFLAGS.win = /SUBSYSTEM:$(if-expr "$(KBUILD_TYPE)" != "release",console,windows)
+src/platform/win/VirtualBoxHardened.rc_INCS  = $(VirtualBox_0_OUTDIR)
+src/platform/win/VirtualBoxHardened.rc_DEPS  = $(VirtualBox_0_OUTDIR)/VirtualBox-icon.rc
+
+
+#
+# Hardened VirtualBoxVM.
+#
+ifeq ($(KBUILD_TARGET),darwin)
+ VirtualBoxVM_EXTENDS = VirtualBoxHardened
+ VirtualBoxVM_NAME    = VirtualBoxVM
+ VirtualBoxVM_DEFS    = $(VirtualBoxHardened_DEFS) VIRTUALBOX_VM
+endif
+
+
+#
+# Include Qt project file, we'll use FORMS and TRANSLATIONS in
+# the VirtualBox setup below.
+#
+# This is a bit messy.  We boldly ASSUME that LANGUAGE, IMAGES, FORMS
+# and TRANSLATIONS are all unused by kBuild and the host toolchain.
+#
+SAVED_TEMPLATE := $(TEMPLATE)
+include $(PATH_SUB_CURRENT)/VBoxUI.pro
+TEMPLATE       := $(SAVED_TEMPLATE)
+SAVED_TEMPLATE :=
+LANGUAGE       :=
+IMAGES         :=
+# FORMS and TRANSLATIONS are reset further down.
+
+
+#
+# VirtualBox - The GUI program.
+#
+USES += qt5
+VirtualBox_TEMPLATE := $(if $(VBOX_WITH_HARDENING),VBOXQTGUI,VBOXQTGUIEXE)
+VirtualBox_NAME = VirtualBox
+ifndef VBOX_WITH_HARDENING      # For the launch trick we need different inode numbers.
+ VirtualBox_INST.darwin = $(INST_BIN)VirtualBox $(INST_BIN)VirtualBoxVM
+endif
+VirtualBox_SDKS.win = ReorderCompilerIncs $(VBOX_WINPSDK) $(VBOX_WINDDK)
+
+VirtualBox_DEFS           =
+VirtualBox_DEFS.debug     = VBOX_CHECK_STATE # QT_FATAL_ASSERT
+VirtualBox_DEFS.linux     = VBOX_WITH_MASKED_SEAMLESS VBOX_WITH_TRANSLUCENT_SEAMLESS
+VirtualBox_DEFS.solaris   = VBOX_WITH_MASKED_SEAMLESS VBOX_WITH_TRANSLUCENT_SEAMLESS
+VirtualBox_DEFS.freebsd   = VBOX_WITH_MASKED_SEAMLESS VBOX_WITH_TRANSLUCENT_SEAMLESS
+VirtualBox_DEFS.darwin    = VBOX_WITH_TRANSLUCENT_SEAMLESS # VBOX_WITH_MASKED_SEAMLESS
+VirtualBox_DEFS.win       = VBOX_WITH_MASKED_SEAMLESS # VBOX_WITH_TRANSLUCENT_SEAMLESS
+VirtualBox_DEFS.win       += UNICODE QT_DLL
+ifdef VBOX_WITH_ICHAT_THEATER
+ VirtualBox_DEFS.darwin   += VBOX_WITH_ICHAT_THEATER
+endif
+VirtualBox_DEFS.linux     += VBOX_WS_X11
+VirtualBox_DEFS.solaris   += VBOX_WS_X11
+VirtualBox_DEFS.freebsd   += VBOX_WS_X11
+VirtualBox_DEFS.darwin    += VBOX_WS_MAC
+VirtualBox_DEFS.win       += VBOX_WS_WIN
+VirtualBox_DEFS           += \
+	$(if $(VBOX_WITH_ADDITIONS_AUTOUPDATE_UI),VBOX_WITH_ADDITIONS_AUTOUPDATE_UI) \
+	$(if $(VBOX_WITH_UPDATE_REQUEST),VBOX_WITH_UPDATE_REQUEST) \
+	$(if $(VBOX_WITH_AUDIO_OSS),VBOX_WITH_AUDIO_OSS) \
+	$(if $(VBOX_WITH_AUDIO_ALSA),VBOX_WITH_AUDIO_ALSA) \
+	$(if $(VBOX_WITH_AUDIO_PULSE),VBOX_WITH_AUDIO_PULSE) \
+	$(if $(VBOX_WITH_E1000),VBOX_WITH_E1000) \
+	$(if $(VBOX_WITH_NETFLT)$(eq $(KBUILD_TARGET),freebsd),VBOX_WITH_NETFLT) \
+	$(if $(VBOX_WITH_VDE),VBOX_WITH_VDE) \
+	$(if $(VBOX_WITH_UDPTUNNEL),VBOX_WITH_UDPTUNNEL) \
+	$(if $(VBOX_WITH_EXTPACK),VBOX_WITH_EXTPACK) \
+	$(if $(VBOX_WITH_EHCI),VBOX_WITH_EHCI) \
+	$(if $(VBOX_WITH_HARDENING),VBOXR3_HARDENED_DLL) \
+	$(if $(VBOX_WITH_DRAG_AND_DROP),VBOX_WITH_DRAG_AND_DROP) \
+	$(if $(VBOX_WITH_DRAG_AND_DROP_GH),VBOX_WITH_DRAG_AND_DROP_GH) \
+	$(if $(VBOX_WITH_DRAG_AND_DROP_PROMISES),VBOX_WITH_DRAG_AND_DROP_PROMISES) \
+	$(if $(VBOX_WITH_CRHGSMI),VBOX_WITH_CRHGSMI) \
+	$(if $(VBOX_WITH_VIRTIO),VBOX_WITH_VIRTIO) \
+	$(if $(VBOX_WITH_WDDM),VBOX_WITH_WDDM) \
+	$(if $(VBOX_WITH_CROGL),VBOX_WITH_CROGL) \
+	$(if $(VBOX_GUI_WITH_HIDPI),VBOX_GUI_WITH_HIDPI) \
+	$(if $(VBOX_GUI_WITH_PIDFILE),VBOX_GUI_WITH_PIDFILE) \
+	$(if $(VBOX_GUI_WITH_KEYS_RESET_HANDLER),VBOX_GUI_WITH_KEYS_RESET_HANDLER) \
+	$(if $(VBOX_GUI_WITH_CUSTOMIZATIONS1),VBOX_GUI_WITH_CUSTOMIZATIONS1) \
+	$(if $(VBOX_WITH_RAW_MODE),VBOX_WITH_RAW_MODE) \
+	$(if $(VBOX_WITH_SDS),VBOX_WITH_SDS,)
+ifdef VBOX_WITH_DEBUGGER_GUI
+ VirtualBox_DEFS        += VBOX_WITH_DEBUGGER_GUI
+ if "$(KBUILD_TYPE)" != "release"
+  VirtualBox_DEFS       += VBOX_WITH_DEBUGGER_GUI_MENU
+ endif
+endif
+ifdef VBOX_WITH_VIDEOHWACCEL
+ VirtualBox_DEFS        += VBOX_WITH_VIDEOHWACCEL \
+	VBOX_GUI_USE_QGL
+else ifdef VBOX_GUI_USE_QGL
+ VirtualBox_DEFS        += VBOX_GUI_USE_QGL
+endif
+ifdef VBOX_WITH_LIBCURL
+ VirtualBox_DEFS        += VBOX_GUI_WITH_NETWORK_MANAGER
+ VBOX_GUI_WITH_NETWORK_MANAGER := 1
+endif
+ifneq ($(KBUILD_TYPE),release)
+ VirtualBox_DEFS        += VBOX_GUI_WITH_EXTRADATA_MANAGER_UI
+endif
+
+
+
+VBOX_GUI_INC_DIRS = \
+	./src \
+	./src/converter \
+	./src/extensions \
+	./src/extensions/graphics \
+	./src/extradata \
+	./src/globals \
+	./src/hostnetwork \
+	./src/medium \
+	./src/objects \
+	./src/platform \
+	./src/platform/darwin \
+	./src/platform/win \
+	./src/platform/x11 \
+	./src/runtime \
+	./src/runtime/fullscreen \
+	./src/runtime/normal \
+	./src/runtime/scale \
+	./src/runtime/seamless \
+	./src/runtime/information \
+	./src/selector \
+	./src/selector/graphics/chooser \
+	./src/selector/graphics/details \
+	./src/settings \
+	./src/settings/global \
+	./src/settings/machine \
+	./src/widgets \
+	./src/widgets/graphics \
+	./src/wizards \
+	./src/wizards/newvm \
+	./src/wizards/newvd \
+	./src/wizards/clonevm \
+	./src/wizards/clonevd \
+	./src/wizards/exportappliance \
+	./src/wizards/importappliance \
+	./src/wizards/firstrun
+
+ifdef VBOX_GUI_WITH_NETWORK_MANAGER
+VBOX_GUI_INC_DIRS += \
+	./src/net
+endif
+
+VirtualBox_INCS = \
+	$(VBOX_GUI_INC_DIRS) \
+	$(VirtualBox_0_OUTDIR)/include \
+	$(VBOX_GRAPHICS_INCS)
+
+# Necessary for the hdd backend enumeration
+VirtualBox_LIBS = $(LIB_DDU)
+
+if1of ($(KBUILD_TARGET), linux netbsd openbsd)
+ VirtualBox_LIBS += dl
+endif
+
+# This library is required for multi-monitor support
+VirtualBox_LIBS.linux   += Xinerama
+VirtualBox_LIBS.solaris += Xinerama
+VirtualBox_LIBS.freebsd += Xinerama
+
+VirtualBox_LIBS.linux   += xcb
+VirtualBox_LIBS.solaris += xcb
+VirtualBox_LIBS.freebsd += xcb
+
+ifneq ($(KBUILD_TARGET),win)
+VirtualBox_CXXFLAGS += -Wno-switch
+endif
+
+## @todo we're using a number of deprecated APIs, please fix and remove these!
+ifdef VBOX_WITH_NEW_XCODE
+ VirtualBox_CXXFLAGS.darwin    += -Wno-error=deprecated-declarations
+ VirtualBox_OBJCFLAGS.darwin   += -Wno-error=deprecated-declarations
+ VirtualBox_OBJCXXFLAGS.darwin += -Wno-error=deprecated-declarations
+else
+ VirtualBox_CXXFLAGS.darwin    += -Wno-deprecated-declarations
+ VirtualBox_OBJCFLAGS.darwin   += -Wno-deprecated-declarations
+ VirtualBox_OBJCXXFLAGS.darwin += -Wno-deprecated-declarations
+endif
+
+ifeq ($(KBUILD_TYPE),release)
+ VirtualBox_LDFLAGS.win   += /SUBSYSTEM:windows
+else
+ VirtualBox_LDFLAGS.linux += -rdynamic # for backtrace_symbols()
+ VirtualBox_LDFLAGS.win   += /SUBSYSTEM:console
+endif
+
+# delay loading causes VM process crashes due to the misbehave of the current QtOpenGLVBox4.dll we use
+# (i.e. it does not create the ogl context properly when loaded this way)
+#
+# @todo: investigate a better work-around and enable back delay loading since it is needed to avoid
+# crashes caused by buggy ogl drivers for the case 2D is not used (i.e. no ogl stuff loaded)
+#if defined(VBOX_WITH_VIDEOHWACCEL) || defined(VBOX_GUI_USE_QGL)
+# VirtualBox_LDFLAGS.win += /DelayLoad:QtOpenGLVBox4.dll /DelayLoad:OPENGL32.dll
+#endif
+
+VirtualBox_LDFLAGS.darwin = \
+	-framework AppKit -framework Carbon -framework IOKit \
+	$(if $(VBOX_WITH_HARDENING),-install_name $(VBOX_DYLD_EXECUTABLE_PATH)/VirtualBox.dylib)
+ifdef VBOX_WITH_ICHAT_THEATER
+ VirtualBox_LDFLAGS.darwin += -framework InstantMessage -framework QuartzCore
+endif
+
+VirtualBox_LIBS.win       = \
+	$(PATH_SDK_$(VBOX_WINPSDK)_LIB)/Htmlhelp.Lib \
+	$(PATH_SDK_$(VBOX_WINDDK)_LIB)/ddraw.lib \
+	$(PATH_SDK_$(VBOX_WINDDK)_LIB)/dxguid.lib
+if1of ($(KBUILD_TARGET), freebsd linux netbsd openbsd solaris) # X11
+ VirtualBox_LIBS         += $(PATH_STAGE_DLL)/VBoxKeyboard$(VBOX_SUFF_DLL)
+endif
+
+if defined(VBOX_WITH_VIDEOHWACCEL) || defined(VBOX_GUI_USE_QGL)
+ VirtualBox_LIBS.win       += $(PATH_SDK_$(VBOX_WINPSDK)_LIB)/Opengl32.lib
+ VirtualBox_LIBS.solaris   += GL
+ VirtualBox_LIBS.linux     += GL
+ VirtualBox_LIBS.freebsd   += GL
+ VirtualBox_LDFLAGS.darwin += -framework OpenGL
+endif
+ifdef VBOX_WITH_CROGL
+ VirtualBox_LIBS += $(PATH_STAGE_LIB)/VBoxOGLTest$(VBOX_SUFF_LIB)
+endif
+
+
+# Headers containing definitions of classes that use the Q_OBJECT macro.
+VirtualBox_QT_MOCHDRS = \
+	src/UIMediumTypeChangeDialog.h \
+	src/VBoxAboutDlg.h \
+	src/VBoxLicenseViewer.h \
+	src/UITakeSnapshotDialog.h \
+	src/UIVMLogViewer.h \
+	src/extensions/QIAdvancedSlider.h \
+	src/extensions/QIArrowButtonPress.h \
+	src/extensions/QIArrowButtonSwitch.h \
+	src/extensions/QIArrowSplitter.h \
+	src/extensions/QIComboBox.h \
+	src/extensions/QIDialog.h \
+	src/extensions/QIFileDialog.h \
+	src/extensions/QIFlowLayout.h \
+	src/extensions/QILabel.h \
+	src/extensions/QILabelSeparator.h \
+	src/extensions/QIMainDialog.h \
+	src/extensions/QIMainWindow.h \
+	src/extensions/QIManagerDialog.h \
+	src/extensions/QIMenu.h \
+	src/extensions/QIMessageBox.h \
+	src/extensions/QIProcess.h \
+	src/extensions/QIRichTextLabel.h \
+	src/extensions/QIRichToolButton.h \
+	src/extensions/QISplitter.h \
+	src/extensions/QIStatusBar.h \
+	src/extensions/QIStatusBarIndicator.h \
+	src/extensions/QIStyledItemDelegate.h \
+	src/extensions/QITabWidget.h \
+	src/extensions/QITableView.h \
+	src/extensions/QIToolButton.h \
+	src/extensions/QITreeView.h \
+	src/extensions/QITreeWidget.h \
+	src/extensions/QIWidgetValidator.h \
+	src/extensions/graphics/QIGraphicsView.h \
+	src/extensions/graphics/QIGraphicsWidget.h \
+	src/extradata/UIExtraDataDefs.h \
+	src/extradata/UIExtraDataManager.h \
+	src/globals/UIActionPool.h \
+	src/globals/UIAnimationFramework.h \
+	src/globals/UIDesktopWidgetWatchdog.h \
+	src/globals/UIMainEventListener.h \
+	src/globals/UIMessageCenter.h \
+	src/globals/UIModalWindowManager.h \
+	src/globals/UIPopupCenter.h \
+	src/globals/UIShortcutPool.h \
+	src/globals/UIThreadPool.h \
+	src/globals/VBoxGlobal.h \
+	src/globals/VBoxUtils.h \
+	src/hostnetwork/UIHostNetworkDetailsWidget.h \
+	src/hostnetwork/UIHostNetworkManager.h \
+	src/medium/UIMediumDetailsWidget.h \
+	src/medium/UIMediumEnumerator.h \
+	src/medium/UIMediumManager.h \
+	src/runtime/UIActionPoolRuntime.h \
+	src/runtime/UIAddDiskEncryptionPasswordDialog.h \
+	src/runtime/UIConsoleEventHandler.h \
+	src/runtime/UIFrameBuffer.h \
+	src/runtime/UIIndicatorsPool.h \
+	src/runtime/UIKeyboardHandler.h \
+	src/runtime/UIMachine.h \
+	src/runtime/UIMachineLogic.h \
+	src/runtime/UIMachineWindow.h \
+	src/runtime/UIMachineView.h \
+	src/runtime/UIMenuBarEditorWindow.h \
+	src/runtime/UIMouseHandler.h \
+	src/runtime/UIMultiScreenLayout.h \
+	src/runtime/UISession.h \
+	src/runtime/UISlidingToolBar.h \
+	src/runtime/UIStatusBarEditorWindow.h \
+	src/runtime/UIVMCloseDialog.h \
+	src/runtime/fullscreen/UIKeyboardHandlerFullscreen.h \
+	src/runtime/fullscreen/UIMachineLogicFullscreen.h \
+	src/runtime/fullscreen/UIMachineViewFullscreen.h \
+	src/runtime/fullscreen/UIMachineWindowFullscreen.h \
+	src/runtime/normal/UIKeyboardHandlerNormal.h \
+	src/runtime/normal/UIMachineLogicNormal.h \
+	src/runtime/normal/UIMachineViewNormal.h \
+	src/runtime/normal/UIMachineWindowNormal.h \
+	src/runtime/scale/UIKeyboardHandlerScale.h \
+	src/runtime/scale/UIMachineLogicScale.h \
+	src/runtime/scale/UIMachineViewScale.h \
+	src/runtime/scale/UIMachineWindowScale.h \
+	src/runtime/seamless/UIKeyboardHandlerSeamless.h \
+	src/runtime/seamless/UIMachineLogicSeamless.h \
+	src/runtime/seamless/UIMachineViewSeamless.h \
+	src/runtime/seamless/UIMachineWindowSeamless.h \
+	src/selector/UIActionPoolSelector.h \
+	src/selector/UIDesktopPane.h \
+	src/selector/UIVMItem.h \
+	src/selector/UIVirtualBoxEventHandler.h \
+	src/selector/UISelectorWindow.h \
+	src/selector/UISnapshotDetailsWidget.h \
+	src/selector/UISnapshotPane.h \
+	src/selector/UIToolsPaneGlobal.h \
+	src/selector/UIToolsPaneMachine.h \
+	src/selector/UIToolsToolbar.h \
+	src/selector/graphics/chooser/UIGChooser.h \
+	src/selector/graphics/chooser/UIGChooserModel.h \
+	src/selector/graphics/chooser/UIGChooserView.h \
+	src/selector/graphics/chooser/UIGChooserHandlerMouse.h \
+	src/selector/graphics/chooser/UIGChooserHandlerKeyboard.h \
+	src/selector/graphics/chooser/UIGChooserItem.h \
+	src/selector/graphics/chooser/UIGChooserItemGroup.h \
+	src/selector/graphics/chooser/UIGChooserItemMachine.h \
+	src/selector/graphics/details/UIGDetails.h \
+	src/selector/graphics/details/UIGDetailsModel.h \
+	src/selector/graphics/details/UIGDetailsView.h \
+	src/selector/graphics/details/UIGDetailsItem.h \
+	src/selector/graphics/details/UIGDetailsGroup.h \
+	src/selector/graphics/details/UIGDetailsSet.h \
+	src/selector/graphics/details/UIGDetailsElement.h \
+	src/selector/graphics/details/UIGDetailsElements.h \
+	src/selector/graphics/details/UIGMachinePreview.h \
+	src/settings/UISettingsDialog.h \
+	src/settings/UISettingsDialogSpecific.h \
+	src/settings/UISettingsPage.h \
+	src/settings/UISettingsSelector.h \
+	src/settings/UISettingsSerializer.h \
+	src/settings/global/UIGlobalSettingsExtension.h \
+	src/settings/global/UIGlobalSettingsGeneral.h \
+	src/settings/global/UIGlobalSettingsInput.h \
+	src/settings/global/UIGlobalSettingsLanguage.h \
+	src/settings/global/UIGlobalSettingsDisplay.h \
+	src/settings/global/UIGlobalSettingsNetwork.h \
+	src/settings/global/UIGlobalSettingsNetworkDetailsNAT.h \
+	src/settings/global/UIGlobalSettingsPortForwardingDlg.h \
+	src/settings/machine/UIMachineSettingsAudio.h \
+	src/settings/machine/UIMachineSettingsDisplay.h \
+	src/settings/machine/UIMachineSettingsGeneral.h \
+	src/settings/machine/UIMachineSettingsInterface.h \
+	src/settings/machine/UIMachineSettingsNetwork.h \
+	src/settings/machine/UIMachineSettingsPortForwardingDlg.h \
+	src/settings/machine/UIMachineSettingsSF.h \
+	src/settings/machine/UIMachineSettingsSFDetails.h \
+	src/settings/machine/UIMachineSettingsSerial.h \
+	src/settings/machine/UIMachineSettingsStorage.h \
+	src/settings/machine/UIMachineSettingsSystem.h \
+	src/settings/machine/UIMachineSettingsUSB.h \
+	src/settings/machine/UIMachineSettingsUSBFilterDetails.h \
+	src/widgets/UIApplianceEditorWidget.h \
+	src/widgets/UIApplianceExportEditorWidget.h \
+	src/widgets/UIApplianceImportEditorWidget.h \
+	src/widgets/UIBootTable.h \
+	src/widgets/UIFilePathSelector.h \
+	src/widgets/UIEmptyFilePathSelector.h \
+	src/widgets/UIHostComboEditor.h \
+	src/widgets/UIHotKeyEditor.h \
+	src/widgets/UILineTextEdit.h \
+	src/widgets/UIMediumSizeEditor.h \
+	src/widgets/UIMenuBar.h \
+	src/widgets/UIPopupBox.h \
+	src/widgets/UIPopupPane.h \
+	src/widgets/UIPopupPaneMessage.h \
+	src/widgets/UIPopupPaneDetails.h \
+	src/widgets/UIPopupPaneButtonPane.h \
+	src/widgets/UIPopupStack.h \
+	src/widgets/UIPopupStackViewport.h \
+	src/widgets/UIPortForwardingTable.h \
+	src/widgets/UIProgressDialog.h \
+	src/widgets/UISlidingWidget.h \
+	src/widgets/UISpecialControls.h \
+	src/widgets/UITabBar.h \
+	src/widgets/UIToolBar.h \
+	src/widgets/VBoxMediaComboBox.h \
+	src/widgets/UIMenuToolBar.h \
+	src/widgets/UIMiniToolBar.h \
+	src/widgets/VBoxOSTypeSelectorButton.h \
+	src/widgets/UINameAndSystemEditor.h \
+	src/widgets/UIWarningPane.h \
+	src/widgets/UIFilmContainer.h \
+	src/widgets/graphics/UIGraphicsButton.h \
+	src/widgets/graphics/UIGraphicsRotatorButton.h \
+	src/widgets/graphics/UIGraphicsZoomButton.h \
+	src/widgets/graphics/UIGraphicsToolBar.h \
+	src/widgets/graphics/UIGraphicsTextPane.h \
+	src/wizards/UIWizard.h \
+	src/wizards/UIWizardPage.h \
+	src/wizards/newvm/UIWizardNewVM.h \
+	src/wizards/newvm/UIWizardNewVMPageBasic1.h \
+	src/wizards/newvm/UIWizardNewVMPageBasic2.h \
+	src/wizards/newvm/UIWizardNewVMPageBasic3.h \
+	src/wizards/newvm/UIWizardNewVMPageExpert.h \
+	src/wizards/newvd/UIWizardNewVD.h \
+	src/wizards/newvd/UIWizardNewVDPageBasic1.h \
+	src/wizards/newvd/UIWizardNewVDPageBasic2.h \
+	src/wizards/newvd/UIWizardNewVDPageBasic3.h \
+	src/wizards/newvd/UIWizardNewVDPageExpert.h \
+	src/wizards/clonevm/UIWizardCloneVM.h \
+	src/wizards/clonevm/UIWizardCloneVMPageBasic1.h \
+	src/wizards/clonevm/UIWizardCloneVMPageBasic2.h \
+	src/wizards/clonevm/UIWizardCloneVMPageBasic3.h \
+	src/wizards/clonevm/UIWizardCloneVMPageExpert.h \
+	src/wizards/clonevd/UIWizardCloneVD.h \
+	src/wizards/clonevd/UIWizardCloneVDPageBasic1.h \
+	src/wizards/clonevd/UIWizardCloneVDPageBasic2.h \
+	src/wizards/clonevd/UIWizardCloneVDPageBasic3.h \
+	src/wizards/clonevd/UIWizardCloneVDPageBasic4.h \
+	src/wizards/clonevd/UIWizardCloneVDPageExpert.h \
+	src/wizards/exportappliance/UIWizardExportApp.h \
+	src/wizards/exportappliance/UIWizardExportAppPageBasic1.h \
+	src/wizards/exportappliance/UIWizardExportAppPageBasic2.h \
+	src/wizards/exportappliance/UIWizardExportAppPageBasic3.h \
+	src/wizards/exportappliance/UIWizardExportAppPageBasic4.h \
+	src/wizards/exportappliance/UIWizardExportAppPageExpert.h \
+	src/wizards/importappliance/UIWizardImportApp.h \
+	src/wizards/importappliance/UIWizardImportAppPageBasic1.h \
+	src/wizards/importappliance/UIWizardImportAppPageBasic2.h \
+	src/wizards/importappliance/UIWizardImportAppPageExpert.h \
+	src/wizards/firstrun/UIWizardFirstRun.h \
+	src/wizards/firstrun/UIWizardFirstRunPageBasic.h \
+	src/runtime/information/UIInformationConfiguration.h \
+	src/runtime/information/UIInformationDataItem.h \
+	src/runtime/information/UIInformationItem.h \
+	src/runtime/information/UIInformationModel.h \
+	src/runtime/information/UIInformationRuntime.h \
+	src/runtime/information/UIInformationView.h \
+	src/runtime/information/UIVMInformationDialog.h
+
+ifdef VBOX_GUI_WITH_NETWORK_MANAGER
+ VirtualBox_QT_MOCHDRS += \
+	src/net/UINetworkManager.h \
+	src/net/UINetworkManagerDialog.h \
+	src/net/UINetworkManagerIndicator.h \
+	src/net/UINetworkRequest.h \
+	src/net/UINetworkRequestWidget.h \
+	src/net/UINetworkReply.h \
+	src/net/UINetworkCustomer.h \
+	src/net/UIUpdateManager.h \
+	src/net/UIDownloader.h \
+	src/net/UIDownloaderAdditions.h \
+	src/net/UIDownloaderExtensionPack.h \
+	src/net/UIDownloaderUserManual.h \
+	src/settings/global/UIGlobalSettingsProxy.h \
+	src/settings/global/UIGlobalSettingsUpdate.h
+endif
+
+ifdef VBOX_WITH_DRAG_AND_DROP
+ VirtualBox_QT_MOCHDRS += \
+	src/runtime/UIDnDHandler.h
+ ifdef VBOX_WITH_DRAG_AND_DROP_GH
+  VirtualBox_QT_MOCHDRS += \
+	src/runtime/UIDnDMIMEData.h
+ endif
+endif
+
+VirtualBox_QT_MOCHDRS.darwin += \
+    src/platform/darwin/UIWindowMenuManager.h
+
+# Sources containing local definitions of classes that use the Q_OBJECT macro.
+VirtualBox_QT_MOCSRCS = \
+	src/UIVMLogViewer.cpp \
+	src/extensions/QIArrowSplitter.cpp \
+	src/extensions/QISplitter.cpp \
+	src/extradata/UIExtraDataManager.cpp \
+	src/globals/UIActionPool.cpp \
+	src/globals/UIMainEventListener.cpp \
+	src/globals/UIThreadPool.cpp \
+	src/medium/UIMediumEnumerator.cpp \
+	src/medium/UIMediumManager.cpp \
+	src/runtime/UIActionPoolRuntime.cpp \
+	src/runtime/UIAddDiskEncryptionPasswordDialog.cpp \
+	src/runtime/UIConsoleEventHandler.cpp \
+	src/runtime/UIFrameBuffer.cpp \
+	src/runtime/UIIndicatorsPool.cpp \
+	src/runtime/UIStatusBarEditorWindow.cpp \
+	src/selector/UIActionPoolSelector.cpp \
+	src/selector/UIDesktopPane.cpp \
+	src/selector/UIVirtualBoxEventHandler.cpp \
+	src/selector/UISnapshotDetailsWidget.cpp \
+	src/selector/UISnapshotPane.cpp \
+	src/settings/global/UIGlobalSettingsInput.cpp \
+	src/settings/machine/UIMachineSettingsNetwork.cpp \
+	src/settings/machine/UIMachineSettingsSerial.cpp \
+	src/settings/machine/UIMachineSettingsStorage.cpp \
+	src/settings/machine/UIMachineSettingsUSB.cpp \
+	src/widgets/UIHotKeyEditor.cpp \
+	src/widgets/UIMenuToolBar.cpp \
+	src/widgets/UIMiniToolBar.cpp \
+	src/widgets/UIPortForwardingTable.cpp \
+	src/widgets/UIProgressDialog.cpp \
+	src/widgets/UITabBar.cpp \
+	src/wizards/importappliance/UIWizardImportApp.cpp
+
+ifdef VBOX_GUI_WITH_NETWORK_MANAGER
+ VirtualBox_QT_MOCSRCS += \
+	src/net/UINetworkReply.cpp \
+	src/net/UIUpdateManager.cpp
+endif
+
+VirtualBox_QT_MOCSRCS.darwin += \
+	src/platform/darwin/UIWindowMenuManager.cpp
+VirtualBox_QT_MOCSRCS.win += \
+	src/extensions/QIFileDialog.cpp
+VirtualBox_QT_MOCSRCS.linux += \
+	src/globals/UIDesktopWidgetWatchdog.cpp
+VirtualBox_QT_MOCSRCS.solaris += \
+	src/globals/UIDesktopWidgetWatchdog.cpp
+VirtualBox_QT_MOCSRCS.freebsd += \
+	src/globals/UIDesktopWidgetWatchdog.cpp
+
+ifdef VBOX_WITH_XPCOM
+ VirtualBox_QT_MOCSRCS += \
+	src/globals/COMDefs.cpp
+endif
+
+VirtualBox_SOURCES = \
+	src/main.cpp \
+	src/UIMediumTypeChangeDialog.cpp \
+	src/VBoxAboutDlg.cpp \
+	src/VBoxLicenseViewer.cpp \
+	src/UITakeSnapshotDialog.cpp \
+	src/UIVMLogViewer.cpp \
+	src/converter/UIConverter.cpp \
+	src/converter/UIConverterBackendCOM.cpp \
+	src/converter/UIConverterBackendGlobal.cpp \
+	src/extensions/QIAdvancedSlider.cpp \
+	src/extensions/QIArrowButtonPress.cpp \
+	src/extensions/QIArrowButtonSwitch.cpp \
+	src/extensions/QIArrowSplitter.cpp \
+	src/extensions/QIComboBox.cpp \
+	src/extensions/QIDialog.cpp \
+	src/extensions/QIDialogButtonBox.cpp \
+	src/extensions/QIFileDialog.cpp \
+	src/extensions/QIFlowLayout.cpp \
+	src/extensions/QILabel.cpp \
+	src/extensions/QILabelSeparator.cpp \
+	src/extensions/QILineEdit.cpp \
+	src/extensions/QIMainDialog.cpp \
+	src/extensions/QIMainWindow.cpp \
+	src/extensions/QIManagerDialog.cpp \
+	src/extensions/QIMenu.cpp \
+	src/extensions/QIMessageBox.cpp \
+	src/extensions/QIProcess.cpp \
+	src/extensions/QIRichTextLabel.cpp \
+	src/extensions/QIRichToolButton.cpp \
+	src/extensions/QISplitter.cpp \
+	src/extensions/QIStatusBar.cpp \
+	src/extensions/QIStatusBarIndicator.cpp \
+	src/extensions/QITableView.cpp \
+	src/extensions/QITreeView.cpp \
+	src/extensions/QITreeWidget.cpp \
+	src/extensions/QIWidgetValidator.cpp \
+	src/extensions/graphics/QIGraphicsView.cpp \
+	src/extensions/graphics/QIGraphicsWidget.cpp \
+	src/extradata/UIExtraDataDefs.cpp \
+	src/extradata/UIExtraDataManager.cpp \
+	src/globals/UIDefs.cpp \
+	src/globals/COMDefs.cpp \
+	src/globals/UIActionPool.cpp \
+	src/globals/UIAnimationFramework.cpp \
+	src/globals/UIDesktopWidgetWatchdog.cpp \
+	src/globals/UIIconPool.cpp \
+	src/globals/UIImageTools.cpp \
+	src/globals/UIMainEventListener.cpp \
+	src/globals/UIMessageCenter.cpp \
+	src/globals/UIErrorString.cpp \
+	src/globals/UIModalWindowManager.cpp \
+	src/globals/UIPopupCenter.cpp \
+	src/globals/UIShortcutPool.cpp \
+	src/globals/UIThreadPool.cpp \
+	src/globals/VBoxGlobal.cpp \
+	src/hostnetwork/UIHostNetworkDetailsWidget.cpp \
+	src/hostnetwork/UIHostNetworkManager.cpp \
+	src/hostnetwork/UIHostNetworkUtils.cpp \
+	src/medium/UIMediumDefs.cpp \
+	src/medium/UIMedium.cpp \
+	src/medium/UIMediumDetailsWidget.cpp \
+	src/medium/UIMediumEnumerator.cpp \
+	src/medium/UIMediumManager.cpp \
+	src/objects/UIRichTextString.cpp \
+	src/runtime/UIActionPoolRuntime.cpp \
+	src/runtime/UIAddDiskEncryptionPasswordDialog.cpp \
+	src/runtime/UIConsoleEventHandler.cpp \
+	src/runtime/UIFrameBuffer.cpp \
+	src/runtime/UIIndicatorsPool.cpp \
+	src/runtime/UIKeyboardHandler.cpp \
+	src/runtime/UIMachine.cpp \
+	src/runtime/UIMachineLogic.cpp \
+	src/runtime/UIMachineView.cpp \
+	src/runtime/UIMachineWindow.cpp \
+	src/runtime/UIMenuBarEditorWindow.cpp \
+	src/runtime/UIMouseHandler.cpp \
+	src/runtime/UIMultiScreenLayout.cpp \
+	src/runtime/UISession.cpp \
+	src/runtime/UISlidingToolBar.cpp \
+	src/runtime/UIStatusBarEditorWindow.cpp \
+	src/runtime/UIVMCloseDialog.cpp \
+	src/runtime/fullscreen/UIKeyboardHandlerFullscreen.cpp \
+	src/runtime/fullscreen/UIMachineLogicFullscreen.cpp \
+	src/runtime/fullscreen/UIMachineViewFullscreen.cpp \
+	src/runtime/fullscreen/UIMachineWindowFullscreen.cpp \
+	src/runtime/normal/UIKeyboardHandlerNormal.cpp \
+	src/runtime/normal/UIMachineLogicNormal.cpp \
+	src/runtime/normal/UIMachineViewNormal.cpp \
+	src/runtime/normal/UIMachineWindowNormal.cpp \
+	src/runtime/scale/UIKeyboardHandlerScale.cpp \
+	src/runtime/scale/UIMachineLogicScale.cpp \
+	src/runtime/scale/UIMachineViewScale.cpp \
+	src/runtime/scale/UIMachineWindowScale.cpp \
+	src/runtime/seamless/UIKeyboardHandlerSeamless.cpp \
+	src/runtime/seamless/UIMachineLogicSeamless.cpp \
+	src/runtime/seamless/UIMachineViewSeamless.cpp \
+	src/runtime/seamless/UIMachineWindowSeamless.cpp \
+	src/selector/UIActionPoolSelector.cpp \
+	src/selector/UIDesktopPane.cpp \
+	src/selector/UIVMItem.cpp \
+	src/selector/UIVirtualBoxEventHandler.cpp \
+	src/selector/UISelectorWindow.cpp \
+	src/selector/UISnapshotDetailsWidget.cpp \
+	src/selector/UISnapshotPane.cpp \
+	src/selector/UIToolsPaneGlobal.cpp \
+	src/selector/UIToolsPaneMachine.cpp \
+	src/selector/UIToolsToolbar.cpp \
+	src/selector/graphics/chooser/UIGChooser.cpp \
+	src/selector/graphics/chooser/UIGChooserModel.cpp \
+	src/selector/graphics/chooser/UIGChooserView.cpp \
+	src/selector/graphics/chooser/UIGChooserHandlerMouse.cpp \
+	src/selector/graphics/chooser/UIGChooserHandlerKeyboard.cpp \
+	src/selector/graphics/chooser/UIGChooserItem.cpp \
+	src/selector/graphics/chooser/UIGChooserItemGroup.cpp \
+	src/selector/graphics/chooser/UIGChooserItemMachine.cpp \
+	src/selector/graphics/details/UIGDetails.cpp \
+	src/selector/graphics/details/UIGDetailsModel.cpp \
+	src/selector/graphics/details/UIGDetailsView.cpp \
+	src/selector/graphics/details/UIGDetailsItem.cpp \
+	src/selector/graphics/details/UIGDetailsGroup.cpp \
+	src/selector/graphics/details/UIGDetailsSet.cpp \
+	src/selector/graphics/details/UIGDetailsElement.cpp \
+	src/selector/graphics/details/UIGDetailsElements.cpp \
+	src/selector/graphics/details/UIGMachinePreview.cpp \
+	src/settings/UISettingsDefs.cpp \
+	src/settings/UISettingsDialog.cpp \
+	src/settings/UISettingsDialogSpecific.cpp \
+	src/settings/UISettingsPage.cpp \
+	src/settings/UISettingsSelector.cpp \
+	src/settings/UISettingsSerializer.cpp \
+	src/settings/global/UIGlobalSettingsExtension.cpp \
+	src/settings/global/UIGlobalSettingsGeneral.cpp \
+	src/settings/global/UIGlobalSettingsInput.cpp \
+	src/settings/global/UIGlobalSettingsLanguage.cpp \
+	src/settings/global/UIGlobalSettingsDisplay.cpp \
+	src/settings/global/UIGlobalSettingsNetwork.cpp \
+	src/settings/global/UIGlobalSettingsNetworkDetailsNAT.cpp \
+	src/settings/global/UIGlobalSettingsPortForwardingDlg.cpp \
+	src/settings/machine/UIMachineSettingsAudio.cpp \
+	src/settings/machine/UIMachineSettingsDisplay.cpp \
+	src/settings/machine/UIMachineSettingsGeneral.cpp \
+	src/settings/machine/UIMachineSettingsInterface.cpp \
+	src/settings/machine/UIMachineSettingsNetwork.cpp \
+	src/settings/machine/UIMachineSettingsPortForwardingDlg.cpp \
+	src/settings/machine/UIMachineSettingsSF.cpp \
+	src/settings/machine/UIMachineSettingsSFDetails.cpp \
+	src/settings/machine/UIMachineSettingsSerial.cpp \
+	src/settings/machine/UIMachineSettingsStorage.cpp \
+	src/settings/machine/UIMachineSettingsSystem.cpp \
+	src/settings/machine/UIMachineSettingsUSB.cpp \
+	src/settings/machine/UIMachineSettingsUSBFilterDetails.cpp \
+	src/widgets/UIApplianceEditorWidget.cpp \
+	src/widgets/UIApplianceExportEditorWidget.cpp \
+	src/widgets/UIApplianceImportEditorWidget.cpp \
+	src/widgets/UIBootTable.cpp \
+	src/widgets/UIFilePathSelector.cpp \
+	src/widgets/UIEmptyFilePathSelector.cpp \
+	src/widgets/UIHostComboEditor.cpp \
+	src/widgets/UIHotKeyEditor.cpp \
+	src/widgets/UILineTextEdit.cpp \
+	src/widgets/UIMediumSizeEditor.cpp \
+	src/widgets/UIMenuBar.cpp \
+	src/widgets/UIPopupBox.cpp \
+	src/widgets/UIPopupPane.cpp \
+	src/widgets/UIPopupPaneMessage.cpp \
+	src/widgets/UIPopupPaneDetails.cpp \
+	src/widgets/UIPopupPaneButtonPane.cpp \
+	src/widgets/UIPopupStack.cpp \
+	src/widgets/UIPopupStackViewport.cpp \
+	src/widgets/UIPortForwardingTable.cpp \
+	src/widgets/UIProgressDialog.cpp \
+	src/widgets/UISlidingWidget.cpp \
+	src/widgets/UISpecialControls.cpp \
+	src/widgets/UITabBar.cpp \
+	src/widgets/UIToolBar.cpp \
+	src/widgets/VBoxGuestRAMSlider.cpp \
+	src/widgets/VBoxMediaComboBox.cpp \
+	src/widgets/UIMenuToolBar.cpp \
+	src/widgets/UIMiniToolBar.cpp \
+	src/widgets/VBoxOSTypeSelectorButton.cpp \
+	src/widgets/UINameAndSystemEditor.cpp \
+	src/widgets/UIWarningPane.cpp \
+	src/widgets/UIFilmContainer.cpp \
+	src/widgets/graphics/UIGraphicsButton.cpp \
+	src/widgets/graphics/UIGraphicsRotatorButton.cpp \
+	src/widgets/graphics/UIGraphicsZoomButton.cpp \
+	src/widgets/graphics/UIGraphicsToolBar.cpp \
+	src/widgets/graphics/UIGraphicsTextPane.cpp \
+	src/wizards/UIWizard.cpp \
+	src/wizards/UIWizardPage.cpp \
+	src/wizards/newvm/UIWizardNewVM.cpp \
+	src/wizards/newvm/UIWizardNewVMPageBasic1.cpp \
+	src/wizards/newvm/UIWizardNewVMPageBasic2.cpp \
+	src/wizards/newvm/UIWizardNewVMPageBasic3.cpp \
+	src/wizards/newvm/UIWizardNewVMPageExpert.cpp \
+	src/wizards/newvd/UIWizardNewVD.cpp \
+	src/wizards/newvd/UIWizardNewVDPageBasic1.cpp \
+	src/wizards/newvd/UIWizardNewVDPageBasic2.cpp \
+	src/wizards/newvd/UIWizardNewVDPageBasic3.cpp \
+	src/wizards/newvd/UIWizardNewVDPageExpert.cpp \
+	src/wizards/clonevm/UIWizardCloneVM.cpp \
+	src/wizards/clonevm/UIWizardCloneVMPageBasic1.cpp \
+	src/wizards/clonevm/UIWizardCloneVMPageBasic2.cpp \
+	src/wizards/clonevm/UIWizardCloneVMPageBasic3.cpp \
+	src/wizards/clonevm/UIWizardCloneVMPageExpert.cpp \
+	src/wizards/clonevd/UIWizardCloneVD.cpp \
+	src/wizards/clonevd/UIWizardCloneVDPageBasic1.cpp \
+	src/wizards/clonevd/UIWizardCloneVDPageBasic2.cpp \
+	src/wizards/clonevd/UIWizardCloneVDPageBasic3.cpp \
+	src/wizards/clonevd/UIWizardCloneVDPageBasic4.cpp \
+	src/wizards/clonevd/UIWizardCloneVDPageExpert.cpp \
+	src/wizards/exportappliance/UIWizardExportApp.cpp \
+	src/wizards/exportappliance/UIWizardExportAppPageBasic1.cpp \
+	src/wizards/exportappliance/UIWizardExportAppPageBasic2.cpp \
+	src/wizards/exportappliance/UIWizardExportAppPageBasic3.cpp \
+	src/wizards/exportappliance/UIWizardExportAppPageBasic4.cpp \
+	src/wizards/exportappliance/UIWizardExportAppPageExpert.cpp \
+	src/wizards/importappliance/UIWizardImportApp.cpp \
+	src/wizards/importappliance/UIWizardImportAppPageBasic1.cpp \
+	src/wizards/importappliance/UIWizardImportAppPageBasic2.cpp \
+	src/wizards/importappliance/UIWizardImportAppPageExpert.cpp \
+	src/wizards/firstrun/UIWizardFirstRun.cpp \
+	src/wizards/firstrun/UIWizardFirstRunPageBasic.cpp \
+	src/runtime/information/UIInformationConfiguration.cpp \
+	src/runtime/information/UIInformationDataItem.cpp \
+	src/runtime/information/UIInformationItem.cpp \
+	src/runtime/information/UIInformationModel.cpp \
+	src/runtime/information/UIInformationRuntime.cpp \
+	src/runtime/information/UIInformationView.cpp \
+	src/runtime/information/UIVMInformationDialog.cpp
+
+ifdef VBOX_GUI_WITH_NETWORK_MANAGER
+VirtualBox_SOURCES += \
+	src/net/UINetworkManager.cpp \
+	src/net/UINetworkManagerDialog.cpp \
+	src/net/UINetworkManagerIndicator.cpp \
+	src/net/UINetworkRequest.cpp \
+	src/net/UINetworkRequestWidget.cpp \
+	src/net/UINetworkReply.cpp \
+	src/net/UINetworkCustomer.cpp \
+	src/net/UIDownloader.cpp \
+	src/net/UIDownloaderAdditions.cpp \
+	src/net/UIDownloaderExtensionPack.cpp \
+	src/net/UIDownloaderUserManual.cpp \
+	src/net/UIUpdateDefs.cpp \
+	src/net/UIUpdateManager.cpp \
+	src/settings/global/UIGlobalSettingsProxy.cpp \
+	src/settings/global/UIGlobalSettingsUpdate.cpp
+endif
+
+VirtualBox_SOURCES.darwin += \
+	src/platform/darwin/UIAbstractDockIconPreview.cpp \
+	src/platform/darwin/UICocoaDockIconPreview.mm \
+	src/platform/darwin/UIWindowMenuManager.cpp \
+
+if1of ($(KBUILD_TARGET), freebsd linux netbsd openbsd solaris) # X11
+ VirtualBox_SOURCES += \
+ 	src/platform/x11/UIDesktopServices_x11.cpp \
+ 	src/platform/x11/VBoxX11Helper.cpp \
+ 	src/platform/x11/XKeyboard-new.cpp
+endif
+
+VirtualBox_SOURCES.win += \
+	src/platform/win/VirtualBox.rc \
+	src/platform/win/UIDesktopServices_win.cpp \
+	src/platform/win/VBoxUtils-win.cpp \
+	src/platform/win/WinKeyboard.cpp
+
+if defined(VBOX_WITH_ORACLE_QT) || defined(VBOX_WITH_QT_PAYLOAD)
+ INSTALLS.linux += VirtualBox.qt.conf
+ INSTALLS.solaris += VirtualBox.qt.conf
+ VirtualBox.qt.conf_INST = $(INST_BIN)
+ VirtualBox.qt.conf_MODE = 644
+ VirtualBox.qt.conf_SOURCES = $(VirtualBox_0_OUTDIR)/qt.conf=>qt.conf
+
+$$(VirtualBox_0_OUTDIR)/qt.conf: $(PATH_SUB_CURRENT)/Makefile.kmk $(VBOX_VERSION_MK) | $$(@D)/
+	$(QUIET)$(RM) -f $@
+	$(QUIET)$(APPEND) $@ "[Paths]"
+	$(QUIET)$(APPEND) $@ "Plugins =" $(PATH_OUT)/$(INST_BIN)/plugins
+endif
+
+VirtualBox_DEFS.darwin += VBOX_DARWIN_USE_NATIVE_CONTROLS
+VirtualBox_SOURCES.darwin += \
+	src/platform/darwin/CocoaEventHelper.mm \
+	src/platform/darwin/DarwinKeyboard.cpp \
+	src/platform/darwin/UICocoaApplication.mm \
+	src/platform/darwin/UICocoaSpecialControls.mm \
+	src/platform/darwin/UIDesktopServices_darwin.cpp \
+	src/platform/darwin/UIDesktopServices_darwin_cocoa.mm \
+	src/platform/darwin/VBoxUtils-darwin-cocoa.mm \
+	src/platform/darwin/VBoxUtils-darwin.cpp
+VirtualBox_QT_MOCHDRS.darwin += \
+	src/platform/darwin/UICocoaSpecialControls.h
+
+ifdef VBOX_WITH_ICHAT_THEATER
+ VirtualBox_SOURCES.darwin += \
+	src/platform/darwin/VBoxIChatTheaterWrapper.m
+endif
+
+if defined(VBOX_WITH_VIDEOHWACCEL) || defined(VBOX_GUI_USE_QGL)
+ VirtualBox_SOURCES += \
+	src/VBoxFBOverlay.cpp \
+	src/VBoxGLSupportInfo.cpp
+endif
+
+#
+# Drag and drop support.
+#
+ifdef VBOX_WITH_DRAG_AND_DROP
+ VirtualBox_SOURCES += \
+	src/runtime/UIDnDHandler.cpp
+ ifdef VBOX_WITH_DRAG_AND_DROP_GH
+  VirtualBox_SOURCES += \
+	src/runtime/UIDnDMIMEData.cpp
+  VirtualBox_SOURCES.win += \
+	src/runtime/UIDnDDropSource_win.cpp \
+	src/runtime/UIDnDDataObject_win.cpp \
+	src/runtime/UIDnDEnumFormat_win.cpp
+ endif
+endif
+
+# The Qt modules we're using.
+# (The include directory and lib/framework for each module will be added by the Qt unit.)
+VirtualBox_QT_MODULES = Core Gui Widgets PrintSupport
+VirtualBox_QT_MODULES.linux   += X11Extras
+VirtualBox_QT_MODULES.solaris += X11Extras
+VirtualBox_QT_MODULES.freebsd += X11Extras
+VirtualBox_QT_MODULES.darwin  += MacExtras
+VirtualBox_QT_MODULES.win     += WinExtras
+if defined(VBOX_WITH_VIDEOHWACCEL) || defined(VBOX_GUI_USE_QGL)
+ VirtualBox_QT_MODULES += OpenGL
+endif
+
+# Pull in the ui files
+$(eval VirtualBox_SOURCES += $(FORMS))
+
+# Resource files with some OSE differences (VirtualBoxBrand.qrc is created further down).
+VirtualBox_SOURCES            += VirtualBox1.qrc
+VirtualBox1.qrc_RCCFLAGS       = -name BASIC1
+VirtualBox_SOURCES            += VirtualBox2.qrc
+VirtualBox2.qrc_RCCFLAGS       = -name BASIC2
+VirtualBox_SOURCES             += VirtualBox1_hidpi.qrc
+VirtualBox1_hidpi.qrc_RCCFLAGS  = -name BASIC1_HIDPI
+VirtualBox_SOURCES             += VirtualBox2_hidpi.qrc
+VirtualBox2_hidpi.qrc_RCCFLAGS  = -name BASIC2_HIDPI
+ifeq ($(KBUILD_TARGET),darwin)
+ VirtualBox_SOURCES           += VirtualBoxMac.qrc
+ VirtualBoxMac.qrc_RCCFLAGS    = -name MAC
+else
+ VirtualBox_SOURCES += VirtualBoxOther.qrc
+ VirtualBoxOther.qrc_RCCFLAGS  = -name OTHER
+endif
+VirtualBox_SOURCES += $(VBOX_VIRTUALBOX4_OUT_DIR)/VirtualBoxBrand.qrc
+$(VBOX_VIRTUALBOX4_OUT_DIR)/VirtualBoxBrand.qrc_RCCFLAGS = -name BRAND
+if defined(VBOX_WITH_VIDEOHWACCEL) || defined(VBOX_GUI_USE_QGL)
+ VirtualBox_SOURCES += VirtualBoxShaders.qrc
+ VirtualBoxShaders.qrc_RCCFLAGS = -name SHADERS
+endif
+
+# Import the translation source from VBoxUI.pro and add the qt_xx_YY counterparts
+VirtualBox_QT_TRANSLATIONS := $(TRANSLATIONS) \
+	$(patsubst nls/VirtualBox_%.ts,nls/qt_%.ts, $(filter nls/VirtualBox_%.ts,$(TRANSLATIONS)))
+# Compress the translation units.
+VirtualBox_LRCFLAGS = -silent
+# Where to install the translations (a separate install target, VirtualBox-nls-inst is created).
+VirtualBox_QT_TRANSLATIONS_INST = $(INST_BIN)nls/
+
+
+## @todo how to detect what tool is used?
+## @todo GCC3 seems to lack -Wno-missing-base-class-initializer, so we use
+#  more generic -Wno-extra
+# bird: What about $(if $(VBOX_GCC_Wno-missing-base-class-initializer),$(VBOX_GCC_Wno-missing-base-class-initializer),$(VBOX_GCC_Wno-extra))?
+ifdef VBOX_WITH_XPCOM
+ VirtualBox_src/globals/COMDefs.cpp_CXXFLAGS  = $(VBOX_GCC_Wno-extra)
+endif
+
+
+#
+# Generate the COM wrappers.
+#
+includedep $(PATH_TARGET)/VirtualBoxComWrapperFiles.dep
+VirtualBox_BLDDIRS       += $(VirtualBox_0_OUTDIR)/include
+VirtualBox_INTERMEDIATES += $(VirtualBox_0_OUTDIR)/include/COMWrappers
+VirtualBox_CLEAN         += $(wildcard $(VirtualBox_0_OUTDIR)/include/*) $(PATH_TARGET)/VirtualBoxComWrapperFiles.dep
+VirtualBox_SOURCES       += $(VirtualBox_0_OUTDIR)/include/COMWrappers.cpp
+
+## @todo kmk doesn't remake optional outputs when they are missing...
+$$(VirtualBox_0_OUTDIR)/include/COMWrappers \
++ $(PATH_TARGET)/VirtualBoxComWrapperFiles.dep \
++| $(if-expr defined(VirtualBox_VBOX_COMWRAPPERS) \
+, $(VirtualBox_VBOX_COMWRAPPERS) \
+, $$(VirtualBox_0_OUTDIR)/include/COMEnums.h \
+  $$(VirtualBox_0_OUTDIR)/include/COMWrappers.cpp \
+): \
+		$(VBOX_XIDL_FILE) \
+		$(VBOX_VIRTUALBOX4_SRC)/src/globals/COMWrappers.xsl \
+		$(VBOX_FILESPLIT) \
+		| $$(dir $$@)
+	$(call MSG_GENERATE,VirtualBox,$<,$@)
+	$(QUIET)$(RM) -f -- "$@" "$(PATH_TARGET)/VirtualBoxComWrapperFiles.dep"
+	$(QUIET)$(VBOX_XSLTPROC) -o $@ \
+                $(VBOX_VIRTUALBOX4_SRC)/src/globals/COMWrappers.xsl $<
+	$(QUIET)$(VBOX_FILESPLIT) $@ $(VirtualBox_0_OUTDIR)/include \
+		$(PATH_TARGET)/VirtualBoxComWrapperFiles.dep VirtualBox_VBOX_COMWRAPPERS
+	$(APPEND) "$@"
+
+# alias for generating the COM Wrappers file.
+testwrappers:: $$(VirtualBox_0_OUTDIR)/include/COMWrappers
+
+
+#
+# Generate qrc file with branded icons.
+#
+VirtualBox_BLDDIRS       += $(VBOX_VIRTUALBOX4_OUT_DIR)
+VirtualBox_CLEAN         += $(VBOX_VIRTUALBOX4_OUT_DIR)/VirtualBoxBrand.qrc
+$(VBOX_VIRTUALBOX4_OUT_DIR)/VirtualBoxBrand.qrc: \
+		$(VBOX_VIRTUALBOX4_SRC)/VirtualBoxBrand.qrc \
+		$(PATH_ROOT)/Config.kmk \
+		| $$(dir $$@)
+	$(call MSG_GENERATE,VirtualBox,$<,$@)
+	$(QUIET)$(SED) \
+		-e 's;@VBOX_ABOUT_PNG@;$(VBOX_BRAND_GUI_ABOUT_PNG);g' \
+		-e 's;@VBOX_ABOUT_HIDPI_PNG@;$(VBOX_BRAND_GUI_ABOUT_HIDPI_PNG);g' \
+		-e 's;@VBOX_ABOUT_16PX_PNG@;$(VBOX_BRAND_GUI_ABOUT_16PX_PNG);g' \
+		-e 's;@VBOX_ABOUT_16PX_HIDPI_PNG@;$(VBOX_BRAND_GUI_ABOUT_16PX_HIDPI_PNG);g' \
+		-e 's;@VBOX_VBOX_16PX_PNG@;$(VBOX_BRAND_GUI_VBOX_16PX_PNG);g' \
+		-e 's;@VBOX_VBOX_20PX_PNG@;$(VBOX_BRAND_GUI_VBOX_20PX_PNG);g' \
+		-e 's;@VBOX_VBOX_32PX_PNG@;$(VBOX_BRAND_GUI_VBOX_32PX_PNG);g' \
+		-e 's;@VBOX_VBOX_40PX_PNG@;$(VBOX_BRAND_GUI_VBOX_40PX_PNG);g' \
+		-e 's;@VBOX_VBOX_48PX_PNG@;$(VBOX_BRAND_GUI_VBOX_48PX_PNG);g' \
+		-e 's;@VBOX_VBOX_64PX_PNG@;$(VBOX_BRAND_GUI_VBOX_64PX_PNG);g' \
+		-e 's;@VBOX_CUBE_42PX_PNG@;$(VBOX_BRAND_GUI_CUBE_42PX_PNG);g' \
+		-e 's;@VBOX_CUBE_SVG@;$(VBOX_BRAND_GUI_VBOX_SVG);g' \
+		--output $@ \
+		$<
+
+
+#
+# Precompiled header - non-functional atm.
+#
+ifdef VBOX_WITH_PRECOMPILED_HEADERS
+ if1of ($(KBUILD_TARGET),win)
+  VirtualBox_USES    += vccprecomp
+  VirtualBox_PCH_HDR := $(PATH_SUB_CURRENT)/src/precomp_vcc.h
+
+ else # obsolete experiment
+  VirtualBox_DEFS           += VBOX_WITH_PRECOMPILED_HEADERS
+  VirtualBox_INCS           <= $(VirtualBoxPch_0_OUTDIR)/src
+  VirtualBox_CXXFLAGS      += -Winvalid-pch -fpch-preprocess
+  $(foreach x,$(filter-out include/COMWrappers.cpp, $(filter %.cpp, \
+  	$(VirtualBox_SOURCES) \
+  	$(VirtualBox_SOURCES.$(KBUILD_TARGET)) \
+  	$(VirtualBox_SOURCES.$(KBUILD_TYPE)) \
+  )),$(eval $(abspath $(PATH_OBJ)/VirtualBox/$(basename $(x)).o): $$$$(VirtualBoxPch_0_OUTDIR)/src/precomp.h.gch))
+
+  TOOL_VirtualBoxPchLinker = Linker for VirtualBoxPch
+  define TOOL_VirtualBoxPchLinker_LINK_MISCBIN_CMDS
+	$(APPEND) -t $(out)
+  endef
+
+  MISCBINS += VirtualBoxPch
+  VirtualBoxPch_EXTENDS = VirtualBox
+  VirtualBoxPch_LDTOOL   = VirtualBoxPchLinker
+  VirtualBoxPch_INSTTYPE = none
+  VirtualBoxPch_NAME            = VirtualBoxPch
+  VirtualBoxPch_INTERMEDIATES  = $(filter-out %.h.gch, $(VirtualBox_INTERMEDIATES))
+  VirtualBoxPch_SOURCES        = src/precomp.h
+  VirtualBoxPch_CXXFLAGS       = $(filter-out -Winvalid-pch -fpch-preprocess, $(VirtualBox_CXXFLAGS)) -x c++-header
+  VirtualBoxPch_CXXOBJSUFF     = .h.gch
+  VirtualBoxPch_SRC_HANDLERS   = .h:def_src_handler_cxx
+  VirtualBoxPch_SOURCES.darwin  = $(NO_SUCH_VARIABLE)
+  VirtualBoxPch_SOURCES.solaris = $(NO_SUCH_VARIABLE)
+  VirtualBoxPch_SOURCES.freebsd = $(NO_SUCH_VARIABLE)
+  VirtualBoxPch_SOURCES.linux   = $(NO_SUCH_VARIABLE)
+  VirtualBoxPch_SOURCES.win     = $(NO_SUCH_VARIABLE)
+  VirtualBoxPch_QT_MODULES      = $(VirtualBox_QT_MODULES) # "bug" - not inherited.
+  VirtualBoxPch_INCS            = $(VirtualBox_INCS)       # "bug" - missing qtuic and qtmoc
+ endif # obsolete experiment
+endif
+
+ifeq ($(KBUILD_TARGET),win)
+#
+# On Windows we'll have to generate/edit part of the resource file.
+# The IDI_ICON1 name is Qt specific.
+#
+src/platform/win/VirtualBox.rc_INCS  = $(VirtualBox_0_OUTDIR)
+src/platform/win/VirtualBox.rc_DEPS  = $(VirtualBox_0_OUTDIR)/VirtualBox-icon.rc
+src/platform/win/VirtualBox.rc_CLEAN = $(VirtualBox_0_OUTDIR)/VirtualBox-icon.rc
+
+$$(VirtualBox_0_OUTDIR)/VirtualBox-icon.rc: $(MAKEFILE_CURRENT) $(VBOX_WINDOWS_ICON_FILE) | $$(dir $$@)
+	$(APPEND) -t $@ 'IDI_ICON1 ICON "$(subst /,\\,$(VBOX_WINDOWS_ICON_FILE))"'
+
+endif # win
+
+
+#
+# Unset everything that was loaded from VBoxUI.pro.
+#
+FORMS :=
+TRANSLATIONS :=
+
+
+ifeq ($(KBUILD_TARGET),darwin)
+#
+# Create directories for each approved language or the application
+# menu won't be translated.
+#
+INSTALLS += VirtualBox.lproj
+VirtualBox.lproj_INST = $(INST_VIRTUALBOX)Contents/Resources/
+VirtualBox.lproj_MODE = 755
+VirtualBox.lproj_DIRS := $(addsuffix .lproj,$(VBOX_APPROVED_GUI_LANGUAGES))
+
+#
+# On OS X (darwin) we need to install icon resources and compulsory bundle contents.
+# The VirtualBoxVM.app helper is for launching VMs (fixes some issues with the dock).
+#
+INSTALLS += VirtualBox.app
+VirtualBox.app_INST = $(INST_VIRTUALBOX)Contents/
+VirtualBox.app_MODE = 644
+VirtualBox.app_SOURCES = \
+	src/platform/darwin/PkgInfo \
+	$(VirtualBox.app_0_OUTDIR)/Info.plist \
+	$(VBOX_MACOSX_ICON_FILE)=>Resources/virtualbox.icns \
+	$(VBOX_BRAND_GUI_VBOX_64PX_PNG)=>Resources/virtualbox.png \
+	$(PATH_ROOT)/src/VBox/Artwork/darwin/virtualbox-vbox.icns=>Resources/virtualbox-vbox.icns \
+	$(PATH_ROOT)/src/VBox/Artwork/darwin/virtualbox-vbox-extpack.icns=>Resources/virtualbox-vbox-extpack.icns \
+	$(PATH_ROOT)/src/VBox/Artwork/darwin/virtualbox-ovf.icns=>Resources/virtualbox-ovf.icns \
+	$(PATH_ROOT)/src/VBox/Artwork/darwin/virtualbox-ova.icns=>Resources/virtualbox-ova.icns \
+	$(PATH_ROOT)/src/VBox/Artwork/darwin/virtualbox-vdi.icns=>Resources/virtualbox-vdi.icns \
+	$(PATH_ROOT)/src/VBox/Artwork/darwin/virtualbox-vmdk.icns=>Resources/virtualbox-vmdk.icns \
+	$(PATH_ROOT)/src/VBox/Artwork/darwin/virtualbox-vhd.icns=>Resources/virtualbox-vhd.icns \
+	$(PATH_ROOT)/src/VBox/Artwork/darwin/virtualbox-hdd.icns=>Resources/virtualbox-hdd.icns
+
+ # Qt5 requires qt.conf on Mac OS X:
+ VirtualBox.app_SOURCES += \
+ 	$(VirtualBox.app_0_OUTDIR)/qt.conf=>Resources/qt.conf
+
+ $$(VirtualBox.app_0_OUTDIR)/Info.plist: $(PATH_SUB_CURRENT)/src/platform/darwin/Info.plist $(VBOX_VERSION_MK) | $$(@D)/
+	$(call MSG_GENERATE,VirtualBox.app,$<,$@)
+	$(QUIET)$(RM) -f $@
+	$(QUIET)$(SED) \
+		-e 's/@VBOX_VERSION_STRING@/$(VBOX_VERSION_STRING)/g' \
+		-e 's/@VBOX_VERSION_MAJOR@/$(VBOX_VERSION_MAJOR)/g' \
+		-e 's/@VBOX_VERSION_MINOR@/$(VBOX_VERSION_MINOR)/g' \
+		-e 's/@VBOX_VERSION_BUILD@/$(VBOX_VERSION_BUILD)/g' \
+		-e 's/@VBOX_VENDOR@/$(VBOX_VENDOR)/g' \
+		-e 's/@VBOX_PRODUCT@/$(VBOX_PRODUCT)/g' \
+		-e 's/@VBOX_C_YEAR@/$(VBOX_C_YEAR)/g' \
+		$< > $@
+
+ $$(VirtualBox.app_0_OUTDIR)/qt.conf: $(PATH_SUB_CURRENT)/Makefile.kmk $(VBOX_VERSION_MK) | $$(@D)/
+	$(QUIET)$(RM) -f $@
+	$(QUIET)$(APPEND) $@ "[Paths]"
+	$(QUIET)$(APPEND) $@ "Prefix =" $(PATH_OUT)/$(VirtualBox.app_INST)
+
+ INSTALLS += VirtualBoxVM.app
+ VirtualBoxVM.app_INST = $(VirtualBox.app_INST)Resources/VirtualBoxVM.app/Contents/
+ VirtualBoxVM.app_MODE = 644
+ VirtualBoxVM.app_SOURCES = \
+ 	src/platform/darwin/VM-PkgInfo=>PkgInfo \
+ 	$(VirtualBoxVM.app_0_OUTDIR)/VM-Info.plist=>Info.plist \
+        $(foreach mysrc,$(VirtualBox.app_SOURCES),$(if-expr $(pos =>Resources/,$(mysrc)) > 0,$(mysrc),))
+ VirtualBoxVM.app_SYMLINKS = \
+ 	MacOS=>../../../MacOS/
+
+ $$(VirtualBoxVM.app_0_OUTDIR)/VM-Info.plist: $(PATH_SUB_CURRENT)/src/platform/darwin/VM-Info.plist $(VBOX_VERSION_MK) | $$(@D)/
+	$(call MSG_GENERATE,VirtualBoxVM.app,$<,$@)
+	$(QUIET)$(RM) -f $@
+	$(QUIET)$(SED) \
+		-e 's/@VBOX_VERSION_STRING@/$(VBOX_VERSION_STRING)/g' \
+		-e 's/@VBOX_VERSION_MAJOR@/$(VBOX_VERSION_MAJOR)/g' \
+		-e 's/@VBOX_VERSION_MINOR@/$(VBOX_VERSION_MINOR)/g' \
+		-e 's/@VBOX_VERSION_BUILD@/$(VBOX_VERSION_BUILD)/g' \
+		-e 's/@VBOX_VENDOR@/$(VBOX_VENDOR)/g' \
+		-e 's/@VBOX_PRODUCT@/$(VBOX_PRODUCT)/g' \
+		-e 's/@VBOX_C_YEAR@/$(VBOX_C_YEAR)/g' \
+		--output $@ $<
+
+ PROGRAMS += vmstarter
+ vmstarter_TEMPLATE = VBOXR3EXE
+ ifdef VBOX_WITH_NEW_XCODE
+  vmstarter_OBJCXXFLAGS += -Wno-error=deprecated-declarations ## @todo fix deprecate API use!
+ else
+  vmstarter_OBJCXXFLAGS += -Wno-deprecated-declarations
+ endif
+ vmstarter_LDFLAGS += -framework AppKit
+ vmstarter_SOURCES = src/platform/darwin/vmstarter.mm
+ vmstarter_INST = $(INST_BIN)vmstarter
+
+ INSTALLS += vmstarter.app
+ vmstarter.app_INST = $(VirtualBox.app_INST)Resources/vmstarter.app/Contents/
+ vmstarter.app_MODE = 644
+ vmstarter.app_SOURCES = \
+ 	src/platform/darwin/vmstarter-PkgInfo=>PkgInfo \
+ 	$(vmstarter.app_0_OUTDIR)/vmstarter-Info.plist=>Info.plist \
+ 	$(foreach mysrc,$(VirtualBox.app_SOURCES),$(if-expr $(pos =>Resources/,$(mysrc)) > 0,$(mysrc),))
+ vmstarter.app_SYMLINKS = \
+ 	MacOS=>../../../MacOS \
+
+ $$(vmstarter.app_0_OUTDIR)/vmstarter-Info.plist: $(PATH_SUB_CURRENT)/src/platform/darwin/vmstarter-Info.plist $(VBOX_VERSION_MK) | $$(@D)/
+	$(call MSG_GENERATE,vmstarter.app,$<,$@)
+	$(QUIET)$(RM) -f $@
+	$(QUIET)$(SED) \
+		-e 's/@VBOX_VERSION_STRING@/$(VBOX_VERSION_STRING)/g' \
+		-e 's/@VBOX_VERSION_MAJOR@/$(VBOX_VERSION_MAJOR)/g' \
+		-e 's/@VBOX_VERSION_MINOR@/$(VBOX_VERSION_MINOR)/g' \
+		-e 's/@VBOX_VERSION_BUILD@/$(VBOX_VERSION_BUILD)/g' \
+		-e 's/@VBOX_VENDOR@/$(VBOX_VENDOR)/g' \
+		-e 's/@VBOX_PRODUCT@/$(VBOX_PRODUCT)/g' \
+		-e 's/@VBOX_C_YEAR@/$(VBOX_C_YEAR)/g' \
+		--output $@ $<
+endif # darwin
+
+#
+# App for testing GL support
+#
+if defined(VBOX_WITH_VIDEOHWACCEL)
+ if1of ($(KBUILD_TARGET), win linux freebsd)
+  LIBRARIES += VBoxOGL2D
+  VBoxOGL2D_TEMPLATE = $(if $(VBOX_WITH_VIDEOHWACCEL),$(if $(VBOX_WITH_HARDENING),VBOXQTGUI,VBOXQTGUIEXE),VBOXMAINEXE)
+  VBoxOGL2D_DEFS = QT_NO_DEBUG QT_THREAD_SUPPORT QT_SHARED HAVE_CONFIG_H VBOX_WITH_VIDEOHWACCEL VBOX_GUI_USE_QGL
+  VBoxOGL2D_QT_MODULES += OpenGL
+  VBoxOGL2D_SOURCES = \
+	src/VBoxGLSupportInfo.cpp
+  VBoxOGL2D_INCS = include
+ endif
+endif
+
+
+#
+# Testcase for the darwin keyboard routines.
+#
+ifdef VBOX_WITH_TESTCASES
+ PROGRAMS.darwin += tstDarwinKeyboard
+ tstDarwinKeyboard_TEMPLATE = VBOXR3TSTEXE
+ tstDarwinKeyboard_DEFS.x86 = USE_HID_FOR_MODIFIERS
+ tstDarwinKeyboard_INCS = include
+ tstDarwinKeyboard_SOURCES = \
+ 	src/platform/darwin/tstDarwinKeyboard.cpp \
+ 	src/platform/darwin/DarwinKeyboard.cpp
+ tstDarwinKeyboard_SOURCES.amd64 = \
+ 	src/platform/darwin/CocoaEventHelper.mm
+ tstDarwinKeyboard_LDFLAGS = -framework IOKit -framework Carbon -framework AppKit
+ tstDarwinKeyboard_LIBS = \
+ 	$(LIB_RUNTIME)
+endif
+
+
+#
+# Testcase for SSL certificate downloading.
+#
+if defined(VBOX_WITH_TESTCASES) && defined(VBOX_GUI_WITH_NETWORK_MANAGER)
+ PROGRAMS += tstSSLCertDownloads
+ tstSSLCertDownloads_TEMPLATE   = VBOXQTGUIEXE
+ tstSSLCertDownloads_USES       = qt5
+ tstSSLCertDownloads_QTTOOL     = QT5
+ tstSSLCertDownloads_QT_MODULES = Core Gui
+ tstSSLCertDownloads_DEFS = VBOX_GUI_IN_TST_SSL_CERT_DOWNLOADS
+ tstSSLCertDownloads_INCS = \
+ 	$(VBOX_GUI_INC_DIRS)
+ tstSSLCertDownloads_SOURCES = \
+ 	src/net/tstSSLCertDownloads.cpp
+endif
+
+
+#
+# Doxygen documentation.
+#
+QTGUI_DOXYFILE_OUTPUT = $(PATH_OUT)/docs/qtgui
+BLDDIRS += $(QTGUI_DOXYFILE_OUTPUT)
+OTHER_CLEAN += \
+	$(QTGUI_DOXYFILE_OUTPUT)/Doxyfile.qtgui \
+	$(QTGUI_DOXYFILE_OUTPUT)/Doxyfile.qtgui.dep \
+	$(QTGUI_DOXYFILE_OUTPUT)/docs.qtgui
+
+QTGUI_DOXYFILE_INPUT_DIRS := \
+	$(addprefix $(PATH_SUB_CURRENT)/src/, \
+		converter \
+		extensions \
+		extensions/graphics \
+		extradata \
+		globals \
+		medium \
+		net \
+		objects \
+		platform \
+		platform/darwin \
+		platform/os2 \
+		platform/win \
+		platform/x11 \
+		runtime \
+		runtime/fullscreen \
+		runtime/information \
+		runtime/normal \
+		runtime/scale \
+		runtime/seamless \
+		selector \
+		selector/graphics \
+		selector/graphics/chooser \
+		selector/graphics/details \
+		settings \
+		settings/global \
+		settings/machine \
+		widgets \
+		widgets/graphics \
+		wizards \
+		wizards/clonevd \
+		wizards/clonevm \
+		wizards/exportappliance \
+		wizards/firstrun \
+		wizards/importappliance \
+		wizards/newvd \
+		wizards/newvm)
+
+QTGUI_DOXYFILE_INPUT := \
+	$(foreach dir, $(QTGUI_DOXYFILE_INPUT_DIRS), \
+		$(sort $(wildcard $(dir)/*.h)) \
+		$(sort $(wildcard $(dir)/*.cpp $(dir)/*.m $(dir)/*.mm)))
+
+includedep $(QTGUI_DOXYFILE_OUTPUT)/Doxyfile.qtgui.dep
+
+# Generate the Doxyfile
+$(QTGUI_DOXYFILE_OUTPUT)/Doxyfile.qtgui: \
+		$(PATH_SUB_CURRENT)/Doxyfile \
+		$(PATH_SUB_CURRENT)/Makefile.kmk \
+		$(comp-vars QTGUI_DOXYFILE_INPUT,DOXYGEN_QTGUI_INPUT_PREV,FORCE) \
+		$(comp-vars QTGUI_DOXYFILE_OUTPUT,DOXYGEN_QTGUI_OUTPUT_PREV,FORCE) \
+		| $$(dir $$@)
+	$(QUIET)$(RM) -f $@ $@.tmp $@.dep
+	$(QUIET)$(CP) -f $< $@.tmp
+	$(QUIET)$(APPEND) $@.tmp
+	$(QUIET)$(APPEND) $@.tmp "OUTPUT_DIRECTORY = $(QTGUI_DOXYFILE_OUTPUT)"
+	$(QUIET)$(APPEND) $@.tmp "WARN_LOGFILE = $(QTGUI_DOXYFILE_OUTPUT)/errors"
+	$(QUIET)$(APPEND) $@.tmp "INCLUDE_PATH = $(PATH_ROOT)/include ."
+	$(QUIET)$(APPEND) $@.tmp "PREDEFINED += $(ARCH_BITS_DEFS)"
+	$(QUIET)$(APPEND) $@.tmp
+	$(QUIET)$(APPEND) $@.tmp 'INPUT = $(foreach x,$(QTGUI_DOXYFILE_INPUT),\$(NLTAB)$(x))'
+	$(QUIET)$(APPEND) $@.tmp
+	$(QUIET)$(MV) -f $@.tmp $@
+	@$(APPEND) $@.dep "DOXYGEN_QTGUI_OUTPUT_PREV = $(QTGUI_DOXYFILE_OUTPUT)"
+	@$(APPEND) $@.dep "DOXYGEN_QTGUI_INPUT_PREV = $(QTGUI_DOXYFILE_INPUT)"
+
+# Do the actual job.
+$(QTGUI_DOXYFILE_OUTPUT)/docs.qtgui: $(QTGUI_DOXYFILE_OUTPUT)/Doxyfile.qtgui $$(QTGUI_DOXYFILE_INPUT) \
+		| $(QTGUI_DOXYFILE_OUTPUT)/
+	$(call MSG_L1,doxygen qtgui)
+	$(QUIET)$(RM) -f $@
+	$(QUIET)$(RM) -Rf -- $(QTGUI_DOXYFILE_OUTPUT)/html/
+	doxygen $(QTGUI_DOXYFILE_OUTPUT)/Doxyfile.qtgui
+	$(APPEND) $@
+
+# aliases
+docs.qtgui: $(QTGUI_DOXYFILE_OUTPUT)/docs.qtgui
+if !defined(VBOX_ONLY_DOCS) && defined(VBOX_WITH_ALL_DOXYGEN_TARGETS)
+docs: $(QTGUI_DOXYFILE_OUTPUT)/docs.qtgui
+endif
+
+
+
+# Commit the magic.
+# (note: before custom rules that make usage of generated variables!).
+include $(FILE_KBUILD_SUB_FOOTER)
+
+
+#
+# Update all known NLS translation (.ts) files in the nls/ subdirectory.
+#
+# NOTE: This target is intended to be run only by the GUI maintainer shortly
+# before a new product release. VirtualBox_xx_YY.ts is a template for new
+# languages and should never be actually translated or installed.
+#
+# Use the checknls target for checking again common mistakes done by the
+# translators.
+#
+# For Qt >= 4.6.0 it maybe necessary to add -I $(VBOX_GUI_INC_DIRS) to the
+# lupdate call
+#
+#VirtualBox_QT_TRANSLATIONS = nls/VirtualBox_de.ts
+checknls::
+	# Check for missing :/ in image paths
+	grep -i "src=[^:%]" $(filter-out nls/qt_%.ts,$(VirtualBox_QT_TRANSLATIONS))
+
+updatenls:: makeallnls nls/VirtualBox_en.ts
+
+makeallnls:: \
+		$(foreach header,$(VBOX_GUI_INC_DIRS),$(wildcard $(header)/*.h)) \
+		$(filter-out %.qrc,$(VirtualBox_SOURCES) $(VirtualBox_VBOX_EXTRA_NLS_SOURCES))
+	$(call MSG_L1,lupdate all languages (nls/*.ts))
+	$(QUIET)$(TOOL_QT5_LUPDATE) \
+		$^ \
+		-ts \
+		$(filter-out nls/VirtualBox_en.ts,$(filter-out nls/qt_%.ts,$(VirtualBox_QT_TRANSLATIONS))) \
+		nls/VirtualBox_xx_YY.ts
+
+# Create the English translation file. This is something special cause it will
+# contain the plural forms only.
+nls/VirtualBox_en.ts: \
+		$(foreach header,$(VBOX_GUI_INC_DIRS),$(wildcard $(header)/*.h)) \
+		$(filter-out %.qrc,$(VirtualBox_SOURCES) $(VirtualBox_VBOX_EXTRA_NLS_SOURCES))
+	$(call MSG_L1,lupdate $@)
+	$(QUIET)$(TOOL_QT5_LUPDATE) \
+		$^ \
+		-ts \
+		$@
+	$(QUIET)$(SED) -n -i -e \
+		'/<context>/,/<\/context>/!p;/<context>/h;/<name>/H;/<message numerus="yes">/,/<\/message>/H;/<\/context>/{H;x;/<message/p}' \
+	$@
+

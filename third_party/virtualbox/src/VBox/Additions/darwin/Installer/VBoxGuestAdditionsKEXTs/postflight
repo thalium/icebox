@@ -1,0 +1,66 @@
+#!/bin/sh
+
+#
+# Copyright (C) 2007-2013 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+set -e
+
+# Setup environment.
+export PATH="/bin:/usr/bin:/sbin:/usr/sbin:$PATH"
+
+unload_service()
+{
+    ITEM_ID=$1
+    ITEM_PATH=$2
+    FORCED_USER=$3
+
+    loaded="NO"
+    test -n "$(sudo -u "$FORCED_USER" launchctl list | grep $ITEM_ID)" && loaded="YES"
+    if [ "$loaded" = "YES" ] ; then
+        echo "Unloading previously installed service: $ITEM_ID"
+        sudo -u "$FORCED_USER" launchctl unload -F "$ITEM_PATH/$ITEM_ID.plist"
+    fi
+}
+
+load_service()
+{
+    ITEM_ID=$1
+    ITEM_PATH=$2
+    FORCED_USER=$3
+
+    echo "Loading newly installed service: $ITEM_ID"
+    sudo -u "$FORCED_USER" launchctl load -F "$ITEM_PATH/$ITEM_ID.plist"
+}
+
+unload_service "org.virtualbox.additions.vboxservice" "/Library/LaunchDaemons" "root"
+unload_service "org.virtualbox.additions.vboxclient" "/Library/LaunchAgents" "${USER}"
+
+items="VBoxGuest"
+for item in $items; do
+    kext_item="org.virtualbox.kext.$item"
+
+    loaded="NO"
+    test -n "$(kextstat | grep $kext_item)" && loaded="YES"
+    if [ "$loaded" = "YES" ] ; then
+        echo "Unloading $item kernel extension..."
+        kextunload -b $kext_item
+    fi
+done
+echo "Loading newly installed kernel extensions."
+kextload "/Library/Extensions/VBoxGuest.kext"
+
+load_service "org.virtualbox.additions.vboxservice" "/Library/LaunchDaemons" "root"
+load_service "org.virtualbox.additions.vboxclient" "/Library/LaunchAgents" "${USER}"
+
+echo "Done."
+
+exit 0;

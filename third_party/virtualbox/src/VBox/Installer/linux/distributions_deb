@@ -1,0 +1,12 @@
+_Debian_sid      = DEBIAN_9_0
+_Debian_stretch  = DEBIAN_9_0
+_Debian_jessie   = DEBIAN_8_0
+_Debian_wheezy   = DEBIAN_7_0
+_Debian_squeeze  = DEBIAN_6_0
+_Ubuntu_xenial   = UBUNTU_16_04
+_Ubuntu_wily     = UBUNTU_15_10
+_Ubuntu_trusty   = UBUNTU_14_04
+_Ubuntu_raring   = UBUNTU_13_04
+_Ubuntu_quantal  = UBUNTU_12_10
+_Ubuntu_precise  = UBUNTU_12_04
+_Ubuntu_lucid    = UBUNTU_10_04

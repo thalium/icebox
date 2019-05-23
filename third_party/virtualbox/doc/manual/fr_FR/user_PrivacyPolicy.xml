@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+  "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<appendix id="privacy">
+  <title>Informations sur la confidentialité de VirtualBox</title>
+
+  <para>Politique de confidentialité version 5, 13 déc. 2012</para>
+
+  <para>La politique de confidentialité d'Oracle publiée sur
+   <ulink url="http://www.oracle.com/html/privacy.html">http://www.oracle.com/html/privacy.html</ulink>
+   s'applique à vos données personnelles recueillies et utilisées par Oracle.
+   Les informations suivantes décrivent en détails les informations qui sont
+   échangées entre l'application VirtualBox et Oracle et celles recueillies par le site Internet virtualbox.org.</para>
+   
+  <para><emphasis role="bold">Â§ 1 virtualbox.org.</emphasis> Le site Internet
+  "virtualbox.org" enregistre les informations d'utilisation anonymes telles
+  que votre adresse IP, votre situation géographique, votre navigateur, l'endroit
+  d'où vous naviguez, la durée de votre visite, le nombre de pages vues pendant
+  votre visite (collectivement, "données anonymes"). En outre, mais seulement si
+  vous choisissez de vous enregistrer, le chasseur de bogues du site Internet
+  et les forums stockent les données que vous choisissez de révéler lors de
+  l'enregistrement telles que votre nom d'utilisateur et vos informations de
+  contact.</para>
+
+  <para><emphasis role="bold">Â§ 2 Cookies.</emphasis> Le site Internet virtualbox.org,
+  le chasseur de bogues et le forum utilisent des cookies pour identifier et
+  savoir les navigateurs internet qui nous visitent et, si vous vous êtes
+  enregistré, pour faciliter votre identification. La plupart des navigateurs
+  vous permettent de refuser les cookies. Si vous pouvez visiter le site Internet
+  sans cookies, l'écriture dans le chasseur de bogues et dans les services de
+  forum ne fonctionnera probablement pas sans eux.</para>
+
+  <para><emphasis role="bold">Â§ 3 Processus d'enregistrement de VirtualBox.</emphasis>
+  Il se peut que l'application VirtualBox demande à l'utilisateur, à titre facultatif,
+  de s'enregistrer auprès d'Oracle. Si vous choisissez de vous enregistrer,
+  votre nom, votre adresse électronique, votre pays et votre société seront
+  envoyés à Oracle et stockées avec
+  l'adresse IP de la personne ainsi que la version du produit et la plateforme
+  utilisée.</para>
+
+  <para><emphasis role="bold">Â§ 4 Notifications de mise à jour.</emphasis> Il
+  se peut que l'application VirtualBox contacte Oracle pour savoir si une
+  nouvelle version de VirtualBox a été publiée et pour avertir l'utilisateur
+  si tel est le cas. Dans ce processus, des données anonymes telles que votre
+  adresse IP et un numéro de comptage non caractéristique, la version du produit
+  et la plateforme utilisée sont envoyées pour que le serveur sache si une mise
+  à jour est disponible. Par défaut, cette vérification a lieu une fois par
+  jour. Pour modifier cet intervalle ou désactiver ces vérifications, allez
+  dans les préférences de VirtualBox.</para>
+
+  <para><emphasis role="bold">Â§ 5 Utilisation des informations personnelles.</emphasis>
+  Oracle peut utiliser ces données anonymes et personnelles recueillies par les
+  moyens ci-dessus à des fins statistiques ou pour vous informer automatiquement
+  des nouveaux messages liés au vôtre sur le chasseur de bogues et le forum,
+  pour administrer le site Internet et pour vous contacter du fait de problèmes
+  techniques. Oracle peut aussi vous informer de nouvelles versions de produits
+  liés à VirtualBox.</para>
+
+  <para>Vos données personnelles ne seront en aucun cas transmises à un tiers
+  sans votre consentement, sauf si cela est demandé à Oracle par une loi ou
+  dans le cadre de procédures légales.</para>
+
+  <para><emphasis role="bold">Â§ 6 Mises à jour.</emphasis> Oracle peut mettre
+  à jour sa politique de confidentialité n'importe quand en en publiant une
+  nouvelle version sur  <ulink url="http://www.oracle.com/html/privacy.html">http://www.oracle.com/html/privacy.html</ulink>
+  et les informations de confidentialité seront mises à jour dans la documentation
+  fournie avec l'application VirtualBox. Vous devriez vérifier ces ressources de
+  temps en temps pour vous assurer que les changements vous conviennent.</para>
+</appendix>

@@ -1,0 +1,6 @@
+The contents of this directory were extracted from the contents of the
+archive mesa-11.0.7.tar.gz, as downloaded from ftp.freedesktop.org/pub/mesa,
+using the following shell script:
+
+cp -r mesa-11.0.7/include/EGL mesa-11.0.7/include/GL mesa-11.0.7/include/KHR \
+    ${PATH_VBOX}/src/VBox/Additions/x11/x11include/mesa-11.0.7

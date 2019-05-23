@@ -1,0 +1,107 @@
+Template: virtualbox/group-vboxusers
+Type: note
+Description: Creating group 'vboxusers'
+ Users of VirtualBox must be members of this group. Host network interfaces
+ will be assigned to this group.
+Description-de.UTF-8: Erzeuge Gruppe 'vboxusers'
+ Nutzer von VirtualBox müssen Mitglied dieser Gruppe sein. Hostinterfaces
+ werden dieser Gruppe zugewiesen.
+
+Template: virtualbox/module-compilation-failed
+Type: note
+Description: Compilation of the kernel module FAILED!
+ VirtualBox will not start until this problem is fixed. Please consult
+ /var/log/vbox-install.log to find out why the kernel module didn't compile.
+ The kernel sources were probably not found. Install them (the package
+ name is probably linux-headers-<version> where <version> can be determined
+ by 'uname -r') and execute
+   
+   /etc/init.d/vboxdrv setup
+   
+ as root.
+Description-de.UTF-8: Konnte das Kernmodul nicht compilieren!
+ Sie können keine virtuelle Maschine starten, solange dieses Problem nicht
+ behoben ist. Bitte lesen Sie die Datei /var/log/vbox-install.log um die
+ Ursache herauszufinden. Wahrscheinlich konnten die Quellen für den aktiven
+ Linux-Kern nicht gefunden werden. Installieren Sie das entsprechende
+ Paket (möglicherweise linux-headers-<version> wobei Sie <version> mit
+ 'uname -r' herausfinden können) und führen Sie danach
+   
+   /etc/init.d/vboxdrv setup
+   
+ mit Root-Rechten aus.
+
+Template: virtualbox/module-compilation-allowed
+Type: boolean
+Default: true
+Description: Should the vboxdrv kernel module be compiled now?
+ Unable to find a precompiled module for the current kernel!
+ .
+ Without a suitable kernel module you will not be able to start any VMs. It is
+ strongly recommended that you compile a kernel module now. This requires
+ kernel headers and the tools to build kernel modules (gcc, make, binutils, ...).
+ However if you know that a suitable kernel module already exists at another
+ location, you might want to override the default by setting
+ KDIR=<full_path_to_vboxdrv_module> in /etc/default/virtualbox. You can also
+ build the module later by executing
+   
+   /etc/init.d/vboxdrv setup
+   
+ as root.
+Description-de.UTF-8: Soll das Kernmodul jetzt compiliert werden?
+ Es konnte kein Kernmodul für den aktuellen Linux-Kern gefunden werden!
+ .
+ Ohne ein passendes Kernmodul können Sie keine VM starten. Daher sollten Sie
+ jetzt ein Kernmodul compilieren. Dazu werden die Kern-Header und die Programme
+ zum Bauen eines Kernmoduls (gcc, make, binutils, ...) benötigt. Falls Sie
+ bereits ein passendes Kernmodul in ein anderes Verzeichnis installiert haben,
+ können Sie den Verzeichnisnamen durch Hinzufügen von KDIR=<voller_Pfad_zu_vboxdrv>
+ in der Datei /etc/default/virtualbox angeben. Sie können das Kernmodul auch
+ später compilieren, indem Sie
+   
+   /etc/init.d/vboxdrv setup
+   
+ mit Root-Rechten ausführen.
+
+Template: virtualbox/delete-old-modules
+Type: boolean
+Default: true
+Description: Delete old vboxdrv kernel modules?
+ Old vboxdrv kernel modules found. You should remove these modules as they
+ might interfere with this version of VirtualBox. You can force re-compilation
+ of the module later by executing
+   
+   /etc/init.d/vboxdrv setup
+   
+ as root.
+Description-de.UTF-8: Alte Kernmodule löschen?
+ Es wurden alte vboxdrv-Kernmodule gefunden. Diese sollten gelöscht werden, da sie
+ eventuell nicht mit dieser Version von VirtualBox zusammen arbeiten. Das Compilieren
+ des Kernmoduls können Sie später durch
+   
+   /etc/init.d/vboxdrv setup
+   
+ erzwingen.
+
+Template: virtualbox/old-installation-found
+Type: note
+Description: Old installation found
+ An old installation of VirtualBox was found. To install this package the old package
+ has to be removed first. Have a look at /etc/vbox/vbox.cfg to determine the installation
+ directory of the previous installation. After uninstalling the old package remove the file
+ /etc/vbox/vbox.cfg.
+Description-de.UTF-8: Alte Version gefunden
+ Es wurde eine alte Version von VirtualBox gefunden. Bitte entfernen Sie die alte Version
+ bevor Sie fortfahren. In der Datei /etc/vbox/vbox.cfg finden Sie das Verzeichnis der alten
+ Version. Nachdem Sie diese entfernt haben, können Sie /etc/vbox/vbox.cfg löschen.
+
+Template: virtualbox/old-running
+Type: note
+Description: Running VMs found
+ VirtualBox is currently running. Please close it and try again. Please note that it
+ can take up to ten seconds for VirtualBox (in particular the VBoxSVC daemon) to
+ finish running.
+Description-de.UTF-8: VirtualBox VMs werden ausgeführt
+ Mindestens eine virtuelle Maschine wird noch ausgeführt. Bitte beenden Sie alle VMs und
+ warten Sie 10 Sekunden, bis sich der VBoxSVC-Daemon beendet hat.
+

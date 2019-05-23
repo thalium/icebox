@@ -1,0 +1,41 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the VirtualBox Guest Addition Darwin Client.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# VBoxClient - shared clipboard support.
+#
+
+PROGRAMS += VBoxClient
+
+VBoxClient_TEMPLATE = NewVBoxGuestR3Exe
+VBoxClient_DEFS    += VBOX_WITH_HGCM
+
+VBoxClient_SOURCES  = \
+    VBoxClient.cpp \
+    VBoxClientClipboard.cpp \
+    VBoxClientClipboardHostToGuest.cpp \
+    VBoxClientClipboardGuestToHost.cpp \
+    $(PATH_ROOT)/src/VBox/GuestHost/SharedClipboard/clipboard-helper.cpp
+
+VBoxClient_LDFLAGS  = -framework IOKit -framework ApplicationServices
+VBoxClient_INST     = $(INST_ADDITIONS)
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

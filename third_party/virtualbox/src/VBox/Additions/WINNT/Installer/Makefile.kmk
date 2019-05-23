@@ -1,0 +1,268 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Windows Guest Additions Installer.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+# Include Sub-Makefiles.
+include $(PATH_SUB_CURRENT)/Loader/Makefile.kmk
+include $(PATH_SUB_CURRENT)/InstallHelper/Makefile.kmk
+
+# Globals
+VBOX_PATH_WIN_ADD_INS_SRC := $(PATH_SUB_CURRENT)
+VBOX_PATH_ADDITIONS.win.x86 := $(PATH_OUT_BASE)/win.x86/$(KBUILD_TYPE)/bin/additions
+VBOX_WITH_GUEST_INSTALL_HELPER := 1 # Use our guest install helper DLL.
+
+## @todo VBOX_WIN_ADD_INS_OUT_DIR := $(PATH_TARGET)/Additions/Installer/win
+
+PROGRAMS += VBoxDrvInst
+VBoxDrvInst_TEMPLATE= VBoxGuestR3Exe
+VBoxDrvInst_DEFS    = _WIN32_WINNT=0x0400 _UNICODE UNICODE
+VBoxDrvInst_DEFS   += VBOX_SVN_REV=$(VBOX_SVN_REV)
+ifdef VBOX_WITH_WDDM
+ VBoxDrvInst_DEFS  += VBOX_WITH_WDDM
+endif
+VBoxDrvInst_DEPS    = $(VBOX_SVN_REV_KMK)
+VBoxDrvInst_SDKS    = ReorderCompilerIncs $(VBOX_WINPSDK_GST) $(VBOX_WINDDK_GST)
+VBoxDrvInst_LIBS    = \
+	$(PATH_SDK_$(VBOX_WINDDK_GST)_LIB)/setupapi.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST)_LIB)/newdev.lib
+VBoxDrvInst_SOURCES = \
+	VBoxDrvInst.cpp \
+	VBoxDrvInst.rc
+
+PROGRAMS += VBoxGuestDrvInst
+VBoxGuestDrvInst_TEMPLATE= VBoxGuestR3Exe
+VBoxGuestDrvInst_DEFS    =  _WIN32_WINNT=0x0400 UNICODE
+VBoxGuestDrvInst_SOURCES = \
+	VBoxGuestDrvInst.cpp \
+	VBoxGuestDrvInst.rc
+
+PROGRAMS += RegCleanup
+RegCleanup_TEMPLATE = VBoxGuestR3Exe
+RegCleanup_DEFS     = _WIN32_WINNT=0x0400 UNICODE
+RegCleanup_SOURCES  = \
+	RegCleanup.cpp \
+	RegCleanup.rc
+
+
+#
+# The installer.
+#
+PACKING     += $(PATH_STAGE_BIN)/additions/VBoxWindowsAdditions-$(KBUILD_TARGET_ARCH).exe
+OTHER_CLEAN += \
+	$(PATH_STAGE_BIN)/additions/VBoxWindowsAdditions-$(KBUILD_TARGET_ARCH).exe \
+	$(PATH_STAGE_BIN)/additions/VBoxWHQLFake.exe
+
+DRIVER_FILES := \
+	$(PATH_STAGE_BIN)/additions/VBoxGuestDrvInst.exe \
+	$(PATH_STAGE_BIN)/additions/RegCleanup.exe \
+	$(PATH_STAGE_BIN)/additions/VBoxMouse.sys \
+	$(PATH_STAGE_BIN)/additions/VBoxGuest.sys \
+	$(PATH_STAGE_BIN)/additions/VBoxVideo.sys \
+	$(PATH_STAGE_BIN)/additions/VBoxDisp.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxSF.sys \
+	$(PATH_STAGE_BIN)/additions/VBoxMRXNP.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxTray.exe \
+	$(PATH_STAGE_BIN)/additions/VBoxControl.exe \
+	$(PATH_STAGE_BIN)/additions/VBoxWHQLFake.exe \
+	$(PATH_STAGE_BIN)/additions/VBoxService.exe
+ifeq ($(KBUILD_TARGET_ARCH),amd64)
+      # Also include 32-bit network provider DLLs on 64-bit guests to enable
+      # running 32-bit apps which use that.
+      DRIVER_FILES += \
+		$(PATH_STAGE_BIN)/additions/VBoxMRXNP-x86.dll
+endif
+ifeq ($(KBUILD_TARGET_ARCH),x86)
+DRIVER_FILES += \
+	$(PATH_STAGE_BIN)/additions/VBoxMouseNT.sys \
+	$(PATH_STAGE_BIN)/additions/VBoxGuestNT.sys
+endif
+DRIVER_FILES += \
+	$(PATH_STAGE_BIN)/additions/VBoxVideo.inf \
+	$(PATH_STAGE_BIN)/additions/VBoxGuest.inf
+ifdef VBOX_SIGN_ADDITIONS
+DRIVER_FILES += \
+	$(PATH_STAGE_BIN)/additions/VBoxVideo.cat \
+	$(PATH_STAGE_BIN)/additions/VBoxGuest.cat
+endif
+ifdef VBOX_WITH_CROGL
+DRIVER_FILES += \
+	$(PATH_STAGE_BIN)/additions/VBoxOGLarrayspu.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxOGLcrutil.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxOGLerrorspu.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxOGLpackspu.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxOGLpassthroughspu.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxOGLfeedbackspu.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxOGL.dll \
+	$(PATH_STAGE_BIN)/additions/wined3d.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxD3D9.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxD3D8.dll
+ ifeq ($(KBUILD_TARGET_ARCH),amd64)
+	# Also include 32-bit DLLs on 64-bit guests to enable
+	# running 32-bit OpenGL apps on that.
+	DRIVER_FILES += \
+		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxOGLarrayspu.dll \
+		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxOGLcrutil.dll \
+		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxOGLerrorspu.dll \
+		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxOGLpackspu.dll \
+		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxOGLpassthroughspu.dll \
+		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxOGLfeedbackspu.dll \
+		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxOGL.dll \
+		$(VBOX_PATH_ADDITIONS.win.x86)/wined3d.dll \
+		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxD3D9.dll \
+		$(VBOX_PATH_ADDITIONS.win.x86)/VBoxD3D8.dll
+
+ endif
+endif
+ifdef VBOX_WITH_WDDM
+DRIVER_FILES += \
+	$(PATH_STAGE_BIN)/additions/VBoxVideoWddm.sys \
+	$(PATH_STAGE_BIN)/additions/VBoxVideoWddm.inf \
+	$(PATH_STAGE_BIN)/additions/VBoxDispD3D.dll
+ ifdef VBOX_WITH_WDDM_W8
+DRIVER_FILES += \
+	$(PATH_STAGE_BIN)/additions/VBoxVideoW8.sys \
+	$(PATH_STAGE_BIN)/additions/VBoxVideoW8.inf
+ endif
+ ifdef VBOX_WITH_CROGL
+DRIVER_FILES += \
+	$(PATH_STAGE_BIN)/additions/wined3dwddm.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxD3D9wddm.dll
+ endif
+ ifdef VBOX_SIGN_ADDITIONS
+DRIVER_FILES += \
+	$(PATH_STAGE_BIN)/additions/VBoxVideoWddm.cat
+  ifdef VBOX_WITH_WDDM_W8
+DRIVER_FILES += \
+	$(PATH_STAGE_BIN)/additions/VBoxVideoW8.cat
+  endif
+ endif
+ ifeq ($(KBUILD_TARGET_ARCH),amd64)
+DRIVER_FILES += \
+	$(PATH_STAGE_BIN)/additions/VBoxDispD3D-x86.dll
+  ifdef VBOX_WITH_CROGL
+DRIVER_FILES += \
+	$(PATH_STAGE_BIN)/additions/wined3dwddm-x86.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxD3D9wddm-x86.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxOGL-x86.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxOGLarrayspu-x86.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxOGLcrutil-x86.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxOGLerrorspu-x86.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxOGLfeedbackspu-x86.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxOGLpackspu-x86.dll \
+	$(PATH_STAGE_BIN)/additions/VBoxOGLpassthroughspu-x86.dll
+  endif
+ endif
+endif
+
+
+VB_WIN_ADD_NSIS_ENV := \
+	-E 'PATH_OUT=$(subst /,\,$(PATH_OUT))' \
+	-E 'PATH_TARGET=$(subst /,\,$(PATH_TARGET))' \
+	-E 'PATH_TARGET_X86=$(subst /,\,$(PATH_OUT_BASE)/win.x86/$(KBUILD_TYPE)/obj)' \
+	-E 'VBOX_PATH_ADDITIONS_WIN_X86=$(subst /,\,$(VBOX_PATH_ADDITIONS.win.x86))' \
+	-E 'VBOX_PATH_DIFX=$(subst /,\,$(VBOX_PATH_DIFX))' \
+	-E 'VBOX_VENDOR=$(VBOX_VENDOR)' \
+	-E 'VBOX_VENDOR_SHORT=$(VBOX_VENDOR_SHORT)' \
+	-E 'VBOX_PRODUCT=$(VBOX_PRODUCT)' \
+	-E 'VBOX_C_YEAR=$(VBOX_C_YEAR)' \
+	-E 'VBOX_VERSION_STRING=$(VBOX_VERSION_STRING)' \
+	-E 'VBOX_VERSION_STRING_RAW=$(VBOX_VERSION_STRING_RAW)' \
+	-E 'VBOX_VERSION_MAJOR=$(VBOX_VERSION_MAJOR)' \
+	-E 'VBOX_VERSION_MINOR=$(VBOX_VERSION_MINOR)' \
+	-E 'VBOX_VERSION_BUILD=$(VBOX_VERSION_BUILD)' \
+	-E 'VBOX_SVN_REV=$(VBOX_SVN_REV)' \
+	-E 'VBOX_WINDOWS_ADDITIONS_ICON_FILE=$(subst /,\,$(VBOX_WINDOWS_ADDITIONS_ICON_FILE))' \
+	-E 'VBOX_NSIS_ICON_FILE=$(subst /,\,$(VBOX_NSIS_ICON_FILE))' \
+	-E 'VBOX_WITH_CROGL=$(if $(VBOX_WITH_CROGL),1,0)' \
+	-E 'VBOX_WITH_GUEST_INSTALL_HELPER=$(if $(VBOX_WITH_GUEST_INSTALL_HELPER),1,0)' \
+	-E 'VBOX_WITH_LICENSE_INSTALL_RTF=$(if $(VBOX_BRAND_LICENSE_RTF),1,0)' \
+	-E 'VBOX_WITH_WDDM=$(if $(VBOX_WITH_WDDM),1,0)' \
+	-E 'VBOX_WITH_WDDM_W8=$(if $(VBOX_WITH_WDDM_W8),1,0)' \
+	-E 'VBOX_BRAND_WIN_ADD_INST_DLGBMP=$(subst /,\,$(VBOX_BRAND_WIN_ADD_INST_DLGBMP))' \
+	-E 'VBOX_BRAND_LICENSE_RTF=$(subst /,\,$(VBOX_BRAND_LICENSE_RTF))' \
+	$(foreach lang,$(VBOX_INSTALLER_ADD_LANGUAGES),-E 'VBOX_BRAND_$(lang)_LICENSE_RTF=$(VBOX_BRAND_$(lang)_LICENSE_RTF)') \
+	-E 'BUILD_TYPE=$(KBUILD_TYPE)' \
+	-E 'BUILD_TARGET_ARCH=$(KBUILD_TARGET_ARCH)'
+
+ifdef VBOX_SIGNING_MODE
+#
+# This is a hack to sign the uninstaller.
+# See http://nsis.sourceforge.net/Signing_an_Uninstaller for more details.
+#
+OTHER_CLEAN += $(PATH_TARGET)/VBoxWindowsAdditions-$(KBUILD_TARGET_ARCH)-uninst.exe
+
+$(PATH_TARGET)/VBoxWindowsAdditions-$(KBUILD_TARGET_ARCH)-uninst.exe: \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditions.nsi \
+		$(DRIVER_FILES) \
+		$(VBOX_WINDOWS_ADDITIONS_ICON_FILE) \
+		$(VBOX_NSIS_ICON_FILE) \
+		$(VBOX_VERSION_STAMP) \
+               $$(VBoxDrvInst_1_STAGE_TARGET) \
+		| $$(dir $$@)
+	$(call MSG_L1,Creating $@, from $<)
+	$(QUIET)$(REDIRECT) -C $(VBOX_PATH_WIN_ADD_INS_SRC) \
+		$(VB_WIN_ADD_NSIS_ENV) \
+		-- $(EXEC_X86_WIN32) $(VBOX_PATH_NSIS)/makensis.exe /NOCD /V2 \
+			$(if $(VBOX_SIGN_ADDITIONS),'/DVBOX_SIGN_ADDITIONS=1') \
+			$(if $(VBOX_INSTALLER_ADD_LANGUAGES),'/DVBOX_INSTALLER_ADD_LANGUAGES=1') \
+			$(foreach lang,$(VBOX_INSTALLER_ADD_LANGUAGES),'/DVBOX_BRAND_$(lang)_LICENSE_RTF=1') \
+			'/DUNINSTALLER_ONLY=1' \
+			'$(subst /,\,$<)'
+
+OTHER_CLEAN += $(PATH_TARGET)/uninst.exe
+$(PATH_TARGET)/uninst.exe: $(PATH_TARGET)/VBoxWindowsAdditions-$(KBUILD_TARGET_ARCH)-uninst.exe | $$(dir $$@)
+	$(call MSG_L1,Creating $@, from $<)
+	$(QUIET)$(RM) -f $@
+	- $<
+	$(TEST) -f $@
+	$(call VBOX_SIGN_FILE_FN,$@)
+endif
+
+WHQLFAKE := $(PATH_SUB_CURRENT)/VBoxWHQLFake.au3
+
+$(PATH_STAGE_BIN)/additions/VBoxWHQLFake.exe:
+	$(call MSG_L1,Creating $@, from $<)
+	$(QUIET)$(EXEC_X86_WIN32) $(VBOX_PATH_AUTOIT3)/Aut2Exe/Aut2exe.exe \
+		/in $(WHQLFAKE) \
+		/out $(PATH_STAGE_BIN)/additions/VBoxWHQLFake.exe \
+		/icon $(VBOX_WINDOWS_ADDITIONS_ICON_FILE) \
+		/comp 4 \
+		/unicode
+
+$(PATH_STAGE_BIN)/additions/VBoxWindowsAdditions-$(KBUILD_TARGET_ARCH).exe: \
+		$(PATH_SUB_CURRENT)/VBoxGuestAdditions.nsi \
+		$(DRIVER_FILES) \
+		$(VBOX_WINDOWS_ADDITIONS_ICON_FILE) \
+		$(VBOX_NSIS_ICON_FILE) \
+		$(if $(VBOX_SIGNING_MODE),$(PATH_TARGET)/uninst.exe) \
+		$(VBOX_VERSION_STAMP) \
+               $$(VBoxDrvInst_1_STAGE_TARGET)
+	$(call MSG_L1,Creating $@, from $<)
+	$(QUIET)$(REDIRECT) -C $(VBOX_PATH_WIN_ADD_INS_SRC) \
+		$(VB_WIN_ADD_NSIS_ENV) \
+		-- $(EXEC_X86_WIN32) $(VBOX_PATH_NSIS)/makensis.exe /NOCD /V2 \
+			$(if $(VBOX_SIGN_ADDITIONS),'/DVBOX_SIGN_ADDITIONS=1') \
+			$(if $(VBOX_SIGNING_MODE),'/DEXTERNAL_UNINSTALLER=1') \
+			$(if $(VBOX_INSTALLER_ADD_LANGUAGES),'/DVBOX_INSTALLER_ADD_LANGUAGES=1') \
+			$(foreach lang,$(VBOX_INSTALLER_ADD_LANGUAGES),'/DVBOX_BRAND_$(lang)_LICENSE_RTF=1') \
+			'$(subst /,\,$<)'
+	$(call VBOX_SIGN_FILE_FN,$@)
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

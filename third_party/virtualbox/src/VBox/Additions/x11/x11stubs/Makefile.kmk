@@ -1,0 +1,65 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the X11 linker stub (import) libraries.
+#
+
+#
+# Copyright (C) 2009-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+
+#
+# libXcomposite import library.
+#
+IMPORT_LIBS += libXcomposite
+libXcomposite_TEMPLATE   = VBoxGuestR3Dll
+libXcomposite_INST       = $(INST_LIB)
+# This may need fixing later.
+libXcomposite_SONAME     = libXcomposite.so.1
+libXcomposite_SOURCES    = libXcomposite-1.0.0/libXcomposite.c
+
+#
+# libXdamage import library.
+#
+IMPORT_LIBS += libXdamage
+libXdamage_TEMPLATE   = VBoxGuestR3Dll
+libXdamage_INST       = $(INST_LIB)
+# This may need fixing later.
+libXdamage_SONAME     = libXdamage.so.1
+libXdamage_SOURCES    = libXdamage-1.1.0/libXdamage.c
+
+#
+# libXfixes import library.
+#
+IMPORT_LIBS += libXfixes
+libXfixes_TEMPLATE   = VBoxGuestR3Dll
+libXfixes_INST       = $(INST_LIB)
+# This may need fixing later.
+libXfixes_SONAME.linux      = libXfixes.so.3
+libXfixes_SONAME.solaris    = libXfixes.so.1
+libXfixes_SOURCES    = libXfixes-3.1.0/libXfixes.c
+
+#
+# libXfixes import library.
+#
+IMPORT_LIBS += libXext
+libXext_TEMPLATE   = VBoxGuestR3Dll
+libXext_INST       = $(INST_LIB)
+# This may need fixing later.
+libXext_SONAME.linux       = libXext.so.6
+libXext_SONAME.solaris     = libXext.so.0
+libXext_SOURCES    = libXext-6.4.0/libXext.c
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

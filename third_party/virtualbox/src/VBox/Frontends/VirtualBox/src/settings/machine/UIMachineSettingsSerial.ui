@@ -1,0 +1,243 @@
+<ui version="4.0" >
+ <comment>
+ VBox frontends: Qt GUI ("VirtualBox"):
+
+ Copyright (C) 2008-2016 Oracle Corporation
+
+ This file is part of VirtualBox Open Source Edition (OSE), as
+ available from http://www.virtualbox.org. This file is free software;
+ you can redistribute it and/or modify it under the terms of the GNU
+ General Public License (GPL) as published by the Free Software
+ Foundation, in version 2 as it comes in the "COPYING" file of the
+ VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ </comment>
+ <class>UIMachineSettingsSerial</class>
+ <widget class="QWidget" name="UIMachineSettingsSerial" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>357</width>
+    <height>179</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout" >
+   <item row="0" column="0" colspan="2" >
+    <widget class="QCheckBox" name="mGbSerial" >
+     <property name="whatsThis" >
+      <string>When checked, enables the given serial port of the virtual machine.</string>
+     </property>
+     <property name="text" >
+      <string>&amp;Enable Serial Port</string>
+     </property>
+     <property name="checked" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="1" >
+    <widget class="QWidget" native="1" name="mSerialChild" >
+     <layout class="QGridLayout" >
+      <property name="leftMargin" >
+       <number>0</number>
+      </property>
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <item row="0" column="0" >
+       <widget class="QLabel" name="mLbNumber" >
+        <property name="text" >
+         <string>Port &amp;Number:</string>
+        </property>
+        <property name="alignment" >
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy" >
+         <cstring>mCbNumber</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1" >
+       <widget class="QComboBox" name="mCbNumber" >
+        <property name="whatsThis" >
+         <string>Selects the serial port number. You can choose one of the standard serial ports or select &lt;b>User-defined&lt;/b> and specify port parameters manually.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="2" >
+       <widget class="QLabel" name="mLbIRQ" >
+        <property name="text" >
+         <string>&amp;IRQ:</string>
+        </property>
+        <property name="buddy" >
+         <cstring>mLeIRQ</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3" >
+       <widget class="QLineEdit" name="mLeIRQ" >
+        <property name="whatsThis" >
+         <string>Holds the IRQ number of this serial port. This should be a whole number between &lt;tt>0&lt;/tt> and &lt;tt>255&lt;/tt>. Values greater than &lt;tt>15&lt;/tt> may only be used if the &lt;b>I/O APIC&lt;/b> setting is enabled for this virtual machine.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="4" >
+       <widget class="QLabel" name="mLbIOPort" >
+        <property name="text" >
+         <string>I/O Po&amp;rt:</string>
+        </property>
+        <property name="buddy" >
+         <cstring>mLeIOPort</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="5" >
+       <widget class="QLineEdit" name="mLeIOPort" >
+        <property name="whatsThis" >
+         <string>Holds the base I/O port address of this serial port. Valid values are integer numbers in range from &lt;tt>0&lt;/tt> to &lt;tt>0xFFFF&lt;/tt>.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="6" >
+       <spacer>
+        <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QLabel" name="mLbMode" >
+        <property name="text" >
+         <string>Port &amp;Mode:</string>
+        </property>
+        <property name="alignment" >
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy" >
+         <cstring>mCbMode</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" >
+       <widget class="QComboBox" name="mCbMode" >
+        <property name="whatsThis" >
+         <string>Selects the working mode of this serial port. If you select &lt;b>Disconnected&lt;/b>, the guest OS will detect the serial port but will not be able to operate it.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" colspan="4" >
+       <spacer>
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" >
+         <size>
+          <width>131</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="2" column="1" colspan="5" >
+       <widget class="QCheckBox" name="mCbPipe" >
+        <property name="whatsThis" >
+         <string>When checked, the virtual machine will assume that the pipe or socket specified in the &lt;b>Path/Address&lt;/b> field exists and try to use it. Otherwise, the pipe or socket will be created by the virtual machine when it starts.</string>
+        </property>
+        <property name="text" >
+         <string>&amp;Connect to existing pipe/socket</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" >
+       <widget class="QLabel" name="mLbPath" >
+        <property name="text" >
+         <string>&amp;Path/Address:</string>
+        </property>
+        <property name="alignment" >
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy" >
+         <cstring>mLePath</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" colspan="6" >
+       <widget class="QLineEdit" name="mLePath" >
+        <property name="whatsThis" >
+         <string>&lt;p>In &lt;b>Host Pipe&lt;/b> mode: Holds the path to the serial port's pipe on the host. Examples: "\\.\pipe\myvbox" or "/tmp/myvbox", for Windows and UNIX-like systems respectively.&lt;/p>&lt;p>In &lt;b>Host Device&lt;/b> mode: Holds the host serial device name. Examples: "COM1" or "/dev/ttyS0".&lt;/p>&lt;p>In &lt;b>Raw File&lt;/b> mode: Holds the file-path on the host system, where the serial output will be dumped.&lt;/p>&lt;p>In &lt;b>TCP&lt;/b> mode: Holds the TCP "port" when in server mode, or "hostname:port" when in client mode.</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="2" column="0" colspan="2" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>mGbSerial</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>mSerialChild</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>71</x>
+     <y>20</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>255</x>
+     <y>125</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

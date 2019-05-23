@@ -1,0 +1,374 @@
+<ui version="4.0" >
+ <comment>
+ VBox frontends: Qt GUI ("VirtualBox"):
+
+ Copyright (C) 2008-2016 Oracle Corporation
+
+ This file is part of VirtualBox Open Source Edition (OSE), as
+ available from http://www.virtualbox.org. This file is free software;
+ you can redistribute it and/or modify it under the terms of the GNU
+ General Public License (GPL) as published by the Free Software
+ Foundation, in version 2 as it comes in the "COPYING" file of the
+ VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ </comment>
+ <class>UIMachineSettingsGeneral</class>
+ <widget class="QWidget" name="UIMachineSettingsGeneral" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>350</width>
+    <height>250</height>
+   </rect>
+  </property>
+  <layout class="QHBoxLayout" name="mLtMain" >
+   <item>
+    <widget class="QITabWidget" name="mTwGeneral" >
+     <property name="currentIndex" >
+      <number>0</number>
+     </property>
+     <widget class="QWidget" name="mTabBasic" >
+      <attribute name="title" >
+       <string>Basi&amp;c</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="mLtBasic" >
+       <property name="spacing" >
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="UINameAndSystemEditor" native="1" name="m_pNameAndSystemEditor" />
+       </item>
+       <item>
+        <spacer name="mSpVer1" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="mTabAdvanced" >
+      <attribute name="title" >
+       <string>A&amp;dvanced</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="mLtAdvanced" >
+       <property name="spacing" >
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QWidget" native="1" name="mWtAdvanced" >
+         <layout class="QGridLayout" name="mLtAdvancedItems" >
+          <property name="margin" >
+           <number>0</number>
+          </property>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="mLbSnapshot" >
+            <property name="text" >
+             <string>S&amp;napshot Folder:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy" >
+             <cstring>mPsSnapshot</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" colspan="2" >
+           <widget class="UIFilePathSelector" name="mPsSnapshot" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="mLbClipboard" >
+            <property name="text" >
+             <string>&amp;Shared Clipboard:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy" >
+             <cstring>mCbClipboard</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1" >
+           <widget class="QComboBox" name="mCbClipboard" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="whatsThis" >
+             <string>Selects which clipboard data will be copied between the guest and the host OS. This feature requires Guest Additions to be installed in the guest OS.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2" >
+           <spacer name="mSpHor1" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="mLbDragAndDrop" >
+            <property name="text" >
+             <string>D&amp;rag'n'Drop:</string>
+            </property>
+            <property name="alignment" >
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy" >
+             <cstring>mCbDragAndDrop</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" >
+           <widget class="QComboBox" name="mCbDragAndDrop" >
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Fixed" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="whatsThis" >
+                <string>Selects which data will be copied between the guest and the host OS by drag'n'drop. This feature requires Guest Additions to be installed in the guest OS.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2" >
+           <spacer name="mSpHor2" >
+            <property name="orientation" >
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0" >
+             <size>
+              <width>0</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="mSpVer3" >
+         <property name="orientation" >
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0" >
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="mTabDescription" >
+      <attribute name="title" >
+       <string>D&amp;escription</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="mLtDescription" >
+       <property name="spacing" >
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QTextEdit" name="mTeDescription" >
+         <property name="whatsThis" >
+          <string>Holds the description of the virtual machine. The description field is useful for commenting on configuration details of the installed guest OS.</string>
+         </property>
+         <property name="acceptRichText" >
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="m_pTabEncryption">
+      <attribute name="title">
+       <string>Enc&amp;ryption</string>
+      </attribute>
+      <layout class="QGridLayout" name="m_pLayoutEncryption">
+       <item row="0" column="0" colspan="2">
+        <widget class="QCheckBox" name="m_pCheckBoxEncryption">
+         <property name="whatsThis">
+          <string>When checked, enables encryption for this virtual machine.</string>
+         </property>
+         <property name="text">
+          <string>En&amp;able Encryption</string>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0">
+        <spacer>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Fixed</enum>
+         </property>
+         <property name="sizeHint">
+          <size>
+           <width>20</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="1" column="1">
+        <widget class="QWidget" name="m_pWidgetEncryption">
+         <property name="sizePolicy">
+          <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <layout class="QGridLayout" name="m_pLayoutEncryptionSettings">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QLabel" name="m_pLabelCipher">
+            <property name="text">
+             <string>Encryption C&amp;ipher:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy">
+             <cstring>m_pComboCipher</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="m_pComboCipher">
+            <property name="whatsThis" >
+             <string>Selects the cipher to be used for encrypting the virtual machine disks.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="m_pLabelPassword1">
+            <property name="text">
+             <string>E&amp;nter New Password:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy">
+             <cstring>m_pEditorEncryptionPassword</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="m_pEditorEncryptionPassword">
+            <property name="whatsThis" >
+             <string>Holds the password to be assigned to the virtual machine.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="m_pLabelPassword2">
+            <property name="text">
+             <string>C&amp;onfirm New Password:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy">
+             <cstring>m_pEditorEncryptionPasswordConfirm</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QLineEdit" name="m_pEditorEncryptionPasswordConfirm">
+            <property name="whatsThis" >
+             <string>Confirms the password to be assigned to the virtual machine.</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item row="2" column="1">
+        <spacer>
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeType">
+          <enum>QSizePolicy::Expanding</enum>
+         </property>
+         <property name="sizeHint">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>UINameAndSystemEditor</class>
+   <extends>QWidget</extends>
+   <header>UINameAndSystemEditor.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UIFilePathSelector</class>
+   <extends>QComboBox</extends>
+   <header>UIFilePathSelector.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QITabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>QITabWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>m_pCheckBoxEncryption</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_pWidgetEncryption</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+ </connections>
+</ui>

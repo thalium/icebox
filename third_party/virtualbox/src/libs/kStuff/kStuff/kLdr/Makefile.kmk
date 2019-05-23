@@ -1,0 +1,224 @@
+# $Id: Makefile.kmk 29 2009-07-01 20:30:29Z bird $
+## @file
+# kLdr - The Dynamic Loader, sub-makefile.
+#
+
+#
+# Copyright (c) 2006-2007 Knut St. Osmundsen <bird-kStuff-spamix@anduin.net>
+#
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation
+# files (the "Software"), to deal in the Software without
+# restriction, including without limitation the rights to use,
+# copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following
+# conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+#
+
+DEPTH ?= ..
+SUB_DEPTH = ..
+include $(PATH_KBUILD)/subheader.kmk
+
+#todo: include $(PATH_SUB_CURRENT)/testcase/Makefile.kmk
+
+#
+# Template for testcases.
+#
+TEMPLATE_TST = Testcase template
+ifeq ($(BUILD_TARGET),win)
+ ifeq ($(BUILD_TARGET_ARCH), x86)
+  TEMPLATE_TST_TOOL = VCC70
+  TEMPLATE_TST_CFLAGS = -W3 -Zi -Zl -MD
+  TEMPLATE_TST_LIBS = $(PATH_TOOL_VCC70_LIB)/msvcrt.lib
+ else
+  TEMPLATE_TST_TOOL = VCC80AMD64
+  TEMPLATE_TST_CFLAGS = -W3 -Zi -Zl -MD
+  TEMPLATE_TST_LIBS = $(PATH_TOOL_VCC80AMD64_LIB)/msvcrt.lib
+ endif
+ TEMPLATE_TST_CFLAGS.release = -O2
+ TEMPLATE_TST_ASFLAGS = -f win
+ TEMPLATE_TST_DEFS = __WIN__
+ TEMPLATE_TST_SDKS = WINPSDK W2K3DDK
+
+else
+ ifeq ($(BUILD_TARGET),os2)
+  TEMPLATE_TST_TOOL = GCC3OMF
+  TEMPLATE_TST_ASFLAGS = -f obj
+  TEMPLATE_TST_LIBS = os2 gcc end
+ else ifeq ($(BUILD_TARGET),darwin)
+  TEMPLATE_TST_TOOL = GCC4MACHO
+  TEMPLATE_TST_ASFLAGS = -f macho
+  TEMPLATE_TST_LIBS = #os2 gcc end
+ else
+  TEMPLATE_TST_TOOL = GCC3
+  TEMPLATE_TST_ASFLAGS = -f elf
+  TEMPLATE_TST_LIBS = gcc
+ endif
+ TEMPLATE_TST_CFLAGS = -Wall -pedantic -g -std=gnu99
+ TEMPLATE_TST_CFLAGS.release = -O2
+ TEMPLATE_TST_LDFLAGS =
+endif
+TEMPLATE_TST_INCS := $(PATH_SUB_CURRENT) $(PATH_SUB_ROOT)/include
+
+
+#
+# The kLdr DLL.
+#
+DLLS += kLdr
+kLdr_ASTOOL = NASM
+ifeq ($(BUILD_TARGET),win)
+ ifeq ($(BUILD_TARGET_ARCH),x86)
+  kLdr_TOOL = VCC70
+  kLdr_CFLAGS = -W3 -Zl -ML
+  kLdr_LDFLAGS = -Entry:DllMain@12 -Debug
+  kLdr_LIBS = \
+   	$(PATH_TOOL_VCC70_LIB)/LIBC.lib \
+	$(PATH_SDK_W2K3DDKX86_LIB)/ntdll.lib
+ else
+  kLdr_TOOL = VCC80AMD64
+  kLdr_ASTOOL = YASM
+  kLdr_CFLAGS = -W3 -Zl -MT
+  kLdr_LDFLAGS = -Entry:DllMain -Debug
+  kLdr_LIBS = \
+   	$(PATH_TOOL_VCC80AMD64_LIB)/LIBCMT.lib \
+	$(PATH_SDK_W2K3DDKAMD64_LIB)/ntdll.lib
+ endif
+ kLdr_ASFLAGS = -f win
+ kLdr_DEFS = __WIN__
+ kLdr_SDKS.x86 = WIN32SDK W2K3DDKX86
+ kLdr_SDKS.amd64 = WIN64SDK W2K3DDKAMD64
+else
+ ifeq ($(BUILD_TARGET),os2)
+  kLdr_TOOL = GCC3OMF
+  kLdr_ASFLAGS = -f obj
+  kLdr_LIBS = os2 gcc end
+ else ifeq ($(BUILD_TARGET),darwin)
+  kLdr_TOOL = GCC4MACHO
+  kLdr_ASFLAGS = -f macho
+  kLdr_LIBS = #os2 gcc end
+ else
+  kLdr_TOOL = GCC3
+  kLdr_ASFLAGS = -f elf
+  kLdr_LIBS = gcc
+ endif
+ kLdr_CFLAGS = -Wall -pedantic
+ kLdr_LDFLAGS = -nostdlib
+endif
+kLdr_INCS := $(PATH_SUB_CURRENT) $(PATH_SUB_ROOT)/include
+kLdr_SOURCES = \
+	kLdr.c \
+	kLdrDyld.c \
+	kLdrDyldFind.c \
+	kLdrDyldMod.c \
+	kLdrDyldOS.c \
+	kLdrDyLdSem.c \
+	kLdrMod.c \
+	kLdrModLX.c \
+	kLdrModMachO.c \
+	kLdrModNative.c \
+	kLdrModPE.c
+kLdr_SOURCES.os2 = \
+	kLdr-os2.def \
+	kLdr-os2.c \
+	kLdrA-os2.asm
+kLdr_SOURCES.win = \
+	kLdr-win.def \
+	kLdr-win.c
+kLdr_LIBS += \
+	$(PATH_LIB)/kRdrStatic$(SUFF_LIB) \
+	$(PATH_LIB)/kCpuStatic$(SUFF_LIB) \
+	$(PATH_LIB)/kHlpBareStatic$(SUFF_LIB) \
+	$(PATH_LIB)/kErrStatic$(SUFF_LIB)
+
+#
+# A static edition of kLdr.
+#
+LIBRARIES += kLdrStatic
+kLdrStatic_TEMPLATE = kStuffLIB
+kLdrStatic_SDKS.win = WINPSDK W2K3DDK
+kLdrStatic_INCS := $(PATH_SUB_CURRENT) $(PATH_SUB_ROOT)/include
+kLdrStatic_DEFS.darwin = __DARWIN__
+kLdrStatic_DEFS.os2 = __OS2__
+kLdrStatic_DEFS.win = __WIN__
+kLdrStatic_SOURCES = $(kLdr_SOURCES)
+
+#
+# The OS/2 stub program.
+#
+PROGRAMS.os2 = kLdrExeStub-os2
+kLdrExeStub-os2_TOOL = GCC3OMF
+kLdrExeStub-os2_ASTOOL = NASM
+kLdrExeStub-os2_ASFLAGS = -f obj
+#kLdrExeStub-os2_LDFLAGS = -nostdlib
+kLdrExeStub-os2_LDFLAGS = -nostdlib -Zstack 64
+kLdrExeStub-os2_LIBS = $(TARGET_kLdr)
+#kLdrExeStub-os2_SOURCES = kLdrExeStub-os2.asm
+kLdrExeStub-os2_SOURCES =  kLdrExeStub-os2A.asm kLdrExeStub-os2.c
+
+#
+# The Windows stub program.
+#
+PROGRAMS.win = kLdrExeStub-win
+kLdrExeStub-win_TOOL.win.x86 = VCC70
+kLdrExeStub-win_TOOL.win.amd64 = VCC80AMD64
+kLdrExeStub-win_SDKS.x86 = WIN32SDK
+kLdrExeStub-win_SDKS.amd64 = WIN64SDK
+kLdrExeStub-win_INCS := $(PATH_SUB_CURRENT) $(PATH_SUB_ROOT)/include
+kLdrExeStub-win_DEFS = __WIN__
+kLdrExeStub-win_CFLAGS = -W3 -Zl
+kLdrExeStub-win_CFLAGS.debug = -Zi
+kLdrExeStub-win_LDFLAGS = -Entry:WindowsMain -SubSystem:Console -FIXED:NO
+kLdrExeStub-win_LIBS = $(TARGET_kLdr:.dll=.lib)
+kLdrExeStub-win_SOURCES = kLdrExeStub-win.c
+
+
+##
+## The (stub) utility.
+##
+#PROGRAMS = kLdrUtil
+
+
+#
+# Heap testcase.
+#
+#PROGRAMS += tstkLdrHeap
+tstkLdrHeap_TEMPLATE = TST
+tstkLdrHeap_SOURCES = \
+	tstkLdrHeap.c \
+	kHlp.c \
+	kHlpHeap.c \
+	kHlpMem.c \
+	kHlpPath.c \
+	kHlpSem.c \
+	kHlpStr.c \
+
+#
+# Heap testcase.
+#
+PROGRAMS += tstkLdrMod
+tstkLdrMod_TEMPLATE = TST
+tstkLdrMod_SOURCES = \
+	tstkLdrMod.c
+ifeq ($(BUILD_TARGET),win)
+tstkLdrMod_LIBS = $(TARGET_kLdr:.dll=.lib)
+else
+tstkLdrMod_LIBS = $(TARGET_kLdr)
+endif
+
+
+# Generate rules.
+include $(PATH_KBUILD)/subfooter.kmk
+

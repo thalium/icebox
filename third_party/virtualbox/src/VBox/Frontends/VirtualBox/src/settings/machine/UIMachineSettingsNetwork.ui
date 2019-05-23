@@ -1,0 +1,299 @@
+<ui version="4.0">
+ <comment>
+ VBox frontends: Qt GUI ("VirtualBox"):
+
+ Copyright (C) 2008-2016 Oracle Corporation
+
+ This file is part of VirtualBox Open Source Edition (OSE), as
+ available from http://www.virtualbox.org. This file is free software;
+ you can redistribute it and/or modify it under the terms of the GNU
+ General Public License (GPL) as published by the Free Software
+ Foundation, in version 2 as it comes in the "COPYING" file of the
+ VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ </comment>
+ <class>UIMachineSettingsNetwork</class>
+ <widget class="QWidget" name="UIMachineSettingsNetwork">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>430</width>
+    <height>250</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout" name="m_pMainLayout">
+   <item row="0" column="0" colspan="2">
+    <widget class="QCheckBox" name="m_pEnableAdapterCheckBox">
+     <property name="whatsThis">
+      <string>When checked, plugs this virtual network adapter into the virtual machine.</string>
+     </property>
+     <property name="text">
+      <string>&amp;Enable Network Adapter</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <spacer name="m_pHorizontalSpacer1">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="1">
+    <widget class="QWidget" name="m_pAdapterOptionsContainer" native="1">
+     <layout class="QGridLayout" name="m_pAdapterOptionsLayout">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="m_pAttachmentTypeLabel">
+        <property name="text">
+         <string>&amp;Attached to:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>m_pAttachmentTypeComboBox</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QComboBox" name="m_pAttachmentTypeComboBox">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="whatsThis">
+         <string>Selects how this virtual adapter is attached to the real network of the Host OS.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="m_pAdapterNameLabel">
+        <property name="text">
+         <string>&amp;Name:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>m_pAdapterNameCombo</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="3">
+       <widget class="QComboBox" name="m_pAdapterNameCombo">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <layout class="QHBoxLayout" name="m_pAdvancedButtonLayout">
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <item>
+         <spacer name="m_pHorizontalSpacer2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QIArrowButtonSwitch" native="1" name="m_pAdvancedArrow">
+          <property name="text">
+           <string>A&amp;dvanced</string>
+          </property>
+          <property name="whatsThis">
+           <string>Shows additional network adapter options.</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="3" column="0">
+       <widget class="QLabel" name="m_pAdapterTypeLabel">
+        <property name="text">
+         <string>Adapter &amp;Type:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>m_pAdapterTypeCombo</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="1" colspan="3">
+       <widget class="QComboBox" name="m_pAdapterTypeCombo">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="whatsThis">
+         <string>Selects the type of the virtual network adapter. Depending on this value, VirtualBox will provide different network hardware to the virtual machine.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="m_pPromiscuousModeLabel">
+        <property name="text">
+         <string>&amp;Promiscuous Mode:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>m_pPromiscuousModeCombo</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1" colspan="3">
+       <widget class="QComboBox" name="m_pPromiscuousModeCombo">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="whatsThis">
+         <string>Selects the promiscuous mode policy of the network adapter when attached to an internal network, host only network or a bridge.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="m_pMACLabel">
+        <property name="text">
+         <string>&amp;MAC Address:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buddy">
+         <cstring>m_pMACEditor</cstring>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1" colspan="2">
+       <widget class="QILineEdit" name="m_pMACEditor">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+          <horstretch>1</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="whatsThis">
+         <string>Holds the MAC address of this adapter. It contains exactly 12 characters chosen from {0-9,A-F}. Note that the second character must be an even digit.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="3">
+       <widget class="QIToolButton" name="m_pMACButton">
+        <property name="whatsThis">
+         <string>Generates a new random MAC address.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QLabel" name="m_pGenericPropertiesLabel">
+        <property name="text">
+         <string>Generic Properties:</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignTop</set>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1" colspan="3">
+       <widget class="QTextEdit" name="m_pGenericPropertiesTextEdit">
+        <property name="whatsThis">
+         <string>Holds the configuration settings for the network attachment driver. The settings should be of the form &lt;b&gt;name=value&lt;/b&gt; and will depend on the driver. Use &lt;b&gt;shift-enter&lt;/b&gt; to add a new entry.</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="1" colspan="3">
+       <widget class="QCheckBox" name="m_pCableConnectedCheckBox">
+        <property name="whatsThis">
+         <string>When checked, the virtual network cable is plugged in.</string>
+        </property>
+        <property name="text">
+         <string>&amp;Cable Connected</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="1">
+       <widget class="QPushButton" name="m_pPortForwardingButton">
+        <property name="whatsThis">
+         <string>Displays a window to configure port forwarding rules.</string>
+        </property>
+        <property name="text">
+         <string>&amp;Port Forwarding</string>
+        </property>
+       </widget>
+      </item>
+      <item row="9" column="0" colspan="4">
+       <spacer name="m_pVerticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QILineEdit</class>
+   <extends>QLineEdit</extends>
+   <header>QILineEdit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QIArrowButtonSwitch</class>
+   <extends>QWidget</extends>
+   <header>QIArrowButtonSwitch.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QIToolButton</class>
+   <extends>QToolButton</extends>
+   <header>QIToolButton.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources>
+  <include location="../VirtualBox1.qrc"/>
+ </resources>
+ <connections/>
+</ui>

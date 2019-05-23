@@ -1,0 +1,42 @@
+# $Id: Makefile.kmk $
+## @file
+# Top-level makefile for the src directory.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ..
+include $(KBUILD_PATH)/subheader.kmk
+
+include $(PATH_SUB_CURRENT)/bldprogs/Makefile.kmk
+include $(PATH_SUB_CURRENT)/VBox/Makefile.kmk
+if !defined(VBOX_ONLY_ADDITIONS) || !defined(VBOX_ONLY_ADDITIONS_WITHOUT_RTISOMAKER)
+ include $(PATH_SUB_CURRENT)/libs/Makefile.kmk
+endif
+if defined(VBOX_ONLY_EXTPACKS) && !defined(VBOX_ONLY_EXTPACKS_USE_IMPLIBS) && defined(VBOX_WITH_REM)
+ include $(PATH_SUB_CURRENT)/recompiler/Makefile.kmk
+
+else if !defined(VBOX_ONLY_BUILD)
+ # Normal build.
+ if1of ($(KBUILD_TARGET_ARCH), x86 amd64)
+  ifdef VBOX_WITH_REM
+   include $(PATH_SUB_CURRENT)/recompiler/Makefile.kmk
+  endif
+ endif
+ ifneq ($(wildcard $(PATH_SUB_CURRENT)/apps),)
+  include $(PATH_SUB_CURRENT)/apps/Makefile.kmk
+ endif
+endif # !VBOX_ONLY_BUILD
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

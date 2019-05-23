@@ -1,0 +1,642 @@
+<ui version="4.0" >
+ <comment>
+ VBox frontends: Qt GUI ("VirtualBox"):
+
+ Copyright (C) 2009-2016 Oracle Corporation
+
+ This file is part of VirtualBox Open Source Edition (OSE), as
+ available from http://www.virtualbox.org. This file is free software;
+ you can redistribute it and/or modify it under the terms of the GNU
+ General Public License (GPL) as published by the Free Software
+ Foundation, in version 2 as it comes in the "COPYING" file of the
+ VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ </comment>
+ <class>UIMachineSettingsStorage</class>
+ <widget class="QWidget" name="UIMachineSettingsStorage" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>700</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="mLtMain" >
+   <item>
+    <widget class="QISplitter" native="1" name="mSplitter" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="handleWidth" >
+      <number>4</number>
+     </property>
+     <widget class="QWidget" native="1" name="mWtLeftPane" >
+      <layout class="QVBoxLayout" name="mLtLeftPane" >
+       <property name="leftMargin" >
+        <number>0</number>
+       </property>
+       <property name="topMargin" >
+        <number>0</number>
+       </property>
+       <property name="rightMargin" >
+        <number>10</number>
+       </property>
+       <property name="bottomMargin" >
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QILabelSeparator" native="1" name="mLsLeftPane" >
+         <property name="text" >
+          <string>&amp;Storage Devices</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="mLtStorage" >
+         <property name="spacing" >
+          <number>3</number>
+         </property>
+         <property name="margin" >
+          <number>0</number>
+         </property>
+         <item>
+          <layout class="QHBoxLayout" name="mLtStorageBar" >
+           <item>
+            <spacer name="mSp1" >
+             <property name="orientation" >
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0" >
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item>
+            <widget class="UIToolBar" native="1" name="mTbStorageBar" />
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QStackedWidget" name="mSwRightPane" >
+      <widget class="QWidget" name="mWtEmpty">
+       <layout class="QGridLayout" name="mLtEmpty" >
+        <property name="leftMargin" >
+         <number>10</number>
+        </property>
+        <property name="topMargin" >
+         <number>0</number>
+        </property>
+        <property name="rightMargin" >
+         <number>0</number>
+        </property>
+        <property name="bottomMargin" >
+         <number>0</number>
+        </property>
+        <item row="0" column="0" colspan="2" >
+         <widget class="QILabelSeparator" native="1" name="mLsEmpty" >
+          <property name="text" >
+           <string>Information</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QLabel" name="mLbInfo" >
+          <property name="text" >
+           <string>The Storage Tree can contain several controllers of different types. This machine currently has no controllers.</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="0" colspan="2" >
+         <spacer name="mSp2" >
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0" >
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="mWtController" >
+       <layout class="QGridLayout" name="mLtController" >
+        <property name="leftMargin" >
+         <number>10</number>
+        </property>
+        <property name="topMargin" >
+         <number>0</number>
+        </property>
+        <property name="rightMargin" >
+         <number>0</number>
+        </property>
+        <property name="bottomMargin" >
+         <number>0</number>
+        </property>
+        <item row="0" column="0" colspan="3" >
+         <widget class="QILabelSeparator" native="1" name="mLsParameters" >
+          <property name="text" >
+           <string>Attributes</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QLabel" name="mLbName" >
+          <property name="text" >
+           <string>&amp;Name:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>mLeName</cstring>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" >
+         <widget class="QLineEdit" name="mLeName" >
+          <property name="whatsThis" >
+           <string>Holds the name of the storage controller currently selected in the Storage Tree.</string>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1" >
+         <widget class="QLabel" name="mLbType" >
+          <property name="text" >
+           <string>&amp;Type:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>mCbType</cstring>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="2" >
+         <widget class="QComboBox" name="mCbType" >
+          <property name="whatsThis" >
+           <string>Selects the sub-type of the storage controller currently selected in the Storage Tree.</string>
+          </property>
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="1" >
+         <widget class="QLabel" name="mLbPortCount" >
+          <property name="text" >
+           <string>&amp;Port Count:</string>
+          </property>
+          <property name="buddy" >
+           <cstring>mSbPortCount</cstring>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="3" column="2" >
+         <widget class="QSpinBox" name="mSbPortCount" >
+          <property name="whatsThis" >
+           <string>Selects the port count of the SATA storage controller currently selected in the Storage Tree. This must be at least one more than the highest port number you need to use.</string>
+          </property>
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2" >
+         <widget class="QCheckBox" name="mCbIoCache" >
+          <property name="whatsThis" >
+           <string>When checked, allows to use host I/O caching capabilities.</string>
+          </property>
+          <property name="text" >
+           <string>Use Host I/O Cache</string>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="0" colspan="3" >
+         <spacer name="mSp3" >
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0" >
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="mWtAttachment" >
+       <layout class="QGridLayout" name="mLtAttachment" >
+        <property name="leftMargin" >
+         <number>10</number>
+        </property>
+        <property name="topMargin" >
+         <number>0</number>
+        </property>
+        <property name="rightMargin" >
+         <number>0</number>
+        </property>
+        <property name="bottomMargin" >
+         <number>0</number>
+        </property>
+        <item row="0" column="0" colspan="3" >
+         <widget class="QILabelSeparator" native="1" name="mLsAttributes" >
+          <property name="text" >
+           <string>Attributes</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1" >
+         <widget class="QLabel" name="mLbMedium" >
+          <property name="buddy" >
+           <cstring>mTbOpen</cstring>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2" >
+         <layout class="QHBoxLayout" name="mLtContainer" >
+          <property name="leftMargin" >
+           <number>0</number>
+          </property>
+          <property name="topMargin" >
+           <number>0</number>
+           </property>
+          <property name="rightMargin" >
+           <number>0</number>
+          </property>
+          <property name="bottomMargin" >
+           <number>0</number>
+          </property>
+          <property name="spacing" >
+           <number>1</number>
+          </property>
+          <item>
+           <widget class="QComboBox" name="mCbSlot" >
+            <property name="whatsThis" >
+             <string>Selects the slot on the storage controller used by this attachment. The available slots depend on the type of the controller and other attachments on it.</string>
+            </property>
+            <property name="sizePolicy" >
+             <sizepolicy vsizetype="Fixed" hsizetype="Expanding" >
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QIToolButton" name="mTbOpen" >
+            <property name="text" >
+             <string/>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="2" column="2">
+         <layout class="QVBoxLayout" name="m_pLayoutAttachmentConfig">
+          <property name="margin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QCheckBox" name="mCbPassthrough">
+            <property name="sizePolicy">
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="whatsThis">
+             <string>When checked, allows the guest to send ATAPI commands directly to the host-drive which makes it possible to use CD/DVD writers connected to the host inside the VM. Note that writing audio CD inside the VM is not yet supported.</string>
+            </property>
+            <property name="text">
+             <string>&amp;Passthrough</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="mCbTempEject">
+            <property name="sizePolicy">
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="whatsThis">
+             <string>When checked, the virtual disk will not be removed when the guest system ejects it.</string>
+            </property>
+            <property name="text">
+             <string>&amp;Live CD/DVD</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="mCbNonRotational">
+            <property name="sizePolicy">
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="whatsThis">
+             <string>When checked, the guest system will see the virtual disk as a solid-state device.</string>
+            </property>
+            <property name="text">
+             <string>&amp;Solid-state Drive</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="m_pCheckBoxHotPluggable">
+            <property name="sizePolicy">
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="whatsThis">
+             <string>When checked, the guest system will see the virtual disk as a hot-pluggable device.</string>
+            </property>
+            <property name="text">
+             <string>&amp;Hot-pluggable</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item row="3" column="0" colspan="3" >
+         <widget class="QILabelSeparator" native="1" name="mLsInformation" >
+          <property name="text" >
+           <string>Information</string>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="1" >
+         <widget class="QLabel" name="mLbHDFormat" >
+          <property name="text" >
+           <string>Type (Format):</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2" >
+         <widget class="QILabel" name="mLbHDFormatValue" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Ignored" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="1" >
+         <widget class="QLabel" name="mLbCDFDType" >
+          <property name="text" >
+           <string>Type:</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="5" column="2" >
+         <widget class="QILabel" name="mLbCDFDTypeValue" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Ignored" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="1" >
+         <widget class="QLabel" name="mLbHDVirtualSize" >
+          <property name="text" >
+           <string>Virtual Size:</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="2" >
+         <widget class="QILabel" name="mLbHDVirtualSizeValue" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Ignored" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="1" >
+         <widget class="QLabel" name="mLbHDActualSize" >
+          <property name="text" >
+           <string>Actual Size:</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="7" column="2" >
+         <widget class="QILabel" name="mLbHDActualSizeValue" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Ignored" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="1" >
+         <widget class="QLabel" name="mLbSize" >
+          <property name="text" >
+           <string>Size:</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="8" column="2" >
+         <widget class="QILabel" name="mLbSizeValue" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Ignored" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="1" >
+         <widget class="QLabel" name="mLbHDDetails" >
+          <property name="text" >
+           <string>Details:</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="9" column="2" >
+         <widget class="QILabel" name="mLbHDDetailsValue" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Ignored" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="1" >
+         <widget class="QLabel" name="mLbLocation" >
+          <property name="text" >
+           <string>Location:</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="10" column="2" >
+         <widget class="QILabel" name="mLbLocationValue" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Ignored" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="1" >
+         <widget class="QLabel" name="mLbUsage" >
+          <property name="text" >
+           <string>Attached to:</string>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="11" column="2" >
+         <widget class="QILabel" name="mLbUsageValue" >
+          <property name="sizePolicy" >
+           <sizepolicy vsizetype="Preferred" hsizetype="Ignored" >
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="1">
+         <widget class="QLabel" name="m_pLabelEncryption">
+          <property name="text">
+           <string>Encrypted with key:</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item row="12" column="2">
+         <widget class="QILabel" name="m_pLabelEncryptionValue">
+          <property name="sizePolicy">
+           <sizepolicy vsizetype="Preferred" hsizetype="Ignored">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+         </widget>
+        </item>
+        <item row="13" column="0" colspan="3" >
+         <spacer name="mSp6" >
+          <property name="orientation" >
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0" >
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QISplitter</class>
+   <extends>QSplitter</extends>
+   <header>QISplitter.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QILabelSeparator</class>
+   <extends>QLabel</extends>
+   <header>QILabelSeparator.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>UIToolBar</class>
+   <extends>QWidget</extends>
+   <header>UIToolBar.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VBoxMediaComboBox</class>
+   <extends>QComboBox</extends>
+   <header>VBoxMediaComboBox.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>QILabel</class>
+   <extends>QLabel</extends>
+   <header>QILabel.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QIToolButton</class>
+   <extends>QToolButton</extends>
+   <header>QIToolButton.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

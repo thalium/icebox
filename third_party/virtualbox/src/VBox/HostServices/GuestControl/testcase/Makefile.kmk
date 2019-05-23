@@ -1,0 +1,46 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Guest Control Host Service testcases.
+#
+
+#
+# Copyright (C) 2010-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+if defined(VBOX_WITH_TESTCASES) && !defined(VBOX_ONLY_ADDITIONS) && !defined(VBOX_ONLY_SDK)
+
+ # Set this in LocalConfig.kmk if you are working on the guest property
+ # service to automatically run the testcase at build time.
+ #    OTHERS += $(tstGuestControlSvc_0_OUTDIR)/tstGuestControlSvc.run
+ #
+
+ PROGRAMS += tstGuestControlSvc
+ TESTING  += $(tstGuestControlSvc_0_OUTDIR)/tstGuestControlSvc.run
+ tstGuestControlSvc_TEMPLATE = VBOXR3TSTEXE
+ # The second define here is to ensure that the testcase will run fast,
+ # without waiting for any thread synchronisation.
+ tstGuestControlSvc_DEFS     = VBOX_WITH_HGCM VBOX_GUEST_CONTROL_TEST_NOTHREAD
+ tstGuestControlSvc_SOURCES  = \
+	../service.cpp \
+	tstGuestControlSvc.cpp
+ tstGuestControlSvc_LIBS     = $(LIB_RUNTIME)
+
+$$(tstGuestControlSvc_0_OUTDIR)/tstGuestControlSvc.run: $$(tstGuestControlSvc_1_STAGE_TARGET)
+	export VBOX_LOG_DEST=nofile; $(tstGuestControlSvc_1_STAGE_TARGET) quiet
+	$(QUIET)$(APPEND) -t "$@" "done"
+
+endif
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

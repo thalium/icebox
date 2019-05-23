@@ -1,0 +1,102 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the libxml2 library.
+#
+
+#
+# Copyright (C) 2007-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+ifndef VBOX_ONLY_VALIDATIONKIT
+ LIBRARIES += VBox-libxml2
+endif
+VBox-libxml2_TEMPLATE       = VBoxR3RuntimeDllNonPedantic
+VBox-libxml2_SDKS           = VBOX_ZLIB
+VBox-libxml2_DEFS           = _REENTRANT # the latter triggers thread support, see xmlversion-default.h and win32xmlversion.h.
+VBox-libxml2_DEFS.win       = WIN32 _WINDOWS _MBCS _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_DEPRECATE \
+                              LIBXML_STATIC_FOR_DLL HAVE_WIN32_THREADS HAVE_ZLIB_H
+VBox-libxml2_CFLAGS.win.amd64 = -wd4267
+VBox-libxml2_CFLAGS.win    += -wd4701 # potentially uninitialized local variable 'l' used
+VBox-libxml2_CFLAGS.win    += -wd4232 # nonstandard extension used : 'xmlFree' : address of dllimport 'free' is not static, identity not guaranteed
+VBox-libxml2_CFLAGS.win    += -wd4305 # 'type cast' : truncation from 'xmlChar *' to 'long'
+VBox-libxml2_CFLAGS.win    += -wd4306 # 'type cast' : conversion from 'long' to 'void *' of greater size [TODO: check these out?]
+if1of ($(VBOX_VCC_TOOL_STEM), VCC120)
+ VBox-libxml2_CFLAGS.win   += -wd4311 # parser.c(1346) : warning C4311: 'type cast' : pointer truncation from 'void *' to 'long'
+ VBox-libxml2_CFLAGS.win   += -wd4312 # parser.c(1327) : warning C4312: 'type cast' : conversion from 'long' to 'void *' of greater size
+ VBox-libxml2_CFLAGS.win   += -wd4005 # sdk\v7.1\include\sal_supp.h(57) : warning C4005: '__useHeader' : macro redefinition
+endif
+ifn1of ($(KBUILD_TARGET), win)
+ VBox-libxml2_CFLAGS        = -Wno-format-security -Wno-strict-prototypes -Wno-format-extra-args
+endif
+VBox-libxml2_INCS           = include
+VBox-libxml2_SOURCES        = \
+	buf.c \
+	c14n.c \
+	catalog.c \
+	chvalid.c \
+	debugXML.c \
+	dict.c \
+	DOCBparser.c \
+	encoding.c \
+	entities.c \
+	error.c \
+	globals.c \
+	hash.c \
+	HTMLparser.c \
+	HTMLtree.c \
+	legacy.c \
+	list.c \
+	parser.c \
+	parserInternals.c \
+	pattern.c \
+	relaxng.c \
+	SAX2.c \
+	SAX.c \
+	schematron.c \
+	threads.c \
+	tree.c \
+	uri.c \
+	valid.c \
+	xinclude.c \
+	xlink.c \
+	xmlIO.c \
+	xmlmemory.c \
+	xmlreader.c \
+	xmlregexp.c \
+	xmlsave.c \
+	xmlschemas.c \
+	xmlschemastypes.c \
+	xmlunicode.c \
+	xmlwriter.c \
+	xpath.c \
+	xpointer.c \
+	xmlstring.c
+
+# For linking:
+# VBox-libxml2_LDFLAGS.win    = /VERSION:$(LIBXML_MAJOR_VERSION).$(LIBXML_MINOR_VERSION)
+# VBox-libxml2_SDKS.win      += WINPSDK
+
+ifdef VBOX_WITH_32_ON_64_MAIN_API # 32-bit edition.
+ LIBRARIES += VBox-libxml2-x86
+ VBox-libxml2-x86_TEMPLATE = VBoxR3DllNonPedantic-x86
+ VBox-libxml2-x86_EXTENDS = VBox-libxml2
+endif
+
+LIBRARIES += VBox-libxml2-static
+VBox-libxml2-static_TEMPLATE = VBoxR3StaticNonPedantic
+VBox-libxml2-static_EXTENDS = VBox-libxml2
+
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<!--
+    VirtualBox Windows Installation Script (WiX)
+
+    Copyright (C) 2006-2016 Oracle Corporation
+
+    This file is part of VirtualBox Open Source Edition (OSE), as
+    available from http://www.virtualbox.org. This file is free software;
+    you can redistribute it and/or modify it under the terms of the GNU
+    General Public License (GPL) as published by the Free Software
+    Foundation, in version 2 as it comes in the "COPYING" file of the
+    VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+    hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+-->
+
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wi"
+         xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+<?if $(env.VBOX_WITH_NETFLT) = "yes" ?>
+    <CustomAction Id="ca_InstallNetLwf" BinaryKey="VBoxInstallHelper" DllEntry="InstallNetLwf" Execute="deferred" Return="check" Impersonate="no"/>
+    <CustomAction Id="ca_InstallNetLwfArgs" Property="ca_InstallNetLwf" Value="[msm_VBoxNetworkLwfFolder]" Execute="immediate"/>
+
+    <CustomAction Id="ca_RollbackInstallNetLwf" BinaryKey="VBoxInstallHelper" DllEntry="UninstallNetLwf" Execute="rollback" Impersonate="no"/>
+    <CustomAction Id="ca_RollbackInstallNetLwfArgs" Property="ca_RollbackInstallNetLwf" Value="[msm_VBoxNetworkLwfFolder]" Execute="immediate"/>
+
+    <CustomAction Id="ca_UninstallNetLwf" BinaryKey="VBoxInstallHelper" DllEntry="UninstallNetLwf" Execute="deferred" Return="check" Impersonate="no"/>
+    <CustomAction Id="ca_UninstallNetLwfArgs" Property="ca_UninstallNetLwf" Value="[msm_VBoxNetworkLwfFolder]" Execute="immediate"/>
+
+    <CustomAction Id="ca_RollbackUninstallNetLwf" BinaryKey="VBoxInstallHelper" DllEntry="InstallNetLwf" Execute="rollback" Impersonate="no"/>
+    <CustomAction Id="ca_RollbackUninstallNetLwfArgs" Property="ca_RollbackUninstallNetLwf" Value="[msm_VBoxNetworkLwfFolder]" Execute="immediate"/>
+<?endif ?>
+
+</Include>

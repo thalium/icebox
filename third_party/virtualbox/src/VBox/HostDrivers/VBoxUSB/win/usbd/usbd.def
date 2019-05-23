@@ -1,0 +1,52 @@
+;
+; Export definitions
+;
+; Copyright (C) 2006-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+LIBRARY USBD.SYS
+
+EXPORTS
+USBD_AllocateDeviceName
+USBD_CalculateUsbBandwidth
+USBD_CompleteRequest
+USBD_CreateConfigurationRequest
+USBD_CreateDevice
+USBD_Debug_GetHeap
+USBD_Debug_LogEntry
+USBD_Debug_RetHeap
+USBD_Dispatch
+USBD_FreeDeviceMutex
+USBD_FreeDeviceName
+USBD_GetDeviceInformation
+USBD_GetInterfaceLength
+USBD_GetPdoRegistryParameter
+USBD_GetSuspendPowerState
+USBD_GetUSBDIVersion
+USBD_InitializeDevice
+USBD_MakePdoName
+USBD_ParseConfigurationDescriptor
+USBD_QueryBusTime
+USBD_RegisterHcDeviceCapabilities
+USBD_RegisterHcFilter
+USBD_RegisterHostController
+USBD_RemoveDevice
+USBD_RestoreDevice
+USBD_SetSuspendPowerState
+USBD_WaitDeviceMutex
+_USBD_CreateConfigurationRequestEx@8
+_USBD_ParseDescriptors@16
+_USBD_ParseConfigurationDescriptorEx@28
+
+; win64 strips the _stdcall postfix
+USBD_CreateConfigurationRequestEx
+USBD_ParseConfigurationDescriptorEx
+USBD_ParseDescriptors

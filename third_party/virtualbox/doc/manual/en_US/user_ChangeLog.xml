@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+  "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="ChangeLog">
+  <title>Change log</title>
+
+  <para>This section summarizes the changes between VirtualBox versions. Note
+  that this change log is not exhaustive; not all changes are listed.</para>
+
+  <para>VirtualBox version numbers consist of three numbers separated by dots
+  where the first and second number represent the major version and the 3rd number
+  the minor version. Minor version numbers of official releases are always even.
+  An odd minor version number represents an internal development or test build.
+  In addition, each build contains a revision number.</para>
+
+  <xi:include href="@VBOX_PATH_MANUAL_SRC@/user_ChangeLogImpl.xml" xpointer="xpointer(/chapter/*)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <sect1>
+    <title>Older Change log details</title>
+    <para>With VirtualBox 5.0, changelog information for versions before 4.3
+    was removed in order to save space. To access this information, please
+    consult the User Manual of VirtualBox version 4.3 or earlier.</para>
+  </sect1>
+
+</chapter>

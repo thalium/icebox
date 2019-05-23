@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="utf-8"?>
+<unattend xmlns="urn:schemas-microsoft-com:unattend"
+    xmlns:wcm="http://schemas.microsoft.com/WMIConfig/2002/State">
+
+    <settings pass="windowsPE">
+        <component name="Microsoft-Windows-International-Core-WinPE"
+            processorArchitecture="@@VBOX_INSERT_OS_ARCH_ATTRIB_DQ@@"
+            publicKeyToken="31bf3856ad364e35" language="neutral"
+            versionScope="nonSxS">
+            <InputLocale>en-US</InputLocale>
+            <SystemLocale>@@VBOX_INSERT_DASH_LOCALE@@</SystemLocale>
+            <UserLocale>@@VBOX_INSERT_DASH_LOCALE@@</UserLocale>
+            <!-- UILanguage must match the installation media language.  Stuff like de-CH does not work for
+                 example de_windows_7_enterprise_with_sp1_x64_dvd_u_677649.iso.  However, stupidly we cannot
+                 omit this element (kudos to brilliant minds at MS).  -->
+            <UILanguage>@@VBOX_INSERT_LANGUAGE@@</UILanguage>
+        </component>
+
+        <component name="Microsoft-Windows-Setup"
+            processorArchitecture="@@VBOX_INSERT_OS_ARCH_ATTRIB_DQ@@"
+            publicKeyToken="31bf3856ad364e35" language="neutral"
+            versionScope="nonSxS">
+
+            <DiskConfiguration>
+                <WillShowUI>OnError</WillShowUI>
+                <Disk>
+                    <DiskID>0</DiskID>
+                    <WillWipeDisk>true</WillWipeDisk>
+                    <CreatePartitions>
+                        <CreatePartition>
+                            <Order>1</Order>
+                            <Type>Primary</Type>
+                            <Extend>true</Extend>
+                        </CreatePartition>
+                    </CreatePartitions>
+                </Disk>
+            </DiskConfiguration>
+
+            <UserData>
+                <ProductKey>
+                    <Key>@@VBOX_INSERT_PRODUCT_KEY_ELEMENT@@</Key>
+                    <WillShowUI>OnError</WillShowUI>
+                </ProductKey>
+                <AcceptEula>true</AcceptEula>
+            </UserData>
+
+            <ImageInstall>
+                <OSImage>
+                    <InstallFrom>
+                        <!-- TODO: This stuff doesn't work for en_windows_vista_enterprise_sp1_x64_and_x86.iso ... -->
+                        <MetaData wcm:action="add">
+                            <Key>/IMAGE/INDEX</Key>
+                            <Value>@@VBOX_INSERT_IMAGE_INDEX_ELEMENT@@</Value>
+                        </MetaData>
+                        <!-- <Path>d:\sources\install.wim</Path> - the w7 tests doesn't specify this -->
+                    </InstallFrom>
+                    <InstallTo>
+                        <DiskID>0</DiskID>
+                        <PartitionID>1</PartitionID>
+                    </InstallTo>
+                    <WillShowUI>OnError</WillShowUI>
+                    <InstallToAvailablePartition>false</InstallToAvailablePartition>
+                </OSImage>
+            </ImageInstall>
+
+            <ComplianceCheck>
+                <DisplayReport>OnError</DisplayReport>
+            </ComplianceCheck>
+
+        </component>
+    </settings>
+
+    <settings pass="specialize">
+        <component name="Microsoft-Windows-Shell-Setup"
+            processorArchitecture="@@VBOX_INSERT_OS_ARCH_ATTRIB_DQ@@"
+            publicKeyToken="31bf3856ad364e35" language="neutral"
+            versionScope="nonSxS">
+            <ComputerName>@@VBOX_INSERT_HOSTNAME_WITHOUT_DOMAIN_MAX_15@@</ComputerName>
+        </component>
+    </settings>
+
+    <settings pass="oobeSystem">
+        <component name="Microsoft-Windows-Shell-Setup"
+            processorArchitecture="@@VBOX_INSERT_OS_ARCH_ATTRIB_DQ@@"
+            publicKeyToken="31bf3856ad364e35" language="neutral"
+            versionScope="nonSxS">
+            <AutoLogon>
+                <Password>
+                    <Value>@@VBOX_INSERT_USER_PASSWORD_ELEMENT@@</Value>
+                    <PlainText>true</PlainText>
+                </Password>
+                <Enabled>true</Enabled>
+                <Username>@@VBOX_INSERT_USER_LOGIN_ELEMENT@@</Username>
+            </AutoLogon>
+
+            <UserAccounts>
+@@VBOX_COND_IS_USER_LOGIN_NOT_ADMINISTRATOR@@
+                <AdministratorPassword>
+                    <Value>@@VBOX_INSERT_ROOT_PASSWORD_ELEMENT@@</Value>
+                    <PlainText>true</PlainText>
+                </AdministratorPassword>
+
+                <LocalAccounts>
+                    <LocalAccount wcm:action="add">
+                        <Name>@@VBOX_INSERT_USER_LOGIN_ELEMENT@@</Name>
+                        <DisplayName>@@VBOX_INSERT_USER_FULL_NAME_ELEMENT@@</DisplayName>
+                        <Group>administrators;users</Group>
+                        <Password>
+                            <Value>@@VBOX_INSERT_USER_PASSWORD_ELEMENT@@</Value>
+                            <PlainText>true</PlainText>
+                        </Password>
+                    </LocalAccount>
+                </LocalAccounts>
+@@VBOX_COND_END@@
+@@VBOX_COND_IS_USER_LOGIN_ADMINISTRATOR@@
+                <AdministratorPassword>
+                    <Value>@@VBOX_INSERT_USER_PASSWORD_ELEMENT@@</Value>
+                    <PlainText>true</PlainText>
+                </AdministratorPassword>
+@@VBOX_COND_END@@
+            </UserAccounts>
+
+            <VisualEffects>
+                <FontSmoothing>ClearType</FontSmoothing>
+            </VisualEffects>
+
+            <OOBE>
+                <ProtectYourPC>3</ProtectYourPC>
+                <HideEULAPage>true</HideEULAPage>
+                <SkipUserOOBE>true</SkipUserOOBE>
+                <SkipMachineOOBE>true</SkipMachineOOBE>
+                <!-- Make this (NetworkLocation) default to public and make it configurable -->
+                <NetworkLocation>Home</NetworkLocation>
+            </OOBE>
+
+            <FirstLogonCommands>
+                <SynchronousCommand wcm:action="add">
+                    <!-- For which OS versions do we need to do this? -->
+                    <Order>1</Order>
+                    <Description>Turn Off Network Selection pop-up</Description>
+                    <CommandLine>reg.exe add "HKLM\SYSTEM\CurrentControlSet\Control\Network\NewNetworkWindowOff"</CommandLine>
+                </SynchronousCommand>
+                <SynchronousCommand wcm:action="add">
+                    <Order>2</Order>
+                    <Description>VirtualBox post guest install steps </Description>
+                    <CommandLine>cmd.exe /c A:\VBOXPOST.CMD --vista-or-newer</CommandLine>
+                </SynchronousCommand>
+            </FirstLogonCommands>
+
+            <TimeZone>@@VBOX_INSERT_TIME_ZONE_WIN_NAME@@</TimeZone>
+        </component>
+
+    </settings>
+</unattend>
+

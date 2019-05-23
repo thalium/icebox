@@ -1,0 +1,29 @@
+# $Id: Makefile.kmk $
+## @file
+# Top-level makefile for VBox frontends shared bits
+#
+
+#
+# Copyright (C) 2010-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+# Include Sub-Makefiles
+ifneq ($(VBOX_WITH_QTGUI)$(VBOX_WITH_VBOXSDL),)
+ ifeq ($(filter-out freebsd linux openbsd netbsd solaris,$(KBUILD_TARGET)),) # X11
+  include $(PATH_SUB_CURRENT)/VBoxKeyboard/Makefile.kmk
+ endif
+endif
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

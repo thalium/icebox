@@ -1,0 +1,18 @@
+CreateContext
+DestroyContext
+MakeCurrent
+NewList
+EndList
+DeleteLists
+GenLists
+ListBase
+IsList
+CallList
+CallLists
+
+# Calls to be ignored.
+#VBoxConCreate
+#VBoxCreateContext
+#VBoxPackSetInjectThread
+#VBoxPresentComposition
+#VBoxWindowCreate

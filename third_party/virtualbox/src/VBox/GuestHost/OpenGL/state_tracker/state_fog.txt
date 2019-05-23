@@ -1,0 +1,13 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+:enable:enable:GL_FOG
+:color:color|r,g,b,a:Fogfv,GL_FOG_COLOR
+:index:index:Fogi,GL_FOG_INDEX
+:density:density:Fogf,GL_FOG_DENSITY
+:start:start:Fogf,GL_FOG_START
+:end:end:Fogf,GL_FOG_END
+:mode:mode:Fogi,GL_FOG_MODE
+:fogDistanceMode:fogDistanceMode:Fogi,GL_FOG_DISTANCE_MODE_NV
+:fogCoordinateSource:fogCoordinateSource:Fogi,GL_FOG_COORDINATE_SOURCE_EXT

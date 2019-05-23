@@ -1,0 +1,455 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Shared OpenGL Host Service.
+#
+
+#
+# Copyright (C) 2008-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+
+#
+# Target lists.
+#
+ifdef VBOX_WITH_MAIN
+DLLS      += VBoxSharedCrOpenGL	VBoxOGLrenderspu
+LIBRARIES += VBoxOGLcrserverlib	VBoxOGLcrunpacker
+BLDDIRS   += \
+	$(VBOX_PATH_CROGL_GENFILES)/
+endif
+
+ifdef VBOX_WITH_CR_DISPLAY_LISTS
+ LIBRARIES += VBoxOGLcrdlm
+ DLLS      += VBoxOGLexpandospu
+endif # VBOX_WITH_CR_DISPLAY_LISTS
+
+ifeq ($(KBUILD_TARGET),darwin)
+ #
+ # We have to symlink the system headers of OpenGl cause they have some
+ # different directory hierarchy on Mac OS X (no /GL sub directory).
+ #
+ # See Config.kmk for the global variables.
+ #
+ INSTALLS += DarwinOpenGLHdrs
+ DarwinOpenGLHdrs_INST     = $(VBOX_DARWIN_OPENGL_INST)
+ DarwinOpenGLHdrs_SYMLINKS = \
+ 	$(foreach hdr, $(VBOX_DARWIN_OPENGL_HEADERS),\
+ 		$(hdr)=>$(VBOX_PATH_MACOSX_SDK)/System/Library/Frameworks/OpenGL.framework/Versions/Current/Headers/$(hdr))
+endif # darwin
+
+#
+# VBoxSharedCrOpenGL
+#
+VBoxSharedCrOpenGL_TEMPLATE = VBOXCROGLR3HOSTDLL
+ifdef VBOX_WITH_XPCOM
+ VBoxSharedCrOpenGL_DEFS = VBOX_WITH_XPCOM
+ VBoxSharedCrOpenGL_CXXFLAGS = -Wno-non-virtual-dtor -fshort-wchar $(VBOX_GCC_std)
+endif
+VBoxSharedCrOpenGL_INTERMEDIATES = \
+	$(TEMPLATE_VBOXMAINEXE_INTERMEDIATES)
+VBoxSharedCrOpenGL_INCS = $(VBOX_GRAPHICS_INCS)
+VBoxSharedCrOpenGL_INCS.win = \
+	$(VBOX_PATH_SDK)/bindings/mscom/include
+ifdef VBOX_WITH_XPCOM
+VBoxSharedCrOpenGL_INCS += \
+ 	$(VBOX_XPCOM_INCS)
+endif
+VBoxSharedCrOpenGL_SOURCES = \
+	crserver/crservice.cpp
+VBoxSharedCrOpenGL_SOURCES.win = \
+	crserver/VBoxSharedCrOpenGL.rc
+VBoxSharedCrOpenGL_LDFLAGS.darwin = -install_name $(VBOX_DYLD_EXECUTABLE_PATH)/VBoxSharedCrOpenGL.dylib
+VBoxSharedCrOpenGL_LIBS = \
+	$(PATH_STAGE_LIB)/VBoxOGLcrserverlib$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/VBoxOGLhostcrstate$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/VBoxOGLcrunpacker$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/VBoxOGLhostcrpacker$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/VBoxOGLhostspuload$(VBOX_SUFF_LIB) \
+	$(VBOX_LIB_OGL_HOSTCRUTIL) \
+	$(PATH_STAGE_LIB)/VBoxCOM$(VBOX_SUFF_LIB) \
+	$(LIB_RUNTIME) \
+	$(LIB_VMM)
+VBoxSharedCrOpenGL_LIBS.darwin = \
+	$(LIB_REM)
+ifeq ($(KBUILD_TARGET),win)
+ VBoxSharedCrOpenGL_LIBS += \
+	$(PATH_OBJ)/VBoxOGLrenderspu/VBoxOGLrenderspu$(VBOX_SUFF_LIB)
+else
+ VBoxSharedCrOpenGL_LIBS += \
+	$(PATH_STAGE_BIN)/VBoxOGLrenderspu$(VBOX_SUFF_DLL)
+endif
+ifdef VBOX_WITH_XPCOM
+ VBoxSharedCrOpenGL_LIBS += \
+	$(LIB_XPCOM)
+endif
+ifdef VBOX_WITH_CRHGSMI
+VBoxSharedCrOpenGL_DEFS += VBOX_WITH_CRHGSMI
+endif
+ifdef VBOX_WITH_CR_DISPLAY_LISTS
+VBoxSharedCrOpenGL_LIBS += $(PATH_STAGE_LIB)/VBoxOGLcrdlm$(VBOX_SUFF_LIB)
+endif
+
+#
+# VBoxOGLcrserverlib
+#
+VBoxOGLcrserverlib_TEMPLATE = VBOXCROGLR3HOSTLIB
+VBoxOGLcrserverlib_INCS  = \
+	. \
+	crserverlib \
+	$(VBOX_GRAPHICS_INCS)
+VBoxOGLcrserverlib_INTERMEDIATES = \
+	$(VBOX_PATH_CROGL_GENFILES)/spu_dispatch_table.h \
+	$(VBOX_PATH_CROGL_GENFILES)/server_dispatch.h \
+        $(VBOX_PATH_CROGL_GENFILES)/cr_opcodes.h \
+	$(VBOX_PATH_CROGL_GENFILES)/state/cr_currentpointers.h \
+	$(VBOX_PATH_CROGL_GENFILES)/state/cr_statefuncs.h
+
+ifdef VBOX_WITH_CR_DISPLAY_LISTS
+VBoxOGLcrserverlib_INTERMEDIATES += $(VBOX_PATH_CROGL_GENFILES)/cr_dlm.h
+endif
+
+VBoxOGLcrserverlib_SOURCES := \
+	crserverlib/server_main.c \
+	crserverlib/server_boundsinfo.c \
+	crserverlib/server_bufferobject.c \
+	crserverlib/server_clear.c \
+	crserverlib/server_clip.c \
+	crserverlib/server_config.c \
+	crserverlib/server_context.c \
+	crserverlib/server_gentextures.c \
+	crserverlib/server_getmap.c \
+	crserverlib/server_getstring.c \
+	crserverlib/server_getpointer.c \
+	crserverlib/server_getpixelmap.c \
+	crserverlib/server_getteximage.c \
+	crserverlib/server_lists.c \
+	crserverlib/server_misc.c \
+	crserverlib/server_occlude.c \
+	crserverlib/server_papi.c \
+	crserverlib/server_projmatrix.c \
+	crserverlib/server_readpixels.c \
+	crserverlib/server_stream.c \
+	crserverlib/server_viewport.c \
+	crserverlib/server_window.c \
+	crserverlib/server_winpos.c \
+	crserverlib/server_writeback.c \
+	crserverlib/server_getshaders.c \
+	crserverlib/server_framebuffer.c \
+	crserverlib/server_glsl.c \
+	crserverlib/server_muralfbo.cpp \
+	crserverlib/server_texture.c \
+	crserverlib/presenter/server_presenter.cpp \
+	crserverlib/presenter/display_base.cpp \
+	crserverlib/presenter/display_composite.cpp \
+	crserverlib/presenter/window.cpp \
+	crserverlib/presenter/display_window.cpp \
+	crserverlib/presenter/display_window_rootvr.cpp \
+	crserverlib/presenter/display_vrdp.cpp \
+	crserverlib/server_rpw.cpp \
+	$(VBOX_PATH_CROGL_GENFILES)/server_dispatch.c \
+	$(VBOX_PATH_CROGL_GENFILES)/server_retval.c \
+	$(VBOX_PATH_CROGL_GENFILES)/server_get.c \
+	$(VBOX_PATH_CROGL_GENFILES)/server_simpleget.c
+VBoxOGLcrserverlib_CLEAN = \
+	$(VBOX_PATH_CROGL_GENFILES)/server_dispatch.c \
+	$(VBOX_PATH_CROGL_GENFILES)/server_retval.c \
+	$(VBOX_PATH_CROGL_GENFILES)/server_get.c \
+	$(VBOX_PATH_CROGL_GENFILES)/server_simpleget.c \
+	$(VBOX_PATH_CROGL_GENFILES)/server_dispatch.h
+ifdef VBOX_WITH_CR_DISPLAY_LISTS
+VBoxOGLcrserverlib_DEFS += VBOX_WITH_CR_DISPLAY_LISTS
+endif
+ifdef VBOXCR_LOGFPS
+VBoxOGLcrserverlib_DEFS += VBOXCR_LOGFPS
+endif
+ifdef VBOX_WITH_CRHGSMI
+VBoxOGLcrserverlib_DEFS += ifdef VBOX_WITH_CRHGSMI
+endif
+ifdef VBOX_WITH_CRDUMPER
+VBoxOGLcrserverlib_DEFS        += VBOX_WITH_CRDUMPER
+endif
+ifdef VBOX_WITH_CRSERVER_DUMPER
+VBoxOGLcrserverlib_DEFS        += VBOX_WITH_CRSERVER_DUMPER
+endif
+
+
+#
+# Generate files for VBoxOGLcrserverlib
+#
+$(VBOX_PATH_CROGL_GENFILES)/server_dispatch.h: $(addprefix $(PATH_SUB_CURRENT)/crserverlib/, server_dispatch_header.py server_special) $(VBOX_CROGL_API_FILES) $(PATH_ROOT)/src/VBox/GuestHost/OpenGL/state_tracker/state_special | $$(dir $$@)
+	$(call MSG_GENERATE,python,$@,$<)
+	$(QUIET)$(call VBOX_CROGL_PYTHON_ENV,$(VBOX_PATH_CROGL_PYTHON_INCLUDE),$@) $(VBOX_BLD_PYTHON) $< $(VBOX_PATH_CROGL_GLAPI) $(<D)
+
+$(VBOX_PATH_CROGL_GENFILES)/server_dispatch.c: $(addprefix $(PATH_SUB_CURRENT)/crserverlib/, server_dispatch.py server_special) $(VBOX_CROGL_API_FILES) $(PATH_ROOT)/src/VBox/GuestHost/OpenGL/state_tracker/state_special | $$(dir $$@)
+	$(call MSG_GENERATE,python,$@,$<)
+	$(QUIET)$(call VBOX_CROGL_PYTHON_ENV,$(VBOX_PATH_CROGL_PYTHON_INCLUDE),$@) $(VBOX_BLD_PYTHON) $< $(VBOX_PATH_CROGL_GLAPI) $(<D)
+
+$(VBOX_PATH_CROGL_GENFILES)/server_retval.c: $(addprefix $(PATH_SUB_CURRENT)/crserverlib/, server_retval.py server_special) $(VBOX_CROGL_API_FILES) | $$(dir $$@)
+	$(call MSG_GENERATE,python,$@,$<)
+	$(QUIET)$(call VBOX_CROGL_PYTHON_ENV,$(VBOX_PATH_CROGL_PYTHON_INCLUDE),$@) $(VBOX_BLD_PYTHON) $< $(VBOX_PATH_CROGL_GLAPI) $(<D)
+
+$(VBOX_PATH_CROGL_GENFILES)/server_get.c: $(addprefix $(PATH_SUB_CURRENT)/crserverlib/, server_get.py server_special) $(VBOX_CROGL_API_FILES) | $$(dir $$@)
+	$(call MSG_GENERATE,python,$@,$<)
+	$(QUIET)$(call VBOX_CROGL_PYTHON_ENV,$(VBOX_PATH_CROGL_PYTHON_INCLUDE),$@) $(VBOX_BLD_PYTHON) $< $(VBOX_PATH_CROGL_GLAPI) $(<D)
+
+$(VBOX_PATH_CROGL_GENFILES)/server_simpleget.c: $(addprefix $(PATH_SUB_CURRENT)/crserverlib/, server_simpleget.py get_sizes.py) $(VBOX_CROGL_API_FILES) | $$(dir $$@)
+	$(call MSG_GENERATE,python,$@,$<)
+	$(QUIET)$(call VBOX_CROGL_PYTHON_ENV,$(VBOX_PATH_CROGL_PYTHON_INCLUDE),$@) $(VBOX_BLD_PYTHON) $< $(VBOX_PATH_CROGL_GLAPI) $(<D)
+
+
+#
+# VBoxOGLcrunpacker
+#
+VBoxOGLcrunpacker_TEMPLATE       = VBOXCROGLR3HOSTLIB
+VBoxOGLcrunpacker_INCS           = \
+	unpacker \
+	$(VBOX_GRAPHICS_INCS)
+VBoxOGLcrunpacker_INTERMEDIATES  = \
+	$(VBOX_PATH_CROGL_GENFILES)/spu_dispatch_table.h \
+	$(VBOX_PATH_CROGL_GENFILES)/cr_opcodes.h \
+	$(VBOX_PATH_CROGL_GENFILES)/unpack_extend.h \
+	$(VBOX_PATH_CROGL_GENFILES)/state/cr_currentpointers.h \
+	$(VBOX_PATH_CROGL_GENFILES)/state/cr_statefuncs.h
+VBoxOGLcrunpacker_SOURCES  = \
+	unpacker/unpack_arrays.c \
+	unpacker/unpack_bounds.c \
+	unpacker/unpack_bufferobject.c \
+	unpacker/unpack_calllists.c \
+	unpacker/unpack_clipplane.c \
+	unpacker/unpack_context.c \
+	unpacker/unpack_drawpixels.c \
+	unpacker/unpack_fence.c \
+	unpacker/unpack_fog.c \
+	unpacker/unpack_lights.c \
+	unpacker/unpack_map.c \
+	unpacker/unpack_materials.c \
+	unpacker/unpack_matrices.c \
+	unpacker/unpack_misc.c \
+	unpacker/unpack_pixelmap.c \
+	unpacker/unpack_point.c \
+	unpacker/unpack_program.c \
+	unpacker/unpack_readpixels.c \
+	unpacker/unpack_regcombiner.c \
+	unpacker/unpack_stipple.c \
+	unpacker/unpack_texture.c \
+	unpacker/unpack_writeback.c \
+	unpacker/unpack_visibleregion.c \
+	unpacker/unpack_shaders.c \
+	unpacker/unpack_framebuffer.c \
+	$(VBOX_PATH_CROGL_GENFILES)/unpack.c
+VBoxOGLcrunpacker_CLEAN = \
+	$(VBOX_PATH_CROGL_GENFILES)/unpack.c \
+	$(VBOX_PATH_CROGL_GENFILES)/unpack_extend.h
+
+#
+# Generate files for VBoxOGLcrunpacker.
+#
+$(VBOX_PATH_CROGL_GENFILES)/unpack.c: \
+		$(addprefix $(PATH_SUB_CURRENT)/unpacker/, unpack.py unpacker_special) \
+		$(VBOX_PATH_CROGL_GENFILES)/unpack_extend.h \
+		$(VBOX_CROGL_API_FILES) \
+		| $$(dir $$@)
+	$(call MSG_GENERATE,python,$@,$<)
+	$(QUIET)$(call VBOX_CROGL_PYTHON_ENV,$(VBOX_PATH_CROGL_PYTHON_INCLUDE),$@) $(VBOX_BLD_PYTHON) $< $(VBOX_PATH_CROGL_GLAPI) $(<D)
+
+$(VBOX_PATH_CROGL_GENFILES)/unpack_extend.h: \
+		$(addprefix $(PATH_SUB_CURRENT)/unpacker/, unpack_extend.py unpacker_special) \
+		$(VBOX_CROGL_API_FILES) \
+		| $$(dir $$@)
+	$(call MSG_GENERATE,python,$@,$<)
+	$(QUIET)$(call VBOX_CROGL_PYTHON_ENV,$(VBOX_PATH_CROGL_PYTHON_INCLUDE),$@) $(VBOX_BLD_PYTHON) $< $(VBOX_PATH_CROGL_GLAPI) $(<D)
+
+
+ifdef VBOX_WITH_CR_DISPLAY_LISTS
+#
+# VBoxOGLcrdlm
+#
+
+VBoxOGLcrdlm_TEMPLATE       = VBOXCROGLR3HOSTLIB
+VBoxOGLcrdlm_INCS           = \
+	dlm
+VBoxOGLcrdlm_INTERMEDIATES  = \
+	$(VBOX_PATH_CROGL_GENFILES)/cr_dlm.h \
+	$(VBOX_PATH_CROGL_GENFILES)/dlm_generated.h
+
+VBoxOGLcrdlm_SOURCES  = \
+	dlm/dlm.c \
+	dlm/dlm_arrays.c \
+	dlm/dlm_state.c \
+	dlm/dlm_checklist.c \
+	dlm/dlm_error.c \
+	dlm/dlm_lists.c \
+	dlm/dlm_pointers.c \
+	$(VBOX_PATH_CROGL_GENFILES)/dlm_generated.c
+
+VBoxOGLcrdlm_CLEAN = \
+	$(VBOX_PATH_CROGL_GENFILES)/dlm_generated.c \
+	$(VBOX_PATH_CROGL_GENFILES)/cr_dlm.h \
+	$(VBOX_PATH_CROGL_GENFILES)/dlm_generated.h
+#
+# Generate files for VBoxOGLcrdlm.
+#
+$(VBOX_PATH_CROGL_GENFILES)/cr_dlm.h: \
+		$(addprefix $(PATH_SUB_CURRENT)/dlm/, dlm_header.py) \
+		$(VBOX_CROGL_API_FILES) \
+		| $$(dir $$@)
+	$(call MSG_GENERATE,python,$@,$<)
+	$(QUIET)$(call VBOX_CROGL_PYTHON_ENV,$(VBOX_PATH_CROGL_PYTHON_INCLUDE),$@) $(VBOX_BLD_PYTHON) $< header $(<D) $(VBOX_PATH_CROGL_GLAPI) > $@
+
+$(VBOX_PATH_CROGL_GENFILES)/dlm_generated.h: \
+		$(addprefix $(PATH_SUB_CURRENT)/dlm/, dlm_generated.py dlm_special) \
+		$(VBOX_PATH_CROGL_GENFILES)/cr_dlm.h \
+		$(VBOX_CROGL_API_FILES) \
+		| $$(dir $$@)
+	$(call MSG_GENERATE,python,$@,$<)
+	$(QUIET)$(call VBOX_CROGL_PYTHON_ENV,$(VBOX_PATH_CROGL_PYTHON_INCLUDE),$@) $(VBOX_BLD_PYTHON) $< headers $(<D) $(VBOX_PATH_CROGL_GLAPI) > $@
+
+$(VBOX_PATH_CROGL_GENFILES)/dlm_generated.c: \
+		$(addprefix $(PATH_SUB_CURRENT)/dlm/, dlm_generated.py dlm_special) \
+		$(VBOX_PATH_CROGL_GENFILES)/dlm_generated.h \
+		$(VBOX_CROGL_API_FILES) \
+		| $$(dir $$@)
+	$(call MSG_GENERATE,python,$@,$<)
+	$(QUIET)$(call VBOX_CROGL_PYTHON_ENV,$(VBOX_PATH_CROGL_PYTHON_INCLUDE),$@) $(VBOX_BLD_PYTHON) $< source $(<D) $(VBOX_PATH_CROGL_GLAPI) > $@
+
+
+#
+# VBoxOGLexpandospu
+#
+VBoxOGLexpandospu_TEMPLATE       = VBOXCROGLR3HOSTDLL
+VBoxOGLexpandospu_INCS           = \
+	expando
+VBoxOGLexpandospu_SOURCES  = \
+	expando/expandospu.c \
+	expando/expandospu_config.c \
+	expando/expandospu_init.c \
+	$(VBOX_PATH_CROGL_GENFILES)/expando.c
+VBoxOGLexpandospu_CLEAN = \
+	$(VBOX_PATH_CROGL_GENFILES)/expando.c
+VBoxOGLexpandospu_CLEAN = \
+	$(VBOX_PATH_CROGL_GENFILES)/expando.c
+VBoxOGLexpandospu_LDFLAGS.darwin += -install_name $(VBOX_DYLD_EXECUTABLE_PATH)/VBoxOGLexpandospu.dylib
+VBoxOGLexpandospu_LIBS = \
+	$(PATH_STAGE_LIB)/VBoxOGLcrdlm$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/VBoxOGLhostcrstate$(VBOX_SUFF_LIB) \
+	$(PATH_STAGE_LIB)/VBoxOGLhostspuload$(VBOX_SUFF_LIB) \
+	$(VBOX_LIB_OGL_HOSTCRUTIL) \
+	$(LIB_RUNTIME) \
+	$(LIB_VMM)
+#
+# Generate files for VBoxOGLexpandospu.
+#
+$(VBOX_PATH_CROGL_GENFILES)/expando.c: \
+		$(addprefix $(PATH_SUB_CURRENT)/expando/, expando.py expando_special) \
+		$(VBOX_CROGL_API_FILES) \
+		| $$(dir $$@)
+	$(call MSG_GENERATE,python,$@,$<)
+	$(QUIET)$(call VBOX_CROGL_PYTHON_ENV,$(VBOX_PATH_CROGL_PYTHON_INCLUDE),$@) $(VBOX_BLD_PYTHON) $< $(VBOX_PATH_CROGL_GLAPI) $(<D) > $@
+endif
+
+
+#
+# VBoxOGLrenderspu
+#
+VBoxOGLrenderspu_TEMPLATE = VBOXCROGLR3HOSTDLL
+VBoxOGLrenderspu_INTERMEDIATES = \
+	$(VBOX_PATH_CROGL_GENFILES)/state/cr_currentpointers.h \
+	$(VBOX_PATH_CROGL_GENFILES)/state/cr_statefuncs.h
+VBoxOGLrenderspu_INCS = $(VBOX_GRAPHICS_INCS)
+VBoxOGLrenderspu_SOURCES = \
+	render/renderspu.c \
+	render/renderspu_config.c \
+	render/renderspu_init.c
+VBoxOGLrenderspu_SOURCES.win     = \
+	render/renderspu_wgl.c \
+	render/render.def \
+	render/VBoxOGLrenderspu.rc
+VBoxOGLrenderspu_SOURCES.linux   = render/renderspu_glx.c
+VBoxOGLrenderspu_SOURCES.solaris = render/renderspu_glx.c
+VBoxOGLrenderspu_SOURCES.freebsd = render/renderspu_glx.c
+VBoxOGLrenderspu_OBJCFLAGS.darwin = -Wno-shadow
+VBoxOGLrenderspu_SOURCES.darwin  = \
+	OpenGLTest/OpenGLTestDarwin.cpp \
+	render/renderspu_cocoa.c \
+	render/renderspu_cocoa_helper.m
+ifdef VBOX_WITH_CRHGSMI
+VBoxOGLrenderspu_DEFS += VBOX_WITH_CRHGSMI
+endif
+ifdef VBOX_WITH_VDMA
+VBoxOGLrenderspu_DEFS += VBOX_WITH_VDMA
+endif
+VBoxOGLrenderspu_LDFLAGS.darwin += -install_name $(VBOX_DYLD_EXECUTABLE_PATH)/VBoxOGLrenderspu.dylib -framework IOKit
+VBoxOGLrenderspu_LIBS = \
+	$(PATH_STAGE_LIB)/VBoxOGLhostspuload$(VBOX_SUFF_LIB) \
+	$(VBOX_LIB_OGL_HOSTCRUTIL) \
+	$(LIB_RUNTIME)
+if1of ($(KBUILD_TARGET), freebsd linux netbsd openbsd solaris) # the X11 gang
+ VBoxOGLrenderspu_LIBS += \
+	Xmu \
+	X11 \
+	Xext
+ VBoxOGLrenderspu_LIBPATH = \
+	$(VBOX_LIBPATH_X11)
+endif
+
+LIBRARIES += VBoxOGLTest
+VBoxOGLTest_TEMPLATE = VBOXR3
+ifneq ($(KBUILD_TARGET),darwin)
+  VBoxOGLTest_SOURCES = OpenGLTest/OpenGLTest.cpp
+endif
+VBoxOGLTest_SOURCES.darwin = OpenGLTest/OpenGLTestDarwin.cpp
+
+#
+# VBoxTestOGL - OpenGL support test app.
+# Note! Doesn't link with VBOX_WITH_DEBUG_VCC_CRT defined because it uses Qt.
+#
+if (   defined(VBOX_WITH_QTGUI) \
+    && (defined(VBOX_WITH_CROGL) || defined(VBOX_WITH_VIDEOHWACCEL)) \
+    && !defined(VBOX_WITH_DEBUG_VCC_CRT))
+ ifneq ($(KBUILD_TARGET),darwin)
+  ifdef VBOX_WITH_VIDEOHWACCEL
+   USES += qt5
+  endif
+  PROGRAMS += VBoxTestOGL
+  VBoxTestOGL_TEMPLATE = $(if $(VBOX_WITH_VIDEOHWACCEL),$(if $(VBOX_WITH_HARDENING),VBOXQTGUI,VBOXQTGUIEXE),VBOXMAINEXE)
+  VBoxTestOGL_SOURCES = OpenGLTest/OpenGLTestApp.cpp
+  VBoxTestOGL_SOURCES.win = OpenGLTest/VBoxTestOGL.rc
+  VBoxTestOGL_LIBS = \
+  	$(if $(VBOX_WITH_CROGL), \
+  	    $(PATH_STAGE_LIB)/VBoxOGLhostspuload$(VBOX_SUFF_LIB) \
+  	    $(VBOX_LIB_OGL_HOSTCRUTIL),) \
+  	$(if $(VBOX_WITH_VIDEOHWACCEL), $(PATH_STAGE_LIB)/VBoxOGL2D$(VBOX_SUFF_LIB),) \
+  	$(LIB_RUNTIME)
+  VBoxTestOGL_DEFS += \
+    VBOX_BUILD_TARGET=\"$(KBUILD_TARGET).$(KBUILD_TARGET_ARCH)\" \
+    $(if $(VBOX_WITH_CROGL), VBOX_WITH_CROGL,) \
+    $(if $(VBOX_WITH_VIDEOHWACCEL), VBOX_WITH_VIDEOHWACCEL,)
+  ifdef VBOX_WITH_VIDEOHWACCEL
+   VBoxTestOGL_QT_MODULES   += Core Gui OpenGL Widgets
+   VBoxTestOGL_LIBS.linux   += xcb
+   VBoxTestOGL_LIBS.solaris += xcb
+   VBoxTestOGL_LIBS.freebsd += xcb
+   VBoxTestOGL_LDFLAGS.darwin += -framework OpenGL
+   VBoxTestOGL_LIBS.win       += $(PATH_SDK_$(VBOX_WINPSDK)_LIB)/Opengl32.lib
+   if1of ($(KBUILD_TARGET), solaris linux freebsd)
+    # must come after VBoxOGL2D, therefore don't set the arch-specific LIBS variable here!
+    VBoxTestOGL_LIBS += GL
+   endif
+  endif
+  VBoxTestOGL_LDFLAGS.win = /SUBSYSTEM:windows
+ endif
+endif
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

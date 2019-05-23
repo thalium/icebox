@@ -1,0 +1,138 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the SUPLib testcases.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+# The contents of this file may alternatively be used under the terms
+# of the Common Development and Distribution License Version 1.0
+# (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+# VirtualBox OSE distribution, in which case the provisions of the
+# CDDL are applicable instead of those of the GPL.
+#
+# You may elect to license modified versions of this file under the
+# terms and conditions of either the GPL or the CDDL or both.
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+PROGRAMS += \
+	SUPInstall \
+	SUPUninstall \
+	SUPLoggerCtl
+ifdef VBOX_WITH_TESTCASES
+ if defined(VBOX_WITH_HARDENING)
+PROGRAMS += \
+	tstSupVerify
+ endif
+ if !defined(VBOX_WITH_HARDENING) || "$(KBUILD_TARGET)" != "win"
+PROGRAMS += \
+	tstPage \
+	tstContiguous \
+	tstInit \
+	tstInt \
+	tstLow \
+	tstPin \
+	tstGetPagingMode \
+	tstSupLoadModule \
+	tstSupSem \
+	tstSupSem-Zombie \
+	tstSupTscDelta
+ endif
+PROGRAMS.win += \
+	tstNtQueryStuff
+endif # VBOX_WITH_TESTCASES
+
+SUPInstall_TEMPLATE   = VBOXR3EXE
+SUPInstall_SOURCES    = SUPInstall.cpp
+SUPInstall_LIBS       = $(LIB_RUNTIME)
+
+SUPUninstall_TEMPLATE = VBOXR3EXE
+SUPUninstall_SOURCES  = SUPUninstall.cpp
+SUPUninstall_LIBS     = $(LIB_RUNTIME)
+
+SUPLoggerCtl_TEMPLATE = VBOXR3EXE
+SUPLoggerCtl_SOURCES  = SUPLoggerCtl.cpp
+SUPLoggerCtl_LIBS     = $(LIB_RUNTIME)
+
+tstInt_TEMPLATE       = VBOXR3EXE
+tstInt_SOURCES        = tstInt.cpp
+tstInt_LIBS           = $(LIB_RUNTIME)
+
+tstContiguous_TEMPLATE= VBOXR3TSTEXE
+tstContiguous_SOURCES = tstContiguous.cpp
+
+tstInit_TEMPLATE      = VBOXR3TSTEXE
+tstInit_SOURCES       = tstInit.cpp
+
+tstLow_TEMPLATE       = VBOXR3TSTEXE
+tstLow_SOURCES        = tstLow.cpp
+
+tstNtQueryStuff_TEMPLATE = VBOXR3TSTEXE
+tstNtQueryStuff_SDKS     = VBOX_NTDLL
+tstNtQueryStuff_SOURCES  = tstNtQueryStuff.cpp
+
+tstPin_TEMPLATE       = VBOXR3TSTEXE
+tstPin_SOURCES        = tstPin.cpp
+
+tstPage_TEMPLATE      = VBOXR3TSTEXE
+tstPage_SOURCES       = tstPage.cpp
+
+#
+# tstGIP-2
+#
+ifdef VBOX_WITH_TESTCASES
+ if defined(VBOX_WITH_HARDENING) && "$(KBUILD_TARGET)" == "win"
+  PROGRAMS += tstGIP-2Hardened
+  DLLS += tstGIP-2
+ else
+  PROGRAMS += tstGIP-2
+ endif
+endif
+
+tstGIP-2Hardened_TEMPLATE = VBoxR3HardenedTstExe
+tstGIP-2Hardened_DEFS = PROGRAM_NAME_STR=\"tstGIP-2\"
+tstGIP-2Hardened_SOURCES = ../SUPR3HardenedMainTemplateTestcase.cpp
+tstGIP-2Hardened_NAME = tstGIP-2
+
+if defined(VBOX_WITH_HARDENING) && "$(KBUILD_TARGET)" == "win"
+  tstGIP-2_TEMPLATE := VBoxR3HardenedTstDll
+else
+  tstGIP-2_TEMPLATE := VBOXR3TSTEXE
+endif
+tstGIP-2_SOURCES = tstGIP-2.cpp
+
+tstGetPagingMode_TEMPLATE = VBOXR3TSTEXE
+tstGetPagingMode_SOURCES = tstGetPagingMode.cpp
+
+tstSupLoadModule_TEMPLATE = VBOXR3TSTEXE
+tstSupLoadModule_SOURCES  = tstSupLoadModule.cpp
+
+tstSupSem_TEMPLATE    = VBOXR3TSTEXE
+tstSupSem_SOURCES     = tstSupSem.cpp
+
+tstSupSem-Zombie_TEMPLATE = VBOXR3TSTEXE
+tstSupSem-Zombie_SOURCES  = tstSupSem-Zombie.cpp
+
+tstSupTscDelta_TEMPLATE = VBOXR3TSTEXE
+tstSupTscDelta_SOURCES  = tstSupTscDelta.cpp
+
+# For testing supR3HardenedVerifyFile on windows.
+tstSupVerify_TEMPLATE = VBOXR3TSTEXE
+tstSupVerify_SOURCES  = tstSupVerify.cpp
+
+
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

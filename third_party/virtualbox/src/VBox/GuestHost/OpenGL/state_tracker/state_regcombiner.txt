@@ -1,0 +1,38 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+:enable:enabledRegCombiners:GL_REGISTER_COMBINERS_NV
+:enable:enabledPerStageConstants:GL_PER_STAGE_CONSTANTS_NV
+%flush
+:regCombinerVars:numGeneralCombiners:CombinerParameteriNV, GL_NUM_GENERAL_COMBINERS_NV
+:regCombinerVars:colorSumClamp:CombinerParameteriNV, GL_COLOR_SUM_CLAMP_NV
+:regCombinerColor0:constantColor0|r,g,b,a:CombinerParameterfvNV, GL_CONSTANT_COLOR0_NV
+:regCombinerColor1:constantColor1|r,g,b,a:CombinerParameterfvNV, GL_CONSTANT_COLOR1_NV
+%flush
+>for( i=0; i<CR_MAX_GENERAL_COMBINERS; i++ ) {
+:regCombinerStageColor0[i]:stageConstantColor0[i]|r,g,b,a:CombinerStageParameterfvNV, GL_COMBINER0_NV+i, GL_CONSTANT_COLOR0_NV
+:regCombinerStageColor1[i]:stageConstantColor1[i]|r,g,b,a:CombinerStageParameterfvNV, GL_COMBINER0_NV+i, GL_CONSTANT_COLOR1_NV
+:regCombinerInput[i]:rgb[i].a,rgb[i].aMapping,rgb[i].aPortion:*diff_api.CombinerInputNV( GL_COMBINER0_NV+i, GL_RGB, GL_VARIABLE_A_NV, to->rgb[i].a, to->rgb[i].aMapping, to->rgb[i].aPortion );
+:regCombinerInput[i]:rgb[i].b,rgb[i].bMapping,rgb[i].bPortion:*diff_api.CombinerInputNV( GL_COMBINER0_NV+i, GL_RGB, GL_VARIABLE_B_NV, to->rgb[i].b, to->rgb[i].bMapping, to->rgb[i].bPortion );
+:regCombinerInput[i]:rgb[i].c,rgb[i].cMapping,rgb[i].cPortion:*diff_api.CombinerInputNV( GL_COMBINER0_NV+i, GL_RGB, GL_VARIABLE_C_NV, to->rgb[i].c, to->rgb[i].cMapping, to->rgb[i].cPortion );
+:regCombinerInput[i]:rgb[i].d,rgb[i].dMapping,rgb[i].dPortion:*diff_api.CombinerInputNV( GL_COMBINER0_NV+i, GL_RGB, GL_VARIABLE_D_NV, to->rgb[i].d, to->rgb[i].dMapping, to->rgb[i].dPortion );
+:regCombinerInput[i]:alpha[i].a,alpha[i].aMapping,alpha[i].aPortion:*diff_api.CombinerInputNV( GL_COMBINER0_NV+i, GL_ALPHA, GL_VARIABLE_A_NV, to->alpha[i].a, to->alpha[i].aMapping, to->alpha[i].aPortion );
+:regCombinerInput[i]:alpha[i].b,alpha[i].bMapping,alpha[i].bPortion:*diff_api.CombinerInputNV( GL_COMBINER0_NV+i, GL_ALPHA, GL_VARIABLE_B_NV, to->alpha[i].b, to->alpha[i].bMapping, to->alpha[i].bPortion );
+:regCombinerInput[i]:alpha[i].c,alpha[i].cMapping,alpha[i].cPortion:*diff_api.CombinerInputNV( GL_COMBINER0_NV+i, GL_ALPHA, GL_VARIABLE_C_NV, to->alpha[i].c, to->alpha[i].cMapping, to->alpha[i].cPortion );
+:regCombinerInput[i]:alpha[i].d,alpha[i].dMapping,alpha[i].dPortion:*diff_api.CombinerInputNV( GL_COMBINER0_NV+i, GL_ALPHA, GL_VARIABLE_D_NV, to->alpha[i].d, to->alpha[i].dMapping, to->alpha[i].dPortion );
+:regCombinerOutput[i]:rgb[i]|abOutput,cdOutput,sumOutput,scale,bias,abDotProduct,cdDotProduct,muxSum:*diff_api.CombinerOutputNV( GL_COMBINER0_NV+i, GL_RGB, to->rgb[i].abOutput, to->rgb[i].cdOutput, to->rgb[i].sumOutput, to->rgb[i].scale, to->rgb[i].bias, to->rgb[i].abDotProduct, to->rgb[i].cdDotProduct, to->rgb[i].muxSum );
+:regCombinerOutput[i]:alpha[i]|abOutput,cdOutput,sumOutput,scale,bias,abDotProduct,cdDotProduct,muxSum:*diff_api.CombinerOutputNV( GL_COMBINER0_NV+i, GL_ALPHA, to->alpha[i].abOutput, to->alpha[i].cdOutput, to->alpha[i].sumOutput, to->alpha[i].scale, to->alpha[i].bias, to->alpha[i].abDotProduct, to->alpha[i].cdDotProduct, to->alpha[i].muxSum );
+%flush
+>}
+:regCombinerFinalInput:a,aMapping,aPortion:*diff_api.FinalCombinerInputNV( GL_VARIABLE_A_NV, to->a, to->aMapping, to->aPortion );
+:regCombinerFinalInput:b,bMapping,bPortion:*diff_api.FinalCombinerInputNV( GL_VARIABLE_B_NV, to->b, to->bMapping, to->bPortion );
+:regCombinerFinalInput:c,cMapping,cPortion:*diff_api.FinalCombinerInputNV( GL_VARIABLE_C_NV, to->c, to->cMapping, to->cPortion );
+:regCombinerFinalInput:d,dMapping,dPortion:*diff_api.FinalCombinerInputNV( GL_VARIABLE_D_NV, to->d, to->dMapping, to->dPortion );
+:regCombinerFinalInput:e,eMapping,ePortion:*diff_api.FinalCombinerInputNV( GL_VARIABLE_E_NV, to->e, to->eMapping, to->ePortion );
+:regCombinerFinalInput:f,fMapping,fPortion:*diff_api.FinalCombinerInputNV( GL_VARIABLE_F_NV, to->f, to->fMapping, to->fPortion );
+:regCombinerFinalInput:g,gMapping,gPortion:*diff_api.FinalCombinerInputNV( GL_VARIABLE_G_NV, to->g, to->gMapping, to->gPortion );
+%flush
+%target=to
+%current=from
+%bit=b

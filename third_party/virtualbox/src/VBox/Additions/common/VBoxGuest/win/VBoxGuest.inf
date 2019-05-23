@@ -1,0 +1,83 @@
+; $Id: VBoxGuest.inf $
+;; @file
+; INF file for installing the VirtualBox Windows guest driver.
+;
+
+;
+; Copyright (C) 2006-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+[Version]
+Signature="$WINDOWS NT$"
+Provider=%ORACLE%
+ClassGuid={4D36E97D-E325-11CE-BFC1-08002BE10318}
+Class=System
+DriverPackageType=PlugAndPlay
+;edit-DriverVer=08/26/2008,2.00.0000
+;cat CatalogFile=VBoxGuest.cat
+
+[SourceDisksNames]
+1 = %VBoxGuest.MediaDesc%
+2 = %VBoxControl.MediaDesc%
+3 = %VBoxTray.MediaDesc%
+
+[SourceDisksFiles]
+VBoxGuest.sys = 1
+VBoxControl.exe = 2
+VBoxTray.exe = 3
+
+[DestinationDirs]
+DefaultDestDir = 12 ; drivers
+VBoxTray_CopyFiles = 11 ; system32
+
+[Manufacturer]
+;x86   %ORACLE%=VBoxGuest
+;amd64 %ORACLE%=VBoxGuest, NTamd64
+
+;x86   [VBoxGuest]
+;amd64 [VBoxGuest.NTamd64]
+%VBoxGuest.DeviceDesc%=VBoxGuest_Install,PCI\VEN_80ee&DEV_cafe
+
+[VBoxGuest_Install]
+CopyFiles = VBoxGuest_CopyFiles, VBoxTray_CopyFiles
+AddReg = VBoxTray_Add_Reg
+
+[VBoxGuest_CopyFiles]
+VBoxGuest.sys
+
+[VBoxTray_CopyFiles]
+VBoxTray.exe
+VBoxControl.exe
+
+[VBoxGuest_Install.Services]
+AddService = VBoxGuest, 0x00000002, VBoxGuest_ServiceInstallSection
+DelService = VBoxTray, 0x00000004
+
+[VBoxGuest_ServiceInstallSection]
+DisplayName    = %VBoxGuest_svcdesc%
+ServiceType    = 0x00000001 ; kernel driver
+StartType      = 0x00000000 ; boot start
+ErrorControl   = 0x00000001 ; normal error handling
+LoadOrderGroup = Base
+ServiceBinary  = %12%\VBoxGuest.sys
+
+[VBoxTray_Add_Reg]
+HKLM, SOFTWARE\Microsoft\Windows\CurrentVersion\Run, VBoxTray, 0x00000000, %11%\VBoxTray.exe
+
+[ClassInstall32]
+; This should fix the error 0xe0000101 (The required section was not found in the INF).
+
+[Strings]
+ORACLE = "Oracle Corporation"
+VBoxGuest.DeviceDesc = "VirtualBox Device"
+VBoxGuest_svcdesc = "VirtualBox Guest Driver"
+VBoxTray_svcdesc = "VirtualBox Guest Tray"
+

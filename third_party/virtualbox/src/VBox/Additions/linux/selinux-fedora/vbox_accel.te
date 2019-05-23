@@ -1,0 +1,11 @@
+
+module check 1.0;
+
+require {
+	type xserver_misc_device_t;
+	type xdm_t;
+	class chr_file { open read write };
+}
+
+#============= xdm_t ==============
+allow xdm_t xserver_misc_device_t:chr_file { open read write };

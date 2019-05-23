@@ -1,0 +1,31 @@
+# $Id: Config.kmk $
+## @file
+# kBuild Configuration file for the lightdm-greeter
+#
+
+#
+# Copyright (C) 2016-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+
+VBOX_LIGHTDM_GREETER_CONFIG_KMK_INCLUDED = 1
+
+# Include the top-level configure file.
+ifndef VBOX_ROOT_CONFIG_KMK_INCLUDED
+ include $(PATH_ROOT)/Config.kmk
+endif
+
+SDK_VBoxGlib20WithIo = glib-2.0 and gio-2.0
+SDK_VBoxGlib20WithIo_VBOX_PKG_CONFIG_CFLAGS := $(shell pkg-config gio-2.0 glib-2.0 --cflags)
+SDK_VBoxGlib20WithIo_INCS     = $(patsubst -I%,%,$(filter -I%,$(SDK_VBoxGlib20WithIo_VBOX_PKG_CONFIG_CFLAGS)))
+SDK_VBoxGlib20WithIo_CFLAGS   = $(filter-out -I%,$(SDK_VBoxGlib20WithIo_VBOX_PKG_CONFIG_CFLAGS))
+SDK_VBoxGlib20WithIo_LDFLAGS := $(shell pkg-config gio-2.0 glib-2.0 --libs)
+

@@ -1,0 +1,69 @@
+;
+; VBox host drivers - USB drivers - Win32 USB device
+;
+; Copyright (C) 2011-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+[Version]
+Signature="$Windows NT$"
+Class=USB
+ClassGUID={36FC9E60-C465-11CF-8056-444553540000}
+provider=%ORACLE%
+;edit-DriverVer=08/26/2008,2.00.0000
+;cat CatalogFile=VBoxUSB.cat
+
+[SourceDisksNames]
+1=%Disk_Description%,,,
+
+[SourceDisksFiles]
+VBoxUSB.sys = 1
+
+[Manufacturer]
+;x86   %MfgName%=ORACLE
+;amd64 %MfgName%=ORACLE, NTamd64
+
+;x86   [ORACLE]
+;amd64 [ORACLE.NTamd64]
+%USB\VID_80EE&PID_CAFE.DeviceDesc%=VBoxUSB.Dev, USB\VID_80EE&PID_CAFE
+
+[DestinationDirs]
+VBoxUSB.Files.Ext = 10,System32\Drivers
+
+[VBoxUSB.Dev.NT]
+CopyFiles=VBoxUSB.Files.Ext
+
+[VBoxUSB.Dev.NT.Services]
+Addservice = VBoxUSB, 0x00000002, VBoxUSB.AddService
+
+[VBoxUSB.AddService]
+DisplayName    = %VBoxUSB.SvcDesc%
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+StartType      = 3                  ; SERVICE_DEMAND_START
+ErrorControl   = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %10%\System32\Drivers\VBoxUSB.sys
+AddReg         = VBoxUSB.AddReg
+LoadOrderGroup = Base
+
+[VBoxUSB.AddReg]
+HKR,,DevLoader,,*ntkern
+HKR,,NTMPDriver,,VBoxUSB.sys
+
+[VBoxUSB.Files.Ext]
+VBoxUSB.sys
+
+;---------------------------------------------------------------;
+
+[Strings]
+ORACLE="Oracle Corporation"
+MfgName="Oracle Corporation"
+Disk_Description="VBoxUSB Installation Disk"
+USB\VID_80EE&PID_CAFE.DeviceDesc="VirtualBox USB"
+VBoxUSB.SvcDesc="VirtualBox USB"

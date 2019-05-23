@@ -1,0 +1,71 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+
+# GL_OPENGL_VERSION_1_2
+
+GLboolean GL_RESCALE_NORMAL OPENGL_VERSION_1_2 g->transform.rescaleNormals
+GLboolean GL_TEXTURE_3D OPENGL_VERSION_1_2 g->texture.unit[g->texture.curTextureUnit].enabled3D
+GLboolean GL_MULTISAMPLE_ARB ARB_multisample g->multisample.enabled
+GLboolean GL_SAMPLE_ALPHA_TO_COVERAGE_ARB ARB_multisample g->multisample.sampleAlphaToCoverage
+GLboolean GL_SAMPLE_ALPHA_TO_ONE_ARB ARB_multisample g->multisample.sampleAlphaToOne
+GLboolean GL_SAMPLE_COVERAGE_ARB ARB_multisample g->multisample.sampleCoverage
+GLboolean GL_VERTEX_PROGRAM_NV NV_vertex_program g->program.vpEnabled
+GLboolean GL_VERTEX_PROGRAM_POINT_SIZE_NV NV_vertex_program g->program.vpPointSize
+GLboolean GL_VERTEX_PROGRAM_TWO_SIDE_NV NV_vertex_program g->program.vpTwoSide
+
+GLboolean GL_FRAGMENT_PROGRAM_NV NV_fragment_program g->program.fpEnabled
+GLboolean GL_FRAGMENT_PROGRAM_ARB ARB_fragment_program g->program.fpEnabledARB
+GLboolean GL_SECONDARY_COLOR_ARRAY_EXT EXT_secondary_color g->client.array.s.enabled
+GLboolean GL_FOG_COORDINATE_ARRAY_EXT EXT_fog_coord g->client.array.f.enabled
+GLboolean GL_TEXTURE_RECTANGLE_NV NV_texture_rectangle g->texture.unit[g->texture.curTextureUnit].enabledRect
+GLboolean GL_VERTEX_ATTRIB_ARRAY0_NV NV_vertex_program g->client.array.a[0].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY1_NV NV_vertex_program g->client.array.a[1].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY2_NV NV_vertex_program g->client.array.a[2].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY3_NV NV_vertex_program g->client.array.a[3].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY4_NV NV_vertex_program g->client.array.a[4].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY5_NV NV_vertex_program g->client.array.a[5].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY6_NV NV_vertex_program g->client.array.a[6].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY7_NV NV_vertex_program g->client.array.a[7].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY8_NV NV_vertex_program g->client.array.a[8].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY9_NV NV_vertex_program g->client.array.a[9].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY10_NV NV_vertex_program g->client.array.a[10].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY11_NV NV_vertex_program g->client.array.a[11].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY12_NV NV_vertex_program g->client.array.a[12].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY13_NV NV_vertex_program g->client.array.a[13].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY14_NV NV_vertex_program g->client.array.a[14].enabled
+GLboolean GL_VERTEX_ATTRIB_ARRAY15_NV NV_vertex_program g->client.array.a[15].enabled
+GLboolean GL_MAP1_VERTEX_ATTRIB0_4_NV NV_vertex_program g->eval.enableAttrib1D[0]
+GLboolean GL_MAP1_VERTEX_ATTRIB1_4_NV NV_vertex_program g->eval.enableAttrib1D[1]
+GLboolean GL_MAP1_VERTEX_ATTRIB2_4_NV NV_vertex_program g->eval.enableAttrib1D[2]
+GLboolean GL_MAP1_VERTEX_ATTRIB3_4_NV NV_vertex_program g->eval.enableAttrib1D[3]
+GLboolean GL_MAP1_VERTEX_ATTRIB4_4_NV NV_vertex_program g->eval.enableAttrib1D[4]
+GLboolean GL_MAP1_VERTEX_ATTRIB5_4_NV NV_vertex_program g->eval.enableAttrib1D[5]
+GLboolean GL_MAP1_VERTEX_ATTRIB6_4_NV NV_vertex_program g->eval.enableAttrib1D[6]
+GLboolean GL_MAP1_VERTEX_ATTRIB7_4_NV NV_vertex_program g->eval.enableAttrib1D[7]
+GLboolean GL_MAP1_VERTEX_ATTRIB8_4_NV NV_vertex_program g->eval.enableAttrib1D[8]
+GLboolean GL_MAP1_VERTEX_ATTRIB9_4_NV NV_vertex_program g->eval.enableAttrib1D[9]
+GLboolean GL_MAP1_VERTEX_ATTRIB10_4_NV NV_vertex_program g->eval.enableAttrib1D[10]
+GLboolean GL_MAP1_VERTEX_ATTRIB11_4_NV NV_vertex_program g->eval.enableAttrib1D[11]
+GLboolean GL_MAP1_VERTEX_ATTRIB12_4_NV NV_vertex_program g->eval.enableAttrib1D[12]
+GLboolean GL_MAP1_VERTEX_ATTRIB13_4_NV NV_vertex_program g->eval.enableAttrib1D[13]
+GLboolean GL_MAP1_VERTEX_ATTRIB14_4_NV NV_vertex_program g->eval.enableAttrib1D[14]
+GLboolean GL_MAP1_VERTEX_ATTRIB15_4_NV NV_vertex_program g->eval.enableAttrib1D[15]
+GLboolean GL_MAP2_VERTEX_ATTRIB0_4_NV NV_vertex_program g->eval.enableAttrib2D[0]
+GLboolean GL_MAP2_VERTEX_ATTRIB1_4_NV NV_vertex_program g->eval.enableAttrib2D[1]
+GLboolean GL_MAP2_VERTEX_ATTRIB2_4_NV NV_vertex_program g->eval.enableAttrib2D[2]
+GLboolean GL_MAP2_VERTEX_ATTRIB3_4_NV NV_vertex_program g->eval.enableAttrib2D[3]
+GLboolean GL_MAP2_VERTEX_ATTRIB4_4_NV NV_vertex_program g->eval.enableAttrib2D[4]
+GLboolean GL_MAP2_VERTEX_ATTRIB5_4_NV NV_vertex_program g->eval.enableAttrib2D[5]
+GLboolean GL_MAP2_VERTEX_ATTRIB6_4_NV NV_vertex_program g->eval.enableAttrib2D[6]
+GLboolean GL_MAP2_VERTEX_ATTRIB7_4_NV NV_vertex_program g->eval.enableAttrib2D[7]
+GLboolean GL_MAP2_VERTEX_ATTRIB8_4_NV NV_vertex_program g->eval.enableAttrib2D[8]
+GLboolean GL_MAP2_VERTEX_ATTRIB9_4_NV NV_vertex_program g->eval.enableAttrib2D[9]
+GLboolean GL_MAP2_VERTEX_ATTRIB10_4_NV NV_vertex_program g->eval.enableAttrib2D[10]
+GLboolean GL_MAP2_VERTEX_ATTRIB11_4_NV NV_vertex_program g->eval.enableAttrib2D[11]
+GLboolean GL_MAP2_VERTEX_ATTRIB12_4_NV NV_vertex_program g->eval.enableAttrib2D[12]
+GLboolean GL_MAP2_VERTEX_ATTRIB13_4_NV NV_vertex_program g->eval.enableAttrib2D[13]
+GLboolean GL_MAP2_VERTEX_ATTRIB14_4_NV NV_vertex_program g->eval.enableAttrib2D[14]
+GLboolean GL_MAP2_VERTEX_ATTRIB15_4_NV NV_vertex_program g->eval.enableAttrib2D[15]
+GLboolean GL_RASTER_POSITION_UNCLIPPED_IBM IBM_rasterpos_clip g->transform.rasterPositionUnclipped

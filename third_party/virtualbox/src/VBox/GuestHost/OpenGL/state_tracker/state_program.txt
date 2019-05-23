@@ -1,0 +1,14 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+#:enable:lineSmooth:GL_LINE_SMOOTH
+#:enable:lineStipple:GL_LINE_STIPPLE
+#:width:width:LineWidth
+#lineStipple:stipple:repeat,pattern:LineStipple
+:vpEnable:vpEnabled:Enable:GL_VERTEX_PROGRAM_NV
+:fpEnable:fpEnabled:Enable:GL_FRAGMENT_PROGRAM_NV
+%flush
+:vpBinding:currentVertexProgram->id:BindProgramNV,GL_VERTEX_PROGRAM_NV
+:fpBinding:currentFragmentProgram->id:BindProgramNV,GL_FRAGMENT_PROGRAM_NV
+#:errorPos:errorPos:ErrorPos

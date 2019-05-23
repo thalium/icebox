@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+  "http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<book>
+  <bookinfo>
+    <title>@VBOX_PRODUCT@<superscript>®</superscript></title>
+
+    <subtitle>Manuel de l'utilisateur</subtitle>
+
+    <edition>Version
+    @VBOX_VERSION_STRING@</edition>
+
+    <corpauthor>@VBOX_VENDOR@</corpauthor>
+
+    <othercredit class="translator">
+      <contrib>Traducteur</contrib>
+      <firstname>Jean-Philippe</firstname>
+      <surname>Mengual</surname>
+    </othercredit>
+
+    <address>http://www.virtualbox.org</address>
+
+    <copyright>
+      <year>2004-@VBOX_C_YEAR@</year>
+
+      <holder>@VBOX_VENDOR@</holder>
+    </copyright>
+  </bookinfo>
+
+  <xi:include href="user_Introduction.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_Installation.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_BasicConcepts.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_GuestAdditions.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_Storage.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_Networking.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_Frontends.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_VBoxManage.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_AdvancedTopics.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_Technical.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_VirtualBoxAPI.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_Troubleshooting.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_Security.xml" xpointer="element(/1)"
+              xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_KnownIssues.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_ChangeLog.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_ThirdParty.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_PrivacyPolicy.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+  <xi:include href="user_Glossary.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+</book>

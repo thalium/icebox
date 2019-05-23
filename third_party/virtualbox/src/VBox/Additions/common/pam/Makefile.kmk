@@ -1,0 +1,35 @@
+# $Id: Makefile.kmk $
+## @file
+# Makefile for VBox PAM module for automated logons.
+#
+
+#
+# Copyright (C) 2011-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+# The PAM module.
+DLLS += pam_vbox
+
+pam_vbox_TEMPLATE = VBOXGUESTR3DLL
+pam_vbox_DEFS     = LOG_TO_BACKDOOR VBOX_WITH_HGCM
+pam_vbox_DEFS    += \
+	$(if $(VBOX_WITH_GUEST_PROPS),VBOX_WITH_GUEST_PROPS,)
+pam_vbox_SOURCES  = pam_vbox.cpp
+pam_vbox_LIBS = \
+	pam \
+	$(VBOX_LIB_IPRT_GUEST_R3_SHARED) \
+	$(VBOX_LIB_VBGL_R3_SHARED) \
+	$(VBOX_LIB_IPRT_GUEST_R3_SHARED)
+
+include $(FILE_KBUILD_SUB_FOOTER)

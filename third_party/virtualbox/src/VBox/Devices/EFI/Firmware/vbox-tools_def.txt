@@ -1,0 +1,357 @@
+#
+#  Copyright (c) 2006 - 2012, Intel Corporation. All rights reserved.<BR>
+#  Portions copyright (c) 2008 - 2009, Apple Inc. All rights reserved.<BR>
+#
+#  This program and the accompanying materials
+#  are licensed and made available under the terms and conditions of the BSD License
+#  which accompanies this distribution.  The full text of the license may be found at
+#  http://opensource.org/licenses/bsd-license.php
+#
+#  THE PROGRAM IS DISTRIBUTED UNDER THE BSD LICENSE ON AN "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR REPRESENTATIONS OF ANY KIND, EITHER EXPRESS OR IMPLIED.
+#
+
+IDENTIFIER = Default TOOL_CHAIN_CONF
+
+DEFINE VS2010_BIN      = @PATH_VS2010@/bin
+DEFINE VS2010_DLL      = @PATH_VS2010@/bin
+DEFINE VS2010_BINX64   = @PATH_VS2010_AMD64_BIN@
+
+DEFINE WINSDK_BIN      = c:\no\such\directory
+
+DEFINE UNIXGCC_IA32_PETOOLS_PREFIX = @VBOX_PATH_PREFIX_MINGW32@
+DEFINE UNIXGCC_X64_PETOOLS_PREFIX  = @VBOX_PATH_PREFIX_MINGW64@
+
+DEFINE IASL_BIN                = @VBOX_IASLCMD@
+DEFINE IASL_FLAGS              =
+DEFINE IASL_OUTFLAGS           = -p
+
+DEFINE NASM_BIN                = @VBOX_YASMCMD@
+
+DEFINE MSFT_ASLPP_FLAGS        = /nologo /E /C /FIAutoGen.h
+DEFINE MSFT_ASLCC_FLAGS        = /nologo /c /FIAutoGen.h /TC /Dmain=ReferenceAcpiTable
+DEFINE MSFT_ASLDLINK_FLAGS     = /NODEFAULTLIB /ENTRY:ReferenceAcpiTable /SUBSYSTEM:CONSOLE
+
+
+
+####################################################################################
+#
+# format: TARGET_TOOLCHAIN_ARCH_COMMANDTYPE_ATTRIBUTE = <string>
+# priority:
+#         TARGET_TOOLCHAIN_ARCH_COMMANDTYPE_ATTRIBUTE (Highest)
+#         ******_TOOLCHAIN_ARCH_COMMANDTYPE_ATTRIBUTE
+#         TARGET_*********_ARCH_COMMANDTYPE_ATTRIBUTE
+#         ******_*********_ARCH_COMMANDTYPE_ATTRIBUTE
+#         TARGET_TOOLCHAIN_****_COMMANDTYPE_ATTRIBUTE
+#         ******_TOOLCHAIN_****_COMMANDTYPE_ATTRIBUTE
+#         TARGET_*********_****_COMMANDTYPE_ATTRIBUTE
+#         ******_*********_****_COMMANDTYPE_ATTRIBUTE
+#         TARGET_TOOLCHAIN_ARCH_***********_ATTRIBUTE
+#         ******_TOOLCHAIN_ARCH_***********_ATTRIBUTE
+#         TARGET_*********_ARCH_***********_ATTRIBUTE
+#         ******_*********_ARCH_***********_ATTRIBUTE
+#         TARGET_TOOLCHAIN_****_***********_ATTRIBUTE
+#         ******_TOOLCHAIN_****_***********_ATTRIBUTE
+#         TARGET_*********_****_***********_ATTRIBUTE
+#         ******_*********_****_***********_ATTRIBUTE (Lowest)
+#
+####################################################################################
+####################################################################################
+#
+# Supported Tool Chains
+# =====================
+#   VS2010      -win32-  Requires:
+#                             Microsoft Visual Studio 2010 Premium Edition
+#                             Microsoft Windows Server 2003 Driver Development Kit (Microsoft WINDDK) version 3790.1830
+#                        Optional:
+#                             Required to build EBC drivers:
+#                               Intel(r) Compiler for Efi Byte Code (Intel(r) EBC Compiler)
+#                             Required to build platforms or ACPI tables:
+#                               Intel(r) ACPI Compiler (iasl.exe) v20101013 from
+#                               http://www.acpica.org/downloads/previous_releases.php
+#   UNIXGCC     -UNIX-   Requires:
+#                             GCC 4.3.0
+#                             binutils 2.20.51.0.5
+#                        Optional:
+#                             Required to build platforms or ACPI tables:
+#                               Intel(r) ACPI Compiler v20101013 from
+#                               http://www.acpica.org/downloads/previous_releases.php
+#   VS2010x86   -win64-  Requires:
+#                             Microsoft Visual Studio 2010 (x86) Premium Edition
+#                             Microsoft Windows Server 2003 Driver Development Kit (Microsoft WINDDK) version 3790.1830
+#                        Optional:
+#                             Required to build platforms or ACPI tables:
+#                               Intel(r) ACPI Compiler (iasl.exe) v20101013 from
+#                               http://www.acpica.org/downloads/previous_releases.php 
+#
+####################################################################################
+####################################################################################
+#
+# Supported Tool Chain Families
+# =============================
+#   MSFT           - Microsoft
+#   GCC            - GNU GCC
+#   INTEL          - INTEL
+#   RVCT           - ARM RealView Toolchain
+####################################################################################
+
+
+
+####################################################################################
+#
+# Microsoft Visual Studio 2010
+#
+#   VS2010  - Microsoft Visual Studio 2010 Premium Edition
+#   ASL     - Intel ACPI Source Language Compiler
+####################################################################################
+#   VS2010           - Microsoft Visual Studio 2010 Premium Edition
+*_VS2010_*_*_FAMILY             = MSFT
+
+*_VS2010_*_MAKE_PATH            = DEF(VS2010_BIN)/nmake.exe
+*_VS2010_*_MAKE_FLAGS           = /nologo
+*_VS2010_*_RC_PATH              = DEF(WINSDK_BIN)/rc.exe
+
+*_VS2010_*_SLINK_FLAGS          = /NOLOGO /LTCG
+*_VS2010_*_APP_FLAGS            = /nologo /E /TC
+*_VS2010_*_PP_FLAGS             = /nologo /E /TC /FIAutoGen.h
+*_VS2010_*_VFRPP_FLAGS          = /nologo /E /TC /DVFRCOMPILE /FI$(MODULE_NAME)StrDefs.h
+
+*_VS2010_*_ASM16_PATH           = DEF(VS2010_BIN)/ml.exe
+
+##################
+# ASL definitions
+##################
+*_VS2010_*_ASL_PATH             = DEF(IASL_BIN)
+*_VS2010_*_ASL_FLAGS            = DEF(IASL_FLAGS)
+*_VS2010_*_ASL_OUTFLAGS         = DEF(IASL_OUTFLAGS)
+*_VS2010_*_ASLCC_FLAGS          = DEF(MSFT_ASLCC_FLAGS)
+*_VS2010_*_ASLPP_FLAGS          = DEF(MSFT_ASLPP_FLAGS)
+*_VS2010_*_ASLDLINK_FLAGS       = DEF(MSFT_ASLDLINK_FLAGS)
+
+##################
+# IA32 definitions
+##################
+*_VS2010_IA32_*_DLL             = DEF(VS2010_DLL)
+
+*_VS2010_IA32_MAKE_PATH         = DEF(VS2010_BIN)/nmake.exe
+*_VS2010_IA32_CC_PATH           = DEF(VS2010_BIN)/cl.exe
+*_VS2010_IA32_VFRPP_PATH        = DEF(VS2010_BIN)/cl.exe
+*_VS2010_IA32_SLINK_PATH        = DEF(VS2010_BIN)/lib.exe
+*_VS2010_IA32_DLINK_PATH        = DEF(VS2010_BIN)/link.exe
+*_VS2010_IA32_APP_PATH          = DEF(VS2010_BIN)/cl.exe
+*_VS2010_IA32_PP_PATH           = DEF(VS2010_BIN)/cl.exe
+*_VS2010_IA32_ASM_PATH          = DEF(VS2010_BIN)/ml.exe
+*_VS2010_IA32_ASLCC_PATH        = DEF(VS2010_BIN)/cl.exe
+*_VS2010_IA32_ASLPP_PATH        = DEF(VS2010_BIN)/cl.exe
+*_VS2010_IA32_ASLDLINK_PATH     = DEF(VS2010_BIN)/link.exe
+
+      *_VS2010_IA32_MAKE_FLAGS  = /nologo
+  DEBUG_VS2010_IA32_CC_FLAGS    = /nologo /c /WX /GS- /W4 /Gs32768 /D UNICODE /O1ib2s /Oy- /GL /Gy /FIAutoGen.h /EHs-c- /GR- /GF /Zi /Gm
+RELEASE_VS2010_IA32_CC_FLAGS    = /nologo /c /WX /GS- /W4 /Gs32768 /D UNICODE /O1ib2s /Oy- /GL /Gy /FIAutoGen.h /EHs-c- /GR- /GF /Zi
+NOOPT_VS2010_IA32_CC_FLAGS      = /nologo /c /WX /GS- /W4 /Gs32768 /D UNICODE /Gy /FIAutoGen.h /EHs-c- /GR- /GF /Zi /Gm /Od
+
+  DEBUG_VS2010_IA32_ASM_FLAGS   = /nologo /c /WX /W3 /Cx /coff /Zd /Zi
+RELEASE_VS2010_IA32_ASM_FLAGS   = /nologo /c /WX /W3 /Cx /coff /Zd /Zi
+NOOPT_VS2010_IA32_ASM_FLAGS     = /nologo /c /WX /W3 /Cx /coff /Zd /Zi
+
+  DEBUG_VS2010_IA32_DLINK_FLAGS = /NOLOGO /NODEFAULTLIB /IGNORE:4001 /OPT:REF /OPT:ICF=10 /MAP /ALIGN:32 /SECTION:.xdata,D /SECTION:.pdata,D /MACHINE:X86 /LTCG /DLL /ENTRY:$(IMAGE_ENTRY_POINT) /SUBSYSTEM:EFI_BOOT_SERVICE_DRIVER /SAFESEH:NO /BASE:0 /DRIVER /DEBUG
+RELEASE_VS2010_IA32_DLINK_FLAGS = /NOLOGO /NODEFAULTLIB /IGNORE:4001 /OPT:REF /OPT:ICF=10 /MAP /ALIGN:32 /SECTION:.xdata,D /SECTION:.pdata,D /MACHINE:X86 /LTCG /DLL /ENTRY:$(IMAGE_ENTRY_POINT) /SUBSYSTEM:EFI_BOOT_SERVICE_DRIVER /SAFESEH:NO /BASE:0 /DRIVER /DEBUG /IGNORE:4254 /MERGE:.data=.text /MERGE:.rdata=.text
+NOOPT_VS2010_IA32_DLINK_FLAGS   = /NOLOGO /NODEFAULTLIB /IGNORE:4001 /OPT:REF /OPT:ICF=10 /MAP /ALIGN:32 /SECTION:.xdata,D /SECTION:.pdata,D /MACHINE:X86 /LTCG /DLL /ENTRY:$(IMAGE_ENTRY_POINT) /SUBSYSTEM:EFI_BOOT_SERVICE_DRIVER /SAFESEH:NO /BASE:0 /DRIVER /DEBUG
+
+##################
+# X64 definitions
+##################
+*_VS2010_X64_*_DLL              = DEF(VS2010_BINX64);DEF(VS2010_DLL)
+                                
+*_VS2010_X64_CC_PATH            = DEF(VS2010_BINX64)/cl.exe
+*_VS2010_X64_PP_PATH            = DEF(VS2010_BINX64)/cl.exe
+*_VS2010_X64_APP_PATH           = DEF(VS2010_BINX64)/cl.exe
+*_VS2010_X64_VFRPP_PATH         = DEF(VS2010_BINX64)/cl.exe
+*_VS2010_X64_ASM_PATH           = DEF(VS2010_BINX64)/ml64.exe
+*_VS2010_X64_SLINK_PATH         = DEF(VS2010_BINX64)/lib.exe
+*_VS2010_X64_DLINK_PATH         = DEF(VS2010_BINX64)/link.exe
+*_VS2010_X64_ASLCC_PATH         = DEF(VS2010_BINX64)/cl.exe
+*_VS2010_X64_ASLPP_PATH         = DEF(VS2010_BINX64)/cl.exe
+*_VS2010_X64_ASLDLINK_PATH      = DEF(VS2010_BINX64)/link.exe
+
+  DEBUG_VS2010_X64_CC_FLAGS     = /nologo /c /WX /GS- /W4 /Gs32768 /D UNICODE /O1ib2s /Oy- /GL /Gy /FIAutoGen.h /EHs-c- /GR- /GF /Zi /Gm
+RELEASE_VS2010_X64_CC_FLAGS     = /nologo /c /WX /GS- /W4 /Gs32768 /D UNICODE /O1ib2s /Oy- /GL /Gy /FIAutoGen.h /EHs-c- /GR- /GF /Zi
+NOOPT_VS2010_X64_CC_FLAGS       = /nologo /c /WX /GS- /W4 /Gs32768 /D UNICODE /Gy /FIAutoGen.h /EHs-c- /GR- /GF /Zi /Gm /Od
+
+  DEBUG_VS2010_X64_ASM_FLAGS    = /nologo /c /WX /W3 /Cx /Zd /Zi
+RELEASE_VS2010_X64_ASM_FLAGS    = /nologo /c /WX /W3 /Cx /Zd /Zi
+NOOPT_VS2010_X64_ASM_FLAGS      = /nologo /c /WX /W3 /Cx /Zd /Zi
+
+  DEBUG_VS2010_X64_DLINK_FLAGS  = /NOLOGO /NODEFAULTLIB /IGNORE:4001 /OPT:REF /OPT:ICF=10 /MAP /ALIGN:32 /SECTION:.xdata,D /SECTION:.pdata,D /Machine:X64 /LTCG /DLL /ENTRY:$(IMAGE_ENTRY_POINT) /SUBSYSTEM:EFI_BOOT_SERVICE_DRIVER /SAFESEH:NO /BASE:0 /DRIVER /DEBUG
+RELEASE_VS2010_X64_DLINK_FLAGS  = /NOLOGO /NODEFAULTLIB /IGNORE:4001 /OPT:REF /OPT:ICF=10 /MAP /ALIGN:32 /SECTION:.xdata,D /SECTION:.pdata,D /Machine:X64 /LTCG /DLL /ENTRY:$(IMAGE_ENTRY_POINT) /SUBSYSTEM:EFI_BOOT_SERVICE_DRIVER /SAFESEH:NO /BASE:0 /DRIVER /DEBUG /IGNORE:4254 /MERGE:.data=.text /MERGE:.rdata=.text
+NOOPT_VS2010_X64_DLINK_FLAGS    = /NOLOGO /NODEFAULTLIB /IGNORE:4001 /OPT:REF /OPT:ICF=10 /MAP /ALIGN:32 /SECTION:.xdata,D /SECTION:.pdata,D /Machine:X64 /LTCG /DLL /ENTRY:$(IMAGE_ENTRY_POINT) /SUBSYSTEM:EFI_BOOT_SERVICE_DRIVER /SAFESEH:NO /BASE:0 /DRIVER /DEBUG
+
+
+
+
+####################################################################################
+# GCC Common
+####################################################################################
+
+*_*_*_OBJCOPY_PATH              = echo
+*_*_*_OBJCOPY_FLAGS             = objcopy not needed for
+*_*_*_SYMRENAME_PATH            = echo
+*_*_*_SYMRENAME_FLAGS           = Symbol renaming not needed for
+DEBUG_*_*_OBJCOPY_ADDDEBUGFLAG     = --add-gnu-debuglink=$(DEBUG_DIR)\$(MODULE_NAME).debug
+# todo: RELEASE_*_*_OBJCOPY_ADDDEBUGFLAG   = --add-gnu-debuglink=$(DEBUG_DIR)\$(MODULE_NAME).debug
+RELEASE_*_*_OBJCOPY_ADDDEBUGFLAG   =
+
+DEFINE GCC_ALL_CC_FLAGS            = -g -Os -fshort-wchar -fno-strict-aliasing -Wall -Werror -Wno-missing-braces -c -include AutoGen.h
+DEFINE GCC_IA32_CC_FLAGS           = DEF(GCC_ALL_CC_FLAGS) -m32 -malign-double -freorder-blocks -freorder-blocks-and-partition -mno-stack-arg-probe @VBOX_MINGW32_Wno@
+DEFINE GCC_X64_CC_FLAGS            = DEF(GCC_ALL_CC_FLAGS) -mno-red-zone -Wno-address -mno-stack-arg-probe @VBOX_MINGW64_Wno@
+DEFINE GCC_DLINK_FLAGS_COMMON      = -nostdlib --pie --fatal-warnings
+DEFINE GCC_IA32_X64_DLINK_COMMON   = DEF(GCC_DLINK_FLAGS_COMMON) --gc-sections
+DEFINE GCC_IA32_X64_ASLDLINK_FLAGS = DEF(GCC_IA32_X64_DLINK_COMMON) --entry _ReferenceAcpiTable -u $(IMAGE_ENTRY_POINT)
+DEFINE GCC_IA32_X64_DLINK_FLAGS    = DEF(GCC_IA32_X64_DLINK_COMMON) --file-alignment 0x20 --section-alignment 0x20 -Map $(DEST_DIR_DEBUG)/$(BASE_NAME).map
+DEFINE GCC_ASM_FLAGS               = -c -x assembler -imacros $(DEST_DIR_DEBUG)/AutoGen.h
+DEFINE GCC_PP_FLAGS                = -E -x assembler-with-cpp -include $(DEST_DIR_DEBUG)/AutoGen.h
+DEFINE GCC_VFRPP_FLAGS             = -x c -E -P -DVFRCOMPILE --include $(DEST_DIR_DEBUG)/$(MODULE_NAME)StrDefs.h
+DEFINE GCC_ASLPP_FLAGS             = -x c -E -P
+DEFINE GCC_ASLCC_FLAGS             = -x c
+DEFINE GCC_WINDRES_FLAGS           = -J rc -O coff
+DEFINE GCC_IA32_RC_FLAGS           = -I binary -O elf32-i386        -B i386 --rename-section .data=.hii
+DEFINE GCC_X64_RC_FLAGS            = -I binary -O elf64-x86-64      -B i386 --rename-section .data=.hii
+
+
+####################################################################################
+#
+# Unix GCC And Intel Linux ACPI Compiler
+#
+####################################################################################
+#   UNIXGCC         - UNIX GCC
+#   ASL             - Intel Linux ACPI Source Language Compiler (iasl)
+*_UNIXGCC_*_*_FAMILY               = GCC
+
+*_UNIXGCC_*_MAKE_PATH                    = @KMK@
+*_UNIXGCC_*_ASL_PATH                     = DEF(IASL_BIN)
+
+*_UNIXGCC_IA32_DLINK_FLAGS               = DEF(GCC_IA32_X64_DLINK_FLAGS) --image-base=0 --entry _$(IMAGE_ENTRY_POINT)
+*_UNIXGCC_X64_DLINK_FLAGS                = DEF(GCC_IA32_X64_DLINK_FLAGS) --image-base=0 --entry @VBOX_MINGW64_USER_LABEL_PREFIX@$(IMAGE_ENTRY_POINT)
+*_UNIXGCC_IA32_ASLDLINK_FLAGS            = DEF(GCC_IA32_X64_ASLDLINK_FLAGS)
+*_UNIXGCC_X64_ASLDLINK_FLAGS             = DEF(GCC_IA32_X64_ASLDLINK_FLAGS)
+*_UNIXGCC_*_ASM_FLAGS                    = DEF(GCC_ASM_FLAGS)
+*_UNIXGCC_*_PP_FLAGS                     = DEF(GCC_PP_FLAGS)
+*_UNIXGCC_*_ASLPP_FLAGS                  = DEF(GCC_ASLPP_FLAGS)
+*_UNIXGCC_*_ASLCC_FLAGS                  = DEF(GCC_ASLCC_FLAGS)
+*_UNIXGCC_*_VFRPP_FLAGS                  = DEF(GCC_VFRPP_FLAGS)
+*_UNIXGCC_*_APP_FLAGS                    =
+*_UNIXGCC_*_ASL_FLAGS                    = DEF(IASL_FLAGS)
+*_UNIXGCC_*_ASL_OUTFLAGS                 = DEF(IASL_OUTFLAGS)
+
+##################
+# IA32 definitions
+##################
+*_UNIXGCC_IA32_OBJCOPY_PATH         = DEF(UNIXGCC_IA32_PETOOLS_PREFIX)objcopy
+*_UNIXGCC_IA32_PP_PATH              = DEF(UNIXGCC_IA32_PETOOLS_PREFIX)gcc
+*_UNIXGCC_IA32_CC_PATH              = DEF(UNIXGCC_IA32_PETOOLS_PREFIX)gcc
+*_UNIXGCC_IA32_SLINK_PATH           = DEF(UNIXGCC_IA32_PETOOLS_PREFIX)ar
+*_UNIXGCC_IA32_DLINK_PATH           = DEF(UNIXGCC_IA32_PETOOLS_PREFIX)ld
+*_UNIXGCC_IA32_ASLPP_PATH           = DEF(UNIXGCC_IA32_PETOOLS_PREFIX)gcc
+*_UNIXGCC_IA32_ASLCC_PATH           = DEF(UNIXGCC_IA32_PETOOLS_PREFIX)gcc
+*_UNIXGCC_IA32_ASLDLINK_PATH        = DEF(UNIXGCC_IA32_PETOOLS_PREFIX)ld
+*_UNIXGCC_IA32_ASM_PATH             = DEF(UNIXGCC_IA32_PETOOLS_PREFIX)gcc
+*_UNIXGCC_IA32_VFRPP_PATH           = DEF(UNIXGCC_IA32_PETOOLS_PREFIX)gcc
+*_UNIXGCC_IA32_RC_PATH              = DEF(UNIXGCC_IA32_PETOOLS_PREFIX)objcopy
+
+  DEBUG_UNIXGCC_IA32_CC_FLAGS       = DEF(GCC_IA32_CC_FLAGS) -Os -fno-omit-frame-pointer
+  NOOPT_UNIXGCC_IA32_CC_FLAGS       = DEF(GCC_IA32_CC_FLAGS) -O0 -fno-omit-frame-pointer
+RELEASE_UNIXGCC_IA32_CC_FLAGS       = DEF(GCC_IA32_CC_FLAGS) -Os -fno-omit-frame-pointer
+*_UNIXGCC_IA32_RC_FLAGS             = DEF(GCC_IA32_RC_FLAGS)
+*_UNIXGCC_IA32_OBJCOPY_FLAGS        =
+
+##################
+# X64 definitions
+##################
+*_UNIXGCC_X64_CC_PATH               = DEF(UNIXGCC_X64_PETOOLS_PREFIX)gcc
+*_UNIXGCC_X64_ASLCC_PATH            = DEF(UNIXGCC_X64_PETOOLS_PREFIX)gcc
+*_UNIXGCC_X64_SLINK_PATH            = DEF(UNIXGCC_X64_PETOOLS_PREFIX)ar
+*_UNIXGCC_X64_DLINK_PATH            = DEF(UNIXGCC_X64_PETOOLS_PREFIX)ld
+*_UNIXGCC_X64_ASLDLINK_PATH         = DEF(UNIXGCC_X64_PETOOLS_PREFIX)ld
+*_UNIXGCC_X64_ASM_PATH              = DEF(UNIXGCC_X64_PETOOLS_PREFIX)gcc
+*_UNIXGCC_X64_PP_PATH               = DEF(UNIXGCC_X64_PETOOLS_PREFIX)gcc
+*_UNIXGCC_X64_ASLPP_PATH            = DEF(UNIXGCC_X64_PETOOLS_PREFIX)gcc
+*_UNIXGCC_X64_VFRPP_PATH            = DEF(UNIXGCC_X64_PETOOLS_PREFIX)gcc
+*_UNIXGCC_X64_RC_PATH               = DEF(UNIXGCC_X64_PETOOLS_PREFIX)objcopy
+*_UNIXGCC_X64_OBJCOPY_PATH          = DEF(UNIXGCC_X64_PETOOLS_PREFIX)objcopy
+
+*_UNIXGCC_X64_CC_FLAGS              = DEF(GCC_X64_CC_FLAGS) -fno-omit-frame-pointer
+*_UNIXGCC_X64_RC_FLAGS              = DEF(GCC_X64_RC_FLAGS)
+*_UNIXGCC_X64_OBJCOPY_FLAGS         =
+
+
+####################################################################################
+#
+# Misc
+#
+####################################################################################
+
+##################
+# VfrCompiler definitions
+##################
+*_*_*_VFR_PATH                      = VfrCompile
+*_*_*_VFR_FLAGS                     = -l -n
+
+##################
+# OptionRom tool definitions
+##################
+*_*_*_OPTROM_PATH                   = EfiRom
+*_*_*_OPTROM_FLAGS                  = -e
+
+##################
+# GenFw tool definitions
+##################
+*_*_*_GENFW_PATH                   = GenFw
+*_*_*_GENFW_FLAGS                  =
+
+##################
+# Asl Compiler definitions
+##################
+*_*_*_ASLCC_FLAGS                  = /nologo /c /FIAutoGen.h /TC /Dmain=ReferenceAcpiTable
+*_*_*_ASLDLINK_FLAGS               = /NODEFAULTLIB /ENTRY:ReferenceAcpiTable /SUBSYSTEM:CONSOLE
+*_*_*_ASLPP_FLAGS                  = /nologo /EP /C
+*_*_*_ASL_FLAGS                    =
+
+##################
+# GenCrc32 tool definitions
+##################
+*_*_*_CRC32_PATH          = GenCrc32
+*_*_*_CRC32_GUID          = FC1BCDB0-7D31-49AA-936A-A4600D9DD083
+
+##################
+# LzmaCompress tool definitions
+##################
+*_*_*_LZMA_PATH          = LzmaCompress
+*_*_*_LZMA_GUID          = EE4E5898-3914-4259-9D6E-DC7BD79403CF
+
+##################
+# LzmaF86Compress tool definitions with converter for x86 code.
+# It can improve the compression ratio if the input file is IA32 or X64 PE image.
+# Notes: If X64 PE image is built based on GCC44, it may not get the better compression.
+##################
+*_*_*_LZMAF86_PATH         = LzmaF86Compress
+*_*_*_LZMAF86_GUID         = D42AE6BD-1352-4bfb-909A-CA72A6EAE889
+
+##################
+# TianoCompress tool definitions
+##################
+*_*_*_TIANO_PATH         = TianoCompress
+*_*_*_TIANO_GUID         = A31280AD-481E-41B6-95E8-127F4C984779
+
+##################
+# BPDG tool definitions
+##################
+*_*_*_VPDTOOL_PATH         = BPDG
+*_*_*_VPDTOOL_GUID         = 8C3D856A-9BE6-468E-850A-24F7A8D38E08
+
+##################
+# NASM tool definitions
+##################
+*_*_*_NASM_PATH                = DEF(NASM_BIN)
+# NASMB uses NASM produce a .bin from a .nasmb NASM source file
+*_*_*_NASMB_FLAGS              = -f bin -D__YASM__ -DASM_FORMAT_BIN -DVBOX
+

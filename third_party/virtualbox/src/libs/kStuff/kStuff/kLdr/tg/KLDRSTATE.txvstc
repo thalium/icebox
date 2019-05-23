@@ -1,0 +1,529 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<nodeSet version="1.0">
+    <view uin="id83t9setug73fpetug74ah">
+        <property name="$metaclass" value="State Diagram"/>
+        <property name="@__options" value=""/>
+        <reference df-class-name="reference" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid4wa62etug73fpetug7hpd">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="90,40,80,40"/>
+            <property name="bounds_setted_by_user" value="true"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid4wa62etug73fpetug7hpd.linkid7iy6aetug73fpetugal1c:id83t9setug73fpetug74ah.nodeid4wa62etug73fpetug7hpd">
+                <property name="sourceAnchor" value="130,80"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="130,110"/>
+            </reference>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid4wa62etug73fpetug7hpd.linkid14j0oetug73fpetugbmyx:id83t9setug73fpetug74ah.nodeid4wa62etug73fpetug7hpd">
+                <property name="sourceAnchor" value="90,70"/>
+                <property name="bendpoints" value="30,70,30,1000"/>
+                <property name="targetAnchor" value="150,1000"/>
+                <property name="bounds_setted_by_user" value="true"/>
+                <reference referencedUin="linklabel:$transitionInplaceEditing:design:link:::id83t9setug73fpetug74ah.nodeid4wa62etug73fpetug7hpd.linkid14j0oetug73fpetugbmyx:id83t9setug73fpetug74ah.nodeid4wa62etug73fpetug7hpd">
+                    <property name="bounds" value="10,50,77,16"/>
+                </reference>
+            </reference>
+        </reference>
+        <reference df-class-name="reference1" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid67r7zetug73fpetug87g4">
+            <property name="$shortcutReference" value="true"/>
+            <property name="background_color" value="0,0,0"/>
+            <property name="bounds" value="120,0,12,12"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid67r7zetug73fpetug87g4.linkid2j70ketug73fpetug8gs8:id83t9setug73fpetug74ah.nodeid67r7zetug73fpetug87g4">
+                <property name="sourceAnchor" value="126,12"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="126,40"/>
+            </reference>
+        </reference>
+        <reference df-class-name="reference2" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeidd21uetug73fpetug8kak">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="90,110,80,40"/>
+            <property name="bounds_setted_by_user" value="true"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeidd21uetug73fpetug8kak.linkid7cno0etug73fpetuganpl:id83t9setug73fpetug74ah.nodeidd21uetug73fpetug8kak">
+                <property name="sourceAnchor" value="130,150"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="130,190"/>
+            </reference>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeidd21uetug73fpetug8kak.linkid4elkbetug73fpetugbpa9:id83t9setug73fpetug74ah.nodeidd21uetug73fpetug8kak">
+                <property name="sourceAnchor" value="90,140"/>
+                <property name="bendpoints" value="30,140,30,990"/>
+                <property name="targetAnchor" value="150,990"/>
+                <property name="bounds_setted_by_user" value="true"/>
+            </reference>
+        </reference>
+        <reference df-class-name="reference3" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeidq28metug73fpetug8uf9">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="320,110,110,40"/>
+            <property name="bounds_setted_by_user" value="true"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeidq28metug73fpetug8uf9.linkidd5q0etug73fpetugl30f:id83t9setug73fpetug74ah.nodeidq28metug73fpetug8uf9">
+                <property name="sourceAnchor" value="380,150"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="380,190"/>
+            </reference>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeidq28metug73fpetug8uf9.linkid2yl8cetug73fpetugl74g:id83t9setug73fpetug74ah.nodeidq28metug73fpetug8uf9">
+                <property name="sourceAnchor" value="430,140"/>
+                <property name="bendpoints" value="550,140,550,840"/>
+                <property name="targetAnchor" value="284,840"/>
+                <property name="bounds_setted_by_user" value="true"/>
+                <reference referencedUin="linklabel:$transitionInplaceEditing:design:link:::id83t9setug73fpetug74ah.nodeidq28metug73fpetug8uf9.linkid2yl8cetug73fpetugl74g:id83t9setug73fpetug74ah.nodeidq28metug73fpetug8uf9">
+                    <property name="bounds" value="470,120,77,16"/>
+                </reference>
+            </reference>
+        </reference>
+        <reference df-class-name="reference4" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7et8etug73fpetug938l">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="80,190,135,40"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid7et8etug73fpetug938l.linkidr4phetug73fpetugcezv:id83t9setug73fpetug74ah.nodeid7et8etug73fpetug938l">
+                <property name="sourceAnchor" value="130,230"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="130,270"/>
+            </reference>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid7et8etug73fpetug938l.linkid82puetug73fpetugbwui:id83t9setug73fpetug74ah.nodeid7et8etug73fpetug938l">
+                <property name="sourceAnchor" value="80,220"/>
+                <property name="bendpoints" value="30,220,30,980"/>
+                <property name="targetAnchor" value="150,980"/>
+                <property name="bounds_setted_by_user" value="true"/>
+            </reference>
+        </reference>
+        <reference df-class-name="reference5" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid71qrcetug73fpetuga3zj">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="90,270,80,40"/>
+            <property name="bounds_setted_by_user" value="true"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid71qrcetug73fpetuga3zj.linkid4fiuhetug73fpetugbs4x:id83t9setug73fpetug74ah.nodeid71qrcetug73fpetuga3zj">
+                <property name="sourceAnchor" value="90,300"/>
+                <property name="bendpoints" value="30,300,30,970"/>
+                <property name="targetAnchor" value="150,970"/>
+                <property name="bounds_setted_by_user" value="true"/>
+            </reference>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid71qrcetug73fpetuga3zj.linkid8ewc7etug73fpetughpzu:id83t9setug73fpetug74ah.nodeid71qrcetug73fpetuga3zj">
+                <property name="sourceAnchor" value="130,310"/>
+                <property name="bendpoints" value="130,330,190,330"/>
+                <property name="targetAnchor" value="190,350"/>
+                <property name="bounds_setted_by_user" value="true"/>
+            </reference>
+        </reference>
+        <reference df-class-name="reference6" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid3wom6etug73fpetugb9cg">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="150,950,134,60"/>
+            <property name="bounds_setted_by_user" value="true"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid3wom6etug73fpetugb9cg.linkid80127etug73fpetugd66b:id83t9setug73fpetug74ah.nodeid3wom6etug73fpetugb9cg">
+                <property name="sourceAnchor" value="210,1010"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="210,1040"/>
+            </reference>
+        </reference>
+        <reference df-class-name="reference7" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7vd8retug73fpetugcr3e">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="150,1040,134,40"/>
+            <property name="bounds_setted_by_user" value="true"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid7vd8retug73fpetugcr3e.linkid8h4qnetug73fpetugf6j3:id83t9setug73fpetug74ah.nodeid7vd8retug73fpetugcr3e">
+                <property name="sourceAnchor" value="208,1080"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="208,1110"/>
+            </reference>
+        </reference>
+        <reference df-class-name="reference8" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid417yeetug73fpetugeb3p">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="150,880,134,40"/>
+            <property name="bounds_setted_by_user" value="true"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid417yeetug73fpetugeb3p.linkid6ngyletug73fpetugehbp:id83t9setug73fpetug74ah.nodeid417yeetug73fpetugeb3p">
+                <property name="sourceAnchor" value="210,920"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="210,950"/>
+            </reference>
+        </reference>
+        <reference df-class-name="reference9" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="150,790,134,60"/>
+            <property name="bounds_setted_by_user" value="true"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5.linkid6vibeetug73fpetugephi:id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5">
+                <property name="sourceAnchor" value="210,850"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="210,880"/>
+            </reference>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5.linkid1izxmetug73fpetugesem:id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5">
+                <property name="sourceAnchor" value="260,790"/>
+                <property name="bendpoints" value="260,770,590,770,590,90,380,90"/>
+                <property name="targetAnchor" value="380,110"/>
+                <property name="bounds_setted_by_user" value="true"/>
+                <reference referencedUin="linklabel:$transitionInplaceEditing:design:link:::id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5.linkid1izxmetug73fpetugesem:id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5">
+                    <property name="bounds" value="290,750,84,16"/>
+                </reference>
+            </reference>
+        </reference>
+        <reference df-class-name="reference10" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid17bz7etug73fpetugf23i">
+            <property name="$shortcutReference" value="true"/>
+            <property name="background_color" value="0,0,0"/>
+            <property name="bounds" value="200,1110,15,15"/>
+        </reference>
+        <reference df-class-name="reference11" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid6b4f8etug73fpetugfa3i">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="150,380,129,40"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid6b4f8etug73fpetugfa3i.linkidy5coetug73fpetughmwy:id83t9setug73fpetug74ah.nodeid6b4f8etug73fpetugfa3i">
+                <property name="sourceAnchor" value="210,420"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="210,460"/>
+            </reference>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid6b4f8etug73fpetugfa3i.linkid989qmetug73fpetugi623:id83t9setug73fpetug74ah.nodeid6b4f8etug73fpetugfa3i">
+                <property name="sourceAnchor" value="150,410"/>
+                <property name="bendpoints" value="60,410,60,810"/>
+                <property name="targetAnchor" value="150,810"/>
+                <property name="bounds_setted_by_user" value="true"/>
+                <reference referencedUin="linklabel:$transitionInplaceEditing:design:link:::id83t9setug73fpetug74ah.nodeid6b4f8etug73fpetugfa3i.linkid989qmetug73fpetugi623:id83t9setug73fpetug74ah.nodeid6b4f8etug73fpetugfa3i">
+                    <property name="bounds" value="50,390,94,16"/>
+                </reference>
+            </reference>
+        </reference>
+        <reference df-class-name="reference12" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid2vt9ietug73fpetugfjhj">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="150,460,134,40"/>
+            <property name="bounds_setted_by_user" value="true"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid2vt9ietug73fpetugfjhj.linkid7b0d0etug73fpetughibe:id83t9setug73fpetug74ah.nodeid2vt9ietug73fpetugfjhj">
+                <property name="sourceAnchor" value="284,490"/>
+                <property name="bendpoints" value="460,490"/>
+                <property name="targetAnchor" value="460,540"/>
+                <property name="bounds_setted_by_user" value="true"/>
+                <reference referencedUin="linklabel:$transitionInplaceEditing:design:link:::id83t9setug73fpetug74ah.nodeid2vt9ietug73fpetugfjhj.linkid7b0d0etug73fpetughibe:id83t9setug73fpetug74ah.nodeid2vt9ietug73fpetugfjhj">
+                    <property name="bounds" value="290,490,42,16"/>
+                </reference>
+            </reference>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid2vt9ietug73fpetugfjhj.linkid2yeeuetug73fpetughfff:id83t9setug73fpetug74ah.nodeid2vt9ietug73fpetugfjhj">
+                <property name="sourceAnchor" value="210,500"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="210,540"/>
+            </reference>
+        </reference>
+        <reference df-class-name="reference13" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid8048etug73fpetugfpwv">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="150,540,134,50"/>
+            <property name="bounds_setted_by_user" value="true"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid8048etug73fpetugfpwv.linkid5imvsetug73fpetughcca:id83t9setug73fpetug74ah.nodeid8048etug73fpetugfpwv">
+                <property name="sourceAnchor" value="210,590"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="210,630"/>
+            </reference>
+        </reference>
+        <reference df-class-name="reference14" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeidswftetug73fpetugfwd3">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="150,630,131,40"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeidswftetug73fpetugfwd3.linkid7ockpetuqdc66etuqdq4c:id83t9setug73fpetug74ah.nodeidswftetug73fpetugfwd3">
+                <property name="sourceAnchor" value="281,650"/>
+                <property name="bendpoints" value="310,650,310,570"/>
+                <property name="targetAnchor" value="284,570"/>
+                <property name="bounds_setted_by_user" value="true"/>
+                <reference referencedUin="linklabel:$transitionInplaceEditing:design:link:::id83t9setug73fpetug74ah.nodeidswftetug73fpetugfwd3.linkid7ockpetuqdc66etuqdq4c:id83t9setug73fpetug74ah.nodeidswftetug73fpetugfwd3">
+                    <property name="bounds" value="290,650,84,16"/>
+                </reference>
+            </reference>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeidswftetug73fpetugfwd3.linkid3jvhdetug73fpetugiz5h:id83t9setug73fpetug74ah.nodeidswftetug73fpetugfwd3">
+                <property name="sourceAnchor" value="210,670"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="210,710"/>
+            </reference>
+        </reference>
+        <reference df-class-name="reference15" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid3z4oketug73fpetuggjl4">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="410,540,121,50"/>
+            <property name="bounds_setted_by_user" value="true"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid3z4oketug73fpetuggjl4.linkidotudetug73fpetugilak:id83t9setug73fpetug74ah.nodeid3z4oketug73fpetuggjl4">
+                <property name="sourceAnchor" value="460,590"/>
+                <property name="bendpoints" value="460,910"/>
+                <property name="targetAnchor" value="284,910"/>
+                <property name="bounds_setted_by_user" value="true"/>
+                <reference referencedUin="linklabel:$transitionInplaceEditing:design:link:::id83t9setug73fpetug74ah.nodeid3z4oketug73fpetuggjl4.linkidotudetug73fpetugilak:id83t9setug73fpetug74ah.nodeid3z4oketug73fpetuggjl4">
+                    <property name="bounds" value="470,600,45,16"/>
+                </reference>
+            </reference>
+        </reference>
+        <reference df-class-name="reference16" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid9bbfsetug73fpetugirr0">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="150,710,134,40"/>
+            <property name="bounds_setted_by_user" value="true"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid9bbfsetug73fpetugirr0.linkids5u8etug73fpetugj2bq:id83t9setug73fpetug74ah.nodeid9bbfsetug73fpetugirr0">
+                <property name="sourceAnchor" value="210,750"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="210,790"/>
+            </reference>
+        </reference>
+        <reference df-class-name="reference17" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid6t6upetug73fpetugj6k4">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="290,190,189,40"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid6t6upetug73fpetugj6k4.linkid529snetug73fpetuglmq0:id83t9setug73fpetug74ah.nodeid6t6upetug73fpetugj6k4">
+                <property name="sourceAnchor" value="479,220"/>
+                <property name="bendpoints" value="550,220,550,830"/>
+                <property name="targetAnchor" value="284,830"/>
+                <property name="bounds_setted_by_user" value="true"/>
+            </reference>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid6t6upetug73fpetugj6k4.linkid733w4etug73fpetuglagw:id83t9setug73fpetug74ah.nodeid6t6upetug73fpetugj6k4">
+                <property name="sourceAnchor" value="380,230"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="380,270"/>
+            </reference>
+        </reference>
+        <reference df-class-name="reference18" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid5e0mxetug73fpetugjk65">
+            <property name="$shortcutReference" value="true"/>
+            <property name="bounds" value="320,270,118,40"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid5e0mxetug73fpetugjk65.linkidcf8yetug73fpetuglj2g:id83t9setug73fpetug74ah.nodeid5e0mxetug73fpetugjk65">
+                <property name="sourceAnchor" value="438,300"/>
+                <property name="bendpoints" value="550,300,550,820"/>
+                <property name="targetAnchor" value="284,820"/>
+                <property name="bounds_setted_by_user" value="true"/>
+            </reference>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid5e0mxetug73fpetugjk65.linkid5watyetug73fpetugle5c:id83t9setug73fpetug74ah.nodeid5e0mxetug73fpetugjk65">
+                <property name="sourceAnchor" value="380,310"/>
+                <property name="bendpoints" value="380,330,230,330"/>
+                <property name="targetAnchor" value="230,350"/>
+                <property name="bounds_setted_by_user" value="true"/>
+            </reference>
+        </reference>
+        <reference df-class-name="reference19" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid6yrvpetui3nn8etui62p3">
+            <property name="$shortcutReference" value="true"/>
+            <property name="background_color" value="0,0,0"/>
+            <property name="bounds" value="180,350,60,6"/>
+            <reference referencedUin="design:link:::id83t9setug73fpetug74ah.nodeid6yrvpetui3nn8etui62p3.linkid4uffpetui3nn8etui6xmx:id83t9setug73fpetug74ah.nodeid6yrvpetui3nn8etui62p3">
+                <property name="sourceAnchor" value="210,356"/>
+                <property name="bendpoints" value=""/>
+                <property name="targetAnchor" value="210,380"/>
+                <reference referencedUin="linklabel:$transitionInplaceEditing:design:link:::id83t9setug73fpetug74ah.nodeid6yrvpetui3nn8etui62p3.linkid4uffpetui3nn8etui6xmx:id83t9setug73fpetug74ah.nodeid6yrvpetui3nn8etui62p3">
+                    <property name="bounds" value="220,360,122,16"/>
+                </reference>
+            </reference>
+        </reference>
+    </view>
+    <node uin="id83t9setug73fpetug74ah.nodeid4wa62etug73fpetug7hpd">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="Open"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid4wa62etug73fpetug7hpd.linkid7iy6aetug73fpetugal1c">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeidd21uetug73fpetug8kak"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid4wa62etug73fpetug7hpd"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+        <link uin="id83t9setug73fpetug74ah.nodeid4wa62etug73fpetug7hpd.linkid14j0oetug73fpetugbmyx">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid3wom6etug73fpetugb9cg"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid4wa62etug73fpetug7hpd"/>
+            <property name="$metaclass" value="Transition"/>
+            <property name="$event_name" value="done (failed)"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid67r7zetug73fpetug87g4">
+        <property name="$metaclass" value="Start State"/>
+        <property name="$name" value="StartState1"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid67r7zetug73fpetug87g4.linkid2j70ketug73fpetug8gs8">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid4wa62etug73fpetug7hpd"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid67r7zetug73fpetug87g4"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeidd21uetug73fpetug8kak">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="Mapped"/>
+        <link uin="id83t9setug73fpetug74ah.nodeidd21uetug73fpetug8kak.linkid7cno0etug73fpetuganpl">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7et8etug73fpetug938l"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeidd21uetug73fpetug8kak"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+        <link uin="id83t9setug73fpetug74ah.nodeidd21uetug73fpetug8kak.linkid4elkbetug73fpetugbpa9">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid3wom6etug73fpetugb9cg"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeidd21uetug73fpetug8kak"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeidq28metug73fpetug8uf9">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="Reloaded"/>
+        <link uin="id83t9setug73fpetug74ah.nodeidq28metug73fpetug8uf9.linkidd5q0etug73fpetugl30f">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid6t6upetug73fpetugj6k4"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeidq28metug73fpetug8uf9"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+        <link uin="id83t9setug73fpetug74ah.nodeidq28metug73fpetug8uf9.linkid2yl8cetug73fpetugl74g">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeidq28metug73fpetug8uf9"/>
+            <property name="$metaclass" value="Transition"/>
+            <property name="$event_name" value="done (failed)"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid7et8etug73fpetug938l">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="LoadedPrerequisites"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid7et8etug73fpetug938l.linkid82puetug73fpetugbwui">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid3wom6etug73fpetugb9cg"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7et8etug73fpetug938l"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+        <link uin="id83t9setug73fpetug74ah.nodeid7et8etug73fpetug938l.linkidr4phetug73fpetugcezv">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid71qrcetug73fpetuga3zj"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7et8etug73fpetug938l"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid71qrcetug73fpetuga3zj">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="FixedUp"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid71qrcetug73fpetuga3zj.linkid4fiuhetug73fpetugbs4x">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid3wom6etug73fpetugb9cg"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid71qrcetug73fpetuga3zj"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+        <link uin="id83t9setug73fpetug74ah.nodeid71qrcetug73fpetuga3zj.linkid8ewc7etug73fpetughpzu">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid6yrvpetui3nn8etui62p3"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid71qrcetug73fpetuga3zj"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid3wom6etug73fpetugb9cg">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="PendingDestroy"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid3wom6etug73fpetugb9cg.linkid80127etug73fpetugd66b">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7vd8retug73fpetugcr3e"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid3wom6etug73fpetugb9cg"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid7vd8retug73fpetugcr3e">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="Destroyed"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid7vd8retug73fpetugcr3e.linkid8h4qnetug73fpetugf6j3">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid17bz7etug73fpetugf23i"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7vd8retug73fpetugcr3e"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid417yeetug73fpetugeb3p">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="GC"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid417yeetug73fpetugeb3p.linkid6ngyletug73fpetugehbp">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid3wom6etug73fpetugb9cg"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid417yeetug73fpetugeb3p"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="PendingGC"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5.linkid6vibeetug73fpetugephi">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid417yeetug73fpetugeb3p"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+        <link uin="id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5.linkid1izxmetug73fpetugesem">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeidq28metug73fpetug8uf9"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5"/>
+            <property name="$metaclass" value="Transition"/>
+            <property name="$event_name" value="Loaded again"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid17bz7etug73fpetugf23i">
+        <property name="$metaclass" value="End State"/>
+        <property name="$name" value="EndState1"/>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid6b4f8etug73fpetugfa3i">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="PendingInitialization"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid6b4f8etug73fpetugfa3i.linkidy5coetug73fpetughmwy">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid2vt9ietug73fpetugfjhj"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid6b4f8etug73fpetugfa3i"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+        <link uin="id83t9setug73fpetug74ah.nodeid6b4f8etug73fpetugfa3i.linkid989qmetug73fpetugi623">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid6b4f8etug73fpetugfa3i"/>
+            <property name="$metaclass" value="Transition"/>
+            <property name="$event_name" value="Other init failure"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid2vt9ietug73fpetugfjhj">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="Initializing"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid2vt9ietug73fpetugfjhj.linkid2yeeuetug73fpetughfff">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid8048etug73fpetugfpwv"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid2vt9ietug73fpetugfjhj"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+        <link uin="id83t9setug73fpetug74ah.nodeid2vt9ietug73fpetugfjhj.linkid7b0d0etug73fpetughibe">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid3z4oketug73fpetuggjl4"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid2vt9ietug73fpetugfjhj"/>
+            <property name="$metaclass" value="Transition"/>
+            <property name="$event_name" value="Failed"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid8048etug73fpetugfpwv">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="Good"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid8048etug73fpetugfpwv.linkid5imvsetug73fpetughcca">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeidswftetug73fpetugfwd3"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid8048etug73fpetugfpwv"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeidswftetug73fpetugfwd3">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="PendingTermination"/>
+        <link uin="id83t9setug73fpetug74ah.nodeidswftetug73fpetugfwd3.linkid3jvhdetug73fpetugiz5h">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid9bbfsetug73fpetugirr0"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeidswftetug73fpetugfwd3"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+        <link uin="id83t9setug73fpetug74ah.nodeidswftetug73fpetugfwd3.linkid7ockpetuqdc66etuqdq4c">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid8048etug73fpetugfpwv"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeidswftetug73fpetugfwd3"/>
+            <property name="$metaclass" value="Transition"/>
+            <property name="$event_name" value="Loaded again"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid3z4oketug73fpetuggjl4">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="InitializationFailed"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid3z4oketug73fpetuggjl4.linkidotudetug73fpetugilak">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid417yeetug73fpetugeb3p"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid3z4oketug73fpetuggjl4"/>
+            <property name="$metaclass" value="Transition"/>
+            <property name="$event_name" value="Do GC"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid9bbfsetug73fpetugirr0">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="Terminating"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid9bbfsetug73fpetugirr0.linkids5u8etug73fpetugj2bq">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid9bbfsetug73fpetugirr0"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid6t6upetug73fpetugj6k4">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="ReloadedLoadedPrerequisites"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid6t6upetug73fpetugj6k4.linkid733w4etug73fpetuglagw">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid5e0mxetug73fpetugjk65"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid6t6upetug73fpetugj6k4"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+        <link uin="id83t9setug73fpetug74ah.nodeid6t6upetug73fpetugj6k4.linkid529snetug73fpetuglmq0">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid6t6upetug73fpetugj6k4"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid5e0mxetug73fpetugjk65">
+        <property name="$metaclass" value="State"/>
+        <property name="$name" value="ReloadedFixedUp"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid5e0mxetug73fpetugjk65.linkid5watyetug73fpetugle5c">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid6yrvpetui3nn8etui62p3"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid5e0mxetug73fpetugjk65"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+        <link uin="id83t9setug73fpetug74ah.nodeid5e0mxetug73fpetugjk65.linkidcf8yetug73fpetuglj2g">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid7q41getug73fpetugejq5"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid5e0mxetug73fpetugjk65"/>
+            <property name="$metaclass" value="Transition"/>
+        </link>
+    </node>
+    <node uin="id83t9setug73fpetug74ah.nodeid6yrvpetui3nn8etui62p3">
+        <property name="$orientation" value="horizontal"/>
+        <property name="$metaclass" value="Synchronization Bar"/>
+        <property name="$name" value="SyncBar1"/>
+        <link uin="id83t9setug73fpetug74ah.nodeid6yrvpetui3nn8etui62p3.linkid4uffpetui3nn8etui6xmx">
+            <participant role="Supplier" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid6b4f8etug73fpetugfa3i"/>
+            <participant role="Client" referencedUin="design:node:::id83t9setug73fpetug74ah.nodeid6yrvpetui3nn8etui62p3"/>
+            <property name="$metaclass" value="Transition"/>
+            <property name="$event_name" value="Fixed up all modules"/>
+        </link>
+    </node>
+</nodeSet>

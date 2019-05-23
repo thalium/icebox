@@ -1,0 +1,95 @@
+# $Id: Makefile.kmk $
+## @file
+# Top-level makefile for the VBox Host drivers.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+# Include sub-makefiles.
+include $(PATH_SUB_CURRENT)/Support/Makefile.kmk
+
+if  !defined(VBOX_ONLY_DOCS) \
+ && !defined(VBOX_ONLY_EXTPACKS) \
+ && !defined(VBOX_ONLY_VALIDATIONKIT)
+ if1of ($(KBUILD_TARGET),win)
+  include $(PATH_SUB_CURRENT)/win/Makefile.kmk
+ endif
+ ifdef VBOX_WITH_USB
+  include $(PATH_SUB_CURRENT)/VBoxUSB/Makefile.kmk
+ endif
+ if1of ($(KBUILD_TARGET), darwin solaris win linux freebsd)
+  ifdef VBOX_WITH_NETFLT
+   include $(PATH_SUB_CURRENT)/VBoxNetFlt/Makefile.kmk
+  endif
+ endif
+ if1of ($(KBUILD_TARGET), darwin solaris win linux freebsd)
+  ifdef VBOX_WITH_NETADP
+   include $(PATH_SUB_CURRENT)/VBoxNetAdp/Makefile.kmk
+  endif
+ endif
+ if1of ($(KBUILD_TARGET), darwin freebsd linux solaris)
+  include $(PATH_SUB_CURRENT)/adpctl/Makefile.kmk
+ endif
+ if1of ($(KBUILD_TARGET), darwin freebsd linux)
+  include $(PATH_SUB_CURRENT)/$(KBUILD_TARGET)/Makefile.kmk
+ endif
+
+ if1of ($(KBUILD_TARGET), linux)
+  ifdef VBOX_WITH_PCI_PASSTHROUGH
+   include $(PATH_SUB_CURRENT)/VBoxPci/Makefile.kmk
+  endif
+ endif
+
+endif # !defined(VBOX_ONLY_DOCS) && !defined(VBOX_ONLY_VALIDATIONKIT)
+
+
+#
+# Build test for the linux host kernel modules.
+#
+if   defined(VBOX_WITH_TESTCASES) \
+ && !defined(VBOX_ONLY_SDK) \
+ && !defined(VBOX_ONLY_DOCS) \
+ && !defined(VBOX_ONLY_VALIDATIONKIT) \
+ && !defined(VBOX_WITHOUT_LINUX_TEST_BUILDS) \
+ && "$(KBUILD_TARGET)" == "linux" \
+ && "$(KBUILD_HOST_ARCH)" == "$(KBUILD_TARGET_ARCH)"
+ VBOX_LNX_MOD_TEST        = $(PATH_TARGET)/tsthost_mod
+ VBOX_LNX_MOD_TEST_TARGET = $(PATH_TARGET)/tsthost_mod.run
+ TESTING     += $(VBOX_LNX_MOD_TEST_TARGET)
+ OTHERS      += $(VBOX_LNX_MOD_TEST_TARGET)
+ OTHER_CLEAN += $(VBOX_LNX_MOD_TEST_TARGET)
+ $$(VBOX_LNX_MOD_TEST_TARGET): \
+ 		$$(vboxdrv-mod_2_STAGE_TARGETS) \
+ 		$$(VBoxNetFlt-src_2_STAGE_TARGETS) \
+ 		$$(VBoxNetAdp-src_2_STAGE_TARGETS) \
+ 		$$(VBoxPci-src_2_STAGE_TARGETS) \
+		$$(HostDrivers-scripts_2_STAGE_TARGETS)
+	$(QUIET)$(call MSG_L1,Doing a test build of the host kernel modules)
+	$(QUIET)$(RM) -f -- "$@"
+	$(QUIET)$(RM) -Rf -- "$(VBOX_LNX_MOD_TEST)"
+	$(QUIET)$(MKDIR) -p -- "$(VBOX_LNX_MOD_TEST)"
+	$(QUIET)$(CP) -R -- "$(PATH_STAGE_BIN)/src/" "$(VBOX_LNX_MOD_TEST)/"
+	+ $(QUIET)make -C $(VBOX_LNX_MOD_TEST) clean
+	+ $(QUIET)make -C $(VBOX_LNX_MOD_TEST)
+	$(QUIET)$(RM) -Rf -- $(VBOX_LNX_MOD_TEST)
+	$(QUIET)$(APPEND) -t "$@" "done"
+
+endif
+
+
+# Let kBuild generate the rules.
+include $(FILE_KBUILD_SUB_FOOTER)
+

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!--
+    VirtualBox Windows Installation Script (WiX)
+
+    Copyright (C) 2006-2016 Oracle Corporation
+
+    This file is part of VirtualBox Open Source Edition (OSE), as
+    available from http://www.virtualbox.org. This file is free software;
+    you can redistribute it and/or modify it under the terms of the GNU
+    General Public License (GPL) as published by the Free Software
+    Foundation, in version 2 as it comes in the "COPYING" file of the
+    VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+    hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+-->
+
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wi"
+         xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+    <Directory Id="dir_VBoxUSBFilter" Name="filter">
+        <Component Id="cp_USBFilterDriver" Guid="B7D782D2-96DF-4775-A0E1-A76CF7B04B65" Win64="$(var.Property_Win64)">
+            <difxapp:Driver AddRemovePrograms="no" ForceInstall="yes" DeleteFiles="yes"
+                  Legacy="$(var.Property_DriverLegacy)" Sequence="3" PlugAndPlayPrompt="no"/>
+            <File Id="file_VBoxUSBMon.sys" Name="VBoxUSBMon.sys"
+                  Source="$(env.PATH_OUT)\bin\VBoxUSBMon.sys" />
+            <File Id="file_VBoxUSBMon.inf" Name="VBoxUSBMon.inf"
+                  Source="$(env.PATH_OUT)\bin\VBoxUSBMon.inf" />
+<?if $(env.VBOX_SIGNING_MODE)!= none ?>
+            <File Id="file_VBoxUSBMon.cat" Name="VBoxUSBMon.cat"
+                  Source="$(env.PATH_OUT)\bin\VBoxUSBMon.cat" />
+<?endif ?>
+        </Component>
+    </Directory>
+
+    <Directory Id="dir_VBoxUSBDevice" Name="device">
+        <Component Id="cp_USBDeviceDriver" Guid="010FE46A-E358-43E2-8BDC-38BC8BEC82E0" Win64="$(var.Property_Win64)">
+            <difxapp:Driver AddRemovePrograms="no" ForceInstall="yes"  DeleteFiles="yes"
+                  Legacy="$(var.Property_DriverLegacy)" Sequence="3" PlugAndPlayPrompt="no"/>
+            <File Id="file_VBoxUSB.sys" Name="VBoxUSB.sys"
+                  Source="$(env.PATH_OUT)\bin\VBoxUSB.sys" />
+            <File Id="file_VBoxUSB.inf" Name="VBoxUSB.inf"
+                  Source="$(env.PATH_OUT)\bin\VBoxUSB.inf" />
+<?if $(env.VBOX_SIGNING_MODE)!= none ?>
+            <File Id="file_VBoxUSB.cat" Name="VBoxUSB.cat"
+                  Source="$(env.PATH_OUT)\bin\VBoxUSB.cat" />
+<?endif ?>
+        </Component>
+    </Directory>
+
+</Include>

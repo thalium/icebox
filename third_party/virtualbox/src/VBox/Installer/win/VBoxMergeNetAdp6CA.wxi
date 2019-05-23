@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!--
+    VirtualBox Windows Installation Script (WiX)
+
+    Copyright (C) 2006-2016 Oracle Corporation
+
+    This file is part of VirtualBox Open Source Edition (OSE), as
+    available from http://www.virtualbox.org. This file is free software;
+    you can redistribute it and/or modify it under the terms of the GNU
+    General Public License (GPL) as published by the Free Software
+    Foundation, in version 2 as it comes in the "COPYING" file of the
+    VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+    hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+-->
+
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wi"
+         xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+    <CustomAction Id="ca_CreateHostOnlyInterfaceNDIS6" BinaryKey="VBoxInstallHelper"  DllEntry="Ndis6CreateHostOnlyInterface" Execute="deferred" Return="check" Impersonate="no"/>
+    <CustomAction Id="ca_CreateHostOnlyInterfaceNDIS6Args" Property="ca_CreateHostOnlyInterfaceNDIS6" Value="[msm_VBoxNetworkAdp6Folder]" Execute="immediate"/>
+
+    <CustomAction Id="ca_RemoveHostOnlyInterfacesNDIS6" BinaryKey="VBoxInstallHelper"  DllEntry="RemoveHostOnlyInterfaces" Execute="deferred" Return="check" Impersonate="no"/>
+    <CustomAction Id="ca_StopHostOnlyInterfacesNDIS6" BinaryKey="VBoxInstallHelper"  DllEntry="StopHostOnlyInterfaces" Execute="deferred" Return="check" Impersonate="no"/>
+
+    <CustomAction Id="ca_UpdateHostOnlyInterfacesNDIS6" BinaryKey="VBoxInstallHelper"  DllEntry="Ndis6UpdateHostOnlyInterfaces" Execute="deferred" Return="check" Impersonate="no"/>
+    <CustomAction Id="ca_UpdateHostOnlyInterfacesNDIS6Args" Property="ca_UpdateHostOnlyInterfacesNDIS6" Value="[msm_VBoxNetworkAdp6Folder]" Execute="immediate"/>
+
+    <CustomAction Id="ca_UninstallNetAdp6" BinaryKey="VBoxInstallHelper" DllEntry="UninstallNetAdp" Execute="deferred" Return="check" Impersonate="no"/>
+    <CustomAction Id="ca_UninstallNetAdp6Args" Property="ca_UninstallNetAdp6" Value="[msm_VBoxNetworkAdp6Folder]" Execute="immediate"/>
+
+</Include>

@@ -1,0 +1,39 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+:enableSmooth:pointSmooth:GL_POINT_SMOOTH
+:size:pointSize:PointSize
+:minSize:minSize:PointParameterfARB,GL_POINT_SIZE_MIN_ARB
+:maxSize:maxSize:PointParameterfARB,GL_POINT_SIZE_MAX_ARB
+:fadeThresholdSize:fadeThresholdSize:PointParameterfARB,GL_POINT_FADE_THRESHOLD_SIZE_ARB
+:spriteCoordOrigin:spriteCoordOrigin:PointParameterfARB,GL_POINT_SPRITE_COORD_ORIGIN
+#:distanceAttenuation:distanceAttenuation:PointParameterfvARB,GL_POINT_DISTANCE_ATTENUATION_ARB
+-:distanceAttenuation:*if (from->distanceAttenuation[0] != to->distanceAttenuation[0] || from->distanceAttenuation[1] != to->distanceAttenuation[1] || from->distanceAttenuation[2] != to->distanceAttenuation[2]) {
+-:distanceAttenuation:*	diff_api.PointParameterfvARB (GL_POINT_DISTANCE_ATTENUATION_ARB, to->distanceAttenuation);
+-:distanceAttenuation:*	FILLDIRTY(b->distanceAttenuation);
+-:distanceAttenuation:*	FILLDIRTY(b->dirty);
+-:distanceAttenuation:*}
++:distanceAttenuation:*if (from->distanceAttenuation[0] != to->distanceAttenuation[0] || from->distanceAttenuation[1] != to->distanceAttenuation[1] || from->distanceAttenuation[2] != to->distanceAttenuation[2]) {
++:distanceAttenuation:*	diff_api.PointParameterfvARB (GL_POINT_DISTANCE_ATTENUATION_ARB, to->distanceAttenuation);
++:distanceAttenuation:*	from->distanceAttenuation[0] = to->distanceAttenuation[0];
++:distanceAttenuation:*	from->distanceAttenuation[1] = to->distanceAttenuation[1];
++:distanceAttenuation:*	from->distanceAttenuation[2] = to->distanceAttenuation[2];
++:distanceAttenuation:*}
+:enableSprite:pointSprite:GL_POINT_SPRITE_ARB
+%flush
+>{
+>unsigned int activeUnit = (unsigned int) -1;
+>for (i = 0; i < CR_MAX_TEXTURE_UNITS; i++) {
+:coordReplacement[i]:*GLint replacement = to->coordReplacement[i];
+:coordReplacement[i]:*if (activeUnit != i) {
+:coordReplacement[i]:*	 diff_api.ActiveTextureARB(i + GL_TEXTURE0_ARB );
+:coordReplacement[i]:*	 activeUnit = i;
+:coordReplacement[i]:*}
+:coordReplacement[i]:*diff_api.TexEnviv(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, &replacement);
++:coordReplacement[i]:*from->coordReplacement[i] = to->coordReplacement[i];
+%flush
+>}
+>if (activeUnit != toCtx->texture.curTextureUnit)
+>   diff_api.ActiveTextureARB(GL_TEXTURE0 + toCtx->texture.curTextureUnit);
+>}

@@ -1,0 +1,36 @@
+<!--
+    VirtualBox Windows Installation Script (WiX)
+
+    Copyright (C) 2006-2016 Oracle Corporation
+
+    This file is part of VirtualBox Open Source Edition (OSE), as
+    available from http://www.virtualbox.org. This file is free software;
+    you can redistribute it and/or modify it under the terms of the GNU
+    General Public License (GPL) as published by the Free Software
+    Foundation, in version 2 as it comes in the "COPYING" file of the
+    VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+    hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+-->
+
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wi"
+         xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+    <Component Id="cp_NetAdp6Driver" Guid="945d9537-e60d-4bbf-9422-239739e31092" Win64="$(var.Property_Win64)">
+        <File Id="file_VBoxNetAdp6.sys" Name="VBoxNetAdp6.sys" KeyPath="yes"
+              Source="$(env.PATH_OUT)\bin\VBoxNetAdp6.sys" Checksum="yes"/>
+        <File Id="file_VBoxNetAdp6.inf" Name="VBoxNetAdp6.inf"
+              Source="$(env.PATH_OUT)\bin\VBoxNetAdp6.inf" />
+<?if $(env.VBOX_SIGNING_MODE) != none ?>
+        <File Id="file_VBoxNetAdp6.cat" Name="VBoxNetAdp6.cat"
+              Source="$(env.PATH_OUT)\bin\VBoxNetAdp6.cat" />
+<?endif ?>
+
+<?if $(env.VBOX_WITH_MSM_INSTALL) = "yes" ?>
+        <Condition><![CDATA[(localMSMNetworkType="NDIS6")]]></Condition>
+<?else ?>
+        <Condition><![CDATA[(NETWORKTYPE="NDIS6")]]></Condition>
+<?endif ?>
+
+    </Component>
+
+</Include>

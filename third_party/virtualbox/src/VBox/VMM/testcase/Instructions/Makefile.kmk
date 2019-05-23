@@ -1,0 +1,69 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the X86 and AMD64 Instruction Tests.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# Python linting (can't live without pylint!).
+#
+ifdef VBOX_WITH_PYLINT
+ TESTING +=
+endif
+BLDDIRS += $(PATH_TARGET)/pylint
+
+define def_vbox_instructions_py_check
+$(eval name:=$(basename $(notdir $(py))))
+
+pylint::   $(name)-py-phony.o
+$(name).o: $(name)-py-phony.o
+$(PATH_TARGET)/pylint/$(name).o $(name)-py-phony.o:: $(py) | $(PATH_TARGET)/pylint/
+ifdef VBOX_WITH_PYLINT
+	$(QUIET2)$(call MSG_L1,Subjecting $(py) to pylint...)
+	$(QUIET)$(REDIRECT_EXT) -E LC_ALL=C -E PYTHONPATH="$(dir $(py))" -C $(dir $(py)) \
+		-- $$(VBOX_PYLINT) $$(VBOX_PYLINT_FLAGS) $$($(py)_VBOX_PYLINT_FLAGS) ./$(notdir $(py))
+endif
+	$(QUIET)$(APPEND) -t "$(PATH_TARGET)/pylint/$(name).o"
+
+TESTING += $(name)-py-phony.o
+endef # def_vbox_instructions_py_check
+
+
+$(foreach py, $(addprefix $(PATH_SUB_CURRENT)/, InstructionTestGen.py ) , $(eval $(def_vbox_instructions_py_check)))
+
+
+
+#
+# Ring-3 test program based on IPRT.
+#
+PROGRAMS += tstVBInsTstR3
+tstVBInsTstR3_TEMPLATE = VBOXR3TSTEXE
+tstVBInsTstR3_INCS = .
+tstVBInsTstR3_SOURCES = \
+	tstVBInsTstR3.cpp \
+       $(tstVBInsTstR3_0_OUTDIR)/tstVBInsTstR3A.asm
+tstVBInsTstR3_CLEAN = \
+       $(tstVBInsTstR3_0_OUTDIR)/tstVBInsTstR3A.asm
+
+$$(tstVBInsTstR3_0_OUTDIR)/tstVBInsTstR3A.asm: $(PATH_SUB_CURRENT)/InstructionTestGen.py
+	$(VBOX_BLD_PYTHON) $(PATH_SUB_CURRENT)/InstructionTestGen.py \
+		--target iprt-r3-$(if-expr $(intersects $(KBUILD_TARGET_ARCH), $(KBUILD_ARCHES_64)),64,32) \
+		--output-base $(basename $@)
+
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

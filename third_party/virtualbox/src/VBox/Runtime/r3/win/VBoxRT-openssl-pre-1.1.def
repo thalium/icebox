@@ -1,0 +1,242 @@
+; $Id: VBoxRT-openssl-pre-1.1.def $
+;; @file
+; IPRT - Windows OpenSSL v1.0.x exports we use outside VBoxRT (keep them few!).
+;
+; This file is appended to the architecture specific .def file.
+;
+
+;
+; Copyright (C) 2009-2017 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+; The contents of this file may alternatively be used under the terms
+; of the Common Development and Distribution License Version 1.0
+; (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+; VirtualBox OSE distribution, in which case the provisions of the
+; CDDL are applicable instead of those of the GPL.
+;
+; You may elect to license modified versions of this file under the
+; terms and conditions of either the GPL or the CDDL or both.
+;
+
+    ; ConsoleImpl.cpp uses this when VBOX_OPENSSL_FIPS is enabled.
+    FIPS_mode
+
+    ; VBoxVRDP.dll - secure.cpp
+    BIO_free
+    BIO_new_file
+    BN_bin2bn
+    BN_bn2bin
+    BN_CTX_free
+    BN_CTX_new
+    BN_free
+    BN_mod_exp
+    BN_new
+    BN_num_bits
+    BN_set_word
+    ;1.1.0: EVP_PKEY_get0_RSA
+    i2d_X509
+    MD5_Final
+    MD5_Init
+    MD5_Update
+    OBJ_obj2nid
+    PEM_read_bio_PrivateKey
+    PEM_read_bio_X509
+    RAND_bytes
+    RC4
+    RC4_set_key
+    RSA_free
+    RSA_generate_key_ex
+    ;1.1.0: RSA_get0_key
+    RSA_new
+    SHA1_Final
+    SHA1_Init
+    SHA1_Update
+    X509_free
+    ;1.1.0: X509_get_X509_PUBKEY
+    X509_PUBKEY_get0_param
+
+    ; VBoxVRDP.dll - secure.cpp - 1.0.1 additions:
+    BN_init
+
+    ; VBoxVRDP.dll - tcp_vrdp.cpp
+    BIO_new_socket
+    BIO_test_flags
+    ;1.1.0: OPENSSL_init_ssl
+    SSL_accept
+    SSL_CTX_free
+    SSL_CTX_load_verify_locations
+    SSL_CTX_new
+    SSL_CTX_set_verify
+    SSL_CTX_use_certificate_file
+    SSL_CTX_use_PrivateKey_file
+    SSL_free
+    SSL_get_certificate
+    SSL_new
+    SSL_pending
+    SSL_read
+    SSL_set_bio
+    SSL_set_read_ahead
+    SSL_write
+    TLSv1_server_method
+    X509_get_issuer_name
+    X509_NAME_oneline
+
+    ; VDPluginCrypt.dll (if it wanted to use IPRT) - VDKeyStore.cpp:
+    EVP_aes_128_xts
+    EVP_aes_256_xts
+    EVP_CIPHER_CTX_free
+    EVP_CIPHER_CTX_new
+    EVP_DecryptFinal
+    EVP_DecryptInit
+    EVP_DecryptUpdate
+    EVP_EncryptFinal
+    EVP_EncryptInit
+    EVP_EncryptUpdate
+    EVP_MD_size
+    EVP_sha1
+    EVP_sha256
+    EVP_sha512
+    PKCS5_PBKDF2_HMAC
+    ;exported above: RAND_bytes
+
+    ; VDPluginCrypt.dll (if it wanted to use IPRT) - VDFilterCrypt.cpp:
+    ;exported above: EVP_aes_128_xts
+    ;exported above: EVP_aes_256_xts
+    ;exported above: EVP_CIPHER_CTX_free
+    ;exported above: EVP_CIPHER_CTX_new
+    ;exported above: EVP_DecryptFinal
+    ;exported above: EVP_DecryptInit
+    ;exported above: EVP_DecryptUpdate
+    ;exported above: EVP_EncryptFinal
+    ;exported above: EVP_EncryptInit
+    ;exported above: EVP_EncryptUpdate
+    ;exported above: RAND_bytes
+
+    ; vboxwebsrv needs SSL support.
+    ASN1_STRING_data
+    ASN1_STRING_to_UTF8
+    ;exported above: BIO_free
+    ;exported above: BIO_new_file
+    ;exported above: BIO_new_socket
+    BIO_read
+    BIO_write
+    CRYPTO_free
+    DH_check
+    DH_free
+    DH_generate_parameters
+    ERR_clear_error
+    ERR_error_string
+    ERR_error_string_n
+    ERR_get_error
+    ERR_peek_error
+    GENERAL_NAME_free
+    i2v_GENERAL_NAMES
+    ;1.1.0: OPENSSL_init_crypto
+    ;exported above: OPENSSL_init_ssl
+    ;1.1.0: OPENSSL_sk_num
+    ;1.1.0: OPENSSL_sk_pop_free
+    ;1.1.0: OPENSSL_sk_value
+    PEM_read_bio_DHparams
+    RAND_load_file
+    RAND_pseudo_bytes
+    RAND_seed
+    RAND_status
+    ;exported above: RSA_free
+    RSA_generate_key
+    ;exported above: SSL_accept
+    SSL_clear
+    SSL_connect
+    SSL_ctrl
+    SSL_CTX_ctrl
+    ;exported above: SSL_CTX_free
+    SSL_CTX_get_cert_store
+    ;exported above: SSL_CTX_load_verify_locations
+    ;exported above: SSL_CTX_new
+    SSL_CTX_set_client_CA_list
+    SSL_CTX_set_default_passwd_cb
+    SSL_CTX_set_default_passwd_cb_userdata
+    SSL_CTX_set_default_verify_paths
+    ;1.1.0: SSL_CTX_set_options
+    SSL_CTX_set_session_id_context
+    ;exported above: SSL_CTX_set_verify
+    SSL_CTX_set_verify_depth
+    SSL_CTX_use_certificate_chain_file
+    ;exported above: SSL_CTX_use_PrivateKey_file
+    ;exported above: SSL_free
+    SSL_get_error
+    SSL_get_peer_certificate
+    SSL_get_verify_result
+    SSL_get1_session
+    ;1.1.0: SSL_is_init_finished
+    SSL_load_client_CA_file
+    ;exported above: SSL_new
+    SSL_peek
+    ;exported above: SSL_read
+    SSL_SESSION_free
+    ;exported above: SSL_set_bio
+    SSL_set_session
+    SSL_shutdown
+    SSL_want
+    ;exported above: SSL_write
+    ;1.1.0: TLS_method
+    ;exported above: X509_free
+    X509_get_ext_d2i
+    ;exported above: X509_get_issuer_name
+    X509_get_subject_name
+    X509_load_crl_file
+    X509_LOOKUP_file
+    X509_NAME_ENTRY_get_data
+    X509_NAME_get_entry
+    X509_NAME_get_index_by_NID
+    ;exported above: X509_NAME_oneline
+    X509_STORE_add_lookup
+    X509_STORE_CTX_get_current_cert
+    X509_STORE_CTX_get_error
+    X509_STORE_CTX_get_error_depth
+    X509_STORE_CTX_set_error
+    X509_STORE_set1_param
+    X509_verify_cert_error_string
+    X509_VERIFY_PARAM_free
+    X509_VERIFY_PARAM_new
+    X509_VERIFY_PARAM_set_flags
+    X509V3_conf_free
+
+    ; vboxwebsrv - 1.0.1 additions
+    CRYPTO_set_dynlock_destroy_callback
+    CRYPTO_set_dynlock_lock_callback
+    CRYPTO_set_dynlock_create_callback
+    CRYPTO_set_locking_callback
+    CRYPTO_set_id_callback
+    CRYPTO_num_locks
+    ERR_remove_state
+    OPENSSL_add_all_algorithms_noconf
+    sk_value
+    sk_num
+    sk_pop_free
+    SSL_load_error_strings
+    SSL_library_init
+    SSL_state
+    SSLv23_method
+
+    ; vboxwebsrv - 1.0.1 additions for older gsoap version.
+    ASN1_item_d2i
+    OBJ_nid2sn
+    X509_EXTENSION_get_object
+    X509_get_ext
+    X509_get_ext_count
+    X509V3_EXT_get
+
+    ; tstRTBigNum.cpp
+    BN_div
+    BN_mul
+    BN_mod_exp_simple
+    BN_ucmp
+

@@ -1,0 +1,71 @@
+<?xml version="1.0"?>
+<!--
+    VirtualBox Windows Installation Script (WiX)
+
+    Copyright (C) 2006-2015 Oracle Corporation
+
+    This file is part of VirtualBox Open Source Edition (OSE), as
+    available from http://www.virtualbox.org. This file is free software;
+    you can redistribute it and/or modify it under the terms of the GNU
+    General Public License (GPL) as published by the Free Software
+    Foundation, in version 2 as it comes in the "COPYING" file of the
+    VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+    hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+-->
+
+<?include Properties.wxi ?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+    <Module Id="msm_VBoxNetworkAdp"
+            Language="!(loc.LANG)"
+            Version="$(var.Property_Version)">
+
+        <Package Id="248b9371-ab62-48ee-8f23-270fb319bb46"
+                 Keywords="Installer, Setup"
+                 Description="$(env.VBOX_PRODUCT) $(var.Property_VersionExt) NetAdp installation package"
+                 Comments="$(env.VBOX_PRODUCT) NetAdp installation package"
+                 Manufacturer="$(env.VBOX_VENDOR)"
+                 InstallerVersion="200"
+                 AdminImage="yes"
+                 InstallPrivileges="elevated"
+                 Platform="$(var.Property_Platform)"
+                 SummaryCodepage="1252"/>
+
+
+        <?include PublicProperties.wxi ?>
+
+<?if $(env.VBOX_WITH_MSM_INSTALL) = "yes" ?>
+        <Property Id="localMSMNetworkType" Value="Empty" /> 
+        <Configuration Name="passedNetworkType" Format="Text" DefaultValue="Not passed"/> 
+        <Substitution Table="CustomAction" Row="setNetworkTypeADP" Column="Target" Value="[=passedNetworkType]"/> 
+        <CustomAction Id="setNetworkTypeADP" Property="localMSMNetworkType" Value="[localMSMNetworkType]" Execute="immediate" /> 
+        <CustomAction Id="correctNetworkTypeADP" Property="localMSMNetworkType" Value="NDIS5" Execute="immediate" />
+<?endif ?>
+
+        <!-- Here comes the file/directory list -->
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="msm_VBoxNetworkAdpFolder" FileSource=".">
+
+                <?include VBoxMergeNetAdp.wxi ?>
+
+            </Directory> <!-- msm_VBoxNetworkAdpFolder -->
+        </Directory> <!-- TARGETDIR -->
+
+        <!-- Custom actions -->
+        <Binary Id="VBoxInstallHelper" SourceFile="$(env.PATH_OUT)\bin\VBoxInstallHelper.dll" />
+        <?include VBoxMergeNetAdpCA.wxi ?>
+        
+        <InstallExecuteSequence>
+<?if $(env.VBOX_WITH_MSM_INSTALL) = "yes" ?>
+            <Custom Action="setNetworkTypeADP" After="CostInitialize"/>
+            <Custom Action="correctNetworkTypeADP" After="setNetworkTypeADP">
+                <![CDATA[(VersionNT < 600)]]>
+            </Custom>
+<?endif ?>
+            <?include VBoxMergeNetAdpSeq.wxi ?>
+        </InstallExecuteSequence>
+
+    </Module>
+</Wix>

@@ -1,0 +1,32 @@
+# $Id: CommonFetch.kmk $
+## @file
+# Common Fetch.
+# Included by both Makefile.kmk and Makefile-ose.kmk.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+
+#
+# OS/2 stuff.
+#
+if 0
+ifeq ($(KBUILD_TARGET),os2)
+FETCHES += os2.x86.glibidl.20070521
+os2.x86.glibidl.20070521_TEMPLATE = VBOXFETCH
+os2.x86.glibidl.20070521_INST     = $(PATH_DEVTOOLS)/os2.x86/glibidl/20070521/
+os2.x86.glibidl.20070521_SOURCES  = http://hobbes.nmsu.edu/download/pub/os2/dev/util/glibidl_20070521.zip
+glibidl_20070521.zip_MD5  = 054646a49b96ab762e4d5e9451ca1b37
+glibidl_20070521.zip_SIZE = 611335
+endif # OS/2 stuff
+endif

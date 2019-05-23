@@ -1,0 +1,147 @@
+# $Id: Makefile.kmk $
+## @file
+# Makefile for the VBox debugger.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# The targets.
+#
+ifdef VBOX_WITH_DEBUGGER
+ LIBRARIES += Debugger
+ ifdef VBOX_WITH_TESTCASES
+  PROGRAMS += tstDBGCParser
+ endif
+endif # VBOX_WITH_DEBUGGER
+
+
+#
+# Debugger library - linked into VBoxVMM.
+#
+Debugger_TEMPLATE  = VBOXR3
+Debugger_DEFS      = IN_VMM_R3 IN_DBG_R3 IN_DIS
+ifneq ($(KBUILD_TYPE),release)
+ Debugger_DEFS    += VBOX_WITH_DEBUGGER_TCP_BY_DEFAULT
+endif
+Debugger_SOURCES   = \
+	DBGConsole.cpp \
+	DBGCEval.cpp \
+	DBGCBuiltInSymbols.cpp \
+	DBGCCmdHlp.cpp \
+	DBGCCmdWorkers.cpp \
+	DBGCCommands.cpp \
+	DBGCFunctions.cpp \
+	DBGCEmulateCodeView.cpp \
+	DBGCOps.cpp \
+	DBGCGdbRemoteStub.cpp \
+	DBGCTcp.cpp \
+	DBGCScreenAscii.cpp
+
+#
+# The diggers plug-in.
+#
+DLLS += DbgPlugInDiggers
+DbgPlugInDiggers_TEMPLATE = VBOXR3
+DbgPlugInDiggers_DEFS     = IN_DIS
+DbgPlugInDiggers_SOURCES = \
+	DBGPlugInDiggers.cpp \
+	DBGPlugInDarwin.cpp \
+	DBGPlugInLinux.cpp \
+	DBGPlugInSolaris.cpp \
+	DBGPlugInWinNt.cpp \
+	DBGPlugInOS2.cpp \
+	DBGPlugInFreeBsd.cpp \
+	DBGPlugInCommonELF.cpp
+DbgPlugInDiggers_LIBS = \
+	$(PATH_STAGE_LIB)/DisasmR3$(VBOX_SUFF_LIB) \
+	$(if-expr "$(LIB_VMM)" == "$(VBOX_LIB_VMM_LAZY)",$(LIB_REM),) \
+	$(VBOX_LIB_VMM_LAZY) \
+	$(LIB_RUNTIME)
+$(call VBOX_SET_VER_INFO_DLL,DbgPlugInDiggers,VirtualBox Debugger Guest OS Digger Plug-in)
+
+
+#
+# The DBGC parser testcase.
+# This stubs all the VBoxVMM APIs.
+#
+tstDBGCParser_TEMPLATE = VBOXR3TSTEXE
+tstDBGCParser_DEFS = IN_VMM_R3
+tstDBGCParser_CXXFLAGS = $(VBOX_C_CXX_FLAGS_NO_UNUSED_PARAMETERS)
+tstDBGCParser_SOURCES = \
+	testcase/tstDBGCParser.cpp \
+	testcase/tstDBGCStubs.cpp
+tstDBGCParser_LIBS = \
+	$(Debugger_1_TARGET) \
+	$(LIB_RUNTIME)
+
+
+if defined(VBOX_WITH_QTGUI) && defined(VBOX_WITH_DEBUGGER_GUI)
+#
+# Debugger GUI component (Qt).
+#
+USES += qt5
+DLLS += VBoxDbg
+VBoxDbg_TEMPLATE = VBOXQTGUI
+VBoxDbg_DEFS = IN_DBG_R3
+VBoxDbg_INCS = .
+VBoxDbg_QT_MODULES = Core Gui Widgets
+VBoxDbg_QT_MOCHDRS = \
+	VBoxDbgGui.h \
+	VBoxDbgConsole.h \
+	VBoxDbgStatsQt.h
+VBoxDbg_SOURCES = \
+	VBoxDbg.cpp \
+	VBoxDbgGui.cpp \
+	VBoxDbgBase.cpp \
+	VBoxDbgConsole.cpp \
+	VBoxDbgStatsQt.cpp
+VBoxDbg_LIBS = \
+	$(VBOX_LIB_VMM_LAZY)
+VBoxDbg_LDFLAGS.darwin = \
+	-install_name $(VBOX_DYLD_EXECUTABLE_PATH)/VBoxDbg.dylib
+$(call VBOX_SET_VER_INFO_DLL,VBoxDbg,VirtualBox Debugger GUI)
+
+ ifdef VBOX_WITH_TESTCASES
+#
+# The VBoxDbg testcase (Qt).
+#
+PROGRAMS += tstVBoxDbg
+tstVBoxDbg_TEMPLATE     = VBOXQTGUIEXE
+tstVBoxDbg_USES         = qt5
+tstVBoxDbg_QTTOOL       = QT5
+tstVBoxDbg_QT_MODULES   = Core Gui Widgets
+tstVBoxDbg_LIBS.linux   += xcb
+tstVBoxDbg_LIBS.solaris += xcb
+tstVBoxDbg_LIBS.freebsd += xcb
+tstVBoxDbg_SOURCES      = testcase/tstVBoxDbg.cpp
+tstVBoxDbg_LIBS         = \
+	$(LIB_VMM) \
+	$(LIB_REM) \
+	$(LIB_RUNTIME)
+  ifeq ($(KBUILD_TARGET),win)
+tstVBoxDbg_LIBS        += \
+	$(PATH_STAGE_LIB)/VBoxDbg.lib
+  else
+tstVBoxDbg_LIBS        += \
+	$(PATH_STAGE_BIN)/VBoxDbg$(VBOX_SUFF_DLL)
+  endif
+ endif # TESTCASES
+endif # Qt
+
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

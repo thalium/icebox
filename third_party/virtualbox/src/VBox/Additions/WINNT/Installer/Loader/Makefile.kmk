@@ -1,0 +1,61 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Guest Additions loader.
+#
+
+#
+# Copyright (C) 2008-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+ifeq ($(KBUILD_TARGET_ARCH),x86)
+
+# This has to be 32-bit, so don't include it in the 64-bit build.
+PROGRAMS.x86 += VBoxWindowsAdditions
+VBoxWindowsAdditions_TEMPLATE= VBoxGuestR3Exe
+VBoxWindowsAdditions_DEFS    = _WIN32_WINNT=0x0400 _UNICODE UNICODE
+VBoxWindowsAdditions_SOURCES = \
+	VBoxWindowsAdditions.cpp \
+	VBoxWindowsAdditions.rc
+
+VBoxWindowsAdditions_LDFLAGS  = \
+	/DISALLOWLIB:msvcrt.lib \
+	/DISALLOWLIB:msvcprt.lib \
+	/DISALLOWLIB:libcmt.lib
+
+VBoxWindowsAdditions_LIBS     = \
+	$(PATH_TOOL_$(TEMPLATE_VBOXR3EXE_TOOL.win.$(KBUILD_TARGET_ARCH))_LIB)/oldnames.lib \
+	$(PATH_TOOL_$(TEMPLATE_VBOXR3EXE_TOOL.win.$(KBUILD_TARGET_ARCH))_LIB)/libcmt.lib \
+	$(PATH_TOOL_$(TEMPLATE_VBOXR3EXE_TOOL.win.$(KBUILD_TARGET_ARCH))_LIB)/libcpmt.lib
+
+# Version stuff.
+VBoxWindowsAdditions.cpp_DEFS += VBOX_SVN_REV=$(VBOX_SVN_REV)
+VBoxWindowsAdditions.cpp_DEPS = $(VBOX_SVN_REV_KMK)
+
+# The icon location is configurable.
+VBoxWindowsAdditions.rc_INCS += $(VBoxWindowsAdditions_0_OUTDIR)
+VBoxWindowsAdditions.rc_DEPS += $(VBoxWindowsAdditions_0_OUTDIR)/VBoxWindowsAdditions-icon.rc
+VBoxWindowsAdditions.rc_CLEAN = $(VBoxWindowsAdditions_0_OUTDIR)/VBoxWindowsAdditions-icon.rc
+
+
+# Icon include file.
+$$(VBoxWindowsAdditions_0_OUTDIR)/VBoxWindowsAdditions-icon.rc: \
+		$(VBOX_WINDOWS_ADDITIONS_ICON_FILE) $(MAKEFILE_CURRENT) | $$(dir $$@)
+	$(RM) -f $@
+	$(APPEND) $@ 'IDI_VIRTUALBOX ICON DISCARDABLE "$(subst /,\\,$(VBOX_WINDOWS_ADDITIONS_ICON_FILE))"'
+
+endif # (x86 only because of the above rule)
+
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

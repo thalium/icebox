@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+"http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" [
+<!ENTITY __ChangeLog__et8f0z3c SYSTEM "../user_ChangeLogImpl_1.xml">
+]>
+<book>
+  
+  <xi:include href="../user_ChangeLogImpl.xml" xpointer="element(/1)"
+    xmlns:xi="http://www.w3.org/2001/XInclude" />
+
+</book>

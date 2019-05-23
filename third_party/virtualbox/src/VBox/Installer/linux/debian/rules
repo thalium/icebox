@@ -1,0 +1,339 @@
+#!/usr/bin/make -f
+#
+# Copyright (C) 2006-2015 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+#
+# NOTE: if you make changes to this file, please check if the updates should
+# be also applied to the publicly visible debian/rules file.
+#
+
+#export DH_VERBOSE=1
+export DH_COMPAT=5
+
+# possible overrides:
+#  OSE=1            force VBOX_OSE
+#  NOPARALLEL=1     compile with -j1
+#  LINUX=<dir>      compile vboxdrv against Linux found in <dir>
+#  VERBOSE=1        verbose build
+#  DEBUG=1          debug build
+#  NOSUBVER=1       disable generation of the sub-version field (which is
+#                   either the subversion rev [if available] or the build date)
+#  NODOCS=1         don't build docs, use precompiled UserManual.pdf and
+#                   VirtualBox.chm from $HOME
+#  NOMODS=1         don't build any module
+#  NOQT=1           don't build the Qt GUI
+#  EFI=1            include the EFI binary from prebuild
+#  VERSUFFIX=<suffix> set a particular package version suffix (e.g. _customer)
+#  HEADLESS=1       build the headless version
+#  VNC=1            build VNC code
+#  NOWEBSVC=1       don't build the webservice API, default for OSE
+#  STAGEDISO=<path> don't build the VBoxAdditions, use the precompiled .iso
+#  PKGDIR=<path>    where to store the final package(s)
+#
+# NODOCS will also be set if UserManual*.pdf and VirtualBox*.chm are placed in
+# $(vboxroot)/prebuild.  STAGEDISO will be set if VBoxGuestAdditions.iso is
+# placed there.  Wine will not be required to be available if both NODOCS and
+# STAGEDISO are set.
+
+package  := virtualbox
+verpkg   := virtualbox-5.2
+current  := $(shell pwd)
+vboxroot := $(shell cd ../../../..; pwd)
+pkgdir   := $(if $(PKGDIR),$(PKGDIR),$(shell cd ../../../../..; pwd))
+builddir := $(vboxroot)/out/debian/builddir
+moddir   := $(vboxroot)/out/debian/modules
+prefix   := $(current)/debian/$(verpkg)
+arch     := $(shell dpkg --print-architecture)
+verfile  := $(builddir)/version-generated.mk
+ose      := $(if $(OSE),1,$(if $(wildcard $(vboxroot)/src/VBox/RDP/server),,1))
+chrarch  := $(shell if [ `uname -m` = "x86_64" ]; then echo "amd64"; else echo "x86"; fi)
+-include $(vboxroot)/SVN_REVISION
+svnrev   :=$(if $(svn_revision),$(svn_revision),)
+
+NOMODS   ?= $(ose)
+NOQT     ?= $(HEADLESS)
+NOWEBSVC ?= $(ose)
+NODOCS   ?= $(if $(wildcard $(vboxroot)/prebuild/UserManual*.pdf),$(if $(wildcard $(vboxroot)/prebuild/VirtualBox*.chm),1,),)
+STAGEDISO ?= $(if $(wildcard $(vboxroot)/prebuild/VBoxGuestAdditions.iso),$(vboxroot)/prebuild,)
+NOWINE   := $(if $(NODOCS),$(if $(STAGEDISO),1,),)$(ose)
+PYTHON   := $(firstword $(shell which python) $(shell which python3))
+
+ifneq ($(wildcard $(verfile)),)
+include $(verfile)
+ver      := $(VBOX_VERSION_STRING)
+svnver   := $(if $(NOSUBVER),,$(if $(svn_revision),-$(svn_revision),$(shell if \
+		svn info > /dev/null 2>&1; then \
+		svn info|sed -e "s/^Revision: \(.*\)/-\1/;t;d"; else \
+		date +"-%Y%m%d"; fi)))
+debver   :=$(subst _ALPHA,~alpha,$(subst _BETA,~beta,$(subst _RC,~rc,$(subst _OSE,~ose,$(ver)))))$(svnver)$(VERSUFFIX)$(if $(HEADLESS),~headless,)$(if $(DEBUG),~dbg,)
+archdir  := $(prefix)/opt/VirtualBox-$(ver)
+endif
+
+ifneq ($(STAGEDISO),)
+ ifeq ($(wildcard $(STAGEDISO)/VBoxGuestAdditions.iso),)
+  $(error STAGEDISO='$(STAGEDISO)/VBoxGuestAdditions.iso' not found)
+ endif
+endif
+
+debrel  := $(if $(shell which lsb_release),_$(shell lsb_release -si)_$(shell lsb_release -sc),unknown)
+
+ifneq ($(MAKECMDGOALS),clean)
+ debdist  := $(strip $(shell grep $(debrel) $(current)/distributions_deb | cut -d'=' -f2))
+ ifeq ($(debdist),)
+  debdist := $(if $(shell which lsb_release),_$(shell lsb_release -si | tr a-z A-Z)_$(shell lsb_release -sr | sed -e 's/\./_/g' -e 's/\([^_]*\)\(_[^_]*\).*/\1\2/'),unknown)
+  # $(error package distribution not detected (debrel=$(debrel)))
+ endif
+endif
+
+cfg_flags := $(if $(NOQT),--disable-qt,) \
+	     $(if $(ose),--ose,) $(if $(LINUX),--with-linux=$(LINUX),) \
+	     $(if $(HEADLESS),--build-headless,) \
+	     $(if $(DEBUG),--build-debug,) \
+	     $(if $(NOWINE),,--setup-wine) \
+	     $(if $(NOWEBSVC),,$(if $(ose),--enable-webservice,)) \
+	     $(if $(VNC),--enable-vnc,) \
+	     --disable-extpack
+
+bld_flags := AUTOCFG=$(current)/debian/AutoConfig.kmk \
+	     LOCALCFG=$(current)/debian/LocalConfig.kmk \
+	     PATH_OUT=$(builddir) \
+	     VBOX_WITHOUT_EXTPACK_PUEL_PACKING=1 \
+	     VBOX_WITHOUT_EXTPACK_VNC_PACKING=1 \
+	     VBOX_WITH_VMSVGA3D=1 \
+	     VBOX_DO_STRIP= \
+	     VBOX_PATH_PACKAGE_DOCS="\"/usr/share/doc/$(verpkg)\"" \
+	     $(if $(ose),,VBOX_WITH_DOCS_CHM=1) \
+	     VBOX_PACKAGE_DIST=$(debdist) \
+	     $(if $(svnrev),VBOX_SVN_REV=$(svnrev),) \
+	     $(if $(NODOCS),VBOX_WITH_DOCS= ,) \
+	     $(if $(VERBOSE),--print-directory KBUILD_VERBOSE=2,--no-print-directory) \
+	     $(if $(STAGEDISO),VBOX_WITHOUT_ADDITIONS=1,)
+
+configure: debian/configure-stamp
+debian/configure-stamp:
+	dh_testdir
+	cd $(vboxroot) && ./configure --odir=$(current)/debian $(cfg_flags)
+	touch debian/configure-stamp
+
+build: debian/configure-stamp debian/build-stamp
+debian/build-stamp $(verfile):
+	dh_testdir
+	. debian/env.sh && kmk -C $(vboxroot) $(bld_flags) $(if $(NOPARALLEL),-j1,) all
+	$(if $(NODOCS),cp $(vboxroot)/prebuild/UserManual*.pdf $(builddir)/bin,)
+	$(if $(NODOCS),cp $(vboxroot)/prebuild/VirtualBox*.chm $(builddir)/bin,)
+	$(if $(EFI),cp $(vboxroot)/prebuild/VBoxEFI32.fd $(builddir)/bin,)
+	$(if $(EFI),cp $(vboxroot)/prebuild/VBoxEFI64.fd $(builddir)/bin,)
+	mkdir -p $(builddir)/bin/additions
+	$(if $(STAGEDISO),cp $(STAGEDISO)/VBoxGuestAdditions.iso $(builddir)/bin/additions,)
+	. debian/env.sh && kmk -C $(vboxroot) $(bld_flags) \
+	    VBOX_NO_LINUX_RUN_INSTALLER=1 \
+	    VBOX_LNX_ADD_ARCHIVE.x86=$(builddir)/bin/additions/VBoxGuestAdditions-x86.tar.bz2 \
+	    VBOX_LNX_ADD_ARCHIVE.amd64=$(builddir)/bin/additions/VBoxGuestAdditions-amd64.tar.bz2 \
+	    VBOX_PATH_ADDITIONS.linux.x86=$(builddir)/bin/additions \
+	    VBOX_PATH_ADDITIONS.linux.amd64=$(builddir)/bin/additions \
+	    packing
+	touch debian/build-stamp
+
+# Build modules for every kernel we find in /lib/modules/*
+modules: debian/build-stamp debian/modules-stamp
+debian/modules-stamp: debian/build-stamp
+	rm -rf $(moddir)
+	mkdir $(moddir)
+	for d in $(wildcard /lib/modules/*); do \
+	    if [ -L $$d/build ]; then \
+	        make -C $(builddir)/bin/src/vboxdrv KERN_VER=$$(basename $$d) clean && \
+	        make -j4 -C $(builddir)/bin/src/vboxdrv KBUILD_VERBOSE= KERN_VER=$$(basename $$d) all; \
+	        make -C $(builddir)/bin/src/vboxnetflt KERN_VER=$$(basename $$d) clean && \
+		(cp $(builddir)/bin/src/vboxdrv/Module.symvers $(builddir)/bin/src/vboxnetflt || true) && \
+	        make -j4 -C $(builddir)/bin/src/vboxnetflt KBUILD_VERBOSE= KERN_VER=$$(basename $$d) all; \
+	        make -C $(builddir)/bin/src/vboxnetadp KERN_VER=$$(basename $$d) clean && \
+		(cp $(builddir)/bin/src/vboxdrv/Module.symvers $(builddir)/bin/src/vboxnetadp || true) && \
+	        make -j4 -C $(builddir)/bin/src/vboxnetadp KBUILD_VERBOSE= KERN_VER=$$(basename $$d) all; \
+	        make -C $(builddir)/bin/src/vboxpci KERN_VER=$$(basename $$d) clean && \
+		(cp $(builddir)/bin/src/vboxdrv/Module.symvers $(builddir)/bin/src/vboxpci || true) && \
+	        make -j4 -C $(builddir)/bin/src/vboxpci KBUILD_VERBOSE= KERN_VER=$$(basename $$d) all; \
+	        make -C $(builddir)/bin/src/vboxdrv KERN_VER=$$(basename $$d) clean; \
+	        make -C $(builddir)/bin/src/vboxnetflt KERN_VER=$$(basename $$d) clean; \
+	        make -C $(builddir)/bin/src/vboxnetadp KERN_VER=$$(basename $$d) clean; \
+	        make -C $(builddir)/bin/src/vboxpci KERN_VER=$$(basename $$d) clean; \
+	    fi; \
+	done
+	touch debian/modules-stamp
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f debian/changelog
+	rm -f debian/AutoConfig.kmk debian/configure.log debian/env.sh
+	rm -f debian/modules-stamp debian/build-stamp debian/configure-stamp
+	rm -f debian/virtualbox-*.substvars debian/virtualbox*.debhelper
+	rm -f debian/$(verpkg).mime
+	rm -rf $(builddir) $(moddir)
+	rm -rf debian/wine.*
+	dh_clean
+
+ifeq ($(VBOX_VERSION_MAJOR),)
+binary binary-arch binary-indep: build $(verfile)
+	$(MAKE) -f debian/rules binary
+else
+# Build architecture-dependent files here.
+binary binary-arch binary-indep: build $(if $(NOMODS),,modules)
+	dh_testdir
+	dh_testroot
+	dh_clean -k
+	dh_installdirs
+	tar -xC $(prefix)/opt -f $(builddir)/bin/VirtualBox.tar
+	install -d -g 0 -o 0 $(prefix)/usr/share/applications
+	install -d -g 0 -o 0 $(prefix)/usr/lib
+	install -d -g 0 -o 0 $(prefix)/usr/bin
+	install -d -g 0 -o 0 $(prefix)/usr/share/$(package)
+	install -d -g 0 -o 0 $(prefix)/usr/share/doc/$(verpkg)
+	$(if $(NOQT),,mv $(archdir)/virtualbox.desktop \
+	   $(prefix)/usr/share/applications/virtualbox.desktop)
+	install -d -g 0 -o 0 $(prefix)/usr/share/pixmaps
+	$(if $(NOQT),,install -d -g 0 -o 0 $(prefix)/usr/share/icons/hicolor)
+	$(if $(NOQT),,cp $(archdir)/icons/128x128/virtualbox.png \
+	   $(prefix)/usr/share/pixmaps/virtualbox.png)
+	$(if $(NOQT),,mv $(archdir)/nls $(prefix)/usr/share/$(package))
+	$(if $(NOQT),,cd $(archdir)/icons; for i in *; do \
+        for j in $$i/virtualbox.*; do \
+	        if [ -f $$j ]; then \
+	            if [ ! -d $(prefix)/usr/share/icons/hicolor/$$i/apps ]; then \
+	                install -d -g 0 -o 0 $(prefix)/usr/share/icons/hicolor/$$i/apps; \
+	            fi; \
+	            mv $$j $(prefix)/usr/share/icons/hicolor/$$i/apps; \
+	        fi; \
+	    done; \
+	    install -d -g 0 -o 0 $(prefix)/usr/share/icons/hicolor/$$i/mimetypes; \
+	    mv $$i/* $(prefix)/usr/share/icons/hicolor/$$i/mimetypes || true; \
+	    rmdir $$i; \
+	done)
+	$(if $(NOQT),,rmdir $(archdir)/icons)
+	$(if $(NOQT),,mv $(archdir)/virtualbox.xml debian/$(verpkg).sharedmimeinfo)
+	install -d -g 0 -o 0 $(prefix)/usr/share/lintian/overrides
+	sed \
+	    -e 's|%VERPKG%|$(verpkg)|g' \
+	    debian/lintian-override.in > \
+	   $(prefix)/usr/share/lintian/overrides/$(verpkg)
+	mv $(archdir)/VBox.png \
+	   $(prefix)/usr/share/pixmaps/VBox.png
+	mv $(archdir)/src  $(prefix)/usr/share/$(package)
+	rm $(archdir)/VBox.sh
+	install -D -g 0 -o 0 -m 644 VBox.sh $(prefix)/usr/bin/VBox
+	mv $(archdir)/VBoxSysInfo.sh $(prefix)/usr/share/$(package)
+	if [ -r $(archdir)/VBoxDTrace ]; then \
+	    mv $(archdir)/VBoxDTrace $(prefix)/usr/bin; \
+	fi
+	mv $(archdir)/VBoxTunctl $(prefix)/usr/bin
+	$(if $(NOMODS),,for d in $(moddir)/*; do \
+	    if [ -f $$d/vboxdrv.ko -a -f $$d/vboxnetflt.ko -a -f $$d/vboxnetadp.ko -a -f $$d/vboxpci.ko ]; then \
+	        install -D -g 0 -o 0 -m 0644 \
+		    $$d/vboxdrv.ko $(prefix)/lib/modules/$$(basename $$d)/misc/vboxdrv.ko; \
+	        install -D -g 0 -o 0 -m 0644 \
+		    $$d/vboxnetflt.ko $(prefix)/lib/modules/$$(basename $$d)/misc/vboxnetflt.ko; \
+	        install -D -g 0 -o 0 -m 0644 \
+		    $$d/vboxnetadp.ko $(prefix)/lib/modules/$$(basename $$d)/misc/vboxnetadp.ko; \
+	        install -D -g 0 -o 0 -m 0644 \
+		    $$d/vboxpci.ko $(prefix)/lib/modules/$$(basename $$d)/misc/vboxpci.ko; \
+	    fi \
+	    done)
+ifeq ($(ose),)
+	dh_installdocs \
+	    $(archdir)/UserManual*.pdf $(archdir)/VirtualBox*.chm \
+	    $(addprefix $(archdir)/, LICENSE)
+	rm $(addprefix $(archdir)/,UserManual*.pdf VirtualBox*.chm \
+	    LICENSE)
+	for i in rdesktop-vrdp.tar.gz additions/VBoxGuestAdditions.iso; do \
+	    mv $(archdir)/$$i $(prefix)/usr/share/$(package); done
+	$(if $(HEADLESS),,mv $(archdir)/rdesktop-vrdp $(prefix)/usr/bin)
+	$(if $(HEADLESS),,mv $(archdir)/rdesktop-vrdp-keymaps $(prefix)/usr/share/$(package))
+else
+	dh_installdocs \
+	    $(archdir)/UserManual*.pdf
+	rm $(addprefix $(archdir)/,UserManual*.pdf)
+	for i in additions/VBoxGuestAdditions.iso; do \
+	    mv $(archdir)/$$i $(prefix)/usr/share/$(package); done
+endif
+	mv $(archdir) $(prefix)/usr/lib/$(package)
+	if [ -f $(prefix)/usr/lib/$(package)/libQt5CoreVBox.so.5 ]; then \
+	    ../../../../tools/linux.$(chrarch)/bin/chrpath \
+	        --keepgoing --replace /usr/lib/$(package) \
+	        $(prefix)/usr/lib/$(package)/*.so.5 \
+	        $(prefix)/usr/lib/$(package)/plugins/platforms/*.so; \
+	        $(prefix)/usr/lib/$(package)/plugins/xcbglintegrations/*.so; \
+	    echo "[Paths]" > $(prefix)/usr/lib/$(package)/qt.conf; \
+	    echo "Plugins = /usr/lib/$(package)/plugins" >> $(prefix)/usr/lib/$(package)/qt.conf; \
+	fi
+	export VBOX_INSTALL_PATH=/usr/lib/$(package) && \
+	    cd $(builddir)/bin/sdk/installer && \
+	    $(PYTHON) ./vboxapisetup.py install --root $(prefix)
+	rm -rf $(prefix)/usr/lib/$(package)/sdk/installer
+	ln -s ../VBoxVMM.so $(prefix)/usr/lib/$(package)/components/VBoxVMM.so
+	rmdir $(prefix)/opt
+	dh_link \
+	    $(if $(NOQT),,usr/bin/VBox          usr/bin/VirtualBox) \
+	    $(if $(NOQT),,usr/bin/VBox          usr/bin/virtualbox) \
+	    usr/bin/VBox                        usr/bin/VBoxManage \
+	    usr/bin/VBox                        usr/bin/vboxmanage \
+	    $(if $(HEADLESS),,usr/bin/VBox      usr/bin/VBoxSDL) \
+	    $(if $(HEADLESS),,usr/bin/VBox      usr/bin/vboxsdl) \
+	    $(if $(ose),,usr/bin/VBox           usr/bin/VBoxVRDP) \
+	    usr/bin/VBox                        usr/bin/VBoxHeadless \
+	    usr/bin/VBox                        usr/bin/vboxheadless \
+	    usr/bin/VBox                        usr/bin/VBoxBugReport \
+	    usr/bin/VBox                        usr/bin/vboxbugreport \
+	    usr/bin/VBox                        usr/bin/VBoxBalloonCtrl \
+	    usr/bin/VBox                        usr/bin/vboxballoonctrl \
+	    usr/bin/VBox                        usr/bin/VBoxAutostart \
+	    usr/bin/VBox                        usr/bin/vboxautostart \
+	    $(if $(NOWEBSVC),,usr/bin/VBox      usr/bin/vboxwebsrv) \
+	    $(if $(NOVBOXIMG),,usr/lib/virtualbox/vbox-img usr/bin/vbox-img) \
+	    usr/share/virtualbox/src/vboxhost   usr/src/vboxhost-$(ver)
+	$(if $(NOMODS),,dh_installmodules)
+	sed -e 's|%VER%|$(debver)|g' \
+	    -e 's|%DATE%|$(shell date -R)|g' \
+	    -e 's|%DEBREL%|$(subst _,~,$(debrel))|g' \
+	    -e 's|%VERPKG%|$(verpkg)|g' \
+	    debian/changelog.in > debian/changelog
+	dh_installdebconf
+	dh_installchangelogs
+	dh_installmenu
+	dh_installmime
+	dh_link
+ifeq ($(DEBUG),)
+	dh_strip --keep-debug \
+	    $(addprefix --exclude=lib,$(addsuffix VBox.so.5,\
+	      Qt5Core Qt5Gui Qt5Widgets Qt5PrintSupport Qt5OpenGL Qt5DBus Qt5XcbQpa Qt5X11Extras)) \
+	    --exclude=libqxcb.so --exclude=libqxcb-glx-integration.so
+endif
+	mkdir -p $(current)/debian/$(verpkg)-dbg/usr/lib/$(package)
+	mv $(prefix)/usr/lib/$(package)/*.debug $(current)/debian/$(verpkg)-dbg/usr/lib/$(package)
+ifeq ($(DEBUG),)
+	mv $(prefix)/usr/lib/debug $(current)/debian/$(verpkg)-dbg/usr/lib
+endif
+	$(firstword $(shell which dh_python2) $(shell which dh_python3))
+	dh_compress -X.pdf -X.chm -X LICENSE -X.py
+	dh_fixperms
+	dh_makeshlibs
+	dh_installdeb
+	dh_perl
+	# for some reason, the Qt libraries couldn't be found on newer releases (e.g. Ubuntu hardy)
+	LD_LIBRARY_PATH=$(prefix)/usr/lib/virtualbox dh_shlibdeps --exclude=VBoxPython
+	dh_gencontrol -- \
+	  -Valsa=$(if $(HEADLESS),,libasound2) \
+	  -Vpulse=$(if $(HEADLESS),,libpulse0) \
+	  -Vsdlttf=$(if $(HEADLESS),,libsdl-ttf2.0-0)
+	dh_md5sums
+	dh_builddeb --destdir $(pkgdir) -- -Zxz
+endif
+
+.PHONY: binary modules binary-arch binary-indep clean checkroot

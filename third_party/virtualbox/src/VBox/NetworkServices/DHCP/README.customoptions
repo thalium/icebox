@@ -1,0 +1,23 @@
+To configure custom DHCP options for a VM use the following command adapted
+to your needs:
+
+$ VBoxManage dhcpserver modify \
+    --netname test-0 --options --vm "Test Client" --slot 0 \
+    --id 0 --value "224=c0:a8:02:01:c0:a8:02:02" \
+    --id 0 --value "225=0:0"
+
+Note that custom DHCP options must be specified with ID 0 and the actual
+number in the value. This has technical reasons which may change in future
+VirtualBox releases.
+
+
+It corresponds to the following bit of ISC 'dhcpd.conf':
+
+option sample1 code 224 = array of ip-address;
+option sample2 code 225 = array of integer 8;
+
+...
+    option sample1 192.168.2.1,192.168.2.2;
+    option sample2 0,0;
+...
+

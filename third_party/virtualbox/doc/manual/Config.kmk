@@ -1,0 +1,240 @@
+# $Id: Config.kmk $
+## @file
+# kBuild Configuration file for the manual.
+#
+
+#
+# Copyright (C) 2010-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+# The contents of this file may alternatively be used under the terms
+# of the Common Development and Distribution License Version 1.0
+# (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+# VirtualBox OSE distribution, in which case the provisions of the
+# CDDL are applicable instead of those of the GPL.
+#
+# You may elect to license modified versions of this file under the
+# terms and conditions of either the GPL or the CDDL or both.
+#
+
+ifndef VBOX_DOC_MANUAL_CONFIG_KMK_INCLUDED
+VBOX_DOC_MANUAL_CONFIG_KMK_INCLUDED = 1
+
+# Include the top-level configure file.
+ifndef VBOX_ROOT_CONFIG_KMK_INCLUDED
+ include $(PATH_ROOT)/Config.kmk
+endif
+
+
+#
+# Globals.
+#
+
+# Source location.
+VBOX_PATH_MANUAL_SRC     := $(PATH_ROOT)/doc/manual
+# Output location.
+VBOX_PATH_MANUAL_OUTBASE := $(PATH_OBJ)/manual
+
+## List of refentry files (manpages).
+VBOX_MANUAL_XML_REFENTRY_FILES := \
+	man_VBoxManage-debugvm.xml \
+	man_VBoxManage-extpack.xml \
+	man_VBoxManage-unattended.xml
+
+
+# Tool locations.
+ifndef VBOX_OSE
+ # use docbook from our tools directory
+ VBOX_PATH_DOCBOOK        ?= $(PATH_DEVTOOLS)/common/DocBook/v1.69.1
+ VBOX_PATH_DOCBOOK_DTD    ?= $(PATH_DEVTOOLS)/common/docbook-xml/v4.3
+ VBOX_XML_CATALOG         ?= $(VBOX_PATH_MANUAL_OUTBASE)/catalog
+ VBOX_XML_CATALOG_DOCBOOK ?= $(VBOX_PATH_MANUAL_OUTBASE)/docbook
+else
+ # use docbook of the build host
+ VBOX_PATH_DOCBOOK        ?= http://docbook.sourceforge.net/release/xsl/current/
+endif
+
+# xsltproc with the catalog trick if applicable.
+ifdef VBOX_XML_CATALOG
+ VBOX_XSLTPROC_WITH_CAT    = $(REDIRECT) -E "XML_CATALOG_FILES=$(VBOX_XML_CATALOG)" $1 -- \
+ 	$(VBOX_XSLTPROC) --nonet --xinclude $(VBOX_XSLTPROC_OPTS)
+ VBOX_XMLLINT_WITH_CAT     = $(REDIRECT) -E "XML_CATALOG_FILES=$(VBOX_XML_CATALOG)" -- \
+	$(VBOX_XMLLINT) --nonet --xinclude --noout $(VBOX_XMLLINT_OPTS)
+else
+ VBOX_XSLTPROC_WITH_CAT    = $(if $(1), $(REDIRECT) $1 --,) $(VBOX_XSLTPROC) --nonet --xinclude $(VBOX_XSLTPROC_OPTS)
+ VBOX_XMLLINT_WITH_CAT     = $(VBOX_XMLLINT) --nonet --xinclude --noout $(VBOX_XMLLINT_OPTS)
+endif
+
+
+##
+# Non-pattern-rule approach to editing XSLT files.
+# $(evalcall2 def_vbox_replace_paths_in_xslt)
+# @param    1   The XSLT source file (relative to Makefile dir).
+# @param    2   Optional output subdirectory (leading slash).
+define def_vbox_replace_paths_in_xslt
+OTHER_CLEAN += $$(VBOX_PATH_MANUAL_OUTBASE)$2/$(notdir $1)
+$$(VBOX_PATH_MANUAL_OUTBASE)$2/$(notdir $1): $$(VBOX_PATH_MANUAL_SRC)/$1 | $$$$(dir $$$$@)
+	$$(call MSG_L1,Pre-processing $$(<) to $$(@))
+	$$(QUIET)$$(SED) \
+		-e 's|@VBOX_PATH_DOCBOOK@|$$(VBOX_PATH_DOCBOOK)|g' \
+		-e 's|@VBOX_PATH_MANUAL_SRC@|$$(VBOX_PATH_MANUAL_SRC)|g' \
+		-e 's|@VBOX_PATH_MANUAL_OUTBASE@|$$(VBOX_PATH_MANUAL_OUTBASE)|g' \
+		-e 's|@VBOX_PATH_MANUAL_OUT_LANG@|$$(VBOX_PATH_MANUAL_OUTBASE)$2|g' \
+		--output "$$(@)" $$<
+endef
+
+
+##
+# Emits rules for preprocessing refentry sources (applying remarks element),
+# and for producing the actual man pages.
+#
+# $(evalcall2 def_vbox_refentry_to_manpage)
+# @param    1   The output directory.
+# @param    2   The XML file name (no path).
+# @param    3   The XML file with full path.
+define def_vbox_refentry_preprocess_for_manpage
+$(1)/$(2): \
+		$(3) \
+		$$(VBOX_PATH_MANUAL_SRC)/docbook-refentry-to-manpage-preprocessing.xsl \
+		$$(VBOX_XML_CATALOG) $$(VBOX_XML_CATALOG_DOCBOOK) \
+		$$(VBOX_VERSION_STAMP) | $$$$(dir $$$$@)
+	$$(call MSG_TOOL,xsltproc $$(notdir $$(firstword $$(filter %.xsl,$$^))),,$$(firstword $$(filter %.xml,$$^)),$$@)
+	$$(QUIET)$$(RM) -f "$$@"
+	$$(QUIET)$$(call VBOX_XSLTPROC_WITH_CAT) --output $$@ \
+		$$(VBOX_PATH_MANUAL_SRC)/docbook-refentry-to-manpage-preprocessing.xsl $$<
+if defined(VBOX_HAVE_XMLLINT) && "$(USER)" == "bird" # Effing stuff happends on build servers, probably kmk related...
+	$$(VBOX_XMLLINT_WITH_CAT) --dtdvalid $$(VBOX_PATH_DOCBOOK_DTD)/docbookx.dtd $$@
+endif
+endef
+
+##
+# Generate a single header file containing everything (no C file).
+#
+# @param   1   Destination file.
+# @param   2   Full source file path.
+# @param   3	Help infix.
+define def_vbox_single_refentry_to_h
+$(1).ts +| $(1): \
+		$$(VBOX_DOCBOOK_REFENTRY_TO_C_HELP) \
+		$$(VBOX_DOCBOOK_REFENTRY_TO_H_HELP) \
+               $(2) \
+		$$(VBOX_XML_CATALOG) $$(VBOX_XML_CATALOG_DOCBOOK) $(MAKEFILE) | $$$$(dir $$$$@)
+	$$(call MSG_TOOL,xsltproc $$(notdir $$(firstword $$(filter %.xsl,$$^))),,$$(filter %.xml,$$^),$$(patsubst %.ts,%,$$@))
+	$$(QUIET)$$(APPEND) -tn "$$@" \
+		'/* Autogenerated by $$(notdir $$(filter %.xsl,$$^)), do not edit! */' \
+		'' \
+		'#include <iprt/message.h>' \
+		'' \
+               'typedef enum HELP_CMD_$(3)' \
+               '{' \
+               '    HELP_CMD_INVALID = 0,'
+	$$(QUIET)$$(call VBOX_XSLTPROC_WITH_CAT, -a+to "$$@") \
+		--stringparam 'g_sMode' 'cmd' $$(VBOX_DOCBOOK_REFENTRY_TO_H_HELP) $(2)
+	$$(QUIET)$$(APPEND) -n "$$@" \
+		'    HELP_CMD_END' \
+		'} HELP_CMD_VBOXMANAGE;' \
+		''
+	$$(NLTAB)$$(QUIET)$$(call VBOX_XSLTPROC_WITH_CAT, -a+to "$$@") \
+		--stringparam 'g_sMode' 'subcmd' $$(VBOX_DOCBOOK_REFENTRY_TO_H_HELP) $(2)
+	$$(QUIET)$$(APPEND) -n "$$@" \
+		''
+	$$(NLTAB)$$(QUIET)$$(call VBOX_XSLTPROC_WITH_CAT, -a+to "$$@") $$(VBOX_DOCBOOK_REFENTRY_TO_C_HELP) $(2)
+	$$(QUIET)$$(APPEND) -n "$$@" \
+               '' \
+               '/* end of file */'
+	$$(QUIET)$$(CP) --changed -- "$$@" "$$(patsubst %.ts,%,$$@)"
+endef
+
+
+#
+# Make sure we've got a rule to make the output directory.
+#
+BLDDIRS += $(VBOX_PATH_MANUAL_OUTBASE)
+
+
+ifdef VBOX_XML_CATALOG
+ #
+ # To avoid network I/O for fetching DTDs, we generate catalogs mapping the public
+ # entity IDs to local files.  (Obviously, only done when we have local files.)
+ #
+ # Create a catalog file for xsltproc that points to docbook catalog.
+ $(VBOX_XML_CATALOG): $(MAKEFILE_CURRENT) | $$(dir $$@)
+	$(call MSG_L1,Creating catalog $@)
+	$(QUIET)$(APPEND) -tn "$@" \
+		'<?xml version="1.0"?>' \
+		'<!DOCTYPE catalog PUBLIC "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN" "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">' \
+		'<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">' \
+		'  <delegatePublic publicIdStartString="-//OASIS/ENTITIES DocBook XML"      catalog="file:///$(VBOX_XML_CATALOG_DOCBOOK)"/>' \
+		'  <delegatePublic publicIdStartString="-//OASIS/DTD DocBook XML"           catalog="file:///$(VBOX_XML_CATALOG_DOCBOOK)"/>' \
+		'  <delegateSystem systemIdStartString="http://www.oasis-open.org/docbook/" catalog="file:///$(VBOX_XML_CATALOG_DOCBOOK)"/>' \
+		'  <delegateURI uriStartString="http://www.oasis-open.org/docbook/"         catalog="file:///$(VBOX_XML_CATALOG_DOCBOOK)"/>' \
+		'</catalog>'
+
+ # Create a docbook catalog file for xsltproc that points to the local docbook files.
+ $(VBOX_XML_CATALOG_DOCBOOK): $(MAKEFILE_CURRENT) | $$(dir $$@)
+	$(call MSG_L1,Creating catalog $@)
+	$(QUIET)$(APPEND) -tn "$@" \
+		'<?xml version="1.0"?>' \
+		'<!DOCTYPE catalog PUBLIC "-//OASIS//DTD Entity Resolution XML Catalog V1.0//EN" "http://www.oasis-open.org/committees/entity/release/1.0/catalog.dtd">' \
+		'<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">' \
+		'  <public publicId="-//OASIS//ELEMENTS DocBook XML Information Pool V4.3//EN"          uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/dbpoolx.mod"/>' \
+		'  <public publicId="-//OASIS//DTD DocBook XML V4.3//EN"                                uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/docbookx.dtd"/>' \
+		'  <public publicId="-//OASIS//DTD DocBook XML V4.4//EN"                                uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/docbookx.dtd"/>' \
+		'  <public publicId="-//OASIS//ENTITIES DocBook XML Character Entities V4.3//EN"        uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/dbcentx.mod"/>' \
+		'  <public publicId="-//OASIS//ENTITIES DocBook XML Notations V4.3//EN"                 uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/dbnotnx.mod"/>' \
+		'  <public publicId="-//OASIS//ENTITIES DocBook XML Additional General Entities V4.3//EN" uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/dbgenent.mod"/>' \
+		'  <public publicId="-//OASIS//ELEMENTS DocBook XML Document Hierarchy V4.3//EN"        uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/dbhierx.mod"/>' \
+		'  <public publicId="-//OASIS//DTD XML Exchange Table Model 19990315//EN"               uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/soextblx.dtd"/>' \
+		'  <public publicId="-//OASIS//DTD DocBook XML CALS Table Model V4.3//EN"               uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/calstblx.dtd"/>' \
+		'  <rewriteSystem systemIdStartString="http://www.oasis-open.org/docbook/xml/4.3" rewritePrefix="file:///$(VBOX_PATH_DOCBOOK_DTD)"/>' \
+		'  <rewriteURI         uriStartString="http://www.oasis-open.org/docbook/xml/4.3" rewritePrefix="file:///$(VBOX_PATH_DOCBOOK_DTD)"/>' \
+		'  <rewriteSystem systemIdStartString="http://www.oasis-open.org/docbook/xml/4.4" rewritePrefix="file:///$(VBOX_PATH_DOCBOOK_DTD)"/>' \
+		'  <rewriteURI         uriStartString="http://www.oasis-open.org/docbook/xml/4.4" rewritePrefix="file:///$(VBOX_PATH_DOCBOOK_DTD)"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Arrow Relations//EN"   uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-amsa.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Binary Operators//EN"  uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-amsb.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Delimiters//EN"        uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-amsc.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Negated Relations//EN" uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-amsn.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Ordinary//EN"          uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-amso.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Added Math Symbols: Relations//EN"         uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-amsr.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Box and Line Drawing//EN"                  uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-box.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Russian Cyrillic//EN"                      uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-cyr1.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Non-Russian Cyrillic//EN"                  uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-cyr2.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Diacritical Marks//EN"                     uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-dia.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Greek Letters//EN"                         uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-grk1.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Monotoniko Greek//EN"                      uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-grk2.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Greek Symbols//EN"                         uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-grk3.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Alternative Greek Symbols//EN"             uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-grk4.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Added Latin 1//EN"                         uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-lat1.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Added Latin 2//EN"                         uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-lat2.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Numeric and Special Graphic//EN"           uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-num.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES Publishing//EN"                            uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-pub.ent"/>' \
+		'  <public publicId="ISO 8879:1986//ENTITIES General Technical//EN"                     uri="file:///$(VBOX_PATH_DOCBOOK_DTD)/ent/iso-tech.ent"/>' \
+		'</catalog>'
+
+endif # VBOX_XML_CATALOG
+
+
+#
+# Generate rules for editing the refentry to C/H style sheets.
+#
+$(evalcall2 def_vbox_replace_paths_in_xslt,docbook-refentry-to-C-help.xsl,)
+VBOX_DOCBOOK_REFENTRY_TO_C_HELP = $(VBOX_PATH_MANUAL_OUTBASE)/docbook-refentry-to-C-help.xsl
+
+$(evalcall2 def_vbox_replace_paths_in_xslt,docbook-refentry-to-H-help.xsl,)
+VBOX_DOCBOOK_REFENTRY_TO_H_HELP = $(VBOX_PATH_MANUAL_OUTBASE)/docbook-refentry-to-H-help.xsl
+
+#
+# Manual dependency.
+#
+$(VBOX_PATH_MANUAL_OUTBASE)/docbook-refentry-to-C-help.xsl: $(VBOX_PATH_MANUAL_SRC)/common-formatcfg.xsl
+
+
+endif # !defined(VBOX_DOC_MANUAL_CONFIG_KMK_INCLUDED)
+

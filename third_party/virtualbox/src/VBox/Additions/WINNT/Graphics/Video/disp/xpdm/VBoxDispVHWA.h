@@ -1,0 +1,130 @@
+/* $Id: VBoxDispVHWA.h $ */
+
+/** @file
+ * VBox XPDM Display driver, helper functions which interacts with our miniport driver
+ */
+
+/*
+ * Copyright (C) 2011-2016 Oracle Corporation
+ *
+ * This file is part of VirtualBox Open Source Edition (OSE), as
+ * available from http://www.virtualbox.org. This file is free software;
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License (GPL) as published by the Free Software
+ * Foundation, in version 2 as it comes in the "COPYING" file of the
+ * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ */
+
+#ifndef VBOXDISPVHWA_H
+#define VBOXDISPVHWA_H
+
+#include "VBoxDisp.h"
+
+#ifdef VBOX_WITH_VIDEOHWACCEL
+typedef struct _VBOXDISPVHWAINFO
+{
+    uint32_t caps;
+    uint32_t caps2;
+    uint32_t colorKeyCaps;
+    uint32_t stretchCaps;
+    uint32_t surfaceCaps;
+    uint32_t numOverlays;
+    uint32_t numFourCC;
+    HGSMIOFFSET FourCC;
+    ULONG_PTR offVramBase;
+    BOOLEAN bEnabled;
+} VBOXDISPVHWAINFO;
+#endif
+
+typedef struct _VBOXVHWAREGION
+{
+    RECTL Rect;
+    bool bValid;
+}VBOXVHWAREGION, *PVBOXVHWAREGION;
+
+typedef struct _VBOXVHWASURFDESC
+{
+    VBOXVHWA_SURFHANDLE hHostHandle;
+    volatile uint32_t cPendingBltsSrc;
+    volatile uint32_t cPendingBltsDst;
+    volatile uint32_t cPendingFlipsCurr;
+    volatile uint32_t cPendingFlipsTarg;
+#ifdef DEBUG
+    volatile uint32_t cFlipsCurr;
+    volatile uint32_t cFlipsTarg;
+#endif
+    bool bVisible;
+    VBOXVHWAREGION UpdatedMemRegion;
+    VBOXVHWAREGION NonupdatedMemRegion;
+}VBOXVHWASURFDESC, *PVBOXVHWASURFDESC;
+
+typedef DECLCALLBACK(void) FNVBOXVHWACMDCOMPLETION(PVBOXDISPDEV pDev, VBOXVHWACMD * pCmd, void * pContext);
+typedef FNVBOXVHWACMDCOMPLETION *PFNVBOXVHWACMDCOMPLETION;
+
+void VBoxDispVHWAInit(PVBOXDISPDEV pDev);
+int VBoxDispVHWAEnable(PVBOXDISPDEV pDev);
+int VBoxDispVHWADisable(PVBOXDISPDEV pDev);
+int VBoxDispVHWAInitHostInfo1(PVBOXDISPDEV pDev);
+int VBoxDispVHWAInitHostInfo2(PVBOXDISPDEV pDev, DWORD *pFourCC);
+
+VBOXVHWACMD* VBoxDispVHWACommandCreate(PVBOXDISPDEV pDev, VBOXVHWACMD_TYPE enmCmd, VBOXVHWACMD_LENGTH cbCmd);
+void VBoxDispVHWACommandRelease(PVBOXDISPDEV pDev, VBOXVHWACMD* pCmd);
+BOOL VBoxDispVHWACommandSubmit(PVBOXDISPDEV pDev, VBOXVHWACMD* pCmd);
+void VBoxDispVHWACommandSubmitAsynch (PVBOXDISPDEV pDev, VBOXVHWACMD* pCmd, PFNVBOXVHWACMDCOMPLETION pfnCompletion, void * pContext);
+void VBoxDispVHWACommandSubmitAsynchAndComplete (PVBOXDISPDEV pDev, VBOXVHWACMD* pCmd);
+void VBoxDispVHWACommandCheckHostCmds(PVBOXDISPDEV pDev);
+
+PVBOXVHWASURFDESC VBoxDispVHWASurfDescAlloc();
+void VBoxDispVHWASurfDescFree(PVBOXVHWASURFDESC pDesc);
+
+uint64_t VBoxDispVHWAVramOffsetFromPDEV(PVBOXDISPDEV pDev, ULONG_PTR offPdev);
+
+void VBoxDispVHWARectUnited(RECTL * pDst, RECTL * pRect1, RECTL * pRect2);
+bool VBoxDispVHWARectIsEmpty(RECTL * pRect);
+bool VBoxDispVHWARectIntersect(RECTL * pRect1, RECTL * pRect2);
+bool VBoxDispVHWARectInclude(RECTL * pRect1, RECTL * pRect2);
+bool VBoxDispVHWARegionIntersects(PVBOXVHWAREGION pReg, RECTL * pRect);
+bool VBoxDispVHWARegionIncludes(PVBOXVHWAREGION pReg, RECTL * pRect);
+bool VBoxDispVHWARegionIncluded(PVBOXVHWAREGION pReg, RECTL * pRect);
+void VBoxDispVHWARegionSet(PVBOXVHWAREGION pReg, RECTL * pRect);
+void VBoxDispVHWARegionAdd(PVBOXVHWAREGION pReg, RECTL * pRect);
+void VBoxDispVHWARegionInit(PVBOXVHWAREGION pReg);
+void VBoxDispVHWARegionClear(PVBOXVHWAREGION pReg);
+bool VBoxDispVHWARegionValid(PVBOXVHWAREGION pReg);
+void VBoxDispVHWARegionTrySubstitute(PVBOXVHWAREGION pReg, const RECTL *pRect);
+
+uint32_t VBoxDispVHWAFromDDCAPS(uint32_t caps);
+uint32_t VBoxDispVHWAToDDCAPS(uint32_t caps);
+uint32_t VBoxDispVHWAFromDDSCAPS(uint32_t caps);
+uint32_t VBoxDispVHWAToDDSCAPS(uint32_t caps);
+uint32_t VBoxDispVHWAFromDDPFS(uint32_t caps);
+uint32_t VBoxDispVHWAToDDPFS(uint32_t caps);
+uint32_t VBoxDispVHWAFromDDCKEYCAPS(uint32_t caps);
+uint32_t VBoxDispVHWAToDDCKEYCAPS(uint32_t caps);
+uint32_t VBoxDispVHWAToDDBLTs(uint32_t caps);
+uint32_t VBoxDispVHWAFromDDBLTs(uint32_t caps);
+uint32_t VBoxDispVHWAFromDDCAPS2(uint32_t caps);
+uint32_t VBoxDispVHWAToDDCAPS2(uint32_t caps);
+uint32_t VBoxDispVHWAFromDDOVERs(uint32_t caps);
+uint32_t VBoxDispVHWAToDDOVERs(uint32_t caps);
+uint32_t VBoxDispVHWAFromDDCKEYs(uint32_t caps);
+uint32_t VBoxDispVHWAToDDCKEYs(uint32_t caps);
+
+int VBoxDispVHWAFromDDSURFACEDESC(VBOXVHWA_SURFACEDESC *pVHWADesc, DDSURFACEDESC *pDdDesc);
+int VBoxDispVHWAFromDDPIXELFORMAT(VBOXVHWA_PIXELFORMAT *pVHWAFormat, DDPIXELFORMAT *pDdFormat);
+void VBoxDispVHWAFromDDOVERLAYFX(VBOXVHWA_OVERLAYFX *pVHWAOverlay, DDOVERLAYFX *pDdOverlay);
+void VBoxDispVHWAFromDDCOLORKEY(VBOXVHWA_COLORKEY *pVHWACKey, DDCOLORKEY  *pDdCKey);
+void VBoxDispVHWAFromDDBLTFX(VBOXVHWA_BLTFX *pVHWABlt, DDBLTFX *pDdBlt);
+void VBoxDispVHWAFromRECTL(VBOXVHWA_RECTL *pDst, RECTL *pSrc);
+
+uint32_t VBoxDispVHWAUnsupportedDDCAPS(uint32_t caps);
+uint32_t VBoxDispVHWAUnsupportedDDSCAPS(uint32_t caps);
+uint32_t VBoxDispVHWAUnsupportedDDPFS(uint32_t caps);
+uint32_t VBoxDispVHWAUnsupportedDDCEYCAPS(uint32_t caps);
+uint32_t VBoxDispVHWASupportedDDCAPS(uint32_t caps);
+uint32_t VBoxDispVHWASupportedDDSCAPS(uint32_t caps);
+uint32_t VBoxDispVHWASupportedDDPFS(uint32_t caps);
+uint32_t VBoxDispVHWASupportedDDCEYCAPS(uint32_t caps);
+
+#endif /*VBOXDISPVHWA_H*/

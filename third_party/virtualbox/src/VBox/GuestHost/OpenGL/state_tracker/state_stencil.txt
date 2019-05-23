@@ -1,0 +1,9 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+:enable:stencilTest:GL_STENCIL_TEST
+:clearValue:clearValue:ClearStencil
+stencilTest:func:func,ref,mask:StencilFunc
+stencilTest:op:fail,passDepthFail,passDepthPass:StencilOp
+stencilTest:writeMask:writeMask:StencilMask

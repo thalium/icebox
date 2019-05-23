@@ -1,0 +1,26 @@
+%ifndef ___VBox_apic_h
+%define ___VBox_apic_h
+%define APIC_REG_VERSION                        0x0030
+%define APIC_REG_VERSION_GET_VER(u32)           (u32 & 0xff)
+%define APIC_REG_VERSION_GET_MAX_LVT(u32)       ((u32 & 0xff0000) >> 16)
+%define APIC_REG_LVT_LINT0                      0x0350
+%define APIC_REG_LVT_LINT1                      0x0360
+%define APIC_REG_LVT_ERR                        0x0370
+%define APIC_REG_LVT_PC                         0x0340
+%define APIC_REG_LVT_THMR                       0x0330
+%define APIC_REG_LVT_CMCI                       0x02F0
+%define APIC_REG_EILVT0                         0x0500
+%define APIC_REG_EILVT1                         0x0510
+%define APIC_REG_EILVT2                         0x0520
+%define APIC_REG_EILVT3                         0x0530
+%define APIC_REG_LVT_MODE_MASK                  (RT_BIT(8) | RT_BIT(9) | RT_BIT(10))
+%define APIC_REG_LVT_MODE_FIXED                 0
+%define APIC_REG_LVT_MODE_NMI                   RT_BIT(10)
+%define APIC_REG_LVT_MODE_EXTINT                (RT_BIT(8) | RT_BIT(9) | RT_BIT(10))
+%define APIC_REG_LVT_PIN_POLARIY                RT_BIT(13)
+%define APIC_REG_LVT_REMOTE_IRR                 RT_BIT(14)
+%define APIC_REG_LVT_LEVEL_TRIGGER              RT_BIT(15)
+%define APIC_REG_LVT_MASKED                     RT_BIT(16)
+%ifdef ___iprt_asm_amd64_x86_h
+%endif
+%endif

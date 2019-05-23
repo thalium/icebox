@@ -1,0 +1,28 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+Vertex2d
+Vertex2dv
+Vertex2f
+Vertex2fv
+Vertex2i
+Vertex2iv
+Vertex2s
+Vertex2sv
+Vertex3d
+Vertex3dv
+Vertex3f
+Vertex3fv
+Vertex3i
+Vertex3iv
+Vertex3s
+Vertex3sv
+Vertex4d
+Vertex4dv
+Vertex4f
+Vertex4fv
+Vertex4i
+Vertex4iv
+Vertex4s
+Vertex4sv

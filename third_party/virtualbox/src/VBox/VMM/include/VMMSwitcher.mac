@@ -1,0 +1,146 @@
+; $Id: VMMSwitcher.mac $
+;; @file
+; VMM - World Switchers.
+;
+
+;
+; Copyright (C) 2006-2017 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+%ifndef ___VMMSwitcher_mac
+%define ___VMMSwitcher_mac
+
+%include "iprt/asmdefs.mac"
+
+; enum VMMSWITCHER {
+%define VMMSWITCHER_INVALID             0
+%define VMMSWITCHER_32_TO_32            1
+%define VMMSWITCHER_32_TO_PAE           2
+%define VMMSWITCHER_32_TO_AMD64         3
+%define VMMSWITCHER_PAE_TO_32BIT        4
+%define VMMSWITCHER_PAE_TO_PAE          5
+%define VMMSWITCHER_PAE_TO_AMD64        6
+%define VMMSWITCHER_AMD64_TO_32         7
+%define VMMSWITCHER_AMD64_TO_PAE        8
+%define VMMSWITCHER_AMD64_TO_AMD64      9
+%define VMMSWITCHER_X86_STUB            10
+%define VMMSWITCHER_AMD64_STUB          11
+%define VMMSWITCHER_MAX                 12
+; }
+
+
+struc VMMSWITCHERDEF
+    .pvCode:                        RTCCPTR_RES 1
+    .pvFixups:                      RTCCPTR_RES 1
+    .pszDesc:                       RTCCPTR_RES 1
+    .pfnRelocate:                   RTCCPTR_RES 1
+    .enmType:                       resd 1
+    .cbCode:                        resd 1
+    .offR0ToRawMode:                resd 1
+    .offRCToHost:                   resd 1
+    .offRCCallTrampoline:           resd 1
+    .offRCToHostAsm:                resd 1
+    .offRCToHostAsmNoReturn:        resd 1
+    ; disasm help
+    .offHCCode0:                    resd 1
+    .cbHCCode0:                     resd 1
+    .offHCCode1:                    resd 1
+    .cbHCCode1:                     resd 1
+    .offIDCode0:                    resd 1
+    .cbIDCode0:                     resd 1
+    .offIDCode1:                    resd 1
+    .cbIDCode1:                     resd 1
+    .offGCCode:                     resd 1
+    .cbGCCode:                      resd 1
+endstruc
+
+
+;/** @name   Fixup Types.
+; * @{
+; */
+%define FIX_HC_2_GC_NEAR_REL    1
+%define FIX_HC_2_ID_NEAR_REL    2
+%define FIX_GC_2_HC_NEAR_REL    3
+%define FIX_GC_2_ID_NEAR_REL    4
+%define FIX_ID_2_HC_NEAR_REL    5
+%define FIX_ID_2_GC_NEAR_REL    6
+%define FIX_GC_FAR32            7
+%define FIX_GC_CPUM_OFF         8
+%define FIX_GC_VM_OFF           9
+%define FIX_HC_CPUM_OFF         10
+%define FIX_HC_VM_OFF           11
+%define FIX_INTER_32BIT_CR3     12
+%define FIX_INTER_PAE_CR3       13
+%define FIX_INTER_AMD64_CR3     14
+%define FIX_HYPER_CS            18
+%define FIX_HYPER_DS            19
+%define FIX_HYPER_TSS           20
+%define FIX_GC_TSS_GDTE_DW2     21
+;%define FIX_NO_FXSAVE_JMP       24 - reusable
+%define FIX_NO_SYSENTER_JMP     25
+%define FIX_NO_SYSCALL_JMP      26
+%define FIX_HC_32BIT            27
+%define FIX_HC_64BIT            28
+%define FIX_HC_64BIT_CPUM       29
+%define FIX_HC_64BIT_CS         30
+%define FIX_ID_32BIT            31
+%define FIX_ID_64BIT            32
+%define FIX_ID_FAR32_TO_64BIT_MODE 33
+%define FIX_GC_APIC_BASE_32BIT  34
+%define FIX_HC_64BIT_NOCHECK    35
+%define FIX_GC_64_BIT_CPUM_OFF  36
+%define FIX_GC_CPUMCPU_OFF      37
+%define FIX_EFER_OR_MASK        38
+%define FIX_THE_END             255
+;/** @} */
+
+
+;;
+; Generate a fixup label.
+; @param %1     Type of fixup (use one of those %defines)
+; @param %2     Offset into the instruction.
+; @param %3     Optional fixup data.
+%macro FIXUP 2-*
+BEGINDATA
+    db  %1  ; the type
+    dd  %%instruction + %2 - NAME(Start)
+    %rotate 2
+    %rep %0 - 2
+        dd      %1
+        %rotate 1
+    %endrep
+
+BEGINCODE
+%%instruction:
+%endmacro
+
+
+;; IMPORTANT all COM_ functions trashes esi, some edi and the LOOP_SHORT_WHILE kills ecx.
+;%define DEBUG_STUFF 1
+
+%ifdef DEBUG_STUFF
+    %define DEBUG_CHAR(ch)      COM_CHAR ch
+    %define DEBUG32_CHAR(ch)    COM_CHAR ch
+    %define DEBUG64_CHAR(ch)    COM_CHAR ch
+    %define DEBUG_S_CHAR(ch)    COM_S_CHAR ch
+    %define DEBUG32_S_CHAR(ch)  COM32_S_CHAR ch
+    %define DEBUG64_S_CHAR(ch)  COM64_S_CHAR ch
+%else
+    %define DEBUG_CHAR(ch)
+    %define DEBUG32_CHAR(ch)
+    %define DEBUG64_CHAR(ch)
+    %define DEBUG_S_CHAR(ch)
+    %define DEBUG32_S_CHAR(ch)
+    %define DEBUG64_S_CHAR(ch)
+%endif
+
+%endif ; !___VMMSwitcher_mac
+

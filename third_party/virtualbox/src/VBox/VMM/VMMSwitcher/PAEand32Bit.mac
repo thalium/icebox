@@ -1,0 +1,1148 @@
+; $Id: PAEand32Bit.mac $
+;; @file
+; VMM - World Switchers, template for PAE and 32-Bit.
+;
+
+;
+; Copyright (C) 2006-2017 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+;%define DEBUG_STUFF 1
+
+;*******************************************************************************
+;* Header Files                                                                *
+;*******************************************************************************
+%include "VBox/asmdefs.mac"
+%include "VBox/apic.mac"
+%include "iprt/x86.mac"
+%include "VBox/vmm/cpum.mac"
+%include "VBox/vmm/stam.mac"
+%include "VBox/vmm/vm.mac"
+%include "VBox/err.mac"
+%include "CPUMInternal.mac"
+%include "VMMSwitcher.mac"
+
+%undef NEED_ID
+%ifdef NEED_PAE_ON_32BIT_HOST
+%define NEED_ID
+%endif
+%ifdef NEED_32BIT_ON_PAE_HOST
+%define NEED_ID
+%endif
+
+
+
+;
+; Start the fixup records
+;   We collect the fixups in the .data section as we go along
+;   It is therefore VITAL that no-one is using the .data section
+;   for anything else between 'Start' and 'End'.
+;
+BEGINDATA
+GLOBALNAME Fixups
+
+
+
+BEGINCODE
+GLOBALNAME Start
+
+;;
+; The C interface.
+;
+BEGINPROC vmmR0ToRawMode
+
+%ifdef DEBUG_STUFF
+    COM_S_NEWLINE
+    COM_S_CHAR '^'
+%endif
+
+%ifdef VBOX_WITH_STATISTICS
+    ;
+    ; Switcher stats.
+    ;
+    FIXUP FIX_HC_VM_OFF, 1, VM.StatSwitcherToGC
+    mov     edx, 0ffffffffh
+    STAM_PROFILE_ADV_START edx
+%endif
+
+    ;
+    ; Call worker.
+    ;
+    FIXUP FIX_HC_CPUM_OFF, 1, 0
+    mov     edx, 0ffffffffh
+    push    cs                          ; allow for far return and restore cs correctly.
+    call    NAME(vmmR0ToRawModeAsm)
+
+%ifdef VBOX_WITH_VMMR0_DISABLE_LAPIC_NMI
+    ; Restore blocked Local APIC NMI vectors
+    ; Do this here to ensure the host CS is already restored
+    mov     ecx, [edx + CPUMCPU.fApicDisVectors]
+    test    ecx, ecx
+    jz      gth_apic_done
+    cmp     byte [edx + CPUMCPU.fX2Apic], 1
+    je      gth_x2apic
+
+    ; Legacy xAPIC mode:
+    mov     edx, [edx + CPUMCPU.pvApicBase]
+    shr     ecx, 1
+    jnc     gth_nolint0
+    and     dword [edx + APIC_REG_LVT_LINT0], ~APIC_REG_LVT_MASKED
+gth_nolint0:
+    shr     ecx, 1
+    jnc     gth_nolint1
+    and     dword [edx + APIC_REG_LVT_LINT1], ~APIC_REG_LVT_MASKED
+gth_nolint1:
+    shr     ecx, 1
+    jnc     gth_nopc
+    and     dword [edx + APIC_REG_LVT_PC], ~APIC_REG_LVT_MASKED
+gth_nopc:
+    shr     ecx, 1
+    jnc     gth_notherm
+    and     dword [edx + APIC_REG_LVT_THMR], ~APIC_REG_LVT_MASKED
+gth_notherm:
+    shr     ecx, 1
+    jnc     gth_nocmci
+    and     dword [edx + APIC_REG_LVT_CMCI], ~APIC_REG_LVT_MASKED
+gth_nocmci:
+    jmp     gth_apic_done
+
+    ; x2APIC mode:
+gth_x2apic:
+    push    eax                         ; save eax
+    push    ebx                         ; save it for fApicDisVectors
+    push    edx                         ; save edx just in case.
+    mov     ebx, ecx                    ; ebx = fApicDisVectors, ecx free for MSR use
+    shr     ebx, 1
+    jnc     gth_x2_nolint0
+    mov     ecx, MSR_IA32_X2APIC_START + (APIC_REG_LVT_LINT0 >> 4)
+    rdmsr
+    and     eax, ~APIC_REG_LVT_MASKED
+    wrmsr
+gth_x2_nolint0:
+    shr     ebx, 1
+    jnc     gth_x2_nolint1
+    mov     ecx, MSR_IA32_X2APIC_START + (APIC_REG_LVT_LINT1 >> 4)
+    rdmsr
+    and     eax, ~APIC_REG_LVT_MASKED
+    wrmsr
+gth_x2_nolint1:
+    shr     ebx, 1
+    jnc     gth_x2_nopc
+    mov     ecx, MSR_IA32_X2APIC_START + (APIC_REG_LVT_PC >> 4)
+    rdmsr
+    and     eax, ~APIC_REG_LVT_MASKED
+    wrmsr
+gth_x2_nopc:
+    shr     ebx, 1
+    jnc     gth_x2_notherm
+    mov     ecx, MSR_IA32_X2APIC_START + (APIC_REG_LVT_THMR >> 4)
+    rdmsr
+    and     eax, ~APIC_REG_LVT_MASKED
+    wrmsr
+gth_x2_notherm:
+    shr     ebx, 1
+    jnc     gth_x2_nocmci
+    mov     ecx, MSR_IA32_X2APIC_START + (APIC_REG_LVT_CMCI >> 4)
+    rdmsr
+    and     eax, ~APIC_REG_LVT_MASKED
+    wrmsr
+gth_x2_nocmci:
+    pop     edx
+    pop     ebx
+    pop     eax
+
+gth_apic_done:
+%endif ; VBOX_WITH_VMMR0_DISABLE_LAPIC_NMI
+
+%ifdef VBOX_WITH_STATISTICS
+    ;
+    ; Switcher stats.
+    ;
+    FIXUP FIX_HC_VM_OFF, 1, VM.StatSwitcherToHC
+    mov     edx, 0ffffffffh
+    STAM_PROFILE_ADV_STOP edx
+%endif
+
+    ret
+ENDPROC vmmR0ToRawMode
+
+
+
+; *****************************************************************************
+; vmmR0ToRawModeAsm
+;
+; Phase one of the switch from host to guest context (host MMU context)
+;
+; INPUT:
+;       - edx       virtual address of CPUM structure (valid in host context)
+;
+; USES/DESTROYS:
+;       - eax, ecx, edx
+;
+; ASSUMPTION:
+;       - current CS and DS selectors are wide open
+;
+; *****************************************************************************
+ALIGNCODE(16)
+BEGINPROC vmmR0ToRawModeAsm
+    ;;
+    ;; Save CPU host context
+    ;;      Skip eax, edx and ecx as these are not preserved over calls.
+    ;;
+    CPUMCPU_FROM_CPUM(edx)
+    ; general registers.
+    mov     [edx + CPUMCPU.Host.ebx], ebx
+    mov     [edx + CPUMCPU.Host.edi], edi
+    mov     [edx + CPUMCPU.Host.esi], esi
+    mov     [edx + CPUMCPU.Host.esp], esp
+    mov     [edx + CPUMCPU.Host.ebp], ebp
+    ; selectors.
+    mov     [edx + CPUMCPU.Host.ds], ds
+    mov     [edx + CPUMCPU.Host.es], es
+    mov     [edx + CPUMCPU.Host.fs], fs
+    mov     [edx + CPUMCPU.Host.gs], gs
+    mov     [edx + CPUMCPU.Host.ss], ss
+    ; special registers.
+    sldt    [edx + CPUMCPU.Host.ldtr]
+    sidt    [edx + CPUMCPU.Host.idtr]
+    sgdt    [edx + CPUMCPU.Host.gdtr]
+    str     [edx + CPUMCPU.Host.tr]
+    ; flags
+    pushfd
+    pop     dword [edx + CPUMCPU.Host.eflags]
+
+%ifdef VBOX_WITH_VMMR0_DISABLE_LAPIC_NMI
+    ; Block Local APIC NMI vectors
+    cmp     byte [edx + CPUMCPU.fX2Apic], 1
+    je      htg_x2apic
+
+    ; Legacy xAPIC mode. No write completion required when writing to the
+    ; LVT registers as we have mapped the APIC page non-cacheable and the
+    ; MMIO is CPU-local.
+    mov     ebx, [edx + CPUMCPU.pvApicBase]
+    or      ebx, ebx
+    jz      htg_apic_done
+    xor     edi, edi                    ; fApicDisVectors
+
+    mov     eax, [ebx + APIC_REG_LVT_LINT0]
+    mov     ecx, eax
+    and     ecx, (APIC_REG_LVT_MASKED | APIC_REG_LVT_MODE_MASK)
+    cmp     ecx, APIC_REG_LVT_MODE_NMI
+    jne     htg_nolint0
+    or      edi, 0x01
+    or      eax, APIC_REG_LVT_MASKED
+    mov     [ebx + APIC_REG_LVT_LINT0], eax
+htg_nolint0:
+    mov     eax, [ebx + APIC_REG_LVT_LINT1]
+    mov     ecx, eax
+    and     ecx, (APIC_REG_LVT_MASKED | APIC_REG_LVT_MODE_MASK)
+    cmp     ecx, APIC_REG_LVT_MODE_NMI
+    jne     htg_nolint1
+    or      edi, 0x02
+    or      eax, APIC_REG_LVT_MASKED
+    mov     [ebx + APIC_REG_LVT_LINT1], eax
+htg_nolint1:
+    mov     eax, [ebx + APIC_REG_LVT_PC]
+    mov     ecx, eax
+    and     ecx, (APIC_REG_LVT_MASKED | APIC_REG_LVT_MODE_MASK)
+    cmp     ecx, APIC_REG_LVT_MODE_NMI
+    jne     htg_nopc
+    or      edi, 0x04
+    or      eax, APIC_REG_LVT_MASKED
+    mov     [ebx + APIC_REG_LVT_PC], eax
+htg_nopc:
+    mov     eax, [ebx + APIC_REG_VERSION]
+    shr     eax, 16
+    cmp     al, 5
+    jb      htg_notherm
+    je      htg_nocmci
+    mov     eax, [ebx + APIC_REG_LVT_CMCI]
+    mov     ecx, eax
+    and     ecx, (APIC_REG_LVT_MASKED | APIC_REG_LVT_MODE_MASK)
+    cmp     ecx, APIC_REG_LVT_MODE_NMI
+    jne     htg_nocmci
+    or      edi, 0x10
+    or      eax, APIC_REG_LVT_MASKED
+    mov     [ebx + APIC_REG_LVT_CMCI], eax
+htg_nocmci:
+    mov     eax, [ebx + APIC_REG_LVT_THMR]
+    mov     ecx, eax
+    and     ecx, (APIC_REG_LVT_MASKED | APIC_REG_LVT_MODE_MASK)
+    cmp     ecx, APIC_REG_LVT_MODE_NMI
+    jne     htg_notherm
+    or      edi, 0x08
+    or      eax, APIC_REG_LVT_MASKED
+    mov     [ebx + APIC_REG_LVT_THMR], eax
+htg_notherm:
+    mov     [edx + CPUMCPU.fApicDisVectors], edi
+    jmp     htg_apic_done
+
+    ; x2APIC mode:
+htg_x2apic:
+    mov     esi, edx                    ; Save edx.
+    xor     edi, edi                    ; fApicDisVectors
+
+    mov     ecx, MSR_IA32_X2APIC_START + (APIC_REG_LVT_LINT0 >> 4)
+    rdmsr
+    mov     ebx, eax
+    and     ebx, (APIC_REG_LVT_MASKED | APIC_REG_LVT_MODE_MASK)
+    cmp     ebx, APIC_REG_LVT_MODE_NMI
+    jne     htg_x2_nolint0
+    or      edi, 0x01
+    or      eax, APIC_REG_LVT_MASKED
+    wrmsr
+htg_x2_nolint0:
+    mov     ecx, MSR_IA32_X2APIC_START + (APIC_REG_LVT_LINT1 >> 4)
+    rdmsr
+    mov     ebx, eax
+    and     ebx, (APIC_REG_LVT_MASKED | APIC_REG_LVT_MODE_MASK)
+    cmp     ebx, APIC_REG_LVT_MODE_NMI
+    jne     htg_x2_nolint1
+    or      edi, 0x02
+    or      eax, APIC_REG_LVT_MASKED
+    wrmsr
+htg_x2_nolint1:
+    mov     ecx, MSR_IA32_X2APIC_START + (APIC_REG_LVT_PC >> 4)
+    rdmsr
+    mov     ebx, eax
+    and     ebx, (APIC_REG_LVT_MASKED | APIC_REG_LVT_MODE_MASK)
+    cmp     ebx, APIC_REG_LVT_MODE_NMI
+    jne     htg_x2_nopc
+    or      edi, 0x04
+    or      eax, APIC_REG_LVT_MASKED
+    wrmsr
+htg_x2_nopc:
+    mov     ecx, MSR_IA32_X2APIC_START + (APIC_REG_VERSION >> 4)
+    rdmsr
+    shr     eax, 16
+    cmp     al, 5
+    jb      htg_x2_notherm
+    je      htg_x2_nocmci
+    mov     ecx, MSR_IA32_X2APIC_START + (APIC_REG_LVT_CMCI >> 4)
+    rdmsr
+    mov     ebx, eax
+    and     ebx, (APIC_REG_LVT_MASKED | APIC_REG_LVT_MODE_MASK)
+    cmp     ebx, APIC_REG_LVT_MODE_NMI
+    jne     htg_x2_nocmci
+    or      edi, 0x10
+    or      eax, APIC_REG_LVT_MASKED
+    wrmsr
+htg_x2_nocmci:
+    mov     ecx, MSR_IA32_X2APIC_START + (APIC_REG_LVT_THMR >> 4)
+    rdmsr
+    mov     ebx, eax
+    and     ebx, (APIC_REG_LVT_MASKED | APIC_REG_LVT_MODE_MASK)
+    cmp     ebx, APIC_REG_LVT_MODE_NMI
+    jne     htg_x2_notherm
+    or      edi, 0x08
+    or      eax, APIC_REG_LVT_MASKED
+    wrmsr
+htg_x2_notherm:
+    mov     edx, esi                    ; Restore edx.
+    mov     [edx + CPUMCPU.fApicDisVectors], edi
+
+htg_apic_done:
+%endif ; VBOX_WITH_VMMR0_DISABLE_LAPIC_NMI
+
+    FIXUP FIX_NO_SYSENTER_JMP, 0, htg_no_sysenter - NAME(Start) ; this will insert a jmp htg_no_sysenter if host doesn't use sysenter.
+    ; save MSR_IA32_SYSENTER_CS register.
+    mov     ecx, MSR_IA32_SYSENTER_CS
+    mov     ebx, edx                    ; save edx
+    rdmsr                               ; edx:eax <- MSR[ecx]
+    mov     [ebx + CPUMCPU.Host.SysEnter.cs], eax
+    mov     [ebx + CPUMCPU.Host.SysEnter.cs + 4], edx
+    xor     eax, eax                    ; load 0:0 to cause #GP upon sysenter
+    xor     edx, edx
+    wrmsr
+    xchg    ebx, edx                    ; restore edx
+    jmp short htg_no_sysenter
+
+ALIGNCODE(16)
+htg_no_sysenter:
+
+    FIXUP FIX_NO_SYSCALL_JMP, 0, htg_no_syscall - NAME(Start) ; this will insert a jmp htg_no_syscall if host doesn't use syscall.
+    ; clear MSR_K6_EFER_SCE.
+    mov     ebx, edx                    ; save edx
+    mov     ecx, MSR_K6_EFER
+    rdmsr                               ; edx:eax <- MSR[ecx]
+    and     eax, ~MSR_K6_EFER_SCE
+    wrmsr
+    mov     edx, ebx                    ; restore edx
+    jmp short htg_no_syscall
+
+ALIGNCODE(16)
+htg_no_syscall:
+
+    ;; handle use flags.
+    mov     esi, [edx + CPUMCPU.fUseFlags] ; esi == use flags.
+    and     esi, ~(CPUM_USED_FPU_GUEST | CPUM_USED_FPU_HOST) ; Clear CPUM_USED_* flags.
+    mov     [edx + CPUMCPU.fUseFlags], esi
+
+    ; debug registers.
+    test    esi, CPUM_USE_DEBUG_REGS_HYPER | CPUM_USE_DEBUG_REGS_HOST
+    jnz     htg_debug_regs_save_dr7and6
+htg_debug_regs_no:
+
+    ; control registers.
+    mov     eax, cr0
+    mov     [edx + CPUMCPU.Host.cr0], eax
+    ;mov     eax, cr2                   ; assume host os don't suff things in cr2. (safe)
+    ;mov     [edx + CPUMCPU.Host.cr2], eax
+    mov     eax, cr3
+    mov     [edx + CPUMCPU.Host.cr3], eax
+    mov     eax, cr4
+    mov     [edx + CPUMCPU.Host.cr4], eax
+
+    ;;
+    ;; Start switching to VMM context.
+    ;;
+
+    ;
+    ; Change CR0 and CR4 so we can correctly emulate FPU/MMX/SSE[23] exceptions
+    ; Also disable WP. (eax==cr4 now)
+    ; Note! X86_CR4_PSE and X86_CR4_PAE are important if the host thinks so :-)
+    ; Note! X86_CR4_VMXE must not be touched in case the CPU is in vmx root mode
+    ;
+    and     eax, X86_CR4_MCE | X86_CR4_PSE | X86_CR4_PAE | X86_CR4_VMXE
+    mov     ecx, [edx + CPUMCPU.Guest.cr4]
+    ;; @todo Switcher cleanup: Determine base CR4 during CPUMR0Init / VMMR3SelectSwitcher putting it
+    ;                          in CPUMCPU.Hyper.cr4 (which isn't currently being used). That should
+    ;                          simplify this operation a bit (and improve locality of the data).
+
+    ;
+    ; CR4.AndMask and CR4.OrMask are set in CPUMR3Init based on the presence of
+    ; FXSAVE and XSAVE support on the host CPU
+    ;
+    CPUM_FROM_CPUMCPU(edx)
+    and     ecx, [edx + CPUM.CR4.AndMask]
+    or      eax, ecx
+    or      eax, [edx + CPUM.CR4.OrMask]
+    mov     cr4, eax
+
+    CPUMCPU_FROM_CPUM(edx)
+    mov     eax, [edx + CPUMCPU.Guest.cr0]
+    and     eax, X86_CR0_EM
+    or      eax, X86_CR0_PE | X86_CR0_PG | X86_CR0_TS | X86_CR0_ET | X86_CR0_NE | X86_CR0_MP
+    mov     cr0, eax
+
+    ; Load new gdt so we can do far jump to guest code after cr3 reload.
+    lgdt    [edx + CPUMCPU.Hyper.gdtr]
+    DEBUG_CHAR('1')                     ; trashes esi
+
+    ; Store the hypervisor cr3 for later loading
+    mov     ebp, [edx + CPUMCPU.Hyper.cr3]
+
+    ;;
+    ;; Load Intermediate memory context.
+    ;;
+    FIXUP SWITCHER_FIX_INTER_CR3_HC, 1
+    mov     eax, 0ffffffffh
+    mov     cr3, eax
+    DEBUG_CHAR('2')                     ; trashes esi
+
+%ifdef NEED_ID
+    ;;
+    ;; Jump to identity mapped location
+    ;;
+    FIXUP FIX_HC_2_ID_NEAR_REL, 1, NAME(IDEnterTarget) - NAME(Start)
+    jmp near NAME(IDEnterTarget)
+
+    ; We're now on identity mapped pages!
+ALIGNCODE(16)
+GLOBALNAME IDEnterTarget
+    DEBUG_CHAR('3')
+    mov     edx, cr4
+%ifdef NEED_PAE_ON_32BIT_HOST
+    or      edx, X86_CR4_PAE
+%else
+    and     edx, ~X86_CR4_PAE
+%endif
+    mov     eax, cr0
+    and     eax, (~X86_CR0_PG) & 0xffffffff ; prevent yasm warning
+    mov     cr0, eax
+    DEBUG_CHAR('4')
+    mov     cr4, edx
+    FIXUP SWITCHER_FIX_INTER_CR3_GC, 1
+    mov     edx, 0ffffffffh
+    mov     cr3, edx
+    or      eax, X86_CR0_PG
+    DEBUG_CHAR('5')
+    mov     cr0, eax
+    DEBUG_CHAR('6')
+%endif
+
+    ;;
+    ;; Jump to guest code mapping of the code and load the Hypervisor CS.
+    ;;
+    FIXUP FIX_GC_FAR32, 1, NAME(FarJmpGCTarget) - NAME(Start)
+    jmp     0fff8h:0deadfaceh
+
+
+    ;;
+    ;; When we arrive at this label we're at the
+    ;; guest code mapping of the switching code.
+    ;;
+ALIGNCODE(16)
+GLOBALNAME FarJmpGCTarget
+    DEBUG_CHAR('-')
+    ; load final cr3 and do far jump to load cs.
+    mov     cr3, ebp            ; ebp set above
+    DEBUG_CHAR('0')
+
+    ;;
+    ;; We're in VMM MMU context and VMM CS is loaded.
+    ;; Setup the rest of the VMM state.
+    ;;
+    FIXUP FIX_GC_CPUMCPU_OFF, 1, 0
+    mov     edx, 0ffffffffh
+    ; Activate guest IDT
+    DEBUG_CHAR('1')
+    lidt    [edx + CPUMCPU.Hyper.idtr]
+    ; Load selectors
+    DEBUG_CHAR('2')
+    FIXUP FIX_HYPER_DS, 1
+    mov     eax, 0ffffh
+    mov     ds, eax
+    mov     es, eax
+    xor     eax, eax
+    mov     gs, eax
+    mov     fs, eax
+
+    ; Setup stack.
+    DEBUG_CHAR('3')
+    mov     eax, [edx + CPUMCPU.Hyper.ss.Sel]
+    mov     ss, ax
+    mov     esp, [edx + CPUMCPU.Hyper.esp]
+
+    ; Restore TSS selector; must mark it as not busy before using ltr (!)
+    DEBUG_CHAR('4')
+    FIXUP FIX_GC_TSS_GDTE_DW2, 2
+    and     dword [0ffffffffh], ~0200h      ; clear busy flag (2nd type2 bit)
+    DEBUG_CHAR('5')
+    ltr     word [edx + CPUMCPU.Hyper.tr.Sel]
+    DEBUG_CHAR('6')
+
+    ; Activate the ldt (now we can safely crash).
+    lldt    [edx + CPUMCPU.Hyper.ldtr.Sel]
+    DEBUG_CHAR('7')
+
+    ;; use flags.
+    mov     esi, [edx + CPUMCPU.fUseFlags]
+
+    ; debug registers
+    test    esi, CPUM_USE_DEBUG_REGS_HYPER
+    jnz     htg_debug_regs_guest
+htg_debug_regs_guest_done:
+    DEBUG_CHAR('9')
+
+%ifdef VBOX_WITH_NMI
+    ;
+    ; Setup K7 NMI.
+    ;
+    mov     esi, edx
+    ; clear all PerfEvtSeln registers
+    xor     eax, eax
+    xor     edx, edx
+    mov     ecx, MSR_K7_PERFCTR0
+    wrmsr
+    mov     ecx, MSR_K7_PERFCTR1
+    wrmsr
+    mov     ecx, MSR_K7_PERFCTR2
+    wrmsr
+    mov     ecx, MSR_K7_PERFCTR3
+    wrmsr
+
+    mov     eax, RT_BIT(20) | RT_BIT(17) | RT_BIT(16) | 076h
+    mov     ecx, MSR_K7_EVNTSEL0
+    wrmsr
+    mov     eax, 02329B000h
+    mov     edx, 0fffffffeh ; -1.6GHz * 5
+    mov     ecx, MSR_K7_PERFCTR0
+    wrmsr
+
+    FIXUP FIX_GC_APIC_BASE_32BIT, 1
+    mov     eax, 0f0f0f0f0h
+    add     eax, 0340h                  ; APIC_LVTPC
+    mov     dword [eax], 0400h          ; APIC_DM_NMI
+
+    xor     edx, edx
+    mov     eax, RT_BIT(20) | RT_BIT(17) | RT_BIT(16) | 076h | RT_BIT(22) ;+EN
+    mov     ecx, MSR_K7_EVNTSEL0
+    wrmsr
+
+    mov     edx, esi
+%endif
+
+    ; General registers (sans edx).
+    mov     eax, [edx + CPUMCPU.Hyper.eax]
+    mov     ebx, [edx + CPUMCPU.Hyper.ebx]
+    mov     ecx, [edx + CPUMCPU.Hyper.ecx]
+    mov     ebp, [edx + CPUMCPU.Hyper.ebp]
+    mov     esi, [edx + CPUMCPU.Hyper.esi]
+    mov     edi, [edx + CPUMCPU.Hyper.edi]
+    DEBUG_S_CHAR('!')
+
+    ;;
+    ;; Return to the VMM code which either called the switcher or
+    ;; the code set up to run by HC.
+    ;;
+    push    dword [edx + CPUMCPU.Hyper.eflags]
+    push    cs
+    push    dword [edx + CPUMCPU.Hyper.eip]
+    mov     edx, [edx + CPUMCPU.Hyper.edx]      ; !! edx is no longer pointing to CPUMCPU here !!
+
+%ifdef DEBUG_STUFF
+    COM_S_PRINT ';eip='
+    push    eax
+    mov     eax, [esp + 8]
+    COM_S_DWORD_REG eax
+    pop     eax
+    COM_S_CHAR ';'
+%endif
+%ifdef VBOX_WITH_STATISTICS
+    push    edx
+    FIXUP FIX_GC_VM_OFF, 1, VM.StatSwitcherToGC
+    mov     edx, 0ffffffffh
+    STAM_PROFILE_ADV_STOP edx
+    pop     edx
+%endif
+
+    iret                                ; Use iret to make debugging and TF/RF work.
+
+;;
+; Detour for saving the host DR7 and DR6.
+; esi and edx must be preserved.
+htg_debug_regs_save_dr7and6:
+DEBUG_S_CHAR('s');
+    mov     eax, dr7                    ; not sure, but if I read the docs right this will trap if GD is set. FIXME!!!
+    mov     [edx + CPUMCPU.Host.dr7], eax
+    xor     eax, eax                    ; clear everything. (bit 12? is read as 1...)
+    mov     dr7, eax
+    mov     eax, dr6                    ; just in case we save the state register too.
+    mov     [edx + CPUMCPU.Host.dr6], eax
+    jmp     htg_debug_regs_no
+
+;;
+; Detour for saving host DR0-3 and loading hypervisor debug registers.
+; esi and edx must be preserved.
+htg_debug_regs_guest:
+    DEBUG_S_CHAR('D')
+    DEBUG_S_CHAR('R')
+    DEBUG_S_CHAR('x')
+    ; save host DR0-3.
+    mov     eax, dr0
+    mov     [edx + CPUMCPU.Host.dr0], eax
+    mov     ebx, dr1
+    mov     [edx + CPUMCPU.Host.dr1], ebx
+    mov     ecx, dr2
+    mov     [edx + CPUMCPU.Host.dr2], ecx
+    mov     eax, dr3
+    mov     [edx + CPUMCPU.Host.dr3], eax
+    or      dword [edx + CPUMCPU.fUseFlags], CPUM_USED_DEBUG_REGS_HOST
+
+    ; load hyper DR0-7
+    mov     ebx, [edx + CPUMCPU.Hyper.dr]
+    mov     dr0, ebx
+    mov     ecx, [edx + CPUMCPU.Hyper.dr + 8*1]
+    mov     dr1, ecx
+    mov     eax, [edx + CPUMCPU.Hyper.dr + 8*2]
+    mov     dr2, eax
+    mov     ebx, [edx + CPUMCPU.Hyper.dr + 8*3]
+    mov     dr3, ebx
+    mov     ecx, X86_DR6_INIT_VAL
+    mov     dr6, ecx
+    mov     eax, [edx + CPUMCPU.Hyper.dr + 8*7]
+    mov     dr7, eax
+    or      dword [edx + CPUMCPU.fUseFlags], CPUM_USED_DEBUG_REGS_HYPER
+    jmp     htg_debug_regs_guest_done
+
+ENDPROC vmmR0ToRawModeAsm
+
+
+;;
+; Trampoline for doing a call when starting the hyper visor execution.
+;
+; Push any arguments to the routine.
+; Push the argument frame size (cArg * 4).
+; Push the call target (_cdecl convention).
+; Push the address of this routine.
+;
+;
+ALIGNCODE(16)
+BEGINPROC vmmRCCallTrampoline
+%ifdef DEBUG_STUFF
+    COM_S_CHAR 'c'
+    COM_S_CHAR 't'
+    COM_S_CHAR '!'
+%endif
+
+    ; call routine
+    pop     eax                         ; call address
+    pop     edi                         ; argument count.
+%ifdef DEBUG_STUFF
+    COM_S_PRINT ';eax='
+    COM_S_DWORD_REG eax
+    COM_S_CHAR ';'
+%endif
+    call    eax                         ; do call
+    add     esp, edi                    ; cleanup stack
+
+    ; return to the host context.
+%ifdef DEBUG_STUFF
+    COM_S_CHAR '`'
+%endif
+.to_host_again:
+    call    NAME(vmmRCToHostAsm)
+    mov     eax, VERR_VMM_SWITCHER_IPE_1
+    jmp     .to_host_again
+ENDPROC vmmRCCallTrampoline
+
+
+
+;;
+; The C interface.
+;
+ALIGNCODE(16)
+BEGINPROC vmmRCToHost
+%ifdef DEBUG_STUFF
+    push    esi
+    COM_NEWLINE
+    DEBUG_CHAR('b')
+    DEBUG_CHAR('a')
+    DEBUG_CHAR('c')
+    DEBUG_CHAR('k')
+    DEBUG_CHAR('!')
+    COM_NEWLINE
+    pop     esi
+%endif
+    mov     eax, [esp + 4]
+    jmp     NAME(vmmRCToHostAsm)
+ENDPROC vmmRCToHost
+
+
+;;
+; vmmRCToHostAsmNoReturn
+;
+; This is an entry point used by TRPM when dealing with raw-mode traps,
+; i.e. traps in the hypervisor code.  This will not return and saves no
+; state, because the caller has already saved the state.
+;
+; @param    eax     Return code.
+;
+ALIGNCODE(16)
+BEGINPROC vmmRCToHostAsmNoReturn
+    DEBUG_S_CHAR('%')
+
+%ifdef VBOX_WITH_STATISTICS
+    FIXUP FIX_GC_VM_OFF, 1, VM.StatTotalInGC
+    mov     edx, 0ffffffffh
+    STAM32_PROFILE_ADV_STOP edx
+
+    FIXUP FIX_GC_VM_OFF, 1, VM.StatTotalGCToQemu
+    mov     edx, 0ffffffffh
+    STAM32_PROFILE_ADV_START edx
+
+    FIXUP FIX_GC_VM_OFF, 1, VM.StatSwitcherToHC
+    mov     edx, 0ffffffffh
+    STAM32_PROFILE_ADV_START edx
+%endif
+
+    FIXUP FIX_GC_CPUMCPU_OFF, 1, 0
+    mov     edx, 0ffffffffh
+
+    jmp     vmmRCToHostAsm_SaveNoGeneralRegs
+ENDPROC vmmRCToHostAsmNoReturn
+
+
+;;
+; vmmRCToHostAsm
+;
+; This is an entry point used by TRPM to return to host context when an
+; interrupt occured or an guest trap needs handling in host context.  It
+; is also used by the C interface above.
+;
+; The hypervisor context is saved and it will return to the caller if
+; host context so desires.
+;
+; @param    eax     Return code.
+; @uses     eax, edx, ecx (or it may use them in the future)
+;
+ALIGNCODE(16)
+BEGINPROC vmmRCToHostAsm
+    DEBUG_S_CHAR('%')
+    push    edx
+
+%ifdef VBOX_WITH_STATISTICS
+    FIXUP FIX_GC_VM_OFF, 1, VM.StatTotalInGC
+    mov     edx, 0ffffffffh
+    STAM_PROFILE_ADV_STOP edx
+
+    FIXUP FIX_GC_VM_OFF, 1, VM.StatTotalGCToQemu
+    mov     edx, 0ffffffffh
+    STAM_PROFILE_ADV_START edx
+
+    FIXUP FIX_GC_VM_OFF, 1, VM.StatSwitcherToHC
+    mov     edx, 0ffffffffh
+    STAM_PROFILE_ADV_START edx
+%endif
+
+    ;
+    ; Load the CPUMCPU pointer.
+    ;
+    FIXUP FIX_GC_CPUMCPU_OFF, 1, 0
+    mov     edx, 0ffffffffh
+
+    ; Save register context.
+    pop     dword [edx + CPUMCPU.Hyper.edx]
+    pop     dword [edx + CPUMCPU.Hyper.eip] ; call return from stack
+    mov     dword [edx + CPUMCPU.Hyper.esp], esp
+    mov     dword [edx + CPUMCPU.Hyper.eax], eax
+    mov     dword [edx + CPUMCPU.Hyper.ebx], ebx
+    mov     dword [edx + CPUMCPU.Hyper.ecx], ecx
+    mov     dword [edx + CPUMCPU.Hyper.esi], esi
+    mov     dword [edx + CPUMCPU.Hyper.edi], edi
+    mov     dword [edx + CPUMCPU.Hyper.ebp], ebp
+
+    ; special registers which may change.
+vmmRCToHostAsm_SaveNoGeneralRegs:
+    mov     edi, eax                    ; save return code in EDI (careful with COM_DWORD_REG from here on!)
+    ; str     [edx + CPUMCPU.Hyper.tr] - double fault only, and it won't be right then either.
+    sldt    [edx + CPUMCPU.Hyper.ldtr.Sel]
+
+    ; No need to save CRx here. They are set dynamically according to Guest/Host requirements.
+    ; FPU context is saved before restore of host saving (another) branch.
+
+    ; Disable debug regsiters if active so they cannot trigger while switching.
+    test    dword [edx + CPUMCPU.fUseFlags], CPUM_USED_DEBUG_REGS_HYPER
+    jz      .gth_disabled_dr7
+    mov     eax, X86_DR7_INIT_VAL
+    mov     dr7, eax
+.gth_disabled_dr7:
+
+%ifdef VBOX_WITH_NMI
+    ;
+    ; Disarm K7 NMI.
+    ;
+    mov     esi, edx
+
+    xor     edx, edx
+    xor     eax, eax
+    mov     ecx, MSR_K7_EVNTSEL0
+    wrmsr
+
+    mov     edx, esi
+%endif
+
+
+    ;;
+    ;; Load Intermediate memory context.
+    ;;
+    mov     ecx, [edx + CPUMCPU.Host.cr3]
+    FIXUP SWITCHER_FIX_INTER_CR3_GC, 1
+    mov     eax, 0ffffffffh
+    mov     cr3, eax
+    DEBUG_CHAR('?')
+
+    ;; We're now in intermediate memory context!
+%ifdef NEED_ID
+    ;;
+    ;; Jump to identity mapped location
+    ;;
+    FIXUP FIX_GC_2_ID_NEAR_REL, 1, NAME(IDExitTarget) - NAME(Start)
+    jmp near NAME(IDExitTarget)
+
+    ; We're now on identity mapped pages!
+ALIGNCODE(16)
+GLOBALNAME IDExitTarget
+    DEBUG_CHAR('1')
+    mov     edx, cr4
+%ifdef NEED_PAE_ON_32BIT_HOST
+    and     edx, ~X86_CR4_PAE
+%else
+    or      edx, X86_CR4_PAE
+%endif
+    mov     eax, cr0
+    and     eax, (~X86_CR0_PG) & 0xffffffff ; prevent yasm warning
+    mov     cr0, eax
+    DEBUG_CHAR('2')
+    mov     cr4, edx
+    FIXUP SWITCHER_FIX_INTER_CR3_HC, 1
+    mov     edx, 0ffffffffh
+    mov     cr3, edx
+    or      eax, X86_CR0_PG
+    DEBUG_CHAR('3')
+    mov     cr0, eax
+    DEBUG_CHAR('4')
+
+    ;;
+    ;; Jump to HC mapping.
+    ;;
+    FIXUP FIX_ID_2_HC_NEAR_REL, 1, NAME(HCExitTarget) - NAME(Start)
+    jmp     near NAME(HCExitTarget)
+%else
+    ;;
+    ;; Jump to HC mapping.
+    ;;
+    FIXUP FIX_GC_2_HC_NEAR_REL, 1, NAME(HCExitTarget) - NAME(Start)
+    jmp     near NAME(HCExitTarget)
+%endif
+
+
+    ;
+    ; When we arrive here we're at the host context
+    ; mapping of the switcher code.
+    ;
+ALIGNCODE(16)
+GLOBALNAME HCExitTarget
+    DEBUG_CHAR('9')
+    ; load final cr3
+    mov     cr3, ecx
+    DEBUG_CHAR('@')
+
+
+    ;;
+    ;; Restore Host context.
+    ;;
+    ; Load CPUM pointer into edx
+    FIXUP FIX_HC_CPUM_OFF, 1, 0
+    mov     edx, 0ffffffffh
+    CPUMCPU_FROM_CPUM(edx)
+    ; activate host gdt and idt
+    lgdt    [edx + CPUMCPU.Host.gdtr]
+    DEBUG_CHAR('0')
+    lidt    [edx + CPUMCPU.Host.idtr]
+    DEBUG_CHAR('1')
+    ; Restore TSS selector; must mark it as not busy before using ltr (!)
+%if 1 ; ASSUME that this is supposed to be 'BUSY'. (saves 20-30 ticks on the T42p)
+    movzx   eax, word [edx + CPUMCPU.Host.tr]          ; eax <- TR
+    and     al, 0F8h                                ; mask away TI and RPL bits, get descriptor offset.
+    add     eax, [edx + CPUMCPU.Host.gdtr + 2]         ; eax <- GDTR.address + descriptor offset.
+    and     dword [eax + 4], ~0200h                 ; clear busy flag (2nd type2 bit)
+    ltr     word [edx + CPUMCPU.Host.tr]
+%else
+    movzx   eax, word [edx + CPUMCPU.Host.tr]          ; eax <- TR
+    and     al, 0F8h                                ; mask away TI and RPL bits, get descriptor offset.
+    add     eax, [edx + CPUMCPU.Host.gdtr + 2]         ; eax <- GDTR.address + descriptor offset.
+    mov     ecx, [eax + 4]                          ; ecx <- 2nd descriptor dword
+    mov     ebx, ecx                                ; save original value
+    and     ecx, ~0200h                             ; clear busy flag (2nd type2 bit)
+    mov     [eax + 4], ecx                          ; not using xchg here is paranoia..
+    ltr     word [edx + CPUMCPU.Host.tr]
+    xchg    [eax + 4], ebx                          ; using xchg is paranoia too...
+%endif
+    ; activate ldt
+    DEBUG_CHAR('2')
+    lldt    [edx + CPUMCPU.Host.ldtr]
+    ; Restore segment registers
+    mov     eax, [edx + CPUMCPU.Host.ds]
+    mov     ds, eax
+    mov     eax, [edx + CPUMCPU.Host.es]
+    mov     es, eax
+    mov     eax, [edx + CPUMCPU.Host.fs]
+    mov     fs, eax
+    mov     eax, [edx + CPUMCPU.Host.gs]
+    mov     gs, eax
+    ; restore stack
+    lss     esp, [edx + CPUMCPU.Host.esp]
+
+
+    FIXUP FIX_NO_SYSENTER_JMP, 0, gth_sysenter_no - NAME(Start) ; this will insert a jmp gth_sysenter_no if host doesn't use sysenter.
+    ; restore MSR_IA32_SYSENTER_CS register.
+    mov     ecx, MSR_IA32_SYSENTER_CS
+    mov     eax, [edx + CPUMCPU.Host.SysEnter.cs]
+    mov     ebx, [edx + CPUMCPU.Host.SysEnter.cs + 4]
+    xchg    edx, ebx                    ; save/load edx
+    wrmsr                               ; MSR[ecx] <- edx:eax
+    xchg    edx, ebx                    ; restore edx
+    jmp short gth_sysenter_no
+
+ALIGNCODE(16)
+gth_sysenter_no:
+
+    FIXUP FIX_NO_SYSCALL_JMP, 0, gth_syscall_no - NAME(Start) ; this will insert a jmp gth_syscall_no if host doesn't use syscall.
+    ; set MSR_K6_EFER_SCE.
+    mov     ebx, edx                    ; save edx
+    mov     ecx, MSR_K6_EFER
+    rdmsr
+    or      eax, MSR_K6_EFER_SCE
+    wrmsr
+    mov     edx, ebx                    ; restore edx
+    jmp short gth_syscall_no
+
+ALIGNCODE(16)
+gth_syscall_no:
+
+    ; Restore FPU if guest has used it.
+    ; Using fxrstor should ensure that we're not causing unwanted exception on the host.
+    mov     esi, [edx + CPUMCPU.fUseFlags] ; esi == use flags.
+    test    esi, (CPUM_USED_FPU_GUEST | CPUM_USED_FPU_HOST)
+    jz near gth_fpu_no
+    mov     ecx, cr0
+    and     ecx, ~(X86_CR0_TS | X86_CR0_EM)
+    mov     cr0, ecx
+
+    mov     ebx, edx                    ; save edx
+
+    test    esi, CPUM_USED_FPU_GUEST
+    jz      gth_fpu_host
+
+    mov     eax, [ebx + CPUMCPU.Guest.fXStateMask]
+    mov     ecx, [ebx + CPUMCPU.Guest.pXStateR0]
+    test    eax, eax
+    jz      gth_fpu_guest_fxsave
+    mov     edx, [ebx + CPUMCPU.Guest.fXStateMask + 4]
+    xsave   [ecx]
+    jmp     gth_fpu_host
+gth_fpu_guest_fxsave:
+    fxsave  [ecx]
+
+gth_fpu_host:
+    mov     eax, [ebx + CPUMCPU.Host.fXStateMask]
+    mov     ecx, [ebx + CPUMCPU.Host.pXStateR0]
+    test    eax, eax
+    jz      gth_fpu_host_fxrstor
+    mov     edx, [ebx + CPUMCPU.Host.fXStateMask + 4]
+    xrstor  [ecx]
+    jmp     gth_fpu_done
+gth_fpu_host_fxrstor:
+    fxrstor [ecx]
+
+gth_fpu_done:
+    mov     edx, ebx                    ; restore edx
+gth_fpu_no:
+
+    ; Control registers.
+    ; Would've liked to have these higher up in case of crashes, but
+    ; the fpu stuff must be done before we restore cr0.
+    mov     ecx, [edx + CPUMCPU.Host.cr4]
+    mov     cr4, ecx
+    mov     ecx, [edx + CPUMCPU.Host.cr0]
+    mov     cr0, ecx
+    ;mov     ecx, [edx + CPUMCPU.Host.cr2] ; assumes this is a waste of time.
+    ;mov     cr2, ecx
+
+    ; restore debug registers (if modified) (esi must still be fUseFlags!)
+    ; (must be done after cr4 reload because of the debug extension.)
+    test    esi, CPUM_USE_DEBUG_REGS_HYPER | CPUM_USE_DEBUG_REGS_HOST | CPUM_USED_DEBUG_REGS_HOST
+    jnz     gth_debug_regs_restore
+gth_debug_regs_done:
+
+    ; restore general registers.
+    mov     eax, edi                    ; restore return code. eax = return code !!
+    mov     edi, [edx + CPUMCPU.Host.edi]
+    mov     esi, [edx + CPUMCPU.Host.esi]
+    mov     ebx, [edx + CPUMCPU.Host.ebx]
+    mov     ebp, [edx + CPUMCPU.Host.ebp]
+    push    dword [edx + CPUMCPU.Host.eflags]
+    popfd
+
+%ifdef DEBUG_STUFF
+;    COM_S_CHAR '4'
+%endif
+    retf
+
+;;
+; Detour for restoring the host debug registers.
+; edx and edi must be preserved.
+gth_debug_regs_restore:
+    DEBUG_S_CHAR('d')
+    mov     eax, dr7                    ; Some DR7 paranoia first...
+    mov     ecx, X86_DR7_INIT_VAL
+    cmp     eax, ecx
+    je      .gth_debug_skip_dr7_disabling
+    mov     dr7, ecx
+.gth_debug_skip_dr7_disabling:
+    test    esi, CPUM_USED_DEBUG_REGS_HOST
+    jz      .gth_debug_regs_dr7
+
+    DEBUG_S_CHAR('r')
+    mov     eax, [edx + CPUMCPU.Host.dr0]
+    mov     dr0, eax
+    mov     ebx, [edx + CPUMCPU.Host.dr1]
+    mov     dr1, ebx
+    mov     ecx, [edx + CPUMCPU.Host.dr2]
+    mov     dr2, ecx
+    mov     eax, [edx + CPUMCPU.Host.dr3]
+    mov     dr3, eax
+.gth_debug_regs_dr7:
+    mov     ebx, [edx + CPUMCPU.Host.dr6]
+    mov     dr6, ebx
+    mov     ecx, [edx + CPUMCPU.Host.dr7]
+    mov     dr7, ecx
+
+    and     dword [edx + CPUMCPU.fUseFlags], ~(CPUM_USED_DEBUG_REGS_HOST | CPUM_USED_DEBUG_REGS_HYPER)
+    jmp     gth_debug_regs_done
+
+ENDPROC vmmRCToHostAsm
+
+
+GLOBALNAME End
+;
+; The description string (in the text section).
+;
+NAME(Description):
+    db SWITCHER_DESCRIPTION
+    db 0
+
+extern NAME(Relocate)
+
+;
+; End the fixup records.
+;
+BEGINDATA
+    db FIX_THE_END                      ; final entry.
+GLOBALNAME FixupsEnd
+
+;;
+; The switcher definition structure.
+ALIGNDATA(16)
+GLOBALNAME Def
+    istruc VMMSWITCHERDEF
+        at VMMSWITCHERDEF.pvCode,                       RTCCPTR_DEF NAME(Start)
+        at VMMSWITCHERDEF.pvFixups,                     RTCCPTR_DEF NAME(Fixups)
+        at VMMSWITCHERDEF.pszDesc,                      RTCCPTR_DEF NAME(Description)
+        at VMMSWITCHERDEF.pfnRelocate,                  RTCCPTR_DEF NAME(Relocate)
+        at VMMSWITCHERDEF.enmType,                      dd SWITCHER_TYPE
+        at VMMSWITCHERDEF.cbCode,                       dd NAME(End)                        - NAME(Start)
+        at VMMSWITCHERDEF.offR0ToRawMode,               dd NAME(vmmR0ToRawMode)             - NAME(Start)
+        at VMMSWITCHERDEF.offRCToHost,                  dd NAME(vmmRCToHost)                - NAME(Start)
+        at VMMSWITCHERDEF.offRCCallTrampoline,          dd NAME(vmmRCCallTrampoline)        - NAME(Start)
+        at VMMSWITCHERDEF.offRCToHostAsm,               dd NAME(vmmRCToHostAsm)             - NAME(Start)
+        at VMMSWITCHERDEF.offRCToHostAsmNoReturn,       dd NAME(vmmRCToHostAsmNoReturn)     - NAME(Start)
+        ; disasm help
+        at VMMSWITCHERDEF.offHCCode0,                   dd 0
+%ifdef NEED_ID
+        at VMMSWITCHERDEF.cbHCCode0,                    dd NAME(IDEnterTarget)              - NAME(Start)
+%else
+        at VMMSWITCHERDEF.cbHCCode0,                    dd NAME(FarJmpGCTarget)             - NAME(Start)
+%endif
+        at VMMSWITCHERDEF.offHCCode1,                   dd NAME(HCExitTarget)               - NAME(Start)
+        at VMMSWITCHERDEF.cbHCCode1,                    dd NAME(End)                        - NAME(HCExitTarget)
+%ifdef NEED_ID
+        at VMMSWITCHERDEF.offIDCode0,                   dd NAME(IDEnterTarget)              - NAME(Start)
+        at VMMSWITCHERDEF.cbIDCode0,                    dd NAME(FarJmpGCTarget)             - NAME(IDEnterTarget)
+        at VMMSWITCHERDEF.offIDCode1,                   dd NAME(IDExitTarget)               - NAME(Start)
+        at VMMSWITCHERDEF.cbIDCode1,                    dd NAME(HCExitTarget)               - NAME(IDExitTarget)
+%else
+        at VMMSWITCHERDEF.offIDCode0,                   dd 0
+        at VMMSWITCHERDEF.cbIDCode0,                    dd 0
+        at VMMSWITCHERDEF.offIDCode1,                   dd 0
+        at VMMSWITCHERDEF.cbIDCode1,                    dd 0
+%endif
+        at VMMSWITCHERDEF.offGCCode,                    dd NAME(FarJmpGCTarget)             - NAME(Start)
+%ifdef NEED_ID
+        at VMMSWITCHERDEF.cbGCCode,                     dd NAME(IDExitTarget)               - NAME(FarJmpGCTarget)
+%else
+        at VMMSWITCHERDEF.cbGCCode,                     dd NAME(HCExitTarget)               - NAME(FarJmpGCTarget)
+%endif
+
+    iend
+

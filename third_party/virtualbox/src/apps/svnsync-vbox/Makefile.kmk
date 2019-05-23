@@ -1,0 +1,44 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for svnsync-vbox.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+PROGRAMS += svnsync-vbox
+
+svnsync-vbox_TEMPLATE = VBOXR3EXE
+svnsync-vbox_SOURCES = main.c
+svnsync-vbox_INCS = \
+	/usr/include/subversion-1 \
+	/usr/include/apr-0
+svnsync-vbox_LIBS = \
+	svn_ra-1 \
+	svn_ra_dav-1 \
+	svn_ra_svn-1 \
+	svn_ra_local-1 \
+	svn_repos-1 \
+	svn_fs-1 \
+	svn_fs_base-1 \
+	svn_fs_fs-1 \
+	svn_delta-1 \
+	svn_subr-1 \
+	neon \
+	apr-0 \
+	aprutil-0
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

@@ -1,0 +1,57 @@
+# $Id: Makefile.kmk $
+#
+# VirtualBox Shared Folders driver
+#
+# Copyright (C) 2007-2017 Oracle Corporation
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# mount.vboxvfs - The Shared Folders mouning tool
+#
+PROGRAMS += mount.vboxvfs
+mount.vboxvfs_TEMPLATE = NewVBoxGuestR3Exe
+mount.vboxvfs_SOURCES  = mount.vboxvfs.c
+mount.vboxvfs_INST     = $(INST_ADDITIONS)VBoxVFS.kext/Contents/MacOS/
+
+#
+# vboxvfs - The Shared Folders Driver
+#
+SYSMODS              += VBoxVFS
+VBoxVFS_TEMPLATE      = VBOXGUESTR0
+VBoxVFS_DEFS          = VBOX_WITH_HGCM
+VBoxVFS_LIBS          = $(VBOX_LIB_VBGL_R0)
+#                        $(VBOX_LIB_IPRT_GUEST_R0)
+
+VBoxVFS_SOURCES       = VBoxVFS.cpp \
+                        VBoxVFS-VFSOps.cpp \
+                        VBoxVFS-VNODEOps.cpp \
+                        VBoxVFS-utils.cpp
+
+VBoxVFS_INST          = $(INST_ADDITIONS)VBoxVFS.kext/Contents/MacOS/
+
+# Files necessary to make a darwin kernel extension bundle.
+INSTALLS += VBoxVFS.kext
+VBoxVFS.kext_INST     = $(INST_ADDITIONS)VBoxVFS.kext/Contents/
+VBoxVFS.kext_SOURCES  = $(VBoxVFS.kext_0_OUTDIR)/Info.plist
+VBoxVFS.kext_CLEAN    = $(VBoxVFS.kext_0_OUTDIR)/Info.plist
+
+$$(VBoxVFS.kext_0_OUTDIR)/Info.plist: \
+        $(PATH_SUB_CURRENT)/Info.plist \
+        $(VBOX_VERSION_MK) | $$(dir $$@)
+	$(call MSG_GENERATE,VBoxVFS,$@,$<)
+	    $(QUIET)$(RM) -f $@
+	    $(QUIET)$(SED) \
+	    -e 's/@VBOX_VERSION_STRING@/$(VBOX_VERSION_STRING)/g' \
+	    -e 's/@VBOX_VERSION_MAJOR@/$(VBOX_VERSION_MAJOR)/g' \
+	    -e 's/@VBOX_VERSION_MINOR@/$(VBOX_VERSION_MINOR)/g' \
+	    -e 's/@VBOX_VERSION_BUILD@/$(VBOX_VERSION_BUILD)/g' \
+	    -e 's/@VBOX_VENDOR@/$(VBOX_VENDOR)/g' \
+	    -e 's/@VBOX_PRODUCT@/$(VBOX_PRODUCT)/g' \
+	    -e 's/@VBOX_C_YEAR@/$(VBOX_C_YEAR)/g' \
+	    --output $@ \
+	    $<
+
+include $(FILE_KBUILD_SUB_FOOTER)

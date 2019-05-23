@@ -1,0 +1,171 @@
+#!/bin/sh
+#
+# Copyright (C) 2006-2012 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+# we can be called with the following arguments (6.5 of Debian policy):
+#  configure:         (our version): installing/configuring new version
+#  abort-upgrade:     (old version): upgrading to a new version failed
+#  abort-remove:      (our version): removing this package failed
+#  abort-deconfigure: (our version): error during resolving conflicts
+
+#include installer-common.sh
+
+LOG="/var/log/vbox-install.log"
+
+# defaults
+[ -r /etc/default/virtualbox ] && . /etc/default/virtualbox
+
+if [ "$1" = "configure" ]; then
+
+  # for debconf
+  . /usr/share/debconf/confmodule
+  db_version 2.0
+
+  # remove old cruft
+  if [ -f /etc/init.d/vboxdrv.sh ]; then
+    echo "Found old version of /etc/init.d/vboxdrv.sh, removing."
+    rm /etc/init.d/vboxdrv.sh
+    update-rc.d vboxdrv.sh remove >/dev/null
+  fi
+  if [ -f /etc/vbox/vbox.cfg ]; then
+    echo "Found old version of /etc/vbox/vbox.cfg, removing."
+    rm /etc/vbox/vbox.cfg
+  fi
+
+  # create users groups (disable with INSTALL_NO_GROUP=1 in /etc/default/virtualbox)
+  if [ "$INSTALL_NO_GROUP" != "1" ]; then
+    db_input low virtualbox/group-vboxusers || true
+    db_go || true
+    addgroup --system vboxusers || true
+  fi
+
+  # install udev rule (disable with INSTALL_NO_UDEV=1 in
+  # /etc/default/virtualbox) and /dev/vboxdrv and /dev/vboxusb/*/* device nodes
+  install_device_node_setup root 0600 /usr/share/virtualbox "${usb_group}"
+
+  # The starters need to be Suid root. They drop the privileges before starting
+  # the real frontend.
+  if ! dpkg-statoverride --list /usr/lib/virtualbox/VirtualBox > /dev/null 2>&1; then
+    chmod 4511 /usr/lib/virtualbox/VirtualBox
+  fi
+  if ! dpkg-statoverride --list /usr/lib/virtualbox/VBoxHeadless > /dev/null 2>&1; then
+    chmod 4511 /usr/lib/virtualbox/VBoxHeadless
+  fi
+  if ! dpkg-statoverride --list /usr/lib/virtualbox/VBoxSDL > /dev/null 2>&1; then
+    chmod 4511 /usr/lib/virtualbox/VBoxSDL
+  fi
+  if ! dpkg-statoverride --list /usr/lib/virtualbox/VBoxNetDHCP > /dev/null 2>&1; then
+    chmod 4511 /usr/lib/virtualbox/VBoxNetDHCP
+  fi
+  if ! dpkg-statoverride --list /usr/lib/virtualbox/VBoxNetNAT > /dev/null 2>&1; then
+    chmod 4511 /usr/lib/virtualbox/VBoxNetNAT
+  fi
+  if ! dpkg-statoverride --list /usr/lib/virtualbox/VBoxNetAdpCtl > /dev/null 2>&1; then
+    chmod 4511 /usr/lib/virtualbox/VBoxNetAdpCtl
+  fi
+  if [ -x /usr/lib/virtualbox/VBoxVolInfo ]; then
+    if ! dpkg-statoverride --list /usr/lib/virtualbox/VBoxVolInfo > /dev/null 2>&1; then
+      chmod 4511 /usr/lib/virtualbox/VBoxVolInfo
+    fi
+  fi
+
+  # if INSTALL_NO_VBOXDRV is set to 1, remove all shipped modules
+  if [ "$INSTALL_NO_VBOXDRV" = "1" ]; then
+    rm -f /lib/modules/*/misc/vboxdrv.ko
+    rm -f /lib/modules/*/misc/vboxnetflt.ko
+    rm -f /lib/modules/*/misc/vboxnetadp.ko
+  fi
+
+fi # $1 = "configure"
+
+#DEBHELPER#
+
+if [ "$1" = "configure" ]; then
+  # Start vboxdrv/vboxballoonctrl/vboxweb-service manually as we use our own error handling in postrm
+  if [ -x "/etc/init.d/vboxdrv" ]; then
+    update-rc.d vboxdrv defaults 20 80 >/dev/null
+
+    BUILD_MODULES=0
+    REGISTER_MODULES=1
+    # Disable module compilation with INSTALL_NO_VBOXDRV=1 in /etc/default/virtualbox
+    if [ ! -f /lib/modules/`uname -r`/misc/vboxdrv.ko ]; then
+      REGISTER_MODULES=0
+      if [ "$INSTALL_NO_VBOXDRV" != "1" ]; then
+        db_get virtualbox/module-compilation-allowed
+        if [ "$RET" = "false" ]; then
+          cat << EOF
+Unable to find a precompiled module for the current kernel
+though module compilation denied by debconf setting.
+EOF
+        else
+          db_input low virtualbox/module-compilation-allowed || true
+          db_go || true
+          db_get virtualbox/module-compilation-allowed
+          if [ "$RET" = "true" ]; then
+            BUILD_MODULES=1
+          fi
+        fi
+      fi
+    fi
+
+    if [ $BUILD_MODULES -eq 1 ]; then
+      if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+        invoke-rc.d vboxdrv setup || true
+      else
+        /etc/init.d/vboxdrv setup || true
+      fi
+    else
+      # shipped modules found, register sources at DKMS anyway
+      if lsmod | grep -q "vboxdrv[^_-]"; then
+        /etc/init.d/vboxdrv stop || true
+      fi
+      if [ $REGISTER_MODULES -eq 1 ]; then
+        DKMS=`which dkms 2>/dev/null`
+        if [ -n "$DKMS" ]; then
+          $DKMS add -m vboxhost -v %VER% > /dev/null 2>&1 || true
+        fi
+      fi
+      if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+        invoke-rc.d vboxdrv start || exit $?
+      else
+        /etc/init.d/vboxdrv start || exit $?
+      fi
+    fi
+  fi
+  if [ -x "/etc/init.d/vboxballoonctrl-service" ]; then
+    update-rc.d vboxballoonctrl-service defaults 35 65 >/dev/null
+    if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+        invoke-rc.d vboxballoonctrl-service start || exit $?
+    else
+        /etc/init.d/vboxballoonctrl-service start || exit $?
+    fi
+  fi
+  if [ -x "/etc/init.d/vboxautostart-service" ]; then
+    update-rc.d vboxautostart-service defaults 35 65 >/dev/null
+    if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+        invoke-rc.d vboxautostart-service start || exit $?
+    else
+        /etc/init.d/vboxautostart-service start || exit $?
+    fi
+  fi
+  if [ -x "/etc/init.d/vboxweb-service" ]; then
+    update-rc.d vboxweb-service defaults 35 65 >/dev/null
+    if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+        invoke-rc.d vboxweb-service start || exit $?
+    else
+        /etc/init.d/vboxweb-service start || exit $?
+    fi
+  fi
+
+fi # $1 = "configure"
+
+exit 0

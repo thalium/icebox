@@ -1,0 +1,34 @@
+
+EFI firmware
+============
+
+EFI firmware based on the opensource EDK2 project.  The current base is
+revision 18601 from: https://svn.code.sf.net/p/edk2/code/branches/UDK2014.SP1
+
+We have removed the following files and directories because we don't need them
+and they take up space:
+        ./BaseTools/Bin/ \
+        ./BaseTools/BinWrappers/ \
+        ./BaseTools/Source/Python/Common/PyUtility.pyd \
+        ./BaseTools/Source/Python/Eot/EfiCompressor.pyd \
+        ./BaseTools/Source/Python/Eot/LzmaCompressor.pyd \
+        \
+        ./EdkCompatibilityPkg/ \
+        ./ArmPkg/ \
+        ./ArmPlatformPkg/ \
+        ./BeagleBoardPkg/ \
+        ./Omap35xxPkg/ \
+        ./DuetPkg/ \
+        ./EmbeddedPkg/ \
+        ./EmulatorPkg/ \
+        ./Nt32Pkg/ \
+        ./UnixPkg/ \
+        ./EdkShellPkg/ \
+        ./EdkShellBinPkg/ \
+        ./ShellBinPkg/ \
+        ./Vlv2DeviceRefCodePkg/ \
+        ./Vlv2TbltDevicePkg/ \
+        ./AppPkg/Applications/Python/Python-*/ \
+
+:Status: $Id: ReadMe.vbox $
+

@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+<!--
+    VirtualBox Windows Installation Script (WiX)
+
+    Copyright (C) 2006-2016 Oracle Corporation
+
+    This file is part of VirtualBox Open Source Edition (OSE), as
+    available from http://www.virtualbox.org. This file is free software;
+    you can redistribute it and/or modify it under the terms of the GNU
+    General Public License (GPL) as published by the Free Software
+    Foundation, in version 2 as it comes in the "COPYING" file of the
+    VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+    hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+-->
+
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wi"
+         xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+    <Custom Action="ca_InstallPythonAPIArgs" Before="ca_InstallPythonAPI" >
+        <?if $(env.VBOX_WITH_MSM_INSTALL) = "yes" ?>
+            <![CDATA[1]]>
+        <?else ?>
+            <![CDATA[&VBoxPython=3]]>
+        <?endif ?>
+    </Custom>
+    <Custom Action="ca_InstallPythonAPI" Before="InstallFinalize" >
+        <?if $(env.VBOX_WITH_MSM_INSTALL) = "yes" ?>
+            <![CDATA[1]]>
+        <?else ?>
+            <![CDATA[&VBoxPython=3]]>
+        <?endif ?>
+    </Custom>
+
+</Include>

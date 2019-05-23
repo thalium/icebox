@@ -1,0 +1,10 @@
+'VirtualBox_title' = '@VBOX_PRODUCT@';
+
+'choiceVBoxKEXTs_title' = 'Kernel Extensions';
+'choiceVBoxKEXTs_msg' = 'Installs the @VBOX_PRODUCT@ Guest Additions Kernel Extensions into /Library/Extensions.';
+
+'choiceVBoxToolsAndServices_title' = 'Tools and Services';
+'choiceVBoxToolsAndServices_msg' = 'Installs the @VBOX_PRODUCT@ Guest Additions Tools and Services to /Library/Application Support/VirtualBox Guest Additions.';
+
+'UNSUPPORTED_OS_TLE' = "Unsupported OS version detected!";
+'UNSUPPORTED_OS_MSG' = "The installer has detected an unsupported operation system. VirtualBox Guest Additions require Mac OS X 10.6 or later.";

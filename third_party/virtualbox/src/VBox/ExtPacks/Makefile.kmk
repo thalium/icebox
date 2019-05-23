@@ -1,0 +1,35 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Extension Packs.
+#
+
+#
+# Copyright (C) 2010-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+ifdef VBOX_WITH_EXTPACK_PUEL_BUILD
+ include $(PATH_SUB_CURRENT)/Puel/Makefile.kmk
+endif
+if defined(VBOX_WITH_EXTPACK_VBOXDTRACE) || defined(VBOX_WITH_DTRACE)
+ include $(PATH_SUB_CURRENT)/VBoxDTrace/Makefile.kmk
+endif
+ifdef VBOX_WITH_EXTPACK_VNC
+ include $(PATH_SUB_CURRENT)/VNC/Makefile.kmk
+endif
+ifdef VBOX_WITH_EXTPACK_BUSMOUSESAMPLE
+ include $(PATH_SUB_CURRENT)/BusMouseSample/Makefile.kmk
+endif
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

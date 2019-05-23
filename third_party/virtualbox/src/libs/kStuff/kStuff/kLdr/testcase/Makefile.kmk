@@ -1,0 +1,305 @@
+# $Id: Makefile.kmk 29 2009-07-01 20:30:29Z bird $
+## @file
+# kBuild Makefile for the kLdr testcases.
+#
+
+#
+# Copyright (c) 2006-2007 Knut St. Osmundsen <bird-kStuff-spamix@anduin.net>
+#
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation
+# files (the "Software"), to deal in the Software without
+# restriction, including without limitation the rights to use,
+# copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following
+# conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+#
+
+# generate rules.
+DEPTH ?= ../..
+SUB_DEPTH = ../..
+include $(PATH_KBUILD)/subheader.kmk
+
+
+#
+# Templates for the testcases.
+#
+TEMPLATE_TST = Testcase template
+ifeq ($(BUILD_TARGET),win)
+ ifeq ($(BUILD_TARGET_ARCH),x86)
+  TEMPLATE_TST_TOOL = VCC70
+  TEMPLATE_TST_CFLAGS = -W3 -Zi -Zl -MD
+  TEMPLATE_TST_CXXFLAGS = -W3 -Zi -Zl -MD
+  TEMPLATE_TST_LIBS = \
+   	$(PATH_TOOL_VCC70_LIB)/oldnames.lib \
+   	$(PATH_TOOL_VCC70_LIB)/msvcrt.lib
+ else
+  TEMPLATE_TST_TOOL = VCC80AMD64
+  TEMPLATE_TST_CFLAGS = -W3 -Zi -Zl -MD
+  TEMPLATE_TST_CXXFLAGS = -W3 -Zi -Zl -MD
+  TEMPLATE_TST_LIBS = \
+   	$(PATH_TOOL_VCC80AMD64_LIB)/oldnames.lib \
+   	$(PATH_TOOL_VCC80AMD64_LIB)/msvcrt.lib
+ endif
+ TEMPLATE_TST_CFLAGS.release = -O2
+ TEMPLATE_TST_CXXFLAGS.release = -O2
+ TEMPLATE_TST_ASFLAGS = -f win
+ TEMPLATE_TST_DEFS = __WIN__
+ TEMPLATE_TST_SDKS.x86 = WIN32SDK
+ TEMPLATE_TST_SDKS.amd64 = WIN64SDK
+
+else
+ TEMPLATE_TST_CFLAGS = -Wall -pedantic -g
+ TEMPLATE_TST_CFLAGS.release = -O2
+ TEMPLATE_TST_LDFLAGS =
+ ifneq ($(filter os2,$(BUILD_TARGET)),)
+  TEMPLATE_TST_TOOL = GCC3OMF
+  TEMPLATE_TST_ASFLAGS = -f obj
+  TEMPLATE_TST_LIBS = os2 gcc end
+ else ifneq ($(filter darwin,$(BUILD_TARGET)),)
+  TEMPLATE_TST_TOOL = GCC4MACHO
+  TEMPLATE_TST_ASFLAGS = -f macho
+  TEMPLATE_TST_DEFS = __DARWIN__
+  TEMPLATE_TST_LIBS =
+ else
+  TEMPLATE_TST_TOOL = GCC3
+  TEMPLATE_TST_ASFLAGS = -f elf
+  TEMPLATE_TST_LIBS = gcc
+ endif
+endif
+TEMPLATE_TST_INCS := $(PATH_SUB_CURRENT) $(PATH_SUB_ROOT)/include
+
+
+TEMPLATE_TSTPROG = Testcase program template
+TEMPLATE_TSTPROG_EXTENDS = TST
+
+
+TEMPLATE_TSTDLL = Testcase dll template
+TEMPLATE_TSTDLL_EXTENDS = TST
+
+
+TEMPLATE_TSTBARE = Bare bone testcase template
+ifeq ($(BUILD_TARGET),win)
+ ifeq ($(BUILD_TARGET_ARCH),x86)
+  TEMPLATE_TSTBARE_TOOL = VCC70
+ else
+  TEMPLATE_TSTBARE_TOOL = VCC80AMD64
+ endif
+ TEMPLATE_TSTBARE_CFLAGS = -W3 -Zi -Zl
+ TEMPLATE_TSTBARE_CFLAGS.release = -O2
+ TEMPLATE_TSTBARE_CXXFLAGS = -W3 -Zi -Zl
+ TEMPLATE_TSTBARE_CXXFLAGS.release = -O2
+ TEMPLATE_TSTBARE_ASFLAGS = -f win
+ TEMPLATE_TSTBARE_DEFS = __WIN__
+ TEMPLATE_TSTBARE_SDKS.x86 = WIN32SDK
+ TEMPLATE_TSTBARE_SDKS.amd64 = WIN64SDK
+
+else
+ TEMPLATE_TSTBARE_CFLAGS = -Wall -pedantic -g
+ TEMPLATE_TSTBARE_CFLAGS.release = -O2
+ TEMPLATE_TSTBARE_LDFLAGS = -nostdlib -lgcc
+ ifeq ($(filter-out os2,$(BUILD_TARGET)),)
+  TEMPLATE_TSTBARE_TOOL = GCC3OMF
+  TEMPLATE_TSTBARE_ASFLAGS = -f obj
+  TEMPLATE_TSTBARE_ASTOOL = NASM
+  TEMPLATE_TSTBARE_DEFS = main=main_wrapped
+  TEMPLATE_TSTBARE_LIBS = os2
+ else ifeq ($(filter-out darwin,$(BUILD_TARGET)),)
+  TEMPLATE_TSTBARE_TOOL = GCC4MACHO
+  TEMPLATE_TSTBARE_ASFLAGS = -f macho
+  TEMPLATE_TSTBARE_ASTOOL = NASM
+  TEMPLATE_TSTBARE_DEFS = __DARWIN__
+  TEMPLATE_TSTBARE_LIBS =
+  TEMPLATE_TSTBARE_CFLAGS += -static -fno-common
+  TEMPLATE_TSTBARE_LDFLAGS += -nostdlib -r
+ else
+  TEMPLATE_TSTBARE_TOOL = GCC3
+  TEMPLATE_TSTBARE_ASFLAGS = -f elf
+  TEMPLATE_TSTBARE_LIBS = gcc
+ endif
+endif
+TEMPLATE_TSTBARE_INCS := $(PATH_SUB_CURRENT) $(PATH_SUB_ROOT)/include
+
+TEMPLATE_TSTBAREPROG = Bare bone testcase program template
+TEMPLATE_TSTBAREPROG_EXTENDS = TSTBARE
+ifneq ($(filter win win32 win64,$(BUILD_TARGET)),)
+TEMPLATE_TSTBAREPROG_LDFLAGS += -Entry:WindowsMain -FIXED:NO
+else
+TEMPLATE_TSTBAREPROG_LDFLAGS.nt += -FIXED:NO
+endif
+
+
+TEMPLATE_TSTBAREDLL = Bare bone testcase dll template
+TEMPLATE_TSTBAREDLL_EXTENDS = TSTBARE
+ifeq ($(BUILD_TARGET),win)
+ TEMPLATE_TSTBAREDLL_LDFLAGS += -Entry:DllMain
+else ifeq ($(BUILD_TARGET),darwin)
+# TEMPLATE_TSTBAREDLL_CFLAGS += -dynamiclib
+# TEMPLATE_TSTBAREDLL_LDFLAGS += -dynamiclib
+endif
+
+
+
+
+#
+# tst-0: four dlls, three of which depends on the 4th and no external dependencies.
+#        The purpose of this testcase is to debug the dynamic loader without
+#        messing with the native loader at all.
+#
+PROGRAMS += tst-0 tst-0-driver
+DLLS += tst-0-a tst-0-b tst-0-c tst-0-d
+
+tst-0-driver_TEMPLATE = TSTPROG
+tst-0-driver_SOURCES  = tst-0-driver.c
+
+tst-0-a_TEMPLATE = TSTBAREDLL
+tst-0-a_SOURCES  = tst-0-a.c tstDllMainStub.c
+tst-0-a_SOURCES.os2= tstDllMainStub-os2.asm
+
+tst-0-b_TEMPLATE = TSTBAREDLL
+tst-0-b_SOURCES  = tst-0-b.c tstDllMainStub.c
+tst-0-b_SOURCES.os2= tstDllMainStub-os2.asm
+
+tst-0-c_TEMPLATE = TSTBAREDLL
+tst-0-c_SOURCES  = tst-0-c.c tstDllMainStub.c
+tst-0-c_SOURCES.os2= tstDllMainStub-os2.asm
+
+tst-0-d_TEMPLATE = TSTBAREDLL
+tst-0-d_SOURCES  = tst-0-d.c tstDllMainStub.c
+tst-0-d_SOURCES.os2= tstDllMainStub-os2.asm
+
+tst-0_TEMPLATE   = TSTBAREPROG
+tst-0_SOURCES    = tst-0.c tstExeMainStub.c
+tst-0_SOURCES.os2= tstExeMainStub-os2.asm
+
+ifeq ($(BUILD_TARGET),win)
+tst-0-driver_LIBS= $(PATH_LIB)/kLdr.lib
+tst-0-a_LIBS     = $(PATH_TARGET)/tst-0-d/tst-0-d.lib
+tst-0-b_LIBS     = $(PATH_TARGET)/tst-0-d/tst-0-d.lib
+tst-0-c_LIBS     = $(PATH_TARGET)/tst-0-d/tst-0-d.lib
+tst-0_LIBS       = $(TARGET_tst-0-a:.dll=.lib) $(TARGET_tst-0-b:.dll=.lib) $(TARGET_tst-0-c:.dll=.lib)
+else
+tst-0-driver_LIBS= $(PATH_DLL)/kLdr$(SUFF_DLL)
+tst-0-a_LIBS     = $(subst -a,-d,$(TARGET_tst-0-a))
+tst-0-b_LIBS     = $(subst -b,-d,$(TARGET_tst-0-b))
+tst-0-c_LIBS     = $(subst -c,-d,$(TARGET_tst-0-c))
+tst-0_LIBS       = $(TARGET_tst-0-a) $(TARGET_tst-0-b) $(TARGET_tst-0-c)
+endif
+
+
+#
+# tst-1: four dlls, three of which depends on the 4th and the testcase depends on those three again.
+#
+PROGRAMS += tst-1
+DLLS += tst-1-a tst-1-b tst-1-c tst-1-d
+
+tst-1-a_TEMPLATE = TSTDLL
+tst-1-a_SOURCES  = tst-1-a.c tstDllMain.c
+
+tst-1-b_TEMPLATE = TSTDLL
+tst-1-b_SOURCES  = tst-1-b.c tstDllMain.c
+
+tst-1-c_TEMPLATE = TSTDLL
+tst-1-c_SOURCES  = tst-1-c.c tstDllMain.c
+
+tst-1-d_TEMPLATE = TSTDLL
+tst-1-d_SOURCES  = tst-1-d.c tstDllMain.c
+
+tst-1_TEMPLATE   = TSTPROG
+tst-1_SOURCES    = tst-1.c
+
+ifeq ($(BUILD_TARGET),win)
+tst-1-a_LIBS     = $(PATH_TARGET)/tst-1-d/tst-1-d.lib
+tst-1-b_LIBS     = $(PATH_TARGET)/tst-1-d/tst-1-d.lib
+tst-1-c_LIBS     = $(PATH_TARGET)/tst-1-d/tst-1-d.lib
+tst-1_LIBS       = $(TARGET_tst-1-a:.dll=.lib) $(TARGET_tst-1-b:.dll=.lib) $(TARGET_tst-1-c:.dll=.lib)
+else
+tst-1-a_LIBS     = $(subst -a,-d,$(TARGET_tst-1-a))
+tst-1-b_LIBS     = $(subst -b,-d,$(TARGET_tst-1-b))
+tst-1-c_LIBS     = $(subst -c,-d,$(TARGET_tst-1-c))
+tst-1_LIBS       = $(TARGET_tst-1-a) $(TARGET_tst-1-b) $(TARGET_tst-1-c)
+endif
+
+
+#
+# tst-2: four dlls, three of which depends on the 1st, and the testcase depends on those all of them.
+#
+PROGRAMS += tst-2
+DLLS += tst-2-a tst-2-b tst-2-c tst-2-d
+
+tst-2-a_TEMPLATE = TSTDLL
+tst-2-a_SOURCES  = tst-2-a.c tstDllMain.c
+
+tst-2-b_TEMPLATE = TSTDLL
+tst-2-b_SOURCES  = tst-2-b.c tstDllMain.c
+
+tst-2-c_TEMPLATE = TSTDLL
+tst-2-c_SOURCES  = tst-2-c.c tstDllMain.c
+
+tst-2-d_TEMPLATE = TSTDLL
+tst-2-d_SOURCES  = tst-2-d.c tstDllMain.c
+
+tst-2_TEMPLATE   = TSTPROG
+tst-2_SOURCES    = tst-2.c
+
+ifeq ($(BUILD_TARGET),win)
+tst-2-b_LIBS     = $(PATH_TARGET)/tst-2-a/tst-2-a.lib
+tst-2-c_LIBS     = $(PATH_TARGET)/tst-2-a/tst-2-a.lib
+tst-2-d_LIBS     = $(PATH_TARGET)/tst-2-a/tst-2-a.lib
+tst-2_LIBS       = $(TARGET_tst-2-b:.dll=.lib) $(TARGET_tst-2-c:.dll=.lib) $(TARGET_tst-2-d:.dll=.lib) $(TARGET_tst-2-a:.dll=.lib)
+else
+tst-2-b_LIBS     = $(subst -b,-a,$(TARGET_tst-2-b))
+tst-2-c_LIBS     = $(subst -c,-a,$(TARGET_tst-2-c))
+tst-2-d_LIBS     = $(subst -d,-a,$(TARGET_tst-2-d))
+tst-2_LIBS       = $(TARGET_tst-2-a) $(TARGET_tst-2-b) $(TARGET_tst-2-c) $(TARGET_tst-2-d)
+endif
+
+
+#
+# tst-3: Single module.
+#
+PROGRAMS += tst-3-driver
+ifeq ($(BUILD_TARGET),darwin)
+SYSMODS += tst-3
+else
+DLLS += tst-3
+LIBRARIES.win += tst-3-imp
+LIBRARIES.os2 += tst-3-imp
+endif
+
+tst-3_TEMPLATE = TSTBAREDLL
+tst-3_SOURCES  = tst-3.c tst-3-ext.c tstDllMainStub.c
+tst-3_SOURCES.os2= tstDllMainStub-os2.asm
+tst-3_LIBS.os2 = $(TARGET_tst-3-imp)
+tst-3_LIBS.win = $(TARGET_tst-3-imp)
+
+tst-3-imp_TEMPLATE = TSTBAREDLL
+tst-3-imp_SOURCES.win = tst-3-imp-win.def
+tst-3-imp_SOURCES.os2 = tst-3-imp-os2.def
+
+tst-3-driver_TEMPLATE = TSTPROG
+tst-3-driver_SOURCES  = tst-3-driver.c
+
+ifeq ($(BUILD_TARGET),win)
+tst-3-driver_LIBS = $(PATH_LIB)/kLdr.lib
+else
+tst-3-driver_LIBS = $(PATH_DLL)/kLdr$(SUFF_DLL)
+endif
+
+
+# generate rules.
+include $(PATH_KBUILD)/subfooter.kmk
+

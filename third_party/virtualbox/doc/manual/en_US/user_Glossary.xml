@@ -1,0 +1,495 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<glossary id="Glossary">
+  <glossdiv>
+    <title>A</title>
+
+    <glossentry>
+      <glossterm>ACPI</glossterm>
+
+      <glossdef>
+        <para>Advanced Configuration and Power Interface, an industry
+        specification for BIOS and hardware extensions to configure PC
+        hardware and perform power management. Windows 2000 and higher as well
+        as Linux 2.4 and higher support ACPI. Windows can only enable or
+        disable ACPI support at installation time.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>AHCI</glossterm>
+
+      <glossdef>
+        <para>Advanced Host Controller Interface, the interface that supports
+        SATA devices such as hard disks. See <xref
+        linkend="harddiskcontrollers" />.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>AMD-V</glossterm>
+
+      <glossdef>
+        <para>The hardware virtualization features built into modern AMD
+        processors. See <xref linkend="hwvirt" />.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>API</glossterm>
+
+      <glossdef>
+        <para>Application Programming Interface.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>APIC</glossterm>
+
+      <glossdef>
+        <para>Advanced Programmable Interrupt Controller, a newer version of
+        the original PC PIC (programmable interrupt controller). Most modern
+        CPUs contain an on-chip APIC ("local APIC"). Many systems also contain
+        an I/O APIC (input output APIC) as a separate chip which provides more
+        than 16 IRQs. Windows 2000 and higher use a different kernel if they
+        detect an I/O APIC during installation. Therefore an I/O APIC must not
+        be removed after installation.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>ATA</glossterm>
+
+      <glossdef>
+        <para>Advanced Technology Attachment, an industry standard for hard
+        disk interfaces (synonymous with IDE). See <xref
+        linkend="harddiskcontrollers" />.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>B</title>
+
+    <glossentry>
+      <glossterm>BIOS</glossterm>
+
+      <glossdef>
+        <para>Basic Input/Output System, the firmware built into most personal
+        computers which is responsible of initializing the hardware after the
+        computer has been turned on and then booting an operating system.
+        VirtualBox ships with its own virtual BIOS that runs when a virtual
+        machine is started.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>C</title>
+
+    <glossentry>
+      <glossterm>COM</glossterm>
+
+      <glossdef>
+        <para>Microsoft Component Object Model, a programming infrastructure
+        for modular software. COM allows applications to provide application
+        programming interfaces which can be accessed from various other
+        programming languages and applications. VirtualBox makes use of COM
+        both internally and externally to provide a comprehensive API to 3rd
+        party developers.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>D</title>
+
+    <glossentry>
+      <glossterm>DHCP</glossterm>
+
+      <glossdef>
+        <para>Dynamic Host Configuration Protocol. This allows a networking
+        device in a network to acquire its IP address (and other networking
+        details) automatically, in order to avoid having to configure all
+        devices in a network with fixed IP addresses. VirtualBox has a
+        built-in DHCP server that delivers an IP addresses to a virtual
+        machine when networking is configured to NAT; see <xref
+        linkend="networkingdetails" />.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>E</title>
+
+    <glossentry>
+      <glossterm>EFI</glossterm>
+
+      <glossdef>
+        <para>Extensible Firmware Interface, a firmware built into computers
+        which is designed to replace the aging BIOS. Originally designed by
+        Intel, most modern operating systems can now boot on computers which
+        have EFI instead of a BIOS built into them; see <xref
+        linkend="efi" />.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>EHCI</glossterm>
+
+      <glossdef>
+        <para>Enhanced Host Controller Interface, the interface that
+        implements the USB 2.0 standard.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>G</title>
+
+    <glossentry>
+      <glossterm>GUI</glossterm>
+
+      <glossdef>
+        <para>Graphical User Interface. Commonly used as an antonym to a
+        "command line interface", in the context of VirtualBox, we sometimes
+        refer to the main graphical
+        <computeroutput>VirtualBox</computeroutput> program as the "GUI", to
+        differentiate it from the <computeroutput>VBoxManage</computeroutput>
+        interface.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>GUID</glossterm>
+
+      <glossdef>
+        <para>See UUID.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>I</title>
+
+    <glossentry>
+      <glossterm>IDE</glossterm>
+
+      <glossdef>
+        <para>Integrated Drive Electronics, an industry standard for hard disk
+        interfaces. See <xref linkend="harddiskcontrollers" />.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>I/O APIC</glossterm>
+
+      <glossdef>
+        <para>See APIC.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>iSCSI</glossterm>
+
+      <glossdef>
+        <para>Internet SCSI; see <xref linkend="storage-iscsi" />.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>M</title>
+
+    <glossentry>
+      <glossterm>MAC</glossterm>
+
+      <glossdef>
+        <para>Media Access Control, a part of an Ethernet network card. A MAC
+        address is a 6-byte number which identifies a network card. It is
+        typically written in hexadecimal notation where the bytes are
+        separated by colons, such as
+        <computeroutput>00:17:3A:5E:CB:08</computeroutput>.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>MSI</glossterm>
+
+      <glossdef>
+        <para>Message Signaled Interrupts, as supported by modern chipsets
+        such as the ICH9; see <xref linkend="settings-motherboard" />. As
+        opposed to traditional pin-based interrupts, with MSI, a small amount
+        of data can accompany the actual interrupt message. This reduces the
+        amount of hardware pins required, allows for more interrupts and
+        better performance.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>N</title>
+
+    <glossentry>
+      <glossterm>NAT</glossterm>
+
+      <glossdef>
+        <para>Network Address Translation. A technique to share networking
+        interfaces by which an interface modifies the source and/or target IP
+        addresses of network packets according to specific rules. Commonly
+        employed by routers and firewalls to shield an internal network from
+        the Internet, VirtualBox can use NAT to easily share a host's physical
+        networking hardware with its virtual machines. See <xref
+        linkend="network_nat" />.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>O</title>
+
+    <glossentry>
+      <glossterm>OVF</glossterm>
+
+      <glossdef>
+        <para>Open Virtualization Format, a cross-platform industry standard
+        to exchange virtual appliances between virtualization products; see
+        <xref linkend="ovf" />.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>P</title>
+
+    <glossentry>
+      <glossterm>PAE</glossterm>
+
+      <glossdef>
+        <para>Physical Address Extension. This allows accessing more than 4 GB
+        of RAM even in 32-bit environments; see <xref
+        linkend="settings-general-advanced" />.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>PIC</glossterm>
+
+      <glossdef>
+        <para>See APIC.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>PXE</glossterm>
+
+      <glossdef>
+        <para>Preboot Execution Environment, an industry standard for booting
+        PC systems from remote network locations. It includes DHCP for IP
+        configuration and TFTP for file transfer. Using UNDI, a hardware
+        independent driver stack for accessing the network card from bootstrap
+        code is available.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>R</title>
+
+    <glossentry>
+      <glossterm>RDP</glossterm>
+
+      <glossdef>
+        <para>Remote Desktop Protocol, a protocol developed by Microsoft as an
+        extension to the ITU T.128 and T.124 video conferencing protocol. With
+        RDP, a PC system can be controlled from a remote location using a
+        network connection over which data is transferred in both directions.
+        Typically graphics updates and audio are sent from the remote machine
+        and keyboard and mouse input events are sent from the client. A
+        VirtualBox extension package by Oracle provides VRDP, an enhanced
+        implementation of the relevant standards which is largely compatible
+        with Microsoft's RDP implementation. See <xref linkend="vrde" /> for
+        details.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>S</title>
+
+    <glossentry>
+      <glossterm>SAS</glossterm>
+
+      <glossdef>
+        <para>Serial Attached SCSI, an industry standard for hard disk
+        interfaces. See <xref linkend="harddiskcontrollers" />.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>SATA</glossterm>
+
+      <glossdef>
+        <para>Serial ATA, an industry standard for hard disk interfaces. See
+        <xref linkend="harddiskcontrollers" />.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>SCSI</glossterm>
+
+      <glossdef>
+        <para>Small Computer System Interface. An industry standard for data
+        transfer between devices, especially for storage. See <xref
+        linkend="harddiskcontrollers" />.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>SMP</glossterm>
+
+      <glossdef>
+        <para>Symmetrical Multiprocessing, meaning that the resources of a
+        computer are shared between several processors. These can either be
+        several processor chips or, as is more common with modern hardware,
+        multiple CPU cores in one processor.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>SSD</glossterm>
+
+      <glossdef>
+        <para>Solid-state drive, uses microchips for storing data in a computer
+        system. Compared to classical hard-disks they are having no mechanical
+        components like spinning disks.
+        </para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>T</title>
+
+    <glossentry>
+      <glossterm>TAR</glossterm>
+
+      <glossdef>
+        <para>A widely used file format for archiving. Originally, this stood
+        for "Tape ARchive" and was already supported by very early Unix
+        versions for backing up data on tape. The file format is still widely
+        used today, for example, with OVF archives (with an
+        <computeroutput>.ova</computeroutput> file extension); see <xref
+        linkend="ovf" />.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>U</title>
+
+    <glossentry>
+      <glossterm>UUID</glossterm>
+
+      <glossdef>
+        <para>A Universally Unique Identifier -- often also called GUID
+        (Globally Unique Identifier) -- is a string of numbers and letters
+        which can be computed dynamically and is guaranteed to be unique.
+        Generally, it is used as a global handle to identify entities.
+        VirtualBox makes use of UUIDs to identify VMs, Virtual Disk Images
+        (VDI files) and other entities.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>V</title>
+
+    <glossentry>
+      <glossterm>VM</glossterm>
+
+      <glossdef>
+        <para>Virtual Machine -- a virtual computer that VirtualBox allows you
+        to run on top of your actual hardware. See <xref
+        linkend="virtintro" /> for details.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>VMM</glossterm>
+
+      <glossdef>
+        <para>Virtual Machine Manager -- the component of VirtualBox that
+        controls VM execution. See <xref linkend="technical-components" /> for
+        a list of VirtualBox components.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>VRDE</glossterm>
+
+      <glossdef>
+        <para>VirtualBox Remote Desktop Extension. This interface is built
+        into VirtualBox to allow VirtualBox extension packages to supply
+        remote access to virtual machines. A VirtualBox extension package by
+        Oracle provides VRDP support; see <xref linkend="vrde" /> for
+        details.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>VRDP</glossterm>
+
+      <glossdef>
+        <para>See RDP.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>VT-x</glossterm>
+
+      <glossdef>
+        <para>The hardware virtualization features built into modern Intel
+        processors. See <xref linkend="hwvirt" />.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+
+  <glossdiv>
+    <title>X</title>
+
+    <glossentry>
+      <glossterm>xHCI</glossterm>
+
+      <glossdef>
+        <para>eXtended Host Controller Interface, the interface that
+        implements the USB 3.0 standard.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>XML</glossterm>
+
+      <glossdef>
+        <para>The eXtensible Markup Language, a metastandard for all kinds of
+        textual information. XML only specifies how data in the document is
+        organized generally and does not prescribe how to semantically
+        organize content.</para>
+      </glossdef>
+    </glossentry>
+
+    <glossentry>
+      <glossterm>XPCOM</glossterm>
+
+      <glossdef>
+        <para>Mozilla Cross Platform Component Object Model, a programming
+        infrastructure developed by the Mozilla browser project which is
+        similar to Microsoft COM and allows applications to provide a modular
+        programming interface. VirtualBox makes use of XPCOM on Linux both
+        internally and externally to provide a comprehensive API to
+        third-party developers.</para>
+      </glossdef>
+    </glossentry>
+  </glossdiv>
+</glossary>

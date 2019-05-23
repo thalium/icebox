@@ -1,0 +1,73 @@
+;
+; VBox USB Monitor driver
+;
+; Installation file
+;
+; Copyright (C) 2011-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+[Version]
+Signature         = "$Windows NT$"
+Provider          = %ORACLE%
+;edit-DriverVer = 08/26/2008,2.00.0000
+DriverPackageType = KernelService
+Class             = System
+ClassGuid         = {ce4a90b5-1d8c-435d-b349-232ce55cb17f}
+;cat CatalogFile = VBoxUSBMon.cat
+
+[Manufacturer]
+;x86 %ORACLE%=ORACLE
+;amd64 %ORACLE%=ORACLE, NTamd64
+
+[DefaultInstall.NT]
+CopyFiles = VBoxUSBMonitor.CopyFiles
+
+[VBoxUSBMonitor.CopyFiles]
+VBoxUSBMon.sys
+
+[DefaultInstall.NT.Services]
+AddService = VBoxUSBMon, 0x00000002, VBoxUSBMon_Service_Inst, VBoxUSBMon_EventLog_Inst
+
+[VBoxUSBMon_Service_Inst]
+DisplayName    = %VBoxUSBMon.SvcDesc%
+ServiceType    = 1                  ; SERVICE_KERNEL_DRIVER
+;StartType      = 3                  ; SERVICE_DEMAND_START
+StartType      = 1                  ; autostart to fix Vista problem
+ErrorControl   = 1                  ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\VBoxUSBMon.sys
+
+[VBoxUSBMon_EventLog_Inst]
+AddReg         = VBoxUSBMon_EventLog_AddReg
+
+[VBoxUSBMon_EventLog_AddReg]
+HKR,,EventMessageFile,0x00020000,"%%SystemRoot%%\System32\IoLogMsg.dll"
+HKR,,TypesSupported,0x00010001,7
+
+[SourceDisksNames]
+1 = %VBoxUSBMon.MediaDesc%
+
+[SourceDisksFiles]
+VBoxUSBMon.sys = 1
+
+[DestinationDirs]
+DefaultDestDir = 12   ; DIRID_DRIVERS
+
+[Strings]
+ORACLE               = "Oracle Corporation"
+VBoxUSBMon.SvcDesc   = "VirtualBox USB Monitor Driver"
+VBoxUSBMon.MediaDesc = "VirtualBox USB Monitor Driver Disc"
+
+; Useful constants
+SERVICE_KERNEL_DRIVER = 1
+SERVICE_DEMAND_START  = 3
+SERVICE_ERROR_IGNORE  = 0
+REG_EXPAND_SZ         = 0x00020000
+REG_DWORD             = 0x00010001

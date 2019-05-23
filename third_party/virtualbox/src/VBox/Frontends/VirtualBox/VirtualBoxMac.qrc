@@ -1,0 +1,13 @@
+<!DOCTYPE RCC><RCC version="1.0">
+ <qresource prefix="/">
+    <file alias="vmw_new_welcome_bg.png">images/vmw_new_welcome_bg.png</file>
+    <file alias="vmw_new_harddisk_bg.png">images/vmw_new_harddisk_bg.png</file>
+    <file alias="vmw_first_run_bg.png">images/vmw_first_run_bg.png</file>
+    <file alias="vmw_new_user_bg.png">images/vmw_new_user_bg.png</file>
+    <file alias="vmw_ovf_import_bg.png">images/vmw_ovf_import_bg.png</file>
+    <file alias="vmw_ovf_export_bg.png">images/vmw_ovf_export_bg.png</file>
+    <file alias="vmw_clone_bg.png">images/vmw_clone_bg.png</file>
+    <file alias="monitor.png">images/monitor.png</file>
+    <file alias="monitor_glossy.png">images/monitor_glossy.png</file>
+ </qresource>
+ </RCC>

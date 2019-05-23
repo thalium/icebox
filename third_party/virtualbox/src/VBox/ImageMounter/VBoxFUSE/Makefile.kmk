@@ -1,0 +1,57 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the VBoxFUSE Program.
+#
+
+#
+# Copyright (C) 2009-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# VBOXR3EXE variant using the Mac OS X 10.5 SDK.
+#
+# We require this for VBoxFUSE since its libraries doesn't sit well with
+# the 10.4 linker. Wonderful.
+#
+TEMPLATE_VBOXR3EXEOSX105 = VBOXR3EXE variant using the 10.5 SDK.
+TEMPLATE_VBOXR3EXEOSX105_EXTENDS = VBOXR3EXE
+TEMPLATE_VBOXR3EXEOSX105_DEFS.darwin         = $(VBOX_DARWIN_DEF_SDK_10_5_DEFS)
+TEMPLATE_VBOXR3EXEOSX105_DEFS.darwin         = $(VBOX_DARWIN_DEF_SDK_10_5_DEFS)
+TEMPLATE_VBOXR3EXEOSX105_CFLAGS.darwin       = $(VBOX_DARWIN_DEF_SDK_10_5_CFLAGS) -fno-common
+TEMPLATE_VBOXR3EXEOSX105_CXXFLAGS.darwin     = $(VBOX_DARWIN_DEF_SDK_10_5_CXXFLAGS)
+TEMPLATE_VBOXR3EXEOSX105_OBJCFLAGS.darwin    = $(VBOX_DARWIN_DEF_SDK_10_5_OBJCFLAGS)
+TEMPLATE_VBOXR3EXEOSX105_LDFLAGS.darwin      = $(VBOX_DARWIN_DEF_SDK_10_5_LDFLAGS)
+
+
+#
+# VBoxFUSE - Disk Image Flatting FUSE Program.
+#
+PROGRAMS += VBoxFUSE
+VBoxFUSE_TEMPLATE = VBOXR3EXE$(if-expr "$(KBUILD_TARGET)" == "darwin",OSX105,)
+VBoxFUSE_DEFS.darwin = __FreeBSD_==10
+VBoxFUSE_DEFS        = _FILE_OFFSET_BITS=64
+VBoxFUSE_INCS.darwin = \
+	/usr/local/include
+VBoxFUSE_SOURCES = \
+	VBoxFUSE.cpp
+VBoxFUSE_LIBS = \
+	$(LIB_DDU) \
+	$(LIB_RUNTIME)
+VBoxFUSE_LIBS.darwin = fuse
+VBoxFUSE_LIBS.linux = fuse
+VBoxFUSE_LIBS.freebsd = fuse
+VBoxFUSE_LIBPATHS.darwin = /usr/local/lib
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

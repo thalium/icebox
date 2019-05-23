@@ -1,0 +1,49 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the common HGSMI library.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+
+
+
+#
+# HGSMIGuestR0Lib - For guest additions drivers.
+#
+ifdef VBOX_WITH_ADDITION_DRIVERS
+LIBRARIES += HGSMIGuestR0Lib
+HGSMIGuestR0Lib_TEMPLATE     = VBOXGUESTR0LIB
+HGSMIGuestR0Lib_DEFS         =
+HGSMIGuestR0Lib_INCS         = $(VBOX_GRAPHICS_INCS)
+HGSMIGuestR0Lib_SOURCES      = \
+	HGSMICommon.cpp \
+	HGSMIMemAlloc.cpp
+endif
+
+#
+# HGSMIHostLib - For host devices (R3 only).
+#
+LIBRARIES += HGSMIHostR3Lib
+HGSMIHostR3Lib_TEMPLATE      = VBOXR3
+HGSMIHostR3Lib_DEFS          =
+HGSMIHostR3Lib_INCS          = $(VBOX_GRAPHICS_INCS)
+HGSMIHostR3Lib_SOURCES       = \
+	HGSMICommon.cpp \
+	HGSMIMemAlloc.cpp
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

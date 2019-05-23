@@ -1,0 +1,68 @@
+;
+; INF file for installing the VBox Guest Mouse
+; (driver for Windows NT5+).
+;
+; Copyright (C) 2011-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+[Version]
+Signature="$Windows NT$"
+ClassGuid={4D36E96F-E325-11CE-BFC1-08002BE10318}
+Class=Mouse
+DriverPackageType=ClassFilter
+;edit-DriverVer=08/26/2008,2.00.0000
+;cat CatalogFile=VBoxMouse.cat
+
+[SourceDisksNames]
+1 = %VBoxMouse.MediaDesc%
+
+[SourceDisksFiles]
+VBoxMouse.sys = 1
+
+[DestinationDirs]
+DefaultDestDir = 12	; DIRID_DRIVERS
+
+[Manufacturer]
+;x86   %ORACLE%=VBoxMouse
+;amd64 %ORACLE%=VBoxMouse, NTamd64
+
+[VBoxMouse_Install]
+CopyFiles = @VBoxMouse.sys
+
+[VBoxMouse_Install.Services]
+AddService = VBoxMouse,,VBoxMouse.Service
+
+[DefaultInstall]
+CopyFiles = @VBoxMouse.sys
+
+[DefaultInstall.Services]
+AddService = VBoxMouse,,VBoxMouse.Service
+
+[VBoxMouse.AddRegistry]
+HKLM, System\CurrentControlSet\Control\Class\{4D36E96F-E325-11CE-BFC1-08002BE10318}, UpperFilters, 0x00010000, "VBoxMouse", "mouclass"
+
+[VBoxMouse.Service]
+DisplayName    = %VBoxMouse.SvcDesc%
+ServiceType    = %SERVICE_KERNEL_DRIVER%
+StartType      = %SERVICE_DEMAND_START%
+ErrorControl   = %SERVICE_ERROR_IGNORE%
+ServiceBinary  = %12%\VBoxMouse.sys
+AddReg         = VBoxMouse.AddRegistry
+
+[Strings]
+VBoxMouse.SvcDesc       = "VirtualBox Guest Mouse Service"
+VBoxMouse.MediaDesc     = "VirtualBox Guest Mouse Driver Installation Media"
+ORACLE                  = "Oracle Corporation"
+
+; Useful constants
+SERVICE_KERNEL_DRIVER = 1
+SERVICE_DEMAND_START  = 3
+SERVICE_ERROR_IGNORE  = 0

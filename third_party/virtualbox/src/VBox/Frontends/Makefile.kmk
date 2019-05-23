@@ -1,0 +1,52 @@
+# $Id: Makefile.kmk $
+## @file
+# Top-level makefile for the VBox frontends.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+# Include Sub-Makefiles
+ifdef VBOX_WITH_MAIN
+ include $(PATH_SUB_CURRENT)/VBoxManage/Makefile.kmk
+endif
+ifndef VBOX_ONLY_DOCS
+ ifdef VBOX_WITH_MAIN
+  include $(PATH_SUB_CURRENT)/VBoxBalloonCtrl/Makefile.kmk
+  include $(PATH_SUB_CURRENT)/VBoxAutostart/Makefile.kmk
+  include $(PATH_SUB_CURRENT)/VBoxBugReport/Makefile.kmk
+ endif
+ ifdef VBOX_WITH_VBOXSDL
+  include $(PATH_SUB_CURRENT)/VBoxSDL/Makefile.kmk
+ endif
+ ifdef VBOX_WITH_VBOXFB
+  include $(PATH_SUB_CURRENT)/VBoxFB/Makefile.kmk
+ endif
+ ifdef VBOX_WITH_HEADLESS
+  include $(PATH_SUB_CURRENT)/VBoxHeadless/Makefile.kmk
+ endif
+ ifdef VBOX_WITH_QTGUI
+  include $(PATH_SUB_CURRENT)/VirtualBox/Makefile.kmk
+ endif
+ include $(PATH_SUB_CURRENT)/Common/Makefile.kmk
+endif # !VBOX_ONLY_DOCS
+
+## @todo Include Python shell into binary delivery?
+ifdef VBOX_ONLY_SDK
+ include $(PATH_SUB_CURRENT)/VBoxShell/Makefile.kmk
+endif
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

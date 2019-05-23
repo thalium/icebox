@@ -1,0 +1,47 @@
+;/** @file
+; *
+; * VBoxGINA -- Windows Logon DLL for VirtualBox
+; *
+; Copyright (C) 2006-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+; */
+
+LIBRARY VBoxGINA
+
+EXPORTS
+        WlxNegotiate
+        WlxInitialize
+        WlxDisplaySASNotice
+        WlxLoggedOutSAS
+        WlxActivateUserShell
+        WlxLoggedOnSAS
+        WlxDisplayLockedNotice
+        WlxWkstaLockedSAS
+        WlxIsLockOk
+        WlxIsLogoffOk
+        WlxLogoff
+        WlxShutdown
+        ; 1.1
+        WlxScreenSaverNotify
+        WlxStartApplication
+        ; 1.3
+        WlxNetworkProviderLoad
+        WlxDisplayStatusMessage
+        WlxGetStatusMessage
+        WlxRemoveStatusMessage
+        ; 1.4
+        WlxGetConsoleSwitchCredentials
+        WlxReconnectNotify
+        WlxDisconnectNotify
+    ; Debug
+    VBoxGINADebug
+    ; Windows Notification Package callbacks
+    WnpScreenSaverStop

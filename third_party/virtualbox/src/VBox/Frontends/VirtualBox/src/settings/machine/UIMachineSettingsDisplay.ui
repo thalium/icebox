@@ -1,0 +1,772 @@
+<ui version="4.0">
+ <comment>
+ VBox frontends: Qt GUI ("VirtualBox"):
+
+ Copyright (C) 2008-2016 Oracle Corporation
+
+ This file is part of VirtualBox Open Source Edition (OSE), as
+ available from http://www.virtualbox.org. This file is free software;
+ you can redistribute it and/or modify it under the terms of the GNU
+ General Public License (GPL) as published by the Free Software
+ Foundation, in version 2 as it comes in the "COPYING" file of the
+ VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ </comment>
+ <class>UIMachineSettingsDisplay</class>
+ <widget class="QWidget" name="UIMachineSettingsDisplay">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>350</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="m_pLayoutMain">
+   <item>
+    <widget class="QITabWidget" name="m_pTabWidget">
+     <widget class="QWidget" name="m_pTabVideo">
+      <attribute name="title">
+       <string>&amp;Screen</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="m_pLayoutTabVideo">
+       <item>
+        <widget class="QWidget" name="m_pContainerVideo">
+         <layout class="QGridLayout" name="m_pLayoutContainerVideo">
+          <item row="0" column="0">
+           <widget class="QLabel" name="m_pLabelVideoMemorySize">
+            <property name="text">
+             <string>Video &amp;Memory:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy">
+             <cstring>m_pEditorVideoMemorySize</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1" rowspan="2">
+           <layout class="QGridLayout" name="m_pLayoutVideoMemorySizeSlider">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item row="0" column="0" colspan="3">
+             <widget class="QIAdvancedSlider" name="m_pSliderVideoMemorySize">
+              <property name="whatsThis">
+               <string>Controls the amount of video memory provided to the virtual machine.</string>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="m_pLabelVideoMemorySizeMin"/>
+            </item>
+            <item row="1" column="1">
+             <spacer name="m_pSpacerVideoMemorySize">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLabel" name="m_pLabelVideoMemorySizeMax"/>
+            </item>
+           </layout>
+          </item>
+          <item row="0" column="2">
+           <widget class="QSpinBox" name="m_pEditorVideoMemorySize">
+            <property name="whatsThis">
+             <string>Controls the amount of video memory provided to the virtual machine.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="m_pLabelVideoScreenCount">
+            <property name="text">
+             <string>Mo&amp;nitor Count:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+            <property name="buddy">
+             <cstring>m_pEditorVideoScreenCount</cstring>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1" rowspan="2">
+           <layout class="QGridLayout" name="m_pLayoutVideoScreenCount">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item row="0" column="0" colspan="3">
+             <widget class="QIAdvancedSlider" name="m_pSliderVideoScreenCount">
+              <property name="whatsThis">
+               <string>Controls the amount of virtual monitors provided to the virtual machine.</string>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="m_pLabelVideoScreenCountMin"/>
+            </item>
+            <item row="1" column="1">
+             <spacer name="m_pSpacerVideoScreenCount">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLabel" name="m_pLabelVideoScreenCountMax"/>
+            </item>
+           </layout>
+          </item>
+          <item row="2" column="2">
+           <widget class="QSpinBox" name="m_pEditorVideoScreenCount">
+            <property name="whatsThis">
+             <string>Controls the amount of virtual monitors provided to the virtual machine.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QLabel" name="m_pLabelGuestScreenScale">
+            <property name="text">
+             <string>Scale Factor:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" rowspan="2">
+           <layout class="QGridLayout" name="m_pLayoutGuestScreenScaleSlider">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <item row="0" column="0" colspan="3">
+             <widget class="QIAdvancedSlider" name="m_pSliderGuestScreenScale">
+              <property name="whatsThis">
+               <string>Controls the guest screen scale factor.</string>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QLabel" name="m_pLabelGuestScreenScaleMin"/>
+            </item>
+            <item row="1" column="1">
+             <spacer name="m_pSpacerGuestScreenScale">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>0</width>
+                <height>0</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="2">
+             <widget class="QLabel" name="m_pLabelGuestScreenScaleMax"/>
+            </item>
+           </layout>
+          </item>
+          <item row="4" column="2">
+           <widget class="QSpinBox" name="m_pEditorGuestScreenScale">
+            <property name="whatsThis">
+             <string>Controls the guest screen scale factor.</string>
+            </property>
+            <property name="suffix">
+             <string>%</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0">
+           <widget class="QLabel" name="m_pLabelHiDPI">
+            <property name="text">
+             <string>HiDPI Support:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="1">
+           <widget class="QCheckBox" name="m_pCheckBoxUnscaledHiDPIOutput">
+            <property name="sizePolicy">
+             <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="whatsThis">
+             <string>When checked, guest screen contents will not be scaled up to compensate for high host screen resolutions.</string>
+            </property>
+            <property name="text">
+             <string>Use &amp;Unscaled HiDPI Output</string>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="0">
+           <widget class="QLabel" name="m_pLabelVideoOptions">
+            <property name="text">
+             <string>Acceleration:</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item row="7" column="1">
+           <widget class="QCheckBox" name="m_pCheckbox3D">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="whatsThis">
+             <string>When checked, the virtual machine will be given access to the 3D graphics capabilities available on the host.</string>
+            </property>
+            <property name="text">
+             <string>Enable &amp;3D Acceleration</string>
+            </property>
+           </widget>
+          </item>
+          <item row="8" column="1">
+           <widget class="QCheckBox" name="m_pCheckbox2DVideo">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="whatsThis">
+             <string>When checked, the virtual machine will be given access to the Video Acceleration capabilities available on the host.</string>
+            </property>
+            <property name="text">
+             <string>Enable &amp;2D Video Acceleration</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="m_pStretchVideo">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="m_pTabRemoteDisplay">
+      <attribute name="title">
+       <string>&amp;Remote Display</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="m_pLayoutTabRemoteDisplay">
+       <item>
+        <widget class="QWidget" name="m_pContainerRemoteDisplay">
+         <layout class="QGridLayout" name="m_pLayoutContainerRemoteDisplay">
+          <item row="0" column="0" colspan="2">
+           <widget class="QCheckBox" name="m_pCheckboxRemoteDisplay">
+            <property name="whatsThis">
+             <string>When checked, the VM will act as a Remote Desktop Protocol (RDP) server, allowing remote clients to connect and operate the VM (when it is running) using a standard RDP client.</string>
+            </property>
+            <property name="text">
+             <string>&amp;Enable Server</string>
+            </property>
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <spacer name="m_pSpacerContainerRemoteDisplay">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Fixed</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="1">
+           <widget class="QWidget" name="m_pContainerRemoteDisplayOptions">
+            <layout class="QGridLayout" name="m_pLayoutContainerRemoteDisplayServer">
+             <item row="0" column="0">
+              <widget class="QLabel" name="m_pLabelRemoteDisplayPort">
+               <property name="text">
+                <string>Server &amp;Port:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="buddy">
+                <cstring>m_pEditorRemoteDisplayPort</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLineEdit" name="m_pEditorRemoteDisplayPort">
+               <property name="whatsThis">
+                <string>Holds the VRDP Server port number. You may specify &lt;tt&gt;0&lt;/tt&gt; (zero), to select port 3389, the standard port for RDP.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="m_pLabelRemoteDisplayAuthMethod">
+               <property name="text">
+                <string>Authentication &amp;Method:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="buddy">
+                <cstring>m_pComboRemoteDisplayAuthMethod</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QComboBox" name="m_pComboRemoteDisplayAuthMethod">
+               <property name="whatsThis">
+                <string>Selects the VRDP authentication method.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="m_pLabelRemoteDisplayTimeout">
+               <property name="text">
+                <string>Authentication &amp;Timeout:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="buddy">
+                <cstring>m_pEditorRemoteDisplayTimeout</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLineEdit" name="m_pEditorRemoteDisplayTimeout">
+               <property name="whatsThis">
+                <string>Holds the timeout for guest authentication, in milliseconds.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="0">
+              <widget class="QLabel" name="m_pLabelRemoteDisplayOptions">
+               <property name="text">
+                <string>Extended Features:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="3" column="1">
+              <widget class="QCheckBox" name="m_pCheckboxMultipleConn">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="whatsThis">
+                <string>When checked, multiple simultaneous connections to the VM are permitted.</string>
+               </property>
+               <property name="text">
+                <string>&amp;Allow Multiple Connections</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="m_pStretchRemoteDisplay">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="m_pTabVideoCapture">
+      <attribute name="title">
+       <string>Video &amp;Capture</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="m_pLayoutTabVideoCapture">
+       <item>
+        <widget class="QWidget" name="m_pContainerVideoCapture">
+         <layout class="QGridLayout" name="m_pLayoutContainerVideoCapture">
+          <item row="0" column="0" colspan="2">
+           <widget class="QCheckBox" name="m_pCheckboxVideoCapture">
+            <property name="checked">
+             <bool>false</bool>
+            </property>
+            <property name="whatsThis">
+             <string>When checked, VirtualBox will record the virtual machine session as a video file.</string>
+            </property>
+            <property name="text">
+             <string>&amp;Enable Video Capture</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <spacer name="m_pLeftSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>20</width>
+              <height>0</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="1" column="1">
+           <widget class="QWidget" name="m_pContainerVideoCaptureOptions">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <layout class="QGridLayout" name="m_pContainerLayoutVideoCapture">
+             <item row="0" column="0">
+              <widget class="QLabel" name="m_pLabelVideoCapturePath">
+               <property name="text">
+                <string>File &amp;Path:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="buddy">
+                <cstring>m_pEditorVideoCapturePath</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" colspan="3">
+              <widget class="UIFilePathSelector" name="m_pEditorVideoCapturePath">
+               <property name="whatsThis">
+                <string>Holds the filename VirtualBox uses to save the recorded content.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QLabel" name="m_pLabelVideoCaptureSize">
+               <property name="text">
+                <string>Frame &amp;Size:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="buddy">
+                <cstring>m_pComboVideoCaptureSize</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QComboBox" name="m_pComboVideoCaptureSize">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+                 <horstretch>1</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="whatsThis">
+                <string>Selects the resolution (frame size) of the recorded video.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QSpinBox" name="m_pEditorVideoCaptureWidth">
+               <property name="whatsThis">
+                <string>Holds the &lt;b>horizontal&lt;/b> resolution (frame width) of the recorded video.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QSpinBox" name="m_pEditorVideoCaptureHeight">
+               <property name="whatsThis">
+                <string>Holds the &lt;b>vertical&lt;/b> resolution (frame height) of the recorded video.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="m_pLabelVideoCaptureFrameRate">
+               <property name="text">
+                <string>&amp;Frame Rate:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="buddy">
+                <cstring>m_pSliderVideoCaptureFrameRate</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1" rowspan="2">
+              <widget class="QWidget" name="m_pContainerSliderVideoCaptureFrameRate">
+               <layout class="QGridLayout" name="m_pContainerLayoutSliderVideoCaptureFrameRate">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <item row="0" column="0" colspan="3">
+                 <widget class="QIAdvancedSlider" name="m_pSliderVideoCaptureFrameRate">
+                  <property name="whatsThis">
+                   <string>Controls the maximum number of &lt;b>frames per second&lt;/b>. Additional frames will be skipped. Reducing this value will increase the number of skipped frames and reduce the file size.</string>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="m_pLabelVideoCaptureFrameRateMin"/>
+                </item>
+                <item row="1" column="1">
+                 <spacer name="m_pStretchVideoCaptureFrameRate">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QLabel" name="m_pLabelVideoCaptureFrameRateMax"/>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="2" column="2" colspan="2">
+              <widget class="QSpinBox" name="m_pEditorVideoCaptureFrameRate">
+               <property name="whatsThis">
+                <string>Controls the maximum number of &lt;b>frames per second&lt;/b>. Additional frames will be skipped. Reducing this value will increase the number of skipped frames and reduce the file size.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="m_pLabelVideoCaptureRate">
+               <property name="text">
+                <string>&amp;Quality:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+               <property name="buddy">
+                <cstring>m_pSliderVideoCaptureQuality</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1" rowspan="2">
+              <widget class="QWidget" name="m_pContainerSliderVideoCaptureQuality">
+               <layout class="QGridLayout" name="m_pContainerLayoutSliderVideoCaptureQuality">
+                <property name="spacing">
+                 <number>0</number>
+                </property>
+                <item row="0" column="0" colspan="5">
+                 <widget class="QIAdvancedSlider" name="m_pSliderVideoCaptureQuality">
+                  <property name="whatsThis">
+                   <string>Controls the &lt;b>quality&lt;/b>. Increasing this value will make the video look better at the cost of an increased file size.</string>
+                  </property>
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                 </widget>
+                </item>
+                <item row="1" column="0">
+                 <widget class="QLabel" name="m_pLabelVideoCaptureQualityMin"/>
+                </item>
+                <item row="1" column="1">
+                 <spacer name="m_pStretchVideoCaptureQualityLeft">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="1" column="2">
+                 <widget class="QLabel" name="m_pLabelVideoCaptureQualityMed"/>
+                </item>
+                <item row="1" column="3">
+                 <spacer name="m_pStretchVideoCaptureQualityRight">
+                  <property name="orientation">
+                   <enum>Qt::Horizontal</enum>
+                  </property>
+                  <property name="sizeHint" stdset="0">
+                   <size>
+                    <width>0</width>
+                    <height>0</height>
+                   </size>
+                  </property>
+                 </spacer>
+                </item>
+                <item row="1" column="4">
+                 <widget class="QLabel" name="m_pLabelVideoCaptureQualityMax"/>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item row="4" column="2" colspan="2">
+              <widget class="QSpinBox" name="m_pEditorVideoCaptureBitRate">
+               <property name="whatsThis">
+                <string>Holds the bitrate in &lt;b>kilobits per second&lt;/b>. Increasing this value will make the video look better at the cost of an increased file size.</string>
+               </property>
+              </widget>
+             </item>
+             <item row="6" column="1">
+              <widget class="QLabel" name="m_pLabelVideoCaptureSizeHint"/>
+             </item>
+             <item row="7" column="0">
+              <widget class="QLabel" name="m_pLabelVideoCaptureExtended">
+               <property name="text">
+                <string>Extended Features:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item row="7" column="1" colspan="3">
+              <widget class="QCheckBox" name="m_pCheckBoxVideoCaptureWithAudio">
+               <property name="whatsThis">
+                <string>When checked, VirtualBox will record the audio stream to video file as well.</string>
+               </property>
+               <property name="text">
+                <string>&amp;Record Audio</string>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="0">
+              <widget class="QLabel" name="m_pLabelVideoCaptureScreens">
+               <property name="text">
+                <string>&amp;Screens:</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignTop</set>
+               </property>
+               <property name="buddy">
+                <cstring>m_pScrollerVideoCaptureScreens</cstring>
+               </property>
+              </widget>
+             </item>
+             <item row="8" column="1" colspan="3">
+              <widget class="UIFilmContainer" name="m_pScrollerVideoCaptureScreens">
+               <property name="whatsThis">
+                <string></string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <spacer name="m_pStretchVideoCapture">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QIAdvancedSlider</class>
+   <extends>QSlider</extends>
+   <header>QIAdvancedSlider.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QITabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>QITabWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UIFilePathSelector</class>
+   <extends>QComboBox</extends>
+   <header>UIFilePathSelector.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>UIFilmContainer</class>
+   <extends>QWidget</extends>
+   <header>UIFilmContainer.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>m_pCheckboxRemoteDisplay</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_pContainerRemoteDisplayOptions</receiver>
+   <slot>setEnabled(bool)</slot>
+  </connection>
+ </connections>
+</ui>

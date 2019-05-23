@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple Computer//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleDevelopmentRegion</key>        <string>English</string>
+    <key>CFBundleExecutable</key>               <string>VBoxUSB</string>
+    <key>CFBundleIdentifier</key>               <string>org.virtualbox.kext.VBoxUSB</string>
+    <key>CFBundleInfoDictionaryVersion</key>    <string>6.0</string>
+    <key>CFBundleName</key>                     <string>VBoxUSB</string>
+    <key>CFBundlePackageType</key>              <string>KEXT</string>
+    <key>CFBundleSignature</key>                <string>????</string>
+    <key>CFBundleVersion</key>                  <string>@VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@</string>
+    <key>CFBundleShortVersionString</key>       <string>@VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@</string>
+    <key>CFBundleGetInfoString</key>            <string>@VBOX_PRODUCT@ @VBOX_VERSION_STRING@, © 2007-@VBOX_C_YEAR@ @VBOX_VENDOR@</string>
+    <key>IOKitPersonalities</key>
+    <dict>
+        <key>VBoxUSB</key>
+        <dict>
+            <key>CFBundleIdentifier</key>       <string>org.virtualbox.kext.VBoxUSB</string>
+            <key>IOClass</key>                  <string>org_virtualbox_VBoxUSB</string>
+            <key>IOMatchCategory</key>          <string>org_virtualbox_VBoxUSB</string>
+            <key>IOProviderClass</key>          <string>IOResources</string>
+            <key>IOResourceMatch</key>          <string>IOKit</string>
+            <key>IOUserClientClass</key>        <string>org_virtualbox_VBoxUSBClient</string>
+        </dict>
+        <key>VBoxUSBDevice</key>
+        <dict>
+            <key>CFBundleIdentifier</key>       <string>org.virtualbox.kext.VBoxUSB</string>
+            <key>IOClass</key>                  <string>org_virtualbox_VBoxUSBDevice</string>
+            <key>IOProviderClass</key>          <string>IOUSBDevice</string>
+            <key>idVendor</key>                 <string>*</string>
+            <key>idProduct</key>                <string>*</string>
+            <key>bcdDevice</key>                <string>*</string>
+            <key>IOProbeScore</key>             <integer>9942</integer>
+            <key>IOProviderMergeProperties</key>
+            <dict>
+                <key>IOCFPlugInTypes</key>
+                <dict>
+                    <key>9dc7b780-9ec0-11d4-a54f-000a27052861</key> <string>IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle</string>
+                </dict>
+                <key>IOUserClientClass</key>    <string>IOUSBDeviceUserClientV2</string>
+            </dict>
+        </dict>
+        <key>VBoxUSBInterface</key>
+        <dict>
+            <key>CFBundleIdentifier</key>       <string>org.virtualbox.kext.VBoxUSB</string>
+            <key>IOClass</key>                  <string>org_virtualbox_VBoxUSBInterface</string>
+            <key>IOProviderClass</key>          <string>IOUSBInterface</string>
+            <key>idVendor</key>                 <string>*</string>
+            <key>idProduct</key>                <string>*</string>
+            <key>bcdDevice</key>                <string>*</string>
+            <key>bConfigurationValue</key>      <string>*</string>
+            <key>bInterfaceNumber</key>         <string>*</string>
+            <key>IOProbeScore</key>             <integer>9942</integer>
+            <key>IOProviderMergeProperties</key>
+            <dict>
+                <key>IOCFPlugInTypes</key>
+                <dict>
+                    <key>2d9786c6-9ef3-11d4-ad51-000a27052861</key> <string>IOUSBFamily.kext/Contents/PlugIns/IOUSBLib.bundle</string>
+                </dict>
+                <key>IOUserClientClass</key>    <string>IOUSBInterfaceUserClientV2</string>
+            </dict>
+        </dict>
+    </dict>
+    <key>OSBundleLibraries</key>
+    <dict>
+        <key>com.apple.iokit.IOUSBFamily</key>      <string>3.0.0</string>
+        <key>com.apple.iokit.IOUSBUserClient</key>  <string>3.0.0</string>
+        <key>com.apple.kpi.iokit</key>          <string>9.0.0</string>
+        <key>com.apple.kpi.bsd</key>            <string>9.0.0</string>
+        <key>com.apple.kpi.mach</key>           <string>9.0.0</string>
+        <key>com.apple.kpi.libkern</key>        <string>9.0.0</string>
+        <key>com.apple.kpi.unsupported</key>    <string>9.0.0</string>
+        <key>org.virtualbox.kext.VBoxDrv</key>  <string>@VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@</string>
+    </dict>
+    <key>OSBundleLibraries_x86_64</key>
+    <dict>
+        <key>com.apple.iokit.IOUSBFamily</key>      <string>3.5.0a25</string>
+        <key>com.apple.iokit.IOUSBUserClient</key>  <string>3.5.0a25</string>
+        <key>com.apple.kpi.iokit</key>          <string>10.0.0d3</string>
+        <key>com.apple.kpi.bsd</key>            <string>10.0.0d3</string>
+        <key>com.apple.kpi.mach</key>           <string>10.0.0d3</string>
+        <key>com.apple.kpi.libkern</key>        <string>10.0.0d3</string>
+        <key>com.apple.kpi.unsupported</key>    <string>10.0.0d3</string>
+        <key>org.virtualbox.kext.VBoxDrv</key>  <string>@VBOX_VERSION_MAJOR@.@VBOX_VERSION_MINOR@.@VBOX_VERSION_BUILD@</string>
+    </dict>
+</dict>
+</plist>
+

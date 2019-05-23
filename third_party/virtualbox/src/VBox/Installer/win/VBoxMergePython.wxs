@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!--
+    VirtualBox Windows Installation Script (WiX)
+
+    Copyright (C) 2006-2015 Oracle Corporation
+
+    This file is part of VirtualBox Open Source Edition (OSE), as
+    available from http://www.virtualbox.org. This file is free software;
+    you can redistribute it and/or modify it under the terms of the GNU
+    General Public License (GPL) as published by the Free Software
+    Foundation, in version 2 as it comes in the "COPYING" file of the
+    VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+    hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+-->
+
+<?include Properties.wxi ?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+    <Module Id="msm_VBoxPython"
+            Language="!(loc.LANG)"
+            Version="$(var.Property_Version)">
+
+        <Package Id="0f4de366-a8f3-4842-a165-fb19251cde88"
+                 Keywords="Installer"
+                 Description="$(env.VBOX_PRODUCT) $(var.Property_VersionExt) Python bindings installation package"
+                 Comments="$(env.VBOX_PRODUCT) Python bindings installation package"
+                 Manufacturer="$(env.VBOX_VENDOR)"
+                 InstallerVersion="200"
+                 AdminImage="yes"
+                 InstallPrivileges="elevated"
+                 Platform="$(var.Property_Platform)"
+                 SummaryCodepage="1252"/>
+
+        <?include PublicProperties.wxi ?>
+
+        <!-- Here comes the file/directory list -->
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="msm_VBoxPythonFolder" FileSource=".">
+
+                <?include VBoxMergePython.wxi ?>
+
+            </Directory> <!-- msm_VBoxPythonFolder -->
+        </Directory> <!-- TARGETDIR -->
+
+        <!-- Custom actions -->
+        <Binary Id="VBoxInstallHelper" SourceFile="$(env.PATH_OUT)\bin\VBoxInstallHelper.dll" />
+        <?include VBoxMergePythonCA.wxi ?>
+
+        <InstallExecuteSequence>
+            <?include VBoxMergePythonSeq.wxi ?>
+        </InstallExecuteSequence>
+
+    </Module>
+</Wix>

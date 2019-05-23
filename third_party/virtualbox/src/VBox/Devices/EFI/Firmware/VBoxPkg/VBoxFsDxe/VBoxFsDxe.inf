@@ -1,0 +1,78 @@
+# $Id: VBoxFsDxe.inf $
+## @file
+# VBoxFsDxe - VBox filesystem wrapper.
+#
+# This layer encorporates generic layer for filesystem implementations.
+# Here we put filesystem implementations needed by VirtualBox,
+# but not (yet) included into EDK2.
+#
+
+#
+# Copyright (C) 2010-2016 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+# The contents of this file may alternatively be used under the terms
+# of the Common Development and Distribution License Version 1.0
+# (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+# VirtualBox OSE distribution, in which case the provisions of the
+# CDDL are applicable instead of those of the GPL.
+#
+# You may elect to license modified versions of this file under the
+# terms and conditions of either the GPL or the CDDL or both.
+#
+
+[Defines]
+        INF_VERSION                = 0x00010005
+        BASE_NAME                  = VBoxFsDxe
+        FILE_GUID                  = 0C842421-5699-4E97-BB6B-17B28696DB6E
+        MODULE_TYPE                = UEFI_DRIVER
+        VERSION_STRING             = 1.0
+#        SUPPORTED_ARCHITECTURES    = IA32|X64|IPF|EBC
+        EDK_RELEASE_VERSION        = 0x00020000
+        EFI_SPECIFICATION_VERSION  = 0x00020000
+        ENTRY_POINT                = DxeInitializeVBoxFs
+        UNLOAD_IMAGE               = DxeUninitializeVBoxFs
+
+[Sources.common]
+        VBoxFsDxe.c
+
+[Packages]
+        MdePkg/MdePkg.dec
+        IntelFrameworkModulePkg/IntelFrameworkModulePkg.dec
+        VBoxPkg/VBoxPkg.dec
+
+[LibraryClasses]
+   UefiRuntimeServicesTableLib
+   UefiBootServicesTableLib
+   MemoryAllocationLib
+   BaseMemoryLib
+   BaseLib
+   UefiLib
+   UefiDriverEntryPoint
+   DebugLib
+   PcdLib
+
+[Guids]
+  gEfiFileInfoGuid
+  gEfiFileSystemInfoGuid
+  gEfiFileSystemVolumeLabelInfoIdGuid
+
+
+[Protocols]
+  gEfiDiskIoProtocolGuid
+  gEfiBlockIoProtocolGuid
+  gEfiSimpleFileSystemProtocolGuid
+  gEfiUnicodeCollationProtocolGuid
+  gEfiUnicodeCollation2ProtocolGuid
+
+[Pcd]
+  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultLang
+  gEfiMdePkgTokenSpaceGuid.PcdUefiVariableDefaultPlatformLang
+

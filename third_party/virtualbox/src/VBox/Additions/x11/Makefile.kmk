@@ -1,0 +1,39 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the X11 Guest Additions.
+#
+
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+# Include sub-makefiles.
+if1of ($(KBUILD_TARGET), freebsd linux netbsd openbsd solaris)
+ include $(PATH_SUB_CURRENT)/VBoxClient/Makefile.kmk
+ ifndef VBOX_NO_LEGACY_XORG_X11
+  include $(PATH_SUB_CURRENT)/vboxvideo/Makefile.kmk
+  ifneq ($(KBUILD_TARGET), solaris)
+   include $(PATH_SUB_CURRENT)/vboxmouse/Makefile.kmk
+  endif
+  # This should logically only be controlled by VBOX_NO_LEGACY_XORG_X11,
+  # as it is not used for drivers at all, but rather to build X11 clients
+  # on systems missing needed libraries.
+  ## @todo fix at some later point when it will not break people's workflows.
+  ifndef VBOX_USE_SYSTEM_XORG_HEADERS
+   include $(PATH_SUB_CURRENT)/x11stubs/Makefile.kmk
+  endif
+ endif
+endif
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

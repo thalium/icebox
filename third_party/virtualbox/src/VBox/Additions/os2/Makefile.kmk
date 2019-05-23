@@ -1,0 +1,48 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the OS/2 specific part of the guest additions.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+# Make sure our Config.kmk is included.
+ifndef VBOX_ADDITIONS_OS2_CONFIG_KMK_INCLUDED
+ include $(PATH_SUB_CURRENT)/Config.kmk
+endif
+
+#
+# The sub-makefiles.
+#
+ifndef VBOX_OSE
+ include $(PATH_SUB_CURRENT)/VBoxGradd/Makefile.kmk
+# include $(PATH_SUB_CURRENT)/VBoxGrext/Makefile.kmk
+ include $(PATH_SUB_CURRENT)/VBoxMouse/Makefile.kmk
+ include $(PATH_SUB_CURRENT)/Bin/Makefile.kmk
+endif
+#include $(PATH_SUB_CURRENT)/VBoxSF/Makefile.kmk
+
+
+#
+# Installation helper.
+#
+PROGRAMS += VBoxReplaceDll
+VBoxReplaceDll_TEMPLATE = NewVBoxGuestR3Exe
+VBoxReplaceDll_SOURCES = VBoxReplaceDll.cpp
+
+
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

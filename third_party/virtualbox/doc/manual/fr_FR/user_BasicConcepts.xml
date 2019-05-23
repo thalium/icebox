@@ -1,0 +1,1442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="BasicConcepts">
+  <title>Configurer des machines virtuelles</title>
+
+  <para>Alors que le <xref linkend="Introduction" /> vous donnait une introduction
+  rapide à VirtualBox et sur la façon de faire marcher votre première machine
+  virtuelle, le chapitre qui suit décrit en détail la manière de configurer des
+  machines virtuelles.</para>
+
+  <para>Vous disposez d'une latitude considérable dans la décision sur le matériel
+  qui sera donné à l'invité. Le matériel virtuel peut être utilisé pour 
+  communiquer avec le système hôte ou avec d'autres invités. Par exemple, si vous
+  fournissez à VirtualBox l'image d'un CD-ROM dans un fichier ISO, VirtualBox 
+  peut présenter cette image à un système invité comme s'il s'agissait d'un
+  CD-ROM physique. De la même façon, vous pouvez donner à un système invité
+  un accès au réseau par sa carte réseau virtuelle, si tel est votre choix,
+  donner au système hôte, à d'autres invités ou à des ordinateurs un accès
+  Internet au système hôte.</para>
+
+  <sect1 id="guestossupport">
+    <title>Systèmes d'exploitation invités supportés</title>
+
+    <para>Comme VirtualBox est conçu pour offrir un environnement de virtualisation
+    générique pour les systèmes x86, il peut exécuter des systèmes d'exploitation
+    de tout type, même ceux non cités ici. Cependant, le principal est pour
+    nous d'optimiser VirtualBox pour les systèmes invités suivants&#xA0;:</para>
+
+    <para><glosslist>
+        <glossentry>
+          <glossterm>Windows NT 4.0</glossterm>
+
+          <glossdef>
+            <para>Toutes les versions, les éditions et les packs service sont 
+            complètement supportés&#xA0;; cependant, il y a des problèmes avec
+            les anciens packs service. Nous recommandons d'installer le pack
+            service 6a. Les suppléments invité sont disponibles avec des fonctionnalités
+            limitées.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Windows 2000 / XP / Server 2003 / Vista / Server 2008 /
+            Windows 7 / Windows 8 / Server 2012</glossterm>
+
+          <glossdef>
+            <para>Toutes les versions, les éditions et les packs service sont
+            complètement supportés (y compris les versions 64 bits, sous réserve
+            des conditions préalables listées ci-dessous). Les suppléments invité
+            sont disponibles.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>DOS / Windows 3.x / 95 / 98 / ME</glossterm>
+
+          <glossdef>
+            <para>Un test restreint a été effectué. Utilisation non recommandée
+            au-delà des mécanismes d'installation primitive. Pas de suppléments
+            invité disponibles.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Linux 2.4</glossterm>
+
+          <glossdef>
+            <para>Support limité.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Linux 2.6</glossterm>
+
+          <glossdef>
+            <para>Toutes les versions/éditions sont complètement supportées (32
+            bits et 64 bits). Les suppléments invité sont disponibles.</para>
+
+            <para>Nous recommandons fortement d'utiliser un noyau Linux version
+            2.6.13 ou supérieur pour une meilleure performance.<note>
+                <para>Certaines versions du noyau Linux ont des bogues les empêchant
+                de s'exécuter dans un environnement virtuelle&#xA0;; merci de
+                voir <xref
+                linkend="ts_linux-buggy" /> pour des détails.</para>
+              </note></para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Linux 3.x</glossterm>
+
+          <glossdef>
+            <para>Toutes les versions/éditions sont complètement supportées (32 bits et 64
+            bits). Les suppléments invité sont disponibles.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Solaris 10 (u6 et supérieur), Solaris 11 (y compris Solaris
+         11 Express)</glossterm>
+
+          <glossdef>
+            <para>Complètement supporté (32 bits et 64 bits). Les suppléments
+            invité sont disponibles.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>FreeBSD</glossterm>
+
+          <glossdef>
+            <para>Exige l'activation de la virtualisation matérielle. Support
+            limité. Les suppléments invité ne sont pas encore disponibles.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>OpenBSD</glossterm>
+
+          <glossdef>
+            <para>Exige l'activation de la virtualisation matérielle. Les versions
+            3.7 et supérieur sont supportées. Les suppléments invité ne sont pas
+            encore disponibles.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>OS/2 Warp 4.5</glossterm>
+
+          <glossdef>
+            <para>Exige l'activation de la virtualisation matérielle. Nous ne
+            supportons officiellement que MCP2&#xA0;; les autres versions d'OS/2
+            peuvent ou pas fonctionner. Les suppléments invité sont disponibles
+            avec des fonctionnalités limitées.<footnote>
+                <para>Voir <xref linkend="KnownIssues" />.</para>
+              </footnote></para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Mac OS X</glossterm>
+
+          <glossdef>
+            <para>VirtualBox 3.2 a ajouté un support expérimental des invités
+            Mac OS X, mais il est fourni avec des restrictions. Merci de voir
+            la section suivante et <xref linkend="KnownIssues" />.</para>
+          </glossdef>
+        </glossentry>
+      </glosslist></para>
+
+    <sect2 id="intro-macosxguests">
+      <title>Invités Mac OS X</title>
+
+      <para>À partir de la version 3.2, VirtualBox a un support expérimental des
+      invités Mac OS X. Il vous permet d'installer et d'exécuter des 
+      versions non modifiées de Mac OS X sur du matériel hôte supporté.</para>
+
+      <para>Si les solutions concurrentes offrent des modifications des
+      DVDs d'installation de Mac OS X (chargeur d'amorçage différent, fichiers
+      remplacés), VirtualBox est le premier produit à offrir une architecture PC
+      moderne qu'attend OS X sans besoin de "bidouilles".</para>
+
+      <para>Vous devriez garder en tête un certain nombre de <emphasis role="bold">problèmes
+      importants</emphasis> avant d'essayer d'installer un invité Mac OS X&#xA0;:<orderedlist>
+          <listitem>
+            <para>Mac OS X est un logiciel propriétaire sous licence et il contient
+            <emphasis role="bold">des restrictions juridiques et techniques</emphasis>
+            limitant son utilisation à certains matériels et scénarios 
+            d'utilisations. Il est important que vous compreniez et que vous 
+            respectiez ces restrictions.</para>
+
+            <para>En particulier, pour la plupart des versions de Mac OS X, Apple
+            interdit de les installer sur du matériel non Apple.</para>
+
+            <para>Ces restrictions juridiques sont également renforcées au niveau
+            technique. Mac OS X vérifie si il s'exécute sur du matériel Apple et
+            la plupart des DVDs fournis avec le matériel Apple vérifient même
+            le modèle exact. Ces restrictions <emphasis>ne sont pas</emphasis>
+            contournées par VirtualBox et s'appliquent toujours.</para>
+          </listitem>
+
+          <listitem>
+            <para>Seuls des <emphasis role="bold">processeurs</emphasis> connus
+            et testés par Apple sont supportés. Il s'en suit que si votre processeur
+            Intel est plus récent que la construction de Mac OS X, ou si vous
+            avez un processeur non Intel, il plantera très probablement au moment
+            du démarrage avec une exception "Unsupported CPU". Il vaut mieux
+            généralement utiliser le DVD de Mac OS X fourni avec votre matériel
+            Apple.</para>
+          </listitem>
+
+          <listitem>
+            <para>L'installeur de Mac OS X s'attend à ce que le disque dur soit
+            <emphasis role="bold">partitionné</emphasis>, donc quand il n'offre
+            pas de sélection, vous devez lancer l'Outil de disque du menu
+            "Outils" et partitionner le disque dur. Puis, fermez l'outil de disque
+            et poursuivez l'installation.</para>
+          </listitem>
+
+          <listitem>
+            <para>En outre, comme le support de Mac OS X de VirtualBox est
+            actuellement encore expérimental, merci de vous reporter aussi à <xref linkend="KnownIssues" />.</para>
+          </listitem>
+        </orderedlist></para>
+    </sect2>
+
+    <sect2 id="intro-64bitguests">
+      <title>Invités 64 bits</title>
+
+      <para>VirtualBox supporte les systèmes d'exploitation invités 64 bits, 
+      même sur des systèmes d'exploitation hôtes 32 bits,<footnote>
+          <para>Le support des invités 64 bits a été ajouté avec VirtualBox 2.0&#xA0;;
+          le support des invités 64 bits sur des hôtes 32 bits a été ajouté avec
+          VirtualBox 2.1.</para>
+        </footnote> pourvu qu'existent les conditions suivantes&#xA0;:<orderedlist>
+          <listitem>
+            <para>Vous avez besoin d'un processeur 64 bits avec le support de la
+            virtualisation matérielle (voir <xref linkend="hwvirt" />).</para>
+          </listitem>
+
+          <listitem>
+            <para>Vous devez activer la virtualisation matérielle pour la VM 
+            particulière où vous voulez le support du 64 bits&#xA0;; la virtualisation
+            logicielle n'est pas supportée pour les VMs 64 bits.</para>
+          </listitem>
+
+          <listitem>
+            <para>Si vous voulez utiliser un invité 64 bits sur un système
+            d'exploitation hôte 32 bits, vous devez aussi sélectionner un système
+            d'exploitation 64 bits pour la VM en particulier. Comme le support
+            du 64 bits sur des hôtes 32 bits  implique des dépassements 
+            supplémentaires, VirtualBox n'active ce support qu'à la demande expresse.</para>
+
+            <para>Sur des hôtes 64 bits (fournis en général avec le support de la
+            virtualisation matérielle), les systèmes d'exploitation invités
+            64 bits sont toujours supportés, indépendamment des paramètres, donc
+            vous pouvez simplement installer  un système d'exploitation
+            64 bits dans l'invité.</para>
+          </listitem>
+        </orderedlist></para>
+
+      <para><warning>
+          <para>Sur tous les hôtes, vous devriez activer le <emphasis role="bold">I/O
+          APIC</emphasis> pour les machines virtuelles que vous souhaitez utiliser
+          en mode 64 bits. C'est surtout vrai pour les VMs Windows 64 bits. Voir
+          <xref linkend="settings-general-advanced" />. En outre, pour les invités
+          Windows 64 bits, vous devriez vous assurer que la VM utilise le
+          <emphasis role="bold">périphérique réseau Intel</emphasis>, car il
+          n'y a pas de support pour le pilote 64 bits pour la carte AMD PCNet&#xA0;;
+          voir <xref
+          linkend="nichardware" />.</para>
+        </warning></para>
+
+      <para>Si vous utilisez l'assistant "Créer une VM" de l'interface graphique
+      de VirtualBox, (voir <xref linkend="gui-createvm" />), VirtualBox utilisera
+      automatiquement les bons paramètres pour chaque type de système d'exploitation
+      64 bits choisi.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Matériel émulé</title>
+
+    <para>VirtualBox virtualise presque tout le matériel de l'hôte. Selon la
+    configuration de la VM, l'invité utilisera le matériel virtuel suivant&#xA0;:<itemizedlist>
+        <listitem>
+          <para><emphasis role="bold">Périphériques d'entrée.</emphasis> Par
+          défaut, VirtualBox émule un clavier et une souris PS/2 standards. Ces
+          périphériques sont supportés par presque tous les systèmes d'exploitation
+          passés et actuels.</para>
+
+          <para>En outre, VirtualBox peut fournir des périphériques d'entrée 
+          virtuels pour éviter de devoir capturer la souris et un clavier, comme
+          décrit au <xref
+          linkend="keyb_mouse_normal" />.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Graphisme.</emphasis> Le périphérique graphique
+          de VirtualBox (parfois cité comme périphérique VGA) n'est pas, contrairement
+          à presque tous les autres périphériques émulés, basé sur un équivalent
+          physique. C'est un périphérique de synthèse simple qui fournit une
+          compatibilité avec les VGA et plusieurs registres étendus standards
+          par la VESA BIOS Extensions (VBE).</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Stockage.</emphasis> VirtualBox émule
+          actuellement l'interface ATA standard qu'on trouve dans les puces
+          PIIX3/PIIX4 Intel, l'interface SATA (AHCI) et deux adaptateurs SCSI
+          (LSI Logic et BusLogic)&#xA0;; voir <xref linkend="harddiskcontrollers" />
+          pour des détails. Bien qu'en fournir un d'entre eux suffirait pour
+          VirtualBox en lui-même, cette multitude d'adaptateurs de stockage est
+          requise pour des raisons de compatibilité avec d'autres hyperviseurs.
+          Windows est particulièrement pointilleux sur ces périphériques d'amorçage,
+          et la migration des VMs entre hyperviseurs est très difficile voire impossible
+          si les contrôleurs de stockage sont différents.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Réseau.</emphasis> Voir <xref
+          linkend="nichardware" />.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">USB.</emphasis> VirtualBox émule deux contrôleurs
+          d'hôte USB, EHCI et OHCI. Deux contrôleurs hôtes sont nécessaires car
+          l'OHCI ne gère que les périphériques USB à faible ou grande vitesse
+          (USB 1.x et 2.0), alors que l'EHCI ne gère que les périphériques à
+          très haute vitesse (USB 2.0 seulement). Les contrôleurs USB émulés 
+          ne communiquent pas directement avec les périphériques sur l'hôte,
+          mais plutôt avec une couche USB virtuelle qui rend abstrait le protocole USB et qui
+          permet d'utiliser des périphériques USB distants.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Audio.</emphasis> Voir <xref
+          linkend="settings-audio" />.</para>
+        </listitem>
+      </itemizedlist></para>
+  </sect1>
+
+  <sect1 id="generalsettings">
+    <title>Paramètres généraux</title>
+
+    <para>Dans la fenêtre des paramètres, dans "Général", vous pouvez configurer
+    la plupart des aspects fondamentaux de la machine virtuelle, tels que la
+    mémoire ou du matériel essentiel. Il y a trois onglets, "Simple", "Avancé" et
+    "Description".</para>
+
+    <sect2>
+      <title>Onglet "Simple"</title>
+
+      <para>Sous l'onglet "Simple" de la catégorie Général
+      des paramètres, vous pouvez voir ces paramètres&#xA0;:</para>
+
+      <glosslist>
+        <glossentry>
+          <glossterm>Nom</glossterm>
+
+          <glossdef>
+            <para>Le nom sous lequel apparaît la VM dans la liste des VMs de la
+            fenêtre principale. Sous ce nom, VirtualBox enregistre aussi les
+            fichiers de configuration de la VM. En changeant le nom, VirtualBox
+            renomme aussi ces fichiers. Il s'en suit que vous ne pouvez utiliser
+            que des caractères autorisés par les noms de fichier de votre système
+            d'exploitation hôte.</para>
+
+            <para>Remarquez qu'en interne, VirtualBox utilise des identifieants
+            unique (UUIDs) pour identifier les machines virtuelles. Vous pouvez
+            les afficher avec <computeroutput>VBoxManage</computeroutput>.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Système d'exploitation / version</glossterm>
+
+          <glossdef>
+            <para>Le type du système d'exploitation invité qui est (ou sera)
+            installé dans la VM. C'est le même paramètre que celui spécifié dans
+            l'assistant "Nouvelle machine virtuelle", comme décrit au <xref
+            linkend="gui-createvm" />.</para>
+
+            <para>Si les paramètres par défaut d'une VM nouvellement créée sont
+            fonction du type de système d'exploitation sélectionné, la modification
+            ultérieure du type n'a aucun effet sur les paramètres de la VM&#xA0;;
+            cette valeur est donc purement informative et décorative.</para>
+          </glossdef>
+        </glossentry>
+      </glosslist>
+    </sect2>
+
+    <sect2 id="settings-general-advanced">
+      <title>Onglet "Avancé"</title>
+
+      <para><glosslist>
+          <glossentry>
+            <glossterm>Dossier d'instantané</glossterm>
+
+            <glossdef>
+              <para>Par défaut, VirtualBox enregistre les données de l'instantané 
+              avec vos autres données de configuration de VirtualBox&#xA0;; voir <xref
+              linkend="vboxconfigdata" />. Avec ce paramètre, vous pouvez spécifier
+              un autre dossier pour chaque VM.</para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Presse-papier partagé</glossterm>
+
+            <glossdef>
+              <para>Vous pouvez sélectionner ici si le presse-papier du système
+              d'exploitation invité devrait être partagé avec celui de votre hôte.
+              Si vous sélectionnez "Bidirectionnel", VirtualBox s'assurera toujours
+              que les deux presse-papier contiennent les mêmes données. Si vous
+              sélectionnez "Hôte vers invité" ou "Invité vers hôte", VirtualBox
+              copiera les données du presse-papier dans une direction.</para>
+
+              <para>Le partage du presse-papier nécessite que les suppléments 
+              invité de VirtualBox soient installés. Il s'en suit que ce paramètre
+              n'a aucun effet sans cela&#xA0;; voir <xref linkend="guestadditions" /> pour
+              les détails.</para>
+
+              <para>Le presse-papier partagé est désactivé par défaut. Voir
+              <xref linkend="security_clipboard"/> pour une explication. On peut
+              changer ce paramètre n'importe quand en utilisant le menu "Presse-papier"
+              du menu "Périphériques" de la machine virtuelle.</para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Drag'n'Drop</glossterm>
+            <glossdef>
+              <para>Ce paramètre permet d'activer le support du glisser/déplacer : sélectionnez
+              un objet (comme un fichier) sur le bureau de l'hôte ou de l'invité
+              et copiez-le ou ouvrez-le directement sur l'invité ou l'hôte. Plusieurs
+              modes de glisser/déplacer individuels à chaque VM vous permettent
+              de restreindre les accès dans tous les sens.</para>
+
+              <para>Pour que le glisser/déplacer fonctionne, les suppléments
+              invité doivent être installés sur l'invité.</para>
+
+              <para><note><para>Le glisser/déplacer est désactivé par défaut.
+              Vous pouvez changer ce réglage n'importe quand en utilisant
+              l'icône Glisser/déplacer du menu "Périphériques" de la machine
+              virtuelle.</para></note></para>
+
+              <para>Voir <xref linkend="guestadd-dnd"/> pour plus d'informations.
+              <footnote><para>Le support expérimental du glisser/déplacer a été.
+              introduit avec VirtualBox 4.2.</para></footnote></para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Média amovible&#xA0;: enregistrer les changements pendant
+            l'exécution</glossterm>
+
+            <glossdef>
+              <para>Si ceci est coché, VirtualBox enregistrera l'état des médias
+              montés entre deux exécutions d'une 
+              machine virtuelle.</para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Mini barre d'outils</glossterm>
+
+            <glossdef>
+              <para>En mode plein écran ou transparent, VirtualBox peut afficher
+              une petite barre d'outils contenant certains éléments disponibles
+              normalement dans la barre de menus de la machine virtuelle. Cette
+              barre d'outils se réduit à une ligne grise, sauf si vous déplacez
+              la souris dessus. Avec la barre d'outils, vous pouvez basculer entre
+              le mode plein écran et transparent, contrôler l'exécution de la 
+              machine ou activer certains périphériques. Si vous ne voulez pas voir
+              la barre d'outils, désactivez ce paramètre.</para>
+              <para>Le deuxième paramètre permet d'afficher la barre d'outil en haut
+              de l'écran et non en bas.</para>
+            </glossdef>
+          </glossentry>
+        </glosslist></para>
+    </sect2>
+
+    <sect2>
+      <title>Onglet "Description"</title>
+
+      <para>Ici, vous pouvez taper une description pour votre machine virtuelle si
+      vous le voulez. Cela n'a aucun effet sur le fonctionnement de la machine,
+      mais vous pourriez trouver cet espace utile pour y noter des choses comme
+      la configuration d'une machine virtuelle et le logiciel 
+      installé dedans.</para>
+      <para>Pour insérer un saut de ligne dans la zone de texte de la
+      description, appuyez sur <emphasis>Majuscule+Entrée</emphasis>.</para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="settings-system">
+    <title>Paramètres système</title>
+
+    <para>La catégorie "Système" regroupe divers paramètres  liés au matériel de
+    base présenté à la machine virtuelle.<note>
+        <para>Le mécanisme d'activation de Microsoft Windows étant sensible aux
+        modifications matérielles, si vous modifiez les paramètres matériels pour
+        un invité Windows, certains de ces changements peuvent provoquer la 
+        demande d'une nouvelle activation de Microsoft.</para>
+      </note></para>
+
+    <sect2 id="settings-motherboard">
+      <title>Onglet "Carte mère"</title>
+
+      <para>Dans l'onglet "Carte mère", vous pouvez influencer le matériel
+      virtuel qui serait normalement sur la carte mère d'un vrai ordinateur.<glosslist>
+          <glossentry>
+            <glossterm>Mémoire de base</glossterm>
+
+            <glossdef>
+              <para>Ceci définit la quantité de RAM affectée et donnée à la VM
+              quand elle est en fonction. La quantité de mémoire spécifiée 
+              sera récupérée sur le système d'exploitation hôte, donc il faut
+              qu'elle soit disponible ou rendue disponible comme mémoire libre
+              sur l'hôte au moment du démarrage de la VM et elle ne sera pas
+              disponible pour l'hôte tant que la VM sera en fonction.  C'est le
+              même paramètre que celui spécifié dans l'assistant "Nouvelle machine
+              virtuelle", comme décrit dans les grandes lignes du
+              <xref linkend="gui-createvm" />.</para>
+
+              <para>En général, il est possible de modifier la taille de la mémoire
+              après avoir installé le système d'exploitation invité (pourvu que
+              vous ne réduisiez pas la mémoire à une quantité telle qu'un système
+              d'exploitation ne démarrerait plus).</para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Ordre d'amorçage</glossterm>
+
+            <glossdef>
+              <para>Ce paramètre détermine l'ordre dans lequel le système d'exploitation
+              invité essaiera de s'amorcer sur les différents péripréhiques de
+              démarrage virtuels. Analogue à un paramètre du BIOS d'un vrai PC,
+              VirtualBox peut dire à un OS invité de démarrer sur une disquette,
+              un lecteur CD/DVD virtuel, le disque dur virtuel (chacun d'eux
+              étant défini par les autres paramètres de la VM), le réseau ou
+              aucun.</para>
+
+              <para>Si vous sélectionnez "Réseau", la VM essaiera de démarrer sur
+              le mécanisme PXE du réseau virtuel. Il faut le configurer en détail
+              en ligne de commande  Merci de voir <xref
+              linkend="vboxmanage-modifyvm" />.</para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Chipset</glossterm>
+
+            <glossdef>
+              <para>Vous pouvez sélectionner ici le chipset qui sera présenté
+              à la machine virtuelle. Avant VirtualBox 4.0, PIIX3 était ici la
+              seule option disponible. Pour les systèmes d'exploitation invités
+              modernes tels que Mac OS X, ce vieux chipset n'est plus bien 
+              supporté. Du coup, VirtualBox 4.0 a introduit une émulation du
+              chipset ICH9, plus moderne, qui supporte le PCI express, trois bus
+              PCI, des ponts PCI-à-PCI et des Message Signaled Interrupts
+              (MSI). Cela permet aux systèmes d'exploitation modernes de gérer 
+              davantage de périphériques PCI sans besoin d'un partage d'IRQ. 
+              Remarquez que le support ICH9 est expérimental et non recommandé
+              pour les systèmes d'exploitation invités qui n'en ont pas besoin.</para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Pointage de périphériques</glossterm>
+
+            <glossdef>
+              <para>Le périphérique de pointage par défaut des invités anciens 
+              est une souris PS/2 traditionnelle. Avec <emphasis>USB tablet</emphasis>,
+              VirtualBox indique à la machine virtuelle qu'une tablette USB est
+              connectée et il envoie les événements de souris à la machine
+              virtuelle via ce périphérique. Le troisième paramètre est un
+              <emphasis>USB Multi-Touch Tablet</emphasis> adapté aux invités 
+              Windows récents.</para>
+
+              <para>L'utilisation de la tablette USB virtuelle a l'avantage que les
+              mouvements sont envoyés avec une synchronisation absolue (et non
+              seulement les changements relatifs), ce qui permet à VirtualBox de
+              traduire les événements de souris dans la fenêtre de la VM en
+              événements de la tablette sans devoir "capturer" la souris dans l'invité,
+              comme décrit au
+<xref
+              linkend="keyb_mouse_normal" />. Cela rend l'utilisation de la
+              VM moins pénible même si les suppléments invité ne sont pas 
+              installés.<footnote>
+                  <para>La tablette USB virtuelle a été ajoutée avec VirtualBox
+                   3.2. Selon le système d'exploitation choisi, elle est maintenant
+                activée par défaut pour les nouvelles machines virtuelles.</para>
+                </footnote></para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Activer I/O APIC</glossterm>
+
+            <glossdef>
+              <para>Advanced Programmable Interrupt Controllers (APICs) (contrôleurs
+              d'interruptions programmables avancés) sont des fonctionnalités
+              du matériel x86 récent ayant remplacé ces dernières années le
+              Programmable Interrupt Controllers (PICs). Avec un
+              I/O APIC, les systèmes d'exploitation peuvent utiliser plus de
+              16 requêtes d'interruption (IRQs), évitant donc le partage d'IRQ
+              pour une meilleure fiabilité.<note>
+                  <para>L'activation de I/O APIC est <emphasis>requis</emphasis>
+                  pour les systèmes d'exploitation invités 64 bits, surtout Windows
+                  Vista&#xA0;; il est aussi nécessaire si vous voulez utiliser 
+                  plus d'un processeur virtuel dans une machine virtuelle.</para>
+                </note></para>
+
+              <para>Cependant, le support des I/O APICs logiciel n'est pas fiable
+              avec les systèmes d'exploitation autres que Windows. De plus,
+              l'utilisation de I/O APIC augmente légèrement la charge de la
+              virtualisation et donc, cela ralentit un peu l'OS invité.<warning>
+                  <para>Tous les systèmes d'exploitation Windows à partir de Windows
+                  2000 installent des noyaux différents en fonction de la
+                  disponibilité de l'I/O APIC. Comme avec l'ACPI, l'I/O APIC 
+                  <emphasis>ne doit pas être désactivé après
+                  l'installation</emphasis> d'un OS invité Windows. Son
+                  activation après l'installation n'aura par contre aucun effet.</para>
+                </warning></para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Activer l'EFI</glossterm>
+
+            <glossdef>
+              <para>Ceci active la Extensible Firmware Interface (EFI), qui remplace
+              le BIOS de base et peut servir dans certains cas d'utilisation avancée.
+              Merci de vous reporter à <xref linkend="efi" /> pour les
+              détails.</para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Horloge matérielle en temps UTC</glossterm>
+
+            <glossdef>
+              <para>Si ceci est coché, VirtualBox indiquera à l'invité l'heure 
+              du système au format UTC plutôt qu'en temps local (hôte). Cela
+              change la façon dont agit l'horloge en temps réel virtuelle (RTC)
+              et peut être utile pour des systèmes d'exploitation invité de type
+              Unix qui attendent généralement une horloge matérielle en UTC.</para>
+            </glossdef>
+          </glossentry>
+
+        </glosslist></para>
+
+      <para>De plus, vous pouvez désactiver <emphasis role="bold">Advanced
+      Configuration and Power Interface (ACPI)</emphasis> que VirtualBox présente
+      par défaut au système d'exploitation invité. L'ACPI est le standard industriel
+      actuel permettant au système d'exploitation de reconnaître le matériel, de
+      configurer les cartes mères et d'autres périphériques, et de gérer l'énergie.
+      Comme tous les PCs modernes contiennent cette fonctionnalité et Windows 
+      et Linux le supportent depuis des années, il est activé par défaut dans
+      VirtualBox. On ne peut le désactiver qu'en ligne de commande&#xA0;; voir <xref
+      linkend="vboxmanage-modifyvm" />.<warning>
+          <para>Tous les systèmes d'exploitation Windows à partir de Windows 2000
+          installent des noyaux différents selon que l'ACPI est activé, donc l'ACPI
+          <emphasis>ne doit pas être désactivé</emphasis> après l'installation
+          d'un OS invité Windows. Son activation après l'installation n'aura
+          par contre aucun effet.</para>
+        </warning></para>
+    </sect2>
+
+    <sect2 id="settings-processor">
+      <title>Onglet "Processeur"</title>
+
+      <para>Dans l'onglet "Processeur", vous pouvez définir le nombre de 
+      <emphasis
+      role="bold">c&#x153;urs de processeur</emphasis> virtuels que devrait voir
+      le système d'exploitation invité. À partir de la version 3.0, VirtualBox 
+      supporte le symmetrical multiprocessing (SMP) et peut présenter jusqu'à 32
+     c&#x153;urs de processeur virtuels à chaque machine virtuelle.</para>
+
+      <para>Vous ne devriez quand même pas configurer une machines virtuelles
+      pour utiliser plus de c&#x153;urs de processeur que vous n'en avez physiquement
+      (coeurs réels, pas d'hyperthreads).</para>
+
+      <para>Dans cet onglet, vous pouvez aussi définir le <emphasis role="bold">"CPU execution cap"</emphasis>.
+      Ce paramètre limite la quantité de temps qu'un processeur hôte peut donner
+      pour émuler un processeur virtuel. Le réglage par défaut est de 100%
+      ce qui veut dire qu'il n'y a aucune limite. Un réglage à 50% implique
+      qu'un seul processeur peut utiliser jusqu'à 50% d'un seul processeur hôte.
+      Remarquez que la limitation du temps d'exécution des processeurs virtuels
+      peut provoquer des problèmes de timing dans l'invité.</para>
+
+      <para>Par ailleurs, le paramètre <emphasis role="bold">"Activer PAE/NX"</emphasis>
+      détermine si les possibilités PAE et NX du processeur hôte seront proposées
+      à la machine virtuelle. PAE signifie "Physical Address
+      Extension". Normalement, s'il est activé et supporté par le système d'exploitation,
+      même un processeur x86 32 bits peut accéder à plus de 4 Go de RAM. Cela
+      est rendu possible par l'ajout de 4 bits aux adresses mémoire, de sorte qu'avec
+      36 bits, on peut gérer jusqu'à 64 Go. Certains systèmes d'exploitation
+      (tels qu'Ubuntu Server)exigent le support PAE du processeur et ne peuvent
+      pas fonctionner dans une machine virtuelle sans cela.</para>
+
+      <para>Sur des machines virtuelles qui exécutent des systèmes d'exploitation serveurs modernes,
+      VirtualBox supporte aussi le branchement à chaud du processeur. Pour des
+      détails là-dessus, merci de vous reporter à <xref linkend="cpuhotplug" />.</para>
+    </sect2>
+
+    <sect2>
+      <title>Onglet "Accélération"</title>
+      
+      <para>Dans cet onglet, vous pouvez déterminer si VirtualBox devrait utiliser
+      les extensions de virtualisation matérielle que peut supporter votre hôte
+      et comment. C'est le cas avec la plupart des processeurs fabriqués après 2006.</para>
+
+      <para>Vous pouvez sélectionner individuellement pour chaque machine virtuelle 
+      si VirtualBox devrait utiliser la virtualisation logicielle ou matérielle.<footnote>
+          <para>Avant VirtualBox version 2.2, la virtualisation logicielle était
+          par défaut&#xA0;; à partir de la version 2.2, VirtualBox activera la
+          virtualisation matérielle par défaut pour les nouvelles machines
+          virtuelles créées. (Les machines virtuelles existantes ne sont pas
+          automatiquement modifiées pour des raisons de
+          compatibilité, et vous pouvez bien sûr modifier le réglage par défaut
+          pour chaque machine virtuelle.)</para>
+        </footnote></para>
+
+      <para>Dans la plupart des cas, les paramètres défaut conviendront&#xA0;;
+      VirtualBox aura choisi des options par défaut en fonction du système
+      d'exploitation que vous avez sélectionné quand vous avez créé la machine
+      virtuelle. Toutefois, dans certaines situations, il se peut que vous vouliez
+      modifier ces réglages par défaut préconfigurés.</para>
+
+      <para>Il se peut que les utilisateurs avancés s'intéressent aux détails
+      techniques sur la virtualisation logicielle Vs matérielle&#xA0;; merci
+      de voir <xref
+      linkend="hwvirt" />.</para>
+
+      <para>Si votre processeur hôte supporte les fonctions <emphasis role="bold">pagination
+      nested</emphasis> (AMD-V) ou <emphasis role="bold">EPT</emphasis> (Intel
+      VT-x), vous pouvez compter sur une augmentation significative des 
+      performances en activant la pagination nested en plus de la virtualisation
+      matérielle. Pour des détails techniques, voir <xref linkend="imbriquéepaging" />.</para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="settings-display">
+    <title>Paramètres d'affichage</title>
+
+    <glosslist>
+      <glossentry>
+        <glossterm>Taille de la mémoire graphique</glossterm>
+
+        <glossdef>
+          <para>Ceci définit la taille de la mémoire fournie par la carte
+          graphique virtuelle et disponible pour l'invité, en Mo. Comme avec la
+          mémoire globale, la quantité spécifiée sera affectée à partir de la
+          mémoire résidente de l'hôte. À partir de la quantité de mémoire graphique,
+          certaines résolutions et profondeur des couleurs peuvent être disponibles.</para>
+
+          <para>L'interface graphique affichera un avertissement si la quantité
+          de mémoire graphique est trop petite pour pouvoir passer la VM
+          en mode plein écran. La valeur minimum dépend du nombre d'écrans virtuels,
+          de la résolution de l'écran et de la profondeur des couleurs sur l'affichage
+          hôte, ainsi que de l'activation de <emphasis>l'accélération 3D</emphasis>
+          et de <emphasis>l'accélération graphique 2D</emphasis>. Une ébauche
+          d'estimation est <emphasis>profondeur des couleurs</emphasis> / 8) x 
+          <emphasis>nombre de pixels verticalement</emphasis> x
+                    <emphasis>nombre de pixels horizontalement</emphasis> x
+          <emphasis>nombre d'écrans</emphasis> = <emphasis>nombre de bytes</emphasis>.
+          Comme indiqué ci-dessus, de la mémoire supplémentaire pourrait être nécessaire
+          pour définir les accélération´s d'affichage activées.</para>
+        </glossdef>
+      </glossentry>
+
+      <glossentry>
+        <glossterm>Nombre d'écrans</glossterm>
+
+        <glossdef>
+          <para>Avec ce paramètre, VirtualBox peut fournir plusieurs écrans
+          virtuels à une machine virtuelle. Si un système d'exploitation invité
+          (tel que Windows) supporte le rattachement à plusieurs écrans, VirtualBox
+          peut affirmer que plusieurs écrans virtuels sont présents.<footnote>
+              <para>Le support multi-écrans a été ajouté avec VirtualBox
+              3.2.</para>
+            </footnote> Jusqu'à 8 écrans virtuels peuvent ainsi être supportés.</para>
+
+          <para>La sortie de plusieurs écrans virtuels peut être affichée sur l'hôte
+          dans plusieurs fenêtres de VM placées côte à côte.</para>
+
+          <para>Néanmoins, en mode plein écran ou transparent, ils utiliseront
+          les écrans physiques disponibles connectés à l'hôte. Il s'en suit que
+          pour que les modes plein écran et transparent fonctionnent avec plusieurs
+          écrans, vous aurez besoin d'au moins autant d'écrans physiques que
+          d'écrans virtuels configurés, sans quoi VirtualBox renverra une erreur.
+          Vous pouvez configurer la relation entre les écrans hôte et invité
+          en utilisant le menu Vue, en appuyant sur Touche hôte + Origine pendant
+          que vous êtes en mode plein écran ou transparent.</para>
+
+          <para>Merci de voir aussi <xref linkend="KnownIssues" />.</para>
+        </glossdef>
+      </glossentry>
+
+      <glossentry>
+        <glossterm>Activer l'accélération 3D</glossterm>
+
+        <glossdef>
+          <para>Si vous avez installé les Suppléments invité sur une machine
+          virtuelle, vous pouvez ici sélectionner si l'invité devrait supporter
+          la vidéo accélérée 3D. Merci de vous reporter à <xref linkend="guestadd-3d" /> 
+          pour des détails.</para>
+        </glossdef>
+      </glossentry>
+
+      <glossentry>
+        <glossterm>Activer l'accélération graphique 2D</glossterm>
+
+        <glossdef>
+          <para>Si vous avez installé les Suppléments invité sur une machine
+          virtuelle contenant Windows, vous pouvez ici sélectionner si l'invité
+          doit supporter la vidéo accélérée 2D. Merci de vous reporter à <xref
+          linkend="guestadd-2d" /> pour les détails.</para>
+        </glossdef>
+      </glossentry>
+
+      <glossentry>
+        <glossterm>Affichage distant</glossterm>
+
+        <glossdef>
+          <para>Dans l'onglet "Affichage distant", si vous avez installé l'extension
+          VirtualBox Remote Display Extension (VRDE), vous pouvez activer le serveur
+          VRDP construit dans VirtualBox. Cela vous permet de vous connecter à
+          la console de la machine virtuelle à distance avec n'importe quel
+          client RDP standard tel que <computeroutput>mstsc.exe</computeroutput> 
+          fourni avec Microsoft Windows. Sur les systèmes Linux et Solaris,
+          vous pouvez utiliser le programme standard open-source
+          <computeroutput>rdesktop</computeroutput>. Ces fonctionnalités sont
+          décrites en détail au 
+          <xref linkend="vrde" />.</para>
+        </glossdef>
+      </glossentry>
+      <glossentry>
+        <glossterm>Capture graphique</glossterm>
+
+        <glossdef>
+          <para>Dans l'onglet "Capture graphique", vous pouvez activer la capture
+          graphique d'une VM. Remarquez que cette fonction peut être activée/désactivée aussi
+          pendant l'exécution de la VM.</para>
+        </glossdef>
+      </glossentry>
+
+    </glosslist>
+  </sect1>
+
+  <sect1 id="settings-storage">
+    <title>Paramètres du stockage</title>
+
+    <para>La catégorie "Stockage" des paramètres de la VM vous permet de connecter
+    des images et des lecteurs de disque dur, de CD/DVD et de disquette virtuelles
+    à votre machine virtuelle.</para>
+
+    <para>Dans un vrai PC, ce qu'on appelle les "contrôleurs de stockage" connectent
+    des lecteurs de disque physiques au reste de l'ordinateur. De la même façon,
+    VirtualBox présente des contrôleurs de stockage virtuels à une machine virtuelle.
+    Sous chaque contrôleur, vous voyez les périphériques virtuels connectés
+    (disques durs, lecteur CD/DVD ou disquette).<note>
+
+        <para>Cette section ne peut vous donner qu'une brève introduction aux
+        paramètres de stockage de VirtualBox. Comme VirtualBox vous donne
+        un choix énorme d'options dans cette zone, nous avons consacré tout un
+        chapitre de ce manuel de l'utilisateur à l'explication de tous les
+        détails&#xA0;: merci de voir <xref
+        linkend="storage" />.</para>
+      </note></para>
+
+    <para>Si vous avez utilisé l'assistant "Créer une VM" pour créer une machine, 
+    vous verrez normalement quelque chose comme suit&#xA0;:</para>
+
+    <para><mediaobject>
+        <imageobject>
+          <imagedata align="center" fileref="images/vm-settings-harddisk.png"
+                     width="10cm" />
+        </imageobject>
+      </mediaobject></para>
+
+    <para>Selon le type de système d'exploitation invité que vous avez sélectionné
+    quand vous avez créé la VM, la présentation classique des périphériques de stockage
+    dans une nouvelle VM est ainsi&#xA0;:<itemizedlist>
+        <listitem>
+          <para>Vous verrez un <emphasis role="bold">contrôleur IDE,
+          </emphasis> auquel on a connecté un lecteur CD/DVD virtuel (sur le
+          "deuxième port maître") du contrôleur IDE).</para>
+        </listitem>
+
+        <listitem>
+          <para>Vous verrez aussi un <emphasis role="bold">contrôleur SATA
+          controller,</emphasis> qui est un type plus moderne de contrôleur de 
+          stockage pour un transport de données du disque dur plus rapide, où
+          on a rattaché les disques durs virtuels. Au départ, vous aurez en
+          principe un disque comme celui-ci, mais comme vous pouvez le voir dans
+          l'impression d'écran ci-dessus, vous pouvez en avoir plusieurs,
+          chacun représenté par un fichier image de disque (fichiers
+          (VDI, dans ce cas).</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>Si vous avez créé votre VM avec une version antérieure de VirtualBox,
+    la présentation des stockages par défaut peut varier. Il se peut donc 
+   que vous ayez qu'un contrôleur IDE auquel on a connecté le lecteur CD/DVD et
+   les disques durs. Cela pourrait aussi être le cas si vous avez sélectionné un
+   ancien type de système d'exploitation quand vous avez créé la VM. Comme les
+   anciens systèmes d'exploitation ne supportent pas 
+    le SATA sans pilotes supplémentaires, VirtualBox veillera à ce qu'aucun
+    périphérique de ce type ne soit présent au départ. Merci de voir <xref
+    linkend="harddiskcontrollers" /> pour des informations supplémentaires.</para>
+
+    <para>VirtualBox fournit aussi un <emphasis role="bold">contrôleur amovible
+    </emphasis> spécial&#xA0;: vous ne pouvez pas y ajouter d'autres périphériques
+    que des lecteurs amovibles. Les périphériques amovibles virtuels comme les
+    lecteurs CD/DVD virtuels peuvent être connectés soit à un lecteur amovible hôte
+    (si vous en avez un), soit associés à une image de disque qui doit alors être
+    au format RAW.</para>
+
+    <para>Vous pouvez modifier librement ces connexions de médias. Par exemple,
+    si vous copier des fichiers depuis un autre disque dur virtuel que vous avez
+    créé, vous connecter ce disque comme deuxième disque dur, comme dans
+    l'impression d'écran ci-dessus. Vous pourriez aussi ajouter un deuxième
+    lecteur CD/DVD virtuel ou modifier l'endroit où ces éléments sont branchés.
+    Les options suivantes sont disponibles&#xA0;:<itemizedlist>
+        <listitem>
+          <para>Pour <emphasis role="bold">ajouter un autre disque dur virtuel
+          ou un lecteur CD/DVD ou de disquette,</emphasis> sélectionnez un
+          contrôleur de stockage auquel l'ajouter (IDE, SATA, SCSI, SAS, contrôleur
+          amovible), puis cliquez sur le bouton "ajouter un disque" sous
+          l'arborescence. Vous pouvez alors sélectionner soit "Ajouter un
+          périphérique CD/DVD" soit "Ajouter un disque dur". (Si vous avez cliqué
+          sur un contrôleur amovible, vous pouvez plutôt ajouter un lecteur amovible.)
+          Sinon, effectuez un clic droit sur le contrôleur de stockage et
+          sélectionnez-y un élément de menu.</para>
+
+          <para>Sur la partie droite de la fenêtre, vous pouvez alors définir ce
+          qui suit&#xA0;:<orderedlist>
+              <listitem>
+                <para>Vous pouvez sélectionner à quel <emphasis
+                role="bold">slot de périphérique</emphasis> du contrôleur devrait
+                se connecter le disque virtuel. Les contrôleurs IDE ont quatre
+                slots qu'on appelle traditionnellement le "maître primaire",
+                "esclave primaire"&#xA0;, "maître secondaire" et "esclave secondaire".
+                Au contraire, les contrôleurs SATA et SCSI vous offrent jusqu'à
+                30 slots pour connecter des prériphériques virtuels.</para>
+              </listitem>
+
+              <listitem>
+                <para>Vous pouvez sélectionner le <emphasis role="bold">fichier image
+                </emphasis> à utiliser.<itemizedlist>
+                    <listitem>
+                      <para>Pour les disques durs virtuels, un ascenseur en liste
+                      déroulante apparaît à droite, vous offrant la sélection
+                      soit de <emphasis role="bold">fichier de disque dur virtuel
+                      </emphasis> en utilisant une boîte de dialogue fichier standard 
+                      soit de 
+                      <emphasis role="bold">créer un nouveau disque dur</emphasis>
+                      (fichier image), qui ouvrira l'assistant "Créer un nouveau
+                      disque", décrite au <xref
+                      linkend="gui-createvm" />.</para>
+
+                      <para>Pour des détails sur les types de fichiers images 
+                      supportés, merci de voir <xref
+                      linkend="vdidetails" />.</para>
+                    </listitem>
+
+                    <listitem>
+                      <para>Pour les lecteurs CD/DVD virtuels, les fichiers
+                      image seront en général au format standard ISO. La plupart
+                      du temps, vous sélectionnerez cette option quand vous
+                      installerez un système d'exploitation à partir d'une image
+                      ISO que vous avez récupéré sur Internet. Par exemple, la
+                      plupart des distributions Linux sont disponibles par ce biais.</para>
+
+                      <para>Pour les lecteurs CD/DVD virtuels, les options
+                      suivantes sont disponibles&#xA0;:</para>
+
+                      <para><itemizedlist>
+                          <listitem>
+                            <para>Si vous sélectionnez <emphasis role="bold">"Lecteur
+                            hôte"</emphasis> dans la liste, le périphérique physique
+                            de l'ordinateur hôte sera connecté à la VM, pour que
+                            le système d'exploitation invité puisse lire et écrire
+                            sur votre périphérique physique. Cela sert, par exemple,
+                            si vous voulez installer Windows depuis un vrai CD
+                            d'installation. Dans ce cas, sélectionnez votre lecteur
+                            hôte dans la liste déroulante affichée.</para>
+
+                            <para>Si vous voulez écrire (graver) des CDs ou des
+                            DVDs en utilisant le lecteur hôte, vous devez également
+                            activer l'option
+                            <emphasis role="bold">"Mode direct (Passthrough)"</emphasis>&#xA0;;
+                            voir <xref linkend="storage-cds" />.</para>
+                          </listitem>
+
+                          <listitem>
+                            <para>Si vous sélectionnez <emphasis role="bold">"
+                            Supprimer un disque du lecteur virtuel",</emphasis> VirtualBox
+                            présentera un lecteur CD/DVD vide à l'invité dans
+                            lequel on a inséré le média.</para>
+                          </listitem>
+                        </itemizedlist></para>
+                    </listitem>
+                  </itemizedlist></para>
+              </listitem>
+            </orderedlist></para>
+        </listitem>
+
+        <listitem>
+          <para>Pour <emphasis role="bold">supprimer une connexion,</emphasis>,
+          sélectionnez-la et cliquez sur l'icône "Supprimer" tout en bas (ou
+          effectuez un clic droit dessus et sélectionnez l'élément du menu).</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>On peut changer de média amovible (de CD/DVDs et de disquettes) pendant
+    que l'invité fonctionne. Comme la boîte de dialogue "Paramètres" n'est pas
+    disponibles à ce moment-là, vous pouvez aussi accéder à ces paramètres à
+    partir du menu "Périphériques" de la fenêtre de votre machine virtuelle.</para>
+  </sect1>
+
+  <sect1 id="settings-audio">
+    <title>Paramètres de son</title>
+
+    <para>La section "Son" de la fenêtre de paramètres d'une machine virtuelle 
+    détermine si la VM verra une carte son connectée et si la sortie son se fait
+    en dur sur le système hôte.</para>
+
+    <para>Si le son est activé pour un invité, vous pouvez choisir entre
+    l'émulation d'un contrôleur Intel AC'97, un contrôleur Intel HD Audio<footnote>
+        <para>Le support d'Intel HD Audio a été ajouté avec VirtualBox 4.0 car
+        Windows 7 (versions 32 bits et 64 bits) ainsi que Windows Vista 64 bits
+        ne supportent pas le contrôleur Intel AC'97.</para>
+      </footnote> ou une carte SoundBlaster 16. Dans tous les cas, vous pouvez
+      sélectionner le pilote son que VirtualBox utilisera sur l'hôte.</para>
+
+    <para>Sur un hôte Linux, selon votre configuration hôte, vous pouvez aussi
+    choisir entre les sous-systèmes OSS, ALSA ou PulseAudio sur les
+    distributions Linux récentes (Fedora 8 et supérieur, Ubuntu 8.04 et supérieur),
+    le sous-système PulseAudio devrait être privilégié.</para>
+  </sect1>
+
+  <sect1 id="settings-network">
+    <title>Paramètres réseau</title>
+
+    <para>La section "Réseau" de la fenêtre des paramètres d'une machine virtuelle
+    vous permet de configurer la façon dont VirtualBox présente des cartes réseaux
+    virtuelles à votre VM et comment elles agissent.</para>
+
+    <para>Quand vous créez une machine virtuelle la première fois, VirtualBox
+    active par défaut une carte réseau virtuelle et sélectionne le mode "Network
+    Address Translation" (NAT) pour celle-ci. De cette manière, l'invité peut
+    se connecter au monde extérieur en utilisant le réseau de l'hôte et le monde
+    extérieur peut se connecter aux services de l'invité que vous choisissez de
+    rendre visibles à l'extérieure de la machine virtuelle.</para>
+
+    <para>Ce comportement par défaut convient probablement à 95% des utilisateurs
+    de VirtualBox. Cependant, VirtualBox est extrêmemen flexible quant à la
+    manière de virtualiser le réseau. Il supporte de nombreuses cartes réseaux
+    par machine virtuelle, les quatre premières peuvent être configurées en
+    détail dans la fenêtre du gestionnaire. Des cartes réseaux supplémentaires
+    peuvent être configurées en ligne de commande avec
+    VBoxManage. </para>
+
+    <para>Du fait de la large gamme d'options disponibles, nous avons consacré
+    un chapitre complet de ce manuel à la configuration réseau&#xA0;; merci de
+    voir <xref linkend="networkingdetails" />.</para>
+  </sect1>
+
+  <sect1 id="serialports">
+    <title>Ports série</title>
+
+    <para>VirtualBox supporte pleinement les ports série virtuels d'une machine
+    virtuelle d'une manière facile à utiliser.<footnote>
+        <para>Le support du port série a été ajouté avec VirtualBox 1.5.</para>
+      </footnote></para>
+
+    <para>Jadis, les PC originels d'IBM, les ordinateurs personnels (Personal
+    Computers) étaient équipés d'un ou deux ports série (appelés aussi des ports
+    COM par DOS et Windows). Les ports série sont généralement utilisés avec des
+    modems et certaines souris se connectaient en port série avant que l'USB ne
+    ne devienne omnipotent. 
+    </para>
+
+    <para>Si les ports série ne sont plus aussi omniprésents qu'avant, il leur
+    reste encore des cas d'usage importants. Par exemple, on peut utiliser des
+    ports série pour paramétrer un réseau primitif par un câble null-modem,
+    au cas où Ethernet n'est pas disponible. De plus, les ports série sont 
+    indispensables pour les programmeurs système ayant besoin de faire du débogage de noyau,
+    car les logiciels de débogage de noyaux interagissent avec les développeurs
+    par le port série. Avec les ports série virtuels, les programmeurs système 
+    peuvent faire du débogage de noyau sur une machine virtuelle plutôt qu'un vrai
+    ordinateur où ils se connecteraient.</para>
+
+    <para>Si un port série virtuel est activé, le système d'exploitation invité
+    voit un périphérique UART 16550A compatible standard. La réception et la
+    transmission de données est supportée. La manière dont le port série virtuel
+    est alors connecté à l'hôte peut se configurer et les détails dépendent de 
+    votre système d'exploitation hôte.
+    </para>
+
+    <para>Vous pouvez utiliser soit l'outil graphique, soit
+    <computeroutput>VBoxManage</computeroutput> en ligne de commande pour paramétrer
+    des ports série virtuels. Pour le dernier cas, merci de vous reporter à <xref
+    linkend="vboxmanage-modifyvm" />&#xA0;; dans cette section, cherchez les
+    options <computeroutput>--uart</computeroutput> et
+    <computeroutput>--uartmode</computeroutput>.</para>
+
+    <para>Dans le premier cas, vous pouvez configurer jusqu'à deux ports série
+    virtuels par machine virtuelle. Pour chaque périphérique, vous devrez
+    déterminer<orderedlist>
+        <listitem>
+          <para>le type de port série que la machine virtuelle devrait voir en
+          sélectionnant un I/O base address and interrupt (IRQ). Pour ceux-ci,
+          nous vous recommandons d'utiliser les valeurs traditionnelles<footnote>
+              <para>Voir, par exemple, <ulink
+              url="http://en.wikipedia.org/wiki/COM_(hardware_interface)">http://en.wikipedia.org/wiki/COM_(hardware_interface)</ulink>.</para>
+            </footnote>, qui sont&#xA0;:</para>
+
+          <para><orderedlist>
+              <listitem>
+                <para>COM1: I/O base 0x3F8, IRQ 4</para>
+              </listitem>
+
+              <listitem>
+                <para>COM2: I/O base 0x2F8, IRQ 3</para>
+              </listitem>
+
+              <listitem>
+                <para>COM3: I/O base 0x3E8, IRQ 4</para>
+              </listitem>
+
+              <listitem>
+                <para>COM4: I/O base 0x2E8, IRQ 3</para>
+              </listitem>
+            </orderedlist></para>
+        </listitem>
+
+        <listitem>
+          <para>Puis, vous devrez déterminer à quoi ce port série virtuel devrait
+          être connecté. Pour chaque port série virtuel, vous avez les options
+          suivantes&#xA0;:</para>
+
+          <para><itemizedlist>
+              <listitem>
+                <para>Vous pouvez choisir que le port série virtuel soit
+                "déconnecté", ce qui signifie que l'invité verra le périphérique
+                mais il se comportera comme si aucun câble n'y avait été 
+                connecté.</para>
+              </listitem>
+
+              <listitem>
+                <para>Vous pouvez connecter le port série virtuel à un port série
+                existant sur votre hôte. (Sur un hôte Windows, cela sera un nom
+                comme <computeroutput>COM1</computeroutput>&#xA0;; sur des hôtes
+                Linux ou Solaris, ce sera un n&#x153;ud de périphérique comme
+                <computeroutput>/dev/ttyS0</computeroutput>). VirtualBox redirigera
+                alors simplement toutes les données reçues et envoyées sur le
+                port série virtuel vers le périphérique physique.</para>
+              </listitem>
+
+              <listitem>
+                <para>Vous pouvez dire à VirtualBox de connecter le port série
+                virtuel à un tunnel logiciel sur l'hôte. Cela dépend de votre
+                système d'exploitation hôte&#xA0;:<itemizedlist>
+                    <listitem>
+                      <para>Sur un hôte Windows, les données seront envoyées et
+                      reçues par un tunnel nommé. Le nom du tunnel doit être au
+                      format 
+                      <computeroutput>\\.\pipe\&lt;nom&gt;</computeroutput> 
+                      où <computeroutput>&lt;name&gt;</computeroutput> devrait
+                      identifier la machine virtuelle mais vous êtes libre dans
+                      votre choix.</para> 
+                      <para>Pour rediriger du trafic série, vous pouvez utiliser
+                      un programme d'aide appelé VMware Serial Line Gateway,
+                      disponible en téléchargement sur
+                                  <literal> <ulink
+                      url="http://www.l4ka.org/91.php">http://www.l4ka.org/91.php</ulink>
+                      </literal>. Cet outil fournit un mode serveur fixé 
+                      nommé tunnel sur 
+                      <computeroutput>\\.\pipe\vmwaredebug</computeroutput>
+                      et il connecte les connexions TCP entrantes sur le port 567 
+                      avec le tunnel nommé.</para>
+                    </listitem>
+
+                    <listitem>
+                      <para>Sur un hôte Mac, Linux ou Solaris, un socket local
+                      est plutôt utilisé. Le nom de fichier du socket doit
+                      être choisi de telle sorte que l'utilisateur de VirtualBox
+                      ait assez de droits pour créer et écrire dessus. Le répertoire
+                      <computeroutput>/tmp</computeroutput> est souvent un bon
+                      candidat.</para>
+                      <para>Sur Linux, plusieurs outils peuvent se connecter à
+                      un socket de domaine local ou en créer un en mode serveur.
+                      L'outil le plus flexible est
+                      <computeroutput>socat</computeroutput> et il est disponible
+                      dans beaucoup de distributions.</para>
+                    </listitem>
+                  </itemizedlist></para>
+
+                <para>Dans ce cas, vous pouvez configurer si VirtualBox devrait
+                créer le tunnel nommé (ou, sur les hôtes non Windows, le socket
+                de domaine local) lui-même ou si VirtualBox devrait supposer que
+                le tunnel (ou le socket) existe déjà. Avec les options en ligne
+                de commande de
+                <computeroutput>VBoxManage</computeroutput>, ceci est désigné
+                respectivement comme le mode "serveur" ou "client".</para>
+
+                <para>Pour une connexion directe entre deux machines virtuelles,
+                (ce qui correspond à un câble null-modem), configurez simplement
+                une VM pour créer un tunnel/socket et un autre pour s'y relier.
+                </para>
+              </listitem>
+
+              <listitem>
+                <para>Vous pouvez envoyer la sortie du port série virtuel vers
+                un fichier. Cette option est très utile pour récupérer des sorties
+                de diagnostic sur un invité. Vous pouvez utiliser n'importe quel
+                fichier dans ce but, tant que l'utilisateur de VirtualBox a
+                assez de droits pour créer et écrire dans le fichier.
+                </para>
+              </listitem>
+            </itemizedlist></para>
+        </listitem>
+      </orderedlist>Vous pouvez configurer jusqu'à deux ports série par machine
+      virtuelle, mais vous pouvez choisir n'importe quel numéro de port hors
+      de ceux ci-dessus. Cependant, les ports série ne sont pas capables de partager
+      de manière fiable des interruptions&#xA0;; si deux ports doivent être
+      utilisés en même temps, ils doivent utiliser différents niveaux d'interruption,
+      par exemple COM1 et COM2, mais pas COM1 et COM3.
+    </para>
+  </sect1>
+
+  <sect1>
+    <title>Support USB</title>
+
+    <sect2 id="settings-usb">
+      <title>Paramètres USB</title>
+
+      <para>La section "USB" de la fenêtre de paramètres d'une machine virtuelle
+      vous permet de configurer le support USB sophistiqué de VirtualBox.</para>
+
+      <para>VirtualBox peut permettre à des machines virtuelles d'accéder aux
+      périphériques USB directement sur votre hôte. Pour cela, VirtualBox présente
+      au système d'exploitation invité un contrôleur USB virtuel. Dès que le
+      système invité démarre en utilisant un périphérique USB, il apparaîtra
+      comme indisponible sur l'hôte.<note>
+          <orderedlist>
+            <listitem>
+              <para>Faites attention avec les périphériques USB utilisés sur
+              l'hôte&#xA0;! Par exemple, si vous permettez à votre invité de se
+              connecter à votre disque dur USB actuellement monté sur l'hôte,
+              lorsque l'invité est actif, il sera déconnecté de l'hôte sans
+              débranchement propre. Cela peut entraîner une perte de données.</para>
+            </listitem>
+
+            <listitem>
+              <para>Les hôtes Solaris ont quelques limites connues avec le 
+              support USB&#xA0;; merci de voir <xref linkend="KnownIssues" />.</para>
+            </listitem>
+          </orderedlist>
+        </note></para>
+
+      <para>Au-delà de permettre un accès de l'invité à vos périphériques USB
+      locaux, VirtualBox permet même à vos invités de se connecter à des périphériques
+      USB distants en utilisant le VirtualBox Remote Desktop Extension (VRDE).
+      Pour des détails sur cela, voir <xref linkend="usb-over-rdp" />.</para>
+
+      <para>Dans la boîte de dialogue des paramètres, vous pouvez d'abord 
+      configurer si l'USB est disponible dans l'invité et éventuellement activer
+      le contrôleur USB 2.0 (EHCI) pour l'invité. Si tel est le cas, vous pouvez
+      déterminer en détail les périphériques disponibles. Pour ce faire, vous
+      devez créer ce qu'on appelle des "filtres" en spécifiant certaines propriétés
+      du périphérique USB.<note>
+          <para>Le contrôleur EHCI est inclu dans une extension de VirtualBox
+          qu'il faut installer séparément. Voir <xref
+          linkend="intro-installing" /> pour plus d'informations.</para>
+        </note></para>
+
+      <para>Un clic sur le bouton "+" à droite de la fenêtre "Filtres des périphériques
+      USB" crée un <emphasis role="bold">nouveau filtre.</emphasis>
+      Vous pouvez donner au filtre un nom (pour le retrouver plus tard) et
+      spécifier les critères du filtre. Plus vous spécifiez ce critères, plus les
+      périphériques seront sélectionnés avec précision. Par exemple, si vous ne
+      spécifiez qu'un ID de fabricant 046d, tous les périphériques fabriqués par
+      Logitech seront disponibles pour l'invité. Si vous complétez tous les champs,
+      le filtre ne s'appliquera plutôt qu'à un modèle de périphérique particulier
+      d'un fabricant particulier et pas aux autres périphériques du même type
+      ayant un autre numéro de série ou de révision.</para>
+
+      <para>Dans le détail, les critères suivants sont disponibles:</para>
+
+      <orderedlist>
+        <listitem>
+          <para><emphasis role="bold">ID du fabricant et du produit.</emphasis>
+          Avec l'USB, chaque fabricant de produits USB a un numéro d'identification
+          unique au monde, l'"ID fabricant". De la même façon, chaque ligne de
+          produits se voit affecté un numéro "ID de produit". Les deux numéros
+          sont écrits en général en hexadécimal (c'est-à-dire qu'ils se composent
+          des chiffres 0 à 9 et des lettres A à F), et deux-points sépare l'ID
+          du fabricant et du produit. Par exemple, 
+          <computeroutput>046d:c016</computeroutput> signifie le fabricant
+          Logitech et le produit Souris optique à roulette M-UV69a".</para>
+
+          <para>Sinon, vous pouvez aussi spécifier un nom de <emphasis
+          role="bold">"fabricant"</emphasis> et de <emphasis
+          role="bold">"Produit"</emphasis>.</para>
+
+          <para>Pour lister tous les périphériques USB connectés à votre 
+          machine hôte avec leurs IDs de fabricant et de produit respectifs, vous
+          pouvez utiliser la commande suivante (voir <xref linkend="vboxmanage" />): <screen>VBoxManage list usbhost</screen></para>
+
+          <para>Sur Windows, vous pouvez aussi voir tous les périphériques USB
+          connectés à votre système dans le gestionnaire de périphériques. Sur
+          Linux, vous pouvez utiliser la commande
+          <computeroutput>lsusb</computeroutput>.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Numéro de série.</emphasis> Si l'ID du
+          fabricant et du produit sont déjà très spécifiques pour identifier des
+          périphériques USB, si vous avez deux périphériques identiques de la même
+          gamme et de la même ligne de produits, vous aurez aussi besoin de leur
+          numéro de série pour les filtrer
+          correctement.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Distant.</emphasis> Ce paramètre 
+          spécifie si le périphérique est seulement en local, distant (par VRDP),
+          ou autrement.</para>
+        </listitem>
+      </orderedlist>
+
+      <para>Sur un hôte Windows, vous devrez débrancher et reconnecter un périphérique
+      USB pour l'utiliser après avoir créé un filtre pour lui.</para>
+
+      <para>Par exemple, vous pourriez créer un nouveau filtre USB et spécifier
+      un ID fabricant de 046d (Logitech, Inc), un index de fabricant à 1, et
+      "non distant". Tous les périphériques USB de l'hôte fabriqués par Logitech,
+      Inc ayant un numéro d'index 1 seront visibles pour le système invité.</para>
+
+      <para>Plusieurs filtres peuvent sélectionner un périphérique unique -- par
+      exemple, un filtre qui sélectionne tous les périphériques Logitech et un
+      qui sélectionne une webcam en particulier.</para>
+
+      <para>Vous pouvez <emphasis role="bold">désactiver</emphasis> des filtres
+      sans les supprimer en cliquant dans la case à cocher à côté du nom du filtre.</para>
+    </sect2>
+
+    <sect2>
+      <title>Notes d'implémentation pour les hôtes Windows et Linux</title>
+
+      <para>Sur les hôtes Windows, un pilote de périphérique en mode noyau fournit
+      un support proxy USB. Il implémente un moniteur USB, qui permet à VirtualBox
+      de capturer des périphériques quand ils sont branchés et un pilote de
+      périphérique USB qui amène les périphériques USB à une machine virtuelle 
+      VirtualBox antérieures à 1.4.0, un redémarrage du systme n'est plus nécessaire
+      après l'installation du pilote. De plus, vous n'avez plus besoin de rebrancher
+      des périphériques pour que VirtualBox les gère.</para>
+
+      <para>Sur les hôtes Linux récents, VirtualBox accède aux périphériques USB
+      par des fichiers spéicaux du système de fichiers. Quand VirtualBox est
+      installé, ils sont rendus disponibles pour tous les utilisateurs dans le
+      groupe système 
+      <computeroutput>vboxusers</computeroutput>. Pour pouvoir accéder à l'USB
+      à partir de systèmes invités, assurez-vous d'être membre de ce groupe.</para>
+
+      <para>Sur les anciens hôtes Linux, on accède aux périphériques USB en
+      utilisant le système de fichiers
+      <computeroutput>usbfs</computeroutput>. Donc, l'utilisateur qui exécute
+      VirtualBox a besoin des droits en lecture et écriture sur le système de
+      fichiers USB. La plupart des distributions fournissent un groupe (comme
+      <computeroutput>usbusers</computeroutput>) où doit être ajouté l'utilisateur
+      VirtualBox. En outre, VirtualBox ne peut pas faire un proxy avec les périphériques
+      USB de la machine virtuelle qui ne sont pas gérés par un pilote USB de
+      l'hôte Linux. L'entrée
+      <computeroutput>Driver=</computeroutput> de
+      <computeroutput>/proc/bus/usb/devices</computeroutput> vous montrera les
+      périphériques actuellement reconnus. Merci de vous reporter aussi à <xref
+      linkend="ts_usb-linux" /> pour des détails sur 
+      <computeroutput>usbfs</computeroutput>.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Dossiers partagés</title>
+
+    <para>Les dossiers partagés vous permettent d'échanger facilement des données
+    entre une machine virtuelle et votre hôte. Cette fonctionnalité exige que 
+    les suppléments invité de VirtualBox soient installés dans une machine
+    virtuelle et ceci est décrit en détail au 
+    <xref linkend="sharedfolders" />.</para>
+  </sect1>
+
+  <sect1 id="efi">
+    <title>Autre firmware (EFI)</title>
+
+    <para>À partir de la version 3.1, VirtualBox inclut un support expérimental
+    pour l'Extensible Firmware Interface (EFI), qui est un nouveau 
+    standard industriel conçu pour remplacer éventuellement, à terme, le BIOS traditionnel
+    comme interface pour les ordinateurs faisant du bootstrapping et certains
+    services système.</para>
+
+    <para>Par défaut, VirtualBox utilise le firmware BIOS pour les machines virtuelles.
+    Pour utiliser l'EFI pour une machine virtuelle donnée, vous pouvez activer l'EFI
+    dans la boîte de dialogue "Paramètres" de la machine (voir <xref linkend="settings-motherboard" />).
+    Sinon, utilisez l'interface en ligne de commande <computeroutput>VBoxManage</computeroutput> 
+    comme ceci&#xA0;: <screen>VBoxManage modifyvm "nom VM" --firmware efi</screen>
+    Pour revenir à l'utilisation du BIOS, utilisez&#xA0;: <screen>VBoxManage modifyvm "nom VM" --firmware bios</screen>Un
+    utilisateur notable de l'EFI est Mac OS X d'Apple, mais les Linux
+    (tels que Fedora 11) et Windows récents (à partir de Vista) offrent des
+    versions spéciales qu'on peut démarrer en utilisant l'EFI.</para>
+
+    <para>Une autre utilisation possible de l'EFI dans VirtualBox est le
+    développement et le test d'applications EFI, sans démarrer d'OS.</para>
+
+    <para>Remarquez que le support EFI de VirtualBox est expérimental et il
+    sera amélioré au fur et à mesure des progrès d'EFI et de son extension.
+    Mac OS X et Linux sont connus pour très bien fonctionner, les invités
+    Windows sont actuellement incapables de démarrer avec l'implémentation EFI
+    de VirtualBox.</para>
+
+    <sect2 id="efividmode">
+      <title>Modes graphiques dans EFI</title>
+
+      <para>EFI fournit deux interfaces graphiques distinctes&#xA0;: GOP (Graphics Output
+      Protocol) et UGA (Universal Graphics Adapter). Mac OS X utilise GOP, tandis
+      que Linux a tendance à utiliser UGA. VirtualBox fournit une option de 
+      configuration pour contrôler la taille du framebuffer pour les deux interfaces.</para>
+
+      <para>Pour contrôler GOP, utilisez la commande
+      <computeroutput>VBoxManage</computeroutput> suivante&#xA0;: <screen>VBoxManage setextradata "nom VM" VBoxInternal2/EfiGopMode N</screen>
+      Où N peut être 0,1,2,3,4,5, respectivement pour des résolutions d'écran
+      640x480, 800x600, 1024x768, 1280x1024, 1440x900, 1920x1200.</para>
+
+      <para>Pour modifier la résolution UGA,&#xA0;: <screen>VBoxManage setextradata "nom VM" VBoxInternal2/UgaHorizontalResolution 1440
+VBoxManage setextradata "nom VM" VBoxInternal2/UgaVerticalResolution    900</screen></para>
+
+      <para>Le mode graphique pour GOP et UGA ne peut être modifié que quand la
+      VM est éteinte; il persiste jusqu'à ce qu'il soit modifié.</para>
+    </sect2>
+    <sect2 id="efibootargs">
+      <title>Spécifier des arguments au démarrage</title>
+
+      <para>Il n'est actuellement pas possible de manipuler les variables EFI
+      depuis un invité en fonction (par exemple définir la variable "boot-args"
+      en lançant l'outil <computeroutput>nvram</computeroutput> dans un invité
+      Mac OS X ne fonctionnera pas). Comme alternative, la donnée externe
+      "VBoxInternal2/EfiBootArgs" peut être passée à la VM pour définir la
+      variable "boot-args". Pour modifier la  variable EFI "boot-args" :
+      <screen>VBoxManage setextradata "nom VM" VBoxInternal2/EfiBootArgs &lt;valeur&gt;</screen>
+      </para>
+    </sect2>
+  </sect1>
+</chapter>

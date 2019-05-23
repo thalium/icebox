@@ -1,0 +1,45 @@
+# $Id: Makefile.kmk $
+## @file
+# Top-level makefile for src/VBox/Main/UnattendedTemplates.
+#
+
+#
+# Copyright (C) 2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+ifdef VBOX_WITH_UNATTENDED
+
+ # Note! When updating the source list here, VBOX_UNATTENDED_TEMPLATES in
+ #       ../../Installer/Config.kmk must be updated too!
+ INSTALLS += VBoxUnattendedTemplates
+ VBoxUnattendedTemplates_INST = $(INST_UNATTENDED_TEMPLATES)
+ VBoxUnattendedTemplates_MODE = a+r,u+w
+ VBoxUnattendedTemplates_SOURCES = \
+ 	debian_preseed.cfg \
+ 	ubuntu_preseed.cfg \
+ 	redhat67_ks.cfg \
+ 	ol_ks.cfg \
+ 	fedora_ks.cfg \
+ 	suse_autoinstall.xml \
+ 	win_nt5_unattended.sif \
+ 	win_nt6_unattended.xml \
+ 	\
+ 	debian_postinstall.sh \
+ 	redhat_postinstall.sh \
+ 	win_postinstall.cmd
+
+endif # VBOX_WITH_UNATTENDED
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

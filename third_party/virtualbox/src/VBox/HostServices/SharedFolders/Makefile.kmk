@@ -1,0 +1,54 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Shared Folders Host Service.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+# Include sub-makefile(s).
+include $(PATH_SUB_CURRENT)/testcase/Makefile.kmk
+
+#
+# The shared folder service DLL.
+#
+DLLS += VBoxSharedFolders
+VBoxSharedFolders_TEMPLATE  = VBOXR3
+VBoxSharedFolders_NAME.os2  = VBoxSFld
+VBoxSharedFolders_DEFS      = VBOX_WITH_HGCM RTSHFL
+VBoxSharedFolders_INCS.win  = \
+	$(VBOX_PATH_SDK)
+
+VBoxSharedFolders_LDFLAGS.darwin = \
+	-framework Carbon \
+	-install_name $(VBOX_DYLD_EXECUTABLE_PATH)/VBoxSharedFolders.dylib
+
+VBoxSharedFolders_SOURCES = \
+	service.cpp \
+	shflhandle.cpp \
+	vbsf.cpp \
+	vbsfpath.cpp \
+	vbsfpathabs.cpp \
+	mappings.cpp
+VBoxSharedFolders_SOURCES.win = \
+	VBoxSharedFolders.rc
+
+VBoxSharedFolders_LIBS = \
+	$(LIB_VMM) \
+	$(LIB_RUNTIME) \
+	$(LIB_REM)
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

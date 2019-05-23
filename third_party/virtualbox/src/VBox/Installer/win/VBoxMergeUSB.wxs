@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!--
+    VirtualBox Windows Installation Script (WiX)
+
+    Copyright (C) 2006-2015 Oracle Corporation
+
+    This file is part of VirtualBox Open Source Edition (OSE), as
+    available from http://www.virtualbox.org. This file is free software;
+    you can redistribute it and/or modify it under the terms of the GNU
+    General Public License (GPL) as published by the Free Software
+    Foundation, in version 2 as it comes in the "COPYING" file of the
+    VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+    hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+-->
+
+<?include Properties.wxi ?>
+
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+    <Module Id="msm_VBoxUSB"
+            Language="!(loc.LANG)"
+            Version="$(var.Property_Version)">
+
+        <Package Id="b8f1b6f4-2e92-40a6-b819-782e523b20ab"
+                 Keywords="Installer, Setup"
+                 Description="$(env.VBOX_PRODUCT) $(var.Property_VersionExt) USB drivers installation package"
+                 Comments="$(env.VBOX_PRODUCT) USB drivers installation package"
+                 Manufacturer="$(env.VBOX_VENDOR)"
+                 InstallerVersion="200"
+                 AdminImage="yes"
+                 InstallPrivileges="elevated"
+                 Platform="$(var.Property_Platform)"
+                 SummaryCodepage="1252"/>
+
+        <?include PublicProperties.wxi ?>
+
+        <!-- Here comes the file/directory list -->
+        <Directory Id="TARGETDIR" Name="SourceDir">
+            <Directory Id="msm_VBoxUSBFolder" FileSource=".">
+
+                <?include VBoxMergeUSB.wxi ?>
+
+            </Directory> <!-- msm_VBoxUSBFolder -->
+        </Directory> <!-- TARGETDIR -->
+
+    </Module>
+</Wix>

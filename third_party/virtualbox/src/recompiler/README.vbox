@@ -1,0 +1,6 @@
+QEMU is based on v0.13.0 (6ed912999d6ef636a5be5ccb266d7d3c0f0310b4)
+from git://git.savannah.nongnu.org/qemu.git.
+
+Modified parts related to calls of external functions, to allow loading
+recompiler library as regular shared object in high memory on 64-bit systems.
+

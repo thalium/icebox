@@ -1,0 +1,22 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+:enable:polygonSmooth:GL_POLYGON_SMOOTH
+:enable:polygonOffsetFill:GL_POLYGON_OFFSET_FILL
+:enable:polygonOffsetLine:GL_POLYGON_OFFSET_LINE
+:enable:polygonOffsetPoint:GL_POLYGON_OFFSET_POINT
+:enable:polygonStipple:GL_POLYGON_STIPPLE
+:enable:cullFace:GL_CULL_FACE
+:offset:offsetFactor,offsetUnits:PolygonOffset
+:mode:frontFace:FrontFace
+:mode:cullFaceMode:CullFace
+:mode:backMode:PolygonMode,GL_BACK
+:mode:frontMode:PolygonMode,GL_FRONT
+-:stipple:stipple:*diff_api.PolygonStipple ((GLubyte *) to->stipple);
++:stipple:*int iStripple;
++:stipple:*diff_api.PolygonStipple ((GLubyte *) to->stipple);
++:stipple:*for (iStripple=0; iStripple<32; iStripple++)
++:stipple:*{
++:stipple:*	from->stipple[iStripple] = to->stipple[iStripple];
++:stipple:*}

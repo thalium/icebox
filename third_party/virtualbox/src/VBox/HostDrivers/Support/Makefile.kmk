@@ -1,0 +1,787 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the support library and the drivers/modules/kexts it uses.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+# The contents of this file may alternatively be used under the terms
+# of the Common Development and Distribution License Version 1.0
+# (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+# VirtualBox OSE distribution, in which case the provisions of the
+# CDDL are applicable instead of those of the GPL.
+#
+# You may elect to license modified versions of this file under the
+# terms and conditions of either the GPL or the CDDL or both.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# Targets
+#
+LIBRARIES += SUPR3 SUPR3Static
+if   defined(VBOX_WITH_HARDENING) \
+ && !defined(VBOX_ONLY_VALIDATIONKIT)
+ LIBRARIES += SUPR3HardenedStatic
+endif
+DLLS.win += VBoxSupLib
+ifdef VBOX_WITH_32_ON_64_MAIN_API
+ LIBRARIES += SUPR3-x86
+endif
+if   !defined(VBOX_ONLY_DOCS)
+ if1of ($(VBOX_LDR_FMT), pe lx)
+  LIBRARIES += SUPR0
+ endif
+endif
+if !defined(VBOX_ONLY_BUILD) && defined(VBOX_WITH_RAW_MODE)
+ LIBRARIES += SUPRC
+endif
+if  !defined(VBOX_ONLY_DOCS) \
+ && !defined(VBOX_ONLY_EXTPACKS) \
+ && !defined(VBOX_ONLY_VALIDATIONKIT)
+ ifdef VBOX_WITH_SUPSVC
+  PROGRAMS += VBoxSupSvc
+ endif
+ ifdef VBOX_WITH_VBOXDRV
+  LIBRARIES       += SUPR0IdcClient
+  SYSMODS.os2     += VBoxDrv
+ endif
+ INSTALLS.linux   += vboxdrv-mod
+ INSTALLS.freebsd += vboxdrv-mod
+
+ #
+ # Include sub-makefile(s).
+ #
+ include $(PATH_SUB_CURRENT)/testcase/Makefile.kmk
+
+ #
+ # Populate FILES_VBOXDRV_NOBIN and FILES_VBOXDRV_BIN
+ #
+ ifeq ($(KBUILD_TARGET),linux)
+  include $(PATH_SUB_CURRENT)/linux/files_vboxdrv
+ endif
+ ifeq ($(KBUILD_TARGET),freebsd)
+  include $(PATH_SUB_CURRENT)/freebsd/files_vboxdrv
+ endif
+endif # !VBOX_ONLY_DOCS && !VBOX_ONLY_EXTPACKS && !VBOX_ONLY_VALIDATIONKIT
+
+#
+# Authenticode related trust anchors and certificates -> .cpp
+#
+VBOX_SUP_WIN_CERTS_FILE = $(SUPR3_0_OUTDIR)/TrustAnchorsAndCerts.cpp
+VBOX_SUP_WIN_CERTS := \
+       SpcRootMicrosoft0=SpcRoot-MicrosoftAuthenticodeTmRootAuthority-01.taf \
+       SpcRootMicrosoft1=SpcRoot-MicrosoftRootAuthority-00c1008b3c3c8811d13ef663ecdf40.taf \
+       SpcRootMicrosoft2=SpcRoot-MicrosoftRootCertificateAuthority-79ad16a14aa0a5ad4c7358f407132e65.taf \
+       SpcRootMicrosoft3=SpcRoot-MicrosoftRootCertificateAuthority2010-28cc3a25bfba44ac449a9b586b4339aa.taf \
+       SpcRootMicrosoft4=SpcRoot-MicrosoftRootCertificateAuthority2011-3f8bc8b5fc9fb29643b569d66c42e144.taf \
+       SpcRootMicrosoft5=SpcRoot-MicrosoftDigitalMediaAuthority2005-6eff330eb6e7569740680870104baaba.taf \
+       SpcRootMicrosoft6=SpcRoot-MicrosoftDevelopmentRootCertificateAuthority2014-078f0a9d03df119e434e4fec1bf0235a.taf \
+       NtRootMicrosoft7=NtRoot-MicrosoftCodeVerificationRoot-729404101f3e0ca347837fca175a8438.taf \
+       TimeRootMicrosoft0=Timestamp-CopyrightC1997MicrosoftCorp-01.taf \
+       TrustedCertVBox0=Trusted-OracleCorporationVirtualBox-51ca009816fdbd80f120e015ee75823e.taf
+VBOX_SUP_WIN_CERT_NAMES := $(foreach cert,$(VBOX_SUP_WIN_CERTS),$(firstword $(subst =,$(SPACE) ,$(cert))))
+VBOX_PATH_SUPR3_CERTIFICATES := $(PATH_SUB_CURRENT)/win/Certificates
+
+# 1=name, 2=filter, 3=buildcert?.
+if "$(KBUILD_TARGET)" == "win" && defined(VBOX_WITH_HARDENING)
+ VBOX_SUP_GEN_CERT_MACRO = 'SUPTAENTRY const g_aSUP$(1)TAs[] =' '{' \
+       $(if-expr "$(3)" == "",,'    SUPTAENTRY_GEN(g_abSUPBuildCert),') \
+	$(foreach certnm,$(filter $(2),$(VBOX_SUP_WIN_CERT_NAMES)), '    SUPTAENTRY_GEN(g_abSUP$(certnm)),') \
+	'};' 'unsigned const g_cSUP$(1)TAs = RT_ELEMENTS(g_aSUP$(1)TAs);' '' ''
+else
+ VBOX_SUP_GEN_CERT_MACRO = 'SUPTAENTRY const g_aSUP$(1)TAs[] =' '{' \
+	$(foreach certnm,$(filter $(2),$(VBOX_SUP_WIN_CERT_NAMES)), '    SUPTAENTRY_GEN(g_abSUP$(certnm)),') \
+	'};' 'unsigned const g_cSUP$(1)TAs = RT_ELEMENTS(g_aSUP$(1)TAs);' '' ''
+endif
+
+$$(VBOX_SUP_WIN_CERTS_FILE): $(MAKEFILE_CURRENT) \
+		$(foreach cert,$(VBOX_SUP_WIN_CERTS),$(VBOX_PATH_SUPR3_CERTIFICATES)/$(lastword $(subst =,$(SPACE) ,$(cert)))) \
+		$(VBOX_BIN2C) \
+		$(if-expr  "$(KBUILD_TARGET)" == "win" && defined(VBOX_WITH_HARDENING),$(VBOX_RTSIGNTOOL)) \
+		| $$(dir $$@)
+	$(QUIET)$(RM) -f -- $@ $@.cer
+	$(QUIET)$(APPEND) -n "$@" \
+       	'' \
+       	'#include <VBox/sup.h>' \
+               ''
+	$(foreach cert,$(VBOX_SUP_WIN_CERTS), $(NLTAB)$(VBOX_BIN2C) -ascii --append --static --no-size \
+		"SUP$(firstword $(subst =,$(SP) ,$(cert)))" \
+		"$(VBOX_PATH_SUPR3_CERTIFICATES)/$(lastword $(subst =,$(SP) ,$(cert)))" \
+		"$@")
+# The build certificate.
+if "$(KBUILD_TARGET)" == "win" && defined(VBOX_WITH_HARDENING) && defined(VBOX_SIGNING_MODE)
+	$(VBOX_RTSIGNTOOL) extract-exe-signer-cert --exe $(VBOX_RTSIGNTOOL) --output "$@.cer" --der
+	$(VBOX_BIN2C) -ascii --append SUPBuildCert "$@.cer" $@
+	$(QUIET)$(RM) -f -- $@.cer
+endif
+# Generate certificate lists.
+	$(QUIET)$(APPEND) -n "$@" '' \
+               $(call VBOX_SUP_GEN_CERT_MACRO,All,%,build) \
+               $(call VBOX_SUP_GEN_CERT_MACRO,SpcRoot,SpcRoot%) \
+               $(call VBOX_SUP_GEN_CERT_MACRO,NtKernelRoot,NtRoot%) \
+               $(call VBOX_SUP_GEN_CERT_MACRO,Timestamp,TimeRoot%) \
+               $(call VBOX_SUP_GEN_CERT_MACRO,Trusted,TrustedCert%,build)
+
+tst: $(VBOX_SUP_WIN_CERTS_FILE)
+
+
+#
+# The Ring-3 Support Library (this is linked into the IPRT dll, VBoxRT).
+#
+SUPR3_TEMPLATE      = VBOXR3
+SUPR3_DEFS          = \
+	IN_SUP_R3 IN_RT_R3 \
+	$(if $(VBOX_WITH_SUPSVC),VBOX_WITH_SUPSVC) \
+	$(if $(VBOX_WITH_MAIN),VBOX_WITH_MAIN,) \
+	$(if $(VBOX_WITH_RAW_MODE),VBOX_WITH_RAW_MODE,) \
+	$(if $(VBOX_WITH_REM),VBOX_WITH_REM,) \
+	VBOX_PERMIT_MORE \
+	VBOX_PERMIT_EVEN_MORE
+SUPR3_INCS         := $(PATH_SUB_CURRENT)
+SUPR3_SOURCES       = \
+	SUPLib.cpp \
+	SUPLibLdr.cpp \
+	SUPLibSem.cpp \
+	SUPLibTracerA.asm \
+	SUPLibAll.cpp \
+	SUPR3HardenedIPRT.cpp \
+	SUPR3HardenedVerify.cpp \
+	$(KBUILD_TARGET)/SUPLib-$(KBUILD_TARGET).cpp \
+ 	$(VBOX_SUP_WIN_CERTS_FILE)
+ifdef VBOX_WITH_HARDENING
+ SUPR3_SOURCES.win  = \
+ 	win/SUPHardenedVerifyImage-win.cpp
+endif
+
+SUPR3-x86_TEMPLATE = VBoxR3Dll-x86
+SUPR3-x86_EXTENDS  = SUPR3
+
+
+#
+# Static version of SUPR3.  This is more of a stub than anything else in a
+# hardened build, at least on windows.
+#
+SUPR3Static_TEMPLATE = VBOXR3STATIC
+SUPR3Static_EXTENDS = SUPR3
+SUPR3Static_DEFS = $(SUPR3_DEFS) IN_SUP_R3_STATIC
+SUPR3Static_SOURCES.win = $(filter-out win/SUPHardenedVerifyImage-win.cpp, $(SUPR3_SOURCES.win))
+
+
+#
+# The static part of the hardened support library (ring-3).
+#
+VBOX_PATH_RUNTIME_SRC ?= $(PATH_ROOT)/src/VBox/Runtime
+SUPR3HardenedStatic_TEMPLATE = VBOXR3HARDENEDLIB
+SUPR3HardenedStatic_DEFS     = IN_SUP_HARDENED_R3
+SUPR3HardenedStatic_DEFS    += \
+	$(if $(VBOX_WITH_SUPSVC),VBOX_WITH_SUPSVC,) \
+	$(if $(VBOX_WITH_MAIN),VBOX_WITH_MAIN,) \
+	$(if $(VBOX_WITH_RAW_MODE),VBOX_WITH_RAW_MODE,) \
+	$(if $(VBOX_WITH_REM),VBOX_WITH_REM,) \
+	$(if $(VBOX_WITHOUT_DEBUGGER_CHECKS),VBOX_WITHOUT_DEBUGGER_CHECKS,) \
+	$(if $(VBOX_PERMIT_VISUAL_STUDIO_PROFILING),VBOX_PERMIT_VISUAL_STUDIO_PROFILING,) \
+	VBOX_PERMIT_MORE \
+	VBOX_PERMIT_EVEN_MORE
+ifdef VBOX_WITH_VISTA_NO_SP
+ SUPR3HardenedStatic_DEFS.win += VBOX_WITH_VISTA_NO_SP
+endif
+SUPR3HardenedStatic_INCS     = .
+SUPR3HardenedStatic_SOURCES  = \
+	SUPR3HardenedMain.cpp \
+	SUPR3HardenedVerify.cpp \
+	SUPR3HardenedNoCrt.cpp \
+	$(KBUILD_TARGET)/SUPLib-$(KBUILD_TARGET).cpp
+SUPR3HardenedStatic_SOURCES.win = \
+	win/SUPR3HardenedMain-win.cpp \
+	win/SUPR3HardenedMainA-win.asm \
+	win/SUPR3HardenedMainImports-win.cpp \
+	win/SUPHardenedVerifyProcess-win.cpp \
+	win/SUPHardenedVerifyImage-win.cpp \
+	$(VBOX_SUP_WIN_CERTS_FILE)
+SUPR3HardenedStatic_SOURCES.x86 += \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asm/ASMMemFirstMismatchingU8.asm
+SUPR3HardenedStatic_SOURCES.amd64 += \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asm/ASMMemFirstMismatchingU8.asm
+
+
+if "$(KBUILD_TARGET)" == "win" && defined(VBOX_WITH_HARDENING) ## @todo some of this move up.
+ SUPR3HardenedStatic_DEFS += \
+ 	IN_RT_R3 \
+ 	IN_RT_STATIC \
+ 	IN_DIS \
+	IN_DIS_STATIC \
+ 	DIS_CORE_ONLY \
+  	IPRT_NO_CRT \
+ 	RT_WITH_NOCRT_ALIASES \
+ 	LOG_DISABLED \
+ 	IPRT_NO_ERROR_DATA
+ SUPR3HardenedStatic_DEFS.win += LDR_ONLY_PE __STRALIGN_H_
+
+ SUPR3HardenedStatic_INCS += $(PATH_ROOT)/include/iprt/nocrt  $(VBOX_PATH_RUNTIME_SRC)/include
+
+ SUPR3HardenedStatic_SOURCES += \
+	$(VBOX_PATH_RUNTIME_SRC)/common/ldr/ldr.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/ldr/ldrEx.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/ldr/ldrPE.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/alloc/heapsimple.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-basics.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-cursor.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-default-allocator.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-dump.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-encode.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-bitstring.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-bitstring-decode.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-boolean.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-boolean-decode.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-core.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-core-decode.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-dyntype.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-dyntype-decode.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-integer.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-integer-decode.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-null.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-null-decode.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-objid.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-objid-decode.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-octetstring.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-octetstring-decode.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-string.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-string-decode.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-time.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/asn1/asn1-ut-time-decode.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/digest-core.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/digest-builtin.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/pkcs7-asn1-decoder.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/pkcs7-core.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/pkcs7-init.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/pkcs7-sanity.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/pkcs7-verify.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/pkix-signature-builtin.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/pkix-signature-core.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/pkix-signature-rsa.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/pkix-verify.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/pkix-util.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/rsa-asn1-decoder.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/rsa-core.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/rsa-init.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/rsa-sanity.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/spc-asn1-decoder.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/spc-core.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/spc-init.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/spc-sanity.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/x509-asn1-decoder.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/x509-certpaths.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/x509-core.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/x509-init.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/x509-sanity.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/x509-verify.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/store.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/store-inmem.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/taf-asn1-decoder.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/taf-core.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/taf-init.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/taf-sanity.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/tsp-asn1-decoder.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/tsp-core.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/tsp-init.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/crypto/tsp-sanity.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/checksum/alt-md2.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/checksum/alt-md5.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/checksum/alt-sha1.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/checksum/alt-sha256.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/checksum/alt-sha512.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/checksum/md2str.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/checksum/md5str.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/checksum/sha1str.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/checksum/sha256str.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/checksum/sha512str.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/err/errinfo.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/path/RTPathChangeToUnixSlashes.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/path/RTPathExt.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTUtf16PrintHexBytes.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTUtf16ICmpAscii.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTUtf16NICmpAscii.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTUtf16CatAscii.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTUtf16CopyAscii.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTUtf16End.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/strstrip.cpp \
+       \
+	$(VBOX_PATH_RUNTIME_SRC)/common/err/errmsg.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/math/bignum.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/math/bignum-amd64-x86.asm \
+	$(VBOX_PATH_RUNTIME_SRC)/common/misc/RTAssertMsg1Weak.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/misc/RTAssertMsg2.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/misc/RTAssertMsg2Weak.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/misc/RTAssertMsg2WeakV.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/misc/zero.asm \
+	$(VBOX_PATH_RUNTIME_SRC)/common/path/RTPathFilename.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/memchr.asm \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/memcmp.asm \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/memcpy.asm \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/memmove.asm \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/mempcpy.asm \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/memset.asm \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/strversion.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTStrPrintHexBytes.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTStrCat.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTStrCmp.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTStrCopy.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTStrICmpAscii.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTStrNCmp.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTStrNLen.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTUtf16Copy.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/RTUtf16NLenEx.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/strchr.asm \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/strcmp.asm \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/strcpy.asm \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/strformat.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/strformatrt.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/strformattype.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/strformatnum.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/stringalloc.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/strlen.asm \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/strncmp.asm \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/strncpy.asm \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/strprintf.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/strtonum.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/utf-16.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/utf-8.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/utf-8-case.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/unidata-upper.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/string/unidata-lower.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/common/time/time.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/generic/RTAssertShouldPanic-generic.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/generic/RTPathAbs-generic.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/generic/RTPathGetCurrentDrive-generic.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/generic/RTPathGetCurrentOnDrive-generic.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/generic/rtStrFormatKernelAddress-generic.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/generic/memsafer-generic.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/generic/uuid-generic.cpp \
+       \
+	../../Disassembler/DisasmCore.cpp \
+	../../Disassembler/DisasmTables.cpp \
+	../../Disassembler/DisasmTablesX64.cpp \
+	../../Disassembler/DisasmReg.cpp
+
+ SUPR3HardenedStatic_SOURCES.amd64 += \
+ 	$(VBOX_PATH_RUNTIME_SRC)/common/math/RTUInt128MulByU64.asm
+
+ SUPR3HardenedStatic_SOURCES.win += \
+ 	win/SUPR3HardenedNoCrt-win.cpp \
+ 	$(VBOX_PATH_RUNTIME_SRC)/nt/RTErrConvertFromNtStatus.cpp \
+ 	$(VBOX_PATH_RUNTIME_SRC)/nt/RTNtPathFindPossible8dot3Name.cpp \
+ 	$(VBOX_PATH_RUNTIME_SRC)/nt/RTNtPathExpand8dot3Path.cpp \
+ 	$(VBOX_PATH_RUNTIME_SRC)/r3/nt/pathint-nt.cpp \
+ 	$(VBOX_PATH_RUNTIME_SRC)/win/RTErrConvertFromWin32.cpp \
+	$(VBOX_PATH_RUNTIME_SRC)/win/errmsgwin.cpp
+
+ # Add necessary compiler specific files from libcmt.lib and the lib dir.
+ ifeq ($(KBUILD_TARGET),win)
+   SUPR3HardenedStatic_VBOX_LIBC_OBJS = chkstk.obj
+   ifeq ($(KBUILD_TARGET_ARCH),x86)
+    SUPR3HardenedStatic_VBOX_LIBC_OBJS += \
+    	alloca16.obj \
+    	ulldiv.obj \
+    	ulldvrm.obj \
+    	ullrem.obj \
+    	ullshr.obj \
+    	lldiv.obj \
+    	lldvrm.obj \
+    	llmul.obj \
+    	llrem.obj \
+    	llshl.obj \
+    	llshr.obj \
+    	rotl.obj \
+    	rotr.obj
+   endif
+  SUPR3HardenedStatic_SOURCES.win += $(addprefix $(SUPR3HardenedStatic_0_OUTDIR)/,$(SUPR3HardenedStatic_VBOX_LIBC_OBJS))
+
+  $(addprefix $$(SUPR3HardenedStatic_0_OUTDIR)/,$(SUPR3HardenedStatic_VBOX_LIBC_OBJS)): \
+		$$(PATH_TOOL_$(TEMPLATE_VBOXR3EXE_TOOL.win.$(KBUILD_TARGET_ARCH))_LIB)/libcmt.lib | $$(dir $$@)
+	$(TOOL_$(TEMPLATE_VBOXR3HARDENEDEXE_TOOL.win.$(KBUILD_TARGET_ARCH))_AR) "$<" \
+		/EXTRACT:`$(TOOL_$(TEMPLATE_VBOXR3HARDENEDEXE_TOOL.win.$(KBUILD_TARGET_ARCH))_AR) "$<" /LIST \
+		          | $(SED_EXT) -n -e '/[\\/:]$(notdir $@)/p'` \
+		"/OUT:$@"
+ endif
+endif
+
+# Things specific to the posix crowd.
+if1of ($(KBUILD_TARGET), linux darwin solaris)
+ SUPR3HardenedStatic_DEFS += \
+ 	IN_DIS \
+	IN_DIS_STATIC \
+ 	DIS_CORE_ONLY \
+ 	LOG_DISABLED
+ SUPR3HardenedStatic_DEFS.linux += \
+ 	SUP_HARDENED_WITH_DLMOPEN
+ SUPR3HardenedStatic_DEFS.solaris += \
+ 	SUP_HARDENED_WITH_DLMOPEN
+
+ SUPR3HardenedStatic_INCS += $(VBOX_PATH_RUNTIME_SRC)/include
+
+ SUPR3HardenedStatic_SOURCES += \
+ 	posix/SUPR3HardenedMain-posix.cpp \
+	posix/SUPR3HardenedMainA-posix.asm \
+       \
+ 	$(VBOX_PATH_RUNTIME_SRC)/common/misc/RTAssertMsg1Weak.cpp \
+ 	$(VBOX_PATH_RUNTIME_SRC)/common/misc/RTAssertMsg2.cpp \
+ 	$(VBOX_PATH_RUNTIME_SRC)/common/misc/RTAssertMsg2Weak.cpp \
+ 	$(VBOX_PATH_RUNTIME_SRC)/common/misc/RTAssertMsg2WeakV.cpp \
+ 	$(VBOX_PATH_RUNTIME_SRC)/generic/RTAssertShouldPanic-generic.cpp \
+       \
+ 	../../Disassembler/DisasmCore.cpp \
+ 	../../Disassembler/DisasmTables.cpp \
+ 	../../Disassembler/DisasmTablesX64.cpp \
+ 	../../Disassembler/DisasmReg.cpp
+endif
+
+SUPR3HardenedMain.cpp_DEFS = VBOX_SVN_REV=$(VBOX_SVN_REV)
+
+
+#
+# VBoxSupLib - Windows DLL for catching thread creation and termination.
+#
+VBoxSupLib_TEMPLATE = $(if-expr "$(KBUILD_TARGET)" == "win" && defined(VBOX_WITH_HARDENING),VBOXR3HARDENEDLIB,VBOXR3)
+VBoxSupLib_SDKS.win = VBOX_NTDLL
+VBoxSupLib_LDFLAGS.win.amd64 = -Entry:DllMainEntrypoint
+VBoxSupLib_LDFLAGS.win.x86   = -Entry:DllMainEntrypoint
+VBoxSupLib_DEFS = \
+	$(if $(VBOX_WITHOUT_DEBUGGER_CHECKS),VBOX_WITHOUT_DEBUGGER_CHECKS,)
+VBoxSupLib_SOURCES = \
+	$(KBUILD_TARGET)/VBoxSupLib-$(KBUILD_TARGET).cpp
+VBoxSupLib_SOURCES.win = \
+	win/VBoxSupLib.rc
+VBoxSupLib_LIBS.win.x86 = \
+ 	$(PATH_TOOL_$(TEMPLATE_VBOXR3STATIC_TOOL.win.x86)_LIB)/libcmt.lib   # for __chkstk
+VBoxSupLib_LIBS.win.amd64 = \
+ 	$(PATH_TOOL_$(TEMPLATE_VBOXR3STATIC_TOOL.win.amd64)_LIB)/libcmt.lib # for __chkstk
+
+
+#
+# VBoxSupSvc - The system wide service/daemon.
+#
+VBoxSupSvc_TEMPLATE = VBOXR3EXE
+VBoxSupSvc_SOURCES = \
+	SUPSvc.cpp \
+	SUPSvcGlobal.cpp \
+	$(KBUILD_TARGET)/SUPSvc-$(KBUILD_TARGET).cpp
+if1of ($(KBUILD_TARGET), win)
+ VBoxSupSvc_SOURCES += \
+	SUPSvcGrant.cpp
+endif
+ifn1of ($(KBUILD_TARGET), win)
+ VBoxSupSvc_SOURCES += \
+ 	SUPSvcMain-posix.cpp
+endif
+VBoxSupSvc_LIBS = \
+	$(LIB_RUNTIME)
+
+
+#
+# SUPR0 - The Ring-0 Import library.
+#
+SUPR0_TEMPLATE      = VBoxR0
+if1of ($(VBOX_LDR_FMT), pe lx)
+ SUPR0_SOURCES       = $(SUPR0_0_OUTDIR)/SUPR0.def
+ SUPR0_CLEAN         = $(SUPR0_0_OUTDIR)/SUPR0.def
+$$(SUPR0_0_OUTDIR)/SUPR0.def: \
+		$(PATH_SUB_CURRENT)/SUPDrv.cpp \
+		$(PATH_SUB_CURRENT)/SUPR0-def-$(VBOX_LDR_FMT).sed \
+		| $$(dir $$@)
+	$(SED) \
+		-f $(dir $<)/SUPR0-def-$(VBOX_LDR_FMT).sed \
+		--output $@ \
+		$<
+ # Experiment: Let's see how blunt the ones messing our NULL_THUNK_DATA entries on W10 are.
+ ifeq ($(KBUILD_TARGET),win)
+  ifdef KLIBTWEAKER_EXT
+   SUPR0_POST_CMDS = $(KLIBTWEAKER_EXT) --clear-timestamps --fill-null_thunk_data $(out)
+  endif
+ endif
+endif
+
+
+#
+# SUPRC - The raw-mode context library.
+#
+SUPRC_TEMPLATE := VBoxRc
+SUPRC_DEFS     := IN_SUP_RC IN_RT_RC IN_VMM_RC
+SUPRC_SOURCES  := SUPLibAll.cpp
+
+
+#
+# SUPR0IdcClient - The Ring-0 IDC client driver library.
+#
+SUPR0IdcClient_TEMPLATE = VBoxR0DrvLib
+SUPR0IdcClient_DEFS = IN_RT_R0 IN_SUP_R0 IN_SUP_STATIC
+SUPR0IdcClient_SDKS.win = ReorderCompilerIncs $(VBOX_WINDDK) $(VBOX_WINPSDK)INCS
+SUPR0IdcClient_SOURCES.$(KBUILD_TARGET) = \
+	$(KBUILD_TARGET)/SUPR0IdcClient-$(KBUILD_TARGET).c
+SUPR0IdcClient_SOURCES = \
+	SUPR0IdcClient.c \
+	SUPR0IdcClientComponent.c \
+	SUPR0IdcClientStubs.c
+
+
+
+if  !defined(VBOX_ONLY_DOCS) \
+ && !defined(VBOX_ONLY_EXTPACKS) \
+ && !defined(VBOX_ONLY_VALIDATIONKIT)
+
+ifeq ($(KBUILD_TARGET),os2)
+
+#
+# VBoxDrv.sys - The OS/2 driver.
+#
+VBoxDrv_TEMPLATE      = VBOXR0DRV
+VBoxDrv_DEFS          = IN_RT_R0 IN_SUP_R0
+VBoxDrv_INCS         := $(PATH_SUB_CURRENT)
+#VBoxDrv_LDFLAGS       = -s -t -v
+VBoxDrv_SOURCES       = \
+	os2/SUPDrvA-os2.asm \
+	os2/SUPDrv-os2.def
+VBoxDrv_LIBS          = \
+	$(VBoxDrvLib_1_TARGET) \
+	$(PATH_STAGE_LIB)/RuntimeR0Drv$(VBOX_SUFF_LIB) \
+	$(VBOX_GCC_LIBGCC) \
+	end
+
+# temp hack to ensure that SUPDrvA-os2.asm is first in the link.
+LIBRARIES += VBoxDrvLib
+VBoxDrvLib_TEMPLATE   = VBOXR0DRV
+VBoxDrvLib_INSTTYPE   = none
+VBoxDrvLib_DEFS       = IN_RT_R0 IN_SUP_R0
+VBoxDrvLib_INCS      := \
+	. \
+	$(PATH_ROOT)/src/VBox/Runtime/include
+VBoxDrvLib_SOURCES    = \
+	os2/SUPDrv-os2.cpp \
+	SUPDrv.cpp \
+	SUPDrvGip.cpp \
+	SUPDrvSem.cpp \
+	SUPLibAll.cpp
+
+endif # os2
+
+
+#
+# New VBoxDrv target. TODO: Convert all the above to use this!
+#
+if1of ($(KBUILD_TARGET), darwin freebsd solaris win)
+ ifdef VBOX_WITH_VBOXDRV
+  SYSMODS += VBoxDrv
+ endif
+ VBoxDrv_TEMPLATE         = VBOXR0DRV
+ VBoxDrv_NAME.freebsd     = vboxdrv
+ VBoxDrv_NAME.solaris     = vboxdrv
+ ifdef VBOX_SIGNING_MODE
+  VBoxDrv_INSTTYPE.win    = none
+  VBoxDrv_DEBUG_INSTTYPE.win = both
+ endif
+ VBoxDrv_INST.darwin      = $(INST_VBOXDRV)Contents/MacOS/
+ VBoxDrv_DEBUG_INST.darwin= $(patsubst %/,%,$(INST_VBOXDRV))
+ VBoxDrv_SDKS.win         = ReorderCompilerIncs $(VBOX_WINDDK) $(VBOX_WINPSDK)INCS
+
+ VBoxDrv_DEFS            := IN_RT_R0 IN_SUP_R0 SUPDRV_WITH_RELEASE_LOGGER VBOX_SVN_REV=$(VBOX_SVN_REV)
+ ifdef VBOX_WITH_DTRACE_R0DRV
+  VBoxDrv_DEFS           += VBOX_WITH_DTRACE VBOX_WITH_DTRACE_R0DRV
+ endif
+ ifdef VBOX_WITHOUT_DEBUGGER_CHECKS
+  VBoxDrv_DEFS           += VBOX_WITHOUT_DEBUGGER_CHECKS
+ endif
+ ifdef VBOX_PERMIT_VISUAL_STUDIO_PROFILING
+  VBoxDrv_DEFS           += VBOX_PERMIT_VISUAL_STUDIO_PROFILING
+ endif
+ VBoxDrv_DEFS            += VBOX_PERMIT_MORE VBOX_PERMIT_EVEN_MORE
+ #VBoxDrv_DEFS.debug      += DEBUG_DARWIN_GIP
+ VBoxDrv_DEFS.darwin     := VBOX_WITH_HOST_VMX
+ ifdef VBOX_WITH_RAW_MODE
+  VBoxDrv_DEFS.darwin    += VBOX_WITH_RAW_MODE
+ endif
+ ifdef VBOX_WITH_NETFLT
+  VBoxDrv_DEFS.solaris   += VBOX_WITH_NETFLT
+ endif
+ ifdef VBOX_WITH_NATIVE_SOLARIS_LOADING
+  VBoxDrv_DEFS.solaris   += VBOX_WITH_NATIVE_SOLARIS_LOADING
+ endif
+ ifdef VBOX_WITHOUT_NATIVE_R0_LOADER
+  VBoxDrv_DEFS.win       += VBOX_WITHOUT_NATIVE_R0_LOADER
+ endif
+ ifdef VBOX_WITH_VISTA_NO_SP
+  VBoxDrv_DEFS.win       += VBOX_WITH_VISTA_NO_SP
+ endif
+ ifdef VBOX_WITH_HARDENING
+  VBoxDrv_ASDEFS         += VBOX_WITH_HARDENING
+ endif
+ if ($(VBOX_VERSION_BUILD) % 2) == 1
+  VBoxDrv_DEFS           += VBOX_WITH_EFLAGS_AC_SET_IN_VBOXDRV IPRT_WITH_EFLAGS_AC_PRESERVING
+ endif
+
+ VBoxDrv_INCS             = . $(VBoxDrv_0_OUTDIR)
+ VBoxDrv_INCS.darwin      = ./darwin
+
+ VBoxDrv_LIBS             = $(PATH_STAGE_LIB)/RuntimeR0Drv$(VBOX_SUFF_LIB)
+ VBoxDrv_LIBS.win         = \
+ 	$(PATH_STAGE_LIB)/RuntimeR0Drv$(VBOX_SUFF_LIB) \
+ 	$(PATH_SDK_$(VBOX_WINDDK)_LIB)/ntoskrnl.lib \
+ 	$(PATH_SDK_$(VBOX_WINDDK)_LIB)/hal.lib
+
+ #VBoxDrv_LDFLAGS.darwin   = -Wl,-sectcreate,__TEXT,__info_plist,$(VBoxDrv.kext_0_OUTDIR)/Info.plist
+ #VBoxDrv_LDFLAGS.darwin   = -v -Wl,-whyload -Wl,-v -Wl,-whatsloaded
+ VBoxDrv_LDFLAGS.solaris += -N misc/ctf
+ ifdef VBOX_WITH_NATIVE_DTRACE
+  VBoxDrv_LDFLAGS.solaris += -N drv/dtrace
+ endif
+ VBoxDrv_LDFLAGS.win.x86  = -Entry:DriverEntry@8
+ VBoxDrv_LDFLAGS.win.amd64= -Entry:DriverEntry
+
+ VBoxDrv_SOURCES.darwin   = \
+	darwin/SUPDrv-darwin.cpp
+ VBoxDrv_SOURCES.solaris  = \
+	solaris/SUPDrv-solaris.c
+ VBoxDrv_SOURCES.win      = \
+	win/SUPDrv-win.cpp \
+	win/SUPDrvA-win.asm \
+	win/VBoxDrv.rc
+ ifdef VBOX_WITH_HARDENING
+  VBoxDrv_SOURCES.win    += \
+ 	win/SUPHardenedVerifyImage-win.cpp \
+ 	win/SUPHardenedVerifyProcess-win.cpp \
+ 	$(VBOX_SUP_WIN_CERTS_FILE)
+ endif
+ VBoxDrv_SOURCES          = \
+ 	SUPDrv.d \
+ 	SUPDrv.cpp \
+ 	SUPDrvGip.cpp \
+ 	SUPDrvSem.cpp \
+  	SUPDrvTracer.cpp \
+	SUPLibAll.cpp
+ ifdef VBOX_WITH_NATIVE_DTRACE
+  VBoxDrv_SOURCES        += \
+  	SUPDrv-dtrace.cpp
+  SUPDrv-dtrace.cpp_DEFS.darwin += VBOX_PATH_MACOSX_DTRACE_H=\"$(VBOX_PATH_MACOSX_SDK)/usr/include/sys/dtrace.h\"
+ endif
+ ifn1of ($(KBUILD_TARGET), linux freebsd)
+  VBoxDrv_SOURCES        += \
+ 	SUPDrvTracerA.asm
+ endif
+
+ linux/SUPDrv-linux.c_DEPS = $(VBOX_SVN_REV_HEADER)
+
+endif
+
+
+
+if1of ($(KBUILD_TARGET), darwin)
+ # Files necessary to make a darwin kernel extension bundle.
+ INSTALLS.darwin += VBoxDrv.kext
+ VBoxDrv.kext_INST     = $(INST_VBOXDRV)Contents/
+ VBoxDrv.kext_SOURCES  = $(VBoxDrv.kext_0_OUTDIR)/Contents/Info.plist
+ VBoxDrv.kext_CLEAN    = $(VBoxDrv.kext_0_OUTDIR)/Contents/Info.plist
+ VBoxDrv.kext_BLDDIRS  = $(VBoxDrv.kext_0_OUTDIR)/Contents/
+
+ $$(VBoxDrv.kext_0_OUTDIR)/Contents/Info.plist: \
+		$(PATH_SUB_CURRENT)/darwin/Info.plist \
+		$(VBOX_VERSION_MK) | $$(dir $$@)
+	$(call MSG_GENERATE,VBoxDrv,$@,$<)
+	$(QUIET)$(RM) -f $@
+	$(QUIET)$(SED) \
+		-e 's/@VBOX_VERSION_STRING@/$(if !defined(VBOX_MAVERICS_CODE_SIGNING_HACK),$(VBOX_VERSION_STRING),4.2.51)/g' \
+		-e 's/@VBOX_VERSION_MAJOR@/$(if  !defined(VBOX_MAVERICS_CODE_SIGNING_HACK),$(VBOX_VERSION_MAJOR),4)/g' \
+		-e 's/@VBOX_VERSION_MINOR@/$(if  !defined(VBOX_MAVERICS_CODE_SIGNING_HACK),$(VBOX_VERSION_MINOR),2)/g' \
+		-e 's/@VBOX_VERSION_BUILD@/$(if  !defined(VBOX_MAVERICS_CODE_SIGNING_HACK),$(VBOX_VERSION_BUILD),51)/g' \
+		-e 's/@VBOX_VENDOR@/$(VBOX_VENDOR)/g' \
+		-e 's/@VBOX_PRODUCT@/$(VBOX_PRODUCT)/g' \
+		-e 's/@VBOX_C_YEAR@/$(VBOX_C_YEAR)/g' \
+		--output $@ \
+		$<
+
+ $(evalcall2 VBOX_TEST_SIGN_KEXT,VBoxDrv)
+endif
+
+
+if1of ($(KBUILD_TARGET), darwin solaris)
+ # Common manual loader script.
+ INSTALLS += SUPDrvScripts
+ SUPDrvScripts_INST = $(INST_DIST)
+ SUPDrvScripts_EXEC_SOURCES  = \
+	$(KBUILD_TARGET)/load.sh
+endif
+
+
+if1of ($(KBUILD_TARGET), linux freebsd)
+ #
+ # Targets for installing the linux sources.
+ #
+ vboxdrv-mod_INST    = bin/src/vboxdrv/
+ vboxdrv-mod_SOURCES = \
+ 	$(subst $(DQUOTE),,$(FILES_VBOXDRV_NOBIN)) \
+ 	$(vboxdrv-mod_0_OUTDIR)/Makefile
+ vboxdrv-mod_EXEC_SOURCES  = \
+ 	$(subst $(DQUOTE),,$(FILES_VBOXDRV_BIN))
+ vboxdrv-mod_CLEAN   = \
+ 	$(vboxdrv-mod_0_OUTDIR)/Makefile \
+ 	$(PATH_TARGET)/vboxdrv-mod-1.dep \
+
+ # Scripts needed for building the kernel modules
+ includedep $(PATH_TARGET)/vboxdrv-mod-1.dep
+ $$(vboxdrv-mod_0_OUTDIR)/Makefile: \
+		$(PATH_SUB_CURRENT)/$(KBUILD_TARGET)/Makefile \
+		$$(if $$(eq $$(Support/$(KBUILD_TARGET)/Makefile_VBOX_HARDENED),$$(VBOX_WITH_HARDENING)),,FORCE) \
+		| $$(dir $$@)
+	$(call MSG_TOOL,Creating,,$@)
+	$(QUIET)$(SED) -e "" \
+		$(if-expr !defined(VBOX_WITH_HARDENING)   ,-e "s;-DVBOX_WITH_HARDENING;;g",) \
+		$(if-expr ($(VBOX_VERSION_BUILD) % 2) == 0 \
+		 , -e "s;-DVBOX_WITH_EFLAGS_AC_SET_IN_VBOXDRV;;g" -e "s;-DIPRT_WITH_EFLAGS_AC_PRESERVING;;g",) \
+		--output $@ $<
+	%$(QUIET2)$(APPEND) -t '$(PATH_TARGET)/vboxdrv-mod-1.dep' \
+		'Support/$(KBUILD_TARGET)/Makefile_VBOX_HARDENED=$(VBOX_WITH_HARDENING)'
+endif # linux freebsd
+
+
+ifeq ($(KBUILD_TARGET), win)
+ INSTALLS.win += VBoxDrv-inf
+ VBoxDrv-inf_INST = $(INST_BIN)
+ VBoxDrv-inf_MODE = a+r,u+w
+ VBoxDrv-inf_SOURCES = \
+ 	$(PATH_TARGET)/VBoxDrvCat.dir/VBoxDrv.inf
+ VBoxDrv-inf_CLEAN = $(VBoxDrv-inf_SOURCES)
+ VBoxDrv-inf_BLDDIRS = $(PATH_TARGET)/VBoxDrvCat.dir
+
+ $(PATH_TARGET)/VBoxDrvCat.dir/VBoxDrv.inf: $(PATH_SUB_CURRENT)/win/VBoxDrv.inf $(MAKEFILE_CURRENT) | $$(dir $$@)
+	$(call MSG_GENERATE,VBoxDrv-inf,$@,$<)
+	$(call VBOX_EDIT_INF_FN,$<,$@)
+
+ ifdef VBOX_SIGNING_MODE
+  VBoxDrv-inf_SOURCES += \
+  	$(PATH_TARGET)/VBoxDrvCat.dir/VBoxDrv.sys \
+  	$(PATH_TARGET)/VBoxDrvCat.dir/VBoxDrv.cat
+
+  $(PATH_TARGET)/VBoxDrvCat.dir/VBoxDrv.sys: $$(VBoxDrv_1_TARGET) | $$(dir $$@)
+	$(INSTALL) -m 644 $< $(@D)
+
+  $(PATH_TARGET)/VBoxDrvCat.dir/VBoxDrv.cat: \
+		$(PATH_TARGET)/VBoxDrvCat.dir/VBoxDrv.inf \
+		$(PATH_TARGET)/VBoxDrvCat.dir/VBoxDrv.sys
+	$(call MSG_TOOL,Inf2Cat,VBoxDrv-inf,$@,$<)
+	$(call VBOX_MAKE_CAT_FN, $(@D),$@)
+ endif # signing
+endif # win
+
+
+endif # !VBOX_ONLY_DOCS && !VBOX_ONLY_EXTPACKS && !VBOX_ONLY_VALIDATIONKIT
+include $(FILE_KBUILD_SUB_FOOTER)
+

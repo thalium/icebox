@@ -1,0 +1,56 @@
+/* $Id: tstVDShareable.vd $ */
+/**
+ * Storage: Testcase for shareable disks.
+ */
+
+/*
+ * Copyright (C) 2011 Oracle Corporation
+ *
+ * This file is part of VirtualBox Open Source Edition (OSE), as
+ * available from http://www.virtualbox.org. This file is free software;
+ * you can redistribute it and/or modify it under the terms of the GNU
+ * General Public License (GPL) as published by the Free Software
+ * Foundation, in version 2 as it comes in the "COPYING" file of the
+ * VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ * hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ */
+
+void main()
+{
+    /* Init I/O RNG for generating random data for writes. */
+    iorngcreate(10M, "manual", 1234567890);
+
+    /* Create disk containers. */
+    createdisk("shared1", false);
+    createdisk("shared2", false);
+
+    /* Create the disk and close it. */
+    create("shared1", "base", "tstShared.vdi", "fixed", "VDI", 20M, false, false);
+    close("shared1", "all", false);
+
+    /* Open the disk with sharing enabled. */
+    open("shared1", "tstShared.vdi", "VDI", true /* fAsync */, true /* fShareable */, false, false, false, false);
+    open("shared2", "tstShared.vdi", "VDI", true /* fAsync */, true /* fShareable */, false, false, false, false);
+
+    /* Write to one disk and verify that the other disk can see the content. */
+    io("shared1", true, 32, "seq", 64K, 0, 20M, 20M, 100, "none");
+    comparedisks("shared1", "shared2");
+
+    /* Write to the second disk and verify that the first can see the content. */
+    io("shared2", true, 64, "seq", 8K, 0, 20M, 20M, 50, "none");
+    comparedisks("shared1", "shared2");
+
+    /* Close but don't delete yet. */
+    close("shared1", "all", false);
+    close("shared2", "all", false);
+
+    /* Open and delete. */
+    open("shared1", "tstShared.vdi", "VDI", false /* fAsync */, false /* fShareable */, false, false, false, false);
+    close("shared1", "single", true);
+
+    /* Cleanup */
+    destroydisk("shared1");
+    destroydisk("shared2");
+    iorngdestroy();
+}
+

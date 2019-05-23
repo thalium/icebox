@@ -1,0 +1,36 @@
+; $Id: VBoxGuest-os2.def $
+;; @file
+; VBoxGuest - OS/2 definition file.
+;
+
+;
+; Copyright (C) 2007-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+
+PHYSICAL DEVICE VBoxGst
+DESCRIPTION 'VirtualBox Guest Additions Driver for OS/2.'
+CODE PRELOAD EXECUTEREAD
+DATA PRELOAD
+; We're using wlink.exe, so this doesn't work.
+;SEGMENTS
+;    DATA16              class 'FAR_DATA'
+;    DATA16_INIT         class 'FAR_DATA'
+;
+;    CODE16              class 'CODE'
+;    CODE16_INIT         class 'CODE'
+;
+;    CODE32              class 'CODE'
+;    TEXT32              class 'CODE'
+;
+;    DATA32              class 'DATA'
+;    BSS32               class 'BSS'
+

@@ -1,0 +1,88 @@
+; $Id: VBoxNetAdp.inf $
+; @file
+; VBoxNetAdp.inf - VirtualBox Host-Only Driver inf file
+;
+;
+; Copyright (C) 2011-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+[Version]
+signature  = "$Windows NT$"
+;cat   CatalogFile = VBoxNetAdp.cat
+Class      = Net
+ClassGUID  = {4d36e972-e325-11ce-bfc1-08002be10318}
+Provider   = %Provider%
+; DriverPackageType=Network
+; DriverPackageDisplayName=%VBoxNetAdp_Desc%
+;edit-DriverVer=08/13/2008,1.1.0.1
+
+[ControlFlags]
+;ExcludeFromSelect = sun_VBoxNetAdp
+
+[SourceDisksNames]
+1=%DiskDescription%,"",,
+
+[SourceDisksFiles]
+VBoxNetAdp.sys=1
+
+[DestinationDirs]
+DefaultDestDir = 12
+VBoxNetAdp.Files.Sys   = 12   ; %windir%\System32\drivers
+
+[Manufacturer]
+%Provider% = VBox,NTx86,NTia64,NTamd64
+
+[VBox]
+%VBoxNetAdp_Desc% = VBoxNetAdp.ndi, sun_VBoxNetAdp
+
+[VBox.NTx86]
+%VBoxNetAdp_Desc% = VBoxNetAdp.ndi, sun_VBoxNetAdp
+
+[VBox.NTia64]
+%VBoxNetAdp_Desc% = VBoxNetAdp.ndi, sun_VBoxNetAdp
+
+[VBox.NTamd64]
+%VBoxNetAdp_Desc% = VBoxNetAdp.ndi, sun_VBoxNetAdp
+
+[VBoxNetAdp.ndi]
+Characteristics = 0x1 ; NCF_VIRTUAL 
+CopyFiles = VBoxNetAdp.Files.Sys
+AddReg = VBoxNetAdp.AddReg
+
+[VBoxNetAdp.Files.Sys]
+VBoxNetAdp.sys,,,2
+
+[VBoxNetAdp.ndi.Services]
+AddService = VBoxNetAdp,0x2, VBoxNetAdp.AddService
+
+[VBoxNetAdp.AddService]
+DisplayName     = %VBoxNetAdp_Desc%
+ServiceType    = 1 ;SERVICE_KERNEL_DRIVER
+StartType      = 3 ;SERVICE_DEMAND_START
+ErrorControl   = 1 ;SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\VBoxNetAdp.sys
+LoadOrderGroup  = NDIS
+
+[VBoxNetAdp.AddReg]
+HKR,    ,                         *NdisDeviceType,     0x00010001, 1   ; NDIS_DEVICE_TYPE_ENDPOINT
+HKR, Ndi,                         Service,             0, "VBoxNetAdp"
+HKR, Ndi\Interfaces,              UpperRange,          0, "ndis5"
+HKR, Ndi\Interfaces,              LowerRange,          0, "ethernet"
+
+[VBoxNetAdp.AddService]
+
+[Strings]
+Provider = "Oracle Corporation"
+VBoxNetAdp_Desc = "VirtualBox Host-Only Ethernet Adapter"
+DiskDescription = "VirtualBox Host-Only Ethernet Adapter"
+
+
+

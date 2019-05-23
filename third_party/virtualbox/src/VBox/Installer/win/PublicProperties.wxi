@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    VirtualBox Windows Installation Script (WiX)
+
+    Copyright (C) 2015-2016 Oracle Corporation
+
+    This file is part of VirtualBox Open Source Edition (OSE), as
+    available from http://www.virtualbox.org. This file is free software;
+    you can redistribute it and/or modify it under the terms of the GNU
+    General Public License (GPL) as published by the Free Software
+    Foundation, in version 2 as it comes in the "COPYING" file of the
+    VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+    hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+-->
+
+<Include xmlns="http://schemas.microsoft.com/wix/2006/wix"
+         xmlns:difxapp="http://schemas.microsoft.com/wix/DifxAppExtension">
+
+<!-- Define our own public properties here in order to get those also recognized in case
+     case we're building the installer as MSM modules -->
+
+  <!-- Whether or not a desktop shortcut should be created. -->
+  <Property Id="VBOX_INSTALLDESKTOPSHORTCUT" Value="1" Secure="yes"/>
+  <SetProperty Id="VBOX_INSTALLDESKTOPSHORTCUT" After="AppSearch" Sequence="both"
+               Value="{}"><![CDATA[VBOX_INSTALLDESKTOPSHORTCUT="0"]]></SetProperty>
+
+  <!-- Whether or not start menu entries should be created. -->
+  <Property Id="VBOX_INSTALLSTARTMENUENTRIES" Value="1" Secure="yes"/>
+  <SetProperty Id="VBOX_INSTALLSTARTMENUENTRIES" After="AppSearch" Sequence="both"
+               Value="{}"><![CDATA[VBOX_INSTALLSTARTMENUENTRIES="0"]]></SetProperty>
+
+  <!-- Whether or not a desktop shortcut for the Quick Launch Bar should be created -->
+  <Property Id="VBOX_INSTALLQUICKLAUNCHSHORTCUT" Value="1" Secure="yes"/>
+  <SetProperty Id="VBOX_INSTALLQUICKLAUNCHSHORTCUT" After="AppSearch" Sequence="both"
+               Value="{}"><![CDATA[VBOX_INSTALLQUICKLAUNCHSHORTCUT="0"]]></SetProperty>
+
+  <!-- Whether or not VirtualBox should be started automatically right after successful installation -->
+  <Property Id="VBOX_START" Value="1" Secure="yes"/>
+  <SetProperty Id="VBOX_START" After="AppSearch" Sequence="both"
+               Value="{}"><![CDATA[VBOX_START="0"]]></SetProperty>
+</Include>

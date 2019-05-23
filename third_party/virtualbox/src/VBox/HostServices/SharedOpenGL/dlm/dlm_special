@@ -1,0 +1,21 @@
+# dlm_arrays.c: these have to be expanded out into
+# their components before being stored in a display list
+ArrayElement
+DrawArrays
+DrawElements
+DrawRangeElements
+MultiDrawArraysEXT
+MultiDrawElementsEXT
+
+# dlm_calllist.c: since the DLM can manage state stored
+# inside display lists, we can manage state updates for
+# these sorts of elements.
+#CallList
+#CallLists
+
+# Calls to be ignored.
+#VBoxConCreate
+#VBoxCreateContext
+#VBoxPackSetInjectThread
+#VBoxPresentComposition
+#VBoxWindowCreate

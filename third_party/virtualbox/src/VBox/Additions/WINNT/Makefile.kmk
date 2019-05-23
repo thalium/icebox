@@ -1,0 +1,36 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Windows NT++ Guest Additions.
+#
+
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+# Include Sub-Makefiles.
+include $(PATH_SUB_CURRENT)/Graphics/Makefile.kmk
+include $(PATH_SUB_CURRENT)/Mouse/Makefile.kmk
+include $(PATH_SUB_CURRENT)/VBoxTray/Makefile.kmk
+include $(PATH_SUB_CURRENT)/VBoxGINA/Makefile.kmk
+include $(PATH_SUB_CURRENT)/VBoxCredProv/Makefile.kmk
+include $(PATH_SUB_CURRENT)/VBoxHook/Makefile.kmk
+include $(PATH_SUB_CURRENT)/tools/Makefile.kmk
+ifdef VBOX_WITH_WIN32_ADDITIONS_SHAREDFOLDERS
+ include $(PATH_SUB_CURRENT)/SharedFolders/Makefile.kmk
+endif
+ifneq ($(wildcard $(PATH_SUB_CURRENT)/Installer/Makefile.kmk),)
+ include $(PATH_SUB_CURRENT)/Installer/Makefile.kmk
+endif
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

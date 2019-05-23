@@ -1,0 +1,201 @@
+<ui version="4.0" >
+ <comment>
+ VBox frontends: Qt GUI ("VirtualBox"):
+
+ Copyright (C) 2008-2016 Oracle Corporation
+
+ This file is part of VirtualBox Open Source Edition (OSE), as
+ available from http://www.virtualbox.org. This file is free software;
+ you can redistribute it and/or modify it under the terms of the GNU
+ General Public License (GPL) as published by the Free Software
+ Foundation, in version 2 as it comes in the "COPYING" file of the
+ VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ </comment>
+ <class>UIMachineSettingsUSB</class>
+ <widget class="QWidget" name="UIMachineSettingsUSB" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>468</width>
+    <height>328</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout" columnstretch="0,1,0">
+   <item row="0" column="0" colspan="2" >
+    <widget class="QCheckBox" name="mGbUSB" >
+     <property name="whatsThis" >
+      <string>When checked, enables the virtual USB controller of this machine.</string>
+     </property>
+     <property name="text" >
+      <string>Enable &amp;USB Controller</string>
+     </property>
+     <property name="checked" >
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" >
+    <spacer>
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType" >
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="1" column="1" colspan="2" >
+    <widget class="QWidget" name="mUSBChild" >
+     <layout class="QVBoxLayout" >
+      <property name="leftMargin" >
+       <number>0</number>
+      </property>
+      <property name="topMargin" >
+       <number>0</number>
+      </property>
+      <property name="rightMargin" >
+       <number>0</number>
+      </property>
+      <property name="bottomMargin" >
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="QWidget" native="1" name="mRbContainer" >
+        <layout class="QVBoxLayout">
+         <property name="leftMargin" >
+          <number>0</number>
+         </property>
+         <property name="topMargin" >
+          <number>0</number>
+         </property>
+         <property name="rightMargin" >
+          <number>0</number>
+         </property>
+         <property name="bottomMargin" >
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QRadioButton" name="mRbUSB1">
+           <property name="whatsThis">
+            <string>When chosen, enables the virtual USB OHCI controller of this machine. The USB OHCI controller provides USB 1.0 support.</string>
+           </property>
+           <property name="text">
+            <string>USB &amp;1.1 (OHCI) Controller</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="mRbUSB2">
+           <property name="whatsThis">
+            <string>When chosen, enables the virtual USB EHCI controller of this machine. The USB EHCI controller provides USB 2.0 support.</string>
+           </property>
+           <property name="text">
+            <string>USB &amp;2.0 (EHCI) Controller</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QRadioButton" name="mRbUSB3">
+           <property name="whatsThis">
+            <string>When chosen, enables the virtual USB xHCI controller of this machine. The USB xHCI controller provides USB 3.0 support.</string>
+           </property>
+           <property name="text">
+            <string>USB &amp;3.0 (xHCI) Controller</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QILabelSeparator" name="mGbUSBFilters" >
+        <property name="text" >
+         <string>USB Device &amp;Filters</string>
+        </property>
+        <property name="buddy" >
+         <cstring>mTwFilters</cstring>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" native="1" name="mWtFilterHandler" >
+        <layout class="QHBoxLayout" >
+         <property name="leftMargin" >
+          <number>0</number>
+         </property>
+         <property name="topMargin" >
+          <number>0</number>
+         </property>
+         <property name="rightMargin" >
+          <number>0</number>
+         </property>
+         <property name="bottomMargin" >
+          <number>0</number>
+         </property>
+         <property name="spacing" >
+          <number>3</number>
+         </property>
+         <item>
+          <widget class="QITreeWidget" name="mTwFilters" >
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="contextMenuPolicy" >
+            <enum>Qt::CustomContextMenu</enum>
+           </property>
+           <property name="whatsThis" >
+            <string>Lists all USB filters of this machine. The checkbox to the left defines whether the particular filter is enabled or not. Use the context menu or buttons to the right to add or remove USB filters.</string>
+           </property>
+           <property name="rootIsDecorated" >
+            <bool>false</bool>
+           </property>
+           <column>
+            <property name="text" >
+             <string>[filter]</string>
+            </property>
+           </column>
+          </widget>
+         </item>
+         <item>
+          <widget class="UIToolBar" native="1" name="m_pFiltersToolBar"/>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>QITreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header>QITreeWidget.h</header>
+  </customwidget>
+  <customwidget>
+   <class>QILabelSeparator</class>
+   <extends>QLabel</extends>
+   <header>QILabelSeparator.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UIToolBar</class>
+   <extends>QWidget</extends>
+   <header>UIToolBar.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

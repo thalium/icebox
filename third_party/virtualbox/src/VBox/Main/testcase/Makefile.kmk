@@ -1,0 +1,264 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the VBox API testcases.
+#
+
+#
+# Copyright (C) 2004-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+
+#
+# Target and globals (small mess)
+#
+ifndef VBOX_ONLY_SDK
+ if defined(VBOX_WITH_TESTCASES)
+  PROGRAMS       += \
+  	tstAPI \
+  	tstVBoxAPI \
+  	tstVBoxAPIPerf \
+	tstVBoxMultipleVM \
+  	$(if $(VBOX_OSE),,tstOVF) \
+  	$(if $(VBOX_WITH_XPCOM),tstVBoxAPIXPCOM,tstVBoxAPIWin msiDarwinDescriptorDecoder) \
+  	$(if $(VBOX_WITH_RESOURCE_USAGE_API),tstCollector,) \
+  	$(if $(VBOX_WITH_GUEST_CONTROL),tstGuestCtrlParseBuffer,) \
+  	$(if $(VBOX_WITH_GUEST_CONTROL),tstGuestCtrlContextID,) \
+  	tstMediumLock \
+  	tstGuid
+  PROGRAMS.linux += \
+  	$(if $(VBOX_WITH_USB),tstUSBProxyLinux,)
+ endif # !VBOX_WITH_TESTCASES
+endif # !VBOX_ONLY_SDK
+if defined(VBOX_ONLY_SDK) || !defined(VBOX_WITH_XPCOM)
+ INSTALLS += samplesMSCOM
+endif
+if defined(VBOX_ONLY_SDK) || defined(VBOX_WITH_XPCOM)
+ INSTALLS += samplesXPCOM
+endif
+
+
+#
+# The samples
+#
+samplesMSCOM_MODE = a+r,u+w
+samplesMSCOM_INST = $(INST_SDK)bindings/mscom/samples/
+samplesMSCOM_SOURCES = tstVBoxAPIWin.cpp makefile.tstVBoxAPIWin=>Makefile
+
+samplesXPCOM_MODE = a+r,u+w
+samplesXPCOM_INST = $(INST_SDK)bindings/xpcom/samples/
+samplesXPCOM_SOURCES = tstVBoxAPIXPCOM.cpp makefile.tstVBoxAPIXPCOM=>Makefile
+
+#
+# tstVBoxMultipleVM
+#
+tstVBoxMultipleVM_TEMPLATE = VBOXMAINCLIENTTSTEXE
+tstVBoxMultipleVM_SOURCES  = tstVBoxMultipleVM.cpp
+
+#
+# tstAPI
+#
+tstAPI_TEMPLATE = VBOXMAINCLIENTTSTEXE
+#tstAPI_INST = $(INST_SDK)bindings/gluecom/samples/
+tstAPI_SOURCES  = tstAPI.cpp
+
+#
+# tstVBoxAPI
+#
+tstVBoxAPI_TEMPLATE = VBOXMAINCLIENTTSTEXE
+tstVBoxAPI_SOURCES  = \
+	tstVBoxAPI.cpp
+
+#
+# tstVBoxAPIPerf
+#
+tstVBoxAPIPerf_TEMPLATE = VBOXMAINCLIENTTSTEXE
+tstVBoxAPIPerf_SOURCES  = \
+	tstVBoxAPIPerf.cpp
+
+#
+# tstOVF
+#
+tstOVF_TEMPLATE = VBOXMAINCLIENTTSTEXE
+#tstOVF_INST = $(INST_SDK)bindings/gluecom/samples/
+tstOVF_SOURCES  = tstOVF.cpp
+
+ifndef VBOX_OSE
+#
+# OVF test data.
+#
+INSTALLS += ovf-testcases
+ovf-testcases_MODE = a+r,u+w
+ovf-testcases_INST = $(INST_TESTCASE)ovf-testcases/
+ovf-testcases_SOURCES = \
+	ovf-dummy.vmdk \
+	ovf-joomla-0.9/joomla-1.1.4-ovf.ovf=>ovf-joomla-0.9/joomla-1.1.4-ovf.ovf \
+	ovf-winhost-audio-nodisks/WinXP.ovf=>ovf-winhost-audio-nodisks/WinXP.ovf \
+	ovf-winxp-vbox-sharedfolders/winxp.ovf=>ovf-winxp-vbox-sharedfolders/winxp.ovf
+endif
+
+
+#
+# tstVBoxAPIXPCOM
+#
+# We only build the testcase here to make sure it builds.
+# It comes with a custom makefile which should be tested as well!
+#
+# Use very generic template to make the build environment similar
+# to the standalone case, to detect if IPRT or glue use sneaks in.
+#
+tstVBoxAPIXPCOM_TEMPLATE = VBOXR3EXE
+tstVBoxAPIXPCOM_INST = $(INST_TESTCASE)
+tstVBoxAPIXPCOM_SOURCES  = tstVBoxAPIXPCOM.cpp
+tstVBoxAPIXPCOM_INCS = \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include/nsprpub \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include/string \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include/xpcom \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include/ipcd
+tstVBoxAPIXPCOM_LIBS = \
+	$(LIB_XPCOM) \
+	$(LIB_RUNTIME)
+tstVBoxAPIXPCOM_CXXFLAGS = -fshort-wchar
+ifdef VBOX_WITH_RUNPATH
+ tstVBoxAPIXPCOM_LDFLAGS = '$(VBOX_GCC_RPATH_OPT)$(VBOX_WITH_RUNPATH)' $(TEMPLATE_VBoxBldProg_LDFLAGS)
+else ifdef VBOX_WITH_RELATIVE_RUNPATH
+ tstVBoxAPIXPCOM_LDFLAGS = '$(VBOX_GCC_RPATH_OPT)$(VBOX_WITH_RELATIVE_RUNPATH)/..' $(TEMPLATE_VBoxBldProg_LDFLAGS)
+endif
+tstVBoxAPIXPCOM_INTERMEDIATES = \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include/VirtualBox_XPCOM.h
+ifdef VBOX_WITH_XPCOM_NAMESPACE_CLEANUP
+ tstVBoxAPIXPCOM_DEFS += VBOX_WITH_XPCOM_NAMESPACE_CLEANUP
+endif
+
+
+#
+# tstVBoxAPIWin
+#
+# Use very generic template to make the build environment similar
+# to the standalone case, to detect if IPRT or glue use sneaks in.
+#
+tstVBoxAPIWin_TEMPLATE = VBOXR3EXE
+tstVBoxAPIWin_INST = $(INST_TESTCASE)
+tstVBoxAPIWin_SOURCES  = \
+	tstVBoxAPIWin.cpp \
+	$(VBOX_PATH_SDK)/bindings/mscom/lib/VirtualBox_i.c
+tstVBoxAPIWin_INCS = \
+	$(VBOX_PATH_SDK)/bindings/mscom/include
+tstVBoxAPIWin_INTERMEDIATES = \
+	$(VBOX_PATH_SDK)/bindings/mscom/include/VirtualBox.h
+
+
+#
+# msiDarwinDescriptorDecoder
+#
+# Use very generic template to make the build environment similar
+# to the standalone case, to detect if IPRT or glue use sneaks in.
+#
+msiDarwinDescriptorDecoder_TEMPLATE = VBOXR3EXE
+msiDarwinDescriptorDecoder_INST = $(VBOX_INST_TOOLS)
+msiDarwinDescriptorDecoder_SOURCES  = \
+	msiDarwinDescriptorDecoder.cpp
+
+
+#
+# tstCollector
+#
+# Note! VBOX_MAIN_APIWRAPPER_GEN_HDRS is only defined if kmk is executed a
+#       parent directory.  Since the rules for generating the files listed by
+#       the variable lives in the parent makefile, this is not a problem.
+#
+tstCollector_TEMPLATE = VBOXMAINCLIENTTSTEXE
+tstCollector_SOURCES  = \
+	tstCollector.cpp \
+	../src-server/Performance.cpp
+tstCollector_INCS            = \
+	../include \
+	$(VBOX_MAIN_APIWRAPPER_INCS)
+tstCollector_INTERMEDIATES   = $(VBOX_MAIN_APIWRAPPER_GEN_HDRS)
+tstCollector_DEFS            = VBOX_COLLECTOR_TEST_CASE
+tstCollector_LDFLAGS.darwin  = -lproc
+tstCollector_LDFLAGS.solaris = -lkstat -lnvpair
+tstCollector_LDFLAGS.win     = psapi.lib powrprof.lib
+
+
+#
+# tstGuestCtrlParseBuffer
+#
+tstGuestCtrlParseBuffer_TEMPLATE = VBOXMAINCLIENTTSTEXE
+tstGuestCtrlParseBuffer_INTERMEDIATES   = $(VBOX_MAIN_APIWRAPPER_GEN_HDRS)
+tstGuestCtrlParseBuffer_DEFS    += VBOX_WITH_HGCM VBOX_WITH_GUEST_CONTROL VBOX_GUESTCTRL_TEST_CASE
+tstGuestCtrlParseBuffer_SOURCES  = \
+	tstGuestCtrlParseBuffer.cpp \
+	../src-client/GuestCtrlPrivate.cpp
+tstGuestCtrlParseBuffer_INCS     = ../include \
+    $(VBOX_MAIN_APIWRAPPER_INCS)
+
+
+#
+# tstGuestCtrlContextID
+#
+tstGuestCtrlContextID_TEMPLATE = VBOXMAINCLIENTTSTEXE
+tstGuestCtrlContextID_INTERMEDIATES   = $(VBOX_MAIN_APIWRAPPER_GEN_HDRS)
+tstGuestCtrlContextID_DEFS    += VBOX_WITH_HGCM VBOX_WITH_GUEST_CONTROL VBOX_GUESTCTRL_TEST_CASE
+tstGuestCtrlContextID_SOURCES  = \
+	tstGuestCtrlContextID.cpp \
+	../src-client/GuestCtrlPrivate.cpp
+tstGuestCtrlContextID_INCS     = ../include \
+     $(VBOX_MAIN_APIWRAPPER_INCS)
+
+
+#
+# tstUSBProxyLinux
+#
+tstUSBProxyLinux_TEMPLATE  = VBOXMAINCLIENTTSTEXE
+tstUSBProxyLinux_INTERMEDIATES = $(VBOX_MAIN_APIWRAPPER_GEN_HDRS)
+tstUSBProxyLinux_SOURCES   = \
+	tstUSBProxyLinux.cpp \
+	../src-server/linux/USBGetDevices.cpp
+tstUSBProxyLinux_INCS      = \
+	. \
+	../include \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include/nsprpub \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include/xpcom \
+	$(VBOX_MAIN_APIWRAPPER_INCS)
+tstUSBProxyLinux_DEFS      = \
+	UNIT_TEST \
+	VBOX_WITH_USB \
+	VBOX_USB_WITH_SYSFS \
+	VBOX_WITH_XPCOM
+tstUSBProxyLinux_DEPS     = \
+	$(VBOX_PATH_SDK)/bindings/xpcom/include/VirtualBox_XPCOM.h
+tstUSBProxyLinux_LIBS     += \
+	$(PATH_OUT)/lib/USBLib.a \
+	$(PATH_OUT)/lib/VBoxCOM.a
+
+
+#
+# tstMediumLock
+#
+tstMediumLock_TEMPLATE = VBOXMAINCLIENTTSTEXE
+tstMediumLock_SOURCES  = tstMediumLock.cpp
+
+
+#
+# tstGuid
+#
+tstGuid_TEMPLATE = VBOXMAINCLIENTTSTEXE
+tstGuid_SOURCES  = tstGuid.cpp
+
+
+# generate rules.
+include $(FILE_KBUILD_SUB_FOOTER)
+

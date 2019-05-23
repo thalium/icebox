@@ -1,0 +1,91 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Shared Clipboard Host Service.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+# Include sub-makefile(s).
+include $(PATH_SUB_CURRENT)/testcase/Makefile.kmk
+
+#
+# The shared folder service DLL.
+#
+DLLS += VBoxSharedClipboard
+VBoxSharedClipboard_TEMPLATE  = VBOXR3
+VBoxSharedClipboard_DEFS      = VBOX_WITH_HGCM
+VBoxSharedClipboard_INCS.win  = \
+	$(VBOX_PATH_SDK)
+
+VBoxSharedClipboard_SOURCES = \
+	service.cpp
+VBoxSharedClipboard_SOURCES.win = \
+	VBoxClipboard-win.cpp \
+	VBoxSharedClipboard.rc
+VBoxSharedClipboard_SOURCES.darwin = \
+	darwin.cpp \
+	$(PATH_ROOT)/src/VBox/GuestHost/SharedClipboard/clipboard-helper.cpp \
+	darwin-pasteboard.cpp
+if1of ($(KBUILD_TARGET), linux solaris freebsd) ## @todo X11
+ ifndef VBOX_HEADLESS
+  VBoxSharedClipboard_SOURCES += \
+  	$(PATH_ROOT)/src/VBox/GuestHost/SharedClipboard/clipboard-helper.cpp \
+  	$(PATH_ROOT)/src/VBox/GuestHost/SharedClipboard/x11-clipboard.cpp \
+  	x11-clipboard.cpp
+ else
+  VBoxSharedClipboard_SOURCES += \
+  	x11-stub.cpp
+ endif
+endif
+
+VBoxSharedClipboard_LIBS = \
+	$(LIB_VMM) \
+	$(LIB_RUNTIME) \
+	$(LIB_REM)
+if1of ($(KBUILD_TARGET), linux solaris freebsd)
+ ifndef VBOX_HEADLESS
+  VBoxSharedClipboard_LIBPATH = \
+	$(VBOX_LIBPATH_X11)
+  VBoxSharedClipboard_LIBS += \
+	Xt \
+	X11
+ endif
+endif
+
+VBoxSharedClipboard_LDFLAGS.darwin = \
+	-framework ApplicationServices -install_name $(VBOX_DYLD_EXECUTABLE_PATH)/VBoxSharedClipboard.dylib
+
+if defined(VBOX_WITH_TESTCASES) && !defined(VBOX_ONLY_ADDITIONS) && !defined(VBOX_ONLY_SDK)
+ if1of ($(KBUILD_TARGET), freebsd linux netbsd openbsd solaris)
+ #
+ # Set this in LocalConfig.kmk if you are working on the X11 clipboard service
+ # to automatically run the unit test at build time.
+ #       OTHERS += $(tstClipboardX11-2_0_OUTDIR)/tstClipboardX11-2.run
+ PROGRAMS += tstClipboardX11-2
+ TESTING += $(tstClipboardX11-2_0_OUTDIR)/tstClipboardX11-2.run
+ tstClipboardX11-2_TEMPLATE = VBOXR3TSTEXE
+ tstClipboardX11-2_DEFS     = VBOX_WITH_HGCM TESTCASE
+ tstClipboardX11-2_SOURCES  = x11-clipboard.cpp
+ tstClipboardX11-2_LIBS     = $(LIB_RUNTIME)
+ tstClipboardX11-2_CLEANS   = $(tstClipboardX11-2_0_OUTDIR)/tstClipboardX11-2.run
+
+$$(tstClipboardX11-2_0_OUTDIR)/tstClipboardX11-2.run: $$(tstClipboardX11-2_1_STAGE_TARGET)
+	export VBOX_LOG_DEST=nofile; $(tstClipboardX11-2_1_STAGE_TARGET) quiet
+	$(QUIET)$(APPEND) -t "$@" "done"
+ endif # 1of ($(KBUILD_TARGET),freebsd linux netbsd openbsd solaris)
+endif
+
+include $(FILE_KBUILD_SUB_FOOTER)

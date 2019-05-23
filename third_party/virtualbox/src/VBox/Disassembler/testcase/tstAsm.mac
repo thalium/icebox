@@ -1,0 +1,58 @@
+; $Id: tstAsm.mac $
+;; @file
+; Disassembly testcase - Common header for the xREG macros.
+;
+
+;
+; Copyright (C) 2008-2017 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+%if TEST_BITS == 64
+ %define xCB 8
+ %define xSP rsp
+ %define xBP rbp
+ %define xAX rax
+ %define xBX rbx
+ %define xCX rcx
+ %define xDX rdx
+ %define xDI rdi
+ %define xSI rsi
+%endif
+%if TEST_BITS == 32
+ %define xCB 4
+ %define xSP esp
+ %define xBP ebp
+ %define xAX eax
+ %define xBX ebx
+ %define xCX ecx
+ %define xDX edx
+ %define xDI edi
+ %define xSI esi
+%endif
+%if TEST_BITS == 16
+ %define xCB 2
+ %define xSP sp
+ %define xBP bp
+ %define xAX ax
+ %define xBX bx
+ %define xCX cx
+ %define xDX dx
+ %define xDI di
+ %define xSI si
+%endif
+%ifndef xCB
+ %error "TEST_BITS is missing or wrong."
+%endif
+
+%if __YASM_VERSION_ID__ >= 001020001h ; v1.2.0.1 and greater, make sure to exclude v1.2.0.0.
+ %define pmulhrwa pmulhrw
+%endif
+

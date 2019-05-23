@@ -1,0 +1,114 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for kStuff, for statically linking into VBoxRT.
+#
+
+#
+# Copyright (C) 2007-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# The library for dynamic linking.
+#
+LIBRARIES += VBox-kStuff
+VBox-kStuff_TEMPLATE = VBoxR3RuntimeDll
+/* Temporary measure: prevents switch fall-through warnings. */
+ifeq ($(KBUILD_HOST),linux)
+ if $(VBOX_GCC_VERSION_CXX) >= 70000
+  VBox-kStuff_CFLAGS = -Wno-implicit-fallthrough
+ endif
+endif
+VBox-kStuff_DEFS = IN_RT_R3
+VBox-kStuff_DEFS.strict = K_STRICT KLDRMODMACHO_STRICT KLDRMODMACHO_STRICT2
+VBox-kStuff_DEFS.debug  = $(VBox-kStuff_DEFS.strict)
+VBox-kStuff_INCS = \
+	kStuff/include \
+	$(VBox-kStuff_0_OUTDIR)
+VBox-kStuff_ORDERDEPS = \
+	$(VBox-kStuff_0_OUTDIR)/kErrNameConsts.h
+VBox-kStuff_SOURCES = \
+	kStuff/kLdr/kLdrMod.c \
+	kStuff/kLdr/kLdrModLX.c \
+	kStuff/kLdr/kLdrModMachO.c \
+	kStuff/kLdr/kLdrModPE.c \
+	\
+	kStuff/kRdr/kRdr.cpp \
+	kStuff/kRdr/kRdrBuffered.cpp \
+	\
+	kStuff/kCpu/kCpuCompare.c \
+	kStuff/kCpu/kCpuGetArchAndCpu.c \
+	\
+	kStuff/kErr/kErrName.c \
+	\
+	kStuff/kHlp/Generic/kHlpMemPComp.c \
+	kStuff/kHlp/Generic/kHlpMemICompAscii.c \
+	kStuff/kHlp/Generic/kHlpStrPCat.c \
+	kStuff/kHlp/Generic/kHlpStrNPCat.c \
+	kStuff/kHlp/Generic/kHlpStrPComp.c \
+	kStuff/kHlp/Generic/kHlpStrNPComp.c \
+	kStuff/kHlp/Generic/kHlpStrICompAscii.c \
+	kStuff/kHlp/Generic/kHlpStrIPCompAscii.c \
+	kStuff/kHlp/Generic/kHlpStrNICompAscii.c \
+	kStuff/kHlp/Generic/kHlpStrNIPCompAscii.c \
+	kStuff/kHlp/Generic/kHlpStrPCopy.c \
+	kStuff/kHlp/Generic/kHlpStrNLen.c \
+	kStuff/kHlp/Generic/kHlpInt2Ascii.c \
+	kStuff/kHlp/Generic/kHlpGetEnvUZ.c \
+	kStuff/kHlp/Generic/kHlpGetExt.c \
+	kStuff/kHlp/Generic/kHlpGetFilename.c \
+	kStuff/kHlp/Generic/kHlpIsFilenameOnly.c \
+	\
+	iprt/kHlpPage-iprt.cpp \
+	iprt/kHlpAlloc-iprt.cpp \
+	iprt/kHlpAssert-iprt.cpp \
+	iprt/kHlpEnv-iprt.cpp \
+	iprt/kHlpString-iprt.cpp \
+	iprt/kRdrFile-iprt.cpp
+
+ifdef VBOX_WITH_32_ON_64_MAIN_API # 32-bit edition.
+ LIBRARIES += VBox-kStuff-x86
+ VBox-kStuff-x86_TEMPLATE = VBoxR3Dll-x86
+ VBox-kStuff-x86_EXTENDS = VBox-kStuff
+endif
+
+#
+# The library for static linking.
+#
+LIBRARIES += VBox-kStuffStatic
+VBox-kStuffStatic_TEMPLATE = VBoxR3Static
+VBox-kStuffStatic_EXTENDS = VBox-kStuff
+
+LIBRARIES += VBox-kStuffStaticBldProg
+VBox-kStuffStaticBldProg_TEMPLATE = VBoxBldProg
+VBox-kStuffStaticBldProg_EXTENDS = VBox-kStuff
+
+
+#
+# Generate the error constants.
+#
+$$(VBox-kStuff_0_OUTDIR)/kErrNameConsts.h: \
+		$(PATH_SUB_CURRENT)/kStuff/include/k/kErrors.h \
+		$(MAKEFILE_CURRENT) \
+		| $$(dir $$@)
+	$(QUIET)$(RM) -f $@
+	$(QUIET)$(SED) \
+		-e '/^#define  *\(K[A-Z_]*ERR_[^ ()]*\) .*$$/!d' \
+		-e 's/^#define  *\(K[A-Z_]*ERR_[^ ()]*\) .*$$/ERR_CONST(\1)/' \
+		-e '/K[A-Z_]*ERR_[A-Z0-9_]*BASE/d' \
+		-e '/K[A-Z_]*ERR_[A-Z0-9_]*END/d' \
+		--output $@ \
+		$<
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

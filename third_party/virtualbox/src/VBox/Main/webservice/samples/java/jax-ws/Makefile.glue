@@ -1,0 +1,53 @@
+#
+# Copyright (C) 2008-2010 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+JAXWS=./jaxws-ri
+JAXWSLIBS=$(JAXWS)/lib/jaxws-api.jar:$(JAXWS)/lib/jaxb-api.jar:$(JAXWS)/lib/jsr181-api.jar:$(JAXWS)/lib/jaxws-rt.jar
+
+
+JAVA16=java
+JAVA15=/usr/lib/jvm/java-1.5.0-sun/bin/java
+JAVAC15 = javac -target 1.5
+JAVAC16 = javac -target 1.6
+WSIMPORT15 = $(JAVA15) -cp $(JAXWS)/lib/jaxws-tools.jar com.sun.tools.ws.WsImport
+WSIMPORT16 = wsimport
+JAR = jar
+CP = cp
+MKDIR = mkdir
+RM = rm
+
+DEST16 = ./gen16
+DEST15 = ./gen15
+
+VBOXWS15 = ../lib/vboxws_java15.jar
+VBOXWS16 = ../lib/vboxws_java16.jar
+
+all: $(VBOXWS15) $(VBOXWS16)
+
+$(VBOXWS15): ../../../vboxwebService.wsdl ../../../vboxweb.wsdl *.java
+	$(RM) -rf  $(DEST15)
+	$(MKDIR) -p $(DEST15)
+	$(WSIMPORT15) -d $(DEST15) $<
+	$(JAVAC15) -cp $(DEST15) *.java -d $(DEST15)
+	$(CP)  ../../../vboxwebService.wsdl ../../../vboxweb.wsdl $(DEST15)
+	$(JAR) cvf $(VBOXWS15) -C $(DEST15) . > /dev/null
+
+$(VBOXWS16): ../../../vboxwebService.wsdl ../../../vboxweb.wsdl *.java
+	$(RM) -rf  $(DEST16)
+	$(MKDIR) -p $(DEST16)
+	$(WSIMPORT16) -d $(DEST16) $<
+	$(JAVAC16) -cp $(DEST16) *.java -d $(DEST16)
+	$(CP)  ../../../vboxwebService.wsdl ../../../vboxweb.wsdl $(DEST16)
+	$(JAR) cvf $(VBOXWS16) -C $(DEST16) . > /dev/null
+
+clean:
+	$(RM) -rf $(DEST)

@@ -1,0 +1,7 @@
+This directory was generated from the mesa-7.2.tar.gz archive by unpacking it
+and executing
+
+$ mkdir $VBOX_PATH/src/VBox/Additions/x11/x11include/mesa-7.2
+$ cp -r include/GL $VBOX_PATH/src/VBox/Additions/x11/x11include/mesa-7.2
+
+in the mesa-7.2 directory.

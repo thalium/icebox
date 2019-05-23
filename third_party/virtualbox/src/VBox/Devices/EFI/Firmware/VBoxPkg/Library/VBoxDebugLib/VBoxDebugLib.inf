@@ -1,0 +1,76 @@
+# $Id: VBoxDebugLib.inf $
+## @file
+# VBoxDebugLib - Debug logging and assertions support routines using DevEFI.
+#
+
+
+#
+# Copyright (C) 2009-2016 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+# The contents of this file may alternatively be used under the terms
+# of the Common Development and Distribution License Version 1.0
+# (CDDL) only, as it comes in the "COPYING.CDDL" file of the
+# VirtualBox OSE distribution, in which case the provisions of the
+# CDDL are applicable instead of those of the GPL.
+#
+# You may elect to license modified versions of this file under the
+# terms and conditions of either the GPL or the CDDL or both.
+#
+#/
+
+
+
+[Defines]
+        INF_VERSION                = 0x00010005
+        BASE_NAME                  = VBoxDebugLib
+        FILE_GUID                  = 549306AB-75C1-4585-8681-556EBB34C60C
+        MODULE_TYPE                = BASE
+        VERSION_STRING             = 1.0
+        LIBRARY_CLASS              = DebugLib
+
+[Sources.common]
+        VBoxDebugLib.c
+        VBoxPrintChar.c
+        VBoxPrintGuid.c
+        VBoxPrintHex.c
+        VBoxPrintHexDump.c
+        VBoxPrintString.c
+
+[Packages]
+        MdePkg/MdePkg.dec
+        VBoxPkg/VBoxPkg.dec
+
+[LibraryClasses]
+        BaseLib
+        BaseMemoryLib
+        PrintLib
+
+[Protocols]
+    gEfiDevicePathToTextProtocolGuid
+
+[Guids]
+        # none
+
+[Ppis]
+        # none
+
+[Guids]
+        # none
+
+[Pcd.common]
+        # none
+
+[FixedPcd.common]
+        # none
+
+[FeaturePcd.common]
+        # none
+

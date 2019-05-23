@@ -1,0 +1,79 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the Storage library.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+VBOX_PATH_STORAGE_SRC := $(PATH_SUB_CURRENT)
+
+if !defined(VBOX_ONLY_EXTPACKS)
+ include $(PATH_SUB_CURRENT)/testcase/Makefile.kmk
+ include $(PATH_SUB_CURRENT)/Debug/Makefile.kmk
+
+ #
+ # StorageLib - The storage Library.
+ #
+ LIBRARIES += StorageLib #StorageLibNoDB
+
+ StorageLib_TEMPLATE = VBOXR3
+ StorageLib_DEFS     = IN_VBOXDDU
+ ifeq ($(USER),bird)
+  StorageLib_DEFS.debug += RTMEM_WRAP_TO_EF_APIS
+ endif
+
+ StorageLib_SOURCES  = \
+	VD.cpp \
+	VDPlugin.cpp \
+	VDVfs.cpp \
+	VDIfVfs.cpp \
+	VDIfVfs2.cpp \
+	VDI.cpp \
+	VMDK.cpp \
+	VHD.cpp \
+	DMG.cpp \
+	Parallels.cpp \
+	ISCSI.cpp \
+	RAW.cpp \
+	QED.cpp \
+	QCOW.cpp \
+	VHDX.cpp \
+	CUE.cpp \
+	VISO.cpp \
+	VCICache.cpp
+endif
+
+if defined(VBOX_WITH_EXTPACK_PUEL) && defined(VBOX_WITH_EXTPACK_PUEL_BUILD)
+ if defined(VBOX_WITH_PLUGIN_CRYPT)
+  DLLS += VDPluginCrypt
+  VDPluginCrypt_TEMPLATE      = VBoxR3ExtPackPuelWithOpenSsl
+  VDPluginCrypt_LDFLAGS.linux = $(VBOX_GCC_NO_UNDEFINED)
+
+  VDPluginCrypt_SOURCES  = \
+	VDFilterCrypt.cpp \
+	VDKeyStore.cpp
+  VDPluginCrypt_SOURCES.win = VDPluginCrypt.rc
+ endif
+endif # VBOX_WITH_EXTPACK_PUEL
+
+#StorageLibNoDB_TEMPLATE = VBOXR3
+#StorageLibNoDB_DEFS     = IN_VBOXDDU VBOX_HDD_NO_DYNAMIC_BACKENDS
+#StorageLibNoDB_SOURCES  = \
+#	$(StorageLib_SOURCES)
+
+# generate rules
+include $(FILE_KBUILD_SUB_FOOTER)
+

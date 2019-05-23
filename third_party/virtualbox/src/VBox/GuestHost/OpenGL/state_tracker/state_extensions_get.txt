@@ -1,0 +1,138 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+
+# GL_NV_fog_distance
+
+GLenum GL_FOG_DISTANCE_MODE_NV GL_NV_fog_distance g->fog.fogDistanceMode
+
+
+# GL_EXT_texture_filter_anisotropic
+
+GLenum GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT GL_EXT_texture_filter_anisotropic g->limits.maxTextureAnisotropy
+
+
+# GL_EXT_blend_color
+
+GLclampf GL_BLEND_COLOR_EXT GL_EXT_blend_color g->buffer.blendColor.r g->buffer.blendColor.g g->buffer.blendColor.b g->buffer.blendColor.a
+
+# GL_OPENGL_VERSION_1_2
+
+GLboolean GL_RESCALE_NORMAL GL_OPENGL_VERSION_1_2 g->transform.rescaleNormals
+GLenum    GL_LIGHT_MODEL_COLOR_CONTROL GL_OPENGL_VERSION_1_2 g->lighting.lightModelColorControlEXT
+
+# GL_EXT_separate_specular_color
+
+GLenum    GL_LIGHT_MODEL_COLOR_CONTROL_EXT GL_EXT_separate_specular_color g->lighting.lightModelColorControlEXT
+
+# GL_EXT_blend_minmax
+
+GLenum GL_BLEND_EQUATION_EXT GL_EXT_blend_minmax g->buffer.blendEquation
+
+# GL_EXT_blend_func_separate
+
+GLenum GL_BLEND_SRC_RGB_EXT GL_EXT_blend_func_separate g->buffer.blendSrcRGB
+GLenum GL_BLEND_DST_RGB_EXT GL_EXT_blend_func_separate g->buffer.blendDstRGB
+GLenum GL_BLEND_SRC_ALPHA_EXT GL_EXT_blend_func_separate g->buffer.blendSrcA
+GLenum GL_BLEND_DST_ALPHA_EXT GL_EXT_blend_func_separate g->buffer.blendDstA
+
+# GL_NV_register_combiners
+
+GLint GL_NUM_GENERAL_COMBINERS_NV GL_NV_register_combiners g->regcombiner.numGeneralCombiners
+GLboolean GL_REGISTER_COMBINERS_NV GL_NV_register_combiners g->regcombiner.enabledRegCombiners
+GLboolean GL_COLOR_SUM_CLAMP_NV GL_NV_register_combiners g->regcombiner.colorSumClamp
+GLfloat GL_CONSTANT_COLOR0_NV GL_NV_register_combiners g->regcombiner.constantColor0.r g->regcombiner.constantColor0.g g->regcombiner.constantColor0.b g->regcombiner.constantColor0.a
+GLfloat GL_CONSTANT_COLOR1_NV GL_NV_register_combiners g->regcombiner.constantColor1.r g->regcombiner.constantColor1.g g->regcombiner.constantColor1.b g->regcombiner.constantColor1.a
+GLint GL_MAX_GENERAL_COMBINERS_NV GL_NV_register_combiners g->limits.maxGeneralCombiners
+
+
+# GL_NV_register_combiners2
+
+GLboolean GL_PER_STAGE_CONSTANTS_NV GL_NV_register_combiners2 g->regcombiner.enabledPerStageConstants
+
+
+# GL_ARB_texture_cube_map
+
+GLboolean GL_TEXTURE_CUBE_MAP_ARB GL_ARB_texture_cube_map g->texture.unit[g->texture.curTextureUnit].enabledCubeMap
+GLint GL_TEXTURE_BINDING_CUBE_MAP_ARB GL_ARB_texture_cube_map g->texture.unit[g->texture.curTextureUnit].currentTextureCubeMap->id
+GLint GL_MAX_CUBE_MAP_TEXTURE_SIZE_ARB GL_ARB_texture_cube_map g->limits.maxCubeMapTextureSize
+
+# GL_NV_texture_rectangle
+GLboolean GL_TEXTURE_RECTANGLE_NV GL_NV_texture_rectangle g->texture.unit[g->texture.curTextureUnit].enabledRect
+GLint GL_TEXTURE_BINDING_RECTANGLE_NV GL_NV_texture_rectangle g->texture.unit[g->texture.curTextureUnit].currentTextureRect->id
+GLint GL_MAX_RECTANGLE_TEXTURE_SIZE_NV GL_NV_texture_rectangle g->limits.maxRectTextureSize
+
+# GL_NV_fragment_program
+GLboolean GL_FRAGMENT_PROGRAM_NV GL_NV_fragment_program g->program.fpEnabled
+GLuint GL_MAX_TEXTURE_COORDS_NV GL_NV_fragment_program g->limits.maxTextureCoords
+GLuint GL_MAX_TEXTURE_IMAGE_UNITS_NV GL_NV_fragment_program g->limits.maxTextureImageUnits
+GLuint GL_MAX_FRAGMENT_PROGRAM_LOCAL_PARAMETERS_NV GL_NV_fragment_program g->limits.maxFragmentProgramLocalParams
+# GLint GL_PROGRAM_ERROR_POSITION_NV GL_NV_fragment_program g->program.errorPos
+GLuint GL_FRAGMENT_PROGRAM_BINDING_NV GL_NV_fragment_program g->program.fpProgramBinding
+
+# GL_NV_vertex_program
+GLboolean GL_VERTEX_PROGRAM_NV GL_any_vertex_program g->program.vpEnabled
+GLint GL_PROGRAM_ERROR_POSITION_NV GL_any_program g->program.errorPos
+GLuint GL_VERTEX_PROGRAM_BINDING_NV GL_NV_vertex_program g->program.vpProgramBinding
+GLboolean GL_VERTEX_PROGRAM_POINT_SIZE_NV GL_any_vertex_program g->program.vpPointSize
+GLboolean GL_VERTEX_PROGRAM_TWO_SIDE_NV GL_any_vertex_program g->program.vpTwoSide
+
+
+# GL_ARB_fragment_program
+GLboolean GL_FRAGMENT_PROGRAM_ARB GL_ARB_fragment_program g->program.fpEnabledARB
+
+
+# GL_ARB_transpose_matrix
+GLdefault GL_TRANSPOSE_MODELVIEW_MATRIX GL_ARB_transpose_matrix            g->transform.modelViewStack.top->m00 g->transform.modelViewStack.top->m10 g->transform.modelViewStack.top->m20 g->transform.modelViewStack.top->m30 g->transform.modelViewStack.top->m01 g->transform.modelViewStack.top->m11 g->transform.modelViewStack.top->m21 g->transform.modelViewStack.top->m31 g->transform.modelViewStack.top->m02 g->transform.modelViewStack.top->m12 g->transform.modelViewStack.top->m22 g->transform.modelViewStack.top->m32 g->transform.modelViewStack.top->m03 g->transform.modelViewStack.top->m13 g->transform.modelViewStack.top->m23 g->transform.modelViewStack.top->m33
+GLdefault GL_TRANSPOSE_PROJECTION_MATRIX GL_ARB_transpose_matrix           g->transform.projectionStack.top->m00 g->transform.projectionStack.top->m10 g->transform.projectionStack.top->m20 g->transform.projectionStack.top->m30 g->transform.projectionStack.top->m01 g->transform.projectionStack.top->m11 g->transform.projectionStack.top->m21 g->transform.projectionStack.top->m31 g->transform.projectionStack.top->m02 g->transform.projectionStack.top->m12 g->transform.projectionStack.top->m22 g->transform.projectionStack.top->m32 g->transform.projectionStack.top->m03 g->transform.projectionStack.top->m13 g->transform.projectionStack.top->m23 g->transform.projectionStack.top->m33
+GLdefault GL_TRANSPOSE_TEXTURE_MATRIX GL_ARB_transpose_matrix               g->transform.textureStack[g->texture.curTextureUnit].top->m00 g->transform.textureStack[g->texture.curTextureUnit].top->m10 g->transform.textureStack[g->texture.curTextureUnit].top->m20 g->transform.textureStack[g->texture.curTextureUnit].top->m30 g->transform.textureStack[g->texture.curTextureUnit].top->m01 g->transform.textureStack[g->texture.curTextureUnit].top->m11 g->transform.textureStack[g->texture.curTextureUnit].top->m21 g->transform.textureStack[g->texture.curTextureUnit].top->m31 g->transform.textureStack[g->texture.curTextureUnit].top->m02 g->transform.textureStack[g->texture.curTextureUnit].top->m12 g->transform.textureStack[g->texture.curTextureUnit].top->m22 g->transform.textureStack[g->texture.curTextureUnit].top->m32 g->transform.textureStack[g->texture.curTextureUnit].top->m03 g->transform.textureStack[g->texture.curTextureUnit].top->m13 g->transform.textureStack[g->texture.curTextureUnit].top->m23 g->transform.textureStack[g->texture.curTextureUnit].top->m33
+
+# GL_ARB_multisample
+
+GLboolean GL_MULTISAMPLE_ARB GL_ARB_multisample g->multisample.enabled
+GLboolean GL_SAMPLE_ALPHA_TO_COVERAGE_ARB GL_ARB_multisample g->multisample.sampleAlphaToCoverage
+GLboolean GL_SAMPLE_ALPHA_TO_ONE_ARB GL_ARB_multisample g->multisample.sampleAlphaToOne
+GLboolean GL_SAMPLE_COVERAGE_ARB GL_ARB_multisample g->multisample.sampleCoverage
+GLint GL_SAMPLE_BUFFERS_ARB GL_ARB_multisample g->limits.sampleBuffers
+GLint GL_SAMPLES_ARB GL_ARB_multisample g->limits.samples
+GLint GL_SAMPLE_COVERAGE_VALUE_ARB GL_ARB_multisample g->multisample.sampleCoverageValue
+GLboolean GL_SAMPLE_COVERAGE_INVERT_ARB GL_ARB_multisample g->multisample.sampleCoverageInvert
+
+# GL_ARB_texture_compression
+
+GLint GL_NUM_COMPRESSED_TEXTURE_FORMATS_ARB GL_ARB_texture_compression g->limits.numCompressedFormats
+GLint GL_COMPRESSED_TEXTURE_FORMATS_ARB GL_ARB_texture_compression g->limits.compressedFormats[0]
+GLint GL_TEXTURE_COMPRESSION_HINT_ARB GL_ARB_texture_compression g->hint.textureCompression
+
+# GL_EXT_texture_lod_bias
+GLfloat GL_MAX_TEXTURE_LOD_BIAS_EXT GL_EXT_texture_lod_bias g->limits.maxTextureLodBias
+
+# GL_EXT_fog_coordinate
+GLfloat GL_CURRENT_FOG_COORDINATE_EXT GL_EXT_fog_coord g->current.vertexAttrib[VERT_ATTRIB_FOG][0]
+GLboolean GL_FOG_COORDINATE_ARRAY_EXT GL_EXT_fog_coord g->client.array.f.enabled
+GLint GL_FOG_COORDINATE_ARRAY_TYPE_EXT GL_EXT_fog_coord g->client.array.f.type
+GLint GL_FOG_COORDINATE_ARRAY_STRIDE_EXT GL_EXT_fog_coord g->client.array.f.stride
+GLenum GL_FOG_COORDINATE_SOURCE_EXT GL_EXT_fog_coord g->fog.fogCoordinateSource
+
+# GL_EXT_secondary_color
+GLboolean GL_COLOR_SUM_EXT GL_EXT_secondary_color g->lighting.colorSumEXT
+GLfloat GL_CURRENT_SECONDARY_COLOR_EXT GL_EXT_secondary_color g->current.vertexAttrib[VERT_ATTRIB_COLOR1][0] g->current.vertexAttrib[VERT_ATTRIB_COLOR1][1] g->current.vertexAttrib[VERT_ATTRIB_COLOR1][2]
+GLboolean GL_SECONDARY_COLOR_ARRAY_EXT GL_EXT_secondary_color g->client.array.s.enabled
+GLint GL_SECONDARY_COLOR_ARRAY_TYPE_EXT GL_EXT_secondary_color g->client.array.s.type
+GLint GL_SECONDARY_COLOR_ARRAY_STRIDE_EXT GL_EXT_secondary_color g->client.array.s.stride
+GLint GL_SECONDARY_COLOR_ARRAY_SIZE_EXT GL_EXT_secondary_color g->client.array.s.size
+
+# GL_SGIS_generate_mipmap
+GLint GL_GENERATE_MIPMAP_HINT GL_SGIS_generate_mipmap  g->hint.generateMipmap
+
+# GL_ARB_point_sprite
+GLboolean GL_POINT_SPRITE_ARB GL_ARB_point_sprite g->point.pointSprite
+
+# GL_ARB_vertex_buffer_object
+GLuint GL_ARRAY_BUFFER_BINDING_ARB GL_ARB_vertex_buffer_object g->bufferobject.arrayBuffer->id
+GLuint GL_ELEMENT_ARRAY_BUFFER_BINDING_ARB GL_ARB_vertex_buffer_object g->bufferobject.elementsBuffer->id
+
+# GL_ARB_pixel_buffer_object
+GLuint GL_PIXEL_PACK_BUFFER_BINDING_ARB GL_ARB_pixel_buffer_object g->bufferobject.packBuffer->id
+GLuint GL_PIXEL_UNPACK_BUFFER_BINDING_ARB GL_ARB_pixel_buffer_object g->bufferobject.unpackBuffer->id

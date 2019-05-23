@@ -1,0 +1,146 @@
+<ui version="4.0">
+ <comment>
+ VBox frontends: Qt GUI ("VirtualBox"):
+
+ Copyright (C) 2008-2016 Oracle Corporation
+
+ This file is part of VirtualBox Open Source Edition (OSE), as
+ available from http://www.virtualbox.org. This file is free software;
+ you can redistribute it and/or modify it under the terms of the GNU
+ General Public License (GPL) as published by the Free Software
+ Foundation, in version 2 as it comes in the "COPYING" file of the
+ VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+ hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+ </comment>
+ <class>UIMachineSettingsInterface</class>
+ <widget class="QWidget" name="UIMachineSettingsInterface">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>350</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <layout class="QGridLayout" name="m_pLayoutMain">
+   <item row="0" column="0" colspan="3">
+    <widget class="UIMenuBarEditorWidget" name="m_pMenuBarEditor">
+     <property name="sizePolicy">
+      <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="whatsThis">
+      <string>Allows to modify VM menu-bar contents.</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="m_pLabelMiniToolBar">
+     <property name="text">
+      <string>Mini ToolBar:</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="2">
+    <widget class="QCheckBox" name="m_pCheckBoxShowMiniToolBar">
+     <property name="sizePolicy">
+      <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="whatsThis">
+      <string>When checked, show the Mini ToolBar in full-screen and seamless modes.</string>
+     </property>
+     <property name="text">
+      <string>Show in &amp;Full-screen/Seamless</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1" colspan="2">
+    <widget class="QCheckBox" name="m_pComboToolBarAlignment">
+     <property name="sizePolicy">
+      <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="whatsThis">
+      <string>When checked, show the Mini ToolBar at the top of the screen, rather than in its default position at the bottom of the screen.</string>
+     </property>
+     <property name="text">
+      <string>Show at &amp;Top of Screen</string>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="3">
+    <spacer name="m_pSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="4" column="0" colspan="3">
+    <widget class="UIStatusBarEditorWidget" name="m_pStatusBarEditor">
+     <property name="sizePolicy">
+      <sizepolicy vsizetype="Fixed" hsizetype="MinimumExpanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="whatsThis">
+      <string>Allows to modify VM status-bar contents.</string>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>UIMenuBarEditorWidget</class>
+   <extends>QWidget</extends>
+   <header>UIMenuBarEditorWindow.h</header>
+  </customwidget>
+  <customwidget>
+   <class>UIStatusBarEditorWidget</class>
+   <extends>QWidget</extends>
+   <header>UIStatusBarEditorWindow.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>m_pCheckBoxShowMiniToolBar</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>m_pComboToolBarAlignment</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>195</x>
+     <y>50</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>196</x>
+     <y>72</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

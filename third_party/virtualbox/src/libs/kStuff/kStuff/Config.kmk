@@ -1,0 +1,138 @@
+# $Id: Config.kmk 29 2009-07-01 20:30:29Z bird $
+## @file
+# kBuild configuration for kStuff
+#
+
+#
+# Copyright (c) 2006-2007 Knut St. Osmundsen <bird-kStuff-spamix@anduin.net>
+#
+# Permission is hereby granted, free of charge, to any person
+# obtaining a copy of this software and associated documentation
+# files (the "Software"), to deal in the Software without
+# restriction, including without limitation the rights to use,
+# copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the
+# Software is furnished to do so, subject to the following
+# conditions:
+#
+# The above copyright notice and this permission notice shall be
+# included in all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+# OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+# NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+# HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+# WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+# FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+# OTHER DEALINGS IN THE SOFTWARE.
+#
+
+#
+# This is where we install during the build.
+#
+PATH_INS := $(PATH_OUT)/kStuff
+
+
+#
+# Templates for the kStuff.
+#
+TEMPLATE_kStuff = kStuff Template
+TEMPLATE_kStuff_TOOL             = GXX3
+TEMPLATE_kStuff_TOOL.darwin      = GXX4MACHO
+TEMPLATE_kStuff_TOOL.os2         = GXX3OMF
+TEMPLATE_kStuff_TOOL.solaris     = GXX3PLAIN
+TEMPLATE_kStuff_TOOL.win.x86     = VCC70
+TEMPLATE_kStuff_TOOL.win.amd64   = VCC80AMD64
+
+TEMPLATE_kStuff_SDKS.win.x86     = WINPSDK W2K3DDKX86
+TEMPLATE_kStuff_SDKS.win.amd64   = WINPSDK W2K3DDKAMD64
+
+TEMPLATE_kStuff_DEFS.freebsd     = KS_OS_FREEBSD
+TEMPLATE_kStuff_DEFS.darwin      = KS_OS_DARWIN
+TEMPLATE_kStuff_DEFS.linux       = KS_OS_LINUX
+TEMPLATE_kStuff_DEFS.netbsd      = KS_OS_NETBSD
+TEMPLATE_kStuff_DEFS.openbsd     = KS_OS_OPENBSD
+TEMPLATE_kStuff_DEFS.os2         = KS_OS_OS2
+TEMPLATE_kStuff_DEFS.solaris     = KS_OS_SOLARIS
+TEMPLATE_kStuff_DEFS.win         = KS_OS_WINDOWS _CRT_SECURE_NO_DEPRECATE _CRT_NONSTDC_NO_WARNINGS
+
+TEMPLATE_kStuff_DEFS.x86         = KS_BITS=32
+TEMPLATE_kStuff_DEFS.amd64       = KS_BITS=64
+
+TEMPLATE_kStuff_INCS             = $(PATH_ROOT)/include
+
+TEMPLATE_kStuff_ASTOOL           = YASM
+TEMPLATE_kStuff_ASTOOL.os2       = NASM
+TEMPLATE_kStuff_ASFLAGS.freebsd  = -f elf
+TEMPLATE_kStuff_ASFLAGS.linux    = -f elf
+TEMPLATE_kStuff_ASFLAGS.os2      = -f omf
+TEMPLATE_kStuff_ASFLAGS.win.x86  = -f win32 -g cv8
+TEMPLATE_kStuff_ASFLAGS.win.amd64= -f win64 -g cv8
+
+TEMPLATE_kStuff_CFLAGS.darwin    = -g -fno-common
+TEMPLATE_kStuff_CFLAGS.freebsd   = -g
+TEMPLATE_kStuff_CFLAGS.linux     = -g
+TEMPLATE_kStuff_CFLAGS.os2       = -g
+TEMPLATE_kStuff_CFLAGS.win       = -Zi -Zl -W3 -GF -GR-
+TEMPLATE_kStuff_CFLAGS.win.x86   = -MD
+TEMPLATE_kStuff_CFLAGS.win.amd64 = -MT
+ifneq ($(BUILD_TYPE),debug)
+TEMPLATE_kStuff_CFLAGS.freebsd  += -O3
+TEMPLATE_kStuff_CFLAGS.linux    += -O3
+TEMPLATE_kStuff_CFLAGS.os2      += -O3
+TEMPLATE_kStuff_CFLAGS.win      += -O2b2
+else
+TEMPLATE_kStuff_CFLAGS.win      += -Od
+endif
+
+TEMPLATE_kStuff_CXXFLAGS.darwin  = -g -fno-exceptions -fno-common
+TEMPLATE_kStuff_CXXFLAGS.freebsd = -g -fno-exceptions
+TEMPLATE_kStuff_CXXFLAGS.linux   = -g -fno-exceptions
+TEMPLATE_kStuff_CXXFLAGS.os2     = -g -fno-exceptions
+TEMPLATE_kStuff_CXXFLAGS.win     = -Zi -Zl -W3 -GF -GR-
+TEMPLATE_kStuff_CXXFLAGS.win.x86 = -MD
+TEMPLATE_kStuff_CXXFLAGS.win.amd64 = -MT
+ifneq ($(BUILD_TYPE),debug)
+TEMPLATE_kStuff_CXXFLAGS.freebsd+= -O3
+TEMPLATE_kStuff_CXXFLAGS.linux  += -O3
+TEMPLATE_kStuff_CXXFLAGS.os2    += -O3
+TEMPLATE_kStuff_CXXFLAGS.win    += -O2b2
+else
+TEMPLATE_kStuff_CXXFLAGS.win    += -Od
+endif
+
+TEMPLATE_kStuff_LDFLAGS.freebsd  = -g
+TEMPLATE_kStuff_LDFLAGS.linux    = -g
+TEMPLATE_kStuff_LDFLAGS.os2      = -g
+TEMPLATE_kStuff_LDFLAGS.win      = /DEBUG /NODEFAULTLIB
+
+TEMPLATE_kStuff_LIBS.freebsd     =
+TEMPLATE_kStuff_LIBS.linux       =
+TEMPLATE_kStuff_LIBS.os2         =
+TEMPLATE_kStuff_LIBS.win         = \
+	$(PATH_SDK_WINPSDK_LIB)/psapi.Lib
+TEMPLATE_kStuff_LIBS.win.x86     = \
+	$(PATH_TOOL_VCC70_LIB)/msvcrt.lib \
+	$(PATH_TOOL_VCC70_LIB)/msvcprt.lib \
+	$(PATH_TOOL_VCC70_LIB)/oldnames.lib \
+	$(PATH_SDK_W2K3DDKX86_LIB)/ntdll.lib
+TEMPLATE_kStuff_LIBS.win.amd64   = \
+	$(PATH_TOOL_VCC80AMD64_LIB)/libcmt.lib \
+	$(PATH_TOOL_VCC80AMD64_LIB)/oldnames.lib \
+	$(PATH_SDK_W2K3DDKAMD64_LIB)/ntdll.lib
+
+TEMPLATE_kStuffEXE = kStuff Executable Template
+TEMPLATE_kStuffEXE_EXTENDS = kStuff
+TEMPLATE_kStuffEXE_DEFS = $(TEMPLATE_kStuff) KS_EXE_TARGET
+
+TEMPLATE_kStuffLIB = kStuff Library Template
+TEMPLATE_kStuffLIB_EXTENDS = kStuff
+TEMPLATE_kStuffLIB_DEFS = $(TEMPLATE_kStuff) KS_LIB_TARGET
+
+TEMPLATE_kStuffDLL = kStuff DLL Template
+TEMPLATE_kStuffDLL_EXTENDS = kStuff
+TEMPLATE_kStuffDLL_DEFS = $(TEMPLATE_kStuff) KS_DLL_TARGET
+TEMPLATE_kStuffDLL_LDFLAGS.os2 = $(TEMPLATE_kStuff_LDFLAGS.os2) -Zdll
+
+

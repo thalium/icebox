@@ -1,0 +1,69 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for the VirtualBox Windows Guest Shared Folders FSD.
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+#
+# VBoxSF
+#
+SYSMODS += VBoxSF
+VBoxSF_TEMPLATE    = VBOXGUESTR0
+VBoxSF_DEFS        = LOG_TO_BACKDOOR VBOX_WITH_HGCM IN_RING0
+#VBoxSF_DEFS       += LOG_ENABLED
+
+VBoxSF_SDKS.x86    = ReorderCompilerIncs $(VBOX_WINDDK_GST_W2K3)
+VBoxSF_SDKS.amd64  = ReorderCompilerIncs $(VBOX_WINDDK_GST_WLH)
+
+VBoxSF_LDFLAGS.x86   = -Entry:DriverEntry@8
+VBoxSF_LDFLAGS.amd64 = -Entry:DriverEntry
+VBoxSF_SOURCES     = \
+	file.c \
+	info.c \
+	vbsf.c \
+	net.c \
+	path.c \
+	vbsfhlp.c \
+ 	VBoxSF.rc
+VBoxSF_SOURCES.x86 = \
+	Win2kWorkarounds.c \
+	Win2kWorkaroundsA.asm
+
+VBoxSF_LIBS.x86  = \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_W2K3)_LIB.x86)/rxce.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_W2K3)_LIB.x86)/rdbsslib.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_W2K3)_LIB.x86)/copysup.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_W2K3)_LIB.x86)/ntoskrnl.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_W2K3)_LIB.x86)/hal.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_W2K3)_LIB.x86)/ksecdd.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_W2K3)_LIB.x86)/BufferOverflowK.lib
+
+VBoxSF_LIBS.amd64  = \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_WLH)_LIB.amd64)/rxce.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_WLH)_LIB.amd64)/rdbsslib.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_WLH)_LIB.amd64)/copysup.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_WLH)_LIB.amd64)/ntoskrnl.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_WLH)_LIB.amd64)/hal.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_WLH)_LIB.amd64)/ksecdd.lib \
+	$(PATH_SDK_$(VBOX_WINDDK_GST_WLH)_LIB.amd64)/BufferOverflowK.lib
+
+VBoxSF_LIBS = \
+	$(VBOX_LIB_VBGL_R0) \
+	$(VBOX_LIB_IPRT_GUEST_R0)
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

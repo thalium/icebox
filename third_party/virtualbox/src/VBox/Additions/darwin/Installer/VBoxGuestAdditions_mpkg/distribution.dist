@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+#
+# Copyright (C) 2008-2013 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+-->
+<installer-gui-script minSpecVersion="1.0">
+    <title>VirtualBox_title</title>
+    <options customize="allow" allow-external-scripts="yes" rootVolumeOnly="true" hostArchitectures="i386"/>
+    <installation-check script="checkPrerequisite()"></installation-check>
+    <domains enable_anywhere="false" enable_currentUserHome="false" enable_localSystem="true"/>
+    <script>
+    /* js:pkmk:start */
+    function checkPrerequisite()
+    {
+       try
+       {
+           test = system.version['ProductVersion'];
+           system.log("OS version detected: " + test);
+           result = (system.compareVersions(test, '10.6') >= 0);
+       } catch (e) { system.log(e); result = false; }
+
+       if (!result)
+       {
+           my.result.type = 'Fatal';
+           my.result.title = system.localizedString('UNSUPPORTED_OS_TLE');
+           my.result.message = system.localizedString('UNSUPPORTED_OS_MSG');
+           return result;
+       }
+
+       system.log("result:" + result);
+       return result;
+    }
+    /* js:pkmk:end */
+    </script>
+    <background file="background.tif" alignment="topleft" scaling="none"/>
+    <welcome file="Welcome.rtf" mime-type="text/rtf" uti="public.rtf"/>
+    <choices-outline>
+        <line choice="choiceVBoxToolsAndServices"></line>
+        <line choice="choiceVBoxKEXTs"></line>
+    </choices-outline>
+
+    <choice id="choiceVBoxToolsAndServices" title="choiceVBoxToolsAndServices_title" description="choiceVBoxToolsAndServices_msg" start_selected="true" start_enabled="false" start_visible="true">
+        <pkg-ref id="org.virtualbox.pkg.additions.tools-and-services"></pkg-ref>
+    </choice>
+    <choice id="choiceVBoxKEXTs"   title="choiceVBoxKEXTs_title"   description="choiceVBoxKEXTs_msg"   start_selected="true" start_enabled="false" start_visible="true">
+        <pkg-ref id="org.virtualbox.pkg.additions.kexts"></pkg-ref>
+    </choice>
+
+    <pkg-ref id="org.virtualbox.pkg.additions.tools-and-services" auth="Root">file:./Contents/Packages/VBoxGuestAdditionsToolsAndServices.pkg</pkg-ref>
+    <pkg-ref id="org.virtualbox.pkg.additions.kexts" auth="Root">file:./Contents/Packages/VBoxGuestAdditionsKEXTs.pkg</pkg-ref>
+
+</installer-gui-script>

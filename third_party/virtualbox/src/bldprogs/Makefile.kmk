@@ -1,0 +1,94 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for various generic build tools (there is currently only one of them).
+#
+
+#
+# Copyright (C) 2006-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../..
+include $(KBUILD_PATH)/subheader.kmk
+
+BLDPROGS += bin2c biossums filesplitter VBoxCmp
+
+bin2c_TEMPLATE = VBoxBldProg
+bin2c_SOURCES = bin2c.c
+
+biossums_TEMPLATE = VBoxBldProg
+biossums_SOURCES = biossums.c
+
+filesplitter_TEMPLATE = VBoxBldProg
+filesplitter_SOURCES = filesplitter.cpp
+
+VBoxCmp_TEMPLATE = VBoxBldProg
+VBoxCmp_SOURCES = VBoxCmp.cpp
+
+ifndef VBOX_ONLY_BUILD
+ PROGRAMS += scm
+ scm_TEMPLATE = VBoxR3Tool
+ scm_SOURCES = \
+ 	scm.cpp \
+ 	scmdiff.cpp \
+ 	scmrw.cpp \
+ 	scmstream.cpp \
+ 	scmsubversion.cpp
+ ifdef VBOX_PATH_SUBVERSION_INCS
+  scm_INCS += $(VBOX_PATH_SUBVERSION_INCS) $(VBOX_PATH_APACHE_RUNTIME_INCS)
+  scm_DEFS += SCM_WITH_SVN_HEADERS
+ endif
+
+ BLDPROGS += VBoxCPP
+ VBoxCPP_TEMPLATE = VBoxAdvBldProg
+ VBoxCPP_SOURCES = \
+ 	VBoxCPP.cpp \
+ 	scmstream.cpp
+endif
+
+if !defined(VBOX_ONLY_BUILD) || defined(VBOX_ONLY_EXTPACKS)
+ BLDPROGS += VBoxTpG
+ VBoxTpG_TEMPLATE = VBoxAdvBldProg
+ VBoxTpG_SOURCES = \
+ 	VBoxTpG.cpp \
+ 	scmstream.cpp
+endif
+
+ifeq ($(KBUILD_TARGET),win)
+ BLDPROGS += VBoxPeSetVersion
+endif
+VBoxPeSetVersion_TEMPLATE = VBoxBldProg
+VBoxPeSetVersion_SOURCES  = VBoxPeSetVersion.cpp
+
+BLDPROGS.win += VBoxCheckImports
+VBoxCheckImports_TEMPLATE = VBoxBldProg
+VBoxCheckImports_SOURCES  = VBoxCheckImports.cpp
+
+BLDPROGS += VBoxDef2LazyLoad
+VBoxDef2LazyLoad_TEMPLATE = VBoxBldProg
+VBoxDef2LazyLoad_SOURCES  = VBoxDef2LazyLoad.cpp
+
+# temp hack.
+VBoxCompilerPlugInsGcc.o VBoxCompilerPlugInsCommon.o VBoxCompilerPlugIns.o gccplugin: gccplugin$(SUFF_DLL)
+gccplugin$(SUFF_DLL): VBoxCompilerPlugInsGcc.cpp VBoxCompilerPlugInsCommon.cpp VBoxCompilerPlugIns.h
+	$(TOOL_GXX3_CXX) -shared -fPIC -fno-rtti -g \
+		-DIN_RING3 \
+		$(if-expr "$(KBUILD_TYPE)" != "release",-DDEBUG,) \
+		-I$(shell $(TOOL_GXX3_CXX) -print-file-name=plugin)/include \
+		-I$(PATH_ROOT)/include \
+		$(if-expr "$(KBUILD_HOST)" == "solaris", -I/usr/include/gmp -I$(PATH_ROOT)/src/bldprogs/solgcc/,) \
+		-o $@ \
+		VBoxCompilerPlugInsGcc.cpp \
+		VBoxCompilerPlugInsCommon.cpp
+
+
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

@@ -1,0 +1,12 @@
+REGEDIT4
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon]
+"PowerdownAfterShutdown"="1"
+"AutoAdminLogon"="1"
+"ForceAutoLogon"="1"
+"DefaultUserName"="Administrator"
+"DefaultPassword"="password"
+
+[HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Run]
+"NTConfiguration"="c:\\Apps\\vboxtxs.cmd"
+

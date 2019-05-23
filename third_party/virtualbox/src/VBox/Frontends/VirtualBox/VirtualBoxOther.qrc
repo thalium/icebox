@@ -1,0 +1,11 @@
+<!DOCTYPE RCC><RCC version="1.0">
+ <qresource prefix="/">
+    <file alias="vmw_new_welcome.png">images/vmw_new_welcome.png</file>
+    <file alias="vmw_new_harddisk.png">images/vmw_new_harddisk.png</file>
+    <file alias="vmw_new_user.png">images/vmw_new_user.png</file>
+    <file alias="vmw_first_run.png">images/vmw_first_run.png</file>
+    <file alias="vmw_ovf_export.png">images/vmw_ovf_export.png</file>
+    <file alias="vmw_ovf_import.png">images/vmw_ovf_import.png</file>
+    <file alias="vmw_clone.png">images/vmw_clone.png</file>
+ </qresource>
+ </RCC>

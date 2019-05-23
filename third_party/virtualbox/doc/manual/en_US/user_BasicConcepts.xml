@@ -1,0 +1,1729 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.4//EN"
+"http://www.oasis-open.org/docbook/xml/4.4/docbookx.dtd">
+<chapter id="BasicConcepts">
+  <title>Configuring virtual machines</title>
+
+  <para>Whereas <xref linkend="Introduction" /> gave you a quick introduction
+  to VirtualBox and how to get your first virtual machine running, the
+  following chapter describes in detail how to configure virtual
+  machines.</para>
+
+  <para>You have considerable latitude in deciding what virtual hardware will
+  be provided to the guest. The virtual hardware can be used for communicating
+  with the host system or with other guests. For instance, if you provide
+  VirtualBox with the image of a CD-ROM in an ISO file, VirtualBox can present
+  this image to a guest system as if it were a physical CD-ROM. Similarly, you
+  can give a guest system access to the real network via its virtual network
+  card, and, if you so choose, give the host system, other guests, or
+  computers on the Internet access to the guest system.</para>
+
+  <sect1 id="guestossupport">
+    <title>Supported guest operating systems</title>
+
+    <para>Since VirtualBox is designed to provide a generic virtualization
+    environment for x86 systems, it may run operating systems of any kind,
+    even those not listed here. However, the focus is to optimize VirtualBox
+    for the following guest systems:</para>
+
+    <para><glosslist>
+        <glossentry>
+          <glossterm>Windows NT 4.0</glossterm>
+
+          <glossdef>
+            <para>All versions, editions and service packs are fully
+            supported; however, there are some issues with older service
+            packs. We recommend to install service pack 6a. Guest Additions
+            are available with a limited feature set.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Windows 2000 / XP / Server 2003 / Vista / Server 2008 /
+            7 / 8 / 8.1 / 10 RTM 10240 / Server 2012</glossterm>
+
+          <glossdef>
+            <para>All versions, editions and service packs are fully supported
+            (including 64-bit versions, under the preconditions listed below).
+            Guest Additions are available. Windows 8 and later requires hardware
+            virtualization to be enabled.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>DOS / Windows 3.x / 95 / 98 / ME</glossterm>
+
+          <glossdef>
+            <para>Limited testing has been performed. Use beyond legacy
+            installation mechanisms not recommended. No Guest Additions
+            available.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Linux 2.4</glossterm>
+
+          <glossdef>
+            <para>Limited support.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Linux 2.6</glossterm>
+
+          <glossdef>
+            <para>All versions/editions are fully supported (32 bits and 64
+            bits). Guest Additions are available.</para>
+
+            <para>We strongly recommend using a Linux kernel version 2.6.13 or
+            higher for better performance.<note>
+                <para>Certain Linux kernel releases have bugs that prevent
+                them from executing in a virtual environment; please see <xref
+                linkend="ts_linux-buggy" /> for details.</para>
+              </note></para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Linux 3.x and later</glossterm>
+
+          <glossdef>
+            <para>All versions/editions are fully supported (32 bits and 64
+            bits). Guest Additions are available.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Solaris 10 (u6 and higher), Solaris 11 (including Solaris
+          11 Express)</glossterm>
+
+          <glossdef>
+            <para>Fully supported (64 bits, prior to Solaris 11 11/11 also 32 bits).
+            Guest Additions are available.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>FreeBSD</glossterm>
+
+          <glossdef>
+            <para>Requires hardware virtualization to be enabled. Limited
+            support. Guest Additions are not available yet.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>OpenBSD</glossterm>
+
+          <glossdef>
+            <para>Requires hardware virtualization to be enabled. Versions 3.7
+            and later are supported. Guest Additions are not available
+            yet.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>OS/2 Warp 4.5</glossterm>
+
+          <glossdef>
+            <para>Requires hardware virtualization to be enabled. We
+            officially support MCP2 only; other OS/2 versions may or may not
+            work. Guest Additions are available with a limited feature
+            set.<footnote>
+                <para>See <xref linkend="KnownIssues" />.</para>
+              </footnote></para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Mac OS X</glossterm>
+
+          <glossdef>
+            <para>VirtualBox 3.2 added experimental support for Mac OS X
+            guests, but this comes with restrictions. Please see the following
+            section as well as <xref linkend="KnownIssues" />.</para>
+          </glossdef>
+        </glossentry>
+      </glosslist></para>
+
+    <sect2 id="intro-macosxguests">
+      <title>Mac OS X guests</title>
+
+      <para>Starting with version 3.2, VirtualBox has experimental support for
+      Mac OS X guests. This allows you to install and execute unmodified
+      versions of Mac OS X on supported host hardware.</para>
+
+      <para>Whereas competing solutions perform modifications to the Mac OS X
+      install DVDs (e.g. different boot loader and replaced files), VirtualBox
+      is the first product to provide the modern PC architecture expected by
+      OS X without requiring any "hacks".</para>
+
+      <para>You should be aware of a number of <emphasis role="bold">important
+      issues</emphasis> before attempting to install a Mac OS X guest:<orderedlist>
+          <listitem>
+            <para>Mac OS X is commercial, licensed software and contains
+            <emphasis role="bold">both license and technical restrictions</emphasis>
+            that limit its use to certain hardware and usage scenarios. It is
+            important that you understand and obey these restrictions.</para>
+
+            <para>In particular, for most versions of Mac OS X, Apple prohibits
+            installing them on non-Apple hardware.</para>
+
+            <para>These license restrictions are also enforced on a technical
+            level. Mac OS X verifies whether it is running on Apple hardware,
+            and most DVDs that come with Apple hardware even check for an
+            exact model. These restrictions are <emphasis>not</emphasis>
+            circumvented by VirtualBox and continue to apply.</para>
+          </listitem>
+
+          <listitem>
+            <para>Only <emphasis role="bold">CPUs</emphasis> known and tested
+            by Apple are supported. As a result, if your Intel CPU is newer
+            than the build of Mac OS X, or if you have a non-Intel CPU, it will
+            most likely panic during bootup with an "Unsupported CPU"
+            exception. It is generally best to use the Mac OS X DVD that came
+            with your Apple hardware.</para>
+          </listitem>
+
+          <listitem>
+            <para>The Mac OS X installer expects the harddisk to be
+            <emphasis role="bold">partitioned</emphasis> so when it does not
+            offer a selection, you have to launch the Disk Utility from the
+            "Tools" menu and partition the hard disk. Then close the Disk
+            Utility and proceed with the installation.</para>
+          </listitem>
+
+          <listitem>
+            <para>In addition, as Mac OS X support in VirtualBox is currently
+            still experimental, please refer also to <xref linkend="KnownIssues" />.</para>
+          </listitem>
+        </orderedlist></para>
+    </sect2>
+
+    <sect2 id="intro-64bitguests">
+      <title>64-bit guests</title>
+
+      <para>VirtualBox supports 64-bit guest operating systems, even on 32-bit
+      host operating systems,<footnote>
+          <para>64-bit guest support was added with VirtualBox 2.0; support
+          for 64-bit guests on 32-bit hosts was added with VirtualBox
+          2.1.</para>
+        </footnote> provided that the following conditions are
+      met:<orderedlist>
+          <listitem>
+            <para>You need a 64-bit processor with hardware virtualization
+            support (see <xref linkend="hwvirt" />).</para>
+          </listitem>
+
+          <listitem>
+            <para>You must enable hardware virtualization for the particular
+            VM for which you want 64-bit support; software virtualization is
+            not supported for 64-bit VMs.</para>
+          </listitem>
+
+          <listitem>
+            <para>If you want to use 64-bit guest support on a 32-bit host
+            operating system, you must also select a 64-bit operating system
+            for the particular VM. Since supporting 64 bits on 32-bit hosts
+            incurs additional overhead, VirtualBox only enables this support
+            upon explicit request.</para>
+
+            <para>On 64-bit hosts (which typically come with hardware
+            virtualization support), 64-bit guest operating systems are always
+            supported regardless of settings, so you can simply install a
+            64-bit operating system in the guest.</para>
+          </listitem>
+        </orderedlist></para>
+
+      <para><warning>
+          <para>On any host, you should enable the <emphasis role="bold">I/O
+          APIC</emphasis> for virtual machines that you intend to use in
+          64-bit mode. This is especially true for 64-bit Windows VMs. See
+          <xref linkend="settings-general-advanced" />. In addition, for
+          64-bit Windows guests, you should make sure that the VM uses the
+          <emphasis role="bold">Intel networking device</emphasis>, since
+          there is no 64-bit driver support for the AMD PCNet card; see <xref
+          linkend="nichardware" />.</para>
+        </warning></para>
+
+      <para>If you use the "Create VM" wizard of the VirtualBox graphical user
+      interface (see <xref linkend="gui-createvm" />), VirtualBox will
+      automatically use the correct settings for each selected 64-bit
+      operating system type.</para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="basic-unattended">
+    <title>Unattended guest installation</title>
+    <para>VirtualBox is able to automatically install a guest by providing
+    the installation medium as well as a few parameters like the name of
+    the default user.</para>
+    <para>To perform an unattended guest installation, a VM has to be
+    prepared. A VM can be created using the GUI as described in <xref
+    linkend="gui-createvm" /> or by using VBoxManage as described in
+    <xref linkend="vboxmanage-createvm" />. In general it's sufficient to
+    chose the type of the guest operating system and to use the proposed
+    defaults for that operating system. See the following sections on how
+    to change the VM settings for certain needs.</para>
+    <para>After the VM was created, the VM has to be prepared for unattended
+    guest execution use VBoxManage, see <xref
+    linkend="vboxmanage-unattended" />. During this step VirtualBox scans
+    the installation medium and changes certain parameters for a seamless
+    installation as a guest running on VirtualBox.</para>
+    <para>Once the preparation phase was successfully finished, the VM can
+    be started either from the GUI or from VBoxManage, see <xref
+    linkend="vboxmanage-startvm" />. The VM will now perform the automatic
+    installation. Please note that the boot order was changed during the
+    preparation phase by giving the virtual hard disk the highest priority.
+    As the disk is normally empty before an automatic installation is started,
+    the VM will boot from the virtual DVD drive as next available boot medium
+    and the installation will start. If, for some reason, the virtual hard
+    disk contains a bootable operating system then the installation will not
+    start unless the boot order was manually changed by pressing F12 during
+    the BIOS splash screen.</para>
+  </sect1>
+
+  <sect1>
+    <title>Emulated hardware</title>
+
+    <para>VirtualBox virtualizes nearly all hardware of the host. Depending on
+    a VM's configuration, the guest will see the following virtual
+    hardware:<itemizedlist>
+        <listitem>
+          <para><emphasis role="bold">Input devices.</emphasis> By default,
+          VirtualBox emulates a standard PS/2 keyboard and mouse. These
+          devices are supported by almost all past and present operating
+          systems.</para>
+
+          <para>In addition, VirtualBox can provide virtual USB input devices
+          to avoid having to capture mouse and keyboard, as described in <xref
+          linkend="keyb_mouse_normal" />.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Graphics.</emphasis> The VirtualBox
+          graphics device (sometimes referred to as VGA device) is, unlike
+          nearly all other emulated devices, not based on any physical
+          counterpart. It is a simple, synthetic device which provides
+          compatibility with standard VGA and several extended registers used
+          by the VESA BIOS Extensions (VBE).</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Storage.</emphasis> VirtualBox currently
+          emulates the standard ATA interface found on Intel PIIX3/PIIX4
+          chips, the SATA (AHCI) interface, and two SCSI adapters (LSI Logic
+          and BusLogic); see <xref linkend="harddiskcontrollers" /> for
+          details. Whereas providing one of these would be enough for
+          VirtualBox by itself, this multitude of storage adapters is required
+          for compatibility with other hypervisors. Windows is particularly
+          picky about its boot devices, and migrating VMs between hypervisors
+          is very difficult or impossible if the storage controllers are
+          different.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Networking.</emphasis> See <xref
+          linkend="nichardware" />.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">USB.</emphasis> VirtualBox emulates three
+          USB host controllers: xHCI, EHCI, and OHCI. While xHCI handles all USB
+          transfer speeds, only guest operating systems released approximately
+          after 2011 support xHCI. Note that for Windows 7 guests, 3rd party
+          drivers must be installed for xHCI support.</para>
+          <para>
+          Older operating systems typically support OHCI and EHCI. The two
+          controllers are needed because OHCI only handles USB low- and full-speed
+          devices (both USB 1.x and 2.0), while EHCI only handles high-speed
+          devices (USB 2.0 only).</para>
+          <para>
+          The emulated USB controllers do not
+          communicate directly with devices on the host but rather with a
+          virtual USB layer which abstracts the USB protocol and allows the
+          use of remote USB devices.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Audio.</emphasis> See <xref
+          linkend="settings-audio" />.</para>
+        </listitem>
+      </itemizedlist></para>
+  </sect1>
+
+  <sect1 id="generalsettings">
+    <title>General settings</title>
+
+    <para>In the Settings window, under "General", you can configure the most
+    fundamental aspects of the virtual machine such as memory and essential
+    hardware. There are three tabs, "Basic", "Advanced" and
+    "Description".</para>
+
+    <sect2>
+      <title>"Basic" tab</title>
+
+      <para>Under the "Basic" tab of the "General" settings category, you can
+      find these settings:</para>
+
+      <glosslist>
+        <glossentry>
+          <glossterm>Name</glossterm>
+
+          <glossdef>
+            <para>The name under which the VM is shown in the list of VMs in
+            the main window. Under this name, VirtualBox also saves the VM's
+            configuration files. By changing the name, VirtualBox renames
+            these files as well. As a result, you can only use characters
+            which are allowed in your host operating system's file
+            names.</para>
+
+            <para>Note that internally, VirtualBox uses unique identifiers
+            (UUIDs) to identify virtual machines. You can display these with
+            <computeroutput>VBoxManage</computeroutput>.</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Operating system / version</glossterm>
+
+          <glossdef>
+            <para>The type of the guest operating system that is (or will be)
+            installed in the VM. This is the same setting that was specified
+            in the "New Virtual Machine" wizard, as described in <xref
+            linkend="gui-createvm" />.</para>
+
+            <para>Whereas the default settings of a newly created VM depend on
+            the selected operating system type, changing the type later has no
+            effect on VM settings; this value is then purely informational and
+            decorative.</para>
+          </glossdef>
+        </glossentry>
+      </glosslist>
+    </sect2>
+
+    <sect2 id="settings-general-advanced">
+      <title>"Advanced" tab</title>
+
+      <para><glosslist>
+          <glossentry>
+            <glossterm>Snapshot Folder</glossterm>
+
+            <glossdef>
+              <para>By default, VirtualBox saves snapshot data together with
+              your other VirtualBox configuration data; see <xref
+              linkend="vboxconfigdata" />. With this setting, you can specify
+              any other folder for each VM.</para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Shared Clipboard</glossterm>
+
+            <glossdef>
+              <para>You can select here whether the clipboard of the guest
+              operating system should be shared with that of your host. If you
+              select "Bidirectional", then VirtualBox will always make sure
+              that both clipboards contain the same data. If you select "Host
+              to guest" or "Guest to host", then VirtualBox will only ever
+              copy clipboard data in one direction.</para>
+
+              <para>Clipboard sharing requires that the VirtualBox Guest
+              Additions be installed. As a result, this setting has no effect
+              otherwise; see <xref linkend="guestadditions" /> for
+              details.</para>
+
+              <para>The shared clipboard is disabled by default. See
+              <xref linkend="security_clipboard"/> for an explanation. This
+              setting can be changed at any time using the "Shared Clipboard"
+              menu item in the "Devices" menu of the virtual machine.</para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Drag and Drop</glossterm>
+            <glossdef>
+              <para>This setting allows to enable support for drag and drop: Select
+              an object (e.g. a file) from the host or guest and directly copy
+              or open it on the guest or host. Multiple per-VM drag and drop modes
+              allow restricting access in either direction.</para>
+
+              <para>For drag and drop to work the Guest Additions need to be
+              installed on the guest.</para>
+
+              <para><note><para>Drag and drop is disabled by default. This setting can be
+              changed at any time using the "Drag and Drop" menu item in the
+              "Devices" menu of the virtual machine.</para></note></para>
+
+              <para>See <xref linkend="guestadd-dnd"/> for more information.
+              <footnote><para>Experimental support for drag and drop was added
+              with VirtualBox 4.2.</para></footnote></para>
+            </glossdef>
+          </glossentry>
+
+        </glosslist></para>
+    </sect2>
+
+    <sect2>
+      <title>"Description" tab</title>
+
+      <para>Here you can enter any description for your virtual machine, if
+      you want. This has no effect on the functionality of the machine, but
+      you may find this space useful to note down things like the
+      configuration of a virtual machine and the software that has been
+      installed into it.</para>
+      <para>To insert a line break into the description text field, press
+      <emphasis>Shift+Enter</emphasis>.</para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="settings-system">
+    <title>System settings</title>
+
+    <para>The "System" category groups various settings that are related to
+    the basic hardware that is presented to the virtual machine.<note>
+        <para>As the activation mechanism of Microsoft Windows is sensitive to
+        hardware changes, if you are changing hardware settings for a Windows
+        guest, some of these changes may trigger a request for another
+        activation with Microsoft.</para>
+      </note></para>
+
+    <sect2 id="settings-motherboard">
+      <title>"Motherboard" tab</title>
+
+      <para>On the "Motherboard" tab, you can influence virtual hardware that
+      would normally be on the motherboard of a real computer.<glosslist>
+          <glossentry>
+            <glossterm>Base memory</glossterm>
+
+            <glossdef>
+              <para>This sets the amount of RAM that is allocated and given to
+              the VM when it is running. The specified amount of memory will
+              be requested from the host operating system, so it must be
+              available or made available as free memory on the host when
+              attempting to start the VM and will not be available to the host
+              while the VM is running. This is the same setting that was
+              specified in the "New Virtual Machine" wizard, as described with
+              guidelines under <xref linkend="gui-createvm" /> above.</para>
+
+              <para>Generally, it is possible to change the memory size after
+              installing the guest operating system (provided you do not
+              reduce the memory to an amount where the operating system would
+              no longer boot).</para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Boot order</glossterm>
+
+            <glossdef>
+              <para>This setting determines the order in which the guest
+              operating system will attempt to boot from the various virtual
+              boot devices. Analogous to a real PC's BIOS setting, VirtualBox
+              can tell a guest OS to start from the virtual floppy, the
+              virtual CD/DVD drive, the virtual hard drive (each of these as
+              defined by the other VM settings), the network, or none of
+              these.</para>
+
+              <para>If you select "Network", the VM will attempt to boot from
+              a network via the PXE mechanism. This needs to be configured in
+              detail on the command line; please see <xref
+              linkend="vboxmanage-modifyvm" />.</para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Chipset</glossterm>
+
+            <glossdef>
+              <para>Here you can select which chipset will be presented to the
+              virtual machine. Before VirtualBox 4.0, PIIX3 was the only
+              available option here. For modern guest operating systems such
+              as Mac OS X, that old chipset is no longer well supported. As a
+              result, VirtualBox 4.0 introduced an emulation of the more
+              modern ICH9 chipset, which supports PCI express, three PCI
+              buses, PCI-to-PCI bridges and Message Signaled Interrupts
+              (MSI). This allows modern operating systems to address more PCI
+              devices and no longer requires IRQ sharing. Using the ICH9 chipset
+              it is also possible to configure up to 36 network cards (up to 8
+              network adapters with PIIX3). Note that the ICH9 support is
+              experimental and not recommended for guest operating systems which
+              do not require it.</para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Pointing Device</glossterm>
+
+            <glossdef>
+              <para>The default virtual pointing devices for older guests is the
+              traditional PS/2 mouse. If set to <emphasis>USB tablet</emphasis>,
+              VirtualBox reports to the virtual machine that a USB tablet
+              device is present and communicates mouse events to
+              the virtual machine through this device. The third setting is
+              a <emphasis>USB Multi-Touch Tablet</emphasis> which is suited
+              for recent Windows guests.</para>
+
+              <para>Using the virtual USB tablet has the advantage that
+              movements are reported in absolute coordinates (instead of as
+              relative position changes), which allows VirtualBox to translate
+              mouse events over the VM window into tablet events without
+              having to "capture" the mouse in the guest as described in <xref
+              linkend="keyb_mouse_normal" />. This makes using the VM less
+              tedious even if Guest Additions are not installed.<footnote>
+                  <para>The virtual USB tablet was added with VirtualBox 3.2.
+                  Depending on the guest operating system selected, this is
+                  now enabled by default for new virtual machines.</para>
+                </footnote></para>
+            </glossdef>
+          </glossentry>
+          <glossentry>
+            <glossterm>Enable I/O APIC</glossterm>
+
+            <glossdef>
+              <para>Advanced Programmable Interrupt Controllers (APICs) are a
+              newer x86 hardware feature that have replaced old-style
+              Programmable Interrupt Controllers (PICs) in recent years. With
+              an I/O APIC, operating systems can use more than 16 interrupt
+              requests (IRQs) and therefore avoid IRQ sharing for improved
+              reliability.<note>
+                  <para>Enabling the I/O APIC is <emphasis>required</emphasis>
+                  for 64-bit guest operating systems, especially Windows
+                  Vista; it is also required if you want to use more than one
+                  virtual CPU in a virtual machine.</para>
+                </note></para>
+
+              <para>However, software support for I/O APICs has been
+              unreliable with some operating systems other than Windows. Also,
+              the use of an I/O APIC slightly increases the overhead of
+              virtualization and therefore slows down the guest OS a
+              little.<warning>
+                  <para>All Windows operating systems starting with Windows
+                  2000 install different kernels depending on whether an I/O
+                  APIC is available. As with ACPI, the I/O APIC therefore
+                  <emphasis>must not be turned off after
+                  installation</emphasis> of a Windows guest OS. Turning it on
+                  after installation will have no effect however.</para>
+                </warning></para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Enable EFI</glossterm>
+
+            <glossdef>
+              <para>This enables Extensible Firmware Interface (EFI), which
+              replaces the legacy BIOS and may be useful for certain
+              advanced use cases. Please refer to <xref linkend="efi" /> for
+              details.</para>
+            </glossdef>
+          </glossentry>
+
+          <glossentry>
+            <glossterm>Hardware clock in UTC time</glossterm>
+
+            <glossdef>
+              <para>If checked, VirtualBox will report the system time in UTC
+              format to the guest instead of local (host) time. This affects
+              how the virtual real-time clock (RTC) operates and may be useful
+              for Unix-like guest operating systems, which typically expect
+              the hardware clock to be set to UTC.</para>
+            </glossdef>
+          </glossentry>
+
+        </glosslist></para>
+
+      <para>In addition, you can turn off the <emphasis role="bold">Advanced
+      Configuration and Power Interface (ACPI)</emphasis> which VirtualBox
+      presents to the guest operating system by default. ACPI is the current
+      industry standard to allow operating systems to recognize hardware,
+      configure motherboards and other devices and manage power. As all modern
+      PCs contain this feature and Windows and Linux have been supporting it
+      for years, it is also enabled by default in VirtualBox. It can only be
+      turned off on the command line; see <xref
+      linkend="vboxmanage-modifyvm" />.<warning>
+          <para>All Windows operating systems starting with Windows 2000
+          install different kernels depending on whether ACPI is available, so
+          ACPI <emphasis>must not be turned off</emphasis> after installation
+          of a Windows guest OS. Turning it on after installation will have no
+          effect however.</para>
+        </warning></para>
+    </sect2>
+
+    <sect2 id="settings-processor">
+      <title>"Processor" tab</title>
+
+      <para>On the "Processor" tab, you can set how many virtual <emphasis
+      role="bold">CPU cores</emphasis> the guest operating systems should see.
+      Starting with version 3.0, VirtualBox supports symmetrical
+      multiprocessing (SMP) and can present up to 32 virtual CPU cores to each
+      virtual machine.</para>
+
+      <para>You should not, however, configure virtual machines to use more
+      CPU cores than you have available physically (real cores, no hyperthreads).</para>
+
+      <para>On this tab you can also set the <emphasis role="bold">"CPU execution
+      cap"</emphasis>. This setting
+      limits the amount of time a host CPU spends to emulate a virtual CPU.
+      The default setting is 100% meaning that there is no limitation. A setting
+      of 50% implies a single virtual CPU can use up to 50% of a single host
+      CPU. Note that limiting the execution time of the virtual CPUs may induce
+      guest timing problems.</para>
+
+      <para>In addition, the <emphasis role="bold">"Enable PAE/NX"</emphasis>
+      setting determines whether the PAE and NX capabilities of the host CPU
+      will be exposed to the virtual machine. PAE stands for "Physical Address
+      Extension". Normally, if enabled and supported by the operating system,
+      then even a 32-bit x86 CPU can access more than 4 GB of RAM. This is
+      made possible by adding another 4 bits to memory addresses, so that with
+      36 bits, up to 64 GB can be addressed. Some operating systems (such as
+      Ubuntu Server) require PAE support from the CPU and cannot be run in a
+      virtual machine without it.</para>
+
+      <para>With virtual machines running modern server operating systems,
+      VirtualBox also supports CPU hot-plugging. For details about this,
+      please refer to <xref linkend="cpuhotplug" />.</para>
+    </sect2>
+
+    <sect2>
+      <title>"Acceleration" tab</title>
+
+      <para>On this page, you can determine whether and how VirtualBox should
+      use hardware virtualization extensions that your host CPU may support.
+      This is the case with most CPUs built after 2006.</para>
+
+      <para>You can select for each virtual machine individually whether
+      VirtualBox should use software or hardware virtualization.<footnote>
+          <para>Prior to VirtualBox version 2.2, software virtualization was
+          the default; starting with version 2.2, VirtualBox will enable
+          hardware virtualization by default for new virtual machines that you
+          create. (Existing virtual machines are not automatically changed for
+          compatibility reasons, and the default can of course be changed for
+          each virtual machine.)</para>
+        </footnote></para>
+
+      <para>In most cases, the default settings will be fine; VirtualBox will
+      have picked sensible defaults depending on the operating system that you
+      selected when you created the virtual machine. In certain situations,
+      however, you may want to change these preconfigured defaults.</para>
+
+      <para>Advanced users may be interested in technical details about
+      software vs. hardware virtualization; please see <xref
+      linkend="hwvirt" />.</para>
+
+      <para>If your host's CPU supports the <emphasis role="bold">nested
+      paging</emphasis> (AMD-V) or <emphasis role="bold">EPT</emphasis> (Intel
+      VT-x) features, then you can expect a significant performance increase
+      by enabling nested paging in addition to hardware virtualization. For
+      technical details, see <xref linkend="nestedpaging" />.</para>
+
+      <para>Starting with version 5.0, VirtualBox provides paravirtualization
+      interfaces to improve time-keeping accuracy and performance of guest
+      operating systems. The options available are documented under the
+      <computeroutput>paravirtprovider</computeroutput> option
+      in <xref linkend="vboxmanage-modifyvm" />. For further details on
+      the paravirtualization providers, please refer to
+      <xref linkend="gimproviders" />.</para>
+    </sect2>
+  </sect1>
+
+  <sect1 id="settings-display">
+    <title>Display settings</title>
+
+    <glosslist>
+      <glossentry>
+        <glossterm>Video memory size</glossterm>
+
+        <glossdef>
+          <para>This sets the size of the memory provided by the virtual
+          graphics card available to the guest, in MB. As with the main
+          memory, the specified amount will be allocated from the host's
+          resident memory. Based on the amount of video memory, higher
+          resolutions and color depths may be available.</para>
+          <para>The GUI will show a warning if the amount of video memory
+          is too small to be able to switch the VM into full screen mode.
+          The minimum value depends on the number of virtual monitors, the
+          screen resolution and the color depth of the host display as well
+          as of the activation of <emphasis>3D acceleration</emphasis> and
+          <emphasis>2D video acceleration</emphasis>. A rough estimate
+          is (<emphasis>color depth</emphasis> / 8) x
+          <emphasis>vertical pixels</emphasis> x
+          <emphasis>horizontal pixels</emphasis> x
+          <emphasis>number of screens</emphasis> = <emphasis>number of bytes</emphasis>.
+          Like said above, there might be extra memory required for any
+          activated display acceleration setting.</para>
+        </glossdef>
+      </glossentry>
+
+      <glossentry>
+        <glossterm>Monitor count</glossterm>
+
+        <glossdef>
+          <para>With this setting VirtualBox can provide more than one virtual
+          monitor to a virtual machine. If a guest operating system (such as
+          Windows) supports multiple attached monitors, VirtualBox can pretend
+          that multiple virtual monitors are present.<footnote>
+              <para>Multiple monitor support was added with VirtualBox
+              3.2.</para>
+            </footnote> Up to 8 such virtual monitors are supported.</para>
+
+          <para>The output of the multiple monitors will be displayed on the
+          host in multiple VM windows which are running side by side.</para>
+
+          <para>However, in full screen and seamless mode, they will use the
+          available physical monitors attached to the host. As a result, for
+          full screen and seamless modes to work with multiple monitors, you
+          will need at least as many physical monitors as you have virtual
+          monitors configured, or VirtualBox will report an error. You can
+          configure the relationship between guest and host monitors using the
+          view menu by pressing Host key + Home when you are in full screen or
+          seamless mode.</para>
+
+          <para>Please see <xref linkend="KnownIssues" /> also.</para>
+        </glossdef>
+      </glossentry>
+
+      <glossentry>
+        <glossterm>Enable 3D acceleration</glossterm>
+
+        <glossdef>
+          <para>If a virtual machine has Guest Additions installed, you can
+          select here whether the guest should support accelerated 3D
+          graphics. Please refer to <xref linkend="guestadd-3d" /> for
+          details.</para>
+        </glossdef>
+      </glossentry>
+
+      <glossentry>
+        <glossterm>Enable 2D video acceleration</glossterm>
+
+        <glossdef>
+          <para>If a virtual machine with Microsoft Windows has Guest
+          Additions installed, you can select here whether the guest should
+          support accelerated 2D video graphics. Please refer to <xref
+          linkend="guestadd-2d" /> for details.</para>
+        </glossdef>
+      </glossentry>
+
+      <glossentry>
+        <glossterm>Remote display</glossterm>
+
+        <glossdef>
+          <para>Under the "Remote display" tab, if the VirtualBox Remote
+          Display Extension (VRDE) is installed, you can enable the VRDP server
+          that is built into VirtualBox. This allows you to connect to the
+          console of the virtual machine remotely with any standard RDP viewer,
+          such as <computeroutput>mstsc.exe</computeroutput> that comes with
+          Microsoft Windows. On Linux and Solaris systems you can use the
+          standard open-source <computeroutput>rdesktop</computeroutput>
+          program. These features are described in detail in
+          <xref linkend="vrde" />.</para>
+        </glossdef>
+      </glossentry>
+
+      <glossentry>
+        <glossterm>Video Capture</glossterm>
+
+        <glossdef>
+          <para>Under the "Video Capture" tab you can enable video capturing
+          for this VM. Note that this feature can also be enabled/disabled
+          while the VM is executed.</para>
+        </glossdef>
+      </glossentry>
+    </glosslist>
+  </sect1>
+
+  <sect1 id="settings-storage">
+    <title>Storage settings</title>
+
+    <para>The "Storage" category in the VM settings allows you to connect
+    virtual hard disk, CD/DVD and floppy images and drives to your virtual
+    machine.</para>
+
+    <para>In a real PC, so-called "storage controllers" connect physical disk
+    drives to the rest of the computer. Similarly, VirtualBox presents virtual
+    storage controllers to a virtual machine. Under each controller, the
+    virtual devices (hard disks, CD/DVD or floppy drives) attached to the
+    controller are shown.<note>
+        <para>This section can only give you a quick introduction to the
+        VirtualBox storage settings. Since VirtualBox gives you an enormous
+        wealth of options in this area, we have dedicated an entire chapter of
+        this User Manual to explaining all the details: please see <xref
+        linkend="storage" />.</para>
+      </note></para>
+
+    <para>If you have used the "Create VM" wizard to create a machine, you
+    will normally see something like the following:</para>
+
+    <para><mediaobject>
+        <imageobject>
+          <imagedata align="center" fileref="images/vm-settings-harddisk.png"
+                     width="10cm" />
+        </imageobject>
+      </mediaobject></para>
+
+    <para>Depending on the guest operating system type that you selected when
+    you created the VM, the typical layout of storage devices in a new VM is
+    as follows:<itemizedlist>
+        <listitem>
+          <para>You will see an <emphasis role="bold">IDE
+          controller,</emphasis> to which a virtual CD/DVD drive has been
+          attached (to the "secondary master" port of the IDE
+          controller).</para>
+        </listitem>
+
+        <listitem>
+          <para>You will also see a <emphasis role="bold">SATA
+          controller,</emphasis> which is a more modern type of storage
+          controller for higher hard disk data throughput, to which the
+          virtual hard disks are attached. Initially you will normally have
+          one such virtual disk, but as you can see in the above screenshot,
+          you can have more than one, each represented by a disk image file
+          (VDI files, in this case).</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>If you created your VM with an older version of VirtualBox, the
+    default storage layout may differ. You might then only have an IDE
+    controller to which both the CD/DVD drive and the hard disks have been
+    attached. This might also apply if you selected an older operating system
+    type when you created the VM. Since older operating systems do not support
+    SATA without additional drivers, VirtualBox will make sure that no such
+    devices are present initially. Please see <xref
+    linkend="harddiskcontrollers" /> for additional information.</para>
+
+    <para>VirtualBox also provides a <emphasis role="bold">floppy
+    controller</emphasis>, which is special: you cannot add devices other than
+    floppy drives to it. Virtual floppy drives, like virtual CD/DVD drives,
+    can be connected to either a host floppy drive (if you have one) or a disk
+    image, which in this case must be in RAW format.</para>
+
+    <para>You can modify these media attachments freely. For example, if you
+    wish to copy some files from another virtual disk that you created, you
+    can connect that disk as a second hard disk, as in the above screenshot.
+    You could also add a second virtual CD/DVD drive, or change where these
+    items are attached. The following options are available:<itemizedlist>
+        <listitem>
+          <para>To <emphasis role="bold">add another virtual hard disk, or a
+          CD/DVD or floppy drive,</emphasis> select the storage controller to
+          which it should be added (IDE, SATA, SCSI, SAS, floppy controller)
+          and then click on the "add disk" button below the tree. You can then
+          either select "Add CD/DVD device" or "Add Hard Disk". (If you
+          clicked on a floppy controller, you can add a floppy drive instead.)
+          Alternatively, right-click on the storage controller and select a
+          menu item there.</para>
+
+          <para>On the right part of the window, you can then set the
+          following:<orderedlist>
+              <listitem>
+                <para>You can then select to which <emphasis
+                role="bold">device slot</emphasis> of the controller the
+                virtual disk should be connected to. IDE controllers have four
+                slots which have traditionally been called "primary master",
+                "primary slave", "secondary master" and "secondary slave". By
+                contrast, SATA and SCSI controllers offer you up to 30 slots
+                to which virtual devices can be attached.</para>
+              </listitem>
+
+              <listitem>
+                <para>You can select which <emphasis role="bold">image
+                file</emphasis> to use.<itemizedlist>
+                    <listitem>
+                      <para>For virtual hard disks, a button with a drop-down
+                      list appears on the right, offering you to either select
+                      a <emphasis role="bold">virtual hard disk
+                      file</emphasis> using a standard file dialog or to
+                      <emphasis role="bold">create a new hard disk</emphasis>
+                      (image file), which will bring up the "Create new disk"
+                      wizard, which was described in <xref
+                      linkend="gui-createvm" />.</para>
+
+                      <para>For details on the image file types that are
+                      supported, please see <xref
+                      linkend="vdidetails" />.</para>
+                    </listitem>
+
+                    <listitem>
+                      <para>For virtual CD/DVD drives, the image files will
+                      typically be in the standard ISO format instead. Most
+                      commonly, you will select this option when installing an
+                      operating system from an ISO file that you have obtained
+                      from the Internet. For example, most Linux distributions
+                      are available in this way.</para>
+
+                      <para>For virtual CD/DVD drives, the following
+                      additional options are available:</para>
+
+                      <para><itemizedlist>
+                          <listitem>
+                            <para>If you select <emphasis role="bold">"Host
+                            drive"</emphasis> from the list, then the physical
+                            device of the host computer is connected to the VM,
+                            so that the guest operating system can read from and
+                            write to your physical device. This is, for
+                            instance, useful if you want to install Windows from
+                            a real installation CD. In this case, select your
+                            host drive from the drop-down list presented.</para>
+
+                            <para>If you want to write (burn) CDs or DVDs using
+                            the host drive, you need to also enable the
+                            <emphasis role="bold">"Passthrough"</emphasis>
+                            option; see <xref linkend="storage-cds" />.</para>
+                          </listitem>
+
+                          <listitem>
+                            <para>If you select <emphasis role="bold">"Remove
+                            disk from virtual drive",</emphasis> VirtualBox will
+                            present an empty CD/DVD drive to the guest into
+                            which no media has been inserted.</para>
+                          </listitem>
+                        </itemizedlist></para>
+                    </listitem>
+                  </itemizedlist></para>
+              </listitem>
+            </orderedlist></para>
+        </listitem>
+
+        <listitem>
+          <para>To <emphasis role="bold">remove an attachment,</emphasis>
+          select it and click on the "remove" icon at the bottom (or
+          right-click on it and select the menu item).</para>
+        </listitem>
+      </itemizedlist></para>
+
+    <para>Removable media (CD/DVDs and floppies) can be changed while the
+    guest is running. Since the "Settings" dialog is not available at that
+    time, you can also access these settings from the "Devices" menu of your
+    virtual machine window.</para>
+  </sect1>
+
+  <sect1 id="settings-audio">
+    <title>Audio settings</title>
+
+    <para>The "Audio" section in a virtual machine's Settings window
+    determines whether the VM will see a sound card connected, and whether the
+    audio output should be heard on the host system.</para>
+
+    <para>If audio is enabled for a guest, you can choose between the
+    emulation of an Intel AC'97 controller, an Intel HD Audio
+    controller<footnote>
+        <para>Intel HD Audio support was added with VirtualBox 4.0 because
+        Windows 7 and later (as well as 64-bit Windows Vista) do not support
+        the Intel AC'97 controller out of the box.</para>
+      </footnote> or a SoundBlaster 16 card. In any case, you can select what
+    audio driver VirtualBox will use on the host.</para>
+
+    <para>On a Linux host, depending on your host configuration, you can also
+    select between the OSS, ALSA or the PulseAudio subsystem. On newer Linux
+    distributions, the PulseAudio subsystem should be preferred.</para>
+
+    <para>Since VirtualBox 5.0 only OSS is supported on Solaris hosts - the "Solaris Audio"
+    audio backend is no longer supported on Solaris hosts.</para>
+  </sect1>
+
+  <sect1 id="settings-network">
+    <title>Network settings</title>
+
+    <para>The "Network" section in a virtual machine's Settings window allows
+    you to configure how VirtualBox presents virtual network cards to your VM,
+    and how they operate.</para>
+
+    <para>When you first create a virtual machine, VirtualBox by default
+    enables one virtual network card and selects the "Network Address
+    Translation" (NAT) mode for it. This way the guest can connect to the
+    outside world using the host's networking and the outside world can
+    connect to services on the guest which you choose to make visible outside
+    of the virtual machine.</para>
+
+    <para>This default setup is good for probably 95% of VirtualBox users.
+    However, VirtualBox is extremely flexible in how it can virtualize
+    networking. It supports many virtual network cards per virtual machine,
+    the first four of which can be configured in detail in the Manager window.
+    Additional network cards can be configured on the command line with
+    VBoxManage. </para>
+
+    <para>Because of the vast array of options available, we have dedicated an
+    entire chapter of this manual to discussing networking configuration;
+    please see <xref linkend="networkingdetails" />.</para>
+  </sect1>
+
+  <sect1 id="serialports">
+    <title>Serial ports</title>
+
+    <para>VirtualBox fully supports virtual serial ports in a virtual machine
+    in an easy-to-use manner.<footnote>
+        <para>Serial port support was added with VirtualBox 1.5.</para>
+      </footnote></para>
+
+    <para>Ever since the original IBM PC, personal computers have been
+    equipped with one or two serial ports (also called COM ports by DOS and
+    Windows). Serial ports were commonly used with modems, and some
+    computer mice used to be connected to serial ports before USB became
+    commonplace.
+    </para>
+
+    <para>While serial ports are no longer as ubiquitous as they used to be,
+    there are still some important uses left for them. For example, serial
+    ports can be used to set up a primitive network over a null-modem cable,
+    in case Ethernet is not available. Also, serial ports are indispensable
+    for system programmers needing to do kernel debugging, since kernel
+    debugging software usually interacts with developers over a serial port.
+    With virtual serial ports, system programmers can do kernel debugging on a
+    virtual machine instead of needing a real computer to connect to.</para>
+
+    <para>If a virtual serial port is enabled, the guest operating system sees
+    a standard 16550A compatible UART device. Both receiving and transmitting
+    data is supported. How this virtual serial port is then connected to the
+    host is configurable, and the details depend on your host operating system.
+    </para>
+
+    <para>You can use either the graphical user interface or the command-line
+    <computeroutput>VBoxManage</computeroutput> tool to set up virtual serial
+    ports. For the latter, please refer to <xref
+    linkend="vboxmanage-modifyvm" />; in that section, look for the
+    <computeroutput>--uart</computeroutput> and
+    <computeroutput>--uartmode</computeroutput> options.</para>
+
+    <para>In either case, you can configure up to four virtual serial ports per
+    virtual machine. For each such device, you will need to
+    determine<orderedlist>
+        <listitem>
+          <para>what kind of serial port the virtual machine should see by
+          selecting an I/O base address and interrupt (IRQ). For these, we
+          recommend to use the traditional values<footnote>
+              <para>See, for example, <ulink
+              url="http://en.wikipedia.org/wiki/COM_(hardware_interface)">http://en.wikipedia.org/wiki/COM_(hardware_interface)</ulink>.</para>
+            </footnote>, which are:</para>
+
+          <para><orderedlist>
+              <listitem>
+                <para>COM1: I/O base 0x3F8, IRQ 4</para>
+              </listitem>
+
+              <listitem>
+                <para>COM2: I/O base 0x2F8, IRQ 3</para>
+              </listitem>
+
+              <listitem>
+                <para>COM3: I/O base 0x3E8, IRQ 4</para>
+              </listitem>
+
+              <listitem>
+                <para>COM4: I/O base 0x2E8, IRQ 3</para>
+              </listitem>
+            </orderedlist></para>
+        </listitem>
+
+        <listitem>
+          <para>Then, you will need to determine what this virtual port should
+          be connected to. For each virtual serial port, you have the
+          following options:</para>
+
+          <para><itemizedlist>
+              <listitem>
+                <para>You can elect to have the virtual serial port
+                "disconnected", which means that the guest will see the
+                device, but it will behave as if no cable had been connected
+                to it.</para>
+              </listitem>
+
+              <listitem>
+                <para>You can connect the virtual serial port to a physical
+                serial port on your host. (On a Windows host, this will be a
+                name like <computeroutput>COM1</computeroutput>; on Linux or
+                Solaris hosts, it will be a device node like
+                <computeroutput>/dev/ttyS0</computeroutput>). VirtualBox will
+                then simply redirect all data received from and sent to the
+                virtual serial port to the physical device.</para>
+              </listitem>
+
+              <listitem>
+                <para>You can tell VirtualBox to connect the virtual serial
+                port to a software pipe on the host. This depends on your host
+                operating system:<itemizedlist>
+                    <listitem>
+                      <para>On a Windows host, data will be sent and received
+                      through a named pipe. The pipe name must be in the format
+                      <computeroutput>\\.\pipe\&lt;name&gt;</computeroutput>
+                      where <computeroutput>&lt;name&gt;</computeroutput> should
+                      identify the virtual machine but may be freely
+                      chosen.</para>
+                    </listitem>
+
+                    <listitem>
+                      <para>On a Mac, Linux or Solaris host, a local
+                      domain socket is used instead. The socket filename must be
+                      chosen such that the user running VirtualBox has
+                      sufficient privileges to create and write to it. The
+                      <computeroutput>/tmp</computeroutput> directory is often a
+                      good candidate.</para>
+                      <para>On Linux there are various tools which can connect
+                      to a local domain socket or create one in server mode. The
+                      most flexible tool is
+                      <computeroutput>socat</computeroutput> and is available
+                      as part of many distributions.</para>
+                    </listitem>
+                  </itemizedlist></para>
+
+                <para>In this case, you can configure whether VirtualBox
+                should create the named pipe (or, on non-Windows hosts, the
+                local domain socket) itself or whether VirtualBox should
+                assume that the pipe (or socket) exists already. With the
+                <computeroutput>VBoxManage</computeroutput> command-line
+                options, this is referred to as "server" or "client" mode,
+                respectively.</para>
+
+                <para>For a direct connection between two virtual machines
+                (corresponding to a null-modem cable), simply configure one VM
+                to create a pipe/socket and another to attach to it.
+                </para>
+              </listitem>
+
+              <listitem>
+                <para>You can send the virtual serial port output to a file.
+                This option is very useful for capturing diagnostic output from
+                a guest. Any file may be used for this purpose, as long as the
+                user running VirtualBox has sufficient privileges to create and
+                write to the file.
+                </para>
+              </listitem>
+
+              <listitem>
+                <para>TCP Socket: Useful for forwarding serial traffic over TCP/IP,
+                  acting as a server, or it can act as a TCP client connecting to other
+                  servers. It allows a remote machine to directly connect to the guest's
+                  serial port via TCP.
+                </para>
+                <itemizedlist>
+                  <listitem>
+                    <para>TCP Server: Uncheck the
+                      <emphasis>Connect to existing pipe/socket</emphasis> checkbox and specify
+                      the <emphasis role="bold"><computeroutput>port</computeroutput></emphasis>
+                      number. Typically 23 or 2023. Note that on UNIX-like systems you will
+                      have to use a port a number greater than 1024 for regular users.
+                    </para>
+                    <para>
+                      The client can use software such as <computeroutput>PuTTY</computeroutput>
+                      or the <computeroutput>telnet</computeroutput> command line
+                      tool to access the TCP Server.
+                    </para>
+                  </listitem>
+                  <listitem>
+                    <para>TCP Client: To create a virtual null-modem cable over the Internet or
+                      LAN, the other side can connect via TCP by specifying <emphasis role="bold">
+                      <computeroutput>hostname:port</computeroutput></emphasis>. The TCP socket
+                    will act in client mode if check the <emphasis>Connect to existing pipe/socket</emphasis>
+                    checkbox.
+                    </para>
+                  </listitem>
+                </itemizedlist>
+              </listitem>
+
+            </itemizedlist></para>
+        </listitem>
+      </orderedlist>Up to four serial ports can be configured per virtual
+      machine, but you can pick any port numbers out of the above. However,
+      serial ports cannot reliably share interrupts; if both ports are to be
+      used at the same time, they must use different interrupt levels, for
+      example COM1 and COM2, but not COM1 and COM3.
+    </para>
+  </sect1>
+
+  <sect1>
+    <title>USB support</title>
+
+    <sect2 id="settings-usb">
+      <title>USB settings</title>
+
+      <para>The "USB" section in a virtual machine's Settings window allows
+      you to configure VirtualBox's sophisticated USB support.</para>
+
+      <para>VirtualBox can allow virtual machines to access the USB devices on
+      your host directly. To achieve this, VirtualBox presents the guest
+      operating system with a virtual USB controller. As soon as the guest
+      system starts using a USB device, it will appear as unavailable on the
+      host.<note>
+          <orderedlist>
+            <listitem>
+              <para>Be careful with USB devices that are currently in use on
+              the host! For example, if you allow your guest to connect to
+              your USB hard disk that is currently mounted on the host, when
+              the guest is activated, it will be disconnected from the host
+              without a proper shutdown. This may cause data loss.</para>
+            </listitem>
+
+            <listitem>
+              <para>Solaris hosts have a few known limitations regarding USB
+              support; please see <xref linkend="KnownIssues" />.</para>
+            </listitem>
+          </orderedlist>
+        </note></para>
+
+      <para>In addition to allowing a guest access to your local USB devices,
+      VirtualBox even allows your guests to connect to remote USB devices by
+      use of the VirtualBox Remote Desktop Extension (VRDE). For details about
+      this, see <xref linkend="usb-over-rdp" />.</para>
+
+      <para>In the Settings dialog, you can first configure whether USB is
+      available in the guest at all, and then choose the level of USB support:
+      OHCI for USB 1.1, EHCI (which will also enable OHCI) for USB 2.0,
+      or xHCI for all USB speeds. <note>
+          <para>The xHCI and EHCI controllers are shipped as a VirtualBox extension
+          package, which must be installed separately. See <xref
+          linkend="intro-installing" /> for more information.</para>
+        </note></para>
+
+      <para>When USB support is enabled for a VM, you can determine in detail
+      which devices will be automatically attached to the guest. For this, you
+      can create so-called "filters" by specifying certain properties of
+      the USB device. USB devices with a matching filter will be automatically
+      passed to the guest once they are attached to the host. USB devices
+      without a matching filter can be passed manually to the guest, for
+      example by using the Devices / USB devices menu.</para>
+
+      <para>Clicking on the "+" button to the right of the "USB Device
+      Filters" window creates a <emphasis role="bold">new filter.</emphasis>
+      You can give the filter a name (for referencing it later) and specify
+      the filter criteria. The more criteria you specify, the more precisely
+      devices will be selected. For instance, if you specify only a vendor ID
+      of 046d, all devices produced by Logitech will be available to the
+      guest. If you fill in all fields, on the other hand, the filter will
+      only apply to a particular device model from a particular vendor, and
+      not even to other devices of the same type with a different revision and
+      serial number.</para>
+
+      <para>In detail, the following criteria are available:</para>
+
+      <orderedlist>
+        <listitem>
+          <para><emphasis role="bold">Vendor and product ID.</emphasis> With
+          USB, each vendor of USB products carries an identification number
+          that is unique world-wide, the "vendor ID". Similarly, each line of
+          products is assigned a "product ID" number. Both numbers are
+          commonly written in hexadecimal (that is, they are composed of the
+          numbers 0-9 and the letters A-F), and a colon separates the vendor
+          from the product ID. For example,
+          <computeroutput>046d:c016</computeroutput> stands for Logitech as a
+          vendor, and the "M-UV69a Optical Wheel Mouse" product.</para>
+
+          <para>Alternatively, you can also specify <emphasis
+          role="bold">"Manufacturer"</emphasis> and <emphasis
+          role="bold">"Product"</emphasis> by name.</para>
+
+          <para>To list all the USB devices that are connected to your host
+          machine with their respective vendor and product IDs, you can use
+          the following command (see <xref linkend="vboxmanage" />): <screen>VBoxManage list usbhost</screen></para>
+
+          <para>On Windows, you can also see all USB devices that are attached
+          to your system in the Device Manager. On Linux, you can use the
+          <computeroutput>lsusb</computeroutput> command.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Serial number.</emphasis> While vendor
+          and product ID are already quite specific to identify USB devices,
+          if you have two identical devices of the same brand and product
+          line, you will also need their serial numbers to filter them out
+          correctly.</para>
+        </listitem>
+
+        <listitem>
+          <para><emphasis role="bold">Remote.</emphasis> This setting
+          specifies whether the device will be local only, or remote only
+          (over VRDP), or either.</para>
+        </listitem>
+      </orderedlist>
+
+      <para>On a Windows host, you will need to unplug and reconnect a USB
+      device to use it after creating a filter for it.</para>
+
+      <para>As an example, you could create a new USB filter and specify a
+      vendor ID of 046d (Logitech, Inc), a manufacturer index of 1, and "not
+      remote". Then any USB devices on the host system produced by Logitech,
+      Inc with a manufacturer index of 1 will be visible to the guest
+      system.</para>
+
+      <para>Several filters can select a single device -- for example, a
+      filter which selects all Logitech devices, and one which selects a
+      particular webcam.</para>
+
+      <para>You can <emphasis role="bold">deactivate</emphasis> filters
+      without deleting them by clicking in the checkbox next to the filter
+      name.</para>
+    </sect2>
+
+    <sect2>
+      <title>Implementation notes for Windows and Linux hosts</title>
+
+      <para>On Windows hosts, a kernel mode device driver provides USB proxy
+      support. It implements both a USB monitor, which allows VirtualBox to
+      capture devices when they are plugged in, and a USB device driver to
+      claim USB devices for a particular virtual machine. As opposed to
+      VirtualBox versions before 1.4.0, system reboots are no longer necessary
+      after installing the driver. Also, you no longer need to replug devices
+      for VirtualBox to claim them.</para>
+
+      <para>On newer Linux hosts, VirtualBox accesses USB devices through
+      special files in the file system. When VirtualBox is installed, these
+      are made available to all users in the
+      <computeroutput>vboxusers</computeroutput> system group. In order to be
+      able to access USB from guest systems, make sure that you are a member
+      of this group.</para>
+
+      <para>On older Linux hosts, USB devices are accessed using the
+      <computeroutput>usbfs</computeroutput> file system. Therefore, the user
+      executing VirtualBox needs read and write permission to the USB file
+      system. Most distributions provide a group (e.g.
+      <computeroutput>usbusers</computeroutput>) which the VirtualBox user
+      needs to be added to. Also, VirtualBox can only proxy to virtual
+      machines USB devices which are not claimed by a Linux host USB driver.
+      The <computeroutput>Driver=</computeroutput> entry in
+      <computeroutput>/proc/bus/usb/devices</computeroutput> will show you
+      which devices are currently claimed. Please refer to <xref
+      linkend="ts_usb-linux" /> also for details about
+      <computeroutput>usbfs</computeroutput>.</para>
+    </sect2>
+  </sect1>
+
+  <sect1>
+    <title>Shared folders</title>
+
+    <para>Shared folders allow you to easily exchange data between a virtual
+    machine and your host. This feature requires that the VirtualBox Guest
+    Additions be installed in a virtual machine and is described in detail in
+    <xref linkend="sharedfolders" />.</para>
+  </sect1>
+
+  <sect1>
+    <title>User Interface</title>
+
+    <para>The "User Interface" section allows you to change certain aspects of
+      the user interface of this VM.</para>
+
+    <para><glosslist>
+      <glossentry>
+        <glossterm>Menu Bar</glossterm>
+        <glossdef>
+          <para>This widget allows you to disable certain menus (click at
+            the menu to release it), certain menu entries (uncheck the
+            checkbox of the entry to disable it) and the complete menu bar
+            (uncheck the rightmost checkbox).
+          </para>
+        </glossdef>
+      </glossentry>
+
+      <glossentry>
+        <glossterm>Mini ToolBar</glossterm>
+        <glossdef>
+          <para>In full screen or seamless mode, VirtualBox can display a
+          small toolbar that contains some of the items that are normally
+          available from the virtual machine's menu bar. This toolbar
+          reduces itself to a small gray line unless you move the mouse
+          over it. With the toolbar, you can return from full screen or
+          seamless mode, control machine execution or enable certain
+          devices. If you don't want to see the toolbar, disable this
+          setting.</para>
+          <para>The second setting allows to show the toolbar at the top
+          of the screen instead of showing it at the bottom.</para>
+        </glossdef>
+      </glossentry>
+
+      <glossentry>
+        <glossterm>Status Bar</glossterm>
+        <glossdef>
+          <para>This widget allows you to disable certain icons of the
+          status bar (uncheck the checkbox of an icon to disable it),
+          to re-arrange icons (drag and drop the icon) and to disable the
+          complete status bar (uncheck the leftmost checkbox).</para>
+        </glossdef>
+      </glossentry>
+    </glosslist></para>
+
+  </sect1>
+
+  <sect1 id="efi">
+    <title>Alternative firmware (EFI)</title>
+
+    <para>Starting with release 3.1, VirtualBox includes experimental support
+    for the Extensible Firmware Interface (EFI), which is a new industry
+    standard intended to eventually replace the legacy BIOS as the primary
+    interface for bootstrapping computers and certain system services
+    later.</para>
+
+    <para>By default, VirtualBox uses the BIOS firmware for virtual machines.
+    To use EFI for a given virtual machine, you can enable EFI in the
+    machine's "Settings" dialog (see <xref linkend="settings-motherboard" />).
+    Alternatively, use the <computeroutput>VBoxManage</computeroutput> command
+    line interface like this: <screen>VBoxManage modifyvm "VM name" --firmware efi</screen>
+    To switch back to using the BIOS, use: <screen>VBoxManage modifyvm "VM name" --firmware bios</screen>One
+    notable user of EFI is Apple's Mac OS X, but more recent Linuxes
+    and Windows (starting with Vista) offer special versions that can be
+    booted using EFI as well.</para>
+
+    <para>Another possible use of EFI in VirtualBox is development and testing
+    of EFI applications, without booting any OS.</para>
+
+    <para>Note that the VirtualBox EFI support is experimental and will be
+      enhanced as EFI matures and becomes more widespread. Mac OS X, Linux
+      and newer Windows guests are known to work fine. Windows 7 guests are
+      unable to boot with the VirtualBox EFI implementation.</para>
+
+    <sect2 id="efividmode">
+      <title>Video modes in EFI</title>
+
+      <para>EFI provides two distinct video interfaces: GOP (Graphics Output
+      Protocol) and UGA (Universal Graphics Adapter). Modern operating systems
+      (such as Mac OS X) generally use GOP, while some older ones still use
+      UGA. VirtualBox provides a configuration option to control the
+      graphics resolution for both interfaces, making the difference mostly
+      irrelevant for users.</para>
+
+      <para>The default resolution is 1024x768. To select a graphics resolution
+      for EFI, use the following <computeroutput>VBoxManage</computeroutput>
+      command:
+      <screen>VBoxManage setextradata "VM name" VBoxInternal2/EfiGraphicsResolution HxV</screen>
+      Determine the horizontal resolution H and the vertical resolution V from
+      the following list of default resolutions:</para>
+
+      <glosslist>
+        <glossentry>
+          <glossterm>VGA</glossterm>
+          <glossdef>
+            <para>640x480, 32bpp, 4:3</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>SVGA</glossterm>
+          <glossdef>
+            <para>800x600, 32bpp, 4:3</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>XGA</glossterm>
+          <glossdef>
+            <para>1024x768, 32bpp, 4:3</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>XGA+</glossterm>
+          <glossdef>
+            <para>1152x864, 32bpp, 4:3</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>HD</glossterm>
+          <glossdef>
+            <para>1280x720, 32bpp, 16:9</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>WXGA</glossterm>
+          <glossdef>
+            <para>1280x800, 32bpp, 16:10</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>SXGA</glossterm>
+          <glossdef>
+            <para>1280x1024, 32bpp, 5:4</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>SXGA+</glossterm>
+          <glossdef>
+            <para>1400x1050, 32bpp, 4:3</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>WXGA+</glossterm>
+          <glossdef>
+            <para>1440x900, 32bpp, 16:10</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>HD+</glossterm>
+          <glossdef>
+            <para>1600x900, 32bpp, 16:9</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>UXGA</glossterm>
+          <glossdef>
+            <para>1600x1200, 32bpp, 4:3</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>WSXGA+</glossterm>
+          <glossdef>
+            <para>1680x1050, 32bpp, 16:10</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Full HD</glossterm>
+          <glossdef>
+            <para>1920x1080, 32bpp, 16:9</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>WUXGA</glossterm>
+          <glossdef>
+            <para>1920x1200, 32bpp, 16:10</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>DCI 2K</glossterm>
+          <glossdef>
+            <para>2048x1080, 32bpp, 19:10</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Full HD+</glossterm>
+          <glossdef>
+            <para>2160x1440, 32bpp, 3:2</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>Unnamed</glossterm>
+          <glossdef>
+            <para>2304x1440, 32bpp, 16:10</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>QHD</glossterm>
+          <glossdef>
+            <para>2560x1440, 32bpp, 16:9</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>WQXGA</glossterm>
+          <glossdef>
+            <para>2560x1600, 32bpp, 16:10</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>QWXGA+</glossterm>
+          <glossdef>
+            <para>2880x1800, 32bpp, 16:10</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>QHD+</glossterm>
+          <glossdef>
+            <para>3200x1800, 32bpp, 16:9</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>WQSXGA</glossterm>
+          <glossdef>
+            <para>3200x2048, 32bpp, 16:10</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>4K UHD</glossterm>
+          <glossdef>
+            <para>3840x2160, 32bpp, 16:9</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>WQUXGA</glossterm>
+          <glossdef>
+            <para>3840x2400, 32bpp, 16:10</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>DCI 4K</glossterm>
+          <glossdef>
+            <para>4096x2160, 32bpp, 19:10</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>HXGA</glossterm>
+          <glossdef>
+            <para>4096x3072, 32bpp, 4:3</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>UHD+</glossterm>
+          <glossdef>
+            <para>5120x2880, 32bpp, 16:9</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>WHXGA</glossterm>
+          <glossdef>
+            <para>5120x3200, 32bpp, 16:10</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>WHSXGA</glossterm>
+          <glossdef>
+            <para>6400x4096, 32bpp, 16:10</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>HUXGA</glossterm>
+          <glossdef>
+            <para>6400x4800, 32bpp, 4:3</para>
+          </glossdef>
+        </glossentry>
+
+        <glossentry>
+          <glossterm>8K UHD2</glossterm>
+          <glossdef>
+            <para>7680x4320, 32bpp, 16:9</para>
+          </glossdef>
+        </glossentry>
+
+      </glosslist>
+
+      <para>If this list of default resolution does not cover your needs, see
+      <xref linkend="customvesa" />. Note that the color depth value specified
+      in a custom video mode must be specified (8, 16, 24 and 32 are accepted),
+      but it is silently assumed to be 32 by EFI.</para>
+
+      <para>The EFI default video resolution settings can only be changed when
+      the VM is powered off.</para>
+    </sect2>
+
+    <sect2 id="efibootargs">
+      <title>Specifying boot arguments</title>
+
+      <para>It is currently not possible to manipulate EFI variables from within a running guest
+      (e.g., setting the "boot-args" variable by running the <computeroutput>nvram</computeroutput> tool in a Mac OS X guest will not work).
+      As an alternative way, "VBoxInternal2/EfiBootArgs" extradata can be passed to a VM in order to set
+      the "boot-args" variable. To change the "boot-args" EFI variable:
+      <screen>VBoxManage setextradata "VM name" VBoxInternal2/EfiBootArgs &lt;value&gt;</screen>
+      </para>
+    </sect2>
+
+  </sect1>
+</chapter>

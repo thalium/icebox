@@ -1,0 +1,63 @@
+# Copyright (c) 2001, Stanford University
+# All rights reserved.
+#
+# See the file LICENSE.txt for information on redistributing this software.
+:colorMaterial:colorMaterialFace,colorMaterialMode:ColorMaterial
+:enable:lighting:GL_LIGHTING
+:enable:colorMaterial:GL_COLOR_MATERIAL
+:enable:colorSumEXT:GL_COLOR_SUM_EXT
+:shadeModel:shadeModel:ShadeModel
+:lightModel:lightModelAmbient|r,g,b,a:LightModelfv,GL_LIGHT_MODEL_AMBIENT
+:lightModel:lightModelLocalViewer:*diff_api.LightModeli(GL_LIGHT_MODEL_LOCAL_VIEWER, to->lightModelLocalViewer==GL_TRUE);
+:lightModel:lightModelTwoSide:*diff_api.LightModeli(GL_LIGHT_MODEL_TWO_SIDE, to->lightModelTwoSide==GL_TRUE);
+:lightModel:lightModelColorControlEXT:*diff_api.LightModeli(GL_LIGHT_MODEL_COLOR_CONTROL_EXT, to->lightModelColorControlEXT);
+%flush
+:material:ambient[0]|r,g,b,a:Materialfv, GL_FRONT, GL_AMBIENT
+:material:ambient[1]|r,g,b,a:Materialfv, GL_BACK, GL_AMBIENT
+:material:diffuse[0]|r,g,b,a:Materialfv, GL_FRONT, GL_DIFFUSE
+:material:diffuse[1]|r,g,b,a:Materialfv, GL_BACK, GL_DIFFUSE
+:material:specular[0]|r,g,b,a:Materialfv, GL_FRONT, GL_SPECULAR
+:material:specular[1]|r,g,b,a:Materialfv, GL_BACK, GL_SPECULAR
+:material:emission[0]|r,g,b,a:Materialfv, GL_FRONT, GL_EMISSION
+:material:emission[1]|r,g,b,a:Materialfv, GL_BACK, GL_EMISSION
+:material:shininess[0]:Materialf, GL_FRONT, GL_SHININESS
+:material:shininess[1]:Materialf, GL_BACK, GL_SHININESS
+%flush
+>for (i=0; i<CR_MAX_LIGHTS; i++) {
+>CRLightBits *lb = b->light+i;
+>CRLight *tl = to->light+i;
+>CRLight *cl = from->light+i;
+>if (!(CHECKDIRTY(lb->dirty, bitID))) continue;
+%target=tl
+%current=cl
+%bit=lb
+%extrabit=b
+:enable:enable:GL_LIGHT0+i
+%flush
+:ambient:ambient|r,g,b,a:Lightfv, GL_LIGHT0+i, GL_AMBIENT
+:diffuse:diffuse|r,g,b,a:Lightfv, GL_LIGHT0+i, GL_DIFFUSE
+:specular:specular|r,g,b,a:Lightfv, GL_LIGHT0+i, GL_SPECULAR
+:attenuation:constantAttenuation:Lightf, GL_LIGHT0+i, GL_CONSTANT_ATTENUATION
+:attenuation:linearAttenuation:Lightf, GL_LIGHT0+i, GL_LINEAR_ATTENUATION
+:attenuation:quadraticAttenuation:Lightf, GL_LIGHT0+i, GL_QUADRATIC_ATTENUATION
+:position:*diff_api.MatrixMode(GL_MODELVIEW);
+:position:*diff_api.PushMatrix();
+:position:*diff_api.LoadIdentity();
+:position:position|x,y,z,w:Lightfv, GL_LIGHT0+i, GL_POSITION
+:position:*diff_api.PopMatrix();
+:position:*diff_api.MatrixMode(toCtx->transform.matrixMode);
+:spot:*diff_api.MatrixMode(GL_MODELVIEW);
+:spot:*diff_api.PushMatrix();
+:spot:*diff_api.LoadIdentity();
+:spot:spotDirection|x,y,z:Lightfv, GL_LIGHT0+i, GL_SPOT_DIRECTION
+:spot:spotExponent:Lightf, GL_LIGHT0+i, GL_SPOT_EXPONENT
+:spot:spotCutoff:Lightf, GL_LIGHT0+i, GL_SPOT_CUTOFF
+:spot:*diff_api.PopMatrix();
+:spot:*diff_api.MatrixMode(toCtx->transform.matrixMode);
+%flush
+>CLEARDIRTY(lb->dirty, nbitID);
+>}
+%target=to
+%current=from
+%bit=b
+%extrabit=

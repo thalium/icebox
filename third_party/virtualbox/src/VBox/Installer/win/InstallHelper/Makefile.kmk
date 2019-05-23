@@ -1,0 +1,53 @@
+# $Id: Makefile.kmk $
+## @file
+# Sub-Makefile for VBoxInstallHelper.dll.
+#
+
+#
+# Copyright (C) 2008-2017 Oracle Corporation
+#
+# This file is part of VirtualBox Open Source Edition (OSE), as
+# available from http://www.virtualbox.org. This file is free software;
+# you can redistribute it and/or modify it under the terms of the GNU
+# General Public License (GPL) as published by the Free Software
+# Foundation, in version 2 as it comes in the "COPYING" file of the
+# VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+# hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+#
+
+SUB_DEPTH = ../../../../..
+include $(KBUILD_PATH)/subheader.kmk
+
+DLLS += VBoxInstallHelper
+VBoxInstallHelper_TEMPLATE = VBOXR3STATIC
+VBoxInstallHelper_DEFS     = _WIN32_WINNT=0x0501 _UNICODE UNICODE
+VBoxInstallHelper_DEFS    += VBOX_SVN_REV=$(VBOX_SVN_REV)
+VBoxInstallHelper_DEPS     = $(VBOX_SVN_REV_KMK)
+ifdef VBOX_WITH_NETFLT
+ VBoxInstallHelper_DEFS   += VBOX_WITH_NETFLT=1
+endif
+VBoxInstallHelper_SOURCES  = \
+	VBoxInstallHelper.cpp \
+	VBoxInstallHelper.def \
+	VBoxInstallHelper.rc \
+	VBoxCommon.cpp
+ifndef VBOX_OSE
+ VBoxInstallHelper_SOURCES += internal/VBoxSerial.cpp
+endif
+VBoxInstallHelper_SDKS     = ReorderCompilerIncs $(VBOX_WINPSDK) $(VBOX_WINDDK)
+VBoxInstallHelper_LIBS     = $(PATH_SDK_$(VBOX_WINPSDK)_LIB)/Msi.lib
+ifdef VBOX_WITH_NETFLT
+ VBoxInstallHelper_LIBS   += \
+	$(PATH_STAGE_LIB)/WinNetConfig.lib \
+	$(PATH_STAGE_LIB)/VBoxDrvCfg.lib \
+	$(PATH_SDK_$(VBOX_WINDDK)_LIB)/Newdev.lib \
+ 	$(PATH_TOOL_$(VBOX_VCC_TOOL)_LIB)/comsupp.lib \
+ 	$(PATH_SDK_$(VBOX_WINPSDK)_LIB)/WbemUuid.Lib
+endif
+
+if "$(KBUILD_TARGET)" == "win" && defined(VBOX_WITH_TESTCASES) && !defined(VBOX_OSE)
+ include $(PATH_SUB_CURRENT)/testcase/Makefile.kmk
+endif
+
+include $(FILE_KBUILD_SUB_FOOTER)
+

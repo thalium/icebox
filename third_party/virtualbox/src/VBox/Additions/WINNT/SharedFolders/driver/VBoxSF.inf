@@ -1,0 +1,72 @@
+;
+; INF file for installing the VirtualBox Windows guest driver
+;
+; Copyright (C) 2006-2016 Oracle Corporation
+;
+; This file is part of VirtualBox Open Source Edition (OSE), as
+; available from http://www.virtualbox.org. This file is free software;
+; you can redistribute it and/or modify it under the terms of the GNU
+; General Public License (GPL) as published by the Free Software
+; Foundation, in version 2 as it comes in the "COPYING" file of the
+; VirtualBox OSE distribution. VirtualBox OSE is distributed in the
+; hope that it will be useful, but WITHOUT ANY WARRANTY of any kind.
+;
+
+[Version]
+Signature="$Windows NT$"
+Class=System
+ClassGuid={ce4a90b5-1d8c-435d-b349-232ce55cb17f}
+Provider=%ORACLE%
+;edit-DriverVer=08/26/2008,2.00.0000
+DriverPackageType=Network
+;cat CatalogFile=VBoxSF.cat
+
+;cat [SourceDisksNames]
+;cat 1 = %VBoxSF.MediaDesc%
+;cat
+;cat [SourceDisksFiles]
+;cat VBoxSF.sys = 1
+
+[DestinationDirs]
+DefaultDestDir      = 12 ; drivers
+VBoxMRXNP_CopyFiles = 11 ; system32
+
+[Manufacturer]
+;x86   %ORACLE%=VBoxSF
+;amd64 %ORACLE%=VBoxSF, NTamd64
+
+;x86   [VBoxSF]
+;amd64 [VBoxSF.NTamd64]
+%VBoxSF.DeviceDesc%=VBoxSF_Install,PCI\VEN_80ee&DEV_cafe
+
+[VBoxSF_Install]
+CopyFiles = VBoxSF_CopyFiles, VBoxMRXNP_CopyFiles
+AddReg = VBoxMRXNP_Add_Reg
+
+[VBoxSF_CopyFiles]
+VBoxSF.sys
+
+[VBoxMRXNP_CopyFiles]
+VBoxMRXNP.dll
+
+[VBoxSF_Install.Services]
+AddService = VBoxSF, 0x00000002, VBoxSF_ServiceInstallSection
+DelService = VBoxMRXNP, 0x00000004
+
+[VBoxSF_ServiceInstallSection]
+DisplayName    = %VBoxSF_svcdesc%
+ServiceType    = 0x00000001 ; kernel driver
+StartType      = 0x00000003 ; demand start
+ErrorControl   = 0x00000001 ; normal error handling
+ServiceBinary  = %12%\VBoxSF.sys
+
+[VBoxMRXNP_Add_Reg]
+HKLM, SOFTWARE\Microsoft\Windows\CurrentVersion\Run, VBoxMRXNP, 0x00000000, %11%\VBoxMRXNP.exe
+
+[Strings]
+ORACLE = "Oracle Corporation"
+VBoxSF.DeviceDesc = "VirtualBox Device"
+VBoxSF_svcdesc = "VirtualBox Shared Folders Driver"
+VBoxMRXNP_svcdesc = "VirtualBox Network Provider Service"
+
+
